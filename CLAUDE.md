@@ -80,6 +80,10 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   King); act on them, then drop answered items from `board.waiting`. `system/memory` {facts[], updatedAt,
   updatedBy} is the short shared-memory panel. Post to `events` with {agent, at, kind, to, lane, room,
   status, task, text}; a handoff shows "picked up" once the receiver checks in after it.
+- Crew HQ also has a live "Talk to the King" chat (page `sample` capability): while FilthE has the page
+  open, "King (live)" replies in seconds and may close/add questions, change tasks, send orders to
+  Cowork/Code (events `...-king-o<n>`) and add memory. Its replies are events `...-king-live`; the
+  scheduled King treats them as its own decisions. FilthE has his door-to-door permits (don't ask again).
 **Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
