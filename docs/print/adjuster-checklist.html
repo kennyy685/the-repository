@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>HMP Adjuster Checklist</title>
+<!-- Claims kit 2 of 2 (T40). US Letter: page 1 English, page 2 Spanish (print double-sided, fill in with a pen).
+     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=adjuster-checklist.pdf file://<path>/adjuster-checklist.html
+     Rules: we document damage; we never negotiate the claim, promise payment, or cover/waive/rebate a deductible.
+     Only statute cited is 44-8604 (the others in the research notes are unverified). -->
+<style>
+@font-face { font-family:"Oswald"; src:url("fonts/Oswald-500.woff") format("woff"); font-weight:500; }
+@font-face { font-family:"Oswald"; src:url("fonts/Oswald-600.woff") format("woff"); font-weight:600; }
+@font-face { font-family:"Oswald"; src:url("fonts/Oswald-700.woff") format("woff"); font-weight:700; }
+@font-face { font-family:"PT Sans"; src:url("fonts/PTSans-400.woff") format("woff"); font-weight:400; font-style:normal; }
+@font-face { font-family:"PT Sans"; src:url("fonts/PTSans-400i.woff") format("woff"); font-weight:400; font-style:italic; }
+@font-face { font-family:"PT Sans"; src:url("fonts/PTSans-700.woff") format("woff"); font-weight:700; font-style:normal; }
+
+@page { size: letter; margin: 0; }
+:root {
+  --navy:#1C2E4A; --gold:#C08A2E; --gold-dark:#94661b; --gold-soft:#f8f1e4;
+  --ink:#1f2733; --muted:#5a6473; --line:#d3d9e2; --write:#8f99a8;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:#fff; }
+body { font-family:"PT Sans", Arial, sans-serif; color:var(--ink); font-size:9.5pt; line-height:1.34;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.page { width:8.5in; height:11in; padding:0.46in 0.55in 0.38in; display:flex; flex-direction:column;
+  overflow:hidden; break-after:page; page-break-after:always; }
+.page:last-child { break-after:auto; page-break-after:auto; }
+.page > * { flex-shrink:0; }
+
+/* header */
+.top { display:flex; justify-content:space-between; align-items:baseline; padding-bottom:0.07in;
+  border-bottom:2px solid var(--navy); font-family:"Oswald"; font-weight:600; font-size:8.5pt;
+  letter-spacing:0.14em; text-transform:uppercase; color:var(--navy); }
+.top .kit { color:var(--gold); }
+h1 { font-family:"Oswald"; font-weight:700; font-size:29pt; line-height:1.05; color:var(--navy); margin:0.18in 0 0.06in; }
+.lead { font-size:10.8pt; line-height:1.4; color:var(--muted); margin:0; }
+
+h2 { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--navy); margin:0 0 0.1in; display:flex; align-items:center; gap:0.09in; }
+h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:none; }
+.sec { margin-top:0.21in; }
+
+/* write-in fields */
+.fields { display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:0.28in; row-gap:0.07in;
+  border:1.5px solid var(--navy); border-radius:6px; padding:0.1in 0.2in 0.13in; }
+.f { display:flex; flex-direction:column; }
+.f.wide { grid-column:1 / -1; }
+.f label { font-family:"Oswald"; font-weight:500; font-size:7.8pt; letter-spacing:0.09em; text-transform:uppercase; color:var(--muted); }
+.f .w { height:0.25in; border-bottom:1.2px solid var(--write); }
+
+/* checklist */
+.list { list-style:none; margin:0; padding:0; }
+.list li { display:grid; grid-template-columns:0.2in 0.17in 1fr; column-gap:0.1in; align-items:start; padding:0.055in 0; border-bottom:1px solid #e6e9ee; }
+.list li:first-child { padding-top:0; }
+.list li:last-child { border-bottom:0; padding-bottom:0; }
+.box { width:0.2in; height:0.2in; border:1.7px solid var(--navy); border-radius:2.5px; background:#fff; }
+.n { font-family:"Oswald"; font-weight:600; font-size:11pt; color:var(--gold); line-height:0.2in; text-align:center; }
+.it b { font-size:10.5pt; color:var(--navy); }
+.it .x { color:var(--ink); }
+.it .x::before { content:" · "; color:var(--gold); font-weight:700; }
+.it .note { font-family:"Oswald"; font-weight:500; font-size:8pt; letter-spacing:0.07em; text-transform:uppercase; color:var(--gold-dark); margin-left:0.04in; white-space:nowrap; }
+.chips { display:flex; flex-wrap:wrap; gap:0.04in 0.2in; margin-top:0.05in; }
+.chip { display:flex; align-items:center; gap:0.06in; font-size:9.3pt; }
+.chip i { width:0.14in; height:0.14in; border:1.4px solid var(--navy); border-radius:2px; flex:none; }
+.say { font-style:italic; }
+
+/* adjuster call-outs: a lined box that fills the space left on the page */
+.called { flex:1 1 auto !important; flex-shrink:1 !important; min-height:0; display:flex; flex-direction:column; }
+.lined { flex:1; display:flex; flex-direction:column; border:1.5px solid var(--navy); border-radius:6px; overflow:hidden; }
+.lined .hd, .lined .ln { display:grid; grid-template-columns:3fr 2fr 2.4fr; }
+.lined .hd { background:var(--navy); color:#fff; font-family:"Oswald"; font-weight:500; font-size:8pt; letter-spacing:0.09em; text-transform:uppercase; }
+.lined .hd div { padding:0.05in 0.12in; }
+.lined .ln { flex:1 1 0; min-height:0; border-top:1px solid var(--line); }
+.lined .hd + .ln { border-top:0; }
+.lined .ln div + div, .lined .hd div + div { border-left:1px solid var(--line); }
+.lined .hd div + div { border-left-color:rgba(255,255,255,0.25); }
+
+/* reminder */
+.remind { margin-top:0.18in; background:var(--navy); color:#fff; border-radius:6px; padding:0.1in 0.2in; display:flex; align-items:center; gap:0.16in; }
+.remind .bar { width:4px; align-self:stretch; background:var(--gold); border-radius:2px; flex:none; }
+.remind .big { font-family:"Oswald"; font-weight:600; font-size:14.5pt; letter-spacing:0.02em; line-height:1.15; }
+.remind .big span { color:#e2b867; }
+
+/* footer */
+.foot { margin-top:0.12in; border-top:1px solid var(--line); padding-top:0.08in; display:flex; justify-content:space-between;
+  gap:0.3in; font-size:7.6pt; color:var(--muted); line-height:1.4; }
+.foot b { color:var(--navy); }
+.foot .r { text-align:right; }
+</style></head>
+<body>
+
+<!-- ============================== ENGLISH ============================== -->
+<section class="page" lang="en">
+  <header class="top"><div>HMP Siding &amp; Roofing LLC</div><div class="kit">Claims kit 2/2 · Español al reverso</div></header>
+  <h1>Adjuster meeting checklist</h1>
+  <p class="lead">Fill in the top before you go. Check each box as you pack and at the meeting. Keep this sheet in the job file.</p>
+
+  <div class="fields sec">
+    <div class="f"><label>Claim #</label><div class="w"></div></div>
+    <div class="f"><label>Insurer</label><div class="w"></div></div>
+    <div class="f"><label>Date of loss</label><div class="w"></div></div>
+    <div class="f"><label>Adjuster name</label><div class="w"></div></div>
+    <div class="f"><label>Adjuster phone</label><div class="w"></div></div>
+    <div class="f"><label>Meeting date / time</label><div class="w"></div></div>
+    <div class="f wide"><label>Job address</label><div class="w"></div></div>
+  </div>
+
+  <section class="sec">
+    <h2>Before you go: bring</h2>
+    <ol class="list">
+      <li><span class="box"></span><span class="n">1</span><div class="it"><b>Claim paperwork</b><span class="x">Claim #, date of loss and the policy’s declarations page (ask the homeowner).</span></div></li>
+      <li><span class="box"></span><span class="n">2</span><div class="it"><b>Date-stamped photos and video</b>
+        <div class="chips"><span class="chip"><i></i>All 4 slopes</span><span class="chip"><i></i>Gutters</span><span class="chip"><i></i>Soft metals (vents, flashing)</span><span class="chip"><i></i>Interior stains</span></div></div></li>
+      <li><span class="box"></span><span class="n">3</span><div class="it"><b>Roof measurements and diagram</b><span class="x">Squares, pitch and a sketch of every slope.</span></div></li>
+      <li><span class="box"></span><span class="n">4</span><div class="it"><b>Our line-item scope</b><span class="x">Xactimate-style estimate, line by line.</span></div></li>
+      <li><span class="box"></span><span class="n">5</span><div class="it"><b>Storm-date proof</b><span class="x">NOAA/NWS storm report + HailHunter’s hail report for this address.</span></div></li>
+      <li><span class="box"></span><span class="n">6</span><div class="it"><b>Code items the scope often misses</b><span class="note">Flag them, don’t demand</span>
+        <div class="chips"><span class="chip"><i></i>Drip edge</span><span class="chip"><i></i>Ice &amp; water shield</span><span class="chip"><i></i>Starter strip</span><span class="chip"><i></i>Permit #</span></div></div></li>
+    </ol>
+  </section>
+
+  <section class="sec">
+    <h2>At the meeting</h2>
+    <ol class="list" start="7">
+      <li><span class="box"></span><span class="n">7</span><div class="it"><b>Take notes</b><span class="x">Write down every item the adjuster calls out, in the box below.</span></div></li>
+      <li><span class="box"></span><span class="n">8</span><div class="it"><b>Swap contacts</b><span class="x">Give our card; get the adjuster’s name, phone and email. Say the line at the bottom.</span></div></li>
+    </ol>
+  </section>
+
+  <section class="called sec">
+    <h2>Items the adjuster called out</h2>
+    <div class="lined">
+      <div class="hd"><div>Item / damage</div><div>Where (slope, side)</div><div>Adjuster said</div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+    </div>
+  </section>
+
+  <div class="remind"><span class="bar"></span><div class="big">We document damage. <span>We don’t set the settlement.</span></div></div>
+
+  <footer class="foot">
+    <div style="white-space:nowrap"><b>HMP Siding &amp; Roofing LLC</b> · Fremont, NE · Kenny Cruz (402) 936-2709</div>
+    <div class="r">Never promise payment. Never cover or waive a deductible (NE 44-8604).</div>
+  </footer>
+</section>
+
+<!-- ============================== ESPAÑOL ============================== -->
+<section class="page" lang="es">
+  <header class="top"><div>HMP Siding &amp; Roofing LLC</div><div class="kit">Kit de reclamos 2/2 · English on the back</div></header>
+  <h1>Lista para la cita con el ajustador</h1>
+  <p class="lead">Llenar la parte de arriba antes de ir. Marcar cada casilla al preparar las cosas y en la cita. Guardar esta hoja con la obra.</p>
+
+  <div class="fields sec">
+    <div class="f"><label>No. de reclamo</label><div class="w"></div></div>
+    <div class="f"><label>Aseguradora</label><div class="w"></div></div>
+    <div class="f"><label>Fecha del daño</label><div class="w"></div></div>
+    <div class="f"><label>Nombre del ajustador</label><div class="w"></div></div>
+    <div class="f"><label>Teléfono del ajustador</label><div class="w"></div></div>
+    <div class="f"><label>Fecha y hora de la cita</label><div class="w"></div></div>
+    <div class="f wide"><label>Dirección de la obra</label><div class="w"></div></div>
+  </div>
+
+  <section class="sec">
+    <h2>Antes de ir: llevar</h2>
+    <ol class="list">
+      <li><span class="box"></span><span class="n">1</span><div class="it"><b>Papeles del reclamo</b><span class="x">No. de reclamo, fecha del daño y la hoja de declaraciones de la póliza (pedírsela al dueño).</span></div></li>
+      <li><span class="box"></span><span class="n">2</span><div class="it"><b>Fotos y video con fecha</b>
+        <div class="chips"><span class="chip"><i></i>Las 4 aguas del techo</span><span class="chip"><i></i>Canaletas</span><span class="chip"><i></i>Metales blandos (ventilas, flashing)</span><span class="chip"><i></i>Manchas por dentro</span></div></div></li>
+      <li><span class="box"></span><span class="n">3</span><div class="it"><b>Medidas y diagrama del techo</b><span class="x">Cuadros (squares), inclinación y un dibujo de cada agua.</span></div></li>
+      <li><span class="box"></span><span class="n">4</span><div class="it"><b>Nuestro presupuesto por partidas</b><span class="x">Estilo Xactimate, renglón por renglón.</span></div></li>
+      <li><span class="box"></span><span class="n">5</span><div class="it"><b>Prueba de la fecha de la tormenta</b><span class="x">Reporte de NOAA/NWS + reporte de granizo de HailHunter para esta dirección.</span></div></li>
+      <li><span class="box"></span><span class="n">6</span><div class="it"><b>Cosas de código que el alcance suele omitir</b><span class="note">Señalarlas, no exigirlas</span>
+        <div class="chips"><span class="chip"><i></i>Drip edge (gotero)</span><span class="chip"><i></i>Ice &amp; water shield</span><span class="chip"><i></i>Starter strip (tira inicial)</span><span class="chip"><i></i>No. de permiso</span></div></div></li>
+    </ol>
+  </section>
+
+  <section class="sec">
+    <h2>En la cita</h2>
+    <ol class="list" start="7">
+      <li><span class="box"></span><span class="n">7</span><div class="it"><b>Tomar notas</b><span class="x">Apuntar todo lo que el ajustador señale, en el cuadro de abajo.</span></div></li>
+      <li><span class="box"></span><span class="n">8</span><div class="it"><b>Intercambiar contactos</b><span class="x">Dar nuestra tarjeta; pedir nombre, teléfono y correo del ajustador. Decir la frase de abajo.</span></div></li>
+    </ol>
+  </section>
+
+  <section class="called sec">
+    <h2>Lo que señaló el ajustador</h2>
+    <div class="lined">
+      <div class="hd"><div>Qué / daño</div><div>Dónde (agua, lado)</div><div>Qué dijo el ajustador</div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+      <div class="ln"><div></div><div></div><div></div></div>
+    </div>
+  </section>
+
+  <div class="remind"><span class="bar"></span><div class="big">Documentamos el daño. <span>No negociamos el pago.</span></div></div>
+
+  <footer class="foot">
+    <div style="white-space:nowrap"><b>HMP Siding &amp; Roofing LLC</b> · Fremont, NE · Kenny Cruz (402) 936-2709</div>
+    <div class="r">Nunca prometer el pago. Nunca cubrir ni perdonar un deducible (NE 44-8604).</div>
+  </footer>
+</section>
+
+</body></html>
