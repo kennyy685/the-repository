@@ -18,7 +18,7 @@ from hailhunter import config as C  # noqa: E402
 from hailhunter import todaywalk  # noqa: E402
 
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
-KEYS = {"date", "area", "why", "goal_doors", "kind", "list_id", "stops"}
+KEYS = {"date", "area", "why", "goal_doors", "kind", "list_id", "stops", "spanish_share", "who"}   # +T37
 STOP_KEYS = {"pid", "address", "city", "lat", "lon", "pass"}
 
 

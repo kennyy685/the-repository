@@ -242,7 +242,7 @@ class Town(Base):
             on_disk = json.load(f)
         self.assertTrue(OLD_HUD_KEYS <= set(on_disk))
         self.assertEqual([L["id"] for L in on_disk["lists"]], [storm["list_id"]])       # no everyday list in `lists`
-        self.assertEqual(set(on_disk["lists"][0]), LIST_KEYS)                          # storm lists unchanged
+        self.assertEqual(set(on_disk["lists"][0]), LIST_KEYS | {"spanish_share"})     # only T37 added
         E = on_disk["everyday_lists"][0]
         self.assertTrue(LIST_KEYS <= set(E))
         self.assertEqual((E["id"], E["kind"], E["geoid"], E["day"]), (ev["list_id"], "everyday", BG,

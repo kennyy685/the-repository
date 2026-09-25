@@ -132,6 +132,7 @@ def refresh(conn, fetcher, cfg, log=print):
         log(f"  everyday lists skipped: {type(e).__name__}: {e}")
     for s in everyday_lists:
         log("  everyday list " + s)
+    nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
     out, done_n, total_n = commercial.build(conn, cfg, fetcher.s, log=log)
     commercial.write_csv(out, cfg)
     log(f"Apartment/commercial targets: {len(out):,}")

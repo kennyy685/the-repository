@@ -5,7 +5,9 @@ Reads the command center's hud.json (no database needed) and, optionally, the do
 else the best everyday (old-house) walk; houses only, about 25 doors, in walking order street by street.
 
 Output: {date, area, why{en,es}, goal_doors, kind: storm|everyday, list_id,
-         stops:[{pid, address, city, lat, lon, pass}]}
+         stops:[{pid, address, city, lat, lon, pass}], spanish_share, who: Kenny|Alex|either}
+`spanish_share` (T37) = Census share of Spanish-speaking households on today's houses (null when unknown);
+`who` = who should knock: Alex (Spanish) when the share is high, Kenny when low, either in between or unknown.
 `why` is one plain sentence in English and Spanish: no scores, no ids.
 """
 import json
@@ -163,6 +165,23 @@ def why_sentence(kind, why, stops, day=None, old_before=1980):
     return {"en": en + (" and are owner-lived." if owners else "."), "es": es + (" y viven sus dueños." if owners else ".")}
 
 
+# ------------------------------------------------------------------ who knocks (T37)
+def spanish_for(chosen, L, turf_share):
+    """House-weighted Spanish-speaking share of today's stops from their walks' shares (list's share as fallback)."""
+    by_turf = {t.get("turf"): t.get("spanish_share") for t in L.get("turfs") or []}
+    v = [by_turf.get(s.get("turf"), turf_share) for s in chosen]
+    v = [x if x is not None else L.get("spanish_share") for x in v]
+    v = [float(x) for x in v if x is not None]
+    return round(sum(v) / len(v), 3) if v else None
+
+
+def who_knocks(share, cfg=None):
+    lang = {"spanish_high": 0.30, "spanish_low": 0.10, **((cfg or {}).get("language") or {})}
+    if share is None:
+        return "either"
+    return "Alex" if share >= lang["spanish_high"] else ("Kenny" if share < lang["spanish_low"] else "either")
+
+
 # ------------------------------------------------------------------ the pick
 def _houses(stops, kinds):
     return [s for s in stops if s.get("kind") in kinds and s.get("lat") is not None and s.get("lon") is not None
@@ -233,6 +252,7 @@ def pick(hud, today, goal=None, results=None, cfg=None):
     area = f"{city}: " + " & ".join(k for k, _ in streets.most_common(2)) if city else \
         " & ".join(k for k, _ in streets.most_common(2))
     old_before = ((cfg or {}).get("everyday") or {}).get("old_before", 1980)
+    spanish = spanish_for(chosen, L, best["turf"].get("spanish_share"))
     return {
         "date": today.isoformat(), "area": area,
         "why": why_sentence(best["kind"], best["why"], chosen, L.get("day") if best["kind"] == "storm" else None,
@@ -241,6 +261,7 @@ def pick(hud, today, goal=None, results=None, cfg=None):
         "stops": [{"pid": str(s["pid"]), "address": s["address"], "city": s.get("city") or city,
                    "lat": round(float(s["lat"]), 6), "lon": round(float(s["lon"]), 6),
                    "pass": results.get(str(s["pid"]), {}).get("visits", 0) + 1} for s in chosen],
+        "spanish_share": spanish, "who": who_knocks(spanish, cfg),
     }
 
 
