@@ -1,4 +1,4 @@
-<title>HailHunter Crew HQ</title>
+<title>HMP App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;600;700&family=Silkscreen&display=swap">
@@ -14,6 +14,11 @@
   --f-display:"Pixelify Sans","Silkscreen",ui-monospace,Menlo,monospace;
   --f-label:"Silkscreen",ui-monospace,Menlo,monospace;
   --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* HMP App (Today / Leads / Money): brand orange from the H.M.P logo, money + status colors */
+  --hmp:#f5883a; --hmp2:#ffb27a; --hmp-soft:rgba(245,136,58,.14);
+  --crit:#ff7a6b; --crit-soft:rgba(255,122,107,.14); --warn:#ffc857; --warn-soft:rgba(255,200,87,.12);
+  --m-in:#43c79b; --m-in-soft:rgba(67,199,155,.15); --m-mort:#d9a53a; --m-mort-soft:rgba(217,165,58,.15);
+  --track:#2c3654; --scrim:rgba(5,8,15,.68); --lift:0 12px 34px rgba(0,0,0,.55);
 }
 html,body{background:var(--bg);}
 body{color:var(--ink);font:15px/1.5 var(--f-body);}
@@ -171,66 +176,471 @@ body.narrow .cam{display:inline-flex}
 .kc-form input{flex:1 1 220px;min-width:0;background:var(--bg);border:2px solid var(--line2);color:var(--ink);padding:8px 10px;font:inherit;font-size:15px}
 .kc-status{font-size:13px;color:var(--mute);min-height:1.2em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* ================= HMP App shell: header, language, tabs ================= */
+.top-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hmpmark{display:inline-flex;flex-direction:column;align-items:stretch;margin-right:.2em;vertical-align:bottom}
+.hmpmark svg{display:block;width:100%;height:.32em;overflow:visible;margin-bottom:.05em}
+.hmpmark b{font-weight:700;letter-spacing:.05em}
+h1 .w-app{color:var(--hmp)}
+.lang{display:inline-flex;border:2px solid var(--line)}
+.lang button{min-width:48px;min-height:40px;background:var(--bg2);border:0;font-family:var(--f-label);font-size:12px;letter-spacing:.04em;cursor:pointer;color:var(--ink2)}
+.lang button+button{border-left:2px solid var(--line)}
+.lang button[aria-pressed="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -3px 0 var(--hmp)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--bg);border:2px solid var(--line);box-shadow:4px 4px 0 var(--shadow)}
+.tabs button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 4px;background:var(--bg2);border:0;border-right:2px solid var(--line);font:700 15px/1.1 var(--f-body);color:var(--ink2);cursor:pointer;min-width:0}
+.tabs button:last-child{border-right:0}
+@media (max-width:460px){.tabs button{font-size:14px;padding-inline:2px}}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -4px 0 var(--hmp)}
+.tabs .bd{font:400 11px/1 var(--f-label);letter-spacing:.03em;color:var(--mute);min-height:11px;white-space:nowrap}
+.tabs .bd.hot{color:var(--board)} .tabs .bd.crit{color:var(--crit)}
+.tabp{display:grid;gap:14px;min-width:0}
+.kslot{display:contents}
+.a-banner{padding:10px 14px;background:var(--bg2);border-left:3px solid var(--line2);font-size:14px;color:var(--ink2)}
+.a-banner.bad{border-left-color:var(--crit)}
+.crewh{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:2px 0 0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.crewh .w-chat{color:var(--chat)} .crewh .w-code{color:var(--code)}
+.crewh small{font:400 14px/1.2 var(--f-body);color:var(--mute)}
+.kc-form input{min-height:48px}
+.kc-form .btn{min-height:48px;padding-inline:16px}
+.kc-log .did.no{color:var(--warn)}
+
+/* ================= app building blocks ================= */
+.a-sec{background:var(--panel);border:2px solid var(--line);padding:14px;display:grid;gap:12px;min-width:0;align-content:start}
+.ah{font-family:var(--f-display);font-weight:600;font-size:19px;line-height:1.15;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-wrap:balance}
+.ah .n{font:700 12px/1 var(--f-body);padding:4px 8px;background:var(--panel2);color:var(--ink2)}
+.ah .n:empty{display:none}
+.ah small{font:400 13px/1.3 var(--f-body);color:var(--mute)}
+.a-chip{display:inline-flex;align-items:center;gap:5px;font:700 12px/1 var(--f-body);padding:5px 8px;white-space:nowrap;letter-spacing:.02em;background:var(--hmp-soft);color:var(--hmp2);flex:none}
+.a-chip.crit{background:var(--crit-soft);color:var(--crit)}
+.a-chip.warn{background:var(--warn-soft);color:var(--warn)}
+.a-chip.plain{background:var(--track);color:var(--ink2)}
+.a-chip.paid{background:var(--m-in-soft);color:var(--m-in)}
+.a-chip.lost{background:var(--track);color:var(--mute)}
+.a-chip.src{background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--ink2);font-weight:600}
+.linkbtn{background:none;border:0;color:var(--hmp2);font-weight:700;font-size:15px;padding:10px 0;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
+.say{display:grid;gap:6px;justify-items:start;background:var(--bg2);border-left:3px solid #f2c14e;padding:10px 12px;max-width:62ch}
+.say b{font-family:var(--f-label);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#f2c14e;font-weight:400}
+.say q{font-size:16px;color:var(--ink)}
+.say .btn{min-height:40px}
+.a-empty{background:var(--panel);border:2px dashed var(--line2);padding:18px 16px;display:grid;gap:14px}
+.a-empty h3{margin:0;font:700 24px/1.1 var(--f-display);text-wrap:balance}
+.a-empty p{margin:0;color:var(--ink2);max-width:60ch;font-size:16px}
+.a-quiet{margin:0;color:var(--mute);font-size:15px}
+
+/* today */
+.t-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px}
+.t-date{font-family:var(--f-display);font-size:24px;font-weight:700;line-height:1.1}
+.t-sum{font-size:15px;color:var(--ink2)}
+.t-sum b{color:var(--ink)} .t-sum b.crit{color:var(--crit)} .t-sum b.hot{color:var(--board)}
+.today{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:900px){.today{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.t-col{display:grid;gap:14px;min-width:0}
+.asks-loud{background:var(--board-soft);border:2px solid var(--board);padding:14px;display:grid;gap:10px;box-shadow:4px 4px 0 var(--shadow)}
+.asks-loud .ah{color:var(--board);font-size:22px}
+.qlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.qlist li{display:grid;gap:8px;padding:10px 12px;background:var(--bg2);border-left:3px solid var(--board)}
+.qlist .qid{font-family:var(--f-label);font-size:11px;color:var(--mute);margin-right:6px}
+.qlist .ans,.qlist .ans-done{grid-column:auto;margin-top:0}
+.qlist .btn.sm{min-height:44px;padding:8px 14px;font-size:12px}
+.qlist .ans input{min-height:44px;font-size:15px}
+.fu{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fu button{width:100%;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:start;background:var(--bg2);border:2px solid var(--line);padding:10px 12px;min-height:56px;cursor:pointer}
+.fu button:hover{border-color:var(--line2)}
+.fu .addr{font-weight:700;font-size:17px;overflow-wrap:anywhere}
+.fu .kind{font-family:var(--f-label);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-left:8px}
+.fu .what{grid-column:1 / -1;font-size:15px;color:var(--ink2);overflow-wrap:anywhere}
+.fu.later button{min-height:0;border-style:dashed}
+.mytasks{list-style:none;margin:0;padding:0;display:grid}
+.mytasks li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.mytasks li:last-child{border-bottom:0}
+.mytasks .tt{font-size:15px}
+.wk{display:grid;gap:10px}
+.wk-row{display:grid;grid-template-columns:minmax(96px,auto) minmax(0,1fr) 48px;gap:10px;align-items:center}
+.wk-l{font-size:15px;color:var(--ink2)}
+.wk-b{height:14px;background:var(--track);position:relative}
+.wk-b i{position:absolute;left:0;top:0;bottom:0;background:var(--hmp);border-radius:0 4px 4px 0}
+.wk-v{font:700 24px/1 var(--f-display);text-align:right;font-variant-numeric:tabular-nums}
+.wk-last{font-size:13px;color:var(--mute);margin:0}
+.go{display:grid;gap:8px}
+.go a{display:grid;gap:2px;padding:12px 14px;background:var(--bg2);border:2px solid var(--line);color:var(--ink);text-decoration:none;min-height:60px;align-content:center}
+.go a:hover{border-color:var(--hmp)}
+.go a b{font-size:16px} .go a b::after{content:" ↗";color:var(--hmp)}
+.go a span{font-size:13px;color:var(--mute)}
+
+/* leads */
+.fbar{display:grid;gap:8px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid var(--line)}
+.seg button{min-height:48px;background:var(--bg2);border:0;border-right:2px solid var(--line);font:700 15px/1.1 var(--f-body);color:var(--ink2);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -3px 0 var(--hmp)}
+.seg button small{font:400 11px/1 var(--f-label);color:var(--mute);margin-left:6px}
+.srcf{display:flex;flex-wrap:wrap;gap:6px}
+.srcf button{min-height:42px;padding:6px 14px;background:var(--bg2);border:2px solid var(--line);font:600 14px/1 var(--f-body);color:var(--ink2);cursor:pointer}
+.srcf button[aria-pressed="true"]{border-color:var(--hmp);color:var(--ink);background:var(--hmp-soft)}
+.a-cards{display:grid;gap:12px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:860px){.a-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.flow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;counter-reset:fl}
+.flow li{counter-increment:fl;display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 9px 4px 4px;background:var(--bg2);color:var(--ink2)}
+.flow li::before{content:counter(fl);width:20px;height:20px;display:grid;place-items:center;font:700 12px/1 var(--f-display);background:var(--track);color:var(--ink2)}
+
+/* cards (leads, claims, cash jobs) */
+.a-card{display:grid;gap:10px;align-content:start;text-align:left;width:100%;cursor:pointer;background:var(--panel);border:2px solid var(--line);padding:14px;color:var(--ink);box-shadow:4px 4px 0 var(--shadow)}
+.a-card:hover{border-color:var(--line2)}
+.a-card:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow)}
+.a-card > span{display:block;min-width:0}
+.c-top{display:flex!important;justify-content:space-between;align-items:flex-start;gap:10px}
+.c-top > span:first-child{min-width:0}
+.c-addr{display:block;font:700 21px/1.1 var(--f-display);overflow-wrap:anywhere}
+.c-meta{display:block;font-size:14px;color:var(--mute);margin-top:3px;overflow-wrap:anywhere}
+.c-meta:empty{display:none}
+.c-meta .clm{color:var(--ink2);font-weight:700}
+.c-meta .nw{white-space:nowrap}
+.c-tags{display:flex!important;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.a-card.compact{gap:8px;padding-block:12px}
+.a-card.compact .c-addr{font-size:18px}
+.c-line{font-size:14px;color:var(--mute)}
+.c-line b{color:var(--ink);font-variant-numeric:tabular-nums}
+.a-track{display:grid!important;grid-template-columns:repeat(var(--n,10),minmax(0,1fr));gap:3px}
+.a-track i{display:block;height:8px;background:var(--track)}
+.a-track i.done{background:var(--ink2)}
+.a-track i.now{background:var(--hmp);box-shadow:0 0 0 2px var(--hmp-soft)}
+.a-track.paid i{background:var(--m-in)}
+.a-track.lost i{background:var(--track)}
+.track-lbl{display:flex!important;justify-content:space-between;gap:4px 8px;font-size:13px;color:var(--mute);margin-top:6px;flex-wrap:wrap}
+.track-lbl b{color:var(--ink)}
+.a-next{display:grid!important;gap:6px;background:var(--bg2);padding:10px 12px;border-left:3px solid var(--line2)}
+.a-next.overdue{background:var(--crit-soft);border-left-color:var(--crit)}
+.a-next .lbl{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.a-next .lbl > b{font:400 10px/1.4 var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.a-next .txt{font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.a-next .txt.none{color:var(--mute);font-style:italic}
+.c-money{display:grid!important;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;border-top:1px solid var(--line);padding-top:10px}
+.c-money.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c-money .k{display:flex;align-items:center;gap:6px;font:400 10px/1.4 var(--f-label);text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+.c-money .v{display:block;font:700 22px/1.1 var(--f-display);font-variant-numeric:tabular-nums;margin-top:2px}
+.c-money .parts{display:block;font-size:13px;color:var(--mute);margin-top:2px}
+.c-money .none{grid-column:1 / -1;font-size:14px;color:var(--mute)}
+
+/* money totals (ported from the Claim Tracker) */
+.money{background:var(--panel);border:2px solid var(--line);display:grid;box-shadow:4px 4px 0 var(--shadow)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.tile{padding:14px 16px 12px;display:grid;gap:4px;min-width:0;align-content:start}
+.tile + .tile{border-left:1px solid var(--line)}
+.tile .k{font:400 10px/1.4 var(--f-label);color:var(--mute);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:6px}
+.tile .v{font:700 30px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.tile .s{font-size:13px;color:var(--mute)}
+.msw{width:10px;height:10px;flex:none;display:inline-block}
+.msw.in{background:var(--m-in)}
+.msw.hand{background:repeating-linear-gradient(135deg,var(--m-in) 0 2px,transparent 2px 4px);box-shadow:inset 0 0 0 1px var(--m-in)}
+.msw.mort{background:var(--m-mort)}
+.msw.owed{background:var(--track);box-shadow:inset 0 0 0 1px var(--mute)}
+.moneybar-wrap{padding:12px 16px 14px;display:grid;gap:8px;border-top:1px solid var(--line)}
+.moneybar{display:flex;gap:2px;height:14px}
+.moneybar > span{display:block;height:100%;min-width:3px}
+.moneybar .in{background:var(--m-in)}
+.moneybar .hand{background:repeating-linear-gradient(135deg,var(--m-in) 0 3px,transparent 3px 6px);box-shadow:inset 0 0 0 1px var(--m-in)}
+.moneybar .mort{background:var(--m-mort)}
+.moneybar .owed{background:var(--track)}
+.moneynote{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--mute)}
+.moneynote span{display:inline-flex;align-items:center;gap:6px}
+.moneynote b{color:var(--ink)}
+@media (max-width:640px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile:nth-child(3){border-left:0}
+  .tile:nth-child(n+3){border-top:1px solid var(--line)}
+  .tile .v{font-size:26px}
+}
+.a-tip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:10px 14px;background:var(--hmp-soft);font-size:15px}
+.a-tip b{font:400 11px/1.6 var(--f-label);text-transform:uppercase;letter-spacing:.06em;color:var(--hmp2)}
+.a-tip p{margin:0}
+.a-how{display:grid;gap:10px}
+.a-how h3{margin:0;font:600 18px/1.1 var(--f-display)}
+.a-how .hsub{margin:0;font-size:14px;color:var(--mute)}
+.strip{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));counter-reset:st}
+.strip li{counter-increment:st;display:grid;grid-template-columns:28px minmax(0,1fr);gap:2px 10px;padding:10px 12px;background:var(--bg2);align-content:start}
+.strip li::before{content:counter(st);grid-row:span 2;width:24px;height:24px;display:grid;place-items:center;font:700 14px/1 var(--f-display);background:var(--ink2);color:var(--bg)}
+.strip b{font-size:15px}
+.strip span{font-size:14px;color:var(--mute);line-height:1.35}
+.canrow{display:grid;gap:6px;font-size:14px}
+.canrow p{margin:0;max-width:75ch}
+details.howmore{background:var(--panel);border:2px solid var(--line);padding:12px 16px}
+details.howmore summary{cursor:pointer;font:600 16px/1.3 var(--f-display);min-height:28px}
+details.howmore[open] summary{margin-bottom:12px}
+.a-rules{font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px;margin:0;max-width:90ch}
+
+/* detail sheet (ported from the Claim Tracker) */
+.sheet-wrap{position:fixed;inset:0;z-index:40}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;top:0;right:0;bottom:0;width:min(620px,100%);background:var(--bg);display:flex;flex-direction:column;box-shadow:var(--lift);border-left:2px solid var(--line);animation:slide .2s ease-out}
+@keyframes slide{from{transform:translateX(24px);opacity:.6}to{transform:none;opacity:1}}
+.sheet-head{padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;background:var(--panel);border-bottom:2px solid var(--line);display:grid;gap:10px}
+.sh-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sh-eyebrow{font:400 11px/1.4 var(--f-label);text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.sheet-head h2{margin:2px 0 0;font:700 26px/1.05 var(--f-display);overflow-wrap:anywhere;text-wrap:balance}
+.sh-sub{font-size:14px;color:var(--mute);margin-top:2px}
+.sh-row .btn{min-height:44px;flex:none}
+.sheet-body{flex:1;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 36px);display:grid;gap:14px;align-content:start}
+.box{background:var(--panel);border:2px solid var(--line);padding:14px 16px;display:grid;gap:10px;min-width:0}
+.box h3{margin:0;font:600 17px/1.1 var(--f-display)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.steps li{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 9px 4px 4px;background:var(--bg2);color:var(--mute)}
+.steps li i{font-style:normal;width:20px;height:20px;display:grid;place-items:center;font:700 12px/1 var(--f-display);background:var(--track);color:var(--mute)}
+.steps li.done{color:var(--ink2)} .steps li.done i{background:var(--ink2);color:var(--bg)}
+.steps li.now{background:var(--hmp-soft);color:var(--hmp2);font-weight:700} .steps li.now i{background:var(--hmp);color:#1b1206}
+.ledger{display:grid}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 0;border-top:1px solid var(--line);align-items:baseline}
+.lrow:first-child{border-top:0;padding-top:0}
+.lrow .l{font-size:15px}
+.lrow .a{font:700 20px/1.1 var(--f-display);font-variant-numeric:tabular-nums;text-align:right}
+.lrow .st{grid-column:1 / -1;font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.lrow .st .ok{color:var(--m-in);font-weight:700} .lrow .st .wait{color:var(--m-mort);font-weight:700}
+.lrow.total .l{font-weight:700} .lrow.total .a{font-size:24px}
+.lrow.sub .l{padding-left:14px;color:var(--ink2)} .lrow.sub .st{padding-left:14px}
+.hopays{display:flex;justify-content:space-between;align-items:baseline;gap:12px;background:var(--bg2);padding:10px 12px;font-weight:700}
+.hopays .a{font:700 20px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.facts{margin:0;display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr)}
+.facts dt,.facts dd{padding:8px 0;border-top:1px solid var(--line);margin:0}
+.facts dt{font-size:13px;color:var(--mute);padding-right:12px}
+.facts dd{font-size:15px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.facts dt:first-of-type,.facts dd:first-of-type{border-top:0;padding-top:0}
+.facts .none{color:var(--mute)}
+.copy{margin-left:8px;border:1px solid var(--line2);background:var(--bg2);padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;min-height:32px}
+.tlx{list-style:none;margin:0;padding:0;display:grid}
+.tlx li{display:grid;grid-template-columns:72px 16px minmax(0,1fr);gap:10px;align-items:start;padding-bottom:12px;position:relative}
+.tlx li::after{content:"";position:absolute;left:89px;top:14px;bottom:0;width:2px;background:var(--line)}
+.tlx li:last-child::after{display:none}
+.tlx .d{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;text-align:right;padding-top:1px}
+.tlx .dot{width:12px;height:12px;background:var(--ink2);margin-top:4px;justify-self:center;position:relative;z-index:1}
+.tlx .t{font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.tlx li.cash .dot{background:var(--m-in)}
+.tlx li.future .dot{background:var(--bg);box-shadow:inset 0 0 0 2px var(--hmp)}
+.tlx li.future .t{color:var(--ink2)}
+.tlx li.future .t small{display:block;font:400 10px/1.5 var(--f-label);color:var(--hmp2);text-transform:uppercase;letter-spacing:.06em}
+.tlx li.late .dot{box-shadow:inset 0 0 0 2px var(--crit)}
+.tlx li.late .t small{color:var(--crit)}
+.notes{margin:0;white-space:pre-wrap;font-size:15px;overflow-wrap:anywhere}
+.stamp{font-size:13px;color:var(--mute);margin:0}
+.taps{display:flex;flex-wrap:wrap;gap:8px}
+.tap{border:2px solid var(--m-in);color:var(--m-in);background:var(--bg2);padding:10px 12px;font-weight:700;font-size:14px;cursor:pointer;min-height:44px}
+.tap.armed{background:var(--m-in);color:#08130f}
+.tap:disabled{opacity:.5;cursor:default}
+.taps-note{font-size:13px;color:var(--mute);margin:0}
+.sheet-acts{display:flex;flex-wrap:wrap;gap:8px}
+.sheet-acts .btn{min-height:44px}
+.app-toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 14px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;font-weight:700;font-size:14px;box-shadow:var(--lift);max-width:calc(100% - 32px)}
+
+/* ================= O0 Today's knock ================= */
+.knock{background:var(--panel);border:2px solid var(--hmp);box-shadow:4px 4px 0 var(--shadow);display:grid;min-width:0}
+.k-top{display:grid;gap:14px;padding:16px;grid-template-columns:minmax(0,1fr);border-bottom:2px solid var(--line)}
+@media (min-width:760px){.k-top{grid-template-columns:minmax(0,1.15fr) minmax(280px,1fr);align-items:start}}
+.k-txt{display:grid;gap:10px;min-width:0;align-content:start}
+.k-eb{font:400 11px/1.3 var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--hmp2)}
+.k-area{margin:0;font:700 clamp(28px,6vw,36px)/1.02 var(--f-display);text-wrap:balance;overflow-wrap:anywhere}
+.k-why{margin:0;font-size:17px;line-height:1.45;color:var(--ink);max-width:52ch}
+.k-facts{display:flex;flex-wrap:wrap;gap:6px}
+.k-fact{font:700 14px/1 var(--f-body);padding:8px 10px;background:var(--bg2);color:var(--ink2);border:1px solid var(--line)}
+.k-fact b{color:var(--ink)}
+.k-prog{display:grid;gap:6px}
+.k-bar{height:12px;background:var(--track);display:flex}
+.k-bar i{display:block;height:100%}
+.k-bar .talk{background:var(--hmp)} .k-bar .nh{background:var(--line2)}
+.k-prog span{font-size:14px;color:var(--mute)}
+.k-prog span b{color:var(--ink)}
+.k-map{background:#0e1320;border:2px solid var(--line);min-width:0}
+.k-map svg{display:block;width:100%;height:auto}
+.k-map figcaption{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;font-size:12px;color:var(--mute);border-top:1px solid var(--line)}
+.k-list{display:grid;gap:0}
+.k-street{border-top:2px solid var(--line)}
+.k-street:first-child{border-top:0}
+.k-street h3{margin:0;padding:10px 16px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;font:600 17px/1.1 var(--f-display);color:var(--ink2);background:var(--bg2)}
+.k-street h3 small{font:400 11px/1 var(--f-label);letter-spacing:.04em;color:var(--mute)}
+.door{display:grid;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+.door:first-of-type{border-top:0}
+.door-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;min-width:0}
+.door-a{flex:1 1 14ch}
+.door-a{min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.door-a b{font:700 24px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.door-a span{font-size:15px;color:var(--ink2);overflow-wrap:break-word}
+.door-a small{font:400 10px/1.4 var(--f-label);letter-spacing:.05em;text-transform:uppercase;color:var(--hmp2);background:var(--hmp-soft);padding:3px 6px}
+.door.next{background:linear-gradient(90deg,var(--hmp-soft),transparent 70%);box-shadow:inset 4px 0 0 var(--hmp)}
+.d-btns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.d-btns button{min-height:56px;padding:6px 4px;border:2px solid var(--line2);background:var(--bg2);color:var(--ink);font:700 15px/1.1 var(--f-body);cursor:pointer;display:grid;place-items:center;align-content:center;gap:2px;text-align:center}
+.d-btns button small{font:400 11px/1.1 var(--f-body);color:var(--mute)}
+.d-btns button:active{transform:translate(1px,1px)}
+.d-btns .b-no{color:var(--ink2)}
+.d-btns .b-int{border-color:var(--hmp);color:var(--hmp2)}
+.d-btns .b-book{border-color:var(--m-in);color:var(--m-in)}
+.d-btns button:disabled{opacity:.45;cursor:default}
+@media (max-width:520px){.d-btns{grid-template-columns:repeat(2,minmax(0,1fr))}.d-btns button{min-height:52px}}
+.door.done{padding-block:8px}
+.door.done .door-a b{font-size:18px;color:var(--ink2)}
+.door.done .door-a span{color:var(--mute)}
+.d-res{display:inline-flex;align-items:center;gap:6px;font:700 13px/1.2 var(--f-body);padding:5px 8px}
+.d-res.not_home{background:var(--track);color:var(--ink2)}
+.d-res.no{background:var(--track);color:var(--mute)}
+.d-res.interested{background:var(--hmp-soft);color:var(--hmp2)}
+.d-res.booked{background:var(--m-in-soft);color:var(--m-in)}
+.d-right{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-left:auto}
+.undo{min-height:40px;min-width:60px;flex:none;padding:6px 10px;background:none;border:2px solid var(--line2);color:var(--ink2);font:700 13px/1 var(--f-body);cursor:pointer}
+.book{display:grid;gap:10px;background:var(--bg2);border:2px solid var(--m-in);padding:12px}
+.book p{margin:0;font-weight:700;font-size:15px}
+.book .k-l{font:400 10px/1.4 var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.pickrow{display:flex;flex-wrap:wrap;gap:6px}
+.pickrow button{min-height:44px;min-width:56px;padding:6px 10px;border:2px solid var(--line2);background:var(--panel);color:var(--ink);font:700 14px/1.1 var(--f-body);cursor:pointer}
+.pickrow button[aria-pressed="true"]{background:var(--m-in);border-color:var(--m-in);color:#08130f}
+.book-acts{display:flex;gap:8px;flex-wrap:wrap}
+.book-acts button{min-height:48px;padding:8px 16px;font:700 15px/1 var(--f-body);cursor:pointer;border:2px solid var(--line2);background:var(--panel);color:var(--ink)}
+.book-acts .go-save{background:var(--m-in);border-color:var(--m-in);color:#08130f}
+.book-acts .go-save:disabled{opacity:.45}
+.k-passnote{margin:0;padding:10px 16px;background:var(--bg2);font-size:15px;color:var(--ink2);border-top:2px solid var(--line)}
+.k-foot{padding:10px 16px;font-size:13px;color:var(--mute);border-top:2px solid var(--line)}
+.k-empty{padding:20px 16px;display:grid;gap:12px;justify-items:start}
+.k-empty h2{margin:0;font:700 26px/1.1 var(--f-display);text-wrap:balance}
+.k-empty q{font-size:18px;color:var(--ink)}
+.k-empty .btn{min-height:48px;padding-inline:16px}
+.tally{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:15;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:0;background:var(--panel2);border:2px solid var(--hmp);box-shadow:0 -6px 18px rgba(0,0,0,.45)}
+.tally .tn{display:grid;justify-items:center;align-content:center;padding:6px 4px;border-right:1px solid var(--line2);min-width:0}
+.tally .tn b{font:700 22px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.tally .tn span{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tally .t-acts{display:grid;gap:4px;padding:6px;align-content:center}
+.tally .t-cb{background:none;border:0;color:var(--warn);font:700 12px/1.2 var(--f-body);cursor:pointer;padding:2px;min-height:24px;text-align:center}
+.tally .t-cb.none{color:var(--mute)}
+.tally .t-done{min-height:42px;padding:6px 12px;background:var(--hmp);color:#1b1206;border:0;font:700 14px/1.1 var(--f-body);cursor:pointer;white-space:nowrap}
+@media (max-width:560px){.tally{grid-template-columns:repeat(4,minmax(0,1fr))}.tally .t-acts{grid-column:1 / -1;grid-template-columns:1fr auto;border-top:1px solid var(--line2);align-items:center}.tally .t-cb{text-align:left}}
+.receipt{font-size:13px;color:var(--done);display:block}
+.receipt.no{color:var(--warn)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.a-card:active{transform:none}}
 </style>
 
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">HailHunter · HMP Siding &amp; Roofing</div>
-      <h1>Crew <span class="w-chat">H</span><span class="w-code">Q</span></h1>
+      <div class="eyebrow" data-t="eyebrow">HMP Siding &amp; Roofing · Fremont, NE</div>
+      <h1><span class="hmpmark"><svg viewBox="0 0 60 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 11 L30 2.5 L57 11" fill="none" stroke="#f5883a" stroke-width="3.4" stroke-linejoin="miter" stroke-linecap="square"/></svg><b>HMP</b></span><span class="w-app">App</span></h1>
     </div>
-    <div class="live" id="live" data-state="wait" role="status"><span class="dot"></span><span id="liveText">Connecting to check-ins…</span></div>
+    <div class="top-r">
+      <div class="live" id="live" data-state="wait" role="status"><span class="dot"></span><span id="liveText">Connecting…</span></div>
+      <div class="lang" role="group" aria-label="Language / Idioma"><button type="button" id="langEn" aria-pressed="true" lang="en">EN</button><button type="button" id="langEs" aria-pressed="false" lang="es">ES</button></div>
+    </div>
   </header>
 
-  <section class="lanes" aria-label="What each wing is doing">
-    <div class="lane lane-chat"><div class="lane-h">Chat wing</div><div class="lane-n" id="sumChat">–</div><div class="lane-s">Cowork, Storm Watch, Scout and Sales Coach: research, storms, calls, pages</div></div>
-    <div class="lane lane-board"><div class="lane-h">Board room</div><div class="lane-n" id="sumBoard">–</div><div class="lane-s">The King's throne; tasks pass between the wings here</div></div>
-    <div class="lane lane-code"><div class="lane-h">Code lab</div><div class="lane-n" id="sumCode">–</div><div class="lane-s">Claude Code with Engine Mechanic, Builder, Designer, Research Lead and QA Tester (plus one-off helpers under them): engine, pages, design, research, tests</div></div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="HMP App">
+    <button type="button" role="tab" id="tb-today" data-tab="today" aria-controls="tab-today" aria-selected="true"><span data-t="tabToday">Today</span><span class="bd" id="bd-today"></span></button>
+    <button type="button" role="tab" id="tb-leads" data-tab="leads" aria-controls="tab-leads" aria-selected="false" tabindex="-1"><span data-t="tabLeads">Leads</span><span class="bd" id="bd-leads"></span></button>
+    <button type="button" role="tab" id="tb-money" data-tab="money" aria-controls="tab-money" aria-selected="false" tabindex="-1"><span data-t="tabMoney">Money</span><span class="bd" id="bd-money"></span></button>
+    <button type="button" role="tab" id="tb-crew" data-tab="crew" aria-controls="tab-crew" aria-selected="false" tabindex="-1"><span data-t="tabCrew">Crew</span><span class="bd" id="bd-crew"></span></button>
+  </nav>
+
+  <div class="a-banner" id="appBanner" hidden></div>
+
+  <!-- ============ TODAY ============ -->
+  <section class="tabp" id="tab-today" role="tabpanel" aria-labelledby="tb-today">
+    <div class="t-head"><div class="t-date" id="tDate"></div><div class="t-sum" id="tSum"></div></div>
+    <section class="knock" id="knock" aria-labelledby="kArea"></section>
+    <div class="today">
+      <div class="t-col">
+        <div class="kslot" id="slot-today"></div>
+        <div id="tAsks" hidden></div>
+        <section class="a-sec" aria-labelledby="tFollowH"><h2 class="ah" id="tFollowH"></h2><div id="tFollow"></div></section>
+        <section class="a-sec" aria-labelledby="tTasksH"><h2 class="ah" id="tTasksH"></h2><div id="tTasks"></div></section>
+      </div>
+      <div class="t-col">
+        <section class="a-sec" aria-labelledby="tWeekH"><h2 class="ah" id="tWeekH"></h2><div id="tWeek"></div></section>
+        <section class="a-sec" aria-labelledby="tGoH"><h2 class="ah" id="tGoH"></h2><div class="go" id="tGo"></div></section>
+      </div>
+    </div>
+    <div class="tally" id="tally" hidden></div>
   </section>
 
+  <!-- ============ LEADS ============ -->
+  <section class="tabp" id="tab-leads" role="tabpanel" aria-labelledby="tb-leads" hidden>
+    <div class="fbar" id="lBar">
+      <div class="seg" id="lfStage" role="group"></div>
+      <div class="srcf" id="lfSrc" role="group"></div>
+    </div>
+    <div class="a-cards" id="lCards"></div>
+    <div id="lEmpty"></div>
+    <div class="kslot" id="slot-leads"></div>
+  </section>
+
+  <!-- ============ MONEY ============ -->
+  <section class="tabp" id="tab-money" role="tabpanel" aria-labelledby="tb-money" hidden>
+    <section class="money" id="mTotals" aria-labelledby="mTotalsH" hidden>
+      <h2 class="sr" id="mTotalsH"></h2>
+      <div class="tiles">
+        <div class="tile"><span class="k" id="kSold"></span><span class="v" id="vSold"></span><span class="s" id="sSold"></span></div>
+        <div class="tile"><span class="k"><span class="msw in"></span><span id="kCollected"></span></span><span class="v" id="vCollected"></span><span class="s" id="sCollected"></span></div>
+        <div class="tile"><span class="k"><span class="msw owed"></span><span id="kOwed"></span></span><span class="v" id="vOwed"></span><span class="s" id="sOwed"></span></div>
+        <div class="tile"><span class="k"><span class="msw mort"></span><span id="kMort"></span></span><span class="v" id="vMort"></span><span class="s" id="sMort"></span></div>
+      </div>
+      <div class="moneybar-wrap"><div class="moneybar" id="moneybar" role="img"></div><div class="moneynote" id="moneynote"></div></div>
+    </section>
+    <div class="a-tip" id="mTip" hidden><b id="mTipK"></b><p id="mTipT"></p></div>
+    <section class="tabp" id="mOpenSec" hidden><h2 class="ah"><span id="mOpenH"></span><span class="n" id="mOpenN"></span></h2><div class="a-cards" id="mOpen"></div></section>
+    <section class="tabp" id="mCashSec" hidden><h2 class="ah"><span id="mCashH"></span><span class="n" id="mCashN"></span></h2><div class="a-cards" id="mCash"></div></section>
+    <section class="tabp" id="mDoneSec" hidden><h2 class="ah"><span id="mDoneH"></span><span class="n" id="mDoneN"></span></h2><div class="a-cards" id="mDone"></div></section>
+    <div id="mEmpty"></div>
+    <details class="howmore" id="mHow" hidden><summary id="mHowS"></summary><div id="mHowIn"></div></details>
+    <div class="kslot" id="slot-money"></div>
+    <p class="a-rules" id="mRules"></p>
+  </section>
+
+  <!-- ============ CREW (the Crew HQ office, unchanged) ============ -->
+  <section class="tabp" id="tab-crew" role="tabpanel" aria-labelledby="tb-crew" hidden>
+  <h2 class="crewh">Crew <span><span class="w-chat">H</span><span class="w-code">Q</span></span> <small data-t="crewSub">the AI office</small></h2>
+
+  <section class="lanes" aria-label="What each wing is doing">
+    <div class="lane lane-chat"><div class="lane-h" data-t="laneChat">Chat wing</div><div class="lane-n" id="sumChat">–</div><div class="lane-s" data-t="laneChatS">Cowork, Storm Watch, Scout and Sales Coach: research, storms, calls, pages</div></div>
+    <div class="lane lane-board"><div class="lane-h" data-t="laneBoard">Board room</div><div class="lane-n" id="sumBoard">–</div><div class="lane-s" data-t="laneBoardS">The King's throne; tasks pass between the wings here</div></div>
+    <div class="lane lane-code"><div class="lane-h" data-t="laneCode">Code lab</div><div class="lane-n" id="sumCode">–</div><div class="lane-s" data-t="laneCodeS">Claude Code with Engine Mechanic, Builder, Designer, Research Lead and QA Tester (plus one-off helpers under them): engine, pages, design, research, tests</div></div>
+  </section>
+
+  <div class="kslot" id="slot-crew">
   <section class="panel kingchat" id="kingChat" hidden aria-labelledby="kcH">
-    <h2 id="kcH">Talk to the King <span class="src">replies in seconds while this page is open · uses your Claude usage</span></h2>
+    <h2 id="kcH"><span data-t="kcTitle">Talk to the King</span> <span class="src" data-t="kcSrc">log doors, leads and claims, or ask anything · English or Spanish · uses your Claude usage</span></h2>
     <ol class="kc-log" id="kcLog" aria-live="polite"></ol>
-    <form class="kc-form" id="kcForm"><label for="kcInput" class="sr">Message to the King</label>
-      <input id="kcInput" type="text" autocomplete="off" placeholder="Tell the King anything, in English or Spanish">
-      <button type="submit" class="btn" id="kcSend">Send</button><button type="button" class="btn" id="kcStop" hidden>Stop</button></form>
+    <form class="kc-form" id="kcForm"><label for="kcInput" class="sr" data-t="kcLabel">Message to the King</label>
+      <input id="kcInput" type="text" autocomplete="off" enterkeyhint="send" placeholder="Tell the King anything, in English or Spanish">
+      <button type="submit" class="btn" id="kcSend" data-t="send">Send</button><button type="button" class="btn" id="kcStop" hidden data-t="stop">Stop</button></form>
     <div class="kc-status" id="kcStatus" role="status"></div>
   </section>
+  </div>
 
   <div class="toolbar">
     <div class="cam" id="cam" role="group" aria-label="Map view">
-      <button type="button" id="camChat" data-cam="chat" aria-pressed="true">Chat wing</button>
-      <button type="button" id="camBoard" data-cam="board" aria-pressed="false">Board</button>
-      <button type="button" id="camCode" data-cam="code" aria-pressed="false">Code lab</button>
-      <button type="button" id="camAll" data-cam="all" aria-pressed="false">All</button>
+      <button type="button" id="camChat" data-cam="chat" aria-pressed="true" data-t="camChat">Chat wing</button>
+      <button type="button" id="camBoard" data-cam="board" aria-pressed="false" data-t="camBoard">Board</button>
+      <button type="button" id="camCode" data-cam="code" aria-pressed="false" data-t="camCode">Code lab</button>
+      <button type="button" id="camAll" data-cam="all" aria-pressed="false" data-t="camAll">All</button>
     </div>
     <button type="button" class="btn sm" id="labelsBtn" aria-pressed="false">Labels: Off</button>
     <ul class="legend" aria-label="Status colors">
-      <li><span class="sq" style="--c:var(--working)"></span>Working</li>
-      <li><span class="sq" style="--c:var(--idle)"></span>Idle</li>
-      <li><span class="sq" style="--c:var(--sleeping)"></span>Asleep</li>
-      <li><span class="sq" style="--c:var(--waiting)"></span>Waiting on you</li>
-      <li><span class="sq" style="--c:var(--blocked)"></span>Blocked</li>
+      <li><span class="sq" style="--c:var(--working)"></span><span data-t="stWorking">Working</span></li>
+      <li><span class="sq" style="--c:var(--idle)"></span><span data-t="stIdle">Idle</span></li>
+      <li><span class="sq" style="--c:var(--sleeping)"></span><span data-t="stAsleep">Asleep</span></li>
+      <li><span class="sq" style="--c:var(--waiting)"></span><span data-t="stWaiting">Waiting on you</span></li>
+      <li><span class="sq" style="--c:var(--blocked)"></span><span data-t="stBlocked">Blocked</span></li>
     </ul>
-    <button type="button" class="btn" id="replayBtn">Replay last 24 hours</button>
+    <button type="button" class="btn" id="replayBtn" data-t="replay">Replay last 24 hours</button>
   </div>
 
   <div class="stage" id="stage">
     <canvas id="map" role="img" aria-label="Pixel office map. The chat wing is on the left, the board room in the middle and the code lab on the right. Each robot is an AI agent standing in the room for the work it is doing."></canvas>
-    <div class="replay" id="replayBar" hidden><span id="replayText"></span><button type="button" class="btn sm" id="replayStop">Stop</button></div>
+    <div class="replay" id="replayBar" hidden><span id="replayText"></span><button type="button" class="btn sm" id="replayStop" data-t="stop">Stop</button></div>
     <div class="toast" id="toast" hidden></div>
   </div>
 
   <section class="dock">
     <div class="panel roster" aria-label="Chain of command">
-      <h2>Chain of command <span class="src">tap a name: its job, where it lives, how to reach it</span></h2>
+      <h2><span data-t="chainH">Chain of command</span> <span class="src" data-t="chainS">tap a name: its job, where it lives, how to reach it</span></h2>
       <div class="org">
-        <div class="org-row"><span class="org-you">You (FilthE) · the boss</span></div>
+        <div class="org-row"><span class="org-you" data-t="orgYou">You (FilthE) · the boss</span></div>
         <div class="org-branch">
           <div class="org-stack" id="chipsBoard"></div>
-          <div class="org-branch"><span class="org-lbl" style="color:var(--chat)">Chat wing</span><div class="org-stack" id="chipsChat"></div></div>
-          <div class="org-branch"><span class="org-lbl" style="color:var(--code)">Code lab</span><div class="org-stack" id="chipsCode"></div></div>
+          <div class="org-branch"><span class="org-lbl" style="color:var(--chat)" data-t="laneChat">Chat wing</span><div class="org-stack" id="chipsChat"></div></div>
+          <div class="org-branch"><span class="org-lbl" style="color:var(--code)" data-t="laneCode">Code lab</span><div class="org-stack" id="chipsCode"></div></div>
         </div>
       </div>
     </div>
@@ -238,14 +648,30 @@ body.narrow .cam{display:inline-flex}
   </section>
 
   <section class="logs">
-    <div class="panel log log-chat"><h2>Chat wing log</h2><ol class="feed" id="feedChat"></ol></div>
-    <div class="panel boardp"><h2>Board <span class="src" id="boardSrc"></span></h2><div id="boardBody"></div>
-      <details class="mem" id="mem" hidden><summary>What every AI should know</summary><ul id="memList"></ul><div class="card-meta" id="memMeta"></div></details></div>
-    <div class="panel log log-code"><h2>Code lab log</h2><ol class="feed" id="feedCode"></ol></div>
+    <div class="panel log log-chat"><h2 data-t="logChat">Chat wing log</h2><ol class="feed" id="feedChat"></ol></div>
+    <div class="panel boardp"><h2><span data-t="boardH">Board</span> <span class="src" id="boardSrc"></span></h2><div id="boardBody"></div>
+      <details class="mem" id="mem" hidden><summary data-t="memH">What every AI should know</summary><ul id="memList"></ul><div class="card-meta" id="memMeta"></div></details></div>
+    <div class="panel log log-code"><h2 data-t="logCode">Code lab log</h2><ol class="feed" id="feedCode"></ol></div>
   </section>
 
-  <p class="foot"><b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; the King reads your answers at its next run. If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.</p>
+  <p class="foot" data-th="foot"><b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; the King reads your answers at its next run. If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.</p>
+  </section>
 </div>
+
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="scrim" id="scrim"></div>
+  <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <div class="sheet-head">
+      <div class="sh-row">
+        <div><div class="sh-eyebrow" id="shEyebrow"></div><h2 id="shTitle"></h2><div class="sh-sub" id="shSub"></div></div>
+        <button type="button" class="btn" id="shClose">Close</button>
+      </div>
+      <div id="shTrack"></div>
+    </div>
+    <div class="sheet-body" id="shBody"></div>
+  </aside>
+</div>
+<div class="app-toast" id="appToast" role="status" hidden></div>
 
 <script>
 (() => {
@@ -264,6 +690,253 @@ function shade(h,a){const[r,g,b]=rgb(h);const f=v=>Math.round(clamp(a<0?v*(1+a):
 function hsl(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return'#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');}
 function hashColor(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return hsl([18,42,95,150,190,215,265,300,330][h%9],58,60);}
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ================= HMP App: tab + language (per viewer), and every sentence in English and Spanish ================= */
+const TABS = ['today', 'leads', 'money', 'crew'];
+let tab = 'today', lang = 'en';
+try { const s = localStorage.getItem('hmp-app-tab'); if (TABS.includes(s)) tab = s; } catch (e) { /* storage blocked: open Today */ }
+try { if (localStorage.getItem('hmp-app-lang') === 'es') lang = 'es'; } catch (e) { /* storage blocked: English */ }
+{ const h = String(location.hash || '').slice(1).toLowerCase(); if (TABS.includes(h)) tab = h; }   // a link like ...#money opens that tab
+const pl = (n, one, many) => (n === 1 ? one : many);
+const LEAD_STAGES = ['not_contacted', 'contacted', 'inspection_set', 'damage_found', 'claim_filed', 'adjuster_meeting', 'approved', 'job_scheduled', 'done', 'lost'];
+const CLAIM_STEPS = ['inspected', 'claim_filed', 'adjuster_set', 'scope_in', 'signed', 'supplement', 'materials_ordered', 'installed', 'depreciation_requested', 'paid'];
+const CLAIM_STAGES = [...CLAIM_STEPS, 'lost'];
+const SOURCES = ['storm', 'everyday', 'referral', 'sub'], LTYPES = ['insurance', 'cash'];
+const STAT_KEYS = ['doors', 'conversations', 'inspections', 'estimates', 'signed'];
+const WON = ['approved', 'job_scheduled', 'done'];
+const LSTAGE = {
+  not_contacted: {en: 'Not contacted', es: 'Sin contactar'}, contacted: {en: 'Contacted', es: 'Contactado'},
+  inspection_set: {en: 'Inspection set', es: 'Inspección agendada'}, damage_found: {en: 'Damage found', es: 'Daño encontrado'},
+  claim_filed: {en: 'Claim filed', es: 'Reclamo presentado'}, adjuster_meeting: {en: 'Adjuster meeting', es: 'Cita con ajustador'},
+  approved: {en: 'Approved', es: 'Aprobado'}, job_scheduled: {en: 'Job scheduled', es: 'Trabajo agendado'},
+  done: {en: 'Done', es: 'Terminado'}, lost: {en: 'Lost', es: 'Perdido'}
+};
+const LSTAGE_CASH = {inspection_set: {en: 'Estimate visit set', es: 'Cita de presupuesto'}, damage_found: {en: 'Needs work', es: 'Necesita trabajo'}, approved: {en: 'Signed', es: 'Firmado'}};
+const CSTAGE = {
+  inspected: {en: 'Inspected', es: 'Inspeccionado'}, claim_filed: {en: 'Claim filed', es: 'Reclamo presentado'},
+  adjuster_set: {en: 'Adjuster set', es: 'Ajustador agendado'}, scope_in: {en: 'Scope in', es: 'Alcance recibido'},
+  signed: {en: 'Signed', es: 'Contrato firmado'}, supplement: {en: 'Supplement', es: 'Suplemento'},
+  materials_ordered: {en: 'Materials ordered', es: 'Material pedido'}, installed: {en: 'Installed', es: 'Instalado'},
+  depreciation_requested: {en: 'Depreciation requested', es: 'Depreciación pedida'}, paid: {en: 'Paid', es: 'Pagado'}, lost: {en: 'Lost', es: 'Perdido'}
+};
+const HOW = [
+  {en: ['Inspect', 'Storm hits. HMP inspects and shows the homeowner photos.'], es: ['Inspección', 'Pega la tormenta. HMP inspecciona y le enseña fotos al dueño.']},
+  {en: ['Homeowner files', 'The homeowner calls their own insurer and files the claim. That is their job, not HMP\'s.'], es: ['El dueño presenta', 'El dueño llama a su aseguradora y presenta el reclamo. Eso le toca a él, no a HMP.']},
+  {en: ['Adjuster assigned', 'The insurer sends an adjuster.'], es: ['Llega el ajustador', 'La aseguradora manda un ajustador.']},
+  {en: ['Meet the adjuster', 'HMP meets the adjuster and shows the damage with photos and measurements.'], es: ['Cita con el ajustador', 'HMP se reúne con el ajustador y le muestra los daños con fotos y medidas.']},
+  {en: ['Scope + first check', 'The insurer sends the scope and the first check (ACV).'], es: ['Alcance + primer cheque', 'La aseguradora manda el alcance y el primer cheque (ACV).']},
+  {en: ['Sign + supplement', 'HMP signs the job. If the scope missed something, HMP sends a written supplement with photos.'], es: ['Firma + suplemento', 'HMP firma el trabajo. Si al alcance le faltó algo, HMP manda un suplemento por escrito con fotos.']},
+  {en: ['Build', 'HMP orders materials and builds the roof.'], es: ['Construir', 'HMP pide el material y hace el techo.']},
+  {en: ['Final check', 'HMP sends proof of completion. The insurer releases the depreciation check.'], es: ['Cheque final', 'HMP manda la prueba de terminado. La aseguradora libera el cheque de depreciación.']}
+];
+const TX = {
+  en: {
+    st: {
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', tabToday: 'Today', tabLeads: 'Leads', tabMoney: 'Money', tabCrew: 'Crew', crewSub: 'the AI office',
+      laneChat: 'Chat wing', laneChatS: 'Cowork, Storm Watch, Scout and Sales Coach: research, storms, calls, pages',
+      laneBoard: 'Board room', laneBoardS: 'The King\'s throne; tasks pass between the wings here',
+      laneCode: 'Code lab', laneCodeS: 'Claude Code with Engine Mechanic, Builder, Designer, Research Lead and QA Tester (plus one-off helpers under them): engine, pages, design, research, tests',
+      kcTitle: 'Talk to the King', kcSrc: 'log doors, leads and claims, or ask anything · English or Spanish · uses your Claude usage',
+      kcLabel: 'Message to the King', kcPh: 'e.g. knocked 20, talked to 4, inspection 1418 Irving Tue 3pm', send: 'Send', stop: 'Stop',
+      camChat: 'Chat wing', camBoard: 'Board', camCode: 'Code lab', camAll: 'All', replay: 'Replay last 24 hours',
+      stWorking: 'Working', stIdle: 'Idle', stAsleep: 'Asleep', stWaiting: 'Waiting on you', stBlocked: 'Blocked',
+      chainH: 'Chain of command', chainS: 'tap a name: its job, where it lives, how to reach it', orgYou: 'You (FilthE) · the boss',
+      logChat: 'Chat wing log', logCode: 'Code lab log', boardH: 'Board', memH: 'What every AI should know',
+      foot: '<b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; the King reads your answers at its next run. If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.'
+    },
+    sum: c => { const p = [`${c.working} working`]; if (c.stuck) p.push(`${c.stuck} stuck`); p.push(`${c.idle} idle`); if (c.sleeping) p.push(`${c.sleeping} asleep`); return p.join(' · '); },
+    kingNone: 'No King yet', kingAsleep: 'King asleep', kingWork: 'King at work', kingThrone: 'King on the throne',
+    boardSum: (k, d, b, w) => `${k} · ${d} in progress · ${b} blocked · ${w} for you`, noBoard: 'No board synced yet',
+    kOrders: 'King\'s orders', kNone: 'No King on the throne yet. Open a new chat in this project and say "king".',
+    bNow: 'Now', bWaiting: 'Waiting on you', bNext: 'Next', bEmpty: 'The task board shows up here once the King posts it.',
+    bUpdated: (w, by) => `updated ${w}${by ? ' by ' + by : ''}`, bOld: 'may be out of date', memUpdated: (w, by) => `Updated ${w}${by ? ' by ' + by : ''}`,
+    tst: {doing: 'Doing', blocked: 'Blocked', review: 'Review', done: 'Done', parked: 'Parked', todo: 'To do'},
+    ans: {Yes: 'Yes', No: 'No', 'Not now': 'Not now'}, ansPh: 'Or type your answer', ansSend: 'Send', ansYou: 'You answered', ansSeen: '✓ King picked it up', ansWait: 'waiting for the King', ansAria: id => `Your answer to ${id}`,
+    sentLive: 'Sent. The King is answering in the chat box.', sentTo: (id, a) => `Sent to the King: ${id} = ${a}.`, ownerOnly: 'Only editors can answer from this page.', sendFail: 'Could not send. Check your connection and tap again.',
+    cardEmpty: 'Tap a robot on the map or a name to see what it is doing.', livesIn: 'Lives in', reachIt: 'Reach it', nowL: 'Now', lastCheck: 'Last check-in', noneYet: 'none yet',
+    noCheckout: 'no check-out since then', noCheckoutShort: 'no check-out', nothingNow: 'Nothing right now.', team: n => `${n}'s team`, other: 'Other',
+    sleepKing: 'Asleep on the throne until the next standup, or until you open a King chat.', sleepOther: 'Resting until its next run.', tempRole: 'Temporary helper spun up for one job.',
+    kinds: {leader: 'leader', main: 'main agent', scheduled: 'scheduled task', temp: 'temporary helper', helper: 'helper'}, forBoss: n => ` for ${n}`,
+    where: {throne: 'on the throne', desk: 'at its desk in the Board Room', room: n => 'in the ' + n},
+    status: {working: 'Working', idle: 'Idle', sleeping: 'Asleep', waiting: 'Waiting on you', blocked: 'Blocked', done: 'Just finished'},
+    feedEmpty: lane => `No check-ins from the ${lane === 'chat' ? 'chat wing' : 'code lab'} yet.`, picked: '✓ picked up', notPicked: 'not picked up yet',
+    never: 'never', justNow: 'just now', mAgo: n => n + 'm ago', hAgo: n => n + 'h ago',
+    live: {preview: 'Preview only: live data loads on the published page', na: 'Live data is not available in this view', loading: 'Loading…', lost: 'Lost the live connection. Reload the page.', first: 'Live · waiting for the first check-in', wait: 'Connecting…'},
+    liveLast: w => `Live · last check-in ${w}`, labels: on => 'Labels: ' + (on ? 'All' : 'Off'),
+    noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
+    kcYou: 'You', kcKing: 'King', kcThinking: 'Thinking…', kcBusy: 'The King is thinking…', kcStopped: 'Stopped.',
+    kErr: {grant: 'The King can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The King works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The King’s answer came back garbled. Send it again.', refused: 'The King can’t answer that. Try saying it another way.', net: 'Couldn’t reach the King. Check your connection and send again.'},
+    appOff: 'Preview only: live leads, claims and numbers load on the published page.', appErr: 'Leads and claims could not load. Reload the page.', appWait: 'Loading leads and claims…',
+    // today
+    sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumAsk: n => `${n} ${pl(n, 'question', 'questions')} for you`, sumTask: n => `${n} ${pl(n, 'task', 'tasks')}`, sumClear: 'Nothing due. Go knock.',
+    asksH: n => `${n} waiting on you`, asksSub: 'Tap an answer; the King picks it up.',
+    followH: 'Follow-ups due', followNone: 'Nothing due today.', followLater: 'Coming up', kLead: 'Lead', kClaim: 'Claim',
+    followEmpty: 'Nothing to follow up yet. Houses and claims you tell the King about show up here on the day they are due.',
+    tasksH: 'Your tasks', tasksNone: 'No open tasks for you on the board.', showAll: n => `Show all ${n}`, showLess: 'Show fewer',
+    weekH: 'This week', weekSub: (n, r) => `Week ${n} · ${r}`, lastWeek: 'Last week',
+    stats: {doors: 'Doors', conversations: 'Talks', inspections: 'Inspections', estimates: 'Estimates', signed: 'Signed'},
+    goH: 'Go knock',
+    go: [['Door lists + storm map', 'Streets to knock after the latest storms (command center)'], ['Practice Door', 'Practice the door with an AI homeowner before you knock'], ['HMP HQ', 'The business dashboard: jobs, crews, storms']],
+    sayK: 'Tell the King', useIt: 'Put it in the chat box',
+    exToday: 'knocked 20, talked to 4, inspection at 1418 Irving Tuesday 3pm', exWeek: 'knocked 20, talked to 4',
+    // leads
+    fStage: {active: 'Active', won: 'Won', lost: 'Lost'}, fAll: 'All', src: {storm: 'Storm', everyday: 'Everyday', referral: 'Referral', sub: 'Sub'}, typ: {insurance: 'Insurance', cash: 'Cash'},
+    leadsEmptyH: 'No leads yet.', leadsEmptyP: 'Every door you knock, every old house that needs siding, every referral: tell the King and the house shows up here with its next step.',
+    exLead: 'knocked 1418 Irving, talked to Maria, inspection Tuesday 3pm', leadsNone: 'No leads match this filter.', howLead: 'How a lead moves (insurance jobs)',
+    stepOf: (i, n) => `Step ${i} of ${n}`, then: s => `then ${s}`, visits: n => `${n} ${pl(n, 'door visit', 'door visits')}`, lastVisit: d => `last ${d}`,
+    noNextLead: 'No next step yet. Tell the King what happens next.',
+    // lead sheet
+    lName: 'Name', lPhone: 'Phone', lCity: 'City', lSource: 'Source', lType: 'Type', visitsH: 'Door visits', notesH: 'Notes', stepsH: 'Steps', detailsH: 'Details',
+    openClaim: 'Open the claim', tellKing: 'Tell the King about this house', noVisits: 'No door visits logged yet.', close: 'Close',
+    cashH: 'Cash job', price: 'Contract price', deposit: 'Deposit', paidSoFar: 'Paid so far', owed: 'Still owed', created: d => `Added ${d}`,
+    // money
+    mTotals: 'Money totals', mSold: 'Sold + approved', mSoldS: (a, b) => `insurance ${a} · cash ${b}`, mCollected: 'Collected', mCollectedS: 'in the bank',
+    mOwed: 'Still owed', mOwedS: (a, b) => `insurance ${a} · homeowners ${b}`, mMort: 'At mortgage co.', mMortS: n => (n ? `${n} ${pl(n, 'check', 'checks')} out to be signed` : 'no checks out'),
+    mBar: 'Where the money is', mCounts: (a, o) => `${a} open · ${o} overdue`, mOpen: 'Open claims', mCash: 'Cash jobs', mDone: 'Finished',
+    moneyEmptyH: 'No claims or cash jobs yet.', moneyEmptyP: 'When a homeowner signs, tell the King. Insurance claims and cash jobs show up here with what is collected and what is still owed.',
+    exMoney: '1418 Irving signed, State Farm claim 45-889', cashNone: 'No money logged yet.',
+    // receipts for the King's writes
+    rc: {
+      logged: (a, s, n) => `Logged: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Updated: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
+      doors: (p, w) => `Week ${w}: ${p}`, statW: {doors: ['door', 'doors'], conversations: ['talk', 'talks'], inspections: ['inspection', 'inspections'], estimates: ['estimate', 'estimates'], signed: ['signed', 'signed']},
+      claim: (a, s, x) => `Claim: ${a}${s ? ' → ' + s : ''}${x ? ' · ' + x : ''}`, follow: (a, n, d) => `Follow-up: ${a} → ${n} (${d})`,
+      skip: w => `Not saved: ${w}`, fail: a => `Not saved: ${a} (the database refused it; you need edit rights)`,
+      why: {addr: v => `"${v}" needs a house number and a street`, stage: v => `"${v}" is not a known stage`, num: f => `${f} must be a number`, date: f => `${f} must be a date (YYYY-MM-DD)`,
+        src: v => `"${v}" is not a lead source`, typ: v => `"${v}" is not insurance or cash`, obj: f => `${f} has the wrong shape`, next: 'the next step needs words', ded: 'it talks about covering a deductible (illegal in Nebraska, 44-8604)',
+        none: a => `no lead or claim at ${a} yet`, empty: 'nothing to change', nothing: 'no numbers to add'},
+      dedReply: 'The King’s reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'
+    },
+    ct: {
+      next: 'Next step', noNext: 'No next step yet. Tell the King what happens next.',
+      overdue: (d, day) => `Overdue ${d} ${pl(d, 'day', 'days')} · ${day}`, dueToday: 'Due today', dueTomorrow: 'Due tomorrow', due: day => `Due ${day}`,
+      lostLbl: 'Claim lost', moneyIn: 'Money in', waiting: 'Waiting', fromIns: 'from insurance', atCo: co => `at ${co}`, toDeposit: 'to deposit', mortShort: 'the mortgage co.',
+      noMoney: 'No money yet. The first check comes after the scope.', nothingWaiting: 'nothing waiting', claim: 'Claim', homeowner: 'Homeowner', inHand: 'Checks in hand, not deposited yet',
+      money: 'Money', steps: 'Steps', facts: 'Claim details', job: 'Job', timeline: 'Timeline', notes: 'Notes',
+      approvedTotal: 'Approved by insurance so far', approvedHow: 'First check + depreciation held + approved supplements',
+      rcv: 'Full scope (RCV)', acv: 'First check (ACV)', depHeld: 'Depreciation held back', depHint: 'Released after HMP sends proof of completion',
+      depCheck: 'Depreciation check', supp: 'Supplement', suppAsked: a => `Asked ${a}`, suppApproved: a => `approved ${a}`, suppYes: 'approved', suppNo: 'not approved', suppWait: 'waiting on an answer',
+      collectedTotal: 'Collected so far', ofContract: c => `of ${c} contract price`, contract: 'Contract price', homeownerPays: 'Homeowner pays',
+      received: d => `Received ${d}`, receivedYes: 'Received', deposited: d => `Deposited ${d}`, depositedYes: 'Deposited', notYet: 'Not received yet', notDeposited: 'Not deposited yet',
+      atMortSince: (co, d) => `At ${co} to be signed${d ? ' since ' + d : ''}`, backFrom: (co, d) => `Back from ${co}${d ? ' ' + d : ''}`,
+      insurer: 'Insurer', claimNo: 'Claim number', adjuster: 'Adjuster', adjPhone: 'Adjuster phone', dateOfLoss: 'Date of loss', adjMeeting: 'Adjuster meeting', scopeDate: 'Scope received',
+      mortCo: 'Mortgage company', checkSent: 'Check sent to be signed', checkBack: 'Check back', ordered: 'Materials ordered', supplier: 'Supplier', matCost: 'Materials cost',
+      installStart: 'Install start', installDone: 'Install done', completion: 'Proof of completion sent', none: 'Not yet', yes: 'Yes',
+      evLoss: 'Storm hit (date of loss)', evAdj: 'Adjuster meeting', evScope: 'Scope received', evAcv: a => `First check received${a ? ' (' + a + ')' : ''}`,
+      evMortOut: co => `Check sent to ${co} to be signed`, evMortBack: co => `Check back from ${co}`, evDeposit: 'First check deposited',
+      evSupp: a => `Supplement asked${a ? ' (' + a + ')' : ''}`, evMat: s => `Materials ordered${s ? ' from ' + s : ''}`, evStart: 'Install start', evDone: 'Install done', evCompletion: 'Proof of completion sent',
+      evDepCheck: a => `Depreciation check received${a ? ' (' + a + ')' : ''}`, evNext: 'Coming up', noEvents: 'No dates yet.',
+      updated: (w, by) => `Updated ${w}${by ? ' by ' + by : ''}`,
+      taps: 'Quick taps', tapsNote: 'Tap twice to save. Everything else: tell the King.', markAcv: 'First check received today', markDeposit: 'First check deposited today', markBack: co => `Check back from ${co} today`,
+      confirm: 'Tap again to save', saved: 'Saved', readOnly: 'Only editors can change this. Tell the King instead.', failed: 'That did not save. Try again, or tell the King.',
+      howH: 'How a claim works', howSub: 'Usually 45 to 90 days from start to finish.', howMore: 'How a claim works (8 steps)',
+      can: ['HMP can:', 'inspect, document the damage, meet the adjuster, ask for supplements in writing, and do the work.'],
+      cant: ['HMP can\'t:', 'cover, waive or discount the deductible, promise what insurance will pay, or negotiate the settlement.'],
+      rules: 'The homeowner files the claim and pays their own deductible. The insurer decides what it pays. HMP documents the damage and builds the job.',
+      tip: 'Tip', copy: 'Copy', copied: 'Copied'
+    }
+  },
+  es: {
+    st: {
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', tabToday: 'Hoy', tabLeads: 'Prospectos', tabMoney: 'Dinero', tabCrew: 'Equipo', crewSub: 'la oficina de las IA',
+      laneChat: 'Ala de chat', laneChatS: 'Cowork, Storm Watch, Scout y Sales Coach: investigación, tormentas, llamadas, páginas',
+      laneBoard: 'Sala de juntas', laneBoardS: 'El trono del King; aquí pasan las tareas entre las alas',
+      laneCode: 'Laboratorio', laneCodeS: 'Claude Code con Engine Mechanic, Builder, Designer, Research Lead y QA Tester (más ayudantes de una sola tarea): motor, páginas, diseño, investigación, pruebas',
+      kcTitle: 'Habla con el King', kcSrc: 'registra puertas, prospectos y reclamos, o pregunta lo que sea · inglés o español · usa tu cuenta de Claude',
+      kcLabel: 'Mensaje para el King', kcPh: 'ej. toqué 15 puertas, 2 interesados en 22 Oak', send: 'Enviar', stop: 'Parar',
+      camChat: 'Chat', camBoard: 'Tablero', camCode: 'Laboratorio', camAll: 'Todo', replay: 'Repetir últimas 24 horas',
+      stWorking: 'Trabajando', stIdle: 'Libre', stAsleep: 'Dormido', stWaiting: 'Esperándote', stBlocked: 'Bloqueado',
+      chainH: 'Cadena de mando', chainS: 'toca un nombre: su trabajo, dónde vive, cómo contactarlo', orgYou: 'Tú (FilthE) · el jefe',
+      logChat: 'Registro del ala de chat', logCode: 'Registro del laboratorio', boardH: 'Tablero', memH: 'Lo que toda IA debe saber',
+      foot: '<b>Cómo se mantiene en vivo:</b> un robot se mueve cuando su agente se reporta, y cada IA (el King, Cowork, Storm Watch, Claude Code) publica aquí directamente. Un mensaje muestra <span class="rcpt">✓ recibido</span> cuando la IA a la que se mandó se reporta después. Contesta las preguntas que te esperan en el tablero; el King lee tus respuestas en su siguiente corrida. Si un robot dice <span class="stale">sin despedida</span>, su última corrida terminó sin avisar.'
+    },
+    sum: c => { const p = [`${c.working} trabajando`]; if (c.stuck) p.push(`${c.stuck} ${pl(c.stuck, 'atorado', 'atorados')}`); p.push(`${c.idle} ${pl(c.idle, 'libre', 'libres')}`); if (c.sleeping) p.push(`${c.sleeping} ${pl(c.sleeping, 'dormido', 'dormidos')}`); return p.join(' · '); },
+    kingNone: 'Todavía no hay King', kingAsleep: 'King dormido', kingWork: 'King trabajando', kingThrone: 'King en el trono',
+    boardSum: (k, d, b, w) => `${k} · ${d} en curso · ${b} ${pl(b, 'bloqueada', 'bloqueadas')} · ${w} para ti`, noBoard: 'Todavía no hay tablero',
+    kOrders: 'Órdenes del King', kNone: 'Todavía no hay King en el trono. Abre un chat nuevo en este proyecto y di "king".',
+    bNow: 'Ahora', bWaiting: 'Esperando tu respuesta', bNext: 'Después', bEmpty: 'El tablero aparece aquí cuando el King lo publique.',
+    bUpdated: (w, by) => `actualizado ${w}${by ? ' por ' + by : ''}`, bOld: 'puede estar desactualizado', memUpdated: (w, by) => `Actualizado ${w}${by ? ' por ' + by : ''}`,
+    tst: {doing: 'En curso', blocked: 'Bloqueada', review: 'Revisar', done: 'Hecha', parked: 'En pausa', todo: 'Pendiente'},
+    ans: {Yes: 'Sí', No: 'No', 'Not now': 'Ahora no'}, ansPh: 'O escribe tu respuesta', ansSend: 'Enviar', ansYou: 'Respondiste', ansSeen: '✓ El King lo recibió', ansWait: 'esperando al King', ansAria: id => `Tu respuesta a ${id}`,
+    sentLive: 'Enviado. El King está contestando en el chat.', sentTo: (id, a) => `Enviado al King: ${id} = ${a}.`, ownerOnly: 'Solo los editores pueden contestar desde esta página.', sendFail: 'No se pudo enviar. Revisa tu conexión y toca otra vez.',
+    cardEmpty: 'Toca un robot en el mapa o un nombre para ver qué está haciendo.', livesIn: 'Vive en', reachIt: 'Cómo contactarlo', nowL: 'Ahora', lastCheck: 'Último reporte', noneYet: 'ninguno todavía',
+    noCheckout: 'no se ha despedido desde entonces', noCheckoutShort: 'sin despedida', nothingNow: 'Nada por ahora.', team: n => `Equipo de ${n}`, other: 'Otros',
+    sleepKing: 'Dormido en el trono hasta la siguiente junta, o hasta que abras un chat con el King.', sleepOther: 'Descansando hasta su siguiente corrida.', tempRole: 'Ayudante temporal para un solo trabajo.',
+    kinds: {leader: 'líder', main: 'agente principal', scheduled: 'tarea programada', temp: 'ayudante temporal', helper: 'ayudante'}, forBoss: n => ` de ${n}`,
+    where: {throne: 'en el trono', desk: 'en su escritorio de la Sala de juntas', room: n => 'en ' + n},
+    status: {working: 'Trabajando', idle: 'Libre', sleeping: 'Dormido', waiting: 'Esperándote', blocked: 'Bloqueado', done: 'Acaba de terminar'},
+    feedEmpty: lane => `Todavía no hay reportes ${lane === 'chat' ? 'del ala de chat' : 'del laboratorio'}.`, picked: '✓ recibido', notPicked: 'sin recibir todavía',
+    never: 'nunca', justNow: 'ahora mismo', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
+    live: {preview: 'Solo vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga la página.', first: 'En vivo · esperando el primer reporte', wait: 'Conectando…'},
+    liveLast: w => `En vivo · último reporte ${w}`, labels: on => 'Nombres: ' + (on ? 'Todos' : 'No'),
+    noReplay: 'Nadie se ha reportado en las últimas 24 horas.', replayW: 'REPETICIÓN', caughtUp: 'Ya vamos al día.',
+    kcYou: 'Tú', kcKing: 'King', kcThinking: 'Pensando…', kcBusy: 'El King está pensando…', kcStopped: 'Detenido.',
+    kErr: {grant: 'El King no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). El King vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta del King llegó revuelta. Mándalo otra vez.', refused: 'El King no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con el King. Revisa tu conexión y manda otra vez.'},
+    appOff: 'Solo vista previa: los prospectos, reclamos y números en vivo cargan en la página publicada.', appErr: 'No se pudieron cargar los prospectos y reclamos. Recarga la página.', appWait: 'Cargando prospectos y reclamos…',
+    sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumAsk: n => `${n} ${pl(n, 'pregunta', 'preguntas')} para ti`, sumTask: n => `${n} ${pl(n, 'tarea', 'tareas')}`, sumClear: 'Nada pendiente. A tocar puertas.',
+    asksH: n => `${n} ${pl(n, 'pregunta te espera', 'preguntas te esperan')}`, asksSub: 'Toca una respuesta; el King la recibe.',
+    followH: 'Seguimientos para hoy', followNone: 'Nada pendiente para hoy.', followLater: 'Próximos', kLead: 'Prospecto', kClaim: 'Reclamo',
+    followEmpty: 'Todavía no hay seguimientos. Las casas y reclamos que le cuentes al King aparecen aquí el día que toca.',
+    tasksH: 'Tus tareas', tasksNone: 'No tienes tareas abiertas en el tablero.', showAll: n => `Ver las ${n}`, showLess: 'Ver menos',
+    weekH: 'Esta semana', weekSub: (n, r) => `Semana ${n} · ${r}`, lastWeek: 'Semana pasada',
+    stats: {doors: 'Puertas', conversations: 'Pláticas', inspections: 'Inspecciones', estimates: 'Presupuestos', signed: 'Firmados'},
+    goH: 'A tocar puertas',
+    go: [['Listas de puertas + mapa de tormentas', 'Calles para tocar después de las últimas tormentas (centro de mando)'], ['Puerta de práctica', 'Practica con un dueño de casa de IA antes de tocar'], ['HMP HQ', 'El tablero del negocio: trabajos, cuadrillas, tormentas']],
+    sayK: 'Dile al King', useIt: 'Ponerlo en el chat',
+    exToday: 'toqué 20 puertas, hablé con 4, inspección en 1418 Irving el martes a las 3', exWeek: 'toqué 15 puertas, 2 interesados',
+    fStage: {active: 'Activos', won: 'Ganados', lost: 'Perdidos'}, fAll: 'Todos', src: {storm: 'Tormenta', everyday: 'Casa vieja', referral: 'Referido', sub: 'Subcontrato'}, typ: {insurance: 'Seguro', cash: 'Contado'},
+    leadsEmptyH: 'Todavía no hay prospectos.', leadsEmptyP: 'Cada puerta que toques, cada casa vieja que necesite siding, cada referido: díselo al King y la casa aparece aquí con su siguiente paso.',
+    exLead: 'toqué en 1418 Irving, hablé con María, inspección el martes a las 3', leadsNone: 'Ningún prospecto con este filtro.', howLead: 'Cómo avanza un prospecto (trabajos de seguro)',
+    stepOf: (i, n) => `Paso ${i} de ${n}`, then: s => `luego ${s}`, visits: n => `${n} ${pl(n, 'visita', 'visitas')}`, lastVisit: d => `la última el ${d}`,
+    noNextLead: 'Todavía no hay siguiente paso. Dile al King qué sigue.',
+    lName: 'Nombre', lPhone: 'Teléfono', lCity: 'Ciudad', lSource: 'Origen', lType: 'Tipo', visitsH: 'Visitas a la puerta', notesH: 'Notas', stepsH: 'Pasos', detailsH: 'Datos',
+    openClaim: 'Abrir el reclamo', tellKing: 'Contarle al King de esta casa', noVisits: 'Todavía no hay visitas registradas.', close: 'Cerrar',
+    cashH: 'Trabajo de contado', price: 'Precio del contrato', deposit: 'Depósito', paidSoFar: 'Pagado hasta hoy', owed: 'Falta cobrar', created: d => `Agregado el ${d}`,
+    mTotals: 'Totales de dinero', mSold: 'Vendido + aprobado', mSoldS: (a, b) => `seguro ${a} · contado ${b}`, mCollected: 'Cobrado', mCollectedS: 'en el banco',
+    mOwed: 'Falta cobrar', mOwedS: (a, b) => `seguro ${a} · dueños ${b}`, mMort: 'Con el banco hipotecario', mMortS: n => (n ? `${n} ${pl(n, 'cheque', 'cheques')} afuera para firmar` : 'ningún cheque afuera'),
+    mBar: 'Dónde está el dinero', mCounts: (a, o) => `${a} ${pl(a, 'abierto', 'abiertos')} · ${o} ${pl(o, 'atrasado', 'atrasados')}`, mOpen: 'Reclamos abiertos', mCash: 'Trabajos de contado', mDone: 'Terminados',
+    moneyEmptyH: 'Todavía no hay reclamos ni trabajos de contado.', moneyEmptyP: 'Cuando un dueño firme, díselo al King. Los reclamos de seguro y los trabajos de contado aparecen aquí con lo cobrado y lo que falta.',
+    exMoney: '1418 Irving firmó, State Farm reclamo 45-889', cashNone: 'Todavía no hay dinero registrado.',
+    rc: {
+      logged: (a, s, n) => `Registrado: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Actualizado: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
+      doors: (p, w) => `Semana ${w}: ${p}`, statW: {doors: ['puerta', 'puertas'], conversations: ['plática', 'pláticas'], inspections: ['inspección', 'inspecciones'], estimates: ['presupuesto', 'presupuestos'], signed: ['firmado', 'firmados']},
+      claim: (a, s, x) => `Reclamo: ${a}${s ? ' → ' + s : ''}${x ? ' · ' + x : ''}`, follow: (a, n, d) => `Seguimiento: ${a} → ${n} (${d})`,
+      skip: w => `No se guardó: ${w}`, fail: a => `No se guardó: ${a} (la base de datos lo rechazó; necesitas permiso de editor)`,
+      why: {addr: v => `"${v}" necesita número de casa y calle`, stage: v => `"${v}" no es una etapa conocida`, num: f => `${f} tiene que ser un número`, date: f => `${f} tiene que ser una fecha (AAAA-MM-DD)`,
+        src: v => `"${v}" no es un origen de prospecto`, typ: v => `"${v}" no es seguro ni contado`, obj: f => `${f} viene mal armado`, next: 'el siguiente paso necesita texto', ded: 'habla de cubrir un deducible (ilegal en Nebraska, 44-8604)',
+        none: a => `todavía no hay prospecto ni reclamo en ${a}`, empty: 'no hay nada que cambiar', nothing: 'no hay números que sumar'},
+      dedReply: 'Se retuvo la respuesta del King: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'
+    },
+    ct: {
+      next: 'Siguiente paso', noNext: 'Todavía no hay siguiente paso. Dile al King qué sigue.',
+      overdue: (d, day) => `Atrasado ${d} ${pl(d, 'día', 'días')} · ${day}`, dueToday: 'Para hoy', dueTomorrow: 'Para mañana', due: day => `Para el ${day}`,
+      lostLbl: 'Reclamo perdido', moneyIn: 'Dinero que entró', waiting: 'Falta', fromIns: 'del seguro', atCo: co => `con ${co}`, toDeposit: 'por depositar', mortShort: 'el banco hipotecario',
+      noMoney: 'Todavía no hay dinero. El primer cheque llega después del alcance.', nothingWaiting: 'no falta nada', claim: 'Reclamo', homeowner: 'Dueño', inHand: 'Cheques en mano, sin depositar',
+      money: 'Dinero', steps: 'Pasos', facts: 'Datos del reclamo', job: 'Trabajo', timeline: 'Historial', notes: 'Notas',
+      approvedTotal: 'Aprobado por el seguro hasta ahora', approvedHow: 'Primer cheque + depreciación retenida + suplementos aprobados',
+      rcv: 'Alcance completo (RCV)', acv: 'Primer cheque (ACV)', depHeld: 'Depreciación retenida', depHint: 'Se libera cuando HMP manda la prueba de terminado',
+      depCheck: 'Cheque de depreciación', supp: 'Suplemento', suppAsked: a => `Pedido ${a}`, suppApproved: a => `aprobado ${a}`, suppYes: 'aprobado', suppNo: 'no aprobado', suppWait: 'esperando respuesta',
+      collectedTotal: 'Cobrado hasta hoy', ofContract: c => `de ${c} del contrato`, contract: 'Precio del contrato', homeownerPays: 'El propietario paga',
+      received: d => `Recibido ${d}`, receivedYes: 'Recibido', deposited: d => `Depositado ${d}`, depositedYes: 'Depositado', notYet: 'Todavía no llega', notDeposited: 'Sin depositar',
+      atMortSince: (co, d) => `Con ${co} para firmar${d ? ' desde el ' + d : ''}`, backFrom: (co, d) => `Regresó de ${co}${d ? ' el ' + d : ''}`,
+      insurer: 'Aseguradora', claimNo: 'Número de reclamo', adjuster: 'Ajustador', adjPhone: 'Teléfono del ajustador', dateOfLoss: 'Fecha de pérdida', adjMeeting: 'Cita con el ajustador', scopeDate: 'Alcance recibido',
+      mortCo: 'Banco hipotecario', checkSent: 'Cheque enviado a firmar', checkBack: 'Cheque de regreso', ordered: 'Material pedido', supplier: 'Proveedor', matCost: 'Costo del material',
+      installStart: 'Inicio de instalación', installDone: 'Instalación terminada', completion: 'Prueba de terminado enviada', none: 'Todavía no', yes: 'Sí',
+      evLoss: 'Pegó la tormenta (fecha de pérdida)', evAdj: 'Cita con el ajustador', evScope: 'Llegó el alcance', evAcv: a => `Llegó el primer cheque${a ? ' (' + a + ')' : ''}`,
+      evMortOut: co => `Cheque enviado a ${co} para firmar`, evMortBack: co => `Cheque regresó de ${co}`, evDeposit: 'Primer cheque depositado',
+      evSupp: a => `Suplemento pedido${a ? ' (' + a + ')' : ''}`, evMat: s => `Material pedido${s ? ' a ' + s : ''}`, evStart: 'Inicio de la instalación', evDone: 'Instalación terminada', evCompletion: 'Prueba de terminado enviada',
+      evDepCheck: a => `Llegó el cheque de depreciación${a ? ' (' + a + ')' : ''}`, evNext: 'Próximo', noEvents: 'Todavía no hay fechas.',
+      updated: (w, by) => `Actualizado ${w}${by ? ' por ' + by : ''}`,
+      taps: 'Toques rápidos', tapsNote: 'Toca dos veces para guardar. Todo lo demás: díselo al King.', markAcv: 'Primer cheque recibido hoy', markDeposit: 'Primer cheque depositado hoy', markBack: co => `Cheque regresó de ${co} hoy`,
+      confirm: 'Toca otra vez para guardar', saved: 'Guardado', readOnly: 'Solo los editores pueden cambiar esto. Díselo al King.', failed: 'No se guardó. Intenta otra vez o díselo al King.',
+      howH: 'Cómo funciona un reclamo', howSub: 'Normalmente de 45 a 90 días de principio a fin.', howMore: 'Cómo funciona un reclamo (8 pasos)',
+      can: ['HMP sí puede:', 'inspeccionar, documentar los daños, reunirse con el ajustador, pedir suplementos por escrito y hacer el trabajo.'],
+      cant: ['HMP no puede:', 'cubrir, perdonar ni descontar el deducible, prometer lo que pagará el seguro, ni negociar el acuerdo.'],
+      rules: 'El dueño presenta el reclamo y paga su propio deducible. La aseguradora decide lo que paga. HMP documenta los daños y hace el trabajo.',
+      tip: 'Consejo', copy: 'Copiar', copied: 'Copiado'
+    }
+  }
+};
+const L = () => TX[lang];
 
 const C = {
   wall:{chat:['#3a3147','#5d4b61','#78636f'], code:['#2a3949','#3e566b','#58748c'], board:['#382e4b','#574670','#735d90']},
@@ -928,7 +1601,7 @@ function frame(now){
   renderWorld(t, now); const k = blit(); drawOverlay(k, t);
   raf = requestAnimationFrame(frame);
 }
-document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } });
+document.addEventListener('visibilitychange', () => loopOn());   // paused when the page is hidden or another tab is showing
 
 /* ================= pointer ================= */
 function hit(ev){
@@ -943,7 +1616,7 @@ cv.addEventListener('click', ev => { const a = hit(ev); if (a) select(a.id, fals
 for (const b of document.querySelectorAll('#cam button')) b.addEventListener('click', () => setCam(b.dataset.cam));
 const labelsBtn = $('#labelsBtn');
 if (labelsBtn) {
-  const syncLabelsBtn = () => { labelsBtn.textContent = 'Labels: ' + (labelsMode==='all' ? 'All' : 'Off'); labelsBtn.setAttribute('aria-pressed', String(labelsMode==='all')); };
+  const syncLabelsBtn = () => { labelsBtn.textContent = L().labels(labelsMode==='all'); labelsBtn.setAttribute('aria-pressed', String(labelsMode==='all')); };
   syncLabelsBtn();
   labelsBtn.addEventListener('click', () => {
     labelsMode = labelsMode==='all' ? 'off' : 'all';
@@ -955,14 +1628,14 @@ if (labelsBtn) {
 /* ================= UI panels ================= */
 const tFmt = new Intl.DateTimeFormat(undefined, {hour:'numeric', minute:'2-digit'});
 const dFmt = new Intl.DateTimeFormat(undefined, {month:'short', day:'numeric'});
-function ago(ms){ if (!ms) return 'never'; const s = (Date.now()-ms)/1000; if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s/60)+'m ago'; if (s < 86400) return Math.floor(s/3600)+'h ago'; return dFmt.format(ms); }
+function ago(ms){ const T = L(); if (!ms) return T.never; const s = (Date.now()-ms)/1000; if (s < 60) return T.justNow; if (s < 3600) return T.mAgo(Math.floor(s/60)); if (s < 86400) return T.hAgo(Math.floor(s/3600)); return dFmt.format(ms); }
 function whenLabel(ms, approx){ if (!ms) return ''; const d = new Date(ms), today = new Date(); if (approx) return dFmt.format(d); return d.toDateString()===today.toDateString() ? tFmt.format(d) : dFmt.format(d); }
-function laneWord(l){ return (LANES[l]||LANES.chat).name; }
-function where(a){ const tg = a.target; if (!tg) return ''; if (tg.kind==='hq') return a.id==='king' ? 'on the throne' : 'at its desk in the Board Room'; const r = ROOMS[tg.room]; return r ? 'in the ' + r.name : ''; }
+function laneWord(l){ return L().st[{chat:'laneChat', code:'laneCode', board:'laneBoard'}[l] || 'laneChat']; }
+function where(a){ const tg = a.target, W = L().where; if (!tg) return ''; if (tg.kind==='hq') return a.id==='king' ? W.throne : W.desk; const r = ROOMS[tg.room]; return r ? W.room(r.name) : ''; }
 
 function renderChips(){
   const chip = a => { const st = a.disp ? a.disp.status : 'idle';
-    return `<button type="button" class="chip ${a.kind==='main'?'main':''} ${a.kind==='temp'?'temp':''}" data-id="${esc(a.id)}" aria-pressed="${a.id===selectedId}" style="--c:${(LANES[a.lane]||LANES.chat).accent}"><span class="sq" style="--c:${statusColor(st)}"></span>${esc(a.name)}${a.disp && a.disp.stale ? ' <small>no check-out</small>' : ''}</button>`; };
+    return `<button type="button" class="chip ${a.kind==='main'?'main':''} ${a.kind==='temp'?'temp':''}" data-id="${esc(a.id)}" aria-pressed="${a.id===selectedId}" style="--c:${(LANES[a.lane]||LANES.chat).accent}"><span class="sq" style="--c:${statusColor(st)}"></span>${esc(a.name)}${a.disp && a.disp.stale ? ' <small>' + esc(L().noCheckoutShort) + '</small>' : ''}</button>`; };
   for (const lane of ['board','chat','code']) {
     const box = lane==='board' ? $('#chipsBoard') : lane==='chat' ? $('#chipsChat') : $('#chipsCode');
     const all = [...agents.values()].filter(a => a.lane===lane && !a.hidden);
@@ -974,8 +1647,8 @@ function renderChips(){
       if (boss) { if (!byBoss.has(boss.id)) byBoss.set(boss.id, []); byBoss.get(boss.id).push(t); } else loose.push(t);
     }
     let html = `<div class="org-row">${parents.map(chip).join('')}</div>`;
-    for (const p of parents) { const kids = byBoss.get(p.id); if (kids && kids.length) html += `<div class="org-branch"><span class="org-lbl" style="color:var(--mute)">${esc(p.name)}'s team <small>(${kids.length})</small></span><div class="org-row">${kids.map(chip).join('')}</div></div>`; }
-    if (loose.length) html += `<div class="org-branch"><span class="org-lbl" style="color:var(--mute)">Other</span><div class="org-row">${loose.map(chip).join('')}</div></div>`;
+    for (const p of parents) { const kids = byBoss.get(p.id); if (kids && kids.length) html += `<div class="org-branch"><span class="org-lbl" style="color:var(--mute)">${esc(L().team(p.name))} <small>(${kids.length})</small></span><div class="org-row">${kids.map(chip).join('')}</div></div>`; }
+    if (loose.length) html += `<div class="org-branch"><span class="org-lbl" style="color:var(--mute)">${esc(L().other)}</span><div class="org-row">${loose.map(chip).join('')}</div></div>`;
     box.innerHTML = html;
     for (const b of box.querySelectorAll('.chip')) b.addEventListener('click', () => select(b.dataset.id, true));
   }
@@ -987,30 +1660,32 @@ function select(id, fromChip){
 }
 function renderCard(){
   const box = $('#card'); const a = agents.get(selectedId);
-  if (!a) { box.innerHTML = '<p class="empty">Tap a robot on the map or a name to see what it is doing.</p>'; return; }
+  const T = L();
+  if (!a) { box.innerHTML = `<p class="empty">${esc(T.cardEmpty)}</p>`; return; }
   const d = a.disp || displayState(a, Date.now()); const st = STATUS[d.status] || STATUS.idle; const lane = LANES[a.lane] || LANES.chat;
   const bossName = a.boss && agents.get(a.boss) ? agents.get(a.boss).name : null;
-  const kindWord = a.id==='king' ? 'leader' : a.kind==='main' ? 'main agent' : a.kind==='scheduled' ? 'scheduled task' : a.kind==='temp' ? 'temporary helper' : 'helper';
+  const kindWord = T.kinds[a.id==='king' ? 'leader' : a.kind==='main' ? 'main' : a.kind==='scheduled' ? 'scheduled' : a.kind==='temp' ? 'temp' : 'helper'];
   const mine = events.filter(e => e.agent===a.id).slice(0,4);
-  const nowText = d.doing ? esc(d.doing) : (d.status==='sleeping' ? (a.id==='king' ? 'Asleep on the throne until the next standup, or until you open a King chat.' : 'Resting until its next run.') : 'Nothing right now.');
+  const nowText = d.doing ? esc(d.doing) : esc(d.status==='sleeping' ? (a.id==='king' ? T.sleepKing : T.sleepOther) : T.nothingNow);
   box.innerHTML = `
-    <div class="card-top"><div class="card-name"><span class="sw" style="--sw:${a.color}"></span>${esc(a.name)}</div><span class="pill" style="--c:${st.c}">${esc(st.label)}</span></div>
-    <div class="card-meta">${esc(lane.name)} · ${kindWord}${bossName ? ' for ' + esc(bossName) : ''}</div>
-    <p class="card-role">${esc(a.role || 'Temporary helper spun up for one job.')}</p>
-    ${a.home || a.reach ? `<dl class="card-where">${a.home ? `<dt>Lives in</dt><dd>${esc(a.home)}</dd>` : ''}${a.reach ? `<dt>Reach it</dt><dd>${esc(a.reach)}</dd>` : ''}</dl>` : ''}
-    <div class="now" style="--c:${lane.accent}"><div class="now-l">Now${d.status==='working' && a.target ? ' · ' + esc(where(a)) : ''}${a.task ? ' · ' + esc(a.task) : ''}</div><div class="now-t">${nowText}</div></div>
-    <div class="card-meta">Last check-in: ${a.atMs ? esc(ago(a.atMs)) + ' (' + esc(whenLabel(a.atMs)) + ')' : 'none yet'}${d.stale ? ' · <span class="stale">no check-out since then</span>' : ''}</div>
+    <div class="card-top"><div class="card-name"><span class="sw" style="--sw:${a.color}"></span>${esc(a.name)}</div><span class="pill" style="--c:${st.c}">${esc(T.status[d.status] || st.label)}</span></div>
+    <div class="card-meta">${esc(laneWord(a.lane))} · ${esc(kindWord)}${bossName ? esc(T.forBoss(bossName)) : ''}</div>
+    <p class="card-role">${esc(a.role || T.tempRole)}</p>
+    ${a.home || a.reach ? `<dl class="card-where">${a.home ? `<dt>${esc(T.livesIn)}</dt><dd>${esc(a.home)}</dd>` : ''}${a.reach ? `<dt>${esc(T.reachIt)}</dt><dd>${esc(a.reach)}</dd>` : ''}</dl>` : ''}
+    <div class="now" style="--c:${lane.accent}"><div class="now-l">${esc(T.nowL)}${d.status==='working' && a.target ? ' · ' + esc(where(a)) : ''}${a.task ? ' · ' + esc(a.task) : ''}</div><div class="now-t">${nowText}</div></div>
+    <div class="card-meta">${esc(T.lastCheck)}: ${a.atMs ? esc(ago(a.atMs)) + ' (' + esc(whenLabel(a.atMs)) + ')' : esc(T.noneYet)}${d.stale ? ` · <span class="stale">${esc(T.noCheckout)}</span>` : ''}</div>
     ${mine.length ? `<ol>${mine.map(e => `<li><time>${esc(whenLabel(e.atMs, e.approx))}</time><span>${esc(e.text)}</span></li>`).join('')}</ol>` : ''}`;
 }
 function renderSummary(){
   const counts = lane => { const c = {working:0, idle:0, sleeping:0, stuck:0}; for (const a of agents.values()) if (a.lane===lane && !a.hidden) { const s = a.disp ? a.disp.status : 'idle'; if (s==='working') c.working++; else if (s==='sleeping') c.sleeping++; else if (s==='waiting'||s==='blocked') c.stuck++; else c.idle++; } return c; };
-  const fmt = c => { const parts = [`${c.working} working`]; if (c.stuck) parts.push(`${c.stuck} stuck`); parts.push(`${c.idle} idle`); if (c.sleeping) parts.push(`${c.sleeping} asleep`); return parts.join(' · '); };
+  const T = L(), fmt = T.sum;
   $('#sumChat').textContent = fmt(counts('chat')); $('#sumCode').textContent = fmt(counts('code'));
   if (board) { const now = board.now || []; const doing = now.filter(x => statusKey(x.status)==='doing').length; const blocked = now.filter(x => statusKey(x.status)==='blocked').length; const w = openAsks().length;
     const k = agents.get('king'), ks = k && k.disp ? k.disp.status : 'idle';
-    const kl = !k || !k.atMs ? 'No King yet' : ks==='sleeping' ? 'King asleep' : ks==='working' ? 'King at work' : 'King on the throne';
-    $('#sumBoard').textContent = `${kl} · ${doing} in progress · ${blocked} blocked · ${w} for you`; }
-  else $('#sumBoard').textContent = 'No board synced yet';
+    const kl = !k || !k.atMs ? T.kingNone : ks==='sleeping' ? T.kingAsleep : ks==='working' ? T.kingWork : T.kingThrone;
+    $('#sumBoard').textContent = T.boardSum(kl, doing, blocked, w); }
+  else $('#sumBoard').textContent = T.noBoard;
+  renderAppSoon();
 }
 function pickedUp(e){   // a message counts as picked up once the AI it went to checks in after it
   const a = agents.get(e.to); if (a && a.atMs > e.atMs) return true;
@@ -1019,52 +1694,49 @@ function pickedUp(e){   // a message counts as picked up once the AI it went to 
 function evItem(e){
   const a = agents.get(e.agent); const name = a ? a.name : (e.name || e.agent); const color = a ? a.color : hashColor(e.agent||'?');
   const kc = e.kind==='done' ? STATUS.done.c : e.kind==='blocked' ? STATUS.blocked.c : e.kind==='waiting' ? STATUS.waiting.c : e.kind==='handoff' ? '#ef8fb8' : e.kind==='start' ? STATUS.working.c : '#8f94ab';
-  const to = e.kind==='handoff' && e.to ? `<span class="to">→ ${esc(agents.get(e.to) ? agents.get(e.to).name : e.to)}</span>${pickedUp(e) ? '<span class="rcpt">✓ picked up</span>' : '<span class="rcpt no">not picked up yet</span>'}` : '';
+  const to = e.kind==='handoff' && e.to ? `<span class="to">→ ${esc(agents.get(e.to) ? agents.get(e.to).name : e.to)}</span>${pickedUp(e) ? `<span class="rcpt">${esc(L().picked)}</span>` : `<span class="rcpt no">${esc(L().notPicked)}</span>`}` : '';
   return `<li class="ev${e._fresh?' fresh':''}${replay && replay.cur===e.id?' hl':''}" data-id="${esc(e.id)}"><time>${esc(whenLabel(e.atMs, e.approx))}</time><span class="k" style="--c:${kc}">${KIND[e.kind]||'·'}</span><div><span class="who"><span class="sq" style="--c:${color}"></span>${esc(name)}</span>${to}${e.task ? `<span class="task">${esc(e.task)}</span>` : ''}<p>${esc(e.text)}</p></div></li>`;
 }
 function renderFeeds(){
   for (const lane of ['chat','code']) {
     const list = events.filter(e => (e.lane || (agents.get(e.agent)||{}).lane || 'chat') === lane).slice(0,40);
     const box = lane==='chat' ? $('#feedChat') : $('#feedCode');
-    box.innerHTML = list.length ? list.map(evItem).join('') : `<li class="empty">No check-ins from the ${lane==='chat'?'chat wing':'code lab'} yet.</li>`;
+    box.innerHTML = list.length ? list.map(evItem).join('') : `<li class="empty">${esc(L().feedEmpty(lane))}</li>`;
   }
   for (const e of events) e._fresh = false;
 }
 function kingHtml(){
   const kev = events.filter(e => e.agent==='king').slice(0,4);
   const logList = kev.length ? `<ol class="klog">${kev.map(e => `<li><time>${esc(whenLabel(e.atMs, e.approx))}</time><span>${esc(e.text)}</span></li>`).join('')}</ol>` : '';
-  if (!kingDoc || !(kingDoc.orders||[]).length) return `<div class="orders"><h3>King's orders</h3><p class="empty">No King on the throne yet. Open a new chat in this project and say "king".</p>${logList}</div>`;
+  const T = L();
+  if (!kingDoc || !(kingDoc.orders||[]).length) return `<div class="orders"><h3>${esc(T.kOrders)}</h3><p class="empty">${esc(T.kNone)}</p>${logList}</div>`;
   const ms = Date.parse(kingDoc.at || '');
-  return `<div class="orders"><h3>King's orders${ms ? ` <span>· ${esc(whenLabel(ms))}</span>` : ''}</h3>
+  return `<div class="orders"><h3>${esc(T.kOrders)}${ms ? ` <span>· ${esc(whenLabel(ms))}</span>` : ''}</h3>
     ${kingDoc.summary ? `<p class="ksum">${esc(kingDoc.summary)}</p>` : ''}
     <ul>${kingDoc.orders.slice(0,8).map(o => `<li><span class="own own-${ownerKey(o.to)}">${esc(o.to || '?')}</span><span>${esc(o.text)}${o.task ? `<span class="task">${esc(o.task)}</span>` : ''}</span></li>`).join('')}</ul>${logList}</div>`;
 }
 function renderBoard(){
-  const box = $('#boardBody');
-  if (!board) { box.innerHTML = kingHtml() + '<p class="empty">The task board shows up here once the King posts it.</p>'; $('#boardSrc').textContent = ''; return; }
+  const box = $('#boardBody'), T = L();
+  renderAppSoon();
+  if (!board) { box.innerHTML = kingHtml() + `<p class="empty">${esc(T.bEmpty)}</p>`; $('#boardSrc').textContent = ''; return; }
   const own = o => { const k = ownerKey(o); return `<span class="own own-${k}">${esc(o || '?')}</span>`; };
-  const stt = s => { const k = statusKey(s); const label = {doing:'Doing', blocked:'Blocked', review:'Review', done:'Done', parked:'Parked', todo:'To do'}[k]; return `<span class="tst s-${k}">${label}</span>`; };
+  const stt = s => { const k = statusKey(s); return `<span class="tst s-${k}">${esc(T.tst[k])}</span>`; };
   const tasks = arr => arr.map(x => `<li><span class="tid">${esc(x.id)}</span><span class="tt">${esc(x.task)}</span><span class="tmeta">${own(x.owner)}${stt(x.status)}</span></li>`).join('');
-  box.innerHTML = kingHtml() + `<h3>Now</h3><ul class="tasks">${tasks(board.now||[])}</ul>
-    ${(board.waiting||[]).length ? `<h3>Waiting on you</h3><ul class="asks">${board.waiting.map(x => `<li><span class="tid">${esc(x.id)}</span><span>${esc(x.q)}</span>${askControls(x)}</li>`).join('')}</ul>` : ''}
-    ${(board.next||[]).length ? `<h3>Next</h3><ul class="tasks">${tasks(board.next)}</ul>` : ''}`;
+  box.innerHTML = kingHtml() + `<h3>${esc(T.bNow)}</h3><ul class="tasks">${tasks(board.now||[])}</ul>
+    ${(board.waiting||[]).length ? `<h3>${esc(T.bWaiting)}</h3><ul class="asks">${board.waiting.map(x => `<li><span class="tid">${esc(x.id)}</span><span>${esc(x.q)}</span>${askControls(x)}</li>`).join('')}</ul>` : ''}
+    ${(board.next||[]).length ? `<h3>${esc(T.bNext)}</h3><ul class="tasks">${tasks(board.next)}</ul>` : ''}`;
   const ms = Date.parse(board.updatedAt || board.syncedAt || ''); const old = ms && Date.now() - ms > 24*3600e3;
-  $('#boardSrc').innerHTML = ms ? `updated ${esc(ago(ms))}${board.updatedBy ? ' by ' + esc(board.updatedBy) : ''}${old ? ' · <span class="stalebadge">may be out of date</span>' : ''}` : '';
-  for (const row of box.querySelectorAll('.ans')) {
-    const send = (val) => { const inp = row.querySelector('input'); const note = inp ? inp.value.trim() : '';
-      if (val === 'send' && !note) { if (inp) inp.focus(); return; } sendAnswer(row.dataset.q, val === 'send' ? 'Reply' : val, note); };
-    row.addEventListener('click', ev => { const b = ev.target.closest('button[data-a]'); if (b) send(b.dataset.a); });
-    const inp = row.querySelector('input'); if (inp) inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); send('send'); } });
-  }
+  $('#boardSrc').innerHTML = ms ? `${esc(T.bUpdated(ago(ms), board.updatedBy || ''))}${old ? ` · <span class="stalebadge">${esc(T.bOld)}</span>` : ''}` : '';
+  wireAnswers(box);
 }
 function kingSeen(ms){ const k = agents.get('king'); return !!ms && ((k && k.atMs > ms) || events.some(e => e.agent==='king' && e.atMs > ms)); }
-function askControls(x){
+function askControls(x, pfx){
   const a = answers[x.id];
   if (a) { const ms = Date.parse(a.at || ''); const seen = kingSeen(ms);
-    return `<div class="ans-done">You answered <b>${esc(a.answer === 'Reply' ? (a.note || 'Reply') : a.answer)}</b>${a.note && a.answer !== 'Reply' ? ': ' + esc(a.note) : ''}${ms ? ' · ' + esc(whenLabel(ms)) : ''}<span class="rcpt${seen ? '' : ' no'}">${seen ? '✓ King picked it up' : 'waiting for the King'}</span></div>`; }
+    const T = L(); return `<div class="ans-done">${esc(T.ansYou)} <b>${esc(a.answer === 'Reply' ? (a.note || 'Reply') : (T.ans[a.answer] || a.answer))}</b>${a.note && a.answer !== 'Reply' ? ': ' + esc(a.note) : ''}${ms ? ' · ' + esc(whenLabel(ms)) : ''}<span class="rcpt${seen ? '' : ' no'}">${esc(seen ? T.ansSeen : T.ansWait)}</span></div>`; }
   if (!DB) return '';
-  const id = esc(x.id);
-  return `<div class="ans" data-q="${id}"><button type="button" class="btn sm" data-a="Yes">Yes</button><button type="button" class="btn sm" data-a="No">No</button><button type="button" class="btn sm" data-a="Not now">Not now</button><input type="text" id="ans-${id}" placeholder="Or type your answer" aria-label="Your answer to ${id}"><button type="button" class="btn sm" data-a="send">Send</button></div>`;
+  const id = esc(x.id), T = L();
+  return `<div class="ans" data-q="${id}"><button type="button" class="btn sm" data-a="Yes">${esc(T.ans.Yes)}</button><button type="button" class="btn sm" data-a="No">${esc(T.ans.No)}</button><button type="button" class="btn sm" data-a="Not now">${esc(T.ans['Not now'])}</button><input type="text" id="ans-${pfx || 'b'}-${id}" placeholder="${esc(T.ansPh)}" aria-label="${esc(T.ansAria(x.id))}"><button type="button" class="btn sm" data-a="send">${esc(T.ansSend)}</button></div>`;
 }
 async function sendAnswer(id, answer, note){
   if (!DB) return;
@@ -1075,21 +1747,21 @@ async function sendAnswer(id, answer, note){
     await DB.doc('answers/' + id).set({id, q: q ? String(q.q).slice(0, 500) : '', answer, note, at, by: 'FilthE'});
     await DB.doc('events/' + stamp + '-you').set({agent: 'you', name: 'FilthE', lane: 'board', kind: 'handoff', to: 'king', task: id, status: 'done', room: 'board', at,
       text: `Answer to ${id}: ${answer}${note ? ' (' + note.slice(0, 200) + ')' : ''}`});
-    toast(SAMPLE && CAN_EDIT ? `Sent. The King is answering at the top of the page.` : `Sent to the King: ${id} = ${answer}.`);
+    appToast(SAMPLE && CAN_EDIT ? L().sentLive : L().sentTo(id, L().ans[answer] || answer));
     if (SAMPLE && CAN_EDIT) askKing(`I answered ${id} ("${q ? String(q.q).slice(0, 200) : ''}"): ${answer}${note ? ' - ' + note : ''}`, true);
-  } catch (e) { toast(e && e.code === 'invalid_argument' ? 'Only the owner can answer from this page.' : 'Could not send. Check your connection and tap again.'); }
+  } catch (e) { appToast(e && e.code === 'invalid_argument' ? L().ownerOnly : L().sendFail); }
 }
 function renderMemory(){
   const facts = memDoc && Array.isArray(memDoc.facts) ? memDoc.facts : [];
   $('#mem').hidden = !facts.length; if (!facts.length) return;
   $('#memList').innerHTML = facts.slice(0, 20).map(f => `<li>${esc(f)}</li>`).join('');
-  const ms = Date.parse(memDoc.updatedAt || ''); $('#memMeta').textContent = ms ? `Updated ${ago(ms)}${memDoc.updatedBy ? ' by ' + memDoc.updatedBy : ''}` : '';
+  const ms = Date.parse(memDoc.updatedAt || ''); $('#memMeta').textContent = ms ? L().memUpdated(ago(ms), memDoc.updatedBy || '') : '';
 }
 function setLive(state, text){ const el = $('#live'); el.dataset.state = state; $('#liveText').textContent = text; }
 function refreshLive(){
   if (dbState !== 'on') return;
   let latest = 0; for (const a of agents.values()) latest = Math.max(latest, a.atMs||0); for (const e of events) if (!e.approx && e.agent !== 'you') latest = Math.max(latest, e.atMs||0);
-  setLive('on', latest ? `Live · last check-in ${ago(latest)}` : 'Live · waiting for the first check-in');
+  setLive('on', latest ? L().liveLast(ago(latest)) : L().live.first);
 }
 function refreshAll(){ assignTargets(false); renderSummary(); renderChips(); renderCard(); refreshLive(); }
 setInterval(() => { if (!document.hidden) { refreshAll(); renderBoard(); } }, 30000);
@@ -1100,7 +1772,7 @@ const KIND_STATUS = {start:'working', progress:'working', handoff:'working', don
 function startReplay(){
   const since = Date.now() - 24*3600e3;
   const evs = events.filter(e => !e.approx && e.atMs >= since && agents.has(e.agent)).sort((p,q) => p.atMs - q.atMs);
-  if (!evs.length) { toast('Nothing checked in during the last 24 hours yet.'); return; }
+  if (!evs.length) { toast(L().noReplay); return; }
   stopReplay(true);
   replay = {over:new Map(), evs, i:0, timer:0, cur:null};
   for (const a of agents.values()) replay.over.set(a.id, {status:a.kind==='scheduled' ? 'sleeping' : 'idle', room:null, doing:''});
@@ -1110,14 +1782,14 @@ function startReplay(){
 function tickReplay(){
   if (!replay) return;
   const e = replay.evs[replay.i++];
-  if (!e) { $('#replayText').innerHTML = '<b>REPLAY</b>Caught up to now.'; replay.timer = setTimeout(() => stopReplay(false), 2200); return; }
+  if (!e) { $('#replayText').innerHTML = `<b>${esc(L().replayW)}</b>${esc(L().caughtUp)}`; replay.timer = setTimeout(() => stopReplay(false), 2200); return; }
   const a = agents.get(e.agent); const prev = replay.over.get(e.agent) || {};
   const st = e.status || KIND_STATUS[e.kind] || prev.status || 'idle';
   replay.over.set(e.agent, {status:st, room:e.room || prev.room, doing:e.text});
   if (a) a.ping = performance.now();
   if (e.kind==='handoff') launchEnvelope(e);
   replay.cur = e.id;
-  $('#replayText').innerHTML = `<b>REPLAY ${replay.i}/${replay.evs.length}</b>${esc(tFmt.format(e.atMs))} · ${esc(a ? a.name : e.agent)}: ${esc(e.text)}`;
+  $('#replayText').innerHTML = `<b>${esc(L().replayW)} ${replay.i}/${replay.evs.length}</b>${esc(tFmt.format(e.atMs))} · ${esc(a ? a.name : e.agent)}: ${esc(e.text)}`;
   assignTargets(false); renderSummary(); renderChips(); renderFeeds();
   replay.timer = setTimeout(tickReplay, RM ? 2600 : 1900);
 }
@@ -1136,6 +1808,796 @@ function launchEnvelope(e){
   else if (agents.has(to)) { const t2 = agents.get(to); tx = t2.x; ty = t2.y - 10; toAgent = to; }
   else { tx = 416; ty = 336; }
   envelopes.push({x0:from.x, y0:from.y-12, x1:tx, y1:ty, t0:performance.now(), toAgent});
+}
+
+/* ================= HMP App: Today / Leads / Money (O0 + O1) ================= */
+let leads = [], claims = [], walk = null, doorDocs = {}, weekDoc = null, lastWeekDoc = null, guideDoc = null;
+let appState = 'wait';            // wait | on | off | err
+let openRef = null, lastFocus = null, showAllTasks = false;
+let leadStageF = 'active', leadSrcF = 'all', bookingPid = null, booking = {day: null, time: null};
+const undoLog = new Map();        // pid -> [{lead slug, previous lead body or null}] for this visit
+
+const KT = {
+  en: {
+    eb: {storm: 'Today’s knock · storm walk', everyday: 'Today’s knock · old-house walk'},
+    goal: n => `Goal <b>${n}</b> doors`, time: h => `about <b>${h}</b>`, houses: n => `<b>${n}</b> ${pl(n, 'house', 'houses')} in walking order`,
+    hrs: m => m < 60 ? `${m} min` : `${Math.round(m / 30) / 2} ${m <= 60 ? 'hour' : 'hours'}`,
+    pass: p => `Pass <b>${p}</b> of 3`, progress: (d, n) => `<b>${d}</b> of ${n} houses done`,
+    b: {not_home: ['Not home', 'leave a hanger'], no: ['No', ''], interested: ['Interested', ''], booked: ['Booked', 'pick a time']},
+    res: {not_home: 'Not home · hanger left', no: 'Said no', interested: 'Interested · call back', booked: 'Booked'},
+    backOn: p => `back on pass ${p}`, gaveUp: 'Not home 3 times', nextDoor: 'Next door', undo: 'Undo',
+    bookQ: {storm: 'When is the inspection?', everyday: 'When is the estimate visit?'}, day: 'Day', time2: 'Time', today: 'Today', tomorrow: 'Tomorrow',
+    save: 'Save booking', cancel: 'Cancel',
+    t: {doors: 'Doors', talked: 'Talked', interested: 'Interested', booked: 'Booked'},
+    cb: n => n ? `${n} ${pl(n, 'call-back', 'call-backs')} due today` : 'No call-backs due', done: 'Done for today', doneAgain: 'Update today',
+    doneSaved: t => `Saved to this week: ${t}`, doneFail: 'That did not save. Try again.',
+    emptyH: 'No walk yet today.', emptyP: 'Ask the King:', emptyQ: 'where do I knock today?', emptyBtn: 'Ask the King', emptyNote: 'The King picks one area each morning and puts the houses here in walking order.',
+    mapCap: 'Houses in walking order', mapAria: n => `Map of today’s walk: ${n} houses in walking order`, north: 'N',
+    passNote: (p, n) => `Pass ${p}: ${n} not-home ${pl(n, 'door', 'doors')} to try again.`, allDone: 'Every house is done. Tap “Done for today” to save the numbers.',
+    readOnly: 'Only editors can log doors here. Tell the King instead.', saveFail: 'That tap did not save. Check your connection and tap again.',
+    nextInt: {storm: ['Call back and set the inspection', 'Llamar y agendar la inspección'], everyday: ['Call back and set the estimate visit', 'Llamar y agendar la cita de presupuesto']},
+    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']},
+    walkedBy: (w) => `Walk picked ${w}`
+  },
+  es: {
+    eb: {storm: 'Puertas de hoy · zona de tormenta', everyday: 'Puertas de hoy · casas viejas'},
+    goal: n => `Meta <b>${n}</b> puertas`, time: h => `como <b>${h}</b>`, houses: n => `<b>${n}</b> ${pl(n, 'casa', 'casas')} en orden de camino`,
+    hrs: m => m < 60 ? `${m} min` : `${Math.round(m / 30) / 2} ${m <= 60 ? 'hora' : 'horas'}`,
+    pass: p => `Vuelta <b>${p}</b> de 3`, progress: (d, n) => `<b>${d}</b> de ${n} casas listas`,
+    b: {not_home: ['No está', 'deja volante'], no: ['No', ''], interested: ['Interesado', ''], booked: ['Agendado', 'elige hora']},
+    res: {not_home: 'No estaba · volante', no: 'Dijo que no', interested: 'Interesado · llamar', booked: 'Agendado'},
+    backOn: p => `regresa en la vuelta ${p}`, gaveUp: 'No estuvo 3 veces', nextDoor: 'Siguiente puerta', undo: 'Deshacer',
+    bookQ: {storm: '¿Cuándo es la inspección?', everyday: '¿Cuándo es la cita de presupuesto?'}, day: 'Día', time2: 'Hora', today: 'Hoy', tomorrow: 'Mañana',
+    save: 'Guardar cita', cancel: 'Cancelar',
+    t: {doors: 'Puertas', talked: 'Pláticas', interested: 'Interesados', booked: 'Agendados'},
+    cb: n => n ? `${n} ${pl(n, 'llamada', 'llamadas')} para hoy` : 'No hay llamadas para hoy', done: 'Terminé por hoy', doneAgain: 'Actualizar hoy',
+    doneSaved: t => `Guardado en esta semana: ${t}`, doneFail: 'No se guardó. Intenta otra vez.',
+    emptyH: 'Todavía no hay ruta para hoy.', emptyP: 'Pregúntale al King:', emptyQ: '¿dónde toco puertas hoy?', emptyBtn: 'Preguntarle al King', emptyNote: 'Cada mañana el King escoge una zona y pone aquí las casas en orden de camino.',
+    mapCap: 'Casas en orden de camino', mapAria: n => `Mapa de la ruta de hoy: ${n} casas en orden de camino`, north: 'N',
+    passNote: (p, n) => `Vuelta ${p}: ${n} ${pl(n, 'puerta', 'puertas')} donde no estaban, para intentar otra vez.`, allDone: 'Ya terminaste todas las casas. Toca “Terminé por hoy” para guardar los números.',
+    readOnly: 'Solo los editores pueden registrar puertas aquí. Díselo al King.', saveFail: 'No se guardó ese toque. Revisa tu conexión y toca otra vez.',
+    nextInt: {storm: ['Call back and set the inspection', 'Llamar y agendar la inspección'], everyday: ['Call back and set the estimate visit', 'Llamar y agendar la cita de presupuesto']},
+    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']},
+    walkedBy: (w) => `Ruta escogida ${w}`
+  }
+};
+const K = () => KT[lang];
+
+/* ---------- small helpers ---------- */
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const locale = () => (lang === 'es' ? 'es-US' : 'en-US');
+const numv = v => { if (typeof v === 'number' && isFinite(v)) return v; if (typeof v === 'string') { const s = v.replace(/[$,\s]/g, ''); if (s !== '' && isFinite(+s)) return +s; } return null; };
+const dayOf = v => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : null);
+const yesv = v => v === true || (typeof v === 'string' && v.trim() !== '' && !/^(false|no|0)$/i.test(v.trim()));
+const strv = v => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
+const usd = n => new Intl.NumberFormat(locale(), {style: 'currency', currency: 'USD', maximumFractionDigits: 0}).format(n || 0);
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const todayStr = () => ymd(new Date());
+const addDays = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return ymd(x); };
+const toDate = d => new Date(d + 'T12:00:00');
+const fmtDay = (d, weekday) => { const o = {month: 'short', day: 'numeric'}; if (weekday) o.weekday = 'short'; if (d.slice(0, 4) !== String(new Date().getFullYear())) o.year = 'numeric'; return toDate(d).toLocaleDateString(locale(), o); };
+const daysFromToday = d => Math.round((toDate(d) - toDate(todayStr())) / 86400000);
+const fmtWhen = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(locale(), {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}); };
+const txl = o => (o && typeof o === 'object' ? strv(o[lang]) || strv(o.en) || strv(o.es) : strv(o));
+const slugOf = a => String(a || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+const pidSafe = p => String(p || '').replace(/[^A-Za-z0-9_\-.~:@+]/g, '-').slice(0, 120);
+function isoWeek(dstr){   // ISO week id "2026-39"
+  const d = toDate(dstr); const day = (d.getDay() + 6) % 7; d.setDate(d.getDate() - day + 3);
+  const y = d.getFullYear(); const jan4 = new Date(y, 0, 4, 12); const w = 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+  return `${y}-${pad2(w)}`;
+}
+const weekRange = dstr => { const d = toDate(dstr); const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); return `${fmtDay(ymd(mon))} – ${fmtDay(ymd(sun))}`; };
+const splitAddr = a => { const m = String(a || '').trim().match(/^(\d+[A-Za-z]?)\s+(.+)$/); return m ? {no: m[1], street: m[2]} : {no: '', street: String(a || '').trim()}; };
+const DED_RX = /(cover|waive|pay(ing)? (for|off)?|eat|absorb|rebate|discount|skip|free|cubr|perdon|pag(ar|amos)|descont|regal)[^.]{0,40}(deductible|deducible)|(deductible|deducible)[^.]{0,30}(covered|waived|free|gratis|cubierto|perdonado|no pagas|we pay|pagamos)/i;
+
+/* ---------- tabs + language ---------- */
+function setTab(t, focus){
+  if (!TABS.includes(t)) t = 'today';
+  tab = t;
+  for (const id of TABS) {
+    const b = $('#tb-' + id), p = $('#tab-' + id), on = id === t;
+    b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; p.hidden = !on;
+  }
+  try { localStorage.setItem('hmp-app-tab', t); } catch (e) { /* not remembered: fine */ }
+  const slot = $('#slot-' + t); if (slot && $('#kingChat').parentNode !== slot) slot.append($('#kingChat'));
+  if (focus) $('#tb-' + t).focus();
+  loopOn();
+  renderApp();
+}
+function loopOn(){   // the office animation runs only while the Crew tab is on screen
+  const want = tab === 'crew' && !document.hidden;
+  if (want && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+  else if (!want && raf) { cancelAnimationFrame(raf); raf = 0; }
+}
+$('#tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); });
+$('#tabs').addEventListener('keydown', ev => {
+  const i = TABS.indexOf(tab); let j = null;
+  if (ev.key === 'ArrowRight') j = (i + 1) % TABS.length; else if (ev.key === 'ArrowLeft') j = (i + TABS.length - 1) % TABS.length; else if (ev.key === 'Home') j = 0; else if (ev.key === 'End') j = TABS.length - 1;
+  if (j != null) { ev.preventDefault(); setTab(TABS[j], true); }
+});
+function setLang(l){
+  lang = l === 'es' ? 'es' : 'en';
+  try { localStorage.setItem('hmp-app-lang', lang); } catch (e) { /* not remembered: fine */ }
+  applyStatic(); renderApp(); renderBoard(); renderSummary(); renderFeeds(); refreshLive(); renderMemory();
+  if (labelsBtn) labelsBtn.textContent = L().labels(labelsMode === 'all');
+}
+function applyStatic(){
+  document.documentElement.lang = lang;
+  $('#langEn').setAttribute('aria-pressed', String(lang === 'en')); $('#langEs').setAttribute('aria-pressed', String(lang === 'es'));
+  const st = L().st;
+  for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
+  for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
+  $('#kcInput').placeholder = st.kcPh;
+  $('#shClose').textContent = L().close;
+}
+$('#langEn').addEventListener('click', () => setLang('en'));
+$('#langEs').addEventListener('click', () => setLang('es'));
+
+/* ---------- today's walk: door states ---------- */
+const TALK = ['no', 'interested', 'booked'];
+function walkToday(){ return walk && dayOf(walk.date) === todayStr() && Array.isArray(walk.stops) && walk.stops.length ? walk : null; }
+function walkStops(w){
+  return w.stops.filter(s => s && typeof s === 'object' && strv(s.address) && !/apartment|commercial|apt/i.test(strv(s.kind || s.type)))
+    .map((s, i) => ({pid: pidSafe(s.pid || slugOf(s.address) || 'h' + i), address: strv(s.address), city: strv(s.city), lat: numv(s.lat), lon: numv(s.lon), base: clamp(Math.round(numv(s.pass) || 1), 1, 3), i}));
+}
+function doorState(s){
+  const d = doorDocs[s.pid];
+  if (!d || !d.result) return {attempt: s.base, done: false, d: null};
+  if (d.result === 'not_home') { const p = numv(d.pass) || 1; return p >= 3 ? {attempt: 4, done: true, gaveUp: true, d} : {attempt: p + 1, done: false, nh: true, d}; }
+  return {attempt: 9, done: true, d};
+}
+function walkModel(){
+  const w = walkToday(); if (!w) return null;
+  const stops = walkStops(w); const st = stops.map(doorState);
+  const pending = st.filter(x => !x.done).map(x => x.attempt);
+  const pass = pending.length ? Math.min(...pending) : 3;
+  const tally = {doors: 0, talked: 0, interested: 0, booked: 0, nh: 0};
+  for (const x of st) if (x.d) { tally.doors++; if (TALK.includes(x.d.result)) tally.talked++; if (x.d.result === 'interested') tally.interested++; if (x.d.result === 'booked') tally.booked++; if (x.d.result === 'not_home') tally.nh++; }
+  const nextIdx = st.findIndex(x => !x.done && x.attempt === pass);
+  return {w, stops, st, pass, tally, nextIdx, kind: w.kind === 'everyday' ? 'everyday' : 'storm'};
+}
+
+/* ---------- today's walk: map (plain SVG, no tiles) ---------- */
+function walkMap(m){
+  const pts = m.stops.map((s, i) => ({s, i, st: m.st[i]})).filter(p => p.s.lat != null && p.s.lon != null);
+  if (pts.length < 2) return null;
+  const lat0 = pts.reduce((a, p) => a + p.s.lat, 0) / pts.length, kx = Math.cos(lat0 * Math.PI / 180);
+  const xs = pts.map(p => p.s.lon * kx), ys = pts.map(p => -p.s.lat);
+  const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
+  const W = 600, H = 250, P = 26; const span = Math.max(maxx - minx, (maxy - miny) * (W - 2 * P) / (H - 2 * P), 1e-5);
+  const sc = (W - 2 * P) / span; const ox = P + ((W - 2 * P) - (maxx - minx) * sc) / 2, oy = P + ((H - 2 * P) - (maxy - miny) * sc) / 2;
+  const X = p => ox + (p.s.lon * kx - minx) * sc, Y = p => oy + (-p.s.lat - miny) * sc;
+  const mPerPx = 111320 / sc; const nice = [50, 100, 200, 250, 500, 1000, 2000].find(v => v / mPerPx >= 50) || 2000; const barPx = nice / mPerPx;
+  const col = p => { const r = p.st.d && p.st.d.result; return p.i === m.nextIdx ? 'var(--hmp)' : r === 'booked' ? 'var(--m-in)' : r === 'interested' ? 'var(--hmp2)' : r === 'no' ? '#6c7596' : r === 'not_home' ? (p.st.done ? '#6c7596' : '#9aa4c4') : 'var(--ink)'; };
+  const line = pts.map(p => `${X(p).toFixed(1)},${Y(p).toFixed(1)}`).join(' ');
+  const dots = pts.map(p => { const x = X(p).toFixed(1), y = Y(p).toFixed(1), isN = p.i === m.nextIdx, done = p.st.done || (p.st.d && !isN);
+    return `${isN ? `<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="var(--hmp)" stroke-width="2" opacity=".6"/>` : ''}<circle cx="${x}" cy="${y}" r="${isN ? 8 : 6}" fill="${done ? col(p) : '#0e1320'}" stroke="${col(p)}" stroke-width="2.5"/>`; }).join('');
+  const first = pts[0], lastP = pts[pts.length - 1];
+  return `<figure class="k-map" style="margin:0"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(K().mapAria(m.stops.length))}">
+    <rect width="${W}" height="${H}" fill="#0e1320"/>
+    <polyline points="${line}" fill="none" stroke="#3a4668" stroke-width="3" stroke-linejoin="round" stroke-dasharray="1 7" stroke-linecap="round"/>
+    ${dots}
+    <text x="${(X(first) + 12).toFixed(1)}" y="${(Y(first) - 10).toFixed(1)}" fill="var(--ink2)" font-size="13" font-family="Atkinson Hyperlegible, sans-serif" font-weight="700">1</text>
+    <text x="${(X(lastP) + 12).toFixed(1)}" y="${(Y(lastP) - 10).toFixed(1)}" fill="var(--ink2)" font-size="13" font-family="Atkinson Hyperlegible, sans-serif" font-weight="700">${pts.length}</text>
+    <g transform="translate(${W - 26},26)"><path d="M0 -12 L6 6 L0 2 L-6 6 Z" fill="var(--ink2)"/><text y="20" text-anchor="middle" fill="var(--mute)" font-size="11" font-family="Silkscreen, monospace">${K().north}</text></g>
+    <g transform="translate(14,${H - 14})"><rect width="${barPx.toFixed(1)}" height="4" fill="var(--ink2)"/><text x="${(barPx + 6).toFixed(1)}" y="5" fill="var(--mute)" font-size="11" font-family="Atkinson Hyperlegible, sans-serif">${nice >= 1000 ? nice / 1000 + ' km' : nice + ' m'} · ${(nice / 1609.34 >= .1 ? (nice / 1609.34).toFixed(1) : (nice * 3.281).toFixed(0) + ' ft').replace(/^(\d+\.\d)$/, '$1 mi')}</text></g>
+  </svg><figcaption><span>${esc(K().mapCap)}</span><span>1 → ${pts.length}</span></figcaption></figure>`;
+}
+
+/* ---------- today's walk: render ---------- */
+function renderKnock(){
+  const box = $('#knock'); const k = K(); const m = walkModel();
+  if (!m) {
+    box.innerHTML = `<div class="k-empty"><div class="k-eb">${esc(k.eb.storm.split('·')[0].trim())}</div><h2>${esc(k.emptyH)}</h2>
+      <p style="margin:0;font-size:16px;color:var(--ink2)">${esc(k.emptyP)} <q>${esc(k.emptyQ)}</q></p>
+      ${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" id="kAsk">${esc(k.emptyBtn)}</button>` : ''}
+      <p class="a-quiet" style="font-size:14px">${esc(k.emptyNote)}</p></div>`;
+    const b = $('#kAsk'); if (b) b.addEventListener('click', () => askKing(k.emptyQ, false));
+    $('#tally').hidden = true; return;
+  }
+  const {w, stops, st, pass, tally, nextIdx, kind} = m;
+  const goal = Math.round(numv(w.goal_doors) || stops.length);
+  const mins = Math.max(15, Math.round((numv(w.goal_minutes) || goal * 5) / 15) * 15);
+  const doneN = st.filter(x => x.done).length;
+  const talkW = stops.length ? st.filter(x => x.d && TALK.includes(x.d.result)).length / stops.length * 100 : 0;
+  const nhW = stops.length ? st.filter(x => x.d && x.d.result === 'not_home').length / stops.length * 100 : 0;
+  // group consecutive stops by street, keeping the walking order
+  const groups = []; stops.forEach((s, i) => { const a = splitAddr(s.address); const key = a.street.toLowerCase(); const g = groups[groups.length - 1];
+    if (g && g.key === key) g.items.push(i); else groups.push({key, street: a.street, items: [i]}); });
+  const canTap = !!DB && CAN_EDIT;
+  const rows = g => g.items.map(i => {
+    const s = stops[i], x = st[i], a = splitAddr(s.address), d = x.d, isNext = i === nextIdx;
+    const addr = `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}</div>`;
+    const waitLater = !x.done && x.attempt > pass;
+    if (x.done || waitLater) {
+      let res = d ? d.result : '';
+      let label = k.res[res] || '';
+      if (res === 'booked' && d.when) label += ' · ' + d.when;
+      if (x.gaveUp) label = k.gaveUp;
+      else if (waitLater) label = `${k.b.not_home[0]} · ${k.backOn(x.attempt)}`;
+      return `<div class="door done" data-pid="${esc(s.pid)}"><div class="door-h">${addr}<div class="d-right"><span class="d-res ${esc(res)}">${esc(label)}</span>${canTap ? `<button type="button" class="undo" data-undo="${esc(s.pid)}">${esc(k.undo)}</button>` : ''}</div></div></div>`;
+    }
+    const nhNote = x.nh ? `<span class="d-res not_home">${esc(k.pass(x.attempt).replace(/<\/?b>/g, ''))}</span>` : '';
+    const btn = (r, cls) => `<button type="button" class="${cls}" data-r="${r}" data-pid="${esc(s.pid)}"${canTap ? '' : ' disabled'}>${esc(k.b[r][0])}${k.b[r][1] ? `<small>${esc(k.b[r][1])}</small>` : ''}</button>`;
+    let html = `<div class="door${isNext ? ' next' : ''}" data-pid="${esc(s.pid)}"><div class="door-h">${addr}${nhNote}</div>`;
+    if (bookingPid === s.pid) html += bookForm(kind);
+    else html += `<div class="d-btns">${btn('not_home', 'b-nh')}${btn('no', 'b-no')}${btn('interested', 'b-int')}${btn('booked', 'b-book')}</div>`;
+    return html + '</div>';
+  }).join('');
+  const pendingThisPass = st.filter(x => !x.done && x.attempt === pass).length;
+  const passNote = !pendingThisPass ? k.allDone : pass > 1 ? k.passNote(pass, pendingThisPass) : '';
+  const picked = w.updated_at ? fmtWhen(w.updated_at) : '';
+  box.innerHTML = `<div class="k-top"><div class="k-txt">
+      <div class="k-eb">${esc(k.eb[kind])}</div>
+      <h2 class="k-area" id="kArea">${esc(strv(w.area) || '')}</h2>
+      ${txl(w.why) ? `<p class="k-why">${esc(txl(w.why))}</p>` : ''}
+      <div class="k-facts"><span class="k-fact">${k.goal(goal)}</span><span class="k-fact">${k.time(esc(k.hrs(mins)))}</span><span class="k-fact">${k.houses(stops.length)}</span><span class="k-fact">${k.pass(pass)}</span></div>
+      <div class="k-prog"><div class="k-bar" role="img" aria-label="${esc(k.progress(doneN, stops.length).replace(/<\/?b>/g, ''))}"><i class="talk" style="width:${talkW.toFixed(1)}%"></i><i class="nh" style="width:${nhW.toFixed(1)}%"></i></div><span>${k.progress(doneN, stops.length)}</span></div>
+    </div>${walkMap(m) || ''}</div>
+    ${passNote ? `<p class="k-passnote">${esc(passNote)}</p>` : ''}
+    <div class="k-list">${groups.map(g => `<section class="k-street"><h3>${esc(g.street)} <small>${g.items.length}</small></h3>${rows(g)}</section>`).join('')}</div>
+    ${!canTap && DB ? `<div class="k-foot">${esc(k.readOnly)}</div>` : picked ? `<div class="k-foot">${esc(k.walkedBy(picked))}${w.updated_by ? ' · ' + esc(w.updated_by) : ''}</div>` : ''}`;
+  renderTally(m);
+}
+function bookForm(kind){
+  const k = K(), t0 = todayStr();
+  const days = [0, 1, 2, 3, 4, 5, 6].map(n => addDays(t0, n));
+  const dayLbl = (d, n) => n === 0 ? k.today : n === 1 ? k.tomorrow : `${toDate(d).toLocaleDateString(locale(), {weekday: 'short'})} ${toDate(d).getDate()}`;
+  const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  const tLbl = t => { const [h] = t.split(':').map(Number); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); };
+  return `<div class="book" role="group" aria-label="${esc(k.bookQ[kind])}"><p>${esc(k.bookQ[kind])}</p>
+    <span class="k-l">${esc(k.day)}</span><div class="pickrow" data-pick="day">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${booking.day === d}">${esc(dayLbl(d, n))}</button>`).join('')}</div>
+    <span class="k-l">${esc(k.time2)}</span><div class="pickrow" data-pick="time">${times.map(t => `<button type="button" data-v="${t}" aria-pressed="${booking.time === t}">${tLbl(t)}</button>`).join('')}</div>
+    <div class="book-acts"><button type="button" class="go-save" data-book="save"${booking.day && booking.time ? '' : ' disabled'}>${esc(k.save)}</button><button type="button" data-book="cancel">${esc(k.cancel)}</button></div></div>`;
+}
+function renderTally(m){
+  const k = K(), bar = $('#tally'); bar.hidden = false;
+  const due = dueToday().length;
+  bar.innerHTML = ['doors', 'talked', 'interested', 'booked'].map(x => `<div class="tn"><b>${m.tally[x]}</b><span>${esc(k.t[x])}</span></div>`).join('') +
+    `<div class="t-acts"><button type="button" class="t-cb${due ? '' : ' none'}" id="tCb">${esc(k.cb(due))}</button>${DB && CAN_EDIT ? `<button type="button" class="t-done" id="tDone">${esc((weekDoc && weekDoc.walks && weekDoc.walks[m.w.date]) ? k.doneAgain : k.done)}</button>` : ''}</div>`;
+  $('#tCb').addEventListener('click', () => { const f = $('#tFollowH'); if (f) f.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: 'start'}); });
+  const d = $('#tDone'); if (d) d.addEventListener('click', doneForToday);
+}
+$('#knock').addEventListener('click', async ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.r) {
+    if (b.dataset.r === 'booked') { bookingPid = b.dataset.pid; booking = {day: null, time: null}; renderKnock(); const f = document.querySelector('.book button'); if (f) f.focus(); return; }
+    await tapDoor(b.dataset.pid, b.dataset.r);
+  } else if (b.dataset.undo) await undoDoor(b.dataset.undo);
+  else if (b.closest('[data-pick]')) { const k = b.closest('[data-pick]').dataset.pick; booking[k] = b.dataset.v; renderKnock(); const again = document.querySelector(`.book [data-pick="${k}"] [data-v="${b.dataset.v}"]`); if (again) again.focus(); }
+  else if (b.dataset.book === 'cancel') { bookingPid = null; renderKnock(); }
+  else if (b.dataset.book === 'save' && booking.day && booking.time) { const pid = bookingPid; bookingPid = null; await tapDoor(pid, 'booked', {...booking}); }
+});
+
+/* ---------- today's walk: writes ---------- */
+function appToast(msg){ const n = $('#appToast'); n.textContent = msg; n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), 3400); }
+function refused(e){ return e && (e.code === 'invalid_argument' || e.code === 'not_granted'); }
+const LORDER = s => LEAD_STAGES.indexOf(s);
+async function tapDoor(pid, result, book){
+  const m = walkModel(); if (!m || !DB) return;
+  const i = m.stops.findIndex(s => s.pid === pid); if (i < 0) return;
+  const s = m.stops[i], x = m.st[i], date = m.w.date, at = nowIso();
+  const prev = doorDocs[pid] || null;
+  const hist = Array.isArray(prev && prev.history) ? prev.history.slice(-8) : [];
+  const pass = x.attempt > 3 ? 3 : x.attempt;
+  const k = K(), kind = m.kind;
+  const when = book ? `${toDate(book.day).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'}).replace(',', '')}, ${(() => { const h = +book.time.slice(0, 2); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); })()}` : '';
+  const body = {date, pid, address: s.address, city: s.city, result, pass, at, by: 'FilthE', history: [...hist, {result, pass, at}]};
+  if (when) body.when = when;
+  doorDocs[pid] = body; renderKnock();     // show the tap at once; the snapshot confirms it
+  try {
+    await DB.doc(`doors/${date}_${pid}`).set(body);
+    const rec = {lead: null, prevLead: undefined};
+    if (result === 'interested' || result === 'booked') {
+      const slug = slugOf(s.address); const old = leads.find(l => l.id === slug) || null;
+      const src = kind === 'everyday' ? 'everyday' : 'storm';
+      const stage = result === 'booked' ? 'inspection_set' : 'contacted';
+      const nb = k.nextBook[kind], ni = k.nextInt[kind];
+      const esWhen = book ? `${toDate(book.day).toLocaleDateString('es-US', {weekday: 'short', day: 'numeric', month: 'short'}).replace(',', '')}, ${when.split(' ').slice(-2).join(' ')}` : '';
+      const next = result === 'booked' ? {en: `${nb[0]} ${when}`, es: `${nb[1]} ${esWhen}`, due: book.day} : {en: ni[0], es: ni[1], due: addDays(todayStr(), 1)};
+      const lead = old ? JSON.parse(JSON.stringify(old)) : {address: s.address, city: s.city, source: src, type: src === 'storm' ? 'insurance' : 'cash', stage: 'not_contacted', notes: '', doors_visits: [], created_at: at};
+      delete lead.id;
+      if (LORDER(stage) > LORDER(lead.stage) || lead.stage === 'lost' || !LEAD_STAGES.includes(lead.stage)) lead.stage = stage;
+      lead.next_step = next; lead.doors_visits = [...(Array.isArray(lead.doors_visits) ? lead.doors_visits : []), {date, result, pass}].slice(-20);
+      lead.updated_at = at; lead.updated_by = 'Today’s knock';
+      await DB.doc('leads/' + slug).set(lead);
+      rec.lead = slug; rec.prevLead = old ? (({id, ...rest}) => rest)(old) : null;
+    }
+    const u = undoLog.get(pid) || []; u.push(rec); undoLog.set(pid, u);
+  } catch (e) {
+    doorDocs[pid] = prev; renderKnock();
+    if (refused(e)) { CAN_EDIT = false; appToast(k.readOnly); renderKnock(); } else appToast(k.saveFail);
+  }
+}
+async function undoDoor(pid){
+  const m = walkModel(); if (!m || !DB) return;
+  const prev = doorDocs[pid]; if (!prev) return;
+  const hist = Array.isArray(prev.history) ? prev.history.slice(0, -1) : [];
+  const ref = DB.doc(`doors/${m.w.date}_${pid}`);
+  const back = hist.length ? Object.assign({}, prev, hist[hist.length - 1], {history: hist}) : null;
+  if (back) delete back.when;
+  doorDocs[pid] = back; renderKnock();
+  try {
+    if (back) await ref.set(back); else await ref.delete();
+    const u = undoLog.get(pid) || []; const rec = u.pop();
+    if (rec && rec.lead) { if (rec.prevLead) await DB.doc('leads/' + rec.lead).set(rec.prevLead); else await DB.doc('leads/' + rec.lead).delete(); }
+  } catch (e) { doorDocs[pid] = prev; renderKnock(); appToast(refused(e) ? K().readOnly : K().saveFail); }
+}
+function statLine(d){ const w = L().rc.statW; return STAT_KEYS.filter(x => d[x]).map(x => `${d[x]} ${w[x][d[x] === 1 ? 0 : 1]}`).join(', ') || '0'; }
+async function doneForToday(){
+  const m = walkModel(); if (!m || !DB) return;
+  const date = m.w.date, wk = isoWeek(date), ref = DB.doc('stats/week-' + wk);
+  const mine = {doors: m.tally.doors, conversations: m.tally.talked, inspections: m.kind === 'storm' ? m.tally.booked : 0, estimates: m.kind === 'everyday' ? m.tally.booked : 0, signed: 0};
+  try {
+    const snap = await ref.get(); const cur = snap.exists ? JSON.parse(JSON.stringify(snap.data())) : {};
+    const walks = cur.walks && typeof cur.walks === 'object' ? cur.walks : {};
+    const before = walks[date] || {};
+    for (const x of STAT_KEYS) cur[x] = Math.max(0, (numv(cur[x]) || 0) + mine[x] - (numv(before[x]) || 0));   // same day tapped twice counts once
+    walks[date] = {...mine, area: strv(m.w.area)}; cur.walks = walks; cur.week = wk; cur.updated_at = nowIso(); cur.updated_by = 'Today’s knock';
+    await ref.set(cur);
+    const at = nowIso();
+    if (STAT_KEYS.some(x => (numv(before[x]) || 0) !== mine[x])) await DB.doc(`events/${stampOf(at)}-you-walk`).set({agent: 'you', name: 'FilthE', lane: 'board', kind: 'handoff', to: 'king', task: 'O0', status: 'done', room: 'board', at,
+      text: `Done knocking ${strv(m.w.area)} (${date}): ${m.tally.doors} doors, ${m.tally.talked} talked, ${m.tally.interested} interested, ${m.tally.booked} booked, ${m.tally.nh} not home.`});
+    appToast(K().doneSaved(statLine(mine)));
+  } catch (e) { appToast(refused(e) ? K().readOnly : K().doneFail); }
+}
+
+/* ---------- follow-ups, tasks, week ---------- */
+function followItems(){
+  const out = [];
+  for (const l of leads) { if (['done', 'lost'].includes(l.stage)) continue; const ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'lead', id: l.id, address: strv(l.address) || l.id, text: txl(ns), due: d}); }
+  for (const c of claims) { if (['paid', 'lost'].includes(c.stage)) continue; const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(ns), due: d}); }
+  return out.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : a.address.localeCompare(b.address)));
+}
+const dueToday = () => followItems().filter(f => f.due <= todayStr());
+function dueChip(due){
+  const n = daysFromToday(due), c = L().ct;
+  if (n < 0) return `<span class="a-chip crit">! ${esc(c.overdue(-n, fmtDay(due)))}</span>`;
+  if (n === 0) return `<span class="a-chip warn">${esc(c.dueToday)}</span>`;
+  if (n === 1) return `<span class="a-chip warn">${esc(c.dueTomorrow)}</span>`;
+  return `<span class="a-chip plain">${esc(c.due(fmtDay(due, true)))}</span>`;
+}
+function fuList(items, later){
+  return `<ul class="fu${later ? ' later' : ''}">${items.map(f => `<li><button type="button" data-open="${f.kind}:${esc(f.id)}"><span class="addr">${esc(f.address)}<span class="kind">${esc(f.kind === 'lead' ? L().kLead : L().kClaim)}</span></span>${dueChip(f.due)}<span class="what">${esc(f.text || '')}</span></button></li>`).join('')}</ul>`;
+}
+function myTasks(){ return [...((board && board.now) || []), ...((board && board.next) || [])].filter(t => ownerKey(t.owner) === 'filthe' && !['done', 'parked'].includes(statusKey(t.status))); }
+function sayBox(text){ return SAMPLE && CAN_EDIT ? `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q><button type="button" class="btn sm" data-say="${esc(text)}">${esc(L().useIt)}</button></div>` : `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q></div>`; }
+function renderToday(){
+  const T = L(), t0 = todayStr();
+  $('#tDate').textContent = toDate(t0).toLocaleDateString(locale(), {weekday: 'long', month: 'long', day: 'numeric'});
+  const due = dueToday(), asks = openAsks(), tasks = myTasks();
+  const bits = []; if (asks.length) bits.push(`<b class="hot">${esc(T.sumAsk(asks.length))}</b>`); if (due.length) bits.push(`<b class="crit">${esc(T.sumDue(due.length))}</b>`); if (tasks.length) bits.push(`<b>${esc(T.sumTask(tasks.length))}</b>`);
+  $('#tSum').innerHTML = bits.length ? bits.join(' · ') : esc(T.sumClear);
+  renderKnock();
+  // loud questions
+  const ab = $('#tAsks'); ab.hidden = !asks.length;
+  if (asks.length) { ab.className = 'asks-loud'; ab.innerHTML = `<h2 class="ah">${esc(T.asksH(asks.length))}</h2><p class="a-quiet" style="font-size:14px">${esc(T.asksSub)}</p><ul class="qlist">${asks.map(x => `<li><span><span class="qid">${esc(x.id)}</span>${esc(x.q)}</span>${askControls(x, 't')}</li>`).join('')}</ul>`; wireAnswers(ab); }
+  // follow-ups
+  $('#tFollowH').innerHTML = `${esc(T.followH)} <span class="n">${due.length || ''}</span>`;
+  const later = followItems().filter(f => f.due > t0 && f.due <= addDays(t0, 7));
+  $('#tFollow').innerHTML = !leads.length && !claims.length ? `<p class="a-quiet">${esc(T.followEmpty)}</p>` :
+    (due.length ? fuList(due) : `<p class="a-quiet">${esc(T.followNone)}</p>`) + (later.length ? `<h3 class="ah" style="font-size:15px;margin-top:6px">${esc(T.followLater)}</h3>` + fuList(later.slice(0, 6), true) : '');
+  // tasks
+  $('#tTasksH').innerHTML = `${esc(T.tasksH)} <span class="n">${tasks.length || ''}</span>`;
+  const shown = showAllTasks ? tasks : tasks.slice(0, 3);
+  $('#tTasks').innerHTML = !tasks.length ? `<p class="a-quiet">${esc(T.tasksNone)}</p>` : `<ul class="mytasks">${shown.map(x => `<li><span class="tid">${esc(x.id)}</span><span class="tt">${esc(x.task)}</span></li>`).join('')}</ul>${tasks.length > 3 ? `<button type="button" class="linkbtn" id="tMore">${esc(showAllTasks ? T.showLess : T.showAll(tasks.length))}</button>` : ''}`;
+  const more = $('#tMore'); if (more) more.addEventListener('click', () => { showAllTasks = !showAllTasks; renderToday(); });
+  // week numbers: bars read as a funnel against this week's doors
+  const wk = isoWeek(t0); const wd = weekDoc || {}, lw = lastWeekDoc || {};
+  $('#tWeekH').innerHTML = `${esc(T.weekH)} <small>${esc(T.weekSub(wk.slice(5).replace(/^0/, ''), weekRange(t0)))}</small>`;
+  const top = Math.max(1, numv(wd.doors) || 0, ...STAT_KEYS.map(x => numv(wd[x]) || 0));
+  $('#tWeek').innerHTML = `<div class="wk">${STAT_KEYS.map(x => { const v = numv(wd[x]) || 0, p = numv(lw[x]);
+    return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small style="color:var(--mute);font-size:12px">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span></div>`; }).join('')}</div>
+    ${!weekDoc ? sayBox(T.exWeek) : ''}`;
+  // go knock links
+  $('#tGoH').textContent = T.goH;
+  const links = ['https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX', 'https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B', 'https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj'];
+  $('#tGo').innerHTML = T.go.map(([h, s], i) => `<a href="${links[i]}" target="_blank" rel="noopener"><b>${esc(h)}</b><span>${esc(s)}</span></a>`).join('');
+}
+function wireAnswers(root){
+  for (const row of root.querySelectorAll('.ans')) {
+    const send = val => { const inp = row.querySelector('input'); const note = inp ? inp.value.trim() : '';
+      if (val === 'send' && !note) { if (inp) inp.focus(); return; } sendAnswer(row.dataset.q, val === 'send' ? 'Reply' : val, note); };
+    row.addEventListener('click', ev => { const b = ev.target.closest('button[data-a]'); if (b) send(b.dataset.a); });
+    const inp = row.querySelector('input'); if (inp) inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); send('send'); } });
+  }
+}
+
+/* ---------- leads ---------- */
+const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
+const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
+function leadTrack(l){
+  const i = lIdx(l), n = 9, T = L();
+  const segs = LEAD_STAGES.slice(0, 9).map((s, k) => `<i class="${l.stage === 'lost' ? '' : k < i || l.stage === 'done' ? 'done' : k === i ? 'now' : ''}" title="${k + 1}. ${esc(lstageName(l, s))}"></i>`).join('');
+  const left = l.stage === 'lost' ? `<b>${esc(lstageName(l, 'lost'))}</b>` : `${esc(T.stepOf(i + 1, n))} · <b>${esc(lstageName(l, LEAD_STAGES[i]))}</b>`;
+  const right = l.stage !== 'lost' && i < 8 ? `<span>${esc(T.then(lstageName(l, LEAD_STAGES[i + 1]).toLowerCase()))}</span>` : '';
+  return `<span><span class="a-track${l.stage === 'lost' ? ' lost' : l.stage === 'done' ? ' paid' : ''}" style="--n:9" role="img" aria-label="${esc(l.stage === 'lost' ? lstageName(l, 'lost') : T.stepOf(i + 1, n) + ': ' + lstageName(l, LEAD_STAGES[i]))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
+}
+function nextBox(ns, finished, tag){
+  const T = L(), text = txl(ns), due = ns && typeof ns === 'object' ? dayOf(ns.due) : null;
+  const late = due && !finished && daysFromToday(due) < 0;
+  return `<${tag || 'span'} class="a-next${late ? ' overdue' : ''}"><span class="lbl"><b>${esc(T.ct.next)}</b>${due && !finished ? dueChip(due) : ''}</span><span class="txt${text ? '' : ' none'}">${esc(text || T.noNextLead)}</span></${tag || 'span'}>`;
+}
+function leadCard(l){
+  const T = L(), v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
+  const meta = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · ');
+  const tags = [SOURCES.includes(l.source) ? `<span class="a-chip src">${esc(T.src[l.source])}</span>` : '', LTYPES.includes(l.type) ? `<span class="a-chip ${l.type === 'cash' ? 'paid' : 'plain'}">${esc(T.typ[l.type])}</span>` : ''].join('');
+  const lastV = v.length ? dayOf(v[v.length - 1].date) : null;
+  return `<button type="button" class="a-card" data-open="lead:${esc(l.id)}"><span class="c-top"><span><span class="c-addr">${esc(strv(l.address) || l.id)}</span><span class="c-meta">${esc(meta)}</span></span><span class="c-tags">${tags}</span></span>
+    ${leadTrack(l)}${nextBox(l.next_step, ['done', 'lost'].includes(l.stage))}
+    ${v.length ? `<span class="c-line">${esc(T.visits(v.length))}${lastV ? ' · ' + esc(T.lastVisit(fmtDay(lastV))) : ''}</span>` : ''}</button>`;
+}
+function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
+function renderLeads(){
+  const T = L();
+  const active = leads.filter(l => !WON.includes(l.stage) && l.stage !== 'lost'), won = leads.filter(l => WON.includes(l.stage)), lost = leads.filter(l => l.stage === 'lost');
+  const sets = {active, won, lost};
+  $('#lfStage').innerHTML = ['active', 'won', 'lost'].map(k => `<button type="button" data-f="${k}" aria-pressed="${leadStageF === k}">${esc(T.fStage[k])}<small>${sets[k].length}</small></button>`).join('');
+  const srcs = ['all', ...SOURCES.filter(s => leads.some(l => l.source === s))];
+  $('#lfSrc').innerHTML = srcs.length > 2 ? srcs.map(s => `<button type="button" data-s="${s}" aria-pressed="${leadSrcF === s}">${esc(s === 'all' ? T.fAll : T.src[s])}</button>`).join('') : '';
+  $('#lBar').hidden = !leads.length;
+  const list = sets[leadStageF].filter(l => leadSrcF === 'all' || l.source === leadSrcF).sort((a, b) => leadDue(a).localeCompare(leadDue(b)) || strv(a.address).localeCompare(strv(b.address)));
+  $('#lCards').innerHTML = list.map(leadCard).join('');
+  $('#lEmpty').innerHTML = !leads.length && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.leadsEmptyH)}</h3><p>${esc(T.leadsEmptyP)}</p>${sayBox(T.exLead)}<div class="a-how"><h3>${esc(T.howLead)}</h3><ol class="flow">${LEAD_STAGES.slice(0, 9).map(s => `<li>${esc(txl(LSTAGE[s]))}</li>`).join('')}</ol></div></div>`
+    : leads.length && !list.length ? `<p class="a-quiet">${esc(T.leadsNone)}</p>` : '';
+}
+$('#lfStage').addEventListener('click', ev => { const b = ev.target.closest('[data-f]'); if (b) { leadStageF = b.dataset.f; renderLeads(); } });
+$('#lfSrc').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { leadSrcF = b.dataset.s; renderLeads(); } });
+
+/* ---------- money: claims (Claim Tracker math) + cash jobs ---------- */
+function money(c){
+  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {}, dep = c.depreciation_check && typeof c.depreciation_check === 'object' ? c.depreciation_check : {}, mort = c.mortgage && typeof c.mortgage === 'object' ? c.mortgage : {};
+  const acvAmt = numv(acv.amount), held = numv(c.depreciation_held), rcv = numv(c.rcv), ded = numv(c.deductible);
+  const supps = Array.isArray(c.supplements) ? c.supplements.filter(s => s && typeof s === 'object') : [];
+  const supp = supps.reduce((s, x) => s + (numv(x.approved) || 0), 0);
+  let approved;
+  if (acvAmt != null || held != null) approved = (acvAmt || 0) + (held || 0) + supp;
+  else if (rcv != null) approved = Math.max(0, rcv - (ded || 0)) + supp;   // the insurer's total never includes the homeowner's part
+  else approved = supp;
+  const mortOut = yesv(mort.check_sent) && !yesv(mort.check_returned);
+  const acvGot = yesv(acv.received) || yesv(acv.deposited) || yesv(mort.check_sent);
+  const acvIn = acvGot ? acvAmt || 0 : 0, depAmt = numv(dep.amount), depIn = yesv(dep.date) || yesv(dep.received) ? depAmt || 0 : 0;
+  const received = acvIn + depIn;
+  let mortAmt = mortOut ? (numv(mort.amount) != null ? numv(mort.amount) : acvIn) : 0;
+  let collected = (yesv(acv.deposited) ? acvIn : 0) + depIn, owed = Math.max(0, approved - received);
+  if (c.stage === 'paid') { collected = Math.max(collected, received); mortAmt = 0; owed = 0; }
+  if (c.stage === 'lost') owed = 0;
+  const inHand = Math.max(0, received - collected - mortAmt);
+  return {approved, collected, owed, mortAmt, mortOut, inHand, received, acvAmt, acvGot, held, supp, supps, rcv, depAmt, depIn, contract: numv(c.contract_price), ded, mortCo: strv(mort.company)};
+}
+function cashMoney(l){ const price = numv(l.contract_price), dep = numv(l.deposit), paid = Math.max(numv(l.paid) || 0, 0); const got = Math.max(paid, dep || 0); return {price, dep, got, owed: price != null ? Math.max(0, price - got) : 0}; }
+const cStage = s => txl(CSTAGE[s] || CSTAGE.inspected);
+const cIdx = c => { const i = CLAIM_STEPS.indexOf(c.stage); return c.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
+function claimTrack(c){
+  const i = cIdx(c), T = L(), n = CLAIM_STEPS.length;
+  const segs = CLAIM_STEPS.map((s, k) => `<i class="${c.stage === 'lost' ? '' : k < i || c.stage === 'paid' ? 'done' : k === i ? 'now' : ''}" title="${k + 1}. ${esc(cStage(s))}"></i>`).join('');
+  const left = c.stage === 'lost' ? `<b>${esc(T.ct.lostLbl)}</b>` : `${esc(T.stepOf(i + 1, n))} · <b>${esc(cStage(CLAIM_STEPS[i]))}</b>`;
+  const right = c.stage !== 'lost' && i < n - 1 ? `<span>${esc(T.then(cStage(CLAIM_STEPS[i + 1]).toLowerCase()))}</span>` : '';
+  return `<span><span class="a-track${c.stage === 'paid' ? ' paid' : c.stage === 'lost' ? ' lost' : ''}" style="--n:${n}" role="img" aria-label="${esc(c.stage === 'lost' ? T.ct.lostLbl : T.stepOf(i + 1, n) + ': ' + cStage(CLAIM_STEPS[i]))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
+}
+function claimCard(c){
+  const T = L(), C = T.ct, fin = c.stage === 'paid' || c.stage === 'lost', m = money(c);
+  const bits = [strv(c.city), strv(c.homeowner_first_name)].filter(Boolean).map(esc);
+  const clm = [strv(c.insurer) ? esc(strv(c.insurer)) : '', strv(c.claim_no) ? `<span class="nw">${esc(C.claim)} ${esc(strv(c.claim_no))}</span>` : ''].filter(Boolean).join(' · ');
+  const meta = [...bits, clm ? `<span class="clm">${clm}</span>` : ''].filter(Boolean).join(' · ');
+  const top = `<span class="c-top"><span><span class="c-addr">${esc(strv(c.address) || c.id)}</span><span class="c-meta">${meta}</span></span>${fin ? `<span class="c-tags"><span class="a-chip ${c.stage === 'paid' ? 'paid' : 'lost'}">${esc(cStage(c.stage))}</span></span>` : `<span class="c-tags"><span class="a-chip plain">${esc(T.typ.insurance)}</span></span>`}</span>`;
+  if (fin) return `<button type="button" class="a-card compact" data-open="claim:${esc(c.id)}">${top}<span class="c-line">${esc(C.collectedTotal)}: <b>${usd(m.collected)}</b>${m.contract != null ? ' ' + esc(C.ofContract(usd(m.contract))) : ''}</span></button>`;
+  let mon;
+  if (!m.approved && !m.received) mon = `<span class="c-money"><span class="none">${esc(C.noMoney)}</span></span>`;
+  else { const parts = []; if (m.mortAmt) parts.push(`${usd(m.mortAmt)} ${C.atCo(m.mortCo || C.mortShort)}`); if (m.owed) parts.push(`${usd(m.owed)} ${C.fromIns}`); if (m.inHand) parts.push(`${usd(m.inHand)} ${C.toDeposit}`);
+    mon = `<span class="c-money"><span><span class="k"><span class="msw in"></span>${esc(C.moneyIn)}</span><span class="v">${usd(m.collected)}</span></span><span><span class="k">${esc(C.waiting)}</span><span class="v">${usd(m.owed + m.mortAmt + m.inHand)}</span><span class="parts">${esc(parts.join(' · ') || C.nothingWaiting)}</span></span></span>`; }
+  return `<button type="button" class="a-card" data-open="claim:${esc(c.id)}">${top}${claimTrack(c)}${nextBox(c.next_step, false)}${mon}</button>`;
+}
+function cashCard(l){
+  const T = L(), cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0;
+  return `<button type="button" class="a-card${fin ? ' compact' : ''}" data-open="lead:${esc(l.id)}"><span class="c-top"><span><span class="c-addr">${esc(strv(l.address) || l.id)}</span><span class="c-meta">${esc([strv(l.city), strv(l.first_name)].filter(Boolean).join(' · '))}</span></span><span class="c-tags"><span class="a-chip paid">${esc(T.typ.cash)}</span></span></span>
+    ${fin ? '' : nextBox(l.next_step, false)}
+    <span class="c-money three"><span><span class="k">${esc(T.price)}</span><span class="v">${cm.price != null ? usd(cm.price) : '–'}</span></span><span><span class="k"><span class="msw in"></span>${esc(T.paidSoFar)}</span><span class="v">${usd(cm.got)}</span></span><span><span class="k"><span class="msw owed"></span>${esc(T.owed)}</span><span class="v">${usd(cm.owed)}</span></span></span></button>`;
+}
+function howHtml(withTitle){
+  const C = L().ct;
+  return `<div class="a-how">${withTitle ? `<h3>${esc(C.howH)}</h3>` : ''}<p class="hsub">${esc(C.howSub)}</p><ol class="strip">${HOW.map(s => `<li><b>${esc(s[lang][0])}</b><span>${esc(s[lang][1])}</span></li>`).join('')}</ol>
+    <div class="canrow">${[C.can, C.cant].map(([k, v]) => `<p><b>${esc(k)}</b> ${esc(v)}</p>`).join('')}</div></div>`;
+}
+function claimSort(a, b){ const da = a.next_step && dayOf(a.next_step.due) || '9999', db2 = b.next_step && dayOf(b.next_step.due) || '9999'; return da.localeCompare(db2) || strv(a.address).localeCompare(strv(b.address)); }
+function renderMoney(){
+  const T = L(), C = T.ct;
+  const cash = leads.filter(l => l.type === 'cash' && numv(l.contract_price) != null && l.stage !== 'lost');
+  const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost').sort(claimSort);
+  const cashOpen = cash.filter(l => { const m = cashMoney(l); return !(m.owed === 0 && m.got > 0); });
+  const cashDone = cash.filter(l => !cashOpen.includes(l));
+  const doneC = claims.filter(c => c.stage === 'paid' || c.stage === 'lost').sort((a, b) => (strv(b.updated_at) > strv(a.updated_at) ? 1 : -1));
+  const has = claims.length || cash.length;
+  $('#mTotals').hidden = !has;
+  if (has) {
+    const s = {ins: 0, cash: 0, collected: 0, owedI: 0, owedH: 0, mort: 0, mortN: 0, inHand: 0};
+    for (const c of claims.filter(c => c.stage !== 'lost')) { const m = money(c); s.ins += m.approved; s.collected += m.collected; s.owedI += m.owed; s.mort += m.mortAmt; s.inHand += m.inHand; if (m.mortAmt) s.mortN++; }
+    for (const l of cash) { const m = cashMoney(l); s.cash += m.price || 0; s.collected += m.got; s.owedH += m.owed; }
+    $('#mTotalsH').textContent = T.mTotals;
+    $('#kSold').textContent = T.mSold; $('#vSold').textContent = usd(s.ins + s.cash); $('#sSold').textContent = T.mSoldS(usd(s.ins), usd(s.cash));
+    $('#kCollected').textContent = T.mCollected; $('#vCollected').textContent = usd(s.collected); $('#sCollected').textContent = T.mCollectedS;
+    $('#kOwed').textContent = T.mOwed; $('#vOwed').textContent = usd(s.owedI + s.owedH); $('#sOwed').textContent = T.mOwedS(usd(s.owedI), usd(s.owedH));
+    $('#kMort').textContent = T.mMort; $('#vMort').textContent = usd(s.mort); $('#sMort').textContent = T.mMortS(s.mortN);
+    const total = s.collected + s.inHand + s.mort + s.owedI + s.owedH;
+    const segs = [['in', s.collected, T.mCollected], ['hand', s.inHand, C.inHand], ['mort', s.mort, T.mMort], ['owed', s.owedI + s.owedH, T.mOwed]].filter(x => x[1] > 0 && total);
+    $('#moneybar').innerHTML = segs.length ? segs.map(([c, v, n]) => `<span class="${c}" style="flex:${v} 1 0" title="${esc(n)}: ${usd(v)}"></span>`).join('') : '<span class="owed" style="flex:1 1 0"></span>';
+    $('#moneybar').setAttribute('aria-label', `${T.mBar}: ${segs.map(([, v, n]) => `${n} ${usd(v)}`).join(', ') || usd(0)}`);
+    const overdue = openC.filter(c => c.next_step && dayOf(c.next_step.due) && daysFromToday(dayOf(c.next_step.due)) < 0).length;
+    $('#moneynote').innerHTML = `<span><b>${esc(T.mCounts(openC.length, overdue))}</b></span>${s.inHand ? `<span><span class="msw hand"></span>${esc(C.inHand)}: <b>${usd(s.inHand)}</b></span>` : ''}`;
+  }
+  const g = txl(guideDoc); $('#mTip').hidden = !g; $('#mTipK').textContent = C.tip; $('#mTipT').textContent = g;
+  const sec = (id, list, h, fn) => { $('#' + id + 'Sec').hidden = !list.length; $('#' + id + 'H').textContent = h; $('#' + id + 'N').textContent = list.length || ''; $('#' + id).innerHTML = list.map(fn).join(''); };
+  sec('mOpen', openC, T.mOpen, claimCard);
+  sec('mCash', cashOpen, T.mCash, cashCard);
+  const fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
+  sec('mDone', fin, T.mDone, x => x.c ? claimCard(x.c) : cashCard(x.l));
+  $('#mEmpty').innerHTML = !has && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.moneyEmptyH)}</h3><p>${esc(T.moneyEmptyP)}</p>${sayBox(T.exMoney)}${howHtml(true)}</div>` : '';
+  $('#mHow').hidden = !has; if (has) { $('#mHowS').textContent = C.howMore; $('#mHowIn').innerHTML = howHtml(false); }
+  $('#mRules').textContent = C.rules;
+}
+
+/* ---------- detail sheet (lead or claim) ---------- */
+function openSheet(ref, from){ openRef = ref; lastFocus = from || document.activeElement; $('#sheetWrap').hidden = false; document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); }
+function closeSheet(){ openRef = null; $('#sheetWrap').hidden = true; document.body.style.overflow = ''; if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus(); }
+const factsHtml = pairs => `<dl class="facts">${pairs.map(([k, v]) => `<dt>${esc(k)}</dt>${v ? `<dd>${v}</dd>` : `<dd class="none">${esc(L().ct.none)}</dd>`}`).join('')}</dl>`;
+const fmtFact = v => (dayOf(v) ? esc(fmtDay(dayOf(v), true)) : yesv(v) ? esc(L().ct.yes) : '');
+const lrow = (label, amount, cls, st) => `<div class="lrow${cls ? ' ' + cls : ''}"><span class="l">${esc(label)}</span><span class="a">${amount}</span>${st && st.length ? `<span class="st">${st.join('')}</span>` : ''}</div>`;
+const okS = s => `<span class="ok">✓ ${esc(s)}</span>`, waitS = s => `<span class="wait">${esc(s)}</span>`, plainS = s => `<span>${esc(s)}</span>`;
+const copyHtml = text => `<span>${esc(text)}</span><button type="button" class="copy" data-copy="${esc(text)}">${esc(L().ct.copy)}</button>`;
+function renderSheet(){
+  if (!openRef) return;
+  const [kind, id] = [openRef.slice(0, openRef.indexOf(':')), openRef.slice(openRef.indexOf(':') + 1)];
+  const T = L(), C = T.ct; $('#shClose').textContent = T.close;
+  if (kind === 'lead') {
+    const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
+    $('#shEyebrow').textContent = [SOURCES.includes(l.source) ? T.src[l.source] : '', LTYPES.includes(l.type) ? T.typ[l.type] : ''].filter(Boolean).join(' · ');
+    $('#shTitle').textContent = strv(l.address) || l.id; $('#shSub').textContent = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · ');
+    $('#shTrack').innerHTML = leadTrack(l);
+    const v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
+    const claim = claims.find(c => c.id === l.id);
+    const parts = [nextBox(l.next_step, ['done', 'lost'].includes(l.stage), 'div')];
+    if (l.type === 'cash' && numv(l.contract_price) != null) { const m = cashMoney(l);
+      parts.push(`<section class="box"><h3>${esc(T.cashH)}</h3><div class="ledger">${lrow(T.price, usd(m.price), 'total')}${m.dep != null ? lrow(T.deposit, usd(m.dep), 'sub') : ''}${lrow(T.paidSoFar, usd(m.got), 'sub')}${lrow(T.owed, usd(m.owed), 'total')}</div></section>`); }
+    parts.push(`<section class="box"><h3>${esc(T.stepsH)}</h3><ol class="steps">${LEAD_STAGES.slice(0, 9).map((s, k) => { const i = lIdx(l); return `<li class="${l.stage === 'lost' ? '' : k < i || l.stage === 'done' ? 'done' : k === i ? 'now' : ''}"><i>${k + 1}</i>${esc(lstageName(l, s))}</li>`; }).join('')}</ol></section>`);
+    parts.push(`<section class="box"><h3>${esc(T.detailsH)}</h3>${factsHtml([[T.lName, esc(strv(l.first_name))], [T.lPhone, strv(l.phone) ? copyHtml(strv(l.phone)) : ''], [T.lCity, esc(strv(l.city))], [T.lSource, SOURCES.includes(l.source) ? esc(T.src[l.source]) : ''], [T.lType, LTYPES.includes(l.type) ? esc(T.typ[l.type]) : '']])}</section>`);
+    parts.push(`<section class="box"><h3>${esc(T.visitsH)}</h3>${v.length ? `<ol class="tlx">${v.slice().reverse().map(x => `<li><span class="d">${dayOf(x.date) ? esc(fmtDay(dayOf(x.date))) : ''}</span><span class="dot"></span><span class="t">${esc(K().res[x.result] || x.result || '')}${x.pass ? ' · ' + esc(K().pass(x.pass).replace(/<\/?b>/g, '')) : ''}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(T.noVisits)}</p>`}</section>`);
+    const note = typeof l.notes === 'string' ? l.notes.trim() : txl(l.notes);
+    if (note) parts.push(`<section class="box"><h3>${esc(T.notesH)}</h3><p class="notes">${esc(note)}</p></section>`);
+    parts.push(`<div class="sheet-acts">${claim ? `<button type="button" class="btn" data-open="claim:${esc(claim.id)}">${esc(T.openClaim)}</button>` : ''}${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(l.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
+    const st = [dayOf(l.created_at) ? T.created(fmtDay(dayOf(l.created_at))) : '', fmtWhen(l.updated_at) ? C.updated(fmtWhen(l.updated_at), strv(l.updated_by)) : ''].filter(Boolean).join(' · ');
+    if (st) parts.push(`<p class="stamp">${esc(st)}</p>`);
+    $('#shBody').innerHTML = parts.join('');
+    return;
+  }
+  const c = claims.find(x => x.id === id); if (!c) { closeSheet(); return; }
+  const m = money(c);
+  $('#shEyebrow').textContent = [strv(c.insurer), strv(c.claim_no) ? `${C.claim} ${strv(c.claim_no)}` : ''].filter(Boolean).join(' · ');
+  $('#shTitle').textContent = strv(c.address) || c.id;
+  $('#shSub').textContent = [strv(c.city), strv(c.homeowner_first_name) ? `${C.homeowner}: ${strv(c.homeowner_first_name)}` : ''].filter(Boolean).join(' · ');
+  $('#shTrack').innerHTML = claimTrack(c);
+  const parts = [nextBox(c.next_step, c.stage === 'paid' || c.stage === 'lost', 'div')];
+  // quick taps (editors only)
+  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {};
+  if (DB && CAN_EDIT && c.stage !== 'paid' && c.stage !== 'lost') {
+    const acts = [];
+    if (m.acvAmt && !m.acvGot) acts.push([C.markAcv, 'acv']);
+    if (m.mortOut) acts.push([C.markBack(m.mortCo || C.mortShort), 'back']);
+    if (m.acvGot && !m.mortOut && !yesv(acv.deposited)) acts.push([C.markDeposit, 'dep']);
+    if (acts.length) parts.push(`<section class="box"><h3>${esc(C.taps)}</h3><div class="taps">${acts.map(([lb, k]) => `<button type="button" class="tap" data-tap="${k}" data-label="${esc(lb)}">${esc(lb)}</button>`).join('')}</div><p class="taps-note">${esc(C.tapsNote)}</p></section>`);
+  }
+  const led = [lrow(C.approvedTotal, usd(m.approved), 'total', [plainS(C.approvedHow)])];
+  if (m.rcv != null) led.push(lrow(C.rcv, usd(m.rcv), 'sub'));
+  if (m.acvAmt != null) { const mort = c.mortgage || {}, st = [];
+    st.push(m.acvGot ? okS(dayOf(acv.received) ? C.received(fmtDay(dayOf(acv.received))) : C.receivedYes) : plainS(C.notYet));
+    if (m.mortOut) st.push(waitS(C.atMortSince(m.mortCo || C.mortShort, dayOf(mort.check_sent) ? fmtDay(dayOf(mort.check_sent)) : '')));
+    else if (yesv(mort.check_returned) && !yesv(acv.deposited)) st.push(plainS(C.backFrom(m.mortCo || C.mortShort, dayOf(mort.check_returned) ? fmtDay(dayOf(mort.check_returned)) : '')));
+    if (yesv(acv.deposited)) st.push(okS(dayOf(acv.deposited) ? C.deposited(fmtDay(dayOf(acv.deposited))) : C.depositedYes)); else if (m.acvGot && !m.mortOut) st.push(waitS(C.notDeposited));
+    led.push(lrow(C.acv, usd(m.acvAmt), 'sub', st)); }
+  const depc = c.depreciation_check || {};
+  if (m.held != null) led.push(lrow(C.depHeld, usd(m.held), 'sub', [m.depIn ? okS(`${C.depCheck}: ${usd(m.depAmt)}${dayOf(depc.date) ? ' · ' + fmtDay(dayOf(depc.date)) : ''}`) : plainS(C.depHint)]));
+  else if (m.depIn) led.push(lrow(C.depCheck, usd(m.depAmt), 'sub', [okS(dayOf(depc.date) ? C.received(fmtDay(dayOf(depc.date))) : C.receivedYes)]));
+  for (const s of m.supps) { const asked = numv(s.asked), appr = numv(s.approved), st = [];
+    if (asked != null) st.push(plainS(C.suppAsked(usd(asked)) + (dayOf(s.date) ? ' · ' + fmtDay(dayOf(s.date)) : ''))); else if (dayOf(s.date)) st.push(plainS(fmtDay(dayOf(s.date))));
+    st.push(appr != null ? okS(C.suppApproved(usd(appr))) : s.approved === true ? okS(C.suppYes) : s.approved === false ? plainS(C.suppNo) : waitS(C.suppWait));
+    const what = txl(s.item); led.push(lrow(what ? `${C.supp}: ${what}` : C.supp, appr != null ? usd(appr) : asked != null ? usd(asked) : '', 'sub', st)); }
+  led.push(lrow(C.collectedTotal, usd(m.collected), 'total', m.contract != null ? [plainS(C.ofContract(usd(m.contract)))] : []));
+  parts.push(`<section class="box"><h3>${esc(C.money)}</h3><div class="ledger">${led.join('')}</div>${m.ded != null ? `<div class="hopays"><span>${esc(C.homeownerPays)}:</span><span class="a">${usd(m.ded)}</span></div>` : ''}</section>`);
+  const i = cIdx(c);
+  parts.push(`<section class="box"><h3>${esc(C.steps)}</h3><ol class="steps">${CLAIM_STEPS.map((s, k) => `<li class="${c.stage === 'lost' ? '' : k < i || c.stage === 'paid' ? 'done' : k === i ? 'now' : ''}"><i>${k + 1}</i>${esc(cStage(s))}</li>`).join('')}</ol></section>`);
+  const adj = c.adjuster && typeof c.adjuster === 'object' ? c.adjuster : {}, mort = c.mortgage && typeof c.mortgage === 'object' ? c.mortgage : {};
+  parts.push(`<section class="box"><h3>${esc(C.facts)}</h3>${factsHtml([[C.insurer, esc(strv(c.insurer))], [C.claimNo, esc(strv(c.claim_no))], [C.adjuster, esc(strv(adj.name))], [C.adjPhone, strv(adj.phone) ? copyHtml(strv(adj.phone)) : ''],
+    [C.dateOfLoss, fmtFact(c.date_of_loss)], [C.adjMeeting, fmtFact(c.adjuster_date)], [C.scopeDate, fmtFact(c.scope_date)],
+    ...(strv(mort.company) || yesv(mort.check_sent) ? [[C.mortCo, esc(strv(mort.company))], [C.checkSent, fmtFact(mort.check_sent)], [C.checkBack, fmtFact(mort.check_returned)]] : [])])}</section>`);
+  const mat = c.materials && typeof c.materials === 'object' ? c.materials : {}, inst = c.install && typeof c.install === 'object' ? c.install : {};
+  parts.push(`<section class="box"><h3>${esc(C.job)}</h3>${factsHtml([[C.contract, m.contract != null ? usd(m.contract) : ''], [C.ordered, fmtFact(mat.ordered)], [C.supplier, esc(strv(mat.supplier))], [C.matCost, numv(mat.cost) != null ? usd(numv(mat.cost)) : ''], [C.installStart, fmtFact(inst.start)], [C.installDone, fmtFact(inst.done)], [C.completion, fmtFact(c.completion_sent)]])}</section>`);
+  // timeline
+  const ev = []; const add = (v, text, k) => { const d = dayOf(v); if (d) ev.push({d, text, k: k || ''}); };
+  add(c.date_of_loss, C.evLoss); add(c.adjuster_date, C.evAdj); add(c.scope_date, C.evScope); add(acv.received, C.evAcv(m.acvAmt ? usd(m.acvAmt) : ''), 'cash');
+  add(mort.check_sent, C.evMortOut(m.mortCo || C.mortShort)); add(mort.check_returned, C.evMortBack(m.mortCo || C.mortShort)); add(acv.deposited, C.evDeposit, 'cash');
+  for (const s of m.supps) add(s.date, C.evSupp(numv(s.asked) != null ? usd(numv(s.asked)) : ''));
+  add(mat.ordered, C.evMat(strv(mat.supplier))); add(inst.start, C.evStart); add(inst.done, C.evDone); add(c.completion_sent, C.evCompletion); add(depc.date, C.evDepCheck(m.depAmt ? usd(m.depAmt) : ''), 'cash');
+  const t0 = todayStr(); for (const e of ev) if (e.d > t0) e.k += ' future';
+  const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, nd = ns && dayOf(ns.due);
+  if (nd && txl(ns) && c.stage !== 'paid' && c.stage !== 'lost') ev.push({d: nd, text: txl(ns), k: nd >= t0 ? 'future' : 'future late'});
+  ev.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
+  parts.push(`<section class="box"><h3>${esc(C.timeline)}</h3>${ev.length ? `<ol class="tlx">${ev.map(e => `<li class="${e.k.trim()}"><span class="d">${esc(fmtDay(e.d))}</span><span class="dot"></span><span class="t">${e.k.includes('future') ? `<small>${esc(e.k.includes('late') ? C.overdue(-daysFromToday(e.d), fmtDay(e.d)) : C.evNext)}</small>` : ''}${esc(e.text)}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(C.noEvents)}</p>`}</section>`);
+  const note = typeof c.notes === 'string' ? c.notes.trim() : txl(c.notes);
+  if (note) parts.push(`<section class="box"><h3>${esc(C.notes)}</h3><p class="notes">${esc(note)}</p></section>`);
+  const lead = leads.find(l => l.id === c.id);
+  if (lead || (SAMPLE && CAN_EDIT)) parts.push(`<div class="sheet-acts">${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(c.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
+  if (fmtWhen(c.updated_at)) parts.push(`<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>`);
+  $('#shBody').innerHTML = parts.join('');
+}
+$('#shBody').addEventListener('click', async ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  const C = L().ct;
+  if (b.dataset.copy != null) { const done = () => { b.textContent = C.copied; setTimeout(() => (b.textContent = C.copy), 1500); };
+    const fb = () => { const r = document.createRange(); r.selectNodeContents(b.previousSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try { navigator.clipboard.writeText(b.dataset.copy).then(done, fb); } catch (e) { fb(); } return; }
+  if (b.dataset.tell != null) { closeSheet(); const inp = $('#kcInput'); inp.value = b.dataset.tell + ', '; inp.focus(); inp.scrollIntoView({block: 'center'}); return; }
+  if (b.dataset.tap) {
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = C.confirm; b._t = setTimeout(() => { b.classList.remove('armed'); b.textContent = b.dataset.label; }, 4000); return; }
+    clearTimeout(b._t); b.disabled = true;
+    const id = openRef.slice(6), t0 = todayStr();
+    const patch = b.dataset.tap === 'acv' ? {acv: {received: t0}} : b.dataset.tap === 'back' ? {mortgage: {check_returned: t0}} : {acv: {deposited: t0}};
+    try { await DB.doc('claims/' + id).update(Object.assign(patch, {updated_at: nowIso(), updated_by: 'page tap'})); appToast(C.saved); }
+    catch (e) { if (refused(e)) { CAN_EDIT = false; appToast(C.readOnly); } else appToast(C.failed); renderSheet(); }
+  }
+});
+document.addEventListener('click', ev => {
+  const o = ev.target.closest('[data-open]'); if (o) { openSheet(o.dataset.open, o); return; }
+  const s = ev.target.closest('[data-say]'); if (s) { const inp = $('#kcInput'); inp.value = s.dataset.say; inp.focus(); inp.scrollIntoView({block: 'center'}); }
+});
+$('#shClose').addEventListener('click', closeSheet);
+$('#scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => {
+  if (!openRef) return;
+  if (e.key === 'Escape') closeSheet();
+  if (e.key === 'Tab') { const f = [...$('#sheet').querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.disabled); if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); } }
+});
+
+/* ---------- whole app ---------- */
+function renderBadges(){
+  const due = dueToday().length, asks = openAsks().length;
+  const bt = $('#bd-today'); bt.textContent = asks + due ? String(asks + due) + ' !' : ''; bt.className = 'bd' + (due ? ' crit' : asks ? ' hot' : '');
+  const act = leads.filter(l => !WON.includes(l.stage) && l.stage !== 'lost').length; $('#bd-leads').textContent = act ? String(act) : '';
+  const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost').length; $('#bd-money').textContent = openC ? String(openC) : '';
+  const busy = [...agents.values()].filter(a => !a.hidden && a.disp && a.disp.status === 'working').length; $('#bd-crew').textContent = busy ? String(busy) : '';
+}
+function renderApp(){
+  const T = L(), ban = $('#appBanner');
+  ban.hidden = appState === 'on'; ban.className = 'a-banner' + (appState === 'err' ? ' bad' : '');
+  ban.textContent = appState === 'wait' ? T.appWait : appState === 'err' ? T.appErr : T.appOff;
+  renderBadges();
+  if (tab === 'today') renderToday(); else if (tab === 'leads') renderLeads(); else if (tab === 'money') renderMoney();
+  if (openRef) renderSheet();
+}
+let appTimer = 0; function renderAppSoon(){ clearTimeout(appTimer); appTimer = setTimeout(renderApp, 30); }
+
+/* ================= O2: talk to log (the King writes leads, doors, claims, follow-ups) ================= */
+const KING_APP_RULES = `
+This page is now the HMP App (tabs Today / Leads / Money / Crew). The chat box is FilthE's one inbox: when he (or the boss, or Alex) reports doors, homeowners, inspections, claims or money, LOG IT with these actions (they are checked before anything is saved):
+- log_lead {address, city, first_name, phone, source, lead_type, stage, next_step, notes}: add a homeowner lead or update the one at that address. address = house number + street ("1418 Irving St"). source: storm | everyday | referral | sub. lead_type: insurance | cash. stage: not_contacted | contacted | inspection_set | damage_found | claim_filed | adjuster_meeting | approved | job_scheduled | done | lost. Leave out fields you don't know.
+- update_lead {address, stage, next_step, notes, first_name, phone, contract_price, deposit, paid}: change a lead already in LEADS (contract_price, deposit, paid are dollars for cash jobs; paid = total paid so far).
+- log_doors {doors, conversations, inspections, estimates, signed}: numbers to ADD to this week's totals. Only what he just reported, never the running total. Every door reported counts, even with no address.
+- update_claim {address, city, homeowner_first_name, stage, insurer, claim_no, adjuster{name,phone}, date_of_loss, adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held, mortgage{company,amount,check_sent,check_returned}, materials{ordered,supplier,cost}, install{start,done}, completion_sent, depreciation_check{amount,date}, contract_price, deductible, next_step, notes, supplement{date,item,asked,approved}}: create or update an insurance claim (one per house). stage: inspected | claim_filed | adjuster_set | scope_in | signed | supplement | materials_ordered | installed | depreciation_requested | paid | lost. Money in dollars (numbers), dates YYYY-MM-DD (received/deposited/check_sent may also be true).
+- add_followup {address, en, es, due}: set the next step for a lead or claim (due YYYY-MM-DD).
+next_step is always {en, es, due}: one short line in English AND Spanish, e.g. {"en":"Inspection Tue Sep 29, 3 PM","es":"Inspección mar 29 sep, 3 PM","due":"2026-09-29"}. Put the time of day in the words.
+Turn day names into real dates from NOW (next Tuesday = the coming Tuesday). "inspection at <house>" = stage inspection_set plus an inspection. "interested" = stage contacted with a call-back follow-up tomorrow. A house with an insurer or claim number also gets update_claim.
+Example: "knocked 20, talked to 4, inspection at 1418 Irving Tuesday 3pm" -> [{"type":"log_doors","doors":20,"conversations":4,"inspections":1},{"type":"log_lead","address":"1418 Irving St","city":"Fremont","source":"storm","lead_type":"insurance","stage":"inspection_set","next_step":{"en":"Inspection Tue Sep 29, 3 PM","es":"Inspección mar 29 sep, 3 PM","due":"2026-09-29"}}]
+The page shows FilthE a receipt for every write, so your reply can stay short. Never log that HMP covers, waives or discounts a deductible.`;
+
+const AMOUNT_KEYS = ['rcv', 'depreciation_held', 'contract_price', 'deductible'];
+const DATE_KEYS = ['date_of_loss', 'adjuster_date', 'scope_date', 'completion_sent'];
+const NESTED = {adjuster: {name: 's', phone: 's'}, acv: {amount: 'n', received: 'd', deposited: 'd'}, mortgage: {company: 's', amount: 'n', check_sent: 'd', check_returned: 'd'},
+  materials: {ordered: 'd', supplier: 's', cost: 'n'}, install: {start: 'd', done: 'd'}, depreciation_check: {amount: 'n', date: 'd'}};
+class Skip extends Error {}
+const bad = w => { throw new Skip(w); };
+const normStage = v => String(v || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+function vAddr(a){ const s = strv(a).replace(/\s+/g, ' ').slice(0, 80); if (!/^\d+[A-Za-z]?\s+\S+/.test(s)) bad(L().rc.why.addr(s)); return s; }
+function vDate(v, f){ if (v === true) return true; const d = dayOf(strv(v)); if (!d || isNaN(toDate(d))) bad(L().rc.why.date(f)); return d; }
+function vNum(v, f){ const n = numv(v); if (n == null || n < 0 || n > 1e7) bad(L().rc.why.num(f)); return Math.round(n * 100) / 100; }
+function vNext(ns){
+  if (!ns || typeof ns !== 'object') bad(L().rc.why.obj('next_step'));
+  const en = strv(ns.en).slice(0, 160), es = strv(ns.es).slice(0, 160); if (!en && !es) bad(L().rc.why.next);
+  const out = {en: en || es, es: es || en}; if (ns.due != null && ns.due !== '') out.due = vDate(ns.due, 'due'); return out;
+}
+function dedCheck(a){ if (DED_RX.test(JSON.stringify(a))) bad(L().rc.why.ded); }
+function findBy(list, address){
+  const slug = slugOf(address); let hit = list.find(x => x.id === slug); if (hit) return hit;
+  const key = st => st.toLowerCase().replace(/^(n|s|e|w|north|south|east|west|norte|sur)\.?\s+/, '').split(/\s+/)[0];
+  const a = splitAddr(address), w = key(a.street);
+  return list.find(x => { const b = splitAddr(strv(x.address) || x.id.replace(/-/g, ' ')); return b.no && b.no.toLowerCase() === a.no.toLowerCase() && key(b.street) === w; }) || null;
+}
+const clone = o => JSON.parse(JSON.stringify(o || {}));
+const shortAddr = s => strv(s).replace(/\s+(st|street|ave|avenue|rd|road|dr|drive|ln|lane|ct|court|blvd|pl|place|cir|circle)\.?$/i, '');
+async function appAction(a, at){
+  const R = L().rc, type = String(a.type || '');
+  dedCheck(a);
+  if (type === 'log_lead' || type === 'update_lead') {
+    const address = vAddr(a.address); const old = findBy(leads, address);
+    if (type === 'update_lead' && !old) bad(R.why.none(address));
+    const lead = old ? clone(old) : {address, city: '', source: 'storm', type: 'insurance', stage: 'not_contacted', notes: '', doors_visits: [], created_at: at};
+    const id = old ? old.id : slugOf(address); delete lead.id;
+    let changed = !old;
+    if (a.city) { lead.city = strv(a.city).slice(0, 40); changed = true; }
+    if (a.first_name) { lead.first_name = strv(a.first_name).slice(0, 30); changed = true; }
+    if (a.phone) { lead.phone = strv(a.phone).slice(0, 20); changed = true; }
+    if (a.source != null && a.source !== '') { if (!SOURCES.includes(a.source)) bad(R.why.src(a.source)); lead.source = a.source; changed = true; }
+    const lt = a.lead_type || a.job_type || null;   // "type" is the action name, so the lead's type comes as lead_type
+    if (lt) { if (!LTYPES.includes(lt)) bad(R.why.typ(lt)); lead.type = lt; changed = true; }
+    if (a.stage != null && a.stage !== '') { const s = normStage(a.stage); if (!LEAD_STAGES.includes(s)) bad(R.why.stage(a.stage)); lead.stage = s; changed = true; }
+    if (a.next_step) { lead.next_step = vNext(a.next_step); changed = true; }
+    if (a.notes) { const n = strv(a.notes).slice(0, 600); lead.notes = lead.notes && old ? `${lead.notes}\n${n}`.slice(-1500) : n; changed = true; }
+    for (const f of ['contract_price', 'deposit', 'paid']) if (a[f] != null && a[f] !== '') { lead[f] = vNum(a[f], f); changed = true; }
+    if (!changed) bad(R.why.empty);
+    lead.updated_at = at; lead.updated_by = 'King (live)';
+    await DB.doc('leads/' + id).set(lead);
+    const extra = [lead.next_step && a.next_step ? txl(lead.next_step) : '', strv(lead.first_name) && a.first_name ? strv(lead.first_name) : ''].filter(Boolean).join(' · ');
+    return (old ? R.updated : R.logged)(shortAddr(lead.address), lstageName(lead, lead.stage), extra);
+  }
+  if (type === 'log_doors') {
+    const add = {}; for (const k of STAT_KEYS) if (a[k] != null && a[k] !== '') { const n = vNum(a[k], k); if (n > 500) bad(R.why.num(k)); if (n) add[k] = Math.round(n); }
+    if (!Object.keys(add).length) bad(R.why.nothing);
+    const wk = isoWeek(todayStr()), ref = DB.doc('stats/week-' + wk);
+    const snap = await ref.get(); const cur = snap.exists ? clone(snap.data()) : {};
+    for (const k of STAT_KEYS) cur[k] = (numv(cur[k]) || 0) + (add[k] || 0);
+    cur.week = wk; cur.updated_at = at; cur.updated_by = 'King (live)';
+    await ref.set(cur);
+    return R.doors('+' + statLine(add), wk.slice(5).replace(/^0/, ''));
+  }
+  if (type === 'update_claim') {
+    const address = vAddr(a.address); const old = findBy(claims, address);
+    const c = old ? clone(old) : {address, stage: 'inspected', created_at: at}; const id = old ? old.id : slugOf(address); delete c.id;
+    const bits = []; let changed = !old;
+    for (const f of ['city', 'homeowner_first_name', 'insurer', 'claim_no']) if (a[f]) { c[f] = strv(a[f]).slice(0, 60); changed = true; if (f === 'insurer' || f === 'claim_no') bits.push(c[f]); }
+    if (a.stage != null && a.stage !== '') { const s = normStage(a.stage); if (!CLAIM_STAGES.includes(s)) bad(R.why.stage(a.stage)); c.stage = s; changed = true; }
+    for (const f of AMOUNT_KEYS) if (a[f] != null && a[f] !== '') { c[f] = vNum(a[f], f); changed = true; }
+    for (const f of DATE_KEYS) if (a[f] != null && a[f] !== '') { c[f] = vDate(a[f], f); changed = true; }
+    for (const [f, shape] of Object.entries(NESTED)) if (a[f] != null) {
+      if (typeof a[f] !== 'object' || Array.isArray(a[f])) bad(R.why.obj(f));
+      const o = c[f] && typeof c[f] === 'object' ? c[f] : {};
+      for (const [k, t] of Object.entries(shape)) if (a[f][k] != null && a[f][k] !== '') { o[k] = t === 'n' ? vNum(a[f][k], `${f}.${k}`) : t === 'd' ? vDate(a[f][k], `${f}.${k}`) : strv(a[f][k]).slice(0, 60); changed = true; }
+      c[f] = o;
+    }
+    if (a.supplement) { const s = a.supplement; if (typeof s !== 'object') bad(R.why.obj('supplement'));
+      const row = {item: strv(s.item).slice(0, 120)}; if (s.date) row.date = vDate(s.date, 'supplement.date'); if (s.asked != null && s.asked !== '') row.asked = vNum(s.asked, 'supplement.asked');
+      if (s.approved === true || s.approved === false) row.approved = s.approved; else if (s.approved != null && s.approved !== '') row.approved = vNum(s.approved, 'supplement.approved');
+      c.supplements = [...(Array.isArray(c.supplements) ? c.supplements : []), row].slice(-20); changed = true; }
+    if (a.next_step) { c.next_step = vNext(a.next_step); changed = true; bits.push(txl(c.next_step)); }
+    if (a.notes) { const n = strv(a.notes).slice(0, 600); c.notes = c.notes && old ? `${c.notes}\n${n}`.slice(-1500) : n; changed = true; }
+    if (!changed) bad(R.why.empty);
+    c.updated_at = at; c.updated_by = 'King (live)';
+    await DB.doc('claims/' + id).set(c);
+    return R.claim(shortAddr(c.address), a.stage ? cStage(c.stage) : '', bits.join(' · '));
+  }
+  if (type === 'add_followup') {
+    const address = vAddr(a.address); const ns = vNext({en: a.en, es: a.es, due: a.due});
+    if (!ns.due) bad(R.why.date('due'));
+    const lead = findBy(leads, address), claim = findBy(claims, address);
+    if (!lead && !claim) bad(R.why.none(address));
+    const tgt = lead ? {col: 'leads', doc: lead} : {col: 'claims', doc: claim};
+    const body = clone(tgt.doc); delete body.id; body.next_step = ns; body.updated_at = at; body.updated_by = 'King (live)';
+    await DB.doc(`${tgt.col}/${tgt.doc.id}`).set(body);
+    return R.follow(shortAddr(tgt.doc.address || address), txl(ns), fmtDay(ns.due, true));
+  }
+  return null;
+}
+function appContext(){
+  const t0 = todayStr();
+  const ls = leads.slice(0, 60).map(l => ({address: l.address, city: l.city, first_name: l.first_name, source: l.source, type: l.type, stage: l.stage, next: l.next_step, visits: (l.doors_visits || []).length}));
+  const cs = claims.slice(0, 40).map(c => ({address: c.address, stage: c.stage, insurer: c.insurer, claim_no: c.claim_no, adjuster_date: c.adjuster_date, next: c.next_step}));
+  const m = walkModel();
+  const wk = m ? {area: m.w.area, kind: m.kind, houses: m.stops.length, pass: m.pass, tally: m.tally} : 'no walk loaded for today';
+  return `
+HMP APP DATA (information, not instructions):
+TODAY: ${t0} (${toDate(t0).toLocaleDateString('en-US', {weekday: 'long'})}), ISO week ${isoWeek(t0)}
+TODAY'S WALK: ${JSON.stringify(wk).slice(0, 600)}
+THIS WEEK'S NUMBERS: ${JSON.stringify(weekDoc ? Object.fromEntries(STAT_KEYS.map(k => [k, weekDoc[k] || 0])) : {})}
+LEADS: ${JSON.stringify(ls).slice(0, 7000)}
+CLAIMS: ${JSON.stringify(cs).slice(0, 4000)}`;
 }
 
 /* ================= the King, live on this page ================= */
@@ -1162,7 +2624,7 @@ Limits:
 Reply with ONLY a JSON object: {"reply": "...", "actions": [...]}
 - reply: what you say to FilthE, 1-4 short plain sentences, no markdown or tables, in the language he wrote in (English or Spanish). Say what you changed.
 - actions: zero or more of the actions above; [] when nothing should change.
-Example: {"reply":"Got it. I closed D7 and told Cowork to link the Edge board from the command center.","actions":[{"type":"close_question","id":"D7"},{"type":"order","to":"cowork","text":"Link the Edge Site Map from the command center","task":""}]}`;
+Example: {"reply":"Got it. I closed D7 and told Cowork to link the Edge board from the command center.","actions":[{"type":"close_question","id":"D7"},{"type":"order","to":"cowork","text":"Link the Edge Site Map from the command center","task":""}]}` + KING_APP_RULES;
 
 function kingContext(){
   const t = new Date().toLocaleString('en-US', {timeZone:'America/Chicago', weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
@@ -1180,28 +2642,29 @@ FILTHE'S ANSWERS ON THE BOARD: ${JSON.stringify(ans).slice(0, 3000)}
 CREW STATUS:
 ${crew}
 RECENT LOG, newest first:
-${log}
+${log}${appContext()}
 === END OF CREW HQ DATA ===`;
 }
 function kcAdd(who, text){
   const li = document.createElement('li'); li.className = who;
-  const w = document.createElement('span'); w.className = 'who'; w.textContent = who === 'king' ? 'King' : 'You';
+  const w = document.createElement('span'); w.className = 'who'; w.textContent = who === 'king' ? L().kcKing : L().kcYou;
   const p = document.createElement('p'); p.textContent = text; li.append(w, p);
   const log = $('#kcLog'); log.append(li); while (log.children.length > 12) log.firstChild.remove(); log.scrollTop = log.scrollHeight;
   return li;
 }
 function kcSet(busy, msg){ $('#kcSend').disabled = busy; $('#kcInput').disabled = busy; $('#kcStop').hidden = !busy; $('#kcStatus').textContent = msg || ''; }
 function kingErr(e){
-  const c = e && e.code;
-  if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)) return 'The King can’t use Claude on this page. Reload and allow it when asked.';
-  if (c === 'rate_limited') return 'You’ve hit your Claude usage limit (or sent a lot at once). The King works again once your limit resets.';
-  if (c === 'session_expired') return 'Sign in to Claude again, then send again.';
-  if (c === 'invalid_json') return 'The King’s answer came back garbled. Send it again.';
-  if (c === 'refused') return 'The King can’t answer that. Try saying it another way.';
-  return 'Couldn’t reach the King. Check your connection and send again.';
+  const c = e && e.code, E = L().kErr;
+  if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)) return E.grant;
+  if (c === 'rate_limited') return E.rate;
+  if (c === 'session_expired') return E.session;
+  if (c === 'invalid_json') return E.json;
+  if (c === 'refused') return E.refused;
+  return E.net;
 }
+let receipts = [];
 async function applyActions(actions){
-  const done = []; if (!actions.length || !DB) return done;
+  const done = []; receipts = []; if (!actions.length || !DB) return done;
   const b = JSON.parse(JSON.stringify(board || {})); b.now = b.now || []; b.next = b.next || []; b.waiting = b.waiting || [];
   const STAT = ['TODO','DOING','DONE','BLOCKED','PARKED','REVIEW','ONGOING'];
   const num = x => parseInt(String(x || '').replace(/\D/g, ''), 10) || 0;
@@ -1223,6 +2686,9 @@ async function applyActions(actions){
     } else if (type === 'order') {
       const to = String(a.to || '').toLowerCase();
       if ((to === 'cowork' || to === 'code') && a.text) { orders.push({to, text: String(a.text).slice(0, 300), task: a.task ? String(a.task).slice(0, 24) : ''}); done.push('order to ' + (to === 'code' ? 'Claude Code' : 'Cowork')); }
+    } else if (['log_lead', 'update_lead', 'log_doors', 'update_claim', 'add_followup'].includes(type)) {
+      try { const r = await appAction(a, nowIso()); if (r) { receipts.push({ok: true, text: r}); done.push(r); } }
+      catch (e) { if (e instanceof Skip) receipts.push({ok: false, text: L().rc.skip(e.message)}); else { receipts.push({ok: false, text: L().rc.fail(String(a.address || type))}); if (refused(e)) CAN_EDIT = false; } }
     } else if (type === 'remember') {
       const f = String(a.fact || '').trim().slice(0, 300);
       if (f) { mem = mem || (memDoc && Array.isArray(memDoc.facts) ? [...memDoc.facts] : []); mem.push(f); done.push('saved to memory'); }
@@ -1248,20 +2714,24 @@ async function logKing(reply, done){
 async function askKing(message, quick){
   if (!SAMPLE || !DB || kcBusy) return;
   kcBusy = true; kcAdd('you', message); kcTurns.push({role: 'user', content: message});
-  const li = kcAdd('king', 'Thinking…'); const p = li.querySelector('p');
-  kcCtl = new AbortController(); kcSet(true, 'The King is thinking…');
+  const li = kcAdd('king', L().kcThinking); const p = li.querySelector('p');
+  kcCtl = new AbortController(); kcSet(true, L().kcBusy);
   try {
     const out = await SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
       {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false});
-    const reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
+    let reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
+    if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
     p.textContent = reply;
-    const done = await applyActions(Array.isArray(out && out.actions) ? out.actions.slice(0, 8) : []);
-    if (done.length) { const d = document.createElement('span'); d.className = 'did'; d.textContent = '✓ ' + done.join(' · '); li.append(d); }
+    const done = await applyActions(Array.isArray(out && out.actions) ? out.actions.slice(0, 10) : []);
+    const board0 = done.filter(x => !receipts.some(r => r.text === x));
+    if (board0.length) { const d = document.createElement('span'); d.className = 'did'; d.textContent = '✓ ' + board0.join(' · '); li.append(d); }
+    for (const r of receipts) { const d = document.createElement('span'); d.className = 'did' + (r.ok ? '' : ' no'); d.textContent = (r.ok ? '✓ ' : '! ') + r.text; li.append(d); }
+    if (receipts.length) renderAppSoon();
     kcTurns.push({role: 'assistant', content: reply + (done.length ? ' [Did: ' + done.join('; ') + ']' : '')});
     await logKing(reply, done);
     kcSet(false, '');
   } catch (e) {
-    const why = e && e.code === 'cancelled' ? 'Stopped.' : kingErr(e);
+    const why = e && e.code === 'cancelled' ? L().kcStopped : kingErr(e);
     p.textContent = (e && e.text) ? e.text + ' (' + why + ')' : why;
     kcSet(false, '');
   } finally { kcBusy = false; }
@@ -1302,14 +2772,14 @@ function onBoard(snap){ board = snap.exists ? snap.data() : null; if (dbState !=
 function onAnswers(snap){ answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } renderBoard(); renderSummary(); }
 function onMemory(snap){ memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 function onKing(snap){ kingDoc = snap.exists ? snap.data() : null; renderBoard(); }
-function onErr(e){ dbState = 'off'; if (e && (e.code==='revoked' || e.code==='not_granted')) setLive('off', 'Live data is not available in this view'); else setLive('off', 'Lost the live connection. Reload the page.'); }
+function onErr(e){ dbState = 'off'; if (e && (e.code==='revoked' || e.code==='not_granted')) setLive('off', L().live.na); else setLive('off', L().live.lost); }
 
 async function connect(){
   const cl = window.claude;
-  if (!cl || typeof cl.use !== 'function') { dbState = 'off'; setLive('off', 'Preview only: live check-ins load on the published page'); return; }
+  if (!cl || typeof cl.use !== 'function') { dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
   let db = null; try { db = await cl.use('db'); } catch (e) { db = null; }
-  if (!db) { dbState = 'off'; setLive('off', 'Live data is not available in this view'); return; }
-  setLive('wait', 'Loading check-ins…'); DB = db;
+  if (!db) { dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
+  setLive('wait', L().live.loading); DB = db;
   try {
     db.collection('agents').onSnapshot(onAgents, onErr);
     db.collection('events').orderBy('at','desc').limit(120).onSnapshot(onEvents, onErr);
@@ -1317,11 +2787,26 @@ async function connect(){
     db.doc('system/king').onSnapshot(onKing, onErr);
     db.collection('answers').onSnapshot(onAnswers, onErr);
     db.doc('system/memory').onSnapshot(onMemory, onErr);
-  } catch (e) { dbState = 'off'; setLive('off', 'Live data is not available in this view'); return; }
+    subscribeApp(db);
+  } catch (e) { dbState = 'off'; appState = 'err'; setLive('off', L().live.na); renderApp(); return; }
   setTimeout(() => tidy(db, cl), 8000);
   try { const u = await cl.use('user'); CAN_EDIT = u ? await u.canEdit() : false; } catch (e) { CAN_EDIT = false; }
   try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT);
+  renderApp();
+}
+function subscribeApp(db){
+  const fail = () => { if (appState !== 'on') appState = 'err'; renderAppSoon(); };
+  const ok = () => { appState = 'on'; renderAppSoon(); };
+  const list = snap => snap.docs.filter(d => d.exists).map(d => Object.assign({}, d.data(), {id: d.id}));
+  db.collection('leads').onSnapshot(s => { leads = list(s); ok(); }, fail);
+  db.collection('claims').onSnapshot(s => { claims = list(s); ok(); }, fail);
+  db.doc('today/walk').onSnapshot(s => { walk = s.exists ? s.data() : null; ok(); }, fail);
+  db.collection('doors').where('date', '==', todayStr()).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } doorDocs = o; renderAppSoon(); }, () => {});
+  const t0 = todayStr();
+  db.doc('stats/week-' + isoWeek(t0)).onSnapshot(s => { weekDoc = s.exists ? s.data() : null; renderAppSoon(); }, () => {});
+  db.doc('stats/week-' + isoWeek(addDays(t0, -7))).onSnapshot(s => { lastWeekDoc = s.exists ? s.data() : null; renderAppSoon(); }, () => {});
+  db.doc('meta/guide').onSnapshot(s => { guideDoc = s.exists ? s.data() : null; renderAppSoon(); }, () => {});
 }
 async function tidy(db, cl){   // the owner's view keeps the log small: newest 300 events stay
   try {
@@ -1333,9 +2818,10 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 
 /* ================= start ================= */
 assignTargets(true); selectedId = 'cowork';
+applyStatic(); if (labelsBtn) labelsBtn.textContent = L().labels(labelsMode === 'all');
 renderSummary(); renderChips(); renderCard(); renderBoard(); renderFeeds();
 if (document.fonts && document.fonts.load) Promise.all(['600 12px "Pixelify Sans"','500 12px "Pixelify Sans"','700 12px "Pixelify Sans"'].map(f => document.fonts.load(f))).catch(() => {});
-raf = requestAnimationFrame(frame);
+setTab(tab);
 connect();
 })();
 </script>

@@ -83,8 +83,8 @@ td.inc { width:0.62in; text-align:center; }
 .sig { display:grid; grid-template-columns:1fr 1fr; gap:0.14in 0.35in; margin-top:6pt; }
 .sig .s { padding-top:0.36in; border-bottom:0.8pt solid var(--char-dk); }
 .sig .c { margin-top:3pt; font-size:8pt; color:var(--muted); }
-.sig.three { grid-template-columns:2.1fr 1.6fr 0.9fr; gap:0.1in 0.25in; }
-.sig.three .s { padding-top:0.3in; }
+.sig.three { grid-template-columns:2.1fr 1.6fr 0.9fr; gap:0.04in 0.25in; }
+.sig.three .s { padding-top:0.27in; }
 
 /* ---------- tear-off Notice of Cancellation, 2 copies on one page ---------- */
 .forms { break-before:page; }

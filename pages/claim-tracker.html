@@ -46,6 +46,9 @@ header.top { display: flex; flex-wrap: wrap; justify-content: space-between; ali
 .seg button { font: 600 13px/1 var(--body); border: 0; background: transparent; color: var(--muted); padding: 8px 12px; cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.moved { border-radius: 8px; padding: 12px 14px; font-size: 15px; background: var(--accent-soft); color: var(--ink); border: 2px solid var(--accent); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.moved b { color: var(--accent); }
+.moved a { color: var(--accent); font-weight: 700; text-underline-offset: 3px; }
 .banner { border-radius: 8px; padding: 10px 14px; font-size: 14px; background: var(--info-soft); color: var(--ink); }
 .banner.bad { background: var(--crit-soft); }
 
@@ -253,6 +256,7 @@ footer.rules p { margin: 0; max-width: 90ch; }
     </div>
   </header>
 
+  <div class="moved" id="moved" role="note"><b id="movedH">Moved to the HMP App</b> <span id="movedP">Claims now live in the HMP App, with leads, doors and money in one place. This page is no longer updated.</span> <a id="movedA" href="https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU#money" target="_blank" rel="noopener">Open the HMP App</a></div>
   <div class="banner" id="banner" hidden></div>
 
   <section class="money" id="money" aria-labelledby="moneyH" hidden>
@@ -671,6 +675,10 @@ footer.rules p { margin: 0; max-width: 90ch; }
     $("h1").textContent = L.h1;
     $("sub").textContent = L.sub;
     $("rules").textContent = L.rules;
+    const MV = lang === "es"
+      ? ["Se mudó a la App HMP", "Los reclamos ahora están en la App HMP, junto con prospectos, puertas y dinero. Esta página ya no se actualiza.", "Abrir la App HMP"]
+      : ["Moved to the HMP App", "Claims now live in the HMP App, with leads, doors and money in one place. This page is no longer updated.", "Open the HMP App"];
+    $("movedH").textContent = MV[0]; $("movedP").textContent = MV[1]; $("movedA").textContent = MV[2];
 
     const banner = $("banner");
     banner.hidden = dbState === "on";
