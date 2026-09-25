@@ -1,0 +1,676 @@
+{
+ "source": "Commercial Scout + Contact Verifier agents, public business websites, 2026-09-24",
+ "contacts": [
+  {
+   "match": [
+    "15859 Rosewood St",
+    "15735 Rosewood St",
+    "15609 Rosewood St",
+    "15643 Rosewood St"
+   ],
+   "name": "Springhill Ridge Apartments",
+   "manager": "Burlington Capital Properties (Omaha). Springhill Ridge is listed on Burlington's own community list.",
+   "phone": "(402) 204-4528",
+   "phone_note": "Leasing office, Mon-Fri 9-5, closed weekends (property site FAQ). Burlington Capital Properties HQ main line 402-444-1630 (1004 Farnam St, Omaha), confirmed on Burlington's own site. 402-895-8614 on the property site is a FAX, so don't dial it. No public regional-manager line.",
+   "website": "https://www.springhillridge.com/",
+   "ask_for": "Community manager. If they defer, call Burlington HQ and ask who handles capital projects and vendor bids for Springhill Ridge.",
+   "note": "15735 Rosewood St, Omaha 68136. 282 units, 3 stories, detached garages (year built: 2007 per scout, 2012 per ApartmentFinder, unverified). Correction: Burlington manages about 78 communities / 11,000+ units in 15 states now; '200 properties' is its 30-year total.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.springhillridge.com/",
+    "https://www.springhillridge.com/faq/",
+    "https://www.burlingtoncapitalproperties.com/about_us/",
+    "https://www.burlingtoncapitalproperties.com/contact_us/",
+    "https://www.apartmentfinder.com/Nebraska/Omaha-Apartments/Springhill-Ridge-Apartments-43fy0dj"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "3310 Gregg Plz",
+    "10215 Cape Cod Lndg",
+    "10102 S 35th Plz"
+   ],
+   "name": "The Landings Apartments",
+   "manager": "Asset Living Midwest, LLC (on-site); owner NewStreet Properties",
+   "phone": "(402) 932-0909",
+   "phone_note": "Local leasing line on the property site. Toll-free (833) 703-0166 is also listed. Office Mon-Fri 9-6, Sat 10-5. Better regional contact: Asset Living Omaha office (402) 325-1601, 450 Regency Pkwy Ste 200 (assetliving.com). Owner NewStreet Properties (402) 884-4411, 14747 California St, Omaha (newstreetprop.com).",
+   "website": "https://www.landingsatbellevue.com/",
+   "ask_for": "Community manager, then the Asset Living Omaha office. NewStreet (owner) for capital/roof decisions.",
+   "note": "10215 Cape Cod Landing, Bellevue 68123. NewStreet lists 306 units, bought 2012 (RentCafe says 360 units, 10 three-story buildings, built 2006). NewStreet owns about 7 more Omaha apartment complexes, so one owner could mean many roofs.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.landingsatbellevue.com/",
+    "https://www.landingsatbellevue.com/floorplans",
+    "https://www.assetliving.com/contact",
+    "https://newstreetprop.com/",
+    "https://newstreetprop.com/portfolio/",
+    "https://www.rentcafe.com/apartments/ne/bellevue/landings-apartments-the/default.aspx"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "13106 Chandler Road Plz"
+   ],
+   "name": "Andover Pointe Apartment Homes",
+   "manager": "Edward Rose & Sons (owner-manager: 'professionally owned and managed')",
+   "phone": "(402) 408-6338",
+   "phone_note": "Local number on the property's own site (toll-free 866-640-9076 also listed). The old number (402) 243-5059 does NOT appear on the site, so don't use it. Office Mon-Fri 9-6, Sat 10-2. Edward Rose HQ is in Bloomfield Hills, MI; its main line 248-686-5300 shows only in directories, not on its own site.",
+   "website": "https://www.andoverpointeapartments.com/",
+   "ask_for": "Community manager. Ask who handles exterior/roof claims for Edward Rose's Nebraska properties.",
+   "note": "13106 Chandler Road Plaza, La Vista 68138. 438 units, 3 stories (Apartments.com). Own site says construction completed 2023 (Apartments.com says 2017, likely phased). Roofs are new, so pitch hail documentation for warranty/insurance, not replacement.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.andoverpointeapartments.com/",
+    "https://www.andoverpointeapartments.com/contactus",
+    "https://www.edwardrose.com/contactus",
+    "https://www.apartments.com/andover-pointe-apartment-homes-omaha-ne/7bvhrqz/",
+    "https://www.allbiz.com/business/edward-rose-sons_1h-248-686-5300"
+   ],
+   "verified": "corrected",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "7565 S 146th St"
+   ],
+   "name": "Echo Park (Echo Hills Apartments LLC)",
+   "manager": "Asset Living Midwest, LLC",
+   "phone": "(531) 721-2736",
+   "phone_note": "Local number on the property site; toll-free (844) 379-8947. Office Mon-Fri 9-6, Sat 10-4. Same Asset Living Omaha office as The Landings: (402) 325-1601, 450 Regency Pkwy Ste 200.",
+   "website": "https://www.echoparkomaha.com/",
+   "ask_for": "Community manager, then the Asset Living Omaha office (one regional contact covers this and The Landings).",
+   "note": "The site lists 7561 S 146th St, Omaha 68138; 7565 appears on listings for the same complex. 281 units, 3-story buildings, built 2021-2023 (sources differ). Roofs are new, so pitch documentation.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.echoparkomaha.com/",
+    "https://www.assetliving.com/contact",
+    "https://www.rentcafe.com/apartments/ne/omaha/echo-park1/default.aspx",
+    "https://www.apartments.com/echo-park-omaha-ne/djj5wth/"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "4736 Virginia St"
+   ],
+   "name": "Southwinds Apartments",
+   "manager": "Crown Property Management (Omaha). Southwinds units are listed on Crown's own rental portal.",
+   "phone": "(402) 490-0975",
+   "phone_note": "Crown Property Management main office line (9507 Q St, Omaha), confirmed on Crown's own site. No separate on-site number is published.",
+   "website": "https://www.crownmanagementomaha.com/",
+   "ask_for": "Property manager for Southwinds",
+   "note": "Buildings at 4710-4740 Virginia St, Bellevue 68157 (Bellevue, not Omaha; Crown's listings spell it 'Southwind's'). 96 units, 3 stories, built 1992 (ApartmentFinder): ~34-year-old roofs, strong replacement candidate.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.crownmanagementomaha.com/",
+    "https://crownpropertymgmt.appfolio.com/listings",
+    "https://www.apartmentfinder.com/Nebraska/Bellevue-Apartments/Southwinds-Apartments-sv0v4g7",
+    "https://www.apartments.com/southwinds-apartments-bellevue-ne/ht0n0g3/"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "1000 Village Green Dr"
+   ],
+   "name": "Village Green Apartments",
+   "manager": "M. Timm Development, Inc.",
+   "phone": "(402) 371-5883",
+   "phone_note": "Village Green leasing office, Mon-Fri 8-5, closed weekends (property site). M. Timm corporate publishes no phone; its site has a web form only.",
+   "website": "https://villagegreen.mtimm.com/",
+   "ask_for": "Property manager",
+   "note": "Office at 1005 Village Green Dr, Norfolk 68701. 132 units, 3 stories, built 1991 (ApartmentFinder); rentable garages. M. Timm was founded in 1983, acts as its own general contractor and runs 15 communities, including Amberwood in Norfolk. They may self-perform repairs, so lead with free documentation.",
+   "confidence": "high",
+   "source_urls": [
+    "https://villagegreen.mtimm.com/",
+    "https://villagegreen.mtimm.com/contactus",
+    "https://www.mtimm.com/",
+    "https://www.mtimm.com/about-us/",
+    "https://www.apartmentfinder.com/Nebraska/Norfolk-Apartments/Village-Green-Apartments"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "1402 Country Club Rd"
+   ],
+   "name": "1402-1406 Country Club Rd",
+   "manager": "Royal Management (Norfolk)",
+   "phone": "(402) 640-9949",
+   "phone_note": "Listed as the 'Royal Management Office' line (122 S 5th St, Norfolk) on the company's own site. The site was last updated Feb 2025, so the number could be stale.",
+   "website": "https://houseforrentnorfolkne.com/",
+   "ask_for": "Property manager",
+   "note": "1402/1404/1406 Country Club Rd, Norfolk: 60 units. Royal also lists about 73 more units at 6 other Norfolk/Wisner addresses, plus storage units in Belden.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://houseforrentnorfolkne.com/",
+    "https://houseforrentnorfolkne.com/1402-1404-1406-country-club-rd-1-norfolk-ne/",
+    "https://houseforrentnorfolkne.com/contact-us/"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "14455 Harrison St"
+   ],
+   "name": "Bear Creek Apartments",
+   "manager": "not found",
+   "phone": "(402) 714-0626",
+   "phone_note": "Only on ApartmentFinder (a listing site; may be a call-tracking line). No property website or management company found anywhere. NOT confirmed.",
+   "website": "",
+   "ask_for": "Whoever answers: ask for the property manager and the name of the management company.",
+   "note": "14455 Harrison St, Omaha 68138 (Sarpy Co.). 54 units, 3 stories, built 2003, rentable garages. Redfin: last sold Oct 2006 and shows an Oct 2025 commercial permit, so ask what work was done.",
+   "confidence": "low",
+   "source_urls": [
+    "https://www.apartmentfinder.com/Nebraska/Omaha-Apartments/Bear-Creek-Apartments",
+    "https://www.forrent.com/ne/omaha/bear-creek-apartments/yn9jd0r",
+    "https://www.redfin.com/NE/Omaha/14455-Harrison-St-68138/home/95075009"
+   ],
+   "verified": "unconfirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "6600 Juliet Ct"
+   ],
+   "name": "Fallbrook Assisted Living & Memory Care",
+   "manager": "MJ Senior Housing, LLC (brand: MJ Senior Living)",
+   "phone": "402-261-9050",
+   "phone_note": "Main line on fallbrookassisted.com and on MJ Senior Living's site. MJ's home office (527 N Broadway, Wahoo) has no public phone.",
+   "website": "https://fallbrookassisted.com/",
+   "ask_for": "Executive director or maintenance/facilities director",
+   "note": "6600 Juliet Ct, Lincoln 68521. 71 apartments (54 assisted living + 17 memory care), opened about 2018-19. MJ runs 7 Nebraska communities, including Pemberly Place in Lincoln (402-413-9770) and Echo Hills in La Vista (531-721-2500).",
+   "confidence": "high",
+   "source_urls": [
+    "https://fallbrookassisted.com/",
+    "https://fallbrookassisted.com/contact-us/",
+    "https://mjseniorhousing.com/",
+    "https://www.echohillsassisted.com/other-mj-properties/",
+    "https://strictly-business.com/cover-story/fallbrook-assisted-living-memory-care-coming-soon-to-lincoln/"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "840 Fallbrook Blvd"
+   ],
+   "name": "Super Saver (Fallbrook)",
+   "manager": "B&R Stores, Inc. (owner-operator)",
+   "phone": "(402) 464-6297",
+   "phone_note": "B&R Stores corporate line (brstores.com; mail: PO Box 5824, Lincoln 68505). Store line 402-438-8880 (super-saver.com): use it only to ask who handles building maintenance. No public facilities contact.",
+   "website": "https://brstores.com/",
+   "ask_for": "Facilities/maintenance manager at corporate",
+   "note": "840 Fallbrook Blvd, Lincoln 68521. B&R has been family-owned since 1964: 8 store banners (Super Saver, Russ's Market, Cash Saver and others) in NE/IA/MO, 2,000+ staff, so multi-store potential. The scout said 9 banners; the site lists 8.",
+   "confidence": "high",
+   "source_urls": [
+    "https://brstores.com/",
+    "https://brstores.com/contact/",
+    "https://www.super-saver.com/stores/super-saver-fallbrook"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "3201 Yankee Hill Rd"
+   ],
+   "name": "Anderson Ford South",
+   "manager": "Anderson Auto Group (listed on andersonautogroup.com)",
+   "phone": "(402) 464-0661",
+   "phone_note": "Dealership main line on andersonfordsouth.com (sales, service and parts share it). Body shop 531-248-5275. Anderson Auto Group publishes no corporate phone. Closed Sundays.",
+   "website": "https://www.andersonfordsouth.com/",
+   "ask_for": "General manager or facilities",
+   "note": "3201 Yankee Hill Rd, Lincoln 68516 (group name: Anderson Ford of Lincoln South). Anderson Auto Group lists 9 dealerships, not 8: 3 in Lincoln, 4 in Grand Island, 2 in St. Joseph MO.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.andersonfordsouth.com/",
+    "https://www.andersonautogroup.com/"
+   ],
+   "verified": "confirmed",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "3620 23 St"
+   ],
+   "name": "Former big-box store (58,577 sq ft)",
+   "manager": "not found",
+   "phone": "",
+   "phone_note": "",
+   "website": "",
+   "ask_for": "Owner or listing broker",
+   "note": "Built 1991, renovated 2022; was listed for sale - offer a pre-sale roof report. Pull Platte County owner record.",
+   "confidence": "low",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "3101 Crescent Dr",
+    "1600 Fletcher Ave",
+    "1540 Fletcher Ave",
+    "1700 Fletcher Ave",
+    "8722 Executive Woods Dr",
+    "8601 Executive Woods Dr",
+    "8801 Executive Woods Dr"
+   ],
+   "name": "CIP Communities: WH Flats, North Pointe Villas, Villas at Wilderness Ridge, Brynwood",
+   "manager": "CIP Communities (corporate office, 8722 Executive Woods Dr Ste 100, Lincoln)",
+   "phone": "(402) 434-7368",
+   "phone_note": "Corporate line on rentcip.com. Property lines: North Pointe Villas (402) 858-1557; Villas at Wilderness Ridge (402) 858-1337; Brynwood (402) 436-3460; WH Flats (402) 858-1095.",
+   "website": "https://www.rentcip.com",
+   "ask_for": "Director of maintenance/facilities or the regional property manager (capital projects)",
+   "note": "One call covers 7 buildings (~$130M assessed) in Lincoln. WH Flats in Wilderness Hills got 1.49\" on Jul 3; the site lists 3055 Crescent Dr, so confirm the 3101 parcel. North Pointe Villas on Fletcher Ave is 3 parcels with 1.23-1.27\" on Aug 19; it has flats plus villas with garages. Villas at Wilderness Ridge and Brynwood are 3 parcels with 1.43\" on Jul 3. CIP runs 39+ communities with 7,200+ apartments in NE, IA and MN.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.rentcip.com/blog/2024/11/06/cip-communities-announces-relocation-of-corporate-office-to-support-growth-and-innovation/",
+    "https://www.rentcip.com/apartments",
+    "https://www.rentcip.com/apartments/ne/lincoln/wh-flats",
+    "https://www.rentcip.com/apartments/ne/lincoln/north-pointe-villas"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "245 Fallbrook Blvd",
+    "475 Fallbrook Blvd",
+    "575 Fallbrook Blvd",
+    "643 Fallbrook Blvd",
+    "6500 Nw 6th St"
+   ],
+   "name": "Fallbrook office/retail buildings (NEBCO)",
+   "manager": "NEBCO Realty Group / Fallbrook Development (NEBCO, Inc.)",
+   "phone": "(402) 434-1212",
+   "phone_note": "NEBCO Realty Group line listed on nebcoinc.com/companies (same as NEBCO main office).",
+   "website": "https://nebcoinc.com/realty/",
+   "ask_for": "NEBCO Realty Group property manager for Fallbrook",
+   "note": "5 NEBCO-owned buildings in Fallbrook (NW Lincoln), ~$45M, 1.46\" on Jun 10. 245 Fallbrook Blvd holds the state Dept. of Water, Energy & Environment main office. 575 and 643 are office/retail with space for lease. NEBCO Realty also manages Landmark Centre, Chalco Valley Business Park and Hills Farm Lakes. NEBCO owns a contractor (Constructors, Inc.), so pitch the photo report as independent documentation.",
+   "confidence": "high",
+   "source_urls": [
+    "https://nebcoinc.com/companies/",
+    "https://nebcoinc.com/realty/",
+    "https://dwee.nebraska.gov/about/ndee-offices"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "2001 N St Unit A",
+    "2077 N St",
+    "1935 O St",
+    "2100 Fletcher Ave Unit B"
+   ],
+   "name": "Telegraph District: Telegraph Flats and Telegraph Lofts West (plus 2 related parcels)",
+   "manager": "Speedway Properties (B&J Partnership)",
+   "phone": "(402) 323-3100",
+   "phone_note": "Speedway main line (speedwayproperties.com/contact). Telegraph Flats leasing (402) 323-3285; Telegraph Lofts West leasing (402) 792-4515.",
+   "website": "https://www.speedwayproperties.com",
+   "ask_for": "Property management / facilities manager",
+   "note": "Telegraph Flats (98 apartments plus retail) and Telegraph Lofts West (36 apartments), ~$31M, 1.42\" on Jun 10. Speedway manages 200+ properties (5M+ sq ft) in Lincoln. 1935 O St (EADO LLC) shares the Telegraph owners' mailing address. 2100 Fletcher Ave Unit B (1.23\" on Aug 19) is owned by an LLC mailed to Speedway's office at 340 Victory Ln. Confirm both on the call.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.speedwayproperties.com/contact/",
+    "https://www.speedwayproperties.com/about/",
+    "https://telegraphflats.rentcafewebsite.com/",
+    "https://downtownlincoln.org/space-available/telegraph-flats-1",
+    "https://www.rentcafe.com/apartments/ne/lincoln/telegraph-lofts-west/default.aspx"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "1401 Superior St",
+    "300 S 68th Street Pl",
+    "8055 O St"
+   ],
+   "name": "Northridge Center, 68th Street Place and Legacy Square",
+   "manager": "NAI FMA Realty (property management/leasing); owners Enterprise Company Inc and the Legacy Square owner entity",
+   "phone": "(402) 441-5800",
+   "phone_note": "NAI FMA main line (naifmarealty.com/contact-us).",
+   "website": "https://www.naifmarealty.com",
+   "ask_for": "Property management department: manager for Northridge Center and 68th Street Place",
+   "note": "Enterprise Company Inc's county mailing address is NAI FMA's own suite (1248 O St Ste 550), so NAI FMA likely manages its Northridge Center strip (Ace Hardware, Dollar General, Wells Fargo; 1.46\" on Jun 10) and the 68th Street Place office (1.47\" on Jun 10). NAI FMA's flyer lists it as leasing agent for Legacy Square offices at 8055 O St (1.48\" on Jun 10). NAI FMA manages 3.8M+ sq ft. The link is inferred, so confirm who approves roof work.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://www.naifmarealty.com/contact-us/",
+    "https://www.naifmarealty.com/",
+    "https://www.loopnet.com/Listing/1401-Superior-St-Lincoln-NE/41318073/",
+    "https://images4.loopnet.com/d2/JzXnBmmZhF3mnos5mBQtrnn74u5Jr2V81BG1GF1zQDk/document.pdf"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "4730 Innovation Dr Unit 1",
+    "4750 Innovation Dr Unit 2",
+    "2755 Jamie Ln"
+   ],
+   "name": "Horizon Apartments & Villas (Tech Park) + 2755 Jamie Ln retail strip",
+   "manager": "Concorde Management & Development",
+   "phone": "(402) 476-0086",
+   "phone_note": "Concorde main line (concordemgmt.com/contact). Horizon leasing office (402) 413-2188 (horizonlivingtoday.com).",
+   "website": "https://concordemgmt.com",
+   "ask_for": "Property manager or maintenance director",
+   "note": "Horizon Apartments & Villas at 4730 Innovation Dr (Nebraska Tech Park) is 2 condo parcels, ~$16.7M, 1.43\" on Jun 10. Concorde also runs sister property Horizon Ridge. 2755 Jamie Ln is a multi-tenant strip (My Gym, bars; 1.4\" on Jul 3) whose owner LLC is mailed to Concorde's office (1314 O St Ste 101).",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.horizonlivingtoday.com/",
+    "https://concordemgmt.com/contact/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "2901 Crescent Dr",
+    "2933 Crescent Dr"
+   ],
+   "name": "Wilderness Hills retail center",
+   "manager": "Albers Co. (commercial real estate, leasing and property management)",
+   "phone": "(402) 434-0292",
+   "phone_note": "Albers Co. office (albersco.net/contact).",
+   "website": "https://albersco.net",
+   "ask_for": "Property management",
+   "note": "Wilderness Hills shopping center, south Lincoln: 2901 Crescent Dr (Five Below, Sally Beauty and others) and 2933 Crescent Dr, ~$4.3M, 1.49\" on Jul 3. Both owner LLCs are mailed to Albers Co. at 9060 Andermatt Dr. Albers has been in Lincoln since 1994.",
+   "confidence": "high",
+   "source_urls": [
+    "https://albersco.net/contact/",
+    "https://albersco.net/",
+    "https://locations.fivebelow.com/ne/lincoln/2901-crescent-dr"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "120 N 66th St"
+   ],
+   "name": "East Park Plaza",
+   "manager": "Broad Reach Retail Partners (owner and manager, Millersville MD)",
+   "phone": "(800) 307-3130",
+   "phone_note": "Property management line on Broad Reach's East Park Plaza page.",
+   "website": "https://www.broadreachretail.com/property/east-park-plaza-shopping-center/",
+   "ask_for": "Property manager for East Park Plaza",
+   "note": "216,543 sq ft shopping center at 66th & O, anchored by Russ's Market and Marcus Theatres. $13.3M, 1.47\" on Jun 10. The owner is out of state and bought it recently, so a local photo report is useful to them.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.broadreachretail.com/property/east-park-plaza-shopping-center/",
+    "https://www.broadreachretail.com/acquisition-of-east-park-plaza-by-broad-reach-retail/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "7441 O St"
+   ],
+   "name": "Corporate Centre (7441 O St)",
+   "manager": "Hampton Enterprises, Inc. (Properties & Construction)",
+   "phone": "(402) 489-8858",
+   "phone_note": "On hampton1.com and on Hampton's lease flyer for 7441 O St.",
+   "website": "https://hampton1.com",
+   "ask_for": "Property management",
+   "note": "Multi-tenant medical/office building (Gallagher, Lincoln Family Medical and others), $4.8M, 1.48\" on Jun 10. Hampton owns or manages 750,000+ sq ft in five Lincoln developments. It is also a general contractor, so offer to be its roofing/siding sub.",
+   "confidence": "high",
+   "source_urls": [
+    "https://hampton1.com/",
+    "https://hampton1.com/about/about-us",
+    "https://images1.showcase.com/d2/7fQ_-qDFJn0NSxY7ULKqirmgdwmxsQTJ6_3S29yDrGw/document.pdf"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "8600 S 33rd St"
+   ],
+   "name": "Baxter Toyota Lincoln",
+   "manager": "Baxter Auto Group (owner TKA Properties LLP is mailed to the Baxter Building, 17225 Burt St, Omaha)",
+   "phone": "(402) 261-1278",
+   "phone_note": "Dealership main line (toyotaoflincoln.com).",
+   "website": "https://www.toyotaoflincoln.com/",
+   "ask_for": "General manager, and who handles facilities at Baxter corporate",
+   "note": "Toyota dealership, $5.9M, 1.49\" on Jul 3. Baxter has 31 locations (NE, KS, CO, WI), including Lexus of Lincoln and B Street Collision nearby on S 37th St, so one win could open more.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.toyotaoflincoln.com/",
+    "https://baxterauto.com/locations",
+    "https://www.officespace.com/ne/omaha/2156280-17225-burt-st"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "8225 S 30th St"
+   ],
+   "name": "DuTeau Chevrolet property (8225 S 30th St)",
+   "manager": "DuTeau Chevrolet Company (owner-operator of DuTeau Chevrolet and DuTeau Subaru)",
+   "phone": "(402) 420-3300",
+   "phone_note": "Main/corporate line on duteau.com.",
+   "website": "https://www.duteau.com/",
+   "ask_for": "President/owner's office or facilities",
+   "note": "Parcel owned by DuTeau Chevrolet Co., $2.6M, 1.49\" on Jul 3. The building's use isn't published, so confirm it on the call. DuTeau's Chevrolet store (7300 S 27th St) and Subaru store (2750 Jamie Ln) are nearby; ask about those roofs too.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.duteau.com/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "3318 23 St"
+   ],
+   "name": "Super Saver Columbus",
+   "manager": "B&R Stores, Inc. (store operator; confirm building ownership)",
+   "phone": "(402) 464-6297",
+   "phone_note": "B&R corporate (brstores.com/contact). Store: (402) 563-1884 (super-saver.com).",
+   "website": "https://www.super-saver.com/stores/super-saver-columbus",
+   "ask_for": "Facilities/maintenance at B&R corporate",
+   "note": "Grocery store built 2024, $6.1M, 1.27\" on Aug 8 (Columbus, a fresh storm). It's the same corporate contact as Super Saver Fallbrook on the existing list, so pitch both in one call. The roof is new, so offer damage documentation for the warranty.",
+   "confidence": "high",
+   "source_urls": [
+    "https://brstores.com/contact/",
+    "https://www.super-saver.com/stores/super-saver-columbus"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "2806 23 St"
+   ],
+   "name": "Columbus Motor Company",
+   "manager": "Columbus Motor Company (Chrysler/Dodge/Jeep/Ram dealership)",
+   "phone": "(402) 268-4041",
+   "phone_note": "Main/sales line on columbusmotorcompanyne.com/contact.",
+   "website": "https://www.columbusmotorcompanyne.com/",
+   "ask_for": "General manager or dealer principal",
+   "note": "Dealership built 1990, $2.7M, 1.27\" on Aug 8 (Columbus). The county data has no owner, so confirm the dealer owns the building.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.columbusmotorcompanyne.com/contact.htm"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "1658 Mission Ave"
+   ],
+   "name": "Specialty Ag Formulations plant (Aurora)",
+   "manager": "Specialty Ag Formulations (joint venture of BRANDT, Central Valley Ag and Frenchman Valley Coop)",
+   "phone": "",
+   "phone_note": "The plant website shows no phone. Get the plant's business line from a partner co-op or stop in.",
+   "website": "https://www.specialtyagformulations.com/",
+   "ask_for": "Plant manager",
+   "note": "100,000 sq ft micronutrient plant that opened in fall 2024 (up to 40 employees), $11.8M. It took 1.92\" on Jul 8, the biggest hail on this list. The roof is new, so pitch a damage report for warranty/insurance.",
+   "confidence": "low",
+   "source_urls": [
+    "https://www.specialtyagformulations.com/",
+    "https://brandt.co/news/brandt-news/brandt-to-build-specialty-products-manufacturing-plant-in-aurora-ne/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "6925 S 115th Street Plz",
+    "7205 S Harrison Hills Dr",
+    "6949 S Harrison Hills Dr",
+    "11435 Gertrude Ct",
+    "6952 S 115th St"
+   ],
+   "name": "Harrison Hills by Broadmoor",
+   "manager": "Broadmoor Development Company",
+   "phone": "(402) 933-1577",
+   "phone_note": "Leasing office (broadmoor.cc). Broadmoor corporate (402) 392-1800 per BBB listing.",
+   "website": "https://www.broadmoor.cc/property_items/harrison-hills-by-broadmoor/",
+   "ask_for": "Community manager, then Broadmoor's maintenance/facilities director",
+   "note": "484 units in 22 three-story buildings, built 2003 (roofs ~23 years old), ~$38M across 5 parcels, 1.09-1.16\" on Apr 23. Broadmoor runs 40+ communities in Omaha, Lincoln, Des Moines and Sioux City.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.broadmoor.cc/property_items/harrison-hills-by-broadmoor/",
+    "https://www.broadmoor.cc/find-a-community/",
+    "https://www.rentcafe.com/apartments/ne/lavista/harrison-hills/default.aspx",
+    "https://www.bbb.org/us/ne/omaha/profile/property-management/broadmoor-development-company-0714-101000136"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "7007 S 145th St",
+    "7107 S 145th St",
+    "7205 S 145th St",
+    "7225 S 145th St",
+    "7251 S 145th St"
+   ],
+   "name": "Willow Creek Apartments",
+   "manager": "Stone Creek Living (on-site manager); owner Willow Creek Asset Omaha LLC (New York)",
+   "phone": "(402) 895-0115",
+   "phone_note": "Local line on thewillowcreekapthomes.com (toll-free 833-217-9891). RentCafe lists Briar Capital Management, so confirm the current manager.",
+   "website": "https://www.thewillowcreekapthomes.com/",
+   "ask_for": "Community manager; ask who approves capital projects for the owner",
+   "note": "156 units in 5 three-story buildings plus garages, built 1986 (roofs likely aging), ~$7.6M, 1.13-1.21\" on Apr 23. The owner is out of state, so a photo report helps them.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.thewillowcreekapthomes.com/",
+    "https://www.rentcafe.com/apartments/ne/omaha/willow-creek11/default.aspx"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "2202 Gregg Rd"
+   ],
+   "name": "Highland Meadows Apartments",
+   "manager": "Seldin Company",
+   "phone": "(866) 720-4529",
+   "phone_note": "Leasing on highlandmeadowsapartments.com. Seldin corporate (402) 333-7373 (seldin.com/Contact).",
+   "website": "https://www.highlandmeadowsapartments.com/",
+   "ask_for": "Community manager, then Seldin's regional manager",
+   "note": "198 units, 3 stories, built 2003, detached garages, $17.3M, 1.06\" on Jun 13 (same Bellevue storm as The Landings and Southwinds). Seldin is Omaha-based and manages communities across the central US.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.highlandmeadowsapartments.com/",
+    "https://www.seldin.com/Contact",
+    "https://www.apartments.com/highland-meadows-bellevue-ne/n09zvbn/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "16895 Oakmont Dr"
+   ],
+   "name": "Tiburon View Apartments",
+   "manager": "Asset Living Midwest (manager); owner NewStreet Properties",
+   "phone": "(402) 861-8600",
+   "phone_note": "Local leasing line on tiburonviewapartments.com (also 866-403-5457). NewStreet (owner) (402) 884-4411 (newstreetprop.com/contact).",
+   "website": "https://www.tiburonviewapartments.com/",
+   "ask_for": "Community manager or Asset Living regional manager",
+   "note": "120 units in 5 three-story buildings, built 2000, $11.5M, 1.09\" on Apr 23. It has the same manager as The Landings and Echo Park and the same owner as The Landings on the existing list, so bundle it into those calls.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.tiburonviewapartments.com/contactus",
+    "https://newstreetprop.com/portfolio/",
+    "https://newstreetprop.com/contact/",
+    "https://www.rentcafe.com/apartments/ne/omaha/tiburon-view-apartments/default.aspx"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "5240 N 27th St",
+    "2268 33 Ave"
+   ],
+   "name": "Slumberland Furniture stores (Lincoln N 27th St and Columbus)",
+   "manager": "Slumberland, Inc. (the Lincoln owner, Larson Enterprises, is mailed to Slumberland HQ in Oakdale, MN)",
+   "phone": "(651) 787-7500",
+   "phone_note": "Slumberland HQ (slumberland.com/pages/about-us). Columbus store (402) 563-9200 (stores.slumberland.com).",
+   "website": "https://www.slumberland.com/",
+   "ask_for": "Facilities / store development at HQ",
+   "note": "The Lincoln store building is $2.4M with 1.29\" on Aug 19. The Columbus store (built 1985, $1.2M) took 1.64\" on Aug 8, but county data has no owner and it may be a franchise, so ask HQ; if not company-owned, ask the store for the building owner. 120+ stores in 12 states.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.slumberland.com/pages/about-us",
+    "https://stores.slumberland.com/ne/columbus/2268-33rd-ave-19"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "301 S 68th Street Pl Unit 2",
+    "285 S 68th Street Pl Unit 1"
+   ],
+   "name": "Southeast Community College, Jack J. Huck Continuing Education Center (public/bid process)",
+   "manager": "Southeast Community College (public)",
+   "phone": "(402) 471-3333",
+   "phone_note": "Main line on the SCC location page.",
+   "website": "https://www.southeast.edu/about/locations/jack-j-huck-continuing-education-center.php",
+   "ask_for": "Facilities/physical plant director; ask how to get on the bidders list",
+   "note": "Public/bid process. Five-story continuing-ed center plus the adjacent condo unit, ~$9.6M, 1.47\" on Jun 10. Work goes out to bid, so the goal is to give them the free report and get on the bid list.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.southeast.edu/about/locations/jack-j-huck-continuing-education-center.php"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "115 Locust St"
+   ],
+   "name": "Hickman City Hall (public/bid process)",
+   "manager": "City of Hickman",
+   "phone": "(402) 792-2212",
+   "phone_note": "City office line on the city website; hours 8-5.",
+   "website": "https://www.hickman.ne.gov/",
+   "ask_for": "City administrator or public works",
+   "note": "Public/bid process. City offices at 115 Locust St, $4.7M, 1.59\" on Jun 10, the highest hail among the Lincoln-area targets. The council approves spending; offer the free photo report as documentation for their decision.",
+   "confidence": "high",
+   "source_urls": [
+    "https://hickman-ne.socs.net/vnews/display.v/SEC/City%20Government|Contact%20Us"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-24"
+  }
+ ]
+}
