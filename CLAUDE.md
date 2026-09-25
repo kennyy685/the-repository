@@ -39,6 +39,9 @@ of making him repeat it next time.
 - **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
   402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
   the AI/organization side, is the only one building this system, and does all the insurance sales.
+- **Not storm-only (FilthE, 2026-09-25):** storms are one lead source, not the only one. HMP also sells regular
+  (non-insurance) siding and roofing to **old houses** with worn siding or roofs. Lead tools, door lists and print
+  pieces need an everyday version too (house age / year built, not just hail).
 - **New goal: insurance restoration** (hail, wind, fallen trees). This is the new part: selling
   direct to homeowners, buying materials, adjusters, waiting on insurance checks.
 
