@@ -73,8 +73,11 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
   `ai` {en,es,link}. Every sentence in both English and Spanish.
 **Claude Code's helpers (in this repo, `.claude/`):** sub-agents `engine-mechanic` (engine code),
-`qa-tester` (reviews + tests, cheaper model) and `hub-keeper` (Crew HQ / HMP HQ upkeep, cheaper model);
-skills `engine-change` (safe engine edits), `crew-checkin` (posting to Crew HQ), `refresh-hmp-hq`.
+`qa-tester` (reviews + tests, cheaper model), `hub-keeper` (Research Lead + Crew HQ / HMP HQ upkeep,
+cheaper model) and its team of `improvement-scout`s (web research, one topic each, run in parallel);
+skills `engine-change` (safe engine edits), `crew-checkin` (posting to Crew HQ), `refresh-hmp-hq`,
+`improvement-research` (research method + report format). FilthE wants regular research rounds: he
+worries about missing areas or focusing on the wrong things. Research rounds go to `docs/research/`.
 They show in Crew HQ's Code lab. Keep the crew small: add a helper only for work that repeats.
 **AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
 - read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
