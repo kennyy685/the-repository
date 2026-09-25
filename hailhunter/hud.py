@@ -217,6 +217,18 @@ def _hail_evidence(conn, cfg, lists):
     return out
 
 
+# Data credit lines (additive hud.json field `credits`); show them wherever the data is shown.
+CREDITS = [
+    {"source": "NOAA / National Weather Service",
+     "text": "Storm reports and radar hail data from NOAA and the National Weather Service (public domain). "
+             "Use of this data does not imply endorsement by NOAA or the NWS."},
+    {"source": "US Census Bureau",
+     "text": "This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau."},
+    {"source": "Nebraska Statewide Parcels",
+     "text": "Property and building data from the State of Nebraska statewide parcel layer (public record)."},
+]
+
+
 def build(conn, cfg, max_turfs=None, max_targets=80):
     tz = ZoneInfo(cfg["timezone"])
     today = datetime.now(tz).date()
@@ -296,7 +308,8 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
             "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
             "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10)),
-            "hail_evidence": hail_evidence}
+            "hail_evidence": hail_evidence,
+            "company_id": (cfg.get("company") or {}).get("id", "hmp"), "credits": CREDITS}
 
 
 def write(conn, cfg, path=None, max_bytes=None):

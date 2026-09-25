@@ -132,8 +132,10 @@ table{{width:100%;border-collapse:collapse;font-size:14px}} th,td{{text-align:le
 </style></head><body>{body}</body></html>"""
 
 
-def write(path, address, ev, hist, langs=("en", "es")):
-    body = "\n".join(render(address, ev, hist, lang) for lang in langs)
+def write(path, address, ev, hist, langs=("en", "es"), company=None):
+    """company: the 'Prepared by' line (config.company_label(cfg)); None keeps HMP's."""
+    kw = {"company": company} if company else {}
+    body = "\n".join(render(address, ev, hist, lang, **kw) for lang in langs)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write(PAGE.format(title=html.escape(f"Hail report: {address}"), body=body))

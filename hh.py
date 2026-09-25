@@ -484,7 +484,7 @@ def main(argv=None):
         ev = hailreport.evidence(conn, cfg, day, lat, lon)
         label = a.address + (f", {p['city']}" if p and p["city"] else (f", {a.city}" if a.city else ""))
         path = hailreport.write(os.path.join(cfg["paths"]["export"], "reports", f"hail_{hailreport.slug(label)}.html"),
-                                label, ev, hist)
+                                label, ev, hist, company=config.company_label(cfg))
         hail = f'{ev["hail"]:.2f}"' if ev["hail"] is not None else "unknown"
         print(f"{label}: {day}, estimated {hail} at the property, {len(ev['reports'])} ground report(s) nearby")
         print(f"  report: {path}")
