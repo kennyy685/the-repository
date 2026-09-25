@@ -35,7 +35,7 @@ b, strong { font-weight:700; }
 .co { display:grid; grid-template-columns:1.25fr 1fr; gap:3pt 0.3in; margin-top:0.12in; padding-bottom:0.1in; border-bottom:0.75pt solid var(--hair); font-size:9.4pt; }
 
 /* ---------- sections ---------- */
-section { margin-top:0.17in; break-inside:avoid; }
+section { margin-top:0.14in; break-inside:avoid; }
 section.flow { break-inside:auto; }
 h2 { display:flex; align-items:center; gap:0.09in; margin-bottom:0.07in; font:800 12.5pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.02em; color:var(--char-dk); break-after:avoid; }
 h2 .n { display:inline-flex; align-items:center; justify-content:center; width:0.22in; height:0.22in; flex:none; border-radius:2px; background:var(--char-dk); color:#fff; font-size:10pt; }
@@ -75,7 +75,7 @@ td.inc { width:0.62in; text-align:center; }
 .notice { border:2pt solid var(--char-dk); border-radius:3px; padding:10pt 12pt 11pt; break-inside:avoid; }
 .notice .cap { font:700 7.4pt/1 "Montserrat"; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); margin-bottom:6pt; }
 .ded { font:700 14pt/1.3 "PT Sans"; text-transform:uppercase; }
-.ded + .ded { margin-top:8pt; }
+.ded + .ded { margin-top:6pt; }
 .cancel h3 { font:800 17pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.02em; margin-bottom:6pt; }
 .cancel .must { font-weight:700; font-size:10.5pt; }
 
@@ -84,7 +84,8 @@ td.inc { width:0.62in; text-align:center; }
 .sig .s { padding-top:0.36in; border-bottom:0.8pt solid var(--char-dk); }
 .sig .c { margin-top:3pt; font-size:8pt; color:var(--muted); }
 .sig.three { grid-template-columns:2.1fr 1.6fr 0.9fr; gap:0.04in 0.25in; }
-.sig.three .s { padding-top:0.27in; }
+.sig.three .s { padding-top:0.24in; }
+.notice .sig .s { padding-top:0.28in; }
 
 /* ---------- tear-off Notice of Cancellation, 2 copies on one page ---------- */
 .forms { break-before:page; }
