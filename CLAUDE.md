@@ -24,7 +24,10 @@ Claude Code each start blank), so **when FilthE tells you something important, a
 of making him repeat it next time.
 **The company (from FilthE's company brief, 2026-09-25)**
 - Early-stage but working: HMP mostly **subcontracts labor** today (the hiring contractor supplies
-  materials). Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing,
+  materials). Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**.
+  Nastase (Omaha, family-owned since 1977, roofing/siding/gutters, residential + commercial) already
+  does storm-damage and insurance-claim work: the natural partner for the "sub for restoration" path.
+  VTR: no public web presence found (2026-09-25); ask FilthE for city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing,
   on houses and apartment complexes.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5
   buildings: tear-off above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look
