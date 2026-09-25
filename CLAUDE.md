@@ -22,7 +22,9 @@ before you stop.**
 **Build orders O1-O6 are in `docs/orders/build-orders.md`** and on the Crew HQ board (T51-T60, T35). Big change:
 Crew HQ becomes the **HMP App** (same link; Today / Leads / Money / Crew tabs, one database), and the King chat
 becomes the one inbox that logs leads, doors and claims. Work them in order; the price sheet (T51) comes from
-FilthE and the boss.
+FilthE and the boss. **Top priority inside the app: O0 "Today's knock"**: one area a day, houses only in walking
+order, one tap per door (Not home / No / Interested / Booked). FilthE finds the command center too messy to use
+for this.
 
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and

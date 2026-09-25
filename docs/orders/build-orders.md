@@ -15,6 +15,25 @@ the answer buttons and the live King chat, so **Crew HQ becomes the HMP App** (s
 Claim Tracker (empty so far) folds into it. HMP HQ and the command center stay, linked from it; the
 command center keeps the storm map and door lists (Cowork's).
 
+## O0 · TODAY'S KNOCK — the heart of the app (FilthE, 2026-09-25) — Builder first
+FilthE: "I want to load up the app, read where the AI wants me to knock today, and report the results. The
+command center shows so many apartments, houses, numbers and addresses that it's messy for a human."
+So the **Today tab leads with one simple knock plan**, and nothing technical:
+- **One area per day** (storm walk if fresh hail, else an everyday/old-house walk), a one-sentence "why"
+  (from the list's `why` reasons, plain words), a goal (e.g. 25 doors, ~2 hours) and a small map.
+- **Houses only, in walking order, street by street.** No apartments/commercial (they stay in the command
+  center), no scores, ids or geoids on screen.
+- **One tap per door:** Not home (left hanger) · No · Interested · Booked (asks day + time). Undo on tap.
+  Not-home doors come back on the next pass (3 passes). Interested/Booked create a `leads` record + follow-up.
+- Live tally at the bottom (doors, talked, interested, booked) + call-backs due today + "Done for today"
+  (writes `stats/week-*` and a one-line event for the King).
+- **Where the list comes from:** pages can't read another page's data, so Claude writes today's walk into
+  this app's db each morning: doc `today/walk` {date, area, why{en,es}, goal_doors, kind: storm|everyday,
+  list_id, stops:[{pid, address, city, lat, lon, pass}]} picked from the command center's hud.json
+  (`lists` or `everyday_lists`, houses only). The King's morning routine does it (add to O4); Claude Code can
+  do it by hand until then. Door taps go to `doors/<date>_<pid>` {result, at, pass}.
+- Voice/text still works (O2): "knocked 20, 1 interested at 615 Linden" updates the same records.
+
 ## O1 · The HMP App (T54 + T55) — Builder, QA Tester
 Turn Crew HQ into a phone-first app with 4 tabs, remembered per viewer:
 - **Today** (opens first): FilthE's 3 tasks from the board, follow-ups due today, streets to knock
@@ -75,6 +94,6 @@ this week's inspections. Big text, no English, no AI office.
 - **T49 (later):** Crew HQ new look (round 3 plan in docs/research).
 
 ## How to start when usage is back
-Paste into Claude Code: *"Read CLAUDE.md and docs/orders/build-orders.md, then run O1 and O2 with
+Paste into Claude Code: *"Read CLAUDE.md and docs/orders/build-orders.md, then run O0, O1 and O2 with
 the Builder and QA Tester, and O3.3 with the Engine Mechanic, in parallel. Update the Crew HQ board
 as you go."*
