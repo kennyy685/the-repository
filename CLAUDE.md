@@ -36,6 +36,8 @@ of making him repeat it next time.
   underline, "SIDING & ROOFING LLC", "RESIDENCIAL y COMERCIAL", on dark charcoal metal siding. Colors: charcoal
   ~#404145, orange ~#f5883a, silver/white. Company phone on the logo: 402-889-3385. Use this look on everything
   printed; the photo lives in the Mac/claude.ai chat, not the repo (recreate it as SVG when needed).
+- **Print contacts:** English side = Kenny Cruz, cell 402-936-2709. Spanish side = **Alex Mendez**, business line
+  402-889-3385 (FilthE, 2026-09-25).
 - **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
   402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
   the AI/organization side, is the only one building this system, and does all the insurance sales.
