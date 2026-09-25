@@ -12,6 +12,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
+import hh  # noqa: E402
 from hailhunter import db, hailreport, mrms  # noqa: E402
 from hailhunter import config as C  # noqa: E402
 from hailhunter.models import Obs, parse_utc  # noqa: E402
@@ -73,6 +74,24 @@ class Report(unittest.TestCase):
         page = hailreport.render("<b>1 Main</b>", ev, [], "en")
         self.assertIn("&lt;b&gt;1 Main&lt;/b&gt;", page)
         self.assertIn("No ground reports within 10 miles", page)
+
+    def test_command_writes_report_for_newest_big_storm(self):
+        cfgp = os.path.join(self.tmp, "cfg.json")
+        with open(cfgp, "w") as f:
+            json.dump({"paths": self.cfg["paths"]}, f)
+        self.conn.close()
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = hh.main(["--config", cfgp, "--offline", "hailreport", "--address", "200 Oak St", "--city", "Testville"])
+        self.conn = db.connect(self.cfg["paths"]["db"])
+        self.assertEqual(rc, 0)
+        self.assertIn("2026-09-12", buf.getvalue())                     # newest 1"+ storm picked by itself
+        path = os.path.join(self.cfg["paths"]["export"], "reports", "hail_200_oak_st_testville.html")
+        self.assertTrue(os.path.exists(path))
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(hh.main(["--config", cfgp, "--offline", "hailreport", "--address", "9 Nowhere Rd"]), 1)
 
 
 if __name__ == "__main__":

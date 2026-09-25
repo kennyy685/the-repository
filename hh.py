@@ -15,7 +15,8 @@
   python3 hh.py status               what's in the database, last runs, errors
   python3 hh.py serve                phone-friendly web app: door lists, commercial targets, pipeline tracking
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
-  python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts)
+  python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
+  python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py selftest             offline tests
@@ -137,7 +138,7 @@ def refresh(conn, fetcher, cfg, log=print):
     return summary
 
 
-BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "CLAUDE.md")
+BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md")
 
 
 def bundle(out_path):
@@ -230,6 +231,12 @@ def main(argv=None):
     p.add_argument("--new")
     p.add_argument("--min-hail", type=float, default=1.0)
     p.add_argument("--max-miles", type=float, default=150)
+    p = sub.add_parser("hailreport", help="one-page hail report for an address (English + Spanish), T32")
+    p.add_argument("--address", required=True, help='as stored, e.g. "200 Oak St"')
+    p.add_argument("--city")
+    p.add_argument("--day", help="storm day YYYY-MM-DD (default: the newest 1\"+ storm at the address)")
+    p.add_argument("--lat", type=float)
+    p.add_argument("--lon", type=float)
     p = sub.add_parser("bundle", help="pack engine code + config + CLAUDE.md into one JSON file, for the cloud")
     p.add_argument("--out", required=True)
     p = sub.add_parser("unbundle", help="unpack an engine JSON bundle here")
@@ -393,7 +400,29 @@ def main(argv=None):
         seen = {(s["day"], s["place"], s["state"]) for s in old.get("storms", [])}
         fresh = [s for s in new["storms"] if (s["day"], s["place"], s["state"]) not in seen
                  and s["hail"] >= a.min_hail and s["dist_mi"] <= a.max_miles]
-        print(json.dumps({"new_hits": fresh[:15], "count": len(fresh)}, indent=1))
+        from hailhunter import watch
+        extra = watch.new_hits(old, new, a.min_hail)
+        print(json.dumps({"new_hits": fresh[:15], "count": len(fresh), "new_contact_hits": extra["contacts"][:15],
+                          "new_watch_hits": extra["watch"][:15]}, indent=1))
+    elif a.cmd == "hailreport":
+        from hailhunter import hailreport
+        p = hailreport.find_parcel(conn, a.address, a.city)
+        lat, lon = (a.lat, a.lon) if a.lat is not None and a.lon is not None else ((p["lat"], p["lon"]) if p else (None, None))
+        if lat is None:
+            print(f"Address not found in stored buildings: {a.address}. Pass --lat and --lon.")
+            return 1
+        hist = hailreport.history(conn, cfg, lat, lon)
+        day = a.day or next((h["day"] for h in hist if h["hail"] >= 1.0), hist[0]["day"] if hist else None)
+        if not day:
+            print("No 3/4 inch or larger hail at this address in the last 2 years.")
+            return 1
+        ev = hailreport.evidence(conn, cfg, day, lat, lon)
+        label = a.address + (f", {p['city']}" if p and p["city"] else (f", {a.city}" if a.city else ""))
+        path = hailreport.write(os.path.join(cfg["paths"]["export"], "reports", f"hail_{hailreport.slug(label)}.html"),
+                                label, ev, hist)
+        hail = f'{ev["hail"]:.2f}"' if ev["hail"] is not None else "unknown"
+        print(f"{label}: {day}, estimated {hail} at the property, {len(ev['reports'])} ground report(s) nearby")
+        print(f"  report: {path}")
     elif a.cmd == "bundle":
         files = bundle(a.out)
         print(f"bundled {len(files)} files -> {a.out}")

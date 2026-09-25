@@ -12,6 +12,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
+import hh  # noqa: E402
 from hailhunter import db, mrms, watch  # noqa: E402
 from hailhunter import config as C  # noqa: E402
 
@@ -67,6 +68,28 @@ class Watch(unittest.TestCase):
         self.assertEqual([w["day"] for w in got["watch"]], ["2026-09-24"])
         self.assertEqual([(c["name"], c["phone"]) for c in got["contacts"]],
                          [("Springhill Ridge Apartments", "(402) 204-4528")])
+
+    def test_diff_command_reports_contact_hits(self):
+        old = {"storms": [], "targets": [], "watch_hits": []}
+        new = {"storms": [], "watch_hits": [], "targets": [{"key": "1 A St|Omaha", "address": "1 A St", "city": "Omaha",
+               "day": "2026-09-24", "hail": 1.2, "contact": {"name": "Acme Apts", "phone": "(402) 555-0100"}}]}
+        paths = []
+        for name, d in (("old.json", old), ("new.json", new)):
+            paths.append(os.path.join(self.tmp, name))
+            with open(paths[-1], "w") as f:
+                json.dump(d, f)
+        cfgp = os.path.join(self.tmp, "cfg.json")
+        with open(cfgp, "w") as f:
+            json.dump({"paths": self.cfg["paths"]}, f)
+        import contextlib
+        import io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            hh.main(["--config", cfgp, "--offline", "diff", "--old", paths[0], "--new", paths[1]])
+        out = json.loads(buf.getvalue())
+        self.assertEqual(out["count"], 0)
+        self.assertEqual([c["name"] for c in out["new_contact_hits"]], ["Acme Apts"])
+        self.assertEqual(out["new_watch_hits"], [])
 
 
 if __name__ == "__main__":

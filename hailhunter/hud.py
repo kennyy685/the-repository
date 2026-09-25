@@ -30,7 +30,8 @@ def _neighborhoods(conn, cfg, since, limit=60):
     lists_by_day = {}
     for L in conn.execute("SELECT * FROM door_lists").fetchall():
         lists_by_day.setdefault(L["conv_day"], []).append(L)
-    mort = {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
+    from .nbhd import mortgage_shares
+    mort = mortgage_shares(conn)
     out = []
     for h in rows:
         cand = [L for L in lists_by_day.get(h["conv_day"], [])
@@ -127,36 +128,8 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
-def build(conn, cfg, max_turfs=None, max_targets=80):
-    tz = ZoneInfo(cfg["timezone"])
-    today = datetime.now(tz).date()
-    max_turfs = max_turfs or cfg.get("hot_zones", {}).get("max_turfs", 40)
-
-    def one(sql, *a):
-        r = conn.execute(sql, a).fetchone()
-        return r[0] if r else None
-
-    cal = one("SELECT value FROM meta WHERE key='mesh_calibration'")
-    counts = {
-        "storm_days": one("SELECT COUNT(DISTINCT conv_day) FROM hail_events"),
-        "ground_reports": one("SELECT COUNT(*) FROM hail_obs WHERE kind!='radar' AND dup_of IS NULL"),
-        "radar_points": one("SELECT COUNT(*) FROM hail_obs WHERE kind='radar'"),
-        "radar_grids": one("SELECT COUNT(*) FROM swaths"),
-        "neighborhoods": one("SELECT COUNT(*) FROM bgs"),
-        "buildings": one("SELECT COUNT(*) FROM parcels"),
-        "towns": one("SELECT COUNT(*) FROM places"),
-        "calibration": json.loads(cal)["factor"] if cal else None,
-        "calibration_pairs": json.loads(cal)["pairs"] if cal else None,
-        "last_ingest_utc": one("SELECT MAX(finished_utc) FROM ingest_runs"),
-        "last_swath_utc": one("SELECT MAX(processed_utc) FROM swaths"),
-        "latest_storm_day": one("SELECT MAX(conv_day) FROM hail_events"),
-    }
-    since = (today - timedelta(days=365)).isoformat()
-    storms = [dict(r) for r in conn.execute(
-        """SELECT conv_day AS day, place_name AS place, state, lat, lon, dist_mi, best_size_in AS hail,
-                  size_basis AS basis, n_ground + n_official AS reports, n_radar AS radar, score, is_rural AS rural,
-                  place_hu AS homes, local_time
-           FROM hail_hits WHERE conv_day >= ? AND score >= 5 ORDER BY score DESC LIMIT 160""", (since,))]
+def _lists(conn, max_turfs):
+    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks."""
     lists = []
     heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
     for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
@@ -186,6 +159,41 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
                 t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
         lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
                       "turfs": turfs, "stops": stops, "created_utc": L["created_utc"]})
+    return lists
+
+
+def build(conn, cfg, max_turfs=None, max_targets=80):
+    tz = ZoneInfo(cfg["timezone"])
+    today = datetime.now(tz).date()
+    if max_turfs is None:
+        max_turfs = cfg.get("hot_zones", {}).get("max_turfs", 40)
+
+    def one(sql, *a):
+        r = conn.execute(sql, a).fetchone()
+        return r[0] if r else None
+
+    cal = one("SELECT value FROM meta WHERE key='mesh_calibration'")
+    counts = {
+        "storm_days": one("SELECT COUNT(DISTINCT conv_day) FROM hail_events"),
+        "ground_reports": one("SELECT COUNT(*) FROM hail_obs WHERE kind!='radar' AND dup_of IS NULL"),
+        "radar_points": one("SELECT COUNT(*) FROM hail_obs WHERE kind='radar'"),
+        "radar_grids": one("SELECT COUNT(*) FROM swaths"),
+        "neighborhoods": one("SELECT COUNT(*) FROM bgs"),
+        "buildings": one("SELECT COUNT(*) FROM parcels"),
+        "towns": one("SELECT COUNT(*) FROM places"),
+        "calibration": json.loads(cal)["factor"] if cal else None,
+        "calibration_pairs": json.loads(cal)["pairs"] if cal else None,
+        "last_ingest_utc": one("SELECT MAX(finished_utc) FROM ingest_runs"),
+        "last_swath_utc": one("SELECT MAX(processed_utc) FROM swaths"),
+        "latest_storm_day": one("SELECT MAX(conv_day) FROM hail_events"),
+    }
+    since = (today - timedelta(days=365)).isoformat()
+    storms = [dict(r) for r in conn.execute(
+        """SELECT conv_day AS day, place_name AS place, state, lat, lon, dist_mi, best_size_in AS hail,
+                  size_basis AS basis, n_ground + n_official AS reports, n_radar AS radar, score, is_rural AS rural,
+                  place_hu AS homes, local_time
+           FROM hail_hits WHERE conv_day >= ? AND score >= 5 ORDER BY score DESC LIMIT 160""", (since,))]
+    lists = _lists(conn, max_turfs)
     targets = []
     files = sorted(glob.glob(os.path.join(cfg["paths"]["export"], "lists", "apartments_commercial_*.csv")))
     scout = {}
@@ -213,6 +221,8 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
     neighborhoods = _neighborhoods(conn, cfg, since)
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
+    from . import watch
+    watch_hits = watch.watch_hits(conn, cfg, watch.load_watch_list(cfg))
     agents = []
     for a in AGENTS:
         last = {"storm_watch": counts["last_ingest_utc"], "swath_mapper": counts["last_swath_utc"],
@@ -223,7 +233,7 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
         agents.append({**a, "last_run_utc": last, **({"schedule": extra} if extra else {})})
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
-            "neighborhoods": neighborhoods, "wind_events": wind_events, "agents": agents}
+            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents}
 
 
 def write(conn, cfg, path=None, max_bytes=None):
@@ -231,11 +241,13 @@ def write(conn, cfg, path=None, max_bytes=None):
     path = path or os.path.join(cfg["paths"]["export"], "hud.json")
     hz = cfg.get("hot_zones", {})
     max_bytes = max_bytes or hz.get("max_hud_mb", 6.0) * 1e6
-    for n in (hz.get("max_turfs", 40), 30, 20, 10):
-        data = build(conn, cfg, max_turfs=n)
-        text = json.dumps(data, separators=(",", ":"))
+    data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
+    text = json.dumps(data, separators=(",", ":"))
+    for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
         if len(text) <= max_bytes:
             break
+        data["lists"] = _lists(conn, n)
+        text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)
     os.replace(path + ".tmp", path)

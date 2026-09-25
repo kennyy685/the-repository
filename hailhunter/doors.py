@@ -182,22 +182,24 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
     with 2-4 plain reasons and the expected inspections if every door is knocked."""
     hz, sc = cfg["hot_zones"], cfg["scoring"]
     storm = date.fromisoformat(storm_day)
-    days = max(((today or date.today()) - storm).days, 0)
+    days = max(((today or datetime.now(ZoneInfo(cfg["timezone"])).date()) - storm).days, 0)
     damage = float(np.mean([interp(hz["damage_curve"], s["hail_in"]) for s in stops]))
     owners = [s["owner_occ"] if s.get("owner_occ") is not None else s.get("owner_share") for s in stops]
     owners = [float(o) for o in owners if o is not None]
     own = float(np.mean(owners)) if owners else hz["owner_unknown"]
     morts = [mortgage[s["bg"]] for s in stops if mortgage and s.get("bg") in mortgage]
     mort = float(np.mean(morts)) if morts else hz["mortgage_unknown"]
-    insured = 0.5 + 0.5 * own * (0.6 + 0.4 * mort)
+    ib, mb = hz["insured_base"], hz["mortgage_base"]
+    insured = ib + (1 - ib) * own * (mb + (1 - mb) * mort)
     years = [s.get("roof_year") or s.get("year_built") for s in stops]
     years = [int(y) for y in years if y]
     med_year = int(np.median(years)) if years else None
     age = storm.year - med_year if med_year else None
-    roof = hz["roof_unknown"] if age is None else 0.5 if age < 8 else 0.8 if age < 15 else 1.0
+    roof = hz["roof_unknown"] if age is None else [f for a, f in hz["roof_age_steps"] if age >= a][-1]
     vals = [float(s["total_value"]) for s in stops if s.get("total_value")]
     med_val = float(np.median(vals)) if vals else None
-    size = hz["size_unknown"] if med_val is None else 0.8 + 0.2 * min(1.0, med_val / hz["value_full"])
+    sb = hz["size_base"]
+    size = hz["size_unknown"] if med_val is None else sb + (1 - sb) * min(1.0, med_val / hz["value_full"])
     fresh = interp(sc["recency_curve"], days)
     opened = 1.0                                   # share not re-roofed since the storm: no permit feed yet
     town = area.split(",")[0].strip()

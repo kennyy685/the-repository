@@ -74,6 +74,9 @@ DEFAULTS = {
         "owner_unknown": 0.65,      # owner-occupied share when the Census has none for the area
         "mortgage_unknown": 0.6,    # share of owners with a mortgage when unknown (about the US average)
         "roof_unknown": 0.9,        # roof factor when the year built is unknown
+        "roof_age_steps": [[0, 0.5], [8, 0.8], [15, 1.0]],   # typical roof age (years) -> factor, step function
+        "insured_base": 0.5, "mortgage_base": 0.6,   # insured = base + (1-base) x owners x (mortgage_base + (1-mortgage_base) x mortgage)
+        "size_base": 0.8,           # size = size_base + (1-size_base) x min(1, median value / value_full)
         "value_full": 250000,       # median assessed value that earns the full size factor
         "size_unknown": 0.9,
         "compete_towns": ["Omaha", "Lincoln"], "compete_days": 90, "compete_factor": 0.85,
