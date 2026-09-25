@@ -166,6 +166,9 @@ genuinely missing there.
   swaths + calibrate -> rescore -> door lists (pinned + top 4 auto) -> commercial -> hud.json. This
   is what Cowork's daily Storm Watch task runs in the cloud (~8 min from empty there).
 - `python3 hh.py doors --day 2026-07-01 --near Fremont`: one door list (csv + xlsx + map)
+- `python3 hh.py everyday --near Fremont --radius 40 --lists 5`: old-house (non-storm) door lists ranked by
+  "everyday heat" (share of older homes, owners, value, distance); also built by `refresh` (top 3) and published
+  in hud.json `everyday_lists`. hud.json also carries `hail_evidence` per address for storm lists (porch proof).
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how
