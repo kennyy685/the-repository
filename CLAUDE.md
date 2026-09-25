@@ -24,7 +24,8 @@ Crew HQ becomes the **HMP App** (same link; Today / Leads / Money / Crew tabs, o
 becomes the one inbox that logs leads, doors and claims. Work them in order; the price sheet (T51) comes from
 FilthE and the boss. **Top priority inside the app: O0 "Today's knock"**: one area a day, houses only in walking
 order, one tap per door (Not home / No / Interested / Booked). FilthE finds the command center too messy to use
-for this. **Long-term (FilthE, 2026-09-25):** he may sell the HMP App to other roofers someday, so build it clean
+for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, via Today's knock; don't push
+"knock around The Edge / job-site neighbors" as the plan (the neighbor note is an optional extra). **Long-term (FilthE, 2026-09-25):** he may sell the HMP App to other roofers someday, so build it clean
 enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
 software); HMP is its first user.
 
