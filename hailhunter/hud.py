@@ -30,6 +30,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
     lists_by_day = {}
     for L in conn.execute("SELECT * FROM door_lists").fetchall():
         lists_by_day.setdefault(L["conv_day"], []).append(L)
+    mort = {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
     out = []
     for h in rows:
         cand = [L for L in lists_by_day.get(h["conv_day"], [])
@@ -60,6 +61,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
             "hail_avg": h["hail_in"],
             "homes": hu, "homes_hit": round(hu * (h["frac_ge_1"] or 0)),
             "owner_occ": h["owner_share"], "median_built": h["med_year"], "score": h["score"],
+            "mortgage_share": round(mort[h["geoid"]], 3) if h["geoid"] in mort else None,
             "lat": h["lat"], "lon": h["lon"], "list_id": list_id, "turfs": turfs, "first_stop": first_stop,
         })
     return out
@@ -125,9 +127,10 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
-def build(conn, cfg, max_turfs=20, max_targets=80):
+def build(conn, cfg, max_turfs=None, max_targets=80):
     tz = ZoneInfo(cfg["timezone"])
     today = datetime.now(tz).date()
+    max_turfs = max_turfs or cfg.get("hot_zones", {}).get("max_turfs", 40)
 
     def one(sql, *a):
         r = conn.execute(sql, a).fetchone()
@@ -155,16 +158,24 @@ def build(conn, cfg, max_turfs=20, max_targets=80):
                   place_hu AS homes, local_time
            FROM hail_hits WHERE conv_day >= ? AND score >= 5 ORDER BY score DESC LIMIT 160""", (since,))]
     lists = []
+    heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
     for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
         turfs = []
         for t in conn.execute("""SELECT turf, COUNT(*) n, AVG(hail_in) h, SUM(score) v FROM door_list_stops
                                  WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
             turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2), "value": round(t["v"])})
+        for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
+            z = heat.get((L["list_id"], t["turf"]))
+            if z:
+                t.update({"heat": z["heat"], "why": json.loads(z["why"] or "[]"), "exp_inspections": z["exp_inspections"]})
         stops = [dict(r) for r in conn.execute(
             """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
-                      p.year_built AS built, p.lat, p.lon
+                      p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
+                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year
                FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
                WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
+        for s in stops:
+            s["sold_after_storm"] = bool(s["sold_after_storm"])
         streets = {}
         for s in stops:
             streets.setdefault(s["turf"], {})
@@ -215,10 +226,17 @@ def build(conn, cfg, max_turfs=20, max_targets=80):
             "neighborhoods": neighborhoods, "wind_events": wind_events, "agents": agents}
 
 
-def write(conn, cfg, path=None):
+def write(conn, cfg, path=None, max_bytes=None):
+    """Writes hud.json. More walks carry stops now (Hot Zones); if that pushes the file past the size cap, fewer do."""
     path = path or os.path.join(cfg["paths"]["export"], "hud.json")
-    data = build(conn, cfg)
+    hz = cfg.get("hot_zones", {})
+    max_bytes = max_bytes or hz.get("max_hud_mb", 6.0) * 1e6
+    for n in (hz.get("max_turfs", 40), 30, 20, 10):
+        data = build(conn, cfg, max_turfs=n)
+        text = json.dumps(data, separators=(",", ":"))
+        if len(text) <= max_bytes:
+            break
     with open(path + ".tmp", "w") as f:
-        json.dump(data, f, separators=(",", ":"))
+        f.write(text)
     os.replace(path + ".tmp", path)
     return path, data

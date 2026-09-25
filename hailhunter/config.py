@@ -68,6 +68,19 @@ DEFAULTS = {
         "max_hop_mi": 0.4,          # don't jump farther than this between streets in one turf
         "kinds": ["single", "mobile", "multi"]
     },
+    # Hot Zones (T23): chance-of-a-sale "heat" per walk, 0-100 = 100 x damage x insured x roof x size x fresh x open x compete
+    "hot_zones": {
+        "damage_curve": [[0.75, 0.1], [1.0, 0.4], [2.0, 1.0]],   # hail at the house -> damage likelihood
+        "owner_unknown": 0.65,      # owner-occupied share when the Census has none for the area
+        "mortgage_unknown": 0.6,    # share of owners with a mortgage when unknown (about the US average)
+        "roof_unknown": 0.9,        # roof factor when the year built is unknown
+        "value_full": 250000,       # median assessed value that earns the full size factor
+        "size_unknown": 0.9,
+        "compete_towns": ["Omaha", "Lincoln"], "compete_days": 90, "compete_factor": 0.85,
+        "inspect_rate": 0.03,       # prior: inspections per home knocked at heat 50 (tune with real results)
+        "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
+        "max_turfs": 40, "max_hud_mb": 6.0
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 

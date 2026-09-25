@@ -11,7 +11,6 @@ Score (0-100) = 100 x size x coverage x recency x distance x owners x homes x ag
 import io
 import json
 import os
-import time
 import zipfile
 from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
@@ -70,6 +69,7 @@ def load_acs(conn, fetcher, cfg, log=print):
             rows = {}
     if not vintage:
         raise RuntimeError("Could not load ACS housing tables")
+    load_mortgages(conn, fetcher, want, vintage, log)
     out = []
     for g, r in rows.items():
         level = "bg" if g.startswith("1500000") else "place"
@@ -80,6 +80,38 @@ def load_acs(conn, fetcher, cfg, log=print):
     conn.execute("UPDATE places SET hu = (SELECT hu FROM acs WHERE acs.geoid = places.geoid AND acs.level='place')")
     conn.commit()
     return len(out), vintage
+
+
+def load_mortgages(conn, fetcher, want, vintage, log=print):
+    """ACS B25081 (owner homes with a mortgage) for Hot Zones. Optional: a missing table never stops a run."""
+    try:
+        txt = fetcher.get(ACS_DIR.format(y=vintage, t="b25081"), ttl=None, cache=False).decode("utf-8", "replace")
+        lines = txt.splitlines()
+        head = lines[0].split("|")
+        it, iw = head.index("B25081_E001"), head.index("B25081_E002")
+        out = []
+        for ln in lines[1:]:
+            if not ln.startswith(want):
+                continue
+            f = ln.split("|")
+            try:
+                tot, wm = int(float(f[it])), int(float(f[iw]))
+            except (ValueError, IndexError):
+                continue
+            if tot >= 0 and wm >= 0:
+                out.append((f[0].split("US", 1)[1], tot, wm, vintage))
+    except Exception as e:
+        log(f"  ACS {vintage} mortgages (B25081) not available ({type(e).__name__}); scoring without them")
+        return 0
+    conn.execute("DELETE FROM acs_mortgage")
+    conn.executemany("INSERT INTO acs_mortgage (geoid, total, with_mortgage, vintage) VALUES (?,?,?,?)", out)
+    conn.commit()
+    return len(out)
+
+
+def mortgage_shares(conn):
+    """{block group geoid: share of owner homes with a mortgage}."""
+    return {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
 
 
 # ------------------------------------------------------------------ block group shapes (TIGER)

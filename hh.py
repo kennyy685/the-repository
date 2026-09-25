@@ -49,9 +49,16 @@ def pick_door_lists(conn, cfg, window_days=200, max_miles=120, n_auto=4):
            ORDER BY homes DESC LIMIT ?"""
     auto = [(r[0], r[1]) for r in conn.execute(
         q, ((today - timedelta(days=window_days)).isoformat(), max_miles, n_auto))]
+    hz = cfg.get("hot_zones", {})
+    close = [(r[0], r[1]) for r in conn.execute(      # close, smaller storms are often un-worked (T23)
+        """SELECT conv_day, place_name, SUM(hu) homes FROM nbhd_hits WHERE state='NE' AND hail_in >= ?
+           AND conv_day >= ? AND dist_mi <= ? AND label NOT LIKE 'Rural%' GROUP BY conv_day, place_name
+           ORDER BY conv_day DESC, homes DESC LIMIT ?""",
+        (hz.get("close_storm_min_in", 1.0), (today - timedelta(days=window_days)).isoformat(),
+         hz.get("close_storm_mi", 60), hz.get("close_storm_lists", 3)))]
     pinned = [tuple(x) for x in cfg.get("pinned_lists", [])]
     out = []
-    for x in pinned + auto:
+    for x in pinned + auto + close:
         if x not in out:
             out.append(x)
     return out
