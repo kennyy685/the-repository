@@ -381,7 +381,8 @@ def main(argv=None):
         for i, r in enumerate(ranked[:max(10, a.lists)], 1):
             print(f"{i:>3}  {r['label'][:34]:34}  {r['homes'] or 0:>5}  {r['heat']:>5.1f}  {'; '.join(r['why'])}")
         for res in made:
-            print(f"\n{res['area']}: {len(res['houses']):,} homes in {len(res['turfs'])} turfs, heat {res['heat']}")
+            print(f"\n{res['area']}: {len(res['houses']):,} homes in {len(res['turfs'])} turfs, heat {res['heat']} "
+                  f"({'; '.join(res['why'])})")
             for k, v in res["paths"].items():
                 print(f"  {k}: {v}")
         if not a.rank_only and not made:

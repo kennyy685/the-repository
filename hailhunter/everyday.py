@@ -100,7 +100,7 @@ def heat(f, cfg):
         why.append(f"homes ~{k}" if value >= 0.95 * top else
                    (f"high-end homes (~{k})" if mv > peak_hi else f"lower home values (~{k})"))
     if dist is not None and dist <= 15:
-        why.append(f"{round(dist)} mi from {_home_town(cfg)}")
+        why.append(f"{max(1, round(dist))} mi from {_home_town(cfg)}")
     parts = {"old": round(old, 3), "owners": round(owners, 3), "value": round(value, 3),
              "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
              "share_old": None if share is None else round(share, 3), "basis": basis, "median_built": med,
