@@ -19,17 +19,17 @@ b, strong { font-weight:700; }
 
 /* watermark: position:fixed repeats on every printed page */
 .wm { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-40deg); z-index:50; pointer-events:none; text-align:center; white-space:nowrap;
-  font:800 40pt/1.05 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.02em; color:rgba(214,64,40,.13); }
-.wm small { display:block; font-size:25pt; }
+  font:800 110pt/0.9 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.03em; color:rgba(214,64,40,.12); }
+.wm small { display:block; margin-top:6pt; font-size:21pt; line-height:1.2; letter-spacing:0.04em; }
 
 /* ---------- page-1 header ---------- */
 .band { position:relative; overflow:hidden; height:1.28in; border-radius:3px; background:linear-gradient(180deg,#4a4b50 0%,#404145 45%,#2f3034 100%); color:#fff; }
 .band::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3pt; background:var(--orange); }
 .band .rib { position:absolute; inset:0; width:100%; height:100%; }
-.band .logo { position:absolute; left:0.22in; top:0.17in; width:1.95in; height:0.96in; }
+.band .logo { position:absolute; left:0.2in; top:0.2in; width:1.72in; height:0.85in; }
 .band .ttl { position:absolute; right:0.26in; top:0.24in; text-align:right; }
 .band .ttl .k { font:700 7.5pt/1 "Montserrat"; letter-spacing:0.2em; text-transform:uppercase; color:var(--orange); }
-.band .ttl h1 { margin-top:5pt; font:800 27pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.01em; }
+.band .ttl h1 { margin-top:5pt; font:800 25pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.01em; }
 .band .ttl .s { margin-top:5pt; font:600 7.3pt/1 "Montserrat"; letter-spacing:0.12em; text-transform:uppercase; color:var(--silver); }
 
 .co { display:grid; grid-template-columns:1.25fr 1fr; gap:3pt 0.3in; margin-top:0.12in; padding-bottom:0.1in; border-bottom:0.75pt solid var(--hair); font-size:9.4pt; }
@@ -51,7 +51,7 @@ p + p { margin-top:4pt; }
 .f .ln { flex:1; min-width:0.4in; height:15pt; border-bottom:0.8pt solid var(--char); }
 .f.w0 { flex:0 0 auto; } .f.w0 .ln { flex:none; width:0.9in; }
 .box { display:inline-block; width:10pt; height:10pt; border:1.1pt solid var(--char-dk); border-radius:1.5px; vertical-align:-1.5pt; margin-right:4pt; background:#fff; }
-.opts { display:inline-flex; gap:0.18in; }
+.opts { display:inline-flex; gap:0.18in; margin-left:6pt; }
 
 /* tables */
 table { width:100%; border-collapse:collapse; font-size:9.3pt; }
@@ -83,6 +83,8 @@ td.inc { width:0.62in; text-align:center; }
 .sig { display:grid; grid-template-columns:1fr 1fr; gap:0.14in 0.35in; margin-top:6pt; }
 .sig .s { padding-top:0.36in; border-bottom:0.8pt solid var(--char-dk); }
 .sig .c { margin-top:3pt; font-size:8pt; color:var(--muted); }
+.sig.three { grid-template-columns:2.1fr 1.6fr 0.9fr; gap:0.1in 0.25in; }
+.sig.three .s { padding-top:0.3in; }
 
 /* ---------- tear-off Notice of Cancellation, 2 copies on one page ---------- */
 .forms { break-before:page; }
