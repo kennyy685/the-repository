@@ -1,0 +1,1009 @@
+<title>Practice Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --surface-2:#e4e9ee; --ink:#18212b; --muted:#4f5a66; --line:#cdd4dc;
+  --accent:#93542a; --accent-ink:#ffffff; --accent-soft:#f3e6dc; --accent-strong:#7a4421;
+  --good:#23703f; --good-soft:#e1f1e6; --bad:#b42318; --bad-soft:#fdecea; --bad-line:#eeb4ad;
+  --warn:#9a6400; --focus:#2b6cb0; --frame:#4f5a66;
+  --shadow:0 1px 2px rgba(24,33,43,.10),0 6px 16px rgba(24,33,43,.08);
+  --r:14px;
+  --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
+    --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
+    --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
+    --warn:#e0a83c; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
+  --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
+  --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
+  --warn:#e0a83c; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default;opacity:.5}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2{text-wrap:balance}
+
+.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:6px 32px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:6px 14px}
+.brand{min-width:0;display:flex;align-items:center;gap:8px;font:700 12.5px/1.2 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
+.lang{flex:none;display:inline-flex;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;padding:0 12px;min-height:38px;border-radius:999px;font:600 15px var(--body)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.screen{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font:700 12.5px/1.2 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* Setup */
+.hero h1{font:700 46px/.92 var(--display);text-transform:uppercase;letter-spacing:.005em;margin:0 0 8px}
+.lede{margin:0;color:var(--muted);max-width:38ch}
+.count{margin:10px 0 0;font:700 15px var(--body);color:var(--accent-strong)}
+.ticket{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.addr{font:700 30px/1.05 var(--display);margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 0}
+.stats div{border-top:2px solid var(--line);padding-top:6px;min-width:0}
+.stats dt{font:700 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:2px 0 0;font:700 23px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stats .hail dd{color:var(--accent-strong)}
+.ago{margin:10px 0 0;font-size:14.5px;color:var(--muted)}
+.h2{font:700 23px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:4px 0 10px}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.who{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;min-height:68px;padding:10px 28px 10px 12px;background:var(--surface);border:2px solid var(--line);border-radius:12px}
+.who-name{font:700 19px/1.1 var(--display)}
+.who-tag{font-size:14px;line-height:1.3;color:var(--muted)}
+.who[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.who[aria-pressed="true"]::after{content:"";position:absolute;top:12px;right:11px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.who-random{grid-column:1/-1;min-height:56px}
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:64px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:700 29px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;box-shadow:var(--shadow)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-ghost{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:2px solid var(--line);border-radius:14px;background:var(--surface);font:700 20px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.btn-small{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);font:700 17px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.actions{display:grid;gap:10px}
+.knock-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:3;grid-template-columns:1fr auto;margin-inline:-16px;padding:10px 16px;background:var(--bg);border-top:1.5px solid var(--line)}
+.knock-bar .btn-ghost{width:auto;min-height:64px;padding-inline:16px;font-size:18px}
+.goal{background:var(--surface-2);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.goal-row{display:flex;align-items:center;gap:10px;font-size:15px}
+.goal-row .lbl{width:68px;font-weight:600}
+.stones{display:flex;gap:6px}
+.stones i{width:15px;height:15px;border-radius:50%;border:2px solid var(--muted);opacity:.55}
+.stones i.on{background:var(--accent);border-color:var(--accent);opacity:1}
+.goal-row .n{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+/* Door */
+#scrDoor{padding-bottom:100px}
+.porch{display:flex;gap:14px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.doorway{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px}
+.frame{position:relative;width:58px;height:92px;border:4px solid var(--frame);border-bottom:0;border-radius:4px 4px 0 0;background:linear-gradient(#fbe3b0,#e2a55c);perspective:260px}
+.door{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1.5fr;gap:5px;padding:7px 6px;background:var(--accent);transform-origin:left center;transition:transform .9s cubic-bezier(.3,.7,.2,1)}
+.door i{border:1.5px solid rgba(0,0,0,.25);border-radius:2px}
+.door .knob{position:absolute;right:6px;top:54%;width:6px;height:6px;border-radius:50%;background:#e9c77f}
+.doorway.knocking .door{animation:knock .95s ease-in-out 1}
+.doorway.open .door{transform:rotateY(-74deg)}
+@keyframes knock{0%,100%{transform:translateX(0)}8%,38%,68%{transform:translateX(-2px)}20%,50%,80%{transform:translateX(2px)}}
+.plate{font:700 13px/1.3 var(--display);letter-spacing:.06em;background:var(--ink);color:var(--bg);padding:0 6px;border-radius:3px;font-variant-numeric:tabular-nums}
+.porch-info{min-width:0;display:grid;gap:3px}
+.porch-who{font:700 25px/1.05 var(--display)}
+.porch-addr{font-size:14.5px;color:var(--muted)}
+.pips{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;font-size:13.5px;color:var(--muted)}
+.pips i{width:14px;height:6px;border-radius:3px;background:var(--line)}
+.pips i.on{background:var(--accent)}
+.pips span{margin-left:6px;font-variant-numeric:tabular-nums}
+.door-tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;display:grid;grid-template-columns:1fr auto;gap:10px;margin-block:-8px;padding-block:8px;background:var(--bg)}
+.btn-end{border-color:var(--ink)}
+.chat{display:flex;flex-direction:column;gap:12px}
+.sys{align-self:center;text-align:center;font-size:14.5px;color:var(--muted);max-width:34ch}
+.msg{max-width:86%;display:grid;gap:3px}
+.msg .lab{font:700 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.msg .body{padding:10px 14px;border-radius:16px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.home{align-self:flex-start}
+.msg.home .body{background:var(--surface);border:1.5px solid var(--line);border-bottom-left-radius:4px}
+.msg.kenny{align-self:flex-end;justify-items:end}
+.msg.kenny .body{background:var(--accent-soft);border:1.5px solid transparent;border-bottom-right-radius:4px}
+.msg.kenny.flagged .body{border-color:var(--bad)}
+.act{font-style:italic;color:var(--muted)}
+.typing{display:inline-flex;gap:5px;padding:5px 2px}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.flag{display:inline-flex;align-items:center;gap:6px;font:700 13.5px/1.25 var(--body);color:var(--bad);background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:8px;padding:5px 9px;text-align:left}
+.flag svg{flex:none}
+.err{display:grid;gap:10px;justify-items:start;padding:14px;border-radius:var(--r);background:var(--surface);border:2px solid var(--warn)}
+.err p{margin:0;font-weight:600}
+.door-end{display:grid;gap:12px;justify-items:center;text-align:center;padding:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+.door-end h2{font:700 32px/1 var(--display);text-transform:uppercase;margin:0}
+.door-end.yes h2{color:var(--good)}
+
+/* Composer */
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--bg);border-top:1.5px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));margin:0}
+.composer-in{max-width:528px;margin:0 auto;display:flex;align-items:flex-end;gap:8px}
+#box{flex:1;min-width:0;resize:none;font:16.5px/1.35 var(--body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;height:52px;max-height:140px}
+#box:focus{border-color:var(--accent);outline:none}
+#box::placeholder{color:var(--muted)}
+.mic{flex:none;width:52px;height:52px;border-radius:14px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.mic.on{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.send{flex:none;height:52px;padding:0 18px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:700 20px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.composer-note{max-width:528px;margin:6px auto 0;font-size:13.5px;color:var(--muted)}
+
+/* Score */
+.score-head h1{font:700 40px/.95 var(--display);text-transform:uppercase;margin:2px 0 4px}
+.reveal{margin:0;color:var(--muted)}
+.loading{display:flex;align-items:center;gap:12px;padding:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);color:var(--muted);font-weight:600}
+.score-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.big{font:700 88px/.85 var(--display);font-variant-numeric:tabular-nums}
+.big small{font-size:38px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;font:700 16px/1 var(--display);letter-spacing:.05em;text-transform:uppercase;background:var(--surface-2);color:var(--muted)}
+.pill.yes{background:var(--good-soft);color:var(--good)}
+.legal-bad{background:var(--bad-soft);border:2px solid var(--bad);border-radius:var(--r);padding:14px;display:grid;gap:12px}
+.legal-title{display:flex;align-items:center;gap:8px;font:700 24px/1 var(--display);text-transform:uppercase;color:var(--bad)}
+.flag-item{display:grid;gap:4px}
+.flag-rule{font-weight:700;color:var(--bad)}
+.flag-item q{font-style:italic}
+.flag-fix{font-size:15.5px}
+.checks{list-style:none;margin:0;padding:0;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
+.checks li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.checks li:first-child{border-top:0}
+.ck{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--surface)}
+.ck.pass{background:var(--good)}.ck.fail{background:var(--muted)}.ck.bad{background:var(--bad)}
+.ck-l{font-weight:700;line-height:1.25}
+li.bad .ck-l{color:var(--bad)}
+.ck-n{font-size:15.5px;color:var(--muted);margin-top:2px}
+.best blockquote{margin:6px 0 0;font:600 18px/1.4 var(--body);padding:12px 14px;background:var(--good-soft);border-radius:12px}
+.next ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.next li{display:grid;grid-template-columns:20px 1fr;gap:6px;font-weight:500}
+.next li::before{content:"\2192";color:var(--accent);font-weight:700}
+.transcript{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.transcript summary{font:700 18px var(--display);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.transcript p{margin:8px 0 0;font-size:15.5px}
+.transcript b{font-weight:700;color:var(--muted)}
+
+/* Cheat sheet */
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet-back{position:absolute;inset:0;background:rgba(10,14,19,.55)}
+.sheet-panel{position:relative;width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--bg);border-radius:18px 18px 0 0;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 10px;background:var(--bg)}
+.sheet-head h2{font:700 28px/1 var(--display);text-transform:uppercase;margin:0}
+.cheat{display:grid;gap:16px}
+.script{font:500 18px/1.45 var(--body);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 0}
+.script b{color:var(--accent-strong)}
+.objs{display:grid;gap:8px;margin-top:6px}
+.obj{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;display:grid;gap:3px}
+.obj-q{font:700 19px/1.15 var(--display)}
+.obj-a{font-size:16.5px}
+.never{background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:12px;padding:12px 14px;display:grid;gap:10px;margin-top:6px}
+.never div{display:grid;gap:2px}
+.never b{color:var(--bad)}
+.never span{font-size:15px}
+.off-card{background:var(--surface);border:2px solid var(--warn);border-radius:var(--r);padding:14px 16px}
+.off-card h2{font:700 24px/1.05 var(--display);text-transform:uppercase;margin:0 0 6px}
+.off-card p{margin:0}
+
+@media (max-width:360px){.hero h1{font-size:40px}.who-grid{grid-template-columns:1fr}.who-random{grid-column:auto}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="dot" aria-hidden="true"></span><span>HMP Siding &amp; Roofing</span></div>
+    <div class="lang" role="group" aria-label="Language / Idioma">
+      <button type="button" id="langEn" aria-pressed="true">English</button>
+      <button type="button" id="langEs" aria-pressed="false">Español</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Pick a homeowner -->
+    <section id="scrSetup" class="screen">
+      <div class="hero">
+        <h1 data-t="title">Practice Door</h1>
+        <p class="lede" data-t="sub"></p>
+        <p class="count" id="countLine"></p>
+      </div>
+      <section class="ticket" aria-labelledby="stTitle">
+        <div class="eyebrow" id="stTitle" data-t="street"></div>
+        <div class="addr" id="stAddr"></div>
+        <dl class="stats">
+          <div class="hail"><dt data-t="hailL"></dt><dd id="stHail"></dd></div>
+          <div><dt data-t="stormL"></dt><dd id="stDate"></dd></div>
+          <div><dt data-t="builtL"></dt><dd id="stBuilt"></dd></div>
+        </dl>
+        <p class="ago" id="stAgo"></p>
+      </section>
+      <section>
+        <h2 class="h2" data-t="who"></h2>
+        <div class="who-grid" id="whoGrid"></div>
+      </section>
+      <div class="actions knock-bar">
+        <button class="btn-primary" id="knockBtn" type="button">
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M3.5 21h17M14.5 12.5v.01" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-t="knock"></span>
+        </button>
+        <button class="btn-ghost" id="cheatBtn1" type="button" data-t="cheat"></button>
+      </div>
+      <section class="goal" aria-labelledby="goalT">
+        <div class="eyebrow" id="goalT" data-t="goalT"></div>
+        <div class="goal-row"><span class="lbl">English</span><span class="stones" id="stonesEn"></span><span class="n" id="nEn"></span></div>
+        <div class="goal-row"><span class="lbl">Español</span><span class="stones" id="stonesEs"></span><span class="n" id="nEs"></span></div>
+      </section>
+    </section>
+
+    <!-- 2. At the door -->
+    <section id="scrDoor" class="screen" hidden>
+      <div class="porch">
+        <div class="doorway" id="doorway" aria-hidden="true">
+          <div class="frame"><div class="door"><i></i><i></i><i></i><i></i><b class="knob"></b></div></div>
+          <div class="plate" id="plateNum"></div>
+        </div>
+        <div class="porch-info">
+          <div class="eyebrow" id="doorChip"></div>
+          <div class="porch-who" id="doorWho"></div>
+          <div class="porch-addr" id="doorAddr"></div>
+          <div class="pips" id="pips"></div>
+        </div>
+      </div>
+      <div class="door-tools">
+        <button class="btn-small" id="cheatBtn2" type="button" data-t="cheat"></button>
+        <button class="btn-small btn-end" id="endBtn" type="button" data-t="end"></button>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="door-end" id="doorEnd" hidden>
+        <h2 id="doorEndTitle"></h2>
+        <button class="btn-primary" id="scoreBtn" type="button" data-t="seeScore"></button>
+      </div>
+    </section>
+
+    <!-- 3. Scorecard -->
+    <section id="scrScore" class="screen" hidden>
+      <div class="score-head">
+        <div class="eyebrow" id="scoreChip"></div>
+        <h1 data-t="scorecard"></h1>
+        <p class="reveal" id="scoreWho"></p>
+      </div>
+      <div class="loading" id="scoreLoading" role="status"><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span id="scoreLoadingText"></span></div>
+      <div class="err" id="scoreErr" hidden><p id="scoreErrText"></p><button class="btn-small" id="scoreRetry" type="button" data-t="retry"></button></div>
+      <div id="scoreTop" class="score-top" hidden><div class="big"><span id="scoreNum">0</span><small>/5</small></div><span class="pill" id="outcomePill"></span></div>
+      <div class="legal-bad" id="legalBox" hidden></div>
+      <div id="scoreBody" class="screen" hidden>
+        <ul class="checks" id="checks"></ul>
+        <div class="best" id="bestWrap" hidden><div class="eyebrow" data-t="bestLine"></div><blockquote id="bestLine"></blockquote></div>
+        <div class="next"><div class="eyebrow" data-t="nextTime"></div><ul id="nextList"></ul></div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="againBtn" type="button" data-t="again"></button>
+        <button class="btn-ghost" id="newBtn" type="button" data-t="newHome"></button>
+      </div>
+      <details class="transcript"><summary data-t="showConvo"></summary><div id="transcript"></div></details>
+    </section>
+
+    <!-- Cheat sheet only (Claude not allowed here) -->
+    <section id="scrOff" class="screen" hidden>
+      <div class="off-card"><h2 data-t="offTitle"></h2><p data-t="offBody"></p></div>
+      <div class="cheat" id="cheatInline"></div>
+    </section>
+  </main>
+</div>
+
+<form class="composer" id="composer" hidden autocomplete="off">
+  <div class="composer-in">
+    <button type="button" class="mic" id="micBtn" aria-pressed="false" hidden>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <textarea id="box" rows="1" enterkeyhint="send" aria-label="Your line"></textarea>
+    <button type="submit" class="send" id="sendBtn" data-t="send"></button>
+  </div>
+  <p class="composer-note" id="composerNote" hidden></p>
+</form>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-back" id="sheetBack"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head"><h2 id="sheetTitle" data-t="cheat"></h2><button class="btn-small" id="sheetClose" type="button" data-t="close"></button></div>
+    <div class="cheat" id="cheatBody"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const MAX = 8;
+const KEY = 'hmp-practice-door-v1';
+
+/* ---------- Words (EN, ES) ---------- */
+const T = {
+  title: ['Practice Door', 'Puerta de práctica'],
+  sub: ['Knock on a practice door. An AI homeowner answers. You get a score.', 'Toca una puerta de práctica. Te contesta un vecino con IA. Al final te damos tu resultado.'],
+  street: ['Your practice street', 'Tu calle de práctica'],
+  hailL: ['Hail', 'Granizo'], stormL: ['Storm', 'Tormenta'], builtL: ['Built', 'Construida'],
+  ago: n => [`The storm was ${n} days ago. Practice address only, not a real lead.`, `La tormenta fue hace ${n} días. Dirección de práctica, no es un cliente real.`],
+  who: ['Who opens the door?', '¿Quién abre la puerta?'],
+  knock: ['Knock', 'Tocar la puerta'],
+  cheat: ['Cheat sheet', 'Guía rápida'],
+  goalT: ['Goal before real doors: 5 in each language', 'Meta antes de puertas reales: 5 en cada idioma'],
+  countFirst: ['Your first practice. Nobody is watching.', 'Tu primera práctica. Nadie te está viendo.'],
+  countN: (n, s) => [`${n} practice${n === 1 ? '' : 's'} done` + (s >= 2 ? ` · ${s} days in a row` : ''), `${n} práctica${n === 1 ? '' : 's'} hecha${n === 1 ? '' : 's'}` + (s >= 2 ? ` · ${s} días seguidos` : '')],
+  practiceN: n => [`Practice #${n}`, `Práctica #${n}`],
+  mystery: ['Mystery homeowner', 'Vecino sorpresa'],
+  atDoor: ['At the door', 'En la puerta'],
+  you: ['You', 'Tú'],
+  lines: n => [`Your lines: ${n}/${MAX}`, `Tus líneas: ${n}/${MAX}`],
+  end: ['End', 'Terminar'],
+  knocking: a => [`You knock at ${a}. Goal: a yes to a free look at the roof.`, `Tocas la puerta en ${a}. Meta: que te dejen revisar el techo gratis.`],
+  typeLine: ["Type what you'd say…", 'Escribe lo que dirías…'],
+  waitTheir: ['They are answering…', 'Te están contestando…'],
+  send: ['Send', 'Enviar'],
+  micLabel: ['Say it out loud', 'Dilo en voz alta'],
+  micBlocked: ["The mic is blocked here. Use the mic key on your phone's keyboard.", 'El micrófono está bloqueado aquí. Usa el micrófono del teclado de tu celular.'],
+  listening: ['Listening… tap the mic to stop.', 'Escuchando… toca el micrófono para parar.'],
+  endYes: ['They said yes!', '¡Te dijeron que sí!'],
+  endClosed: ['The door closed.', 'Te cerraron la puerta.'],
+  endTime: [`That's ${MAX} lines. Time for your score.`, `Ya van ${MAX} líneas. Vamos a ver tu resultado.`],
+  seeScore: ['See my score', 'Ver mi resultado'],
+  scorecard: ['Scorecard', 'Tu resultado'],
+  scoring: ['The coach is reading your conversation…', 'El coach está leyendo tu conversación…'],
+  scoringWrite: ['Writing your score…', 'Escribiendo tu resultado…'],
+  itWas: l => [`Behind the door: ${l}`, `Detrás de la puerta: ${l}`],
+  outYes: ['Got a yes', 'Te dijeron que sí'], outMaybe: ['Maybe', 'Tal vez'], outNo: ['No this time', 'Esta vez no'],
+  legalTitle: ['Legal problem', 'Problema legal'],
+  sayInstead: ['Say instead:', 'Mejor di:'],
+  legalNote: ["You said something that's not allowed. See the red box.", 'Dijiste algo que no está permitido. Mira el cuadro rojo.'],
+  bestLine: ['Your best line', 'Tu mejor línea'],
+  nextTime: ['Try next time', 'Para la próxima'],
+  again: ['Knock again', 'Tocar otra vez'],
+  newHome: ['Pick another homeowner', 'Elegir otro vecino'],
+  showConvo: ['Show the conversation', 'Ver la conversación'],
+  retry: ['Try again', 'Reintentar'],
+  close: ['Close', 'Cerrar'],
+  opener: ['Opener', 'Para abrir'],
+  ifTheySay: ['If they say…', 'Si te dicen…'],
+  never: ['Never say', 'Nunca digas'],
+  eRate: ["You're at your Claude usage limit. Try again later.", 'Llegaste a tu límite de uso de Claude. Intenta más tarde.'],
+  eSession: ['Your Claude sign-in expired. Sign in again, then tap Try again.', 'Se venció tu sesión de Claude. Inicia sesión otra vez y toca Reintentar.'],
+  eRefused: ['The AI skipped that line. Say it another way.', 'La IA no contestó a eso. Dilo de otra forma.'],
+  eLong: ['This talk got too long. Tap End to get your score.', 'La plática se hizo muy larga. Toca Terminar para ver tu resultado.'],
+  eJson: ["The coach's answer came back scrambled. Tap Try again.", 'La respuesta del coach salió mal. Toca Reintentar.'],
+  eNet: ['Connection problem. Tap Try again.', 'Falló la conexión. Toca Reintentar.'],
+  offTitle: ['AI practice is off on this page', 'La práctica con IA está apagada aquí'],
+  offBody: ["Claude isn't allowed to answer here, so no homeowner today. Use the cheat sheet: say each line out loud 5 times.", 'Claude no tiene permiso de contestar aquí, así que hoy no hay vecino. Usa la guía: di cada línea en voz alta 5 veces.'],
+  c_intro: ['Name + HMP + local (Fremont)', 'Nombre + HMP + local (Fremont)'],
+  c_storm: ['Named the storm date or street', 'Dijo la fecha de la tormenta o la calle'],
+  c_inspection: ['Asked for a free inspection, not a sale', 'Pidió una inspección gratis, no una venta'],
+  c_objection: ['Handled the objection calmly', 'Manejó la objeción con calma'],
+  c_legal: ['Stayed legal', 'Se mantuvo legal'],
+  r_deductible: ['Not allowed in Nebraska (44-8604)', 'No permitido en Nebraska (44-8604)'],
+  r_negotiate: ['Not allowed without a public adjuster license', 'No permitido sin licencia de ajustador público'],
+  r_promise: ['Never promise insurance will pay', 'Nunca prometas que el seguro va a pagar'],
+  f_deductible: ['“Your deductible is always your part. By law we can\'t cover it.”', '“El deducible siempre lo paga usted. Por ley no lo podemos cubrir.”'],
+  f_promise: ['“I can\'t promise what insurance pays. I can show you what\'s on your roof.”', '“No le puedo prometer lo que paga el seguro. Le puedo enseñar lo que tiene su techo.”'],
+  f_negotiate: ['“You file the claim. I meet the adjuster and show them the damage.”', '“Usted hace el reclamo. Yo me reúno con el ajustador y le enseño el daño.”'],
+  n_deductible: ['Cover, waive or discount the deductible', 'Cubrir, perdonar o descontar el deducible'],
+  n_promise: ['Promise insurance will pay', 'Prometer que el seguro va a pagar'],
+  n_negotiate: ['Say HMP will negotiate or handle the claim', 'Decir que HMP negocia o maneja el reclamo'],
+};
+
+/* ---------- Homeowners ---------- */
+const P = {
+  mom: {
+    label: ['Busy mom', 'Mamá ocupada'], tag: ['Nice, but in a hurry', 'Amable, pero con prisa'], name: ['Jessica', 'Maricela'],
+    obj: 'busy right now / spouse handles it and is not home',
+    brief: "A friendly but rushed mom of three in her 30s. Dinner is on the stove and kids are loud inside. Your spouse handles house stuff and is at work. Main objections: \"I really don't have time right now\" and \"My husband handles that, he's not home.\" You warm up if Kenny is quick, says it's free and takes about 10 minutes, and offers photos you can show your husband tonight."
+  },
+  retiree: {
+    label: ['Skeptical retiree', 'Jubilado desconfiado'], tag: ['“You storm chasers…”', 'No confía en nadie'], name: ['Dale', 'Don Ramiro'],
+    obj: 'distrusts storm chasers; wants to know if he is local, registered and insured',
+    brief: "A skeptical retiree around 70 who has lived here 30 years. After an older storm an out-of-town crew took a deposit and did sloppy work. Main objection: \"Every time it hails you storm chasers show up. Where are you even from?\" You also ask if the company is registered and insured and how long it has been around. You warm up only if Kenny is clearly local (Fremont), honest and not pushy. You won't sign anything today and you say so."
+  },
+  already: {
+    label: ['Someone already came', 'Ya vino alguien'], tag: ['A roofer knocked yesterday', 'Otro contratista vino ayer'], name: ['Tom', 'Rosa'],
+    obj: 'someone already came by',
+    brief: "A homeowner in your 40s, a little annoyed. A roofer from another company knocked yesterday and left a card. Main objection: \"Somebody already came by yesterday.\" Only if Kenny asks, admit they just looked from the street and never got on the roof. You warm up if Kenny stays friendly and offers a free second look."
+  },
+  dropme: {
+    label: ['“Insurance will drop me”', '“Me van a quitar el seguro”'], tag: ['Scared to file a claim', 'Le da miedo reclamar'], name: ['Linda', 'Guadalupe'],
+    obj: 'afraid a claim will raise rates or get the policy dropped',
+    brief: "A careful homeowner in your 50s, watching every dollar. A friend's premium went up after a claim. Main objection: \"If I file a claim my insurance will go up or drop me.\" You warm up if Kenny does not give advice about your policy and simply offers to show you what's on the roof so you have the facts. At some point ask \"So will insurance pay for it?\" to test him."
+  },
+  renter: {
+    label: ['Renter', 'Inquilino'], tag: ['Not their house', 'La casa no es suya'], name: ['Marcus', 'Joel'],
+    obj: 'renter, not the owner (the right move is asking for the landlord or property manager contact)',
+    brief: "A laid-back renter in your 20s. Main objection: \"I just rent, it's not my house.\" The landlord is Hansen Properties and the property manager's office number is on your fridge. Give the name and office number only if Kenny asks for them politely. If he gets them, end with [[YES]]."
+  },
+  dad: {
+    label: ['Spanish-speaking dad', 'Papá hispano'], tag: ['Prefers Spanish, worried about cost', 'Prefiere español, le preocupa el costo'], name: ['Javier', 'Javier'],
+    obj: 'no money for a new roof; prefers Spanish',
+    brief: "A hard-working dad in your 40s, originally from Mexico, just home from a long shift and tired. You prefer Spanish. Main objection: \"I don't have money for a new roof.\" You warm up when Kenny explains the inspection is free and that your insurance company decides what is covered. If he says the roof won't cost you anything or offers to cover your deductible, get suspicious and ask if that is even legal."
+  },
+  random: { label: ['Random', 'Al azar'], tag: ['Surprise me', 'Sorpréndeme'] }
+};
+const ORDER = ['mom', 'retiree', 'already', 'dropme', 'renter', 'dad', 'random'];
+const REAL = ORDER.filter(k => k !== 'random');
+
+const OBJ = [
+  [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.']],
+  [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
+  [['“Someone already came by.”', '“Ya vino alguien.”'], ['Good, more eyes never hurt. Did they get on the roof or just look from the ground? Happy to give a free second look.', 'Qué bueno, más ojos nunca están de más. ¿Se subieron al techo o solo vieron desde el suelo? Con gusto le doy una segunda revisión gratis.']],
+  [['“I rent.”', '“Yo rento.”'], ["Can I get your landlord's or property manager's name and number?", '¿Me puede dar el nombre y número de su dueño o del administrador?']],
+  [['“Not interested.”', '“No me interesa.”'], ['No worries. Mind if I leave this bilingual card? (Then leave and go to the next door.)', 'No se preocupe. ¿Le puedo dejar esta tarjeta bilingüe? (Luego vete a la siguiente puerta.)']],
+];
+
+const STREETS = ['N Clarkson St', 'E Military Ave', 'N Nye Ave', 'E 23rd St', 'N Broad St', 'E Dodge St', 'N Somers Ave', 'E 9th St'];
+
+const ICON = {
+  warn: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 10v4.5M12 17.5v.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  check: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+};
+
+/* ---------- State ---------- */
+function loadStore() {
+  const base = { count: 0, en: 0, es: 0, streak: 0, lastDay: '', lang: null, persona: null };
+  try { return Object.assign(base, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { return base; }
+}
+function saveStore() { try { localStorage.setItem(KEY, JSON.stringify(S.store)); } catch (e) { /* storage blocked: fine */ } }
+
+const S = {
+  store: loadStore(), lang: 'en', persona: 'mom', actual: 'mom', sessionLang: 'en',
+  sc: null, turns: [], kenny: 0, busy: false, ended: false, off: false, committed: false,
+  ctl: null, sid: 0, screen: 'setup', lastScore: null, lastCall: null
+};
+S.lang = S.store.lang || ((navigator.language || '').toLowerCase().startsWith('es') ? 'es' : 'en');
+if (P[S.store.persona]) S.persona = S.store.persona;
+
+const Li = () => (S.lang === 'es' ? 1 : 0);
+function t(key, ...a) { const v = T[key]; if (!v) return key; const p = typeof v === 'function' ? v(...a) : v; return p[Li()]; }
+
+/* ---------- Claude (sample) ---------- */
+const HIDE = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed']);
+const samplePromise = (async () => {
+  try {
+    const c = window.claude;
+    if (!c || typeof c.use !== 'function') return null;
+    return (await c.use('sample')) || null;
+  } catch (e) { return null; }
+})();
+samplePromise.then(s => { if (!s) goOff(); });
+
+function errText(code) {
+  switch (code) {
+    case 'rate_limited': return t('eRate');
+    case 'session_expired': return t('eSession');
+    case 'refused': return t('eRefused');
+    case 'prompt_too_large': return t('eLong');
+    case 'invalid_json': return t('eJson');
+    default: return t('eNet');
+  }
+}
+
+/* ---------- Scenario ---------- */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function newScenario() {
+  const days = 2 + Math.floor(Math.random() * 8);
+  const d = new Date(); d.setDate(d.getDate() - days);
+  return { num: 1000 + Math.floor(Math.random() * 2600), street: pick(STREETS), hail: pick([1, 1.25, 1.5, 1.75]), date: d, days, built: 1978 + Math.floor(Math.random() * 27) };
+}
+const fmt = (d, lang, o) => new Intl.DateTimeFormat(lang === 'es' ? 'es-US' : 'en-US', o).format(d);
+const dateShort = d => fmt(d, S.lang, { month: 'short', day: 'numeric' }).replace('.', '');
+const dateLong = (d, lang) => fmt(d, lang || S.lang, { month: 'long', day: 'numeric' });
+const hailTxt = h => (S.lang === 'es' ? `${h} pulg` : `${h} in`);
+const addrTxt = sc => `${sc.num} ${sc.street}`;
+
+/* ---------- Legal backup check (the coach AI is the main check) ---------- */
+const RX = [
+  ['deductible', /\b(?:cover|covering|waive|waiving|eat|absorb|rebate|discount|knock off|forgive|take care of|help (?:you )?with|work with|skip)\s+(?:the |your |ur |that |a )?deductibles?\b/i],
+  ['deductible', /\b(?:we|i|hmp|us)\s*(?:'ll|'d| will| would| can| could)?\s+(?:pay|cover)\s+(?:for\s+)?(?:the |your |ur )?deductibles?\b/i],
+  ['deductible', /\bdeductibles?\s+(?:is |will be |are )?(?:covered|waived|free|on us|taken care of|handled)\b/i],
+  ['deductible', /\b(?:no|zero|without (?:a |the |your |any )?|(?:won'?t|don'?t|do not|will not) (?:even )?(?:have to )?pay (?:the |your |a |any )?)deductibles?\b/i],
+  ['deductible', /\b(?:no|zero|nothing) out[- ]of[- ]pocket\b/i],
+  ['deductible', /\bfree (?:new )?roof\b/i],
+  ['deductible', /\b(?:won'?t|will not|doesn'?t|does not) cost you (?:a (?:dime|thing|cent|penny)|anything|nothing)\b/i, 'noInspect'],
+  ['promise', /\b(?:insurance|your insurer|the insurer|insurance company|they)\s*(?:'ll| will| is going to| are going to| gonna| always| definitely| for sure)\s+(?:pay|cover|approve|buy|replace)/i],
+  ['promise', /\b(?:guarantee|promise)\b[^.!?]{0,30}\b(?:insurance|insurer)\b[^.!?]{0,20}\b(?:pay|cover|approve)/i],
+  ['promise', /\byou'?ll get a (?:free |brand[- ]new |new )roof\b/i],
+  ['negotiate', /\b(?:we|i|hmp)\s*(?:'ll|'d| will| would| can| could| do)?\s+(?:negotiate|handle|deal with|fight|argue|settle|take care of|manage|file|run|work out)\s+(?:the |your |all the |with (?:the |your )?)?(?:claim|insurance|insurer|settlement)/i],
+  ['negotiate', /\b(?:we|i|hmp)\s*(?:'ll|'d| will| would| can| could| do)?\s+(?:negotiate|fight|argue|settle)\s+(?:with\s+)?(?:the |your )?adjuster/i],
+  ['negotiate', /\b(?:negotiate|fight)\b[^.!?]{0,25}\b(?:for you|on your behalf)/i],
+  ['deductible', /\b(?:cubrimos|cubro|cubrir|le cubrimos|pagamos|le pagamos|pago yo|yo pago|perdonamos|quitamos|le quitamos|descontamos|le descontamos|rebajamos|ayudamos con|le ayudamos con|nos encargamos de|me encargo de|no paga|no tiene que pagar|no va a pagar|sin)\s+(?:el |su |ese )?deducible/i],
+  ['deductible', /\bdeducible\s+(?:es |va |queda |está |esta )?(?:gratis|cubierto|incluido|perdonado|por nuestra cuenta)/i],
+  ['deductible', /\btecho (?:nuevo )?gratis\b/i],
+  ['deductible', /\bno le (?:va a )?(?:cuesta|costar) nada\b/i, 'noInspect'],
+  ['promise', /\b(?:el seguro|la aseguranza|la aseguradora|su seguro|ellos)\s+(?:se lo |le |lo )?(?:va|van) a (?:pagar|cubrir|aprobar|dar)/i],
+  ['promise', /\b(?:el seguro|la aseguranza|la aseguradora|su seguro)\s+(?:siempre\s+)?(?:paga|cubre)\s+(?:todo|el techo)/i],
+  ['negotiate', /\b(?:negociamos|negociar|nos encargamos (?:del|de su|de todo el) (?:reclamo|seguro|claim)|me encargo (?:del|de su) (?:reclamo|seguro)|hablo con (?:el|su) seguro por usted|hacemos (?:el|su) reclamo por usted|(?:peleamos|pelear) con (?:el|su) (?:seguro|ajustador|aseguradora))/i],
+];
+const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|no puedo|no podemos|nunca|no se puede|no es legal|prohibido|por ley no)\b/i;
+const NEG_NEAR = /(?:\b(?:don'?t|do not|doesn'?t|does not|won'?t|will not|not)\s+(?:[\w']+\s+){0,2}|\b(?:no|si|if)\s+)$/i;
+function legalScan(text) {
+  const out = [];
+  for (const raw of (text.match(/[^.!?;\n]+[.!?;]*/g) || [])) {
+    const s = raw.trim();
+    for (const [type, rx, mode] of RX) {
+      const m = rx.exec(s);
+      if (!m) continue;
+      const before = s.slice(0, m.index);
+      if (NEG_ANY.test(before) || NEG_NEAR.test(before)) continue;
+      if (mode === 'noInspect' && /inspect|look|check|peek|estimate|revis|inspecc|mirar|ver el techo/i.test(s)) continue;
+      out.push({ type, quote: s });
+      break;
+    }
+  }
+  return out;
+}
+const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content));
+const norm = s => String(s).toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, '').replace(/\s+/g, ' ').trim();
+
+/* ---------- Prompts ---------- */
+function rulesText() {
+  const sc = S.sc, p = P[S.actual], es = S.sessionLang === 'es';
+  let langRule;
+  if (es) langRule = 'Speak only Spanish: the natural, everyday Spanish of Mexican and Central American families in Nebraska. Use "usted" with Kenny at first. Kenny will speak Spanish.';
+  else if (S.actual === 'dad') langRule = 'Your English is basic. Answer in short, simple English with a few Spanish words mixed in. If Kenny speaks Spanish to you, switch to Spanish right away and warm up a lot.';
+  else langRule = 'Speak English, the plain way people talk in small-town Nebraska.';
+  return [
+    'You are role-playing a homeowner in a door-knocking practice app. The trainee is Kenny, 19, who offers free roof inspections for HMP Siding & Roofing, a registered and insured contractor from Fremont, Nebraska. He is practicing before he knocks real doors. Every user message after this one is Kenny talking to you at your front door. Reply only with what your character says out loud.',
+    '',
+    `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in a house built in ${sc.built}. A hailstorm with about ${sc.hail}-inch hail hit this neighborhood on ${fmt(sc.date, 'en', { weekday: 'long', month: 'long', day: 'numeric' })} (${sc.days} days ago). You have not checked your roof.`,
+    '',
+    `YOUR CHARACTER: ${p.name[es ? 1 : 0]}. ${p.brief}`,
+    '',
+    `LANGUAGE: ${langRule}`,
+    '',
+    'HOW TO ACT:',
+    '- Sound like a real person at the door: 1-2 short sentences, under 30 words. Casual words and contractions; sometimes just a few words.',
+    '- You may add one short action in parentheses, like (kid yelling inside) or (arms crossed).',
+    '- If Kenny rambles or sounds like a script, cut in: start with "Sorry, hold on—" or ask him to get to the point.',
+    '- Bring up your main objection by your 2nd reply. Do not give in on the first answer.',
+    '- A calm, honest, short answer warms you up. Pressure, arguing, big promises or dodging your questions make you colder.',
+    '- If Kenny handled you well and asks for a free look, say yes or offer a time. If you are done, say goodbye politely.',
+    `- By Kenny's ${MAX - 1}th or ${MAX}th line, wrap up either way.`,
+    '- When the talk is over, end your reply with [[YES]] if you agreed to an inspection or a time (or gave the landlord contact), or [[CLOSED]] if you closed the door. No tag otherwise.',
+    '',
+    'NEVER, EVEN IN CHARACTER:',
+    '- Never ask for, hint at, or accept anything illegal: no covering, waiving, rebating or "taking care of" your deductible, no cash or gifts for a claim, no asking HMP to negotiate or handle your insurance claim.',
+    '- If Kenny offers any of that, react like a careful real homeowner (for example "Is that even legal?") and trust him less. Never reward it with a yes.',
+    '- Never coach Kenny, never step out of character, never mention AI or this app.',
+    '',
+    '(Kenny knocks on your door. Open it and say your first words, the way this character would.)'
+  ].join('\n');
+}
+
+function coachPrompt() {
+  const sc = S.sc, p = P[S.actual];
+  const outLang = S.lang === 'es' ? 'Spanish (talk to Kenny with "tú")' : 'English';
+  const tr = S.turns.map(x => (x.role === 'user' ? 'KENNY: ' : 'HOMEOWNER: ') + x.content).join('\n');
+  return [
+    'You are a friendly, direct door-knocking coach for Kenny, 19, who is brand new to sales and practicing for HMP Siding & Roofing (Fremont, Nebraska; registered and insured). He has ADHD: keep every note under 15 words, plain words, no jargon. Be honest but encouraging.',
+    `Write every note, best_line comment and tip in ${outLang}. Keep quotes of Kenny's words exactly as he said them.`,
+    '',
+    `SCENARIO: ${addrTxt(sc)}, Fremont. Hail about ${sc.hail} in on ${fmt(sc.date, 'en', { weekday: 'long', month: 'long', day: 'numeric' })} (${sc.days} days ago). Practice language: ${S.sessionLang === 'es' ? 'Spanish' : 'English'}.`,
+    `HOMEOWNER: ${p.label[0]}. Main objection: ${p.obj}.`,
+    '',
+    'TRANSCRIPT:',
+    tr,
+    '',
+    'Check these 5 things:',
+    '1. intro: he said his name, HMP (Siding & Roofing), and that they are local / from Fremont. All three needed.',
+    '2. storm: he named the storm date (a loose "last Friday\'s hail" counts) or the street / neighborhood.',
+    '3. inspection: he asked for a free inspection or quick look, not a sale, price or signature.',
+    '4. objection: he handled the main objection calmly: acknowledged it, answered short and honest, no pressure or arguing. If the objection never came up, judge how calm he stayed.',
+    '5. legal: he stayed legal the whole time. FAIL if he did ANY of these: offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or deal with the insurer on their behalf, which is public adjuster work and needs a license (type "negotiate"). Saying the inspection is free is fine. Meeting the adjuster and showing the damage is fine.',
+    '',
+    'Reply with only this JSON, no other text:',
+    '{"checks":[{"id":"intro","pass":true,"note":"..."},{"id":"storm","pass":false,"note":"..."},{"id":"inspection","pass":true,"note":"..."},{"id":"objection","pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"]}',
+    'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":"deductible" or "promise" or "negotiate"}, and set the legal check to false.',
+    'outcome is "yes" (homeowner agreed to a look, a time or gave the landlord contact), "maybe" or "no". next has exactly 2 concrete things to try next time, each a line to say or a move to make.'
+  ].join('\n');
+}
+
+/* ---------- Rendering helpers ---------- */
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function scrollEnd() { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' }); }
+
+function show(name) {
+  S.screen = name;
+  for (const [id, n] of [['scrSetup', 'setup'], ['scrDoor', 'door'], ['scrScore', 'score'], ['scrOff', 'off']]) $(id).hidden = n !== name;
+  $('langEn').disabled = $('langEs').disabled = name === 'door';
+  syncComposer();
+  window.scrollTo(0, 0);
+}
+
+function applyLang() {
+  document.documentElement.lang = S.lang;
+  $('langEn').setAttribute('aria-pressed', String(S.lang === 'en'));
+  $('langEs').setAttribute('aria-pressed', String(S.lang === 'es'));
+  document.querySelectorAll('[data-t]').forEach(n => { n.textContent = t(n.dataset.t); });
+  $('micBtn').setAttribute('aria-label', t('micLabel'));
+  $('box').setAttribute('aria-label', t('typeLine'));
+  renderSetup();
+  if (!$('sheet').hidden) renderCheat($('cheatBody'));
+  if (S.off) renderCheat($('cheatInline'));
+  if (S.screen === 'door') renderDoorHead();
+  if (S.screen === 'score') { renderScoreHead(); renderTranscript(); if (S.lastScore) renderScore(S.lastScore); else renderLegal(localFlags()); }
+  syncComposer();
+}
+
+function activeStreak() {
+  const st = S.store; return (st.lastDay === dayKey(0) || st.lastDay === dayKey(-1)) ? (st.streak || 0) : 0;
+}
+function dayKey(off) { const d = new Date(); d.setDate(d.getDate() + off); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+
+function renderSetup() {
+  const sc = S.sc;
+  $('stAddr').textContent = addrTxt(sc);
+  $('stHail').textContent = hailTxt(sc.hail);
+  $('stDate').textContent = dateShort(sc.date);
+  $('stBuilt').textContent = String(sc.built);
+  $('stAgo').textContent = t('ago', sc.days);
+  const st = S.store;
+  $('countLine').textContent = st.count ? t('countN', st.count, activeStreak()) : t('countFirst');
+  for (const [lg, sid, nid] of [['en', 'stonesEn', 'nEn'], ['es', 'stonesEs', 'nEs']]) {
+    const n = st[lg] || 0, box = $(sid); box.textContent = '';
+    for (let i = 0; i < 5; i++) box.append(el('i', i < n ? 'on' : ''));
+    $(nid).textContent = `${Math.min(n, 99)}/5`;
+  }
+  const g = $('whoGrid'); g.textContent = '';
+  for (const k of ORDER) {
+    const p = P[k];
+    const b = el('button', 'who' + (k === 'random' ? ' who-random' : ''));
+    b.type = 'button'; b.dataset.p = k; b.setAttribute('aria-pressed', String(S.persona === k));
+    b.append(el('span', 'who-name', p.label[Li()]), el('span', 'who-tag', p.tag[Li()]));
+    b.addEventListener('click', () => { S.persona = k; S.store.persona = k; saveStore(); renderSetup(); });
+    g.append(b);
+  }
+}
+
+function renderCheat(box) {
+  const sc = S.sc, es = S.lang === 'es', date = dateLong(sc.date);
+  box.textContent = '';
+  const op = el('section');
+  op.append(el('div', 'eyebrow', t('opener')));
+  const p = el('p', 'script');
+  const pre = es ? 'Hola, soy Kenny de HMP Siding & Roofing, somos de Fremont. Hemos estado revisando techos en esta calle por daños de la tormenta de granizo del ' : "Hi, I'm Kenny with HMP Siding & Roofing. We're local, out of Fremont. We've been checking roofs on this street for damage from the ";
+  const post = es ? '. ¿Le parece si reviso el suyo rápido? Es gratis, sin compromiso, toma unos 10 minutos.' : " hailstorm. Mind if I take a quick free look at yours? No obligation, takes about 10 minutes.";
+  p.append(document.createTextNode(pre), el('b', null, date), document.createTextNode(post));
+  op.append(p);
+  const ob = el('section'); ob.append(el('div', 'eyebrow', t('ifTheySay')));
+  const list = el('div', 'objs');
+  for (const [q, a] of OBJ) { const d = el('div', 'obj'); d.append(el('div', 'obj-q', q[Li()]), el('div', 'obj-a', a[Li()])); list.append(d); }
+  ob.append(list);
+  const nv = el('section'); nv.append(el('div', 'eyebrow', t('never')));
+  const nb = el('div', 'never');
+  for (const k of ['deductible', 'promise', 'negotiate']) {
+    const d = el('div');
+    d.append(el('b', null, t('n_' + k) + ' · ' + t('r_' + k)), el('span', null, t('sayInstead') + ' ' + t('f_' + k)));
+    nb.append(d);
+  }
+  nv.append(nb);
+  box.append(op, ob, nv);
+}
+
+function openSheet() { renderCheat($('cheatBody')); $('sheet').hidden = false; $('sheetClose').focus(); }
+function closeSheet() { $('sheet').hidden = true; }
+
+/* ---------- Door ---------- */
+function renderDoorHead() {
+  const sc = S.sc;
+  $('plateNum').textContent = String(sc.num);
+  $('doorChip').textContent = t('practiceN', S.store.count + (S.committed ? 0 : 1));
+  $('doorWho').textContent = S.persona === 'random' ? t('mystery') : P[S.actual].label[Li()];
+  $('doorAddr').textContent = `${addrTxt(sc)} · ${hailTxt(sc.hail)} · ${dateShort(sc.date)}`;
+  renderPips();
+}
+function renderPips() {
+  const b = $('pips'); b.textContent = '';
+  for (let i = 0; i < MAX; i++) b.append(el('i', i < S.kenny ? 'on' : ''));
+  b.append(el('span', null, t('lines', S.kenny)));
+}
+
+function syncComposer() {
+  const on = S.screen === 'door' && !S.ended && !S.off;
+  $('composer').hidden = !on;
+  $('sendBtn').disabled = S.busy;
+  $('box').placeholder = S.busy ? t('waitTheir') : t('typeLine');
+  if (!on) stopMic();
+}
+
+function setHomeText(bubble, text) {
+  const body = bubble.querySelector('.body'); body.textContent = '';
+  for (const part of String(text).split(/(\([^)]*\))/)) {
+    if (!part) continue;
+    if (part.startsWith('(') && part.endsWith(')')) body.append(el('span', 'act', part));
+    else body.append(document.createTextNode(part));
+  }
+}
+function addHome() {
+  const m = el('div', 'msg home');
+  m.append(el('div', 'lab', t('atDoor')));
+  const body = el('div', 'body');
+  const dots = el('span', 'typing'); dots.setAttribute('aria-label', '…'); dots.append(el('i'), el('i'), el('i'));
+  body.append(dots); m.append(body);
+  $('chat').append(m); scrollEnd(); return m;
+}
+function addKenny(text, flags) {
+  const m = el('div', 'msg kenny' + (flags.length ? ' flagged' : ''));
+  m.append(el('div', 'lab', t('you')), el('div', 'body', text));
+  for (const f of flags) { const c = el('div', 'flag'); c.innerHTML = ICON.warn; c.append(el('span', null, t('r_' + f.type))); m.append(c); }
+  $('chat').append(m); scrollEnd(); return m;
+}
+function chatErr(code, canRetry) {
+  clearChatErr();
+  const box = el('div', 'err'); box.id = 'chatErr';
+  box.append(el('p', null, errText(code)));
+  if (canRetry) { const b = el('button', 'btn-small', t('retry')); b.type = 'button'; b.addEventListener('click', () => { clearChatErr(); askHomeowner(); }); box.append(b); }
+  $('chat').append(box); scrollEnd();
+}
+function clearChatErr() { const e = $('chatErr'); if (e) e.remove(); }
+
+const TAG_RX = /\[\[\s*(YES|CLOSED)\s*\]\]/i;
+function stripTags(s) { return String(s).replace(/\[\[\s*(?:YES|CLOSED)\s*\]\]/gi, '').replace(/\[\[?[A-Za-z]*\]?$/, '').trim(); }
+
+async function knock() {
+  if (S.off) return;
+  S.sid++;
+  S.actual = S.persona === 'random' ? pick(REAL) : S.persona;
+  S.sessionLang = S.lang;
+  S.turns = []; S.kenny = 0; S.ended = false; S.committed = false; S.busy = false; S.lastScore = null;
+  $('chat').textContent = ''; $('doorEnd').hidden = true; $('box').value = ''; grow(); note('');
+  show('door');
+  renderDoorHead();
+  $('chat').append(el('p', 'sys', t('knocking', addrTxt(S.sc))));
+  const dw = $('doorway'); dw.classList.remove('open', 'knocking'); void dw.offsetWidth; dw.classList.add('knocking');
+  await askHomeowner();
+}
+
+async function askHomeowner() {
+  const sid = S.sid;
+  const sample = await samplePromise;
+  if (sid !== S.sid) return;
+  if (!sample) { goOff(); return; }
+  clearChatErr();
+  S.busy = true; syncComposer();
+  const bubble = addHome();
+  const ctl = new AbortController(); S.ctl = ctl;
+  const input = [{ role: 'user', content: rulesText() }, ...S.turns];
+  try {
+    const res = await sample(input, {
+      cache: false, modelTier: 'quick', signal: ctl.signal,
+      onText: ({ text }) => {
+        if (sid !== S.sid) return;
+        const dw = $('doorway'); dw.classList.remove('knocking'); dw.classList.add('open');
+        const shown = stripTags(text); if (shown) setHomeText(bubble, shown);
+        scrollEnd();
+      }
+    });
+    if (sid !== S.sid) return;
+    const m = TAG_RX.exec(res.text);
+    const clean = stripTags(res.text) || '…';
+    setHomeText(bubble, clean);
+    S.turns.push({ role: 'assistant', content: clean });
+    if (m) finishDoor(m[1].toUpperCase() === 'YES' ? 'yes' : 'closed');
+    else if (S.kenny >= MAX) finishDoor('time');
+  } catch (e) {
+    if (sid !== S.sid) return;
+    const code = (e && e.code) || 'upstream_error';
+    bubble.remove();
+    if (code === 'cancelled') return;
+    if (HIDE.has(code)) { goOff(); return; }
+    if (code === 'refused' && S.turns.length && S.turns[S.turns.length - 1].role === 'user') {
+      const last = S.turns.pop(); S.kenny = Math.max(0, S.kenny - 1);
+      const kids = $('chat').querySelectorAll('.msg.kenny'); if (kids.length) kids[kids.length - 1].remove();
+      $('box').value = last.content; grow(); renderPips();
+      chatErr(code, false);
+      return;
+    }
+    chatErr(code, code !== 'prompt_too_large');
+  } finally {
+    if (S.ctl === ctl) S.ctl = null;
+    if (sid === S.sid) { S.busy = false; syncComposer(); }
+  }
+}
+
+function send() {
+  if (S.busy || S.ended || S.off || S.screen !== 'door') return;
+  const v = $('box').value.trim(); if (!v) return;
+  stopMic(); note('');
+  S.kenny++; S.turns.push({ role: 'user', content: v });
+  addKenny(v, legalScan(v));
+  $('box').value = ''; grow(); renderPips();
+  askHomeowner();
+}
+
+function finishDoor(kind) {
+  S.ended = true; syncComposer();
+  if (kind === 'closed') $('doorway').classList.remove('open');
+  $('doorEndTitle').textContent = t(kind === 'yes' ? 'endYes' : kind === 'closed' ? 'endClosed' : 'endTime');
+  $('doorEnd').className = 'door-end' + (kind === 'yes' ? ' yes' : '');
+  $('doorEnd').hidden = false; scrollEnd();
+}
+
+function endNow() {
+  if (S.ctl) S.ctl.abort();
+  if (S.kenny === 0) { S.sid++; S.busy = false; S.ended = true; S.sc = newScenario(); renderSetup(); show('setup'); return; }
+  goScore();
+}
+
+/* ---------- Scorecard ---------- */
+function commit() {
+  if (S.committed) return;
+  S.committed = true;
+  const st = S.store, today = dayKey(0);
+  st.count = (st.count || 0) + 1;
+  st[S.sessionLang] = (st[S.sessionLang] || 0) + 1;
+  if (st.lastDay !== today) st.streak = st.lastDay === dayKey(-1) ? (st.streak || 0) + 1 : 1;
+  st.lastDay = today;
+  saveStore();
+}
+function renderScoreHead() {
+  $('scoreChip').textContent = t('practiceN', S.store.count);
+  $('scoreWho').textContent = t('itWas', P[S.actual].label[Li()]);
+}
+function renderTranscript() {
+  const box = $('transcript'); box.textContent = '';
+  for (const x of S.turns) { const p = el('p'); p.append(el('b', null, (x.role === 'user' ? t('you') : t('atDoor')) + ': '), document.createTextNode(x.content)); box.append(p); }
+}
+function renderLegal(flags) {
+  const box = $('legalBox'); box.textContent = '';
+  if (!flags.length) { box.hidden = true; return; }
+  const h = el('div', 'legal-title'); h.innerHTML = ICON.warn; h.append(el('span', null, t('legalTitle')));
+  box.append(h);
+  for (const f of flags) {
+    const d = el('div', 'flag-item');
+    d.append(el('div', 'flag-rule', t('r_' + f.type)), el('q', null, f.quote), el('div', 'flag-fix', t('sayInstead') + ' ' + t('f_' + f.type)));
+    box.append(d);
+  }
+  box.hidden = false;
+}
+
+async function goScore() {
+  S.sid++;
+  const sid = S.sid;
+  S.ended = true; S.busy = false; S.lastScore = null;
+  commit();
+  show('score');
+  renderScoreHead(); renderTranscript(); renderLegal(localFlags());
+  $('scoreTop').hidden = true; $('scoreBody').hidden = true; $('scoreErr').hidden = true;
+  $('scoreLoading').hidden = false; $('scoreLoadingText').textContent = t('scoring');
+  const sample = await samplePromise;
+  if (sid !== S.sid) return;
+  if (!sample) { goOff(); return; }
+  const ctl = new AbortController(); S.ctl = ctl;
+  let first = true;
+  try {
+    const data = await sample.json(coachPrompt(), {
+      cache: false, signal: ctl.signal,
+      onText: () => { if (first && sid === S.sid) { first = false; $('scoreLoadingText').textContent = t('scoringWrite'); } }
+    });
+    if (sid !== S.sid) return;
+    S.lastScore = data;
+    renderScore(data);
+  } catch (e) {
+    if (sid !== S.sid) return;
+    const code = (e && e.code) || 'upstream_error';
+    if (code === 'cancelled') return;
+    if (HIDE.has(code)) { goOff(); return; }
+    $('scoreLoading').hidden = true;
+    $('scoreErrText').textContent = errText(code);
+    $('scoreErr').hidden = false;
+  } finally { if (S.ctl === ctl) S.ctl = null; }
+}
+
+function renderScore(data) {
+  const ids = ['intro', 'storm', 'inspection', 'objection', 'legal'];
+  const got = data && Array.isArray(data.checks) ? data.checks : [];
+  const checks = ids.map(id => {
+    const c = got.find(x => x && x.id === id) || {};
+    return { id, pass: c.pass === true, note: typeof c.note === 'string' ? c.note : '' };
+  });
+  const flags = (data && Array.isArray(data.legal_flags) ? data.legal_flags : [])
+    .filter(f => f && typeof f.quote === 'string' && f.quote.trim())
+    .map(f => ({ quote: f.quote.trim(), type: ['deductible', 'promise', 'negotiate'].includes(f.type) ? f.type : 'deductible' }));
+  for (const f of localFlags()) {
+    const a = norm(f.quote);
+    if (!flags.some(g => { const b = norm(g.quote); return a.includes(b) || b.includes(a); })) flags.push(f);
+  }
+  const legal = checks[4];
+  if (flags.length) { legal.pass = false; if (!legal.note) legal.note = t('legalNote'); }
+  renderLegal(flags);
+
+  const score = checks.filter(c => c.pass).length;
+  $('scoreNum').textContent = String(score);
+  const oc = data && ['yes', 'maybe', 'no'].includes(data.outcome) ? data.outcome : 'maybe';
+  const pill = $('outcomePill');
+  pill.textContent = t(oc === 'yes' ? 'outYes' : oc === 'no' ? 'outNo' : 'outMaybe');
+  pill.className = 'pill' + (oc === 'yes' ? ' yes' : '');
+
+  const ul = $('checks'); ul.textContent = '';
+  for (const c of checks) {
+    const bad = c.id === 'legal' && !c.pass;
+    const li = el('li', bad ? 'bad' : '');
+    const ic = el('span', 'ck ' + (c.pass ? 'pass' : bad ? 'bad' : 'fail'));
+    ic.innerHTML = c.pass ? ICON.check : ICON.x;
+    const txt = el('div');
+    txt.append(el('div', 'ck-l', t('c_' + c.id)));
+    if (c.note) txt.append(el('div', 'ck-n', c.note));
+    li.append(ic, txt); ul.append(li);
+  }
+  const best = data && typeof data.best_line === 'string' ? data.best_line.trim() : '';
+  $('bestWrap').hidden = !best; $('bestLine').textContent = best;
+  const nl = $('nextList'); nl.textContent = '';
+  const next = (data && Array.isArray(data.next) ? data.next : []).filter(x => typeof x === 'string' && x.trim()).slice(0, 2);
+  for (const n of next) nl.append(el('li', null, n));
+  nl.parentElement.hidden = !next.length;
+
+  $('scoreLoading').hidden = true; $('scoreErr').hidden = true;
+  $('scoreTop').hidden = false; $('scoreBody').hidden = false;
+}
+
+/* ---------- Cheat-sheet-only mode ---------- */
+function goOff() {
+  if (S.off) return;
+  S.off = true; S.sid++;
+  if (S.ctl) S.ctl.abort();
+  closeSheet();
+  renderCheat($('cheatInline'));
+  show('off');
+}
+
+/* ---------- Mic (hidden when the browser has no speech API) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function note(msg) { const n = $('composerNote'); n.textContent = msg || ''; n.hidden = !msg; }
+function stopMic() { if (rec) { try { rec.stop(); } catch (e) { /* ignore */ } } }
+function micOff() { $('micBtn').hidden = true; rec = null; note(t('micBlocked')); }
+function toggleMic() {
+  if (rec) { stopMic(); return; }
+  try {
+    const r = new SR(); rec = r;
+    r.lang = S.sessionLang === 'es' ? 'es-US' : 'en-US';
+    r.interimResults = true; r.continuous = false;
+    const base = $('box').value.trim();
+    r.onresult = ev => { let s = ''; for (const res of ev.results) s += res[0].transcript; $('box').value = (base ? base + ' ' : '') + s.trim(); grow(); };
+    r.onerror = ev => { if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(ev.error)) micOff(); };
+    r.onend = () => { if (rec === r) rec = null; $('micBtn').classList.remove('on'); $('micBtn').setAttribute('aria-pressed', 'false'); if ($('composerNote').textContent === t('listening')) note(''); };
+    r.start();
+    $('micBtn').classList.add('on'); $('micBtn').setAttribute('aria-pressed', 'true'); note(t('listening'));
+  } catch (e) { micOff(); }
+}
+
+function grow() { const b = $('box'); b.style.height = 'auto'; b.style.height = Math.min(Math.max(b.scrollHeight + 4, 52), 140) + 'px'; }
+
+/* ---------- Wire up ---------- */
+function setLang(l) { if (S.screen === 'door') return; S.lang = l; S.store.lang = l; saveStore(); applyLang(); }
+$('langEn').addEventListener('click', () => setLang('en'));
+$('langEs').addEventListener('click', () => setLang('es'));
+$('knockBtn').addEventListener('click', knock);
+$('cheatBtn1').addEventListener('click', openSheet);
+$('cheatBtn2').addEventListener('click', openSheet);
+$('sheetClose').addEventListener('click', closeSheet);
+$('sheetBack').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+$('endBtn').addEventListener('click', endNow);
+$('scoreBtn').addEventListener('click', goScore);
+$('scoreRetry').addEventListener('click', goScore);
+$('againBtn').addEventListener('click', () => { if (S.ctl) S.ctl.abort(); S.sc = newScenario(); knock(); });
+$('newBtn').addEventListener('click', () => { if (S.ctl) S.ctl.abort(); S.sid++; S.sc = newScenario(); renderSetup(); show('setup'); });
+$('composer').addEventListener('submit', e => { e.preventDefault(); send(); });
+$('box').addEventListener('input', grow);
+$('box').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+$('micBtn').hidden = !SR;
+$('micBtn').addEventListener('click', toggleMic);
+
+S.sc = newScenario();
+applyLang();
+show('setup');
+})();
+</script>

@@ -1,0 +1,1045 @@
+<title>HMP Claim Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root {
+  --ground: #edf0f3; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #18212b; --ink-2: #46515e; --muted: #56616e; --faint: #7b8693;
+  --line: #d3d9e0; --accent: #93542a; --accent-soft: #f3e6dc; --track: #e1e6eb;
+  --crit: #b8372a; --crit-soft: #f8e3e0; --warn: #8f6209; --warn-soft: #f6ecd4; --info: #3f6b8f; --info-soft: #e2ecf4;
+  --m-in: #0a8468; --m-in-soft: #daf0e9; --m-mort: #c26a1a; --m-mort-soft: #f8e8da;
+  --scrim: rgba(16, 21, 27, 0.45); --lift: 0 10px 30px rgba(24, 33, 43, 0.18);
+  --display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #10151b; --surface: #19202a; --surface-2: #1f2732; --ink: #e7ecf1; --ink-2: #aeb8c3; --muted: #98a3b0; --faint: #74808d;
+    --line: #2a333e; --accent: #d49060; --accent-soft: #3a2a1f; --track: #2c3540;
+    --crit: #ff8070; --crit-soft: #3d1f1b; --warn: #e8b24c; --warn-soft: #3a2f16; --info: #8cb6d8; --info-soft: #1b2b3a;
+    --m-in: #1f9a80; --m-in-soft: #15332e; --m-mort: #c9772a; --m-mort-soft: #3a2a18;
+    --scrim: rgba(0, 0, 0, 0.6); --lift: 0 10px 30px rgba(0, 0, 0, 0.5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #10151b; --surface: #19202a; --surface-2: #1f2732; --ink: #e7ecf1; --ink-2: #aeb8c3; --muted: #98a3b0; --faint: #74808d;
+  --line: #2a333e; --accent: #d49060; --accent-soft: #3a2a1f; --track: #2c3540;
+  --crit: #ff8070; --crit-soft: #3d1f1b; --warn: #e8b24c; --warn-soft: #3a2f16; --info: #8cb6d8; --info-soft: #1b2b3a;
+  --m-in: #1f9a80; --m-in-soft: #15332e; --m-mort: #c9772a; --m-mort-soft: #3a2a18;
+  --scrim: rgba(0, 0, 0, 0.6); --lift: 0 10px 30px rgba(0, 0, 0, 0.5); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font: 16px/1.45 var(--body); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 48px; display: grid; gap: 18px; }
+
+/* header */
+header.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px 16px;
+  padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.brand h1 { margin: 0; font: 700 34px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; text-wrap: balance; }
+.brand .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.updated { font-size: 13px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 600 13px/1 var(--body); border: 0; background: transparent; color: var(--muted); padding: 8px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.banner { border-radius: 8px; padding: 10px 14px; font-size: 14px; background: var(--info-soft); color: var(--ink); }
+.banner.bad { background: var(--crit-soft); }
+
+/* money summary */
+.money { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: grid; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tile { padding: 14px 16px 12px; display: grid; gap: 4px; min-width: 0; align-content: start; }
+.tile + .tile { border-left: 1px solid var(--line); }
+.tile .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  display: flex; align-items: center; gap: 6px; }
+.tile .v { font: 700 32px/1 var(--display); font-variant-numeric: tabular-nums; }
+.tile .s { font-size: 13px; color: var(--muted); }
+.tile.owed .v { color: var(--ink); }
+.sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.sw.in { background: var(--m-in); }
+.sw.hand { background: repeating-linear-gradient(135deg, var(--m-in) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1px var(--m-in); }
+.sw.mort { background: var(--m-mort); }
+.sw.owed { background: var(--track); box-shadow: inset 0 0 0 1px var(--faint); }
+.moneybar-wrap { padding: 4px 16px 14px; display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.moneybar { display: flex; gap: 2px; height: 14px; }
+.moneybar > span { display: block; height: 100%; border-radius: 3px; min-width: 3px; }
+.moneybar .in { background: var(--m-in); }
+.moneybar .hand { background: repeating-linear-gradient(135deg, var(--m-in) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--m-in); }
+.moneybar .mort { background: var(--m-mort); }
+.moneybar .owed { background: var(--track); }
+.moneynote { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); }
+.moneynote span { display: inline-flex; align-items: center; gap: 6px; }
+.moneynote b { color: var(--ink); font-weight: 700; }
+@media (max-width: 640px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile:nth-child(3) { border-left: 0; }
+  .tile:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .tile .v { font-size: 28px; }
+}
+
+/* tip from Claude */
+.tip { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 14px;
+  border-radius: 8px; background: var(--accent-soft); font-size: 15px; }
+.tip b { font: 700 13px/1.6 var(--body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.tip p { margin: 0; }
+
+/* sections */
+.sec { display: grid; gap: 12px; }
+.sec h2 { margin: 0; font: 700 19px/1.1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; display: flex;
+  align-items: center; gap: 8px; text-wrap: balance; }
+.sec h2 small { font: 700 13px/1 var(--body); letter-spacing: 0; color: var(--surface); background: var(--ink-2); border-radius: 999px; padding: 3px 8px; }
+.sec h2 small:empty { display: none; }
+.cards { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 860px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* claim card */
+.claim { display: grid; gap: 12px; align-content: start; text-align: left; width: 100%; cursor: pointer; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 14px; transition: border-color .15s, box-shadow .15s; }
+.claim:hover { border-color: var(--faint); box-shadow: var(--lift); }
+.claim > span { display: block; min-width: 0; }
+.c-top { display: flex !important; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.c-addr { display: block; font: 700 23px/1.1 var(--display); letter-spacing: 0.01em; overflow-wrap: anywhere; }
+.c-top > span:first-child { min-width: 0; }
+.c-meta { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
+.c-meta .clm { font-variant-numeric: tabular-nums; color: var(--ink-2); font-weight: 600; }
+.c-meta .nw { white-space: nowrap; }
+.claim.compact { gap: 8px; padding-block: 12px; }
+.claim.compact .c-addr { font-size: 20px; }
+.c-line { font-size: 14px; color: var(--muted); }
+.c-line b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 700 12px/1 var(--body); padding: 6px 9px; border-radius: 999px;
+  white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; background: var(--accent-soft); color: var(--accent); flex: none; }
+.chip.paid { background: var(--m-in-soft); color: var(--m-in); }
+.chip.lost { background: var(--track); color: var(--muted); }
+.chip.crit { background: var(--crit-soft); color: var(--crit); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.plain { background: var(--track); color: var(--ink-2); }
+
+.track { display: grid !important; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.track i { display: block; height: 8px; border-radius: 2px; background: var(--track); }
+.track i.done { background: var(--ink-2); }
+.track i.now { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.track.paid i { background: var(--m-in); }
+.track.lost i { background: var(--track); }
+.track-lbl { display: flex !important; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
+.track-lbl b { color: var(--ink); font-weight: 700; }
+
+.next { display: grid !important; gap: 6px; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+.next.overdue { background: var(--crit-soft); }
+.next .lbl { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.next .lbl > b { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.next .txt { font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+.next .txt.none { color: var(--muted); font-style: italic; }
+
+.c-money { display: grid !important; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.c-money .k { display: flex; align-items: center; gap: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+.c-money .v { display: block; font: 700 24px/1.1 var(--display); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.c-money .parts { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.c-money .none { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
+
+/* empty state */
+.empty { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px 18px; display: grid; gap: 18px; }
+.empty h2 { margin: 0; font: 700 30px/1.05 var(--display); text-wrap: balance; }
+.empty .lead { margin: 4px 0 0; font-size: 17px; max-width: 60ch; }
+.example { font-size: 15px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; max-width: 62ch; }
+.example b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 2px; }
+.how { display: grid; gap: 10px; }
+.how h3 { margin: 0; font: 700 18px/1.1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
+.how .hsub { margin: 0; font-size: 14px; color: var(--muted); }
+.strip { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); counter-reset: st; }
+.strip li { counter-increment: st; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 2px 10px; padding: 10px 12px; background: var(--surface-2); border-radius: 8px; align-content: start; }
+.strip li::before { content: counter(st); grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 700 15px/1 var(--display); background: var(--ink); color: var(--surface); }
+.strip b { font-size: 15px; }
+.strip span { font-size: 14px; color: var(--muted); line-height: 1.35; }
+.canrow { display: grid; gap: 6px; font-size: 14px; }
+.canrow p { margin: 0; max-width: 75ch; }
+.canrow b { font-weight: 700; }
+details.howmore { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+details.howmore summary { cursor: pointer; font: 700 17px/1.2 var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
+details.howmore[open] summary { margin-bottom: 12px; }
+footer.rules { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+footer.rules p { margin: 0; max-width: 90ch; }
+
+/* detail sheet */
+.sheet-wrap { position: fixed; inset: 0; z-index: 40; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); }
+.sheet { position: absolute; top: 0; right: 0; bottom: 0; width: min(620px, 100%); background: var(--ground); display: flex; flex-direction: column;
+  box-shadow: var(--lift); animation: slide .2s ease-out; }
+@keyframes slide { from { transform: translateX(24px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } .claim { transition: none; } }
+.sheet-head { padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px; background: var(--surface); border-bottom: 1px solid var(--line);
+  display: grid; gap: 10px; }
+.sh-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.sh-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sheet-head h2 { margin: 2px 0 0; font: 700 28px/1.05 var(--display); overflow-wrap: anywhere; text-wrap: balance; }
+.sh-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.x { flex: none; border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 600; font-size: 14px; }
+.sheet-body { flex: 1; overflow-y: auto; padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 36px); display: grid; gap: 14px; align-content: start; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.box h3 { margin: 0; font: 700 17px/1.1 var(--display); letter-spacing: 0.05em; text-transform: uppercase; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.steps li { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 5px 9px 5px 5px; border-radius: 999px; background: var(--surface-2); color: var(--faint); }
+.steps li i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 var(--display);
+  background: var(--track); color: var(--muted); }
+.steps li.done { color: var(--ink-2); }
+.steps li.done i { background: var(--ink-2); color: var(--surface); }
+.steps li.now { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.steps li.now i { background: var(--accent); color: var(--surface); }
+
+.ledger { display: grid; }
+.lrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 9px 0; border-top: 1px solid var(--line); align-items: baseline; }
+.lrow:first-child { border-top: 0; padding-top: 0; }
+.lrow .l { font-size: 15px; }
+.lrow .a { font: 700 20px/1.1 var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+.lrow .st { grid-column: 1 / -1; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.lrow .st .ok { color: var(--m-in); font-weight: 700; }
+.lrow .st .wait { color: var(--m-mort); font-weight: 700; }
+.lrow.total .l { font-weight: 700; }
+.lrow.total .a { font-size: 24px; }
+.lrow.sub .l { padding-left: 14px; color: var(--ink-2); }
+.lrow.sub .st { padding-left: 14px; }
+.hopays { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-weight: 700; }
+.hopays .a { font: 700 20px/1 var(--display); font-variant-numeric: tabular-nums; }
+
+.facts { margin: 0; display: grid; grid-template-columns: minmax(110px, auto) minmax(0, 1fr); gap: 0; }
+.facts dt, .facts dd { padding: 8px 0; border-top: 1px solid var(--line); margin: 0; }
+.facts dt { font-size: 13px; color: var(--muted); padding-right: 12px; }
+.facts dd { font-size: 15px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.facts dt:first-of-type, .facts dd:first-of-type { border-top: 0; padding-top: 0; }
+.facts .none { color: var(--faint); }
+.copy { margin-left: 8px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+.tl { list-style: none; margin: 0; padding: 0; display: grid; }
+.tl li { display: grid; grid-template-columns: 72px 16px minmax(0, 1fr); gap: 10px; align-items: start; padding-bottom: 12px; position: relative; }
+.tl li::after { content: ""; position: absolute; left: 89px; top: 14px; bottom: 0; width: 2px; background: var(--line); }
+.tl li:last-child::after { display: none; }
+.tl .d { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; padding-top: 1px; }
+.tl .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--ink-2); margin-top: 4px; justify-self: center; position: relative; z-index: 1; }
+.tl .t { font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+.tl li.cash .dot { background: var(--m-in); }
+.tl li.future .dot { background: var(--surface); box-shadow: inset 0 0 0 2px var(--accent); }
+.tl li.future .t { color: var(--ink-2); }
+.tl li.future .t small { display: block; font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+.tl li.late .dot { box-shadow: inset 0 0 0 2px var(--crit); }
+.tl li.late .t small { color: var(--crit); }
+.notes { margin: 0; white-space: pre-wrap; font-size: 15px; overflow-wrap: anywhere; }
+.stamp { font-size: 13px; color: var(--muted); }
+.taps { display: flex; flex-wrap: wrap; gap: 8px; }
+.tap { border: 1px solid var(--m-in); color: var(--m-in); background: var(--surface); border-radius: 8px; padding: 9px 12px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.tap.armed { background: var(--m-in); color: var(--surface); }
+.tap:disabled { opacity: 0.5; cursor: default; }
+.taps-note { font-size: 13px; color: var(--muted); margin: 0; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); z-index: 60;
+  background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: var(--lift); max-width: calc(100% - 32px); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 id="h1">Claims &amp; Money</h1>
+      <div class="sub" id="sub">HMP Siding &amp; Roofing · insurance restoration</div>
+    </div>
+    <div class="tools">
+      <span class="updated" id="updated"></span>
+      <div class="seg" role="group" aria-label="Language / Idioma">
+        <button type="button" id="langEn" aria-pressed="true">English</button>
+        <button type="button" id="langEs" aria-pressed="false">Español</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <section class="money" id="money" aria-labelledby="moneyH" hidden>
+    <h2 id="moneyH" hidden>Money</h2>
+    <div class="tiles">
+      <div class="tile"><span class="k" id="kApproved"></span><span class="v" id="vApproved"></span><span class="s" id="sApproved"></span></div>
+      <div class="tile"><span class="k"><span class="sw in"></span><span id="kCollected"></span></span><span class="v" id="vCollected"></span><span class="s" id="sCollected"></span></div>
+      <div class="tile owed"><span class="k"><span class="sw owed"></span><span id="kOwed"></span></span><span class="v" id="vOwed"></span><span class="s" id="sOwed"></span></div>
+      <div class="tile"><span class="k"><span class="sw mort"></span><span id="kMort"></span></span><span class="v" id="vMort"></span><span class="s" id="sMort"></span></div>
+    </div>
+    <div class="moneybar-wrap">
+      <div class="moneybar" id="moneybar" role="img"></div>
+      <div class="moneynote" id="moneynote"></div>
+    </div>
+  </section>
+
+  <div class="tip" id="tip" hidden><b id="tipK"></b><p id="tipT"></p></div>
+
+  <section class="sec" id="openSec" hidden>
+    <h2><span id="openH"></span><small id="openCount"></small></h2>
+    <div class="cards" id="openCards"></div>
+  </section>
+
+  <section class="sec" id="doneSec" hidden>
+    <h2><span id="doneH"></span><small id="doneCount"></small></h2>
+    <div class="cards" id="doneCards"></div>
+  </section>
+
+  <section class="empty" id="empty" hidden>
+    <div>
+      <h2 id="emptyH"></h2>
+      <p class="lead" id="emptyP"></p>
+    </div>
+    <div class="example"><b id="exK"></b><span id="exT"></span></div>
+    <div class="how" id="howEmpty"></div>
+  </section>
+
+  <details class="howmore" id="howMore" hidden>
+    <summary id="howMoreS"></summary>
+    <div class="how" id="howInside"></div>
+  </details>
+
+  <footer class="rules"><p id="rules"></p></footer>
+</div>
+
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="scrim" id="scrim"></div>
+  <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <div class="sheet-head">
+      <div class="sh-row">
+        <div>
+          <div class="sh-eyebrow" id="shEyebrow"></div>
+          <h2 id="shTitle"></h2>
+          <div class="sh-sub" id="shSub"></div>
+        </div>
+        <button type="button" class="x" id="shClose"></button>
+      </div>
+      <div id="shTrack"></div>
+    </div>
+    <div class="sheet-body" id="shBody"></div>
+  </aside>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- words (every sentence in English and Spanish) ----------
+  const STAGES = ["inspected", "claim_filed", "adjuster_set", "scope_in", "signed", "supplement",
+    "materials_ordered", "installed", "depreciation_requested", "paid"];
+  const STAGE = {
+    inspected: { en: "Inspected", es: "Inspeccionado" },
+    claim_filed: { en: "Claim filed", es: "Reclamo presentado" },
+    adjuster_set: { en: "Adjuster set", es: "Ajustador agendado" },
+    scope_in: { en: "Scope in", es: "Alcance recibido" },
+    signed: { en: "Signed", es: "Contrato firmado" },
+    supplement: { en: "Supplement", es: "Suplemento" },
+    materials_ordered: { en: "Materials ordered", es: "Material pedido" },
+    installed: { en: "Installed", es: "Instalado" },
+    depreciation_requested: { en: "Depreciation requested", es: "Depreciación pedida" },
+    paid: { en: "Paid", es: "Pagado" },
+    lost: { en: "Lost", es: "Perdido" },
+  };
+  const HOW = [
+    { en: ["Inspect", "Storm hits. HMP inspects and shows the homeowner photos."],
+      es: ["Inspección", "Pega la tormenta. HMP inspecciona y le enseña fotos al dueño."] },
+    { en: ["Homeowner files", "The homeowner calls their own insurer and files the claim. That is their job, not HMP's."],
+      es: ["El dueño presenta", "El dueño llama a su aseguradora y presenta el reclamo. Eso le toca a él, no a HMP."] },
+    { en: ["Adjuster assigned", "The insurer sends an adjuster."],
+      es: ["Llega el ajustador", "La aseguradora manda un ajustador."] },
+    { en: ["Meet the adjuster", "HMP meets the adjuster and shows the damage with photos and measurements."],
+      es: ["Cita con el ajustador", "HMP se reúne con el ajustador y le muestra los daños con fotos y medidas."] },
+    { en: ["Scope + first check", "The insurer sends the scope and the first check (ACV)."],
+      es: ["Alcance + primer cheque", "La aseguradora manda el alcance y el primer cheque (ACV)."] },
+    { en: ["Sign + supplement", "HMP signs the job. If the scope missed something, HMP sends a written supplement with photos."],
+      es: ["Firma + suplemento", "HMP firma el trabajo. Si al alcance le faltó algo, HMP manda un suplemento por escrito con fotos."] },
+    { en: ["Build", "HMP orders materials and builds the roof."],
+      es: ["Construir", "HMP pide el material y hace el techo."] },
+    { en: ["Final check", "HMP sends proof of completion. The insurer releases the depreciation check."],
+      es: ["Cheque final", "HMP manda la prueba de terminado. La aseguradora libera el cheque de depreciación."] },
+  ];
+  const pl = (n, one, many) => (n === 1 ? one : many);
+  const T = {
+    en: {
+      h1: "Claims & Money", sub: "HMP Siding & Roofing · insurance restoration",
+      kApproved: "Insurance approved", sApproved: (n) => `across ${n} ${pl(n, "claim", "claims")}`, mortShort: "the mortgage co.",
+      kCollected: "Collected", sCollected: "deposited in the bank",
+      kOwed: "Still owed by insurance", sOwed: "checks not sent yet",
+      kMort: "Waiting on mortgage co.", sMort: (n) => (n ? `${n} ${pl(n, "check", "checks")} out to be signed` : "no checks out"),
+      bar: "Where the approved money is", inHand: "Checks in hand, not deposited yet",
+      counts: (a, o) => `${a} open · ${o} overdue`,
+      openH: "Open claims", doneH: "Finished",
+      next: "Next step", noNext: "No next step yet. Text Claude what happens next.",
+      overdue: (d, day) => `Overdue ${d} ${pl(d, "day", "days")} · ${day}`, dueToday: "Due today", dueTomorrow: "Due tomorrow",
+      due: (day) => `Due ${day}`,
+      step: (i) => `Step ${i} of 10`, nextStage: (s) => `then ${s}`, lostLbl: "Claim lost",
+      moneyIn: "Money in", waiting: "Waiting", fromIns: "from insurance", atCo: (co) => `at ${co}`, toDeposit: "to deposit",
+      noMoney: "No money yet. The first check comes after the scope.", nothingWaiting: "nothing waiting",
+      claim: "Claim", homeowner: "Homeowner",
+      close: "Close", money: "Money", steps: "Steps", facts: "Claim details", job: "Job", timeline: "Timeline", notes: "Notes",
+      approvedTotal: "Approved by insurance so far", approvedHow: "First check + depreciation held + approved supplements",
+      rcv: "Full scope (RCV)", acv: "First check (ACV)", depHeld: "Depreciation held back", depHint: "Released after HMP sends proof of completion",
+      depCheck: "Depreciation check", supp: "Supplement", suppAsked: (a) => `Asked ${a}`, suppApproved: (a) => `approved ${a}`,
+      suppYes: "approved", suppNo: "not approved", suppWait: "waiting on an answer",
+      collectedTotal: "Collected so far", ofContract: (c) => `of ${c} contract price`, contract: "Contract price",
+      homeownerPays: "Homeowner pays",
+      received: (d) => `Received ${d}`, receivedYes: "Received", deposited: (d) => `Deposited ${d}`, depositedYes: "Deposited",
+      notYet: "Not received yet", notDeposited: "Not deposited yet", atMortSince: (co, d) => `At ${co} to be signed${d ? " since " + d : ""}`,
+      backFrom: (co, d) => `Back from ${co}${d ? " " + d : ""}`,
+      insurer: "Insurer", claimNo: "Claim number", adjuster: "Adjuster", adjPhone: "Adjuster phone", dateOfLoss: "Date of loss",
+      adjMeeting: "Adjuster meeting", scopeDate: "Scope received", mortCo: "Mortgage company", checkSent: "Check sent to be signed",
+      checkBack: "Check back", ordered: "Materials ordered", supplier: "Supplier", matCost: "Materials cost",
+      installStart: "Install start", installDone: "Install done", completion: "Proof of completion sent", none: "Not yet",
+      yes: "Yes",
+      evLoss: "Storm hit (date of loss)", evAdj: "Adjuster meeting", evScope: "Scope received", evAcv: (a) => `First check received${a ? " (" + a + ")" : ""}`,
+      evMortOut: (co) => `Check sent to ${co} to be signed`, evMortBack: (co) => `Check back from ${co}`, evDeposit: "First check deposited",
+      evSupp: (a) => `Supplement asked${a ? " (" + a + ")" : ""}`, evMat: (s) => `Materials ordered${s ? " from " + s : ""}`,
+      evStart: "Install start", evDone: "Install done", evCompletion: "Proof of completion sent",
+      evDepCheck: (a) => `Depreciation check received${a ? " (" + a + ")" : ""}`, evNext: "Coming up",
+      noEvents: "No dates yet.",
+      updated: (w, by) => `Updated ${w}${by ? " by " + by : ""}`,
+      taps: "Quick taps", tapsNote: "Tap twice to save. Everything else: text Claude.",
+      markAcv: "First check received today", markDeposit: "First check deposited today", markBack: (co) => `Check back from ${co} today`,
+      confirm: "Tap again to save", saved: "Saved", readOnly: "Only editors can change this page. Text Claude instead.",
+      failed: "That did not save. Try again, or text Claude.",
+      emptyH: "No claims yet.", emptyP: "When you inspect a roof, text Claude the address and it shows up here.",
+      exK: "Example text to Claude", exT: "“123 Oak St, adjuster Tuesday, State Farm, claim 45-889”",
+      howH: "How a claim works", howSub: "Usually 45 to 90 days from start to finish.", howMore: "How a claim works (8 steps)",
+      can: ["HMP can:", "inspect, document the damage, meet the adjuster, ask for supplements in writing, and do the work."],
+      cant: ["HMP can't:", "cover, waive or discount the deductible, promise what insurance will pay, or negotiate the settlement."],
+      rules: "The homeowner files the claim and pays their own deductible. The insurer decides what it pays. HMP documents the damage and builds the job.",
+      noDb: "Live claims show on the published page.", loading: "Loading claims…", dbErr: "Claims could not load. Reload the page.",
+      tip: "Tip", copy: "Copy", copied: "Copied", someone: "someone",
+    },
+    es: {
+      h1: "Reclamos y dinero", sub: "HMP Siding & Roofing · restauración con seguro",
+      kApproved: "Aprobado por el seguro", sApproved: (n) => `en ${n} ${pl(n, "reclamo", "reclamos")}`, mortShort: "el banco hipotecario",
+      kCollected: "Cobrado", sCollected: "depositado en el banco",
+      kOwed: "El seguro todavía debe", sOwed: "cheques que no han mandado",
+      kMort: "Esperando al banco hipotecario", sMort: (n) => (n ? `${n} ${pl(n, "cheque", "cheques")} afuera para firmar` : "ningún cheque afuera"),
+      bar: "Dónde está el dinero aprobado", inHand: "Cheques en mano, sin depositar",
+      counts: (a, o) => `${a} ${pl(a, "abierto", "abiertos")} · ${o} ${pl(o, "atrasado", "atrasados")}`,
+      openH: "Reclamos abiertos", doneH: "Terminados",
+      next: "Siguiente paso", noNext: "Todavía no hay siguiente paso. Mándale a Claude qué sigue.",
+      overdue: (d, day) => `Atrasado ${d} ${pl(d, "día", "días")} · ${day}`, dueToday: "Para hoy", dueTomorrow: "Para mañana",
+      due: (day) => `Para el ${day}`,
+      step: (i) => `Paso ${i} de 10`, nextStage: (s) => `luego ${s}`, lostLbl: "Reclamo perdido",
+      moneyIn: "Dinero que entró", waiting: "Falta", fromIns: "del seguro", atCo: (co) => `con ${co}`, toDeposit: "por depositar",
+      noMoney: "Todavía no hay dinero. El primer cheque llega después del alcance.", nothingWaiting: "no falta nada",
+      claim: "Reclamo", homeowner: "Dueño",
+      close: "Cerrar", money: "Dinero", steps: "Pasos", facts: "Datos del reclamo", job: "Trabajo", timeline: "Historial", notes: "Notas",
+      approvedTotal: "Aprobado por el seguro hasta ahora", approvedHow: "Primer cheque + depreciación retenida + suplementos aprobados",
+      rcv: "Alcance completo (RCV)", acv: "Primer cheque (ACV)", depHeld: "Depreciación retenida", depHint: "Se libera cuando HMP manda la prueba de terminado",
+      depCheck: "Cheque de depreciación", supp: "Suplemento", suppAsked: (a) => `Pedido ${a}`, suppApproved: (a) => `aprobado ${a}`,
+      suppYes: "aprobado", suppNo: "no aprobado", suppWait: "esperando respuesta",
+      collectedTotal: "Cobrado hasta hoy", ofContract: (c) => `de ${c} del contrato`, contract: "Precio del contrato",
+      homeownerPays: "El propietario paga",
+      received: (d) => `Recibido ${d}`, receivedYes: "Recibido", deposited: (d) => `Depositado ${d}`, depositedYes: "Depositado",
+      notYet: "Todavía no llega", notDeposited: "Sin depositar", atMortSince: (co, d) => `Con ${co} para firmar${d ? " desde el " + d : ""}`,
+      backFrom: (co, d) => `Regresó de ${co}${d ? " el " + d : ""}`,
+      insurer: "Aseguradora", claimNo: "Número de reclamo", adjuster: "Ajustador", adjPhone: "Teléfono del ajustador", dateOfLoss: "Fecha de pérdida",
+      adjMeeting: "Cita con el ajustador", scopeDate: "Alcance recibido", mortCo: "Banco hipotecario", checkSent: "Cheque enviado a firmar",
+      checkBack: "Cheque de regreso", ordered: "Material pedido", supplier: "Proveedor", matCost: "Costo del material",
+      installStart: "Inicio de instalación", installDone: "Instalación terminada", completion: "Prueba de terminado enviada", none: "Todavía no",
+      yes: "Sí",
+      evLoss: "Pegó la tormenta (fecha de pérdida)", evAdj: "Cita con el ajustador", evScope: "Llegó el alcance", evAcv: (a) => `Llegó el primer cheque${a ? " (" + a + ")" : ""}`,
+      evMortOut: (co) => `Cheque enviado a ${co} para firmar`, evMortBack: (co) => `Cheque regresó de ${co}`, evDeposit: "Primer cheque depositado",
+      evSupp: (a) => `Suplemento pedido${a ? " (" + a + ")" : ""}`, evMat: (s) => `Material pedido${s ? " a " + s : ""}`,
+      evStart: "Inicio de la instalación", evDone: "Instalación terminada", evCompletion: "Prueba de terminado enviada",
+      evDepCheck: (a) => `Llegó el cheque de depreciación${a ? " (" + a + ")" : ""}`, evNext: "Próximo",
+      noEvents: "Todavía no hay fechas.",
+      updated: (w, by) => `Actualizado ${w}${by ? " por " + by : ""}`,
+      taps: "Toques rápidos", tapsNote: "Toca dos veces para guardar. Todo lo demás: mándale un mensaje a Claude.",
+      markAcv: "Primer cheque recibido hoy", markDeposit: "Primer cheque depositado hoy", markBack: (co) => `Cheque regresó de ${co} hoy`,
+      confirm: "Toca otra vez para guardar", saved: "Guardado", readOnly: "Solo los editores pueden cambiar esta página. Mándale un mensaje a Claude.",
+      failed: "No se guardó. Intenta otra vez o mándale un mensaje a Claude.",
+      emptyH: "Todavía no hay reclamos.", emptyP: "Cuando inspecciones un techo, mándale a Claude la dirección y aparece aquí.",
+      exK: "Ejemplo de mensaje a Claude", exT: "“123 Oak St, ajustador el martes, State Farm, reclamo 45-889”",
+      howH: "Cómo funciona un reclamo", howSub: "Normalmente de 45 a 90 días de principio a fin.", howMore: "Cómo funciona un reclamo (8 pasos)",
+      can: ["HMP sí puede:", "inspeccionar, documentar los daños, reunirse con el ajustador, pedir suplementos por escrito y hacer el trabajo."],
+      cant: ["HMP no puede:", "cubrir, perdonar ni descontar el deducible, prometer lo que pagará el seguro, ni negociar el acuerdo."],
+      rules: "El dueño presenta el reclamo y paga su propio deducible. La aseguradora decide lo que paga. HMP documenta los daños y hace el trabajo.",
+      noDb: "Los reclamos en vivo se ven en la página publicada.", loading: "Cargando reclamos…", dbErr: "No se pudieron cargar los reclamos. Recarga la página.",
+      tip: "Consejo", copy: "Copiar", copied: "Copiado", someone: "alguien",
+    },
+  };
+
+  // ---------- state ----------
+  let lang = "en";
+  try { lang = localStorage.getItem("hmp-claims-lang") === "es" ? "es" : "en"; } catch (e) { /* storage blocked: English */ }
+  let claims = [];          // [{id, ...data}]
+  let guide = null;         // {en, es}
+  let dbState = "wait";     // wait | on | off | err
+  let db = null;
+  let canWrite = null;      // true | false | null (unknown: let a refused write decide)
+  let openId = null;        // claim shown in the detail sheet
+  let lastFocus = null;
+  let hashTried = false;
+
+  // ---------- helpers ----------
+  const t = () => T[lang];
+  const tx = (o) => (o && typeof o === "object" ? String(o[lang] || o.en || "") : "");
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const locale = () => (lang === "es" ? "es-US" : "en-US");
+  const num = (v) => {
+    if (typeof v === "number" && isFinite(v)) return v;
+    if (typeof v === "string") { const s = v.replace(/[$,\s]/g, ""); if (s !== "" && isFinite(+s)) return +s; }
+    return null;
+  };
+  const dayOf = (v) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : null);
+  const yes = (v) => v === true || (typeof v === "string" && v.trim() !== "" && !/^(false|no|0)$/i.test(v.trim()));
+  const str = (v) => (typeof v === "string" ? v.trim() : typeof v === "number" ? String(v) : "");
+  const usd = (n) => new Intl.NumberFormat(locale(), { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0);
+  const pad = (n) => String(n).padStart(2, "0");
+  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const toDate = (d) => new Date(d + "T12:00:00");
+  const fmtDay = (d, weekday) => {
+    const o = { month: "short", day: "numeric" };
+    if (weekday) o.weekday = "short";
+    if (d.slice(0, 4) !== String(new Date().getFullYear())) o.year = "numeric";
+    return toDate(d).toLocaleDateString(locale(), o);
+  };
+  const daysFromToday = (d) => Math.round((toDate(d) - toDate(todayStr())) / 86400000);
+  const fmtWhen = (iso) => {
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleString(locale(), { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  };
+  const stageIdx = (c) => { const i = STAGES.indexOf(c.stage); return c.stage === "lost" ? -1 : i < 0 ? 0 : i; };
+  const stageName = (s) => tx(STAGE[s] || STAGE.inspected);
+
+  function money(c) {
+    const acv = c.acv && typeof c.acv === "object" ? c.acv : {};
+    const dep = c.depreciation_check && typeof c.depreciation_check === "object" ? c.depreciation_check : {};
+    const mort = c.mortgage && typeof c.mortgage === "object" ? c.mortgage : {};
+    const acvAmt = num(acv.amount), held = num(c.depreciation_held), rcv = num(c.rcv), ded = num(c.deductible);
+    const supps = Array.isArray(c.supplements) ? c.supplements.filter((s) => s && typeof s === "object") : [];
+    const supp = supps.reduce((s, x) => s + (num(x.approved) || 0), 0);
+    let approved;
+    if (acvAmt != null || held != null) approved = (acvAmt || 0) + (held || 0) + supp;
+    else if (rcv != null) approved = Math.max(0, rcv - (ded || 0)) + supp; // the insurer's total never includes the homeowner's part
+    else approved = supp;
+    const mortOut = yes(mort.check_sent) && !yes(mort.check_returned);
+    const acvGot = yes(acv.received) || yes(acv.deposited) || yes(mort.check_sent);
+    const acvIn = acvGot ? acvAmt || 0 : 0;
+    const depAmt = num(dep.amount);
+    const depIn = yes(dep.date) || yes(dep.received) ? depAmt || 0 : 0;
+    const received = acvIn + depIn;
+    let mortAmt = mortOut ? (num(mort.amount) != null ? num(mort.amount) : acvIn) : 0;
+    let collected = (yes(acv.deposited) ? acvIn : 0) + depIn;
+    let owed = Math.max(0, approved - received);
+    if (c.stage === "paid") { collected = Math.max(collected, received); mortAmt = 0; owed = 0; }
+    if (c.stage === "lost") owed = 0;
+    const inHand = Math.max(0, received - collected - mortAmt);
+    return { approved, collected, owed, mortAmt, mortOut, inHand, received, acvAmt, acvGot, held, supp, supps, rcv, depAmt, depIn,
+      contract: num(c.contract_price), ded, mortCo: str(mort.company) };
+  }
+
+  function dueInfo(c) {
+    const ns = c.next_step && typeof c.next_step === "object" ? c.next_step : null;
+    const due = ns ? dayOf(ns.due) : null;
+    if (!due || c.stage === "paid" || c.stage === "lost") return { due, late: 0, cls: "plain", label: due ? t().due(fmtDay(due, true)) : "" };
+    const n = daysFromToday(due);
+    if (n < 0) return { due, late: -n, cls: "crit", label: t().overdue(-n, fmtDay(due)) };
+    if (n === 0) return { due, late: 0, cls: "warn", label: t().dueToday };
+    if (n === 1) return { due, late: 0, cls: "warn", label: t().dueTomorrow };
+    return { due, late: 0, cls: "plain", label: t().due(fmtDay(due, true)) };
+  }
+
+  // ---------- pieces ----------
+  function trackEl(c, big) {
+    const i = stageIdx(c);
+    const wrap = el("span");
+    const tr = el("span", "track" + (c.stage === "paid" ? " paid" : c.stage === "lost" ? " lost" : ""));
+    tr.setAttribute("role", "img");
+    tr.setAttribute("aria-label", c.stage === "lost" ? t().lostLbl : `${t().step(i + 1)}: ${stageName(STAGES[i])}`);
+    if (big) tr.style.gap = "4px";
+    STAGES.forEach((s, k) => {
+      const seg = el("i");
+      if (c.stage !== "lost") seg.className = k < i || c.stage === "paid" ? "done" : k === i ? "now" : "";
+      if (big) seg.style.height = "10px";
+      seg.title = `${k + 1}. ${stageName(s)}`;
+      tr.append(seg);
+    });
+    const lbl = el("span", "track-lbl");
+    const left = el("span");
+    if (c.stage === "lost") left.append(el("b", "", t().lostLbl));
+    else { left.append(document.createTextNode(t().step(i + 1) + " · ")); left.append(el("b", "", stageName(STAGES[i]))); }
+    lbl.append(left);
+    if (c.stage !== "lost" && i < STAGES.length - 1) lbl.append(el("span", "", t().nextStage(stageName(STAGES[i + 1]).toLowerCase())));
+    wrap.append(tr, lbl);
+    return wrap;
+  }
+
+  function stageChip(c) {
+    const cls = c.stage === "paid" ? "chip paid" : c.stage === "lost" ? "chip lost" : "chip";
+    return el("span", cls, stageName(c.stage === "lost" ? "lost" : STAGES[stageIdx(c)]));
+  }
+
+  function nextEl(c, tag) {
+    const ns = c.next_step && typeof c.next_step === "object" ? c.next_step : null;
+    const di = dueInfo(c);
+    const box = el(tag || "span", "next" + (di.late ? " overdue" : ""));
+    const lbl = el("span", "lbl");
+    lbl.append(el("b", "", t().next));
+    if (di.label) { const ch = el("span", "chip " + di.cls, (di.late ? "! " : "") + di.label); lbl.append(ch); }
+    const text = tx(ns);
+    box.append(lbl, el("span", "txt" + (text ? "" : " none"), text || t().noNext));
+    return box;
+  }
+
+  function cardMoney(c) {
+    const m = money(c);
+    const box = el("span", "c-money");
+    if (!m.approved && !m.received) { box.append(el("span", "none", t().noMoney)); return box; }
+    const a = el("span");
+    const ka = el("span", "k"); ka.append(el("span", "sw in"), document.createTextNode(t().moneyIn));
+    a.append(ka, el("span", "v", usd(m.collected)));
+    const waitTotal = m.owed + m.mortAmt + m.inHand;
+    const b = el("span");
+    const kb = el("span", "k", t().waiting);
+    b.append(kb, el("span", "v", usd(waitTotal)));
+    const parts = [];
+    if (m.mortAmt) parts.push(`${usd(m.mortAmt)} ${t().atCo(m.mortCo || t().mortShort)}`);
+    if (m.owed) parts.push(`${usd(m.owed)} ${t().fromIns}`);
+    if (m.inHand) parts.push(`${usd(m.inHand)} ${t().toDeposit}`);
+    b.append(el("span", "parts", parts.length ? parts.join(" · ") : t().nothingWaiting));
+    box.append(a, b);
+    return box;
+  }
+
+  function card(c) {
+    const L = t();
+    const finished = c.stage === "paid" || c.stage === "lost";
+    const b = el("button", "claim" + (finished ? " compact" : ""));
+    b.type = "button";
+    b.dataset.id = c.id;
+    const top = el("span", "c-top");
+    const who = el("span");
+    who.append(el("span", "c-addr", str(c.address) || c.id));
+    const meta = el("span", "c-meta");
+    const bits = [str(c.city), str(c.homeowner_first_name)].filter(Boolean);
+    const clm = el("span", "clm");
+    if (str(c.insurer)) clm.append(document.createTextNode(str(c.insurer)));
+    if (str(c.claim_no)) { if (str(c.insurer)) clm.append(document.createTextNode(" · ")); clm.append(el("span", "nw", `${L.claim} ${str(c.claim_no)}`)); }
+    meta.append(document.createTextNode(bits.join(" · ")));
+    if (clm.childNodes.length) { if (bits.length) meta.append(document.createTextNode(" · ")); meta.append(clm); }
+    who.append(meta);
+    top.append(who);
+    if (finished) top.append(stageChip(c));
+    b.append(top);
+    if (finished) {
+      const m = money(c);
+      const line = el("span", "c-line");
+      line.append(document.createTextNode(`${L.collectedTotal}: `), el("b", "", usd(m.collected)));
+      if (m.contract != null) line.append(document.createTextNode(` ${L.ofContract(usd(m.contract))}`));
+      const ns = tx(c.next_step);
+      if (ns) line.append(document.createTextNode(` · ${L.next}: ${ns}`));
+      b.append(line);
+    } else {
+      b.append(trackEl(c, false), nextEl(c), cardMoney(c));
+    }
+    b.addEventListener("click", () => openSheet(c.id, b));
+    return b;
+  }
+
+  function howEl(withTitle) {
+    const d = el("div", "how");
+    if (withTitle) { d.append(el("h3", "", t().howH)); }
+    d.append(el("p", "hsub", t().howSub));
+    const ol = el("ol", "strip");
+    for (const s of HOW) { const li = el("li"); const [h, p] = s[lang]; li.append(el("b", "", h), el("span", "", p)); ol.append(li); }
+    d.append(ol);
+    const can = el("div", "canrow");
+    for (const [k, v] of [t().can, t().cant]) { const p = el("p"); p.append(el("b", "", k + " "), document.createTextNode(v)); can.append(p); }
+    d.append(can);
+    return d;
+  }
+
+  // ---------- page render ----------
+  function sortOpen(a, b) {
+    const da = dueInfo(a), dbb = dueInfo(b);
+    if (da.late !== dbb.late) return dbb.late - da.late;
+    if (da.due && dbb.due && da.due !== dbb.due) return da.due < dbb.due ? -1 : 1;
+    if (!!da.due !== !!dbb.due) return da.due ? -1 : 1;
+    return str(a.address).localeCompare(str(b.address));
+  }
+
+  function render() {
+    const L = t();
+    document.documentElement.lang = lang;
+    $("langEn").setAttribute("aria-pressed", String(lang === "en"));
+    $("langEs").setAttribute("aria-pressed", String(lang === "es"));
+    $("h1").textContent = L.h1;
+    $("sub").textContent = L.sub;
+    $("rules").textContent = L.rules;
+
+    const banner = $("banner");
+    banner.hidden = dbState === "on";
+    banner.className = "banner" + (dbState === "err" ? " bad" : "");
+    banner.textContent = dbState === "wait" ? L.loading : dbState === "err" ? L.dbErr : L.noDb;
+
+    // Claude's tip
+    const g = tx(guide);
+    $("tip").hidden = !g;
+    $("tipK").textContent = L.tip;
+    $("tipT").textContent = g;
+
+    const live = claims.filter((c) => c.stage !== "lost");
+    const open = claims.filter((c) => c.stage !== "paid" && c.stage !== "lost").sort(sortOpen);
+    const done = claims.filter((c) => c.stage === "paid" || c.stage === "lost")
+      .sort((a, b) => (str(b.updated_at) > str(a.updated_at) ? 1 : -1));
+    const has = claims.length > 0;
+    const showEmpty = !has && dbState !== "wait";
+
+    // updated stamp = newest updated_at
+    const newest = claims.reduce((best, c) => (str(c.updated_at) > str(best && best.updated_at) ? c : best), null);
+    $("updated").textContent = newest && fmtWhen(newest.updated_at) ? L.updated(fmtWhen(newest.updated_at), str(newest.updated_by)) : "";
+
+    // money summary
+    $("money").hidden = !has;
+    if (has) {
+      const sum = { approved: 0, collected: 0, owed: 0, mortAmt: 0, inHand: 0, mortN: 0 };
+      for (const c of live) {
+        const m = money(c);
+        sum.approved += m.approved; sum.collected += m.collected; sum.owed += m.owed; sum.mortAmt += m.mortAmt; sum.inHand += m.inHand;
+        if (m.mortAmt) sum.mortN++;
+      }
+      $("moneyH").textContent = L.money;
+      $("kApproved").textContent = L.kApproved; $("vApproved").textContent = usd(sum.approved); $("sApproved").textContent = L.sApproved(live.length);
+      $("kCollected").textContent = L.kCollected; $("vCollected").textContent = usd(sum.collected); $("sCollected").textContent = L.sCollected;
+      $("kOwed").textContent = L.kOwed; $("vOwed").textContent = usd(sum.owed); $("sOwed").textContent = L.sOwed;
+      $("kMort").textContent = L.kMort; $("vMort").textContent = usd(sum.mortAmt); $("sMort").textContent = L.sMort(sum.mortN);
+      const bar = $("moneybar"); bar.replaceChildren();
+      const total = sum.collected + sum.inHand + sum.mortAmt + sum.owed;
+      const segs = [["in", sum.collected, L.kCollected], ["hand", sum.inHand, L.inHand], ["mort", sum.mortAmt, L.kMort], ["owed", sum.owed, L.kOwed]];
+      const lab = [];
+      for (const [cls, v, name] of segs) {
+        if (!v || !total) continue;
+        const s = el("span", cls); s.style.flex = `${v} 1 0`; s.title = `${name}: ${usd(v)}`; bar.append(s); lab.push(`${name} ${usd(v)}`);
+      }
+      if (!total) { const s = el("span", "owed"); s.style.flex = "1 1 0"; bar.append(s); }
+      bar.setAttribute("aria-label", `${L.bar}: ${lab.join(", ") || usd(0)}`);
+      const note = $("moneynote"); note.replaceChildren();
+      const overdueN = open.filter((c) => dueInfo(c).late > 0).length;
+      const cnt = el("span"); cnt.append(el("b", "", L.counts(open.length, overdueN))); note.append(cnt);
+      if (sum.inHand) { const h = el("span"); h.append(el("span", "sw hand"), document.createTextNode(`${L.inHand}: `), el("b", "", usd(sum.inHand))); note.append(h); }
+    }
+
+    // cards
+    $("openSec").hidden = !open.length;
+    $("openH").textContent = L.openH; $("openCount").textContent = open.length ? String(open.length) : "";
+    $("openCards").replaceChildren(...open.map(card));
+    $("doneSec").hidden = !done.length;
+    $("doneH").textContent = L.doneH; $("doneCount").textContent = done.length ? String(done.length) : "";
+    $("doneCards").replaceChildren(...done.map(card));
+
+    // empty state + how-it-works
+    $("empty").hidden = !showEmpty;
+    if (showEmpty) {
+      $("emptyH").textContent = L.emptyH; $("emptyP").textContent = L.emptyP;
+      $("exK").textContent = L.exK; $("exT").textContent = L.exT;
+      $("howEmpty").replaceWith(Object.assign(howEl(true), { id: "howEmpty" }));
+    }
+    $("howMore").hidden = !has;
+    if (has) { $("howMoreS").textContent = L.howMore; $("howInside").replaceWith(Object.assign(howEl(false), { id: "howInside" })); }
+
+    if (openId) renderSheet();
+    if (!hashTried && dbState === "on") {
+      hashTried = true;
+      const h = decodeURIComponent((location.hash || "").slice(1));
+      if (h && claims.some((c) => c.id === h)) openSheet(h, null);
+    }
+  }
+
+  // ---------- detail sheet ----------
+  function openSheet(id, from) {
+    openId = id;
+    lastFocus = from || document.activeElement;
+    $("sheetWrap").hidden = false;
+    document.body.style.overflow = "hidden";
+    renderSheet();
+    $("shBody").scrollTop = 0;
+    $("shClose").focus();
+  }
+  function closeSheet() {
+    openId = null;
+    $("sheetWrap").hidden = true;
+    document.body.style.overflow = "";
+    const back = lastFocus && lastFocus.dataset && lastFocus.dataset.id
+      ? document.querySelector(`.claim[data-id="${CSS.escape(lastFocus.dataset.id)}"]`) : lastFocus;
+    if (back && back.focus) back.focus();
+  }
+
+  function lrow(label, amount, cls, statusParts) {
+    const r = el("div", "lrow" + (cls ? " " + cls : ""));
+    r.append(el("span", "l", label), el("span", "a", amount));
+    if (statusParts && statusParts.length) {
+      const st = el("span", "st");
+      for (const p of statusParts) st.append(typeof p === "string" ? el("span", "", p) : p);
+      r.append(st);
+    }
+    return r;
+  }
+  const okSpan = (s) => el("span", "ok", "✓ " + s);
+  const waitSpan = (s) => el("span", "wait", s);
+  const dayOrYes = (v, fn, yesText) => (dayOf(v) ? fn(fmtDay(dayOf(v))) : yesText);
+
+  function facts(pairs) {
+    const dl = el("dl", "facts");
+    for (const [k, v] of pairs) {
+      dl.append(el("dt", "", k));
+      const dd = el("dd");
+      if (v instanceof Node) dd.append(v); else if (v) dd.textContent = v; else { dd.textContent = t().none; dd.className = "none"; }
+      dl.append(dd);
+    }
+    return dl;
+  }
+  const fmtFact = (v) => (dayOf(v) ? fmtDay(dayOf(v), true) : yes(v) ? t().yes : "");
+
+  function copyBtn(text) {
+    const b = el("button", "copy", t().copy);
+    b.type = "button";
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const done = () => { b.textContent = t().copied; setTimeout(() => (b.textContent = t().copy), 1500); };
+      const fallback = () => { const r = document.createRange(); r.selectNodeContents(b.previousSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+      try { navigator.clipboard.writeText(text).then(done, fallback); } catch (err) { fallback(); }
+    });
+    return b;
+  }
+
+  function timeline(c, m) {
+    const L = t();
+    const ev = [];
+    const add = (v, text, kind) => { const d = dayOf(v); if (d) ev.push({ d, text, kind: kind || "" }); };
+    add(c.date_of_loss, L.evLoss);
+    add(c.adjuster_date, L.evAdj);
+    add(c.scope_date, L.evScope);
+    const acv = c.acv || {}, mort = c.mortgage || {}, mat = c.materials || {}, inst = c.install || {}, dep = c.depreciation_check || {};
+    add(acv.received, L.evAcv(m.acvAmt ? usd(m.acvAmt) : ""), "cash");
+    add(mort.check_sent, L.evMortOut(m.mortCo || L.mortShort));
+    add(mort.check_returned, L.evMortBack(m.mortCo || L.mortShort));
+    add(acv.deposited, L.evDeposit, "cash");
+    for (const s of m.supps) add(s.date, L.evSupp(num(s.asked) != null ? usd(num(s.asked)) : ""));
+    add(mat.ordered, L.evMat(str(mat.supplier)));
+    add(inst.start, L.evStart);
+    add(inst.done, L.evDone);
+    add(c.completion_sent, L.evCompletion);
+    add(dep.date, L.evDepCheck(m.depAmt ? usd(m.depAmt) : ""), "cash");
+    const today = todayStr();
+    for (const e of ev) if (e.d > today) e.kind += " future";
+    const ns = c.next_step && typeof c.next_step === "object" ? c.next_step : null;
+    const nd = ns && dayOf(ns.due);
+    if (nd && tx(ns) && c.stage !== "paid" && c.stage !== "lost") ev.push({ d: nd, text: tx(ns), kind: nd >= today ? "future" : "future late" });
+    ev.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
+    if (!ev.length) return el("p", "stamp", L.noEvents);
+    const ol = el("ol", "tl");
+    for (const e of ev) {
+      const li = el("li", e.kind.trim());
+      const tt = el("span", "t");
+      if (e.kind.includes("future")) tt.append(el("small", "", e.kind.includes("late") ? dueInfo(c).label : L.evNext));
+      tt.append(document.createTextNode(e.text));
+      li.append(el("span", "d", fmtDay(e.d)), el("span", "dot"), tt);
+      ol.append(li);
+    }
+    return ol;
+  }
+
+  function tapsBox(c, m) {
+    if (!db || canWrite === false || c.stage === "paid" || c.stage === "lost") return null;
+    const L = t(), acts = [];
+    const acv = c.acv || {};
+    const today = todayStr();
+    if (m.acvAmt && !m.acvGot) acts.push([L.markAcv, { acv: { received: today } }]);
+    if (m.mortOut) acts.push([L.markBack(m.mortCo || L.mortShort), { mortgage: { check_returned: today } }]);
+    if (m.acvGot && !m.mortOut && !yes(acv.deposited)) acts.push([L.markDeposit, { acv: { deposited: today } }]);
+    if (!acts.length) return null;
+    const box = el("section", "box");
+    box.append(el("h3", "", L.taps));
+    const row = el("div", "taps");
+    for (const [label, patch] of acts) {
+      const b = el("button", "tap", label);
+      b.type = "button";
+      let timer = null;
+      b.addEventListener("click", async () => {
+        if (!b.classList.contains("armed")) {
+          b.classList.add("armed"); b.textContent = L.confirm;
+          timer = setTimeout(() => { b.classList.remove("armed"); b.textContent = label; }, 4000);
+          return;
+        }
+        clearTimeout(timer);
+        b.disabled = true;
+        try {
+          await db.doc("claims/" + c.id).update(Object.assign({}, patch, { updated_at: new Date().toISOString(), updated_by: "page tap" }));
+          toast(t().saved);
+        } catch (err) {
+          if (err && (err.code === "invalid_argument" || err.code === "not_granted")) { canWrite = false; toast(t().readOnly); }
+          else toast(t().failed);
+          b.disabled = false; b.classList.remove("armed"); b.textContent = label;
+          if (canWrite === false) renderSheet();
+        }
+      });
+      row.append(b);
+    }
+    box.append(row, el("p", "taps-note", L.tapsNote));
+    return box;
+  }
+
+  function renderSheet() {
+    const c = claims.find((x) => x.id === openId);
+    if (!c) { closeSheet(); return; }
+    const L = t(), m = money(c);
+    $("shClose").textContent = L.close;
+    const eb = [str(c.insurer), str(c.claim_no) ? `${L.claim} ${str(c.claim_no)}` : ""].filter(Boolean).join(" · ");
+    $("shEyebrow").textContent = eb;
+    $("shTitle").textContent = str(c.address) || c.id;
+    $("shSub").textContent = [str(c.city), str(c.homeowner_first_name) ? `${L.homeowner}: ${str(c.homeowner_first_name)}` : ""].filter(Boolean).join(" · ");
+    $("shTrack").replaceChildren(trackEl(c, true));
+
+    const body = $("shBody");
+    const parts = [];
+    parts.push(nextEl(c, "div"));
+    const taps = tapsBox(c, m);
+    if (taps) parts.push(taps);
+
+    // money ledger
+    const mb = el("section", "box");
+    mb.append(el("h3", "", L.money));
+    const led = el("div", "ledger");
+    led.append(lrow(L.approvedTotal, usd(m.approved), "total", [L.approvedHow]));
+    if (m.rcv != null) led.append(lrow(L.rcv, usd(m.rcv), "sub"));
+    if (m.acvAmt != null) {
+      const acv = c.acv || {};
+      const st = [];
+      if (m.acvGot) st.push(okSpan(dayOrYes(acv.received, L.received, L.receivedYes))); else st.push(L.notYet);
+      if (m.mortOut) st.push(waitSpan(L.atMortSince(m.mortCo || L.mortShort, dayOf((c.mortgage || {}).check_sent) ? fmtDay(dayOf(c.mortgage.check_sent)) : "")));
+      else if (yes((c.mortgage || {}).check_returned) && !yes(acv.deposited)) st.push(L.backFrom(m.mortCo || L.mortShort, dayOf(c.mortgage.check_returned) ? fmtDay(dayOf(c.mortgage.check_returned)) : ""));
+      if (yes(acv.deposited)) st.push(okSpan(dayOrYes(acv.deposited, L.deposited, L.depositedYes)));
+      else if (m.acvGot && !m.mortOut) st.push(waitSpan(L.notDeposited));
+      led.append(lrow(L.acv, usd(m.acvAmt), "sub", st));
+    }
+    if (m.held != null) {
+      const st = [];
+      if (m.depIn) st.push(okSpan(`${L.depCheck}: ${usd(m.depAmt)}${dayOf((c.depreciation_check || {}).date) ? " · " + fmtDay(dayOf(c.depreciation_check.date)) : ""}`));
+      else st.push(L.depHint);
+      led.append(lrow(L.depHeld, usd(m.held), "sub", st));
+    } else if (m.depIn) {
+      led.append(lrow(L.depCheck, usd(m.depAmt), "sub", [okSpan(dayOrYes((c.depreciation_check || {}).date, L.received, L.receivedYes))]));
+    }
+    m.supps.forEach((s) => {
+      const asked = num(s.asked), appr = num(s.approved);
+      const st = [];
+      if (asked != null) st.push(L.suppAsked(usd(asked)) + (dayOf(s.date) ? " · " + fmtDay(dayOf(s.date)) : ""));
+      else if (dayOf(s.date)) st.push(fmtDay(dayOf(s.date)));
+      if (appr != null) st.push(okSpan(L.suppApproved(usd(appr))));
+      else if (s.approved === true) st.push(okSpan(L.suppYes));
+      else if (s.approved === false) st.push(L.suppNo);
+      else st.push(waitSpan(L.suppWait));
+      const what = tx(s.item) || str(s.item);
+      led.append(lrow(what ? `${L.supp}: ${what}` : L.supp, appr != null ? usd(appr) : asked != null ? usd(asked) : "", "sub", st));
+    });
+    const collectedParts = m.contract != null ? [L.ofContract(usd(m.contract))] : [];
+    led.append(lrow(L.collectedTotal, usd(m.collected), "total", collectedParts));
+    mb.append(led);
+    if (m.ded != null) {
+      const hp = el("div", "hopays");
+      hp.append(el("span", "", `${L.homeownerPays}:`), el("span", "a", usd(m.ded)));
+      mb.append(hp);
+    }
+    parts.push(mb);
+
+    // steps
+    const sb = el("section", "box");
+    sb.append(el("h3", "", L.steps));
+    const ol = el("ol", "steps");
+    const i = stageIdx(c);
+    STAGES.forEach((s, k) => {
+      const li = el("li", c.stage === "lost" ? "" : k < i || c.stage === "paid" ? "done" : k === i ? "now" : "");
+      li.append(el("i", "", String(k + 1)), document.createTextNode(stageName(s)));
+      ol.append(li);
+    });
+    sb.append(ol);
+    parts.push(sb);
+
+    // claim facts
+    const fb = el("section", "box");
+    fb.append(el("h3", "", L.facts));
+    const adj = c.adjuster && typeof c.adjuster === "object" ? c.adjuster : {};
+    let phone = null;
+    if (str(adj.phone)) { phone = el("span"); phone.append(el("span", "", str(adj.phone)), copyBtn(str(adj.phone))); }
+    const mort = c.mortgage && typeof c.mortgage === "object" ? c.mortgage : {};
+    fb.append(facts([
+      [L.insurer, str(c.insurer)], [L.claimNo, str(c.claim_no)], [L.adjuster, str(adj.name)], [L.adjPhone, phone],
+      [L.dateOfLoss, fmtFact(c.date_of_loss)], [L.adjMeeting, fmtFact(c.adjuster_date)], [L.scopeDate, fmtFact(c.scope_date)],
+      ...(str(mort.company) || yes(mort.check_sent) ? [[L.mortCo, str(mort.company)], [L.checkSent, fmtFact(mort.check_sent)], [L.checkBack, fmtFact(mort.check_returned)]] : []),
+    ]));
+    parts.push(fb);
+
+    // job
+    const jb = el("section", "box");
+    jb.append(el("h3", "", L.job));
+    const mat = c.materials && typeof c.materials === "object" ? c.materials : {};
+    const inst = c.install && typeof c.install === "object" ? c.install : {};
+    jb.append(facts([
+      [L.contract, m.contract != null ? usd(m.contract) : ""], [L.ordered, fmtFact(mat.ordered)], [L.supplier, str(mat.supplier)],
+      [L.matCost, num(mat.cost) != null ? usd(num(mat.cost)) : ""], [L.installStart, fmtFact(inst.start)], [L.installDone, fmtFact(inst.done)],
+      [L.completion, fmtFact(c.completion_sent)],
+    ]));
+    parts.push(jb);
+
+    // timeline
+    const tb = el("section", "box");
+    tb.append(el("h3", "", L.timeline), timeline(c, m));
+    parts.push(tb);
+
+    // notes
+    const note = typeof c.notes === "string" ? c.notes.trim() : tx(c.notes);
+    if (note) { const nb = el("section", "box"); nb.append(el("h3", "", L.notes), el("p", "notes", note)); parts.push(nb); }
+    if (fmtWhen(c.updated_at)) parts.push(el("p", "stamp", L.updated(fmtWhen(c.updated_at), str(c.updated_by))));
+    body.replaceChildren(...parts);
+  }
+
+  let toastTimer = null;
+  function toast(msg) {
+    const n = $("toast"); n.textContent = msg; n.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => (n.hidden = true), 3200);
+  }
+
+  // ---------- wiring ----------
+  function setLang(l) { lang = l; try { localStorage.setItem("hmp-claims-lang", l); } catch (e) { /* not saved: fine */ } render(); }
+  $("langEn").addEventListener("click", () => setLang("en"));
+  $("langEs").addEventListener("click", () => setLang("es"));
+  $("shClose").addEventListener("click", closeSheet);
+  $("scrim").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && openId) closeSheet();
+    if (e.key === "Tab" && openId) {           // keep focus inside the open sheet
+      const f = [...$("sheet").querySelectorAll("button, a[href], [tabindex]:not([tabindex='-1'])")].filter((n) => !n.disabled);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+  render();
+
+  (async () => {
+    const api = window.claude && typeof window.claude.use === "function" ? window.claude : null;
+    db = api ? await api.use("db").catch(() => null) : null;
+    if (!db) { dbState = "off"; render(); return; }
+    // who may tap: editors (the db rule is write: admin). Unknown -> keep taps, a refused write decides.
+    api.use("user").then(async (u) => {
+      if (!u) return;
+      try {
+        if (await u.canEdit()) canWrite = true;
+        else canWrite = (await u.can("data.write")) === null ? null : false;
+      } catch (e) { canWrite = null; }
+      if (openId) renderSheet();
+    }).catch(() => {});
+    db.collection("claims").onSnapshot((snap) => {
+      dbState = "on";
+      claims = snap.docs.filter((d) => d.exists).map((d) => Object.assign({}, d.data(), { id: d.id }));
+      render();
+    }, () => { dbState = claims.length ? "on" : "err"; render(); });
+    db.doc("meta/guide").onSnapshot((d) => { guide = d.exists ? d.data() : null; render(); }, () => {});
+  })();
+})();
+</script>
