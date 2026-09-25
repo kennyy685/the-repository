@@ -134,6 +134,12 @@ DEFAULTS = {
         "max_per_list": 300,        # houses per list, in walking order from the best walk (keeps hud.json small)
         "radius_mi": 10.0           # ground reports this close count (same as the printed hail report)
     },
+    # T37: Census language spoken at home -> where Alex (Spanish) should knock, Spanish-first hanger side
+    "language": {
+        "spanish_high": 0.30,       # share of Spanish-speaking households at/above this: reason line + who "Alex"
+        "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
+        "retry_days": 7             # retry a failed Census language download after this many days
+    },
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
         "goal_doors": 25,           # doors in today's walk (~2 hours)
