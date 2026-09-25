@@ -73,6 +73,17 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   hot[] {address,stage,next}, doors_logged, calls_logged, link}; `jobs[]` {name, scope_en, scope_es,
   progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
   `ai` {en,es,link}. Every sentence in both English and Spanish.
+**Claim Tracker (EN/ES):** https://claude.ai/artifact/CoMGoPQWcM5ZyHGoMAYqSG. FilthE texts updates ("1418 Irving,
+adjuster Tuesday, State Farm, claim 45-889"); Claude writes db collection `claims`, one doc per job, id = address
+slug: {address, city, homeowner_first_name, stage (inspected|claim_filed|adjuster_set|scope_in|signed|supplement|
+materials_ordered|installed|depreciation_requested|paid|lost), insurer, claim_no, adjuster{name,phone}, date_of_loss,
+adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held, mortgage{company,amount,check_sent,
+check_returned}, supplements[]{date,item,asked,approved}, materials{ordered,supplier,cost}, install{start,done},
+completion_sent, depreciation_check{amount,date}, contract_price, deductible (homeowner's cost, display only),
+next_step{en,es,due}, notes, updated_at, updated_by}; tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+**Practice Door:** https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B - AI homeowner role-play (EN/ES) + scorecard with
+legal flags; uses FilthE's Claude usage. **Print kit (`docs/print/`):** door hanger (styles A/B/C in `styles/`, FilthE
+picking), `claims-101.pdf`, `adjuster-checklist.pdf`.
 **Claude Code's helpers (in this repo, `.claude/`):** 5 main helpers (FilthE, 2026-09-25: a few main
 roles; one-off helpers work under them and get no robot of their own in Crew HQ): `engine-mechanic` (engine code), `builder` (Claude pages and
 tools: Crew HQ, HMP HQ, Practice Door, Claim Tracker), `designer` (print pieces, brand look, page
