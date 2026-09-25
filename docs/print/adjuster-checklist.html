@@ -40,10 +40,10 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
 .sec { margin-top:0.21in; }
 
 /* write-in fields */
-.fields { display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:0.28in; row-gap:0.07in;
+.fields { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; column-gap:0.24in; row-gap:0.07in;
   border:1.5px solid var(--navy); border-radius:6px; padding:0.1in 0.2in 0.13in; }
 .f { display:flex; flex-direction:column; }
-.f.wide { grid-column:1 / -1; }
+.f.wide { grid-column:span 2; }
 .f label { font-family:"Oswald"; font-weight:500; font-size:7.8pt; letter-spacing:0.09em; text-transform:uppercase; color:var(--muted); }
 .f .w { height:0.25in; border-bottom:1.2px solid var(--write); }
 
@@ -98,9 +98,9 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
     <div class="f"><label>Claim #</label><div class="w"></div></div>
     <div class="f"><label>Insurer</label><div class="w"></div></div>
     <div class="f"><label>Date of loss</label><div class="w"></div></div>
+    <div class="f"><label>Meeting date / time</label><div class="w"></div></div>
     <div class="f"><label>Adjuster name</label><div class="w"></div></div>
     <div class="f"><label>Adjuster phone</label><div class="w"></div></div>
-    <div class="f"><label>Meeting date / time</label><div class="w"></div></div>
     <div class="f wide"><label>Job address</label><div class="w"></div></div>
   </div>
 
@@ -137,7 +137,6 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
       <div class="ln"><div></div><div></div><div></div></div>
       <div class="ln"><div></div><div></div><div></div></div>
       <div class="ln"><div></div><div></div><div></div></div>
-      <div class="ln"><div></div><div></div><div></div></div>
     </div>
   </section>
 
@@ -159,9 +158,9 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
     <div class="f"><label>No. de reclamo</label><div class="w"></div></div>
     <div class="f"><label>Aseguradora</label><div class="w"></div></div>
     <div class="f"><label>Fecha del daño</label><div class="w"></div></div>
+    <div class="f"><label>Fecha y hora de la cita</label><div class="w"></div></div>
     <div class="f"><label>Nombre del ajustador</label><div class="w"></div></div>
     <div class="f"><label>Teléfono del ajustador</label><div class="w"></div></div>
-    <div class="f"><label>Fecha y hora de la cita</label><div class="w"></div></div>
     <div class="f wide"><label>Dirección de la obra</label><div class="w"></div></div>
   </div>
 
@@ -191,7 +190,6 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
     <h2>Lo que señaló el ajustador</h2>
     <div class="lined">
       <div class="hd"><div>Qué / daño</div><div>Dónde (agua, lado)</div><div>Qué dijo el ajustador</div></div>
-      <div class="ln"><div></div><div></div><div></div></div>
       <div class="ln"><div></div><div></div><div></div></div>
       <div class="ln"><div></div><div></div><div></div></div>
       <div class="ln"><div></div><div></div><div></div></div>
