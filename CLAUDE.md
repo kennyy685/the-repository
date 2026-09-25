@@ -32,6 +32,10 @@ of making him repeat it next time.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5
   buildings: tear-off above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look
   accents, caulk). Its live job board and a general job tracker were built in other Claude chats.
+- **Brand (FilthE shared the logo 2026-09-25):** chrome "H.M.P" letters under an orange roof-line chevron, an orange
+  underline, "SIDING & ROOFING LLC", "RESIDENCIAL y COMERCIAL", on dark charcoal metal siding. Colors: charcoal
+  ~#404145, orange ~#f5883a, silver/white. Company phone on the logo: 402-889-3385. Use this look on everything
+  printed; the photo lives in the Mac/claude.ai chat, not the repo (recreate it as SVG when needed).
 - **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
   402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
   the AI/organization side, is the only one building this system, and does all the insurance sales.
