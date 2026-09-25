@@ -56,9 +56,10 @@ of making him repeat it next time.
 **Answered already (don't re-ask):** Fremont, NE base; storms scanned within 250 mi, door lists
 within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far; ads parked; no
 mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
-**Still unknown (ask once, then record here):** contractor registration + liability/workers' comp
-status for roofing/insurance work; max travel distance for crews; any budget for paid hail maps;
-direct-only, or also sub for an insurance restoration company while ramping up?
+**Answered 2026-09-26:** registered and insured for roofing work: yes. Path: **both** - direct to
+homeowners AND subbing for insurance restoration companies.
+**Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
+hail maps.
 
 ## This is the base copy
 This folder (`~/Documents/HailHunter`) is the base codebase - full-featured, runs locally on this
