@@ -22,7 +22,7 @@ before you stop.**
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
 of making him repeat it next time.
-**The company (from FilthE's company brief, 2026-09-26)**
+**The company (from FilthE's company brief, 2026-09-25)**
 - Early-stage but working: HMP mostly **subcontracts labor** today (the hiring contractor supplies
   materials). Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing,
   on houses and apartment complexes.
@@ -58,7 +58,7 @@ within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far
 mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
 **AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
 - read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
-**Answered 2026-09-26:** registered and insured for roofing work: yes. Path: **both** - direct to
+**Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
 hail maps.

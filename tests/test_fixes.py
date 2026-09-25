@@ -1,4 +1,4 @@
-"""Offline regression tests for the 2026-09-26 review fixes: wind units + retries, refresh ordering,
+"""Offline regression tests for the 2026-09-25 review fixes: wind units + retries, refresh ordering,
 hud neighborhood hail, door-sheet labels, and the fresh-database places crash (T19)."""
 import io
 import json
