@@ -116,6 +116,16 @@ DEFAULTS = {
         "max_per_list": 300,        # houses per list, in walking order from the best walk (keeps hud.json small)
         "radius_mi": 10.0           # ground reports this close count (same as the printed hail report)
     },
+    # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
+    "today_walk": {
+        "goal_doors": 25,           # doors in today's walk (~2 hours)
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh...
+        "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
+        "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
+        "min_doors": 8,             # skip walks with fewer doors left than this
+        "max_passes": 3,            # a not-home door comes back until it has been tried this many times
+        "house_kinds": ["single", "mobile", "farm"]   # houses only: no apartments/multi-family/commercial
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
