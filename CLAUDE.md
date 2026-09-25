@@ -18,6 +18,25 @@ before you stop.**
   you're unsure of (money, legal, anything customer-facing, deleting data); explain things in plain
   English, short - he has ADHD, keep it skimmable.
 
+## Start here: what every new session should already know
+This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
+Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
+of making him repeat it next time.
+- **HMP is a brand-new company (2026):** no past customers, no reviews, no track record yet. Trust at
+  the door is the main hurdle, not finding hail.
+- **FilthE is the only one building this system, and he does all the sales.** He's "more head than
+  hands": strategy and selling, not field labor. The boss does the build side.
+- **He's new to AI and to git.** Don't assume terminal/GitHub knowledge; give click-by-click steps.
+  Prefer simple tools he'll actually use over clever ones he has to maintain.
+- **The code is new:** started around 2026-09-23. GitHub (`kennyy685/the-repository`) is the main
+  copy; the Mac folder and Cowork's cloud bundle should follow it.
+- **Budget matters** (limited Claude credit): short focused sessions, no features that don't help
+  him sell.
+- **Priority (2026-09-26):** selling over building. Hail season is over and winter slows installs, so
+  working this season's storms now is worth more than new features.
+- **Still unknown (ask once, then record the answer here):** contractor registration + insurance
+  status; whether the boss has a crew; which town to start in; funnel numbers from the field.
+
 ## This is the base copy
 This folder (`~/Documents/HailHunter`) is the base codebase - full-featured, runs locally on this
 Mac with pip-installed dependencies (numpy, pandas, matplotlib, openpyxl, flask). Cowork's cloud
