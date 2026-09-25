@@ -59,6 +59,19 @@ of making him repeat it next time.
 **Answered already (don't re-ask):** Fremont, NE base; storms scanned within 250 mi, door lists
 within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far; ads parked; no
 mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
+**HMP HQ (the business dashboard, EN/ES):** https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj
+- The page only shows db doc `hq/snapshot`, written by Claude. "Refresh HMP HQ" = read the sources, rewrite
+  that one doc (ArtifactData set), stamping `updated_at` (UTC ISO) and `updated_by`. The King should do it
+  at every morning standup and evening wrap. Sources: Edge Site Map db `buildings`
+  (https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn); command center db `turfs`, `calls`, `targets`,
+  `system/log` + published `data/hud.json` (https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX); Crew HQ
+  `board/current` waiting list.
+- Snapshot fields: `needs_you[]` {sev critical|warning|info, en, es, link}; `storms` {latest_storm_day,
+  headline{en,es}, best_walk{area,day,turf,streets,doors,avg_hail,link}, fresh[] top 5 by score, last 60 days
+  {day,place,state,hail,dist_mi,score}, link}; `leads` {stages[] {key,en,es,count} for the 9 stages + Lost,
+  hot[] {address,stage,next}, doors_logged, calls_logged, link}; `jobs[]` {name, scope_en, scope_es,
+  progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
+  `ai` {en,es,link}. Every sentence in both English and Spanish.
 **AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
 - read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
 **Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
