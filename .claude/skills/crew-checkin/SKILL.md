@@ -12,6 +12,9 @@ with ToolSearch if it is deferred). Prefer one `batch` for several writes. Times
 ## Agent ids (use exactly)
 `king`, `cowork`, `storm-watch`, `scout`, `sales-coach`, `code` (Claude Code, Mac or cloud),
 `engine-mechanic`, `qa-tester`, `hub-keeper`. FilthE's own answers use `you`.
+Research Scouts get one robot each per round: `set` `agents/scout-<topic>` with `{name: "Scout: <Topic>",
+lane: "code", kind: "temp", boss: "hub-keeper", room: "data", role, status, doing, task, at}`; set it to
+`done` when its report is in (temp robots leave the office on their own a couple of hours later).
 
 ## Check in / check out
 - `update` `agents/<id>`: `{status, room, doing, task, at}`.
