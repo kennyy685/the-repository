@@ -65,11 +65,11 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
 .formula { font-family:"Oswald"; font-weight:500; font-size:8.6pt; letter-spacing:0.06em; text-transform:uppercase;
   color:var(--navy); margin:0 0 0.12in; }
 .formula i { font-style:normal; color:var(--gold); padding:0 0.02in; }
-.stack { display:grid; grid-template-columns:0.36in 1fr; column-gap:0.14in; grid-template-rows:0.6in 0.44in 0.34in; row-gap:3px; }
+.stack { display:grid; grid-template-columns:0.36in 1fr; column-gap:0.14in; grid-template-rows:0.6in 0.44in auto; row-gap:3px; }
 .seg { grid-column:1; }
 .s1 { grid-row:1; background:var(--navy); border-radius:4px 4px 0 0; }
 .s2 { grid-row:2; background:var(--navy-2); }
-.s3 { grid-row:3; background:var(--gold); border-radius:0 0 4px 4px; }
+.s3 { grid-row:3; height:0.32in; align-self:start; background:var(--gold); border-radius:0 0 4px 4px; }
 .lab { grid-column:2; }
 .lab b { display:block; font-family:"Oswald"; font-weight:600; font-size:9.6pt; letter-spacing:0.03em; color:var(--navy); line-height:1.25; }
 .lab.l3 b { color:var(--gold-dark); }
@@ -88,10 +88,11 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
 .gloss dt { font-family:"Oswald"; font-weight:600; font-size:9.5pt; letter-spacing:0.03em; color:var(--navy); line-height:1.2; }
 .gloss dt span { font-weight:500; font-size:8.8pt; color:var(--muted); letter-spacing:0.02em; }
 .gloss dd { margin:0.015in 0 0; font-size:8.8pt; line-height:1.3; }
+.gloss .wide { grid-column:1 / -1; }
 
 /* can / can't */
-.cc { display:grid; grid-template-columns:1fr 1fr; border:1.5px solid var(--navy); border-radius:6px; overflow:hidden; }
-.cc .col { padding:0.13in 0.2in 0.14in; }
+.cc { display:grid; grid-template-columns:0.94fr 1.06fr; border:1.5px solid var(--navy); border-radius:6px; overflow:hidden; }
+.cc .col { padding:0.13in 0.17in 0.14in 0.19in; }
 .cc .cant { background:var(--gold-soft); border-left:1.5px solid var(--navy); }
 .cc h3 { font-family:"Oswald"; font-weight:600; font-size:13pt; letter-spacing:0.04em; text-transform:uppercase; margin:0 0 0.07in;
   display:flex; align-items:center; gap:0.08in; color:var(--navy); }
@@ -102,7 +103,7 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
 .cc li::before { content:""; position:absolute; left:0; top:0.035in; width:0.11in; height:0.11in; background-size:contain; background-repeat:no-repeat; }
 .cc .can li::before { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.4l3 3 6-7' fill='none' stroke='%231C2E4A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 .cc .cant li::before { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 2l8 8M10 2l-8 8' fill='none' stroke='%23C08A2E' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
-.cc .tag { font-family:"Oswald"; font-weight:500; font-size:7.6pt; letter-spacing:0.06em; color:var(--gold-dark); white-space:nowrap; }
+.cc .tag { font-family:"Oswald"; font-weight:500; font-size:7.3pt; letter-spacing:0.06em; color:var(--gold-dark); white-space:nowrap; }
 
 /* footer */
 .foot { margin-top:auto; border-top:1px solid var(--line); padding-top:0.08in; display:flex; justify-content:space-between;
@@ -122,7 +123,7 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
     <h2>The 8 steps <span class="aside">Storm to final check: usually <b>45–90 days</b></span></h2>
     <div class="tl">
       <ol class="steps">
-        <li><div class="day">Day 1–7</div><div class="node">1</div><div class="txt"><div class="t">We inspect and show photos</div><div class="d">Free inspection. The homeowner sees date-stamped photos of the damage.</div></div></li>
+        <li><div class="day">Day 1–7</div><div class="node">1</div><div class="txt"><div class="t">We inspect and show photos</div><div class="d">Free inspection. The homeowner sees dated photos of the damage.</div></div></li>
         <li><div class="day">Day 1–10</div><div class="node">2</div><div class="txt"><div class="t">The homeowner files the claim</div><div class="d">They call their own insurance company. Their decision, their call.</div></div></li>
         <li><div class="day">Day 3–20</div><div class="node">3</div><div class="txt"><div class="t">The insurer sends an adjuster</div><div class="d">The adjuster calls the homeowner to set an inspection date.</div></div></li>
         <li><div class="day">Day 7–30</div><div class="node">4</div><div class="txt"><div class="t">We meet the adjuster</div><div class="d">We point out damage and share photos and measurements. Never argue price.</div></div></li>
@@ -144,10 +145,10 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
         <div class="seg s1"></div><div class="seg s2"></div><div class="seg s3"></div>
         <div class="lab l1"><b>Check 1 · ACV</b><span>From the insurer, with the scope.</span></div>
         <div class="lab l2"><b>Check 2 · Depreciation</b><span>From the insurer, after the job is done.</span></div>
-        <div class="lab l3"><b>Deductible</b><span>From the homeowner. Always.</span></div>
+        <div class="lab l3"><b>Deductible</b><span>From the homeowner. Always. HMP never pays, waives or discounts it.</span></div>
       </div>
       <ul class="notes">
-        <li>Checks may be made out to the homeowner <i>and</i> the mortgage company. The mortgage company signs first.</li>
+        <li>Checks may also name the mortgage company, which signs first.</li>
         <li>No Check 2 if the policy doesn’t pay depreciation back. The insurer’s paperwork says which.</li>
       </ul>
     </section>
@@ -163,7 +164,7 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
         <div><dt>RCV <span>· Replacement Cost Value</span></dt><dd>Full cost of the new roof, with no discount for its age.</dd></div>
         <div><dt>Depreciation</dt><dd>Money held back for the roof’s age, paid when the job is done.</dd></div>
         <div><dt>Supplement</dt><dd>A written request, with photos, for items the scope missed.</dd></div>
-        <div><dt>Public adjuster</dt><dd>A licensed pro a homeowner can hire to negotiate. HMP is not one.</dd></div>
+        <div class="wide"><dt>Public adjuster</dt><dd>A licensed pro a homeowner can hire to negotiate. HMP is not one.</dd></div>
       </dl>
     </section>
   </div>
@@ -173,9 +174,9 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
       <h3><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#1C2E4A"/><path d="M5.6 10.4l3 3 5.8-6.6" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>We can</h3>
       <ul>
         <li>Inspect for free and show the homeowner the photos</li>
-        <li>Document damage with dated photos and measurements</li>
+        <li>Document damage: dated photos, measurements</li>
         <li>Meet the adjuster and point out the damage</li>
-        <li>Ask in writing for items the scope missed (a supplement)</li>
+        <li>Request missed items in writing (a supplement)</li>
         <li>Do the work and send proof it’s done</li>
       </ul>
     </div>
@@ -214,7 +215,7 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
       </ol>
       <ol class="steps" start="5">
         <li><div class="day">Día 14–45</div><div class="node">5</div><div class="txt"><div class="t">Llegan el alcance y el cheque 1</div><div class="d">La lista por escrito de lo que se va a pagar, más el primer cheque (ACV).</div></div></li>
-        <li><div class="day">Día 15–50</div><div class="node">6</div><div class="txt"><div class="t">Contrato y suplemento</div><div class="d">El dueño firma el contrato. ¿Faltó algo? Mandamos un suplemento escrito con fotos.</div></div></li>
+        <li><div class="day">Día 15–50</div><div class="node">6</div><div class="txt"><div class="t">Contrato y suplemento</div><div class="d">El dueño firma el contrato. Si faltó algo: suplemento por escrito, con fotos.</div></div></li>
         <li><div class="day">Día 20–75</div><div class="node">7</div><div class="txt"><div class="t">Hacemos la obra</div><div class="d">Pedimos el material y hacemos el trabajo.</div></div></li>
         <li class="last"><div class="day">Día 45–90</div><div class="node">8</div><div class="txt"><div class="t">Sale el cheque 2</div><div class="d">Mandamos prueba de que terminamos y la aseguradora libera la depreciación. Listo.</div></div></li>
       </ol>
@@ -229,10 +230,10 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
         <div class="seg s1"></div><div class="seg s2"></div><div class="seg s3"></div>
         <div class="lab l1"><b>Cheque 1 · ACV</b><span>De la aseguradora, con el alcance.</span></div>
         <div class="lab l2"><b>Cheque 2 · Depreciación</b><span>De la aseguradora, al terminar la obra.</span></div>
-        <div class="lab l3"><b>Deducible</b><span>Del dueño de la casa. Siempre.</span></div>
+        <div class="lab l3"><b>Deducible</b><span>Del dueño de la casa. Siempre. HMP nunca lo paga, perdona ni descuenta.</span></div>
       </div>
       <ul class="notes">
-        <li>Los cheques pueden venir a nombre del dueño <i>y</i> de la compañía hipotecaria. La hipotecaria firma primero.</li>
+        <li>Los cheques pueden incluir a la compañía hipotecaria, que firma primero.</li>
         <li>Si la póliza no devuelve la depreciación, no hay cheque 2. Los papeles de la aseguradora lo dicen.</li>
       </ul>
     </section>
@@ -244,11 +245,11 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
         <div><dt>Ajustador <span>· adjuster</span></dt><dd>El inspector de la aseguradora. Decide cuánto va a pagar.</dd></div>
         <div><dt>Deducible <span>· deductible</span></dt><dd>La cantidad fija que el dueño siempre paga en un reclamo.</dd></div>
         <div><dt>Alcance <span>· scope</span></dt><dd>La lista por escrito, renglón por renglón, de lo que se va a pagar.</dd></div>
-        <div><dt>ACV <span>· valor real</span></dt><dd>Costo de la reparación menos la depreciación. Se paga primero, menos el deducible.</dd></div>
+        <div><dt>ACV <span>· valor real</span></dt><dd>Reparación menos depreciación. Se paga primero, menos el deducible.</dd></div>
         <div><dt>RCV <span>· valor de reemplazo</span></dt><dd>Costo completo del techo nuevo, sin descuento por la edad.</dd></div>
-        <div><dt>Depreciación <span>· depreciation</span></dt><dd>Lo que se retiene por la edad del techo. Se paga al terminar la obra.</dd></div>
+        <div><dt>Depreciación <span>· depreciation</span></dt><dd>Lo que se retiene por la edad del techo; se paga al terminar.</dd></div>
         <div><dt>Suplemento <span>· supplement</span></dt><dd>Solicitud por escrito, con fotos, de lo que le faltó al alcance.</dd></div>
-        <div><dt>Ajustador público <span>· public adjuster</span></dt><dd>Profesional con licencia que el dueño puede contratar para negociar. HMP no lo es.</dd></div>
+        <div class="wide"><dt>Ajustador público <span>· public adjuster</span></dt><dd>Profesional con licencia que el dueño puede contratar para negociar. HMP no lo es.</dd></div>
       </dl>
     </section>
   </div>
@@ -267,10 +268,10 @@ h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-sp
     <div class="col cant">
       <h3><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#C08A2E"/><path d="M6.6 6.6l6.8 6.8M13.4 6.6l-6.8 6.8" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg>No podemos</h3>
       <ul>
-        <li>Cubrir, perdonar, devolver ni descontar el deducible <span class="tag">NE 44-8604</span></li>
+        <li>Cubrir, perdonar, devolver o rebajar el deducible <span class="tag">NE 44-8604</span></li>
         <li>Prometer que el seguro va a pagar, ni cuánto</li>
         <li>Negociar el reclamo: eso es de un ajustador público</li>
-        <li>Hacer el reclamo por el dueño ni decir qué cubre la póliza</li>
+        <li>Reclamar por el dueño ni decir qué cubre su póliza</li>
         <li>Dar dinero o regalos para que presenten un reclamo</li>
       </ul>
     </div>

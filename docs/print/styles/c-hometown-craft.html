@@ -23,60 +23,60 @@ body { font-family:"Work Sans", sans-serif; color:var(--char); -webkit-print-col
 .page > * { position:absolute; }
 
 /* the card is a house: roof on top, lap siding wall, stone-green foundation with the phone */
-.wall { left:0; right:0; top:2.28in; height:6.3in;
+.wall { left:0; right:0; top:2.28in; height:6.52in;
   background:repeating-linear-gradient(180deg, rgba(181,101,45,0) 0, rgba(181,101,45,.035) 0.17in, rgba(142,76,31,.16) 0.195in, rgba(181,101,45,0) 0.2in);
   -webkit-mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.55) 1.2in,rgba(0,0,0,.35) 100%); mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.55) 1.2in,rgba(0,0,0,.35) 100%); }
 .roof { left:0; top:0; width:4.25in; height:2.34in; }
 
-.brand { left:0; right:0; top:2.56in; display:flex; justify-content:center; align-items:center; gap:0.12in; }
+.brand { left:0; right:0; top:2.52in; display:flex; justify-content:center; align-items:center; gap:0.12in; }
 .brand svg { width:0.52in; height:0.52in; flex:none; }
 .brand .nm { font:600 14.5pt/1 "Fraunces"; color:var(--green); }
 .brand .tr { font:600 7.5pt/1 "Work Sans"; letter-spacing:0.14em; text-transform:uppercase; color:var(--cedar-dk); margin-top:0.07in; }
 
-.hi { left:0.34in; top:3.3in; font:700 23pt/1 "Caveat"; color:var(--cedar); transform:rotate(-3deg); transform-origin:left center; }
-h1 { left:0.34in; right:0.34in; top:3.66in; font:600 29pt/1.08 "Fraunces"; color:var(--green); letter-spacing:-0.005em; }
+.hi { left:0.34in; top:3.22in; font:700 23pt/1 "Caveat"; color:var(--cedar); transform:rotate(-3deg); transform-origin:left center; }
+h1 { left:0.34in; right:0.34in; top:3.6in; font:600 26.5pt/1.1 "Fraunces"; color:var(--green); letter-spacing:-0.005em; }
 h1 .row2 { display:flex; align-items:flex-end; gap:0.1in; }
 h1 .pen { flex:1; height:0.4in; border-bottom:1.3pt solid var(--cedar); margin-bottom:0.09in; position:relative; }
 h1 .pen::after { content:"date"; position:absolute; right:0; top:100%; margin-top:2pt; font:italic 400 8pt/1 "Fraunces"; color:var(--muted); }
 
-.ribbon { left:0.18in; right:0.18in; top:4.72in; height:0.46in; }
+.ribbon { left:0.18in; right:0.18in; top:4.62in; height:0.46in; }
 .ribbon svg { position:absolute; inset:0; width:100%; height:100%; }
 .ribbon span { position:absolute; left:0; right:0; top:0.08in; text-align:center; font:600 14pt/1 "Fraunces"; color:var(--cream); letter-spacing:0.005em; }
-.perks { left:0.34in; right:0.34in; top:5.28in; text-align:center; font:italic 400 11pt/1.4 "Fraunces"; color:var(--char); }
+.perks { left:0.34in; right:0.34in; top:5.17in; text-align:center; font:italic 400 11pt/1.4 "Fraunces"; color:var(--char); }
 
-.card { left:0.4in; right:0.4in; top:5.92in; background:var(--card); border-radius:2px; padding:0.18in 0.22in 0.16in;
+.card { left:0.4in; right:0.4in; top:5.9in; background:var(--card); border-radius:2px; padding:0.17in 0.22in 0.12in;
   box-shadow:0 0.5pt 0 rgba(142,76,31,.25), 0 3pt 10pt rgba(80,50,20,.10); transform:rotate(-0.6deg); }
 .card::before { content:""; position:absolute; left:50%; top:-0.09in; width:0.9in; height:0.2in; transform:translateX(-50%) rotate(1.5deg);
   background:rgba(232,199,166,.8); }
-.card h3 { font:italic 600 12pt/1 "Fraunces"; color:var(--cedar-dk); margin-bottom:0.1in; }
+.card h3 { font:italic 600 12pt/1 "Fraunces"; color:var(--cedar-dk); margin-bottom:0.08in; }
 .card ul { list-style:none; }
-.card li { display:flex; align-items:center; gap:0.11in; height:0.27in; font:400 10.5pt/1 "Work Sans"; border-bottom:0.6pt solid #EADFCC; }
+.card li { display:flex; align-items:center; gap:0.11in; height:0.255in; font:400 10.5pt/1 "Work Sans"; border-bottom:0.6pt solid #EADFCC; }
 .card li:last-child { border-bottom:0; }
 .card li svg { width:0.17in; height:0.17in; flex:none; }
 .card li.blank { border-bottom:0; }
 .card li.blank i { flex:1; align-self:flex-end; margin-bottom:0.04in; border-bottom:0.8pt solid var(--rule); }
 
-.photo { left:0.36in; top:7.62in; width:0.9in; height:0.9in; border-radius:50%; background:#EDE3D1; overflow:hidden;
+.photo { left:0.36in; top:7.66in; width:0.9in; height:0.9in; border-radius:50%; background:#EDE3D1; overflow:hidden;
   box-shadow:0 0 0 2.5pt var(--cream), 0 0 0 3.4pt var(--cedar); }
 .photo svg { position:absolute; inset:0; width:100%; height:100%; }
 .photo span { position:absolute; left:0; right:0; bottom:0.18in; text-align:center; font:italic 400 7.5pt/1 "Fraunces"; color:#9A8B74; }
-.rep { left:1.46in; right:0.34in; top:7.68in; }
+.rep { left:1.46in; right:0.34in; top:7.72in; }
 .rep .name { font:600 16pt/1 "Fraunces"; color:var(--green); }
 .rep .role { font:400 8.5pt/1 "Work Sans"; color:var(--muted); margin-top:0.06in; }
 .rep .note { margin-top:0.08in; height:0.28in; border-bottom:0.8pt solid var(--rule); position:relative; }
 .rep .note::before { content:"a note from Kenny:"; position:absolute; left:0; bottom:0.03in; font:700 12.5pt/1 "Caveat"; color:var(--cedar); }
 
-.base { left:0; right:0; top:8.84in; height:1.34in; background:var(--green); color:var(--cream); }
+.base { left:0; right:0; top:8.8in; height:1.42in; background:var(--green); color:var(--cream); }
 .base::before { content:""; position:absolute; left:0; right:0; top:0; height:4pt; background:var(--cedar); }
 .base .lead { position:absolute; left:0.34in; top:0.26in; font:600 8.5pt/1 "Work Sans"; letter-spacing:0.18em; text-transform:uppercase; color:var(--cedar-lt); }
-.base .num { position:absolute; left:0.32in; top:0.42in; font:700 25pt/1 "Fraunces"; color:#FFF8EC; white-space:nowrap; }
-.base .es { position:absolute; left:0.34in; top:0.94in; font:600 10pt/1 "Work Sans"; color:var(--cream); display:flex; align-items:center; gap:0.07in; }
+.base .num { position:absolute; left:0.31in; top:0.42in; font:700 25pt/1 "Fraunces"; letter-spacing:-0.01em; color:#FFF8EC; white-space:nowrap; }
+.base .es { position:absolute; left:0.34in; top:0.98in; font:600 10pt/1 "Work Sans"; color:var(--cream); display:flex; align-items:center; gap:0.07in; }
 .base .es svg { width:0.17in; height:0.17in; }
-.qrbox { position:absolute; right:0.3in; top:0.2in; width:0.88in; text-align:center; }
-.qr { display:block; width:0.88in; height:0.88in; border-radius:2px; }
+.qrbox { position:absolute; right:0.26in; top:0.2in; width:0.84in; text-align:center; }
+.qr { display:block; width:0.84in; height:0.84in; border-radius:2px; }
 .qrbox .cap { margin-top:0.05in; font:700 12pt/1 "Caveat"; color:var(--cedar-lt); white-space:nowrap; }
 
-.foot { left:0.34in; right:0.34in; top:10.32in; text-align:center; font:400 7pt/1.4 "Work Sans"; color:var(--muted); }
+.foot { left:0.34in; right:0.34in; top:10.35in; text-align:center; font:400 7pt/1.4 "Work Sans"; color:var(--muted); }
 .foot b { font-weight:600; color:var(--green); }
 .foot .reg { display:inline-block; width:0.9in; border-bottom:0.6pt solid var(--muted); transform:translateY(-1pt); }
 .foot .legal { text-wrap:balance; margin-top:1pt; }
