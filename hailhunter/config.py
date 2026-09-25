@@ -6,11 +6,29 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEFAULTS = {
+    # Who runs this copy of the engine. Code reads the company here instead of hardcoding HMP/Fremont, so the
+    # same engine can serve a second roofer someday: change this block in config.json and home base, the hunt
+    # radius, the everyday radius and printed names follow (`home`, `hunt_radius_mi` and `everyday.radius_mi`
+    # are filled from it by load(); setting those old keys directly in config.json still wins).
+    "company": {
+        "id": "hmp",
+        "name": "HMP Siding & Roofing LLC",
+        "short_name": "HMP",
+        "home_town": "Fremont",
+        "state": "NE",
+        "lat": 41.4333,
+        "lon": -96.4981,
+        "radius_mi": {"hunt": 250, "everyday": 40},
+        # Company business lines only (printed on reports and door hangers).
+        "phones": {"main": "402-889-3385",
+                   "en": {"name": "Kenny Cruz", "phone": "402-936-2709"},
+                   "es": {"name": "Alex Mendez", "phone": "402-889-3385"}}
+    },
     "home": {"name": "Fremont, NE", "lat": 41.4333, "lon": -96.4981},
     "timezone": "America/Chicago",
     "hunt_radius_mi": 250,
     "backfill_days": 730,
-    # States and NWS offices whose areas touch the 250-mile circle around Fremont.
+    # States and NWS offices whose areas touch the 250-mile circle around home base (Fremont for HMP).
     "states": ["NE", "IA", "KS", "SD", "MO", "MN"],
     "wfos": ["OAX", "GID", "LBF", "GLD", "FSD", "ABR", "UNR", "DMX", "DVN", "ARX",
              "MPX", "TOP", "EAX", "ICT", "SGF", "DDC"],
@@ -139,12 +157,38 @@ def _merge(base, over):
     return base
 
 
+def apply_company(cfg, over=None):
+    """Fills `home`, `hunt_radius_mi` and `everyday.radius_mi` from the `company` block, except the ones the
+    config file (`over`) sets directly. Returns cfg."""
+    over = over or {}
+    c = cfg.get("company") or {}
+    if "home" not in over and c.get("lat") is not None and c.get("lon") is not None:
+        town = c.get("home_town") or cfg["home"]["name"].split(",")[0].strip()
+        cfg["home"] = {"name": f"{town}, {c['state']}" if c.get("state") else town,
+                       "lat": c["lat"], "lon": c["lon"]}
+    r = c.get("radius_mi") or {}
+    if "hunt_radius_mi" not in over and r.get("hunt") is not None:
+        cfg["hunt_radius_mi"] = r["hunt"]
+    if "radius_mi" not in over.get("everyday", {}) and r.get("everyday") is not None:
+        cfg.setdefault("everyday", {})["radius_mi"] = r["everyday"]
+    return cfg
+
+
+def company_label(cfg):
+    """'HMP Siding & Roofing LLC · Fremont, NE' (printed 'Prepared by' line)."""
+    c = cfg.get("company") or {}
+    return f"{c.get('name', 'HMP Siding & Roofing LLC')} · {cfg['home']['name']}"
+
+
 def load(path=None):
     path = path or os.path.join(ROOT, "config.json")
     cfg = copy.deepcopy(DEFAULTS)
+    over = {}
     if os.path.exists(path):
         with open(path) as f:
-            _merge(cfg, json.load(f))
+            over = json.load(f)
+        _merge(cfg, over)
+    apply_company(cfg, over)
     for k, v in list(cfg["paths"].items()):
         if not os.path.isabs(v):
             cfg["paths"][k] = os.path.join(ROOT, v)
