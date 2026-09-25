@@ -95,10 +95,10 @@ def heat(f, cfg):
         why.append(f"{round(new * 100)}% built since {ev['new_since']}")
     if mv:
         top = max(y for _, y in ev["value_curve"])
-        peak = [x for x, y in ev["value_curve"] if y == top]
+        peak_hi = max(x for x, y in ev["value_curve"] if y == top)
         k = f"${round(mv / 1000)}k"
-        why.append(f"homes ~{k}" if peak[0] <= mv <= peak[-1] else
-                   (f"high-end homes (~{k})" if mv > peak[-1] else f"lower home values (~{k})"))
+        why.append(f"homes ~{k}" if value >= 0.95 * top else
+                   (f"high-end homes (~{k})" if mv > peak_hi else f"lower home values (~{k})"))
     if dist is not None and dist <= 15:
         why.append(f"{round(dist)} mi from {_home_town(cfg)}")
     parts = {"old": round(old, 3), "owners": round(owners, 3), "value": round(value, 3),
