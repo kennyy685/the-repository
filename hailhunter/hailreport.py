@@ -41,13 +41,23 @@ WHO_ES = {"trained spotter": "observador entrenado", "public": "público", "law 
           "storm chaser": "cazador de tormentas", "nws employee": "empleado del NWS", "official": "registro oficial NOAA"}
 
 
-def evidence(conn, cfg, day, lat, lon, radius_mi=10.0):
-    """What the data shows at (lat, lon) on storm day `day`: {hail, reports[]} (hail None when no radar map)."""
-    grid, meta, _ = nbhd.fused_grid(conn, cfg, day) if mrms.load_grid(cfg, day)[0] is not None else (None, None, [])
+def day_reports(conn, day):
+    """The storm day's ground and official hail reports (duplicates left out)."""
+    return conn.execute("""SELECT lat, lon, size_in, kind, city, local_time, extra FROM hail_obs
+                           WHERE conv_day=? AND kind IN ('ground','official') AND dup_of IS NULL""", (day,)).fetchall()
+
+
+def evidence(conn, cfg, day, lat, lon, radius_mi=10.0, fused=None, obs=None):
+    """What the data shows at (lat, lon) on storm day `day`: {hail, reports[]} (hail None when no radar map).
+    For many addresses on one day, pass fused=(grid, meta) from nbhd.fused_grid and obs=day_reports(conn, day)
+    so they are computed once (hud.json's hail_evidence, O3.3)."""
+    if fused is None:
+        grid, meta, _ = nbhd.fused_grid(conn, cfg, day) if mrms.load_grid(cfg, day)[0] is not None else (None, None, [])
+    else:
+        grid, meta = fused
     est = hail_at(grid, meta, lat, lon) if grid is not None else None
     reports = []
-    for r in conn.execute("""SELECT lat, lon, size_in, kind, city, local_time, extra FROM hail_obs
-                             WHERE conv_day=? AND kind IN ('ground','official') AND dup_of IS NULL""", (day,)):
+    for r in (obs if obs is not None else day_reports(conn, day)):
         d = haversine_mi(lat, lon, r["lat"], r["lon"])
         if d > radius_mi:
             continue

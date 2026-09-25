@@ -178,6 +178,45 @@ def _everyday_lists(conn, max_turfs):
     return lists
 
 
+def _key(s):
+    return f"{s['address']}|{s.get('city') or ''}"
+
+
+def _hail_evidence(conn, cfg, lists):
+    """O3.3: hail evidence per address for the houses on the storm door lists (not everyday lists), for the lead
+    detail on the phone: {"address|city": {day, hail_in, nearest_report {dist_mi, size_in, source} or null,
+    radar_max_in}}. hail_in = radar corrected by ground reports, as on the printed hail report (hailreport.evidence);
+    radar_max_in = raw NOAA MRMS radar within ~1 km, before correction. A house on several lists keeps the storm
+    with the most hail at it. Each storm day's maps are loaded once."""
+    from . import hailreport, mrms, nbhd
+    from .watch import hail_at
+    he = cfg.get("hail_evidence", {})
+    cap, radius = he.get("max_per_list", 300), he.get("radius_mi", 10.0)
+    picked = lists[:he.get("max_lists", 10)]
+    out = {}
+    for day in dict.fromkeys(L["day"] for L in picked):
+        raw, rmeta = mrms.load_grid(cfg, day)
+        if raw is None:
+            continue
+        fused, obs = nbhd.fused_grid(conn, cfg, day)[:2], hailreport.day_reports(conn, day)
+        for L in picked:
+            if L["day"] != day:
+                continue
+            for s in L["stops"][:cap]:
+                if s.get("lat") is None or s.get("lon") is None:
+                    continue
+                ev = hailreport.evidence(conn, cfg, day, s["lat"], s["lon"], radius, fused=fused, obs=obs)
+                near = ev["reports"][0] if ev["reports"] else None
+                rm = hail_at(raw, rmeta, s["lat"], s["lon"])
+                e = {"day": day, "hail_in": ev["hail"],
+                     "nearest_report": {"dist_mi": near["dist_mi"], "size_in": near["size_in"], "source": near["who"]}
+                     if near else None, "radar_max_in": None if rm is None else round(rm, 2)}
+                old = out.get(_key(s))
+                if old is None or (e["hail_in"] or 0, day) > (old["hail_in"] or 0, old["day"]):
+                    out[_key(s)] = e
+    return out
+
+
 def build(conn, cfg, max_turfs=None, max_targets=80):
     tz = ZoneInfo(cfg["timezone"])
     today = datetime.now(tz).date()
@@ -235,6 +274,12 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
                                 "score": float(r["Score"] or 0), "key": f"{r['Property address']}|{r['City']}",
                                 "contact": scout.get(r["Property address"].lower())})
     neighborhoods = _neighborhoods(conn, cfg, since)
+    try:                                           # O3.3; optional: hud.json is written either way
+        hail_evidence = _hail_evidence(conn, cfg, lists)
+    except Exception as e:
+        import sys
+        print(f"  hail_evidence skipped: {type(e).__name__}: {e}", file=sys.stderr)
+        hail_evidence = {}
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
     from . import watch
@@ -250,7 +295,8 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
             "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
-            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10))}
+            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10)),
+            "hail_evidence": hail_evidence}
 
 
 def write(conn, cfg, path=None, max_bytes=None):
@@ -266,6 +312,8 @@ def write(conn, cfg, path=None, max_bytes=None):
             break
         data["lists"] = _lists(conn, n)
         data["everyday_lists"] = _everyday_lists(conn, max(3, min(ev, n // 3)))
+        keep = {_key(s) for L in data["lists"] for s in L["stops"]}          # evidence only for houses still listed
+        data["hail_evidence"] = {k: v for k, v in data["hail_evidence"].items() if k in keep}
         text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)

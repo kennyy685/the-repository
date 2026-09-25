@@ -110,6 +110,12 @@ DEFAULTS = {
         "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
         "retry_days": 7             # retry a failed Census year-built (B25034) download after this many days
     },
+    # Hail report on the phone (O3.3): per-address hail evidence for the houses on the storm door lists in hud.json
+    "hail_evidence": {
+        "max_lists": 10,            # storm lists that get evidence (newest first, as hud.json lists them)
+        "max_per_list": 300,        # houses per list, in walking order from the best walk (keeps hud.json small)
+        "radius_mi": 10.0           # ground reports this close count (same as the printed hail report)
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
