@@ -1,0 +1,256 @@
+{
+  "home": {
+    "name": "Fremont, NE",
+    "lat": 41.4333,
+    "lon": -96.4981
+  },
+  "timezone": "America/Chicago",
+  "hunt_radius_mi": 250,
+  "backfill_days": 730,
+  "pinned_lists": [
+    ["2026-07-01", "Fremont"],
+    ["2026-08-08", "Columbus"],
+    ["2026-06-13", "Valley"],
+    ["2026-06-13", "Fremont"],
+    ["2026-04-23", "Omaha"],
+    ["2026-06-10", "Lincoln"]
+  ],
+  "agent_schedule": {
+    "storm_watch": "daily 6:54 AM Central"
+  },
+  "states": [
+    "NE",
+    "IA",
+    "KS",
+    "SD",
+    "MO",
+    "MN"
+  ],
+  "wfos": [
+    "OAX",
+    "GID",
+    "LBF",
+    "GLD",
+    "FSD",
+    "ABR",
+    "UNR",
+    "DMX",
+    "DVN",
+    "ARX",
+    "MPX",
+    "TOP",
+    "EAX",
+    "ICT",
+    "SGF",
+    "DDC"
+  ],
+  "sources": {
+    "lsr": true,
+    "swdi": true,
+    "stormevents": true
+  },
+  "chunk_days": 7,
+  "thresholds": {
+    "ground_min_in": 0.75,
+    "radar_min_in": 1.0,
+    "radar_min_points": 2,
+    "cluster_link_mi": 12,
+    "place_snap_mi": 6
+  },
+  "radar_size_factor": 0.8,
+  "report_weights": {
+    "default": 0.9,
+    "mping": 0.75,
+    "social media": 0.85,
+    "public": 0.9,
+    "trained spotter": 1.0,
+    "nws employee": 1.0,
+    "emergency mngr": 1.0,
+    "law enforcement": 1.0,
+    "official nws obs": 1.0,
+    "storm chaser": 0.95,
+    "co-op observer": 1.0,
+    "cocorahs": 1.0,
+    "fire dept/rescue": 1.0,
+    "broadcast media": 0.95,
+    "amateur radio": 0.95,
+    "newspaper": 0.9
+  },
+  "scoring": {
+    "size_curve": [
+      [
+        0.5,
+        0.0
+      ],
+      [
+        0.75,
+        0.1
+      ],
+      [
+        1.0,
+        0.4
+      ],
+      [
+        1.25,
+        0.6
+      ],
+      [
+        1.5,
+        0.72
+      ],
+      [
+        1.75,
+        0.85
+      ],
+      [
+        2.0,
+        0.93
+      ],
+      [
+        2.5,
+        1.0
+      ]
+    ],
+    "recency_curve": [
+      [
+        0,
+        1.0
+      ],
+      [
+        45,
+        1.0
+      ],
+      [
+        180,
+        0.7
+      ],
+      [
+        365,
+        0.4
+      ],
+      [
+        730,
+        0.1
+      ],
+      [
+        1095,
+        0.05
+      ]
+    ],
+    "distance_curve": [
+      [
+        0,
+        1.0
+      ],
+      [
+        30,
+        1.0
+      ],
+      [
+        100,
+        0.75
+      ],
+      [
+        250,
+        0.45
+      ],
+      [
+        251,
+        0.0
+      ]
+    ],
+    "exposure_by_pop": [
+      [
+        0,
+        0.55
+      ],
+      [
+        500,
+        0.7
+      ],
+      [
+        2500,
+        0.85
+      ],
+      [
+        10000,
+        1.0
+      ]
+    ],
+    "exposure_rural": 0.35,
+    "exposure_unknown": 0.7,
+    "confidence": {
+      "ground_strong": 1.0,
+      "ground_weak": 0.85,
+      "radar_only": 0.65,
+      "multi_source_bonus": 0.05
+    },
+    "exposure_by_homes": [
+      [
+        0,
+        0.55
+      ],
+      [
+        150,
+        0.7
+      ],
+      [
+        800,
+        0.85
+      ],
+      [
+        3000,
+        1.0
+      ]
+    ]
+  },
+  "neighborhood": {
+    "min_store_in": 0.75,
+    "coverage_in": 1.0,
+    "coverage_floor": 0.4,
+    "owner_floor": 0.3,
+    "owner_unknown": 0.65,
+    "homes_full": 500,
+    "homes_floor": 0.3,
+    "age_curve": [
+      [
+        1970,
+        1.0
+      ],
+      [
+        1990,
+        0.95
+      ],
+      [
+        2005,
+        0.88
+      ],
+      [
+        2015,
+        0.8
+      ]
+    ],
+    "age_unknown": 0.9,
+    "mesh_factor": null,
+    "fusion": {
+      "min_weight": 0.85,
+      "length_mi": 4.0,
+      "prior_weight": 0.3,
+      "radar_floor_in": 0.5,
+      "ratio_range": [
+        0.5,
+        2.5
+      ]
+    }
+  },
+  "door_lists": {
+    "min_hail_in": 1.0,
+    "turf_size": 60,
+    "max_hop_mi": 0.4,
+    "kinds": [
+      "single",
+      "mobile",
+      "multi"
+    ]
+  }
+}
