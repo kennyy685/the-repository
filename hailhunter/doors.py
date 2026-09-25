@@ -114,7 +114,8 @@ def score_buildings(conn, cfg, day, bbox, kinds, min_hail, session=None, log=pri
         A = interp(nb["age_curve"], p["year_built"]) if p["year_built"] else nb["age_unknown"]
         O = nb["owner_floor"] + (1 - nb["owner_floor"]) * share if share is not None else nb["owner_unknown"]
         score = 100 * S * R * D * A * KIND_FACTOR.get(p["kind"], 0.5) * O * (0.5 if sold else 1.0)
-        out.append({**dict(p), "hail_in": round(hail, 2), "hail_near_in": round(float(grid[max(0, i - 1):i + 2,
+        out.append({**dict(p), "bg": geoids[bgi] if bgi >= 0 else None,
+                    "hail_in": round(hail, 2), "hail_near_in": round(float(grid[max(0, i - 1):i + 2,
                    max(0, j - 1):j + 2].max()), 2), "owner_share": share, "score": round(score, 1),
                     "dist_mi": round(dist, 1),
                     "flags": "; ".join(flags)})
@@ -173,6 +174,55 @@ def build_turfs(houses, turf_size=60, max_hop_mi=0.4):
                       "lat": float(np.mean([h["lat"] for h in stops])), "lon": float(np.mean([h["lon"] for h in stops]))})
     turfs.sort(key=lambda t: -t["value"])
     return turfs
+
+
+# ------------------------------------------------------------------ Hot Zones (T23)
+def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
+    """Chance of a sale for one walk: heat 0-100 = 100 x damage x insured x roof x size x fresh x open x compete,
+    with 2-4 plain reasons and the expected inspections if every door is knocked."""
+    hz, sc = cfg["hot_zones"], cfg["scoring"]
+    storm = date.fromisoformat(storm_day)
+    days = max(((today or datetime.now(ZoneInfo(cfg["timezone"])).date()) - storm).days, 0)
+    damage = float(np.mean([interp(hz["damage_curve"], s["hail_in"]) for s in stops]))
+    owners = [s["owner_occ"] if s.get("owner_occ") is not None else s.get("owner_share") for s in stops]
+    owners = [float(o) for o in owners if o is not None]
+    own = float(np.mean(owners)) if owners else hz["owner_unknown"]
+    morts = [mortgage[s["bg"]] for s in stops if mortgage and s.get("bg") in mortgage]
+    mort = float(np.mean(morts)) if morts else hz["mortgage_unknown"]
+    ib, mb = hz["insured_base"], hz["mortgage_base"]
+    insured = ib + (1 - ib) * own * (mb + (1 - mb) * mort)
+    years = [s.get("roof_year") or s.get("year_built") for s in stops]
+    years = [int(y) for y in years if y]
+    med_year = int(np.median(years)) if years else None
+    age = storm.year - med_year if med_year else None
+    roof = hz["roof_unknown"] if age is None else [f for a, f in hz["roof_age_steps"] if age >= a][-1]
+    vals = [float(s["total_value"]) for s in stops if s.get("total_value")]
+    med_val = float(np.median(vals)) if vals else None
+    sb = hz["size_base"]
+    size = hz["size_unknown"] if med_val is None else sb + (1 - sb) * min(1.0, med_val / hz["value_full"])
+    fresh = interp(sc["recency_curve"], days)
+    opened = 1.0                                   # share not re-roofed since the storm: no permit feed yet
+    town = area.split(",")[0].strip()
+    compete = hz["compete_factor"] if town in hz["compete_towns"] and days <= hz["compete_days"] else 1.0
+    heat = round(100 * damage * insured * roof * size * fresh * opened * compete, 1)
+    avg_hail = float(np.mean([s["hail_in"] for s in stops]))
+    sold = sum(1 for s in stops if s.get("sale_date") and s["sale_date"] > storm_day)
+    why = [f'{avg_hail:.1f}" hail']
+    if owners and own >= 0.5:
+        why.append(f"{round(own * 100)}% owners")
+    if age is not None and age >= 15:
+        why.append(f"roofs ~{med_year}")
+    if compete < 1:                                # before "fresh": a contested storm is always a fresh one
+        why.append("other roofers likely here")
+    if days <= 45:
+        why.append(f"fresh storm ({days} days)")
+    if sold >= 3:
+        why.append(f"{sold} sold since storm")
+    parts = {"damage": round(damage, 3), "insured": round(insured, 3), "roof": roof, "size": round(size, 3),
+             "fresh": round(fresh, 3), "open": opened, "compete": compete, "owners": round(own, 3),
+             "mortgage": round(mort, 3), "median_built": med_year, "median_value": med_val, "days": days}
+    return {"heat": heat, "why": why[:4], "exp_inspections": round(len(stops) * hz["inspect_rate"] * heat / 50, 1),
+            "parts": parts}
 
 
 # ------------------------------------------------------------------ outputs
@@ -439,6 +489,12 @@ def make_list(conn, cfg, day, near, session, radius_mi=None, min_hail=None, turf
                   json.dumps({"min_hail": min_hail, "turf_size": turf_size, "bbox": bbox}), len(houses), len(turfs),
                   paths["csv"], paths["xlsx"], paths["png"]))
     conn.execute("DELETE FROM door_list_stops WHERE list_id=?", (list_id,))
+    conn.execute("DELETE FROM door_list_turfs WHERE list_id=?", (list_id,))
+    mort = nbhd.mortgage_shares(conn)
+    hz = [hot_zone(turf["stops"], cfg, day, area, mort) for turf in turfs]
+    conn.executemany("INSERT INTO door_list_turfs VALUES (?,?,?,?,?,?)",
+                     [(list_id, t, z["heat"], json.dumps(z["why"]), z["exp_inspections"], json.dumps(z["parts"]))
+                      for t, z in enumerate(hz, 1)])
     conn.executemany("INSERT INTO door_list_stops VALUES (?,?,?,?,?,?,?,?)",
                      [(list_id, t, k, h["pid"], h["address"], h["hail_in"], h["score"], h["flags"])
                       for t, turf in enumerate(turfs, 1) for k, h in enumerate(turf["stops"], 1)])

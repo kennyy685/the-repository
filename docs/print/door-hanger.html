@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>HMP door hanger</title>
+<style>
+@page { size: 4.25in 11in; margin: 0; }
+:root { --ink:#18212b; --muted:#4f5a66; --cedar:#93542a; --soft:#f3e6dc; --line:#c9d0d8; --gray:#e9edf1; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:"DejaVu Sans","Helvetica Neue",Arial,sans-serif; color:var(--ink); }
+.side { width:4.25in; height:11in; padding:0.3in 0.32in 0.28in; position:relative; display:flex; flex-direction:column; gap:0.13in;
+  page-break-after:always; overflow:hidden; }
+.side:last-child { page-break-after:auto; }
+.hole { width:1.35in; height:1.35in; border:1.5px dashed var(--line); border-radius:50%; margin:0 auto 0.02in; position:relative; }
+.hole::after { content:""; position:absolute; left:50%; top:100%; width:0; height:0.45in; border-left:1.5px dashed var(--line); }
+.brand { text-align:center; margin-top:0.3in; }
+.brand .name { font-size:17pt; font-weight:800; letter-spacing:0.06em; }
+.brand .sub { font-size:8.5pt; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-top:2px; }
+.bar { height:5px; background:repeating-linear-gradient(90deg, var(--cedar) 0 26px, #b57a4c 26px 30px); border-radius:2px; }
+h1 { font-size:21pt; line-height:1.1; margin:0.02in 0 0; text-align:center; }
+.date { font-size:11.5pt; text-align:center; line-height:1.5; }
+.date .blank { display:inline-block; min-width:1.35in; border-bottom:1.5px solid var(--ink); }
+.why { font-size:10pt; color:var(--muted); line-height:1.4; text-align:center; margin:0; }
+.offer { background:var(--soft); border-left:5px solid var(--cedar); padding:0.13in 0.15in; }
+.offer .big { font-size:14.5pt; font-weight:800; line-height:1.15; }
+.offer ul { margin:0.07in 0 0; padding-left:0.18in; font-size:10pt; line-height:1.45; }
+.noticed { border:1.5px solid var(--line); border-radius:6px; padding:0.1in 0.13in; font-size:10pt; }
+.noticed b { display:block; margin-bottom:0.05in; }
+.noticed .row { display:flex; align-items:center; gap:0.07in; line-height:1.75; }
+.box { width:0.14in; height:0.14in; border:1.5px solid var(--ink); display:inline-block; flex:none; }
+.noticed .line { flex:1; border-bottom:1px solid var(--ink); height:0.16in; }
+.call { text-align:center; background:var(--ink); color:#fff; border-radius:8px; padding:0.13in 0.1in; }
+.call .who { font-size:10pt; letter-spacing:0.05em; text-transform:uppercase; opacity:0.85; }
+.call .num { font-size:23pt; font-weight:800; letter-spacing:0.02em; margin-top:2px; }
+.call .how { font-size:9.5pt; opacity:0.9; }
+.lang { text-align:center; font-weight:800; font-size:12pt; color:var(--cedar); }
+.foot { margin-top:auto; font-size:7.6pt; color:var(--muted); text-align:center; line-height:1.45; border-top:1px solid var(--line); padding-top:0.08in; }
+.foot .reg { display:inline-block; min-width:0.9in; border-bottom:1px solid var(--muted); }
+</style></head>
+<body>
+
+<section class="side" lang="en">
+  <div class="hole"></div>
+  <div class="brand"><div class="name">HMP SIDING &amp; ROOFING</div><div class="sub">Fremont, Nebraska · Siding · Roofing</div></div>
+  <div class="bar"></div>
+  <h1>Sorry we missed you!</h1>
+  <p class="date">Hail was reported near your home on<br><span class="blank">&nbsp;</span></p>
+  <p class="why">Hail damage often can’t be seen from the ground: dented gutters, cracked shingles, split siding.</p>
+  <div class="offer"><div class="big">Free roof &amp; siding inspection</div>
+    <ul><li>About 15 minutes</li><li>Photos of anything we find</li><li>No pressure, no obligation</li></ul></div>
+  <div class="noticed"><b>From the street we noticed:</b>
+    <div class="row"><span class="box"></span>Dented gutters or downspouts</div>
+    <div class="row"><span class="box"></span>Damaged siding</div>
+    <div class="row"><span class="box"></span>Marks on the shingles</div>
+    <div class="row"><span class="box"></span><span class="line"></span></div></div>
+  <div class="call"><div class="who">Call or text Kenny Cruz</div><div class="num">(402) 936-2709</div>
+    <div class="how">to book your free inspection</div></div>
+  <div class="lang">Hablamos español · See the back</div>
+  <div class="foot">HMP Siding &amp; Roofing LLC · Fremont, NE · Registered and insured<br>
+    Nebraska contractor registration # <span class="reg">&nbsp;</span><br>
+    Only an inspection can confirm damage. Your insurance company decides what your policy covers.</div>
+</section>
+
+<section class="side" lang="es">
+  <div class="hole"></div>
+  <div class="brand"><div class="name">HMP SIDING &amp; ROOFING</div><div class="sub">Fremont, Nebraska · Siding · Techos</div></div>
+  <div class="bar"></div>
+  <h1>¡Perdón, no lo encontramos!</h1>
+  <p class="date">Se reportó granizo cerca de su casa el<br><span class="blank">&nbsp;</span></p>
+  <p class="why">El daño por granizo muchas veces no se ve desde el suelo: canaletas abolladas, tejas rotas, siding partido.</p>
+  <div class="offer"><div class="big">Inspección gratis de techo y siding</div>
+    <ul><li>Unos 15 minutos</li><li>Fotos de todo lo que encontremos</li><li>Sin presión y sin compromiso</li></ul></div>
+  <div class="noticed"><b>Desde la calle notamos:</b>
+    <div class="row"><span class="box"></span>Canaletas o bajantes abolladas</div>
+    <div class="row"><span class="box"></span>Siding dañado</div>
+    <div class="row"><span class="box"></span>Marcas en las tejas</div>
+    <div class="row"><span class="box"></span><span class="line"></span></div></div>
+  <div class="call"><div class="who">Llame o mande texto a Kenny Cruz</div><div class="num">(402) 936-2709</div>
+    <div class="how">para su inspección gratis</div></div>
+  <div class="lang">We speak English · Vea el frente</div>
+  <div class="foot">HMP Siding &amp; Roofing LLC · Fremont, NE · Registrados y asegurados<br>
+    Registro de contratista de Nebraska # <span class="reg">&nbsp;</span><br>
+    Solo una inspección puede confirmar daños. Su compañía de seguros decide lo que cubre su póliza.</div>
+</section>
+
+</body></html>

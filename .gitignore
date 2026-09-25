@@ -5,4 +5,5 @@ __MACOSX/
 # Big / regenerated data: the engine rebuilds these with `hh.py refresh`
 data/*
 !data/scout_contacts.json
+!data/watch_list.json
 .env

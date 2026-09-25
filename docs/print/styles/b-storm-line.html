@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>HMP door hanger · B · Storm Line</title>
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(../fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(../fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Inter"; font-weight:400; src:url(../fonts/Inter-400.woff) format("woff"); }
+@font-face { font-family:"Inter"; font-weight:500; src:url(../fonts/Inter-500.woff) format("woff"); }
+@font-face { font-family:"Inter"; font-weight:600; src:url(../fonts/Inter-600.woff) format("woff"); }
+
+/* HMP door hanger, FRONT, style B "Storm Line". 4.25 x 11 in, print at 100%.
+   The dashed circle + slit at the top is the die line (cut, not printed). */
+@page { size: 4.25in 11in; margin: 0; }
+:root { --navy:#14304D; --slate:#4A6FA5; --slate-lt:#DCE4EF; --gray:#6B7280; --line:#B9C4D3; --amber:#E0A526; --paper:#FFFFFF; --ink:#1B2533; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--paper); }
+body { font-family:"Inter", sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.page { width:4.25in; height:11in; position:relative; overflow:hidden; background:var(--paper); }
+.page > * { position:absolute; }
+.cond { font-family:"Barlow Semi Condensed", sans-serif; }
+
+.sky { left:0; top:0; width:4.25in; height:2.3in; }
+
+/* brand + trust */
+.brand { left:0.32in; right:0.32in; top:2.08in; display:flex; align-items:center; gap:0.12in; }
+.mark { width:0.56in; height:0.56in; flex:none; }
+.brand .nm { font:700 13pt/1 "Barlow Semi Condensed"; letter-spacing:0.08em; text-transform:uppercase; color:var(--navy); }
+.brand .tr { font:500 8.5pt/1 "Inter"; color:var(--gray); margin-top:0.06in; display:flex; align-items:center; gap:0.06in; }
+.brand .tr i { width:3px; height:3px; border-radius:50%; background:var(--slate); display:block; }
+
+/* headline */
+.kicker { left:0.32in; top:2.9in; font:700 8.5pt/1 "Barlow Semi Condensed"; letter-spacing:0.22em; text-transform:uppercase; color:var(--slate);
+  display:flex; align-items:center; gap:0.08in; }
+.kicker::after { content:""; width:1.6in; height:1px; background:var(--line); }
+h1 { left:0.3in; right:0.3in; top:3.08in; font:700 30pt/0.98 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--navy); letter-spacing:0.005em; }
+h1 .row2 { display:flex; align-items:flex-end; gap:0.1in; }
+h1 .pen { flex:1; height:0.4in; border-bottom:1.4pt solid var(--navy); position:relative; margin-bottom:0.05in; }
+h1 .pen::after { content:"Date"; position:absolute; right:0; top:100%; margin-top:3pt; font:600 7pt/1 "Inter"; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--gray); }
+
+/* diagram */
+.sec { left:0.32in; right:0.32in; display:flex; align-items:center; gap:0.08in; font:700 8.5pt/1 "Barlow Semi Condensed";
+  letter-spacing:0.2em; text-transform:uppercase; color:var(--navy); }
+.sec::after { content:""; flex:1; height:1px; background:var(--line); }
+.diagram { left:0.32in; top:4.62in; width:3.61in; height:2.08in; }
+
+/* offer */
+.offer { left:0.32in; right:0.32in; top:6.92in; border:1.2pt solid var(--navy); border-radius:3px; padding:0.19in 0.14in 0.11in; }
+.offer .tag { position:absolute; left:0.14in; top:0; transform:translateY(-50%); background:var(--paper); padding:0 0.07in;
+  font:800 15pt/1 "Barlow Semi Condensed"; letter-spacing:0.02em; text-transform:uppercase; color:var(--navy); }
+.perks { display:grid; grid-template-columns:1fr 1.3fr 1fr; }
+.perks div { display:flex; flex-direction:column; align-items:center; text-align:center; gap:0.05in; font:500 8.5pt/1.2 "Inter"; color:var(--ink); padding:0 0.04in; }
+.perks div + div { border-left:1px solid var(--line); }
+.perks svg { width:0.24in; height:0.24in; }
+
+/* Kenny */
+.photo { left:0.32in; top:8.04in; width:0.82in; height:0.82in; border-radius:50%; background:#EEF2F7; overflow:hidden;
+  box-shadow:0 0 0 2.5pt #fff, 0 0 0 3.3pt var(--slate); }
+.photo svg { position:absolute; inset:0; width:100%; height:100%; }
+.photo span { position:absolute; left:0; right:0; bottom:0.17in; text-align:center; font:500 7pt/1 "Inter"; color:#8A94A3; }
+.rep { left:1.36in; right:0.32in; top:8.08in; }
+.rep .name { font:700 15pt/1 "Barlow Semi Condensed"; color:var(--navy); letter-spacing:0.02em; }
+.rep .role { font:400 8pt/1 "Inter"; color:var(--gray); margin-top:0.05in; }
+.rep .note { margin-top:0.07in; height:0.26in; border-bottom:0.8pt solid var(--line); position:relative; }
+.rep .note::before { content:"Note:"; position:absolute; left:0; bottom:0.05in; font:500 7.5pt/1 "Inter"; color:#8A94A3; letter-spacing:0.02em; }
+
+/* call bar */
+.call { left:0; right:0; top:9.04in; height:1.28in; background:var(--navy); color:#fff; }
+.call::before { content:""; position:absolute; left:0; right:0; top:0; height:3pt; background:var(--amber); }
+.call .lead { position:absolute; left:0.32in; top:0.24in; font:700 9pt/1 "Barlow Semi Condensed"; letter-spacing:0.22em; text-transform:uppercase; color:var(--amber); }
+.call .num { position:absolute; left:0.29in; top:0.38in; font:800 30pt/1 "Barlow Semi Condensed"; color:#fff; white-space:nowrap; letter-spacing:0.01em; }
+.call .es { position:absolute; left:0.32in; top:0.96in; font:600 9.5pt/1 "Inter"; color:#fff; display:flex; align-items:center; gap:0.07in; }
+.call .es i { width:6px; height:6px; border-radius:50%; background:var(--amber); display:block; }
+.qrbox { position:absolute; right:0.28in; top:0.17in; width:0.86in; text-align:center; }
+.qr { display:block; width:0.86in; height:0.86in; border-radius:2px; }
+.qrbox .cap { margin-top:0.06in; font:700 7.5pt/1 "Barlow Semi Condensed"; letter-spacing:0.14em; text-transform:uppercase; color:#fff; white-space:nowrap; }
+
+.foot { left:0.32in; right:0.32in; top:10.43in; text-align:center; font:400 7pt/1.4 "Inter"; color:var(--gray); }
+.foot b { font-weight:600; color:var(--navy); }
+.foot .reg { display:inline-block; width:0.9in; border-bottom:0.6pt solid var(--gray); transform:translateY(-1pt); }
+.foot .legal { text-wrap:balance; margin-top:1pt; }
+</style></head>
+<body>
+<div class="page">
+
+  <!-- top: radar rings, grid and hail dots around the die-cut -->
+  <svg class="sky" viewBox="0 0 408 220.8" aria-hidden="true">
+    <defs>
+      <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse" x="12" y="4">
+        <path d="M24 0H0V24" fill="none" stroke="#4A6FA5" stroke-width=".5"/>
+      </pattern>
+      <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <mask id="m"><rect width="408" height="221" fill="url(#fade)"/></mask>
+    </defs>
+    <rect width="408" height="221" fill="url(#grid)" opacity=".16" mask="url(#m)"/>
+    <g fill="none" stroke="#4A6FA5" mask="url(#m)">
+      <circle cx="204" cy="88" r="92" stroke-width=".8" opacity=".55"/>
+      <circle cx="204" cy="88" r="120" stroke-width=".7" opacity=".42"/>
+      <circle cx="204" cy="88" r="150" stroke-width=".6" opacity=".32"/>
+      <circle cx="204" cy="88" r="182" stroke-width=".5" opacity=".24"/>
+      <circle cx="204" cy="88" r="216" stroke-width=".5" opacity=".18"/>
+      <path d="M292.9 64.2 L455.1 20.7" stroke-width=".6" opacity=".35"/>
+      <path d="M115.6 113.4 L-45.9 159.7" stroke-width=".6" opacity=".25"/>
+    </g>
+    <!-- hail dots -->
+    <g stroke="#4A6FA5" stroke-width=".8" stroke-linecap="round" opacity=".55"><path d="M43.8 31.3 l8.1 -14.7 M75.1 64.3 l6.2 -11.2 M31.4 101.8 l7.2 -12.9 M88.9 126.6 l5.6 -10.0 M113.0 24.5 l5.9 -10.6 M60.8 158.8 l5.2 -9.5 M339.6 89.5 l7.8 -14.1 M373.1 50.3 l6.2 -11.2 M313.2 148.1 l6.5 -11.8 M376.8 134.7 l5.4 -9.8 M300.9 20.6 l5.6 -10.0 M352.7 184.9 l5.1 -9.2 M140.7 174.9 l5.1 -9.2 M268.9 174.6 l5.6 -10.0 M18.7 57.0 l4.9 -8.9 M394.8 16.8 l5.2 -9.5"/></g>
+    <g fill="#14304D"><circle cx="42" cy="34" r="3.2"/><circle cx="74" cy="66" r="2"/><circle cx="30" cy="104" r="2.6"/><circle cx="88" cy="128" r="1.6"/><circle cx="112" cy="26" r="1.8"/><circle cx="60" cy="160" r="1.4"/><circle cx="338" cy="92" r="3"/><circle cx="372" cy="52" r="2"/><circle cx="312" cy="150" r="2.2"/><circle cx="376" cy="136" r="1.5"/><circle cx="300" cy="22" r="1.6"/><circle cx="352" cy="186" r="1.3"/><circle cx="140" cy="176" r="1.3"/><circle cx="268" cy="176" r="1.6"/><circle cx="18" cy="58" r="1.2"/><circle cx="394" cy="18" r="1.4"/></g>
+    <!-- DIE LINE: 1.35in door-knob hole + slit (cut, do not print) -->
+    <g fill="none" stroke="#14304D" stroke-width="1" stroke-dasharray="4 3" opacity=".6">
+      <circle cx="204" cy="88" r="64.8"/><path d="M204 23.2 V0"/>
+    </g>
+  </svg>
+
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 54 54" aria-label="HMP">
+      <rect width="54" height="54" rx="4" fill="#14304D"/>
+      <path d="M13 22 L27 12 L41 22" fill="none" stroke="#7FA0CC" stroke-width="2.4" stroke-linecap="square"/>
+      <text x="27" y="40" text-anchor="middle" font-family="Barlow Semi Condensed" font-weight="800" font-size="17.5" letter-spacing=".6" fill="#fff">HMP</text>
+    </svg>
+    <div><div class="nm">HMP Siding &amp; Roofing</div>
+      <div class="tr">Fremont-based<i></i>Registered &amp; insured</div></div>
+  </div>
+
+  <div class="kicker">After the storm</div>
+  <h1><div>Hail hit your</div><div class="row2"><span>street on</span><span class="pen"></span></div></h1>
+
+  <div class="sec" style="top:4.4in">From the street we noticed:</div>
+  <svg class="diagram" viewBox="0 0 346.6 199.7" aria-label="House diagram with checkboxes: marks on the shingles, dented gutters or downspouts, damaged siding">
+    <defs>
+      <clipPath id="roof"><path d="M22 92 L60 44 H168 L206 92Z"/></clipPath>
+      <clipPath id="wall"><rect x="34" y="99" width="160" height="88"/></clipPath>
+    </defs>
+    <g transform="translate(0 8) scale(.9)">
+    <!-- hail falling -->
+    <g stroke="#4A6FA5" stroke-width="1" stroke-linecap="round" opacity=".7">
+      <path d="M58 6 l-5 9 M96 2 l-5 9 M140 8 l-5 9 M176 3 l-5 9 M118 22 l-4 7 M76 24 l-4 7 M160 26 l-4 7"/>
+    </g>
+    <g fill="#14304D"><circle cx="51" cy="18" r="2.6"/><circle cx="89" cy="14" r="2"/><circle cx="133" cy="20" r="2.8"/><circle cx="169" cy="15" r="2"/>
+      <circle cx="113" cy="32" r="1.8"/><circle cx="71" cy="34" r="1.6"/><circle cx="155" cy="36" r="1.7"/></g>
+    <!-- roof -->
+    <g clip-path="url(#roof)" stroke="#4A6FA5" stroke-width=".7" fill="none" opacity=".75">
+      <path d="M0 56H240M0 68H240M0 80H240"/>
+      <path d="M72 44v12M92 44v12M112 44v12M132 44v12M152 44v12 M62 56v12M82 56v12M102 56v12M122 56v12M142 56v12M162 56v12 M52 68v12M72 68v12M92 68v12M112 68v12M132 68v12M152 68v12M172 68v12 M42 80v12M62 80v12M82 80v12M102 80v12M122 80v12M142 80v12M162 80v12M182 80v12"/>
+    </g>
+    <path d="M22 92 L60 44 H168 L206 92Z" fill="none" stroke="#14304D" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- chimney -->
+    <path d="M150 44 V30 H162 V44" fill="#fff" stroke="#14304D" stroke-width="1.6"/>
+    <!-- gutter + downspout -->
+    <path d="M18 92 H210 V98 H18Z" fill="#fff" stroke="#14304D" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M200 98 V180 q0 6 6 7 h6" fill="none" stroke="#14304D" stroke-width="1.6"/>
+    <!-- wall with lap siding -->
+    <g clip-path="url(#wall)" stroke="#4A6FA5" stroke-width=".7" opacity=".6"><path d="M30 108H200M30 117H200M30 126H200M30 135H200M30 144H200M30 153H200M30 162H200M30 171H200M30 180H200"/></g>
+    <path d="M34 98 V187 H194 V98" fill="none" stroke="#14304D" stroke-width="1.8"/>
+    <!-- windows + door -->
+    <g fill="#fff" stroke="#14304D" stroke-width="1.5">
+      <rect x="48" y="114" width="34" height="30"/><rect x="146" y="114" width="34" height="30"/>
+      <rect x="100" y="126" width="28" height="61"/>
+    </g>
+    <path d="M65 114v30M48 129h34M163 114v30M146 129h34" stroke="#14304D" stroke-width="1"/>
+    <circle cx="122" cy="158" r="1.6" fill="#14304D"/>
+    <path d="M8 187.5 H222" stroke="#14304D" stroke-width="1.8" stroke-linecap="round"/>
+
+    </g>
+    <!-- callouts (points on the scaled house: roof 110,54.6 / gutter 189,92 / siding 167.4,152) -->
+    <g fill="none" stroke="#4A6FA5" stroke-width="1">
+      <path d="M110 54.6 H218"/><path d="M189 92 H218"/><path d="M167.4 152 H218"/>
+    </g>
+    <g fill="#fff" stroke="#4A6FA5" stroke-width="1.4">
+      <circle cx="110" cy="54.6" r="3.4"/><circle cx="189" cy="92" r="3.4"/><circle cx="167.4" cy="152" r="3.4"/>
+    </g>
+    <g fill="#fff" stroke="#14304D" stroke-width="1.5">
+      <rect x="222" y="47.1" width="15" height="15" rx="1.5"/><rect x="222" y="84.5" width="15" height="15" rx="1.5"/>
+      <rect x="222" y="144.5" width="15" height="15" rx="1.5"/><rect x="222" y="178" width="15" height="15" rx="1.5"/>
+    </g>
+    <g font-family="Inter" font-weight="500" font-size="12.3" fill="#1B2533">
+      <text x="244" y="59.1">Marks on the</text><text x="244" y="74.4">shingles</text>
+      <text x="244" y="96.5">Dented gutters</text><text x="244" y="111.8">or downspouts</text>
+      <text x="244" y="156.5">Damaged siding</text>
+    </g>
+    <path d="M244 192.5 H346" stroke="#B9C4D3" stroke-width="1"/>
+  </svg>
+
+  <div class="offer">
+    <div class="tag">Free roof &amp; siding inspection</div>
+    <div class="perks">
+      <div><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.5" fill="none" stroke="#14304D" stroke-width="1.6"/><path d="M12 8.5V13l3 2" fill="none" stroke="#4A6FA5" stroke-width="1.6" stroke-linecap="round"/><path d="M9.5 2.8h5" stroke="#14304D" stroke-width="1.6" stroke-linecap="round"/></svg>About 15 minutes</div>
+      <div><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="13" rx="2" fill="none" stroke="#14304D" stroke-width="1.6"/><path d="M8 7l1.5-3h5L16 7" fill="none" stroke="#14304D" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4" fill="none" stroke="#4A6FA5" stroke-width="1.6"/></svg>Photos of anything we find</div>
+      <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#14304D" stroke-width="1.6"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8" fill="none" stroke="#4A6FA5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>No pressure</div>
+    </div>
+  </div>
+
+  <div class="photo">
+    <svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="37" r="14" fill="#D8E0EA"/><path d="M19 88c3-17 15-27 29-27s26 10 29 27" fill="#D8E0EA"/></svg>
+    <span>Kenny’s photo</span>
+  </div>
+  <div class="rep">
+    <div class="name">Kenny Cruz</div>
+    <div class="role">Your HMP rep · Fremont, NE</div>
+    <div class="note"></div>
+  </div>
+
+  <div class="call">
+    <div class="lead">Call or text Kenny</div>
+    <div class="num">(402) 936-2709</div>
+    <div class="es"><i></i>Hablamos español</div>
+    <div class="qrbox"><svg class="qr" viewBox="-4 -4 45 45" shape-rendering="crispEdges" role="img" aria-label="QR code: text Kenny"><rect x="-4" y="-4" width="45" height="45" fill="#fff"/><path d="M0 0h7v1h-7zM9 0h1v1h-1zM12 0h2v1h-2zM16 0h4v1h-4zM21 0h3v1h-3zM25 0h3v1h-3zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM12 1h3v1h-3zM17 1h1v1h-1zM20 1h4v1h-4zM27 1h1v1h-1zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h2v1h-2zM17 2h1v1h-1zM19 2h2v1h-2zM23 2h2v1h-2zM26 2h3v1h-3zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h2v1h-2zM15 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM23 3h2v1h-2zM28 3h1v1h-1zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h1v1h-1zM12 4h2v1h-2zM16 4h3v1h-3zM21 4h1v1h-1zM23 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM11 5h2v1h-2zM15 5h1v1h-1zM17 5h5v1h-5zM25 5h1v1h-1zM27 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM9 7h1v1h-1zM11 7h2v1h-2zM14 7h4v1h-4zM21 7h1v1h-1zM24 7h1v1h-1zM26 7h3v1h-3zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM12 8h2v1h-2zM18 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM28 8h2v1h-2zM31 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM11 9h5v1h-5zM20 9h1v1h-1zM28 9h2v1h-2zM33 9h1v1h-1zM0 10h1v1h-1zM2 10h2v1h-2zM6 10h2v1h-2zM11 10h1v1h-1zM13 10h2v1h-2zM16 10h2v1h-2zM19 10h1v1h-1zM22 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h4v1h-4zM35 10h2v1h-2zM2 11h2v1h-2zM7 11h2v1h-2zM12 11h2v1h-2zM15 11h1v1h-1zM18 11h4v1h-4zM24 11h4v1h-4zM30 11h3v1h-3zM35 11h1v1h-1zM1 12h1v1h-1zM3 12h1v1h-1zM5 12h4v1h-4zM13 12h1v1h-1zM17 12h1v1h-1zM19 12h4v1h-4zM24 12h1v1h-1zM27 12h1v1h-1zM30 12h2v1h-2zM35 12h1v1h-1zM1 13h3v1h-3zM9 13h3v1h-3zM18 13h2v1h-2zM22 13h1v1h-1zM24 13h1v1h-1zM28 13h1v1h-1zM30 13h1v1h-1zM33 13h4v1h-4zM0 14h1v1h-1zM3 14h2v1h-2zM6 14h1v1h-1zM9 14h5v1h-5zM21 14h1v1h-1zM23 14h2v1h-2zM29 14h1v1h-1zM33 14h1v1h-1zM36 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM11 15h4v1h-4zM16 15h2v1h-2zM19 15h3v1h-3zM24 15h2v1h-2zM28 15h1v1h-1zM31 15h1v1h-1zM35 15h1v1h-1zM4 16h3v1h-3zM9 16h1v1h-1zM12 16h1v1h-1zM14 16h2v1h-2zM18 16h7v1h-7zM30 16h2v1h-2zM33 16h1v1h-1zM0 17h1v1h-1zM2 17h1v1h-1zM5 17h1v1h-1zM7 17h3v1h-3zM13 17h4v1h-4zM21 17h4v1h-4zM26 17h1v1h-1zM28 17h1v1h-1zM30 17h3v1h-3zM34 17h1v1h-1zM2 18h1v1h-1zM5 18h2v1h-2zM8 18h1v1h-1zM10 18h1v1h-1zM15 18h2v1h-2zM20 18h1v1h-1zM22 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM35 18h2v1h-2zM0 19h5v1h-5zM7 19h3v1h-3zM12 19h2v1h-2zM17 19h2v1h-2zM20 19h5v1h-5zM27 19h1v1h-1zM31 19h2v1h-2zM34 19h1v1h-1zM36 19h1v1h-1zM2 20h1v1h-1zM5 20h5v1h-5zM14 20h3v1h-3zM20 20h1v1h-1zM23 20h5v1h-5zM29 20h4v1h-4zM35 20h2v1h-2zM0 21h2v1h-2zM4 21h2v1h-2zM9 21h5v1h-5zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h2v1h-2zM24 21h2v1h-2zM30 21h2v1h-2zM35 21h2v1h-2zM0 22h3v1h-3zM4 22h4v1h-4zM9 22h1v1h-1zM13 22h2v1h-2zM16 22h2v1h-2zM19 22h1v1h-1zM21 22h1v1h-1zM25 22h2v1h-2zM29 22h4v1h-4zM35 22h2v1h-2zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h2v1h-2zM7 23h2v1h-2zM10 23h2v1h-2zM14 23h1v1h-1zM16 23h2v1h-2zM21 23h2v1h-2zM24 23h2v1h-2zM29 23h2v1h-2zM32 23h1v1h-1zM0 24h1v1h-1zM2 24h5v1h-5zM8 24h1v1h-1zM10 24h2v1h-2zM13 24h3v1h-3zM19 24h1v1h-1zM21 24h1v1h-1zM24 24h3v1h-3zM28 24h3v1h-3zM34 24h1v1h-1zM36 24h1v1h-1zM1 25h4v1h-4zM7 25h1v1h-1zM10 25h1v1h-1zM12 25h6v1h-6zM19 25h2v1h-2zM24 25h2v1h-2zM29 25h2v1h-2zM34 25h1v1h-1zM0 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM22 26h3v1h-3zM28 26h3v1h-3zM32 26h2v1h-2zM36 26h1v1h-1zM1 27h1v1h-1zM7 27h9v1h-9zM17 27h1v1h-1zM21 27h2v1h-2zM25 27h3v1h-3zM30 27h2v1h-2zM35 27h2v1h-2zM0 28h2v1h-2zM4 28h7v1h-7zM13 28h2v1h-2zM17 28h5v1h-5zM24 28h1v1h-1zM26 28h1v1h-1zM28 28h5v1h-5zM34 28h2v1h-2zM8 29h2v1h-2zM11 29h1v1h-1zM13 29h1v1h-1zM16 29h1v1h-1zM21 29h1v1h-1zM23 29h4v1h-4zM28 29h1v1h-1zM32 29h1v1h-1zM34 29h1v1h-1zM36 29h1v1h-1zM0 30h7v1h-7zM9 30h1v1h-1zM11 30h2v1h-2zM16 30h1v1h-1zM18 30h1v1h-1zM22 30h1v1h-1zM26 30h3v1h-3zM30 30h1v1h-1zM32 30h2v1h-2zM36 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM13 31h1v1h-1zM15 31h1v1h-1zM17 31h6v1h-6zM27 31h2v1h-2zM32 31h5v1h-5zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM9 32h3v1h-3zM16 32h3v1h-3zM21 32h1v1h-1zM25 32h2v1h-2zM28 32h6v1h-6zM35 32h2v1h-2zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM8 33h11v1h-11zM20 33h2v1h-2zM24 33h2v1h-2zM27 33h3v1h-3zM32 33h1v1h-1zM35 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM9 34h1v1h-1zM11 34h1v1h-1zM15 34h1v1h-1zM18 34h2v1h-2zM24 34h4v1h-4zM29 34h1v1h-1zM31 34h3v1h-3zM35 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM9 35h1v1h-1zM12 35h3v1h-3zM16 35h1v1h-1zM19 35h1v1h-1zM21 35h1v1h-1zM23 35h7v1h-7zM31 35h1v1h-1zM0 36h7v1h-7zM8 36h2v1h-2zM11 36h1v1h-1zM13 36h1v1h-1zM15 36h3v1h-3zM20 36h2v1h-2zM24 36h1v1h-1zM28 36h1v1h-1zM30 36h1v1h-1zM33 36h1v1h-1zM35 36h2v1h-2z" fill="#14304D"/></svg><div class="cap">Scan to text me</div></div>
+  </div>
+
+  <div class="foot">
+    <div><b>HMP Siding &amp; Roofing LLC · Fremont, NE</b></div>
+    <div>Nebraska contractor registration # <span class="reg"></span></div>
+    <div class="legal">Only an inspection can confirm damage. Your insurance company decides what your policy covers.</div>
+  </div>
+</div>
+</body></html>

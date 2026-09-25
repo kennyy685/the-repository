@@ -18,6 +18,109 @@ before you stop.**
   you're unsure of (money, legal, anything customer-facing, deleting data); explain things in plain
   English, short - he has ADHD, keep it skimmable.
 
+## Start here: what every new session should already know
+This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
+Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
+of making him repeat it next time.
+**The company (from FilthE's company brief, 2026-09-25)**
+- Early-stage but working: HMP mostly **subcontracts labor** today (the hiring contractor supplies
+  materials). Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**.
+  Nastase (Omaha, family-owned since 1977, roofing/siding/gutters, residential + commercial) already
+  does storm-damage and insurance-claim work: the natural partner for the "sub for restoration" path.
+  VTR: no public web presence found (2026-09-25); ask FilthE for city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing,
+  on houses and apartment complexes.
+- **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5
+  buildings: tear-off above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look
+  accents, caulk). Its live job board and a general job tracker were built in other Claude chats.
+- **Brand (FilthE shared the logo 2026-09-25):** chrome "H.M.P" letters under an orange roof-line chevron, an orange
+  underline, "SIDING & ROOFING LLC", "RESIDENCIAL y COMERCIAL", on dark charcoal metal siding. Colors: charcoal
+  ~#404145, orange ~#f5883a, silver/white. Company phone on the logo: 402-889-3385. Use this look on everything
+  printed; the photo lives in the Mac/claude.ai chat, not the repo (recreate it as SVG when needed).
+- **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
+  402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
+  the AI/organization side, is the only one building this system, and does all the insurance sales.
+- **Not storm-only (FilthE, 2026-09-25):** storms are one lead source, not the only one. HMP also sells regular
+  (non-insurance) siding and roofing to **old houses** with worn siding or roofs. Lead tools, door lists and print
+  pieces need an everyday version too (house age / year built, not just hail).
+- **New goal: insurance restoration** (hail, wind, fallen trees). This is the new part: selling
+  direct to homeowners, buying materials, adjusters, waiting on insurance checks.
+
+**How FilthE works (matters for anything you build)**
+- Talks or sends short messages and job-site photos with short labels. **Never make him type into
+  spreadsheets**: you read, log and manage the data.
+- Build foundations that work for every job type; nothing rebuilt per job.
+- **Spanish matters** for anything the boss uses. Long term: HMP's own app with AI; for now, Claude.
+- New to AI and git: give click-by-click steps; simple tools he'll use beat clever ones to maintain.
+  Limited Claude credit: short focused sessions, no features that don't help sell.
+
+**Lead tool v1 (his spec) vs. what exists**
+1. Storm finder (area + dates -> storms): built (engine + command center map).
+2. Ranked lead list (storm severity, roof/home age, owner-occupied): built as door lists. Gaps:
+   owner-occupied is per neighborhood, not per house (T23); roof age needs permit data, which no
+   nearby city publishes as data.
+3. Lead tracker with the 9 stages (Not contacted -> ... -> Done/Lost): built in the command center.
+   Photos per lead not yet.
+4. **Voice/short-message updates** ("123 Oak St, inspection Tuesday, hail on north slope"): NOT
+   built. Highest-value gap for how he works.
+5. Later: inspection damage-photo checklist; link a won lead into the job tracker.
+
+**Answered already (don't re-ask):** Fremont, NE base; storms scanned within 250 mi, door lists
+within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far; ads parked; no
+mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
+**HMP HQ (the business dashboard, EN/ES):** https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj
+- The page only shows db doc `hq/snapshot`, written by Claude. "Refresh HMP HQ" = read the sources, rewrite
+  that one doc (ArtifactData set), stamping `updated_at` (UTC ISO) and `updated_by`. The King should do it
+  at every morning standup and evening wrap. Sources: Edge Site Map db `buildings`
+  (https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn); command center db `turfs`, `calls`, `targets`,
+  `system/log` + published `data/hud.json` (https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX); Crew HQ
+  `board/current` waiting list.
+- Snapshot fields: `needs_you[]` {sev critical|warning|info, en, es, link}; `storms` {latest_storm_day,
+  headline{en,es}, best_walk{area,day,turf,streets,doors,avg_hail,link}, fresh[] top 5 by score, last 60 days
+  {day,place,state,hail,dist_mi,score}, link}; `leads` {stages[] {key,en,es,count} for the 9 stages + Lost,
+  hot[] {address,stage,next}, doors_logged, calls_logged, link}; `jobs[]` {name, scope_en, scope_es,
+  progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
+  `ai` {en,es,link}. Every sentence in both English and Spanish.
+**Claim Tracker (EN/ES):** https://claude.ai/artifact/CoMGoPQWcM5ZyHGoMAYqSG. FilthE texts updates ("1418 Irving,
+adjuster Tuesday, State Farm, claim 45-889"); Claude writes db collection `claims`, one doc per job, id = address
+slug: {address, city, homeowner_first_name, stage (inspected|claim_filed|adjuster_set|scope_in|signed|supplement|
+materials_ordered|installed|depreciation_requested|paid|lost), insurer, claim_no, adjuster{name,phone}, date_of_loss,
+adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held, mortgage{company,amount,check_sent,
+check_returned}, supplements[]{date,item,asked,approved}, materials{ordered,supplier,cost}, install{start,done},
+completion_sent, depreciation_check{amount,date}, contract_price, deductible (homeowner's cost, display only),
+next_step{en,es,due}, notes, updated_at, updated_by}; tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+**Practice Door:** https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B - AI homeowner role-play (EN/ES) + scorecard with
+legal flags; uses FilthE's Claude usage. **Print kit (`docs/print/`):** door hanger (styles A/B/C in `styles/`, FilthE
+picking), `claims-101.pdf`, `adjuster-checklist.pdf`.
+**Claude Code's helpers (in this repo, `.claude/`):** 5 main helpers (FilthE, 2026-09-25: a few main
+roles; one-off helpers work under them and get no robot of their own in Crew HQ): `engine-mechanic` (engine code), `builder` (Claude pages and
+tools: Crew HQ, HMP HQ, Practice Door, Claim Tracker), `designer` (print pieces, brand look, page
+design; makes 2-3 options for FilthE to pick), `hub-keeper` = the **Research Lead** (id kept for Crew
+HQ history; cheaper model) with its team of `improvement-scout`s (web research, one topic each, run in
+parallel), and `qa-tester` (reviews + tests everything before it ships, cheaper model);
+skills `engine-change` (safe engine edits), `crew-checkin` (posting to Crew HQ), `refresh-hmp-hq`,
+`improvement-research` (research method + report format). FilthE wants regular research rounds: he
+worries about missing areas or focusing on the wrong things. Research rounds go to `docs/research/`.
+They show in Crew HQ's Code lab. Keep the crew small: add a helper only for work that repeats.
+**AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
+- read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
+- Since 2026-09-25: `board/current` in Crew HQ is the SOURCE OF TRUTH for tasks (update it directly,
+  stamping `updatedAt` + `updatedBy`; BOARD.md only mirrors it). FilthE answers the "waiting on you"
+  questions with buttons on the board: his answers land in the `answers` collection (+ an event to the
+  King); act on them, then drop answered items from `board.waiting`. `system/memory` {facts[], updatedAt,
+  updatedBy} is the short shared-memory panel. Post to `events` with {agent, at, kind, to, lane, room,
+  status, task, text}; a handoff shows "picked up" once the receiver checks in after it.
+- Crew HQ also has a live "Talk to the King" chat (page `sample` capability): while FilthE has the page
+  open, "King (live)" replies in seconds and may close/add questions, change tasks, send orders to
+  Cowork/Code (events `...-king-o<n>`) and add memory. Its replies are events `...-king-live`; the
+  scheduled King treats them as its own decisions. FilthE has his door-to-door permits (don't ask again).
+**Research:** rounds live in `docs/research/`. Round 1 (2026-09-25): knocking, not software, is the bottleneck.
+Round 2 (2026-09-25): FilthE hasn't knocked a door or run a claim yet and will learn; plan is foundation
+first (D11 answered No: no build freeze), so build tools that also teach him sales and claims.
+**Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
+homeowners AND subbing for insurance restoration companies.
+**Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
+hail maps.
+
 ## This is the base copy
 This folder (`~/Documents/HailHunter`) is the base codebase - full-featured, runs locally on this
 Mac with pip-installed dependencies (numpy, pandas, matplotlib, openpyxl, flask). Cowork's cloud

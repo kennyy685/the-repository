@@ -136,6 +136,13 @@ CREATE TABLE IF NOT EXISTS wind_obs (      -- T6: wind damage reports, separate 
 CREATE TABLE IF NOT EXISTS door_status (   -- pipeline status per building, keyed by pid (survives list regens)
     pid TEXT PRIMARY KEY, status TEXT, contact_name TEXT, contact_phone TEXT, notes TEXT, updated_utc TEXT
 );
+CREATE TABLE IF NOT EXISTS acs_mortgage (       -- Census ACS B25081: owner homes with/without a mortgage (T23)
+    geoid TEXT PRIMARY KEY, total INTEGER, with_mortgage INTEGER, vintage TEXT
+);
+CREATE TABLE IF NOT EXISTS door_list_turfs (    -- Hot Zones: chance-of-a-sale per walk (T23)
+    list_id TEXT, turf INTEGER, heat REAL, why TEXT, exp_inspections REAL, parts TEXT,
+    PRIMARY KEY (list_id, turf)
+);
 CREATE TABLE IF NOT EXISTS commercial_targets (   -- last `hh.py commercial` run, one row per building (JSON)
     pid TEXT PRIMARY KEY, run_utc TEXT, data TEXT
 );

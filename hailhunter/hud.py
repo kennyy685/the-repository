@@ -30,6 +30,8 @@ def _neighborhoods(conn, cfg, since, limit=60):
     lists_by_day = {}
     for L in conn.execute("SELECT * FROM door_lists").fetchall():
         lists_by_day.setdefault(L["conv_day"], []).append(L)
+    from .nbhd import mortgage_shares
+    mort = mortgage_shares(conn)
     out = []
     for h in rows:
         cand = [L for L in lists_by_day.get(h["conv_day"], [])
@@ -60,6 +62,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
             "hail_avg": h["hail_in"],
             "homes": hu, "homes_hit": round(hu * (h["frac_ge_1"] or 0)),
             "owner_occ": h["owner_share"], "median_built": h["med_year"], "score": h["score"],
+            "mortgage_share": round(mort[h["geoid"]], 3) if h["geoid"] in mort else None,
             "lat": h["lat"], "lon": h["lon"], "list_id": list_id, "turfs": turfs, "first_stop": first_stop,
         })
     return out
@@ -125,9 +128,45 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
-def build(conn, cfg, max_turfs=20, max_targets=80):
+def _lists(conn, max_turfs):
+    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks."""
+    lists = []
+    heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
+    for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
+        turfs = []
+        for t in conn.execute("""SELECT turf, COUNT(*) n, AVG(hail_in) h, SUM(score) v FROM door_list_stops
+                                 WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
+            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2), "value": round(t["v"])})
+        for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
+            z = heat.get((L["list_id"], t["turf"]))
+            if z:
+                t.update({"heat": z["heat"], "why": json.loads(z["why"] or "[]"), "exp_inspections": z["exp_inspections"]})
+        stops = [dict(r) for r in conn.execute(
+            """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
+                      p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
+                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year
+               FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
+               WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
+        for s in stops:
+            s["sold_after_storm"] = bool(s["sold_after_storm"])
+        streets = {}
+        for s in stops:
+            streets.setdefault(s["turf"], {})
+            st = " ".join(s["address"].split()[1:])
+            streets[s["turf"]][st] = streets[s["turf"]].get(st, 0) + 1
+        for t in turfs:
+            if t["turf"] in streets:
+                t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
+        lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
+                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"]})
+    return lists
+
+
+def build(conn, cfg, max_turfs=None, max_targets=80):
     tz = ZoneInfo(cfg["timezone"])
     today = datetime.now(tz).date()
+    if max_turfs is None:
+        max_turfs = cfg.get("hot_zones", {}).get("max_turfs", 40)
 
     def one(sql, *a):
         r = conn.execute(sql, a).fetchone()
@@ -154,27 +193,7 @@ def build(conn, cfg, max_turfs=20, max_targets=80):
                   size_basis AS basis, n_ground + n_official AS reports, n_radar AS radar, score, is_rural AS rural,
                   place_hu AS homes, local_time
            FROM hail_hits WHERE conv_day >= ? AND score >= 5 ORDER BY score DESC LIMIT 160""", (since,))]
-    lists = []
-    for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
-        turfs = []
-        for t in conn.execute("""SELECT turf, COUNT(*) n, AVG(hail_in) h, SUM(score) v FROM door_list_stops
-                                 WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
-            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2), "value": round(t["v"])})
-        stops = [dict(r) for r in conn.execute(
-            """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
-                      p.year_built AS built, p.lat, p.lon
-               FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
-               WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
-        streets = {}
-        for s in stops:
-            streets.setdefault(s["turf"], {})
-            st = " ".join(s["address"].split()[1:])
-            streets[s["turf"]][st] = streets[s["turf"]].get(st, 0) + 1
-        for t in turfs:
-            if t["turf"] in streets:
-                t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
-        lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
-                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"]})
+    lists = _lists(conn, max_turfs)
     targets = []
     files = sorted(glob.glob(os.path.join(cfg["paths"]["export"], "lists", "apartments_commercial_*.csv")))
     scout = {}
@@ -202,6 +221,8 @@ def build(conn, cfg, max_turfs=20, max_targets=80):
     neighborhoods = _neighborhoods(conn, cfg, since)
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
+    from . import watch
+    watch_hits = watch.watch_hits(conn, cfg, watch.load_watch_list(cfg))
     agents = []
     for a in AGENTS:
         last = {"storm_watch": counts["last_ingest_utc"], "swath_mapper": counts["last_swath_utc"],
@@ -212,13 +233,22 @@ def build(conn, cfg, max_turfs=20, max_targets=80):
         agents.append({**a, "last_run_utc": last, **({"schedule": extra} if extra else {})})
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
-            "neighborhoods": neighborhoods, "wind_events": wind_events, "agents": agents}
+            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents}
 
 
-def write(conn, cfg, path=None):
+def write(conn, cfg, path=None, max_bytes=None):
+    """Writes hud.json. More walks carry stops now (Hot Zones); if that pushes the file past the size cap, fewer do."""
     path = path or os.path.join(cfg["paths"]["export"], "hud.json")
-    data = build(conn, cfg)
+    hz = cfg.get("hot_zones", {})
+    max_bytes = max_bytes or hz.get("max_hud_mb", 6.0) * 1e6
+    data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
+    text = json.dumps(data, separators=(",", ":"))
+    for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
+        if len(text) <= max_bytes:
+            break
+        data["lists"] = _lists(conn, n)
+        text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
-        json.dump(data, f, separators=(",", ":"))
+        f.write(text)
     os.replace(path + ".tmp", path)
     return path, data
