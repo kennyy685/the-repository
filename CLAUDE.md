@@ -56,6 +56,8 @@ of making him repeat it next time.
 **Answered already (don't re-ask):** Fremont, NE base; storms scanned within 250 mi, door lists
 within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far; ads parked; no
 mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
+**AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
+- read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
 **Answered 2026-09-26:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
