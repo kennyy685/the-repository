@@ -74,6 +74,12 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   `ai` {en,es,link}. Every sentence in both English and Spanish.
 **AI hub (task board + the King's orders):** HailHunter Crew HQ, https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU
 - read its database docs `board/current` and `system/king` (Artifact/ArtifactData tools) for current tasks.
+- Since 2026-09-25: `board/current` in Crew HQ is the SOURCE OF TRUTH for tasks (update it directly,
+  stamping `updatedAt` + `updatedBy`; BOARD.md only mirrors it). FilthE answers the "waiting on you"
+  questions with buttons on the board: his answers land in the `answers` collection (+ an event to the
+  King); act on them, then drop answered items from `board.waiting`. `system/memory` {facts[], updatedAt,
+  updatedBy} is the short shared-memory panel. Post to `events` with {agent, at, kind, to, lane, room,
+  status, task, text}; a handoff shows "picked up" once the receiver checks in after it.
 **Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
