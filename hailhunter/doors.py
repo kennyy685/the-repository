@@ -230,7 +230,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
             last = 5 + turf["doors"]
             rc = get_column_letter(COLS[1:16].index("Result") + 1)       # the Result column on turf sheets
             ws.cell(row=r, column=6, value=f"=COUNTA({sh}!{rc}6:{rc}{last})").font = Font(name=F)
-            ws.cell(row=r, column=7, value=f'=COUNTIF({sh}!{rc}6:{rc}{last},"Lead")'
+            ws.cell(row=r, column=7, value=f'=COUNTIF({sh}!{rc}6:{rc}{last},"Interested")'
                                            f'+COUNTIF({sh}!{rc}6:{rc}{last},"Inspection set")').font = Font(name=F)
             link = ws.cell(row=r, column=8, value=f"Turf {t}")
             link.hyperlink = f"#'Turf {t}'!A1"
@@ -250,7 +250,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
         "Example: Result = Inspection set | Name = Maria | Phone = 402-555-0100 | Notes = dented gutters, wants Tue 5pm | Follow-up = 6/18",
         "Score = how promising the house is (hail size at the house, how recent, home age, owner-occupied area, distance).",
         "Flag 'Sold ... (after storm)': the new owner may not be able to claim storm damage from before they bought. Ask politely.",
-        "RULES: carry your Fremont solicitor permit; skip 'No Soliciting' homes; never promise insurance will pay; the homeowner decides whether to file.",
+        "RULES: carry this town's solicitor permit (each town needs its own); skip 'No Soliciting' homes; never promise insurance will pay; the homeowner decides whether to file.",
         "Hail at each house is an estimate (NOAA radar corrected with ground reports, about 1 km detail). Always inspect before quoting.",
         "Addresses: Nebraska Statewide Parcels (county assessors). Hail: NOAA MRMS + NWS storm reports.",
     ]

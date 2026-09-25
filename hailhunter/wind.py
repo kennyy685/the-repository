@@ -39,16 +39,22 @@ def parse(content, cfg):
             valid = parse_utc(p["valid"])
         except (TypeError, ValueError, KeyError, IndexError):
             continue
-        speed_kt = None
+        speed_kt = speed_mph = None
         try:
-            speed_kt = float(p.get("magnitude"))
+            mag = float(p.get("magnitude"))
         except (TypeError, ValueError):
-            pass  # damage-only reports often carry no numeric gust - still a real, useful signal
+            mag = None  # damage-only reports often carry no numeric gust - still a real, useful signal
+        if mag:
+            # IEM gives the unit per report: land gusts come in MPH, marine ones in knots.
+            if str(p.get("unit") or "MPH").strip().upper().startswith("K"):
+                speed_kt, speed_mph = mag, round(mag * KT_TO_MPH, 1)
+            else:
+                speed_kt, speed_mph = round(mag / KT_TO_MPH, 1), mag
         src = p.get("source") or ""
         out.append({
             "uid": f"wind:{valid:%Y%m%d%H%M}:{lat:.3f}:{lon:.3f}",
             "source": "lsr", "valid_utc": valid, "lat": lat, "lon": lon,
-            "speed_kt": speed_kt, "speed_mph": round(speed_kt * KT_TO_MPH, 1) if speed_kt else None,
+            "speed_kt": speed_kt, "speed_mph": speed_mph,
             "report_kind": "gust" if "GST" in typetext else ("damage" if "DMG" in typetext else "wind"),
             "city": p.get("city") or "", "county": p.get("county") or "",
             "state": p.get("st") or p.get("state") or "", "remark": (p.get("remark") or "").strip(),
@@ -79,6 +85,7 @@ def ingest(conn, fetcher, cfg, start=None, end=None, budget_s=None, log=print):
     t0 = time.monotonic()
     st = {"requests": 0, "parsed": 0, "kept": 0, "new": 0, "updated": 0, "errors": []}
     status, reached, touched = "ok", iso(end), set()
+    first_failed = None          # resume from the earliest failed window, so a failed download gets retried
     began = iso(now)
     for url, ttl, chunk_start in urls(cfg, start, end):
         if budget_s and time.monotonic() - t0 > budget_s:
@@ -91,6 +98,7 @@ def ingest(conn, fetcher, cfg, start=None, end=None, budget_s=None, log=print):
             continue
         except Exception as e:
             st["errors"].append(f"{type(e).__name__}: {str(e)[:160]}")
+            first_failed = first_failed or max(chunk_start, start)
             continue
         try:
             obs = parse(content, cfg)
@@ -105,6 +113,10 @@ def ingest(conn, fetcher, cfg, start=None, end=None, budget_s=None, log=print):
         st["new"] += n
         st["updated"] += u
         touched |= days
+    if first_failed is not None:
+        if status == "ok":
+            status = "partial" if st["requests"] > len(st["errors"]) else "failed"
+        reached = min(reached, iso(first_failed))
     db.log_run(conn, "wind", began, start, end, reached, st, status)
     log(f"  wind         {status:10} requests={st['requests']:<5} new={st['new']:<5} updated={st['updated']}")
     return touched, st

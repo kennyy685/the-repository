@@ -32,6 +32,7 @@ sys.path.insert(0, HERE)
 
 from hailhunter import analyze, config, db, ingest, report  # noqa: E402
 from hailhunter.http import Fetcher  # noqa: E402
+from hailhunter.models import parse_utc  # noqa: E402
 
 
 def _day(s, plus=0):
@@ -63,20 +64,35 @@ def refresh(conn, fetcher, cfg, log=print):
     t0 = datetime.now(timezone.utc)
     if not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
         log("First run: loading towns, neighborhoods and Census housing...")
-        from hailhunter import nbhd as nbhd_init
         from hailhunter.sources import places
         places.load(conn, fetcher, cfg)
-        nbhd_init.load_acs(conn, fetcher, cfg)
-        nbhd_init.load_bgs(conn, fetcher, cfg)
-        nbhd_init.label_bgs(conn, cfg)
+        nbhd.load_acs(conn, fetcher, cfg)
+        nbhd.load_bgs(conn, fetcher, cfg)
+        nbhd.label_bgs(conn, cfg)
     before = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
     touched, _ = ingest.run(conn, fetcher, cfg, log=log)
     analyze.analyze(conn, cfg, days=sorted(touched))
+    try:                                   # REQ-4: wind rides along, so Storm Watch needs no separate step
+        from hailhunter import wind
+        wind.ingest(conn, fetcher, cfg, log=log)
+    except Exception as e:                 # wind is informational; never let it stop the hail run
+        log(f"  wind skipped: {type(e).__name__}: {e}")
     from hailhunter import mrms
     done, _, errs = mrms.run(conn, fetcher, cfg, None, None, log)
-    todo = done
+    have = {r[0] for r in conn.execute("SELECT conv_day FROM swaths")}
+    # Re-measure days with a new radar map AND days whose ground reports changed: late spotter reports
+    # and NCEI's official records (months later) correct the radar map around them (fusion).
+    todo = set(done) | (set(touched) & have)
+    # Calibrate BEFORE measuring (every map is scaled by the factor), and redo it monthly as reports pile up.
+    cal = db.get_meta(conn, "mesh_calibration")
+    if done and (not cal or datetime.now(timezone.utc) - parse_utc(cal["computed_utc"]) >= timedelta(days=30)):
+        res = nbhd.calibrate(conn, cfg, log)
+        if res:
+            log(f"Radar calibration: x{res['factor']} from {res['pairs']} reports")
+            if abs(res["factor"] - (cal["factor"] if cal else 1.0)) >= 0.02:
+                todo = have                # factor moved: every stored map needs re-measuring
     index = None
-    for d in todo:
+    for d in sorted(todo):
         if index is None:
             _, meta = mrms.load_grid(cfg, d)
             if meta is None:
@@ -84,11 +100,6 @@ def refresh(conn, fetcher, cfg, log=print):
             index = nbhd.cell_index(conn, cfg, meta)
         nbhd.measure_day(conn, cfg, d, index)
     nbhd.rescore(conn, cfg)
-    if done and not db.get_meta(conn, "mesh_calibration"):
-        res = nbhd.calibrate(conn, cfg, log)
-        if res:
-            log(f"Radar calibration: x{res['factor']} from {res['pairs']} reports")
-    analyze.rescore_all(conn, cfg) if hasattr(analyze, "rescore_all") else None
     lists = []
     for day, town in pick_door_lists(conn, cfg):
         try:

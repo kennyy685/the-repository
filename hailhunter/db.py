@@ -182,6 +182,13 @@ def connect(path):
     conn.executescript(SCHEMA)
     _add_col(conn, "places", "hu", "INTEGER")          # housing units (ACS), added in step 2
     _add_col(conn, "hail_hits", "place_hu", "INTEGER")
+    if not conn.execute("SELECT 1 FROM meta WHERE key='wind_mph_fix'").fetchone():
+        # Older wind.py read every gust as knots, but IEM sends land gusts in MPH: the raw number sat in
+        # speed_kt and speed_mph came out ~15% high. Marine reports really are knots, so they stay as-is.
+        conn.execute("""UPDATE wind_obs SET speed_mph = speed_kt, speed_kt = ROUND(speed_kt / 1.15078, 1)
+                        WHERE speed_kt IS NOT NULL
+                          AND COALESCE(json_extract(extra, '$.typetext'), '') NOT LIKE 'MARINE%'""")
+        conn.execute("INSERT INTO meta VALUES ('wind_mph_fix', 'true')")
     conn.execute("INSERT OR IGNORE INTO meta VALUES ('schema_version', ?)", (str(SCHEMA_VERSION),))
     conn.commit()
     return conn
