@@ -10,11 +10,14 @@ with ToolSearch if it is deferred). Prefer one `batch` for several writes. Times
 `YYYY-MM-DDTHH:MM:SSZ`.
 
 ## Agent ids (use exactly)
-`king`, `cowork`, `storm-watch`, `scout`, `sales-coach`, `code` (Claude Code, Mac or cloud),
-`engine-mechanic`, `qa-tester`, `hub-keeper`. FilthE's own answers use `you`.
-Research Scouts get one robot each per round: `set` `agents/scout-<topic>` with `{name: "Scout: <Topic>",
-lane: "code", kind: "temp", boss: "hub-keeper", room: "data", role, status, doing, task, at}`; set it to
-`done` when its report is in (temp robots leave the office on their own a couple of hours later).
+`king`, `cowork`, `storm-watch`, `scout`, `sales-coach`, `code` (Claude Code, Mac or cloud), and
+Code's 5 main helpers: `engine-mechanic`, `builder`, `designer`, `hub-keeper` (shown as "Research
+Lead"), `qa-tester`. FilthE's own answers use `you`.
+One-off helpers get their own temp robot under a main helper: `set` `agents/<boss>-<topic>` style ids
+(`scout-<topic>` under `hub-keeper`, `builder-<topic>` under `builder`, `designer-<topic>` under
+`designer`) with `{name: "<Role>: <Topic>", lane: "code", kind: "temp", boss: "<main helper id>", room,
+role, status, doing, task, at}`; set it to `done` when its work is in. Idle and done robots hang out
+in the lounge; temp robots leave the office 3 days after their last update.
 
 ## Check in / check out
 - `update` `agents/<id>`: `{status, room, doing, task, at}`.

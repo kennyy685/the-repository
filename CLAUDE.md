@@ -73,9 +73,12 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   hot[] {address,stage,next}, doors_logged, calls_logged, link}; `jobs[]` {name, scope_en, scope_es,
   progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
   `ai` {en,es,link}. Every sentence in both English and Spanish.
-**Claude Code's helpers (in this repo, `.claude/`):** sub-agents `engine-mechanic` (engine code),
-`qa-tester` (reviews + tests, cheaper model), `hub-keeper` (Research Lead + Crew HQ / HMP HQ upkeep,
-cheaper model) and its team of `improvement-scout`s (web research, one topic each, run in parallel);
+**Claude Code's helpers (in this repo, `.claude/`):** 5 main helpers (FilthE, 2026-09-25: a few main
+roles, one-off helpers under them): `engine-mechanic` (engine code), `builder` (Claude pages and
+tools: Crew HQ, HMP HQ, Practice Door, Claim Tracker), `designer` (print pieces, brand look, page
+design; makes 2-3 options for FilthE to pick), `hub-keeper` = the **Research Lead** (id kept for Crew
+HQ history; cheaper model) with its team of `improvement-scout`s (web research, one topic each, run in
+parallel), and `qa-tester` (reviews + tests everything before it ships, cheaper model);
 skills `engine-change` (safe engine edits), `crew-checkin` (posting to Crew HQ), `refresh-hmp-hq`,
 `improvement-research` (research method + report format). FilthE wants regular research rounds: he
 worries about missing areas or focusing on the wrong things. Research rounds go to `docs/research/`.
@@ -93,6 +96,8 @@ They show in Crew HQ's Code lab. Keep the crew small: add a helper only for work
   Cowork/Code (events `...-king-o<n>`) and add memory. Its replies are events `...-king-live`; the
   scheduled King treats them as its own decisions. FilthE has his door-to-door permits (don't ask again).
 **Research:** rounds live in `docs/research/`. Round 1 (2026-09-25): knocking, not software, is the bottleneck.
+Round 2 (2026-09-25): FilthE hasn't knocked a door or run a claim yet and will learn; plan is foundation
+first (D11 answered No: no build freeze), so build tools that also teach him sales and claims.
 **Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
