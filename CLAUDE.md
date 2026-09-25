@@ -24,7 +24,8 @@ Crew HQ becomes the **HMP App** (same link; Today / Leads / Money / Crew tabs, o
 becomes the one inbox that logs leads, doors and claims. Work them in order; the price sheet (T51) comes from
 FilthE and the boss. **Top priority inside the app: O0 "Today's knock"**: one area a day, houses only in walking
 order, one tap per door (Not home / No / Interested / Booked). FilthE finds the command center too messy to use
-for this.
+for this. **Long-term (FilthE, 2026-09-25):** he may sell the HMP App to other roofers someday, so build it clean
+enough to become a product (research round 4 covers this).
 
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
