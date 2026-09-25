@@ -12,7 +12,7 @@ import io
 import json
 import os
 import zipfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -70,6 +70,7 @@ def load_acs(conn, fetcher, cfg, log=print):
     if not vintage:
         raise RuntimeError("Could not load ACS housing tables")
     load_mortgages(conn, fetcher, want, vintage, log)
+    load_year_built(conn, fetcher, tuple(w for w in want if w.startswith("1500000")), vintage, log)
     out = []
     for g, r in rows.items():
         level = "bg" if g.startswith("1500000") else "place"
@@ -112,6 +113,80 @@ def load_mortgages(conn, fetcher, want, vintage, log=print):
 def mortgage_shares(conn):
     """{block group geoid: share of owner homes with a mortgage}."""
     return {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
+
+
+YEAR_BINS = ("b2020", "b2010", "b2000", "b1990", "b1980", "b1970", "b1960", "b1950", "b1940", "b1939")   # B25034_E002..E011
+
+
+def load_year_built(conn, fetcher, want, vintage, log=print):
+    """ACS B25034 (homes by decade built) per block group, for everyday leads (T50).
+    Optional, like B25081: a missing table never stops a run. Every try is stamped in meta."""
+    from .db import set_meta
+    stamp = {"tried_utc": iso(datetime.now(timezone.utc)), "vintage": vintage, "rows": 0}
+    try:
+        txt = fetcher.get(ACS_DIR.format(y=vintage, t="b25034"), ttl=None, cache=False).decode("utf-8", "replace")
+        lines = txt.splitlines()
+        head = lines[0].split("|")
+        ix = [head.index(f"B25034_E{k:03d}") for k in range(1, 12)]
+        out = []
+        for ln in lines[1:]:
+            if not ln.startswith(want):
+                continue
+            f = ln.split("|")
+            try:
+                v = [int(float(f[i])) for i in ix]
+            except (ValueError, IndexError):
+                continue
+            if min(v) >= 0:
+                out.append((f[0].split("US", 1)[1], *v, vintage))
+    except Exception as e:
+        log(f"  ACS {vintage} year built (B25034) not available ({type(e).__name__}); using median year instead")
+        set_meta(conn, "acs_year_built", stamp)
+        return 0
+    conn.execute("DELETE FROM acs_year_built")
+    conn.executemany("INSERT INTO acs_year_built (geoid, total, " + ", ".join(YEAR_BINS) + ", vintage) VALUES ("
+                     + ",".join("?" * 13) + ")", out)
+    conn.commit()
+    set_meta(conn, "acs_year_built", {**stamp, "rows": len(out)})
+    return len(out)
+
+
+def ensure_year_built(conn, fetcher, cfg, log=print):
+    """Databases from before T50 never loaded B25034 (a first run's load_acs does). Try it, at most every
+    `everyday.retry_days`, never offline. Optional: returns 0 instead of raising."""
+    from .db import get_meta
+    from .models import parse_utc
+    if getattr(fetcher, "offline", False) or conn.execute("SELECT 1 FROM acs_year_built LIMIT 1").fetchone() \
+            or not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
+        return 0
+    last = get_meta(conn, "acs_year_built")
+    wait = timedelta(days=cfg.get("everyday", {}).get("retry_days", 7))
+    if last and datetime.now(timezone.utc) - parse_utc(last["tried_utc"]) < wait:
+        return 0
+    r = conn.execute("SELECT vintage FROM acs WHERE level='bg' AND vintage IS NOT NULL LIMIT 1").fetchone()
+    want = tuple(f"1500000US{FIPS[s]}" for s in cfg["states"])
+    for v in ([r[0]] if r else ["2024", "2023"]):
+        n = load_year_built(conn, fetcher, want, v, log)
+        if n:
+            return n
+    return 0
+
+
+def year_shares(row, before=None, since=None):
+    """Share of a block group's homes built before `before` (or since `since`) from its B25034 decades.
+    A decade that straddles the year counts in proportion. None when the row has no homes."""
+    if not row or not row["total"]:
+        return None
+    spans = [(2020, 2029), (2010, 2019), (2000, 2009), (1990, 1999), (1980, 1989), (1970, 1979), (1960, 1969),
+             (1950, 1959), (1940, 1949), (1900, 1939)]
+    n = 0.0
+    for col, (y0, y1) in zip(YEAR_BINS, spans):
+        v = row[col] or 0
+        if before is not None:
+            n += v if y1 < before else (v * (before - y0) / (y1 - y0 + 1) if y0 < before else 0)
+        else:
+            n += v if y0 >= since else (v * (y1 + 1 - since) / (y1 - y0 + 1) if y1 >= since else 0)
+    return min(1.0, n / row["total"])
 
 
 # ------------------------------------------------------------------ block group shapes (TIGER)

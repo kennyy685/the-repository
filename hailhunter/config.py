@@ -84,6 +84,32 @@ DEFAULTS = {
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
     },
+    # Everyday leads (T50): old-house neighborhoods for regular siding/roof replacement, no storm needed.
+    # heat 0-100 per walk = 100 x old x owners x value x distance x settled x newbuild
+    "everyday": {
+        "radius_mi": 40,            # search this far around the --near town (default: home base)
+        "old_before": 1980,         # an 'old home' was built before this year
+        "old_floor": 0.2,           # old = old_floor + (1 - old_floor) x share of old homes
+        "old_unknown": 0.6,         # old factor when neither parcels nor the Census know the ages
+        "median_spread_years": 20,  # no age breakdown: share old ~ 0.5 - (median year - old_before) / (2 x this)
+        "age_curve": [[1940, 1.0], [1979, 1.0], [1995, 0.75], [2005, 0.5], [2015, 0.25], [2025, 0.1]],  # one house
+        "owner_floor": 0.3, "owner_unknown": 0.65,
+        # typical home value -> factor: enough value to reinvest in, but not luxury
+        "value_curve": [[60000, 0.5], [110000, 0.85], [150000, 1.0], [350000, 1.0], [500000, 0.8], [800000, 0.6]],
+        "value_unknown": 0.9,
+        "distance_curve": [[0, 1.0], [15, 1.0], [40, 0.8], [80, 0.6]],   # miles from home base
+        "recent_sale_years": 2, "sold_penalty": 0.3,   # settled = 1 - sold_penalty x share bought in the last N years
+        "new_since": 2010, "new_penalty": 0.5,         # newbuild = 1 - new_penalty x share built since new_since
+        "min_homes": 150,           # skip neighborhoods with fewer homes than this
+        "skip_rural": True,         # skip 'Rural near ...' block groups (farms: too far between doors)
+        "kinds": ["single", "mobile", "multi"],
+        "turf_size": 60,
+        "inspect_rate": 0.01,       # prior: estimates per home knocked at heat 50 (lower than storm walks; tune)
+        "refresh_lists": 3,         # `refresh` builds this many everyday lists
+        "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
+        "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
+        "retry_days": 7             # retry a failed Census year-built (B25034) download after this many days
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
