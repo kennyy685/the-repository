@@ -32,7 +32,8 @@ of making him repeat it next time.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5
   buildings: tear-off above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look
   accents, caulk). Its live job board and a general job tracker were built in other Claude chats.
-- **The boss** owns and runs it and speaks Spanish. **FilthE** is his right-hand man: translates, runs
+- **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
+  402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
   the AI/organization side, is the only one building this system, and does all the insurance sales.
 - **New goal: insurance restoration** (hail, wind, fallen trees). This is the new part: selling
   direct to homeowners, buying materials, adjusters, waiting on insurance checks.
@@ -91,6 +92,7 @@ They show in Crew HQ's Code lab. Keep the crew small: add a helper only for work
   open, "King (live)" replies in seconds and may close/add questions, change tasks, send orders to
   Cowork/Code (events `...-king-o<n>`) and add memory. Its replies are events `...-king-live`; the
   scheduled King treats them as its own decisions. FilthE has his door-to-door permits (don't ask again).
+**Research:** rounds live in `docs/research/`. Round 1 (2026-09-25): knocking, not software, is the bottleneck.
 **Answered 2026-09-25:** registered and insured for roofing work: yes. Path: **both** - direct to
 homeowners AND subbing for insurance restoration companies.
 **Still unknown (ask once, then record here):** max travel distance for crews; any budget for paid
