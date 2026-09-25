@@ -54,8 +54,10 @@ def _neighborhoods(conn, cfg, since, limit=60):
         hu = h["hu"] or 0
         out.append({
             "id": h["geoid"], "label": h["label"] or h["geoid"], "town": h["place_name"], "state": h["state"],
-            "day": h["conv_day"], "hail": h["hail_in"],
-            "hail_avg": h["mesh_p75_in"] if h["mesh_p75_in"] else h["hail_in"],
+            # hail = max fused hail in the block group; hail_avg = typical (75th percentile), per the T16 spec.
+            # nbhd_hits.hail_in is the 75th percentile too, so it can't stand in for the max.
+            "day": h["conv_day"], "hail": h["mesh_max_in"] if h["mesh_max_in"] is not None else h["hail_in"],
+            "hail_avg": h["hail_in"],
             "homes": hu, "homes_hit": round(hu * (h["frac_ge_1"] or 0)),
             "owner_occ": h["owner_share"], "median_built": h["med_year"], "score": h["score"],
             "lat": h["lat"], "lon": h["lon"], "list_id": list_id, "turfs": turfs, "first_stop": first_stop,

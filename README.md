@@ -18,7 +18,7 @@ turns them into street-by-street door lists and tracks every door through to a f
 5. Scheduled agent: checks every morning and alerts you after 1"+ hail.
 
 ## Setup (once)
-    python3 -m pip install --user numpy pandas requests pillow matplotlib openpyxl flask
+    python3 -m pip install --user -r requirements.txt
 
 ## Commands (run inside this folder)
     python3 hh.py init        # load towns, neighborhoods, Census housing - once

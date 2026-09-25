@@ -77,13 +77,13 @@ genuinely missing there.
   and then bundled out to the cloud, per the shared desk's ownership rules in `~/2026/CLAUDE.md`.
 
 ## Scoring (short)
-- Hail at each house = radar (MRMS MESH x calibration, factor recalculated per region) corrected
-  locally by nearby trusted ground reports.
+- Hail at each house = radar (MRMS MESH x one region-wide calibration factor, recomputed by `refresh`
+  every 30 days) corrected locally by nearby trusted ground reports.
 - House score = size x recency x distance x roof age x building type x owner-occupied x
   sold-after-storm flag.
 - Size: 1" = 0.40, 2" = 0.93. Recency: full to 45 days, 0.4 at 1 yr. Distance: full to 30 mi.
-- Wind damage is not yet scored (T6, planned) - engine is hail-only right now even though the same
-  NOAA source carries wind reports too.
+- Wind (T6): `refresh` also pulls NWS wind reports into `wind_obs` and hud.json's `wind_events`
+  (gusts in mph, own score). Informational only: door lists and neighborhood scores stay hail-only.
 
 ## Hard rules (legal and ethical) - see also `~/2026/CLAUDE.md`
 - **Nebraska 44-8604:** never offer, advertise or imply covering, waiving or rebating an insurance

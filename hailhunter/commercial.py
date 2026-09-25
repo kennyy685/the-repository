@@ -4,10 +4,9 @@ hail at the building x job size x how recent x distance. One signed deal can equ
 Owner names (public record) are added where the county publishes them openly
 (Douglas / Omaha, Sarpy, Lancaster / Lincoln). Other counties: look up by the assessor link."""
 import csv
-import json
 import os
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -156,7 +155,6 @@ def write(out, cfg, title, subtitle):
     from openpyxl.utils import get_column_letter
     from openpyxl.worksheet.datavalidation import DataValidation
 
-    folder = os.path.join(cfg["paths"]["export"], "lists")
     csv_path = write_csv(out, cfg)
     stem = csv_path[: -len(".csv")]
     F, head = "Arial", PatternFill("solid", fgColor="1C5CAB")
@@ -204,10 +202,6 @@ def write(out, cfg, title, subtitle):
     ws.sheet_properties.pageSetUpPr.fitToPage = True
 
     g = wb.create_sheet("How to use")
-    lines = [
-        ("Pipeline", True),
-        ("", False),
-    ]
     g["A1"] = "Pipeline (updates as you change Status on the Targets sheet)"
     g["A1"].font = Font(name=F, size=12, bold=True)
     for k, s in enumerate(STATUS, 3):
@@ -222,7 +216,7 @@ def write(out, cfg, title, subtitle):
         "4. Pitch: 'Your property was in the hail path on <storm date> (about <hail> inch hail per NOAA radar). We're a local "
         "Fremont siding & roofing company; we do apartments already. Can we do a free inspection and a written report?'",
         "5. Fill in the yellow columns; the pipeline counts above update themselves.",
-        "Example: Status = Meeting set | Contact = Jen (property manager) | Phone = 402-555-0100 | Notes = walk roof Thu 9am",
+        "Example: Status = Inspection set | Contact = Jen (property manager) | Phone = 402-555-0100 | Notes = walk roof Thu 9am",
         "Commercial claims and property manager approvals take longer than homes. Keep following up.",
         "Hail at building = NOAA MRMS radar corrected with ground reports (about 1 km detail). Always inspect before quoting.",
         "Sources: Nebraska Statewide Parcels; Douglas County GIS (owner public record); NOAA MRMS; NWS storm reports.",

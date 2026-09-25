@@ -1,0 +1,10 @@
+# Needed by `hh.py refresh` (the daily Storm Watch run)
+numpy
+pandas
+requests
+pillow
+matplotlib
+
+# Optional: .xlsx door/commercial sheets (CSV is written without it) and the local `serve` tracker
+openpyxl
+flask
