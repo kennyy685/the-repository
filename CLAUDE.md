@@ -74,7 +74,7 @@ mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
   progress, buildings[] {name,progress,crew,updated_at,flag?{sev,en,es}}, link}; `crews[]` {names,job,where};
   `ai` {en,es,link}. Every sentence in both English and Spanish.
 **Claude Code's helpers (in this repo, `.claude/`):** 5 main helpers (FilthE, 2026-09-25: a few main
-roles, one-off helpers under them): `engine-mechanic` (engine code), `builder` (Claude pages and
+roles; one-off helpers work under them and get no robot of their own in Crew HQ): `engine-mechanic` (engine code), `builder` (Claude pages and
 tools: Crew HQ, HMP HQ, Practice Door, Claim Tracker), `designer` (print pieces, brand look, page
 design; makes 2-3 options for FilthE to pick), `hub-keeper` = the **Research Lead** (id kept for Crew
 HQ history; cheaper model) with its team of `improvement-scout`s (web research, one topic each, run in

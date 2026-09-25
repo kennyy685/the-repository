@@ -13,11 +13,9 @@ with ToolSearch if it is deferred). Prefer one `batch` for several writes. Times
 `king`, `cowork`, `storm-watch`, `scout`, `sales-coach`, `code` (Claude Code, Mac or cloud), and
 Code's 5 main helpers: `engine-mechanic`, `builder`, `designer`, `hub-keeper` (shown as "Research
 Lead"), `qa-tester`. FilthE's own answers use `you`.
-One-off helpers get their own temp robot under a main helper: `set` `agents/<boss>-<topic>` style ids
-(`scout-<topic>` under `hub-keeper`, `builder-<topic>` under `builder`, `designer-<topic>` under
-`designer`) with `{name: "<Role>: <Topic>", lane: "code", kind: "temp", boss: "<main helper id>", room,
-role, status, doing, task, at}`; set it to `done` when its work is in. Idle and done robots hang out
-in the lounge; temp robots leave the office 3 days after their last update.
+One-off helpers (scouts, extra builders) do NOT get their own robot (FilthE: keep the office small).
+Put their work in their main helper's `doing`, e.g. Research Lead: "4 scouts out: doors, claims,
+leads, blind spots". The Code lab shows only Claude Code + the 5 main helpers.
 
 ## Check in / check out
 - `update` `agents/<id>`: `{status, room, doing, task, at}`.
