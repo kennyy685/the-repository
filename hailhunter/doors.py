@@ -396,7 +396,9 @@ def _hull(pts):
     return lower[:-1] + upper[:-1]
 
 
-def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
+def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15, dots=None, turf_line=None):
+    """Turf map. dots = {"key", "bins", "ramp", "labels", "caption"} colors the homes (default: hail at the house);
+    turf_line(turf) is the second line of each turf in the side list. Everyday lists (T50) pass their own."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -417,8 +419,14 @@ def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
                                     AND min_lat<=?""", (x0, x1, y0, y1)):
         for ring in json.loads(rings):
             ax.add_patch(MplPolygon(ring, closed=True, fill=False, lw=0.4, ec=HAIR, zorder=1))
-    ax.scatter(lons, lats, s=7, c=[h["hail_in"] for h in allh], cmap=ListedColormap(RAMP),
-               norm=BoundaryNorm(BINS, len(RAMP)), lw=0, zorder=3)
+    dots = dots or {"key": "hail_in", "bins": BINS, "ramp": RAMP,
+                    "labels": ['0.75"', '1"', '1.25"', '1.5"', '1.75"', '2"', '2.5"+'],
+                    "caption": "Each dot = one home, colored by estimated hail at that house. Outlines = turfs (walks)."}
+    turf_line = turf_line or (lambda turf: f'avg hail {turf["avg_hail"]:.2f}"  |  value {turf["value"]:.0f}')
+    cmap = ListedColormap(dots["ramp"])
+    cmap.set_bad(HAIR)                                   # unknown value (e.g. year built): a gray dot
+    ax.scatter(lons, lats, s=7, c=[np.nan if h.get(dots["key"]) is None else h[dots["key"]] for h in allh],
+               cmap=cmap, norm=BoundaryNorm(dots["bins"], len(dots["ramp"])), plotnonfinite=True, lw=0, zorder=3)
     for t, turf in enumerate(turfs[:max_turfs], 1):
         pts = [(h["lon"], h["lat"]) for h in turf["stops"]]
         hull = _hull(pts)
@@ -439,22 +447,20 @@ def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
     fig.text(0.02, 0.955, title, fontsize=15, fontweight="bold", color=INK)
     fig.text(0.02, 0.925, subtitle, fontsize=9, color=INK2)
     lg = fig.add_axes([0.05, 0.03, 0.38, 0.022])
-    for k, c in enumerate(RAMP):
+    for k, c in enumerate(dots["ramp"]):
         lg.add_patch(plt.Rectangle((k, 0), 0.94, 1, color=c))
-        lg.text(k + 0.47, -0.35, ['0.75"', '1"', '1.25"', '1.5"', '1.75"', '2"', '2.5"+'][k], ha="center", va="top",
-                fontsize=7.5, color=INK2)
-    lg.set_xlim(0, len(RAMP))
+        lg.text(k + 0.47, -0.35, dots["labels"][k], ha="center", va="top", fontsize=7.5, color=INK2)
+    lg.set_xlim(0, len(dots["ramp"]))
     lg.set_ylim(-1.3, 1)
     lg.axis("off")
-    fig.text(0.05, 0.058, "Each dot = one home, colored by estimated hail at that house. Outlines = turfs (walks).",
-             fontsize=8, color=INK2)
+    fig.text(0.05, 0.058, dots["caption"], fontsize=8, color=INK2)
     side.text(0, 1.0, "Turfs, best first", fontsize=11, fontweight="bold", color=INK, va="top")
     side.text(1.0, 1.0, "doors", fontsize=7.5, color=MUTED, va="top", ha="right")
     yy = 0.955
     for t, turf in enumerate(turfs[:max_turfs], 1):
         side.text(0, yy, f"{t:>2}", fontsize=9, fontweight="bold", color=INK, va="top")
         side.text(0.07, yy, turf["streets"][:44], fontsize=8.3, color=INK, va="top")
-        side.text(0.07, yy - 0.024, f'avg hail {turf["avg_hail"]:.2f}"  |  value {turf["value"]:.0f}', fontsize=7.4,
+        side.text(0.07, yy - 0.024, turf_line(turf), fontsize=7.4,
                   color=INK2, va="top")
         side.text(1.0, yy, str(turf["doors"]), fontsize=9, color=INK, va="top", ha="right")
         yy -= 0.061

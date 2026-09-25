@@ -18,6 +18,12 @@ before you stop.**
   you're unsure of (money, legal, anything customer-facing, deleting data); explain things in plain
   English, short - he has ADHD, keep it skimmable.
 
+## Current orders (FilthE, 2026-09-25)
+**Build orders O1-O6 are in `docs/orders/build-orders.md`** and on the Crew HQ board (T51-T60, T35). Big change:
+Crew HQ becomes the **HMP App** (same link; Today / Leads / Money / Crew tabs, one database), and the King chat
+becomes the one inbox that logs leads, doors and claims. Work them in order; the price sheet (T51) comes from
+FilthE and the boss.
+
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead

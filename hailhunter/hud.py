@@ -128,15 +128,17 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
-def _lists(conn, max_turfs):
-    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks."""
+def _lists(conn, max_turfs, table="door_lists"):
+    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks.
+    table="everyday_lists" builds the everyday (no-storm, T50) lists the same way."""
     lists = []
     heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
-    for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
+    for L in conn.execute(f"SELECT * FROM {table} ORDER BY created_utc DESC").fetchall():
         turfs = []
         for t in conn.execute("""SELECT turf, COUNT(*) n, AVG(hail_in) h, SUM(score) v FROM door_list_stops
                                  WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
-            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2), "value": round(t["v"])})
+            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2) if t["h"] is not None else None,
+                          "value": round(t["v"])})
         for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
             z = heat.get((L["list_id"], t["turf"]))
             if z:
@@ -159,6 +161,20 @@ def _lists(conn, max_turfs):
                 t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
         lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
                       "turfs": turfs, "stops": stops, "created_utc": L["created_utc"]})
+    return lists
+
+
+def _everyday_lists(conn, max_turfs):
+    """T50: door lists for old-house neighborhoods (no storm). Same shape as `lists`, plus kind/geoid/heat/why.
+    `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
+    lists = _lists(conn, max_turfs, "everyday_lists")
+    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why FROM everyday_lists")}
+    for L in lists:
+        e = extra[L["id"]]
+        L.update({"kind": "everyday", "geoid": e["geoid"], "heat": e["heat"], "why": json.loads(e["why"] or "[]")})
+        for s in L["stops"]:
+            s["sold_after_storm"] = False
+    lists.sort(key=lambda L: -(L["heat"] or 0))
     return lists
 
 
@@ -233,7 +249,8 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
         agents.append({**a, "last_run_utc": last, **({"schedule": extra} if extra else {})})
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
-            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents}
+            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
+            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10))}
 
 
 def write(conn, cfg, path=None, max_bytes=None):
@@ -243,10 +260,12 @@ def write(conn, cfg, path=None, max_bytes=None):
     max_bytes = max_bytes or hz.get("max_hud_mb", 6.0) * 1e6
     data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
     text = json.dumps(data, separators=(",", ":"))
+    ev = cfg.get("everyday", {}).get("max_turfs", 10)
     for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
         if len(text) <= max_bytes:
             break
         data["lists"] = _lists(conn, n)
+        data["everyday_lists"] = _everyday_lists(conn, max(3, min(ev, n // 3)))
         text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)
