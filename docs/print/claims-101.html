@@ -40,6 +40,8 @@ h2 { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-spacing:0.0
   color:var(--navy); margin:0 0 0.12in; display:flex; align-items:center; gap:0.09in; }
 h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:none; }
 .sec { margin-top:0.26in; }
+h2 .aside { margin-left:auto; font-family:"PT Sans"; font-weight:400; font-size:9.5pt; letter-spacing:0; text-transform:none; color:var(--muted); }
+h2 .aside b { font-family:"Oswald"; font-weight:600; font-size:10.5pt; letter-spacing:0.03em; color:var(--gold-dark); }
 
 /* timeline: two columns of four */
 .tl { display:grid; grid-template-columns:1fr 1fr; column-gap:0.38in; }
@@ -57,7 +59,7 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
 .t { font-weight:700; font-size:10.3pt; color:var(--navy); line-height:1.25; }
 .d { margin-top:0.015in; }
 
-.row { display:grid; grid-template-columns:3.05in 1fr; column-gap:0.38in; }
+.row { display:grid; grid-template-columns:2.8in 1fr; column-gap:0.36in; }
 
 /* money */
 .formula { font-family:"Oswald"; font-weight:500; font-size:8.6pt; letter-spacing:0.06em; text-transform:uppercase;
@@ -84,7 +86,7 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
 /* glossary */
 .gloss dl { margin:0; display:grid; grid-template-columns:1fr 1fr; column-gap:0.24in; row-gap:0.085in; }
 .gloss dt { font-family:"Oswald"; font-weight:600; font-size:9.5pt; letter-spacing:0.03em; color:var(--navy); line-height:1.2; }
-.gloss dt span { font-weight:500; color:var(--muted); letter-spacing:0.02em; }
+.gloss dt span { font-weight:500; font-size:8.8pt; color:var(--muted); letter-spacing:0.02em; }
 .gloss dd { margin:0.015in 0 0; font-size:8.8pt; line-height:1.3; }
 
 /* can / can't */
@@ -95,7 +97,7 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
   display:flex; align-items:center; gap:0.08in; color:var(--navy); }
 .cc h3 svg { width:0.21in; height:0.21in; flex:none; }
 .cc ul { list-style:none; margin:0; padding:0; }
-.cc li { position:relative; padding-left:0.2in; margin-bottom:0.04in; font-size:9.4pt; }
+.cc li { position:relative; padding-left:0.2in; margin-bottom:0.035in; font-size:9.2pt; }
 .cc li:last-child { margin-bottom:0; }
 .cc li::before { content:""; position:absolute; left:0; top:0.035in; width:0.11in; height:0.11in; background-size:contain; background-repeat:no-repeat; }
 .cc .can li::before { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.4l3 3 6-7' fill='none' stroke='%231C2E4A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
@@ -114,10 +116,10 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
 <section class="page" lang="en">
   <header class="top"><div>HMP Siding &amp; Roofing LLC</div><div class="kit">Claims kit 1/2 · Español al reverso</div></header>
   <h1>How an insurance claim works</h1>
-  <p class="lead">Storm to final check: usually <b>45–90 days</b>. The claim is the homeowner’s. We document the damage and build the job.</p>
+  <p class="lead">The claim belongs to the homeowner. We document the damage and build the job.</p>
 
   <section class="sec">
-    <h2>The 8 steps</h2>
+    <h2>The 8 steps <span class="aside">Storm to final check: usually <b>45–90 days</b></span></h2>
     <div class="tl">
       <ol class="steps">
         <li><div class="day">Day 1–7</div><div class="node">1</div><div class="txt"><div class="t">We inspect and show photos</div><div class="d">Free inspection. The homeowner sees date-stamped photos of the damage.</div></div></li>
@@ -148,7 +150,6 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
         <li>Checks may be made out to the homeowner <i>and</i> the mortgage company. The mortgage company signs first.</li>
         <li>No Check 2 if the policy doesn’t pay depreciation back. The insurer’s paperwork says which.</li>
       </ul>
-      <div class="law"><b>The deductible is always the homeowner’s.</b> HMP never covers, waives, rebates or discounts it.<small>Nebraska law 44-8604</small></div>
     </section>
 
     <section class="gloss">
@@ -200,10 +201,10 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
 <section class="page" lang="es">
   <header class="top"><div>HMP Siding &amp; Roofing LLC</div><div class="kit">Kit de reclamos 1/2 · English on the back</div></header>
   <h1>Cómo funciona un reclamo de seguro</h1>
-  <p class="lead">De la tormenta al último cheque: <b>de 45 a 90 días</b>. El reclamo es del dueño. Nosotros documentamos el daño y hacemos la obra.</p>
+  <p class="lead">El reclamo es del dueño de la casa. Nosotros documentamos el daño y hacemos la obra.</p>
 
   <section class="sec">
-    <h2>Los 8 pasos</h2>
+    <h2>Los 8 pasos <span class="aside">De la tormenta al último cheque: <b>45 a 90 días</b></span></h2>
     <div class="tl">
       <ol class="steps">
         <li><div class="day">Día 1–7</div><div class="node">1</div><div class="txt"><div class="t">Revisamos y mostramos fotos</div><div class="d">Inspección gratis. El dueño ve fotos con fecha del daño.</div></div></li>
@@ -213,9 +214,9 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
       </ol>
       <ol class="steps" start="5">
         <li><div class="day">Día 14–45</div><div class="node">5</div><div class="txt"><div class="t">Llegan el alcance y el cheque 1</div><div class="d">La lista por escrito de lo que se va a pagar, más el primer cheque (ACV).</div></div></li>
-        <li><div class="day">Día 15–50</div><div class="node">6</div><div class="txt"><div class="t">Contrato y suplemento</div><div class="d">El dueño firma nuestro contrato. ¿Faltó algo? Mandamos un suplemento por escrito con fotos.</div></div></li>
+        <li><div class="day">Día 15–50</div><div class="node">6</div><div class="txt"><div class="t">Contrato y suplemento</div><div class="d">El dueño firma el contrato. ¿Faltó algo? Mandamos un suplemento escrito con fotos.</div></div></li>
         <li><div class="day">Día 20–75</div><div class="node">7</div><div class="txt"><div class="t">Hacemos la obra</div><div class="d">Pedimos el material y hacemos el trabajo.</div></div></li>
-        <li class="last"><div class="day">Día 45–90</div><div class="node">8</div><div class="txt"><div class="t">Sale el cheque 2</div><div class="d">Mandamos prueba de que terminamos. La aseguradora libera el cheque de la depreciación. Listo.</div></div></li>
+        <li class="last"><div class="day">Día 45–90</div><div class="node">8</div><div class="txt"><div class="t">Sale el cheque 2</div><div class="d">Mandamos prueba de que terminamos y la aseguradora libera la depreciación. Listo.</div></div></li>
       </ol>
     </div>
   </section>
@@ -234,7 +235,6 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
         <li>Los cheques pueden venir a nombre del dueño <i>y</i> de la compañía hipotecaria. La hipotecaria firma primero.</li>
         <li>Si la póliza no devuelve la depreciación, no hay cheque 2. Los papeles de la aseguradora lo dicen.</li>
       </ul>
-      <div class="law"><b>El deducible siempre lo paga el dueño.</b> HMP nunca lo cubre, ni lo perdona, ni lo devuelve, ni lo descuenta.<small>Ley de Nebraska 44-8604</small></div>
     </section>
 
     <section class="gloss">
@@ -260,8 +260,8 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
         <li>Revisar gratis y mostrarle las fotos al dueño</li>
         <li>Documentar el daño: fotos con fecha y medidas</li>
         <li>Reunirnos con el ajustador y señalarle el daño</li>
-        <li>Pedir por escrito lo que faltó en el alcance (suplemento)</li>
-        <li>Hacer el trabajo y mandar prueba de que terminamos</li>
+        <li>Pedir por escrito lo que faltó (un suplemento)</li>
+        <li>Hacer la obra y mandar prueba de que se terminó</li>
       </ul>
     </div>
     <div class="col cant">
@@ -269,9 +269,9 @@ h2::before { content:""; width:0.24in; height:3px; background:var(--gold); flex:
       <ul>
         <li>Cubrir, perdonar, devolver ni descontar el deducible <span class="tag">NE 44-8604</span></li>
         <li>Prometer que el seguro va a pagar, ni cuánto</li>
-        <li>Negociar el reclamo (solo un ajustador público con licencia)</li>
-        <li>Presentar el reclamo por el dueño, ni decirle qué cubre su póliza</li>
-        <li>Darle dinero o regalos al dueño para que presente un reclamo</li>
+        <li>Negociar el reclamo: eso es de un ajustador público</li>
+        <li>Hacer el reclamo por el dueño ni decir qué cubre la póliza</li>
+        <li>Dar dinero o regalos para que presenten un reclamo</li>
       </ul>
     </div>
   </section>
