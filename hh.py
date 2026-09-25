@@ -376,7 +376,7 @@ def main(argv=None):
         if not ranked:
             print("No neighborhoods with Census housing data there. Run `python3 hh.py init` or widen --radius.")
             return 1
-        print(f"\nOld-house neighborhoods (no storm needed), best first")
+        print("\nOld-house neighborhoods (no storm needed), best first")
         print(f"{'#':>3}  {'Neighborhood':34}  {'Homes':>5}  {'Heat':>5}  Why")
         for i, r in enumerate(ranked[:max(10, a.lists)], 1):
             print(f"{i:>3}  {r['label'][:34]:34}  {r['homes'] or 0:>5}  {r['heat']:>5.1f}  {'; '.join(r['why'])}")

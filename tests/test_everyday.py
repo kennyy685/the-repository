@@ -306,6 +306,7 @@ class FreshDatabase(Base):
         with contextlib.ExitStack() as st:
             for p in patches:
                 st.enter_context(p)
+            st.enter_context(contextlib.redirect_stdout(io.StringIO()))      # load_acs prints its progress
             return hh.refresh(self.conn, fetcher, self.cfg, log=QUIET)
 
     def test_fresh_database_builds_everyday_lists(self):
