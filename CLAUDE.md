@@ -22,20 +22,43 @@ before you stop.**
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
 of making him repeat it next time.
-- **HMP is a brand-new company (2026):** no past customers, no reviews, no track record yet. Trust at
-  the door is the main hurdle, not finding hail.
-- **FilthE is the only one building this system, and he does all the sales.** He's "more head than
-  hands": strategy and selling, not field labor. The boss does the build side.
-- **He's new to AI and to git.** Don't assume terminal/GitHub knowledge; give click-by-click steps.
-  Prefer simple tools he'll actually use over clever ones he has to maintain.
-- **The code is new:** started around 2026-09-23. GitHub (`kennyy685/the-repository`) is the main
-  copy; the Mac folder and Cowork's cloud bundle should follow it.
-- **Budget matters** (limited Claude credit): short focused sessions, no features that don't help
-  him sell.
-- **Priority (2026-09-26):** selling over building. Hail season is over and winter slows installs, so
-  working this season's storms now is worth more than new features.
-- **Still unknown (ask once, then record the answer here):** contractor registration + insurance
-  status; whether the boss has a crew; which town to start in; funnel numbers from the field.
+**The company (from FilthE's company brief, 2026-09-26)**
+- Early-stage but working: HMP mostly **subcontracts labor** today (the hiring contractor supplies
+  materials). Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing,
+  on houses and apartment complexes.
+- **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5
+  buildings: tear-off above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look
+  accents, caulk). Its live job board and a general job tracker were built in other Claude chats.
+- **The boss** owns and runs it and speaks Spanish. **FilthE** is his right-hand man: translates, runs
+  the AI/organization side, is the only one building this system, and does all the insurance sales.
+- **New goal: insurance restoration** (hail, wind, fallen trees). This is the new part: selling
+  direct to homeowners, buying materials, adjusters, waiting on insurance checks.
+
+**How FilthE works (matters for anything you build)**
+- Talks or sends short messages and job-site photos with short labels. **Never make him type into
+  spreadsheets**: you read, log and manage the data.
+- Build foundations that work for every job type; nothing rebuilt per job.
+- **Spanish matters** for anything the boss uses. Long term: HMP's own app with AI; for now, Claude.
+- New to AI and git: give click-by-click steps; simple tools he'll use beat clever ones to maintain.
+  Limited Claude credit: short focused sessions, no features that don't help sell.
+
+**Lead tool v1 (his spec) vs. what exists**
+1. Storm finder (area + dates -> storms): built (engine + command center map).
+2. Ranked lead list (storm severity, roof/home age, owner-occupied): built as door lists. Gaps:
+   owner-occupied is per neighborhood, not per house (T23); roof age needs permit data, which no
+   nearby city publishes as data.
+3. Lead tracker with the 9 stages (Not contacted -> ... -> Done/Lost): built in the command center.
+   Photos per lead not yet.
+4. **Voice/short-message updates** ("123 Oak St, inspection Tuesday, hail on north slope"): NOT
+   built. Highest-value gap for how he works.
+5. Later: inspection damage-photo checklist; link a won lead into the job tracker.
+
+**Answered already (don't re-ask):** Fremont, NE base; storms scanned within 250 mi, door lists
+within ~120 mi. Direct to homeowner (cowork notes). Free public data only so far; ads parked; no
+mailers; door knocking + calling business lines, no cold texts. Bilingual: yes.
+**Still unknown (ask once, then record here):** contractor registration + liability/workers' comp
+status for roofing/insurance work; max travel distance for crews; any budget for paid hail maps;
+direct-only, or also sub for an insurance restoration company while ramping up?
 
 ## This is the base copy
 This folder (`~/Documents/HailHunter`) is the base codebase - full-featured, runs locally on this
