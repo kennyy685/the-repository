@@ -24,7 +24,12 @@ WIND_TYPES = ("TSTM WND GST", "TSTM WND DMG", "NON-TSTM WND GST", "NON-TSTM WND 
 
 # T117: NWS has no separate "tree" report type - fallen trees are filed as wind damage (TSTM WND DMG /
 # NON-TSTM WND DMG) with the words in the remark ("TREES DOWN", "LARGE LIMBS DOWN ON HOUSE").
-TREE_RE = re.compile(r"\bTREES?\b|\bLIMBS?\b|\bBRANCH(ES)?\b", re.I)
+TREE_RE = re.compile(r"\bTREES?\b|\bLIMBS?\b|\bBRANCH(ES)?\b|\bUPROOT", re.I)   # "Large pine uprooted"
+# Live check on real LSR text (2026-09-26): gust reports also mention trees that did NOT come down ("Trees moving,
+# but no downed branches", "Trees are bending over at times"): those are not fallen trees.
+NOT_DOWN_RE = re.compile(r"\bNO (DOWNED|DAMAGE|TREE|LIMB|BRANCH)", re.I)
+MOVING_RE = re.compile(r"\b(MOVING|SWAYING|SWAY|BENDING|BLOWING AROUND)\b", re.I)
+DOWN_RE = re.compile(r"\bDOWN|\bFELL\b|\bFALLEN\b|SNAPPED|BROKE|UPROOT|SPLIT|DAMAGE|KNOCKED|BLOWN (OVER|DOWN)|TORE", re.I)
 # T118: the LSR feed has no wind-direction field (its properties: city, county, lat, lon, magnitude, remark, source,
 # st, state, typetext, unit, valid, wfo). Some remarks say it in words ("winds from the northwest"); keep that when
 # present. `wind_obs.bearing` is NOT wind direction: it is the direction of the report from home base.
@@ -36,7 +41,11 @@ DIR_RE = [re.compile(rf"\bFROM THE {_DIR_WORD}\b", re.I),
 
 
 def is_trees(remark):
-    return bool(TREE_RE.search(remark or ""))
+    """True when the remark reports fallen trees/limbs (not just trees moving in the wind)."""
+    r = remark or ""
+    if not TREE_RE.search(r) or NOT_DOWN_RE.search(r):
+        return False
+    return not (MOVING_RE.search(r) and not DOWN_RE.search(r))
 
 
 def wind_dir(remark):
