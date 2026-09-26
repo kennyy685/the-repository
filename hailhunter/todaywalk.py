@@ -414,21 +414,41 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     goal = goal or tw["goal_doors"]
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
-    storm, pools = [], {}
+    storm, pools, src = [], {}, {}
     for L in hud.get("lists") or []:
         try:
             age = (today - date.fromisoformat(L["day"])).days
         except (KeyError, TypeError, ValueError):
             continue
         c, pools[L["id"]] = _candidates(L, "storm", tw, results, dnk, today)
+        src[L["id"]] = (L, "storm")
         if 0 <= age <= tw["storm_max_days"]:
             storm += [x for x in c if x["heat"] >= tw["storm_min_heat"]
                       and (x["avg_hail"] or 0) >= tw["storm_min_hail"]]
     every = []
     for L in hud.get("everyday_lists") or []:
         c, pools[L["id"]] = _candidates(L, "everyday", tw, results, dnk, today)
+        src[L["id"]] = (L, "everyday")
         every += c
+    # Come back at: doors due today on ANY list (a promise to a homeowner), earliest time first.
+    due, due_town = [], {}
+    for lid, by_turf in pools.items():
+        for ss in by_turf.values():
+            for s in ss:
+                p = str(s["pid"])
+                if p not in due_town and _due(results.get(p), today) == "today":
+                    due.append(s)
+                    due_town[p] = (src[lid][0].get("area") or "").split(",")[0].strip()
+    due.sort(key=lambda s: results[str(s["pid"])]["come_back"]["time"] or "99:99")
+    due_ids = set(due_town)
     cands = storm or every
+    if not cands and due:                          # no walk qualifies, but a promised come-back is due today
+        lid = next(i for i, bt in pools.items() for ss in bt.values() if any(x is due[0] for x in ss))
+        DL, kind = src[lid]
+        dt = next((t for t in DL.get("turfs") or [] if t.get("turf") == due[0].get("turf")),
+                  {"turf": due[0].get("turf")})
+        cands = [{"list": DL, "kind": kind, "turf": dt, "left": [due[0]], "heat": 0,
+                  "why": dt.get("why") or DL.get("why") or [], "avg_hail": None}]
     if not cands:
         return None
     best = max(cands, key=lambda x: x["heat"])
@@ -442,10 +462,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
         others = [s for t, ss in pools[L["id"]].items() if t != best["turf"]["turf"] for s in ss]
         others.sort(key=lambda s: haversine_mi(lat0, lon0, s["lat"], s["lon"]))
         chosen += others
-    # Come back at: the list's doors due today go first (earliest time first), then the walk in walking order.
-    due = [s for ss in pools[L["id"]].values() for s in ss if _due(results.get(str(s["pid"])), today) == "today"]
-    due.sort(key=lambda s: results[str(s["pid"])]["come_back"]["time"] or "99:99")
-    due_ids = {str(s["pid"]) for s in due}
+    # Come-back doors due today go first, then the walk in walking order; they count toward goal_doors.
     rest = [s for s in chosen if str(s["pid"]) not in due_ids][:max(goal - len(due), 0)]
     if due and rest:                               # start the walk nearest the last come-back door
         last = due[-1]
@@ -464,7 +481,8 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
         "why": why_sentence(best["kind"], best["why"], chosen, L.get("day") if best["kind"] == "storm" else None,
                             old_before),
         "goal_doors": len(chosen), "kind": best["kind"], "list_id": L["id"],
-        "stops": [{"pid": str(s["pid"]), "address": s["address"], "city": s.get("city") or city,
+        "stops": [{"pid": str(s["pid"]), "address": s["address"],
+                   "city": s.get("city") or due_town.get(str(s["pid"])) or city,
                    "lat": round(float(s["lat"]), 6), "lon": round(float(s["lon"]), 6),
                    "pass": results.get(str(s["pid"]), {}).get("visits", 0) + 1,
                    **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {})}

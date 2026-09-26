@@ -106,6 +106,33 @@ class ComeBack(unittest.TestCase):
         res["doors/2026-09-24_DODGE-1001"] = {"result": "booked", "pass": 2}
         self.assertNotIn("DODGE-1001", {s["pid"] for s in self.pick(res)["stops"]})
 
+    def test_come_back_on_another_list_still_goes_first(self):
+        # the storm list wins today, but an everyday house was promised a come-back at 4:30 PM today
+        res = {"doors/2026-09-24_DODGE-E3": {"result": "not_home", "pass": 1, "come_back": "2026-09-25T16:30"},
+               "doors/2026-09-24_DODGE-1001": {"result": "not_home", "pass": 1, "come_back": "2026-09-25T18:00"}}
+        d = self.pick(res)
+        self.assertEqual(d["list_id"], "2026-09-10_Fremont")
+        self.assertEqual([s["pid"] for s in d["stops"][:2]], ["DODGE-E3", "DODGE-1001"])      # earliest first
+        self.assertEqual(d["stops"][0]["come_back"], {"date": "2026-09-25", "time": "16:30"})
+        self.assertEqual(d["stops"][0]["address"], "403 Pine St")
+        self.assertEqual(d["stops"][0]["pass"], 2)
+        self.assertEqual(len(d["stops"]), 25)                  # counts toward goal_doors
+        self.assertEqual(d["goal_doors"], 25)
+        self.assertEqual(sum("come_back" in s for s in d["stops"]), 2)
+        self.assertEqual(len({s["pid"] for s in d["stops"]}), 25)
+
+    def test_come_back_kept_even_when_no_walk_qualifies(self):
+        hud = {"lists": [], "everyday_lists": [{"id": "everyday_X", "area": "Fremont, NE", "why": [],
+               "turfs": [{"turf": 1}], "stops": [
+                   {"pid": "P1", "address": "1 Elm St", "lat": 41.43, "lon": -96.49, "kind": "single", "turf": 1},
+                   {"pid": "P2", "address": "3 Elm St", "lat": 41.431, "lon": -96.49, "kind": "single", "turf": 1}]}]}
+        res = todaywalk.load_results({"doors/2026-09-24_P2": {"result": "not_home", "come_back": "2026-09-25T17:00"}})
+        self.assertIsNone(todaywalk.pick(hud, DAY, cfg=self.cfg))       # 2 doors: too few for a walk
+        d = todaywalk.pick(hud, DAY, results=res, cfg=self.cfg)
+        self.assertEqual(d["stops"][0]["pid"], "P2")
+        self.assertEqual(d["stops"][0]["come_back"]["time"], "17:00")
+        self.assertEqual(d["stops"][0]["city"], "Fremont")
+
 
 if __name__ == "__main__":
     unittest.main()
