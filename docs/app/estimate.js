@@ -7,15 +7,17 @@
  * Self-check on load: selfCheck(rules) runs rules.test_cases (real Python results) and returns the failures.
  *
  * job = {type: siding|roof|gutters|mixed, siding_squares, roof_squares, gutter_ft, soffit_ft,
- *        material: vinyl|hardie, pitch: low|std|steep or rise per 12 ("7/12"), stories: 1-3,
- *        layers: old layers (1 = normal), house_wrap (default true), permit (default true), footprint_sqft}
+ *        material: vinyl|insulated_vinyl|hardie, pitch: low|std|steep or rise per 12 ("7/12"), stories: 1-3,
+ *        layers: old layers (1 = normal), house_wrap (default true), permit (default true), footprint_sqft,
+ *        add-ons (rules v2, each priced only when given): windows, ice_water_sq, ridge_vent_ft, chimney (true or a
+ *        count), skylight_ft, gutter_guards_ft, downspouts_ft}
  * Returns {low, high, lines[], warnings[{en,es}], summary{en,es}, using_reference, minimum_applied, ...}.
  * Throws Error on a bad job (same cases as the Python ValueError).
  *
  * Ranges only. No deductible text (Nebraska 44-8604) and never "insurance will pay": the insurer's approved
  * scope sets the price on insurance jobs (rules.insurance_note). No dependencies.
  */
-var RULES_VERSION = 1;
+var RULES_VERSION = 2;
 var TYPES = ["siding", "roof", "gutters", "mixed"];
 
 function pyRound(x) {                         // Python round(x): nearest integer, exact .5 goes to the even one
@@ -96,7 +98,7 @@ function squaresFromFootprint(footprint, n, pc, rules) {
 function rate(key, rules) {                   // {low, high, ref}; low null = no price anywhere
   var p = key === "min_job" || key === "min_job_roof" ? rules.adders[key] : rules.prices[key];
   if (!p) return {low: null, high: null, ref: true};
-  return {low: p.low, high: p.high, ref: p.source !== "hmp"};
+  return {low: p.low, high: p.high, ref: p.source !== "hmp", scope: p.scope || null};
 }
 
 function estimate(job, rules) {
@@ -107,12 +109,15 @@ function estimate(job, rules) {
   if (TYPES.indexOf(jtype) < 0) throw new Error("type must be one of " + TYPES.join(", ") + ", got " + JSON.stringify(job.type === undefined ? null : job.type));
   var material = String(truthy(job.material) ? job.material : "vinyl").trim().toLowerCase();
   if (["hardie", "james hardie", "fiber cement", "fibercement"].indexOf(material) >= 0) material = "hardie";
+  else if (["insulated vinyl", "insulated-vinyl", "insulated"].indexOf(material) >= 0) material = "insulated_vinyl";
   else if (["shingle", "architectural", "architectural shingle"].indexOf(material) >= 0) material = "vinyl";
-  if (!Object.prototype.hasOwnProperty.call(rules.materials, material)) throw new Error("material must be vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
+  if (!Object.prototype.hasOwnProperty.call(rules.materials, material)) throw new Error("material must be vinyl, insulated_vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
   var pc = pitchClass(job.pitch, rules), n = stories(job.stories);
   var layers = pyRound(num(job.layers, "layers", 1)) || 1;
   var siding = num(job.siding_squares, "siding_squares"), roof = num(job.roof_squares, "roof_squares");
   var gutter = num(job.gutter_ft, "gutter_ft"), soffit = num(job.soffit_ft, "soffit_ft");
+  var addonList = rules.addons || [], addons = {}, anyAddon = false;
+  addonList.forEach(function (a) { addons[a.field] = num(job[a.field], a.field); if (addons[a.field]) anyAddon = true; });
   var warnings = [], rough = null;
   var wantsSiding = jtype === "siding" || jtype === "mixed", wantsRoof = jtype === "roof" || jtype === "mixed";
 
@@ -126,7 +131,7 @@ function estimate(job, rules) {
   if (jtype === "siding" && roof) { roof = 0; warnings.push({en: tn.siding.en, es: tn.siding.es}); }
   if (jtype === "roof" && siding) { siding = 0; warnings.push({en: tn.roof.en, es: tn.roof.es}); }
   if (jtype === "gutters" && (siding || roof)) { siding = roof = 0; warnings.push({en: tn.gutters.en, es: tn.gutters.es}); }
-  var need = {siding: siding, roof: roof, gutters: gutter, mixed: siding || roof || gutter || soffit}[jtype];
+  var need = {siding: siding, roof: roof, gutters: gutter, mixed: siding || roof || gutter || soffit || anyAddon}[jtype];
   if (!need) {
     var what = {siding: "siding_squares (or footprint_sqft)", roof: "roof_squares (or footprint_sqft)", gutters: "gutter_ft",
                 mixed: "at least one of siding_squares, roof_squares, gutter_ft, soffit_ft"};
@@ -149,6 +154,11 @@ function estimate(job, rules) {
                 low: pyRound(qty * r.low * (1 + aLo)), high: pyRound(qty * r.high * (1 + aHi)), reference: r.ref});
   }
   function item(key) { return rules.prices[key] || {en: key, es: key}; }
+  function addOns(where) {
+    addonList.forEach(function (a) {
+      if (a.after === where && addons[a.field]) add(a.item, addons[a.field], a.unit, item(a.item).en, item(a.item).es, a.roof_item);
+    });
+  }
 
   var extra = Math.max(0, layers - 1);
   var xl = item("extra_layer_sq");
@@ -160,13 +170,16 @@ function estimate(job, rules) {
     if (extra && !roof)
       add("extra_layer_sq", siding * extra, "sq", xl.en + " (walls, x" + extra + ")", xl.es + " (paredes, x" + extra + ")");
   }
+  addOns("siding");
   if (roof) {
     add("shingle_roof_sq", roof, "sq", item("shingle_roof_sq").en, item("shingle_roof_sq").es, true);
     if (extra)
       add("extra_layer_sq", roof * extra, "sq", xl.en + " (roof, x" + extra + ")", xl.es + " (techo, x" + extra + ")", true);
   }
+  addOns("roof");
   if (soffit) add("soffit_fascia_ft", soffit, "ft", item("soffit_fascia_ft").en, item("soffit_fascia_ft").es);
   if (gutter) add("gutters_ft", gutter, "ft", item("gutters_ft").en, item("gutters_ft").es);
+  addOns("gutters");
   if (!("permit" in job) || job.permit === undefined || truthy(job.permit))
     add("permit", 1, "job", item("permit").en, item("permit").es, false, false);
 
@@ -196,13 +209,28 @@ function estimate(job, rules) {
     });
     warnings.unshift(w);
   }
+  var national = lines.filter(function (ln) { return ln.reference && rate(ln.key, rules).scope === "national"; })
+                      .map(function (ln) { return ln.key; });
+  national = national.filter(function (k, i) { return national.indexOf(k) === i; }).sort();
+  if (national.length) {
+    var nw = {};
+    ["en", "es"].forEach(function (lang) { nw[lang] = rules.national_warning_template[lang].replace("{items}", national.join(", ")); });
+    warnings.splice(1, 0, nw);
+  }
 
-  var pEn = [], pEs = [], hardie = material === "hardie";
-  if (siding) { pEn.push((hardie ? "James Hardie" : "vinyl") + " siding (" + fmtG(siding) + " squares)");
-                pEs.push("siding " + (hardie ? "James Hardie" : "de vinil") + " (" + fmtG(siding) + " cuadros)"); }
+  var pEn = [], pEs = [], words = rules.materials[material].words;
+  if (siding) { pEn.push(words.en + " siding (" + fmtG(siding) + " squares)");
+                pEs.push("siding " + words.es + " (" + fmtG(siding) + " cuadros)"); }
   if (roof) { pEn.push("shingle roof (" + fmtG(roof) + " squares)"); pEs.push("techo de teja (" + fmtG(roof) + " cuadros)"); }
   if (soffit) { pEn.push("soffit + fascia (" + fmtG(soffit) + " ft)"); pEs.push("sofito + fascia (" + fmtG(soffit) + " pies)"); }
   if (gutter) { pEn.push("gutters (" + fmtG(gutter) + " ft)"); pEs.push("canaletas (" + fmtG(gutter) + " pies)"); }
+  addonList.forEach(function (a) {
+    var q = addons[a.field];
+    if (!q) return;
+    var plural = q === 1 ? "" : "s";
+    pEn.push(a.words.en.replace("{q}", fmtG(q)).replace("{s}", plural));
+    pEs.push(a.words.es.replace("{q}", fmtG(q)).replace("{s}", plural));
+  });
   var sEn = [n + " stor" + (n === 1 ? "y" : "ies")], sEs = [n + " piso" + (n === 1 ? "" : "s")];
   if (roof) {
     sEn.push({low: "low pitch", std: "standard pitch", steep: "steep pitch"}[pc]);
@@ -225,7 +253,8 @@ function estimate(job, rules) {
           reference_label: usingRef ? rules.reference_label : null,
           warnings: warnings, lines: lines, minimum_applied: minimum,
           adders: {pitch: pc, pitch_roof: steep, stories: n, stories_all: story, layers: layers},
-          quantities: {siding_squares: siding, roof_squares: roof, gutter_ft: gutter, soffit_ft: soffit, material: material},
+          quantities: Object.assign({siding_squares: siding, roof_squares: roof, gutter_ft: gutter, soffit_ft: soffit,
+                                     material: material}, addons),
           rough_squares: rough, summary: summary, insurance_note: {en: rules.insurance_note.en, es: rules.insurance_note.es}};
 }
 

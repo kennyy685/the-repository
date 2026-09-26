@@ -9,11 +9,17 @@ job = {type: siding|roof|gutters|mixed, siding_squares, roof_squares, gutter_ft,
        material: vinyl|hardie (siding; roofs are architectural shingle), pitch: low|std|steep or a number
        (rise per 12, e.g. 7 or "7/12"), stories: 1-3, layers: old layers to tear off (1 = normal),
        house_wrap: true (siding default), permit: true (default),
-       footprint_sqft: optional, fills missing squares with the ROUGH helper below}
+       footprint_sqft: optional, fills missing squares with the ROUGH helper below,
+       O7 add-ons, each priced only when given (any job type): ice_water_sq (squares of ice & water shield, e.g.
+       the eave coverage), ridge_vent_ft, chimney (true or a count), skylight_ft (flashing), windows (window wrap
+       count), gutter_guards_ft, downspouts_ft; material insulated_vinyl for insulated vinyl siding}
 - type picks the main item: siding uses siding_squares (+ house wrap), roof uses roof_squares, gutters uses
   gutter_ft; mixed uses everything given. soffit_ft / gutter_ft are added to any type when given.
 - layers: extra old layers (layers - 1) are torn off the roof; on a siding-only job, off the walls.
-- Adders: steep pitch +15-25% on roof items; 2 / 3 stories +15 / +35% on every installed item (not the permit).
+- Add-on prices come from NATIONAL guides until HMP sets them (reference "scope": "national"): the result
+  then carries a "national price guide" warning naming those items.
+- Adders: steep pitch +15-25% on roof items (shingles, roof layer tear-off, ice & water, ridge vent, chimney and
+  skylight flashing); 2 / 3 stories +15 / +35% on every installed item (not the permit).
 - Minimum job: the total never goes below min_job (roof jobs: min_job_roof when set).
 
 Result: {low, high, currency, using_reference, reference_items, warnings[{en,es}], lines[], adders, quantities,
@@ -27,7 +33,10 @@ from .config import DEFAULTS
 
 TYPES = ("siding", "roof", "gutters", "mixed")
 SIDING = {"vinyl": ("vinyl_siding_sq", "Vinyl siding", "Siding de vinil"),
-          "hardie": ("hardie_siding_sq", "James Hardie siding", "Siding James Hardie")}
+          "hardie": ("hardie_siding_sq", "James Hardie siding", "Siding James Hardie"),
+          "insulated_vinyl": ("insulated_vinyl_siding_sq", "Insulated vinyl siding", "Siding de vinil aislado")}
+SIDING_WORDS = {"vinyl": ("vinyl", "de vinil"), "hardie": ("James Hardie", "James Hardie"),   # summary text
+                "insulated_vinyl": ("insulated vinyl", "de vinil aislado")}
 ITEM_NAMES = {
     "shingle_roof_sq": ("Architectural shingle roof (1-layer tear-off)", "Techo de teja arquitectónica (quitar 1 capa)"),
     "extra_layer_sq": ("Extra old layer tear-off", "Quitar capa vieja extra"),
@@ -35,8 +44,36 @@ ITEM_NAMES = {
     "gutters_ft": ("Seamless gutters", "Canaletas sin costura"),
     "house_wrap_sq": ("House wrap", "Envoltura de casa (house wrap)"),
     "permit": ("Permit", "Permiso"),
+    "ice_water_sq": ("Ice & water shield", "Barrera de hielo y agua (ice & water)"),
+    "ridge_vent_ft": ("Ridge vent", "Ventila de cumbrera"),
+    "chimney_flashing_job": ("Chimney flashing (per chimney)", "Tapajuntas de chimenea (por chimenea)"),
+    "skylight_flashing_ft": ("Skylight flashing", "Tapajuntas de tragaluz"),
+    "window_wrap_ea": ("Window wrap (aluminum)", "Forro de ventana (aluminio)"),
+    "gutter_guards_ft": ("Gutter guards", "Protectores de canaleta"),
+    "downspouts_ft": ("Downspouts", "Bajantes"),
 }
-UNITS = {"sq": ("squares", "cuadros"), "ft": ("ft", "pies"), "job": ("job", "trabajo")}
+# O7 optional add-ons: job field -> (price key, unit, roof item?, where the line goes). Order = line order.
+ADDONS = [
+    ("windows", "window_wrap_ea", "ea", False, "siding"),
+    ("ice_water_sq", "ice_water_sq", "sq", True, "roof"),
+    ("ridge_vent_ft", "ridge_vent_ft", "ft", True, "roof"),
+    ("chimney", "chimney_flashing_job", "job", True, "roof"),
+    ("skylight_ft", "skylight_flashing_ft", "ft", True, "roof"),
+    ("gutter_guards_ft", "gutter_guards_ft", "ft", False, "gutters"),
+    ("downspouts_ft", "downspouts_ft", "ft", False, "gutters"),
+]
+UNITS = {"sq": ("squares", "cuadros"), "ft": ("ft", "pies"), "job": ("job", "trabajo"), "ea": ("each", "c/u")}
+ADDON_WORDS = {   # summary text per add-on field ({q} = amount, {s} = plural s)
+    "windows": ("window wrap ({q} window{s})", "forro de ventanas ({q} ventana{s})"),
+    "ice_water_sq": ("ice & water shield ({q} squares)", "barrera de hielo y agua ({q} cuadros)"),
+    "ridge_vent_ft": ("ridge vent ({q} ft)", "ventila de cumbrera ({q} pies)"),
+    "chimney": ("chimney flashing ({q} chimney{s})", "tapajuntas de chimenea ({q} chimenea{s})"),
+    "skylight_ft": ("skylight flashing ({q} ft)", "tapajuntas de tragaluz ({q} pies)"),
+    "gutter_guards_ft": ("gutter guards ({q} ft)", "protectores de canaleta ({q} pies)"),
+    "downspouts_ft": ("downspouts ({q} ft)", "bajantes ({q} pies)"),
+}
+NATIONAL_WARNING = {"en": "National price guide (not Nebraska) for: {items}. Check with a local supplier.",
+                    "es": "Guía de precios nacional (no de Nebraska) para: {items}. Confirmen con un proveedor local."}
 INSURANCE_NOTE = {"en": "For insurance jobs: the insurer's approved scope sets the price.",
                   "es": "Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."}
 ROUGH_NOTE = {"en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
@@ -56,7 +93,7 @@ REF_WARNING = {"en": ("Using MARKET REFERENCE prices, not HMP's prices{for_items
 REF_FOR_ITEMS = {"en": " for: {items}", "es": " para: {items}"}
 MIN_NAMES = {"min_job": ("Minimum job", "Trabajo mínimo"), "min_job_roof": ("Minimum roof job", "Trabajo mínimo de techo")}
 ROUND_TO = 50           # totals round out to the nearest $50 (low down, high up)
-RULES_VERSION = 1       # bump when export_rules() changes shape (the HMP App's estimate.js checks it)
+RULES_VERSION = 2       # 2 = O7 add-ons + insulated vinyl; bump when export_rules() changes shape (the HMP App's estimate.js checks it)
 
 
 def _cfg(cfg):
@@ -134,6 +171,15 @@ def _rate(key, cfg):
     return float(lo), float(hi), True
 
 
+def _scope(key, cfg):
+    """'national' when this item's price is the market reference AND that reference is a national guide."""
+    c = _cfg(cfg)
+    if not _rate(key, c)[2]:
+        return None
+    ref_table = c.get("prices_reference") or DEFAULTS["prices_reference"]
+    return (ref_table.get(key) or {}).get("scope")
+
+
 def _money(x):
     return f"${x:,.0f}"
 
@@ -150,16 +196,19 @@ def estimate(job, cfg=None):
     material = str(job.get("material") or "vinyl").strip().lower()
     if material in ("hardie", "james hardie", "fiber cement", "fibercement"):
         material = "hardie"
+    elif material in ("insulated vinyl", "insulated-vinyl", "insulated"):
+        material = "insulated_vinyl"
     elif material in ("shingle", "architectural", "architectural shingle"):
         material = "vinyl"                       # a roof material names no siding: siding (if any) stays vinyl
     if material not in SIDING:
-        raise ValueError(f"material must be vinyl or hardie (roofs are architectural shingle), got {job.get('material')!r}")
+        raise ValueError(f"material must be vinyl, insulated_vinyl or hardie (roofs are architectural shingle), got {job.get('material')!r}")
     pc, n = pitch_class(job.get("pitch"), c), _stories(job.get("stories"))
     layers = int(round(_num(job.get("layers"), "layers", 1))) or 1
     siding = _num(job.get("siding_squares"), "siding_squares")
     roof = _num(job.get("roof_squares"), "roof_squares")
     gutter = _num(job.get("gutter_ft"), "gutter_ft")
     soffit = _num(job.get("soffit_ft"), "soffit_ft")
+    addons = {f: _num(job.get(f), f) for f, *_ in ADDONS}   # chimney: true counts as 1
     warnings, rough = [], None
 
     if job.get("footprint_sqft") and ((jtype in ("siding", "mixed") and not siding)
@@ -179,7 +228,7 @@ def estimate(job, cfg=None):
     if jtype == "gutters" and (siding or roof):
         siding = roof = 0.0
         warnings.append(dict(TYPE_NOTES["gutters"]))
-    need = {"siding": siding, "roof": roof, "gutters": gutter, "mixed": siding or roof or gutter or soffit}[jtype]
+    need = {"siding": siding, "roof": roof, "gutters": gutter, "mixed": siding or roof or gutter or soffit or any(addons.values())}[jtype]
     if not need:
         what = {"siding": "siding_squares (or footprint_sqft)", "roof": "roof_squares (or footprint_sqft)",
                 "gutters": "gutter_ft", "mixed": "at least one of siding_squares, roof_squares, gutter_ft, soffit_ft"}
@@ -203,6 +252,11 @@ def estimate(job, cfg=None):
                       "low": round(qty * lo * (1 + a_lo)), "high": round(qty * hi * (1 + a_hi)),
                       "reference": ref})
 
+    def add_ons(where):
+        for field, key, unit, roof_item, group in ADDONS:
+            if group == where and addons[field]:
+                add(key, addons[field], unit, *ITEM_NAMES[key], roof_item=roof_item)
+
     extra = max(0, layers - 1)
     if siding:
         key, en, es = SIDING[material]
@@ -212,15 +266,18 @@ def estimate(job, cfg=None):
         if extra and not roof:
             add("extra_layer_sq", siding * extra, "sq", f"{ITEM_NAMES['extra_layer_sq'][0]} (walls, x{extra})",
                 f"{ITEM_NAMES['extra_layer_sq'][1]} (paredes, x{extra})")
+    add_ons("siding")
     if roof:
         add("shingle_roof_sq", roof, "sq", *ITEM_NAMES["shingle_roof_sq"], roof_item=True)
         if extra:
             add("extra_layer_sq", roof * extra, "sq", f"{ITEM_NAMES['extra_layer_sq'][0]} (roof, x{extra})",
                 f"{ITEM_NAMES['extra_layer_sq'][1]} (techo, x{extra})", roof_item=True)
+    add_ons("roof")
     if soffit:
         add("soffit_fascia_ft", soffit, "ft", *ITEM_NAMES["soffit_fascia_ft"])
     if gutter:
         add("gutters_ft", gutter, "ft", *ITEM_NAMES["gutters_ft"])
+    add_ons("gutters")
     if job.get("permit", True):
         add("permit", 1, "job", *ITEM_NAMES["permit"], scale=False)
 
@@ -245,11 +302,14 @@ def estimate(job, cfg=None):
         all_ref = all(ln["reference"] for ln in lines)
         warnings.insert(0, {lang: REF_WARNING[lang].format(
             for_items="" if all_ref else REF_FOR_ITEMS[lang].format(items=", ".join(ref_items))) for lang in ("en", "es")})
+    national = sorted({ln["key"] for ln in lines if ln["reference"] and _scope(ln["key"], c) == "national"})
+    if national:
+        warnings.insert(1, {lang: NATIONAL_WARNING[lang].format(items=", ".join(national)) for lang in ("en", "es")})
 
     parts_en, parts_es = [], []
     if siding:
-        parts_en.append(f"{'James Hardie' if material == 'hardie' else 'vinyl'} siding ({siding:g} squares)")
-        parts_es.append(f"siding {'James Hardie' if material == 'hardie' else 'de vinil'} ({siding:g} cuadros)")
+        parts_en.append(f"{SIDING_WORDS[material][0]} siding ({siding:g} squares)")
+        parts_es.append(f"siding {SIDING_WORDS[material][1]} ({siding:g} cuadros)")
     if roof:
         parts_en.append(f"shingle roof ({roof:g} squares)")
         parts_es.append(f"techo de teja ({roof:g} cuadros)")
@@ -259,6 +319,13 @@ def estimate(job, cfg=None):
     if gutter:
         parts_en.append(f"gutters ({gutter:g} ft)")
         parts_es.append(f"canaletas ({gutter:g} pies)")
+    for field, *_ in ADDONS:
+        q = addons[field]
+        if q:
+            en, es = ADDON_WORDS[field]
+            one = q == 1
+            parts_en.append(en.format(q=f"{q:g}", s="" if one else "s"))
+            parts_es.append(es.format(q=f"{q:g}", s="" if one else "s"))
     shape_en = [f"{n} stor{'y' if n == 1 else 'ies'}"]
     shape_es = [f"{n} piso{'' if n == 1 else 's'}"]
     if roof:
@@ -283,8 +350,8 @@ def estimate(job, cfg=None):
             "reference_label": (c.get("prices_reference") or {}).get("_label") if using_ref else None,
             "warnings": warnings, "lines": lines, "minimum_applied": minimum,
             "adders": {"pitch": pc, "pitch_roof": steep, "stories": n, "stories_all": story, "layers": layers},
-            "quantities": {"siding_squares": siding, "roof_squares": roof, "gutter_ft": gutter, "soffit_ft": soffit,
-                           "material": material},
+            "quantities": dict({"siding_squares": siding, "roof_squares": roof, "gutter_ft": gutter,
+                                "soffit_ft": soffit, "material": material}, **addons),
             "rough_squares": rough, "summary": summary, "insurance_note": dict(INSURANCE_NOTE)}
 
 
@@ -303,6 +370,14 @@ RULE_TEST_JOBS = [
                               "soffit_ft": 150, "material": "hardie", "pitch": "steep", "stories": 3}},
     {"name": "below minimum", "job": {"type": "gutters", "gutter_ft": 12, "permit": False}},
     {"name": "footprint only (rough)", "job": {"type": "mixed", "footprint_sqft": 1450, "stories": 2, "pitch": "7/12"}},
+    # v2 (O7): add-ons + insulated vinyl
+    {"name": "insulated vinyl + windows", "job": {"type": "siding", "siding_squares": 20, "material": "insulated_vinyl",
+                                                  "windows": 14, "stories": 2}},
+    {"name": "roof add-ons steep", "job": {"type": "roof", "roof_squares": 28, "pitch": "9/12", "ice_water_sq": 4.5,
+                                           "ridge_vent_ft": 42, "chimney": True, "skylight_ft": 16}},
+    {"name": "gutters + guards + downspouts", "job": {"type": "gutters", "gutter_ft": 150, "gutter_guards_ft": 150,
+                                                      "downspouts_ft": 60, "permit": False}},
+    {"name": "add-ons only (below minimum)", "job": {"type": "mixed", "windows": 1, "permit": False}},
 ]
 
 
@@ -316,8 +391,8 @@ def export_rules(cfg=None, now=None):
     names = {SIDING[m][0]: SIDING[m][1:] for m in SIDING}
     names.update(ITEM_NAMES)
     names.update(MIN_NAMES)
-    units = {k: ("job" if k in ("permit", "min_job", "min_job_roof") else "ft" if k.endswith("_ft") else "sq")
-             for k in names}
+    units = {k: ("job" if k in ("permit", "min_job", "min_job_roof") or k.endswith("_job") else
+                 "ft" if k.endswith("_ft") else "ea" if k.endswith("_ea") else "sq") for k in names}
     prices, ref_items = {}, []
     for key in names:
         lo, hi, ref = _rate(key, c)
@@ -327,6 +402,8 @@ def export_rules(cfg=None, now=None):
             ref_items.append(key)
         prices[key] = {"low": lo, "high": hi, "unit": units[key], "en": names[key][0], "es": names[key][1],
                        "source": "market" if ref else "hmp"}
+        if _scope(key, c):                        # v2: "national" = a national guide, not a Nebraska number
+            prices[key]["scope"] = _scope(key, c)
 
     def minimum(key):
         p = prices.get(key)
@@ -349,12 +426,17 @@ def export_rules(cfg=None, now=None):
         "reference_label": (c.get("prices_reference") or {}).get("_label") if ref_items else None,
         "currency": "USD",
         "types": list(TYPES),
-        "materials": {m: {"item": SIDING[m][0], "en": SIDING[m][1], "es": SIDING[m][2]} for m in SIDING},
+        "materials": {m: {"item": SIDING[m][0], "en": SIDING[m][1], "es": SIDING[m][2],
+                          "words": {"en": SIDING_WORDS[m][0], "es": SIDING_WORDS[m][1]}} for m in SIDING},
+        "addons": [{"field": f, "item": k, "unit": u, "roof_item": ri, "after": g,
+                    "words": {"en": ADDON_WORDS[f][0], "es": ADDON_WORDS[f][1]}} for f, k, u, ri, g in ADDONS],
         "prices": prices,
         "units": {u: {"en": UNITS[u][0], "es": UNITS[u][1]} for u in UNITS},
         "adders": {
             "steep_pitch": {"pitch_adders": e["pitch_adders"], "steep_over": e["steep_over"],
-                            "low_under": e["low_under"], "applies_to": "roof items (shingle roof + roof layer tear-off)"},
+                            "low_under": e["low_under"],
+                            "applies_to": ("roof items (shingle roof, roof layer tear-off, ice & water, ridge vent, "
+                                           "chimney + skylight flashing)")},
             "stories": {"story_adders": e["story_adders"], "applies_to": "every installed item except the permit"},
             "extra_layers": {"item": "extra_layer_sq", "per": "square per old layer beyond the first; roof if any, "
                                                              "else walls; roof layers also get the pitch adder"},
@@ -375,6 +457,7 @@ def export_rules(cfg=None, now=None):
         "reference_warning": {lang: REF_WARNING[lang].format(for_items="") for lang in ("en", "es")},
         "reference_warning_template": dict(REF_WARNING),
         "reference_for_items": dict(REF_FOR_ITEMS),
+        "national_warning_template": dict(NATIONAL_WARNING),
         "rough_note": dict(ROUGH_NOTE),
         "type_notes": {k: dict(v) for k, v in TYPE_NOTES.items()},
         "test_cases": cases,

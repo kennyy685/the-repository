@@ -21,7 +21,11 @@ def hmp_prices(**over):
     cfg = copy.deepcopy(config.DEFAULTS)
     p = {"vinyl_siding_sq": (500, 600), "hardie_siding_sq": (800, 1000), "shingle_roof_sq": (400, 500),
          "extra_layer_sq": (100, 100), "soffit_fascia_ft": (10, 10), "gutters_ft": (10, 12),
-         "house_wrap_sq": (100, 100), "permit": (200, 200), "min_job": (1000, 1000), "min_job_roof": (3000, 3000)}
+         "house_wrap_sq": (100, 100), "permit": (200, 200), "min_job": (1000, 1000), "min_job_roof": (3000, 3000),
+         # rules v2 (O7) add-ons
+         "ice_water_sq": (110, 120), "ridge_vent_ft": (8, 12), "gutter_guards_ft": (7, 10), "downspouts_ft": (9, 12),
+         "window_wrap_ea": (120, 150), "chimney_flashing_job": (500, 900), "skylight_flashing_ft": (6, 9),
+         "insulated_vinyl_siding_sq": (750, 950)}
     p.update(over)
     cfg["prices"] = {k: ({"low": v[0], "high": v[1]} if v else {"low": None, "high": None}) for k, v in p.items()}
     return cfg
