@@ -11,7 +11,8 @@ under `data`):
 - optional hud.json: the lists' heat and why, joined per list in `learning`.
 
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
-funnel, learning, summary{en, es}}. Rates: not_home_rate = share of doors not home (0-1); per_100 numbers are
+funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.at) is in the week;
+totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); per_100 numbers are
 per 100 doors; "inspection" = a Booked tap (for everyday/cash walks that is the estimate visit). A walk id is
 "<list_id>~t<turf>", the same key the command center uses for its turfs.
 """
@@ -223,6 +224,41 @@ def funnel(leads, start=None, end=None):
             "new_this_week": new}
 
 
+def _money(v):
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    return x if x == x and x not in (float("inf"), float("-inf")) else None
+
+
+def estimates(leads, start=None, end=None):
+    """Quick estimates made this week, from `lead.estimate` {low, high, job, at, using_reference} (the HMP App saves
+    one per lead). A lead counts once when its estimate.at falls in [start, end], whatever its stage (start/end None
+    = every lead with an estimate). weekly.py has no stage-based estimate count, so nothing is counted twice; the
+    lead id dedupes repeated docs. Value = the sum of the low/high ranges (bad numbers skipped, not counted as $0);
+    using_reference = any of them used market reference prices, not HMP's own."""
+    seen, low, high, ref = set(), 0.0, 0.0, False
+    for L in leads or []:
+        e = L.get("estimate")
+        if not isinstance(e, dict) or L.get("id") in seen:
+            continue
+        day = str(e.get("at") or "")[:10]
+        if start is not None:
+            try:
+                date.fromisoformat(day)
+            except ValueError:
+                continue
+            if not start.isoformat() <= day <= end.isoformat():
+                continue
+        seen.add(L.get("id"))
+        lo, hi = _money(e.get("low")), _money(e.get("high"))
+        if lo is not None and hi is not None:
+            low, high = low + min(lo, hi), high + max(lo, hi)
+        ref = ref or bool(e.get("using_reference"))
+    return len(seen), {"low": int(round(low)), "high": int(round(high)), "using_reference": ref}
+
+
 # ------------------------------------------------------------------ the report
 def report(doors, leads, week=None, hud=None, today=None, cfg=None):
     """The week's results doc. `doors`/`leads` = load_doors/load_leads output; `week` = "2026-39",
@@ -293,6 +329,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
                       "walks": wl})
 
     t = tally(rows)
+    n_est, est_value = estimates(leads, start, end)
     areas = _best_worst(walks, wcfg["min_doors_area"])
     en = (f"{_pl(t['doors'], 'door', 'doors')} knocked, {t['answered']} answered, {t['interested']} interested, "
           f"{_pl(t['booked'], 'inspection', 'inspections')} booked; {round(t['not_home_rate'] * 100)}% not home.")
@@ -302,7 +339,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
     return {
         "week": "all" if start is None else week_id(start), "from": start and start.isoformat(),
         "to": end and end.isoformat(), "as_of": today.isoformat(),
-        "totals": {**t, "houses": len({r["pid"] for r in rows})},
+        "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
         "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas,
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),

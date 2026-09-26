@@ -124,6 +124,38 @@ class WeeklyReport(unittest.TestCase):
         walk = doc["by_walk"][0]
         self.assertIsNone(walk["turf"])
 
+    def test_estimates_counted_by_estimate_date_any_stage(self):
+        # fixture: 400 Pine (stage inspection_set + estimate 2026-09-26, market prices), 402 Pine (contacted,
+        # estimate 2026-09-23, HMP prices) are in week 39; 401 Pine's estimate (2026-09-19) is last week.
+        t = self.doc["totals"]
+        self.assertEqual(t["estimates"], 2)
+        self.assertEqual(t["estimates_value"], {"low": 12550 + 9800, "high": 16850 + 13200, "using_reference": True})
+        self.assertEqual(t["booked"], 3)                       # door-tap counts untouched
+        last = weekly.report(self.doors, self.leads, week="2026-38", hud=self.hud, today="2026-09-26")["totals"]
+        self.assertEqual((last["estimates"], last["estimates_value"]),
+                         (1, {"low": 22150, "high": 30050, "using_reference": True}))
+        every = weekly.report(self.doors, self.leads, week="all", hud=self.hud, today="2026-09-26")["totals"]
+        self.assertEqual(every["estimates"], 3)
+
+    def test_estimate_lead_counts_once_and_flags_only_market_prices(self):
+        leads = weekly.load_leads({
+            # a lead with a stage AND an estimate, repeated in the export: one estimate, not two
+            "leads/5-elm-st": {"address": "5 Elm St", "stage": "inspection_set",
+                               "estimate": {"low": 1000, "high": 2000, "at": "2026-09-22", "using_reference": False}},
+            "leads/5-elm-st-dupe": {"address": "5 Elm St", "stage": "approved",
+                                    "estimate": {"low": 1000, "high": 2000, "at": "2026-09-22"}},
+            "leads/6-elm-st": {"address": "6 Elm St", "stage": "contacted",
+                               "estimate": {"low": "bad", "high": None, "at": "2026-09-24"}},   # counted, $ skipped
+            "leads/7-elm-st": {"address": "7 Elm St", "stage": "approved", "estimate": {"low": 5, "high": 9}},
+            "leads/8-elm-st": {"address": "8 Elm St", "stage": "approved"}})
+        leads[1]["id"] = leads[0]["id"]                        # same lead exported twice
+        t = weekly.report([], leads, week="2026-39", today="2026-09-26")["totals"]
+        self.assertEqual(t["estimates"], 2)                    # 7 Elm has no date: not in any week
+        self.assertEqual(t["estimates_value"], {"low": 1000, "high": 2000, "using_reference": False})
+        none = weekly.report([], [], week="2026-39", today="2026-09-26")["totals"]
+        self.assertEqual((none["estimates"], none["estimates_value"]),
+                         (0, {"low": 0, "high": 0, "using_reference": False}))
+
     def test_week_parsing_and_slug(self):
         s, e = weekly.week_range("2026-W39")
         self.assertEqual((s.isoformat(), e.isoformat()), ("2026-09-21", "2026-09-27"))
