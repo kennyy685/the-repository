@@ -1075,6 +1075,91 @@ a.btn,a.btn:visited{color:var(--ink)}
   #psView .ws-page:last-child{break-after:auto}
 }
 
+/* ================= v19: Next-step coach, why this house, knock streak, estimate extras ================= */
+.ns{background:var(--panel);border:2px solid var(--hmp);border-radius:var(--r);padding:14px 16px 16px;display:grid;gap:12px;min-width:0}
+.ns.fin{border-color:var(--m-in)}
+.ns-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ns-bar{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;flex:1 1 120px;max-width:220px}
+.ns-bar i{height:6px;border-radius:3px;background:var(--track)}
+.ns-bar i.done{background:var(--ink2)} .ns-bar i.now{background:var(--hmp)}
+.ns.fin .ns-bar i{background:var(--m-in)}
+.ns-of{font:600 12px/1.2 var(--f-label);letter-spacing:.05em;text-transform:uppercase;color:var(--label);font-variant-numeric:tabular-nums}
+.ns.fin .ns-of{color:var(--m-in)}
+.ns-finp{margin:0;color:var(--ink2);font-size:15px}
+.ns-name{margin:0;font:700 26px/1.05 var(--f-display);text-wrap:balance}
+.ns-lb,.ns-say b,.ns-must b,.ns-tip b,.ns-info b{display:block;font:600 11px/1.3 var(--f-label);letter-spacing:.07em;text-transform:uppercase;color:var(--label);margin-bottom:4px}
+.ns-say{background:var(--bg2);border-left:3px solid var(--hmp);border-radius:var(--r-sm);padding:10px 12px}
+.ns-say q{display:block;font-size:17px;line-height:1.45;color:var(--ink);quotes:"“" "”"}
+.ns-sec{display:grid;min-width:0}
+.ns-ask{margin:0;padding:0 0 0 18px;display:grid;gap:6px;font-size:15px;line-height:1.4}
+.ns-ask li::marker{color:var(--hmp)}
+.ns-ask small{display:block;font-size:13px;color:var(--mute);font-style:italic}
+.ns-tip{margin:0;padding:8px 12px;background:var(--bg2);border-radius:var(--r-sm);font-size:14px;line-height:1.4;color:var(--ink2)}
+.ns-tip b{color:var(--hmp2)}
+.ns-ck{list-style:none;margin:0;padding:0;display:grid}
+.ns-it{display:grid;grid-template-columns:36px minmax(0,1fr);gap:4px 10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.ns-it:first-child{border-top:0;padding-top:2px}
+.ns-it .chk{width:36px;height:36px;font-size:18px}
+.ns-it.on .chk{background:var(--m-in);border-color:var(--m-in)}
+.ns-it:not(.on) .chk:disabled{opacity:.55}
+.ns-it.must:not(.on) .chk{border-color:var(--warn)}
+.ns-itt{display:grid;gap:4px;min-width:0;padding-top:7px;font-size:15px;line-height:1.35}
+.ns-it.on .ns-itt > span:first-child{color:var(--ink2)}
+.ns-val{font-size:13px;color:var(--label);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.ns-hint{margin:0;font-size:13px;color:var(--mute)}
+.ns-hint.warn{color:var(--warn);font-weight:700}
+.ns-tell{padding:2px 0;min-height:32px;font-size:14px}
+.ns-opt button{min-height:40px;min-width:72px}
+.ns-it .ph-file{justify-self:start}
+.ns-txt{display:grid;gap:6px;padding:10px 12px;background:var(--bg2);border-radius:var(--r-sm)}
+.ns-txt b{font:600 12px/1.3 var(--f-label);letter-spacing:.05em;text-transform:uppercase;color:var(--label)}
+.ns-ok{font-size:13px;color:var(--m-in);font-weight:700}
+.ns-msg{margin:0;font-size:14px;line-height:1.4;color:var(--ink2);user-select:text;overflow-wrap:anywhere}
+.ns-acts{display:flex;flex-wrap:wrap;gap:8px}
+.ns-acts .btn{min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+.ns-info{margin:0;padding:8px 12px;border:1px dashed var(--line2);border-radius:var(--r-sm);font-size:14px;line-height:1.4;color:var(--ink2)}
+.ns-cancel{border-style:solid;border-color:var(--line2);color:var(--ink);font-weight:600}
+.ns-must{margin:0;padding:10px 12px;background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:var(--r-sm);font-size:14px;line-height:1.45;color:var(--ink)}
+.ns-must b{color:var(--warn)}
+.ns-pick{display:grid;gap:8px;padding:12px;background:var(--bg2);border-radius:var(--r-sm)}
+.ns-pick p{margin:0;font:700 17px/1.2 var(--f-display)}
+.ns-pick .k-l{font:600 11px/1.2 var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--label)}
+.ns-done{width:100%;min-height:58px;padding:10px 16px;border:0;border-radius:var(--r-sm);background:var(--hmp);color:#1b1206;font:700 21px/1.1 var(--f-display);letter-spacing:.01em;cursor:pointer}
+.ns-done:hover{background:var(--hmp2)}
+.ns-done:disabled{background:var(--track);color:var(--mute);cursor:default}
+.ns-done:focus-visible,.nm button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ns-then{margin:-4px 0 0;font-size:13px;color:var(--mute);text-align:center}
+/* Today: your next moves */
+.nm{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.nm button{width:100%;text-align:left;display:grid;gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;color:var(--ink)}
+.nm button:hover{border-color:var(--hmp)}
+.nm-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nm-n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--hmp);color:#1b1206;font:700 14px/1 var(--f-display);flex:none}
+.nm-s{font:700 18px/1.1 var(--f-display);flex:1 1 auto}
+.nm-a{font-size:15px;color:var(--ink2);overflow-wrap:anywhere}
+.nm-do{font-size:13px;color:var(--label)}
+/* Today's knock: why this house */
+.d-why{flex-basis:100%;font:600 14px/1.3 var(--f-body);color:var(--hmp2);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.k-now .d-why{font-size:16px}
+.door.done .d-why{color:var(--mute);font-weight:500}
+/* week box: knock streak */
+.wk-streak{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:0 0 12px;margin-bottom:2px;border-bottom:1px solid var(--line)}
+.st-now{display:flex;align-items:baseline;gap:10px;min-width:0}
+.st-now b{font:700 40px/1 var(--f-display);color:var(--hmp);font-variant-numeric:tabular-nums}
+.st-now span{font-size:15px;color:var(--ink2)}
+.st-best{display:grid;justify-items:end;gap:2px}
+.st-best span{font:600 11px/1.2 var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--label)}
+.st-best b{font:700 24px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.st-sub{grid-column:1 / -1;margin:0;font-size:13px;line-height:1.35;color:var(--mute)}
+/* quick estimate: extras (rules v2) + national price note */
+.est-extras > summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:10px;min-height:28px}
+.est-extras > summary::-webkit-details-marker{display:none}
+.est-extras > summary::before{content:"+";font:700 20px/1 var(--f-display);color:var(--hmp);width:14px}
+.est-extras[open] > summary::before{content:"–"}
+.est-extras > summary small{font-size:13px;color:var(--mute)}
+.est-exrows{display:grid;gap:10px;margin-top:10px}
+.est-nat{margin:0;font-size:12px;line-height:1.4;color:var(--warn)}
+
 </style>
 
 <div class="wrap">
@@ -1108,6 +1193,7 @@ a.btn,a.btn:visited{color:var(--ink)}
     <div class="t-tools"><button type="button" class="est-launch" data-open="est:"><b data-t="estLaunch">Quick estimate</b><span class="el-s" data-t="estLaunchS">A price range for any job, to show or text. English or Spanish.</span><span class="el-go" aria-hidden="true">→</span></button></div>
     <div class="today">
       <div class="t-col">
+        <section class="a-sec" id="tMovesS" aria-labelledby="tMovesH" hidden><h2 class="ah" id="tMovesH"></h2><div id="tMoves"></div></section>
         <div class="kslot" id="slot-today"></div>
         <div id="tAsks" hidden></div>
         <section class="a-sec" aria-labelledby="tFollowH"><h2 class="ah" id="tFollowH"></h2><div id="tFollow"></div></section>
@@ -1297,15 +1383,17 @@ const HMPEstimateMath = (() => {
  * Self-check on load: selfCheck(rules) runs rules.test_cases (real Python results) and returns the failures.
  *
  * job = {type: siding|roof|gutters|mixed, siding_squares, roof_squares, gutter_ft, soffit_ft,
- *        material: vinyl|hardie, pitch: low|std|steep or rise per 12 ("7/12"), stories: 1-3,
- *        layers: old layers (1 = normal), house_wrap (default true), permit (default true), footprint_sqft}
+ *        material: vinyl|insulated_vinyl|hardie, pitch: low|std|steep or rise per 12 ("7/12"), stories: 1-3,
+ *        layers: old layers (1 = normal), house_wrap (default true), permit (default true), footprint_sqft,
+ *        add-ons (rules v2, each priced only when given): windows, ice_water_sq, ridge_vent_ft, chimney (true or a
+ *        count), skylight_ft, gutter_guards_ft, downspouts_ft}
  * Returns {low, high, lines[], warnings[{en,es}], summary{en,es}, using_reference, minimum_applied, ...}.
  * Throws Error on a bad job (same cases as the Python ValueError).
  *
  * Ranges only. No deductible text (Nebraska 44-8604) and never "insurance will pay": the insurer's approved
  * scope sets the price on insurance jobs (rules.insurance_note). No dependencies.
  */
-var RULES_VERSION = 1;
+var RULES_VERSION = 2;
 var TYPES = ["siding", "roof", "gutters", "mixed"];
 
 function pyRound(x) {                         // Python round(x): nearest integer, exact .5 goes to the even one
@@ -1386,7 +1474,7 @@ function squaresFromFootprint(footprint, n, pc, rules) {
 function rate(key, rules) {                   // {low, high, ref}; low null = no price anywhere
   var p = key === "min_job" || key === "min_job_roof" ? rules.adders[key] : rules.prices[key];
   if (!p) return {low: null, high: null, ref: true};
-  return {low: p.low, high: p.high, ref: p.source !== "hmp"};
+  return {low: p.low, high: p.high, ref: p.source !== "hmp", scope: p.scope || null};
 }
 
 function estimate(job, rules) {
@@ -1397,12 +1485,15 @@ function estimate(job, rules) {
   if (TYPES.indexOf(jtype) < 0) throw new Error("type must be one of " + TYPES.join(", ") + ", got " + JSON.stringify(job.type === undefined ? null : job.type));
   var material = String(truthy(job.material) ? job.material : "vinyl").trim().toLowerCase();
   if (["hardie", "james hardie", "fiber cement", "fibercement"].indexOf(material) >= 0) material = "hardie";
+  else if (["insulated vinyl", "insulated-vinyl", "insulated"].indexOf(material) >= 0) material = "insulated_vinyl";
   else if (["shingle", "architectural", "architectural shingle"].indexOf(material) >= 0) material = "vinyl";
-  if (!Object.prototype.hasOwnProperty.call(rules.materials, material)) throw new Error("material must be vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
+  if (!Object.prototype.hasOwnProperty.call(rules.materials, material)) throw new Error("material must be vinyl, insulated_vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
   var pc = pitchClass(job.pitch, rules), n = stories(job.stories);
   var layers = pyRound(num(job.layers, "layers", 1)) || 1;
   var siding = num(job.siding_squares, "siding_squares"), roof = num(job.roof_squares, "roof_squares");
   var gutter = num(job.gutter_ft, "gutter_ft"), soffit = num(job.soffit_ft, "soffit_ft");
+  var addonList = rules.addons || [], addons = {}, anyAddon = false;
+  addonList.forEach(function (a) { addons[a.field] = num(job[a.field], a.field); if (addons[a.field]) anyAddon = true; });
   var warnings = [], rough = null;
   var wantsSiding = jtype === "siding" || jtype === "mixed", wantsRoof = jtype === "roof" || jtype === "mixed";
 
@@ -1416,7 +1507,7 @@ function estimate(job, rules) {
   if (jtype === "siding" && roof) { roof = 0; warnings.push({en: tn.siding.en, es: tn.siding.es}); }
   if (jtype === "roof" && siding) { siding = 0; warnings.push({en: tn.roof.en, es: tn.roof.es}); }
   if (jtype === "gutters" && (siding || roof)) { siding = roof = 0; warnings.push({en: tn.gutters.en, es: tn.gutters.es}); }
-  var need = {siding: siding, roof: roof, gutters: gutter, mixed: siding || roof || gutter || soffit}[jtype];
+  var need = {siding: siding, roof: roof, gutters: gutter, mixed: siding || roof || gutter || soffit || anyAddon}[jtype];
   if (!need) {
     var what = {siding: "siding_squares (or footprint_sqft)", roof: "roof_squares (or footprint_sqft)", gutters: "gutter_ft",
                 mixed: "at least one of siding_squares, roof_squares, gutter_ft, soffit_ft"};
@@ -1439,6 +1530,11 @@ function estimate(job, rules) {
                 low: pyRound(qty * r.low * (1 + aLo)), high: pyRound(qty * r.high * (1 + aHi)), reference: r.ref});
   }
   function item(key) { return rules.prices[key] || {en: key, es: key}; }
+  function addOns(where) {
+    addonList.forEach(function (a) {
+      if (a.after === where && addons[a.field]) add(a.item, addons[a.field], a.unit, item(a.item).en, item(a.item).es, a.roof_item);
+    });
+  }
 
   var extra = Math.max(0, layers - 1);
   var xl = item("extra_layer_sq");
@@ -1450,13 +1546,16 @@ function estimate(job, rules) {
     if (extra && !roof)
       add("extra_layer_sq", siding * extra, "sq", xl.en + " (walls, x" + extra + ")", xl.es + " (paredes, x" + extra + ")");
   }
+  addOns("siding");
   if (roof) {
     add("shingle_roof_sq", roof, "sq", item("shingle_roof_sq").en, item("shingle_roof_sq").es, true);
     if (extra)
       add("extra_layer_sq", roof * extra, "sq", xl.en + " (roof, x" + extra + ")", xl.es + " (techo, x" + extra + ")", true);
   }
+  addOns("roof");
   if (soffit) add("soffit_fascia_ft", soffit, "ft", item("soffit_fascia_ft").en, item("soffit_fascia_ft").es);
   if (gutter) add("gutters_ft", gutter, "ft", item("gutters_ft").en, item("gutters_ft").es);
+  addOns("gutters");
   if (!("permit" in job) || job.permit === undefined || truthy(job.permit))
     add("permit", 1, "job", item("permit").en, item("permit").es, false, false);
 
@@ -1486,13 +1585,28 @@ function estimate(job, rules) {
     });
     warnings.unshift(w);
   }
+  var national = lines.filter(function (ln) { return ln.reference && rate(ln.key, rules).scope === "national"; })
+                      .map(function (ln) { return ln.key; });
+  national = national.filter(function (k, i) { return national.indexOf(k) === i; }).sort();
+  if (national.length) {
+    var nw = {};
+    ["en", "es"].forEach(function (lang) { nw[lang] = rules.national_warning_template[lang].replace("{items}", national.join(", ")); });
+    warnings.splice(1, 0, nw);
+  }
 
-  var pEn = [], pEs = [], hardie = material === "hardie";
-  if (siding) { pEn.push((hardie ? "James Hardie" : "vinyl") + " siding (" + fmtG(siding) + " squares)");
-                pEs.push("siding " + (hardie ? "James Hardie" : "de vinil") + " (" + fmtG(siding) + " cuadros)"); }
+  var pEn = [], pEs = [], words = rules.materials[material].words;
+  if (siding) { pEn.push(words.en + " siding (" + fmtG(siding) + " squares)");
+                pEs.push("siding " + words.es + " (" + fmtG(siding) + " cuadros)"); }
   if (roof) { pEn.push("shingle roof (" + fmtG(roof) + " squares)"); pEs.push("techo de teja (" + fmtG(roof) + " cuadros)"); }
   if (soffit) { pEn.push("soffit + fascia (" + fmtG(soffit) + " ft)"); pEs.push("sofito + fascia (" + fmtG(soffit) + " pies)"); }
   if (gutter) { pEn.push("gutters (" + fmtG(gutter) + " ft)"); pEs.push("canaletas (" + fmtG(gutter) + " pies)"); }
+  addonList.forEach(function (a) {
+    var q = addons[a.field];
+    if (!q) return;
+    var plural = q === 1 ? "" : "s";
+    pEn.push(a.words.en.replace("{q}", fmtG(q)).replace("{s}", plural));
+    pEs.push(a.words.es.replace("{q}", fmtG(q)).replace("{s}", plural));
+  });
   var sEn = [n + " stor" + (n === 1 ? "y" : "ies")], sEs = [n + " piso" + (n === 1 ? "" : "s")];
   if (roof) {
     sEn.push({low: "low pitch", std: "standard pitch", steep: "steep pitch"}[pc]);
@@ -1515,7 +1629,8 @@ function estimate(job, rules) {
           reference_label: usingRef ? rules.reference_label : null,
           warnings: warnings, lines: lines, minimum_applied: minimum,
           adders: {pitch: pc, pitch_roof: steep, stories: n, stories_all: story, layers: layers},
-          quantities: {siding_squares: siding, roof_squares: roof, gutter_ft: gutter, soffit_ft: soffit, material: material},
+          quantities: Object.assign({siding_squares: siding, roof_squares: roof, gutter_ft: gutter, soffit_ft: soffit,
+                                     material: material}, addons),
           rough_squares: rough, summary: summary, insurance_note: {en: rules.insurance_note.en, es: rules.insurance_note.es}};
 }
 
@@ -1566,11 +1681,11 @@ if (typeof module !== "undefined" && module.exports) {
    Nothing here mentions deductibles or says insurance will pay (Nebraska 44-8604). */
 const EstimateScreen = (() => {
   'use strict';
-  const SUPPORTED_RULES = 1;
+  const SUPPORTED_RULES = 2;
   const STR = {
     en: {
       jobH: 'What job?', jobs: {siding: ['Siding', 'vinyl or James Hardie'], roof: ['Roof', 'shingles, tear-off'], gutters: ['Gutters', 'seamless, per foot'], mixed: ['Mixed', 'siding + roof + gutters']},
-      mat: {vinyl: 'Vinyl', hardie: 'James Hardie'}, matL: 'Siding type',
+      mat: {vinyl: 'Vinyl', insulated_vinyl: 'Insulated vinyl', hardie: 'James Hardie'}, matL: 'Siding type',
       sizeH: 'How big?', modeSq: 'I know the size', modeRough: "I don't know", modeRoughS: 'rough from house size', modeSqS: 'squares / feet',
       siding: ['Siding', 'squares of wall · 100 sq ft each'], roof: ['Roof', 'squares · 100 sq ft each'], gutter: ['Gutters', 'feet along the eaves'],
       foot: ['House footprint', 'ground floor, sq ft · a 40 x 35 house is 1,400'], storiesL: 'Stories',
@@ -1600,11 +1715,16 @@ const EstimateScreen = (() => {
       saveFail: "Couldn't save. Try again in a moment.", readOnly: "View only: this page can't save to leads.",
       before: (r, d) => `Saved before: ${r}${d ? ' · ' + d : ''}`, lastSaved: (r, d) => `On the lead now: ${r}${d ? ' · ' + d : ''}`,
       peek: 'estimate range', mktShort: 'market prices',
-      jobName: {siding: 'Siding', roof: 'Roof', gutters: 'Gutters', mixed: 'Mixed'}
+      jobName: {siding: 'Siding', roof: 'Roof', gutters: 'Gutters', mixed: 'Mixed'},
+      // rules v2 add-ons: optional, priced only when above 0
+      extrasH: 'Extras', extrasS: 'optional', extrasOn: n => `${n} added`, chimNo: 'None',
+      ex: {windows: ['Windows to wrap', 'count, metal wrap per window'], ice_water_sq: ['Ice & water shield', 'squares, eaves + valleys'], ridge_vent_ft: ['Ridge vent', 'feet along the ridge'],
+           chimney: ['Chimney flashing', 'how many chimneys'], skylight_ft: ['Skylight flashing', 'feet around the skylights'], gutter_guards_ft: ['Gutter guards', 'feet of gutter'], downspouts_ft: ['Downspouts', 'feet, top to bottom']},
+      natNote: items => `National price guide (not Nebraska) for: ${items}. Check with a local supplier.`
     },
     es: {
       jobH: '¿Qué trabajo?', jobs: {siding: ['Siding', 'vinil o James Hardie'], roof: ['Techo', 'teja, quitar y poner'], gutters: ['Canaletas', 'sin costura, por pie'], mixed: ['Mixto', 'siding + techo + canaletas']},
-      mat: {vinyl: 'Vinil', hardie: 'James Hardie'}, matL: 'Tipo de siding',
+      mat: {vinyl: 'Vinil', insulated_vinyl: 'Vinil aislado', hardie: 'James Hardie'}, matL: 'Tipo de siding',
       sizeH: '¿Qué tamaño?', modeSq: 'Sé el tamaño', modeRough: 'No lo sé', modeRoughS: 'aproximado por la casa', modeSqS: 'cuadros / pies',
       siding: ['Siding', 'cuadros de pared · 100 pies² cada uno'], roof: ['Techo', 'cuadros · 100 pies² cada uno'], gutter: ['Canaletas', 'pies a lo largo del alero'],
       foot: ['Tamaño de la casa', 'planta baja, pies² · una casa de 40 x 35 son 1,400'], storiesL: 'Pisos',
@@ -1634,7 +1754,11 @@ const EstimateScreen = (() => {
       saveFail: 'No se pudo guardar. Intenta otra vez en un momento.', readOnly: 'Solo lectura: esta página no puede guardar en prospectos.',
       before: (r, d) => `Guardado antes: ${r}${d ? ' · ' + d : ''}`, lastSaved: (r, d) => `En el prospecto ahora: ${r}${d ? ' · ' + d : ''}`,
       peek: 'rango estimado', mktShort: 'precios del mercado',
-      jobName: {siding: 'Siding', roof: 'Techo', gutters: 'Canaletas', mixed: 'Mixto'}
+      jobName: {siding: 'Siding', roof: 'Techo', gutters: 'Canaletas', mixed: 'Mixto'},
+      extrasH: 'Extras', extrasS: 'opcional', extrasOn: n => `${n} ${n === 1 ? 'agregado' : 'agregados'}`, chimNo: 'Ninguna',
+      ex: {windows: ['Ventanas para forrar', 'cuántas, forro de metal por ventana'], ice_water_sq: ['Barrera de hielo y agua', 'cuadros, aleros + valles'], ridge_vent_ft: ['Ventila de cumbrera', 'pies a lo largo de la cumbrera'],
+           chimney: ['Tapajuntas de chimenea', 'cuántas chimeneas'], skylight_ft: ['Tapajuntas de tragaluz', 'pies alrededor de los tragaluces'], gutter_guards_ft: ['Protectores de canaleta', 'pies de canaleta'], downspouts_ft: ['Bajantes', 'pies, de arriba a abajo']},
+      natNote: items => `Guía de precios nacional (no de Nebraska) para: ${items}. Confirmen con un proveedor local.`
     }
   };
   // The homeowner text. Same voice as the app's other texts (EN from Kenny, ES from Alex, "tú"). It always says
@@ -1644,17 +1768,23 @@ const EstimateScreen = (() => {
          range: (p, lo, hi, w, typical) => `Here's an estimate range for ${p}${typical ? ', based on typical local prices' : ''}: ${lo} to ${hi} for ${w}.`, home: 'your home', rough: "It's a rough number from the size of the house.",
          notFinal: "It's an estimate range, not a final price. Final price after we measure and inspect.",
          ins: "For insurance jobs, the insurer's approved scope sets the price.", end: 'Any questions, just text me here.',
-         siding: (m, q) => `new ${m === 'hardie' ? 'James Hardie' : 'vinyl'} siding (about ${q} squares)`, roof: q => `a new shingle roof (about ${q} squares)`,
+         siding: (m, q) => `new ${m === 'hardie' ? 'James Hardie' : m === 'insulated_vinyl' ? 'insulated vinyl' : 'vinyl'} siding (about ${q} squares)`, roof: q => `a new shingle roof (about ${q} squares)`,
          gutter: q => `new seamless gutters (about ${q} ft)`, soffit: q => `new soffit and fascia (about ${q} ft)`, and: ' and '},
     es: {hi: n => n ? `Hola ${n}, soy Alex de HMP Siding & Roofing.` : 'Hola, soy Alex de HMP Siding & Roofing.',
          range: (p, lo, hi, w, typical) => `Este es un rango estimado para ${p}${typical ? ', según precios típicos de la zona' : ''}: ${lo} a ${hi} por ${w}.`, home: 'tu casa', rough: 'Es un número aproximado por el tamaño de la casa.',
          notFinal: 'Es un rango estimado, no un precio final. El precio final se da después de medir e inspeccionar.',
          ins: 'En trabajos de seguro, el alcance aprobado por la aseguradora fija el precio.', end: 'Cualquier pregunta, escríbeme aquí.',
-         siding: (m, q) => `siding nuevo ${m === 'hardie' ? 'James Hardie' : 'de vinil'} (unos ${q} cuadros)`, roof: q => `un techo nuevo de teja (unos ${q} cuadros)`,
+         siding: (m, q) => `siding nuevo ${m === 'hardie' ? 'James Hardie' : m === 'insulated_vinyl' ? 'de vinil aislado' : 'de vinil'} (unos ${q} cuadros)`, roof: q => `un techo nuevo de teja (unos ${q} cuadros)`,
          gutter: q => `canaletas nuevas sin costura (unos ${q} pies)`, soffit: q => `sofito y fascia nuevos (unos ${q} pies)`, and: ' y '}
   };
-  const STEP = {siding: {step: 1, big: 5, max: 250, dec: 1}, roof: {step: 1, big: 5, max: 250, dec: 1}, gutter: {step: 5, big: 20, max: 2000, dec: 0}, foot: {step: 50, big: 200, max: 12000, dec: 0}};
-  const DEFAULTS = {job: 'roof', material: 'vinyl', mode: 'sq', siding: 20, roof: 24, gutter: 140, foot: 1400, stories: 1, pitch: 'std', layers: 1};
+  const STEP = {siding: {step: 1, big: 5, max: 250, dec: 1}, roof: {step: 1, big: 5, max: 250, dec: 1}, gutter: {step: 5, big: 20, max: 2000, dec: 0}, foot: {step: 50, big: 200, max: 12000, dec: 0},
+                windows: {step: 1, big: 5, max: 80, dec: 0}, ice_water_sq: {step: 1, big: 5, max: 80, dec: 1}, ridge_vent_ft: {step: 5, big: 20, max: 400, dec: 0},
+                skylight_ft: {step: 1, big: 4, max: 120, dec: 0}, gutter_guards_ft: {step: 5, big: 20, max: 2000, dec: 0}, downspouts_ft: {step: 5, big: 20, max: 600, dec: 0}};
+  // rules v2 add-ons shown per job (the engine prices any add-on it gets; the screen only offers the ones that fit the job)
+  const EXTRAS = {siding: ['windows'], roof: ['ice_water_sq', 'ridge_vent_ft', 'chimney', 'skylight_ft'], gutters: ['gutter_guards_ft', 'downspouts_ft']};
+  const EXTRA_KEYS = ['windows', 'ice_water_sq', 'ridge_vent_ft', 'chimney', 'skylight_ft', 'gutter_guards_ft', 'downspouts_ft'];
+  const DEFAULTS = {job: 'roof', material: 'vinyl', mode: 'sq', siding: 20, roof: 24, gutter: 140, foot: 1400, stories: 1, pitch: 'std', layers: 1,
+                    windows: 0, ice_water_sq: 0, ridge_vent_ft: 0, chimney: 0, skylight_ft: 0, gutter_guards_ft: 0, downspouts_ft: 0, extrasOpen: false};
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
   const usd = x => '$' + Math.round(Number(x) || 0).toLocaleString('en-US');
@@ -1701,7 +1831,8 @@ const EstimateScreen = (() => {
     }
     return out;
   }
-  function blankJob(){ return {type: null, material: null, siding_squares: null, roof_squares: null, gutter_ft: null, footprint_sqft: null, stories: null, pitch: null, layers: null}; }
+  function blankJob(){ return {type: null, material: null, siding_squares: null, roof_squares: null, gutter_ft: null, footprint_sqft: null, stories: null, pitch: null, layers: null,
+    windows: null, ice_water_sq: null, ridge_vent_ft: null, chimney: null, skylight_ft: null, gutter_guards_ft: null, downspouts_ft: null}; }
 
   /* ---------- the screen ---------- */
   function create(opts){
@@ -1727,7 +1858,8 @@ const EstimateScreen = (() => {
     function prefill(){   // opened from a lead with an estimate on it: start from that job
       const j = lead && lead.estimate && lead.estimate.job; if (!j || !j.type) return;
       s.job = ['siding', 'roof', 'gutters', 'mixed'].includes(j.type) ? j.type : s.job;
-      if (j.material === 'hardie' || j.material === 'vinyl') s.material = j.material;
+      if (['hardie', 'vinyl', 'insulated_vinyl'].includes(j.material)) s.material = j.material;
+      for (const k of EXTRA_KEYS) { const v = Number(k === 'chimney' && j[k] === true ? 1 : j[k]); if (Number.isFinite(v) && v > 0) { s[k] = v; s.extrasOpen = true; } }
       if (j.footprint_sqft) { s.mode = 'rough'; s.foot = Number(j.footprint_sqft) || s.foot; } else s.mode = 'sq';
       if (j.siding_squares) s.siding = Number(j.siding_squares); if (j.roof_squares) s.roof = Number(j.roof_squares); if (j.gutter_ft) s.gutter = Number(j.gutter_ft);
       if ([1, 2, 3].includes(Number(j.stories))) s.stories = Number(j.stories);
@@ -1738,6 +1870,7 @@ const EstimateScreen = (() => {
 
     const has = k => ({siding: ['siding', 'mixed'], roof: ['roof', 'mixed'], gutter: ['gutters', 'mixed']}[k].includes(s.job));
     const rough = () => s.mode === 'rough' && s.job !== 'gutters';
+    const extrasFor = () => [...(has('siding') ? EXTRAS.siding : []), ...(has('roof') ? EXTRAS.roof : []), ...(has('gutter') ? EXTRAS.gutters : [])];
     function job(){
       const j = blankJob();
       Object.assign(j, {type: s.job, stories: s.stories, layers: s.layers, pitch: has('roof') || rough() ? s.pitch : 'std',
@@ -1745,6 +1878,7 @@ const EstimateScreen = (() => {
       if (rough()) j.footprint_sqft = s.foot;
       else { if (has('siding')) j.siding_squares = s.siding; if (has('roof')) j.roof_squares = s.roof; }
       if (has('gutter')) j.gutter_ft = s.gutter;
+      for (const k of extrasFor()) if (Number(s[k]) > 0) j[k] = Number(s[k]);
       return j;
     }
     function compute(){
@@ -1779,10 +1913,15 @@ const EstimateScreen = (() => {
       if (q.roof_squares) parts.push(L.what.roof(n1(q.roof_squares)));
       if (q.soffit_ft) parts.push(L.what.soffit(fmtNum(q.soffit_ft)));
       if (q.gutter_ft) parts.push(L.what.gutter(fmtNum(q.gutter_ft)));
+      parts.push(...addonWords(q, lang));
       const shape = [L.shape.stories(a.stories || s.stories)];
       if (q.roof_squares) shape.push(L.shape.pitch[a.pitch || s.pitch]);
       if ((a.layers || 1) > 1) shape.push(L.shape.layers(a.layers));
       return parts.join(' + ') + ' · ' + shape.join(', ');
+    }
+    function addonWords(q, l){   // "window wrap (14 windows)" from the price sheet's own words
+      return ((rules && rules.addons) || []).filter(a => Number(q[a.field]) > 0 || q[a.field] === true).map(a => { const n = q[a.field] === true ? 1 : Number(q[a.field]);
+        return (a.words[l] || a.words.en).replace('{q}', n1(n)).replace('{s}', n === 1 ? '' : 's'); });
     }
     function priceName(k){ const p = rules && rules.prices && rules.prices[k]; return p ? (p[lang] || p.en || k) : k; }
     function mathHtml(r){
@@ -1821,6 +1960,7 @@ const EstimateScreen = (() => {
       if (q.roof_squares) w.push(M.roof(Math.round(q.roof_squares)));
       if (q.soffit_ft) w.push(M.soffit(fmtNum(q.soffit_ft)));
       if (q.gutter_ft) w.push(M.gutter(fmtNum(q.gutter_ft)));
+      w.push(...addonWords(q, ml));
       const name = lead && typeof lead.first_name === 'string' ? lead.first_name.trim() : '';
       const place = lead && typeof lead.address === 'string' && lead.address.trim() ? lead.address.trim() : M.home;
       const parts = [M.hi(name), M.range(place, usd(r.low), usd(r.high), listJoin(w, M.and), !!r.using_reference)];
@@ -1829,6 +1969,11 @@ const EstimateScreen = (() => {
       if (!lead || lead.type !== 'cash') parts.push(M.ins);   // an everyday (cash) job skips the insurance sentence
       parts.push(M.end);
       return parts.join(' ');
+    }
+    // rules v2: items priced from a national guide get a small note, named the way the price sheet names them
+    function natNote(r){
+      const keys = [...new Set(r.lines.filter(l => l.reference && rules.prices[l.key] && rules.prices[l.key].scope === 'national').map(l => l.key))];
+      return keys.length ? `<p class="est-nat" role="note">${esc(T().natNote(keys.map(priceName).join(', ')))}</p>` : '';
     }
     function calm(h, p){ return `<section class="est-calm" data-res="1" role="status"><h3>${esc(h)}</h3>${p ? `<p>${esc(p)}</p>` : ''}</section>`; }
 
@@ -1839,7 +1984,7 @@ const EstimateScreen = (() => {
       const parts = [];
       // 1 · job
       parts.push(`<section class="est-sec"><h3 class="est-h">${esc(L.jobH)}</h3><div class="est-jobs" role="group" aria-label="${esc(L.jobH)}">${['siding', 'roof', 'gutters', 'mixed'].map(j => `<button type="button" class="est-job" data-k="job:${j}" data-set="job" data-v="${j}" aria-pressed="${s.job === j}"><b>${esc(L.jobs[j][0])}</b><span>${esc(L.jobs[j][1])}</span></button>`).join('')}</div>
-        ${has('siding') ? `<div class="est-row"><span class="est-lbl">${esc(L.matL)}</span>${seg('material', [['vinyl', L.mat.vinyl], ['hardie', L.mat.hardie]], s.material, L.matL)}</div>` : ''}</section>`);
+        ${has('siding') ? `<div class="est-row"><span class="est-lbl">${esc(L.matL)}</span>${seg('material', [['vinyl', L.mat.vinyl], ['insulated_vinyl', L.mat.insulated_vinyl], ['hardie', L.mat.hardie]], s.material, L.matL)}</div>` : ''}</section>`);
       // 2 · size
       const sz = [];
       if (s.job !== 'gutters') sz.push(seg('mode', [['sq', L.modeSq, L.modeSqS], ['rough', L.modeRough, L.modeRoughS]], s.mode, L.sizeH));
@@ -1862,6 +2007,15 @@ const EstimateScreen = (() => {
         sh.push(`<div class="est-row"><span class="est-lbl">${esc(L.layersL)}</span>${seg('layers', [[1, '1', L.layer1], [2, '2'], [3, '3']], s.layers, L.layersL)}</div>`);
         parts.push(`<section class="est-sec"><h3 class="est-h">${esc(L.shapeH)}</h3>${sh.join('')}</section>`);
       }
+      // 3b · extras (rules v2): collapsed until opened; the summary says how many are in use
+      const exk = extrasFor();
+      if (exk.length && rules && Array.isArray(rules.addons) && rules.addons.length) {
+        const on = exk.filter(k => Number(s[k]) > 0).length;
+        const rows = exk.map(k => k === 'chimney'
+          ? `<div class="est-row"><span class="est-lbl">${esc(L.ex.chimney[0])}</span>${seg('chimney', [[0, L.chimNo], [1, '1'], [2, '2']], s.chimney, L.ex.chimney[0])}</div>`
+          : stepper(k, L.ex[k][0], L.ex[k][1])).join('');
+        parts.push(`<details class="est-sec est-extras" id="est-extras"${s.extrasOpen ? ' open' : ''}><summary data-k="extras"><span class="est-h">${esc(L.extrasH)}</span><small>${esc(on ? L.extrasOn(on) : L.extrasS)}</small></summary><div class="est-exrows">${rows}</div></details>`);
+      }
       // 4 · result
       if (problem === 'loading') parts.push(calm(L.loadingH, L.loadingP));
       else if (problem === 'missing') parts.push(calm(L.missingH, L.missingP));
@@ -1877,6 +2031,7 @@ const EstimateScreen = (() => {
           <p class="est-what-line">${esc(whatLine(r))}</p>
           ${r.rough_squares ? `<p class="est-rough-note">${esc(L.roughNote)}</p>` : ''}
           <p class="est-notfinal">${esc(L.notFinal)}</p>
+          ${natNote(r)}
           <p class="est-ins">${esc(ins)}</p>
           ${mathHtml(r)}</div></section>`);
         // 5 · text it
@@ -1923,7 +2078,7 @@ const EstimateScreen = (() => {
       const b = ev.target.closest('button'); if (!b || !el.contains(b)) return;
       if (b.dataset.set) {
         const k = b.dataset.set, v = b.dataset.v;
-        s[k] = ['stories', 'layers'].includes(k) ? Number(v) : v;
+        s[k] = ['stories', 'layers', 'chimney'].includes(k) ? Number(v) : v;
         if (k !== 'msgLang') s.save = null;
         render(); return;
       }
@@ -1940,7 +2095,7 @@ const EstimateScreen = (() => {
     });
     el.addEventListener('change', ev => { const i = ev.target.closest('input[data-in]'); if (i) setVal(i.dataset.in, i.value); });
     el.addEventListener('keydown', ev => { const i = ev.target.closest('input[data-in]'); if (i && ev.key === 'Enter') { ev.preventDefault(); setVal(i.dataset.in, i.value); } });
-    el.addEventListener('toggle', ev => { if (ev.target.id === 'est-math') s.mathOpen = ev.target.open; }, true);
+    el.addEventListener('toggle', ev => { if (ev.target.id === 'est-math') s.mathOpen = ev.target.open; if (ev.target.id === 'est-extras') s.extrasOpen = ev.target.open; }, true);
 
     function current(){
       if (!result) return null;
@@ -3272,6 +3427,7 @@ const VX = {
     phErr: {too_large: 'That photo is too big (over 20 MB). Take it again or pick a smaller one.', unsupported_type: 'That file is not a photo the app can keep. Use a JPG or PNG.', quota_or_state: 'Photo storage is full. Ask Claude to clear old photos.', rate_limited: 'Too many photos at once. Wait a minute and try again.', net: 'The photo did not upload. Check your signal and try again.'},
     phRemove: 'Remove photo', phConfirm: 'Tap again to remove', phClose: 'Close', phRemoved: 'Photo removed', before: 'Before', after: 'After', pairH: 'Before and after',
     slots: {
+      contract: ['Signed contract', 'Every signed page, flat and readable.'],
       number: ['House number', 'From the street, so every photo ties to this address.'], sides: ['All 4 elevations', 'One wide shot of each side, storm side first, even the sides with no damage. The pattern shows the storm direction.'],
       screens: ['Window screens + wraps', 'Tears or dimples in the screens, dents in the metal window wraps.'], sdCoin: ['Siding close-ups with a coin', 'Cracks, holes, chipped bottom edges. A coin or tape in every shot for scale.'],
       soffit: ['Soffit + fascia', 'Dented or pulled panels, loose fascia wrap.'], acFins: ['A/C fins', 'Bent fins on the outdoor unit, storm side.'],
@@ -3331,6 +3487,7 @@ const VX = {
     phErr: {too_large: 'Esa foto es muy grande (más de 20 MB). Tómala otra vez o escoge una más chica.', unsupported_type: 'Ese archivo no es una foto que la app pueda guardar. Usa JPG o PNG.', quota_or_state: 'Se llenó el espacio de fotos. Pídele a Claude que borre fotos viejas.', rate_limited: 'Demasiadas fotos a la vez. Espera un minuto e intenta otra vez.', net: 'La foto no se subió. Revisa tu señal e intenta otra vez.'},
     phRemove: 'Quitar foto', phConfirm: 'Toca otra vez para quitarla', phClose: 'Cerrar', phRemoved: 'Se quitó la foto', before: 'Antes', after: 'Después', pairH: 'Antes y después',
     slots: {
+      contract: ['Contrato firmado', 'Cada hoja firmada, derecha y que se lea.'],
       number: ['Número de la casa', 'Desde la calle, para que cada foto quede con esta dirección.'], sides: ['Los 4 lados (elevaciones)', 'Una foto amplia de cada lado, primero el lado de la tormenta, aunque no tenga daño. El patrón muestra de dónde vino la tormenta.'],
       screens: ['Mosquiteros + forros de ventana', 'Rasgaduras o hundidos en los mosquiteros, golpes en los forros de metal de las ventanas.'], sdCoin: ['Siding de cerca con una moneda', 'Grietas, hoyos, orillas de abajo picadas. Una moneda o cinta en cada foto para la escala.'],
       soffit: ['Sofito + fascia', 'Paneles golpeados o despegados, forro de fascia flojo.'], acFins: ['Aletas del aire acondicionado', 'Aletas dobladas en la unidad de afuera, del lado de la tormenta.'],
@@ -3360,7 +3517,7 @@ const VX = {
 };
 const V = () => VX[lang];
 function appToast(msg, act){ const n = $('#appToast'); n.textContent = msg;
-  if (act) { const b = document.createElement('button'); b.type = 'button'; b.className = 't-act'; b.dataset.open = act.open; b.textContent = act.label; n.append(b); }   // v17: e.g. “Make a quick estimate”
+  if (act) { const b = document.createElement('button'); b.type = 'button'; b.className = 't-act'; if (act.open) b.dataset.open = act.open; if (act.undo) b.dataset.nsundo = '1'; b.textContent = act.label; n.append(b); }   // v17: e.g. “Make a quick estimate”
   n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), act ? 9000 : 3800); }
 $('#appToast').addEventListener('click', ev => { if (ev.target.closest('button')) { clearTimeout(appToast.t); $('#appToast').hidden = true; } });
 
@@ -3560,7 +3717,7 @@ const stopOk = s => s && typeof s === 'object' && strv(s.address) && !/apartment
 function walkStops(w){
   return w.stops.filter(s => stopOk(s) && !dnk[slugOf(s.address)])
     .map((s, i) => ({pid: pidSafe(s.pid || slugOf(s.address) || 'h' + i), address: strv(s.address), city: strv(s.city), lat: numv(s.lat), lon: numv(s.lon), base: clamp(Math.round(numv(s.pass) || 1), 1, 3), i,
-      house_line: s.house_line && typeof s.house_line === 'object' ? s.house_line : null}));   // optional county facts line (hh.py todaywalk)
+      house_line: s.house_line && typeof s.house_line === 'object' ? s.house_line : null, year_built: numv(s.year_built)}));   // optional county facts line (hh.py todaywalk)
 }
 function doorState(s){
   const d = doorDocs[s.pid];
@@ -3618,7 +3775,8 @@ function walkMap(m){
 
 /* ---------- today's walk: render (the next door and its 4 buttons come first) ---------- */
 const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = d.toLocaleTimeString(locale(), {hour: 'numeric', minute: '2-digit'}); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
-function doorAddr(s, isNext, k){ const a = splitAddr(s.address), hl = txl(s.house_line); return `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}${hl ? `<span class="d-house">${esc(hl)}</span>` : ''}</div>`; }
+function doorAddr(s, isNext, k){ const a = splitAddr(s.address), hl = txl(s.house_line), why = whyHouse(s, walk && walk.kind === 'everyday' ? 'everyday' : 'storm').text;   // v19: why this house
+  return `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}${why ? `<span class="d-why">${esc(why)}</span>` : ''}${hl ? `<span class="d-house">${esc(hl)}</span>` : ''}</div>`; }
 function doorTools(s, canTap, more){
   const V0 = V(), bits = [];
   if (proofFor(s.address, s.city)) bits.push(`<button type="button" class="proof" data-proof="${esc(evKey(s.address, s.city))}">${esc(V0.proof)}</button>`);
@@ -3793,7 +3951,7 @@ async function tapDoor(pid, result, book, at){
   const pass = x.attempt > 3 ? 3 : x.attempt;
   const k = K(), kind = m.kind;
   const when = book ? `${toDate(book.day).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'}).replace(',', '')}, ${(() => { const h = +book.time.slice(0, 2); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); })()}` : '';
-  const body = {date, pid, address: s.address, city: s.city, result, pass, at: ts, by: 'FilthE', history: [...hist, {result, pass, at: ts}]};
+  const body = {date, pid, address: s.address, city: s.city, result, pass, at: ts, by: 'FilthE', history: [...hist, {result, pass, at: ts}], goal: Math.round(numv(m.w.goal_doors) || m.stops.length)};
   if (when) body.when = when;
   setLocalDoor(pid, body);
   cbAsk = result === 'not_home' && x.attempt < 3 ? {pid, address: s.address, city: s.city, kind} : null; dnkAsk = null;
@@ -4267,6 +4425,7 @@ function renderToday(){
   const bits = []; if (late.length) bits.push(`<b class="crit">${esc(V().sumLate(late.length))}</b>`); if (asks.length) bits.push(`<b class="hot">${esc(T.sumAsk(asks.length))}</b>`); if (due.length) bits.push(`<b class="crit">${esc(T.sumDue(due.length))}</b>`); if (tasks.length) bits.push(`<b>${esc(T.sumTask(tasks.length))}</b>`);
   $('#tSum').innerHTML = bits.length ? bits.join(' · ') : esc(T.sumClear);
   renderKnock();
+  renderMoves();   // v19
   // loud questions
   const ab = $('#tAsks'); ab.hidden = !asks.length;
   if (asks.length) { ab.className = 'asks-loud'; ab.innerHTML = `<h2 class="ah">${esc(T.asksH(asks.length))}</h2><p class="a-quiet" style="font-size:14px">${esc(T.asksSub)}</p><ul class="qlist">${asks.map(x => `<li><span><span class="qid">${esc(x.id)}</span>${esc(x.q)}</span>${askControls(x, 't')}</li>`).join('')}</ul>`; wireAnswers(ab); }
@@ -4291,7 +4450,7 @@ function renderToday(){
   const ans = weekAnswers(t0), pct = Math.round(ans.rate * 100);
   const rateRow = ans.n >= 10 ? `<div class="wk-row wk-rate" id="tRate"><span class="wk-l">${esc(V().wkRate)}</span><span class="wk-b" title="${esc(V().wkRateOf(ans.answered, ans.n))}"><span class="wk-norm" style="left:20%;width:20%"></span><i style="width:${pct}%"></i></span><span class="wk-v">${pct}%</span><p class="wk-sub">${esc(V().wkRateOf(ans.answered, ans.n))}</p><p class="wk-note">${esc(V().wkRateNorm)}</p></div>` : '';
   const inspNote = ans.n >= 25 ? `<p class="wk-note" id="tInspNorm">${esc(V().wkInspNorm)}</p>` : '';
-  $('#tWeek').innerHTML = `<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
+  $('#tWeek').innerHTML = `${streakHtml(t0)}<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
     return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small style="color:var(--label);font-size:12px">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : x === 'inspections' ? inspNote : ''}</div>${x === 'conversations' ? rateRow : ''}`; }).join('')}</div>
     ${!weekDoc ? sayBox(T.exWeek) : ''}`;
   // go knock links
@@ -4311,12 +4470,15 @@ function wireAnswers(root){
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
 const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
-function leadTrack(l){
-  const i = lIdx(l), n = 9, T = L();
-  const segs = LEAD_STAGES.slice(0, 9).map((s, k) => `<i class="${l.stage === 'lost' ? '' : k < i || l.stage === 'done' ? 'done' : k === i ? 'now' : ''}" title="${k + 1}. ${esc(lstageName(l, s))}"></i>`).join('');
-  const left = l.stage === 'lost' ? `<b>${esc(lstageName(l, 'lost'))}</b>` : `<span class="stepchip">${esc(T.stepOf(i + 1, n))}</span><b>${esc(lstageName(l, LEAD_STAGES[i]))}</b>`;
-  const right = l.stage !== 'lost' && i < 8 ? `<span>${esc(T.then(lstageName(l, LEAD_STAGES[i + 1]).toLowerCase()))}</span>` : '';
-  return `<span><span class="a-track${l.stage === 'lost' ? ' lost' : l.stage === 'done' ? ' paid' : ''}" style="--n:9" role="img" aria-label="${esc(l.stage === 'lost' ? lstageName(l, 'lost') : T.stepOf(i + 1, n) + ': ' + lstageName(l, LEAD_STAGES[i]))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
+function leadTrack(l){   // v19: the 8 sale steps of the Next-step card (the stage list stays in the data); lost = the old grey track
+  const T = L();
+  const sid = typeof nsStepOf === 'function' ? nsStepOf(l) : null;
+  if (!sid) return `<span><span class="a-track lost" style="--n:8" role="img" aria-label="${esc(lstageName(l, 'lost'))}">${'<i></i>'.repeat(8)}</span><span class="track-lbl"><span><b>${esc(lstageName(l, 'lost'))}</b></span></span></span>`;
+  const kind = leadKind(l), ids = nsIdsFor(kind), fin = sid === 'finished', n = fin ? 9 : nsNum(sid);
+  const segs = ids.map((id, k) => `<i class="${k + 1 < n ? 'done' : k + 1 === n ? 'now' : ''}" title="${k + 1}. ${esc(nsName(id, kind))}"></i>`).join('');
+  const left = fin ? `<b>✓ ${esc(NX().finishedH)}</b>` : `<span class="stepchip">${esc(T.stepOf(n, 8))}</span><b>${esc(nsName(sid, kind))}</b>`;
+  const right = !fin && n < 8 ? `<span>${esc(T.then(nsName(ids[n], kind).toLowerCase()))}</span>` : '';
+  return `<span><span class="a-track${fin ? ' paid' : ''}" style="--n:8" role="img" aria-label="${esc(fin ? NX().finishedH : T.stepOf(n, 8) + ': ' + nsName(sid, kind))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
 }
 function nextBox(ns, finished, tag){
   const T = L(), text = txl(ns), due = ns && typeof ns === 'object' ? dayOf(ns.due) : null;
@@ -4537,7 +4699,7 @@ function photosBox(l){
   const thumb = p => `<button type="button" class="ph" data-ph="${esc(p.id)}"><img src="${esc(blobSrc(p.id))}" alt="${esc(slotName(p.slot) + (p.at ? ' · ' + fmtWhen(p.at) : ''))}" loading="lazy"></button>`;
   const view = phOpen && ps.find(p => p.id === phOpen);
   const viewer = view ? `<div class="ph-view"><img src="${esc(blobSrc(view.id))}" alt="${esc(slotName(view.slot))}"><span class="stamp">${esc(slotName(view.slot))}${view.at ? ' · ' + esc(fmtWhen(view.at)) : ''}</span><div class="acts"><button type="button" class="btn" data-phclose="1">${esc(V0.phClose)}</button>${can ? `<button type="button" class="tap${phArm === view.id ? ' armed' : ''}" style="border-color:var(--crit);color:${phArm === view.id ? '#1b0806' : 'var(--crit)'};${phArm === view.id ? 'background:var(--crit)' : ''}" data-phrm="${esc(view.id)}">${esc(phArm === view.id ? V0.phConfirm : V0.phRemove)}</button>` : ''}</div></div>` : '';
-  const after = ps.filter(p => p.slot === 'after').pop(), before = ps.filter(p => p.slot === 'sides').pop() || ps.filter(p => p.slot !== 'after').pop();
+  const after = ps.filter(p => p.slot === 'after').pop(), before = ps.filter(p => p.slot === 'sides').pop() || ps.filter(p => p.slot !== 'after' && p.slot !== 'contract').pop();
   const pair = after && before ? `<div class="ph-pairw"><span class="k-l" style="font:700 12px/1.2 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--label)">${esc(V0.pairH)}</span><div class="ph-pair"><figure>${thumb(before)}<figcaption>${esc(V0.before)}</figcaption></figure><figure>${thumb(after)}<figcaption>${esc(V0.after)}</figcaption></figure></div></div>` : '';
   const row = (s, n) => { const mine = ps.filter(p => p.slot === s), on = mine.length > 0 || ck.includes(s), [name, hint] = V0.slots[s];
     return `<li class="slot${on ? ' on' : ''}${s === 'after' ? ' after' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${on}" data-chk="${s}" aria-label="${esc(V0.phMarkAria(name))}"${!can || mine.length || s === 'after' ? ' disabled' : ''}>${on ? '✓' : ''}</button>
@@ -4604,9 +4766,10 @@ const TXT = {
   E: {en: "Thanks for today, {first_name}! Photos from {address} are ready - I'll walk you through what we found and next steps. Good time to call?", es: '¡Gracias por hoy, {first_name}! Ya tengo las fotos de {address}. Te explico lo que encontramos y los próximos pasos. ¿Cuándo te puedo llamar?'},
   F: {en: "No problem, {first_name}! I'll send the photos/notes from {address} so you both can look together. Happy to answer questions for either of you.", es: 'Sin problema, {first_name}. Te mando las fotos y notas de {address} para que las vean juntos. Con gusto respondo dudas a los dos.'},
   G: {en: "Hi {first_name}, we're at {address} for the {time} inspection but didn't catch you - all good! Want to pick a new time?", es: 'Hola {first_name}, estamos en {address} para la inspección de las {time} pero no te encontramos - no hay problema. ¿Buscamos otro horario?'},
+  R: {en: 'Thanks again, {first_name}! If you are happy with the work at {address}, would you leave HMP a quick review? It helps a small local crew a lot.', es: '¡Gracias otra vez, {first_name}! Si te gustó el trabajo en {address}, ¿nos dejas una reseña rápida? Nos ayuda mucho.'},
   H: {en: 'Hi {first_name}, just checking - still a good time to look at the roof/siding at {address}? No rush, whenever works for you.', es: 'Hola {first_name}, solo confirmando - ¿todavía es buen momento para revisar el techo o siding en {address}? Sin prisa, cuando te acomode.'}
 };
-const TXT_NAME = {en: {A: 'Interested', B: 'Booked', C: 'Day before', D: 'On the way', E: 'After inspection', F: 'Spouse', G: 'No-show', H: 'No reply'}, es: {A: 'Interesado', B: 'Agendado', C: 'Un día antes', D: 'En camino', E: 'Después de inspección', F: 'Pareja', G: 'No estaba', H: 'Sin respuesta'}};
+const TXT_NAME = {en: {A: 'Interested', B: 'Booked', C: 'Day before', D: 'On the way', E: 'After inspection', F: 'Spouse', G: 'No-show', H: 'No reply', R: 'Review'}, es: {A: 'Interesado', B: 'Agendado', C: 'Un día antes', D: 'En camino', E: 'Después de inspección', F: 'Pareja', G: 'No estaba', H: 'Sin respuesta', R: 'Reseña'}};
 let txtPick = {};   // lead id -> chosen template
 function txtDefault(l){
   const due = l.next_step && dayOf(l.next_step.due), dd = due ? daysFromToday(due) : null;
@@ -4629,7 +4792,7 @@ function textBox(l){
   const V0 = V(), key = txtPick[l.id] || txtDefault(l), {text} = txtFill(l, key), num = phone.replace(/[^\d+]/g, '');
   const lastT = tsOf(l.last_texted);
   return `<section class="box"><h3>${esc(V0.txtH)}</h3>
-    <div class="pickrow" role="group" aria-label="${esc(V0.txtH)}">${Object.keys(TXT).map(k => `<button type="button" data-txt="${k}" aria-pressed="${k === key}">${esc(TXT_NAME[lang][k])}</button>`).join('')}</div>
+    <div class="pickrow" role="group" aria-label="${esc(V0.txtH)}">${Object.keys(TXT).filter(k => k !== 'R').map(k => `<button type="button" data-txt="${k}" aria-pressed="${k === key}">${esc(TXT_NAME[lang][k])}</button>`).join('')}</div>
     <p class="notes" style="background:var(--bg2);padding:10px 12px;user-select:text" id="txtBody">${esc(text)}</p>
     <div class="sheet-acts"><a class="btn" style="text-decoration:none;display:inline-flex;align-items:center" href="sms:${esc(num)}?&amp;body=${encodeURIComponent(text)}">${esc(V0.txtOpen)}</a><button type="button" class="btn" data-copy="${esc(text)}">${esc(V0.txtCopy)}</button>${DB && CAN_EDIT ? `<button type="button" class="tap" data-texted="${esc(key)}">${esc(V0.txtSent)}</button>` : ''}</div>
     <p class="stamp">${esc(V0.txtNote)}${lastT ? ' · ' + esc(V0.txtLast(fmtWhen(l.last_texted))) : ''}</p></section>`;
@@ -4639,6 +4802,495 @@ async function markTexted(id, key){
   try { const r = await save({op: 'update', path: 'leads/' + id, body: {last_texted: at, texts: [...arr(l.texts), {at, tpl: key}].slice(-20), updated_at: at, updated_by: 'Text'}}); appToast(V().txtLogged); if (r === 'queued') noteQueued(); }
   catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
 }
+/* ================= v19: Next-step coach (O7 phase A) =================
+   One card per lead: where it is in the sale (8 steps), what to say, ask and collect now, the legal must-do, and one
+   Done button that moves the stage and sets the follow-up. The step comes from the stage and the lead's type;
+   lead.step.done only tells apart the steps that share a stage (inspection_set: set/inspect; damage_found: table/paper/claim).
+   Writes (additive, through the outbox): lead.step {id, done[], at}, lead.collected {key: ISO time | false, option},
+   lead.stage + next_step, and on signing lead.signed_on + lead.cancel_by. Hard rules: nothing here covers, waives or
+   rebates a deductible (NE 44-8604), promises that insurance pays, or negotiates a claim; HMP is "registered". */
+const NS_IDS = ['door', 'set', 'inspect', 'table', 'paper', 'claim', 'build', 'paid'];
+const nsNum = id => (id === 'measure' ? 6 : NS_IDS.indexOf(id) + 1);
+const nsIdsFor = kind => (kind === 'cash' ? NS_IDS.map(x => (x === 'claim' ? 'measure' : x)) : NS_IDS);
+const leadKind = l => (l.type === 'cash' ? 'cash' : l.type === 'insurance' ? 'insurance' : l.source === 'everyday' ? 'cash' : 'insurance');
+const stepDoneOf = l => (l.step && typeof l.step === 'object' && Array.isArray(l.step.done) ? l.step.done.filter(x => typeof x === 'string') : []);
+function nsStepOf(l){
+  const ins = leadKind(l) === 'insurance', d = stepDoneOf(l);
+  switch (l.stage) {
+    case 'lost': return null;
+    case 'inspection_set': return d.includes('set') ? 'inspect' : 'set';
+    case 'damage_found': return !d.includes('table') ? 'table' : !d.includes('paper') ? 'paper' : ins ? 'claim' : 'measure';
+    case 'claim_filed': case 'adjuster_meeting': return ins ? 'claim' : 'measure';
+    case 'approved': return ins ? 'build' : 'measure';
+    case 'job_scheduled': return 'build';
+    case 'done': return d.includes('paid') ? 'finished' : 'paid';
+    default: return 'door';
+  }
+}
+const NSX = {
+  en: {
+    h: 'Next step', of: (n) => `Step ${n} of 8`, kind: {insurance: 'Insurance', cash: 'Cash job'},
+    say: 'Say', ask: 'Ask', collect: 'Collect', must: 'Must do', tip: 'Tip', info: 'Info', fromLead: 'from the lead',
+    name: {door: 'At the door', set: ['Inspection set', 'Estimate visit set'], inspect: ['Inspection', 'Estimate visit'], table: 'Talk at the table', paper: 'Paperwork',
+           claim: 'Claim', measure: 'Measure + order', build: 'Build', paid: 'Get paid + review'},
+    finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for. Nice work.',
+    said: {
+      doorIns: r => `Hi, I'm with HMP Siding & Roofing, a registered contractor from Fremont. ${r || 'We are checking homes on this street after the recent storms.'} We're doing free inspections for the neighbors. Can I take a quick look at your roof and siding?`,
+      doorCash: r => `Hi, I'm with HMP Siding & Roofing, a registered contractor from Fremont. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
+      stormR: (h, d) => (h ? `The ${d} storm dropped about ${h}-inch hail on this street.` : `The ${d} storm came through this street.`),
+      yearR: y => `A lot of homes built around ${y} are due for new siding or a roof.`,
+      setIns: "You're all set. I'll text you the time now and again the day before. It takes about 20-30 minutes, and I'll show you every photo.",
+      setCash: "You're all set. I'll text you the time now and again the day before. I'll measure and give you three options with prices.",
+      inspectIns: "I'll start with the house number, then every side of the house and the roof. I only photograph what I see; then we sit down and go over it together.",
+      inspectCash: "I'll measure the walls and the roof and take a few photos. Then we sit down with three options.",
+      tableIns: "Here's what I found, photo by photo. If you decide to call your insurance, the claim is yours: you file it and their adjuster decides. The deductible is always yours. I'll meet the adjuster and show the damage.",
+      tableCash: 'Here are three options: good, better and best. Each is an estimate range until I measure exactly. Which one fits you?',
+      paper: 'This is our written contract. You have 3 business days to cancel for any reason: here are two copies of the cancel notice, one is yours. Please initial here that I explained it.',
+      claim: "When you call your insurance, ask for the claim number and text it to me. When the adjuster calls, tell me the day and time: I'll be on the roof with them the same hour.",
+      measure: "I'll measure everything exactly, order the materials and set the build day with you. The deposit holds the order.",
+      build: d => `The crew comes ${d ? 'on ' + d : 'on build day'}. We protect the yard, clean up every day and run a magnet for nails. I'll send you photos when it's done.`,
+      paid: "Thank you for trusting HMP. If you're happy with the work, a quick review helps a small local crew a lot. Who else on your street should I check on?"
+    },
+    asks: {
+      door: k => [k === 'cash' ? 'How old are the siding and the roof?' : 'Have you seen leaks, dented gutters or cracked siding since the storm?', 'What day and time work for a 20-minute look?',
+                  ['Who else should be part of this decision? Will they be here?', 'A scheduling question, never a condition.'], "What's the best number to text the time to?"],
+      set: () => ['Is the time still good?', ['Will everyone who decides be there?', 'A scheduling question, never a condition.'], 'Any gate, dog or parking I should know about?'],
+      inspect: k => (k === 'cash' ? ['What bothers you most about the house now?', 'Any colors or styles you like?', 'When would you want the work done?']
+                                  : ['Any leaks or ceiling stains inside?', 'How old is the roof? Any repairs since you moved in?', 'May I go up on the roof? (only if it is dry and safe)']),
+      table: k => (k === 'cash' ? ['Which one fits you best: good, better or best?', 'What matters most to you: price, looks or how long it lasts?', 'Is everyone who decides here?']
+                                : ['What questions do you have about how a claim works?', 'Do you want to call your insurance about this? It is your decision.', 'Is everyone who decides here?']),
+      paper: k => ['Any questions about the contract before you sign?', 'Do you have your copy of the cancel notice?', ...(k === 'cash' ? [] : ['Did you read the deductible notice? The deductible is always yours.'])],
+      claim: () => ['Did you get a claim number yet?', 'When is the adjuster coming?', 'Can you forward me the scope when it comes?'],
+      measure: () => ['Which color did you pick? And the trim?', 'Where can the dumpster or trailer go?', 'How will you pay the deposit?'],
+      build: () => ['Can the trailer park in the driveway?', 'Any cars, pets or fragile things to move?', 'Who will be home on build day?'],
+      paid: () => ['Are you happy with how it turned out?', 'Would you leave us a quick review?', 'Who else on your street should I check on?']
+    },
+    tips: {
+      soon: 'Booked for today or tomorrow: call to confirm, don\'t only text.',
+      safety: 'Safety first: ladder tied off, 3 points of contact, no roof when it is wet.',
+      mismatch: 'Siding: prove the mismatch. Photograph the panel profile and color, and the back of a loose piece.',
+      signals: "Buying signals: questions about the install, cancelling or the warranty mean they are close. Answer, then ask for the decision. Don't keep pitching.",
+      gbb: 'Show only 3 prices: Good (vinyl), Better (insulated vinyl), Best (James Hardie). Price each one with the quick estimate.',
+      adjuster: 'Bring the adjuster checklist: claim #, dated photos of every slope, roof diagram, storm-date proof.'
+    },
+    musts: {
+      door: 'Never promise that insurance will pay. Never offer anything toward the deductible (NE 44-8604).',
+      table: "The deductible is always the homeowner's: never cover, waive or discount it (NE 44-8604). They file the claim, not HMP. Never promise what insurance pays.",
+      paper: 'Written contract only, never a handshake. Explain the 3-day cancel out loud, hand over 2 copies of the cancel notice, and have the buyer initial it.',
+      paperIns: ' Insurance job: the deductible notice is signed too, and the buyer may also cancel within 3 business days after a written claim denial.',
+      claim: 'The homeowner files the claim. HMP documents the damage only: never negotiate the claim or argue price with the adjuster (that is public-adjuster work and needs a license).',
+      measure: 'Any change to the work or the price: a written change order, signed before that work.',
+      build: 'The permit is pulled before work starts.',
+      paid: 'Never pay the homeowner or give gifts for the claim. The deductible is theirs (NE 44-8604).'
+    },
+    whoFirst: 'Note for yourself: who reached out first, HMP (knocked) or them (they called)? It may matter for the 3-day right. Still give the cancel form every time until a lawyer says otherwise.',
+    cancelBy: d => `3-day cancel ends at midnight ${d}. Write it on both copies. Sundays and federal holidays don't count.`,
+    items: {
+      name: 'First name', phone: 'Phone (asked, never bought)', when: 'Day and time', who: 'Asked who else decides', rem1: 'Reminder 1 sent (right away)', rem2: 'Reminder 2 sent (day before)',
+      all: 'Everyone who decides will be there', photos: (d, t) => `Photo checklist: ${d} of ${t}`, squares: 'Test squares (wide, mid, close)', mismatch: 'Siding profile photo (for matching)',
+      notes: 'Damage notes', meas: 'Measurements (quick estimate)', sides: 'Photos of all 4 sides', shown: 'Went over the photos together', explained: 'Explained how a claim works',
+      theirs: 'They know the claim is theirs to file', est: 'Estimate saved', option: 'Option picked', allTable: 'Everyone who decides was at the table',
+      contract: 'Signed written contract (photo)', cancelSaid: 'Explained the 3-day cancel out loud', copies: '2 copies of the cancel notice, buyer initialed', dedNotice: 'Deductible notice signed',
+      claimNo: 'Claim number', insurer: 'Insurance company', adjDate: 'Adjuster day and time', packed: 'Adjuster checklist packed', scope: 'Scope in',
+      exact: 'Exact measurements', order: 'Material order list', deposit: 'Deposit', crewDate: 'Crew + build day', dayOf: 'Day-of: permit, yard covered, magnet sweep', after: 'Completion photos',
+      paidFull: 'Paid in full', proofIns: 'Completion proof sent to the insurer', walk: 'Final walk-through done', review: 'Review request sent', street: 'Asked who else on the street'
+    },
+    opt: {good: 'Good', better: 'Better', best: 'Best'},
+    tell: 'Tell the Right Hand', askIt: 'Ask for it', missing: 'Still to get', mustLeft: (n, t) => `${n} of ${t} must-dos ticked. All of them before “Signed”.`,
+    rem: {B: 'Reminder 1 · right away', C: 'Reminder 2 · day before', R: 'Review request'}, openText: 'Open text', markSent: 'Mark sent', sentAt: t => `sent ${t}`, noPhone: 'Get the phone number first.',
+    estBtn: e => (e ? 'Update the quick estimate' : 'Price it: quick estimate'), addPhoto: 'Add contract photo', photoN: n => `${n} ${pl(n, 'photo', 'photos')}`,
+    done: {
+      door: ['Inspection set → next', 'Estimate visit set → next'], set: 'Ready for the visit → next', inspect: ['Inspection done → next', 'Visit done → next'],
+      table: 'Ready for paperwork → next', paper: 'Signed → next', claim0: 'Claim filed → next', claim1: 'Adjuster date set → next', claim2: 'Scope in → next',
+      measure: 'Build day set → next', build0: 'Build day set → next', build1: 'Job finished → next', paid: 'Paid + review asked → done'
+    },
+    pickQ: {door: ['When is the inspection?', 'When is the estimate visit?'], claim1: 'When is the adjuster coming?', measure: 'Which day does the build start?', build0: 'Which day does the build start?'},
+    then: (s, d) => `Then: ${s}${d ? ' · follow-up ' + d : ''}`, pickFirst: 'Pick the day first.',
+    moved: (n, s) => `Moved to step ${n}: ${s}`, finished: 'All steps done. Nice work.', undo: 'Undo', undone: 'Put back.',
+    roNote: 'Only editors can tick or move steps here.',
+    next: {
+      set: ['Inspection', 'Estimate visit'], table: ['Go over the photos at the table', 'Show Good/Better/Best at the table'], paper: 'Paperwork: written contract + explain the 3-day cancel',
+      claim0: 'Ask for the claim number (the homeowner files)', measure0: 'Measure and order materials', claim1: 'Ask the homeowner for the adjuster date',
+      claim2: w => `Adjuster ${w}: be on the roof the same hour`, claim3: 'Scope in: set the build day', build: w => `Build day ${w}`, paid: 'Get paid + ask for a review', fin: 'Finished'
+    },
+    moves: {h: 'Your next moves', sub: 'The 3 leads to work first, and what each one needs.', missing: s => `Still to get: ${s}`, ready: s => `Ready: ${s}`}
+  },
+  es: {
+    h: 'Siguiente paso', of: (n) => `Paso ${n} de 8`, kind: {insurance: 'Seguro', cash: 'Trabajo pagado'},
+    say: 'Di', ask: 'Pregunta', collect: 'Junta', must: 'Obligatorio', tip: 'Consejo', info: 'Dato', fromLead: 'del prospecto',
+    name: {door: 'En la puerta', set: ['Inspección agendada', 'Cita de presupuesto agendada'], inspect: ['Inspección', 'Cita de presupuesto'], table: 'Plática en la mesa', paper: 'Papeles',
+           claim: 'Reclamo', measure: 'Medir + pedir', build: 'Obra', paid: 'Cobrar + reseña'},
+    finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida. Buen trabajo.',
+    said: {
+      doorIns: r => `Hola, soy de HMP Siding & Roofing, contratista registrado de Fremont. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo inspecciones gratis a los vecinos. ¿Puedo revisar rápido su techo y su siding?`,
+      doorCash: r => `Hola, soy de HMP Siding & Roofing, contratista registrado de Fremont. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
+      stormR: (h, d) => (h ? `La tormenta del ${d} tiró granizo de unas ${h} pulgadas en esta calle.` : `La tormenta del ${d} pasó por esta calle.`),
+      yearR: y => `Muchas casas construidas por ${y} ya necesitan siding o techo nuevo.`,
+      setIns: 'Ya quedó. Le mando la hora por texto ahora y otra vez un día antes. Tarda unos 20-30 minutos y le enseño todas las fotos.',
+      setCash: 'Ya quedó. Le mando la hora por texto ahora y otra vez un día antes. Voy a medir y le doy tres opciones con precio.',
+      inspectIns: 'Empiezo con el número de la casa, luego cada lado de la casa y el techo. Solo tomo fotos de lo que veo; después nos sentamos y lo revisamos juntos.',
+      inspectCash: 'Voy a medir las paredes y el techo y tomar unas fotos. Luego nos sentamos con tres opciones.',
+      tableIns: 'Esto es lo que encontré, foto por foto. Si decide llamar a su seguro, el reclamo es suyo: usted lo presenta y su ajustador decide. El deducible siempre lo paga usted. Yo me reúno con el ajustador y le muestro el daño.',
+      tableCash: 'Aquí hay tres opciones: buena, mejor y la mejor. Cada una es un rango estimado hasta medir exacto. ¿Cuál le queda mejor?',
+      paper: 'Este es nuestro contrato por escrito. Tiene 3 días hábiles para cancelar por cualquier razón: aquí tiene dos copias del aviso de cancelación, una es suya. Ponga sus iniciales aquí de que se lo expliqué.',
+      claim: 'Cuando llame a su seguro, pida el número de reclamo y mándemelo por texto. Cuando le llame el ajustador, dígame el día y la hora: yo estaré en el techo con él a la misma hora.',
+      measure: 'Voy a medir todo exacto, pedir el material y agendar la obra con usted. El depósito aparta el pedido.',
+      build: d => `La cuadrilla llega ${d ? 'el ' + d : 'el día de la obra'}. Cuidamos el jardín, limpiamos todos los días y pasamos un imán para los clavos. Le mando fotos al terminar.`,
+      paid: 'Gracias por confiar en HMP. Si le gustó el trabajo, una reseña rápida nos ayuda mucho. ¿A quién más en su calle le reviso su casa?'
+    },
+    asks: {
+      door: k => [k === 'cash' ? '¿Qué tan viejos son el siding y el techo?' : '¿Ha visto goteras, canaletas golpeadas o siding roto desde la tormenta?', '¿Qué día y hora le quedan para una revisión de 20 minutos?',
+                  ['¿Quién más debe participar en esta decisión? ¿Va a estar aquí?', 'Es para agendar, nunca una condición.'], '¿A qué número le mando la hora por texto?'],
+      set: () => ['¿Sigue bien la hora?', ['¿Van a estar todos los que deciden?', 'Es para agendar, nunca una condición.'], '¿Hay reja, perro o algo del estacionamiento que deba saber?'],
+      inspect: k => (k === 'cash' ? ['¿Qué es lo que más le molesta de la casa ahora?', '¿Algún color o estilo que le guste?', '¿Para cuándo quiere el trabajo?']
+                                  : ['¿Hay goteras o manchas en los techos por dentro?', '¿Qué edad tiene el techo? ¿Alguna reparación desde que llegó?', '¿Me permite subir al techo? (solo si está seco y es seguro)']),
+      table: k => (k === 'cash' ? ['¿Cuál le queda mejor: buena, mejor o la mejor?', '¿Qué le importa más: el precio, cómo se ve o cuánto dura?', '¿Están aquí todos los que deciden?']
+                                : ['¿Qué preguntas tiene de cómo funciona un reclamo?', '¿Quiere llamar a su seguro por esto? Es su decisión.', '¿Están aquí todos los que deciden?']),
+      paper: k => ['¿Tiene preguntas del contrato antes de firmar?', '¿Tiene su copia del aviso de cancelación?', ...(k === 'cash' ? [] : ['¿Leyó el aviso del deducible? El deducible siempre es suyo.'])],
+      claim: () => ['¿Ya le dieron número de reclamo?', '¿Cuándo viene el ajustador?', '¿Me puede reenviar el alcance cuando llegue?'],
+      measure: () => ['¿Qué color escogió? ¿Y el de las molduras?', '¿Dónde puede ir el contenedor o el tráiler?', '¿Cómo va a pagar el depósito?'],
+      build: () => ['¿Se puede estacionar el tráiler en la entrada?', '¿Hay carros, mascotas o cosas frágiles que mover?', '¿Quién va a estar en casa el día de la obra?'],
+      paid: () => ['¿Le gustó cómo quedó?', '¿Nos deja una reseña rápida?', '¿A quién más en su calle le reviso su casa?']
+    },
+    tips: {
+      soon: 'Agendado para hoy o mañana: llama para confirmar, no solo mandes texto.',
+      safety: 'Primero la seguridad: escalera amarrada, 3 puntos de apoyo, nada de techo mojado.',
+      mismatch: 'Siding: prueba que no hay igual. Toma foto del perfil y color del panel, y de la parte de atrás de una pieza suelta.',
+      signals: 'Señales de compra: preguntas de la instalación, de cancelar o de la garantía quieren decir que ya casi. Contesta y pide la decisión. No sigas vendiendo.',
+      gbb: 'Enseña solo 3 precios: Buena (vinil), Mejor (vinil aislado), La mejor (James Hardie). Saca el precio de cada una con el presupuesto rápido.',
+      adjuster: 'Lleva la lista del ajustador: número de reclamo, fotos con fecha de cada agua, dibujo del techo, prueba de la fecha de la tormenta.'
+    },
+    musts: {
+      door: 'Nunca prometas que el seguro va a pagar. Nunca ofrezcas nada para el deducible (NE 44-8604).',
+      table: 'El deducible siempre es del dueño: nunca cubrirlo, perdonarlo ni descontarlo (NE 44-8604). El dueño presenta el reclamo, no HMP. Nunca prometas lo que paga el seguro.',
+      paper: 'Solo contrato por escrito, nunca de palabra. Explica en voz alta los 3 días para cancelar, entrega 2 copias del aviso de cancelación y que el comprador ponga sus iniciales.',
+      paperIns: ' Trabajo de seguro: también se firma el aviso del deducible, y el comprador puede cancelar hasta 3 días hábiles después de que el seguro le niegue el reclamo por escrito.',
+      claim: 'El dueño presenta el reclamo. HMP solo documenta el daño: nunca negociar el reclamo ni discutir el precio con el ajustador (eso es trabajo de ajustador público y necesita licencia).',
+      measure: 'Cualquier cambio al trabajo o al precio: una orden de cambio por escrito, firmada antes de ese trabajo.',
+      build: 'El permiso se saca antes de empezar.',
+      paid: 'Nunca le pagues al dueño ni le des regalos por el reclamo. El deducible es suyo (NE 44-8604).'
+    },
+    whoFirst: 'Nota para ti: ¿quién buscó a quién primero, HMP (tocó la puerta) o ellos (llamaron)? Puede importar para el derecho de 3 días. Igual entrega el formulario de cancelación siempre, hasta que un abogado diga otra cosa.',
+    cancelBy: d => `Los 3 días para cancelar terminan a la medianoche del ${d}. Escríbelo en las dos copias. Los domingos y días feriados federales no cuentan.`,
+    items: {
+      name: 'Nombre', phone: 'Teléfono (preguntado, nunca comprado)', when: 'Día y hora', who: 'Pregunté quién más decide', rem1: 'Recordatorio 1 enviado (enseguida)', rem2: 'Recordatorio 2 enviado (un día antes)',
+      all: 'Van a estar todos los que deciden', photos: (d, t) => `Lista de fotos: ${d} de ${t}`, squares: 'Cuadros de prueba (lejos, medio, cerca)', mismatch: 'Foto del perfil del siding (para igualar)',
+      notes: 'Notas del daño', meas: 'Medidas (presupuesto rápido)', sides: 'Fotos de los 4 lados', shown: 'Revisamos las fotos juntos', explained: 'Expliqué cómo funciona un reclamo',
+      theirs: 'Sabe que el reclamo lo presenta él', est: 'Presupuesto guardado', option: 'Opción escogida', allTable: 'Estaban en la mesa todos los que deciden',
+      contract: 'Contrato por escrito firmado (foto)', cancelSaid: 'Expliqué en voz alta los 3 días para cancelar', copies: '2 copias del aviso de cancelación, con iniciales', dedNotice: 'Aviso del deducible firmado',
+      claimNo: 'Número de reclamo', insurer: 'Aseguradora', adjDate: 'Día y hora del ajustador', packed: 'Lista del ajustador lista', scope: 'Llegó el alcance',
+      exact: 'Medidas exactas', order: 'Lista del pedido de material', deposit: 'Depósito', crewDate: 'Cuadrilla + día de la obra', dayOf: 'El día: permiso, jardín cubierto, imán', after: 'Fotos del trabajo terminado',
+      paidFull: 'Pagado completo', proofIns: 'Prueba de terminado enviada a la aseguradora', walk: 'Revisión final hecha', review: 'Pedí la reseña', street: 'Pregunté quién más en la calle'
+    },
+    opt: {good: 'Buena', better: 'Mejor', best: 'La mejor'},
+    tell: 'Decirle a la Mano Derecha', askIt: 'Pregúntalo', missing: 'Falta', mustLeft: (n, t) => `${n} de ${t} obligatorios marcados. Todos antes de “Firmado”.`,
+    rem: {B: 'Recordatorio 1 · enseguida', C: 'Recordatorio 2 · un día antes', R: 'Pedir reseña'}, openText: 'Abrir texto', markSent: 'Marcar enviado', sentAt: t => `enviado ${t}`, noPhone: 'Primero consigue el teléfono.',
+    estBtn: e => (e ? 'Actualizar el presupuesto rápido' : 'Sacar precio: presupuesto rápido'), addPhoto: 'Foto del contrato', photoN: n => `${n} ${pl(n, 'foto', 'fotos')}`,
+    done: {
+      door: ['Inspección agendada → siguiente', 'Cita agendada → siguiente'], set: 'Listo para la cita → siguiente', inspect: ['Inspección hecha → siguiente', 'Cita hecha → siguiente'],
+      table: 'Listos para los papeles → siguiente', paper: 'Firmado → siguiente', claim0: 'Reclamo presentado → siguiente', claim1: 'Fecha del ajustador → siguiente', claim2: 'Llegó el alcance → siguiente',
+      measure: 'Día de obra agendado → siguiente', build0: 'Día de obra agendado → siguiente', build1: 'Obra terminada → siguiente', paid: 'Cobrado + reseña pedida → listo'
+    },
+    pickQ: {door: ['¿Cuándo es la inspección?', '¿Cuándo es la cita de presupuesto?'], claim1: '¿Cuándo viene el ajustador?', measure: '¿Qué día empieza la obra?', build0: '¿Qué día empieza la obra?'},
+    then: (s, d) => `Luego: ${s}${d ? ' · seguimiento ' + d : ''}`, pickFirst: 'Primero escoge el día.',
+    moved: (n, s) => `Pasó al paso ${n}: ${s}`, finished: 'Todos los pasos listos. Buen trabajo.', undo: 'Deshacer', undone: 'Regresado.',
+    roNote: 'Solo los editores pueden marcar o avanzar pasos aquí.',
+    next: {
+      set: ['Inspección', 'Cita de presupuesto'], table: ['Revisar las fotos en la mesa', 'Enseñar Buena/Mejor/La mejor en la mesa'], paper: 'Papeles: contrato por escrito + explicar los 3 días para cancelar',
+      claim0: 'Pedir el número de reclamo (el dueño lo presenta)', measure0: 'Medir y pedir el material', claim1: 'Pedirle al dueño la fecha del ajustador',
+      claim2: w => `Ajustador ${w}: estar en el techo a la misma hora`, claim3: 'Llegó el alcance: agendar la obra', build: w => `Día de obra ${w}`, paid: 'Cobrar + pedir una reseña', fin: 'Terminado'
+    },
+    moves: {h: 'Tus próximos pasos', sub: 'Los 3 prospectos para trabajar primero, y lo que necesita cada uno.', missing: s => `Falta: ${s}`, ready: s => `Listo: ${s}`}
+  }
+};
+const NX = () => NSX[lang];
+const nsName = (id, kind) => { const n = NX().name[id]; return Array.isArray(n) ? n[kind === 'cash' ? 1 : 0] : n || ''; };
+const pickKind = (v, kind) => (Array.isArray(v) ? v[kind === 'cash' ? 1 : 0] : v);
+
+/* ---------- facts the card reads (never typed by FilthE: taps, photos, texts, the King's logs) ---------- */
+const hasSlot = (l, slots) => { const ps = photosOf(l), ck = checkedOf(l); return slots.filter(s => ps.some(p => p.slot === s) || ck.includes(s)).length; };
+const textedWith = (l, key) => arr(l.texts).filter(t => t.tpl === key).map(t => t.at).filter(Boolean).pop() || null;
+const ticked = (l, k) => { const c = l.collected && typeof l.collected === 'object' ? l.collected[k] : null; return !!c && c !== false; };
+const claimFor = l => claims.find(c => c.id === l.id) || null;
+const yearOf = s => { const y = numv(s && s.year_built); if (y && y > 1800 && y < 2100) return Math.round(y);
+  const m = /(?:Built|Construida en)\s+(\d{4})/.exec(txl(s && s.house_line) || strv(s && s.house_line && s.house_line.en)); return m ? +m[1] : null; };
+// v19 · 2: "Why this house": the hail at this house (evidence doc) or the storm day of the walk, plus the year built
+function whyHouse(s, kind){
+  const e = s ? proofFor(s.address, s.city) : null, bits = [], es = lang === 'es';
+  const day = e && dayOf(e.day) || (kind === 'storm' && walk && /^\d{4}-\d{2}-\d{2}/.test(strv(walk.list_id)) ? walk.list_id.slice(0, 10) : null);
+  const h = e && numv(e.hail_in) != null ? fmtIn(numv(e.hail_in)) : null;
+  if (h && day) bits.push(es ? `Granizo de ${h}" el ${fmtDay(day)}` : `${h}" hail ${fmtDay(day)}`);
+  else if (h) bits.push(es ? `Granizo de ${h}"` : `${h}" hail`);
+  else if (day && kind === 'storm') bits.push(es ? `Tormenta del ${fmtDay(day)}` : `Storm ${fmtDay(day)}`);
+  const y = yearOf(s); if (y) bits.push(es ? `construida en ${y}` : `built ${y}`);
+  return {text: h || y ? bits.join(' · ') : '', hail: h, day, year: y};   // a storm day alone says nothing about this house: no line
+}
+function leadStop(l){ const m = walkModel(); return m ? m.stops.find(s => slugOf(s.address) === l.id) || null : null; }
+
+/* ---------- the 3-day cancel: business days skip Sundays and federal holidays (and their observed days) ---------- */
+function fedHolidays(y){
+  const nth = (m, dow, n) => { const d = new Date(y, m, 1, 12); let c = 0; for (;;) { if (d.getDay() === dow && ++c === n) return ymd(d); d.setDate(d.getDate() + 1); } };
+  const last = (m, dow) => { const d = new Date(y, m + 1, 0, 12); while (d.getDay() !== dow) d.setDate(d.getDate() - 1); return ymd(d); };
+  const fixed = [[0, 1], [5, 19], [6, 4], [10, 11], [11, 25]].map(([m, dd]) => ymd(new Date(y, m, dd, 12)));
+  const obs = fixed.flatMap(s => { const w = toDate(s).getDay(); return w === 6 ? [addDays(s, -1)] : w === 0 ? [addDays(s, 1)] : []; });
+  if (new Date(y + 1, 0, 1, 12).getDay() === 6) obs.push(`${y}-12-31`);
+  return new Set([...fixed, ...obs, nth(0, 1, 3), nth(1, 1, 3), last(4, 1), nth(8, 1, 1), nth(9, 1, 2), nth(10, 4, 4)]);
+}
+function cancelByDay(d0){ let d = d0, n = 0; while (n < 3) { d = addDays(d, 1); if (toDate(d).getDay() !== 0 && !fedHolidays(+d.slice(0, 4)).has(d)) n++; } return d; }
+
+/* ---------- what each step collects: auto = read from the lead; tick = FilthE may tick it; tell = ask the homeowner, then tell the Right Hand ---------- */
+function nsItems(l, sid, kind){
+  const I = NX().items, c = claimFor(l), pp = photoProgress(l), ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : {};
+  const est = l.estimate && typeof l.estimate === 'object' && numv(l.estimate.low) != null ? l.estimate : null;
+  const it = (k, label, auto, mode, extra) => Object.assign({k, label, auto: !!auto, mode: mode || 'tick'}, extra || {});
+  const phoneV = strv(l.phone), nameV = strv(l.first_name);
+  switch (sid) {
+    case 'door': return [it('name', I.name, nameV, 'tell', {val: nameV}), it('phone', I.phone, phoneV, 'tell', {val: phoneV}),
+      it('when', I.when, nsPick && nsPick.id === l.id && nsPick.day && nsPick.time, 'auto'), it('who', I.who)];
+    case 'set': return [it('phone', I.phone, phoneV, 'tell', {val: phoneV}), it('when', I.when, dayOf(ns.due), 'auto', {val: txl(ns)}),
+      it('rem1', I.rem1, textedWith(l, 'B')), it('rem2', I.rem2, textedWith(l, 'C')), it('all', I.all)];
+    case 'inspect': return kind === 'cash'
+      ? [it('meas', I.meas, est, 'auto'), it('sides', I.sides, hasSlot(l, ['sides']), 'auto'), it('notes', I.notes, strv(txl(l.notes) || l.notes), 'tell')]
+      : [it('photos', I.photos(pp.done, pp.total), pp.done === pp.total, 'auto'), it('squares', I.squares, hasSlot(l, ['sqWide', 'sqMid', 'sqClose']) === 3, 'auto'),
+         it('mismatch', I.mismatch, hasSlot(l, ['profile']), 'auto'), it('notes', I.notes, strv(txl(l.notes) || l.notes), 'tell')];
+    case 'table': return kind === 'cash'
+      ? [it('est', I.est, est, 'auto', {val: est ? EstimateScreen.savedLine(est, lang) : ''}), it('option', I.option, l.collected && NSOPT.includes(l.collected.option), 'option'), it('allTable', I.allTable)]
+      : [it('shown', I.shown), it('explained', I.explained), it('theirs', I.theirs), it('allTable', I.allTable)];
+    case 'paper': return [it('contract', I.contract, hasSlot(l, ['contract']), 'tick', {must: true, photo: true}), it('cancelSaid', I.cancelSaid, false, 'tick', {must: true}),
+      it('copies', I.copies, false, 'tick', {must: true}), ...(kind === 'cash' ? [] : [it('dedNotice', I.dedNotice, false, 'tick', {must: true})])];
+    case 'claim': { const ci = c ? CLAIM_STEPS.indexOf(c.stage) : -1;
+      return [it('claimNo', I.claimNo, strv(c && c.claim_no) || strv(l.claim_no), 'tell', {val: strv(c && c.claim_no) || strv(l.claim_no)}),
+        it('insurer', I.insurer, strv(c && c.insurer) || strv(l.insurer), 'tell', {val: strv(c && c.insurer) || strv(l.insurer)}),
+        it('adjDate', I.adjDate, (c && dayOf(c.adjuster_date)) || LORDER(l.stage) >= LORDER('adjuster_meeting'), 'auto', {val: c && dayOf(c.adjuster_date) ? fmtDay(dayOf(c.adjuster_date), true) : ''}),
+        it('packed', I.packed), it('scope', I.scope, (c && (dayOf(c.scope_date) || ci >= CLAIM_STEPS.indexOf('scope_in'))) || false, 'tell')]; }
+    case 'measure': { const dep = arr(l.payments).find(p => p.kind === 'deposit');
+      return [it('exact', I.exact, est && !numv(est.job && est.job.footprint_sqft) && (numv(est.job && est.job.siding_squares) || numv(est.job && est.job.roof_squares) || numv(est.job && est.job.gutter_ft))),
+        it('order', I.order), it('deposit', I.deposit, (dep && dayOf(dep.paid_on)) || numv(l.deposit) > 0, 'tell', {val: numv(l.deposit) > 0 ? usd(numv(l.deposit)) : dep && numv(dep.amount) ? usd(numv(dep.amount)) : ''})]; }
+    case 'build': return [it('crewDate', I.crewDate, l.stage === 'job_scheduled' && dayOf(ns.due), 'tick', {val: l.stage === 'job_scheduled' ? txl(ns) : ''}), it('dayOf', I.dayOf), it('after', I.after, hasSlot(l, ['after']), 'auto')];
+    case 'paid': { const cm = cashMoney(l);
+      return [it('paidFull', I.paidFull, kind === 'cash' ? cm.price != null && cm.owed === 0 && cm.got > 0 : !!(c && c.stage === 'paid'), 'tell'),
+        kind === 'cash' ? it('walk', I.walk) : it('proofIns', I.proofIns, c && dayOf(c.completion_sent), 'tell'), it('review', I.review, textedWith(l, 'R')), it('street', I.street)]; }
+  }
+  return [];
+}
+const NSOPT = ['good', 'better', 'best'];
+const itemOn = (l, x) => x.auto || (x.mode === 'tick' && ticked(l, x.k));
+
+/* ---------- what Done does per step (and sub-step, where one step spans stages) ---------- */
+let nsPick = null, nsUndo = null;
+const whenPair = (day, time) => { const h = time ? +time.slice(0, 2) : null, hr = h == null ? '' : `, ${(h % 12 || 12)}${h < 12 ? ' AM' : ' PM'}`;
+  return {en: toDate(day).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'}).replace(',', '') + hr,
+          es: toDate(day).toLocaleDateString('es-US', {weekday: 'short', day: 'numeric', month: 'short'}).replace(',', '') + hr}; };
+function nsAction(l, sid, kind){
+  const D = NSX.en.done, Ds = NX().done, N = NSX.en.next, Ns = NSX.es.next, t0 = todayStr(), ins = kind !== 'cash';
+  const nx = (en, es, due) => ({next_step: due ? {en, es, due} : {en, es}});
+  switch (sid) {
+    case 'door': return {label: pickKind(Ds.door, kind), pick: {days: 7, time: true, q: pickKind(NX().pickQ.door, kind)},
+      apply: p => { const w = whenPair(p.day, p.time); return Object.assign({stage: 'inspection_set'}, nx(`${pickKind(N.set, kind)} ${w.en}`, `${pickKind(Ns.set, kind)} ${w.es}`, p.day)); }};
+    case 'set': return {label: Ds.set, apply: () => ({})};
+    case 'inspect': return {label: pickKind(Ds.inspect, kind), apply: () => Object.assign({stage: 'damage_found'}, nx(pickKind(N.table, kind), pickKind(Ns.table, kind), t0))};
+    case 'table': return {label: Ds.table, apply: () => nx(N.paper, Ns.paper, t0)};
+    case 'paper': return {label: Ds.paper, must: true, apply: () => Object.assign({signed_on: t0, cancel_by: cancelByDay(t0)}, ins ? nx(N.claim0, Ns.claim0, addDays(t0, 2)) : Object.assign({stage: 'approved'}, nx(N.measure0, Ns.measure0, addDays(t0, 2))))};
+    case 'claim':
+      if (l.stage === 'claim_filed') return {label: Ds.claim1, pick: {days: 14, time: true, q: NX().pickQ.claim1},
+        apply: p => { const w = whenPair(p.day, p.time); return Object.assign({stage: 'adjuster_meeting'}, nx(N.claim2(w.en), Ns.claim2(w.es), p.day)); }};
+      if (l.stage === 'adjuster_meeting') return {label: Ds.claim2, apply: () => Object.assign({stage: 'approved'}, nx(N.claim3, Ns.claim3, addDays(t0, 2)))};
+      return {label: Ds.claim0, apply: () => Object.assign({stage: 'claim_filed'}, nx(N.claim1, Ns.claim1, addDays(t0, 3)))};
+    case 'measure': case 'build':
+      if (sid === 'measure' || l.stage !== 'job_scheduled') return {label: sid === 'measure' ? Ds.measure : Ds.build0, pick: {days: 14, time: false, q: NX().pickQ[sid === 'measure' ? 'measure' : 'build0']},
+        apply: p => { const w = whenPair(p.day); return Object.assign({stage: 'job_scheduled'}, nx(N.build(w.en), Ns.build(w.es), p.day)); }};
+      return {label: Ds.build1, apply: () => Object.assign({stage: 'done', completed_on: t0}, nx(N.paid, Ns.paid, addDays(t0, 1)))};
+    case 'paid': return {label: Ds.paid, apply: () => nx(N.fin, Ns.fin)};
+  }
+  return null;
+}
+const pickReady = (pk, id) => !pk || (nsPick && nsPick.id === id && nsPick.day && (!pk.time || nsPick.time));
+
+/* ---------- the card ---------- */
+function nsSay(l, sid, kind){
+  const S = NX().said, ins = kind !== 'cash';
+  if (sid === 'door') { const stop = leadStop(l), w = whyHouse(stop || {address: l.address, city: l.city}, stop && ins ? 'storm' : 'lead');   // the walk's storm day only for a house on today's walk
+    const r = ins ? (w.day ? S.stormR(w.hail, fmtDay(w.day)) : '') : (w.year ? S.yearR(Math.floor(w.year / 10) * 10) : '');
+    return ins ? S.doorIns(r) : S.doorCash(r); }
+  if (sid === 'set') return ins ? S.setIns : S.setCash;
+  if (sid === 'inspect') return ins ? S.inspectIns : S.inspectCash;
+  if (sid === 'table') return ins ? S.tableIns : S.tableCash;
+  if (sid === 'build') { const ns = l.next_step, d = l.stage === 'job_scheduled' && ns && dayOf(ns.due); return S.build(d ? fmtDay(d, true) : ''); }
+  return S[sid] || '';
+}
+function nsTips(l, sid, kind){
+  const T = NX().tips, out = [];
+  if (sid === 'set') { const d = l.next_step && dayOf(l.next_step.due); if (d && daysFromToday(d) >= 0 && daysFromToday(d) <= 1) out.push(T.soon); }
+  if (sid === 'inspect') { out.push(T.safety); if (kind !== 'cash') out.push(T.mismatch); }
+  if (sid === 'table') { if (kind === 'cash') out.push(T.gbb); out.push(T.signals); }
+  if (sid === 'claim') out.push(T.adjuster);
+  return out;
+}
+function nsMust(sid, kind){
+  const M = NX().musts, ins = kind !== 'cash';
+  if (sid === 'door' || sid === 'table' || sid === 'paid') return ins ? M[sid] : '';
+  if (sid === 'paper') return M.paper + (ins ? M.paperIns : '');
+  return M[sid] || '';
+}
+function nsTextRow(l, key, canEdit){
+  const X = NX(), phone = strv(l.phone), at = textedWith(l, key);
+  if (!phone) return `<div class="ns-txt"><b>${esc(X.rem[key])}</b><span class="ns-hint">${esc(X.noPhone)}</span></div>`;
+  const {text} = txtFill(l, key), num = phone.replace(/[^\d+]/g, '');
+  return `<div class="ns-txt"><b>${esc(X.rem[key])}</b>${at ? `<span class="ns-ok">✓ ${esc(X.sentAt(fmtWhen(at)))}</span>` : ''}<p class="ns-msg">${esc(text)}</p>
+    <div class="ns-acts"><a class="btn" href="sms:${esc(num)}?&amp;body=${encodeURIComponent(text)}">${esc(X.openText)}</a>${canEdit ? `<button type="button" class="btn" data-nstext="${key}" data-lead="${esc(l.id)}">${esc(X.markSent)}</button>` : ''}</div></div>`;
+}
+function nsPicker(l, pk){
+  const k = K(), t0 = todayStr(), p = nsPick && nsPick.id === l.id ? nsPick : {};
+  const days = Array.from({length: pk.days}, (_, n) => addDays(t0, n));
+  const dayLbl = (d, n) => n === 0 ? k.today : n === 1 ? k.tomorrow : `${toDate(d).toLocaleDateString(locale(), {weekday: 'short'})} ${toDate(d).getDate()}`;
+  const times = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  const tLbl = t => { const h = +t.slice(0, 2); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); };
+  return `<div class="ns-pick" role="group" aria-label="${esc(pk.q)}"><p>${esc(pk.q)}</p>
+    <span class="k-l">${esc(k.day)}</span><div class="pickrow" data-nspick="day" data-lead="${esc(l.id)}">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${p.day === d}">${esc(dayLbl(d, n))}</button>`).join('')}</div>
+    ${pk.time ? `<span class="k-l">${esc(k.time2)}</span><div class="pickrow" data-nspick="time" data-lead="${esc(l.id)}">${times.map(t => `<button type="button" data-v="${t}" aria-pressed="${p.time === t}">${tLbl(t)}</button>`).join('')}</div>` : ''}</div>`;
+}
+function nsCard(l){
+  const X = NX(), kind = leadKind(l), sid = nsStepOf(l); if (!sid) return '';
+  const can = !!DB && CAN_EDIT;
+  if (sid === 'finished') return `<section class="ns fin" id="nsCard" aria-label="${esc(X.h)}"><div class="ns-top"><span class="ns-of">✓ ${esc(X.finishedH)}</span></div><p class="ns-finp">${esc(X.finishedP)}</p></section>`;
+  const n = nsNum(sid), items = nsItems(l, sid, kind), act = nsAction(l, sid, kind), must = nsMust(sid, kind), tips = nsTips(l, sid, kind);
+  const asks = (X.asks[sid] || (() => []))(kind).map(q => Array.isArray(q) ? `<li>${esc(q[0])}<small>${esc(q[1])}</small></li>` : `<li>${esc(q)}</li>`).join('');
+  const photos = photosOf(l).filter(p => p.slot === 'contract');
+  const row = x => {
+    const on = itemOn(l, x), lock = x.auto || x.mode === 'auto' || x.mode === 'tell' || x.mode === 'option' || !can;
+    const box = `<button type="button" class="chk" role="checkbox" aria-checked="${on}" aria-label="${esc(x.label)}" data-nstick="${esc(x.k)}" data-lead="${esc(l.id)}"${lock ? ' disabled' : ''}>${on ? '✓' : ''}</button>`;
+    let sub = x.auto && x.val ? `<span class="ns-val">${esc(x.val)}</span>` : x.auto && x.mode !== 'tick' ? `<span class="ns-hint">${esc(X.fromLead)}</span>` : '';
+    if (!on && x.mode === 'tell') sub = `<span class="ns-hint warn">${esc(X.askIt)}</span>${SAMPLE && CAN_EDIT ? `<button type="button" class="linkbtn ns-tell" data-tell="${esc(strv(l.address))}">${esc(X.tell)}</button>` : ''}`;
+    if (x.mode === 'option') sub = `<div class="pickrow ns-opt" role="group" aria-label="${esc(x.label)}">${NSOPT.map(o => `<button type="button" data-nsopt="${o}" data-lead="${esc(l.id)}" aria-pressed="${!!(l.collected && l.collected.option === o)}"${can ? '' : ' disabled'}>${esc(X.opt[o])}</button>`).join('')}</div>`;
+    if (x.photo) sub += `${photos.length ? `<div class="sl-ph">${photos.map(p => `<button type="button" class="ph" data-ph="${esc(p.id)}"><img src="${esc(blobSrc(p.id))}" alt="${esc(x.label)}" loading="lazy"></button>`).join('')}</div>` : ''}${ASSETS && can ? `<label class="ph-file sm">${esc(phBusy === 'contract' ? '…' : X.addPhoto)}<input type="file" accept="image/*" multiple data-slot="contract"${phBusy ? ' disabled' : ''}></label>` : ''}`;
+    return `<li class="ns-it${on ? ' on' : ''}${x.must ? ' must' : ''}">${box}<div class="ns-itt"><span>${esc(x.label)}</span>${sub}</div></li>`;
+  };
+  const extra = [];
+  if (sid === 'set') extra.push(nsTextRow(l, 'B', can), nsTextRow(l, 'C', can));
+  if (sid === 'paid') extra.push(nsTextRow(l, 'R', can));
+  if ((sid === 'table' && kind === 'cash') || (sid === 'inspect' && kind === 'cash') || sid === 'measure') { const e = l.estimate && numv(l.estimate.low) != null;
+    if (can) extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(X.estBtn(e))}</button></div>`); }
+  if (sid === 'paper') extra.push(`<p class="ns-info"><b>${esc(X.info)}</b>${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
+  const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
+  const ready = pickReady(act && act.pick, l.id) && (!act || !act.must || mustOn === musts.length);
+  // what comes after: the step Done leads to, and the follow-up day it sets
+  let thenLine = '';
+  if (act) { const tmp = Object.assign({}, l, act.apply(nsPick && nsPick.id === l.id && nsPick.day ? nsPick : {day: todayStr(), time: '12:00'}));
+    tmp.step = {done: [...new Set([...stepDoneOf(l), sid])]}; const nid = nsStepOf(tmp), due = tmp.next_step && dayOf(tmp.next_step.due);
+    thenLine = nid === 'finished' ? '' : X.then(`${nsNum(nid)}. ${nsName(nid, kind)}`, due && !(act.pick && !(nsPick && nsPick.id === l.id && nsPick.day)) ? fmtDay(due, true) : ''); }
+  return `<section class="ns" id="nsCard" data-lead="${esc(l.id)}" aria-labelledby="nsName">
+    <div class="ns-top"><span class="ns-of">${esc(X.of(n))} · ${esc(X.kind[kind])}</span></div>
+    <h3 class="ns-name" id="nsName">${esc(nsName(sid, kind))}</h3>
+    <div class="ns-say"><b>${esc(X.say)}</b><q>${esc(nsSay(l, sid, kind))}</q></div>
+    ${asks ? `<div class="ns-sec"><b class="ns-lb">${esc(X.ask)}</b><ul class="ns-ask">${asks}</ul></div>` : ''}
+    ${tips.map(t => `<p class="ns-tip"><b>${esc(X.tip)}</b>${esc(t)}</p>`).join('')}
+    <div class="ns-sec"><b class="ns-lb">${esc(X.collect)}</b><ul class="ns-ck">${items.map(row).join('')}</ul></div>
+    ${extra.join('')}
+    ${must ? `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(must)}</p>` : ''}
+    ${can && act ? `${act.pick ? nsPicker(l, act.pick) : ''}
+      ${act.must ? `<p class="ns-hint${mustOn === musts.length ? '' : ' warn'}">${esc(X.mustLeft(mustOn, musts.length))}</p>` : ''}
+      <button type="button" class="ns-done" data-nsdone="${esc(l.id)}"${ready ? '' : ' disabled'}>${esc(act.label)}</button>
+      ${act.pick && !pickReady(act.pick, l.id) ? `<p class="ns-then">${esc(X.pickFirst)}</p>` : thenLine ? `<p class="ns-then">${esc(thenLine)}</p>` : ''}` : !can ? `<p class="ns-then">${esc(X.roNote)}</p>` : ''}
+  </section>`;
+}
+
+/* ---------- writes (through the outbox: a bad signal never loses a tick) ---------- */
+async function nsWrite(id, patch, okMsg, undo){
+  const at = nowIso(); patch.updated_at = at; patch.updated_by = 'Next step';
+  try { const r = await save({op: 'update', path: 'leads/' + id, body: patch}); if (r === 'queued') noteQueued(); if (okMsg) appToast(okMsg, undo ? {label: NX().undo, undo: true} : null); return true; }
+  catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); if (refused(e)) { CAN_EDIT = false; renderApp(true); } return false; }
+}
+async function nsTick(id, key){
+  const l = leads.find(x => x.id === id); if (!l) return;
+  const col = Object.assign({}, l.collected && typeof l.collected === 'object' ? l.collected : {}); col[key] = ticked(l, key) ? false : nowIso();
+  await nsWrite(id, {collected: col});
+}
+async function nsOption(id, o){
+  const l = leads.find(x => x.id === id); if (!l || !NSOPT.includes(o)) return;
+  const col = Object.assign({}, l.collected && typeof l.collected === 'object' ? l.collected : {}); col.option = o;
+  await nsWrite(id, {collected: col});
+}
+async function nsDone(id){
+  const l = leads.find(x => x.id === id); if (!l || !DB || !CAN_EDIT) return;
+  const kind = leadKind(l), sid = nsStepOf(l), act = sid && nsAction(l, sid, kind); if (!act) return;
+  if (!pickReady(act.pick, id)) { appToast(NX().pickFirst); return; }
+  if (act.must) { const ms = nsItems(l, sid, kind).filter(x => x.must); if (ms.some(x => !itemOn(l, x))) return; }
+  const at = nowIso(), patch = act.apply(nsPick || {}), done = [...new Set([...stepDoneOf(l), sid])];
+  const nid = nsStepOf(Object.assign({}, l, patch, {step: {done}}));
+  patch.step = {id: nid || 'finished', done, at};
+  if (patch.stage && patch.stage !== l.stage) patch.last_contact = at;
+  const prev = {}; for (const k of Object.keys(patch)) prev[k] = l[k] === undefined ? null : clone(l[k]);
+  nsPick = null; nsUndo = {id, prev};
+  await nsWrite(id, patch, nid === 'finished' ? NX().finished : NX().moved(nsNum(nid), nsName(nid, kind)), true);
+}
+async function nsUndoLast(){
+  const u = nsUndo; nsUndo = null; if (!u) return;
+  if (await nsWrite(u.id, Object.assign({}, u.prev))) appToast(NX().undone);
+}
+async function nsMarkText(id, key){ await markTexted(id, key); }
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.nsundo) { nsUndoLast(); return; }
+  const row = b.closest('[data-nspick]'), id = b.dataset.lead || (row && row.dataset.lead);
+  if (b.dataset.nsdone) { b.disabled = true; nsDone(b.dataset.nsdone); return; }
+  if (!id) return;
+  if (b.dataset.nstick) { nsTick(id, b.dataset.nstick); return; }
+  if (b.dataset.nsopt) { nsOption(id, b.dataset.nsopt); return; }
+  if (b.dataset.nstext) { b.disabled = true; nsMarkText(id, b.dataset.nstext); return; }
+  if (row && b.dataset.v) { if (!nsPick || nsPick.id !== id) nsPick = {id, day: null, time: null}; nsPick[row.dataset.nspick] = b.dataset.v; if (openRef) renderSheet(); }
+});
+
+/* ---------- Today: "Your next moves" (the top 3 leads by what is late or due first) ---------- */
+function nextMoves(){
+  const late = lateLeads().map(x => x.l.id), rank = id => { const i = late.indexOf(id); return i < 0 ? 1e9 : i; };   // late leads first, the longest waiting first
+  return leads.map(l => ({l, sid: nsStepOf(l)})).filter(x => x.sid && x.sid !== 'finished')
+    .map(x => Object.assign(x, {late: late.includes(x.l.id), due: leadDue(x.l)}))
+    .sort((a, b) => (rank(a.l.id) - rank(b.l.id)) || a.due.localeCompare(b.due) || (lIdx(b.l) - lIdx(a.l)) || strv(a.l.address).localeCompare(strv(b.l.address))).slice(0, 3);
+}
+function renderMoves(){
+  const box = $('#tMoves'), sec = $('#tMovesS'); if (!box || !sec) return;
+  const X = NX(), mv = nextMoves(); sec.hidden = !mv.length; if (!mv.length) { box.innerHTML = ''; return; }
+  $('#tMovesH').innerHTML = `${esc(X.moves.h)} <small>${esc(X.moves.sub)}</small>`;
+  box.innerHTML = `<ol class="nm">${mv.map(({l, sid, late}) => { const kind = leadKind(l), items = nsItems(l, sid, kind), miss = items.find(x => !itemOn(l, x) && x.mode !== 'auto'), act = nsAction(l, sid, kind);
+    const d = l.next_step && dayOf(l.next_step.due), lt = late && lateLeads().find(x => x.l.id === l.id);
+    return `<li><button type="button" data-open="lead:${esc(l.id)}"><span class="nm-top"><span class="nm-n">${nsNum(sid)}</span><span class="nm-s">${esc(nsName(sid, kind))}</span>${lt ? `<span class="a-chip crit">! ${esc(V().lateChip(lt.days))}</span>` : d ? dueChip(d) : ''}</span>
+      <span class="nm-a">${esc(whoOf(l))}</span><span class="nm-do">${esc(miss ? X.moves.missing(miss.label) : act ? X.moves.ready(act.label.replace(/\s*→.*$/, '')) : '')}</span></button></li>`; }).join('')}</ol>`;
+}
+
+/* ---------- v19 · 3: personal knock streak (days the door goal was hit, from the door taps by date; no leaderboard) ---------- */
+// A day counts when its taps (one per house) reach that day's goal (stored on each tap since v19, else today's walk goal, else 25).
+// Sundays off never break a streak (a Sunday that hits the goal still counts). Best = the longest run seen (kept in stats/streak).
+let streakDoc = null, streakSaved = 0;
+const knockGoal = () => { const w = walkToday(); return Math.round(numv(w && w.goal_doors) || (w && w.stops ? w.stops.length : 0) || 25); };
+function knockStreak(t0){
+  const per = {}, add = (day, v) => { if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !v || !v.pid || !tapResult(v.result)) return; const p = per[day] = per[day] || {pids: new Set(), goal: 0}; p.pids.add(String(v.pid)); p.goal = Math.max(p.goal, numv(v.goal) || 0); };
+  for (const [id, v] of Object.entries(weekDoorRaw)) { const day = strv(v.date) || id.slice(0, 10); if (day < t0) add(day, v); }
+  for (const v of Object.values(doorDocs)) add(strv(v && v.date) || t0, v);
+  const g0 = knockGoal(), hit = d => { const p = per[d]; return !!p && p.pids.size >= (p.goal || g0); }, sun = d => toDate(d).getDay() === 0;
+  const days = Object.keys(per).sort(), first = days[0];
+  let cur = 0, best = 0, run = 0;
+  if (first) for (let d = first; d <= t0; d = addDays(d, 1)) { if (hit(d)) { run++; best = Math.max(best, run); } else if (!sun(d) && d !== t0) run = 0; }
+  const today = hit(t0);
+  if (first) { let d = today ? t0 : addDays(t0, -1); for (let g = 0; g < 400 && d >= first; g++, d = addDays(d, -1)) { if (hit(d)) cur++; else if (!sun(d)) break; } }
+  const stored = numv(streakDoc && streakDoc.best) || 0;
+  return {cur, best: Math.max(best, stored, cur), today, goal: g0, todayN: per[t0] ? per[t0].pids.size : 0, runBest: best};
+}
+function saveBestStreak(s){   // the best run lives in stats/streak so it survives the 8-week window the page loads
+  if (!DB || !CAN_EDIT || s.runBest <= (numv(streakDoc && streakDoc.best) || 0) || s.runBest <= streakSaved) return;
+  streakSaved = s.runBest; save({op: 'set', path: 'stats/streak', body: {best: s.runBest, best_at: todayStr(), updated_at: nowIso(), updated_by: 'HMP App'}}).catch(() => {});
+}
+function streakHtml(t0){
+  const s = knockStreak(t0), es = lang === 'es'; saveBestStreak(s);
+  if (!s.cur && !s.best && !s.todayN) return '';
+  const unit = n => (es ? pl(n, 'día', 'días') : pl(n, 'day', 'days'));
+  const sub = s.today ? (es ? `Hoy ya llegaste a ${s.goal} puertas.` : `Goal of ${s.goal} doors hit today.`)
+    : s.cur ? (es ? `Llega a ${s.goal} puertas hoy y son ${s.cur + 1}.` : `Hit ${s.goal} doors today to make it ${s.cur + 1}.`)
+    : (es ? `Llega a ${s.goal} puertas hoy para empezar una racha.` : `Hit ${s.goal} doors today to start a streak.`);
+  return `<div class="wk-streak" id="tStreak"><div class="st-now"><b>${s.cur}</b><span>${esc(es ? `${unit(s.cur)} seguidos en la meta` : `${unit(s.cur)} in a row on goal`)}</span></div>
+    <div class="st-best"><span>${esc(es ? 'Mejor racha' : 'Best streak')}</span><b>${s.best}</b></div>
+    <p class="st-sub">${esc(sub)} ${esc(es ? 'Un domingo de descanso no la rompe.' : 'A Sunday off never breaks it.')}</p></div>`;
+}
+
 /* ---------- T52 quick estimate sheet: est: (from Today) or est:<leadId> (from the lead sheet) ---------- */
 let estCtl = null, estFor = null, estSig = '', estRules;
 function estLeadView(l){
@@ -4681,7 +5333,7 @@ function renderSheet(){
     const v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
     const claim = claims.find(c => c.id === l.id);
     const late = lateLeads().find(x => x.l.id === l.id);
-    const parts = [];
+    const parts = [nsCard(l)];   // v19: the Next-step card comes first
     if (late) parts.push(`<p class="k-stale" style="border-left-color:var(--crit);background:var(--crit-soft)"><span><b style="color:var(--crit)">${esc(V0.late(whoOf(l), late.days))}</b> ${esc(V0.lateWhat)}</span></p>`);
     parts.push(nextBox(l.next_step, ['done', 'lost'].includes(l.stage), 'div'));
     if (l.type === 'cash' && numv(l.contract_price) != null) { const m = cashMoney(l);
@@ -4690,7 +5342,8 @@ function renderSheet(){
     if (estS || !estFin) parts.push(`<section class="box"><h3>${esc(T.estH)}</h3>${estS ? `<p class="est-saved">${esc(EstimateScreen.savedLine(estS, lang))}</p>` : ''}${!estFin ? `<div class="sheet-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(estS ? T.estUpd : T.estNew)}</button></div>` : ''}</section>`);
     const tb = textBox(l); if (tb) parts.push(tb);
     if (ASSETS) parts.push(photosBox(l));
-    parts.push(`<section class="box"><h3>${esc(T.stepsH)}</h3><ol class="steps">${LEAD_STAGES.slice(0, 9).map((s, k) => { const i = lIdx(l); return `<li class="${l.stage === 'lost' ? '' : k < i || l.stage === 'done' ? 'done' : k === i ? 'now' : ''}"><i>${k + 1}</i>${esc(lstageName(l, s))}</li>`; }).join('')}</ol></section>`);
+    { const sid = nsStepOf(l), kind = leadKind(l), n = !sid ? 0 : sid === 'finished' ? 9 : nsNum(sid);   // v19: the 8 sale steps
+      parts.push(`<section class="box"><h3>${esc(T.stepsH)}</h3><ol class="steps">${nsIdsFor(kind).map((id, k) => `<li class="${!sid ? '' : k + 1 < n ? 'done' : k + 1 === n ? 'now' : ''}"><i>${k + 1}</i>${esc(nsName(id, kind))}</li>`).join('')}</ol></section>`); }
     // details: only what we know; a missing name or phone says "Ask the homeowner" (QA 7)
     const miss = [!strv(l.first_name) ? 'name' : '', !strv(l.phone) ? 'phone' : ''].filter(Boolean);
     const pairs = [[T.lName, esc(strv(l.first_name))], [T.lPhone, strv(l.phone) ? copyHtml(strv(l.phone)) : ''], [T.lCity, esc(strv(l.city))], [T.lSource, SOURCES.includes(l.source) ? esc(T.src[l.source]) : ''], [T.lType, LTYPES.includes(l.type) ? esc(T.typ[l.type]) : '']].filter(p => p[1]);
@@ -5225,14 +5878,15 @@ function subscribeApp(db){
   db.collection('leads').onSnapshot(s => { ok(); leadsSeen = true; const v = list(s); if (changed('leads', v)) { leadsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
   db.collection('claims').onSnapshot(s => { ok(); const v = list(s); if (changed('claims', v)) { claimsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
   db.doc('today/walk').onSnapshot(s => { ok(); const v = s.exists ? s.data() : null; if (changed('walk', v)) { walk = v; bump(); } else renderAppSoon(); }, fail);
-  { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs)
-    db.collection('doors').where('date', '>=', mon).where('date', '<=', sun).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
+  { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs); v19: 8 weeks back, for the streak
+    db.collection('doors').where('date', '>=', addDays(mon, -56)).where('date', '<=', sun).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
   db.collection('doors').where('date', '==', todayStr()).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } if (changed('doors', o)) { doorRaw = o; mergeDoors(); bump(); } }, () => {});
   db.collection('dnk').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v) o[d.id] = v; } if (changed('dnk', o)) { dnkRaw = o; applyOverlay(); } }, () => {});
   db.collection('evidence').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && numv(v.hail_in) != null) o[d.id] = v; } if (changed('ev', o)) { evidence = o; bump(); } }, () => {});
   const t0 = todayStr();
   db.doc('stats/week-' + isoWeek(t0)).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('wk', v)) { weekDoc = v; bump(); } }, () => {});
   db.doc('stats/week-' + isoWeek(addDays(t0, -7))).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('lw', v)) { lastWeekDoc = v; bump(); } }, () => {});
+  db.doc('stats/streak').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('streak', v)) { streakDoc = v; bump(); } }, () => {});   // v19
   db.doc('system/prices').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('prices', v)) { prices = v; if (openRef && openRef.startsWith('est:')) renderSheet(); } },
     () => { if (prices === undefined) { prices = null; if (openRef && openRef.startsWith('est:')) renderSheet(); } });
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
