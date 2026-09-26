@@ -1,0 +1,268 @@
+<title>HMP Translate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap">
+<style>
+/* HMP Pro Dark: one committed dark look (charcoal siding, silver type, orange only for the main action) */
+:root{
+  color-scheme:dark;
+  --bg:#1f2024; --bg2:#26272b; --panel:#2a2b2f; --panel2:#35363b; --line:#3b3c41; --line2:#55575e;
+  --ink:#f2f3f5; --ink2:#d6d8dc; --mute:#b9bcc2;
+  --hmp:#f5883a; --hmp2:#ffa766; --hmp-soft:rgba(245,136,58,.15);
+  --ok:#4cc38a; --warn:#f5b53a; --warn-soft:rgba(245,181,58,.13); --crit:#ef5d50; --crit-soft:rgba(239,93,80,.14);
+  --f-display:"Barlow Semi Condensed","Arial Narrow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-body:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+html,body{height:100%;background:var(--bg)}
+body{color:var(--ink);font:15px/1.45 var(--f-body);margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hmp2);outline-offset:2px}
+
+.app{height:100%;display:grid;grid-template-rows:1fr auto 1fr;max-width:760px;margin:0 auto;padding-inline:16px;padding-block:10px}
+.half{display:grid;grid-template-rows:auto 1fr auto;gap:8px;min-height:0;padding-block:8px}
+.half.flip{transform:rotate(180deg)}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.who{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.who b{color:var(--ink);font-weight:700}
+.tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line2);padding:2px 6px}
+.say{min-height:0;overflow:auto;background:var(--panel);border:2px solid var(--line);padding:12px 14px;display:grid;align-content:start;gap:8px}
+.big{font-family:var(--f-display);font-weight:600;font-size:clamp(24px,6.4vw,34px);line-height:1.15;margin:0;text-wrap:pretty}
+.small{font-size:13px;color:var(--mute);margin:0}
+.back{font-size:13px;color:var(--ink2);margin:0;border-left:3px solid var(--ok);padding-left:8px}
+.warn{font-size:14px;margin:0;background:var(--warn-soft);border-left:3px solid var(--warn);padding:8px 10px}
+.warn.stop{background:var(--crit-soft);border-color:var(--crit)}
+.acts{display:flex;flex-wrap:wrap;gap:6px}
+.btn{background:var(--panel2);border:2px solid var(--line2);padding:8px 12px;min-height:44px;font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.02em;cursor:pointer}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45;cursor:default}
+.talk{display:grid;grid-template-columns:1fr;gap:8px}
+.hold{width:100%;min-height:76px;background:var(--hmp);color:#1b1b1d;border:0;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.02em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;gap:10px}
+.hold svg{width:26px;height:26px}
+.hold.on{background:var(--hmp2);box-shadow:0 0 0 4px var(--hmp-soft)}
+.hold.alt{background:var(--panel2);color:var(--ink);border:2px solid var(--line2)}
+.type{display:flex;gap:6px}
+.type input{flex:1;min-width:0;background:var(--bg2);border:2px solid var(--line2);padding:10px;font-size:16px}
+.live{font-size:13px;color:var(--hmp2);min-height:1.2em;margin:0}
+
+.mid{display:grid;gap:8px;padding-block:8px;border-block:2px solid var(--line)}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.row .sp{flex:1}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{flex:none;background:var(--bg2);border:1px solid var(--line2);padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip b{font-weight:600}
+.chip span{color:var(--mute)}
+.tog{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);cursor:pointer;min-height:44px}
+.tog input{width:20px;height:20px;accent-color:var(--hmp)}
+.legalbtn{border-color:var(--hmp);color:var(--hmp2)}
+
+.sheet{position:fixed;inset:0;background:rgba(10,10,12,.78);display:grid;place-items:end center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5}
+.card{width:100%;max-width:720px;max-height:88%;overflow:auto;background:var(--panel);border:2px solid var(--line2);padding:16px;display:grid;gap:12px}
+.card h2{font-family:var(--f-display);font-size:22px;margin:0}
+.card .law{font-size:12px;color:var(--mute);letter-spacing:.04em;text-transform:uppercase}
+.legaltext{background:var(--bg2);border:1px solid var(--line);padding:10px 12px;font-size:14px;line-height:1.5;display:grid;gap:8px}
+.legaltext p{margin:0}
+.fixed{font-size:12px;color:var(--ok)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (min-width:700px){.big{font-size:36px}}
+</style>
+
+<div class="app" id="app">
+  <!-- ES half: the homeowner's side. Flipped so it reads right-side up across the table. -->
+  <section class="half flip" id="half-es" lang="es" aria-label="Lado en español">
+    <div class="hd"><span class="who"><b>Español</b> · dueño de casa</span><span class="tag" id="tag-es">Ejemplo</span></div>
+    <div class="say" id="say-es" aria-live="polite"></div>
+    <div class="talk">
+      <p class="live" id="live-es"></p>
+      <button class="hold" id="hold-es" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Mantenga para hablar</span></button>
+      <form class="type" id="type-es" hidden><input id="in-es" autocomplete="off" placeholder="Escriba aquí" aria-label="Escriba en español"><button class="btn" type="submit">Traducir</button></form>
+    </div>
+  </section>
+
+  <div class="mid">
+    <div class="row">
+      <button class="btn legalbtn" id="open-legal" type="button">Legal notices · Avisos</button>
+      <span class="sp"></span>
+      <label class="tog"><input type="checkbox" id="auto" checked> Read aloud</label>
+      <label class="tog"><input type="checkbox" id="flip" checked> Flip top</label>
+    </div>
+    <div class="chips" id="chips" aria-label="Glossary"></div>
+  </div>
+
+  <!-- EN half: FilthE's side. -->
+  <section class="half" id="half-en" lang="en" aria-label="English side">
+    <div class="hd"><span class="who"><b>English</b> · HMP</span><span class="tag" id="tag-en">Example</span></div>
+    <div class="say" id="say-en" aria-live="polite"></div>
+    <div class="talk">
+      <p class="live" id="live-en"></p>
+      <button class="hold" id="hold-en" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Hold to talk</span></button>
+      <form class="type" id="type-en" hidden><input id="in-en" autocomplete="off" placeholder="Type here" aria-label="Type in English"><button class="btn" type="submit">Translate</button></form>
+    </div>
+  </section>
+</div>
+
+<div class="sheet" id="legal" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="legal-h">
+    <div class="row"><h2 id="legal-h">Fixed notices · Avisos fijos</h2><span class="sp"></span><button class="btn" id="close-legal" type="button">Close · Cerrar</button></div>
+    <p class="fixed">Word for word from the signed paper. Never translated by AI. · Palabra por palabra del papel firmado. Nunca traducido por IA.</p>
+    <div class="acts" id="legal-list"></div>
+    <div id="legal-body"></div>
+  </div>
+</div>
+
+<script src="translate.js"></script>
+<script>
+(function () {
+  "use strict";
+  const T = window.HMPTranslate;
+  const $ = (id) => document.getElementById(id);
+  const other = { en: "es", es: "en" };
+  const UI = {
+    en: { hold: "Hold to talk", listening: "Listening… let go to translate", thinking: "Translating…", type: "Type instead", check: "Check", simpler: "Simpler", replay: "Replay", youSaid: "You said", heard: "They said", readNotice: "Read the fixed notice", noMic: "Voice isn't available here. Type instead." },
+    es: { hold: "Mantenga para hablar", listening: "Escuchando… suelte para traducir", thinking: "Traduciendo…", type: "Escribir", check: "Revisar", simpler: "Más fácil", replay: "Repetir", youSaid: "Usted dijo", heard: "Le dijeron", readNotice: "Leer el aviso fijo", noMic: "La voz no funciona aquí. Escriba." }
+  };
+  let last = null; // {from, to, source, text}
+  let busy = false;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  function autoOn() { return $("auto").checked; }
+
+  // Paint one side. `big` is what this side reads; `sub` a small line under it.
+  function paint(lang, parts) {
+    $("say-" + lang).innerHTML = parts.join("");
+    $("tag-" + lang).hidden = true;
+  }
+  function actions() {
+    return '<div class="acts">' +
+      '<button class="btn" data-act="replay" type="button">' + UI[last.to].replay + '</button>' +
+      '<button class="btn" data-act="simpler" type="button">' + UI[last.to].simpler + '</button>' +
+      '<button class="btn" data-act="check" type="button">' + UI[last.from].check + '</button></div>';
+  }
+  function showResult(r) {
+    last = { from: r.from, to: r.to, source: r.source, text: r.text, back: r.back || null };
+    const warn = r.warn ? '<p class="warn">' + esc(r.warn[r.to]) + '</p>' : "";
+    paint(r.to, ['<p class="small">' + UI[r.to].heard + '</p>', '<p class="big">' + esc(r.text) + '</p>', warn, actions()]);
+    const back = last.back ? '<p class="back">' + UI[r.from].check + ': ' + esc(last.back) + '</p>' : "";
+    const warn2 = r.warn ? '<p class="warn">' + esc(r.warn[r.from]) + '</p>' : "";
+    paint(r.from, ['<p class="small">' + UI[r.from].youSaid + '</p>', '<p class="big" style="font-size:20px">' + esc(r.source) + '</p>', back, warn2]);
+    if (autoOn()) T.speak(r.text, r.to);
+  }
+  function showBlocked(from, r) {
+    const btn = r.legal ? '<div class="acts"><button class="btn legalbtn" data-legal="' + r.legal + '" type="button">' + UI[from].readNotice + '</button></div>' : "";
+    paint(from, ['<p class="warn stop">' + esc(r.error[from]) + '</p>', btn]);
+  }
+  function showError(from, r) { paint(from, ['<p class="warn">' + esc((r.error || {})[from] || "Error") + '</p>']); }
+
+  async function translate(from, text) {
+    if (busy || !String(text || "").trim()) return;
+    busy = true;
+    const to = other[from];
+    $("live-" + from).textContent = UI[from].thinking;
+    const r = await T.sayIt(text, from, to, { check: false });
+    $("live-" + from).textContent = "";
+    busy = false;
+    if (r.ok) showResult(r); else if (r.blocked) showBlocked(from, r); else showError(from, r);
+  }
+
+  // Hold to talk. Falls back to the typing box when the browser can't listen.
+  function wireHold(lang) {
+    const btn = $("hold-" + lang), live = $("live-" + lang);
+    if (!T.canListen()) {
+      btn.classList.add("alt");
+      btn.querySelector("span").textContent = UI[lang].type;
+      $("type-" + lang).hidden = false;
+      btn.addEventListener("click", () => $("in-" + lang).focus());
+      return;
+    }
+    let ctl = null;
+    const down = (e) => {
+      e.preventDefault();
+      if (busy || ctl) return;
+      T.stopSpeaking();
+      ctl = T.listen(lang);
+      if (!ctl) { live.textContent = UI[lang].noMic; $("type-" + lang).hidden = false; return; }
+      btn.classList.add("on"); live.textContent = UI[lang].listening;
+      ctl.onInterim = (t) => { live.textContent = t; };
+      ctl.done.then((t) => { live.textContent = ""; translate(lang, t); })
+        .catch(() => { live.textContent = UI[lang].noMic; $("type-" + lang).hidden = false; });
+    };
+    const up = () => { if (!ctl) return; btn.classList.remove("on"); ctl.stop(); ctl = null; };
+    btn.addEventListener("pointerdown", down);
+    btn.addEventListener("pointerup", up);
+    btn.addEventListener("pointercancel", up);
+    btn.addEventListener("pointerleave", up);
+    btn.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  ["en", "es"].forEach((lang) => {
+    wireHold(lang);
+    $("type-" + lang).addEventListener("submit", (e) => { e.preventDefault(); const v = $("in-" + lang).value; $("in-" + lang).value = ""; translate(lang, v); });
+  });
+
+  // Replay / simpler / check, from either side.
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-act],[data-legal]");
+    if (!b) return;
+    if (b.dataset.legal) { openLegal(b.dataset.legal); return; }
+    if (!last) return;
+    const act = b.dataset.act;
+    if (act === "replay") { T.speak(last.text, last.to); return; }
+    b.disabled = true;
+    if (act === "simpler") {
+      const r = await T.simpler(last.text, last.to);
+      if (r.ok) showResult({ ok: true, from: last.from, to: last.to, source: last.source, text: r.text }); else showError(last.to, r);
+    } else if (act === "check") {
+      const r = await T.backCheck(last.text, last.to, last.from);
+      if (r.ok) { last.back = r.text; showResult(Object.assign({}, last, { back: r.text })); if (autoOn()) T.stopSpeaking(); }
+      else showError(last.from, r);
+    }
+    b.disabled = false;
+  });
+
+  // Glossary chips: the fixed pair, shown on both sides, Spanish read aloud.
+  const chips = $("chips");
+  T.getGlossary().terms.forEach((t) => {
+    const c = document.createElement("button");
+    c.type = "button"; c.className = "chip";
+    c.innerHTML = "<b>" + esc(t.en) + "</b> <span>" + esc(t.es) + "</span>";
+    c.addEventListener("click", () => {
+      paint("es", ['<p class="small">Palabra fija</p>', '<p class="big">' + esc(t.es) + '</p>']);
+      paint("en", ['<p class="small">Fixed word</p>', '<p class="big">' + esc(t.en) + '</p>', t.note ? '<p class="small">' + esc(t.note) + '</p>' : ""]);
+      if (autoOn()) T.speak(t.es, "es");
+    });
+    chips.appendChild(c);
+  });
+
+  // Legal sheet: fixed text only, read aloud slowly.
+  const LEGAL_IDS = T.legalIds();
+  function openLegal(id) {
+    $("legal").hidden = false;
+    const list = $("legal-list");
+    list.innerHTML = LEGAL_IDS.map((k) => {
+      const d = T.readLegal(k, "en");
+      return '<button class="btn' + (k === id ? " legalbtn" : "") + '" data-pick="' + k + '" type="button">' + esc(d.title) + '</button>';
+    }).join("");
+    const en = T.readLegal(id, "en"), es = T.readLegal(id, "es");
+    const block = (d, lang) => '<div class="row"><b>' + esc(d.title) + '</b><span class="sp"></span><button class="btn" data-play="' + lang + '" type="button">' + (lang === "en" ? "Play English" : "Leer en español") + '</button></div>' +
+      '<div class="legaltext" lang="' + lang + '">' + d.paras.map((p) => "<p>" + esc(p) + "</p>").join("") + "</div>";
+    $("legal-body").innerHTML = '<p class="law">' + esc(en.law) + ' · ' + esc(en.source) + '</p>' + block(en, "en") + block(es, "es");
+    $("legal-body").dataset.id = id;
+  }
+  $("open-legal").addEventListener("click", () => openLegal(LEGAL_IDS[0]));
+  $("close-legal").addEventListener("click", () => { T.stopSpeaking(); $("legal").hidden = true; });
+  $("legal").addEventListener("click", (e) => {
+    const p = e.target.closest("[data-pick]"); if (p) { openLegal(p.dataset.pick); return; }
+    const pl = e.target.closest("[data-play]"); if (pl) T.readLegal($("legal-body").dataset.id, pl.dataset.play, { speak: true });
+    if (e.target === $("legal")) { T.stopSpeaking(); $("legal").hidden = true; }
+  });
+
+  $("flip").addEventListener("change", () => $("half-es").classList.toggle("flip", $("flip").checked));
+
+  // Opening state: an example door opener (69-1602: name, HMP, what we sell, first thing), marked Example.
+  const ex = { from: "en", to: "es", source: "Hi, I'm Kenny with HMP Siding & Roofing. We do roofing and siding. Can I take a look at your roof for hail damage? It's a free inspection.",
+    text: "Hola, soy Kenny de HMP Siding & Roofing. Hacemos techos y siding. ¿Puedo revisar su techo por daño por granizo? Es una inspección gratis." };
+  last = ex;
+  $("say-es").innerHTML = '<p class="small">' + UI.es.heard + '</p><p class="big">' + esc(ex.text) + '</p>' + actions();
+  $("say-en").innerHTML = '<p class="small">' + UI.en.youSaid + '</p><p class="big" style="font-size:20px">' + esc(ex.source) + '</p>';
+})();
+</script>

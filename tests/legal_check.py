@@ -50,12 +50,17 @@ BANNED_PHRASES = [
 # banned phrase, the hit reads as a RULE ("never waive...", "don't say licensed")
 # rather than a claim, so it is not counted as a failure. Kept short on purpose -
 # add to it only when a real false positive shows up, never to hide a real one.
-NEGATION_WINDOW_CHARS = 60
+NEGATION_WINDOW_CHARS = 160
+# A heading's negation reaches further down than the char window above, since a whole list of
+# violation examples can sit under one "We can't" / "HMP can't" heading.
+HEADING_WINDOW_CHARS = 800
 NEGATION_WORDS = [
     "never", "not ", "n't", "n’t", "don't", "dont", "doesn't", "doesnt", "cannot",
-    "can't", "can’t", "cant", "avoid", "without", "no ", "against", "violat",
-    "illegal", "prohibit", "nor ", "instead of", "unlicensed", "we say", "we don't",
-    "wedon't",
+    "can't", "can’t", "cant", "avoid", "without", "no ", "nothing", "against",
+    "violat", "illegal", "prohibit", "nor ", "instead of", "unlicensed", "we say",
+    "we don't", "wedon't",
+    # this codebase's own violation-category labels (the practice-door trainer's scorecard)
+    "n_deductible", "n_promise",
 ]
 
 # Binary/non-text extensions to skip when walking docs/print/.
@@ -174,6 +179,25 @@ def _is_negated(text_before):
     return any(neg in lowered for neg in NEGATION_WORDS)
 
 
+_HEADING_RE = re.compile(r"<h[1-4][^>]*>(.*?)</h[1-4]>", re.S)
+
+
+def _under_negated_heading(text, idx):
+    """Is the nearest heading above this position one that says we can't/won't do this?"""
+    window = text[max(0, idx - HEADING_WINDOW_CHARS):idx]
+    headings = _HEADING_RE.findall(window)
+    if not headings:
+        return False
+    return _is_negated(_strip_tags(headings[-1]))
+
+
+def _is_regex_alternation(text, idx, phrase):
+    """A '|'-joined list inside a JS regex/array (cover|waive|pay...), not a sentence."""
+    before = text[max(0, idx - 3):idx]
+    after = text[idx + len(phrase):idx + len(phrase) + 3]
+    return "|" in before or "|" in after
+
+
 def _blank_ranges(text, ranges):
     """Replace each (start, end) span with spaces, same length, so offsets/line numbers hold."""
     chars = list(text)
@@ -212,9 +236,13 @@ def check_banned_phrases():
                 if idx == -1:
                     break
                 start = idx + 1
+                if _is_regex_alternation(text, idx, phrase):
+                    continue  # a '|' alternation inside a detection regex/array, not a sentence
                 window_start = max(0, idx - NEGATION_WINDOW_CHARS)
                 if _is_negated(text[window_start:idx]):
                     continue  # a rule/script line forbidding this claim, not the claim itself
+                if _under_negated_heading(text, idx):
+                    continue  # sits under a "We can't"/"HMP can't"-style heading
                 line_no = text.count("\n", 0, idx) + 1
                 snippet = re.sub(r"\s+", " ", text[max(0, idx - 30):idx + len(phrase) + 30]).strip()
                 failures.append(f"{rel_path}:{line_no}: banned phrase \"{phrase}\" - ...{snippet}...")

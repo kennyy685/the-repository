@@ -36,6 +36,9 @@
   python3 hh.py estimate --export-rules [--out prices.json]   the same rules as JSON for the HMP App (system/prices)
   python3 hh.py takeoff --json job.json [--out order.json]   O7 material order list from measurements (EN/ES,
                   rounded up, text to send the supplier). --export-rules = the rules for the app (system/takeoff)
+  python3 hh.py followups --leads leads.json [--date D] [--out f]   follow-ups due: touches 2/5/10 days after the
+                  first Interested + next steps, grouped today/tomorrow/later (EN/ES). --export-rules = rules for
+                  the app's docs/app/followups.js
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -346,6 +349,12 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
     p.add_argument("--csv", help="also write the calls as a CSV to this file")
+    p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--export-rules", action="store_true", help="print the rules + self-check cases as one JSON doc "
+                                                               "for the HMP App (docs/app/followups.js)")
+    p.add_argument("--out", help="also write the JSON to this file")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -406,6 +415,30 @@ def main(argv=None):
             print(doc["none_reason"]["en"], file=sys.stderr)
         if a.csv:
             calltoday.write_csv(a.csv, doc["calls"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "followups":                       # reads the app's leads export: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import followups, weekly
+        from hailhunter.todaywalk import load_json
+        try:
+            if a.export_rules:
+                doc = followups.export_rules(cfg)
+            elif a.leads:
+                day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+                doc = followups.followups(weekly.load_leads(load_json(a.leads)), day, cfg)
+            else:
+                print("followups: give --leads leads.json (or --export-rules)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"followups: {e}", file=sys.stderr)
+            return 2
+        if not a.export_rules:
+            print(doc["summary"]["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
