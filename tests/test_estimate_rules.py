@@ -121,7 +121,7 @@ class ExportShape(unittest.TestCase):
     def test_refactored_warnings_unchanged(self):
         r = estimate.estimate({"type": "mixed", "siding_squares": 10, "gutter_ft": 100}, hmp_prices(gutters_ft=None))
         self.assertEqual(r["warnings"][0]["en"], "Using MARKET REFERENCE prices, not HMP's prices for: gutters_ft. "
-                         "The boss hasn't set HMP's price sheet yet (T51). Don't give this number to a customer.")
+                         "The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.")
         r = estimate.estimate({"type": "gutters", "gutter_ft": 50, "roof_squares": 3}, hmp_prices())
         self.assertEqual(r["warnings"], [estimate.TYPE_NOTES["gutters"]])
 

@@ -50,9 +50,9 @@ TYPE_NOTES = {   # a job type that ignores some quantities it was given says so
                 "es": "Trabajo de canaletas: no se contó siding ni techo (usen tipo mixed)."}}
 # {for_items} is "" when every priced item is market reference, else REF_FOR_ITEMS with the item keys.
 REF_WARNING = {"en": ("Using MARKET REFERENCE prices, not HMP's prices{for_items}. The boss hasn't set HMP's price "
-                      "sheet yet (T51). Don't give this number to a customer."),
+                      "sheet yet (T51). OK to share as an estimate range, never as a final price."),
                "es": ("Usando precios de REFERENCIA del mercado, no los precios de HMP{for_items}. El jefe todavía no "
-                      "pone la lista de precios de HMP (T51). No le den este número a un cliente.")}
+                      "pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final.")}
 REF_FOR_ITEMS = {"en": " for: {items}", "es": " para: {items}"}
 MIN_NAMES = {"min_job": ("Minimum job", "Trabajo mínimo"), "min_job_roof": ("Minimum roof job", "Trabajo mínimo de techo")}
 ROUND_TO = 50           # totals round out to the nearest $50 (low down, high up)
