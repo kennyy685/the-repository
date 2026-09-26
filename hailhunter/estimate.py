@@ -106,10 +106,15 @@ def _rate(key, cfg):
         lo = hi if lo is None else lo
         hi = lo if hi is None else hi
         return float(min(lo, hi)), float(max(lo, hi)), False
-    ref = (c.get("prices_reference") or DEFAULTS["prices_reference"]).get(key) or {}
-    if ref.get("low") is None and ref.get("high") is None:
+    ref_table = c.get("prices_reference")
+    if not ref_table:
+        ref_table = DEFAULTS["prices_reference"]
+    ref = ref_table.get(key) or {}
+    lo, hi = ref.get("low"), ref.get("high")
+    if lo is None and hi is None:
         return None, None, True
-    lo, hi = ref.get("low", ref.get("high")), ref.get("high", ref.get("low"))
+    lo = hi if lo is None else lo
+    hi = lo if hi is None else hi
     return float(lo), float(hi), True
 
 

@@ -87,6 +87,15 @@ class Math(unittest.TestCase):
         self.assertFalse(r2["using_reference"])
         self.assertEqual(r2["minimum_applied"]["key"], "min_job")
 
+    def test_reference_one_sided_override_uses_it_for_both(self):
+        # prices_reference explicitly null on one side (same shape the boss's `prices` sheet already uses)
+        # must fall back to the other side like `_rate` does for HMP's own prices, not crash.
+        cfg = copy.deepcopy(config.DEFAULTS)
+        cfg["prices_reference"] = dict(cfg["prices_reference"])
+        cfg["prices_reference"]["gutters_ft"] = {"low": 15, "high": None}
+        r = estimate.estimate({"type": "gutters", "gutter_ft": 100, "permit": False}, cfg)
+        self.assertEqual((r["low"], r["high"]), (1500, 1500))
+
     def test_partial_prices_flag_only_missing_items(self):
         r = estimate.estimate({"type": "mixed", "siding_squares": 10, "gutter_ft": 100}, hmp_prices(gutters_ft=None))
         self.assertTrue(r["using_reference"])

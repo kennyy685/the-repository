@@ -1,0 +1,157 @@
+{
+ "week": "2026-39",
+ "from": "2026-09-21",
+ "to": "2026-09-27",
+ "as_of": "2026-09-26",
+ "totals": {
+  "doors": 125
+ },
+ "learning": {
+  "hud": true,
+  "hud_generated_utc": "2026-09-26T11:00:00Z",
+  "note": "fixture",
+  "lists": [
+   {
+    "list_id": "2026-09-10_Fremont",
+    "kind": "storm",
+    "area": "Fremont, NE",
+    "day": "2026-09-10",
+    "heat": 55,
+    "why": [
+     "1.6\" hail",
+     "70% owners",
+     "fresh storm (16 days)"
+    ],
+    "in_hud": true,
+    "doors": 60,
+    "answered": 3,
+    "interested": 2,
+    "booked": 1,
+    "not_home_rate": 0.5,
+    "leads_per_100": 5.0,
+    "inspection_rate_per_100": 1.7,
+    "leads_now": {},
+    "inspection_or_later": 0,
+    "walks": [
+     {
+      "walk_id": "2026-09-10_Fremont~t1",
+      "heat": 55,
+      "why": [
+       "1.6\" hail",
+       "70% owners",
+       "fresh storm (16 days)"
+      ],
+      "doors": 30,
+      "answered": 2,
+      "interested": 1,
+      "booked": 1,
+      "not_home_rate": 0.5,
+      "leads_per_100": 6.7,
+      "inspection_rate_per_100": 3.3
+     },
+     {
+      "walk_id": "2026-09-10_Fremont~t2",
+      "heat": 45,
+      "why": [
+       "1.4\" hail",
+       "other roofers likely here",
+       "fresh storm (16 days)"
+      ],
+      "doors": 30,
+      "answered": 1,
+      "interested": 1,
+      "booked": 0,
+      "not_home_rate": 0.5,
+      "leads_per_100": 3.3,
+      "inspection_rate_per_100": 0.0
+     }
+    ]
+   },
+   {
+    "list_id": "everyday_Fremont_310539640003",
+    "kind": "everyday",
+    "area": "Fremont (310539640003)",
+    "day": null,
+    "heat": 40,
+    "why": [
+     "78% of homes built before 1980",
+     "mostly owner-occupied"
+    ],
+    "in_hud": true,
+    "doors": 60,
+    "answered": 12,
+    "interested": 7,
+    "booked": 5,
+    "not_home_rate": 0.5,
+    "leads_per_100": 20.0,
+    "inspection_rate_per_100": 8.3,
+    "leads_now": {},
+    "inspection_or_later": 0,
+    "walks": [
+     {
+      "walk_id": "everyday_Fremont_310539640003~t1",
+      "heat": 40,
+      "why": [
+       "78% of homes built before 1980",
+       "mostly owner-occupied"
+      ],
+      "doors": 30,
+      "answered": 6,
+      "interested": 4,
+      "booked": 2,
+      "not_home_rate": 0.5,
+      "leads_per_100": 20.0,
+      "inspection_rate_per_100": 6.7
+     },
+     {
+      "walk_id": "everyday_Fremont_310539640003~t2",
+      "heat": 40,
+      "why": [
+       "81% of homes built before 1980",
+       "homes ~$160k"
+      ],
+      "doors": 30,
+      "answered": 6,
+      "interested": 3,
+      "booked": 3,
+      "not_home_rate": 0.5,
+      "leads_per_100": 20.0,
+      "inspection_rate_per_100": 10.0
+     }
+    ]
+   },
+   {
+    "list_id": "unknown",
+    "kind": "unknown",
+    "area": "Pine St, Fremont",
+    "day": null,
+    "heat": null,
+    "why": [],
+    "in_hud": false,
+    "doors": 5,
+    "answered": 1,
+    "interested": 1,
+    "booked": 0,
+    "not_home_rate": 0.5,
+    "leads_per_100": 20.0,
+    "inspection_rate_per_100": 0.0,
+    "leads_now": {},
+    "inspection_or_later": 0,
+    "walks": [
+     {
+      "walk_id": "unknown",
+      "heat": null,
+      "why": [],
+      "doors": 5,
+      "answered": 1,
+      "interested": 1,
+      "booked": 0,
+      "not_home_rate": 0.8,
+      "leads_per_100": 20.0,
+      "inspection_rate_per_100": 0.0
+     }
+    ]
+   }
+  ]
+ }
+}

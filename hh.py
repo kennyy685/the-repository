@@ -28,6 +28,9 @@
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
                   week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py tune --weekly weekly.json [--min-doors 50] [--apply] [--out tune.json]   T35 learning loop: real door
+                  results vs heat -> small weight changes (max 15% each, EN/ES why). DRY RUN unless --apply
+                  (writes data/tuned.json, merged over config.json; history in data/tune_history.json)
   python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
                   the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
   python3 hh.py selftest             offline tests
@@ -162,7 +165,8 @@ def refresh(conn, fetcher, cfg, log=print):
     return summary
 
 
-BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md")
+BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
+                "data/tuned.json")                 # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
 def bundle(out_path):
@@ -288,6 +292,12 @@ def main(argv=None):
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("tune", help="T35: real door results vs heat -> small weight changes (dry run unless --apply)")
+    p.add_argument("--weekly", required=True, nargs="+", help="`hh.py weekly` output file(s) (a doc or a list of docs)")
+    p.add_argument("--min-doors", type=int, help="doors with a heat score needed before tuning (default: config "
+                                                 "tune.min_doors, 50)")
+    p.add_argument("--apply", action="store_true", help="write data/tuned.json + a data/tune_history.json entry")
+    p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("estimate", help="T52: quick price range for a siding/roof/gutter job (JSON, EN/ES)")
     p.add_argument("--json", help="job JSON file {type, siding_squares, roof_squares, gutter_ft, soffit_ft, material, "
                                   "pitch, stories, layers, footprint_sqft}")
@@ -372,6 +382,26 @@ def main(argv=None):
             return 2
         for w in doc.get("warnings", []):
             print(w["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "tune":                            # reads weekly outputs only: no database needed
+        from hailhunter import tune
+        from hailhunter.todaywalk import load_json
+        docs = []
+        try:
+            for path in a.weekly:
+                docs += tune.weekly_docs(load_json(path))
+        except (OSError, ValueError) as e:
+            print(f"tune: can't read weekly file ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        doc = tune.propose(docs, cfg, a.min_doors)
+        if a.apply:
+            doc = tune.apply(doc, cfg)
+        print(doc["summary"]["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:

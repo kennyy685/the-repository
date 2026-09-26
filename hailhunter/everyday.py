@@ -4,7 +4,7 @@ HMP also sells regular siding and roof replacement to older homes. This ranks Ce
 ("neighborhoods", 250-1,500 homes) by how likely their homes are to need that work, then makes door lists for
 the best ones the same way storm lists are made (walkable turfs, csv / xlsx / map), each walk with a heat score.
 
-heat 0-100 = 100 x old x owners x value x distance x settled x newbuild      (weights: config "everyday")
+heat 0-100 = 100 x old x owners x value x distance x settled x newbuild x weight   (weights: config "everyday")
   old       share of homes built before `old_before`: per house from the parcels when most years are known,
             else the Census decade counts (B25034), else estimated from the Census median year (B25035)
   owners    owner-occupied share (Census B25003): owners pay for their own siding and roof
@@ -75,7 +75,8 @@ def heat(f, cfg):
     settled = 1 - ev["sold_penalty"] * (f.get("share_sold") or 0.0)
     new = f.get("share_new") or 0.0
     newbuild = 1 - ev["new_penalty"] * new
-    h = round(100 * old * owners * value * distance * settled * newbuild, 1)
+    weight = float(ev.get("weight", 1.0))         # T35: tuned by `hh.py tune` from real door results (default 1)
+    h = round(min(100.0, 100 * old * owners * value * distance * settled * newbuild * weight), 1)
     why = []
     if share is not None and basis != "median":
         why.append(f"{round(share * 100)}% of homes built before {cut}")
@@ -105,7 +106,8 @@ def heat(f, cfg):
              "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
              "share_old": None if share is None else round(share, 3), "basis": basis, "median_built": med,
              "owner_share": None if own is None else round(own, 3), "median_value": mv,
-             "dist_mi": None if dist is None else round(dist, 1), "share_new": round(new, 3), "sold_recent": n_sold}
+             "dist_mi": None if dist is None else round(dist, 1), "share_new": round(new, 3), "sold_recent": n_sold,
+             "weight": weight}
     return {"heat": h, "why": why[:4], "parts": parts}
 
 

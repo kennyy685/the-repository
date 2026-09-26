@@ -2,6 +2,7 @@
 import copy
 import json
 import os
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -123,6 +124,7 @@ DEFAULTS = {
         "kinds": ["single", "mobile", "multi"],
         "turf_size": 60,
         "inspect_rate": 0.01,       # prior: estimates per home knocked at heat 50 (lower than storm walks; tune)
+        "weight": 1.0,              # T35: everyday heat x this (capped at 100); `hh.py tune` moves it vs storm walks
         "refresh_lists": 3,         # `refresh` builds this many everyday lists
         "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
         "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
@@ -172,6 +174,17 @@ DEFAULTS = {
     # Week results report from the HMP App's door taps + leads (`hh.py weekly`, T35 learning loop)
     "weekly": {
         "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
+    },
+    # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
+    # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
+    # only for the keys in TUNABLE below. Every change is capped at max_step per run and kept inside its bounds.
+    "tune": {
+        "min_doors": 50,            # no tuning at all until the weekly file(s) have this many doors with a heat score
+        "min_group_doors": 20,      # each side of a comparison needs this many doors (else that knob is skipped)
+        "max_step": 0.15,           # max +/-15% change per knob per run
+        "damping": 0.5,             # move half way toward what the doors say (small steps, less noise)
+        "dead_band": 0.03,          # a change under 3% is noise: leave the knob alone
+        "history_max": 200          # entries kept in paths.tune_history
     },
     # Today's business call list (`hh.py calltoday`): apartment/commercial targets with a known business line,
     # ranked by scoring.size_curve x scoring.recency_curve (freshest, strongest hail first)
@@ -225,7 +238,15 @@ DEFAULTS = {
         "openings": 0.15,                   # share of wall that is windows/doors
         "perimeter_factor": 1.1             # real houses are longer than a square: perimeter = 4 x sqrt(area) x this
     },
-    "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
+    "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
+              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json"}
+}
+
+# T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch
+# anything else, so a bad tune file can never move prices, radii or the hard rules.
+TUNABLE = {
+    "hot_zones": {"inspect_rate": [0.002, 0.2], "compete_factor": [0.5, 1.0]},
+    "everyday": {"weight": [0.5, 2.0], "inspect_rate": [0.001, 0.1]},
 }
 
 
@@ -261,7 +282,24 @@ def company_label(cfg):
     return f"{c.get('name', 'HMP Siding & Roofing LLC')} · {cfg['home']['name']}"
 
 
-def load(path=None):
+def apply_tuned(cfg, tuned):
+    """Merges a data/tuned.json doc's `tuned_weights` into cfg: TUNABLE keys only, numbers only, kept in bounds.
+    Returns the {section: {key: value}} actually applied."""
+    done = {}
+    tw = (tuned or {}).get("tuned_weights") if isinstance(tuned, dict) else None
+    for sec, keys in (tw or {}).items():
+        if sec not in TUNABLE or not isinstance(keys, dict):
+            continue
+        for k, v in keys.items():
+            if k not in TUNABLE[sec] or isinstance(v, bool) or not isinstance(v, (int, float)):
+                continue
+            lo, hi = TUNABLE[sec][k]
+            cfg.setdefault(sec, {})[k] = done.setdefault(sec, {})[k] = min(hi, max(lo, float(v)))
+    return done
+
+
+def load(path=None, tuned_path=None):
+    """Defaults <- config.json <- data/tuned.json (T35 `hh.py tune --apply`; TUNABLE keys only, never required)."""
     path = path or os.path.join(ROOT, "config.json")
     cfg = copy.deepcopy(DEFAULTS)
     over = {}
@@ -273,6 +311,13 @@ def load(path=None):
     for k, v in list(cfg["paths"].items()):
         if not os.path.isabs(v):
             cfg["paths"][k] = os.path.join(ROOT, v)
+    tuned_path = tuned_path or cfg["paths"]["tuned"]
+    if os.path.exists(tuned_path):
+        try:
+            with open(tuned_path) as f:
+                apply_tuned(cfg, json.load(f))
+        except (OSError, ValueError) as e:        # a broken tune file never stops refresh: defaults + config.json
+            print(f"config: ignoring {tuned_path} ({type(e).__name__})", file=sys.stderr)
     os.makedirs(os.path.dirname(cfg["paths"]["db"]), exist_ok=True)
     os.makedirs(cfg["paths"]["cache"], exist_ok=True)
     os.makedirs(cfg["paths"]["export"], exist_ok=True)

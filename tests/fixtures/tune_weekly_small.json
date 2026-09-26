@@ -1,0 +1,88 @@
+{
+ "week": "2026-38",
+ "from": "2026-09-14",
+ "to": "2026-09-20",
+ "as_of": "2026-09-20",
+ "totals": {
+  "doors": 30
+ },
+ "learning": {
+  "hud": true,
+  "hud_generated_utc": "2026-09-19T11:00:00Z",
+  "note": "fixture",
+  "lists": [
+   {
+    "list_id": "2026-09-10_Fremont",
+    "kind": "storm",
+    "area": "Fremont, NE",
+    "day": "2026-09-10",
+    "heat": 55,
+    "why": [
+     "1.6\" hail"
+    ],
+    "in_hud": true,
+    "doors": 18,
+    "answered": 1,
+    "interested": 1,
+    "booked": 0,
+    "not_home_rate": 0.5,
+    "leads_per_100": 5.6,
+    "inspection_rate_per_100": 0.0,
+    "leads_now": {},
+    "inspection_or_later": 0,
+    "walks": [
+     {
+      "walk_id": "2026-09-10_Fremont~t1",
+      "heat": 55,
+      "why": [
+       "1.6\" hail"
+      ],
+      "doors": 18,
+      "answered": 1,
+      "interested": 1,
+      "booked": 0,
+      "not_home_rate": 0.5,
+      "leads_per_100": 5.6,
+      "inspection_rate_per_100": 0.0
+     }
+    ]
+   },
+   {
+    "list_id": "everyday_Fremont_310539640003",
+    "kind": "everyday",
+    "area": "Fremont (310539640003)",
+    "day": null,
+    "heat": 40,
+    "why": [
+     "mostly owner-occupied"
+    ],
+    "in_hud": true,
+    "doors": 12,
+    "answered": 2,
+    "interested": 1,
+    "booked": 1,
+    "not_home_rate": 0.5,
+    "leads_per_100": 16.7,
+    "inspection_rate_per_100": 8.3,
+    "leads_now": {},
+    "inspection_or_later": 0,
+    "walks": [
+     {
+      "walk_id": "everyday_Fremont_310539640003~t1",
+      "heat": 40,
+      "why": [
+       "mostly owner-occupied"
+      ],
+      "doors": 12,
+      "answered": 2,
+      "interested": 1,
+      "booked": 1,
+      "not_home_rate": 0.5,
+      "leads_per_100": 16.7,
+      "inspection_rate_per_100": 8.3
+     }
+    ]
+   }
+  ]
+ }
+}
