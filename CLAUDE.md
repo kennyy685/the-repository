@@ -48,7 +48,9 @@ the bar: build what reliably improves the salesman and the business.
 The HMP App moves to a **new clean link** (Today / Leads / Money + the chat that logs doors, leads and claims; no AI office),
 with its own database. The current Crew HQ link becomes the **AI hub only** (board, crew, orders, "waiting on you"). The app
 shows a copy of FilthE's tasks and questions (Claude writes `hub/summary` into the app hourly); the app chat's requests for
-the crew go into the app's `handoffs` collection, which the hourly check reads. Order: v19 (Next-step coach) → QA → split.
+the crew go into the app's `handoffs` collection, which the hourly check reads. **Done 2026-09-26:** HMP App = https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT (source `pages/hmp-app.html`);
+AI hub = https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU (source `pages/crew-hq.html`). Right Hand routine change for
+FilthE to approve on the Mac: `docs/orders/right-hand-split.md`.
 
 ## Answered 2026-09-26 (don't re-ask)
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
