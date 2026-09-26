@@ -123,6 +123,13 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - Size: 1" = 0.40, 2" = 0.93. Recency: full to 45 days, 0.4 at 1 yr. Distance: full to 30 mi.
 - Wind (T6): `refresh` pulls NWS wind reports into `wind_obs` and hud.json's `wind_events` (gusts in mph, own
   score). Informational only: door lists and neighborhood scores stay hail-only.
+- Wind zones (T116-T118, round 23): `wind_events[]` also carries `wind_score` 0-100 (= 100 x gust band x the hail
+  recency + distance curves; bands in config `wind_score`: <58 mph 0, 58-64 0.35, 65-74 0.65, 75-89 0.85, 90+ 1.0;
+  damage report with no gust 0.35) + `wind_parts`, `trees_down` / `tree_sample` (NWS files fallen trees as wind
+  damage with "TREES DOWN" in the remark; there is no separate tree type), and `wind_dir` (the LSR feed has NO
+  direction field; only filled when the remark says it, e.g. "winds from the northwest"; `wind_obs.bearing` is the
+  direction from home base, not wind). `hh.py zones` appends kind "wind" zones after the walk zones (own map
+  layer, no walk, cap `zones.wind_top` 8). Never folded into hail house/door scores.
 - All weights in `config.json`; README has the storm score table.
 
 ## HMP HQ snapshot (`hq/snapshot` on https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj)
