@@ -142,6 +142,15 @@ DEFAULTS = {
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
     },
+    # Follow-ups (`hh.py followups`, research round 9): touches after the first Interested, one line per lead
+    "followups": {
+        "touch_days": [2, 5, 10],   # days after the first Interested (48 h / 5 days / 10 days)
+        "early_ok_days": 1,         # a contact this many days before a touch's due day counts as that touch
+        "touch_stages": ["not_contacted", "contacted", "inspection_set"],   # Interested (contacted) + booked
+        "booked_stages": ["inspection_set"],   # booked: touches stop at the appointment (next_step.due)
+        "created_stages": ["contacted", "inspection_set"],   # no Interested tap on file: created_at is the start
+        "closed": ["done", "lost"]
+    },
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
         "goal_doors": 25,           # doors in today's walk (~2 hours): a starting session, not a full day
