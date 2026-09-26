@@ -447,7 +447,8 @@ def rough_siding(sqft, stories=None, cfg=None):
     high = the highest). -> {low, high, kind: "siding", rough: true, material, stories, using_reference} or None."""
     hf = _hf(cfg)
     counts = [stories] if stories else [int(n) for n in hf["stories_if_unknown"]]
-    ecfg = cfg if cfg and cfg.get("estimate") else None
+    # a partial cfg keeps its own prices; missing sections come from the defaults (QA 2026-09-26)
+    ecfg = cfg if cfg and cfg.get("estimate") else ({**est.DEFAULTS, **cfg} if cfg else None)
     runs = []
     for n in counts:
         try:
