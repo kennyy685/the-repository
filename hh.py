@@ -25,6 +25,8 @@
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
                   week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
+                  the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -281,6 +283,13 @@ def main(argv=None):
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("estimate", help="T52: quick price range for a siding/roof/gutter job (JSON, EN/ES)")
+    p.add_argument("--json", help="job JSON file {type, siding_squares, roof_squares, gutter_ft, soffit_ft, material, "
+                                  "pitch, stories, layers, footprint_sqft}")
+    p.add_argument("--footprint", type=float, help="no --json: ROUGH squares from a footprint (sq ft) instead")
+    p.add_argument("--stories", type=int, default=1, help="with --footprint (default 1)")
+    p.add_argument("--pitch", default="std", help="with --footprint: low|std|steep or rise per 12 (default std)")
+    p.add_argument("--out", help="also write the JSON to this file")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -309,6 +318,28 @@ def main(argv=None):
                 f.write("\n")
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "estimate":                        # pure math on config prices: no database needed
+        from hailhunter import estimate
+        try:
+            if a.json:
+                with open(a.json, encoding="utf-8") as f:
+                    doc = estimate.estimate(json.load(f), cfg)
+            elif a.footprint:
+                doc = estimate.squares_from_footprint(a.footprint, a.stories, a.pitch, cfg)
+            else:
+                print("estimate: give --json job.json (or --footprint SQFT for rough squares)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"estimate: {e}", file=sys.stderr)
+            return 2
+        for w in doc.get("warnings", []):
+            print(w["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:

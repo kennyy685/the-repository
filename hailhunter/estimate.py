@@ -233,8 +233,8 @@ def estimate(job, cfg=None):
 
     parts_en, parts_es = [], []
     if siding:
-        parts_en.append(f"{SIDING[material][1].lower()} ({siding:g} squares)")
-        parts_es.append(f"{SIDING[material][2].lower()} ({siding:g} cuadros)")
+        parts_en.append(f"{'James Hardie' if material == 'hardie' else 'vinyl'} siding ({siding:g} squares)")
+        parts_es.append(f"siding {'James Hardie' if material == 'hardie' else 'de vinil'} ({siding:g} cuadros)")
     if roof:
         parts_en.append(f"shingle roof ({roof:g} squares)")
         parts_es.append(f"techo de teja ({roof:g} cuadros)")
