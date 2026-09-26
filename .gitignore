@@ -11,4 +11,5 @@ data/*
 !data/tuned.json
 !data/glossary_en_es.json
 !data/city_rules.json
+!data/practice_drills.json
 .env

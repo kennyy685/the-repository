@@ -556,6 +556,9 @@ const T = {
   eLong: ['This talk got too long. Tap End to get your score.', 'La plática se hizo muy larga. Toca Terminar para ver tu resultado.'],
   eJson: ["The coach's answer came back scrambled. Tap Try again.", 'La respuesta del coach salió mal. Toca Reintentar.'],
   eNet: ['Connection problem. Tap Try again.', 'Falló la conexión. Toca Reintentar.'],
+  /* v6 (QA): a failed or timed-out grade never shows a pass. */
+  eTime: ['The coach took too long. Tap Try again.', 'El coach tardó demasiado. Toca Reintentar.'],
+  noGrade: ["Couldn't grade this one, so it's not passed.", 'No se pudo calificar, así que no cuenta como aprobado.'],
   offTitle: ['AI practice is off on this page', 'La práctica con IA está apagada aquí'],
   offBody: ["Claude isn't allowed to answer here, so no homeowner today. Use the cheat sheet: say each line out loud 5 times.", 'Claude no tiene permiso de contestar aquí, así que hoy no hay vecino. Usa la guía: di cada línea en voz alta 5 veces.'],
   c_intro: ['First line: name + HMP + local + what you sell (69-1602)', 'Primera línea: nombre + HMP + local + qué vende (69-1602)'],
@@ -1070,9 +1073,21 @@ function errText(code) {
     case 'refused': return t('eRefused');
     case 'prompt_too_large': return t('eLong');
     case 'invalid_json': return t('eJson');
+    case 'timeout': return t('eTime');
     default: return t('eNet');
   }
 }
+
+/* v6 (QA): every grading call has a time limit. On timeout it aborts and rejects with {code:'timeout'}, so callers
+   show "couldn't grade, not passed" (fail closed) instead of waiting forever or treating the abort as a quiet cancel. */
+const GRADE_MS = 90000, QUICK_MS = 45000;
+async function timed(p, ctl, ms) {
+  let id;
+  const limit = new Promise((_, rej) => { id = setTimeout(() => { rej({ code: 'timeout' }); try { if (ctl) ctl.abort(); } catch (e) { /* ignore */ } }, ms); });
+  try { return await Promise.race([p, limit]); } finally { clearTimeout(id); }
+}
+/* A coach answer counts only if it has a real verdict on the legal check; anything else is "couldn't grade". */
+function gradeOk(data) { return !!(data && typeof data === 'object' && Array.isArray(data.checks) && data.checks.some(c => c && c.id === 'legal' && typeof c.pass === 'boolean')); }
 
 /* ---------- Scenario ---------- */
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -1104,8 +1119,8 @@ const RX = [
   ['deductible', /\b(?:we|i|hmp|us)\s*(?:'ll|'d| will| would| can| could)?\s+(?:pay|cover)\s+(?:for\s+)?(?:the |your |ur )?deductibles?\b/i],
   ['deductible', /\bdeductibles?\s+(?:is |will be |are )?(?:covered|waived|free|on us|taken care of|handled)\b/i],
   ['deductible', /\b(?:no|zero|without (?:a |the |your |any )?|(?:won'?t|don'?t|do not|will not) (?:even )?(?:have to )?pay (?:the |your |a |any )?)deductibles?\b/i],
-  ['deductible', /\b(?:no|zero|nothing) out[- ]of[- ]pocket\b/i],
-  ['deductible', /\bfree (?:new )?roof\b/i],
+  ['deductible', /\b(?:no|zero|nothing) out[- ]of[- ]pocket\b/i, 'noInspect'],
+  ['deductible', /\bfree (?:new )?roof\b(?!\s*(?:look|inspection|check|checkup|estimate|assessment|evaluation|photos?|report))/i],
   ['deductible', /\b(?:won'?t|will not|doesn'?t|does not) cost you (?:a (?:dime|thing|cent|penny)|anything|nothing)\b/i, 'noInspect'],
   ['promise', /\b(?:insurance|your insurer|the insurer|insurance company|they)\s*(?:'ll| will| is going to| are going to| gonna| always| definitely| for sure)\s+(?:pay|cover|approve|buy|replace)/i],
   ['promise', /\b(?:guarantee|promise)\b[^.!?]{0,30}\b(?:insurance|insurer)\b[^.!?]{0,20}\b(?:pay|cover|approve)/i],
@@ -1169,8 +1184,27 @@ const RX = [
   ['referral', /\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b[^.!?]{0,50}(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))|(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))[^.!?]{0,50}\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b/i, 'negGift'],
   ['contact', /\b(?:get|have|give me|grab|take|text|what'?s|share|send me|pass me|i'?ll take|i'?ll call)\b[^.!?]{0,30}\b(?:his|her|their|the owner'?s|the landlord'?s|landlord'?s|owner'?s|steve'?s)\s+(?:personal |private |own )?(?:cell(?:\s?phone)?|mobile|home (?:phone|number|address)|personal (?:number|phone|cell)|private (?:number|phone))\b|\b(?:sure|yes|yeah|ok(?:ay)?|perfect|great)\b[^.!?]{0,15}\b(?:his|her|the owner'?s|steve'?s) (?:personal |private )?(?:cell|mobile)\b/i],
   ['contact', /\b(?:me da|deme|me pasa|páseme|paseme|me puede dar|me podría dar|quiero|tomo|le llamo al)\b[^.!?]{0,30}\b(?:su |el )?(?:celular|cel|número personal|numero personal|teléfono personal|telefono personal|dirección de su casa|direccion de su casa)\b/i],
+  /* Added 2026-09-26 (v6, QA: 4 of 15 tricky phrasings caught). Softened deductible talk, "basically guaranteed", acting as the
+     homeowner's claim contact, initial-in-English, a relative signing, paid referrals "for every neighbor", guaranteed resale.
+     negIn = skip when the matched words themselves say not / never ("it doesn't disappear"). */
+  ['deductible', /\bdeductibles?\b[^.!?]{0,25}?\b(?:(?:sort of|kind of|kinda|basically|just|pretty much|practically|all but)\s+)?(?:disappears?|goes away|vanish\w*|is gone|becomes? (?:zero|nothing)|won'?t matter|doesn'?t matter|is on the house)\b/i, 'negIn'],
+  ['deductible', /\bdeducibles?\b[^.!?]{0,25}?\b(?:(?:como que|casi|ya)\s+)?(?:desaparece|se desaparece|se va|ya no cuenta|ni se nota|sale gratis|no importa)\b/i, 'negIn'],
+  ['promise', /\b(?:basically|practically|pretty much|almost|100%|totally|all but)\s+guaranteed\b[^.!?]{0,25}\b(?:pay|cover|approv|replac|a (?:new|free) roof|a check)|\bguaranteed (?:to )?(?:pay|cover|be (?:approved|covered|paid))\b|\b(?:claim|insurance)\b[^.!?]{0,30}\b(?:sure thing|slam dunk|done deal|no[- ]brainer)\b/i, 'negIn'],
+  ['promise', /\b(?:seguro que|de seguro|seguramente|estoy seguro (?:de )?que|le aseguro que|sin duda)\s+(?:el seguro|la aseguranza|la aseguradora|su seguro|ellos)\s+(?:se lo |le |lo )?(?:paga|pagan|cubre|cubren|aprueba|aprueban|va a|van a)|\b(?:el seguro|la aseguranza|la aseguradora|su seguro)\s+siempre\s+(?:se lo |le |lo )?(?:paga|cubre)\b/i],
+  ['negotiate', /\b(?:let me|i'?ll|i will|we'?ll|we will|i can|we can|i'?m|we'?re|i am|we are)\s+(?:just\s+)?(?:be\s+)?(?:your|the)\s+(?:point of contact|go-?between|middle ?man|rep(?:resentative)?|voice|advocate|contact(?: person)?)\b[^.!?]{0,30}\b(?:adjuster|insurance|insurer|claim)|\b(?:talk|speak|deal)\s+(?:to|with)\s+(?:the |your )?(?:adjuster|insurance|insurer)\s+(?:for you|on your behalf|so you don'?t have to)|\byou (?:won'?t|don'?t|will never) (?:even )?(?:have|need) to (?:talk|deal|speak) (?:to|with) (?:the |your )?(?:adjuster|insurance|insurer)/i],
+  ['negotiate', /\b(?:yo |nosotros )?(?:negocio|negociamos|peleo|peleamos|me arreglo|nos arreglamos)\s+(?:yo |nosotros )?(?:directo |directamente )?con\s+(?:el |la |su )?(?:seguro|aseguradora|aseguranza|ajustador)|\b(?:hablo|hablamos|trato|tratamos)\s+con\s+(?:el |la |su )?(?:seguro|aseguradora|aseguranza|ajustador)\s+(?:por usted|en su nombre|de su parte|para que (?:le|les) (?:den|paguen) más)|\b(?:yo soy|nosotros somos|soy)\s+su\s+(?:contacto|representante)\s+con\s+(?:el |la )?(?:seguro|aseguradora|aseguranza|ajustador)/i],
+  ['language', /\b(?:sign|initial)\w*\b[^.!?]{0,40}\bin english\b|\b(?:just )?(?:sign|initial)(?: here| it| this| these)?\b[^.!?]{0,30}\b(?:i'?ll|we'?ll|i will|we will) explain (?:it |everything )?(?:later|after|afterwards|when)/i, 'noEs'],
+  ['language', /\b(?:inicial\w*)\b[^.!?]{0,40}\ben inglés|\ben inglés[^.!?]{0,40}\binicial\w*|\b(?:ponga|pon) (?:sus |tus )?iniciales\b[^.!?]{0,30}\b(?:luego|después|despues) (?:le |te )?explico/i, 'noEs'],
+  ['authority', /\b(?:your |the )?(?:daughter|son|wife|husband|spouse|kids?|mom|dad|mother|father|sister|brother|nephew|niece|grandson|granddaughter|tenant|renter|manager|neighbou?r|roommate|friend|boyfriend|girlfriend)\s+(?:can|could|is able to|may|will|should)\s+(?:just\s+)?sign\b[^.!?]{0,20}\b(?:for (?:you|him|her|them)|on your behalf|in your place)|\bhave (?:your )?(?:daughter|son|wife|husband|kids?|tenant|manager)\s+sign (?:for you|on your behalf)/i],
+  ['authority', /\b(?:su |tu )?(?:hij[oa]|espos[oa]|mamá|papá|herman[oa]|sobrin[oa]|niet[oa]|inquilin[oa]|encargad[oa]|vecin[oa])\s+(?:puede|podría|le puede)\s+firmar\s+(?:por (?:usted|ti|él|ella)|en su (?:nombre|lugar))/i],
+  ['referral', /\b(?:gift ?cards?|gifts?|\$?\d[\d,]*|\d[\d,]* (?:bucks|dollars)|cash|money|rewards?|bonus(?:es)?|discounts?|kickbacks?)\b[^.!?]{0,30}\bfor (?:every|each|any) (?:friend|neighbou?r|person|referral|job|house|home|one)\b/i, 'negGift'],
+  ['referral', /\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]*|dinero|efectivo|premios?|bonos?|descuentos?)\b[^.!?]{0,30}\bpor (?:cada|todo|todos los) (?:vecin[oa]s?|amig[oa]s?|persona|cliente|casa|recomendaci\w*|referid\w*)/i, 'negGift'],
+  ['guarantee', /\bguaranteed? (?:to )?(?:raise|increase|boost|add to|bump(?: up)?)\b[^.!?]{0,30}\b(?:value|price|resale)|\b(?:is|are|it'?s|that'?s)\s+(?:basically\s+)?guaranteed\b[^.!?]{0,30}\b(?:resale|home value|worth more|sell for more)/i, 'negIn'],
+  ['negotiate', /\b(?:i'?ll|we'?ll|i will|we will|let me)\s+(?:be the one\s+)?(?:going|go|do(?:ing)? (?:all )?the)\s+back[- ]and[- ]forth with (?:the |your )?(?:adjuster|insurance|insurer)|\b(?:d[ée]jeme|deje)(?: a m[ií])? (?:las llamadas|el trato|todo lo del reclamo) con (?:el |su )?(?:ajustador|seguro|aseguradora|aseguranza)/i],
+  ['promise', /\bcheck\b[^.!?]{0,30}\b(?:is going to|will|'ll|gonna)\s+cover\s+(?:every|all|the whole|everything)|\bcheque\b[^.!?]{0,30}\b(?:va a|le va a)\s+(?:alcanzar|cubrir|pagar)\s+(?:para )?(?:todo|todito)/i, 'negIn'],
 ];
-const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|shouldn'?t|should not|no puedo|no le puedo|no les puedo|no podemos|no le podemos|no puede|no pueden|no debe|nunca|no se puede|no es legal|prohibido|por ley no)\b/i;
+const NEG_IN = /\b(?:not|never|no|nunca|nobody|nadie)\b|n['’]t\b/i;
+const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|shouldn'?t|should not|no puedo|no le puedo|no les puedo|no podemos|no le podemos|no puede|no pueden|no debe|nunca|no se puede|no es legal|prohibido|por ley no|nobody can|no one can|nadie (?:le )?puede)\b/i;
 const SOFT = /\b(?:nothing to sign|(?:hoy )?no se firma nada|no firmamos nada|no (?:need|rush|pressure|hurry)|(?:don'?t|do not|doesn'?t|does not) (?:have|need) to|won'?t ask|not asking|no (?:hay|tiene|necesita) (?:prisa|que)|sin (?:prisa|presión|presion)|no le voy a pedir)\b|\b(?:3|three|tres)[- ](?:business |días |dias )?(?:days?|días|dias|hábiles)/i;
 const CHECK = /\b(?:make sure|check (?:if|whether)|ask (?:them )?(?:if|whether)|asegúrese|asegurese|pregúnte(?:les?)? si|pregunte(?:les?)? si)\b/i;
 /* v5: "no gifts / we don't give money / nunca regalos" in the same sentence = the honest thank-you-only answer. */
@@ -1195,6 +1229,7 @@ function legalScan(text) {
       if (mode === 'noCheck' && CHECK.test(s)) continue;
       if (mode === 'hedge' && HEDGE.test(s)) continue;
       if (mode === 'negGift' && NO_GIFT.test(s)) continue;
+      if (mode === 'negIn' && NEG_IN.test(m[0])) continue;
       out.push({ type, quote: s });
       break;
     }
@@ -1412,7 +1447,8 @@ function checkPrompt(lines) {
   ].join('\n');
 }
 async function semanticCheck(sample, lines) {
-  const data = await sample.json(checkPrompt(lines), { cache: false });
+  const ctl = new AbortController();
+  const data = await timed(sample.json(checkPrompt(lines), { cache: false, signal: ctl.signal }), ctl, QUICK_MS);
   const flags = data && typeof data === 'object' && Array.isArray(data.flags) ? data.flags.filter(f => f && typeof f === 'object') : null;
   if (!flags || typeof data.ok !== 'boolean') throw { code: 'invalid_json' };
   if (data.ok === true && flags.length === 0) return { ok: true, flags: [] };
@@ -1447,7 +1483,7 @@ function applyLang() {
   if (!$('sheet').hidden) renderCheat($('cheatBody'));
   if (S.off) renderCheat($('cheatInline'), true);
   if (S.screen === 'door') renderDoorHead();
-  if (S.screen === 'score') { renderScoreHead(); renderTranscript(); if (S.lastScore) renderScore(S.lastScore); else renderLegal(localFlags()); }
+  if (S.screen === 'score') { renderScoreHead(); renderTranscript(); if (S.lastScore) renderScore(S.lastScore); else renderLegal(localFlags()); if (S.scoreErrCode) $('scoreErrText').textContent = t('noGrade') + ' ' + errText(S.scoreErrCode); }
   syncComposer();
 }
 
@@ -1548,7 +1584,8 @@ async function addField() {
   S.fieldBusy = true; $('fieldAdd').disabled = true; $('fieldBox').disabled = true;
   setFieldStatus('fieldWriting', '');
   try {
-    const data = await sample.json(fieldPrompt(heard, S.fieldAvoid), { cache: false });
+    const fctl = new AbortController();
+    const data = await timed(sample.json(fieldPrompt(heard, S.fieldAvoid), { cache: false, signal: fctl.signal }), fctl, QUICK_MS);
     if (!data || typeof data !== 'object' || data.not_objection === true) { setFieldStatus('fieldNot', 'bad'); return; }
     const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
     const q = [str(data.objection_en, 200), str(data.objection_es, 200)];
@@ -1891,7 +1928,7 @@ function renderLegal(flags, badId, warnId) {
 async function goScore() {
   S.sid++; if (S.hintCtl) S.hintCtl.abort();
   const sid = S.sid;
-  S.ended = true; S.busy = false; S.lastScore = null;
+  S.ended = true; S.busy = false; S.lastScore = null; S.scoreErrCode = null;
   commit();
   if (!S.scoreFocus) S.scoreFocus = focusNow();
   show('score');
@@ -1904,11 +1941,12 @@ async function goScore() {
   const ctl = new AbortController(); S.ctl = ctl;
   let first = true;
   try {
-    const data = await sample.json(coachPrompt(), {
+    const data = await timed(sample.json(coachPrompt(), {
       cache: false, signal: ctl.signal,
       onText: () => { if (first && sid === S.sid) { first = false; $('scoreLoadingText').textContent = t('scoringWrite'); } }
-    });
+    }), ctl, GRADE_MS);
     if (sid !== S.sid) return;
+    if (!gradeOk(data)) throw { code: 'invalid_json' };
     S.lastScore = data;
     recordDoor(data);
     renderScore(data);
@@ -1918,7 +1956,8 @@ async function goScore() {
     if (code === 'cancelled') return;
     if (HIDE.has(code)) { goOff(); return; }
     $('scoreLoading').hidden = true;
-    $('scoreErrText').textContent = errText(code);
+    S.scoreErrCode = code;
+    $('scoreErrText').textContent = t('noGrade') + ' ' + errText(code);
     $('scoreErr').hidden = false;
   } finally { if (S.ctl === ctl) S.ctl = null; }
 }
@@ -2073,11 +2112,12 @@ async function drillCheck() {
   d.phase = 'grading'; renderDrill();
   const ctl = new AbortController(); S.ctl = ctl;
   try {
-    const data = await sample.json(drillPrompt(it, ans), { cache: false, modelTier: 'quick', signal: ctl.signal });
+    const data = await timed(sample.json(drillPrompt(it, ans), { cache: false, modelTier: 'quick', signal: ctl.signal }), ctl, QUICK_MS);
     if (sid !== S.sid) return;
     const flags = mergeFlags(data && data.legal_flags, legalScan(ans));
     let score = Math.round(Number(data && data.score));
-    if (!(score >= 0 && score <= 2)) score = 1;
+    /* v6: no readable score = couldn't grade (fail closed), never a default "OK". A local legal flag still makes it Weak. */
+    if (!(score >= 0 && score <= 2)) { if (flags.some(f => !CAUTION.has(f.type))) score = 0; else throw { code: 'invalid_json' }; }
     /* A legal flag makes it Weak no matter what the coach said; its praise and focus result would contradict the red box. */
     const illegal = flags.some(f => !CAUTION.has(f.type));
     if (illegal) score = 0;
@@ -2091,7 +2131,7 @@ async function drillCheck() {
     const code = (e && e.code) || 'upstream_error';
     if (code === 'cancelled') return;
     if (HIDE.has(code)) { goOff(); return; }
-    d.phase = 'err'; $('drillErrText').textContent = errText(code); renderDrill();
+    d.phase = 'err'; $('drillErrText').textContent = t('noGrade') + ' ' + errText(code); renderDrill();
   } finally { if (S.ctl === ctl) S.ctl = null; }
 }
 /* "I don't know, show me": counts as weak (back tomorrow), no AI call, no streak credit. */

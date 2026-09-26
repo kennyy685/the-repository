@@ -1,0 +1,82 @@
+[
+  {
+    "id": "drill-body-language",
+    "title_en": "The 3-second stance",
+    "title_es": "La postura de 3 segundos",
+    "homeowner_setup": "Any homeowner, front door, first knock of the roleplay.",
+    "goal": "Before typing anything, say out loud (or type as a stage direction) your stance: shoulders angled not squared, hands open, smile, then your opener - all inside 3 seconds, before the homeowner's first line lands.",
+    "pass_criteria": "Kenny states name + HMP + what he sells first (69-1602), in a friendly/curious tone, with no aggressive or authoritative phrasing, before asking anything else."
+  },
+  {
+    "id": "drill-one-small-ask",
+    "title_en": "One small ask, not the whole job",
+    "title_es": "Un solo paso, no todo el trabajo",
+    "homeowner_setup": "Any objection-heavy homeowner (e.g. skeptical-owner or price-shopper).",
+    "goal": "Never try to close the whole job on the porch. End the exchange asking for exactly one specific next step: a free look, or a named day and time - never 'I'll call you' or a vague 'let me think about it, I'll follow up.'",
+    "pass_criteria": "The last thing Kenny asks for is one concrete, specific next step with a day/time or a free-look yes/no - not an open-ended promise to circle back."
+  },
+  {
+    "id": "drill-tone-switch",
+    "title_en": "Friendly tone, not stern tone",
+    "title_es": "Tono amable, no tono serio",
+    "homeowner_setup": "The blunt or annoyed homeowner (existing 40s-annoyed or blunt-60s type).",
+    "goal": "Homeowner starts short and dismissive. Kenny must stay warm and curious the whole time, never matching their sharpness or sounding authoritative/pushy.",
+    "pass_criteria": "Homeowner's warmth score improves by the end of the exchange and Kenny's lines contain no commanding/pressuring phrasing ('you need to', 'you have to act now')."
+  },
+  {
+    "id": "drill-not-interested-recovery",
+    "title_en": "Bouncing back from \"not interested\"",
+    "title_es": "Recuperarse después de \"no me interesa\"",
+    "homeowner_setup": "A homeowner who opens with a flat \"not interested, thanks\" and starts to close the door.",
+    "goal": "Kenny gets one more sentence in without being pushy: acknowledge it, then offer the smallest possible ask (a free look, a card) instead of arguing or repeating the same pitch louder.",
+    "pass_criteria": "Kenny does not repeat his original pitch verbatim, does not argue, and offers exactly one low-pressure next step before accepting a no."
+  },
+  {
+    "id": "drill-morning-pitch-warmup",
+    "title_en": "Say it out loud first",
+    "title_es": "Dilo en voz alta primero",
+    "homeowner_setup": "No homeowner - solo warmup before the first real roleplay of the session.",
+    "goal": "Before facing any AI homeowner, type out (as if spoken aloud) the full opener once, from memory, with no notes.",
+    "pass_criteria": "The typed opener includes name, HMP, and what's being sold, in a natural (not word-for-word script-sounding) way, completed before starting the first homeowner."
+  },
+  {
+    "id": "drill-photos-before-paper",
+    "title_en": "Photos and scope before any signature",
+    "title_es": "Fotos y alcance antes de firmar nada",
+    "homeowner_setup": "A homeowner ready to move fast (e.g. the check-in-hand or fast-decision type).",
+    "goal": "Kenny shows/describes the photo evidence and a real scope of what's damaged before mentioning any paperwork, and is clear about exactly what document is being signed and why (inspection permission vs. contract) - never lets the homeowner think signing something now guarantees a price or a payout.",
+    "pass_criteria": "Kenny mentions photos/evidence and the specific document's purpose before any signature is discussed, and never implies a signature guarantees insurance payment."
+  },
+  {
+    "id": "drill-say-it-out-loud-3day",
+    "title_en": "Say the 3-day cancel right out loud",
+    "title_es": "Di el derecho de 3 días en voz alta",
+    "homeowner_setup": "Any homeowner who reaches the paperwork stage of the roleplay.",
+    "goal": "Kenny must explicitly say (not just mention handing over a form) that the homeowner has 3 days to cancel, in both English and Spanish phrasing, before the roleplay ends.",
+    "pass_criteria": "Both an English and a Spanish sentence stating the 3-day cancel right appear in Kenny's lines before paperwork is considered done."
+  },
+  {
+    "id": "drill-deductible-question",
+    "title_en": "When they ask about the deductible",
+    "title_es": "Cuando preguntan por el deducible",
+    "homeowner_setup": "A homeowner who asks directly: \"Can you just cover my deductible?\" or \"Will insurance pay for everything?\"",
+    "goal": "Kenny answers honestly that the deductible is always the homeowner's part and he can't promise what insurance will pay, without sounding evasive or cold.",
+    "pass_criteria": "Kenny's answer contains no offer, hint or implication of covering/waiving/rebating the deductible and no promise that insurance will pay; tone stays warm, not defensive."
+  },
+  {
+    "id": "drill-contingency-vs-contract",
+    "title_en": "Which paper is this?",
+    "title_es": "¿Cuál papel es este?",
+    "homeowner_setup": "A cautious homeowner who asks \"What exactly am I signing right now?\"",
+    "goal": "Kenny clearly names which of the three things is being signed at that moment - permission to inspect, a contingency tied to claim approval, or the final job contract - and what it does and doesn't commit the homeowner to.",
+    "pass_criteria": "Kenny names the specific document type and states in plain words what it commits the homeowner to (or doesn't), with no vague \"just paperwork\" answer."
+  },
+  {
+    "id": "drill-ratio-not-streak",
+    "title_en": "Reframe a bad streak",
+    "title_es": "Replantear una mala racha",
+    "homeowner_setup": "No homeowner - a reflection prompt shown after 3+ discouraging roleplay results in a row.",
+    "goal": "Write one line reframing the losses as data (doors knocked vs. interested), not as personal failure, and name the one thing to try differently on the next door.",
+    "pass_criteria": "The written reflection mentions a ratio or count (not just a feeling) and names one specific change for the next attempt."
+  }
+]

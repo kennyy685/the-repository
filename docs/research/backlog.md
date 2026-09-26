@@ -25,6 +25,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Roof-chalking vs. insurer photo acceptance: settle the conflict found in round 22 (some sources say never chalk a roof before adjuster photos)
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
+- [ ] Bilingual (Spanish-language) kitchen-table/inspection sales training content - round 27 found none in the
+      general sales-training literature; check trade-specific or Hispanic-market contractor associations directly
+- [ ] Ask FilthE/boss which document HMP actually uses today before an adjuster visit (plain inspection
+      authorization, a contingency-on-approval agreement, or going straight to the final contract) - round 27
+      found the three are legally different and easy to blur; unknown from research, needs a direct answer
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -44,3 +49,6 @@ trees-down detection + wind direction from remark text, both flowing into hud.js
 build needed, just board/backlog cleanup. Claim-deadline statute re-check: nebraskalegislature.gov still
 blocked, but search summaries now quote 25-205/44-357 text directly (5-year written-contract limit; insurers
 can't shorten it) - higher confidence than round 25, still flagged unverified-fetch.
+Round 27 (second track, sales-craft): top-1% door-to-door habits (stance/tone/one-small-ask/daily routine,
+`data/practice_drills.json` - 10 new Practice Door drills) + contingency agreement vs. plain inspection permission
+vs. final contract (legally different, easy to blur; which one HMP uses today is unconfirmed - see backlog above).
