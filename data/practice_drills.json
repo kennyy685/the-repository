@@ -78,5 +78,13 @@
     "homeowner_setup": "No homeowner - a reflection prompt shown after 3+ discouraging roleplay results in a row.",
     "goal": "Write one line reframing the losses as data (doors knocked vs. interested), not as personal failure, and name the one thing to try differently on the next door.",
     "pass_criteria": "The written reflection mentions a ratio or count (not just a feeling) and names one specific change for the next attempt."
+  },
+  {
+    "id": "drill-whose-name",
+    "title_en": "Whose name is on the house?",
+    "title_es": "¿A nombre de quién está la casa?",
+    "homeowner_setup": "A homeowner ready to do paperwork while the spouse is away.",
+    "goal": "Kenny treats \"whose name is on the house?\" as a normal paperwork step, so the owner(s) on the title are the ones who sign, and offers a no-pressure way to include a co-owner (a set time to come back, photos to share).",
+    "pass_criteria": "Kenny asks whose name is on the house (title/deed) or who owns it before any signature, in a calm, normal way, and offers a no-pressure option for a co-owner. FAIL if he pressures with anything like \"both spouses must be here or there's no deal\" or \"the price is only good if you both sign now\", or lets someone who is not on the title sign."
   }
 ]
