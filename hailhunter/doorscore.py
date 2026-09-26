@@ -4,8 +4,8 @@ door = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm   (we
 - hail: storm walks only, the hail at the house through `hail_curve` (everyday walks: 1.0).
 - owner_fit ("likely insured" in round 16, NEVER shown with that word): renter_base + (1 - renter_base) x owner x
   (no_sale + (1 - no_sale) x recent), where owner = the house's own owner-occupied flag when the data has one
-  (hud stop `owner_occ`, T23: the Nebraska statewide parcel layer has no owner mailing address or homestead flag
-  yet, so this is always the walk's neighborhood owner share for now), else `owner_unknown`; recent = 1 when the
+  (hud stop `owner_occ` True/False + `owner_source`, T23: set by owners.py where a county publishes the owner's
+  mailing address - Sarpy so far), else the walk's neighborhood owner share, else `owner_unknown`; recent = 1 when the
   last sale (parcel Sales_Date) is within `recent_sale_years` (a recent buyer most likely has a mortgage, and the
   lender requires coverage), else 0. Owner + recent buy = 1.0, owner + old sale = 0.7, renter = 0.4 (defaults).
   Vacant lots never reach a walk (parcels.classify keeps improved parcels only).
@@ -15,8 +15,8 @@ door = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm   (we
 - sold_after_storm: storm walks, the house changed hands after the storm day (the new owner may not have a claim).
 Returns {score, parts{...}, why{en, es}}. The why line is an estimate in plain words ("likely owner-occupied,
 bought 2021"): no insurance claims, no promises.
-TODO(T23): when a county source gives owner mailing address per house, set stop `owner_occ` true/false and this
-uses it automatically (research round 16, D17).
+T23: per-house owner-occupied comes from owners.py (county owner mailing address vs the house address); parts
+`owner_basis` says which was used (house | area | unknown) and `owner_source` names the county source.
 """
 from datetime import date
 
@@ -63,6 +63,8 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
         parts["roof_age"] = ds["age_unknown"]
     # owner fit (round 16's "likely insured", never called that on screen)
     occ = s.get("owner_occ")
+    if occ is None:
+        occ = s.get("owner_occupied")
     if occ is True or occ is False:
         owner, basis = (1.0 if occ else 0.0), "house"
     elif owner_share is not None:
@@ -75,6 +77,8 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
     rb, ns = ds["renter_base"], ds["no_sale"]
     fit = rb + (1 - rb) * owner * (ns + (1 - ns) * (1.0 if recent else 0.0))
     parts.update({"owner_fit": round(fit, 3), "owner": round(owner, 3), "owner_basis": basis, "recent_sale": recent})
+    if basis == "house" and s.get("owner_source"):
+        parts["owner_source"] = s["owner_source"]
     if basis == "house":
         en.append("owner lives here" if occ else "likely a rental")
         es.append("vive el dueño" if occ else "probablemente rentada")

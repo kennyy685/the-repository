@@ -23,7 +23,8 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
-from . import doors, owners, parcels
+from . import doors, parcels
+from . import owners as owner_data
 from .geo import haversine_mi, interp
 from .models import iso
 from .nbhd import YEAR_BINS, year_shares
@@ -171,7 +172,7 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
         except Exception as e:                       # a failed download never stops a run: use what is stored
             log(f"    parcels download failed ({type(e).__name__}); using stored buildings")
         try:                                         # T23: per-house owner-occupied (county data, optional)
-            owners.ensure_area(conn, session, area["bbox"], budget_s=budget_s or 120, log=log)
+            owner_data.ensure_area(conn, session, area["bbox"], budget_s=budget_s or 120, log=log)
         except Exception as e:
             log(f"    owners download failed ({type(e).__name__}); using stored data")
     x0, y0, x1, y1 = area["bbox"]

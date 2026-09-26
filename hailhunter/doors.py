@@ -19,7 +19,8 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
-from . import nbhd, owners, parcels
+from . import nbhd, parcels
+from . import owners as owner_data
 from .geo import haversine_mi, interp
 from .models import iso
 
@@ -77,7 +78,7 @@ def score_buildings(conn, cfg, day, bbox, kinds, min_hail, session=None, log=pri
             parcels.ensure_area(conn, session, (min(t[0] for t in xs), min(t[1] for t in xs),
                                                 max(t[2] for t in xs), max(t[3] for t in xs)), log=log)
             try:                                      # T23: per-house owner-occupied (county data, optional)
-                owners.ensure_area(conn, session, (min(t[0] for t in xs), min(t[1] for t in xs),
+                owner_data.ensure_area(conn, session, (min(t[0] for t in xs), min(t[1] for t in xs),
                                                    max(t[2] for t in xs), max(t[3] for t in xs)), budget_s=120, log=log)
             except Exception as e:
                 log(f"    owners download failed ({type(e).__name__}); using stored data")

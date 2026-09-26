@@ -22,7 +22,8 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   - basics: `config`, `geo`, `http` (cached fetches), `db` (SQLite), `models`
   - storms: `ingest`, `analyze` (storm grouping), `mrms` (radar hail grids), `wind` (T6 wind reports, info only),
     `watch` (T31 alerts for watched places, `data/watch_list.json`), `maps` (hail map pictures)
-  - areas and houses: `nbhd` (Census block groups), `parcels` (NE statewide parcels), `doorscore` (door score v2,
+  - areas and houses: `nbhd` (Census block groups), `parcels` (NE statewide parcels), `owners` (T23 per-house
+    owner-occupied from county owner mailing addresses; see Scoring), `doorscore` (door score v2,
     round 16), `doors` (storm turf lists, xlsx/map optional), `everyday` (T50 old-house lists), `zones` (hot zones +
     one walk per zone), `todaywalk` (O0 Today's knock), `commercial` (apartment/commercial targets, csv/xlsx),
     `calltoday` (business call list)
@@ -110,6 +111,15 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - House score = size x recency x distance x roof age x building type x owner-occupied x sold-after-storm flag.
   Door score v2 (`doorscore.py`, used by zones): hail, owner-occupied share + recent sale, single-family, roof age,
   value. "Likely insured" = owner-occupied + residential + mortgage/recent sale proxies (round 16).
+- Per-house owner-occupied (T23, `owners.py`): where a county publishes the owner's MAILING address, same as the
+  house address = owner lives there (True), different = landlord (False), blank/PO box = unknown. Downloaded by
+  parcel tile when door lists are built (doors/everyday, try/except, 120 s budget, cached 180 days in db tables
+  `owner_occ` + `owner_tiles`); `hud.py` sets stop `owner_occ` + new field `owner_source` from the cache (offline).
+  Door score v2 then uses the house flag (`parts.owner_basis` = "house") instead of the neighborhood share.
+  Sources: **Sarpy works** (ArcGIS Online `Parcel_Sales2`, all ~77k parcels). Douglas (dcgis.org), Lancaster
+  (gis.lincoln.ne.gov/public .../Assessor/TaxParcels), Dodge (dodge.gisworkshop.com) and geodata.sarpy.gov were
+  blocked from the cloud session on 2026-09-26, so not wired; add a `SOURCES` entry once reachable. Owner NAMES are
+  never requested or stored (homes rule); the mailing address is compared in memory and dropped.
 - Size: 1" = 0.40, 2" = 0.93. Recency: full to 45 days, 0.4 at 1 yr. Distance: full to 30 mi.
 - Wind (T6): `refresh` pulls NWS wind reports into `wind_obs` and hud.json's `wind_events` (gusts in mph, own
   score). Informational only: door lists and neighborhood scores stay hail-only.
