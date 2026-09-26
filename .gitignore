@@ -17,4 +17,5 @@ data/*
 !data/price_objections.json
 !data/rookie_plan.json
 !data/objection_scripts_2.json
+!data/commercial_calls.json
 .env

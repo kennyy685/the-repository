@@ -45,8 +45,8 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       directly next time
 - [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
       primary source (manufacturer guidance or an adjuster directly), not another blog
-- [ ] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
-      cash jobs (round 31 covered too-expensive / think-it-over / cheaper-bid but not these two)
+- [x] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
+      cash jobs - round 38 (`data/price_objections.json`)
 - [ ] Confirm directly (call NUFCU/BCU, or reach catenergy.ne.gov/dwee.nebraska.gov once egress allows) whether
       the Dollar & Energy Saving Loan program and NUFCU/BCU home-improvement loans cover siding/roofing
       replacement specifically, and their real fee schedules (round 32: pages blocked, search-summary only)
@@ -75,6 +75,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Fold the "zero compensation for any work started before the 3-day cancel window closes" rule
       (69-1606(5), round 37) into `docs/guides/adjuster-meeting.md` and O7's sale-guide script, kept
       distinct from the insurance-specific emergency-work carve-out (44-8603/8607)
+
+- [ ] Once HMP has real commercial call data, re-check round 38's 5-touch/~18-day cadence
+      (`data/commercial_calls.json`) against what actually gets a callback - it's adapted from general
+      B2B research (email/LinkedIn-heavy), not roofing- or phone-only-specific
+- [ ] Get a primary source (a property-management trade site or an actual PM interview, not general B2B
+      cold-calling blogs) on how apartment/commercial roof vendor decisions really get made in eastern
+      Nebraska specifically - round 38's property-manager-vs-asset-manager split is a general CRE pattern,
+      unverified for HMP's actual market size (small/mid apartment complexes, not big REITs)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -150,6 +158,14 @@ landlords/HOA boards (MOPOA/REOMA/Omaha Landlords Association contact numbers, N
 for HOA management-company contacts, reserve-study sales angle, vendor packet (COI/W-9/lien-waiver)
 requirement, and the HOA master-policy/unit-owner legal boundary). Two new backlog items above (membership
 fees, HOA-claim-boundary script).
+Round 38 (sales-mastery track, done directly by the Research Lead - no scout subagent tool available this
+round): two new word-for-word EN/ES objection scripts for cash jobs - "quote me over the phone" and "I want
+three bids first" (`data/price_objections.json`, closes a round-31 backlog item) - plus commercial/apartment
+decision-maker calling: property manager (gathers bids) vs. asset manager (approves capital spend, often
+off-site), a first-call goal that's never a sale, and a 5-touch/~18-day phone-and-in-person cadence
+(`data/commercial_calls.json`). Also worked out the "5 numbers to check Monday" self-review, mapped directly
+to existing `hh.py weekly` fields (no new build). WebFetch/curl blocked on every source tried again -
+search-summary sourced; two new backlog items above.
 Round 37 (backlog track): Nebraska Contractor Registration Act (48-2101 to 48-2117, `docs/legal/
 48-2100-contractor-registration-act.txt`) fetched direct - closes round T38's open question: the Act does
 NOT require printing the registration number on contracts/ads (HMP's current practice exceeds the legal
