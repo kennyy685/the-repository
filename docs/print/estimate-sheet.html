@@ -82,9 +82,9 @@ b, strong { font-weight:700; }
 .prop .v.s { font-size:13.5pt; white-space:nowrap; }
 
 /* hero: the range */
-.hero { display:grid; grid-template-columns:1fr 2.3in; gap:0.18in; }
+.hero { display:grid; grid-template-columns:minmax(0,1fr) 2.2in; gap:0.18in; }
 .range { background:var(--mist); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.14in 0.2in 0.14in; display:flex; flex-direction:column; }
-.range .num { margin-top:0.08in; font:800 50pt/0.92 "Barlow Semi Condensed"; color:var(--char-dk); letter-spacing:-0.005em; white-space:nowrap; }
+.range .num { margin-top:0.08in; font:800 47pt/0.92 "Barlow Semi Condensed"; color:var(--char-dk); letter-spacing:-0.005em; white-space:nowrap; }
 .range .num i { font-style:normal; color:var(--orange); padding:0 0.04in; }
 .range .job { margin-top:0.07in; font:700 11pt/1.25 "Montserrat"; color:var(--ink); }
 .range .ins { margin-top:0.08in; font:800 24pt/1.02 "Barlow Semi Condensed"; color:var(--char-dk); }
@@ -139,6 +139,16 @@ b, strong { font-weight:700; }
 .cmp td b { font-weight:700; }
 .cmp .src { margin-top:0.05in; font:500 6.6pt/1.35 "Montserrat"; color:var(--muted); }
 
+/* roof at a glance (roof-only jobs) */
+.facts { display:grid; grid-template-columns:1.55in repeat(4,1fr); border:1pt solid var(--line); border-radius:5px; overflow:hidden; }
+.facts .head { background:var(--char); color:#fff; padding:0.12in 0.14in; display:flex; flex-direction:column; justify-content:center; gap:0.06in;
+  font:800 12.5pt/1.02 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.01em; }
+.facts .head svg { width:0.8in; height:0.4in; }
+.facts .stat { padding:0.14in 0.14in; border-left:0.75pt solid var(--line); display:flex; flex-direction:column; justify-content:center; }
+.facts .stat .v { font:800 26pt/1 "Barlow Semi Condensed"; color:var(--char-dk); white-space:nowrap; }
+.facts .stat .v small { font:700 11pt/1 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char); }
+.facts .stat .k { margin-top:0.05in; font:600 7.4pt/1.3 "Montserrat"; color:var(--muted); }
+
 /* next steps */
 .steps { display:grid; grid-template-columns:0.95fr 1.2fr 0.95fr; gap:0; margin-top:0.07in; border:1pt solid var(--line); border-radius:5px; overflow:hidden; }
 .step { padding:0.09in 0.14in 0.1in; }
@@ -146,7 +156,7 @@ b, strong { font-weight:700; }
 .step .h { display:flex; align-items:center; gap:0.08in; font:800 12pt/1.05 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.02em; color:var(--ink); }
 .step .n { flex:none; width:0.26in; height:0.26in; border-radius:50%; background:var(--char); color:#fff; font:800 12pt/0.26in "Barlow Semi Condensed"; text-align:center; }
 .step:first-child .n { background:var(--orange); color:#1b1b1d; }
-.step .p { margin-top:0.05in; font:500 7.8pt/1.35 "Montserrat"; color:var(--char); }
+.step .p { margin-top:0.05in; font:500 7.6pt/1.35 "Montserrat"; color:var(--char); }
 .step .p b { color:var(--ink); }
 
 /* contact band: the boldest thing on the page */
@@ -200,7 +210,8 @@ b, strong { font-weight:700; }
   .prop:not(.nofor) > div:nth-child(3) { border-left:0; padding-left:0; }
   .prop:not(.nofor) > div:nth-child(4) { border-left:1px solid var(--line); padding-left:14px; }
   .prop .k { font-size:10px; }
-  .prop .v { font-size:22px; } .prop .v.s { font-size:18px; } .prop .v small { font-size:13px; }
+  .prop:not(.nofor) > div:first-child { grid-column:1 / -1; }
+  .prop .v { font-size:22px; } .prop .v.s { font-size:18px; white-space:normal; } .prop .v small { font-size:13px; }
   .hero { grid-template-columns:1fr; }
   .range { padding:16px 16px 16px; }
   .range .num { font-size:44px; white-space:normal; }
@@ -222,6 +233,12 @@ b, strong { font-weight:700; }
   .cmp td:first-child { grid-column:1 / -1; font-size:10.5px; padding:0 0 4px; }
   .cmp td[data-h]::before { content:attr(data-h); display:block; font:800 14px/1.2 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--orange-ink); letter-spacing:.03em; margin-bottom:2px; }
   .cmp .src { font-size:11px; }
+  .facts { grid-template-columns:1fr 1fr; }
+  .facts .head { grid-column:1 / -1; flex-direction:row; align-items:center; font-size:18px; }
+  .facts .head svg { width:64px; height:32px; }
+  .facts .stat { padding:12px 16px; border-top:1px solid var(--line); }
+  .facts .stat:nth-of-type(odd) { border-left:0; }
+  .facts .stat .v { font-size:30px; } .facts .stat .k { font-size:12px; }
   .steps { grid-template-columns:1fr; }
   .step { padding:14px 16px; } .step + .step { border-left:0; border-top:1px solid var(--line); }
   .step .n { width:30px; height:30px; font-size:17px; line-height:30px; }
@@ -445,7 +462,7 @@ b, strong { font-weight:700; }
       rangeLbl: "Estimate range", rangeEm: "for the work below",
       notFinal: "<b>Estimate range, not a final price.</b> Final price after we measure.",
       insLbl: "Insurance job",
-      counted: "Already counted in this range", sqNote: "<b>1 square = 100 sq ft</b> of wall or roof (10 ft &times; 10 ft).",
+      counted: "Already in this range", sqNote: "<b>1 square = 100 sq ft</b> of wall or roof (10 ft &times; 10 ft).",
       good_: "Good", better_: "Better",
       optCnt: "Same house for both: {sz}.<br><b>1 square = 100 sq ft.</b>",
       incLbl: "What's included", incEm: "in plain words",
@@ -465,10 +482,14 @@ b, strong { font-weight:700; }
       fineIns: "<b>Not a price, bid or contract.</b> On an insurance job the insurer's approved scope sets the price. Your insurance company decides what your policy covers.",
       sq: "squares", ft: "ft", job: "", sqft: "&asymp; {n} sq ft",
       st: {1: "1-story house", 2: "2-story house", 3: "3-story house"},
-      pitch: {steep: "Steep roof (harder, slower work)", low: "Low-slope roof", std: ""},
+      pitch: {steep: "Steep roof (slower work)", low: "Low-slope roof", std: ""},
       layersC: "{n} old layers to tear off", wrapC: "House wrap behind the siding", permitC: "Building permit",
       minC: "Small-job minimum",
-      roughJob: "Size is rough, from the outside of the house"
+      roughJob: "Size is rough, from the outside of the house",
+      facts: "Your roof at a glance", fSize: "of roof", fPitch: "Pitch", fStories: "Stories", fLayers: "Old layers",
+      pitchV: {steep: "Steep", std: "Standard", low: "Low slope"},
+      pitchK: {steep: "steeper than 6/12", std: "4/12 to 6/12", low: "under 4/12"},
+      storyK: ["Story", "Stories"], layerK: ["Old layer to tear off", "Old layers to tear off"]
     },
     es: {
       kick: "Rango estimado &middot; no es el precio final",
@@ -476,9 +497,9 @@ b, strong { font-weight:700; }
            gutters: "Estimado de canaletas<br><span>para su casa</span>", mixed: "Su estimado<br><span>para su casa</span>"},
       forK: "Preparado para", prop: "Propiedad", prepared: "Preparado", good: "Válido por", days: "{n} días",
       rangeLbl: "Rango estimado", rangeEm: "por el trabajo de abajo",
-      notFinal: "<b>Rango estimado, no es el precio final.</b> El precio final, después de medir.",
+      notFinal: "<b>Rango estimado, no es el precio final.</b> Precio final después de medir.",
       insLbl: "Trabajo de seguro",
-      counted: "Ya está incluido en este rango", sqNote: "<b>1 cuadro = 100 pies cuadrados</b> de pared o techo (10 &times; 10 pies).",
+      counted: "Ya incluido en el rango", sqNote: "<b>1 cuadro = 100 pies cuadrados</b> de pared o techo (10 &times; 10 pies).",
       good_: "Bueno", better_: "Mejor",
       optCnt: "La misma casa para los dos: {sz}.<br><b>1 cuadro = 100 pies cuadrados.</b>",
       incLbl: "Qué incluye", incEm: "en palabras sencillas",
@@ -498,23 +519,27 @@ b, strong { font-weight:700; }
       fineIns: "<b>No es precio, oferta ni contrato.</b> En un trabajo de seguro, el alcance aprobado por la aseguradora fija el precio. Su compañía de seguros decide lo que cubre su póliza.",
       sq: "cuadros", ft: "pies", job: "", sqft: "&asymp; {n} pies&sup2;",
       st: {1: "Casa de 1 piso", 2: "Casa de 2 pisos", 3: "Casa de 3 pisos"},
-      pitch: {steep: "Techo empinado (trabajo más difícil y lento)", low: "Techo de poca pendiente", std: ""},
+      pitch: {steep: "Techo empinado (más lento de trabajar)", low: "Techo de poca pendiente", std: ""},
       layersC: "Quitar {n} capas viejas", wrapC: "Envoltura (house wrap) detrás del siding", permitC: "Permiso de construcción",
       minC: "Mínimo por trabajo chico",
-      roughJob: "Medida aproximada, desde afuera de la casa"
+      roughJob: "Medida aproximada, desde afuera de la casa",
+      facts: "Su techo de un vistazo", fSize: "de techo", fPitch: "Pendiente", fStories: "Pisos", fLayers: "Capas viejas",
+      pitchV: {steep: "Empinado", std: "Normal", low: "Poca"},
+      pitchK: {steep: "más de 6/12", std: "de 4/12 a 6/12", low: "menos de 4/12"},
+      storyK: ["Piso", "Pisos"], layerK: ["Capa vieja por quitar", "Capas viejas por quitar"]
     }
   };
 
   // Plain-word names for the engine's line keys (fallback: the engine's own en/es text).
   var ITEM = {
-    vinyl_siding_sq: {en: ["Vinyl siding", "Take off the old siding and put up new vinyl siding."],
+    vinyl_siding_sq: {en: ["Vinyl siding", "Old siding off, new vinyl siding on."],
                       es: ["Siding de vinil", "Quitamos el siding viejo y ponemos siding de vinil nuevo."]},
-    hardie_siding_sq: {en: ["James Hardie siding", "Take off the old siding and put up new James Hardie fiber-cement siding."],
-                       es: ["Siding James Hardie", "Quitamos el siding viejo y ponemos siding nuevo de fibrocemento James Hardie."]},
+    hardie_siding_sq: {en: ["James Hardie siding", "Old siding off, new James Hardie fiber-cement siding on."],
+                       es: ["Siding James Hardie", "Quitamos el siding viejo y ponemos fibrocemento James Hardie."]},
     house_wrap_sq: {en: ["House wrap", "A weather barrier on the walls, under the new siding."],
-                    es: ["Envoltura (house wrap)", "Una barrera contra agua y aire en las paredes, debajo del siding nuevo."]},
-    shingle_roof_sq: {en: ["New shingle roof", "Tear off one layer of old shingles and put on new architectural shingles."],
-                      es: ["Techo nuevo de teja", "Quitamos una capa de teja vieja y ponemos teja arquitectónica nueva."]},
+                    es: ["Envoltura (house wrap)", "Barrera contra agua y aire, debajo del siding nuevo."]},
+    shingle_roof_sq: {en: ["New shingle roof", "One layer of old shingles off, new architectural shingles on."],
+                      es: ["Techo nuevo de teja", "Quitamos una capa de teja vieja y ponemos teja arquitectónica."]},
     extra_layer_sq: {en: ["Extra old layer", "Tear off and haul away one more layer of old material."],
                      es: ["Capa vieja extra", "Quitamos y nos llevamos otra capa de material viejo."]},
     soffit_fascia_ft: {en: ["Soffit + fascia", "New trim under and along the edge of the roof."],
@@ -552,13 +577,13 @@ b, strong { font-weight:700; }
      h: {en: "<b>Higher.</b> Often 70&ndash;100% more than vinyl.", es: "<b>Más caro.</b> Muchas veces 70&ndash;100% más que el vinil."}},
     {k: {en: "Look", es: "Cómo se ve"},
      v: {en: "Even look; the panel seams show.", es: "Se ve parejo; se notan las uniones."},
-     h: {en: "Thick boards, deep shadow lines. Looks like painted wood.", es: "Tablas gruesas con sombra. Parece madera pintada."}},
+     h: {en: "Thick boards, deep shadows; looks like painted wood.", es: "Tablas gruesas con sombra; parece madera pintada."}},
     {k: {en: "Toughness", es: "Resistencia"},
-     v: {en: "Can crack from hail or hard hits (more in cold). Can warp near a grill.", es: "Se puede rajar con granizo o golpes (más con frío). Se tuerce cerca de un asador."},
+     v: {en: "Can crack from hail or hard hits, more in cold. Can warp near a grill.", es: "Se puede rajar con granizo o golpes (más con frío). Se tuerce cerca de un asador."},
      h: {en: "Harder; takes hits better, not hail-proof. Won't melt; Class A fire rating.", es: "Más duro; aguanta mejor los golpes, no es a prueba de granizo. No se derrite; fuego Clase A."}},
     {k: {en: "Upkeep", es: "Cuidado"},
      v: {en: "Wash now and then. No paint; color can fade.", es: "Lavarlo a veces. No se pinta; el color se puede ir."},
-     h: {en: "Wash now and then. Keep joints caulked; repaint someday.", es: "Lavarlo a veces. Sellar uniones; algún día se repinta."}},
+     h: {en: "Wash now and then; caulk joints; repaint someday.", es: "Lavarlo a veces. Sellar uniones; algún día se repinta."}},
     {k: {en: "Typical life", es: "Duración"},
      v: {en: "About 20&ndash;40 years.", es: "Unos 20&ndash;40 años."},
      h: {en: "About 30&ndash;50+ years.", es: "Unos 30&ndash;50 años o más."}}
@@ -597,6 +622,8 @@ b, strong { font-weight:700; }
     var t = T[l], out = [];
     if (siding) out.push(num(siding) + " " + t.sq + (l === "es" ? " de pared" : " of wall"));
     if (roof) out.push(num(roof) + " " + t.sq + (l === "es" ? " de techo" : " of roof"));
+    if (!out.length && +Q.gutter_ft) out.push(num(Q.gutter_ft) + " " + t.ft + (l === "es" ? " de canaleta" : " of gutter"));
+    if (!out.length && +Q.soffit_ft) out.push(num(Q.soffit_ft) + " " + t.ft + (l === "es" ? " de sofito" : " of soffit"));
     return out.join(l === "es" ? " y " : " and ");
   }
   function jobLine(l) {
@@ -672,12 +699,12 @@ b, strong { font-weight:700; }
     // included (plain words, quantities, no per-line dollars) + what could change
     var inc = '<ul class="inc">' + lines.map(function (ln) {
       var it = ITEM[ln.key], nm = it ? it[l][0] : tx(ln, l), d = it ? it[l][1] : "";
-      if (ln.key === "extra_layer_sq") nm = tx(ln, l);
+      if (ln.key === "extra_layer_sq") nm = it[l][0] + (/roof/i.test(ln.en || "") ? (l === "es" ? " (techo)" : " (roof)") : (l === "es" ? " (paredes)" : " (walls)"));
       var q = ln.unit === "job" ? "" : num(ln.qty) + " " + (ln.unit === "sq" ? t.sq : t.ft) +
         (ln.unit === "sq" ? ' <small>(' + f(t.sqft, {n: Math.round(ln.qty * 100).toLocaleString("en-US")}) + ')</small>' : "");
       if (opts.length === 2 && /_siding_sq$/.test(ln.key)) {
         nm = l === "es" ? "Siding nuevo" : "New siding";
-        d = l === "es" ? "Quitamos el siding viejo y ponemos nuevo: vinil o James Hardie, usted escoge." : "Take off the old siding and put up new siding: vinyl or James Hardie, your pick.";
+        d = l === "es" ? "Quitamos el siding viejo y ponemos nuevo: vinil o James Hardie." : "Old siding off, new siding on: vinyl or James Hardie, your pick.";
       }
       return '<li>' + CHECK + '<div><div class="t">' + esc(nm) + (q ? '<span class="q">' + q + '</span>' : '') + '</div>' + (d ? '<div class="d">' + d + '</div>' : '') + '</div></li>';
     }).join("") + '</ul>';
@@ -692,9 +719,21 @@ b, strong { font-weight:700; }
       cmp = '<section class="cmp"><div class="label">' + t.cmpLbl + ' <em>' + t.cmpEm + '</em></div><table><thead><tr><th></th>' +
         '<th>' + hv + (ov ? '<small>' + range(ov.low, ov.high).replace(/<i>|<\/i>/g, "") + '</small>' : '') + '</th>' +
         '<th class="hd">' + hh + (oh ? '<small>' + range(oh.low, oh.high).replace(/<i>|<\/i>/g, "") + '</small>' : '') + '</th></tr></thead><tbody>' +
-        CMP.map(function (r) {
+        CMP.filter(function (r, i) { return i > 0 || !(ov && oh); }).map(function (r) {
           return '<tr><td>' + r.k[l] + '</td><td data-h="' + hv + '">' + r.v[l] + '</td><td data-h="' + hh + '">' + r.h[l] + '</td></tr>';
         }).join("") + '</tbody></table><div class="src">' + t.cmpSrc + '</div></section>';
+    }
+
+    // roof-only jobs: the roof's numbers from the estimate (fills the space the siding comparison uses)
+    var facts = "";
+    if (roof && !siding && !ins) {
+      var pc = A.pitch || "std", ly = A.layers || 1;
+      var roofSvg = '<svg viewBox="0 0 120 60" aria-hidden="true"><path d="M8 52 60 ' + (pc === "steep" ? 8 : pc === "low" ? 34 : 22) + ' 112 52" fill="none" stroke="#f5883a" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M22 52h76" stroke="#c9ccd1" stroke-width="2" stroke-dasharray="4 4"/></svg>';
+      facts = '<section class="facts"><div class="head">' + roofSvg + '<span>' + t.facts + '</span></div>' +
+        '<div class="stat"><div class="v">' + num(roof) + ' <small>' + t.sq + '</small></div><div class="k">' + f(t.sqft, {n: Math.round(roof * 100).toLocaleString("en-US")}) + ' ' + t.fSize + '</div></div>' +
+        '<div class="stat"><div class="v">' + t.pitchV[pc] + '</div><div class="k">' + t.fPitch + ': ' + t.pitchK[pc] + '</div></div>' +
+        '<div class="stat"><div class="v">' + (A.stories || 1) + '</div><div class="k">' + t.storyK[(A.stories || 1) > 1 ? 1 : 0] + '</div></div>' +
+        '<div class="stat"><div class="v">' + ly + '</div><div class="k">' + t.layerK[ly > 1 ? 1 : 0] + '</div></div></section>';
     }
 
     var steps = '<section><div class="label">' + t.nextLbl + '</div><div class="steps">' + t.steps.map(function (s, i) {
@@ -708,7 +747,7 @@ b, strong { font-weight:700; }
       '<header class="top"><svg class="rib" viewBox="0 0 816 125" preserveAspectRatio="none" aria-hidden="true"><rect width="816" height="125" fill="url(#rib)" opacity=".55"/></svg>' +
       '<svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>' +
       '<div class="ttl"><div class="kick">' + t.kick + '</div><h1>' + t.h1[type] + '</h1></div></header>' +
-      '<main class="body">' + prop + hero + two + cmp + steps + '</main>' +
+      '<main class="body">' + prop + hero + two + cmp + facts + steps + '</main>' +
       '<footer class="foot"><div class="row"><div class="cta"><div class="k">' + t.ctaK + '</div><div class="who">' + esc(f(t.ctaWho, {n: name})) + '</div>' +
         '<a class="ph" href="tel:+1' + esc(phone.replace(/\D/g, "")) + '">' + esc(phone) + '</a><div class="alt">' + t.alt + '</div></div>' +
         qr(l, t, name) +
@@ -728,7 +767,10 @@ b, strong { font-weight:700; }
     var steps = [
       function () { var r = pg.querySelectorAll(".cmp tbody tr"); if (r.length > 5) { r[r.length - 1].remove(); return true; } },
       function () { var r = pg.querySelectorAll(".chg li"); if (r.length > 3) { r[r.length - 1].remove(); return true; } },
-      function () { var r = pg.querySelectorAll(".inc .d"); if (r.length) { r.forEach(function (e) { e.remove(); }); return true; } }
+      function () { var r = pg.querySelectorAll(".inc .d"); if (r.length) { r.forEach(function (e) { e.remove(); }); return true; } },
+      function () { var r = pg.querySelectorAll(".counted li"); if (r.length > 4) { r[r.length - 1].remove(); return true; } },
+      function () { var r = pg.querySelectorAll(".cmp tbody tr"); if (r.length > 3) { r[r.length - 1].remove(); return true; } },
+      function () { var c = pg.querySelector(".cmp"); if (c) { c.remove(); return true; } }
     ];
     pg.style.minHeight = "0";                 // measure the content itself; keep ~0.12in spare for print rounding
     for (var guard = 0; guard < 30 && pg.offsetHeight > FULL; guard++) {
@@ -745,7 +787,7 @@ b, strong { font-weight:700; }
     if (want0.has("debug")) {                // crew check: content heights in inches (?debug, add &nofit for raw)
       var dbg = document.getElementById("dbg") || document.body.appendChild(document.createElement("pre"));
       dbg.id = "dbg";
-      dbg.textContent = Array.prototype.map.call(pages, function (pg) {
+      dbg.textContent = (want0.has("nofit") ? "" : "") + Array.prototype.map.call(pages, function (pg) {
         pg.style.minHeight = "0";
         var out = pg.lang + " page " + (pg.offsetHeight / 96).toFixed(2) + " | " + Array.prototype.map.call(pg.querySelectorAll(".top,.body > *,.foot"), function (e) {
           return (e.className || e.tagName) + " " + (e.offsetHeight / 96).toFixed(2); }).join(" | ");
@@ -762,6 +804,7 @@ b, strong { font-weight:700; }
     document.documentElement.lang = l;
     document.querySelectorAll(".seg button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === l)); });
     document.querySelector(".bar .print").textContent = l === "es" ? "Imprimir" : "Print";
+    document.querySelector(".bar .name").innerHTML = "HMP <span>&middot;</span> " + (l === "es" ? "Rango estimado" : "Estimate range");
   }
   document.querySelectorAll(".seg button").forEach(function (b) {
     b.addEventListener("click", function () { document.body.classList.remove("print-both"); show(b.dataset.l); });
