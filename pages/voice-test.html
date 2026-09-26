@@ -1,0 +1,380 @@
+<title>HMP Voice Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap">
+<style>
+/* HMP Pro Dark: one committed dark look (charcoal siding, silver type, orange for the main action only) */
+:root{
+  color-scheme:dark;
+  --bg:#1f2024; --bg2:#26272b; --panel:#2a2b2f; --panel2:#35363b; --line:#3b3c41; --line2:#55575e;
+  --ink:#f2f3f5; --ink2:#d6d8dc; --mute:#b9bcc2;
+  --hmp:#f5883a; --hmp2:#ffa766; --hmp-soft:rgba(245,136,58,.15);
+  --pass:#4cc38a; --pass-soft:rgba(76,195,138,.15); --fail:#ef5d50; --fail-soft:rgba(239,93,80,.15); --wait:#aab0b8;
+  --f-display:"Barlow Semi Condensed","Arial Narrow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-body:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hmp2);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:grid;gap:14px}
+
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--hmp)}
+.lang{display:inline-flex;border:2px solid var(--line2)}
+.lang button{background:transparent;border:0;padding:8px 14px;min-height:44px;font-family:var(--f-display);font-weight:600;font-size:15px;cursor:pointer;color:var(--mute)}
+.lang button[aria-pressed="true"]{background:var(--panel2);color:var(--ink)}
+.intro{margin:0;color:var(--ink2);max-width:62ch}
+
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pillbox{background:var(--panel);border:2px solid var(--line);padding:8px 10px;display:grid;gap:4px;min-width:0}
+.pillbox .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{justify-self:start;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;padding:1px 8px;border:2px solid var(--wait);color:var(--wait)}
+.pill[data-s="pass"]{border-color:var(--pass);color:var(--pass);background:var(--pass-soft)}
+.pill[data-s="fail"]{border-color:var(--fail);color:var(--fail);background:var(--fail-soft)}
+.pill[data-s="part"]{border-color:var(--hmp);color:var(--hmp2);background:var(--hmp-soft)}
+
+.test{background:var(--panel);border:2px solid var(--line);padding:14px;display:grid;gap:10px}
+.test h2{font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.15;margin:0;display:flex;align-items:center;gap:10px}
+.test h2 span:nth-child(2){flex:1;min-width:0}
+.test h2 .n{flex:none}
+.test h2 .n{font-size:13px;color:var(--mute);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.test h2 .pill{flex:none}
+.how{margin:0;color:var(--ink2);font-size:14px}
+.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.big{min-height:64px;background:var(--hmp);color:#1b1b1d;border:0;font-family:var(--f-display);font-weight:700;font-size:21px;cursor:pointer;padding:8px 12px}
+.big.sec{background:var(--panel2);color:var(--ink);border:2px solid var(--line2)}
+.big:active{transform:translateY(1px)}
+.big[disabled]{opacity:.5;cursor:default}
+.ask{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--ink2)}
+.ask button{min-height:44px;padding:6px 14px;background:var(--bg2);border:2px solid var(--line2);font-family:var(--f-display);font-weight:600;font-size:16px;cursor:pointer}
+.ask button[aria-pressed="true"]{border-color:var(--hmp);color:var(--hmp2)}
+.out{margin:0;background:var(--bg2);border:1px solid var(--line);padding:8px 10px;font-size:14px;color:var(--ink2);white-space:pre-wrap;word-break:break-word;min-height:2.6em}
+.voices{font-size:13px;color:var(--mute);margin:0}
+.voices b{color:var(--ink2);font-weight:600}
+.field{width:100%;background:var(--bg2);border:2px solid var(--line2);padding:12px;font-size:17px}
+audio{width:100%}
+
+.save{background:var(--panel);border:2px solid var(--hmp);padding:14px;display:grid;gap:10px}
+.save .big{width:100%}
+.ua{font-size:12px;color:var(--mute);margin:0;word-break:break-word}
+.ok{color:var(--pass)}
+.bad{color:var(--fail)}
+@media (max-width:460px){.strip{grid-template-columns:repeat(2,1fr)} h1{font-size:30px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow" data-t="eyebrow">HMP App · voice check</div>
+      <h1 data-t="title">Voice <span>test</span></h1>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" id="l-en" aria-pressed="true">EN</button>
+      <button type="button" id="l-es" aria-pressed="false">ES</button>
+    </div>
+  </header>
+  <p class="intro" data-t="intro">Four quick tests, one at a time. Each shows PASS or FAIL for this phone and this app. Run them in the Claude app, then open the same link in Safari and run them again. Tap Save at the bottom each time.</p>
+
+  <div class="strip" aria-label="Results">
+    <div class="pillbox"><span class="k" data-t="k1">Read aloud</span><span class="pill" id="p-tts">—</span></div>
+    <div class="pillbox"><span class="k" data-t="k2">Dictation</span><span class="pill" id="p-stt">—</span></div>
+    <div class="pillbox"><span class="k" data-t="k3">Keyboard mic</span><span class="pill" id="p-kbd">—</span></div>
+    <div class="pillbox"><span class="k" data-t="k4">Record 5 s</span><span class="pill" id="p-rec">—</span></div>
+  </div>
+
+  <section class="test" id="t-tts">
+    <h2><span class="n" data-t="n1">Test 1</span><span data-t="h1">Read aloud</span><span class="pill" id="s-tts">—</span></h2>
+    <p class="how" data-t="how1">Turn the volume up and the silent switch off. Tap each button. The phone should read the sentence out loud.</p>
+    <div class="btns">
+      <button class="big" type="button" id="tts-en">▶ English</button>
+      <button class="big" type="button" id="tts-es">▶ Español</button>
+    </div>
+    <div class="ask"><span data-t="heard">Did you hear it?</span>
+      <button type="button" data-heard="tts" data-v="yes" data-t="yes">Yes</button><button type="button" data-heard="tts" data-v="no" data-t="no">No</button></div>
+    <p class="out" id="o-tts" data-t="notrun">Not run yet.</p>
+    <p class="voices" id="voices"></p>
+  </section>
+
+  <section class="test" id="t-stt">
+    <h2><span class="n" data-t="n2">Test 2</span><span data-t="h2">Dictation in the page</span><span class="pill" id="s-stt">—</span></h2>
+    <p class="how" data-t="how2">Tap a button, then say a short sentence like "Inspection Tuesday at 1418 Irving". It stops by itself after 8 seconds.</p>
+    <div class="btns">
+      <button class="big" type="button" id="stt-en">English (en-US)</button>
+      <button class="big" type="button" id="stt-es">Español (es-MX)</button>
+    </div>
+    <p class="out" id="o-stt" data-t="notrun">Not run yet.</p>
+  </section>
+
+  <section class="test" id="t-kbd">
+    <h2><span class="n" data-t="n3">Test 3</span><span data-t="h3">Keyboard mic (backup)</span><span class="pill" id="s-kbd">—</span></h2>
+    <p class="how" data-t="how3">Tap the box. On the iPhone keyboard, tap the small microphone and talk. Then tell us if the words showed up.</p>
+    <input class="field" id="kbd" type="text" autocomplete="off" placeholder="Tap here, then the keyboard mic">
+    <div class="ask"><span data-t="worked">Did the words show up?</span>
+      <button type="button" data-kbd="yes" data-t="yes">Yes</button><button type="button" data-kbd="no" data-t="no">No</button></div>
+  </section>
+
+  <section class="test" id="t-rec">
+    <h2><span class="n" data-t="n4">Test 4</span><span data-t="h4">Record 5 seconds</span><span class="pill" id="s-rec">—</span></h2>
+    <p class="how" data-t="how4">Tap Record and talk for 5 seconds. It plays back when done.</p>
+    <div class="btns"><button class="big" type="button" id="rec">Record 5 s</button></div>
+    <audio id="play" controls hidden></audio>
+    <div class="ask"><span data-t="heard">Did you hear it?</span>
+      <button type="button" data-heard="rec" data-v="yes" data-t="yes">Yes</button><button type="button" data-heard="rec" data-v="no" data-t="no">No</button></div>
+    <p class="out" id="o-rec" data-t="notrun">Not run yet.</p>
+  </section>
+
+  <section class="save">
+    <button class="big" type="button" id="save" data-t="save">Save results</button>
+    <p class="out" id="o-save" data-t="savehint">Saves this phone's results so Claude can read them.</p>
+    <p class="ua" id="ua"></p>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const T = {
+    en: { eyebrow: "HMP App · voice check", title: 'Voice <span>test</span>', intro: "Four quick tests, one at a time. Each shows PASS or FAIL for this phone and this app. Run them in the Claude app, then open the same link in Safari and run them again. Tap Save at the bottom each time.",
+      k1: "Read aloud", k2: "Dictation", k3: "Keyboard mic", k4: "Record 5 s", n1: "Test 1", n2: "Test 2", n3: "Test 3", n4: "Test 4",
+      h1: "Read aloud", h2: "Dictation in the page", h3: "Keyboard mic (backup)", h4: "Record 5 seconds",
+      how1: "Turn the volume up and the silent switch off. Tap each button. The phone should read the sentence out loud.",
+      how2: 'Tap a button, then say a short sentence like "Inspection Tuesday at 1418 Irving". It stops by itself after 8 seconds.',
+      how3: "Tap the box. On the iPhone keyboard, tap the small microphone and talk. Then tell us if the words showed up.",
+      how4: "Tap Record and talk for 5 seconds. It plays back when done.",
+      heard: "Did you hear it?", worked: "Did the words show up?", yes: "Yes", no: "No", notrun: "Not run yet.",
+      save: "Save results", savehint: "Saves this phone's results so Claude can read them.",
+      speaking: "Reading…", spoke: "Finished reading", noapi: "Not in this browser", listening: "Listening… talk now", heardWords: "Heard", nothing: "Heard nothing", err: "Error",
+      recording: "Recording… ", playback: "Recorded. Playing back.", saved: "Saved. Claude can read it now.", cantsave: "Can't save from here. Results are shown below; send a screenshot instead.",
+      saving: "Saving…", voicesEn: "English voices", voicesEs: "Spanish voices", none: "none", micBlocked: "Microphone blocked", timeout: "No sound events after 8 s" },
+    es: { eyebrow: "App HMP · prueba de voz", title: 'Prueba de <span>voz</span>', intro: "Cuatro pruebas rápidas, una a la vez. Cada una muestra PASA o FALLA para este teléfono y esta app. Hágalas en la app de Claude, luego abra el mismo enlace en Safari y hágalas otra vez. Toque Guardar abajo cada vez.",
+      k1: "Leer en voz alta", k2: "Dictado", k3: "Micrófono del teclado", k4: "Grabar 5 s", n1: "Prueba 1", n2: "Prueba 2", n3: "Prueba 3", n4: "Prueba 4",
+      h1: "Leer en voz alta", h2: "Dictado en la página", h3: "Micrófono del teclado (respaldo)", h4: "Grabar 5 segundos",
+      how1: "Suba el volumen y quite el modo silencio. Toque cada botón. El teléfono debe leer la frase en voz alta.",
+      how2: 'Toque un botón y diga una frase corta como "Inspección el martes en 1418 Irving". Se detiene solo a los 8 segundos.',
+      how3: "Toque la caja. En el teclado del iPhone, toque el micrófono pequeño y hable. Luego díganos si salieron las palabras.",
+      how4: "Toque Grabar y hable 5 segundos. Se reproduce al terminar.",
+      heard: "¿Lo escuchó?", worked: "¿Salieron las palabras?", yes: "Sí", no: "No", notrun: "Todavía no.",
+      save: "Guardar resultados", savehint: "Guarda los resultados de este teléfono para que Claude los lea.",
+      speaking: "Leyendo…", spoke: "Terminó de leer", noapi: "No existe en este navegador", listening: "Escuchando… hable ahora", heardWords: "Escuchó", nothing: "No escuchó nada", err: "Error",
+      recording: "Grabando… ", playback: "Grabado. Reproduciendo.", saved: "Guardado. Claude ya lo puede leer.", cantsave: "No se puede guardar desde aquí. Los resultados están abajo; mande una captura.",
+      saving: "Guardando…", voicesEn: "Voces en inglés", voicesEs: "Voces en español", none: "ninguna", micBlocked: "Micrófono bloqueado", timeout: "Sin eventos de sonido en 8 s" }
+  };
+  let lang = "en";
+  try { if (localStorage.getItem("vt-lang") === "es") lang = "es"; } catch (e) { /* no storage */ }
+  const t = (k) => T[lang][k];
+  const PASS = { en: "PASS", es: "PASA" }, FAIL = { en: "FAIL", es: "FALLA" }, PART = { en: "PART", es: "PARCIAL" };
+
+  // One record per test; this is what gets saved.
+  const R = {
+    tts: { en: null, es: null, heard: null },
+    stt: { en: null, es: null },
+    kbd: { worked: null, text: "" },
+    rec: { status: null, heard: null }
+  };
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    $("l-en").setAttribute("aria-pressed", lang === "en"); $("l-es").setAttribute("aria-pressed", lang === "es");
+    document.querySelectorAll("[data-t]").forEach((el) => {
+      const k = el.dataset.t;
+      if (el.classList.contains("out") && el.dataset.touched) return;
+      if (k === "title") el.innerHTML = t(k); else el.textContent = t(k);
+    });
+    $("kbd").placeholder = lang === "es" ? "Toque aquí y luego el micrófono" : "Tap here, then the keyboard mic";
+    paintAll(); listVoices();
+  }
+  function setLang(l) { lang = l; try { localStorage.setItem("vt-lang", l); } catch (e) { /* ignore */ } applyLang(); }
+  $("l-en").onclick = () => setLang("en"); $("l-es").onclick = () => setLang("es");
+
+  function out(id, text) { const el = $(id); el.textContent = text; el.dataset.touched = "1"; }
+
+  // Status per test: pass | fail | part | null
+  function status(k) {
+    if (k === "tts") {
+      if (R.tts.heard === "no") return "fail";
+      const a = [R.tts.en, R.tts.es].filter(Boolean);
+      if (!a.length) return null;
+      const ok = a.filter((x) => x.ok).length;
+      if (ok === 2) return "pass"; if (ok === 0) return "fail"; return "part";
+    }
+    if (k === "stt") {
+      const a = [R.stt.en, R.stt.es].filter(Boolean);
+      if (!a.length) return null;
+      const ok = a.filter((x) => x.ok).length;
+      if (ok === 2) return "pass"; if (ok === 0) return "fail"; return "part";
+    }
+    if (k === "kbd") return R.kbd.worked === "yes" ? "pass" : R.kbd.worked === "no" ? "fail" : null;
+    if (k === "rec") { if (R.rec.heard === "no") return "fail"; return R.rec.status ? (R.rec.status.ok ? "pass" : "fail") : null; }
+  }
+  function paintAll() {
+    ["tts", "stt", "kbd", "rec"].forEach((k) => {
+      const s = status(k);
+      const label = s === "pass" ? PASS[lang] : s === "fail" ? FAIL[lang] : s === "part" ? PART[lang] : "—";
+      ["p-", "s-"].forEach((p) => { const el = $(p + k); el.textContent = label; if (s) el.dataset.s = s; else delete el.dataset.s; });
+    });
+    document.querySelectorAll("[data-heard]").forEach((b) => b.setAttribute("aria-pressed", R[b.dataset.heard].heard === b.dataset.v));
+    document.querySelectorAll("[data-kbd]").forEach((b) => b.setAttribute("aria-pressed", R.kbd.worked === b.dataset.kbd));
+  }
+
+  // ---------- Test 1: speechSynthesis ----------
+  const synth = window.speechSynthesis || null;
+  function voiceList() {
+    if (!synth) return { en: [], es: [] };
+    const all = synth.getVoices() || [];
+    const pick = (p) => all.filter((v) => String(v.lang).replace("_", "-").toLowerCase().indexOf(p) === 0).map((v) => v.name + " (" + v.lang + ")" + (v.localService ? "" : " net"));
+    return { en: pick("en"), es: pick("es") };
+  }
+  function listVoices() {
+    const el = $("voices");
+    if (!synth) { el.textContent = "speechSynthesis: " + t("noapi"); return; }
+    const v = voiceList();
+    const show = (arr) => arr.length ? arr.slice(0, 8).join(", ") + (arr.length > 8 ? " +" + (arr.length - 8) : "") : t("none");
+    el.innerHTML = "";
+    const a = document.createElement("div"); a.innerHTML = "<b></b> "; a.firstChild.textContent = t("voicesEn") + " (" + v.en.length + "):"; a.append(show(v.en));
+    const b = document.createElement("div"); b.innerHTML = "<b></b> "; b.firstChild.textContent = t("voicesEs") + " (" + v.es.length + "):"; b.append(show(v.es));
+    el.append(a, b);
+  }
+  if (synth && "onvoiceschanged" in synth) synth.onvoiceschanged = listVoices;
+  function speakTest(l) {
+    const res = { ok: false, lang: l === "es" ? "es-MX" : "en-US", at: new Date().toISOString() };
+    if (!synth || typeof SpeechSynthesisUtterance === "undefined") { res.error = "no_api"; R.tts[l] = res; out("o-tts", "speechSynthesis: " + t("noapi")); paintAll(); return; }
+    const text = l === "es" ? "Hola, soy Kenny de HMP Siding and Roofing. ¿Puedo revisar su techo por daño de granizo?" : "Hi, I'm Kenny with HMP Siding and Roofing. Can I check your roof for hail damage?";
+    try {
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = res.lang;
+      const pref = voiceList()[l];
+      const all = synth.getVoices() || [];
+      const v = all.find((x) => String(x.lang).replace("_", "-") === res.lang) || all.find((x) => String(x.lang).toLowerCase().indexOf(l) === 0);
+      if (v) { u.voice = v; res.voice = v.name + " (" + v.lang + ")"; } else res.voice = null;
+      res.voices_found = pref.length;
+      let started = false, done = false;
+      const fin = (ok, why) => { if (done) return; done = true; res.ok = ok; if (why) res.error = why; R.tts[l] = res; out("o-tts", (ok ? t("spoke") : FAIL[lang] + ": " + (why || "")) + " · " + res.lang + (res.voice ? " · " + res.voice : "")); paintAll(); };
+      u.onstart = () => { started = true; res.started = true; out("o-tts", t("speaking") + " " + res.lang); };
+      u.onend = () => fin(true);
+      u.onerror = (e) => fin(false, (e && e.error) || "error");
+      out("o-tts", t("speaking") + " " + res.lang);
+      synth.speak(u);
+      setTimeout(() => { if (!done && !started) fin(false, "timeout: " + t("timeout")); }, 8000);
+    } catch (e) { res.error = String(e && e.message || e); R.tts[l] = res; out("o-tts", t("err") + ": " + res.error); paintAll(); }
+  }
+  $("tts-en").onclick = () => speakTest("en");
+  $("tts-es").onclick = () => speakTest("es");
+
+  // ---------- Test 2: SpeechRecognition ----------
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  let recActive = null;
+  function sttTest(l) {
+    const res = { ok: false, lang: l === "es" ? "es-MX" : "en-US", api: window.SpeechRecognition ? "SpeechRecognition" : (window.webkitSpeechRecognition ? "webkitSpeechRecognition" : null), at: new Date().toISOString() };
+    if (!Rec) { res.error = "no_api"; R.stt[l] = res; out("o-stt", "SpeechRecognition: " + t("noapi")); paintAll(); return; }
+    if (recActive) { try { recActive.abort(); } catch (e) { /* ignore */ } }
+    let text = "", done = false;
+    const fin = (why) => {
+      if (done) return; done = true; recActive = null;
+      res.transcript = text.trim(); res.ok = !!res.transcript; if (why) res.error = why;
+      R.stt[l] = res;
+      out("o-stt", (res.ok ? t("heardWords") + " (" + res.lang + "): " + res.transcript : FAIL[lang] + " (" + res.lang + "): " + (why || t("nothing"))));
+      paintAll();
+    };
+    try {
+      const r = new Rec(); recActive = r;
+      r.lang = res.lang; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+      r.onstart = () => { res.started = true; out("o-stt", t("listening") + " (" + res.lang + ")"); };
+      r.onresult = (e) => { let s = ""; for (let i = 0; i < e.results.length; i++) s += e.results[i][0].transcript; text = s; out("o-stt", "… " + s); };
+      r.onerror = (e) => fin((e && e.error) || "error");
+      r.onend = () => fin(text ? null : "ended with no words");
+      r.start();
+      out("o-stt", t("listening") + " (" + res.lang + ")");
+      setTimeout(() => { if (!done) { try { r.stop(); } catch (e) { /* ignore */ } setTimeout(() => fin(text ? null : "timeout"), 1500); } }, 8000);
+    } catch (e) { fin(String(e && e.message || e)); }
+  }
+  $("stt-en").onclick = () => sttTest("en");
+  $("stt-es").onclick = () => sttTest("es");
+
+  // ---------- Test 3: keyboard mic ----------
+  $("kbd").addEventListener("input", () => { R.kbd.text = $("kbd").value.slice(0, 200); });
+  document.querySelectorAll("[data-kbd]").forEach((b) => b.onclick = () => { R.kbd.worked = b.dataset.kbd; R.kbd.text = $("kbd").value.slice(0, 200); paintAll(); });
+  document.querySelectorAll("[data-heard]").forEach((b) => b.onclick = () => { R[b.dataset.heard].heard = b.dataset.v; paintAll(); });
+
+  // ---------- Test 4: MediaRecorder ----------
+  $("rec").onclick = async () => {
+    const res = { ok: false, at: new Date().toISOString() };
+    const btn = $("rec");
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { res.error = "no getUserMedia"; R.rec.status = res; out("o-rec", "getUserMedia: " + t("noapi")); paintAll(); return; }
+    if (typeof MediaRecorder === "undefined") { res.error = "no MediaRecorder"; R.rec.status = res; out("o-rec", "MediaRecorder: " + t("noapi")); paintAll(); return; }
+    btn.disabled = true;
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { res.error = (e && e.name) || "error"; res.detail = String(e && e.message || ""); R.rec.status = res; out("o-rec", t("micBlocked") + ": " + res.error + (res.detail ? " · " + res.detail : "")); btn.disabled = false; paintAll(); return; }
+    try {
+      const types = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/aac"];
+      const mime = types.find((x) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(x)) || "";
+      const mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      const chunks = [];
+      mr.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      mr.onstop = () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        const blob = new Blob(chunks, { type: mr.mimeType || mime || "audio/mp4" });
+        res.mime = blob.type; res.bytes = blob.size; res.ok = blob.size > 0;
+        if (!res.ok) res.error = "empty recording";
+        R.rec.status = res;
+        const a = $("play"); a.hidden = false; a.src = URL.createObjectURL(blob);
+        a.play().catch(() => { /* tap play by hand */ });
+        out("o-rec", (res.ok ? t("playback") : FAIL[lang]) + " · " + res.mime + " · " + Math.round(res.bytes / 1024) + " KB");
+        btn.disabled = false; paintAll();
+      };
+      mr.start();
+      let n = 5;
+      out("o-rec", t("recording") + n);
+      const iv = setInterval(() => { n -= 1; if (n > 0) out("o-rec", t("recording") + n); else { clearInterval(iv); mr.stop(); } }, 1000);
+    } catch (e) {
+      stream.getTracks().forEach((tr) => tr.stop());
+      res.error = String(e && e.message || e); R.rec.status = res; out("o-rec", t("err") + ": " + res.error); btn.disabled = false; paintAll();
+    }
+  };
+
+  // ---------- device + save ----------
+  const ua = navigator.userAgent || "";
+  function where() {
+    if (/Claude/i.test(ua)) return "claude-app";
+    if (/CriOS|FxiOS|EdgiOS/.test(ua)) return "ios-other-browser";
+    if (/iPhone|iPad/.test(ua) && /Safari/.test(ua)) return "safari-or-webview";
+    if (/iPhone|iPad/.test(ua)) return "ios-webview";
+    return "other";
+  }
+  $("ua").textContent = ua + " · " + where() + " · " + (window.top !== window ? "framed" : "top");
+
+  let db = null;
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("db").then((d) => { db = d; }).catch(() => { db = null; });
+  }
+  $("save").onclick = async () => {
+    const now = new Date();
+    const id = now.toISOString().replace(/[:.]/g, "-");
+    const v = voiceList();
+    const doc = {
+      at: now.toISOString(), ua: ua, where: where(), framed: window.top !== window, page_lang: lang,
+      screen: window.innerWidth + "x" + window.innerHeight,
+      summary: { tts: status("tts"), stt: status("stt"), keyboard_mic: status("kbd"), record: status("rec") },
+      tts: Object.assign({}, R.tts, { voices_en: v.en.length, voices_es: v.es, has_api: !!synth }),
+      stt: Object.assign({}, R.stt, { has_api: !!Rec }),
+      keyboard_mic: R.kbd,
+      record: Object.assign({ has_api: typeof MediaRecorder !== "undefined" }, R.rec.status || {}, { heard: R.rec.heard })
+    };
+    if (!db) { out("o-save", t("cantsave") + "\n\n" + JSON.stringify(doc.summary)); return; }
+    $("save").disabled = true; out("o-save", t("saving"));
+    try { await db.doc("results/" + id).set(JSON.parse(JSON.stringify(doc))); out("o-save", t("saved") + " (results/" + id + ")"); }
+    catch (e) { out("o-save", t("err") + ": " + ((e && e.code) || "") + " " + ((e && e.message) || "")); }
+    $("save").disabled = false;
+  };
+
+  applyLang();
+})();
+</script>

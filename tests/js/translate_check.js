@@ -2,12 +2,20 @@
  *   1. its embedded glossary equals data/glossary_en_es.json (30+ terms, each {en, es, note});
  *   2. readLegal() text is word for word the printed notices (docs/print/cancel-notice.html, contract-draft*.html);
  *   3. deductible and cancel-rights sentences are blocked before any AI call; the prompt carries the glossary.
- *   node tests/js/translate_check.js      exit 0 = all good */
+ *   node tests/js/translate_check.js        exit 0 = all good
+ *   node tests/js/translate_check.js --fix  first re-embed data/glossary_en_es.json into translate.js (after editing it) */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..", "..");
-const T = require(path.join(ROOT, "pages", "translate", "translate.js"));
+const JS = path.join(ROOT, "pages", "translate", "translate.js");
+if (process.argv.includes("--fix")) {
+  const g = JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, "data", "glossary_en_es.json"), "utf8")));
+  const src = fs.readFileSync(JS, "utf8");
+  const out = src.replace(/(\/\* GLOSSARY:START \*\/\n\s*const GLOSSARY_DEFAULT = ).*?;(\n\s*\/\* GLOSSARY:END \*\/)/s, (m, a, b) => a + g + ";" + b);
+  if (out === src) console.log("glossary already embedded"); else { fs.writeFileSync(JS, out); console.log("re-embedded glossary"); }
+}
+const T = require(JS);
 
 let fails = 0;
 const bad = (m) => { fails++; console.error("FAIL " + m); };

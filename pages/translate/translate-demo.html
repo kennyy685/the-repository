@@ -133,19 +133,20 @@ button,input{font:inherit;color:inherit}
     $("say-" + lang).innerHTML = parts.join("");
     $("tag-" + lang).hidden = true;
   }
+  // Replay / Simpler / Check always sit on FilthE's (English) side; he runs the tool.
   function actions() {
     return '<div class="acts">' +
-      '<button class="btn" data-act="replay" type="button">' + UI[last.to].replay + '</button>' +
-      '<button class="btn" data-act="simpler" type="button">' + UI[last.to].simpler + '</button>' +
-      '<button class="btn" data-act="check" type="button">' + UI[last.from].check + '</button></div>';
+      '<button class="btn" data-act="replay" type="button">' + UI.en.replay + '</button>' +
+      '<button class="btn" data-act="simpler" type="button">' + UI.en.simpler + '</button>' +
+      '<button class="btn" data-act="check" type="button">' + UI.en.check + '</button></div>';
   }
   function showResult(r) {
     last = { from: r.from, to: r.to, source: r.source, text: r.text, back: r.back || null };
     const warn = r.warn ? '<p class="warn">' + esc(r.warn[r.to]) + '</p>' : "";
-    paint(r.to, ['<p class="small">' + UI[r.to].heard + '</p>', '<p class="big">' + esc(r.text) + '</p>', warn, actions()]);
+    paint(r.to, ['<p class="small">' + UI[r.to].heard + '</p>', '<p class="big">' + esc(r.text) + '</p>', warn, r.to === "en" ? actions() : ""]);
     const back = last.back ? '<p class="back">' + UI[r.from].check + ': ' + esc(last.back) + '</p>' : "";
     const warn2 = r.warn ? '<p class="warn">' + esc(r.warn[r.from]) + '</p>' : "";
-    paint(r.from, ['<p class="small">' + UI[r.from].youSaid + '</p>', '<p class="big" style="font-size:20px">' + esc(r.source) + '</p>', back, warn2]);
+    paint(r.from, ['<p class="small">' + UI[r.from].youSaid + '</p>', '<p class="big" style="font-size:20px">' + esc(r.source) + '</p>', back, warn2, r.from === "en" ? actions() : ""]);
     if (autoOn()) T.speak(r.text, r.to);
   }
   function showBlocked(from, r) {
@@ -262,7 +263,7 @@ button,input{font:inherit;color:inherit}
   const ex = { from: "en", to: "es", source: "Hi, I'm Kenny with HMP Siding & Roofing. We do roofing and siding. Can I take a look at your roof for hail damage? It's a free inspection.",
     text: "Hola, soy Kenny de HMP Siding & Roofing. Hacemos techos y siding. ¿Puedo revisar su techo por daño por granizo? Es una inspección gratis." };
   last = ex;
-  $("say-es").innerHTML = '<p class="small">' + UI.es.heard + '</p><p class="big">' + esc(ex.text) + '</p>' + actions();
-  $("say-en").innerHTML = '<p class="small">' + UI.en.youSaid + '</p><p class="big" style="font-size:20px">' + esc(ex.source) + '</p>';
+  $("say-es").innerHTML = '<p class="small">' + UI.es.heard + '</p><p class="big">' + esc(ex.text) + '</p>';
+  $("say-en").innerHTML = '<p class="small">' + UI.en.youSaid + '</p><p class="big" style="font-size:20px">' + esc(ex.source) + '</p>' + actions();
 })();
 </script>

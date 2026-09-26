@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Direction A · Ledger</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="spec.css">
+<style>
+:root{
+  --page:#f6f7f8; --screen:#f6f7f8; --card:#ffffff; --ink:#18191c; --ink2:#3d3f45; --muted:#6c6f77;
+  --line:#e3e5e8; --soft:#eef0f2; --hmp:#f5883a; --hmp-ink:#a4520f; --late:#c2362b; --late-bg:#fdecea;
+  --ok:#1f7a4d; --f:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --spec-font:var(--f); --spec-display:var(--f);
+}
+.phone{font-family:var(--f);font-size:15px;line-height:1.45}
+.top{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;position:sticky;top:0;background:color-mix(in srgb,var(--screen) 88%,transparent);backdrop-filter:blur(10px);z-index:2}
+.mark{display:flex;flex-direction:column;align-items:center;line-height:1}
+.mark svg{width:30px;height:9px}
+.mark b{font-weight:600;font-size:13px;letter-spacing:.08em}
+.date{flex:1;color:var(--muted);font-size:13px}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.lang button{border:0;background:none;padding:5px 9px;font-size:12px;font-weight:500;color:var(--muted)}
+.lang .on{background:var(--ink);color:#fff}
+.me{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:12px;font-weight:600}
+h1{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:6px 0 2px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:20px}
+.stats div{padding:10px 12px}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.stats span{font-size:12px;color:var(--muted)}
+.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card .hd{padding:14px 16px 12px}
+.card .hd .lbl b{color:var(--hmp-ink);font-weight:500}
+.addr{font-size:28px;font-weight:600;letter-spacing:-.025em;margin:4px 0 6px;line-height:1.1}
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink2)}
+.facts span{display:flex;align-items:center;gap:5px}
+.facts svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.8}
+.guide{border-top:1px solid var(--line);padding:4px 16px}
+.g{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:10px 0}
+.g+.g{border-top:1px dashed var(--line)}
+.g .lbl{padding-top:3px}
+.g p{margin:0;font-size:15px}
+.g.say p{font-size:16px;color:var(--ink)}
+.flip{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:none;border-radius:6px;padding:2px 6px;margin-top:6px;color:var(--muted)}
+.outs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.outs button{border:0;background:none;padding:12px 4px;min-height:56px;font-size:14px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px}
+.outs button+button{border-left:1px solid var(--line)}
+.outs button small{font-size:11px;color:var(--muted);font-weight:400}
+.outs .pri{background:var(--hmp);color:#1b1206}
+.outs .pri small{color:#4a2a0c}
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 8px}
+.sec h2{font-size:16px;font-weight:600;margin:0;letter-spacing:-.01em}
+.sec a{font-size:13px;color:var(--muted);text-decoration:none}
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.grp{padding:10px 16px 4px}
+.row{display:flex;gap:12px;align-items:flex-start;padding:10px 16px}
+.row+.row{border-top:1px solid var(--soft)}
+.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid #c4c7cc;flex:none;margin-top:1px}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-weight:500}
+.row .t span{font-size:13px;color:var(--muted)}
+.when{font-family:var(--mono);font-size:12px;color:var(--ink2);white-space:nowrap;padding-top:2px}
+.late{font-family:var(--mono);font-size:11px;color:var(--late);background:var(--late-bg);border-radius:6px;padding:2px 6px;white-space:nowrap;display:flex;gap:4px;align-items:center}
+.late::before{content:"!";font-weight:700}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 6px calc(10px + env(safe-area-inset-bottom,0px))}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:4px 0;min-height:48px;justify-content:center}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav .on{color:var(--ink);font-weight:600}
+.nav .plus i{width:48px;height:40px;border-radius:12px;background:var(--ink);display:grid;place-items:center;color:#fff}
+.nav .plus svg{stroke-width:2.4}
+</style></head><body>
+<div class="wrap">
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3"/></svg><b>HMP</b></div>
+    <div class="date">Sat, Sep 26</div>
+    <div class="lang"><button class="on">EN</button><button>ES</button></div>
+    <button class="me" aria-label="More">K</button>
+  </header>
+  <div class="body">
+    <h1>Good afternoon, Kenny</h1>
+    <p class="sub">5 things due · walk is 7 of 25 doors</p>
+
+    <div class="stats">
+      <div><b>7</b><span>doors</span></div><div><b>3</b><span>talks</span></div><div><b>1</b><span>interested</span></div><div><b>1</b><span>booked</span></div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <div class="lbl"><b>Next door</b> · 8 of 25 · Linden &amp; E 4th</div>
+        <div class="addr">101 E 4th St</div>
+        <div class="facts">
+          <span><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9H3z"/></svg>Built 1978</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>1.5" hail · Sep 10</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/></svg>45 m</span>
+        </div>
+      </div>
+      <div class="guide">
+        <div class="g say"><div class="lbl">Say<br><button class="flip">ES ⇄</button></div><p>"Hi, I'm Kenny with HMP Siding &amp; Roofing. We do roofs and siding. The Sep 10 hail hit this street. Can I take a free look at your roof?"</p></div>
+        <div class="g"><div class="lbl">Ask</div><p>Has anyone looked at the roof since the storm?</p></div>
+        <div class="g"><div class="lbl">Collect</div><p>First name · best day to inspect</p></div>
+      </div>
+      <div class="outs">
+        <button>Not home<small>hanger</small></button><button>No<small>&nbsp;</small></button><button>Interested<small>follow up</small></button><button class="pri">Booked<small>pick time</small></button>
+      </div>
+    </div>
+
+    <div class="sec"><h2>Due</h2><a href="#">See all</a></div>
+    <div class="list">
+      <div class="grp lbl">Today · 3</div>
+      <div class="row"><i class="chk"></i><div class="t"><b>Call back 103 E 4th St</b><span>Book the free inspection</span></div><span class="late">1 day late</span></div>
+      <div class="row"><i class="chk"></i><div class="t"><b>400 Pine St · Tom</b><span>Estimate visit · step 2 of 8</span></div><span class="when">10:00 AM</span></div>
+      <div class="row"><i class="chk"></i><div class="t"><b>1418 Irving St · claim</b><span>Send certificate, ask for depreciation</span></div><span class="late">Overdue</span></div>
+      <div class="grp lbl">Tomorrow · 2</div>
+      <div class="row"><i class="chk"></i><div class="t"><b>104 E 4th St</b><span>48 h reminder · Interested</span></div><span class="when">9:00 AM</span></div>
+      <div class="row"><i class="chk"></i><div class="t"><b>402 Pine St</b><span>Bring siding samples</span></div><span class="when">11:00 AM</span></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
+    <button><svg viewBox="0 0 24 24"><path d="M6 21V4h10l2 2v15M4 21h16"/><circle cx="13.5" cy="13" r="1"/></svg>Knock</button>
+    <button class="plus" aria-label="Add"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></button>
+    <button><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Leads</button>
+    <button><svg viewBox="0 0 24 24"><path d="M12 3v18M16.5 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>Money</button>
+  </nav>
+</div>
+
+<aside class="spec">
+  <a class="back" href="index.html">← All directions</a>
+  <h1>A · Ledger</h1>
+  <p class="es">Claro y ordenado, como un estado de cuenta.</p>
+  <p>Light, quiet and exact. Hairlines instead of boxes, one strip of numbers, and orange only on the one button that matters. It reads well in full sun on a porch.</p>
+  <h2>Inspired by</h2>
+  <div class="refs"><span>Stripe Dashboard</span><span>Linear</span><span>Things 3</span></div>
+  <h2>Type</h2>
+  <div class="type">
+    <div style="font:600 24px/1.1 var(--f);letter-spacing:-.02em">Geist 600 · 101 E 4th St<small>Headings, addresses, numbers</small></div>
+    <div style="font:400 15px/1.45 var(--f)">Geist 400 · Has anyone looked at the roof since the storm?<small>Body, scripts</small></div>
+    <div style="font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase">Geist Mono 500 · Say · Ask · 10:00 AM<small>Labels, times</small></div>
+  </div>
+  <h2>Color tokens</h2>
+  <div class="sw">
+    <div><i style="background:#f6f7f8"></i>Page<br><code>#f6f7f8</code></div>
+    <div><i style="background:#ffffff"></i>Card<br><code>#ffffff</code></div>
+    <div><i style="background:#18191c"></i>Ink<br><code>#18191c</code></div>
+    <div><i style="background:#6c6f77"></i>Muted<br><code>#6c6f77</code></div>
+    <div><i style="background:#f5883a"></i>HMP orange<br><code>#f5883a</code></div>
+    <div><i style="background:#c2362b"></i>Late<br><code>#c2362b</code></div>
+  </div>
+  <h2>Spacing</h2>
+  <dl><dt>Grid</dt><dd>4 px steps (8 / 12 / 16 / 24)</dd><dt>Side gutter</dt><dd>16 px</dd><dt>Between sections</dt><dd>24–26 px</dd><dt>Corners</dt><dd>14 px cards, 8 px controls</dd><dt>Tap targets</dt><dd>48–56 px tall</dd><dt>Borders</dt><dd>1 px hairlines, no shadows</dd></dl>
+  <h2>Trade-off</h2>
+  <div class="verdict"><b>Best in daylight, calmest to read.</b>Can feel plain; the brand lives only in the orange and the roof mark.</div>
+</aside>
+</div>
+<script>if(location.search.indexOf('shot')>-1)document.documentElement.classList.add('shot')</script>
+</body></html>

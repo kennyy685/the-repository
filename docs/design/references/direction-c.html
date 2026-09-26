@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Direction C · Porch</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="spec.css">
+<style>
+:root{
+  --page:#eef0f3; --screen:#eef0f3; --card:#ffffff; --ink:#1d1e22; --ink2:#44464d; --muted:#72757d;
+  --line:#dfe2e7; --soft:#f3f4f6; --hmp:#f5883a; --hmp-bg:#fff1e6; --hmp-ink:#a4520f; --late:#c2362b; --late-bg:#fdecea;
+  --f:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --shadow:0 1px 2px rgba(20,22,28,.06),0 6px 20px -8px rgba(20,22,28,.18);
+  --spec-font:var(--f); --spec-display:var(--f);
+}
+.phone{font-family:var(--f);font-size:15px;line-height:1.45}
+.top{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}
+.mark{display:flex;flex-direction:column;align-items:center;line-height:1}
+.mark svg{width:30px;height:9px}
+.mark b{font-weight:800;font-size:13px;letter-spacing:.08em}
+.top .sp{flex:1}
+.lang{display:flex;background:var(--card);border-radius:999px;padding:3px;box-shadow:var(--shadow)}
+.lang button{border:0;background:none;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--muted)}
+.lang .on{background:var(--ink);color:#fff}
+.me{width:34px;height:34px;border-radius:50%;border:0;background:#404145;color:#fff;font-weight:700;font-size:13px}
+h1{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:14px 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 16px;font-size:15px}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px}
+.walk{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:600}
+.walk b{color:var(--ink)}
+.strip{display:block;width:100%;height:22px;margin:8px 0 12px}
+.addr{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.05}
+.facts{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+.facts span{background:var(--soft);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--ink2)}
+.facts .h{background:var(--hmp-bg);color:var(--hmp-ink)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--soft);border-radius:12px;padding:3px}
+.tabs button{border:0;background:none;border-radius:10px;padding:7px 0;font-size:14px;font-weight:600;color:var(--muted)}
+.tabs .on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.said{font-size:17px;line-height:1.4;margin:12px 2px 4px;font-weight:500}
+.hint{font-size:13px;color:var(--muted);margin:0 2px 14px;display:flex;justify-content:space-between}
+.hint a{color:var(--hmp-ink);font-weight:600;text-decoration:none}
+.outs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.outs button{min-height:54px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:700;padding:4px}
+.outs .pri{background:var(--hmp);border-color:var(--hmp);color:#1b1206}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 10px}
+.sec h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-.015em}
+.sec a{font-size:14px;font-weight:600;color:var(--ink2)}
+.rail{display:flex;gap:12px;overflow-x:auto;margin:0 -16px;padding:2px 16px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.due{flex:none;width:250px;scroll-snap-align:start;background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px}
+.due .when{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.due .when.l{color:var(--late)}
+.due .when.l::before{content:"● "}
+.due b{font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.due span{font-size:14px;color:var(--ink2);flex:1}
+.due .act{display:flex;gap:8px}
+.due .act button{flex:1;min-height:40px;border-radius:12px;border:0;background:var(--soft);font-weight:700;font-size:14px}
+.due .act .p{background:var(--ink);color:#fff}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;margin:0 10px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-radius:22px;box-shadow:0 8px 30px -8px rgba(20,22,28,.3);padding:6px}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted);min-height:50px;justify-content:center;border-radius:16px}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav .on{color:var(--ink);background:var(--soft)}
+.nav .plus i{width:46px;height:46px;border-radius:50%;background:var(--hmp);color:#1b1206;display:grid;place-items:center}
+.nav .plus svg{stroke-width:2.6}
+</style></head><body>
+<div class="wrap">
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3"/></svg><b>HMP</b></div>
+    <div class="sp"></div>
+    <div class="lang"><button class="on">EN</button><button>ES</button></div>
+    <button class="me" aria-label="More">K</button>
+  </header>
+  <div class="body">
+    <h1>Good afternoon, Kenny</h1>
+    <p class="sub">Saturday · 7 doors, 1 booked so far</p>
+
+    <div class="card">
+      <div class="walk"><span><b>Linden &amp; E 4th</b> · door 8 of 25</span><span>~1 h 30 m</span></div>
+      <svg class="strip" viewBox="0 0 358 22" preserveAspectRatio="none" aria-label="Walk progress: 7 done, next is 8 of 25">
+        <line x1="7" y1="11" x2="351" y2="11" stroke="#dfe2e7" stroke-width="2"/>
+        <line x1="7" y1="11" x2="107" y2="11" stroke="#1d1e22" stroke-width="2"/>
+        <g fill="#1d1e22"><circle cx="7" cy="11" r="4"/><circle cx="21.3" cy="11" r="4"/><circle cx="35.7" cy="11" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="64.3" cy="11" r="4"/><circle cx="78.7" cy="11" r="4"/><circle cx="93" cy="11" r="4"/></g>
+        <circle cx="107.3" cy="11" r="7" fill="#f5883a" stroke="#fff" stroke-width="2"/>
+        <g fill="#fff" stroke="#c9cdd3" stroke-width="1.5"><circle cx="121.7" cy="11" r="3.5"/><circle cx="136" cy="11" r="3.5"/><circle cx="150.3" cy="11" r="3.5"/><circle cx="164.7" cy="11" r="3.5"/><circle cx="179" cy="11" r="3.5"/><circle cx="193.3" cy="11" r="3.5"/><circle cx="207.7" cy="11" r="3.5"/><circle cx="222" cy="11" r="3.5"/><circle cx="236.3" cy="11" r="3.5"/><circle cx="250.7" cy="11" r="3.5"/><circle cx="265" cy="11" r="3.5"/><circle cx="279.3" cy="11" r="3.5"/><circle cx="293.7" cy="11" r="3.5"/><circle cx="308" cy="11" r="3.5"/><circle cx="322.3" cy="11" r="3.5"/><circle cx="336.7" cy="11" r="3.5"/><circle cx="351" cy="11" r="3.5"/></g>
+      </svg>
+      <div class="addr">101 E 4th St</div>
+      <div class="facts"><span class="h">1.5" hail · Sep 10</span><span>Built 1978</span><span>45 m away</span></div>
+      <div class="tabs"><button class="on">Say</button><button>Ask</button><button>Collect</button></div>
+      <p class="said">"Hi, I'm Kenny with HMP Siding &amp; Roofing. We do roofs and siding. The Sep 10 hail hit this street. Can I take a free look at your roof?"</p>
+      <p class="hint"><span>Then ask: anyone looked since the storm?</span><a href="#">ES ⇄</a></p>
+      <div class="outs"><button>Not home</button><button>No</button><button>Interested</button><button class="pri">Booked</button></div>
+    </div>
+
+    <div class="sec"><h2>Due today</h2><a>All 5</a></div>
+    <div class="rail">
+      <div class="due"><div class="when l">1 day late</div><b>103 E 4th St</b><span>Call back and book the free inspection.</span><div class="act"><button class="p">Call</button><button>Open</button></div></div>
+      <div class="due"><div class="when">10:00 AM</div><b>400 Pine St · Tom</b><span>Estimate visit. Step 2 of 8.</span><div class="act"><button class="p">Directions</button><button>Open</button></div></div>
+      <div class="due"><div class="when l">Overdue</div><b>1418 Irving St</b><span>Claim: send certificate, ask for depreciation.</span><div class="act"><button class="p">Send</button><button>Open</button></div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
+    <button><svg viewBox="0 0 24 24"><path d="M6 21V4h10l2 2v15M4 21h16"/><circle cx="13.5" cy="13" r="1"/></svg>Knock</button>
+    <button class="plus" aria-label="Add"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></button>
+    <button><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Leads</button>
+    <button><svg viewBox="0 0 24 24"><path d="M12 3v18M16.5 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>Money</button>
+  </nav>
+</div>
+
+<aside class="spec">
+  <a class="back" href="index.html">← All directions</a>
+  <h1>C · Porch</h1>
+  <p class="es">Tarjetas amables, un paso a la vez.</p>
+  <p>Friendly white cards on a cool grey. The walk shows as a row of houses, the Sale Guide as three tabs (Say, Ask, Collect) so only one thing shows at a time, and every due card has its action button right on it.</p>
+  <h2>Inspired by</h2>
+  <div class="refs"><span>Airbnb host Today</span><span>CompanyCam</span><span>Jobber</span></div>
+  <h2>Type</h2>
+  <div class="type">
+    <div style="font:800 30px/1.05 var(--f);letter-spacing:-.025em">Figtree 800 · 101 E 4th St<small>Headings, addresses</small></div>
+    <div style="font:600 15px/1.4 var(--f)">Figtree 600 · Directions · Open<small>Buttons, chips</small></div>
+    <div style="font:400 15px/1.45 var(--f)">Figtree 400 · Estimate visit. Step 2 of 8.<small>Body</small></div>
+  </div>
+  <h2>Color tokens</h2>
+  <div class="sw">
+    <div><i style="background:#eef0f3"></i>Page<br><code>#eef0f3</code></div>
+    <div><i style="background:#ffffff"></i>Card<br><code>#ffffff</code></div>
+    <div><i style="background:#1d1e22"></i>Ink<br><code>#1d1e22</code></div>
+    <div><i style="background:#404145"></i>HMP charcoal<br><code>#404145</code></div>
+    <div><i style="background:#f5883a"></i>HMP orange<br><code>#f5883a</code></div>
+    <div><i style="background:#fff1e6"></i>Orange tint<br><code>#fff1e6</code></div>
+  </div>
+  <h2>Spacing</h2>
+  <dl><dt>Grid</dt><dd>4 px steps (6 / 12 / 16 / 26)</dd><dt>Side gutter</dt><dd>16 px</dd><dt>Between sections</dt><dd>26 px</dd><dt>Corners</dt><dd>22 px cards, 14 px buttons</dd><dt>Tap targets</dt><dd>54 px outcome buttons</dd><dt>Depth</dt><dd>Soft shadow, no borders on cards</dd></dl>
+  <h2>Trade-off</h2>
+  <div class="verdict"><b>Warmest, most "real app" feel; good to show homeowners.</b>Sideways cards hide items 4 and 5; tabs add a tap to see Ask and Collect.</div>
+</aside>
+</div>
+<script>if(location.search.indexOf('shot')>-1)document.documentElement.classList.add('shot')</script>
+</body></html>

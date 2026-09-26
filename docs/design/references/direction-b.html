@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Direction B · Night Shift</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="spec.css">
+<style>
+:root{
+  color-scheme:dark;
+  --page:#0c0d0f; --screen:#0c0d0f; --card:#17191d; --card2:#202329; --ink:#f3f4f6; --ink2:#c9ccd2; --muted:#8a8f99;
+  --line:#2a2d33; --hmp:#f5883a; --hmp-soft:#3a2413; --late:#ff6b5e; --ok:#43d19e;
+  --f:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --spec-font:var(--f); --spec-display:var(--f);
+}
+.phone{font-family:var(--f);font-size:15px;line-height:1.45}
+.top{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
+.mark{display:flex;flex-direction:column;align-items:center;line-height:1}
+.mark svg{width:30px;height:9px}
+.mark b{font-weight:800;font-size:13px;letter-spacing:.1em}
+.status{flex:1;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.lang{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;background:none}
+.lang em{font-style:normal;color:var(--muted)}
+.me{width:32px;height:32px;border-radius:50%;background:var(--card2);border:0;font-weight:700;font-size:13px}
+.hero{padding:14px 0 18px}
+.hero .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.big{display:flex;align-items:baseline;gap:8px;margin:2px 0 0}
+.big b{font-size:72px;font-weight:800;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.big span{font-size:22px;color:var(--muted);font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--card2);margin:12px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;width:28%;background:var(--hmp);border-radius:3px}
+.mini{display:flex;gap:16px;font-size:13px;color:var(--ink2)}
+.mini b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.card{background:var(--card);border-radius:20px;padding:18px 16px 16px}
+.eb{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--hmp)}
+.eb span{color:var(--muted);letter-spacing:.06em}
+.addr{font-size:40px;font-weight:800;letter-spacing:-.035em;line-height:1;margin:10px 0 12px}
+.addr small{display:block;font-size:20px;font-weight:600;color:var(--ink2);letter-spacing:-.01em;margin-top:4px}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.facts span{background:var(--card2);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--ink2)}
+.facts .h{background:var(--hmp-soft);color:#ffb47a}
+.say{margin:16px 0 0;padding:14px 0 0;border-top:1px solid var(--line)}
+.say .l{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.say .l button{background:none;border:1px solid var(--line);border-radius:999px;font-size:11px;padding:3px 9px;color:var(--ink2);letter-spacing:.04em}
+.say q{display:block;font-size:20px;font-weight:600;line-height:1.3;letter-spacing:-.01em;margin-top:6px;quotes:none}
+.ac{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.ac div{background:var(--card2);border-radius:14px;padding:10px 12px;font-size:14px;color:var(--ink2);line-height:1.35}
+.ac div b{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.outs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.outs button{min-height:60px;border-radius:16px;border:0;background:var(--card2);font-size:17px;font-weight:700}
+.outs .pri{background:var(--hmp);color:#1a1006}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:28px 0 6px}
+.sec h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.sec span{font-size:13px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row .ic{width:40px;height:40px;border-radius:12px;background:var(--card);display:grid;place-items:center;flex:none}
+.row .ic svg{width:20px;height:20px;fill:none;stroke:var(--ink2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-size:16px;font-weight:700}
+.row .t span{font-size:13px;color:var(--muted)}
+.row .w{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .late{color:var(--late);display:flex;align-items:center;gap:5px;font-size:13px}
+.row .late::before{content:"";width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--late)}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(12,13,15,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 6px calc(10px + env(safe-area-inset-bottom,0px))}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);min-height:50px;justify-content:center}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav .on{color:var(--ink)}
+.nav .on::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--hmp)}
+.nav .plus i{width:52px;height:52px;border-radius:50%;background:var(--ink);color:#0c0d0f;display:grid;place-items:center}
+.nav .plus svg{stroke-width:2.6}
+</style></head><body>
+<div class="wrap">
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3"/></svg><b>HMP</b></div>
+    <div class="status"><i></i>Sat, Sep 26 · online</div>
+    <button class="lang">EN <em>/ ES</em></button>
+    <button class="me" aria-label="More">K</button>
+  </header>
+  <div class="body">
+    <div class="hero">
+      <div class="k">Doors today · Linden &amp; E 4th</div>
+      <div class="big"><b>7</b><span>of 25</span></div>
+      <div class="bar"><i></i></div>
+      <div class="mini"><span><b>3</b> talks</span><span><b>1</b> interested</span><span><b>1</b> booked</span><span>~1 h 30 m left</span></div>
+    </div>
+
+    <div class="card">
+      <div class="eb">Next door <span>8 of 25</span></div>
+      <div class="addr">101<small>E 4th St</small></div>
+      <div class="facts"><span class="h">1.5" hail · Sep 10</span><span>Built 1978</span><span>45 m</span></div>
+      <div class="say">
+        <div class="l">Say <button>ES ⇄</button></div>
+        <q>"Hi, I'm Kenny with HMP Siding &amp; Roofing. We do roofs and siding. The Sep 10 hail hit this street. Can I take a free look at your roof?"</q>
+      </div>
+      <div class="ac"><div><b>Ask</b>Anyone looked at the roof since the storm?</div><div><b>Collect</b>First name · best day to inspect</div></div>
+      <div class="outs"><button>Not home</button><button>No</button><button>Interested</button><button class="pri">Booked</button></div>
+    </div>
+
+    <div class="sec"><h2>Due today</h2><span>3 · then 2 tomorrow</span></div>
+    <div class="row"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div><div class="t"><b>103 E 4th St</b><span>Call back · book the inspection</span></div><span class="w late">1 day late</span></div>
+    <div class="row"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9H3z"/></svg></div><div class="t"><b>400 Pine St · Tom</b><span>Estimate visit · step 2 of 8</span></div><span class="w">10 AM</span></div>
+    <div class="row"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></div><div class="t"><b>1418 Irving St</b><span>Claim · send certificate, ask for depreciation</span></div><span class="w late">Overdue</span></div>
+    <div class="row"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div class="t"><b>Tomorrow · 2</b><span>104 E 4th St 9 AM · 402 Pine St 11 AM</span></div><span class="w">›</span></div>
+  </div>
+  <nav class="nav">
+    <button class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
+    <button><svg viewBox="0 0 24 24"><path d="M6 21V4h10l2 2v15M4 21h16"/><circle cx="13.5" cy="13" r="1"/></svg>Knock</button>
+    <button class="plus" aria-label="Add"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></button>
+    <button><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Leads</button>
+    <button><svg viewBox="0 0 24 24"><path d="M12 3v18M16.5 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>Money</button>
+  </nav>
+</div>
+
+<aside class="spec">
+  <a class="back" href="index.html">← All directions</a>
+  <h1>B · Night Shift</h1>
+  <p class="es">Oscuro y grande, para leer de un vistazo.</p>
+  <p>Near-black, huge numbers, fat buttons. The day's door count is the first thing you see, like a driver's earnings. The next door fills the card in 40 px type so you can read it walking.</p>
+  <h2>Inspired by</h2>
+  <div class="refs"><span>Uber Driver</span><span>Robinhood</span><span>Linear</span></div>
+  <h2>Type</h2>
+  <div class="type">
+    <div style="font:800 40px/1 var(--f);letter-spacing:-.035em">Archivo 800 · 101<small>Big numbers, addresses, buttons</small></div>
+    <div style="font:600 20px/1.3 var(--f)">Archivo 600 · "Can I take a free look?"<small>The Say line</small></div>
+    <div style="font:400 15px/1.45 var(--f)">Archivo 400 · Estimate visit · step 2 of 8<small>Body, second lines</small></div>
+  </div>
+  <h2>Color tokens</h2>
+  <div class="sw">
+    <div><i style="background:#0c0d0f"></i>Page<br><code>#0c0d0f</code></div>
+    <div><i style="background:#17191d"></i>Card<br><code>#17191d</code></div>
+    <div><i style="background:#f3f4f6"></i>Ink<br><code>#f3f4f6</code></div>
+    <div><i style="background:#8a8f99"></i>Muted<br><code>#8a8f99</code></div>
+    <div><i style="background:#f5883a"></i>HMP orange<br><code>#f5883a</code></div>
+    <div><i style="background:#ff6b5e"></i>Late<br><code>#ff6b5e</code></div>
+  </div>
+  <h2>Spacing</h2>
+  <dl><dt>Grid</dt><dd>4 px steps (10 / 14 / 18 / 28)</dd><dt>Side gutter</dt><dd>16 px</dd><dt>Between sections</dt><dd>28 px</dd><dt>Corners</dt><dd>20 px cards, 16 px buttons</dd><dt>Tap targets</dt><dd>60 px outcome buttons</dd><dt>Borders</dt><dd>Fills, not lines</dd></dl>
+  <h2>Trade-off</h2>
+  <div class="verdict"><b>Fastest to glance at, great at dusk.</b>Close to the dark look he just turned down, and dark screens wash out in bright sun.</div>
+</aside>
+</div>
+<script>if(location.search.indexOf('shot')>-1)document.documentElement.classList.add('shot')</script>
+</body></html>

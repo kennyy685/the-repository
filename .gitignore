@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .DS_Store
 __MACOSX/
+# T72 page screenshot check: scratch PNGs, regenerated each run
+tests/pages/out/
 # Big / regenerated data: the engine rebuilds these with `hh.py refresh`
 data/*
 !data/scout_contacts.json

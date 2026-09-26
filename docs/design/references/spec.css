@@ -1,0 +1,45 @@
+/* Shared frame for the direction pages: phone mock + spec sheet.
+   Each page sets --page --ink --muted --line --card on :root. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #f5883a;outline-offset:2px}
+.wrap{display:flex;flex-direction:column;gap:32px;align-items:center;padding-block:0 48px}
+.phone{position:relative;width:100%;max-width:430px;background:var(--screen,var(--page));display:flex;flex-direction:column}
+.phone .body{flex:1;padding:0 16px 24px}
+.nav{position:sticky;bottom:0;z-index:3}
+@media (min-width:880px){
+  .wrap{flex-direction:row;align-items:flex-start;justify-content:center;gap:56px;padding:48px 32px}
+  .phone{width:390px;height:844px;overflow-y:auto;border-radius:34px;box-shadow:0 0 0 10px #16171a,0 30px 60px -20px rgba(0,0,0,.45);flex:none}
+  .spec{position:sticky;top:48px}
+}
+/* screenshot mode: file://...html?shot */
+.shot .spec{display:none}
+.shot .wrap{padding:0;display:block}
+.shot .phone{width:390px;height:844px;max-width:none;overflow:hidden;border-radius:0;box-shadow:none}
+.shot .phone::-webkit-scrollbar{display:none}
+
+/* spec sheet */
+.spec{width:100%;max-width:460px;padding:0 16px;font-family:var(--spec-font);line-height:1.5}
+.spec .back{font-size:13px;color:var(--muted);text-decoration:none}
+.spec .back:hover{color:var(--ink)}
+.spec h1{font-family:var(--spec-display);font-size:34px;line-height:1.05;margin:10px 0 4px;text-wrap:balance}
+.spec .es{color:var(--muted);font-size:14px;margin:0 0 14px}
+.spec p{margin:0 0 12px;font-size:15px;max-width:60ch}
+.spec h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px;font-weight:600;font-family:var(--spec-font)}
+.spec .refs{display:flex;flex-wrap:wrap;gap:6px}
+.spec .refs span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px}
+.spec .type{display:grid;gap:10px}
+.spec .type div{border-top:1px solid var(--line);padding-top:8px}
+.spec .type small{display:block;color:var(--muted);font-size:12px;font-family:var(--spec-font)}
+.spec .sw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.spec .sw div{font-size:12px;line-height:1.3}
+.spec .sw i{display:block;height:40px;border-radius:8px;border:1px solid var(--line);margin-bottom:4px}
+.spec .sw code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted)}
+.spec dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:14px}
+.spec dt{color:var(--muted)}
+.spec dd{margin:0;font-variant-numeric:tabular-nums}
+.spec .verdict{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+.spec .verdict b{display:block;margin-bottom:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
