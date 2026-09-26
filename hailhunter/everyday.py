@@ -4,12 +4,14 @@ HMP also sells regular siding and roof replacement to older homes. This ranks Ce
 ("neighborhoods", 250-1,500 homes) by how likely their homes are to need that work, then makes door lists for
 the best ones the same way storm lists are made (walkable turfs, csv / xlsx / map), each walk with a heat score.
 
-heat 0-100 = 100 x old x owners x value x distance x settled x newbuild x weight   (weights: config "everyday")
+heat 0-100 = 100 x old x owners x value x afford x distance x settled x newbuild x weight   (config "everyday")
   old       share of homes built before `old_before`: per house from the parcels when most years are known,
             else the Census decade counts (B25034), else estimated from the Census median year (B25035)
   owners    owner-occupied share (Census B25003): owners pay for their own siding and roof; per house from the
             county's owner mailing address where one publishes it (owners.py, T23: Sarpy, Douglas, Lancaster)
   value     typical home value: enough to reinvest in, not luxury
+  afford    small "can afford a job" factor from median household income (Census B19013, T163); this cash score
+            only, never the storm/insurance scores
   distance  miles from home base
   settled   small cut for homes bought in the last few years
   newbuild  small cut for homes built since `new_since`
@@ -64,7 +66,8 @@ def _center(conn, cfg, near):
 # ------------------------------------------------------------------ the score
 def heat(f, cfg):
     """Everyday heat for one walk or neighborhood from its facts:
-    share_old / share_new / basis / med_year / owners / med_value / dist_mi / share_sold / n_sold (any may be None).
+    share_old / share_new / basis / med_year / owners / med_value / med_income / dist_mi / share_sold / n_sold
+    (any may be None).
     Returns {"heat", "why" (2-4 plain reasons), "parts"}."""
     ev = cfg["everyday"]
     cut = ev["old_before"]
@@ -76,13 +79,15 @@ def heat(f, cfg):
     owners = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
     mv = f.get("med_value")
     value = interp(ev["value_curve"], mv) if mv else ev["value_unknown"]
+    inc = f.get("med_income")
+    afford = interp(ev["income_curve"], inc) if inc else ev.get("income_unknown", 1.0)
     dist = f.get("dist_mi")
     distance = interp(ev["distance_curve"], dist or 0)
     settled = 1 - ev["sold_penalty"] * (f.get("share_sold") or 0.0)
     new = f.get("share_new") or 0.0
     newbuild = 1 - ev["new_penalty"] * new
     weight = float(ev.get("weight", 1.0))         # T35: tuned by `hh.py tune` from real door results (default 1)
-    h = round(min(100.0, 100 * old * owners * value * distance * settled * newbuild * weight), 1)
+    h = round(min(100.0, 100 * old * owners * value * afford * distance * settled * newbuild * weight), 1)
     why = []
     if share is not None and basis != "median":
         why.append(f"{round(share * 100)}% of homes built before {cut}")
@@ -106,12 +111,15 @@ def heat(f, cfg):
         k = f"${round(mv / 1000)}k"
         why.append(f"homes ~{k}" if value >= 0.95 * top else
                    (f"high-end homes (~{k})" if mv > peak_hi else f"lower home values (~{k})"))
+    if inc and afford < 1.0:
+        why.append(f"lower incomes (~${round(inc / 1000)}k/yr)")
     if dist is not None and dist <= 15:
         why.append(f"{max(1, round(dist))} mi from {_home_town(cfg)}")
     parts = {"old": round(old, 3), "owners": round(owners, 3), "value": round(value, 3),
-             "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
+             "afford": round(afford, 3), "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
              "share_old": None if share is None else round(share, 3), "basis": basis, "median_built": med,
              "owner_share": None if own is None else round(own, 3), "median_value": mv,
+             "median_income": inc,
              "dist_mi": None if dist is None else round(dist, 1), "share_new": round(new, 3), "sold_recent": n_sold,
              "weight": weight}
     return {"heat": h, "why": why[:4], "parts": parts}
@@ -126,10 +134,11 @@ def areas(conn, cfg, near=None, radius_mi=None):
     radius = radius_mi or ev["radius_mi"]
     out = []
     for r in conn.execute(f"""SELECT b.geoid, b.label, b.lat, b.lon, b.min_lon, b.min_lat, b.max_lon, b.max_lat,
-            b.rings, a.hu, a.occupied, a.owner, a.med_year, a.med_value, y.total AS y_total,
+            b.rings, a.hu, a.occupied, a.owner, a.med_year, a.med_value, i.med_income, y.total AS y_total,
             {', '.join('y.' + c for c in YEAR_BINS)}
             FROM bgs b LEFT JOIN acs a ON a.geoid = b.geoid AND a.level = 'bg'
-            LEFT JOIN acs_year_built y ON y.geoid = b.geoid WHERE b.state = 'NE'"""):
+            LEFT JOIN acs_year_built y ON y.geoid = b.geoid
+            LEFT JOIN acs_income i ON i.geoid = b.geoid WHERE b.state = 'NE'"""):
         if haversine_mi(lat0, lon0, r["lat"], r["lon"]) > radius or (r["hu"] or 0) < ev["min_homes"]:
             continue
         label = r["label"] or r["geoid"]
@@ -141,7 +150,8 @@ def areas(conn, cfg, near=None, radius_mi=None):
              "lat": r["lat"], "lon": r["lon"], "rings": r["rings"],
              "bbox": (r["min_lon"], r["min_lat"], r["max_lon"], r["max_lat"]),
              "owners": (r["owner"] / r["occupied"]) if r["occupied"] else None,
-             "med_year": r["med_year"], "med_value": r["med_value"], "share_old": share,
+             "med_year": r["med_year"], "med_value": r["med_value"], "med_income": r["med_income"],
+             "share_old": share,
              "share_new": year_shares(yb, since=ev["new_since"]), "basis": "census" if share is not None else None,
              "dist_mi": round(haversine_mi(home["lat"], home["lon"], r["lat"], r["lon"]), 1)}
         f.update(heat(f, cfg))
@@ -226,7 +236,7 @@ def turf_heat(stops, area, cfg):
     """Everyday heat for one walk: its own houses' years/values/sales, the neighborhood's Census facts otherwise."""
     ev, home = cfg["everyday"], cfg["home"]
     n = len(stops)
-    f = {k: area.get(k) for k in ("owners", "med_value", "share_old", "share_new", "basis", "med_year")}
+    f = {k: area.get(k) for k in ("owners", "med_value", "med_income", "share_old", "share_new", "basis", "med_year")}
     years = [int(s["year_built"]) for s in stops if s.get("year_built")]
     if years and len(years) >= 0.5 * n:
         f.update(share_old=sum(y < ev["old_before"] for y in years) / len(years),

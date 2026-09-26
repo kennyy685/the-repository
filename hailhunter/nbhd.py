@@ -70,6 +70,7 @@ def load_acs(conn, fetcher, cfg, log=print):
     if not vintage:
         raise RuntimeError("Could not load ACS housing tables")
     load_mortgages(conn, fetcher, want, vintage, log)
+    load_income(conn, fetcher, tuple(w for w in want if w.startswith("1500000")), vintage, log)
     load_year_built(conn, fetcher, tuple(w for w in want if w.startswith("1500000")), vintage, log)
     try:
         load_language(conn, fetcher, cfg["states"], vintage, log)
@@ -110,6 +111,33 @@ def load_mortgages(conn, fetcher, want, vintage, log=print):
         return 0
     conn.execute("DELETE FROM acs_mortgage")
     conn.executemany("INSERT INTO acs_mortgage (geoid, total, with_mortgage, vintage) VALUES (?,?,?,?)", out)
+    conn.commit()
+    return len(out)
+
+
+def load_income(conn, fetcher, want, vintage, log=print):
+    """ACS B19013 (median household income) per block group, for the everyday (cash job) score only (T163).
+    Optional: a missing table never stops a run. Never used by storm/insurance scores."""
+    try:
+        txt = fetcher.get(ACS_DIR.format(y=vintage, t="b19013"), ttl=None, cache=False).decode("utf-8", "replace")
+        lines = txt.splitlines()
+        i = lines[0].split("|").index("B19013_E001")
+        out = []
+        for ln in lines[1:]:
+            if not ln.startswith(want):
+                continue
+            f = ln.split("|")
+            try:
+                v = int(float(f[i]))
+            except (ValueError, IndexError):
+                continue
+            if v > 0:                               # Census codes "no estimate" as negative numbers
+                out.append((f[0].split("US", 1)[1], v, vintage))
+    except Exception as e:
+        log(f"  ACS {vintage} income (B19013) not available ({type(e).__name__}); everyday score without it")
+        return 0
+    conn.execute("DELETE FROM acs_income")
+    conn.executemany("INSERT INTO acs_income (geoid, med_income, vintage) VALUES (?,?,?)", out)
     conn.commit()
     return len(out)
 

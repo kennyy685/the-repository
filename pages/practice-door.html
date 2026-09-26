@@ -750,8 +750,8 @@ const T = {
   canL: ['You can', 'Sí puedes'], cantL: ['You can’t', 'No puedes'],
   canList: [['Document the damage with dated photos', 'Measure (squares, edges, flashing)', 'Cite the building code for an item', 'Send a written supplement with photos', 'Meet the adjuster and show the damage'],
     ['Documentar el daño con fotos con fecha', 'Medir (cuadros, orillas, tapajuntas)', 'Citar el código de construcción de una parte', 'Mandar un suplemento por escrito con fotos', 'Reunirte con el ajustador y enseñarle el daño']],
-  cantList: [['Negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201+)', 'Promise insurance will pay, or a dollar amount', 'Touch the deductible: it is always their part (44-8604)'],
-    ['Negociar el pago por el dueño (trabajo de ajustador público, Neb. 44-9201+)', 'Prometer que el seguro paga, o una cantidad', 'Tocar el deducible: siempre es su parte (44-8604)']],
+  cantList: [['Negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201+)', 'Promise insurance will pay, or a dollar amount', 'Touch the deductible: it is always their part (44-8604)', 'Tell a condo or HOA unit owner to file the roof claim: the association’s master policy decides'],
+    ['Negociar el pago por el dueño (trabajo de ajustador público, Neb. 44-9201+)', 'Prometer que el seguro paga, o una cantidad', 'Tocar el deducible: siempre es su parte (44-8604)', 'Decirle al dueño de una unidad de condominio o HOA que haga el reclamo del techo: decide la póliza maestra de la asociación']],
   h_cash: ['Ask one question back, then offer a free estimate and a day to come back.', 'Haz una pregunta de regreso, ofrece un estimado gratis y un día para volver.'],
   /* v7 (2026-09-26, T131, research round 27): skill drills + "first 3 seconds". */
   first3T: ['First 3 seconds', 'Los primeros 3 segundos'],
@@ -778,9 +778,46 @@ const T = {
   skCancel2: ['Say the 3 days to cancel in English AND in Spanish.', 'Di los 3 días para cancelar en inglés Y en español.'],
   skPaper: ['Name the paper: permission to inspect, a contingency, or the job contract.', 'Di qué papel es: permiso para revisar, una contingencia o el contrato del trabajo.'],
   skRatio: ['Use a number (doors, no’s, yes’s), then one change for the next door.', 'Usa un número (puertas, no, sí) y luego un cambio para la próxima puerta.'],
+  /* v9 (2026-09-26, T153/T150/T146, research round 36): already signed, no damage found, HOA unit owner, photos drill. */
+  r_coach_cancel: ['Never tell them to cancel a contract they signed (it’s their right, their call)', 'Nunca le digas que cancele un contrato que firmó (es su derecho y su decisión)'],
+  f_coach_cancel: ['“I’m not here to talk you out of anything. If you signed in the last 3 business days, Nebraska gives you the right to cancel. That’s your call.”', '“No vengo a convencerlo de nada. Si firmó en los últimos 3 días hábiles, la ley de Nebraska le da derecho a cancelar. Eso lo decide usted.”'],
+  n_coach_cancel: ['Tell them to cancel or back out of another roofer’s contract, or offer to help cancel it', 'Decirle que cancele o se salga del contrato de otro techero, u ofrecer ayudarle a cancelarlo'],
+  r_disparage: ['Don’t bad-mouth other roofers or their contract without proof', 'No hables mal de otros techeros ni de su contrato sin pruebas'],
+  f_disparage: ['“Smart move either way: ask them who handles the warranty in 6 months and where their office is.”', '“De todas formas, pregúnteles quién atiende la garantía en 6 meses y dónde está su oficina.”'],
+  n_disparage: ['Say their contract isn’t valid, or “they’ll disappear with your deposit”', 'Decir que su contrato no vale, o “se van a desaparecer con su depósito”'],
+  r_hoa_claim: ['HOA roof: the association’s master policy decides. Never tell a unit owner to file it', 'Techo de HOA: decide la póliza maestra de la asociación. Nunca le digas al dueño de la unidad que haga el reclamo'],
+  f_hoa_claim: ['“That’s the association’s claim, not yours. I can give the board a written roof report and get you the management company’s number.”', '“Ese reclamo le toca a la asociación, no a usted. Le doy a la junta un reporte por escrito y le consigo el teléfono de la compañía administradora.”'],
+  n_hoa_claim: ['Tell a condo or HOA unit owner to file the roof claim, or talk deductible or assessment dollars', 'Decirle al dueño de una unidad de HOA que haga el reclamo del techo, o hablar de dólares del deducible o de la cuota'],
+  c_hoa: ['Sent it to the association (HOA roof = their master policy)', 'Lo mandó con la asociación (techo de HOA = su póliza maestra)'],
+  hoaMiss: ['Say it’s the association’s claim. Offer a report for the board and the management company’s number.', 'Di que el reclamo es de la asociación. Ofrece un reporte para la junta y el teléfono de la administradora.'],
+  hoaAuto: ['You sent it to the association.', 'Lo mandaste con la asociación.'],
+  c_threeday: ['Stated the 3-day right as a fact: their call, no push', 'Dijo el derecho de 3 días como un dato: lo decide el dueño, sin presión'],
+  threedayMiss: ['Say it as a fact: “If you signed in the last 3 business days, you can cancel. That’s your call.”', 'Dilo como un dato: “Si firmó en los últimos 3 días hábiles, puede cancelar. Eso lo decide usted.”'],
+  c_honest: ['Said plainly: no storm damage, and showed what he checked', 'Dijo claro: no hay daño de tormenta, y enseñó lo que revisó'],
+  honestMiss: ['Say it plainly: “I didn’t find storm damage.” Then show the photos.', 'Dilo claro: “No encontré daño de tormenta.” Luego enseña las fotos.'],
+  c_intro_ask: ['Asked for an introduction (thank-you note only)', 'Pidió una recomendación (solo nota de gracias)'],
+  introAskMiss: ['Ask anyway: “If a neighbor asks who checked your roof, I’d appreciate the introduction.”', 'Pídela de todas formas: “Si un vecino pregunta quién revisó su techo, le agradecería la recomendación.”'],
+  knockingNoDmg: a => [`You just finished the free inspection at ${a}. You found no storm damage. Goal: tell the truth, show the photos, and ask for an introduction.`, `Acabas de revisar gratis el techo en ${a}. No encontraste daño de tormenta. Meta: decir la verdad, enseñar las fotos y pedir una recomendación.`],
+  h_nodmg: ['Say it plainly: no storm damage. Show the photos. Then ask for an introduction.', 'Dilo claro: no hay daño de tormenta. Enseña las fotos. Luego pide una recomendación.'],
+  h_signed: ['Don’t talk them out of it. State the 3-day right as a fact, then offer a free second look.', 'No lo convenzas de nada. Di el derecho de 3 días como un dato y ofrece una segunda revisión gratis.'],
+  h_hoa: ['HOA roof: it’s the association’s claim. Offer a report for the board and the manager’s number.', 'Techo de HOA: el reclamo es de la asociación. Ofrece un reporte para la junta y el teléfono del administrador.'],
+  r_quote: ['No firm price without seeing it, and never “we’ll beat any price”', 'Nada de precio fijo sin verlo, y nunca “le ganamos a cualquier precio”'],
+  f_quote: ['“I’d rather not guess over the phone. The real number depends on what I see up close. The look is free: can I come by Saturday at 10?”', '“Prefiero no adivinar por teléfono. El número real depende de lo que vea de cerca. La revisión es gratis: ¿paso el sábado a las 10?”'],
+  n_quote: ['Give a firm number sight-unseen, or promise to beat any price', 'Dar un número fijo sin ver la casa, o prometer ganarle a cualquier precio'],
+  r_bids: ['Respect other bids: never talk them out of getting them', 'Respeta las otras cotizaciones: nunca le quites la idea de pedirlas'],
+  f_bids: ['“Smart, I’d do the same. When you have all three, line them up on scope and warranty, not just the bottom number.”', '“Muy bien, yo haría lo mismo. Cuando tenga las tres, compárelas en el alcance y la garantía, no solo en el precio final.”'],
+  n_bids: ['Say “you don’t need other bids” or “don’t waste your time with them”', 'Decir “no necesita otras cotizaciones” o “no pierda su tiempo con ellos”'],
+  c_noquote: ['No firm number sight-unseen; a range only if pressed, said “not final”', 'Sin número fijo sin verlo; un rango solo si insiste, y dijo “no es final”'],
+  noquoteMiss: ['A number over the phone becomes the number. Say “a range, not final”, then book the free look.', 'Un número por teléfono se vuelve el precio. Di “un rango, no es final” y agenda la revisión gratis.'],
+  c_bidsok: ['Welcomed the other bids, compared scope and warranty', 'Aceptó las otras cotizaciones y comparó alcance y garantía'],
+  bidsMiss: ['Say “Smart, get them,” then compare scope and warranty line by line.', 'Di “Muy bien, pídalas,” y luego compara alcance y garantía punto por punto.'],
+  knockingPhone: a => [`A homeowner at ${a} calls the number on your door hanger. Goal: no firm price over the phone; set a day for the free look.`, `Un dueño en ${a} llama al número de tu volante. Meta: nada de precio fijo por teléfono; pon un día para la revisión gratis.`],
+  h_bids: ['Respect it: “Smart, get them.” Then offer to compare scope and warranty line by line.', 'Respétalo: “Muy bien, pídalas.” Luego ofrece comparar alcance y garantía punto por punto.'],
+  h_phone: ['No number over the phone. If pressed: a wide range, “not final”. Then ask for a day.', 'Nada de número por teléfono. Si insiste: un rango amplio, “no es final”. Luego pide un día.'],
+  skPhone: ['Show the photos (good spot next to the damaged one) and say what they show, not what a claim will do.', 'Enseña las fotos (lo bueno junto a lo dañado) y di lo que muestran, no lo que hará un reclamo.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
-const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure']);
+const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure', 'coach_cancel', 'disparage', 'hoa_claim', 'quote', 'bids']);
 /* v5: the "Never say" list always shows these (cheat sheet), plus each homeowner's traps. */
 const CHEAT_BASE = CORE.concat(['license']);
 /* Caution flags: fine when literally true, so they never fail "Stayed legal" on their own. */
@@ -941,16 +978,58 @@ const P = {
     brief: "A tired construction worker in your 50s, originally from Durango, home from a long shift. Your English is basic and you much prefer Spanish. Main objection: \"No tengo dinero para un techo.\" (\"I don't have money for a roof.\") You warm up if Kenny speaks Spanish, is respectful, says the look is free and the insurance company decides what is covered. Test him once: ask \"¿Y el deducible, ustedes me lo quitan?\" (\"And the deductible, do you take it off?\") and trust him only if he says it's always your part.",
     langEn: 'Your English is basic. Open with "Sorry, my English… ¿habla español?" Answer in short, broken English mixed with Spanish, and stay cool and short until Kenny switches to Spanish. The moment he speaks Spanish, answer only in Spanish and warm up a lot.'
   },
+  /* v9 (2026-09-26, T153, data/objection_scripts_2.json, research round 36). after = the talk happens after the
+     free inspection (no door opener checks). hoa = condo/HOA unit owner (legalScan adds the HOA rules, T150). */
+  signed: {
+    label: ['Already signed', 'Ya firmó con otro'], tag: ['Signed with a storm crew 2 days ago', 'Firmó con otra cuadrilla hace 2 días'], name: ['Mike', 'Gerardo'],
+    extra: ['threeday'], traps: ['coach_cancel', 'disparage', 'competitor'],
+    obj: 'already signed a contract two days ago with Apex Storm Restoration, an out-of-town storm crew; asks Kenny whether he should cancel and whether those guys are legit',
+    good: 'says he is not there to talk them out of anything, states as a plain fact that Nebraska gives 3 business days to cancel a door-to-door contract and that it is the homeowner\'s own call, suggests asking the other company who handles the warranty in 6 months, offers a free second look at the scope, never tells them to cancel, never trashes the other company or says the contract is not valid',
+    brief: "A friendly but slightly defensive homeowner in your 40s. Two days ago you signed a contract with Apex Storm Restoration (a made-up out-of-town storm crew with Texas plates) after they showed you hail hits on your roof. You feel a little rushed about it. Main objection: \"I already signed with another company.\" Test Kenny once each: ask \"Should I just cancel with them?\" and later \"Are those guys even legit?\" You warm up if Kenny says he is not there to talk you out of anything, tells you as a plain fact that Nebraska gives you 3 business days to cancel and that it is your call, suggests asking them who handles the warranty, and offers a free second look. If he tells you to cancel, trashes Apex, or says your contract isn't valid, trust him less. If he offers a free second look at the scope and price, say yes and end with [[YES]]."
+  },
+  nodamage: {
+    label: ['No damage found', 'No se encontró daño'], tag: ['“My neighbor got a new roof…”', '“A mi vecino le dieron techo nuevo…”'], name: ['Barb', 'Doña Elena'],
+    open: ["Good news for you: I checked the whole roof, the slopes, vents and gutters, and I'm not seeing hail or wind damage that would hold up with an adjuster. Let me show you the photos.", 'Buenas noticias: revisé todo el techo, las pendientes, los respiraderos y las canaletas, y no veo daño de granizo ni de viento que se sostenga con un ajustador. Déjeme enseñarle las fotos.'],
+    after: true, skip: ['intro', 'storm', 'inspection'], extra: ['honest', 'intro_ask'], days: [5, 14], traps: ['fraud', 'promise', 'referral'], sys: 'knockingNoDmg',
+    obj: 'Kenny just finished the free inspection and found no storm damage; she pushes him to file anyway because her neighbor got a whole new roof, and offers to "send people" if he finds something',
+    good: 'says plainly he found no hail or wind damage that would hold up with an adjuster, shows the photos of what he checked, will not file or call normal wear storm damage, then asks for an introduction if a neighbor asks who checked the roof, with a thank-you note only (no gift, money or discount)',
+    brief: "A chatty homeowner in your 60s. Kenny just finished a free inspection of your roof and is coming down the ladder; you are waiting on the driveway. Your neighbor across the street got a whole new roof paid by insurance last month. Main push: \"So what did you find? My neighbor got a whole new roof.\" Test Kenny once each: say \"Can't you find something? There's always something an adjuster will pay for.\" and later \"If you find damage I'll send you my whole church group.\" You warm up if Kenny tells you plainly there is no storm damage, shows you the photos of what he checked, refuses to call normal wear storm damage, and asks for an introduction with only a thank-you. If he offers to file anyway or dresses up wear as hail, get uneasy and trust him less. If he is honest and asks politely for an introduction, say you'll tell your neighbors he's honest and end with [[YES]]."
+  },
+  hoa: {
+    label: ['HOA townhome owner', 'Dueña en una HOA'], tag: ['“Who pays the deductible?”', '“¿Quién paga el deducible?”'], name: ['Carol', 'Norma'],
+    hoa: true, extra: ['hoa'], place: 'a townhome in an HOA community (the association owns and insures the roofs under its master policy)', traps: ['hoa_claim', 'deductible', 'negotiate'],
+    obj: 'owns one townhome unit in an HOA; asks who pays the deductible, whether she should file the roof claim herself, and what her share will be in dollars',
+    good: 'says the roof is common property, so it is the association\'s claim under its master policy and the board decides about the deductible or any special assessment, never tells her to file the roof claim, names no dollar amounts, offers a written roof-condition report for the board, and asks for the management company\'s office line',
+    brief: "A careful retired teacher in your late 60s. You own one unit in Prairie Crossing Townhomes; the HOA owns and insures the roofs under its master policy, managed by Keystone Property Management (a made-up local company). The hail hit your building. Main objection: \"Who pays the deductible on this? Can you help me with my claim?\" Test Kenny once each: ask \"Should I just file the roof claim myself?\" and later \"What's my share of the deductible going to be, like two thousand dollars?\" You warm up if Kenny says it is the association's claim under the master policy, names no dollar amounts, offers a written roof report for the board, and asks for the management company's office number. Give Keystone's office number only if he asks politely; if he gets it, end with [[YES]]. If he tells you to file it yourself, quotes your share, or asks you to sign anything, trust him less."
+  },
+  /* v9 (data/price_objections.json: site-unseen-quote, wants-three-bids). phone = the talk is a phone call. */
+  phonequote: {
+    label: ['Price over the phone', 'Precio por teléfono'], tag: ['“Just give me a number”', '“Nomás deme un número”'], name: ['Steve', 'Don Julio'],
+    open: ["HMP Siding & Roofing, this is Kenny. Thanks for calling! What's the address, and what are you seeing on the roof?", 'HMP Siding & Roofing, habla Kenny. ¡Gracias por llamar! ¿Cuál es la dirección y qué está viendo en el techo?'],
+    kind: 'cash', phone: true, skip: ['intro', 'storm'], extra: ['noquote'], traps: ['quote', 'guarantee'], sys: 'knockingPhone',
+    house: 'The asphalt roof is about 22 years old with curling shingles on the south side, and the siding is original. The homeowner found HMP\'s door hanger and is calling instead of having anyone come out. Any work would be paid by the owner, no insurance claim.',
+    obj: 'calls from a door hanger and wants a price over the phone or by text without anyone coming out; pushes for "just a ballpark" and asks if HMP will beat the other guy\'s number',
+    good: 'explains the real number depends on things only seen up close (ventilation, decking, how many layers), gives no firm number, gives a wide range only if pressed and says out loud it is a range and not a quote, never promises to beat any price, and asks for a specific day for the free look',
+    brief: "A busy homeowner in your 50s who works long shifts. You found HMP's door hanger and you're calling because you don't want anyone coming out yet: the roof is about 22 years old with curling shingles. Main objection: \"Can you just give me a number over the phone? No need to come out.\" Test Kenny once each: say \"Just a ballpark, I won't hold you to it.\" and later \"Another guy said nine grand. Can you beat that?\" You warm up if Kenny explains why he can't price it without seeing the ventilation and the decking, won't give a firm number, and offers a quick free look on a specific day. If he quotes a firm price or promises to beat any price, you'll hold him to that number and trust him less. If he asks for a specific day for the free look, say yes and end with [[YES]]."
+  },
+  threebids: {
+    label: ['Wants three bids', 'Quiere tres cotizaciones'], tag: ['“Should I bother with the other two?”', '“¿Para qué pido las otras dos?”'], name: ['Laura', 'Silvia'],
+    kind: 'cash', extra: ['bidsok'], traps: ['bids', 'competitor', 'quote'],
+    house: 'The siding is faded and a few boards are cracked; the roof is getting old. No storm damage and no insurance claim: the owners would pay themselves.',
+    obj: 'wants three bids before deciding; asks whether she should even bother getting the other two and whether HMP will beat whatever they quote',
+    good: 'says getting three bids is smart, asks whether he is the first or the third, suggests comparing all three on scope and warranty rather than the bottom number, leaves a written itemized estimate, never talks her out of the other bids, never trashes the other contractors, never promises to beat any price, and sets a day to go over the bids',
+    brief: "A polite, organized homeowner in your 40s who researches everything. Your siding is faded with a few cracked boards; you'd pay yourself, no insurance. Kenny is the first contractor out. Main objection: \"I want to get three bids before I decide.\" Test Kenny once each: ask \"Honestly, should I even bother getting the other two?\" and later \"Will you beat whatever they quote me?\" You warm up if Kenny says three bids is smart, helps you compare scope and warranty instead of just price, and offers a written estimate. If he talks you out of the other bids, trashes other contractors, or promises to beat any price, trust him less. Say yes to a free written estimate or a set day and time to go over the bids."
+  },
   random: { label: ['Random', 'Al azar'], tag: ['Surprise me', 'Sorpréndeme'] }
 };
 P.consuelo.mustEs = true;
 P.dad.grp = 'es';
-const ORDER = ['mom', 'retiree', 'chaser', 'already', 'hadlook', 'agentwait', 'dropme', 'renter', 'rental', 'gotcheck', 'adjno', 'manager', 'bargain', 'selling', 'fixed', 'shopper', 'oldhouse', 'dad', 'consuelo', 'recien', 'shopperEs', 'rogelio', 'random'];
+const ORDER = ['mom', 'retiree', 'chaser', 'already', 'signed', 'hadlook', 'agentwait', 'dropme', 'renter', 'rental', 'gotcheck', 'adjno', 'nodamage', 'manager', 'hoa', 'bargain', 'threebids', 'phonequote', 'selling', 'fixed', 'shopper', 'oldhouse', 'dad', 'consuelo', 'recien', 'shopperEs', 'rogelio', 'random'];
 const REAL = ORDER.filter(k => k !== 'random');
 const kindOf = k => (P[k] && P[k].kind) || 'storm';
 const grpOf = k => (P[k] && (P[k].grp || P[k].kind)) || 'storm';
 
-const CASH_OBJ = ['shopper', 'shopperEs', 'bargain', 'selling', 'fixed', 'oldhouse'];
+const CASH_OBJ = ['shopper', 'shopperEs', 'bargain', 'threebids', 'selling', 'fixed', 'oldhouse'];
 const OBJ = [
   [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.']],
   [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
@@ -960,7 +1039,7 @@ const OBJ = [
   [['“Let me think about it.”', '“Déjeme pensarlo.”'], ['Of course, take your time. So I know what to bring back: is it the price, the timing, another bid, or talking it over with your spouse?', 'Claro, tómese su tiempo. Para saber qué le traigo: ¿es el precio, el tiempo, otra cotización o platicarlo con su esposa o esposo?']],
   [['“Not interested.”', '“No me interesa.”'], ['No worries. Mind if I leave this bilingual card? (Then leave and go to the next door.)', 'No se preocupe. ¿Le puedo dejar esta tarjeta bilingüe? (Luego vete a la siguiente puerta.)']],
   /* Third item = the homeowner this answer is for (shown first when that homeowner is picked). */
-  [['“I need three bids.”', '“Necesito tres cotizaciones.”'], ['Smart. Let me give you a free written estimate so you can compare line by line: materials, warranty, who does the work.', 'Muy bien pensado. Le doy un estimado gratis por escrito para que compare punto por punto: materiales, garantía y quién hace el trabajo.'], 'bargain'],
+  [['“I need three bids.”', '“Necesito tres cotizaciones.”'], ['Smart. Let me give you a free written estimate so you can compare line by line: materials, warranty, who does the work.', 'Muy bien pensado. Le doy un estimado gratis por escrito para que compare punto por punto: materiales, garantía y quién hace el trabajo.'], ['bargain', 'threebids']],
   [['“Why fix it if I’m selling?”', '“¿Para qué lo arreglo si voy a vender?”'], ["Buyers' inspectors check the roof and siding first. A free estimate tells you the cost, so you can fix it or price it in. Your call.", 'El inspector del comprador revisa primero el techo y el siding. Un estimado gratis le dice cuánto cuesta, y usted decide si lo arregla o lo descuenta del precio.'], 'selling'],
   [['“What payment plan do you have?”', '“¿Qué plan de pagos tienen?”'], ["I can't promise loan terms. Let me give you a free estimate, with a repair option too, and you take your time.", 'No le puedo prometer términos de préstamo. Le doy un estimado gratis, también con opción de reparar, y usted se toma su tiempo.'], 'fixed'],
   [['“I don’t sign anything without my son.”', '“No firmo nada sin mi hijo.”'], ["Of course. Nothing to sign today. I'll take free photos now and come back when your son is here. Every paper in Spanish.", 'Claro que sí. Hoy no se firma nada. Le tomo fotos gratis ahora y regreso cuando esté su hijo. Todos los papeles en español.'], 'consuelo'],
@@ -980,6 +1059,13 @@ const OBJ = [
   [['“If I sign today, can you start next week?”', '“Si firmo hoy, ¿empiezan la otra semana?”'], ["I'll write you an estimate range first, not the final price. If you sign, you get a 3-day cancel form, in writing, every time. Can I come back Saturday at 10 with it?", 'Primero le escribo un rango de estimado, no es el precio final. Si firma, siempre le doy la forma para cancelar en 3 días, por escrito. ¿Regreso el sábado a las 10 con eso?'], 'oldhouse'],
   [['“What do you give if I send my sister your way?”', '“¿Qué me dan si les mando a mi hermana?”'], ["Thank you, that means a lot. We don't do gifts, just a real thank-you, and we'll take great care of her.", 'Muchas gracias, eso vale mucho. No damos regalos, solo un agradecimiento de verdad, y la vamos a atender muy bien.'], 'oldhouse'],
   [['“Maybe next year.”', '“Mejor el año que entra.”'], ["No problem. Let's put a date on it so it doesn't slip. A Saturday in early spring, say March 7 at 10 AM? Or what day works better?", 'Está bien. Pongamos una fecha para que no se le pase. Un sábado a principios de primavera, ¿el 7 de marzo a las 10 de la mañana? ¿O qué día le queda mejor?'], CASH_OBJ],
+  /* v9 (T153, data/objection_scripts_2.json): state facts, never coach a cancel, never disparage; honest no-damage; HOA = the association's claim. */
+  [['“I already signed with another company.”', '“Ya firmé con otra compañía.”'], ["Good, you're moving on it. I'm not here to talk you out of anything. If you signed in the last 3 business days, Nebraska gives you the right to cancel, and that's your call. Either way, ask them who handles the warranty. Want a free second look at the scope?", 'Qué bien que ya está avanzando. No vengo a convencerlo de nada. Si firmó en los últimos 3 días hábiles, la ley de Nebraska le da derecho a cancelar, y eso lo decide usted. De todas formas, pregúnteles quién atiende la garantía. ¿Quiere una segunda revisión del alcance, gratis?'], 'signed'],
+  [['“You didn’t find anything? My neighbor got a new roof.”', '“¿No encontró nada? A mi vecino le dieron techo nuevo.”'], ["Good news for you: I checked the slopes, vents and gutters and found no hail or wind damage. I won't file something that isn't there. Here are the photos. If a neighbor asks who checked your roof, I'd appreciate the introduction.", 'Buenas noticias: revisé las pendientes, los respiraderos y las canaletas y no encontré daño de granizo ni de viento. No voy a reportar algo que no existe. Aquí están las fotos. Si un vecino pregunta quién revisó su techo, le agradecería la recomendación.'], 'nodamage'],
+  /* v9 (data/price_objections.json). */
+  [['“Can you just give me a number over the phone?”', '“¿Me puede dar un número por teléfono?”'], ["I'd rather not guess. The real number depends on what I can only see up close: the ventilation, the decking, how many layers are up there. A phone guess that's wrong is worse for both of us. The look is free, about 20 minutes. Can I come by Saturday at 10?", 'Prefiero no adivinar. El número real depende de lo que solo se ve de cerca: la ventilación, la madera debajo de las tejas, cuántas capas tiene. Un número por teléfono que sale mal es peor para los dos. La revisión es gratis, unos 20 minutos. ¿Puedo pasar el sábado a las 10?'], 'phonequote'],
+  [['“Should I even bother getting the other two bids?”', '“¿Para qué pido las otras dos cotizaciones?”'], ["Yes, get them, I'd do the same. When you have all three, line them up on scope and warranty, not just the bottom number. I'll leave you everything written out so it's easy to compare.", 'Sí, pídalas, yo haría lo mismo. Cuando tenga las tres, compárelas en el alcance y la garantía, no solo en el precio final. Le dejo todo por escrito para que sea fácil comparar.'], 'threebids'],
+  [['“Who pays the deductible? Can you help with my claim?”', '“¿Quién paga el deducible? ¿Me ayuda con mi reclamo?”'], ["That's actually the association's claim, not yours. The roof is common property under the HOA's master policy, and the board decides. I can give the board a written roof report. Can I get the management company's office number?", 'Ese reclamo en realidad le toca a la asociación, no a usted. El techo es propiedad común bajo la póliza maestra de la HOA, y decide la junta. Le puedo dar a la junta un reporte por escrito del techo. ¿Me da el teléfono de la oficina de la compañía administradora?'], 'hoa'],
 ];
 /* v7 (2026-09-26, T131): the 10 skill drills from data/practice_drills.json (research round 27).
    id, t = title, q = what's at the door (or a solo prompt in parentheses), g = the short "to pass" line,
@@ -1064,7 +1150,15 @@ const SKILL = [
     setup: 'A homeowner ready to do paperwork while the spouse is away.',
     goal: 'Kenny treats "whose name is on the house?" as a normal paperwork step, so the owner(s) on the title are the ones who sign, and offers a no-pressure way to include a co-owner (a set time to come back, photos to share).',
     crit: 'Kenny asks whose name is on the house (title/deed) or who owns it before any signature, in a calm, normal way, and offers a no-pressure option for a co-owner. FAIL if he pressures with anything like "both spouses must be here or there\'s no deal" or "the price is only good if you both sign now", or lets someone who is not on the title sign.',
-    a: ["Sure. Quick paperwork step first: whose name is on the house? The owner on the title signs. If your wife is on it too, I can come back Saturday at 10 so she can see the photos.", 'Claro. Primero un paso de los papeles: ¿a nombre de quién está la casa? Firma el dueño que aparece en la escritura. Si su esposa también aparece, regreso el sábado a las 10 para que vea las fotos.'] }
+    a: ["Sure. Quick paperwork step first: whose name is on the house? The owner on the title signs. If your wife is on it too, I can come back Saturday at 10 so she can see the photos.", 'Claro. Primero un paso de los papeles: ¿a nombre de quién está la casa? Firma el dueño que aparece en la escritura. Si su esposa también aparece, regreso el sábado a las 10 para que vea las fotos.'] },
+  /* v9 (T146, data/inspection_walk.json step 3): show the photos back on the phone before leaving the yard. */
+  { id: 'drill-show-photos-phone', t: ['Show the photos before you leave the yard', 'Enseña las fotos antes de irte del patio'], loc: 'phone',
+    q: ['(You’re off the roof. The homeowner is in the yard.) “So, what did you find up there?”', '(Ya bajaste del techo. El dueño está en el patio.) “¿Y qué encontró allá arriba?”'],
+    g: ['Show the photos on your phone: a good spot next to a damaged one. Say what they show, not what a claim will do.', 'Enseña las fotos en tu teléfono: un área buena junto a una dañada. Di lo que muestran, no lo que hará un reclamo.'],
+    setup: 'Any storm homeowner, right after the inspection, before Kenny leaves the yard.',
+    goal: 'Before wrapping up, Kenny stands with the homeowner and flips through the photos he just took on his phone, side by side (an undamaged spot vs. a damaged spot), and lets them ask questions.',
+    crit: "Kenny offers to show (or shows) the photos on his phone before leaving, compares a good area with a damaged one (or explains what a photo shows), and says only what the photos show: no 'this will get approved', no 'insurance will cover this', nothing about the deductible.",
+    a: ["Before I go, let me show you on my phone. Here's a good spot, and here's the damaged one right next to it. See the difference? That's what an adjuster looks for too. Any questions about what you're seeing?", 'Antes de irme, déjeme enseñarle en mi teléfono. Aquí está un área en buen estado, y aquí la dañada justo al lado. ¿Ve la diferencia? Eso es lo que un ajustador también busca. ¿Tiene alguna pregunta de lo que está viendo?'] }
 ];
 const objFor = o => [].concat(o[2] || []);
 
@@ -1344,7 +1438,43 @@ const RX = [
   ['pressure', /\b(?:both (?:of you|of y'?all|spouses|owners|decision[- ]makers)|(?:your|the) (?:wife|husband|spouse|partner|co-?owner)|you (?:both|two))\b[^.!?]{0,60}\bor (?:there'?s |it'?s )?(?:no deal|(?:the )?(?:deal|price|offer|discount) (?:is off|goes away|is gone))\b|\bno deal (?:unless|without|if (?:not )?)\b[^.!?]{0,40}\b(?:both|wife|husband|spouse|partner|co-?owner)/i],
   ['pressure', /\b(?:los dos|ustedes dos|ambos|su (?:esposa|esposo|pareja|señora|señor))\b[^.!?]{0,60}\bo (?:no hay (?:trato|precio|descuento)|se (?:cae|pierde|acaba) (?:el|la) (?:trato|precio|descuento|oferta))\b|\bno hay trato (?:si no|sin)\b[^.!?]{0,40}\b(?:los dos|ambos|esposa|esposo|pareja|señora)/i],
   ['promise', /\bcheck\b[^.!?]{0,30}\b(?:is going to|will|'ll|gonna)\s+cover\s+(?:every|all|the whole|everything)|\bcheque\b[^.!?]{0,30}\b(?:va a|le va a)\s+(?:alcanzar|cubrir|pagar)\s+(?:para )?(?:todo|todito)/i, 'negIn'],
+  /* v9 (2026-09-26, T153, research round 36). coach_cancel = telling a homeowner to cancel or back out of another
+     roofer's signed contract (stating the 3-day right as a fact is fine; noTell skips "I'm not telling you to...").
+     disparage = saying their contract isn't valid, "they'll disappear with your deposit", "storm chasers are all crooks".
+     fraud = manufacturing damage ("there's always something an adjuster will find", calling wear hail damage).
+     hoa_claim = HOA roofs are the association's claim (T150); more HOA rules sit in HOA_RX (only for a unit owner). */
+  ['coach_cancel', /\b(?:you (?:should|need to|have to|gotta|got to|must|ought to|better|could just|can just)|i'?d|i would|just|go ahead and|let'?s|we can help you|i can help you|i'?ll help you|we'?ll help you|i'?ll show you how to|call (?:them|him|her|those guys|apex) (?:today |now |tonight |tomorrow )?and)\s+(?:(?:just|go|call (?:them|him|her) and)\s+)?(?:cancel|back out(?: of)?|get out of|break|rip up|tear up|void)\b(?!\s+(?:any ?time|within|in (?:the )?(?:3|three)|if you (?:want|ever)))/i, 'noTell'],
+  ['coach_cancel', /\bcancel (?:it|that|them|the (?:contract|deal)|with (?:them|those guys|apex)) (?:today|now|right now|tonight|tomorrow|before|while you (?:still )?can)\b|\bget out of (?:that|the|their|your) (?:contract|deal)\b|\b(?:here'?s|i'?ll (?:give|write) you|i (?:have|got)) (?:a |the )?(?:letter|form|template)\b[^.!?]{0,30}\bcancel\w*\b[^.!?]{0,25}\b(?:them|their|that|the other|apex)\b/i, 'noTell'],
+  ['coach_cancel', /\b(?:canc[eé]lelo|cancel[eé]lo|canc[eé]lelos|cancele (?:ese|el|su) (?:contrato|trato)|(?:deber[ií]a|tiene que|debe|mejor) cancelar|(?:le|lo|la) (?:ayudo|ayudamos) a cancelar|s[aá]lgase de (?:ese|el|su) contrato|yo que usted\b[^.!?]{0,30}cancel\w*|yo (?:lo )?cancelar[ií]a)/i, 'noTell'],
+  ['disparage', /\b(?:that|the|your|their|this)\s+(?:other\s+)?(?:contract|agreement|paperwork|deal)\s+(?:(?:probably|likely|legally|really)\s+)?(?:isn'?t|is not|won'?t|will not|doesn'?t|does not|ain'?t)\s+(?:even\s+|really\s+|legally\s+)?(?:binding|valid|enforceable|legal|hold up|count|stand up|mean anything|worth (?:anything|the paper))|\b(?:that|the|your|their) (?:other )?(?:contract|agreement)\s*(?:is|'s)\s+(?:probably\s+|basically\s+)?(?:worthless|void|invalid|no good|garbage|a joke|not worth the paper)/i],
+  ['disparage', /\b(?:they|those guys|that (?:crew|company|outfit)|apex|storm chasers?|(?:those |these |out[- ]of[- ]town )(?:storm )?(?:crews|chasers|guys))\s*(?:'ll|will|are gonna|are going to|'re gonna|'re going to|always|usually|just|probably)?\s*(?:(?:probably|just|totally|definitely)\s+)?(?:disappear|vanish|skip town|run off|take off with|leave town|take your (?:money|deposit)|rip you off|scam you|won'?t be (?:around|here|in business))\b|\bstorm chasers?\s+(?:are|'re)\s+(?:all\s+|always\s+|just\s+)?(?:scam\w*|crooks?|thieves|frauds?|con (?:men|artists)|liars?|rip[- ]?offs?|shady)/i, 'noCheck'],
+  ['disparage', /\b(?:ese|el otro|su|el) contrato\s+no\s+(?:vale|es v[aá]lido|sirve|cuenta|es legal)|\b(?:ellos|esos|esa gente|esa (?:compañ[ií]a|cuadrilla))\s+(?:se van a|van a|siempre)\s+(?:desaparecer|largar|ir(?:se)? del pueblo|llevar(?:se)? su (?:dinero|dep[oó]sito)|robarle|estafarle)|\bse van a (?:desaparecer|largar|ir) con su (?:dinero|dep[oó]sito)/i],
+  ['fraud', /\bthere'?s always something (?:an |the )?adjuster(?:'ll| will)? (?:find|pay for|approve)|\b(?:file|put in|submit)\s+(?:it|a claim|the claim)\s+anyway\b|\b(?:call|say|write (?:it )?up|report|make)\s+(?:it|that|this|the (?:normal )?wear(?: and tear)?|normal wear(?: and tear)?|the old damage)\s+(?:as |is |look like )?(?:hail|storm|wind)[- ]damage|\b(?:adjuster|insurance|insurer) (?:won'?t|will never|can'?t) (?:know|tell) the difference|\bworth a (?:shot|try) to file\b/i],
+  ['fraud', /\bsiempre (?:hay algo|encuentran algo) que (?:el ajustador|el seguro)|\b(?:lo |la )?(?:reportamos|ponemos|pongo|reporto|metemos) como (?:da[nñ]o de )?(?:granizo|tormenta|viento)|\b(?:el ajustador|el seguro) no (?:va a )?(?:notar|saber|ver) la diferencia|\b(?:hagamos|meta|metemos) el reclamo de todos modos/i],
+  ['hoa_claim', /\b(?:your|the unit owner'?s?|an? unit owner'?s?)\s+(?:own\s+)?(?:ho-?6|condo|unit|townhome|homeowner'?s?)\s+(?:policy|insurance)\s+(?:will |'ll |should |can |is going to )?(?:cover|pay for|handle)\s+(?:the |your )?roof|\b(?:don'?t|no need to|you don'?t (?:have|need) to)\s+(?:wait for|go through|bother with|involve)\s+(?:the |your )?(?:hoa|association|board|management(?: company)?)\b|\b(?:file|put in|open)\s+(?:the |a |your )?(?:roof )?claim\b[^.!?]{0,30}\b(?:(?:on|under|through) your (?:own )?(?:ho-?6|condo|unit|own) (?:policy|insurance)|(?:instead of|without|before|around) (?:the )?(?:hoa|association|board|management))/i],
+  ['hoa_claim', /\b(?:cover|pay|split|reduce|lower|take care of|knock (?:down|off)|eat|handle)\s+(?:your |the )?(?:share (?:of |on )?(?:the )?|part (?:of )?(?:the )?)?(?:special )?assessments?\b|\b(?:special )?assessments?\b[^.!?]{0,40}\b(?:we'?ll|we will|we can|i can|i'?ll|i will)\s+(?:cover|pay|split|reduce|lower|take care of|handle|work with you)/i],
+  ['hoa_claim', /\bp[oó]liza (?:de su unidad|ho-?6|del condominio|de su condominio) (?:le )?(?:va a )?(?:cubre|cubrir|paga|pagar) (?:el )?techo|\bno (?:necesita|tiene que) (?:esperar a|pasar por|meter a) (?:la )?(?:asociaci[oó]n|hoa|junta|administradora)|\b(?:cubrimos|pagamos|le quitamos|le bajamos|nos encargamos de) (?:su |la )?(?:parte de la )?cuota(?: especial)?/i],
+  /* v9 (data/price_objections.json): "we'll beat any price" (quote) and talking them out of other bids (bids). */
+  ['quote', /\b(?:we'?ll|we will|i'?ll|i will|we can|i can|we always|we'?re gonna|we are going to)\s+(?:beat|match|undercut|top)\s+(?:any|anyone'?s|their|every|the other|whatever|his|her)\b[^.!?]{0,25}\b(?:price|bid|quote|estimate|number|offer|they (?:quote|charge|give))|\ble (?:ganamos|mejoramos|igualamos|bajamos) (?:a )?(?:cualquier|el|su) (?:precio|cotizaci[oó]n|presupuesto|n[uú]mero)/i],
+  ['bids', /\b(?:you (?:don'?t|do not) (?:really )?(?:need|have to|want)|no need to|don'?t (?:bother|waste (?:your )?time)|(?:skip|forget(?: about)?) the other)\s+(?:(?:to|get|getting|with|other|more|three|3|two|another|the|any|those|them)\s+)*(?:bids?|quotes?|estimates?|contractors|guys|companies)\b|\bwhy (?:bother|waste (?:your )?time)\b[^.!?]{0,30}\b(?:bids?|quotes?|estimates?)|\bno (?:necesita|tiene que) (?:pedir|buscar|conseguir) (?:m[aá]s|otras) cotizaciones|\bno pierda (?:su |el )?tiempo con (?:otras cotizaciones|los otros|otras compañ[ií]as)/i],
 ];
+/* v9 (T150): only for an HOA / condo unit owner. The roof is common property: the association files under its master
+   policy, so telling the owner "you file the claim" (fine for a house) is wrong here, and so is any dollar talk about
+   their deductible share or an assessment, and any signature or deposit from the unit owner. */
+const HOA_RX = [
+  ['hoa_claim', /\byou\b[^.!?]{0,25}\b(?:file|open|put in|start|submit|make)\b[^.!?]{0,20}\bclaim\b|^(?:just\s+|go\s+(?:ahead\s+and\s+)?)?(?:file|put in|open|start|submit)\s+(?:a |the |your )?(?:roof |hail |insurance )?claim\b/i, 'negIn'],
+  ['hoa_claim', /\busted\b[^.!?]{0,25}\b(?:haga|hace|meta|mete|presente|presenta|abra|abre|ponga|pone)\b[^.!?]{0,20}\breclamo\b|^(?:mejor\s+)?(?:haga|meta|presente|abra|ponga)\s+(?:el |un |su )?reclamo/i, 'negIn'],
+  ['hoa_claim', /\b(?:your|her|his|the)\s+(?:share|part|portion|cut)\b[^.!?]{0,30}(?:\$\s?\d|\b\d{1,3}(?:,\d{3})+\b|\b\d{3,}\b|\b\d+\s*(?:dollars|bucks|grand|k|thousand)\b)|\b(?:deductible|assessment)\b[^.!?]{0,30}(?:\$\s?\d|\b\d[\d,]*\s*(?:dollars|bucks|grand|k)\b|\b(?:a|one|two|three|four|five|ten) (?:thousand|grand|hundred)\b)|\$\s?\d[\d,]*[^.!?]{0,30}\b(?:deductible|assessment)|\b(?:deducible|cuota|su parte)\b[^.!?]{0,30}(?:\$\s?\d|\d[\d,]*\s*(?:d[oó]lares|mil)|\b(?:mil|dos mil|tres mil|quinientos)\b)|\$\s?\d[\d,]*[^.!?]{0,30}\b(?:deducible|cuota)/i, 'negBefore'],
+  ['hoa_claim', /\b(?:you can|you could|just|go ahead and|let'?s|i just need you to|i need you to)\s+sign\b|\b(?:sign|initial)\s+(?:here|this|the (?:contract|form|authori[sz]ation|agreement))\b|\b(?:deposit|down payment)\b[^.!?]{0,30}\b(?:from you|today|now|to get started)|\bfirm(?:e|a|ar)\s+(?:aqu[ií]|el contrato|esto|la forma)|\b(?:dep[oó]sito|anticipo)\b[^.!?]{0,30}\b(?:hoy|ahorita|ahora)/i, 'negBefore'],
+];
+/* v9: only on the phone-quote call: a single firm dollar number (a range like "$8k to $12k" is left to the scorecard,
+   which also wants "not final"). */
+const PHONE_RX = [
+  ['quote', /\$\s?\d[\d,]*(?:\.\d+)?\s*k?\b|\b\d[\d,]*\s*(?:dollars|bucks|grand|k)\b|\b(?:\d+|a few|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty) (?:thousand|grand|mil)\b|\b\d[\d,]*\s*d[oó]lares\b/i, 'firm'],
+];
+const RANGE_RX = /\d[\d,]*\s*(?:k|grand|thousand|mil)?\s*(?:-|–|to|and|a|y)\s*\$?\s?\d|\bbetween\b|\bentre\b|\brange\b|\brango\b/i;
+const NOT_FINAL = /\bnot (?:a |the )?(?:final|firm|quote|real (?:number|price))|\bjust a range\b|\brange,? not\b|\bno es (?:el )?(?:precio )?(?:final|fijo)|\bno es una cotizaci/i;
+const NO_TELL = /\b(?:not (?:telling|saying|asking|here to)|i'?m not (?:here )?to|won'?t tell you|never tell you|no (?:le )?(?:digo|estoy diciendo)|no vengo a)\b/i;
 const NEG_IN = /\b(?:not|never|no|nunca|nobody|nadie)\b|n['’]t\b/i;
 const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|shouldn'?t|should not|no puedo|no le puedo|no les puedo|no podemos|no le podemos|no puede|no pueden|no debe|nunca|no se puede|no es legal|prohibido|por ley no|nobody can|no one can|nadie (?:le )?puede)\b/i;
 const SOFT = /\b(?:nothing to sign|(?:hoy )?no se firma nada|no firmamos nada|no (?:need|rush|pressure|hurry)|(?:don'?t|do not|doesn'?t|does not) (?:have|need) to|won'?t ask|not asking|no (?:hay|tiene|necesita) (?:prisa|que)|sin (?:prisa|presión|presion)|no le voy a pedir)\b|\b(?:3|three|tres)[- ](?:business |días |dias )?(?:days?|días|dias|hábiles)/i;
@@ -1353,11 +1483,13 @@ const CHECK = /\b(?:make sure|check (?:if|whether)|ask (?:them )?(?:if|whether)|
 const NO_GIFT = /\b(?:no|nunca|never|don'?t|do not|doesn'?t|does not|not|sin|won'?t)\s+(?:[\w]+\s+){0,2}(?:gifts?|gift ?cards?|regalos?|dinero|money|cash|efectivo|rewards?|premios?|bonus(?:es)?|bonos?|descuentos?|discounts?)\b/i;
 const HEDGE = /\b(?:up to|depends?|depending|may|might|could|possibly|varies|hasta|depende|puede|podría|podria)\b/i;
 const NEG_NEAR = /(?:\b(?:don'?t|do not|doesn'?t|does not|won'?t|will not|not)\s+(?:[\w']+\s+){0,2}|\b(?:no|si|if)\s+)$/i;
-function legalScan(text) {
+/* opt (v9): {hoa: true} adds HOA_RX (condo / HOA unit owner), {phone: true} adds PHONE_RX (price over the phone). */
+function legalScan(text, opt) {
   const out = [];
-  for (const raw of (text.match(/[^.!?;\n]+[.!?;]*/g) || [])) {
+  const list = RX.concat(opt && opt.hoa ? HOA_RX : [], opt && opt.phone ? PHONE_RX : []);
+  for (const raw of (String(text).match(/[^.!?;\n]+[.!?;]*/g) || [])) {
     const s = raw.trim();
-    for (const [type, rx, mode] of RX) {
+    for (const [type, rx, mode] of list) {
       const m = rx.exec(s);
       if (!m) continue;
       const before = s.slice(0, m.index);
@@ -1372,6 +1504,10 @@ function legalScan(text) {
       if (mode === 'hedge' && HEDGE.test(s)) continue;
       if (mode === 'negGift' && NO_GIFT.test(s)) continue;
       if (mode === 'negIn' && NEG_IN.test(m[0])) continue;
+      /* v9 */
+      if (mode === 'noTell' && NO_TELL.test(s)) continue;
+      if ((mode === 'negBefore' || mode === 'firm') && NEG_IN.test(before)) continue;
+      if (mode === 'firm' && RANGE_RX.test(s)) continue;
       out.push({ type, quote: s });
       break;
     }
@@ -1397,8 +1533,14 @@ function dedTalk(text) { return (text.match(/[^.!?;\n]+[.!?;]*/g) || []).some(x 
 const SIGN_ASK = /\bif I sign\b|\bsign (?:today|now|it today|tonight|the (?:contract|papers?))\b|\bwhere do I sign\b|\bready to sign\b|\bcan (?:I|we) sign\b|\bsi firmo\b|\bfirmo hoy\b|\bd[oó]nde firmo\b|\bpuedo firmar\b/i;
 const CANCEL_OK = /\b(?:3|three|tres)[- ](?:business |días |dias )?(?:days?|días|dias|hábiles)|\bcancel(?:lation)? (?:form|notice)\b|\bforma (?:de|para) cancelar\b|\baviso de cancelaci/i;
 const REF_RX = /\b(?:refer\w*|send (?:my |your |a |her |him |them )?(?:sister|brother|friend|neighbou?r|cousin|family)\w*|(?:send|sends|sending) (?:\w+ ){0,2}your way|recomend\w*|recomiend\w*|referid\w*|les mando a|le mando a mi|mandar a mi (?:hermana|hermano|amig\w*|vecin\w*|familia))\b/i;
+/* v9 scenario backups. */
+const HOA_OK = /\b(?:association|hoa|board|management company|property manager|master policy|asociaci[oó]n|junta|administradora|p[oó]liza maestra)\b/i;
+const NODMG_OK = /\b(?:no|not|didn'?t|don'?t|nothing|zero)\b[^.!?]{0,40}\b(?:damage|hail hits?|hits?)\b|\bno (?:vi|encontr[eé]|hay|tiene|veo)\b[^.!?]{0,40}\bda[nñ]o|\bsin da[nñ]o/i;
+const REF_ASK = /\bintroduc\w*|\brefer\w*|\brecomend\w*|\brecomiend\w*|\bpresentaci\w*|\b(?:neighbou?rs?|friends?|vecin[oa]s?|amig[oa]s?)\b[^.!?]{0,40}\b(?:asks?|needs?|mention|tell|pregunta|necesita)\b/i;
 const CLAIM_RX = /\b(?:insurance|insurer|claim|adjuster|policy|seguro|aseguranza|aseguradora|reclamo|ajustador|p[oó]liza)\b/i;
-const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content));
+const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content, scanOpt(S.actual)));
+/* v9: which extra rules apply to this homeowner (HOA unit owner, price over the phone). */
+function scanOpt(k) { const p = P[k] || {}; return { hoa: !!p.hoa, phone: !!p.phone }; }
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, '').replace(/\s+/g, ' ').trim();
 
 /* ---------- Prompts ---------- */
@@ -1413,7 +1555,7 @@ function rulesText() {
     ? `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in ${p.place || 'a house'} built in ${sc.built}. ${p.house || 'The siding is faded, a few boards are cracked or loose, and the roof is getting old. There is no insurance claim: any work would be paid by you.'} Kenny is offering a free estimate.`
     : `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in ${p.place || 'a house'} built in ${sc.built}. A hailstorm with about ${sc.hail}-inch hail hit this neighborhood on ${fmt(sc.date, 'en', { weekday: 'long', month: 'long', day: 'numeric' })} (${sc.days} days ago).` + (p.days ? '' : ' You have not checked your roof.');
   return [
-    'You are role-playing a homeowner in a door-knocking practice app. The trainee is Kenny, 19, who offers free roof inspections for HMP Siding & Roofing, a registered and insured contractor from Fremont, Nebraska. He is practicing before he knocks real doors. Every user message after this one is Kenny talking to you at your front door. Reply only with what your character says out loud.',
+    'You are role-playing a homeowner in a door-knocking practice app. The trainee is Kenny, 19, who offers free roof inspections for HMP Siding & Roofing, a registered and insured contractor from Fremont, Nebraska. He is practicing before he knocks real doors. Every user message after this one is Kenny talking to you ' + (p.phone ? 'on the phone (you called the number on his door hanger)' : p.after ? 'in your driveway, right after his free roof inspection' : 'at your front door') + '. Reply only with what your character says out loud.',
     '',
     scene,
     '',
@@ -1438,13 +1580,25 @@ function rulesText() {
     '- If Kenny offers anything illegal or goes along with your test, react like a careful real homeowner (for example "Is that even legal?") and trust him less. Never reward it with a yes.',
     '- Never coach Kenny, never step out of character, never mention AI or this app.',
     '',
-    '(Kenny knocks on your door. Open it and say your first words, the way this character would.)'
+    p.phone ? '(Kenny picks up your call: "HMP Siding & Roofing, this is Kenny." Say your first words, the way this character would.)'
+      : p.after ? '(Kenny comes down the ladder after the inspection. Say your first words, the way this character would.)'
+      : '(Kenny knocks on your door. Open it and say your first words, the way this character would.)'
   ].join('\n');
 }
 
 /* The legal rule list, shared by the scorecard coach, the drill grader and the field-answer writer (v4). */
-const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact"); pressured with "both spouses (or owners) have to be here or there\'s no deal", or a price or deal that only holds if everyone signs now (type "pressure"; asking whose name is on the house so the right owner signs, or offering to come back when a co-owner is home, is fine and is a proper paperwork step).';
+const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact"); pressured with "both spouses (or owners) have to be here or there\'s no deal", or a price or deal that only holds if everyone signs now (type "pressure"; asking whose name is on the house so the right owner signs, or offering to come back when a co-owner is home, is fine and is a proper paperwork step); told a homeowner who already signed with another contractor to cancel, back out of or get out of that contract, or offered to help cancel it (type "coach_cancel"; stating as a plain fact that Nebraska gives 3 business days to cancel and that it is their decision is fine); said another contractor\'s signed contract is not valid or binding, or scared them with "they\'ll disappear with your deposit" or "storm chasers are all crooks" without proof (type "disparage"; false claims about a named company can also be "competitor"); called normal wear storm damage, suggested filing a claim for damage that is not there, or said "there\'s always something an adjuster will find" (type "fraud"); told a condo, townhome or HOA unit owner to file the roof claim themselves (the roof is common property: the association files under its master policy and the board decides), talked dollar amounts of their deductible share or a special assessment, offered to cover or reduce an assessment, or took a signature or deposit from a unit owner for master-roof work (type "hoa_claim"); gave a firm price sight-unseen (over the phone, by text, or without looking), or promised to beat or match any price (type "quote"; a wide range said out loud as "a range, not final", followed by asking for the free look, is fine); talked a homeowner out of getting other bids, like "you don\'t need other bids" or "don\'t waste your time with them" (type "bids").';
 
+/* v9 (T153, T150, price_objections.json): scenario checks. Graded strictly: only the coach's "pass":true passes, and a
+   local backup can still fail it (see LOCAL in computeScore). */
+const EXTRA_CK = {
+  threeday: 'threeday: he stated as a plain fact that Nebraska gives 3 business days to cancel a door-to-door contract and that it is the homeowner\'s own decision, without telling them to cancel, without trashing the other company and without saying their contract is not valid. FAIL if he never mentioned the 3 days or pushed them to cancel.',
+  honest: 'honest: this talk is after the free inspection and he found no storm damage. PASS only if he said plainly there is no storm damage worth a claim, showed or offered the photos of what he checked, and never suggested filing anyway or calling normal wear storm damage.',
+  intro_ask: 'intro_ask: he asked for an introduction anyway (for example "if a neighbor asks who checked your roof, I\'d appreciate the introduction"), as a compliment with a thank-you note only, never a gift, money or discount. If he never asked, FAIL.',
+  hoa: 'hoa: this homeowner owns one unit in an HOA and the roof is common property. PASS only if he said it is the association\'s claim under its master policy (the board or management company decides about the deductible or any assessment), offered a written roof report for the board or asked for the management company\'s office line, never told the owner to file the roof claim, named no dollar amounts, and asked for no signature or deposit.',
+  noquote: 'noquote: he gave no firm price sight-unseen: he explained the real number depends on what he can only see up close, gave at most a wide range said out loud as "a range, not final" (or no number at all), never promised to beat any price, and asked for a day for the free look. A single firm number = FAIL.',
+  bidsok: 'bidsok: he welcomed the other bids ("smart, get them"), helped compare scope and warranty instead of just the price, and never talked her out of the other bids, trashed other contractors or promised to beat any price.'
+};
 function coachPrompt() {
   const sc = S.sc, p = P[S.actual];
   const outLang = S.lang === 'es' ? 'Spanish (talk to Kenny with "tú")' : 'English';
@@ -1466,6 +1620,10 @@ function coachPrompt() {
     'claimtalk: ONLY if insurance, a claim or the adjuster came up: he stayed on the contractor side (document the damage, measure, cite code, submit a written supplement with photos, meet the adjuster). FAIL if he did any of these, which are not allowed: offered to negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201 and on), promised insurance will pay, or touched the deductible. If none of this came up, give {"id":"claimtalk","applies":false}.',
     'legal: he stayed legal the whole time. FAIL if he did ANY of these: ' + LEGAL_LIST + ' SPECIAL CASE: if he said HMP is doing, did or will do a neighbor\'s house, add a legal_flag with type "neighbor" but do NOT fail the legal check for that alone: it is fine when true, and the app reminds him to only say it when it is true. Saying the inspection or estimate is free is fine. Meeting the adjuster and showing the damage is fine. Telling them to ask their insurer for a re-inspection is fine. Honest facts about HMP are fine.'
   ];
+  /* v9: some homeowners skip the door-opener checks (after the inspection, a phone call) and add their own. */
+  const skip = p.skip || [];
+  for (let i = ck.length - 1; i >= 0; i--) if (skip.some(id => ck[i].startsWith(id + ':') || ck[i].startsWith(id + ' ('))) ck.splice(i, 1);
+  ck.splice(ck.findIndex(x => x.startsWith('nodeduct:')), 0, ...(p.extra || []).map(id => EXTRA_CK[id]));
   return [
     'You are a friendly, direct door-knocking coach for Kenny, 19, who is brand new to sales and practicing for HMP Siding & Roofing (Fremont, Nebraska; registered and insured). He has ADHD: keep every note under 15 words, plain words, no jargon. Be honest but encouraging.',
     `Write every note, best_line comment and tip in ${outLang}. Keep quotes of Kenny's words exactly as he said them.`,
@@ -1484,7 +1642,7 @@ function coachPrompt() {
     focusLine() + ' In "focus", say if this skill came up in this talk (applies) and if he did it (pass), with a note under 15 words. If he missed it, make the first "next" tip about it.',
     '',
     'Reply with only this JSON, no other text:',
-    '{"checks":[{"id":"intro","pass":true,"note":"..."},{"id":"storm","pass":false,"note":"..."},{"id":"inspection","pass":true,"note":"..."},{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
+    '{"checks":[' + ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + (p.extra || []).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
     'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":one of ' + TYPES.map(x => '"' + x + '"').join(', ') + '}, and set the legal check to false (except a "neighbor" flag alone, see above).',
     'outcome is "yes" (homeowner agreed to a look, an estimate or a time, or gave the owner\'s or manager\'s office line), "maybe" or "no". next has exactly 2 concrete things to try next time, each a line to say or a move to make.'
   ].join('\n');
@@ -1809,7 +1967,9 @@ function renderCheat(box, all) {
   const op = el('section');
   op.append(el('div', 'eyebrow', t('opener')));
   const p = el('p', 'script');
-  if (who && kindOf(who) === 'cash') {
+  if (who && P[who].open) {
+    p.textContent = P[who].open[Li()];
+  } else if (who && kindOf(who) === 'cash') {
     const preC = es ? 'Hola, soy Kenny de HMP Siding & Roofing, una compañía de siding y techos de aquí de Fremont. Trabajamos en casas de esta zona, y vi que la suya es de ' : "Hi, I'm Kenny with HMP Siding & Roofing, a local siding and roofing company out of Fremont. We work on houses around here, and I noticed yours was built in ";
     const postC = es ? '. ¿Le puedo dar un estimado gratis? Sin compromiso, toma unos 10 minutos.' : '. Mind if I give you a free estimate? No obligation, takes about 10 minutes.';
     p.append(document.createTextNode(preC), el('b', null, String(sc.built)), document.createTextNode(postC));
@@ -1836,7 +1996,7 @@ function renderCheat(box, all) {
   const nevers = all ? TYPES : CHEAT_BASE.concat((who && P[who].traps) || []).filter((k, i, a) => a.indexOf(k) === i);
   for (const k of nevers) {
     const d = el('div');
-    d.append(el('b', null, t('n_' + k) + ' · ' + t('r_' + k)), el('span', null, t('sayInstead') + ' ' + t('f_' + k)));
+    d.append(el('b', null, t('n_' + k) + ' · ' + t('r_' + k)), el('span', null, t('sayInstead') + ' ' + t(fixKey(k, who))));
     nb.append(d);
   }
   nv.append(nb);
@@ -1858,6 +2018,8 @@ function renderCheat(box, all) {
   if (all || !who || kindOf(who) !== 'cash') box.append(claimCard());
   box.append(nv);
 }
+/* v9 (T150): for an HOA unit owner, "you file the claim" and "the deductible is your part" are the wrong fixes. */
+function fixKey(type, who) { return who && P[who] && P[who].hoa && (type === 'negotiate' || type === 'deductible') ? 'f_hoa_claim' : 'f_' + type; }
 function claimCard() {
   const sec = el('section'); sec.append(el('div', 'eyebrow', t('claimT')));
   const wrap = el('div', 'claim');
@@ -1945,7 +2107,7 @@ async function knock() {
   $('chat').textContent = ''; $('doorEnd').hidden = true; $('box').value = ''; grow(); note('');
   show('door');
   renderDoorHead();
-  $('chat').append(el('p', 'sys', t(kindOf(S.actual) === 'cash' ? 'knockingCash' : 'knocking', addrTxt(S.sc))));
+  $('chat').append(el('p', 'sys', t(P[S.actual].sys || (kindOf(S.actual) === 'cash' ? 'knockingCash' : 'knocking'), addrTxt(S.sc))));
   const dw = $('doorway'); dw.classList.remove('open', 'knocking'); void dw.offsetWidth; dw.classList.add('knocking');
   await askHomeowner();
 }
@@ -2003,7 +2165,7 @@ function send() {
   const v = $('box').value.trim(); if (!v) return;
   stopMic(); note('');
   S.kenny++; S.turns.push({ role: 'user', content: v });
-  addKenny(v, legalScan(v));
+  addKenny(v, legalScan(v, scanOpt(S.actual)));
   $('box').value = ''; grow(); renderPips();
   askHomeowner();
 }
@@ -2026,6 +2188,11 @@ function endNow() {
 /* Fixed hints for the moments that matter legally (instant, free); otherwise a quick AI hint; a plain fallback on any
    error. Every hint shown passes legalScan first. */
 const HINT_RX = [
+  /* v9 */
+  ['h_signed', /\balready signed\b|\bsigned (?:with|a contract)\b|\bcancel with\b|\bya firm[eé]\b|\bfirm[eé] con\b/i],
+  ['h_hoa', /\bhoa\b|\bassociation\b|\bcondo\b|\btownhome\b|\bmaster policy\b|\basociaci[oó]n\b|\bcondominio\b/i],
+  ['h_bids', /\b(?:three|3|other|two) (?:bids|quotes|estimates)\b|\bbeat (?:whatever|any|their)\b|\bcotizaciones\b/i],
+  ['h_phone', /\bover the phone\b|\bby text\b|\bno need to come out\b|\bpor tel[eé]fono\b|\bsin venir\b/i],
   ['h_sign', /\bsign\b|\bcontract\b|\bstart (?:next week|monday|tomorrow)|\bfirm(?:o|a|e|ar)\b|\bcontrato\b|\bempiezan\b/i],
   ['h_deduct', /deductib|deducib/i],
   ['h_license', /licen[sc]/i],
@@ -2037,8 +2204,11 @@ const HINT_RX = [
   ['h_price', /\bballpark\b|\bhow much\b|\bprice\b|\bcost\b|\bcu[aá]nto\b|\bprecio\b/i]
 ];
 function localHint(reply) {
-  if (S.kenny === 0) return 'h_open';
   const p = P[S.actual];
+  if (S.kenny === 0) return p.after ? 'h_nodmg' : p.phone ? 'h_phone' : p.hoa ? 'h_hoa' : 'h_open';
+  /* v9: the scenario's own legal moment comes first. */
+  if (p.hoa && /deductib|deducib|claim|reclamo|assessment|cuota|file|share/i.test(reply)) return 'h_hoa';
+  if (p.after && /find|found|damage|neighbou?r|something|encontr|da[nñ]o|vecin/i.test(reply)) return 'h_nodmg';
   if (p.mustEs && S.sessionLang !== 'es' && spanishCount(S.turns.filter(x => x.role === 'user').map(x => x.content).join(' ')) < 3) return 'h_spanish';
   for (const [k, rx] of HINT_RX) if (rx.test(reply)) return k;
   return null;
@@ -2067,7 +2237,7 @@ async function showHint(bubble, reply, sid, sample) {
   try {
     const data = await sample.json(hintPrompt(), { cache: false, modelTier: 'quick', signal: ctl.signal });
     const v = data && typeof data.hint === 'string' ? data.hint.trim().replace(/\s+/g, ' ') : '';
-    if (v && v.length <= 160 && !legalScan(v).length) hint = v;
+    if (v && v.length <= 160 && !legalScan(v, scanOpt(S.actual)).length) hint = v;
   } catch (e) { /* fall back below */ }
   if (S.hintCtl === ctl) S.hintCtl = null;
   if (sid !== S.sid || !bubble.isConnected) return;
@@ -2102,7 +2272,7 @@ function renderLegal(flags, badId, warnId) {
     box.append(h);
     for (const f of list) {
       const d = el('div', 'flag-item');
-      d.append(el('div', 'flag-rule', t('r_' + f.type)), el('q', null, f.quote), el('div', 'flag-fix', t('sayInstead') + ' ' + t('f_' + f.type)));
+      d.append(el('div', 'flag-rule', t('r_' + f.type)), el('q', null, f.quote), el('div', 'flag-fix', t('sayInstead') + ' ' + t(fixKey(f.type, S.screen === 'drill' ? null : S.actual))));
       box.append(d);
     }
     box.hidden = false;
@@ -2160,10 +2330,18 @@ function computeScore(data) {
     nodeduct: () => (has(['deductible']) || kenny.some(dedTalk)) ? { ok: false, note: t('deductMiss') } : { ok: true },
     cancelform: () => (has(['cancel']) || !kenny.some(x => CANCEL_OK.test(x))) ? { ok: false, note: t('cancelMiss') } : { ok: true, note: t('cancelAuto') },
     referral: () => has(['referral']) ? { ok: false, note: t('r_referral') } : { ok: true },
-    claimtalk: () => has(['negotiate', 'promise', 'deductible']) ? { ok: false, note: t('claimMiss') } : { ok: true }
+    claimtalk: () => has(['negotiate', 'promise', 'deductible']) ? { ok: false, note: t('claimMiss') } : { ok: true },
+    /* v9 scenario checks (strict: the coach must say pass, and these can still fail it). */
+    threeday: () => (has(['coach_cancel', 'disparage', 'cancel']) || !kenny.some(x => CANCEL_OK.test(x))) ? { ok: false, note: t('threedayMiss') } : { ok: true },
+    honest: () => (has(['fraud', 'promise']) || !kenny.some(x => NODMG_OK.test(x))) ? { ok: false, note: t('honestMiss') } : { ok: true },
+    intro_ask: () => has(['referral']) ? { ok: false, note: t('r_referral') } : !kenny.some(x => REF_ASK.test(x)) ? { ok: false, note: t('introAskMiss') } : { ok: true },
+    hoa: () => (has(['hoa_claim']) || !kenny.some(x => HOA_OK.test(x))) ? { ok: false, note: t('hoaMiss') } : { ok: true, note: t('hoaAuto') },
+    noquote: () => (has(['quote']) || (kenny.some(x => RANGE_RX.test(x) && /\d/.test(x)) && !kenny.some(x => NOT_FINAL.test(x)))) ? { ok: false, note: t('noquoteMiss') } : { ok: true },
+    bidsok: () => has(['bids', 'competitor', 'disparage', 'quote']) ? { ok: false, note: t('bidsMiss') } : { ok: true }
   };
   const TRIGGER = { cancelform: () => home.some(x => SIGN_ASK.test(x)), referral: () => all.some(x => REF_RX.test(x)) || has(['referral']), claimtalk: () => (!cash && all.some(x => CLAIM_RX.test(x))) || has(['negotiate', 'promise']) };
-  const ids = ['intro', 'storm', 'inspection', 'objection'].concat(cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
+  const skip = p.skip || [], extra = p.extra || [];
+  const ids = ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).concat(['objection'], cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], extra, ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
   const checks = [];
   for (const id of ids) {
     const c = got.find(x => x && x.id === id);
@@ -2176,7 +2354,7 @@ function computeScore(data) {
       const loc = LOCAL[id]();
       const coach = c && typeof c.pass === 'boolean' && c.applies !== false ? c.pass : null;
       /* Spanish switch: our word count is reliable, so it can pass on its own. Others need the coach not to fail it. */
-      const pass = id === 'spanish' ? (loc.ok || coach === true) : (loc.ok && coach !== false && (coach === true || id !== 'intro' || !c));
+      const pass = id === 'spanish' ? (loc.ok || coach === true) : extra.includes(id) ? (loc.ok && coach === true) : (loc.ok && coach !== false && (coach === true || id !== 'intro' || !c));
       checks.push({ id, pass, note: !loc.ok && !(id === 'spanish' && pass) ? loc.note : (cNote || loc.note || '') });
       continue;
     }
@@ -2247,7 +2425,7 @@ function renderScore(data) {
   const best = data && typeof data.best_line === 'string' ? data.best_line.trim() : '';
   $('bestWrap').hidden = !best; $('bestLine').textContent = best;
   const nl = $('nextList'); nl.textContent = '';
-  const next = (data && Array.isArray(data.next) ? data.next : []).filter(x => typeof x === 'string' && x.trim() && !legalScan(x).length).slice(0, 2);
+  const next = (data && Array.isArray(data.next) ? data.next : []).filter(x => typeof x === 'string' && x.trim() && !legalScan(x, scanOpt(S.actual)).length).slice(0, 2);
   for (const n of next) nl.append(el('li', null, n));
   nl.parentElement.hidden = !next.length;
 
@@ -2295,6 +2473,8 @@ function skillLocal(it, ans) {
     case 'paper': return !PAPER_RX.test(ans) ? ['skPaper'] : null;
     case 'owner': return !OWNER_RX.test(ans) ? ['skOwner'] : null;
     case 'ratio': return !NUM_RX.test(ans) ? ['skRatio'] : null;
+    /* v9 (T146): photos on the phone, before leaving the yard. */
+    case 'phone': return !/\b(?:photos?|pictures?|pics?|phone|fotos?|im[aá]genes|tel[eé]fono|celular)\b/i.test(txt) ? ['skPhone'] : null;
     default: return null;
   }
 }

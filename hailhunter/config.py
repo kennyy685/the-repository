@@ -124,6 +124,10 @@ DEFAULTS = {
         # typical home value -> factor: enough value to reinvest in, but not luxury
         "value_curve": [[60000, 0.5], [110000, 0.85], [150000, 1.0], [350000, 1.0], [500000, 0.8], [800000, 0.6]],
         "value_unknown": 0.9,
+        # T163 "can afford a job": median household income (Census B19013) -> factor. Small on purpose, everyday
+        # (cash) score only, never storm/insurance scores. Unknown income = neutral (1.0).
+        "income_curve": [[30000, 0.85], [50000, 0.95], [65000, 1.0]],
+        "income_unknown": 1.0,
         "distance_curve": [[0, 1.0], [15, 1.0], [40, 0.8], [80, 0.6]],   # miles from home base
         "recent_sale_years": 2, "sold_penalty": 0.3,   # settled = 1 - sold_penalty x share bought in the last N years
         "new_since": 2010, "new_penalty": 0.5,         # newbuild = 1 - new_penalty x share built since new_since

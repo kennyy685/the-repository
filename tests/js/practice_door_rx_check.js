@@ -19,8 +19,96 @@ const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
 const { OBJ, SKILL } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL };")();
 
-/* [line, expected first flag type or null] */
+/* [line, expected first flag type or null, optional legalScan context] */
+const HOA = { hoa: true }, PHONE = { phone: true };
 const CASES = [
+  /* v9 (T153, round 36): already signed with another roofer - never coach a cancel, never disparage */
+  ["You should cancel with them today.", 'coach_cancel'],
+  ["I'd back out of that contract if I were you.", 'coach_cancel'],
+  ["Call them tomorrow and cancel, you still have time.", 'coach_cancel'],
+  ["Here's a letter you can send to cancel with Apex.", 'coach_cancel'],
+  ["Get out of that contract while you can.", 'coach_cancel'],
+  ["We can help you cancel it.", 'coach_cancel'],
+  ["Cancélelo hoy, todavía tiene tiempo.", 'coach_cancel'],
+  ["Yo que usted lo cancelaría.", 'coach_cancel'],
+  ["Le ayudo a cancelar con ellos.", 'coach_cancel'],
+  ["I'm not here to talk you out of anything.", null],
+  ["If you signed in the last 3 business days, Nebraska gives you the right to cancel, and that's your call.", null],
+  ["I'm not telling you to cancel, that's your decision.", null],
+  ["You can cancel within 3 business days if you ever want to.", null],
+  ["No le digo que lo cancele, eso lo decide usted.", null],
+  ["Si firmó en los últimos 3 días hábiles, tiene derecho a cancelar.", null],
+  ["That contract probably isn't even binding.", 'disparage'],
+  ["Your contract is worthless.", 'disparage'],
+  ["They'll disappear with your deposit.", 'disparage'],
+  ["Those out-of-town crews always skip town.", 'disparage'],
+  ["Storm chasers are all crooks.", 'disparage'],
+  ["Ese contrato no vale nada.", 'disparage'],
+  ["Esos se van a desaparecer con su depósito.", 'disparage'],
+  ["I can't tell you whether that contract is binding, that's between you and them.", null],
+  ["Ask them who handles the warranty in 6 months.", null],
+  ["I won't tell you your contract isn't valid.", null],
+  ["Pregúnteles quién atiende la garantía.", null],
+  /* v9: no damage found - never manufacture damage */
+  ["There's always something an adjuster will find.", 'fraud'],
+  ["Let's file it anyway and see.", 'fraud'],
+  ["We can call the normal wear hail damage.", 'fraud'],
+  ["The adjuster won't know the difference.", 'fraud'],
+  ["Siempre hay algo que el ajustador paga.", 'fraud'],
+  ["Lo reportamos como daño de granizo.", 'fraud'],
+  ["I'm not going to file it anyway, there's no damage.", null],
+  ["I won't call normal wear hail damage.", null],
+  ["I didn't find hail or wind damage, here are the photos.", null],
+  ["If a neighbor asks who checked your roof, I'd appreciate the introduction.", null],
+  ["No encontré daño de granizo, aquí están las fotos.", null],
+  /* v9 (T150): HOA / condo unit owner - the association's master policy decides */
+  ["Your HO-6 policy will cover the roof.", 'hoa_claim'],
+  ["Don't wait for the HOA, file it yourself.", 'hoa_claim'],
+  ["File the roof claim on your own policy.", 'hoa_claim'],
+  ["We can cover your share of the special assessment.", 'hoa_claim'],
+  ["Su póliza de su unidad cubre el techo.", 'hoa_claim'],
+  ["No necesita esperar a la asociación.", 'hoa_claim'],
+  ["You should file the roof claim yourself.", 'hoa_claim', HOA],
+  ["Just file a claim with your insurance.", 'hoa_claim', HOA],
+  ["Usted haga el reclamo con su seguro.", 'hoa_claim', HOA],
+  ["Your share will probably be about $2,000.", 'hoa_claim', HOA],
+  ["The deductible is probably two thousand dollars.", 'hoa_claim', HOA],
+  ["Su parte del deducible va a ser como 2,000 dólares.", 'hoa_claim', HOA],
+  ["You can sign the authorization for the board.", 'hoa_claim', HOA],
+  ["That's the association's claim, not yours.", null, HOA],
+  ["You don't file the roof claim, the HOA does.", null, HOA],
+  ["I can't guess your share, the board decides.", null, HOA],
+  ["I won't guess a number like $2,000 for your deductible.", null, HOA],
+  ["I can give the board a written roof report.", null, HOA],
+  ["Can I get the management company's office number?", null, HOA],
+  ["The look on your part of the building is free and takes 10 minutes.", null, HOA],
+  ["Ese reclamo le toca a la asociación, no a usted.", null, HOA],
+  ["You file the claim. I meet the adjuster and show them the damage.", null],
+  /* v9 (price_objections.json): no firm number sight-unseen, never beat any price, never talk them out of bids */
+  ["It'll be $9,000 for the whole roof.", 'quote', PHONE],
+  ["I can do it for eight grand.", 'quote', PHONE],
+  ["Le sale en 9,000 dólares.", 'quote', PHONE],
+  ["A rough range is $8,000 to $14,000, not final.", null, PHONE],
+  ["Somewhere between 8 and 14 thousand, just a range.", null, PHONE],
+  ["I'd rather not guess a number like $9,000 over the phone.", null, PHONE],
+  ["The look is free, about 20 minutes.", null, PHONE],
+  ["We'll beat any price they give you.", 'quote'],
+  ["I'll match whatever they quote.", 'quote'],
+  ["Le ganamos a cualquier precio.", 'quote'],
+  ["We won't beat any price, we compare scope.", null],
+  ["You don't need other bids.", 'bids'],
+  ["Don't waste your time with the other guys.", 'bids'],
+  ["Skip the other bids, we're the best.", 'bids'],
+  ["Why bother getting more quotes?", 'bids'],
+  ["No necesita pedir más cotizaciones.", 'bids'],
+  ["No pierda su tiempo con otras cotizaciones.", 'bids'],
+  ["Smart, get them, I'd do the same.", null],
+  ["I'd never tell you to skip the other bids.", null],
+  ["When you have all three, compare scope and warranty.", null],
+  ["Sí, pídalas, yo haría lo mismo.", null],
+  ["You don't need to get other quotes, trust me.", 'bids'],
+  ["You don't want the cheapest bid, you want the right scope.", null],
+  ["You don't need to decide today, get the other bids too.", null],
   /* v7 (T135, round 30): spouse / co-owner pressure flags; the title-holder question stays clean */
   ["Both of you need to be here or there's no deal.", 'pressure'],
   ["Your husband has to sit in on this or the price goes away.", 'pressure'],
@@ -233,8 +321,8 @@ const CASES = [
 ];
 
 let fails = 0;
-for (const [line, want] of CASES) {
-  const got = legalScan(line).map(x => x.type)[0] || null;
+for (const [line, want, ctx] of CASES) {
+  const got = legalScan(line, ctx).map(x => x.type)[0] || null;
   if (got !== want) { fails++; console.log("FAIL", JSON.stringify(line), "want", want, "got", got); }
 }
 console.log(`${CASES.length - (fails)} / ${CASES.length} rx cases ok`);
@@ -244,10 +332,13 @@ OBJ.forEach(o => o[1].forEach((x, i) => lines.push(["OBJ " + o[0][0] + (i ? " ES
 for (const k of Object.keys(T)) if (/^(fh_|f_|h_)/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => lines.push([k + (i ? " ES" : " EN"), x]));
 T.canList.forEach((l, i) => l.forEach(x => lines.push(["can" + i, x])));
 /* v7 (T131): the 10 skill drills' model answers and "to pass" lines, plus the first-3-seconds line. */
-if (!Array.isArray(SKILL) || SKILL.length !== 11) { console.log("FAIL expected 11 skill drills, got", SKILL && SKILL.length); process.exit(1); }
+if (!Array.isArray(SKILL) || SKILL.length !== 12) { console.log("FAIL expected 12 skill drills, got", SKILL && SKILL.length); process.exit(1); }
 SKILL.forEach(k => { k.a.forEach((x, i) => lines.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])); k.g.forEach((x, i) => lines.push(["SKILL goal " + k.id + (i ? " ES" : " EN"), x])); });
 T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
+/* v9: HOA and phone-quote answers must also stay clean under their scenario's extra rules. */
+OBJ.forEach(o => { const who = [].concat(o[2] || []); if (who.includes('hoa')) o[1].forEach((x, i) => lines.push(["OBJ(hoa) " + o[0][0] + (i ? " ES" : " EN"), x, HOA])); if (who.includes('phonequote')) o[1].forEach((x, i) => lines.push(["OBJ(phone) " + o[0][0] + (i ? " ES" : " EN"), x, PHONE])); });
+lines.push(["f_hoa_claim EN (HOA)", T.f_hoa_claim[0], HOA], ["f_hoa_claim ES (HOA)", T.f_hoa_claim[1], HOA], ["h_hoa EN (HOA)", T.h_hoa[0], HOA], ["h_hoa ES (HOA)", T.h_hoa[1], HOA]);
 let lf = 0;
-for (const [where, x] of lines) { const fl = legalScan(x); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
+for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);
 process.exit(fails || lf ? 1 : 0);

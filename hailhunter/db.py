@@ -163,6 +163,9 @@ CREATE TABLE IF NOT EXISTS acs_language (       -- Census ACS C16002 (households
     total INTEGER, spanish INTEGER,             -- the table skips). spanish = households (or people) speaking Spanish
     source TEXT, vintage TEXT                   -- source = the table used, e.g. C16002
 );
+CREATE TABLE IF NOT EXISTS acs_income (         -- Census ACS B19013: median household income per block group (T163).
+    geoid TEXT PRIMARY KEY, med_income INTEGER, vintage TEXT   -- everyday (cash) score only, never storm scores
+);
 CREATE TABLE IF NOT EXISTS everyday_lists (     -- T50: door lists for old-house neighborhoods, no storm needed.
     list_id TEXT PRIMARY KEY, conv_day TEXT,    -- conv_day = the day the list was made (no storm). Same columns as
     area TEXT, created_utc TEXT, params TEXT,   -- door_lists so hud.py builds both alike; walks and stops go in
