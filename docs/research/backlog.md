@@ -5,10 +5,14 @@ Each round: write `docs/research/<date>-round-<n>.md`, post board items, check t
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
-- [ ] Verify Iowa Mesonet LSR "trees down" reports are actually in the feed HMP ingests, and wind
-      direction/bearing availability in `wind_obs` (round 23 flagged both, unconfirmed)
-- [ ] Confirm Neb. Rev. Stat. 25-205 and 44-357's exact text directly (round 25's web fetch was blocked network-wide; only search
-      summaries were available) before quoting claim-deadline numbers anywhere customer-facing
+- [ ] Check whether Cowork's command center map UI actually renders `wind_events[].trees_down`/
+      `tree_sample`/`wind_dir` (round 26: the data exists in hud.json since T116-118; display side unconfirmed,
+      map source is outside this repo)
+- [ ] One-time sweep of the open board (T51-T60, T35, O0-O7) for other "done in code but not checked off"
+      items like round 26 found for T116-119 - do this before the next fresh research topic
+- [ ] Open nebraskalegislature.gov directly (blocked in this environment for two rounds running) to fully
+      confirm 25-205 and 44-357's exact text - round 26 found strong search-quoted text but still no direct
+      fetch; try a different network path or ask FilthE/Cowork
 - [ ] Vet missed-call text-back vendors by name, price and Spanish support (round 25 identified the category as HMP's top
       near-term buy; no vendor pricing pages could be opened this round to name a winner)
 - [ ] Pricing psychology for cash jobs: good/better/best, anchoring, same-day decisions and the 3-day cancel rule
@@ -34,3 +38,8 @@ deadlines (Nebraska gives years, not days - no legal urgency to use as a sales l
 (missed-call text-back flagged as HMP's top near-term buy; photo-to-quote/estimate tools flagged as ideas to fold into
 the app rather than buy separately). Network egress was blocked for most WebFetch targets this round - findings rely on
 search summaries; see the two new backlog items above to re-verify.
+Round 26: wind/tree data topic turned out already built and tested in code (T116-119, `hailhunter/wind.py` -
+trees-down detection + wind direction from remark text, both flowing into hud.json `wind_events[]`); no new
+build needed, just board/backlog cleanup. Claim-deadline statute re-check: nebraskalegislature.gov still
+blocked, but search summaries now quote 25-205/44-357 text directly (5-year written-contract limit; insurers
+can't shorten it) - higher confidence than round 25, still flagged unverified-fetch.
