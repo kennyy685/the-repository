@@ -158,6 +158,10 @@ DEFAULTS = {
             "sunday": None
         }
     },
+    # Week results report from the HMP App's door taps + leads (`hh.py weekly`, T35 learning loop)
+    "weekly": {
+        "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
