@@ -370,7 +370,7 @@ def best_time(day, cfg=None):
         when_es = {"weekday": "hoy", "saturday": "este sábado", "sunday": "este domingo"}[key]
         return {"en": f"Best time to knock {when_en}: {_span(win, 'en')}." + (f" {note['en']}" if note.get("en") else ""),
                 "es": f"Mejor hora para tocar puertas {when_es}: {_span(win, 'es')}" +
-                      (f". {note['es']}" if note.get("es") else ""),
+                      (f" {note['es']}" if note.get("es") else ""),
                 "start": win[0], "end": win[1]}
     nxt = bt.get("weekday")
     en, es = "No knocking planned today.", "Hoy no toca salir a tocar puertas."
