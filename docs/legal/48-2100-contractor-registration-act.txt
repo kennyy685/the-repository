@@ -1,0 +1,41 @@
+Nebraska Contractor Registration Act - key sections (fetched directly from nebraskalegislature.gov, 2026-09-26)
+Full act: Neb. Rev. Stat. 48-2101 to 48-2117.
+
+48-2103. Terms, defined. "Contractor" = any individual/firm/LLC/corp/association doing construction
+(building, altering, repairing, dismantling, demolition of real property, incl. roofing/siding-type work).
+Contractor ALSO includes any subcontractor, and any person providing or arranging labor for such activity,
+whether as employee or independent contractor.
+
+48-2104. Registration required. (1) Before performing any construction work in Nebraska, a contractor
+shall be registered with the Department of Labor. A contractor doing business under more than one name
+needs a registration number per name. Exemptions: working on your own property, or earning under $5,000/
+year in construction services.
+
+48-2105. Application contents: legal name + FEIN/SSN, Nebraska principal place of business (or address +
+NE registered agent if out of state), NE phone number, entity type, sales/use tax election, officer/owner
+names, PROOF OF WORKERS' COMP INSURANCE (or self-insurance certificate, or signed statement it isn't
+required), and a description of the business/SIC code. Renews annually with the fee (48-2107, up to $40).
+
+48-2108. Registration number format: a 5-digit number + 2-digit year of issuance (e.g. 12345-26).
+NOTE: nowhere in 48-2101 to 48-2117 does the Act require the registration number to be printed on
+contracts, ads, vehicles, or signage -- that requirement does not exist in this Act (only the deductible
+notice under 44-8607 and the cancel-right notices under 69-1601/1604 are statutorily required print text).
+Printing the reg# anyway (current HMP practice, per CLAUDE.md T64) is good practice, not a legal must.
+
+48-2110/2111. Registration is revoked if workers' comp coverage lapses; notice by certified mail; a
+revoked registration cannot be reinstated, contractor must reapply for a new number.
+
+48-2114. Violation; penalty. Commissioner issues a citation for (a) not being registered or (b)
+registration info not substantially complete/accurate. Administrative penalty: up to $500 for a first
+violation, up to $5,000 for a second or later violation (same $500/$5,000 structure as the Employee
+Classification Act, 48-2907, verified round 35). 15 working days to contest. NOTE: subsection (4)'s
+60-working-day grace period to register penalty-free after a first citation "shall remain in effect until
+March 1, 2009" -- that grace period is long expired; a first-time citation today can draw the up-to-$500
+penalty immediately, no automatic grace window.
+
+48-2117. Department of Labor publishes a public database of registered contractors (workers' comp status
+per contractor). A contractor is removed from the database for non-compliance.
+
+Sources: nebraskalegislature.gov/laws/statutes.php?statute=48-2101 through 48-2117 (direct curl fetch,
+2026-09-26). Supersedes the "unconfirmed, print it anyway" note in docs/research/2026-09-25-contract-rules.md
+item 4.

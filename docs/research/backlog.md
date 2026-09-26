@@ -69,6 +69,12 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Call James Hardie's contractor line directly to confirm Select-tier enrollment requirements and
       whether The Edge job's Hardie lap siding installs (done as a sub) count toward Select, or only jobs
       run under HMP's own Hardie account after enrolling count (round 33)
+- [ ] Confirm with the boss whether HMP's Contractor Registration Act number is currently active/renewed
+      and record the renewal date (round 37: 48-2107, annual, $40 fee; up to $500 penalty for a first
+      citation, no grace period since 2009)
+- [ ] Fold the "zero compensation for any work started before the 3-day cancel window closes" rule
+      (69-1606(5), round 37) into `docs/guides/adjuster-meeting.md` and O7's sale-guide script, kept
+      distinct from the insurance-specific emergency-work carve-out (44-8603/8607)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -144,3 +150,11 @@ landlords/HOA boards (MOPOA/REOMA/Omaha Landlords Association contact numbers, N
 for HOA management-company contacts, reserve-study sales angle, vendor packet (COI/W-9/lien-waiver)
 requirement, and the HOA master-policy/unit-owner legal boundary). Two new backlog items above (membership
 fees, HOA-claim-boundary script).
+Round 37 (backlog track): Nebraska Contractor Registration Act (48-2101 to 48-2117, `docs/legal/
+48-2100-contractor-registration-act.txt`) fetched direct - closes round T38's open question: the Act does
+NOT require printing the registration number on contracts/ads (HMP's current practice exceeds the legal
+minimum); $500/$5,000 penalty structure matches the Employee Classification Act; the old 60-day
+penalty-free registration grace period expired in 2009. Home Solicitation Sales Act's last two sections,
+69-1606/69-1607 (`docs/legal/69-1606.txt`, `69-1607.txt`), fetched direct: 69-1606(5) - zero compensation
+for any work performed before a buyer cancels, a stricter rule than the insurance-specific emergency-work
+carve-out in 44-8603/8607, and one to keep separate in scripts/docs. Two new backlog items above.
