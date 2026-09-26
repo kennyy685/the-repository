@@ -42,6 +42,10 @@
   python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]
                   hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
                   shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk
+  python3 hh.py daily --out-dir DIR [--date D] [--results f] [--dnk f] [--leads f] [--near T]   the 7:40 AM app job
+                  in one go: todaywalk+evidence, calltoday, zones+walks, followups (with --leads); one JSON file per
+                  app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
+                  evidence__<slug>.json, followups__today.json) + manifest.json
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -194,7 +198,7 @@ def refresh(conn, fetcher, cfg, log=print):
 
 
 BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
-                "data/tuned.json", "data/glossary_en_es.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
+                "data/tuned.json", "data/glossary_en_es.json", "data/benchmarks.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
 def _bundled(rel):
@@ -326,12 +330,14 @@ def main(argv=None):
     p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
     p.add_argument("--dnk", help="do-not-knock: JSON of the app's dnk/<slug> docs; those houses never appear")
     p.add_argument("--evidence-out", help="also write the evidence/<address-slug> docs for the walk's houses here")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("tune", help="T35: real door results vs heat -> small weight changes (dry run unless --apply)")
     p.add_argument("--weekly", required=True, nargs="+", help="`hh.py weekly` output file(s) (a doc or a list of docs)")
@@ -377,6 +383,17 @@ def main(argv=None):
     p.add_argument("--export-rules", action="store_true", help="print the rules + self-check cases as one JSON doc "
                                                                "for the HMP App (docs/app/followups.js)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("daily", help="the 7:40 AM app job in one go: todaywalk+evidence, calltoday, zones+walks, "
+                                     "followups; one JSON file per app doc (today__walk.json, ...)")
+    p.add_argument("--out-dir", required=True, help="folder for the doc files + manifest.json")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--leads", help="the app's leads/<slug> docs: adds followups__today.json")
+    p.add_argument("--doors", type=int, help="doors in today's walk (default: config today_walk.goal_doors, 25)")
+    p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -408,7 +425,10 @@ def main(argv=None):
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
         dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk, taps=taps)   # no walk: stops [] + none_reason
+        from hailhunter import benchmarks          # T84: industry doors/hour for the goal note (no history yet)
+        pace = benchmarks.doors_per_hour(benchmarks.load(a.benchmarks, cfg))
+        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk, taps=taps,
+                                  pace=pace)       # no walk: stops [] + none_reason
         if a.evidence_out:
             with open(a.evidence_out, "w", encoding="utf-8") as f:
                 json.dump(todaywalk.evidence_docs(hud_doc, doc["stops"]), f, indent=1, ensure_ascii=False)
@@ -421,6 +441,40 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "daily":                           # reads hud.json (+ the app's exports); database only for --near
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import benchmarks, daily, zones
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still write docs the app can show (none_reason)
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        try:
+            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None for k in ("results", "dnk", "leads")}
+        except (OSError, ValueError) as e:
+            print(f"daily: can't read an input file ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        conn = None
+        if a.near and os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"daily: can't find the town {a.near!r} (give 'lat,lon'); zones use home base", file=sys.stderr)
+        man = daily.run(cfg, a.out_dir, day, hud_doc, raw["results"], raw["dnk"], raw["leads"], a.doors, near, conn,
+                        benchmarks.load(a.benchmarks, cfg))
+        if conn is not None:
+            conn.close()
+        for e in man["errors"]:
+            print(f"daily: {e['part']} failed: {e['error']}", file=sys.stderr)
+        print(json.dumps(man, indent=1, ensure_ascii=False))
+        return 0 if "today/walk" in man["files"] else 1
     if a.cmd == "calltoday":                       # reads hud.json only: no database needed
         from zoneinfo import ZoneInfo
         from hailhunter import calltoday
@@ -576,7 +630,7 @@ def main(argv=None):
         return 0
     if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
         from zoneinfo import ZoneInfo
-        from hailhunter import weekly
+        from hailhunter import benchmarks, weekly
         from hailhunter.todaywalk import load_json
         today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
@@ -589,7 +643,8 @@ def main(argv=None):
         try:
             doc = weekly.report(weekly.load_doors(load_json(a.doors)),
                                 weekly.load_leads(load_json(a.leads)) if a.leads else [],
-                                week=a.week, hud=hud_doc, today=today, cfg=cfg)
+                                week=a.week, hud=hud_doc, today=today, cfg=cfg,
+                                bench=benchmarks.load(a.benchmarks, cfg))   # T84: missing file -> industry null
         except ValueError as e:
             print(f"weekly: {e}", file=sys.stderr)
             return 2
