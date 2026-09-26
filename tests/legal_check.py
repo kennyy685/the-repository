@@ -253,6 +253,8 @@ def check_banned_phrases():
                 after = lowered[idx + len(plower):idx + len(plower) + 40]
                 if plower == "free roof" and re.match(r"\s*(?:&amp;|&|and)?\s*(?:siding\s*)?(?:&amp;|&|and)?\s*(?:estimate|inspection|check)", after):
                     continue  # a free estimate/inspection offer, not a free roof
+                if plower == "waive" and after[:1] == "r":
+                    continue  # "waiver" as in a lien waiver; "waived" is still flagged
                 if plower == "licensed" and "public adjuster" in lowered[max(0, idx - 300):idx + 300]:
                     continue  # describes public adjusters (who are licensed), not HMP
                 line_no = text.count("\n", 0, idx) + 1
