@@ -97,6 +97,13 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       WebFetch/curl blocked again) to confirm the 2-3x in-person-close-rate claim and get exact script wording
 - [ ] Once the damage-map screen (T158) exists, check it against round 31's `data/inspection_walk.json`
       point-then-photo-then-explain sequence so the app screen and the in-yard walk match (round 40)
+- [ ] Add ACS median household income (B19013) per block group to `nbhd.py`'s `load_acs` (same pattern as
+      med_value/med_year already there) so door-list ranking has an affordability signal, not just age/value
+      - round 41 (T163)
+- [ ] Re-test Douglas (dcgis.org), Lancaster (gis.lincoln.ne.gov) and Sarpy (geodata.sarpy.gov) parcel/owner-
+      mailing endpoints for T23 owner-occupied from the actual cloud/Mac runner - round 41 found all three
+      answering 200/301 from this sandboxed session tonight, contradicting the 2026-09-26 "blocked" note;
+      needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
