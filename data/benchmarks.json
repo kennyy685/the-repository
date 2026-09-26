@@ -1,0 +1,103 @@
+{
+  "_meta": {
+    "purpose": "Stand-in funnel/close/value numbers for the HMP App and hh.py weekly, until real HMP numbers replace them once FilthE has knocked and closed jobs.",
+    "as_of": "2026-09-26",
+    "confidence": "search-summary industry figures (vendor blogs, roofing sales-training sites), not opened primary sources or audited studies. Ranges shown low/typical/high; use typical as the default, low/high for sensitivity. Replace with HMP's own data as soon as there is enough of it (recommend after ~200 real doors knocked).",
+    "note": "Every figure here is a vendor claim unless marked otherwise. No Nebraska- or Fremont-specific figures were found; national/Midwest general figures only."
+  },
+  "doors_to_conversation": {
+    "unit": "% of doors knocked that result in any conversation (answer)",
+    "low": 20, "typical": 30, "high": 40,
+    "source": "vendor blogs (spotio.com, theroofstrategist.com) - typical door-to-door answer rate"
+  },
+  "doors_to_qualified_inspection_new_rep": {
+    "unit": "% of doors knocked -> booked inspection, first 30 days",
+    "low": 0.5, "typical": 1, "high": 2,
+    "source": "ilroofinginstitute.com - new door knocker in first 30 days"
+  },
+  "doors_to_qualified_inspection_experienced": {
+    "unit": "% of doors knocked -> booked inspection, experienced rep/company",
+    "low": 2, "typical": 3.5, "high": 5,
+    "source": "ilroofinginstitute.com - top performers"
+  },
+  "doors_to_appointment_company_median": {
+    "unit": "% doors -> appointment, median company (broader funnel measure, may include other lead sources)",
+    "low": 6, "typical": 9, "high": 16,
+    "source": "subcontractorhub.com close-rate benchmarks - median vs top-quartile"
+  },
+  "appointment_to_inspection": {
+    "unit": "% of booked appointments that actually happen (homeowner shows up / lets inspector on roof)",
+    "low": 58, "typical": 71, "high": 84,
+    "source": "subcontractorhub.com - median vs top-quartile"
+  },
+  "inspection_to_signed_contract": {
+    "unit": "% of inspections that convert to a signed contract",
+    "low": 40, "typical": 58, "high": 74,
+    "source": "subcontractorhub.com - median vs top-quartile"
+  },
+  "overall_close_rate_exclusive_leads": {
+    "unit": "% of exclusive/own-generated leads (like door knocks) that close",
+    "low": 25, "typical": 30, "high": 35,
+    "source": "subcontractorhub.com industry benchmark commentary"
+  },
+  "overall_close_rate_shared_leads": {
+    "unit": "% close rate for shared/bought leads (NOT what HMP uses - no bought lists - kept for contrast only)",
+    "low": 8, "typical": 14, "high": 20,
+    "source": "subcontractorhub.com"
+  },
+  "follow_up_touches_to_close": {
+    "unit": "number of contacts (calls/texts/visits) needed before a lead converts",
+    "low": 5, "typical": 6, "high": 7,
+    "source": "ghostrep.ai, leadresponse.co - roofing-lead follow-up cadence studies"
+  },
+  "days_lead_response_speed_advantage": {
+    "unit": "qualitative: first contractor to respond to a fresh lead wins the job",
+    "low": null, "typical": "81% win rate when first to respond; 5 min response = 100x more likely to convert vs 30 min", "high": null,
+    "source": "leadresponse.co - speed-to-lead research summary"
+  },
+  "avg_hail_wind_insurance_payout": {
+    "unit": "USD, average insurance payout for a wind/hail roof claim",
+    "low": 9000, "typical": 13000, "high": 18000,
+    "source": "insuranceclaimrecoverysupport.com, nwclaimsmanagement.com - national average payout figures"
+  },
+  "claim_underpayment_recovered_with_documentation": {
+    "unit": "USD typically identified/recovered via supplements when properly documented (photos, inspection report, detailed estimate)",
+    "low": 3000, "typical": 4000, "high": 5000,
+    "source": "weathershieldroofers.com / general 2026 contractor-guide figures"
+  },
+  "estimate_vs_actual_scope_gap": {
+    "unit": "USD gap between insurer's first estimate and true repair cost, per claim",
+    "low": 7000, "typical": 9000, "high": 11000,
+    "source": "excellentroofs.com 2026 guide"
+  },
+  "mortgage_check_endorsement_delay": {
+    "unit": "weeks added to payment timeline when a mortgage company must endorse the insurance check",
+    "low": 1, "typical": 2, "high": 3,
+    "source": "roofing-claim-process guides (weathershieldroofers.com, kreunen/insuranceroofs.com summary) - start the endorsement request the day the check arrives, do not wait for the contractor"
+  },
+  "supplement_filing_window": {
+    "unit": "days after initial payment that most policies allow a supplement to be filed",
+    "low": null, "typical": 180, "high": null,
+    "source": "general roofing-claims guides, 2026"
+  },
+  "overhead_and_profit_pct": {
+    "unit": "% added to an insurance estimate when 3+ trades are coordinated by a general contractor (the '3-trade rule')",
+    "low": 10, "typical": 20, "high": 20,
+    "source": "capout.ai / estimateondemand.com Xactimate glossary - 10% overhead + 10% profit, industry-standard, often disputed/stripped by carriers"
+  },
+  "avg_siding_replacement_job_cost": {
+    "unit": "USD, full house siding replacement (materials + labor), cash sale not insurance",
+    "low": 5554, "typical": 11587, "high": 17717,
+    "source": "angi.com / homeadvisor 2026 cost guides - national averages, not Nebraska-specific"
+  },
+  "referral_program_gift_response": {
+    "unit": "% of customers more likely to refer after receiving a thank-you gift (not cash-for-claim, not a deductible discount)",
+    "low": null, "typical": 92, "high": null,
+    "source": "hookagency.com / referral-marketing vendor blog - vendor claim, no methodology shown"
+  },
+  "seasonal_note": {
+    "unit": "qualitative",
+    "value": "Fall named repeatedly as a strong season to ask for referrals (post-storm-season word of mouth); winter (Nov-Mar) is HMP's own slow window per CLAUDE.md's todaywalk seasonal rule - no seasonal split found for close rates specifically.",
+    "source": "jobnimbus.com 'why fall is the best time to ask' (title/summary only, page not opened)"
+  }
+}
