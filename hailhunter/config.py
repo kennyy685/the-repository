@@ -143,7 +143,10 @@ DEFAULTS = {
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
         "goal_doors": 25,           # doors in today's walk (~2 hours)
-        "storm_max_days": 60,       # a storm walk only if the storm is this fresh...
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (in season, Apr-Sep)...
+        # ...off-season (Oct-Mar, month number -> days): re-knock storms from the last ~11 months that aren't
+        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it)
+        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330},
         "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
         "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
         "min_doors": 8,             # skip walks with fewer doors left than this
@@ -156,6 +159,14 @@ DEFAULTS = {
             "weekday": ["16:00", "19:30"],
             "saturday": ["10:00", "17:00"],
             "sunday": None
+        },
+        # Short days (month number -> the day types it changes, + an optional note). Months not listed use best_time.
+        "best_time_by_month": {
+            "10": {"weekday": ["16:00", "18:30"]},
+            "3": {"weekday": ["16:00", "18:30"]},
+            **{m: {"weekday": ["15:30", "17:30"],
+                   "note": {"en": "End by dusk.", "es": "Terminen antes de que oscurezca."}}
+               for m in ("11", "12", "1", "2")}
         }
     },
     # Week results report from the HMP App's door taps + leads (`hh.py weekly`, T35 learning loop)

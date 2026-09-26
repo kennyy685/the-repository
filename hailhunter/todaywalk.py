@@ -16,6 +16,8 @@ stale_hours; note is null when fresh), `data_age_hours`. When no walk qualifies,
 {date, stops: [], goal_doors: 0, none_reason {en, es}, best_time, stale...} instead of failing.
 Evidence docs (`evidence_docs`): `evidence/<slug>` per house from hud.json hail_evidence; see SLUG_RULE.
 Do-not-knock (`load_dnk`, `pick(dnk=...)`): houses in the app's `dnk/<slug>` docs (same slug rule) never appear.
+Seasons (config today_walk): `storm_max_days_by_month` lets Oct-Mar walks re-knock storms up to ~330 days old that
+aren't fully worked (else 60 days); `best_time_by_month` shortens weekday hours in short-day months (+ "End by dusk").
 Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
 `come_back {date, time}` and goes to the front (earliest time first); due later -> the door waits until that date.
 """
@@ -338,18 +340,37 @@ def _span(win, lang):
     return f"de {t1} a {t2} {ap(am2)}" if am1 == am2 else f"de {t1} {ap(am1)} a {t2} {ap(am2)}"
 
 
+def _by_month(table, day):
+    """The entry for `day`'s month in a {"1".."12": value} config table (int keys work too), else None."""
+    table = table or {}
+    return table.get(str(day.month), table.get(day.month))
+
+
+def storm_max_days(day, cfg=None):
+    """How old a storm can be for a storm walk on `day`: config storm_max_days_by_month for the month
+    (off-season Oct-Mar: ~330 days, re-knock storms not fully worked yet), else storm_max_days (60)."""
+    tw = _tw(cfg)
+    v = _by_month(tw.get("storm_max_days_by_month"), day)
+    return tw["storm_max_days"] if v is None else v
+
+
 def best_time(day, cfg=None):
-    """Best hours to knock on `day`: {en, es, start, end} (start/end 24h local, null on a no-knock day)."""
+    """Best hours to knock on `day`: {en, es, start, end} (start/end 24h local, null on a no-knock day).
+    best_time_by_month overrides the day types it names for that month (short days) and may add a note."""
     day = date.fromisoformat(day) if isinstance(day, str) else day
-    bt = _tw(cfg).get("best_time") or {}
+    tw = _tw(cfg)
+    month = _by_month(tw.get("best_time_by_month"), day) or {}
+    bt = {**(tw.get("best_time") or {}), **{k: v for k, v in month.items() if k != "note"}}
+    note = month.get("note") or {}
     wd = day.weekday()
     key = "saturday" if wd == 5 else ("sunday" if wd == 6 else "weekday")
     win = bt.get(key)
     if win:
         when_en = {"weekday": "today", "saturday": "this Saturday", "sunday": "this Sunday"}[key]
         when_es = {"weekday": "hoy", "saturday": "este sábado", "sunday": "este domingo"}[key]
-        return {"en": f"Best time to knock {when_en}: {_span(win, 'en')}.",
-                "es": f"Mejor hora para tocar puertas {when_es}: {_span(win, 'es')}",
+        return {"en": f"Best time to knock {when_en}: {_span(win, 'en')}." + (f" {note['en']}" if note.get("en") else ""),
+                "es": f"Mejor hora para tocar puertas {when_es}: {_span(win, 'es')}" +
+                      (f". {note['es']}" if note.get("es") else ""),
                 "start": win[0], "end": win[1]}
     nxt = bt.get("weekday")
     en, es = "No knocking planned today.", "Hoy no toca salir a tocar puertas."
@@ -415,6 +436,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
     storm, pools, src = [], {}, {}
+    max_age = storm_max_days(today, cfg)           # month-aware: longer off-season (Oct-Mar)
     for L in hud.get("lists") or []:
         try:
             age = (today - date.fromisoformat(L["day"])).days
@@ -422,7 +444,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
             continue
         c, pools[L["id"]] = _candidates(L, "storm", tw, results, dnk, today)
         src[L["id"]] = (L, "storm")
-        if 0 <= age <= tw["storm_max_days"]:
+        if 0 <= age <= max_age:
             storm += [x for x in c if x["heat"] >= tw["storm_min_heat"]
                       and (x["avg_hail"] or 0) >= tw["storm_min_hail"]]
     every = []

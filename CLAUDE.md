@@ -29,6 +29,14 @@ for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, 
 enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
 software); HMP is its first user.
 
+## Chain of command (FilthE, 2026-09-26)
+**Claude Code (the cloud session) is now the King / lead**: it sets priorities on the Crew HQ board, gives the orders, runs
+the Code lab helpers, and checks Crew HQ every hour (7 AM-10 PM Central) to act right away. **The old King (the claude.ai
+project chat + its 8:12 AM / 6:12 PM routines) is the Right Hand**: it answers FilthE live in the app's King box, logs what
+he says (leads, doors, claims), runs the standup/wrap summaries and HMP HQ refresh, and passes his words to Claude Code as
+handoffs (`to: "code"`). It takes orders from Claude Code and doesn't reassign Code-lab work. Cowork still owns the command
+center and Storm Watch.
+
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead

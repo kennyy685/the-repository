@@ -79,7 +79,7 @@ class TodayWalk(unittest.TestCase):
             self.assertNotRegex(t, r"heat|score|DODGE|%|\d{5,}")
 
     def test_stale_storm_falls_back_to_everyday_with_plain_why(self):
-        d = self.pick("2026-12-25")                             # storm is 106 days old: no storm walk
+        d = self.pick("2027-04-15")                             # in season, storms 217+ days old: no storm walk
         self.assertEqual(d["kind"], "everyday")
         self.assertEqual(d["list_id"], "everyday_Fremont_310539640003")
         self.assertEqual(d["why"], {"en": "Most homes here were built before 1980 and are owner-lived.",
@@ -99,13 +99,13 @@ class TodayWalk(unittest.TestCase):
         # one not-home door on the everyday list comes back as pass 2; a "Booked" one does not come back
         res = {"doors/2026-09-24_DODGE-E3": {"result": "not_home", "pass": 1},
                "doors/2026-09-24_DODGE-E4": {"result": "booked", "pass": 1}}
-        d = self.pick("2026-12-25", goal=30, results=todaywalk.load_results(res))   # room for the whole walk
+        d = self.pick("2027-04-15", goal=30, results=todaywalk.load_results(res))   # room for the whole walk
         by = {s["pid"]: s for s in d["stops"]}
         self.assertEqual(by["DODGE-E3"]["pass"], 2)
         self.assertNotIn("DODGE-E4", by)
         # three not-home tries: that door is done
         res = {f"doors/2026-09-2{i}_DODGE-E3": {"result": "not_home", "pass": i} for i in (1, 2, 3)}
-        self.assertNotIn("DODGE-E3", {s["pid"] for s in self.pick("2026-12-25", goal=30,
+        self.assertNotIn("DODGE-E3", {s["pid"] for s in self.pick("2027-04-15", goal=30,
                                                                    results=todaywalk.load_results(res))["stops"]})
 
     def test_results_as_list_of_docs(self):
