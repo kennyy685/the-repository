@@ -25,9 +25,9 @@ body { font:500 8pt/1.32 "Montserrat", sans-serif; color:var(--ink); -webkit-pri
 .page:last-of-type { break-after:auto; }
 
 /* header band: charcoal siding + logo + title, orange rule */
-.band { position:relative; background:var(--char-dk); color:#fff; height:1.36in; flex:none; border-bottom:5px solid var(--orange); }
+.band { position:relative; background:var(--char-dk); color:#fff; height:1.26in; flex:none; border-bottom:5px solid var(--orange); }
 .band .rib { position:absolute; inset:0; width:100%; height:100%; opacity:.4; }
-.band .in { position:absolute; left:0.5in; right:0.5in; top:0.26in; bottom:0.16in; display:flex; align-items:center; justify-content:space-between; gap:0.3in; }
+.band .in { position:absolute; left:0.5in; right:0.5in; top:0.2in; bottom:0.14in; display:flex; align-items:center; justify-content:space-between; gap:0.3in; }
 .band .logo { width:1.7in; height:0.84in; flex:none; }
 .band .ttl { text-align:right; }
 .band h1 { font:800 27pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.01em; }
@@ -40,7 +40,7 @@ body { font:500 8pt/1.32 "Montserrat", sans-serif; color:var(--ink); -webkit-pri
 /* section heads: orange number + spaced caps, like the pocket card */
 .h { display:flex; align-items:baseline; gap:6pt; margin-bottom:5pt; }
 .h .n { font:800 17pt/1 "Barlow Semi Condensed"; color:var(--orange); }
-.h .t { font:800 11.5pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.1em; color:var(--char-dk); }
+.h .t { white-space:nowrap; font:800 11.5pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.1em; color:var(--char-dk); }
 .h .note { margin-left:auto; font:600 6.8pt/1.2 "Montserrat"; color:var(--muted); text-align:right; }
 b, strong { font-weight:700; color:#111; }
 .say { font-style:normal; }
@@ -53,7 +53,7 @@ ol.nums li::before { content:attr(data-n); position:absolute; left:0; top:-0.5pt
 
 /* check boxes */
 ul.boxes { list-style:none; }
-ul.boxes li { position:relative; padding-left:15pt; margin-bottom:3pt; }
+ul.boxes li { position:relative; padding-left:15pt; margin-bottom:2pt; }
 ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5pt; height:8.5pt; border:1.3pt solid var(--char); border-radius:1.5pt; }
 
 /* the "never cross these" box: charcoal, like the pocket card */
@@ -81,7 +81,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
 .vs > .hd.w { background:var(--orange); color:#fff; }
 .vs > .k { font:700 6.6pt/1.3 "Montserrat"; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; background:#fafafb; }
 .vs > .wv { background:var(--tint); }
-.slope svg { width:100%; height:0.95in; display:block; margin:2pt 0 6pt; }
+.slope svg { width:100%; height:0.9in; display:block; margin:2pt 0 6pt; }
 .strip { display:grid; grid-template-columns:repeat(8,1fr); gap:0; border:1pt solid var(--line); border-radius:5pt; overflow:hidden; }
 .strip div { padding:5pt 6pt 6pt; border-left:0.8pt solid var(--line); font:500 7.3pt/1.3 "Montserrat"; }
 .strip div:first-child { border-left:0; }
@@ -179,7 +179,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
           <ul class="boxes">
             <li>Each side of the house, wide</li>
             <li>The wind slope, wide, then close</li>
-            <li>Every crease, lift, missing shingle (finger or tape in shot)</li>
+            <li>Every crease, lift, missing shingle (finger or tape in it)</li>
             <li>The test square with its count</li>
             <li>Ridge, rakes, eaves</li>
           </ul>
@@ -210,9 +210,9 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <div class="h"><span class="n">5</span><span class="t">Then the same claim steps as hail</span><span class="note">Shaded = HMP’s part</span></div>
       <div class="strip">
         <div class="us"><i>1</i><b>Inspect</b>Free look, show every photo</div>
-        <div><i>2</i><b>Owner files</b>Their claim, their call</div>
-        <div><i>3</i><b>Adjuster</b>Insurer calls the homeowner</div>
-        <div class="us"><i>4</i><b>We meet</b>Meet the adjuster, point to the wind slope, show photos</div>
+        <div><i>2</i><b>Files</b>Their claim, their call</div>
+        <div><i>3</i><b>Adjuster</b>Calls the homeowner</div>
+        <div class="us"><i>4</i><b>We meet</b>Show the adjuster the wind slope</div>
         <div><i>5</i><b>Scope</b>Insurer’s written list</div>
         <div class="us"><i>6</i><b>Contract</b>+ 3-day cancel form, EN &amp; ES</div>
         <div class="us"><i>7</i><b>Build</b>Order and install</div>
@@ -222,7 +222,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
 
     <div class="cols">
       <section>
-        <div class="h"><span class="n">6</span><span class="t">At the door</span><span class="note">Name, HMP, what we sell first · NE 69-1602</span></div>
+        <div class="h"><span class="n">6</span><span class="t">At the door</span><span class="note">Say this first · NE 69-1602</span></div>
         <div class="open">“Hi, I’m <b>Kenny Cruz</b> with <b>HMP Siding &amp; Roofing</b>. We do <b>roofs and siding</b>. We’re a registered Fremont company.”</div>
         <div class="q"><div class="l">Wind</div>“The wind on ________ hit this street. Wind hurts one side of a roof, so I check that side first. Free, 20 minutes, and I show you every photo.”</div>
         <div class="q"><div class="l">Tree</div>“I saw the tree came down. Is everyone OK? Want me to photograph it before anything gets moved? The photos are yours.”</div>
@@ -264,7 +264,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
         <div class="vs">
           <div class="hd"></div><div class="hd w">Viento</div><div class="hd">Granizo</div>
           <div class="k">Tejas</div><div class="wv"><b>Dobladas</b>, <b>levantadas</b> o que <b>faltan</b></div><div>Golpes redondos, sin gránulos</div>
-          <div class="k">Dónde</div><div class="wv"><b>Un solo lado</b>, el agua que pegó el viento; bordes primero</div><div>Todas las aguas</div>
+          <div class="k">Dónde</div><div class="wv"><b>Un solo lado</b>, el del viento; bordes primero</div><div>Todas las aguas</div>
           <div class="k">Paredes</div><div class="wv">Siding roto o arrancado, soffit suelto</div><div>Abolladuras y hoyos</div>
           <div class="k">Reclamo</div><div class="wv">Muchas veces <b>parcial</b>: un agua o una pared</div><div>Muchas veces todo el techo</div>
         </div>
@@ -305,7 +305,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
           <ul class="boxes">
             <li>Cada lado de la casa, de lejos</li>
             <li>El agua del viento, de lejos y de cerca</li>
-            <li>Cada teja doblada, levantada o que falta (con dedo o cinta en la foto)</li>
+            <li>Cada teja doblada, levantada o que falta (con dedo o cinta)</li>
             <li>El cuadro de prueba con su cuenta</li>
             <li>Cumbrera, bordes, aleros</li>
           </ul>
@@ -323,7 +323,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <section>
         <div class="h"><span class="n">4</span><span class="t">Árbol caído: primeros pasos</span></div>
         <ol class="nums">
-          <li data-n="1"><b>Primero la seguridad.</b> ¿Árbol sobre cables de luz? Aléjese; el dueño llama a la compañía de luz o al 911. Nunca se suba a un techo con un árbol encima.</li>
+          <li data-n="1"><b>Primero la seguridad.</b> ¿Árbol sobre cables de luz? Aléjese; el dueño llama a la compañía de luz o al 911. Nunca suba a un techo con un árbol encima.</li>
           <li data-n="2"><b>Fotos antes de mover nada:</b> árbol, techo, adentro, patio.</li>
           <li data-n="3"><b>Pare el agua.</b> Lona sobre el hueco cuando ya quitaron el árbol y es seguro. Fotos antes y después.</li>
           <li data-n="4"><b>Quitar el árbol</b> le toca a un servicio de árboles.</li>
@@ -337,18 +337,18 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <div class="strip">
         <div class="us"><i>1</i><b>Revisar</b>Gratis, enseñar cada foto</div>
         <div><i>2</i><b>Reclama</b>Su reclamo, su decisión</div>
-        <div><i>3</i><b>Ajustador</b>La aseguradora llama al dueño</div>
-        <div class="us"><i>4</i><b>La cita</b>Con el ajustador: señalar el agua del viento, fotos</div>
-        <div><i>5</i><b>Alcance</b>Lista escrita de la aseguradora</div>
-        <div class="us"><i>6</i><b>Contrato</b>+ aviso de cancelación de 3 días, EN y ES</div>
+        <div><i>3</i><b>Ajustador</b>Llama al dueño</div>
+        <div class="us"><i>4</i><b>La cita</b>Señalar el agua del viento</div>
+        <div><i>5</i><b>Alcance</b>Lista de la aseguradora</div>
+        <div class="us"><i>6</i><b>Contrato</b>+ aviso de 3 días, EN y ES</div>
         <div class="us"><i>7</i><b>Obra</b>Pedir material e instalar</div>
-        <div class="us"><i>8</i><b>Prueba</b>Fotos de la obra terminada</div>
+        <div class="us"><i>8</i><b>Prueba</b>Fotos de obra terminada</div>
       </div>
     </section>
 
     <div class="cols">
       <section>
-        <div class="h"><span class="n">6</span><span class="t">En la puerta</span><span class="note">Nombre, HMP y qué vendemos, primero · NE 69-1602</span></div>
+        <div class="h"><span class="n">6</span><span class="t">En la puerta</span><span class="note">Diga esto primero · NE 69-1602</span></div>
         <div class="open">“Hola, soy <b>Alex Mendez</b> de <b>HMP Siding &amp; Roofing</b>. Hacemos <b>techos y siding</b>. Somos una empresa registrada de Fremont.”</div>
         <div class="q"><div class="l">Viento</div>“El viento del ________ le pegó a esta calle. El viento daña un solo lado del techo, así que reviso ese lado primero. Gratis, 20 minutos, y le enseño todas las fotos.”</div>
         <div class="q"><div class="l">Árbol</div>“Vi que se cayó el árbol. ¿Están todos bien? ¿Quiere que le tome fotos antes de que muevan algo? Las fotos son suyas.”</div>
@@ -361,7 +361,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
           <li><b>Nunca negocie el reclamo.</b> Mostramos el daño; el dueño y el ajustador lo arreglan.</li>
           <li><b>No hable del deducible.</b> Siempre lo paga el dueño. (NE 44-8604)</li>
           <li><b>Diga “registrado”</b> (Nebraska registra a los contratistas).</li>
-          <li><b>Si firman algo:</b> contrato por escrito + el aviso de cancelación de 3 días, en inglés <u>y</u> español. (NE 69-1601)</li>
+          <li><b>Si firman algo:</b> contrato escrito + aviso de cancelación de 3 días, en inglés <u>y</u> español. (NE 69-1601)</li>
         </ul>
       </section>
     </div>
