@@ -36,6 +36,12 @@ software); HMP is its first user.
 - Contract lawyer review: deferred. The draft (with the 3-day cancel notice + deductible notice) is the one to use, whole, never a
   handshake; the lawyer's OK comes later.
 
+## Answered 2026-09-26 (don't re-ask)
+- App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
+- Twilio phone-call storm alerts (D6): **No for now**; push + email alerts stay.
+- Capabilities sheet keeps "Labor sub: you supply the materials, we install".
+- PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
+
 ## App look (FilthE, 2026-09-26)
 The HMP App uses **"HMP Pro Dark"**: charcoal + silver/white text, orange (#f5883a) only for accents/primary actions, no pixel
 art or neon. Fonts match the print pieces: **Barlow Semi Condensed** (headings, numbers, buttons) + **Montserrat** (body). The
