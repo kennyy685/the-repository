@@ -7,7 +7,7 @@
   --bg:#eef1f4; --surface:#ffffff; --surface-2:#e4e9ee; --ink:#18212b; --muted:#4f5a66; --line:#cdd4dc;
   --accent:#93542a; --accent-ink:#ffffff; --accent-soft:#f3e6dc; --accent-strong:#7a4421;
   --good:#23703f; --good-soft:#e1f1e6; --bad:#b42318; --bad-soft:#fdecea; --bad-line:#eeb4ad;
-  --warn:#9a6400; --focus:#2b6cb0; --frame:#4f5a66;
+  --warn:#9a6400; --warn-soft:#fbf0d9; --warn-line:#e3c47c; --focus:#2b6cb0; --frame:#4f5a66;
   --shadow:0 1px 2px rgba(24,33,43,.10),0 6px 16px rgba(24,33,43,.08);
   --r:14px;
   --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
@@ -19,7 +19,7 @@
     --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
     --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
     --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
-    --warn:#e0a83c; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
+    --warn:#e0a83c; --warn-soft:#33270f; --warn-line:#6b5220; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
   }
 }
 :root[data-theme="dark"]{
@@ -27,7 +27,7 @@
   --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
   --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
   --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
-  --warn:#e0a83c; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
+  --warn:#e0a83c; --warn-soft:#33270f; --warn-line:#6b5220; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -124,6 +124,7 @@ h1,h2{text-wrap:balance}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 .flag{display:inline-flex;align-items:center;gap:6px;font:700 13.5px/1.25 var(--body);color:var(--bad);background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:8px;padding:5px 9px;text-align:left}
 .flag svg{flex:none}
+.flag.caution{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
 .err{display:grid;gap:10px;justify-items:start;padding:14px;border-radius:var(--r);background:var(--surface);border:2px solid var(--warn)}
 .err p{margin:0;font-weight:600}
 .door-end{display:grid;gap:12px;justify-items:center;text-align:center;padding:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
@@ -156,6 +157,8 @@ h1,h2{text-wrap:balance}
 .flag-rule{font-weight:700;color:var(--bad)}
 .flag-item q{font-style:italic}
 .flag-fix{font-size:15.5px}
+.legal-warn{background:var(--warn-soft);border:2px solid var(--warn-line);border-radius:var(--r);padding:14px;display:grid;gap:12px}
+.legal-warn .legal-title,.legal-warn .flag-rule{color:var(--warn)}
 .checks{list-style:none;margin:0;padding:0;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
 .checks li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
 .checks li:first-child{border-top:0}
@@ -191,6 +194,14 @@ li.bad .ck-l{color:var(--bad)}
 .never div{display:grid;gap:2px}
 .never b{color:var(--bad)}
 .never span{font-size:15px}
+.cmp-wrap{overflow-x:auto;margin-top:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px}
+.cmp{width:100%;border-collapse:collapse;font-size:15px;line-height:1.3}
+.cmp th,.cmp td{padding:8px 10px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+.cmp thead th{border-top:0;font:700 17px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase}
+.cmp tbody th{font-weight:600;color:var(--muted);width:32%}
+.cmp td{font-variant-numeric:tabular-nums}
+.cmp-note{margin:8px 0 0;font-size:14.5px;color:var(--muted)}
+.cmp-note b{color:var(--ink)}
 .off-card{background:var(--surface);border:2px solid var(--warn);border-radius:var(--r);padding:14px 16px}
 .off-card h2{font:700 24px/1.05 var(--display);text-transform:uppercase;margin:0 0 6px}
 .off-card p{margin:0}
@@ -220,8 +231,8 @@ li.bad .ck-l{color:var(--bad)}
         <div class="eyebrow" id="stTitle" data-t="street"></div>
         <div class="addr" id="stAddr"></div>
         <dl class="stats">
-          <div class="hail"><dt data-t="hailL"></dt><dd id="stHail"></dd></div>
-          <div><dt data-t="stormL"></dt><dd id="stDate"></dd></div>
+          <div class="hail"><dt id="stHailL" data-t="hailL"></dt><dd id="stHail"></dd></div>
+          <div><dt id="stDateL" data-t="stormL"></dt><dd id="stDate"></dd></div>
           <div><dt data-t="builtL"></dt><dd id="stBuilt"></dd></div>
         </dl>
         <p class="ago" id="stAgo"></p>
@@ -278,8 +289,9 @@ li.bad .ck-l{color:var(--bad)}
       </div>
       <div class="loading" id="scoreLoading" role="status"><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span id="scoreLoadingText"></span></div>
       <div class="err" id="scoreErr" hidden><p id="scoreErrText"></p><button class="btn-small" id="scoreRetry" type="button" data-t="retry"></button></div>
-      <div id="scoreTop" class="score-top" hidden><div class="big"><span id="scoreNum">0</span><small>/5</small></div><span class="pill" id="outcomePill"></span></div>
+      <div id="scoreTop" class="score-top" hidden><div class="big"><span id="scoreNum">0</span><small>/<span id="scoreMax">5</span></small></div><span class="pill" id="outcomePill"></span></div>
       <div class="legal-bad" id="legalBox" hidden></div>
+      <div class="legal-warn" id="cautionBox" hidden></div>
       <div id="scoreBody" class="screen" hidden>
         <ul class="checks" id="checks"></ul>
         <div class="best" id="bestWrap" hidden><div class="eyebrow" data-t="bestLine"></div><blockquote id="bestLine"></blockquote></div>
@@ -420,9 +432,33 @@ const T = {
   grp_storm: ['Storm damage', 'Daño por tormenta'],
   grp_cash: ['Old house, cash job', 'Casa vieja, pago directo'],
   grp_es: ['Spanish speakers', 'Hablan español'],
+  /* Added 2026-09-26 (v3): cash-visit next date, energy + neighbor flags, Vinyl vs Hardie card. */
+  c_nextdate: ['Set a specific next date', 'Puso una fecha exacta para volver'],
+  dateAuto: ['Checked from your words: you named a day or time.', 'Revisado en tus palabras: dijiste un día o una hora.'],
+  dateMiss: ['No specific day. Say "Saturday at 10?", not "I\'ll call you."', 'Sin día exacto. Di "¿El sábado a las 10?", no "Luego le llamo."'],
+  jobL: ['Job', 'Trabajo'], jobCash: ['Cash', 'Pago directo'], sidingL: ['Siding', 'Siding'], sidingWorn: ['Worn', 'Gastado'],
+  cautionTitle: ["Only if it's true", 'Solo si es cierto'],
+  r_energy: ['Never promise energy savings or lower bills', 'Nunca prometas ahorro de energía ni recibos más bajos'],
+  f_energy: ['“Only insulated vinyl adds some R-value. What it saves depends on your home, so I won\'t give you a number.”', '“Solo el vinyl con aislante agrega algo de R. Lo que ahorre depende de su casa, así que no le doy un número.”'],
+  n_energy: ['Guarantee lower bills or a % saved on heating', 'Garantizar recibos más bajos o un % de ahorro en calefacción'],
+  r_neighbor: ["Only say this when it's true", 'Solo dilo cuando sea cierto'],
+  f_neighbor: ['“We work all over Fremont. I can show you photos of jobs we\'ve done.”', '“Trabajamos en todo Fremont. Le puedo enseñar fotos de trabajos que hemos hecho.”'],
+  n_neighbor: ['Say "we\'re doing your neighbor\'s house" when you aren\'t', 'Decir "estamos haciendo la casa de su vecino" cuando no es cierto'],
+  cmpT: ['Vinyl vs Hardie (honest numbers)', 'Vinyl vs Hardie (números honestos)'],
+  cmpRows: [
+    [['', 'Vinyl', 'Hardie'], ['', 'Vinyl', 'Hardie']],
+    [['Installed cost', '$2–5 / sq ft', '$4.70–8.50 / sq ft'], ['Costo instalado', '$2–5 / pie²', '$4.70–8.50 / pie²']],
+    [['Lasts', '20–40 years', '30–50+ years'], ['Dura', '20–40 años', '30–50+ años']],
+    [['Back at resale', 'About 80%', 'About 88%'], ['Se recupera al vender', 'Como 80%', 'Como 88%']],
+    [['Energy', 'Insulated vinyl only: about R‑2 to R‑4', 'No added R‑value'], ['Energía', 'Solo vinyl con aislante: como R‑2 a R‑4', 'No agrega R']]
+  ],
+  cmpNote: ['<b>“Too expensive”:</b> ask what number they had in mind, then show this. Don\'t just cut the price. Market ranges and national averages, not HMP\'s price and not a promise. Hardie also has a Class A fire rating. On energy say “up to, depends on your home”, never a savings number. <b>Before you leave:</b> set a day and time to come back.',
+    '<b>“Está muy caro”:</b> pregunta qué cantidad tenía en mente y luego enseña esto. No bajes el precio nada más. Son rangos del mercado y promedios nacionales, no el precio de HMP ni una promesa. El Hardie además tiene clasificación Clase A contra fuego. De energía di “hasta, depende de su casa”, nunca un número de ahorro. <b>Antes de irte:</b> pon día y hora para volver.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
-const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee']);
+const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor']);
+/* Caution flags: fine when literally true, so they never fail "Stayed legal" on their own. */
+const CAUTION = new Set(['neighbor']);
 
 /* ---------- Homeowners ---------- */
 const P = {
@@ -516,14 +552,33 @@ const P = {
     brief: "A young mom in your late 20s, originally from Guatemala. Your family bought this, your first house, a year ago. You prefer Spanish. A neighbor lost a $2,000 deposit to a fake roofer. Main objection: \"¿Esto es legal? He oído de estafas.\" (in English: \"Is this legal? I've heard about scams.\") Test Kenny once: ask \"¿Y es cierto que no me va a costar nada?\" (\"Is it true it won't cost me anything?\") You warm up if Kenny shows who he is (local, registered, insured, a card and phone number), asks for no money, and says the look is free, the insurance company decides what's covered and the deductible is always your part. If he says the roof won't cost you anything, get suspicious: that is what the scammer said.",
     langEn: 'Your English is basic. Answer in short, simple English with a few Spanish words mixed in. If Kenny speaks Spanish to you, switch to Spanish right away and warm up a lot.'
   },
+  /* Added 2026-09-26 (v3): price-shopping owner of a 1960s house with faded vinyl, no storm damage (research round 5). */
+  shopper: {
+    label: ['Price shopper', 'Compara precios'], tag: ['1960s house, faded vinyl', 'Casa de los 60, vinyl viejo'], name: ['Norm', 'Don Norberto'],
+    kind: 'cash', built: [1960, 1969], traps: ['energy', 'neighbor'],
+    house: 'The vinyl siding went on around 1995: it is faded, chalky and a little wavy, with a couple of cracked panels by the driveway. There is no storm damage and no insurance claim. The roof is fine.',
+    obj: 'price-shopping for new siding on an old house, pays cash: "That\'s too expensive", "We\'re getting other bids", "Maybe next year"; asks if new siding will cut the heating bill and by how much, and whether HMP is doing other houses on the street',
+    good: 'for "too expensive" asks what number they had in mind and shows the vinyl vs Hardie comparison instead of just cutting the price; for "other bids" says "Good, you should" and offers to go over the bids line by line; for "maybe next year" locks a specific day and time to come back; says energy savings depend on the home and gives no savings number; only mentions a neighbor\'s job if it is real',
+    brief: "A retired homeowner in your early 70s. You have lived in this 1960s ranch house for 35 years. The vinyl siding went on around 1995 and is faded, chalky and a little wavy; there is no storm damage and no insurance claim, so you would pay yourself. You are price-shopping: you already have one quote and plan to get more. Bring up your objections one at a time: \"That's too expensive\", then \"We're getting other bids\", and if he keeps going, \"Maybe next year.\" Test Kenny once each: ask \"Would new siding cut my heating bill? By how much?\" and \"Are you doing any other houses on this street?\" You warm up if Kenny asks what number you had in mind and honestly compares vinyl and Hardie instead of dropping his price, says it's good to get other bids and offers to go over them line by line, and asks for a specific day to come back instead of \"I'll call you.\" A flat savings number, or a price that drops the moment you frown, makes you trust him less. Say yes to a free estimate or to a set day and time for him to come back."
+  },
+  shopperEs: {
+    label: ['Don Aurelio', 'Don Aurelio'], tag: ['Old house, compares prices', 'Casa vieja, compara precios'], name: ['Don Aurelio', 'Don Aurelio'],
+    kind: 'cash', grp: 'es', built: [1960, 1969], traps: ['energy', 'neighbor'],
+    house: 'The vinyl siding went on around 1995: it is faded, chalky and a little wavy, with a couple of cracked panels by the driveway. There is no storm damage and no insurance claim. The roof is fine.',
+    obj: 'Spanish-speaking retiree price-shopping for new siding on a 1960s house, pays cash: "Está muy caro", "Estamos pidiendo otras cotizaciones", "Mejor el año que entra"; asks if new siding will lower the heating bill and by how much, and whether HMP is working on other houses on the street',
+    good: 'speaks Spanish with respect (usted); for "muy caro" asks what number he had in mind and shows the vinyl vs Hardie comparison instead of just cutting the price; for "otras cotizaciones" says that is good and offers to go over the bids line by line; for "el año que entra" locks a specific day and time to come back; says energy savings depend on the home and gives no savings number; only mentions a neighbor\'s job if it is real',
+    brief: "A retired man in your early 70s, originally from Jalisco, retired from the packing plant. You and your wife bought this 1960s house in 1998. The vinyl siding went on around 1995 and is faded, chalky and a little wavy; there is no storm damage and no insurance claim, so you would pay yourself. You are careful with money and compare prices: your nephew got you one quote already. Bring up your objections one at a time: \"Está muy caro\", then \"Estamos pidiendo otras cotizaciones\", and if he keeps going, \"Mejor el año que entra.\" Test Kenny once each: ask \"¿Me va a bajar el recibo de la calefacción? ¿Cuánto?\" and \"¿Están trabajando en otras casas de esta calle?\" You warm up if Kenny is respectful, asks what number you had in mind and honestly compares vinyl and Hardie instead of dropping his price, says it's good to compare bids and offers to go over them line by line, and asks for a specific day to come back. A flat savings number, or a price that drops the moment you frown, makes you trust him less. Say yes to a free estimate or to a set day and time for him to come back.",
+    langEn: 'Your English is basic. Answer in short, simple English with a few Spanish words mixed in. If Kenny speaks Spanish to you, switch to Spanish right away and warm up a lot.'
+  },
   random: { label: ['Random', 'Al azar'], tag: ['Surprise me', 'Sorpréndeme'] }
 };
 P.dad.grp = 'es';
-const ORDER = ['mom', 'retiree', 'already', 'dropme', 'renter', 'gotcheck', 'adjno', 'manager', 'bargain', 'selling', 'fixed', 'dad', 'consuelo', 'recien', 'random'];
+const ORDER = ['mom', 'retiree', 'already', 'dropme', 'renter', 'gotcheck', 'adjno', 'manager', 'bargain', 'selling', 'fixed', 'shopper', 'dad', 'consuelo', 'recien', 'shopperEs', 'random'];
 const REAL = ORDER.filter(k => k !== 'random');
 const kindOf = k => (P[k] && P[k].kind) || 'storm';
 const grpOf = k => (P[k] && (P[k].grp || P[k].kind)) || 'storm';
 
+const CASH_OBJ = ['shopper', 'shopperEs', 'bargain', 'selling', 'fixed'];
 const OBJ = [
   [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.']],
   [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
@@ -539,7 +594,12 @@ const OBJ = [
   [['“The owner won’t pay unless insurance does. I can’t sign.”', '“El dueño no paga si el seguro no paga. Yo no puedo firmar.”'], ["That's fine, the owner signs. Can I get their name and number? I'll send them free photos.", 'Está bien, el que firma es el dueño. ¿Me da su nombre y número? Le mando fotos gratis.'], 'manager'],
   [['“Do it for less and I keep the difference.”', '“Hágalo por menos y me quedo con la diferencia.”'], ["We bill what we actually do, and the invoice matches the work. Let me look at your roof and the adjuster's paperwork for free.", 'Cobramos lo que de verdad hacemos y la factura es el trabajo real. Déjeme revisar gratis su techo y los papeles del ajustador.'], 'gotcheck'],
   [['“The adjuster said no damage.”', '“El ajustador dijo que no hay daño.”'], ["I can't promise a check or argue with them. I can take free photos. If there's damage, you can ask for a re-inspection and I'll be there.", 'No le puedo prometer un cheque ni pelear con ellos. Le tomo fotos gratis. Si hay daño, usted pide otra inspección y yo voy a estar ahí.'], 'adjno'],
+  /* Added 2026-09-26 (v3): cash siding on older houses (research round 5). Third item may be a list of homeowners. */
+  [['“That’s too expensive.”', '“Está muy caro.”'], ["Fair question. What number did you have in mind? Let me show you vinyl next to Hardie: what each costs, how long it lasts. Then you pick what fits.", 'Es buena pregunta. ¿Qué cantidad tenía en mente? Déjeme enseñarle el vinyl junto al Hardie: cuánto cuesta cada uno y cuánto dura. Luego usted escoge lo que le conviene.'], CASH_OBJ],
+  [['“We’re getting other bids.”', '“Estamos pidiendo otras cotizaciones.”'], ["Good, you should. I'm happy to go over the bids with you line by line, so you're comparing the same work.", 'Qué bueno, así debe ser. Con gusto reviso las cotizaciones con usted punto por punto, para que compare el mismo trabajo.'], CASH_OBJ],
+  [['“Maybe next year.”', '“Mejor el año que entra.”'], ["No problem. Let's put a date on it so it doesn't slip. A Saturday in early spring, say March 7 at 10 AM? Or what day works better?", 'Está bien. Pongamos una fecha para que no se le pase. Un sábado a principios de primavera, ¿el 7 de marzo a las 10 de la mañana? ¿O qué día le queda mejor?'], CASH_OBJ],
 ];
+const objFor = o => [].concat(o[2] || []);
 
 const STREETS = ['N Clarkson St', 'E Military Ave', 'N Nye Ave', 'E 23rd St', 'N Broad St', 'E Dodge St', 'N Somers Ave', 'E 9th St'];
 
@@ -599,8 +659,12 @@ function newScenario() {
 /* Some homeowners need an older storm (check already paid, adjuster already came). */
 function fitScenario(k) {
   const want = (P[k] && P[k].days) || [2, 9], sc = S.sc;
-  if (!sc || (sc.days >= want[0] && sc.days <= want[1])) return;
-  sc.days = want[0] + Math.floor(Math.random() * (want[1] - want[0] + 1));
+  if (!sc) return;
+  const inR = (v, r) => v >= r[0] && v <= r[1], rnd = r => r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1));
+  /* Some homeowners need a certain house age (v3: the 1960s price shoppers). */
+  if (P[k] && P[k].built && !inR(sc.built, P[k].built)) sc.built = rnd(P[k].built);
+  if (inR(sc.days, want)) return;
+  sc.days = rnd(want);
   const d = new Date(); d.setDate(d.getDate() - sc.days); sc.date = d;
 }
 const fmt = (d, lang, o) => new Intl.DateTimeFormat(lang === 'es' ? 'es-US' : 'en-US', o).format(d);
@@ -651,10 +715,19 @@ const RX = [
   ['fraud', /\bfactura\s+(?:falsa|inflada|más alta|más baja|por más|por el total del seguro|por lo que pagó el seguro)|\b(?:le )?(?:ponemos|pongo|escribimos|hacemos) (?:la )?factura (?:por|con) (?:más|el total|lo que pagó el seguro|todo lo del seguro)|\bcobrarle (?:de más|más) al seguro|\bal seguro le decimos que/i],
   ['guarantee', /\b(?:guarantee|promise)\b[^.!?]{0,40}\b(?:resale|sell (?:it |the house )?for more|worth more|(?:value|price) (?:will )?go(?:es)? up|more (?:money )?when you sell|approved|financing|the loan|interest|rate|monthly payments?|payments? of)|\b(?:you'?ll|you will|it'?ll|it will|that'?ll|that will|will|is going to|gonna)\s+(?:definitely |for sure |easily )?(?:add|raise|increase|boost|bump)\b[^.!?]{0,30}\b(?:value|price|resale)|\b(?:you'?ll|you will)\s+(?:definitely |for sure )?(?:get|be) approved|\b(?:you'?ll|you will) (?:definitely |for sure )?get \$?[\d,]+k? more\b|\b(?:0|zero)\s?%\s+(?:interest|financing|apr)\b/i],
   ['guarantee', /\b(?:le )?(?:garantizo|garantizamos|prometo|le prometo|le aseguro)\b[^.!?]{0,40}(?:vale más|valga más|valer más|valor|venderla|vender (?:la casa )?(?:en|por) más|más (?:dinero )?(?:cuando|al) vend|aprob|préstamo|financ|interés|pagos? (?:mensuales|de))|\b(?:va a|le va a) (?:subir|aumentar) (?:el )?(?:valor|precio) de (?:su|la) casa|\b(?:0|cero)\s?% de interés\b|\bsin intereses\b/i],
+  /* Added 2026-09-26 (v3). energy = guaranteed savings (hedge: skip "will save" lines that say up to / depends / may);
+     neighbor = "we're doing your neighbor's house" (a caution: fine only when literally true; noAsk skips questions). */
+  ['energy', /\b(?:guarantee[ds]?|promise)\b[^.!?]{0,40}\b(?:lower|smaller|cheaper|cut|reduce[sd]?|drop|save|saving|savings)\b[^.!?]{0,25}\b(?:bills?|energy|heating|cooling|utilit(?:y|ies)|electric|gas|furnace)|\b(?:guarantee[ds]?|promise)\b[^.!?]{0,40}\b(?:bills?|heating|cooling|energy costs?)\b[^.!?]{0,15}\b(?:go(?:es)? down|drop|lower|less)\b|\bguaranteed (?:energy |heating |utility )?savings\b|\b(?:guarantee[ds]?|promise)\b[^.!?]{0,40}\bsav(?:e|ing|ings)\b[^.!?]{0,12}(?:\$\s?\d|\d)/i],
+  ['energy', /\b(?:you'?ll|you will|it'?ll|it will|that'?ll|that will|this will|will|gonna|is going to|are going to)\s+(?:definitely |for sure |easily |really |totally )?(?:save|cut|lower|reduce|drop|slash|shrink)\b[^.!?]{0,30}(?:\d+\s?%|\bpercent|\bheating|\bcooling|\benergy|\belectric|\bgas\b|\butilit|\bbills?\b)|\b(?:heating |energy |gas |electric |utility )?bills?\s*(?:will|'ll|are going to|is going to|are gonna)\s+(?:definitely |for sure )?(?:go down|drop|be (?:lower|smaller|cut)|shrink)|\bsaves?\s+(?:you\s+)?(?:\$[\d,]+|\d+\s?%|\d+ percent)[^.!?]{0,20}(?:heating|cooling|energy|bills?|utilit|a year|a month|per)/i, 'hedge'],
+  ['energy', /\b(?:le )?(?:garantizo|garantizamos|prometo|le prometo|le aseguro)\b[^.!?]{0,40}(?:ahorr|menos (?:de |en )?(?:luz|gas|calefacci|energ)|recibos?|biles|cuentas? de (?:luz|gas))/i],
+  ['energy', /\b(?:va a|van a|le va a|le van a|vas a)\s+(?:ahorrar|bajar|pagar menos)\b[^.!?]{0,30}(?:\d+\s?%|por ciento|calefacci[oó]n|\bluz\b|\bgas\b|energ[ií]a|recibos?|biles|cuentas?)|\b(?:recibos|biles|cuentas)\b[^.!?]{0,25}\b(?:van a|le van a) bajar|\bahorra(?:r|rá|ría)?\s+(?:un |el )?\d+\s?(?:%|por ciento)/i, 'hedge'],
+  ['neighbor', /\bwe(?:'re| are)\s+(?:(?:just|also|currently|already|actually)\s+)?(?:doing|working on|redoing|re-?siding|finishing|about to (?:do|start)|starting(?: on)?)\s+(?:(?:your|the|a)\s+)?(?:neighbou?r|next[- ]door|house next door|(?:a )?(?:couple|few|two|three|some|other) (?:other )?(?:houses|homes|jobs)\s+(?:on|down|up|in) (?:this|the|your) (?:street|block|road|neighbou?rhood))|\bwe\s+(?:just\s+|already\s+)?(?:did|finished|redid|re-?sided|sided|roofed|worked on)\s+(?:your|the)\s+neighbou?r|\byour neighbou?rs?\s+(?:just\s+|already\s+)?(?:signed|hired us|went with us|(?:is|are) (?:getting|using) us)/i, 'noAsk'],
+  ['neighbor', /\b(?:estamos|vamos a)\s+(?:haciendo|hacer|trabajando en|arreglando|empezando|empezar)\s+(?:la casa de |el techo de |el siding de )?(?:su|el|la)\s+vecin[oa]|\b(?:estamos|vamos a)\s+(?:haciendo|hacer|trabajando en)\s+(?:otras |unas |varias )?(?:casas|trabajos)\s+(?:en|de)\s+(?:esta|su)\s+(?:calle|cuadra)|\b(?:hicimos|terminamos|arreglamos)\s+(?:la casa de |el techo de |el siding de )?(?:su|el|la)\s+vecin[oa]|\bsus? vecin[oa]s?\s+(?:ya\s+)?(?:firm[oó]|firmaron|nos contrat[oó]|nos contrataron)/i, 'noAsk'],
 ];
-const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|shouldn'?t|should not|no puedo|no podemos|no puede|no pueden|no debe|nunca|no se puede|no es legal|prohibido|por ley no)\b/i;
+const NEG_ANY = /\b(?:can'?t|cannot|can not|never|not allowed|illegal|against the law|shouldn'?t|should not|no puedo|no le puedo|no les puedo|no podemos|no le podemos|no puede|no pueden|no debe|nunca|no se puede|no es legal|prohibido|por ley no)\b/i;
 const SOFT = /\b(?:nothing to sign|(?:hoy )?no se firma nada|no firmamos nada|no (?:need|rush|pressure|hurry)|(?:don'?t|do not|doesn'?t|does not) (?:have|need) to|won'?t ask|not asking|no (?:hay|tiene|necesita) (?:prisa|que)|sin (?:prisa|presión|presion)|no le voy a pedir)\b|\b(?:3|three|tres)[- ](?:business |días |dias )?(?:days?|días|dias|hábiles)/i;
 const CHECK = /\b(?:make sure|check (?:if|whether)|ask (?:them )?(?:if|whether)|asegúrese|asegurese|pregúnte(?:les?)? si|pregunte(?:les?)? si)\b/i;
+const HEDGE = /\b(?:up to|depends?|depending|may|might|could|possibly|varies|hasta|depende|puede|podría|podria)\b/i;
 const NEG_NEAR = /(?:\b(?:don'?t|do not|doesn'?t|does not|won'?t|will not|not)\s+(?:[\w']+\s+){0,2}|\b(?:no|si|if)\s+)$/i;
 function legalScan(text) {
   const out = [];
@@ -670,12 +743,16 @@ function legalScan(text) {
       if (mode === 'soft' && SOFT.test(s)) continue;
       if (mode === 'noEs' && /espa[nñ]ol|spanish|traduc|translat/i.test(s)) continue;
       if (mode === 'noCheck' && CHECK.test(s)) continue;
+      if (mode === 'hedge' && HEDGE.test(s)) continue;
       out.push({ type, quote: s });
       break;
     }
   }
   return out;
 }
+/* The date must come with a come-back / meeting word, so "It's already Tuesday" doesn't count (QA 2026-09-26). */
+const BACK_RX = /\b(?:come back|stop back|stop by|swing by|be back|see you|meet|visit|appointment|schedule|set (?:a|the) (?:day|date|time)|works? (?:for you|better)|regres|vuelv|volver|paso|pasar|nos vemos|cita|visita|le queda)/i;
+const DATE_RX = /\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|tonight at|next week|january|february|march|april|june|july|august|september|october|november|december|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|la otra semana|la semana que (?:viene|entra)|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\b|\b\d{1,2}(?::\d{2})?\s?(?:am|pm|a\.m\.|p\.m\.)|\ba las \d/i;
 const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content));
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, '').replace(/\s+/g, ' ').trim();
 
@@ -688,7 +765,7 @@ function rulesText() {
   else langRule = 'Speak English, the plain way people talk in small-town Nebraska.';
   const cash = kindOf(S.actual) === 'cash';
   const scene = cash
-    ? `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in ${p.place || 'a house'} built in ${sc.built}. The siding is faded, a few boards are cracked or loose, and the roof is getting old. There is no insurance claim: any work would be paid by you. Kenny is offering a free estimate.`
+    ? `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in ${p.place || 'a house'} built in ${sc.built}. ${p.house || 'The siding is faded, a few boards are cracked or loose, and the roof is getting old. There is no insurance claim: any work would be paid by you.'} Kenny is offering a free estimate.`
     : `SCENE: You live at ${addrTxt(sc)}, Fremont, Nebraska, in ${p.place || 'a house'} built in ${sc.built}. A hailstorm with about ${sc.hail}-inch hail hit this neighborhood on ${fmt(sc.date, 'en', { weekday: 'long', month: 'long', day: 'numeric' })} (${sc.days} days ago).` + (p.days ? '' : ' You have not checked your roof.');
   return [
     'You are role-playing a homeowner in a door-knocking practice app. The trainee is Kenny, 19, who offers free roof inspections for HMP Siding & Roofing, a registered and insured contractor from Fremont, Nebraska. He is practicing before he knocks real doors. Every user message after this one is Kenny talking to you at your front door. Reply only with what your character says out loud.',
@@ -728,25 +805,26 @@ function coachPrompt() {
     `Write every note, best_line comment and tip in ${outLang}. Keep quotes of Kenny's words exactly as he said them.`,
     '',
     (cash
-      ? `SCENARIO: ${addrTxt(sc)}, Fremont, a house built in ${sc.built} with worn siding and an old roof. Everyday cash job, no insurance claim; the goal is a free estimate.`
+      ? `SCENARIO: ${addrTxt(sc)}, Fremont, a house built in ${sc.built}. ${p.house || 'Worn siding and an old roof.'} Everyday cash job, no insurance claim; the goal is a free estimate and a specific next date.`
       : `SCENARIO: ${addrTxt(sc)}, Fremont. Hail about ${sc.hail} in on ${fmt(sc.date, 'en', { weekday: 'long', month: 'long', day: 'numeric' })} (${sc.days} days ago).`) + ` Practice language: ${S.sessionLang === 'es' ? 'Spanish' : 'English'}.`,
     `HOMEOWNER: ${p.label[0]}. Main objection: ${p.obj}.` + (p.good ? ` A good answer: ${p.good}.` : '') + (p.traps ? ` Legal traps this homeowner sets: ${p.traps.join(', ')}.` : ''),
     '',
     'TRANSCRIPT:',
     tr,
     '',
-    'Check these 5 things:',
+    `Check these ${cash ? 6 : 5} things:`,
     '1. intro: he said his name, HMP (Siding & Roofing), and that they are local / from Fremont. All three needed.',
     cash ? '2. storm (for this cash job: the house): he named the street / neighborhood or something true about this house (its age, the worn siding or roof).'
       : '2. storm: he named the storm date (a loose "last Friday\'s hail" counts) or the street / neighborhood.',
     cash ? '3. inspection: he asked for a free estimate or quick look, not a same-day sale or signature.'
       : '3. inspection: he asked for a free inspection or quick look, not a sale, price or signature.',
-    '4. objection: he handled the main objection calmly: acknowledged it, answered short and honest, no pressure or arguing. If the objection never came up, judge how calm he stayed.',
-    '5. legal: he stayed legal the whole time. FAIL if he did ANY of these: offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"). Saying the inspection or estimate is free is fine. Meeting the adjuster and showing the damage is fine. Telling them to ask their insurer for a re-inspection is fine. Honest facts about HMP are fine.',
+    '4. objection: he handled the main objection calmly: acknowledged it, answered short and honest, no pressure or arguing. If the objection never came up, judge how calm he stayed.' + (cash ? ' On price, a good move is asking what number they had in mind and comparing options (like vinyl vs Hardie); just cutting the price is weak.' : ''),
+    '5. legal: he stayed legal the whole time. FAIL if he did ANY of these: offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine). SPECIAL CASE: if he said HMP is doing, did or will do a neighbor\'s house, add a legal_flag with type "neighbor" but do NOT fail the legal check for that alone: it is fine when true, and the app reminds him to only say it when it is true. Saying the inspection or estimate is free is fine. Meeting the adjuster and showing the damage is fine. Telling them to ask their insurer for a re-inspection is fine. Honest facts about HMP are fine.',
+    ...(cash ? ['6. nextdate (cash visits only): before the talk ended he locked a specific next date: a day and/or time to come back, bring the written estimate or call ("Saturday at 10", "Tuesday evening", "the first week of March"). "I\'ll call you", "sometime" or "whenever you\'re ready" FAIL. If he never asked for a next step, FAIL.'] : []),
     '',
     'Reply with only this JSON, no other text:',
-    '{"checks":[{"id":"intro","pass":true,"note":"..."},{"id":"storm","pass":false,"note":"..."},{"id":"inspection","pass":true,"note":"..."},{"id":"objection","pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"]}',
-    'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":one of ' + TYPES.map(x => '"' + x + '"').join(', ') + '}, and set the legal check to false.',
+    '{"checks":[{"id":"intro","pass":true,"note":"..."},{"id":"storm","pass":false,"note":"..."},{"id":"inspection","pass":true,"note":"..."},{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + '{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"]}',
+    'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":one of ' + TYPES.map(x => '"' + x + '"').join(', ') + '}, and set the legal check to false (except a "neighbor" flag alone, see above).',
     'outcome is "yes" (homeowner agreed to a look, an estimate or a time, or gave the landlord or owner contact), "maybe" or "no". next has exactly 2 concrete things to try next time, each a line to say or a move to make.'
   ].join('\n');
 }
@@ -788,8 +866,11 @@ function renderSetup() {
   fitScenario(S.persona);
   const sc = S.sc;
   $('stAddr').textContent = addrTxt(sc);
-  $('stHail').textContent = hailTxt(sc.hail);
-  $('stDate').textContent = dateShort(sc.date);
+  const cashNow = kindOf(S.persona) === 'cash';
+  $('stHailL').textContent = t(cashNow ? 'jobL' : 'hailL');
+  $('stHail').textContent = cashNow ? t('jobCash') : hailTxt(sc.hail);
+  $('stDateL').textContent = t(cashNow ? 'sidingL' : 'stormL');
+  $('stDate').textContent = cashNow ? t('sidingWorn') : dateShort(sc.date);
   $('stBuilt').textContent = String(sc.built);
   $('stAgo').textContent = kindOf(S.persona) === 'cash' ? t('agoCash') : t('ago', sc.days);
   const st = S.store;
@@ -834,7 +915,7 @@ function renderCheat(box, all) {
   op.append(p);
   const ob = el('section'); ob.append(el('div', 'eyebrow', t('ifTheySay')));
   const list = el('div', 'objs');
-  const objs = all ? OBJ : OBJ.filter(o => o[2] === who).concat(OBJ.filter(o => !o[2]));
+  const objs = all ? OBJ : OBJ.filter(o => objFor(o).includes(who)).concat(OBJ.filter(o => !o[2]));
   for (const [q, a] of objs) { const d = el('div', 'obj'); d.append(el('div', 'obj-q', q[Li()]), el('div', 'obj-a', a[Li()])); list.append(d); }
   ob.append(list);
   const nv = el('section'); nv.append(el('div', 'eyebrow', t('never')));
@@ -846,7 +927,21 @@ function renderCheat(box, all) {
     nb.append(d);
   }
   nv.append(nb);
-  box.append(op, ob, nv);
+  box.append(op, ob);
+  if (all || (who && kindOf(who) === 'cash')) {
+    const cm = el('section'); cm.append(el('div', 'eyebrow', t('cmpT')));
+    const wrap = el('div', 'cmp-wrap'), tb = el('table', 'cmp');
+    const rows = T.cmpRows.map(r => r[Li()]);
+    const th = el('thead'), hr = el('tr');
+    for (const c of rows[0]) { const h = el('th', null, c); h.scope = 'col'; hr.append(h); }
+    th.append(hr);
+    const bd = el('tbody');
+    for (const r of rows.slice(1)) { const tr = el('tr'), h = el('th', null, r[0]); h.scope = 'row'; tr.append(h, el('td', null, r[1]), el('td', null, r[2])); bd.append(tr); }
+    tb.append(th, bd); wrap.append(tb);
+    const nt = el('p', 'cmp-note'); nt.innerHTML = t('cmpNote');
+    cm.append(wrap, nt); box.append(cm);
+  }
+  box.append(nv);
 }
 
 function openSheet() { renderCheat($('cheatBody')); $('sheet').hidden = false; $('sheetClose').focus(); }
@@ -858,7 +953,9 @@ function renderDoorHead() {
   $('plateNum').textContent = String(sc.num);
   $('doorChip').textContent = t('practiceN', S.store.count + (S.committed ? 0 : 1));
   $('doorWho').textContent = S.persona === 'random' ? t('mystery') : P[S.actual].label[Li()];
-  $('doorAddr').textContent = `${addrTxt(sc)} · ${hailTxt(sc.hail)} · ${dateShort(sc.date)}`;
+  $('doorAddr').textContent = kindOf(S.actual) === 'cash'
+    ? `${addrTxt(sc)} · ${t('builtL')} ${sc.built}`
+    : `${addrTxt(sc)} · ${hailTxt(sc.hail)} · ${dateShort(sc.date)}`;
   renderPips();
 }
 function renderPips() {
@@ -892,9 +989,9 @@ function addHome() {
   $('chat').append(m); scrollEnd(); return m;
 }
 function addKenny(text, flags) {
-  const m = el('div', 'msg kenny' + (flags.length ? ' flagged' : ''));
+  const m = el('div', 'msg kenny' + (flags.some(f => !CAUTION.has(f.type)) ? ' flagged' : ''));
   m.append(el('div', 'lab', t('you')), el('div', 'body', text));
-  for (const f of flags) { const c = el('div', 'flag'); c.innerHTML = ICON.warn; c.append(el('span', null, t('r_' + f.type))); m.append(c); }
+  for (const f of flags) { const c = el('div', 'flag' + (CAUTION.has(f.type) ? ' caution' : '')); c.innerHTML = ICON.warn; c.append(el('span', null, t('r_' + f.type))); m.append(c); }
   $('chat').append(m); scrollEnd(); return m;
 }
 function chatErr(code, canRetry) {
@@ -1015,16 +1112,19 @@ function renderTranscript() {
   for (const x of S.turns) { const p = el('p'); p.append(el('b', null, (x.role === 'user' ? t('you') : t('atDoor')) + ': '), document.createTextNode(x.content)); box.append(p); }
 }
 function renderLegal(flags) {
-  const box = $('legalBox'); box.textContent = '';
-  if (!flags.length) { box.hidden = true; return; }
-  const h = el('div', 'legal-title'); h.innerHTML = ICON.warn; h.append(el('span', null, t('legalTitle')));
-  box.append(h);
-  for (const f of flags) {
-    const d = el('div', 'flag-item');
-    d.append(el('div', 'flag-rule', t('r_' + f.type)), el('q', null, f.quote), el('div', 'flag-fix', t('sayInstead') + ' ' + t('f_' + f.type)));
-    box.append(d);
+  /* Red box = not allowed. Yellow box = caution flags (v3: neighbor jobs), fine only when true. */
+  for (const [id, list, title] of [['legalBox', flags.filter(f => !CAUTION.has(f.type)), 'legalTitle'], ['cautionBox', flags.filter(f => CAUTION.has(f.type)), 'cautionTitle']]) {
+    const box = $(id); box.textContent = '';
+    if (!list.length) { box.hidden = true; continue; }
+    const h = el('div', 'legal-title'); h.innerHTML = ICON.warn; h.append(el('span', null, t(title)));
+    box.append(h);
+    for (const f of list) {
+      const d = el('div', 'flag-item');
+      d.append(el('div', 'flag-rule', t('r_' + f.type)), el('q', null, f.quote), el('div', 'flag-fix', t('sayInstead') + ' ' + t('f_' + f.type)));
+      box.append(d);
+    }
+    box.hidden = false;
   }
-  box.hidden = false;
 }
 
 async function goScore() {
@@ -1061,11 +1161,14 @@ async function goScore() {
 }
 
 function renderScore(data) {
-  const ids = ['intro', 'storm', 'inspection', 'objection', 'legal'];
+  const cash = kindOf(S.actual) === 'cash';
+  const ids = cash ? ['intro', 'storm', 'inspection', 'objection', 'nextdate', 'legal'] : ['intro', 'storm', 'inspection', 'objection', 'legal'];
   const got = data && Array.isArray(data.checks) ? data.checks : [];
   const checks = ids.map(id => {
-    const c = got.find(x => x && x.id === id) || {};
-    return { id, pass: c.pass === true, note: typeof c.note === 'string' ? c.note : '' };
+    const c = got.find(x => x && x.id === id);
+    /* Coach skipped the cash-visit date check: fall back to looking for a day or time in Kenny's lines. */
+    if (!c && id === 'nextdate') { const hit = S.turns.some(x => x.role === 'user' && DATE_RX.test(x.content) && BACK_RX.test(x.content)); return { id, pass: hit, note: t(hit ? 'dateAuto' : 'dateMiss') }; }
+    return { id, pass: !!c && c.pass === true, note: c && typeof c.note === 'string' ? c.note : '' };
   });
   const flags = (data && Array.isArray(data.legal_flags) ? data.legal_flags : [])
     .filter(f => f && typeof f.quote === 'string' && f.quote.trim())
@@ -1074,12 +1177,13 @@ function renderScore(data) {
     const a = norm(f.quote);
     if (!flags.some(g => { const b = norm(g.quote); return a.includes(b) || b.includes(a); })) flags.push(f);
   }
-  const legal = checks[4];
-  if (flags.length) { legal.pass = false; if (!legal.note) legal.note = t('legalNote'); }
+  const legal = checks.find(c => c.id === 'legal');
+  if (flags.some(f => !CAUTION.has(f.type))) { legal.pass = false; if (!legal.note) legal.note = t('legalNote'); }
   renderLegal(flags);
 
   const score = checks.filter(c => c.pass).length;
   $('scoreNum').textContent = String(score);
+  $('scoreMax').textContent = String(checks.length);
   const oc = data && ['yes', 'maybe', 'no'].includes(data.outcome) ? data.outcome : 'maybe';
   const pill = $('outcomePill');
   pill.textContent = t(oc === 'yes' ? 'outYes' : oc === 'no' ? 'outNo' : 'outMaybe');
