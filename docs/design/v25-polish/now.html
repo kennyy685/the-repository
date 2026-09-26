@@ -20,10 +20,10 @@
 .legend .label{font-size:9.5px}
 .legend .bar{width:92px;height:6px;border-radius:3px;background:linear-gradient(90deg,rgba(var(--heat),.18),rgba(var(--heat),.55),#e0602b)}
 .legend .ends{display:flex;justify-content:space-between;font:500 10px var(--f);color:var(--muted)}
-.edge{position:absolute;left:10px;top:84px;display:flex;align-items:center;gap:4px;height:28px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
-.edge .i{transform:rotate(180deg)}
+.edge{position:absolute;right:60px;top:12px;display:flex;align-items:center;gap:4px;height:28px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
+.edge .i:first-child{color:var(--you)}
 .scale{position:absolute;right:12px;bottom:66px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
-.scale i{display:block;width:70px;height:5px;border:1.5px solid var(--map-label);border-top:0}
+.scale i{display:block;width:60px;height:5px;border:1.5px solid var(--map-label);border-top:0}
 .drivechip{position:absolute;display:flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:var(--r-pill);background:var(--you);color:#fff;font-size:12px;font-weight:600;box-shadow:0 4px 10px -2px rgba(47,111,222,.45)}
 .drivechip .i{width:14px;height:14px;stroke-width:2}
 .zonepin{position:absolute;transform:translate(-50%,-100%);display:flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 4px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;box-shadow:var(--e2);white-space:nowrap}
@@ -64,7 +64,7 @@
 <div class="phone">
   <header class="top">
     <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
-    <h1>Now <span class="date">Fri, Sep 25</span></h1>
+    <h1>Now <span class="date">Sat, Sep 26</span></h1>
     <button class="lang" aria-label="Switch to Spanish">ES</button>
     <button class="avatar" aria-label="More: boss view, practice, prices, theme">K</button>
   </header>
@@ -72,77 +72,20 @@
   <main class="scroll">
     <!-- ============ DEFAULT ============ -->
     <div class="v-default">
-      <div class="map" role="img" aria-label="Map of Fremont: one hot zone at E 16th St and N Linden Ave, 0.8 miles from you">
-        <svg class="m" viewBox="0 0 390 292" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <pattern id="blocks" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4">
-              <rect x="0" y="0" width="30" height="24" fill="var(--map-street)"/>
-              <rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/>
-            </pattern>
-            <radialGradient id="heatA" cx="50%" cy="50%" r="50%">
-              <stop offset="0" stop-color="rgb(var(--heat))" stop-opacity=".75"/>
-              <stop offset=".45" stop-color="rgb(var(--heat))" stop-opacity=".36"/>
-              <stop offset="1" stop-color="rgb(var(--heat))" stop-opacity="0"/>
-            </radialGradient>
-            <radialGradient id="heatB" cx="50%" cy="50%" r="50%">
-              <stop offset="0" stop-color="rgb(var(--heat))" stop-opacity=".22"/>
-              <stop offset="1" stop-color="rgb(var(--heat))" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <rect width="390" height="292" fill="url(#blocks)"/>
-          <!-- park + water -->
-          <rect x="182" y="208" width="54" height="44" rx="3" fill="var(--map-park)"/>
-          <path d="M-10 282 C 60 262, 120 290, 190 276 S 320 262, 400 280 L400 300 L-10 300Z" fill="var(--map-water)"/>
-          <!-- hail swath (soft, wide) and the zone itself -->
-          <ellipse cx="270" cy="110" rx="150" ry="70" fill="url(#heatB)" transform="rotate(-18 270 110)"/>
-          <ellipse cx="294" cy="116" rx="78" ry="56" fill="url(#heatA)"/>
-          <!-- major roads -->
-          <g fill="none" stroke-linecap="round">
-            <path d="M-5 58 H395" stroke="var(--map-major-casing)" stroke-width="9"/>
-            <path d="M-5 58 H395" stroke="var(--map-major)" stroke-width="6.5"/>
-            <path d="M-5 196 H395" stroke="var(--map-major-casing)" stroke-width="9"/>
-            <path d="M-5 196 H395" stroke="var(--map-major)" stroke-width="6.5"/>
-            <path d="M152 -5 V300" stroke="var(--map-major-casing)" stroke-width="9"/>
-            <path d="M152 -5 V300" stroke="var(--map-major)" stroke-width="6.5"/>
-            <path d="M332 -5 V300" stroke="var(--map-casing)" stroke-width="6"/>
-            <path d="M332 -5 V300" stroke="var(--map-street)" stroke-width="4"/>
-            <path d="M-5 124 H395" stroke="var(--map-casing)" stroke-width="6"/>
-            <path d="M-5 124 H395" stroke="var(--map-street)" stroke-width="4"/>
-          </g>
-          <!-- walk outline for the zone -->
-          <path d="M262 100 H 318 V 142" fill="none" stroke="var(--route)" stroke-width="2" stroke-dasharray="1 4" stroke-linecap="round" opacity=".7"/>
-          <g fill="var(--card)" stroke="var(--route)" stroke-width="1.5">
-            <circle cx="266" cy="100" r="3"/><circle cx="280" cy="100" r="3"/><circle cx="294" cy="100" r="3"/>
-            <circle cx="318" cy="112" r="3"/><circle cx="318" cy="124" r="3" /><circle cx="318" cy="136" r="3"/>
-          </g>
-          <!-- drive route from you -->
-          <path d="M152 196 V 124 H 262 V 104" fill="none" stroke="var(--card)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
-          <path d="M152 196 V 124 H 262 V 104" fill="none" stroke="var(--you)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-          <!-- you -->
-          <circle cx="152" cy="196" r="16" fill="var(--you)" opacity=".16"/>
-          <circle cx="152" cy="196" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
-          <!-- labels -->
-          <text class="lbl major" x="176" y="51">E 23rd St</text>
-          <text class="lbl major" x="14" y="189">E Military Ave</text>
-          <text class="lbl major" x="159" y="252" transform="rotate(-90 159 252)">N Broad St</text>
-          <text class="lbl" x="339" y="186" transform="rotate(-90 339 186)">N Linden Ave</text>
-          <text class="lbl" x="192" y="118">E 16th St</text>
-          <text class="lbl" x="190" y="236" style="font-size:9.5px">Park</text>
-          <text class="lbl" x="44" y="276" style="font-size:9.5px;font-style:italic">Rawhide Creek</text>
-        </svg>
-        <div class="zonepin" style="left:248px;top:92px"><b>1.6″</b>E 16th &amp; Linden</div>
-        <div class="drivechip" style="left:162px;top:136px"><svg class="i"><use href="#i-car"/></svg>3 min · 0.8 mi</div>
-        <div class="edge"><svg class="i i-sm"><use href="#i-chev"/></svg>Columbus zone · 45 mi</div>
-        <div class="legend"><span class="label">Hail size</span><span class="bar"></span><span class="ends"><span>1″</span><span>2″</span></span></div>
+      <div class="map" role="img" aria-label="Map of Columbus: 11 hot zones from the Aug 8 hail. Best zone: 22 St and 21 St. You are in Fremont, 45 miles east.">
+        <svg class="m" id="zm"></svg>
+        <div class="zonepin" id="zpin"><b>1</b>22 St &amp; 21 St · 1.6″</div>
+        <div class="edge you-edge"><svg class="i i-sm"><use href="#i-car"/></svg>You: Fremont · 45 mi<svg class="i i-sm"><use href="#i-chev"/></svg></div>
+        <div class="legend"><span class="label">Hail heat</span><span class="bar"></span><span class="ends"><span>lower</span><span>higher</span></span></div>
         <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
-        <div class="scale"><span>0.25 mi</span><i></i></div>
+        <div class="scale"><span id="zscale">500 ft</span><i id="zscalebar"></i></div>
       </div>
 
       <section class="card zone" aria-label="Best zone today">
-        <div class="eyes"><span class="chip hmp"><svg class="i"><use href="#i-hail"/></svg>Best zone today</span><span class="chip">Storm Sep 22</span></div>
-        <div><h2>E 16th St &amp; N Linden Ave</h2><p class="where">Fremont · 1 of 2 hot zones</p></div>
-        <div class="stats"><div><b>1.6″</b><span>hail</span></div><div><b>6</b><span>homes</span></div><div><b>30<small style="font-size:13px;font-weight:500"> min</small></b><span>to knock</span></div></div>
-        <p class="why"><svg class="i"><use href="#i-built"/></svg>Most homes built before 1980, likely owner-lived</p>
+        <div class="eyes"><span class="chip hmp"><svg class="i"><use href="#i-hail"/></svg>Best zone today</span><span class="chip">Storm Aug 8</span></div>
+        <div><h2>22 St &amp; 21 St</h2><p class="where">Columbus · #1 of 12 hot zones</p></div>
+        <div class="stats"><div><b>1.6″</b><span>hail</span></div><div><b>60</b><span>homes</span></div><div><b>45<small style="font-size:13px;font-weight:500"> mi</small></b><span>from Fremont</span></div></div>
+        <p class="why"><svg class="i"><use href="#i-built"/></svg>Older roofs, most homes owner-lived</p>
         <div class="acts">
           <button class="btn sec"><svg class="i"><use href="#i-car"/></svg>Drive</button>
           <button class="btn pri">Start knocking<svg class="i"><use href="#i-chev"/></svg></button>
@@ -189,7 +132,7 @@
           <path d="M-10 282 C 60 262, 120 290, 190 276 S 320 262, 400 280 L400 300 L-10 300Z" fill="var(--map-water)"/>
           <g fill="none"><path d="M-5 58 H395M-5 196 H395M152 -5 V300" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 58 H395M-5 196 H395M152 -5 V300" stroke="var(--map-major)" stroke-width="6.5"/></g>
           <circle cx="152" cy="196" r="16" fill="var(--you)" opacity=".16"/><circle cx="152" cy="196" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
-          <text class="lbl major" x="14" y="51">E 23rd St</text><text class="lbl major" x="14" y="189">E Military Ave</text>
+          
         </svg>
         <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
       </div>
@@ -214,4 +157,17 @@
     <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
   </nav>
 </div>
+<script src="data/columbus.js"></script>
+<script src="walkmap.js"></script>
+<script>
+(function () {
+  const svg = document.getElementById('zm'); if (!svg || !window.HMP_MAP) return;
+  const top = HMP_MAP.zones.zones[0];
+  const P = renderZoneMap(svg, HMP_MAP, { width: 390, height: 292, top: top.id, center: { lat: top.center.lat - .0009, lon: top.center.lon + .0012 }, pad: 8 });
+  const [x, y] = P.xy(top.center.lon, top.center.lat), pin = document.getElementById('zpin');
+  pin.style.left = x + 'px'; pin.style.top = (y - 6) + 'px';
+  // scale bar: 500 ft in px
+  document.getElementById('zscalebar').style.width = (152.4 * P.pxPerMeter).toFixed(0) + 'px';
+})();
+</script>
 </body></html>

@@ -45,7 +45,7 @@
   function defs(svg, id) {
     const d = el('defs', {}, svg);
     const f = el('filter', { id: id + '-blur', x: '-50%', y: '-50%', width: '200%', height: '200%' }, d);
-    el('feGaussianBlur', { stdDeviation: 14 }, f);
+    el('feGaussianBlur', { stdDeviation: 11 }, f);
     const r = el('radialGradient', { id: id + '-heat' }, d);
     el('stop', { offset: '0', 'stop-color': 'rgb(var(--heat))', 'stop-opacity': '.55' }, r);
     el('stop', { offset: '.55', 'stop-color': 'rgb(var(--heat))', 'stop-opacity': '.22' }, r);
@@ -68,14 +68,20 @@
   }
 
   function drawLabels(layer, labels, P, o, seen) {
-    const g = el('g', { class: 'maplabels' }, layer);
+    const g = el('g', { class: 'maplabels' }, layer), placed = o.placed || [];
+    const size = o.labelSize || 10;
     labels.forEach(l => {
       if (!l.text || l.text === 'Intersection' || (seen && seen.has(l.text))) return;
       const [x, y] = P.xy(l.at[0], l.at[1]); if (!P.inView(x, y, 10)) return;
-      if (seen) seen.add(l.text);
       let a = l.angle || 0; if (a > 90) a -= 180; if (a < -90) a += 180;
+      // skip a label that would touch one already placed (approximate box, rotated)
+      const hw = l.text.length * size * .29 + 4, hh = size * .7, c = Math.abs(Math.cos(a * Math.PI / 180)), sn = Math.abs(Math.sin(a * Math.PI / 180));
+      const bx = hw * c + hh * sn, by = hw * sn + hh * c;
+      if (placed.some(q => Math.abs(q[0] - x) < q[2] + bx && Math.abs(q[1] - y) < q[3] + by)) return;
+      placed.push([x, y, bx, by]);
+      if (seen) seen.add(l.text);
       const t = el('text', { x: x.toFixed(1), y: y.toFixed(1), transform: `rotate(${a.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-        style: `font:500 ${o.labelSize || 10}px var(--f);fill:var(--map-label);paint-order:stroke;stroke:var(--map-land);stroke-width:3px;stroke-linejoin:round;letter-spacing:.01em` }, g);
+        style: `font:500 ${size}px var(--f);fill:var(--map-label);paint-order:stroke;stroke:var(--map-land);stroke-width:3px;stroke-linejoin:round;letter-spacing:.01em` }, g);
       t.textContent = l.text;
     });
   }
@@ -108,15 +114,26 @@
     snaps.forEach((sn, i) => {
       if (!sn) return;
       const prev = snaps[i - 1];
-      if (prev && prev.i !== sn.i) { const c = corner(lines[prev.i].pts, lines[sn.i].pts); if (c) route.push({ p: c, i: i - .5 }); }
-      route.push({ p: sn.q, i });
+      let gap = false;
+      if (prev && prev.i !== sn.i) { const c = corner(lines[prev.i].pts, lines[sn.i].pts); if (c) route.push({ p: c, i: i - .5 }); else gap = true; }
+      route.push({ p: sn.q, i, gap });   // gap = no shared corner in the data: drawn as a light dashed hop, not a solid line
     });
     const st = opts.status || [], cur = st.indexOf('current');
     const split = cur < 0 ? 0 : cur;
-    const doneSeg = route.filter(r => r.i <= split).map(r => r.p), todo = route.filter(r => r.i >= split).map(r => r.p);
     const rl = el('g', { fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
-    if (doneSeg.length > 1) el('path', { d: D(doneSeg), stroke: 'var(--faint)', 'stroke-width': 2, 'stroke-dasharray': '2 4' }, rl);
-    if (todo.length > 1) { el('path', { d: D(todo), stroke: 'var(--card)', 'stroke-width': 5, opacity: .9 }, rl); el('path', { d: D(todo), stroke: 'var(--route)', 'stroke-width': 2.2 }, rl); }
+    // split the route into runs: done (faint dashes), to-do (solid), and data gaps (light dashes)
+    const runs = []; let run = null;
+    route.forEach((r, k) => {
+      const kind = r.i <= split ? 'done' : 'todo';
+      if (k && (r.gap || kind !== run.kind)) { const last = run.pts[run.pts.length - 1]; runs.push(run); run = { kind: r.gap ? 'gap' : kind, pts: [last, r.p] }; if (r.gap) { runs.push(run); run = { kind, pts: [r.p] }; } }
+      else if (!run) run = { kind, pts: [r.p] }; else run.pts.push(r.p);
+    });
+    if (run) runs.push(run);
+    runs.forEach(u => {
+      if (u.pts.length < 2) return;
+      if (u.kind === 'todo') { el('path', { d: D(u.pts), stroke: 'var(--card)', 'stroke-width': 5, opacity: .9 }, rl); el('path', { d: D(u.pts), stroke: 'var(--route)', 'stroke-width': 2.2 }, rl); }
+      else el('path', { d: D(u.pts), stroke: u.kind === 'gap' ? 'var(--muted)' : 'var(--faint)', 'stroke-width': u.kind === 'gap' ? 1.4 : 2, 'stroke-dasharray': '2 4' }, rl);
+    });
     drawLabels(svg, bm.labels, P, opts);
     // house ticks + markers (current last, on top)
     const mk = el('g', {}, svg), r = opts.r || 8.5;
@@ -163,8 +180,11 @@
     const walks = zs.map(z => data.walks[z.id].basemap);
     walks.forEach(bm => drawBase(svg, bm, P, { lotOpacity: .7, lotWidth: .5 }, base));
     // zone heat = the walk hull, blurred, opacity by the engine's heat (0-1)
-    zs.forEach(z => { if (!z.polygon) return; el('path', { d: D(z.polygon.map(p => P.xy(p[0], p[1]))) + 'Z', fill: 'rgb(var(--heat))', opacity: (.18 + .5 * (z.heat || .5) ** 3).toFixed(2) }, heat); });
-    const seen = new Set(); walks.forEach(bm => drawLabels(top, bm.labels.filter(l => /Ave|St|Dr|Rd|Blvd/.test(l.text)), P, { labelSize: 9 }, seen));
+    zs.forEach(z => { if (!z.polygon) return; el('path', { d: D(z.polygon.map(p => P.xy(p[0], p[1]))) + 'Z', fill: 'rgb(var(--heat))', opacity: (.1 + .38 * (z.heat || .5) ** 4).toFixed(2) }, heat); });
+    // the featured zone gets a crisp outline so the pin, the heat and the card clearly belong together
+    const tz = zs.find(z => z.id === opts.top);
+    if (tz && tz.polygon) el('path', { d: D(tz.polygon.map(p => P.xy(p[0], p[1]))) + 'Z', fill: 'rgb(var(--heat))', 'fill-opacity': .12, stroke: 'var(--hmp-ink)', 'stroke-width': 1.6, 'stroke-dasharray': '5 4', 'stroke-linejoin': 'round' }, svg);
+    const seen = new Set(), placed = []; walks.forEach(bm => drawLabels(top, bm.labels.filter(l => /Ave|St|Dr|Rd|Blvd/.test(l.text)), P, { labelSize: 9.5, placed }, seen));
     // ranked pins (1 = best); the page draws the big pin for #1 in HTML
     zs.forEach((z, i) => {
       if (z.id === opts.top) return;

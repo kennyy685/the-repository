@@ -53,10 +53,10 @@
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0" aria-hidden="true">' +
     Object.entries(I).map(([k, v]) => `<symbol id="i-${k}" viewBox="0 0 24 24">${v}</symbol>`).join('') + '</svg>';
   document.body.insertAdjacentHTML('afterbegin', svg);
-  // mockup states from the #hash: dark, light, es, loading, empty, late (joined with "-", e.g. #dark-empty)
+  // mockup states from the #hash: dark, light, es, loading, empty, late, map (joined with "-", e.g. #dark-empty)
   const h = (location.hash || '').slice(1).split('-');
   if (h.includes('dark')) document.documentElement.setAttribute('data-theme', 'dark');
   if (h.includes('light')) document.documentElement.setAttribute('data-theme', 'light');
-  ['es', 'loading', 'empty', 'late'].forEach(k => document.documentElement.classList.toggle('st-' + k, h.includes(k)));
+  ['es', 'loading', 'empty', 'late', 'map'].forEach(k => document.documentElement.classList.toggle('st-' + k, h.includes(k)));
   window.addEventListener('hashchange', () => location.reload());
 })();
