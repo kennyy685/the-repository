@@ -187,6 +187,9 @@ genuinely missing there.
   HMP App's `today/walk` doc; adds est_minutes, walk_mi, drive_from_home_mi, best_time{en,es}, stale + stale_note (hud.json
   >36 h old), spanish_share + who; no walk -> stops [] + none_reason{en,es}. `--evidence-out` writes `evidence/<slug>` docs
   (slug = "address city" lowercased, non-alphanumerics to "-"). `--results` = the app's door taps.
+- `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results report
+  from the HMP App's door taps + leads (totals, by kind/list/walk, best/worst area EN/ES, follow-ups, funnel, `learning`
+  section for T35). todaywalk is seasonal: Oct-Mar storm walks may use storms up to 330 days old; Nov-Feb knock 3:30-5:30 PM.
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how
