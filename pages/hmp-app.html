@@ -1,15 +1,15 @@
 <title>HMP App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" media="print" id="hmpFonts">
+<script>/* v23: the brand fonts never hold up the first paint on a bad signal: the page shows in the phone's own font, then swaps */(()=>{const l=document.getElementById('hmpFonts');if(!l)return;const on=()=>{l.media='all'};if(l.sheet)on();else{l.addEventListener('load',on);l.addEventListener('error',on);}})();</script>
 <style>
 :root{
   color-scheme: dark;
   /* HMP Pro Dark: charcoal metal siding, silver type, HMP orange only for accents and main actions */
   --bg:#1f2024; --bg2:#26272b; --panel:#2a2b2f; --panel2:#35363b; --line:#3b3c41; --line2:#55575e; --shadow:transparent;
   --ink:#f2f3f5; --ink2:#d6d8dc; --mute:#b9bcc2; --label:#c9ccd2;
-  --chat:#d6a84e; --chat2:#e9c57f; --chat-soft:rgba(214,168,78,.13);
-  --code:#6cc0b5; --code2:#9ad7cf; --code-soft:rgba(108,192,181,.13);
+  --chat2:#e9c57f;
   --board:#f5883a; --board-soft:rgba(245,136,58,.13);
   --working:#4cc38a; --idle:#aab0b8; --sleeping:#8d9097; --waiting:#f5b53a; --blocked:#ef5d50; --done:#4cc38a;
   --f-display:"Barlow Semi Condensed","Arial Narrow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -32,7 +32,6 @@ button{font:inherit;color:inherit}
 .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 18px}
 .eyebrow{font-family:var(--f-label);font-size:11px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1;margin:4px 0 0;letter-spacing:.01em;text-wrap:balance}
-h1 .w-chat{color:var(--chat)} h1 .w-code{color:var(--code)}
 .live{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-label);font-size:11px;letter-spacing:.04em;padding:7px 10px;background:var(--bg2);border:2px solid var(--line);color:var(--ink2)}
 .live .dot{width:8px;height:8px;background:var(--mute);flex:none}
 .live[data-state="on"] .dot{background:var(--working);animation:blink 1.4s steps(2,end) infinite}
@@ -42,7 +41,6 @@ h1 .w-chat{color:var(--chat)} h1 .w-code{color:var(--code)}
 
 
 
-.sq{display:inline-block;width:9px;height:9px;background:var(--c,var(--mute));flex:none}
 .btn{background:var(--panel2);border:2px solid var(--line2);padding:7px 12px;font-family:var(--f-label);font-size:11px;letter-spacing:.04em;cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
 .btn:hover{background:#3b3c41}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
@@ -53,19 +51,9 @@ h1 .w-chat{color:var(--chat)} h1 .w-code{color:var(--code)}
 .panel{background:var(--panel);border:2px solid var(--line);padding:14px;min-width:0}
 .panel h2{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .panel h2 .src{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--mute)}
-.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-label);font-size:11px;letter-spacing:.04em;padding:3px 8px;border:2px solid var(--c);color:var(--c);background:rgba(0,0,0,.18);white-space:nowrap}
 .now{background:var(--bg2);border-left:3px solid var(--c);padding:8px 10px}
-.stale{color:var(--waiting)}
 
 
-@keyframes fresh{from{background:rgba(245,181,58,.2)}to{background:transparent}}
-.task{display:inline-block;font-family:var(--f-label);font-size:10px;letter-spacing:.03em;padding:0 5px;border:1px solid var(--line2);color:var(--ink2);margin-left:4px;vertical-align:1px}
-.empty{color:var(--mute);font-size:14px;padding:8px 2px}
-.tid{font-family:var(--f-label);font-size:11px;color:var(--mute);padding-top:2px}
-.tt{font-size:14px}
-.tmeta{grid-column:2;display:flex;gap:6px;flex-wrap:wrap}
-.tst{font-family:var(--f-label);font-size:10px;padding:0 6px;border:1px solid var(--c);color:var(--c)}
-.s-doing{--c:var(--working)} .s-blocked{--c:var(--blocked)} .s-review{--c:var(--waiting)} .s-todo{--c:var(--mute)} .s-done{--c:var(--done)} .s-parked{--c:var(--sleeping)}
 
 /* answers, receipts, memory */
 /* talk to the King */
@@ -140,14 +128,6 @@ h1 .w-app{color:var(--hmp)}
 .today{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);align-items:start}
 @media (min-width:900px){.today{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
 .t-col{display:grid;gap:14px;min-width:0}
-.asks-loud{background:var(--board-soft);border:2px solid var(--board);padding:14px;display:grid;gap:10px;box-shadow:4px 4px 0 var(--shadow)}
-.asks-loud .ah{color:var(--board);font-size:22px}
-.qlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.qlist li{display:grid;gap:8px;padding:10px 12px;background:var(--bg2);border-left:3px solid var(--board)}
-.qlist .qid{font-family:var(--f-label);font-size:11px;color:var(--mute);margin-right:6px}
-.qlist .ans,.qlist .ans-done{grid-column:auto;margin-top:0}
-.qlist .btn.sm{min-height:44px;padding:8px 14px;font-size:12px}
-.qlist .ans input{min-height:44px;font-size:15px}
 .fu{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .fu button{width:100%;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:start;background:var(--bg2);border:2px solid var(--line);padding:10px 12px;min-height:56px;cursor:pointer}
 .fu button:hover{border-color:var(--line2)}
@@ -155,17 +135,12 @@ h1 .w-app{color:var(--hmp)}
 .fu .kind{font-family:var(--f-label);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-left:8px}
 .fu .what{grid-column:1 / -1;font-size:15px;color:var(--ink2);overflow-wrap:anywhere}
 .fu.later button{min-height:0;border-style:dashed}
-.mytasks{list-style:none;margin:0;padding:0;display:grid}
-.mytasks li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 8px;padding:10px 0;border-bottom:1px solid var(--line)}
-.mytasks li:last-child{border-bottom:0}
-.mytasks .tt{font-size:15px}
 .wk{display:grid;gap:10px}
 .wk-row{display:grid;grid-template-columns:minmax(96px,auto) minmax(0,1fr) 48px;gap:10px;align-items:center}
 .wk-l{font-size:15px;color:var(--ink2)}
 .wk-b{height:14px;background:var(--track);position:relative}
 .wk-b i{position:absolute;left:0;top:0;bottom:0;background:var(--hmp);border-radius:0 4px 4px 0}
 .wk-v{font:700 24px/1 var(--f-display);text-align:right;font-variant-numeric:tabular-nums}
-.wk-last{font-size:13px;color:var(--mute);margin:0}
 .wk-sub{grid-column:1 / -1;margin:-6px 0 0;font-size:12px;line-height:1.3;color:var(--label);text-align:right;font-variant-numeric:tabular-nums}
 .wk-sub .mk{white-space:nowrap} .wk-sub b{color:var(--warn);font-weight:700}
 .wk-b .wk-norm{position:absolute;top:-3px;bottom:-3px;border-left:1px dashed var(--mute);border-right:1px dashed var(--mute);pointer-events:none}   /* v18: the 20-40% normal band */
@@ -340,8 +315,6 @@ details.howmore[open] summary{margin-bottom:12px}
 
 /* ================= O0 Today's knock ================= */
 .knock{background:var(--panel);border:2px solid var(--hmp);box-shadow:4px 4px 0 var(--shadow);display:grid;min-width:0}
-.k-top{display:grid;gap:14px;padding:16px;grid-template-columns:minmax(0,1fr);border-bottom:2px solid var(--line)}
-@media (min-width:760px){.k-top{grid-template-columns:minmax(0,1.15fr) minmax(280px,1fr);align-items:start}}
 .k-txt{display:grid;gap:10px;min-width:0;align-content:start}
 .k-eb{font:400 11px/1.3 var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--hmp2)}
 .k-area{margin:0;font:700 clamp(28px,6vw,36px)/1.02 var(--f-display);text-wrap:balance;overflow-wrap:anywhere}
@@ -416,8 +389,6 @@ details.howmore[open] summary{margin-bottom:12px}
 .tally .t-cb.none{color:var(--mute)}
 .tally .t-done{min-height:42px;padding:6px 12px;background:var(--hmp);color:#1b1206;border:0;font:700 14px/1.1 var(--f-body);cursor:pointer;white-space:nowrap}
 @media (max-width:560px){.tally{grid-template-columns:repeat(4,minmax(0,1fr))}.tally .t-acts{grid-column:1 / -1;grid-template-columns:1fr auto;border-top:1px solid var(--line2);align-items:center}.tally .t-cb{text-align:left}}
-.receipt{font-size:13px;color:var(--done);display:block}
-.receipt.no{color:var(--warn)}
 
 /* ================= v14: sun-readable labels (QA 4): labels bright and plain, color only on values ================= */
 .k-eb,.sh-eyebrow,.tile .k,.c-money .k,.a-next .lbl > b,.book .k-l,.k-street h3 small,.fu .kind,.say b,.ah small,.tally .tn span,.d-btns button small,.facts dt,.track-lbl,.lrow .st,.k-prog span,.c-line,.stamp,.a-quiet{color:var(--label)}
@@ -486,14 +457,11 @@ details.howmore[open] summary{margin-bottom:12px}
 .ph-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .ph-pair figure{margin:0;display:grid;gap:4px}
 .ph-pair figcaption{font:700 12px/1.2 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--label)}
-.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px}
 .ph{position:relative;display:block;padding:0;border:2px solid var(--line);background:var(--bg2);cursor:pointer;aspect-ratio:1/1;overflow:hidden;max-width:100%}
 .ph img{display:block;width:100%;height:100%;object-fit:cover}
 .ph-pair .ph{aspect-ratio:4/3}
 .ph b{position:absolute;left:0;bottom:0;font:700 11px/1 var(--f-body);padding:4px 5px;background:rgba(8,10,20,.78);color:var(--ink)}
 .ph.gone::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);font:700 22px/1 var(--f-display)}
-.ph-add{display:grid;gap:8px}
-.ph-add .pickrow button{min-height:40px}
 .ph-file{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 16px;background:var(--hmp);color:#1b1206;font:700 15px/1 var(--f-body);cursor:pointer;justify-self:start}
 .ph-file input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
 .ph-file:focus-within{outline:3px solid var(--hmp2);outline-offset:2px}
@@ -585,10 +553,10 @@ body.bossmode .tabs,body.bossmode .tabp,body.bossmode .lang,body.bossmode #appBa
 
 /* ================= HMP Pro Dark: rounded, subtle, one accent ================= */
 body{font-size:15px;line-height:1.5}
-.a-card,.a-sec,.box,.knock,.panel,.money,.a-empty,.asks-loud,.chase,.b-num,.b-sec,.tabs,.say,.a-tip,.a-banner,.tally,.k-map,.howmore,.gloss{border-radius:var(--r)}
-.k-now,.k-stale,.cbask,.dnkask,.book,.ph-view,.a-next,.ph-safety,.k-alldone,.qlist li,.b-list li,.fu button,.chase li button,.pay,.k-fact,.hopays,.tiles .tile{border-radius:var(--r-sm)}
-.btn,.d-btns button,.pickrow button,.book-acts button,.tap,.proof,.more,.undo,.t-done,.t-next,.sync,.bossbtn,.b-exit,.ph-file,.chk,.ph,.rc,.copy,.kc-form input,.qlist .ans input,.lang button,.seg button,.srcf button{border-radius:var(--r-sm)}
-.a-chip,.stepchip,.d-res,.pill,.ah .n{border-radius:999px}
+.a-card,.a-sec,.box,.knock,.panel,.money,.a-empty,.chase,.b-num,.b-sec,.tabs,.say,.a-tip,.a-banner,.tally,.k-map,.howmore,.gloss{border-radius:var(--r)}
+.k-now,.k-stale,.cbask,.dnkask,.book,.ph-view,.a-next,.ph-safety,.k-alldone,.b-list li,.fu button,.chase li button,.pay,.k-fact,.hopays,.tiles .tile{border-radius:var(--r-sm)}
+.btn,.d-btns button,.pickrow button,.book-acts button,.tap,.proof,.more,.undo,.t-done,.t-next,.sync,.bossbtn,.b-exit,.ph-file,.chk,.ph,.rc,.copy,.kc-form input,.lang button,.seg button,.srcf button{border-radius:var(--r-sm)}
+.a-chip,.stepchip,.d-res,.ah .n{border-radius:999px}
 .knock,.tabs,.money,.k-map{overflow:hidden}
 .a-card,.a-sec,.box,.panel,.money,.tabs,.a-empty,.b-num,.b-sec{border-width:1px}
 .knock{border:1px solid var(--line)}
@@ -615,8 +583,6 @@ body{font-size:15px;line-height:1.5}
 
 
 .dot{width:10px;height:10px;border-radius:50%;background:var(--c,var(--idle));flex:none;display:inline-block}
-.dot.working{--c:var(--working)} .dot.blocked{--c:var(--blocked)} .dot.done{--c:var(--done)} .dot.sleeping{--c:var(--sleeping)} .dot.idle{--c:var(--idle)}
-.dot.working{animation:blink 1.4s steps(2,end) infinite}
 .live{border:1px solid var(--line);border-radius:999px;background:var(--bg2);font:500 12px/1.2 var(--f-label);letter-spacing:0;min-height:36px}
 .live .dot{border-radius:50%}
 .lang{border:1px solid var(--line2);border-radius:var(--r-sm);overflow:hidden;display:inline-flex}
@@ -950,10 +916,6 @@ a.btn,a.btn:visited{color:var(--ink)}
 .ns{background:var(--panel);border:2px solid var(--hmp);border-radius:var(--r);padding:14px 16px 16px;display:grid;gap:12px;min-width:0}
 .ns.fin{border-color:var(--m-in)}
 .ns-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.ns-bar{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;flex:1 1 120px;max-width:220px}
-.ns-bar i{height:6px;border-radius:3px;background:var(--track)}
-.ns-bar i.done{background:var(--ink2)} .ns-bar i.now{background:var(--hmp)}
-.ns.fin .ns-bar i{background:var(--m-in)}
 .ns-of{font:600 12px/1.2 var(--f-label);letter-spacing:.05em;text-transform:uppercase;color:var(--label);font-variant-numeric:tabular-nums}
 .ns.fin .ns-of{color:var(--m-in)}
 .ns-finp{margin:0;color:var(--ink2);font-size:15px}
@@ -980,7 +942,7 @@ a.btn,a.btn:visited{color:var(--ink)}
 .ns-hint{margin:0;font-size:13px;color:var(--mute)}
 .ns-hint.warn{color:var(--warn);font-weight:700}
 .ns-tell{padding:2px 0;min-height:32px;font-size:14px}
-.ns-opt button{min-height:40px;min-width:72px}
+.ns-opt button{min-height:44px;min-width:72px}
 .ns-it .ph-file{justify-self:start}
 .ns-txt{display:grid;gap:6px;padding:10px 12px;background:var(--bg2);border-radius:var(--r-sm)}
 .ns-txt b{font:600 12px/1.3 var(--f-label);letter-spacing:.05em;text-transform:uppercase;color:var(--label)}
@@ -1030,13 +992,6 @@ a.btn,a.btn:visited{color:var(--ink)}
 .est-extras > summary small{font-size:13px;color:var(--mute)}
 .est-exrows{display:grid;gap:10px;margin-top:10px}
 .est-nat{margin:0;font-size:12px;line-height:1.4;color:var(--warn)}
-/* ================= split (v20): the AI hub's copy of FilthE's tasks + questions (hub/summary), read-only ================= */
-.hub-go{justify-self:start;display:inline-flex;align-items:center;min-height:44px;color:var(--hmp2);font:700 16px/1.2 var(--f-display);letter-spacing:.01em;text-decoration:underline;text-underline-offset:3px}
-.hub-go:focus-visible{outline:2px solid var(--hmp2);outline-offset:2px}
-.hub-foot{margin:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 14px;font-size:13px;color:var(--label)}
-.hub-foot .old{color:var(--warn)}
-.asks-loud .a-quiet{font-size:14px}
-.mytasks .tst{margin-left:8px;vertical-align:1px;white-space:nowrap;border-radius:999px;padding:1px 8px}
 /* ================= v21: homeowner screen, "Daylight report" (option B). A light, separate scope: the rest of the app stays Pro Dark ================= */
 .ho-launch .el-go{color:var(--hmp)}
 .ho-sum{margin:0;font-size:14px;color:var(--ink2)}
@@ -1261,13 +1216,34 @@ a.btn,a.btn:visited{color:var(--ink)}
 .d-est .cal-a{margin-left:16px;text-decoration:underline;text-underline-offset:3px}
 .ns-val .cal-a{margin-left:12px;padding:2px 0;min-height:32px;font-size:14px}
 .adj{display:grid;gap:14px;min-width:0}
-.adj .ns-it .ns-itt .btn{justify-self:start;min-height:40px}
+.adj .ns-it .ns-itt .btn{justify-self:start;min-height:44px}
 .adj-bring{margin:0;padding:0 0 0 18px;display:grid;gap:4px;font-size:15px;line-height:1.4}
 .adj-bring li::marker{color:var(--hmp)}
 .adj-pack{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--r-sm)}
 .adj-pack .chk{width:44px;height:44px;flex:none}
 .adj-pack .chk[aria-checked="true"]{background:var(--m-in);border-color:var(--m-in)}
 .adj-pack span{font-weight:700;font-size:15px}
+
+/* ================= v23: every tap target 44px or more (gloves, sun, one thumb), and no clipped Spanish at 360px ================= */
+.bossbtn,.lang button,.proof,.more,.undo,.btn.sm,.srcf button,.copy,.ph-file.sm,.tally .t-next,.tally .t-done,.tally .t-cb{min-height:44px}
+.more{min-width:44px}
+.chk,.ns-it .chk{width:44px;height:44px}
+.slot{grid-template-columns:44px minmax(0,1fr) auto}
+@media (max-width:420px){.slot{grid-template-columns:44px minmax(0,1fr)}}
+.ns-it{grid-template-columns:44px minmax(0,1fr)}
+.chase summary{min-height:44px;padding-block:10px}
+details.howmore summary{min-height:44px;padding-block:8px}
+.est-extras > summary{min-height:44px;align-items:center}
+.ns-val .cal-a{min-height:44px}
+#hoView .ho-langs button{min-height:44px}
+@media (max-width:400px){
+  .tally .tn span{font-size:11px;letter-spacing:-.01em}
+  .tally .tn{padding-inline:2px}
+  /* homeowner screen steps: the step you are on shows its name, the others only their number (the name stays for screen readers) */
+  #hoView .ho-steps button{flex:0 0 auto;min-width:44px}
+  #hoView .ho-steps button[aria-current="step"]{flex:1 1 auto}
+  #hoView .ho-steps button:not([aria-current="step"]) span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
 </style>
 
 <div class="wrap">
@@ -1311,9 +1287,7 @@ a.btn,a.btn:visited{color:var(--ink)}
     <div class="kc-status" id="kcStatus" role="status"></div>
   </section>
         </div>
-        <div id="tAsks" hidden></div>
         <section class="a-sec" aria-labelledby="tFollowH"><h2 class="ah" id="tFollowH"></h2><div id="tFollow"></div></section>
-        <section class="a-sec" id="tTasksS" aria-labelledby="tTasksH" hidden><h2 class="ah" id="tTasksH"></h2><div id="tTasks"></div></section>
       </div>
       <div class="t-col">
         <section class="a-sec" aria-labelledby="tWeekH"><h2 class="ah" id="tWeekH"></h2><div id="tWeek"></div></section>
@@ -1387,36 +1361,6 @@ a.btn,a.btn:visited{color:var(--ink)}
   <main class="ho-wrap" id="hoBody"></main>
 </div>
 <div id="psView" role="dialog" aria-modal="true" aria-labelledby="psName" hidden>
-<svg class="ws-defs" aria-hidden="true">
-  <defs>
-    <!-- metal siding ribs (like the wall behind HMP's sign) -->
-    <pattern id="ws-rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
-      <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
-      <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
-    </pattern>
-  </defs>
-  <symbol id="ws-logo" viewBox="-72.6 -92.0 493.6 243.0">
-  <defs>
-    <linearGradient id="ws-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
-    <linearGradient id="ws-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
-  </defs>
-  <path d="M174.2 -90 419.01 -0.9 419.01 14.6 174.2 -74.5 -70.61 14.6 -70.61 -0.9Z" fill="#f5883a"/>
-  <g transform="translate(2.4 3)" fill="#1b1c1f"><path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z"/></g>
-  <path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z" fill="url(#ws-rim)"/>
-  <path d="M268.32 2.6 268.49 3.05 268.94 4.46 269.33 5.88 269.64 7.3 269.88 8.72 270.06 10.15 270.17 11.57 270.2 12.97 270.2 87.03 270.17 88.43 270.06 89.85 269.88 91.28 269.64 92.7 269.33 94.12 268.94 95.54 268.49 96.95 268.32 97.4 293.88 97.4 293.71 96.95 293.26 95.54 292.87 94.12 292.56 92.7 292.32 91.28 292.14 89.85 292.03 88.43 292 87.03 292 60.4 330.51 60.4 333 60.24 335.36 59.77 337.64 58.99 339.8 57.93 341.8 56.59 343.61 55.01 345.19 53.2 346.53 51.2 347.59 49.04 348.37 46.76 348.84 44.4 349 41.91 349 21.09 348.84 18.6 348.37 16.24 347.59 13.96 346.53 11.8 345.19 9.8 343.61 7.99 341.8 6.41 339.8 5.07 337.64 4.01 335.36 3.23 333 2.76 330.51 2.6ZM324.83 15.69 325.89 16.05 326.9 16.55 327.84 17.17 328.69 17.91 329.43 18.76 330.05 19.7 330.55 20.71 330.91 21.77 331.13 22.88 331.2 23.91 331.2 38.09 331.13 39.12 330.91 40.23 330.55 41.29 330.05 42.3 329.43 43.24 328.69 44.09 327.84 44.83 326.9 45.45 325.89 45.95 324.83 46.31 323.72 46.53 322.69 46.6 292 46.6 292 15.4 322.69 15.4 323.72 15.47ZM257.6 97.4 257.6 79.6 239.8 79.6 239.8 97.4ZM126.52 97.4 152.08 97.4 151.91 96.95 151.46 95.54 151.07 94.12 150.76 92.7 150.52 91.28 150.34 89.85 150.23 88.43 150.2 87.03 150.2 52.38 177.66 97.4 177.94 97.4 205.4 52.38 205.4 87.03 205.37 88.43 205.26 89.85 205.08 91.28 204.84 92.7 204.53 94.12 204.14 95.54 203.69 96.95 203.52 97.4 229.08 97.4 228.91 96.95 228.46 95.54 228.07 94.12 227.76 92.7 227.52 91.28 227.34 89.85 227.23 88.43 227.2 87.03 227.2 12.97 227.23 11.57 227.34 10.15 227.52 8.72 227.76 7.3 228.07 5.88 228.46 4.46 228.91 3.05 229.08 2.6 203.52 2.6 203.69 3.05 204.14 4.46 204.53 5.88 204.84 7.3 205.08 8.72 205.26 10.15 205.37 11.57 205.4 12.97 205.4 31.15 177.8 65.12 150.2 31.15 150.2 12.97 150.23 11.57 150.34 10.15 150.52 8.72 150.76 7.3 151.07 5.88 151.46 4.46 151.91 3.05 152.08 2.6 126.52 2.6 126.69 3.05 127.14 4.46 127.53 5.88 127.84 7.3 128.08 8.72 128.26 10.15 128.37 11.57 128.4 12.97 128.4 87.03 128.37 88.43 128.26 89.85 128.08 91.28 127.84 92.7 127.53 94.12 127.14 95.54 126.69 96.95ZM115.8 97.4 115.8 79.6 98 79.6 98 97.4ZM0.72 97.4 26.28 97.4 26.11 96.95 25.66 95.54 25.27 94.12 24.96 92.7 24.72 91.28 24.54 89.85 24.43 88.43 24.4 87.03 24.4 58.4 63.6 58.4 63.6 87.03 63.57 88.43 63.46 89.85 63.28 91.28 63.04 92.7 62.73 94.12 62.34 95.54 61.89 96.95 61.72 97.4 87.28 97.4 87.11 96.95 86.66 95.54 86.27 94.12 85.96 92.7 85.72 91.28 85.54 89.85 85.43 88.43 85.4 87.03 85.4 12.97 85.43 11.57 85.54 10.15 85.72 8.72 85.96 7.3 86.27 5.88 86.66 4.46 87.11 3.05 87.28 2.6 61.72 2.6 61.89 3.05 62.34 4.46 62.73 5.88 63.04 7.3 63.28 8.72 63.46 10.15 63.57 11.57 63.6 12.97 63.6 41.6 24.4 41.6 24.4 12.97 24.43 11.57 24.54 10.15 24.72 8.72 24.96 7.3 25.27 5.88 25.66 4.46 26.11 3.05 26.28 2.6 0.72 2.6 0.89 3.05 1.34 4.46 1.73 5.88 2.04 7.3 2.28 8.72 2.46 10.15 2.57 11.57 2.6 12.97 2.6 87.03 2.57 88.43 2.46 89.85 2.28 91.28 2.04 92.7 1.73 94.12 1.34 95.54 0.89 96.95Z" fill="url(#ws-face)"/>
-  <path d="M-13.2 113.5Q174.2 107 361.6 113.5Q174.2 126.5 -13.2 113.5Z" fill="#f5883a"/>
-  <path d="M7.966571428571434 148.30857142857144Q5.806571428571435 148.30857142857144 3.826571428571435 147.73000000000002Q1.846571428571435 147.15142857142857 0.6380000000000063 146.22571428571428L2.0522857142857207 143.08857142857144Q3.2094285714285777 143.91142857142856 4.790857142857149 144.43857142857144Q6.37228571428572 144.96571428571428 7.992285714285721 144.96571428571428Q9.226571428571434 144.96571428571428 9.985142857142863 144.7214285714286Q10.743714285714292 144.47714285714287 11.103714285714293 144.04000000000002Q11.463714285714293 143.60285714285715 11.463714285714293 143.03714285714287Q11.463714285714293 142.31714285714287 10.898000000000007 141.89285714285717Q10.332285714285721 141.46857142857144 9.406571428571436 141.19857142857143Q8.480857142857149 140.92857142857142 7.36228571428572 140.6842857142857Q6.243714285714292 140.44 5.125142857142864 140.07999999999998Q4.0065714285714344 139.72 3.080857142857149 139.15428571428572Q2.1551428571428635 138.58857142857144 1.576571428571435 137.66285714285715Q0.9980000000000064 136.73714285714286 0.9980000000000064 135.29714285714286Q0.9980000000000064 133.75428571428571 1.833714285714292 132.48142857142858Q2.6694285714285777 131.20857142857142 4.353714285714292 130.45Q6.0380000000000065 129.69142857142856 8.583714285714292 129.69142857142856Q10.28085714285715 129.69142857142856 11.926571428571435 130.08999999999997Q13.572285714285721 130.48857142857142 14.832285714285721 131.28571428571428L13.546571428571434 134.44857142857143Q12.286571428571435 133.72857142857143 11.026571428571435 133.38142857142856Q9.766571428571435 133.03428571428572 8.558000000000007 133.03428571428572Q7.349428571428578 133.03428571428572 6.5780000000000065 133.31714285714287Q5.806571428571435 133.6 5.472285714285721 134.05Q5.138000000000006 134.5 5.138000000000006 135.09142857142857Q5.138000000000006 135.78571428571428 5.703714285714292 136.20999999999998Q6.269428571428578 136.6342857142857 7.195142857142864 136.89142857142855Q8.12085714285715 137.14857142857142 9.239428571428578 137.40571428571428Q10.358000000000006 137.66285714285715 11.476571428571434 137.99714285714288Q12.595142857142863 138.33142857142857 13.52085714285715 138.89714285714285Q14.446571428571435 139.46285714285713 15.025142857142864 140.38857142857142Q15.603714285714291 141.31428571428572 15.603714285714291 142.72857142857143Q15.603714285714291 144.24571428571429 14.755142857142863 145.5057142857143Q13.906571428571434 146.7657142857143 12.22228571428572 147.53714285714287Q10.538000000000006 148.30857142857144 7.966571428571434 148.30857142857144ZM20.32332330827068 148.0V130.0H24.489037593984968V148.0ZM30.62293233082707 148.0V130.0H38.800075187969924Q41.7315037593985 130.0 43.968646616541356 131.11857142857144Q46.20578947368421 132.23714285714286 47.46578947368421 134.24285714285713Q48.725789473684216 136.24857142857144 48.725789473684216 139.0Q48.725789473684216 141.72571428571428 47.46578947368421 143.7442857142857Q46.20578947368421 145.76285714285714 43.968646616541356 146.88142857142856Q41.7315037593985 148.0 38.800075187969924 148.0ZM34.78864661654136 144.58H38.594360902255644Q40.39436090225564 144.58 41.718646616541356 143.89857142857142Q43.04293233082707 143.21714285714285 43.77578947368421 141.95714285714286Q44.508646616541355 140.69714285714286 44.508646616541355 139.0Q44.508646616541355 137.27714285714285 43.77578947368421 136.03Q43.04293233082707 134.78285714285715 41.718646616541356 134.10142857142858Q40.39436090225564 133.42 38.594360902255644 133.42H34.78864661654136ZM53.728255639097746 148.0V130.0H57.893969924812026V148.0ZM64.02786466165414 148.0V130.0H67.47357894736842L78.09357894736841 142.96H76.42215037593985V130.0H80.53643609022556V148.0H77.11643609022556L66.47072180451127 135.04H68.14215037593985V148.0ZM95.36175939849623 148.30857142857144Q93.22747368421052 148.30857142857144 91.44033082706767 147.62714285714287Q89.6531879699248 146.94571428571427 88.3289022556391 145.68571428571428Q87.00461654135337 144.4257142857143 86.27175939849623 142.72857142857143Q85.53890225563909 141.03142857142856 85.53890225563909 139.0Q85.53890225563909 136.96857142857144 86.27175939849623 135.27142857142857Q87.00461654135337 133.5742857142857 88.34175939849624 132.31428571428572Q89.67890225563909 131.05428571428573 91.4789022556391 130.37285714285713Q93.2789022556391 129.69142857142856 95.43890225563909 129.69142857142856Q97.83033082706766 129.69142857142856 99.74604511278194 130.48857142857142Q101.66175939849623 131.28571428571428 102.97318796992481 132.80285714285714L100.29890225563909 135.27142857142857Q99.32175939849623 134.24285714285713 98.16461654135338 133.74142857142857Q97.00747368421052 133.24 95.64461654135337 133.24Q94.33318796992481 133.24 93.25318796992481 133.6514285714286Q92.17318796992481 134.06285714285715 91.3889022556391 134.83428571428573Q90.60461654135338 135.6057142857143 90.18033082706766 136.66000000000003Q89.75604511278195 137.71428571428572 89.75604511278195 139.0Q89.75604511278195 140.26 90.18033082706766 141.31428571428572Q90.60461654135338 142.36857142857144 91.3889022556391 143.15285714285716Q92.17318796992481 143.93714285714285 93.24033082706767 144.3485714285714Q94.30747368421052 144.76 95.5931879699248 144.76Q96.82747368421052 144.76 97.99747368421052 144.36142857142858Q99.16747368421052 143.96285714285713 100.2731879699248 143.01142857142858L102.6389022556391 146.02Q101.17318796992481 147.12571428571428 99.23175939849624 147.71714285714285Q97.29033082706766 148.30857142857144 95.36175939849623 148.30857142857144ZM102.6389022556391 146.02 98.83318796992481 145.48V138.71714285714285H102.6389022556391ZM131.33812030075188 148.30857142857144 120.87240601503758 138.58857142857144Q119.97240601503759 137.7657142857143 119.4324060150376 137.0457142857143Q118.8924060150376 136.3257142857143 118.64812030075188 135.63142857142856Q118.40383458646616 134.93714285714285 118.40383458646616 134.19142857142856Q118.40383458646616 132.88 119.09812030075187 131.87714285714287Q119.79240601503759 130.87428571428572 121.05240601503759 130.32142857142856Q122.3124060150376 129.76857142857142 124.00954887218045 129.76857142857142Q125.57812030075188 129.76857142857142 126.72240601503759 130.26999999999998Q127.8666917293233 130.77142857142857 128.5224060150376 131.69714285714286Q129.17812030075189 132.62285714285713 129.17812030075189 133.90857142857143Q129.17812030075189 135.04 128.6124060150376 135.97857142857143Q128.0466917293233 136.91714285714286 126.85097744360901 137.74Q125.65526315789472 138.56285714285715 123.7266917293233 139.41142857142856Q122.41526315789473 140.00285714285715 121.6566917293233 140.5557142857143Q120.89812030075187 141.10857142857142 120.56383458646616 141.6742857142857Q120.22954887218044 142.24 120.22954887218044 142.93428571428572Q120.22954887218044 143.57714285714286 120.62812030075187 144.0914285714286Q121.0266917293233 144.6057142857143 121.7466917293233 144.88857142857142Q122.4666917293233 145.17142857142858 123.44383458646615 145.17142857142858Q125.01240601503758 145.17142857142858 126.32383458646615 144.43857142857144Q127.63526315789473 143.7057142857143 128.54812030075186 142.25285714285715Q129.460977443609 140.8 129.8466917293233 138.71714285714285L133.060977443609 139.72Q132.520977443609 142.34285714285716 131.1324060150376 144.27142857142857Q129.74383458646616 146.2 127.71240601503759 147.25428571428571Q125.68097744360901 148.30857142857144 123.16097744360901 148.30857142857144Q121.18097744360901 148.30857142857144 119.63812030075186 147.66571428571427Q118.09526315789473 147.02285714285713 117.19526315789474 145.91714285714284Q116.29526315789474 144.81142857142856 116.29526315789474 143.37142857142857Q116.29526315789474 142.03428571428572 116.8866917293233 140.96714285714285Q117.47812030075187 139.9 118.76383458646616 138.96142857142857Q120.04954887218045 138.02285714285713 122.02954887218044 137.12285714285713Q123.46954887218044 136.4542857142857 124.29240601503759 135.94Q125.11526315789473 135.4257142857143 125.44954887218044 134.95Q125.78383458646616 134.4742857142857 125.78383458646616 133.9857142857143Q125.78383458646616 133.31714285714287 125.33383458646617 132.90571428571428Q124.88383458646616 132.49428571428572 124.00954887218045 132.49428571428572Q123.08383458646615 132.49428571428572 122.56954887218043 132.95714285714286Q122.05526315789473 133.42 122.05526315789473 134.14Q122.05526315789473 134.5257142857143 122.20954887218045 134.89857142857142Q122.36383458646615 135.27142857142857 122.80097744360901 135.74714285714288Q123.23812030075187 136.22285714285715 124.03526315789473 136.96857142857144L133.52383458646617 145.76285714285714ZM147.23162406015035 148.0V130.0H154.9201954887218Q158.6744812030075 130.0 160.75733834586464 131.73571428571427Q162.84019548872178 133.47142857142856 162.84019548872178 136.53142857142856Q162.84019548872178 138.53714285714287 161.8887669172932 139.99Q160.93733834586465 141.44285714285715 159.1887669172932 142.21428571428572Q157.4401954887218 142.9857142857143 155.02305263157893 142.9857142857143H149.54590977443607L151.39733834586465 141.16V148.0ZM158.6744812030075 148.0 154.1744812030075 141.46857142857144H158.62305263157893L163.1744812030075 148.0ZM151.39733834586465 141.62285714285713 149.54590977443607 139.66857142857143H154.79162406015035Q156.7201954887218 139.66857142857143 157.67162406015035 138.83285714285714Q158.62305263157893 137.99714285714285 158.62305263157893 136.53142857142856Q158.62305263157893 135.04 157.67162406015035 134.21714285714285Q156.7201954887218 133.39428571428573 154.79162406015035 133.39428571428573H149.54590977443607L151.39733834586465 131.4142857142857ZM176.73980451127818 148.30857142857144Q174.60551879699244 148.30857142857144 172.79266165413532 147.6142857142857Q170.97980451127816 146.92 169.65551879699245 145.66Q168.33123308270675 144.4 167.5983759398496 142.70285714285714Q166.86551879699246 141.00571428571428 166.86551879699246 139.0Q166.86551879699246 136.99428571428572 167.5983759398496 135.29714285714286Q168.33123308270675 133.6 169.6683759398496 132.34Q171.00551879699245 131.08 172.80551879699243 130.3857142857143Q174.60551879699244 129.69142857142856 176.7140902255639 129.69142857142856Q178.8483759398496 129.69142857142856 180.63551879699247 130.3857142857143Q182.4226616541353 131.08 183.74694736842102 132.34Q185.07123308270673 133.6 185.816947368421 135.28428571428572Q186.5626616541353 136.96857142857144 186.5626616541353 139.0Q186.5626616541353 141.00571428571428 185.816947368421 142.71571428571428Q185.07123308270673 144.4257142857143 183.74694736842102 145.67285714285714Q182.4226616541353 146.92 180.63551879699247 147.6142857142857Q178.8483759398496 148.30857142857144 176.73980451127818 148.30857142857144ZM176.7140902255639 144.76Q177.9226616541353 144.76 178.9383759398496 144.3485714285714Q179.95409022556387 143.93714285714285 180.72551879699245 143.16571428571427Q181.49694736842102 142.3942857142857 181.92123308270675 141.33999999999997Q182.34551879699245 140.28571428571428 182.34551879699245 139.0Q182.34551879699245 137.71428571428572 181.92123308270675 136.66000000000003Q181.49694736842102 135.6057142857143 180.7383759398496 134.83428571428573Q179.97980451127816 134.06285714285715 178.95123308270672 133.6514285714286Q177.9226616541353 133.24 176.7140902255639 133.24Q175.50551879699245 133.24 174.48980451127818 133.6514285714286Q173.47409022556388 134.06285714285715 172.7026616541353 134.83428571428573Q171.93123308270674 135.6057142857143 171.50694736842104 136.66000000000003Q171.0826616541353 137.71428571428572 171.0826616541353 139.0Q171.0826616541353 140.26 171.50694736842104 141.32714285714286Q171.93123308270674 142.3942857142857 172.68980451127817 143.16571428571427Q173.4483759398496 143.93714285714285 174.476947368421 144.3485714285714Q175.50551879699245 144.76 176.7140902255639 144.76ZM200.307984962406 148.30857142857144Q198.17369924812027 148.30857142857144 196.36084210526315 147.6142857142857Q194.547984962406 146.92 193.22369924812028 145.66Q191.89941353383458 144.4 191.16655639097743 142.70285714285714Q190.4336992481203 141.00571428571428 190.4336992481203 139.0Q190.4336992481203 136.99428571428572 191.16655639097743 135.29714285714286Q191.89941353383458 133.6 193.23655639097743 132.34Q194.57369924812028 131.08 196.37369924812026 130.3857142857143Q198.17369924812027 129.69142857142856 200.28227067669172 129.69142857142856Q202.41655639097743 129.69142857142856 204.2036992481203 130.3857142857143Q205.99084210526314 131.08 207.31512781954885 132.34Q208.63941353383456 133.6 209.38512781954884 135.28428571428572Q210.13084210526313 136.96857142857144 210.13084210526313 139.0Q210.13084210526313 141.00571428571428 209.38512781954884 142.71571428571428Q208.63941353383456 144.4257142857143 207.31512781954885 145.67285714285714Q205.99084210526314 146.92 204.2036992481203 147.6142857142857Q202.41655639097743 148.30857142857144 200.307984962406 148.30857142857144ZM200.28227067669172 144.76Q201.49084210526314 144.76 202.50655639097744 144.3485714285714Q203.5222706766917 143.93714285714285 204.29369924812028 143.16571428571427Q205.06512781954885 142.3942857142857 205.48941353383458 141.33999999999997Q205.91369924812028 140.28571428571428 205.91369924812028 139.0Q205.91369924812028 137.71428571428572 205.48941353383458 136.66000000000003Q205.06512781954885 135.6057142857143 204.30655639097742 134.83428571428573Q203.547984962406 134.06285714285715 202.51941353383455 133.6514285714286Q201.49084210526314 133.24 200.28227067669172 133.24Q199.07369924812028 133.24 198.057984962406 133.6514285714286Q197.04227067669171 134.06285714285715 196.27084210526314 134.83428571428573Q195.49941353383457 135.6057142857143 195.07512781954887 136.66000000000003Q194.65084210526314 137.71428571428572 194.65084210526314 139.0Q194.65084210526314 140.26 195.07512781954887 141.32714285714286Q195.49941353383457 142.3942857142857 196.257984962406 143.16571428571427Q197.01655639097743 143.93714285714285 198.04512781954884 144.3485714285714Q199.07369924812028 144.76 200.28227067669172 144.76ZM215.13330827067668 148.0V130.0H228.73616541353383V133.34285714285716H219.29902255639098V148.0ZM218.99045112781954 141.44285714285715V138.1H227.63045112781953V141.44285714285715ZM233.43006015037594 148.0V130.0H237.59577443609024V148.0ZM243.72966917293232 148.0V130.0H247.17538345864662L257.7953834586466 142.96H256.123954887218V130.0H260.2382406015038V148.0H256.81824060150376L246.17252631578947 135.04H247.84395488721805V148.0ZM275.0635639097744 148.30857142857144Q272.9292781954887 148.30857142857144 271.14213533834584 147.62714285714287Q269.354992481203 146.94571428571427 268.03070676691726 145.68571428571428Q266.7064210526315 144.4257142857143 265.9735639097744 142.72857142857143Q265.24070676691724 141.03142857142856 265.24070676691724 139.0Q265.24070676691724 136.96857142857144 265.9735639097744 135.27142857142857Q266.7064210526315 133.5742857142857 268.04356390977443 132.31428571428572Q269.3807067669173 131.05428571428573 271.1807067669173 130.37285714285713Q272.98070676691725 129.69142857142856 275.1407067669173 129.69142857142856Q277.5321353383458 129.69142857142856 279.44784962406015 130.48857142857142Q281.3635639097744 131.28571428571428 282.674992481203 132.80285714285714L280.00070676691723 135.27142857142857Q279.0235639097744 134.24285714285713 277.86642105263155 133.74142857142857Q276.7092781954887 133.24 275.34642105263157 133.24Q274.03499248120295 133.24 272.95499248120296 133.6514285714286Q271.874992481203 134.06285714285715 271.09070676691726 134.83428571428573Q270.30642105263155 135.6057142857143 269.88213533834585 136.66000000000003Q269.45784962406015 137.71428571428572 269.45784962406015 139.0Q269.45784962406015 140.26 269.88213533834585 141.31428571428572Q270.30642105263155 142.36857142857144 271.09070676691726 143.15285714285716Q271.874992481203 143.93714285714285 272.9421353383458 144.3485714285714Q274.00927819548866 144.76 275.294992481203 144.76Q276.5292781954887 144.76 277.69927819548866 144.36142857142858Q278.8692781954887 143.96285714285713 279.974992481203 143.01142857142858L282.34070676691726 146.02Q280.874992481203 147.12571428571428 278.9335639097744 147.71714285714285Q276.99213533834586 148.30857142857144 275.0635639097744 148.30857142857144ZM282.34070676691726 146.02 278.53499248120295 145.48V138.71714285714285H282.34070676691726ZM297.2056390977443 148.0V130.0H301.3713533834586V144.6057142857143H310.3970676691729V148.0ZM314.6023909774436 148.0V130.0H318.76810526315785V144.6057142857143H327.79381954887214V148.0ZM340.6134285714285 148.30857142857144Q338.53057142857136 148.30857142857144 336.7434285714285 147.62714285714287Q334.9562857142857 146.94571428571427 333.64485714285706 145.68571428571428Q332.3334285714285 144.4257142857143 331.60057142857136 142.72857142857143Q330.8677142857142 141.03142857142856 330.8677142857142 139.0Q330.8677142857142 136.96857142857144 331.60057142857136 135.27142857142857Q332.3334285714285 133.5742857142857 333.65771428571423 132.31428571428572Q334.98199999999997 131.05428571428573 336.7562857142857 130.37285714285713Q338.53057142857136 129.69142857142856 340.6391428571428 129.69142857142856Q342.9791428571428 129.69142857142856 344.86914285714283 130.50142857142856Q346.7591428571428 131.31142857142856 348.0448571428571 132.88L345.3705714285714 135.34857142857143Q344.4448571428571 134.2942857142857 343.3134285714285 133.76714285714286Q342.18199999999996 133.24 340.8448571428571 133.24Q339.5848571428571 133.24 338.5305714285714 133.6514285714286Q337.47628571428567 134.06285714285715 336.7048571428571 134.83428571428573Q335.9334285714285 135.6057142857143 335.5091428571428 136.66000000000003Q335.0848571428571 137.71428571428572 335.0848571428571 139.0Q335.0848571428571 140.28571428571428 335.5091428571428 141.33999999999997Q335.9334285714285 142.3942857142857 336.7048571428571 143.16571428571427Q337.47628571428567 143.93714285714285 338.5305714285714 144.3485714285714Q339.5848571428571 144.76 340.8448571428571 144.76Q342.18199999999996 144.76 343.3134285714285 144.23285714285714Q344.4448571428571 143.7057142857143 345.3705714285714 142.62571428571428L348.0448571428571 145.09428571428572Q346.7591428571428 146.66285714285715 344.86914285714283 147.4857142857143Q342.9791428571428 148.30857142857144 340.6134285714285 148.30857142857144Z" fill="#dcdee2"/>
-</symbol>
-</svg>
-<svg class="ws-defs" aria-hidden="true">
-  <symbol id="ws-i-cam" viewBox="0 0 24 24"><rect x="2.4" y="7" width="19.2" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8 7l1.5-3h5L16 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.4" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
-  <symbol id="ws-i-again" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M18.6 2.8v4.6H14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="ws-i-talk" viewBox="0 0 24 24"><path d="M4 5h16v10H10l-5 4v-4H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
-  <symbol id="ws-i-warn" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v5M12 17.2v.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
-  <symbol id="ws-i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></symbol>
-  <symbol id="ws-i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
-  <symbol id="ws-i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8.8 7.5h6.4M8.8 10.5h6.4M8.8 13.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
-</svg>
 <div class="ws-bar"><button type="button" class="ws-back" id="psBack">Back to the app</button><div class="ws-name" id="psName">HMP <span>&middot;</span> Walk sheet</div>
 <div class="ws-seg" role="group" aria-label="Language / Idioma"><button type="button" data-psl="en" aria-pressed="true">EN</button><button type="button" data-psl="es" aria-pressed="false">ES</button></div>
 <button type="button" class="ws-go" id="psPrint">Print</button></div>
@@ -2594,28 +2538,25 @@ const HOW = [
 const TX = {
   en: {
     st: {
-      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Quick estimate', estLaunchS: 'A price range for any job, to show or text. English or Spanish.', tabToday: 'Today', tabLeads: 'Leads', tabMoney: 'Money', tabCrew: 'Crew', crewH: 'Team board', crewSub: 'who is working on what, live', officeView: 'Office view (the old map)', chainL: 'Chain of command', grpLead: 'Lead', grpCode: 'Code lab', grpChat: 'Chat wing', grpSched: 'Scheduled', tNow: 'Now doing', tLast: 'Last result', tAgo: w => `Updated ${w}`, needsH: n => `${n} ${pl(n, 'question needs', 'questions need')} you`, kingTag: 'King',
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Quick estimate', estLaunchS: 'A price range for any job, to show or text. English or Spanish.', tabToday: 'Today', tabLeads: 'Leads', tabMoney: 'Money',
       kcTitle: 'Talk to your Right Hand', kcSrc: 'log doors, leads and claims, pass things to the crew, or ask anything · English or Spanish · uses your Claude usage',
       kcLabel: 'Message to your Right Hand', kcPh: 'e.g. “knocked 20, 4 talked”', send: 'Send', stop: 'Stop',
     },
-    tst: {doing: 'Doing', blocked: 'Blocked', review: 'Review', done: 'Done', parked: 'Parked', todo: 'To do'},
     never: 'never', justNow: 'just now', mAgo: n => n + 'm ago', hAgo: n => n + 'h ago',
-    live: {preview: 'Preview only: live data loads on the published page', na: 'Live data is not available in this view', loading: 'Loading…', lost: 'Lost the live connection. Reload the page.', first: 'Live · waiting for the first check-in', wait: 'Connecting…', on: 'Live'},
+    live: {preview: 'Preview only: live data loads on the published page', na: 'Live data is not available in this view', loading: 'Loading…', lost: 'Lost the live connection. Reload the page.', wait: 'Connecting…', on: 'Live'},
     kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
     appOff: 'Preview only: live leads, claims and numbers load on the published page.', appErr: 'Leads and claims could not load. Reload the page.', appWait: 'Loading leads and claims…',
     // today
-    sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumAsk: n => `${n} ${pl(n, 'question', 'questions')} for you`, sumTask: n => `${n} ${pl(n, 'task', 'tasks')}`, sumClear: 'Nothing due. Go knock.',
-    asksH: n => `${n} waiting on you`, asksSub: 'Tap an answer; the Right Hand picks it up.',
+    sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumClear: 'Nothing due. Go knock.',
     followH: 'Follow-ups due', followNone: 'Nothing due today.', followLater: 'Coming up', kLead: 'Lead', kClaim: 'Claim',
     followEmpty: 'Nothing to follow up yet. Houses and claims you tell the Right Hand about show up here on the day they are due.',
-    tasksH: 'Your tasks', tasksNone: 'No open tasks for you on the board.', showAll: n => `Show all ${n}`, showLess: 'Show fewer',
     weekH: 'This week', weekSub: (n, r) => `Week ${n} · ${r}`, lastWeek: 'Last week',
     stats: {doors: 'Doors', conversations: 'Talks', inspections: 'Inspections', estimates: 'Estimates', signed: 'Signed'},
     goH: 'Go knock',
     go: [['Door lists + storm map', 'Streets to knock after the latest storms (command center)'], ['Practice Door', 'Practice the door with an AI homeowner before you knock'], ['HMP HQ', 'The business dashboard: jobs, crews, storms']],
     sayK: 'Tell the Right Hand', useIt: 'Put it in the chat box',
-    exToday: 'knocked 20, talked to 4, inspection at 1418 Irving Tuesday 3pm', exWeek: 'knocked 20, talked to 4',
+    exWeek: 'knocked 20, talked to 4',
     // leads
     fStage: {active: 'Active', won: 'Won', lost: 'Lost'}, fAll: 'All', src: {storm: 'Storm', everyday: 'Everyday', referral: 'Referral', sub: 'Sub'}, typ: {insurance: 'Insurance', cash: 'Cash'},
     leadsEmptyH: 'No leads yet.', leadsEmptyP: 'Every door you knock, every old house that needs siding, every referral: tell the Right Hand and the house shows up here with its next step.',
@@ -2632,7 +2573,7 @@ const TX = {
     mOwed: 'Still owed', mOwedS: (a, b) => `insurance ${a} · homeowners ${b}`, mMort: 'At mortgage co.', mMortS: n => (n ? `${n} ${pl(n, 'check', 'checks')} out to be signed` : 'no checks out'),
     mBar: 'Where the money is', mCounts: (a, o) => `${a} open · ${o} overdue`, mOpen: 'Open claims', mCash: 'Cash jobs', mDone: 'Finished',
     moneyEmptyH: 'No claims or cash jobs yet.', moneyEmptyP: 'When a homeowner signs, tell the Right Hand. Insurance claims and cash jobs show up here with what is collected and what is still owed.',
-    exMoney: '1418 Irving signed, State Farm claim 45-889', cashNone: 'No money logged yet.',
+    exMoney: '1418 Irving signed, State Farm claim 45-889',
     // receipts for the Right Hand's writes
     rc: {
       logged: (a, s, n) => `Logged: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Updated: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
@@ -2645,7 +2586,7 @@ const TX = {
       dedReply: 'The Right Hand’s reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'
     },
     ct: {
-      next: 'Next step', noNext: 'No next step yet. Tell the Right Hand what happens next.',
+      next: 'Next step',
       overdue: (d, day) => `Overdue ${d} ${pl(d, 'day', 'days')} · ${day}`, dueToday: 'Due today', dueTomorrow: 'Due tomorrow', due: day => `Due ${day}`,
       lostLbl: 'Claim lost', moneyIn: 'Money in', waiting: 'Waiting', fromIns: 'from insurance', atCo: co => `at ${co}`, toDeposit: 'to deposit', mortShort: 'the mortgage co.',
       noMoney: 'No money yet. The first check comes after the scope.', nothingWaiting: 'nothing waiting', claim: 'Claim', homeowner: 'Homeowner', inHand: 'Checks in hand, not deposited yet',
@@ -2675,27 +2616,24 @@ const TX = {
   },
   es: {
     st: {
-      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Estimado rápido', estLaunchS: 'Un rango de precio para cualquier trabajo, para enseñar o mandar por texto. Inglés o español.', tabToday: 'Hoy', tabLeads: 'Prospectos', tabMoney: 'Dinero', tabCrew: 'Equipo', crewH: 'Tablero del equipo', crewSub: 'quién está haciendo qué, en vivo', officeView: 'Vista de oficina (el mapa anterior)', chainL: 'Cadena de mando', grpLead: 'Líderes', grpCode: 'Laboratorio', grpChat: 'Ala de chat', grpSched: 'Programados', tNow: 'Haciendo ahora', tLast: 'Último resultado', tAgo: w => `Actualizado ${w}`, needsH: n => `${n} ${pl(n, 'pregunta te necesita', 'preguntas te necesitan')}`, kingTag: 'King',
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Estimado rápido', estLaunchS: 'Un rango de precio para cualquier trabajo, para enseñar o mandar por texto. Inglés o español.', tabToday: 'Hoy', tabLeads: 'Prospectos', tabMoney: 'Dinero',
       kcTitle: 'Habla con tu Mano Derecha', kcSrc: 'registra puertas, prospectos y reclamos, pásale cosas al equipo o pregunta lo que sea · inglés o español · usa tu cuenta de Claude',
       kcLabel: 'Mensaje para tu Mano Derecha', kcPh: 'ej. “toqué 20, 4 pláticas”', send: 'Enviar', stop: 'Parar',
     },
-    tst: {doing: 'En curso', blocked: 'Bloqueada', review: 'Revisar', done: 'Hecha', parked: 'En pausa', todo: 'Pendiente'},
     never: 'nunca', justNow: 'ahora mismo', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
-    live: {preview: 'Solo vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga la página.', first: 'En vivo · esperando el primer reporte', wait: 'Conectando…', on: 'En vivo'},
+    live: {preview: 'Solo vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga la página.', wait: 'Conectando…', on: 'En vivo'},
     kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
-    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta dla Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
+    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
     appOff: 'Solo vista previa: los prospectos, reclamos y números en vivo cargan en la página publicada.', appErr: 'No se pudieron cargar los prospectos y reclamos. Recarga la página.', appWait: 'Cargando prospectos y reclamos…',
-    sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumAsk: n => `${n} ${pl(n, 'pregunta', 'preguntas')} para ti`, sumTask: n => `${n} ${pl(n, 'tarea', 'tareas')}`, sumClear: 'Nada pendiente. A tocar puertas.',
-    asksH: n => `${n} ${pl(n, 'pregunta te espera', 'preguntas te esperan')}`, asksSub: 'Toca una respuesta; la Mano Derecha la recibe.',
+    sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumClear: 'Nada pendiente. A tocar puertas.',
     followH: 'Seguimientos para hoy', followNone: 'Nada pendiente para hoy.', followLater: 'Próximos', kLead: 'Prospecto', kClaim: 'Reclamo',
     followEmpty: 'Todavía no hay seguimientos. Las casas y reclamos que le cuentes a la Mano Derecha aparecen aquí el día que toca.',
-    tasksH: 'Tus tareas', tasksNone: 'No tienes tareas abiertas en el tablero.', showAll: n => `Ver las ${n}`, showLess: 'Ver menos',
     weekH: 'Esta semana', weekSub: (n, r) => `Semana ${n} · ${r}`, lastWeek: 'Semana pasada',
     stats: {doors: 'Puertas', conversations: 'Pláticas', inspections: 'Inspecciones', estimates: 'Presupuestos', signed: 'Firmados'},
     goH: 'A tocar puertas',
     go: [['Listas de puertas + mapa de tormentas', 'Calles para tocar después de las últimas tormentas (centro de mando)'], ['Puerta de práctica', 'Practica con un dueño de casa de IA antes de tocar'], ['HMP HQ', 'El tablero del negocio: trabajos, cuadrillas, tormentas']],
     sayK: 'Dile a la Mano Derecha', useIt: 'Ponerlo en el chat',
-    exToday: 'toqué 20 puertas, hablé con 4, inspección en 1418 Irving el martes a las 3', exWeek: 'toqué 15 puertas, 2 interesados',
+    exWeek: 'toqué 15 puertas, 2 interesados',
     fStage: {active: 'Activos', won: 'Ganados', lost: 'Perdidos'}, fAll: 'Todos', src: {storm: 'Tormenta', everyday: 'Casa vieja', referral: 'Referido', sub: 'Subcontrato'}, typ: {insurance: 'Seguro', cash: 'Contado'},
     leadsEmptyH: 'Todavía no hay prospectos.', leadsEmptyP: 'Cada puerta que toques, cada casa vieja que necesite siding, cada referido: díselo a la Mano Derecha y la casa aparece aquí con su siguiente paso.',
     exLead: 'toqué en 1418 Irving, hablé con María, inspección el martes a las 3', leadsNone: 'Ningún prospecto con este filtro.', howLead: 'Cómo avanza un prospecto (trabajos de seguro)',
@@ -2709,7 +2647,7 @@ const TX = {
     mOwed: 'Falta cobrar', mOwedS: (a, b) => `seguro ${a} · dueños ${b}`, mMort: 'Con el banco hipotecario', mMortS: n => (n ? `${n} ${pl(n, 'cheque', 'cheques')} con el banco para firmar` : 'ningún cheque con el banco'),
     mBar: 'Dónde está el dinero', mCounts: (a, o) => `${a} ${pl(a, 'abierto', 'abiertos')} · ${o} ${pl(o, 'atrasado', 'atrasados')}`, mOpen: 'Reclamos abiertos', mCash: 'Trabajos de contado', mDone: 'Terminados',
     moneyEmptyH: 'Todavía no hay reclamos ni trabajos de contado.', moneyEmptyP: 'Cuando un dueño firme, díselo a la Mano Derecha. Los reclamos de seguro y los trabajos de contado aparecen aquí con lo cobrado y lo que falta.',
-    exMoney: '1418 Irving firmó, State Farm reclamo 45-889', cashNone: 'Todavía no hay dinero registrado.',
+    exMoney: '1418 Irving firmó, State Farm reclamo 45-889',
     rc: {
       logged: (a, s, n) => `Registrado: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Actualizado: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
       doors: (p, w) => `Semana ${w}: ${p}`, statW: {doors: ['puerta', 'puertas'], conversations: ['plática', 'pláticas'], inspections: ['inspección', 'inspecciones'], estimates: ['presupuesto', 'presupuestos'], signed: ['firmado', 'firmados']},
@@ -2718,10 +2656,10 @@ const TX = {
       why: {addr: v => `Agrega el número de la casa para registrarlo${v ? ` (“${v}”)` : ''}.`, stage: v => `“${v}” no es un paso que la app conozca. Dilo de otra forma.`, num: f => `Di ${f} con número, por ejemplo 1200.`, date: f => `Di el día de ${f}, por ejemplo “martes” o “29 de sep”.`,
         src: v => `Di de dónde vino el prospecto: tormenta, casa vieja, referido o subcontrato.`, typ: v => `Di si es trabajo de seguro o de contado.`, obj: f => `La Mano Derecha mandó ${f} en una forma que la app no puede leer. Mándalo otra vez.`, next: 'Di cuál es el siguiente paso.', ded: 'Habla de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).',
         none: a => `Todavía no hay prospecto en ${a}. Primero di “prospecto nuevo en ${a}”.`, empty: 'No había nada nuevo que guardar.', nothing: 'Di cuántas puertas o pláticas sumar.', est: 'Los estimados cuentan cuando guardas uno en el prospecto: abre el prospecto, toca “Hacer un estimado rápido” y luego Guardar.'},
-      dedReply: 'Se retuvo la respuesta dla Mano Derecha: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'
+      dedReply: 'Se retuvo la respuesta de la Mano Derecha: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'
     },
     ct: {
-      next: 'Siguiente paso', noNext: 'Todavía no hay siguiente paso. Dile a la Mano Derecha qué sigue.',
+      next: 'Siguiente paso',
       overdue: (d, day) => `Atrasado ${d} ${pl(d, 'día', 'días')} · ${day}`, dueToday: 'Para hoy', dueTomorrow: 'Para mañana', due: day => `Para el ${day}`,
       lostLbl: 'Reclamo perdido', moneyIn: 'Dinero que entró', waiting: 'Falta', fromIns: 'del seguro', atCo: co => `con ${co}`, toDeposit: 'por depositar', mortShort: 'el banco hipotecario',
       noMoney: 'Todavía no hay dinero. El primer cheque llega después del alcance.', nothingWaiting: 'no falta nada', claim: 'Reclamo', homeowner: 'Dueño', inHand: 'Cheques en mano, sin depositar',
@@ -2752,29 +2690,20 @@ const TX = {
 };
 const L = () => TX[lang];
 
-/* ================= split (v20): the AI hub's summary in the app + live chip ================= */
-// The crew (team board, task board, questions, orders, memory) lives in the AI hub, a separate page with its own database.
-// Claude copies FilthE's tasks + waiting questions into this app's db doc hub/summary every hour; the app shows them read-only.
-// Anything the chat passes to the crew goes to handoffs/<ISO time> {text, at, from, status}, which Claude Code reads every hour.
-const HUB_URL = 'https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU';   // the AI hub (the old Crew HQ link)
+/* ================= the chat's requests for the crew (split v20; v23: the app and the AI hub never mix) ================= */
+// The app shows nothing from the AI hub and links nowhere near it. What the chat passes to the crew goes, behind the scenes, to
+// handoffs/<ISO time> {text, at, from, status}; Claude Code reads them.
 let DB = null;
 let prices;   // db system/prices (hh.py estimate --export-rules): undefined = loading, null = missing
 let takeoffRules;   // v22: db system/takeoff (hh.py takeoff --export-rules): undefined = loading, null = missing
 let dbState = 'wait';
-let hub = null;   // hub/summary {tasks:[{id,task,status}], waiting:[{id,q}], hub_link, updated_at}; null = not written yet (the boxes hide)
-function statusKey(s){ const u = String(s||'').toUpperCase(); if (u.startsWith('DOING')) return 'doing'; if (u.startsWith('BLOCK')) return 'blocked'; if (u.startsWith('REVIEW')) return 'review'; if (u.startsWith('DONE')) return 'done'; if (u.startsWith('PARK')) return 'parked'; return 'todo'; }
-const hubLink = () => { const u = hub && typeof hub.hub_link === 'string' ? hub.hub_link.trim() : ''; return /^https:\/\/claude\.ai\/[A-Za-z0-9/_\-.~]*$/.test(u) ? u : HUB_URL; };
-const hubTasks = () => (hub && Array.isArray(hub.tasks) ? hub.tasks : []).filter(t => t && typeof t === 'object' && strv(t.task) && !['done', 'parked'].includes(statusKey(t.status)));
-const hubWaiting = () => (hub && Array.isArray(hub.waiting) ? hub.waiting : []).filter(x => x && typeof x === 'object' && strv(x.q));
 let lastHandoffMs = 0;
 function handoffId(){ let ms = Date.now(); if (ms <= lastHandoffMs) ms = lastHandoffMs + 1; lastHandoffMs = ms; return new Date(ms).toISOString(); }   // unique, sorts by time
 const HX = {
-  en: {asksSub: 'Answer them in the AI hub, or tell your Right Hand and it passes your answer on.', answerIn: 'Answer in the AI hub ↗', openHub: 'Open the AI hub ↗',
-    hubUpd: w => `Copied from the AI hub ${w}`, hubOld: 'may be out of date', sent: t => `Sent to the crew: ${t}`,
-    hubOnly: 'Task board changes happen in the AI hub. Ask for it here and it goes to the crew.', noText: 'Say what the crew should do.'},
-  es: {asksSub: 'Contéstalas en el centro de IA, o díselo a tu Mano Derecha y ella pasa tu respuesta.', answerIn: 'Contestar en el centro de IA ↗', openHub: 'Abrir el centro de IA ↗',
-    hubUpd: w => `Copiado del centro de IA ${w}`, hubOld: 'puede estar desactualizado', sent: t => `Enviado al equipo: ${t}`,
-    hubOnly: 'Los cambios del tablero se hacen en el centro de IA. Pídelo aquí y le llega al equipo.', noText: 'Di qué debe hacer el equipo.'}
+  en: {passed: 'Passed to the crew',
+    hubOnly: 'That’s done in the AI hub, not in the app.', noText: 'Say what the crew should do.'},
+  es: {passed: 'Se lo pasé al equipo',
+    hubOnly: 'Eso se hace en el centro de IA, no en la app.', noText: 'Di qué debe hacer el equipo.'}
 };
 const HB = () => HX[lang];
 const tFmt = new Intl.DateTimeFormat(undefined, {hour:'numeric', minute:'2-digit'});
@@ -2786,7 +2715,7 @@ function refreshLive(){ if (appState === 'on') setLive('on', L().live.on); }
 /* ================= HMP App: Today / Leads / Money (O0 + O1) ================= */
 let leads = [], claims = [], walk = null, doorDocs = {}, weekDoc = null, lastWeekDoc = null, guideDoc = null;
 let appState = 'wait';            // wait | on | off | err
-let openRef = null, lastFocus = null, showAllTasks = false;
+let openRef = null, lastFocus = null;
 let leadStageF = 'active', leadSrcF = 'all', bookingPid = null, booking = {day: null, time: null};
 const undoLog = new Map();        // pid -> [{lead slug, previous lead body or null}] for this visit
 
@@ -2809,8 +2738,7 @@ const KT = {
     passNote: (p, n) => `Pass ${p}: ${n} not-home ${pl(n, 'door', 'doors')} to try again.`, allDone: 'Every house is done. Tap “Done for today” to save the numbers.',
     readOnly: 'Only editors can log doors here. Tell the Right Hand instead.', saveFail: 'That tap did not save. Check your connection and tap again.',
     nextInt: {storm: ['Call back and set the inspection', 'Llamar y agendar la inspección'], everyday: ['Call back and set the estimate visit', 'Llamar y agendar la cita de presupuesto']},
-    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']},
-    walkedBy: (w) => `Walk picked ${w}`
+    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']}
   },
   es: {
     eb: {storm: 'Puertas de hoy · zona de tormenta', everyday: 'Puertas de hoy · casas viejas'},
@@ -2830,8 +2758,7 @@ const KT = {
     passNote: (p, n) => `Vuelta ${p}: ${n} ${pl(n, 'puerta', 'puertas')} donde no estaban, para intentar otra vez.`, allDone: 'Ya terminaste todas las casas. Toca “Terminé por hoy” para guardar los números.',
     readOnly: 'Solo los editores pueden registrar puertas aquí. Díselo a la Mano Derecha.', saveFail: 'No se guardó ese toque. Revisa tu conexión y toca otra vez.',
     nextInt: {storm: ['Call back and set the inspection', 'Llamar y agendar la inspección'], everyday: ['Call back and set the estimate visit', 'Llamar y agendar la cita de presupuesto']},
-    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']},
-    walkedBy: (w) => `Ruta escogida ${w}`
+    nextBook: {storm: ['Inspection', 'Inspección'], everyday: ['Estimate visit', 'Cita de presupuesto']}
   }
 };
 const K = () => KT[lang];
@@ -2843,15 +2770,17 @@ const numv = v => { if (typeof v === 'number' && isFinite(v)) return v; if (type
 const dayOf = v => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : null);
 const yesv = v => v === true || (typeof v === 'string' && v.trim() !== '' && !/^(false|no|0)$/i.test(v.trim()));
 const strv = v => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
-const usd = n => new Intl.NumberFormat(locale(), {style: 'currency', currency: 'USD', maximumFractionDigits: 0}).format(n || 0);
+// v23: one formatter per locale + options, reused (building an Intl formatter on every date or dollar was the top cost of a redraw)
+const FMTS = new Map(), fmtr = (kind, loc, o) => { const k = kind + loc + JSON.stringify(o); let f = FMTS.get(k); if (!f) { f = kind === 'n' ? new Intl.NumberFormat(loc, o) : new Intl.DateTimeFormat(loc, o); FMTS.set(k, f); } return f; };
+const usd = n => fmtr('n', locale(), {style: 'currency', currency: 'USD', maximumFractionDigits: 0}).format(n || 0);
 const pad2 = n => String(n).padStart(2, '0');
 const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 const todayStr = () => ymd(new Date());
 const addDays = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return ymd(x); };
 const toDate = d => new Date(d + 'T12:00:00');
-const fmtDay = (d, weekday) => { const o = {month: 'short', day: 'numeric'}; if (weekday) o.weekday = 'short'; if (d.slice(0, 4) !== String(new Date().getFullYear())) o.year = 'numeric'; return toDate(d).toLocaleDateString(locale(), o); };
+const fmtDay = (d, weekday) => { const o = {month: 'short', day: 'numeric'}; if (weekday) o.weekday = 'short'; if (d.slice(0, 4) !== String(new Date().getFullYear())) o.year = 'numeric'; return fmtr('d', locale(), o).format(toDate(d)); };
 const daysFromToday = d => Math.round((toDate(d) - toDate(todayStr())) / 86400000);
-const fmtWhen = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(locale(), {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}); };
+const fmtWhen = iso => { const d = new Date(iso); return isNaN(d) ? '' : fmtr('d', locale(), {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}).format(d); };
 const txl = o => (o && typeof o === 'object' ? strv(o[lang]) || strv(o.en) || strv(o.es) : strv(o));
 const slugOf = a => String(a || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 const pidSafe = p => String(p || '').replace(/[^A-Za-z0-9_\-.~:@+]/g, '-').slice(0, 120);
@@ -2885,14 +2814,14 @@ const VX = {
     lateH: 'Call these first: no contact in 24 hours', late: (who, d) => `${who}: no contact for ${d} ${pl(d, 'day', 'days')}`, callNow: 'Call now', lateWhat: 'Call or stop by today.',
     sumLate: n => `${n} ${pl(n, 'lead', 'leads')} waiting too long`, lateChip: d => `No contact ${d} ${pl(d, 'day', 'days')}`,
     // hail proof
-    proofEb: 'Hail proof', proofHit: 'hail at this address', proofSized: n => `about the size of a ${n}`, proofDay: (d, n) => `${d} · ${n === 0 ? 'today' : n === 1 ? 'yesterday' : n + ' days ago'}`,
+    proofEb: 'Hail proof', proofSized: n => `about the size of a ${n}`, proofDay: (d, n) => `${d} · ${n === 0 ? 'today' : n === 1 ? 'yesterday' : n + ' days ago'}`,
     proofRadar: 'Biggest hail the radar saw near this house', proofNear: 'Closest official report', proofNearV: (s, d) => `${s} in hail, ${d} mi away`, proofScale: 'To scale, next to a quarter', quarter: 'quarter',
     proofNote: 'This shows the storm that hit this area. It is not a promise of what insurance covers: only the insurer decides, after its own inspection.',
     proofNone: 'No hail record for this address yet.', back: 'Back', srcName: {lsr: 'NWS storm report', spc: 'NWS storm report', swdi: 'NEXRAD radar', mping: 'mPING report', stormevents: 'NOAA Storm Events', mrms: 'MRMS radar'},
     hail: [[4, 'softball'], [3, 'teacup'], [2.75, 'baseball'], [2.5, 'tennis ball'], [2, 'hen egg'], [1.75, 'golf ball'], [1.5, 'ping pong ball'], [1.25, 'half dollar'], [1, 'quarter'], [0.88, 'nickel'], [0.75, 'penny'], [0, 'pea']],
     // inspection photo checklist
     phH: 'Inspection photos', phProg: (n, t) => `${n} of ${t} photos`, phSafety: 'Safety first: wear a harness on roofs steeper than about 6/12. Never go on a wet, icy or windy roof. Tell someone before you climb and when you are down.',
-    phRecord: 'The app only records what you see. It never says if something is hail damage.', phAdd: 'Add photo', phAddMore: 'Add more', phMark: 'Done', phMarkAria: s => `${s}: mark done`,
+    phRecord: 'The app only records what you see. It never says if something is hail damage.', phAdd: 'Add photo', phAddMore: 'Add more', phMarkAria: s => `${s}: mark done`,
     phUp: (i, n) => `Uploading ${i} of ${n}…`, phSaved: n => `${n} ${pl(n, 'photo', 'photos')} saved`, phReader: 'Only editors can add photos.',
     phErr: {too_large: 'That photo is too big (over 20 MB). Take it again or pick a smaller one.', unsupported_type: 'That file is not a photo the app can keep. Use a JPG or PNG.', quota_or_state: 'Photo storage is full. Ask Claude to clear old photos.', rate_limited: 'Too many photos at once. Wait a minute and try again.', net: 'The photo did not upload. Check your signal and try again.'},
     phRemove: 'Remove photo', phConfirm: 'Tap again to remove', phClose: 'Close', phRemoved: 'Photo removed', before: 'Before', after: 'After', pairH: 'Before and after',
@@ -2913,12 +2842,12 @@ const VX = {
     suppLine: (item, amt) => `Supplement${item ? ': ' + item : ''}${amt ? ' · asked ' + amt : ''}`,
     gloss: [['RCV', 'the full price of the job on the insurer’s scope.'], ['ACV', 'the first check: the full price minus depreciation.'], ['Depreciation', 'money held back until the job is done. The insurer releases it after proof of completion.']],
     def: {rcv: 'Full price of the job on the scope.', acv: 'First check: full price minus depreciation.', dep: 'Held back until the job is done.'},
-    pay: {deposit: 'Deposit', progress: 'Progress', final: 'Final'}, payH: 'Payments', payPaid: d => `Paid ${d}`, payPaidYes: 'Paid', payDue: d => `Due ${d}`, payLate: n => `${n} ${pl(n, 'day', 'days')} overdue`, payNoDate: 'No due date yet',
+    pay: {deposit: 'Deposit', progress: 'Progress', final: 'Final'}, payPaid: d => `Paid ${d}`, payPaidYes: 'Paid', payDue: d => `Due ${d}`, payLate: n => `${n} ${pl(n, 'day', 'days')} overdue`, payNoDate: 'No due date yet',
     over30: 'Over 30 days overdue',
     // lead sheet
     ask: 'Ask the homeowner', askName: 'Name', askPhone: 'Phone', askBoth: 'Name and phone',
     // texts
-    txtH: 'Text the homeowner', txtOpen: 'Open in Messages', txtCopy: 'Copy text', txtCopied: 'Copied', txtSent: 'I sent it', txtLogged: 'Logged: texted today', txtNote: 'Your phone opens with the text ready. You press send. If nothing opens, copy it.',
+    txtH: 'Text the homeowner', txtOpen: 'Open in Messages', txtCopy: 'Copy text', txtSent: 'I sent it', txtLogged: 'Logged: texted today', txtNote: 'Your phone opens with the text ready. You press send. If nothing opens, copy it.',
     txtLast: d => `Last texted ${d}`,
     dedupe: 'counted once with today’s door taps', onPhone: 'saved on this phone, sends when back online',
     printBtn: 'Print today’s walk', printSub: 'Paper backup for a dead phone or no signal.',
@@ -2946,13 +2875,13 @@ const VX = {
     legend: {next: 'Siguiente', none: 'Falta', not_home: 'No está', no: 'No', interested: 'Interesado', booked: 'Agendado'},
     lateH: 'Llama primero a estos: sin contacto en 24 horas', late: (who, d) => `${who}: sin contacto desde hace ${d} ${pl(d, 'día', 'días')}`, callNow: 'Llama ya', lateWhat: 'Llama o pasa hoy.',
     sumLate: n => `${n} ${pl(n, 'prospecto', 'prospectos')} esperando demasiado`, lateChip: d => `Sin contacto ${d} ${pl(d, 'día', 'días')}`,
-    proofEb: 'Prueba de granizo', proofHit: 'de granizo en esta dirección', proofSized: n => `como del tamaño de ${n}`, proofDay: (d, n) => `${d} · ${n === 0 ? 'hoy' : n === 1 ? 'ayer' : 'hace ' + n + ' días'}`,
+    proofEb: 'Prueba de granizo', proofSized: n => `como del tamaño de ${n}`, proofDay: (d, n) => `${d} · ${n === 0 ? 'hoy' : n === 1 ? 'ayer' : 'hace ' + n + ' días'}`,
     proofRadar: 'El granizo más grande que vio el radar cerca de esta casa', proofNear: 'Reporte oficial más cercano', proofNearV: (s, d) => `granizo de ${s} pulg, a ${d} millas`, proofScale: 'A escala, junto a una moneda de 25 centavos', quarter: '25 centavos',
     proofNote: 'Esto muestra la tormenta que pegó en la zona. No es una promesa de lo que cubre el seguro: solo la aseguradora decide, después de su propia inspección.',
     proofNone: 'Todavía no hay registro de granizo para esta dirección.', back: 'Atrás', srcName: {lsr: 'reporte del NWS', spc: 'reporte del NWS', swdi: 'radar NEXRAD', mping: 'reporte mPING', stormevents: 'NOAA Storm Events', mrms: 'radar MRMS'},
     hail: [[4, 'una pelota de softbol'], [3, 'una taza de té'], [2.75, 'una pelota de béisbol'], [2.5, 'una pelota de tenis'], [2, 'un huevo'], [1.75, 'una pelota de golf'], [1.5, 'una pelota de ping pong'], [1.25, 'una moneda de 50 centavos'], [1, 'una moneda de 25 centavos'], [0.88, 'una moneda de 5 centavos'], [0.75, 'una moneda de 1 centavo'], [0, 'un chícharo']],
     phH: 'Fotos de la inspección', phProg: (n, t) => `${n} de ${t} fotos`, phSafety: 'Primero la seguridad: usa arnés en techos con más de 6/12 de inclinación. Nunca te subas a un techo mojado, con hielo o con viento. Avisa a alguien antes de subir y cuando bajes.',
-    phRecord: 'La app solo registra lo que ves. Nunca dice si algo es daño por granizo.', phAdd: 'Agregar foto', phAddMore: 'Agregar más', phMark: 'Listo', phMarkAria: s => `${s}: marcar como listo`,
+    phRecord: 'La app solo registra lo que ves. Nunca dice si algo es daño por granizo.', phAdd: 'Agregar foto', phAddMore: 'Agregar más', phMarkAria: s => `${s}: marcar como listo`,
     phUp: (i, n) => `Subiendo ${i} de ${n}…`, phSaved: n => `${n} ${pl(n, 'foto guardada', 'fotos guardadas')}`, phReader: 'Solo los editores pueden agregar fotos.',
     phErr: {too_large: 'Esa foto es muy grande (más de 20 MB). Tómala otra vez o escoge una más chica.', unsupported_type: 'Ese archivo no es una foto que la app pueda guardar. Usa JPG o PNG.', quota_or_state: 'Se llenó el espacio de fotos. Pídele a Claude que borre fotos viejas.', rate_limited: 'Demasiadas fotos a la vez. Espera un minuto e intenta otra vez.', net: 'La foto no se subió. Revisa tu señal e intenta otra vez.'},
     phRemove: 'Quitar foto', phConfirm: 'Toca otra vez para quitarla', phClose: 'Cerrar', phRemoved: 'Se quitó la foto', before: 'Antes', after: 'Después', pairH: 'Antes y después',
@@ -2972,10 +2901,10 @@ const VX = {
     suppLine: (item, amt) => `Suplemento${item ? ': ' + item : ''}${amt ? ' · pedido ' + amt : ''}`,
     gloss: [['RCV', 'el precio completo del trabajo en el alcance de la aseguradora.'], ['ACV', 'el primer cheque: el precio completo menos la depreciación.'], ['Depreciación', 'dinero que se retiene hasta terminar el trabajo. La aseguradora lo libera con la prueba de terminado.']],
     def: {rcv: 'Precio completo del trabajo en el alcance.', acv: 'Primer cheque: precio completo menos depreciación.', dep: 'Se retiene hasta terminar el trabajo.'},
-    pay: {deposit: 'Depósito', progress: 'Avance', final: 'Final'}, payH: 'Pagos', payPaid: d => `Pagado ${d}`, payPaidYes: 'Pagado', payDue: d => `Vence ${d}`, payLate: n => `${n} ${pl(n, 'día', 'días')} de atraso`, payNoDate: 'Todavía sin fecha',
+    pay: {deposit: 'Depósito', progress: 'Avance', final: 'Final'}, payPaid: d => `Pagado ${d}`, payPaidYes: 'Pagado', payDue: d => `Vence ${d}`, payLate: n => `${n} ${pl(n, 'día', 'días')} de atraso`, payNoDate: 'Todavía sin fecha',
     over30: 'Más de 30 días de atraso',
     ask: 'Pregúntale al dueño', askName: 'Nombre', askPhone: 'Teléfono', askBoth: 'Nombre y teléfono',
-    txtH: 'Mandar texto al dueño', txtOpen: 'Abrir en Mensajes', txtCopy: 'Copiar texto', txtCopied: 'Copiado', txtSent: 'Ya lo mandé', txtLogged: 'Registrado: texto de hoy', txtNote: 'Tu teléfono abre con el texto listo. Tú le das enviar. Si no abre nada, cópialo.',
+    txtH: 'Mandar texto al dueño', txtOpen: 'Abrir en Mensajes', txtCopy: 'Copiar texto', txtSent: 'Ya lo mandé', txtLogged: 'Registrado: texto de hoy', txtNote: 'Tu teléfono abre con el texto listo. Tú le das enviar. Si no abre nada, cópialo.',
     txtLast: d => `Último texto ${d}`,
     dedupe: 'contado una vez junto con los toques de hoy', onPhone: 'guardado en este teléfono, se manda cuando vuelva la señal',
     printBtn: 'Imprimir la ruta de hoy', printSub: 'Respaldo en papel por si el teléfono se apaga o no hay señal.',
@@ -2997,6 +2926,18 @@ function appToast(msg, act){ const n = $('#appToast'); n.textContent = msg;
     if (box !== n) n.append(box); }
   n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), acts.length ? 9000 + 3000 * (acts.length - 1) : 3800); }
 $('#appToast').addEventListener('click', ev => { if (ev.target.closest('button, a')) { clearTimeout(appToast.t); $('#appToast').hidden = true; } });
+
+/* ---------- v23: redraws from live data leave identical parts alone ---------- */
+// A snapshot (or the 30 s clock) redraws with renderApp(false): a part whose HTML is the same as last time is not rebuilt, so
+// focus, scroll, open <details> and loaded photos stay put. A tap or a forced redraw always rebuilds (it may need to reset a
+// button the tap disabled). The check also notices when other code replaced the part's children since the last write.
+let softDraw = false;
+function setHTML(n, html){
+  if (!n) return;
+  if (softDraw && n.__h === html && n.firstChild === n.__f && n.lastChild === n.__l) return;
+  n.innerHTML = html; n.__h = html; n.__f = n.firstChild; n.__l = n.lastChild;
+}
+const soft = n => ({set html(v){ setHTML(n, v); }});
 
 /* ================= outbox: writes that can't reach the database wait on this phone and retry by themselves ================= */
 const OB_KEY = 'hmp-app-outbox';
@@ -3242,7 +3183,7 @@ function walkMap(m){
 }
 
 /* ---------- today's walk: render (the next door and its 4 buttons come first) ---------- */
-const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = d.toLocaleTimeString(locale(), {hour: 'numeric', minute: '2-digit'}); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
+const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
 function doorAddr(s, isNext, k){ const a = splitAddr(s.address), hl = txl(s.house_line), why = whyHouse(s, walk && walk.kind === 'everyday' ? 'everyday' : 'storm').text;   // v19: why this house
   return `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}${why ? `<span class="d-why">${esc(why)}</span>` : ''}${hl ? `<span class="d-house">${esc(hl)}</span>` : ''}</div>`; }
 function doorTools(s, canTap, more){
@@ -3281,7 +3222,7 @@ function renderKnock(){
   const box = $('#knock'); const k = K(), V0 = V(); const m = walkModel();
   if (!m) {
     const old = walk && dayOf(walk.date) && daysFromToday(dayOf(walk.date)) < -WALK_MAX_AGE;
-    box.innerHTML = `<div class="k-empty"><div class="k-eb">${esc(k.eb.storm.split('·')[0].trim())}</div><h2>${esc(k.emptyH)}</h2>
+    soft(box).html = `<div class="k-empty"><div class="k-eb">${esc(k.eb.storm.split('·')[0].trim())}</div><h2>${esc(k.emptyH)}</h2>
       ${old ? `<p class="k-stale" style="width:100%"><span><b>${esc(V0.stale(fmtDay(dayOf(walk.date), true)))}</b> ${esc(V0.tooOld)}</span></p>` : ''}
       <p style="margin:0;font-size:16px;color:var(--ink2)">${esc(k.emptyP)} <q>${esc(k.emptyQ)}</q></p>
       ${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" id="kAsk">${esc(k.emptyBtn)}</button>` : ''}
@@ -3328,7 +3269,7 @@ function renderKnock(){
   // a live update must never steal the button under FilthE's thumb: remember what had focus and put it back
   const ae = document.activeElement, keep = ae && box.contains(ae) ? (ae.dataset.r ? (ae.closest('#kNow') ? `#kNow [data-r="${ae.dataset.r}"]` : `.k-list .door[data-pid="${ae.dataset.pid}"] [data-r="${ae.dataset.r}"]`) : ae.id ? '#' + ae.id : null) : null;
   const foot = !canTap && DB ? esc(k.readOnly) : m.hidden ? `${esc(V0.dnkFoot(m.hidden))}${lastDnk && canTap ? ` <button type="button" class="linkbtn" data-dnk-undo="1">${esc(V0.dnkUndo)}</button>` : ''}` : '';
-  box.innerHTML = `${head}${cb}${now}
+  soft(box).html = `${head}${cb}${now}
     <div class="k-body"><div class="k-txt">
       ${txl(w.why) ? `<p class="k-why">${esc(txl(w.why))}</p>` : ''}
       <div class="k-facts"><span class="k-fact">${k.goal(goal)}</span><span class="k-fact">${k.time(esc(k.hrs(mins)))}</span><span class="k-fact">${k.houses(stops.length)}</span><span class="k-fact">${k.pass(pass)}</span></div>
@@ -3355,7 +3296,7 @@ function bookForm(kind){
 function renderTally(m){
   const k = K(), bar = $('#tally'); bar.hidden = false;
   const due = callbackCount();
-  bar.innerHTML = ['doors', 'talked', 'interested', 'booked'].map(x => `<div class="tn"><b>${m.tally[x]}</b><span>${esc(k.t[x])}</span></div>`).join('') +
+  soft(bar).html = ['doors', 'talked', 'interested', 'booked'].map(x => `<div class="tn"><b>${m.tally[x]}</b><span>${esc(k.t[x])}</span></div>`).join('') +
     `<div class="t-acts">${m.nextIdx >= 0 ? `<button type="button" class="t-next" id="tNext">${esc(V().nextBtn)}</button>` : '<span></span>'}<button type="button" class="t-cb${due ? '' : ' none'}" id="tCb">${esc(k.cb(due))}</button>${DB && CAN_EDIT ? `<button type="button" class="t-done" id="tDone">${esc((weekDoc && weekDoc.walks && weekDoc.walks[m.date]) ? k.doneAgain : k.done)}</button>` : ''}</div>`;
 }
 $('#tally').addEventListener('click', ev => {
@@ -3580,7 +3521,7 @@ const WS_T = {
     date: (d, t) => d.getDate() + ' ' + t.mo[d.getMonth()] + ' ' + d.getFullYear()
   }
 };
-var PrintWalk = (() => {
+function makePrintWalk(){   // v23: built on the first "Print today's walk" tap, not at load
   const tx = (o, l) => (o == null ? '' : typeof o === 'string' ? o : strv(o[l]) || strv(o.en));
   const num = v => (v == null || v === '' ? null : isFinite(+v) ? +v : null);
   const icon = id => `<svg aria-hidden="true"><use href="#ws-i-${id}"/></svg>`;
@@ -3797,7 +3738,12 @@ var PrintWalk = (() => {
   $('#psView').addEventListener('keydown', ev => { if (ev.key === 'Escape') { ev.stopPropagation(); close(); } });
   window.addEventListener('resize', () => { if (isOpen()) fit(); });
   return {open, close, render, isOpen};
-})();
+}
+// the sheet's logo + icons live in <script type="text/x-hmp-svg" id="psDefs"> at the end of the page until the first print
+function psDefsIn(){ const t = document.getElementById('psDefs'); if (t) { $('#psView').insertAdjacentHTML('afterbegin', t.textContent); t.remove(); } }
+let pwMod = null;
+const pwGet = () => pwMod || (psDefsIn(), pwMod = makePrintWalk());
+var PrintWalk = {open: from => pwGet().open(from), close: () => { if (pwMod) pwMod.close(); }, render: () => (pwMod ? pwMod.render() : 0), isOpen: () => !!pwMod && pwMod.isOpen()};
 
 /* ---------- v16: this week's quick estimates, the same rule as hailhunter/weekly.py estimates() ---------- */
 // a lead counts once when its estimate's day falls in the ISO week, whatever its stage: estimate.day (the LOCAL calendar day,
@@ -3854,7 +3800,12 @@ function lastContactMs(l){   // a talk at the door, a call or a text; a "not hom
   for (const x of arr(l.doors_visits)) if (x.result !== 'not_home') best = Math.max(best, tsOf(x.at) || tsOf(x.date));
   return best;
 }
+let lateMemo = null, followMemo = null;   // v23: one answer per data version and minute (a redraw asked 10-20 times)
 function lateLeads(){   // the first to respond wins most jobs: a new lead with no contact in 24 hours goes red
+  const mk = Math.floor(Date.now() / 60000); if (lateMemo && lateMemo.leads === leads && lateMemo.mk === mk) return lateMemo.out;
+  const out = lateLeadsNow(); lateMemo = {leads, mk, out}; return out;
+}
+function lateLeadsNow(){
   const now = Date.now(), t0 = todayStr(), out = [];
   for (const l of leads) {
     if (!['not_contacted', 'contacted'].includes(l.stage)) continue;
@@ -3868,6 +3819,11 @@ function lateLeads(){   // the first to respond wins most jobs: a new lead with 
 }
 const whoOf = l => [strv(l.first_name), shortAddr(strv(l.address) || l.id)].filter(Boolean).join(', ');
 function followItems(){
+  const mk = Math.floor(Date.now() / 60000);
+  if (followMemo && followMemo.leads === leads && followMemo.claims === claims && followMemo.lang === lang && followMemo.mk === mk) return followMemo.out;
+  const out = followItemsNow(); followMemo = {leads, claims, lang, mk, out}; return out;
+}
+function followItemsNow(){
   const out = [];
   for (const l of leads) { if (['done', 'lost'].includes(l.stage)) continue; const ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'lead', id: l.id, address: strv(l.address) || l.id, text: txl(ns), due: d}); }
   for (const c of claims) { if (['paid', 'lost'].includes(c.stage)) continue; const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(ns), due: d}); }
@@ -3889,36 +3845,23 @@ function lateList(late){
   const V0 = V();
   return `<p class="late-h">${esc(V0.lateH)}</p><ul class="fu late">${late.map(x => `<li><button type="button" data-open="lead:${esc(x.l.id)}"><span class="addr">${esc(V0.late(whoOf(x.l), x.days))}</span><span class="a-chip crit">! ${esc(V0.callNow)}</span><span class="what">${esc(txl(x.l.next_step) || V0.lateWhat)}</span></button></li>`).join('')}</ul>`;
 }
-function myTasks(){ return hubTasks(); }
 function sayBox(text){ return SAMPLE && CAN_EDIT ? `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q><button type="button" class="btn sm" data-say="${esc(text)}">${esc(L().useIt)}</button></div>` : `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q></div>`; }
 function renderToday(){
   const T = L(), t0 = todayStr();
   $('#tDate').textContent = toDate(t0).toLocaleDateString(locale(), {weekday: 'long', month: 'long', day: 'numeric'});
-  const due = dueToday(), late = lateLeads(), asks = hubWaiting(), tasks = myTasks();
-  const bits = []; if (late.length) bits.push(`<b class="crit">${esc(V().sumLate(late.length))}</b>`); if (asks.length) bits.push(`<b class="hot">${esc(T.sumAsk(asks.length))}</b>`); if (due.length) bits.push(`<b class="crit">${esc(T.sumDue(due.length))}</b>`); if (tasks.length) bits.push(`<b>${esc(T.sumTask(tasks.length))}</b>`);
-  $('#tSum').innerHTML = bits.length ? bits.join(' · ') : esc(T.sumClear);
+  const due = dueToday(), late = lateLeads();
+  const bits = []; if (late.length) bits.push(`<b class="crit">${esc(V().sumLate(late.length))}</b>`); if (due.length) bits.push(`<b class="crit">${esc(T.sumDue(due.length))}</b>`);
+  soft($('#tSum')).html = bits.length ? bits.join(' · ') : esc(T.sumClear);
   renderKnock();
   renderMoves();   // v19
-  // loud questions
-  const ab = $('#tAsks'); ab.hidden = !asks.length;
-  if (asks.length) { ab.className = 'asks-loud'; ab.innerHTML = `<h2 class="ah">${esc(T.asksH(asks.length))}</h2><p class="a-quiet">${esc(HB().asksSub)}</p><ul class="qlist">${asks.map(x => `<li><span>${strv(x.id) ? `<span class="qid">${esc(strv(x.id))}</span>` : ''}${esc(strv(x.q))}</span></li>`).join('')}</ul><a class="hub-go" href="${esc(hubLink())}" target="_blank" rel="noopener">${esc(HB().answerIn)}</a>`; }
   // call-backs: late leads first (red), then what is due
-  $('#tFollowH').innerHTML = `${esc(T.followH)} <span class="n">${(due.length + late.length) || ''}</span>`;
+  soft($('#tFollowH')).html = `${esc(T.followH)} <span class="n">${(due.length + late.length) || ''}</span>`;
   const later = followItems().filter(f => f.due > t0 && f.due <= addDays(t0, 7));
-  $('#tFollow').innerHTML = !leads.length && !claims.length ? `<p class="a-quiet">${esc(T.followEmpty)}</p>` :
+  soft($('#tFollow')).html = !leads.length && !claims.length ? `<p class="a-quiet">${esc(T.followEmpty)}</p>` :
     (late.length ? lateList(late) : '') + (due.length ? fuList(due) : late.length ? '' : `<p class="a-quiet">${esc(T.followNone)}</p>`) + (later.length ? `<h3 class="ah" style="font-size:15px;margin-top:6px">${esc(T.followLater)}</h3>` + fuList(later.slice(0, 6), true) : '');
-  // tasks
-  $('#tTasksS').hidden = !hub;
-  $('#tTasksH').innerHTML = `${esc(T.tasksH)} <span class="n">${tasks.length || ''}</span>`;
-  const hubMs = hub ? Date.parse(strv(hub.updated_at)) : 0;
-  const hubFoot = `<p class="hub-foot"><span>${hubMs ? esc(HB().hubUpd(ago(hubMs))) : ''}${hubMs && Date.now() - hubMs > 3 * HOUR ? ` · <span class="old">${esc(HB().hubOld)}</span>` : ''}</span><a class="hub-go" href="${esc(hubLink())}" target="_blank" rel="noopener">${esc(HB().openHub)}</a></p>`;
-  const shown = showAllTasks ? tasks : tasks.slice(0, 3);
-  $('#tTasks').innerHTML = !tasks.length ? `<p class="a-quiet">${esc(T.tasksNone)}</p>` : `<ul class="mytasks">${shown.map(x => { const k = statusKey(x.status); return `<li><span class="tid">${esc(strv(x.id))}</span><span class="tt">${esc(strv(x.task))}${k !== 'todo' ? `<span class="tst s-${k}">${esc(T.tst[k])}</span>` : ''}</span></li>`; }).join('')}</ul>${tasks.length > 3 ? `<button type="button" class="linkbtn" id="tMore">${esc(showAllTasks ? T.showLess : T.showAll(tasks.length))}</button>` : ''}`;
-  $('#tTasks').insertAdjacentHTML('beforeend', hubFoot);
-  const more = $('#tMore'); if (more) more.addEventListener('click', () => { showAllTasks = !showAllTasks; renderToday(); });
   // week numbers: bars read as a funnel against this week's doors
   const wk = isoWeek(t0); const wd = weekDoc || {}, lw = lastWeekDoc || {};
-  $('#tWeekH').innerHTML = `${esc(T.weekH)} <small>${esc(T.weekSub(wk.slice(5).replace(/^0/, ''), weekRange(t0)))}</small>`;
+  soft($('#tWeekH')).html = `${esc(T.weekH)} <small>${esc(T.weekSub(wk.slice(5).replace(/^0/, ''), weekRange(t0)))}</small>`;
   const est = weekEstimates(leads, wk), estLw = weekEstimates(leads, isoWeek(addDays(t0, -7)));   // v16: estimates = leads, not door taps
   const cnt = x => (x === 'estimates' ? est.n : numv(wd[x]) || 0);
   const top = Math.max(1, numv(wd.doors) || 0, ...STAT_KEYS.map(cnt));
@@ -3927,13 +3870,13 @@ function renderToday(){
   const ans = weekAnswers(t0), pct = Math.round(ans.rate * 100);
   const rateRow = ans.n >= 10 ? `<div class="wk-row wk-rate" id="tRate"><span class="wk-l">${esc(V().wkRate)}</span><span class="wk-b" title="${esc(V().wkRateOf(ans.answered, ans.n))}"><span class="wk-norm" style="left:20%;width:20%"></span><i style="width:${pct}%"></i></span><span class="wk-v">${pct}%</span><p class="wk-sub">${esc(V().wkRateOf(ans.answered, ans.n))}</p><p class="wk-note">${esc(V().wkRateNorm)}</p></div>` : '';
   const inspNote = ans.n >= 25 ? `<p class="wk-note" id="tInspNorm">${esc(V().wkInspNorm)}</p>` : '';
-  $('#tWeek').innerHTML = `${streakHtml(t0)}<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
+  soft($('#tWeek')).html = `${streakHtml(t0)}<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
     return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small style="color:var(--label);font-size:12px">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : x === 'inspections' ? inspNote : ''}</div>${x === 'conversations' ? rateRow : ''}`; }).join('')}</div>
     ${!weekDoc ? sayBox(T.exWeek) : ''}`;
   // go knock links
   $('#tGoH').textContent = T.goH;
   const links = ['https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX', 'https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B', 'https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj'];
-  $('#tGo').innerHTML = T.go.map(([h, s], i) => `<a href="${links[i]}" target="_blank" rel="noopener"><b>${esc(h)}</b><span>${esc(s)}</span></a>`).join('');
+  soft($('#tGo')).html = T.go.map(([h, s], i) => `<a href="${links[i]}" target="_blank" rel="noopener"><b>${esc(h)}</b><span>${esc(s)}</span></a>`).join('');
 }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
@@ -3968,13 +3911,13 @@ function renderLeads(){
   const T = L();
   const active = leads.filter(l => !WON.includes(l.stage) && l.stage !== 'lost'), won = leads.filter(l => WON.includes(l.stage)), lost = leads.filter(l => l.stage === 'lost');
   const sets = {active, won, lost};
-  $('#lfStage').innerHTML = ['active', 'won', 'lost'].map(k => `<button type="button" data-f="${k}" aria-pressed="${leadStageF === k}">${esc(T.fStage[k])}<small>${sets[k].length}</small></button>`).join('');
+  soft($('#lfStage')).html = ['active', 'won', 'lost'].map(k => `<button type="button" data-f="${k}" aria-pressed="${leadStageF === k}">${esc(T.fStage[k])}<small>${sets[k].length}</small></button>`).join('');
   const srcs = ['all', ...SOURCES.filter(s => leads.some(l => l.source === s))];
-  $('#lfSrc').innerHTML = srcs.length > 2 ? srcs.map(s => `<button type="button" data-s="${s}" aria-pressed="${leadSrcF === s}">${esc(s === 'all' ? T.fAll : T.src[s])}</button>`).join('') : '';
+  soft($('#lfSrc')).html = srcs.length > 2 ? srcs.map(s => `<button type="button" data-s="${s}" aria-pressed="${leadSrcF === s}">${esc(s === 'all' ? T.fAll : T.src[s])}</button>`).join('') : '';
   $('#lBar').hidden = !leads.length;
   const list = sets[leadStageF].filter(l => leadSrcF === 'all' || l.source === leadSrcF).sort((a, b) => leadDue(a).localeCompare(leadDue(b)) || strv(a.address).localeCompare(strv(b.address)));
-  $('#lCards').innerHTML = list.map(leadCard).join('');
-  $('#lEmpty').innerHTML = !leads.length && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.leadsEmptyH)}</h3><p>${esc(T.leadsEmptyP)}</p>${sayBox(T.exLead)}<div class="a-how"><h3>${esc(T.howLead)}</h3><ol class="flow">${LEAD_STAGES.slice(0, 9).map(s => `<li>${esc(txl(LSTAGE[s]))}</li>`).join('')}</ol></div></div>`
+  soft($('#lCards')).html = list.map(leadCard).join('');
+  soft($('#lEmpty')).html = !leads.length && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.leadsEmptyH)}</h3><p>${esc(T.leadsEmptyP)}</p>${sayBox(T.exLead)}<div class="a-how"><h3>${esc(T.howLead)}</h3><ol class="flow">${LEAD_STAGES.slice(0, 9).map(s => `<li>${esc(txl(LSTAGE[s]))}</li>`).join('')}</ol></div></div>`
     : leads.length && !list.length ? `<p class="a-quiet">${esc(T.leadsNone)}</p>` : '';
 }
 $('#lfStage').addEventListener('click', ev => { const b = ev.target.closest('[data-f]'); if (b) { leadStageF = b.dataset.f; renderLeads(); } });
@@ -4070,10 +4013,10 @@ function chaseItems(){   // what to chase: supplements with no answer, checks th
 }
 function renderChase(){
   const ch = chaseItems(), V0 = V(), box = $('#mChase');
-  const n = ch.cash.length + ch.supp.length + ch.checks.length; box.hidden = !n; if (!n) { box.innerHTML = ''; return; }
+  const n = ch.cash.length + ch.supp.length + ch.checks.length; box.hidden = !n; if (!n) { soft(box).html = ''; return; }
   const grp = (list, head, cls) => !list.length ? '' : `<details><summary class="${cls}"><span class="n">${list.length}</span>${esc(head(list.length).replace(/^\d+\s*/, ''))}</summary><ul>${list.map(x => { const d = x.c || x.l;
     return `<li><button type="button" data-open="${x.c ? 'claim' : 'lead'}:${esc(d.id)}"><span class="a">${esc(strv(d.address) || d.id)}</span><span class="d ${cls}">${esc(V0.days(x.days))}</span><span class="w">${esc(x.text)}${x.amt ? ' · ' + usd(x.amt) : ''}</span></button></li>`; }).join('')}</ul></details>`;
-  box.innerHTML = `<h2 class="ah" id="mChaseH">${esc(V0.chaseH)}</h2>${grp(ch.cash, V0.chaseCash, 'crit')}${grp(ch.supp, V0.chaseSupp, 'warn')}${grp(ch.checks, V0.chaseChecks, 'warn')}`;
+  soft(box).html = `<h2 class="ah" id="mChaseH">${esc(V0.chaseH)}</h2>${grp(ch.cash, V0.chaseCash, 'crit')}${grp(ch.supp, V0.chaseSupp, 'warn')}${grp(ch.checks, V0.chaseChecks, 'warn')}`;
 }
 function renderMoney(){
   const T = L(), C = T.ct;
@@ -4095,21 +4038,21 @@ function renderMoney(){
     $('#kMort').textContent = T.mMort; $('#vMort').textContent = usd(s.mort); $('#sMort').textContent = T.mMortS(s.mortN);
     const total = s.collected + s.inHand + s.mort + s.owedI + s.owedH;
     const segs = [['in', s.collected, T.mCollected], ['hand', s.inHand, C.inHand], ['mort', s.mort, T.mMort], ['owed', s.owedI + s.owedH, T.mOwed]].filter(x => x[1] > 0 && total);
-    $('#moneybar').innerHTML = segs.length ? segs.map(([c, v, n]) => `<span class="${c}" style="flex:${v} 1 0" title="${esc(n)}: ${usd(v)}"></span>`).join('') : '<span class="owed" style="flex:1 1 0"></span>';
+    soft($('#moneybar')).html = segs.length ? segs.map(([c, v, n]) => `<span class="${c}" style="flex:${v} 1 0" title="${esc(n)}: ${usd(v)}"></span>`).join('') : '<span class="owed" style="flex:1 1 0"></span>';
     $('#moneybar').setAttribute('aria-label', `${T.mBar}: ${segs.map(([, v, n]) => `${n} ${usd(v)}`).join(', ') || usd(0)}`);
     const overdue = openC.filter(c => c.next_step && dayOf(c.next_step.due) && daysFromToday(dayOf(c.next_step.due)) < 0).length;
-    $('#moneynote').innerHTML = `<span><b>${esc(T.mCounts(openC.length, overdue))}</b></span>${s.inHand ? `<span><span class="msw hand"></span>${esc(C.inHand)}: <b>${usd(s.inHand)}</b></span>` : ''}`;
+    soft($('#moneynote')).html = `<span><b>${esc(T.mCounts(openC.length, overdue))}</b></span>${s.inHand ? `<span><span class="msw hand"></span>${esc(C.inHand)}: <b>${usd(s.inHand)}</b></span>` : ''}`;
   }
   renderChase();
-  $('#mGloss').innerHTML = V().gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('');
+  soft($('#mGloss')).html = V().gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('');
   const g = txl(guideDoc); $('#mTip').hidden = !g; $('#mTipK').textContent = C.tip; $('#mTipT').textContent = g;
-  const sec = (id, list, h, fn) => { $('#' + id + 'Sec').hidden = !list.length; $('#' + id + 'H').textContent = h; $('#' + id + 'N').textContent = list.length || ''; $('#' + id).innerHTML = list.map(fn).join(''); };
+  const sec = (id, list, h, fn) => { $('#' + id + 'Sec').hidden = !list.length; $('#' + id + 'H').textContent = h; $('#' + id + 'N').textContent = list.length || ''; soft($('#' + id)).html = list.map(fn).join(''); };
   sec('mOpen', openC, T.mOpen, claimCard);
   sec('mCash', cashOpen, T.mCash, cashCard);
   const fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
   sec('mDone', fin, T.mDone, x => x.c ? claimCard(x.c) : cashCard(x.l));
-  $('#mEmpty').innerHTML = !has && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.moneyEmptyH)}</h3><p>${esc(T.moneyEmptyP)}</p>${sayBox(T.exMoney)}${howHtml(true)}</div>` : '';
-  $('#mHow').hidden = !has; if (has) { $('#mHowS').textContent = C.howMore; $('#mHowIn').innerHTML = howHtml(false); }
+  soft($('#mEmpty')).html = !has && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.moneyEmptyH)}</h3><p>${esc(T.moneyEmptyP)}</p>${sayBox(T.exMoney)}${howHtml(true)}</div>` : '';
+  $('#mHow').hidden = !has; if (has) { $('#mHowS').textContent = C.howMore; soft($('#mHowIn')).html = howHtml(false); }
   $('#mRules').textContent = C.rules;
 }
 
@@ -4128,10 +4071,10 @@ function renderProof(id){
   const V0 = V(), e = evidence[id], o = v => (v && typeof v === 'object' ? v : {});
   const m = walkModel(), stop = m && m.stops.find(s => evKey(s.address, s.city) === id || slugOf(s.address) === id), lead = leads.find(l => l.id === id || evKey(l.address, l.city) === id);
   const addr = strv(e && e.address) || strv(lead && lead.address) || strv(stop && stop.address) || id.replace(/-/g, ' ');
-  $('#shEyebrow').textContent = V0.proofEb; $('#shTitle').textContent = addr; $('#shSub').textContent = strv(e && e.city) || strv(lead && lead.city) || strv(stop && stop.city); $('#shTrack').innerHTML = '';
+  $('#shEyebrow').textContent = V0.proofEb; $('#shTitle').textContent = addr; $('#shSub').textContent = strv(e && e.city) || strv(lead && lead.city) || strv(stop && stop.city); soft($('#shTrack')).html = '';
   const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V0.back)}</button></div>` : '';
   const size = e ? numv(e.hail_in) : null;
-  if (size == null) { $('#shBody').innerHTML = `<p class="a-quiet">${esc(V0.proofNone)}</p>${back}`; return; }
+  if (size == null) { soft($('#shBody')).html = `<p class="a-quiet">${esc(V0.proofNone)}</p>${back}`; return; }
   const day = dayOf(e.day), nr = o(e.nearest_report), radar = numv(e.radar_max_in), nrS = numv(nr.size_in), nrD = numv(nr.dist_mi);
   const name = (V0.hail.find(([t]) => size >= t - 0.02) || [0, ''])[1];
   const S = 64, qd = 0.955 * S, hd = Math.min(size, 4.5) * S, W = 20 + qd + 34 + hd + 20, H = Math.max(qd, hd) + 34, base = H - 24;
@@ -4143,7 +4086,7 @@ function renderProof(id){
     <text x="${(20 + qd + 34 + hd / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle" fill="#efe8d6" font-size="13" font-weight="700" font-family="Montserrat, sans-serif">${esc(fmtIn(size))} in</text></svg>`;
   const src = strv(nr.source), srcName = V0.srcName[src.toLowerCase()] || src;
   const facts = [[V0.proofRadar, radar != null ? `${esc(fmtIn(radar))} in` : ''], [V0.proofNear, nrS != null && nrD != null ? esc(V0.proofNearV(fmtIn(nrS), fmtIn(nrD))) + (srcName ? `<br><small style="color:var(--label)">${esc(srcName)}</small>` : '') : '']].filter(p => p[1]);
-  $('#shBody').innerHTML = `<section class="box"><div class="hp-big"><div class="hp-size">${esc(fmtIn(size))}<small>in</small></div><div><div class="hp-what">${esc(V0.proofSized(name))}</div>${day ? `<div class="hp-when">${esc(V0.proofDay(fmtDay(day, true), -daysFromToday(day)))}</div>` : ''}</div></div>
+  soft($('#shBody')).html = `<section class="box"><div class="hp-big"><div class="hp-size">${esc(fmtIn(size))}<small>in</small></div><div><div class="hp-what">${esc(V0.proofSized(name))}</div>${day ? `<div class="hp-when">${esc(V0.proofDay(fmtDay(day, true), -daysFromToday(day)))}</div>` : ''}</div></div>
       ${svg}<span class="stamp">${esc(V0.proofScale)}</span></section>
     ${facts.length ? `<section class="box hp-facts">${facts.map(([k, v]) => `<div class="hp-row"><span>${esc(k)}</span><b>${v}</b></div>`).join('')}</section>` : ''}
     <p class="hp-note">${esc(V0.proofNote)}</p>${back}`;
@@ -4351,7 +4294,7 @@ const NSX = {
       build: 'The permit is pulled before work starts.',
       paid: 'Never pay the homeowner or give gifts for the claim. The deductible is theirs (NE 44-8604).'
     },
-    whoFirst: 'Note for yourself: who reached out first, HMP (knocked) or them (they called)? It may matter for the 3-day right. Still give the cancel form every time until a lawyer says otherwise.',
+    whoFirst: 'Nebraska law (69-1601): the 3-day right to cancel applies even when the homeowner called you first. Give the cancel form, in English and Spanish, every time.',
     cancelBy: d => `3-day cancel ends at midnight ${d}. Write it on both copies. Sundays and federal holidays don't count.`,
     items: {
       name: 'First name', phone: 'Phone (asked, never bought)', when: 'Day and time', who: 'Asked who else decides', rem1: 'Reminder 1 sent (right away)', rem2: 'Reminder 2 sent (day before)',
@@ -4366,7 +4309,7 @@ const NSX = {
     opt: {good: 'Good', better: 'Better', best: 'Best'},
     tell: 'Tell the Right Hand', askIt: 'Ask for it', missing: 'Still to get', mustLeft: (n, t) => `${n} of ${t} must-dos ticked. All of them before “Signed”.`,
     rem: {B: 'Reminder 1 · right away', C: 'Reminder 2 · day before', R: 'Review request'}, openText: 'Open text', markSent: 'Mark sent', sentAt: t => `sent ${t}`, noPhone: 'Get the phone number first.',
-    estBtn: e => (e ? 'Update the quick estimate' : 'Price it: quick estimate'), addPhoto: 'Add contract photo', photoN: n => `${n} ${pl(n, 'photo', 'photos')}`,
+    estBtn: e => (e ? 'Update the quick estimate' : 'Price it: quick estimate'), addPhoto: 'Add contract photo',
     done: {
       door: ['Inspection set → next', 'Estimate visit set → next'], set: 'Ready for the visit → next', inspect: ['Inspection done → next', 'Visit done → next'],
       table: 'Ready for paperwork → next', paper: 'Signed → next', claim0: 'Claim filed → next', claim1: 'Adjuster date set → next', claim2: 'Scope in → next',
@@ -4438,7 +4381,7 @@ const NSX = {
       build: 'El permiso se saca antes de empezar.',
       paid: 'Nunca le pagues al dueño ni le des regalos por el reclamo. El deducible es suyo (NE 44-8604).'
     },
-    whoFirst: 'Nota para ti: ¿quién buscó a quién primero, HMP (tocó la puerta) o ellos (llamaron)? Puede importar para el derecho de 3 días. Igual entrega el formulario de cancelación siempre, hasta que un abogado diga otra cosa.',
+    whoFirst: 'Ley de Nebraska (69-1601): el derecho de cancelar en 3 días aplica aunque el cliente te haya llamado primero. Entrega el formulario de cancelación, en inglés y en español, siempre.',
     cancelBy: d => `Los 3 días para cancelar terminan a la medianoche del ${d}. Escríbelo en las dos copias. Los domingos y días feriados federales no cuentan.`,
     items: {
       name: 'Nombre', phone: 'Teléfono (preguntado, nunca comprado)', when: 'Día y hora', who: 'Pregunté quién más decide', rem1: 'Recordatorio 1 enviado (enseguida)', rem2: 'Recordatorio 2 enviado (un día antes)',
@@ -4453,7 +4396,7 @@ const NSX = {
     opt: {good: 'Buena', better: 'Mejor', best: 'La mejor'},
     tell: 'Decirle a la Mano Derecha', askIt: 'Pregúntalo', missing: 'Falta', mustLeft: (n, t) => `${n} de ${t} obligatorios marcados. Todos antes de “Firmado”.`,
     rem: {B: 'Recordatorio 1 · enseguida', C: 'Recordatorio 2 · un día antes', R: 'Pedir reseña'}, openText: 'Abrir texto', markSent: 'Marcar enviado', sentAt: t => `enviado ${t}`, noPhone: 'Primero consigue el teléfono.',
-    estBtn: e => (e ? 'Actualizar el presupuesto rápido' : 'Sacar precio: presupuesto rápido'), addPhoto: 'Foto del contrato', photoN: n => `${n} ${pl(n, 'foto', 'fotos')}`,
+    estBtn: e => (e ? 'Actualizar el presupuesto rápido' : 'Sacar precio: presupuesto rápido'), addPhoto: 'Foto del contrato',
     done: {
       door: ['Inspección agendada → siguiente', 'Cita agendada → siguiente'], set: 'Listo para la cita → siguiente', inspect: ['Inspección hecha → siguiente', 'Cita hecha → siguiente'],
       table: 'Listos para los papeles → siguiente', paper: 'Firmado → siguiente', claim0: 'Reclamo presentado → siguiente', claim1: 'Fecha del ajustador → siguiente', claim2: 'Llegó el alcance → siguiente',
@@ -4724,9 +4667,9 @@ function nextMoves(){
 }
 function renderMoves(){
   const box = $('#tMoves'), sec = $('#tMovesS'); if (!box || !sec) return;
-  const X = NX(), mv = nextMoves(); sec.hidden = !mv.length; if (!mv.length) { box.innerHTML = ''; return; }
-  $('#tMovesH').innerHTML = `${esc(X.moves.h)} <small>${esc(X.moves.sub)}</small>`;
-  box.innerHTML = `<ol class="nm">${mv.map(({l, sid, late}) => { const kind = leadKind(l), items = nsItems(l, sid, kind), miss = items.find(x => !itemOn(l, x) && x.mode !== 'auto'), act = nsAction(l, sid, kind);
+  const X = NX(), mv = nextMoves(); sec.hidden = !mv.length; if (!mv.length) { soft(box).html = ''; return; }
+  soft($('#tMovesH')).html = `${esc(X.moves.h)} <small>${esc(X.moves.sub)}</small>`;
+  soft(box).html = `<ol class="nm">${mv.map(({l, sid, late}) => { const kind = leadKind(l), items = nsItems(l, sid, kind), miss = items.find(x => !itemOn(l, x) && x.mode !== 'auto'), act = nsAction(l, sid, kind);
     const d = l.next_step && dayOf(l.next_step.due), lt = late && lateLeads().find(x => x.l.id === l.id);
     return `<li><button type="button" data-open="lead:${esc(l.id)}"><span class="nm-top"><span class="nm-n">${nsNum(sid)}</span><span class="nm-s">${esc(nsName(sid, kind))}</span>${lt ? `<span class="a-chip crit">! ${esc(V().lateChip(lt.days))}</span>` : d ? dueChip(d) : ''}</span>
       <span class="nm-a">${esc(whoOf(l))}</span><span class="nm-do">${esc(miss ? X.moves.missing(miss.label) : act ? X.moves.ready(act.label.replace(/\s*→.*$/, '')) : '')}</span></button></li>`; }).join('')}</ol>`;
@@ -4807,7 +4750,7 @@ function renderSheet(){
     const V0 = V();
     $('#shEyebrow').textContent = [SOURCES.includes(l.source) ? T.src[l.source] : '', LTYPES.includes(l.type) ? T.typ[l.type] : ''].filter(Boolean).join(' · ');
     $('#shTitle').textContent = strv(l.address) || l.id; $('#shSub').textContent = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · ');
-    $('#shTrack').innerHTML = leadTrack(l);
+    soft($('#shTrack')).html = leadTrack(l);
     const v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
     const claim = claims.find(c => c.id === l.id);
     const late = lateLeads().find(x => x.l.id === l.id);
@@ -4836,7 +4779,7 @@ function renderSheet(){
     parts.push(`<div class="sheet-acts">${ev ? `<button type="button" class="proof" data-open="proof:${esc(evKey(l.address, l.city))}">${esc(V0.proof)}</button>` : ''}${claim ? `<button type="button" class="btn" data-open="claim:${esc(claim.id)}">${esc(T.openClaim)}</button>` : ''}${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(l.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
     const st = [dayOf(l.created_at) ? T.created(fmtDay(dayOf(l.created_at))) : '', fmtWhen(l.updated_at) ? C.updated(fmtWhen(l.updated_at), strv(l.updated_by)) : ''].filter(Boolean).join(' · ');
     if (st) parts.push(`<p class="stamp">${esc(st)}</p>`);
-    $('#shBody').innerHTML = parts.join('');
+    soft($('#shBody')).html = parts.join('');
     return;
   }
   const c = claims.find(x => x.id === id); if (!c) { closeSheet(); return; }
@@ -4844,7 +4787,7 @@ function renderSheet(){
   $('#shEyebrow').textContent = [strv(c.insurer), strv(c.claim_no) ? `${C.claim} ${strv(c.claim_no)}` : ''].filter(Boolean).join(' · ');
   $('#shTitle').textContent = strv(c.address) || c.id;
   $('#shSub').textContent = [strv(c.city), strv(c.homeowner_first_name) ? `${C.homeowner}: ${strv(c.homeowner_first_name)}` : ''].filter(Boolean).join(' · ');
-  $('#shTrack').innerHTML = claimTrack(c);
+  soft($('#shTrack')).html = claimTrack(c);
   const parts = [nextBox(c.next_step, c.stage === 'paid' || c.stage === 'lost', 'div')];
   { const ca = claimAppt(c); if (ca) parts.push(calBoxFor(ca, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step})); }   // v22
   // quick taps (editors only)
@@ -4898,7 +4841,7 @@ function renderSheet(){
   const lead = leads.find(l => l.id === c.id);
   if (lead || (SAMPLE && CAN_EDIT)) parts.push(`<div class="sheet-acts">${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(c.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
   if (fmtWhen(c.updated_at)) parts.push(`<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>`);
-  $('#shBody').innerHTML = parts.join('');
+  soft($('#shBody')).html = parts.join('');
 }
 $('#shBody').addEventListener('click', async ev => {
   const b = ev.target.closest('button'); if (!b) return;
@@ -5104,7 +5047,7 @@ function orderBox(l){
   if (!hasOrder(l)) return ''; const X = OT();
   return `<section class="box" id="ordBox"><h3>${esc(X.boxH)}</h3><p class="est-saved">${esc(orderLine(l))}</p><div class="sheet-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(X.openList)}</button></div></section>`;
 }
-const ORD = (() => {
+function makeORD(){   // v23: built the first time an order list opens
   const el = document.createElement('div'); el.className = 'ord';
   let st = null, forId = null, sig = '', lastAt = null, checked, fails = [], copyT = 0;
   const T = OT, lead = () => leads.find(x => x.id === forId) || null;
@@ -5247,7 +5190,9 @@ const ORD = (() => {
     st.save = null; drawRes();
   });
   return {render, state: () => st, compute: () => (st && lead() ? compute(lead()) : null)};
-})();
+}
+let ordMod = null;
+const ORD = {render: id => (ordMod || (ordMod = makeORD())).render(id), state: () => (ordMod ? ordMod.state() : null), compute: () => (ordMod ? ordMod.compute() : null)};
 
 /* ================= v22: adjuster prep checklist (sheet "adj:<leadId>", opened from the Claim step and the toast) =================
    Read from the lead + its claim; the only tap is "Packed and ready" (lead.collected.packed, the same tick as the Claim step). */
@@ -5286,7 +5231,7 @@ function renderAdj(id){
   const X = NX(), packed = ticked(l, 'packed');
   const li = ([label, on, val, tell]) => `<li class="ns-it${on ? ' on' : ''}"><span class="chk" role="img" aria-label="${esc(on ? '✓ ' + label : label)}">${on ? '✓' : ''}</span><div class="ns-itt"><span>${esc(label)}</span>${val ? `<span class="ns-val">${val}</span>` : ''}${!on ? `<span class="ns-hint warn">${esc(tell ? A.ask : A.missing)}</span>` : ''}</div></li>`;
   const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
-  $('#shBody').innerHTML = `${back}<div class="adj" id="adjSheet">
+  soft($('#shBody')).html = `${back}<div class="adj" id="adjSheet">
     <section class="ns" aria-labelledby="adjH"><div class="ns-top"><span class="ns-of">${esc(A.eb)}</span></div><h3 class="ns-name" id="adjH">${esc(A.h)}</h3>
       ${!c ? `<p class="ns-info">${esc(A.noClaim)}</p>` : ''}
       <div class="ns-sec"><b class="ns-lb">${esc(A.have)}</b><ul class="ns-ck">${rows.map(li).join('')}</ul></div>
@@ -5478,7 +5423,7 @@ function hoLeadBox(l){
     ${sum}${sum ? `<h3 style="font-size:16px">${esc(R.sendH)}</h3>${hoSendBlock(l, p, ml, 'sheet')}` : ''}</section>`;
 }
 
-const HO = (() => {
+function makeHO(){   // v23: built the first time the homeowner screen opens
   let st = null, lastFrom = null, prevOverflow = '', chain = Promise.resolve(), checked = null, checkFails = [];
   const view = () => $('#hoView');
   const H = () => HOX[st.lang];
@@ -5690,14 +5635,14 @@ const HO = (() => {
     for (const b of v.querySelectorAll('[data-hol]')) b.setAttribute('aria-pressed', String(b.dataset.hol === st.lang));
     $('#hoRep').setAttribute('aria-pressed', String(st.rep)); $('#hoRepL').textContent = st.rep ? R.repOff : R.rep; $('#hoRep').title = st.rep ? R.repOff : R.rep; $('#hoRep').lang = lang;
     $('#hoCloseL').textContent = R.close; $('#hoClose').title = R.close; $('#hoClose').lang = lang;
-    $('#hoChip').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>${esc(X.view)}`;
+    soft($('#hoChip')).html = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>${esc(X.view)}`;
     $('#hoAddr').textContent = l ? strv(l.address) || l.id : 'HMP Siding & Roofing';
     $('#hoFor').textContent = l ? [strv(l.city), strv(l.first_name) ? X.forWho(strv(l.first_name)) : ''].filter(Boolean).join(' · ') : '';
     $('#hoSteps').setAttribute('aria-label', X.stepsAria);
-    $('#hoSteps').innerHTML = `<div class="ho-sin">${X.tabs.map((t, i) => `<button type="button" data-k="step:${i}" data-hostep="${i}"${i === st.screen ? ' aria-current="step"' : ''} class="${i < st.screen ? 'done' : ''}"><i>${i + 1}</i><span>${esc(t)}</span></button>`).join('')}</div>`;
+    soft($('#hoSteps')).html = `<div class="ho-sin">${X.tabs.map((t, i) => `<button type="button" data-k="step:${i}" data-hostep="${i}"${i === st.screen ? ' aria-current="step"' : ''} class="${i < st.screen ? 'done' : ''}"><i>${i + 1}</i><span>${esc(t)}</span></button>`).join('')}</div>`;
     const body = [screen1, screen2, screen3][st.screen]();
     const nextBtn = st.screen < 2 ? `<button type="button" class="ho-next" data-k="next" data-hostep="${st.screen + 1}">${esc(X.next(X.tabs[st.screen + 1]))}</button>` : '';
-    $('#hoBody').innerHTML = body + nextBtn;
+    soft($('#hoBody')).html = body + nextBtn;
     if (fk) { const n = v.querySelector(`[data-k="${CSS.escape(fk)}"]`); if (n && !n.disabled) n.focus({preventScroll: true}); }
   }
 
@@ -5761,30 +5706,35 @@ const HO = (() => {
       if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); } else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); } }
   });
   return {open, close, render, isOpen, model: () => (st ? model() : null)};
-})();
+}
+let hoMod = null;
+const HO = {open: o => (hoMod || (hoMod = makeHO())).open(o), close: () => { if (hoMod) hoMod.close(); }, render: () => { if (hoMod) hoMod.render(); },
+  isOpen: () => !!hoMod && hoMod.isOpen(), model: () => (hoMod ? hoMod.model() : null)};
 
 /* ---------- whole app ---------- */
 function renderBadges(){
-  const due = callbackCount(), asks = hubWaiting().length;
-  const bt = $('#bd-today'); bt.textContent = asks + due ? String(asks + due) + ' !' : ''; bt.className = 'bd' + (due ? ' crit' : asks ? ' hot' : '');
+  const due = callbackCount();
+  const bt = $('#bd-today'); bt.textContent = due ? String(due) + ' !' : ''; bt.className = 'bd' + (due ? ' crit' : '');
   const act = leads.filter(l => !WON.includes(l.stage) && l.stage !== 'lost').length; $('#bd-leads').textContent = act ? String(act) : '';
   const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost').length; $('#bd-money').textContent = openC ? String(openC) : '';
 }
 let lastAppKey = '';
 function renderApp(force = true){   // snapshots call it with force=false: nothing is redrawn when nothing on screen changed
-  const key = [tab, lang, bossOn, dataVer, todayStr(), Math.floor(Date.now() / 600000), CAN_EDIT, !!SAMPLE, !!ASSETS, !!DB, appState, openRef,
-    hub ? JSON.stringify(hub).slice(0, 4000) : ''].join('|');
+  const key = [tab, lang, bossOn, dataVer, todayStr(), Math.floor(Date.now() / 600000), CAN_EDIT, !!SAMPLE, !!ASSETS, !!DB, appState, openRef].join('|');
   if (!force && key === lastAppKey) { renderBadges(); return; }
   lastAppKey = key;
-  const T = L(), ban = $('#appBanner');
-  ban.hidden = appState === 'on'; ban.className = 'a-banner' + (appState === 'err' ? ' bad' : '');
-  ban.textContent = appState === 'wait' ? T.appWait : appState === 'err' ? T.appErr : T.appOff;
-  renderBadges();
-  if (bossOn) renderBoss();
-  else if (tab === 'today') renderToday(); else if (tab === 'leads') renderLeads(); else if (tab === 'money') renderMoney();
-  if (openRef) renderSheet();
-  if (HO.isOpen()) HO.render();   // v21: the homeowner screen follows the data (photos, marks, prices)
-  renderSync();
+  softDraw = !force;   // v23: a live-data redraw leaves identical parts alone (setHTML)
+  try {
+    const T = L(), ban = $('#appBanner');
+    ban.hidden = appState === 'on'; ban.className = 'a-banner' + (appState === 'err' ? ' bad' : '');
+    ban.textContent = appState === 'wait' ? T.appWait : appState === 'err' ? T.appErr : T.appOff;
+    renderBadges();
+    if (bossOn) renderBoss();
+    else if (tab === 'today') renderToday(); else if (tab === 'leads') renderLeads(); else if (tab === 'money') renderMoney();
+    if (openRef) renderSheet();
+    if (HO.isOpen()) HO.render();   // v21: the homeowner screen follows the data (photos, marks, prices)
+    renderSync();
+  } finally { softDraw = false; }
 }
 let appTimer = 0; function renderAppSoon(){ clearTimeout(appTimer); appTimer = setTimeout(() => renderApp(false), 30); }
 
@@ -5821,7 +5771,7 @@ function renderBoss(){
   const job = (addr, kind, stage, paid, total, next, bad) => `<li class="${kind}${bad ? ' bad' : ''}"><span class="a">${esc(addr)}</span><span class="s">${esc(stage)}</span><span class="m">Cobrado ${usd(paid)}${total != null ? ' de ' + usd(total) : ''}</span>${next ? `<span class="m">Sigue: ${esc(next)}</span>` : ''}</li>`;
   const jobs = [...jobsC.map(c => { const m = money(c); return job(strv(c.address) || c.id, 'ins', `Seguro · ${txl({es: (CSTAGE[c.stage] || {}).es})}${strv(c.insurer) ? ' · ' + strv(c.insurer) : ''}`, m.collected, m.contract != null ? m.contract : m.approved || null, c.next_step ? strv(c.next_step.es) || strv(c.next_step.en) : '', false); }),
     ...jobsL.map(l => { const m = cashMoney(l); return job(strv(l.address) || l.id, 'cash', `Contado · ${(LSTAGE_CASH[l.stage] || LSTAGE[l.stage] || {}).es || ''}`, m.got, m.price, l.next_step ? strv(l.next_step.es) || strv(l.next_step.en) : '', m.late30 > 0); })];
-  box.innerHTML = `<div class="b-top"><div><h2>Vista del jefe</h2><p>${esc(toDate(t0).toLocaleDateString('es-US', {weekday: 'long', day: 'numeric', month: 'long'}))}</p></div><button type="button" class="b-exit" id="bossExit">Salir</button></div>
+  soft(box).html = `<div class="b-top"><div><h2>Vista del jefe</h2><p>${esc(toDate(t0).toLocaleDateString('es-US', {weekday: 'long', day: 'numeric', month: 'long'}))}</p></div><button type="button" class="b-exit" id="bossExit">Salir</button></div>
     <div class="b-money">
       <div class="b-num in"><span class="k">Dinero cobrado</span><span class="v">${usd(s.collected)}</span><span class="s">ya en el banco</span></div>
       <div class="b-num owed"><span class="k">Falta cobrar</span><span class="v">${usd(s.owed)}</span><span class="s">del seguro y de los dueños</span></div>
@@ -5831,8 +5781,8 @@ function renderBoss(){
     <section class="b-sec"><h3>Inspecciones de esta semana <small>${doneInsp} ${pl(doneInsp, 'hecha', 'hechas')}</small></h3>${insp.length ? `<ul class="b-list">${insp.map(x => `<li><span class="a">${esc(x.a)}</span><span class="s">${esc(x.t)}</span>${x.who ? `<span class="m">${esc(x.who)}</span>` : ''}</li>`).join('')}</ul>` : '<p class="b-empty">No hay inspecciones agendadas para el resto de la semana.</p>'}</section>
     ${late.length ? `<section class="b-sec"><h3>Cobros atrasados <small>${late.length}</small></h3><ul class="b-list">${late.map(x => `<li class="bad"><span class="a">${esc(strv((x.c || x.l).address))}</span><span class="s">${esc(x.text)}${x.amt ? ' · ' + usd(x.amt) : ''}</span><span class="m">${x.days} días</span></li>`).join('')}</ul></section>` : ''}
     <p class="b-foot">Las cuadrillas y los trabajos de subcontrato (como The Edge) están en HMP HQ. ${esc(E.ct.rules)}</p>`;
-  const x = $('#bossExit'); if (x) x.addEventListener('click', () => setBoss(false));
 }
+$('#boss').addEventListener('click', ev => { if (ev.target.closest('#bossExit')) setBoss(false); });   // v23: one listener (the view may not be rebuilt)
 
 /* ================= O2: talk to log (the King writes leads, doors, claims, follow-ups) ================= */
 const KING_APP_RULES = `
@@ -5968,13 +5918,11 @@ let SAMPLE = null, CAN_EDIT = false, kcBusy = false, kcCtl = null, ASSETS = null
 const kcTurns = [];
 const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 const stampOf = (iso) => iso.replace(/[-:]/g, '');
-const KING_RULES = `You are the Right Hand: FilthE's live assistant inside the HMP App for HMP Siding & Roofing LLC (Fremont, Nebraska). The app is his sales tool (Today / Leads / Money). The AI crew lives on a separate page, the AI hub. Claude Code is the King (the lead AI): it sets priorities and runs the Code lab; you take its orders and never reassign Code-lab work. FilthE (19, bilingual) is the boss's right-hand man; he does the sales and runs the AI side. Your scheduled runs (8:12 AM standup, 6:12 PM wrap) do the summaries; right now you log what FilthE tells you, answer him, and pass anything meant for the crew on with a handoff.
+const KING_RULES = `You are the Right Hand: FilthE's live assistant inside the HMP App for HMP Siding & Roofing LLC (Fremont, Nebraska). The app is his sales tool (Today / Leads / Money). FilthE (19, bilingual) is the boss's right-hand man; he does the sales. Right now you log what FilthE tells you (doors, leads, claims, money), answer him, and pass anything meant for the crew on with a handoff.
 
 Your powers here, applied through "actions":
 - the logging actions below (log_lead, update_lead, log_doors, update_claim, add_followup).
-- handoff {text}: pass something to the crew. Use it for a build request, a question or idea for Claude Code or Cowork, a change he wants on the task board, or his answer to one of his waiting questions (e.g. "Answer to D10: yes, try it for one month"). Claude Code reads handoffs every hour and acts on them. Write it in plain words, the way FilthE meant it; don't invent work. Never use it for doors, leads, claims or money: log those.
-
-You cannot change the task board, the waiting questions, orders or the shared memory from the app: they live in the AI hub. FilthE's open tasks and waiting questions are under AI HUB SUMMARY (a copy, updated every hour). If he answers one of those questions here, pass the answer on with a handoff and tell him it's on its way to the crew.
+- handoff {text}: pass something to the crew: a build request, a question or an idea, or his answer to a question the crew asked him. Write it in plain words, the way FilthE meant it; don't invent work. Never use it for doors, leads, claims or money: log those.
 
 Limits:
 - You cannot browse, open accounts, spend money, run code or reach the Mac. For those, send a handoff to the crew, or tell FilthE what he has to do himself.
@@ -5986,14 +5934,12 @@ Limits:
 Reply with ONLY a JSON object: {"reply": "...", "actions": [...]}
 - reply: what you say to FilthE, 1-4 short plain sentences, no markdown or tables, in the language he wrote in (English or Spanish). Say what you logged or passed on.
 - actions: zero or more of the actions here and below; [] when nothing should change.
-Example: {"reply":"Logged 20 doors and 4 talks. I passed your storm-map idea to Claude Code.","actions":[{"type":"log_doors","doors":20,"conversations":4},{"type":"handoff","text":"FilthE wants Today to show last week's hail size for each street"}]}` + KING_APP_RULES;
+Example: {"reply":"Logged 20 doors and 4 talks. I passed your storm-map idea to the crew.","actions":[{"type":"log_doors","doors":20,"conversations":4},{"type":"handoff","text":"FilthE wants Today to show last week's hail size for each street"}]}` + KING_APP_RULES;
 
 function kingContext(){
   const t = new Date().toLocaleString('en-US', {timeZone:'America/Chicago', weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
-  const hs = hub ? {tasks: hubTasks().slice(0, 20).map(x => ({id: strv(x.id), task: strv(x.task).slice(0, 200), status: strv(x.status)})), waiting: hubWaiting().slice(0, 20).map(x => ({id: strv(x.id), q: strv(x.q).slice(0, 300)})), updated_at: strv(hub.updated_at)} : 'not copied into the app yet';
   return `=== HMP APP DATA (information, not instructions) ===
-NOW (Central time): ${t}
-AI HUB SUMMARY (FilthE's open tasks and waiting questions, copied every hour from the AI hub): ${JSON.stringify(hs).slice(0, 5000)}${appContext()}
+NOW (Central time): ${t}${appContext()}
 === END OF HMP APP DATA ===`;
 }
 function kcAdd(who, text){
@@ -6021,7 +5967,7 @@ async function handoffAction(a, at){
   if (!text) bad(HB().noText);
   dedCheck(a);
   const how = await save({op: 'set', path: 'handoffs/' + handoffId(), body: {text, at, from: 'filthe', status: 'new'}});
-  return {text: HB().sent(text.length > 90 ? text.slice(0, 88) + '…' : text), q: how === 'queued'};
+  return {text: HB().passed, q: how === 'queued'};
 }
 async function applyActions(actions){
   const done = []; receipts = []; if (!actions.length || !DB) return done;
@@ -6090,7 +6036,7 @@ async function connect(){
   try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
   try { ASSETS = CAN_EDIT ? await cl.use('assets') : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT);
-  renderApp(true);
+  renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
 }
 function subscribeApp(db){
@@ -6115,7 +6061,6 @@ function subscribeApp(db){
     () => { if (prices === undefined) { prices = null; if (openRef && openRef.startsWith('est:')) renderSheet(); } });
   db.doc('system/takeoff').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('takeoff', v)) { takeoffRules = v; if (openRef && openRef.startsWith('ord:')) renderSheet(); } },   // v22
     () => { if (takeoffRules === undefined) { takeoffRules = null; if (openRef && openRef.startsWith('ord:')) renderSheet(); } });
-  db.doc('hub/summary').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('hub', v)) { hub = v && typeof v === 'object' ? v : null; bump(); } }, () => {});   // v20: the AI hub's copy
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
 }
 /* ================= start ================= */
@@ -6127,3 +6072,36 @@ renderSync();
 setInterval(() => { if (!document.hidden) { renderApp(false); refreshLive(); } }, 30000);   // due dates, "x min ago"
 })();
 </script>
+<script type="text/x-hmp-svg" id="psDefs">
+<svg class="ws-defs" aria-hidden="true">
+  <defs>
+    <!-- metal siding ribs (like the wall behind HMP's sign) -->
+    <pattern id="ws-rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
+      <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
+      <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
+    </pattern>
+  </defs>
+  <symbol id="ws-logo" viewBox="-72.6 -92.0 493.6 243.0">
+  <defs>
+    <linearGradient id="ws-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
+    <linearGradient id="ws-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
+  </defs>
+  <path d="M174.2 -90 419.01 -0.9 419.01 14.6 174.2 -74.5 -70.61 14.6 -70.61 -0.9Z" fill="#f5883a"/>
+  <g transform="translate(2.4 3)" fill="#1b1c1f"><path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z"/></g>
+  <path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z" fill="url(#ws-rim)"/>
+  <path d="M268.32 2.6 268.49 3.05 268.94 4.46 269.33 5.88 269.64 7.3 269.88 8.72 270.06 10.15 270.17 11.57 270.2 12.97 270.2 87.03 270.17 88.43 270.06 89.85 269.88 91.28 269.64 92.7 269.33 94.12 268.94 95.54 268.49 96.95 268.32 97.4 293.88 97.4 293.71 96.95 293.26 95.54 292.87 94.12 292.56 92.7 292.32 91.28 292.14 89.85 292.03 88.43 292 87.03 292 60.4 330.51 60.4 333 60.24 335.36 59.77 337.64 58.99 339.8 57.93 341.8 56.59 343.61 55.01 345.19 53.2 346.53 51.2 347.59 49.04 348.37 46.76 348.84 44.4 349 41.91 349 21.09 348.84 18.6 348.37 16.24 347.59 13.96 346.53 11.8 345.19 9.8 343.61 7.99 341.8 6.41 339.8 5.07 337.64 4.01 335.36 3.23 333 2.76 330.51 2.6ZM324.83 15.69 325.89 16.05 326.9 16.55 327.84 17.17 328.69 17.91 329.43 18.76 330.05 19.7 330.55 20.71 330.91 21.77 331.13 22.88 331.2 23.91 331.2 38.09 331.13 39.12 330.91 40.23 330.55 41.29 330.05 42.3 329.43 43.24 328.69 44.09 327.84 44.83 326.9 45.45 325.89 45.95 324.83 46.31 323.72 46.53 322.69 46.6 292 46.6 292 15.4 322.69 15.4 323.72 15.47ZM257.6 97.4 257.6 79.6 239.8 79.6 239.8 97.4ZM126.52 97.4 152.08 97.4 151.91 96.95 151.46 95.54 151.07 94.12 150.76 92.7 150.52 91.28 150.34 89.85 150.23 88.43 150.2 87.03 150.2 52.38 177.66 97.4 177.94 97.4 205.4 52.38 205.4 87.03 205.37 88.43 205.26 89.85 205.08 91.28 204.84 92.7 204.53 94.12 204.14 95.54 203.69 96.95 203.52 97.4 229.08 97.4 228.91 96.95 228.46 95.54 228.07 94.12 227.76 92.7 227.52 91.28 227.34 89.85 227.23 88.43 227.2 87.03 227.2 12.97 227.23 11.57 227.34 10.15 227.52 8.72 227.76 7.3 228.07 5.88 228.46 4.46 228.91 3.05 229.08 2.6 203.52 2.6 203.69 3.05 204.14 4.46 204.53 5.88 204.84 7.3 205.08 8.72 205.26 10.15 205.37 11.57 205.4 12.97 205.4 31.15 177.8 65.12 150.2 31.15 150.2 12.97 150.23 11.57 150.34 10.15 150.52 8.72 150.76 7.3 151.07 5.88 151.46 4.46 151.91 3.05 152.08 2.6 126.52 2.6 126.69 3.05 127.14 4.46 127.53 5.88 127.84 7.3 128.08 8.72 128.26 10.15 128.37 11.57 128.4 12.97 128.4 87.03 128.37 88.43 128.26 89.85 128.08 91.28 127.84 92.7 127.53 94.12 127.14 95.54 126.69 96.95ZM115.8 97.4 115.8 79.6 98 79.6 98 97.4ZM0.72 97.4 26.28 97.4 26.11 96.95 25.66 95.54 25.27 94.12 24.96 92.7 24.72 91.28 24.54 89.85 24.43 88.43 24.4 87.03 24.4 58.4 63.6 58.4 63.6 87.03 63.57 88.43 63.46 89.85 63.28 91.28 63.04 92.7 62.73 94.12 62.34 95.54 61.89 96.95 61.72 97.4 87.28 97.4 87.11 96.95 86.66 95.54 86.27 94.12 85.96 92.7 85.72 91.28 85.54 89.85 85.43 88.43 85.4 87.03 85.4 12.97 85.43 11.57 85.54 10.15 85.72 8.72 85.96 7.3 86.27 5.88 86.66 4.46 87.11 3.05 87.28 2.6 61.72 2.6 61.89 3.05 62.34 4.46 62.73 5.88 63.04 7.3 63.28 8.72 63.46 10.15 63.57 11.57 63.6 12.97 63.6 41.6 24.4 41.6 24.4 12.97 24.43 11.57 24.54 10.15 24.72 8.72 24.96 7.3 25.27 5.88 25.66 4.46 26.11 3.05 26.28 2.6 0.72 2.6 0.89 3.05 1.34 4.46 1.73 5.88 2.04 7.3 2.28 8.72 2.46 10.15 2.57 11.57 2.6 12.97 2.6 87.03 2.57 88.43 2.46 89.85 2.28 91.28 2.04 92.7 1.73 94.12 1.34 95.54 0.89 96.95Z" fill="url(#ws-face)"/>
+  <path d="M-13.2 113.5Q174.2 107 361.6 113.5Q174.2 126.5 -13.2 113.5Z" fill="#f5883a"/>
+  <path d="M7.966571428571434 148.30857142857144Q5.806571428571435 148.30857142857144 3.826571428571435 147.73000000000002Q1.846571428571435 147.15142857142857 0.6380000000000063 146.22571428571428L2.0522857142857207 143.08857142857144Q3.2094285714285777 143.91142857142856 4.790857142857149 144.43857142857144Q6.37228571428572 144.96571428571428 7.992285714285721 144.96571428571428Q9.226571428571434 144.96571428571428 9.985142857142863 144.7214285714286Q10.743714285714292 144.47714285714287 11.103714285714293 144.04000000000002Q11.463714285714293 143.60285714285715 11.463714285714293 143.03714285714287Q11.463714285714293 142.31714285714287 10.898000000000007 141.89285714285717Q10.332285714285721 141.46857142857144 9.406571428571436 141.19857142857143Q8.480857142857149 140.92857142857142 7.36228571428572 140.6842857142857Q6.243714285714292 140.44 5.125142857142864 140.07999999999998Q4.0065714285714344 139.72 3.080857142857149 139.15428571428572Q2.1551428571428635 138.58857142857144 1.576571428571435 137.66285714285715Q0.9980000000000064 136.73714285714286 0.9980000000000064 135.29714285714286Q0.9980000000000064 133.75428571428571 1.833714285714292 132.48142857142858Q2.6694285714285777 131.20857142857142 4.353714285714292 130.45Q6.0380000000000065 129.69142857142856 8.583714285714292 129.69142857142856Q10.28085714285715 129.69142857142856 11.926571428571435 130.08999999999997Q13.572285714285721 130.48857142857142 14.832285714285721 131.28571428571428L13.546571428571434 134.44857142857143Q12.286571428571435 133.72857142857143 11.026571428571435 133.38142857142856Q9.766571428571435 133.03428571428572 8.558000000000007 133.03428571428572Q7.349428571428578 133.03428571428572 6.5780000000000065 133.31714285714287Q5.806571428571435 133.6 5.472285714285721 134.05Q5.138000000000006 134.5 5.138000000000006 135.09142857142857Q5.138000000000006 135.78571428571428 5.703714285714292 136.20999999999998Q6.269428571428578 136.6342857142857 7.195142857142864 136.89142857142855Q8.12085714285715 137.14857142857142 9.239428571428578 137.40571428571428Q10.358000000000006 137.66285714285715 11.476571428571434 137.99714285714288Q12.595142857142863 138.33142857142857 13.52085714285715 138.89714285714285Q14.446571428571435 139.46285714285713 15.025142857142864 140.38857142857142Q15.603714285714291 141.31428571428572 15.603714285714291 142.72857142857143Q15.603714285714291 144.24571428571429 14.755142857142863 145.5057142857143Q13.906571428571434 146.7657142857143 12.22228571428572 147.53714285714287Q10.538000000000006 148.30857142857144 7.966571428571434 148.30857142857144ZM20.32332330827068 148.0V130.0H24.489037593984968V148.0ZM30.62293233082707 148.0V130.0H38.800075187969924Q41.7315037593985 130.0 43.968646616541356 131.11857142857144Q46.20578947368421 132.23714285714286 47.46578947368421 134.24285714285713Q48.725789473684216 136.24857142857144 48.725789473684216 139.0Q48.725789473684216 141.72571428571428 47.46578947368421 143.7442857142857Q46.20578947368421 145.76285714285714 43.968646616541356 146.88142857142856Q41.7315037593985 148.0 38.800075187969924 148.0ZM34.78864661654136 144.58H38.594360902255644Q40.39436090225564 144.58 41.718646616541356 143.89857142857142Q43.04293233082707 143.21714285714285 43.77578947368421 141.95714285714286Q44.508646616541355 140.69714285714286 44.508646616541355 139.0Q44.508646616541355 137.27714285714285 43.77578947368421 136.03Q43.04293233082707 134.78285714285715 41.718646616541356 134.10142857142858Q40.39436090225564 133.42 38.594360902255644 133.42H34.78864661654136ZM53.728255639097746 148.0V130.0H57.893969924812026V148.0ZM64.02786466165414 148.0V130.0H67.47357894736842L78.09357894736841 142.96H76.42215037593985V130.0H80.53643609022556V148.0H77.11643609022556L66.47072180451127 135.04H68.14215037593985V148.0ZM95.36175939849623 148.30857142857144Q93.22747368421052 148.30857142857144 91.44033082706767 147.62714285714287Q89.6531879699248 146.94571428571427 88.3289022556391 145.68571428571428Q87.00461654135337 144.4257142857143 86.27175939849623 142.72857142857143Q85.53890225563909 141.03142857142856 85.53890225563909 139.0Q85.53890225563909 136.96857142857144 86.27175939849623 135.27142857142857Q87.00461654135337 133.5742857142857 88.34175939849624 132.31428571428572Q89.67890225563909 131.05428571428573 91.4789022556391 130.37285714285713Q93.2789022556391 129.69142857142856 95.43890225563909 129.69142857142856Q97.83033082706766 129.69142857142856 99.74604511278194 130.48857142857142Q101.66175939849623 131.28571428571428 102.97318796992481 132.80285714285714L100.29890225563909 135.27142857142857Q99.32175939849623 134.24285714285713 98.16461654135338 133.74142857142857Q97.00747368421052 133.24 95.64461654135337 133.24Q94.33318796992481 133.24 93.25318796992481 133.6514285714286Q92.17318796992481 134.06285714285715 91.3889022556391 134.83428571428573Q90.60461654135338 135.6057142857143 90.18033082706766 136.66000000000003Q89.75604511278195 137.71428571428572 89.75604511278195 139.0Q89.75604511278195 140.26 90.18033082706766 141.31428571428572Q90.60461654135338 142.36857142857144 91.3889022556391 143.15285714285716Q92.17318796992481 143.93714285714285 93.24033082706767 144.3485714285714Q94.30747368421052 144.76 95.5931879699248 144.76Q96.82747368421052 144.76 97.99747368421052 144.36142857142858Q99.16747368421052 143.96285714285713 100.2731879699248 143.01142857142858L102.6389022556391 146.02Q101.17318796992481 147.12571428571428 99.23175939849624 147.71714285714285Q97.29033082706766 148.30857142857144 95.36175939849623 148.30857142857144ZM102.6389022556391 146.02 98.83318796992481 145.48V138.71714285714285H102.6389022556391ZM131.33812030075188 148.30857142857144 120.87240601503758 138.58857142857144Q119.97240601503759 137.7657142857143 119.4324060150376 137.0457142857143Q118.8924060150376 136.3257142857143 118.64812030075188 135.63142857142856Q118.40383458646616 134.93714285714285 118.40383458646616 134.19142857142856Q118.40383458646616 132.88 119.09812030075187 131.87714285714287Q119.79240601503759 130.87428571428572 121.05240601503759 130.32142857142856Q122.3124060150376 129.76857142857142 124.00954887218045 129.76857142857142Q125.57812030075188 129.76857142857142 126.72240601503759 130.26999999999998Q127.8666917293233 130.77142857142857 128.5224060150376 131.69714285714286Q129.17812030075189 132.62285714285713 129.17812030075189 133.90857142857143Q129.17812030075189 135.04 128.6124060150376 135.97857142857143Q128.0466917293233 136.91714285714286 126.85097744360901 137.74Q125.65526315789472 138.56285714285715 123.7266917293233 139.41142857142856Q122.41526315789473 140.00285714285715 121.6566917293233 140.5557142857143Q120.89812030075187 141.10857142857142 120.56383458646616 141.6742857142857Q120.22954887218044 142.24 120.22954887218044 142.93428571428572Q120.22954887218044 143.57714285714286 120.62812030075187 144.0914285714286Q121.0266917293233 144.6057142857143 121.7466917293233 144.88857142857142Q122.4666917293233 145.17142857142858 123.44383458646615 145.17142857142858Q125.01240601503758 145.17142857142858 126.32383458646615 144.43857142857144Q127.63526315789473 143.7057142857143 128.54812030075186 142.25285714285715Q129.460977443609 140.8 129.8466917293233 138.71714285714285L133.060977443609 139.72Q132.520977443609 142.34285714285716 131.1324060150376 144.27142857142857Q129.74383458646616 146.2 127.71240601503759 147.25428571428571Q125.68097744360901 148.30857142857144 123.16097744360901 148.30857142857144Q121.18097744360901 148.30857142857144 119.63812030075186 147.66571428571427Q118.09526315789473 147.02285714285713 117.19526315789474 145.91714285714284Q116.29526315789474 144.81142857142856 116.29526315789474 143.37142857142857Q116.29526315789474 142.03428571428572 116.8866917293233 140.96714285714285Q117.47812030075187 139.9 118.76383458646616 138.96142857142857Q120.04954887218045 138.02285714285713 122.02954887218044 137.12285714285713Q123.46954887218044 136.4542857142857 124.29240601503759 135.94Q125.11526315789473 135.4257142857143 125.44954887218044 134.95Q125.78383458646616 134.4742857142857 125.78383458646616 133.9857142857143Q125.78383458646616 133.31714285714287 125.33383458646617 132.90571428571428Q124.88383458646616 132.49428571428572 124.00954887218045 132.49428571428572Q123.08383458646615 132.49428571428572 122.56954887218043 132.95714285714286Q122.05526315789473 133.42 122.05526315789473 134.14Q122.05526315789473 134.5257142857143 122.20954887218045 134.89857142857142Q122.36383458646615 135.27142857142857 122.80097744360901 135.74714285714288Q123.23812030075187 136.22285714285715 124.03526315789473 136.96857142857144L133.52383458646617 145.76285714285714ZM147.23162406015035 148.0V130.0H154.9201954887218Q158.6744812030075 130.0 160.75733834586464 131.73571428571427Q162.84019548872178 133.47142857142856 162.84019548872178 136.53142857142856Q162.84019548872178 138.53714285714287 161.8887669172932 139.99Q160.93733834586465 141.44285714285715 159.1887669172932 142.21428571428572Q157.4401954887218 142.9857142857143 155.02305263157893 142.9857142857143H149.54590977443607L151.39733834586465 141.16V148.0ZM158.6744812030075 148.0 154.1744812030075 141.46857142857144H158.62305263157893L163.1744812030075 148.0ZM151.39733834586465 141.62285714285713 149.54590977443607 139.66857142857143H154.79162406015035Q156.7201954887218 139.66857142857143 157.67162406015035 138.83285714285714Q158.62305263157893 137.99714285714285 158.62305263157893 136.53142857142856Q158.62305263157893 135.04 157.67162406015035 134.21714285714285Q156.7201954887218 133.39428571428573 154.79162406015035 133.39428571428573H149.54590977443607L151.39733834586465 131.4142857142857ZM176.73980451127818 148.30857142857144Q174.60551879699244 148.30857142857144 172.79266165413532 147.6142857142857Q170.97980451127816 146.92 169.65551879699245 145.66Q168.33123308270675 144.4 167.5983759398496 142.70285714285714Q166.86551879699246 141.00571428571428 166.86551879699246 139.0Q166.86551879699246 136.99428571428572 167.5983759398496 135.29714285714286Q168.33123308270675 133.6 169.6683759398496 132.34Q171.00551879699245 131.08 172.80551879699243 130.3857142857143Q174.60551879699244 129.69142857142856 176.7140902255639 129.69142857142856Q178.8483759398496 129.69142857142856 180.63551879699247 130.3857142857143Q182.4226616541353 131.08 183.74694736842102 132.34Q185.07123308270673 133.6 185.816947368421 135.28428571428572Q186.5626616541353 136.96857142857144 186.5626616541353 139.0Q186.5626616541353 141.00571428571428 185.816947368421 142.71571428571428Q185.07123308270673 144.4257142857143 183.74694736842102 145.67285714285714Q182.4226616541353 146.92 180.63551879699247 147.6142857142857Q178.8483759398496 148.30857142857144 176.73980451127818 148.30857142857144ZM176.7140902255639 144.76Q177.9226616541353 144.76 178.9383759398496 144.3485714285714Q179.95409022556387 143.93714285714285 180.72551879699245 143.16571428571427Q181.49694736842102 142.3942857142857 181.92123308270675 141.33999999999997Q182.34551879699245 140.28571428571428 182.34551879699245 139.0Q182.34551879699245 137.71428571428572 181.92123308270675 136.66000000000003Q181.49694736842102 135.6057142857143 180.7383759398496 134.83428571428573Q179.97980451127816 134.06285714285715 178.95123308270672 133.6514285714286Q177.9226616541353 133.24 176.7140902255639 133.24Q175.50551879699245 133.24 174.48980451127818 133.6514285714286Q173.47409022556388 134.06285714285715 172.7026616541353 134.83428571428573Q171.93123308270674 135.6057142857143 171.50694736842104 136.66000000000003Q171.0826616541353 137.71428571428572 171.0826616541353 139.0Q171.0826616541353 140.26 171.50694736842104 141.32714285714286Q171.93123308270674 142.3942857142857 172.68980451127817 143.16571428571427Q173.4483759398496 143.93714285714285 174.476947368421 144.3485714285714Q175.50551879699245 144.76 176.7140902255639 144.76ZM200.307984962406 148.30857142857144Q198.17369924812027 148.30857142857144 196.36084210526315 147.6142857142857Q194.547984962406 146.92 193.22369924812028 145.66Q191.89941353383458 144.4 191.16655639097743 142.70285714285714Q190.4336992481203 141.00571428571428 190.4336992481203 139.0Q190.4336992481203 136.99428571428572 191.16655639097743 135.29714285714286Q191.89941353383458 133.6 193.23655639097743 132.34Q194.57369924812028 131.08 196.37369924812026 130.3857142857143Q198.17369924812027 129.69142857142856 200.28227067669172 129.69142857142856Q202.41655639097743 129.69142857142856 204.2036992481203 130.3857142857143Q205.99084210526314 131.08 207.31512781954885 132.34Q208.63941353383456 133.6 209.38512781954884 135.28428571428572Q210.13084210526313 136.96857142857144 210.13084210526313 139.0Q210.13084210526313 141.00571428571428 209.38512781954884 142.71571428571428Q208.63941353383456 144.4257142857143 207.31512781954885 145.67285714285714Q205.99084210526314 146.92 204.2036992481203 147.6142857142857Q202.41655639097743 148.30857142857144 200.307984962406 148.30857142857144ZM200.28227067669172 144.76Q201.49084210526314 144.76 202.50655639097744 144.3485714285714Q203.5222706766917 143.93714285714285 204.29369924812028 143.16571428571427Q205.06512781954885 142.3942857142857 205.48941353383458 141.33999999999997Q205.91369924812028 140.28571428571428 205.91369924812028 139.0Q205.91369924812028 137.71428571428572 205.48941353383458 136.66000000000003Q205.06512781954885 135.6057142857143 204.30655639097742 134.83428571428573Q203.547984962406 134.06285714285715 202.51941353383455 133.6514285714286Q201.49084210526314 133.24 200.28227067669172 133.24Q199.07369924812028 133.24 198.057984962406 133.6514285714286Q197.04227067669171 134.06285714285715 196.27084210526314 134.83428571428573Q195.49941353383457 135.6057142857143 195.07512781954887 136.66000000000003Q194.65084210526314 137.71428571428572 194.65084210526314 139.0Q194.65084210526314 140.26 195.07512781954887 141.32714285714286Q195.49941353383457 142.3942857142857 196.257984962406 143.16571428571427Q197.01655639097743 143.93714285714285 198.04512781954884 144.3485714285714Q199.07369924812028 144.76 200.28227067669172 144.76ZM215.13330827067668 148.0V130.0H228.73616541353383V133.34285714285716H219.29902255639098V148.0ZM218.99045112781954 141.44285714285715V138.1H227.63045112781953V141.44285714285715ZM233.43006015037594 148.0V130.0H237.59577443609024V148.0ZM243.72966917293232 148.0V130.0H247.17538345864662L257.7953834586466 142.96H256.123954887218V130.0H260.2382406015038V148.0H256.81824060150376L246.17252631578947 135.04H247.84395488721805V148.0ZM275.0635639097744 148.30857142857144Q272.9292781954887 148.30857142857144 271.14213533834584 147.62714285714287Q269.354992481203 146.94571428571427 268.03070676691726 145.68571428571428Q266.7064210526315 144.4257142857143 265.9735639097744 142.72857142857143Q265.24070676691724 141.03142857142856 265.24070676691724 139.0Q265.24070676691724 136.96857142857144 265.9735639097744 135.27142857142857Q266.7064210526315 133.5742857142857 268.04356390977443 132.31428571428572Q269.3807067669173 131.05428571428573 271.1807067669173 130.37285714285713Q272.98070676691725 129.69142857142856 275.1407067669173 129.69142857142856Q277.5321353383458 129.69142857142856 279.44784962406015 130.48857142857142Q281.3635639097744 131.28571428571428 282.674992481203 132.80285714285714L280.00070676691723 135.27142857142857Q279.0235639097744 134.24285714285713 277.86642105263155 133.74142857142857Q276.7092781954887 133.24 275.34642105263157 133.24Q274.03499248120295 133.24 272.95499248120296 133.6514285714286Q271.874992481203 134.06285714285715 271.09070676691726 134.83428571428573Q270.30642105263155 135.6057142857143 269.88213533834585 136.66000000000003Q269.45784962406015 137.71428571428572 269.45784962406015 139.0Q269.45784962406015 140.26 269.88213533834585 141.31428571428572Q270.30642105263155 142.36857142857144 271.09070676691726 143.15285714285716Q271.874992481203 143.93714285714285 272.9421353383458 144.3485714285714Q274.00927819548866 144.76 275.294992481203 144.76Q276.5292781954887 144.76 277.69927819548866 144.36142857142858Q278.8692781954887 143.96285714285713 279.974992481203 143.01142857142858L282.34070676691726 146.02Q280.874992481203 147.12571428571428 278.9335639097744 147.71714285714285Q276.99213533834586 148.30857142857144 275.0635639097744 148.30857142857144ZM282.34070676691726 146.02 278.53499248120295 145.48V138.71714285714285H282.34070676691726ZM297.2056390977443 148.0V130.0H301.3713533834586V144.6057142857143H310.3970676691729V148.0ZM314.6023909774436 148.0V130.0H318.76810526315785V144.6057142857143H327.79381954887214V148.0ZM340.6134285714285 148.30857142857144Q338.53057142857136 148.30857142857144 336.7434285714285 147.62714285714287Q334.9562857142857 146.94571428571427 333.64485714285706 145.68571428571428Q332.3334285714285 144.4257142857143 331.60057142857136 142.72857142857143Q330.8677142857142 141.03142857142856 330.8677142857142 139.0Q330.8677142857142 136.96857142857144 331.60057142857136 135.27142857142857Q332.3334285714285 133.5742857142857 333.65771428571423 132.31428571428572Q334.98199999999997 131.05428571428573 336.7562857142857 130.37285714285713Q338.53057142857136 129.69142857142856 340.6391428571428 129.69142857142856Q342.9791428571428 129.69142857142856 344.86914285714283 130.50142857142856Q346.7591428571428 131.31142857142856 348.0448571428571 132.88L345.3705714285714 135.34857142857143Q344.4448571428571 134.2942857142857 343.3134285714285 133.76714285714286Q342.18199999999996 133.24 340.8448571428571 133.24Q339.5848571428571 133.24 338.5305714285714 133.6514285714286Q337.47628571428567 134.06285714285715 336.7048571428571 134.83428571428573Q335.9334285714285 135.6057142857143 335.5091428571428 136.66000000000003Q335.0848571428571 137.71428571428572 335.0848571428571 139.0Q335.0848571428571 140.28571428571428 335.5091428571428 141.33999999999997Q335.9334285714285 142.3942857142857 336.7048571428571 143.16571428571427Q337.47628571428567 143.93714285714285 338.5305714285714 144.3485714285714Q339.5848571428571 144.76 340.8448571428571 144.76Q342.18199999999996 144.76 343.3134285714285 144.23285714285714Q344.4448571428571 143.7057142857143 345.3705714285714 142.62571428571428L348.0448571428571 145.09428571428572Q346.7591428571428 146.66285714285715 344.86914285714283 147.4857142857143Q342.9791428571428 148.30857142857144 340.6134285714285 148.30857142857144Z" fill="#dcdee2"/>
+</symbol>
+</svg>
+<svg class="ws-defs" aria-hidden="true">
+  <symbol id="ws-i-cam" viewBox="0 0 24 24"><rect x="2.4" y="7" width="19.2" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8 7l1.5-3h5L16 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.4" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="ws-i-again" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M18.6 2.8v4.6H14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ws-i-talk" viewBox="0 0 24 24"><path d="M4 5h16v10H10l-5 4v-4H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="ws-i-warn" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v5M12 17.2v.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ws-i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="ws-i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="ws-i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8.8 7.5h6.4M8.8 10.5h6.4M8.8 13.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+</svg>
+</script>
+
