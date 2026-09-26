@@ -266,6 +266,8 @@ h1 .w-app{color:var(--hmp)}
 .wk-last{font-size:13px;color:var(--mute);margin:0}
 .wk-sub{grid-column:1 / -1;margin:-6px 0 0;font-size:12px;line-height:1.3;color:var(--label);text-align:right;font-variant-numeric:tabular-nums}
 .wk-sub .mk{white-space:nowrap} .wk-sub b{color:var(--warn);font-weight:700}
+.wk-b .wk-norm{position:absolute;top:-3px;bottom:-3px;border-left:1px dashed var(--mute);border-right:1px dashed var(--mute);pointer-events:none}   /* v18: the 20-40% normal band */
+.wk-note{grid-column:1 / -1;margin:-6px 0 0;font-size:12px;line-height:1.35;color:var(--mute);text-wrap:pretty}
 .go{display:grid;gap:8px}
 .go a{display:grid;gap:2px;padding:12px 14px;background:var(--bg2);border:2px solid var(--line);color:var(--ink);text-decoration:none;min-height:60px;align-content:center}
 .go a:hover{border-color:var(--hmp)}
@@ -3295,7 +3297,10 @@ const VX = {
     dedupe: 'counted once with today’s door taps', onPhone: 'saved on this phone, sends when back online',
     printBtn: 'Print today’s walk', printSub: 'Paper backup for a dead phone or no signal.',
     nudge: (a, r) => r === 'booked' ? `${a}: booked. Price it while you are there?` : `${a}: interested. Price it while you are there?`,
-    wkEst: r => `${r} in estimates`, wkMkt: 'market prices'
+    wkEst: r => `${r} in estimates`, wkMkt: 'market prices',
+    // v18: answer rate (same rule as hailhunter/weekly.py contact_rate) + honest ranges
+    wkRate: 'Answer rate', wkRateOf: (a, n) => `${a} of ${n} tapped doors answered`, wkRateNorm: 'Normal: 20–40%. First weeks are usually near the low end; that’s normal.',
+    wkInspNorm: 'About 1–4 inspections per 100 doors is normal.'
   },
   es: {
     sync: (n, k) => [n ? `${n} ${pl(n, 'toque', 'toques')} esperando para guardarse` : '', k ? `${k} ${pl(k, 'mensaje', 'mensajes')} para la Mano Derecha` : ''].filter(Boolean).join(' · '),
@@ -3348,7 +3353,9 @@ const VX = {
     dedupe: 'contado una vez junto con los toques de hoy', onPhone: 'guardado en este teléfono, se manda cuando vuelva la señal',
     printBtn: 'Imprimir la ruta de hoy', printSub: 'Respaldo en papel por si el teléfono se apaga o no hay señal.',
     nudge: (a, r) => r === 'booked' ? `${a}: agendado. ¿Le das precio de una vez?` : `${a}: interesado. ¿Le das precio de una vez?`,
-    wkEst: r => `${r} en presupuestos`, wkMkt: 'precios del mercado'
+    wkEst: r => `${r} en presupuestos`, wkMkt: 'precios del mercado',
+    wkRate: 'Abrieron', wkRateOf: (a, n) => `${a} de ${n} puertas tocadas abrieron`, wkRateNorm: 'Lo normal: 20–40%. Las primeras semanas casi siempre salen cerca del mínimo; eso es normal.',
+    wkInspNorm: 'Lo normal es de 1 a 4 inspecciones por cada 100 puertas.'
   }
 };
 const V = () => VX[lang];
@@ -3453,7 +3460,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && ou
 
 /* ---------- what the page shows = the database + writes still waiting on this phone + taps not echoed back yet ---------- */
 let leadsSeen = false;   // the leads collection has answered at least once (applyStat recounts estimates from it)
-let leadsRaw = [], claimsRaw = [], doorRaw = {}, dnkRaw = {}, dnk = {}, evidence = {};
+let leadsRaw = [], claimsRaw = [], doorRaw = {}, dnkRaw = {}, dnk = {}, evidence = {}, weekDoorRaw = {};   // v18: this week's door taps (answer rate)
 const localDoors = {};   // pid -> {body, t}: a tap shows at once, before the database echoes it back
 function setLocalDoor(pid, body){ localDoors[pid] = {body, t: Date.now()}; mergeDoors(); }
 function overlayFor(col){
@@ -4192,6 +4199,21 @@ function statEstimates(id, e){   // after a quick estimate is saved: stats/week-
   save({op: 'stat', path: 'stats/week-' + wk, date: day, src: 'est', vals: {}, est: now, lead: est ? {id, estimate: est} : null, by: 'Quick estimate'}).catch(() => {});
 }
 
+/* ---------- v18: this week's answer rate, the same rule as hailhunter/weekly.py tally() contact_rate ---------- */
+// every door tap this ISO week counts once (a doc per day + house); answered = No + Interested + Booked; not home (any spelling
+// weekly.py's NOT_HOME accepts) and anything else only add to the doors. Today's taps come from doorDocs so a tap shows at once.
+const WK_TALK = ['no', 'interested', 'booked'];
+const WK_NOT_HOME = ['not_home', 'nothome', 'not home', 'not-home', 'no_home', 'no esta', 'no está'];
+const weekMonday = dstr => { const d = toDate(dstr); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return ymd(d); };
+const tapResult = v => { const r = String(v == null ? '' : v).trim().toLowerCase().replace(/\s+/g, ' '); return WK_NOT_HOME.includes(r) ? 'not_home' : r.replace(/ /g, '_'); };
+function weekAnswers(t0){
+  const wk = isoWeek(t0), rows = [];
+  for (const [id, v] of Object.entries(weekDoorRaw)) { const day = strv(v.date) || (/^\d{4}-\d{2}-\d{2}/.test(id) ? id.slice(0, 10) : ''); if (day && day !== t0 && isoWeek(day) === wk) rows.push(v); }
+  for (const v of Object.values(doorDocs)) if (v && (strv(v.date) || t0) === t0) rows.push(v);
+  let n = 0, a = 0; for (const v of rows) { const r = tapResult(v.result); if (!v.pid || !r) continue; n++; if (WK_TALK.includes(r)) a++; }
+  return {n, answered: a, rate: n ? Math.round(1000 * a / n) / 1000 : 0};
+}
+
 /* ---------- follow-ups, late leads, tasks, week ---------- */
 const HOUR = 3600e3;
 const arr = v => (Array.isArray(v) ? v.filter(x => x && typeof x === 'object') : []);
@@ -4265,8 +4287,12 @@ function renderToday(){
   const cnt = x => (x === 'estimates' ? est.n : numv(wd[x]) || 0);
   const top = Math.max(1, numv(wd.doors) || 0, ...STAT_KEYS.map(cnt));
   const estSub = est.n ? `<p class="wk-sub">${esc(V().wkEst(est.low === est.high ? kUsd(est.low) : `${kUsd(est.low)}–${kUsd(est.high)}`))}${est.using_reference ? ` <span class="mk">· <b>${esc(V().wkMkt)}</b></span>` : ''}</p>` : '';
+  // v18: answer rate from this week's door taps (hidden under 10 taps: too few to mean anything) + honest ranges
+  const ans = weekAnswers(t0), pct = Math.round(ans.rate * 100);
+  const rateRow = ans.n >= 10 ? `<div class="wk-row wk-rate" id="tRate"><span class="wk-l">${esc(V().wkRate)}</span><span class="wk-b" title="${esc(V().wkRateOf(ans.answered, ans.n))}"><span class="wk-norm" style="left:20%;width:20%"></span><i style="width:${pct}%"></i></span><span class="wk-v">${pct}%</span><p class="wk-sub">${esc(V().wkRateOf(ans.answered, ans.n))}</p><p class="wk-note">${esc(V().wkRateNorm)}</p></div>` : '';
+  const inspNote = ans.n >= 25 ? `<p class="wk-note" id="tInspNorm">${esc(V().wkInspNorm)}</p>` : '';
   $('#tWeek').innerHTML = `<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
-    return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small style="color:var(--label);font-size:12px">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : ''}</div>`; }).join('')}</div>
+    return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small style="color:var(--label);font-size:12px">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : x === 'inspections' ? inspNote : ''}</div>${x === 'conversations' ? rateRow : ''}`; }).join('')}</div>
     ${!weekDoc ? sayBox(T.exWeek) : ''}`;
   // go knock links
   $('#tGoH').textContent = T.goH;
@@ -5199,6 +5225,8 @@ function subscribeApp(db){
   db.collection('leads').onSnapshot(s => { ok(); leadsSeen = true; const v = list(s); if (changed('leads', v)) { leadsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
   db.collection('claims').onSnapshot(s => { ok(); const v = list(s); if (changed('claims', v)) { claimsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
   db.doc('today/walk').onSnapshot(s => { ok(); const v = s.exists ? s.data() : null; if (changed('walk', v)) { walk = v; bump(); } else renderAppSoon(); }, fail);
+  { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs)
+    db.collection('doors').where('date', '>=', mon).where('date', '<=', sun).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
   db.collection('doors').where('date', '==', todayStr()).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } if (changed('doors', o)) { doorRaw = o; mergeDoors(); bump(); } }, () => {});
   db.collection('dnk').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v) o[d.id] = v; } if (changed('dnk', o)) { dnkRaw = o; applyOverlay(); } }, () => {});
   db.collection('evidence').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && numv(v.hail_in) != null) o[d.id] = v; } if (changed('ev', o)) { evidence = o; bump(); } }, () => {});
