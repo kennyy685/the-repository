@@ -125,7 +125,8 @@ h1 { font:800 50px/0.95 "Barlow Semi Condensed"; margin:14px 0 8px; letter-spaci
   .tile .wh { font-size:18px; }
   .optgrid { display:grid; grid-template-columns:1.25fr 1fr; gap:16px; align-items:start; }
   .bigsteps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-  .bs { grid-template-columns:1fr; border-bottom:0; border-top:3px solid var(--line); }
+  .bs { grid-template-columns:1fr; align-content:start; border-bottom:0; border-top:3px solid var(--line); }
+  .detail .price { font-size:34px; }
   .calls { grid-template-columns:1fr 1fr; }
 }
 </style>
@@ -193,6 +194,10 @@ function show(i) {
 }
 document.querySelectorAll(".tile").forEach((el) => el.onclick = () => show(+el.dataset.i));
 show(T.findIndex((x) => x.rec));
+</script>
+<script>/* ?screen=1|2|3 shows one screen only (for screenshots) */
+(() => { const n = +new URLSearchParams(location.search).get("screen"); if (!n) return;
+  document.querySelectorAll("#app > section").forEach((el, i) => { el.style.display = i + 1 === n ? "" : "none"; if (i + 1 === n) { el.style.borderTop = "0"; el.style.marginTop = "0"; } }); })();
 </script>
 </body>
 </html>

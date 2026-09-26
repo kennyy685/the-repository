@@ -101,7 +101,7 @@ h1 { font:800 38px/1.02 "Barlow Semi Condensed"; margin:4px 0 6px; }
   text-decoration:none; }
 .btn-out .sw { display:flex; gap:3px; }
 .btn-out .sw i { width:14px; height:28px; border-radius:3px; }
-.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; }
+.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; color:var(--text); }
 .btn-out span { font-size:12.5px; color:var(--muted); }
 .btn-out .arr { margin-left:auto; font:800 22px "Barlow Semi Condensed"; color:var(--orange); }
 /* steps */
@@ -129,6 +129,7 @@ h1 { font:800 38px/1.02 "Barlow Semi Condensed"; margin:4px 0 6px; }
   .two { grid-template-columns:1.1fr 1fr; align-items:start; }
   .tiers { grid-template-columns:repeat(3,1fr); gap:12px; align-items:stretch; }
   .tier .price { font-size:30px; }
+  .photo.hero .ph img { aspect-ratio:16/9; }
   .tier .what { font-size:19px; }
   .calls { grid-template-columns:1fr 1fr; }
   .call .tel { font-size:30px; }
@@ -155,7 +156,7 @@ const shield = '<svg viewBox="0 0 24 24" fill="none" stroke="#f5883a" stroke-wid
 const phone = '<svg viewBox="0 0 24 24" fill="#17181a"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
 
 function ann(p, big) {
-  let s = '<svg class="ann" viewBox="0 0 100 75" preserveAspectRatio="none">';
+  let s = '<svg class="ann" viewBox="0 0 100 75" preserveAspectRatio="xMidYMid slice">';
   p.marks.forEach((m) => { s += `<ellipse cx="${m[0]}" cy="${m[1]*.75}" rx="${m[2]/2+1.2}" ry="${(m[2]/2+1.2)}" fill="none" stroke="#f5883a" stroke-width="${big?0.9:1.1}"/>`; });
   if (p.marks.length && big) { const m = p.marks[0]; // arrow to the first hit
     s += `<path d="M${m[0]-17} ${m[1]*.75+17} L${m[0]-m[2]/2-2.2} ${m[1]*.75+m[2]/2+1.2}" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
@@ -211,6 +212,10 @@ html += `<section class="screen" id="s3">${tabs(2)}
   <div class="foot">${t(HS.company)}<span class="blank"></span></div>
 </section>`;
 $("app").innerHTML = html;
+</script>
+<script>/* ?screen=1|2|3 shows one screen only (for screenshots) */
+(() => { const n = +new URLSearchParams(location.search).get("screen"); if (!n) return;
+  document.querySelectorAll("#app > section").forEach((el, i) => { el.style.display = i + 1 === n ? "" : "none"; if (i + 1 === n) { el.style.borderTop = "0"; el.style.marginTop = "0"; } }); })();
 </script>
 </body>
 </html>

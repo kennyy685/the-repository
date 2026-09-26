@@ -55,7 +55,7 @@ h1 { font:800 38px/1.02 "Barlow Semi Condensed"; margin:18px 0 4px; color:var(--
 .pcard .cap { display:flex; gap:12px; padding:13px 14px 15px; }
 .pcard .n { flex:none; width:30px; height:30px; border-radius:50%; background:var(--char); color:#fff; font:800 17px/30px "Barlow Semi Condensed"; text-align:center; }
 .pcard .cap b { display:block; font:700 20px/1.15 "Barlow Semi Condensed"; }
-.pcard .cap span { color:var(--muted); font-size:14px; }
+.pcard .cap div span { color:var(--muted); font-size:14px; }
 /* hail */
 .card { background:var(--card); border-radius:14px; padding:18px; margin-top:14px; box-shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05); }
 .lbl { font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
@@ -100,7 +100,7 @@ td.txt { font-weight:600; line-height:1.25; }
   border-radius:12px; color:var(--ink); text-decoration:none; }
 .btn-out .sw { display:flex; gap:3px; }
 .btn-out .sw i { width:14px; height:28px; border-radius:3px; }
-.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; }
+.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; color:var(--ink); }
 .btn-out span { font-size:12.5px; color:var(--muted); }
 .btn-out .arr { margin-left:auto; font:800 22px "Barlow Semi Condensed"; color:var(--orange-ink); }
 /* steps */
@@ -217,6 +217,10 @@ html += `<section class="screen">${stepper(2)}<h1>${t(HS.ui.s3)}</h1><div class=
     <span><span class="nm">${c.name} · ${t(c.lang)}</span><div class="tel">${c.phone}</div></span></a>`).join("")}</div>
   <div class="foot">${t(HS.company)}<span class="blank"></span></div></section>`;
 $("app").innerHTML = html;
+</script>
+<script>/* ?screen=1|2|3 shows one screen only (for screenshots) */
+(() => { const n = +new URLSearchParams(location.search).get("screen"); if (!n) return;
+  document.querySelectorAll("#app > section").forEach((el, i) => { el.style.display = i + 1 === n ? "" : "none"; if (i + 1 === n) { el.style.borderTop = "0"; el.style.marginTop = "0"; } }); })();
 </script>
 </body>
 </html>
