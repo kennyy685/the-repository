@@ -58,5 +58,5 @@
   if (h.includes('dark')) document.documentElement.setAttribute('data-theme', 'dark');
   if (h.includes('light')) document.documentElement.setAttribute('data-theme', 'light');
   ['es', 'loading', 'empty', 'late', 'map'].forEach(k => document.documentElement.classList.toggle('st-' + k, h.includes(k)));
-  window.addEventListener('hashchange', () => location.reload());
+  if (document.querySelector('.phone')) window.addEventListener('hashchange', () => location.reload());
 })();

@@ -56,8 +56,8 @@ libraries. The builder reuses it as-is.
 
 | Screen | v24 words | v25 mockup | Target | Other v24 counts |
 |---|---|---|---|---|
-| Now | 239 | 122 | ≤130 | 15 text styles, 16 buttons |
-| Knock | 147 (+ rules banner in live data) | 119 | ≤120 | **26 text styles**, 14 buttons, 2 ⋯ menus |
+| Now | 239 | 145 (about 25 are street names on the map) | ≤130 text | 15 text styles, 16 buttons |
+| Knock | 147 (+ rules banner in live data) | 108 | ≤120 | **26 text styles**, 14 buttons, 2 ⋯ menus |
 | Leads | 187 | – | ≤120 | 3 chips + a red box per card |
 | Money | 358 | 106 | ≤120 | 19 styles; the empty state is ~220 words |
 | Lead sheet | **681** | 108 | ≤150 | **52 buttons**, "Step 2 of 8" shown twice |
