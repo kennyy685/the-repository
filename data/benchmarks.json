@@ -10,6 +10,11 @@
     "low": 20, "typical": 30, "high": 40,
     "source": "vendor blogs (spotio.com, theroofstrategist.com) - typical door-to-door answer rate"
   },
+  "doors_per_hour": {
+    "unit": "doors knocked per hour in normal neighborhoods (25-35 on a tight route)",
+    "low": 10, "typical": 12, "high": 15,
+    "source": "docs/research/2026-09-26-round-6.md rookie benchmarks (industry-typical, unverified); typical = midpoint"
+  },
   "doors_to_qualified_inspection_new_rep": {
     "unit": "% of doors knocked -> booked inspection, first 30 days",
     "low": 0.5, "typical": 1, "high": 2,

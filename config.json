@@ -34,6 +34,7 @@
     ["2026-04-23", "Omaha"],
     ["2026-06-10", "Lincoln"]
   ],
+  "everyday_towns": ["Schuyler, NE", "Columbus, NE", "Lexington, NE"],
   "agent_schedule": {
     "storm_watch": "daily 6:54 AM Central"
   },

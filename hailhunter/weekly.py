@@ -293,10 +293,22 @@ def estimates(leads, start=None, end=None):
     return len(seen), {"low": int(round(low)), "high": int(round(high)), "using_reference": ref}
 
 
+def _industry(bench, t):
+    """T84: this week's funnel rates next to data/benchmarks.json ranges (None without the file)."""
+    from .benchmarks import industry_ranges
+    n = t["doors"]
+    return industry_ranges(bench, {"contact_rate": t["contact_rate"] if n else None,
+                                   "inspection_rate_per_100": t["inspection_rate_per_100"] if n else None,
+                                   "inspection_rate_per_100_experienced": t["inspection_rate_per_100"] if n else None})
+
+
 # ------------------------------------------------------------------ the report
-def report(doors, leads, week=None, hud=None, today=None, cfg=None):
+def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None):
     """The week's results doc. `doors`/`leads` = load_doors/load_leads output; `week` = "2026-39",
-    "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day)."""
+    "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day).
+    `bench` (T84) = the data/benchmarks.json doc (benchmarks.load()): adds `industry` = each funnel rate next to an
+    industry range {yours, low, typical, high, source_note, vs}, labeled "industry estimate, not your numbers";
+    None (no file) -> `industry` is null."""
     wcfg = {**DEFAULTS["weekly"], **((cfg or {}).get("weekly") or {})}
     doors = [dict(d) for d in doors or []]         # don't change the caller's rows
     leads = list(leads or [])
@@ -375,6 +387,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
         "to": end and end.isoformat(), "as_of": today.isoformat(),
         "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
         "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas, "benchmarks": benchmarks(),
+        "industry": _industry(bench, t),
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),
         "learning": {"hud": bool(meta), "hud_generated_utc": (hud or {}).get("generated_utc"),

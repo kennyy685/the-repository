@@ -1,19 +1,99 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>HMP Door Hanger Everyday</title>
-<!-- HMP Siding & Roofing door hanger, EVERYDAY version (older homes, worn roof or siding, no storm, no insurance line). The storm version is door-hanger.html.
-     4.25 x 11 in, standard die-cut knob hole. Page 1 = English FRONT, page 2 = Spanish BACK (print double-sided, flip on long edge).
-     Styles: door-hanger.css. Fonts: fonts/ (local files, free Google Fonts: Barlow Semi Condensed, Montserrat).
-     Logo: the <symbol id="hmp-logo"> below, redrawn as flat vector art from HMP's sign (no photo embedded).
-     QR codes open a text to Kenny (SMSTO:4029362709 with a pre-filled message, English on the front, Spanish on the back).
-     Office number: <span class="office"> in each phone band (see door-hanger.css to remove it).
-     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=door-hanger-everyday.pdf file://.../door-hanger-everyday.html -->
-<link rel="stylesheet" href="door-hanger.css">
+<title>HMP First Knock Day</title>
+<!-- T86: one-page "First knock day" sheet from docs/guides/first-knock-day.md, in the pocket card B look
+     (charcoal + orange #f5883a, Barlow Semi Condensed + Montserrat). US Letter. Page 1 = English FRONT,
+     page 2 = short Spanish BACK for the boss (print double-sided, flip on long edge).
+     Charcoal only in the header, the door script and the footer, so it prints fine on a home printer.
+     Fonts: fonts/ (local files only). Logo: <symbol id="hmp-logo"> (same SVG as the pocket card).
+     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=first-knock-day.pdf file://.../first-knock-day.html -->
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:500; src:url(fonts/Montserrat-500.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:600; src:url(fonts/Montserrat-600.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:700; src:url(fonts/Montserrat-700.woff) format("woff"); }
+:root { --char:#404145; --char-dk:#2a2b2f; --orange:#f5883a; --orange-dk:#c8601a; --silver:#c9ccd1; --ink:#26272b; --muted:#62656c; --line:#dcdee2; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:#fff; }
+body { font-family:"Montserrat", sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.defs { position:absolute; width:0; height:0; overflow:hidden; }
+@page { size: 8.5in 11in; margin: 0; }
+.page { width:8.5in; height:11in; position:relative; overflow:hidden; break-after:page; display:flex; flex-direction:column; }
+.page:last-of-type { break-after:auto; }
+.edge { position:absolute; left:0; top:0; bottom:0; width:0.16in; background:var(--orange); z-index:2; }
+
+/* header */
+.top { position:relative; background:var(--char-dk); color:#fff; padding:0.36in 0.55in 0.3in 0.62in; display:flex; align-items:center; gap:0.35in; border-bottom:3pt solid var(--orange); }
+.top .rib { position:absolute; inset:0; width:100%; height:100%; opacity:.35; }
+.top .logo { position:relative; width:1.75in; height:0.86in; flex:none; }
+.top .ttl { position:relative; }
+.kick { font:700 7.5pt/1 "Montserrat"; letter-spacing:0.2em; text-transform:uppercase; color:var(--orange); }
+h1 { font:800 36pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; margin-top:4pt; }
+.top .sub { font:500 9pt/1.35 "Montserrat"; color:#c9ccd1; margin-top:5pt; }
+
+.body { flex:1; padding:0.26in 0.55in 0.2in 0.62in; display:flex; flex-direction:column; gap:0.17in; }
+
+/* door script: the boldest block */
+.door { background:var(--char-dk); color:#fff; border-radius:5pt; padding:0.18in 0.24in 0.17in; position:relative; }
+.door .h { display:flex; align-items:baseline; justify-content:space-between; gap:10pt; }
+.door .h .t { font:800 12pt/1 "Barlow Semi Condensed"; letter-spacing:0.12em; text-transform:uppercase; }
+.door .h .t b { color:var(--orange); }
+.door .h .law { font:600 7pt/1.2 "Montserrat"; color:#a9acb3; }
+.door .say { font:700 19pt/1.14 "Barlow Semi Condensed"; margin-top:7pt; }
+.door .say em { font-style:normal; color:var(--orange); }
+.door .say i.bl { display:inline-block; width:0.95in; border-bottom:1.2pt solid #c9ccd1; height:0.8em; vertical-align:-0.05em; }
+.door .steps { display:flex; gap:14pt; margin-top:8pt; padding-top:7pt; border-top:0.7pt solid #4d4f55; font:500 8pt/1.35 "Montserrat"; color:#d3d5d9; }
+.door .steps b { color:#fff; }
+.door .steps span.n { font:800 10pt/1 "Barlow Semi Condensed"; color:var(--orange); margin-right:3pt; }
+.door .then { margin-top:6pt; font:500 8.2pt/1.35 "Montserrat"; color:#d3d5d9; }
+.door .then b { color:#fff; }
+
+.grid { display:grid; grid-template-columns:1fr 1fr; column-gap:0.32in; row-gap:0.15in; }
+.blk .lab { display:flex; align-items:baseline; gap:6pt; font:800 11pt/1 "Barlow Semi Condensed"; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink); padding-bottom:4pt; border-bottom:1.2pt solid var(--ink); margin-bottom:5pt; }
+.blk .lab .n { color:var(--orange); font-size:13pt; letter-spacing:0; }
+ul.l { list-style:none; }
+ul.l li { position:relative; padding-left:11pt; font:500 8.3pt/1.38 "Montserrat"; margin-bottom:3pt; }
+ul.l li::before { content:""; position:absolute; left:1pt; top:4.2pt; width:4pt; height:4pt; background:var(--orange); transform:rotate(45deg); }
+ul.l li b { font-weight:700; }
+ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt; left:0; font:800 11pt/1.2 "Barlow Semi Condensed"; color:var(--orange-dk); }
+.note { font:500 7.6pt/1.35 "Montserrat"; color:var(--muted); margin-top:3pt; }
+
+.never { border:1.3pt solid var(--orange); border-radius:4pt; padding:7pt 9pt 5pt; }
+
+.odds { display:flex; gap:10pt; align-items:center; }
+.odds .big { font:800 30pt/0.9 "Barlow Semi Condensed"; color:var(--ink); white-space:nowrap; }
+.odds .big small { display:block; font:700 7pt/1.2 "Montserrat"; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-top:3pt; }
+.odds p { font:500 8.2pt/1.38 "Montserrat"; }
+
+.taps { display:grid; grid-template-columns:repeat(4,1fr); gap:5pt; margin:2pt 0 5pt; }
+.taps div { border:1pt solid var(--ink); border-radius:3pt; text-align:center; padding:5pt 2pt; font:800 10pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.05em; }
+.taps div.hot { background:var(--orange); border-color:var(--orange); color:#1b1c1f; }
+
+/* footer */
+.foot { background:var(--char-dk); color:#fff; padding:0.16in 0.55in 0.2in 0.62in; display:flex; align-items:flex-end; justify-content:space-between; gap:0.2in; border-top:3pt solid var(--orange); }
+.foot .k { font:700 6.8pt/1 "Montserrat"; letter-spacing:0.16em; text-transform:uppercase; color:#a9acb3; }
+.foot .ph { font:800 24pt/1 "Barlow Semi Condensed"; margin-top:3pt; white-space:nowrap; }
+.foot .alt { font:600 7.4pt/1.3 "Montserrat"; color:#c9ccd1; margin-top:3pt; }
+.foot .co { text-align:right; font:500 7pt/1.45 "Montserrat"; color:#a9acb3; }
+.foot .co b { display:block; font:800 10pt/1.2 "Barlow Semi Condensed"; letter-spacing:0.06em; text-transform:uppercase; color:#fff; }
+.foot .co .reg { display:inline-block; width:1in; border-bottom:0.7pt solid #c9ccd1; transform:translateY(-1pt); }
+
+/* Spanish back: shorter, bigger type */
+.es .body { gap:0.3in; padding-top:0.34in; }
+.es .door .say { font-size:21pt; }
+.es .door .then { font-size:9pt; margin-top:8pt; }
+.es .blk .lab { font-size:12.5pt; margin-bottom:7pt; }
+.es ul.l li { font-size:10.4pt; margin-bottom:5pt; }
+.es ul.l li::before { top:5.2pt; }
+.es ul.no li::before { top:-1.6pt; }
+.es .odds p { font-size:10pt; }
+.es .grid { row-gap:0.34in; }
+</style>
 </head>
 <body>
 <svg class="defs" aria-hidden="true">
   <defs>
-    <!-- metal siding ribs (like the wall behind HMP's sign) -->
     <pattern id="rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
       <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
       <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
@@ -34,106 +114,168 @@
 </svg>
 
 <!-- ==================== FRONT - English ==================== -->
-<section class="side" lang="en">
-  <div class="top">
-    <svg class="rib" viewBox="0 0 408 328.3" preserveAspectRatio="none" aria-hidden="true">
-      <rect width="408" height="328.3" fill="url(#rib)" opacity=".55"/>
-      <!-- DIE LINE: 1.35 in door-knob hole + slit. Cut, do not print. Top 1.75 in stays decoration only. -->
-      <g fill="none" stroke="#9fa3a9" stroke-width="1" stroke-dasharray="4 3" opacity=".7"><circle cx="204" cy="88.3" r="64.8"/><path d="M204 23.5V0"/></g>
-    </svg>
+<section class="page" lang="en">
+  <div class="edge"></div>
+  <header class="top">
+    <svg class="rib" viewBox="0 0 816 150" preserveAspectRatio="none" aria-hidden="true"><rect width="816" height="150" fill="url(#rib)"/></svg>
     <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
-    <div class="trust"><span>Local Fremont company</span><i></i><span>Not a storm chaser</span></div>
-  </div>
+    <div class="ttl">
+      <div class="kick">Read it before you go</div>
+      <h1>First knock day</h1>
+      <div class="sub">One sheet. Use the app&rsquo;s Today&rsquo;s knock walk, say the line, log every door.</div>
+    </div>
+  </header>
 
-  <div class="body">
-    <div class="hi"><svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1.5 10.5 L10 2.5 L18.5 10.5" fill="none" stroke="#f5883a" stroke-width="2.6" stroke-linejoin="miter"/></svg>Hi neighbor, sorry we missed you.</div>
-    <h1 class="long">Is your roof or siding showing its age?</h1>
-    <div class="offer">
-      <div class="title"><svg viewBox="0 0 26 19" aria-hidden="true"><path d="M2 12 L13 3 L24 12" fill="none" stroke="#2a2b2f" stroke-width="3" stroke-linejoin="miter"/><path d="M5 16.5 H21" stroke="#2a2b2f" stroke-width="2.4" stroke-linecap="round"/></svg><span>Free roof &amp; siding estimate</span></div>
-      <div class="perks"><div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8.6" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M12 8.6V13l3.1 2" fill="none" stroke="#f5883a" stroke-width="1.9" stroke-linecap="round"/><path d="M9.4 2.6h5.2" stroke="#2a2b2f" stroke-width="1.7" stroke-linecap="round"/></svg>Quick visit</div><div><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.4" y="7" width="19.2" height="13" rx="2" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M8 7l1.5-3h5L16 7" fill="none" stroke="#2a2b2f" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4" fill="none" stroke="#f5883a" stroke-width="1.9"/></svg>Photos of anything we find</div><div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>No pressure</div></div>
+  <main class="body">
+    <div class="door">
+      <div class="h"><span class="t"><b>1</b> At the door &middot; say this first, every time</span><span class="law">It&rsquo;s the law: NE 69-1602</span></div>
+      <div class="say">&ldquo;Hi, I&rsquo;m <i class="bl"></i> with <em>HMP Siding &amp; Roofing</em>. We&rsquo;re checking roofs in the area for <em>storm damage</em>. We&rsquo;re a local Fremont company, not a storm chaser.&rdquo;</div>
+      <div class="steps"><div><span class="n">1</span><b>Your name</b></div><div><span class="n">2</span><b>HMP</b></div><div><span class="n">3</span><b>What you sell</b>, one line. Old-house door: &ldquo;We help homeowners update old siding and roofs.&rdquo;</div></div>
+      <div class="then"><b>Then ask, don&rsquo;t pitch:</b> &ldquo;Have you noticed any hail damage, or had anyone come look at your roof?&rdquo;</div>
     </div>
-    <div class="check">
-      <div class="label">From the street we noticed:</div>
-      <div class="row"><span class="box"></span>Faded or cracked siding</div>
-      <div class="row"><span class="box"></span>Curling or missing shingles</div>
-      <div class="row"><span class="box"></span>Rotted trim or soffit</div>
-      <div class="row"><span class="box"></span></div>
-    </div>
-    <div class="rep">
-      <div class="photo"><svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="37" r="14" fill="#dadde2"/><path d="M19 88c3-17 15-27 29-27s26 10 29 27" fill="#dadde2"/></svg><span>Kenny’s photo</span></div>
-      <div class="who">
-        <div class="name">Kenny Cruz</div>
-        <div class="role">Your HMP rep</div>
-        <div class="note">Happy to help, neighbor! <span class="sig">– Kenny</span></div>
+
+    <div class="grid">
+      <div class="blk">
+        <div class="lab"><span class="n">2</span>Before you leave</div>
+        <ul class="l">
+          <li><b>Bring:</b> charged phone, business cards, the app open to Today&rsquo;s knock (or a notepad), water, layers for the weather.</li>
+          <li><b>Forms stay in the truck</b> (contract + cancel notice). Only once someone says yes.</li>
+          <li><b>Wear:</b> clean and tucked in, like a job interview, not a work site.</li>
+          <li><b>Area:</b> Today&rsquo;s knock walk only. It&rsquo;s already the hottest zone, houses only, in order.</li>
+          <li><b>Time:</b> 2-3 hours. Weekdays 4-7 PM, Saturday 10 AM-2 PM. Nov-Feb: 3:30-5:30 PM.</li>
+        </ul>
       </div>
-      <div class="qrbox"><svg class="qr" viewBox="0 0 37 37" shape-rendering="crispEdges" role="img" aria-label="QR code: text Kenny"><path d="M0 0h7v1h-7zM10 0h4v1h-4zM16 0h3v1h-3zM20 0h4v1h-4zM25 0h3v1h-3zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM12 1h2v1h-2zM15 1h1v1h-1zM17 1h1v1h-1zM21 1h3v1h-3zM27 1h1v1h-1zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h2v1h-2zM17 2h1v1h-1zM19 2h2v1h-2zM23 2h2v1h-2zM26 2h3v1h-3zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM15 3h2v1h-2zM18 3h1v1h-1zM20 3h1v1h-1zM23 3h2v1h-2zM28 3h1v1h-1zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM17 4h2v1h-2zM23 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h2v1h-2zM15 5h8v1h-8zM25 5h1v1h-1zM27 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM10 7h1v1h-1zM12 7h1v1h-1zM14 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM26 7h3v1h-3zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h2v1h-2zM17 8h1v1h-1zM21 8h1v1h-1zM24 8h2v1h-2zM28 8h2v1h-2zM31 8h1v1h-1zM2 9h3v1h-3zM7 9h1v1h-1zM9 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM22 9h1v1h-1zM28 9h2v1h-2zM33 9h1v1h-1zM0 10h1v1h-1zM6 10h1v1h-1zM8 10h3v1h-3zM14 10h1v1h-1zM16 10h2v1h-2zM19 10h1v1h-1zM22 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h4v1h-4zM35 10h2v1h-2zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h1v1h-1zM12 11h4v1h-4zM18 11h2v1h-2zM21 11h1v1h-1zM24 11h4v1h-4zM30 11h3v1h-3zM35 11h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM17 12h1v1h-1zM20 12h3v1h-3zM24 12h1v1h-1zM27 12h1v1h-1zM30 12h2v1h-2zM35 12h1v1h-1zM1 13h3v1h-3zM7 13h2v1h-2zM12 13h3v1h-3zM17 13h3v1h-3zM21 13h2v1h-2zM24 13h1v1h-1zM28 13h1v1h-1zM30 13h1v1h-1zM33 13h4v1h-4zM3 14h1v1h-1zM6 14h5v1h-5zM14 14h1v1h-1zM17 14h2v1h-2zM21 14h4v1h-4zM29 14h1v1h-1zM33 14h1v1h-1zM36 14h1v1h-1zM0 15h1v1h-1zM4 15h2v1h-2zM9 15h1v1h-1zM11 15h1v1h-1zM16 15h7v1h-7zM24 15h2v1h-2zM28 15h1v1h-1zM31 15h1v1h-1zM35 15h1v1h-1zM0 16h1v1h-1zM2 16h1v1h-1zM5 16h2v1h-2zM9 16h1v1h-1zM14 16h2v1h-2zM18 16h7v1h-7zM30 16h2v1h-2zM33 16h1v1h-1zM0 17h2v1h-2zM4 17h2v1h-2zM7 17h4v1h-4zM13 17h1v1h-1zM15 17h2v1h-2zM18 17h1v1h-1zM21 17h4v1h-4zM26 17h1v1h-1zM28 17h1v1h-1zM30 17h3v1h-3zM34 17h1v1h-1zM0 18h3v1h-3zM5 18h2v1h-2zM9 18h2v1h-2zM12 18h5v1h-5zM20 18h1v1h-1zM22 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM35 18h2v1h-2zM0 19h1v1h-1zM2 19h4v1h-4zM7 19h1v1h-1zM9 19h2v1h-2zM13 19h2v1h-2zM17 19h2v1h-2zM20 19h5v1h-5zM27 19h1v1h-1zM31 19h2v1h-2zM34 19h1v1h-1zM36 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM4 20h3v1h-3zM8 20h1v1h-1zM12 20h5v1h-5zM20 20h1v1h-1zM23 20h5v1h-5zM29 20h4v1h-4zM35 20h2v1h-2zM0 21h2v1h-2zM3 21h1v1h-1zM7 21h1v1h-1zM12 21h3v1h-3zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h2v1h-2zM24 21h2v1h-2zM30 21h2v1h-2zM35 21h2v1h-2zM1 22h1v1h-1zM4 22h1v1h-1zM6 22h2v1h-2zM12 22h3v1h-3zM16 22h2v1h-2zM19 22h1v1h-1zM22 22h1v1h-1zM25 22h2v1h-2zM29 22h4v1h-4zM35 22h2v1h-2zM1 23h2v1h-2zM5 23h1v1h-1zM7 23h1v1h-1zM14 23h1v1h-1zM16 23h2v1h-2zM21 23h1v1h-1zM24 23h2v1h-2zM29 23h2v1h-2zM32 23h1v1h-1zM0 24h2v1h-2zM3 24h5v1h-5zM10 24h1v1h-1zM13 24h3v1h-3zM19 24h1v1h-1zM21 24h1v1h-1zM24 24h3v1h-3zM28 24h3v1h-3zM34 24h1v1h-1zM36 24h1v1h-1zM2 25h4v1h-4zM7 25h3v1h-3zM11 25h1v1h-1zM15 25h3v1h-3zM19 25h2v1h-2zM22 25h1v1h-1zM24 25h2v1h-2zM29 25h2v1h-2zM34 25h1v1h-1zM0 26h1v1h-1zM2 26h2v1h-2zM6 26h1v1h-1zM9 26h2v1h-2zM12 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM22 26h3v1h-3zM28 26h3v1h-3zM32 26h2v1h-2zM36 26h1v1h-1zM1 27h2v1h-2zM4 27h1v1h-1zM8 27h2v1h-2zM12 27h1v1h-1zM14 27h2v1h-2zM17 27h1v1h-1zM19 27h1v1h-1zM21 27h2v1h-2zM25 27h3v1h-3zM30 27h2v1h-2zM35 27h1v1h-1zM0 28h3v1h-3zM6 28h1v1h-1zM9 28h2v1h-2zM12 28h1v1h-1zM17 28h5v1h-5zM24 28h1v1h-1zM26 28h1v1h-1zM28 28h5v1h-5zM34 28h2v1h-2zM8 29h1v1h-1zM10 29h2v1h-2zM16 29h1v1h-1zM23 29h4v1h-4zM28 29h1v1h-1zM32 29h1v1h-1zM34 29h1v1h-1zM36 29h1v1h-1zM0 30h7v1h-7zM9 30h1v1h-1zM12 30h3v1h-3zM16 30h1v1h-1zM18 30h1v1h-1zM22 30h1v1h-1zM26 30h3v1h-3zM30 30h1v1h-1zM32 30h2v1h-2zM36 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM10 31h1v1h-1zM12 31h1v1h-1zM14 31h2v1h-2zM17 31h5v1h-5zM27 31h2v1h-2zM32 31h5v1h-5zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM9 32h4v1h-4zM16 32h3v1h-3zM21 32h1v1h-1zM25 32h2v1h-2zM28 32h6v1h-6zM35 32h2v1h-2zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM8 33h2v1h-2zM11 33h1v1h-1zM13 33h1v1h-1zM15 33h4v1h-4zM20 33h2v1h-2zM24 33h2v1h-2zM27 33h3v1h-3zM32 33h1v1h-1zM35 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM10 34h1v1h-1zM12 34h2v1h-2zM15 34h1v1h-1zM18 34h2v1h-2zM24 34h4v1h-4zM29 34h1v1h-1zM31 34h3v1h-3zM35 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM10 35h1v1h-1zM12 35h2v1h-2zM16 35h1v1h-1zM19 35h1v1h-1zM21 35h1v1h-1zM23 35h7v1h-7zM31 35h1v1h-1zM0 36h7v1h-7zM8 36h1v1h-1zM11 36h1v1h-1zM14 36h4v1h-4zM19 36h3v1h-3zM24 36h1v1h-1zM28 36h1v1h-1zM30 36h1v1h-1zM33 36h1v1h-1zM35 36h2v1h-2z" fill="#2a2b2f"/></svg><div class="cap">Scan to text Kenny</div></div>
-    </div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">3</span>What you can say</div>
+        <ul class="l">
+          <li>Free inspection. What storm hit the area and when. What to look for.</li>
+          <li>You&rsquo;ll help <b>document the damage and meet the adjuster</b>.</li>
+          <li><b>Yes to an inspection?</b> Get name, best phone, best day and time. Log it right away.</li>
+        </ul>
+        <div class="never" style="margin-top:6pt">
+          <ul class="l no">
+            <li><b>Never promise insurance pays.</b> &ldquo;Your insurance company decides.&rdquo;</li>
+            <li><b>Never offer anything toward the deductible.</b> (NE 44-8604)</li>
+            <li><b>No price before the inspection.</b> No &ldquo;we handle your claim.&rdquo; The claim is theirs.</li>
+          </ul>
+        </div>
+      </div>
 
-  <div class="call">
-    <svg class="rib" viewBox="0 0 408 119" preserveAspectRatio="none" aria-hidden="true"><rect width="408" height="119" fill="url(#rib)" opacity=".28"/></svg>
-    <div class="in">
-      <div class="lead">Call or text Kenny</div>
-      <div class="num">(402) 936-2709</div>
-      <div class="sub"><span class="lang"><svg viewBox="0 0 16 15" aria-hidden="true"><path d="M2 1.5h12a1 1 0 0 1 1 1v7.2a1 1 0 0 1-1 1H7.2L3.6 13.6v-2.9H2a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1z" fill="#f5883a"/></svg>Hablamos español</span><span class="office">Office: 402-889-3385</span></div>
-    </div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">4</span>After 20 &ldquo;no&rsquo;s&rdquo; in a row</div>
+        <div class="odds">
+          <div class="big">1 in 100-200<small>doors books, when new</small></div>
+          <p>That&rsquo;s normal, not failure. Pros get near 1 in 30 with practice. Same pace, same opening line. Don&rsquo;t get quieter or apologize more.</p>
+        </div>
+        <p class="note">Take a 5-minute water break every hour, however it&rsquo;s going.</p>
+      </div>
+      <div class="blk">
+        <div class="lab"><span class="n">5</span>Safety</div>
+        <ul class="l">
+          <li>Trust your gut. Skip a house that feels wrong: loose dogs, anyone hostile.</li>
+          <li>&ldquo;No soliciting&rdquo; sign: follow that town&rsquo;s permit rules. Leave if asked.</li>
+          <li>Tell someone where you&rsquo;re walking and when you&rsquo;ll finish.</li>
+          <li><b>Daylight only</b> on day one.</li>
+        </ul>
+      </div>
 
-  <div class="foot">
-    <div><b>HMP Siding &amp; Roofing LLC · Fremont, NE · Residential &amp; Commercial</b></div>
-    <div>Registered &amp; insured · Nebraska contractor registration # <span class="reg"></span></div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">6</span>Log every door</div>
+        <div class="taps"><div>Not home</div><div>No</div><div class="hot">Interested</div><div class="hot">Booked</div></div>
+        <p class="note" style="color:var(--ink);font-size:8.2pt">One tap or one sentence. Interested or Booked: say the address, name and what they said about damage into the app before the next house.</p>
+      </div>
+      <div class="blk">
+        <div class="lab"><span class="n">7</span>When to stop</div>
+        <ul class="l">
+          <li>Walk list done <b>or 3 hours</b>, whichever comes first on day one.</li>
+          <li>Before you stop, log: doors, talked, interested / booked, and one thing that felt slow or confusing.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div><div class="k">Your number to give out &middot; Kenny Cruz</div><div class="ph">402-936-2709</div><div class="alt">Hablamos espa&ntilde;ol &middot; Alex Mendez 402-889-3385</div></div>
+    <div class="co"><b>HMP Siding &amp; Roofing LLC</b>Fremont, NE &middot; Registered &amp; insured<br>NE contractor registration # <span class="reg"></span></div>
+  </footer>
 </section>
 
-<!-- ==================== BACK - Spanish ==================== -->
-<section class="side" lang="es">
-  <div class="top">
-    <svg class="rib" viewBox="0 0 408 328.3" preserveAspectRatio="none" aria-hidden="true">
-      <rect width="408" height="328.3" fill="url(#rib)" opacity=".55"/>
-      <!-- DIE LINE: 1.35 in door-knob hole + slit. Cut, do not print. Top 1.75 in stays decoration only. -->
-      <g fill="none" stroke="#9fa3a9" stroke-width="1" stroke-dasharray="4 3" opacity=".7"><circle cx="204" cy="88.3" r="64.8"/><path d="M204 23.5V0"/></g>
-    </svg>
+<!-- ==================== BACK - Spanish (short, for the boss) ==================== -->
+<section class="page es" lang="es">
+  <div class="edge"></div>
+  <header class="top">
+    <svg class="rib" viewBox="0 0 816 150" preserveAspectRatio="none" aria-hidden="true"><rect width="816" height="150" fill="url(#rib)"/></svg>
     <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
-    <div class="trust"><span>Empresa local de Fremont</span><i></i><span>No somos de paso</span></div>
-  </div>
+    <div class="ttl">
+      <div class="kick">Versi&oacute;n corta</div>
+      <h1>Primer d&iacute;a tocando puertas</h1>
+      <div class="sub">Ruta del d&iacute;a en la app, la frase de entrada y anotar cada puerta.</div>
+    </div>
+  </header>
 
-  <div class="body">
-    <div class="hi"><svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1.5 10.5 L10 2.5 L18.5 10.5" fill="none" stroke="#f5883a" stroke-width="2.6" stroke-linejoin="miter"/></svg>Hola vecino, pasamos y no lo encontramos.</div>
-    <h1 class="long">¿Su techo o siding ya se ve viejo?</h1>
-    <div class="offer">
-      <div class="title"><svg viewBox="0 0 26 19" aria-hidden="true"><path d="M2 12 L13 3 L24 12" fill="none" stroke="#2a2b2f" stroke-width="3" stroke-linejoin="miter"/><path d="M5 16.5 H21" stroke="#2a2b2f" stroke-width="2.4" stroke-linecap="round"/></svg><span>Cotización gratis de techo y siding</span></div>
-      <div class="perks"><div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8.6" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M12 8.6V13l3.1 2" fill="none" stroke="#f5883a" stroke-width="1.9" stroke-linecap="round"/><path d="M9.4 2.6h5.2" stroke="#2a2b2f" stroke-width="1.7" stroke-linecap="round"/></svg>Visita rápida</div><div><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.4" y="7" width="19.2" height="13" rx="2" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M8 7l1.5-3h5L16 7" fill="none" stroke="#2a2b2f" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4" fill="none" stroke="#f5883a" stroke-width="1.9"/></svg>Fotos de todo lo que encontremos</div><div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#2a2b2f" stroke-width="1.7"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sin presión</div></div>
+  <main class="body">
+    <div class="door">
+      <div class="h"><span class="t"><b>1</b> En la puerta &middot; esto primero, siempre</span><span class="law">Es la ley: NE 69-1602</span></div>
+      <div class="say">&ldquo;Hola, soy <i class="bl"></i> de <em>HMP Siding &amp; Roofing</em>. Estamos revisando techos en la zona por <em>da&ntilde;os de granizo</em>. Somos una empresa local de Fremont, no somos de paso.&rdquo;</div>
+      <div class="then"><b>Luego pregunte, no venda:</b> &ldquo;&iquest;Ha notado da&ntilde;os por granizo, o ya vino alguien a revisar su techo?&rdquo;</div>
     </div>
-    <div class="check">
-      <div class="label">Desde la calle notamos:</div>
-      <div class="row"><span class="box"></span>Siding descolorido o agrietado</div>
-      <div class="row"><span class="box"></span>Tejas levantadas o que faltan</div>
-      <div class="row"><span class="box"></span>Molduras o sofito podridos</div>
-      <div class="row"><span class="box"></span></div>
-    </div>
-    <div class="rep">
-      <div class="photo"><svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="37" r="14" fill="#dadde2"/><path d="M19 88c3-17 15-27 29-27s26 10 29 27" fill="#dadde2"/></svg><span>Foto de Alex</span></div>
-      <div class="who">
-        <div class="name">Alex Mendez</div>
-        <div class="role">Su representante de HMP</div>
-        <div class="note">¡Con gusto le ayudo, vecino! <span class="sig">– Alex</span></div>
+
+    <div class="grid">
+      <div class="blk">
+        <div class="lab"><span class="n">2</span>Antes de salir</div>
+        <ul class="l">
+          <li>Tel&eacute;fono cargado, tarjetas, agua.</li>
+          <li>Use la <b>ruta del d&iacute;a en la app</b>: ya es la zona m&aacute;s caliente, solo casas, en orden.</li>
+          <li>Contrato y aviso de cancelaci&oacute;n: en la camioneta, hasta que digan que s&iacute;.</li>
+        </ul>
       </div>
-      <div class="qrbox"><svg class="qr" viewBox="0 0 41 41" shape-rendering="crispEdges" role="img" aria-label="Código QR: mandar texto a Alex"><path d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h2v1h-2zM14 0h3v1h-3zM18 0h3v1h-3zM23 0h1v1h-1zM28 0h4v1h-4zM34 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h3v1h-3zM14 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM24 1h1v1h-1zM27 1h1v1h-1zM29 1h1v1h-1zM32 1h1v1h-1zM34 1h1v1h-1zM40 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h4v1h-4zM19 2h1v1h-1zM23 2h2v1h-2zM26 2h2v1h-2zM29 2h2v1h-2zM34 2h1v1h-1zM36 2h3v1h-3zM40 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h4v1h-4zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h5v1h-5zM27 3h1v1h-1zM32 3h1v1h-1zM34 3h1v1h-1zM36 3h3v1h-3zM40 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM17 4h1v1h-1zM19 4h2v1h-2zM23 4h2v1h-2zM26 4h1v1h-1zM28 4h1v1h-1zM30 4h3v1h-3zM34 4h1v1h-1zM36 4h3v1h-3zM40 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM15 5h1v1h-1zM22 5h1v1h-1zM25 5h1v1h-1zM27 5h1v1h-1zM29 5h2v1h-2zM32 5h1v1h-1zM34 5h1v1h-1zM40 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM34 6h7v1h-7zM8 7h1v1h-1zM10 7h1v1h-1zM14 7h2v1h-2zM18 7h2v1h-2zM21 7h2v1h-2zM24 7h1v1h-1zM26 7h2v1h-2zM30 7h1v1h-1zM0 8h1v1h-1zM2 8h5v1h-5zM10 8h2v1h-2zM16 8h2v1h-2zM22 8h4v1h-4zM27 8h4v1h-4zM32 8h1v1h-1zM34 8h5v1h-5zM1 9h1v1h-1zM8 9h5v1h-5zM16 9h1v1h-1zM18 9h4v1h-4zM23 9h1v1h-1zM26 9h1v1h-1zM31 9h1v1h-1zM33 9h4v1h-4zM39 9h2v1h-2zM2 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM8 10h2v1h-2zM12 10h1v1h-1zM14 10h2v1h-2zM20 10h2v1h-2zM24 10h1v1h-1zM26 10h4v1h-4zM33 10h1v1h-1zM35 10h1v1h-1zM37 10h2v1h-2zM0 11h1v1h-1zM4 11h2v1h-2zM7 11h3v1h-3zM11 11h1v1h-1zM14 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM24 11h1v1h-1zM26 11h1v1h-1zM30 11h1v1h-1zM34 11h1v1h-1zM36 11h2v1h-2zM39 11h2v1h-2zM1 12h1v1h-1zM5 12h3v1h-3zM9 12h2v1h-2zM12 12h1v1h-1zM14 12h4v1h-4zM22 12h2v1h-2zM25 12h3v1h-3zM29 12h1v1h-1zM32 12h2v1h-2zM35 12h1v1h-1zM39 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM15 13h4v1h-4zM20 13h3v1h-3zM24 13h1v1h-1zM27 13h2v1h-2zM30 13h1v1h-1zM33 13h4v1h-4zM2 14h2v1h-2zM6 14h4v1h-4zM12 14h2v1h-2zM15 14h3v1h-3zM19 14h1v1h-1zM21 14h1v1h-1zM25 14h1v1h-1zM30 14h1v1h-1zM32 14h1v1h-1zM34 14h1v1h-1zM36 14h1v1h-1zM0 15h3v1h-3zM4 15h1v1h-1zM9 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM18 15h5v1h-5zM24 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM30 15h1v1h-1zM34 15h1v1h-1zM36 15h2v1h-2zM39 15h1v1h-1zM0 16h1v1h-1zM2 16h1v1h-1zM4 16h3v1h-3zM8 16h1v1h-1zM13 16h2v1h-2zM17 16h4v1h-4zM22 16h1v1h-1zM25 16h2v1h-2zM29 16h1v1h-1zM33 16h1v1h-1zM36 16h4v1h-4zM0 17h1v1h-1zM2 17h2v1h-2zM5 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM14 17h2v1h-2zM17 17h3v1h-3zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM31 17h2v1h-2zM34 17h3v1h-3zM39 17h2v1h-2zM2 18h2v1h-2zM6 18h4v1h-4zM12 18h4v1h-4zM17 18h1v1h-1zM19 18h3v1h-3zM25 18h4v1h-4zM30 18h1v1h-1zM33 18h1v1h-1zM36 18h2v1h-2zM39 18h1v1h-1zM1 19h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM12 19h1v1h-1zM14 19h2v1h-2zM17 19h3v1h-3zM21 19h2v1h-2zM24 19h2v1h-2zM27 19h1v1h-1zM31 19h1v1h-1zM34 19h4v1h-4zM39 19h1v1h-1zM1 20h2v1h-2zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h7v1h-7zM16 20h1v1h-1zM20 20h2v1h-2zM23 20h2v1h-2zM26 20h2v1h-2zM30 20h1v1h-1zM35 20h1v1h-1zM37 20h2v1h-2zM40 20h1v1h-1zM2 21h1v1h-1zM8 21h3v1h-3zM13 21h2v1h-2zM16 21h1v1h-1zM18 21h3v1h-3zM22 21h2v1h-2zM25 21h1v1h-1zM29 21h1v1h-1zM31 21h2v1h-2zM34 21h3v1h-3zM5 22h4v1h-4zM11 22h1v1h-1zM13 22h1v1h-1zM15 22h2v1h-2zM20 22h3v1h-3zM27 22h2v1h-2zM30 22h1v1h-1zM33 22h5v1h-5zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h3v1h-3zM12 23h2v1h-2zM20 23h2v1h-2zM28 23h1v1h-1zM30 23h1v1h-1zM37 23h1v1h-1zM39 23h2v1h-2zM1 24h4v1h-4zM6 24h1v1h-1zM10 24h3v1h-3zM14 24h1v1h-1zM16 24h2v1h-2zM22 24h4v1h-4zM28 24h3v1h-3zM32 24h1v1h-1zM35 24h1v1h-1zM37 24h2v1h-2zM0 25h1v1h-1zM4 25h1v1h-1zM7 25h1v1h-1zM9 25h2v1h-2zM13 25h3v1h-3zM20 25h2v1h-2zM25 25h2v1h-2zM29 25h1v1h-1zM31 25h1v1h-1zM33 25h6v1h-6zM40 25h1v1h-1zM0 26h4v1h-4zM6 26h1v1h-1zM8 26h2v1h-2zM11 26h3v1h-3zM18 26h1v1h-1zM21 26h1v1h-1zM24 26h5v1h-5zM30 26h1v1h-1zM34 26h4v1h-4zM0 27h1v1h-1zM2 27h2v1h-2zM7 27h1v1h-1zM10 27h1v1h-1zM13 27h1v1h-1zM15 27h2v1h-2zM21 27h1v1h-1zM23 27h2v1h-2zM27 27h1v1h-1zM32 27h3v1h-3zM37 27h1v1h-1zM40 27h1v1h-1zM4 28h1v1h-1zM6 28h2v1h-2zM9 28h2v1h-2zM13 28h3v1h-3zM17 28h2v1h-2zM20 28h1v1h-1zM22 28h4v1h-4zM28 28h2v1h-2zM33 28h1v1h-1zM37 28h1v1h-1zM0 29h1v1h-1zM7 29h1v1h-1zM9 29h1v1h-1zM11 29h1v1h-1zM15 29h2v1h-2zM18 29h1v1h-1zM21 29h2v1h-2zM25 29h1v1h-1zM27 29h1v1h-1zM32 29h2v1h-2zM36 29h2v1h-2zM39 29h2v1h-2zM0 30h1v1h-1zM3 30h1v1h-1zM6 30h1v1h-1zM8 30h2v1h-2zM11 30h3v1h-3zM15 30h1v1h-1zM18 30h1v1h-1zM20 30h1v1h-1zM23 30h6v1h-6zM31 30h1v1h-1zM33 30h4v1h-4zM38 30h2v1h-2zM0 31h1v1h-1zM2 31h2v1h-2zM8 31h1v1h-1zM11 31h2v1h-2zM14 31h1v1h-1zM16 31h1v1h-1zM18 31h1v1h-1zM21 31h3v1h-3zM26 31h2v1h-2zM31 31h4v1h-4zM37 31h1v1h-1zM39 31h2v1h-2zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h2v1h-2zM9 32h1v1h-1zM12 32h1v1h-1zM16 32h2v1h-2zM22 32h6v1h-6zM29 32h1v1h-1zM31 32h6v1h-6zM38 32h1v1h-1zM40 32h1v1h-1zM8 33h2v1h-2zM11 33h2v1h-2zM15 33h2v1h-2zM18 33h1v1h-1zM20 33h1v1h-1zM23 33h1v1h-1zM26 33h1v1h-1zM28 33h5v1h-5zM36 33h2v1h-2zM39 33h2v1h-2zM0 34h7v1h-7zM11 34h1v1h-1zM14 34h2v1h-2zM18 34h3v1h-3zM22 34h1v1h-1zM24 34h1v1h-1zM27 34h1v1h-1zM29 34h1v1h-1zM31 34h2v1h-2zM34 34h1v1h-1zM36 34h2v1h-2zM39 34h1v1h-1zM0 35h1v1h-1zM6 35h1v1h-1zM8 35h2v1h-2zM11 35h1v1h-1zM15 35h2v1h-2zM26 35h1v1h-1zM28 35h5v1h-5zM36 35h2v1h-2zM39 35h1v1h-1zM0 36h1v1h-1zM2 36h3v1h-3zM6 36h1v1h-1zM8 36h4v1h-4zM14 36h1v1h-1zM16 36h1v1h-1zM18 36h2v1h-2zM21 36h2v1h-2zM24 36h1v1h-1zM32 36h5v1h-5zM38 36h3v1h-3zM0 37h1v1h-1zM2 37h3v1h-3zM6 37h1v1h-1zM8 37h1v1h-1zM10 37h1v1h-1zM12 37h3v1h-3zM19 37h3v1h-3zM23 37h1v1h-1zM26 37h1v1h-1zM28 37h4v1h-4zM33 37h1v1h-1zM35 37h3v1h-3zM0 38h1v1h-1zM2 38h3v1h-3zM6 38h1v1h-1zM8 38h2v1h-2zM16 38h2v1h-2zM20 38h2v1h-2zM24 38h1v1h-1zM26 38h3v1h-3zM30 38h2v1h-2zM34 38h3v1h-3zM0 39h1v1h-1zM6 39h1v1h-1zM9 39h2v1h-2zM13 39h1v1h-1zM15 39h1v1h-1zM20 39h3v1h-3zM24 39h1v1h-1zM26 39h1v1h-1zM30 39h1v1h-1zM32 39h1v1h-1zM35 39h1v1h-1zM37 39h1v1h-1zM39 39h1v1h-1zM0 40h7v1h-7zM8 40h5v1h-5zM14 40h1v1h-1zM17 40h2v1h-2zM25 40h1v1h-1zM27 40h4v1h-4zM36 40h1v1h-1zM38 40h1v1h-1z" fill="#2a2b2f"/></svg><div class="cap">Escanee para mandar texto a Alex</div></div>
-    </div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">3</span>Nunca diga</div>
+        <div class="never">
+          <ul class="l no">
+            <li>Que el seguro va a pagar. &ldquo;Eso lo decide su aseguradora.&rdquo;</li>
+            <li>Nada para el deducible: siempre lo paga el due&ntilde;o. (NE 44-8604)</li>
+            <li>Un precio exacto sin inspecci&oacute;n, ni que usted maneja el reclamo.</li>
+          </ul>
+        </div>
+      </div>
 
-  <div class="call">
-    <svg class="rib" viewBox="0 0 408 119" preserveAspectRatio="none" aria-hidden="true"><rect width="408" height="119" fill="url(#rib)" opacity=".28"/></svg>
-    <div class="in">
-      <div class="lead">Llame o mande texto a Alex</div>
-      <div class="num">(402) 889-3385</div>
-      <div class="sub"><span class="lang"><svg viewBox="0 0 16 15" aria-hidden="true"><path d="M2 1.5h12a1 1 0 0 1 1 1v7.2a1 1 0 0 1-1 1H7.2L3.6 13.6v-2.9H2a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1z" fill="#f5883a"/></svg>We speak English</span></div>
-    </div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">4</span>Si dicen que s&iacute;</div>
+        <ul class="l">
+          <li>Nombre, mejor tel&eacute;fono, mejor d&iacute;a y hora.</li>
+          <li><b>An&oacute;telo en la app de inmediato</b>, antes de la siguiente casa.</li>
+        </ul>
+        <div class="taps" style="margin-top:6pt"><div>No est&aacute;</div><div>No</div><div class="hot">Interesado</div><div class="hot">Cita</div></div>
+      </div>
+      <div class="blk">
+        <div class="lab"><span class="n">5</span>20 &ldquo;no&rdquo; seguidos</div>
+        <div class="odds">
+          <div class="big">1 de 100-200<small>puertas, al principio</small></div>
+          <p>Es normal, no es un fracaso. Mejora con la pr&aacute;ctica. Mismo ritmo, misma frase.</p>
+        </div>
+      </div>
 
-  <div class="foot">
-    <div><b>HMP Siding &amp; Roofing LLC · Fremont, NE · Residencial y Comercial</b></div>
-    <div>Registrados y asegurados · Registro de contratista NE # <span class="reg"></span></div>
-  </div>
+      <div class="blk">
+        <div class="lab"><span class="n">6</span>Seguridad</div>
+        <ul class="l">
+          <li>Si algo se siente mal, s&aacute;ltese esa casa.</li>
+          <li>Solo con luz de d&iacute;a el primer d&iacute;a.</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <div class="lab"><span class="n">7</span>Cu&aacute;ndo parar</div>
+        <ul class="l">
+          <li>Ruta terminada <b>o 3 horas</b>, lo que llegue primero.</li>
+          <li>Antes de parar, anote: puertas, con cu&aacute;ntos habl&oacute;, interesados y citas.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div><div class="k">L&iacute;nea en espa&ntilde;ol &middot; Alex Mendez</div><div class="ph">402-889-3385</div><div class="alt">We speak English &middot; Kenny Cruz 402-936-2709</div></div>
+    <div class="co"><b>HMP Siding &amp; Roofing LLC</b>Fremont, NE &middot; Registrados y asegurados<br>Registro de contratista NE # <span class="reg"></span></div>
+  </footer>
 </section>
 </body></html>

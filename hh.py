@@ -158,6 +158,14 @@ def refresh(conn, fetcher, cfg, log=print):
                           for r in made]
     except Exception as e:
         log(f"  everyday lists skipped: {type(e).__name__}: {e}")
+    try:                                   # T97: the `everyday_towns` (Schuyler, Columbus, Lexington) every run too
+        from hailhunter import everyday
+        made = everyday.build_towns(conn, cfg, None if getattr(fetcher, "offline", False) else fetcher.s,
+                                    log=lambda *a: None)
+        everyday_lists += [f"{r['area']} (town pick {r['town']}): {len(r['houses']):,} homes / "
+                           f"{len(r['turfs'])} turfs, heat {r['heat']}" for r in made]
+    except Exception as e:
+        log(f"  everyday town lists skipped: {type(e).__name__}: {e}")
     for s in everyday_lists:
         log("  everyday list " + s)
     nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises

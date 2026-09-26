@@ -46,10 +46,14 @@ def _home_town(cfg):
 
 
 def _center(conn, cfg, near):
+    """(lat, lon) of `near`: a town name, or "Town, ST" to pick the state (Lexington, NE vs Lexington, MO)."""
     if not near:
         return cfg["home"]["lat"], cfg["home"]["lon"]
-    p = conn.execute("SELECT lat, lon FROM places WHERE lower(name)=lower(?) ORDER BY COALESCE(hu,0) DESC",
-                     (near,)).fetchone()
+    name, _, st = str(near).partition(",")
+    q, args = "SELECT lat, lon FROM places WHERE lower(name)=lower(?)", [name.strip()]
+    if st.strip():
+        q, args = q + " AND upper(state)=upper(?)", args + [st.strip()]
+    p = conn.execute(q + " ORDER BY COALESCE(hu,0) DESC", args).fetchone()
     if not p:
         raise SystemExit(f"Town '{near}' not found")
     return p["lat"], p["lon"]
@@ -242,8 +246,9 @@ def list_id(area):
     return f"everyday_{re.sub(r'[^A-Za-z]+', '_', area['town']).strip('_')}_{area['geoid']}"
 
 
-def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, today=None, log=print):
-    """One door list for one neighborhood (an entry from areas()). None when no homes are stored there."""
+def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, today=None, log=print, town=None):
+    """One door list for one neighborhood (an entry from areas()). None when no homes are stored there.
+    `town` = the `everyday_towns` entry this list was built for (T97), kept in params for hud.json `town_pick`."""
     ev = cfg["everyday"]
     today = today or datetime.now(ZoneInfo(cfg["timezone"])).date()
     houses = score_houses(conn, cfg, area, session, budget_s, today, log)
@@ -281,7 +286,8 @@ def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, toda
     conn.execute("""INSERT OR REPLACE INTO everyday_lists (list_id, conv_day, area, created_utc, params, n_doors,
                     n_turfs, csv_path, xlsx_path, map_path, geoid, heat, why, parts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                  (lid, today.isoformat(), area["label"], iso(datetime.now(timezone.utc)),
-                  json.dumps({"turf_size": turf_size, "bbox": area["bbox"]}), len(houses), len(turfs),
+                  json.dumps({"turf_size": turf_size, "bbox": area["bbox"],
+                             **({"everyday_town": town} if town else {})}), len(houses), len(turfs),
                   paths["csv"], paths["xlsx"], paths["png"], area["geoid"], whole["heat"], json.dumps(whole["why"]),
                   json.dumps(whole["parts"])))
     conn.execute("DELETE FROM door_list_stops WHERE list_id=?", (lid,))
@@ -312,3 +318,33 @@ def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_s
         if res:
             made.append(res)
     return made, ranked
+
+
+def build_towns(conn, cfg, session=None, towns=None, turf_size=None, log=print):
+    """T97: everyday lists for the config `everyday_towns` (e.g. Schuyler, Columbus, Lexington: towns with a high
+    Spanish-speaking share), built every refresh alongside the top-N lists, whatever their distance from home base.
+    Per town: its best `everyday.town_lists` neighborhoods within `everyday.town_radius_mi` of the town (the normal
+    `radius_mi` default is untouched). A town that isn't in the database is skipped, never an error. Parcel
+    downloads share `everyday.town_parcel_budget_s`. Returns the lists made (same shape as build_top's)."""
+    ev = cfg["everyday"]
+    towns = (cfg.get("everyday_towns") or []) if towns is None else towns
+    per_town = int(ev.get("town_lists", 1))
+    budget, t0, made = ev.get("town_parcel_budget_s"), time.monotonic(), []
+    for town in towns:
+        try:
+            ranked = areas(conn, cfg, town, ev.get("town_radius_mi", 5))
+        except SystemExit:
+            log(f"  everyday town {town}: not in the town list, skipped")
+            continue
+        n = 0
+        for a in ranked[:2 * per_town + 3]:
+            if n >= per_town:
+                break
+            left = budget - (time.monotonic() - t0) if budget else None
+            res = make_list(conn, cfg, a, session if left is None or left > 0 else None, turf_size, left, log=log,
+                            town=town)
+            if res:
+                res["town"] = town
+                made.append(res)
+                n += 1
+    return made

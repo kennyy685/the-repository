@@ -128,8 +128,14 @@ DEFAULTS = {
         "refresh_lists": 3,         # `refresh` builds this many everyday lists
         "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
         "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
-        "retry_days": 7             # retry a failed Census year-built (B25034) download after this many days
+        "retry_days": 7,            # retry a failed Census year-built (B25034) download after this many days
+        # T97: `everyday_towns` (top level) always get their own lists: best `town_lists` neighborhoods within
+        # `town_radius_mi` of each town; parcel downloads for them share `town_parcel_budget_s`
+        "town_lists": 1, "town_radius_mi": 5, "town_parcel_budget_s": 90
     },
+    # T97 (round 17): everyday lists always built by `refresh` in these towns (much higher Spanish-speaking share),
+    # alongside the top-N lists near home base. "Town, ST" picks the state.
+    "everyday_towns": ["Schuyler, NE", "Columbus, NE", "Lexington, NE"],
     # Hail report on the phone (O3.3): per-address hail evidence for the houses on the storm door lists in hud.json
     "hail_evidence": {
         "max_lists": 10,            # storm lists that get evidence (newest first, as hud.json lists them)

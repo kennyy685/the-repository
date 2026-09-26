@@ -427,16 +427,35 @@ def goal_for(day, goal=None, cfg=None):
     return min(base, max(int(tw.get("goal_min_doors") or 10), int(round(base * f))))
 
 
-def goal_note(day, n, cfg=None):
-    """Plain goal note {en, es}: the goal is a starting session, and a smaller winter goal is normal."""
+def goal_note(day, n, cfg=None, pace=None):
+    """Plain goal note {en, es}: the goal is a starting session, and a smaller winter goal is normal.
+    `pace` (T84) = industry doors per hour {low, typical, high, source_note} from data/benchmarks.json, passed only
+    when there is no door history yet: adds a time estimate labeled "industry estimate, not your numbers" and
+    `pace` {doors_per_hour, minutes, label, source_note}."""
     day = date.fromisoformat(day) if isinstance(day, str) else day
     f = _by_month(_tw(cfg).get("goal_factor_by_month"), day)
     if f is not None and float(f) < 1.0:
-        return {"en": f"Short cold day: a smaller goal is normal. {n} doors is a starting session, not a full day.",
-                "es": f"Día corto y frío: una meta más pequeña es normal. {n} puertas son una sesión para empezar, "
-                      f"no un día completo."}
-    return {"en": f"{n} doors is a starting session, not a full day.",
-            "es": f"{n} puertas son una sesión para empezar, no un día completo."}
+        out = {"en": f"Short cold day: a smaller goal is normal. {n} doors is a starting session, not a full day.",
+               "es": f"Día corto y frío: una meta más pequeña es normal. {n} puertas son una sesión para empezar, "
+                     f"no un día completo."}
+    else:
+        out = {"en": f"{n} doors is a starting session, not a full day.",
+               "es": f"{n} puertas son una sesión para empezar, no un día completo."}
+    ty = (pace or {}).get("typical")
+    if n and isinstance(ty, (int, float)) and ty > 0:
+        lo, hi = pace.get("low") or ty, pace.get("high") or ty
+        r5 = lambda x: max(5, int(round(x / 5.0)) * 5)  # noqa: E731
+        m_fast, m_typ, m_slow = r5(60.0 * n / hi), r5(60.0 * n / ty), r5(60.0 * n / lo)
+        rng = f"{lo:g}-{hi:g}" if lo != hi else f"{ty:g}"
+        mins = f"{m_fast}-{m_slow}" if m_fast != m_slow else f"{m_typ}"
+        out["en"] += (f" Industry estimate, not your numbers: about {rng} doors an hour, so {n} doors takes "
+                      f"roughly {mins} min.")
+        out["es"] += (f" Estimado de la industria, no son tus números: unas {rng} puertas por hora, así que {n} "
+                      f"puertas toman más o menos {mins} min.")
+        out["pace"] = {"doors_per_hour": {"low": lo, "typical": ty, "high": hi},
+                       "minutes": {"low": m_fast, "typical": m_typ, "high": m_slow},
+                       "label": "industry estimate, not your numbers", "source_note": pace.get("source_note") or ""}
+    return out
 
 
 def best_time(day, cfg=None):
@@ -703,7 +722,7 @@ def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None
     return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
 
 
-def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None):
+def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None, pace=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
     `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines.
     `only` = (list_id, turf): build that one walk (a hot zone's walk), see the module doc."""
@@ -810,7 +829,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
-    doc["goal_note"] = goal_note(today, doc["goal_doors"], cfg)
+    doc["goal_note"] = goal_note(today, doc["goal_doors"], cfg, None if results else pace)   # T84: no history yet
     doc.update(freshness(hud, now, cfg))
     note = rough_note(doc["stops"], best["kind"], cfg)            # additive, only when there is something to say
     if note:
@@ -821,9 +840,10 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     return doc
 
 
-def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None):
-    """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`."""
-    doc = pick(hud, today, goal, results, cfg, now, dnk, taps)
+def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, pace=None):
+    """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`.
+    `pace` = benchmarks.doors_per_hour(...) for the goal note when there are no door results yet (T84)."""
+    doc = pick(hud, today, goal, results, cfg, now, dnk, taps, pace=pace)
     if doc is not None:
         return doc
     today = date.fromisoformat(today) if isinstance(today, str) else today

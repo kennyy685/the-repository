@@ -210,13 +210,19 @@ def _everyday_lists(conn, max_turfs, cfg=None):
     `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
     from .nbhd import spanish_note, spanish_shares
     lists = _lists(conn, max_turfs, "everyday_lists", cfg)
-    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why FROM everyday_lists")}
+    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why, params FROM everyday_lists")}
     lang = spanish_shares(conn) if lists else {}
+    high = ((cfg or {}).get("language") or {}).get("spanish_high", 0.30)
     for L in lists:
         e = extra[L["id"]]
         L.update({"kind": "everyday", "geoid": e["geoid"], "heat": e["heat"], "why": json.loads(e["why"] or "[]")})
         if L["spanish_share"] is None and e["geoid"] in lang:       # no mapped stops: the neighborhood's own share
             L["spanish_share"] = round(lang[e["geoid"]], 3)
+        try:                                                        # T97: built for a config `everyday_towns` entry
+            L["town_pick"] = (json.loads(e["params"] or "{}") or {}).get("everyday_town")
+        except (TypeError, ValueError, AttributeError):
+            L["town_pick"] = None
+        L["good_for_spanish"] = L["spanish_share"] is not None and L["spanish_share"] >= high   # app: "good for Spanish"
         note = spanish_note(L["spanish_share"], cfg or {})
         if note:
             L["why"].append(note)
