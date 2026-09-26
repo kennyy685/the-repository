@@ -57,7 +57,10 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   `map --day D --near T`, `export` (storms.json), `status` (table counts).
 - `python3 hh.py doors --day 2026-07-01 --near Fremont`: one door list (csv + xlsx + map)
 - `python3 hh.py everyday --near Fremont --radius 40 --lists 5`: old-house (non-storm) door lists ranked by
-  "everyday heat" (share of older homes, owners, value, distance); published in hud.json `everyday_lists`. hud.json
+  "everyday heat" (share of older homes, owners, value, distance); published in hud.json `everyday_lists`. `refresh`
+  also always builds one list per town in config.json `everyday_towns` (T97: Schuyler, Columbus, Lexington NE; best
+  neighborhood within `everyday.town_radius_mi` 5 of each); those lists carry `town_pick`, and every everyday list
+  carries `spanish_share` + `good_for_spanish` (share >= language.spanish_high). hud.json
   also carries `hail_evidence` per address for storm lists (porch proof).
 - `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json] [--evidence-out ev.json]`:
   O0 "Today's knock": ONE walk (fresh strong storm walk, else best everyday walk), houses only in walking order, for
@@ -77,6 +80,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   Interested/booked leads (touches 2/5/10 days after first Interested), grouped today/tomorrow/later, EN/ES.
 - `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results
   from the app's door taps + leads (totals, by kind/list/walk, best/worst area EN/ES, follow-ups, funnel, `learning`).
+  T84: `industry` = each funnel rate next to data/benchmarks.json ranges {yours, low, typical, high, source_note, vs},
+  labeled "industry estimate, not your numbers" (`--benchmarks f`; missing file -> null). todaywalk's goal_note adds an
+  industry doors/hour time estimate (+ `pace`) when there are no door results yet.
+- `python3 hh.py daily --out-dir DIR [--date D] [--hud f] [--results f] [--dnk f] [--leads f] [--near T] [--doors N]`:
+  the 7:40 AM app job in one go (todaywalk + evidence, calltoday, zones + walks, followups when --leads given). One JSON
+  file per app doc, named by doc path with "/" -> "__": `today__walk.json`, `calls__today.json`, `zones__current.json`,
+  `walks__<zone id>.json`, `evidence__<slug>.json`, `followups__today.json`, plus `manifest.json` {date, files{doc
+  path: file}, skipped[], errors[]}. One part failing never stops the others; exit 1 only if today/walk wasn't written.
 - `python3 hh.py tune ...`: T35 learning loop, real door results -> small weight changes (dry run unless `--apply`;
   waits for ~50 doors).
 - `python3 hh.py estimate --json job.json` (or `--footprint 1400 --stories 2`): quick price range from
