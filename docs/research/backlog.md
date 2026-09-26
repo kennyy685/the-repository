@@ -44,6 +44,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] If/when HMP considers selling the app later: what a real first outside customer needs structurally
       (per-company data separation, second brand/logo slot, support hours) before any pricing conversation -
       round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
+- [ ] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
+      just calling the listed number (round 34: contact info found, cost unverified, pages blocked)
+- [ ] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
+      questions from an individual unit owner, so a rep never accidentally implies HMP can help with an
+      HOA's special assessment (round 34 flagged the boundary; no script written yet)
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
       allows, to get the real 2026 Service Finance dealer-fee schedule and confirm whether Master Elite
       gets better financing terms than plain Certified or a non-GAF-tier contractor (round 33: WebFetch and
@@ -106,3 +111,9 @@ for financing alone) + James Hardie ALLIANCE's Select tier (the realistic near-t
 Elite - unlocks the full manufacturer warranty and a free directory listing; unclear whether The Edge's Hardie
 installs count toward it). WebFetch and curl were both fully blocked on every domain this round (even
 Wikipedia) - everything is search-summary sourced; two new backlog items above to re-verify directly.
+Round 34 (sales-mastery track): rookie 60-day ramp (volume-gated week-by-week plan for a solo ADHD rookie,
+`data/rookie_plan.json` - 7 day-range blocks with EN/ES daily goals + linked Practice Door drills) +
+landlords/HOA boards (MOPOA/REOMA/Omaha Landlords Association contact numbers, Nebraska SOS corporate search
+for HOA management-company contacts, reserve-study sales angle, vendor packet (COI/W-9/lien-waiver)
+requirement, and the HOA master-policy/unit-owner legal boundary). Two new backlog items above (membership
+fees, HOA-claim-boundary script).
