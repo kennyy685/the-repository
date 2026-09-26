@@ -44,7 +44,7 @@ function fmtG(x) {                            // Python f"{x:g}" for everyday si
   var e = x === 0 ? 0 : Math.floor(Math.log10(Math.abs(x)));
   if (e < -4 || e >= 6) {
     var s = x.toExponential(5).replace(/\.?0+e/, "e");
-    return s.replace(/e([+-])(\d)$/, "e$10$2");
+    return s.replace(/e([+-])(\d)$/, function (_, sign, d) { return "e" + sign + "0" + d; });
   }
   return String(Number(x.toPrecision(6)));
 }
@@ -56,6 +56,7 @@ function money(x) {                           // Python f"${x:,.0f}"
 
 function num(v, name, dflt) {
   if (v === null || v === undefined || v === "") return dflt === undefined ? 0 : dflt;
+  if (typeof v === "object") throw new Error(name + " must be a number, got " + JSON.stringify(v));
   var x = typeof v === "boolean" ? (v ? 1 : 0) : Number(typeof v === "string" ? v.trim() : v);
   if (typeof v === "string" && v.trim() === "") x = NaN;
   if (typeof x !== "number" || isNaN(x)) throw new Error(name + " must be a number, got " + JSON.stringify(v));
@@ -107,7 +108,7 @@ function estimate(job, rules) {
   var material = String(truthy(job.material) ? job.material : "vinyl").trim().toLowerCase();
   if (["hardie", "james hardie", "fiber cement", "fibercement"].indexOf(material) >= 0) material = "hardie";
   else if (["shingle", "architectural", "architectural shingle"].indexOf(material) >= 0) material = "vinyl";
-  if (!rules.materials[material]) throw new Error("material must be vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
+  if (!Object.prototype.hasOwnProperty.call(rules.materials, material)) throw new Error("material must be vinyl or hardie (roofs are architectural shingle), got " + JSON.stringify(job.material));
   var pc = pitchClass(job.pitch, rules), n = stories(job.stories);
   var layers = pyRound(num(job.layers, "layers", 1)) || 1;
   var siding = num(job.siding_squares, "siding_squares"), roof = num(job.roof_squares, "roof_squares");
