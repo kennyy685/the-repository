@@ -11,7 +11,7 @@ interested_at?, created_at}.
 - First Interested day = the earliest of `interested_at` and the doors_visits tapped interested/booked; with none,
   `created_at` when the stage is contacted/inspection_set (the stages the app sets on those taps).
 - Touches apply while the stage is in `touch_stages` (not_contacted, contacted = Interested, inspection_set =
-  booked). A booked lead's touches stop at its appointment day (next_step.due). Closed leads (done/lost) are skipped.
+  booked). A booked lead only gets touches due before its appointment (next_step.due), none once that day comes. Closed leads (done/lost) are skipped.
 - A touch counts as done when there was a contact (last_contact, or any door visit that wasn't "not home") on or
   after its due day minus `early_ok_days` (1), and after the first Interested day. Late touches collapse into the
   latest one due, so a lead never shows more than one touch.
@@ -103,7 +103,7 @@ def _touch(lead, start, today, rules, stop_at):
     pending = []
     for k, n in enumerate(rules["touch_days"], 1):
         due = _add(start, n)
-        if stop_at and due > stop_at:
+        if stop_at and due >= stop_at:
             break
         if any(c > start and c >= _add(due, -rules["early_ok_days"]) for c in seen):
             continue
@@ -169,7 +169,7 @@ def followups(leads, today, cfg=None, rules=None):
         start = first_interested(L, rules) if L.get("stage") in rules["touch_stages"] or not L.get("stage") else None
         if start:
             stop_at = step_due if L.get("stage") in rules["booked_stages"] else None
-            t = _touch(L, start, today, rules, stop_at)
+            t = None if stop_at and stop_at <= today else _touch(L, start, today, rules, stop_at)
             if t:
                 cand.append(("touch", t[0], t[1]))
         if not cand:

@@ -66,7 +66,7 @@ function pickTouch(L, start, today, rules, stopAt) {
   var seen = contacts(L), pending = [];
   for (var i = 0; i < rules.touch_days.length; i++) {
     var due = addDays(start, rules.touch_days[i]);
-    if (stopAt && due > stopAt) break;
+    if (stopAt && due >= stopAt) break;
     var early = addDays(due, -rules.early_ok_days);
     if (seen.some(function (c) { return c > start && c >= early; })) continue;
     pending.push([i + 1, due]);
@@ -126,7 +126,8 @@ function followups(leads, today, rules) {
     if (stepDue) cand.push(["next_step", null, stepDue]);
     var start = (has(rules.touch_stages, L.stage) || !L.stage) ? firstInterested(L, rules) : null;
     if (start) {
-      var t = pickTouch(L, start, today, rules, has(rules.booked_stages, L.stage) ? stepDue : null);
+      var stopAt = has(rules.booked_stages, L.stage) ? stepDue : null;
+      var t = stopAt && stopAt <= today ? null : pickTouch(L, start, today, rules, stopAt);
       if (t) cand.push(["touch", t[0], t[1]]);
     }
     if (!cand.length) return;

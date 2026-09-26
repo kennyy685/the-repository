@@ -250,6 +250,7 @@ genuinely missing there.
 - `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results report
   from the HMP App's door taps + leads (totals, by kind/list/walk, best/worst area EN/ES, follow-ups, funnel, `learning`
   section for T35). todaywalk is seasonal: Oct-Mar storm walks may use storms up to 330 days old; Nov-Feb knock 3:30-5:30 PM.
+- `python3 hh.py followups --leads leads.json [--date D] [--out f]`: follow-ups due for Interested/booked leads (touches 2/5/10 days after the first Interested + next steps), grouped today/tomorrow/later, EN/ES; `--export-rules` feeds the JS twin `docs/app/followups.js` (`node tests/js/followups_check.js`). todaywalk stops also carry `coach {en, es, tags}` (T83 card); glossary = `data/glossary_en_es.json` (T81).
 - `python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv f]`: today's BUSINESS call list (apartment/
   commercial buildings with a known business line in fresh 1"+ hail), one call per line, EN/ES why + opener (free inspection,
   no insurance talk); JSON for the HMP App's `calls/today` doc.
