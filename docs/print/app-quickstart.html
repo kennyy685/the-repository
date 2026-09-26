@@ -24,46 +24,46 @@ body { font-family:"Montserrat", sans-serif; color:var(--char-dk); -webkit-print
 .card:last-of-type { break-after:auto; }
 
 /* header: charcoal siding + logo */
-.top { position:absolute; left:0; top:0; right:0; height:1.12in; background:linear-gradient(180deg,#4a4b50 0%,#404145 45%,#2f3034 100%); }
+.top { position:absolute; left:0; top:0; right:0; height:1.02in; background:linear-gradient(180deg,#4a4b50 0%,#404145 45%,#2f3034 100%); }
 .top::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3pt; background:var(--orange); }
 .top .rib { position:absolute; inset:0; width:100%; height:100%; }
-.top .logo { position:absolute; left:0.2in; top:0.13in; width:1.72in; height:0.847in; }
-.top .ttl { position:absolute; right:0.22in; top:0.24in; text-align:right; }
+.top .logo { position:absolute; left:0.2in; top:0.1in; width:1.64in; height:0.807in; }
+.top .ttl { position:absolute; right:0.22in; top:0.2in; text-align:right; }
 .top .ttl b { display:block; font:800 30pt/0.9 "Barlow Semi Condensed"; color:#fff; letter-spacing:0.01em; }
 .top .ttl i { display:block; font:700 8pt/1 "Montserrat"; font-style:normal; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); margin-top:0.07in; }
 
 /* step 1: open the app (the main action, boldest thing) */
-.open { position:absolute; left:0.2in; right:0.2in; top:1.26in; height:1.44in; background:var(--mist); border-radius:6px;
+.open { position:absolute; left:0.2in; right:0.2in; top:1.13in; height:1.3in; background:var(--mist); border-radius:6px;
   display:flex; align-items:center; gap:0.14in; padding:0.12in 0.12in 0.12in 0.16in; border-left:5pt solid var(--orange); }
 .open .txt { flex:1; min-width:0; }
-.open .h { display:flex; align-items:center; gap:0.08in; font:800 21pt/1 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char-dk); }
+.open .h { display:flex; align-items:center; gap:0.08in; font:800 20pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char-dk); }
 .open .p { font:600 8.4pt/1.3 "Montserrat"; color:var(--char); margin-top:0.09in; }
 .open .url { font:700 8.6pt/1.3 "Montserrat"; color:var(--char-dk); margin-top:0.03in; word-break:break-all; }
 .open .url span { color:var(--muted); font-weight:600; }
-.open .qr { width:1.2in; height:1.2in; flex:none; background:#fff; padding:0.07in; border-radius:4px; box-shadow:0 0 0 0.75pt var(--line); }
+.open .qr { width:1.1in; height:1.1in; flex:none; background:#fff; padding:0.07in; border-radius:4px; box-shadow:0 0 0 0.75pt var(--line); }
 .open .qr svg { display:block; width:100%; height:100%; }
 
-.n { width:0.3in; height:0.3in; border-radius:50%; background:var(--orange); color:var(--char-dk); flex:none;
-  display:flex; align-items:center; justify-content:center; font:800 13pt/1 "Barlow Semi Condensed"; }
+.n { width:0.27in; height:0.27in; border-radius:50%; background:var(--orange); color:var(--char-dk); flex:none;
+  display:flex; align-items:center; justify-content:center; font:800 12pt/1 "Barlow Semi Condensed"; }
 .open .n { width:0.34in; height:0.34in; font-size:15pt; }
 
 /* steps 2-8 */
-.steps { position:absolute; left:0.2in; right:0.2in; top:2.8in; bottom:0.46in; display:flex; flex-direction:column; justify-content:space-between; }
-.st { display:flex; align-items:center; gap:0.11in; border-bottom:0.75pt solid var(--line); padding-bottom:0.055in; flex:1; }
+.steps { position:absolute; left:0.2in; right:0.2in; top:2.52in; bottom:0.4in; display:flex; flex-direction:column; justify-content:space-between; }
+.st { display:flex; align-items:center; gap:0.11in; border-bottom:0.75pt solid var(--line); padding-bottom:0.04in; flex:1; }
 .st:last-child { border-bottom:0; padding-bottom:0; }
-.st + .st { padding-top:0.055in; }
-.st .ic { width:0.3in; height:0.3in; flex:none; }
-.st .t { font:600 10.6pt/1.2 "Montserrat"; color:var(--char-dk); }
+.st + .st { padding-top:0.04in; }
+.st .ic { width:0.27in; height:0.27in; flex:none; }
+.st .t { font:600 9.9pt/1.18 "Montserrat"; color:var(--char-dk); }
 .st .t b { font-weight:700; background:linear-gradient(transparent 62%, rgba(245,136,58,.38) 62%); }
-.chips { display:flex; gap:0.05in; margin-top:0.06in; }
+.chips { display:flex; gap:0.05in; margin-top:0.045in; }
 .chips span { font:700 7.8pt/1 "Montserrat"; padding:0.055in 0.07in; border-radius:3px; border:1pt solid var(--char); white-space:nowrap; }
 .chips .in { background:var(--orange); border-color:var(--orange); }
 .chips .bk { background:var(--char-dk); border-color:var(--char-dk); color:#fff; }
-.say { display:block; font:700 13pt/1.05 "Caveat", cursive; color:var(--char-dk); margin-top:0.03in; }
+.say { display:block; font:700 12.5pt/1.05 "Caveat", cursive; color:var(--char-dk); margin-top:0.03in; }
 .say::before { content:"\201C"; color:var(--orange); } .say::after { content:"\201D"; color:var(--orange); }
 
 /* footer */
-.foot { position:absolute; left:0; right:0; bottom:0; height:0.38in; background:var(--char-dk); color:var(--silver);
+.foot { position:absolute; left:0; right:0; bottom:0; height:0.34in; background:var(--char-dk); color:var(--silver);
   display:flex; align-items:center; justify-content:space-between; padding:0 0.2in; font:600 7.4pt/1 "Montserrat"; }
 .foot::before { content:""; position:absolute; left:0; right:0; top:0; height:2pt; background:var(--orange); }
 .foot b { color:#fff; font:800 12pt/1 "Barlow Semi Condensed"; letter-spacing:0.02em; margin-left:0.04in; }
@@ -71,27 +71,9 @@ body { font-family:"Montserrat", sans-serif; color:var(--char-dk); -webkit-print
 </head>
 <body>
 <svg class="defs" aria-hidden="true"><defs>
-<pattern id="rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
+<pattern id="rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">       <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>       <rect x="20.4" width="0.7" height="10" fill="#36373b"/>     </pattern>
 <symbol id="qr" viewBox="0 0 33 33"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM10 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM20 1h1v1h-1zM21 1h1v1h-1zM24 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM24 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM21 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM23 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM10 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM22 7h1v1h-1zM23 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM11 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM28 8h1v1h-1zM30 8h1v1h-1zM31 8h1v1h-1zM32 8h1v1h-1zM2 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM28 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM31 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM20 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM0 11h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM27 11h1v1h-1zM30 11h1v1h-1zM32 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM31 12h1v1h-1zM32 12h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM30 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM26 14h1v1h-1zM28 14h1v1h-1zM30 14h1v1h-1zM0 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM16 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM30 15h1v1h-1zM32 15h1v1h-1zM0 16h1v1h-1zM3 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM15 16h1v1h-1zM16 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM26 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM0 17h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM17 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM26 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM32 17h1v1h-1zM0 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM21 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM32 18h1v1h-1zM0 19h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM7 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM24 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM30 19h1v1h-1zM31 19h1v1h-1zM0 20h1v1h-1zM1 20h1v1h-1zM2 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM13 20h1v1h-1zM16 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM21 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM29 20h1v1h-1zM31 20h1v1h-1zM0 21h1v1h-1zM1 21h1v1h-1zM3 21h1v1h-1zM7 21h1v1h-1zM9 21h1v1h-1zM14 21h1v1h-1zM22 21h1v1h-1zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h1v1h-1zM0 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM9 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM29 22h1v1h-1zM31 22h1v1h-1zM32 22h1v1h-1zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM30 23h1v1h-1zM31 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM10 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM20 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM29 24h1v1h-1zM30 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM8 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM21 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM0 26h1v1h-1zM1 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM17 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM17 27h1v1h-1zM18 27h1v1h-1zM19 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM30 27h1v1h-1zM31 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM22 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM0 29h1v1h-1zM2 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM8 29h1v1h-1zM11 29h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM14 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM18 29h1v1h-1zM21 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM27 29h1v1h-1zM29 29h1v1h-1zM31 29h1v1h-1zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM15 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM21 30h1v1h-1zM22 30h1v1h-1zM25 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM29 30h1v1h-1zM31 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM13 31h1v1h-1zM14 31h1v1h-1zM19 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM26 31h1v1h-1zM27 31h1v1h-1zM28 31h1v1h-1zM29 31h1v1h-1zM30 31h1v1h-1zM31 31h1v1h-1zM32 31h1v1h-1zM0 32h1v1h-1zM1 32h1v1h-1zM2 32h1v1h-1zM3 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM15 32h1v1h-1zM17 32h1v1h-1zM19 32h1v1h-1zM22 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM26 32h1v1h-1zM27 32h1v1h-1zM28 32h1v1h-1zM30 32h1v1h-1z" fill="#1b1c1f" shape-rendering="crispEdges"/></symbol>
-      <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
-      <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
-    </pattern>
-<symbol id="hmp-logo"> below, redrawn as flat vector art from HMP's sign (no photo embedded).
-     QR codes open a text to Kenny (SMSTO:4029362709 with a pre-filled message, English on the front, Spanish on the back).
-     Office number: <span class="office"> in each phone band (see door-hanger.css to remove it).
-     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=door-hanger.pdf file://.../door-hanger.html -->
-<link rel="stylesheet" href="door-hanger.css">
-</head>
-<body>
-<svg class="defs" aria-hidden="true">
-  <defs>
-    <!-- metal siding ribs (like the wall behind HMP's sign) -->
-    <pattern id="rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
-      <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
-      <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
-    </pattern>
-  </defs>
-  <symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
+<symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
   <defs>
     <linearGradient id="hmp-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
     <linearGradient id="hmp-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
@@ -116,7 +98,7 @@ body { font-family:"Montserrat", sans-serif; color:var(--char-dk); -webkit-print
   <div class="top"><svg class="rib" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
     <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
     <div class="ttl"><b>HMP APP</b><i>How to use it</i></div></div>
-  <div class="open"><div class="txt"><div class="h"><span class="n">1</span>Open the app</div>
+  <div class="open"><div class="txt"><div class="h"><span class="n">1</span><span>Open the app</span></div>
     <div class="p">Scan the code, or type:</div><div class="url"><span>claude.ai/artifact/</span><br>Qkc52bt2JL5gW7ZKWBJDHU</div></div>
     <div class="qr"><svg role="img" aria-label="QR: claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU"><use href="#qr"/></svg></div></div>
   <div class="steps"><div class="st"><span class="n">2</span><svg class="ic" aria-hidden="true"><use href="#i-today"/></svg><div class="t"><b>Today</b> shows your street and the houses in order.</div></div><div class="st"><span class="n">3</span><svg class="ic" aria-hidden="true"><use href="#i-tap"/></svg><div class="t">At each door, tap:<div class="chips"><span>Not home</span><span>No</span><span class="in">Interested</span><span class="bk">Booked</span></div></div></div><div class="st"><span class="n">4</span><svg class="ic" aria-hidden="true"><use href="#i-hanger"/></svg><div class="t">Nobody home? <b>Leave the hanger.</b></div></div><div class="st"><span class="n">5</span><svg class="ic" aria-hidden="true"><use href="#i-king"/></svg><div class="t">Or just tell the King:<span class="say">knocked 20, 1 interested at 3804 22 St</span></div></div><div class="st"><span class="n">6</span><svg class="ic" aria-hidden="true"><use href="#i-done"/></svg><div class="t">Tap <b>&ldquo;Done for today&rdquo;</b>.</div></div><div class="st"><span class="n">7</span><svg class="ic" aria-hidden="true"><use href="#i-money"/></svg><div class="t"><b>Money</b> tab = claims and checks.</div></div><div class="st"><span class="n">8</span><svg class="ic" aria-hidden="true"><use href="#i-signal"/></svg><div class="t">No signal? Taps save and send later.</div></div></div>
@@ -126,7 +108,7 @@ body { font-family:"Montserrat", sans-serif; color:var(--char-dk); -webkit-print
   <div class="top"><svg class="rib" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
     <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
     <div class="ttl"><b>APP HMP</b><i>Cómo usarla</i></div></div>
-  <div class="open"><div class="txt"><div class="h"><span class="n">1</span>Abre la app</div>
+  <div class="open"><div class="txt"><div class="h"><span class="n">1</span><span>Abre la app</span></div>
     <div class="p">Escanea el código o escribe:</div><div class="url"><span>claude.ai/artifact/</span><br>Qkc52bt2JL5gW7ZKWBJDHU</div></div>
     <div class="qr"><svg role="img" aria-label="QR: claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU"><use href="#qr"/></svg></div></div>
   <div class="steps"><div class="st"><span class="n">2</span><svg class="ic" aria-hidden="true"><use href="#i-today"/></svg><div class="t"><b>Hoy</b> te muestra tu calle y las casas en orden.</div></div><div class="st"><span class="n">3</span><svg class="ic" aria-hidden="true"><use href="#i-tap"/></svg><div class="t">En cada puerta, toca:<div class="chips"><span>No está</span><span>No</span><span class="in">Interesado</span><span class="bk">Agendado</span></div></div></div><div class="st"><span class="n">4</span><svg class="ic" aria-hidden="true"><use href="#i-hanger"/></svg><div class="t">¿No hay nadie? <b>Deja el volante.</b></div></div><div class="st"><span class="n">5</span><svg class="ic" aria-hidden="true"><use href="#i-king"/></svg><div class="t">O solo dile al King:<span class="say">toqué 20, 1 interesado en 3804 22 St</span></div></div><div class="st"><span class="n">6</span><svg class="ic" aria-hidden="true"><use href="#i-done"/></svg><div class="t">Toca <b>&ldquo;Terminé por hoy&rdquo;</b>.</div></div><div class="st"><span class="n">7</span><svg class="ic" aria-hidden="true"><use href="#i-money"/></svg><div class="t">Pestaña <b>Dinero</b> = reclamos y cheques.</div></div><div class="st"><span class="n">8</span><svg class="ic" aria-hidden="true"><use href="#i-signal"/></svg><div class="t">¿Sin señal? Los toques se guardan y se envían después.</div></div></div>
