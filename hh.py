@@ -23,6 +23,8 @@
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
                   [--results doors.json] [--dnk dnk.json]  door taps so far (come_back honored); do-not-knock houses
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
+  python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
+                  week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -272,6 +274,13 @@ def main(argv=None):
     p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
     p.add_argument("--dnk", help="do-not-knock: JSON of the app's dnk/<slug> docs; those houses never appear")
     p.add_argument("--evidence-out", help="also write the evidence/<address-slug> docs for the walk's houses here")
+    p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
+    p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
+    p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
+    p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
+    p.add_argument("--out", help="also write the JSON to this file")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -300,6 +309,31 @@ def main(argv=None):
                 f.write("\n")
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import weekly
+        from hailhunter.todaywalk import load_json
+        today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        hud_doc = None
+        if a.hud or os.path.exists(hud_path):
+            try:
+                hud_doc = load_json(hud_path)
+            except (OSError, ValueError) as e:     # no heat/why then; the results still come out
+                print(f"Can't read {hud_path} ({type(e).__name__}): lists won't have heat/why.", file=sys.stderr)
+        try:
+            doc = weekly.report(weekly.load_doors(load_json(a.doors)),
+                                weekly.load_leads(load_json(a.leads)) if a.leads else [],
+                                week=a.week, hud=hud_doc, today=today, cfg=cfg)
+        except ValueError as e:
+            print(f"weekly: {e}", file=sys.stderr)
+            return 2
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:

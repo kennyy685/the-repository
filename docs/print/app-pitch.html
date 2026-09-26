@@ -75,11 +75,11 @@ h1 em { font-style:normal; color:var(--orange); }
 .tabs .on { color:var(--ink); }
 
 /* features */
-.sec-h { display:flex; align-items:baseline; gap:0.1in; margin-top:0.32in; }
+.sec-h { display:flex; align-items:baseline; gap:0.1in; margin-top:0.28in; }
 .sec-h h2 { font:700 8pt/1 "Inter"; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); }
 .sec-h h2 + span { font:500 8pt/1 "Inter"; letter-spacing:0.14em; text-transform:uppercase; color:var(--es); }
 .sec-h::after { content:""; flex:1; height:0.75pt; background:var(--line); align-self:center; }
-.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.24in 0.3in; margin-top:0.18in; align-items:start; }
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.2in 0.3in; margin-top:0.18in; align-items:start; }
 .feat { display:grid; grid-template-columns:0.36in 1fr; column-gap:0.12in; }
 .feat .ic { grid-row:span 2; width:0.36in; height:0.36in; border-radius:0.1in; background:var(--orange-lt); display:flex; align-items:center; justify-content:center; }
 .feat .ic svg { width:0.23in; height:0.23in; }
@@ -87,7 +87,7 @@ h1 em { font-style:normal; color:var(--orange); }
 .feat h3 .es { display:block; font:500 7.9pt/1.25 "Inter"; margin-top:0.025in; letter-spacing:0; }
 .feat p { font:400 7.8pt/1.4 "Inter"; color:var(--char); margin-top:0.05in; }
 .feat p .es { display:block; margin-top:0.03in; font-size:7.3pt; }
-.feat.built { background:var(--mist); border-radius:0.12in; padding:0.1in 0.12in; margin:-0.1in -0.12in -0.1in 0; }
+.feat.built { background:var(--mist); border-radius:0.12in; padding:0.1in 0.12in; margin:-0.1in 0 -0.1in -0.14in; }
 .feat.built .ic { background:var(--char-dk); }
 
 /* comparison strip */
@@ -117,7 +117,7 @@ h1 em { font-style:normal; color:var(--orange); }
 .price .es { display:block; color:#a9acb3; font-size:6pt; margin-top:0.025in; letter-spacing:0.06em; }
 
 /* footer */
-.foot { position:absolute; left:0.6in; right:0.6in; bottom:0.42in; display:flex; justify-content:space-between; align-items:flex-end;
+.foot { position:absolute; left:0.6in; right:0.6in; bottom:0.4in; display:flex; justify-content:space-between; align-items:flex-end;
   border-top:0.75pt solid var(--line); padding-top:0.12in; font:400 6.8pt/1.45 "Inter"; color:var(--muted); }
 .foot .who { text-align:right; font-weight:500; color:var(--char); }
 .foot .who b { font-weight:600; color:var(--ink); }
@@ -154,10 +154,6 @@ h1 em { font-style:normal; color:var(--orange); }
       <div class="h1-es">La app para tocar puertas que habla español.</div>
       <p class="lede">One simple phone app for 2-5 person crews: where to knock today, every lead, every claim and every dollar, in English and Spanish.
         <span class="es">Una sola app sencilla para cuadrillas de 2 a 5 personas: dónde tocar hoy, cada cliente, cada reclamo y cada dólar, en inglés y en español.</span></p>
-      <div class="proof">
-        <span><b>1</b> app, not 4 · <span class="es" style="background:none;padding:0">1 app, no 4</span></span>
-        <span><b>EN</b> + <b>ES</b> on every screen · en cada pantalla</span>
-      </div>
     </div>
 
     <div class="phone" aria-label="Today's knock screen, sample">
@@ -191,38 +187,38 @@ h1 em { font-style:normal; color:var(--orange); }
     <div class="feat">
       <div class="ic"><svg><use href="#i-knock"/></svg></div>
       <h3>Today's knock<span class="es">Las puertas de hoy</span></h3>
-      <p>One street a day, houses in walking order. One tap per door: Not home, No, Interested, Booked.
-        <span class="es">Una calle al día, casas en orden. Un toque por puerta: No está, No, Interesado, Agendado.</span></p>
+      <p>One street a day, houses in walking order. One tap per door.
+        <span class="es">Una calle al día, casas en orden. Un toque por puerta.</span></p>
     </div>
     <div class="feat">
       <div class="ic"><svg><use href="#i-leads"/></svg></div>
       <h3>Storm + old-house leads<span class="es">Tormentas y casas viejas</span></h3>
-      <p>Hail-hit streets and older homes ranked in one list, so there's always somewhere to knock.
-        <span class="es">Calles con granizo y casas viejas en una lista, para que siempre haya dónde tocar.</span></p>
+      <p>Hail-hit streets and older homes, ranked in one list. Always somewhere to knock.
+        <span class="es">Calles con granizo y casas viejas en una lista. Siempre hay dónde tocar.</span></p>
     </div>
     <div class="feat">
       <div class="ic"><svg><use href="#i-ai"/></svg></div>
       <h3>An AI you just talk to<span class="es">Una IA a la que solo le hablas</span></h3>
-      <p>Say or text "123 Oak St, inspection Tuesday." It logs the lead and the date. No forms to fill.
-        <span class="es">Di o escribe "123 Oak St, inspección el martes." Ella lo anota. Sin formularios.</span></p>
+      <p>Say or text "123 Oak St, inspection Tuesday." It logs it. No forms.
+        <span class="es">Di o escribe "123 Oak St, inspección el martes." Queda anotado. Sin formularios.</span></p>
     </div>
     <div class="feat">
       <div class="ic"><svg><use href="#i-money"/></svg></div>
       <h3>Claims &amp; money tracker<span class="es">Reclamos y dinero</span></h3>
-      <p>Every claim step, check, supplement and payment in one place, with a nudge when something is stuck.
-        <span class="es">Cada paso, cheque, suplemento y pago en un lugar, con un aviso cuando algo se atora.</span></p>
+      <p>Every claim step, check and payment in one place. A nudge when something is stuck.
+        <span class="es">Cada paso, cheque y pago en un lugar. Un aviso si algo se atora.</span></p>
     </div>
     <div class="feat">
       <div class="ic"><svg><use href="#i-lang"/></svg></div>
       <h3>English &amp; Spanish everywhere<span class="es">Inglés y español en todo</span></h3>
-      <p>Every screen, button and message in both. Each person picks their language.
-        <span class="es">Cada pantalla, botón y mensaje en los dos idiomas. Cada quien escoge el suyo.</span></p>
+      <p>Every screen and button in both. Each person picks theirs.
+        <span class="es">Cada pantalla y botón en los dos idiomas. Cada quien escoge.</span></p>
     </div>
     <div class="feat built">
       <div class="ic"><svg><use href="#i-crew"/></svg></div>
-      <h3>Built inside a real crew<span class="es">Hecha dentro de una cuadrilla real</span></h3>
-      <p>Made at HMP Siding &amp; Roofing in Fremont, NE, and used on its own jobs first.
-        <span class="es">Hecha en HMP Siding &amp; Roofing en Fremont, NE, y usada primero en sus propios trabajos.</span></p>
+      <h3>Built inside a real crew<span class="es">Hecha en una cuadrilla real</span></h3>
+      <p>Made at HMP Siding &amp; Roofing, Fremont, NE. Being proven on its own jobs first.
+        <span class="es">Hecha en HMP Siding &amp; Roofing, Fremont, NE. Se está probando primero en sus propios trabajos.</span></p>
     </div>
   </div>
 
