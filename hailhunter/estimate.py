@@ -41,6 +41,22 @@ INSURANCE_NOTE = {"en": "For insurance jobs: the insurer's approved scope sets t
                   "es": "Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."}
 ROUGH_NOTE = {"en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
               "es": "Cuadros APROXIMADOS por el tamaño de la casa y los pisos. Midan la casa antes de dar precio."}
+TYPE_NOTES = {   # a job type that ignores some quantities it was given says so
+    "siding": {"en": "Siding job: roof squares left out (use type mixed for both).",
+               "es": "Trabajo de siding: no se contó el techo (usen tipo mixed para los dos)."},
+    "roof": {"en": "Roof job: siding squares left out (use type mixed for both).",
+             "es": "Trabajo de techo: no se contó el siding (usen tipo mixed para los dos)."},
+    "gutters": {"en": "Gutter job: siding and roof left out (use type mixed).",
+                "es": "Trabajo de canaletas: no se contó siding ni techo (usen tipo mixed)."}}
+# {for_items} is "" when every priced item is market reference, else REF_FOR_ITEMS with the item keys.
+REF_WARNING = {"en": ("Using MARKET REFERENCE prices, not HMP's prices{for_items}. The boss hasn't set HMP's price "
+                      "sheet yet (T51). Don't give this number to a customer."),
+               "es": ("Usando precios de REFERENCIA del mercado, no los precios de HMP{for_items}. El jefe todavía no "
+                      "pone la lista de precios de HMP (T51). No le den este número a un cliente.")}
+REF_FOR_ITEMS = {"en": " for: {items}", "es": " para: {items}"}
+MIN_NAMES = {"min_job": ("Minimum job", "Trabajo mínimo"), "min_job_roof": ("Minimum roof job", "Trabajo mínimo de techo")}
+ROUND_TO = 50           # totals round out to the nearest $50 (low down, high up)
+RULES_VERSION = 1       # bump when export_rules() changes shape (the HMP App's estimate.js checks it)
 
 
 def _cfg(cfg):
@@ -156,16 +172,13 @@ def estimate(job, cfg=None):
         warnings.append(dict(ROUGH_NOTE))
     if jtype == "siding" and roof:
         roof = 0.0
-        warnings.append({"en": "Siding job: roof squares left out (use type mixed for both).",
-                         "es": "Trabajo de siding: no se contó el techo (usen tipo mixed para los dos)."})
+        warnings.append(dict(TYPE_NOTES["siding"]))
     if jtype == "roof" and siding:
         siding = 0.0
-        warnings.append({"en": "Roof job: siding squares left out (use type mixed for both).",
-                         "es": "Trabajo de techo: no se contó el siding (usen tipo mixed para los dos)."})
+        warnings.append(dict(TYPE_NOTES["roof"]))
     if jtype == "gutters" and (siding or roof):
         siding = roof = 0.0
-        warnings.append({"en": "Gutter job: siding and roof left out (use type mixed).",
-                         "es": "Trabajo de canaletas: no se contó siding ni techo (usen tipo mixed)."})
+        warnings.append(dict(TYPE_NOTES["gutters"]))
     need = {"siding": siding, "roof": roof, "gutters": gutter, "mixed": siding or roof or gutter or soffit}[jtype]
     if not need:
         what = {"siding": "siding_squares (or footprint_sqft)", "roof": "roof_squares (or footprint_sqft)",
@@ -223,18 +236,15 @@ def estimate(job, cfg=None):
         low, high = max(low, m_lo), max(high, m_hi)
         if m_ref:
             ref_items.append(min_key)
-    low = int(math.floor(low / 50.0) * 50)
-    high = int(math.ceil(high / 50.0) * 50)
+    low = int(math.floor(low / float(ROUND_TO)) * ROUND_TO)
+    high = int(math.ceil(high / float(ROUND_TO)) * ROUND_TO)
 
     ref_items = sorted(set(ref_items))
     using_ref = bool(ref_items)
     if using_ref:
         all_ref = all(ln["reference"] for ln in lines)
-        warnings.insert(0, {
-            "en": ("Using MARKET REFERENCE prices, not HMP's prices" + ("" if all_ref else f" for: {', '.join(ref_items)}")
-                   + ". The boss hasn't set HMP's price sheet yet (T51). Don't give this number to a customer."),
-            "es": ("Usando precios de REFERENCIA del mercado, no los precios de HMP" + ("" if all_ref else f" para: {', '.join(ref_items)}")
-                   + ". El jefe todavía no pone la lista de precios de HMP (T51). No le den este número a un cliente.")})
+        warnings.insert(0, {lang: REF_WARNING[lang].format(
+            for_items="" if all_ref else REF_FOR_ITEMS[lang].format(items=", ".join(ref_items))) for lang in ("en", "es")})
 
     parts_en, parts_es = [], []
     if siding:
@@ -276,3 +286,96 @@ def estimate(job, cfg=None):
             "quantities": {"siding_squares": siding, "roof_squares": roof, "gutter_ft": gutter, "soffit_ft": soffit,
                            "material": material},
             "rough_squares": rough, "summary": summary, "insurance_note": dict(INSURANCE_NOTE)}
+
+
+# The 8 jobs `export_rules` runs through estimate() so the HMP App's JavaScript (docs/app/estimate.js) can check
+# itself against the Python math. Covers every rule: materials, pitch, stories, layers, gutters, soffit, the
+# minimum job and the rough footprint helper.
+RULE_TEST_JOBS = [
+    {"name": "siding vinyl", "job": {"type": "siding", "siding_squares": 22, "material": "vinyl"}},
+    {"name": "siding hardie", "job": {"type": "siding", "siding_squares": 25.5, "material": "hardie", "stories": 2,
+                                      "layers": 2, "soffit_ft": 90}},
+    {"name": "roof std", "job": {"type": "roof", "roof_squares": 24, "pitch": "5/12"}},
+    {"name": "roof steep 2-story", "job": {"type": "roof", "roof_squares": 31.3, "pitch": "8/12", "stories": 2,
+                                           "layers": 2}},
+    {"name": "gutters only", "job": {"type": "gutters", "gutter_ft": 140, "permit": False}},
+    {"name": "mixed", "job": {"type": "mixed", "siding_squares": 18, "roof_squares": 20, "gutter_ft": 120,
+                              "soffit_ft": 150, "material": "hardie", "pitch": "steep", "stories": 3}},
+    {"name": "below minimum", "job": {"type": "gutters", "gutter_ft": 12, "permit": False}},
+    {"name": "footprint only (rough)", "job": {"type": "mixed", "footprint_sqft": 1450, "stories": 2, "pitch": "7/12"}},
+]
+
+
+def export_rules(cfg=None, now=None):
+    """The pricing rules as ONE JSON doc for the HMP App (db path `system/prices`), so the app's JavaScript quick
+    estimate matches `hh.py estimate` exactly. Prices are already resolved (HMP's where set, else market reference,
+    tagged `source`); `test_cases` are real estimate() results the page checks itself against."""
+    from datetime import datetime, timezone
+    c = _cfg(cfg)
+    e = c["estimate"]
+    names = {SIDING[m][0]: SIDING[m][1:] for m in SIDING}
+    names.update(ITEM_NAMES)
+    names.update(MIN_NAMES)
+    units = {k: ("job" if k in ("permit", "min_job", "min_job_roof") else "ft" if k.endswith("_ft") else "sq")
+             for k in names}
+    prices, ref_items = {}, []
+    for key in names:
+        lo, hi, ref = _rate(key, c)
+        if lo is None:                            # no price anywhere: left out (estimate() can't use it either)
+            continue
+        if ref:
+            ref_items.append(key)
+        prices[key] = {"low": lo, "high": hi, "unit": units[key], "en": names[key][0], "es": names[key][1],
+                       "source": "market" if ref else "hmp"}
+
+    def minimum(key):
+        p = prices.get(key)
+        return {"low": p["low"], "high": p["high"], "source": p["source"]} if p else None
+
+    cases = []
+    for t in RULE_TEST_JOBS:
+        r = estimate(t["job"], c)
+        cases.append({"name": t["name"], "job": t["job"],
+                      "expect": {"low": r["low"], "high": r["high"], "using_reference": r["using_reference"],
+                                 "line_keys": [ln["key"] for ln in r["lines"]],
+                                 "minimum": (r["minimum_applied"] or {}).get("key"),
+                                 "summary": r["summary"], "warnings": r["warnings"]}})
+    now = now or datetime.now(timezone.utc)
+    return {
+        "version": RULES_VERSION,
+        "updated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "using_reference": bool(ref_items),
+        "reference_items": sorted(ref_items),
+        "reference_label": (c.get("prices_reference") or {}).get("_label") if ref_items else None,
+        "currency": "USD",
+        "types": list(TYPES),
+        "materials": {m: {"item": SIDING[m][0], "en": SIDING[m][1], "es": SIDING[m][2]} for m in SIDING},
+        "prices": prices,
+        "units": {u: {"en": UNITS[u][0], "es": UNITS[u][1]} for u in UNITS},
+        "adders": {
+            "steep_pitch": {"pitch_adders": e["pitch_adders"], "steep_over": e["steep_over"],
+                            "low_under": e["low_under"], "applies_to": "roof items (shingle roof + roof layer tear-off)"},
+            "stories": {"story_adders": e["story_adders"], "applies_to": "every installed item except the permit"},
+            "extra_layers": {"item": "extra_layer_sq", "per": "square per old layer beyond the first; roof if any, "
+                                                             "else walls; roof layers also get the pitch adder"},
+            "house_wrap": {"item": "house_wrap_sq", "default": True, "per": "square of siding"},
+            "permit": {"item": "permit", "default": True, "story_adder": False},
+            "min_job": minimum("min_job"),
+            "min_job_roof": minimum("min_job_roof"),
+            "min_rule": ("roof jobs use min_job_roof unless it is market and min_job is HMP's; the minimum applies "
+                         "when the low or the high total is under it"),
+            "round_to": ROUND_TO,
+        },
+        "rough_helper": {"perimeter_factor": e["perimeter_factor"], "story_height_ft": e["story_height_ft"],
+                         "openings": e["openings"], "pitch_factor": e["pitch_factor"],
+                         "formula": ("perimeter = 4 x sqrt(footprint) x perimeter_factor; siding squares = "
+                                     "perimeter x story_height_ft x stories x (1 - openings) / 100 (1 decimal); "
+                                     "roof squares = footprint x pitch_factor[pitch] / 100 (1 decimal)")},
+        "insurance_note": dict(INSURANCE_NOTE),
+        "reference_warning": {lang: REF_WARNING[lang].format(for_items="") for lang in ("en", "es")},
+        "reference_warning_template": dict(REF_WARNING),
+        "reference_for_items": dict(REF_FOR_ITEMS),
+        "rough_note": dict(ROUGH_NOTE),
+        "type_notes": {k: dict(v) for k, v in TYPE_NOTES.items()},
+        "test_cases": cases,
+    }

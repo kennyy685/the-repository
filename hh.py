@@ -33,6 +33,7 @@
                   (writes data/tuned.json, merged over config.json; history in data/tune_history.json)
   python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
                   the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
+  python3 hh.py estimate --export-rules [--out prices.json]   the same rules as JSON for the HMP App (system/prices)
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -304,6 +305,8 @@ def main(argv=None):
     p.add_argument("--footprint", type=float, help="no --json: ROUGH squares from a footprint (sq ft) instead")
     p.add_argument("--stories", type=int, default=1, help="with --footprint (default 1)")
     p.add_argument("--pitch", default="std", help="with --footprint: low|std|steep or rise per 12 (default std)")
+    p.add_argument("--export-rules", action="store_true", help="print the pricing rules + 8 self-check cases as one "
+                                                               "JSON doc for the HMP App (db path system/prices)")
     p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("calltoday", help="today's business call list: apartment/commercial buildings in fresh hail (JSON)")
     p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
@@ -369,7 +372,9 @@ def main(argv=None):
     if a.cmd == "estimate":                        # pure math on config prices: no database needed
         from hailhunter import estimate
         try:
-            if a.json:
+            if a.export_rules:                     # the HMP App's `system/prices` doc (docs/app/estimate.js)
+                doc = estimate.export_rules(cfg)
+            elif a.json:
                 with open(a.json, encoding="utf-8") as f:
                     doc = estimate.estimate(json.load(f), cfg)
             elif a.footprint:
