@@ -75,6 +75,49 @@ class Report(unittest.TestCase):
         self.assertIn("&lt;b&gt;1 Main&lt;/b&gt;", page)
         self.assertIn("No ground reports within 10 miles", page)
 
+    def test_json_for_print_template(self):
+        ev = hailreport.evidence(self.conn, self.cfg, "2026-09-12", *HOUSE)
+        hist = hailreport.history(self.conn, self.cfg, *HOUSE, today=date(2026, 9, 25))
+        doc = hailreport.to_json("200 Oak St, Testville", ev, hist, hailreport.radar_max(self.cfg, "2026-09-12", *HOUSE))
+        self.assertEqual((doc["address"], doc["day"], doc["hail_in"]), ("200 Oak St, Testville", "2026-09-12", ev["hail"]))
+        self.assertEqual(doc["nearest_report"], {"dist_mi": 0.7, "size_in": 1.75, "source": "Trained Spotter"})
+        self.assertEqual(doc["radar_max_in"], 1.5)                        # raw radar, before the spotter lift
+        self.assertEqual(doc["history"], [{"day": "2025-06-01", "day_label": {"en": "June 1, 2025",
+                                                                             "es": "1 de junio de 2025"}, "hail_in": 1.0}])
+        self.assertEqual(doc["day_label"]["es"], "12 de septiembre de 2026")
+        self.assertIn("not an inspection", doc["note"]["en"])
+        low = json.dumps(doc).lower()
+        self.assertNotIn("deductible", low)
+        self.assertNotIn("will pay", low)
+        none = hailreport.to_json("x", {"day": "2026-09-12", "hail": None, "reports": []}, [])
+        self.assertIsNone(none["nearest_report"])
+        self.assertIsNone(none["radar_max_in"])
+
+    def test_command_json_flag_keeps_html(self):
+        cfgp = os.path.join(self.tmp, "cfg.json")
+        with open(cfgp, "w") as f:
+            json.dump({"paths": self.cfg["paths"]}, f)
+        self.conn.close()
+        import contextlib
+        import io
+        base = os.path.join(self.cfg["paths"]["export"], "reports", "hail_200_oak_st_testville")
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = hh.main(["--config", cfgp, "--offline", "hailreport", "--address", "200 Oak St", "--city", "Testville"])
+        self.assertEqual(rc, 0)
+        with open(base + ".html") as f:
+            html_before = f.read()
+        self.assertFalse(os.path.exists(base + ".json"))                  # no JSON unless asked
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = hh.main(["--config", cfgp, "--offline", "hailreport", "--address", "200 Oak St", "--city", "Testville",
+                          "--json"])
+        self.conn = db.connect(self.cfg["paths"]["db"])
+        self.assertEqual(rc, 0)
+        with open(base + ".html") as f:
+            self.assertEqual(f.read(), html_before)                       # old HTML output unchanged
+        with open(base + ".json") as f:
+            doc = json.load(f)
+        self.assertEqual((doc["day"], doc["nearest_report"]["source"]), ("2026-09-12", "Trained Spotter"))
+
     def test_command_writes_report_for_newest_big_storm(self):
         cfgp = os.path.join(self.tmp, "cfg.json")
         with open(cfgp, "w") as f:

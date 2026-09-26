@@ -18,6 +18,9 @@
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
   python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
+                  [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
+  python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv calls.csv]   today's BUSINESS call list:
+                  apartment/commercial buildings with a known business line in fresh 1"+ hail (JSON for calls/today)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
@@ -264,6 +267,8 @@ def main(argv=None):
     p.add_argument("--day", help="storm day YYYY-MM-DD (default: the newest 1\"+ storm at the address)")
     p.add_argument("--lat", type=float)
     p.add_argument("--lon", type=float)
+    p.add_argument("--json", action="store_true", help="also write the JSON docs/print/hail-report.html reads "
+                                                        "(next to the HTML, same name .json)")
     p = sub.add_parser("bundle", help="pack engine code + config + CLAUDE.md into one JSON file, for the cloud")
     p.add_argument("--out", required=True)
     p = sub.add_parser("unbundle", help="unpack an engine JSON bundle here")
@@ -290,6 +295,11 @@ def main(argv=None):
     p.add_argument("--stories", type=int, default=1, help="with --footprint (default 1)")
     p.add_argument("--pitch", default="std", help="with --footprint: low|std|steep or rise per 12 (default std)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("calltoday", help="today's business call list: apartment/commercial buildings in fresh hail (JSON)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
+    p.add_argument("--csv", help="also write the calls as a CSV to this file")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -318,6 +328,28 @@ def main(argv=None):
                 f.write("\n")
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "calltoday":                       # reads hud.json only: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import calltoday
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still write a doc the app can show
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        doc = calltoday.today_doc(hud_doc, day, cfg)
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        if a.csv:
+            calltoday.write_csv(a.csv, doc["calls"])
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
@@ -564,6 +596,10 @@ def main(argv=None):
         hail = f'{ev["hail"]:.2f}"' if ev["hail"] is not None else "unknown"
         print(f"{label}: {day}, estimated {hail} at the property, {len(ev['reports'])} ground report(s) nearby")
         print(f"  report: {path}")
+        if a.json:
+            doc = hailreport.to_json(label, ev, hist, hailreport.radar_max(cfg, day, lat, lon),
+                                     company=config.company_label(cfg))
+            print(f"  json: {hailreport.write_json(path[:-len('.html')] + '.json', doc)}")
     elif a.cmd == "bundle":
         files = bundle(a.out)
         print(f"bundled {len(files)} files -> {a.out}")

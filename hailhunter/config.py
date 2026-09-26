@@ -173,6 +173,14 @@ DEFAULTS = {
     "weekly": {
         "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
     },
+    # Today's business call list (`hh.py calltoday`): apartment/commercial targets with a known business line,
+    # ranked by scoring.size_curve x scoring.recency_curve (freshest, strongest hail first)
+    "call_today": {
+        "min_hail": 1.0,            # inches at the building
+        "max_days": 365,            # storm no older than this
+        "max_calls": 15,            # calls on the list
+        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"]   # hud targets[].type; never homes
+    },
     # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
     # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
     # A price with only one side set uses it for both. Fill these in config.json, not here.
