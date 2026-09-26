@@ -34,6 +34,8 @@
   python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
                   the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
   python3 hh.py estimate --export-rules [--out prices.json]   the same rules as JSON for the HMP App (system/prices)
+  python3 hh.py takeoff --json job.json [--out order.json]   O7 material order list from measurements (EN/ES,
+                  rounded up, text to send the supplier). --export-rules = the rules for the app (system/takeoff)
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -332,6 +334,13 @@ def main(argv=None):
     p.add_argument("--export-rules", action="store_true", help="print the pricing rules + 8 self-check cases as one "
                                                                "JSON doc for the HMP App (db path system/prices)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("takeoff", help="O7: material order list from measurements (roof/siding/gutters, JSON EN/ES)")
+    p.add_argument("--json", help="job JSON file {kind: roof|siding|gutters|mixed, name, roof{...}, siding{...}, "
+                                  "gutters{...}} (see hailhunter/takeoff.py)")
+    p.add_argument("--export-rules", action="store_true", help="print the takeoff rules + self-check cases as one "
+                                                               "JSON doc for the HMP App (db path system/takeoff)")
+    p.add_argument("--text", action="store_true", help="print only the order text (English, then Spanish)")
+    p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("calltoday", help="today's business call list: apartment/commercial buildings in fresh hail (JSON)")
     p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
@@ -424,6 +433,29 @@ def main(argv=None):
             with open(a.out, "w", encoding="utf-8") as f:
                 f.write(text + "\n")
         print(text)
+        return 0
+    if a.cmd == "takeoff":                         # pure math on config `takeoff`: no database needed
+        from hailhunter import takeoff
+        try:
+            if a.export_rules:                     # the HMP App's `system/takeoff` doc (docs/app/takeoff.js)
+                doc = takeoff.export_rules(cfg)
+            elif a.json:
+                with open(a.json, encoding="utf-8") as f:
+                    doc = takeoff.takeoff(json.load(f), cfg)
+            else:
+                print("takeoff: give --json job.json (or --export-rules)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"takeoff: {e}", file=sys.stderr)
+            return 2
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        if a.text and "text" in doc and not a.export_rules:
+            print(doc["text"]["en"] + "\n\n" + doc["text"]["es"])
+        else:
+            print(text)
         return 0
     if a.cmd == "tune":                            # reads weekly outputs only: no database needed
         from hailhunter import tune

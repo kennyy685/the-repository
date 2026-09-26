@@ -229,6 +229,8 @@ genuinely missing there.
 - `python3 hh.py estimate --json job.json` (or `--footprint 1400 --stories 2`): quick price range; uses `prices_reference`
   (market ranges) until HMP's `prices` are set. `hh.py estimate --export-rules [--out f]` = the HMP App's `system/prices` doc
   (JS copy of the math: `docs/app/estimate.js`, checked by `node tests/js/estimate_check.js`); re-export whenever prices change. `hh.py hailreport ... --json` also writes JSON for docs/print/hail-report.html.
+- `python3 hh.py takeoff --json job.json [--text] [--export-rules]`: material order list (roof/siding/gutters) from measurements,
+  EN/ES order text for the supplier, no prices; JS twin `docs/app/takeoff.js` (`node tests/js/takeoff_check.js`).
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how

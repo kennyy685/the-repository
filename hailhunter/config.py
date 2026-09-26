@@ -271,6 +271,33 @@ DEFAULTS = {
         "openings": 0.15,                   # share of wall that is windows/doors
         "perimeter_factor": 1.1             # real houses are longer than a square: perimeter = 4 x sqrt(area) x this
     },
+    # O7 phase D material takeoff (`hh.py takeoff`): trade rules of thumb from docs/research/2026-09-26-round-7.md
+    # section 3. Every count is rounded up. Change a number here (not in code); re-export the rules for the app.
+    "takeoff": {
+        "waste": {"gable": 0.10, "hip": 0.13, "cutup": 0.18},             # shingle waste by roof shape
+        "bundles_per_square": 3,
+        "starter_ft_per_bundle": 100,        # starter strip: 1 bundle per 100 ft of eave + rake
+        "ridge_cap_ft_per_bundle": 33,       # (ridge + hip) / 33 ft
+        "drip_edge_extra": 0.10, "drip_edge_stick_ft": 10,
+        "underlayment_sq_per_roll": 10,      # synthetic underlayment
+        "ice_water_inside_wall_in": 24,      # IRC R905.1.2: from the eave edge to 24 in inside the exterior wall
+        "ice_water_overhang_in": 12,         # default eave overhang when roof.overhang_in isn't given
+        "ice_water_width_in": 36, "ice_water_lap_in": 3, "ice_water_roll_ft": 66,
+        "default_pitch": 6,                  # rise per 12 when roof.pitch isn't given
+        "pitch_words": {"low": 4, "std": 6, "steep": 9},
+        "nails_per_square": 480,             # 6 nails per shingle (high-wind nailing)
+        "nails_per_box": 7200,               # coil roofing nails
+        "siding_waste": {"vinyl": 0.12, "insulated_vinyl": 0.12, "hardie": 0.12},
+        "hardie_exposure_in": 7, "hardie_plank_ft": 12, "hardie_nails_per_plank": 10,
+        "house_wrap_extra": 0.05, "house_wrap_roll_sqft": 1350,           # 9 ft x 150 ft roll
+        "trim_extra": 0.10, "j_channel_ft": 12.5, "hardie_trim_ft": 12,
+        "ft_per_opening": 16,                # trim around one opening when only a count is given (a 3 x 5 ft window)
+        "corner_post_ft": 10, "hardie_corner_ft": 12, "starter_strip_ft": 12,
+        "default_wall_height_ft": 10,
+        "gutter_ft_per_downspout": 35,       # 1 downspout per 30-40 ft, at least 1 per run
+        "hanger_spacing_in": {"snow": 18, "no_snow": 24},
+        "elbows_per_downspout": 3
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
               "tuned": "data/tuned.json", "tune_history": "data/tune_history.json"}
 }
