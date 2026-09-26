@@ -58,6 +58,10 @@ FilthE to approve on the Mac: `docs/orders/right-hand-split.md`.
 - Capabilities sheet keeps "Labor sub: you supply the materials, we install".
 - Homeowner screen: **Option B "Daylight report"** (docs/design/homeowner-screen/option-b.html). Good/Better/Best tiers:
   **pick per job** (siding only, roof only, or both).
+- **Verified against the statutes (2026-09-26, nebraskalegislature.gov):** 44-8607's deductible notice has 5 sentences (the contract
+  drafts were missing the last 3; fixed, exact text now). 69-1601: the 3-day right applies even when the homeowner invited HMP
+  (only narrow emergency/repair exceptions), so give the cancel form every time. 69-1604(3): HMP sells in Spanish, so the notice
+  must be given in English AND Spanish. 69-1602: at the door, say your name, HMP, and what you sell, first thing.
 - HMP business mailing address (D13): **2600 Laverna St, Apt 50, Fremont, NE 68025** (printed on the cancel notice).
 - PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
 
