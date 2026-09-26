@@ -221,7 +221,16 @@ DEFAULTS = {
         "house_wrap_sq": {"low": None, "high": None},      # per square of wall (100 sf)
         "permit": {"low": None, "high": None},             # per job
         "min_job": {"low": None, "high": None},            # smallest job total (siding / gutters / any job)
-        "min_job_roof": {"low": None, "high": None}        # optional: smallest roof job (null = use min_job)
+        "min_job_roof": {"low": None, "high": None},       # optional: smallest roof job (null = use min_job)
+        # O7 add-ons (optional job fields; each line shows only when the job asks for it)
+        "ice_water_sq": {"low": None, "high": None},       # ice & water shield, per square of roof covered
+        "ridge_vent_ft": {"low": None, "high": None},      # per linear foot of ridge
+        "gutter_guards_ft": {"low": None, "high": None},   # per linear foot
+        "downspouts_ft": {"low": None, "high": None},      # per linear foot (vinyl/aluminum)
+        "window_wrap_ea": {"low": None, "high": None},     # aluminum window wrap, per window
+        "chimney_flashing_job": {"low": None, "high": None},   # per chimney
+        "skylight_flashing_ft": {"low": None, "high": None},   # per linear foot around the skylight
+        "insulated_vinyl_siding_sq": {"low": None, "high": None}   # insulated vinyl siding, per square of wall
     },
     # MARKET REFERENCE, NOT HMP's prices: eastern Nebraska "typical" ranges from
     # docs/research/2026-09-26-market-prices.md (search summaries of cost guides; spot-check with suppliers).
@@ -229,7 +238,7 @@ DEFAULTS = {
     "prices_reference": {
         "_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
         "vinyl_siding_sq": {"low": 700, "high": 900},      # market $400-1,200 full range
-        "hardie_siding_sq": {"low": 900, "high": 1200},    # market $600-1,800
+        "hardie_siding_sq": {"low": 1000, "high": 1500},   # Omaha $8-14/sf, board-and-batten $11-17/sf (round 7)
         "shingle_roof_sq": {"low": 450, "high": 550},      # market $350-850
         "extra_layer_sq": {"low": 100, "high": 150},       # disposal/tear-off per square per layer
         "soffit_fascia_ft": {"low": 14, "high": 17},       # market $7.50-22
@@ -237,7 +246,17 @@ DEFAULTS = {
         "house_wrap_sq": {"low": 100, "high": 150},        # $1-1.50 per sf of wall
         "permit": {"low": 150, "high": 350},               # market $100-500
         "min_job": {"low": 300, "high": 400},              # siding repair minimum
-        "min_job_roof": {"low": 2500, "high": 3000}        # roofing minimum
+        "min_job_roof": {"low": 2500, "high": 3000},       # roofing minimum
+        # O7 add-ons from NATIONAL cost guides (docs/research/2026-09-26-round-7.md section 1), not Nebraska
+        # numbers: "scope": "national" makes the estimate say so. Check with a local supplier.
+        "ice_water_sq": {"low": 100, "high": 125, "scope": "national"},
+        "ridge_vent_ft": {"low": 7, "high": 15, "scope": "national"},
+        "gutter_guards_ft": {"low": 6, "high": 13, "scope": "national"},
+        "downspouts_ft": {"low": 8, "high": 15, "scope": "national"},
+        "window_wrap_ea": {"low": 100, "high": 180, "scope": "national"},
+        "chimney_flashing_job": {"low": 450, "high": 1500, "scope": "national"},
+        "skylight_flashing_ft": {"low": 5, "high": 12, "scope": "national"},
+        "insulated_vinyl_siding_sq": {"low": 800, "high": 1200, "scope": "national"}
     },
     # How a job's shape changes the price (add-ons as fractions {low, high}) and the rough-squares helper.
     "estimate": {
