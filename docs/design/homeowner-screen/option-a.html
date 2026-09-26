@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homeowner Screen A</title>
+<!-- MOCKUP ONLY (Designer, 2026-09-26). Option A "Pro Dark report": the HMP App's own look (charcoal, silver, orange accents)
+     with a hero photo + photo grid, stacked price cards, a numbered timeline and two big call buttons.
+     Copy + sample data: content.js (shared by all options). Add ?lang=es for Spanish. Fonts are local files. -->
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(../../print/fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(../../print/fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:500; src:url(../../print/fonts/Montserrat-500.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:600; src:url(../../print/fonts/Montserrat-600.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:700; src:url(../../print/fonts/Montserrat-700.woff) format("woff"); }
+:root { --bg:#1e1f22; --card:#2a2b2f; --card2:#323338; --line:#3c3d43; --text:#f3f4f6; --silver:#c9ccd1; --muted:#9a9ea6;
+  --orange:#f5883a; --orange-dim:rgba(245,136,58,.14); }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--bg); }
+body { font-family:"Montserrat", sans-serif; font-weight:500; color:var(--text); font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+.h { font-family:"Barlow Semi Condensed", sans-serif; }
+.wrap { max-width:820px; margin:0 auto; padding:0 16px 40px; }
+/* top bar */
+.bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#17181a; border-bottom:1px solid var(--line); }
+.bar img { height:36px; }
+.chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--silver); border:1px solid var(--line);
+  border-radius:99px; padding:4px 10px; }
+.chip svg { width:12px; height:12px; }
+.langs { margin-left:auto; display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.langs a { font:700 14px "Barlow Semi Condensed"; padding:6px 11px; color:var(--muted); text-decoration:none; cursor:pointer; }
+.langs a.on { background:var(--text); color:#17181a; }
+/* screen tabs */
+.tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:16px 0 4px; }
+.tabs div { font:700 15px "Barlow Semi Condensed"; letter-spacing:.02em; color:var(--muted); text-align:center; padding:8px 4px 9px;
+  border-bottom:3px solid var(--line); }
+.tabs div b { font-weight:800; margin-right:5px; }
+.tabs div.on { color:var(--text); border-color:var(--orange); }
+section.screen { padding-top:22px; }
+section.screen + section.screen { margin-top:34px; border-top:1px dashed #44454b; }
+.kicker { font:700 13px "Barlow Semi Condensed"; letter-spacing:.14em; text-transform:uppercase; color:var(--orange); }
+h1 { font:800 38px/1.02 "Barlow Semi Condensed"; margin:4px 0 6px; }
+.sub { color:var(--silver); font-size:15px; }
+.meta { color:var(--muted); font-size:13px; margin-top:6px; }
+/* photos */
+.ph { position:relative; border-radius:12px; overflow:hidden; background:#000; }
+.ph img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; }
+.ph svg.ann { position:absolute; inset:0; width:100%; height:100%; }
+.ph .tag { position:absolute; left:10px; top:10px; font:700 11px "Montserrat"; color:#fff; background:rgba(0,0,0,.55); padding:3px 8px; border-radius:99px; }
+.ph .num { position:absolute; right:10px; top:10px; width:30px; height:30px; border-radius:50%; background:var(--orange); color:#17181a;
+  font:800 17px/30px "Barlow Semi Condensed"; text-align:center; }
+.photo { background:var(--card); border-radius:14px; overflow:hidden; }
+.photo .cap { padding:12px 14px 14px; }
+.photo .cap b { display:block; font:700 19px/1.15 "Barlow Semi Condensed"; margin-bottom:2px; }
+.photo .cap span { color:var(--silver); font-size:14px; }
+.photo.hero { margin-top:18px; }
+.photo.hero .cap b { font-size:22px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+.grid .photo .cap { padding:9px 11px 11px; }
+.grid .photo .cap b { font-size:16px; }
+.grid .photo .cap span { font-size:12.5px; line-height:1.4; display:block; }
+.grid .ph .num { width:24px; height:24px; font-size:14px; line-height:24px; }
+/* hail card */
+.card { background:var(--card); border-radius:14px; padding:18px; margin-top:16px; }
+.hail .top { display:flex; align-items:flex-end; gap:14px; }
+.big { font:800 64px/0.9 "Barlow Semi Condensed"; }
+.big small { font-size:26px; color:var(--silver); margin-left:3px; }
+.hail .lbl { font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.hail .like { color:var(--silver); font-size:14px; }
+.rows { margin-top:14px; border-top:1px solid var(--line); }
+.rows div { display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+.rows div span:first-child { color:var(--muted); font-size:13px; }
+.rows div span:last-child { font-weight:600; text-align:right; }
+.rows div em { display:block; font-style:normal; color:var(--muted); font-size:12px; font-weight:500; }
+.src { color:var(--muted); font-size:12px; margin-top:10px; }
+.caveat { display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--card2);
+  font-size:13.5px; color:var(--silver); }
+.caveat svg { flex:none; width:18px; height:18px; margin-top:1px; }
+.ins { border-left:4px solid var(--silver); }
+.ins b { display:block; font:700 21px/1.2 "Barlow Semi Condensed"; margin-bottom:6px; }
+.ins p { color:var(--silver); font-size:14px; }
+.two { display:grid; gap:0 16px; }
+/* options */
+.tiers { display:grid; gap:14px; margin-top:18px; }
+.tier { position:relative; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 16px 14px; }
+.tier.rec { border:2px solid var(--orange); background:linear-gradient(180deg, rgba(245,136,58,.08), rgba(245,136,58,0) 40%), var(--card); }
+.tier .rib { position:absolute; top:-11px; left:14px; background:var(--orange); color:#17181a; font:800 12.5px "Barlow Semi Condensed";
+  letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:6px; }
+.tier .name { font:800 15px "Barlow Semi Condensed"; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); }
+.tier .what { font:700 21px/1.12 "Barlow Semi Condensed"; margin:3px 0 1px; }
+.tier .roof { color:var(--silver); font-size:13.5px; }
+.tier .price { font:800 36px/1 "Barlow Semi Condensed"; margin-top:12px; letter-spacing:.01em; }
+.tier .rng { font-size:12px; color:var(--muted); font-weight:600; margin-top:3px; }
+.tier ul { list-style:none; margin-top:12px; border-top:1px solid var(--line); padding-top:10px; }
+.tier li { display:flex; gap:8px; font-size:13.5px; padding:3px 0; color:#e3e5e8; }
+.tier li svg { flex:none; width:16px; height:16px; margin-top:2px; }
+.inc { font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:12px; }
+.note { color:var(--silver); font-size:13.5px; margin-top:14px; }
+.warr { display:flex; gap:10px; align-items:flex-start; }
+.warr svg { flex:none; width:22px; height:22px; }
+.btn-out { display:flex; align-items:center; gap:12px; margin-top:12px; padding:14px 16px; border:1px solid #5a5b62; border-radius:12px; color:var(--text);
+  text-decoration:none; }
+.btn-out .sw { display:flex; gap:3px; }
+.btn-out .sw i { width:14px; height:28px; border-radius:3px; }
+.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; }
+.btn-out span { font-size:12.5px; color:var(--muted); }
+.btn-out .arr { margin-left:auto; font:800 22px "Barlow Semi Condensed"; color:var(--orange); }
+/* steps */
+.steps { margin-top:20px; position:relative; }
+.step { display:grid; grid-template-columns:44px 1fr; gap:14px; position:relative; padding-bottom:22px; }
+.step:not(:last-child)::before { content:""; position:absolute; left:21px; top:44px; bottom:0; width:2px; background:var(--line); }
+.step .n { width:44px; height:44px; border-radius:50%; background:var(--orange); color:#17181a; font:800 24px/44px "Barlow Semi Condensed"; text-align:center; }
+.step b { display:block; font:800 24px/1.1 "Barlow Semi Condensed"; margin-top:8px; }
+.step p { color:var(--silver); font-size:14.5px; margin-top:3px; }
+.cancel { margin-top:10px; padding:12px 14px; border-radius:10px; background:var(--card2); border:1px solid #4a4b52; display:flex; gap:10px; font-size:13.5px; }
+.cancel svg { flex:none; width:20px; height:20px; margin-top:1px; }
+.calls { display:grid; gap:12px; margin-top:8px; }
+.call { display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:var(--card); border:1px solid var(--line); text-decoration:none; color:var(--text); }
+.call .ic { width:48px; height:48px; border-radius:50%; background:var(--orange); display:grid; place-items:center; flex:none; }
+.call .ic svg { width:22px; height:22px; }
+.call .who { font-size:13px; color:var(--silver); font-weight:600; }
+.call .tel { font:800 32px/1 "Barlow Semi Condensed"; letter-spacing:.01em; margin-top:3px; }
+.qh { font:700 20px "Barlow Semi Condensed"; margin-top:6px; }
+.foot { margin-top:22px; color:var(--muted); font-size:12px; line-height:1.6; }
+.foot .blank { display:inline-block; width:90px; border-bottom:1px solid var(--muted); }
+@media (min-width:700px) {
+  .wrap { padding:0 28px 48px; }
+  h1 { font-size:48px; }
+  .grid { grid-template-columns:1fr 1fr; gap:16px; }
+  .two { grid-template-columns:1.1fr 1fr; align-items:start; }
+  .tiers { grid-template-columns:repeat(3,1fr); gap:12px; align-items:stretch; }
+  .tier .price { font-size:30px; }
+  .tier .what { font-size:19px; }
+  .calls { grid-template-columns:1fr 1fr; }
+  .call .tel { font-size:30px; }
+}
+</style>
+<script src="content.js"></script>
+</head>
+<body>
+<div class="bar">
+  <img src="img/hmp-logo.svg" alt="HMP Siding &amp; Roofing">
+  <span class="chip" id="view"></span>
+  <div class="langs"><a id="l-en">EN</a><a id="l-es">ES</a></div>
+</div>
+<div class="wrap" id="app"></div>
+<script>
+const L = HS.lang; document.documentElement.lang = L;
+const $ = (id) => document.getElementById(id);
+$("l-" + L).classList.add("on"); $("l-en").onclick = () => HS.setLang("en"); $("l-es").onclick = () => HS.setLang("es");
+const lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+$("view").innerHTML = lock + t(HS.ui.view);
+const check = '<svg viewBox="0 0 24 24" fill="none" stroke="#f5883a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const info = '<svg viewBox="0 0 24 24" fill="none" stroke="#c9ccd1" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>';
+const shield = '<svg viewBox="0 0 24 24" fill="none" stroke="#f5883a" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round"/></svg>';
+const phone = '<svg viewBox="0 0 24 24" fill="#17181a"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
+
+function ann(p, big) {
+  let s = '<svg class="ann" viewBox="0 0 100 75" preserveAspectRatio="none">';
+  p.marks.forEach((m) => { s += `<ellipse cx="${m[0]}" cy="${m[1]*.75}" rx="${m[2]/2+1.2}" ry="${(m[2]/2+1.2)}" fill="none" stroke="#f5883a" stroke-width="${big?0.9:1.1}"/>`; });
+  if (p.marks.length && big) { const m = p.marks[0]; // arrow to the first hit
+    s += `<path d="M${m[0]-17} ${m[1]*.75+17} L${m[0]-m[2]/2-2.2} ${m[1]*.75+m[2]/2+1.2}" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+          <path d="M${m[0]-m[2]/2-2.2} ${m[1]*.75+m[2]/2+1.2} l-3.2 .4 m3.2 -.4 l-.4 3.2" stroke="#fff" stroke-width="1" stroke-linecap="round" fill="none"/>`; }
+  return s + '</svg>';
+}
+function photo(p, i, hero) {
+  return `<div class="photo${hero ? " hero" : ""}"><div class="ph"><img src="${p.img}" alt="${t(p.title)}">${ann(p, hero)}
+    <span class="tag">${t(HS.ui.sample)}</span><span class="num">${i + 1}</span></div>
+    <div class="cap"><b>${t(p.title)}</b><span>${t(p.cap)}</span></div></div>`;
+}
+const tabs = (on) => `<div class="tabs">${HS.ui.tabs.map((x, i) => `<div class="${i === on ? "on" : ""}"><b>${i + 1}</b>${t(x)}</div>`).join("")}</div>`;
+const h = HS.hail;
+let html = "";
+// ---- Screen 1
+html += `<section class="screen" id="s1">${tabs(0)}
+  <div class="kicker" style="margin-top:14px">${t(HS.home.name)} · ${HS.home.address}</div>
+  <h1>${t(HS.ui.s1)}</h1><div class="sub">${t(HS.ui.s1sub)}</div><div class="meta">${t(HS.home.inspected)}</div>
+  ${photo(HS.photos[0], 0, true)}
+  <div class="grid">${HS.photos.slice(1).map((p, i) => photo(p, i + 1)).join("")}</div>
+  <div class="two">
+  <div class="card hail"><div class="lbl">${t(h.title)}</div>
+    <div class="top" style="margin-top:8px"><div class="big">${h.size}<small>${t(h.sizeUnit)}</small></div>
+      <div><div class="lbl">${t(h.sizeLabel)}</div><div class="like">${t(h.sizeLike)}</div></div></div>
+    <div class="rows"><div><span>${t(h.dateLabel)}</span><span>${t(h.date)}</span></div>
+      <div><span>${t(h.reportLabel)}</span><span>${t(h.report)}<em>${t(h.reportSrc)}</em></span></div></div>
+    <div class="src">${t(h.source)}</div>
+    <div class="caveat">${info}<span>${t(h.caveat)}</span></div></div>
+  <div class="card ins"><b>${t(HS.insurer.head)}</b><p>${t(HS.insurer.body)}</p></div>
+  </div></section>`;
+// ---- Screen 2
+html += `<section class="screen" id="s2">${tabs(1)}
+  <h1 style="margin-top:14px">${t(HS.ui.s2)}</h1><div class="sub">${t(HS.ui.s2sub)}</div>
+  <div class="tiers" style="margin-top:24px">${HS.tiers.map((x) => `<div class="tier${x.rec ? " rec" : ""}">
+    ${x.rec ? `<span class="rib">${t(HS.ui.recommended)}</span>` : ""}
+    <div class="name">${t(x.name)}</div><div class="what">${t(x.siding)}</div><div class="roof">+ ${t(x.roof)}</div>
+    <div class="price">${x.price}</div><div class="rng">${t(HS.ui.range)}</div>
+    <div class="inc">${t(HS.ui.included)}</div>
+    <ul>${x.inc.map((i) => `<li>${check}<span>${t(i)}</span></li>`).join("")}</ul></div>`).join("")}</div>
+  <div class="note">${t(HS.ui.rangeNote)}</div>
+  <div class="card warr">${shield}<span style="font-size:14px;color:var(--silver)">${t(HS.warranty)}</span></div>
+  <a class="btn-out" href="${HS.colorUrl}"><span class="sw"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da"></i></span>
+    <span><b>${t(HS.ui.colors)}</b><span>${t(HS.ui.colorsWhere)}</span></span><span class="arr">→</span></a>
+</section>`;
+// ---- Screen 3
+html += `<section class="screen" id="s3">${tabs(2)}
+  <h1 style="margin-top:14px">${t(HS.ui.s3)}</h1><div class="sub">${t(HS.ui.s3sub)}</div>
+  <div class="steps">${HS.steps.map((s, i) => `<div class="step"><div class="n">${i + 1}</div><div><b>${t(s.title)}</b><p>${t(s.body)}</p>
+    ${s.cancel ? `<div class="cancel">${shield}<span>${t(s.cancel)}</span></div>` : ""}</div></div>`).join("")}</div>
+  <div class="qh">${t(HS.ui.questions)}</div>
+  <div class="calls">${HS.contacts.map((c) => `<a class="call" href="tel:${c.tel}"><span class="ic">${phone}</span>
+    <span><span class="who">${c.name} · ${t(c.lang)}</span><div class="tel">${c.phone}</div></span></a>`).join("")}</div>
+  <div class="foot">${t(HS.company)}<span class="blank"></span></div>
+</section>`;
+$("app").innerHTML = html;
+</script>
+</body>
+</html>

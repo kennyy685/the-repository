@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homeowner Screen B</title>
+<!-- MOCKUP ONLY (Designer, 2026-09-26). Option B "Daylight report": the proposed lighter, customer-friendly variant of
+     HMP Pro Dark (warm paper background, white cards, charcoal header band with the logo, orange kept for rings, numbers
+     and the one main action). Reads like a printed inspection report; easy in a bright kitchen and for older eyes.
+     Photos full width with numbered rings; options as a side-by-side comparison; steps as numbered cards.
+     Copy + sample data: content.js (shared). Add ?lang=es for Spanish. Fonts are local files. -->
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(../../print/fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(../../print/fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:500; src:url(../../print/fonts/Montserrat-500.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:600; src:url(../../print/fonts/Montserrat-600.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:700; src:url(../../print/fonts/Montserrat-700.woff) format("woff"); }
+:root { --paper:#f4f2ee; --card:#ffffff; --ink:#1f2023; --char:#404145; --char-dk:#2a2b2f; --muted:#5f636b; --line:#e2dfd8;
+  --orange:#f5883a; --orange-ink:#a8501a; --tint:#fdf1e7; --mist:#efede8; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--paper); }
+body { font-family:"Montserrat", sans-serif; font-weight:500; color:var(--ink); font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+.head { background:linear-gradient(180deg,#46474c,#35363a); color:#fff; }
+.head .in { max-width:820px; margin:0 auto; padding:12px 16px 16px; }
+.head .row { display:flex; align-items:center; gap:10px; }
+.head img { height:40px; }
+.chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#d9dbdf; background:rgba(255,255,255,.08);
+  border-radius:99px; padding:4px 10px; }
+.chip svg { width:12px; height:12px; }
+.langs { margin-left:auto; display:flex; background:rgba(0,0,0,.25); border-radius:8px; padding:3px; }
+.langs a { font:700 14px "Barlow Semi Condensed"; padding:5px 11px; color:#c9ccd1; border-radius:6px; cursor:pointer; }
+.langs a.on { background:#fff; color:var(--ink); }
+.who { margin-top:12px; font-size:13px; color:#c9ccd1; }
+.who b { color:#fff; font:700 18px "Barlow Semi Condensed"; margin-right:6px; }
+.wrap { max-width:820px; margin:0 auto; padding:0 16px 40px; }
+/* stepper */
+.stepper { display:flex; gap:6px; margin:18px 0 0; }
+.stepper div { flex:1; display:flex; align-items:center; gap:7px; padding:8px 10px; border-radius:99px; background:var(--mist); color:var(--muted);
+  font:700 14.5px "Barlow Semi Condensed"; white-space:nowrap; }
+.stepper i { font-style:normal; width:22px; height:22px; border-radius:50%; background:#d6d3cc; color:#fff; display:grid; place-items:center; font-size:13px; flex:none; }
+.stepper div.on { background:var(--char); color:#fff; }
+.stepper div.on i { background:var(--orange); color:var(--ink); }
+.stepper div.done i { background:var(--char); }
+section.screen { padding-top:4px; }
+section.screen + section.screen { margin-top:38px; padding-top:6px; border-top:2px solid var(--line); }
+h1 { font:800 38px/1.02 "Barlow Semi Condensed"; margin:18px 0 4px; color:var(--ink); }
+.sub { color:var(--muted); font-size:15px; }
+/* photos */
+.plist { display:grid; gap:14px; margin-top:18px; }
+.pcard { background:var(--card); border-radius:14px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05); }
+.ph { position:relative; background:#000; }
+.ph img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; }
+.ph svg.ann { position:absolute; inset:0; width:100%; height:100%; }
+.ph .tag { position:absolute; left:10px; bottom:10px; font:700 11px "Montserrat"; color:#fff; background:rgba(0,0,0,.55); padding:3px 8px; border-radius:99px; }
+.pcard .cap { display:flex; gap:12px; padding:13px 14px 15px; }
+.pcard .n { flex:none; width:30px; height:30px; border-radius:50%; background:var(--char); color:#fff; font:800 17px/30px "Barlow Semi Condensed"; text-align:center; }
+.pcard .cap b { display:block; font:700 20px/1.15 "Barlow Semi Condensed"; }
+.pcard .cap span { color:var(--muted); font-size:14px; }
+/* hail */
+.card { background:var(--card); border-radius:14px; padding:18px; margin-top:14px; box-shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05); }
+.lbl { font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+.hail .cols { display:grid; grid-template-columns:1fr 132px; gap:12px; align-items:center; margin-top:10px; }
+.big { font:800 60px/0.9 "Barlow Semi Condensed"; }
+.big small { font-size:24px; color:var(--muted); margin-left:3px; }
+.like { color:var(--muted); font-size:14px; margin-top:4px; }
+.facts { margin-top:14px; display:grid; gap:10px; }
+.facts div { background:var(--mist); border-radius:10px; padding:10px 12px; }
+.facts b { display:block; font:700 18px/1.2 "Barlow Semi Condensed"; }
+.facts em { font-style:normal; font-size:12px; color:var(--muted); }
+.src { color:var(--muted); font-size:12px; margin-top:10px; }
+.caveat { margin-top:12px; padding:10px 12px; border-radius:10px; border:1.5px dashed #cbc7bf; font-size:13.5px; color:var(--char); display:flex; gap:10px; }
+.caveat svg { flex:none; width:18px; height:18px; margin-top:1px; }
+.ins { background:var(--char); color:#fff; }
+.ins b { display:block; font:700 22px/1.18 "Barlow Semi Condensed"; margin-bottom:6px; }
+.ins p { color:#d9dbdf; font-size:14px; }
+.two { display:grid; gap:0 14px; }
+/* comparison */
+.cmp { margin-top:20px; background:var(--card); border-radius:14px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05); }
+.cmp .cols { display:grid; grid-template-columns:repeat(3,1fr); }
+.cmp .col { padding:14px 8px 12px; text-align:center; border-right:1px solid var(--line); position:relative; }
+.cmp .col:last-child { border-right:0; }
+.cmp .col.rec { background:var(--tint); box-shadow:inset 0 4px 0 var(--orange); }
+.cmp .rib { display:inline-block; font:800 11px "Barlow Semi Condensed"; letter-spacing:.06em; text-transform:uppercase; color:var(--orange-ink); margin-bottom:4px; min-height:14px; }
+.cmp .name { font:800 13.5px "Barlow Semi Condensed"; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.cmp .what { font:700 17px/1.1 "Barlow Semi Condensed"; margin-top:4px; min-height:38px; }
+.cmp .price { font:800 21px/1.05 "Barlow Semi Condensed"; margin-top:8px; }
+.cmp .price span { display:block; }
+.rng { text-align:center; font-size:12px; font-weight:600; color:var(--muted); padding:9px 12px; border-top:1px solid var(--line); background:#faf9f6; }
+table { width:100%; border-collapse:collapse; }
+td { border-top:1px solid var(--line); padding:9px 8px; font-size:12.5px; text-align:center; vertical-align:middle; }
+td.rec { background:var(--tint); }
+tr.sec td { text-align:left; font-size:12.5px; font-weight:700; color:var(--char); background:#faf9f6; padding:8px 12px 6px; }
+td svg { width:18px; height:18px; vertical-align:middle; }
+td .no { color:#b9b5ad; font-weight:700; }
+td.txt { font-weight:600; line-height:1.25; }
+.note { color:var(--muted); font-size:13.5px; margin-top:12px; }
+.warr { display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--char); }
+.warr svg { flex:none; width:22px; height:22px; }
+.btn-out { display:flex; align-items:center; gap:12px; margin-top:12px; padding:14px 16px; background:var(--card); border:1.5px solid var(--char);
+  border-radius:12px; color:var(--ink); text-decoration:none; }
+.btn-out .sw { display:flex; gap:3px; }
+.btn-out .sw i { width:14px; height:28px; border-radius:3px; }
+.btn-out b { display:block; font:700 18px "Barlow Semi Condensed"; }
+.btn-out span { font-size:12.5px; color:var(--muted); }
+.btn-out .arr { margin-left:auto; font:800 22px "Barlow Semi Condensed"; color:var(--orange-ink); }
+/* steps */
+.steps { display:grid; gap:12px; margin-top:18px; }
+.step { background:var(--card); border-radius:14px; padding:16px; display:grid; grid-template-columns:auto 1fr; gap:14px;
+  box-shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05); }
+.step .n { font:800 48px/0.85 "Barlow Semi Condensed"; color:var(--orange); width:32px; }
+.step b { display:block; font:800 23px/1.1 "Barlow Semi Condensed"; }
+.step p { color:var(--muted); font-size:14.5px; margin-top:3px; }
+.cancel { margin-top:10px; padding:11px 12px; border-radius:10px; background:var(--tint); border-left:4px solid var(--orange); font-size:13.5px; color:var(--char); }
+.cancel b { font:700 16px "Barlow Semi Condensed"; display:inline; color:var(--ink); }
+.contact { margin-top:18px; background:var(--char); color:#fff; border-radius:16px; padding:16px; }
+.contact .q { font:700 20px "Barlow Semi Condensed"; }
+.contact a { display:flex; align-items:center; gap:14px; text-decoration:none; color:#fff; padding:12px 0; border-top:1px solid rgba(255,255,255,.12); }
+.contact a:first-of-type { border-top:0; }
+.contact .ic { width:46px; height:46px; border-radius:50%; background:var(--orange); display:grid; place-items:center; flex:none; }
+.contact .ic svg { width:21px; height:21px; }
+.contact .nm { font-size:13px; color:#d9dbdf; font-weight:600; }
+.contact .tel { font:800 32px/1 "Barlow Semi Condensed"; margin-top:2px; }
+.foot { margin-top:18px; color:var(--muted); font-size:12px; line-height:1.6; }
+.foot .blank { display:inline-block; width:90px; border-bottom:1px solid var(--muted); }
+@media (min-width:700px) {
+  .wrap, .head .in { padding-left:28px; padding-right:28px; }
+  h1 { font-size:48px; }
+  .plist { grid-template-columns:1fr 1fr; }
+  .plist .pcard:first-child { grid-column:1 / -1; display:grid; grid-template-columns:1.5fr 1fr; }
+  .plist .pcard:first-child .cap { flex-direction:column; justify-content:center; padding:22px; }
+  .plist .pcard:first-child .cap b { font-size:26px; }
+  .plist .pcard:first-child .cap span { font-size:15.5px; }
+  .two { grid-template-columns:1.2fr 1fr; align-items:start; }
+  .cmp .price { font-size:28px; }
+  .cmp .what { font-size:20px; min-height:0; }
+  td { font-size:14px; padding:11px 10px; }
+  .steps { grid-template-columns:repeat(3,1fr); }
+  .step { grid-template-columns:1fr; gap:6px; align-content:start; }
+  .contact { display:grid; grid-template-columns:auto 1fr 1fr; gap:18px; align-items:center; }
+  .contact a, .contact a:first-of-type { border-top:0; padding:0; }
+}
+</style>
+<script src="content.js"></script>
+</head>
+<body>
+<div class="head"><div class="in">
+  <div class="row"><img src="img/hmp-logo.svg" alt="HMP Siding &amp; Roofing"><span class="chip" id="view"></span>
+    <div class="langs"><a id="l-en">EN</a><a id="l-es">ES</a></div></div>
+  <div class="who" id="who"></div>
+</div></div>
+<div class="wrap" id="app"></div>
+<script>
+const L = HS.lang; document.documentElement.lang = L;
+const $ = (id) => document.getElementById(id);
+$("l-" + L).classList.add("on"); $("l-en").onclick = () => HS.setLang("en"); $("l-es").onclick = () => HS.setLang("es");
+$("view").innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>' + t(HS.ui.view);
+$("who").innerHTML = `<b>${t(HS.home.name)}</b>${HS.home.address}`;
+const yes = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#404145"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const info = '<svg viewBox="0 0 24 24" fill="none" stroke="#5f636b" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>';
+const shield = '<svg viewBox="0 0 24 24" fill="none" stroke="#a8501a" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round"/></svg>';
+const phone = '<svg viewBox="0 0 24 24" fill="#1f2023"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
+function ann(p) {
+  let s = '<svg class="ann" viewBox="0 0 100 75">';
+  p.marks.forEach((m, k) => { const r = m[2] / 2 + 1.4, cy = m[1] * .75;
+    s += `<circle cx="${m[0]}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="1.6" opacity=".9"/><circle cx="${m[0]}" cy="${cy}" r="${r}" fill="none" stroke="#f5883a" stroke-width="0.9"/>`;
+    const bx = m[0] + r * .72 + 2, by = cy - r * .72 - 2;
+    s += `<circle cx="${bx}" cy="${by}" r="3" fill="#f5883a"/><text x="${bx}" y="${by + 1.3}" text-anchor="middle" font-family="Barlow Semi Condensed" font-weight="800" font-size="4" fill="#1f2023">${String.fromCharCode(65 + k)}</text>`; });
+  if (p.square) s += `<rect x="62" y="3" width="35" height="9" rx="2" fill="#f5883a"/><text x="79.5" y="9.3" text-anchor="middle" font-family="Barlow Semi Condensed" font-weight="800" font-size="5" fill="#1f2023">${L === "es" ? "9 golpes" : "9 hits"}</text>`;
+  return s + '</svg>';
+}
+const stepper = (on) => `<div class="stepper">${HS.ui.tabs.map((x, i) => `<div class="${i === on ? "on" : i < on ? "done" : ""}"><i>${i + 1}</i>${t(x)}</div>`).join("")}</div>`;
+const h = HS.hail;
+let html = "";
+html += `<section class="screen">${stepper(0)}<h1>${t(HS.ui.s1)}</h1><div class="sub">${t(HS.ui.s1sub)} · ${t(HS.home.inspected)}</div>
+  <div class="plist">${HS.photos.map((p, i) => `<div class="pcard"><div class="ph"><img src="${p.img}" alt="">${ann(p)}<span class="tag">${t(HS.ui.sample)}</span></div>
+    <div class="cap"><span class="n">${i + 1}</span><div><b>${t(p.title)}</b><span>${t(p.cap)}</span></div></div></div>`).join("")}</div>
+  <div class="two"><div class="card hail"><div class="lbl">${t(h.title)}</div>
+    <div class="cols"><div><div class="big">${h.size}<small>${t(h.sizeUnit)}</small></div><div class="like">${t(h.sizeLabel)}, ${t(h.sizeLike)}</div></div>
+    <svg viewBox="0 0 132 110" aria-hidden="true"><circle cx="58" cy="62" r="44" fill="#fdf1e7" stroke="#f5c39c" stroke-dasharray="3 3"/>
+      <circle cx="58" cy="62" r="24" fill="none" stroke="#f5c39c" stroke-dasharray="3 3"/>
+      <path d="M50 64 58 57 66 64 66 72 50 72Z" fill="#404145"/><path d="M47 65 58 55 69 65" fill="none" stroke="#f5883a" stroke-width="2.4" stroke-linejoin="round"/>
+      <circle cx="74" cy="22" r="6" fill="#404145"/><text x="84" y="16" font-family="Barlow Semi Condensed" font-weight="700" font-size="11" fill="#1f2023">NWS</text>
+      <path d="M72 29 62 52" stroke="#404145" stroke-width="1.4" stroke-dasharray="2 2"/><text x="70" y="45" font-family="Barlow Semi Condensed" font-weight="700" font-size="11" fill="#5f636b">0.8 mi</text></svg></div>
+    <div class="facts"><div><em>${t(h.dateLabel)}</em><b>${t(h.date)}</b></div>
+      <div><em>${t(h.reportLabel)}</em><b>${t(h.report)}</b><em>${t(h.reportSrc)}</em></div></div>
+    <div class="src">${t(h.source)}</div>
+    <div class="caveat">${info}<span>${t(h.caveat)}</span></div></div>
+  <div class="card ins"><b>${t(HS.insurer.head)}</b><p>${t(HS.insurer.body)}</p></div></div></section>`;
+// Screen 2: comparison
+const T = HS.tiers, rc = (i) => T[i].rec ? ' class="rec"' : "";
+const row = (label, cells) => `<tr class="sec"><td colspan="3">${label}</td></tr><tr>${cells.map((c, i) => `<td${rc(i)}>${c}</td>`).join("")}</tr>`;
+const no = '<span class="no">–</span>';
+const L2 = (en, es) => L === "es" ? es : en;
+html += `<section class="screen">${stepper(1)}<h1>${t(HS.ui.s2)}</h1><div class="sub">${t(HS.ui.s2sub)}</div>
+  <div class="cmp"><div class="cols">${T.map((x) => `<div class="col${x.rec ? " rec" : ""}"><div class="rib">${x.rec ? L2("Recommended", "Recomendada") : ""}</div>
+    <div class="name">${t(x.name)}</div><div class="what">${t(x.siding)}</div>
+    <div class="price">${x.price.split(" – ").map((p, i) => `<span>${i ? "– " : ""}${p}</span>`).join("")}</div></div>`).join("")}</div>
+    <div class="rng">${t(HS.ui.range)}</div>
+    <table>
+      ${row(L2("Roof", "Techo"), [L2("Architectural shingles", "Tejas arquitectónicas"), L2("Architectural shingles", "Tejas arquitectónicas"), L2("Class 4 impact-rated", "Clase 4, resistente a impacto")].map((s) => `<span class="txt">${s}</span>`))}
+      ${row(L2("Tear-off, haul-away, daily cleanup", "Quitar lo viejo, llevárnoslo, limpieza diaria"), [yes, yes, yes])}
+      ${row(L2("New house wrap + new trim", "Barrera nueva (house wrap) + molduras nuevas"), [yes, yes, yes])}
+      ${row(L2("Foam-backed, stiffer panels", "Paneles firmes con espuma"), [no, yes, L2("Fiber cement", "Fibrocemento")])}
+      ${row(L2("Ice & water shield at eaves and valleys", "Protección contra hielo y agua en aleros y valles"), [no, yes, yes])}
+      ${row(L2("Factory-baked color finish", "Color horneado de fábrica"), [no, no, yes])}
+      ${row(L2("Shingles tested for hail impact (UL 2218)", "Tejas probadas contra granizo (UL 2218)"), [no, no, yes])}
+    </table></div>
+  <div class="note">${t(HS.ui.rangeNote)}</div>
+  <div class="card warr">${shield}<span>${t(HS.warranty)}</span></div>
+  <a class="btn-out" href="${HS.colorUrl}"><span class="sw"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da;outline:1px solid #ccc"></i></span>
+    <span><b>${t(HS.ui.colors)}</b><span>${t(HS.ui.colorsWhere)}</span></span><span class="arr">→</span></a></section>`;
+// Screen 3
+html += `<section class="screen">${stepper(2)}<h1>${t(HS.ui.s3)}</h1><div class="sub">${t(HS.ui.s3sub)}</div>
+  <div class="steps">${HS.steps.map((s, i) => `<div class="step"><div class="n">${i + 1}</div><div><b>${t(s.title)}</b><p>${t(s.body)}</p>
+    ${s.cancel ? `<div class="cancel">${t(s.cancel).replace(/^([^:]+:)/, "<b>$1</b>")}</div>` : ""}</div></div>`).join("")}</div>
+  <div class="contact"><div class="q">${t(HS.ui.questions)}</div>${HS.contacts.map((c) => `<a href="tel:${c.tel}"><span class="ic">${phone}</span>
+    <span><span class="nm">${c.name} · ${t(c.lang)}</span><div class="tel">${c.phone}</div></span></a>`).join("")}</div>
+  <div class="foot">${t(HS.company)}<span class="blank"></span></div></section>`;
+$("app").innerHTML = html;
+</script>
+</body>
+</html>
