@@ -150,7 +150,7 @@ class Zones(unittest.TestCase):
             zp, wp = os.path.join(t, "z.json"), os.path.join(t, "w.json")
             with contextlib.redirect_stdout(io.StringIO()):
                 rc = hh.main(["zones", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49", "--radius", "30",
-                              "--top", "2", "--doors", "8", "--out", zp, "--walks-out", wp])
+                              "--top", "2", "--doors", "8", "--out", zp, "--walks-out", wp, "--no-basemap"])
             self.assertEqual(rc, 0)
             with open(zp, encoding="utf-8") as f:
                 z = json.load(f)

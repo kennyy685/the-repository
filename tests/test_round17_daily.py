@@ -187,7 +187,7 @@ class Daily(unittest.TestCase):
         out = os.path.join(self.tmp, "out")
         with contextlib.redirect_stdout(io.StringIO()):
             rc = hh.main(["daily", "--out-dir", out, "--hud", self.hud_path, "--date", "2026-09-25",
-                          "--leads", os.path.join(FIX, "weekly_leads.json")])
+                          "--leads", os.path.join(FIX, "weekly_leads.json"), "--no-basemap"])
         self.assertEqual(rc, 0)
         man = self._files(out)
         self.assertEqual(man["errors"], [])

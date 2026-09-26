@@ -42,11 +42,12 @@
                   the app's docs/app/followups.js
   python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]
                   hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
-                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk
+                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk.
+                  Each walk gets `route` + a vector `basemap` (streets, lots, labels; state GIS, cached; --no-basemap)
   python3 hh.py daily --out-dir DIR [--date D] [--results f] [--dnk f] [--leads f] [--near T]   the 7:40 AM app job
                   in one go: todaywalk+evidence, calltoday, zones+walks, followups (with --leads); one JSON file per
                   app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
-                  evidence__<slug>.json, followups__today.json) + manifest.json
+                  evidence__<slug>.json, followups__today.json) + manifest.json; walks get maps as in zones
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -269,6 +270,18 @@ def unbundle(src_path):
     return b["files"]
 
 
+def _basemap_maker(cfg, offline):
+    """basemap.Maker for zones/daily: caches in the engine database (if there is one), goes online unless --offline
+    or config basemap.enabled is false; one log line to stderr (stdout carries the JSON)."""
+    from hailhunter import basemap
+    from hailhunter.http import Fetcher
+    b = cfg.get("basemap") or {}
+    off = offline or not b.get("enabled", True)
+    session = None if off else Fetcher(cfg["paths"]["cache"]).s
+    return basemap.Maker(cfg, basemap.open_cache(cfg["paths"]["db"]), session, off,
+                         log=lambda m: print(m, file=sys.stderr))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="hh", description="HailHunter storm lead engine")
     ap.add_argument("--config", help="path to config.json")
@@ -411,6 +424,7 @@ def main(argv=None):
     p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
     p.add_argument("--out", help="also write the zones doc to this file")
     p.add_argument("--walks-out", help="also write {walks/<zone id>: walk doc} to this file")
+    p.add_argument("--no-basemap", action="store_true", help="skip the walk map (basemap + route fields)")
     p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
@@ -428,6 +442,7 @@ def main(argv=None):
     p.add_argument("--doors", type=int, help="doors in today's walk (default: config today_walk.goal_doors, 25)")
     p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
     p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
+    p.add_argument("--no-basemap", action="store_true", help="skip the walk maps (basemap + route fields)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -501,10 +516,13 @@ def main(argv=None):
         near = zones.resolve_near(a.near, cfg, conn)
         if near is None:
             print(f"daily: can't find the town {a.near!r} (give 'lat,lon'); zones use home base", file=sys.stderr)
+        maker = None if a.no_basemap else _basemap_maker(cfg, a.offline)
         man = daily.run(cfg, a.out_dir, day, hud_doc, raw["results"], raw["dnk"], raw["leads"], a.doors, near, conn,
-                        benchmarks.load(a.benchmarks, cfg))
+                        benchmarks.load(a.benchmarks, cfg), maker=maker)
         if conn is not None:
             conn.close()
+        if maker is not None:
+            maker.conn.close()
         for e in man["errors"]:
             print(f"daily: {e['part']} failed: {e['error']}", file=sys.stderr)
         print(json.dumps(man, indent=1, ensure_ascii=False))
@@ -558,6 +576,14 @@ def main(argv=None):
         doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn)
         if a.walks_out:
             w = zones.walks(hud_doc, doc, day, a.doors, results, cfg, dnk=dnk, taps=todaywalk.today_taps(raw, day))
+            if not a.no_basemap:                   # optional network step, cached, own time guard
+                maker = _basemap_maker(cfg, a.offline)
+                for wd in w.values():
+                    maker.add(wd)
+                maker.conn.close()
+                st = maker.stats
+                print(f"basemap: {st['walks']} walks, {st['fetched']} downloaded, {st['cached']} cached, "
+                      f"{st['missing']} without a map", file=sys.stderr)
             with open(a.walks_out, "w", encoding="utf-8") as f:
                 json.dump(w, f, indent=1, ensure_ascii=False)
                 f.write("\n")

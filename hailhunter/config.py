@@ -179,6 +179,12 @@ DEFAULTS = {
     },
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
     "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8},
+    # Vector basemap for each walk's map (`basemap.py`, walks/<zone id> + today/walk `basemap` + `route`): streets,
+    # lots and street labels from Nebraska state GIS, cached in the database. An optional network step with its own
+    # time guard (`budget_s` for all walks together); past it, or offline, only cached maps are used (else null).
+    "basemap": {"enabled": True, "margin_m": 60, "min_span_m": 300, "simplify_m": 1.5, "decimals": 5,
+                "max_kb": 60, "max_age_days": 120, "budget_s": 90, "timeout_s": 20, "max_pages": 4,
+                "label_min_m": 60},
     # Wind-zone score (T116, research round 23, `wind.zone_score`): 100 x gust band x scoring.recency_curve x
     # scoring.distance_curve. Separate from hail (never folded into house/door scores). Bands = [min mph, factor]:
     # under 58 mph (NWS severe) = 0. A damage report with no measured gust (NWS files those as severe wind, e.g.
