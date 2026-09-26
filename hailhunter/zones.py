@@ -6,6 +6,8 @@ month) and everyday (old-house) lists. Ranked by the engine's Hot Zones heat for
 the town, top `top`. Output = the HMP App's `zones/current` doc:
 {as_of, near {name, lat, lon}, radius_mi, zones: [{id, name, center {lat, lon}, polygon, polygon_kind, score, heat,
  hail_in, storm_day, homes, why {en, es}, walk_id, kind, dist_mi, list_id, turf}], none_reason?}
+- kind "wind" zones (T116/T117, `wind_zones`) come after the walk zones: one per wind event, own map layer, no walk
+  (walk_id/list_id/turf/homes/polygon null), plus max_mph, trees_down, wind_dir. none_reason is about walks only.
 - id = walk_id = "<list_id>~t<turf>" (the same walk key the command center and `weekly` use).
 - score = the walk's heat 0-100 (chance of a sale); heat = score / the top zone's score (0-1, for map color).
 - polygon = [[lon, lat], ...] closed ring: the neighborhood's Census block-group outline (simplified) when the
@@ -141,7 +143,8 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
         elif z["polygon"] is None:
             z["polygon_kind"] = None
         z["heat"] = round(z["score"] / best, 3) if best else 0.0
-    doc = {"as_of": today.isoformat(), "near": near, "radius_mi": radius, "zones": rows}
+    doc = {"as_of": today.isoformat(), "near": near, "radius_mi": radius,
+           "zones": rows + wind_zones(hud, today, near, radius, max_age, zc)}
     if not rows:
         doc["none_reason"] = {
             "en": f"No walks with doors left within {radius:g} miles of {near['name']}. New lists come with the next "
@@ -151,11 +154,61 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
     return doc
 
 
+def wind_zones(hud, today, near, radius, max_age, zc):
+    """T116/T117: hud.json `wind_events` as zones with kind "wind" (their own map layer; no walk, no houses).
+    Listed after the walk zones, best `wind_score` first, at most `zones.wind_top`, not counted in `top`.
+    score = wind_score 0-100 (gust band x recency x distance); heat = score / the top wind zone's score.
+    trees_down = fallen-tree / limb reports in that town that day (ask "did the storm drop a tree on your roof?")."""
+    out = []
+    for e in hud.get("wind_events") or []:
+        try:
+            age = (today - date.fromisoformat(e["day"])).days
+            lat, lon = float(e["lat"]), float(e["lon"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        score = float(e.get("wind_score") or 0)
+        if not 0 <= age <= max_age or score <= 0:
+            continue
+        dist = haversine_mi(near["lat"], near["lon"], lat, lon)
+        if dist > radius:
+            continue
+        mph, trees, place = e.get("max_mph"), int(e.get("trees_down") or 0), e.get("place") or "?"
+        bits_en, bits_es = [], []
+        if mph:
+            bits_en.append(f"{mph:g} mph wind gust")
+            bits_es.append(f"ráfaga de viento de {mph:g} mph")
+        elif e.get("damage_reports"):
+            bits_en.append("wind damage reported")
+            bits_es.append("daños por viento reportados")
+        if trees:
+            bits_en.append(f"{trees} fallen-tree report{'s' if trees > 1 else ''}")
+            bits_es.append(f"{trees} reporte{'s' if trees > 1 else ''} de árboles caídos")
+        if e.get("wind_dir"):
+            bits_en.append(f"wind from the {e['wind_dir']}: check that side of the roof first")
+            bits_es.append(f"viento del {e['wind_dir']}: revise primero ese lado del techo")
+        slug = "".join(ch if ch.isalnum() else "-" for ch in place.lower()).strip("-")
+        out.append({"id": f"wind~{e['day']}~{slug}", "name": f"{place}: wind", "kind": "wind",
+                    "center": {"lat": round(lat, 6), "lon": round(lon, 6)}, "polygon": None, "polygon_kind": None,
+                    "score": round(score, 1), "hail_in": None, "storm_day": e["day"], "homes": None,
+                    "max_mph": mph, "trees_down": trees, "wind_dir": e.get("wind_dir"),
+                    "why": {"en": f"{place}, {e['day']}: " + ", ".join(bits_en) + ".",
+                            "es": f"{place}, {e['day']}: " + ", ".join(bits_es) + "."},
+                    "walk_id": None, "dist_mi": round(dist, 1), "list_id": None, "turf": None})
+    out.sort(key=lambda z: (-z["score"], z["dist_mi"], z["id"]))
+    out = out[:int(zc.get("wind_top", 8))]
+    best = out[0]["score"] if out else None
+    for z in out:
+        z["heat"] = round(z["score"] / best, 3) if best else 0.0
+    return out
+
+
 def walks(hud, zdoc, today, doors=None, results=None, cfg=None, now=None, dnk=None, taps=None):
     """{"walks/<zone id>": today/walk-shaped doc} for every zone in a zones doc."""
     doors = doors or _zcfg(cfg)["doors"]
     out = {}
     for z in zdoc.get("zones") or []:
+        if z.get("kind") == "wind":                  # wind zones are a map layer, not a walk
+            continue
         doc = tw.pick(hud, today, doors, results, cfg, now, dnk, taps, only=(z["list_id"], z["turf"]))
         if doc:
             doc["zone_id"] = z["id"]

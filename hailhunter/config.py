@@ -166,7 +166,12 @@ DEFAULTS = {
         "sold_after_storm": 0.6     # storm walks: the house was sold after the storm day
     },
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
-    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40},
+    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8},
+    # Wind-zone score (T116, research round 23, `wind.zone_score`): 100 x gust band x scoring.recency_curve x
+    # scoring.distance_curve. Separate from hail (never folded into house/door scores). Bands = [min mph, factor]:
+    # under 58 mph (NWS severe) = 0. A damage report with no measured gust (NWS files those as severe wind, e.g.
+    # "trees down") gets `damage_only`.
+    "wind_score": {"bands": [[58, 0.35], [65, 0.65], [75, 0.85], [90, 1.0]], "damage_only": 0.35},
     # Follow-ups (`hh.py followups`, research round 9): touches after the first Interested, one line per lead
     "followups": {
         "touch_days": [2, 5, 10],   # days after the first Interested (48 h / 5 days / 10 days)

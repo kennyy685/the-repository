@@ -76,16 +76,19 @@ def _wind_events(conn, cfg, since, limit=40):
     like hail gets - good enough for an informational feed, not exact town boundaries.
     Kept out of storms[]/door scoring on purpose - see the same note, additive-only contract."""
     import re
+    from collections import Counter
     from datetime import date
 
+    from . import wind
+
     rows = conn.execute(
-        """SELECT conv_day, city, state, lat, lon, dist_mi, speed_mph, report_kind, remark
+        """SELECT conv_day, city, state, lat, lon, dist_mi, speed_mph, report_kind, remark, extra
            FROM wind_obs WHERE conv_day >= ? AND (speed_mph >= 58 OR report_kind = 'damage')
            ORDER BY conv_day DESC""", (since,)).fetchall()
     groups = {}
     for r in rows:
         key = (r["conv_day"], (r["city"] or "?").strip(), r["state"])
-        g = groups.setdefault(key, {"gust": [], "damage": [], "lat": [], "lon": [], "dist": []})
+        g = groups.setdefault(key, {"gust": [], "damage": [], "lat": [], "lon": [], "dist": [], "trees": [], "dirs": []})
         if r["speed_mph"]:
             g["gust"].append(r["speed_mph"])
         if r["report_kind"] == "damage":
@@ -93,6 +96,15 @@ def _wind_events(conn, cfg, since, limit=40):
         g["lat"].append(r["lat"])
         g["lon"].append(r["lon"])
         g["dist"].append(r["dist_mi"])
+        if wind.is_trees(r["remark"]):                   # T117: fallen trees / limbs (filed as wind damage)
+            g["trees"].append(r["remark"] or "")
+        try:
+            d = (json.loads(r["extra"] or "{}") or {}).get("wind_dir")
+        except (TypeError, ValueError):
+            d = None
+        d = d or wind.wind_dir(r["remark"])            # T118: only when the report's words say it
+        if d:
+            g["dirs"].append(d)
     roof_re = re.compile(r"roof|shingle|siding|\bshed\b|\bbarn\b|tree.{0,15}(house|roof|home)", re.I)
 
     def gust_factor(mph):
@@ -119,12 +131,16 @@ def _wind_events(conn, cfg, since, limit=40):
         if roof:
             score = min(100, score * 1.3) if score else 35.0  # damage-only report, no measured gust
         score *= interp(sc["recency_curve"], days_ago) * interp(sc["distance_curve"], min_dist or 0) * 0.6
+        wscore, wparts = wind.zone_score(max_mph, len(g["damage"]), days_ago, min_dist, cfg)   # T116
         out.append({
             "day": day, "place": city, "state": state,
             "lat": round(sum(g["lat"]) / len(g["lat"]), 4), "lon": round(sum(g["lon"]) / len(g["lon"]), 4),
             "dist_mi": round(min_dist, 1) if min_dist is not None else None,
             "max_mph": max_mph, "gust_reports": len(g["gust"]), "damage_reports": len(g["damage"]),
             "roof_siding_damage": roof, "sample": sample[:120], "score": round(score, 1),
+            "wind_score": wscore, "wind_parts": wparts, "trees_down": len(g["trees"]),
+            "tree_sample": next((t for t in g["trees"] if t), "")[:120] or None,
+            "wind_dir": Counter(g["dirs"]).most_common(1)[0][0] if g["dirs"] else None,
         })
     out.sort(key=lambda e: -e["score"])
     return out[:limit]
