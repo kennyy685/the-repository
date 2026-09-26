@@ -45,6 +45,8 @@
   ];
   const DED_RX = /(cover|waive|pay(ing)? (for|off)?|eat|absorb|rebate|discount|skip|free|cubr|perdon|pag(ar|amos)|descont|regal)[^.]{0,40}(deductible|deducible)|(deductible|deducible)[^.]{0,30}(covered|waived|free|gratis|cubierto|perdonado|no pagas|we pay|pagamos)/i;
   const DED_WORD = /\b(deductible|deducible)s?\b/i;
+  const CLAIM_NO_RX = /^[A-Za-z0-9][A-Za-z0-9-]{2,24}$/;   // a claim number as stored (AI answer and the Edit form)
+  const isClaimNo = v => CLAIM_NO_RX.test(str(v).trim());
 
   // ---------- small helpers ----------
   const str = v => (v === null || v === undefined ? "" : String(v));
@@ -322,6 +324,15 @@
     return { address: target.address, city: target.city || (s && s.city) || (l && l.city) || "", pid: s ? str(s.pid) : null, lead_id: l ? str(l.id) : null, claim_id: c ? str(c.id) : null };
   }
 
+  // ---------- clauses: a date belongs to the adjuster only when said in the adjuster's own clause ----------
+  const ADJ_RX = /\b(adjuster|ajustador[a]?)\b/;
+  const ADJ_TODO = /\b(needs? to (?:schedule|call|set(?: up)?|get)|have to (?:schedule|call)|gotta (?:schedule|call)|(?:schedule|call|book|set up) (?:the |an |his |her )?adjuster|waiting (?:on|for) (?:the |an )?adjuster|adjuster (?:later|tbd|pending|not set)|hay que (?:agendar|llamar|poner)|falta (?:agendar|llamar)|tengo que (?:agendar|llamar)|(?:agendar|llamar) (?:al|el|con el|a la|con la) ajustador[a]?|esperando (?:al|a la) ajustador[a]?|ajustador[a]? (?:luego|despues|pendiente))\b/;
+  function splitClauses(text) {
+    return str(text).split(/[,;!?\n]+|(?<![ap]\.m|\b(?:mrs?|ms|sra?|st|ave|dr|no))\.(?=\s|$)|\s+(?:and|then|y|luego|but|pero)\s+/i).map(x => x.trim()).filter(Boolean);
+  }
+  const isAdjClause = c => ADJ_RX.test(fold(c));
+  const restText = text => splitClauses(text).filter(c => !isAdjClause(c)).join(", ");
+
   // ---------- claim bits ----------
   function parseClaim(text, now) {
     const t = fold(text), out = {};
@@ -339,8 +350,11 @@
       }
       const ph = /(?:\+?1[\s.-]?)?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})\b/.exec(raw);
       if (ph) out.adjuster = Object.assign(out.adjuster || {}, { phone: `${ph[1]}-${ph[2]}-${ph[3]}` });
-      const d = parseDate(text, now);
-      if (d && /\b(adjuster|ajustador[a]?)\b[^.]{0,60}|[^.]{0,60}\b(adjuster|ajustador[a]?)\b/.test(t)) { out.adjuster_date = d.day; out.stage = "adjuster_set"; }
+      for (const cl of splitClauses(text).filter(isAdjClause)) {
+        const d = parseDate(cl, now), tm = parseTime(cl);
+        if (ADJ_TODO.test(fold(cl))) { out.adjuster_todo = { due: d ? d.day : null }; continue; }
+        if (d && !out.adjuster_date) { out.adjuster_date = d.day; out.stage = "adjuster_set"; if (tm) out.adjuster_time = tm.time; }
+      }
     }
     if (/\b(claim (?:is )?filed|filed (?:the |a |his |her |their )?claim|opened (?:a |the )?claim|(?:meti(?:mos)?|abri(?:mos)?|puso|pusimos|presento|presentamos) (?:el |un )?reclamo|reclamo (?:metido|abierto|puesto|presentado))\b/.test(t)) out.stage = out.stage || "claim_filed";
     if (/\b(scope (?:came )?in|got the scope|llego el alcance|ya (?:llego|tenemos) el alcance)\b/.test(t)) out.stage = "scope_in";
@@ -350,11 +364,45 @@
   }
 
   // ---------- notes: what is left, minus names and deductible talk ----------
-  const NAME_RX = /\b(talked to|spoke (?:with|to)|met|owner(?:'s name)? (?:is|named)|homeowner(?: is| named)?|her name is|his name is|name is|named|se llama|hable con|platique con|la senora|el senor|mrs?\.?|ms\.?|don|dona)\s+[A-ZÁÉÍÓÚÑ][\wáéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][\wáéíóúñ]+)?/gi;
+  // Lead-in words (any case) + up to 4 filler words (any case) + a Capitalized word (case-SENSITIVE) = a homeowner name.
+  // Every lead-in in the text is checked; a capitalized word right after a title (Mrs., Sra., doña) counts too.
+  const NAME_LEAD = /\b(talked (?:to|with)|spoke (?:to|with)|speaking (?:to|with)|met(?: with)?|owner|homeowner|home owner|her name(?: is|'s)?|his name(?: is|'s)?|name(?: is|'s)|named|called|se llama|hable con|platique con|converse con|dueno|duena|propietari[oa]|senora|senor|senorita|mrs|mr|ms|miss|sra|sr|srta|dona|don)\b\.?/gi;
+  const NAME_FILL = new Set(["the", "a", "an", "owner", "owners", "homeowner", "lady", "guy", "man", "woman", "wife", "husband", "is", "was", "named", "name", "called", "'s", "s", "la", "el", "los", "las", "una", "un",
+    "dueno", "duena", "senora", "senor", "senorita", "sra", "sr", "srta", "mrs", "mr", "ms", "miss", "dona", "don", "es", "se", "llama", "que", "de", "casa", "who", "with", "to", "con", "esposa", "esposo", "old", "young", "nice"]);
+  const NOT_NAME = new Set(["i", "hmp", "state", "farm", "allstate", "american", "family", "farmers", "progressive", "usaa", "liberty", "travelers", "nationwide", "shelter", "allied", "chubb", "erie", "hartford",
+    "adjuster", "ajustador", "fremont", "omaha", "lincoln", "nebraska", "hail", "roof", "english", "spanish", "espanol", "ingles", "google", "facebook", "hardie", "james"]);
+  const isCapName = w => /^[A-ZÁÉÍÓÚÑ][a-záéíóúñ'’-]+$/.test(w) && !NOT_NAME.has(fold(w)) && !(fold(w) in WD) && !(fold(w) in MON);
+  /** -> [{start, end}] spans of likely homeowner names in s (original case). */
+  function nameSpans(s) {
+    const src = str(s), f = fold(src), spans = [];
+    NAME_LEAD.lastIndex = 0;
+    let m;
+    while ((m = NAME_LEAD.exec(f))) {
+      let i = m.index + m[0].length, hops = 0;
+      while (hops < 6) {
+        const w = /^\s*([^\s,;:!?]+)/.exec(src.slice(i)); if (!w) break;
+        const word = w[1].replace(/[.]+$/, ""), start = i + w[0].indexOf(w[1]);
+        if (isCapName(word)) {
+          let end = start + word.length;
+          const w2 = /^\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ'’-]+)/.exec(src.slice(end));
+          if (w2 && isCapName(w2[1])) end += w2[0].length;
+          spans.push({ start, end });
+          break;
+        }
+        if (!NAME_FILL.has(fold(word).replace(/[’']s$/, "")) && !NAME_FILL.has(fold(word))) break;
+        i = start + w[1].length; hops++;
+      }
+    }
+    return spans;
+  }
   function scrubNote(s, flags) {
     let out = str(s);
     const raw = out;
-    out = out.replace(NAME_RX, (all, lead) => { const w = all.slice(lead.length).trim(); if (/^[a-z]/.test(w)) return all; flags.add("owner_name"); return lead; });
+    const spans = nameSpans(out);
+    if (spans.length) {
+      flags.add("owner_name");
+      for (const sp of spans.sort((a, b) => b.start - a.start)) out = out.slice(0, sp.start) + out.slice(sp.end);
+    }
     if (DED_WORD.test(out)) { flags.add("deductible"); out = out.split(/(?<=[.;,])\s*/).filter(p => !DED_WORD.test(p)).join(" "); }
     return out.replace(/\s{2,}/g, " ").replace(/^[\s,;.-]+|[\s,;-]+$/g, "").slice(0, 300) || (raw && !out ? "" : out);
   }
@@ -415,7 +463,12 @@
     const a = d.appt || (d.claim && d.claim.adjuster_date ? { kind: "adjuster", day: d.claim.adjuster_date, time: d.appt && d.appt.time } : null);
     if (a && a.day) {
       const w = KIND_W[a.kind] || KIND_W.inspection, tt = a.time ? ", " + fmtTime(a.time) : "";
-      return { en: `${w[0]} ${fmtDay(a.day, "en")}${tt}`, es: `${w[1]} ${fmtDay(a.day, "es")}${tt}`, due: a.day };
+      const then = d.adjuster_todo ? ["; then schedule the adjuster", "; luego agendar al ajustador"] : ["", ""];
+      return { en: `${w[0]} ${fmtDay(a.day, "en")}${tt}${then[0]}`, es: `${w[1]} ${fmtDay(a.day, "es")}${tt}${then[1]}`, due: a.day };
+    }
+    if (d.adjuster_todo) {
+      const due = d.adjuster_todo.due || ymd(addDays(toDate(todayOf(ctx)), 1));
+      return { en: "Schedule the adjuster meeting", es: "Agendar la cita con el ajustador", due };
     }
     if (d.result === "interested") return { en: "Call back", es: "Llamar de nuevo", due: ymd(addDays(toDate(todayOf(ctx)), 1)) };
     return null;
@@ -431,10 +484,12 @@
     scrubNote(text, flags);   // only to raise the "owner_name" flag when a homeowner name was said
     const addr = extractAddress(text);
     if (addr) d.heard = addr.address;
-    d.result = parseResult(text);
-    const date = parseDate(text, now), time = parseTime(text);
+    // the adjuster's own clauses are read by parseClaim; everything else (door result, inspection/estimate day) from the rest
+    const rest = restText(text);
+    d.result = parseResult(rest);
+    const date = parseDate(rest, now), time = parseTime(rest);
     const claim = parseClaim(text, now);
-    const kind = apptKind(text);
+    const kind = apptKind(rest);
     const used = [addr && addr.address, addr && addr.all && addr.all[0] && (addr.all[0].no + " " + addr.all[0].street), date && date.phrase, time && time.phrase];
     const tf = fold(text);
     for (const rx of [R_NO, R_NH, R_BOOK, R_INT]) { const m = rx.exec(tf); if (m) used.push(m[0]); }
@@ -443,13 +498,11 @@
     if (claim.adjuster && claim.adjuster.name) used.push(claim.adjuster.name);
     if (claim.adjuster && claim.adjuster.phone) { const pm = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/.exec(text); if (pm) used.push(pm[0]); }
     if (/\b(adjuster|ajustador)/.test(tf)) used.push("adjuster", "ajustador");
-    if (kind === "adjuster") {
-      if (claim.adjuster_date || date) d.appt = { kind: "adjuster", day: claim.adjuster_date || date.day, time: time ? time.time : null };
-      if (d.result === "booked" && !R_BOOK.test(tf.replace(/\b(adjuster|ajustador[a]?)\b/g, ""))) d.result = null;
-    } else if (d.result === "booked" || (kind && date)) {
+    if (d.result === "booked" || (kind && date)) {
       d.appt = { kind: kind === "estimate" ? "estimate" : "inspection", day: date ? date.day : null, time: time ? time.time : null };
       if (!d.result) d.result = "booked";
-    }
+    } else if (claim.adjuster_date) d.appt = { kind: "adjuster", day: claim.adjuster_date, time: claim.adjuster_time || null };
+    if (claim.adjuster_todo) d.adjuster_todo = claim.adjuster_todo;
     if (d.result === "booked" && d.appt && !d.appt.day) d.appt.day = null;
     if (claim.insurer || claim.claim_no || claim.stage || claim.adjuster) {
       d.claim = {};
@@ -531,7 +584,7 @@
       const cl = {};
       if (CLAIM_STAGES.includes(c.stage)) cl.stage = c.stage;
       if (str(c.insurer).trim()) cl.insurer = str(c.insurer).trim().slice(0, 40);
-      if (/^[A-Za-z0-9][A-Za-z0-9-]{2,24}$/.test(str(c.claim_no).trim())) cl.claim_no = str(c.claim_no).trim().toUpperCase();
+      if (isClaimNo(c.claim_no)) cl.claim_no = str(c.claim_no).trim().toUpperCase();
       const adj = c.adjuster && typeof c.adjuster === "object" ? c.adjuster : null;
       if (adj) {
         const x = {}; if (str(adj.name).trim()) x.name = str(adj.name).trim().slice(0, 60);
@@ -545,9 +598,10 @@
     if (d.appt && d.appt.kind === "adjuster" && d.appt.day) { d.claim = d.claim || {}; if (!d.claim.adjuster_date) d.claim.adjuster_date = d.appt.day; if (!d.claim.stage) d.claim.stage = "adjuster_set"; }
     d.note = scrubNote(str(o.note).slice(0, 300), flags);
     // cross-check the day with the rule parser: a mismatch gets a flag (the card shows it)
-    const rd = parseDate(text, ctx.now || new Date());
-    const aiDay = (d.appt && d.appt.day) || (d.claim && d.claim.adjuster_date);
-    if (rd && aiDay && rd.day !== aiDay) addFlag(d, "date_check");
+    const fb = fallbackParse(text, Object.assign({}, ctx, { leads: [], stops: [], claims: [] }));
+    const ruleDays = [fb.appt && fb.appt.day, fb.claim && fb.claim.adjuster_date, fb.adjuster_todo && fb.adjuster_todo.due].filter(Boolean);
+    const aiDays = [d.appt && d.appt.day, d.claim && d.claim.adjuster_date].filter(Boolean);
+    if (ruleDays.length && aiDays.some(x => !ruleDays.includes(x))) addFlag(d, "date_check");
     if (!d.stage) d.stage = stageFor(d);
     for (const f of flags) addFlag(d, f);
     return finishDraft(d, ctx);
@@ -783,7 +837,7 @@
       const cl = {};
       if (CLAIM_STAGES.includes(v("vl-cstage"))) cl.stage = v("vl-cstage");
       if (v("vl-ins")) cl.insurer = v("vl-ins").slice(0, 40);
-      if (/^[A-Za-z0-9][A-Za-z0-9-]{2,24}$/.test(v("vl-cno"))) cl.claim_no = v("vl-cno").toUpperCase();
+      if (isClaimNo(v("vl-cno"))) cl.claim_no = v("vl-cno").toUpperCase();
       const an = v("vl-adjn"), ap = v("vl-adjp").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
       if (an || ap.length === 10) cl.adjuster = Object.assign({}, an ? { name: an.slice(0, 60) } : {}, ap.length === 10 ? { phone: `${ap.slice(0, 3)}-${ap.slice(3, 6)}-${ap.slice(6)}` } : {});
       if (d.appt && d.appt.kind === "adjuster" && d.appt.day) { cl.adjuster_date = d.appt.day; if (!cl.stage) cl.stage = "adjuster_set"; }

@@ -116,6 +116,60 @@ for (const [t, want] of RES) eq("result " + t, VL.parseResult(t), want);
   ok("owner name ES not in note", !/Rosa/.test(f.note), f.note);
 }
 
+// ---- homeowner names (QA T82 #1): any likely name is stripped from the note and flagged, EN + ES ----
+const NAMES = [
+  ["615 Linden interested. talked to the owner Maria about the roof damage", "Maria"],
+  ["615 Linden interested, owner is John, hail on the gutters", "John"],
+  ["615 Linden interested, Mrs. Lopez said hail hit the siding", "Lopez"],
+  ["615 Linden interesada, hablé con la dueña Maria, granizo en el techo", "Maria"],
+  ["615 Linden interesado, el dueño se llama José Pérez, golpes en la canaleta", "José"],
+  ["615 Linden, spoke with homeowner Karen Smith, dents on the vents", "Karen"],
+  ["615 Linden, her name is Linda, cracked shingles on the west side", "Linda"],
+  ["615 Linden interested, met the lady Rosa, hail on north slope", "Rosa"],
+  ["615 Linden interesada, la señora Guadalupe dice que tiene goteras", "Guadalupe"],
+  ["615 Linden, doña Carmen quiere precio, granizo en el techo", "Carmen"],
+  ["615 Linden, talked to the husband Mike, missing shingles", "Mike"],
+  ["615 Linden interested. Owner's name is Dave, siding cracked", "Dave"],
+  ["615 Linden interested, platiqué con el señor Ramírez, techo viejo", "Ramírez"],
+];
+for (const [t, name] of NAMES) {
+  const d = P(t);
+  ok("name flagged: " + t, d.flags.some(f => f.code === "owner_name"), d.flags.map(f => f.code));
+  ok("name not in note: " + t, !d.note.includes(name), d.note);
+  const w = VL.buildWrites(d, CTX);
+  ok("name not in writes: " + t, !JSON.stringify(w).includes(name), w);
+}
+{
+  const s = new Set(); const out = VL.scrubNote("talked to the owner Maria about the roof damage", s);
+  eq("scrub keeps the rest", [out, s.has("owner_name")], ["talked to the owner about the roof damage", true]);
+  const s2 = new Set(); VL.scrubNote("talked to State Farm, hail on the roof Tuesday", s2);
+  eq("insurer/weekday are not names", s2.has("owner_name"), false);
+  const s3 = new Set(); VL.scrubNote("hail on north slope, owner is home after 5", s3);
+  eq("lowercase words are not names", s3.has("owner_name"), false);
+}
+// ---- the adjuster only gets a date said in its own clause (QA T82 #2) ----
+{
+  const a = P("1418 Irving booked Tuesday, need to schedule adjuster later");
+  eq("unrelated date: appt stays the inspection", [a.result, a.appt && a.appt.kind, a.appt && a.appt.day], ["booked", "inspection", "2026-09-29"]);
+  eq("unrelated date: no adjuster date/stage", [a.claim && a.claim.adjuster_date, a.claim && a.claim.stage], [undefined, undefined]);
+  ok("unrelated date: adjuster becomes a next step", /schedule the adjuster/.test(a.next_step.en) && /ajustador/.test(a.next_step.es), a.next_step);
+  const aw = VL.buildWrites(a, CTX);
+  ok("unrelated date: no claim write", !aw.some(w => w.path.startsWith("claims/")), aw.map(w => w.path));
+  const b = P("3110 Clarkson, need to call the adjuster");
+  eq("todo only: next step", [b.next_step && b.next_step.en, b.next_step && b.next_step.due, b.appt], ["Schedule the adjuster meeting", "2026-09-27", null]);
+  const c = P("615 Linden interesado el martes, hay que agendar al ajustador");
+  eq("ES todo: no adjuster date", c.claim && c.claim.adjuster_date, undefined);
+  ok("ES todo: next step", /ajustador/.test(c.next_step.es), c.next_step);
+  const e = P("845 N Garden booked Tuesday at 3 and adjuster Friday at 10");
+  eq("both: inspection + adjuster", [e.appt.kind, e.appt.day, e.appt.time, e.claim.adjuster_date, e.claim.stage], ["inspection", "2026-09-29", "15:00", "2026-10-02", "adjuster_set"]);
+  const f = P("1418 Irving, ajustador el martes a las 11, inspección hecha");
+  eq("ES adjuster clause", [f.claim && f.claim.adjuster_date, f.appt && f.appt.kind, f.appt && f.appt.time], ["2026-09-29", "adjuster", "11:00"]);
+  const g = P("1418 Irving not home Tuesday, adjuster");
+  eq("adjuster word alone takes no date", g.claim && g.claim.adjuster_date, undefined);
+  const h = P("3110 Clarkson adjuster coming 10/5, State Farm");
+  eq("adjuster with a date in its clause", [h.claim.adjuster_date, h.claim.insurer, h.stage], ["2026-10-05", "State Farm", "adjuster_meeting"]);
+}
+
 // ---- writes ----
 {
   const d = P("123 Oak St, inspection Tuesday, hail on north slope");
