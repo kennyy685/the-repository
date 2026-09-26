@@ -11,8 +11,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       map source is outside this repo)
 - [ ] One-time sweep of the open board (T51-T60, T35, O0-O7) for other "done in code but not checked off"
       items like round 26 found for T116-119 - do this before the next fresh research topic
-- [ ] Pricing psychology for cash jobs: good/better/best, anchoring, same-day decisions and the 3-day cancel rule
-- [ ] Hiring and paying a second salesman later: commission plans that are legal in Nebraska, onboarding with the app
+- [ ] Get a plain answer from the boss/FilthE on how HMP intends to pay and classify a second salesman (W-2 vs.
+      true 1099) before any hire happens (round 29: classification risk is real, but the decision needs the boss)
+- [ ] Verify Nebraska's Employee Classification Act text and penalty amounts directly against `dol.nebraska.gov`
+      or `nebraskalegislature.gov` once egress allows it (round 29: blocked for both WebFetch and curl; the
+      $500/$5,000 fine figures are from a secondary source)
 - [ ] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support)
 - [ ] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct
 - [ ] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners
@@ -56,3 +59,9 @@ topics) for Code/Cowork to do directly.
 Round 27 (second track, sales-craft): top-1% door-to-door habits (stance/tone/one-small-ask/daily routine,
 `data/practice_drills.json` - 10 new Practice Door drills) + contingency agreement vs. plain inspection permission
 vs. final contract (legally different, easy to blur; which one HMP uses today is unconfirmed - see backlog above).
+Round 29 (backlog track): pricing psychology for cash jobs (Good/Better/Best tiers + anchoring raise close rate
+and ticket size, already planned in O7 - add a visible top tier; same-day close is legal since HMP's 3-day cancel
+notice is already built in; never rush or bury that cancel notice) + hiring a second salesman (Nebraska presumes
+construction workers are employees, not 1099 contractors, regardless of what the paperwork says - real
+misclassification risk if HMP hires commission-only; draw-against-commission for the first 60-90 days is the
+industry-standard fix). Two new backlog items above need the boss's decision and a re-verify once egress allows it.
