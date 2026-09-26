@@ -105,6 +105,10 @@ DEFAULTS = {
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
     },
+    # One overall time guard for `refresh` (Storm Watch's cloud run has a time limit): after budget_s seconds the
+    # optional network steps (wind, parcel/owner downloads, everyday lists, Census extras, commercial) skip or use
+    # stored data only; hail reports, radar maps and hud.json always run. 0 = no limit.
+    "refresh": {"budget_s": 600},
     # Everyday leads (T50): old-house neighborhoods for regular siding/roof replacement, no storm needed.
     # heat 0-100 per walk = 100 x old x owners x value x distance x settled x newbuild
     "everyday": {

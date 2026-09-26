@@ -98,28 +98,38 @@ def pick_door_lists(conn, cfg, window_days=200, max_miles=120, n_auto=4):
     return out
 
 
-def refresh(conn, fetcher, cfg, log=print):
+def refresh(conn, fetcher, cfg, log=print, clock=None):
     """Everything, end to end: what the daily Storm Watch scheduled task runs. Door lists/commercial
-    export CSV even without openpyxl (see doors.make_list / commercial.write_csv)."""
+    export CSV even without openpyxl (see doors.make_list / commercial.write_csv).
+    One overall time guard (runbudget.py, config `refresh.budget_s`, default 10 min): once it is used, the optional
+    network steps skip with a log line or use stored data only; hud.json is always written. `clock` = test hook."""
+    import time
     from hailhunter import commercial, doors, hud, nbhd
+    from hailhunter.runbudget import RunBudget
     t0 = datetime.now(timezone.utc)
+    rb = RunBudget((cfg.get("refresh") or {}).get("budget_s", 600), clock or time.monotonic, log)
     if not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
         log("First run: loading towns, neighborhoods and Census housing...")
         from hailhunter.sources import places
-        places.load(conn, fetcher, cfg)
-        nbhd.load_acs(conn, fetcher, cfg)
-        nbhd.load_bgs(conn, fetcher, cfg)
-        nbhd.label_bgs(conn, cfg)
+        with rb.step("first_run_load"):
+            places.load(conn, fetcher, cfg)
+            nbhd.load_acs(conn, fetcher, cfg)
+            nbhd.load_bgs(conn, fetcher, cfg)
+            nbhd.label_bgs(conn, cfg)
     before = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
-    touched, _ = ingest.run(conn, fetcher, cfg, log=log)
-    analyze.analyze(conn, cfg, days=sorted(touched))
-    try:                                   # REQ-4: wind rides along, so Storm Watch needs no separate step
-        from hailhunter import wind
-        wind.ingest(conn, fetcher, cfg, log=log)
-    except Exception as e:                 # wind is informational; never let it stop the hail run
-        log(f"  wind skipped: {type(e).__name__}: {e}")
+    with rb.step("hail_reports"):
+        touched, _ = ingest.run(conn, fetcher, cfg, log=log)
+        analyze.analyze(conn, cfg, days=sorted(touched))
+    if not rb.skip("wind reports"):
+        try:                               # REQ-4: wind rides along, so Storm Watch needs no separate step
+            from hailhunter import wind
+            with rb.step("wind"):
+                wind.ingest(conn, fetcher, cfg, budget_s=rb.cap(None), log=log)
+        except Exception as e:             # wind is informational; never let it stop the hail run
+            log(f"  wind skipped: {type(e).__name__}: {e}")
     from hailhunter import mrms
-    done, _, errs = mrms.run(conn, fetcher, cfg, None, None, log)
+    with rb.step("radar_maps"):
+        done, _, errs = mrms.run(conn, fetcher, cfg, None, None, log)
     have = {r[0] for r in conn.execute("SELECT conv_day FROM swaths")}
     # Re-measure days with a new radar map AND days whose ground reports changed: late spotter reports
     # and NCEI's official records (months later) correct the radar map around them (fusion).
@@ -133,61 +143,77 @@ def refresh(conn, fetcher, cfg, log=print):
             if abs(res["factor"] - (cal["factor"] if cal else 1.0)) >= 0.02:
                 todo = have                # factor moved: every stored map needs re-measuring
     index = None
-    for d in sorted(todo):
-        if index is None:
-            _, meta = mrms.load_grid(cfg, d)
-            if meta is None:
-                continue
-            index = nbhd.cell_index(conn, cfg, meta)
-        nbhd.measure_day(conn, cfg, d, index)
-    nbhd.rescore(conn, cfg)
+    with rb.step("measure"):
+        for d in sorted(todo):
+            if index is None:
+                _, meta = mrms.load_grid(cfg, d)
+                if meta is None:
+                    continue
+                index = nbhd.cell_index(conn, cfg, meta)
+            nbhd.measure_day(conn, cfg, d, index)
+        nbhd.rescore(conn, cfg)
     lists = []
     session = None if getattr(fetcher, "offline", False) else fetcher.s   # --offline: parcels already stored only
-    for day, town in pick_door_lists(conn, cfg):
-        try:
-            res = doors.make_list(conn, cfg, day, town, session, log=lambda *a: None)
-            if res:
-                lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
-        except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
-            log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
+
+    def live(name):                        # the session while the time guard allows it, else stored data only
+        return None if session is None or rb.skip(name, "downloads skipped (stored data only)") else session
+
+    with rb.step("door_lists"):
+        for day, town in pick_door_lists(conn, cfg):
+            try:
+                res = doors.make_list(conn, cfg, day, town, live(f"door list {town} {day}"), log=lambda *a: None,
+                                      budget_s=rb.cap(None))
+                if res:
+                    lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
+            except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
+                log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
     for s in lists:
         log("  door list " + s)
     everyday_lists = []
+    ev = cfg.get("everyday", {})
     try:                                   # T50: old-house lists, no storm needed. Optional: never stops the run
         from hailhunter import everyday
-        nbhd.ensure_year_built(conn, fetcher, cfg, log=log)
-        made, _ = everyday.build_top(conn, cfg, None if getattr(fetcher, "offline", False) else fetcher.s,
-                                     n=cfg.get("everyday", {}).get("refresh_lists", 3), log=lambda *a: None)
+        with rb.step("everyday_lists"):
+            if not rb.skip("Census year-built table"):
+                nbhd.ensure_year_built(conn, fetcher, cfg, log=log)
+            made, _ = everyday.build_top(conn, cfg, live("everyday lists"), n=ev.get("refresh_lists", 3),
+                                         log=lambda *a: None, budget_s=rb.cap(ev.get("parcel_budget_s", 120)))
         everyday_lists = [f"{r['area']}: {len(r['houses']):,} homes / {len(r['turfs'])} turfs, heat {r['heat']}"
                           for r in made]
     except Exception as e:
         log(f"  everyday lists skipped: {type(e).__name__}: {e}")
     try:                                   # T97: the `everyday_towns` (Schuyler, Columbus, Lexington) every run too
         from hailhunter import everyday
-        made = everyday.build_towns(conn, cfg, None if getattr(fetcher, "offline", False) else fetcher.s,
-                                    log=lambda *a: None)
+        with rb.step("everyday_towns"):
+            made = everyday.build_towns(conn, cfg, live("everyday town lists"), log=lambda *a: None,
+                                        budget_s=rb.cap(ev.get("town_parcel_budget_s", 90)))
         everyday_lists += [f"{r['area']} (town pick {r['town']}): {len(r['houses']):,} homes / "
                            f"{len(r['turfs'])} turfs, heat {r['heat']}" for r in made]
     except Exception as e:
         log(f"  everyday town lists skipped: {type(e).__name__}: {e}")
     for s in everyday_lists:
         log("  everyday list " + s)
-    nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
+    if not rb.skip("Census language table"):
+        with rb.step("language"):
+            nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
     try:                                   # same: a parcel/owner download error must not cost today's hud.json
-        out, done_n, total_n = commercial.build(conn, cfg, session, log=log)
-        commercial.write_csv(out, cfg)
+        with rb.step("commercial"):
+            out, done_n, total_n = commercial.build(conn, cfg, live("apartment/commercial targets"), log=log,
+                                                    budget_s=rb.cap(150) or 30)   # over: 30 s on stored data
+            commercial.write_csv(out, cfg)
     except Exception as e:
         out = []
         log(f"  apartment/commercial targets skipped: {type(e).__name__}: {e}"[:300])
     log(f"Apartment/commercial targets: {len(out):,}")
-    path, d = hud.write(conn, cfg)
+    with rb.step("hud"):
+        path, d = hud.write(conn, cfg)
     after = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
     new_storm_days = sorted(after - before)
     fresh = [s for s in d["storms"] if s["day"] in new_storm_days and s["hail"] >= 1.0 and s["dist_mi"] <= 150]
     summary = {"finished_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                "minutes": round((datetime.now(timezone.utc) - t0).total_seconds() / 60, 1),
                "new_storm_days": new_storm_days, "new_hits_1in_150mi": fresh[:10], "door_lists": lists,
-               "targets": len(out), "hud": path, "everyday_lists": everyday_lists}
+               "targets": len(out), "hud": path, "everyday_lists": everyday_lists, "budget": rb.summary()}
     with open(os.path.join(cfg["paths"]["export"], "refresh_summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
     log(json.dumps({k: v for k, v in summary.items() if k != "new_hits_1in_150mi"}, indent=1))

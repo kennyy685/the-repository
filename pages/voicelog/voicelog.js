@@ -92,7 +92,7 @@
     }
     const monRx = "(" + Object.keys(MON).sort((a, b) => b.length - a.length).join("|") + ")";
     const futureOf = (mo, da) => { let d = mkDay(now, today.getFullYear(), mo, da); if (d && d < addDays(today, -30)) d = mkDay(now, today.getFullYear() + 1, mo, da); return d; };
-    if ((m = new RegExp("\\b" + monRx + "\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b").exec(t)) && !(m[1] === "mar" && /\bmar\s+\d/.test(t) && false)) {
+    if ((m = new RegExp("\\b" + monRx + "\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b").exec(t))) {
       const d = futureOf(MON[m[1]], +m[2]); if (d) return { day: ymd(d), phrase: m[0] };
     }
     if ((m = new RegExp("\\b(\\d{1,2})\\s+de\\s+" + monRx + "\\b").exec(t))) { const d = futureOf(MON[m[2]], +m[1]); if (d) return { day: ymd(d), phrase: m[0] }; }
@@ -113,8 +113,7 @@
     const wdRx = /\b(?:(next|this|el|este|proximo|el proximo)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday|domingo|lunes|martes|miercoles|jueves|viernes|sabado|tues|thurs|thur|mon|tue|wed|thu|fri|sat|sun)\b/g;
     while ((m = wdRx.exec(t))) {
       const w = m[2];
-      if (w === "mar" || w === "sun" && /\bsun\s*(damage|light)/.test(t)) continue;
-      if (w.length <= 4 && !/^(tues|thur|thurs)$/.test(w) && !m[1] && !/[\s,]$|^$/.test(t.slice(m.index + m[0].length, m.index + m[0].length + 1))) continue;
+      if ((w === "sat" || w === "sun") && !m[1]) continue;      // "sat on the porch", "sun damage"
       let delta = (WD[w] - today.getDay() + 7) % 7; if (delta === 0) delta = 7;
       return { day: ymd(addDays(today, delta)), phrase: m[0] };
     }
@@ -179,7 +178,9 @@
     "doors door puertas puerta knocked talked hail granizo wind viento tomorrow manana today hoy tonight at a las pm am and y the el la los las is es was esta estaba " +
     "left hanger volante call llamar dijo que le les no-one one monday tuesday wednesday thursday friday saturday sunday lunes martes miercoles jueves viernes sabado domingo " +
     "next proximo de del en on in for por para with con dollars dolares bucks feet ft squares sq minutes min mins hours hrs miles mi years yrs percent houses casas " +
-    "people personas times veces").split(" "));
+    "people personas times veces agendado agendada agende agendamos cita inspection inspeccion revision estimate estimado cotizacion presupuesto booked book appointment appt " +
+    "interesado interesada interesados interested nadie abrieron abrio contesto contestaron deje volante wants quiere quote price precio not-home noanswer said " +
+    "claim reclamo metimos adjuster ajustador ajustadora viene came comes").split(" "));
 
   const tokens = s => fold(s).replace(/[.,;:!?()"]/g, " ").replace(/#/g, " ").split(/\s+/).filter(Boolean);
 
@@ -235,7 +236,11 @@
     while ((m = es.exec(t))) cands.push({ no: m[2], street: m[1], index: m.index });
     const es2 = /\b([a-z]{3,})\s+numero\s+(\d{1,6})\b/g;
     while ((m = es2.exec(t))) if (!STOP.has(m[1])) cands.push({ no: m[2], street: m[1], index: m.index });
-    if (!cands.length) return null;
+    if (!cands.length) {   // a lone house number ("1418, not home"): the matcher can only offer choices, never pick
+      const lone = /(^|[^\d$#.,:\/-])(\d{3,5})(?=\s*(?:[,;.]|$))/.exec(t);
+      if (lone && !/(claim|reclamo|number|numero|#|knocked|doors?|puertas?)\s*$/.test(t.slice(0, lone.index + lone[1].length))) return { address: lone[2], no: lone[2], index: lone.index, all: [{ no: lone[2], street: "", index: lone.index }] };
+      return null;
+    }
     cands.sort((a, b) => a.index - b.index);
     const c = cands[0];
     const pretty = c.street.split(/\s+/).map(w => DIRS[w] && w.length <= 2 ? w.toUpperCase() : SUFFIX[w] ? cap(SUFFIX[w]) : /^\d/.test(w) ? w : cap(w)).join(" ");
@@ -423,6 +428,7 @@
     const d = emptyDraft(text, ctx, "rules");
     const flags = new Set();
     if (DED_RX.test(fold(text)) || DED_WORD.test(text)) flags.add("deductible");
+    scrubNote(text, flags);   // only to raise the "owner_name" flag when a homeowner name was said
     const addr = extractAddress(text);
     if (addr) d.heard = addr.address;
     d.result = parseResult(text);
