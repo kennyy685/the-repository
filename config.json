@@ -26,6 +26,7 @@
   "timezone": "America/Chicago",
   "backfill_days": 730,
   "pinned_lists": [
+    ["2026-09-12", "Beatrice"],
     ["2026-07-01", "Fremont"],
     ["2026-08-08", "Columbus"],
     ["2026-06-13", "Valley"],
