@@ -1,5 +1,5 @@
 {
- "source": "Commercial Scout + Contact Verifier agents, public business websites, 2026-09-24",
+ "source": "Commercial Scout + Contact Verifier agents, public business websites, 2026-09-24/25",
  "contacts": [
   {
    "match": [
@@ -671,6 +671,296 @@
    ],
    "verified": "scouted",
    "checked": "2026-09-24"
+  },
+  {
+   "match": [
+    "1119 Monroe"
+   ],
+   "name": "Homestead Village (senior apartments), Beatrice",
+   "manager": "Seldin Company (property management)",
+   "phone": "(402) 223-5074",
+   "phone_note": "Property office line on seldin.com. Seldin corporate office: (402) 333-7373.",
+   "website": "https://www.seldin.com/homesteadvillage",
+   "ask_for": "Community manager; ask who at Seldin handles maintenance and capital projects",
+   "note": "Blank city: I worked out Beatrice from the parcel's county (Gage) and coordinates, and listings confirm 1119 Monroe St, Beatrice. Senior/disabled income-based apartments built 1980, $2.7M, 1.33\" hail on Sep 12, the freshest storm. Seldin also manages Gretna Landing (see the Metonic entry).",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.seldin.com/homesteadvillage",
+    "https://www.affordablehousing411.com/housing/multifamily-housing-details-homestead-village-1119-monroe-st-beatrice-ne-68310/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "1880 West 12th Street"
+   ],
+   "name": "Super 8 by Wyndham Crete",
+   "manager": "Hotel general manager (owner not in county data)",
+   "phone": "(402) 826-3600",
+   "phone_note": "Front desk line from the VisitNebraska directory listing; not checked on the Wyndham site.",
+   "website": "https://www.super8.com",
+   "ask_for": "General manager or owner",
+   "note": "Blank city: I worked out Crete from the parcel's county (Saline) and coordinates, and listings confirm Super 8 at 1880 W 12th St. 39 rooms, 17,472 sq ft, built 1999 and renovated 2016, $1.3M. 2.13\" hail on Aug 17 is the biggest hail on this list. It was listed for sale on LoopNet (no longer advertised), so a photo report is useful to a seller or new owner.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://visitnebraska.com/crete/super-8-motel",
+    "https://www.loopnet.com/Listing/1880-W-12th-St-Crete-NE/4580636/",
+    "https://www.yelp.com/biz/super-8-by-wyndham-crete-crete"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "5353 N 27th St"
+   ],
+   "name": "Country Inn & Suites by Radisson, Lincoln North Hotel and Conference Center",
+   "manager": "Hotel general manager (owner: LOF Lincoln LLC, Grand Rapids, MI)",
+   "phone": "(402) 403-1601",
+   "phone_note": "Hotel line on the brand site (choicehotels.com). Villa Amore restaurant is in the same building.",
+   "website": "https://www.choicehotels.com/nebraska/lincoln/country-inn-suites-hotels/ne068",
+   "ask_for": "General manager or chief engineer/maintenance",
+   "note": "Full-service hotel with conference space for up to 200, at N 27th & I-80. $3.1M, 1.29\" hail on Aug 19. The owner is out of state (Michigan), so the GM is the way in to reach the owner.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.choicehotels.com/nebraska/lincoln/country-inn-suites-hotels/ne068",
+    "https://www.loopnet.com/Listing/5353-N-27th-St-Lincoln-NE/12196199/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "1930 Fletcher Ave",
+    "2000 Fletcher Ave"
+   ],
+   "name": "U-Haul Moving & Storage of North Lincoln",
+   "manager": "U-Haul location general manager (owner AREC 53 LLC, the tax address used by AMERCO Real Estate / U-Haul in Phoenix)",
+   "phone": "(402) 488-1930",
+   "phone_note": "Store line on uhaul.com. Roof decisions likely go through AMERCO Real Estate / U-Haul regional facilities.",
+   "website": "https://www.uhaul.com/Locations/Self-Storage-near-Lincoln-NE-68521/730073/",
+   "ask_for": "General manager; ask for the U-Haul area/facilities maintenance contact",
+   "note": "2 parcels with the same owner, $7.8M total: 1930 Fletcher is the store with indoor climate-controlled storage, and 2000 Fletcher is next door (likely more storage; confirm). 1.23\" hail on Aug 19. AREC = AMERCO Real Estate Co. is my inference from the owner name and Phoenix tax address.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.uhaul.com/Locations/Self-Storage-near-Lincoln-NE-68521/730073/",
+    "https://www.yelp.com/biz/u-haul-lincoln-22"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "2050 Fletcher Ave"
+   ],
+   "name": "WoodSpring Suites Lincoln Northeast I-80",
+   "manager": "Hotel general manager (owner: Lennox Lincoln LLC, Dallas, TX)",
+   "phone": "(402) 438-7000",
+   "phone_note": "Hotel line on woodspring.com.",
+   "website": "https://www.woodspring.com/extended-stay-hotels/locations/nebraska/lincoln/woodspring-suites-lincoln",
+   "ask_for": "General manager",
+   "note": "Extended-stay hotel (formerly Value Place), $3.3M, 1.23\" hail on Aug 19. The owner is out of state. It's next to the U-Haul parcels, so the rep can cover both in one visit.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.woodspring.com/extended-stay-hotels/locations/nebraska/lincoln/woodspring-suites-lincoln",
+    "https://www.trulia.com/building/woodspring-suites-lincoln-2050-fletcher-ave-lincoln-ne-68521-1002390127"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "2224 Fletcher Ave Unit A"
+   ],
+   "name": "North Pointe Community Church",
+   "manager": "Church office (owner of record)",
+   "phone": "402-467-1515",
+   "phone_note": "Office line on northpointelincoln.org.",
+   "website": "https://www.northpointelincoln.org/",
+   "ask_for": "Church administrator or facilities/building lead (staff page: northpointelincoln.org/staff)",
+   "note": "The church owns its unit in the North Creek Business Park condo, $2.6M, 1.23\" hail on Aug 19. Ask whether the condo association handles the roof. RR&T Enterprises owns Unit D next door (2240 Fletcher; not researched).",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.northpointelincoln.org/",
+    "https://www.yelp.com/biz/north-pointe-community-church-lincoln"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "5000 N 26th St Unit 1"
+   ],
+   "name": "NorthPointe Medical Plaza (Bryan Urgent Care Northwest)",
+   "manager": "Bryan Health facilities / plant operations (owner: Bryan Medical Center)",
+   "phone": "402-481-5791",
+   "phone_note": "Bryan Health main operator on bryanhealth.com (also 1-877-577-9277). Clinic front desk: 402-481-6343. Ask the operator for facilities.",
+   "website": "https://www.bryanhealth.com/locations/physician-offices/profile/northpointeurgentcare/",
+   "ask_for": "Facilities management / plant operations director",
+   "note": "Bryan owns Unit 1 of the Autumn Ridge condo (medical plaza north of 27th & Superior), $5.2M, 1.29\" hail on Aug 19. A hospital system runs many buildings, so aim for the facilities department, not the clinic. Matterhorn LLC owns 5100 N 26th St next door (not researched).",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.bryanhealth.com/locations/physician-offices/profile/northpointeurgentcare/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "3010 23 St"
+   ],
+   "name": "Columbus Hy-Vee",
+   "manager": "Store director (Hy-Vee corporate real estate/facilities, West Des Moines)",
+   "phone": "402-563-4524",
+   "phone_note": "Main store line on hy-vee.com.",
+   "website": "https://www.hy-vee.com/stores/detail.aspx?s=36",
+   "ask_for": "Store director; ask who handles facilities/roof claims for the store",
+   "note": "Large grocery store with pharmacy and Starbucks, built 2005, $3.9M, 1.27\" hail on Aug 8 in Columbus. Owner not in county data. Hy-Vee runs 300+ stores, so the decision likely goes to corporate facilities.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.hy-vee.com/stores/detail.aspx?s=36",
+    "https://www.baileynurseries.com/locations/hyvee-3010-23rd-st-columbus-ne/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "724 South 18th St"
+   ],
+   "name": "Oak Park Apartments, Norfolk",
+   "manager": "Silver Leaf Properties",
+   "phone": "(402) 347-4440",
+   "phone_note": "Leasing line on the Apartments.com listing (directory). I could not find a website for Silver Leaf.",
+   "website": "https://www.apartments.com/oak-park-apartments-norfolk-ne/b80678c/",
+   "ask_for": "Property manager or maintenance supervisor",
+   "note": "67 units, 3 stories, built 1985, $2.4M, 1.05\" hail on Jul 20. ForRent pairs it with 'Grove Park', so Silver Leaf may run more Norfolk buildings; ask.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://www.apartments.com/oak-park-apartments-norfolk-ne/b80678c/",
+    "https://www.forrent.com/ne/norfolk/oak-park-and-grove-park/z80608z"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "1700 West Pasewalk Ave",
+    "1701 Riverside Blvd"
+   ],
+   "name": "Rebecca Manor and Boulevard Village (income-based elderly/disabled), Norfolk",
+   "manager": "Shared management office (company not identified)",
+   "phone": "402-371-1720",
+   "phone_note": "Both complexes list this number in the Norfolk Family Coalition directory (2017, may be out of date). SeniorResource lists Boulevard Village at 402-844-2080.",
+   "website": "https://norfolkfamilycoalition.org/2017/10/elderly-disabled/",
+   "ask_for": "Property manager; ask who owns both complexes",
+   "note": "Rebecca Manor is 1981, $5.3M, 1.05\" hail on Jul 20. Boulevard Village is 1972 (2 parcels), $1.2M, 1.3\" hail on Jun 29. HUD-assisted housing. If it turns out to be the city's Norfolk Housing Agency, treat it as public/bid process.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://norfolkfamilycoalition.org/2017/10/elderly-disabled/",
+    "https://www.seniorresource.com/senior_apartments/boulevard-village/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "901 Syracuse Ave"
+   ],
+   "name": "The Apartment Place, Norfolk",
+   "manager": "J. Allen Properties (127 W Norfolk Ave, Norfolk)",
+   "phone": "(402) 750-7428",
+   "phone_note": "J. Allen office line on rentjallen.com. Property leasing line on Apartments.com: (402) 940-8824.",
+   "website": "https://www.rentjallen.com",
+   "ask_for": "Property manager/maintenance at J. Allen Properties",
+   "note": "60 units, 2 stories, built 1989, $4.0M, 1.16\" hail on Jun 29. The adjacent parcels 1406 Riverside Blvd (1990, $4.3M) and 1100 Hespe Dr (1976, $1.8M) had the same hail and their owner is unknown; ask whether J. Allen runs them too. J. Allen's management of this complex comes from the Apartments.com listing.",
+   "confidence": "medium",
+   "source_urls": [
+    "https://www.apartments.com/the-apartment-place-norfolk-ne/zp9vy2z/",
+    "https://www.rentjallen.com"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "10919 S 197th St",
+    "16506 Colleen Ct"
+   ],
+   "name": "Metonic Real Estate Solutions: Gretna Landing and Allora 168 (Gretna)",
+   "manager": "Metonic Real Estate Solutions (owner, via MRES LLCs); on-site management: Seldin (Gretna Landing), Greystar (Allora 168)",
+   "phone": "(402) 952-4599",
+   "phone_note": "Metonic main line on metonic.net (owner/asset manager). Gretna Landing leasing: (402) 526-5775 (own site). Allora 168 leasing: (866) 503-4241 (greystar.com).",
+   "website": "https://metonic.net/",
+   "ask_for": "Metonic asset/property management lead for Gretna Landing and Allora",
+   "note": "Both parcels have the owner's mailing address (12149 W Center Rd). Gretna Landing is $4.1M with 1.02\" hail on Jul 3. The Allora parcel is $26.9M (townhome-style apartments) with 1.09\" hail on Apr 23; Greystar lists Allora 168 at 16751 Morgan Ave, so confirm that the Colleen Ct parcel is part of it. Metonic has properties in 6 states.",
+   "confidence": "high",
+   "source_urls": [
+    "https://metonic.net/",
+    "https://www.liveatgretnalanding.com/Marketing/Contact",
+    "https://www.greystar.com/allora-168-gretna-ne/p_20434",
+    "https://www.yelp.com/biz/metonic-real-estate-solutions-omaha"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "1525 Yankee Hill Rd"
+   ],
+   "name": "Venue 5 Twenty-Two (event venue)",
+   "manager": "Kylie and Lori, Owners & Founders (first names as published on the venue's site)",
+   "phone": "531-350-5784",
+   "phone_note": "Venue line on venue5twenty-two.com.",
+   "website": "https://www.venue5twenty-two.com/",
+   "ask_for": "Owner (Kylie or Lori)",
+   "note": "Multi-event venue in south Lincoln owned by Gana Venue LLC, $2.3M, 1.43\" hail on Jul 3. Owner-operated, so the person who answers can decide.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.venue5twenty-two.com/about-us",
+    "https://strictly-business.com/news/business/venue-5-twenty-two-opening-may/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "10530 S 24th Plz"
+   ],
+   "name": "Redwood Bellevue South 25th Street",
+   "manager": "Redwood (Redwood Living, Independence, OH), on-site leasing office",
+   "phone": "(833) 965-3094",
+   "phone_note": "Leasing office on rentatredwood.com, open Tue-Fri 10-6 and Sat 10-4.",
+   "website": "https://rentatredwood.com/apartments/ne/bellevue/redwood-bellevue-south-25th-street/contact/",
+   "ask_for": "Community manager; ask for the regional maintenance/construction contact",
+   "note": "Single-story, townhome-style rental community, $17.5M, 1.1\" hail on Jun 13. Redwood corporate in Ohio owns it and runs many communities, so the local office passes roof decisions up to them.",
+   "confidence": "high",
+   "source_urls": [
+    "https://rentatredwood.com/apartments/ne/bellevue/redwood-bellevue-south-25th-street/contact/",
+    "https://www.byredwood.com/ne/apartments"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
+  },
+  {
+   "match": [
+    "11623 Emiline St"
+   ],
+   "name": "Bluestem Pointe at La Vista (formerly The Nest)",
+   "manager": "Newbury Living (Newbury Management Company), owner Oyster River LLC (Wildwood, MO)",
+   "phone": "(402) 713-4426",
+   "phone_note": "Leasing line on bluestematlavista.com.",
+   "website": "https://www.bluestematlavista.com/",
+   "ask_for": "Community manager or maintenance supervisor",
+   "note": "Apartment community in Harrison Hills, $8.7M, 1.16\" hail on Apr 23 (older storm). The owner is out of state and it was recently rebranded, so ask whether the roof has been inspected since April.",
+   "confidence": "high",
+   "source_urls": [
+    "https://www.bluestematlavista.com/",
+    "https://www.apartments.com/bluestem-pointe-la-vista-ne/fet1l4t/"
+   ],
+   "verified": "scouted",
+   "checked": "2026-09-25"
   }
  ]
 }

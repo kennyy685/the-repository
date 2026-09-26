@@ -1,13 +1,32 @@
 {
-  "home": {
-    "name": "Fremont, NE",
+  "company": {
+    "id": "hmp",
+    "name": "HMP Siding & Roofing LLC",
+    "short_name": "HMP",
+    "home_town": "Fremont",
+    "state": "NE",
     "lat": 41.4333,
-    "lon": -96.4981
+    "lon": -96.4981,
+    "radius_mi": {
+      "hunt": 250,
+      "everyday": 40
+    },
+    "phones": {
+      "main": "402-889-3385",
+      "en": {
+        "name": "Kenny Cruz",
+        "phone": "402-936-2709"
+      },
+      "es": {
+        "name": "Alex Mendez",
+        "phone": "402-889-3385"
+      }
+    }
   },
   "timezone": "America/Chicago",
-  "hunt_radius_mi": 250,
   "backfill_days": 730,
   "pinned_lists": [
+    ["2026-09-12", "Beatrice"],
     ["2026-07-01", "Fremont"],
     ["2026-08-08", "Columbus"],
     ["2026-06-13", "Valley"],

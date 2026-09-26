@@ -10,6 +10,7 @@
   python3 hh.py map --day 2025-09-22 --near Fremont     hail map picture
   python3 hh.py doors --day 2026-06-13 --near Fremont   door-knock list: turfs in walking order (xlsx, csv, map)
   python3 hh.py commercial           apartment & commercial buildings in recent hail (with owners in Omaha)
+  python3 hh.py everyday --near Fremont --radius 40 --lists 5   door lists for OLD-house neighborhoods, no storm (T50)
   python3 hh.py hud                  snapshot for the Command Center page (data/export/hud.json)
   python3 hh.py events               storm-by-storm list
   python3 hh.py status               what's in the database, last runs, errors
@@ -19,6 +20,7 @@
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
+  python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -118,6 +120,19 @@ def refresh(conn, fetcher, cfg, log=print):
             log(f"  skip {town} {day}: {e}")
     for s in lists:
         log("  door list " + s)
+    everyday_lists = []
+    try:                                   # T50: old-house lists, no storm needed. Optional: never stops the run
+        from hailhunter import everyday
+        nbhd.ensure_year_built(conn, fetcher, cfg, log=log)
+        made, _ = everyday.build_top(conn, cfg, None if getattr(fetcher, "offline", False) else fetcher.s,
+                                     n=cfg.get("everyday", {}).get("refresh_lists", 3), log=lambda *a: None)
+        everyday_lists = [f"{r['area']}: {len(r['houses']):,} homes / {len(r['turfs'])} turfs, heat {r['heat']}"
+                          for r in made]
+    except Exception as e:
+        log(f"  everyday lists skipped: {type(e).__name__}: {e}")
+    for s in everyday_lists:
+        log("  everyday list " + s)
+    nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
     out, done_n, total_n = commercial.build(conn, cfg, fetcher.s, log=log)
     commercial.write_csv(out, cfg)
     log(f"Apartment/commercial targets: {len(out):,}")
@@ -128,7 +143,7 @@ def refresh(conn, fetcher, cfg, log=print):
     summary = {"finished_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                "minutes": round((datetime.now(timezone.utc) - t0).total_seconds() / 60, 1),
                "new_storm_days": new_storm_days, "new_hits_1in_150mi": fresh[:10], "door_lists": lists,
-               "targets": len(out), "hud": path}
+               "targets": len(out), "hud": path, "everyday_lists": everyday_lists}
     with open(os.path.join(cfg["paths"]["export"], "refresh_summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
     log(json.dumps({k: v for k, v in summary.items() if k != "new_hits_1in_150mi"}, indent=1))
@@ -192,6 +207,12 @@ def main(argv=None):
     p.add_argument("--radius", type=float, help="miles around the town center (default: town size + 2)")
     p.add_argument("--min-hail", type=float, help="inches at the house (default 1.0)")
     p.add_argument("--turf-size", type=int, help="doors per walk (default 60)")
+    p = sub.add_parser("everyday", help="T50: door lists for OLD-house neighborhoods, no storm needed")
+    p.add_argument("--near", help="town to search around (default: home base)")
+    p.add_argument("--radius", type=float, help="miles around it (default: config everyday.radius_mi, 40)")
+    p.add_argument("--lists", type=int, default=5, help="how many door lists to make (default 5)")
+    p.add_argument("--turf-size", type=int, help="doors per walk (default 60)")
+    p.add_argument("--rank-only", action="store_true", help="just rank the neighborhoods, make no lists")
     p = sub.add_parser("commercial", help="apartment & commercial buildings hit by hail")
     p.add_argument("--since", help="storms on/after YYYY-MM-DD (default: last 365 days)")
     p.add_argument("--max-miles", type=float, default=100)
@@ -241,6 +262,12 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p = sub.add_parser("unbundle", help="unpack an engine JSON bundle here")
     p.add_argument("--src", required=True)
+    p = sub.add_parser("todaywalk", help="O0: pick ONE walk for today (JSON for the HMP App's today/walk doc)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--doors", type=int, help="doors in the walk (default: config today_walk.goal_doors, 25)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p.add_argument("--hud", help="hud.json to pick from (default: data/export/hud.json)")
+    p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -250,6 +277,25 @@ def main(argv=None):
         return 0 if ok else 1
 
     cfg = config.load(a.config)
+    if a.cmd == "todaywalk":                       # reads hud.json only: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import todaywalk
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        if not os.path.exists(hud_path):
+            print(f"No {hud_path}. Run `python3 hh.py hud` (or refresh) first.")
+            return 1
+        results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        doc = todaywalk.pick(todaywalk.load_json(hud_path), day, a.doors, results, cfg)
+        if doc is None:
+            print("No door list with houses left to knock. Run `python3 hh.py refresh` for new lists.")
+            return 1
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
     conn = db.connect(cfg["paths"]["db"])
     fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
 
@@ -349,6 +395,25 @@ def main(argv=None):
             print(f"{t:>4}  {turf['streets'][:46]:46}  {turf['doors']:>5}  {turf['avg_hail']:>7.2f}\"  {turf['value']:>6.0f}")
         for k, v in res["paths"].items():
             print(f"  {k}: {v}")
+    elif a.cmd == "everyday":
+        from hailhunter import everyday, nbhd
+        nbhd.ensure_year_built(conn, fetcher, cfg)
+        made, ranked = everyday.build_top(conn, cfg, None if a.offline else fetcher.s, a.near, a.radius,
+                                          0 if a.rank_only else a.lists, a.turf_size)
+        if not ranked:
+            print("No neighborhoods with Census housing data there. Run `python3 hh.py init` or widen --radius.")
+            return 1
+        print("\nOld-house neighborhoods (no storm needed), best first")
+        print(f"{'#':>3}  {'Neighborhood':34}  {'Homes':>5}  {'Heat':>5}  Why")
+        for i, r in enumerate(ranked[:max(10, a.lists)], 1):
+            print(f"{i:>3}  {r['label'][:34]:34}  {r['homes'] or 0:>5}  {r['heat']:>5.1f}  {'; '.join(r['why'])}")
+        for res in made:
+            print(f"\n{res['area']}: {len(res['houses']):,} homes in {len(res['turfs'])} turfs, heat {res['heat']} "
+                  f"({'; '.join(res['why'])})")
+            for k, v in res["paths"].items():
+                print(f"  {k}: {v}")
+        if not a.rank_only and not made:
+            print("\nNo homes stored in those neighborhoods yet (parcels download needs the network).")
     elif a.cmd == "commercial":
         from hailhunter import commercial
         out, done, total = commercial.build(conn, cfg, fetcher.s, a.since, a.max_miles, a.min_hail, budget_s=a.budget)
@@ -371,7 +436,8 @@ def main(argv=None):
     elif a.cmd == "hud":
         from hailhunter import hud
         path, d = hud.write(conn, cfg)
-        print(f"Wrote {path}: {len(d['storms'])} storm hits, {len(d['lists'])} door lists, {len(d['targets'])} targets, "
+        print(f"Wrote {path}: {len(d['storms'])} storm hits, {len(d['lists'])} door lists, "
+              f"{len(d['everyday_lists'])} everyday lists, {len(d['targets'])} targets, "
               f"{os.path.getsize(path) / 1e6:.2f} MB")
     elif a.cmd == "map":
         from hailhunter import maps
@@ -419,7 +485,7 @@ def main(argv=None):
         ev = hailreport.evidence(conn, cfg, day, lat, lon)
         label = a.address + (f", {p['city']}" if p and p["city"] else (f", {a.city}" if a.city else ""))
         path = hailreport.write(os.path.join(cfg["paths"]["export"], "reports", f"hail_{hailreport.slug(label)}.html"),
-                                label, ev, hist)
+                                label, ev, hist, company=config.company_label(cfg))
         hail = f'{ev["hail"]:.2f}"' if ev["hail"] is not None else "unknown"
         print(f"{label}: {day}, estimated {hail} at the property, {len(ev['reports'])} ground report(s) nearby")
         print(f"  report: {path}")

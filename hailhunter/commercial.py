@@ -214,7 +214,7 @@ def write(out, cfg, title, subtitle):
         "3. Owners are often LLCs. Find the manager: Google the property name, call the leasing office and ask who handles "
         "roofing/exterior, or look up the LLC's registered agent at the Nebraska Secretary of State business search.",
         "4. Pitch: 'Your property was in the hail path on <storm date> (about <hail> inch hail per NOAA radar). We're a local "
-        "Fremont siding & roofing company; we do apartments already. Can we do a free inspection and a written report?'",
+        f"{cfg['home']['name'].split(',')[0].strip()} siding & roofing company; we do apartments already. Can we do a free inspection and a written report?'",
         "5. Fill in the yellow columns; the pipeline counts above update themselves.",
         "Example: Status = Inspection set | Contact = Jen (property manager) | Phone = 402-555-0100 | Notes = walk roof Thu 9am",
         "Commercial claims and property manager approvals take longer than homes. Keep following up.",

@@ -12,7 +12,7 @@ import io
 import json
 import os
 import zipfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -70,6 +70,11 @@ def load_acs(conn, fetcher, cfg, log=print):
     if not vintage:
         raise RuntimeError("Could not load ACS housing tables")
     load_mortgages(conn, fetcher, want, vintage, log)
+    load_year_built(conn, fetcher, tuple(w for w in want if w.startswith("1500000")), vintage, log)
+    try:
+        load_language(conn, fetcher, cfg["states"], vintage, log)
+    except Exception as e:                 # T37: optional, never stops a run
+        log(f"  language skipped: {type(e).__name__}: {e}")
     out = []
     for g, r in rows.items():
         level = "bg" if g.startswith("1500000") else "place"
@@ -112,6 +117,204 @@ def load_mortgages(conn, fetcher, want, vintage, log=print):
 def mortgage_shares(conn):
     """{block group geoid: share of owner homes with a mortgage}."""
     return {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
+
+
+YEAR_BINS = ("b2020", "b2010", "b2000", "b1990", "b1980", "b1970", "b1960", "b1950", "b1940", "b1939")   # B25034_E002..E011
+
+
+def load_year_built(conn, fetcher, want, vintage, log=print):
+    """ACS B25034 (homes by decade built) per block group, for everyday leads (T50).
+    Optional, like B25081: a missing table never stops a run. Every try is stamped in meta."""
+    from .db import set_meta
+    stamp = {"tried_utc": iso(datetime.now(timezone.utc)), "vintage": vintage, "rows": 0}
+    try:
+        txt = fetcher.get(ACS_DIR.format(y=vintage, t="b25034"), ttl=None, cache=False).decode("utf-8", "replace")
+        lines = txt.splitlines()
+        head = lines[0].split("|")
+        ix = [head.index(f"B25034_E{k:03d}") for k in range(1, 12)]
+        out = []
+        for ln in lines[1:]:
+            if not ln.startswith(want):
+                continue
+            f = ln.split("|")
+            try:
+                v = [int(float(f[i])) for i in ix]
+            except (ValueError, IndexError):
+                continue
+            if min(v) >= 0:
+                out.append((f[0].split("US", 1)[1], *v, vintage))
+    except Exception as e:
+        log(f"  ACS {vintage} year built (B25034) not available ({type(e).__name__}); using median year instead")
+        set_meta(conn, "acs_year_built", stamp)
+        return 0
+    conn.execute("DELETE FROM acs_year_built")
+    conn.executemany("INSERT INTO acs_year_built (geoid, total, " + ", ".join(YEAR_BINS) + ", vintage) VALUES ("
+                     + ",".join("?" * 13) + ")", out)
+    conn.commit()
+    set_meta(conn, "acs_year_built", {**stamp, "rows": len(out)})
+    return len(out)
+
+
+def ensure_year_built(conn, fetcher, cfg, log=print):
+    """Databases from before T50 never loaded B25034 (a first run's load_acs does). Try it, at most every
+    `everyday.retry_days`, never offline. Optional: returns 0 instead of raising."""
+    from .db import get_meta
+    from .models import parse_utc
+    if getattr(fetcher, "offline", False) or conn.execute("SELECT 1 FROM acs_year_built LIMIT 1").fetchone() \
+            or not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
+        return 0
+    last = get_meta(conn, "acs_year_built")
+    wait = timedelta(days=cfg.get("everyday", {}).get("retry_days", 7))
+    if last and datetime.now(timezone.utc) - parse_utc(last["tried_utc"]) < wait:
+        return 0
+    r = conn.execute("SELECT vintage FROM acs WHERE level='bg' AND vintage IS NOT NULL LIMIT 1").fetchone()
+    want = tuple(f"1500000US{FIPS[s]}" for s in cfg["states"])
+    for v in ([r[0]] if r else ["2024", "2023"]):
+        n = load_year_built(conn, fetcher, want, v, log)
+        if n:
+            return n
+    return 0
+
+
+def year_shares(row, before=None, since=None):
+    """Share of a block group's homes built before `before` (or since `since`) from its B25034 decades.
+    A decade that straddles the year counts in proportion. None when the row has no homes."""
+    if not row or not row["total"]:
+        return None
+    spans = [(2020, 2029), (2010, 2019), (2000, 2009), (1990, 1999), (1980, 1989), (1970, 1979), (1960, 1969),
+             (1950, 1959), (1940, 1949), (1900, 1939)]
+    n = 0.0
+    for col, (y0, y1) in zip(YEAR_BINS, spans):
+        v = row[col] or 0
+        if before is not None:
+            n += v if y1 < before else (v * (before - y0) / (y1 - y0 + 1) if y0 < before else 0)
+        else:
+            n += v if y0 >= since else (v * (y1 + 1 - since) / (y1 - y0 + 1) if y1 >= since else 0)
+    return min(1.0, n / row["total"])
+
+
+# ------------------------------------------------------------------ language spoken at home (T37)
+LANG_TABLES = ("c16002", "c16001")   # households by language (preferred), else people 5+ by language
+
+
+def load_language(conn, fetcher, states, vintage, log=print):
+    """ACS language spoken at home per block group (tract rows fill in block groups the table skips), for where
+    Alex (Spanish) should knock. C16002_E001 = households, _E003 = Spanish-speaking households (C16001: people 5+).
+    Optional, like B25034: a missing table never stops a run. Every try is stamped in meta."""
+    from .db import set_meta
+    want = tuple(f"{lvl}US{FIPS[s]}" for s in states for lvl in ("1500000", "1400000"))
+    stamp = {"tried_utc": iso(datetime.now(timezone.utc)), "vintage": vintage, "rows": 0}
+    for t in LANG_TABLES:
+        col = t.upper()
+        try:
+            txt = fetcher.get(ACS_DIR.format(y=vintage, t=t), ttl=None, cache=False).decode("utf-8", "replace")
+            lines = txt.splitlines()
+            head = lines[0].split("|")
+            it, isp = head.index(f"{col}_E001"), head.index(f"{col}_E003")
+            out = []
+            for ln in lines[1:]:
+                if not ln.startswith(want):
+                    continue
+                f = ln.split("|")
+                try:
+                    tot, sp = int(float(f[it])), int(float(f[isp]))
+                except (ValueError, IndexError):
+                    continue
+                if tot >= 0 and sp >= 0:
+                    out.append((f[0].split("US", 1)[1], "bg" if f[0].startswith("1500000") else "tract", tot, sp,
+                                col, vintage))
+            if not out:
+                raise ValueError("no rows for our states")
+        except Exception as e:
+            log(f"  ACS {vintage} language ({col}) not available ({type(e).__name__})")
+            continue
+        conn.execute("DELETE FROM acs_language")
+        conn.executemany("INSERT INTO acs_language (geoid, level, total, spanish, source, vintage) VALUES (?,?,?,?,?,?)",
+                         out)
+        conn.commit()
+        set_meta(conn, "acs_language", {**stamp, "rows": len(out), "source": col})
+        return len(out)
+    log("  no Census language table; Spanish-speaking share left blank")
+    set_meta(conn, "acs_language", stamp)
+    return 0
+
+
+def ensure_language(conn, fetcher, cfg, log=print):
+    """Databases from before T37 never loaded the language table. Try it, at most every `language.retry_days`,
+    never offline. Optional: returns 0 instead of raising."""
+    from .db import get_meta
+    from .models import parse_utc
+    try:
+        if getattr(fetcher, "offline", False) or conn.execute("SELECT 1 FROM acs_language LIMIT 1").fetchone() \
+                or not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
+            return 0
+        last = get_meta(conn, "acs_language")
+        wait = timedelta(days=cfg.get("language", {}).get("retry_days", 7))
+        if last and datetime.now(timezone.utc) - parse_utc(last["tried_utc"]) < wait:
+            return 0
+        r = conn.execute("SELECT vintage FROM acs WHERE level='bg' AND vintage IS NOT NULL LIMIT 1").fetchone()
+        for v in ([r[0]] if r else ["2024", "2023"]):
+            n = load_language(conn, fetcher, cfg["states"], v, log)
+            if n:
+                return n
+    except Exception as e:
+        log(f"  language skipped: {type(e).__name__}: {e}")
+    return 0
+
+
+def spanish_shares(conn):
+    """{block group geoid: share of households (or people) speaking Spanish at home}; a block group without its
+    own row takes its tract's share (bg geoid = 11-digit tract + 1 digit)."""
+    bg, tract = {}, {}
+    for g, lvl, t, sp in conn.execute("SELECT geoid, level, total, spanish FROM acs_language"):
+        if t:
+            (bg if lvl == "bg" else tract)[g] = min(1.0, sp / t)
+    if tract:
+        for (g,) in conn.execute("SELECT geoid FROM bgs"):
+            if g not in bg and g[:11] in tract:
+                bg[g] = tract[g[:11]]
+    return bg
+
+
+def bgs_of_points(conn, pts, only=None):
+    """Block group geoid (or None) for each (lat, lon), by polygon. `only`: geoids worth testing (e.g. those with
+    data). Bounding boxes first, so a few thousand points take milliseconds."""
+    ok = [i for i, (la, lo) in enumerate(pts) if la is not None and lo is not None]
+    out = [None] * len(pts)
+    if not ok:
+        return out
+    lats = np.array([pts[i][0] for i in ok], float)
+    lons = np.array([pts[i][1] for i in ok], float)
+    rows = conn.execute("""SELECT geoid, min_lon, min_lat, max_lon, max_lat, rings FROM bgs
+                           WHERE max_lon >= ? AND min_lon <= ? AND max_lat >= ? AND min_lat <= ?""",
+                        (lons.min(), lons.max(), lats.min(), lats.max())).fetchall()
+    left = np.ones(len(ok), bool)
+    for g, x0, y0, x1, y1, rings in rows:
+        if only is not None and g not in only:
+            continue
+        m = left & (lons >= x0) & (lons <= x1) & (lats >= y0) & (lats <= y1)
+        if not m.any():
+            continue
+        verts, codes = [], []
+        for ring in json.loads(rings):
+            verts += ring
+            codes += [Path.MOVETO] + [Path.LINETO] * (len(ring) - 2) + [Path.CLOSEPOLY]
+        idx = np.nonzero(m)[0]
+        inside = Path(verts, codes).contains_points(np.column_stack([lons[idx], lats[idx]]))
+        for j in idx[inside]:
+            out[ok[j]] = g
+            left[j] = False
+    return out
+
+
+def spanish_note(share, cfg):
+    """The bilingual reason line for a walk with many Spanish-speaking households, else None."""
+    if share is None or share < cfg.get("language", {}).get("spanish_high", 0.30):
+        return None
+    return SPANISH_NOTE
+
+
+SPANISH_NOTE = "Many Spanish-speaking households: send Alex / Muchos hogares hispanohablantes: que vaya Alex"
 
 
 # ------------------------------------------------------------------ block group shapes (TIGER)

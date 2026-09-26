@@ -146,6 +146,23 @@ CREATE TABLE IF NOT EXISTS door_list_turfs (    -- Hot Zones: chance-of-a-sale p
 CREATE TABLE IF NOT EXISTS commercial_targets (   -- last `hh.py commercial` run, one row per building (JSON)
     pid TEXT PRIMARY KEY, run_utc TEXT, data TEXT
 );
+CREATE TABLE IF NOT EXISTS acs_year_built (     -- Census ACS B25034: homes by decade built, per block group (T50)
+    geoid TEXT PRIMARY KEY, total INTEGER,      -- b2020 = 2020 or later (2014+ in pre-2020 vintages), b1939 = 1939 or earlier
+    b2020 INTEGER, b2010 INTEGER, b2000 INTEGER, b1990 INTEGER, b1980 INTEGER,
+    b1970 INTEGER, b1960 INTEGER, b1950 INTEGER, b1940 INTEGER, b1939 INTEGER, vintage TEXT
+);
+CREATE TABLE IF NOT EXISTS acs_language (       -- Census ACS C16002 (households) or C16001 (people 5+): language
+    geoid TEXT PRIMARY KEY, level TEXT,         -- spoken at home (T37). level = bg | tract (tract fills in a bg
+    total INTEGER, spanish INTEGER,             -- the table skips). spanish = households (or people) speaking Spanish
+    source TEXT, vintage TEXT                   -- source = the table used, e.g. C16002
+);
+CREATE TABLE IF NOT EXISTS everyday_lists (     -- T50: door lists for old-house neighborhoods, no storm needed.
+    list_id TEXT PRIMARY KEY, conv_day TEXT,    -- conv_day = the day the list was made (no storm). Same columns as
+    area TEXT, created_utc TEXT, params TEXT,   -- door_lists so hud.py builds both alike; walks and stops go in
+    n_doors INTEGER, n_turfs INTEGER,           -- door_list_turfs / door_list_stops under this list_id.
+    csv_path TEXT, xlsx_path TEXT, map_path TEXT,
+    geoid TEXT, heat REAL, why TEXT, parts TEXT
+);
 """
 
 

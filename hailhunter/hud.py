@@ -30,8 +30,9 @@ def _neighborhoods(conn, cfg, since, limit=60):
     lists_by_day = {}
     for L in conn.execute("SELECT * FROM door_lists").fetchall():
         lists_by_day.setdefault(L["conv_day"], []).append(L)
-    from .nbhd import mortgage_shares
+    from .nbhd import mortgage_shares, spanish_shares
     mort = mortgage_shares(conn)
+    lang = spanish_shares(conn)                    # T37
     out = []
     for h in rows:
         cand = [L for L in lists_by_day.get(h["conv_day"], [])
@@ -63,6 +64,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
             "homes": hu, "homes_hit": round(hu * (h["frac_ge_1"] or 0)),
             "owner_occ": h["owner_share"], "median_built": h["med_year"], "score": h["score"],
             "mortgage_share": round(mort[h["geoid"]], 3) if h["geoid"] in mort else None,
+            "spanish_share": round(lang[h["geoid"]], 3) if h["geoid"] in lang else None,
             "lat": h["lat"], "lon": h["lon"], "list_id": list_id, "turfs": turfs, "first_stop": first_stop,
         })
     return out
@@ -128,15 +130,38 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
-def _lists(conn, max_turfs):
-    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks."""
+def _spanish(conn, list_id, lang):
+    """T37: share of Spanish-speaking households for a whole list and per walk (house-weighted: each stop takes its
+    block group's Census share). ({turf: share}, list share); None where no stop has data."""
+    from .nbhd import bgs_of_points
+    if not lang:
+        return {}, None
+    rows = conn.execute("""SELECT s.turf, p.lat, p.lon FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
+                           WHERE s.list_id=?""", (list_id,)).fetchall()
+    geo = bgs_of_points(conn, [(r["lat"], r["lon"]) for r in rows], only=set(lang))
+    per, every = {}, []
+    for r, g in zip(rows, geo):
+        if g in lang:
+            per.setdefault(r["turf"], []).append(lang[g])
+            every.append(lang[g])
+    avg = lambda v: round(sum(v) / len(v), 3) if v else None  # noqa: E731
+    return {t: avg(v) for t, v in per.items()}, avg(every)
+
+
+def _lists(conn, max_turfs, table="door_lists", cfg=None):
+    """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks.
+    table="everyday_lists" builds the everyday (no-storm, T50) lists the same way."""
+    from .nbhd import spanish_note, spanish_shares
+    cfg = cfg or {}
+    lang = spanish_shares(conn)
     lists = []
     heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
-    for L in conn.execute("SELECT * FROM door_lists ORDER BY created_utc DESC").fetchall():
+    for L in conn.execute(f"SELECT * FROM {table} ORDER BY created_utc DESC").fetchall():
         turfs = []
         for t in conn.execute("""SELECT turf, COUNT(*) n, AVG(hail_in) h, SUM(score) v FROM door_list_stops
                                  WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
-            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2), "value": round(t["v"])})
+            turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2) if t["h"] is not None else None,
+                          "value": round(t["v"])})
         for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
             z = heat.get((L["list_id"], t["turf"]))
             if z:
@@ -157,9 +182,90 @@ def _lists(conn, max_turfs):
         for t in turfs:
             if t["turf"] in streets:
                 t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
+        try:                                              # optional: hud.json is written either way
+            per, share = _spanish(conn, L["list_id"], lang)
+        except Exception:
+            per, share = {}, None
+        for t in turfs:                                   # T37: where Alex (Spanish) should knock
+            t["spanish_share"] = per.get(t["turf"])
+            note = spanish_note(t["spanish_share"], cfg)
+            if note:
+                t["why"] = list(t.get("why") or []) + [note]
         lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
-                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"]})
+                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"], "spanish_share": share})
     return lists
+
+
+def _everyday_lists(conn, max_turfs, cfg=None):
+    """T50: door lists for old-house neighborhoods (no storm). Same shape as `lists`, plus kind/geoid/heat/why.
+    `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
+    from .nbhd import spanish_note, spanish_shares
+    lists = _lists(conn, max_turfs, "everyday_lists", cfg)
+    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why FROM everyday_lists")}
+    lang = spanish_shares(conn) if lists else {}
+    for L in lists:
+        e = extra[L["id"]]
+        L.update({"kind": "everyday", "geoid": e["geoid"], "heat": e["heat"], "why": json.loads(e["why"] or "[]")})
+        if L["spanish_share"] is None and e["geoid"] in lang:       # no mapped stops: the neighborhood's own share
+            L["spanish_share"] = round(lang[e["geoid"]], 3)
+        note = spanish_note(L["spanish_share"], cfg or {})
+        if note:
+            L["why"].append(note)
+        for s in L["stops"]:
+            s["sold_after_storm"] = False
+    lists.sort(key=lambda L: -(L["heat"] or 0))
+    return lists
+
+
+def _key(s):
+    return f"{s['address']}|{s.get('city') or ''}"
+
+
+def _hail_evidence(conn, cfg, lists):
+    """O3.3: hail evidence per address for the houses on the storm door lists (not everyday lists), for the lead
+    detail on the phone: {"address|city": {day, hail_in, nearest_report {dist_mi, size_in, source} or null,
+    radar_max_in}}. hail_in = radar corrected by ground reports, as on the printed hail report (hailreport.evidence);
+    radar_max_in = raw NOAA MRMS radar within ~1 km, before correction. A house on several lists keeps the storm
+    with the most hail at it. Each storm day's maps are loaded once."""
+    from . import hailreport, mrms, nbhd
+    from .watch import hail_at
+    he = cfg.get("hail_evidence", {})
+    cap, radius = he.get("max_per_list", 300), he.get("radius_mi", 10.0)
+    picked = lists[:he.get("max_lists", 10)]
+    out = {}
+    for day in dict.fromkeys(L["day"] for L in picked):
+        raw, rmeta = mrms.load_grid(cfg, day)
+        if raw is None:
+            continue
+        fused, obs = nbhd.fused_grid(conn, cfg, day)[:2], hailreport.day_reports(conn, day)
+        for L in picked:
+            if L["day"] != day:
+                continue
+            for s in L["stops"][:cap]:
+                if s.get("lat") is None or s.get("lon") is None:
+                    continue
+                ev = hailreport.evidence(conn, cfg, day, s["lat"], s["lon"], radius, fused=fused, obs=obs)
+                near = ev["reports"][0] if ev["reports"] else None
+                rm = hail_at(raw, rmeta, s["lat"], s["lon"])
+                e = {"day": day, "hail_in": ev["hail"],
+                     "nearest_report": {"dist_mi": near["dist_mi"], "size_in": near["size_in"], "source": near["who"]}
+                     if near else None, "radar_max_in": None if rm is None else round(rm, 2)}
+                old = out.get(_key(s))
+                if old is None or (e["hail_in"] or 0, day) > (old["hail_in"] or 0, old["day"]):
+                    out[_key(s)] = e
+    return out
+
+
+# Data credit lines (additive hud.json field `credits`); show them wherever the data is shown.
+CREDITS = [
+    {"source": "NOAA / National Weather Service",
+     "text": "Storm reports and radar hail data from NOAA and the National Weather Service (public domain). "
+             "Use of this data does not imply endorsement by NOAA or the NWS."},
+    {"source": "US Census Bureau",
+     "text": "This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau."},
+    {"source": "Nebraska Statewide Parcels",
+     "text": "Property and building data from the State of Nebraska statewide parcel layer (public record)."},
+]
 
 
 def build(conn, cfg, max_turfs=None, max_targets=80):
@@ -193,7 +299,7 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
                   size_basis AS basis, n_ground + n_official AS reports, n_radar AS radar, score, is_rural AS rural,
                   place_hu AS homes, local_time
            FROM hail_hits WHERE conv_day >= ? AND score >= 5 ORDER BY score DESC LIMIT 160""", (since,))]
-    lists = _lists(conn, max_turfs)
+    lists = _lists(conn, max_turfs, cfg=cfg)
     targets = []
     files = sorted(glob.glob(os.path.join(cfg["paths"]["export"], "lists", "apartments_commercial_*.csv")))
     scout = {}
@@ -219,6 +325,12 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
                                 "score": float(r["Score"] or 0), "key": f"{r['Property address']}|{r['City']}",
                                 "contact": scout.get(r["Property address"].lower())})
     neighborhoods = _neighborhoods(conn, cfg, since)
+    try:                                           # O3.3; optional: hud.json is written either way
+        hail_evidence = _hail_evidence(conn, cfg, lists)
+    except Exception as e:
+        import sys
+        print(f"  hail_evidence skipped: {type(e).__name__}: {e}", file=sys.stderr)
+        hail_evidence = {}
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
     from . import watch
@@ -233,7 +345,10 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
         agents.append({**a, "last_run_utc": last, **({"schedule": extra} if extra else {})})
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
-            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents}
+            "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
+            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10), cfg),
+            "hail_evidence": hail_evidence,
+            "company_id": (cfg.get("company") or {}).get("id", "hmp"), "credits": CREDITS}
 
 
 def write(conn, cfg, path=None, max_bytes=None):
@@ -243,10 +358,14 @@ def write(conn, cfg, path=None, max_bytes=None):
     max_bytes = max_bytes or hz.get("max_hud_mb", 6.0) * 1e6
     data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
     text = json.dumps(data, separators=(",", ":"))
+    ev = cfg.get("everyday", {}).get("max_turfs", 10)
     for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
         if len(text) <= max_bytes:
             break
-        data["lists"] = _lists(conn, n)
+        data["lists"] = _lists(conn, n, cfg=cfg)
+        data["everyday_lists"] = _everyday_lists(conn, max(3, min(ev, n // 3)), cfg)
+        keep = {_key(s) for L in data["lists"] for s in L["stops"]}          # evidence only for houses still listed
+        data["hail_evidence"] = {k: v for k, v in data["hail_evidence"].items() if k in keep}
         text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)

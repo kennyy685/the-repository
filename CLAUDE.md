@@ -18,6 +18,17 @@ before you stop.**
   you're unsure of (money, legal, anything customer-facing, deleting data); explain things in plain
   English, short - he has ADHD, keep it skimmable.
 
+## Current orders (FilthE, 2026-09-25)
+**Build orders O1-O6 are in `docs/orders/build-orders.md`** and on the Crew HQ board (T51-T60, T35). Big change:
+Crew HQ becomes the **HMP App** (same link; Today / Leads / Money / Crew tabs, one database), and the King chat
+becomes the one inbox that logs leads, doors and claims. Work them in order; the price sheet (T51) comes from
+FilthE and the boss. **Top priority inside the app: O0 "Today's knock"**: one area a day, houses only in walking
+order, one tap per door (Not home / No / Interested / Booked). FilthE finds the command center too messy to use
+for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, via Today's knock; don't push
+"knock around The Edge / job-site neighbors" as the plan (the neighbor note is an optional extra). **Long-term (FilthE, 2026-09-25):** he may sell the HMP App to other roofers someday, so build it clean
+enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
+software); HMP is its first user.
+
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
@@ -36,6 +47,8 @@ of making him repeat it next time.
   underline, "SIDING & ROOFING LLC", "RESIDENCIAL y COMERCIAL", on dark charcoal metal siding. Colors: charcoal
   ~#404145, orange ~#f5883a, silver/white. Company phone on the logo: 402-889-3385. Use this look on everything
   printed; the photo lives in the Mac/claude.ai chat, not the repo (recreate it as SVG when needed).
+- **Print contacts:** English side = Kenny Cruz, cell 402-936-2709. Spanish side = **Alex Mendez**, business line
+  402-889-3385 (FilthE, 2026-09-25).
 - **The boss** owns and runs it and speaks Spanish. **FilthE** (Kenny Cruz; phone for printed materials
   402-936-2709; contractor registration # pending from the boss) is his right-hand man: translates, runs
   the AI/organization side, is the only one building this system, and does all the insurance sales.
@@ -158,6 +171,12 @@ genuinely missing there.
   swaths + calibrate -> rescore -> door lists (pinned + top 4 auto) -> commercial -> hud.json. This
   is what Cowork's daily Storm Watch task runs in the cloud (~8 min from empty there).
 - `python3 hh.py doors --day 2026-07-01 --near Fremont`: one door list (csv + xlsx + map)
+- `python3 hh.py everyday --near Fremont --radius 40 --lists 5`: old-house (non-storm) door lists ranked by
+  "everyday heat" (share of older homes, owners, value, distance); also built by `refresh` (top 3) and published
+  in hud.json `everyday_lists`. hud.json also carries `hail_evidence` per address for storm lists (porch proof).
+- `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json]`: O0 "Today's knock": picks ONE
+  walk for today (fresh strong storm walk, else the best everyday walk), houses only in walking order, prints the JSON for the
+  HMP App's `today/walk` doc (reads hud.json; `--results` = the app's door taps: worked doors drop, not-homes return).
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how

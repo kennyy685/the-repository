@@ -168,8 +168,9 @@ def build_turfs(houses, turf_size=60, max_hop_mi=0.4):
         for h in stops:
             streets[h["street"]] += 1
         top = [s for s, _ in sorted(streets.items(), key=lambda x: -x[1])[:3]]
+        hail = [h["hail_in"] for h in stops if h.get("hail_in") is not None]     # everyday lists (T50) have none
         turfs.append({"stops": stops, "doors": len(stops), "value": round(sum(h["score"] for h in stops), 1),
-                      "avg_hail": round(float(np.mean([h["hail_in"] for h in stops])), 2),
+                      "avg_hail": round(float(np.mean(hail)), 2) if hail else None,
                       "streets": ", ".join(string.capwords(re.sub(r"\s+", " ", s).lower()) for s in top),
                       "lat": float(np.mean([h["lat"] for h in stops])), "lon": float(np.mean([h["lon"] for h in stops]))})
     turfs.sort(key=lambda t: -t["value"])
@@ -236,16 +237,39 @@ def _stop_row(t, k, h):
             h["lat"], h["lon"]]
 
 
-def write_csv(path, turfs):
+def write_csv(path, turfs, cols=COLS, row=_stop_row):
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(COLS)
+        w.writerow(cols)
         for t, turf in enumerate(turfs, 1):
             for k, h in enumerate(turf["stops"], 1):
-                w.writerow(_stop_row(t, k, h))
+                w.writerow(row(t, k, h))
 
 
-def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
+NOTES = [
+    "HOW TO USE",
+    "Each 'Turf' sheet is one walk (about 1-2 hours), already in walking order: up one side of the street, back down the other.",
+    "Fill in only the yellow columns: Result (pick from the list), Name, Phone, Notes, Follow-up. The Summary counts update by themselves.",
+    "Example: Result = Inspection set | Name = Maria | Phone = 402-555-0100 | Notes = dented gutters, wants Tue 5pm | Follow-up = 6/18",
+    "Score = how promising the house is (hail size at the house, how recent, home age, owner-occupied area, distance).",
+    "Flag 'Sold ... (after storm)': the new owner may not be able to claim storm damage from before they bought. Ask politely.",
+    "RULES: carry this town's solicitor permit (each town needs its own); skip 'No Soliciting' homes; never promise insurance will pay; the homeowner decides whether to file.",
+    "Hail at each house is an estimate (NOAA radar corrected with ground reports, about 1 km detail). Always inspect before quoting.",
+    "Addresses: Nebraska Statewide Parcels (county assessors). Hail: NOAA MRMS + NWS storm reports.",
+]
+
+
+def _storm_turf_title(t, turf):
+    return f"Turf {t}: {turf['streets']}  -  {turf['doors']} doors, avg hail {turf['avg_hail']:.2f}\""
+
+
+def write_xlsx(path, turfs, title, subtitle, max_sheets=15, cols=COLS, row=_stop_row,
+               metric=("Avg hail at house (in)", "avg_hail", "0.00"), notes=NOTES, turf_title=_storm_turf_title,
+               formats=None):
+    """Door list workbook. The keyword arguments default to the storm list; everyday lists (T50) swap the hail
+    column/metric/notes for their own."""
+    COLS_, row_fn = cols, row
+    formats = formats if formats is not None else {"Hail at house (in)": "0.00"}
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
@@ -262,7 +286,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
     ws["A1"].font = Font(name=F, size=14, bold=True)
     ws["A2"] = subtitle
     ws["A2"].font = Font(name=F, size=10, color="52514E")
-    hdr = ["Turf", "Main streets", "Doors", "Avg hail at house (in)", "Turf value", "Knocked", "Leads + inspections",
+    hdr = ["Turf", "Main streets", "Doors", metric[0], "Turf value", "Knocked", "Leads + inspections",
            "Sheet"]
     for c, v in enumerate(hdr, 1):
         cell = ws.cell(row=4, column=c, value=v)
@@ -272,13 +296,13 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
     n_sheets = min(len(turfs), max_sheets)
     for t, turf in enumerate(turfs, 1):
         r = 4 + t
-        vals = [t, turf["streets"], turf["doors"], turf["avg_hail"], turf["value"]]
+        vals = [t, turf["streets"], turf["doors"], turf.get(metric[1]), turf["value"]]
         for c, v in enumerate(vals, 1):
             ws.cell(row=r, column=c, value=v).font = Font(name=F)
         if t <= n_sheets:
             sh = f"'Turf {t}'"
             last = 5 + turf["doors"]
-            rc = get_column_letter(COLS[1:16].index("Result") + 1)       # the Result column on turf sheets
+            rc = get_column_letter(COLS_[1:16].index("Result") + 1)       # the Result column on turf sheets
             ws.cell(row=r, column=6, value=f"=COUNTA({sh}!{rc}6:{rc}{last})").font = Font(name=F)
             ws.cell(row=r, column=7, value=f'=COUNTIF({sh}!{rc}6:{rc}{last},"Interested")'
                                            f'+COUNTIF({sh}!{rc}6:{rc}{last},"Inspection set")').font = Font(name=F)
@@ -287,23 +311,12 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
             link.font = Font(name=F, color="1C5CAB", underline="single")
         else:
             ws.cell(row=r, column=8, value="see 'All doors'").font = Font(name=F, color="898781")
-        ws.cell(row=r, column=4).number_format = '0.00'
+        ws.cell(row=r, column=4).number_format = metric[2]
     tot = 5 + len(turfs)
     ws.cell(row=tot, column=2, value="Total").font = Font(name=F, bold=True)
     for c in (3, 6, 7):
         col = get_column_letter(c)
         ws.cell(row=tot, column=c, value=f"=SUM({col}5:{col}{tot - 1})").font = Font(name=F, bold=True)
-    notes = [
-        "HOW TO USE",
-        "Each 'Turf' sheet is one walk (about 1-2 hours), already in walking order: up one side of the street, back down the other.",
-        "Fill in only the yellow columns: Result (pick from the list), Name, Phone, Notes, Follow-up. The Summary counts update by themselves.",
-        "Example: Result = Inspection set | Name = Maria | Phone = 402-555-0100 | Notes = dented gutters, wants Tue 5pm | Follow-up = 6/18",
-        "Score = how promising the house is (hail size at the house, how recent, home age, owner-occupied area, distance).",
-        "Flag 'Sold ... (after storm)': the new owner may not be able to claim storm damage from before they bought. Ask politely.",
-        "RULES: carry this town's solicitor permit (each town needs its own); skip 'No Soliciting' homes; never promise insurance will pay; the homeowner decides whether to file.",
-        "Hail at each house is an estimate (NOAA radar corrected with ground reports, about 1 km detail). Always inspect before quoting.",
-        "Addresses: Nebraska Statewide Parcels (county assessors). Hail: NOAA MRMS + NWS storm reports.",
-    ]
     for k, txt in enumerate(notes):
         c = ws.cell(row=tot + 2 + k, column=1, value=txt)
         c.font = Font(name=F, bold=(k == 0), size=10, color="0B0B0B" if k == 0 else "52514E")
@@ -320,7 +333,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
         s["A2"].font = Font(name=F, size=9, color="52514E")
         s["A3"] = "Fill in the yellow columns. Result: " + " / ".join(RESULTS)
         s["A3"].font = Font(name=F, size=9, color="52514E")
-        cols = COLS[1:16] if name != "All doors" else COLS
+        cols = COLS_[1:16] if name != "All doors" else COLS_
         for c, v in enumerate(cols, 1):
             cell = s.cell(row=5, column=c, value=v)
             cell.font = Font(name=F, bold=True, color="FFFFFF")
@@ -329,7 +342,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
         r = 6
         for t, stops in stops_by_turf:
             for k, h in enumerate(stops, 1):
-                row = _stop_row(t, k, h)
+                row = row_fn(t, k, h)
                 row = row[1:16] if name != "All doors" else row
                 for c, v in enumerate(row, 1):
                     cell = s.cell(row=r, column=c, value=v)
@@ -337,15 +350,15 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
                     cell.border = Border(bottom=thin)
                     if cols[c - 1] in ("Result", "Name", "Phone", "Notes", "Follow-up"):
                         cell.fill = input_fill
-                    if cols[c - 1] == "Hail at house (in)":
-                        cell.number_format = '0.00'
+                    if cols[c - 1] in formats:
+                        cell.number_format = formats[cols[c - 1]]
                 r += 1
         rc = get_column_letter(cols.index("Result") + 1)
         dv = DataValidation(type="list", formula1='"' + ",".join(RESULTS) + '"', allow_blank=True)
         dv.add(f"{rc}6:{rc}{max(r - 1, 6)}")
         s.add_data_validation(dv)
         widths = {"Turf": 5, "Stop": 5, "Address": 26, "City": 11, "Zip": 7, "Type": 11, "Built": 6, "Sq ft": 7,
-                  "Hail at house (in)": 8, "Flags": 24, "Score": 6, "Result": 14, "Name": 14, "Phone": 13,
+                  "Hail at house (in)": 8, "Value ($)": 10, "Flags": 24, "Score": 6, "Result": 14, "Name": 14, "Phone": 13,
                   "Notes": 30, "Follow-up": 10, "Lat": 10, "Lon": 10}
         for c, v in enumerate(cols, 1):
             s.column_dimensions[get_column_letter(c)].width = widths.get(v, 10)
@@ -359,8 +372,7 @@ def write_xlsx(path, turfs, title, subtitle, max_sheets=15):
         return s
 
     for t, turf in enumerate(turfs[:n_sheets], 1):
-        sheet(f"Turf {t}", [(t, turf["stops"])], f"Turf {t}: {turf['streets']}  -  {turf['doors']} doors, "
-              f"avg hail {turf['avg_hail']:.2f}\"")
+        sheet(f"Turf {t}", [(t, turf["stops"])], turf_title(t, turf))
     sheet("All doors", [(t, turf["stops"]) for t, turf in enumerate(turfs, 1)], "All doors, every turf")
     wb.save(path)
 
@@ -384,7 +396,9 @@ def _hull(pts):
     return lower[:-1] + upper[:-1]
 
 
-def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
+def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15, dots=None, turf_line=None):
+    """Turf map. dots = {"key", "bins", "ramp", "labels", "caption"} colors the homes (default: hail at the house);
+    turf_line(turf) is the second line of each turf in the side list. Everyday lists (T50) pass their own."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -405,8 +419,14 @@ def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
                                     AND min_lat<=?""", (x0, x1, y0, y1)):
         for ring in json.loads(rings):
             ax.add_patch(MplPolygon(ring, closed=True, fill=False, lw=0.4, ec=HAIR, zorder=1))
-    ax.scatter(lons, lats, s=7, c=[h["hail_in"] for h in allh], cmap=ListedColormap(RAMP),
-               norm=BoundaryNorm(BINS, len(RAMP)), lw=0, zorder=3)
+    dots = dots or {"key": "hail_in", "bins": BINS, "ramp": RAMP,
+                    "labels": ['0.75"', '1"', '1.25"', '1.5"', '1.75"', '2"', '2.5"+'],
+                    "caption": "Each dot = one home, colored by estimated hail at that house. Outlines = turfs (walks)."}
+    turf_line = turf_line or (lambda turf: f'avg hail {turf["avg_hail"]:.2f}"  |  value {turf["value"]:.0f}')
+    cmap = ListedColormap(dots["ramp"])
+    cmap.set_bad(HAIR)                                   # unknown value (e.g. year built): a gray dot
+    ax.scatter(lons, lats, s=7, c=[np.nan if h.get(dots["key"]) is None else h[dots["key"]] for h in allh],
+               cmap=cmap, norm=BoundaryNorm(dots["bins"], len(dots["ramp"])), plotnonfinite=True, lw=0, zorder=3)
     for t, turf in enumerate(turfs[:max_turfs], 1):
         pts = [(h["lon"], h["lat"]) for h in turf["stops"]]
         hull = _hull(pts)
@@ -427,22 +447,20 @@ def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15):
     fig.text(0.02, 0.955, title, fontsize=15, fontweight="bold", color=INK)
     fig.text(0.02, 0.925, subtitle, fontsize=9, color=INK2)
     lg = fig.add_axes([0.05, 0.03, 0.38, 0.022])
-    for k, c in enumerate(RAMP):
+    for k, c in enumerate(dots["ramp"]):
         lg.add_patch(plt.Rectangle((k, 0), 0.94, 1, color=c))
-        lg.text(k + 0.47, -0.35, ['0.75"', '1"', '1.25"', '1.5"', '1.75"', '2"', '2.5"+'][k], ha="center", va="top",
-                fontsize=7.5, color=INK2)
-    lg.set_xlim(0, len(RAMP))
+        lg.text(k + 0.47, -0.35, dots["labels"][k], ha="center", va="top", fontsize=7.5, color=INK2)
+    lg.set_xlim(0, len(dots["ramp"]))
     lg.set_ylim(-1.3, 1)
     lg.axis("off")
-    fig.text(0.05, 0.058, "Each dot = one home, colored by estimated hail at that house. Outlines = turfs (walks).",
-             fontsize=8, color=INK2)
+    fig.text(0.05, 0.058, dots["caption"], fontsize=8, color=INK2)
     side.text(0, 1.0, "Turfs, best first", fontsize=11, fontweight="bold", color=INK, va="top")
     side.text(1.0, 1.0, "doors", fontsize=7.5, color=MUTED, va="top", ha="right")
     yy = 0.955
     for t, turf in enumerate(turfs[:max_turfs], 1):
         side.text(0, yy, f"{t:>2}", fontsize=9, fontweight="bold", color=INK, va="top")
         side.text(0.07, yy, turf["streets"][:44], fontsize=8.3, color=INK, va="top")
-        side.text(0.07, yy - 0.024, f'avg hail {turf["avg_hail"]:.2f}"  |  value {turf["value"]:.0f}', fontsize=7.4,
+        side.text(0.07, yy - 0.024, turf_line(turf), fontsize=7.4,
                   color=INK2, va="top")
         side.text(1.0, yy, str(turf["doors"]), fontsize=9, color=INK, va="top", ha="right")
         yy -= 0.061

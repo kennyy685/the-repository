@@ -6,11 +6,29 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEFAULTS = {
+    # Who runs this copy of the engine. Code reads the company here instead of hardcoding HMP/Fremont, so the
+    # same engine can serve a second roofer someday: change this block in config.json and home base, the hunt
+    # radius, the everyday radius and printed names follow (`home`, `hunt_radius_mi` and `everyday.radius_mi`
+    # are filled from it by load(); setting those old keys directly in config.json still wins).
+    "company": {
+        "id": "hmp",
+        "name": "HMP Siding & Roofing LLC",
+        "short_name": "HMP",
+        "home_town": "Fremont",
+        "state": "NE",
+        "lat": 41.4333,
+        "lon": -96.4981,
+        "radius_mi": {"hunt": 250, "everyday": 40},
+        # Company business lines only (printed on reports and door hangers).
+        "phones": {"main": "402-889-3385",
+                   "en": {"name": "Kenny Cruz", "phone": "402-936-2709"},
+                   "es": {"name": "Alex Mendez", "phone": "402-889-3385"}}
+    },
     "home": {"name": "Fremont, NE", "lat": 41.4333, "lon": -96.4981},
     "timezone": "America/Chicago",
     "hunt_radius_mi": 250,
     "backfill_days": 730,
-    # States and NWS offices whose areas touch the 250-mile circle around Fremont.
+    # States and NWS offices whose areas touch the 250-mile circle around home base (Fremont for HMP).
     "states": ["NE", "IA", "KS", "SD", "MO", "MN"],
     "wfos": ["OAX", "GID", "LBF", "GLD", "FSD", "ABR", "UNR", "DMX", "DVN", "ARX",
              "MPX", "TOP", "EAX", "ICT", "SGF", "DDC"],
@@ -84,6 +102,54 @@ DEFAULTS = {
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
     },
+    # Everyday leads (T50): old-house neighborhoods for regular siding/roof replacement, no storm needed.
+    # heat 0-100 per walk = 100 x old x owners x value x distance x settled x newbuild
+    "everyday": {
+        "radius_mi": 40,            # search this far around the --near town (default: home base)
+        "old_before": 1980,         # an 'old home' was built before this year
+        "old_floor": 0.2,           # old = old_floor + (1 - old_floor) x share of old homes
+        "old_unknown": 0.6,         # old factor when neither parcels nor the Census know the ages
+        "median_spread_years": 20,  # no age breakdown: share old ~ 0.5 - (median year - old_before) / (2 x this)
+        "age_curve": [[1940, 1.0], [1979, 1.0], [1995, 0.75], [2005, 0.5], [2015, 0.25], [2025, 0.1]],  # one house
+        "owner_floor": 0.3, "owner_unknown": 0.65,
+        # typical home value -> factor: enough value to reinvest in, but not luxury
+        "value_curve": [[60000, 0.5], [110000, 0.85], [150000, 1.0], [350000, 1.0], [500000, 0.8], [800000, 0.6]],
+        "value_unknown": 0.9,
+        "distance_curve": [[0, 1.0], [15, 1.0], [40, 0.8], [80, 0.6]],   # miles from home base
+        "recent_sale_years": 2, "sold_penalty": 0.3,   # settled = 1 - sold_penalty x share bought in the last N years
+        "new_since": 2010, "new_penalty": 0.5,         # newbuild = 1 - new_penalty x share built since new_since
+        "min_homes": 150,           # skip neighborhoods with fewer homes than this
+        "skip_rural": True,         # skip 'Rural near ...' block groups (farms: too far between doors)
+        "kinds": ["single", "mobile", "multi"],
+        "turf_size": 60,
+        "inspect_rate": 0.01,       # prior: estimates per home knocked at heat 50 (lower than storm walks; tune)
+        "refresh_lists": 3,         # `refresh` builds this many everyday lists
+        "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
+        "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
+        "retry_days": 7             # retry a failed Census year-built (B25034) download after this many days
+    },
+    # Hail report on the phone (O3.3): per-address hail evidence for the houses on the storm door lists in hud.json
+    "hail_evidence": {
+        "max_lists": 10,            # storm lists that get evidence (newest first, as hud.json lists them)
+        "max_per_list": 300,        # houses per list, in walking order from the best walk (keeps hud.json small)
+        "radius_mi": 10.0           # ground reports this close count (same as the printed hail report)
+    },
+    # T37: Census language spoken at home -> where Alex (Spanish) should knock, Spanish-first hanger side
+    "language": {
+        "spanish_high": 0.30,       # share of Spanish-speaking households at/above this: reason line + who "Alex"
+        "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
+        "retry_days": 7             # retry a failed Census language download after this many days
+    },
+    # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
+    "today_walk": {
+        "goal_doors": 25,           # doors in today's walk (~2 hours)
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh...
+        "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
+        "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
+        "min_doors": 8,             # skip walks with fewer doors left than this
+        "max_passes": 3,            # a not-home door comes back until it has been tried this many times
+        "house_kinds": ["single", "mobile", "farm"]   # houses only: no apartments/multi-family/commercial
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
@@ -97,12 +163,38 @@ def _merge(base, over):
     return base
 
 
+def apply_company(cfg, over=None):
+    """Fills `home`, `hunt_radius_mi` and `everyday.radius_mi` from the `company` block, except the ones the
+    config file (`over`) sets directly. Returns cfg."""
+    over = over or {}
+    c = cfg.get("company") or {}
+    if "home" not in over and c.get("lat") is not None and c.get("lon") is not None:
+        town = c.get("home_town") or cfg["home"]["name"].split(",")[0].strip()
+        cfg["home"] = {"name": f"{town}, {c['state']}" if c.get("state") else town,
+                       "lat": c["lat"], "lon": c["lon"]}
+    r = c.get("radius_mi") or {}
+    if "hunt_radius_mi" not in over and r.get("hunt") is not None:
+        cfg["hunt_radius_mi"] = r["hunt"]
+    if "radius_mi" not in over.get("everyday", {}) and r.get("everyday") is not None:
+        cfg.setdefault("everyday", {})["radius_mi"] = r["everyday"]
+    return cfg
+
+
+def company_label(cfg):
+    """'HMP Siding & Roofing LLC · Fremont, NE' (printed 'Prepared by' line)."""
+    c = cfg.get("company") or {}
+    return f"{c.get('name', 'HMP Siding & Roofing LLC')} · {cfg['home']['name']}"
+
+
 def load(path=None):
     path = path or os.path.join(ROOT, "config.json")
     cfg = copy.deepcopy(DEFAULTS)
+    over = {}
     if os.path.exists(path):
         with open(path) as f:
-            _merge(cfg, json.load(f))
+            over = json.load(f)
+        _merge(cfg, over)
+    apply_company(cfg, over)
     for k, v in list(cfg["paths"].items()):
         if not os.path.isabs(v):
             cfg["paths"][k] = os.path.join(ROOT, v)
