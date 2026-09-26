@@ -15,4 +15,5 @@ data/*
 !data/followup_scripts.json
 !data/inspection_walk.json
 !data/price_objections.json
+!data/rookie_plan.json
 .env
