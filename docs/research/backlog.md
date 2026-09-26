@@ -55,9 +55,13 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
 - [ ] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
       just calling the listed number (round 34: contact info found, cost unverified, pages blocked)
-- [ ] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
-      questions from an individual unit owner, so a rep never accidentally implies HMP can help with an
-      HOA's special assessment (round 34 flagged the boundary; no script written yet)
+- [x] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
+      questions from an individual unit owner - round 36 (`data/objection_scripts_2.json`)
+- [ ] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
+      tortious-interference line for talking to a homeowner who already signed with another contractor -
+      round 36's script is careful but sourced only from marketing blogs, not a legal primary source
+- [ ] Wire `data/objection_scripts_2.json` into Practice Door's legal-flag scorecard and add its 3
+      situations as new roleplay scenarios (round 36's ranked #1-2; not done yet, needs Builder/Designer)
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
       allows, to get the real 2026 Service Finance dealer-fee schedule and confirm whether Master Elite
       gets better financing terms than plain Certified or a non-GAF-tier contractor (round 33: WebFetch and
@@ -128,6 +132,12 @@ not the parts HMP cares about. Roof-chalking vs. adjuster-acceptance conflict (o
 practical resolution from converging trade sources: chalk one 10'x10' test square at a time for your own hail
 count, don't leave a whole roof chalk-marked for the adjuster's camera - still search-summary sourced (nachi.org,
 contractor blogs), not a manufacturer/insurer primary source, so a narrower follow-up item stays open.
+Round 36 (sales-mastery track): word-for-word EN/ES scripts for three situations (`data/objection_scripts_2.json`)
+- HOA unit-owner deductible questions (redirect to the association's master policy, never discuss
+dollar amounts - closes the round-34 backlog item), a homeowner already signed with another contractor/
+storm chaser (state the 3-day cancel right as fact, never coach cancellation, no disparaging the
+competitor), and turning "no damage found" into a trust/referral moment instead of a lost visit.
+WebFetch/curl blocked on every source tried again; search-summary sourced throughout.
 Round 34 (sales-mastery track): rookie 60-day ramp (volume-gated week-by-week plan for a solo ADHD rookie,
 `data/rookie_plan.json` - 7 day-range blocks with EN/ES daily goals + linked Practice Door drills) +
 landlords/HOA boards (MOPOA/REOMA/Omaha Landlords Association contact numbers, Nebraska SOS corporate search

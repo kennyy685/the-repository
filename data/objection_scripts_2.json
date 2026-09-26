@@ -1,0 +1,32 @@
+[
+  {
+    "id": "already-signed-contract",
+    "situation_en": "Homeowner says they already signed a contract with another roofer (possibly an out-of-town storm chaser).",
+    "situation_es": "El dueño dice que ya firmó un contrato con otro techero (posiblemente un 'storm chaser' de fuera del pueblo).",
+    "framework": "never say the other contract is invalid or coach them to cancel it - just ask questions, give facts, offer a free second look, and let THEM decide. Interfering with a signed contract (tortious interference) is a real legal line, and NE's 3-day right is the homeowner's own right to use, not something HMP pushes them toward.",
+    "say_en": "That's good you're already moving on it - I'm not here to talk you out of anything. Two things worth knowing either way: if you signed within the last 3 days, Nebraska law gives you the right to cancel with no penalty, that's yours whether it's them or us. And it's smart to check who's actually going to be here in 6 months if a warranty issue comes up - a lot of storm crews are gone by winter. If you ever want a second set of eyes on the scope or price before you're locked in for good, no charge, just call.",
+    "say_es": "Qué bien que ya está avanzando - no vengo a convencerlo de nada. Dos cosas que vale la pena saber de todas formas: si firmó en los últimos 3 días, la ley de Nebraska le da el derecho de cancelar sin penalidad, eso es suyo sea con ellos o con nosotros. Y es inteligente ver quién va a estar aquí en 6 meses si hay un problema de garantía - muchas cuadrillas de tormenta ya no están para el invierno. Si en algún momento quiere una segunda opinión sobre el alcance o el precio antes de comprometerse del todo, sin costo, solo llame.",
+    "never_say": "Never tell them to cancel, never say the other contractor is a scam or unregistered without proof, never imply their signed contract isn't binding just because it feels rushed - some are enforceable even without a permit pulled yet. Don't create false urgency ('they'll disappear with your deposit') without evidence specific to that company.",
+    "legal_flag": "3-day right (69-1601) is real and universal in NE (with narrow emergency exceptions) - state the fact, don't push the action. Tortious interference with an existing contract is a civil claim risk if HMP is seen actively persuading someone to breach a signed deal."
+  },
+  {
+    "id": "no-damage-found",
+    "situation_en": "Inspection finds no storm damage, or damage below the insurance threshold.",
+    "situation_es": "La inspección no encuentra daño de tormenta, o el daño está por debajo del mínimo del seguro.",
+    "framework": "say it plainly, show what you looked at, and offer the referral/anniversary ask anyway - honesty here is the sales tool, not a loss.",
+    "say_en": "Good news for you - I checked the whole roof, slopes, vents, gutters, and I'm not seeing hail or wind damage that would hold up with an adjuster. I'm not going to file something that isn't there; that just wastes your time and mine. Here's what I did find (show photos) - nothing that needs action right now. If anything changes after the next storm, or if a neighbor's asking who checked your roof, I'd appreciate the introduction.",
+    "say_es": "Buenas noticias para usted - revisé todo el techo, las pendientes, respiraderos, canaletas, y no veo daño de granizo o viento que se sostenga con un ajustador. No voy a presentar un reclamo que no existe; eso le hace perder tiempo a usted y a mí. Esto sí encontré (mostrar fotos) - nada que requiera acción ahora. Si algo cambia después de la próxima tormenta, o si un vecino pregunta quién revisó su techo, le agradecería la presentación.",
+    "never_say": "Never manufacture damage or point to normal wear as storm-caused to get a claim filed. Never say 'there's always something an adjuster will find' - that invites fraud.",
+    "legal_flag": "Filing or encouraging a claim for damage you know isn't storm-related risks insurance fraud exposure for both HMP and the homeowner. A documented, honest no-damage visit is itself the trust-building asset - log it for a future named referral ask."
+  },
+  {
+    "id": "hoa-unit-owner-deductible",
+    "situation_en": "An individual condo/townhome unit owner in an HOA asks who pays the deductible or whether HMP can help with their claim.",
+    "situation_es": "Un dueño individual de una unidad en una HOA pregunta quién paga el deducible o si HMP puede ayudar con su reclamo.",
+    "framework": "redirect to the association immediately - the roof is common property under the HOA's master policy, never the individual unit owner's claim to file. Never discuss dollar amounts of 'their' deductible as something HMP can cover or negotiate.",
+    "say_en": "That's actually the association's claim to make, not yours individually - the roof is common property, so it's covered under the HOA's master policy, and any board decision about the deductible or a special assessment is between the board and their insurer. What I can do is give the board a written roof-condition report they can bring to their meeting, and if you want, I'll get you the management company's contact so you can ask them directly what's planned.",
+    "say_es": "Ese reclamo en realidad le corresponde a la asociación, no a usted individualmente - el techo es propiedad común, así que está cubierto bajo la póliza maestra de la HOA, y cualquier decisión sobre el deducible o una cuota especial es entre la junta y su aseguradora. Lo que sí puedo hacer es darle a la junta un reporte por escrito del estado del techo para su reunión, y si quiere, le consigo el contacto de la compañía administradora para que les pregunte directamente qué tienen planeado.",
+    "never_say": "Never say HMP can help cover, reduce or negotiate the unit owner's share of a deductible or special assessment - that's the 44-8604 deductible line applied to HOA context, and negotiating claim amounts on anyone's behalf (owner or board) is public-adjuster territory. Never accept a signature or deposit from an individual unit owner for master-roof work; only the association (its board/management company) can authorize it.",
+    "legal_flag": "44-8604 (deductible) and public-adjuster-license boundary both apply here, aimed at the HOA's board/management company rather than a homeowner - round 34 flagged this boundary; this is the word-for-word script closing that item."
+  }
+]
