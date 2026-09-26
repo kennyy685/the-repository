@@ -51,6 +51,10 @@ shows a copy of FilthE's tasks and questions (Claude writes `hub/summary` into t
 the crew go into the app's `handoffs` collection, which the hourly check reads. **Done 2026-09-26:** HMP App = https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT (source `pages/hmp-app.html`);
 AI hub = https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU (source `pages/crew-hq.html`). Right Hand routine change for
 FilthE to approve on the Mac: `docs/orders/right-hand-split.md`.
+**No mixing (FilthE, 2026-09-26):** the app and the AI hub stay fully separate: no hub links, tasks or questions inside the
+app (and no app links in the hub). The app chat still passes crew requests silently via `handoffs`. **Instant wake (approved
+2026-09-26):** app handoffs and hub answers/orders call the King trigger (`fire_trigger`, Claude Code Remote connector) so
+Claude Code acts in seconds; the hourly run is the backup.
 
 ## Answered 2026-09-26 (don't re-ask)
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
