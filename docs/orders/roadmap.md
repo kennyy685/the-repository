@@ -6,7 +6,7 @@ What counts: leads, inspections, claims, jobs. A part matters if it gets FilthE 
 | # | Part | Why it matters | Next concrete step | Board |
 |---|---|---|---|---|
 | 1 | **App layout (Option B)** | Today is 12 screens long; the Sale Guide is 3+ taps deep | Rebuild to Now / Knock / + / Leads / Money once the current pass ships | T75 |
-| 2 | **First real knock day** | Nothing has been tested on a real door yet | FilthE knocks one walk and tells the chat what felt slow or confusing | - |
+| 2 | **Industry benchmarks** | FilthE isn't knocking yet, so internet data stands in for his own | data/benchmarks.json (round 15) drives goals, coaching and the weekly report | round 15 |
 | 3 | **Follow-up engine** | Most sales need 5+ touches; most reps stop at 1-2 | 48 h / 5 day / 10 day reminders + one "Due" list (Today / Tomorrow / Later) | round 9 |
 | 4 | **Daily coaching** | 35-43% of new reps quit in 90 days | End-of-day review (5 questions), before-the-next-door card, rookie framing | T83 |
 | 5 | **Voice** | Typing at a door doesn't happen | First test that the mic works in the Claude app on iPhone, then hold-to-talk logging with a confirm card | T79, T82 |

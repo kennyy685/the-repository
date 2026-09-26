@@ -68,6 +68,8 @@ Claude Code acts in seconds; the hourly run is the backup.
   must be given in English AND Spanish. 69-1602: at the door, say your name, HMP, and what you sell, first thing.
 - HMP business mailing address (D13): **2600 Laverna St, Apt 50, Fremont, NE 68025** (printed on the cancel notice).
 - PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
+- **No field data for now (FilthE, 2026-09-26):** he isn't knocking yet; tune coaching, goals and follow-ups with internet industry
+  benchmarks (`data/benchmarks.json`, round 15) until real numbers come in. Don't wait on or ask for his door results.
 - App layout (T75): **Option B "Next step"** (docs/design/app-layout/option-b.html): tabs Now / Knock / + / Leads / Money; home = the
   Sale Guide card for what to do next; + = add lead / quick price / "help me say it"; ES toggle on every script line; C's big door buttons on Knock.
 
