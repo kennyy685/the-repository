@@ -1211,6 +1211,63 @@ a.btn,a.btn:visited{color:var(--ink)}
   #hoView .ho-next{justify-self:end;min-width:280px}
 }
 @media (prefers-reduced-motion:reduce){#hoView{scroll-behavior:auto}}
+
+/* ================= v22: material order list, calendar, next-step toasts, adjuster prep ================= */
+.app-toast .t-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.app-toast .t-acts .t-act{margin-left:0}
+.app-toast:has(.t-acts){width:min(460px,calc(100% - 32px))}
+.app-toast .t-acts .t-act[data-nsundo]{background:transparent;color:var(--bg);box-shadow:inset 0 0 0 2px var(--bg)}
+.app-toast a.t-act{display:inline-flex;align-items:center;text-decoration:none;border-radius:var(--r-sm)}
+.app-toast .t-act{border-radius:var(--r-sm)}
+.ord{display:grid;gap:14px;min-width:0}
+.ord-secs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ord-secs .est-job{min-height:60px}
+.ord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px 12px}
+.ord-f{display:grid;grid-template-rows:auto 1fr auto;gap:2px;min-width:0;cursor:text}
+.ord-fl{font-size:14px;font-weight:700;line-height:1.2}
+.ord-fh{font-size:12px;line-height:1.25;color:var(--mute)}
+.ord-f input{width:100%;min-width:0;min-height:50px;margin-top:4px;background:var(--bg);border:2px solid var(--line2);border-radius:var(--r-sm);color:var(--ink);font:700 24px/1 var(--f-display);font-variant-numeric:tabular-nums;padding:4px 12px}
+.ord-f input:focus{outline:2px solid var(--hmp);outline-offset:0;border-color:var(--hmp)}
+.ord-f input::placeholder{color:var(--line2)}
+.ord-from{margin:0;font-size:13px;color:var(--ink2);padding:8px 12px;background:var(--bg2);border-radius:var(--r-sm)}
+.ord-from.warn{color:var(--warn)}
+.ord-list{border:2px solid var(--hmp);border-radius:var(--r);background:var(--panel);display:grid;min-width:0;overflow:hidden}
+.ord-lhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ord-lhead h3{margin:0;font:700 22px/1.1 var(--f-display)}
+.ord-lhead span{font-size:13px;color:var(--mute)}
+.ord-g{padding:10px 16px 12px;border-top:1px solid var(--line);display:grid;gap:2px}
+.ord-g:first-of-type{border-top:0}
+.ord-g h4{margin:0 0 4px;font:600 12px/1.3 var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--label)}
+.ord-ln{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:0 12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.ord-g h4 + .ord-ln{border-top:0}
+.ord-ln .q{font:800 24px/1 var(--f-display);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink)}
+.ord-ln .n{font-size:15px;line-height:1.3;min-width:0;overflow-wrap:anywhere}
+.ord-ln .n small{font-size:13px;color:var(--label);font-weight:600;margin-right:6px}
+.ord-ln .h{grid-column:2;font-size:12px;line-height:1.35;color:var(--mute);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ord-how{justify-self:start;margin:0 16px 12px}
+.ord-ask{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ord-ask li{display:grid;gap:2px;padding:9px 12px;background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:var(--r-sm)}
+.ord-ask b{font-size:15px}
+.ord-ask span{font-size:13px;color:var(--ink2)}
+.ord-as{margin:0;padding:0 0 0 18px;display:grid;gap:5px;font-size:14px;line-height:1.4;color:var(--ink2)}
+.ord-as li::marker{color:var(--mute)}
+.ord-foot{margin:0;font-size:13px;color:var(--mute)}
+.ord-eb{font:600 11px/1.3 var(--f-label);letter-spacing:.07em;text-transform:uppercase;color:var(--label)}
+.cal-box{gap:8px}
+.cal-top{display:grid;gap:2px}
+.cal-top b{font:700 22px/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.cal-a{text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.cal-a svg{width:18px;height:18px;flex:none}
+.d-est .cal-a{margin-left:16px;text-decoration:underline;text-underline-offset:3px}
+.ns-val .cal-a{margin-left:12px;padding:2px 0;min-height:32px;font-size:14px}
+.adj{display:grid;gap:14px;min-width:0}
+.adj .ns-it .ns-itt .btn{justify-self:start;min-height:40px}
+.adj-bring{margin:0;padding:0 0 0 18px;display:grid;gap:4px;font-size:15px;line-height:1.4}
+.adj-bring li::marker{color:var(--hmp)}
+.adj-pack{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--r-sm)}
+.adj-pack .chk{width:44px;height:44px;flex:none}
+.adj-pack .chk[aria-checked="true"]{background:var(--m-in);border-color:var(--m-in)}
+.adj-pack span{font-weight:700;font-size:15px}
 </style>
 
 <div class="wrap">
@@ -1656,6 +1713,356 @@ if (typeof module !== "undefined" && module.exports) {
 }
 
   return {estimate, selfCheck, RULES_VERSION};
+})();
+</script>
+<script>
+/* v22 material order list math: docs/app/takeoff.js pasted as-is inside a closure (its names up, fmt, num, fill... stay
+   private). Re-paste the whole file when the Engine Mechanic changes it; the rules come from the db doc system/takeoff. */
+const HMPTakeoff = (() => {
+/* HMP App material takeoff: a JavaScript copy of `hh.py takeoff` (hailhunter/takeoff.py), O7 phase D.
+ *
+ * The page never hard-codes a rule or a word. It reads the rules doc `system/takeoff`, made by
+ *   python3 hh.py takeoff --export-rules --out takeoff-rules.json
+ * and calls takeoff(job, rules). compute() below follows the Python step for step (same float steps, same
+ * round-up with a 1e-9 noise guard), so both give the same order list and text.
+ * Self-check on load: selfCheck(rules) runs rules.test_cases (real Python results) and returns the failures;
+ * if it's not empty the page should say "Material rules out of date" and not show the list.
+ *
+ * job = {kind: roof|siding|gutters|mixed, name,
+ *        roof {squares, eave_ft, rake_ft, ridge_ft, hip_ft, valley_ft, penetrations, roof_type, pitch, overhang_in,
+ *              ridge_vent},
+ *        siding {material, wall_sqft | squares, openings | opening_perimeter_ft, wall_height_ft, outside_corners,
+ *                inside_corners, bottom_ft, rake_ft, exposure_in},
+ *        gutters {feet, runs, corners, snow (default true), height_ft}}
+ * Returns {version, kind, name, material, lines[], groups[], ask_supplier[], assumptions[], text{en,es}}.
+ * Throws Error on a bad job (same cases as the Python ValueError). Materials only: no prices. No dependencies.
+ */
+var TAKEOFF_RULES_VERSION = 1;
+var EPS = 1e-9;
+
+function up(x) { return Math.ceil(x - EPS) + 0; }            // + 0 turns -0 into 0
+
+function pyRound(x) {                                        // Python round(x): exact .5 goes to the even one
+  var r = Math.round(x);
+  if (Math.abs(x % 1) === 0.5) r = 2 * Math.round(x / 2);
+  return r;
+}
+
+function fmt(x) { return String(Number(x)); }                 // same as Python fmt() (shortest repr, 12.0 -> "12")
+
+function pct(frac) { return fmt(pyRound(frac * 1000) / 10); }
+
+function fill(tpl, vals) {
+  Object.keys(vals).forEach(function (k) { tpl = tpl.split("{" + k + "}").join(vals[k]); });
+  return tpl;
+}
+
+function truthy(v) {                                          // Python truthiness for JSON values
+  if (v === null || v === undefined || v === false || v === 0 || v === "" || (typeof v === "number" && isNaN(v))) return false;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === "object") return Object.keys(v).length > 0;
+  return true;
+}
+
+function has(obj, k) { return Object.prototype.hasOwnProperty.call(obj, k); }
+
+function num(v, name, dflt) {
+  if (v === null || v === undefined || v === "") return dflt === undefined ? 0 : dflt;
+  if (typeof v === "object") throw new Error(name + " must be a number, got " + JSON.stringify(v));
+  var x = typeof v === "boolean" ? (v ? 1 : 0) : Number(typeof v === "string" ? v.trim() : v);
+  if (typeof v === "string" && v.trim() === "") x = NaN;
+  if (typeof x !== "number" || !isFinite(x)) throw new Error(name + " must be a number, got " + JSON.stringify(v));
+  if (x < 0) throw new Error(name + " can't be negative");
+  return x;
+}
+
+function section(job, key) {
+  var s = job[key];
+  if (s === null || s === undefined) return null;
+  if (typeof s !== "object" || Array.isArray(s)) throw new Error(key + " must be an object like {\"feet\": 120}");
+  return s;
+}
+
+function riseOf(pitch, rules) {
+  if (pitch === null || pitch === undefined || pitch === "") return null;
+  var s = String(pitch).trim().toLowerCase();
+  var words = rules.config.pitch_words;
+  if (s === "standard" || s === "normal") s = "std";
+  if (has(words, s)) return Number(words[s]);
+  var m = /^(\d+(?:\.\d+)?)\s*(?:[\/:]\s*12)?$/.exec(s);
+  if (!m) throw new Error("pitch must be low, std, steep or a rise per 12 like 7/12, got " + JSON.stringify(pitch));
+  return parseFloat(m[1]);
+}
+
+function compute(job, rules) {
+  if (!job || typeof job !== "object" || Array.isArray(job)) throw new Error("job must be an object");
+  var kind = String(truthy(job.kind) ? job.kind : truthy(job.type) ? job.type : "").trim().toLowerCase();
+  if (rules.kinds.indexOf(kind) < 0) throw new Error("kind must be roof, siding, gutters or mixed");
+  var c = rules.config, T = rules.items;
+  var lines = [], ask = [], assume = [Object.assign({}, rules.assume.rounded)];
+
+  function add(key, qty, vals) {
+    if (qty <= 0) return;
+    var it = T[key], u = rules.units[T[key].unit];
+    lines.push({group: it.group, item: key, en: fill(it.en, vals), es: fill(it.es, vals), qty: qty, unit: it.unit,
+                unit_en: qty === 1 ? u[0] : u[1], unit_es: qty === 1 ? u[2] : u[3],
+                how: {en: fill(it.how_en, vals), es: fill(it.how_es, vals)}});
+  }
+  function note(key, vals) {
+    var a = rules.assume[key];
+    assume.push({en: fill(a.en, vals), es: fill(a.es, vals)});
+  }
+  function askFor(key, vals) {
+    var a = rules.ask[key];
+    ask.push({item: key, en: a.en, es: a.es, why: {en: fill(a.why_en, vals), es: fill(a.why_es, vals)}});
+  }
+
+  var want = kind === "mixed" ? rules.kinds.slice(0, 3) : [kind];
+  var roof = want.indexOf("roof") >= 0 ? section(job, "roof") : null;
+  var siding = want.indexOf("siding") >= 0 ? section(job, "siding") : null;
+  var gutters = want.indexOf("gutters") >= 0 ? section(job, "gutters") : null;
+  if (kind !== "mixed" && (kind === "roof" ? roof : kind === "siding" ? siding : gutters) === null)
+    throw new Error("a " + kind + " job needs a \"" + kind + "\" object with measurements");
+  if (roof === null && siding === null && gutters === null)
+    throw new Error("a mixed job needs at least one of roof, siding, gutters");
+
+  var v, w, roofRake = 0;
+  if (roof !== null) {
+    var sq = num(roof.squares, "roof.squares");
+    var eave = num(roof.eave_ft, "roof.eave_ft");
+    var rake = num(roof.rake_ft, "roof.rake_ft");
+    roofRake = rake;
+    var ridge = num(roof.ridge_ft, "roof.ridge_ft");
+    var hip = num(roof.hip_ft, "roof.hip_ft");
+    var valley = num(roof.valley_ft, "roof.valley_ft");
+    var pen = up(num(roof.penetrations, "roof.penetrations"));
+    var rtRaw = roof.roof_type, rtype, rtGiven;
+    if (rtRaw === null || rtRaw === undefined || rtRaw === "") {
+      rtype = hip > 0 ? "hip" : "gable";
+      rtGiven = false;
+    } else {
+      rtype = String(rtRaw).trim().toLowerCase().replace(/[\s_-]+/g, "");
+      rtGiven = true;
+      if (!has(rules.roof_types, rtype)) throw new Error("roof_type must be gable, hip or cutup, got " + JSON.stringify(rtRaw));
+    }
+    var rise = riseOf(roof.pitch, rules);
+    var pitchGiven = rise !== null;
+    if (rise === null) rise = Number(c.default_pitch);
+    var overhang = num(roof.overhang_in, "roof.overhang_in", Number(c.ice_water_overhang_in));
+    w = c.waste[rtype];
+    var names = rules.roof_types[rtype];
+    v = {sq: fmt(sq), waste: pct(w), type_en: names[0], type_es: names[1],
+         eave: fmt(eave), rake: fmt(rake), ridge: fmt(ridge), hip: fmt(hip), valley: fmt(valley)};
+    if (sq > 0) {
+      v.bps = fmt(c.bundles_per_square);
+      add("shingles", up(sq * (1 + w) * c.bundles_per_square), v);
+    }
+    v.per = fmt(c.starter_ft_per_bundle);
+    add("starter", up((eave + rake) / c.starter_ft_per_bundle), v);
+    v.per = fmt(c.ridge_cap_ft_per_bundle);
+    add("ridge_cap", up((ridge + hip) / c.ridge_cap_ft_per_bundle), v);
+    v.extra = pct(c.drip_edge_extra);
+    v.stick = fmt(c.drip_edge_stick_ft);
+    add("drip_edge", up((eave + rake) * (1 + c.drip_edge_extra) / c.drip_edge_stick_ft), v);
+    if (sq > 0) {
+      v.per = fmt(c.underlayment_sq_per_roll);
+      add("underlayment", up(sq / c.underlayment_sq_per_roll), v);
+    }
+    var width = c.ice_water_width_in;
+    var stripIn = (overhang + c.ice_water_inside_wall_in) * Math.sqrt(1 + (rise / 12) * (rise / 12));
+    var rows = 1 + up(Math.max(0, stripIn - width) / (width - c.ice_water_lap_in));
+    Object.assign(v, {rows: fmt(rows), width: fmt(width), inside: fmt(c.ice_water_inside_wall_in),
+                      overhang: fmt(overhang), pitch: fmt(rise), roll: fmt(c.ice_water_roll_ft)});
+    add("ice_water", up((eave * rows + valley) / c.ice_water_roll_ft), v);
+    if (sq > 0) {
+      v.nps = fmt(c.nails_per_square);
+      v.per = fmt(c.nails_per_box);
+      add("roof_nails", up(sq * (1 + w) * c.nails_per_square / c.nails_per_box), v);
+    }
+    v.n = fmt(pen);
+    add("pipe_boots", pen, v);
+    if (truthy(roof.ridge_vent)) add("ridge_vent", up(ridge), v);
+    var wv = {g: pct(c.waste.gable), h: pct(c.waste.hip), c: pct(c.waste.cutup), type_en: names[0], type_es: names[1],
+              w: pct(w), nps: fmt(c.nails_per_square), inside: fmt(c.ice_water_inside_wall_in), pitch: fmt(rise)};
+    if (sq > 0) { note("waste", wv); note("nails", wv); } else note("no_squares", wv);
+    if (!rtGiven) note("roof_type", wv);
+    if (!pitchGiven && (eave > 0 || valley > 0)) note("pitch", wv);
+    if (eave > 0 || valley > 0) note("ice_water", wv);
+  }
+
+  var material = null;
+  if (siding !== null) {
+    var mRaw = siding.material;
+    material = (mRaw === null || mRaw === undefined || mRaw === "") ? "vinyl"
+      : String(mRaw).trim().toLowerCase().replace(/[\s-]+/g, "_");
+    if (has(rules.material_aliases, material)) material = rules.material_aliases[material];
+    if (!has(rules.materials, material))
+      throw new Error("siding.material must be vinyl, insulated_vinyl or hardie, got " + JSON.stringify(mRaw));
+    var area = num(siding.wall_sqft, "siding.wall_sqft");
+    if (area === 0) area = num(siding.squares, "siding.squares") * 100;
+    var nOpen = up(num(siding.openings, "siding.openings"));
+    var openFt = num(siding.opening_perimeter_ft, "siding.opening_perimeter_ft");
+    var fromCount = openFt === 0 && nOpen > 0;
+    if (fromCount) openFt = nOpen * c.ft_per_opening;
+    var h = num(siding.wall_height_ft, "siding.wall_height_ft");
+    var hGiven = h > 0;
+    if (!hGiven) h = Number(c.default_wall_height_ft);
+    var outside = up(num(siding.outside_corners, "siding.outside_corners"));
+    var inside = up(num(siding.inside_corners, "siding.inside_corners"));
+    var bottom = num(siding.bottom_ft, "siding.bottom_ft");
+    var sRake = num(siding.rake_ft, "siding.rake_ft", roofRake);
+    w = c.siding_waste[material];
+    var hardie = material === "hardie";
+    var mnames = rules.materials[material];
+    v = {area: fmt(area), waste: pct(w), open: fmt(openFt), rake: fmt(sRake), h: fmt(h), bottom: fmt(bottom),
+         extra: pct(c.trim_extra)};
+    var planks = 0;
+    if (hardie) {
+      var exposure = num(siding.exposure_in, "siding.exposure_in", Number(c.hardie_exposure_in));
+      if (exposure <= 0) throw new Error("siding.exposure_in must be more than 0");
+      var cov = exposure * c.hardie_plank_ft / 12;
+      Object.assign(v, {exposure: fmt(exposure), len: fmt(c.hardie_plank_ft), cov: fmt(cov)});
+      planks = up(area * (1 + w) / cov);
+      add("hardie_planks", planks, v);
+      v.planks = fmt(planks);
+      v.per = fmt(c.hardie_nails_per_plank);
+      add("hardie_nails", planks * c.hardie_nails_per_plank, v);
+    } else {
+      add(material + "_siding", up(area * (1 + w) / 100), v);
+    }
+    v.per = fmt(c.house_wrap_roll_sqft);
+    v.extra = pct(c.house_wrap_extra);
+    add("house_wrap", up(area * (1 + c.house_wrap_extra) / c.house_wrap_roll_sqft), v);
+    v.extra = pct(c.trim_extra);
+    var trimLen = hardie ? c.hardie_trim_ft : c.j_channel_ft;
+    v.len = fmt(trimLen);
+    var trim = up((openFt + sRake) * (1 + c.trim_extra) / trimLen);
+    add(hardie ? "hardie_trim" : "j_channel", trim, v);
+    var cornerLen = hardie ? c.hardie_corner_ft : c.corner_post_ft;
+    var per = up(h / cornerLen);
+    Object.assign(v, {len: fmt(cornerLen), per: fmt(per), n: fmt(outside)});
+    add(hardie ? "hardie_outside_corners" : "outside_corners", outside * per * (hardie ? 2 : 1), v);
+    v.n = fmt(inside);
+    add(hardie ? "hardie_inside_corners" : "inside_corners", inside * per, v);
+    v.len = fmt(c.starter_strip_ft);
+    add("starter_strip", up(bottom / c.starter_strip_ft), v);
+    var av = {w: pct(w), mat_en: mnames[0], mat_es: mnames[1], h: fmt(h), n: fmt(nOpen), per: fmt(c.ft_per_opening)};
+    note("siding_waste", av);
+    if (area === 0) note("no_area", av);
+    if (!hGiven && (outside > 0 || inside > 0)) note("wall_height", av);
+    if (fromCount) note("openings", av);
+    if (hardie) {
+      askFor("hardie_caulk", {planks: fmt(planks), trim: fmt(trim)});
+      askFor("hardie_paint", {planks: fmt(planks)});
+    } else if (area > 0) {
+      askFor("vinyl_nails", {sq: fmt(up(area * (1 + w) / 100))});
+    }
+  }
+
+  if (gutters !== null) {
+    var feet = num(gutters.feet, "gutters.feet");
+    var runs = up(num(gutters.runs, "gutters.runs", 1));
+    if (feet > 0 && runs < 1) runs = 1;
+    var corners = up(num(gutters.corners, "gutters.corners"));
+    var snowRaw = gutters.snow;
+    var snow = (snowRaw === null || snowRaw === undefined) ? true : truthy(snowRaw);
+    var sp = c.hanger_spacing_in[snow ? "snow" : "no_snow"];
+    var sn = rules.snow[snow ? "true" : "false"];
+    var gh = num(gutters.height_ft, "gutters.height_ft");
+    if (gh === 0 && siding !== null) gh = num(siding.wall_height_ft, "siding.wall_height_ft");
+    v = {feet: fmt(feet), runs: fmt(runs), n: fmt(corners), sp: fmt(sp), snow_en: sn[0], snow_es: sn[1], h: fmt(gh),
+         per: fmt(c.gutter_ft_per_downspout)};
+    if (feet > 0) {
+      add("gutter", up(feet), v);
+      var d = Math.max(runs, up(feet / c.gutter_ft_per_downspout));
+      add("downspouts", d, v);
+      v.d = fmt(d);
+      add("downspout_pipe", up(d * gh), v);
+      v.per = fmt(c.elbows_per_downspout);
+      add("elbows", d * c.elbows_per_downspout, v);
+      add("outlets", d, v);
+      add("hangers", up(feet * 12 / sp) + runs, v);
+      add("end_caps", 2 * runs, v);
+      add("miters", corners, v);
+      note("hangers", v);
+      if (gh === 0) note("no_height", v);
+      askFor("gutter_sealant", {runs: fmt(runs), caps: fmt(2 * runs), miters: fmt(corners)});
+    }
+  }
+
+  if (!lines.length)
+    throw new Error("nothing to count: give measurements (roof squares/eave ft, siding wall_sqft, gutter feet)");
+
+  var nameRaw = truthy(job.name) ? job.name : job.address;
+  var name = (nameRaw === null || nameRaw === undefined || nameRaw === "") ? "" : String(nameRaw).trim();
+  var groups = [];
+  rules.groups.forEach(function (g) {
+    var n = lines.filter(function (ln) { return ln.group === g.key; }).length;
+    if (!n) return;
+    var gg = {key: g.key, en: g.en, es: g.es, count: n};
+    if (g.key === "siding") {
+      gg.en = g.en + " (" + rules.materials[material][0] + ")";
+      gg.es = g.es + " (" + rules.materials[material][1] + ")";
+    }
+    groups.push(gg);
+  });
+  var tx = rules.text, text = {};
+  ["en", "es"].forEach(function (lang) {
+    var out = [fill(tx["title_" + lang], {company: rules.company})];
+    if (name) out.push(fill(tx["job_" + lang], {name: name}));
+    groups.forEach(function (g) {
+      out.push("");
+      out.push(g[lang]);
+      lines.forEach(function (ln) {
+        if (ln.group === g.key) out.push("- " + fmt(ln.qty) + " " + ln["unit_" + lang] + " " + ln[lang]);
+      });
+    });
+    if (ask.length) {
+      out.push("");
+      out.push(fill(tx["ask_" + lang], {items: ask.map(function (a) { return a[lang]; }).join(", ")}));
+    }
+    out.push("");
+    out.push(tx["end_" + lang]);
+    text[lang] = out.join("\n");
+  });
+  return {version: rules.version, kind: kind, name: name, material: material, lines: lines, groups: groups,
+          ask_supplier: ask, assumptions: assume, text: text};
+}
+
+function takeoff(job, rules) {
+  if (!rules || rules.version !== TAKEOFF_RULES_VERSION) throw new Error("material rules doc is missing or a different version");
+  return compute(job, rules);
+}
+
+function canon(x) {                                           // key-order-free JSON for comparing results
+  if (Array.isArray(x)) return "[" + x.map(canon).join(",") + "]";
+  if (x && typeof x === "object") return "{" + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ":" + canon(x[k]); }).join(",") + "}";
+  return JSON.stringify(x);
+}
+
+/* Runs rules.test_cases through takeoff(); returns [] when the JS matches Python exactly, else one message per miss. */
+function selfCheck(rules) {
+  var fails = [];
+  (rules.test_cases || []).forEach(function (t) {
+    var r;
+    try { r = takeoff(t.job, rules); } catch (err) { fails.push(t.name + ": error " + err.message); return; }
+    if (canon(r) === canon(t.expect)) return;
+    var x = t.expect;
+    if (canon(r.lines) !== canon(x.lines)) fails.push(t.name + ": lines differ");
+    if (canon(r.text) !== canon(x.text)) fails.push(t.name + ": text differs");
+    if (canon(r.assumptions) !== canon(x.assumptions)) fails.push(t.name + ": assumptions differ");
+    if (canon(r.ask_supplier) !== canon(x.ask_supplier)) fails.push(t.name + ": ask_supplier differs");
+    if (!fails.length || fails[fails.length - 1].indexOf(t.name + ":") !== 0) fails.push(t.name + ": result differs");
+  });
+  return fails;
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {takeoff: takeoff, compute: compute, selfCheck: selfCheck, up: up, fmt: fmt, canon: canon,
+                    TAKEOFF_RULES_VERSION: TAKEOFF_RULES_VERSION};
+}
+
+  return {takeoff, selfCheck, TAKEOFF_RULES_VERSION};
 })();
 </script>
 <script>
@@ -2352,6 +2759,7 @@ const L = () => TX[lang];
 const HUB_URL = 'https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU';   // the AI hub (the old Crew HQ link)
 let DB = null;
 let prices;   // db system/prices (hh.py estimate --export-rules): undefined = loading, null = missing
+let takeoffRules;   // v22: db system/takeoff (hh.py takeoff --export-rules): undefined = loading, null = missing
 let dbState = 'wait';
 let hub = null;   // hub/summary {tasks:[{id,task,status}], waiting:[{id,q}], hub_link, updated_at}; null = not written yet (the boxes hide)
 function statusKey(s){ const u = String(s||'').toUpperCase(); if (u.startsWith('DOING')) return 'doing'; if (u.startsWith('BLOCK')) return 'blocked'; if (u.startsWith('REVIEW')) return 'review'; if (u.startsWith('DONE')) return 'done'; if (u.startsWith('PARK')) return 'parked'; return 'todo'; }
@@ -2579,9 +2987,16 @@ const VX = {
 };
 const V = () => VX[lang];
 function appToast(msg, act){ const n = $('#appToast'); n.textContent = msg;
-  if (act) { const b = document.createElement('button'); b.type = 'button'; b.className = 't-act'; if (act.open) b.dataset.open = act.open; if (act.undo) b.dataset.nsundo = '1'; b.textContent = act.label; n.append(b); }   // v17: e.g. “Make a quick estimate”
-  n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), act ? 9000 : 3800); }
-$('#appToast').addEventListener('click', ev => { if (ev.target.closest('button')) { clearTimeout(appToast.t); $('#appToast').hidden = true; } });
+  // v17: one action (e.g. “Make a quick estimate”); v22: or a list: {label, open | undo | run() | href (a link, e.g. Google Calendar)}
+  const acts = (Array.isArray(act) ? act : act ? [act] : []).filter(a => a && a.label);
+  if (acts.length) { const box = acts.length > 1 ? el('span', 't-acts') : n;
+    for (const a of acts) { const b = document.createElement(a.href ? 'a' : 'button'); b.className = 't-act';
+      if (a.href) { b.href = a.href; b.target = '_blank'; b.rel = 'noopener'; } else b.type = 'button';
+      if (a.open) b.dataset.open = a.open; if (a.undo) b.dataset.nsundo = '1'; if (a.kind) b.dataset.act = a.kind; if (typeof a.run === 'function') b.addEventListener('click', a.run);
+      b.textContent = a.label; box.append(b); }
+    if (box !== n) n.append(box); }
+  n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), acts.length ? 9000 + 3000 * (acts.length - 1) : 3800); }
+$('#appToast').addEventListener('click', ev => { if (ev.target.closest('button, a')) { clearTimeout(appToast.t); $('#appToast').hidden = true; } });
 
 /* ================= outbox: writes that can't reach the database wait on this phone and retry by themselves ================= */
 const OB_KEY = 'hmp-app-outbox';
@@ -2854,10 +3269,12 @@ function cbOpts(){
   if (toSat > 1) out.push({key: 'sat', due: addDays(t0, toSat), label: {en: 'Saturday', es: 'el sábado'}, btn: {en: 'Saturday', es: 'Sábado'}});
   return out;
 }
-function estLink(s, res){   // v17: after Interested or Booked, one tap to price the job (the lead's quick estimate)
-  if (!(res === 'interested' || res === 'booked') || !x_canEst()) return '';
-  const id = slugOf(s.address), l = leads.find(x => x.id === id), has = l && l.estimate && typeof l.estimate === 'object' && l.estimate.low != null;
-  return `<div class="d-est"><button type="button" class="linkbtn" data-open="est:${esc(id)}">${esc(has ? L().estUpd : L().estNew)} →</button></div>`;
+function estLink(s, res){   // v17: after Interested or Booked, one tap to price the job (the lead's quick estimate); v22: + Add to calendar
+  const id = slugOf(s.address), l = leads.find(x => x.id === id), ap = res === 'booked' && l ? apptOf(l) : null;
+  const cal = ap ? calLink(ap, l, 'linkbtn') : '';
+  if (!(res === 'interested' || res === 'booked') || !x_canEst()) return cal ? `<div class="d-est">${cal}</div>` : '';
+  const has = l && l.estimate && typeof l.estimate === 'object' && l.estimate.low != null;
+  return `<div class="d-est"><button type="button" class="linkbtn" data-open="est:${esc(id)}">${esc(has ? L().estUpd : L().estNew)} →</button>${cal}</div>`;
 }
 const x_canEst = () => !!DB && CAN_EDIT;
 function renderKnock(){
@@ -3024,12 +3441,15 @@ async function tapDoor(pid, result, book, at){
       if (LORDER(stage) > LORDER(lead.stage) || lead.stage === 'lost' || !LEAD_STAGES.includes(lead.stage)) lead.stage = stage;
       lead.next_step = next; lead.doors_visits = [...(Array.isArray(lead.doors_visits) ? lead.doors_visits : []), {date, result, pass, at: ts}].slice(-20);
       lead.last_contact = ts; lead.updated_at = ts; lead.updated_by = 'Today’s knock';
+      if (result === 'booked' && book) lead.appt = {kind: kind === 'everyday' ? 'estimate' : 'inspection', day: book.day, time: book.time || null, at: ts};   // v22: the calendar reads it
       r2 = await save({op: 'set', path: 'leads/' + slug, body: lead});
       rec.lead = slug; rec.prevLead = old ? (({id, ...rest}) => rest)(old) : null;
     }
     const u = undoLog.get(pid) || []; u.push(rec); undoLog.set(pid, u);
     const q = r1 === 'queued' || r2 === 'queued';
-    if (rec.lead) { if (q) queuedToastAt = Date.now(); appToast(q ? V().queuedTap : V().nudge(shortAddr(s.address), result), {label: L().estNew, open: 'est:' + rec.lead}); }   // v17
+    if (rec.lead) { if (q) queuedToastAt = Date.now();   // v17: price it; v22: a booking also offers "Add to calendar"
+      const lb = leads.find(x => x.id === rec.lead) || {}, ap = result === 'booked' && book ? {kind: kind === 'everyday' ? 'estimate' : 'inspection', day: book.day, time: book.time || null} : null;
+      appToast(q ? V().queuedTap : V().nudge(shortAddr(s.address), result), [{label: L().estNew, open: 'est:' + rec.lead}, ...(ap ? [{label: CT().add, href: gcalUrl(ap, Object.assign({}, lb, {address: s.address, city: s.city})), kind: 'cal'}] : [])]); }
     else if (q) noteQueued();
   } catch (e) {
     setLocalDoor(pid, prev); cbAsk = null; renderKnock();
@@ -4113,7 +4533,7 @@ function nsItems(l, sid, kind){
         it('packed', I.packed), it('scope', I.scope, (c && (dayOf(c.scope_date) || ci >= CLAIM_STEPS.indexOf('scope_in'))) || false, 'tell')]; }
     case 'measure': { const dep = arr(l.payments).find(p => p.kind === 'deposit');
       return [it('exact', I.exact, est && !numv(est.job && est.job.footprint_sqft) && (numv(est.job && est.job.siding_squares) || numv(est.job && est.job.roof_squares) || numv(est.job && est.job.gutter_ft))),
-        it('order', I.order), it('deposit', I.deposit, (dep && dayOf(dep.paid_on)) || numv(l.deposit) > 0, 'tell', {val: numv(l.deposit) > 0 ? usd(numv(l.deposit)) : dep && numv(dep.amount) ? usd(numv(dep.amount)) : ''})]; }
+        it('order', I.order, hasOrder(l), 'tick', {val: hasOrder(l) ? orderLine(l) : ''}), it('deposit', I.deposit, (dep && dayOf(dep.paid_on)) || numv(l.deposit) > 0, 'tell', {val: numv(l.deposit) > 0 ? usd(numv(l.deposit)) : dep && numv(dep.amount) ? usd(numv(dep.amount)) : ''})]; }
     case 'build': return [it('crewDate', I.crewDate, l.stage === 'job_scheduled' && dayOf(ns.due), 'tick', {val: l.stage === 'job_scheduled' ? txl(ns) : ''}), it('dayOf', I.dayOf), it('after', I.after, hasSlot(l, ['after']), 'auto')];
     case 'paid': { const cm = cashMoney(l);
       return [it('paidFull', I.paidFull, kind === 'cash' ? cm.price != null && cm.owed === 0 && cm.got > 0 : !!(c && c.stage === 'paid'), 'tell'),
@@ -4218,6 +4638,8 @@ function nsCard(l){
   if (sid === 'paid') extra.push(nsTextRow(l, 'R', can));
   if ((sid === 'table' && kind === 'cash') || (sid === 'inspect' && kind === 'cash') || sid === 'measure') { const e = l.estimate && numv(l.estimate.low) != null;
     if (can) extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(X.estBtn(e))}</button></div>`); }
+  if (sid === 'measure' || sid === 'build') extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(hasOrder(l) ? OT().openList : OT().btn)}</button></div>`);   // v22
+  if (sid === 'claim') extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="adj:${esc(l.id)}">${esc(AT().btn)}</button></div>`);   // v22
   if (sid === 'paper') extra.push(`<p class="ns-info"><b>${esc(X.info)}</b>${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
   const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
   const ready = pickReady(act && act.pick, l.id) && (!act || !act.must || mustOn === musts.length);
@@ -4245,7 +4667,7 @@ function nsCard(l){
 /* ---------- writes (through the outbox: a bad signal never loses a tick) ---------- */
 async function nsWrite(id, patch, okMsg, undo){
   const at = nowIso(); patch.updated_at = at; patch.updated_by = 'Next step';
-  try { const r = await save({op: 'update', path: 'leads/' + id, body: patch}); if (r === 'queued') noteQueued(); if (okMsg) appToast(okMsg, undo ? {label: NX().undo, undo: true} : null); return true; }
+  try { const r = await save({op: 'update', path: 'leads/' + id, body: patch}); if (r === 'queued') noteQueued(); if (okMsg) appToast(okMsg, Array.isArray(undo) ? undo : undo ? {label: NX().undo, undo: true} : null); return true; }
   catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); if (refused(e)) { CAN_EDIT = false; renderApp(true); } return false; }
 }
 async function nsTick(id, key){
@@ -4263,13 +4685,18 @@ async function nsDone(id){
   const kind = leadKind(l), sid = nsStepOf(l), act = sid && nsAction(l, sid, kind); if (!act) return;
   if (!pickReady(act.pick, id)) { appToast(NX().pickFirst); return; }
   if (act.must) { const ms = nsItems(l, sid, kind).filter(x => x.must); if (ms.some(x => !itemOn(l, x))) return; }
-  const at = nowIso(), patch = act.apply(nsPick || {}), done = [...new Set([...stepDoneOf(l), sid])];
+  const at = nowIso(), pk = nsPick || {}, patch = act.apply(pk), done = [...new Set([...stepDoneOf(l), sid])];
   const nid = nsStepOf(Object.assign({}, l, patch, {step: {done}}));
   patch.step = {id: nid || 'finished', done, at};
   if (patch.stage && patch.stage !== l.stage) patch.last_contact = at;
+  // v22: a day picked for a visit, the adjuster or the build is kept as lead.appt (the calendar button reads it)
+  const apk = act.pick && pk.day ? {inspection_set: kind === 'cash' ? 'estimate' : 'inspection', adjuster_meeting: 'adjuster', job_scheduled: 'build'}[patch.stage] : null;
+  if (apk) patch.appt = {kind: apk, day: pk.day, time: act.pick.time && pk.time ? pk.time : null, at};
   const prev = {}; for (const k of Object.keys(patch)) prev[k] = l[k] === undefined ? null : clone(l[k]);
   nsPick = null; nsUndo = {id, prev};
-  await nsWrite(id, patch, nid === 'finished' ? NX().finished : NX().moved(nsNum(nid), nsName(nid, kind)), true);
+  // v22 (round 8 item 7): the next step's first action rides on the toast, one tap. Nothing is sent to the homeowner by itself.
+  const acts = [{label: NX().undo, undo: true}, ...milestoneActs(l, Object.assign({}, l, patch), sid, kind)];
+  await nsWrite(id, patch, nid === 'finished' ? NX().finished : NX().moved(nsNum(nid), nsName(nid, kind)), acts);
 }
 async function nsUndoLast(){
   const u = nsUndo; nsUndo = null; if (!u) return;
@@ -4373,6 +4800,8 @@ function renderSheet(){
   const T = L(), C = T.ct; $('#shClose').textContent = T.close;
   if (kind === 'proof') { renderProof(id); return; }
   if (kind === 'est') { renderEst(id); return; }
+  if (kind === 'ord') { ORD.render(id); return; }   // v22
+  if (kind === 'adj') { renderAdj(id); return; }    // v22
   if (kind === 'lead') {
     const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
     const V0 = V();
@@ -4382,7 +4811,7 @@ function renderSheet(){
     const v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
     const claim = claims.find(c => c.id === l.id);
     const late = lateLeads().find(x => x.l.id === l.id);
-    const parts = [nsCard(l)];   // v19: the Next-step card comes first
+    const parts = [nsCard(l), calBox(l)];   // v19: the Next-step card comes first; v22: then the appointment + Add to calendar
     if (late) parts.push(`<p class="k-stale" style="border-left-color:var(--crit);background:var(--crit-soft)"><span><b style="color:var(--crit)">${esc(V0.late(whoOf(l), late.days))}</b> ${esc(V0.lateWhat)}</span></p>`);
     parts.push(nextBox(l.next_step, ['done', 'lost'].includes(l.stage), 'div'));
     if (l.type === 'cash' && numv(l.contract_price) != null) { const m = cashMoney(l);
@@ -4390,6 +4819,7 @@ function renderSheet(){
     const estS = l.estimate && typeof l.estimate === 'object' && numv(l.estimate.low) != null ? l.estimate : null, estFin = ['done', 'lost'].includes(l.stage);
     if (estS || !estFin) parts.push(`<section class="box"><h3>${esc(T.estH)}</h3>${estS ? `<p class="est-saved">${esc(EstimateScreen.savedLine(estS, lang))}</p>` : ''}${!estFin ? `<div class="sheet-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(estS ? T.estUpd : T.estNew)}</button></div>` : ''}</section>`);
     parts.push(hoLeadBox(l));   // v21: Show homeowner + Send report
+    parts.push(orderBox(l));    // v22: the saved material order list
     const tb = textBox(l); if (tb) parts.push(tb);
     if (ASSETS) parts.push(photosBox(l));
     { const sid = nsStepOf(l), kind = leadKind(l), n = !sid ? 0 : sid === 'finished' ? 9 : nsNum(sid);   // v19: the 8 sale steps
@@ -4416,6 +4846,7 @@ function renderSheet(){
   $('#shSub').textContent = [strv(c.city), strv(c.homeowner_first_name) ? `${C.homeowner}: ${strv(c.homeowner_first_name)}` : ''].filter(Boolean).join(' · ');
   $('#shTrack').innerHTML = claimTrack(c);
   const parts = [nextBox(c.next_step, c.stage === 'paid' || c.stage === 'lost', 'div')];
+  { const ca = claimAppt(c); if (ca) parts.push(calBoxFor(ca, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step})); }   // v22
   // quick taps (editors only)
   const acv = c.acv && typeof c.acv === 'object' ? c.acv : {};
   if (DB && CAN_EDIT && c.stage !== 'paid' && c.stage !== 'lost') {
@@ -4508,6 +4939,364 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Tab') { const f = [...$('#sheet').querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.disabled); if (!f.length) return;
     if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); } }
 });
+
+/* ================= v22 · 2: appointments -> calendar (round 8 item 8) =================
+   A lead's appointment = lead.appt {kind: inspection|estimate|adjuster|build, day, time|null, at} (written by a Booked tap and
+   by the Next-step picker), else the stage's next_step (due day + a time like "3 PM" in its text). Only while the stage still
+   matches (inspection_set / adjuster_meeting / job_scheduled) and the day is today or later.
+   "Add to calendar" is a plain https link to Google Calendar's event form (the artifact frame opens https links in a new tab).
+   An .ics file can't be offered here: the frame makes data:/blob: download links inert, and the downloads capability's
+   allowlist has no .ics. Nothing is sent to the homeowner. */
+const CALX = {
+  en: {add: 'Add to calendar', hint: 'Opens Google Calendar with the day and time filled in. Tap Save there.', allDay: 'all day', noTime: 'time not set yet',
+    k: {inspection: 'Inspection', estimate: 'Estimate visit', adjuster: 'Adjuster meeting', build: 'Build day'},
+    at: (k, a, who) => `${k} at ${a}${who ? ' with ' + who : ''}.`, from: 'From the HMP App.'},
+  es: {add: 'Agregar al calendario', hint: 'Abre Google Calendar con el día y la hora puestos. Ahí dale Guardar.', allDay: 'todo el día', noTime: 'todavía sin hora',
+    k: {inspection: 'Inspección', estimate: 'Cita de presupuesto', adjuster: 'Cita con el ajustador', build: 'Día de obra'},
+    at: (k, a, who) => `${k} en ${a}${who ? ' con ' + who : ''}.`, from: 'Desde la HMP App.'}
+};
+const CT = () => CALX[lang];
+const CAL_STAGE = {inspection: 'inspection_set', estimate: 'inspection_set', adjuster: 'adjuster_meeting', build: 'job_scheduled'};
+const CAL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+function timeIn(s){ const m = /(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b/i.exec(strv(s)); if (!m) return null; let h = +m[1] % 12; if (/p/i.test(m[3])) h += 12; const mi = m[2] ? +m[2] : 0; return h < 24 && mi < 60 ? `${pad2(h)}:${pad2(mi)}` : null; }
+function apptOf(l){
+  if (!l || typeof l !== 'object') return null;
+  const want = {inspection_set: leadKind(l) === 'cash' ? 'estimate' : 'inspection', adjuster_meeting: 'adjuster', job_scheduled: 'build'}[l.stage]; if (!want) return null;
+  const a = l.appt && typeof l.appt === 'object' ? l.appt : null, ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : {};
+  let kind = want, day, time;
+  if (a && CAL_STAGE[a.kind] === l.stage && dayOf(a.day)) { kind = a.kind; day = dayOf(a.day); time = /^\d{2}:\d{2}$/.test(strv(a.time)) ? a.time : null; }
+  else { day = dayOf(ns.due); if (want === 'adjuster') { const c = claimFor(l); if (c && dayOf(c.adjuster_date)) day = dayOf(c.adjuster_date); }
+    time = want === 'build' ? null : timeIn(ns.en) || timeIn(ns.es); }
+  if (kind === 'build') time = null;
+  return day && daysFromToday(day) >= 0 ? {kind, day, time} : null;
+}
+function claimAppt(c){   // the claim sheet: the adjuster meeting, today or later
+  const d = c && dayOf(c.adjuster_date); if (!d || daysFromToday(d) < 0 || ['paid', 'lost'].includes(c.stage)) return null;
+  const l = leads.find(x => x.id === c.id), la = l && apptOf(l), ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : {};
+  const time = la && la.kind === 'adjuster' && la.day === d ? la.time : dayOf(ns.due) === d ? timeIn(ns.en) || timeIn(ns.es) : null;
+  return {kind: 'adjuster', day: d, time};
+}
+const clock = t => { const [h, m] = t.split(':').map(Number); return `${h % 12 || 12}${m ? ':' + pad2(m) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
+const whenLabel = a => `${toDate(a.day).toLocaleDateString(locale(), {weekday: 'short', month: 'short', day: 'numeric'})}${a.time ? ', ' + clock(a.time) : ' · ' + (a.kind === 'build' ? CT().allDay : CT().noTime)}`;
+function gcalUrl(a, who){
+  const C = CT(), d = a.day.replace(/-/g, ''), addr = strv(who && who.address), first = strv(who && who.first_name), k = C.k[a.kind] || C.k.inspection;
+  let dates;
+  if (a.time) { const [h, m] = a.time.split(':').map(Number), end = Math.min(h * 60 + m + (a.kind === 'adjuster' ? 90 : 60), 23 * 60 + 59);
+    dates = `${d}T${pad2(h)}${pad2(m)}00/${d}T${pad2(Math.floor(end / 60))}${pad2(end % 60)}00`; }
+  else dates = `${d}/${addDays(a.day, 1).replace(/-/g, '')}`;   // no time (a build day): an all-day event
+  const ns = who && who.next_step && typeof who.next_step === 'object' ? txl(who.next_step) : '';
+  const details = [C.at(k, addr, first), ns, a.kind === 'adjuster' ? NX().tips.adjuster : '', C.from].filter(Boolean).join('\n');
+  const q = new URLSearchParams({action: 'TEMPLATE', text: `HMP · ${k} · ${first ? first + ' · ' : ''}${shortAddr(addr)}`, dates, ctz: 'America/Chicago',
+    location: [addr, strv(who && who.city), 'NE'].filter(Boolean).join(', '), details});
+  return 'https://calendar.google.com/calendar/render?' + q.toString();
+}
+const calLink = (a, who, cls) => `<a class="${cls || 'btn'} cal-a" data-cal="${esc(a.kind)}" href="${esc(gcalUrl(a, who))}" target="_blank" rel="noopener">${cls === 'linkbtn' ? '' : CAL_ICON}${esc(CT().add)}</a>`;
+function calBoxFor(a, who){
+  const C = CT();
+  return `<section class="box cal-box" id="calBox"><div class="cal-top"><span class="ord-eb">${esc(C.k[a.kind])}</span><b>${esc(whenLabel(a))}</b></div>
+    <div class="sheet-acts">${calLink(a, who)}</div><p class="stamp">${esc(C.hint)}</p></section>`;
+}
+function calBox(l){ const a = apptOf(l); return a ? calBoxFor(a, l) : ''; }
+
+/* ================= v22 · 3: next steps on milestones (round 8 item 7) =================
+   When a Next-step Done moves a lead, the toast carries Undo plus the next step's first action (one tap). It opens a screen
+   or a link; it never texts the homeowner. */
+const MLX = {
+  en: {cal: 'Add to calendar', photos: 'Photo checklist', est: 'Price it', show: 'Show homeowner', paper: 'Paperwork checklist', order: 'Order materials', adj: 'Adjuster prep checklist', review: 'Ask for a review'},
+  es: {cal: 'Agregar al calendario', photos: 'Lista de fotos', est: 'Sacar precio', show: 'Enseñar al dueño', paper: 'Lista de papeles', order: 'Pedir material', adj: 'Lista para el ajustador', review: 'Pedir una reseña'}
+};
+function openSub(ref){ const back = openRef && openRef.startsWith('lead:') ? openRef : null; openSheet(ref, null); if (back && openRef === ref) { sheetBack = back; renderSheet(); } }
+function scrollSheet(sel){ requestAnimationFrame(() => { const n = document.querySelector('#shBody ' + sel); if (!n) return; n.scrollIntoView({block: 'start', behavior: RM ? 'auto' : 'smooth'});
+  const f = n.querySelector('button:not([disabled]), a[href], input'); if (f) f.focus({preventScroll: true}); }); }
+function milestoneActs(l0, lp, sid, kind){
+  const M = MLX[lang], id = l0.id, out = [];
+  const cal = () => { const a = apptOf(lp); if (a) out.push({label: M.cal, href: gcalUrl(a, lp), kind: 'cal'}); };
+  const go = (label, fn, k) => out.push({label, run: fn, kind: k});
+  if (sid === 'door') cal();
+  else if (sid === 'set') { if (kind === 'cash') go(M.est, () => openSub('est:' + id), 'est'); else if (ASSETS) go(M.photos, () => scrollSheet('#phBox'), 'photos'); }
+  else if (sid === 'inspect') go(M.show, () => HO.open({leadId: id}), 'show');
+  else if (sid === 'table') go(M.paper, () => scrollSheet('#nsCard'), 'paper');
+  else if (sid === 'paper') go(M.order, () => openSub('ord:' + id), 'order');
+  else if (sid === 'claim') { if (lp.stage === 'adjuster_meeting') { go(M.adj, () => openSub('adj:' + id), 'adj'); cal(); } else if (lp.stage === 'approved') go(M.order, () => openSub('ord:' + id), 'order'); }
+  else if ((sid === 'measure' || sid === 'build') && lp.stage === 'job_scheduled') { cal(); if (!hasOrder(lp)) go(M.order, () => openSub('ord:' + id), 'order'); }
+  else if (sid === 'build' && lp.stage === 'done') go(M.review, () => scrollSheet('#nsCard'), 'review');
+  return out.slice(0, 2);
+}
+
+/* ================= v22 · 1: material order list (round 8 item 9, O7 phase D) =================
+   Sheet "ord:<leadId>": measurements by section (prefilled from lead.order, else lead.estimate), the list from
+   HMPTakeoff.takeoff(job, system/takeoff) grouped, the "ask the supplier" items and the assumptions, the EN or ES order text
+   (Text it / Copy), and Save -> lead.order = {job, lines, at}. The rules doc passes selfCheck (the engine's own answers)
+   or the list stays hidden. Materials only: no prices anywhere. */
+const OX = {
+  en: {
+    eb: 'Material order', btn: 'Order materials', openList: 'Open the order list', boxH: 'Material order',
+    secH: 'What is on this job?', sec: {roof: ['Roof', 'shingles + accessories'], siding: ['Siding', 'panels, trim, wrap'], gutters: ['Gutters', 'seamless + downspouts']},
+    roofH: 'Roof measurements', sidingH: 'Siding measurements', guttersH: 'Gutter measurements',
+    f: {roof: {squares: ['Squares', '100 sq ft each'], eave_ft: ['Eaves', 'feet · bottom edges'], rake_ft: ['Rakes', 'feet · sloped gable edges'], ridge_ft: ['Ridges', 'feet · top peaks'],
+               hip_ft: ['Hips', 'feet · sloped corners'], valley_ft: ['Valleys', 'feet · inside corners'], penetrations: ['Pipes + vents', 'count on the roof']},
+        siding: {wall_sqft: ['Wall area', 'sq ft to cover'], openings: ['Windows + doors', 'count'], wall_height_ft: ['Wall height', 'feet · ground to eave'],
+                 outside_corners: ['Outside corners', 'count'], inside_corners: ['Inside corners', 'count'], bottom_ft: ['Bottom edge', 'feet · starter strip run']},
+        gutters: {feet: ['Gutter', 'feet along the eaves'], runs: ['Runs', 'separate straight pieces'], corners: ['Corners', 'count (miters)']}},
+    typeL: 'Roof shape', type: {gable: 'Gable', hip: 'Hip', cutup: 'Cut-up', unsure: 'Not sure'},
+    pitchL: 'Pitch', pitch: {low: ['Low', '4/12'], std: ['Standard', '6/12'], steep: ['Steep', '9/12'], unsure: ['Not sure', 'counts 6/12']},
+    ventL: 'Ridge vent', no: 'No', yes: 'Yes',
+    matL: 'Siding type', mat: {vinyl: 'Vinyl', insulated_vinyl: 'Insulated vinyl', hardie: 'James Hardie'},
+    fromEst: 'Filled in from the quick estimate. Measure, and fix any number before you order.',
+    fromEstRough: 'The quick estimate was rough (from the house size). Measure the walls and the roof before you order.',
+    fromOrder: w => `Opened from the list saved ${w}.`,
+    listH: 'Order list', items: n => `${n} ${pl(n, 'item', 'items')} · counts rounded up`, howShow: 'Show how each number was counted', howHide: 'Hide the math',
+    askH: 'Ask the supplier', askP: 'no safe formula: the supplier quotes these', asH: 'What the list assumes',
+    sendH: 'Send to the supplier', textLang: 'Order text in', text: 'Text it', copy: 'Copy', copied: 'Copied', copySel: 'Selected: copy it',
+    sendNote: 'Your phone opens Messages with the list ready. Pick the supplier and press send. If nothing opens, copy it.',
+    saveH: 'Save to this lead', saveBtn: 'Save the order list', saving: 'Saving…', saved: 'Saved to the lead.', queued: 'Saved on this phone. It reaches the lead when you are back online.',
+    saveFail: 'That did not save. Try again.', readOnly: 'Only editors can save here. Copy the list instead.', lastSaved: w => `Last saved ${w}.`,
+    foot: 'Materials only, no prices. Every count is rounded up; the supplier confirms colors and quantities.',
+    g: {roof: 'roof', siding: 'siding', gutters: 'gutters'}, savedLine: (w, n, g) => `Saved ${w} · ${n} ${pl(n, 'item', 'items')}: ${g}`,
+    calm: {loading: ['Loading the material rules…', ''], missing: ['Material rules not loaded yet', 'The order list needs the rules from the engine. Claude Code loads them; until then nothing is counted.'],
+           stale: ['Material rules out of date', 'The list stays hidden so a wrong count never goes to a supplier. Claude Code updates the rules.'],
+           nosec: ['Pick roof, siding or gutters', 'Tap what this job needs, above.'], empty: ['Add a measurement', 'Enter roof squares or eaves, the wall area, or gutter feet to see the list.'],
+           bad: ['Check the numbers', 'One of the numbers can’t be used. Fix it and the list comes back.']}
+  },
+  es: {
+    eb: 'Pedido de material', btn: 'Pedir material', openList: 'Abrir la lista del pedido', boxH: 'Pedido de material',
+    secH: '¿Qué lleva este trabajo?', sec: {roof: ['Techo', 'tejas + accesorios'], siding: ['Siding', 'paneles, molduras, envoltura'], gutters: ['Canaletas', 'sin costura + bajantes']},
+    roofH: 'Medidas del techo', sidingH: 'Medidas del siding', guttersH: 'Medidas de las canaletas',
+    f: {roof: {squares: ['Cuadros', '100 pies² cada uno'], eave_ft: ['Aleros', 'pies · orillas de abajo'], rake_ft: ['Bordes inclinados', 'pies · orillas de los hastiales'], ridge_ft: ['Cumbreras', 'pies · picos de arriba'],
+               hip_ft: ['Limatesas', 'pies · esquinas inclinadas'], valley_ft: ['Limahoyas', 'pies · esquinas hacia adentro'], penetrations: ['Tubos + ventilas', 'cuántos hay en el techo']},
+        siding: {wall_sqft: ['Área de pared', 'pies² a cubrir'], openings: ['Ventanas + puertas', 'cuántas'], wall_height_ft: ['Altura de pared', 'pies · del suelo al alero'],
+                 outside_corners: ['Esquinas de afuera', 'cuántas'], inside_corners: ['Esquinas de adentro', 'cuántas'], bottom_ft: ['Orilla de abajo', 'pies · para la tira de arranque']},
+        gutters: {feet: ['Canaleta', 'pies a lo largo de los aleros'], runs: ['Tramos', 'piezas rectas separadas'], corners: ['Esquinas', 'cuántas (ingletes)']}},
+    typeL: 'Forma del techo', type: {gable: 'Dos aguas', hip: 'Cuatro aguas', cutup: 'Muchos cortes', unsure: 'No sé'},
+    pitchL: 'Inclinación', pitch: {low: ['Baja', '4/12'], std: ['Normal', '6/12'], steep: ['Empinada', '9/12'], unsure: ['No sé', 'cuenta 6/12']},
+    ventL: 'Ventila de cumbrera', no: 'No', yes: 'Sí',
+    matL: 'Tipo de siding', mat: {vinyl: 'Vinil', insulated_vinyl: 'Vinil aislado', hardie: 'James Hardie'},
+    fromEst: 'Lleno con el presupuesto rápido. Mide y corrige cualquier número antes de pedir.',
+    fromEstRough: 'El presupuesto rápido fue aproximado (por el tamaño de la casa). Mide las paredes y el techo antes de pedir.',
+    fromOrder: w => `Abierto de la lista guardada ${w}.`,
+    listH: 'Lista del pedido', items: n => `${n} ${pl(n, 'material', 'materiales')} · cantidades redondeadas hacia arriba`, howShow: 'Ver cómo se contó cada número', howHide: 'Ocultar las cuentas',
+    askH: 'Preguntar al proveedor', askP: 'no hay fórmula segura: el proveedor los cotiza', asH: 'Lo que supone la lista',
+    sendH: 'Mandar al proveedor', textLang: 'Texto del pedido en', text: 'Mandar texto', copy: 'Copiar', copied: 'Copiado', copySel: 'Seleccionado: cópialo',
+    sendNote: 'Tu teléfono abre Mensajes con la lista puesta. Escoge al proveedor y dale enviar. Si no abre nada, cópiala.',
+    saveH: 'Guardar en este prospecto', saveBtn: 'Guardar la lista del pedido', saving: 'Guardando…', saved: 'Guardada en el prospecto.', queued: 'Se guardó en este teléfono. Llega al prospecto cuando vuelva la señal.',
+    saveFail: 'No se guardó. Intenta otra vez.', readOnly: 'Solo los editores pueden guardar aquí. Mejor copia la lista.', lastSaved: w => `Guardada por última vez ${w}.`,
+    foot: 'Solo material, sin precios. Cada cantidad está redondeada hacia arriba; el proveedor confirma colores y cantidades.',
+    g: {roof: 'techo', siding: 'siding', gutters: 'canaletas'}, savedLine: (w, n, g) => `Guardada ${w} · ${n} ${pl(n, 'material', 'materiales')}: ${g}`,
+    calm: {loading: ['Cargando las reglas de material…', ''], missing: ['Todavía no se cargan las reglas de material', 'La lista del pedido necesita las reglas del motor. Claude Code las carga; mientras tanto no se cuenta nada.'],
+           stale: ['Las reglas de material están desactualizadas', 'La lista se esconde para que nunca le llegue una cantidad mal al proveedor. Claude Code actualiza las reglas.'],
+           nosec: ['Escoge techo, siding o canaletas', 'Toca arriba lo que lleva este trabajo.'], empty: ['Agrega una medida', 'Pon los cuadros o aleros del techo, el área de pared o los pies de canaleta para ver la lista.'],
+           bad: ['Revisa los números', 'Uno de los números no sirve. Corrígelo y la lista regresa.']}
+  }
+};
+const OT = () => OX[lang];
+const ORD_FIELDS = {roof: ['squares', 'eave_ft', 'rake_ft', 'ridge_ft', 'hip_ft', 'valley_ft', 'penetrations'],
+  siding: ['wall_sqft', 'openings', 'wall_height_ft', 'outside_corners', 'inside_corners', 'bottom_ft'], gutters: ['feet', 'runs', 'corners']};
+const ORD_INT = ['penetrations', 'openings', 'outside_corners', 'inside_corners', 'runs', 'corners'];
+const ORD_SECS = ['roof', 'siding', 'gutters'], ORD_MATS = ['vinyl', 'insulated_vinyl', 'hardie'];
+const hasOrder = l => !!(l && l.order && typeof l.order === 'object' && Array.isArray(l.order.lines) && l.order.lines.length);
+const orderAt = l => (hasOrder(l) ? strv(l.order.at) || 'saved' : null);
+function orderLine(l){
+  if (!hasOrder(l)) return ''; const X = OT(), ls = l.order.lines.filter(x => x && typeof x === 'object');
+  const gs = ORD_SECS.filter(g => ls.some(x => x.group === g)).map(g => X.g[g]).join(', ');
+  return X.savedLine(fmtWhen(l.order.at) || '', ls.length, gs);
+}
+function orderBox(l){
+  if (!hasOrder(l)) return ''; const X = OT();
+  return `<section class="box" id="ordBox"><h3>${esc(X.boxH)}</h3><p class="est-saved">${esc(orderLine(l))}</p><div class="sheet-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(X.openList)}</button></div></section>`;
+}
+const ORD = (() => {
+  const el = document.createElement('div'); el.className = 'ord';
+  let st = null, forId = null, sig = '', lastAt = null, checked, fails = [], copyT = 0;
+  const T = OT, lead = () => leads.find(x => x.id === forId) || null;
+  const pos = v => { const n = numv(v); return n != null && n > 0 ? n : null; };
+  function problem(){
+    if (takeoffRules === undefined) return 'loading';
+    if (!takeoffRules || typeof takeoffRules !== 'object' || !takeoffRules.items || !Array.isArray(takeoffRules.kinds)) return 'missing';
+    if (Number(takeoffRules.version) !== HMPTakeoff.TAKEOFF_RULES_VERSION) return 'stale';
+    if (checked !== takeoffRules) { checked = takeoffRules; try { fails = HMPTakeoff.selfCheck(takeoffRules); } catch (e) { fails = ['selfCheck: ' + (e.message || e)]; }
+      if (fails.length && typeof console !== 'undefined') console.warn('[order] material rules out of date:', fails); }
+    return fails.length ? 'stale' : null;
+  }
+  function prefill(l){
+    const s = {sec: {roof: false, siding: false, gutters: false}, roof: {}, siding: {}, gutters: {}, roof_type: null, pitch: null, ridge_vent: false, material: 'vinyl',
+               ml: 'en', how: false, save: null, from: null, rough: false, base: orderAt(l)};
+    const o = hasOrder(l) && l.order.job && typeof l.order.job === 'object' ? l.order.job : null;
+    if (o) { s.from = 'order';
+      for (const k of ORD_SECS) { const x = o[k]; if (!x || typeof x !== 'object') continue; s.sec[k] = true; for (const f of ORD_FIELDS[k]) { const n = numv(x[f]); if (n != null && n >= 0) s[k][f] = n; } }
+      if (o.roof && typeof o.roof === 'object') { if (['gable', 'hip', 'cutup'].includes(o.roof.roof_type)) s.roof_type = o.roof.roof_type; if (['low', 'std', 'steep'].includes(o.roof.pitch)) s.pitch = o.roof.pitch; s.ridge_vent = o.roof.ridge_vent === true; }
+      if (o.siding && ORD_MATS.includes(o.siding.material)) s.material = o.siding.material;
+    } else { const j = l && l.estimate && typeof l.estimate === 'object' && l.estimate.job && typeof l.estimate.job === 'object' ? l.estimate.job : null;
+      if (j) { s.from = 'estimate'; const t = j.type, rq = pos(j.roof_squares), sq = pos(j.siding_squares), gf = pos(j.gutter_ft), fp = pos(j.footprint_sqft);
+        s.sec.roof = t === 'roof' || (t === 'mixed' && !!(rq || fp)); s.sec.siding = t === 'siding' || (t === 'mixed' && !!(sq || fp)); s.sec.gutters = t === 'gutters' || (t === 'mixed' && !!gf);
+        if (rq) s.roof.squares = rq; if (sq) s.siding.wall_sqft = Math.round(sq * 100); if (gf) s.gutters.feet = gf;
+        if (pos(j.windows)) s.siding.openings = Math.round(pos(j.windows));
+        if (['low', 'steep'].includes(j.pitch)) s.pitch = j.pitch;   // "std" is the estimate's default, not a measurement: left as "Not sure"
+        if (ORD_MATS.includes(j.material)) s.material = j.material;
+        s.rough = !!fp && !rq && !sq; } }
+    if (!ORD_SECS.some(k => s.sec[k])) s.sec[l && leadKind(l) === 'cash' ? 'siding' : 'roof'] = true;
+    return s;
+  }
+  function job(l){   // every field is written (null = not measured): the db merges nested objects, so an old value never lingers
+    const on = ORD_SECS.filter(k => st.sec[k]);
+    const sec = k => { if (!st.sec[k]) return null; const o = {}; for (const f of ORD_FIELDS[k]) o[f] = st[k][f] != null ? st[k][f] : null; return o; };
+    const j = {kind: on.length === 1 ? on[0] : 'mixed', name: [strv(l && l.address), strv(l && l.city)].filter(Boolean).join(', '), roof: sec('roof'), siding: sec('siding'), gutters: sec('gutters')};
+    if (j.roof) Object.assign(j.roof, {roof_type: st.roof_type, pitch: st.pitch, ridge_vent: !!st.ridge_vent});
+    if (j.siding) j.siding.material = st.material;
+    return j;
+  }
+  function compute(l){
+    const p = problem(); if (p) return {problem: p};
+    if (!ORD_SECS.some(k => st.sec[k])) return {problem: 'nosec'};
+    const j = job(l);
+    try { return {res: HMPTakeoff.takeoff(j, takeoffRules), job: j}; }
+    catch (e) { return {problem: /nothing to count|needs a|needs at least/.test(e.message || '') ? 'empty' : 'bad', job: j}; }
+  }
+  const qfmt = q => new Intl.NumberFormat(locale()).format(q);
+  const seg = (key, items, cur, label) => `<div class="est-seg" role="group" aria-label="${esc(label)}">${items.map(([v, t, sm]) => `<button type="button" data-k="${key}:${v}" data-oset="${key}" data-v="${v}" aria-pressed="${String(cur) === String(v)}">${esc(t)}${sm ? `<small>${esc(sm)}</small>` : ''}</button>`).join('')}</div>`;
+  const field = (k, f) => { const [lb, hint] = T().f[k][f], v = st[k][f], id = `ord-${k}-${f}`;
+    return `<label class="ord-f" for="${id}"><span class="ord-fl">${esc(lb)}</span><span class="ord-fh">${esc(hint)}</span><input id="${id}" data-k="in:${k}.${f}" data-of="${k}.${f}" inputmode="${ORD_INT.includes(f) ? 'numeric' : 'decimal'}" autocomplete="off" placeholder="0" value="${v == null ? '' : esc(String(v))}"></label>`; };
+  const calm = (k) => { const [h, p] = T().calm[k] || T().calm.bad; return `<section class="est-calm" role="status"><h3>${esc(h)}</h3>${p ? `<p>${esc(p)}</p>` : ''}</section>`; };
+  function formHtml(l){
+    const X = T(), parts = [];
+    const from = st.from === 'order' ? `<p class="ord-from">${esc(X.fromOrder(fmtWhen(l && l.order && l.order.at) || ''))}</p>` : st.from === 'estimate' ? `<p class="ord-from${st.rough ? ' warn' : ''}">${esc(st.rough ? X.fromEstRough : X.fromEst)}</p>` : '';
+    parts.push(`<section class="est-sec"><h3 class="est-h">${esc(X.secH)}</h3><div class="ord-secs" role="group" aria-label="${esc(X.secH)}">${ORD_SECS.map(k => `<button type="button" class="est-job" data-k="sec:${k}" data-osec="${k}" aria-pressed="${st.sec[k]}"><b>${esc(X.sec[k][0])}</b><span>${esc(X.sec[k][1])}</span></button>`).join('')}</div>${from}</section>`);
+    if (st.sec.roof) parts.push(`<section class="est-sec"><h3 class="est-h">${esc(X.roofH)}</h3><div class="ord-grid">${ORD_FIELDS.roof.map(f => field('roof', f)).join('')}</div>
+      <div class="est-row"><span class="est-lbl">${esc(X.typeL)}</span>${seg('roof_type', [['gable', X.type.gable], ['hip', X.type.hip], ['cutup', X.type.cutup], ['', X.type.unsure]], st.roof_type || '', X.typeL)}</div>
+      <div class="est-row"><span class="est-lbl">${esc(X.pitchL)}</span>${seg('pitch', ['low', 'std', 'steep'].map(p => [p, X.pitch[p][0], X.pitch[p][1]]).concat([['', X.pitch.unsure[0], X.pitch.unsure[1]]]), st.pitch || '', X.pitchL)}</div>
+      <div class="est-row"><span class="est-lbl">${esc(X.ventL)}</span>${seg('ridge_vent', [['0', X.no], ['1', X.yes]], st.ridge_vent ? '1' : '0', X.ventL)}</div></section>`);
+    if (st.sec.siding) parts.push(`<section class="est-sec"><h3 class="est-h">${esc(X.sidingH)}</h3>
+      <div class="est-row"><span class="est-lbl">${esc(X.matL)}</span>${seg('material', ORD_MATS.map(m => [m, X.mat[m]]), st.material, X.matL)}</div>
+      <div class="ord-grid">${ORD_FIELDS.siding.map(f => field('siding', f)).join('')}</div></section>`);
+    if (st.sec.gutters) parts.push(`<section class="est-sec"><h3 class="est-h">${esc(X.guttersH)}</h3><div class="ord-grid">${ORD_FIELDS.gutters.map(f => field('gutters', f)).join('')}</div></section>`);
+    return parts.join('');
+  }
+  function resHtml(l){
+    const X = T(), c = compute(l), can = !!DB && CAN_EDIT;
+    if (c.problem) return calm(c.problem);
+    const r = c.res, lg = lang, n = r.lines.length;
+    const groups = r.groups.map(g => `<section class="ord-g"><h4>${esc(g[lg])}</h4>${r.lines.filter(x => x.group === g.key).map(x => `<div class="ord-ln" data-item="${esc(x.item)}"><span class="q">${esc(qfmt(x.qty))}</span><span class="n"><small>${esc(x["unit_" + lg])}</small> ${esc(x[lg])}</span>${st.how ? `<span class="h">${esc(x.how[lg])}</span>` : ''}</div>`).join('')}</section>`).join('');
+    const out = [`<section class="ord-list" id="ordList" aria-live="polite"><div class="ord-lhead"><h3>${esc(X.listH)}</h3><span>${esc(X.items(n))}</span></div>${groups}<button type="button" class="linkbtn ord-how" data-k="how" data-oact="how" aria-expanded="${st.how}">${esc(st.how ? X.howHide : X.howShow)}</button></section>`];
+    if (r.ask_supplier.length) out.push(`<section class="est-sec" id="ordAsk"><h3 class="est-h">${esc(X.askH)}<small>${esc(X.askP)}</small></h3><ul class="ord-ask">${r.ask_supplier.map(a => `<li><b>${esc(a[lg])}</b><span>${esc(a.why[lg])}</span></li>`).join('')}</ul></section>`);
+    out.push(`<section class="est-sec" id="ordAs"><h3 class="est-h">${esc(X.asH)}</h3><ul class="ord-as">${r.assumptions.map(a => `<li>${esc(a[lg])}</li>`).join('')}</ul></section>`);
+    const ml = st.ml, text = r.text[ml];
+    out.push(`<section class="est-sec" id="ordSend"><h3 class="est-h">${esc(X.sendH)}</h3>
+      <div class="est-row"><span class="est-lbl">${esc(X.textLang)}</span><div class="est-mlang" role="group" aria-label="${esc(X.textLang)}"><button type="button" data-k="ml:en" data-oml="en" aria-pressed="${ml === 'en'}" lang="en">English</button><button type="button" data-k="ml:es" data-oml="es" aria-pressed="${ml === 'es'}" lang="es">Español</button></div></div>
+      <p class="est-msg" id="ordMsg" lang="${ml}">${esc(text)}</p>
+      <div class="est-acts"><a class="est-btn" data-k="sms" href="sms:?&amp;body=${encodeURIComponent(text)}">${esc(X.text)}</a><button type="button" class="est-btn" data-k="copy" data-oact="copy">${esc(X.copy)}</button></div>
+      <p class="est-small">${esc(X.sendNote)}</p></section>`);
+    const sv = st.save, at = orderAt(l);
+    const status = sv === 'saving' ? `<p class="est-small">${esc(X.saving)}</p>` : sv === 'saved' ? `<p class="est-ok" role="status">${esc(X.saved)}</p>` : sv === 'queued' ? `<p class="est-ok" role="status">${esc(X.queued)}</p>` : sv === 'fail' ? `<p class="est-err" role="alert">${esc(X.saveFail)}</p>` : sv === 'ro' ? `<p class="est-err" role="alert">${esc(X.readOnly)}</p>` : '';
+    out.push(`<section class="est-sec" id="ordSave"><h3 class="est-h">${esc(X.saveH)}</h3>${at && !sv && fmtWhen(at) ? `<p class="est-small">${esc(X.lastSaved(fmtWhen(at)))}</p>` : ''}
+      ${can && sv !== 'ro' ? `<div class="est-acts"><button type="button" class="est-btn go" data-k="save" data-oact="save"${sv === 'saving' ? ' disabled' : ''}>${esc(X.saveBtn)}</button></div>` : sv === 'ro' ? '' : `<p class="est-small">${esc(X.readOnly)}</p>`}${status}</section>`);
+    out.push(`<p class="ord-foot">${esc(X.foot)}</p>`);
+    return out.join('');
+  }
+  const refocus = (root, k) => { if (!k) return; const n = root.querySelector(`[data-k="${CSS.escape(k)}"]`); if (n && !n.disabled) n.focus({preventScroll: true}); };
+  function draw(){
+    const l = lead(); if (!l) return;
+    const ae = document.activeElement, fk = ae && el.contains(ae) ? ae.dataset.k : null;
+    const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
+    const p = problem();
+    el.innerHTML = back + (p ? calm(p) : `${formHtml(l)}<div class="ord" id="ordRes">${resHtml(l)}</div>`);
+    lastAt = orderAt(l); refocus(el, fk);
+  }
+  function drawRes(){
+    const box = el.querySelector('#ordRes'), l = lead(); if (!box || !l) return;
+    const ae = document.activeElement, fk = ae && box.contains(ae) ? ae.dataset.k : null;
+    box.innerHTML = resHtml(l); lastAt = orderAt(l); refocus(box, fk);
+  }
+  function render(id){
+    const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
+    const X = T();
+    $('#shEyebrow').textContent = X.eb; $('#shTitle').textContent = strv(l.address) || l.id;
+    $('#shSub').textContent = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · '); $('#shTrack').innerHTML = '';
+    const body = $('#shBody'), fresh = el.parentNode !== body;
+    // a new lead, or reopened after a list was saved (here or on another phone): start from the saved list; else keep the taps
+    if (forId !== id || !st || (fresh && orderAt(l) !== st.base)) { forId = id; st = prefill(l); sig = ''; }
+    if (fresh) { body.innerHTML = ''; body.append(el); sig = ''; }
+    const sg = JSON.stringify([lang, !!DB && CAN_EDIT, problem(), !!sheetBack]);
+    if (sg !== sig) { sig = sg; draw(); } else if (orderAt(l) !== lastAt) drawRes();
+  }
+  async function doSave(){
+    const l = lead(); if (!l || st.save === 'saving') return; const c = compute(l); if (!c.res) return;
+    st.save = 'saving'; drawRes();
+    const at = nowIso();
+    try { const r = await save({op: 'update', path: 'leads/' + l.id, body: {order: {job: c.job, lines: c.res.lines, at}, updated_at: at, updated_by: 'Material order'}});
+      st.save = r === 'queued' ? 'queued' : 'saved'; if (r === 'queued') noteQueued(); }
+    catch (e) { st.save = refused(e) ? 'ro' : 'fail'; if (refused(e)) CAN_EDIT = false; }
+    drawRes();
+  }
+  el.addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b || !el.contains(b) || !st) return;
+    if (b.dataset.osec) { const k = b.dataset.osec; st.sec[k] = !st.sec[k]; st.save = null; draw(); return; }
+    if (b.dataset.oset) { const k = b.dataset.oset, v = b.dataset.v;
+      if (k === 'ridge_vent') st.ridge_vent = v === '1'; else if (k === 'material') st.material = v; else st[k] = v || null;
+      st.save = null; draw(); return; }
+    if (b.dataset.oml) { st.ml = b.dataset.oml; drawRes(); return; }
+    if (b.dataset.oact === 'how') { st.how = !st.how; drawRes(); return; }
+    if (b.dataset.oact === 'save') { doSave(); return; }
+    if (b.dataset.oact === 'copy') { const p = el.querySelector('#ordMsg'), X = T(); if (!p) return;
+      const sel = () => { const rg = document.createRange(); rg.selectNodeContents(p); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(rg); b.textContent = X.copySel; };
+      const ok = () => { b.textContent = X.copied; clearTimeout(copyT); copyT = setTimeout(() => { if (b.isConnected) b.textContent = T().copy; }, 1600); };
+      try { navigator.clipboard.writeText(p.textContent).then(ok, sel); } catch (e) { sel(); } }
+  });
+  el.addEventListener('input', ev => {
+    const i = ev.target.closest('input[data-of]'); if (!i || !st) return;
+    const [k, f] = i.dataset.of.split('.'), raw = i.value.trim();
+    if (raw === '') delete st[k][f]; else { const n = numv(raw.replace(',', '.')); if (n != null && n >= 0) st[k][f] = n; else delete st[k][f]; }
+    st.save = null; drawRes();
+  });
+  return {render, state: () => st, compute: () => (st && lead() ? compute(lead()) : null)};
+})();
+
+/* ================= v22: adjuster prep checklist (sheet "adj:<leadId>", opened from the Claim step and the toast) =================
+   Read from the lead + its claim; the only tap is "Packed and ready" (lead.collected.packed, the same tick as the Claim step). */
+const ADJX = {
+  en: {btn: 'Adjuster prep checklist', eb: 'Adjuster prep', h: 'Before the adjuster comes', have: 'Have', claimNo: 'Claim number', insurer: 'Insurance company', adjuster: 'Adjuster name + phone',
+    when: 'Adjuster day and time', proof: 'Storm-date proof at this address', proofV: (h, d) => `${h}" hail · ${d}`, photos: (d, t) => `Dated photos: every slope + all 4 sides (${d} of ${t})`,
+    squares: 'Test squares on each slope (wide, mid, close)', meas: 'Roof measurements or a roof diagram', ask: 'Ask the homeowner', missing: 'Still to get',
+    bringH: 'Bring', bring: ['Ladder (tied off) and a harness', 'Chalk, a tape measure and a coin for scale', 'The printed adjuster checklist', 'A charged phone for dated photos'],
+    packed: 'Packed and ready', noClaim: 'No claim logged yet. Tell the Right Hand the claim number and the insurer.', roNote: 'Only editors can tick this here.'},
+  es: {btn: 'Lista para el ajustador', eb: 'Preparar al ajustador', h: 'Antes de que venga el ajustador', have: 'Tener', claimNo: 'Número de reclamo', insurer: 'Aseguradora', adjuster: 'Nombre y teléfono del ajustador',
+    when: 'Día y hora del ajustador', proof: 'Prueba de la fecha de la tormenta en esta dirección', proofV: (h, d) => `granizo de ${h}" · ${d}`, photos: (d, t) => `Fotos con fecha: cada agua + los 4 lados (${d} de ${t})`,
+    squares: 'Cuadros de prueba en cada agua (lejos, medio, cerca)', meas: 'Medidas del techo o un dibujo del techo', ask: 'Pregúntale al dueño', missing: 'Falta',
+    bringH: 'Llevar', bring: ['Escalera (amarrada) y arnés', 'Gis, cinta de medir y una moneda para la escala', 'La lista del ajustador impresa', 'El teléfono cargado para las fotos con fecha'],
+    packed: 'Todo listo para llevar', noClaim: 'Todavía no hay reclamo registrado. Dile a la Mano Derecha el número de reclamo y la aseguradora.', roNote: 'Solo los editores pueden marcar esto aquí.'}
+};
+const AT = () => ADJX[lang];
+function renderAdj(id){
+  const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
+  const A = AT(), c = claimFor(l), pp = photoProgress(l), ev = proofFor(l.address, l.city), can = !!DB && CAN_EDIT;
+  $('#shEyebrow').textContent = A.eb; $('#shTitle').textContent = strv(l.address) || l.id;
+  $('#shSub').textContent = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · '); $('#shTrack').innerHTML = '';
+  const adj = c && c.adjuster && typeof c.adjuster === 'object' ? c.adjuster : {}, ap = apptOf(l) || (c && claimAppt(c));
+  const est = l.estimate && typeof l.estimate === 'object' ? l.estimate : null;
+  const measOk = (hasOrder(l) && l.order.lines.some(x => x && x.group === 'roof')) || !!(est && est.job && numv(est.job.roof_squares) && !numv(est.job.footprint_sqft));
+  const claimNo = strv(c && c.claim_no) || strv(l.claim_no), insurer = strv(c && c.insurer) || strv(l.insurer);
+  const rows = [
+    [A.claimNo, !!claimNo, claimNo ? esc(claimNo) : '', true],
+    [A.insurer, !!insurer, esc(insurer), true],
+    [A.adjuster, !!strv(adj.name), [esc(strv(adj.name)), strv(adj.phone) ? copyHtml(strv(adj.phone)) : ''].filter(Boolean).join(' · '), true],
+    [A.when, !!(ap && ap.time), ap ? `${esc(whenLabel(ap))}${calLink(ap, Object.assign({}, l), 'linkbtn')}` : '', true],
+    [A.proof, !!ev, ev ? `${esc(A.proofV(fmtIn(numv(ev.hail_in)), dayOf(ev.day) ? fmtDay(dayOf(ev.day)) : ''))} <button type="button" class="btn sm" data-open="proof:${esc(evKey(l.address, l.city))}">${esc(V().proof)}</button>` : ''],
+    [A.photos(pp.done, pp.total), pp.done === pp.total, ''],
+    [A.squares, hasSlot(l, ['sqWide', 'sqMid', 'sqClose']) === 3, ''],
+    [A.meas, measOk, hasOrder(l) ? esc(orderLine(l)) : '']
+  ];
+  const X = NX(), packed = ticked(l, 'packed');
+  const li = ([label, on, val, tell]) => `<li class="ns-it${on ? ' on' : ''}"><span class="chk" role="img" aria-label="${esc(on ? '✓ ' + label : label)}">${on ? '✓' : ''}</span><div class="ns-itt"><span>${esc(label)}</span>${val ? `<span class="ns-val">${val}</span>` : ''}${!on ? `<span class="ns-hint warn">${esc(tell ? A.ask : A.missing)}</span>` : ''}</div></li>`;
+  const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
+  $('#shBody').innerHTML = `${back}<div class="adj" id="adjSheet">
+    <section class="ns" aria-labelledby="adjH"><div class="ns-top"><span class="ns-of">${esc(A.eb)}</span></div><h3 class="ns-name" id="adjH">${esc(A.h)}</h3>
+      ${!c ? `<p class="ns-info">${esc(A.noClaim)}</p>` : ''}
+      <div class="ns-sec"><b class="ns-lb">${esc(A.have)}</b><ul class="ns-ck">${rows.map(li).join('')}</ul></div>
+      <div class="ns-sec"><b class="ns-lb">${esc(A.bringH)}</b><ul class="adj-bring">${A.bring.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <p class="ns-tip"><b>${esc(X.tip)}</b>${esc(X.tips.adjuster)}</p>
+      <p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.claim)}</p>
+      <div class="adj-pack"><button type="button" class="chk" role="checkbox" aria-checked="${packed}" aria-label="${esc(A.packed)}" data-nstick="packed" data-lead="${esc(l.id)}"${can ? '' : ' disabled'}>${packed ? '✓' : ''}</button><span>${esc(A.packed)}</span></div>
+      ${can ? '' : `<p class="ns-hint">${esc(A.roNote)}</p>`}
+    </section></div>`;
+}
 
 /* ================= v21: homeowner screen ("Daylight report", FilthE picked option B) =================
    A full-screen LIGHT view to hand the phone across the kitchen table: 1 Your home, today (the lead's photos in checklist
@@ -5290,9 +6079,9 @@ $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 /* ================= live data ================= */
 async function connect(){
   const cl = window.claude;
-  if (!cl || typeof cl.use !== 'function') { prices = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
+  if (!cl || typeof cl.use !== 'function') { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
   let db = null; try { db = await cl.use('db'); } catch (e) { db = null; }
-  if (!db) { prices = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
+  if (!db) { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
   setLive('wait', L().live.loading); DB = db;
   try {
     subscribeApp(db);
@@ -5324,6 +6113,8 @@ function subscribeApp(db){
   db.doc('stats/streak').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('streak', v)) { streakDoc = v; bump(); } }, () => {});   // v19
   db.doc('system/prices').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('prices', v)) { prices = v; if (openRef && openRef.startsWith('est:')) renderSheet(); if (HO.isOpen()) HO.render(); } },
     () => { if (prices === undefined) { prices = null; if (openRef && openRef.startsWith('est:')) renderSheet(); } });
+  db.doc('system/takeoff').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('takeoff', v)) { takeoffRules = v; if (openRef && openRef.startsWith('ord:')) renderSheet(); } },   // v22
+    () => { if (takeoffRules === undefined) { takeoffRules = null; if (openRef && openRef.startsWith('ord:')) renderSheet(); } });
   db.doc('hub/summary').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('hub', v)) { hub = v && typeof v === 'object' ? v : null; bump(); } }, () => {});   // v20: the AI hub's copy
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
 }
