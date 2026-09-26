@@ -44,6 +44,12 @@ all day, not a dashboard. Plan: `docs/orders/o7-sale-guide.md`.
 **Standard (FilthE, 2026-09-26):** keep researching and upgrading, using the best apps as references. "Works" isn't
 the bar: build what reliably improves the salesman and the business.
 
+## App / AI hub split (FilthE, 2026-09-26)
+The HMP App moves to a **new clean link** (Today / Leads / Money + the chat that logs doors, leads and claims; no AI office),
+with its own database. The current Crew HQ link becomes the **AI hub only** (board, crew, orders, "waiting on you"). The app
+shows a copy of FilthE's tasks and questions (Claude writes `hub/summary` into the app hourly); the app chat's requests for
+the crew go into the app's `handoffs` collection, which the hourly check reads. Order: v19 (Next-step coach) → QA → split.
+
 ## Answered 2026-09-26 (don't re-ask)
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
 - Twilio phone-call storm alerts (D6): **No for now**; push + email alerts stay.
