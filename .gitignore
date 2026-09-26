@@ -6,4 +6,5 @@ __MACOSX/
 data/*
 !data/scout_contacts.json
 !data/watch_list.json
+!data/tuned.json
 .env

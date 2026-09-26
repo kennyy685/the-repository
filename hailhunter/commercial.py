@@ -150,12 +150,15 @@ def write_csv(out, cfg):
 
 
 def write(out, cfg, title, subtitle):
-    from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Font, PatternFill
-    from openpyxl.utils import get_column_letter
-    from openpyxl.worksheet.datavalidation import DataValidation
-
+    """(xlsx path, csv path). Without openpyxl (the cloud runner) the xlsx path is None and only the CSV is written."""
     csv_path = write_csv(out, cfg)
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font, PatternFill
+        from openpyxl.utils import get_column_letter
+        from openpyxl.worksheet.datavalidation import DataValidation
+    except ImportError:
+        return None, csv_path
     stem = csv_path[: -len(".csv")]
     F, head = "Arial", PatternFill("solid", fgColor="1C5CAB")
     yellow = PatternFill("solid", fgColor="FFF7D6")

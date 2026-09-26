@@ -271,5 +271,18 @@
       "mobile",
       "multi"
     ]
+  },
+  "prices": {
+    "_note": "HMP's own prices (T51, from the boss), dollars installed, {low, high}. null = not set: hh.py estimate uses the MARKET REFERENCE (not HMP) and warns. Units: _sq = per square (100 sf), _ft = per linear ft, permit/min_job = per job.",
+    "vinyl_siding_sq": {"low": null, "high": null},
+    "hardie_siding_sq": {"low": null, "high": null},
+    "shingle_roof_sq": {"low": null, "high": null},
+    "extra_layer_sq": {"low": null, "high": null},
+    "soffit_fascia_ft": {"low": null, "high": null},
+    "gutters_ft": {"low": null, "high": null},
+    "house_wrap_sq": {"low": null, "high": null},
+    "permit": {"low": null, "high": null},
+    "min_job": {"low": null, "high": null},
+    "min_job_roof": {"low": null, "high": null}
   }
 }

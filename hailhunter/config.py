@@ -2,6 +2,7 @@
 import copy
 import json
 import os
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -123,6 +124,7 @@ DEFAULTS = {
         "kinds": ["single", "mobile", "multi"],
         "turf_size": 60,
         "inspect_rate": 0.01,       # prior: estimates per home knocked at heat 50 (lower than storm walks; tune)
+        "weight": 1.0,              # T35: everyday heat x this (capped at 100); `hh.py tune` moves it vs storm walks
         "refresh_lists": 3,         # `refresh` builds this many everyday lists
         "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
         "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
@@ -142,15 +144,123 @@ DEFAULTS = {
     },
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
-        "goal_doors": 25,           # doors in today's walk (~2 hours)
-        "storm_max_days": 60,       # a storm walk only if the storm is this fresh...
+        "goal_doors": 25,           # doors in today's walk (~2 hours): a starting session, not a full day
+        # Winter (month number -> factor on the door goal; months not listed = 1.0): short cold days, fewer doors.
+        # Never below goal_min_doors (unless the asked goal itself is smaller).
+        "goal_factor_by_month": {"12": 0.65, "1": 0.65, "2": 0.65},
+        "goal_min_doors": 10,
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (in season, Apr-Sep)...
+        # ...off-season (Oct-Mar, month number -> days): re-knock storms from the last ~11 months that aren't
+        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it)
+        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330},
         "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
         "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
         "min_doors": 8,             # skip walks with fewer doors left than this
         "max_passes": 3,            # a not-home door comes back until it has been tried this many times
-        "house_kinds": ["single", "mobile", "farm"]   # houses only: no apartments/multi-family/commercial
+        "house_kinds": ["single", "mobile", "farm"],  # houses only: no apartments/multi-family/commercial
+        "min_per_door": 3.0,        # est_minutes: about this many minutes at each door...
+        "walk_mph": 3.0,            # ...plus the walk between stops at this pace (straight line)
+        "stale_hours": 36,          # hud.json older than this (generated_utc) -> stale: true + a warning
+        # Per-house facts on each stop (year_built, sqft, rough siding price) from the county assessor's data in
+        # hud.json stops (`built`, `sqft`). No stories in that data: the rough range then covers these story counts.
+        "house_facts": {
+            "material": "vinyl",            # rough price as a vinyl siding job (estimate.estimate)
+            "stories_if_unknown": [1, 2],   # low = 1-story price, high = 2-story price for the same living sq ft
+            "min_sqft": 400,                # outside min..max the county size is likely wrong: no sqft, no price
+            "max_sqft": 6000
+        },
+        "old_strong_before": 1970,  # everyday why: "Most homes here were built before 1970" when that's true per house
+        "evidence_fade_days": 30,   # storm walk under this many days old: evidence_note (spatter marks fade in weeks)
+        "best_time": {              # best hours to knock (24h local), by day of week; null = no knocking planned
+            "weekday": ["16:00", "19:30"],
+            "saturday": ["10:00", "17:00"],
+            "sunday": None
+        },
+        # Short days (month number -> the day types it changes, + an optional note). Months not listed use best_time.
+        "best_time_by_month": {
+            "10": {"weekday": ["16:00", "18:30"]},
+            "3": {"weekday": ["16:00", "18:30"]},
+            **{m: {"weekday": ["15:30", "17:30"],
+                   "note": {"en": "End by dusk.", "es": "Terminen antes de que oscurezca."}}
+               for m in ("11", "12", "1", "2")}
+        }
     },
-    "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
+    # Week results report from the HMP App's door taps + leads (`hh.py weekly`, T35 learning loop)
+    "weekly": {
+        "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
+    },
+    # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
+    # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
+    # only for the keys in TUNABLE below. Every change is capped at max_step per run and kept inside its bounds.
+    "tune": {
+        "min_doors": 50,            # no tuning at all until the weekly file(s) have this many doors with a heat score
+        "min_group_doors": 20,      # each side of a comparison needs this many doors (else that knob is skipped)
+        "max_step": 0.15,           # max +/-15% change per knob per run
+        "damping": 0.5,             # move half way toward what the doors say (small steps, less noise)
+        "dead_band": 0.03,          # a change under 3% is noise: leave the knob alone
+        "history_max": 200          # entries kept in paths.tune_history
+    },
+    # Today's business call list (`hh.py calltoday`): apartment/commercial targets with a known business line,
+    # ranked by scoring.size_curve x scoring.recency_curve (freshest, strongest hail first)
+    "call_today": {
+        "min_hail": 1.0,            # inches at the building
+        "max_days": 365,            # storm no older than this
+        "max_calls": 15,            # calls on the list
+        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"]   # hud targets[].type; never homes
+    },
+    # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
+    # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
+    # A price with only one side set uses it for both. Fill these in config.json, not here.
+    "prices": {
+        "vinyl_siding_sq": {"low": None, "high": None},    # per square (100 sf of wall), incl. 1-layer tear-off
+        "hardie_siding_sq": {"low": None, "high": None},   # James Hardie fiber cement, per square of wall
+        "shingle_roof_sq": {"low": None, "high": None},    # architectural shingle roof, 1-layer tear-off, per square
+        "extra_layer_sq": {"low": None, "high": None},     # each extra old layer to tear off + dispose, per square
+        "soffit_fascia_ft": {"low": None, "high": None},   # per linear foot
+        "gutters_ft": {"low": None, "high": None},         # seamless aluminum, per linear foot
+        "house_wrap_sq": {"low": None, "high": None},      # per square of wall (100 sf)
+        "permit": {"low": None, "high": None},             # per job
+        "min_job": {"low": None, "high": None},            # smallest job total (siding / gutters / any job)
+        "min_job_roof": {"low": None, "high": None}        # optional: smallest roof job (null = use min_job)
+    },
+    # MARKET REFERENCE, NOT HMP's prices: eastern Nebraska "typical" ranges from
+    # docs/research/2026-09-26-market-prices.md (search summaries of cost guides; spot-check with suppliers).
+    # Used only where `prices` is null, and every estimate that uses them carries using_reference: true + a warning.
+    "prices_reference": {
+        "_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
+        "vinyl_siding_sq": {"low": 700, "high": 900},      # market $400-1,200 full range
+        "hardie_siding_sq": {"low": 900, "high": 1200},    # market $600-1,800
+        "shingle_roof_sq": {"low": 450, "high": 550},      # market $350-850
+        "extra_layer_sq": {"low": 100, "high": 150},       # disposal/tear-off per square per layer
+        "soffit_fascia_ft": {"low": 14, "high": 17},       # market $7.50-22
+        "gutters_ft": {"low": 12, "high": 16},             # market $8-25
+        "house_wrap_sq": {"low": 100, "high": 150},        # $1-1.50 per sf of wall
+        "permit": {"low": 150, "high": 350},               # market $100-500
+        "min_job": {"low": 300, "high": 400},              # siding repair minimum
+        "min_job_roof": {"low": 2500, "high": 3000}        # roofing minimum
+    },
+    # How a job's shape changes the price (add-ons as fractions {low, high}) and the rough-squares helper.
+    "estimate": {
+        "pitch_adders": {"low": {"low": 0.0, "high": 0.0}, "std": {"low": 0.0, "high": 0.0},
+                         "steep": {"low": 0.15, "high": 0.25}},       # roof items only; steep = over 6:12
+        "story_adders": {"1": {"low": 0.0, "high": 0.0}, "2": {"low": 0.15, "high": 0.15},
+                         "3": {"low": 0.35, "high": 0.35}},           # every installed item (not the permit)
+        "steep_over": 6, "low_under": 4,     # a numeric pitch (rise per 12): >6 steep, <4 low, else std
+        # rough squares from a footprint (clearly labeled rough): roof area = footprint x pitch factor
+        "pitch_factor": {"low": 1.05, "std": 1.12, "steep": 1.25},
+        "story_height_ft": 9,               # wall height per story
+        "openings": 0.15,                   # share of wall that is windows/doors
+        "perimeter_factor": 1.1             # real houses are longer than a square: perimeter = 4 x sqrt(area) x this
+    },
+    "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
+              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json"}
+}
+
+# T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch
+# anything else, so a bad tune file can never move prices, radii or the hard rules.
+TUNABLE = {
+    "hot_zones": {"inspect_rate": [0.002, 0.2], "compete_factor": [0.5, 1.0]},
+    "everyday": {"weight": [0.5, 2.0], "inspect_rate": [0.001, 0.1]},
 }
 
 
@@ -186,7 +296,24 @@ def company_label(cfg):
     return f"{c.get('name', 'HMP Siding & Roofing LLC')} · {cfg['home']['name']}"
 
 
-def load(path=None):
+def apply_tuned(cfg, tuned):
+    """Merges a data/tuned.json doc's `tuned_weights` into cfg: TUNABLE keys only, numbers only, kept in bounds.
+    Returns the {section: {key: value}} actually applied."""
+    done = {}
+    tw = (tuned or {}).get("tuned_weights") if isinstance(tuned, dict) else None
+    for sec, keys in (tw or {}).items():
+        if sec not in TUNABLE or not isinstance(keys, dict):
+            continue
+        for k, v in keys.items():
+            if k not in TUNABLE[sec] or isinstance(v, bool) or not isinstance(v, (int, float)):
+                continue
+            lo, hi = TUNABLE[sec][k]
+            cfg.setdefault(sec, {})[k] = done.setdefault(sec, {})[k] = min(hi, max(lo, float(v)))
+    return done
+
+
+def load(path=None, tuned_path=None):
+    """Defaults <- config.json <- data/tuned.json (T35 `hh.py tune --apply`; TUNABLE keys only, never required)."""
     path = path or os.path.join(ROOT, "config.json")
     cfg = copy.deepcopy(DEFAULTS)
     over = {}
@@ -198,6 +325,13 @@ def load(path=None):
     for k, v in list(cfg["paths"].items()):
         if not os.path.isabs(v):
             cfg["paths"][k] = os.path.join(ROOT, v)
+    tuned_path = tuned_path or cfg["paths"]["tuned"]
+    if os.path.exists(tuned_path):
+        try:
+            with open(tuned_path) as f:
+                apply_tuned(cfg, json.load(f))
+        except (OSError, ValueError) as e:        # a broken tune file never stops refresh: defaults + config.json
+            print(f"config: ignoring {tuned_path} ({type(e).__name__})", file=sys.stderr)
     os.makedirs(os.path.dirname(cfg["paths"]["db"]), exist_ok=True)
     os.makedirs(cfg["paths"]["cache"], exist_ok=True)
     os.makedirs(cfg["paths"]["export"], exist_ok=True)

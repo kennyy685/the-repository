@@ -142,6 +142,41 @@ def write(path, address, ev, hist, langs=("en", "es"), company=None):
     return path
 
 
+def radar_max(cfg, day, lat, lon):
+    """Raw NOAA MRMS radar hail (inches) within ~1 km, before ground-report correction; None without a map."""
+    raw, meta = mrms.load_grid(cfg, day)
+    rm = hail_at(raw, meta, lat, lon) if raw is not None else None
+    return None if rm is None else round(rm, 2)
+
+
+def to_json(address, ev, hist, radar_max_in=None, company=None):
+    """The data docs/print/hail-report.html reads: {address, day, day_label{en,es}, hail_in, nearest_report
+    {dist_mi, size_in, source} or null, radar_max_in, reports[] (all nearby, closest first), history[] {day,
+    day_label, hail_in} (the OTHER 3/4"+ storm days, newest first, as on the printed page), sources, note, company}.
+    Same fields as hud.json hail_evidence, plus the extras."""
+    near = ev["reports"][0] if ev["reports"] else None
+    return {"address": address, "day": ev["day"],
+            "day_label": {lang: _nice(ev["day"], lang) for lang in ("en", "es")},
+            "hail_in": ev["hail"],
+            "nearest_report": {"dist_mi": near["dist_mi"], "size_in": near["size_in"], "source": near["who"]}
+            if near else None,
+            "radar_max_in": radar_max_in,
+            "reports": [dict(r, who_es=WHO_ES.get(r["who"].lower(), r["who"])) for r in ev["reports"]],
+            "history": [{"day": h["day"], "day_label": {lang: _nice(h["day"], lang) for lang in ("en", "es")},
+                         "hail_in": h["hail"]} for h in hist if h["day"] != ev["day"]],
+            "sources": {lang: T[lang]["sources"] for lang in ("en", "es")},
+            "note": {lang: T[lang]["note"] for lang in ("en", "es")},
+            "company": company or "HMP Siding & Roofing LLC · Fremont, NE"}
+
+
+def write_json(path, doc):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    return path
+
+
 def find_parcel(conn, address, city=None):
     """The stored building whose address matches (case-insensitive), or None."""
     q, a = "SELECT * FROM parcels WHERE lower(address) = lower(?)", [address.strip()]

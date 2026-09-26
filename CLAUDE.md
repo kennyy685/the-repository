@@ -29,6 +29,26 @@ for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, 
 enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
 software); HMP is its first user.
 
+## Workarounds for now (FilthE, 2026-09-26) - don't keep asking
+- Prices (T51): the quick quote uses `prices_reference` market ranges, labeled "estimate range, not final", until the boss's
+  prices arrive; then it switches automatically.
+- Registration # (T64): print pieces keep a blank line to write it in by hand.
+- Contract lawyer review: deferred. The draft (with the 3-day cancel notice + deductible notice) is the one to use, whole, never a
+  handshake; the lawyer's OK comes later.
+
+## App look (FilthE, 2026-09-26)
+The HMP App uses **"HMP Pro Dark"**: charcoal + silver/white text, orange (#f5883a) only for accents/primary actions, no pixel
+art or neon. Fonts match the print pieces: **Barlow Semi Condensed** (headings, numbers, buttons) + **Montserrat** (body). The
+Crew tab is a clean **team board** (a card per AI: role, status dot, now doing, last result), not the pixel office.
+
+## Chain of command (FilthE, 2026-09-26)
+**Claude Code (the cloud session) is now the King / lead**: it sets priorities on the Crew HQ board, gives the orders, runs
+the Code lab helpers, and checks Crew HQ every hour (7 AM-10 PM Central) to act right away. **The old King (the claude.ai
+project chat + its 8:12 AM / 6:12 PM routines) is the Right Hand**: it answers FilthE live in the app's King box, logs what
+he says (leads, doors, claims), runs the standup/wrap summaries and HMP HQ refresh, and passes his words to Claude Code as
+handoffs (`to: "code"`). It takes orders from Claude Code and doesn't reassign Code-lab work. Cowork still owns the command
+center and Storm Watch.
+
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
 Claude Code each start blank), so **when FilthE tells you something important, add it here** instead
@@ -174,9 +194,20 @@ genuinely missing there.
 - `python3 hh.py everyday --near Fremont --radius 40 --lists 5`: old-house (non-storm) door lists ranked by
   "everyday heat" (share of older homes, owners, value, distance); also built by `refresh` (top 3) and published
   in hud.json `everyday_lists`. hud.json also carries `hail_evidence` per address for storm lists (porch proof).
-- `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json]`: O0 "Today's knock": picks ONE
-  walk for today (fresh strong storm walk, else the best everyday walk), houses only in walking order, prints the JSON for the
-  HMP App's `today/walk` doc (reads hud.json; `--results` = the app's door taps: worked doors drop, not-homes return).
+- `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json] [--evidence-out ev.json]`: O0
+  "Today's knock": picks ONE walk (fresh strong storm walk, else best everyday walk), houses only in walking order, for the
+  HMP App's `today/walk` doc; adds est_minutes, walk_mi, drive_from_home_mi, best_time{en,es}, stale + stale_note (hud.json
+  >36 h old), spanish_share + who; no walk -> stops [] + none_reason{en,es}. `--evidence-out` writes `evidence/<slug>` docs
+  (slug = "address city" lowercased, non-alphanumerics to "-"). `--results` = the app's door taps.
+- `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results report
+  from the HMP App's door taps + leads (totals, by kind/list/walk, best/worst area EN/ES, follow-ups, funnel, `learning`
+  section for T35). todaywalk is seasonal: Oct-Mar storm walks may use storms up to 330 days old; Nov-Feb knock 3:30-5:30 PM.
+- `python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv f]`: today's BUSINESS call list (apartment/
+  commercial buildings with a known business line in fresh 1"+ hail), one call per line, EN/ES why + opener (free inspection,
+  no insurance talk); JSON for the HMP App's `calls/today` doc.
+- `python3 hh.py estimate --json job.json` (or `--footprint 1400 --stories 2`): quick price range; uses `prices_reference`
+  (market ranges) until HMP's `prices` are set. `hh.py estimate --export-rules [--out f]` = the HMP App's `system/prices` doc
+  (JS copy of the math: `docs/app/estimate.js`, checked by `node tests/js/estimate_check.js`); re-export whenever prices change. `hh.py hailreport ... --json` also writes JSON for docs/print/hail-report.html.
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how

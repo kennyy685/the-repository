@@ -18,9 +18,22 @@
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
   python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
+                  [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
+  python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv calls.csv]   today's BUSINESS call list:
+                  apartment/commercial buildings with a known business line in fresh 1"+ hail (JSON for calls/today)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
+                  [--results doors.json] [--dnk dnk.json]  door taps so far (come_back honored); do-not-knock houses
+                  [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
+  python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
+                  week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py tune --weekly weekly.json [--min-doors 50] [--apply] [--out tune.json]   T35 learning loop: real door
+                  results vs heat -> small weight changes (max 15% each, EN/ES why). DRY RUN unless --apply
+                  (writes data/tuned.json, merged over config.json; history in data/tune_history.json)
+  python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
+                  the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
+  python3 hh.py estimate --export-rules [--out prices.json]   the same rules as JSON for the HMP App (system/prices)
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -33,9 +46,15 @@ from datetime import datetime, timedelta, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from hailhunter import analyze, config, db, ingest, report  # noqa: E402
-from hailhunter.http import Fetcher  # noqa: E402
-from hailhunter.models import parse_utc  # noqa: E402
+try:
+    from hailhunter import analyze, config, db, ingest, report  # noqa: E402
+    from hailhunter.http import Fetcher  # noqa: E402
+    from hailhunter.models import parse_utc  # noqa: E402
+    ENGINE_MISSING = None
+except ModuleNotFoundError as _e:      # an empty folder holding only hh.py + a bundle: `unbundle` must still work
+    if _e.name != "hailhunter":
+        raise
+    ENGINE_MISSING = _e
 
 
 def _day(s, plus=0):
@@ -111,13 +130,14 @@ def refresh(conn, fetcher, cfg, log=print):
         nbhd.measure_day(conn, cfg, d, index)
     nbhd.rescore(conn, cfg)
     lists = []
+    session = None if getattr(fetcher, "offline", False) else fetcher.s   # --offline: parcels already stored only
     for day, town in pick_door_lists(conn, cfg):
         try:
-            res = doors.make_list(conn, cfg, day, town, fetcher.s, log=lambda *a: None)
+            res = doors.make_list(conn, cfg, day, town, session, log=lambda *a: None)
             if res:
                 lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
-        except SystemExit as e:
-            log(f"  skip {town} {day}: {e}")
+        except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
+            log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
     for s in lists:
         log("  door list " + s)
     everyday_lists = []
@@ -133,8 +153,12 @@ def refresh(conn, fetcher, cfg, log=print):
     for s in everyday_lists:
         log("  everyday list " + s)
     nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
-    out, done_n, total_n = commercial.build(conn, cfg, fetcher.s, log=log)
-    commercial.write_csv(out, cfg)
+    try:                                   # same: a parcel/owner download error must not cost today's hud.json
+        out, done_n, total_n = commercial.build(conn, cfg, session, log=log)
+        commercial.write_csv(out, cfg)
+    except Exception as e:
+        out = []
+        log(f"  apartment/commercial targets skipped: {type(e).__name__}: {e}"[:300])
     log(f"Apartment/commercial targets: {len(out):,}")
     path, d = hud.write(conn, cfg)
     after = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
@@ -153,7 +177,21 @@ def refresh(conn, fetcher, cfg, log=print):
     return summary
 
 
-BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md")
+BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
+                "data/tuned.json")                 # T35 tuned weights, only when `hh.py tune --apply` made one
+
+
+def _bundled(rel):
+    """Which files go in the cloud bundle: engine code, the offline tests + their fixtures (so `selftest` runs in
+    the cloud too), config/contacts/tuned weights, and the crew notes."""
+    rel = rel.replace(os.sep, "/")
+    if "__pycache__" in rel:
+        return False
+    if rel.endswith(".py") and (rel.startswith(("hailhunter/", "vendor/", "tests/")) or rel == "hh.py"):
+        return True
+    if rel.startswith("tests/fixtures/"):
+        return True
+    return rel in BUNDLE_EXTRA or (rel.startswith(".claude/") and rel.endswith(".md"))
 
 
 def bundle(out_path):
@@ -161,24 +199,24 @@ def bundle(out_path):
     for root, _, names in os.walk(HERE):
         for n in names:
             rel = os.path.relpath(os.path.join(root, n), HERE)
-            if "__pycache__" in rel:
-                continue
-            if (rel.endswith(".py") and (rel.startswith("hailhunter" + os.sep) or rel.startswith("vendor" + os.sep)
-                                          or rel == "hh.py")
-                    or rel in BUNDLE_EXTRA
-                    or (rel.startswith(".claude" + os.sep) and rel.endswith(".md"))):
-                files[rel] = open(os.path.join(HERE, rel)).read()
-    with open(out_path, "w") as f:
-        json.dump({"version": 1, "files": files}, f)
+            if _bundled(rel):              # always UTF-8: the code carries Spanish text, cloud locales vary
+                with open(os.path.join(HERE, rel), encoding="utf-8") as f:
+                    files[rel.replace(os.sep, "/")] = f.read()
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump({"version": 1, "files": dict(sorted(files.items()))}, f)
     return files
 
 
 def unbundle(src_path):
-    b = json.load(open(src_path))
+    with open(src_path, encoding="utf-8") as f:
+        b = json.load(f)
+    for rel in b["files"]:                 # a bundle only ever writes inside this folder
+        if os.path.isabs(rel) or ".." in rel.replace("\\", "/").split("/"):
+            raise SystemExit(f"unbundle: refusing path outside this folder: {rel!r}")
     for rel, txt in b["files"].items():
-        dest = os.path.join(HERE, rel)
+        dest = os.path.join(HERE, *rel.split("/"))
         os.makedirs(os.path.dirname(dest) or HERE, exist_ok=True)
-        with open(dest, "w") as f:
+        with open(dest, "w", encoding="utf-8", newline="") as f:
             f.write(txt)
     return b["files"]
 
@@ -258,6 +296,8 @@ def main(argv=None):
     p.add_argument("--day", help="storm day YYYY-MM-DD (default: the newest 1\"+ storm at the address)")
     p.add_argument("--lat", type=float)
     p.add_argument("--lon", type=float)
+    p.add_argument("--json", action="store_true", help="also write the JSON docs/print/hail-report.html reads "
+                                                        "(next to the HTML, same name .json)")
     p = sub.add_parser("bundle", help="pack engine code + config + CLAUDE.md into one JSON file, for the cloud")
     p.add_argument("--out", required=True)
     p = sub.add_parser("unbundle", help="unpack an engine JSON bundle here")
@@ -268,9 +308,46 @@ def main(argv=None):
     p.add_argument("--out", help="also write the JSON to this file")
     p.add_argument("--hud", help="hud.json to pick from (default: data/export/hud.json)")
     p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
+    p.add_argument("--dnk", help="do-not-knock: JSON of the app's dnk/<slug> docs; those houses never appear")
+    p.add_argument("--evidence-out", help="also write the evidence/<address-slug> docs for the walk's houses here")
+    p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
+    p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
+    p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
+    p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("tune", help="T35: real door results vs heat -> small weight changes (dry run unless --apply)")
+    p.add_argument("--weekly", required=True, nargs="+", help="`hh.py weekly` output file(s) (a doc or a list of docs)")
+    p.add_argument("--min-doors", type=int, help="doors with a heat score needed before tuning (default: config "
+                                                 "tune.min_doors, 50)")
+    p.add_argument("--apply", action="store_true", help="write data/tuned.json + a data/tune_history.json entry")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("estimate", help="T52: quick price range for a siding/roof/gutter job (JSON, EN/ES)")
+    p.add_argument("--json", help="job JSON file {type, siding_squares, roof_squares, gutter_ft, soffit_ft, material, "
+                                  "pitch, stories, layers, footprint_sqft}")
+    p.add_argument("--footprint", type=float, help="no --json: ROUGH squares from a footprint (sq ft) instead")
+    p.add_argument("--stories", type=int, default=1, help="with --footprint (default 1)")
+    p.add_argument("--pitch", default="std", help="with --footprint: low|std|steep or rise per 12 (default std)")
+    p.add_argument("--export-rules", action="store_true", help="print the pricing rules + 8 self-check cases as one "
+                                                               "JSON doc for the HMP App (db path system/prices)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("calltoday", help="today's business call list: apartment/commercial buildings in fresh hail (JSON)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
+    p.add_argument("--csv", help="also write the calls as a CSV to this file")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
+    if a.cmd == "unbundle":                        # needs no engine code, config or database
+        files = unbundle(a.src)
+        print(f"unpacked {len(files)} files")
+        return 0
+    if ENGINE_MISSING is not None:
+        print(f"The engine code (hailhunter/) isn't in {HERE}. Unpack it first: "
+              f"python3 hh.py unbundle --src engine.json", file=sys.stderr)
+        return 1
     if a.cmd == "selftest":
         suite = unittest.defaultTestLoader.discover(os.path.join(HERE, "tests"))
         ok = unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
@@ -281,15 +358,112 @@ def main(argv=None):
         from zoneinfo import ZoneInfo
         from hailhunter import todaywalk
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
-        if not os.path.exists(hud_path):
-            print(f"No {hud_path}. Run `python3 hh.py hud` (or refresh) first.")
-            return 1
         results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
-        doc = todaywalk.pick(todaywalk.load_json(hud_path), day, a.doors, results, cfg)
-        if doc is None:
-            print("No door list with houses left to knock. Run `python3 hh.py refresh` for new lists.")
-            return 1
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
+        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk)   # no walk: stops [] + none_reason
+        if a.evidence_out:
+            with open(a.evidence_out, "w", encoding="utf-8") as f:
+                json.dump(todaywalk.evidence_docs(hud_doc, doc["stops"]), f, indent=1, ensure_ascii=False)
+                f.write("\n")
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "calltoday":                       # reads hud.json only: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import calltoday
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still write a doc the app can show
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        doc = calltoday.today_doc(hud_doc, day, cfg)
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        if a.csv:
+            calltoday.write_csv(a.csv, doc["calls"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "estimate":                        # pure math on config prices: no database needed
+        from hailhunter import estimate
+        try:
+            if a.export_rules:                     # the HMP App's `system/prices` doc (docs/app/estimate.js)
+                doc = estimate.export_rules(cfg)
+            elif a.json:
+                with open(a.json, encoding="utf-8") as f:
+                    doc = estimate.estimate(json.load(f), cfg)
+            elif a.footprint:
+                doc = estimate.squares_from_footprint(a.footprint, a.stories, a.pitch, cfg)
+            else:
+                print("estimate: give --json job.json (or --footprint SQFT for rough squares)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"estimate: {e}", file=sys.stderr)
+            return 2
+        for w in doc.get("warnings", []):
+            print(w["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "tune":                            # reads weekly outputs only: no database needed
+        from hailhunter import tune
+        from hailhunter.todaywalk import load_json
+        docs = []
+        try:
+            for path in a.weekly:
+                docs += tune.weekly_docs(load_json(path))
+        except (OSError, ValueError) as e:
+            print(f"tune: can't read weekly file ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        doc = tune.propose(docs, cfg, a.min_doors)
+        if a.apply:
+            doc = tune.apply(doc, cfg)
+        print(doc["summary"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import weekly
+        from hailhunter.todaywalk import load_json
+        today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        hud_doc = None
+        if a.hud or os.path.exists(hud_path):
+            try:
+                hud_doc = load_json(hud_path)
+            except (OSError, ValueError) as e:     # no heat/why then; the results still come out
+                print(f"Can't read {hud_path} ({type(e).__name__}): lists won't have heat/why.", file=sys.stderr)
+        try:
+            doc = weekly.report(weekly.load_doors(load_json(a.doors)),
+                                weekly.load_leads(load_json(a.leads)) if a.leads else [],
+                                week=a.week, hud=hud_doc, today=today, cfg=cfg)
+        except ValueError as e:
+            print(f"weekly: {e}", file=sys.stderr)
+            return 2
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
@@ -432,7 +606,7 @@ def main(argv=None):
         for k, b in enumerate(out[:15], 1):
             print(f"{k:>3}. {b['address'][:28]:28} {b['city'][:12]:12} {b['kind']:10} ${(b['imp_value'] or 0)/1e6:5.1f}M "
                   f"{b['hail_in']:.2f}\" {b['storm_day']}  {b['owner'][:30]}")
-        print(f"  xlsx: {xlsx}\n  csv: {csvp}")
+        print(f"  xlsx: {xlsx or 'skipped (openpyxl not installed)'}\n  csv: {csvp}")
     elif a.cmd == "hud":
         from hailhunter import hud
         path, d = hud.write(conn, cfg)
@@ -456,7 +630,12 @@ def main(argv=None):
         path, nh, ne = report.export(conn, cfg, a.out)
         print(f"Wrote {path} ({nh} hits, {ne} events)")
     elif a.cmd == "serve":
-        from hailhunter import web
+        try:
+            from hailhunter import web
+        except ImportError as e:               # the cloud copy has no flask: say so instead of a traceback
+            print(f"serve needs flask, which isn't installed here ({e.name or e}). On the Mac: pip install flask. "
+                  f"Crews use the cloud command center instead.", file=sys.stderr)
+            return 1
         web.run(cfg["paths"]["db"], a.port)
     elif a.cmd == "refresh":
         refresh(conn, fetcher, cfg)
@@ -489,12 +668,13 @@ def main(argv=None):
         hail = f'{ev["hail"]:.2f}"' if ev["hail"] is not None else "unknown"
         print(f"{label}: {day}, estimated {hail} at the property, {len(ev['reports'])} ground report(s) nearby")
         print(f"  report: {path}")
+        if a.json:
+            doc = hailreport.to_json(label, ev, hist, hailreport.radar_max(cfg, day, lat, lon),
+                                     company=config.company_label(cfg))
+            print(f"  json: {hailreport.write_json(path[:-len('.html')] + '.json', doc)}")
     elif a.cmd == "bundle":
         files = bundle(a.out)
         print(f"bundled {len(files)} files -> {a.out}")
-    elif a.cmd == "unbundle":
-        files = unbundle(a.src)
-        print(f"unpacked {len(files)} files")
     return 0
 
 

@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMP Estimate Range</title>
+<!-- HMP Siding & Roofing: "Estimate range for your home" leave-behind (homeowner-facing), English + Spanish.
+     Mainly for CASH (non-insurance) siding and roofing on older houses, after a quick look.
+     HOW TO FILL: replace the JSON inside <script id="data"> with the exact output of `python3 hh.py estimate --json job.json`
+     (hailhunter/estimate.py: low, high, using_reference, lines[], adders, quantities, rough_squares, minimum_applied,
+     summary, insurance_note, warnings[]), then add the optional extras:
+       "lang" ("en" | "es" | "both", default both), "address", "prepared_on" (YYYY-MM-DD), "homeowner_first_name" (FIRST name
+       only), "valid_days" (e.g. 30), "insurance_job" (true = hide every dollar amount and show insurance_note only),
+       "options" [{tier "good"|"better", material "vinyl"|"hardie", name {en,es}, low, high}] (run the estimate once per
+       material; 2 options show side by side instead of the single range), "registration_no" (leave "" until the boss gives
+       it), "contact" {en:{name,phone}, es:{name,phone}}.
+     NOT printed on purpose: `summary` and `warnings` (crew notes). The plain-word item names, the Vinyl vs Hardie facts and
+     the fine print are fixed in this file (docs/research/2026-09-26-round-5.md, 2026-09-26-market-prices.md).
+     SAMPLES: ?sample=hardie (Hardie 22 squares) and ?sample=roof (roof 24 squares, 8/12) swap in the sample JSON below.
+     RULES: estimate range, never a final price. Market-reference prices are never called HMP's prices. Nothing about
+     deductibles (Neb. 44-8604), never says insurance pays, no financing or 0% offers, "registered" not "licensed".
+     PRINT: Letter, 1 page per language (EN page, then ES page). PHONE: web page with an EN/ES switch.
+     Fonts: fonts/ (local, free Google Fonts). Logo: <symbol id="hmp-logo"> (same as door-hanger.html). QR codes open a
+     text to Kenny (EN, 402-936-2709) / Alex (ES, 402-889-3385), same as hail-report.html.
+     Goes with cancel-notice.html (Buyer's right to cancel) in the cash-job packet: estimate-packet.pdf.
+     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=estimate-sheet.pdf file://.../estimate-sheet.html -->
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:500; src:url(fonts/Montserrat-500.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:600; src:url(fonts/Montserrat-600.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:700; src:url(fonts/Montserrat-700.woff) format("woff"); }
+
+@page { size: letter; margin: 0; }
+
+:root {
+  --char:#404145; --char-dk:#2a2b2f; --ink:#1f2023; --orange:#f5883a; --orange-ink:#b4561a; --silver:#c9ccd1;
+  --line:#dcdee2; --mist:#f2f3f5; --muted:#62656c; --paper:#ffffff; --peach:#fdf1e7;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { background:var(--char-dk); }
+body { background:var(--char-dk); font-family:"Montserrat", sans-serif; color:var(--ink);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.defs { position:absolute; width:0; height:0; overflow:hidden; }
+b, strong { font-weight:700; }
+
+/* ---------- screen toolbar (never printed) ---------- */
+.bar { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; padding:10px 16px;
+  background:#232427; border-bottom:1px solid #3a3b40; }
+.bar .name { font:700 15px/1 "Barlow Semi Condensed"; letter-spacing:.06em; text-transform:uppercase; color:var(--silver); margin-right:auto; }
+.bar .name span { color:var(--orange); }
+.seg { display:flex; border:1px solid #55575d; border-radius:8px; overflow:hidden; }
+.seg button { font:700 14px/1 "Montserrat"; padding:9px 14px; background:transparent; color:var(--silver); border:0; cursor:pointer; min-width:48px; }
+.seg button[aria-pressed=true] { background:var(--silver); color:var(--char-dk); }
+.bar .print { font:700 14px/1 "Montserrat"; padding:9px 14px; border-radius:8px; border:0; background:var(--orange); color:#1b1b1d; cursor:pointer; }
+
+/* ---------- the page ---------- */
+.page { width:8.5in; min-height:11in; margin:24px auto; background:var(--paper); display:flex; flex-direction:column;
+  box-shadow:0 10px 40px rgba(0,0,0,.45); }
+.page[hidden] { display:none; }
+
+.top { position:relative; height:1.14in; flex:none; background:linear-gradient(180deg,#4a4b50 0%,#404145 45%,#2f3034 100%); overflow:hidden; }
+.top::after { content:""; position:absolute; left:0; right:0; bottom:0; height:4pt; background:var(--orange); }
+.top .rib { position:absolute; inset:0; width:100%; height:100%; }
+.top .logo { position:absolute; left:0.4in; top:0.13in; width:1.78in; height:0.88in; }
+.top .ttl { position:absolute; left:2.6in; right:0.45in; top:0.2in; }
+.top .kick { font:700 7.5pt/1 "Montserrat"; letter-spacing:.18em; text-transform:uppercase; color:var(--silver); }
+.top h1 { margin-top:0.07in; font:800 28pt/0.92 "Barlow Semi Condensed"; text-transform:uppercase; color:#fff; }
+.top h1 span { color:var(--orange); }
+
+.body { flex:1; padding:0.17in 0.45in 0.15in; display:flex; flex-direction:column; gap:0.13in; }
+.label { display:flex; align-items:center; gap:0.08in; font:700 7.4pt/1 "Montserrat"; letter-spacing:.15em; text-transform:uppercase; color:var(--char); }
+.label::after { content:""; flex:1; height:0.75pt; background:var(--line); }
+.label em { font-style:normal; color:var(--orange-ink); }
+
+/* property strip */
+.prop { display:grid; grid-template-columns:0.8fr 1.4fr 1.4fr 0.68fr; border-top:1.5pt solid var(--char); border-bottom:0.75pt solid var(--line); }
+.prop.nofor { grid-template-columns:1.8fr 1.4fr 0.68fr; }
+.prop > div { padding:0.08in 0.14in 0.08in 0; min-width:0; }
+.prop > div + div { padding-left:0.14in; border-left:0.75pt solid var(--line); }
+.prop .k { font:700 6.8pt/1 "Montserrat"; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.prop .v { margin-top:0.045in; font:800 16pt/1.02 "Barlow Semi Condensed"; color:var(--ink); }
+.prop .v small { display:block; margin-top:0.03in; font:600 8.6pt/1.2 "Montserrat"; color:var(--muted); }
+.prop .v.s { font-size:13.5pt; white-space:nowrap; }
+
+/* hero: the range */
+.hero { display:grid; grid-template-columns:minmax(0,1fr) 2.2in; gap:0.18in; }
+.range { background:var(--mist); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.14in 0.2in 0.14in; display:flex; flex-direction:column; }
+.range .num { margin-top:0.08in; font:800 47pt/0.92 "Barlow Semi Condensed"; color:var(--char-dk); letter-spacing:-0.005em; white-space:nowrap; }
+.range .num i { font-style:normal; color:var(--orange); padding:0 0.04in; }
+.range .job { margin-top:0.07in; font:700 11pt/1.25 "Montserrat"; color:var(--ink); }
+.range .ins { margin-top:0.08in; font:800 24pt/1.02 "Barlow Semi Condensed"; color:var(--char-dk); }
+.notfinal { margin-top:auto; padding-top:0.09in; font:700 9.6pt/1.35 "Montserrat"; color:var(--char-dk); }
+.notfinal b { color:var(--orange-ink); }
+
+.counted { border:1pt dashed #b9bcc2; border-radius:5px; padding:0.13in 0.15in; display:flex; flex-direction:column; gap:0.06in; }
+.counted ul { list-style:none; display:flex; flex-direction:column; gap:0.055in; margin-top:0.03in; }
+.counted li { display:flex; gap:0.07in; align-items:flex-start; font:600 8.6pt/1.25 "Montserrat"; color:var(--ink); }
+.counted li svg { flex:none; width:0.15in; height:0.15in; margin-top:0.005in; }
+.counted .sq { margin-top:auto; padding-top:0.06in; border-top:0.75pt solid var(--line); font:600 7.6pt/1.35 "Montserrat"; color:var(--muted); }
+.counted .sq b { color:var(--char); }
+
+/* hero with 2 options (good / better) */
+.opts { display:grid; grid-template-columns:1fr 1fr; gap:0.16in; }
+.opt { background:var(--mist); border-radius:5px; padding:0.1in 0.18in 0.11in; border-top:5pt solid var(--silver); }
+.opt.better { border-top-color:var(--orange); }
+.opt .tier { display:inline-block; font:700 6.8pt/1 "Montserrat"; letter-spacing:.16em; text-transform:uppercase; padding:0.035in 0.07in; border-radius:2px; background:var(--char); color:#fff; }
+.opt.better .tier { background:var(--orange); color:#1b1b1d; }
+.opt .nm { margin-top:0.07in; font:800 15pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.02em; color:var(--char); }
+.opt .num { margin-top:0.04in; font:800 35pt/0.95 "Barlow Semi Condensed"; color:var(--char-dk); white-space:nowrap; }
+.opt .num i { font-style:normal; color:var(--orange); padding:0 0.03in; }
+.optnote { display:flex; align-items:baseline; gap:0.18in; justify-content:space-between; margin-top:0.02in; }
+.optnote .notfinal { margin-top:0; padding-top:0; }
+.optnote .cnt { flex:none; max-width:3.2in; text-align:right; font:600 7.8pt/1.35 "Montserrat"; color:var(--muted); }
+.optnote .cnt b { color:var(--char); }
+
+/* included + could change */
+.two { display:grid; grid-template-columns:1.3fr 1fr; gap:0.24in; align-items:start; }
+.inc { list-style:none; margin-top:0.06in; }
+.inc li { display:grid; grid-template-columns:0.22in 1fr; gap:0.04in; padding:0.055in 0; border-bottom:0.75pt solid var(--line); align-items:start; }
+.inc li svg { width:0.16in; height:0.16in; margin-top:0.01in; }
+.inc .t { font:800 11pt/1.1 "Barlow Semi Condensed"; color:var(--ink); text-transform:uppercase; letter-spacing:.015em; }
+.inc .q { margin-left:0.08in; font:800 11pt/1.1 "Barlow Semi Condensed"; color:var(--orange-ink); text-transform:none; white-space:nowrap; }
+.inc .q small { font:600 7.4pt/1 "Montserrat"; color:var(--muted); letter-spacing:0; }
+.inc .d { margin-top:0.02in; font:500 8pt/1.35 "Montserrat"; color:var(--char); }
+.chg { list-style:none; margin-top:0.06in; }
+.chg li { position:relative; padding:0.06in 0 0.06in 0.2in; border-bottom:0.75pt solid var(--line); font:500 8.2pt/1.38 "Montserrat"; color:var(--char); }
+.chg li::before { content:""; position:absolute; left:0.03in; top:0.11in; width:0.07in; height:0.07in; border-radius:50%; background:var(--orange); }
+.chg li b { color:var(--ink); }
+
+/* vinyl vs hardie */
+.cmp table { width:100%; border-collapse:collapse; margin-top:0.06in; table-layout:fixed; }
+.cmp th { font:800 11.5pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.03em; text-align:left; padding:0.05in 0.1in; color:#fff; background:var(--char); }
+.cmp th:first-child { width:0.95in; background:transparent; }
+.cmp th.hd { background:var(--char-dk); border-left:2pt solid #fff; }
+.cmp th small { font:600 7.2pt/1 "Montserrat"; text-transform:none; letter-spacing:0; color:var(--silver); margin-left:0.05in; }
+.cmp td { font:500 7.7pt/1.3 "Montserrat"; color:var(--ink); padding:0.04in 0.1in; border-bottom:0.75pt solid var(--line); vertical-align:top; }
+.cmp td:first-child { font:700 6.6pt/1.3 "Montserrat"; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding-left:0; padding-top:0.055in; }
+.cmp td + td + td { border-left:2pt solid #fff; }
+.cmp tr:nth-child(even) td:not(:first-child) { background:#f7f7f8; }
+.cmp td b { font-weight:700; }
+.cmp .src { margin-top:0.05in; font:500 6.6pt/1.35 "Montserrat"; color:var(--muted); }
+
+/* roof at a glance (roof-only jobs) */
+.facts { display:grid; grid-template-columns:1.55in repeat(4,1fr); border:1pt solid var(--line); border-radius:5px; overflow:hidden; }
+.facts .head { background:var(--char); color:#fff; padding:0.12in 0.14in; display:flex; flex-direction:column; justify-content:center; gap:0.06in;
+  font:800 12.5pt/1.02 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.01em; }
+.facts .head svg { width:0.8in; height:0.4in; }
+.facts .stat { padding:0.14in 0.14in; border-left:0.75pt solid var(--line); display:flex; flex-direction:column; justify-content:center; }
+.facts .stat .v { font:800 26pt/1 "Barlow Semi Condensed"; color:var(--char-dk); white-space:nowrap; }
+.facts .stat .v small { font:700 11pt/1 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char); }
+.facts .stat .k { margin-top:0.05in; font:600 7.4pt/1.3 "Montserrat"; color:var(--muted); }
+
+/* next steps */
+.steps { display:grid; grid-template-columns:0.95fr 1.2fr 0.95fr; gap:0; margin-top:0.07in; border:1pt solid var(--line); border-radius:5px; overflow:hidden; }
+.step { padding:0.09in 0.14in 0.1in; }
+.step + .step { border-left:0.75pt solid var(--line); }
+.step .h { display:flex; align-items:center; gap:0.08in; font:800 12pt/1.05 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:.02em; color:var(--ink); }
+.step .n { flex:none; width:0.26in; height:0.26in; border-radius:50%; background:var(--char); color:#fff; font:800 12pt/0.26in "Barlow Semi Condensed"; text-align:center; }
+.step:first-child .n { background:var(--orange); color:#1b1b1d; }
+.step .p { margin-top:0.05in; font:500 7.6pt/1.35 "Montserrat"; color:var(--char); }
+.step .p b { color:var(--ink); }
+
+/* contact band: the boldest thing on the page */
+.foot { flex:none; background:linear-gradient(180deg,#404145,#2c2d31); color:#fff; padding:0.15in 0.45in 0.1in; position:relative; }
+.foot::before { content:""; position:absolute; left:0; right:0; top:0; height:4pt; background:var(--orange); }
+.foot .row { display:flex; align-items:center; gap:0.24in; }
+.foot .cta { flex:1; min-width:0; }
+.foot .cta .k { font:700 8pt/1.2 "Montserrat"; letter-spacing:.14em; text-transform:uppercase; color:var(--orange); }
+.foot .cta .who { margin-top:0.05in; font:700 11pt/1.2 "Montserrat"; color:#fff; }
+.foot .cta .ph { white-space:nowrap; display:block; margin-top:0.02in; font:800 38pt/0.95 "Barlow Semi Condensed"; color:#fff; letter-spacing:.01em; text-decoration:none; }
+.foot .cta .alt { margin-top:0.05in; font:600 8.2pt/1.3 "Montserrat"; color:var(--silver); }
+.foot .qrbox { flex:none; width:1.3in; text-align:center; }
+.foot .qr { display:block; margin:0 auto; width:0.95in; height:0.95in; background:#fff; padding:0.06in; border-radius:4px; }
+.foot .qrbox .cap { white-space:nowrap; margin-top:0.05in; font:700 6.2pt/1.2 "Montserrat"; letter-spacing:.05em; text-transform:uppercase; color:var(--silver); }
+.foot .co { flex:none; width:2.25in; font:600 7.6pt/1.45 "Montserrat"; color:var(--silver); border-left:0.75pt solid #5b5d63; padding-left:0.18in; }
+.foot .co b { display:block; font:800 11pt/1.1 "Barlow Semi Condensed"; letter-spacing:.03em; text-transform:uppercase; color:#fff; margin-bottom:0.04in; }
+.foot .co .reg { display:block; margin-top:0.04in; }
+.foot .co .reg i { display:inline-block; min-width:0.75in; border-bottom:0.75pt solid #8a8d93; font-style:normal; color:#fff; }
+.foot .fine { margin-top:0.08in; padding-top:0.05in; border-top:0.75pt solid #55575d; font:500 6.6pt/1.4 "Montserrat"; color:#b3b6bc; }
+.foot .fine b { color:#e4e6e9; font-weight:700; }
+
+/* ---------- print ---------- */
+@media print {
+  html, body { background:var(--paper); }
+  .bar { display:none; }
+  .page { margin:0; box-shadow:none; height:11in; overflow:hidden; break-after:page; }
+  .page:last-of-type { break-after:auto; }
+  body.print-both .page[hidden] { display:flex; }
+}
+
+/* ---------- phones ---------- */
+@media screen and (max-width: 760px) {
+  .page { width:100%; min-height:0; margin:0 0 12px; box-shadow:none; }
+  .top { height:auto; padding:14px 16px 18px; }
+  .top .rib { opacity:.8; }
+  .top .logo { position:relative; left:auto; top:auto; width:150px; height:74px; display:block; }
+  .top .ttl { position:relative; left:auto; right:auto; top:auto; margin-top:10px; }
+  .top .kick { font-size:11px; }
+  .top h1 { font-size:34px; }
+  .body { padding:18px 16px; gap:22px; }
+  .label { font-size:11px; display:block; line-height:1.35; }
+  .label::after { display:none; }
+  .label em { display:block; }
+  .prop, .prop.nofor { grid-template-columns:1fr 1fr; }
+  .prop > div { border-bottom:1px solid var(--line); }
+  .prop > div:nth-child(odd) { border-left:0; padding-left:0; }
+  .prop > div:nth-child(even) { padding-left:14px; border-left:1px solid var(--line); }
+  .prop .addr { grid-column:1 / -1; border-left:0 !important; padding-left:0 !important; }
+  .prop.nofor > div:nth-child(2) { border-left:0; padding-left:0; }
+  .prop.nofor > div:nth-child(3) { border-left:1px solid var(--line); padding-left:14px; }
+  .prop:not(.nofor) > div:nth-child(3) { border-left:0; padding-left:0; }
+  .prop:not(.nofor) > div:nth-child(4) { border-left:1px solid var(--line); padding-left:14px; }
+  .prop .k { font-size:10px; }
+  .prop:not(.nofor) > div:first-child { grid-column:1 / -1; }
+  .prop .v { font-size:22px; } .prop .v.s { font-size:18px; white-space:normal; } .prop .v small { font-size:13px; }
+  .hero { grid-template-columns:1fr; }
+  .range { padding:16px 16px 16px; }
+  .range .num { font-size:44px; white-space:normal; }
+  .range .job { font-size:15px; } .range .ins { font-size:28px; }
+  .notfinal { font-size:14.5px; }
+  .counted { padding:14px 16px; } .counted li { font-size:14px; } .counted li svg { width:18px; height:18px; } .counted .sq { font-size:12.5px; }
+  .opts { grid-template-columns:1fr; gap:12px; }
+  .opt { padding:14px 16px; } .opt .tier { font-size:10px; } .opt .nm { font-size:20px; } .opt .num { font-size:40px; }
+  .optnote { display:block; } .optnote .cnt { max-width:none; text-align:left; margin-top:8px; font-size:12.5px; }
+  .two { grid-template-columns:1fr; gap:24px; }
+  .inc li { grid-template-columns:26px 1fr; gap:4px; }
+  .inc li svg { width:18px; height:18px; }
+  .inc .t, .inc .q { font-size:17px; } .inc .d { font-size:13px; } .inc .q small { font-size:11.5px; }
+  .chg li { font-size:13.5px; padding-left:22px; } .chg li::before { top:14px; }
+  .cmp table, .cmp thead, .cmp tbody, .cmp tr, .cmp td, .cmp th { display:block; width:auto; }
+  .cmp thead { display:none; }
+  .cmp tr { display:grid; grid-template-columns:1fr 1fr; gap:0 10px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .cmp td { border:0 !important; background:none !important; font-size:13px; padding:4px 0; }
+  .cmp td:first-child { grid-column:1 / -1; font-size:10.5px; padding:0 0 4px; }
+  .cmp td[data-h]::before { content:attr(data-h); display:block; font:800 14px/1.2 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--orange-ink); letter-spacing:.03em; margin-bottom:2px; }
+  .cmp .src { font-size:11px; }
+  .facts { grid-template-columns:1fr 1fr; }
+  .facts .head { grid-column:1 / -1; flex-direction:row; align-items:center; font-size:18px; }
+  .facts .head svg { width:64px; height:32px; }
+  .facts .stat { padding:12px 16px; border-top:1px solid var(--line); }
+  .facts .stat:nth-of-type(odd) { border-left:0; }
+  .facts .stat .v { font-size:30px; } .facts .stat .k { font-size:12px; }
+  .steps { grid-template-columns:1fr; }
+  .step { padding:14px 16px; } .step + .step { border-left:0; border-top:1px solid var(--line); }
+  .step .n { width:30px; height:30px; font-size:17px; line-height:30px; }
+  .step .h { font-size:18px; } .step .p { font-size:13.5px; }
+  .foot { padding:22px 16px 16px; }
+  .foot .row { flex-wrap:wrap; gap:16px; }
+  .foot .cta { flex:1 1 100%; }
+  .foot .cta .k { font-size:12px; } .foot .cta .who { font-size:16px; } .foot .cta .ph { font-size:46px; } .foot .cta .alt { font-size:13px; }
+  .foot .qrbox { display:none; }
+  .foot .co { width:auto; flex:1 1 100%; border-left:0; padding-left:0; border-top:1px solid #5b5d63; padding-top:12px; font-size:12px; }
+  .foot .co b { font-size:16px; }
+  .foot .fine { font-size:11px; }
+}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true">
+  <defs>
+    <!-- metal siding ribs (like the wall behind HMP's sign) -->
+    <pattern id="rib" width="40.8" height="10" patternUnits="userSpaceOnUse" x="-6">
+      <rect x="0" width="1.1" height="10" fill="#5c5d63"/><rect x="1.1" width="1.7" height="10" fill="#26272a"/>
+      <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
+    </pattern>
+  </defs>
+  <symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
+  <defs>
+    <linearGradient id="hmp-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
+    <linearGradient id="hmp-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
+  </defs>
+  <path d="M174.2 -90 419.01 -0.9 419.01 14.6 174.2 -74.5 -70.61 14.6 -70.61 -0.9Z" fill="#f5883a"/>
+  <g transform="translate(2.4 3)" fill="#1b1c1f"><path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z"/></g>
+  <path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z" fill="url(#hmp-rim)"/>
+  <path d="M268.32 2.6 268.49 3.05 268.94 4.46 269.33 5.88 269.64 7.3 269.88 8.72 270.06 10.15 270.17 11.57 270.2 12.97 270.2 87.03 270.17 88.43 270.06 89.85 269.88 91.28 269.64 92.7 269.33 94.12 268.94 95.54 268.49 96.95 268.32 97.4 293.88 97.4 293.71 96.95 293.26 95.54 292.87 94.12 292.56 92.7 292.32 91.28 292.14 89.85 292.03 88.43 292 87.03 292 60.4 330.51 60.4 333 60.24 335.36 59.77 337.64 58.99 339.8 57.93 341.8 56.59 343.61 55.01 345.19 53.2 346.53 51.2 347.59 49.04 348.37 46.76 348.84 44.4 349 41.91 349 21.09 348.84 18.6 348.37 16.24 347.59 13.96 346.53 11.8 345.19 9.8 343.61 7.99 341.8 6.41 339.8 5.07 337.64 4.01 335.36 3.23 333 2.76 330.51 2.6ZM324.83 15.69 325.89 16.05 326.9 16.55 327.84 17.17 328.69 17.91 329.43 18.76 330.05 19.7 330.55 20.71 330.91 21.77 331.13 22.88 331.2 23.91 331.2 38.09 331.13 39.12 330.91 40.23 330.55 41.29 330.05 42.3 329.43 43.24 328.69 44.09 327.84 44.83 326.9 45.45 325.89 45.95 324.83 46.31 323.72 46.53 322.69 46.6 292 46.6 292 15.4 322.69 15.4 323.72 15.47ZM257.6 97.4 257.6 79.6 239.8 79.6 239.8 97.4ZM126.52 97.4 152.08 97.4 151.91 96.95 151.46 95.54 151.07 94.12 150.76 92.7 150.52 91.28 150.34 89.85 150.23 88.43 150.2 87.03 150.2 52.38 177.66 97.4 177.94 97.4 205.4 52.38 205.4 87.03 205.37 88.43 205.26 89.85 205.08 91.28 204.84 92.7 204.53 94.12 204.14 95.54 203.69 96.95 203.52 97.4 229.08 97.4 228.91 96.95 228.46 95.54 228.07 94.12 227.76 92.7 227.52 91.28 227.34 89.85 227.23 88.43 227.2 87.03 227.2 12.97 227.23 11.57 227.34 10.15 227.52 8.72 227.76 7.3 228.07 5.88 228.46 4.46 228.91 3.05 229.08 2.6 203.52 2.6 203.69 3.05 204.14 4.46 204.53 5.88 204.84 7.3 205.08 8.72 205.26 10.15 205.37 11.57 205.4 12.97 205.4 31.15 177.8 65.12 150.2 31.15 150.2 12.97 150.23 11.57 150.34 10.15 150.52 8.72 150.76 7.3 151.07 5.88 151.46 4.46 151.91 3.05 152.08 2.6 126.52 2.6 126.69 3.05 127.14 4.46 127.53 5.88 127.84 7.3 128.08 8.72 128.26 10.15 128.37 11.57 128.4 12.97 128.4 87.03 128.37 88.43 128.26 89.85 128.08 91.28 127.84 92.7 127.53 94.12 127.14 95.54 126.69 96.95ZM115.8 97.4 115.8 79.6 98 79.6 98 97.4ZM0.72 97.4 26.28 97.4 26.11 96.95 25.66 95.54 25.27 94.12 24.96 92.7 24.72 91.28 24.54 89.85 24.43 88.43 24.4 87.03 24.4 58.4 63.6 58.4 63.6 87.03 63.57 88.43 63.46 89.85 63.28 91.28 63.04 92.7 62.73 94.12 62.34 95.54 61.89 96.95 61.72 97.4 87.28 97.4 87.11 96.95 86.66 95.54 86.27 94.12 85.96 92.7 85.72 91.28 85.54 89.85 85.43 88.43 85.4 87.03 85.4 12.97 85.43 11.57 85.54 10.15 85.72 8.72 85.96 7.3 86.27 5.88 86.66 4.46 87.11 3.05 87.28 2.6 61.72 2.6 61.89 3.05 62.34 4.46 62.73 5.88 63.04 7.3 63.28 8.72 63.46 10.15 63.57 11.57 63.6 12.97 63.6 41.6 24.4 41.6 24.4 12.97 24.43 11.57 24.54 10.15 24.72 8.72 24.96 7.3 25.27 5.88 25.66 4.46 26.11 3.05 26.28 2.6 0.72 2.6 0.89 3.05 1.34 4.46 1.73 5.88 2.04 7.3 2.28 8.72 2.46 10.15 2.57 11.57 2.6 12.97 2.6 87.03 2.57 88.43 2.46 89.85 2.28 91.28 2.04 92.7 1.73 94.12 1.34 95.54 0.89 96.95Z" fill="url(#hmp-face)"/>
+  <path d="M-13.2 113.5Q174.2 107 361.6 113.5Q174.2 126.5 -13.2 113.5Z" fill="#f5883a"/>
+  <path d="M7.966571428571434 148.30857142857144Q5.806571428571435 148.30857142857144 3.826571428571435 147.73000000000002Q1.846571428571435 147.15142857142857 0.6380000000000063 146.22571428571428L2.0522857142857207 143.08857142857144Q3.2094285714285777 143.91142857142856 4.790857142857149 144.43857142857144Q6.37228571428572 144.96571428571428 7.992285714285721 144.96571428571428Q9.226571428571434 144.96571428571428 9.985142857142863 144.7214285714286Q10.743714285714292 144.47714285714287 11.103714285714293 144.04000000000002Q11.463714285714293 143.60285714285715 11.463714285714293 143.03714285714287Q11.463714285714293 142.31714285714287 10.898000000000007 141.89285714285717Q10.332285714285721 141.46857142857144 9.406571428571436 141.19857142857143Q8.480857142857149 140.92857142857142 7.36228571428572 140.6842857142857Q6.243714285714292 140.44 5.125142857142864 140.07999999999998Q4.0065714285714344 139.72 3.080857142857149 139.15428571428572Q2.1551428571428635 138.58857142857144 1.576571428571435 137.66285714285715Q0.9980000000000064 136.73714285714286 0.9980000000000064 135.29714285714286Q0.9980000000000064 133.75428571428571 1.833714285714292 132.48142857142858Q2.6694285714285777 131.20857142857142 4.353714285714292 130.45Q6.0380000000000065 129.69142857142856 8.583714285714292 129.69142857142856Q10.28085714285715 129.69142857142856 11.926571428571435 130.08999999999997Q13.572285714285721 130.48857142857142 14.832285714285721 131.28571428571428L13.546571428571434 134.44857142857143Q12.286571428571435 133.72857142857143 11.026571428571435 133.38142857142856Q9.766571428571435 133.03428571428572 8.558000000000007 133.03428571428572Q7.349428571428578 133.03428571428572 6.5780000000000065 133.31714285714287Q5.806571428571435 133.6 5.472285714285721 134.05Q5.138000000000006 134.5 5.138000000000006 135.09142857142857Q5.138000000000006 135.78571428571428 5.703714285714292 136.20999999999998Q6.269428571428578 136.6342857142857 7.195142857142864 136.89142857142855Q8.12085714285715 137.14857142857142 9.239428571428578 137.40571428571428Q10.358000000000006 137.66285714285715 11.476571428571434 137.99714285714288Q12.595142857142863 138.33142857142857 13.52085714285715 138.89714285714285Q14.446571428571435 139.46285714285713 15.025142857142864 140.38857142857142Q15.603714285714291 141.31428571428572 15.603714285714291 142.72857142857143Q15.603714285714291 144.24571428571429 14.755142857142863 145.5057142857143Q13.906571428571434 146.7657142857143 12.22228571428572 147.53714285714287Q10.538000000000006 148.30857142857144 7.966571428571434 148.30857142857144ZM20.32332330827068 148.0V130.0H24.489037593984968V148.0ZM30.62293233082707 148.0V130.0H38.800075187969924Q41.7315037593985 130.0 43.968646616541356 131.11857142857144Q46.20578947368421 132.23714285714286 47.46578947368421 134.24285714285713Q48.725789473684216 136.24857142857144 48.725789473684216 139.0Q48.725789473684216 141.72571428571428 47.46578947368421 143.7442857142857Q46.20578947368421 145.76285714285714 43.968646616541356 146.88142857142856Q41.7315037593985 148.0 38.800075187969924 148.0ZM34.78864661654136 144.58H38.594360902255644Q40.39436090225564 144.58 41.718646616541356 143.89857142857142Q43.04293233082707 143.21714285714285 43.77578947368421 141.95714285714286Q44.508646616541355 140.69714285714286 44.508646616541355 139.0Q44.508646616541355 137.27714285714285 43.77578947368421 136.03Q43.04293233082707 134.78285714285715 41.718646616541356 134.10142857142858Q40.39436090225564 133.42 38.594360902255644 133.42H34.78864661654136ZM53.728255639097746 148.0V130.0H57.893969924812026V148.0ZM64.02786466165414 148.0V130.0H67.47357894736842L78.09357894736841 142.96H76.42215037593985V130.0H80.53643609022556V148.0H77.11643609022556L66.47072180451127 135.04H68.14215037593985V148.0ZM95.36175939849623 148.30857142857144Q93.22747368421052 148.30857142857144 91.44033082706767 147.62714285714287Q89.6531879699248 146.94571428571427 88.3289022556391 145.68571428571428Q87.00461654135337 144.4257142857143 86.27175939849623 142.72857142857143Q85.53890225563909 141.03142857142856 85.53890225563909 139.0Q85.53890225563909 136.96857142857144 86.27175939849623 135.27142857142857Q87.00461654135337 133.5742857142857 88.34175939849624 132.31428571428572Q89.67890225563909 131.05428571428573 91.4789022556391 130.37285714285713Q93.2789022556391 129.69142857142856 95.43890225563909 129.69142857142856Q97.83033082706766 129.69142857142856 99.74604511278194 130.48857142857142Q101.66175939849623 131.28571428571428 102.97318796992481 132.80285714285714L100.29890225563909 135.27142857142857Q99.32175939849623 134.24285714285713 98.16461654135338 133.74142857142857Q97.00747368421052 133.24 95.64461654135337 133.24Q94.33318796992481 133.24 93.25318796992481 133.6514285714286Q92.17318796992481 134.06285714285715 91.3889022556391 134.83428571428573Q90.60461654135338 135.6057142857143 90.18033082706766 136.66000000000003Q89.75604511278195 137.71428571428572 89.75604511278195 139.0Q89.75604511278195 140.26 90.18033082706766 141.31428571428572Q90.60461654135338 142.36857142857144 91.3889022556391 143.15285714285716Q92.17318796992481 143.93714285714285 93.24033082706767 144.3485714285714Q94.30747368421052 144.76 95.5931879699248 144.76Q96.82747368421052 144.76 97.99747368421052 144.36142857142858Q99.16747368421052 143.96285714285713 100.2731879699248 143.01142857142858L102.6389022556391 146.02Q101.17318796992481 147.12571428571428 99.23175939849624 147.71714285714285Q97.29033082706766 148.30857142857144 95.36175939849623 148.30857142857144ZM102.6389022556391 146.02 98.83318796992481 145.48V138.71714285714285H102.6389022556391ZM131.33812030075188 148.30857142857144 120.87240601503758 138.58857142857144Q119.97240601503759 137.7657142857143 119.4324060150376 137.0457142857143Q118.8924060150376 136.3257142857143 118.64812030075188 135.63142857142856Q118.40383458646616 134.93714285714285 118.40383458646616 134.19142857142856Q118.40383458646616 132.88 119.09812030075187 131.87714285714287Q119.79240601503759 130.87428571428572 121.05240601503759 130.32142857142856Q122.3124060150376 129.76857142857142 124.00954887218045 129.76857142857142Q125.57812030075188 129.76857142857142 126.72240601503759 130.26999999999998Q127.8666917293233 130.77142857142857 128.5224060150376 131.69714285714286Q129.17812030075189 132.62285714285713 129.17812030075189 133.90857142857143Q129.17812030075189 135.04 128.6124060150376 135.97857142857143Q128.0466917293233 136.91714285714286 126.85097744360901 137.74Q125.65526315789472 138.56285714285715 123.7266917293233 139.41142857142856Q122.41526315789473 140.00285714285715 121.6566917293233 140.5557142857143Q120.89812030075187 141.10857142857142 120.56383458646616 141.6742857142857Q120.22954887218044 142.24 120.22954887218044 142.93428571428572Q120.22954887218044 143.57714285714286 120.62812030075187 144.0914285714286Q121.0266917293233 144.6057142857143 121.7466917293233 144.88857142857142Q122.4666917293233 145.17142857142858 123.44383458646615 145.17142857142858Q125.01240601503758 145.17142857142858 126.32383458646615 144.43857142857144Q127.63526315789473 143.7057142857143 128.54812030075186 142.25285714285715Q129.460977443609 140.8 129.8466917293233 138.71714285714285L133.060977443609 139.72Q132.520977443609 142.34285714285716 131.1324060150376 144.27142857142857Q129.74383458646616 146.2 127.71240601503759 147.25428571428571Q125.68097744360901 148.30857142857144 123.16097744360901 148.30857142857144Q121.18097744360901 148.30857142857144 119.63812030075186 147.66571428571427Q118.09526315789473 147.02285714285713 117.19526315789474 145.91714285714284Q116.29526315789474 144.81142857142856 116.29526315789474 143.37142857142857Q116.29526315789474 142.03428571428572 116.8866917293233 140.96714285714285Q117.47812030075187 139.9 118.76383458646616 138.96142857142857Q120.04954887218045 138.02285714285713 122.02954887218044 137.12285714285713Q123.46954887218044 136.4542857142857 124.29240601503759 135.94Q125.11526315789473 135.4257142857143 125.44954887218044 134.95Q125.78383458646616 134.4742857142857 125.78383458646616 133.9857142857143Q125.78383458646616 133.31714285714287 125.33383458646617 132.90571428571428Q124.88383458646616 132.49428571428572 124.00954887218045 132.49428571428572Q123.08383458646615 132.49428571428572 122.56954887218043 132.95714285714286Q122.05526315789473 133.42 122.05526315789473 134.14Q122.05526315789473 134.5257142857143 122.20954887218045 134.89857142857142Q122.36383458646615 135.27142857142857 122.80097744360901 135.74714285714288Q123.23812030075187 136.22285714285715 124.03526315789473 136.96857142857144L133.52383458646617 145.76285714285714ZM147.23162406015035 148.0V130.0H154.9201954887218Q158.6744812030075 130.0 160.75733834586464 131.73571428571427Q162.84019548872178 133.47142857142856 162.84019548872178 136.53142857142856Q162.84019548872178 138.53714285714287 161.8887669172932 139.99Q160.93733834586465 141.44285714285715 159.1887669172932 142.21428571428572Q157.4401954887218 142.9857142857143 155.02305263157893 142.9857142857143H149.54590977443607L151.39733834586465 141.16V148.0ZM158.6744812030075 148.0 154.1744812030075 141.46857142857144H158.62305263157893L163.1744812030075 148.0ZM151.39733834586465 141.62285714285713 149.54590977443607 139.66857142857143H154.79162406015035Q156.7201954887218 139.66857142857143 157.67162406015035 138.83285714285714Q158.62305263157893 137.99714285714285 158.62305263157893 136.53142857142856Q158.62305263157893 135.04 157.67162406015035 134.21714285714285Q156.7201954887218 133.39428571428573 154.79162406015035 133.39428571428573H149.54590977443607L151.39733834586465 131.4142857142857ZM176.73980451127818 148.30857142857144Q174.60551879699244 148.30857142857144 172.79266165413532 147.6142857142857Q170.97980451127816 146.92 169.65551879699245 145.66Q168.33123308270675 144.4 167.5983759398496 142.70285714285714Q166.86551879699246 141.00571428571428 166.86551879699246 139.0Q166.86551879699246 136.99428571428572 167.5983759398496 135.29714285714286Q168.33123308270675 133.6 169.6683759398496 132.34Q171.00551879699245 131.08 172.80551879699243 130.3857142857143Q174.60551879699244 129.69142857142856 176.7140902255639 129.69142857142856Q178.8483759398496 129.69142857142856 180.63551879699247 130.3857142857143Q182.4226616541353 131.08 183.74694736842102 132.34Q185.07123308270673 133.6 185.816947368421 135.28428571428572Q186.5626616541353 136.96857142857144 186.5626616541353 139.0Q186.5626616541353 141.00571428571428 185.816947368421 142.71571428571428Q185.07123308270673 144.4257142857143 183.74694736842102 145.67285714285714Q182.4226616541353 146.92 180.63551879699247 147.6142857142857Q178.8483759398496 148.30857142857144 176.73980451127818 148.30857142857144ZM176.7140902255639 144.76Q177.9226616541353 144.76 178.9383759398496 144.3485714285714Q179.95409022556387 143.93714285714285 180.72551879699245 143.16571428571427Q181.49694736842102 142.3942857142857 181.92123308270675 141.33999999999997Q182.34551879699245 140.28571428571428 182.34551879699245 139.0Q182.34551879699245 137.71428571428572 181.92123308270675 136.66000000000003Q181.49694736842102 135.6057142857143 180.7383759398496 134.83428571428573Q179.97980451127816 134.06285714285715 178.95123308270672 133.6514285714286Q177.9226616541353 133.24 176.7140902255639 133.24Q175.50551879699245 133.24 174.48980451127818 133.6514285714286Q173.47409022556388 134.06285714285715 172.7026616541353 134.83428571428573Q171.93123308270674 135.6057142857143 171.50694736842104 136.66000000000003Q171.0826616541353 137.71428571428572 171.0826616541353 139.0Q171.0826616541353 140.26 171.50694736842104 141.32714285714286Q171.93123308270674 142.3942857142857 172.68980451127817 143.16571428571427Q173.4483759398496 143.93714285714285 174.476947368421 144.3485714285714Q175.50551879699245 144.76 176.7140902255639 144.76ZM200.307984962406 148.30857142857144Q198.17369924812027 148.30857142857144 196.36084210526315 147.6142857142857Q194.547984962406 146.92 193.22369924812028 145.66Q191.89941353383458 144.4 191.16655639097743 142.70285714285714Q190.4336992481203 141.00571428571428 190.4336992481203 139.0Q190.4336992481203 136.99428571428572 191.16655639097743 135.29714285714286Q191.89941353383458 133.6 193.23655639097743 132.34Q194.57369924812028 131.08 196.37369924812026 130.3857142857143Q198.17369924812027 129.69142857142856 200.28227067669172 129.69142857142856Q202.41655639097743 129.69142857142856 204.2036992481203 130.3857142857143Q205.99084210526314 131.08 207.31512781954885 132.34Q208.63941353383456 133.6 209.38512781954884 135.28428571428572Q210.13084210526313 136.96857142857144 210.13084210526313 139.0Q210.13084210526313 141.00571428571428 209.38512781954884 142.71571428571428Q208.63941353383456 144.4257142857143 207.31512781954885 145.67285714285714Q205.99084210526314 146.92 204.2036992481203 147.6142857142857Q202.41655639097743 148.30857142857144 200.307984962406 148.30857142857144ZM200.28227067669172 144.76Q201.49084210526314 144.76 202.50655639097744 144.3485714285714Q203.5222706766917 143.93714285714285 204.29369924812028 143.16571428571427Q205.06512781954885 142.3942857142857 205.48941353383458 141.33999999999997Q205.91369924812028 140.28571428571428 205.91369924812028 139.0Q205.91369924812028 137.71428571428572 205.48941353383458 136.66000000000003Q205.06512781954885 135.6057142857143 204.30655639097742 134.83428571428573Q203.547984962406 134.06285714285715 202.51941353383455 133.6514285714286Q201.49084210526314 133.24 200.28227067669172 133.24Q199.07369924812028 133.24 198.057984962406 133.6514285714286Q197.04227067669171 134.06285714285715 196.27084210526314 134.83428571428573Q195.49941353383457 135.6057142857143 195.07512781954887 136.66000000000003Q194.65084210526314 137.71428571428572 194.65084210526314 139.0Q194.65084210526314 140.26 195.07512781954887 141.32714285714286Q195.49941353383457 142.3942857142857 196.257984962406 143.16571428571427Q197.01655639097743 143.93714285714285 198.04512781954884 144.3485714285714Q199.07369924812028 144.76 200.28227067669172 144.76ZM215.13330827067668 148.0V130.0H228.73616541353383V133.34285714285716H219.29902255639098V148.0ZM218.99045112781954 141.44285714285715V138.1H227.63045112781953V141.44285714285715ZM233.43006015037594 148.0V130.0H237.59577443609024V148.0ZM243.72966917293232 148.0V130.0H247.17538345864662L257.7953834586466 142.96H256.123954887218V130.0H260.2382406015038V148.0H256.81824060150376L246.17252631578947 135.04H247.84395488721805V148.0ZM275.0635639097744 148.30857142857144Q272.9292781954887 148.30857142857144 271.14213533834584 147.62714285714287Q269.354992481203 146.94571428571427 268.03070676691726 145.68571428571428Q266.7064210526315 144.4257142857143 265.9735639097744 142.72857142857143Q265.24070676691724 141.03142857142856 265.24070676691724 139.0Q265.24070676691724 136.96857142857144 265.9735639097744 135.27142857142857Q266.7064210526315 133.5742857142857 268.04356390977443 132.31428571428572Q269.3807067669173 131.05428571428573 271.1807067669173 130.37285714285713Q272.98070676691725 129.69142857142856 275.1407067669173 129.69142857142856Q277.5321353383458 129.69142857142856 279.44784962406015 130.48857142857142Q281.3635639097744 131.28571428571428 282.674992481203 132.80285714285714L280.00070676691723 135.27142857142857Q279.0235639097744 134.24285714285713 277.86642105263155 133.74142857142857Q276.7092781954887 133.24 275.34642105263157 133.24Q274.03499248120295 133.24 272.95499248120296 133.6514285714286Q271.874992481203 134.06285714285715 271.09070676691726 134.83428571428573Q270.30642105263155 135.6057142857143 269.88213533834585 136.66000000000003Q269.45784962406015 137.71428571428572 269.45784962406015 139.0Q269.45784962406015 140.26 269.88213533834585 141.31428571428572Q270.30642105263155 142.36857142857144 271.09070676691726 143.15285714285716Q271.874992481203 143.93714285714285 272.9421353383458 144.3485714285714Q274.00927819548866 144.76 275.294992481203 144.76Q276.5292781954887 144.76 277.69927819548866 144.36142857142858Q278.8692781954887 143.96285714285713 279.974992481203 143.01142857142858L282.34070676691726 146.02Q280.874992481203 147.12571428571428 278.9335639097744 147.71714285714285Q276.99213533834586 148.30857142857144 275.0635639097744 148.30857142857144ZM282.34070676691726 146.02 278.53499248120295 145.48V138.71714285714285H282.34070676691726ZM297.2056390977443 148.0V130.0H301.3713533834586V144.6057142857143H310.3970676691729V148.0ZM314.6023909774436 148.0V130.0H318.76810526315785V144.6057142857143H327.79381954887214V148.0ZM340.6134285714285 148.30857142857144Q338.53057142857136 148.30857142857144 336.7434285714285 147.62714285714287Q334.9562857142857 146.94571428571427 333.64485714285706 145.68571428571428Q332.3334285714285 144.4257142857143 331.60057142857136 142.72857142857143Q330.8677142857142 141.03142857142856 330.8677142857142 139.0Q330.8677142857142 136.96857142857144 331.60057142857136 135.27142857142857Q332.3334285714285 133.5742857142857 333.65771428571423 132.31428571428572Q334.98199999999997 131.05428571428573 336.7562857142857 130.37285714285713Q338.53057142857136 129.69142857142856 340.6391428571428 129.69142857142856Q342.9791428571428 129.69142857142856 344.86914285714283 130.50142857142856Q346.7591428571428 131.31142857142856 348.0448571428571 132.88L345.3705714285714 135.34857142857143Q344.4448571428571 134.2942857142857 343.3134285714285 133.76714285714286Q342.18199999999996 133.24 340.8448571428571 133.24Q339.5848571428571 133.24 338.5305714285714 133.6514285714286Q337.47628571428567 134.06285714285715 336.7048571428571 134.83428571428573Q335.9334285714285 135.6057142857143 335.5091428571428 136.66000000000003Q335.0848571428571 137.71428571428572 335.0848571428571 139.0Q335.0848571428571 140.28571428571428 335.5091428571428 141.33999999999997Q335.9334285714285 142.3942857142857 336.7048571428571 143.16571428571427Q337.47628571428567 143.93714285714285 338.5305714285714 144.3485714285714Q339.5848571428571 144.76 340.8448571428571 144.76Q342.18199999999996 144.76 343.3134285714285 144.23285714285714Q344.4448571428571 143.7057142857143 345.3705714285714 142.62571428571428L348.0448571428571 145.09428571428572Q346.7591428571428 146.66285714285715 344.86914285714283 147.4857142857143Q342.9791428571428 148.30857142857144 340.6134285714285 148.30857142857144Z" fill="#dcdee2"/>
+</symbol>
+</svg>
+
+<div class="bar" role="toolbar">
+  <div class="name">HMP <span>&middot;</span> Estimate range</div>
+  <div class="seg" role="group" aria-label="Language / Idioma"><button data-l="en" aria-pressed="true">EN</button><button data-l="es" aria-pressed="false">ES</button></div>
+  <button class="print" onclick="window.print()">Print</button>
+</div>
+
+<div id="pages"></div>
+
+<script id="data" type="application/json">
+{
+ "low": 16700,
+ "high": 22100,
+ "currency": "USD",
+ "type": "siding",
+ "using_reference": true,
+ "reference_items": [
+  "house_wrap_sq",
+  "permit",
+  "vinyl_siding_sq"
+ ],
+ "reference_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
+ "warnings": [
+  {
+   "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+   "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+  }
+ ],
+ "lines": [
+  {
+   "key": "vinyl_siding_sq",
+   "en": "Vinyl siding",
+   "es": "Siding de vinil",
+   "qty": 18.0,
+   "unit": "sq",
+   "unit_en": "squares",
+   "unit_es": "cuadros",
+   "rate": {
+    "low": 700.0,
+    "high": 900.0
+   },
+   "adder": {
+    "low": 0.15,
+    "high": 0.15
+   },
+   "low": 14490,
+   "high": 18630,
+   "reference": true
+  },
+  {
+   "key": "house_wrap_sq",
+   "en": "House wrap",
+   "es": "Envoltura de casa (house wrap)",
+   "qty": 18.0,
+   "unit": "sq",
+   "unit_en": "squares",
+   "unit_es": "cuadros",
+   "rate": {
+    "low": 100.0,
+    "high": 150.0
+   },
+   "adder": {
+    "low": 0.15,
+    "high": 0.15
+   },
+   "low": 2070,
+   "high": 3105,
+   "reference": true
+  },
+  {
+   "key": "permit",
+   "en": "Permit",
+   "es": "Permiso",
+   "qty": 1,
+   "unit": "job",
+   "unit_en": "job",
+   "unit_es": "trabajo",
+   "rate": {
+    "low": 150.0,
+    "high": 350.0
+   },
+   "adder": {
+    "low": 0,
+    "high": 0
+   },
+   "low": 150,
+   "high": 350,
+   "reference": true
+  }
+ ],
+ "minimum_applied": null,
+ "adders": {
+  "pitch": "std",
+  "pitch_roof": {
+   "low": 0.0,
+   "high": 0.0
+  },
+  "stories": 2,
+  "stories_all": {
+   "low": 0.15,
+   "high": 0.15
+  },
+  "layers": 1
+ },
+ "quantities": {
+  "siding_squares": 18.0,
+  "roof_squares": 0.0,
+  "gutter_ft": 0.0,
+  "soffit_ft": 0.0,
+  "material": "vinyl"
+ },
+ "rough_squares": null,
+ "summary": {
+  "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $16,700 - $22,100 for vinyl siding (18 squares); 2 stories. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+  "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $16,700 - $22,100 por siding de vinil (18 cuadros); 2 pisos. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+ },
+ "insurance_note": {
+  "en": "For insurance jobs: the insurer's approved scope sets the price.",
+  "es": "Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+ },
+ "lang": "both",
+ "prepared_on": "2026-09-26",
+ "valid_days": 30,
+ "insurance_job": false,
+ "registration_no": "",
+ "contact": {
+  "en": {
+   "name": "Kenny Cruz",
+   "phone": "402-936-2709"
+  },
+  "es": {
+   "name": "Alex Mendez",
+   "phone": "402-889-3385"
+  }
+ },
+ "address": "123 Sample St, Fremont, NE 68025",
+ "homeowner_first_name": "Maria",
+ "options": [
+  {
+   "tier": "good",
+   "material": "vinyl",
+   "name": {
+    "en": "Vinyl siding",
+    "es": "Siding de vinil"
+   },
+   "low": 16700,
+   "high": 22100
+  },
+  {
+   "tier": "better",
+   "material": "hardie",
+   "name": {
+    "en": "James Hardie siding",
+    "es": "Siding James Hardie"
+   },
+   "low": 20850,
+   "high": 28300
+  }
+ ]
+}
+</script>
+<!-- Samples (real `hh.py estimate --json` output + extras), shown with ?sample=hardie or ?sample=roof -->
+<script id="sample-hardie" type="application/json">
+{"low":22150,"high":30050,"currency":"USD","type":"siding","using_reference":true,"reference_items":["hardie_siding_sq","house_wrap_sq","permit"],"reference_label":"market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)","warnings":[{"en":"Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.","es":"Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."}],"lines":[{"key":"hardie_siding_sq","en":"James Hardie siding","es":"Siding James Hardie","qty":22.0,"unit":"sq","unit_en":"squares","unit_es":"cuadros","rate":{"low":900.0,"high":1200.0},"adder":{"low":0.0,"high":0.0},"low":19800,"high":26400,"reference":true},{"key":"house_wrap_sq","en":"House wrap","es":"Envoltura de casa (house wrap)","qty":22.0,"unit":"sq","unit_en":"squares","unit_es":"cuadros","rate":{"low":100.0,"high":150.0},"adder":{"low":0.0,"high":0.0},"low":2200,"high":3300,"reference":true},{"key":"permit","en":"Permit","es":"Permiso","qty":1,"unit":"job","unit_en":"job","unit_es":"trabajo","rate":{"low":150.0,"high":350.0},"adder":{"low":0,"high":0},"low":150,"high":350,"reference":true}],"minimum_applied":null,"adders":{"pitch":"std","pitch_roof":{"low":0.0,"high":0.0},"stories":1,"stories_all":{"low":0.0,"high":0.0},"layers":1},"quantities":{"siding_squares":22.0,"roof_squares":0.0,"gutter_ft":0.0,"soffit_ft":0.0,"material":"hardie"},"rough_squares":null,"summary":{"en":"Rough estimate with MARKET REFERENCE prices (not HMP's): $22,150 - $30,050 for James Hardie siding (22 squares); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.","es":"Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $22,150 - $30,050 por siding James Hardie (22 cuadros); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."},"insurance_note":{"en":"For insurance jobs: the insurer's approved scope sets the price.","es":"Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."},"lang":"both","prepared_on":"2026-09-26","valid_days":30,"insurance_job":false,"registration_no":"","contact":{"en":{"name":"Kenny Cruz","phone":"402-936-2709"},"es":{"name":"Alex Mendez","phone":"402-889-3385"}},"address":"456 Sample Ave, Fremont, NE 68025","homeowner_first_name":"James","options":[]}
+</script>
+<script id="sample-roof" type="application/json">
+{"low":12550,"high":16850,"currency":"USD","type":"roof","using_reference":true,"reference_items":["permit","shingle_roof_sq"],"reference_label":"market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)","warnings":[{"en":"Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.","es":"Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."}],"lines":[{"key":"shingle_roof_sq","en":"Architectural shingle roof (1-layer tear-off)","es":"Techo de teja arquitectónica (quitar 1 capa)","qty":24.0,"unit":"sq","unit_en":"squares","unit_es":"cuadros","rate":{"low":450.0,"high":550.0},"adder":{"low":0.15,"high":0.25},"low":12420,"high":16500,"reference":true},{"key":"permit","en":"Permit","es":"Permiso","qty":1,"unit":"job","unit_en":"job","unit_es":"trabajo","rate":{"low":150.0,"high":350.0},"adder":{"low":0,"high":0},"low":150,"high":350,"reference":true}],"minimum_applied":null,"adders":{"pitch":"steep","pitch_roof":{"low":0.15,"high":0.25},"stories":1,"stories_all":{"low":0.0,"high":0.0},"layers":1},"quantities":{"siding_squares":0.0,"roof_squares":24.0,"gutter_ft":0.0,"soffit_ft":0.0,"material":"vinyl"},"rough_squares":null,"summary":{"en":"Rough estimate with MARKET REFERENCE prices (not HMP's): $12,550 - $16,850 for shingle roof (24 squares); 1 story, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.","es":"Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $12,550 - $16,850 por techo de teja (24 cuadros); 1 piso, pendiente alta. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."},"insurance_note":{"en":"For insurance jobs: the insurer's approved scope sets the price.","es":"Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."},"lang":"both","prepared_on":"2026-09-26","valid_days":30,"insurance_job":false,"registration_no":"","contact":{"en":{"name":"Kenny Cruz","phone":"402-936-2709"},"es":{"name":"Alex Mendez","phone":"402-889-3385"}},"address":"789 Sample Rd, Fremont, NE 68025","homeowner_first_name":"Rosa","options":[]}
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var QR = {"en": {"n": 37, "d": "M0 0h7v1h-7zM8 0h2v1h-2zM11 0h2v1h-2zM15 0h1v1h-1zM18 0h2v1h-2zM21 0h2v1h-2zM24 0h1v1h-1zM27 0h2v1h-2zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h4v1h-4zM18 1h1v1h-1zM20 1h1v1h-1zM25 1h2v1h-2zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h2v1h-2zM14 2h1v1h-1zM16 2h2v1h-2zM19 2h3v1h-3zM23 2h1v1h-1zM26 2h3v1h-3zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM13 3h4v1h-4zM18 3h2v1h-2zM22 3h4v1h-4zM27 3h1v1h-1zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM13 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h2v1h-2zM23 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM14 5h1v1h-1zM18 5h2v1h-2zM21 5h2v1h-2zM24 5h1v1h-1zM26 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM8 7h3v1h-3zM12 7h1v1h-1zM14 7h1v1h-1zM16 7h3v1h-3zM20 7h1v1h-1zM22 7h1v1h-1zM24 7h1v1h-1zM27 7h2v1h-2zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h5v1h-5zM13 8h1v1h-1zM15 8h1v1h-1zM18 8h2v1h-2zM22 8h3v1h-3zM29 8h5v1h-5zM36 8h1v1h-1zM0 9h1v1h-1zM2 9h3v1h-3zM7 9h1v1h-1zM9 9h1v1h-1zM11 9h2v1h-2zM14 9h1v1h-1zM16 9h1v1h-1zM19 9h3v1h-3zM26 9h2v1h-2zM32 9h1v1h-1zM35 9h2v1h-2zM2 10h3v1h-3zM6 10h1v1h-1zM8 10h2v1h-2zM11 10h4v1h-4zM16 10h2v1h-2zM20 10h2v1h-2zM25 10h1v1h-1zM27 10h3v1h-3zM33 10h2v1h-2zM0 11h4v1h-4zM7 11h2v1h-2zM11 11h2v1h-2zM17 11h2v1h-2zM21 11h2v1h-2zM24 11h1v1h-1zM27 11h4v1h-4zM34 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM17 12h5v1h-5zM23 12h3v1h-3zM28 12h1v1h-1zM30 12h1v1h-1zM34 12h2v1h-2zM0 13h2v1h-2zM4 13h2v1h-2zM7 13h2v1h-2zM11 13h3v1h-3zM15 13h4v1h-4zM23 13h1v1h-1zM25 13h3v1h-3zM29 13h1v1h-1zM31 13h2v1h-2zM0 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM14 14h3v1h-3zM18 14h1v1h-1zM21 14h3v1h-3zM26 14h2v1h-2zM30 14h1v1h-1zM35 14h1v1h-1zM0 15h2v1h-2zM3 15h1v1h-1zM8 15h2v1h-2zM11 15h2v1h-2zM15 15h1v1h-1zM19 15h3v1h-3zM24 15h1v1h-1zM26 15h1v1h-1zM34 15h3v1h-3zM0 16h4v1h-4zM5 16h2v1h-2zM9 16h1v1h-1zM11 16h2v1h-2zM16 16h1v1h-1zM19 16h2v1h-2zM23 16h2v1h-2zM28 16h4v1h-4zM33 16h1v1h-1zM35 16h1v1h-1zM1 17h4v1h-4zM8 17h2v1h-2zM11 17h4v1h-4zM18 17h2v1h-2zM22 17h1v1h-1zM24 17h1v1h-1zM28 17h2v1h-2zM31 17h2v1h-2zM36 17h1v1h-1zM2 18h1v1h-1zM5 18h2v1h-2zM12 18h4v1h-4zM17 18h1v1h-1zM19 18h1v1h-1zM21 18h3v1h-3zM27 18h1v1h-1zM29 18h2v1h-2zM34 18h1v1h-1zM1 19h1v1h-1zM5 19h1v1h-1zM8 19h2v1h-2zM11 19h3v1h-3zM15 19h3v1h-3zM19 19h4v1h-4zM24 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM34 19h1v1h-1zM36 19h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM12 20h3v1h-3zM16 20h2v1h-2zM22 20h3v1h-3zM27 20h2v1h-2zM30 20h1v1h-1zM34 20h1v1h-1zM36 20h1v1h-1zM1 21h1v1h-1zM8 21h5v1h-5zM14 21h3v1h-3zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM29 21h1v1h-1zM31 21h3v1h-3zM1 22h3v1h-3zM6 22h1v1h-1zM10 22h1v1h-1zM14 22h2v1h-2zM17 22h1v1h-1zM20 22h1v1h-1zM23 22h2v1h-2zM27 22h4v1h-4zM33 22h2v1h-2zM0 23h6v1h-6zM9 23h1v1h-1zM11 23h2v1h-2zM14 23h1v1h-1zM16 23h3v1h-3zM22 23h3v1h-3zM28 23h1v1h-1zM31 23h1v1h-1zM34 23h1v1h-1zM36 23h1v1h-1zM0 24h2v1h-2zM5 24h2v1h-2zM8 24h1v1h-1zM13 24h2v1h-2zM18 24h2v1h-2zM22 24h1v1h-1zM24 24h1v1h-1zM30 24h1v1h-1zM35 24h1v1h-1zM0 25h2v1h-2zM3 25h3v1h-3zM8 25h2v1h-2zM14 25h1v1h-1zM16 25h1v1h-1zM19 25h3v1h-3zM23 25h2v1h-2zM26 25h1v1h-1zM28 25h1v1h-1zM32 25h1v1h-1zM35 25h2v1h-2zM4 26h3v1h-3zM9 26h2v1h-2zM13 26h1v1h-1zM16 26h2v1h-2zM20 26h4v1h-4zM27 26h3v1h-3zM31 26h1v1h-1zM33 26h1v1h-1zM3 27h1v1h-1zM5 27h1v1h-1zM9 27h1v1h-1zM11 27h3v1h-3zM17 27h2v1h-2zM21 27h1v1h-1zM23 27h2v1h-2zM26 27h3v1h-3zM30 27h2v1h-2zM34 27h1v1h-1zM0 28h4v1h-4zM6 28h1v1h-1zM9 28h1v1h-1zM14 28h4v1h-4zM19 28h3v1h-3zM24 28h1v1h-1zM26 28h7v1h-7zM34 28h1v1h-1zM36 28h1v1h-1zM8 29h4v1h-4zM13 29h1v1h-1zM15 29h3v1h-3zM23 29h1v1h-1zM26 29h3v1h-3zM32 29h3v1h-3zM0 30h7v1h-7zM8 30h4v1h-4zM14 30h2v1h-2zM18 30h1v1h-1zM21 30h6v1h-6zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM15 31h1v1h-1zM21 31h1v1h-1zM26 31h3v1h-3zM32 31h3v1h-3zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM8 32h2v1h-2zM11 32h2v1h-2zM16 32h1v1h-1zM20 32h1v1h-1zM23 32h1v1h-1zM28 32h7v1h-7zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM9 33h1v1h-1zM14 33h1v1h-1zM18 33h2v1h-2zM22 33h2v1h-2zM25 33h1v1h-1zM28 33h1v1h-1zM30 33h1v1h-1zM33 33h2v1h-2zM36 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM9 34h2v1h-2zM12 34h1v1h-1zM14 34h2v1h-2zM17 34h3v1h-3zM21 34h3v1h-3zM28 34h1v1h-1zM30 34h1v1h-1zM0 35h1v1h-1zM6 35h1v1h-1zM12 35h1v1h-1zM15 35h8v1h-8zM27 35h3v1h-3zM32 35h1v1h-1zM34 35h2v1h-2zM0 36h7v1h-7zM8 36h1v1h-1zM11 36h1v1h-1zM13 36h1v1h-1zM17 36h1v1h-1zM20 36h3v1h-3zM24 36h2v1h-2zM27 36h1v1h-1zM30 36h2v1h-2zM33 36h4v1h-4z"}, "es": {"n": 37, "d": "M0 0h7v1h-7zM8 0h1v1h-1zM10 0h1v1h-1zM12 0h3v1h-3zM16 0h1v1h-1zM18 0h2v1h-2zM25 0h1v1h-1zM27 0h2v1h-2zM30 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h2v1h-2zM12 1h2v1h-2zM15 1h2v1h-2zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM24 1h2v1h-2zM28 1h1v1h-1zM30 1h1v1h-1zM36 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h5v1h-5zM16 2h2v1h-2zM19 2h3v1h-3zM23 2h1v1h-1zM26 2h2v1h-2zM30 2h1v1h-1zM32 2h3v1h-3zM36 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM12 3h3v1h-3zM16 3h1v1h-1zM18 3h2v1h-2zM23 3h1v1h-1zM25 3h1v1h-1zM27 3h1v1h-1zM30 3h1v1h-1zM32 3h3v1h-3zM36 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h1v1h-1zM16 4h1v1h-1zM20 4h4v1h-4zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM32 4h3v1h-3zM36 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM13 5h1v1h-1zM16 5h1v1h-1zM18 5h2v1h-2zM24 5h3v1h-3zM30 5h1v1h-1zM36 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h7v1h-7zM8 7h1v1h-1zM12 7h1v1h-1zM14 7h2v1h-2zM17 7h8v1h-8zM27 7h2v1h-2zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM11 8h1v1h-1zM13 8h3v1h-3zM18 8h1v1h-1zM22 8h3v1h-3zM27 8h1v1h-1zM29 8h5v1h-5zM36 8h1v1h-1zM0 9h1v1h-1zM9 9h1v1h-1zM13 9h1v1h-1zM16 9h1v1h-1zM19 9h3v1h-3zM23 9h2v1h-2zM26 9h3v1h-3zM32 9h2v1h-2zM35 9h2v1h-2zM0 10h7v1h-7zM8 10h1v1h-1zM10 10h1v1h-1zM13 10h2v1h-2zM16 10h3v1h-3zM20 10h6v1h-6zM27 10h3v1h-3zM32 10h3v1h-3zM1 11h1v1h-1zM3 11h2v1h-2zM7 11h1v1h-1zM9 11h1v1h-1zM11 11h1v1h-1zM13 11h1v1h-1zM17 11h2v1h-2zM21 11h4v1h-4zM28 11h3v1h-3zM34 11h1v1h-1zM0 12h2v1h-2zM4 12h4v1h-4zM9 12h2v1h-2zM12 12h4v1h-4zM17 12h1v1h-1zM19 12h3v1h-3zM24 12h2v1h-2zM28 12h1v1h-1zM30 12h1v1h-1zM34 12h2v1h-2zM0 13h2v1h-2zM3 13h2v1h-2zM7 13h2v1h-2zM14 13h5v1h-5zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM35 13h1v1h-1zM3 14h4v1h-4zM8 14h2v1h-2zM13 14h1v1h-1zM15 14h1v1h-1zM18 14h1v1h-1zM20 14h2v1h-2zM23 14h5v1h-5zM1 15h2v1h-2zM7 15h1v1h-1zM9 15h1v1h-1zM13 15h3v1h-3zM19 15h3v1h-3zM23 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM34 15h3v1h-3zM0 16h1v1h-1zM3 16h4v1h-4zM9 16h2v1h-2zM12 16h1v1h-1zM16 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM24 16h1v1h-1zM28 16h1v1h-1zM30 16h1v1h-1zM33 16h1v1h-1zM35 16h1v1h-1zM2 17h4v1h-4zM10 17h2v1h-2zM13 17h1v1h-1zM17 17h3v1h-3zM21 17h3v1h-3zM27 17h2v1h-2zM32 17h1v1h-1zM36 17h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM6 18h5v1h-5zM12 18h4v1h-4zM18 18h2v1h-2zM21 18h1v1h-1zM23 18h1v1h-1zM27 18h4v1h-4zM32 18h1v1h-1zM34 18h1v1h-1zM0 19h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM7 19h3v1h-3zM13 19h1v1h-1zM15 19h3v1h-3zM19 19h6v1h-6zM27 19h3v1h-3zM33 19h2v1h-2zM36 19h1v1h-1zM0 20h1v1h-1zM3 20h2v1h-2zM6 20h2v1h-2zM9 20h6v1h-6zM17 20h1v1h-1zM20 20h2v1h-2zM24 20h1v1h-1zM28 20h1v1h-1zM30 20h1v1h-1zM34 20h1v1h-1zM36 20h1v1h-1zM0 21h2v1h-2zM8 21h3v1h-3zM12 21h1v1h-1zM15 21h2v1h-2zM18 21h1v1h-1zM25 21h3v1h-3zM29 21h1v1h-1zM31 21h3v1h-3zM1 22h1v1h-1zM3 22h1v1h-1zM5 22h5v1h-5zM11 22h1v1h-1zM15 22h3v1h-3zM21 22h3v1h-3zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h1v1h-1zM33 22h2v1h-2zM1 23h1v1h-1zM3 23h2v1h-2zM7 23h1v1h-1zM9 23h3v1h-3zM14 23h1v1h-1zM16 23h8v1h-8zM28 23h2v1h-2zM31 23h1v1h-1zM34 23h1v1h-1zM3 24h2v1h-2zM6 24h1v1h-1zM8 24h3v1h-3zM12 24h1v1h-1zM14 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1zM29 24h3v1h-3zM35 24h2v1h-2zM0 25h2v1h-2zM3 25h3v1h-3zM8 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM19 25h2v1h-2zM23 25h1v1h-1zM27 25h1v1h-1zM32 25h1v1h-1zM35 25h2v1h-2zM4 26h3v1h-3zM10 26h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM16 26h2v1h-2zM20 26h4v1h-4zM25 26h3v1h-3zM29 26h6v1h-6zM2 27h1v1h-1zM8 27h1v1h-1zM12 27h2v1h-2zM17 27h2v1h-2zM21 27h3v1h-3zM26 27h4v1h-4zM31 27h2v1h-2zM34 27h1v1h-1zM36 27h1v1h-1zM0 28h2v1h-2zM4 28h1v1h-1zM6 28h1v1h-1zM9 28h1v1h-1zM11 28h2v1h-2zM15 28h8v1h-8zM24 28h1v1h-1zM27 28h10v1h-10zM8 29h1v1h-1zM10 29h2v1h-2zM13 29h6v1h-6zM21 29h8v1h-8zM32 29h4v1h-4zM0 30h7v1h-7zM8 30h1v1h-1zM11 30h1v1h-1zM13 30h4v1h-4zM18 30h1v1h-1zM20 30h1v1h-1zM23 30h2v1h-2zM26 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM14 31h3v1h-3zM20 31h4v1h-4zM27 31h2v1h-2zM32 31h3v1h-3zM36 31h1v1h-1zM0 32h1v1h-1zM2 32h3v1h-3zM6 32h1v1h-1zM8 32h2v1h-2zM13 32h2v1h-2zM16 32h1v1h-1zM19 32h2v1h-2zM24 32h1v1h-1zM28 32h9v1h-9zM0 33h1v1h-1zM2 33h3v1h-3zM6 33h1v1h-1zM9 33h2v1h-2zM12 33h1v1h-1zM18 33h2v1h-2zM23 33h2v1h-2zM26 33h2v1h-2zM30 33h1v1h-1zM36 33h1v1h-1zM0 34h1v1h-1zM2 34h3v1h-3zM6 34h1v1h-1zM10 34h1v1h-1zM13 34h3v1h-3zM17 34h1v1h-1zM19 34h1v1h-1zM21 34h1v1h-1zM23 34h2v1h-2zM26 34h2v1h-2zM30 34h1v1h-1zM0 35h1v1h-1zM6 35h1v1h-1zM9 35h5v1h-5zM15 35h3v1h-3zM19 35h6v1h-6zM27 35h1v1h-1zM30 35h1v1h-1zM32 35h1v1h-1zM34 35h2v1h-2zM0 36h7v1h-7zM8 36h1v1h-1zM14 36h1v1h-1zM16 36h2v1h-2zM20 36h3v1h-3zM24 36h1v1h-1zM27 36h1v1h-1zM29 36h3v1h-3zM34 36h3v1h-3z"}};
+  var want0 = new URLSearchParams(location.search), sample = want0.get("sample");
+  var srcEl = (sample && document.getElementById("sample-" + sample)) || document.getElementById("data");
+  var D = JSON.parse(srcEl.textContent);
+
+  var T = {
+    en: {
+      kick: "Estimate range &middot; not a final price",
+      h1: {siding: "Siding estimate<br><span>for your home</span>", roof: "Roof estimate<br><span>for your home</span>",
+           gutters: "Gutter estimate<br><span>for your home</span>", mixed: "Your estimate<br><span>for your home</span>"},
+      forK: "Prepared for", prop: "Property", prepared: "Prepared", good: "Good for", days: "{n} days",
+      rangeLbl: "Estimate range", rangeEm: "for the work below",
+      notFinal: "<b>Estimate range, not a final price.</b> Final price after we measure.",
+      insLbl: "Insurance job",
+      counted: "Already in this range", sqNote: "<b>1 square = 100 sq ft</b> of wall or roof (10 ft &times; 10 ft).",
+      good_: "Good", better_: "Better",
+      optCnt: "Same house for both: {sz}.<br><b>1 square = 100 sq ft.</b>",
+      incLbl: "What's included", incEm: "in plain words",
+      chgLbl: "What could change the price",
+      cmpLbl: "Vinyl or James Hardie?", cmpEm: "honest side by side",
+      cmpSrc: "Typical ranges from cost guides and maker info. Energy: only insulated vinyl adds some insulation (R-value on its label); savings depend on your home.",
+      nextLbl: "Next steps",
+      steps: [["We measure", "Every wall and roof line, plus a look for hidden rot. <b>Free, no obligation.</b>"],
+              ["Written contract", "Price and work in writing. <b>You can cancel until midnight of the 3rd business day</b> after you sign."],
+              ["Pick a start date", "We set it with you and order materials. No work before a signed contract."]],
+      ctaK: "Ready to measure? Questions?", ctaWho: "Call or text {n}", alt: "Hablamos español &middot; Alex Mendez 402-889-3385",
+      qrCap: "Scan to text {n}", qrShort: "Scan to text {n}", co: "Registered &amp; insured", reg: "NE contractor registration #",
+      fineRef: "Based on typical local market prices for this kind of work in eastern Nebraska.",
+      fineOwn: "Based on HMP's current price list.",
+      fine: "<b>Estimate range, not a final price, bid or contract.</b> {src} Final price in a written contract after we measure.",
+      fineAsOf: "Range as of {d}; good for {n} days.",
+      fineIns: "<b>Not a price, bid or contract.</b> On an insurance job the insurer's approved scope sets the price. Your insurance company decides what your policy covers.",
+      sq: "squares", ft: "ft", job: "", sqft: "&asymp; {n} sq ft",
+      st: {1: "1-story house", 2: "2-story house", 3: "3-story house"},
+      pitch: {steep: "Steep roof (slower work)", low: "Low-slope roof", std: ""},
+      layersC: "{n} old layers to tear off", wrapC: "House wrap behind the siding", permitC: "Building permit",
+      minC: "Small-job minimum",
+      roughJob: "Size is rough, from the outside of the house",
+      facts: "Your roof at a glance", fSize: "of roof", fPitch: "Pitch", fStories: "Stories", fLayers: "Old layers",
+      pitchV: {steep: "Steep", std: "Standard", low: "Low slope"},
+      pitchK: {steep: "steeper than 6/12", std: "4/12 to 6/12", low: "under 4/12"},
+      storyK: ["Story", "Stories"], layerK: ["Old layer to tear off", "Old layers to tear off"]
+    },
+    es: {
+      kick: "Rango estimado &middot; no es el precio final",
+      h1: {siding: "Estimado de siding<br><span>para su casa</span>", roof: "Estimado de techo<br><span>para su casa</span>",
+           gutters: "Estimado de canaletas<br><span>para su casa</span>", mixed: "Su estimado<br><span>para su casa</span>"},
+      forK: "Preparado para", prop: "Propiedad", prepared: "Preparado", good: "Válido por", days: "{n} días",
+      rangeLbl: "Rango estimado", rangeEm: "por el trabajo de abajo",
+      notFinal: "<b>Rango estimado, no es el precio final.</b> Precio final después de medir.",
+      insLbl: "Trabajo de seguro",
+      counted: "Ya incluido en el rango", sqNote: "<b>1 cuadro = 100 pies cuadrados</b> de pared o techo (10 &times; 10 pies).",
+      good_: "Bueno", better_: "Mejor",
+      optCnt: "La misma casa para los dos: {sz}.<br><b>1 cuadro = 100 pies cuadrados.</b>",
+      incLbl: "Qué incluye", incEm: "en palabras sencillas",
+      chgLbl: "Qué puede cambiar el precio",
+      cmpLbl: "¿Vinil o James Hardie?", cmpEm: "comparación honesta",
+      cmpSrc: "Rangos típicos de guías de costos y del fabricante. Energía: solo el vinil aislado aísla algo (valor R en su etiqueta); el ahorro depende de su casa.",
+      nextLbl: "Siguientes pasos",
+      steps: [["Medimos", "Paredes y techo, y buscamos madera podrida. <b>Gratis, sin compromiso.</b>"],
+              ["Contrato por escrito", "Precio y trabajo por escrito. <b>Puede cancelar hasta la medianoche del 3.er día hábil</b> después de firmar."],
+              ["Escoja la fecha", "La ponemos juntos y pedimos el material. Nada empieza sin contrato firmado."]],
+      ctaK: "¿Listo para medir? ¿Preguntas?", ctaWho: "Llame o mande texto a {n}", alt: "We speak English &middot; Kenny Cruz 402-936-2709",
+      qrCap: "Escanee para mandar texto a {n}", qrShort: "Escanee: texto a {n}", co: "Registrados y asegurados", reg: "Registro de contratista NE #",
+      fineRef: "Basado en precios típicos del mercado local para este tipo de trabajo en el este de Nebraska.",
+      fineOwn: "Basado en la lista de precios actual de HMP.",
+      fine: "<b>Rango estimado; no es precio final, oferta ni contrato.</b> {src} Precio final en un contrato por escrito después de medir.",
+      fineAsOf: "Rango al {d}; válido por {n} días.",
+      fineIns: "<b>No es precio, oferta ni contrato.</b> En un trabajo de seguro, el alcance aprobado por la aseguradora fija el precio. Su compañía de seguros decide lo que cubre su póliza.",
+      sq: "cuadros", ft: "pies", job: "", sqft: "&asymp; {n} pies&sup2;",
+      st: {1: "Casa de 1 piso", 2: "Casa de 2 pisos", 3: "Casa de 3 pisos"},
+      pitch: {steep: "Techo empinado (más lento de trabajar)", low: "Techo de poca pendiente", std: ""},
+      layersC: "Quitar {n} capas viejas", wrapC: "Envoltura (house wrap) detrás del siding", permitC: "Permiso de construcción",
+      minC: "Mínimo por trabajo chico",
+      roughJob: "Medida aproximada, desde afuera de la casa",
+      facts: "Su techo de un vistazo", fSize: "de techo", fPitch: "Pendiente", fStories: "Pisos", fLayers: "Capas viejas",
+      pitchV: {steep: "Empinado", std: "Normal", low: "Poca"},
+      pitchK: {steep: "más de 6/12", std: "de 4/12 a 6/12", low: "menos de 4/12"},
+      storyK: ["Piso", "Pisos"], layerK: ["Capa vieja por quitar", "Capas viejas por quitar"]
+    }
+  };
+
+  // Plain-word names for the engine's line keys (fallback: the engine's own en/es text).
+  var ITEM = {
+    vinyl_siding_sq: {en: ["Vinyl siding", "Old siding off, new vinyl siding on."],
+                      es: ["Siding de vinil", "Quitamos el siding viejo y ponemos siding de vinil nuevo."]},
+    hardie_siding_sq: {en: ["James Hardie siding", "Old siding off, new James Hardie fiber-cement siding on."],
+                       es: ["Siding James Hardie", "Quitamos el siding viejo y ponemos fibrocemento James Hardie."]},
+    house_wrap_sq: {en: ["House wrap", "A weather barrier on the walls, under the new siding."],
+                    es: ["Envoltura (house wrap)", "Barrera contra agua y aire, debajo del siding nuevo."]},
+    shingle_roof_sq: {en: ["New shingle roof", "One layer of old shingles off, new architectural shingles on."],
+                      es: ["Techo nuevo de teja", "Quitamos una capa de teja vieja y ponemos teja arquitectónica."]},
+    extra_layer_sq: {en: ["Extra old layer", "Tear off and haul away one more layer of old material."],
+                     es: ["Capa vieja extra", "Quitamos y nos llevamos otra capa de material viejo."]},
+    soffit_fascia_ft: {en: ["Soffit + fascia", "New trim under and along the edge of the roof."],
+                       es: ["Sofito + fascia", "Molduras nuevas debajo y a lo largo de la orilla del techo."]},
+    gutters_ft: {en: ["Seamless gutters", "New seamless aluminum gutters."],
+                 es: ["Canaletas sin costura", "Canaletas nuevas de aluminio sin costura."]},
+    permit: {en: ["Building permit", "We get the permit where the city requires one."],
+             es: ["Permiso de construcción", "Sacamos el permiso donde la ciudad lo pide."]}
+  };
+
+  // What could change the price, by job part (only the parts in this job are shown).
+  var CHG = {
+    measure: {en: "<b>Exact size.</b> This range uses {sz}; we measure before the contract.",
+              es: "<b>La medida exacta.</b> Este rango usa {sz}; medimos antes del contrato."},
+    rough: {en: "<b>Rough size.</b> The squares came from the outside size of the house, not a tape.",
+            es: "<b>Medida aproximada.</b> Los cuadros salieron del tamaño de la casa, no de cinta."},
+    rotWall: {en: "<b>Hidden rot</b> under the old siding gets fixed first.",
+              es: "<b>Madera podrida</b> bajo el siding: se arregla primero."},
+    rotRoof: {en: "<b>Rotten roof boards</b> found at tear-off get replaced.",
+              es: "<b>Tablas podridas</b> bajo la teja: se cambian."},
+    layers: {en: "<b>A second old layer</b> means more tear-off.",
+             es: "<b>Otra capa vieja</b>: hay más que quitar."},
+    extrasWall: {en: "<b>Extras you pick:</b> window wraps, gutters, colors.",
+                 es: "<b>Extras a su gusto:</b> forro de ventanas, canaletas, colores."},
+    extrasRoof: {en: "<b>Vents, flashing, chimneys, skylights:</b> priced up close.",
+                 es: "<b>Ventilas, tapajuntas, chimeneas, tragaluces:</b> se cotizan de cerca."},
+    minimum: {en: "<b>Small-job minimum</b> is already in this range.",
+              es: "<b>El mínimo por trabajo chico</b> ya está en este rango."}
+  };
+
+  // Vinyl vs James Hardie: honest, sourced (docs/research/2026-09-26-round-5.md). No energy-savings numbers.
+  var CMP = [
+    {k: {en: "Cost", es: "Costo"},
+     v: {en: "<b>Lower.</b> The budget pick.", es: "<b>Más barato.</b> La opción económica."},
+     h: {en: "<b>Higher.</b> Often 70&ndash;100% more than vinyl.", es: "<b>Más caro.</b> Muchas veces 70&ndash;100% más que el vinil."}},
+    {k: {en: "Look", es: "Cómo se ve"},
+     v: {en: "Even look; the panel seams show.", es: "Se ve parejo; se notan las uniones."},
+     h: {en: "Thick boards, deep shadows; looks like painted wood.", es: "Tablas gruesas con sombra; parece madera pintada."}},
+    {k: {en: "Toughness", es: "Resistencia"},
+     v: {en: "Can crack from hail or hard hits, more in cold. Can warp near a grill.", es: "Se puede rajar con granizo o golpes (más con frío). Se tuerce cerca de un asador."},
+     h: {en: "Harder; takes hits better, not hail-proof. Won't melt; Class A fire rating.", es: "Más duro; aguanta mejor los golpes, no es a prueba de granizo. No se derrite; fuego Clase A."}},
+    {k: {en: "Upkeep", es: "Cuidado"},
+     v: {en: "Wash now and then. No paint; color can fade.", es: "Lavarlo a veces. No se pinta; el color se puede ir."},
+     h: {en: "Wash now and then; caulk joints; repaint someday.", es: "Lavarlo a veces. Sellar uniones; algún día se repinta."}},
+    {k: {en: "Typical life", es: "Duración"},
+     v: {en: "About 20&ndash;40 years.", es: "Unos 20&ndash;40 años."},
+     h: {en: "About 30&ndash;50+ years.", es: "Unos 30&ndash;50 años o más."}}
+  ];
+
+  var MES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function f(s, o) { return s.replace(/\{(\w+)\}/g, function (_, k) { return o[k]; }); }
+  function tx(v, l) { return v == null ? "" : typeof v === "string" ? v : (v[l] || v.en || ""); }
+  // option label: its own name, else the known material's plain name, else a generic label (never throws)
+  function optName(o, l) {
+    var it = ITEM[String(o.material || "vinyl").toLowerCase() + "_siding_sq"];
+    return tx(o.name, l) || (it && it[l] && it[l][0]) || (l === "es" ? "Opción de siding" : "Siding option");
+  }
+  function money(x) { return "$" + Math.round(Number(x)).toLocaleString("en-US"); }
+  function range(lo, hi) { return esc(money(lo)) + '<i>&ndash;</i>' + esc(money(hi)); }
+  function num(x) { var n = Number(x); return (Math.round(n * 10) / 10).toLocaleString("en-US"); }
+  function nice(day, l) {
+    if (!day) return "";
+    var p = day.split("-").map(Number);
+    return l === "es" ? p[2] + " de " + MES[p[1] - 1] + " de " + p[0] : MON[p[1] - 1] + " " + p[2] + ", " + p[0];
+  }
+  function qr(l, t, name) {
+    if (!QR || !QR[l]) return "";
+    var q = QR[l];
+    return '<div class="qrbox"><svg class="qr" viewBox="0 0 ' + q.n + ' ' + q.n + '" shape-rendering="crispEdges" role="img" aria-label="' +
+      esc(f(t.qrCap, {n: name})) + '"><path d="' + q.d + '" fill="#1b1c1f"/></svg><div class="cap">' + esc(f(t.qrShort, {n: name.split(" ")[0]})) + '</div></div>';
+  }
+  var CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#404145"/><path d="M4.6 8.3 7 10.6 11.6 5.6" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var Q = D.quantities || {}, A = D.adders || {}, lines = D.lines || [];
+  var siding = +Q.siding_squares || 0, roof = +Q.roof_squares || 0;
+  var ins = !!D.insurance_job;
+  var opts = (D.options || []).filter(function (o) { return o && o.low != null && o.high != null; }).slice(0, 2);
+  if (ins) opts = [];
+  var has = function (k) { return lines.some(function (ln) { return ln.key === k; }); };
+
+  function sizeText(l) {                       // "18 squares (about 1,800 sq ft) of wall"
+    var t = T[l], out = [];
+    if (siding) out.push(num(siding) + " " + t.sq + (l === "es" ? " de pared" : " of wall"));
+    if (roof) out.push(num(roof) + " " + t.sq + (l === "es" ? " de techo" : " of roof"));
+    if (!out.length && +Q.gutter_ft) out.push(num(Q.gutter_ft) + " " + t.ft + (l === "es" ? " de canaleta" : " of gutter"));
+    if (!out.length && +Q.soffit_ft) out.push(num(Q.soffit_ft) + " " + t.ft + (l === "es" ? " de sofito" : " of soffit"));
+    return out.join(l === "es" ? " y " : " and ");
+  }
+  function jobLine(l) {
+    var t = T[l], parts = [];
+    lines.forEach(function (ln) {
+      if (ln.key === "permit" || ln.key === "house_wrap_sq" || ln.key === "extra_layer_sq") return;
+      var it = ITEM[ln.key];
+      parts.push((it ? it[l][0] : tx(ln, l)) + " &middot; " + num(ln.qty) + " " + (ln.unit === "sq" ? t.sq : ln.unit === "ft" ? t.ft : ""));
+    });
+    return parts.join(" &nbsp;+&nbsp; ");
+  }
+  function counted(l) {
+    var t = T[l], c = [];
+    if (A.stories && A.stories > 1) c.push(t.st[A.stories]);
+    if (roof && A.pitch && t.pitch[A.pitch]) c.push(t.pitch[A.pitch]);
+    if (A.layers && A.layers > 1) c.push(f(t.layersC, {n: A.layers}));
+    if (has("house_wrap_sq")) c.push(t.wrapC);
+    if (has("permit")) c.push(t.permitC);
+    if (D.minimum_applied) c.push(t.minC);
+    if (D.rough_squares) c.push(t.roughJob);
+    return c;
+  }
+  function changes(l) {
+    var out = [];
+    out.push(D.rough_squares ? CHG.rough[l] : f(CHG.measure[l], {sz: sizeText(l)}));
+    if (siding) out.push(CHG.rotWall[l]);
+    if (roof) out.push(CHG.rotRoof[l]);
+    if (!(A.layers > 1) && (siding || roof)) out.push(CHG.layers[l]);
+    if (siding) out.push(CHG.extrasWall[l]);
+    if (roof) out.push(CHG.extrasRoof[l]);
+    if (D.minimum_applied) out.push(CHG.minimum[l]);
+    return out.slice(0, 4);
+  }
+
+  function page(l) {
+    var t = T[l], c = (D.contact && D.contact[l]) || {};
+    var name = c.name || (l === "es" ? "Alex Mendez" : "Kenny Cruz"), phone = c.phone || (l === "es" ? "402-889-3385" : "402-936-2709");
+    var addr = String(D.address || ""), cut = addr.indexOf(","), a1 = cut > 0 ? addr.slice(0, cut) : addr, a2 = cut > 0 ? addr.slice(cut + 1).trim() : "";
+    var first = String(D.homeowner_first_name || "").trim().split(/\s+/)[0] || "";
+    var type = T.en.h1[D.type] ? D.type : (siding && roof ? "mixed" : roof ? "roof" : "siding");
+    var valid = +D.valid_days || 0;
+
+    // property strip
+    var prop = '<section class="prop' + (first ? '' : ' nofor') + '">' +
+      (first ? '<div><div class="k">' + t.forK + '</div><div class="v">' + esc(first) + '</div></div>' : '') +
+      '<div class="addr"><div class="k">' + t.prop + '</div><div class="v">' + (a1 ? esc(a1) : '&nbsp;') + (a2 ? '<small>' + esc(a2) + '</small>' : '') + '</div></div>' +
+      '<div><div class="k">' + t.prepared + '</div><div class="v s">' + (esc(nice(D.prepared_on, l)) || '&nbsp;') + '</div></div>' +
+      '<div><div class="k">' + t.good + '</div><div class="v s">' + (valid ? f(t.days, {n: valid}) : '&nbsp;') + '</div></div></section>';
+
+    // hero
+    var cnt = counted(l), hero;
+    if (ins) {
+      hero = '<section class="hero solo" style="grid-template-columns:1fr"><div class="range"><div class="label">' + t.insLbl + '</div>' +
+        '<div class="ins">' + esc(tx(D.insurance_note, l)) + '</div><div class="job">' + jobLine(l) + '</div></div></section>';
+    } else if (opts.length === 2) {
+      hero = '<section><div class="label">' + t.rangeLbl + ' <em>' + t.rangeEm + '</em></div><div class="opts" style="margin-top:.07in">' +
+        opts.map(function (o) {
+          var better = o.tier === "better";
+          return '<div class="opt' + (better ? ' better' : '') + '"><span class="tier">' + (better ? t.better_ : t.good_) + '</span>' +
+            '<div class="nm">' + esc(optName(o, l)) + '</div>' +
+            '<div class="num">' + range(o.low, o.high) + '</div></div>';
+        }).join("") + '</div><div class="optnote"><div class="notfinal">' + t.notFinal + '</div><div class="cnt">' +
+        f(t.optCnt, {sz: sizeText(l)}) + '</div></div></section>';
+    } else {
+      hero = '<section class="hero"><div class="range"><div class="label">' + t.rangeLbl + ' <em>' + t.rangeEm + '</em></div>' +
+        '<div class="num">' + range(D.low, D.high) + '</div><div class="job">' + jobLine(l) + '</div>' +
+        '<div class="notfinal">' + t.notFinal + '</div></div>' +
+        '<div class="counted"><div class="label">' + t.counted + '</div><ul>' +
+        cnt.map(function (x) { return '<li>' + CHECK + '<span>' + x + '</span></li>'; }).join("") + '</ul>' +
+        '<div class="sq">' + t.sqNote + '</div></div></section>';
+    }
+
+    // included (plain words, quantities, no per-line dollars) + what could change
+    var inc = '<ul class="inc">' + lines.map(function (ln) {
+      var it = ITEM[ln.key], nm = it ? it[l][0] : tx(ln, l), d = it ? it[l][1] : "";
+      if (ln.key === "extra_layer_sq") nm = it[l][0] + (/roof/i.test(ln.en || "") ? (l === "es" ? " (techo)" : " (roof)") : (l === "es" ? " (paredes)" : " (walls)"));
+      var q = ln.unit === "job" ? "" : num(ln.qty) + " " + (ln.unit === "sq" ? t.sq : t.ft) +
+        (ln.unit === "sq" ? ' <small>(' + f(t.sqft, {n: Math.round(ln.qty * 100).toLocaleString("en-US")}) + ')</small>' : "");
+      if (opts.length === 2 && /_siding_sq$/.test(ln.key)) {
+        nm = l === "es" ? "Siding nuevo" : "New siding";
+        d = l === "es" ? "Quitamos el siding viejo y ponemos nuevo: vinil o James Hardie." : "Old siding off, new siding on: vinyl or James Hardie, your pick.";
+      }
+      return '<li>' + CHECK + '<div><div class="t">' + esc(nm) + (q ? '<span class="q">' + q + '</span>' : '') + '</div>' + (d ? '<div class="d">' + d + '</div>' : '') + '</div></li>';
+    }).join("") + '</ul>';
+    var two = '<section class="two' + (ins ? ' solo' : '') + '"' + (ins ? ' style="grid-template-columns:1fr"' : '') + '><div><div class="label">' + t.incLbl + ' <em>' + t.incEm + '</em></div>' + inc + '</div>' +
+      (ins ? '' : '<div><div class="label">' + t.chgLbl + '</div><ul class="chg">' + changes(l).map(function (x) { return '<li>' + x + '</li>'; }).join("") + '</ul></div>') + '</section>';
+
+    // vinyl vs hardie (siding jobs only)
+    var cmp = "";
+    if (siding) {
+      var hv = l === "es" ? "Vinil" : "Vinyl", hh = "James Hardie";
+      var ov = opts.filter(function (o) { return o.material !== "hardie"; })[0], oh = opts.filter(function (o) { return o.material === "hardie"; })[0];
+      cmp = '<section class="cmp"><div class="label">' + t.cmpLbl + ' <em>' + t.cmpEm + '</em></div><table><thead><tr><th></th>' +
+        '<th>' + hv + (ov ? '<small>' + range(ov.low, ov.high).replace(/<i>|<\/i>/g, "") + '</small>' : '') + '</th>' +
+        '<th class="hd">' + hh + (oh ? '<small>' + range(oh.low, oh.high).replace(/<i>|<\/i>/g, "") + '</small>' : '') + '</th></tr></thead><tbody>' +
+        CMP.filter(function (r, i) { return i > 0 || !(ov && oh); }).map(function (r) {
+          return '<tr><td>' + r.k[l] + '</td><td data-h="' + hv + '">' + r.v[l] + '</td><td data-h="' + hh + '">' + r.h[l] + '</td></tr>';
+        }).join("") + '</tbody></table><div class="src">' + t.cmpSrc + '</div></section>';
+    }
+
+    // roof-only jobs: the roof's numbers from the estimate (fills the space the siding comparison uses)
+    var facts = "";
+    if (roof && !siding && !ins) {
+      var pc = A.pitch || "std", ly = A.layers || 1;
+      var roofSvg = '<svg viewBox="0 0 120 60" aria-hidden="true"><path d="M8 52 60 ' + (pc === "steep" ? 8 : pc === "low" ? 34 : 22) + ' 112 52" fill="none" stroke="#f5883a" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M22 52h76" stroke="#c9ccd1" stroke-width="2" stroke-dasharray="4 4"/></svg>';
+      facts = '<section class="facts"><div class="head">' + roofSvg + '<span>' + t.facts + '</span></div>' +
+        '<div class="stat"><div class="v">' + num(roof) + ' <small>' + t.sq + '</small></div><div class="k">' + f(t.sqft, {n: Math.round(roof * 100).toLocaleString("en-US")}) + ' ' + t.fSize + '</div></div>' +
+        '<div class="stat"><div class="v">' + t.pitchV[pc] + '</div><div class="k">' + t.fPitch + ': ' + t.pitchK[pc] + '</div></div>' +
+        '<div class="stat"><div class="v">' + (A.stories || 1) + '</div><div class="k">' + t.storyK[(A.stories || 1) > 1 ? 1 : 0] + '</div></div>' +
+        '<div class="stat"><div class="v">' + ly + '</div><div class="k">' + t.layerK[ly > 1 ? 1 : 0] + '</div></div></section>';
+    }
+
+    var steps = '<section><div class="label">' + t.nextLbl + '</div><div class="steps">' + t.steps.map(function (s, i) {
+      return '<div class="step"><div class="h"><span class="n">' + (i + 1) + '</span>' + s[0] + '</div><div class="p">' + s[1] + '</div></div>';
+    }).join("") + '</div></section>';
+
+    var fine = ins ? t.fineIns : f(t.fine, {src: D.using_reference ? t.fineRef : t.fineOwn}) +
+      (D.prepared_on && valid ? " " + f(t.fineAsOf, {d: esc(nice(D.prepared_on, l)), n: valid}) : "");
+
+    return '<section class="page" lang="' + l + '">' +
+      '<header class="top"><svg class="rib" viewBox="0 0 816 125" preserveAspectRatio="none" aria-hidden="true"><rect width="816" height="125" fill="url(#rib)" opacity=".55"/></svg>' +
+      '<svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>' +
+      '<div class="ttl"><div class="kick">' + t.kick + '</div><h1>' + t.h1[type] + '</h1></div></header>' +
+      '<main class="body">' + prop + hero + two + cmp + facts + steps + '</main>' +
+      '<footer class="foot"><div class="row"><div class="cta"><div class="k">' + t.ctaK + '</div><div class="who">' + esc(f(t.ctaWho, {n: name})) + '</div>' +
+        '<a class="ph" href="tel:+1' + esc(phone.replace(/\D/g, "")) + '">' + esc(phone) + '</a><div class="alt">' + t.alt + '</div></div>' +
+        qr(l, t, name) +
+        '<div class="co"><b>HMP Siding &amp; Roofing LLC</b>Fremont, NE &middot; ' + t.co +
+          '<span class="reg">' + t.reg + ' <i>' + esc(D.registration_no || "") + '</i></span></div></div>' +
+        '<div class="fine">' + fine + '</div></footer>' +
+      '</section>';
+  }
+
+  var root = document.getElementById("pages");
+  root.innerHTML = page("en") + page("es");
+  var pages = root.querySelectorAll(".page");
+
+  // one Letter page per language: if a long job overflows, drop the least important rows until it fits
+  function fit(pg) {
+    var FULL = 10.88 * 96;
+    var steps = [
+      function () { var r = pg.querySelectorAll(".cmp tbody tr"); if (r.length > 5) { r[r.length - 1].remove(); return true; } },
+      function () { var r = pg.querySelectorAll(".chg li"); if (r.length > 3) { r[r.length - 1].remove(); return true; } },
+      function () { var r = pg.querySelectorAll(".inc .d"); if (r.length) { r.forEach(function (e) { e.remove(); }); return true; } },
+      function () { var r = pg.querySelectorAll(".counted li"); if (r.length > 4) { r[r.length - 1].remove(); return true; } },
+      function () { var r = pg.querySelectorAll(".cmp tbody tr"); if (r.length > 3) { r[r.length - 1].remove(); return true; } },
+      function () { var c = pg.querySelector(".cmp .src"); if (c) { c.remove(); return true; } },
+      function () { var c = pg.querySelector(".cmp"); if (c) { c.remove(); return true; } }
+    ];
+    pg.style.minHeight = "0";                 // measure the content itself; keep ~0.12in spare for print rounding
+    for (var guard = 0; guard < 30 && pg.offsetHeight > FULL; guard++) {
+      if (!steps.some(function (st) { return st(); })) break;
+    }
+    pg.style.minHeight = "";
+  }
+  // Measure only after the web fonts load (fallback fonts are narrower and would under-count the height).
+  // Hidden pages measure 0, so every page is shown while fitting, then show() picks the language.
+  function settle() {
+    var cur = document.documentElement.lang;
+    pages.forEach(function (p) { p.hidden = false; });
+    if (window.innerWidth > 760 && !want0.has("nofit")) pages.forEach(fit);
+    if (want0.has("debug")) {                // crew check: content heights in inches (?debug, add &nofit for raw)
+      var dbg = document.getElementById("dbg") || document.body.appendChild(document.createElement("pre"));
+      dbg.id = "dbg";
+      dbg.textContent = (want0.has("nofit") ? "" : "") + Array.prototype.map.call(pages, function (pg) {
+        pg.style.minHeight = "0";
+        var out = pg.lang + " page " + (pg.offsetHeight / 96).toFixed(2) + " | " + Array.prototype.map.call(pg.querySelectorAll(".top,.body > *,.foot"), function (e) {
+          return (e.className || e.tagName) + " " + (e.offsetHeight / 96).toFixed(2); }).join(" | ");
+        pg.style.minHeight = "";
+        return out;
+      }).join("\n");
+    }
+    show(cur === "es" ? "es" : "en");
+  }
+  var want = (want0.get("lang") || D.lang || "both").toLowerCase();
+  if (want === "both") document.body.classList.add("print-both");
+  function show(l) {
+    pages.forEach(function (p) { p.hidden = p.lang !== l; });
+    document.documentElement.lang = l;
+    document.querySelectorAll(".seg button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === l)); });
+    document.querySelector(".bar .print").textContent = l === "es" ? "Imprimir" : "Print";
+    document.querySelector(".bar .name").innerHTML = "HMP <span>&middot;</span> " + (l === "es" ? "Rango estimado" : "Estimate range");
+  }
+  document.querySelectorAll(".seg button").forEach(function (b) {
+    b.addEventListener("click", function () { document.body.classList.remove("print-both"); show(b.dataset.l); });
+  });
+  show(want === "es" ? "es" : "en");
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle); else settle();
+})();
+</script>
+</body></html>
