@@ -38,5 +38,25 @@
     "say_en": "Good, it's smart to compare. Can I see what's in their number? A lot of the time a lower price means a thinner warranty or a different material grade - let's line ours up next to theirs so you're comparing the same thing.",
     "say_es": "Qué bien, es inteligente comparar. ¿Me deja ver qué incluye su número? Muchas veces un precio más bajo significa una garantía más corta o un material diferente - comparemos la nuestra con la de ellos para que sea justo.",
     "never_say": "Never disparage the other contractor by name or claim they're unregistered/uninsured without proof - keep it to scope comparison."
+  },
+  {
+    "id": "site-unseen-quote",
+    "objection_en": "Can you just give me a number over the phone/text, no need to come out?",
+    "objection_es": "¿Me puede dar un número por teléfono/mensaje, sin necesidad de venir?",
+    "job_type": "cash and insurance",
+    "framework": "give a wide range if pressed, name the reason (attic/ventilation/decking can't be seen from the street or a photo), and make the free inspection the actual ask - never let a phone guess become the number they hold you to.",
+    "say_en": "I could give you a rough range, but I'd rather not - the real number depends on things I can only see up close: the ventilation, the decking under the shingles, how many layers are already up there. If I guess low over the phone and it's wrong once I'm up there, that's worse for both of us. The inspection's free and takes maybe 20-30 minutes - can I come by [day]?",
+    "say_es": "Le podría dar un rango, pero prefiero no hacerlo - el número real depende de cosas que solo se ven de cerca: la ventilación, la madera debajo de las tejas, cuántas capas ya tiene. Si le doy un número bajo por teléfono y luego cambia, es peor para los dos. La inspección es gratis y toma unos 20-30 minutos - ¿puedo pasar el [día]?",
+    "never_say": "Never quote a firm price sight-unseen and never let a phone/text range get treated as the contract number later - if a range is given, say out loud that it's a range, not a quote, and that the real number comes after the inspection."
+  },
+  {
+    "id": "wants-three-bids",
+    "objection_en": "I want to get three bids before I decide.",
+    "objection_es": "Quiero conseguir tres cotizaciones antes de decidir.",
+    "job_type": "cash (no insurance)",
+    "framework": "validate -> ask a diagnostic question (first bid or third?) -> reframe from lowest-price to scope comparison, same as the cheaper-bid objection, without pressuring them to skip the other bids.",
+    "say_en": "That's smart, I'd do the same thing. Quick question so I know how to help - am I the first one out, or have you already got the other two? [if others done] What did you like or not like about them so far? However it shakes out, when you've got all three, line them up side by side on scope and warranty, not just the bottom-line number - a lower price is usually a shorter warranty or a lighter material, not the same job for less. I'll leave you my number with everything written out so it's easy to compare.",
+    "say_es": "Es inteligente, yo haría lo mismo. Una pregunta rápida para saber cómo ayudarle - ¿soy el primero, o ya tiene las otras dos? [si ya las tiene] ¿Qué le gustó o no le gustó de esas? Como sea, cuando tenga las tres, compárelas lado a lado en el alcance y la garantía, no solo el número final - un precio más bajo casi siempre es una garantía más corta o un material más ligero, no el mismo trabajo por menos. Le dejo mi número con todo escrito para que sea fácil comparar.",
+    "never_say": "Never talk them out of getting other bids or imply the other contractors are dishonest - never say anything that could be read as steering them away from a signed competitor's contract (tortious interference risk, round 36). Never promise to 'beat any price' - that invites a race to the bottom and can look like disguised deductible-covering on an insurance job."
   }
 ]
