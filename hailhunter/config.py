@@ -173,6 +173,50 @@ DEFAULTS = {
     "weekly": {
         "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
     },
+    # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
+    # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
+    # A price with only one side set uses it for both. Fill these in config.json, not here.
+    "prices": {
+        "vinyl_siding_sq": {"low": None, "high": None},    # per square (100 sf of wall), incl. 1-layer tear-off
+        "hardie_siding_sq": {"low": None, "high": None},   # James Hardie fiber cement, per square of wall
+        "shingle_roof_sq": {"low": None, "high": None},    # architectural shingle roof, 1-layer tear-off, per square
+        "extra_layer_sq": {"low": None, "high": None},     # each extra old layer to tear off + dispose, per square
+        "soffit_fascia_ft": {"low": None, "high": None},   # per linear foot
+        "gutters_ft": {"low": None, "high": None},         # seamless aluminum, per linear foot
+        "house_wrap_sq": {"low": None, "high": None},      # per square of wall (100 sf)
+        "permit": {"low": None, "high": None},             # per job
+        "min_job": {"low": None, "high": None},            # smallest job total (siding / gutters / any job)
+        "min_job_roof": {"low": None, "high": None}        # optional: smallest roof job (null = use min_job)
+    },
+    # MARKET REFERENCE, NOT HMP's prices: eastern Nebraska "typical" ranges from
+    # docs/research/2026-09-26-market-prices.md (search summaries of cost guides; spot-check with suppliers).
+    # Used only where `prices` is null, and every estimate that uses them carries using_reference: true + a warning.
+    "prices_reference": {
+        "_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
+        "vinyl_siding_sq": {"low": 700, "high": 900},      # market $400-1,200 full range
+        "hardie_siding_sq": {"low": 900, "high": 1200},    # market $600-1,800
+        "shingle_roof_sq": {"low": 450, "high": 550},      # market $350-850
+        "extra_layer_sq": {"low": 100, "high": 150},       # disposal/tear-off per square per layer
+        "soffit_fascia_ft": {"low": 14, "high": 17},       # market $7.50-22
+        "gutters_ft": {"low": 12, "high": 16},             # market $8-25
+        "house_wrap_sq": {"low": 100, "high": 150},        # $1-1.50 per sf of wall
+        "permit": {"low": 150, "high": 350},               # market $100-500
+        "min_job": {"low": 300, "high": 400},              # siding repair minimum
+        "min_job_roof": {"low": 2500, "high": 3000}        # roofing minimum
+    },
+    # How a job's shape changes the price (add-ons as fractions {low, high}) and the rough-squares helper.
+    "estimate": {
+        "pitch_adders": {"low": {"low": 0.0, "high": 0.0}, "std": {"low": 0.0, "high": 0.0},
+                         "steep": {"low": 0.15, "high": 0.25}},       # roof items only; steep = over 6:12
+        "story_adders": {"1": {"low": 0.0, "high": 0.0}, "2": {"low": 0.15, "high": 0.15},
+                         "3": {"low": 0.35, "high": 0.35}},           # every installed item (not the permit)
+        "steep_over": 6, "low_under": 4,     # a numeric pitch (rise per 12): >6 steep, <4 low, else std
+        # rough squares from a footprint (clearly labeled rough): roof area = footprint x pitch factor
+        "pitch_factor": {"low": 1.05, "std": 1.12, "steep": 1.25},
+        "story_height_ft": 9,               # wall height per story
+        "openings": 0.15,                   # share of wall that is windows/doors
+        "perimeter_factor": 1.1             # real houses are longer than a square: perimeter = 4 x sqrt(area) x this
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
 
