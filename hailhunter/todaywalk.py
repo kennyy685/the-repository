@@ -15,6 +15,9 @@ today_walk.best_time, by day of week), `stale` + `stale_note {en, es}` (hud.json
 stale_hours; note is null when fresh), `data_age_hours`. When no walk qualifies, `today_doc` returns
 {date, stops: [], goal_doors: 0, none_reason {en, es}, best_time, stale...} instead of failing.
 Evidence docs (`evidence_docs`): `evidence/<slug>` per house from hud.json hail_evidence; see SLUG_RULE.
+Do-not-knock (`load_dnk`, `pick(dnk=...)`): houses in the app's `dnk/<slug>` docs (same slug rule) never appear.
+Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
+`come_back {date, time}` and goes to the front (earliest time first); due later -> the door waits until that date.
 """
 import json
 import re
@@ -39,7 +42,7 @@ def load_results(obj):
     if obj is None:
         return {}
     items = obj.items() if isinstance(obj, dict) else [(d.get("id") or d.get("doc_id") or "", d) for d in obj]
-    tries = {}
+    tries, cb = {}, {}
     for key, doc in items:
         if not isinstance(doc, dict):
             continue
@@ -60,7 +63,75 @@ def load_results(obj):
             pass
         if r and r not in NOT_HOME:
             t["done"] = True                       # No / Interested / Booked: talked to them, don't knock again
-    return {p: {"visits": max(t["visits"], t["max_pass"]), "done": t["done"]} for p, t in tries.items()}
+        elif r:                                    # not home: the latest visit's come_back (or none) wins
+            k = str(key).split("/")[-1]
+            order = (_int(data.get("pass")), str(data.get("at") or ""), k[:10] if re.match(r"^\d{4}-", k) else "")
+            if pid not in cb or order >= cb[pid][0]:
+                cb[pid] = (order, parse_come_back(data.get("come_back")))
+    out = {p: {"visits": max(t["visits"], t["max_pass"]), "done": t["done"]} for p, t in tries.items()}
+    for p, (_, when) in cb.items():
+        if when and not out[str(p)]["done"]:
+            out[str(p)]["come_back"] = when
+    return out
+
+
+def _int(v):
+    try:
+        return int(v or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def parse_come_back(v, tz=None):
+    """"2026-09-26T17:30", "2026-09-26T22:30:00Z" (converted to Central), "2026-09-26" or {date, time}
+    -> {"date": "YYYY-MM-DD", "time": "HH:MM" or None}; anything else -> None."""
+    try:
+        if isinstance(v, dict):
+            d = date.fromisoformat(str(v.get("date") or "")[:10]).isoformat()
+            t = v.get("time")
+            if t:
+                m = re.match(r"^\s*(\d{1,2}):(\d{2})", str(t))
+                t = f"{int(m.group(1)):02d}:{m.group(2)}" if m and int(m.group(1)) < 24 else None
+            return {"date": d, "time": t or None}
+        v = str(v or "").strip()
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", v):
+            return {"date": date.fromisoformat(v).isoformat(), "time": None}
+        dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+        if dt.tzinfo is not None:
+            from zoneinfo import ZoneInfo
+            dt = dt.astimezone(ZoneInfo(tz or DEFAULTS["timezone"]))
+        return {"date": dt.date().isoformat(), "time": dt.strftime("%H:%M")}
+    except (TypeError, ValueError, AttributeError, KeyError):
+        return None
+
+
+def load_dnk(obj):
+    """Do-not-knock docs -> set of slugs (SLUG_RULE). Accepts {"dnk/<slug>": {address, city}} or a list of docs,
+    each with `slug`, or `address` (+ `city`), inline or under `data`; the key/id "dnk/<slug>" also counts."""
+    if not obj:
+        return set()
+    items = obj.items() if isinstance(obj, dict) else \
+        [((d.get("id") or d.get("doc_id") or "") if isinstance(d, dict) else d, d) for d in obj]
+    out = set()
+    for key, doc in items:
+        doc = doc if isinstance(doc, dict) else {}
+        data = doc.get("data") if isinstance(doc.get("data"), dict) else doc
+        for v in (data.get("slug"), doc.get("slug")):
+            if v:
+                out.add(slug(v))
+        if data.get("address"):
+            out.add(slug(data["address"], data.get("city")))
+        out.add(slug(str(key or "").split("/")[-1]))   # the doc id itself is the slug
+    out.discard("")
+    return out
+
+
+def is_dnk(stop, dnk, city=""):
+    """True when the house's slug (its own city, else the list's town) or its address alone is on the list."""
+    if not dnk:
+        return False
+    a = stop.get("address")
+    return slug(a, stop.get("city") or city) in dnk or slug(a) in dnk
 
 
 # ------------------------------------------------------------------ walking order
@@ -195,13 +266,28 @@ def _houses(stops, kinds):
             and s.get("pid") and s.get("address")]
 
 
-def _candidates(L, kind, tw, results):
+def _due(r, today):
+    """A not-home door's come_back date vs today: None (none/past), "today" or "later"."""
+    cb = (r or {}).get("come_back")
+    if not cb or not today:
+        return None
+    d = date.fromisoformat(cb["date"])
+    return "today" if d == today else ("later" if d > today else None)
+
+
+def _candidates(L, kind, tw, results, dnk=None, today=None):
     """One entry per walk (turf) of a list that still has doors to knock."""
     kinds = set(tw["house_kinds"])
+    town = (L.get("area") or "").split(",")[0].strip()
     by_turf = {}
     for s in _houses(L.get("stops") or [], kinds):
+        if is_dnk(s, dnk, town):
+            continue                               # do-not-knock: never in a walk
         r = results.get(str(s["pid"]))
-        if r and (r["done"] or r["visits"] >= tw["max_passes"]):
+        due = _due(r, today)
+        if due == "later":
+            continue                               # they said come back on a later day
+        if r and (r["done"] or (r["visits"] >= tw["max_passes"] and due != "today")):
             continue
         by_turf.setdefault(s["turf"], []).append(s)
     out = []
@@ -322,8 +408,8 @@ def evidence_docs(hud, stops):
     return {"slug_rule": SLUG_RULE, "docs": docs}
 
 
-def pick(hud, today, goal=None, results=None, cfg=None, now=None):
-    """The `today/walk` doc, or None when no list has houses left to knock."""
+def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
+    """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs."""
     tw = _tw(cfg)
     goal = goal or tw["goal_doors"]
     results = results or {}
@@ -334,13 +420,13 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None):
             age = (today - date.fromisoformat(L["day"])).days
         except (KeyError, TypeError, ValueError):
             continue
-        c, pools[L["id"]] = _candidates(L, "storm", tw, results)
+        c, pools[L["id"]] = _candidates(L, "storm", tw, results, dnk, today)
         if 0 <= age <= tw["storm_max_days"]:
             storm += [x for x in c if x["heat"] >= tw["storm_min_heat"]
                       and (x["avg_hail"] or 0) >= tw["storm_min_hail"]]
     every = []
     for L in hud.get("everyday_lists") or []:
-        c, pools[L["id"]] = _candidates(L, "everyday", tw, results)
+        c, pools[L["id"]] = _candidates(L, "everyday", tw, results, dnk, today)
         every += c
     cands = storm or every
     if not cands:
@@ -356,7 +442,16 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None):
         others = [s for t, ss in pools[L["id"]].items() if t != best["turf"]["turf"] for s in ss]
         others.sort(key=lambda s: haversine_mi(lat0, lon0, s["lat"], s["lon"]))
         chosen += others
-    chosen = walking_order(chosen[:goal])
+    # Come back at: the list's doors due today go first (earliest time first), then the walk in walking order.
+    due = [s for ss in pools[L["id"]].values() for s in ss if _due(results.get(str(s["pid"])), today) == "today"]
+    due.sort(key=lambda s: results[str(s["pid"])]["come_back"]["time"] or "99:99")
+    due_ids = {str(s["pid"]) for s in due}
+    rest = [s for s in chosen if str(s["pid"]) not in due_ids][:max(goal - len(due), 0)]
+    if due and rest:                               # start the walk nearest the last come-back door
+        last = due[-1]
+        i = min(range(len(rest)), key=lambda j: haversine_mi(last["lat"], last["lon"], rest[j]["lat"], rest[j]["lon"]))
+        rest = [rest[i]] + rest[:i] + rest[i + 1:]
+    chosen = due + walking_order(rest)
     city = Counter(s.get("city") or "" for s in chosen).most_common(1)[0][0] or \
         (L.get("area") or "").split(",")[0].strip()
     streets = Counter(_split(s["address"])[1] for s in chosen)
@@ -371,7 +466,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None):
         "goal_doors": len(chosen), "kind": best["kind"], "list_id": L["id"],
         "stops": [{"pid": str(s["pid"]), "address": s["address"], "city": s.get("city") or city,
                    "lat": round(float(s["lat"]), 6), "lon": round(float(s["lon"]), 6),
-                   "pass": results.get(str(s["pid"]), {}).get("visits", 0) + 1} for s in chosen],
+                   "pass": results.get(str(s["pid"]), {}).get("visits", 0) + 1,
+                   **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {})}
+                  for s in chosen],
         "spanish_share": spanish, "who": who_knocks(spanish, cfg),
     }
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
@@ -381,9 +478,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None):
     return doc
 
 
-def today_doc(hud, today, goal=None, results=None, cfg=None, now=None):
+def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`."""
-    doc = pick(hud, today, goal, results, cfg, now)
+    doc = pick(hud, today, goal, results, cfg, now, dnk)
     if doc is not None:
         return doc
     today = date.fromisoformat(today) if isinstance(today, str) else today
