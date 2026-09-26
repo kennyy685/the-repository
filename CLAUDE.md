@@ -174,9 +174,11 @@ genuinely missing there.
 - `python3 hh.py everyday --near Fremont --radius 40 --lists 5`: old-house (non-storm) door lists ranked by
   "everyday heat" (share of older homes, owners, value, distance); also built by `refresh` (top 3) and published
   in hud.json `everyday_lists`. hud.json also carries `hail_evidence` per address for storm lists (porch proof).
-- `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json]`: O0 "Today's knock": picks ONE
-  walk for today (fresh strong storm walk, else the best everyday walk), houses only in walking order, prints the JSON for the
-  HMP App's `today/walk` doc (reads hud.json; `--results` = the app's door taps: worked doors drop, not-homes return).
+- `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json] [--evidence-out ev.json]`: O0
+  "Today's knock": picks ONE walk (fresh strong storm walk, else best everyday walk), houses only in walking order, for the
+  HMP App's `today/walk` doc; adds est_minutes, walk_mi, drive_from_home_mi, best_time{en,es}, stale + stale_note (hud.json
+  >36 h old), spanish_share + who; no walk -> stops [] + none_reason{en,es}. `--evidence-out` writes `evidence/<slug>` docs
+  (slug = "address city" lowercased, non-alphanumerics to "-"). `--results` = the app's door taps.
 - `python3 hh.py commercial`: apartment/commercial targets (csv + xlsx)
 - `python3 hh.py hud`: rebuild hud.json only
 - `python3 hh.py diff --old OLD_hud.json`: new 1"+ hail within 150 mi vs an older hud.json (how
