@@ -16,9 +16,9 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Verify Nebraska's Employee Classification Act text and penalty amounts directly against `dol.nebraska.gov`
       or `nebraskalegislature.gov` once egress allows it (round 29: blocked for both WebFetch and curl; the
       $500/$5,000 fine figures are from a secondary source)
-- [ ] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support)
+- [x] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support) - round 32
 - [ ] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct
-- [ ] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners
+- [x] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners - round 32
 - [ ] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP
 - [ ] Roof-chalking vs. insurer photo acceptance: settle the conflict found in round 22 (some sources say never chalk a roof before adjuster photos)
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
@@ -35,6 +35,12 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
       specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
       directly next time
+- [ ] Confirm directly (call NUFCU/BCU, or reach catenergy.ne.gov/dwee.nebraska.gov once egress allows) whether
+      the Dollar & Energy Saving Loan program and NUFCU/BCU home-improvement loans cover siding/roofing
+      replacement specifically, and their real fee schedules (round 32: pages blocked, search-summary only)
+- [ ] If/when HMP considers selling the app later: what a real first outside customer needs structurally
+      (per-company data separation, second brand/logo slot, support hours) before any pricing conversation -
+      round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -73,3 +79,8 @@ notice is already built in; never rush or bury that cancel notice) + hiring a se
 construction workers are employees, not 1099 contractors, regardless of what the paperwork says - real
 misclassification risk if HMP hires commission-only; draw-against-commission for the first 60-90 days is the
 industry-standard fix). Two new backlog items above need the boss's decision and a re-verify once egress allows it.
+Round 32 (backlog track): selling the HMP App to other roofers (not ready - no other customer, no multi-company
+separation; when ready, price flat-tier not per-seat, following the market's own shift away from per-seat pricing)
++ NE bank/credit union home-improvement loans as a no-dealer-fee option (state Dollar & Energy Saving Loan program
+plus NUFCU/BCU unsecured loans look like the right no-dealer-fee names to give homeowners; egress blocked every
+lender/vendor page this round, so rates/fees are search-summary only - two new backlog items above to re-verify).
