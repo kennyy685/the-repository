@@ -5,8 +5,6 @@ Each round: write `docs/research/<date>-round-<n>.md`, post board items, check t
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
-- [ ] GAF Master Elite + James Hardie Elite Preferred: exact requirements, fees, timelines, first steps (confirm with the makers' pages)
-- [ ] Adjuster meetings: what top reps do in the 30 minutes with the adjuster (checklist, photos, ladder, chalk, measurements), EN/ES
 - [ ] Wind and fallen-tree claims (not just hail): how to find them (NWS wind reports), what to inspect, how claims differ
 - [ ] Commercial and apartment roofs: TPO/EPDM basics, how to get on bid lists, property-manager buying cycle
 - [ ] Retention and reviews: getting Google reviews legally, completion packets, warranty registration, annual check-up visits
@@ -18,8 +16,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support)
 - [ ] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct
 - [ ] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners
+- [ ] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP
+- [ ] Roof-chalking vs. insurer photo acceptance: settle the conflict found in round 22 (some sources say never chalk a roof before adjuster photos)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
 Claude pro skills, app IA, translation, product path, voice, benchmarks, door-picking data, competitors (17, 17b), outside-the-box
-+ profit (18), community leads (19), supplements + O&P (20), Hispanic outreach + financing (21).
++ profit (18), community leads (19), supplements + O&P (20), Hispanic outreach + financing (21). Round 22: GAF Master Elite +
+James Hardie Elite Preferred requirements, adjuster-meeting checklist (docs/guides/adjuster-meeting.md).
