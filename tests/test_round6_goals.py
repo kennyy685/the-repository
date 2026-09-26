@@ -41,8 +41,8 @@ class WinterGoal(unittest.TestCase):
         self.assertEqual(g("2027-03-05", 40), 40)
 
     def test_winter_walk_is_smaller_with_note(self):
-        d = todaywalk.today_doc(self.hud, "2026-12-15", cfg=self.cfg)
-        self.assertEqual((d["kind"], d["goal_doors"], len(d["stops"])), ("storm", 16, 16))
+        d = todaywalk.today_doc(self.hud, "2027-02-10", cfg=self.cfg)   # Fremont storm walk, 32 doors available
+        self.assertEqual((d["list_id"], d["goal_doors"], len(d["stops"])), ("2026-09-10_Fremont", 16, 16))
         self.assertIn("Short cold day: a smaller goal is normal", d["goal_note"]["en"])
         self.assertIn("16 doors is a starting session, not a full day", d["goal_note"]["en"])
         self.assertIn("Día corto y frío", d["goal_note"]["es"])
