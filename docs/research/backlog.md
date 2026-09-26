@@ -75,6 +75,16 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Fold the "zero compensation for any work started before the 3-day cancel window closes" rule
       (69-1606(5), round 37) into `docs/guides/adjuster-meeting.md` and O7's sale-guide script, kept
       distinct from the insurance-specific emergency-work carve-out (44-8603/8607)
+- [ ] Confirm whether HMP/the boss holds Fremont's city contractor registration (Council Resolution
+      2019-049, $65 fee, $250,000 liability insurance naming the City as additional insured) -
+      separate from the state 48-2107 Contractor Registration Act (round 39; primary-sourced from
+      fremontne.gov, unconfirmed whether HMP already has it)
+- [ ] Re-verify Omaha's roof-permit repair-exemption threshold (commonly cited as 2 squares/200 sq ft)
+      and open Lincoln's "Re-Roof Policy" page directly once egress allows - both city sites blocked
+      curl again in round 39, search-summary only
+- [ ] Add the 44-8606 itemized-description-to-the-insurer step (not just the homeowner) and the
+      44-8605 assignment-of-benefits notice/filing rule into the sale-guide/O7 script (round 39, both
+      primary-sourced from nebraskalegislature.gov)
 
 - [ ] Once HMP has real commercial call data, re-check round 38's 5-touch/~18-day cadence
       (`data/commercial_calls.json`) against what actually gets a callback - it's adapted from general
@@ -174,3 +184,13 @@ penalty-free registration grace period expired in 2009. Home Solicitation Sales 
 69-1606/69-1607 (`docs/legal/69-1606.txt`, `69-1607.txt`), fetched direct: 69-1606(5) - zero compensation
 for any work performed before a buyer cancels, a stricter rule than the insurance-specific emergency-work
 carve-out in 44-8603/8607, and one to keep separate in scripts/docs. Two new backlog items above.
+Round 39 (backlog/legal track): finished fetching the whole Insured Homeowners Protection Act
+(44-8601-8608, `docs/legal/44-8601.txt`, `44-8605.txt`, `44-8606.txt`, `44-8608.txt`) direct from
+nebraskalegislature.gov - Nebraska's actual storm-chaser/assignment-of-benefits law; HMP isn't taking
+AOBs today but 44-8606 requires an itemized description of work to go to the insurer too, not just the
+homeowner, before repair work starts, or the contract is void (44-8608). Fremont's own building-permit
+page (fremontne.gov, direct fetch) confirmed roof AND siding repair/replacement both need a City permit,
+and surfaced a separate local requirement round 37's state-level check missed: Fremont's own $65
+contractor registration (Resolution 2019-049) for anyone pulling a building permit in city limits/2-mile
+jurisdiction - unconfirmed whether HMP has it. Omaha/Lincoln permit pages stayed blocked; three new
+backlog items above.
