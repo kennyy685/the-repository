@@ -7,4 +7,5 @@ data/*
 !data/scout_contacts.json
 !data/watch_list.json
 !data/tuned.json
+!data/glossary_en_es.json
 .env

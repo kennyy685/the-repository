@@ -44,6 +44,12 @@ all day, not a dashboard. Plan: `docs/orders/o7-sale-guide.md`.
 **Standard (FilthE, 2026-09-26):** keep researching and upgrading, using the best apps as references. "Works" isn't
 the bar: build what reliably improves the salesman and the business.
 
+## The core flow (FilthE, 2026-09-26) - build everything around this
+"I open my phone: a Google-like map of hot zones near me. I drive to that neighborhood, open the app, and the AI tells me
+which doors to knock (the houses most likely insured), in order. I just knock and use the app." So: Now = map of hot zones
+(`zones/current`) -> Drive -> Start knocking = that zone's ranked walk (`walks/<zone>`) with a one-line why per door.
+Insurance per house isn't public: "likely insured" = owner-occupied + residential + mortgage/recent sale proxies (round 16).
+
 ## App / AI hub split (FilthE, 2026-09-26)
 The HMP App moves to a **new clean link** (Today / Leads / Money + the chat that logs doors, leads and claims; no AI office),
 with its own database. The current Crew HQ link becomes the **AI hub only** (board, crew, orders, "waiting on you"). The app
