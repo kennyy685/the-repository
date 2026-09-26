@@ -605,7 +605,7 @@ const T = {
   r_cancel: ['Door sales need the 3-day right to cancel (FTC rule)', 'Ventas en la puerta llevan 3 días para cancelar (regla FTC)'],
   r_language: ['Contract must be in the language you sold in (FTC rule)', 'El contrato debe ir en el idioma de la venta (regla FTC)'],
   r_authority: ['Only the owner, or someone with written authority, can sign', 'Solo el dueño, o alguien con permiso por escrito, puede firmar'],
-  r_fraud: ['Insurance fraud: the invoice must match the real work', 'Fraude al seguro: la factura debe ser el trabajo real'],
+  r_fraud: ['Insurance fraud: only real damage, and the invoice must match the real work', 'Fraude al seguro: solo daño real, y la factura debe ser el trabajo real'],
   r_guarantee: ['Never guarantee resale value or loan terms', 'Nunca garantices cuánto sube la casa ni un préstamo'],
   f_competitor: ['“Get all three bids. Compare what each one includes, in writing.”', '“Pida las tres cotizaciones. Compare por escrito lo que incluye cada una.”'],
   f_cancel: ['“No rush. If you ever sign, you get 3 business days to cancel, in writing.”', '“Sin prisa. Si algún día firma, tiene 3 días hábiles para cancelar, por escrito.”'],
@@ -798,6 +798,7 @@ const T = {
   c_intro_ask: ['Asked for an introduction (thank-you note only)', 'Pidió una recomendación (solo nota de gracias)'],
   introAskMiss: ['Ask anyway: “If a neighbor asks who checked your roof, I’d appreciate the introduction.”', 'Pídela de todas formas: “Si un vecino pregunta quién revisó su techo, le agradecería la recomendación.”'],
   knockingNoDmg: a => [`You just finished the free inspection at ${a}. You found no storm damage. Goal: tell the truth, show the photos, and ask for an introduction.`, `Acabas de revisar gratis el techo en ${a}. No encontraste daño de tormenta. Meta: decir la verdad, enseñar las fotos y pedir una recomendación.`],
+  f_nodmg: ['“I checked the whole roof and didn’t find storm damage. I won’t file something that isn’t there. Here are the photos.”', '“Revisé todo el techo y no encontré daño de tormenta. No voy a reportar algo que no existe. Aquí están las fotos.”'],
   h_nodmg: ['Say it plainly: no storm damage. Show the photos. Then ask for an introduction.', 'Dilo claro: no hay daño de tormenta. Enseña las fotos. Luego pide una recomendación.'],
   h_signed: ['Don’t talk them out of it. State the 3-day right as a fact, then offer a free second look.', 'No lo convenzas de nada. Di el derecho de 3 días como un dato y ofrece una segunda revisión gratis.'],
   h_hoa: ['HOA roof: it’s the association’s claim. Offer a report for the board and the manager’s number.', 'Techo de HOA: el reclamo es de la asociación. Ofrece un reporte para la junta y el teléfono del administrador.'],
@@ -2019,7 +2020,12 @@ function renderCheat(box, all) {
   box.append(nv);
 }
 /* v9 (T150): for an HOA unit owner, "you file the claim" and "the deductible is your part" are the wrong fixes. */
-function fixKey(type, who) { return who && P[who] && P[who].hoa && (type === 'negotiate' || type === 'deductible') ? 'f_hoa_claim' : 'f_' + type; }
+function fixKey(type, who) {
+  const p = (who && P[who]) || {};
+  if (p.hoa && (type === 'negotiate' || type === 'deductible')) return 'f_hoa_claim';
+  if (p.after && type === 'fraud') return 'f_nodmg';
+  return 'f_' + type;
+}
 function claimCard() {
   const sec = el('section'); sec.append(el('div', 'eyebrow', t('claimT')));
   const wrap = el('div', 'claim');
@@ -2522,7 +2528,8 @@ function finishSkill(pass, note, flags, skipped) {
 }
 function renderDrill() {
   const d = S.drill; if (!d) return;
-  const it = d.items[d.i], L = Li(), sum = d.phase === 'summary';
+  /* v9 fix: on the summary d.i is past the end; a skill drill's chip still names its one item (was a JS error). */
+  const it = d.items[Math.min(d.i, d.items.length - 1)], L = Li(), sum = d.phase === 'summary';
   $('drillChip').textContent = d.skill ? t('skillChip') + ' · ' + it.t[L] : t('drillN', Math.min(d.i + 1, d.items.length));
   const pp = $('drillPips'); pp.textContent = ''; pp.hidden = !!d.skill;
   if (!d.skill) for (let i = 0; i < d.items.length; i++) pp.append(el('i', i < d.res.length ? 'on' : ''));
