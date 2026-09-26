@@ -60,7 +60,7 @@ NEGATION_WORDS = [
     "violat", "illegal", "prohibit", "nor ", "instead of", "unlicensed", "we say",
     "we don't", "wedon't",
     # this codebase's own violation-category labels (the practice-door trainer's scorecard)
-    "n_deductible", "n_promise", "breaks a rule", "legal_list", '(type "', "a rule if it",
+    "n_deductible", "n_promise", "n_license", "breaks a rule", "legal_list", '(type "', "a rule if it",
 ]
 
 # Binary/non-text extensions to skip when walking docs/print/.
