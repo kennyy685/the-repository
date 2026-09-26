@@ -1,0 +1,65 @@
+[
+  {
+    "touch": 1,
+    "channel": "door",
+    "when": "Day 2 after \"let me think about it\", no phone number on file — revisit the door.",
+    "en": "Hi again — I was in the area and wanted to check in. Last time you said you wanted to think it over. What's the one thing you're weighing most — the price, the timing, or comparing another bid? I can help with that.",
+    "es": "Hola de nuevo — andaba por aquí y quise pasar a ver cómo va. La última vez dijo que quería pensarlo. ¿Qué es lo que más está pensando — el precio, el tiempo, o comparar con otra cotización? Le puedo ayudar con eso."
+  },
+  {
+    "touch": 1,
+    "channel": "phone",
+    "when": "Day 2 after \"let me think about it\" — homeowner gave their number and asked to be followed up with.",
+    "en": "Hi {first_name}, it's Kenny/Alex with HMP — following up like you asked. No pressure, just checking: is it the price, the timing, or wanting to compare another bid that you're weighing? I can send whatever helps.",
+    "es": "Hola {first_name}, soy Kenny/Alex de HMP — le sigo como quedamos. Sin presión, solo pregunto: ¿es el precio, el tiempo, o quiere comparar con otra cotización? Le puedo mandar lo que le ayude."
+  },
+  {
+    "touch": 1,
+    "channel": "business_phone",
+    "when": "Day 2, commercial/apartment lead — call the leasing office or company line.",
+    "en": "Hi, this is Kenny/Alex with HMP Siding & Roofing, following up on the free inspection we talked about for {address}. Is now still a good time, or is there something specific you'd like more detail on before deciding?",
+    "es": "Hola, soy Kenny/Alex de HMP Siding & Roofing, dando seguimiento a la inspección gratis que hablamos para {address}. ¿Sigue siendo buen momento, o hay algo específico que le gustaría saber antes de decidir?"
+  },
+  {
+    "touch": 2,
+    "channel": "door",
+    "when": "Day 5, still no answer — revisit the door with a comparison check-in.",
+    "en": "Hi, just stopping by again on {address} — have you had a chance to look at any other quotes? Happy to go over ours side by side, or answer anything that wasn't clear.",
+    "es": "Hola, paso de nuevo por {address} — ¿ya pudo ver otras cotizaciones? Con gusto revisamos la nuestra juntos, o le aclaro lo que no haya quedado claro."
+  },
+  {
+    "touch": 2,
+    "channel": "phone",
+    "when": "Day 5, still no answer — homeowner-given number.",
+    "en": "Hi {first_name}, Kenny/Alex again from HMP. Have you had a chance to compare bids yet? If price is the sticking point, we may have a financing option — happy to explain, no obligation.",
+    "es": "Hola {first_name}, soy Kenny/Alex de HMP otra vez. ¿Ya pudo comparar cotizaciones? Si el precio es lo que le detiene, puede que haya opción de financiamiento — con gusto le explico, sin compromiso."
+  },
+  {
+    "touch": 2,
+    "channel": "business_phone",
+    "when": "Day 5, commercial — company line only.",
+    "en": "Hi, following up again on the {address} inspection/estimate for HMP — want to make sure you have everything you need to make a decision. Anything I can clarify?",
+    "es": "Hola, doy seguimiento de nuevo sobre la inspección/cotización de {address} para HMP — quiero asegurarme que tenga todo lo necesario para decidir. ¿Le aclaro algo?"
+  },
+  {
+    "touch": 3,
+    "channel": "door",
+    "when": "Day 10, last planned touch, no answer — final door revisit before marking Lost if still no.",
+    "en": "Hi, one more check-in on {address} — our schedule is filling up and I want to make sure you still have a spot if you decide to move forward. Any update, or should I check back another time?",
+    "es": "Hola, un último seguimiento sobre {address} — nuestro calendario se está llenando y quiero asegurarme que tenga lugar si decide seguir adelante. ¿Alguna novedad, o le busco en otro momento?"
+  },
+  {
+    "touch": 3,
+    "channel": "phone",
+    "when": "Day 10, last planned touch — homeowner-given number.",
+    "en": "Hi {first_name}, last check-in from HMP on {address} — totally understand if now isn't the time. Just let me know either way so I can update your file, and I'm here whenever you're ready.",
+    "es": "Hola {first_name}, último seguimiento de HMP sobre {address} — entiendo si no es el momento. Solo avíseme para actualizar su archivo, y aquí estoy cuando esté listo."
+  },
+  {
+    "touch": 3,
+    "channel": "business_phone",
+    "when": "Day 10, last planned touch, commercial — company line only.",
+    "en": "Hi, last follow-up from HMP on {address} — let me know if you'd like to move forward or if the timing changed. Either way, thanks for considering us.",
+    "es": "Hola, último seguimiento de HMP sobre {address} — avíseme si quiere seguir adelante o si cambió el momento. De cualquier forma, gracias por considerarnos."
+  }
+]

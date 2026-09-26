@@ -12,4 +12,5 @@ data/*
 !data/glossary_en_es.json
 !data/city_rules.json
 !data/practice_drills.json
+!data/followup_scripts.json
 .env

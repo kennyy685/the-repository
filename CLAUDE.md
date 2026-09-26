@@ -178,7 +178,7 @@ yes (2026-09-25). Path: **both** - direct to homeowners AND subbing for insuranc
 - **Claim Tracker** (CoMGoPQWcM5ZyHGoMAYqSG): retired, claims moved into the HMP App (`claims`).
 - **Print kit (`docs/print/`, html + pdf, all final):** door hangers (storm + everyday), pocket card (B), contract drafts
   EN/ES, cancel notice, estimate sheet + packet, inspection checklist + report, hail report, claims-101,
-  adjuster-checklist, walk sheet, neighbor note, yard sign, business card, capabilities sheet, completion certificate,
+  adjuster-meeting (replaced adjuster-checklist), wind-playbook, supplement-checklist, first-knock-day, walk sheet, neighbor note, yard sign, business card, capabilities sheet, completion certificate,
   and more.
 - **This repo** is the base codebase: changes are made here and bundled out to the cloud (Cowork re-bundles, T61),
   per the shared desk's ownership rules in `~/2026/CLAUDE.md`.
