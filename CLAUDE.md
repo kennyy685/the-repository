@@ -29,6 +29,11 @@ for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, 
 enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
 software); HMP is its first user.
 
+## App look (FilthE, 2026-09-26)
+The HMP App uses **"HMP Pro Dark"**: charcoal + silver/white text, orange (#f5883a) only for accents/primary actions, no pixel
+art or neon. Fonts match the print pieces: **Barlow Semi Condensed** (headings, numbers, buttons) + **Montserrat** (body). The
+Crew tab is a clean **team board** (a card per AI: role, status dot, now doing, last result), not the pixel office.
+
 ## Chain of command (FilthE, 2026-09-26)
 **Claude Code (the cloud session) is now the King / lead**: it sets priorities on the Crew HQ board, gives the orders, runs
 the Code lab helpers, and checks Crew HQ every hour (7 AM-10 PM Central) to act right away. **The old King (the claude.ai
