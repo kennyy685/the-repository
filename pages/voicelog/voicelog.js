@@ -697,7 +697,7 @@
     const ctx = opts.ctx || {};
     let lang = opts.lang === "es" ? "es" : draft.lang === "es" ? "es" : "en";
     let d = clone(draft);
-    let editing = false, state = "idle";
+    let editing = false, state = "idle", savedWrites = null;
     const card = document.createElement("section");
     card.className = "vl-card"; card.setAttribute("aria-live", "polite");
     el.appendChild(card);
@@ -720,13 +720,14 @@
     }
     function row(k, v, cls) { return v ? `<div class="vl-row${cls ? " " + cls : ""}"><dt>${esc(k)}</dt><dd>${v}</dd></div>` : ""; }
     function viewHtml() {
-      const s = S(), w = preview(), t = d.target ? relink(d.target, ctx) : null;
+      const s = S(), w = savedWrites || preview(), t = d.target ? relink(d.target, ctx) : null;
       const rows = [];
       if (d.result) rows.push(row(s.door, `<span class="vl-chip r-${d.result}">${esc(s.res[d.result])}</span>${t && !t.pid && d.addrOk ? `<span class="vl-sub">${esc(s.notOnWalk)}</span>` : ""}`));
       const lw = w && w.find(x => x.path.startsWith("leads/"));
       if (lw || (!w && (d.stage || d.appt))) {
         const bits = [];
-        const st = lw ? lw.body.stage : d.stage;
+        const cur = t && t.lead_id ? ((ctx.leads || []).find(l => str(l.id) === t.lead_id) || {}).stage : null;
+        const st = lw ? lw.body.stage || cur : d.stage;
         if (st) bits.push(`<b>${esc(s.stage[st] || st)}</b>`);
         if (d.appt && d.appt.day && d.appt.kind !== "adjuster") bits.push(esc(`${s.kind[d.appt.kind]} ${fmtDay(d.appt.day, lang)}${d.appt.time ? ", " + fmtTime(d.appt.time) : ""}`));
         rows.push(row(lw && lw.op === "update" ? s.updLead : s.newLead, bits.map(x => `<span>${x}</span>`).join("") || esc(s.none)));
@@ -795,7 +796,7 @@
       if (d.result === "booked" && !(d.appt && d.appt.day)) addFlag(d, "no_day");
     }
     function render() {
-      const s = S(), w = preview();
+      const s = S(), w = savedWrites || preview();
       const canSave = !!(w && w.length) && state !== "saving" && state !== "saved";
       card.innerHTML = `<header class="vl-hd"><h3>${esc(s.title)}</h3><span class="vl-src">${esc(d.source === "ai" ? s.ai : s.rules)}</span><button type="button" class="vl-lang" data-a="lang" aria-label="Español / English">${esc(s.langBtn)}</button></header>
         <p class="vl-heard"><span>${esc(s.heard)}</span> “${esc(d.text)}”</p>
@@ -823,7 +824,7 @@
         let writes; try { writes = buildWrites(d, ctx); } catch (e) { render(); return; }
         if (!writes.length || !opts.onSave) { render(); return; }
         state = "saving"; render();
-        try { await opts.onSave(writes, clone(d)); state = "saved"; } catch (e) { state = "failed"; }
+        try { await opts.onSave(writes, clone(d)); state = "saved"; savedWrites = writes; } catch (e) { state = "failed"; }
         render();
       }
     }
