@@ -15,7 +15,7 @@ screen says each fact two or three times. The fix is mostly subtraction plus one
 |---|---|---|---|
 | All 3 | Muddy grey-purple app | claude.ai stamps `data-theme="dark"`. v24's dark block is the old "Pro Dark" set and never got the Ledger tokens. Where the page is transparent, claude.ai's purple ground shows through. | Real dark twin "Ledger Night" (`ds.css`): neutral graphite, and every token is redefined. |
 | All 3 | Blank white boxes: the button next to ES, the center **+**, the first List/Map segment, "Done for today" | These controls hard-code `color:#fff` on `background:var(--ink)`. In dark, `--ink` turns light, so the text is white on white. Reproduced in the harness: `#langEn`, `#kViewNext`, `#tDone`, the + tab. | New token `--on-ink` (white in light, graphite in dark). Never hard-code `#fff`. |
-| 1 | Flat red polygon with zigzag dots, "Near Fremont" label while the zone is Columbus, 45 mi away | The map draws only the walk hull and the stop dots, with no streets, lots, "you" dot or scale. The caption is the user's town, not the zone's. | Vector map, below. |
+| 1 | Flat red polygon with zigzag dots, "Near Fremont" label while the zone is Columbus, 45 mi away | The map draws only the walk hull and raw stop points in walking order, which cross the street each time. It has no streets, lots, "you" dot or scale. The caption is the user's town, not the zone's. | Real vector map from the engine basemap, below. |
 | 2 | Wall of red text "Outside knock hours…" | A full rules paragraph shown as an alert | One calm chip: "Outside knock hours · only booked visits ›". Tap it for the rules. |
 | 2 | Two "…" menus stacked, "Built 1980" twice, "PASS 1 OF 3 · 25 LEFT THIS PASS" | The walk menu and the app menu both use ⋯. The house line and the why line repeat the year. "Pass" is system language. | One ⋯ (walk menu). The avatar "K" is the app menu. Each fact appears once. "Stop 3 of 12 · 10 to go". |
 | 3 | Money empty = 8 boxed paragraphs | The claim explainer is dumped as the empty state | A tight vertical stepper (8 icons, one line each) and one CTA, "Log a signed job". |
@@ -27,21 +27,30 @@ screen says each fact two or three times. The fix is mostly subtraction plus one
 viewer's choice, and his Mac asks for dark, so dark ships as a full twin rather than an afterthought. More (avatar)
 gets Theme: Auto / Light / Dark, stored per device, default Auto.
 
-## The map, redesigned
+## The map, redesigned (drawn from the engine's real basemap, Columbus 22 St & 21 St)
 
-The engine will send, per zone: street centerlines with names, parcel outlines, house points in walking order, and
-the hail swath. There are no tiles. The design:
+Data: `data/columbus.js` = the engine output of 2026-09-26 (12 zones, 12 Columbus walks with `basemap`
+{bbox, streets, lots, labels}, today's walk with 25 stops), trimmed. Renderer: `walkmap.js`, with no tiles and no
+libraries. The builder reuses it as-is.
 
-- **Now (town scale):** blocks are drawn as a pattern (land tone blocks, white streets), major roads get a warm fill
-  and casing, and named streets carry halo labels. Hail is a soft radial heat (swath plus zone core), never a red
-  blob. The zone gets a dark pin, "1.6″ E 16th & Linden". A blue "you" dot and a blue drive route lead to it, with a
-  chip "3 min · 0.8 mi". Zones off the map get an edge chip ("‹ Columbus zone · 45 mi"). The map also shows a hail-size
-  legend, a scale bar, and locate/layers buttons.
-- **Knock (walk scale):** lots are hairline rectangles and streets are named. The route line runs through numbered
-  stops: done = grey check, don't-knock = dashed ×, current = orange with a halo, upcoming = outlined number. The
-  "you" dot is on the street. "All 12" and "Big map" chips open the list or the full map. The numbers match the
-  "Then" list below.
-- Colors are tokens (`--map-*`, `--heat`, `--route`, `--you`) with a dark set, so the map works in both themes.
+- `renderZoneMap(svg, {zones, walks}, opts)` (Now): stitches every walk's basemap into one town view. It draws faint
+  lots, streets with casing (major roads warm) and de-duplicated street names with collision checks. Each zone's hull
+  is a blurred heat whose strength follows `zone.heat`. Ranked pins show 2-12. The featured zone gets a dashed
+  outline plus an HTML pin ("1 · 22 St & 21 St · 1.6″"), so pin, heat and card read as one thing. "You" is 45 mi away
+  in Fremont, so it becomes an edge chip ("You: Fremont · 45 mi ›") instead of the wrong "Near Fremont" caption. The
+  map also has a legend and a scale bar (500 ft).
+- `renderWalkMap(svg, walk, opts)` (Knock): hairline lots, named streets and heat behind. **Each house is snapped to
+  its street, so the route runs along 22nd St** instead of zig-zagging across it (that zigzag was the "WVW" in his
+  photo). A tick connects each house to the street. Where two streets share no corner in the data, the hop is drawn
+  as a light dashed line, never a solid line through yards. Stops: done = grey check, No = grey ×, current = orange
+  with a halo, upcoming = outlined number. "You" stands on the street. Mini strip (118 px, 250 m across, centered on
+  the next door) on Knock; the full walk behind the map button (`knock.html#map`).
+- Options: `status[]`, `you {lat,lon}|{atStop}`, `center`, `metersAcross`, `fit`, `numbers`, `heat`, `r`. Both
+  functions return `xy(lon,lat)` so the page can place HTML chips.
+- **Two engine notes** (for the engine mechanic, not blockers): (1) the zone polygon for "22 St & 21 St" covers all
+  60 homes down to 17th St, while the walk is the first 25 around 22nd/21st, so the Now outline looks bigger than
+  the walk. Send the walk hull or `walk_center` for the pin. (2) 39th Ave has no segment between 22nd and 21st in the
+  basemap, so the route hop from 2252 39 Ave to 21st St shows as a dashed gap.
 
 ## Word counts (visible text in the scrolling area, EN, 390 px)
 
