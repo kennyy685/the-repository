@@ -19,22 +19,22 @@
   --ink:#232428; --muted:#62656c; --line:#dcdde1; --silver:#c9ccd1; }
 * { box-sizing:border-box; margin:0; padding:0; }
 html, body { background:#fff; }
-body { font:500 8.4pt/1.36 "Montserrat", sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+body { font:500 8pt/1.32 "Montserrat", sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 .defs { position:absolute; width:0; height:0; overflow:hidden; }
 .page { width:8.5in; height:11in; position:relative; overflow:hidden; display:flex; flex-direction:column; break-after:page; }
 .page:last-of-type { break-after:auto; }
 
 /* header band: charcoal siding + logo + title, orange rule */
-.band { position:relative; background:var(--char-dk); color:#fff; height:1.28in; flex:none; border-bottom:5px solid var(--orange); }
+.band { position:relative; background:var(--char-dk); color:#fff; height:1.36in; flex:none; border-bottom:5px solid var(--orange); }
 .band .rib { position:absolute; inset:0; width:100%; height:100%; opacity:.4; }
-.band .in { position:absolute; left:0.5in; right:0.5in; top:0.2in; bottom:0.16in; display:flex; align-items:center; justify-content:space-between; gap:0.3in; }
-.band .logo { width:1.75in; height:0.86in; flex:none; }
+.band .in { position:absolute; left:0.5in; right:0.5in; top:0.26in; bottom:0.16in; display:flex; align-items:center; justify-content:space-between; gap:0.3in; }
+.band .logo { width:1.7in; height:0.84in; flex:none; }
 .band .ttl { text-align:right; }
 .band h1 { font:800 27pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.01em; }
 .band .sub { margin-top:5pt; font:600 7.2pt/1.3 "Montserrat"; letter-spacing:0.12em; text-transform:uppercase; color:#b9bcc2; }
 .band .sub b { color:var(--orange); font-weight:700; }
 
-.body { flex:1; padding:0.2in 0.5in 0; display:flex; flex-direction:column; gap:0.15in; min-height:0; }
+.body { flex:1; padding:0.18in 0.5in 0.16in; display:flex; flex-direction:column; gap:0.11in; min-height:0; }
 .cols { display:grid; grid-template-columns:1fr 1fr; column-gap:0.3in; }
 
 /* section heads: orange number + spaced caps, like the pocket card */
@@ -57,7 +57,7 @@ ul.boxes li { position:relative; padding-left:15pt; margin-bottom:3pt; }
 ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5pt; height:8.5pt; border:1.3pt solid var(--char); border-radius:1.5pt; }
 
 /* the "never cross these" box: charcoal, like the pocket card */
-.hard { background:var(--char-dk); color:#e3e4e7; border-radius:5pt; padding:9pt 12pt 8pt; border-left:5pt solid var(--orange); }
+.hard { background:var(--char-dk); color:#e3e4e7; border-radius:5pt; padding:7pt 11pt 5pt; border-left:5pt solid var(--orange); }
 .hard .h .t { color:#fff; }
 .hard .h .n { color:var(--orange); }
 .hard ul { list-style:none; }
@@ -66,31 +66,30 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
 .hard li::before { content:"\00d7"; position:absolute; left:0; top:-2pt; font:800 11pt/1.2 "Barlow Semi Condensed"; color:var(--orange); }
 
 /* footer: the phone number is the boldest thing */
-.foot { flex:none; margin-top:auto; background:var(--char-dk); color:#fff; padding:0.14in 0.5in 0.18in; display:flex; align-items:flex-end; justify-content:space-between; gap:0.3in; border-top:5px solid var(--orange); }
+.foot { flex:none; margin-top:auto; background:var(--char-dk); color:#fff; padding:0.11in 0.5in 0.15in; display:flex; align-items:flex-end; justify-content:space-between; gap:0.3in; border-top:5px solid var(--orange); }
 .foot .who { font:700 6.8pt/1 "Montserrat"; letter-spacing:0.14em; text-transform:uppercase; color:#b9bcc2; }
-.foot .ph { font:800 30pt/1 "Barlow Semi Condensed"; margin-top:3pt; white-space:nowrap; }
+.foot .ph { font:800 27pt/1 "Barlow Semi Condensed"; margin-top:3pt; white-space:nowrap; }
 .foot .oth { font:600 7pt/1.2 "Montserrat"; color:#c9ccd1; margin-top:3pt; }
 .foot .mid { font:600 7pt/1.4 "Montserrat"; color:#c9ccd1; text-align:right; max-width:2.6in; }
 .foot .reg { flex:none; width:1.9in; font:600 6.8pt/1.2 "Montserrat"; color:#b9bcc2; }
 .foot .reg i { display:block; height:18pt; border-bottom:0.8pt solid #c9ccd1; margin-bottom:3pt; }
 
 /* page-specific */
-.vs { display:grid; grid-template-columns:auto 1fr 1fr; border:1pt solid var(--line); border-radius:5pt; overflow:hidden; }
-.vs > div { padding:4pt 7pt; border-top:0.8pt solid var(--line); }
+.vs { display:grid; grid-template-columns:0.62in 1.35fr 1fr; border:1pt solid var(--line); border-radius:5pt; overflow:hidden; }
+.vs > div { padding:3pt 6pt; border-top:0.8pt solid var(--line); }
 .vs > .hd { border-top:0; font:800 9pt/1.2 "Barlow Semi Condensed"; letter-spacing:0.08em; text-transform:uppercase; background:#f3f3f5; color:var(--char-dk); }
 .vs > .hd.w { background:var(--orange); color:#fff; }
-.vs > .k { font:700 7.4pt/1.3 "Montserrat"; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; background:#fafafb; }
+.vs > .k { font:700 6.6pt/1.3 "Montserrat"; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; background:#fafafb; }
 .vs > .wv { background:var(--tint); }
-.slope { display:grid; grid-template-columns:1.55in 1fr; gap:10pt; align-items:start; }
-.slope svg { width:1.55in; height:auto; display:block; }
+.slope svg { width:100%; height:0.95in; display:block; margin:2pt 0 6pt; }
 .strip { display:grid; grid-template-columns:repeat(8,1fr); gap:0; border:1pt solid var(--line); border-radius:5pt; overflow:hidden; }
 .strip div { padding:5pt 6pt 6pt; border-left:0.8pt solid var(--line); font:500 7.3pt/1.3 "Montserrat"; }
 .strip div:first-child { border-left:0; }
-.strip i { display:block; font:800 14pt/1 "Barlow Semi Condensed"; font-style:normal; color:var(--orange); margin-bottom:2pt; }
+.strip i { float:left; font:800 15pt/1 "Barlow Semi Condensed"; font-style:normal; color:var(--orange); margin:0 4pt 0 0; }
 .strip div.us { background:var(--tint); }
 .strip div.us i { color:var(--orange-ink); }
-.strip div b { display:block; font-weight:700; }
-.open { font:700 11.5pt/1.2 "Barlow Semi Condensed"; color:var(--char-dk); border-left:4pt solid var(--orange); padding:3pt 0 3pt 9pt; background:var(--tint); margin-bottom:5pt; }
+.strip div b { display:block; font-weight:700; line-height:15pt; margin-bottom:2pt; }
+.open { font:700 10.5pt/1.2 "Barlow Semi Condensed"; color:var(--char-dk); border-left:4pt solid var(--orange); padding:3pt 0 3pt 9pt; background:var(--tint); margin-bottom:5pt; }
 .open b { color:var(--orange-ink); font-weight:800; }
 .q { margin-bottom:3pt; }
 .q .l { font:800 8pt/1.2 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
@@ -137,18 +136,18 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
         <div class="h"><span class="n">1</span><span class="t">Wind looks different</span></div>
         <div class="vs">
           <div class="hd"></div><div class="hd w">Wind</div><div class="hd">Hail</div>
-          <div class="k">Shingles</div><div class="wv"><b>Creased</b> tabs (a fold line), edges <b>lifted</b> or unsealed, shingles <b>missing</b></div><div>Round bruises and dents, granules knocked off</div>
-          <div class="k">Where</div><div class="wv"><b>One side</b>: the slope the wind hit. Ridge, rakes and eaves first</div><div>Spread over every slope</div>
-          <div class="k">Also look</div><div class="wv">Siding cracked or blown off, loose soffit and fascia, bent gutters, trees and fences down</div><div>Dented vents, gutters, siding</div>
-          <div class="k">Claim</div><div class="wv">Often <b>partial</b>: one slope or one wall</div><div>Often the whole roof</div>
+          <div class="k">Shingles</div><div class="wv"><b>Creased</b>, <b>lifted</b> or <b>missing</b></div><div>Round bruises, lost granules</div>
+          <div class="k">Where</div><div class="wv"><b>One side</b>, the slope the wind hit; edges first</div><div>Every slope</div>
+          <div class="k">Walls</div><div class="wv">Siding cracked or blown off, loose soffit</div><div>Dents and holes</div>
+          <div class="k">Claim</div><div class="wv">Often <b>partial</b>: one slope or wall</div><div>Often the whole roof</div>
         </div>
-        <p class="warn">Gusts near 60 mph and up can tear off good shingles. The HMP App shows the storm’s wind reports.</p>
+        <p class="warn">Gusts near 60 mph and up can tear off good shingles.</p>
       </section>
 
       <section>
         <div class="h"><span class="n">2</span><span class="t">Check by slope</span></div>
         <div class="slope">
-          <svg viewBox="-62 -14 290 160" role="img" aria-label="Roof seen from above: the slope facing the wind is checked first">
+          <svg viewBox="-64 -18 300 156" role="img" aria-label="Roof seen from above: the slope facing the wind is checked first">
             <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f5883a"/></marker></defs>
             <polygon points="10,10 210,10 150,70 70,70" fill="#f3f3f5" stroke="#404145" stroke-width="2"/>
             <polygon points="10,130 210,130 150,70 70,70" fill="#f3f3f5" stroke="#404145" stroke-width="2"/>
@@ -192,15 +191,15 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
             <li><b>Hail too?</b> Two folders, “Wind” and “Hail”</li>
           </ul>
         </div>
-        <p class="warn">Hail and wind in one storm: the homeowner files one claim; we photograph each kind of damage separately. The homeowner and the adjuster settle the claim.</p>
+        <p class="warn">Hail and wind in one storm: one claim, photos sorted by damage type. The homeowner and the adjuster settle it.</p>
       </section>
 
       <section>
         <div class="h"><span class="n">4</span><span class="t">Tree down: first steps</span></div>
         <ol class="nums">
-          <li data-n="1"><b>Safety first.</b> Tree on power lines? Stay back; the homeowner calls the utility or 911. Never walk a roof with a tree on it.</li>
+          <li data-n="1"><b>Safety first.</b> Tree on power lines? Stay back; the homeowner calls the utility or 911. Never get on a roof with a tree on it.</li>
           <li data-n="2"><b>Photos before anything moves:</b> tree, roof, inside, yard.</li>
-          <li data-n="3"><b>Stop more water.</b> A tarp over the open spot, once the tree is off and it’s safe. Photos before and after; keep receipts for the homeowner.</li>
+          <li data-n="3"><b>Stop more water.</b> Tarp the open spot once the tree is off and it’s safe. Photos before and after.</li>
           <li data-n="4"><b>Tree removal</b> is a tree service’s job.</li>
           <li data-n="5"><b>The homeowner calls their insurer.</b> Whether the tree is covered is <b>the insurer’s call</b>, not ours.</li>
         </ol>
@@ -211,13 +210,13 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <div class="h"><span class="n">5</span><span class="t">Then the same claim steps as hail</span><span class="note">Shaded = HMP’s part</span></div>
       <div class="strip">
         <div class="us"><i>1</i><b>Inspect</b>Free look, show every photo</div>
-        <div><i>2</i><b>Homeowner files</b>Their claim, their call</div>
-        <div><i>3</i><b>Adjuster set</b>Insurer calls the homeowner</div>
-        <div class="us"><i>4</i><b>Meet adjuster</b>Point to the wind slope, show photos</div>
-        <div><i>5</i><b>Scope arrives</b>Insurer’s written list</div>
+        <div><i>2</i><b>Owner files</b>Their claim, their call</div>
+        <div><i>3</i><b>Adjuster</b>Insurer calls the homeowner</div>
+        <div class="us"><i>4</i><b>We meet</b>Meet the adjuster, point to the wind slope, show photos</div>
+        <div><i>5</i><b>Scope</b>Insurer’s written list</div>
         <div class="us"><i>6</i><b>Contract</b>+ 3-day cancel form, EN &amp; ES</div>
         <div class="us"><i>7</i><b>Build</b>Order and install</div>
-        <div class="us"><i>8</i><b>Proof done</b>Completion photos</div>
+        <div class="us"><i>8</i><b>Proof</b>Completion photos</div>
       </div>
     </section>
 
@@ -225,17 +224,17 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <section>
         <div class="h"><span class="n">6</span><span class="t">At the door</span><span class="note">Name, HMP, what we sell first · NE 69-1602</span></div>
         <div class="open">“Hi, I’m <b>Kenny Cruz</b> with <b>HMP Siding &amp; Roofing</b>. We do <b>roofs and siding</b>. We’re a registered Fremont company.”</div>
-        <div class="q"><div class="l">Wind</div>“The wind on ________ hit this street. Wind usually hurts one side of a roof, so I check that side first. It’s a free 20-minute look and I show you every photo.”</div>
+        <div class="q"><div class="l">Wind</div>“The wind on ________ hit this street. Wind hurts one side of a roof, so I check that side first. Free, 20 minutes, and I show you every photo.”</div>
         <div class="q"><div class="l">Tree</div>“I saw the tree came down. Is everyone OK? Want me to photograph it before anything gets moved? The photos are yours.”</div>
       </section>
 
       <section class="hard">
         <div class="h"><span class="n">!</span><span class="t">Never cross these</span></div>
         <ul>
-          <li><b>Never promise insurance pays.</b> Asked “Will insurance cover it?” say: “Your insurance company decides.”</li>
-          <li><b>Never negotiate the claim.</b> We document and point to the damage; the homeowner and the adjuster settle it.</li>
-          <li><b>No deductible talk.</b> It is always the homeowner’s; we never offer anything toward it. (NE 44-8604)</li>
-          <li><b>Say “registered”</b> (Nebraska registers contractors), never any other word.</li>
+          <li><b>Never promise insurance pays.</b> Say: “Your insurance company decides.”</li>
+          <li><b>Never negotiate the claim.</b> We show the damage; the homeowner and adjuster settle it.</li>
+          <li><b>No deductible talk.</b> It is always the homeowner’s. (NE 44-8604)</li>
+          <li><b>Say “registered”</b> (Nebraska registers contractors).</li>
           <li><b>Anything signed:</b> written contract + the 3-day cancel form, in English <u>and</u> Spanish. (NE 69-1601)</li>
         </ul>
       </section>
@@ -264,18 +263,18 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
         <div class="h"><span class="n">1</span><span class="t">El viento se ve distinto</span></div>
         <div class="vs">
           <div class="hd"></div><div class="hd w">Viento</div><div class="hd">Granizo</div>
-          <div class="k">Tejas</div><div class="wv">Tejas <b>dobladas</b> (una línea de pliegue), orillas <b>levantadas</b> o despegadas, tejas que <b>faltan</b></div><div>Golpes redondos y abolladuras, sin gránulos</div>
-          <div class="k">Dónde</div><div class="wv"><b>Un solo lado</b>: el agua que pegó el viento. Primero cumbrera, bordes y aleros</div><div>Por todas las aguas</div>
-          <div class="k">Revise también</div><div class="wv">Siding roto o arrancado, soffit y fascia sueltos, canaletas dobladas, árboles y cercas caídos</div><div>Ventilas, canaletas y siding abollados</div>
+          <div class="k">Tejas</div><div class="wv"><b>Dobladas</b>, <b>levantadas</b> o que <b>faltan</b></div><div>Golpes redondos, sin gránulos</div>
+          <div class="k">Dónde</div><div class="wv"><b>Un solo lado</b>, el agua que pegó el viento; bordes primero</div><div>Todas las aguas</div>
+          <div class="k">Paredes</div><div class="wv">Siding roto o arrancado, soffit suelto</div><div>Abolladuras y hoyos</div>
           <div class="k">Reclamo</div><div class="wv">Muchas veces <b>parcial</b>: un agua o una pared</div><div>Muchas veces todo el techo</div>
         </div>
-        <p class="warn">Ráfagas de unas 60 mph o más pueden arrancar tejas buenas. La app de HMP muestra los reportes de viento de la tormenta.</p>
+        <p class="warn">Ráfagas de unas 60 mph o más pueden arrancar tejas buenas.</p>
       </section>
 
       <section>
         <div class="h"><span class="n">2</span><span class="t">Revise por agua</span></div>
         <div class="slope">
-          <svg viewBox="-62 -14 290 160" role="img" aria-label="Techo visto desde arriba: primero se revisa el agua que da al viento">
+          <svg viewBox="-64 -18 300 156" role="img" aria-label="Techo visto desde arriba: primero se revisa el agua que da al viento">
             <polygon points="10,10 210,10 150,70 70,70" fill="#f3f3f5" stroke="#404145" stroke-width="2"/>
             <polygon points="10,130 210,130 150,70 70,70" fill="#f3f3f5" stroke="#404145" stroke-width="2"/>
             <polygon points="210,10 150,70 210,130" fill="#f3f3f5" stroke="#404145" stroke-width="2"/>
@@ -318,7 +317,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
             <li><b>¿También granizo?</b> Dos carpetas, “Viento” y “Granizo”</li>
           </ul>
         </div>
-        <p class="warn">Granizo y viento en la misma tormenta: el dueño presenta un solo reclamo; nosotros fotografiamos cada tipo de daño por separado. El dueño y el ajustador arreglan el reclamo.</p>
+        <p class="warn">Granizo y viento en la misma tormenta: un solo reclamo, fotos separadas por tipo de daño. El dueño y el ajustador lo arreglan.</p>
       </section>
 
       <section>
@@ -326,7 +325,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
         <ol class="nums">
           <li data-n="1"><b>Primero la seguridad.</b> ¿Árbol sobre cables de luz? Aléjese; el dueño llama a la compañía de luz o al 911. Nunca se suba a un techo con un árbol encima.</li>
           <li data-n="2"><b>Fotos antes de mover nada:</b> árbol, techo, adentro, patio.</li>
-          <li data-n="3"><b>Pare el agua.</b> Una lona sobre el hueco, cuando ya quitaron el árbol y es seguro. Fotos antes y después; guarde los recibos para el dueño.</li>
+          <li data-n="3"><b>Pare el agua.</b> Lona sobre el hueco cuando ya quitaron el árbol y es seguro. Fotos antes y después.</li>
           <li data-n="4"><b>Quitar el árbol</b> le toca a un servicio de árboles.</li>
           <li data-n="5"><b>El dueño llama a su aseguradora.</b> Si el árbol está cubierto <b>lo decide la aseguradora</b>, no nosotros.</li>
         </ol>
@@ -337,10 +336,10 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <div class="h"><span class="n">5</span><span class="t">Luego, los mismos pasos que el granizo</span><span class="note">Sombreado = lo que hace HMP</span></div>
       <div class="strip">
         <div class="us"><i>1</i><b>Revisar</b>Gratis, enseñar cada foto</div>
-        <div><i>2</i><b>Dueño reclama</b>Su reclamo, su decisión</div>
+        <div><i>2</i><b>Reclama</b>Su reclamo, su decisión</div>
         <div><i>3</i><b>Ajustador</b>La aseguradora llama al dueño</div>
-        <div class="us"><i>4</i><b>Cita ajustador</b>Señalar el agua del viento, fotos</div>
-        <div><i>5</i><b>Llega el alcance</b>Lista escrita de la aseguradora</div>
+        <div class="us"><i>4</i><b>La cita</b>Con el ajustador: señalar el agua del viento, fotos</div>
+        <div><i>5</i><b>Alcance</b>Lista escrita de la aseguradora</div>
         <div class="us"><i>6</i><b>Contrato</b>+ aviso de cancelación de 3 días, EN y ES</div>
         <div class="us"><i>7</i><b>Obra</b>Pedir material e instalar</div>
         <div class="us"><i>8</i><b>Prueba</b>Fotos de la obra terminada</div>
@@ -351,17 +350,17 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <section>
         <div class="h"><span class="n">6</span><span class="t">En la puerta</span><span class="note">Nombre, HMP y qué vendemos, primero · NE 69-1602</span></div>
         <div class="open">“Hola, soy <b>Alex Mendez</b> de <b>HMP Siding &amp; Roofing</b>. Hacemos <b>techos y siding</b>. Somos una empresa registrada de Fremont.”</div>
-        <div class="q"><div class="l">Viento</div>“El viento del ________ le pegó a esta calle. El viento casi siempre daña un solo lado del techo, así que reviso ese lado primero. Son 20 minutos, gratis, y le enseño todas las fotos.”</div>
+        <div class="q"><div class="l">Viento</div>“El viento del ________ le pegó a esta calle. El viento daña un solo lado del techo, así que reviso ese lado primero. Gratis, 20 minutos, y le enseño todas las fotos.”</div>
         <div class="q"><div class="l">Árbol</div>“Vi que se cayó el árbol. ¿Están todos bien? ¿Quiere que le tome fotos antes de que muevan algo? Las fotos son suyas.”</div>
       </section>
 
       <section class="hard">
         <div class="h"><span class="n">!</span><span class="t">Nunca cruce estas líneas</span></div>
         <ul>
-          <li><b>Nunca prometa que el seguro paga.</b> Si preguntan “¿Lo cubre el seguro?” diga: “Eso lo decide su aseguradora.”</li>
-          <li><b>Nunca negocie el reclamo.</b> Documentamos y señalamos el daño; el dueño y el ajustador lo arreglan.</li>
-          <li><b>No hable del deducible.</b> Siempre lo paga el dueño; nunca ofrecemos nada para eso. (NE 44-8604)</li>
-          <li><b>Diga “registrado”</b> (Nebraska registra a los contratistas), nunca otra palabra.</li>
+          <li><b>Nunca prometa que el seguro paga.</b> Diga: “Eso lo decide su aseguradora.”</li>
+          <li><b>Nunca negocie el reclamo.</b> Mostramos el daño; el dueño y el ajustador lo arreglan.</li>
+          <li><b>No hable del deducible.</b> Siempre lo paga el dueño. (NE 44-8604)</li>
+          <li><b>Diga “registrado”</b> (Nebraska registra a los contratistas).</li>
           <li><b>Si firman algo:</b> contrato por escrito + el aviso de cancelación de 3 días, en inglés <u>y</u> español. (NE 69-1601)</li>
         </ul>
       </section>

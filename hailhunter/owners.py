@@ -12,10 +12,15 @@ the last sale date and the source name.
 Sources checked 2026-09-26 (from the cloud session's network):
 - sarpy: Sarpy County's `Parcel_Sales2` layer on ArcGIS Online (every parcel, ~77k, with OwnerAddress/City/Zip,
   Situs, SaleDate, PropertyClass). WORKS.
-- douglas (dcgis.org/server/rest/services/vector/Parcels_public/FeatureServer), lancaster
-  (gis.lincoln.ne.gov/public/rest/services/Assessor/TaxParcels/MapServer/0), dodge (dodge.gisworkshop.com, GIS
-  Workshop eCounty viewer) and Sarpy's own geodata.sarpy.gov: NOT reachable from the cloud (egress blocked), field
-  names unverified, so they are not wired. Add a SOURCES entry once one is reachable and its fields are checked.
+- douglas: dcgis.org Parcels_public FeatureServer (DC Assessor). Owner mailing street = ADDRESS2 (ADDRESS1 is a
+  "C/O" line), OWNER_ZIP; house = PROPERTY_A + PROP_ZIP. No sale date. Polygons: asks the server for centroids.
+  WORKS.
+- lancaster: gis.lincoln.ne.gov Assessor/TaxParcels MapServer/0. Mailing = PSTLADDRESS + PSTLZIP5; house =
+  SITEADDRESS ("4240 RANDOLPH ST, LINCOLN, NE, 68510": the zip is read off its end). No sale date. MapServer: no
+  centroids, so the polygon's vertices are averaged. WORKS.
+- dodge (dodge.gisworkshop.com, GIS Workshop eCounty viewer): its TLS certificate is expired (https) and http is
+  refused (403); ArcGIS Hub lists no other Dodge County NE parcel layer. NOT wired (never skip TLS checks).
+Numbered streets are compared without the ordinal ("S 114 ST" = "S 114TH ST"): the counties differ.
 
 Downloads by the same ~3-mile tiles as parcels.py, only for tiles a door list touches, paged 2000 at a time with a
 pause between pages, cached for `max_age_days` (180). `lookup` is offline: it reads the cache only.
@@ -38,6 +43,25 @@ SOURCES = {
         "owner_addr": "OwnerAddress", "owner_zip": "OwnerZip", "sale": "SaleDate",
         "label": "Sarpy County assessor (owner mailing address)",
     },
+    "douglas": {
+        "url": "https://dcgis.org/server/rest/services/vector/Parcels_public/FeatureServer/0/query",
+        "bbox": (-96.476, 41.189, -95.869, 41.395),     # Douglas County (service extent 2026-09-26)
+        # never add OWNER_NAME here (no owner names for homes)
+        "fields": "PIN,PROPERTY_A,PROP_ZIP,ADDRESS2,OWNER_ZIP,CLASS",
+        "id": "PIN", "situs": "PROPERTY_A", "situs_zip": "PROP_ZIP",
+        "owner_addr": "ADDRESS2", "owner_zip": "OWNER_ZIP", "sale": None,
+        "centroid": True,                              # FeatureServer: returnCentroid, no polygons downloaded
+        "label": "Douglas County assessor (owner mailing address)",
+    },
+    "lancaster": {
+        "url": "https://gis.lincoln.ne.gov/public/rest/services/Assessor/TaxParcels/MapServer/0/query",
+        "bbox": (-96.917, 40.521, -96.460, 41.048),     # Lancaster County (service extent 2026-09-26)
+        # never add OWNERNME1/OWNERNME2/CNVYNAME here (no owner names for homes)
+        "fields": "PARCELID,SITEADDRESS,PSTLADDRESS,PSTLZIP5,CLASSDSCRP",
+        "id": "PARCELID", "situs": "SITEADDRESS", "situs_zip": None,   # zip read off the end of SITEADDRESS
+        "owner_addr": "PSTLADDRESS", "owner_zip": "PSTLZIP5", "sale": None,
+        "label": "Lancaster County assessor (owner mailing address)",
+    },
 }
 PAGE = 2000
 PAUSE_S = 0.5                                    # be polite between pages
@@ -48,6 +72,18 @@ SUFFIX = {"STREET": "ST", "AVENUE": "AVE", "AV": "AVE", "DRIVE": "DR", "ROAD": "
           "HIGHWAY": "HWY", "PLAZA": "PLZ", "NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W"}
 UNIT_TAIL = re.compile(r"\s+(#|UNIT|APT|STE|SUITE|LOT|BLDG|TRLR|SPC)\b.*$")
 PO_BOX = re.compile(r"^\s*(P\.?\s*O\.?\s*BOX|BOX|PO BX|POB)\b")
+ORDINAL = re.compile(r"^(\d+)(ST|ND|RD|TH)$")
+ZIP_END = re.compile(r"\b(\d{5})(-\d{4})?\s*$")
+
+
+def _ordinal(n):
+    n = int(n)
+    return f"{n}{'TH' if 10 <= n % 100 <= 20 else {1: 'ST', 2: 'ND', 3: 'RD'}.get(n % 10, 'TH')}"
+
+
+def _legacy_street(street):
+    """The street as keys stored before 2026-09-26 spelled it ('S 28 CIR' -> 'S 28TH CIR'), for older caches."""
+    return " ".join(_ordinal(w) if w.isdigit() else w for w in street.split())
 
 
 def addr_key(text):
@@ -57,7 +93,8 @@ def addr_key(text):
     m = re.match(r"^(\d+)\s+(.+)$", t.strip())
     if not m:
         return None
-    street = " ".join(SUFFIX.get(w, w) for w in m.group(2).split())
+    words = [ORDINAL.sub(r"\1", w) for w in m.group(2).split()]          # '114TH' -> '114'
+    street = " ".join(SUFFIX.get(w, w) for w in words)
     return int(m.group(1)), street
 
 
@@ -75,14 +112,22 @@ def occupied(situs, owner_addr, situs_zip=None, owner_zip=None):
 
 
 def _row(src_name, src, f, tile, now):
-    a, g = f.get("attributes") or {}, f.get("geometry") or {}
+    a, g = f.get("attributes") or {}, f.get("centroid") or f.get("geometry") or {}
     if "x" not in g:
-        return None
+        ring = (g.get("rings") or [[]])[0]              # polygon without a server centroid: average its corners
+        pts = ring[:-1] if len(ring) > 1 and ring[0] == ring[-1] else ring
+        if not pts:
+            return None
+        g = {"x": sum(p[0] for p in pts) / len(pts), "y": sum(p[1] for p in pts) / len(pts)}
     key = addr_key(a.get(src["situs"]))
     if not key:
         return None
-    occ = occupied(a.get(src["situs"]), a.get(src["owner_addr"]), a.get(src["situs_zip"]), a.get(src["owner_zip"]))
-    sale = a.get(src["sale"])
+    szip = a.get(src["situs_zip"]) if src.get("situs_zip") else None
+    if not szip:
+        m = ZIP_END.search(str(a.get(src["situs"]) or ""))
+        szip = m.group(1) if m else None
+    occ = occupied(a.get(src["situs"]), a.get(src["owner_addr"]), szip, a.get(src["owner_zip"]))
+    sale = a.get(src["sale"]) if src.get("sale") else None
     sale_d = None
     if isinstance(sale, (int, float)) and sale > 0:      # epoch ms; the county's 1900-01-01 placeholder is negative
         sale_d = datetime.fromtimestamp(sale / 1000, tz=timezone.utc).date().isoformat()
@@ -98,6 +143,10 @@ def fetch_tile(session, src, i, j, retries=2):
                   "inSR": 4326, "spatialRel": "esriSpatialRelIntersects", "outFields": src["fields"],
                   "returnGeometry": "true", "outSR": 4326, "f": "json", "resultOffset": offset,
                   "resultRecordCount": PAGE, "orderByFields": src["id"]}
+        if src.get("centroid"):                         # polygons: the server's centroid only, much smaller pages
+            params.update(returnGeometry="false", returnCentroid="true")
+        else:
+            params["geometryPrecision"] = 6
         for k in range(retries + 1):
             try:
                 r = session.get(src["url"], params=params, timeout=120)
@@ -158,9 +207,10 @@ def lookup(conn, stops):
         if not key or s.get("lat") is None or s.get("lon") is None:
             continue
         best = None
-        for r in conn.execute("SELECT source, lat, lon, owner_occupied FROM owner_occ WHERE house_num=? AND street=? "
-                              "AND lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?",
-                              (key[0], key[1], s["lat"] - 0.01, s["lat"] + 0.01, s["lon"] - 0.013, s["lon"] + 0.013)):
+        for r in conn.execute("SELECT source, lat, lon, owner_occupied FROM owner_occ WHERE house_num=? AND street IN "
+                              "(?, ?) AND lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?",
+                              (key[0], key[1], _legacy_street(key[1]), s["lat"] - 0.01, s["lat"] + 0.01,
+                               s["lon"] - 0.013, s["lon"] + 0.013)):
             d = haversine_mi(s["lat"], s["lon"], r["lat"], r["lon"])
             if d <= MATCH_MI and (best is None or d < best[0]):
                 best = (d, r)

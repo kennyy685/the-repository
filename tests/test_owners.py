@@ -55,7 +55,7 @@ class Occupied(unittest.TestCase):
         self.assertIsNone(owners.occupied(s, "PO BOX 123"))                                     # can't tell
         self.assertIsNone(owners.occupied(s, ""))
         self.assertIsNone(owners.occupied("", "2909 BLACKHAWK DR"))
-        self.assertEqual(owners.addr_key("13706 S 28th Cir, Bellevue"), (13706, "S 28TH CIR"))
+        self.assertEqual(owners.addr_key("13706 S 28th Cir, Bellevue"), (13706, "S 28 CIR"))   # ordinal dropped
         self.assertEqual(owners.addr_key("101 N Main Street Apt 4"), (101, "N MAIN ST"))
 
     def test_never_asks_for_owner_names(self):
