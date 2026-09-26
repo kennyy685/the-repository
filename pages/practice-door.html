@@ -293,6 +293,26 @@ li.bad .ck-l{color:var(--bad)}
 @media (max-width:440px){.claim{grid-template-columns:1fr}}
 .rk-chip{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent-strong);letter-spacing:.06em}
 
+/* v7 (2026-09-26, T131): skill drills picker + "first 3 seconds" line (research round 27) */
+.skills{background:var(--surface);border:1.5px solid var(--line);border-radius:14px}
+.skills summary{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;min-height:60px;padding:10px 14px;cursor:pointer;list-style:none}
+.skills summary::-webkit-details-marker{display:none}
+.skills summary::after{content:"";width:10px;height:10px;border-right:2.6px solid var(--accent-strong);border-bottom:2.6px solid var(--accent-strong);transform:rotate(45deg);margin:-4px 6px 0 0}
+.skills[open] summary::after{transform:rotate(-135deg);margin-top:4px}
+.skills summary > span{display:grid;gap:2px;min-width:0}
+.skills .st{font:700 21px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--accent-strong)}
+.skills .ss{font-size:14.5px;line-height:1.25;color:var(--muted)}
+.skill-list{display:grid;gap:8px;padding:2px 12px 12px}
+.skill{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;min-height:56px;padding:8px 12px;text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:12px}
+.skill > span{display:grid;gap:1px;min-width:0}
+.skill .kt{font:700 18px/1.1 var(--display)}
+.skill .kg{font-size:13.5px;line-height:1.25;color:var(--muted)}
+.skill .kd{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);opacity:.6}
+.skill .kd.pass{background:var(--good);border-color:var(--good);opacity:1}
+.skill .kd.miss{background:var(--warn);border-color:var(--warn);opacity:1}
+.skill .ks{font:700 12.5px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.skill .ks.pass{color:var(--good)}
+.first3{font:500 16.5px/1.4 var(--body);background:var(--accent-soft);border-radius:12px;padding:10px 14px;margin:6px 0 0}
 @media (max-width:360px){.hero h1{font-size:40px}.who-grid{grid-template-columns:1fr}.who-random,.who-wide{grid-column:auto}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -335,6 +355,11 @@ li.bad .ck-l{color:var(--bad)}
           <span><span class="dt" data-t="drillBtn"></span><span class="ds" id="drillSub"></span></span>
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
+        <!-- v7 (T131): 10 skill drills from research round 27, each pass/fail -->
+        <details class="skills" id="skills">
+          <summary><span><span class="st" data-t="skillsT"></span><span class="ss" id="skillsSub"></span></span></summary>
+          <div class="skill-list" id="skillList"></div>
+        </details>
       </section>
       <section class="ticket" aria-labelledby="stTitle">
         <div class="eyebrow" id="stTitle" data-t="street"></div>
@@ -408,7 +433,7 @@ li.bad .ck-l{color:var(--bad)}
         <button class="btn-primary" id="drillNext" type="button"></button>
       </div>
       <div class="screen" id="drillDone" hidden>
-        <div class="done-head"><div class="eyebrow" data-t="drillBtn"></div><h2 data-t="drillDoneT"></h2><p id="drillDoneSub"></p></div>
+        <div class="done-head"><div class="eyebrow" id="drillDoneEye"></div><h2 data-t="drillDoneT"></h2><p id="drillDoneSub"></p></div>
         <ul class="done-list" id="drillDoneList"></ul>
         <div class="actions">
           <button class="btn-primary" id="drillAgain" type="button" data-t="anotherDrill"></button>
@@ -727,6 +752,25 @@ const T = {
   cantList: [['Negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201+)', 'Promise insurance will pay, or a dollar amount', 'Touch the deductible: it is always their part (44-8604)'],
     ['Negociar el pago por el dueño (trabajo de ajustador público, Neb. 44-9201+)', 'Prometer que el seguro paga, o una cantidad', 'Tocar el deducible: siempre es su parte (44-8604)']],
   h_cash: ['Ask one question back, then offer a free estimate and a day to come back.', 'Haz una pregunta de regreso, ofrece un estimado gratis y un día para volver.'],
+  /* v7 (2026-09-26, T131, research round 27): skill drills + "first 3 seconds". */
+  first3T: ['First 3 seconds', 'Los primeros 3 segundos'],
+  first3: ['Angle your shoulders (don’t stand square on the mat), hands open where they can see them, smile before you talk, and sound curious, not stern.', 'Ponte de lado (no de frente en el tapete), manos abiertas donde las vean, sonríe antes de hablar y suena curioso, no serio.'],
+  skillsT: ['Skill drills', 'Ejercicios de habilidad'],
+  skillsSub: (k, n) => [`${n} drills, one skill each, pass or not yet. ${k} passed.`, `${n} ejercicios, una habilidad cada uno, pasa o todavía no. ${k} aprobados.`],
+  skillChip: ['Skill drill', 'Ejercicio de habilidad'],
+  toPass: ['To pass:', 'Para pasar:'],
+  skDoor: ['At the door', 'En la puerta'], skSolo: ['Just you', 'Solo tú'],
+  skPass: ['Passed', 'Aprobado'], skMiss: ['Not yet', 'Todavía no'], skNew: ['New', 'Nuevo'],
+  skDone: ['See how I did', 'Ver cómo me fue'],
+  skAgain: ['Try this one again', 'Intentar este otra vez'],
+  skDoneT: ['Drill done', 'Ejercicio terminado'],
+  skIntro: m => [`Missing: ${m}. Say it first thing (69-1602).`, `Te faltó: ${m}. Dilo primero (69-1602).`],
+  skVague: ['“I’ll call you” is not a next step. Ask for one: a free look now, or a day and time.', '“Luego le llamo” no es un paso. Pide uno: revisar gratis ahora, o un día y hora.'],
+  skPush: ['That sounds pushy (“you need to…”). Ask, don’t tell.', 'Eso suena a presión (“tiene que…”). Pregunta, no mandes.'],
+  skPhotos: ['Show photos or the damage first, and name the paper.', 'Primero enseña las fotos o el daño, y di qué papel es.'],
+  skCancel2: ['Say the 3 days to cancel in English AND in Spanish.', 'Di los 3 días para cancelar en inglés Y en español.'],
+  skPaper: ['Name the paper: permission to inspect, a contingency, or the job contract.', 'Di qué papel es: permiso para revisar, una contingencia o el contrato del trabajo.'],
+  skRatio: ['Use a number (doors, no’s, yes’s), then one change for the next door.', 'Usa un número (puertas, no, sí) y luego un cambio para la próxima puerta.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
 const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact']);
@@ -927,6 +971,83 @@ const OBJ = [
   [['“If I sign today, can you start next week?”', '“Si firmo hoy, ¿empiezan la otra semana?”'], ["I'll write you an estimate range first, not the final price. If you sign, you get a 3-day cancel form, in writing, every time. Can I come back Saturday at 10 with it?", 'Primero le escribo un rango de estimado, no es el precio final. Si firma, siempre le doy la forma para cancelar en 3 días, por escrito. ¿Regreso el sábado a las 10 con eso?'], 'oldhouse'],
   [['“What do you give if I send my sister your way?”', '“¿Qué me dan si les mando a mi hermana?”'], ["Thank you, that means a lot. We don't do gifts, just a real thank-you, and we'll take great care of her.", 'Muchas gracias, eso vale mucho. No damos regalos, solo un agradecimiento de verdad, y la vamos a atender muy bien.'], 'oldhouse'],
   [['“Maybe next year.”', '“Mejor el año que entra.”'], ["No problem. Let's put a date on it so it doesn't slip. A Saturday in early spring, say March 7 at 10 AM? Or what day works better?", 'Está bien. Pongamos una fecha para que no se le pase. Un sábado a principios de primavera, ¿el 7 de marzo a las 10 de la mañana? ¿O qué día le queda mejor?'], CASH_OBJ],
+];
+/* v7 (2026-09-26, T131): the 10 skill drills from data/practice_drills.json (research round 27).
+   id, t = title, q = what's at the door (or a solo prompt in parentheses), g = the short "to pass" line,
+   solo = no homeowner, setup/goal/crit = the JSON's English text for the judge (crit graded pass/fail, fail closed),
+   a = a model answer (must stay legalScan-clean: tests/js/practice_door_rx_check.js), loc = a local backup check
+   that can only fail an answer the judge passed, never pass one it failed. */
+const SKILL = [
+  { id: 'drill-body-language', t: ['The 3-second stance', 'La postura de 3 segundos'], loc: 'intro',
+    q: ['(You knock. The door opens.)', '(Tocas. Se abre la puerta.)'],
+    g: ['Write your stance in ( ), then your first line: your name, HMP, what you sell. Friendly and curious.', 'Escribe tu postura entre ( ) y luego tu primera línea: tu nombre, HMP, qué vendes. Amable y curioso.'],
+    setup: 'Any homeowner, front door, first knock of the roleplay.',
+    goal: "Before typing anything, say out loud (or type as a stage direction) your stance: shoulders angled not squared, hands open, smile, then your opener - all inside 3 seconds, before the homeowner's first line lands.",
+    crit: 'Kenny states name + HMP + what he sells first (69-1602), in a friendly/curious tone, with no aggressive or authoritative phrasing, before asking anything else.',
+    a: ["(Shoulders angled, hands open, smile.) Hi, I'm Kenny with HMP Siding & Roofing, a local roofing and siding company out of Fremont. We're checking roofs on this street after the hail. Mind if I take a quick free look?", '(De lado, manos abiertas, sonrisa.) Hola, soy Kenny de HMP Siding & Roofing, una compañía de techos y siding de aquí de Fremont. Estamos revisando techos en esta calle por el granizo. ¿Le parece si reviso el suyo rápido, gratis?'] },
+  { id: 'drill-one-small-ask', t: ['One small ask, not the whole job', 'Un solo paso, no todo el trabajo'], loc: 'oneAsk',
+    q: ['“I don’t know… I’m not sure we need anything.”', '“No sé… no creo que necesitemos nada.”'],
+    g: ['End by asking for ONE next step: a free look, or a day and time. Never “I’ll call you.”', 'Termina pidiendo UN paso: revisar gratis, o un día y hora. Nunca “luego le llamo”.'],
+    setup: 'Any objection-heavy homeowner (e.g. skeptical-owner or price-shopper).',
+    goal: "Never try to close the whole job on the porch. End the exchange asking for exactly one specific next step: a free look, or a named day and time - never 'I'll call you' or a vague 'let me think about it, I'll follow up.'",
+    crit: 'The last thing Kenny asks for is one concrete, specific next step with a day/time or a free-look yes/no - not an open-ended promise to circle back.',
+    a: ['Totally fair, no decision today. Could I come back Saturday at 10 and take a free 10-minute look?', 'Está bien, hoy no tiene que decidir nada. ¿Le parece si regreso el sábado a las 10 y reviso gratis, unos 10 minutos?'] },
+  { id: 'drill-tone-switch', t: ['Friendly tone, not stern tone', 'Tono amable, no tono serio'], loc: 'noPush',
+    q: ['“Make it quick. What do you want?” (arms crossed)', '“Rápido. ¿Qué quiere?” (brazos cruzados)'],
+    g: ['Stay warm and curious. Don’t match their sharp tone. No “you need to…”.', 'Quédate amable y curioso. No copies su tono. Nada de “tiene que…”.'],
+    setup: 'The blunt or annoyed homeowner (existing 40s-annoyed or blunt-60s type).',
+    goal: 'Homeowner starts short and dismissive. Kenny must stay warm and curious the whole time, never matching their sharpness or sounding authoritative/pushy.',
+    crit: "Homeowner's warmth score improves by the end of the exchange and Kenny's lines contain no commanding/pressuring phrasing ('you need to', 'you have to act now'). In this one-line drill, judge whether his line would warm up an annoyed homeowner.",
+    a: ["Sure, I'll be quick! I'm Kenny with HMP Siding & Roofing from Fremont. The hail hit this street, so we're doing free roof checks. Want me to take a quick look?", '¡Claro, rapidito! Soy Kenny de HMP Siding & Roofing, de Fremont. El granizo pegó en esta calle y estamos revisando techos gratis. ¿Quiere que le eche un vistazo rápido?'] },
+  { id: 'drill-not-interested-recovery', t: ['Bouncing back from “not interested”', 'Recuperarse de “no me interesa”'], loc: null,
+    q: ['“Not interested, thanks.” (starts closing the door)', '“No me interesa, gracias.” (empieza a cerrar la puerta)'],
+    g: ['Say it’s fine, then one small ask (a card, a free look). No arguing, no pitch again.', 'Di que está bien y pide algo pequeño (una tarjeta, revisar gratis). Sin discutir, sin repetir.'],
+    setup: 'A homeowner who opens with a flat "not interested, thanks" and starts to close the door.',
+    goal: 'Kenny gets one more sentence in without being pushy: acknowledge it, then offer the smallest possible ask (a free look, a card) instead of arguing or repeating the same pitch louder.',
+    crit: 'Kenny does not repeat his original pitch verbatim, does not argue, and offers exactly one low-pressure next step before accepting a no.',
+    a: ['No problem at all. Can I leave my card, in case you spot anything after the storm? Have a good night.', 'No se preocupe. ¿Le dejo mi tarjeta, por si ve algo después de la tormenta? Que tenga buena noche.'] },
+  { id: 'drill-morning-pitch-warmup', t: ['Say it out loud first', 'Dilo en voz alta primero'], loc: 'intro', solo: true,
+    q: ['(No door yet. Type your whole opener from memory, like you’re saying it out loud. No notes.)', '(Todavía no hay puerta. Escribe tu saludo completo de memoria, como si lo dijeras en voz alta. Sin notas.)'],
+    g: ['Your name, HMP and what you sell, in your own natural words.', 'Tu nombre, HMP y qué vendes, con tus propias palabras.'],
+    setup: 'No homeowner - solo warmup before the first real roleplay of the session.',
+    goal: 'Before facing any AI homeowner, type out (as if spoken aloud) the full opener once, from memory, with no notes.',
+    crit: "The typed opener includes name, HMP, and what's being sold, in a natural (not word-for-word script-sounding) way, completed before starting the first homeowner.",
+    a: ["Hi there! I'm Kenny with HMP Siding & Roofing, right here in Fremont. We do roofs and siding, and after the hail we're giving free roof checks on this street. Mind if I take a look?", '¡Buenas! Soy Kenny de HMP Siding & Roofing, aquí de Fremont. Hacemos techos y siding, y después del granizo estamos revisando techos gratis en esta calle. ¿Me deja echarle un vistazo?'] },
+  { id: 'drill-photos-before-paper', t: ['Photos and scope before any signature', 'Fotos y alcance antes de firmar nada'], loc: 'photos',
+    q: ['“Looks bad? Great, let’s sign right now so you can start.”', '“¿Se ve mal? Perfecto, firmemos ahorita para que empiecen.”'],
+    g: ['Photos and what’s damaged first. Say which paper it is and what it does. Signing never means insurance pays.', 'Primero fotos y qué está dañado. Di qué papel es y para qué sirve. Firmar nunca quiere decir que el seguro paga.'],
+    setup: 'A homeowner ready to move fast (e.g. the check-in-hand or fast-decision type).',
+    goal: "Kenny shows/describes the photo evidence and a real scope of what's damaged before mentioning any paperwork, and is clear about exactly what document is being signed and why (inspection permission vs. contract) - never lets the homeowner think signing something now guarantees a price or a payout.",
+    crit: "Kenny mentions photos/evidence and the specific document's purpose before any signature is discussed, and never implies a signature guarantees insurance payment.",
+    a: ["Let's slow down. First I'll show you the photos and exactly what's damaged. Then you see the contract, with the work and the price, and you get 3 business days to cancel. Signing it doesn't decide what your insurance covers.", 'Vamos con calma. Primero le enseño las fotos y qué está dañado. Luego ve el contrato, con el trabajo y el precio, y tiene 3 días hábiles para cancelar. Firmarlo no decide lo que cubre su seguro.'] },
+  { id: 'drill-say-it-out-loud-3day', t: ['Say the 3-day cancel right out loud', 'Di el derecho de 3 días en voz alta'], loc: 'cancel2',
+    q: ['“Okay, where do I sign?”', '“Bueno, ¿dónde firmo?”'],
+    g: ['Say it out loud, in English AND in Spanish: they have 3 days to cancel.', 'Dilo en voz alta, en inglés Y en español: tienen 3 días para cancelar.'],
+    setup: 'Any homeowner who reaches the paperwork stage of the roleplay.',
+    goal: 'Kenny must explicitly say (not just mention handing over a form) that the homeowner has 3 days to cancel, in both English and Spanish phrasing, before the roleplay ends.',
+    crit: "Both an English and a Spanish sentence stating the 3-day cancel right appear in Kenny's lines before paperwork is considered done.",
+    a: ["Before you sign: you have 3 business days to cancel, in writing, and here's the form. En español: usted tiene 3 días hábiles para cancelar, por escrito, y aquí está la forma.", 'Antes de firmar: usted tiene 3 días hábiles para cancelar, por escrito, y aquí está la forma. In English: you have 3 business days to cancel, in writing, and here is the form.'] },
+  { id: 'drill-deductible-question', t: ['When they ask about the deductible', 'Cuando preguntan por el deducible'], loc: 'nodeduct',
+    q: ['“Can you just cover my deductible?”', '“¿No me puede cubrir el deducible?”'],
+    g: ['Warm and honest: the deductible is always their part, and you can’t promise what insurance pays.', 'Amable y honesto: el deducible siempre es su parte, y no puedes prometer lo que paga el seguro.'],
+    setup: 'A homeowner who asks directly: "Can you just cover my deductible?" or "Will insurance pay for everything?"',
+    goal: "Kenny answers honestly that the deductible is always the homeowner's part and he can't promise what insurance will pay, without sounding evasive or cold.",
+    crit: "Kenny's answer contains no offer, hint or implication of covering/waiving/rebating the deductible and no promise that insurance will pay; tone stays warm, not defensive.",
+    a: ["Good question. By law the deductible is always your part, and I can't promise what insurance pays. What I can do is a free look with photos, so you have the facts.", 'Buena pregunta. Por ley el deducible siempre es su parte, y no le puedo prometer lo que paga el seguro. Lo que sí puedo hacer es revisar gratis con fotos, para que tenga los datos.'] },
+  { id: 'drill-contingency-vs-contract', t: ['Which paper is this?', '¿Cuál papel es este?'], loc: 'paper',
+    q: ['“What exactly am I signing right now?”', '“¿Qué es exactamente lo que estoy firmando ahorita?”'],
+    g: ['Name it: permission to inspect, a contingency, or the job contract. Say what it does and doesn’t commit them to.', 'Dilo: permiso para revisar, una contingencia o el contrato del trabajo. Di a qué le compromete y a qué no.'],
+    setup: 'A cautious homeowner who asks "What exactly am I signing right now?"',
+    goal: "Kenny clearly names which of the three things is being signed at that moment - permission to inspect, a contingency tied to claim approval, or the final job contract - and what it does and doesn't commit the homeowner to.",
+    crit: 'Kenny names the specific document type and states in plain words what it commits the homeowner to (or doesn\'t), with no vague "just paperwork" answer.',
+    a: ["Right now it's only permission for me to get on your roof and take photos. It doesn't commit you to any work or any price. The job contract comes later, with the price and your 3 days to cancel.", 'Ahorita es solo el permiso para subirme a su techo y tomar fotos. No le compromete a ningún trabajo ni a ningún precio. El contrato del trabajo viene después, con el precio y sus 3 días para cancelar.'] },
+  { id: 'drill-ratio-not-streak', t: ['Reframe a bad streak', 'Replantear una mala racha'], loc: 'ratio', solo: true,
+    q: ['(Three doors in a row said no. Write one line about it.)', '(Tres puertas seguidas te dijeron que no. Escribe una línea sobre eso.)'],
+    g: ['Use numbers (doors, no’s, yes’s), not feelings, and name one change for the next door.', 'Usa números (puertas, no, sí), no sentimientos, y di un cambio para la próxima puerta.'],
+    setup: 'No homeowner - a reflection prompt shown after 3+ discouraging roleplay results in a row.',
+    goal: 'Write one line reframing the losses as data (doors knocked vs. interested), not as personal failure, and name the one thing to try differently on the next door.',
+    crit: 'The written reflection mentions a ratio or count (not just a feeling) and names one specific change for the next attempt.',
+    a: ["3 no's is just 3 doors: the goal is about 1 yes in every 10 to 15. Next door I'll ask one question before I pitch.", 'Tres “no” son solo 3 puertas: la meta es como 1 sí de cada 10 a 15. En la próxima puerta hago una pregunta antes de ofrecer.'] }
 ];
 const objFor = o => [].concat(o[2] || []);
 

@@ -69,7 +69,8 @@ MATCH_MI = 0.25                                  # a stop and a county parcel wi
 
 SUFFIX = {"STREET": "ST", "AVENUE": "AVE", "AV": "AVE", "DRIVE": "DR", "ROAD": "RD", "LANE": "LN", "COURT": "CT",
           "CIRCLE": "CIR", "PLACE": "PL", "BOULEVARD": "BLVD", "PARKWAY": "PKWY", "TERRACE": "TER", "TRAIL": "TRL",
-          "HIGHWAY": "HWY", "PLAZA": "PLZ", "NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W"}
+          "HIGHWAY": "HWY", "PLAZA": "PLZ", "TL": "TRL", "CR": "CIR",   # Douglas writes TL / CR
+          "NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W"}
 UNIT_TAIL = re.compile(r"\s+(#|UNIT|APT|STE|SUITE|LOT|BLDG|TRLR|SPC)\b.*$")
 PO_BOX = re.compile(r"^\s*(P\.?\s*O\.?\s*BOX|BOX|PO BX|POB)\b")
 ORDINAL = re.compile(r"^(\d+)(ST|ND|RD|TH)$")
