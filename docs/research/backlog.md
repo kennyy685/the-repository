@@ -7,8 +7,10 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 ## Next up (top first)
 - [ ] Verify Iowa Mesonet LSR "trees down" reports are actually in the feed HMP ingests, and wind
       direction/bearing availability in `wind_obs` (round 23 flagged both, unconfirmed)
-- [ ] Hail season calendar for eastern Nebraska: when storms hit, how long claims stay open (Nebraska claim deadlines), best months to knock
-- [ ] AI tools other contractors use (estimate writers, photo reports, call assistants) and which ideas the HMP App should copy
+- [ ] Confirm Neb. Rev. Stat. 25-205 and 44-357's exact text directly (round 25's web fetch was blocked network-wide; only search
+      summaries were available) before quoting claim-deadline numbers anywhere customer-facing
+- [ ] Vet missed-call text-back vendors by name, price and Spanish support (round 25 identified the category as HMP's top
+      near-term buy; no vendor pricing pages could be opened this round to name a winner)
 - [ ] Pricing psychology for cash jobs: good/better/best, anchoring, same-day decisions and the 3-day cancel rule
 - [ ] Hiring and paying a second salesman later: commission plans that are legal in Nebraska, onboarding with the app
 - [ ] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support)
@@ -27,3 +29,8 @@ James Hardie Elite Preferred requirements, adjuster-meeting checklist (docs/guid
 fallen-tree claims (wind-zone scoring factors, tree-lead layer) + commercial/apartment roofs (TPO/EPDM, PM budget cycle).
 Round 24: retention/reviews (legal Google review asks, completion packets, warranty registration) + door-to-door rules by
 city (Fremont, Omaha, Lincoln, Columbus, Schuyler - hours + no-knock in `data/city_rules.json`).
+Round 25: hail season calendar (peak May-July, config change proposed for `today_walk.storm_max_days_by_month`) + claim
+deadlines (Nebraska gives years, not days - no legal urgency to use as a sales line) + AI tools other contractors use
+(missed-call text-back flagged as HMP's top near-term buy; photo-to-quote/estimate tools flagged as ideas to fold into
+the app rather than buy separately). Network egress was blocked for most WebFetch targets this round - findings rely on
+search summaries; see the two new backlog items above to re-verify.
