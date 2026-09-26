@@ -27,7 +27,6 @@ body{color:var(--ink);font:15px/1.5 var(--f-body);}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit}
 .wrap{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:grid;gap:14px}
-
 /* header */
 .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 18px}
 .eyebrow{font-family:var(--f-label);font-size:11px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
@@ -38,7 +37,6 @@ h1 .w-chat{color:var(--chat)} h1 .w-code{color:var(--code)}
 .live[data-state="on"] .dot{background:var(--working);animation:blink 1.4s steps(2,end) infinite}
 .live[data-state="off"] .dot{background:var(--blocked)}
 @keyframes blink{50%{opacity:.25}}
-
 /* lane summary */
 .lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .lane{padding:10px 12px;background:var(--bg2);border-left:4px solid var(--c);display:grid;gap:2px}
@@ -46,7 +44,6 @@ h1 .w-chat{color:var(--chat)} h1 .w-code{color:var(--code)}
 .lane-h{font-family:var(--f-label);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
 .lane-n{font-family:var(--f-display);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
 .lane-s{font-size:13px;color:var(--mute)}
-
 /* toolbar + stage */
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;justify-content:space-between}
 .cam{display:none;gap:0;border:2px solid var(--line)}
@@ -67,7 +64,6 @@ body.narrow .cam{display:inline-flex}
 .replay{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(28,29,32,.92);border:2px solid var(--line2);padding:8px 10px;font-size:13px}
 .replay b{font-family:var(--f-label);font-size:11px;color:var(--waiting);letter-spacing:.04em;margin-right:6px}
 .toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(28,29,32,.94);border:2px solid var(--line2);padding:6px 12px;font-size:13px;max-width:calc(100% - 24px)}
-
 /* dock: roster + card */
 .dock{display:grid;gap:14px;grid-template-columns:1fr}
 @media (min-width:880px){.dock{grid-template-columns:1.25fr 1fr}}
@@ -75,8 +71,6 @@ body.narrow .cam{display:inline-flex}
 .panel h2{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .panel h2 .src{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--mute)}
 .roster{display:grid;gap:14px}
-.roster-g h3{font-family:var(--f-label);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 7px;color:var(--c)}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:2px solid var(--line);padding:5px 9px 5px 7px;font-size:13px;cursor:pointer;line-height:1.2}
 .chip:hover{border-color:var(--line2)}
 .chip[aria-pressed="true"]{border-color:var(--c);background:var(--panel2)}
@@ -98,11 +92,9 @@ body.narrow .cam{display:inline-flex}
 .card ol li{display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:13px;color:var(--ink2)}
 .card ol time{font-variant-numeric:tabular-nums;color:var(--mute);white-space:nowrap}
 .stale{color:var(--waiting)}
-
 /* logs */
 .logs{display:grid;gap:14px;grid-template-columns:1fr}
-@media (min-width:700px){.logs{grid-template-columns:1fr 1fr}.boardp{grid-column:1 / -1;order:3}}
-@media (min-width:1100px){.logs{grid-template-columns:1fr .95fr 1fr}.boardp{grid-column:auto;order:0}}
+@media (min-width:700px){.logs{grid-template-columns:1fr 1fr}}
 .log-chat h2{color:var(--chat)} .log-code h2{color:var(--code)} .boardp h2{color:var(--board)}
 .feed{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:430px;overflow:auto}
 .ev{display:grid;grid-template-columns:62px 16px 1fr;gap:4px 8px;padding:7px 6px;border-bottom:1px solid var(--line);align-items:start}
@@ -127,7 +119,7 @@ body.narrow .cam{display:inline-flex}
 .tt{font-size:14px}
 .tmeta{grid-column:2;display:flex;gap:6px;flex-wrap:wrap}
 .own{font-family:var(--f-label);font-size:10px;padding:1px 6px;background:var(--c);color:#161b28}
-.own-king{--c:#f5883a} .own-cowork{--c:var(--chat)} .own-code{--c:var(--code)} .own-filthe{--c:var(--board)} .own-x{--c:var(--mute)}
+.own-king{--c:#f5883a} .own-boss{--c:var(--hmp2)} .own-cowork{--c:var(--chat)} .own-code{--c:var(--code)} .own-filthe{--c:var(--board)} .own-x{--c:var(--mute)}
 .tst{font-family:var(--f-label);font-size:10px;padding:0 6px;border:1px solid var(--c);color:var(--c)}
 .s-doing{--c:var(--working)} .s-blocked{--c:var(--blocked)} .s-review{--c:var(--waiting)} .s-todo{--c:var(--mute)} .s-done{--c:var(--done)} .s-parked{--c:var(--sleeping)}
 .asks li{display:grid;grid-template-columns:34px 1fr;gap:8px;font-size:14px;padding:6px 8px;background:var(--board-soft);border-left:3px solid var(--board)}
@@ -172,13 +164,11 @@ body.narrow .cam{display:inline-flex}
 .kc-log .who{font-family:var(--f-label);font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding-top:3px;color:var(--mute)}
 .kc-log li.king .who{color:#f5883a}
 .kc-log p{margin:0;color:var(--ink)}
-.kc-log .did{grid-column:2;font-size:12px;color:var(--done)}
 .kc-form{display:flex;gap:8px;flex-wrap:wrap}
 .kc-form input{flex:1 1 220px;min-width:0;background:var(--bg);border:2px solid var(--line2);color:var(--ink);padding:8px 10px;font:inherit;font-size:15px}
 .kc-status{font-size:13px;color:var(--mute);min-height:1.2em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-
-/* ================= HMP App shell: header, language, tabs ================= */
+/* ================= header: brand mark + language ================= */
 .top-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .hmpmark{display:inline-flex;flex-direction:column;align-items:stretch;margin-right:.2em;vertical-align:bottom}
 .hmpmark svg{display:block;width:100%;height:.32em;overflow:visible;margin-bottom:.05em}
@@ -188,56 +178,15 @@ h1 .w-app{color:var(--hmp)}
 .lang button{min-width:48px;min-height:40px;background:var(--bg2);border:0;font-family:var(--f-label);font-size:12px;letter-spacing:.04em;cursor:pointer;color:var(--ink2)}
 .lang button+button{border-left:2px solid var(--line)}
 .lang button[aria-pressed="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -3px 0 var(--hmp)}
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--bg);border:2px solid var(--line);box-shadow:4px 4px 0 var(--shadow)}
-.tabs button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 4px;background:var(--bg2);border:0;border-right:2px solid var(--line);font:700 15px/1.1 var(--f-body);color:var(--ink2);cursor:pointer;min-width:0}
-.tabs button:last-child{border-right:0}
-@media (max-width:460px){.tabs button{font-size:14px;padding-inline:2px}}
-.tabs button:hover{color:var(--ink)}
-.tabs button[aria-selected="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -4px 0 var(--hmp)}
-.tabs .bd{font:400 11px/1 var(--f-label);letter-spacing:.03em;color:var(--mute);min-height:11px;white-space:nowrap}
-.tabs .bd.hot{color:var(--board)} .tabs .bd.crit{color:var(--crit)}
-.tabp{display:grid;gap:14px;min-width:0}
 .kslot{display:contents}
-.a-banner{padding:10px 14px;background:var(--bg2);border-left:3px solid var(--line2);font-size:14px;color:var(--ink2)}
-.a-banner.bad{border-left-color:var(--crit)}
 .crewh{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:2px 0 0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .crewh .w-chat{color:var(--chat)} .crewh .w-code{color:var(--code)}
 .crewh small{font:400 14px/1.2 var(--f-body);color:var(--mute)}
 .kc-form input{min-height:48px}
 .kc-form .btn{min-height:48px;padding-inline:16px}
-.kc-log .did.no{color:var(--warn)}
-
-/* ================= app building blocks ================= */
-.a-sec{background:var(--panel);border:2px solid var(--line);padding:14px;display:grid;gap:12px;min-width:0;align-content:start}
 .ah{font-family:var(--f-display);font-weight:600;font-size:19px;line-height:1.15;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-wrap:balance}
-.ah .n{font:700 12px/1 var(--f-body);padding:4px 8px;background:var(--panel2);color:var(--ink2)}
-.ah .n:empty{display:none}
 .ah small{font:400 13px/1.3 var(--f-body);color:var(--mute)}
-.a-chip{display:inline-flex;align-items:center;gap:5px;font:700 12px/1 var(--f-body);padding:5px 8px;white-space:nowrap;letter-spacing:.02em;background:var(--hmp-soft);color:var(--hmp2);flex:none}
-.a-chip.crit{background:var(--crit-soft);color:var(--crit)}
-.a-chip.warn{background:var(--warn-soft);color:var(--warn)}
-.a-chip.plain{background:var(--track);color:var(--ink2)}
-.a-chip.paid{background:var(--m-in-soft);color:var(--m-in)}
-.a-chip.lost{background:var(--track);color:var(--mute)}
-.a-chip.src{background:transparent;box-shadow:inset 0 0 0 1px var(--line2);color:var(--ink2);font-weight:600}
-.linkbtn{background:none;border:0;color:var(--hmp2);font-weight:700;font-size:15px;padding:10px 0;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;justify-self:start}
-.say{display:grid;gap:6px;justify-items:start;background:var(--bg2);border-left:3px solid #f5883a;padding:10px 12px;max-width:62ch}
-.say b{font-family:var(--f-label);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#f5883a;font-weight:400}
-.say q{font-size:16px;color:var(--ink)}
-.say .btn{min-height:40px}
-.a-empty{background:var(--panel);border:2px dashed var(--line2);padding:18px 16px;display:grid;gap:14px}
-.a-empty h3{margin:0;font:700 24px/1.1 var(--f-display);text-wrap:balance}
-.a-empty p{margin:0;color:var(--ink2);max-width:60ch;font-size:16px}
 .a-quiet{margin:0;color:var(--mute);font-size:15px}
-
-/* today */
-.t-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px}
-.t-date{font-family:var(--f-display);font-size:24px;font-weight:700;line-height:1.1}
-.t-sum{font-size:15px;color:var(--ink2)}
-.t-sum b{color:var(--ink)} .t-sum b.crit{color:var(--crit)} .t-sum b.hot{color:var(--board)}
-.today{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);align-items:start}
-@media (min-width:900px){.today{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
-.t-col{display:grid;gap:14px;min-width:0}
 .asks-loud{background:var(--board-soft);border:2px solid var(--board);padding:14px;display:grid;gap:10px;box-shadow:4px 4px 0 var(--shadow)}
 .asks-loud .ah{color:var(--board);font-size:22px}
 .qlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
@@ -246,53 +195,10 @@ h1 .w-app{color:var(--hmp)}
 .qlist .ans,.qlist .ans-done{grid-column:auto;margin-top:0}
 .qlist .btn.sm{min-height:44px;padding:8px 14px;font-size:12px}
 .qlist .ans input{min-height:44px;font-size:15px}
-.fu{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.fu button{width:100%;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:start;background:var(--bg2);border:2px solid var(--line);padding:10px 12px;min-height:56px;cursor:pointer}
-.fu button:hover{border-color:var(--line2)}
-.fu .addr{font-weight:700;font-size:17px;overflow-wrap:anywhere}
-.fu .kind{font-family:var(--f-label);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-left:8px}
-.fu .what{grid-column:1 / -1;font-size:15px;color:var(--ink2);overflow-wrap:anywhere}
-.fu.later button{min-height:0;border-style:dashed}
-.mytasks{list-style:none;margin:0;padding:0;display:grid}
-.mytasks li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 8px;padding:10px 0;border-bottom:1px solid var(--line)}
-.mytasks li:last-child{border-bottom:0}
-.mytasks .tt{font-size:15px}
-.wk{display:grid;gap:10px}
-.wk-row{display:grid;grid-template-columns:minmax(96px,auto) minmax(0,1fr) 48px;gap:10px;align-items:center}
-.wk-l{font-size:15px;color:var(--ink2)}
-.wk-b{height:14px;background:var(--track);position:relative}
-.wk-b i{position:absolute;left:0;top:0;bottom:0;background:var(--hmp);border-radius:0 4px 4px 0}
-.wk-v{font:700 24px/1 var(--f-display);text-align:right;font-variant-numeric:tabular-nums}
-.wk-last{font-size:13px;color:var(--mute);margin:0}
-.wk-sub{grid-column:1 / -1;margin:-6px 0 0;font-size:12px;line-height:1.3;color:var(--label);text-align:right;font-variant-numeric:tabular-nums}
-.wk-sub .mk{white-space:nowrap} .wk-sub b{color:var(--warn);font-weight:700}
-.wk-b .wk-norm{position:absolute;top:-3px;bottom:-3px;border-left:1px dashed var(--mute);border-right:1px dashed var(--mute);pointer-events:none}   /* v18: the 20-40% normal band */
-.wk-note{grid-column:1 / -1;margin:-6px 0 0;font-size:12px;line-height:1.35;color:var(--mute);text-wrap:pretty}
-.go{display:grid;gap:8px}
-.go a{display:grid;gap:2px;padding:12px 14px;background:var(--bg2);border:2px solid var(--line);color:var(--ink);text-decoration:none;min-height:60px;align-content:center}
-.go a:hover{border-color:var(--hmp)}
-.go a b{font-size:16px} .go a b::after{content:" ↗";color:var(--hmp)}
-.go a span{font-size:13px;color:var(--mute)}
-
 .app-toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 14px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;font-weight:700;font-size:14px;box-shadow:var(--lift);max-width:calc(100% - 32px)}
-
 /* ================= v14: sun-readable labels (QA 4): labels bright and plain, color only on values ================= */
-.k-eb,.sh-eyebrow,.tile .k,.c-money .k,.a-next .lbl > b,.book .k-l,.k-street h3 small,.fu .kind,.say b,.ah small,.tally .tn span,.d-btns button small,.facts dt,.track-lbl,.lrow .st,.k-prog span,.c-line,.stamp,.a-quiet{color:var(--label)}
-.k-eb,.sh-eyebrow,.tile .k,.c-money .k,.a-next .lbl > b,.book .k-l,.fu .kind,.say b{font-size:11px;letter-spacing:.07em}
-/* phone: a "Step 7 of 10" chip instead of the thin segmented bar (QA 5) */
-.stepchip{display:inline-block;font:700 12px/1 var(--f-body);padding:4px 7px;background:var(--panel2);color:var(--ink);margin-right:6px;white-space:nowrap}
-@media (max-width:560px){.a-track{display:none!important}.track-lbl{margin-top:0}}
-@media (min-width:561px){.stepchip{background:none;padding:0;color:inherit;font:inherit;margin:0 8px 0 0}}
-
-/* header: sync chip + boss toggle */
+.ah small,.a-quiet{color:var(--label)}
 .top-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:flex-end}
-.sync{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:6px 10px;background:var(--warn-soft);border:2px solid var(--warn);color:var(--warn);font:700 13px/1.15 var(--f-body);cursor:pointer;text-align:left}
-.sync::before{content:"";width:8px;height:8px;background:currentColor;flex:none;animation:blink 1.4s steps(2,end) infinite}
-.sync.ok{background:var(--m-in-soft);border-color:var(--m-in);color:var(--m-in)}
-.sync.ok::before{animation:none}
-.bossbtn{min-height:36px;padding:6px 12px;background:var(--bg2);border:2px solid var(--line2);color:var(--ink);font:700 13px/1 var(--f-body);cursor:pointer}
-.bossbtn[aria-pressed="true"]{background:var(--hmp);border-color:var(--hmp);color:#1b1206}
-
 /* King chat receipts: one colored line each, full text on tap (QA 2) */
 .kc-log .rcs{grid-column:2;display:grid;gap:4px}
 .rc{display:block;width:100%;text-align:left;border:0;border-left:4px solid var(--m-in);background:var(--m-in-soft);color:var(--ink);padding:6px 8px;font:700 13px/1.3 var(--f-body);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:32px}
@@ -300,43 +206,22 @@ h1 .w-app{color:var(--hmp)}
 .rc.no{border-left-color:var(--crit);background:var(--crit-soft)}
 .rc[aria-expanded="true"]{white-space:normal}
 .kc-log p{font-size:15px}
-
-/* crew: loud "needs you" pill above the map */
-.needs{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--warn-soft);border:2px solid var(--warn);color:var(--warn);font:700 16px/1.2 var(--f-body)}
-.needs::before{content:"!";display:grid;place-items:center;width:26px;height:26px;background:var(--warn);color:#1b1206;font:800 18px/1 var(--f-display);flex:none;animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{50%{transform:scale(1.18)}}
-
 /* ================= HMP Pro Dark: rounded, subtle, one accent ================= */
 body{font-size:15px;line-height:1.5}
-.a-card,.a-sec,.box,.knock,.panel,.money,.a-empty,.asks-loud,.chase,.b-num,.b-sec,.tabs,.say,.a-tip,.a-banner,.tally,.k-map,.howmore,.lane,.stage,.gloss,.needs,.tcard,.chainbar,.office{border-radius:var(--r)}
-.k-now,.k-stale,.cbask,.dnkask,.book,.ph-view,.a-next,.ph-safety,.k-alldone,.qlist li,.b-list li,.fu button,.chase li button,.pay,.k-fact,.hopays,.tiles .tile{border-radius:var(--r-sm)}
-.btn,.d-btns button,.pickrow button,.book-acts button,.tap,.proof,.more,.undo,.t-done,.t-next,.sync,.bossbtn,.b-exit,.ph-file,.chk,.ph,.rc,.copy,.kc-form input,.qlist .ans input,.lang button,.seg button,.srcf button,.cam button{border-radius:var(--r-sm)}
-.a-chip,.stepchip,.d-res,.pill,.ah .n{border-radius:999px}
-.knock,.tabs,.money,.k-map,.stage,.office{overflow:hidden}
-.a-card,.a-sec,.box,.panel,.money,.tabs,.a-empty,.b-num,.b-sec,.tcard,.chainbar{border-width:1px}
-.knock{border:1px solid var(--line)}
-.k-now{border-width:2px}
-.a-card:active{transform:none}
-.btn,.d-btns button,.pickrow button,.book-acts button,.tap,.proof,.more,.undo,.t-done,.t-next,.bossbtn,.b-exit,.ph-file,.tabs button,.linkbtn,.lang button,.seg button,.srcf button,.chk,.rc,.sync{font-family:var(--f-display)!important;letter-spacing:.01em}
-.d-btns button{font-size:17px!important;font-weight:700}
+.panel,.asks-loud,.lane,.stage,.tcard,.chainbar,.office{border-radius:var(--r)}
+.qlist li{border-radius:var(--r-sm)}
+.btn,.rc,.kc-form input,.qlist .ans input,.lang button,.cam button{border-radius:var(--r-sm)}
+.pill{border-radius:999px}
+.stage,.office{overflow:hidden}
+.panel,.tcard,.chainbar{border-width:1px}
+.btn,.lang button,.rc{font-family:var(--f-display)!important;letter-spacing:.01em}
 .btn{font-size:14px;padding:9px 14px;min-height:44px;background:var(--panel2);border:1px solid var(--line2)}
 .btn:hover{background:#404145}
-.tabs button{font-size:17px;font-weight:700}
-.tabs button[aria-selected="true"]{box-shadow:inset 0 -3px 0 var(--hmp)}
-.eyebrow,.k-eb,.sh-eyebrow,.tile .k,.c-money .k,.a-next .lbl > b,.book .k-l,.fu .kind,.say b,.k-now-l,.pay .k,.b-num .k,.ph-pair figcaption,.lane-h{font-family:var(--f-label);font-weight:600}
-.ah,.k-area,.t-date,.c-addr,.sheet-head h2,.hp-size,.b-top h2,.b-sec h3,.door-a b,.tally .tn b,.c-money .v,.tile .v,.lrow .a,.pay .v,.b-num .v{font-family:var(--f-display)}
-.say{border-left-color:var(--hmp)}
-.say b{color:var(--label)}
+.eyebrow,.lane-h{font-family:var(--f-label);font-weight:600}
+.ah{font-family:var(--f-display)}
 .kingchat h2{color:var(--ink)}
 .kc-log li.king .who{color:var(--hmp2)}
-.a-banner{border-left-width:4px}
-.sheet{border-radius:var(--r) 0 0 var(--r);border-left:1px solid var(--line)}
-.sheet-head{border-bottom:1px solid var(--line)}
-.box h3{font-family:var(--f-display);font-size:19px}
-.door.next{background:var(--hmp-soft);box-shadow:inset 4px 0 0 var(--hmp)}
-.k-street h3{font-family:var(--f-display)}
-
-/* ================= Crew tab: a clean team board ================= */
+/* ================= team board: a card per AI ================= */
 .crewh{font-family:var(--f-display)}
 .chainbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;padding:12px 14px;background:var(--panel);border:1px solid var(--line)}
 .chainbar .lbl{width:100%;font:600 11px/1.2 var(--f-label);letter-spacing:.07em;text-transform:uppercase;color:var(--label)}
@@ -345,8 +230,8 @@ body{font-size:15px;line-height:1.5}
 .cn.you{background:var(--hmp-soft);border-color:var(--hmp)}
 .arrow{color:var(--mute);font:700 18px/1 var(--f-display)}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--c,var(--idle));flex:none;display:inline-block}
-.st-working .dot,.dot.working{--c:var(--working)} .st-needs .dot,.dot.needs{--c:var(--waiting)} .st-blocked .dot,.dot.blocked{--c:var(--blocked)} .st-done .dot,.dot.done{--c:var(--done)} .st-sleeping .dot,.dot.sleeping{--c:var(--sleeping)} .st-idle .dot,.dot.idle{--c:var(--idle)}
-.st-working .dot,.dot.working,.st-needs .dot,.dot.needs{animation:blink 1.4s steps(2,end) infinite}
+.st-working .dot,.dot.working{--c:var(--working)} .st-needs .dot{--c:var(--waiting)} .st-blocked .dot,.dot.blocked{--c:var(--blocked)} .st-done .dot,.dot.done{--c:var(--done)} .st-sleeping .dot,.dot.sleeping{--c:var(--sleeping)} .st-idle .dot,.dot.idle{--c:var(--idle)}
+.st-working .dot,.dot.working,.st-needs .dot{animation:blink 1.4s steps(2,end) infinite}
 .team{display:grid;gap:18px}
 .tgroup{display:grid;gap:10px}
 .tgroup > h3{margin:0;font:700 20px/1.1 var(--f-display);display:flex;gap:8px;align-items:baseline}
@@ -371,34 +256,44 @@ body{font-size:15px;line-height:1.5}
 .lang{border:1px solid var(--line2);border-radius:var(--r-sm);overflow:hidden;display:inline-flex}
 .lang button{border:0!important;border-radius:0!important;background:var(--bg2);min-height:40px;min-width:48px;font-size:15px!important;font-weight:700;box-shadow:none!important;color:var(--ink2)}
 .lang button[aria-pressed="true"]{background:var(--hmp);color:#1b1206}
-.cbask{scroll-margin-top:84px}
-.ph-file.sm{background:transparent;border:2px solid var(--hmp);color:var(--hmp2)}
 @media (max-width:560px){
   .top{align-items:center}
   .top-r{width:100%;justify-content:flex-end}
   .live[data-state="on"]{padding:0;width:36px;justify-content:center}
   .live[data-state="on"] #liveText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 }
-.hp-facts{gap:0}
-.hp-row{display:grid;gap:2px;padding:10px 0;border-top:1px solid var(--line)}
-.hp-row:first-child{border-top:0;padding-top:0}
-.hp-row span{font-size:13px;color:var(--label)}
-.hp-row b{font:700 20px/1.25 var(--f-display)}
 .kc-log li{grid-template-columns:1fr;gap:3px}
-.kc-log .rcs,.kc-log .did{grid-column:1}
+.kc-log .rcs{grid-column:1}
 .kc-log .who{padding-top:0}
-.seg{border:1px solid var(--line2)!important;border-radius:var(--r-sm);overflow:hidden;box-shadow:none}
-.seg button{border-radius:0!important;box-shadow:none}
-.seg button[aria-pressed="true"]{background:var(--panel2);box-shadow:inset 0 -3px 0 var(--hmp)!important}
 a.btn,a.btn:visited{color:var(--ink)}
 .office summary{cursor:pointer;padding:12px 14px;font:700 15px/1.2 var(--f-display);color:var(--ink2);list-style-position:inside;min-height:44px}
 .office{background:var(--panel);border:1px solid var(--line)}
 .office[open]{padding:0 12px 12px;display:grid;gap:12px}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}.a-card:active{transform:none}}
-.app-toast .t-act{margin-left:10px;background:var(--hmp);color:#1b1206;border:0;padding:7px 10px;font:700 13px/1.2 var(--f-body);cursor:pointer;min-height:36px}
-.app-toast .t-act:focus-visible{outline:2px solid var(--bg);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 /* ================= split (v20): the AI hub on its own ================= */
 .hubmain{display:grid;gap:14px;min-width:0}
+/* ================= board (v21): asks on top, tasks grouped by owner, done folded ================= */
+.boardp{display:grid;gap:12px}
+.boardp > h2{margin:0}
+.boardp .asks-loud{padding:12px}
+.boardp .asks-loud .ah{font-size:20px}
+.boardp .a-quiet{font-size:14px}
+.bgroups{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start}
+.bgroup{background:var(--bg2);border-radius:var(--r-sm);padding:10px 12px;display:grid;gap:6px;min-width:0}
+.boardp .bgroup h3{margin:0;display:flex;align-items:center;gap:8px;font:700 15px/1.2 var(--f-display);letter-spacing:0;text-transform:none;color:var(--ink)}
+.bgroup h3 .own{font:700 13px/1.3 var(--f-display);padding:2px 9px;border-radius:999px}
+.bgroup h3 small{font:600 12px/1 var(--f-label);color:var(--label)}
+.bgroup .tasks{gap:0}
+.bgroup .tasks li{grid-template-columns:46px minmax(0,1fr);padding:8px 0}
+.bgroup .tt{overflow-wrap:anywhere;line-height:1.35}
+.tmeta{align-items:center}
+.tnext,.tother{font:600 10px/1.4 var(--f-label);padding:0 6px;border-radius:999px;background:var(--panel2);color:var(--ink2)}
+.trow.s-blocked .tt{color:var(--ink)}
+.trow.s-blocked{box-shadow:inset 3px 0 0 var(--blocked);padding-left:6px!important}
+.bgroup-done summary{cursor:pointer;list-style-position:inside;min-height:40px;display:flex;align-items:center;gap:6px;font:600 12px/1.2 var(--f-label);letter-spacing:.04em;color:var(--label)}
+.bgroup-done .tt{color:var(--mute)}
+.ans-old .qlist li{background:transparent;border-left-color:var(--line2);padding:6px 0 6px 10px}
+.tc-scouts{display:flex;align-items:center;gap:8px;font:600 13px/1.3 var(--f-label);color:var(--ink2)}
 </style>
 <div class="wrap">
   <header class="top">
@@ -413,13 +308,14 @@ a.btn,a.btn:visited{color:var(--ink)}
   </header>
 
   <main class="hubmain" id="hub">
+  <section class="panel boardp" id="boardPanel" aria-labelledby="boardH"><h2 id="boardH"><span data-t="boardH">Board</span> <span class="src" id="boardSrc"></span></h2><div id="boardBody"></div>
+    <details class="mem" id="mem" hidden><summary data-t="memH">What every AI should know</summary><ul id="memList"></ul><div class="card-meta" id="memMeta"></div></details></section>
   <h2 class="crewh"><span data-t="crewH">Team board</span> <small data-t="crewSub">who is working on what, live</small></h2>
-  <div id="crewAsks" hidden></div>
   <section class="chainbar" id="chain" aria-label="Chain of command"></section>
   <div class="team" id="team"></div>
 
   <section class="lanes" aria-label="What each wing is doing" hidden>
-    <div class="lane lane-chat"><div class="lane-h" data-t="laneChat">Chat wing</div><div class="lane-n" id="sumChat">–</div><div class="lane-s" data-t="laneChatS">Cowork, Storm Watch, Scout and Sales Coach: research, storms, calls, pages</div></div>
+    <div class="lane lane-chat"><div class="lane-h" data-t="laneChat">Chat wing</div><div class="lane-n" id="sumChat">–</div><div class="lane-s" data-t="laneChatS">Cowork and Storm Watch: the command center, storms and door lists</div></div>
     <div class="lane lane-board"><div class="lane-h" data-t="laneBoard">Board room</div><div class="lane-n" id="sumBoard">–</div><div class="lane-s" data-t="laneBoardS">The King's throne; tasks pass between the wings here</div></div>
     <div class="lane lane-code"><div class="lane-h" data-t="laneCode">Code lab</div><div class="lane-n" id="sumCode">–</div><div class="lane-s" data-t="laneCodeS">Claude Code with Engine Mechanic, Builder, Designer, Research Lead and QA Tester (plus one-off helpers under them): engine, pages, design, research, tests</div></div>
   </section>
@@ -478,8 +374,6 @@ a.btn,a.btn:visited{color:var(--ink)}
 
   <section class="logs">
     <div class="panel log log-chat"><h2 data-t="logChat">Chat wing log</h2><ol class="feed" id="feedChat"></ol></div>
-    <div class="panel boardp"><h2><span data-t="boardH">Board</span> <span class="src" id="boardSrc"></span></h2><div id="boardBody"></div>
-      <details class="mem" id="mem" hidden><summary data-t="memH">What every AI should know</summary><ul id="memList"></ul><div class="card-meta" id="memMeta"></div></details></div>
     <div class="panel log log-code"><h2 data-t="logCode">Code lab log</h2><ol class="feed" id="feedCode"></ol></div>
   </section>
 
@@ -506,53 +400,22 @@ function hsl(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n
 function hashColor(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return hsl([18,42,95,150,190,215,265,300,330][h%9],58,60);}
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
-/* ================= HMP App: tab + language (per viewer), and every sentence in English and Spanish ================= */
+/* ================= language (per viewer), and every sentence in English and Spanish ================= */
 let lang = 'en';
 try { if (localStorage.getItem('hmp-app-lang') === 'es') lang = 'es'; } catch (e) { /* storage blocked: English */ }
 const pl = (n, one, many) => (n === 1 ? one : many);
-const LEAD_STAGES = ['not_contacted', 'contacted', 'inspection_set', 'damage_found', 'claim_filed', 'adjuster_meeting', 'approved', 'job_scheduled', 'done', 'lost'];
-const CLAIM_STEPS = ['inspected', 'claim_filed', 'adjuster_set', 'scope_in', 'signed', 'supplement', 'materials_ordered', 'installed', 'depreciation_requested', 'paid'];
-const CLAIM_STAGES = [...CLAIM_STEPS, 'lost'];
-const SOURCES = ['storm', 'everyday', 'referral', 'sub'], LTYPES = ['insurance', 'cash'];
-const STAT_KEYS = ['doors', 'conversations', 'inspections', 'estimates', 'signed'];
-const WON = ['approved', 'job_scheduled', 'done'];
-const LSTAGE = {
-  not_contacted: {en: 'Not contacted', es: 'Sin contactar'}, contacted: {en: 'Contacted', es: 'Contactado'},
-  inspection_set: {en: 'Inspection set', es: 'Inspección agendada'}, damage_found: {en: 'Damage found', es: 'Daño encontrado'},
-  claim_filed: {en: 'Claim filed', es: 'Reclamo presentado'}, adjuster_meeting: {en: 'Adjuster meeting', es: 'Cita con ajustador'},
-  approved: {en: 'Approved', es: 'Aprobado'}, job_scheduled: {en: 'Job scheduled', es: 'Trabajo agendado'},
-  done: {en: 'Done', es: 'Terminado'}, lost: {en: 'Lost', es: 'Perdido'}
-};
-const LSTAGE_CASH = {inspection_set: {en: 'Estimate visit set', es: 'Cita de presupuesto'}, damage_found: {en: 'Needs work', es: 'Necesita trabajo'}, approved: {en: 'Signed', es: 'Firmado'}};
-const CSTAGE = {
-  inspected: {en: 'Inspected', es: 'Inspeccionado'}, claim_filed: {en: 'Claim filed', es: 'Reclamo presentado'},
-  adjuster_set: {en: 'Adjuster set', es: 'Ajustador agendado'}, scope_in: {en: 'Scope in', es: 'Alcance recibido'},
-  signed: {en: 'Signed', es: 'Contrato firmado'}, supplement: {en: 'Supplement', es: 'Suplemento'},
-  materials_ordered: {en: 'Materials ordered', es: 'Material pedido'}, installed: {en: 'Installed', es: 'Instalado'},
-  depreciation_requested: {en: 'Depreciation requested', es: 'Depreciación pedida'}, paid: {en: 'Paid', es: 'Pagado'}, lost: {en: 'Lost', es: 'Perdido'}
-};
-const HOW = [
-  {en: ['Inspect', 'Storm hits. HMP inspects and shows the homeowner photos.'], es: ['Inspección', 'Pega la tormenta. HMP inspecciona y le enseña fotos al dueño.']},
-  {en: ['Homeowner files', 'The homeowner calls their own insurer and files the claim. That is their job, not HMP\'s.'], es: ['El dueño presenta', 'El dueño llama a su aseguradora y presenta el reclamo. Eso le toca a él, no a HMP.']},
-  {en: ['Adjuster assigned', 'The insurer sends an adjuster.'], es: ['Llega el ajustador', 'La aseguradora manda un ajustador.']},
-  {en: ['Meet the adjuster', 'HMP meets the adjuster and shows the damage with photos and measurements.'], es: ['Cita con el ajustador', 'HMP se reúne con el ajustador y le muestra los daños con fotos y medidas.']},
-  {en: ['Scope + first check', 'The insurer sends the scope and the first check (ACV).'], es: ['Alcance + primer cheque', 'La aseguradora manda el alcance y el primer cheque (ACV).']},
-  {en: ['Sign + supplement', 'HMP signs the job. If the scope missed something, HMP sends a written supplement with photos.'], es: ['Firma + suplemento', 'HMP firma el trabajo. Si al alcance le faltó algo, HMP manda un suplemento por escrito con fotos.']},
-  {en: ['Build', 'HMP orders materials and builds the roof.'], es: ['Construir', 'HMP pide el material y hace el techo.']},
-  {en: ['Final check', 'HMP sends proof of completion. The insurer releases the depreciation check.'], es: ['Cheque final', 'HMP manda la prueba de terminado. La aseguradora libera el cheque de depreciación.']}
-];
 const TX = {
   en: {
     st: {
-      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Quick estimate', estLaunchS: 'A price range for any job, to show or text. English or Spanish.', tabToday: 'Today', tabLeads: 'Leads', tabMoney: 'Money', tabCrew: 'Crew', crewH: 'Team board', crewSub: 'who is working on what, live', officeView: 'Office view (the old map)', chainL: 'Chain of command', grpLead: 'Lead', grpCode: 'Code lab', grpChat: 'Chat wing', grpSched: 'Scheduled', tNow: 'Now doing', tLast: 'Last result', tAgo: w => `Updated ${w}`, needsH: n => `${n} ${pl(n, 'question needs', 'questions need')} you`, kingTag: 'King',
-      laneChat: 'Chat wing', laneChatS: 'Cowork, Storm Watch, Scout and Sales Coach: research, storms, calls, pages',
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', crewH: 'Team board', crewSub: 'who is working on what, live', officeView: 'Office view (the old map)', chainL: 'Chain of command', grpLead: 'Lead', grpCode: 'Code lab', grpChat: 'Chat wing', grpSched: 'Scheduled', tNow: 'Now doing', tLast: 'Last result', tAgo: w => `Updated ${w}`, needsH: n => `${n} ${pl(n, 'question needs', 'questions need')} you`, kingTag: 'King',
+      laneChat: 'Chat wing', laneChatS: 'Cowork and Storm Watch: the command center, storms and door lists',
       laneBoard: 'Board room', laneBoardS: 'Claude Code (the King) on the throne and the Right Hand at its desk; tasks pass between the wings here',
       laneCode: 'Code lab', laneCodeS: 'Claude Code\'s helpers: Engine Mechanic, Builder, Designer, Research Lead and QA Tester (plus one-off helpers under them): engine, pages, design, research, tests',
       kcTitle: 'Talk to the Right Hand', kcSrc: 'the task board, your questions and orders to the crew · English or Spanish · uses your Claude usage',
       kcLabel: 'Message to the Right Hand', kcPh: 'e.g. “tell Cowork to refresh the storm map”', send: 'Send', stop: 'Stop',
       camChat: 'Chat wing', camBoard: 'Board', camCode: 'Code lab', camAll: 'All', replay: 'Replay last 24 hours',
       stWorking: 'Working', stIdle: 'Idle', stAsleep: 'Asleep', stWaiting: 'Waiting on you', stBlocked: 'Blocked',
-      chainH: 'Chain of command', chainS: 'tap a name: its job, where it lives, how to reach it', orgYou: 'You (FilthE) · the boss', orgRight: 'Answers you live', orgKingL: 'The King',
+      chainH: 'Chain of command', chainS: 'tap a name: its job, where it lives, how to reach it', orgYou: 'You (FilthE) · the boss',
       logChat: 'Chat wing log', logCode: 'Code lab log', boardH: 'Board', memH: 'What every AI should know',
       foot: '<b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; Claude Code is woken right away (or reads them at its next hourly run). If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.'
     },
@@ -578,87 +441,21 @@ const TX = {
     noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
     kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
-    appOff: 'Preview only: live leads, claims and numbers load on the published page.', appErr: 'Leads and claims could not load. Reload the page.', appWait: 'Loading leads and claims…',
-    // today
-    sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumAsk: n => `${n} ${pl(n, 'question', 'questions')} for you`, sumTask: n => `${n} ${pl(n, 'task', 'tasks')}`, sumClear: 'Nothing due. Go knock.',
-    asksH: n => `${n} waiting on you`, asksSub: 'Tap an answer; the Right Hand picks it up.',
-    followH: 'Follow-ups due', followNone: 'Nothing due today.', followLater: 'Coming up', kLead: 'Lead', kClaim: 'Claim',
-    followEmpty: 'Nothing to follow up yet. Houses and claims you tell the Right Hand about show up here on the day they are due.',
-    tasksH: 'Your tasks', tasksNone: 'No open tasks for you on the board.', showAll: n => `Show all ${n}`, showLess: 'Show fewer',
-    weekH: 'This week', weekSub: (n, r) => `Week ${n} · ${r}`, lastWeek: 'Last week',
-    stats: {doors: 'Doors', conversations: 'Talks', inspections: 'Inspections', estimates: 'Estimates', signed: 'Signed'},
-    goH: 'Go knock',
-    go: [['Door lists + storm map', 'Streets to knock after the latest storms (command center)'], ['Practice Door', 'Practice the door with an AI homeowner before you knock'], ['HMP HQ', 'The business dashboard: jobs, crews, storms']],
-    sayK: 'Tell the Right Hand', useIt: 'Put it in the chat box',
-    exToday: 'knocked 20, talked to 4, inspection at 1418 Irving Tuesday 3pm', exWeek: 'knocked 20, talked to 4',
-    // leads
-    fStage: {active: 'Active', won: 'Won', lost: 'Lost'}, fAll: 'All', src: {storm: 'Storm', everyday: 'Everyday', referral: 'Referral', sub: 'Sub'}, typ: {insurance: 'Insurance', cash: 'Cash'},
-    leadsEmptyH: 'No leads yet.', leadsEmptyP: 'Every door you knock, every old house that needs siding, every referral: tell the Right Hand and the house shows up here with its next step.',
-    exLead: 'knocked 1418 Irving, talked to Maria, inspection Tuesday 3pm', leadsNone: 'No leads match this filter.', howLead: 'How a lead moves (insurance jobs)',
-    stepOf: (i, n) => `Step ${i} of ${n}`, then: s => `then ${s}`, visits: n => `${n} ${pl(n, 'door visit', 'door visits')}`, lastVisit: d => `last ${d}`,
-    noNextLead: 'No next step yet. Tell the Right Hand what happens next.',
-    // lead sheet
-    lName: 'Name', lPhone: 'Phone', lCity: 'City', lSource: 'Source', lType: 'Type', visitsH: 'Door visits', notesH: 'Notes', stepsH: 'Steps', detailsH: 'Details',
-    openClaim: 'Open the claim', tellKing: 'Tell the Right Hand about this house', noVisits: 'No door visits logged yet.', close: 'Close',
-    estH: 'Quick estimate', estNew: 'Make a quick estimate', estUpd: 'Update the estimate', estEb: 'Porch tool', estTitle: 'Quick estimate', estSub: 'No lead picked: show it or text it now. Open it from a lead to save it.',
-    cashH: 'Cash job', price: 'Contract price', deposit: 'Deposit', paidSoFar: 'Paid so far', owed: 'Still owed', created: d => `Added ${d}`,
-    // money
-    mTotals: 'Money totals', mSold: 'Sold + approved', mSoldS: (a, b) => `insurance ${a} · cash ${b}`, mCollected: 'Collected', mCollectedS: 'in the bank',
-    mOwed: 'Still owed', mOwedS: (a, b) => `insurance ${a} · homeowners ${b}`, mMort: 'At mortgage co.', mMortS: n => (n ? `${n} ${pl(n, 'check', 'checks')} out to be signed` : 'no checks out'),
-    mBar: 'Where the money is', mCounts: (a, o) => `${a} open · ${o} overdue`, mOpen: 'Open claims', mCash: 'Cash jobs', mDone: 'Finished',
-    moneyEmptyH: 'No claims or cash jobs yet.', moneyEmptyP: 'When a homeowner signs, tell the Right Hand. Insurance claims and cash jobs show up here with what is collected and what is still owed.',
-    exMoney: '1418 Irving signed, State Farm claim 45-889', cashNone: 'No money logged yet.',
-    // receipts for the Right Hand's writes
-    rc: {
-      logged: (a, s, n) => `Logged: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Updated: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
-      doors: (p, w) => `Week ${w}: ${p}`, statW: {doors: ['door', 'doors'], conversations: ['talk', 'talks'], inspections: ['inspection', 'inspections'], estimates: ['estimate', 'estimates'], signed: ['signed', 'signed']},
-      claim: (a, s, x) => `Claim: ${a}${s ? ' → ' + s : ''}${x ? ' · ' + x : ''}`, follow: (a, n, d) => `Follow-up: ${a} → ${n} (${d})`,
-      skip: w => `Not saved. ${w}`, fail: a => `Not saved: ${a}. Only editors can save here.`,
-      why: {addr: v => `Add the house number to log this${v ? ` (“${v}”)` : ''}.`, stage: v => `“${v}” is not a step the app knows. Say it another way.`, num: f => `Say ${f} as a number, like 1200.`, date: f => `Say the day for ${f}, like “Tuesday” or “Sep 29”.`,
-        src: v => `Say where the lead came from: storm, old house, referral or sub.`, typ: v => `Say if it is an insurance job or a cash job.`, obj: f => `The Right Hand sent ${f} in a shape the app can’t read. Send it again.`, next: 'Say what the next step is.', ded: 'It talks about covering a deductible, which is illegal in Nebraska (44-8604).',
-        none: a => `There is no lead at ${a} yet. Say “new lead at ${a}” first.`, empty: 'There was nothing new to save.', nothing: 'Say how many doors or talks to add.', est: 'Estimates count when you save one on the lead: open the lead, tap “Make a quick estimate”, then Save.'},
-      dedReply: 'The Right Hand’s reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'
-    },
-    ct: {
-      next: 'Next step', noNext: 'No next step yet. Tell the Right Hand what happens next.',
-      overdue: (d, day) => `Overdue ${d} ${pl(d, 'day', 'days')} · ${day}`, dueToday: 'Due today', dueTomorrow: 'Due tomorrow', due: day => `Due ${day}`,
-      lostLbl: 'Claim lost', moneyIn: 'Money in', waiting: 'Waiting', fromIns: 'from insurance', atCo: co => `at ${co}`, toDeposit: 'to deposit', mortShort: 'the mortgage co.',
-      noMoney: 'No money yet. The first check comes after the scope.', nothingWaiting: 'nothing waiting', claim: 'Claim', homeowner: 'Homeowner', inHand: 'Checks in hand, not deposited yet',
-      money: 'Money', steps: 'Steps', facts: 'Claim details', job: 'Job', timeline: 'Timeline', notes: 'Notes',
-      approvedTotal: 'Approved by insurance so far', approvedHow: 'First check + depreciation held + approved supplements',
-      rcv: 'Full scope (RCV)', acv: 'First check (ACV)', depHeld: 'Depreciation held back', depHint: 'Released after HMP sends proof of completion',
-      depCheck: 'Depreciation check', supp: 'Supplement', suppAsked: a => `Asked ${a}`, suppApproved: a => `approved ${a}`, suppYes: 'approved', suppNo: 'not approved', suppWait: 'waiting on an answer',
-      collectedTotal: 'Collected so far', ofContract: c => `of ${c} contract price`, contract: 'Contract price', homeownerPays: 'Homeowner pays',
-      received: d => `Received ${d}`, receivedYes: 'Received', deposited: d => `Deposited ${d}`, depositedYes: 'Deposited', notYet: 'Not received yet', notDeposited: 'Not deposited yet',
-      atMortSince: (co, d) => `At ${co} to be signed${d ? ' since ' + d : ''}`, backFrom: (co, d) => `Back from ${co}${d ? ' ' + d : ''}`,
-      insurer: 'Insurer', claimNo: 'Claim number', adjuster: 'Adjuster', adjPhone: 'Adjuster phone', dateOfLoss: 'Date of loss', adjMeeting: 'Adjuster meeting', scopeDate: 'Scope received',
-      mortCo: 'Mortgage company', checkSent: 'Check sent to be signed', checkBack: 'Check back', ordered: 'Materials ordered', supplier: 'Supplier', matCost: 'Materials cost',
-      installStart: 'Install start', installDone: 'Install done', completion: 'Proof of completion sent', none: 'Not yet', yes: 'Yes',
-      evLoss: 'Storm hit (date of loss)', evAdj: 'Adjuster meeting', evScope: 'Scope received', evAcv: a => `First check received${a ? ' (' + a + ')' : ''}`,
-      evMortOut: co => `Check sent to ${co} to be signed`, evMortBack: co => `Check back from ${co}`, evDeposit: 'First check deposited',
-      evSupp: a => `Supplement asked${a ? ' (' + a + ')' : ''}`, evMat: s => `Materials ordered${s ? ' from ' + s : ''}`, evStart: 'Install start', evDone: 'Install done', evCompletion: 'Proof of completion sent',
-      evDepCheck: a => `Depreciation check received${a ? ' (' + a + ')' : ''}`, evNext: 'Coming up', noEvents: 'No dates yet.',
-      updated: (w, by) => `Updated ${w}${by ? ' by ' + by : ''}`,
-      taps: 'Quick taps', tapsNote: 'Tap twice to save. Everything else: tell the Right Hand.', markAcv: 'First check received today', markDeposit: 'First check deposited today', markBack: co => `Check back from ${co} today`,
-      confirm: 'Tap again to save', saved: 'Saved', readOnly: 'Only editors can change this. Tell the Right Hand instead.', failed: 'That did not save. Try again, or tell the Right Hand.',
-      howH: 'How a claim works', howSub: 'Usually 45 to 90 days from start to finish.', howMore: 'How a claim works (8 steps)',
-      can: ['HMP can:', 'inspect, document the damage, meet the adjuster, ask for supplements in writing, and do the work.'],
-      cant: ['HMP can\'t:', 'cover, waive or discount the deductible, promise what insurance will pay, or negotiate the settlement.'],
-      rules: 'The homeowner files the claim and pays their own deductible. The insurer decides what it pays. HMP documents the damage and builds the job.',
-      tip: 'Tip', copy: 'Copy', copied: 'Copied'
-    }
+    asksSub: 'Tap an answer; Claude Code picks it up.',
+    gOwner: {filthe: 'FilthE', boss: 'The boss', code: 'Claude Code', cowork: 'Cowork', x: 'Other'}, openN: n => `${n} open`, doneN: n => `Done (${n})`, nextTag: 'Next', noneOpen: 'Nothing open.', answeredH: 'Answered, waiting for Claude Code', scouts: n => `${n} ${pl(n, 'scout', 'scouts')}`, scoutsNow: n => `${n} working now`,
+    rc: {fail: a => `Not saved: ${a}. Only editors can save here.`, dedReply: 'The Right Hand’s reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'}
   },
   es: {
     st: {
-      eyebrow: 'HMP Siding & Roofing · Fremont, NE', estLaunch: 'Estimado rápido', estLaunchS: 'Un rango de precio para cualquier trabajo, para enseñar o mandar por texto. Inglés o español.', tabToday: 'Hoy', tabLeads: 'Prospectos', tabMoney: 'Dinero', tabCrew: 'Equipo', crewH: 'Tablero del equipo', crewSub: 'quién está haciendo qué, en vivo', officeView: 'Vista de oficina (el mapa anterior)', chainL: 'Cadena de mando', grpLead: 'Líderes', grpCode: 'Laboratorio', grpChat: 'Ala de chat', grpSched: 'Programados', tNow: 'Haciendo ahora', tLast: 'Último resultado', tAgo: w => `Actualizado ${w}`, needsH: n => `${n} ${pl(n, 'pregunta te necesita', 'preguntas te necesitan')}`, kingTag: 'King',
-      laneChat: 'Ala de chat', laneChatS: 'Cowork, Storm Watch, Scout y Sales Coach: investigación, tormentas, llamadas, páginas',
+      eyebrow: 'HMP Siding & Roofing · Fremont, NE', crewH: 'Tablero del equipo', crewSub: 'quién está haciendo qué, en vivo', officeView: 'Vista de oficina (el mapa anterior)', chainL: 'Cadena de mando', grpLead: 'Líderes', grpCode: 'Laboratorio', grpChat: 'Ala de chat', grpSched: 'Programados', tNow: 'Haciendo ahora', tLast: 'Último resultado', tAgo: w => `Actualizado ${w}`, needsH: n => `${n} ${pl(n, 'pregunta te necesita', 'preguntas te necesitan')}`, kingTag: 'King',
+      laneChat: 'Ala de chat', laneChatS: 'Cowork y Storm Watch: el centro de mando, tormentas y listas de puertas',
       laneBoard: 'Sala de juntas', laneBoardS: 'Claude Code (el King) en el trono y la Mano Derecha en su escritorio; aquí pasan las tareas entre las alas',
       laneCode: 'Laboratorio', laneCodeS: 'Los ayudantes de Claude Code: Engine Mechanic, Builder, Designer, Research Lead y QA Tester (más ayudantes de una sola tarea): motor, páginas, diseño, investigación, pruebas',
       kcTitle: 'Habla con la Mano Derecha', kcSrc: 'el tablero, tus preguntas y órdenes al equipo · inglés o español · usa tu cuenta de Claude',
       kcLabel: 'Mensaje para la Mano Derecha', kcPh: 'ej. “dile a Cowork que actualice el mapa de tormentas”', send: 'Enviar', stop: 'Parar',
       camChat: 'Chat', camBoard: 'Tablero', camCode: 'Laboratorio', camAll: 'Todo', replay: 'Repetir últimas 24 horas',
       stWorking: 'Trabajando', stIdle: 'Libre', stAsleep: 'Dormido', stWaiting: 'Esperándote', stBlocked: 'Bloqueado',
-      chainH: 'Cadena de mando', chainS: 'toca un nombre: su trabajo, dónde vive, cómo contactarlo', orgYou: 'Tú (FilthE) · el jefe', orgRight: 'Te contesta en vivo', orgKingL: 'El King',
+      chainH: 'Cadena de mando', chainS: 'toca un nombre: su trabajo, dónde vive, cómo contactarlo', orgYou: 'Tú (FilthE) · el jefe',
       logChat: 'Registro del ala de chat', logCode: 'Registro del laboratorio', boardH: 'Tablero', memH: 'Lo que toda IA debe saber',
       foot: '<b>Cómo se mantiene en vivo:</b> un robot se mueve cuando su agente se reporta, y cada IA (el King, Cowork, Storm Watch, Claude Code) publica aquí directamente. Un mensaje muestra <span class="rcpt">✓ recibido</span> cuando la IA a la que se mandó se reporta después. Contesta las preguntas que te esperan en el tablero; Claude Code se despierta al momento (o las lee en su siguiente revisión de cada hora). Si un robot dice <span class="stale">sin despedida</span>, su última corrida terminó sin avisar.'
     },
@@ -683,71 +480,10 @@ const TX = {
     liveLast: w => `En vivo · último reporte ${w}`, labels: on => 'Nombres: ' + (on ? 'Todos' : 'No'),
     noReplay: 'Nadie se ha reportado en las últimas 24 horas.', replayW: 'REPETICIÓN', caughtUp: 'Ya vamos al día.',
     kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
-    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta dla Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
-    appOff: 'Solo vista previa: los prospectos, reclamos y números en vivo cargan en la página publicada.', appErr: 'No se pudieron cargar los prospectos y reclamos. Recarga la página.', appWait: 'Cargando prospectos y reclamos…',
-    sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumAsk: n => `${n} ${pl(n, 'pregunta', 'preguntas')} para ti`, sumTask: n => `${n} ${pl(n, 'tarea', 'tareas')}`, sumClear: 'Nada pendiente. A tocar puertas.',
-    asksH: n => `${n} ${pl(n, 'pregunta te espera', 'preguntas te esperan')}`, asksSub: 'Toca una respuesta; la Mano Derecha la recibe.',
-    followH: 'Seguimientos para hoy', followNone: 'Nada pendiente para hoy.', followLater: 'Próximos', kLead: 'Prospecto', kClaim: 'Reclamo',
-    followEmpty: 'Todavía no hay seguimientos. Las casas y reclamos que le cuentes a la Mano Derecha aparecen aquí el día que toca.',
-    tasksH: 'Tus tareas', tasksNone: 'No tienes tareas abiertas en el tablero.', showAll: n => `Ver las ${n}`, showLess: 'Ver menos',
-    weekH: 'Esta semana', weekSub: (n, r) => `Semana ${n} · ${r}`, lastWeek: 'Semana pasada',
-    stats: {doors: 'Puertas', conversations: 'Pláticas', inspections: 'Inspecciones', estimates: 'Presupuestos', signed: 'Firmados'},
-    goH: 'A tocar puertas',
-    go: [['Listas de puertas + mapa de tormentas', 'Calles para tocar después de las últimas tormentas (centro de mando)'], ['Puerta de práctica', 'Practica con un dueño de casa de IA antes de tocar'], ['HMP HQ', 'El tablero del negocio: trabajos, cuadrillas, tormentas']],
-    sayK: 'Dile a la Mano Derecha', useIt: 'Ponerlo en el chat',
-    exToday: 'toqué 20 puertas, hablé con 4, inspección en 1418 Irving el martes a las 3', exWeek: 'toqué 15 puertas, 2 interesados',
-    fStage: {active: 'Activos', won: 'Ganados', lost: 'Perdidos'}, fAll: 'Todos', src: {storm: 'Tormenta', everyday: 'Casa vieja', referral: 'Referido', sub: 'Subcontrato'}, typ: {insurance: 'Seguro', cash: 'Contado'},
-    leadsEmptyH: 'Todavía no hay prospectos.', leadsEmptyP: 'Cada puerta que toques, cada casa vieja que necesite siding, cada referido: díselo a la Mano Derecha y la casa aparece aquí con su siguiente paso.',
-    exLead: 'toqué en 1418 Irving, hablé con María, inspección el martes a las 3', leadsNone: 'Ningún prospecto con este filtro.', howLead: 'Cómo avanza un prospecto (trabajos de seguro)',
-    stepOf: (i, n) => `Paso ${i} de ${n}`, then: s => `luego ${s}`, visits: n => `${n} ${pl(n, 'visita', 'visitas')}`, lastVisit: d => `la última el ${d}`,
-    noNextLead: 'Todavía no hay siguiente paso. Dile a la Mano Derecha qué sigue.',
-    lName: 'Nombre', lPhone: 'Teléfono', lCity: 'Ciudad', lSource: 'Origen', lType: 'Tipo', visitsH: 'Visitas a la puerta', notesH: 'Notas', stepsH: 'Pasos', detailsH: 'Datos',
-    openClaim: 'Abrir el reclamo', tellKing: 'Contarle a la Mano Derecha de esta casa', noVisits: 'Todavía no hay visitas registradas.', close: 'Cerrar',
-    estH: 'Estimado rápido', estNew: 'Hacer un estimado rápido', estUpd: 'Actualizar el estimado', estEb: 'Herramienta del porche', estTitle: 'Estimado rápido', estSub: 'Sin prospecto: enséñalo o mándalo por texto ahora. Ábrelo desde un prospecto para guardarlo.',
-    cashH: 'Trabajo de contado', price: 'Precio del contrato', deposit: 'Depósito', paidSoFar: 'Pagado hasta hoy', owed: 'Falta cobrar', created: d => `Agregado el ${d}`,
-    mTotals: 'Totales de dinero', mSold: 'Vendido + aprobado', mSoldS: (a, b) => `seguro ${a} · contado ${b}`, mCollected: 'Cobrado', mCollectedS: 'en el banco',
-    mOwed: 'Falta cobrar', mOwedS: (a, b) => `seguro ${a} · dueños ${b}`, mMort: 'Con el banco hipotecario', mMortS: n => (n ? `${n} ${pl(n, 'cheque', 'cheques')} con el banco para firmar` : 'ningún cheque con el banco'),
-    mBar: 'Dónde está el dinero', mCounts: (a, o) => `${a} ${pl(a, 'abierto', 'abiertos')} · ${o} ${pl(o, 'atrasado', 'atrasados')}`, mOpen: 'Reclamos abiertos', mCash: 'Trabajos de contado', mDone: 'Terminados',
-    moneyEmptyH: 'Todavía no hay reclamos ni trabajos de contado.', moneyEmptyP: 'Cuando un dueño firme, díselo a la Mano Derecha. Los reclamos de seguro y los trabajos de contado aparecen aquí con lo cobrado y lo que falta.',
-    exMoney: '1418 Irving firmó, State Farm reclamo 45-889', cashNone: 'Todavía no hay dinero registrado.',
-    rc: {
-      logged: (a, s, n) => `Registrado: ${a} → ${s}${n ? ' · ' + n : ''}`, updated: (a, s, n) => `Actualizado: ${a}${s ? ' → ' + s : ''}${n ? ' · ' + n : ''}`,
-      doors: (p, w) => `Semana ${w}: ${p}`, statW: {doors: ['puerta', 'puertas'], conversations: ['plática', 'pláticas'], inspections: ['inspección', 'inspecciones'], estimates: ['presupuesto', 'presupuestos'], signed: ['firmado', 'firmados']},
-      claim: (a, s, x) => `Reclamo: ${a}${s ? ' → ' + s : ''}${x ? ' · ' + x : ''}`, follow: (a, n, d) => `Seguimiento: ${a} → ${n} (${d})`,
-      skip: w => `No se guardó. ${w}`, fail: a => `No se guardó: ${a}. Solo los editores pueden guardar aquí.`,
-      why: {addr: v => `Agrega el número de la casa para registrarlo${v ? ` (“${v}”)` : ''}.`, stage: v => `“${v}” no es un paso que la app conozca. Dilo de otra forma.`, num: f => `Di ${f} con número, por ejemplo 1200.`, date: f => `Di el día de ${f}, por ejemplo “martes” o “29 de sep”.`,
-        src: v => `Di de dónde vino el prospecto: tormenta, casa vieja, referido o subcontrato.`, typ: v => `Di si es trabajo de seguro o de contado.`, obj: f => `La Mano Derecha mandó ${f} en una forma que la app no puede leer. Mándalo otra vez.`, next: 'Di cuál es el siguiente paso.', ded: 'Habla de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).',
-        none: a => `Todavía no hay prospecto en ${a}. Primero di “prospecto nuevo en ${a}”.`, empty: 'No había nada nuevo que guardar.', nothing: 'Di cuántas puertas o pláticas sumar.', est: 'Los estimados cuentan cuando guardas uno en el prospecto: abre el prospecto, toca “Hacer un estimado rápido” y luego Guardar.'},
-      dedReply: 'Se retuvo la respuesta dla Mano Derecha: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'
-    },
-    ct: {
-      next: 'Siguiente paso', noNext: 'Todavía no hay siguiente paso. Dile a la Mano Derecha qué sigue.',
-      overdue: (d, day) => `Atrasado ${d} ${pl(d, 'día', 'días')} · ${day}`, dueToday: 'Para hoy', dueTomorrow: 'Para mañana', due: day => `Para el ${day}`,
-      lostLbl: 'Reclamo perdido', moneyIn: 'Dinero que entró', waiting: 'Falta', fromIns: 'del seguro', atCo: co => `con ${co}`, toDeposit: 'por depositar', mortShort: 'el banco hipotecario',
-      noMoney: 'Todavía no hay dinero. El primer cheque llega después del alcance.', nothingWaiting: 'no falta nada', claim: 'Reclamo', homeowner: 'Dueño', inHand: 'Cheques en mano, sin depositar',
-      money: 'Dinero', steps: 'Pasos', facts: 'Datos del reclamo', job: 'Trabajo', timeline: 'Historial', notes: 'Notas',
-      approvedTotal: 'Aprobado por el seguro hasta ahora', approvedHow: 'Primer cheque + depreciación retenida + suplementos aprobados',
-      rcv: 'Alcance completo (RCV)', acv: 'Primer cheque (ACV)', depHeld: 'Depreciación retenida', depHint: 'Se libera cuando HMP manda la prueba de terminado',
-      depCheck: 'Cheque de depreciación', supp: 'Suplemento', suppAsked: a => `Pedido ${a}`, suppApproved: a => `aprobado ${a}`, suppYes: 'aprobado', suppNo: 'no aprobado', suppWait: 'esperando respuesta',
-      collectedTotal: 'Cobrado hasta hoy', ofContract: c => `de ${c} del contrato`, contract: 'Precio del contrato', homeownerPays: 'El dueño paga',
-      received: d => `Recibido ${d}`, receivedYes: 'Recibido', deposited: d => `Depositado ${d}`, depositedYes: 'Depositado', notYet: 'Todavía no llega', notDeposited: 'Sin depositar',
-      atMortSince: (co, d) => `En ${co} para firmar${d ? ' desde el ' + d : ''}`, backFrom: (co, d) => `Regresó de ${co}${d ? ' el ' + d : ''}`,
-      insurer: 'Aseguradora', claimNo: 'Número de reclamo', adjuster: 'Ajustador', adjPhone: 'Teléfono del ajustador', dateOfLoss: 'Fecha de pérdida', adjMeeting: 'Cita con el ajustador', scopeDate: 'Alcance recibido',
-      mortCo: 'Banco hipotecario', checkSent: 'Cheque enviado a firmar', checkBack: 'Cheque de vuelta', ordered: 'Material pedido', supplier: 'Proveedor', matCost: 'Costo del material',
-      installStart: 'Inicio de instalación', installDone: 'Instalación terminada', completion: 'Prueba de terminado enviada', none: 'Todavía no', yes: 'Sí',
-      evLoss: 'Pegó la tormenta (fecha de pérdida)', evAdj: 'Cita con el ajustador', evScope: 'Llegó el alcance', evAcv: a => `Llegó el primer cheque${a ? ' (' + a + ')' : ''}`,
-      evMortOut: co => `Cheque enviado a ${co} para firmar`, evMortBack: co => `El cheque volvió de ${co}`, evDeposit: 'Primer cheque depositado',
-      evSupp: a => `Suplemento pedido${a ? ' (' + a + ')' : ''}`, evMat: s => `Material pedido${s ? ' a ' + s : ''}`, evStart: 'Inicio de la instalación', evDone: 'Instalación terminada', evCompletion: 'Prueba de terminado enviada',
-      evDepCheck: a => `Llegó el cheque de depreciación${a ? ' (' + a + ')' : ''}`, evNext: 'Próximo', noEvents: 'Todavía no hay fechas.',
-      updated: (w, by) => `Actualizado ${w}${by ? ' por ' + by : ''}`,
-      taps: 'Toques rápidos', tapsNote: 'Toca dos veces para guardar. Todo lo demás: díselo a la Mano Derecha.', markAcv: 'Primer cheque recibido hoy', markDeposit: 'Primer cheque depositado hoy', markBack: co => `Cheque regresó de ${co} hoy`,
-      confirm: 'Toca otra vez para guardar', saved: 'Guardado', readOnly: 'Solo los editores pueden cambiar esto. Díselo a la Mano Derecha.', failed: 'No se guardó. Intenta otra vez o díselo a la Mano Derecha.',
-      howH: 'Cómo funciona un reclamo', howSub: 'Normalmente de 45 a 90 días de principio a fin.', howMore: 'Cómo funciona un reclamo (8 pasos)',
-      can: ['HMP sí puede:', 'inspeccionar, documentar los daños, reunirse con el ajustador, pedir suplementos por escrito y hacer el trabajo.'],
-      cant: ['HMP no puede:', 'cubrir, perdonar ni descontar el deducible, prometer lo que pagará el seguro, ni negociar el acuerdo.'],
-      rules: 'El dueño presenta el reclamo y paga su propio deducible. La aseguradora decide lo que paga. HMP documenta los daños y hace el trabajo.',
-      tip: 'Consejo', copy: 'Copiar', copied: 'Copiado'
-    }
+    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
+    asksSub: 'Toca una respuesta; Claude Code la recibe.',
+    gOwner: {filthe: 'FilthE', boss: 'El jefe', code: 'Claude Code', cowork: 'Cowork', x: 'Otros'}, openN: n => `${n} ${pl(n, 'abierta', 'abiertas')}`, doneN: n => `Hechas (${n})`, nextTag: 'Después', noneOpen: 'Nada abierto.', answeredH: 'Contestadas, esperando a Claude Code', scouts: n => `${n} ${pl(n, 'explorador', 'exploradores')}`, scoutsNow: n => `${n} trabajando ahora`,
+    rc: {fail: a => `No se guardó: ${a}. Solo los editores pueden guardar aquí.`, dedReply: 'Se retuvo la respuesta de la Mano Derecha: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'}
   }
 };
 const L = () => TX[lang];
@@ -778,21 +514,19 @@ const KIND = {start:'▶', progress:'•', done:'✓', handoff:'⇄', blocked:'!
 
 /* Who lives here. Status comes from check-ins; this is only how each one looks. */
 const ROSTER = [
-  {id:'king', name:'Right Hand', nameEn:'Right Hand', nameEs:'Mano Derecha', lane:'board', kind:'main', color:'#8a63d2', home:'The chat box in this app, plus the scheduled standup and wrap runs.', reach:'Type in the app chat (Talk to the Right Hand). It also runs itself at 8:12 AM and 6:12 PM.', role:'Answers FilthE live, logs leads/doors/claims, runs standup/wrap; takes orders from Claude Code.'},
-  {id:'cowork', name:'Cowork', lane:'chat', kind:'main', color:'#e3a13a', home:'Claude Cowork, in the cloud.', reach:'Open Cowork and give it the task.', role:'Worker lead for the chat wing: research, the command center, scripts, Storm Watch upkeep. Takes its orders from the King.'},
-  {id:'storm-watch', name:'Storm Watch', lane:'chat', kind:'scheduled', boss:'cowork', color:'#6f9fe0', home:'A scheduled task in Cowork.', reach:'Runs by itself daily at 6:54 AM Central. Ask Cowork to change it.', role:'Scheduled run every morning at 6:54. Scans for new hail and sends your lead brief.'},
-  {id:'scout', name:'Scout', lane:'chat', kind:'helper', boss:'cowork', color:'#d86f55', home:'A helper inside Cowork.', reach:'Ask Cowork.', role:'All web research: business contacts and owners for hail-hit buildings, permit rules, market info. (Merged with Building Scout.)'},
-  {id:'sales-coach', name:'Sales Coach', lane:'chat', kind:'helper', boss:'cowork', color:'#c98fd6', home:'A helper inside Cowork.', reach:'Ask Cowork.', role:'Door and call scripts, the job playbook, claims and adjuster steps, and the ads kit when it is time. English and Spanish. (Merged from Writer, Claims Coach, Marketing and Marketing Lead.)'},
-  {id:'code', name:'Claude Code', lane:'code', kind:'main', color:'#35b3a8', crown:true, role:'The King: leads the whole crew, sets the board, and builds the app and the storm engine with its helpers. GitHub (kennyy685/the-repository) holds the main copy of the code.', home:'Claude Code: on your Mac, and in the cloud at claude.ai/code.', reach:'Open Claude Code on the HailHunter repo (Mac or claude.ai/code).'},
-  {id:'engine-mechanic', name:'Engine Mechanic', lane:'code', kind:'helper', boss:'code', color:'#e08a3c', home:'A helper inside Claude Code (.claude/agents in the GitHub repo).', reach:'Ask Claude Code.', role:'Builds, fixes and runs the storm engine, and picks areas from its data. Follows the engine-change skill so the app and Storm Watch never break. (Merged with Storm Analyst.)'},
-  {id:'builder', name:'Builder', lane:'code', kind:'helper', boss:'code', color:'#7fb8f0', home:'A helper inside Claude Code (.claude/agents in the GitHub repo).', reach:'Ask Claude Code: "build <tool or page>".', role:'Builds and keeps up the pages and tools: Crew HQ, HMP HQ, Practice Door, Claim Tracker.'},
-  {id:'designer', name:'Designer', lane:'code', kind:'helper', boss:'code', color:'#f5c26b', home:'A helper inside Claude Code (.claude/agents in the GitHub repo).', reach:'Ask Claude Code: "design <thing>".', role:'Makes things look professional: door hangers, printables, brand look, page design.'},
-  {id:'hub-keeper', name:'Research Lead', lane:'code', kind:'helper', boss:'code', color:'#b38be8', home:'A helper inside Claude Code (.claude/agents in the GitHub repo).', reach:'Ask Claude Code: "research <topic>".', role:'Runs research rounds with a team of Scouts and turns what they find into a ranked "work on this next" list on the board.'},
-  {id:'qa-tester', name:'QA Tester', lane:'code', kind:'helper', boss:'code', color:'#9fd46e', home:'A helper inside Claude Code (.claude/agents in the GitHub repo).', reach:'Ask Claude Code.', role:'Checks every change before it ships: the code-review and security-review skills, the tests, and the hud.json contract.'}
+  {id:'code', name:'Claude Code', lane:'code', kind:'main', color:'#35b3a8', crown:true, role:'The King: sets the board, gives the orders and runs the Code lab. Acts every hour 7 AM-10 PM Central, or in seconds when you answer here.', home:'Claude Code in the cloud (claude.ai/code), plus your Mac.', reach:'Answer a question on this board, or message Claude Code directly.'},
+  {id:'king', name:'Right Hand', nameEn:'Right Hand', nameEs:'Mano Derecha', lane:'board', kind:'main', color:'#8a63d2', home:'The chat in the HMP App, and "Tell the Right Hand" on this page.', reach:'Talk to it in the app chat. It passes your words to Claude Code.', role:'Answers you live, logs doors, leads and claims in the app, and hands your requests to Claude Code. Takes orders from Claude Code.'},
+  {id:'cowork', name:'Cowork', lane:'chat', kind:'main', color:'#e3a13a', home:'Claude Cowork, in the cloud.', reach:'Open Cowork and give it the task.', role:'Owns the command center and Storm Watch: storm map, door lists, the engine bundle. Takes its orders from Claude Code.'},
+  {id:'storm-watch', name:'Storm Watch', lane:'chat', kind:'scheduled', boss:'cowork', color:'#6f9fe0', home:'A scheduled task in Cowork.', reach:'Runs by itself daily at 6:54 AM Central. Ask Cowork to change it.', role:'Every morning at 6:54: scans for new hail, refreshes the storm map and sends you the alert.'},
+  {id:'builder', name:'Builder', lane:'code', kind:'helper', boss:'code', color:'#7fb8f0', home:'A helper inside Claude Code (.claude/agents in the repo).', reach:'Ask Claude Code.', role:'Builds the pages: the HMP App, this AI hub, HMP HQ and Practice Door.'},
+  {id:'designer', name:'Designer', lane:'code', kind:'helper', boss:'code', color:'#f5c26b', home:'A helper inside Claude Code (.claude/agents in the repo).', reach:'Ask Claude Code.', role:'Print pieces, the brand look and page design. Brings 2-3 options for you to pick.'},
+  {id:'engine-mechanic', name:'Engine Mechanic', lane:'code', kind:'helper', boss:'code', color:'#e08a3c', home:'A helper inside Claude Code (.claude/agents in the repo).', reach:'Ask Claude Code.', role:'Builds, fixes and runs the storm engine: hot zones, door scores, walks.'},
+  {id:'qa-tester', name:'QA Tester', lane:'code', kind:'helper', boss:'code', color:'#9fd46e', home:'A helper inside Claude Code (.claude/agents in the repo).', reach:'Ask Claude Code.', role:'Reviews and tests every change before it ships.'},
+  {id:'hub-keeper', name:'Research Lead', lane:'code', kind:'helper', boss:'code', color:'#b38be8', home:'A helper inside Claude Code (.claude/agents in the repo).', reach:'Ask Claude Code.', role:'Runs research rounds with a team of Scouts (one web topic each) and turns what they find into a ranked list.'}
 ];
 
-/* Merged 2026-09-25: old ids still work and show under the merged robot. */
-const MERGED = {'cowork-2':'cowork', writer:'sales-coach', 'claims-coach':'sales-coach', marketing:'sales-coach', 'marketing-lead':'sales-coach', 'commercial-scout':'scout', 'storm-analyst':'engine-mechanic'};
+/* Merged 2026-09-25/26: old ids still work and show under the merged robot (Cowork's retired helpers show as Cowork). */
+const MERGED = {'cowork-2':'cowork', scout:'cowork', 'sales-coach':'cowork', writer:'cowork', 'claims-coach':'cowork', marketing:'cowork', 'marketing-lead':'cowork', 'commercial-scout':'cowork', 'storm-analyst':'engine-mechanic'};
 const canon = id => MERGED[id] || id;
 
 /* ================= rooms ================= */
@@ -1195,8 +929,8 @@ function drawFx(g, t, act){
   // board notes
   drawBoardNotes(g, t);
 }
-const OWNER_C = {cowork:'#f2b441', code:'#4fd1c5', filthe:'#ef8fb8', king:'#f2c14e'};
-function ownerKey(o){ const s = String(o||'').toLowerCase(); if (s.startsWith('king')) return 'king'; if (s.startsWith('cow')) return 'cowork'; if (s.startsWith('code') || s.includes('claude code')) return 'code'; if (s.startsWith('fil') || s==='you') return 'filthe'; return 'x'; }
+const OWNER_C = {cowork:'#f2b441', code:'#4fd1c5', filthe:'#ef8fb8', king:'#f2c14e', boss:'#f5883a'};
+function ownerKey(o){ const s = String(o||'').toLowerCase(); if (s.startsWith('king')) return 'king'; if (s.startsWith('cow')) return 'cowork'; if (s.startsWith('code') || s.includes('claude code')) return 'code'; if (s.startsWith('fil') || s==='you') return 'filthe'; if (s.startsWith('boss') || s.startsWith('jefe') || s.startsWith('the boss')) return 'boss'; return 'x'; }
 function statusKey(s){ const u = String(s||'').toUpperCase(); if (u.startsWith('DOING')) return 'doing'; if (u.startsWith('BLOCK')) return 'blocked'; if (u.startsWith('REVIEW')) return 'review'; if (u.startsWith('DONE')) return 'done'; if (u.startsWith('PARK')) return 'parked'; return 'todo'; }
 function drawBoardNotes(g, t){
   const list = board ? [...(board.now||[]), ...(board.next||[])].slice(0,24) : [];
@@ -1497,6 +1231,7 @@ function renderCard(){
     ${mine.length ? `<ol>${mine.map(e => `<li><time>${esc(whenLabel(e.atMs, e.approx))}</time><span>${esc(e.text)}</span></li>`).join('')}</ol>` : ''}`;
 }
 /* ================= Crew tab: team board (who is doing what, live) ================= */
+function isScout(a){ return a.kind === 'temp' && (canon(a.boss || '') === 'hub-keeper' || /scout/i.test(a.id)); }
 function teamKey(a){ const st = a.disp ? a.disp.status : 'idle'; return st === 'waiting' ? 'needs' : st; }
 function teamCard(a){
   const T = L(), now = Date.now(), d = a.disp || displayState(a, now), key = teamKey(a);
@@ -1505,13 +1240,17 @@ function teamCard(a){
   return `<article class="tcard st-${key}"><div class="tc-top"><span class="dot" aria-hidden="true"></span><b class="tc-name">${esc(a.name)}</b>${a.crown ? `<span class="tc-king">${esc(T.st.kingTag)}</span>` : ''}<span class="tc-st">${esc(T.status[d.status] || d.status)}</span></div>
     <p class="tc-role">${esc(a.role || T.tempRole)}</p>
     <div class="tc-now"><span class="k">${esc(T.st.tNow)}${d.status === 'working' && a.target ? ' · ' + esc(where(a)) : ''}</span><span>${esc(doing)}</span></div>
+    ${a.id === 'hub-keeper' ? scoutLine() : ''}
     ${last ? `<div class="tc-last"><span class="k">${esc(T.st.tLast)} · ${esc(whenLabel(last.atMs, last.approx))}</span><span>${esc(last.text)}</span></div>` : ''}
     <div class="tc-meta">${a.atMs ? esc(T.st.tAgo(ago(a.atMs))) : esc(T.lastCheck) + ': ' + esc(T.noneYet)}${d.stale ? ` · <span class="stale">${esc(T.noCheckout)}</span>` : ''}</div></article>`;
 }
+function scoutLine(){   // the Research Lead's Scouts: one line on its card, not a card each
+  const T = L(), sc = [...agents.values()].filter(a => !a.hidden && isScout(a)); if (!sc.length) return '';
+  const w = sc.filter(a => teamKey(a) === 'working').length;
+  return `<div class="tc-scouts"><span class="dot ${w ? 'working' : 'idle'}" aria-hidden="true"></span>${esc(T.scouts(sc.length))}${w ? ' · ' + esc(T.scoutsNow(w)) : ''}</div>`;
+}
 function renderTeam(){
-  const T = L(), all = [...agents.values()].filter(a => !a.hidden);
-  const asks = openAsks(), ab = $('#crewAsks'); ab.hidden = !asks.length;
-  if (asks.length) { ab.className = 'asks-loud'; ab.innerHTML = `<h2 class="ah">${esc(T.st.needsH(asks.length))}</h2><p class="a-quiet" style="font-size:14px">${esc(T.asksSub)}</p><ul class="qlist">${asks.map(x => `<li><span><span class="qid">${esc(x.id)}</span>${esc(x.q)}</span>${askControls(x, 'c')}</li>`).join('')}</ul>`; wireAnswers(ab); }
+  const T = L(), all = [...agents.values()].filter(a => !a.hidden && !isScout(a));
   const node = (a, extra) => a ? `<span class="cn st-${teamKey(a)}${extra || ''}"><span class="dot"></span>${esc(a.name)}${a.crown ? ` <small>${esc(T.st.kingTag)}</small>` : ''}</span>` : '';
   const codeKids = all.filter(a => a.lane === 'code' && a.id !== 'code' && a.kind !== 'scheduled').length;
   $('#chain').innerHTML = `<span class="lbl">${esc(T.st.chainL)}</span><span class="cn you">${esc(T.st.orgYou.split('·')[0].trim())}</span><span class="arrow" aria-hidden="true">→</span>${node(agents.get('code'))}<span class="arrow" aria-hidden="true">→</span>${node(agents.get('king'))}${node(agents.get('cowork'))}<span class="cn"><span class="dot ${all.some(a => a.lane === 'code' && a.id !== 'code' && teamKey(a) === 'working') ? 'working' : 'idle'}"></span>${esc(T.st.grpCode)} <small>${codeKids}</small></span>`;
@@ -1566,15 +1305,33 @@ function kingHtml(){
     ${kingDoc.summary ? `<p class="ksum">${esc(kingDoc.summary)}</p>` : ''}
     <ul>${kingDoc.orders.slice(0,8).map(o => `<li><span class="own own-${ownerKey(o.to)}">${esc(o.to || '?')}</span><span>${esc(o.text)}${o.task ? `<span class="task">${esc(o.task)}</span>` : ''}</span></li>`).join('')}</ul>${logList}</div>`;
 }
+/* Board (v21): questions for FilthE on top with answer buttons, then open tasks grouped by owner; DONE folded away */
+const BOARD_GROUPS = ['filthe', 'boss', 'code', 'cowork', 'x'];
+const doneOpen = new Set();
 function renderBoard(){
   const box = $('#boardBody'), T = L();
   if (!board) { box.innerHTML = kingHtml() + `<p class="empty">${esc(T.bEmpty)}</p>`; $('#boardSrc').textContent = ''; return; }
-  const own = o => { const k = ownerKey(o); return `<span class="own own-${k}">${esc(o || '?')}</span>`; };
   const stt = s => { const k = statusKey(s); return `<span class="tst s-${k}">${esc(T.tst[k])}</span>`; };
-  const tasks = arr => arr.map(x => `<li><span class="tid">${esc(x.id)}</span><span class="tt">${esc(x.task)}</span><span class="tmeta">${own(x.owner)}${stt(x.status)}</span></li>`).join('');
-  box.innerHTML = kingHtml() + `<h3>${esc(T.bNow)}</h3><ul class="tasks">${tasks(board.now||[])}</ul>
-    ${(board.waiting||[]).length ? `<h3>${esc(T.bWaiting)}</h3><ul class="asks">${board.waiting.map(x => `<li><span class="tid">${esc(x.id)}</span><span>${esc(x.q)}</span>${askControls(x)}</li>`).join('')}</ul>` : ''}
-    ${(board.next||[]).length ? `<h3>${esc(T.bNext)}</h3><ul class="tasks">${tasks(board.next)}</ul>` : ''}`;
+  const row = x => `<li class="trow s-${statusKey(x.status)}"><span class="tid">${esc(x.id)}</span><span class="tt">${esc(x.task)}</span><span class="tmeta">${stt(x.status)}${x._next ? `<span class="tnext">${esc(T.nextTag)}</span>` : ''}${ownerKey(x.owner) === 'x' || /[+,&/]/.test(String(x.owner || '')) ? `<span class="tother">${esc(x.owner || '?')}</span>` : ''}</span></li>`;
+  const rank = {blocked: 0, doing: 1, review: 2, todo: 3, parked: 4, done: 5};
+  const all = [...(board.now || []).map(x => Object.assign({}, x, {_next: false})), ...(board.next || []).map(x => Object.assign({}, x, {_next: true}))];
+  const byG = new Map(BOARD_GROUPS.map(g => [g, []]));
+  for (const x of all) { let g = ownerKey(x.owner); if (g === 'king') g = 'code'; byG.get(g).push(x); }
+  const asks = openAsks(), answered = (board.waiting || []).filter(x => answers[x.id]);
+  let html = '';
+  if (asks.length) html += `<div class="asks-loud"><h3 class="ah">${esc(T.st.needsH(asks.length))}</h3><p class="a-quiet">${esc(T.asksSub)}</p><ul class="qlist">${asks.map(x => `<li><span><span class="qid">${esc(x.id)}</span>${esc(x.q)}</span>${askControls(x, 'b')}</li>`).join('')}</ul></div>`;
+  if (answered.length) html += `<details class="bgroup-done ans-old"><summary>${esc(T.answeredH)} <small>${answered.length}</small></summary><ul class="qlist">${answered.map(x => `<li><span><span class="qid">${esc(x.id)}</span>${esc(x.q)}</span>${askControls(x)}</li>`).join('')}</ul></details>`;
+  html += kingHtml();
+  html += `<div class="bgroups">` + BOARD_GROUPS.map(g => {
+    const list = byG.get(g); if (!list.length) return '';
+    list.sort((p, q) => rank[statusKey(p.status)] - rank[statusKey(q.status)] || (p._next - q._next));
+    const open = list.filter(x => statusKey(x.status) !== 'done'), done = list.filter(x => statusKey(x.status) === 'done');
+    return `<section class="bgroup own-${g}"><h3><span class="own own-${g}">${esc(T.gOwner[g])}</span><small>${esc(T.openN(open.length))}</small></h3>
+      ${open.length ? `<ul class="tasks">${open.map(row).join('')}</ul>` : `<p class="empty">${esc(T.noneOpen)}</p>`}
+      ${done.length ? `<details class="bgroup-done" data-g="${g}"${doneOpen.has(g) ? ' open' : ''}><summary>${esc(T.doneN(done.length))}</summary><ul class="tasks">${done.map(row).join('')}</ul></details>` : ''}</section>`;
+  }).join('') + `</div>`;
+  box.innerHTML = html;
+  for (const d of box.querySelectorAll('details[data-g]')) d.addEventListener('toggle', () => { if (d.open) doneOpen.add(d.dataset.g); else doneOpen.delete(d.dataset.g); });
   const ms = Date.parse(board.updatedAt || board.syncedAt || ''); const old = ms && Date.now() - ms > 24*3600e3;
   $('#boardSrc').innerHTML = ms ? `${esc(T.bUpdated(ago(ms), board.updatedBy || ''))}${old ? ` · <span class="stalebadge">${esc(T.bOld)}</span>` : ''}` : '';
   wireAnswers(box);

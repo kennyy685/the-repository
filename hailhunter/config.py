@@ -239,6 +239,12 @@ DEFAULTS = {
     "weekly": {
         "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
     },
+    # Rookie plan progress (`hh.py rookie`, weekly `rookie`): data/rookie_plan.json blocks vs door taps
+    "rookie": {
+        "start_date": None,         # "YYYY-MM-DD" day 1 of the plan; None = the first day with any door tap
+        "full_route_doors": 25,     # "Knock your full route" with no door_target = this many doors a day
+        "pace_band": 0.2            # within +/-20% of the block's planned doors = "on pace"
+    },
     # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
     # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
     # only for the keys in TUNABLE below. Every change is capped at max_step per run and kept inside its bounds.
@@ -349,7 +355,8 @@ DEFAULTS = {
         "elbows_per_downspout": 3
     },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
-              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json"}
+              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json",
+              "rookie_plan": "data/rookie_plan.json"}
 }
 
 # T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch
