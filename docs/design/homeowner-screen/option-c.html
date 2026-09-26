@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homeowner Screen C</title>
+<!-- MOCKUP ONLY (Designer, 2026-09-26). Option C "Show-and-tell slides": one idea per screen in big type, graphite dark.
+     Photos as a full-bleed swipe carousel with callout labels + a numbered filmstrip; hail proof as a white "weather
+     record" slip; options as three tap-to-compare price tiles with one detail panel; steps as giant numbers; call buttons
+     in solid orange. Copy + sample data: content.js (shared). Add ?lang=es for Spanish. Fonts are local files. -->
+<style>
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(../../print/fonts/BarlowSemiCondensed-700.woff) format("woff"); }
+@font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(../../print/fonts/BarlowSemiCondensed-800.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:500; src:url(../../print/fonts/Montserrat-500.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:600; src:url(../../print/fonts/Montserrat-600.woff) format("woff"); }
+@font-face { font-family:"Montserrat"; font-weight:700; src:url(../../print/fonts/Montserrat-700.woff) format("woff"); }
+:root { --bg:#151618; --panel:#222327; --line:#34353b; --text:#f5f6f7; --silver:#c9ccd1; --muted:#979ba3; --orange:#f5883a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--bg); }
+body { font-family:"Montserrat", sans-serif; font-weight:500; color:var(--text); font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+.top { display:flex; align-items:center; gap:10px; padding:12px 16px; max-width:820px; margin:0 auto; }
+.top img { height:32px; }
+.chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--silver); }
+.chip svg { width:12px; height:12px; }
+.langs { margin-left:auto; display:flex; gap:4px; }
+.langs a { font:700 14px "Barlow Semi Condensed"; padding:5px 10px; color:var(--muted); border-radius:6px; border:1px solid var(--line); cursor:pointer; }
+.langs a.on { color:var(--bg); background:var(--orange); border-color:var(--orange); }
+section.slide { max-width:820px; margin:0 auto; padding:18px 16px 26px; }
+section.slide + section.slide { border-top:8px solid #0c0d0e; }
+.dots { display:flex; gap:6px; align-items:center; }
+.dots i { height:6px; width:22px; border-radius:3px; background:#3a3b41; }
+.dots i.on { background:var(--orange); width:40px; }
+.dots span { margin-left:8px; font:700 13px "Barlow Semi Condensed"; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+h1 { font:800 50px/0.95 "Barlow Semi Condensed"; margin:14px 0 8px; letter-spacing:-.005em; }
+.sub { color:var(--silver); font-size:15.5px; }
+/* carousel */
+.car { display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; margin:18px -16px 0; padding:0 16px; scrollbar-width:none; }
+.car::-webkit-scrollbar { display:none; }
+.slidep { flex:0 0 88%; scroll-snap-align:start; position:relative; border-radius:16px; overflow:hidden; background:#000; }
+.slidep img { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; }
+.slidep svg.ann { position:absolute; inset:0; width:100%; height:100%; }
+.slidep .cap { position:absolute; left:0; right:0; bottom:0; padding:44px 16px 16px; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.82) 45%); }
+.slidep .cap .k { font:800 13px "Barlow Semi Condensed"; letter-spacing:.12em; color:var(--orange); text-transform:uppercase; }
+.slidep .cap b { display:block; font:800 26px/1.05 "Barlow Semi Condensed"; margin:2px 0 4px; }
+.slidep .cap span { font-size:14px; color:#e4e6e9; }
+.slidep .tag { position:absolute; right:12px; top:12px; font:700 11px "Montserrat"; background:rgba(0,0,0,.55); padding:3px 8px; border-radius:99px; }
+.film { display:flex; gap:8px; margin-top:12px; }
+.film div { flex:1; position:relative; border-radius:8px; overflow:hidden; opacity:.55; }
+.film div.on { opacity:1; outline:2px solid var(--orange); outline-offset:1px; }
+.film img { display:block; width:100%; aspect-ratio:1; object-fit:cover; }
+.film i { position:absolute; left:4px; top:3px; font:800 13px "Barlow Semi Condensed"; font-style:normal; text-shadow:0 1px 2px #000; }
+/* weather slip */
+.slip { margin-top:18px; background:#f7f6f3; color:#1f2023; border-radius:14px; padding:18px 18px 16px; position:relative; }
+.slip .hd { display:flex; align-items:center; gap:8px; font:800 14px "Barlow Semi Condensed"; letter-spacing:.12em; text-transform:uppercase; color:#404145; }
+.slip .hd svg { width:20px; height:20px; }
+.slip .g { display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:end; margin-top:10px; padding-bottom:12px; border-bottom:2px solid #1f2023; }
+.slip .big { font:800 72px/0.85 "Barlow Semi Condensed"; }
+.slip .big small { font-size:26px; color:#5f636b; margin-left:2px; }
+.slip .g div:last-child { font-size:13.5px; color:#404145; padding-bottom:4px; }
+.slip dl { display:grid; grid-template-columns:auto 1fr; gap:8px 14px; margin-top:12px; font-size:14px; }
+.slip dt { color:#5f636b; font-size:12.5px; font-weight:600; padding-top:2px; }
+.slip dd { font-weight:700; }
+.slip dd em { display:block; font-style:normal; font-weight:500; color:#5f636b; font-size:12px; }
+.slip .src { font-size:11.5px; color:#5f636b; margin-top:10px; }
+.slip .cav { margin-top:12px; background:#1f2023; color:#fff; border-radius:8px; padding:9px 12px; font-size:13.5px; font-weight:600; }
+.ins { margin-top:14px; padding:16px 0 0; border-top:1px solid var(--line); }
+.ins b { display:block; font:800 26px/1.08 "Barlow Semi Condensed"; }
+.ins p { color:var(--silver); font-size:14.5px; margin-top:6px; }
+.nextbar { margin-top:20px; display:flex; justify-content:flex-end; }
+.nextbar a { font:800 18px "Barlow Semi Condensed"; color:var(--text); text-decoration:none; border:1.5px solid #55565d; border-radius:99px; padding:9px 18px; }
+.nextbar a b { color:var(--orange); margin-left:6px; }
+/* tiers */
+.tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:20px; }
+.tile { background:var(--panel); border:2px solid transparent; border-radius:14px; padding:12px 8px 12px; text-align:center; cursor:pointer; position:relative; }
+.tile.on { border-color:var(--orange); background:#2a2622; }
+.tile .nm { font:800 13px "Barlow Semi Condensed"; letter-spacing:.14em; text-transform:uppercase; color:var(--silver); }
+.tile .wh { font:700 14.5px/1.1 "Barlow Semi Condensed"; margin-top:3px; min-height:32px; color:var(--silver); }
+.tile .pr { font:800 20px/1.05 "Barlow Semi Condensed"; margin-top:8px; }
+.tile .pr span { display:block; }
+.tile .star { position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:var(--orange); color:#151618; font:800 10.5px "Barlow Semi Condensed";
+  letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; white-space:nowrap; }
+.rng { text-align:center; margin-top:10px; font-size:12.5px; color:var(--muted); font-weight:600; }
+.detail { margin-top:14px; background:var(--panel); border-radius:16px; padding:18px; }
+.detail .nm { font:800 13px "Barlow Semi Condensed"; letter-spacing:.14em; text-transform:uppercase; color:var(--orange); }
+.detail h2 { font:800 30px/1.02 "Barlow Semi Condensed"; margin-top:2px; }
+.detail .roof { color:var(--silver); font-size:14px; margin-top:2px; }
+.detail .price { font:800 44px/1 "Barlow Semi Condensed"; margin-top:14px; }
+.detail .rl { font-size:12.5px; color:var(--muted); font-weight:600; margin-top:3px; }
+.detail ul { list-style:none; margin-top:14px; display:grid; gap:8px; }
+.detail li { display:flex; gap:10px; font-size:14.5px; }
+.detail li::before { content:""; flex:none; width:8px; height:8px; margin-top:7px; border-radius:2px; background:var(--orange); transform:rotate(45deg); }
+.warr { margin-top:14px; font-size:13.5px; color:var(--silver); padding-left:12px; border-left:3px solid var(--silver); }
+.color { display:flex; align-items:stretch; margin-top:16px; border-radius:14px; overflow:hidden; text-decoration:none; color:var(--text); background:var(--panel); }
+.color .sp { display:flex; flex:none; width:96px; }
+.color .sp i { flex:1; }
+.color .tx { padding:13px 16px; }
+.color b { display:block; font:800 19px/1.1 "Barlow Semi Condensed"; color:var(--text); }
+.color .tx span { font-size:12.5px; color:var(--muted); }
+/* steps */
+.bigsteps { margin-top:16px; }
+.bs { display:grid; grid-template-columns:70px 1fr; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); }
+.bs .n { font:800 84px/0.78 "Barlow Semi Condensed"; color:transparent; -webkit-text-stroke:2px var(--orange); }
+.bs b { display:block; font:800 26px/1.05 "Barlow Semi Condensed"; }
+.bs p { color:var(--silver); font-size:14.5px; margin-top:4px; }
+.bs .cx { margin-top:10px; background:#f7f6f3; color:#1f2023; border-radius:10px; padding:11px 12px; font-size:13.5px; }
+.bs .cx b { display:inline; font-size:16px; }
+.calls { display:grid; gap:10px; margin-top:20px; }
+.call { display:flex; align-items:center; gap:12px; background:var(--orange); color:#151618; border-radius:16px; padding:14px 16px; text-decoration:none; }
+.call svg { width:26px; height:26px; flex:none; }
+.call .nm { font-size:13px; font-weight:700; }
+.call .tel { font:800 34px/1 "Barlow Semi Condensed"; }
+.qh { font:800 22px "Barlow Semi Condensed"; margin-top:22px; }
+.foot { margin-top:18px; color:var(--muted); font-size:12px; line-height:1.6; }
+.foot .blank { display:inline-block; width:90px; border-bottom:1px solid var(--muted); }
+@media (min-width:700px) {
+  .top, section.slide { padding-left:28px; padding-right:28px; }
+  h1 { font-size:64px; }
+  .car { margin:18px -28px 0; padding:0 28px; }
+  .slidep { flex:0 0 62%; }
+  .slidep img { aspect-ratio:4/3; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
+  .ins { border-top:0; padding-top:18px; }
+  .ins b { font-size:32px; }
+  .tile .pr { font-size:28px; }
+  .tile .wh { font-size:18px; }
+  .optgrid { display:grid; grid-template-columns:1.25fr 1fr; gap:16px; align-items:start; }
+  .bigsteps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .bs { grid-template-columns:1fr; border-bottom:0; border-top:3px solid var(--line); }
+  .calls { grid-template-columns:1fr 1fr; }
+}
+</style>
+<script src="content.js"></script>
+</head>
+<body>
+<div class="top"><img src="img/hmp-logo.svg" alt="HMP Siding &amp; Roofing"><span class="chip" id="view"></span>
+  <div class="langs"><a id="l-en">EN</a><a id="l-es">ES</a></div></div>
+<div id="app"></div>
+<script>
+const L = HS.lang; document.documentElement.lang = L;
+const $ = (id) => document.getElementById(id);
+$("l-" + L).classList.add("on"); $("l-en").onclick = () => HS.setLang("en"); $("l-es").onclick = () => HS.setLang("es");
+$("view").innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>' + t(HS.ui.view);
+const L2 = (en, es) => L === "es" ? es : en;
+const phone = '<svg viewBox="0 0 24 24" fill="#151618"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
+const dots = (on) => `<div class="dots">${[0, 1, 2].map((i) => `<i class="${i === on ? "on" : ""}"></i>`).join("")}<span>${on + 1} / 3 · ${t(HS.ui.tabs[on])}</span></div>`;
+// callouts: circle + leader line + label (photo is cropped 4:5 on phones, so use slice mapping of the 4:3 source)
+function ann(p) {
+  let s = '<svg class="ann" viewBox="0 0 100 75" preserveAspectRatio="xMidYMid slice">';
+  const lab = L2("hail hit", "golpe");
+  p.marks.forEach((m, k) => { const cy = m[1] * .75, r = m[2] / 2 + 1.2;
+    s += `<circle cx="${m[0]}" cy="${cy}" r="${r}" fill="none" stroke="#f5883a" stroke-width="0.8"/>`;
+    if (k === 0) { const lx = m[0] - 4, ly = Math.max(6, cy - r - 9);
+      s += `<path d="M${m[0]} ${cy - r} L${m[0]} ${ly + 1.8}" stroke="#f5883a" stroke-width=".6"/>
+        <rect x="${lx - 7}" y="${ly - 3.6}" width="${lab.length * 1.7 + 4}" height="5.4" rx="1" fill="#f5883a"/>
+        <text x="${lx - 5}" y="${ly + .5}" font-family="Barlow Semi Condensed" font-weight="800" font-size="3.6" fill="#151618">${lab.toUpperCase()}</text>`; } });
+  return s + '</svg>';
+}
+const h = HS.hail;
+let html = `<section class="slide">${dots(0)}<h1>${t(HS.ui.s1)}</h1><div class="sub">${t(HS.ui.s1sub)} · ${t(HS.home.name)}, ${HS.home.address}</div>
+  <div class="car">${HS.photos.map((p, i) => `<div class="slidep"><img src="${p.img}" alt="">${ann(p)}<span class="tag">${t(HS.ui.sample)}</span>
+    <div class="cap"><div class="k">${L2("Photo", "Foto")} ${i + 1} ${L2("of", "de")} ${HS.photos.length}</div><b>${t(p.title)}</b><span>${t(p.cap)}</span></div></div>`).join("")}</div>
+  <div class="film">${HS.photos.map((p, i) => `<div class="${i ? "" : "on"}"><img src="${p.img}" alt=""><i>${i + 1}</i></div>`).join("")}</div>
+  <div class="two"><div class="slip"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="#404145" stroke-width="2"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.5 2 3.5 3.5 0 0 1-.5 7H7z"/><circle cx="9" cy="20" r="1" fill="#404145"/><circle cx="13" cy="21" r="1" fill="#404145"/><circle cx="16.5" cy="19.5" r="1" fill="#404145"/></svg>${t(h.title)}</div>
+    <div class="g"><div class="big">${h.size}<small>${t(h.sizeUnit)}</small></div><div>${t(h.sizeLabel)}<br>${t(h.sizeLike)}</div></div>
+    <dl><dt>${t(h.dateLabel)}</dt><dd>${t(h.date)}</dd><dt>${t(h.reportLabel)}</dt><dd>${t(h.report)}<em>${t(h.reportSrc)}</em></dd></dl>
+    <div class="src">${t(h.source)}</div><div class="cav">${t(h.caveat)}</div></div>
+  <div class="ins"><b>${t(HS.insurer.head)}</b><p>${t(HS.insurer.body)}</p></div></div>
+  <div class="nextbar"><a>${t(HS.ui.next)}: ${t(HS.ui.tabs[1])}<b>→</b></a></div></section>`;
+// options
+const T = HS.tiers;
+html += `<section class="slide">${dots(1)}<h1>${t(HS.ui.s2)}</h1><div class="sub">${t(HS.ui.s2sub)}. ${L2("Tap one to see what's included.", "Toque una para ver qué incluye.")}</div>
+  <div class="optgrid"><div><div class="tiles">${T.map((x, i) => `<div class="tile${x.rec ? " on" : ""}" data-i="${i}">${x.rec ? `<span class="star">${L2("Recommended", "Recomendada")}</span>` : ""}
+    <div class="nm">${t(x.name)}</div><div class="wh">${t(x.siding)}</div><div class="pr">${x.price.split(" – ").map((p, j) => `<span>${j ? "– " : ""}${p}</span>`).join("")}</div></div>`).join("")}</div>
+    <div class="rng">${t(HS.ui.range)}. ${t(HS.ui.rangeNote)}</div></div>
+  <div class="detail" id="detail"></div></div>
+  <div class="warr">${t(HS.warranty)}</div>
+  <a class="color" href="${HS.colorUrl}"><span class="sp"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da"></i></span><span class="tx"><b>${t(HS.ui.colors)} <span style="color:#f5883a;font-size:19px">→</span></b><span>${t(HS.ui.colorsWhere)}</span></span></a>
+  <div class="nextbar"><a>${t(HS.ui.next)}: ${t(HS.ui.tabs[2])}<b>→</b></a></div></section>`;
+// steps
+html += `<section class="slide">${dots(2)}<h1>${t(HS.ui.s3)}</h1><div class="sub">${t(HS.ui.s3sub)}</div>
+  <div class="bigsteps">${HS.steps.map((s, i) => `<div class="bs"><div class="n">${i + 1}</div><div><b>${t(s.title)}</b><p>${t(s.body)}</p>
+    ${s.cancel ? `<div class="cx">${t(s.cancel).replace(/^([^:]+:)/, "<b>$1</b>")}</div>` : ""}</div></div>`).join("")}</div>
+  <div class="qh">${t(HS.ui.questions)}</div>
+  <div class="calls">${HS.contacts.map((c) => `<a class="call" href="tel:${c.tel}">${phone}<span><div class="nm">${c.name} · ${t(c.lang)}</div><div class="tel">${c.phone}</div></span></a>`).join("")}</div>
+  <div class="foot">${t(HS.company)}<span class="blank"></span></div></section>`;
+$("app").innerHTML = html;
+function show(i) {
+  const x = T[i];
+  document.querySelectorAll(".tile").forEach((el) => el.classList.toggle("on", +el.dataset.i === i));
+  $("detail").innerHTML = `<div class="nm">${t(x.name)}</div><h2>${t(x.siding)}</h2><div class="roof">+ ${t(x.roof)}</div>
+    <div class="price">${x.price}</div><div class="rl">${t(HS.ui.range)}</div>
+    <ul>${x.inc.map((k) => `<li>${t(k)}</li>`).join("")}</ul>`;
+}
+document.querySelectorAll(".tile").forEach((el) => el.onclick = () => show(+el.dataset.i));
+show(T.findIndex((x) => x.rec));
+</script>
+</body>
+</html>
