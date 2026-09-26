@@ -91,6 +91,7 @@ b, strong { font-weight:700; }
 .sq .n { font:800 22pt/1 "Barlow Semi Condensed"; color:var(--char-dk); }
 .sq .n small { font:700 8pt/1 "Montserrat"; color:var(--muted); margin-left:0.03in; }
 .sq .l { margin-top:0.03in; font:600 7.6pt/1.2 "Montserrat"; color:var(--char); }
+.sq .cap36 { margin-top:0.02in; font:600 6.8pt/1.2 "Montserrat"; color:var(--muted); }
 .sqnote { margin-top:0.06in; font:500 7.4pt/1.35 "Montserrat"; color:var(--muted); }
 
 /* index of sections */
@@ -661,7 +662,7 @@ b, strong { font-weight:700; }
       kick: "What we saw and photographed", h1: "Inspection<br><span>photos &amp; notes</span>", run: "Inspection photos &amp; notes",
       prop: "Property", on: "Inspected on", storm: "Storm date asked about", by: "Inspected by", cond: "Conditions", roof: "Roof",
       docH: "What we documented", photos: "photos", sections: "sections checked", squares: "test squares",
-      sqH: "Test squares at a glance", sqEm: "10 &times; 10 ft, hits counted", hits: "hits", hit: "hit",
+      sqH: "Test squares at a glance", sqEm: "10 &times; 10 ft, hits counted", hits: "hits", hit: "hit", shown: "{n} hits, 36 shown",
       sqNote: "Each count is the number of chalk-circled hits inside one 10&times;10 ft square. Counts are recorded as found.",
       idxH: "Inside this report", nPhotos: "{n} photos", nPhoto: "1 photo", skipped: "Not checked", seeP: "Section",
       what: "What we check:", note: "Inspector's note", notChecked: "Not checked:",
@@ -674,7 +675,7 @@ b, strong { font-weight:700; }
       kick: "Lo que vimos y fotografiamos", h1: "Inspección<br><span>fotos y notas</span>", run: "Inspección: fotos y notas",
       prop: "Propiedad", on: "Fecha de inspección", storm: "Tormenta consultada", by: "Inspeccionó", cond: "Condiciones", roof: "Techo",
       docH: "Lo que documentamos", photos: "fotos", sections: "secciones revisadas", squares: "cuadros de prueba",
-      sqH: "Cuadros de prueba de un vistazo", sqEm: "10 &times; 10 pies, golpes contados", hits: "golpes", hit: "golpe",
+      sqH: "Cuadros de prueba de un vistazo", sqEm: "10 &times; 10 pies, golpes contados", hits: "golpes", hit: "golpe", shown: "{n} golpes, se muestran 36",
       sqNote: "Cada número es la cantidad de golpes marcados con tiza dentro de un cuadro de 10&times;10 pies. Se anotan tal como se encontraron.",
       idxH: "En este reporte", nPhotos: "{n} fotos", nPhoto: "1 foto", skipped: "No revisado", seeP: "Sección",
       what: "Qué revisamos:", note: "Nota del inspector", notChecked: "No revisado:",
@@ -716,12 +717,16 @@ b, strong { font-weight:700; }
       var x = 14 + (cell % 6) * 14.4 + jx, yy = 14 + Math.floor(cell / 6) * 14.4 + jy;
       s += '<circle cx="' + x.toFixed(1) + '" cy="' + yy.toFixed(1) + '" r="5.2" fill="none" stroke="#fff" stroke-width="2"/>';
     }
+    if (hits > 36)                                   // more hits than the drawing holds: say so on the drawing itself
+      s += '<rect x="56" y="80" width="42" height="18" rx="3" fill="#f5883a"/><text x="77" y="93.5" text-anchor="middle" ' +
+        'font-family="Barlow Semi Condensed, sans-serif" font-weight="800" font-size="15" fill="#1b1c1f">36+</text>';
     return s + '</svg>';
   }
   function squares(list, l, t) {
     return '<div class="sqrow">' + list.map(function (q, i) {
       return '<div class="sq">' + square(+q.hits || 0, i + 3) + '<div><div class="n">' + (+q.hits || 0) + '<small>' + (+q.hits === 1 ? t.hit : t.hits) +
-        '</small></div><div class="l">' + esc(tx(q.label, l)) + '</div></div></div>';
+        '</small></div><div class="l">' + esc(tx(q.label, l)) + '</div>' +
+        (+q.hits > 36 ? '<div class="cap36">(' + f(t.shown, {n: +q.hits}) + ')</div>' : '') + '</div></div>';
     }).join("") + '</div>';
   }
 

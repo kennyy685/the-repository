@@ -465,7 +465,6 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
     var m = pg.querySelector(".more");
     if (m && cut) { m.hidden = false; m.innerHTML = pg.dataset.more.replace("{n}", cut); }
   }
-  if (window.innerWidth > 760) pages.forEach(fit);
   var want = (new URLSearchParams(location.search).get("lang") || D.lang || "both").toLowerCase();
   if (want === "both") document.body.classList.add("print-both");
   function show(l) {
@@ -478,6 +477,15 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
     b.addEventListener("click", function () { document.body.classList.remove("print-both"); show(b.dataset.l); });
   });
   show(want === "es" ? "es" : "en");
+  // measure only after the web fonts load (fallback fonts are narrower, so an early fit can clip long reports);
+  // unhide both pages while measuring (a hidden page measures 0), then restore the chosen language
+  function settle() {
+    var cur = document.documentElement.lang;
+    pages.forEach(function (p) { p.hidden = false; });
+    if (window.innerWidth > 760) pages.forEach(fit);
+    show(cur);
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle); else settle();
 })();
 </script>
 </body></html>

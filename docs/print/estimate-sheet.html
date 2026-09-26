@@ -595,6 +595,11 @@ b, strong { font-weight:700; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
   function f(s, o) { return s.replace(/\{(\w+)\}/g, function (_, k) { return o[k]; }); }
   function tx(v, l) { return v == null ? "" : typeof v === "string" ? v : (v[l] || v.en || ""); }
+  // option label: its own name, else the known material's plain name, else a generic label (never throws)
+  function optName(o, l) {
+    var it = ITEM[String(o.material || "vinyl").toLowerCase() + "_siding_sq"];
+    return tx(o.name, l) || (it && it[l] && it[l][0]) || (l === "es" ? "Opción de siding" : "Siding option");
+  }
   function money(x) { return "$" + Math.round(Number(x)).toLocaleString("en-US"); }
   function range(lo, hi) { return esc(money(lo)) + '<i>&ndash;</i>' + esc(money(hi)); }
   function num(x) { var n = Number(x); return (Math.round(n * 10) / 10).toLocaleString("en-US"); }
@@ -683,7 +688,7 @@ b, strong { font-weight:700; }
         opts.map(function (o) {
           var better = o.tier === "better";
           return '<div class="opt' + (better ? ' better' : '') + '"><span class="tier">' + (better ? t.better_ : t.good_) + '</span>' +
-            '<div class="nm">' + esc(tx(o.name, l) || (ITEM[(o.material || "vinyl") + "_siding_sq"] || {})[l][0]) + '</div>' +
+            '<div class="nm">' + esc(optName(o, l)) + '</div>' +
             '<div class="num">' + range(o.low, o.high) + '</div></div>';
         }).join("") + '</div><div class="optnote"><div class="notfinal">' + t.notFinal + '</div><div class="cnt">' +
         f(t.optCnt, {sz: sizeText(l)}) + '</div></div></section>';
