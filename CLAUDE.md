@@ -76,6 +76,8 @@ Claude Code acts in seconds; the hourly run is the backup.
 - PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
 - **No field data for now (FilthE, 2026-09-26):** he isn't knocking yet; tune coaching, goals and follow-ups with internet industry
   benchmarks (`data/benchmarks.json`, round 15) until real numbers come in. Don't wait on or ask for his door results.
+- App theme: **A "Ledger"** (docs/design/references/direction-a.html): light, clean, orange accent; B's big door counter on Knock.
+- Referral thank-you (D17): **a handwritten thank-you note only**, no gift cards or money.
 - App layout (T75): **Option B "Next step"** (docs/design/app-layout/option-b.html): tabs Now / Knock / + / Leads / Money; home = the
   Sale Guide card for what to do next; + = add lead / quick price / "help me say it"; ES toggle on every script line; C's big door buttons on Knock.
 

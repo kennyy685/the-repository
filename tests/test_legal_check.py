@@ -1,9 +1,14 @@
 """Wires tests/legal_check.py (T72's legal/compliance text check) into `hh.py selftest`."""
+import os
 import unittest
 
 from tests import legal_check
 
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HAS_DOCS = os.path.isdir(os.path.join(ROOT, "docs", "print")) and os.path.isdir(os.path.join(ROOT, "docs", "legal"))
 
+
+@unittest.skipUnless(HAS_DOCS, "docs/ not in this copy (cloud bundle)")
 class TestLegalCheck(unittest.TestCase):
     def test_statute_match(self):
         failures = legal_check.check_statute_match()
