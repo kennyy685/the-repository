@@ -36,6 +36,15 @@ contract drafts, cancel notice, adjuster checklist, claims-101. O7 puts them in 
 Prices re-check (Omaha/Lincoln/Fremont 2026), after-the-sale features (proposal, e-sign, scheduling, reviews),
 material order math (takeoff). The plan gets finalized with FilthE before building.
 
+## Build plan (after round 7; FilthE approves before building)
+| Phase | What | Who | Size |
+|---|---|---|---|
+| **A** | **Next-step card on every lead**: the 8 steps, what to say/ask/collect, the legal must-dos, and the coaching from round 7 (both decision makers, buying signals, 2 reminders, adjuster same hour, cancel explained out loud) | Builder + QA | M |
+| **B** | **Prices update**: Hardie raised to 1000-1500, new extras (ice & water, gutter guards, downspouts, window wrap, flashing, insulated vinyl), still "market, not HMP's" | Engine + QA | S |
+| **C** | **Good/Better/Best proposal + "sign to confirm"**, then the **contract auto-filled** from the lead (with "Who reached out first?") | Builder + Designer + QA | M |
+| **D** | **Material order list** from measurements (roof, vinyl, Hardie, gutters), text it to the supplier | Engine + Builder | M |
+| **E** | **Finish**: completion checklist → certificate → review request | Builder + Designer | S |
+
 ## Questions for FilthE before building
 1. Who fills in each step: only you, or Alex/the boss too?
 2. Should Good/Better/Best exist for roofs too, or only siding?
