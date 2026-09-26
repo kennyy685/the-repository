@@ -17,9 +17,9 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       or `nebraskalegislature.gov` once egress allows it (round 29: blocked for both WebFetch and curl; the
       $500/$5,000 fine figures are from a secondary source)
 - [x] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support) - round 32
-- [ ] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct
+- [x] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct - round 33
 - [x] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners - round 32
-- [ ] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP
+- [x] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP - round 33
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
 - [ ] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything
@@ -44,6 +44,13 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] If/when HMP considers selling the app later: what a real first outside customer needs structurally
       (per-company data separation, second brand/logo slot, support hours) before any pricing conversation -
       round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
+- [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
+      allows, to get the real 2026 Service Finance dealer-fee schedule and confirm whether Master Elite
+      gets better financing terms than plain Certified or a non-GAF-tier contractor (round 33: WebFetch and
+      curl were both fully blocked on every domain tried, search-summary only)
+- [ ] Call James Hardie's contractor line directly to confirm Select-tier enrollment requirements and
+      whether The Edge job's Hardie lap siding installs (done as a sub) count toward Select, or only jobs
+      run under HMP's own Hardie account after enrolling count (round 33)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -93,3 +100,9 @@ separation; when ready, price flat-tier not per-seat, following the market's own
 + NE bank/credit union home-improvement loans as a no-dealer-fee option (state Dollar & Energy Saving Loan program
 plus NUFCU/BCU unsecured loans look like the right no-dealer-fee names to give homeowners; egress blocked every
 lender/vendor page this round, so rates/fees are search-summary only - two new backlog items above to re-verify).
+Round 33 (backlog track): GAF Master Elite financing tie-in (the one precedent found gave reduced financing
+fees to both Master Elite and plain Certified contractors, not a Master Elite-only perk - don't chase the tier
+for financing alone) + James Hardie ALLIANCE's Select tier (the realistic near-term target, not Preferred/
+Elite - unlocks the full manufacturer warranty and a free directory listing; unclear whether The Edge's Hardie
+installs count toward it). WebFetch and curl were both fully blocked on every domain this round (even
+Wikipedia) - everything is search-summary sourced; two new backlog items above to re-verify directly.
