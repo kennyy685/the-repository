@@ -148,7 +148,15 @@ DEFAULTS = {
         "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
         "min_doors": 8,             # skip walks with fewer doors left than this
         "max_passes": 3,            # a not-home door comes back until it has been tried this many times
-        "house_kinds": ["single", "mobile", "farm"]   # houses only: no apartments/multi-family/commercial
+        "house_kinds": ["single", "mobile", "farm"],  # houses only: no apartments/multi-family/commercial
+        "min_per_door": 3.0,        # est_minutes: about this many minutes at each door...
+        "walk_mph": 3.0,            # ...plus the walk between stops at this pace (straight line)
+        "stale_hours": 36,          # hud.json older than this (generated_utc) -> stale: true + a warning
+        "best_time": {              # best hours to knock (24h local), by day of week; null = no knocking planned
+            "weekday": ["16:00", "19:30"],
+            "saturday": ["10:00", "17:00"],
+            "sunday": None
+        }
     },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export"}
 }
