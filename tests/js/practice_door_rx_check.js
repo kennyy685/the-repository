@@ -21,6 +21,18 @@ const { OBJ, SKILL } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL };"
 
 /* [line, expected first flag type or null] */
 const CASES = [
+  /* v7 (T135, round 30): spouse / co-owner pressure flags; the title-holder question stays clean */
+  ["Both of you need to be here or there's no deal.", 'pressure'],
+  ["Your husband has to sit in on this or the price goes away.", 'pressure'],
+  ["Your husband has to sit in on this or the deal is off.", 'pressure'],
+  ["No deal unless both spouses are here.", 'pressure'],
+  ["Los dos tienen que estar aquí o no hay trato.", 'pressure'],
+  ["No hay trato si no están los dos.", 'pressure'],
+  ["Whose name is on the house?", null],
+  ["If your wife is on the title too, I can come back Saturday at 10.", null],
+  ["It's not a deal-breaker if your wife can't make it.", null],
+  ["¿A nombre de quién está la casa?", null],
+  ["Si su esposa también aparece en la escritura, regreso cuando ella esté.", null],
   /* v3-v4 set */
   ["Honestly Prairie Peak is a bunch of scammers.", 'competitor'],
   ["They're not even licensed, you know.", 'competitor'],
@@ -232,7 +244,7 @@ OBJ.forEach(o => o[1].forEach((x, i) => lines.push(["OBJ " + o[0][0] + (i ? " ES
 for (const k of Object.keys(T)) if (/^(fh_|f_|h_)/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => lines.push([k + (i ? " ES" : " EN"), x]));
 T.canList.forEach((l, i) => l.forEach(x => lines.push(["can" + i, x])));
 /* v7 (T131): the 10 skill drills' model answers and "to pass" lines, plus the first-3-seconds line. */
-if (!Array.isArray(SKILL) || SKILL.length !== 10) { console.log("FAIL expected 10 skill drills, got", SKILL && SKILL.length); process.exit(1); }
+if (!Array.isArray(SKILL) || SKILL.length !== 11) { console.log("FAIL expected 11 skill drills, got", SKILL && SKILL.length); process.exit(1); }
 SKILL.forEach(k => { k.a.forEach((x, i) => lines.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])); k.g.forEach((x, i) => lines.push(["SKILL goal " + k.id + (i ? " ES" : " EN"), x])); });
 T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
 let lf = 0;

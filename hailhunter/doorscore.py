@@ -63,8 +63,6 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
         parts["roof_age"] = ds["age_unknown"]
     # owner fit (round 16's "likely insured", never called that on screen)
     occ = s.get("owner_occ")
-    if occ is None:
-        occ = s.get("owner_occupied")
     if occ is True or occ is False:
         owner, basis = (1.0 if occ else 0.0), "house"
     elif owner_share is not None:

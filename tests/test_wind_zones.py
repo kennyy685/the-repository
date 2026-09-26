@@ -130,5 +130,17 @@ class Zones(unittest.TestCase):
         self.assertEqual(set(w), set(zones.walks(self.hud, self.plain, DAY, cfg=self.cfg)))
 
 
+class PlainWindLine(unittest.TestCase):
+    """QA 2026-09-26: a wind event with no mph, damage, trees or direction never gets an empty "Place, day: ." line."""
+
+    def test_bare_wind_event_gets_a_plain_line_en_es(self):
+        e = {"day": DAY, "place": "Hooper", "lat": 41.61, "lon": -96.55, "wind_score": 30.0}
+        near = {"name": "Fremont", "lat": 41.43, "lon": -96.50}
+        z = zones.wind_zones({"wind_events": [e]}, date.fromisoformat(DAY), near, 60, 90, {"wind_top": 8})[0]
+        self.assertEqual(z["why"]["en"], f"Hooper, {DAY}: strong wind reported nearby.")
+        self.assertEqual(z["why"]["es"], f"Hooper, {DAY}: viento fuerte reportado cerca.")
+        self.assertFalse(NEVER.search(z["why"]["en"] + z["why"]["es"]))
+
+
 if __name__ == "__main__":
     unittest.main()

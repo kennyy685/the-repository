@@ -762,6 +762,11 @@ const T = {
   skDoor: ['At the door', 'En la puerta'], skSolo: ['Just you', 'Solo tú'],
   skPass: ['Passed', 'Aprobado'], skMiss: ['Not yet', 'Todavía no'], skNew: ['New', 'Nuevo'],
   skDone: ['See how I did', 'Ver cómo me fue'],
+  skOwner: ['Ask whose name is on the house: the owner on the title signs.', 'Pregunta a nombre de quién está la casa: firma el dueño que aparece en la escritura.'],
+  /* v7 (T135, round 30): spouse / co-owner pressure. Asking whose name is on the house is the right paperwork step. */
+  r_pressure: ['No pressure closes (“both of you here or no deal”)', 'Sin cierres a presión (“los dos aquí o no hay trato”)'],
+  f_pressure: ['“Whose name is on the house? If your wife is on it too, I can come back when she’s home.”', '“¿A nombre de quién está la casa? Si su esposa también aparece, regreso cuando ella esté.”'],
+  n_pressure: ['Say “both of you have to be here or there’s no deal”', 'Decir “tienen que estar los dos o no hay trato”'],
   skSkip: ['No problem. Read this out loud twice, then try it again.', 'No pasa nada. Léela en voz alta dos veces y luego inténtalo otra vez.'],
   skAgain: ['Try this one again', 'Intentar este otra vez'],
   skDoneT: ['Drill done', 'Ejercicio terminado'],
@@ -774,7 +779,7 @@ const T = {
   skRatio: ['Use a number (doors, no’s, yes’s), then one change for the next door.', 'Usa un número (puertas, no, sí) y luego un cambio para la próxima puerta.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
-const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact']);
+const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure']);
 /* v5: the "Never say" list always shows these (cheat sheet), plus each homeowner's traps. */
 const CHEAT_BASE = CORE.concat(['license']);
 /* Caution flags: fine when literally true, so they never fail "Stayed legal" on their own. */
@@ -950,6 +955,8 @@ const OBJ = [
   [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
   [['“Someone already came by.”', '“Ya vino alguien.”'], ['Good, more eyes never hurt. Did they get on the roof or just look from the ground? Happy to give a free second look.', 'Qué bueno, más ojos nunca están de más. ¿Se subieron al techo o solo vieron desde el suelo? Con gusto le doy una segunda revisión gratis.']],
   [['“I rent.”', '“Yo rento.”'], ["Who owns the house? Can I get the owner's or property manager's office number?", '¿Quién es el dueño de la casa? ¿Me da el teléfono de la oficina del dueño o del administrador?']],
+  /* v7 (T137, round 30): isolate the real reason; don't re-pitch. */
+  [['“Let me think about it.”', '“Déjeme pensarlo.”'], ['Of course, take your time. So I know what to bring back: is it the price, the timing, another bid, or talking it over with your spouse?', 'Claro, tómese su tiempo. Para saber qué le traigo: ¿es el precio, el tiempo, otra cotización o platicarlo con su esposa o esposo?']],
   [['“Not interested.”', '“No me interesa.”'], ['No worries. Mind if I leave this bilingual card? (Then leave and go to the next door.)', 'No se preocupe. ¿Le puedo dejar esta tarjeta bilingüe? (Luego vete a la siguiente puerta.)']],
   /* Third item = the homeowner this answer is for (shown first when that homeowner is picked). */
   [['“I need three bids.”', '“Necesito tres cotizaciones.”'], ['Smart. Let me give you a free written estimate so you can compare line by line: materials, warranty, who does the work.', 'Muy bien pensado. Le doy un estimado gratis por escrito para que compare punto por punto: materiales, garantía y quién hace el trabajo.'], 'bargain'],
@@ -1048,7 +1055,15 @@ const SKILL = [
     setup: 'No homeowner - a reflection prompt shown after 3+ discouraging roleplay results in a row.',
     goal: 'Write one line reframing the losses as data (doors knocked vs. interested), not as personal failure, and name the one thing to try differently on the next door.',
     crit: 'The written reflection mentions a ratio or count (not just a feeling) and names one specific change for the next attempt.',
-    a: ["3 no's is just 3 doors: the goal is about 1 yes in every 10 to 15. Next door I'll ask one question before I pitch.", 'Tres “no” son solo 3 puertas: la meta es como 1 sí de cada 10 a 15. En la próxima puerta hago una pregunta antes de ofrecer.'] }
+    a: ["3 no's is just 3 doors: the goal is about 1 yes in every 10 to 15. Next door I'll ask one question before I pitch.", 'Tres “no” son solo 3 puertas: la meta es como 1 sí de cada 10 a 15. En la próxima puerta hago una pregunta antes de ofrecer.'] },
+  /* v7 (T135, research round 30; not in practice_drills.json): the title-holder question as a proper paperwork step. */
+  { id: 'drill-whose-name', t: ['Whose name is on the house?', '¿A nombre de quién está la casa?'], loc: 'owner',
+    q: ['“Okay, let’s do the paperwork. My wife’s at work, but I can sign.”', '“Bueno, hagamos los papeles. Mi esposa está en el trabajo, pero yo firmo.”'],
+    g: ['Ask whose name is on the house (the owner on the title signs). Invite the other owner, never “both of you or no deal”.', 'Pregunta a nombre de quién está la casa (firma el dueño de la escritura). Invita al otro dueño, nunca “los dos o no hay trato”.'],
+    setup: 'A homeowner ready to do paperwork while the spouse is away.',
+    goal: 'Kenny treats "whose name is on the house?" as a normal paperwork step, so the owner(s) on the title are the ones who sign, and offers a no-pressure way to include a co-owner (a set time to come back, photos to share).',
+    crit: 'Kenny asks whose name is on the house (title/deed) or who owns it before any signature, in a calm, normal way, and offers a no-pressure option for a co-owner. FAIL if he pressures with anything like "both spouses must be here or there\'s no deal" or "the price is only good if you both sign now", or lets someone who is not on the title sign.',
+    a: ["Sure. Quick paperwork step first: whose name is on the house? The owner on the title signs. If your wife is on it too, I can come back Saturday at 10 so she can see the photos.", 'Claro. Primero un paso de los papeles: ¿a nombre de quién está la casa? Firma el dueño que aparece en la escritura. Si su esposa también aparece, regreso el sábado a las 10 para que vea las fotos.'] }
 ];
 const objFor = o => [].concat(o[2] || []);
 
@@ -1324,6 +1339,9 @@ const RX = [
   ['referral', /\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]*|dinero|efectivo|premios?|bonos?|descuentos?)\b[^.!?]{0,30}\bpor (?:cada|todo|todos los) (?:vecin[oa]s?|amig[oa]s?|persona|cliente|casa|recomendaci\w*|referid\w*)/i, 'negGift'],
   ['guarantee', /\bguaranteed? (?:to )?(?:raise|increase|boost|add to|bump(?: up)?)\b[^.!?]{0,30}\b(?:value|price|resale)|\b(?:is|are|it'?s|that'?s)\s+(?:basically\s+)?guaranteed\b[^.!?]{0,30}\b(?:resale|home value|worth more|sell for more)/i, 'negIn'],
   ['negotiate', /\b(?:i'?ll|we'?ll|i will|we will|let me)\s+(?:be the one\s+)?(?:going|go|do(?:ing)? (?:all )?the)\s+back[- ]and[- ]forth with (?:the |your )?(?:adjuster|insurance|insurer)|\b(?:d[ée]jeme|deje)(?: a m[ií])? (?:las llamadas|el trato|todo lo del reclamo) con (?:el |su )?(?:ajustador|seguro|aseguradora|aseguranza)/i],
+  /* v7 (T135): spouse / co-owner pressure closes. */
+  ['pressure', /\b(?:both (?:of you|of y'?all|spouses|owners|decision[- ]makers)|(?:your|the) (?:wife|husband|spouse|partner|co-?owner)|you (?:both|two))\b[^.!?]{0,60}\bor (?:there'?s |it'?s )?(?:no deal|(?:the )?(?:deal|price|offer|discount) (?:is off|goes away|is gone))\b|\bno deal (?:unless|without|if (?:not )?)\b[^.!?]{0,40}\b(?:both|wife|husband|spouse|partner|co-?owner)/i],
+  ['pressure', /\b(?:los dos|ustedes dos|ambos|su (?:esposa|esposo|pareja|señora|señor))\b[^.!?]{0,60}\bo (?:no hay (?:trato|precio|descuento)|se (?:cae|pierde|acaba) (?:el|la) (?:trato|precio|descuento|oferta))\b|\bno hay trato (?:si no|sin)\b[^.!?]{0,40}\b(?:los dos|ambos|esposa|esposo|pareja|señora)/i],
   ['promise', /\bcheck\b[^.!?]{0,30}\b(?:is going to|will|'ll|gonna)\s+cover\s+(?:every|all|the whole|everything)|\bcheque\b[^.!?]{0,30}\b(?:va a|le va a)\s+(?:alcanzar|cubrir|pagar)\s+(?:para )?(?:todo|todito)/i, 'negIn'],
 ];
 const NEG_IN = /\b(?:not|never|no|nunca|nobody|nadie)\b|n['’]t\b/i;
@@ -1424,7 +1442,7 @@ function rulesText() {
 }
 
 /* The legal rule list, shared by the scorecard coach, the drill grader and the field-answer writer (v4). */
-const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact").';
+const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact"); pressured with "both spouses (or owners) have to be here or there\'s no deal", or a price or deal that only holds if everyone signs now (type "pressure"; asking whose name is on the house so the right owner signs, or offering to come back when a co-owner is home, is fine and is a proper paperwork step).';
 
 function coachPrompt() {
   const sc = S.sc, p = P[S.actual];
@@ -2262,6 +2280,7 @@ const PHOTO_RX = /\b(?:photos?|pictures?|pics?|evidence|damage|damaged|scope|fot
 const PAPER_RX = /\b(?:contract|contingency|permission|authori[sz]ation|agreement|paper|form|inspection (?:form|permission)|contrato|contingencia|permiso|autorizaci[oó]n|acuerdo|papel|forma)\b/i;
 const CANCEL_EN = /\b(?:3|three)[- ](?:business |working )?days?\b[^.!?]{0,60}\bcancel|\bcancel\w*\b[^.!?]{0,60}\b(?:3|three)[- ](?:business |working )?days?\b/i;
 const CANCEL_ES = /\b(?:3|tres) d[ií]as\b[^.!?]{0,60}\bcancel\w*|\bcancel\w*\b[^.!?]{0,60}\b(?:3|tres) d[ií]as\b/i;
+const OWNER_RX = /\bwhose names?\b|\bnames? (?:is |are )?on (?:the )?(?:house|home|title|deed)|\bon the (?:title|deed)\b|\bwho owns\b|\bwho(?:'s| is) the owner\b|\ba nombre de qui[eé]n\b|\bqui[eé]n (?:es el due[nñ]o|aparece|est[aá] en la escritura)|\ben la escritura\b/i;
 const NUM_RX = /\d|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|fifty|half|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|veinte|treinta|cincuenta|mitad)\b/i;
 function skillLocal(it, ans) {
   const txt = ans.replace(/\([^)]*\)/g, ' ');
@@ -2273,6 +2292,7 @@ function skillLocal(it, ans) {
     case 'cancel2': return !CANCEL_EN.test(ans) || !CANCEL_ES.test(ans) ? ['skCancel2'] : null;
     case 'nodeduct': return dedTalk(ans) ? ['deductMiss'] : null;
     case 'paper': return !PAPER_RX.test(ans) ? ['skPaper'] : null;
+    case 'owner': return !OWNER_RX.test(ans) ? ['skOwner'] : null;
     case 'ratio': return !NUM_RX.test(ans) ? ['skRatio'] : null;
     default: return null;
   }

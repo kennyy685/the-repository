@@ -186,6 +186,9 @@ def wind_zones(hud, today, near, radius, max_age, zc):
         if e.get("wind_dir"):
             bits_en.append(f"wind from the {e['wind_dir']}: check that side of the roof first")
             bits_es.append(f"viento del {e['wind_dir']}: revise primero ese lado del techo")
+        if not bits_en:                              # no gust, damage, tree or direction detail: a plain line
+            bits_en.append("strong wind reported nearby")
+            bits_es.append("viento fuerte reportado cerca")
         slug = "".join(ch if ch.isalnum() else "-" for ch in place.lower()).strip("-")
         out.append({"id": f"wind~{e['day']}~{slug}", "name": f"{place}: wind", "kind": "wind",
                     "center": {"lat": round(lat, 6), "lon": round(lon, 6)}, "polygon": None, "polygon_kind": None,
