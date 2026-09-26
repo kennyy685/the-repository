@@ -107,5 +107,9 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
     for key in ("hail", "owner_fit", "kind", "roof_age", "value", "sold_after_storm"):
         total *= parts[key]
     return {"score": round(total, 1), "parts": parts,
-            "why": {"en": ", ".join(en).capitalize() if en else "No house details on file",
-                    "es": ", ".join(es).capitalize() if es else "Sin datos de la casa"}}
+            "why": {"en": _cap(", ".join(en)) if en else "No house details on file",
+                    "es": _cap(", ".join(es)) if es else "Sin datos de la casa"}}
+
+
+def _cap(t):
+    return t[:1].upper() + t[1:]

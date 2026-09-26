@@ -1,0 +1,215 @@
+<title>HMP App Look Book</title>
+<style>
+@font-face{font-family:"Geist";src:url(fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist";src:url(fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist";src:url(fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url(fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#18191c; --ink2:#3f4147; --muted:#6c6f77; --line:#e1e3e7;
+  --hmp:#f5883a; --hmp-ink:#a4520f; --hmp-bg:#fff1e6; --chip:#eceef1;
+  --f:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#111214; --card:#1a1c20; --ink:#f1f2f4; --ink2:#c8cbd1; --muted:#8d919a; --line:#2b2e34;
+  --hmp-ink:#ffab6b; --hmp-bg:#3a2413; --chip:#24272c;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#111214; --card:#1a1c20; --ink:#f1f2f4; --ink2:#c8cbd1; --muted:#8d919a; --line:#2b2e34;
+  --hmp-ink:#ffab6b; --hmp-bg:#3a2413; --chip:#24272c;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+.page{max-width:1080px;margin:0 auto;padding:28px 16px 64px}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--hmp);outline-offset:2px}
+.lbl{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header .mark{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+header .mark svg{width:34px;height:11px}
+h1{font-size:clamp(32px,7vw,52px);font-weight:600;letter-spacing:-.035em;line-height:1.02;margin:0 0 10px;text-wrap:balance}
+.lede{font-size:17px;color:var(--ink2);max-width:60ch;margin:0 0 6px}
+.es{color:var(--muted);font-size:14px;margin:0}
+.structure{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0}
+.structure span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:500}
+.structure .p{background:var(--hmp);border-color:var(--hmp);color:#1b1206}
+nav.toc{display:flex;gap:16px;flex-wrap:wrap;margin:22px 0 0;font-size:14px}
+nav.toc a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+nav.toc a:hover{color:var(--ink)}
+section{margin-top:56px}
+section>h2{font-size:26px;font-weight:600;letter-spacing:-.02em;margin:4px 0 6px}
+section>p.intro{color:var(--ink2);max-width:62ch;margin:0 0 20px}
+
+/* directions */
+.dirs{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media (max-width:980px){.dirs{grid-template-columns:repeat(4,78%);overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 12px}.dir{scroll-snap-align:start}}
+@media (max-width:560px){.dirs{grid-template-columns:repeat(4,84%)}}
+.dir{display:flex;flex-direction:column;gap:10px;text-decoration:none}
+.shot{border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--card);aspect-ratio:390/844;max-width:100%}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.dir h3{margin:2px 0 0;font-size:19px;font-weight:600;letter-spacing:-.015em;display:flex;align-items:center;gap:8px}
+.dir h3 .pick{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--hmp);color:#1b1206;border-radius:5px;padding:2px 6px}
+.dir p{margin:0;font-size:14px;color:var(--ink2)}
+.dir .by{font-size:12px;color:var(--muted)}
+.dir .open{font-size:13px;font-weight:500;color:var(--hmp-ink)}
+.dir:hover h3{text-decoration:underline;text-underline-offset:3px}
+
+.cmp{overflow-x:auto;margin-top:26px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.cmp table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+.cmp th,.cmp td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp tr:last-child td{border-bottom:0}
+.cmp th{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.cmp td:first-child{color:var(--muted);white-space:nowrap}
+.dot{display:inline-flex;gap:3px;vertical-align:middle}
+.dot i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dot i.f{background:var(--ink)}
+
+.pickbox{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;display:grid;gap:6px;max-width:720px}
+.pickbox b{font-size:17px}
+.pickbox p{margin:0;color:var(--ink2)}
+
+/* principles */
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:0 32px;counter-reset:r}
+@media (max-width:720px){.rules{grid-template-columns:1fr}}
+.rule{display:grid;grid-template-columns:34px 1fr;gap:4px 10px;padding:14px 0;border-top:1px solid var(--line)}
+.rule::before{counter-increment:r;content:counter(r);font:500 13px var(--mono);color:var(--hmp-ink);padding-top:2px}
+.rule b{font-size:16px;font-weight:600;display:block}
+.rule p{grid-column:2;margin:0;font-size:14px;color:var(--ink2)}
+.rule .es{grid-column:2;font-size:13px}
+
+/* references */
+.filters{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.filters button{font:500 13px var(--f);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ref{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ref .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.ref h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em}
+.ref .kind{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.ref .kind.field{color:var(--hmp-ink)}
+.ref dl{margin:0;display:grid;gap:8px}
+.ref dt{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ref dd{margin:1px 0 0;font-size:14px;color:var(--ink2)}
+.ref dd.steal{color:var(--ink);font-weight:500}
+.ref .ft{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:6px;border-top:1px solid var(--line);font-size:13px}
+.ref .ft .ap{background:var(--hmp-bg);color:var(--hmp-ink);border-radius:6px;padding:2px 8px;font-weight:500}
+.ref .ft a{color:var(--muted)}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="page">
+<header>
+  <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3"/></svg><span class="lbl">HMP App · new look</span></div>
+  <h1>Four looks for the same Now screen</h1>
+  <p class="lede">The structure stays as you picked it (layout B). This page is only about the look and how the information sits. Same content in all four: the next door, what to say, and what's due.</p>
+  <p class="es">Misma estructura, cuatro estilos. Escoge uno o mezcla.</p>
+  <div class="structure"><span>Now</span><span>Knock</span><span class="p">+</span><span>Leads</span><span>Money</span></div>
+  <nav class="toc"><a href="#looks">4 looks</a><a href="#rules">8 rules</a><a href="#refs">10 reference apps</a></nav>
+</header>
+
+<section id="looks">
+  <div class="lbl">Pick one · Escoge uno</div>
+  <h2>The four looks</h2>
+  <p class="intro">Tap one to see it full size with its fonts, colors and spacing. Swipe sideways on your phone.</p>
+  <div class="dirs">
+    <a class="dir" href="direction-a.html">
+      <div class="shot"><img src="direction-a.png" alt="Direction A, Ledger: light screen with hairline dividers, a strip of four numbers, next door card, due list" loading="lazy"></div>
+      <h3>A · Ledger <span class="pick">My pick</span></h3>
+      <p>Light, quiet, exact. Hairlines, one number strip, orange on one button. Reads in full sun.</p>
+      <span class="by">Stripe Dashboard · Linear · Things 3</span>
+      <span class="open">Open A →</span>
+    </a>
+    <a class="dir" href="direction-b.html">
+      <div class="shot"><img src="direction-b.png" alt="Direction B, Night Shift: near-black screen with a giant 7 of 25 door count and big buttons" loading="lazy"></div>
+      <h3>B · Night Shift</h3>
+      <p>Near-black, huge numbers, fat buttons. The day's door count comes first, like a driver's earnings.</p>
+      <span class="by">Uber Driver · Robinhood · Linear</span>
+      <span class="open">Open B →</span>
+    </a>
+    <a class="dir" href="direction-c.html">
+      <div class="shot"><img src="direction-c.png" alt="Direction C, Porch: white rounded cards on grey, a row of house dots for the walk, Say Ask Collect tabs" loading="lazy"></div>
+      <h3>C · Porch</h3>
+      <p>Friendly white cards. The walk as a row of houses, Say/Ask/Collect as tabs, action buttons on each card.</p>
+      <span class="by">Airbnb host · CompanyCam · Jobber</span>
+      <span class="open">Open C →</span>
+    </a>
+    <a class="dir" href="direction-d.html">
+      <div class="shot"><img src="direction-d.png" alt="Direction D, Checklist: charcoal top bar, the day as one checklist with the current door opened" loading="lazy"></div>
+      <h3>D · Checklist</h3>
+      <p>The day is one to-do list. The top item opens with the script inside; Collect is real checkboxes.</p>
+      <span class="by">Things 3 · Linear inbox · SalesRabbit</span>
+      <span class="open">Open D →</span>
+    </a>
+  </div>
+
+  <div class="cmp">
+    <table>
+      <thead><tr><th></th><th>A · Ledger</th><th>B · Night Shift</th><th>C · Porch</th><th>D · Checklist</th></tr></thead>
+      <tbody>
+        <tr><td>Readable in sun</td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span> best</td><td><span class="dot"><i class="f"></i><i></i><i></i></span> weak</td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span> good</td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span> good</td></tr>
+        <tr><td>Glance while walking</td><td><span class="dot"><i class="f"></i><i class="f"></i><i></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span> best</td><td><span class="dot"><i class="f"></i><i class="f"></i><i></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i></i></span></td></tr>
+        <tr><td>Shows the most</td><td><span class="dot"><i class="f"></i><i class="f"></i><i></i></span></td><td><span class="dot"><i class="f"></i><i></i><i></i></span></td><td><span class="dot"><i class="f"></i><i></i><i></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span> best</td></tr>
+        <tr><td>Feels like a product</td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i class="f"></i></span></td><td><span class="dot"><i class="f"></i><i class="f"></i><i></i></span></td></tr>
+        <tr><td>Fonts</td><td>Geist + Geist Mono</td><td>Archivo</td><td>Figtree</td><td>Barlow (matches print)</td></tr>
+        <tr><td>Light / dark</td><td>Light</td><td>Dark</td><td>Light</td><td>Light, charcoal bar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pickbox">
+    <span class="lbl">My pick</span>
+    <b>A · Ledger, with B's big door count on the Knock tab.</b>
+    <p>You use this outside all day, and light screens win in the sun. A is the calmest and looks the most like a product you could sell to other roofers. For your answer, a letter is enough ("A"), or a mix ("A, but D's checkboxes").</p>
+    <p class="es">Mi elección: A, con el número grande de B en Tocar.</p>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="lbl">How the information sits · Cómo se ordena</div>
+  <h2>8 rules for every screen</h2>
+  <p class="intro">These fix the clutter no matter which look you pick. Every screen of the app gets checked against them.</p>
+  <div class="rules">
+    <div class="rule"><div><b>Next thing first</b></div><p>The top of every screen answers "what do I do now". Today's next door, the next lead step, the next check owed.</p><p class="es">Lo siguiente, primero.</p></div>
+    <div class="rule"><div><b>One orange button per screen</b></div><p>Orange means "do this". Everything else is grey or outlined, so the eye lands in one place.</p><p class="es">Un solo botón naranja.</p></div>
+    <div class="rule"><div><b>Numbers big, labels small</b></div><p>7 doors, $19,700 owed: the figure in large type, the word under it. No sentences around numbers.</p><p class="es">Números grandes, palabras chicas.</p></div>
+    <div class="rule"><div><b>Show 3, hide the rest</b></div><p>Lists show the next 3 with "See all". The 25-house list, the claim ledger and the glossary open only when asked.</p><p class="es">Enseña 3, lo demás con un toque.</p></div>
+    <div class="rule"><div><b>Status by shape and word</b></div><p>Late items get a flag icon and "1 day late", not only red. Works for color-blind eyes and in glare.</p><p class="es">Estado con forma y palabra, no solo color.</p></div>
+    <div class="rule"><div><b>Each fact lives in one place</b></div><p>Follow-ups and next moves become one Due list. One door count, used everywhere, so numbers never disagree.</p><p class="es">Cada dato, en un solo lugar.</p></div>
+    <div class="rule"><div><b>The salesman's words</b></div><p>"Call back", "Booked", "Still owed". No system words (sync, turf, handoff). Scripts in EN with ES one tap away.</p><p class="es">Palabras de vendedor, no de sistema.</p></div>
+    <div class="rule"><div><b>Thumb zone for actions</b></div><p>Buttons in the bottom half, at least 48 px tall. Reading at the top, tapping at the bottom.</p><p class="es">Botones al alcance del pulgar.</p></div>
+  </div>
+</section>
+
+<section id="refs">
+  <div class="lbl">Apps to learn from · Apps de referencia</div>
+  <h2>10 reference apps</h2>
+  <p class="intro">Six of the best everyday apps and four built for contractors. One idea from each, and where it goes in the HMP App. Links go to each app's own page.</p>
+  <div class="filters" role="group" aria-label="Filter references">
+    <button id="f-all" aria-pressed="true" data-f="all">All 10</button>
+    <button id="f-best" aria-pressed="false" data-f="best">Best in class 6</button>
+    <button id="f-field" aria-pressed="false" data-f="field">Contractor apps 4</button>
+  </div>
+  <div class="refs">
+    <article class="ref" data-k="best"><div class="hd"><h3>Linear Mobile</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>An inbox of only what needs you; swipe to finish or snooze.</dd><dt>We steal</dt><dd class="steal">Swipe a Due item right to mark it done, left to push it to tomorrow.</dd></dl><div class="ft"><span class="ap">Now · Due</span><a href="https://linear.app/mobile" target="_blank" rel="noopener">linear.app/mobile ↗</a></div></article>
+    <article class="ref" data-k="best"><div class="hd"><h3>Stripe Dashboard</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>One money figure on top, a small chart, everything else calm grey.</dd><dt>We steal</dt><dd class="steal">Money opens on one big figure, "Still owed $19,700", with the breakdown under it.</dd></dl><div class="ft"><span class="ap">Money</span><a href="https://apps.apple.com/us/app/stripe-dashboard/id978516833" target="_blank" rel="noopener">App Store ↗</a></div></article>
+    <article class="ref" data-k="best"><div class="hd"><h3>Uber Driver</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>Built with drivers: the offer card gives the facts to decide in seconds, then one big button.</dd><dt>We steal</dt><dd class="steal">The Next door card as an "offer card": address, why this house, four thumb-sized answers.</dd></dl><div class="ft"><span class="ap">Knock</span><a href="https://apps.apple.com/us/app/uber-driver-drive-deliver/id1131342792" target="_blank" rel="noopener">App Store ↗</a></div></article>
+    <article class="ref" data-k="best"><div class="hd"><h3>Robinhood</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>One huge number and a line; nothing else competes for your eye.</dd><dt>We steal</dt><dd class="steal">Today's doors as the huge figure, with the week's line under it.</dd></dl><div class="ft"><span class="ap">Knock · evening review</span><a href="https://apps.apple.com/us/app/robinhood-trading-investing/id938003185" target="_blank" rel="noopener">App Store ↗</a></div></article>
+    <article class="ref" data-k="best"><div class="hd"><h3>Airbnb host · Today</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>The Today tab shows only today's guests, with call and message buttons on each card.</dd><dt>We steal</dt><dd class="steal">A Call or Directions button right on each Due card, no digging into the lead.</dd></dl><div class="ft"><span class="ap">Now</span><a href="https://www.airbnb.com/resources/hosting-homes/a/reservations-redesigned-765" target="_blank" rel="noopener">airbnb.com ↗</a></div></article>
+    <article class="ref" data-k="best"><div class="hd"><h3>Things 3</h3><span class="kind">Best in class</span></div><dl><dt>Does well</dt><dd>Calm lists, lots of air, Today and Upcoming, a satisfying round check.</dd><dt>We steal</dt><dd class="steal">Due grouped Today / Tomorrow / Later, finished with one round check.</dd></dl><div class="ft"><span class="ap">Now · Leads</span><a href="https://culturedcode.com/things/" target="_blank" rel="noopener">culturedcode.com ↗</a></div></article>
+    <article class="ref" data-k="field"><div class="hd"><h3>CompanyCam</h3><span class="kind field">Contractor</span></div><dl><dt>Does well</dt><dd>Photos sort themselves by job address with GPS and time stamps. Zero typing.</dd><dt>We steal</dt><dd class="steal">Every photo lands on the lead by address; a lead opens on its photo strip.</dd></dl><div class="ft"><span class="ap">Leads · inspection</span><a href="https://apps.apple.com/us/app/companycam/id960043499" target="_blank" rel="noopener">App Store ↗</a></div></article>
+    <article class="ref" data-k="field"><div class="hd"><h3>Jobber</h3><span class="kind field">Contractor</span></div><dl><dt>Does well</dt><dd>The day's visits in order, and quote to job to invoice in one flow.</dd><dt>We steal</dt><dd class="steal">One status line on every job: Quote → Job → Invoice → Paid.</dd></dl><div class="ft"><span class="ap">Money</span><a href="https://www.getjobber.com/features/field-service-management-app/" target="_blank" rel="noopener">getjobber.com ↗</a></div></article>
+    <article class="ref" data-k="field"><div class="hd"><h3>SalesRabbit</h3><span class="kind field">Contractor</span></div><dl><dt>Does well</dt><dd>Door-to-door map with a pin per house and a quick tap to log the answer.</dd><dt>We steal</dt><dd class="steal">Door answers as the same icon and color on the Knock map and list.</dd></dl><div class="ft"><span class="ap">Knock</span><a href="https://salesrabbit.com/door-to-door-software" target="_blank" rel="noopener">salesrabbit.com ↗</a></div></article>
+    <article class="ref" data-k="field"><div class="hd"><h3>Roofr</h3><span class="kind field">Contractor</span></div><dl><dt>Does well</dt><dd>Roof measurements turn into a good/better/best proposal the homeowner signs on a phone.</dd><dt>We steal</dt><dd class="steal">Quick price shows three tiers side by side, ready to turn toward the homeowner.</dd></dl><div class="ft"><span class="ap">+ Quick price</span><a href="https://roofr.com/proposals" target="_blank" rel="noopener">roofr.com ↗</a></div></article>
+  </div>
+</section>
+
+<footer>Mockups use sample data (Linden &amp; E 4th walk, Sep 10 hail). No screenshots or logos from these apps are copied here; the links go to each company's own page. Built by the Designer, Sep 26, 2026.</footer>
+</div>
+<script>
+document.querySelectorAll('.filters button').forEach(function(b){
+  b.addEventListener('click',function(){
+    var f=b.getAttribute('data-f');
+    document.querySelectorAll('.filters button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    document.querySelectorAll('.ref').forEach(function(r){r.hidden=!(f==='all'||r.getAttribute('data-k')===f)});
+  });
+});
+</script>

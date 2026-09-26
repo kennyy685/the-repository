@@ -166,10 +166,19 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
             z = heat.get((L["list_id"], t["turf"]))
             if z:
                 t.update({"heat": z["heat"], "why": json.loads(z["why"] or "[]"), "exp_inspections": z["exp_inspections"]})
+                try:                                      # door score v2: the walk's neighborhood owner/mortgage shares
+                    parts = json.loads(z["parts"] or "{}")
+                except (TypeError, ValueError):
+                    parts = {}
+                own = parts["owner_share"] if "owner_share" in parts else parts.get("owners")
+                t["owner_share"] = round(own, 3) if isinstance(own, (int, float)) else None
+                if isinstance(parts.get("mortgage"), (int, float)):
+                    t["mortgage_share"] = round(parts["mortgage"], 3)
         stops = [dict(r) for r in conn.execute(
             """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
                       p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
-                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year
+                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year,
+                      p.sale_date
                FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
                WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
         for s in stops:

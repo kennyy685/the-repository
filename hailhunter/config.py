@@ -142,6 +142,25 @@ DEFAULTS = {
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
     },
+    # Door score v2 (research round 16, `hailhunter/doorscore.py`): one house, 0-100 = 100 x hail x owner_fit x kind x
+    # roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale)
+    # x recent sale): owner + bought in the last recent_sale_years = 1.0, owner + older sale = 0.7, renter = 0.4.
+    "door_score": {
+        "hail_curve": [[0.75, 0.1], [1.0, 0.4], [2.0, 1.0]],   # hail at the house (in) -> factor (storm walks)
+        "hail_unknown": 0.4,
+        "renter_base": 0.4,         # owner_fit when nobody who owns it lives there
+        "no_sale": 0.5,             # owner_fit share kept by an owner with no recent sale (older/paid-off mortgage)
+        "recent_sale_years": 10,    # bought within this many years = likely still has a mortgage
+        "owner_unknown": 0.65,      # owner-occupied share when neither the house nor the area is known
+        "kind_factor": {"single": 1.0, "mobile": 0.7, "multi": 0.6, "farm": 0.6, "other": 0.5},
+        "age_curve": [[0, 0.5], [8, 0.8], [15, 1.0]],   # roof age (years since built / re-roofed) -> factor
+        "age_unknown": 0.85,
+        "value_curve": [[60000, 0.6], [110000, 0.85], [150000, 1.0], [400000, 1.0], [800000, 0.8]],
+        "value_unknown": 0.9,
+        "sold_after_storm": 0.6     # storm walks: the house was sold after the storm day
+    },
+    # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
+    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40},
     # Follow-ups (`hh.py followups`, research round 9): touches after the first Interested, one line per lead
     "followups": {
         "touch_days": [2, 5, 10],   # days after the first Interested (48 h / 5 days / 10 days)

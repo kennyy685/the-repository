@@ -292,5 +292,17 @@
     "chimney_flashing_job": {"low": null, "high": null},
     "skylight_flashing_ft": {"low": null, "high": null},
     "insulated_vinyl_siding_sq": {"low": null, "high": null}
+  },
+  "door_score": {
+    "_note": "Door score v2 (hailhunter/doorscore.py, research round 16): one house 0-100 = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale) x bought within recent_sale_years). Change weights here.",
+    "hail_curve": [[0.75, 0.1], [1.0, 0.4], [2.0, 1.0]],
+    "renter_base": 0.4,
+    "no_sale": 0.5,
+    "recent_sale_years": 10,
+    "owner_unknown": 0.65,
+    "kind_factor": {"single": 1.0, "mobile": 0.7, "multi": 0.6, "farm": 0.6, "other": 0.5},
+    "age_curve": [[0, 0.5], [8, 0.8], [15, 1.0]],
+    "value_curve": [[60000, 0.6], [110000, 0.85], [150000, 1.0], [400000, 1.0], [800000, 0.8]],
+    "sold_after_storm": 0.6
   }
 }
