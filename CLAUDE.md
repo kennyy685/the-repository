@@ -77,6 +77,11 @@ project chat + its 8:12 AM / 6:12 PM routines) is the Right Hand**: it answers F
 he says (leads, doors, claims), runs the standup/wrap summaries and HMP HQ refresh, and passes his words to Claude Code as
 handoffs (`to: "code"`). It takes orders from Claude Code and doesn't reassign Code-lab work. Cowork still owns the command
 center and Storm Watch.
+**Cloud Right Hand (FilthE, 2026-09-26):** the Right Hand's scheduled jobs now run in the cloud hourly trigger
+(`trig_012h6pQqggc88n8vsj93zayJ`, every hour 7 AM-10 PM Central: acts on answers/handoffs/events each run, standup at
+8 AM, wrap at 6 PM), so orders get picked up within the hour even with the Mac off. The Mac routines (8:12 AM standup
+`trig_01NKMVTpCBNnHwSC1hdZBHwM`, 6:12 PM wrap `trig_011XswCar2enDNHr1B5N16pi`) are paused, not deleted. For instant
+action: message Claude Code directly, or comment on the hub/app page.
 
 ## Start here: what every new session should already know
 This file is the shared memory. Claude sessions don't share chat history (claude.ai chats, Cowork and
