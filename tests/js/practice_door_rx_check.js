@@ -17,7 +17,7 @@ const legalScan = new Function(src.slice(a, b) + "\nreturn legalScan;")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
-const OBJ = new Function(src.slice(c, d) + "\nreturn OBJ;")();
+const { OBJ, SKILL } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL };")();
 
 /* [line, expected first flag type or null] */
 const CASES = [
@@ -231,6 +231,10 @@ const lines = [];
 OBJ.forEach(o => o[1].forEach((x, i) => lines.push(["OBJ " + o[0][0] + (i ? " ES" : " EN"), x])));
 for (const k of Object.keys(T)) if (/^(fh_|f_|h_)/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => lines.push([k + (i ? " ES" : " EN"), x]));
 T.canList.forEach((l, i) => l.forEach(x => lines.push(["can" + i, x])));
+/* v7 (T131): the 10 skill drills' model answers and "to pass" lines, plus the first-3-seconds line. */
+if (!Array.isArray(SKILL) || SKILL.length !== 10) { console.log("FAIL expected 10 skill drills, got", SKILL && SKILL.length); process.exit(1); }
+SKILL.forEach(k => { k.a.forEach((x, i) => lines.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])); k.g.forEach((x, i) => lines.push(["SKILL goal " + k.id + (i ? " ES" : " EN"), x])); });
+T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
 let lf = 0;
 for (const [where, x] of lines) { const fl = legalScan(x); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);
