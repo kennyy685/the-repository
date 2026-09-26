@@ -1037,6 +1037,180 @@ a.btn,a.btn:visited{color:var(--ink)}
 .hub-foot .old{color:var(--warn)}
 .asks-loud .a-quiet{font-size:14px}
 .mytasks .tst{margin-left:8px;vertical-align:1px;white-space:nowrap;border-radius:999px;padding:1px 8px}
+/* ================= v21: homeowner screen, "Daylight report" (option B). A light, separate scope: the rest of the app stays Pro Dark ================= */
+.ho-launch .el-go{color:var(--hmp)}
+.ho-sum{margin:0;font-size:14px;color:var(--ink2)}
+.ho-sum b{color:var(--ink)}
+.est-show{display:grid;gap:4px;margin-top:4px}
+.est-show .est-btn{justify-content:flex-start;gap:10px}
+.est-show small{font-size:12px;color:var(--mute)}
+#hoView{--h-paper:#f4f2ee;--h-card:#ffffff;--h-ink:#1f2023;--h-char:#404145;--h-char-dk:#2a2b2f;--h-muted:#5b5f67;--h-line:#e2dfd8;
+  --h-orange:#f5883a;--h-orange-ink:#9c4a16;--h-tint:#fdf1e7;--h-mist:#efede8;--h-ok:#2f6b4f;--h-shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+  color-scheme:light;position:fixed;inset:0;z-index:75;overflow:auto;overscroll-behavior:contain;background:var(--h-paper);color:var(--h-ink);
+  font:500 15px/1.45 "Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+#hoView *{box-sizing:border-box}
+#hoView :focus-visible{outline:3px solid var(--h-orange);outline-offset:2px}
+#hoView button{font:inherit;color:inherit;cursor:pointer}
+#hoView h1,#hoView h2,#hoView h3,#hoView p{margin:0}
+#hoView .ho-head{background:linear-gradient(180deg,#46474c,#35363a);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+#hoView .ho-in{max-width:820px;margin:0 auto;padding:10px 16px 14px}
+#hoView .ho-row{display:flex;align-items:center;gap:8px}
+#hoView .ho-logo{display:inline-grid;justify-items:center;margin-right:auto;line-height:1}
+#hoView .ho-logo svg{width:74px;height:12px;display:block}
+#hoView .ho-logo b{font:800 25px/0.95 "Barlow Semi Condensed","Arial Narrow",sans-serif;letter-spacing:.06em;color:#eef0f2;background:linear-gradient(180deg,#fff,#c9ccd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#hoView .ho-logo small{font:700 7.5px/1.2 "Montserrat",sans-serif;letter-spacing:.14em;color:#c9ccd1;border-top:2px solid var(--h-orange);padding-top:2px;margin-top:1px}
+#hoView .ho-ic{min-width:44px;min-height:44px;display:grid;place-items:center;border:1px solid #6a6c73;border-radius:10px;background:rgba(255,255,255,.04);color:#e6e8eb;padding:0}
+#hoView .ho-ic svg{width:20px;height:20px}
+#hoView .ho-ic[aria-pressed="true"]{background:var(--h-orange);border-color:var(--h-orange);color:#1b1206}
+#hoView .ho-langs{display:flex;background:rgba(0,0,0,.28);border-radius:10px;padding:3px}
+#hoView .ho-langs button{min-width:44px;min-height:38px;border:0;border-radius:8px;background:transparent;color:#c9ccd1;font:700 15px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.04em}
+#hoView .ho-langs button[aria-pressed="true"]{background:#fff;color:var(--h-ink)}
+#hoView .ho-who{margin-top:12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:13px;color:#c9ccd1}
+#hoView .ho-who b{font:700 20px/1.1 "Barlow Semi Condensed",sans-serif;color:#fff;overflow-wrap:anywhere}
+#hoView .ho-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#d9dbdf;background:rgba(255,255,255,.09);border-radius:99px;padding:3px 10px;flex-basis:100%;max-width:max-content}
+#hoView .ho-chip svg{width:12px;height:12px}
+#hoView .ho-steps{position:sticky;top:0;z-index:3;background:var(--h-paper);border-bottom:1px solid var(--h-line)}
+#hoView .ho-steps .ho-sin{max-width:820px;margin:0 auto;padding:10px 16px;display:flex;gap:6px}
+#hoView .ho-steps button{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;border:0;border-radius:99px;background:var(--h-mist);color:var(--h-muted);font:700 15px/1.05 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-steps button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hoView .ho-steps i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#cfccc4;color:#fff;display:grid;place-items:center;font-size:13px;flex:none}
+#hoView .ho-steps button[aria-current="step"]{background:var(--h-char);color:#fff}
+#hoView .ho-steps button[aria-current="step"] i{background:var(--h-orange);color:var(--h-ink)}
+#hoView .ho-steps button.done i{background:var(--h-char)}
+#hoView .ho-wrap{max-width:820px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;align-content:start}
+#hoView h1{font:800 36px/1.02 "Barlow Semi Condensed","Arial Narrow",sans-serif;margin-top:16px;text-wrap:balance;letter-spacing:0}
+#hoView .ho-sub{color:var(--h-muted);font-size:15px;margin-top:-8px}
+#hoView .ho-card{background:var(--h-card);border-radius:14px;padding:16px;box-shadow:var(--h-shadow)}
+#hoView .ho-lbl{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--h-muted)}
+/* photos with numbered circles */
+#hoView .ho-plist{display:grid;gap:14px}
+#hoView .ho-pcard{background:var(--h-card);border-radius:14px;overflow:hidden;box-shadow:var(--h-shadow);min-width:0}
+#hoView .ho-ph{position:relative;background:#16171a;min-height:120px;touch-action:manipulation}
+#hoView .ho-ph img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;margin:0 auto}
+#hoView .ho-ph .ho-mks{position:absolute;inset:0;pointer-events:none}
+#hoView .ho-ph.gone{display:grid;place-items:center;color:#c9ccd1;font-size:13px;padding:24px}
+#hoView .ho-ph.gone img,#hoView .ho-ph.gone .ho-mks{display:none}
+#hoView .ho-ph .ho-gone{display:none}
+#hoView .ho-ph.gone .ho-gone{display:block}
+#hoView .ho-mk{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;pointer-events:none;padding:0;border:0;background:transparent}
+#hoView .ho-mk svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#hoView .ho-mk b{position:absolute;right:-6px;top:-6px;width:24px;height:24px;border-radius:50%;background:var(--h-orange);color:var(--h-ink);font:800 15px/24px "Barlow Semi Condensed",sans-serif;text-align:center;box-shadow:0 0 0 2px #fff}
+#hoView.rep .ho-ph{cursor:crosshair;outline:3px dashed var(--h-orange);outline-offset:-3px}
+#hoView.rep .ho-mk{pointer-events:auto;cursor:pointer}
+#hoView .ho-cap{display:flex;gap:12px;padding:12px 14px 14px;align-items:flex-start}
+#hoView .ho-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--h-char);color:#fff;font:800 17px/30px "Barlow Semi Condensed",sans-serif;text-align:center}
+#hoView .ho-cap b{display:block;font:700 20px/1.15 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-cap div > span{color:var(--h-muted);font-size:14px}
+#hoView .ho-cap .ho-undo{margin-left:auto;flex:none}
+#hoView .ho-empty{background:var(--h-card);border:2px dashed #d3cfc6;border-radius:14px;padding:18px;display:grid;gap:6px}
+#hoView .ho-empty b{font:700 22px/1.15 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-empty p{color:var(--h-muted)}
+/* hail + insurance */
+#hoView .ho-two{display:grid;gap:14px}
+#hoView .ho-hail .ho-cols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:8px}
+#hoView .ho-big{font:800 60px/.9 "Barlow Semi Condensed",sans-serif;font-variant-numeric:tabular-nums}
+#hoView .ho-big small{font-size:24px;color:var(--h-muted);margin-left:3px}
+#hoView .ho-like{color:var(--h-muted);font-size:14px;margin-top:6px}
+#hoView .ho-scale{width:118px;height:auto;display:block}
+#hoView .ho-facts{margin-top:14px;display:grid;gap:8px}
+#hoView .ho-facts div{background:var(--h-mist);border-radius:10px;padding:9px 12px;display:grid}
+#hoView .ho-facts b{font:700 18px/1.2 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-facts em{font-style:normal;font-size:12px;color:var(--h-muted)}
+#hoView .ho-src{color:var(--h-muted);font-size:12px;margin-top:10px}
+#hoView .ho-caveat{margin-top:12px;padding:10px 12px;border-radius:10px;border:1.5px dashed #bdb8ae;font-size:13.5px;color:var(--h-char);display:flex;gap:10px}
+#hoView .ho-caveat svg{flex:none;width:18px;height:18px;margin-top:1px}
+#hoView .ho-ins{background:var(--h-char);color:#fff}
+#hoView .ho-ins b{display:block;font:700 22px/1.18 "Barlow Semi Condensed",sans-serif;margin-bottom:6px}
+#hoView .ho-ins p{color:#dcdee2;font-size:14px}
+/* options */
+#hoView .ho-cmp{background:var(--h-card);border-radius:14px;overflow:hidden;box-shadow:var(--h-shadow)}
+#hoView .ho-cols3{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr))}
+#hoView .ho-col{padding:12px 6px 12px;text-align:center;border:0;border-right:1px solid var(--h-line);background:transparent;display:grid;align-content:start;justify-items:center;gap:3px;min-width:0}
+#hoView .ho-col:last-child{border-right:0}
+#hoView .ho-col.rec{background:var(--h-tint);box-shadow:inset 0 4px 0 var(--h-orange)}
+#hoView .ho-col[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--h-char)}
+#hoView .ho-col.rec[aria-pressed="true"]{box-shadow:inset 0 4px 0 var(--h-orange),inset 0 0 0 3px var(--h-char)}
+#hoView .ho-rib{font:800 11px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--h-orange-ink);min-height:14px}
+#hoView .ho-name{font:800 13.5px/1.1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--h-muted)}
+#hoView .ho-what{font:700 16px/1.1 "Barlow Semi Condensed",sans-serif;min-height:36px;overflow-wrap:anywhere}
+#hoView .ho-price{font:800 20px/1.08 "Barlow Semi Condensed",sans-serif;margin-top:6px;font-variant-numeric:tabular-nums}
+#hoView .ho-price span{display:block;white-space:nowrap}
+#hoView .ho-pick{font-size:11.5px;font-weight:700;color:var(--h-muted);margin-top:6px;min-height:16px}
+#hoView .ho-col[aria-pressed="true"] .ho-pick{color:var(--h-ok)}
+#hoView .ho-rng{text-align:center;font-size:12.5px;font-weight:700;color:var(--h-char);padding:9px 12px;border-top:1px solid var(--h-line);background:#faf9f6}
+#hoView .ho-tbl{overflow-x:auto}
+#hoView table{width:100%;border-collapse:collapse}
+#hoView td{border-top:1px solid var(--h-line);padding:9px 6px;font-size:12.5px;text-align:center;vertical-align:middle;width:calc(100% / var(--n,3))}
+#hoView td.rec{background:var(--h-tint)}
+#hoView tr.sec td{text-align:left;font-size:12.5px;font-weight:700;color:var(--h-char);background:#faf9f6;padding:8px 12px 6px}
+#hoView tr.grp td{text-align:left;font:800 12px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--h-orange-ink);background:var(--h-card);padding:12px 12px 4px;border-top:2px solid var(--h-line)}
+#hoView td svg{width:18px;height:18px;vertical-align:middle}
+#hoView td .no{color:#a19c93;font-weight:700}
+#hoView td .txt{font-weight:600;line-height:1.25}
+#hoView .ho-note{color:var(--h-muted);font-size:13.5px}
+#hoView .ho-warr{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--h-char)}
+#hoView .ho-warr svg{flex:none;width:22px;height:22px}
+#hoView .ho-out{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--h-card);border:1.5px solid var(--h-char);border-radius:12px;color:var(--h-ink);text-decoration:none}
+#hoView .ho-out .sw{display:flex;gap:3px;flex:none}
+#hoView .ho-out .sw i{width:14px;height:28px;border-radius:3px}
+#hoView .ho-out b{display:block;font:700 18px/1.15 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-out span span{font-size:12.5px;color:var(--h-muted)}
+#hoView .ho-out .arr{margin-left:auto;font:800 22px "Barlow Semi Condensed",sans-serif;color:var(--h-orange-ink)}
+/* next steps */
+#hoView .ho-stps{display:grid;gap:12px}
+#hoView .ho-stp{background:var(--h-card);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;box-shadow:var(--h-shadow)}
+#hoView .ho-stp .n{font:800 48px/.85 "Barlow Semi Condensed",sans-serif;color:var(--h-orange);width:30px}
+#hoView .ho-stp b{display:block;font:800 23px/1.1 "Barlow Semi Condensed",sans-serif}
+#hoView .ho-stp p{color:var(--h-muted);font-size:14.5px;margin-top:3px}
+#hoView .ho-cancel{margin-top:10px;padding:11px 12px;border-radius:10px;background:var(--h-tint);border-left:4px solid var(--h-orange);font-size:13.5px;color:var(--h-char)}
+#hoView .ho-cancel b{display:inline;font:700 16px "Barlow Semi Condensed",sans-serif;color:var(--h-ink)}
+#hoView .ho-contact{background:var(--h-char);color:#fff;border-radius:16px;padding:16px;display:grid;gap:0}
+#hoView .ho-contact .q{font:700 20px "Barlow Semi Condensed",sans-serif;margin-bottom:4px}
+#hoView .ho-contact a{display:flex;align-items:center;gap:14px;text-decoration:none;color:#fff;padding:12px 0;border-top:1px solid rgba(255,255,255,.12)}
+#hoView .ho-contact a:first-of-type{border-top:0}
+#hoView .ho-contact .ic{width:46px;height:46px;border-radius:50%;background:var(--h-orange);display:grid;place-items:center;flex:none}
+#hoView .ho-contact .ic svg{width:21px;height:21px}
+#hoView .ho-contact .nm{font-size:13px;color:#dcdee2;font-weight:600}
+#hoView .ho-contact .tel{font:800 30px/1 "Barlow Semi Condensed",sans-serif;margin-top:2px;font-variant-numeric:tabular-nums;user-select:text}
+#hoView .ho-foot{color:var(--h-muted);font-size:12px;line-height:1.6}
+#hoView .ho-foot .blank{display:inline-block;width:90px;border-bottom:1px solid var(--h-muted);margin-left:2px}
+#hoView .ho-next{justify-self:stretch;min-height:54px;border:0;border-radius:12px;background:var(--h-orange);color:#1b1206;font:800 20px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em}
+/* rep tools: only while the rep has them on */
+#hoView .ho-rep{border:2px dashed var(--h-orange);background:#fff8f1;border-radius:14px;padding:12px 14px;display:grid;gap:10px;margin-top:14px}
+#hoView .ho-rep h2{font:800 13px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--h-orange-ink);display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+#hoView .ho-rep h2 small{font:600 12px/1.3 "Montserrat",sans-serif;letter-spacing:0;text-transform:none;color:var(--h-muted)}
+#hoView .ho-rep p{font-size:13.5px;color:var(--h-char)}
+#hoView .ho-rep .ho-rrow{display:grid;gap:6px}
+#hoView .ho-rep .ho-rl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--h-muted)}
+#hoView .ho-seg{display:flex;flex-wrap:wrap;gap:6px}
+#hoView .ho-seg button{min-height:44px;padding:6px 12px;border:1.5px solid #b8b3aa;border-radius:10px;background:#fff;font:700 15px/1.1 "Barlow Semi Condensed",sans-serif;color:var(--h-ink)}
+#hoView .ho-seg button small{display:block;font:500 11px/1.2 "Montserrat",sans-serif;color:var(--h-muted)}
+#hoView .ho-seg button[aria-pressed="true"]{background:var(--h-char);border-color:var(--h-char);color:#fff}
+#hoView .ho-seg button[aria-pressed="true"] small{color:#dcdee2}
+#hoView .ho-seg button:disabled{opacity:.45;cursor:default}
+#hoView .ho-sbtn{min-height:44px;padding:8px 14px;border:1.5px solid var(--h-char);border-radius:10px;background:#fff;font:700 15px/1.1 "Barlow Semi Condensed",sans-serif;color:var(--h-ink);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+#hoView .ho-sbtn.go{background:var(--h-orange);border-color:var(--h-orange);color:#1b1206}
+#hoView .ho-acts{display:flex;flex-wrap:wrap;gap:8px}
+#hoView .ho-msg{background:#fff;border:1px solid var(--h-line);border-radius:10px;padding:10px 12px;font-size:14px;white-space:pre-line;user-select:text;overflow-wrap:anywhere}
+#hoView .ho-status{font-size:13px;font-weight:700;color:var(--h-ok)}
+#hoView .ho-status.bad{color:#a3321f}
+@media (min-width:700px){
+  #hoView .ho-in,#hoView .ho-wrap,#hoView .ho-steps .ho-sin{padding-left:28px;padding-right:28px}
+  #hoView h1{font-size:46px}
+  #hoView .ho-plist{grid-template-columns:1fr 1fr}
+  #hoView .ho-plist .ho-pcard:first-child{grid-column:1 / -1}
+  #hoView .ho-two{grid-template-columns:1.2fr 1fr;align-items:start}
+  #hoView .ho-price{font-size:28px}
+  #hoView .ho-what{font-size:20px;min-height:0}
+  #hoView td{font-size:14px;padding:11px 10px}
+  #hoView .ho-stps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #hoView .ho-stp{grid-template-columns:1fr;gap:6px;align-content:start}
+  #hoView .ho-contact{grid-template-columns:auto 1fr 1fr;gap:18px;align-items:center}
+  #hoView .ho-contact .q{margin:0}
+  #hoView .ho-contact a,#hoView .ho-contact a:first-of-type{border-top:0;padding:0}
+  #hoView .ho-next{justify-self:end;min-width:280px}
+}
+@media (prefers-reduced-motion:reduce){#hoView{scroll-behavior:auto}}
 </style>
 
 <div class="wrap">
@@ -1142,6 +1316,19 @@ a.btn,a.btn:visited{color:var(--ink)}
   </aside>
 </div>
 <div class="app-toast" id="appToast" role="status" hidden></div>
+<div id="hoView" role="dialog" aria-modal="true" aria-labelledby="hoAddr" lang="en" hidden>
+  <header class="ho-head"><div class="ho-in">
+    <div class="ho-row">
+      <span class="ho-logo" role="img" aria-label="HMP Siding &amp; Roofing LLC"><svg viewBox="0 0 74 12" aria-hidden="true"><path d="M3 11 L37 2.5 L71 11" fill="none" stroke="#f5883a" stroke-width="3.4" stroke-linejoin="miter" stroke-linecap="square"/></svg><b>H.M.P</b><small>SIDING &amp; ROOFING LLC</small></span>
+      <button type="button" class="ho-ic" id="hoRep" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg><span class="sr" id="hoRepL">Rep tools</span></button>
+      <div class="ho-langs" role="group" aria-label="Language / Idioma"><button type="button" data-hol="en" aria-pressed="true" lang="en">EN</button><button type="button" data-hol="es" aria-pressed="false" lang="es">ES</button></div>
+      <button type="button" class="ho-ic" id="hoClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="sr" id="hoCloseL">Close</span></button>
+    </div>
+    <div class="ho-who"><span class="ho-chip" id="hoChip"></span><b id="hoAddr"></b><span id="hoFor"></span></div>
+  </div></header>
+  <nav class="ho-steps" id="hoSteps"></nav>
+  <main class="ho-wrap" id="hoBody"></main>
+</div>
 <div id="psView" role="dialog" aria-modal="true" aria-labelledby="psName" hidden>
 <svg class="ws-defs" aria-hidden="true">
   <defs>
@@ -1486,6 +1673,7 @@ if (typeof module !== "undefined" && module.exports) {
      canSave   true when this viewer may write leads
      save      optional async (est) => 'saved' | 'queued'; default EstimateScreen.saveToLead(db, lead.id, est)
      db        used by the default save
+     onShow    optional (est, button) => void: v21, adds "Show homeowner" under the range (opens the homeowner screen)
    ctl.el is the screen's own element: re-append it after a re-render, it keeps its state.
    ctl.setLang(l) · ctl.setRules(r) · ctl.setLead(l) · ctl.setCanSave(b) · ctl.current() · ctl.destroy()
    EstimateScreen.saveToLead(db, leadId, est) writes lead.estimate = {low, high, job, at, using_reference}.
@@ -1531,7 +1719,8 @@ const EstimateScreen = (() => {
       extrasH: 'Extras', extrasS: 'optional', extrasOn: n => `${n} added`, chimNo: 'None',
       ex: {windows: ['Windows to wrap', 'count, metal wrap per window'], ice_water_sq: ['Ice & water shield', 'squares, eaves + valleys'], ridge_vent_ft: ['Ridge vent', 'feet along the ridge'],
            chimney: ['Chimney flashing', 'how many chimneys'], skylight_ft: ['Skylight flashing', 'feet around the skylights'], gutter_guards_ft: ['Gutter guards', 'feet of gutter'], downspouts_ft: ['Downspouts', 'feet, top to bottom']},
-      natNote: items => `National price guide (not Nebraska) for: ${items}. Check with a local supplier.`
+      natNote: items => `National price guide (not Nebraska) for: ${items}. Check with a local supplier.`,
+      show: 'Show homeowner', showS: 'Good / Better / Best, photos and next steps on a light screen.'
     },
     es: {
       jobH: '¿Qué trabajo?', jobs: {siding: ['Siding', 'vinil o James Hardie'], roof: ['Techo', 'teja, quitar y poner'], gutters: ['Canaletas', 'sin costura, por pie'], mixed: ['Mixto', 'siding + techo + canaletas']},
@@ -1569,7 +1758,8 @@ const EstimateScreen = (() => {
       extrasH: 'Extras', extrasS: 'opcional', extrasOn: n => `${n} ${n === 1 ? 'agregado' : 'agregados'}`, chimNo: 'Ninguna',
       ex: {windows: ['Ventanas para forrar', 'cuántas, forro de metal por ventana'], ice_water_sq: ['Barrera de hielo y agua', 'cuadros, aleros + valles'], ridge_vent_ft: ['Ventila de cumbrera', 'pies a lo largo de la cumbrera'],
            chimney: ['Tapajuntas de chimenea', 'cuántas chimeneas'], skylight_ft: ['Tapajuntas de tragaluz', 'pies alrededor de los tragaluces'], gutter_guards_ft: ['Protectores de canaleta', 'pies de canaleta'], downspouts_ft: ['Bajantes', 'pies, de arriba a abajo']},
-      natNote: items => `Guía de precios nacional (no de Nebraska) para: ${items}. Confirmen con un proveedor local.`
+      natNote: items => `Guía de precios nacional (no de Nebraska) para: ${items}. Confirmen con un proveedor local.`,
+      show: 'Mostrar al cliente', showS: 'Buena / Mejor / Superior, fotos y próximos pasos en una pantalla clara.'
     }
   };
   // The homeowner text. Same voice as the app's other texts (EN from Kenny, ES from Alex, "tú"). It always says
@@ -1844,7 +2034,8 @@ const EstimateScreen = (() => {
           <p class="est-notfinal">${esc(L.notFinal)}</p>
           ${natNote(r)}
           <p class="est-ins">${esc(ins)}</p>
-          ${mathHtml(r)}</div></section>`);
+          ${mathHtml(r)}
+          ${opts.onShow ? `<div class="est-show"><button type="button" class="est-btn go" data-k="show" data-act="show">${esc(L.show)} →</button><small>${esc(L.showS)}</small></div>` : ''}</div></section>`);
         // 5 · text it
         const ml = s.msgLang || (lead && (lead.lang === 'es' || lead.language === 'es') ? 'es' : lead && lead.lang === 'en' ? 'en' : lang);
         const text = message(r, ml), num = lead && typeof lead.phone === 'string' ? lead.phone.replace(/[^\d+]/g, '') : '';
@@ -1903,6 +2094,7 @@ const EstimateScreen = (() => {
         return;
       }
       if (b.dataset.act === 'save') { doSave(); return; }
+      if (b.dataset.act === 'show' && opts.onShow) { const est = current(); if (est) opts.onShow(est, b); return; }   // v21: the homeowner screen
     });
     el.addEventListener('change', ev => { const i = ev.target.closest('input[data-in]'); if (i) setVal(i.dataset.in, i.value); });
     el.addEventListener('keydown', ev => { const i = ev.target.closest('input[data-in]'); if (i && ev.key === 'Enter') { ev.preventDefault(); setVal(i.dataset.in, i.value); } });
@@ -4165,6 +4357,7 @@ function renderEst(id){
     if (estCtl) estCtl.destroy();
     estFor = id; estSig = ''; estRules = prices;
     estCtl = EstimateScreen.create({lang, rules: prices, lead: lv, canSave,
+      onShow: (est, b) => HO.open({leadId: id || null, job: est.job, from: b}),   // v21: the homeowner screen, from this job
       save: async est => { const e = Object.assign({}, est, {at: est.at || new Date().toISOString(), day: est.day || todayStr()});
         const r = await EstimateScreen.saveToLead(EstimateScreen.outboxDb(save), id, e, 'Quick estimate'); if (r === 'queued') noteQueued(); statEstimates(id, e); return r; }});
   }
@@ -4196,6 +4389,7 @@ function renderSheet(){
       parts.push(`<section class="box"><h3>${esc(T.cashH)}</h3>${m.plan ? `<div class="paytrack" style="border-top:0;padding-top:0">${m.plan.map(payCell).join('')}</div>` : ''}<div class="ledger">${lrow(T.price, usd(m.price), 'total')}${!m.plan && m.dep != null ? lrow(T.deposit, usd(m.dep), 'sub') : ''}${lrow(T.paidSoFar, usd(m.got), 'sub')}${lrow(T.owed, usd(m.owed), 'total')}</div></section>`); }
     const estS = l.estimate && typeof l.estimate === 'object' && numv(l.estimate.low) != null ? l.estimate : null, estFin = ['done', 'lost'].includes(l.stage);
     if (estS || !estFin) parts.push(`<section class="box"><h3>${esc(T.estH)}</h3>${estS ? `<p class="est-saved">${esc(EstimateScreen.savedLine(estS, lang))}</p>` : ''}${!estFin ? `<div class="sheet-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(estS ? T.estUpd : T.estNew)}</button></div>` : ''}</section>`);
+    parts.push(hoLeadBox(l));   // v21: Show homeowner + Send report
     const tb = textBox(l); if (tb) parts.push(tb);
     if (ASSETS) parts.push(photosBox(l));
     { const sid = nsStepOf(l), kind = leadKind(l), n = !sid ? 0 : sid === 'finished' ? 9 : nsNum(sid);   // v19: the 8 sale steps
@@ -4281,6 +4475,8 @@ $('#shBody').addEventListener('click', async ev => {
   if (b.dataset.copy != null) { const done = () => { b.textContent = C.copied; setTimeout(() => (b.textContent = C.copy), 1500); };
     const fb = () => { const r = document.createRange(); r.selectNodeContents(b.previousSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
     try { navigator.clipboard.writeText(b.dataset.copy).then(done, fb); } catch (e) { fb(); } return; }
+  if (b.dataset.ho) { HO.open({leadId: b.dataset.ho, from: b}); return; }   // v21
+  if (b.dataset.hocopy) { hoCopy(b, $('#hoTxt')); return; }
   if (b.dataset.back) { const r = sheetBack; sheetBack = null; if (r) { openRef = r; renderSheet(); $('#shBody').scrollTop = 0; } return; }
   if (b.dataset.ph) { phOpen = b.dataset.ph; phArm = null; renderSheet(); const v = $('.ph-view'); if (v) v.scrollIntoView({block: 'nearest'}); return; }
   if (b.dataset.phclose) { phOpen = null; phArm = null; renderSheet(); return; }
@@ -4313,6 +4509,471 @@ document.addEventListener('keydown', e => {
     if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); } }
 });
 
+/* ================= v21: homeowner screen ("Daylight report", FilthE picked option B) =================
+   A full-screen LIGHT view to hand the phone across the kitchen table: 1 Your home, today (the lead's photos in checklist
+   order with numbered circles + the hail proof), 2 Your options (Good / Better / Best from the estimate engine, scope picked
+   per job: siding only, roof only or both), 3 Next steps (measure, written contract with the 3-day right to cancel, pick a
+   date; Kenny / Alex). No rep notes, stages, margins or internal chips on it. Its own EN/ES toggle (the homeowner may want
+   Spanish while the app is in English); the rep tools (circles, scope, recommended, send report) follow the app language.
+   Writes (additive, through the outbox): lead.photos[i].marks = [{x, y, r, n}] (0-1 of the photo's width/height; r = share
+   of the width) and lead.proposal = {scope, tiers: [{key, name, low, high}], recommended, chosen, at, using_reference}.
+   Hard rules: no deductible talk (NE 44-8604), never "insurance will pay", no financing, no reviews; "registered", never
+   "licensed"; the registration number stays a blank line until the boss gives it. */
+const HO_PHONE = {kenny: {name: 'Kenny Cruz', phone: '402-936-2709', tel: '+14029362709'}, alex: {name: 'Alex Mendez', phone: '402-889-3385', tel: '+14028893385'}};
+const HO_TIERS = {
+  siding: [
+    {key: 'good', what: {en: 'Vinyl siding', es: 'Revestimiento de vinil'}, txt: {en: 'vinyl siding', es: 'siding de vinil'}},
+    {key: 'better', what: {en: 'Insulated vinyl siding', es: 'Vinil con aislante'}, txt: {en: 'insulated vinyl siding', es: 'siding de vinil con aislante'}},
+    {key: 'best', what: {en: 'James Hardie fiber cement', es: 'Fibrocemento James Hardie'}, txt: {en: 'James Hardie fiber cement siding', es: 'siding de fibrocemento James Hardie'}}],
+  roof: [
+    {key: 'good', what: {en: 'Architectural shingles', es: 'Tejas arquitectónicas'}, txt: {en: 'architectural shingle roof', es: 'techo de tejas arquitectónicas'}},
+    {key: 'better', what: {en: 'Architectural + ice & water + ridge vent', es: 'Arquitectónicas + hielo y agua + ventila de cumbrera'}, txt: {en: 'architectural shingles + ice & water shield + ridge vent', es: 'tejas arquitectónicas + protección contra hielo y agua + ventila de cumbrera'}},
+    {key: 'best', what: {en: 'Class 4 impact-rated shingles', es: 'Tejas Clase 4, resistentes a impacto'}, txt: {en: 'Class 4 impact-rated shingles + ice & water shield + ridge vent', es: 'tejas Clase 4 resistentes a impacto + protección contra hielo y agua + ventila de cumbrera'}}]
+};
+const HOX = {
+  en: {
+    view: 'Homeowner view', forWho: n => `Prepared for ${n}`, tabs: ['Your home', 'Options', 'Next steps'], stepsAria: 'Report pages',
+    names: {good: 'Good', better: 'Better', best: 'Best'},
+    s1: 'Your home, today', s1sub: 'What we found on the roof and walls', photosOn: d => `Photos from ${d}`,
+    noPhotosH: 'Photos come after the inspection', noPhotosP: 'We photograph every side of the house, the roof and the metal parts, then go over the photos with you here.',
+    circled: n => `${n} ${pl(n, 'spot', 'spots')} circled`, photoGone: 'This photo is not available right now.',
+    slot: {number: 'Your home', sides: 'Each side of the house', screens: 'Window screens and wraps', sdCoin: 'Siding up close', soffit: 'Soffit and fascia', acFins: 'Air conditioner',
+      profile: 'Siding panel shape and color', metals: 'Vents and flashing', gutters: 'Gutters and downspouts', siding: 'Siding', roof: 'Roof slope', sqWide: 'Test square, 10 × 10 ft',
+      sqMid: 'Test square, spots counted', sqClose: 'Test square, up close', other: 'Photo'},
+    hailT: 'Hail near your home', hailL: 'Estimated hail at your address', like: n => `about the size of a ${n}`, unit: 'in',
+    dateL: 'Storm date', nearL: 'Nearest official report', near: (s, d) => `${s} in hail, ${d} mi away`, radarL: 'Largest hail on radar near your home',
+    src: 'Source: NOAA radar (MRMS) checked against National Weather Service reports.', caveat: 'Weather data, not proof of damage. The photos show what we found.',
+    scale: 'To scale, next to a quarter', quarter: 'quarter',
+    insH: 'Your insurance company decides what your policy covers.', insP: 'If you choose to file a claim, you file it. We can be there when the adjuster visits to show what we found.',
+    s2: 'Your options', s2sub: (sc, n) => `${{siding: 'New siding', roof: 'A new roof', both: 'New siding and a new roof'}[sc]}, ${n === 2 ? 'two' : 'three'} ways`,
+    rec: 'Recommended', picked: 'Your pick ✓', tapPick: 'Tap to pick', range: 'Estimate range, not a final price', rangeNote: 'Your final price comes after we measure.',
+    grp: {siding: 'Siding', roof: 'Roof', all: 'Every option'},
+    rows: {sTear: 'Tear-off and haul-away of the old siding', wrap: 'New house wrap under the siding', foam: 'Foam-backed, stiffer panels', fiber: 'Fiber cement',
+      rTear: 'Tear-off and haul-away of the old roof', arch: 'Architectural shingles', class4: 'Class 4', ice: 'Ice & water shield at the eaves and valleys', ridge: 'Ridge vent along the peak',
+      ul: 'Shingles tested for hail impact (UL 2218 Class 4)', permit: 'Building permit', clean: 'Daily cleanup and a magnet sweep for nails'},
+    warranty: "Warranty: the manufacturer's product warranty plus HMP's workmanship warranty, both written in your contract.",
+    colors: 'Try colors on a house like yours', colorsWhere: 'James Hardie Designer (free, opens their site)',
+    noOptH: 'Your options come after we measure', noOptP: 'We measure every wall and roof slope, then show you the choices here.',
+    prepH: 'Your options are being prepared', prepP: 'We will show them to you in a moment.',
+    s3: 'Next steps', s3sub: 'Nothing is final until you sign a written contract',
+    steps: [['We measure', 'Every wall and roof slope, so your price is exact. About 1 hour.'],
+            ['Written contract', 'Price, materials, colors and warranty, all in writing. Never a handshake.'],
+            ['Pick your date', 'Choose the start day that works for you. We call the day before to confirm.']],
+    cancel: ['3-day right to cancel:', ' you can cancel until midnight of the third business day after you sign. We explain it out loud and leave you 2 copies of the cancel form.'],
+    questions: 'Questions? Call us', langK: 'English', langA: 'Español', call: n => `Call ${n}`,
+    company: 'HMP Siding & Roofing LLC · Fremont, NE · Registered Nebraska contractor #', next: s => `Next: ${s} →`
+  },
+  es: {
+    view: 'Vista del cliente', forWho: n => `Preparado para ${n}`, tabs: ['Su casa', 'Opciones', 'Pasos'], stepsAria: 'Páginas del reporte',
+    names: {good: 'Buena', better: 'Mejor', best: 'Superior'},
+    s1: 'Su casa, hoy', s1sub: 'Lo que encontramos en el techo y las paredes', photosOn: d => `Fotos del ${d}`,
+    noPhotosH: 'Las fotos vienen después de la inspección', noPhotosP: 'Tomamos fotos de cada lado de la casa, del techo y de las partes de metal, y luego las revisamos con usted aquí.',
+    circled: n => `${n} ${pl(n, 'punto marcado', 'puntos marcados')}`, photoGone: 'Esta foto no está disponible ahorita.',
+    slot: {number: 'Su casa', sides: 'Cada lado de la casa', screens: 'Mosquiteros y forros de ventana', sdCoin: 'Revestimiento de cerca', soffit: 'Sofito y fascia', acFins: 'Aire acondicionado',
+      profile: 'Forma y color del panel', metals: 'Ventilas y tapajuntas', gutters: 'Canaletas y bajantes', siding: 'Revestimiento', roof: 'Lado del techo', sqWide: 'Cuadro de prueba, 10 × 10 pies',
+      sqMid: 'Cuadro de prueba, puntos contados', sqClose: 'Cuadro de prueba, de cerca', other: 'Foto'},
+    hailT: 'Granizo cerca de su casa', hailL: 'Granizo estimado en su dirección', like: n => `del tamaño de ${n}`, unit: 'pulg',
+    dateL: 'Fecha de la tormenta', nearL: 'Reporte oficial más cercano', near: (s, d) => `Granizo de ${s} pulg, a ${d} millas`, radarL: 'El granizo más grande en el radar cerca de su casa',
+    src: 'Fuente: radar de NOAA (MRMS) comparado con reportes del Servicio Meteorológico Nacional.', caveat: 'Datos del clima, no prueba de daño. Las fotos muestran lo que encontramos.',
+    scale: 'A escala, junto a una moneda de 25 centavos', quarter: '25 centavos',
+    insH: 'Su aseguradora decide qué cubre su póliza.', insP: 'Si usted decide presentar un reclamo, usted lo presenta. Podemos estar presentes cuando venga el ajustador para mostrarle lo que encontramos.',
+    s2: 'Sus opciones', s2sub: (sc, n) => `${{siding: 'Revestimiento nuevo', roof: 'Techo nuevo', both: 'Revestimiento y techo nuevos'}[sc]}, de ${n === 2 ? 'dos' : 'tres'} maneras`,
+    rec: 'Recomendada', picked: 'Su elección ✓', tapPick: 'Toque para escoger', range: 'Rango estimado, no es precio final', rangeNote: 'El precio final se da después de medir.',
+    grp: {siding: 'Revestimiento', roof: 'Techo', all: 'Todas las opciones'},
+    rows: {sTear: 'Quitamos y nos llevamos el revestimiento viejo', wrap: 'Barrera nueva (house wrap) bajo el revestimiento', foam: 'Paneles firmes con espuma', fiber: 'Fibrocemento',
+      rTear: 'Quitamos y nos llevamos el techo viejo', arch: 'Tejas arquitectónicas', class4: 'Clase 4', ice: 'Protección contra hielo y agua en aleros y valles', ridge: 'Ventila de cumbrera en lo alto del techo',
+      ul: 'Tejas probadas contra granizo (UL 2218 Clase 4)', permit: 'Permiso de construcción', clean: 'Limpieza diaria e imán para recoger clavos'},
+    warranty: 'Garantía: la del fabricante del producto más la garantía de mano de obra de HMP, las dos por escrito en su contrato.',
+    colors: 'Pruebe colores en una casa como la suya', colorsWhere: 'James Hardie Designer (gratis, abre su página)',
+    noOptH: 'Sus opciones vienen después de medir', noOptP: 'Medimos cada pared y cada lado del techo, y luego le enseñamos las opciones aquí.',
+    prepH: 'Estamos preparando sus opciones', prepP: 'Se las enseñamos en un momento.',
+    s3: 'Próximos pasos', s3sub: 'Nada es final hasta que firme un contrato por escrito',
+    steps: [['Medimos', 'Cada pared y cada lado del techo, para darle el precio exacto. Como 1 hora.'],
+            ['Contrato por escrito', 'Precio, materiales, colores y garantía, todo por escrito. Nunca de palabra.'],
+            ['Escoja la fecha', 'Escoja el día de inicio que le convenga. Le llamamos un día antes para confirmar.']],
+    cancel: ['Derecho a cancelar en 3 días:', ' puede cancelar hasta la medianoche del tercer día hábil después de firmar. Se lo explicamos en persona y le dejamos 2 copias del formulario de cancelación.'],
+    questions: '¿Preguntas? Llámenos', langK: 'Inglés', langA: 'Español', call: n => `Llamar a ${n}`,
+    company: 'HMP Siding & Roofing LLC · Fremont, NE · Contratista registrado en Nebraska #', next: s => `Siguiente: ${s} →`
+  }
+};
+// rep tools: in the APP's language (the rep's), not the homeowner's
+const HOR = {
+  en: {rep: 'Rep tools', repOff: 'Turn off rep tools', close: 'Close the homeowner view', panel: 'Rep tools', panelS: 'Only for you. Turn them off before you hand over the phone.',
+    markHelp: 'Tap a photo to circle a spot. Tap a circle to take it off.', size: 'Circle size', sizes: {s: 'Small', m: 'Medium', l: 'Large'}, undo: 'Undo last circle',
+    scopeL: 'Job to show', scope: {siding: 'Siding only', roof: 'Roof only', both: 'Both'}, needSize: 'needs a size', recL: 'Recommended (your pick for them)', recNone: 'None',
+    sizesUsed: (s, r, rough) => `Sizes: ${[s ? s + ' siding squares' : '', r ? r + ' roof squares' : ''].filter(Boolean).join(', ')}${rough ? ' (rough, from the house size: measure before a firm number)' : ''}.`,
+    iceNote: (sq, ft) => `Better roof adds about ${sq} squares of ice & water shield and ${ft} ft of ridge vent (rough, from the roof size).`,
+    iceOwn: 'Better roof uses the ice & water shield and ridge vent from your quick estimate.',
+    noClass4: 'Class 4 shingles are not on the price sheet yet, so a roof shows 2 options.', market: "Market prices, not HMP's own yet. The homeowner only sees “Estimate range, not a final price”.",
+    leftOut: 'Gutters are left out of these options: quote them separately.', changeSizes: 'Change the sizes', makeEst: 'Make a quick estimate',
+    needEst: 'No size on this lead yet. Make a quick estimate first, then come back.',
+    prob: {loading: 'Prices are loading.', missing: 'Prices not loaded yet.', version: 'Prices need an app update.', stale: 'Price rules out of date: no numbers are shown.'},
+    saved: 'Saved to the lead.', queued: 'Saved on this phone. It goes out when the signal comes back.', noLead: 'Not saved: open this from a lead to keep the circles and options.',
+    readOnly: "View only: this page can't save.", failed: "Couldn't save. Try again in a moment.",
+    sendH: 'Send report', sendS: 'A text with the ranges and who to call. No photos by text.', textLang: 'Text language', open: 'Open in Messages', copy: 'Copy text', copied: 'Copied',
+    copySel: 'Selected: press copy on your phone.', noPhone: 'No phone number on this lead: copy the text.', sendNote: 'Your phone opens with the text ready. You press send. If nothing opens, copy it.',
+    noTiers: 'Pick a job with a size first: there are no ranges to send yet.',
+    launch: 'Show homeowner', launchS: 'Photos, Good / Better / Best and next steps on a light screen. English or Spanish.', boxH: 'Homeowner report',
+    savedOn: d => `Options saved ${d}`, recS: 'recommended', pickS: 'their pick'},
+  es: {rep: 'Herramientas del vendedor', repOff: 'Apagar herramientas del vendedor', close: 'Cerrar la vista del cliente', panel: 'Herramientas del vendedor', panelS: 'Solo para ti. Apágalas antes de pasarle el teléfono.',
+    markHelp: 'Toca una foto para marcar un punto con un círculo. Toca un círculo para quitarlo.', size: 'Tamaño del círculo', sizes: {s: 'Chico', m: 'Mediano', l: 'Grande'}, undo: 'Quitar el último círculo',
+    scopeL: 'Trabajo a mostrar', scope: {siding: 'Solo siding', roof: 'Solo techo', both: 'Los dos'}, needSize: 'falta el tamaño', recL: 'Recomendada (tu consejo para ellos)', recNone: 'Ninguna',
+    sizesUsed: (s, r, rough) => `Tamaños: ${[s ? s + ' cuadros de siding' : '', r ? r + ' cuadros de techo' : ''].filter(Boolean).join(', ')}${rough ? ' (aproximado, por el tamaño de la casa: mide antes de dar un número firme)' : ''}.`,
+    iceNote: (sq, ft) => `El techo Mejor suma unos ${sq} cuadros de protección contra hielo y agua y ${ft} pies de ventila de cumbrera (aproximado, por el tamaño del techo).`,
+    iceOwn: 'El techo Mejor usa la protección contra hielo y agua y la ventila de cumbrera de tu estimado rápido.',
+    noClass4: 'Las tejas Clase 4 todavía no están en la lista de precios, así que un techo muestra 2 opciones.', market: 'Precios del mercado, todavía no los de HMP. El cliente solo ve “Rango estimado, no es precio final”.',
+    leftOut: 'Las canaletas no entran en estas opciones: cotízalas aparte.', changeSizes: 'Cambiar los tamaños', makeEst: 'Hacer un estimado rápido',
+    needEst: 'Este prospecto todavía no tiene tamaño. Haz primero un estimado rápido y regresa.',
+    prob: {loading: 'Cargando precios.', missing: 'Los precios todavía no cargan.', version: 'Los precios necesitan una actualización de la app.', stale: 'Reglas de precios desactualizadas: no se muestra ningún número.'},
+    saved: 'Guardado en el prospecto.', queued: 'Guardado en este teléfono. Se manda cuando vuelva la señal.', noLead: 'No se guardó: ábrelo desde un prospecto para guardar los círculos y las opciones.',
+    readOnly: 'Solo lectura: esta página no puede guardar.', failed: 'No se pudo guardar. Intenta otra vez en un momento.',
+    sendH: 'Mandar el reporte', sendS: 'Un texto con los rangos y a quién llamar. Sin fotos por texto.', textLang: 'Idioma del texto', open: 'Abrir en Mensajes', copy: 'Copiar texto', copied: 'Copiado',
+    copySel: 'Seleccionado: dale copiar en tu teléfono.', noPhone: 'Este prospecto no tiene teléfono: copia el texto.', sendNote: 'Tu teléfono abre con el texto listo. Tú le das enviar. Si no abre nada, cópialo.',
+    noTiers: 'Primero escoge un trabajo con tamaño: todavía no hay rangos que mandar.',
+    launch: 'Mostrar al cliente', launchS: 'Fotos, Buena / Mejor / Superior y próximos pasos en una pantalla clara. Inglés o español.', boxH: 'Reporte para el cliente',
+    savedOn: d => `Opciones guardadas ${d}`, recS: 'recomendada', pickS: 'su elección'}
+};
+// the "Send report" text: EN from Kenny, ES from Alex ("tú", like the app's other texts). Ranges only, honest words only.
+const HO_MSG = {
+  en: {hi: n => (n ? `Hi ${n}, this is Kenny with HMP Siding & Roofing.` : 'Hi, this is Kenny with HMP Siding & Roofing.'),
+       intro: (a, w) => `Here are your options${a ? ' for ' + a : ''} (${w}):`, what: {siding: 'new siding', roof: 'a new roof', both: 'new siding and a new roof'},
+       line: (nm, w, lo, hi, rec, pick) => `${nm}, ${w}: ${lo} to ${hi}${rec ? ' (recommended)' : ''}${pick ? ' (your pick)' : ''}`,
+       notFinal: 'These are estimate ranges, not final prices. The final price comes after we measure.',
+       call: 'Questions? Call Kenny at 402-936-2709 (English) or Alex at 402-889-3385 (Español).'},
+  es: {hi: n => (n ? `Hola ${n}, soy Alex de HMP Siding & Roofing.` : 'Hola, soy Alex de HMP Siding & Roofing.'),
+       intro: (a, w) => `Estas son tus opciones${a ? ' para ' + a : ''} (${w}):`, what: {siding: 'siding nuevo', roof: 'techo nuevo', both: 'siding y techo nuevos'},
+       line: (nm, w, lo, hi, rec, pick) => `${nm}, ${w}: ${lo} a ${hi}${rec ? ' (recomendada)' : ''}${pick ? ' (tu elección)' : ''}`,
+       notFinal: 'Son rangos estimados, no precios finales. El precio final se da después de medir.',
+       call: '¿Preguntas? Llama a Alex al 402-889-3385 (español) o a Kenny al 402-936-2709 (inglés).'}
+};
+const HO_SCOPES = ['siding', 'roof', 'both'], HO_KEYS = ['good', 'better', 'best'];
+const hoUsd = n => '$' + Math.round(Number(n) || 0).toLocaleString('en-US');
+const HR = () => HOR[lang];
+// both (siding + roof): the best roof is Class 4 only when the price sheet has it, else the better roof
+const hoTierWhat = (scope, key, l, forText, class4) => { const f = forText ? 'txt' : 'what', s = HO_TIERS.siding.find(t => t.key === key), r = HO_TIERS.roof.find(t => t.key === (key === 'best' && scope === 'both' && !class4 ? 'better' : key));
+  return scope === 'roof' ? r[f][l] : scope === 'siding' ? s[f][l] : `${s[f][l]} + ${r[f][l]}`; };
+// one text for the lead sheet and the homeowner view: {scope, tiers:[{key, low, high}], recommended, chosen} + the lead
+function hoReportText(l, prop, ml){
+  const M = HO_MSG[ml], H = HOX[ml], ts = arr(prop && prop.tiers).filter(t => HO_KEYS.includes(t.key) && numv(t.low) != null && numv(t.high) != null);
+  if (!prop || !HO_SCOPES.includes(prop.scope) || !ts.length) return '';
+  const lines = ts.map(t => M.line(H.names[t.key], hoTierWhat(prop.scope, t.key, ml, true, !!prop.class4), hoUsd(t.low), hoUsd(t.high), prop.recommended === t.key, prop.chosen === t.key));
+  const parts = [M.hi(l ? strv(l.first_name) : ''), M.intro(l ? strv(l.address) : '', M.what[prop.scope]), ...lines, M.notFinal];
+  const ins = prices && prices.insurance_note && strv(prices.insurance_note[ml]);
+  if (l && leadKind(l) === 'insurance' && ins) parts.push(ins);
+  parts.push(M.call);
+  return parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join('\n');
+}
+function hoSendBlock(l, prop, ml, where){   // where: 'sheet' (dark app) | 'view' (light rep panel)
+  const text = hoReportText(l, prop, ml), R = HR(); if (!text) return where === 'view' ? `<p>${esc(R.noTiers)}</p>` : '';
+  const num = l ? strv(l.phone).replace(/[^\d+]/g, '') : '', href = `sms:${esc(num)}?&amp;body=${encodeURIComponent(text)}`;
+  if (where === 'sheet') return `<p class="notes" style="background:var(--bg2);padding:10px 12px;user-select:text;white-space:pre-line" id="hoTxt" lang="${ml}">${esc(text)}</p>
+    <div class="sheet-acts"><a class="btn" style="text-decoration:none;display:inline-flex;align-items:center" href="${href}">${esc(R.open)}</a><button type="button" class="btn" data-hocopy="1">${esc(R.copy)}</button></div>
+    <p class="stamp">${esc(num ? R.sendNote : R.noPhone)}</p>`;
+  return `<p class="ho-msg" id="hoMsgTxt" lang="${ml}">${esc(text)}</p><div class="ho-acts"><a class="ho-sbtn go" href="${href}">${esc(R.open)}</a><button type="button" class="ho-sbtn" data-k="hocopy" data-hocopy="1">${esc(R.copy)}</button></div>
+    <p>${esc(num ? R.sendNote : R.noPhone)}</p>`;
+}
+function hoCopy(b, p){
+  const R = HR(), text = p ? p.textContent : '';
+  const sel = () => { if (!p) return; const rg = document.createRange(); rg.selectNodeContents(p); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(rg); b.textContent = R.copySel; };
+  const ok = () => { b.textContent = R.copied; setTimeout(() => { if (b.isConnected) b.textContent = HR().copy; }, 1600); };
+  try { navigator.clipboard.writeText(text).then(ok, sel); } catch (e) { sel(); }
+}
+// the lead sheet box: "Show homeowner" + what was saved last + the report text
+function hoLeadBox(l){
+  if (l.stage === 'lost') return '';
+  const R = HR(), p = l.proposal && typeof l.proposal === 'object' ? l.proposal : null, ts = p ? arr(p.tiers).filter(t => HO_KEYS.includes(t.key) && numv(t.low) != null) : [];
+  const ml = l.lang === 'es' || l.language === 'es' ? 'es' : lang;
+  const sum = p && ts.length && HO_SCOPES.includes(p.scope) ? `<p class="ho-sum">${esc(R.savedOn(fmtWhen(p.at) || ''))} · ${esc(R.scope[p.scope])}<br>${ts.map(t => `<b>${esc(HOX[lang].names[t.key])}</b> ${esc(hoUsd(t.low))} – ${esc(hoUsd(t.high))}${p.recommended === t.key ? ' · ' + esc(R.recS) : ''}${p.chosen === t.key ? ' · ' + esc(R.pickS) : ''}`).join('<br>')}</p>` : '';
+  return `<section class="box" id="hoBox"><h3>${esc(R.boxH)}</h3>
+    <button type="button" class="est-launch ho-launch" data-ho="${esc(l.id)}"><b>${esc(R.launch)}</b><span class="el-s">${esc(R.launchS)}</span><span class="el-go" aria-hidden="true">→</span></button>
+    ${sum}${sum ? `<h3 style="font-size:16px">${esc(R.sendH)}</h3>${hoSendBlock(l, p, ml, 'sheet')}` : ''}</section>`;
+}
+
+const HO = (() => {
+  let st = null, lastFrom = null, prevOverflow = '', chain = Promise.resolve(), checked = null, checkFails = [];
+  const view = () => $('#hoView');
+  const H = () => HOX[st.lang];
+  const lead = () => (st && st.leadId ? leads.find(x => x.id === st.leadId) || null : null);
+  const canWrite = () => !!(DB && CAN_EDIT && lead());
+  const hoLocale = () => (st.lang === 'es' ? 'es-US' : 'en-US');
+  const hoDay = (d, o) => { try { return toDate(d).toLocaleDateString(hoLocale(), o || {month: 'short', day: 'numeric', year: 'numeric'}); } catch (e) { return d; } };
+
+  /* ---------- the options: Good / Better / Best from the estimate engine ---------- */
+  function rulesProblem(){
+    if (prices === undefined) return 'loading';
+    if (!prices || typeof prices !== 'object' || !prices.prices) return 'missing';
+    if (Number(prices.version) !== HMPEstimateMath.RULES_VERSION) return 'version';
+    if (checked !== prices) { checked = prices; try { checkFails = HMPEstimateMath.selfCheck(prices); } catch (e) { checkFails = ['selfCheck']; } }
+    return checkFails.length ? 'stale' : null;
+  }
+  const pos = v => { const n = numv(v); return n != null && n > 0 ? n : null; };
+  const class4Rules = () => { const c = prices.prices.class4_roof_sq || prices.prices.impact_roof_sq;   // only when the price sheet carries it
+    return c && numv(c.low) != null && numv(c.high) != null ? Object.assign({}, prices, {prices: Object.assign({}, prices.prices, {shingle_roof_sq: c})}) : null; };
+  function model(){
+    const out = {problem: null, job: null, avail: {siding: false, roof: false, both: false}, tiers: [], scope: st.scope, notes: [], rough: false, sq: {}, usingRef: false};
+    const j = st.job && typeof st.job === 'object' ? st.job : null;
+    if (!j) { out.problem = 'nojob'; return out; }
+    out.problem = rulesProblem(); if (out.problem) return out;
+    const sq = pos(j.siding_squares), rq = pos(j.roof_squares), fp = pos(j.footprint_sqft);
+    const shape = {stories: [1, 2, 3].includes(Number(j.stories)) ? Number(j.stories) : 1, pitch: ['low', 'std', 'steep'].includes(j.pitch) ? j.pitch : 'std', layers: [1, 2, 3].includes(Number(j.layers)) ? Number(j.layers) : 1};
+    const sPart = sq ? {siding_squares: sq} : fp ? {footprint_sqft: fp} : null, rPart = rq ? {roof_squares: rq} : fp ? {footprint_sqft: fp} : null;
+    const sEx = pos(j.windows) ? {windows: pos(j.windows)} : {}, rEx = {};
+    if (pos(j.chimney) || j.chimney === true) rEx.chimney = j.chimney === true ? 1 : pos(j.chimney);
+    if (pos(j.skylight_ft)) rEx.skylight_ft = pos(j.skylight_ft);
+    const run = (job, rules) => { try { return HMPEstimateMath.estimate(Object.assign({}, shape, job, {pitch: shape.pitch}), rules || prices); } catch (e) { return null; } };
+    const goodRoof = rPart ? run(Object.assign({type: 'roof'}, rPart, rEx)) : null;
+    const goodSiding = sPart ? run(Object.assign({type: 'siding', material: 'vinyl'}, sPart, sEx)) : null;
+    out.avail = {siding: !!goodSiding, roof: !!goodRoof, both: !!(goodSiding && goodRoof)};
+    let scope = HO_SCOPES.includes(st.scope) && out.avail[st.scope] ? st.scope : null;
+    if (!scope) { const t = j.type; scope = t === 'mixed' && out.avail.both ? 'both' : t === 'siding' && out.avail.siding ? 'siding' : t === 'roof' && out.avail.roof ? 'roof' : out.avail.roof ? 'roof' : out.avail.siding ? 'siding' : null; }
+    out.scope = scope;
+    if (!scope) { out.problem = 'nojob'; return out; }
+    // the better roof: ice & water + ridge vent from the quick estimate, else a rough share of the roof size
+    const roofSq = goodRoof ? goodRoof.quantities.roof_squares : null;
+    let ice = pos(j.ice_water_sq), ridge = pos(j.ridge_vent_ft), own = !!(ice && ridge);
+    if (roofSq) {
+      const pf = (prices.rough_helper && prices.rough_helper.pitch_factor && numv(prices.rough_helper.pitch_factor[goodRoof.adders.pitch])) || 1.12;
+      if (!ice) ice = Math.max(1, Math.round(roofSq * 2) / 10);                 // about 20% of the roof: eaves + valleys
+      if (!ridge) ridge = Math.max(10, Math.round(Math.sqrt(roofSq * 100 / pf))); // about the long side of the house
+    }
+    const better = {ice_water_sq: ice, ridge_vent_ft: ridge}, c4 = class4Rules();
+    const roofJob = k => Object.assign({}, rPart, rEx, k === 'good' ? {} : better);
+    const mats = {good: 'vinyl', better: 'insulated_vinyl', best: 'hardie'};
+    const keys = scope === 'roof' && !c4 ? ['good', 'better'] : HO_KEYS;
+    for (const k of keys) {
+      let r = null;
+      if (scope === 'siding') r = run(Object.assign({type: 'siding', material: mats[k]}, sPart, sEx));
+      else if (scope === 'roof') r = run(Object.assign({type: 'roof'}, roofJob(k)), k === 'best' ? c4 : null);
+      else {   // both: a mixed job; the best roof is Class 4 only when the sheet has it, else the better roof
+        const mixed = Object.assign({type: 'mixed', material: mats[k], siding_squares: sq || null, roof_squares: rq || null, footprint_sqft: !sq || !rq ? fp : null}, sEx, roofJob(k === 'best' && !c4 ? 'better' : k));
+        r = run(mixed, k === 'best' && c4 ? c4 : null);
+      }
+      if (r) out.tiers.push({key: k, low: r.low, high: r.high, ref: !!r.using_reference, rough: !!r.rough_squares, q: r.quantities});
+    }
+    out.usingRef = out.tiers.some(t => t.ref); out.rough = out.tiers.some(t => t.rough);
+    const q0 = out.tiers[0] && out.tiers[0].q; out.sq = {siding: scope !== 'roof' && q0 ? q0.siding_squares : null, roof: scope !== 'siding' && q0 ? q0.roof_squares : null};
+    out.class4 = !!c4; out.ice = scope !== 'siding' ? {sq: ice, ft: ridge, own} : null;
+    out.gutters = !!(pos(j.gutter_ft) || pos(j.gutter_guards_ft) || pos(j.downspouts_ft));
+    return out;
+  }
+
+  /* ---------- writes (chained, so an older write can't land after a newer one) ---------- */
+  function queueWrite(body, what){
+    const l = lead(); if (!l) { st.msg = {k: 'noLead', bad: true}; return; }
+    if (!(DB && CAN_EDIT)) { st.msg = {k: 'readOnly', bad: true}; return; }
+    const id = l.id;
+    chain = chain.then(async () => {
+      try { const r = await save({op: 'update', path: 'leads/' + id, body: Object.assign(body(), {updated_at: nowIso(), updated_by: 'Homeowner view'})});
+        if (st && st.leadId === id) st.msg = {k: r === 'queued' ? 'queued' : 'saved', what}; }
+      catch (e) { if (st && st.leadId === id) st.msg = {k: refused(e) ? 'readOnly' : 'failed', bad: true, what}; }
+      if (st && st.leadId === id) render();
+    });
+  }
+  const marksOf = p => (st.marks.has(p.id) ? st.marks.get(p.id) : arr(p.marks).filter(m => [m.x, m.y, m.r].every(v => typeof v === 'number' && isFinite(v))).map(m => ({x: clamp(m.x, 0, 1), y: clamp(m.y, 0, 1), r: clamp(m.r, 0.01, 0.4), n: Math.round(numv(m.n) || 0)})).slice(0, 30));
+  function setMarks(pid, marks){
+    st.marks.set(pid, marks.map((m, i) => Object.assign({}, m, {n: i + 1})));
+    queueWrite(() => { const l = lead(); return {photos: (l ? photosOf(l) : []).map(p => (st.marks.has(p.id) ? Object.assign({}, p, {marks: st.marks.get(p.id)}) : p))}; }, 'marks');
+    render();
+  }
+  function saveProposal(){
+    const m = model(); if (!m.tiers.length || !m.scope) return;
+    st.prop = {scope: m.scope, tiers: m.tiers.map(t => ({key: t.key, name: HOX.en.names[t.key], low: t.low, high: t.high})), recommended: m.tiers.some(t => t.key === st.rec) ? st.rec : null,
+               chosen: m.tiers.some(t => t.key === st.chosen) ? st.chosen : null, at: nowIso(), using_reference: m.usingRef, class4: m.class4};
+    const p = st.prop; queueWrite(() => ({proposal: p}), 'proposal');
+  }
+
+  /* ---------- screens ---------- */
+  const yes = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const info = '<svg viewBox="0 0 24 24" fill="none" stroke="#5b5f67" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>';
+  const shield = '<svg viewBox="0 0 24 24" fill="none" stroke="#9c4a16" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round"/></svg>';
+  const phoneI = '<svg viewBox="0 0 24 24" fill="#1f2023" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
+  const seg = (k, items, cur) => `<div class="ho-seg" role="group">${items.map(([v, t, sm, dis]) => `<button type="button" data-k="${k}:${v}" data-hoset="${k}" data-v="${esc(v)}" aria-pressed="${String(cur) === String(v)}"${dis ? ' disabled' : ''}>${esc(t)}${sm ? `<small>${esc(sm)}</small>` : ''}</button>`).join('')}</div>`;
+  function repPanel(inner){
+    if (!st.rep) return '';
+    const R = HR(), m = st.msg, msg = m ? `<p class="ho-status${m.bad ? ' bad' : ''}" role="status">${esc(R[m.k] || '')}</p>` : '';
+    return `<section class="ho-rep" lang="${lang}" aria-label="${esc(R.panel)}"><h2>${esc(R.panel)}<small>${esc(R.panelS)}</small></h2>${inner}${msg}</section>`;
+  }
+  function shownPhotos(l){
+    const order = s => { const i = SLOTS.indexOf(s); return i < 0 ? 99 : i; };
+    return photosOf(l).filter(p => p.slot !== 'after' && p.slot !== 'contract').map((p, i) => ({p, i})).sort((a, b) => order(a.p.slot) - order(b.p.slot) || a.i - b.i).map(x => x.p);
+  }
+  function markHtml(m){
+    const d = (m.r * 200).toFixed(2);
+    return `<span class="ho-mk" data-mk="${m.n}" style="left:${(m.x * 100).toFixed(2)}%;top:${(m.y * 100).toFixed(2)}%;width:${d}%"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#fff" stroke-width="7" opacity=".92"/><circle cx="50" cy="50" r="46" fill="none" stroke="#f5883a" stroke-width="4"/></svg><b>${m.n}</b></span>`;
+  }
+  function hailCard(l){
+    const e = l ? proofFor(l.address, l.city) : null; if (!e) return '';
+    const X = H(), V0 = VX[st.lang], size = numv(e.hail_in), day = dayOf(e.day), nr = e.nearest_report && typeof e.nearest_report === 'object' ? e.nearest_report : {};
+    const nrS = numv(nr.size_in), nrD = numv(nr.dist_mi), radar = numv(e.radar_max_in), src = strv(nr.source).toLowerCase(), srcName = V0.srcName[src] || '';
+    const name = (V0.hail.find(([t]) => size >= t - 0.02) || [0, ''])[1];
+    const S = 40, qd = 0.955 * S, hd = Math.min(size, 4.5) * S, W = 8 + qd + 18 + hd + 8, Ht = Math.max(qd, hd) + 26, base = Ht - 18;
+    const svg = `<svg class="ho-scale" viewBox="0 0 ${W.toFixed(0)} ${Ht.toFixed(0)}" role="img" aria-label="${esc(X.scale)}"><line x1="2" y1="${base}" x2="${(W - 2).toFixed(1)}" y2="${base}" stroke="#cfccc4" stroke-width="1.5"/>
+      <circle cx="${(8 + qd / 2).toFixed(1)}" cy="${(base - qd / 2).toFixed(1)}" r="${(qd / 2).toFixed(1)}" fill="#c9ccd1" stroke="#8d9097" stroke-width="1.5"/>
+      <circle cx="${(8 + qd + 18 + hd / 2).toFixed(1)}" cy="${(base - hd / 2).toFixed(1)}" r="${(hd / 2).toFixed(1)}" fill="#fdf1e7" stroke="#f5883a" stroke-width="2"/>
+      <text x="${(8 + qd / 2).toFixed(1)}" y="${Ht - 4}" text-anchor="middle" fill="#5b5f67" font-size="10" font-family="Montserrat, sans-serif">${esc(X.quarter)}</text></svg>`;
+    const facts = [day ? [X.dateL, hoDay(day, {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}), ''] : null,
+      nrS != null && nrD != null ? [X.nearL, X.near(fmtIn(nrS), fmtIn(nrD)), srcName] : radar != null ? [X.radarL, `${fmtIn(radar)} ${X.unit}`, ''] : null].filter(Boolean);
+    return `<div class="ho-card ho-hail"><div class="ho-lbl">${esc(X.hailT)}</div>
+      <div class="ho-cols"><div><div class="ho-big">${esc(fmtIn(size))}<small>${esc(X.unit)}</small></div><div class="ho-like">${esc(X.hailL)}${name ? ', ' + esc(X.like(name)) : ''}</div></div>${svg}</div>
+      ${facts.length ? `<div class="ho-facts">${facts.map(([k, v, s]) => `<div><em>${esc(k)}</em><b>${esc(v)}</b>${s ? `<em>${esc(s)}</em>` : ''}</div>`).join('')}</div>` : ''}
+      <p class="ho-src">${esc(X.src)}</p><div class="ho-caveat">${info}<span>${esc(X.caveat)}</span></div></div>`;
+  }
+  function screen1(){
+    const X = H(), R = HR(), l = lead(), ps = l ? shownPhotos(l) : [];
+    const last = ps.map(p => dayOf(p.at)).filter(Boolean).sort().pop();
+    const parts = [`<h1 id="hoH">${esc(X.s1)}</h1><p class="ho-sub">${esc(X.s1sub)}${last ? ' · ' + esc(X.photosOn(hoDay(last))) : ''}</p>`];
+    if (st.rep && ps.length) parts.push(repPanel(`<p>${esc(R.markHelp)}</p><div class="ho-rrow"><span class="ho-rl">${esc(R.size)}</span>${seg('size', ['s', 'm', 'l'].map(k => [k, R.sizes[k]]), st.size)}</div>`));
+    if (ps.length) parts.push(`<div class="ho-plist">${ps.map((p, i) => { const mk = marksOf(p), title = X.slot[p.slot] || X.slot.other;
+      return `<figure class="ho-pcard" style="margin:0"><div class="ho-ph" data-hoph="${esc(p.id)}"><img src="${esc(blobSrc(p.id))}" alt="${esc(title)}" loading="${i < 2 ? 'eager' : 'lazy'}"><div class="ho-mks">${mk.map(markHtml).join('')}</div><span class="ho-gone">${esc(X.photoGone)}</span></div>
+        <figcaption class="ho-cap"><span class="ho-n">${i + 1}</span><div><b>${esc(title)}</b>${mk.length ? `<span>${esc(X.circled(mk.length))}</span>` : ''}</div>${st.rep && mk.length ? `<button type="button" class="ho-sbtn ho-undo" data-k="undo:${esc(p.id)}" data-houndo="${esc(p.id)}" lang="${lang}">${esc(R.undo)}</button>` : ''}</figcaption></figure>`; }).join('')}</div>`);
+    else parts.push(`<div class="ho-empty"><b>${esc(X.noPhotosH)}</b><p>${esc(X.noPhotosP)}</p></div>`);
+    const hail = hailCard(l), ins = !l || leadKind(l) === 'insurance' || hail ? `<div class="ho-card ho-ins"><b>${esc(X.insH)}</b><p>${esc(X.insP)}</p></div>` : '';
+    if (hail || ins) parts.push(`<div class="ho-two">${hail}${ins}</div>`);
+    return parts.join('');
+  }
+  function screen2(){
+    const X = H(), R = HR(), m = model(), l = lead(), L2 = st.lang;
+    const parts = [`<h1 id="hoH">${esc(X.s2)}</h1>`];
+    // rep tools first: pick the job, the recommended option, see the sizes behind the numbers
+    const rp = [];
+    if (m.problem === 'nojob') rp.push(`<p>${esc(R.needEst)}</p>${l && DB && CAN_EDIT ? `<div class="ho-acts"><button type="button" class="ho-sbtn go" data-k="est" data-hoest="1">${esc(R.makeEst)}</button></div>` : ''}`);
+    else if (m.problem) rp.push(`<p>${esc(R.prob[m.problem] || '')}</p>`);
+    else {
+      rp.push(`<div class="ho-rrow"><span class="ho-rl">${esc(R.scopeL)}</span>${seg('scope', HO_SCOPES.map(s => [s, R.scope[s], m.avail[s] ? '' : R.needSize, !m.avail[s]]), m.scope)}</div>`);
+      rp.push(`<div class="ho-rrow"><span class="ho-rl">${esc(R.recL)}</span>${seg('rec', [['none', R.recNone], ...m.tiers.map(t => [t.key, HOX[lang].names[t.key]])], st.rec || 'none')}</div>`);
+      const notes = [R.sizesUsed(m.sq.siding ? String(m.sq.siding) : '', m.sq.roof ? String(m.sq.roof) : '', m.rough)];
+      if (m.ice && m.ice.sq) notes.push(m.ice.own ? R.iceOwn : R.iceNote(m.ice.sq, m.ice.ft));
+      if (m.scope === 'roof' && !m.class4) notes.push(R.noClass4);
+      if (m.usingRef) notes.push(R.market);
+      if (m.gutters) notes.push(R.leftOut);
+      rp.push(notes.map(n => `<p>${esc(n)}</p>`).join(''));
+      if (l && DB && CAN_EDIT) rp.push(`<div class="ho-acts"><button type="button" class="ho-sbtn" data-k="est" data-hoest="1">${esc(R.changeSizes)}</button></div>`);
+    }
+    parts.push(repPanel(rp.join('')));
+    if (m.problem) {
+      const [h, p] = m.problem === 'nojob' ? [X.noOptH, X.noOptP] : [X.prepH, X.prepP];
+      parts.push(`<div class="ho-empty"><b>${esc(h)}</b><p>${esc(p)}</p></div>`);
+      return parts.join('');
+    }
+    parts.splice(1, 0, `<p class="ho-sub">${esc(X.s2sub(m.scope, m.tiers.length))}</p>`);
+    const n = m.tiers.length, rc = t => (st.rec === t.key ? ' class="rec"' : '');
+    const cols = m.tiers.map(t => `<button type="button" class="ho-col${st.rec === t.key ? ' rec' : ''}" data-k="pick:${t.key}" data-hopick="${t.key}" aria-pressed="${st.chosen === t.key}">
+      <span class="ho-rib">${st.rec === t.key ? esc(X.rec) : ''}</span><span class="ho-name">${esc(X.names[t.key])}</span><span class="ho-what">${esc(hoTierWhat(m.scope, t.key, L2))}</span>
+      <span class="ho-price"><span>${esc(hoUsd(t.low))}</span><span>– ${esc(hoUsd(t.high))}</span></span><span class="ho-pick">${esc(st.chosen === t.key ? X.picked : X.tapPick)}</span></button>`).join('');
+    const Y = yes, N = '<span class="no">–</span>', txt = s => `<span class="txt">${esc(s)}</span>`, W = X.rows;
+    const row = (label, cells) => `<tr class="sec"><td colspan="${n}">${esc(label)}</td></tr><tr>${cells.slice(0, n).map((c, i) => `<td${rc(m.tiers[i])}>${c}</td>`).join('')}</tr>`;
+    const grp = label => `<tr class="grp"><td colspan="${n}">${esc(label)}</td></tr>`;
+    const rows = [];
+    const roofBest = m.class4 ? txt(W.class4) : Y;
+    if (m.scope !== 'roof') { if (m.scope === 'both') rows.push(grp(X.grp.siding));
+      rows.push(row(W.sTear, [Y, Y, Y]), row(W.wrap, [Y, Y, Y]), row(W.foam, [N, Y, txt(W.fiber)])); }
+    if (m.scope !== 'siding') { if (m.scope === 'both') rows.push(grp(X.grp.roof));
+      rows.push(row(W.rTear, [Y, Y, Y]), row(W.arch, [Y, Y, roofBest]), row(W.ice, [N, Y, Y]), row(W.ridge, [N, Y, Y]));
+      if (m.class4) rows.push(row(W.ul, [N, N, Y])); }
+    if (m.scope === 'both') rows.push(grp(X.grp.all));
+    rows.push(row(W.permit, [Y, Y, Y]), row(W.clean, [Y, Y, Y]));
+    parts.push(`<div class="ho-cmp" style="--n:${n}"><div class="ho-cols3" role="group" aria-label="${esc(X.s2)}">${cols}</div><div class="ho-rng">${esc(X.range)}</div><div class="ho-tbl"><table>${rows.join('')}</table></div></div>`);
+    const ins = l && leadKind(l) === 'insurance' && prices.insurance_note ? strv(prices.insurance_note[L2]) : '';
+    parts.push(`<p class="ho-note">${esc(X.rangeNote)}${ins ? ' ' + esc(ins) : ''}</p>`);
+    parts.push(`<div class="ho-card ho-warr">${shield}<span>${esc(X.warranty)}</span></div>`);
+    if (m.scope !== 'roof') parts.push(`<a class="ho-out" href="https://www.jameshardie.com/hardie-designer" target="_blank" rel="noopener noreferrer"><span class="sw" aria-hidden="true"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da;outline:1px solid #ccc"></i></span>
+      <span><b>${esc(X.colors)}</b><span>${esc(X.colorsWhere)}</span></span><span class="arr" aria-hidden="true">↗</span></a>`);
+    return parts.join('');
+  }
+  function screen3(){
+    const X = H(), R = HR(), l = lead(), m = model();
+    const parts = [`<h1 id="hoH">${esc(X.s3)}</h1><p class="ho-sub">${esc(X.s3sub)}</p>`];
+    if (st.rep) {
+      const ml = st.msgLang || st.lang, prop = !m.problem && m.tiers.length ? {scope: m.scope, tiers: m.tiers, recommended: st.rec, chosen: st.chosen, class4: m.class4} : null;
+      parts.push(repPanel(`<p><b>${esc(R.sendH)}</b> · ${esc(R.sendS)}</p><div class="ho-rrow"><span class="ho-rl">${esc(R.textLang)}</span>${seg('ml', [['en', 'English'], ['es', 'Español']], ml)}</div>${hoSendBlock(l, prop, ml, 'view')}`));
+    }
+    parts.push(`<div class="ho-stps">${X.steps.map(([t, p], i) => `<div class="ho-stp"><div class="n" aria-hidden="true">${i + 1}</div><div><b>${esc(t)}</b><p>${esc(p)}</p>${i === 1 ? `<div class="ho-cancel"><b>${esc(X.cancel[0])}</b>${esc(X.cancel[1])}</div>` : ''}</div></div>`).join('')}</div>`);
+    const who = [[HO_PHONE.kenny, X.langK], [HO_PHONE.alex, X.langA]];
+    parts.push(`<div class="ho-contact"><div class="q">${esc(X.questions)}</div>${who.map(([c, lg]) => `<a href="tel:${c.tel}" aria-label="${esc(X.call(c.name))} ${c.phone}"><span class="ic">${phoneI}</span><span><span class="nm">${esc(c.name)} · ${esc(lg)}</span><span class="tel" style="display:block">${c.phone}</span></span></a>`).join('')}</div>`);
+    parts.push(`<p class="ho-foot">${esc(X.company)}<span class="blank"></span></p>`);
+    return parts.join('');
+  }
+  function render(){
+    if (!st) return;
+    const v = view(), X = H(), R = HR(), l = lead(), a = document.activeElement, fk = a && v.contains(a) && a.dataset ? a.dataset.k : null;
+    if (st.leadId && !l) { close(); return; }
+    v.lang = st.lang; v.classList.toggle('rep', st.rep && st.screen === 0);
+    for (const b of v.querySelectorAll('[data-hol]')) b.setAttribute('aria-pressed', String(b.dataset.hol === st.lang));
+    $('#hoRep').setAttribute('aria-pressed', String(st.rep)); $('#hoRepL').textContent = st.rep ? R.repOff : R.rep; $('#hoRep').title = st.rep ? R.repOff : R.rep; $('#hoRep').lang = lang;
+    $('#hoCloseL').textContent = R.close; $('#hoClose').title = R.close; $('#hoClose').lang = lang;
+    $('#hoChip').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>${esc(X.view)}`;
+    $('#hoAddr').textContent = l ? strv(l.address) || l.id : 'HMP Siding & Roofing';
+    $('#hoFor').textContent = l ? [strv(l.city), strv(l.first_name) ? X.forWho(strv(l.first_name)) : ''].filter(Boolean).join(' · ') : '';
+    $('#hoSteps').setAttribute('aria-label', X.stepsAria);
+    $('#hoSteps').innerHTML = `<div class="ho-sin">${X.tabs.map((t, i) => `<button type="button" data-k="step:${i}" data-hostep="${i}"${i === st.screen ? ' aria-current="step"' : ''} class="${i < st.screen ? 'done' : ''}"><i>${i + 1}</i><span>${esc(t)}</span></button>`).join('')}</div>`;
+    const body = [screen1, screen2, screen3][st.screen]();
+    const nextBtn = st.screen < 2 ? `<button type="button" class="ho-next" data-k="next" data-hostep="${st.screen + 1}">${esc(X.next(X.tabs[st.screen + 1]))}</button>` : '';
+    $('#hoBody').innerHTML = body + nextBtn;
+    if (fk) { const n = v.querySelector(`[data-k="${CSS.escape(fk)}"]`); if (n && !n.disabled) n.focus({preventScroll: true}); }
+  }
+
+  /* ---------- open / close / events ---------- */
+  function open(o){
+    const l = o.leadId ? leads.find(x => x.id === o.leadId) : null;
+    const p = l && l.proposal && typeof l.proposal === 'object' ? l.proposal : null;
+    const job = o.job || (l && l.estimate && typeof l.estimate === 'object' ? l.estimate.job : null) || null;
+    st = {leadId: l ? l.id : null, job, lang: l && (l.lang === 'es' || l.language === 'es') ? 'es' : lang, screen: 0, rep: false, size: 'm', marks: new Map(), msg: null, msgLang: null,
+          scope: p && HO_SCOPES.includes(p.scope) ? p.scope : null, rec: p && HO_KEYS.includes(p.recommended) ? p.recommended : null, chosen: p && HO_KEYS.includes(p.chosen) ? p.chosen : null, prop: p};
+    if (!l || !shownPhotos(l).length && !proofFor(l.address, l.city)) st.screen = 1;   // nothing to show on page 1 yet: start at the options
+    lastFrom = o.from || document.activeElement;
+    const v = view(); prevOverflow = document.body.style.overflow; v.hidden = false; v.scrollTop = 0; document.body.style.overflow = 'hidden';
+    render(); $('#hoClose').focus({preventScroll: true});
+  }
+  function close(){
+    const v = view(); if (v.hidden) return;
+    v.hidden = true; v.classList.remove('rep'); $('#hoBody').innerHTML = ''; st = null;
+    document.body.style.overflow = openRef ? 'hidden' : prevOverflow || '';
+    // the sheet may have redrawn meanwhile (a save echoes back): fall back to its Show homeowner button
+    const f = lastFrom && lastFrom.isConnected ? lastFrom : openRef ? $('#shBody [data-ho]') || $('#shBody .est-show button') || $('#shClose') : null;
+    if (f && f.focus) f.focus({preventScroll: true});
+  }
+  const isOpen = () => !!st;
+  function go(i){ st.screen = clamp(i, 0, 2); render(); view().scrollTop = 0; const h = $('#hoH'); if (h) { h.tabIndex = -1; h.focus({preventScroll: true}); } }
+  view().addEventListener('click', ev => {
+    if (!st) return;
+    const mk = st.rep && ev.target.closest('.ho-mk'), ph = ev.target.closest('[data-hoph]');
+    if (mk && ph) { const pid = ph.dataset.hoph, l = lead(), p = l && photosOf(l).find(x => x.id === pid); if (p) setMarks(pid, marksOf(p).filter(m => String(m.n) !== mk.dataset.mk)); return; }
+    if (ph && st.rep && st.screen === 0 && !ph.classList.contains('gone')) {
+      const img = ph.querySelector('img'), r = img.getBoundingClientRect(); if (!r.width || !r.height) return;
+      const x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height; if (x < 0 || x > 1 || y < 0 || y > 1) return;
+      const l = lead(), p = l && photosOf(l).find(q => q.id === ph.dataset.hoph); if (!p) return;
+      const cur = marksOf(p); if (cur.length >= 30) return;
+      setMarks(p.id, [...cur, {x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, r: {s: 0.04, m: 0.07, l: 0.11}[st.size] || 0.07}]); return;
+    }
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.id === 'hoClose') { close(); return; }
+    if (b.id === 'hoRep') { st.rep = !st.rep; st.msg = null; render(); return; }
+    if (b.dataset.hol) { if (b.dataset.hol !== st.lang) { st.lang = b.dataset.hol; render(); } return; }
+    if (b.dataset.hostep != null) { go(+b.dataset.hostep); return; }
+    if (b.dataset.houndo) { const l = lead(), p = l && photosOf(l).find(x => x.id === b.dataset.houndo); if (p) setMarks(p.id, marksOf(p).slice(0, -1)); return; }
+    if (b.dataset.hopick) { st.chosen = st.chosen === b.dataset.hopick ? null : b.dataset.hopick; st.msg = null; saveProposal(); render(); return; }
+    if (b.dataset.hoset) {
+      const k = b.dataset.hoset, v = b.dataset.v; st.msg = null;
+      if (k === 'size') st.size = v;
+      else if (k === 'ml') st.msgLang = v;
+      else if (k === 'scope') { if (v !== st.scope) { st.scope = v; st.chosen = null; if (st.rec === 'best' && v === 'roof' && !class4Rules()) st.rec = null; saveProposal(); } }
+      else if (k === 'rec') { st.rec = v === 'none' ? null : v; saveProposal(); }
+      render(); return;
+    }
+    if (b.dataset.hocopy) { hoCopy(b, $('#hoMsgTxt')); return; }
+    if (b.dataset.hoest) { const id = st.leadId; close(); if (!id) return;   // back to the lead's quick estimate (Back returns to the lead)
+      if (openRef === 'est:' + id) renderSheet(); else openSheet('est:' + id, openRef ? $('#shClose') : null); return; }
+  });
+  view().addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.ho-ph'); if (ph) ph.classList.add('gone'); } }, true);
+  view().addEventListener('keydown', ev => {
+    ev.stopPropagation();   // the sheet underneath must not react (its Escape and Tab trap)
+    if (ev.key === 'Escape') { close(); return; }
+    if (ev.key === 'Tab') { const f = [...view().querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.disabled && n.offsetParent !== null); if (!f.length) return;
+      if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); } else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); } }
+  });
+  return {open, close, render, isOpen, model: () => (st ? model() : null)};
+})();
+
 /* ---------- whole app ---------- */
 function renderBadges(){
   const due = callbackCount(), asks = hubWaiting().length;
@@ -4333,6 +4994,7 @@ function renderApp(force = true){   // snapshots call it with force=false: nothi
   if (bossOn) renderBoss();
   else if (tab === 'today') renderToday(); else if (tab === 'leads') renderLeads(); else if (tab === 'money') renderMoney();
   if (openRef) renderSheet();
+  if (HO.isOpen()) HO.render();   // v21: the homeowner screen follows the data (photos, marks, prices)
   renderSync();
 }
 let appTimer = 0; function renderAppSoon(){ clearTimeout(appTimer); appTimer = setTimeout(() => renderApp(false), 30); }
@@ -4660,7 +5322,7 @@ function subscribeApp(db){
   db.doc('stats/week-' + isoWeek(t0)).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('wk', v)) { weekDoc = v; bump(); } }, () => {});
   db.doc('stats/week-' + isoWeek(addDays(t0, -7))).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('lw', v)) { lastWeekDoc = v; bump(); } }, () => {});
   db.doc('stats/streak').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('streak', v)) { streakDoc = v; bump(); } }, () => {});   // v19
-  db.doc('system/prices').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('prices', v)) { prices = v; if (openRef && openRef.startsWith('est:')) renderSheet(); } },
+  db.doc('system/prices').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('prices', v)) { prices = v; if (openRef && openRef.startsWith('est:')) renderSheet(); if (HO.isOpen()) HO.render(); } },
     () => { if (prices === undefined) { prices = null; if (openRef && openRef.startsWith('est:')) renderSheet(); } });
   db.doc('hub/summary').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('hub', v)) { hub = v && typeof v === 'object' ? v : null; bump(); } }, () => {});   // v20: the AI hub's copy
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
