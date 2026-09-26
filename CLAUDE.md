@@ -41,6 +41,8 @@ software); HMP is its first user.
 asking for info and telling him what to ask for. Like a construction worker's hammer." So every screen answers: **where am I
 in the sale, what do I say/ask now, what do I collect, what's legally required, what's next.** A plain, fast tool used
 all day, not a dashboard. Plan: `docs/orders/o7-sale-guide.md`.
+**Standard (FilthE, 2026-09-26):** keep researching and upgrading, using the best apps as references. "Works" isn't
+the bar: build what reliably improves the salesman and the business.
 
 ## Answered 2026-09-26 (don't re-ask)
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
