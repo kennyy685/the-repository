@@ -36,6 +36,12 @@ software); HMP is its first user.
 - Contract lawyer review: deferred. The draft (with the 3-day cancel notice + deductible notice) is the one to use, whole, never a
   handshake; the lawyer's OK comes later.
 
+## The app's job (FilthE, 2026-09-26): the salesman's right hand
+"The app should be the salesman's right hand: it guides him through the sale and assists through it, leading, guiding,
+asking for info and telling him what to ask for. Like a construction worker's hammer." So every screen answers: **where am I
+in the sale, what do I say/ask now, what do I collect, what's legally required, what's next.** A plain, fast tool used
+all day, not a dashboard. Plan: `docs/orders/o7-sale-guide.md`.
+
 ## Answered 2026-09-26 (don't re-ask)
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
 - Twilio phone-call storm alerts (D6): **No for now**; push + email alerts stay.
