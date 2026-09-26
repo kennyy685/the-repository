@@ -5,8 +5,8 @@ Each round: write `docs/research/<date>-round-<n>.md`, post board items, check t
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
-- [ ] Wind and fallen-tree claims (not just hail): how to find them (NWS wind reports), what to inspect, how claims differ
-- [ ] Commercial and apartment roofs: TPO/EPDM basics, how to get on bid lists, property-manager buying cycle
+- [ ] Verify Iowa Mesonet LSR "trees down" reports are actually in the feed HMP ingests, and wind
+      direction/bearing availability in `wind_obs` (round 23 flagged both, unconfirmed)
 - [ ] Retention and reviews: getting Google reviews legally, completion packets, warranty registration, annual check-up visits
 - [ ] Door-to-door rules by city (Fremont, Omaha, Lincoln, Columbus, Schuyler): solicitor permits, hours, no-knock lists
 - [ ] Hail season calendar for eastern Nebraska: when storms hit, how long claims stay open (Nebraska claim deadlines), best months to knock
@@ -23,4 +23,5 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
 Claude pro skills, app IA, translation, product path, voice, benchmarks, door-picking data, competitors (17, 17b), outside-the-box
 + profit (18), community leads (19), supplements + O&P (20), Hispanic outreach + financing (21). Round 22: GAF Master Elite +
-James Hardie Elite Preferred requirements, adjuster-meeting checklist (docs/guides/adjuster-meeting.md).
+James Hardie Elite Preferred requirements, adjuster-meeting checklist (docs/guides/adjuster-meeting.md). Round 23: wind/
+fallen-tree claims (wind-zone scoring factors, tree-lead layer) + commercial/apartment roofs (TPO/EPDM, PM budget cycle).
