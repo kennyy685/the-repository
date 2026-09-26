@@ -32,12 +32,17 @@ T83 "Before the next door" (research round 14, spec 2): every stop gets `coach {
 rule-based lines (see `coach_for`): the 69-1602 opener on the first door of the day, a reset line after 3+ "no" in a
 row today (`today_taps`), a come-back promise, the hail at that house, a best-time note on a retry, the house's age.
 Logistics, mindset and hail facts only: never insurance paying, never the deductible.
+Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
+one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate.
+Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
+or heat, no top-up from other walks, houses picked by door score (best first), then put in walking order.
 """
 import json
 import re
 from collections import Counter
 from datetime import date, datetime, timezone
 
+from . import doorscore
 from . import estimate as est
 from .config import DEFAULTS
 from .geo import haversine_mi
@@ -698,9 +703,10 @@ def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None
     return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
 
 
-def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None):
+def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
-    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines."""
+    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines.
+    `only` = (list_id, turf): build that one walk (a hot zone's walk), see the module doc."""
     tw = _tw(cfg)
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
@@ -714,18 +720,22 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
             continue
         c, pools[L["id"]] = _candidates(L, "storm", tw, results, dnk, today)
         src[L["id"]] = (L, "storm")
-        if 0 <= age <= max_age:
+        if only:
+            storm += [x for x in c if (L["id"], x["turf"].get("turf")) == tuple(only)]
+        elif 0 <= age <= max_age:
             storm += [x for x in c if x["heat"] >= tw["storm_min_heat"]
                       and (x["avg_hail"] or 0) >= tw["storm_min_hail"]]
     every = []
     for L in hud.get("everyday_lists") or []:
         c, pools[L["id"]] = _candidates(L, "everyday", tw, results, dnk, today)
         src[L["id"]] = (L, "everyday")
-        every += c
+        every += [x for x in c if not only or (L["id"], x["turf"].get("turf")) == tuple(only)]
     # Come back at: doors due today on ANY list (a promise to a homeowner), earliest time first.
     due, due_town = [], {}
     for lid, by_turf in pools.items():
-        for ss in by_turf.values():
+        for t, ss in by_turf.items():
+            if only and (lid, t) != tuple(only):
+                continue                           # a zone walk keeps only its own come-back doors
             for s in ss:
                 p = str(s["pid"])
                 if p not in due_town and _due(results.get(p), today) == "today":
@@ -734,7 +744,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     due.sort(key=lambda s: results[str(s["pid"])]["come_back"]["time"] or "99:99")
     due_ids = set(due_town)
     cands = storm or every
-    if not cands and due:                          # no walk qualifies, but a promised come-back is due today
+    if not cands and due and not only:                          # no walk qualifies, but a promised come-back is due today
         lid = next(i for i, bt in pools.items() for ss in bt.values() if any(x is due[0] for x in ss))
         DL, kind = src[lid]
         dt = next((t for t in DL.get("turfs") or [] if t.get("turf") == due[0].get("turf")),
@@ -747,8 +757,14 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     L = best["list"]
     # Doors not tried yet first (in the walk's own order), then not-home doors coming back for another pass.
     left = best["left"]
+    turf_of = {t.get("turf"): t for t in L.get("turfs") or []}
+    storm_day = L.get("day") if best["kind"] == "storm" else None
+    doors = {str(s["pid"]): doorscore.score(s, best["kind"], turf_of.get(s.get("turf"), {}).get("owner_share"),
+                                            storm_day, today, cfg) for ss in pools[L["id"]].values() for s in ss}
+    if only:                                       # a zone walk: the best doors first (untried before retries)
+        left = sorted(left, key=lambda s: -doors[str(s["pid"])]["score"])
     chosen = [s for s in left if str(s["pid"]) not in results] + [s for s in left if str(s["pid"]) in results]
-    if len(chosen) < goal:                         # short walk: top up from the list's nearest other walks
+    if len(chosen) < goal and not only:            # short walk: top up from the list's nearest other walks
         lat0 = sum(s["lat"] for s in left) / len(left)
         lon0 = sum(s["lon"] for s in left) / len(left)
         others = [s for t, ss in pools[L["id"]].items() if t != best["turf"]["turf"] for s in ss]
@@ -788,6 +804,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
         st["coach"] = coach_for(i, s, st, best["kind"], L.get("day"),
                                 ev.get(f"{st['address']}|{s.get('city') or ''}") or ev.get(f"{st['address']}|"),
                                 taps, bt, old_before)
+        d = doors.get(str(s["pid"])) or doorscore.score(s, best["kind"], None, storm_day, today, cfg)
+        st["door"] = {"score": d["score"], "parts": d["parts"]}   # door score v2 (round 16): an estimate
+        st["why"] = d["why"]
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
