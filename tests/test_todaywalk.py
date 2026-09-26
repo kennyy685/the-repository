@@ -21,6 +21,8 @@ FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 KEYS = {"date", "area", "why", "goal_doors", "kind", "list_id", "stops", "spanish_share", "who",   # +T37
         "est_minutes", "walk_mi", "drive_from_home_mi", "best_time", "stale", "stale_note", "data_age_hours"}
 STOP_KEYS = {"pid", "address", "city", "lat", "lon", "pass"}
+NEW_KEYS = {"rough_note", "evidence_note"}                  # additive, only when there's something to say
+NEW_STOP_KEYS = {"year_built", "sqft", "stories", "rough", "house_line"}   # additive house facts (county data)
 
 
 def num(s):
@@ -53,14 +55,14 @@ class TodayWalk(unittest.TestCase):
 
     def test_fresh_storm_walk_houses_only_in_walking_order(self):
         d = self.pick()
-        self.assertEqual(set(d), KEYS)
+        self.assertTrue(KEYS <= set(d) <= KEYS | NEW_KEYS, set(d) ^ KEYS)
         self.assertEqual(d["kind"], "storm")
         self.assertEqual(d["list_id"], "2026-09-10_Fremont")    # not the hotter but stale Blair storm
         self.assertEqual(d["date"], "2026-09-25")
         self.assertEqual(len(d["stops"]), 25)                   # 20 houses in walk 1, topped up from walk 2
         self.assertEqual(d["goal_doors"], 25)
         for s in d["stops"]:
-            self.assertEqual(set(s), STOP_KEYS)
+            self.assertTrue(STOP_KEYS <= set(s) <= STOP_KEYS | NEW_STOP_KEYS, set(s) ^ STOP_KEYS)
             self.assertEqual(s["pass"], 1)
         pids = {s["pid"] for s in d["stops"]}
         self.assertNotIn("DODGE-APT1", pids)                    # no apartments
@@ -82,8 +84,9 @@ class TodayWalk(unittest.TestCase):
         d = self.pick("2027-04-15")                             # in season, storms 217+ days old: no storm walk
         self.assertEqual(d["kind"], "everyday")
         self.assertEqual(d["list_id"], "everyday_Fremont_310539640003")
-        self.assertEqual(d["why"], {"en": "Most homes here were built before 1980 and are owner-lived.",
-                                    "es": "La mayoría de las casas aquí se construyeron antes de 1980 y viven sus "
+        # most of today's houses (1962-1969) are older than 1970: the stronger, still-true line
+        self.assertEqual(d["why"], {"en": "Most homes here were built before 1970 and are owner-lived.",
+                                    "es": "La mayoría de las casas aquí se construyeron antes de 1970 y viven sus "
                                           "dueños."})
         self.assertNotIn("310539640003", json.dumps(d["why"]) + d["area"])   # no geoid on screen
         self.assertEqual(len(d["stops"]), 25)
@@ -136,7 +139,7 @@ class TodayWalk(unittest.TestCase):
             with open(out) as f:
                 d = json.load(f)
             self.assertEqual(json.loads(buf.getvalue()), d)
-            self.assertEqual(set(d), KEYS)
+            self.assertTrue(KEYS <= set(d) <= KEYS | NEW_KEYS, set(d) ^ KEYS)
             self.assertEqual(len(d["stops"]), 12)
             self.assertEqual(d["goal_doors"], 12)
             self.assertTrue(re.match(r"^\d{4}-\d{2}-\d{2}$", d["date"]))

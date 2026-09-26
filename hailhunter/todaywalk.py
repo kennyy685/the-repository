@@ -20,12 +20,19 @@ Seasons (config today_walk): `storm_max_days_by_month` lets Oct-Mar walks re-kno
 aren't fully worked (else 60 days); `best_time_by_month` shortens weekday hours in short-day months (+ "End by dusk").
 Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
 `come_back {date, time}` and goes to the front (earliest time first); due later -> the door waits until that date.
+House facts (additive, per stop, each left out when the county data doesn't have it; see `house_facts`):
+`year_built`, `sqft` (assessor living sq ft), `stories` (only if hud.json ever carries it), `rough {low, high,
+kind: "siding", rough: true, material, stories, using_reference}` = estimate.estimate() for a vinyl siding job from
+footprint = sqft / stories (stories unknown: low = 1-story, high = 2-story), and `house_line {en, es}`
+("Built 1962 · ~1,400 sq ft · vinyl siding about $10,200-$21,850"). With any rough price the doc gets
+`rough_note {en, es}` (estimate range, not final). Storm walk under evidence_fade_days old: `evidence_note {en, es}`.
 """
 import json
 import re
 from collections import Counter
 from datetime import date, datetime, timezone
 
+from . import estimate as est
 from .config import DEFAULTS
 from .geo import haversine_mi
 
@@ -198,8 +205,10 @@ def _join(parts, word):
     return ", ".join(parts[:-1]) + f" {word} " + parts[-1]
 
 
-def why_sentence(kind, why, stops, day=None, old_before=1980):
-    """One plain sentence {en, es} from the list's reasons and today's houses. No scores, no ids."""
+def why_sentence(kind, why, stops, day=None, old_before=1980, strong_before=None):
+    """One plain sentence {en, es} from the list's reasons and today's houses. No scores, no ids.
+    Everyday: with year built known for most of today's houses and most of them built before `strong_before`
+    (config today_walk.old_strong_before, 1970), it says so ("built before 1970") instead of `old_before`."""
     owners = _owners(why)
     if kind == "storm":
         hails = [s["hail"] for s in stops if s.get("hail") is not None]
@@ -224,7 +233,11 @@ def why_sentence(kind, why, stops, day=None, old_before=1980):
     years = [int(s["built"]) for s in stops if s.get("built")]
     share = None
     if years and len(years) >= 0.5 * len(stops):
-        share = sum(y < old_before for y in years) / len(years)
+        strong = sum(y < strong_before for y in years) / len(years) if strong_before else 0
+        if strong >= 0.5:                              # "Most homes here were built before 1970": true per house
+            old_before, share = strong_before, strong
+        else:
+            share = sum(y < old_before for y in years) / len(years)
     else:
         m = _pct(why, r"(\d+)% of homes built before")
         share = int(m.group(1)) / 100 if m else None
@@ -406,6 +419,134 @@ def freshness(hud, now=None, cfg=None):
                                  f"haya fallado. La ruta de hoy puede no incluir tormentas nuevas."}}
 
 
+# ------------------------------------------------------------------ what you're walking up to (per house)
+def _hf(cfg):
+    return {**DEFAULTS["today_walk"]["house_facts"], **(_tw(cfg).get("house_facts") or {})}
+
+
+def _year(v, today=None):
+    try:
+        y = int(v)
+    except (TypeError, ValueError):
+        return None
+    top = (today or date.today()).year + 1
+    return y if 1800 <= y <= top else None     # 0 / placeholder years are "unknown", never shown
+
+
+def _stories_of(v):
+    try:
+        n = int(v)
+    except (TypeError, ValueError):
+        return None
+    return n if 1 <= n <= 3 else None
+
+
+def rough_siding(sqft, stories=None, cfg=None):
+    """ROUGH vinyl siding price for a house from its living sq ft: estimate.estimate() with footprint = sqft /
+    stories. Stories unknown: one estimate per story count in house_facts.stories_if_unknown (low = the lowest,
+    high = the highest). -> {low, high, kind: "siding", rough: true, material, stories, using_reference} or None."""
+    hf = _hf(cfg)
+    counts = [stories] if stories else [int(n) for n in hf["stories_if_unknown"]]
+    ecfg = cfg if cfg and cfg.get("estimate") else None
+    runs = []
+    for n in counts:
+        try:
+            runs.append(est.estimate({"type": "siding", "footprint_sqft": sqft / n, "stories": n,
+                                      "material": hf["material"]}, ecfg))
+        except ValueError:
+            return None
+    if not runs:
+        return None
+    return {"low": min(r["low"] for r in runs), "high": max(r["high"] for r in runs), "kind": "siding",
+            "rough": True, "material": runs[0]["quantities"]["material"],
+            "stories": counts[0] if len(counts) == 1 else counts,
+            "using_reference": any(r["using_reference"] for r in runs)}
+
+
+def _money(x):
+    return f"${x:,.0f}"
+
+
+def house_facts(s, cfg=None, today=None):
+    """Extra stop fields from the county data on a hud.json stop (`built`, `sqft`, optional `stories`):
+    year_built, sqft, stories, rough, house_line {en, es}. Anything missing (or implausible) is left out."""
+    hf = _hf(cfg)
+    out = {}
+    y = _year(s.get("built", s.get("year_built")), today)
+    if y:
+        out["year_built"] = y
+    try:
+        sq = float(s.get("sqft") or 0)
+    except (TypeError, ValueError):
+        sq = 0
+    if hf["min_sqft"] <= sq <= hf["max_sqft"]:
+        out["sqft"] = int(round(sq))
+    n = _stories_of(s.get("stories"))
+    if n:
+        out["stories"] = n
+    if "sqft" in out:
+        r = rough_siding(out["sqft"], n, cfg)
+        if r:
+            out["rough"] = r
+    if out:
+        en, es = [], []
+        if "year_built" in out:
+            en.append(f"Built {y}")
+            es.append(f"Construida en {y}")
+        if "sqft" in out:
+            en.append(f"~{out['sqft']:,} sq ft")
+            es.append(f"~{out['sqft']:,} pies²")
+        if n:
+            en.append(f"{n} stor{'y' if n == 1 else 'ies'}")
+            es.append(f"{n} piso{'' if n == 1 else 's'}")
+        if "rough" in out:
+            r = out["rough"]
+            mat_en = "vinyl siding" if r["material"] == "vinyl" else "Hardie siding"
+            mat_es = "siding de vinil" if r["material"] == "vinyl" else "siding Hardie"
+            en.append(f"{mat_en} about {_money(r['low'])}-{_money(r['high'])}")
+            es.append(f"{mat_es} aprox. {_money(r['low'])}-{_money(r['high'])}")
+        out["house_line"] = {"en": " · ".join(en), "es": " · ".join(es)}
+    return out
+
+
+def rough_note(stops, kind, cfg=None):
+    """One walk-level line for the rough prices ({en, es}), or None when no stop has one."""
+    rs = [s["rough"] for s in stops if s.get("rough")]
+    if not rs:
+        return None
+    en, es = [], []
+    if any(r["using_reference"] for r in rs):
+        en.append("market prices, not HMP's yet")
+        es.append("precios del mercado, todavía no los de HMP")
+    if any(isinstance(r["stories"], list) for r in rs):
+        lo, hi = min(_hf(cfg)["stories_if_unknown"]), max(_hf(cfg)["stories_if_unknown"])
+        en.append(f"stories unknown, so {lo} to {hi} stories")
+        es.append(f"no se sabe cuántos pisos, así que de {lo} a {hi} pisos")
+    note = {"en": "Siding prices are rough, from the county's house size" + (f" ({'; '.join(en)})" if en else "") +
+                  ". Estimate range, not final: measure before quoting.",
+            "es": "Precios de siding aproximados, según el tamaño de la casa en el condado" +
+                  (f" ({'; '.join(es)})" if es else "") + ". Rango estimado, no final: midan antes de dar precio."}
+    if kind == "storm":
+        note = {k: f"{v} {est.INSURANCE_NOTE[k]}" for k, v in note.items()}
+    return note
+
+
+def evidence_note(kind, storm_day, today, cfg=None):
+    """Research round 5 #8: on a storm walk whose storm is under evidence_fade_days old, a reminder that hail
+    spatter marks on metal fade in weeks. {en, es} or None."""
+    if kind != "storm" or not storm_day:
+        return None
+    try:
+        age = (today - date.fromisoformat(str(storm_day))).days
+    except (TypeError, ValueError):
+        return None
+    if not 0 <= age < _tw(cfg)["evidence_fade_days"]:
+        return None
+    return {"en": "Hail marks on metal (gutters, vents, wraps) fade in a few weeks: inspect and photograph soon.",
+            "es": "Las marcas de granizo en el metal (canaletas, ventilas, forros) se borran en unas semanas: "
+                  "inspeccionen y tomen fotos pronto."}
+
+
 # ------------------------------------------------------------------ evidence docs for the app's db
 SLUG_RULE = ('evidence/<slug>: slug = "<address> <city>" lowercased, every run of characters that are not a-z or '
              '0-9 replaced by one "-", leading/trailing "-" removed (e.g. "105 E 4th St" + "Fremont" -> '
@@ -501,13 +642,14 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     doc = {
         "date": today.isoformat(), "area": area,
         "why": why_sentence(best["kind"], best["why"], chosen, L.get("day") if best["kind"] == "storm" else None,
-                            old_before),
+                            old_before, tw.get("old_strong_before")),
         "goal_doors": len(chosen), "kind": best["kind"], "list_id": L["id"],
         "stops": [{"pid": str(s["pid"]), "address": s["address"],
                    "city": s.get("city") or due_town.get(str(s["pid"])) or city,
                    "lat": round(float(s["lat"]), 6), "lon": round(float(s["lon"]), 6),
                    "pass": results.get(str(s["pid"]), {}).get("visits", 0) + 1,
-                   **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {})}
+                   **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {}),
+                   **house_facts(s, cfg, today)}
                   for s in chosen],
         "spanish_share": spanish, "who": who_knocks(spanish, cfg),
     }
@@ -515,6 +657,12 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
     doc.update(freshness(hud, now, cfg))
+    note = rough_note(doc["stops"], best["kind"], cfg)            # additive, only when there is something to say
+    if note:
+        doc["rough_note"] = note
+    note = evidence_note(best["kind"], L.get("day"), today, cfg)
+    if note:
+        doc["evidence_note"] = note
     return doc
 
 

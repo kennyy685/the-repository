@@ -157,6 +157,16 @@ DEFAULTS = {
         "min_per_door": 3.0,        # est_minutes: about this many minutes at each door...
         "walk_mph": 3.0,            # ...plus the walk between stops at this pace (straight line)
         "stale_hours": 36,          # hud.json older than this (generated_utc) -> stale: true + a warning
+        # Per-house facts on each stop (year_built, sqft, rough siding price) from the county assessor's data in
+        # hud.json stops (`built`, `sqft`). No stories in that data: the rough range then covers these story counts.
+        "house_facts": {
+            "material": "vinyl",            # rough price as a vinyl siding job (estimate.estimate)
+            "stories_if_unknown": [1, 2],   # low = 1-story price, high = 2-story price for the same living sq ft
+            "min_sqft": 400,                # outside min..max the county size is likely wrong: no sqft, no price
+            "max_sqft": 6000
+        },
+        "old_strong_before": 1970,  # everyday why: "Most homes here were built before 1970" when that's true per house
+        "evidence_fade_days": 30,   # storm walk under this many days old: evidence_note (spatter marks fade in weeks)
         "best_time": {              # best hours to knock (24h local), by day of week; null = no knocking planned
             "weekday": ["16:00", "19:30"],
             "saturday": ["10:00", "17:00"],
