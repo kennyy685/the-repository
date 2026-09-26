@@ -1359,6 +1359,292 @@
    "note": "County data says built 2023: the address match may be off.",
    "confidence": "low",
    "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "602 S 18th St"
+   ],
+   "city": "Plattsmouth",
+   "name": "Prestige Care Center of Plattsmouth (skilled nursing/rehab)",
+   "manager": "Prestige Care Center of Plattsmouth",
+   "phone": "(402) 296-2800",
+   "phone_note": "Facility main line",
+   "website": "pcplattsmouth.com",
+   "ask_for": "Administrator or facility manager",
+   "note": "Large flat commercial roof.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1712 4th Ave"
+   ],
+   "city": "Plattsmouth",
+   "name": "Parkview Apartments",
+   "manager": "Parkview Apartments (leasing office in Bellevue)",
+   "phone": "(402) 524-5089",
+   "phone_note": "Leasing office (parkviewomaha.com contact page). Yelp shows a different number; use caution.",
+   "website": "parkviewomaha.com",
+   "ask_for": "Leasing office / property manager",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2101 Transformation Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Nebraska Innovation Campus (University of Nebraska)",
+   "manager": "Nebraska Innovation Campus administration",
+   "phone": "(402) 472-8937",
+   "phone_note": "NIC Conference Center line, the most general public number found",
+   "website": "innovate.unl.edu",
+   "ask_for": "Facilities / building management office",
+   "note": "University campus: roof work likely goes through university facilities and bids.",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2541 N 11th St"
+   ],
+   "city": "Lincoln",
+   "name": "Belmont Shopping Center",
+   "manager": "NAI FMA Realty (management)",
+   "phone": "(402) 441-5800",
+   "phone_note": "Management office (several directories)",
+   "website": "naifmarealty.com",
+   "ask_for": "Property manager for Belmont Shopping Center",
+   "note": "Strip center, several tenants.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "5100 N 26th St"
+   ],
+   "city": "Lincoln",
+   "name": "Liberty First Credit Union",
+   "manager": "Liberty First Credit Union",
+   "phone": "(402) 465-1000",
+   "phone_note": "Credit union main line; nearest branch listed at 5101 N 27th St (approximate match)",
+   "website": "libertyfirstcu.com",
+   "ask_for": "Branch manager / facilities",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2240 Fletcher Ave Unit D"
+   ],
+   "city": "Lincoln",
+   "name": "7 Day Furniture & Mattress Store",
+   "manager": "7 Day Furniture",
+   "phone": "(402) 467-1450",
+   "phone_note": "Store line (tenant)",
+   "website": "7dayfurniture.net",
+   "ask_for": "Store manager: ask who the landlord is",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "7910 O St"
+   ],
+   "city": "Lincoln",
+   "name": "Dialysis Center of Lincoln",
+   "manager": "Dialysis Center of Lincoln",
+   "phone": "(402) 489-5339",
+   "phone_note": "Clinic main line",
+   "website": "dclkidneycare.org",
+   "ask_for": "Facility / office manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "16418 Westside Dr"
+   ],
+   "city": "Plattsmouth",
+   "name": "Hy-Vee Plattsmouth",
+   "manager": "Hy-Vee (corporate facilities handle roofs)",
+   "phone": "(402) 298-7600",
+   "phone_note": "Store main line",
+   "website": "hy-vee.com",
+   "ask_for": "Store director: ask for the facilities contact",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1850 P St"
+   ],
+   "city": "Lincoln",
+   "name": "Academy Lincoln (student apartments)",
+   "manager": "Academy Lincoln leasing office",
+   "phone": "(402) 243-6172",
+   "phone_note": "Leasing office",
+   "website": "academylincoln.com",
+   "ask_for": "Property manager",
+   "note": "Same complex as 201 N 18th St and 1755 Q St.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "201 N 18th St"
+   ],
+   "city": "Lincoln",
+   "name": "Academy Lincoln (student apartments)",
+   "manager": "Academy Lincoln leasing office",
+   "phone": "(402) 243-6172",
+   "phone_note": "Leasing office (same complex as 1850 P St)",
+   "website": "academylincoln.com",
+   "ask_for": "Property manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1720 P St"
+   ],
+   "city": "Lincoln",
+   "name": "University of Nebraska Federal Credit Union",
+   "manager": "University of Nebraska FCU",
+   "phone": "(402) 472-2087",
+   "phone_note": "Branch main line",
+   "website": "nufcu.org",
+   "ask_for": "Branch manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1801 Q St"
+   ],
+   "city": "Lincoln",
+   "name": "Lincoln Fire & Rescue Station #1 / LFR Museum (city-owned)",
+   "manager": "City of Lincoln",
+   "phone": "(402) 441-8360",
+   "phone_note": "Department admin line",
+   "website": "lincoln.ne.gov",
+   "ask_for": "LFR facilities / admin office",
+   "note": "City building: roof work goes through city bids. Low priority.",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1755 Q St"
+   ],
+   "city": "Lincoln",
+   "name": "Academy Lincoln (student apartments)",
+   "manager": "Academy Lincoln leasing office (inferred)",
+   "phone": "(402) 243-6172",
+   "phone_note": "Leasing office; same management inferred",
+   "website": "academylincoln.com",
+   "ask_for": "Property manager",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "320 N 16th St"
+   ],
+   "city": "Lincoln",
+   "name": "St. Thomas Aquinas Catholic Church / Newman Center",
+   "manager": "St. Thomas Aquinas parish",
+   "phone": "(402) 474-7914",
+   "phone_note": "Parish office",
+   "website": "huskercatholic.com",
+   "ask_for": "Parish office / facilities",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1066 East 20th Street"
+   ],
+   "city": "Crete",
+   "name": "Apartment building (unnamed)",
+   "manager": "",
+   "phone": "",
+   "phone_note": "A number appears on rental listing sites, but it may be a small landlord's personal phone, so it's left out.",
+   "website": "",
+   "ask_for": "Property manager",
+   "note": "City was blank in the source data; this is Crete, NE.",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1406 Riverside Blvd"
+   ],
+   "city": "Norfolk",
+   "name": "Apartment building (name not found)",
+   "manager": "",
+   "phone": "",
+   "phone_note": "Not found",
+   "website": "",
+   "ask_for": "Owner: check the county assessor or drive by",
+   "note": "Likely a small individually owned rental.",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1100 Hespe Dr"
+   ],
+   "city": "Norfolk",
+   "name": "Apartment building (small multi-unit rental)",
+   "manager": "Duane Wessel (property contact on rental sites)",
+   "phone": "",
+   "phone_note": "The listing number may be a personal cell, so it's left out.",
+   "website": "",
+   "ask_for": "Duane Wessel (owner/manager)",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1503 Glenmore Dr",
+    "1507 Glenmore Dr"
+   ],
+   "city": "Norfolk",
+   "name": "Bel Aire Apartments",
+   "manager": "Bel Air Properties, Norfolk",
+   "phone": "(402) 649-9311",
+   "phone_note": "Leasing office",
+   "website": "",
+   "ask_for": "Leasing office / property manager",
+   "note": "1503-1507 Glenmore Dr are one complex.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "1315 West Benjamin Ave"
+   ],
+   "city": "Norfolk",
+   "name": "Townhouse rental (built 2019)",
+   "manager": "",
+   "phone": "",
+   "phone_note": "Not found",
+   "website": "",
+   "ask_for": "Owner: check the county assessor or drive by",
+   "note": "Likely an individually owned rental.",
+   "confidence": "low",
+   "checked": "2026-09-26"
   }
  ]
 }

@@ -606,7 +606,7 @@ def main(argv=None):
         for k, b in enumerate(out[:15], 1):
             print(f"{k:>3}. {b['address'][:28]:28} {b['city'][:12]:12} {b['kind']:10} ${(b['imp_value'] or 0)/1e6:5.1f}M "
                   f"{b['hail_in']:.2f}\" {b['storm_day']}  {b['owner'][:30]}")
-        print(f"  xlsx: {xlsx}\n  csv: {csvp}")
+        print(f"  xlsx: {xlsx or 'skipped (openpyxl not installed)'}\n  csv: {csvp}")
     elif a.cmd == "hud":
         from hailhunter import hud
         path, d = hud.write(conn, cfg)

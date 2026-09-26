@@ -3,7 +3,8 @@ it in a sandbox that has numpy/pandas/matplotlib/PIL but NOT openpyxl or flask.
 - the bundle carries every engine module, config, contacts, and the offline tests + fixtures (so `selftest` runs there)
 - `hh.py unbundle` works in a folder holding only hh.py + the bundle
 - bundle/unbundle don't depend on the machine's locale (the code carries Spanish text)
-- without openpyxl/flask every app command finishes, and `serve` says what's missing instead of a traceback
+- without openpyxl/flask every app command finishes (`commercial` writes CSV only), and `serve` says what's missing
+  instead of a traceback
 - one failed parcel/owner download (site down) doesn't stop `refresh` from writing hud.json; --offline stays offline"""
 import glob
 import json
@@ -86,12 +87,14 @@ class Bundle(unittest.TestCase):
                 ("calltoday", "--hud", os.path.join(fx, "today_hud.json"), "--date", "2026-09-25"),
                 ("weekly", "--doors", os.path.join(fx, "weekly_doors.json"), "--leads",
                  os.path.join(fx, "weekly_leads.json"), "--week", "all"),
-                ("tune", "--weekly", os.path.join(fx, "tune_weekly_big.json"))]
+                ("tune", "--weekly", os.path.join(fx, "tune_weekly_big.json")),
+                ("--offline", "commercial")]                           # empty database: CSV only, no crash
         for c in cmds:
             p = run(eng, *c, env=env)
             self.assertEqual(p.returncode, 0, f"{c[0]}: {p.stderr[-800:]}")
             self.assertNotIn("Traceback", p.stderr, c[0])
-        self.assertTrue(json.load(open(os.path.join(out, "walk.json")))["stops"])
+        with open(os.path.join(out, "walk.json"), encoding="utf-8") as f:
+            self.assertTrue(json.load(f)["stops"])
         self.assertFalse(os.path.exists(os.path.join(eng, "data", "tuned.json")))    # tune is a dry run
         p = run(eng, "serve", env=env)
         self.assertEqual(p.returncode, 1)
@@ -121,7 +124,22 @@ class Bundle(unittest.TestCase):
             json.dump({"version": 1, "files": {"../escaped.py": "x = 1\n"}}, f)
         p = run(eng, "unbundle", "--src", src)
         self.assertNotEqual(p.returncode, 0)
+        self.assertIn("refusing path outside this folder", p.stderr)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "evil", "escaped.py")))
+
+
+class NoOpenpyxl(unittest.TestCase):
+    def test_commercial_write_falls_back_to_csv(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            cfg = C.load(os.path.join(tmp, "none.json"))
+            cfg["paths"] = dict(cfg["paths"], export=tmp)
+            with mock.patch.dict(sys.modules, {"openpyxl": None}):
+                xlsx, csvp = commercial.write([], cfg, "t", "s")
+            self.assertIsNone(xlsx)
+            self.assertTrue(os.path.exists(csvp))
+        finally:
+            shutil.rmtree(tmp)
 
 
 class RefreshSurvives(unittest.TestCase):
