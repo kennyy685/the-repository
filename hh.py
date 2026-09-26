@@ -46,9 +46,15 @@ from datetime import datetime, timedelta, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from hailhunter import analyze, config, db, ingest, report  # noqa: E402
-from hailhunter.http import Fetcher  # noqa: E402
-from hailhunter.models import parse_utc  # noqa: E402
+try:
+    from hailhunter import analyze, config, db, ingest, report  # noqa: E402
+    from hailhunter.http import Fetcher  # noqa: E402
+    from hailhunter.models import parse_utc  # noqa: E402
+    ENGINE_MISSING = None
+except ModuleNotFoundError as _e:      # an empty folder holding only hh.py + a bundle: `unbundle` must still work
+    if _e.name != "hailhunter":
+        raise
+    ENGINE_MISSING = _e
 
 
 def _day(s, plus=0):
@@ -124,13 +130,14 @@ def refresh(conn, fetcher, cfg, log=print):
         nbhd.measure_day(conn, cfg, d, index)
     nbhd.rescore(conn, cfg)
     lists = []
+    session = None if getattr(fetcher, "offline", False) else fetcher.s   # --offline: parcels already stored only
     for day, town in pick_door_lists(conn, cfg):
         try:
-            res = doors.make_list(conn, cfg, day, town, fetcher.s, log=lambda *a: None)
+            res = doors.make_list(conn, cfg, day, town, session, log=lambda *a: None)
             if res:
                 lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
-        except SystemExit as e:
-            log(f"  skip {town} {day}: {e}")
+        except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
+            log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
     for s in lists:
         log("  door list " + s)
     everyday_lists = []
@@ -146,8 +153,12 @@ def refresh(conn, fetcher, cfg, log=print):
     for s in everyday_lists:
         log("  everyday list " + s)
     nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
-    out, done_n, total_n = commercial.build(conn, cfg, fetcher.s, log=log)
-    commercial.write_csv(out, cfg)
+    try:                                   # same: a parcel/owner download error must not cost today's hud.json
+        out, done_n, total_n = commercial.build(conn, cfg, session, log=log)
+        commercial.write_csv(out, cfg)
+    except Exception as e:
+        out = []
+        log(f"  apartment/commercial targets skipped: {type(e).__name__}: {e}"[:300])
     log(f"Apartment/commercial targets: {len(out):,}")
     path, d = hud.write(conn, cfg)
     after = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
@@ -170,29 +181,42 @@ BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json
                 "data/tuned.json")                 # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
+def _bundled(rel):
+    """Which files go in the cloud bundle: engine code, the offline tests + their fixtures (so `selftest` runs in
+    the cloud too), config/contacts/tuned weights, and the crew notes."""
+    rel = rel.replace(os.sep, "/")
+    if "__pycache__" in rel:
+        return False
+    if rel.endswith(".py") and (rel.startswith(("hailhunter/", "vendor/", "tests/")) or rel == "hh.py"):
+        return True
+    if rel.startswith("tests/fixtures/"):
+        return True
+    return rel in BUNDLE_EXTRA or (rel.startswith(".claude/") and rel.endswith(".md"))
+
+
 def bundle(out_path):
     files = {}
     for root, _, names in os.walk(HERE):
         for n in names:
             rel = os.path.relpath(os.path.join(root, n), HERE)
-            if "__pycache__" in rel:
-                continue
-            if (rel.endswith(".py") and (rel.startswith("hailhunter" + os.sep) or rel.startswith("vendor" + os.sep)
-                                          or rel == "hh.py")
-                    or rel in BUNDLE_EXTRA
-                    or (rel.startswith(".claude" + os.sep) and rel.endswith(".md"))):
-                files[rel] = open(os.path.join(HERE, rel)).read()
-    with open(out_path, "w") as f:
-        json.dump({"version": 1, "files": files}, f)
+            if _bundled(rel):              # always UTF-8: the code carries Spanish text, cloud locales vary
+                with open(os.path.join(HERE, rel), encoding="utf-8") as f:
+                    files[rel.replace(os.sep, "/")] = f.read()
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump({"version": 1, "files": dict(sorted(files.items()))}, f)
     return files
 
 
 def unbundle(src_path):
-    b = json.load(open(src_path))
+    with open(src_path, encoding="utf-8") as f:
+        b = json.load(f)
+    for rel in b["files"]:                 # a bundle only ever writes inside this folder
+        if os.path.isabs(rel) or ".." in rel.replace("\\", "/").split("/"):
+            raise SystemExit(f"unbundle: refusing path outside this folder: {rel!r}")
     for rel, txt in b["files"].items():
-        dest = os.path.join(HERE, rel)
+        dest = os.path.join(HERE, *rel.split("/"))
         os.makedirs(os.path.dirname(dest) or HERE, exist_ok=True)
-        with open(dest, "w") as f:
+        with open(dest, "w", encoding="utf-8", newline="") as f:
             f.write(txt)
     return b["files"]
 
@@ -316,6 +340,14 @@ def main(argv=None):
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
+    if a.cmd == "unbundle":                        # needs no engine code, config or database
+        files = unbundle(a.src)
+        print(f"unpacked {len(files)} files")
+        return 0
+    if ENGINE_MISSING is not None:
+        print(f"The engine code (hailhunter/) isn't in {HERE}. Unpack it first: "
+              f"python3 hh.py unbundle --src engine.json", file=sys.stderr)
+        return 1
     if a.cmd == "selftest":
         suite = unittest.defaultTestLoader.discover(os.path.join(HERE, "tests"))
         ok = unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
@@ -598,7 +630,12 @@ def main(argv=None):
         path, nh, ne = report.export(conn, cfg, a.out)
         print(f"Wrote {path} ({nh} hits, {ne} events)")
     elif a.cmd == "serve":
-        from hailhunter import web
+        try:
+            from hailhunter import web
+        except ImportError as e:               # the cloud copy has no flask: say so instead of a traceback
+            print(f"serve needs flask, which isn't installed here ({e.name or e}). On the Mac: pip install flask. "
+                  f"Crews use the cloud command center instead.", file=sys.stderr)
+            return 1
         web.run(cfg["paths"]["db"], a.port)
     elif a.cmd == "refresh":
         refresh(conn, fetcher, cfg)
@@ -638,9 +675,6 @@ def main(argv=None):
     elif a.cmd == "bundle":
         files = bundle(a.out)
         print(f"bundled {len(files)} files -> {a.out}")
-    elif a.cmd == "unbundle":
-        files = unbundle(a.src)
-        print(f"unpacked {len(files)} files")
     return 0
 
 

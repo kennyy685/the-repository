@@ -25,6 +25,7 @@ from tests.test_estimate import hmp_prices  # noqa: E402
 
 NODE = shutil.which("node")
 CHECK_JS = os.path.join(HERE, "js", "estimate_check.js")
+APP_JS = os.path.join(ROOT, "docs", "app", "estimate.js")      # not in the cloud bundle: the check skips there
 BANNED = ("deductible", "deducible", "waive", "rebate", "insurance will pay", "free roof")
 
 
@@ -140,7 +141,8 @@ class ExportCli(unittest.TestCase):
                 self.assertEqual(json.load(f)["prices"], doc["prices"])
 
 
-@unittest.skipUnless(NODE, "node not installed: JS parity check skipped")
+@unittest.skipUnless(NODE and os.path.exists(CHECK_JS) and os.path.exists(APP_JS),
+                     "node or the app's estimate.js not here (cloud bundle): JS parity check skipped")
 class JsMatchesPython(unittest.TestCase):
     """docs/app/estimate.js must give exactly the Python numbers (and text) on every exported test case."""
 
