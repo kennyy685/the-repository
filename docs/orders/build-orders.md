@@ -1,5 +1,7 @@
 # HMP build orders (FilthE, 2026-09-25)
 
+> **Status: superseded in part (2026-09-26).** "Crew HQ becomes the HMP App (same link)" and the Crew tab were replaced by the App / AI hub split and the T75 Option B layout (Now / Knock / + / Leads / Money). See CLAUDE.md "App / AI hub split" and `roadmap.md`. The order list and rules still apply.
+
 FilthE's orders: make the system one app he actually uses, then let real doors tune it. Work them in
 this order. Each order names its owner, what "done" means, and what it needs first. The Crew HQ board
 (`board/current`) carries the same ids; update it when you start and finish.

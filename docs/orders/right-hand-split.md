@@ -1,5 +1,7 @@
 # Right Hand routines: point them at the new HMP App (FilthE approves on the Mac)
 
+> **Status: done, then moot (2026-09-26).** Both Mac routines already carry this text and are paused; the Right Hand's jobs run in the cloud hourly trigger. See CLAUDE.md "Chain of command". Kept as a record.
+
 The HMP App moved to its own link: **https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT** (its own database).
 The AI hub (board, crew, answers) stays at https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU.
 

@@ -1,5 +1,7 @@
 # Right Hand routine updates (apply on Kenny's MacBook Air, in Cowork)
 
+> **Status: done, then moot (2026-09-26).** Applied to both Mac routines, which are now paused; see right-hand-split.md and CLAUDE.md "Chain of command". Kept as a record.
+
 **How:** on the Mac, open Cowork and paste:
 > Read docs/orders/right-hand-prompts.md in github.com/kennyy685/the-repository (branch claude/funny-hawking-2rytou) and
 > update my two scheduled tasks "King's Morning Standup" and "King's Evening Wrap" so their prompts get the changes listed
