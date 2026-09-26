@@ -1,0 +1,168 @@
+<title>HMP Voice Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="voicelog.css">
+<style>
+/* HMP App "Ledger" look: light, clean, orange only for the main action */
+:root{
+  --page:#f6f7f8; --card:#ffffff; --ink:#18191c; --ink2:#3d3f45; --muted:#6c6f77; --line:#e3e5e8; --soft:#eef0f2;
+  --hmp:#f5883a; --hmp-ink:#a4520f; --late:#c2362b; --late-bg:#fdecea; --ok:#1f7a4d; --warn-bg:#fff4e6;
+  --f:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --page:#141518; --card:#1d1f23; --ink:#f1f2f4; --ink2:#c9ccd2; --muted:#9a9ea6; --line:#30333a; --soft:#262930;
+  --hmp:#f5883a; --hmp-ink:#ffb27a; --late:#ff8a80; --late-bg:#3a1e1c; --ok:#5fd39c; --warn-bg:#33261a}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --page:#141518; --card:#1d1f23; --ink:#f1f2f4; --ink2:#c9ccd2; --muted:#9a9ea6; --line:#30333a; --soft:#262930;
+  --hmp:#f5883a; --hmp-ink:#ffb27a; --late:#ff8a80; --late-bg:#3a1e1c; --ok:#5fd39c; --warn-bg:#33261a}
+body{background:var(--page);color:var(--ink);font:15px/1.45 var(--f);margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:grid;gap:16px}
+.top{display:flex;align-items:center;gap:10px}
+.top h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;flex:1;text-wrap:balance}
+.top .mark{width:30px;height:30px;flex:none}
+.lang{min-width:48px;min-height:40px;border:1px solid var(--line);background:var(--card);border-radius:10px;font:600 14px/1 var(--f);color:var(--ink);cursor:pointer}
+.say{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.say label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.say textarea{width:100%;min-height:92px;resize:vertical;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--page);color:var(--ink);font:17px/1.4 var(--f)}
+.say textarea:focus-visible,.go:focus-visible,.ex:focus-visible,.lang:focus-visible{outline:2px solid var(--hmp);outline-offset:2px}
+.mic{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink2);margin:0}
+.mic svg{width:20px;height:20px;flex:none;margin-top:1px;color:var(--hmp-ink)}
+.go{min-height:52px;border:0;border-radius:10px;background:var(--hmp);color:#1b1206;font:700 17px/1 var(--f);cursor:pointer}
+.go[disabled]{opacity:.5;cursor:default}
+.exs{display:flex;gap:6px;flex-wrap:wrap}
+.ex{border:1px solid var(--line);background:var(--soft);color:var(--ink2);border-radius:999px;padding:6px 11px;font:500 13px/1.2 var(--f);cursor:pointer;text-align:left}
+.status{margin:0;font-size:14px;color:var(--muted);min-height:1.2em}
+.demo{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;display:grid;gap:6px}
+.demo b{color:var(--ink2);font-weight:600}
+.demo ul{margin:0;padding-left:18px}
+.saved{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;display:grid;gap:6px}
+.saved h2{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.saved pre{margin:0;overflow-x:auto;font:12px/1.45 ui-monospace,Menlo,monospace;color:var(--ink2);white-space:pre}
+</style>
+
+<main class="wrap">
+  <header class="top">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 15 16 5l13 10" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="18" width="18" height="3" rx="1.5" fill="currentColor" opacity=".8"/><rect x="7" y="24" width="12" height="3" rx="1.5" fill="currentColor" opacity=".5"/></svg>
+    <h1 id="h1">Say it, check it, save it</h1>
+    <button type="button" class="lang" id="lang" aria-label="Español / English">ES</button>
+  </header>
+
+  <section class="say" aria-labelledby="lbl">
+    <label for="msg" id="lbl">What happened?</label>
+    <textarea id="msg" rows="3" autocomplete="off" autocapitalize="sentences" placeholder="1418 Irving, inspection Tuesday at 3, hail on north slope"></textarea>
+    <p class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micTip">Tap the box, then the mic on your phone keyboard and talk. English or Spanish.</span></p>
+    <button type="button" class="go" id="go">Read it</button>
+    <div class="exs" id="exs"></div>
+  </section>
+
+  <p class="status" id="status" role="status"></p>
+  <div id="cardHost"></div>
+
+  <section class="saved" id="saved" hidden>
+    <h2 id="savedH">Saved (demo database)</h2>
+    <pre id="savedPre"></pre>
+  </section>
+
+  <footer class="demo" id="demo"></footer>
+</main>
+
+<script src="voicelog.js"></script>
+<script>
+(function () {
+  "use strict";
+  const VL = window.HMPVoiceLog;
+  let lang = "en";
+  try { lang = localStorage.getItem("vl-lang") === "es" ? "es" : "en"; } catch (e) {}
+
+  // Example data (a demo of today's walk and two leads), clearly not FilthE's real records
+  const CTX = {
+    lang, kind: "storm",
+    stops: [
+      { pid: "p1418", address: "1418 Irving St", city: "Fremont" }, { pid: "p615", address: "615 Linden Ave", city: "Fremont" },
+      { pid: "p2150", address: "2150 E 23rd St", city: "Fremont" }, { pid: "p845", address: "845 N Garden St", city: "Fremont" },
+      { pid: "p1932", address: "1932 N Broad St", city: "Fremont" }, { pid: "p402", address: "402 E Military Ave", city: "Fremont" },
+    ],
+    leads: [
+      { id: "1418-irving-st", address: "1418 Irving St", city: "Fremont", stage: "contacted", notes: "" },
+      { id: "3110-clarkson-st", address: "3110 Clarkson St", city: "Fremont", stage: "inspection_set" },
+    ],
+    claims: [],
+    doorDocs: {},
+  };
+  const EX = [
+    "1418 Irving, inspection Tuesday at 3, hail on north slope",
+    "615 Linden no estaba, dejé volante",
+    "845 N Garden agendado el martes a las 3 de la tarde",
+    "3110 Clarkson, State Farm, claim 45-889, adjuster Friday",
+    "123 Oak St interested, call back tomorrow",
+    "1418, not home",
+  ];
+  const TX = {
+    en: { h1: "Say it, check it, save it", lbl: "What happened?", mic: "Tap the box, then the mic on your phone keyboard and talk. English or Spanish.", go: "Read it",
+      reading: "Reading…", empty: "Say or type one update first.", savedH: "Saved (demo database)", canceled: "Canceled. Nothing was saved.", lang: "ES",
+      demo: "<b>Demo.</b> Example walk: 1418 Irving St, 615 Linden Ave, 2150 E 23rd St, 845 N Garden St, 1932 N Broad St, 402 E Military Ave. Example leads: 1418 Irving St, 3110 Clarkson St. Saves go to a pretend database on this page only.",
+      ph: "1418 Irving, inspection Tuesday at 3, hail on north slope" },
+    es: { h1: "Dígalo, revíselo, guárdelo", lbl: "¿Qué pasó?", mic: "Toque la caja, luego el micrófono del teclado del teléfono y hable. Inglés o español.", go: "Leerlo",
+      reading: "Leyendo…", empty: "Primero diga o escriba una novedad.", savedH: "Guardado (base de prueba)", canceled: "Cancelado. No se guardó nada.", lang: "EN",
+      demo: "<b>Demo.</b> Ruta de ejemplo: 1418 Irving St, 615 Linden Ave, 2150 E 23rd St, 845 N Garden St, 1932 N Broad St, 402 E Military Ave. Clientes de ejemplo: 1418 Irving St, 3110 Clarkson St. Lo guardado va a una base de prueba solo en esta página.",
+      ph: "1418 Irving, inspección el martes a las 3, granizo del lado norte" },
+  };
+  const $ = id => document.getElementById(id);
+  const msg = $("msg"), go = $("go"), status = $("status"), host = $("cardHost");
+  let card = null, savedLog = [];
+
+  function paint() {
+    const t = TX[lang];
+    document.documentElement.lang = lang;
+    $("h1").textContent = t.h1; $("lbl").textContent = t.lbl; $("micTip").textContent = t.mic; go.textContent = t.go;
+    $("lang").textContent = t.lang; $("savedH").textContent = t.savedH; $("demo").innerHTML = t.demo; msg.placeholder = t.ph;
+    $("exs").innerHTML = EX.map((e, i) => `<button type="button" class="ex" data-ex="${i}">${e.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</button>`).join("");
+  }
+  function setLang(l) { lang = l; CTX.lang = l; try { localStorage.setItem("vl-lang", l); } catch (e) {} paint(); if (card) card.setLang(l); }
+
+  // pretend database (the real app passes its own save)
+  async function demoSave(writes) {
+    await new Promise(r => setTimeout(r, 250));
+    for (const w of writes) {
+      savedLog.push(w);
+      const id = w.path.split("/")[1];
+      if (w.path.startsWith("leads/")) { const i = CTX.leads.findIndex(l => l.id === id); const doc = Object.assign(i >= 0 ? CTX.leads[i] : { id }, w.body); if (i < 0) CTX.leads.push(doc); }
+      if (w.path.startsWith("claims/")) { const i = CTX.claims.findIndex(c => c.id === id); const doc = Object.assign(i >= 0 ? CTX.claims[i] : { id }, w.body); if (i < 0) CTX.claims.push(doc); }
+      if (w.path.startsWith("doors/")) CTX.doorDocs[w.body.pid] = w.body;
+    }
+    $("saved").hidden = false;
+    $("savedPre").textContent = savedLog.slice(-4).map(w => `${w.op} ${w.path}\n${JSON.stringify(w.body, null, 2)}`).join("\n\n");
+  }
+
+  let ctl = null;
+  async function read(opts) {
+    const text = msg.value.trim();
+    if (!text) { status.textContent = TX[lang].empty; return; }
+    if (ctl) ctl.abort();
+    ctl = new AbortController();
+    go.disabled = true; status.textContent = TX[lang].reading;
+    if (card) { card.destroy(); card = null; }
+    try {
+      CTX.now = new Date(); CTX.signal = ctl.signal;
+      // the first example on load uses the simple reader (no AI call, no consent prompt before a tap)
+      const draft = await VL.parseUpdate(text, opts && opts.noAI ? Object.assign({}, CTX, { sample: null }) : CTX);
+      status.textContent = "";
+      card = VL.mountCard(host, draft, { ctx: CTX, lang, onSave: demoSave, onLang: l => setLang(l),
+        onCancel: () => { card.destroy(); card = null; status.textContent = TX[lang].canceled; } });
+    } catch (e) {
+      status.textContent = e && e.code === "cancelled" ? "" : String(e && e.message || e);
+    } finally { go.disabled = false; }
+  }
+
+  go.addEventListener("click", () => read());
+  $("lang").addEventListener("click", () => setLang(lang === "es" ? "en" : "es"));
+  $("exs").addEventListener("click", ev => { const b = ev.target.closest("[data-ex]"); if (!b) return; msg.value = EX[+b.dataset.ex]; read(); });
+  paint();
+  // open in a working state: the first example, already read
+  msg.value = EX[0];
+  read({ noAI: true });
+})();
+</script>

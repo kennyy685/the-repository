@@ -667,7 +667,7 @@
       isNew: "New address? Not on today's walk or in your leads.", newYes: "Yes, add it as new", newNo: "Fix it",
       amb: "Which house? Pick one.", missing: "No house number heard. Tap Edit and add it.",
       notOnWalk: "Not on today's walk: saved to the lead only.", newLead: "New lead", updLead: "Update lead",
-      newClaim: "New claim", updClaim: "Update claim", insurer: "Insurer", claimNo: "Claim #", adj: "Adjuster", adjDate: "Adjuster date",
+      newClaim: "New claim", updClaim: "Update claim", insurer: "Insurer", claimNo: "Claim #", adj: "Adjuster", adjPhone: "Adjuster phone", adjDate: "Adjuster date",
       appt: "Appointment", when: "Day", time: "Time", result: "Door result", none: "—", nothing: "Nothing to save yet. Tap Edit.",
       edit: "Edit", done: "Done", save: "Save", cancel: "Cancel", saving: "Saving…", saved: "Saved", failed: "Not saved. Check the signal and tap Save again.",
       lockAddr: "Confirm the house first", ai: "Read by AI", rules: "Simple reading", langBtn: "ES", confirmHint: "Nothing is saved until you tap Save.",
@@ -684,7 +684,7 @@
       isNew: "¿Dirección nueva? No está en la ruta de hoy ni en sus clientes.", newYes: "Sí, agregarla como nueva", newNo: "Corregir",
       amb: "¿Cuál casa? Escoja una.", missing: "No se oyó el número de la casa. Toque Editar y póngalo.",
       notOnWalk: "No está en la ruta de hoy: se guarda solo en el cliente.", newLead: "Cliente nuevo", updLead: "Actualizar cliente",
-      newClaim: "Reclamo nuevo", updClaim: "Actualizar reclamo", insurer: "Aseguradora", claimNo: "Reclamo #", adj: "Ajustador", adjDate: "Cita ajustador",
+      newClaim: "Reclamo nuevo", updClaim: "Actualizar reclamo", insurer: "Aseguradora", claimNo: "Reclamo #", adj: "Ajustador", adjPhone: "Teléfono ajustador", adjDate: "Cita ajustador",
       appt: "Cita", when: "Día", time: "Hora", result: "Resultado", none: "—", nothing: "Nada que guardar todavía. Toque Editar.",
       edit: "Editar", done: "Listo", save: "Guardar", cancel: "Cancelar", saving: "Guardando…", saved: "Guardado", failed: "No se guardó. Revise la señal y toque Guardar otra vez.",
       lockAddr: "Primero confirme la casa", ai: "Leído con IA", rules: "Lectura simple", langBtn: "EN", confirmHint: "No se guarda nada hasta que toque Guardar.",
@@ -729,7 +729,7 @@
         const st = lw ? lw.body.stage : d.stage;
         if (st) bits.push(`<b>${esc(s.stage[st] || st)}</b>`);
         if (d.appt && d.appt.day && d.appt.kind !== "adjuster") bits.push(esc(`${s.kind[d.appt.kind]} ${fmtDay(d.appt.day, lang)}${d.appt.time ? ", " + fmtTime(d.appt.time) : ""}`));
-        rows.push(row(lw && lw.op === "update" ? s.updLead : s.newLead, bits.join(" · ") || esc(s.none)));
+        rows.push(row(lw && lw.op === "update" ? s.updLead : s.newLead, bits.map(x => `<span>${x}</span>`).join("") || esc(s.none)));
       }
       if (d.next_step) rows.push(row(s.next, esc(d.next_step[lang] || d.next_step.en)));
       if (d.claim) {
@@ -739,7 +739,7 @@
         if (c.claim_no) b.push(esc("#" + c.claim_no));
         if (c.adjuster) b.push(esc(`${s.adj}: ${[c.adjuster.name, c.adjuster.phone].filter(Boolean).join(", ")}`));
         if (c.adjuster_date) b.push(esc(`${s.adjDate}: ${fmtDay(c.adjuster_date, lang)}${d.appt && d.appt.kind === "adjuster" && d.appt.time ? ", " + fmtTime(d.appt.time) : ""}`));
-        rows.push(row(cw && cw.op === "update" ? s.updClaim : s.newClaim, b.join(" · ")));
+        rows.push(row(cw && cw.op === "update" ? s.updClaim : s.newClaim, b.map(x => `<span>${x}</span>`).join("")));
       }
       if (d.note) rows.push(row(s.note, esc(d.note)));
       const flags = d.flags.map(f => `<li class="vl-flag f-${f.code}">${esc(f[lang])}</li>`).join("");
@@ -760,7 +760,7 @@
         <label class="vl-f"><span>${esc(s.insurer)}</span><input id="vl-ins" value="${esc(c.insurer || "")}"></label>
         <label class="vl-f"><span>${esc(s.claimNo)}</span><input id="vl-cno" value="${esc(c.claim_no || "")}"></label>
         <label class="vl-f"><span>${esc(s.adj)}</span><input id="vl-adjn" value="${esc(c.adjuster && c.adjuster.name || "")}"></label>
-        <label class="vl-f"><span>${esc(s.adj)} ☎</span><input id="vl-adjp" inputmode="tel" value="${esc(c.adjuster && c.adjuster.phone || "")}"></label>
+        <label class="vl-f"><span>${esc(s.adjPhone)}</span><input id="vl-adjp" inputmode="tel" value="${esc(c.adjuster && c.adjuster.phone || "")}"></label>
         <label class="vl-f vl-wide"><span>${esc(s.noteField)}</span><textarea id="vl-note" rows="2">${esc(d.note)}</textarea></label>
       </div>`;
     }
