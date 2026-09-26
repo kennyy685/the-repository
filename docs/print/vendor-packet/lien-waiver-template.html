@@ -21,7 +21,7 @@
 .warn span { font:600 7.6pt/1.3 "Montserrat"; color:var(--char); }
 .warn .tag { flex:none; background:var(--orange); color:#1b1c1f; font:800 9pt/1 "Barlow Semi Condensed"; letter-spacing:.08em; text-transform:uppercase; padding:0.05in 0.08in; border-radius:3px; }
 
-.body { flex:1; padding:0.16in 0.45in 0.18in; display:flex; flex-direction:column; gap:0.14in; min-height:0; }
+.body { flex:1; padding:0.2in 0.45in 0.2in; display:flex; flex-direction:column; gap:0.2in; min-height:0; }
 
 .type { display:flex; gap:0.3in; align-items:center; padding:0.07in 0.12in; background:var(--mist); border-radius:4px; }
 .type .k { font:700 7.4pt/1.2 "Montserrat"; letter-spacing:.12em; text-transform:uppercase; color:var(--char); }
@@ -32,25 +32,25 @@
 .grid { display:grid; grid-template-columns:1fr 1fr; column-gap:0.26in; row-gap:0.02in; }
 .f { display:flex; flex-direction:column; padding-top:0.05in; }
 .f.w { grid-column:1 / -1; }
-.f .k { font:700 7.2pt/1.2 "Montserrat"; color:var(--ink); letter-spacing:.02em; }
-.f .k .es { font-size:6.8pt; }
-.f .blank { width:100%; height:0.24in; }
+.f .k { font:700 7.8pt/1.2 "Montserrat"; color:var(--ink); letter-spacing:.02em; }
+.f .k .es { font-size:7.3pt; }
+.f .blank { width:100%; height:0.28in; }
 .f .pre { display:flex; align-items:flex-end; gap:0.04in; font:800 12pt/1 "Barlow Semi Condensed"; color:var(--char); }
 .f .pre .blank { flex:1; }
 .fixed { font:800 12pt/1.3 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char-dk); border-bottom:0.9pt solid var(--char); height:0.24in; display:flex; align-items:flex-end; letter-spacing:.01em; }
 
 .txt { display:grid; grid-template-columns:1fr 1fr; gap:0.26in; }
-.txt p { font:500 8.3pt/1.5 "Montserrat"; color:var(--ink); }
+.txt p { font:500 9pt/1.5 "Montserrat"; color:var(--ink); }
 .txt p + p { margin-top:0.07in; }
-.txt .es p { color:var(--char); font-size:7.9pt; }
+.txt .es p { color:var(--char); font-size:8.5pt; }
 .txt .lang { font:700 6.8pt/1 "Montserrat"; letter-spacing:.14em; text-transform:uppercase; color:var(--orange-ink); margin-bottom:0.05in; }
 .txt ol { list-style:none; counter-reset:x; margin-top:0.05in; }
-.txt ol li { counter-increment:x; font:500 8pt/1.4 "Montserrat"; padding-left:0.18in; position:relative; }
-.txt .es ol li { font-size:7.7pt; color:var(--char); }
+.txt ol li { counter-increment:x; font:500 8.8pt/1.45 "Montserrat"; padding-left:0.18in; position:relative; }
+.txt .es ol li { font-size:8.4pt; color:var(--char); }
 .txt ol li::before { content:"(" counter(x, lower-alpha) ")"; position:absolute; left:0; font-weight:700; color:var(--orange-ink); }
 
 .exc .lines { margin-top:0.05in; display:flex; flex-direction:column; gap:0.02in; }
-.exc .blank { width:100%; height:0.24in; }
+.exc .blank { width:100%; height:0.3in; }
 
 .sign { margin-top:auto; border:1.5pt solid var(--char); border-radius:5px; overflow:hidden; }
 .sign .hd { background:var(--char); color:#fff; padding:0.06in 0.14in; display:flex; justify-content:space-between; align-items:baseline; }
@@ -150,7 +150,7 @@
 
     <div class="exc">
       <div class="label">Exceptions (amounts still owed or disputed) <span class="es">Excepciones (montos pendientes o en disputa)</span></div>
-      <div class="lines"><span class="blank"></span><span class="blank"></span></div>
+      <div class="lines"><span class="blank"></span><span class="blank"></span><span class="blank"></span></div>
     </div>
 
     <div class="sign">
@@ -217,7 +217,7 @@
 
     <div class="exc">
       <div class="label">Exceptions (amounts still owed or disputed) <span class="es">Excepciones (montos pendientes o en disputa)</span></div>
-      <div class="lines"><span class="blank"></span><span class="blank"></span></div>
+      <div class="lines"><span class="blank"></span><span class="blank"></span><span class="blank"></span></div>
     </div>
 
     <div class="sign">
