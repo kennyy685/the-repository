@@ -516,6 +516,7 @@
     const o = obj && typeof obj === "object" && !Array.isArray(obj) ? obj : {};
     if (DED_RX.test(fold(text)) || DED_WORD.test(text)) flags.add("deductible");
     for (const f of Array.isArray(o.flags) ? o.flags : []) if (f === "deductible" || f === "owner_name") flags.add(f);
+    scrubNote(text, flags);
     d.heard = str(o.address).replace(/\s+/g, " ").trim().slice(0, 80);
     if (!/^\d/.test(d.heard)) { const x = extractAddress(text); d.heard = x ? x.address : ""; }
     // the model must never change the house number: it has to appear in the message

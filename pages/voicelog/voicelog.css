@@ -1,0 +1,52 @@
+/* HMP Voice Log confirm card (T82). Every class starts with .vl-. Uses the HMP App "Ledger" tokens when the host page
+   has them (--card --ink --ink2 --muted --line --soft --hmp --hmp-ink --late --late-bg --ok --f), else its own fallbacks. */
+.vl-card{--vl-card:var(--card,#fff);--vl-ink:var(--ink,#18191c);--vl-ink2:var(--ink2,#3d3f45);--vl-mute:var(--muted,#6c6f77);--vl-line:var(--line,#e3e5e8);
+  --vl-soft:var(--soft,#eef0f2);--vl-hmp:var(--hmp,#f5883a);--vl-hmp-ink:var(--hmp-ink,#a4520f);--vl-late:var(--late,#c2362b);--vl-late-bg:var(--late-bg,#fdecea);
+  --vl-ok:var(--ok,#1f7a4d);--vl-warn-bg:var(--warn-bg,#fff4e6);
+  background:var(--vl-card);color:var(--vl-ink);border:1px solid var(--vl-line);border-radius:14px;padding:14px 16px 12px;display:grid;gap:12px;min-width:0;
+  font-family:var(--f,system-ui,-apple-system,"Segoe UI",sans-serif);box-shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05)}
+.vl-card *{box-sizing:border-box}
+.vl-hd{display:flex;align-items:center;gap:8px}
+.vl-hd h3{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;flex:1}
+.vl-src{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--vl-mute)}
+.vl-lang{min-width:44px;min-height:36px;border:1px solid var(--vl-line);background:var(--vl-soft);border-radius:8px;font:600 13px/1 inherit;color:var(--vl-ink);cursor:pointer}
+.vl-heard{margin:0;font-size:14px;color:var(--vl-ink2);line-height:1.4;overflow-wrap:anywhere}
+.vl-heard span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--vl-mute);margin-bottom:2px}
+.vl-addr{display:grid;gap:4px;padding:10px 12px;border-radius:10px;background:var(--vl-soft)}
+.vl-addr b{font-size:20px;font-weight:650;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.vl-addr.ask{background:var(--vl-warn-bg);border:1px solid var(--vl-hmp)}
+.vl-sub{font-size:13px;color:var(--vl-mute)}
+.vl-warn{margin:0;font-size:14px;font-weight:600;color:var(--vl-hmp-ink)}
+.vl-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.vl-opts{display:grid;gap:6px;margin-top:4px}
+.vl-opt{display:grid;gap:2px;text-align:left;padding:10px 12px;min-height:48px;border:1px solid var(--vl-line);border-radius:10px;background:var(--vl-card);color:var(--vl-ink);cursor:pointer;font:inherit}
+.vl-opt b{font-size:16px}
+.vl-opt span{font-size:12px;color:var(--vl-mute)}
+.vl-rows{margin:0;display:grid;gap:0}
+.vl-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--vl-line);align-items:baseline}
+.vl-row:first-child{border-top:0}
+.vl-row dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--vl-mute)}
+.vl-row dd{margin:0;font-size:15px;line-height:1.4;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;overflow-wrap:anywhere;min-width:0}
+.vl-chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:650}
+.vl-chip.r-not_home{background:var(--vl-soft);color:var(--vl-ink2)}
+.vl-chip.r-no{background:var(--vl-late-bg);color:var(--vl-late)}
+.vl-chip.r-interested{background:var(--vl-warn-bg);color:var(--vl-hmp-ink)}
+.vl-chip.r-booked{background:color-mix(in srgb,var(--vl-ok) 14%,transparent);color:var(--vl-ok)}
+.vl-flags{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.vl-flag{font-size:13px;line-height:1.35;padding:8px 10px;border-radius:8px;background:var(--vl-warn-bg);color:var(--vl-ink)}
+.vl-flag.f-deductible{background:var(--vl-late-bg);color:var(--vl-late);font-weight:600}
+.vl-hint{margin:0;font-size:12px;color:var(--vl-mute)}
+.vl-card[data-state="saved"] .vl-hint{color:var(--vl-ok);font-weight:600}
+.vl-card[data-state="failed"] .vl-hint{color:var(--vl-late);font-weight:600}
+.vl-bar{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px}
+.vl-btn{min-height:48px;padding:8px 12px;border-radius:10px;border:1px solid var(--vl-line);background:var(--vl-soft);color:var(--vl-ink);font:600 15px/1.1 inherit;cursor:pointer}
+.vl-btn:active{transform:translateY(1px)}
+.vl-btn[disabled]{opacity:.45;cursor:default;transform:none}
+.vl-pri{background:var(--vl-hmp);border-color:var(--vl-hmp);color:#1b1206}
+.vl-btn:focus-visible,.vl-opt:focus-visible,.vl-lang:focus-visible,.vl-f input:focus-visible,.vl-f select:focus-visible,.vl-f textarea:focus-visible{outline:2px solid var(--vl-hmp);outline-offset:2px}
+.vl-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vl-f{display:grid;gap:4px;min-width:0}
+.vl-f span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--vl-mute)}
+.vl-f input,.vl-f select,.vl-f textarea{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--vl-line);border-radius:8px;background:var(--vl-card);color:var(--vl-ink);font:16px/1.3 inherit}
+.vl-wide{grid-column:1 / -1}
+@media (prefers-reduced-motion:reduce){.vl-btn:active{transform:none}}
