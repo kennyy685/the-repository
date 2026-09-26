@@ -7316,12 +7316,16 @@ document.addEventListener('click', ev => { const b = ev.target.closest('[data-ad
    else this copy of its hours). Hours only where the file has them; unverified hours say "check with the city". ================= */
 let cityDoc;
 const CITY_DEFAULT = {"Fremont": {"hours": null, "verified": false}, "Omaha": {"hours": ["08:00", "18:00"], "verified": false}, "Lincoln": {"hours": ["08:00", "20:00"], "verified": true}, "Columbus": {"hours": null, "verified": false}, "Schuyler": {"hours": null, "verified": false}};
+const saneHours = h => { if (!Array.isArray(h) || h.length !== 2) return null; const mn = t => { const m = /^(\d\d):(\d\d)$/.exec(strv(t)); return m ? +m[1] * 60 + +m[2] : null; };
+  const a = mn(h[0]), b = mn(h[1]); return a != null && b != null && b - a >= 120 ? h : null; };
 function cityRule(city){
   const c = strv(city); if (!c) return null;
   const doc = cityDoc && typeof cityDoc === 'object' ? cityDoc : null, v = doc && doc[c];
-  if (v && typeof v === 'object') { const m = /(\d{1,2}):(\d\d)\s*(AM|PM)\s*-\s*(\d{1,2}):(\d\d)\s*(AM|PM)/.exec(strv(v.knock_hours)); const t = (h, mm, ap) => `${pad2(+h % 12 + (ap === 'PM' ? 12 : 0))}:${mm}`;
-    return {hours: m ? [t(m[1], m[2], m[3]), t(m[4], m[5], m[6])] : null, verified: !!v.verified}; }
-  return CITY_DEFAULT[c] || null;
+  // v24.1: hours only when knock_hours STARTS with a range ("8:00 AM - 6:00 PM ..."). Text like "Not confirmed ... applications 8:00 AM-4:00 PM"
+  // is not knock hours (that was Columbus showing 8 AM-4 PM). A range that is backwards or under 2 hours is treated as unknown.
+  if (v && typeof v === 'object') { const m = /^\s*(\d{1,2}):(\d\d)\s*(AM|PM)\s*[-–]\s*(\d{1,2}):(\d\d)\s*(AM|PM)/i.exec(strv(v.knock_hours)); const t = (h, mm, ap) => `${pad2(+h % 12 + (/pm/i.test(ap) ? 12 : 0))}:${mm}`;
+    return {hours: m ? saneHours([t(m[1], m[2], m[3]), t(m[4], m[5], m[6])]) : null, verified: !!v.verified}; }
+  const d = CITY_DEFAULT[c]; return d ? {hours: saneHours(d.hours), verified: d.verified} : null;
 }
 const CRX = {en: {outShort: (a, b) => `Outside knock hours (${a}–${b} here)`, details: 'details', hours: (c, a, b) => `Knock hours in ${c}: ${a}–${b}.`, none: c => `Knock hours in ${c} are not confirmed: stay in daylight.`, check: ' Check with the city.', out: 'Outside knock hours right now: stop, or only go back to houses that asked you to.', sign: 'Skip any house with a “No Soliciting” or “No Peddlers” sign. Your permit can be taken for it.'},
   es: {outShort: (a, b) => `Fuera del horario para tocar (${a}–${b} aquí)`, details: 'detalles', hours: (c, a, b) => `Horario para tocar en ${c}: ${a}–${b}.`, none: c => `El horario para tocar en ${c} no está confirmado: solo con luz de día.`, check: ' Confírmalo con la ciudad.', out: 'Ahora estás fuera del horario para tocar: para, o solo regresa a casas que te lo pidieron.', sign: 'No toques en casas con letrero de “No Soliciting” o “No Peddlers”. Te pueden quitar el permiso por eso.'}};
@@ -7332,7 +7336,7 @@ function knockRules(m){
   if (r && r.hours) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
     line = X.hours(city, clk(r.hours[0]), clk(r.hours[1])) + (r.verified ? '' : X.check) + ' ' + X.sign;
     const n = new Date(), hm = pad2(n.getHours()) + ':' + pad2(n.getMinutes()); warn = hm < r.hours[0] || hm >= r.hours[1]; }
-  else line = X.none(city) + ' ' + X.sign;
+  else line = X.sign;   // v24.1: no known hours for this city: no hours line at all, only the sign rule
   if (warn) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };   // v24.1: one short amber line; the rest on tap
     return `<details class="k-rules warn" id="kRules" role="note"><summary><span class="kr-dot" aria-hidden="true"></span><b>${esc(X.outShort(clk(r.hours[0]), clk(r.hours[1])))}</b><span class="kr-more">${esc(X.details)}</span></summary><p><b>${esc(X.out)}</b> ${esc(line)}</p></details>`; }
   return `<p class="k-rules" id="kRules" role="note">${esc(line)}</p>`;
