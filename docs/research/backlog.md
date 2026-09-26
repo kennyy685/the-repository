@@ -13,9 +13,18 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       items like round 26 found for T116-119 - do this before the next fresh research topic
 - [ ] Get a plain answer from the boss/FilthE on how HMP intends to pay and classify a second salesman (W-2 vs.
       true 1099) before any hire happens (round 29: classification risk is real, but the decision needs the boss)
-- [ ] Verify Nebraska's Employee Classification Act text and penalty amounts directly against `dol.nebraska.gov`
-      or `nebraskalegislature.gov` once egress allows it (round 29: blocked for both WebFetch and curl; the
-      $500/$5,000 fine figures are from a secondary source)
+- [x] Verify Nebraska's Employee Classification Act text and penalty amounts directly against
+      `nebraskalegislature.gov` - round 35
+- [x] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22) - practical rule resolved round 35
+      (still no manufacturer/adjuster primary source - see new item below)
+- [ ] Fold the "chalk one test square at a time, don't chalk the whole roof" rule into
+      `docs/guides/adjuster-meeting.md` and the inspection checklist print piece (round 35 found the answer,
+      didn't edit the docs)
+- [ ] Get GAF's or a direct adjuster's own confirmation on chalk-marking acceptance (manufacturer/insurer primary
+      source, not a contractor blog) - round 35 could only reach contractor-blog search summaries
+- [ ] Post the §48-2910 bilingual (English/Spanish) worker-classification notice once HMP has a fixed job site or
+      shop to post it at (round 35: a real, cheap NE posting requirement most small contractors miss; low
+      priority until a second salesman or fixed site exists)
 - [x] Selling the HMP App: pricing, pilot customers, what a first outside customer needs (multi-company, settings, support) - round 32
 - [x] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct - round 33
 - [x] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners - round 32
@@ -111,6 +120,14 @@ for financing alone) + James Hardie ALLIANCE's Select tier (the realistic near-t
 Elite - unlocks the full manufacturer warranty and a free directory listing; unclear whether The Edge's Hardie
 installs count toward it). WebFetch and curl were both fully blocked on every domain this round (even
 Wikipedia) - everything is search-summary sourced; two new backlog items above to re-verify directly.
+Round 35 (backlog track): Employee Classification Act text and penalties confirmed via a direct
+`nebraskalegislature.gov` fetch (not a summary this time) - the 3-part presumption test (§48-2903) and the
+$500/$5,000-per-worker penalty (§48-2907) round 29 flagged as secondary-sourced are now primary-verified and
+unchanged; two of that section's old cross-referenced sections were quietly repealed in 2026 (LB847/LB1048) but
+not the parts HMP cares about. Roof-chalking vs. adjuster-acceptance conflict (open since round 22) got a
+practical resolution from converging trade sources: chalk one 10'x10' test square at a time for your own hail
+count, don't leave a whole roof chalk-marked for the adjuster's camera - still search-summary sourced (nachi.org,
+contractor blogs), not a manufacturer/insurer primary source, so a narrower follow-up item stays open.
 Round 34 (sales-mastery track): rookie 60-day ramp (volume-gated week-by-week plan for a solo ADHD rookie,
 `data/rookie_plan.json` - 7 day-range blocks with EN/ES daily goals + linked Practice Door drills) +
 landlords/HOA boards (MOPOA/REOMA/Omaha Landlords Association contact numbers, Nebraska SOS corporate search
