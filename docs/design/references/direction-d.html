@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Direction D · Checklist</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="spec.css">
+<style>
+:root{
+  --page:#ffffff; --screen:#ffffff; --card:#f5f6f8; --ink:#1f2024; --ink2:#46484f; --muted:#767983;
+  --line:#e7e8ec; --charcoal:#404145; --hmp:#f5883a; --hmp-ink:#a4520f; --late:#c2362b;
+  --fd:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif; --f:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --spec-font:var(--f); --spec-display:var(--fd);
+}
+.phone{font-family:var(--f);font-size:16px;line-height:1.4}
+.top{background:var(--charcoal);color:#fff;display:flex;align-items:center;gap:10px;padding:12px 16px}
+.mark{display:flex;flex-direction:column;align-items:center;line-height:1}
+.mark svg{width:30px;height:9px}
+.mark b{font:700 14px var(--fd);letter-spacing:.1em}
+.top .d{flex:1;font:600 15px var(--fd);letter-spacing:.02em;color:#d6d7da}
+.lang{border:1px solid #6a6b70;border-radius:6px;background:none;color:#fff;font:600 13px var(--fd);padding:4px 9px;letter-spacing:.04em}
+.lang em{font-style:normal;color:#9c9da2}
+.me{width:30px;height:30px;border-radius:6px;border:0;background:#56575c;color:#fff;font:700 14px var(--fd)}
+.tally{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);font:600 15px var(--fd);color:var(--ink2);letter-spacing:.01em}
+.tally b{font:700 22px var(--fd);color:var(--ink);font-variant-numeric:tabular-nums}
+.tally .g{flex:1}
+.gh{display:flex;align-items:baseline;gap:8px;margin:18px 0 4px;font:700 20px var(--fd);letter-spacing:.01em}
+.gh.now{color:var(--hmp-ink)}
+.gh .n{font:600 15px var(--fd);color:var(--muted)}
+.gh .ic{width:18px;height:18px;align-self:center}
+.item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.box{width:22px;height:22px;border-radius:50%;border:1.8px solid #b9bcc3;flex:none;margin-top:1px}
+.item .t{flex:1;min-width:0}
+.item .t b{display:block;font-weight:500}
+.item .t span{font-size:14px;color:var(--muted)}
+.tag{font:600 14px var(--fd);white-space:nowrap;color:var(--ink2);padding-top:2px;font-variant-numeric:tabular-nums}
+.tag.late{color:var(--late)}
+.tag.late::before{content:"⚑ "}
+.open{background:var(--card);border-radius:12px;padding:12px 14px 14px;margin:6px 0 4px}
+.open .h{display:flex;gap:12px}
+.open .h .box{border-color:var(--hmp);border-width:2px}
+.open .addr{font:700 26px/1.05 var(--fd);letter-spacing:-.005em}
+.open .meta{font-size:14px;color:var(--muted);margin-top:2px}
+.steps{margin:12px 0 0 34px;display:grid;gap:10px}
+.steps .k{font:700 12px var(--fd);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
+.steps .k button{border:1px solid var(--line);background:#fff;border-radius:5px;font:600 11px var(--fd);padding:1px 6px;color:var(--ink2)}
+.steps p{margin:2px 0 0}
+.steps .say p{font-size:16.5px;color:var(--ink)}
+.coll{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px;font-size:15px}
+.coll span{display:flex;align-items:center;gap:6px}
+.coll i{width:16px;height:16px;border:1.6px solid #b9bcc3;border-radius:4px}
+.outs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0 0 34px}
+.outs button{min-height:48px;border-radius:8px;border:1px solid #d5d7dc;background:#fff;font:600 15px var(--fd);letter-spacing:.01em}
+.outs .pri{background:var(--hmp);border-color:var(--hmp);color:#1b1206}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:#fff;border-top:1px solid var(--line);padding:4px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font:600 12px var(--fd);letter-spacing:.03em;color:var(--muted);min-height:50px;justify-content:center}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav .on{color:var(--ink)}
+.nav .plus i{width:50px;height:38px;border-radius:8px;background:var(--hmp);color:#1b1206;display:grid;place-items:center}
+.nav .plus svg{stroke-width:2.5}
+</style></head><body>
+<div class="wrap">
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3"/></svg><b>HMP</b></div>
+    <div class="d">SAT · SEP 26</div>
+    <button class="lang">EN <em>ES</em></button>
+    <button class="me" aria-label="More">K</button>
+  </header>
+  <div class="body">
+    <div class="tally"><span class="g"><b>7</b>/25 doors</span><span><b>3</b> talks</span><span><b>1</b> int.</span><span><b>1</b> booked</span></div>
+
+    <div class="gh now"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</div>
+    <div class="open">
+      <div class="h"><i class="box"></i><div><div class="addr">Knock 101 E 4th St</div><div class="meta">Door 8 of 25 · Built 1978 · 1.5" hail Sep 10 · 45 m</div></div></div>
+      <div class="steps">
+        <div class="say"><div class="k">Say <button>ES ⇄</button></div><p>"Hi, I'm Kenny with HMP Siding &amp; Roofing. We do roofs and siding. The Sep 10 hail hit this street. Can I take a free look at your roof?"</p></div>
+        <div><div class="k">Ask</div><p>Has anyone looked at the roof since the storm?</p></div>
+        <div><div class="k">Collect</div><div class="coll"><span><i></i>First name</span><span><i></i>Best day to inspect</span></div></div>
+      </div>
+      <div class="outs"><button>Not home</button><button>No</button><button>Interested</button><button class="pri">Booked</button></div>
+    </div>
+
+    <div class="gh">Today <span class="n">3</span></div>
+    <div class="item"><i class="box"></i><div class="t"><b>Call back 103 E 4th St</b><span>Book the free inspection</span></div><span class="tag late">1 day late</span></div>
+    <div class="item"><i class="box"></i><div class="t"><b>Estimate visit · 400 Pine St · Tom</b><span>Step 2 of 8 · bring samples</span></div><span class="tag">10:00 AM</span></div>
+    <div class="item"><i class="box"></i><div class="t"><b>1418 Irving St · claim</b><span>Send certificate, ask for depreciation</span></div><span class="tag late">Overdue</span></div>
+
+    <div class="gh">Tomorrow <span class="n">2</span></div>
+    <div class="item"><i class="box"></i><div class="t"><b>104 E 4th St</b><span>48 h reminder · Interested</span></div><span class="tag">9:00 AM</span></div>
+    <div class="item"><i class="box"></i><div class="t"><b>402 Pine St</b><span>Bring siding samples</span></div><span class="tag">11:00 AM</span></div>
+  </div>
+  <nav class="nav">
+    <button class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Now</button>
+    <button><svg viewBox="0 0 24 24"><path d="M6 21V4h10l2 2v15M4 21h16"/><circle cx="13.5" cy="13" r="1"/></svg>Knock</button>
+    <button class="plus" aria-label="Add"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></button>
+    <button><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Leads</button>
+    <button><svg viewBox="0 0 24 24"><path d="M12 3v18M16.5 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>Money</button>
+  </nav>
+</div>
+
+<aside class="spec">
+  <a class="back" href="index.html">← All directions</a>
+  <h1>D · Checklist</h1>
+  <p class="es">Lista tranquila: todo a la vista, marca y sigue.</p>
+  <p>The whole day is one to-do list. The top item is open with its Say, Ask and Collect written in, and Collect is real checkboxes. Tap the circle and it moves out of the way. Keeps the Barlow type from the print pieces, so the app and the door hanger match.</p>
+  <h2>Inspired by</h2>
+  <div class="refs"><span>Things 3</span><span>Linear inbox</span><span>SalesRabbit</span></div>
+  <h2>Type</h2>
+  <div class="type">
+    <div style="font:700 26px/1.05 var(--fd)">Barlow Semi Condensed 700 · Knock 101 E 4th St<small>Headings, times, buttons (same as print)</small></div>
+    <div style="font:400 16px/1.4 var(--f)">Barlow 400 · Has anyone looked at the roof since the storm?<small>Body, scripts</small></div>
+  </div>
+  <h2>Color tokens</h2>
+  <div class="sw">
+    <div><i style="background:#ffffff"></i>Page<br><code>#ffffff</code></div>
+    <div><i style="background:#f5f6f8"></i>Open item<br><code>#f5f6f8</code></div>
+    <div><i style="background:#404145"></i>HMP charcoal<br><code>#404145</code></div>
+    <div><i style="background:#1f2024"></i>Ink<br><code>#1f2024</code></div>
+    <div><i style="background:#f5883a"></i>HMP orange<br><code>#f5883a</code></div>
+    <div><i style="background:#c2362b"></i>Late<br><code>#c2362b</code></div>
+  </div>
+  <h2>Spacing</h2>
+  <dl><dt>Grid</dt><dd>2 px steps (6 / 10 / 12 / 18)</dd><dt>Side gutter</dt><dd>16 px</dd><dt>Between groups</dt><dd>18 px</dd><dt>Corners</dt><dd>12 px open item, 8 px buttons</dd><dt>Tap targets</dt><dd>48 px buttons, full-width rows</dd><dt>Dividers</dt><dd>1 px lines between rows</dd></dl>
+  <h2>Trade-off</h2>
+  <div class="verdict"><b>Most on one screen, closest to how a salesman thinks.</b>Least "wow"; relies on tight spacing being done perfectly.</div>
+</aside>
+</div>
+<script>if(location.search.indexOf('shot')>-1)document.documentElement.classList.add('shot')</script>
+</body></html>
