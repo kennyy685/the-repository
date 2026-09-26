@@ -770,6 +770,7 @@ b, strong { font-weight:700; }
       function () { var r = pg.querySelectorAll(".inc .d"); if (r.length) { r.forEach(function (e) { e.remove(); }); return true; } },
       function () { var r = pg.querySelectorAll(".counted li"); if (r.length > 4) { r[r.length - 1].remove(); return true; } },
       function () { var r = pg.querySelectorAll(".cmp tbody tr"); if (r.length > 3) { r[r.length - 1].remove(); return true; } },
+      function () { var c = pg.querySelector(".cmp .src"); if (c) { c.remove(); return true; } },
       function () { var c = pg.querySelector(".cmp"); if (c) { c.remove(); return true; } }
     ];
     pg.style.minHeight = "0";                 // measure the content itself; keep ~0.12in spare for print rounding

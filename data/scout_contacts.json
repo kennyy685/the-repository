@@ -1059,6 +1059,306 @@
    ],
    "verified": false,
    "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "755 Fallbrook Blvd"
+   ],
+   "city": "Lincoln",
+   "name": "Fallbrook Family Health Center (multi-tenant medical office)",
+   "manager": "Owner of record: FMC Paradocs LLC",
+   "phone": "(402) 441-3575",
+   "phone_note": "Clinic front desk, Ste 100 (clinic site, Yelp, Healthgrades). A tenant line, not the owner's.",
+   "website": "https://www.fallbrookfamilyhealthcenter.com/",
+   "ask_for": "Office manager: who handles the building/roof for FMC Paradocs LLC",
+   "note": "Multi-tenant medical building.",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2803 Folkways Blvd"
+   ],
+   "city": "Lincoln",
+   "name": "Sleep Inn & Suites Lincoln University Area",
+   "manager": "Hotel franchise (owner of record is the franchisee)",
+   "phone": "(402) 477-0645",
+   "phone_note": "Hotel front desk (Choice Hotels site, Yelp).",
+   "website": "https://www.choicehotels.com/nebraska/lincoln/sleep-inn-hotels/ne144",
+   "ask_for": "Hotel general manager",
+   "note": "Branded hotel: call the hotel line only.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "8400 Cody Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Multi-tenant building (Fundamental Athletics, Acton Academy, Lighthouse Autism Center)",
+   "manager": "Krueger Development, 8200 Cody Dr Ste F (same family as owner Krueger Holding Company LLC; inferred)",
+   "phone": "(402) 423-7377",
+   "phone_note": "Krueger Development office (LIBA directory, BuildZoom).",
+   "website": "https://www.kruegerdevelopment.com/",
+   "ask_for": "Krueger Development property management",
+   "note": "Owner match inferred from the family name.",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "425 Fallbrook Blvd"
+   ],
+   "city": "Lincoln",
+   "name": "Proceed Finance (formerly Med-Den Funding LLC, Optum Bank)",
+   "manager": "Optum Financial (parent)",
+   "phone": "",
+   "phone_note": "Only a patient-financing customer line was found; not useful for the building.",
+   "website": "https://www.proceedfinance.com/",
+   "ask_for": "Facilities / real estate contact at Optum",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "8885 Executive Woods Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Hausmann Construction, Inc.",
+   "manager": "Hausmann Construction (owner Hausmann Holdings LLC)",
+   "phone": "(402) 438-3230",
+   "phone_note": "Company office (BBB, hausmann.build).",
+   "website": "https://www.hausmann.build/offices/lincoln/",
+   "ask_for": "Office manager",
+   "note": "A builder: they may do their own roof.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "200 S 68th Street Pl"
+   ],
+   "city": "Lincoln",
+   "name": "Annabell Gardens (extended-stay hotel)",
+   "manager": "Owner of record: Olderbak Enterprises North LLC",
+   "phone": "(402) 483-4900",
+   "phone_note": "Hotel line (Yelp listing at this address).",
+   "website": "",
+   "ask_for": "Hotel general manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "201 S 68th Street Pl"
+   ],
+   "city": "Lincoln",
+   "name": "Southeast Nebraska Cancer Center building (also Nebraska IMRT)",
+   "manager": "Owner of record: Senhoc Properties LLC",
+   "phone": "(402) 420-7000",
+   "phone_note": "Main tenant's line, Ste 200 (Yelp, Healthgrades).",
+   "website": "",
+   "ask_for": "Clinic office manager, or the owner Senhoc Properties LLC",
+   "note": "Multi-tenant medical building.",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "6811 O St"
+   ],
+   "city": "Lincoln",
+   "name": "Esquire Plaza strip (Scooter's Coffee, Beauty First, Lincoln Neighborhood Pharmacy)",
+   "manager": "Owner of record: Capstan Holdings LLC",
+   "phone": "",
+   "phone_note": "Not found. A brokerage manages an 'Esquire Plaza' at 237 S 70th St, but that isn't clearly this building.",
+   "website": "",
+   "ask_for": "Ask a tenant in person who handles the building/roof",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "6900 O St"
+   ],
+   "city": "Lincoln",
+   "name": "Retail strip",
+   "manager": "Owner of record: Ameritas Life Insurance Co",
+   "phone": "(402) 467-6900",
+   "phone_note": "Ameritas corporate switchboard, not a property line: expect a transfer.",
+   "website": "https://www.ameritas.com/contact/corporate-offices/",
+   "ask_for": "Ameritas corporate real estate / facilities",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "5001 Nw 1st St"
+   ],
+   "city": "Lincoln",
+   "name": "Multi-tenant building (AmanaCare; Malybuilt Restoration)",
+   "manager": "Owner of record: C Street LLC",
+   "phone": "(402) 440-5878",
+   "phone_note": "AmanaCare's line, Suite 7 (Yelp). A tenant line.",
+   "website": "",
+   "ask_for": "Property manager for C Street LLC",
+   "note": "Heads-up: tenant Malybuilt Restoration is a roofing/siding competitor. Don't pitch them.",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "6550 Merchant Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Cattle Bank & Trust - Fallbrook Branch",
+   "manager": "Cattle Bank & Trust (owner of record)",
+   "phone": "(402) 420-7400",
+   "phone_note": "Branch line (bank branch directory, Yellow Pages).",
+   "website": "https://www.cattlebank.com/",
+   "ask_for": "Branch manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "301 S 70th St"
+   ],
+   "city": "Lincoln",
+   "name": "Park Plaza office building (multi-tenant)",
+   "manager": "Owner of record: US Global Service LLC",
+   "phone": "",
+   "phone_note": "A leasing contact's number is on a lease listing, but it may be a personal cell, so it's left out.",
+   "website": "",
+   "ask_for": "Leasing contact on the Cityfeet listing, or the property manager",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "7045 O St"
+   ],
+   "city": "Lincoln",
+   "name": "Walgreens (Wedgewood Manor)",
+   "manager": "Owner of record: WBLINE001 LLC (landlord)",
+   "phone": "(402) 484-8222",
+   "phone_note": "Walgreens store line (tenant), not the landlord.",
+   "website": "",
+   "ask_for": "Store manager: ask who the landlord / property manager is",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2701 Grainger Pkwy"
+   ],
+   "city": "Lincoln",
+   "name": "First State Bank Nebraska - Grainger Branch",
+   "manager": "First State Bank (owner of record)",
+   "phone": "(402) 858-1771",
+   "phone_note": "Branch line (bank branch directory).",
+   "website": "https://www.1fsb.bank/",
+   "ask_for": "Branch manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "4700 Cattle Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Nebraska DMV Express - Highlands (tenant)",
+   "manager": "Owner of record: Cattle 4700 LLC",
+   "phone": "",
+   "phone_note": "Only the state DMV office line was found; not a landlord line.",
+   "website": "",
+   "ask_for": "Property manager for Cattle 4700 LLC",
+   "note": "A state office is the tenant.",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "4665 Innovation Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Frontier Cooperative - Safety + Innovation Center",
+   "manager": "Frontier Cooperative (owner of record)",
+   "phone": "(402) 937-1800",
+   "phone_note": "Company contact page for this address.",
+   "website": "https://www.frontiercooperative.com/locations/frontier-lincoln-office",
+   "ask_for": "Facilities / office manager",
+   "note": "",
+   "confidence": "high",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "4800 Nw 1st St"
+   ],
+   "city": "Lincoln",
+   "name": "Cabela's corporate office (Suite 300, tenant)",
+   "manager": "Owner of record: 1081 Properties LLC",
+   "phone": "",
+   "phone_note": "Not found.",
+   "website": "",
+   "ask_for": "Property manager for 1081 Properties LLC",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "777 Research Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Insurance office building (F&G anchor tenant; Allianz Life, Union National Life)",
+   "manager": "Owner of record: Orion Lincoln NE LLC",
+   "phone": "",
+   "phone_note": "Only F&G's policyholder line was found; not useful for the building.",
+   "website": "",
+   "ask_for": "Facilities / property manager for Orion Lincoln NE LLC",
+   "note": "",
+   "confidence": "low",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "665 Research Dr"
+   ],
+   "city": "Lincoln",
+   "name": "Communication Systems Solutions, Inc. (CSS)",
+   "manager": "Owner of record: PBGGH Holdings LLC",
+   "phone": "(402) 261-8688",
+   "phone_note": "Company line (css-design.com, Lincoln Manufacturing Council).",
+   "website": "https://www.css-design.com/",
+   "ask_for": "Office manager",
+   "note": "",
+   "confidence": "medium",
+   "checked": "2026-09-26"
+  },
+  {
+   "match": [
+    "2209 1st Ave"
+   ],
+   "city": "Plattsmouth",
+   "name": "Keeler & Associates (insurance agency)",
+   "manager": "Owner not in the county data",
+   "phone": "(402) 296-5140",
+   "phone_note": "Agency line (Yelp, Opendi).",
+   "website": "https://www.keelerandassociates.com",
+   "ask_for": "Office manager",
+   "note": "County data says built 2023: the address match may be off.",
+   "confidence": "low",
+   "checked": "2026-09-26"
   }
  ]
 }
