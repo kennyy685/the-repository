@@ -193,6 +193,9 @@ yes (2026-09-25). Path: **both** - direct to homeowners AND subbing for insuranc
 - **No work before the 3-day cancel window ends on a regular (non-insurance) home solicitation sale:** under 69-1606(5)
   HMP gets nothing for work done before a buyer cancels. Only insurance emergency work (e.g. tarping) under a signed
   44-8603 approval is different. Verified from the statute text (docs/legal/, round 37).
+- **Insurance jobs (44-8606, verified):** before starting repair work, give BOTH the homeowner and the insurer an
+  itemized description (work, materials, labor, fees, total). Never take an assignment of benefits / be named on the
+  check without 44-8605's notice and filing (HMP doesn't do this today).
 - No buying phone lists for cold calls or texts (TCPA/DNC risk). Door knocking and calling business lines are fine.
   No mailers (FilthE, 2026-09-25 - D1 on the board).
 
