@@ -10,4 +10,5 @@ data/*
 !data/watch_list.json
 !data/tuned.json
 !data/glossary_en_es.json
+!data/city_rules.json
 .env
