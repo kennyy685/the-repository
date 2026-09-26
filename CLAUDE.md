@@ -40,6 +40,7 @@ software); HMP is its first user.
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
 - Twilio phone-call storm alerts (D6): **No for now**; push + email alerts stay.
 - Capabilities sheet keeps "Labor sub: you supply the materials, we install".
+- HMP business mailing address (D13): **2600 Laverna St, Apt 50, Fremont, NE 68025** (printed on the cancel notice).
 - PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
 
 ## App look (FilthE, 2026-09-26)
