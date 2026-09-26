@@ -93,6 +93,10 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       cold-calling blogs) on how apartment/commercial roof vendor decisions really get made in eastern
       Nebraska specifically - round 38's property-manager-vs-asset-manager split is a general CRE pattern,
       unverified for HMP's actual market size (small/mid apartment complexes, not big REITs)
+- [ ] Re-open spotio.com, rooflink.com or a similar roofing-sales-training primary source directly (round 40:
+      WebFetch/curl blocked again) to confirm the 2-3x in-person-close-rate claim and get exact script wording
+- [ ] Once the damage-map screen (T158) exists, check it against round 31's `data/inspection_walk.json`
+      point-then-photo-then-explain sequence so the app screen and the in-yard walk match (round 40)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
