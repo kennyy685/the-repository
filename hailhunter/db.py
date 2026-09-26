@@ -111,6 +111,13 @@ CREATE TABLE IF NOT EXISTS parcels (        -- buildings from the Nebraska state
 );
 CREATE INDEX IF NOT EXISTS ix_parcels_ll ON parcels(lat, lon);
 CREATE TABLE IF NOT EXISTS parcel_tiles (tile TEXT PRIMARY KEY, fetched_utc TEXT, n INTEGER);
+CREATE TABLE IF NOT EXISTS owner_occ (        -- T23 owners.py: per-house owner-occupied from county data.
+    source TEXT, spid TEXT, house_num INTEGER, street TEXT,   -- NO owner names or mailing addresses, ever
+    lat REAL, lon REAL, owner_occupied INTEGER, sale_date TEXT, tile TEXT, fetched_utc TEXT,
+    PRIMARY KEY (source, spid)
+);
+CREATE INDEX IF NOT EXISTS ix_owner_occ_addr ON owner_occ(house_num, street);
+CREATE TABLE IF NOT EXISTS owner_tiles (source TEXT, tile TEXT, fetched_utc TEXT, n INTEGER, PRIMARY KEY (source, tile));
 
 CREATE TABLE IF NOT EXISTS door_lists (
     list_id TEXT PRIMARY KEY, conv_day TEXT, area TEXT, created_utc TEXT, params TEXT,

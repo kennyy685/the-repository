@@ -183,6 +183,11 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
                WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
         for s in stops:
             s["sold_after_storm"] = bool(s["sold_after_storm"])
+        try:                                              # T23: per-house owner-occupied from county data (cache only)
+            from . import owners
+            owners.lookup(conn, stops)
+        except Exception:
+            pass
         streets = {}
         for s in stops:
             streets.setdefault(s["turf"], {})
