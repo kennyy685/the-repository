@@ -190,6 +190,9 @@ yes (2026-09-25). Path: **both** - direct to homeowners AND subbing for insuranc
   public-adjuster work and needs a license. We meet the adjuster and document damage.
 - **Contacts:** business phone numbers only for commercial (leasing offices, property managers, company lines) - no
   personal cells/emails/home addresses. Owner names only for apartment/commercial properties, never homes.
+- **No work before the 3-day cancel window ends on a regular (non-insurance) home solicitation sale:** under 69-1606(5)
+  HMP gets nothing for work done before a buyer cancels. Only insurance emergency work (e.g. tarping) under a signed
+  44-8603 approval is different. Verified from the statute text (docs/legal/, round 37).
 - No buying phone lists for cold calls or texts (TCPA/DNC risk). Door knocking and calling business lines are fine.
   No mailers (FilthE, 2026-09-25 - D1 on the board).
 
