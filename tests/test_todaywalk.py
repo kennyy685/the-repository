@@ -19,7 +19,8 @@ from hailhunter import todaywalk  # noqa: E402
 
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 KEYS = {"date", "area", "why", "goal_doors", "kind", "list_id", "stops", "spanish_share", "who",   # +T37
-        "est_minutes", "walk_mi", "drive_from_home_mi", "best_time", "stale", "stale_note", "data_age_hours"}
+        "est_minutes", "walk_mi", "drive_from_home_mi", "best_time", "stale", "stale_note", "data_age_hours",
+        "goal_note"}                                          # +round 6: always on a walk
 STOP_KEYS = {"pid", "address", "city", "lat", "lon", "pass"}
 NEW_KEYS = {"rough_note", "evidence_note"}                  # additive, only when there's something to say
 NEW_STOP_KEYS = {"year_built", "sqft", "stories", "rough", "house_line"}   # additive house facts (county data)

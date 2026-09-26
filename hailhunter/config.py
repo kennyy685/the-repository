@@ -144,7 +144,11 @@ DEFAULTS = {
     },
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
-        "goal_doors": 25,           # doors in today's walk (~2 hours)
+        "goal_doors": 25,           # doors in today's walk (~2 hours): a starting session, not a full day
+        # Winter (month number -> factor on the door goal; months not listed = 1.0): short cold days, fewer doors.
+        # Never below goal_min_doors (unless the asked goal itself is smaller).
+        "goal_factor_by_month": {"12": 0.65, "1": 0.65, "2": 0.65},
+        "goal_min_doors": 10,
         "storm_max_days": 60,       # a storm walk only if the storm is this fresh (in season, Apr-Sep)...
         # ...off-season (Oct-Mar, month number -> days): re-knock storms from the last ~11 months that aren't
         # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it)

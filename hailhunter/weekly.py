@@ -13,7 +13,9 @@ under `data`):
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
 funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.day, the local
 day, else lead.estimate.at[:10]) is in the week;
-totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); per_100 numbers are
+totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); contact_rate = share of doors where
+someone answered (No + Interested + Booked, 0-1), in totals and every walk/list; `benchmarks` = rookie ranges
+{contact_rate, inspection_per_door, sign_per_inspection: [low, high], note{en,es}}; per_100 numbers are
 per 100 doors; "inspection" = a Booked tap (for everyday/cash walks that is the estimate visit). A walk id is
 "<list_id>~t<turf>", the same key the command center uses for its turfs.
 """
@@ -139,6 +141,7 @@ def tally(rows):
     per = (lambda x: round(100.0 * x / n, 1)) if n else (lambda x: 0.0)
     return {"doors": n, "answered": answered, "no": c["no"], "interested": c["interested"], "booked": c["booked"],
             "not_home": c["not_home"], "not_home_rate": round(c["not_home"] / n, 3) if n else 0.0,
+            "contact_rate": round(answered / n, 3) if n else 0.0,
             "leads_per_100": per(leads), "inspection_rate_per_100": per(c["booked"])}
 
 
@@ -189,7 +192,23 @@ def _best_worst(walks, min_doors):
 
 def tally_view(row):
     return {k: row[k] for k in ("doors", "answered", "interested", "booked", "not_home_rate", "leads_per_100",
-                                "inspection_rate_per_100")}
+                                "inspection_rate_per_100", "contact_rate")}
+
+
+# Rookie door-to-door ranges (industry-typical, unverified: docs/research/2026-09-26-round-6.md), as [low, high].
+BENCHMARKS = {
+    "contact_rate": [0.2, 0.4],            # doors where someone answered (No + Interested + Booked) / doors tapped
+    "inspection_per_door": [0.01, 0.04],   # Booked / doors tapped
+    "sign_per_inspection": [0.3, 0.6],     # signed jobs / inspections
+    "note": {"en": "Typical ranges for door knocking, not promises. First weeks are usually near the low end; "
+                   "that's normal.",
+             "es": "Rangos típicos para tocar puertas, no promesas. Las primeras semanas casi siempre salen cerca "
+                   "del mínimo; eso es normal."},
+}
+
+
+def benchmarks():
+    return {k: (dict(v) if isinstance(v, dict) else list(v)) for k, v in BENCHMARKS.items()}
 
 
 def follow_ups(leads, today):
@@ -355,7 +374,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
         "week": "all" if start is None else week_id(start), "from": start and start.isoformat(),
         "to": end and end.isoformat(), "as_of": today.isoformat(),
         "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
-        "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas,
+        "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas, "benchmarks": benchmarks(),
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),
         "learning": {"hud": bool(meta), "hud_generated_utc": (hud or {}).get("generated_utc"),

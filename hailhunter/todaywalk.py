@@ -18,6 +18,8 @@ Evidence docs (`evidence_docs`): `evidence/<slug>` per house from hud.json hail_
 Do-not-knock (`load_dnk`, `pick(dnk=...)`): houses in the app's `dnk/<slug>` docs (same slug rule) never appear.
 Seasons (config today_walk): `storm_max_days_by_month` lets Oct-Mar walks re-knock storms up to ~330 days old that
 aren't fully worked (else 60 days); `best_time_by_month` shortens weekday hours in short-day months (+ "End by dusk").
+Winter goal: `goal_factor_by_month` (Dec-Feb 0.65) shrinks the door goal (never below `goal_min_doors`, 10); every
+walk carries `goal_note {en, es}` ("25 doors is a starting session, not a full day"; winter: a smaller goal is normal).
 Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
 `come_back {date, time}` and goes to the front (earliest time first); due later -> the door waits until that date.
 House facts (additive, per stop, each left out when the county data doesn't have it; see `house_facts`):
@@ -367,6 +369,29 @@ def storm_max_days(day, cfg=None):
     return tw["storm_max_days"] if v is None else v
 
 
+def goal_for(day, goal=None, cfg=None):
+    """Door goal for `day`: `goal` (else config goal_doors) x goal_factor_by_month (Dec-Feb 0.65, else 1.0),
+    rounded, never below goal_min_doors (10) unless the asked goal is already smaller."""
+    day = date.fromisoformat(day) if isinstance(day, str) else day
+    tw = _tw(cfg)
+    base = int(goal or tw["goal_doors"])
+    f = _by_month(tw.get("goal_factor_by_month"), day)
+    f = 1.0 if f is None else float(f)
+    return min(base, max(int(tw.get("goal_min_doors") or 10), int(round(base * f))))
+
+
+def goal_note(day, n, cfg=None):
+    """Plain goal note {en, es}: the goal is a starting session, and a smaller winter goal is normal."""
+    day = date.fromisoformat(day) if isinstance(day, str) else day
+    f = _by_month(_tw(cfg).get("goal_factor_by_month"), day)
+    if f is not None and float(f) < 1.0:
+        return {"en": f"Short cold day: a smaller goal is normal. {n} doors is a starting session, not a full day.",
+                "es": f"Día corto y frío: una meta más pequeña es normal. {n} puertas son una sesión para empezar, "
+                      f"no un día completo."}
+    return {"en": f"{n} doors is a starting session, not a full day.",
+            "es": f"{n} puertas son una sesión para empezar, no un día completo."}
+
+
 def best_time(day, cfg=None):
     """Best hours to knock on `day`: {en, es, start, end} (start/end 24h local, null on a no-knock day).
     best_time_by_month overrides the day types it names for that month (short days) and may add a note."""
@@ -574,9 +599,9 @@ def evidence_docs(hud, stops):
 def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs."""
     tw = _tw(cfg)
-    goal = goal or tw["goal_doors"]
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
+    goal = goal_for(today, goal, cfg)              # winter (Dec-Feb): ~65% of the goal, never below 10
     storm, pools, src = [], {}, {}
     max_age = storm_max_days(today, cfg)           # month-aware: longer off-season (Oct-Mar)
     for L in hud.get("lists") or []:
@@ -657,6 +682,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
+    doc["goal_note"] = goal_note(today, doc["goal_doors"], cfg)
     doc.update(freshness(hud, now, cfg))
     note = rough_note(doc["stops"], best["kind"], cfg)            # additive, only when there is something to say
     if note:
