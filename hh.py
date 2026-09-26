@@ -21,6 +21,7 @@
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
+                  [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -268,6 +269,7 @@ def main(argv=None):
     p.add_argument("--out", help="also write the JSON to this file")
     p.add_argument("--hud", help="hud.json to pick from (default: data/export/hud.json)")
     p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
+    p.add_argument("--evidence-out", help="also write the evidence/<address-slug> docs for the walk's houses here")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -281,15 +283,20 @@ def main(argv=None):
         from zoneinfo import ZoneInfo
         from hailhunter import todaywalk
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
-        if not os.path.exists(hud_path):
-            print(f"No {hud_path}. Run `python3 hh.py hud` (or refresh) first.")
-            return 1
         results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
-        doc = todaywalk.pick(todaywalk.load_json(hud_path), day, a.doors, results, cfg)
-        if doc is None:
-            print("No door list with houses left to knock. Run `python3 hh.py refresh` for new lists.")
-            return 1
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg)   # no walk: stops [] + none_reason
+        if a.evidence_out:
+            with open(a.evidence_out, "w", encoding="utf-8") as f:
+                json.dump(todaywalk.evidence_docs(hud_doc, doc["stops"]), f, indent=1, ensure_ascii=False)
+                f.write("\n")
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
