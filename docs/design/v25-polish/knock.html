@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App v25 · Knock</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+html:not(.st-es) .es{display:none!important}.st-es .en{display:none!important}
+.v-empty{display:none}.st-empty .v-default{display:none}.st-empty .v-empty{display:block}
+.late-only{display:none}.st-late .late-only{display:inline-flex}.st-late .ok-only{display:none}
+
+.area{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s1)}
+.area h2{flex:1;font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.area .sub{display:block;font-size:var(--t-cap);font-weight:400;color:var(--muted);letter-spacing:0}
+.chips{display:flex;gap:var(--s2);margin-top:var(--s2);flex-wrap:wrap}
+.chip.tap{height:28px;padding:0 10px;font-size:12.5px}
+.chip.tap .i.chevr{width:12px;height:12px;margin-left:2px;opacity:.7}
+
+.count{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:var(--s4);margin-top:var(--s3)}
+.count .big{display:flex;align-items:baseline;gap:6px;line-height:.9}
+.count .big b{font-size:52px;font-weight:600;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.count .big span{font-size:var(--t-row);color:var(--muted);font-weight:500}
+.count .big small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:6px}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);text-align:right}
+.mini b{display:block;font-size:var(--t-title);font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.mini span{font-size:12px;color:var(--muted)}
+.bar{display:grid;grid-template-columns:repeat(25,1fr);gap:2px;margin-top:var(--s3)}
+.bar i{height:6px;border-radius:2px;background:var(--soft)}
+.bar i.t{background:var(--ink)}.bar i.n{background:var(--line-2)}
+
+.walkmap{position:relative;height:118px;margin-top:var(--s3);border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+.walkmap svg{width:100%;height:100%;display:block}
+.walkmap .lbl{font:500 9.5px var(--f);fill:var(--map-label);paint-order:stroke;stroke:var(--map-land);stroke-width:3px}
+.walkmap .num{font:600 9.5px var(--f);text-anchor:middle;dominant-baseline:central}
+.walkmap .tag{position:absolute;right:8px;top:8px;display:flex;gap:4px}
+.walkmap .tag button{height:28px;padding:0 10px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px;color:var(--ink-2)}
+.walkmap .tag .i{width:14px;height:14px}
+
+.offer{margin-top:var(--s3);padding:var(--s3) var(--s4) var(--s4);display:grid;gap:10px}
+.offer .eb{display:flex;justify-content:space-between;align-items:center}
+.offer .addr{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.1}
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-cap);color:var(--ink-2)}
+.facts span{display:inline-flex;align-items:center;gap:5px}
+.facts .i{width:15px;height:15px;color:var(--muted)}
+.coach{display:flex;gap:6px;align-items:flex-start;font-size:var(--t-cap);color:var(--ink-2)}
+.coach .i{width:16px;height:16px;color:var(--hmp-ink);margin-top:1px}
+.tools{display:grid;grid-template-columns:1fr 1fr auto;gap:var(--s2)}
+.tools .btn{height:var(--hit-sm);font-size:var(--t-cap);font-weight:500;padding:0 var(--s3);border-radius:var(--r-sm)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.ans{height:60px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--card);display:flex;align-items:center;gap:var(--s3);padding:0 var(--s4);text-align:left}
+.ans .i{width:22px;height:22px;color:var(--ink-2)}
+.ans b{display:block;font-size:var(--t-row);font-weight:600;line-height:1.15}
+.ans small{display:block;font-size:12px;color:var(--muted)}
+.ans.pri{background:var(--hmp);border-color:var(--hmp);color:var(--on-hmp)}
+.ans.pri .i,.ans.pri small{color:var(--on-hmp);opacity:.85}
+.top .iconbtn{border:1px solid var(--line);background:var(--card)}
+.upnext .n{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+</style></head>
+<body class="stage">
+<script src="icons.js"></script>
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+    <h1><span class="en">Knock</span><span class="es">Tocar</span></h1>
+    <button class="iconbtn" aria-label="Talk to the Right Hand"><svg class="i"><use href="#i-mic"/></svg></button>
+    <button class="lang"><span class="en">ES</span><span class="es">EN</span></button>
+    <button class="avatar" aria-label="More">K</button>
+  </header>
+
+  <main class="scroll">
+   <div class="v-default">
+    <div class="area">
+      <h2>North Fremont<span class="sub"><span class="en">Irving St to Linden Ave · 12 houses</span><span class="es">De Irving St a Linden Ave · 12 casas</span></span></h2>
+      <button class="iconbtn" aria-label="Walk menu: print, about this walk"><svg class="i"><use href="#i-more"/></svg></button>
+    </div>
+    <div class="chips">
+      <button class="chip tap ok-only"><svg class="i"><use href="#i-sun"/></svg><span class="en">Knock rules · daylight until 7:12 PM</span><span class="es">Reglas · con luz hasta 7:12 PM</span><svg class="i chevr"><use href="#i-chev"/></svg></button>
+      <button class="chip tap warn late-only"><svg class="i"><use href="#i-clock"/></svg><span class="en">Outside knock hours · only booked visits</span><span class="es">Fuera de horario · solo citas</span><svg class="i chevr"><use href="#i-chev"/></svg></button>
+    </div>
+
+    <div class="count">
+      <div class="big"><div><b>2</b><span>/ 25</span><small><span class="en">knocks today</span><span class="es">toques hoy</span></small></div></div>
+      <div class="mini">
+        <div><b>1</b><span><span class="en">talked</span><span class="es">platicó</span></span></div>
+        <div><b>0</b><span><span class="en">interested</span><span class="es">interés</span></span></div>
+        <div><b>0</b><span><span class="en">booked</span><span class="es">citas</span></span></div>
+      </div>
+    </div>
+    <div class="bar" aria-hidden="true"><i class="n"></i><i class="t"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+    <div class="walkmap" role="img" aria-label="Walking route: 12 stops, you are at stop 3">
+      <svg id="wm" viewBox="0 4 358 146" preserveAspectRatio="xMidYMid slice"></svg>
+      <div class="tag"><button><svg class="i"><use href="#i-list"/></svg><span class="en">All 12</span><span class="es">Las 12</span></button><button><svg class="i"><use href="#i-map"/></svg><span class="en">Big map</span><span class="es">Mapa</span></button></div>
+    </div>
+
+    <section class="card offer" aria-label="Next door">
+      <div class="eb"><span class="label"><span class="en">Next door · stop 3 of 12</span><span class="es">Siguiente · parada 3 de 12</span></span><span class="cap"><span class="en">10 to go</span><span class="es">faltan 10</span></span></div>
+      <div class="addr">1408 N Irving St</div>
+      <div class="facts">
+        <span><svg class="i"><use href="#i-hail"/></svg><span class="en">1.5″ hail, Sep 22</span><span class="es">Granizo 1.5″, 22 sep</span></span>
+        <span><svg class="i"><use href="#i-pin"/></svg><span class="en">Report 1.1 mi away</span><span class="es">Reporte a 1.1 mi</span></span>
+      </div>
+      <p class="coach"><svg class="i"><use href="#i-info"/></svg><span><span class="en">Look at the gutters as you walk up.</span><span class="es">Revisa las canaletas al acercarte.</span></span></p>
+      <div class="tools">
+        <button class="btn sec"><svg class="i i-sm"><use href="#i-say"/></svg><span class="en">What to say</span><span class="es">Qué decir</span></button>
+        <button class="btn sec"><svg class="i i-sm"><use href="#i-shield"/></svg><span class="en">Hail proof</span><span class="es">Prueba</span></button>
+        <button class="btn sec" aria-label="Skip or don't knock" style="width:44px;padding:0"><svg class="i i-sm"><use href="#i-skip"/></svg></button>
+      </div>
+      <div class="answers">
+        <button class="ans"><svg class="i"><use href="#i-door"/></svg><span><b><span class="en">Not home</span><span class="es">No está</span></b><small><span class="en">leave a hanger</span><span class="es">deja volante</span></small></span></button>
+        <button class="ans"><svg class="i"><use href="#i-ban"/></svg><span><b>No</b><small><span class="en">not today</span><span class="es">hoy no</span></small></span></button>
+        <button class="ans"><svg class="i"><use href="#i-star"/></svg><span><b><span class="en">Interested</span><span class="es">Interesado</span></b><small><span class="en">call back</span><span class="es">llamar</span></small></span></button>
+        <button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b><span class="en">Booked</span><span class="es">Agendado</span></b><small><span class="en">pick a time</span><span class="es">elige hora</span></small></span></button>
+      </div>
+    </section>
+
+    <div class="shead"><h2><span class="en">Then</span><span class="es">Después</span></h2><a href="#"><span class="en">All 12</span><span class="es">Las 12</span></a></div>
+    <div class="rows upnext">
+      <div class="row"><span class="n">5</span><div class="t"><b>1416 N Irving St</b><span><span class="en">Next house up the street</span><span class="es">La siguiente en la calle</span></span></div></div>
+      <div class="row"><span class="n">6</span><div class="t"><b>1420 N Irving St</b><span><span class="en">Come back at 5:30 PM</span><span class="es">Regresa a las 5:30 PM</span></span></div></div>
+    </div>
+   </div>
+
+   <div class="v-empty">
+     <div class="empty" style="padding-top:72px">
+       <div class="glyph"><svg class="i i-lg"><use href="#i-door"/></svg></div>
+       <h3><span class="en">No walk yet today</span><span class="es">Todavía no hay ruta hoy</span></h3>
+       <p><span class="en">Pick a hot zone and the app lines up the doors in walking order.</span><span class="es">Escoge una zona y la app ordena las puertas para caminar.</span></p>
+       <button class="btn pri lg"><svg class="i"><use href="#i-pin"/></svg><span class="en">Pick a hot zone</span><span class="es">Escoger zona</span></button>
+       <button class="btn ghost"><span class="en">Knock old houses instead</span><span class="es">Tocar casas viejas</span></button>
+     </div>
+   </div>
+  </main>
+
+  <nav class="nav" aria-label="Tabs">
+    <button><svg class="i i-lg"><use href="#i-pin"/></svg><span class="en">Now</span><span class="es">Ahora</span><span class="dot">3</span></button>
+    <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-door"/></svg><span class="en">Knock</span><span class="es">Tocar</span></button>
+    <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i><span class="en">Add</span><span class="es">Agregar</span></button>
+    <button><svg class="i i-lg"><use href="#i-leads"/></svg><span class="en">Leads</span><span class="es">Prospectos</span></button>
+    <button><svg class="i i-lg"><use href="#i-money"/></svg><span class="en">Money</span><span class="es">Dinero</span></button>
+  </nav>
+</div>
+<script>
+// walk map: lots (hairline), streets, route and numbered stops. In the app these come from the engine per zone.
+(function () {
+  const svg = document.getElementById('wm'); let o = '';
+  const R = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--map-lot)" stroke="var(--map-lotline)" stroke-width="1"/>`;
+  // blocks: west of Irving, between Irving and Linden, east of Linden
+  for (let y = 18; y < 150; y += 22) { o += R(8, y, 48, 22); o += R(82, y, 50, 22); o += R(190, y, 52, 22) + R(262, y, 44, 22) + R(306, y, 46, 22); }
+  for (let x = 132; x < 190; x += 29) { o += R(x, 18, 29, 44); o += R(x, 106, 29, 44); }
+  o += `<rect x="132" y="62" width="58" height="44" fill="var(--map-park)" stroke="var(--map-lotline)"/>`;
+  // streets
+  const st = (d, w) => `<path d="${d}" fill="none" stroke="var(--map-casing)" stroke-width="${w + 2}"/><path d="${d}" fill="none" stroke="var(--map-street)" stroke-width="${w}"/>`;
+  o += st('M68 -2V160', 9) + st('M252 -2V160', 9) + st('M-2 9H360', 9) + st('M-2 152H360', 7);
+  o += `<text class="lbl" x="64" y="146" transform="rotate(-90 64 146)">N Irving St</text><text class="lbl" x="248" y="146" transform="rotate(-90 248 146)">N Linden Ave</text><text class="lbl" x="272" y="12.5">E 16th St</text>`;
+  // stops in walking order (x,y); status: d = done, x = don't knock, c = current, u = upcoming
+  const S = [[94,139,'d'],[94,117,'d'],[94,95,'c'],[94,73,'x'],[94,51,'u'],[94,29,'u'],[146,29,'u'],[175,29,'u'],[204,29,'u'],[230,51,'u'],[230,73,'u'],[230,95,'u']];
+  const path = 'M' + S.map(s => s[0] + ' ' + s[1]).join(' L');
+  o += `<path d="M94 139 L94 95" fill="none" stroke="var(--faint)" stroke-width="2" stroke-dasharray="2 3"/>`;
+  o += `<path d="M94 95 L94 29 L204 29 L230 51 L230 95" fill="none" stroke="var(--route)" stroke-width="2" stroke-linejoin="round" opacity=".85"/>`;
+  // you
+  o += `<circle cx="68" cy="102" r="11" fill="var(--you)" opacity=".18"/><circle cx="68" cy="102" r="5" fill="var(--you)" stroke="var(--card)" stroke-width="2.2"/>`;
+  S.forEach(([x, y, k], i) => {
+    const n = i + 1;
+    if (k === 'c') o += `<circle cx="${x}" cy="${y}" r="15" fill="rgb(var(--heat))" opacity=".22"/><circle cx="${x}" cy="${y}" r="10.5" fill="var(--hmp)" stroke="var(--card)" stroke-width="2"/><text class="num" x="${x}" y="${y + .5}" fill="var(--on-hmp)">${n}</text>`;
+    else if (k === 'd') o += `<circle cx="${x}" cy="${y}" r="8.5" fill="var(--soft)" stroke="var(--line-2)"/><path d="M${x - 3.5} ${y}l2.3 2.4 4.7-4.8" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+    else if (k === 'x') o += `<circle cx="${x}" cy="${y}" r="8.5" fill="var(--soft)" stroke="var(--line-2)" stroke-dasharray="2 2"/><path d="M${x - 3} ${y - 3}l6 6m0-6-6 6" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/>`;
+    else o += `<circle cx="${x}" cy="${y}" r="8.5" fill="var(--card)" stroke="var(--route)" stroke-width="1.5"/><text class="num" x="${x}" y="${y + .5}" fill="var(--ink)">${n}</text>`;
+  });
+  svg.innerHTML = o;
+})();
+</script>
+</body></html>

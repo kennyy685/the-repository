@@ -38,13 +38,25 @@
   color-scheme: dark;
   --bg:#1f2024; --bg2:#26272b; --panel:#2a2b2f; --panel2:#35363b; --line:#3b3c41; --line2:#55575e; --hover:#404145;
   --ink:#f2f3f5; --ink2:#d6d8dc; --mute:#b9bcc2; --label:#c9ccd2;
-  --hmp2:#ffa766; --hmp-soft:rgba(245,136,58,.15); --on-ok:#08130f; --on-crit:#1b0806;
+  --hmp2:#ffa766; --hmp-soft:rgba(245,136,58,.15); --on-ok:#08130f; --on-crit:#1b0806; --on-ink:#18191c;   /* v24.1: --ink is near-white here, so text on it is dark */
   --crit:#ef5d50; --crit-soft:rgba(239,93,80,.15); --warn:#f5b53a; --warn-soft:rgba(245,181,58,.13);
   --m-in:#4cc38a; --m-in-soft:rgba(76,195,138,.15); --m-mort:#d9a53a; --m-mort-soft:rgba(217,165,58,.15);
   --working:#4cc38a; --waiting:#f5b53a; --blocked:#ef5d50; --done:#4cc38a;
   --track:#3b3c41; --scrim:rgba(10,10,12,.7); --lift:0 14px 36px rgba(0,0,0,.5); --shadow-sheet:0 -8px 30px rgba(0,0,0,.5);
   --nav-bg:#18191c; --bar-bg:#1f2024; --map-bg:#1a1b1e; --map-street:#55575e; --map-label:#d6d8dc; --map-you:#7fb2ff; --map-house:#b9bcc2;
 }
+/* v24.1: a phone or Mac set to dark (and no explicit pick) gets the same dark tokens */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --bg:#1f2024; --bg2:#26272b; --panel:#2a2b2f; --panel2:#35363b; --line:#3b3c41; --line2:#55575e; --hover:#404145;
+  --ink:#f2f3f5; --ink2:#d6d8dc; --mute:#b9bcc2; --label:#c9ccd2;
+  --hmp2:#ffa766; --hmp-soft:rgba(245,136,58,.15); --on-ok:#08130f; --on-crit:#1b0806; --on-ink:#18191c;
+  --crit:#ef5d50; --crit-soft:rgba(239,93,80,.15); --warn:#f5b53a; --warn-soft:rgba(245,181,58,.13);
+  --m-in:#4cc38a; --m-in-soft:rgba(76,195,138,.15); --m-mort:#d9a53a; --m-mort-soft:rgba(217,165,58,.15);
+  --working:#4cc38a; --waiting:#f5b53a; --blocked:#ef5d50; --done:#4cc38a;
+  --track:#3b3c41; --scrim:rgba(10,10,12,.7); --lift:0 14px 36px rgba(0,0,0,.5); --shadow-sheet:0 -8px 30px rgba(0,0,0,.5);
+  --nav-bg:#18191c; --bar-bg:#1f2024; --map-bg:#1a1b1e; --map-street:#55575e; --map-label:#d6d8dc; --map-you:#7fb2ff; --map-house:#b9bcc2;
+}}
 html,body{background:var(--bg);}
 body{color:var(--ink);font:15px/1.5 var(--f-body);}
 *{box-sizing:border-box}
@@ -1272,6 +1284,7 @@ details.howmore summary{min-height:44px;padding-block:8px}
 /* ================= v24 layer (Option B "Next step" + theme A "Ledger"): shell, Now, Knock, sheets. Tokens only: a new theme swaps :root ================= */
 body{font:400 var(--t-md)/1.45 var(--f-body);-webkit-font-smoothing:antialiased}
 .app{max-width:760px;padding-block:0 calc(var(--nav-h) + 96px + env(safe-area-inset-bottom,0px));gap:var(--s-5)}
+body.rh-on .app{padding-bottom:calc(var(--nav-h) + 54px + 32px + env(safe-area-inset-bottom,0px))}   /* v24.1: room for the Right Hand strip */
 /* Ledger flattening: hairlines, no shadows, one radius family */
 .a-card,.a-sec,.box,.knock,.panel,.money,.a-empty,.chase,.b-num,.b-sec,.k-now,.ns,.est-sec,.est-res,.ord-list,.nowcard,.zstart,.due,.k-map,.howmore{border-width:var(--bw)!important;box-shadow:none!important}
 .ns,.est-res,.ord-list{border-color:var(--line)}
@@ -1310,15 +1323,14 @@ body{font:400 var(--t-md)/1.45 var(--f-body);-webkit-font-smoothing:antialiased}
 .tabbar .bd{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;padding:0 5px;border-radius:var(--r-pill);font:600 11px/18px var(--f-body);font-style:normal;background:var(--panel2);color:var(--ink2)}
 .tabbar .bd:empty{display:none}
 .tabbar .bd.crit{background:var(--crit);color:var(--on-crit)}
-.tabbar .plus i{width:52px;height:44px;border-radius:12px;background:var(--ink);display:grid;place-items:center;color:var(--on-ink)}
-.tabbar .plus svg{stroke-width:2.4;width:24px;height:24px}
+.tabbar .plus i{width:48px;height:34px;border-radius:10px;background:var(--ink);display:grid;place-items:center;color:var(--on-ink)}
+.tabbar .plus svg{stroke-width:2.4;width:22px;height:22px}
 @media (min-width:800px){.tabbar{left:50%;transform:translateX(-50%);width:760px;border-inline:var(--bw) solid var(--line);border-radius:var(--r) var(--r) 0 0}}
 /* the Right Hand: one button on every screen */
-.fab{position:fixed;right:16px;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));z-index:29;min-height:var(--tap);display:flex;align-items:center;gap:var(--s-2);padding:0 16px 0 12px;border-radius:var(--r-pill);border:var(--bw) solid var(--line2);background:var(--panel);color:var(--ink);font:600 var(--t-md)/1 var(--f-body);box-shadow:var(--lift);cursor:pointer}
-.fab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-@media (min-width:800px){.fab{right:calc(50% - 380px + 16px)}}
-body[data-tab="knock"] .fab{padding:0;width:var(--tap);justify-content:center}   /* on Knock: a small round button, the label goes */
-body[data-tab="knock"] .fab span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* v24.1: the Right Hand is a strip docked on top of the tab bar (part of the bar, like a chat box), never a pill floating over cards */
+.tabbar > .fab{grid-column:1 / -1;flex-direction:row;justify-content:flex-start;gap:var(--s-2);min-height:var(--tap);margin:0 4px 6px;padding:0 14px;border:var(--bw) solid var(--line2);border-radius:var(--r-pill);background:var(--panel);color:var(--ink);font:600 var(--t-md)/1 var(--f-body);text-align:left}
+.tabbar > .fab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex:none}
+.tabbar > .fab small{font:400 var(--t-sm)/1.2 var(--f-body);color:var(--mute);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tally .t-rh{width:var(--tap);min-height:var(--tap);display:grid;place-items:center;border:var(--bw) solid var(--line2);border-radius:var(--r-sm);background:var(--panel);color:var(--ink);cursor:pointer}
 .tally .t-rh svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .tally .t-acts.rh{grid-template-columns:auto 1fr auto auto!important}
@@ -1438,6 +1450,8 @@ details.fold[open]{padding-bottom:var(--s-4)}
 .seg button{background:transparent;min-height:var(--tap);font:500 var(--t-md)/1.1 var(--f-body)!important;color:var(--mute)}
 .seg button[aria-pressed="true"]{background:var(--ink)!important;color:var(--on-ink)!important;box-shadow:none!important}
 .seg button small{color:inherit;opacity:.75}
+.kviews button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.kviews svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .kthen{margin-top:var(--s-3)}
 .kup-l{list-style:none;margin:0;padding:0;background:var(--panel);border:var(--bw) solid var(--line);border-radius:var(--r)}
 .kup{display:grid;grid-template-columns:64px minmax(0,1fr);gap:var(--s-3);align-items:baseline;padding:var(--s-3) var(--s-4);border-top:var(--bw) solid var(--line)}
@@ -1506,6 +1520,7 @@ details.fold[open]{padding-bottom:var(--s-4)}
 .revq small{color:var(--mute)}
 .ns-done{background:var(--hmp);color:var(--on-accent);font:600 var(--t-xl)/1.1 var(--f-display)!important;border-radius:var(--r-sm)}
 .app-toast{background:var(--ink);color:var(--on-ink);border-radius:var(--r-sm);bottom:calc(var(--nav-h) + 76px + env(safe-area-inset-bottom,0px));top:auto}
+body.rh-on .app-toast{bottom:calc(var(--nav-h) + 76px + 54px + env(safe-area-inset-bottom,0px))}
 @media (max-width:380px){.kbig b{font-size:60px}.nc-t{font-size:var(--t-2xl)}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 .mck-now{margin:0;display:grid;gap:4px;font-size:var(--t-md)}
@@ -1517,7 +1532,15 @@ details.fold[open]{padding-bottom:var(--s-4)}
 .tally .t-acts{grid-template-columns:1fr 1fr!important}
 .tally .t-done{grid-column:1 / -1}
 .k-rules{margin:var(--s-2) 0 0;font-size:var(--t-sm);color:var(--mute)}
-.k-rules.warn{padding:var(--s-2) var(--s-3);border-left:3px solid var(--crit);background:var(--crit-soft);color:var(--ink);border-radius:var(--r-sm)}
+.k-rules.warn{padding:0 var(--s-3);background:var(--warn-soft);color:var(--ink);border-radius:var(--r-sm)}   /* v24.1: amber status line, details on tap */
+.k-rules.warn > summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:var(--s-2);font-size:var(--t-sm)}
+.k-rules.warn > summary::-webkit-details-marker{display:none}
+.k-rules.warn > summary b{font-weight:600;color:var(--warn)}
+.kr-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
+.kr-more{margin-left:auto;color:var(--mute);text-decoration:underline;text-underline-offset:3px}
+.k-rules.warn[open] .kr-more{display:none}
+.k-rules.warn > p{margin:0 0 var(--s-3);font-size:var(--t-sm);color:var(--ink2)}
+.k-rules.warn > p b{font-weight:600}
 .drs{margin:0 0 var(--s-2)}.drs > summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center;font-size:var(--t-sm);color:var(--hmp2);font-weight:600}
 .app{grid-template-columns:minmax(0,1fr)}.app > *{min-width:0}
 </style>
@@ -1587,7 +1610,6 @@ details.fold[open]{padding-bottom:var(--s-4)}
 </div>
 
 <!-- the Right Hand: one button on every screen; its chat lives here until the sheet opens -->
-<button type="button" class="fab" id="rhBtn" data-open="rh:" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="rhBtnT">Right Hand</span></button>
 <div id="kcHome" hidden>
   <section class="panel kingchat" id="kingChat" hidden aria-labelledby="kcH">
     <h2 id="kcH"><span data-t="kcTitle">Talk to your Right Hand</span> <span class="src" data-t="kcSrc">log doors, leads and claims, or ask anything · English or Spanish · uses your Claude usage</span></h2>
@@ -1600,9 +1622,10 @@ details.fold[open]{padding-bottom:var(--s-4)}
 </div>
 
 <nav class="tabbar" id="tabs" role="tablist" aria-label="HMP App">
+  <button type="button" class="fab" id="rhBtn" data-open="rh:" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="rhBtnT">Right Hand</span><small id="rhBtnS">Say it, I’ll log it</small></button>
   <button type="button" role="tab" id="tb-now" data-tab="now" aria-controls="tab-now" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg><span data-t="tabNow">Now</span><i class="bd" id="bd-now"></i></button>
   <button type="button" role="tab" id="tb-knock" data-tab="knock" aria-controls="tab-knock" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l3 3v14"/><circle cx="14" cy="13" r="1.2"/></svg><span data-t="tabKnock">Knock</span><i class="bd" id="bd-knock"></i></button>
-  <button type="button" class="plus" id="plusBtn" data-open="plus:" aria-label="Add"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i></button>
+  <button type="button" class="plus" id="plusBtn" data-open="plus:" aria-label="Add"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i><span data-t="tabAdd">Add</span></button>
   <button type="button" role="tab" id="tb-leads" data-tab="leads" aria-controls="tab-leads" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-t="tabLeads">Leads</span><i class="bd" id="bd-leads"></i></button>
   <button type="button" role="tab" id="tb-money" data-tab="money" aria-controls="tab-money" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg><span data-t="tabMoney">Money</span><i class="bd" id="bd-money"></i></button>
 </nav>
@@ -3377,7 +3400,7 @@ const HOW = [
 const TX = {
   en: {
     st: {
-      eyebrow: `${SETTINGS.company.name} · ${SETTINGS.company.city}, ${SETTINGS.company.state}`, estLaunch: 'Quick estimate', estLaunchS: 'A price range for any job, to show or text. English or Spanish.', tabNow: 'Now', tabKnock: 'Knock', tabLeads: 'Leads', tabMoney: 'Money',
+      eyebrow: `${SETTINGS.company.name} · ${SETTINGS.company.city}, ${SETTINGS.company.state}`, estLaunch: 'Quick estimate', estLaunchS: 'A price range for any job, to show or text. English or Spanish.', tabNow: 'Now', tabKnock: 'Knock', tabAdd: 'Add', tabLeads: 'Leads', tabMoney: 'Money',
       kcTitle: 'Talk to your Right Hand', kcSrc: 'log doors, leads and claims, pass things to the crew, or ask anything · English or Spanish · uses your Claude usage',
       kcLabel: 'Message to your Right Hand', kcPh: 'e.g. “knocked 20, 4 talked”', send: 'Send', stop: 'Stop',
     },
@@ -3455,7 +3478,7 @@ const TX = {
   },
   es: {
     st: {
-      eyebrow: `${SETTINGS.company.name} · ${SETTINGS.company.city}, ${SETTINGS.company.state}`, estLaunch: 'Estimado rápido', estLaunchS: 'Un rango de precio para cualquier trabajo, para enseñar o mandar por texto. Inglés o español.', tabNow: 'Ahora', tabKnock: 'Tocar', tabLeads: 'Prospectos', tabMoney: 'Dinero',
+      eyebrow: `${SETTINGS.company.name} · ${SETTINGS.company.city}, ${SETTINGS.company.state}`, estLaunch: 'Estimado rápido', estLaunchS: 'Un rango de precio para cualquier trabajo, para enseñar o mandar por texto. Inglés o español.', tabNow: 'Ahora', tabKnock: 'Tocar', tabAdd: 'Agregar', tabLeads: 'Prospectos', tabMoney: 'Dinero',
       kcTitle: 'Habla con tu Mano Derecha', kcSrc: 'registra puertas, prospectos y reclamos, pásale cosas al equipo o pregunta lo que sea · inglés o español · usa tu cuenta de Claude',
       kcLabel: 'Mensaje para tu Mano Derecha', kcPh: 'ej. “toqué 20, 4 pláticas”', send: 'Enviar', stop: 'Parar',
     },
@@ -3947,7 +3970,7 @@ function applyStatic(){
   for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
   $('#kcInput').placeholder = st.kcPh;
-  $('#rhBtnT').textContent = NW().rhBtn; $('#moreBtn').setAttribute('aria-label', NW().moreH); $('#plusBtn').setAttribute('aria-label', NW().plusH);
+  $('#rhBtnT').textContent = NW().rhBtn; $('#rhBtnS').textContent = NW().rhH; $('#moreBtn').setAttribute('aria-label', NW().moreH); $('#plusBtn').setAttribute('aria-label', NW().plusH);
   $('#shClose').textContent = L().close;
 }
 $('#langEn').addEventListener('click', () => setLang('en'));
@@ -4025,8 +4048,13 @@ function walkMap(m){
 
 /* ---------- today's walk: render (the next door and its 4 buttons come first) ---------- */
 const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
-function doorAddr(s, isNext, k){ const a = splitAddr(s.address), hl = txl(s.house_line), why = whyHouse(s, walk && walk.kind === 'everyday' ? 'everyday' : 'storm').text;   // v19: why this house
+function doorAddr(s, isNext, k){ const a = splitAddr(s.address), why = whyHouse(s, walk && walk.kind === 'everyday' ? 'everyday' : 'storm').text, hl = houseLineBut(txl(s.house_line), why);   // v19: why this house
   return `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}${why ? `<span class="d-why">${esc(why)}</span>` : ''}${hl ? `<span class="d-house">${esc(hl)}</span>` : ''}</div>`; }
+// v24.1: the county facts line without the year built when the "why" line already has it (no "built 1980 … Built 1980")
+function houseLineBut(hl, why){
+  const y = /(\d{4})/.exec(String(why || '').match(/(?:built|construida en)\s+\d{4}/i) || ''); if (!hl || !y) return hl;
+  return hl.split(/\s*·\s*/).filter(p => !new RegExp('^(?:built|construida en)\\s+' + y[1] + '$', 'i').test(p.trim())).join(' · ');
+}
 function doorTools(s, canTap, more){
   const V0 = V(), bits = [];
   if (proofFor(s.address, s.city)) bits.push(`<button type="button" class="proof" data-proof="${esc(evKey(s.address, s.city))}">${esc(V0.proof)}</button>`);
@@ -4059,6 +4087,8 @@ function estLink(s, res){   // v17: after Interested or Booked, one tap to price
   return `<div class="d-est"><button type="button" class="linkbtn" data-open="est:${esc(id)}">${esc(has ? L().estUpd : L().estNew)} →</button>${cal}</div>`;
 }
 const x_canEst = () => !!DB && CAN_EDIT;
+const KV_ICON = {next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>', list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
+  map: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg>'};   // v24.1: every view button shows an icon + its word
 let kView = 'next';   // v24: the Knock tab shows the next door + the next 3; the full list and the map sit behind List / Map (per viewer)
 try { const v = localStorage.getItem('hmp-app-kview'); if (['next', 'list', 'map'].includes(v)) kView = v; } catch (e) { /* fine */ }
 function renderKnock(){
@@ -4100,8 +4130,7 @@ function renderKnock(){
   const passNote = !pendingThisPass ? '' : pass > 1 ? k.passNote(pass, pendingThisPass) : '';
   const upd = w.updated_at ? whenShort(w.updated_at) : '';
   const left = Math.max(0, pendingThisPass), minsLeft = Math.max(0, Math.round(mins * (goal ? Math.max(0, goal - tt.doors) / goal : 0) / 15) * 15);
-  const head = `<div class="k-head"><div class="k-top"><span class="k-eb">${esc(W.doorsToday)}</span>
-      <details class="kmenu" id="kMenu"><summary aria-label="${esc(W.walkMenu)}">⋯</summary><div class="kmenu-in"><div class="k-print"><button type="button" class="btn" id="kPrint">${esc(V0.printBtn)}</button><span>${esc(V0.printSub)}</span></div>${upd ? `<div class="k-upd">${esc(V0.updated(upd, strv(w.updated_by)))}</div>` : ''}</div></details></div>
+  const head = `<div class="k-head"><div class="k-top"><span class="k-eb">${esc(W.doorsToday)}</span></div>
       <div class="kbig" id="kCount"><b>${tt.doors}</b><span>${esc(W.ofGoal(goal))}</span></div>
       <div class="k-prog"><div class="k-bar" role="img" aria-label="${esc(k.progress(doneN, stops.length).replace(/<\/?b>/g, ''))}"><i class="talk" style="width:${talkW.toFixed(1)}%"></i><i class="nh" style="width:${nhW.toFixed(1)}%"></i></div></div>
       <p class="kline"><span><b>${tt.talked}</b> ${esc(W.cnt.talked)}</span><span><b>${tt.interested}</b> ${esc(W.cnt.interested)}</span><span><b>${tt.booked}</b> ${esc(W.cnt.booked)}</span><span>${esc(W.leftTime(k.hrs(minsLeft || 15)))}</span></p>
@@ -4122,7 +4151,7 @@ function renderKnock(){
   const order = st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.i !== nextIdx).sort((a, b) => (a.x.attempt - b.x.attempt) || (a.i - b.i)).slice(0, 3);
   const up = order.map(({i}) => { const s = stops[i], a = splitAddr(s.address), why = whyHouse(s, kind).text || txl(s.house_line);
     return `<li class="kup"><span class="kup-n">${esc(a.no || '·')}</span><span class="kup-t"><b>${esc(a.street)}</b>${why ? `<small>${esc(why)}</small>` : ''}</span></li>`; }).join('');
-  const views = `<div class="seg kviews" role="group" aria-label="${esc(W.views.next)}">${['next', 'list', 'map'].map(v => `<button type="button" data-kview="${v}" id="kView${v[0].toUpperCase() + v.slice(1)}" aria-pressed="${kView === v}">${esc(W.views[v])}</button>`).join('')}</div>`;
+  const views = `<div class="seg kviews" role="group" aria-label="${esc(W.views.next)}">${['next', 'list', 'map'].map(v => `<button type="button" data-kview="${v}" id="kView${v[0].toUpperCase() + v.slice(1)}" aria-pressed="${kView === v}">${KV_ICON[v]}<span>${esc(W.views[v])}</span></button>`).join('')}</div>`;
   const map = kView === 'map' ? walkMap(m) : '';
   const view = kView === 'list' ? `<div class="k-list">${groups.map(g => `<section class="k-street"><h3>${esc(g.street)} <small>${g.items.length}</small></h3>${rows(g)}</section>`).join('')}</div>`
     : kView === 'map' ? (map || `<p class="a-quiet">${esc(W.noMap)}</p>`)
@@ -4130,7 +4159,7 @@ function renderKnock(){
   // a live update must never steal the button under FilthE's thumb: remember what had focus and put it back
   const ae = document.activeElement, keep = ae && box.contains(ae) ? (ae.dataset.r ? (ae.closest('#kNow') ? `#kNow [data-r="${ae.dataset.r}"]` : `.k-list .door[data-pid="${ae.dataset.pid}"] [data-r="${ae.dataset.r}"]`) : ae.id ? '#' + ae.id : null) : null;
   const foot = !canTap && DB ? esc(k.readOnly) : m.hidden ? `${esc(V0.dnkFoot(m.hidden))}${lastDnk && canTap ? ` <button type="button" class="linkbtn" data-dnk-undo="1">${esc(V0.dnkUndo)}</button>` : ''}` : '';
-  const menuOpen = $('#kMenu') && $('#kMenu').open, aboutOpen = $('#kAbout') && $('#kAbout').open;
+  const aboutOpen = $('#kAbout') && $('#kAbout').open;
   soft(box).html = `${head}${cb}${now}${rookie}
     ${passNote ? `<p class="k-passnote">${esc(passNote)}</p>` : ''}
     ${views}${view}
@@ -4139,9 +4168,10 @@ function renderKnock(){
       <div class="k-facts"><span class="k-fact">${k.goal(goal)}</span><span class="k-fact">${k.time(esc(k.hrs(mins)))}</span><span class="k-fact">${k.houses(stops.length)}</span><span class="k-fact">${k.pass(pass)}</span></div>
       ${txl(w.goal_note) ? `<p class="k-goalnote">${esc(txl(w.goal_note))}</p>` : ''}
       <p class="k-prog"><span>${k.progress(doneN, stops.length)}</span></p>
-      ${txl(w.rough_note) ? `<p class="k-rough">${esc(txl(w.rough_note))}</p>` : ''}</div></details>
+      ${txl(w.rough_note) ? `<p class="k-rough">${esc(txl(w.rough_note))}</p>` : ''}
+      <div class="k-print"><button type="button" class="btn" id="kPrint">${esc(V0.printBtn)}</button><span>${esc(V0.printSub)}</span></div>${upd ? `<div class="k-upd">${esc(V0.updated(upd, strv(w.updated_by)))}</div>` : ''}</div></details>
     ${foot ? `<div class="k-foot">${foot}</div>` : ''}`;
-  if (menuOpen && $('#kMenu')) $('#kMenu').open = true; if (aboutOpen && $('#kAbout')) $('#kAbout').open = true;
+  if (aboutOpen && $('#kAbout')) $('#kAbout').open = true;
   if (keep) { const f = box.querySelector(keep); if (f) f.focus({preventScroll: true}); }
   renderTally(m);
 }
@@ -5739,7 +5769,7 @@ document.addEventListener('click', ev => {
   const s = ev.target.closest('[data-say]'); if (s) { openRH(s.dataset.say); return; }
   const g = ev.target.closest('[data-go]'); if (g && !g.closest('#tabs')) { if (openRef) closeSheet(); setTab(g.dataset.go); return; }   // v24: "Log a door", "Knock"...
   const dn = ev.target.closest('[data-done]'); if (dn) { doneAndReview(); return; }
-  const pr = ev.target.closest('[data-print]'); if (pr) { if (openRef) closeSheet(); PrintWalk.open($('#kPrint') || pr); return; }
+  const pr = ev.target.closest('[data-print]'); if (pr) { if (openRef) closeSheet(); PrintWalk.open(pr.isConnected ? pr : $('#moreBtn')); return; }
 });
 $('#shBody').addEventListener('change', ev => { const inp = ev.target.closest('input[type=file][data-slot]'); if (!inp || !openRef || !openRef.startsWith('lead:')) return; const files = inp.files; if (files && files.length) addPhotos(openRef.slice(5), inp.dataset.slot, files); });
 $('#shBody').addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.ph'); if (ph) ph.classList.add('gone'); } }, true);
@@ -6587,8 +6617,8 @@ const HO = {open: o => (hoMod || (hoMod = makeHO())).open(o), close: () => { if 
    Follow-up reminders at 48 h / 5 days / 10 days after "Interested" are worked out from the lead's door visits and last contact: no writes. */
 const NWX = {
   en: {
-    zonesH: 'Hot zones near you', nearYou: 'Near you', nearHome: c => `Near ${c}`, start: 'Start here', drive: 'Drive', apple: 'Apple Maps',
-    knockBtn: 'Start knocking', keepBtn: 'Keep knocking', here: 'Knocking here', mi: n => `${n} mi`, homes: n => `${n} ${pl(n, 'home', 'homes')}`, hail: h => `${h} in hail`,
+    zonesH: 'Hot zones near you', nearYou: 'Near you', nearHome: c => `Near ${c}`, capAt: (t, d, f) => `${t} · ${d} from ${f}`, fromYou: 'you', start: 'Start here', drive: 'Drive', apple: 'Apple Maps',
+    knockBtn: 'Start knocking', keepBtn: (d, n) => `Keep knocking · ${d} of ${n}`, here: 'Knocking here', mi: n => `${n} mi`, homes: n => `${n} ${pl(n, 'home', 'homes')}`, hail: h => `${h} in hail`,
     other: n => `Other hot zones (${n})`, pick: 'Knock here', noneH: 'No hot zone yet today.', noneP: 'Ask the Right Hand where to knock today.', askWhere: 'Ask the Right Hand',
     mapAria: n => `Map of ${n} hot ${pl(n, 'zone', 'zones')}`, you: 'You', tiles: 'Street map', simple: 'Simple map',
     zoneMiss: z => `The door list for ${z} is not ready yet. Showing today's walk instead.`,
@@ -6632,8 +6662,8 @@ const NWX = {
     refNote: 'Then send a handwritten thank-you note. A note only: no gift, gift card, money or discount, ever.', refRule: 'Referrals are compliments and introductions only: never paid, discounted or rewarded, and nothing that touches a deductible (NE 44-8604).'
   },
   es: {
-    zonesH: 'Zonas calientes cerca de ti', nearYou: 'Cerca de ti', nearHome: c => `Cerca de ${c}`, start: 'Empieza aquí', drive: 'Manejar', apple: 'Apple Maps',
-    knockBtn: 'Empezar a tocar', keepBtn: 'Seguir tocando', here: 'Tocando aquí', mi: n => `${n} mi`, homes: n => `${n} ${pl(n, 'casa', 'casas')}`, hail: h => `granizo de ${h} pulg`,
+    zonesH: 'Zonas calientes cerca de ti', nearYou: 'Cerca de ti', nearHome: c => `Cerca de ${c}`, capAt: (t, d, f) => `${t} · a ${d} de ${f}`, fromYou: 'ti', start: 'Empieza aquí', drive: 'Manejar', apple: 'Apple Maps',
+    knockBtn: 'Empezar a tocar', keepBtn: (d, n) => `Seguir tocando · ${d} de ${n}`, here: 'Tocando aquí', mi: n => `${n} mi`, homes: n => `${n} ${pl(n, 'casa', 'casas')}`, hail: h => `granizo de ${h} pulg`,
     other: n => `Otras zonas calientes (${n})`, pick: 'Tocar aquí', noneH: 'Todavía no hay zona caliente hoy.', noneP: 'Pregúntale a la Mano Derecha dónde tocar hoy.', askWhere: 'Preguntarle a la Mano Derecha',
     mapAria: n => `Mapa de ${n} ${pl(n, 'zona caliente', 'zonas calientes')}`, you: 'Tú', tiles: 'Mapa de calles', simple: 'Mapa simple',
     zoneMiss: z => `La lista de puertas de ${z} todavía no está lista. Se muestra la ruta de hoy.`,
@@ -6857,16 +6887,17 @@ function renderZones(){
   }
   box.hidden = false;
   const svg = zonesSvg(zs, show);
-  const cap = `<div class="zcap"><span>${esc(me.real ? W.nearYou : W.nearHome(SETTINGS.home.label))}</span>${LF.state === 'on' ? '' : `<span>${esc(W.simple)}</span>`}</div>`;
+  const town = strv(show.name).split(':')[0].trim(), far = show.mi != null ? W.mi(show.mi < 10 ? show.mi.toFixed(1) : Math.round(show.mi)) : '';   // v24.1: the zone's town + distance, not "Near Fremont"
+  const cap = `<div class="zcap"><span>${esc(town && far ? W.capAt(town, far, me.real ? W.fromYou : SETTINGS.home.label) : me.real ? W.nearYou : W.nearHome(SETTINGS.home.label))}</span>${LF.state === 'on' ? '' : `<span>${esc(W.simple)}</span>`}</div>`;
   let sv = box.querySelector('.zsvgw'); if (!sv) { sv = el('div', 'zsvgw'); box.prepend(sv); }
   soft(sv).html = svg + cap;
   if (LF.state === 'on') drawLeaflet(false); else if (LF.state === 'idle') setTimeout(tryLeaflet, 50);
-  const active = walk && show && zoneWalk(show) === walk;
+  const active = walk && show && zoneWalk(show) === walk, km = active ? walkModel() : null;
   const why = show.why ? txl(show.why) : '';
   soft($('#zStart')).html = `<div class="zstart ${heatCls(show.heat)}" data-zone="${esc(show.id)}"><div class="k-eb">${esc(active ? W.here : W.start)}${show.mi != null ? ' · ' + esc(W.mi(show.mi < 10 ? show.mi.toFixed(1) : Math.round(show.mi))) : ''}</div>
     <h2 class="zname">${esc(show.name)}</h2>${zoneLine(show) ? `<p class="zline">${esc(zoneLine(show))}${show.day ? ' · ' + esc(fmtDay(show.day)) : ''}</p>` : ''}${why ? `<p class="zwhy">${esc(why)}</p>` : ''}
     <div class="zacts"><a class="btn ghost" href="${esc(driveUrl(show))}" target="_blank" rel="noopener" id="zDrive">${esc(W.drive)}</a><a class="linkbtn zapple" href="${esc(appleUrl(show))}" target="_blank" rel="noopener">${esc(W.apple)}</a>
-    <button type="button" class="btn go" id="zGo" data-zgo="${esc(show.id)}">${esc(active ? W.keepBtn : W.knockBtn)}</button></div></div>`;
+    <button type="button" class="btn go" id="zGo" data-zgo="${esc(show.id)}">${esc(km && km.tally.doors ? W.keepBtn(km.tally.doors, km.stops.length) : W.knockBtn)}</button></div></div>`;
   const rest = zs.filter(z => z !== show);
   $('#zMore').hidden = !rest.length;
   if (rest.length) { soft($('#zMoreS')).html = esc(W.other(rest.length));
@@ -7292,8 +7323,8 @@ function cityRule(city){
     return {hours: m ? [t(m[1], m[2], m[3]), t(m[4], m[5], m[6])] : null, verified: !!v.verified}; }
   return CITY_DEFAULT[c] || null;
 }
-const CRX = {en: {hours: (c, a, b) => `Knock hours in ${c}: ${a}–${b}.`, none: c => `Knock hours in ${c} are not confirmed: stay in daylight.`, check: ' Check with the city.', out: 'Outside knock hours right now: stop, or only go back to houses that asked you to.', sign: 'Skip any house with a “No Soliciting” or “No Peddlers” sign. Your permit can be taken for it.'},
-  es: {hours: (c, a, b) => `Horario para tocar en ${c}: ${a}–${b}.`, none: c => `El horario para tocar en ${c} no está confirmado: solo con luz de día.`, check: ' Confírmalo con la ciudad.', out: 'Ahora estás fuera del horario para tocar: para, o solo regresa a casas que te lo pidieron.', sign: 'No toques en casas con letrero de “No Soliciting” o “No Peddlers”. Te pueden quitar el permiso por eso.'}};
+const CRX = {en: {outShort: (a, b) => `Outside knock hours (${a}–${b} here)`, details: 'details', hours: (c, a, b) => `Knock hours in ${c}: ${a}–${b}.`, none: c => `Knock hours in ${c} are not confirmed: stay in daylight.`, check: ' Check with the city.', out: 'Outside knock hours right now: stop, or only go back to houses that asked you to.', sign: 'Skip any house with a “No Soliciting” or “No Peddlers” sign. Your permit can be taken for it.'},
+  es: {outShort: (a, b) => `Fuera del horario para tocar (${a}–${b} aquí)`, details: 'detalles', hours: (c, a, b) => `Horario para tocar en ${c}: ${a}–${b}.`, none: c => `El horario para tocar en ${c} no está confirmado: solo con luz de día.`, check: ' Confírmalo con la ciudad.', out: 'Ahora estás fuera del horario para tocar: para, o solo regresa a casas que te lo pidieron.', sign: 'No toques en casas con letrero de “No Soliciting” o “No Peddlers”. Te pueden quitar el permiso por eso.'}};
 function knockRules(m){
   const cc = {}; for (const s of m.stops) if (s.city) cc[s.city] = (cc[s.city] || 0) + 1;
   const city = Object.keys(cc).sort((a, b) => cc[b] - cc[a])[0] || SETTINGS.company.city, r = cityRule(city), X = CRX[lang];
@@ -7302,7 +7333,9 @@ function knockRules(m){
     line = X.hours(city, clk(r.hours[0]), clk(r.hours[1])) + (r.verified ? '' : X.check) + ' ' + X.sign;
     const n = new Date(), hm = pad2(n.getHours()) + ':' + pad2(n.getMinutes()); warn = hm < r.hours[0] || hm >= r.hours[1]; }
   else line = X.none(city) + ' ' + X.sign;
-  return `<p class="k-rules${warn ? ' warn' : ''}" id="kRules" role="note">${warn ? `<b>${esc(X.out)}</b> ` : ''}${esc(line)}</p>`;
+  if (warn) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };   // v24.1: one short amber line; the rest on tap
+    return `<details class="k-rules warn" id="kRules" role="note"><summary><span class="kr-dot" aria-hidden="true"></span><b>${esc(X.outShort(clk(r.hours[0]), clk(r.hours[1])))}</b><span class="kr-more">${esc(X.details)}</span></summary><p><b>${esc(X.out)}</b> ${esc(line)}</p></details>`; }
+  return `<p class="k-rules" id="kRules" role="note">${esc(line)}</p>`;
 }
 
 /* ================= v24 · T134: the words for each follow-up touch (data/followup_scripts.json: db system/followup_scripts when Claude
@@ -7644,7 +7677,7 @@ async function connect(){
   try { const u = await cl.use('user'); CAN_EDIT = u ? await u.canEdit() : false; } catch (e) { CAN_EDIT = false; }
   try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
   try { ASSETS = CAN_EDIT ? await cl.use('assets') : null; } catch (e) { ASSETS = null; }
-  $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT);   // v24: one Right Hand button on every screen
+  $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
   renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
 }

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App v25 · Now</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+.v-loading,.v-empty{display:none}
+.st-loading .v-default,.st-empty .v-default{display:none}
+.st-loading .v-loading{display:block}
+.st-empty .v-empty{display:block}
+
+/* map */
+.map{position:relative;height:292px;margin:0 calc(var(--s4) * -1);overflow:hidden;background:var(--map-land)}
+.map svg.m{position:absolute;inset:0;width:100%;height:100%}
+.map .lbl{font:500 10px var(--f);fill:var(--map-label);paint-order:stroke;stroke:var(--map-land);stroke-width:3px;stroke-linejoin:round;letter-spacing:.01em}
+.map .lbl.major{font-weight:600;fill:var(--ink-2)}
+.mctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;background:var(--card);border-radius:var(--r-md);box-shadow:var(--e2);overflow:hidden}
+.mctl button{width:40px;height:40px;display:grid;place-items:center;color:var(--ink-2)}
+.mctl button+button{border-top:1px solid var(--line)}
+.legend{position:absolute;left:12px;top:12px;background:var(--card);border-radius:var(--r-sm);box-shadow:var(--e2);padding:6px 8px;display:flex;flex-direction:column;gap:4px}
+.legend .label{font-size:9.5px}
+.legend .bar{width:92px;height:6px;border-radius:3px;background:linear-gradient(90deg,rgba(var(--heat),.18),rgba(var(--heat),.55),#e0602b)}
+.legend .ends{display:flex;justify-content:space-between;font:500 10px var(--f);color:var(--muted)}
+.edge{position:absolute;left:10px;top:84px;display:flex;align-items:center;gap:4px;height:28px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
+.edge .i{transform:rotate(180deg)}
+.scale{position:absolute;right:12px;bottom:66px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
+.scale i{display:block;width:70px;height:5px;border:1.5px solid var(--map-label);border-top:0}
+.drivechip{position:absolute;display:flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:var(--r-pill);background:var(--you);color:#fff;font-size:12px;font-weight:600;box-shadow:0 4px 10px -2px rgba(47,111,222,.45)}
+.drivechip .i{width:14px;height:14px;stroke-width:2}
+.zonepin{position:absolute;transform:translate(-50%,-100%);display:flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 4px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;box-shadow:var(--e2);white-space:nowrap}
+.zonepin b{display:grid;place-items:center;height:22px;min-width:22px;padding:0 6px;border-radius:var(--r-pill);background:var(--hmp);color:var(--on-hmp);font-size:11.5px}
+.zonepin::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:var(--ink);transform:translateX(-50%) rotate(45deg);border-radius:2px;z-index:-1}
+
+/* zone card (the "offer card") */
+.zone{position:relative;margin-top:-52px;padding:var(--s4);display:grid;gap:var(--s3)}
+.zone .eyes{display:flex;gap:var(--s2);align-items:center}
+.zone h2{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.2;text-wrap:balance}
+.zone .where{font-size:var(--t-cap);color:var(--muted);margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--r-md)}
+.stats div{padding:var(--s2) var(--s3)}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats span{font-size:12px;color:var(--muted)}
+.why{display:flex;gap:var(--s2);align-items:center;font-size:var(--t-cap);color:var(--ink-2)}
+.why .i{width:16px;height:16px;color:var(--muted)}
+.acts{display:grid;grid-template-columns:auto 1fr;gap:var(--s2)}
+
+/* today timeline */
+.appt{display:flex;gap:var(--s3);align-items:center;padding:var(--s3) var(--s4)}
+.appt .time{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:var(--r-md);background:var(--hmp-bg);color:var(--hmp-ink);flex:none}
+.appt .time b{font-size:var(--t-row);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.appt .time small{font-size:10.5px;font-weight:600;letter-spacing:.05em}
+.round{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--ink-2);flex:none;background:var(--card)}
+
+.nav{border-top:0}
+.st-empty .nav .dot,.st-loading .nav .dot{display:none!important}
+
+/* loading */
+.skmap{height:292px;margin:0 calc(var(--s4) * -1)}
+.skcard{margin-top:-52px;position:relative;padding:var(--s4);display:grid;gap:var(--s3)}
+.skl{height:12px}
+</style></head>
+<body class="stage">
+<script src="icons.js"></script>
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+    <h1>Now <span class="date">Fri, Sep 25</span></h1>
+    <button class="lang" aria-label="Switch to Spanish">ES</button>
+    <button class="avatar" aria-label="More: boss view, practice, prices, theme">K</button>
+  </header>
+
+  <main class="scroll">
+    <!-- ============ DEFAULT ============ -->
+    <div class="v-default">
+      <div class="map" role="img" aria-label="Map of Fremont: one hot zone at E 16th St and N Linden Ave, 0.8 miles from you">
+        <svg class="m" viewBox="0 0 390 292" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="blocks" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4">
+              <rect x="0" y="0" width="30" height="24" fill="var(--map-street)"/>
+              <rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/>
+            </pattern>
+            <radialGradient id="heatA" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="rgb(var(--heat))" stop-opacity=".75"/>
+              <stop offset=".45" stop-color="rgb(var(--heat))" stop-opacity=".36"/>
+              <stop offset="1" stop-color="rgb(var(--heat))" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="heatB" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="rgb(var(--heat))" stop-opacity=".22"/>
+              <stop offset="1" stop-color="rgb(var(--heat))" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="390" height="292" fill="url(#blocks)"/>
+          <!-- park + water -->
+          <rect x="182" y="208" width="54" height="44" rx="3" fill="var(--map-park)"/>
+          <path d="M-10 282 C 60 262, 120 290, 190 276 S 320 262, 400 280 L400 300 L-10 300Z" fill="var(--map-water)"/>
+          <!-- hail swath (soft, wide) and the zone itself -->
+          <ellipse cx="270" cy="110" rx="150" ry="70" fill="url(#heatB)" transform="rotate(-18 270 110)"/>
+          <ellipse cx="294" cy="116" rx="78" ry="56" fill="url(#heatA)"/>
+          <!-- major roads -->
+          <g fill="none" stroke-linecap="round">
+            <path d="M-5 58 H395" stroke="var(--map-major-casing)" stroke-width="9"/>
+            <path d="M-5 58 H395" stroke="var(--map-major)" stroke-width="6.5"/>
+            <path d="M-5 196 H395" stroke="var(--map-major-casing)" stroke-width="9"/>
+            <path d="M-5 196 H395" stroke="var(--map-major)" stroke-width="6.5"/>
+            <path d="M152 -5 V300" stroke="var(--map-major-casing)" stroke-width="9"/>
+            <path d="M152 -5 V300" stroke="var(--map-major)" stroke-width="6.5"/>
+            <path d="M332 -5 V300" stroke="var(--map-casing)" stroke-width="6"/>
+            <path d="M332 -5 V300" stroke="var(--map-street)" stroke-width="4"/>
+            <path d="M-5 124 H395" stroke="var(--map-casing)" stroke-width="6"/>
+            <path d="M-5 124 H395" stroke="var(--map-street)" stroke-width="4"/>
+          </g>
+          <!-- walk outline for the zone -->
+          <path d="M262 100 H 318 V 142" fill="none" stroke="var(--route)" stroke-width="2" stroke-dasharray="1 4" stroke-linecap="round" opacity=".7"/>
+          <g fill="var(--card)" stroke="var(--route)" stroke-width="1.5">
+            <circle cx="266" cy="100" r="3"/><circle cx="280" cy="100" r="3"/><circle cx="294" cy="100" r="3"/>
+            <circle cx="318" cy="112" r="3"/><circle cx="318" cy="124" r="3" /><circle cx="318" cy="136" r="3"/>
+          </g>
+          <!-- drive route from you -->
+          <path d="M152 196 V 124 H 262 V 104" fill="none" stroke="var(--card)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M152 196 V 124 H 262 V 104" fill="none" stroke="var(--you)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- you -->
+          <circle cx="152" cy="196" r="16" fill="var(--you)" opacity=".16"/>
+          <circle cx="152" cy="196" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
+          <!-- labels -->
+          <text class="lbl major" x="176" y="51">E 23rd St</text>
+          <text class="lbl major" x="14" y="189">E Military Ave</text>
+          <text class="lbl major" x="159" y="252" transform="rotate(-90 159 252)">N Broad St</text>
+          <text class="lbl" x="339" y="186" transform="rotate(-90 339 186)">N Linden Ave</text>
+          <text class="lbl" x="192" y="118">E 16th St</text>
+          <text class="lbl" x="190" y="236" style="font-size:9.5px">Park</text>
+          <text class="lbl" x="44" y="276" style="font-size:9.5px;font-style:italic">Rawhide Creek</text>
+        </svg>
+        <div class="zonepin" style="left:248px;top:92px"><b>1.6″</b>E 16th &amp; Linden</div>
+        <div class="drivechip" style="left:162px;top:136px"><svg class="i"><use href="#i-car"/></svg>3 min · 0.8 mi</div>
+        <div class="edge"><svg class="i i-sm"><use href="#i-chev"/></svg>Columbus zone · 45 mi</div>
+        <div class="legend"><span class="label">Hail size</span><span class="bar"></span><span class="ends"><span>1″</span><span>2″</span></span></div>
+        <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
+        <div class="scale"><span>0.25 mi</span><i></i></div>
+      </div>
+
+      <section class="card zone" aria-label="Best zone today">
+        <div class="eyes"><span class="chip hmp"><svg class="i"><use href="#i-hail"/></svg>Best zone today</span><span class="chip">Storm Sep 22</span></div>
+        <div><h2>E 16th St &amp; N Linden Ave</h2><p class="where">Fremont · 1 of 2 hot zones</p></div>
+        <div class="stats"><div><b>1.6″</b><span>hail</span></div><div><b>6</b><span>homes</span></div><div><b>30<small style="font-size:13px;font-weight:500"> min</small></b><span>to knock</span></div></div>
+        <p class="why"><svg class="i"><use href="#i-built"/></svg>Most homes built before 1980, likely owner-lived</p>
+        <div class="acts">
+          <button class="btn sec"><svg class="i"><use href="#i-car"/></svg>Drive</button>
+          <button class="btn pri">Start knocking<svg class="i"><use href="#i-chev"/></svg></button>
+        </div>
+      </section>
+
+      <div class="shead"><h2>Today</h2><a href="#">Leads</a></div>
+      <div class="rows">
+        <div class="appt">
+          <div class="time"><b>4:00</b><small>PM</small></div>
+          <div style="flex:1;min-width:0"><b style="display:block;font-weight:600">Inspection · 615 N Linden Ave</b><span class="cap">Rosa · bring the ladder</span></div>
+          <button class="round" aria-label="Call Rosa"><svg class="i"><use href="#i-phone"/></svg></button>
+        </div>
+        <div class="row"><div class="t"><b>1107 N H St</b><span>Call US Bank about the check</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span></div></div>
+        <div class="row"><div class="t"><b>1802 N Clarkson St</b><span>Call back to set the inspection</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>1 day late</span></div></div>
+        <div class="row"><div class="t"><b>1418 N Irving St</b><span>Call Maria back (Spanish)</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>1 day late</span></div></div>
+      </div>
+    </div>
+
+    <!-- ============ LOADING (skeleton, same shapes as the real screen) ============ -->
+    <div class="v-loading" aria-busy="true" aria-label="Loading today">
+      <div class="skmap sk" style="border-radius:0"></div>
+      <div class="card skcard">
+        <div style="display:flex;gap:8px"><span class="sk skl" style="width:110px;height:22px"></span><span class="sk skl" style="width:80px;height:22px"></span></div>
+        <span class="sk skl" style="width:78%;height:20px"></span>
+        <span class="sk skl" style="width:40%"></span>
+        <span class="sk" style="height:58px;border-radius:12px"></span>
+        <div class="acts"><span class="sk" style="width:96px;height:48px;border-radius:12px"></span><span class="sk" style="height:48px;border-radius:12px"></span></div>
+      </div>
+      <div class="shead"><span class="sk skl" style="width:60px;height:16px"></span></div>
+      <div class="rows">
+        <div class="row"><span class="sk" style="width:52px;height:52px;border-radius:12px"></span><div class="t" style="display:grid;gap:8px"><span class="sk skl" style="width:80%"></span><span class="sk skl" style="width:45%"></span></div></div>
+        <div class="row"><div class="t" style="display:grid;gap:8px"><span class="sk skl" style="width:55%"></span><span class="sk skl" style="width:70%"></span></div><span class="sk skl" style="width:70px;height:22px"></span></div>
+      </div>
+    </div>
+
+    <!-- ============ EMPTY (no fresh hail) ============ -->
+    <div class="v-empty">
+      <div class="map" role="img" aria-label="Map of Fremont with no hot zones">
+        <svg class="m" viewBox="0 0 390 292" preserveAspectRatio="xMidYMid slice">
+          <rect width="390" height="292" fill="url(#blocks2)"/>
+          <defs><pattern id="blocks2" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4"><rect width="30" height="24" fill="var(--map-street)"/><rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/></pattern></defs>
+          <rect x="182" y="208" width="54" height="44" rx="3" fill="var(--map-park)"/>
+          <path d="M-10 282 C 60 262, 120 290, 190 276 S 320 262, 400 280 L400 300 L-10 300Z" fill="var(--map-water)"/>
+          <g fill="none"><path d="M-5 58 H395M-5 196 H395M152 -5 V300" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 58 H395M-5 196 H395M152 -5 V300" stroke="var(--map-major)" stroke-width="6.5"/></g>
+          <circle cx="152" cy="196" r="16" fill="var(--you)" opacity=".16"/><circle cx="152" cy="196" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
+          <text class="lbl major" x="14" y="51">E 23rd St</text><text class="lbl major" x="14" y="189">E Military Ave</text>
+        </svg>
+        <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
+      </div>
+      <section class="card zone" style="text-align:left">
+        <div class="eyes"><span class="chip ok"><svg class="i"><use href="#i-check"/></svg>Checked today 6:54 AM</span></div>
+        <div><h2>No fresh hail within 120 mi</h2><p class="where" style="font-size:var(--t-body);margin-top:6px">Storm Watch looks again tomorrow morning. Old houses still need siding and roofs.</p></div>
+        <button class="btn pri block"><svg class="i"><use href="#i-home"/></svg>Knock old houses instead</button>
+      </section>
+      <div class="shead"><h2>Today</h2></div>
+      <div class="rows"><div class="empty" style="padding:24px"><div class="glyph"><svg class="i i-lg"><use href="#i-check2"/></svg></div><h3>Nothing due today</h3><p>Calls, inspections and checks show up here on their day.</p></div></div>
+    </div>
+  </main>
+
+  <div class="composer">
+    <div class="field"><svg class="i" style="color:var(--hmp-ink)"><use href="#i-say"/></svg><span class="ph">Tell the Right Hand… “knocked 20, 4 talked”</span><span class="mic" aria-label="Talk"><svg class="i i-sm"><use href="#i-mic"/></svg></span></div>
+  </div>
+  <nav class="nav" aria-label="Tabs">
+    <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-pin"/></svg>Now<span class="dot v-default" style="display:grid">3</span></button>
+    <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+    <button class="plus" aria-label="Add: lead, price, say it"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+    <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+    <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+  </nav>
+</div>
+</body></html>

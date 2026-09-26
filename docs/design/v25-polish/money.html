@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App v25 · Money</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+.v-empty{display:none}.st-empty .v-default{display:none}.st-empty .v-empty{display:block}
+.hero{padding-top:var(--s2)}
+.hero .fig{font-size:44px;font-weight:600;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:6px}
+.hero .fig small{font-size:var(--t-row);color:var(--muted);font-weight:500;letter-spacing:0;margin-left:6px}
+.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin-top:var(--s3)}
+.stack i{display:block}
+.k-mort{background:var(--warn)}.k-held{background:var(--line-2)}.k-ho{background:var(--ink-2)}.k-sup{background:var(--hmp)}
+.legend{margin-top:var(--s3);display:grid;gap:2px}
+.legend div{display:flex;align-items:center;gap:var(--s2);font-size:var(--t-body);min-height:30px}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.legend span{flex:1;color:var(--ink-2)}
+.legend span small{color:var(--muted);font-size:var(--t-cap)}
+.legend b{font-weight:500;font-variant-numeric:tabular-nums}
+.claim{padding:var(--s4);display:grid;gap:var(--s2)}
+.claim .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2)}
+.claim h3{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em}
+.claim .who{font-size:var(--t-cap);color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:4px}
+.steps i{height:4px;border-radius:2px;background:var(--soft)}
+.steps i.d{background:var(--ink)}.steps i.c{background:var(--hmp)}
+.stepline{display:flex;justify-content:space-between;font-size:var(--t-cap);color:var(--muted)}
+.stepline b{color:var(--ink);font-weight:500}
+.nextline{display:flex;align-items:center;gap:var(--s2);border-top:1px solid var(--soft);padding-top:var(--s3);margin-top:var(--s1);font-size:var(--t-body)}
+.nextline .i{color:var(--muted)}
+.nextline span{flex:1}
+.claims{display:grid;gap:var(--s3)}
+
+/* empty: the claim path as a tight vertical stepper */
+.path{padding:var(--s2) var(--s4)}
+.pstep{display:grid;grid-template-columns:32px 1fr;gap:var(--s3);position:relative;padding:7px 0}
+.pstep .ic{width:32px;height:32px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2);position:relative;z-index:1}
+.pstep .ic .i{width:17px;height:17px}
+.pstep:not(:last-child)::after{content:"";position:absolute;left:15.5px;top:39px;bottom:-7px;width:1px;background:var(--line-2)}
+.pstep b{display:block;font-size:var(--t-body);font-weight:600;line-height:1.25}
+.pstep span{display:block;font-size:var(--t-cap);color:var(--muted);line-height:1.3}
+.pstep.who .ic{background:var(--hmp-bg);color:var(--hmp-ink)}
+.ehero{display:grid;gap:var(--s2);padding:var(--s2) 0 0}
+.ehero h2{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em}
+.ehero p{color:var(--muted)}
+.keyrow{display:flex;gap:var(--s4);font-size:12px;color:var(--muted);margin:var(--s2) 0 0}
+.keyrow span{display:inline-flex;align-items:center;gap:6px}
+.keyrow i{width:10px;height:10px;border-radius:50%}
+</style></head>
+<body class="stage">
+<script src="icons.js"></script>
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+    <h1>Money</h1>
+    <button class="lang">ES</button>
+    <button class="avatar" aria-label="More">K</button>
+  </header>
+
+  <main class="scroll">
+   <div class="v-default">
+    <section class="hero">
+      <span class="label">Owed to HMP</span>
+      <div class="fig">$19,040<small>on 2 open jobs</small></div>
+      <div class="stack" aria-hidden="true"><i class="k-mort" style="flex:12100"></i><i class="k-held" style="flex:5300"></i><i class="k-ho" style="flex:1000"></i><i class="k-sup" style="flex:640"></i></div>
+      <div class="legend">
+        <div><i class="k-mort"></i><span>At the mortgage co. <small>check needs signing</small></span><b>$12,100</b></div>
+        <div><i class="k-held"></i><span>Held by insurer <small>after the build</small></span><b>$5,300</b></div>
+        <div><i class="k-ho"></i><span>Homeowner deductible</span><b>$1,000</b></div>
+        <div><i class="k-sup"></i><span>Supplement approved</span><b>$640</b></div>
+      </div>
+    </section>
+
+    <div class="shead"><h2>To chase</h2></div>
+    <div class="rows">
+      <div class="row"><div class="lead"><svg class="i"><use href="#i-bank"/></svg></div><div class="t"><b>US Bank: sign the check</b><span>1107 N H St · Ann · Farm Bureau</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span></div></div>
+      <div class="row"><div class="lead"><svg class="i"><use href="#i-file"/></svg></div><div class="t"><b>Starter strip, $380</b><span>Supplement asked Sep 5 · no answer</span></div><div class="end"><span class="chip warn"><svg class="i"><use href="#i-clock"/></svg>20 days</span></div></div>
+    </div>
+
+    <div class="shead"><h2>Open jobs</h2><a href="#">Paid (1)</a></div>
+    <div class="claims">
+      <article class="card claim">
+        <div class="hd"><div><h3>1107 N H St</h3><p class="who">Ann · Farm Bureau · FB-2231</p></div><span class="chip">Insurance</span></div>
+        <div class="steps" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i></div>
+        <div class="stepline"><span><b>Materials ordered</b> · step 7 of 10</span><span>next: build</span></div>
+        <div class="nextline"><svg class="i"><use href="#i-phone"/></svg><span>Call US Bank about the check</span><svg class="i i-sm"><use href="#i-chev"/></svg></div>
+      </article>
+      <article class="card claim">
+        <div class="hd"><div><h3>12 Pine St</h3><p class="who">Sue · State Farm · SF-12</p></div><span class="chip">Insurance</span></div>
+        <div class="steps" aria-hidden="true"><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="stepline"><span><b>Adjuster set</b> · step 3 of 10</span><span>next: scope</span></div>
+        <div class="nextline"><svg class="i"><use href="#i-cal"/></svg><span>Adjuster Sun, Sep 27 · set the time</span><svg class="i i-sm"><use href="#i-chev"/></svg></div>
+      </article>
+    </div>
+   </div>
+
+   <div class="v-empty">
+     <section class="ehero">
+       <span class="label">Money</span>
+       <h2>No signed jobs yet</h2>
+       <p>When a homeowner signs, tell the Right Hand. The job, what came in and what is still owed show up here.</p>
+       <button class="btn pri block" style="margin-top:var(--s2)"><svg class="i"><use href="#i-mic"/></svg>Log a signed job</button>
+     </section>
+     <div class="shead"><h2>How an insurance job gets paid</h2><span class="cap">45–90 days</span></div>
+     <div class="rows path">
+       <div class="pstep who"><div class="ic"><svg class="i"><use href="#i-camera"/></svg></div><div><b>Inspect</b><span>You photograph the damage and show the homeowner.</span></div></div>
+       <div class="pstep"><div class="ic"><svg class="i"><use href="#i-phone"/></svg></div><div><b>Homeowner files</b><span>They call their own insurer. Their claim, not ours.</span></div></div>
+       <div class="pstep"><div class="ic"><svg class="i"><use href="#i-user"/></svg></div><div><b>Adjuster assigned</b><span>The insurer sends an adjuster.</span></div></div>
+       <div class="pstep who"><div class="ic"><svg class="i"><use href="#i-clip"/></svg></div><div><b>Meet the adjuster</b><span>You show the damage, photos and measurements.</span></div></div>
+       <div class="pstep"><div class="ic"><svg class="i"><use href="#i-money"/></svg></div><div><b>Scope + first check</b><span>The insurer pays the first part (ACV).</span></div></div>
+       <div class="pstep who"><div class="ic"><svg class="i"><use href="#i-pen"/></svg></div><div><b>Sign + supplements</b><span>Sign the job. Missed items go in writing.</span></div></div>
+       <div class="pstep who"><div class="ic"><svg class="i"><use href="#i-hammer"/></svg></div><div><b>Build</b><span>Order materials, build, take after photos.</span></div></div>
+       <div class="pstep"><div class="ic"><svg class="i"><use href="#i-check"/></svg></div><div><b>Final check</b><span>Proof of completion releases the held money.</span></div></div>
+     </div>
+     <div class="keyrow"><span><i style="background:var(--hmp-bg);box-shadow:inset 0 0 0 1.5px var(--hmp)"></i>You do this</span><span><i style="background:var(--soft);box-shadow:inset 0 0 0 1.5px var(--line-2)"></i>Homeowner or insurer</span></div>
+   </div>
+  </main>
+
+  <div class="composer">
+    <div class="field"><svg class="i" style="color:var(--hmp-ink)"><use href="#i-say"/></svg><span class="ph">Tell the Right Hand… “Ann’s check cleared”</span><span class="mic" aria-label="Talk"><svg class="i i-sm"><use href="#i-mic"/></svg></span></div>
+  </div>
+  <nav class="nav" aria-label="Tabs">
+    <button><svg class="i i-lg"><use href="#i-pin"/></svg>Now<span class="dot">3</span></button>
+    <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+    <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+    <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+    <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+  </nav>
+</div>
+</body></html>
