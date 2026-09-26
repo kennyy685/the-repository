@@ -83,6 +83,8 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 - **App theme: A "Ledger"** (docs/design/references/direction-a.html): light, clean, orange accent (#f5883a); B's big
   door counter on Knock. *History: this replaced "HMP Pro Dark" (charcoal + silver/white, Barlow Semi Condensed +
   Montserrat), ordered earlier the same day.* Print pieces keep the charcoal/orange brand look.
+- Community flyer: **use both** A "Letrero" (color, boards/Chamber) and B "Boletín" (church bulletins, B&W copies) (docs/print/community-flyer/).
+- PR #6 merged to main (FilthE's OK, 2026-09-26); Cowork re-bundles.
 - Referral thank-you (D17): **a handwritten thank-you note only**, no gift cards or money.
 - App layout (T75): **Option B "Next step"** (docs/design/app-layout/option-b.html): tabs Now / Knock / + / Leads /
   Money; home = the Sale Guide card for what to do next; + = add lead / quick price / "help me say it"; ES toggle on
@@ -110,7 +112,7 @@ start blank), so **when FilthE tells you something important, add it here** inst
   Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**. Nastase (Omaha, family-owned since
   1977, roofing/siding/gutters, residential + commercial) already does storm-damage and insurance-claim work: the
   natural partner for the "sub for restoration" path. VTR: no public web presence found (2026-09-25); ask FilthE for
-  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, on houses
+  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, gutters (FilthE confirmed 2026-09-26), on houses
   and apartment complexes.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5 buildings: tear-off
   above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look accents, caulk). Its live job board and
