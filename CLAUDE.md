@@ -54,6 +54,8 @@ the crew go into the app's `handoffs` collection, which the hourly check reads. 
 - App icon: **A** (bold HMP under the orange roof) = `docs/brand/app-icon.svg`.
 - Twilio phone-call storm alerts (D6): **No for now**; push + email alerts stay.
 - Capabilities sheet keeps "Labor sub: you supply the materials, we install".
+- Homeowner screen: **Option B "Daylight report"** (docs/design/homeowner-screen/option-b.html). Good/Better/Best tiers:
+  **pick per job** (siding only, roof only, or both).
 - HMP business mailing address (D13): **2600 Laverna St, Apt 50, Fremont, NE 68025** (printed on the cancel notice).
 - PR #5 merged to main (FilthE's OK); Cowork re-bundles (T61).
 
