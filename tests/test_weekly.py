@@ -156,6 +156,22 @@ class WeeklyReport(unittest.TestCase):
         self.assertEqual((none["estimates"], none["estimates_value"]),
                          (0, {"low": 0, "high": 0, "using_reference": False}))
 
+    def test_estimate_week_uses_local_day_before_utc_at(self):
+        leads = weekly.load_leads({
+            # Sunday 9:30 PM Central = Monday 02:30 UTC: the local day keeps it in week 39
+            "leads/9-elm-st": {"address": "9 Elm St", "stage": "contacted",
+                               "estimate": {"low": 100, "high": 200, "at": "2026-09-28T02:30:00Z", "day": "2026-09-27"}},
+            # older doc, no day: still picked by at[:10] (Monday 2026-09-28 = week 40)
+            "leads/10-elm-st": {"address": "10 Elm St", "stage": "contacted",
+                                "estimate": {"low": 300, "high": 400, "at": "2026-09-28T02:30:00Z"}},
+            # bad day: falls back to at[:10] (week 39)
+            "leads/11-elm-st": {"address": "11 Elm St", "stage": "contacted",
+                                "estimate": {"low": 500, "high": 600, "at": "2026-09-22T15:00:00Z", "day": "2026-02-31"}}})
+        w39 = weekly.report([], leads, week="2026-39", today="2026-09-27")["totals"]
+        self.assertEqual((w39["estimates"], w39["estimates_value"]["low"], w39["estimates_value"]["high"]), (2, 600, 800))
+        w40 = weekly.report([], leads, week="2026-40", today="2026-10-04")["totals"]
+        self.assertEqual((w40["estimates"], w40["estimates_value"]["low"]), (1, 300))
+
     def test_week_parsing_and_slug(self):
         s, e = weekly.week_range("2026-W39")
         self.assertEqual((s.isoformat(), e.isoformat()), ("2026-09-21", "2026-09-27"))

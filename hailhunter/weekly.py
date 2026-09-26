@@ -11,7 +11,8 @@ under `data`):
 - optional hud.json: the lists' heat and why, joined per list in `learning`.
 
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
-funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.at) is in the week;
+funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.day, the local
+day, else lead.estimate.at[:10]) is in the week;
 totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); per_100 numbers are
 per 100 doors; "inspection" = a Booked tap (for everyday/cash walks that is the estimate visit). A walk id is
 "<list_id>~t<turf>", the same key the command center uses for its turfs.
@@ -232,9 +233,23 @@ def _money(v):
     return x if x == x and x not in (float("inf"), float("-inf")) else None
 
 
+def _estimate_day(e):
+    """The estimate's calendar day: `estimate.day` (the app's local Central day, YYYY-MM-DD) when it is a real date,
+    else the UTC `estimate.at`[:10] (older docs). A late-evening estimate is UTC-tomorrow, so `day` keeps it in the
+    week FilthE made it."""
+    d = str(e.get("day") or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d):
+        try:
+            date.fromisoformat(d)
+            return d
+        except ValueError:
+            pass
+    return str(e.get("at") or "")[:10]
+
+
 def estimates(leads, start=None, end=None):
     """Quick estimates made this week, from `lead.estimate` {low, high, job, at, using_reference} (the HMP App saves
-    one per lead). A lead counts once when its estimate.at falls in [start, end], whatever its stage (start/end None
+    one per lead). A lead counts once when its estimate day (estimate.day, else estimate.at[:10]) falls in [start, end], whatever its stage (start/end None
     = every lead with an estimate). weekly.py has no stage-based estimate count, so nothing is counted twice; the
     lead id dedupes repeated docs. Value = the sum of the low/high ranges (bad numbers skipped, not counted as $0);
     using_reference = any of them used market reference prices, not HMP's own."""
@@ -243,7 +258,7 @@ def estimates(leads, start=None, end=None):
         e = L.get("estimate")
         if not isinstance(e, dict) or L.get("id") in seen:
             continue
-        day = str(e.get("at") or "")[:10]
+        day = _estimate_day(e)
         if start is not None:
             try:
                 date.fromisoformat(day)
