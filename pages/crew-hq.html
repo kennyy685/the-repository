@@ -399,8 +399,6 @@ a.btn,a.btn:visited{color:var(--ink)}
 .app-toast .t-act:focus-visible{outline:2px solid var(--bg);outline-offset:2px}
 /* ================= split (v20): the AI hub on its own ================= */
 .hubmain{display:grid;gap:14px;min-width:0}
-.a-banner.moved{border-left-color:var(--hmp);font-size:15px;color:var(--ink)}
-.a-banner.moved a{color:var(--hmp2);font-weight:700;overflow-wrap:anywhere}
 </style>
 <div class="wrap">
   <header class="top">
@@ -413,8 +411,6 @@ a.btn,a.btn:visited{color:var(--ink)}
       <div class="lang" role="group" aria-label="Language / Idioma"><button type="button" id="langEn" aria-pressed="true" lang="en">EN</button><button type="button" id="langEs" aria-pressed="false" lang="es">ES</button></div>
     </div>
   </header>
-
-  <p class="a-banner moved" id="movedBanner" data-th="moved"><b>The HMP App moved:</b> <a href="https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT" target="_blank" rel="noopener">https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT</a></p>
 
   <main class="hubmain" id="hub">
   <h2 class="crewh"><span data-t="crewH">Team board</span> <small data-t="crewSub">who is working on what, live</small></h2>
@@ -487,7 +483,7 @@ a.btn,a.btn:visited{color:var(--ink)}
     <div class="panel log log-code"><h2 data-t="logCode">Code lab log</h2><ol class="feed" id="feedCode"></ol></div>
   </section>
 
-  <p class="foot" data-th="foot"><b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; the King reads your answers at its next run. If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.</p>
+  <p class="foot" data-th="foot"><b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; Claude Code is woken right away (or reads them at its next hourly run). If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.</p>
   </main>
 </div>
 
@@ -558,7 +554,7 @@ const TX = {
       stWorking: 'Working', stIdle: 'Idle', stAsleep: 'Asleep', stWaiting: 'Waiting on you', stBlocked: 'Blocked',
       chainH: 'Chain of command', chainS: 'tap a name: its job, where it lives, how to reach it', orgYou: 'You (FilthE) · the boss', orgRight: 'Answers you live', orgKingL: 'The King',
       logChat: 'Chat wing log', logCode: 'Code lab log', boardH: 'Board', memH: 'What every AI should know',
-      foot: '<b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; the King reads your answers at its next run. If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.'
+      foot: '<b>How it stays live:</b> a robot moves when its agent checks in, and every AI (the King, Cowork, Storm Watch, Claude Code) posts here directly. A message shows <span class="rcpt">✓ picked up</span> once the AI it was sent to checks in after it. Answer the questions waiting on you right on the board; Claude Code is woken right away (or reads them at its next hourly run). If a robot shows <span class="stale">no check-out</span>, its last run ended without saying so.'
     },
     sum: c => { const p = [`${c.working} working`]; if (c.stuck) p.push(`${c.stuck} stuck`); p.push(`${c.idle} idle`); if (c.sleeping) p.push(`${c.sleeping} asleep`); return p.join(' · '); },
     kingNone: 'No King yet', kingAsleep: 'King asleep', kingWork: 'King at work', kingThrone: 'King on the throne',
@@ -664,7 +660,7 @@ const TX = {
       stWorking: 'Trabajando', stIdle: 'Libre', stAsleep: 'Dormido', stWaiting: 'Esperándote', stBlocked: 'Bloqueado',
       chainH: 'Cadena de mando', chainS: 'toca un nombre: su trabajo, dónde vive, cómo contactarlo', orgYou: 'Tú (FilthE) · el jefe', orgRight: 'Te contesta en vivo', orgKingL: 'El King',
       logChat: 'Registro del ala de chat', logCode: 'Registro del laboratorio', boardH: 'Tablero', memH: 'Lo que toda IA debe saber',
-      foot: '<b>Cómo se mantiene en vivo:</b> un robot se mueve cuando su agente se reporta, y cada IA (el King, Cowork, Storm Watch, Claude Code) publica aquí directamente. Un mensaje muestra <span class="rcpt">✓ recibido</span> cuando la IA a la que se mandó se reporta después. Contesta las preguntas que te esperan en el tablero; el King lee tus respuestas en su siguiente corrida. Si un robot dice <span class="stale">sin despedida</span>, su última corrida terminó sin avisar.'
+      foot: '<b>Cómo se mantiene en vivo:</b> un robot se mueve cuando su agente se reporta, y cada IA (el King, Cowork, Storm Watch, Claude Code) publica aquí directamente. Un mensaje muestra <span class="rcpt">✓ recibido</span> cuando la IA a la que se mandó se reporta después. Contesta las preguntas que te esperan en el tablero; Claude Code se despierta al momento (o las lee en su siguiente revisión de cada hora). Si un robot dice <span class="stale">sin despedida</span>, su última corrida terminó sin avisar.'
     },
     sum: c => { const p = [`${c.working} trabajando`]; if (c.stuck) p.push(`${c.stuck} ${pl(c.stuck, 'atorado', 'atorados')}`); p.push(`${c.idle} ${pl(c.idle, 'libre', 'libres')}`); if (c.sleeping) p.push(`${c.sleeping} ${pl(c.sleeping, 'dormido', 'dormidos')}`); return p.join(' · '); },
     kingNone: 'Todavía no hay King', kingAsleep: 'King dormido', kingWork: 'King trabajando', kingThrone: 'King en el trono',
@@ -1602,6 +1598,7 @@ async function sendAnswer(id, answer, note){
     await DB.doc('events/' + stamp + '-you').set({agent: 'you', name: 'FilthE', lane: 'board', kind: 'handoff', to: 'king', task: id, status: 'done', room: 'board', at,
       text: `Answer to ${id}: ${answer}${note ? ' (' + note.slice(0, 200) + ')' : ''}`});
     appToast(SAMPLE && CAN_EDIT ? L().sentLive : L().sentTo(id, L().ans[answer] || answer));
+    wake(`answered ${id} = ${answer}${note ? ' (' + note.slice(0, 120) + ')' : ''} [answers/${id}, events/${stamp}-you]`);
     if (SAMPLE && CAN_EDIT) askKing(`I answered ${id} ("${q ? String(q.q).slice(0, 200) : ''}"): ${answer}${note ? ' - ' + note : ''}`, true);
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? L().ownerOnly : L().sendFail); }
 }
@@ -1665,17 +1662,42 @@ function launchEnvelope(e){
 }
 
 /* ================= split (v20): the AI hub on its own (the HMP App moved to its own link and database) ================= */
-const APP_LINK = 'https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT';   // the HMP App's new link: publish step replaces the text https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT
 const DED_RX = /(cover|waive|pay(ing)? (for|off)?|eat|absorb|rebate|discount|skip|free|cubr|perdon|pag(ar|amos)|descont|regal)[^.]{0,40}(deductible|deducible)|(deductible|deducible)[^.]{0,30}(covered|waived|free|gratis|cubierto|perdonado|no pagas|we pay|pagamos)/i;
 const HX = {
-  en: {moved: u => `<b>The HMP App moved:</b> <a href="${u}" target="_blank" rel="noopener">${u}</a> · Today, Leads, Money and the chat that logs doors, leads and claims are there now.`,
-    useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.'},
-  es: {moved: u => `<b>La HMP App se mudó:</b> <a href="${u}" target="_blank" rel="noopener">${u}</a> · Hoy, Prospectos, Dinero y el chat que registra puertas, prospectos y reclamos ahora están ahí.`,
-    useApp: 'Aquí no se registra. Puertas, prospectos, reclamos y dinero van en el chat de la HMP App.'}
+  en: {
+    useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.',
+    wakeOk: 'Claude Code is on it now.', wakeLater: 'Saved. Claude Code picks it up within the hour.'},
+  es: {
+    useApp: 'Aquí no se registra. Puertas, prospectos, reclamos y dinero van en el chat de la HMP App.',
+    wakeOk: 'Claude Code ya lo está atendiendo.', wakeLater: 'Guardado. Claude Code lo atiende en menos de una hora.'}
 };
 const HB = () => HX[lang];
 function appToast(msg){ const n = $('#appToast'); n.textContent = msg; n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), 3800); }
 $('#appToast').addEventListener('click', () => { clearTimeout(appToast.t); $('#appToast').hidden = true; });
+/* instant wake (FilthE OK'd 2026-09-26): when he answers a question or the live chat sends an order,
+   fire the King's hourly trigger now so Claude Code wakes in seconds. Only after a real user action and a
+   saved write; bursts fold into one fire per ~20 s. No mcp or a failed call: nothing lost, the hourly run catches it. */
+const WAKE_TRIGGER = 'trig_012h6pQqggc88n8vsj93zayJ', WAKE_GAP = 20000;
+let MCP = null, wakeLastAt = 0, wakeTimer = 0, wakeBusy = false;
+const wakeQ = [];
+function wake(text){   // text: short "what + doc id"
+  wakeQ.push(String(text).replace(/\s+/g, ' ').slice(0, 300));
+  if (wakeTimer || wakeBusy) return;   // folds into the fire already scheduled or in flight
+  wakeTimer = setTimeout(fireWake, Math.max(0, wakeLastAt + WAKE_GAP - Date.now()));
+}
+async function fireWake(){
+  wakeTimer = 0; if (!wakeQ.length) return;
+  const items = wakeQ.splice(0); wakeLastAt = Date.now(); wakeBusy = true;
+  const text = ('AI hub, instant wake. FilthE just acted: ' + items.join(' | ') + '. Read the docs named here and act on them.').slice(0, 1800);
+  let ok = false;
+  try {
+    const m = MCP || (window.claude && typeof window.claude.use === 'function' ? await window.claude.use('mcp') : null);
+    if (m) { MCP = m; await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id: WAKE_TRIGGER, text}); ok = true; }
+  } catch (e) { ok = false; }   // any code: no retry (it is a write); the hourly run still reads the saved docs
+  wakeBusy = false;
+  appToast(ok ? HB().wakeOk : HB().wakeLater);
+  if (wakeQ.length) wakeTimer = setTimeout(fireWake, Math.max(0, wakeLastAt + WAKE_GAP - Date.now()));
+}
 const WRITE_MS = 10000;
 const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code: 'timeout'})), WRITE_MS))]);
 function refused(e){ return e && (e.code === 'invalid_argument' || e.code === 'not_granted' || e.code === 'revoked'); }
@@ -1707,7 +1729,6 @@ function applyStatic(){
   const st = L().st;
   for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
-  $('#movedBanner').innerHTML = HB().moved(APP_LINK);
   $('#kcInput').placeholder = st.kcPh;
 }
 $('#langEn').addEventListener('click', () => setLang('en'));
@@ -1739,7 +1760,7 @@ Reply with ONLY a JSON object: {"reply": "...", "actions": [...]}
 - actions: zero or more of the actions above; [] when nothing should change.
 Example: {"reply":"Got it. I closed D7 and told Cowork to link the Edge board from the command center.","actions":[{"type":"close_question","id":"D7"},{"type":"order","to":"cowork","text":"Link the Edge Site Map from the command center","task":""}]}
 
-Logging doors, leads, claims and money happens only in the HMP App (its own link now: ${APP_LINK}), in its chat "Talk to your Right Hand". This page has no leads or claims. If FilthE reports doors, a homeowner, an inspection, a claim or money here, don't log it and don't invent an action for it: tell him in one short sentence to say it in the HMP App chat.`;
+Logging doors, leads, claims and money happens only in the HMP App (a separate page), in its chat "Talk to your Right Hand". This page has no leads or claims. If FilthE reports doors, a homeowner, an inspection, a claim or money here, don't log it and don't invent an action for it: tell him in one short sentence to say it in the HMP App chat.`;
 
 function kingContext(){
   const t = new Date().toLocaleString('en-US', {timeZone:'America/Chicago', weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
@@ -1817,7 +1838,11 @@ async function applyActions(actions){
     k.orders = [...orders.map(o => ({to: o.to === 'code' ? 'Code' : 'Cowork', text: o.text, task: o.task})), ...(k.orders || [])].slice(0, 8);
     k.at = at; if (!k.title) k.title = "Today's orders";
     await safe({op: 'set', path: 'system/king', body: k});
-    for (const [i, o] of orders.entries()) await safe({op: 'set', path: `events/${stampOf(at)}-king-o${i}`, body: {agent: 'king', at, kind: 'handoff', to: o.to, lane: 'board', room: 'board', status: 'working', task: o.task, text: o.text}});
+    for (const [i, o] of orders.entries()) {
+      const path = `events/${stampOf(at)}-king-o${i}`;
+      try { await save({op: 'set', path, body: {agent: 'king', at, kind: 'handoff', to: o.to, lane: 'board', room: 'board', status: 'working', task: o.task, text: o.text}}); wake(`order to ${o.to}: ${o.text.slice(0, 140)} [${path}]`); }
+      catch (e) { receipts.push({ok: false, text: L().rc.fail(path)}); }
+    }
   }
   return done;
 }
