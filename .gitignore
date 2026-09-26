@@ -18,4 +18,5 @@ data/*
 !data/rookie_plan.json
 !data/objection_scripts_2.json
 !data/commercial_calls.json
+!data/association_contacts.json
 .env

@@ -226,7 +226,7 @@ def refresh(conn, fetcher, cfg, log=print, clock=None):
 
 BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
                 "data/tuned.json", "data/glossary_en_es.json", "data/benchmarks.json",
-                "data/rookie_plan.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
+                "data/rookie_plan.json", "data/association_contacts.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
 def _bundled(rel):

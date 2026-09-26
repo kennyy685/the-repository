@@ -266,7 +266,11 @@ DEFAULTS = {
         "min_hail": 1.0,            # inches at the building
         "max_days": 365,            # storm no older than this
         "max_calls": 15,            # calls on the list
-        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"]   # hud targets[].type; never homes
+        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"],   # hud targets[].type; never homes
+        # T149: landlord/HOA association calls (paths.association_contacts), added after the building calls.
+        # Only on these weekdays (Mon..Sun); up to association_per_week spread over them, rotating each week.
+        "association_days": ["Tue"],
+        "association_per_week": 2
     },
     # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
     # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
@@ -360,7 +364,8 @@ DEFAULTS = {
     },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
               "tuned": "data/tuned.json", "tune_history": "data/tune_history.json",
-              "rookie_plan": "data/rookie_plan.json"}
+              "rookie_plan": "data/rookie_plan.json",
+              "association_contacts": "data/association_contacts.json"}
 }
 
 # T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch
