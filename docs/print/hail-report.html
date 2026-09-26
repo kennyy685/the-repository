@@ -97,6 +97,8 @@ b, strong { font-weight:700; }
 .near.none { display:block; padding:0.12in 0.15in; font:600 9pt/1.4 "Montserrat"; color:var(--char); }
 
 /* distance diagram */
+.hero.solo, .two.solo { grid-template-columns:1fr; }
+.diag[hidden], .more[hidden], .hist li[hidden], tr[hidden] { display:none; }
 .diag svg { display:block; width:100%; height:auto; margin-top:0.04in; }
 .diag text { font-family:"Montserrat"; }
 
@@ -395,13 +397,13 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
 
     var adj = D.radar_max_in != null && h != null && Math.abs(D.radar_max_in - h) >= 0.01 ? f(t.adj, {r: Number(D.radar_max_in).toFixed(2)}) : (reps.length ? t.adj0 : "");
 
-    var rows = reps.slice(0, 6).map(function (r) {
+    var rows = reps.map(function (r) {
       return '<tr><td class="n">' + r.dist_mi.toFixed(1) + ' ' + t.mi + '</td><td class="n">' + inch(r.size_in) + '</td><td>' + esc(who(r, l)) +
         (r.city ? ' &middot; ' + esc(r.city) : '') + '<span class="tag' + (r.official ? ' noaa' : '') + '">' + (r.official ? "NOAA" : "NWS") + '</span></td><td>' + clock(r.time, l, true) + '</td></tr>';
     }).join("");
     var table = reps.length ? '<table><tr><th>' + t.dist + '</th><th>' + t.size + '</th><th>' + t.who + '</th><th>' + t.when + tz(reps[0].time) + '</th></tr>' + rows + '</table>' +
-      (reps.length > 6 ? '<p class="more">' + f(t.moreRows, {n: reps.length - 6, r: R}) + '</p>' : '') : '<p class="empty">' + f(t.noNear, {r: R}) + '</p>';
-    var histHtml = hist.length ? '<ul>' + hist.slice(0, 6).map(function (x) {
+      '<p class="more" hidden></p>' : '<p class="empty">' + f(t.noNear, {r: R}) + '</p>';
+    var histHtml = hist.length ? '<ul>' + hist.map(function (x) {
       return '<li><span>' + esc(label(x.day_label, l, x.day)) + '</span><b>' + inch(x.hail_in) + '</b></li>'; }).join("") + '</ul>'
       : '<p>' + t.noHist + '</p>';
 
@@ -413,7 +415,7 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
       (near.city ? ' &middot; ' + esc(near.city) : '') + '</div></section>'
       : '<section class="near none">' + f(t.noNear, {r: R}) + '</section>';
 
-    return '<section class="page" lang="' + l + '">' +
+    return '<section class="page" lang="' + l + '" data-more="' + esc(f(t.moreRows, {n: "{n}", r: R})) + '">' +
       '<header class="top"><svg class="rib" viewBox="0 0 816 125" preserveAspectRatio="none" aria-hidden="true"><rect width="816" height="125" fill="url(#rib)" opacity=".55"/></svg>' +
       '<svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>' +
       '<div class="ttl"><div class="kick">' + t.kick + '</div><h1>' + t.h1 + '</h1></div></header>' +
@@ -421,15 +423,15 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
         '<section class="prop"><div><div class="k">' + t.prop + '</div><div class="v">' + esc(a1) + (a2 ? '<small>' + esc(a2) + '</small>' : '') + '</div></div>' +
           '<div><div class="k">' + t.storm + '</div><div class="v s">' + esc(label(D.day_label, l, D.day)) + '</div></div>' +
           '<div><div class="k">' + t.prepared + '</div><div class="v s">' + esc(nice(D.prepared_on, l)) + '</div></div></section>' +
-        '<section class="hero"><div class="size"><div class="label">' + t.sizeLbl + ' <em>' + t.sizeEm + '</em></div>' +
+        '<section class="hero' + (h == null ? ' solo' : '') + '"><div class="size"><div class="label">' + t.sizeLbl + ' <em>' + t.sizeEm + '</em></div>' +
           (h == null ? '<div class="obj" style="margin-top:.14in">' + t.none + '</div>'
             : '<div class="big"><span class="num">' + Number(h).toFixed(2) + '&Prime;</span><span class="unit">' + (h === 1 ? t.inch : t.inches) + '</span></div>' +
               '<div class="obj">' + f(t.about, {o: obj(h, l)}) + '</div>') +
           '<div class="how">' + f(t.how, {adj: adj}) + '</div></div>' +
-          '<div class="actual">' + ball + '</div></section>' +
+          (h == null ? '' : '<div class="actual">' + ball + '</div>') + '</section>' +
         nearHtml +
         (reps.length ? '<section class="diag"><div class="label">' + f(t.diag, {r: R}) + ' <em>' + t.diagEm + '</em></div>' + diagram(reps, R, t, l) + '</section>' : '') +
-        '<section class="two"><div><div class="label">' + t.tbl + '</div>' + table + '</div>' +
+        '<section class="two' + (reps.length ? '' : ' solo') + '">' + (reps.length ? '<div><div class="label">' + t.tbl + '</div>' + table + '</div>' : '') +
           '<div class="hist"><div class="label">' + t.hist + '</div><div class="sub">' + t.histEm + '</div>' + histHtml + '</div></section>' +
         '<section class="note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#f5883a"/></svg><p>' + t.note + '</p></section>' +
       '</main>' +
@@ -445,6 +447,25 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
   var root = document.getElementById("pages");
   root.innerHTML = page("en") + page("es");
   var pages = root.querySelectorAll(".page");
+
+  // one Letter page per language: if the data is long, trim the least important rows until the page fits
+  // (only measurable at page width; phones scroll and never need it)
+  function fit(pg) {
+    var FULL = 11 * 96 + 0.5, rows = pg.querySelectorAll("table tr:not(:first-child)"), lis = pg.querySelectorAll(".hist li"), cut = 0;
+    function vis(list) { return Array.prototype.filter.call(list, function (e) { return !e.hidden; }); }
+    var steps = [
+      function () { var v = vis(rows); if (v.length > 4) { v[v.length - 1].hidden = true; cut++; return true; } },
+      function () { var v = vis(lis); if (v.length > 3) { v[v.length - 1].hidden = true; return true; } },
+      function () { var d = pg.querySelector(".diag"); if (d && !d.hidden) { d.hidden = true; return true; } },
+      function () { var v = vis(rows); if (v.length > 2) { v[v.length - 1].hidden = true; cut++; return true; } }
+    ];
+    for (var guard = 0; guard < 40 && pg.offsetHeight > FULL; guard++) {
+      if (!steps.some(function (st) { return st(); })) break;
+    }
+    var m = pg.querySelector(".more");
+    if (m && cut) { m.hidden = false; m.innerHTML = pg.dataset.more.replace("{n}", cut); }
+  }
+  if (window.innerWidth > 760) pages.forEach(fit);
   var want = (new URLSearchParams(location.search).get("lang") || D.lang || "both").toLowerCase();
   if (want === "both") document.body.classList.add("print-both");
   function show(l) {
