@@ -76,16 +76,19 @@ def _wind_events(conn, cfg, since, limit=40):
     like hail gets - good enough for an informational feed, not exact town boundaries.
     Kept out of storms[]/door scoring on purpose - see the same note, additive-only contract."""
     import re
+    from collections import Counter
     from datetime import date
 
+    from . import wind
+
     rows = conn.execute(
-        """SELECT conv_day, city, state, lat, lon, dist_mi, speed_mph, report_kind, remark
+        """SELECT conv_day, city, state, lat, lon, dist_mi, speed_mph, report_kind, remark, extra
            FROM wind_obs WHERE conv_day >= ? AND (speed_mph >= 58 OR report_kind = 'damage')
            ORDER BY conv_day DESC""", (since,)).fetchall()
     groups = {}
     for r in rows:
         key = (r["conv_day"], (r["city"] or "?").strip(), r["state"])
-        g = groups.setdefault(key, {"gust": [], "damage": [], "lat": [], "lon": [], "dist": []})
+        g = groups.setdefault(key, {"gust": [], "damage": [], "lat": [], "lon": [], "dist": [], "trees": [], "dirs": []})
         if r["speed_mph"]:
             g["gust"].append(r["speed_mph"])
         if r["report_kind"] == "damage":
@@ -93,6 +96,15 @@ def _wind_events(conn, cfg, since, limit=40):
         g["lat"].append(r["lat"])
         g["lon"].append(r["lon"])
         g["dist"].append(r["dist_mi"])
+        if wind.is_trees(r["remark"]):                   # T117: fallen trees / limbs (filed as wind damage)
+            g["trees"].append(r["remark"] or "")
+        try:
+            d = (json.loads(r["extra"] or "{}") or {}).get("wind_dir")
+        except (TypeError, ValueError):
+            d = None
+        d = d or wind.wind_dir(r["remark"])            # T118: only when the report's words say it
+        if d:
+            g["dirs"].append(d)
     roof_re = re.compile(r"roof|shingle|siding|\bshed\b|\bbarn\b|tree.{0,15}(house|roof|home)", re.I)
 
     def gust_factor(mph):
@@ -119,12 +131,16 @@ def _wind_events(conn, cfg, since, limit=40):
         if roof:
             score = min(100, score * 1.3) if score else 35.0  # damage-only report, no measured gust
         score *= interp(sc["recency_curve"], days_ago) * interp(sc["distance_curve"], min_dist or 0) * 0.6
+        wscore, wparts = wind.zone_score(max_mph, len(g["damage"]), days_ago, min_dist, cfg)   # T116
         out.append({
             "day": day, "place": city, "state": state,
             "lat": round(sum(g["lat"]) / len(g["lat"]), 4), "lon": round(sum(g["lon"]) / len(g["lon"]), 4),
             "dist_mi": round(min_dist, 1) if min_dist is not None else None,
             "max_mph": max_mph, "gust_reports": len(g["gust"]), "damage_reports": len(g["damage"]),
             "roof_siding_damage": roof, "sample": sample[:120], "score": round(score, 1),
+            "wind_score": wscore, "wind_parts": wparts, "trees_down": len(g["trees"]),
+            "tree_sample": next((t for t in g["trees"] if t), "")[:120] or None,
+            "wind_dir": Counter(g["dirs"]).most_common(1)[0][0] if g["dirs"] else None,
         })
     out.sort(key=lambda e: -e["score"])
     return out[:limit]
@@ -166,14 +182,29 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
             z = heat.get((L["list_id"], t["turf"]))
             if z:
                 t.update({"heat": z["heat"], "why": json.loads(z["why"] or "[]"), "exp_inspections": z["exp_inspections"]})
+                try:                                      # door score v2: the walk's neighborhood owner/mortgage shares
+                    parts = json.loads(z["parts"] or "{}")
+                except (TypeError, ValueError):
+                    parts = {}
+                own = parts["owner_share"] if "owner_share" in parts else parts.get("owners")
+                t["owner_share"] = round(own, 3) if isinstance(own, (int, float)) else None
+                if isinstance(parts.get("mortgage"), (int, float)):
+                    t["mortgage_share"] = round(parts["mortgage"], 3)
         stops = [dict(r) for r in conn.execute(
             """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
                       p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
-                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year
+                      (s.flags LIKE '%Sold%') AS sold_after_storm, NULL AS owner_occ, NULL AS roof_year,
+                      p.sale_date
                FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
                WHERE s.list_id=? AND s.turf <= ? ORDER BY s.turf, s.stop""", (L["list_id"], max_turfs))]
         for s in stops:
             s["sold_after_storm"] = bool(s["sold_after_storm"])
+            s["owner_source"] = None                      # T23: county source name when owner_occ is per house
+        try:                                              # T23: per-house owner-occupied from county data (cache only)
+            from . import owners as owner_data
+            owner_data.lookup(conn, stops)
+        except Exception:
+            pass
         streets = {}
         for s in stops:
             streets.setdefault(s["turf"], {})
@@ -201,13 +232,19 @@ def _everyday_lists(conn, max_turfs, cfg=None):
     `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
     from .nbhd import spanish_note, spanish_shares
     lists = _lists(conn, max_turfs, "everyday_lists", cfg)
-    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why FROM everyday_lists")}
+    extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why, params FROM everyday_lists")}
     lang = spanish_shares(conn) if lists else {}
+    high = ((cfg or {}).get("language") or {}).get("spanish_high", 0.30)
     for L in lists:
         e = extra[L["id"]]
         L.update({"kind": "everyday", "geoid": e["geoid"], "heat": e["heat"], "why": json.loads(e["why"] or "[]")})
         if L["spanish_share"] is None and e["geoid"] in lang:       # no mapped stops: the neighborhood's own share
             L["spanish_share"] = round(lang[e["geoid"]], 3)
+        try:                                                        # T97: built for a config `everyday_towns` entry
+            L["town_pick"] = (json.loads(e["params"] or "{}") or {}).get("everyday_town")
+        except (TypeError, ValueError, AttributeError):
+            L["town_pick"] = None
+        L["good_for_spanish"] = L["spanish_share"] is not None and L["spanish_share"] >= high   # app: "good for Spanish"
         note = spanish_note(L["spanish_share"], cfg or {})
         if note:
             L["why"].append(note)

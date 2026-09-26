@@ -74,6 +74,8 @@ DEFAULTS = {
         "coverage_in": 1.0,         # 'hit' threshold for coverage share
         "coverage_floor": 0.4,      # score multiplier when only a sliver of the area got 1"+
         "owner_floor": 0.3, "owner_unknown": 0.65,
+        # T23: one house's owner factor when the county says the owner lives there (yes) or mails elsewhere (no)
+        "owner_house_yes": 1.0, "owner_house_no": 0.3,
         "homes_full": 500, "homes_floor": 0.3,
         "age_curve": [[1970, 1.0], [1990, 0.95], [2005, 0.88], [2015, 0.8]], "age_unknown": 0.9,
         "mesh_factor": None,        # None = auto-calibrate radar vs ground reports
@@ -103,6 +105,10 @@ DEFAULTS = {
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
     },
+    # One overall time guard for `refresh` (Storm Watch's cloud run has a time limit): after budget_s seconds the
+    # optional network steps (wind, parcel/owner downloads, everyday lists, Census extras, commercial) skip or use
+    # stored data only; hail reports, radar maps and hud.json always run. 0 = no limit.
+    "refresh": {"budget_s": 600},
     # Everyday leads (T50): old-house neighborhoods for regular siding/roof replacement, no storm needed.
     # heat 0-100 per walk = 100 x old x owners x value x distance x settled x newbuild
     "everyday": {
@@ -113,9 +119,15 @@ DEFAULTS = {
         "median_spread_years": 20,  # no age breakdown: share old ~ 0.5 - (median year - old_before) / (2 x this)
         "age_curve": [[1940, 1.0], [1979, 1.0], [1995, 0.75], [2005, 0.5], [2015, 0.25], [2025, 0.1]],  # one house
         "owner_floor": 0.3, "owner_unknown": 0.65,
+        # T23: one house's owner factor when the county says the owner lives there (yes) or mails elsewhere (no)
+        "owner_house_yes": 1.0, "owner_house_no": 0.3,
         # typical home value -> factor: enough value to reinvest in, but not luxury
         "value_curve": [[60000, 0.5], [110000, 0.85], [150000, 1.0], [350000, 1.0], [500000, 0.8], [800000, 0.6]],
         "value_unknown": 0.9,
+        # T163 "can afford a job": median household income (Census B19013) -> factor. Small on purpose, everyday
+        # (cash) score only, never storm/insurance scores. Unknown income = neutral (1.0).
+        "income_curve": [[30000, 0.85], [50000, 0.95], [65000, 1.0]],
+        "income_unknown": 1.0,
         "distance_curve": [[0, 1.0], [15, 1.0], [40, 0.8], [80, 0.6]],   # miles from home base
         "recent_sale_years": 2, "sold_penalty": 0.3,   # settled = 1 - sold_penalty x share bought in the last N years
         "new_since": 2010, "new_penalty": 0.5,         # newbuild = 1 - new_penalty x share built since new_since
@@ -128,8 +140,14 @@ DEFAULTS = {
         "refresh_lists": 3,         # `refresh` builds this many everyday lists
         "parcel_budget_s": 120,     # max seconds downloading parcels for everyday lists per run
         "max_turfs": 10,            # walks per everyday list that carry their stops in hud.json
-        "retry_days": 7             # retry a failed Census year-built (B25034) download after this many days
+        "retry_days": 7,            # retry a failed Census year-built (B25034) download after this many days
+        # T97: `everyday_towns` (top level) always get their own lists: best `town_lists` neighborhoods within
+        # `town_radius_mi` of each town; parcel downloads for them share `town_parcel_budget_s`
+        "town_lists": 1, "town_radius_mi": 5, "town_parcel_budget_s": 90
     },
+    # T97 (round 17): everyday lists always built by `refresh` in these towns (much higher Spanish-speaking share),
+    # alongside the top-N lists near home base. "Town, ST" picks the state.
+    "everyday_towns": ["Schuyler, NE", "Columbus, NE", "Lexington, NE"],
     # Hail report on the phone (O3.3): per-address hail evidence for the houses on the storm door lists in hud.json
     "hail_evidence": {
         "max_lists": 10,            # storm lists that get evidence (newest first, as hud.json lists them)
@@ -142,6 +160,39 @@ DEFAULTS = {
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
     },
+    # Door score v2 (research round 16, `hailhunter/doorscore.py`): one house, 0-100 = 100 x hail x owner_fit x kind x
+    # roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale)
+    # x recent sale): owner + bought in the last recent_sale_years = 1.0, owner + older sale = 0.7, renter = 0.4.
+    "door_score": {
+        "hail_curve": [[0.75, 0.1], [1.0, 0.4], [2.0, 1.0]],   # hail at the house (in) -> factor (storm walks)
+        "hail_unknown": 0.4,
+        "renter_base": 0.4,         # owner_fit when nobody who owns it lives there
+        "no_sale": 0.5,             # owner_fit share kept by an owner with no recent sale (older/paid-off mortgage)
+        "recent_sale_years": 10,    # bought within this many years = likely still has a mortgage
+        "owner_unknown": 0.65,      # owner-occupied share when neither the house nor the area is known
+        "kind_factor": {"single": 1.0, "mobile": 0.7, "multi": 0.6, "farm": 0.6, "other": 0.5},
+        "age_curve": [[0, 0.5], [8, 0.8], [15, 1.0]],   # roof age (years since built / re-roofed) -> factor
+        "age_unknown": 0.85,
+        "value_curve": [[60000, 0.6], [110000, 0.85], [150000, 1.0], [400000, 1.0], [800000, 0.8]],
+        "value_unknown": 0.9,
+        "sold_after_storm": 0.6     # storm walks: the house was sold after the storm day
+    },
+    # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
+    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8},
+    # Wind-zone score (T116, research round 23, `wind.zone_score`): 100 x gust band x scoring.recency_curve x
+    # scoring.distance_curve. Separate from hail (never folded into house/door scores). Bands = [min mph, factor]:
+    # under 58 mph (NWS severe) = 0. A damage report with no measured gust (NWS files those as severe wind, e.g.
+    # "trees down") gets `damage_only`.
+    "wind_score": {"bands": [[58, 0.35], [65, 0.65], [75, 0.85], [90, 1.0]], "damage_only": 0.35},
+    # Follow-ups (`hh.py followups`, research round 9): touches after the first Interested, one line per lead
+    "followups": {
+        "touch_days": [2, 5, 10],   # days after the first Interested (48 h / 5 days / 10 days)
+        "early_ok_days": 1,         # a contact this many days before a touch's due day counts as that touch
+        "touch_stages": ["not_contacted", "contacted", "inspection_set"],   # Interested (contacted) + booked
+        "booked_stages": ["inspection_set"],   # booked: touches stop at the appointment (next_step.due)
+        "created_stages": ["contacted", "inspection_set"],   # no Interested tap on file: created_at is the start
+        "closed": ["done", "lost"]
+    },
     # O0 "Today's knock": one walk a day for the HMP App (`hh.py todaywalk`, doc today/walk)
     "today_walk": {
         "goal_doors": 25,           # doors in today's walk (~2 hours): a starting session, not a full day
@@ -149,10 +200,13 @@ DEFAULTS = {
         # Never below goal_min_doors (unless the asked goal itself is smaller).
         "goal_factor_by_month": {"12": 0.65, "1": 0.65, "2": 0.65},
         "goal_min_doors": 10,
-        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (in season, Apr-Sep)...
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (peak hail season, May-Jul, and Sep)...
         # ...off-season (Oct-Mar, month number -> days): re-knock storms from the last ~11 months that aren't
-        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it)
-        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330},
+        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it).
+        # T125 shoulder months: eastern NE hail peaks May-Jul, so April (few new storms yet) and August (the peak's
+        # storms still unworked) reach back 120 days.
+        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330,
+                                    "4": 120, "8": 120},
         "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
         "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
         "min_doors": 8,             # skip walks with fewer doors left than this
@@ -189,6 +243,12 @@ DEFAULTS = {
     "weekly": {
         "min_doors_area": 5         # a walk needs at least this many doors to be named best/worst area
     },
+    # Rookie plan progress (`hh.py rookie`, weekly `rookie`): data/rookie_plan.json blocks vs door taps
+    "rookie": {
+        "start_date": None,         # "YYYY-MM-DD" day 1 of the plan; None = the first day with any door tap
+        "full_route_doors": 25,     # "Knock your full route" with no door_target = this many doors a day
+        "pace_band": 0.2            # within +/-20% of the block's planned doors = "on pace"
+    },
     # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
     # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
     # only for the keys in TUNABLE below. Every change is capped at max_step per run and kept inside its bounds.
@@ -221,7 +281,16 @@ DEFAULTS = {
         "house_wrap_sq": {"low": None, "high": None},      # per square of wall (100 sf)
         "permit": {"low": None, "high": None},             # per job
         "min_job": {"low": None, "high": None},            # smallest job total (siding / gutters / any job)
-        "min_job_roof": {"low": None, "high": None}        # optional: smallest roof job (null = use min_job)
+        "min_job_roof": {"low": None, "high": None},       # optional: smallest roof job (null = use min_job)
+        # O7 add-ons (optional job fields; each line shows only when the job asks for it)
+        "ice_water_sq": {"low": None, "high": None},       # ice & water shield, per square of roof covered
+        "ridge_vent_ft": {"low": None, "high": None},      # per linear foot of ridge
+        "gutter_guards_ft": {"low": None, "high": None},   # per linear foot
+        "downspouts_ft": {"low": None, "high": None},      # per linear foot (vinyl/aluminum)
+        "window_wrap_ea": {"low": None, "high": None},     # aluminum window wrap, per window
+        "chimney_flashing_job": {"low": None, "high": None},   # per chimney
+        "skylight_flashing_ft": {"low": None, "high": None},   # per linear foot around the skylight
+        "insulated_vinyl_siding_sq": {"low": None, "high": None}   # insulated vinyl siding, per square of wall
     },
     # MARKET REFERENCE, NOT HMP's prices: eastern Nebraska "typical" ranges from
     # docs/research/2026-09-26-market-prices.md (search summaries of cost guides; spot-check with suppliers).
@@ -229,7 +298,7 @@ DEFAULTS = {
     "prices_reference": {
         "_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
         "vinyl_siding_sq": {"low": 700, "high": 900},      # market $400-1,200 full range
-        "hardie_siding_sq": {"low": 900, "high": 1200},    # market $600-1,800
+        "hardie_siding_sq": {"low": 1000, "high": 1500},   # Omaha $8-14/sf, board-and-batten $11-17/sf (round 7)
         "shingle_roof_sq": {"low": 450, "high": 550},      # market $350-850
         "extra_layer_sq": {"low": 100, "high": 150},       # disposal/tear-off per square per layer
         "soffit_fascia_ft": {"low": 14, "high": 17},       # market $7.50-22
@@ -237,7 +306,17 @@ DEFAULTS = {
         "house_wrap_sq": {"low": 100, "high": 150},        # $1-1.50 per sf of wall
         "permit": {"low": 150, "high": 350},               # market $100-500
         "min_job": {"low": 300, "high": 400},              # siding repair minimum
-        "min_job_roof": {"low": 2500, "high": 3000}        # roofing minimum
+        "min_job_roof": {"low": 2500, "high": 3000},       # roofing minimum
+        # O7 add-ons from NATIONAL cost guides (docs/research/2026-09-26-round-7.md section 1), not Nebraska
+        # numbers: "scope": "national" makes the estimate say so. Check with a local supplier.
+        "ice_water_sq": {"low": 100, "high": 125, "scope": "national"},
+        "ridge_vent_ft": {"low": 7, "high": 15, "scope": "national"},
+        "gutter_guards_ft": {"low": 6, "high": 13, "scope": "national"},
+        "downspouts_ft": {"low": 8, "high": 15, "scope": "national"},
+        "window_wrap_ea": {"low": 100, "high": 180, "scope": "national"},
+        "chimney_flashing_job": {"low": 450, "high": 1500, "scope": "national"},
+        "skylight_flashing_ft": {"low": 5, "high": 12, "scope": "national"},
+        "insulated_vinyl_siding_sq": {"low": 800, "high": 1200, "scope": "national"}
     },
     # How a job's shape changes the price (add-ons as fractions {low, high}) and the rough-squares helper.
     "estimate": {
@@ -252,8 +331,36 @@ DEFAULTS = {
         "openings": 0.15,                   # share of wall that is windows/doors
         "perimeter_factor": 1.1             # real houses are longer than a square: perimeter = 4 x sqrt(area) x this
     },
+    # O7 phase D material takeoff (`hh.py takeoff`): trade rules of thumb from docs/research/2026-09-26-round-7.md
+    # section 3. Every count is rounded up. Change a number here (not in code); re-export the rules for the app.
+    "takeoff": {
+        "waste": {"gable": 0.10, "hip": 0.13, "cutup": 0.18},             # shingle waste by roof shape
+        "bundles_per_square": 3,
+        "starter_ft_per_bundle": 100,        # starter strip: 1 bundle per 100 ft of eave + rake
+        "ridge_cap_ft_per_bundle": 33,       # (ridge + hip) / 33 ft
+        "drip_edge_extra": 0.10, "drip_edge_stick_ft": 10,
+        "underlayment_sq_per_roll": 10,      # synthetic underlayment
+        "ice_water_inside_wall_in": 24,      # IRC R905.1.2: from the eave edge to 24 in inside the exterior wall
+        "ice_water_overhang_in": 12,         # default eave overhang when roof.overhang_in isn't given
+        "ice_water_width_in": 36, "ice_water_lap_in": 3, "ice_water_roll_ft": 66,
+        "default_pitch": 6,                  # rise per 12 when roof.pitch isn't given
+        "pitch_words": {"low": 4, "std": 6, "steep": 9},
+        "nails_per_square": 480,             # 6 nails per shingle (high-wind nailing)
+        "nails_per_box": 7200,               # coil roofing nails
+        "siding_waste": {"vinyl": 0.12, "insulated_vinyl": 0.12, "hardie": 0.12},
+        "hardie_exposure_in": 7, "hardie_plank_ft": 12, "hardie_nails_per_plank": 10,
+        "house_wrap_extra": 0.05, "house_wrap_roll_sqft": 1350,           # 9 ft x 150 ft roll
+        "trim_extra": 0.10, "j_channel_ft": 12.5, "hardie_trim_ft": 12,
+        "ft_per_opening": 16,                # trim around one opening when only a count is given (a 3 x 5 ft window)
+        "corner_post_ft": 10, "hardie_corner_ft": 12, "starter_strip_ft": 12,
+        "default_wall_height_ft": 10,
+        "gutter_ft_per_downspout": 35,       # 1 downspout per 30-40 ft, at least 1 per run
+        "hanger_spacing_in": {"snow": 18, "no_snow": 24},
+        "elbows_per_downspout": 3
+    },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
-              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json"}
+              "tuned": "data/tuned.json", "tune_history": "data/tune_history.json",
+              "rookie_plan": "data/rookie_plan.json"}
 }
 
 # T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch

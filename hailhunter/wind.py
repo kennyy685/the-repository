@@ -1,14 +1,17 @@
 """Wind damage reports (T6) - same NWS Local Storm Reports feed `lsr.py` already pulls for hail,
 re-parsed for wind instead. Kept separate from the hail pipeline: different unit (knots, not inches),
-own table (wind_obs), own scoring - not yet wired into door/neighborhood scores (see CLAUDE.md notes,
+own table (wind_obs), own scoring (T116 `zone_score`: hud.json wind_events[].wind_score + `zones` kind "wind"),
+never wired into door/neighborhood scores (see CLAUDE.md notes,
 2026-09-25). This is informational: "wind damage happened here" alongside the hail picture, not
 merged into it yet - merging them needs a design call (how do you compare a 1.5" hailstone to a 60kt
 gust on one severity scale?) that should get a second pair of eyes before it changes the shared
 hud.json contract.
 """
 import json
+import re
 
-from .geo import haversine_mi
+from .config import DEFAULTS
+from .geo import haversine_mi, interp
 from .models import parse_utc
 from .sources import chunks, ttl_for
 from .sources.lsr import BASE, source_weight
@@ -17,6 +20,68 @@ KT_TO_MPH = 1.15078
 # NWS LSR typetext values that mean wind (not hail, not tornado).
 WIND_TYPES = ("TSTM WND GST", "TSTM WND DMG", "NON-TSTM WND GST", "NON-TSTM WND DMG",
               "HIGH WIND", "MARINE TSTM WND")
+
+
+# T117: NWS has no separate "tree" report type - fallen trees are filed as wind damage (TSTM WND DMG /
+# NON-TSTM WND DMG) with the words in the remark ("TREES DOWN", "LARGE LIMBS DOWN ON HOUSE").
+TREE_RE = re.compile(r"\bTREES?\b|\bLIMBS?\b|\bBRANCH(ES)?\b|\bUPROOT", re.I)   # "Large pine uprooted"
+# Live check on real LSR text (2026-09-26): gust reports also mention trees that did NOT come down ("Trees moving,
+# but no downed branches", "Trees are bending over at times"): those are not fallen trees.
+NOT_DOWN_RE = re.compile(r"\bNO (DOWNED|DAMAGE|TREE|LIMB|BRANCH)", re.I)
+MOVING_RE = re.compile(r"\b(MOVING|SWAYING|SWAY|BENDING|BLOWING AROUND)\b", re.I)
+DOWN_RE = re.compile(r"\bDOWN|\bFELL\b|\bFALLEN\b|SNAPPED|BROKE|UPROOT|SPLIT|DAMAGE|KNOCKED|BLOWN (OVER|DOWN)|TORE", re.I)
+# T118: the LSR feed has no wind-direction field (its properties: city, county, lat, lon, magnitude, remark, source,
+# st, state, typetext, unit, valid, wfo). Some remarks say it in words ("winds from the northwest"); keep that when
+# present. `wind_obs.bearing` is NOT wind direction: it is the direction of the report from home base.
+_DIRS = {"NORTH": "N", "NORTHEAST": "NE", "EAST": "E", "SOUTHEAST": "SE", "SOUTH": "S", "SOUTHWEST": "SW",
+         "WEST": "W", "NORTHWEST": "NW"}
+_DIR_WORD = r"(NORTH ?EAST|NORTH ?WEST|SOUTH ?EAST|SOUTH ?WEST|NORTH|SOUTH|EAST|WEST|NNE|ENE|ESE|SSE|SSW|WSW|WNW|NNW|NE|NW|SE|SW|N|S|E|W)"
+DIR_RE = [re.compile(rf"\bFROM THE {_DIR_WORD}\b", re.I),
+          re.compile(rf"\b{_DIR_WORD}(ERLY)? WINDS?\b", re.I)]
+
+
+def is_trees(remark):
+    """True when the remark reports fallen trees/limbs (not just trees moving in the wind)."""
+    r = remark or ""
+    if not TREE_RE.search(r) or NOT_DOWN_RE.search(r):
+        return False
+    return not (MOVING_RE.search(r) and not DOWN_RE.search(r))
+
+
+def wind_dir(remark):
+    """Compass direction the wind came FROM, when the remark says it in words; else None."""
+    for rx in DIR_RE:
+        m = rx.search(remark or "")
+        if m:
+            w = m.group(1).upper().replace(" ", "")
+            return _DIRS.get(w, w)
+    return None
+
+
+def band_factor(mph, cfg=None):
+    """T116 gust band: <58 mph = 0, 58-64 = 0.35, 65-74 = 0.65, 75-89 = 0.85, 90+ = 1.0 (config wind_score)."""
+    ws = {**DEFAULTS["wind_score"], **((cfg or {}).get("wind_score") or {})}
+    if mph is None:
+        return 0.0
+    f = 0.0
+    for lo, v in ws["bands"]:
+        if mph >= lo:
+            f = v
+    return f
+
+
+def zone_score(max_mph, damage_reports, days_ago, dist_mi, cfg=None):
+    """T116 wind score 0-100 = 100 x gust band x recency x distance (the hail curves). A damage report with no
+    measured gust counts as `damage_only`. Returns (score, parts)."""
+    ws = {**DEFAULTS["wind_score"], **((cfg or {}).get("wind_score") or {})}
+    sc = {**DEFAULTS["scoring"], **((cfg or {}).get("scoring") or {})}
+    band = band_factor(max_mph, cfg)
+    if not band and damage_reports:
+        band = ws["damage_only"]
+    rec = interp(sc["recency_curve"], max(days_ago, 0))
+    dist = interp(sc["distance_curve"], dist_mi or 0)
+    parts = {"band": band, "recency": round(rec, 3), "distance": round(dist, 3)}
+    return round(100 * band * rec * dist, 1), parts
 
 
 def urls(cfg, start, end):
@@ -59,7 +124,8 @@ def parse(content, cfg):
             "city": p.get("city") or "", "county": p.get("county") or "",
             "state": p.get("st") or p.get("state") or "", "remark": (p.get("remark") or "").strip(),
             "weight": source_weight(cfg, src),
-            "extra": {"typetext": typetext, "report_source": src, "wfo": p.get("wfo") or ""},
+            "extra": {"typetext": typetext, "report_source": src, "wfo": p.get("wfo") or "",
+                      "trees": is_trees(p.get("remark")), "wind_dir": wind_dir(p.get("remark"))},
         })
     return out
 

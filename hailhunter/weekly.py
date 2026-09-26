@@ -293,12 +293,33 @@ def estimates(leads, start=None, end=None):
     return len(seen), {"low": int(round(low)), "high": int(round(high)), "using_reference": ref}
 
 
+def _industry(bench, t):
+    """T84: this week's funnel rates next to data/benchmarks.json ranges (None without the file)."""
+    from .benchmarks import industry_ranges
+    n = t["doors"]
+    return industry_ranges(bench, {"contact_rate": t["contact_rate"] if n else None,
+                                   "inspection_rate_per_100": t["inspection_rate_per_100"] if n else None,
+                                   "inspection_rate_per_100_experienced": t["inspection_rate_per_100"] if n else None})
+
+
+def _rookie(doors, plan, today, cfg):
+    if not plan:
+        return None
+    from .rookie import progress
+    return progress(doors, plan, today, cfg)
+
+
 # ------------------------------------------------------------------ the report
-def report(doors, leads, week=None, hud=None, today=None, cfg=None):
+def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, rookie_plan=None):
     """The week's results doc. `doors`/`leads` = load_doors/load_leads output; `week` = "2026-39",
-    "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day)."""
+    "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day).
+    `bench` (T84) = the data/benchmarks.json doc (benchmarks.load()): adds `industry` = each funnel rate next to an
+    industry range {yours, low, typical, high, source_note, vs}, labeled "industry estimate, not your numbers";
+    None (no file) -> `industry` is null. `rookie_plan` = rookie.load_plan() blocks: adds `rookie` = rookie.progress
+    over ALL door taps as of `today` (day, block, streak, EN/ES verdict); None (no plan / no start) -> null."""
     wcfg = {**DEFAULTS["weekly"], **((cfg or {}).get("weekly") or {})}
     doors = [dict(d) for d in doors or []]         # don't change the caller's rows
+    all_doors = list(doors)
     leads = list(leads or [])
     today = date.fromisoformat(today) if isinstance(today, str) else today
     if week is None:
@@ -375,6 +396,8 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
         "to": end and end.isoformat(), "as_of": today.isoformat(),
         "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
         "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas, "benchmarks": benchmarks(),
+        "industry": _industry(bench, t),
+        "rookie": _rookie(all_doors, rookie_plan, today, cfg),
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),
         "learning": {"hud": bool(meta), "hud_generated_utc": (hud or {}).get("generated_utc"),

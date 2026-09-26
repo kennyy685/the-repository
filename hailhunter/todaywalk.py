@@ -17,7 +17,8 @@ stale_hours; note is null when fresh), `data_age_hours`. When no walk qualifies,
 Evidence docs (`evidence_docs`): `evidence/<slug>` per house from hud.json hail_evidence; see SLUG_RULE.
 Do-not-knock (`load_dnk`, `pick(dnk=...)`): houses in the app's `dnk/<slug>` docs (same slug rule) never appear.
 Seasons (config today_walk): `storm_max_days_by_month` lets Oct-Mar walks re-knock storms up to ~330 days old that
-aren't fully worked (else 60 days); `best_time_by_month` shortens weekday hours in short-day months (+ "End by dusk").
+aren't fully worked, April/August (shoulder months, T125) 120 days (else 60 days); `best_time_by_month`
+shortens weekday hours in short-day months (+ "End by dusk").
 Winter goal: `goal_factor_by_month` (Dec-Feb 0.65) shrinks the door goal (never below `goal_min_doors`, 10); every
 walk carries `goal_note {en, es}` ("25 doors is a starting session, not a full day"; winter: a smaller goal is normal).
 Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
@@ -28,12 +29,21 @@ kind: "siding", rough: true, material, stories, using_reference}` = estimate.est
 footprint = sqft / stories (stories unknown: low = 1-story, high = 2-story), and `house_line {en, es}`
 ("Built 1962 · ~1,400 sq ft · vinyl siding about $10,200-$21,850"). With any rough price the doc gets
 `rough_note {en, es}` (estimate range, not final). Storm walk under evidence_fade_days old: `evidence_note {en, es}`.
+T83 "Before the next door" (research round 14, spec 2): every stop gets `coach {en, es, tags[]}`, one or two short
+rule-based lines (see `coach_for`): the 69-1602 opener on the first door of the day, a reset line after 3+ "no" in a
+row today (`today_taps`), a come-back promise, the hail at that house, a best-time note on a retry, the house's age.
+Logistics, mindset and hail facts only: never insurance paying, never the deductible.
+Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
+one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate.
+Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
+or heat, no top-up from other walks, houses picked by door score (best first), then put in walking order.
 """
 import json
 import re
 from collections import Counter
 from datetime import date, datetime, timezone
 
+from . import doorscore
 from . import estimate as est
 from .config import DEFAULTS
 from .geo import haversine_mi
@@ -135,6 +145,44 @@ def load_dnk(obj):
         out.add(slug(str(key or "").split("/")[-1]))   # the doc id itself is the slug
     out.discard("")
     return out
+
+
+def today_taps(obj, today):
+    """Today's door taps in the order they happened -> ["no", "not_home", "interested", ...] (T83 streaks).
+    Reads the same docs as `load_results`; a doc's `history` [{result, at}] counts every tap, else the doc's own."""
+    if not obj:
+        return []
+    today = today.isoformat() if isinstance(today, date) else str(today)[:10]
+    items = obj.items() if isinstance(obj, dict) else \
+        [((d.get("id") or d.get("doc_id") or "") if isinstance(d, dict) else "", d) for d in obj]
+    taps = []
+    for key, doc in items:
+        if not isinstance(doc, dict):
+            continue
+        data = doc.get("data") if isinstance(doc.get("data"), dict) else doc
+        k = str(key or "").split("/")[-1]
+        day = str(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else "")
+                  or str(data.get("at") or "")[:10])[:10]
+        if day != today:
+            continue
+        hist = [h for h in data.get("history") or [] if isinstance(h, dict) and h.get("result")]
+        for h in hist or [data]:
+            r = str(h.get("result") or "").strip().lower()
+            if r:
+                taps.append((str(h.get("at") or data.get("at") or ""), "not_home" if r in NOT_HOME else r))
+    taps.sort(key=lambda t: t[0])
+    return [r for _, r in taps]
+
+
+def no_streak(taps):
+    """How many "no" answers in a row at the end of today's taps (not-home doors don't break or add to a streak)."""
+    n = 0
+    for r in reversed(taps or []):
+        if r == "no":
+            n += 1
+        elif r != "not_home":
+            break
+    return n
 
 
 def is_dnk(stop, dnk, city=""):
@@ -363,7 +411,8 @@ def _by_month(table, day):
 
 def storm_max_days(day, cfg=None):
     """How old a storm can be for a storm walk on `day`: config storm_max_days_by_month for the month
-    (off-season Oct-Mar: ~330 days, re-knock storms not fully worked yet), else storm_max_days (60)."""
+    (off-season Oct-Mar: ~330 days, re-knock storms not fully worked yet; shoulder months Apr/Aug: 120 days, T125),
+    else storm_max_days (60)."""
     tw = _tw(cfg)
     v = _by_month(tw.get("storm_max_days_by_month"), day)
     return tw["storm_max_days"] if v is None else v
@@ -380,16 +429,35 @@ def goal_for(day, goal=None, cfg=None):
     return min(base, max(int(tw.get("goal_min_doors") or 10), int(round(base * f))))
 
 
-def goal_note(day, n, cfg=None):
-    """Plain goal note {en, es}: the goal is a starting session, and a smaller winter goal is normal."""
+def goal_note(day, n, cfg=None, pace=None):
+    """Plain goal note {en, es}: the goal is a starting session, and a smaller winter goal is normal.
+    `pace` (T84) = industry doors per hour {low, typical, high, source_note} from data/benchmarks.json, passed only
+    when there is no door history yet: adds a time estimate labeled "industry estimate, not your numbers" and
+    `pace` {doors_per_hour, minutes, label, source_note}."""
     day = date.fromisoformat(day) if isinstance(day, str) else day
     f = _by_month(_tw(cfg).get("goal_factor_by_month"), day)
     if f is not None and float(f) < 1.0:
-        return {"en": f"Short cold day: a smaller goal is normal. {n} doors is a starting session, not a full day.",
-                "es": f"Día corto y frío: una meta más pequeña es normal. {n} puertas son una sesión para empezar, "
-                      f"no un día completo."}
-    return {"en": f"{n} doors is a starting session, not a full day.",
-            "es": f"{n} puertas son una sesión para empezar, no un día completo."}
+        out = {"en": f"Short cold day: a smaller goal is normal. {n} doors is a starting session, not a full day.",
+               "es": f"Día corto y frío: una meta más pequeña es normal. {n} puertas son una sesión para empezar, "
+                     f"no un día completo."}
+    else:
+        out = {"en": f"{n} doors is a starting session, not a full day.",
+               "es": f"{n} puertas son una sesión para empezar, no un día completo."}
+    ty = (pace or {}).get("typical")
+    if n and isinstance(ty, (int, float)) and ty > 0:
+        lo, hi = pace.get("low") or ty, pace.get("high") or ty
+        r5 = lambda x: max(5, int(round(x / 5.0)) * 5)  # noqa: E731
+        m_fast, m_typ, m_slow = r5(60.0 * n / hi), r5(60.0 * n / ty), r5(60.0 * n / lo)
+        rng = f"{lo:g}-{hi:g}" if lo != hi else f"{ty:g}"
+        mins = f"{m_fast}-{m_slow}" if m_fast != m_slow else f"{m_typ}"
+        out["en"] += (f" Industry estimate, not your numbers: about {rng} doors an hour, so {n} doors takes "
+                      f"roughly {mins} min.")
+        out["es"] += (f" Estimado de la industria, no son tus números: unas {rng} puertas por hora, así que {n} "
+                      f"puertas toman más o menos {mins} min.")
+        out["pace"] = {"doors_per_hour": {"low": lo, "typical": ty, "high": hi},
+                       "minutes": {"low": m_fast, "typical": m_typ, "high": m_slow},
+                       "label": "industry estimate, not your numbers", "source_note": pace.get("source_note") or ""}
+    return out
 
 
 def best_time(day, cfg=None):
@@ -596,8 +664,70 @@ def evidence_docs(hud, stops):
     return {"slug_rule": SLUG_RULE, "docs": docs}
 
 
-def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
-    """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs."""
+# ------------------------------------------------------------------ T83: before the next door
+MONTHS_EN3 = [m[:3] for m in MONTHS_EN]
+MONTHS_ES3 = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+RESET_AFTER = 3                                   # "no" answers in a row before the reset line
+
+
+def _hhmm(t, lang):
+    h, m, am = _clock(t)
+    return (f"{h}:{m:02d} {'AM' if am else 'PM'}" if lang == "en" else f"{h}:{m:02d} {'a. m.' if am else 'p. m.'}")
+
+
+def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None, old_before=1980):
+    """The 10-second card shown before door `i` (0 = the next door): {en, es, tags[]}, at most two short lines,
+    picked by rules in this order: first_door (69-1602 opener, no taps yet today), reset (3+ "no" in a row),
+    come_back, hail (storm walks: hud hail_evidence, else the list's hail at the house), retry (not home before:
+    best hours), old_house (built before old_before), else general. Never about insurance paying or deductibles."""
+    lines = []
+    if i == 0 and not taps:
+        lines.append(("first_door", "First door today: say your name, HMP Siding & Roofing, and what you sell, "
+                                    "before anything else.",
+                      "Primera puerta de hoy: di tu nombre, HMP Siding & Roofing y qué vendes, antes que nada."))
+    if i == 0 and no_streak(taps) >= RESET_AFTER:
+        lines.append(("reset", "A few no's in a row is normal on a long walk. Reset, smile, next door.",
+                      "Varios \"no\" seguidos es normal en una ruta larga. Respira, sonríe, siguiente puerta."))
+    cb = stop.get("come_back")
+    if cb:
+        en_t = f" at {_hhmm(cb['time'], 'en')}" if cb.get("time") else " today"
+        es_t = f" a las {_hhmm(cb['time'], 'es')}" if cb.get("time") else " hoy"
+        lines.append(("come_back", f"They asked you to come back{en_t}. Open with: \"You told me to come back today.\"",
+                      f"Te pidieron volver{es_t}. Empieza con: \"Usted me dijo que regresara hoy.\""))
+    if kind == "storm":
+        ev = hail_ev or {}
+        h, day = ev.get("hail_in"), ev.get("day") or storm_day
+        if h is None:
+            h = s.get("hail")
+        try:
+            d = date.fromisoformat(str(day)[:10]) if day else None
+        except ValueError:
+            d = None
+        if h:
+            h = round(float(h), 1)
+            lines.append(("hail", f"{h:g}-inch hail here" + (f" on {MONTHS_EN3[d.month - 1]} {d.day}" if d else "") +
+                          ": check the gutters and soft metals (vents, window wraps) as you walk up.",
+                          f"Aquí cayó granizo de {h:g} pulg." + (f" el {d.day} de {MONTHS_ES3[d.month - 1]}" if d else "")
+                          + ": revisa las canaletas y los metales blandos (ventilas, forros) al acercarte."))
+    if stop.get("pass", 1) >= 2 and not cb and bt and bt.get("start"):
+        win = (bt["start"], bt["end"])
+        lines.append(("retry", f"Not home last time. People are most often home {_span(win, 'en')}.",
+                      f"No estaban la última vez. La gente suele estar en casa {_span(win, 'es')}."))
+    y = stop.get("year_built")
+    if kind != "storm" and y and y < old_before:
+        lines.append(("old_house", f"Built {y}: look at the siding, trim and roof edge for wear as you walk up.",
+                      f"Construida en {y}: revisa el desgaste del siding, las molduras y la orilla del techo al acercarte."))
+    if not lines:
+        lines.append(("general", "Knock, step back, smile. Name and HMP first, then one question.",
+                      "Toca, da un paso atrás, sonríe. Primero tu nombre y HMP, luego una pregunta."))
+    lines = lines[:2]
+    return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
+
+
+def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None, pace=None):
+    """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
+    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines.
+    `only` = (list_id, turf): build that one walk (a hot zone's walk), see the module doc."""
     tw = _tw(cfg)
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
@@ -611,18 +741,22 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
             continue
         c, pools[L["id"]] = _candidates(L, "storm", tw, results, dnk, today)
         src[L["id"]] = (L, "storm")
-        if 0 <= age <= max_age:
+        if only:
+            storm += [x for x in c if (L["id"], x["turf"].get("turf")) == tuple(only)]
+        elif 0 <= age <= max_age:
             storm += [x for x in c if x["heat"] >= tw["storm_min_heat"]
                       and (x["avg_hail"] or 0) >= tw["storm_min_hail"]]
     every = []
     for L in hud.get("everyday_lists") or []:
         c, pools[L["id"]] = _candidates(L, "everyday", tw, results, dnk, today)
         src[L["id"]] = (L, "everyday")
-        every += c
+        every += [x for x in c if not only or (L["id"], x["turf"].get("turf")) == tuple(only)]
     # Come back at: doors due today on ANY list (a promise to a homeowner), earliest time first.
     due, due_town = [], {}
     for lid, by_turf in pools.items():
-        for ss in by_turf.values():
+        for t, ss in by_turf.items():
+            if only and (lid, t) != tuple(only):
+                continue                           # a zone walk keeps only its own come-back doors
             for s in ss:
                 p = str(s["pid"])
                 if p not in due_town and _due(results.get(p), today) == "today":
@@ -631,7 +765,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     due.sort(key=lambda s: results[str(s["pid"])]["come_back"]["time"] or "99:99")
     due_ids = set(due_town)
     cands = storm or every
-    if not cands and due:                          # no walk qualifies, but a promised come-back is due today
+    if not cands and due and not only:                          # no walk qualifies, but a promised come-back is due today
         lid = next(i for i, bt in pools.items() for ss in bt.values() if any(x is due[0] for x in ss))
         DL, kind = src[lid]
         dt = next((t for t in DL.get("turfs") or [] if t.get("turf") == due[0].get("turf")),
@@ -644,8 +778,14 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     L = best["list"]
     # Doors not tried yet first (in the walk's own order), then not-home doors coming back for another pass.
     left = best["left"]
+    turf_of = {t.get("turf"): t for t in L.get("turfs") or []}
+    storm_day = L.get("day") if best["kind"] == "storm" else None
+    doors = {str(s["pid"]): doorscore.score(s, best["kind"], turf_of.get(s.get("turf"), {}).get("owner_share"),
+                                            storm_day, today, cfg) for ss in pools[L["id"]].values() for s in ss}
+    if only:                                       # a zone walk: the best doors first (untried before retries)
+        left = sorted(left, key=lambda s: -doors[str(s["pid"])]["score"])
     chosen = [s for s in left if str(s["pid"]) not in results] + [s for s in left if str(s["pid"]) in results]
-    if len(chosen) < goal:                         # short walk: top up from the list's nearest other walks
+    if len(chosen) < goal and not only:            # short walk: top up from the list's nearest other walks
         lat0 = sum(s["lat"] for s in left) / len(left)
         lon0 = sum(s["lon"] for s in left) / len(left)
         others = [s for t, ss in pools[L["id"]].items() if t != best["turf"]["turf"] for s in ss]
@@ -679,10 +819,19 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
                   for s in chosen],
         "spanish_share": spanish, "who": who_knocks(spanish, cfg),
     }
+    bt = best_time(today, cfg)
+    ev = hud.get("hail_evidence") or {}
+    for i, (s, st) in enumerate(zip(chosen, doc["stops"])):     # T83: the card before each door
+        st["coach"] = coach_for(i, s, st, best["kind"], L.get("day"),
+                                ev.get(f"{st['address']}|{s.get('city') or ''}") or ev.get(f"{st['address']}|"),
+                                taps, bt, old_before)
+        d = doors.get(str(s["pid"])) or doorscore.score(s, best["kind"], None, storm_day, today, cfg)
+        st["door"] = {"score": d["score"], "parts": d["parts"]}   # door score v2 (round 16): an estimate
+        st["why"] = d["why"]
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
-    doc["goal_note"] = goal_note(today, doc["goal_doors"], cfg)
+    doc["goal_note"] = goal_note(today, doc["goal_doors"], cfg, None if results else pace)   # T84: no history yet
     doc.update(freshness(hud, now, cfg))
     note = rough_note(doc["stops"], best["kind"], cfg)            # additive, only when there is something to say
     if note:
@@ -693,9 +842,10 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     return doc
 
 
-def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
-    """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`."""
-    doc = pick(hud, today, goal, results, cfg, now, dnk)
+def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, pace=None):
+    """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`.
+    `pace` = benchmarks.doors_per_hour(...) for the goal note when there are no door results yet (T84)."""
+    doc = pick(hud, today, goal, results, cfg, now, dnk, taps, pace=pace)
     if doc is not None:
         return doc
     today = date.fromisoformat(today) if isinstance(today, str) else today

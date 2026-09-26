@@ -1,0 +1,217 @@
+{
+  "_meta": {
+    "purpose": "Line items most often missed on adjuster roof/siding estimates, for the app's claim screen to prompt per stage (round 20 research). Not Nebraska-audited figures - vendor/trade-press sources, confidence noted per item.",
+    "as_of": "2026-09-26",
+    "legal_note": "HMP documents damage, cites code, and submits a supplement WITH photos/measurements. HMP never negotiates the claim settlement for the homeowner or represents the homeowner to the insurer as their agent - that is public-adjuster work (Neb. Rev. Stat. 44-9201 to 44-9219, license required). HMP never promises insurance will pay, and never touches the deductible (44-8604).",
+    "sources": [
+      "IA Solutions - Items Insurance Companies Commonly Miss (search summary, egress blocked to page)",
+      "IA Solutions - Siding Supplement Guide for Contractors (search summary)",
+      "United Policyholders - What's UP with Overhead and Profit (search summary)",
+      "Roof Sales Mastery - Supplement Short List (search summary)",
+      "Nebraska Legislature 44-9204 (search summary of statute text, page itself blocked this round)",
+      "up.codes IRC 2018 Chapter 9 Roof Assemblies (search summary, page blocked this round)",
+      "MWL Law / Johnson Roofers - Nebraska matching regulation, Neb. Admin. Code Title 210 Ch. 60 Sec 010.01(B) (search summary)"
+    ]
+  },
+  "items": [
+    {
+      "id": "drip_edge",
+      "name_en": "Drip edge (eaves AND rakes)",
+      "name_es": "Goterón / drip edge (aleros y bordes laterales)",
+      "trade": "roof",
+      "when_it_applies": "Every roof replacement - required by code, but adjusters often price it only on the eaves, not the rakes, or leave it off entirely",
+      "proof_needed": ["Photo of existing drip edge condition (or its absence) before tear-off", "Linear footage measurement, eaves + rakes separately"],
+      "code_ref": "IRC R905.2.8.5 (via Nebraska's adopted IRC, local amendments may vary - unverified this round, egress blocked)",
+      "typical_missed": true
+    },
+    {
+      "id": "starter_strip",
+      "name_en": "Starter strip / starter course",
+      "name_es": "Tira de inicio (starter strip)",
+      "trade": "roof",
+      "when_it_applies": "Every roof replacement - manufacturers require a real starter product for shingle warranty, adjusters sometimes fold it into 'field shingles' and drop the separate cost",
+      "proof_needed": ["Linear footage of eaves + rakes", "Manufacturer install instructions showing starter strip is required for warranty (attach as backup)"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "ice_water_shield",
+      "name_en": "Ice and water shield (code-required areas)",
+      "name_es": "Membrana de hielo y agua (donde el codigo lo exige)",
+      "trade": "roof",
+      "when_it_applies": "Cold-climate code zones per IRC Table R301.2(1) - required at eaves (extend 24in inside the exterior wall line) where there's history of ice damming; also valleys per most manufacturer specs",
+      "proof_needed": ["Photo of old underlayment/eaves during tear-off", "Note the local jurisdiction's adopted code amendment if it strengthens the base IRC requirement"],
+      "code_ref": "IRC R905.1.2 (Nebraska adopts IRC with local amendments; Omaha is confirmed to amend R301.2 to require ice & water at eaves - verify Fremont's own amendment, unverified this round)",
+      "typical_missed": true
+    },
+    {
+      "id": "step_counter_flashing",
+      "name_en": "Step and counter flashing (walls, chimneys, dormers)",
+      "name_es": "Tapajuntas escalonado y contra-tapajuntas",
+      "trade": "roof",
+      "when_it_applies": "Any roof-to-wall or roof-to-chimney intersection - code requires new flashing when the roof covering is replaced, reusing old flashing is a common adjuster shortcut",
+      "proof_needed": ["Photo of each intersection", "Linear footage per intersection", "Note if old flashing is rusted/damaged - stronger case for full replacement not reuse"],
+      "code_ref": "IRC R903.2 (flashing required at wall/roof intersections) - unverified page text this round",
+      "typical_missed": true
+    },
+    {
+      "id": "ridge_vent",
+      "name_en": "Ridge vent (cut-in ventilation, not just ridge cap)",
+      "name_es": "Ventilacion de cumbrera (ridge vent)",
+      "trade": "roof",
+      "when_it_applies": "When the existing roof has ridge vent - adjusters sometimes price ridge cap shingles but not the vent product underneath, or omit the cut-in labor",
+      "proof_needed": ["Photo of existing ridge vent before tear-off", "Linear footage of ridge"],
+      "code_ref": "IRC R806 attic ventilation (net free area requirement) - unverified this round",
+      "typical_missed": true
+    },
+    {
+      "id": "pipe_jacks",
+      "name_en": "Pipe jacks / plumbing boots (all penetrations, not just one)",
+      "name_es": "Botas de tuberia / pipe jacks (todas las salidas)",
+      "trade": "roof",
+      "when_it_applies": "Every roof with plumbing vent penetrations - adjusters sometimes price only one pipe boot when there are several sizes/locations",
+      "proof_needed": ["Photo + count of every roof penetration", "Note size of each (1.5in, 2in, 3in, 4in are different products/prices)"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "satellite_detach_reset",
+      "name_en": "Satellite dish / solar attachment detach and reset",
+      "name_es": "Desmontar y reinstalar antena satelital / paneles solares",
+      "trade": "roof",
+      "when_it_applies": "Any roof-mounted dish or solar hardware in the tear-off area, when the same storm event caused the roof damage",
+      "proof_needed": ["Photo of the mounted equipment before tear-off", "Note it must come down for tear-off regardless of whether it was itself storm-damaged"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "gutter_apron",
+      "name_en": "Gutter apron (flashing behind the gutter, under the drip edge)",
+      "name_es": "Gutter apron (tapajuntas detras del canalon)",
+      "trade": "gutter",
+      "when_it_applies": "Any roof with gutters - a separate flashing piece from drip edge, frequently priced as one line when it should be two",
+      "proof_needed": ["Photo showing gutter + roof edge condition", "Linear footage along all gutter runs"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "op_three_trade",
+      "name_en": "Overhead & Profit (O&P), 10%+10%, when 3+ trades are involved",
+      "name_es": "Gastos generales y ganancia (O&P), cuando hay 3 o mas oficios",
+      "trade": "roof",
+      "when_it_applies": "Job involves 3+ trades needing coordination (e.g. roofing + siding + gutters, or roofing + a separate electrician for a mast/weatherhead) - carriers often strip O&P claiming the contractor self-performs; this is an insurance-industry convention (not a Nebraska statute) but Xactimate itself calculates it by default",
+      "proof_needed": ["List every trade involved on the job and why each needs separate scheduling/coordination", "Point out in writing (email, not verbal negotiation) that Xactimate's own line-item calc includes O&P by default"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "code_upgrade",
+      "name_en": "Code-required upgrade cost (ordinance/law coverage)",
+      "name_es": "Costo de actualizacion por codigo (cobertura de ordenanza/ley)",
+      "trade": "roof",
+      "when_it_applies": "When the current code requires something the old roof/siding didn't have (e.g. a stronger ice barrier than was there before, or a permit-triggered upgrade) - most policies have a separate 'ordinance or law' coverage line for this, often unused because nobody points to the code section",
+      "proof_needed": ["Cite the exact code section", "Photo of the old (non-compliant) condition", "Note the policy's ordinance-or-law coverage line if the declarations page has one"],
+      "code_ref": "Varies by item - cite the specific IRC/local amendment section that changed",
+      "typical_missed": true
+    },
+    {
+      "id": "siding_matching",
+      "name_en": "Siding matching / full-elevation or full-house replacement when exact match is unavailable",
+      "name_es": "Igualar el revestimiento / reemplazo completo cuando no hay material identico",
+      "trade": "siding",
+      "when_it_applies": "Damaged siding profile/color/exposure is discontinued or unavailable - Nebraska's own matching regulation (Neb. Admin. Code Title 210, Ch. 60, Sec 010.01(B)) requires the insurer to replace enough to create a 'reasonably uniform appearance' at no added cost to the insured over the deductible",
+      "proof_needed": ["Discontinuation letter or manufacturer confirmation the exact product/color/profile is unavailable", "Photos comparing old vs. any close substitute", "Cite the Nebraska matching regulation by name (this is a Nebraska-specific rule, stronger than generic supplement asks)"],
+      "code_ref": "Neb. Admin. Code Title 210, Ch. 60, Sec 010.01(B) - VERIFY THE EXACT TEXT AT nebraskalegislature.gov OR sos.nebraska.gov NEXT ROUND (search-summary only this round, egress blocked to primary source)",
+      "typical_missed": true
+    },
+    {
+      "id": "house_wrap",
+      "name_en": "House wrap / weather-resistive barrier",
+      "name_es": "Envoltura de la casa / barrera contra el clima (house wrap)",
+      "trade": "siding",
+      "when_it_applies": "Every siding tear-off - code requires a new weather-resistive barrier when siding comes off, adjusters sometimes leave it off the scope entirely",
+      "proof_needed": ["Photo of existing wrap condition during tear-off", "Square footage of the wall area"],
+      "code_ref": "IRC R703.2 (weather-resistive barrier required) - unverified this round",
+      "typical_missed": true
+    },
+    {
+      "id": "j_channel_trim",
+      "name_en": "J-channel, starter strip, undersill trim, corner posts, window/door casing trim (siding)",
+      "name_es": "J-channel, tira de inicio, moldura bajo alero, esquineros, molduras de ventanas/puertas",
+      "trade": "siding",
+      "when_it_applies": "Every siding job - trim pieces are frequently priced as one bundled line ($300-800 per elevation, $1,500-3,500 whole house per one source, unverified/unaudited) when each should be its own item",
+      "proof_needed": ["Photo of each trim type", "Linear footage per type"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "detach_reset_fixtures",
+      "name_en": "Detach and reset of fixtures (light fixtures, shutters, house numbers, downspouts)",
+      "name_es": "Desmontar y reinstalar accesorios (luces, contraventanas, numeros de casa, bajantes)",
+      "trade": "siding",
+      "when_it_applies": "Anything mounted to the wall/eave in the work area that must come off and go back on",
+      "proof_needed": ["Photo of each fixture before tear-off"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "permits",
+      "name_en": "Permit fee",
+      "name_es": "Costo del permiso de construccion",
+      "trade": "roof",
+      "when_it_applies": "Whenever the local jurisdiction requires a permit for re-roof/re-side (check Fremont's requirement) - a real, invoiced cost, often left off the scope",
+      "proof_needed": ["The permit fee receipt/invoice once pulled"],
+      "code_ref": null,
+      "typical_missed": true
+    },
+    {
+      "id": "dumpster",
+      "name_en": "Dumpster / debris haul-off",
+      "name_es": "Contenedor de basura / retiro de escombros",
+      "trade": "roof",
+      "when_it_applies": "Every tear-off job - sometimes priced too low for the actual size/number of loads needed",
+      "proof_needed": ["Photo of dumpster size/load", "Actual hauler invoice if it exceeds the estimate"],
+      "code_ref": null,
+      "typical_missed": false
+    },
+    {
+      "id": "steep_high_charge",
+      "name_en": "Steep-slope and high/second-story access charges",
+      "name_es": "Recargo por techo inclinado y por altura/segundo piso",
+      "trade": "roof",
+      "when_it_applies": "Roof pitch above the standard threshold (commonly 7/12+) or height above one story - line-item pricing tools (Xactimate) have separate add-on categories for this that adjusters sometimes don't apply",
+      "proof_needed": ["Photo showing pitch (use a pitch gauge) and height", "Note the pitch/story count on the scope comparison sheet"],
+      "code_ref": null,
+      "typical_missed": true
+    }
+  ],
+  "allowed_vs_not_allowed": {
+    "contractor_may": [
+      "Document damage with photos/measurements and provide them to the insurer",
+      "Point to specific code sections that require an item the estimate is missing",
+      "Meet the adjuster on-site and show/point out damage in person",
+      "Submit a written supplement request with photos, measurements, and a code citation for each added item",
+      "Ask, in writing, for O&P when 3+ trades are involved and note that Xactimate's own default calculation includes it"
+    ],
+    "contractor_may_not_without_a_public_adjuster_license": [
+      "Negotiate the claim settlement amount on the homeowner's behalf as their representative (that is 'adjusting' under the Public Adjusters Licensing Act, Neb. Rev. Stat. 44-9201 to 44-9219)",
+      "Represent to the insurer that you are acting FOR the insured in effecting a settlement",
+      "Promise the homeowner a specific claim outcome or dollar amount",
+      "Offer, waive, or rebate any part of the homeowner's deductible (44-8604) - never frame a supplement or upgrade as 'we'll eat the difference' language that touches the deductible"
+    ],
+    "verify_next_round": [
+      "Exact statute text of 44-9204 (only a search summary this round, egress to nebraskalegislature.gov blocked - matches round 15/18's same limitation)",
+      "Exact Neb. Admin. Code Title 210 Ch. 60 Sec 010.01(B) matching regulation text",
+      "Fremont/Dodge County's own adopted IRC edition and any local amendments to R301.2/R905 (ice barrier, drip edge) - the up.codes page that would show this was blocked this round"
+    ]
+  },
+  "documents_adjusters_typically_want": [
+    "Full photo set of every damaged slope/elevation, dated",
+    "Measurements (roof report or manual measurements: squares, linear ft of eaves/rakes/ridge/valleys/flashing)",
+    "A line-by-line comparison: insurer's scope vs. what the photos/measurements show is actually needed",
+    "Manufacturer installation instructions when an item is required for warranty (starter strip, ice barrier)",
+    "Code citation for any code-required item not in the original scope",
+    "Discontinuation letter/manufacturer confirmation for siding matching claims",
+    "Claim number, date of loss, and adjuster contact on every document sent"
+  ]
+}

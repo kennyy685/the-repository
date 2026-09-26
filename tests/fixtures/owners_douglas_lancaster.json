@@ -1,0 +1,767 @@
+{
+"note": "Real Douglas (dcgis.org Parcels_public) and Lancaster (gis.lincoln.ne.gov Assessor/TaxParcels) parcel records pulled 2026-09-26, trimmed. Only the fields owners.py asks for (no owner names). Mailing addresses of non-owner-occupied parcels replaced with '100 SAMPLE RD' / 'PO BOX 123' (privacy).",
+"douglas": [
+{
+"attributes": {
+"PIN": "0116400006",
+"PROPERTY_A": "4505 S 168 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "4505 S 168 ST",
+"OWNER_ZIP": "68135",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.17662306125494,
+"y": 41.21445804866985
+}
+},
+{
+"attributes": {
+"PIN": "0116410030",
+"PROPERTY_A": "15770 Q ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "15770 Q ST",
+"OWNER_ZIP": "68135",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.16188738109521,
+"y": 41.20629551620894
+}
+},
+{
+"attributes": {
+"PIN": "0116420018",
+"PROPERTY_A": "4823 S 168 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "4823 S 168 ST",
+"OWNER_ZIP": "68135",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.1763555469496,
+"y": 41.20947212094535
+}
+},
+{
+"attributes": {
+"PIN": "0116730008",
+"PROPERTY_A": "4508 S 180 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "4508 S 180 ST",
+"OWNER_ZIP": "68135",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.19885546201114,
+"y": 41.21402665551356
+}
+},
+{
+"attributes": {
+"PIN": "0116380003",
+"PROPERTY_A": "15050 Q ST",
+"PROP_ZIP": "68137",
+"ADDRESS2": "100 SAMPLE RD",
+"OWNER_ZIP": "51534",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.15016689034495,
+"y": 41.20904563844778
+}
+},
+{
+"attributes": {
+"PIN": "0116410024",
+"PROPERTY_A": "5110 S 156 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "100 SAMPLE RD",
+"OWNER_ZIP": "51534",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.15963294332941,
+"y": 41.206347926793434
+}
+},
+{
+"attributes": {
+"PIN": "0116470004",
+"PROPERTY_A": "17701 F ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "100 SAMPLE RD",
+"OWNER_ZIP": "51534",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.19274042326835,
+"y": 41.21843309602667
+}
+},
+{
+"attributes": {
+"PIN": "0116730004",
+"PROPERTY_A": "4328 S 180 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "100 SAMPLE RD",
+"OWNER_ZIP": "51534",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.19883603152134,
+"y": 41.21583253793508
+}
+},
+{
+"attributes": {
+"PIN": "0116340000",
+"PROPERTY_A": "4125 S 156 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "PO BOX 139",
+"OWNER_ZIP": "68101",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.1567994417887,
+"y": 41.218614985566205
+}
+},
+{
+"attributes": {
+"PIN": "0116400003",
+"PROPERTY_A": "4211 S 168 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "PO BOX 139",
+"OWNER_ZIP": "68101",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.17606979496395,
+"y": 41.21834243450089
+}
+},
+{
+"attributes": {
+"PIN": "0116450000",
+"PROPERTY_A": "4220 S 168 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "P O BOX 139",
+"OWNER_ZIP": "68101",
+"CLASS": "E"
+},
+"centroid": {
+"x": -96.18080779535941,
+"y": 41.21803328173735
+}
+},
+{
+"attributes": {
+"PIN": "0116730012",
+"PROPERTY_A": "4626 S 180 ST",
+"PROP_ZIP": "68135",
+"ADDRESS2": "P O BOX 223",
+"OWNER_ZIP": "68022",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.19886697277936,
+"y": 41.21266353732629
+}
+},
+{
+"attributes": {
+"PIN": "0526078178",
+"PROPERTY_A": "16631 WRIGHT CR",
+"PROP_ZIP": "68130",
+"ADDRESS2": "16631 WRIGHT ST",
+"OWNER_ZIP": "68130",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.17422000733596,
+"y": 41.232299914007115
+}
+},
+{
+"attributes": {
+"PIN": "0530110115",
+"PROPERTY_A": "16143 V CR",
+"PROP_ZIP": "68135",
+"ADDRESS2": "16143 V ST",
+"OWNER_ZIP": "68135",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.16674432271577,
+"y": 41.199802940495
+}
+},
+{
+"attributes": {
+"PIN": "0530667382",
+"PROPERTY_A": "17120 O CR",
+"PROP_ZIP": "68135",
+"ADDRESS2": "17120 O ST",
+"OWNER_ZIP": "68135",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.18107428538431,
+"y": 41.20844896096379
+}
+},
+{
+"attributes": {
+"PIN": "0537780210",
+"PROPERTY_A": "17522 BAY WOOD CR",
+"PROP_ZIP": "68130",
+"ADDRESS2": "17522 BAYWOOD CIR",
+"OWNER_ZIP": "68130",
+"CLASS": "R"
+},
+"centroid": {
+"x": -96.18770211563852,
+"y": 41.22079879306076
+}
+}
+],
+"lancaster": [
+{
+"attributes": {
+"PARCELID": "1614121017000",
+"SITEADDRESS": "6141 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "6141 LAROCHE RD    ",
+"PSTLZIP5": "68526",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601669,
+40.749902
+],
+[
+-96.601705,
+40.7499
+],
+[
+-96.601707,
+40.749929
+],
+[
+-96.601712,
+40.749997
+],
+[
+-96.601332,
+40.750014
+],
+[
+-96.601331,
+40.75
+],
+[
+-96.601324,
+40.749917
+],
+[
+-96.601669,
+40.749902
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614121018000",
+"SITEADDRESS": "6145 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "6145 LAROCHE RD    ",
+"PSTLZIP5": "68526",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601663,
+40.749827
+],
+[
+-96.601699,
+40.749826
+],
+[
+-96.6017,
+40.749839
+],
+[
+-96.601705,
+40.7499
+],
+[
+-96.601669,
+40.749902
+],
+[
+-96.601324,
+40.749917
+],
+[
+-96.601318,
+40.749843
+],
+[
+-96.601663,
+40.749827
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614121020000",
+"SITEADDRESS": "6151 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "6151 LAROCHE RD    ",
+"PSTLZIP5": "68526",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601305,
+40.749671
+],
+[
+-96.601686,
+40.749656
+],
+[
+-96.601686,
+40.749658
+],
+[
+-96.601693,
+40.749748
+],
+[
+-96.601693,
+40.749752
+],
+[
+-96.601657,
+40.749753
+],
+[
+-96.601313,
+40.749768
+],
+[
+-96.601306,
+40.749685
+],
+[
+-96.601305,
+40.749671
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614121021000",
+"SITEADDRESS": "6161 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "6161 LAROCHE RD    ",
+"PSTLZIP5": "68526",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601642,
+40.749562
+],
+[
+-96.601678,
+40.749561
+],
+[
+-96.601686,
+40.749656
+],
+[
+-96.601305,
+40.749671
+],
+[
+-96.601304,
+40.749658
+],
+[
+-96.601298,
+40.749575
+],
+[
+-96.601642,
+40.749562
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614121019000",
+"SITEADDRESS": "6147 LAROCHE RD, LINCOLN, NE, 68516",
+"PSTLADDRESS": "100 SAMPLE RD",
+"PSTLZIP5": "51534",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601657,
+40.749753
+],
+[
+-96.601693,
+40.749752
+],
+[
+-96.601699,
+40.749826
+],
+[
+-96.601663,
+40.749827
+],
+[
+-96.601318,
+40.749843
+],
+[
+-96.601313,
+40.749768
+],
+[
+-96.601657,
+40.749753
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123012000",
+"SITEADDRESS": "6167 FRANCISCAN DR, LINCOLN, NE, 68526",
+"PSTLADDRESS": "100 SAMPLE RD",
+"PSTLZIP5": "51534",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.599758,
+40.749436
+],
+[
+-96.60008,
+40.74931
+],
+[
+-96.600096,
+40.749303
+],
+[
+-96.60014,
+40.749369
+],
+[
+-96.600123,
+40.749376
+],
+[
+-96.599802,
+40.749502
+],
+[
+-96.599758,
+40.749436
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123015000",
+"SITEADDRESS": "8714 REMI DR, LINCOLN, NE, 68526",
+"PSTLADDRESS": "100 SAMPLE RD",
+"PSTLZIP5": "51534",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.600446,
+40.74915
+],
+[
+-96.600467,
+40.749423
+],
+[
+-96.600468,
+40.749437
+],
+[
+-96.600371,
+40.749442
+],
+[
+-96.60037,
+40.749428
+],
+[
+-96.600349,
+40.749154
+],
+[
+-96.600446,
+40.74915
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123018000",
+"SITEADDRESS": "6174 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "100 SAMPLE RD",
+"PSTLZIP5": "51534",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601061,
+40.749319
+],
+[
+-96.600606,
+40.74934
+],
+[
+-96.600588,
+40.749341
+],
+[
+-96.600583,
+40.749267
+],
+[
+-96.600601,
+40.749266
+],
+[
+-96.601055,
+40.749245
+],
+[
+-96.601061,
+40.749319
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614121023000",
+"SITEADDRESS": "6167 LAROCHE RD, LINCOLN, NE, 68526",
+"PSTLADDRESS": "PO BOX 123",
+"PSTLZIP5": "68526",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.601631,
+40.749414
+],
+[
+-96.601667,
+40.749413
+],
+[
+-96.601672,
+40.749486
+],
+[
+-96.601636,
+40.749488
+],
+[
+-96.601292,
+40.749501
+],
+[
+-96.601286,
+40.749426
+],
+[
+-96.601631,
+40.749414
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123003000",
+"SITEADDRESS": "6125 FRANCISCAN DR, LINCOLN, NE, 68526",
+"PSTLADDRESS": "PO BOX 123",
+"PSTLZIP5": "68516",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.600204,
+40.750111
+],
+[
+-96.600525,
+40.749984
+],
+[
+-96.600541,
+40.749978
+],
+[
+-96.600584,
+40.750044
+],
+[
+-96.600568,
+40.75005
+],
+[
+-96.600247,
+40.750177
+],
+[
+-96.600204,
+40.750111
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123004000",
+"SITEADDRESS": "6127 FRANCISCAN DR, LINCOLN, NE, 68526",
+"PSTLADDRESS": "PO BOX 123",
+"PSTLZIP5": "68516",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.600498,
+40.749913
+],
+[
+-96.600541,
+40.749978
+],
+[
+-96.600525,
+40.749984
+],
+[
+-96.600204,
+40.750111
+],
+[
+-96.600161,
+40.750046
+],
+[
+-96.600482,
+40.749919
+],
+[
+-96.600498,
+40.749913
+]
+]
+]
+}
+},
+{
+"attributes": {
+"PARCELID": "1614123005000",
+"SITEADDRESS": "6131 FRANCISCAN DR, LINCOLN, NE, 68526",
+"PSTLADDRESS": "PO BOX 123",
+"PSTLZIP5": "68516",
+"CLASSDSCRP": "Residential Improved"
+},
+"geometry": {
+"rings": [
+[
+[
+-96.600442,
+40.749827
+],
+[
+-96.60045,
+40.74984
+],
+[
+-96.600498,
+40.749913
+],
+[
+-96.600482,
+40.749919
+],
+[
+-96.600161,
+40.750046
+],
+[
+-96.600113,
+40.749972
+],
+[
+-96.600104,
+40.74996
+],
+[
+-96.600442,
+40.749827
+]
+]
+]
+}
+}
+]
+}

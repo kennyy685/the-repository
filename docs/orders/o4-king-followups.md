@@ -1,5 +1,7 @@
 # O4: King morning follow-ups (draft for FilthE to approve)
 
+> **Status: superseded (2026-09-26).** The Mac routines are paused; the same follow-up logic runs in the cloud hourly trigger's 8 AM run (`trig_012h6pQqggc88n8vsj93zayJ`). See CLAUDE.md "Chain of command". Kept as a record.
+
 The King's scheduled routines only change with FilthE's approval on his MacBook (in Cowork). This is
 the text to add to the **morning standup** routine. FilthE: open the routine on the Mac, paste the block
 below at the end of its prompt, and approve.

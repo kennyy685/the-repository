@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 from . import nbhd, parcels
+from . import owners as owner_data
 from .geo import haversine_mi, interp
 from .models import iso
 
@@ -66,7 +67,8 @@ def _bg_lookup(conn, cfg, meta):
     return idx, geoids, own
 
 
-def score_buildings(conn, cfg, day, bbox, kinds, min_hail, session=None, log=print):
+def score_buildings(conn, cfg, day, bbox, kinds, min_hail, session=None, log=print, budget_s=None):
+    """budget_s: max seconds for the parcel + owner downloads (refresh's overall time guard); None = no cap."""
     grid, meta, used = nbhd.fused_grid(conn, cfg, day)
     if grid is None:
         raise SystemExit(f"No radar hail map for {day}. Run: python3 hh.py swaths --day {day}")
@@ -75,7 +77,14 @@ def score_buildings(conn, cfg, day, bbox, kinds, min_hail, session=None, log=pri
         if tiles:
             xs = [parcels._tile_box(i, j) for i, j in tiles]
             parcels.ensure_area(conn, session, (min(t[0] for t in xs), min(t[1] for t in xs),
-                                                max(t[2] for t in xs), max(t[3] for t in xs)), log=log)
+                                                max(t[2] for t in xs), max(t[3] for t in xs)), budget_s=budget_s,
+                                 log=log)
+            try:                                      # T23: per-house owner-occupied (county data, optional)
+                owner_data.ensure_area(conn, session, (min(t[0] for t in xs), min(t[1] for t in xs),
+                                                   max(t[2] for t in xs), max(t[3] for t in xs)),
+                                     budget_s=min(120, budget_s) if budget_s else 120, log=log)
+            except Exception as e:
+                log(f"    owners download failed ({type(e).__name__}); using stored data")
     x0, y0, x1, y1 = bbox
     rows = conn.execute(f"""SELECT * FROM parcels WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?
                             AND kind IN ({','.join('?' * len(kinds))})""", (y0, y1, x0, x1, *kinds)).fetchall()
@@ -471,13 +480,14 @@ def draw_turf_map(path, turfs, title, subtitle, conn, max_turfs=15, dots=None, t
     plt.close(fig)
 
 
-def make_list(conn, cfg, day, near, session, radius_mi=None, min_hail=None, turf_size=None, log=print):
+def make_list(conn, cfg, day, near, session, radius_mi=None, min_hail=None, turf_size=None, log=print,
+              budget_s=None):
     dl = cfg.get("door_lists", {})
     min_hail = min_hail or dl.get("min_hail_in", 1.0)
     turf_size = turf_size or dl.get("turf_size", 60)
     bbox, area = area_bbox(conn, near, radius_mi)
     houses, used = score_buildings(conn, cfg, day, bbox, dl.get("kinds", ["single", "mobile", "multi"]), min_hail,
-                                   session, log)
+                                   session, log, budget_s=budget_s)
     if not houses:
         return None
     turfs = build_turfs(houses, turf_size, dl.get("max_hop_mi", 0.4))

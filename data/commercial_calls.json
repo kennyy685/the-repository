@@ -1,0 +1,39 @@
+{
+  "source": "Round 38 web research (search-summary sourced; WebFetch/curl blocked on every vendor/blog domain tried - flag as unverified beyond the general B2B-cadence and asset/property-manager role pattern, which several independent pages agreed on).",
+  "legal_reminder": "Business lines only (leasing offices, property managers, company lines) - no personal cells, no bought lists, no cold texts. Calling a published business number is fine; texting one that didn't invite texts is not.",
+  "who_decides": {
+    "note": "Two different jobs, often two different people, on apartment complexes and commercial buildings.",
+    "property_manager": "Runs day-to-day operations on site or for the management company. Usually does NOT control the capital budget. Can identify a roof problem, gather proposals/bids, and recommend a vendor - the person who lets you in the door and does the walk with you.",
+    "asset_manager": "Works for the ownership group (often at a regional or HQ office, not on-site). Decides capital spend and gives the final sign-off on a roofing vendor for a real capital project. The property manager usually has to go through them for anything above routine repair money.",
+    "practical_move": "Always start with the property manager/leasing office - they're reachable and can get you a walk of the property. Ask them directly whether a capital roof project needs asset-manager sign-off, and if so, ask for that name/number by name rather than trying to skip past the PM."
+  },
+  "first_call_goal": {
+    "en": "Not a sale on call one. The only real win is one of: (1) a scheduled walk of the roof/exterior with the property manager, (2) the name and direct line of whoever approves vendor bids, or (3) permission to send a one-page capabilities sheet / leave a card. Anything beyond that is a bonus.",
+    "es": "No es una venta en la primera llamada. La única meta real es una de estas: (1) agendar una caminata del techo/exterior con el gerente de la propiedad, (2) el nombre y línea directa de quien aprueba proveedores, o (3) permiso para enviar una hoja de capacidades o dejar una tarjeta. Todo lo demás es extra."
+  },
+  "gatekeeper_script": {
+    "note": "Sound like you belong on the call, not like a stranger selling something - be specific and brief, never vague ('I wanted to discuss our services').",
+    "say_en": "Hi, this is [name] with HMP Siding & Roofing - we're local, out of Fremont. I noticed [property name] took some hail/wind last [storm/month] and wanted to see who handles roof and exterior maintenance there - is that the property manager, or should I ask for someone else?",
+    "say_es": "Hola, soy [nombre] de HMP Siding & Roofing - somos locales, de Fremont. Vi que [nombre de la propiedad] recibió granizo/viento en [tormenta/mes] y quería saber quién maneja el mantenimiento del techo y el exterior ahí - ¿es el gerente de la propiedad, o debo preguntar por alguien más?"
+  },
+  "opening_with_pm": {
+    "say_en": "I'm not calling to sell you anything today - I do exterior inspections after storms, roofing and siding, and [property name] is in an area that took [hail/wind] on [date]. Would it help to have someone walk the roof and exterior with you, free, and give you a written condition report you can keep on file? No obligation either way.",
+    "say_es": "No le llamo para venderle algo hoy - hago inspecciones de exteriores después de tormentas, techos y revestimiento, y [nombre de la propiedad] está en una zona que recibió [granizo/viento] el [fecha]. ¿Le serviría que alguien camine el techo y el exterior con usted, gratis, y le dé un reporte escrito del estado que puede guardar? Sin obligación de ningún lado."
+  },
+  "follow_up_cadence": {
+    "note": "General B2B research (cirrusinsight.com, fyxer.com, skipcall.io, growleads.io - search-summary sourced, pages blocked to WebFetch this round) finds most deals need 5-12 touches over 2-3 weeks, spaced 3-5 days apart, and that reply rates drop hard after a 7-day gap. Adapted for HMP: phone + in-person only (no cold email/LinkedIn list to add channels with, and no texting a number that didn't invite it).",
+    "plan": [
+      {"touch": 1, "day": 0, "channel": "call", "goal": "reach PM or leave a specific voicemail naming the storm date"},
+      {"touch": 2, "day": 3, "channel": "call", "goal": "if no answer, call again; if reached once, confirm the walk date"},
+      {"touch": 3, "day": 7, "channel": "drop_by", "goal": "leave a capabilities sheet + card at the leasing office in person if calls aren't landing"},
+      {"touch": 4, "day": 12, "channel": "call", "goal": "reference the dropped-off sheet by name, ask again for the walk"},
+      {"touch": 5, "day": 18, "channel": "call", "goal": "last call for this cycle; if still no response, park it and re-touch after the next storm/quarter"}
+    ],
+    "stop_rule": "A clear 'not interested' or 'we have a vendor' ends the cadence for that property - log it and only re-approach after a new storm event, not on a timer."
+  },
+  "watch_out": [
+    "Never claim a property 'has damage' before anyone has looked - offer the free inspection as the ask, not a verdict.",
+    "Owner/manager names for apartment or commercial properties only, per CLAUDE.md - never personal cells or home addresses, and this rule already covers property managers/leasing staff since they're the business contact, not a homeowner.",
+    "Don't buy a contact list or scrape emails to skip the phone call - CLAUDE.md bars bought lists (TCPA/DNC risk); business-line calls found by looking up the property/management company are fine."
+  ]
+}

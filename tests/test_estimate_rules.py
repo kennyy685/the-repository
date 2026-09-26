@@ -39,7 +39,14 @@ def fuzz_jobs(n, seed):
                 job[key] = rnd.choice([round(rnd.uniform(0, hi), 1), rnd.randint(1, hi), round(rnd.uniform(0, 4), 2)])
         if rnd.random() < 0.4:
             job["footprint_sqft"] = rnd.choice([rnd.randint(300, 4000), round(rnd.uniform(300, 4000), 1)])
-        for key, choices in (("material", ["vinyl", "hardie", "James Hardie", "shingle", None]),
+        for key, hi in (("windows", 25), ("ice_water_sq", 8), ("ridge_vent_ft", 80), ("skylight_ft", 30),
+                        ("gutter_guards_ft", 250), ("downspouts_ft", 120)):          # rules v2 add-ons
+            if rnd.random() < 0.15:
+                job[key] = rnd.choice([rnd.randint(1, hi), round(rnd.uniform(0, hi), 1), 1])
+        if rnd.random() < 0.15:
+            job["chimney"] = rnd.choice([True, False, 1, 2, "1", None])
+        for key, choices in (("material", ["vinyl", "hardie", "James Hardie", "shingle", "insulated_vinyl",
+                                           "Insulated Vinyl", None]),
                              ("pitch", ["low", "std", "steep", "normal", 3, 4, 6, 6.5, 7, "7/12", "3:12", " 9 / 12 ", None]),
                              ("stories", [1, 2, 3, "2", 2.4, None]), ("layers", [0, 1, 2, 3, "2", None]),
                              ("house_wrap", [True, False, None]), ("permit", [True, False, None])):
@@ -93,11 +100,11 @@ class ExportShape(unittest.TestCase):
         self.assertEqual((part["prices"]["vinyl_siding_sq"]["low"], part["prices"]["vinyl_siding_sq"]["high"]),
                          (600, 650))                                   # HMP's reversed pair comes out low <= high
 
-    def test_eight_test_cases_are_real_estimates(self):
+    def test_twelve_test_cases_are_real_estimates(self):
         cfg = copy.deepcopy(config.DEFAULTS)
         doc = estimate.export_rules(cfg)
         cases = doc["test_cases"]
-        self.assertEqual(len(cases), 8)
+        self.assertEqual(len(cases), 12)
         by = {t["name"]: t for t in cases}
         for name in ("siding vinyl", "siding hardie", "roof std", "roof steep 2-story", "gutters only", "mixed",
                      "below minimum", "footprint only (rough)"):
@@ -136,7 +143,7 @@ class ExportCli(unittest.TestCase):
                 self.assertEqual(hh.main(["estimate", "--export-rules", "--out", out]), 0)
             doc = json.loads(buf.getvalue())
             self.assertRegex(doc["updated_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
-            self.assertEqual(len(doc["test_cases"]), 8)
+            self.assertEqual(len(doc["test_cases"]), 12)
             with open(out, encoding="utf-8") as f:
                 self.assertEqual(json.load(f)["prices"], doc["prices"])
 
@@ -158,7 +165,7 @@ class JsMatchesPython(unittest.TestCase):
         return int(m.group(2))
 
     def test_default_rules(self):
-        self.assertEqual(self.run_node(estimate.export_rules(config.load())), 8)
+        self.assertEqual(self.run_node(estimate.export_rules(config.load())), 12)
 
     def test_fuzz_market_hmp_and_partial_prices(self):
         roof_min_hmp_general = hmp_prices(min_job_roof=None)          # HMP general minimum beats market roof minimum
@@ -166,7 +173,7 @@ class JsMatchesPython(unittest.TestCase):
         odd["prices_reference"] = dict(odd["prices_reference"], gutters_ft={"low": 15, "high": None})
         for i, cfg in enumerate((copy.deepcopy(config.DEFAULTS), hmp_prices(), roof_min_hmp_general, odd)):
             with mock.patch.object(estimate, "RULE_TEST_JOBS", estimate.RULE_TEST_JOBS + fuzz_jobs(250, seed=i)):
-                self.assertEqual(self.run_node(estimate.export_rules(cfg)), 258)
+                self.assertEqual(self.run_node(estimate.export_rules(cfg)), 262)
 
 
 if __name__ == "__main__":

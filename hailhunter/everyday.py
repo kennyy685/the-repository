@@ -4,11 +4,14 @@ HMP also sells regular siding and roof replacement to older homes. This ranks Ce
 ("neighborhoods", 250-1,500 homes) by how likely their homes are to need that work, then makes door lists for
 the best ones the same way storm lists are made (walkable turfs, csv / xlsx / map), each walk with a heat score.
 
-heat 0-100 = 100 x old x owners x value x distance x settled x newbuild x weight   (weights: config "everyday")
+heat 0-100 = 100 x old x owners x value x afford x distance x settled x newbuild x weight   (config "everyday")
   old       share of homes built before `old_before`: per house from the parcels when most years are known,
             else the Census decade counts (B25034), else estimated from the Census median year (B25035)
-  owners    owner-occupied share (Census B25003): owners pay for their own siding and roof
+  owners    owner-occupied share (Census B25003): owners pay for their own siding and roof; per house from the
+            county's owner mailing address where one publishes it (owners.py, T23: Sarpy, Douglas, Lancaster)
   value     typical home value: enough to reinvest in, not luxury
+  afford    small "can afford a job" factor from median household income (Census B19013, T163); this cash score
+            only, never the storm/insurance scores
   distance  miles from home base
   settled   small cut for homes bought in the last few years
   newbuild  small cut for homes built since `new_since`
@@ -24,6 +27,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 from . import doors, parcels
+from . import owners as owner_data
 from .geo import haversine_mi, interp
 from .models import iso
 from .nbhd import YEAR_BINS, year_shares
@@ -46,10 +50,14 @@ def _home_town(cfg):
 
 
 def _center(conn, cfg, near):
+    """(lat, lon) of `near`: a town name, or "Town, ST" to pick the state (Lexington, NE vs Lexington, MO)."""
     if not near:
         return cfg["home"]["lat"], cfg["home"]["lon"]
-    p = conn.execute("SELECT lat, lon FROM places WHERE lower(name)=lower(?) ORDER BY COALESCE(hu,0) DESC",
-                     (near,)).fetchone()
+    name, _, st = str(near).partition(",")
+    q, args = "SELECT lat, lon FROM places WHERE lower(name)=lower(?)", [name.strip()]
+    if st.strip():
+        q, args = q + " AND upper(state)=upper(?)", args + [st.strip()]
+    p = conn.execute(q + " ORDER BY COALESCE(hu,0) DESC", args).fetchone()
     if not p:
         raise SystemExit(f"Town '{near}' not found")
     return p["lat"], p["lon"]
@@ -58,7 +66,8 @@ def _center(conn, cfg, near):
 # ------------------------------------------------------------------ the score
 def heat(f, cfg):
     """Everyday heat for one walk or neighborhood from its facts:
-    share_old / share_new / basis / med_year / owners / med_value / dist_mi / share_sold / n_sold (any may be None).
+    share_old / share_new / basis / med_year / owners / med_value / med_income / dist_mi / share_sold / n_sold
+    (any may be None).
     Returns {"heat", "why" (2-4 plain reasons), "parts"}."""
     ev = cfg["everyday"]
     cut = ev["old_before"]
@@ -70,13 +79,15 @@ def heat(f, cfg):
     owners = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
     mv = f.get("med_value")
     value = interp(ev["value_curve"], mv) if mv else ev["value_unknown"]
+    inc = f.get("med_income")
+    afford = interp(ev["income_curve"], inc) if inc else ev.get("income_unknown", 1.0)
     dist = f.get("dist_mi")
     distance = interp(ev["distance_curve"], dist or 0)
     settled = 1 - ev["sold_penalty"] * (f.get("share_sold") or 0.0)
     new = f.get("share_new") or 0.0
     newbuild = 1 - ev["new_penalty"] * new
     weight = float(ev.get("weight", 1.0))         # T35: tuned by `hh.py tune` from real door results (default 1)
-    h = round(min(100.0, 100 * old * owners * value * distance * settled * newbuild * weight), 1)
+    h = round(min(100.0, 100 * old * owners * value * afford * distance * settled * newbuild * weight), 1)
     why = []
     if share is not None and basis != "median":
         why.append(f"{round(share * 100)}% of homes built before {cut}")
@@ -100,12 +111,15 @@ def heat(f, cfg):
         k = f"${round(mv / 1000)}k"
         why.append(f"homes ~{k}" if value >= 0.95 * top else
                    (f"high-end homes (~{k})" if mv > peak_hi else f"lower home values (~{k})"))
+    if inc and afford < 1.0:
+        why.append(f"lower incomes (~${round(inc / 1000)}k/yr)")
     if dist is not None and dist <= 15:
         why.append(f"{max(1, round(dist))} mi from {_home_town(cfg)}")
     parts = {"old": round(old, 3), "owners": round(owners, 3), "value": round(value, 3),
-             "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
+             "afford": round(afford, 3), "distance": round(distance, 3), "settled": round(settled, 3), "newbuild": round(newbuild, 3),
              "share_old": None if share is None else round(share, 3), "basis": basis, "median_built": med,
              "owner_share": None if own is None else round(own, 3), "median_value": mv,
+             "median_income": inc,
              "dist_mi": None if dist is None else round(dist, 1), "share_new": round(new, 3), "sold_recent": n_sold,
              "weight": weight}
     return {"heat": h, "why": why[:4], "parts": parts}
@@ -120,10 +134,11 @@ def areas(conn, cfg, near=None, radius_mi=None):
     radius = radius_mi or ev["radius_mi"]
     out = []
     for r in conn.execute(f"""SELECT b.geoid, b.label, b.lat, b.lon, b.min_lon, b.min_lat, b.max_lon, b.max_lat,
-            b.rings, a.hu, a.occupied, a.owner, a.med_year, a.med_value, y.total AS y_total,
+            b.rings, a.hu, a.occupied, a.owner, a.med_year, a.med_value, i.med_income, y.total AS y_total,
             {', '.join('y.' + c for c in YEAR_BINS)}
             FROM bgs b LEFT JOIN acs a ON a.geoid = b.geoid AND a.level = 'bg'
-            LEFT JOIN acs_year_built y ON y.geoid = b.geoid WHERE b.state = 'NE'"""):
+            LEFT JOIN acs_year_built y ON y.geoid = b.geoid
+            LEFT JOIN acs_income i ON i.geoid = b.geoid WHERE b.state = 'NE'"""):
         if haversine_mi(lat0, lon0, r["lat"], r["lon"]) > radius or (r["hu"] or 0) < ev["min_homes"]:
             continue
         label = r["label"] or r["geoid"]
@@ -135,7 +150,8 @@ def areas(conn, cfg, near=None, radius_mi=None):
              "lat": r["lat"], "lon": r["lon"], "rings": r["rings"],
              "bbox": (r["min_lon"], r["min_lat"], r["max_lon"], r["max_lat"]),
              "owners": (r["owner"] / r["occupied"]) if r["occupied"] else None,
-             "med_year": r["med_year"], "med_value": r["med_value"], "share_old": share,
+             "med_year": r["med_year"], "med_value": r["med_value"], "med_income": r["med_income"],
+             "share_old": share,
              "share_new": year_shares(yb, since=ev["new_since"]), "basis": "census" if share is not None else None,
              "dist_mi": round(haversine_mi(home["lat"], home["lon"], r["lat"], r["lon"]), 1)}
         f.update(heat(f, cfg))
@@ -166,6 +182,10 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
             parcels.ensure_area(conn, session, area["bbox"], budget_s=budget_s, log=log)
         except Exception as e:                       # a failed download never stops a run: use what is stored
             log(f"    parcels download failed ({type(e).__name__}); using stored buildings")
+        try:                                         # T23: per-house owner-occupied (county data, optional)
+            owner_data.ensure_area(conn, session, area["bbox"], budget_s=budget_s or 120, log=log)
+        except Exception as e:
+            log(f"    owners download failed ({type(e).__name__}); using stored data")
     x0, y0, x1, y1 = area["bbox"]
     kinds = ev["kinds"]
     rows = _inside(area, conn.execute(f"""SELECT * FROM parcels WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?
@@ -174,9 +194,16 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
     today = today or datetime.now(ZoneInfo(cfg["timezone"])).date()
     sold_since = (today - timedelta(days=round(365.25 * ev["recent_sale_years"]))).isoformat()
     own = area.get("owners")
-    O = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
+    O_area = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
+    rows = [dict(p) for p in rows]
+    try:                                             # T23: per-house owner-occupied where a county publishes it
+        owner_data.lookup(conn, rows)
+    except Exception:                                # no cache table / bad rows: the neighborhood share only
+        pass
     out = []
     for p in rows:
+        occ = p.get("owner_occ")                     # True / False from the county, None = use the area share
+        O = O_area if occ is None else (ev["owner_house_yes"] if occ else ev["owner_house_no"])
         year = p["year_built"] or area.get("med_year")
         A = interp(ev["age_curve"], year) if year else ev["old_unknown"]
         mv = p["total_value"] or area.get("med_value")
@@ -194,9 +221,13 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
             flags.append("Type from zoning")
         if p["kind"] == "multi":
             flags.append("Ask for owner/landlord")
+        if occ is True:
+            flags.append("Owner lives here (county)")
+        elif occ is False:
+            flags.append("Owner mails elsewhere (likely rental)")
         score = 100 * A * O * V * interp(ev["distance_curve"], dist) * doors.KIND_FACTOR.get(p["kind"], 0.5) * \
             ((1 - ev["sold_penalty"]) if bought else 1.0)
-        out.append({**dict(p), "bg": area["geoid"], "hail_in": None, "owner_share": own, "score": round(score, 1),
+        out.append({**p, "bg": area["geoid"], "hail_in": None, "owner_share": own, "score": round(score, 1),
                     "dist_mi": round(dist, 1), "flags": "; ".join(flags), "bought_recently": bought})
     return out
 
@@ -205,12 +236,15 @@ def turf_heat(stops, area, cfg):
     """Everyday heat for one walk: its own houses' years/values/sales, the neighborhood's Census facts otherwise."""
     ev, home = cfg["everyday"], cfg["home"]
     n = len(stops)
-    f = {k: area.get(k) for k in ("owners", "med_value", "share_old", "share_new", "basis", "med_year")}
+    f = {k: area.get(k) for k in ("owners", "med_value", "med_income", "share_old", "share_new", "basis", "med_year")}
     years = [int(s["year_built"]) for s in stops if s.get("year_built")]
     if years and len(years) >= 0.5 * n:
         f.update(share_old=sum(y < ev["old_before"] for y in years) / len(years),
                  share_new=sum(y >= ev["new_since"] for y in years) / len(years),
                  med_year=int(np.median(years)), basis="parcels")
+    occ = [s["owner_occ"] for s in stops if s.get("owner_occ") is not None]
+    if occ and len(occ) >= 0.5 * n:                  # T23: the county's per-house owner flags beat the Census share
+        f["owners"] = sum(1 for o in occ if o) / len(occ)
     vals = [float(s["total_value"]) for s in stops if s.get("total_value")]
     if vals:
         f["med_value"] = float(np.median(vals))
@@ -242,8 +276,9 @@ def list_id(area):
     return f"everyday_{re.sub(r'[^A-Za-z]+', '_', area['town']).strip('_')}_{area['geoid']}"
 
 
-def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, today=None, log=print):
-    """One door list for one neighborhood (an entry from areas()). None when no homes are stored there."""
+def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, today=None, log=print, town=None):
+    """One door list for one neighborhood (an entry from areas()). None when no homes are stored there.
+    `town` = the `everyday_towns` entry this list was built for (T97), kept in params for hud.json `town_pick`."""
     ev = cfg["everyday"]
     today = today or datetime.now(ZoneInfo(cfg["timezone"])).date()
     houses = score_houses(conn, cfg, area, session, budget_s, today, log)
@@ -281,7 +316,8 @@ def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, toda
     conn.execute("""INSERT OR REPLACE INTO everyday_lists (list_id, conv_day, area, created_utc, params, n_doors,
                     n_turfs, csv_path, xlsx_path, map_path, geoid, heat, why, parts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                  (lid, today.isoformat(), area["label"], iso(datetime.now(timezone.utc)),
-                  json.dumps({"turf_size": turf_size, "bbox": area["bbox"]}), len(houses), len(turfs),
+                  json.dumps({"turf_size": turf_size, "bbox": area["bbox"],
+                             **({"everyday_town": town} if town else {})}), len(houses), len(turfs),
                   paths["csv"], paths["xlsx"], paths["png"], area["geoid"], whole["heat"], json.dumps(whole["why"]),
                   json.dumps(whole["parts"])))
     conn.execute("DELETE FROM door_list_stops WHERE list_id=?", (lid,))
@@ -297,13 +333,15 @@ def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, toda
             "heat": whole["heat"], "why": whole["why"], "geoid": area["geoid"]}
 
 
-def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_size=None, log=print):
+def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_size=None, log=print, budget_s=None):
     """Door lists for the n best neighborhoods (skipping ones with no stored homes). Parcel downloads share one
-    time budget (everyday.parcel_budget_s); after it, only stored buildings are used. Returns (lists, ranked)."""
+    time budget (everyday.parcel_budget_s, or `budget_s` when refresh's overall guard has less left); after it,
+    only stored buildings are used. Returns (lists, ranked)."""
     ev = cfg["everyday"]
     n = ev["refresh_lists"] if n is None else n
     ranked = areas(conn, cfg, near, radius_mi)
-    budget, t0, made = ev["parcel_budget_s"], time.monotonic(), []
+    budget = ev["parcel_budget_s"] if budget_s is None else budget_s
+    t0, made = time.monotonic(), []
     for a in ranked[:2 * n + 3]:
         if len(made) >= n:
             break
@@ -312,3 +350,34 @@ def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_s
         if res:
             made.append(res)
     return made, ranked
+
+
+def build_towns(conn, cfg, session=None, towns=None, turf_size=None, log=print, budget_s=None):
+    """T97: everyday lists for the config `everyday_towns` (e.g. Schuyler, Columbus, Lexington: towns with a high
+    Spanish-speaking share), built every refresh alongside the top-N lists, whatever their distance from home base.
+    Per town: its best `everyday.town_lists` neighborhoods within `everyday.town_radius_mi` of the town (the normal
+    `radius_mi` default is untouched). A town that isn't in the database is skipped, never an error. Parcel
+    downloads share `everyday.town_parcel_budget_s`. Returns the lists made (same shape as build_top's)."""
+    ev = cfg["everyday"]
+    towns = (cfg.get("everyday_towns") or []) if towns is None else towns
+    per_town = int(ev.get("town_lists", 1))
+    budget = ev.get("town_parcel_budget_s") if budget_s is None else budget_s    # budget_s: refresh's guard
+    t0, made = time.monotonic(), []
+    for town in towns:
+        try:
+            ranked = areas(conn, cfg, town, ev.get("town_radius_mi", 5))
+        except SystemExit:
+            log(f"  everyday town {town}: not in the town list, skipped")
+            continue
+        n = 0
+        for a in ranked[:2 * per_town + 3]:
+            if n >= per_town:
+                break
+            left = budget - (time.monotonic() - t0) if budget else None
+            res = make_list(conn, cfg, a, session if left is None or left > 0 else None, turf_size, left, log=log,
+                            town=town)
+            if res:
+                res["town"] = town
+                made.append(res)
+                n += 1
+    return made

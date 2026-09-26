@@ -28,12 +28,25 @@
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
                   week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py rookie --doors doors.json [--date 2026-10-05]   rookie plan progress (app doc stats/rookie)
   python3 hh.py tune --weekly weekly.json [--min-doors 50] [--apply] [--out tune.json]   T35 learning loop: real door
                   results vs heat -> small weight changes (max 15% each, EN/ES why). DRY RUN unless --apply
                   (writes data/tuned.json, merged over config.json; history in data/tune_history.json)
   python3 hh.py estimate --json job.json [--out est.json]   T52 quick price range (EN/ES); market reference until
                   the boss's prices (config `prices`, T51) are in. --footprint 1400 --stories 2 = ROUGH squares only
   python3 hh.py estimate --export-rules [--out prices.json]   the same rules as JSON for the HMP App (system/prices)
+  python3 hh.py takeoff --json job.json [--out order.json]   O7 material order list from measurements (EN/ES,
+                  rounded up, text to send the supplier). --export-rules = the rules for the app (system/takeoff)
+  python3 hh.py followups --leads leads.json [--date D] [--out f]   follow-ups due: touches 2/5/10 days after the
+                  first Interested + next steps, grouped today/tomorrow/later (EN/ES). --export-rules = rules for
+                  the app's docs/app/followups.js
+  python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]
+                  hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
+                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk
+  python3 hh.py daily --out-dir DIR [--date D] [--results f] [--dnk f] [--leads f] [--near T]   the 7:40 AM app job
+                  in one go: todaywalk+evidence, calltoday, zones+walks, followups (with --leads); one JSON file per
+                  app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
+                  evidence__<slug>.json, followups__today.json) + manifest.json
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -86,28 +99,38 @@ def pick_door_lists(conn, cfg, window_days=200, max_miles=120, n_auto=4):
     return out
 
 
-def refresh(conn, fetcher, cfg, log=print):
+def refresh(conn, fetcher, cfg, log=print, clock=None):
     """Everything, end to end: what the daily Storm Watch scheduled task runs. Door lists/commercial
-    export CSV even without openpyxl (see doors.make_list / commercial.write_csv)."""
+    export CSV even without openpyxl (see doors.make_list / commercial.write_csv).
+    One overall time guard (runbudget.py, config `refresh.budget_s`, default 10 min): once it is used, the optional
+    network steps skip with a log line or use stored data only; hud.json is always written. `clock` = test hook."""
+    import time
     from hailhunter import commercial, doors, hud, nbhd
+    from hailhunter.runbudget import RunBudget
     t0 = datetime.now(timezone.utc)
+    rb = RunBudget((cfg.get("refresh") or {}).get("budget_s", 600), clock or time.monotonic, log)
     if not conn.execute("SELECT 1 FROM bgs LIMIT 1").fetchone():
         log("First run: loading towns, neighborhoods and Census housing...")
         from hailhunter.sources import places
-        places.load(conn, fetcher, cfg)
-        nbhd.load_acs(conn, fetcher, cfg)
-        nbhd.load_bgs(conn, fetcher, cfg)
-        nbhd.label_bgs(conn, cfg)
+        with rb.step("first_run_load"):
+            places.load(conn, fetcher, cfg)
+            nbhd.load_acs(conn, fetcher, cfg)
+            nbhd.load_bgs(conn, fetcher, cfg)
+            nbhd.label_bgs(conn, cfg)
     before = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
-    touched, _ = ingest.run(conn, fetcher, cfg, log=log)
-    analyze.analyze(conn, cfg, days=sorted(touched))
-    try:                                   # REQ-4: wind rides along, so Storm Watch needs no separate step
-        from hailhunter import wind
-        wind.ingest(conn, fetcher, cfg, log=log)
-    except Exception as e:                 # wind is informational; never let it stop the hail run
-        log(f"  wind skipped: {type(e).__name__}: {e}")
+    with rb.step("hail_reports"):
+        touched, _ = ingest.run(conn, fetcher, cfg, log=log)
+        analyze.analyze(conn, cfg, days=sorted(touched))
+    if not rb.skip("wind reports"):
+        try:                               # REQ-4: wind rides along, so Storm Watch needs no separate step
+            from hailhunter import wind
+            with rb.step("wind"):
+                wind.ingest(conn, fetcher, cfg, budget_s=rb.cap(None), log=log)
+        except Exception as e:             # wind is informational; never let it stop the hail run
+            log(f"  wind skipped: {type(e).__name__}: {e}")
     from hailhunter import mrms
-    done, _, errs = mrms.run(conn, fetcher, cfg, None, None, log)
+    with rb.step("radar_maps"):
+        done, _, errs = mrms.run(conn, fetcher, cfg, None, None, log)
     have = {r[0] for r in conn.execute("SELECT conv_day FROM swaths")}
     # Re-measure days with a new radar map AND days whose ground reports changed: late spotter reports
     # and NCEI's official records (months later) correct the radar map around them (fusion).
@@ -121,53 +144,77 @@ def refresh(conn, fetcher, cfg, log=print):
             if abs(res["factor"] - (cal["factor"] if cal else 1.0)) >= 0.02:
                 todo = have                # factor moved: every stored map needs re-measuring
     index = None
-    for d in sorted(todo):
-        if index is None:
-            _, meta = mrms.load_grid(cfg, d)
-            if meta is None:
-                continue
-            index = nbhd.cell_index(conn, cfg, meta)
-        nbhd.measure_day(conn, cfg, d, index)
-    nbhd.rescore(conn, cfg)
+    with rb.step("measure"):
+        for d in sorted(todo):
+            if index is None:
+                _, meta = mrms.load_grid(cfg, d)
+                if meta is None:
+                    continue
+                index = nbhd.cell_index(conn, cfg, meta)
+            nbhd.measure_day(conn, cfg, d, index)
+        nbhd.rescore(conn, cfg)
     lists = []
     session = None if getattr(fetcher, "offline", False) else fetcher.s   # --offline: parcels already stored only
-    for day, town in pick_door_lists(conn, cfg):
-        try:
-            res = doors.make_list(conn, cfg, day, town, session, log=lambda *a: None)
-            if res:
-                lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
-        except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
-            log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
+
+    def live(name):                        # the session while the time guard allows it, else stored data only
+        return None if session is None or rb.skip(name, "downloads skipped (stored data only)") else session
+
+    with rb.step("door_lists"):
+        for day, town in pick_door_lists(conn, cfg):
+            try:
+                res = doors.make_list(conn, cfg, day, town, live(f"door list {town} {day}"), log=lambda *a: None,
+                                      budget_s=rb.cap(None))
+                if res:
+                    lists.append(f"{res['area']} {day}: {len(res['houses']):,} homes / {len(res['turfs'])} turfs")
+            except (SystemExit, Exception) as e:   # one list's download error (parcel site down) never stops the run
+                log(f"  skip {town} {day}: {type(e).__name__ + ': ' if isinstance(e, Exception) else ''}{e}"[:300])
     for s in lists:
         log("  door list " + s)
     everyday_lists = []
+    ev = cfg.get("everyday", {})
     try:                                   # T50: old-house lists, no storm needed. Optional: never stops the run
         from hailhunter import everyday
-        nbhd.ensure_year_built(conn, fetcher, cfg, log=log)
-        made, _ = everyday.build_top(conn, cfg, None if getattr(fetcher, "offline", False) else fetcher.s,
-                                     n=cfg.get("everyday", {}).get("refresh_lists", 3), log=lambda *a: None)
+        with rb.step("everyday_lists"):
+            if not rb.skip("Census year-built table"):
+                nbhd.ensure_year_built(conn, fetcher, cfg, log=log)
+            made, _ = everyday.build_top(conn, cfg, live("everyday lists"), n=ev.get("refresh_lists", 3),
+                                         log=lambda *a: None, budget_s=rb.cap(ev.get("parcel_budget_s", 120)))
         everyday_lists = [f"{r['area']}: {len(r['houses']):,} homes / {len(r['turfs'])} turfs, heat {r['heat']}"
                           for r in made]
     except Exception as e:
         log(f"  everyday lists skipped: {type(e).__name__}: {e}")
+    try:                                   # T97: the `everyday_towns` (Schuyler, Columbus, Lexington) every run too
+        from hailhunter import everyday
+        with rb.step("everyday_towns"):
+            made = everyday.build_towns(conn, cfg, live("everyday town lists"), log=lambda *a: None,
+                                        budget_s=rb.cap(ev.get("town_parcel_budget_s", 90)))
+        everyday_lists += [f"{r['area']} (town pick {r['town']}): {len(r['houses']):,} homes / "
+                           f"{len(r['turfs'])} turfs, heat {r['heat']}" for r in made]
+    except Exception as e:
+        log(f"  everyday town lists skipped: {type(e).__name__}: {e}")
     for s in everyday_lists:
         log("  everyday list " + s)
-    nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
+    if not rb.skip("Census language table"):
+        with rb.step("language"):
+            nbhd.ensure_language(conn, fetcher, cfg, log=log)   # T37: optional, never raises
     try:                                   # same: a parcel/owner download error must not cost today's hud.json
-        out, done_n, total_n = commercial.build(conn, cfg, session, log=log)
-        commercial.write_csv(out, cfg)
+        with rb.step("commercial"):
+            out, done_n, total_n = commercial.build(conn, cfg, live("apartment/commercial targets"), log=log,
+                                                    budget_s=rb.cap(150) or 30)   # over: 30 s on stored data
+            commercial.write_csv(out, cfg)
     except Exception as e:
         out = []
         log(f"  apartment/commercial targets skipped: {type(e).__name__}: {e}"[:300])
     log(f"Apartment/commercial targets: {len(out):,}")
-    path, d = hud.write(conn, cfg)
+    with rb.step("hud"):
+        path, d = hud.write(conn, cfg)
     after = {r[0] for r in conn.execute("SELECT DISTINCT conv_day FROM hail_events")}
     new_storm_days = sorted(after - before)
     fresh = [s for s in d["storms"] if s["day"] in new_storm_days and s["hail"] >= 1.0 and s["dist_mi"] <= 150]
     summary = {"finished_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                "minutes": round((datetime.now(timezone.utc) - t0).total_seconds() / 60, 1),
                "new_storm_days": new_storm_days, "new_hits_1in_150mi": fresh[:10], "door_lists": lists,
-               "targets": len(out), "hud": path, "everyday_lists": everyday_lists}
+               "targets": len(out), "hud": path, "everyday_lists": everyday_lists, "budget": rb.summary()}
     with open(os.path.join(cfg["paths"]["export"], "refresh_summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
     log(json.dumps({k: v for k, v in summary.items() if k != "new_hits_1in_150mi"}, indent=1))
@@ -178,7 +225,8 @@ def refresh(conn, fetcher, cfg, log=print):
 
 
 BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
-                "data/tuned.json")                 # T35 tuned weights, only when `hh.py tune --apply` made one
+                "data/tuned.json", "data/glossary_en_es.json", "data/benchmarks.json",
+                "data/rookie_plan.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
 def _bundled(rel):
@@ -310,12 +358,20 @@ def main(argv=None):
     p.add_argument("--results", help="door results so far: JSON of the app's doors/<date>_<pid> docs (optional)")
     p.add_argument("--dnk", help="do-not-knock: JSON of the app's dnk/<slug> docs; those houses never appear")
     p.add_argument("--evidence-out", help="also write the evidence/<address-slug> docs for the walk's houses here")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
+    p.add_argument("--rookie-plan", help="rookie plan (default: data/rookie_plan.json; missing = no rookie section)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("rookie", help="rookie plan progress: day, block, streak, EN/ES verdict (JSON for stats/rookie)")
+    p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--rookie-plan", help="rookie plan (default: data/rookie_plan.json)")
     p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("tune", help="T35: real door results vs heat -> small weight changes (dry run unless --apply)")
     p.add_argument("--weekly", required=True, nargs="+", help="`hh.py weekly` output file(s) (a doc or a list of docs)")
@@ -332,11 +388,46 @@ def main(argv=None):
     p.add_argument("--export-rules", action="store_true", help="print the pricing rules + 8 self-check cases as one "
                                                                "JSON doc for the HMP App (db path system/prices)")
     p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("takeoff", help="O7: material order list from measurements (roof/siding/gutters, JSON EN/ES)")
+    p.add_argument("--json", help="job JSON file {kind: roof|siding|gutters|mixed, name, roof{...}, siding{...}, "
+                                  "gutters{...}} (see hailhunter/takeoff.py)")
+    p.add_argument("--export-rules", action="store_true", help="print the takeoff rules + self-check cases as one "
+                                                               "JSON doc for the HMP App (db path system/takeoff)")
+    p.add_argument("--text", action="store_true", help="print only the order text (English, then Spanish)")
+    p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("calltoday", help="today's business call list: apartment/commercial buildings in fresh hail (JSON)")
     p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
     p.add_argument("--csv", help="also write the calls as a CSV to this file")
+    p = sub.add_parser("zones", help="hot zones near a town + a walk per zone (JSON for zones/current, walks/<id>)")
+    p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
+    p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
+    p.add_argument("--top", type=int, help="how many zones (default: config zones.top, 12)")
+    p.add_argument("--doors", type=int, help="doors per zone walk (default: config zones.doors, 25)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs), as for todaywalk")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--out", help="also write the zones doc to this file")
+    p.add_argument("--walks-out", help="also write {walks/<zone id>: walk doc} to this file")
+    p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--export-rules", action="store_true", help="print the rules + self-check cases as one JSON doc "
+                                                               "for the HMP App (docs/app/followups.js)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("daily", help="the 7:40 AM app job in one go: todaywalk+evidence, calltoday, zones+walks, "
+                                     "followups; one JSON file per app doc (today__walk.json, ...)")
+    p.add_argument("--out-dir", required=True, help="folder for the doc files + manifest.json")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--leads", help="the app's leads/<slug> docs: adds followups__today.json")
+    p.add_argument("--doors", type=int, help="doors in today's walk (default: config today_walk.goal_doors, 25)")
+    p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -358,15 +449,20 @@ def main(argv=None):
         from zoneinfo import ZoneInfo
         from hailhunter import todaywalk
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
-        results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
+        raw = todaywalk.load_json(a.results) if a.results else None
+        results = todaywalk.load_results(raw) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        taps = todaywalk.today_taps(raw, day)      # T83: first door of the day / "no" streak for the coach card
         try:
             hud_doc = todaywalk.load_json(hud_path)
         except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
         dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk)   # no walk: stops [] + none_reason
+        from hailhunter import benchmarks          # T84: industry doors/hour for the goal note (no history yet)
+        pace = benchmarks.doors_per_hour(benchmarks.load(a.benchmarks, cfg))
+        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk, taps=taps,
+                                  pace=pace)       # no walk: stops [] + none_reason
         if a.evidence_out:
             with open(a.evidence_out, "w", encoding="utf-8") as f:
                 json.dump(todaywalk.evidence_docs(hud_doc, doc["stops"]), f, indent=1, ensure_ascii=False)
@@ -379,6 +475,40 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "daily":                           # reads hud.json (+ the app's exports); database only for --near
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import benchmarks, daily, zones
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still write docs the app can show (none_reason)
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        try:
+            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None for k in ("results", "dnk", "leads")}
+        except (OSError, ValueError) as e:
+            print(f"daily: can't read an input file ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        conn = None
+        if a.near and os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"daily: can't find the town {a.near!r} (give 'lat,lon'); zones use home base", file=sys.stderr)
+        man = daily.run(cfg, a.out_dir, day, hud_doc, raw["results"], raw["dnk"], raw["leads"], a.doors, near, conn,
+                        benchmarks.load(a.benchmarks, cfg))
+        if conn is not None:
+            conn.close()
+        for e in man["errors"]:
+            print(f"daily: {e['part']} failed: {e['error']}", file=sys.stderr)
+        print(json.dumps(man, indent=1, ensure_ascii=False))
+        return 0 if "today/walk" in man["files"] else 1
     if a.cmd == "calltoday":                       # reads hud.json only: no database needed
         from zoneinfo import ZoneInfo
         from hailhunter import calltoday
@@ -395,6 +525,70 @@ def main(argv=None):
             print(doc["none_reason"]["en"], file=sys.stderr)
         if a.csv:
             calltoday.write_csv(a.csv, doc["calls"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "zones":                           # reads hud.json; the database (if any) only adds outlines/towns
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import todaywalk, zones
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        conn = None
+        if os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"zones: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+            return 2
+        raw = todaywalk.load_json(a.results) if a.results else None
+        results = todaywalk.load_results(raw) if raw is not None else {}
+        dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
+        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn)
+        if a.walks_out:
+            w = zones.walks(hud_doc, doc, day, a.doors, results, cfg, dnk=dnk, taps=todaywalk.today_taps(raw, day))
+            with open(a.walks_out, "w", encoding="utf-8") as f:
+                json.dump(w, f, indent=1, ensure_ascii=False)
+                f.write("\n")
+        if conn is not None:
+            conn.close()
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "followups":                       # reads the app's leads export: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import followups, weekly
+        from hailhunter.todaywalk import load_json
+        try:
+            if a.export_rules:
+                doc = followups.export_rules(cfg)
+            elif a.leads:
+                day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+                doc = followups.followups(weekly.load_leads(load_json(a.leads)), day, cfg)
+            else:
+                print("followups: give --leads leads.json (or --export-rules)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"followups: {e}", file=sys.stderr)
+            return 2
+        if not a.export_rules:
+            print(doc["summary"]["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
@@ -425,6 +619,29 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "takeoff":                         # pure math on config `takeoff`: no database needed
+        from hailhunter import takeoff
+        try:
+            if a.export_rules:                     # the HMP App's `system/takeoff` doc (docs/app/takeoff.js)
+                doc = takeoff.export_rules(cfg)
+            elif a.json:
+                with open(a.json, encoding="utf-8") as f:
+                    doc = takeoff.takeoff(json.load(f), cfg)
+            else:
+                print("takeoff: give --json job.json (or --export-rules)", file=sys.stderr)
+                return 2
+        except (OSError, ValueError) as e:
+            print(f"takeoff: {e}", file=sys.stderr)
+            return 2
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        if a.text and "text" in doc and not a.export_rules:
+            print(doc["text"]["en"] + "\n\n" + doc["text"]["es"])
+        else:
+            print(text)
+        return 0
     if a.cmd == "tune":                            # reads weekly outputs only: no database needed
         from hailhunter import tune
         from hailhunter.todaywalk import load_json
@@ -445,9 +662,27 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "rookie":                          # rookie plan progress from door taps: no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import rookie, weekly
+        from hailhunter.todaywalk import load_json
+        today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            doors = weekly.load_doors(load_json(a.doors))
+            plan = rookie.load_plan(a.rookie_plan, cfg)
+            doc = rookie.progress(doors, plan, today, cfg) or rookie.not_ready(today, plan is not None)
+        except (OSError, ValueError) as e:
+            print(f"rookie: {e}", file=sys.stderr)
+            return 2
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
     if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
         from zoneinfo import ZoneInfo
-        from hailhunter import weekly
+        from hailhunter import benchmarks, rookie, weekly
         from hailhunter.todaywalk import load_json
         today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
@@ -460,7 +695,9 @@ def main(argv=None):
         try:
             doc = weekly.report(weekly.load_doors(load_json(a.doors)),
                                 weekly.load_leads(load_json(a.leads)) if a.leads else [],
-                                week=a.week, hud=hud_doc, today=today, cfg=cfg)
+                                week=a.week, hud=hud_doc, today=today, cfg=cfg,
+                                bench=benchmarks.load(a.benchmarks, cfg),   # T84: missing file -> industry null
+                                rookie_plan=rookie.load_plan(a.rookie_plan, cfg))   # missing plan -> rookie null
         except ValueError as e:
             print(f"weekly: {e}", file=sys.stderr)
             return 2

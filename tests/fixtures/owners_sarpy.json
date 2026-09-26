@@ -1,0 +1,206 @@
+{
+ "_note": "Recorded 2026-09-26 from Sarpy County Parcel_Sales2 (services.arcgis.com/OiG7dbwhQEWoy77N), trimmed. PINs replaced; out-of-town owner mailing addresses replaced with made-up ones; owner names never requested. Page 1 of 2 / page 2 of 2.",
+ "pages": [
+  {
+   "features": [
+    {
+     "attributes": {
+      "PIN": "FIX000",
+      "Situs": "2909 BLACKHAWK DR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "2909 BLACKHAWK DR ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1727308800000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.954218,
+      "y": 41.109586
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX001",
+      "Situs": "2803 ARROWHEAD LN  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "2803 ARROWHEAD LN ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 978998400000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.951765,
+      "y": 41.107474
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX002",
+      "Situs": "2811 COURTNEY CIR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "2811 COURTNEY CIR ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1629849600000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.953349,
+      "y": 41.111926
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX003",
+      "Situs": "2904 ARROWHEAD LN  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "2904 ARROWHEAD LN ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 986860800000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.953585,
+      "y": 41.107959
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX004",
+      "Situs": "3201 BLACKHAWK DR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "100 SAMPLE RD ",
+      "OwnerState": "IA",
+      "OwnerZip": "51534",
+      "SaleDate": 1422403200000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.959147,
+      "y": 41.107514
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX005",
+      "Situs": "3102 JASON CIR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "3102 JASON CIR ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1688083200000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.958267,
+      "y": 41.110084
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX006",
+      "Situs": "2910 SHERIDAN RD  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "2910 SHERIDAN RD ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1426809600000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.954844,
+      "y": 41.110925
+     }
+    }
+   ],
+   "exceededTransferLimit": true
+  },
+  {
+   "features": [
+    {
+     "attributes": {
+      "PIN": "FIX007",
+      "Situs": "3111 LONE TREE RD  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "200 EXAMPLE DR ",
+      "OwnerState": "IA",
+      "OwnerZip": "51503",
+      "SaleDate": 1543536000000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.958608,
+      "y": 41.107505
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX008",
+      "Situs": "2908 SCHUEMANN DR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "PO BOX 123 ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 964137600000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.955099,
+      "y": 41.111746
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX009",
+      "Situs": "13706 S 28TH CIR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "13706 S 28TH CIR ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1098057600000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.952785,
+      "y": 41.107123
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX010",
+      "Situs": "2904 HALIFAX DR  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1593475200000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.953438,
+      "y": 41.105468
+     }
+    },
+    {
+     "attributes": {
+      "PIN": "FIX011",
+      "Situs": "3005 LONE TREE RD  BELLEVUE NE 68123",
+      "SitusPostalZip": "68123",
+      "OwnerAddress": "3005 LONE TREE RD ",
+      "OwnerState": "NE",
+      "OwnerZip": "68123",
+      "SaleDate": 1431648000000,
+      "PropertyClass": "1000"
+     },
+     "geometry": {
+      "x": -95.957105,
+      "y": 41.107515
+     }
+    }
+   ]
+  }
+ ]
+}

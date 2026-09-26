@@ -1,6 +1,6 @@
 ---
 name: refresh-hmp-hq
-description: Rebuild the HMP HQ business dashboard (one summary doc) from the command center, the Edge Site Map and Crew HQ. Use when FilthE says "refresh HMP HQ", at the King's standup and wrap, or after anything the dashboard shows has changed.
+description: Rebuild the HMP HQ business dashboard (one summary doc) from the HMP App (leads, claims, doors), the command center (storms), the Edge Site Map and the AI hub. Use when FilthE says "refresh HMP HQ", at the King's 8 AM standup and 6 PM wrap, or after anything the dashboard shows has changed.
 ---
 
 # Refreshing HMP HQ
@@ -12,10 +12,13 @@ Refreshing = read the sources, rebuild that doc, write it back. Nothing else on 
 - Current snapshot: `get` `hq/snapshot` on HMP HQ (keep its exact field shape; note its version).
 - Edge Site Map (https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn): `list` `buildings`
   (name, progress, crew, updatedAt in ms, notes).
-- Command center (https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX): `list` `turfs`, `calls`,
-  `targets` (logged doors/calls), `get` `system/log` (Storm Watch alerts), and read the published
-  file `data/hud.json` with `path` (storms, lists, counts).
-- Crew HQ (https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU): `board/current` `waiting` for things
+- HMP App (https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT): `list` `leads` (stage, next step),
+  `doors` (door taps), `claims` (schema: skill `hailhunter-reference`), and `stats` if present.
+  This is where leads, doors and claims live now.
+- Command center (https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX), storms only: `get` `system/log`
+  (Storm Watch alerts) and read the published file `data/hud.json` with `path` (storms, lists).
+  Its old `turfs`/`calls`/`targets` are legacy storm-list tracking: don't count leads from them.
+- AI hub (https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU): `board/current` `waiting` for things
   that need FilthE, `answers` (already answered: leave those out).
 
 ## 2. Build
@@ -26,10 +29,12 @@ Refreshing = read the sources, rebuild that doc, write it back. Nothing else on 
   Take the headline and best walk from the newest `system/log` entry.
 - `leads` {stages[] with counts for Not contacted, Contacted/knocked, Inspection set, Damage found,
   Claim filed, Adjuster meeting, Approved, Job scheduled, Done, Lost; hot[] {address,stage,next};
-  doors_logged; calls_logged; link}. Count from `turfs[].results` and `calls`.
+  doors_logged; calls_logged; link}. Count from the HMP App's `leads` and `doors` (claims stages
+  from `claims`); `link` = the HMP App (https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT), not the hub.
 - `jobs[]` {name, scope_en, scope_es, progress (average), buildings[] {name, progress, crew,
   updated_at ISO, flag?{sev,en,es}}, link}.
-- `crews[]` {names, job, where}; `ai` {en, es, link to Crew HQ}.
+- `crews[]` {names, job, where}; `ai` {en, es, link to the AI hub}. `storms` and `leads` links point
+  at the HMP App, not the hub; `jobs` links point at the Edge Site Map.
 - Every sentence in English AND Spanish (the boss reads Spanish). Plain words, no jargon.
 
 ## 3. Write

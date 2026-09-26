@@ -2,9 +2,20 @@ __pycache__/
 *.pyc
 .DS_Store
 __MACOSX/
+# T72 page screenshot check: scratch PNGs, regenerated each run
+tests/pages/out/
 # Big / regenerated data: the engine rebuilds these with `hh.py refresh`
 data/*
 !data/scout_contacts.json
 !data/watch_list.json
 !data/tuned.json
+!data/glossary_en_es.json
+!data/city_rules.json
+!data/practice_drills.json
+!data/followup_scripts.json
+!data/inspection_walk.json
+!data/price_objections.json
+!data/rookie_plan.json
+!data/objection_scripts_2.json
+!data/commercial_calls.json
 .env

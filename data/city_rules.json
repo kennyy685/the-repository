@@ -1,0 +1,42 @@
+{
+  "_note": "For the HMP App to warn on knock hours/no-knock rules. FilthE already holds door-to-door permits for these cities - this is hours/no-knock data only, not a reminder to get a permit. 'verified' = false means official ordinance text could not be opened directly (site blocked/not found in this research pass); confirm with the city clerk/PD before relying on it for anything legal.",
+  "Fremont": {
+    "knock_hours": "Not confirmed from ordinance text. City requires a Solicitor/Peddler permit (Ordinance No. 3970, Fremont Municipal Code ch. 10 art. 2, sec. 10-201/10-202) valid 30 days, carried on the solicitor's person. Permits can be revoked for after-hours operation, high-pressure sales, false info, or entering premises posted 'No Peddlers/Solicitors Allowed'.",
+    "permit_note": "FilthE already has this permit - no action needed. Renew every 30 days (Fremont PD, 725 N Park, 2nd floor).",
+    "no_knock_list": "No separate city no-knock registry found; posted 'No Soliciting/No Peddlers' signs on a property are enforced and can get a permit revoked if ignored.",
+    "source": "https://www.fremontne.gov/73/Solicitor-Licensing ; https://fremontne.gov/DocumentCenter/View/840/Fremont-Municipal-Code-Chapter-10-Business-Regulations-PDF",
+    "verified": false
+  },
+  "Omaha": {
+    "knock_hours": "8:00 AM - 6:00 PM (peddler permit rules; 501(c)(3) nonprofits exempt from the permit, not the general public).",
+    "permit_note": "FilthE already has permits for this city - no action needed.",
+    "no_knock_list": "Not separately confirmed in this pass; assume posted 'No Soliciting' signs are respected as elsewhere in NE - verify with Omaha PD permit desk.",
+    "source": "https://permits.cityofomaha.org (Peddler Permit Municode summary); Omaha Municipal Code ch. 30 (Sales)",
+    "verified": false
+  },
+  "Lincoln": {
+    "knock_hours": "8:00 AM - 8:00 PM, any day of the week (Lincoln Municipal Code ch. 5.36, Peddlers).",
+    "permit_note": "FilthE already has permits for this city - no action needed. Permit (LMC 5.36) includes a background check; not valid over 1 year; must show permit to police or resident on request.",
+    "no_knock_list": "City enforces posted 'No Soliciting' signs - solicitors must not approach those homes.",
+    "source": "https://online.encodeplus.com/regs/lincoln-ne/doc-viewer.aspx?secid=7598",
+    "verified": true
+  },
+  "Columbus": {
+    "knock_hours": "Not confirmed from ordinance text (code section 110.21+ covers permits; hours-of-solicitation section not opened in this pass). Permit applications are taken 8:00 AM-4:00 PM Mon-Fri at Columbus PD - that is the office hours for applying, not the hours you may knock.",
+    "permit_note": "FilthE already has this permit - no action needed.",
+    "no_knock_list": "Not confirmed - check with Columbus PD permit desk.",
+    "source": "https://codelibrary.amlegal.com/codes/columbus/latest/columbus_ne/0-0-0-5161 (site blocked for direct read this round; via search snippet only)",
+    "verified": false
+  },
+  "Schuyler": {
+    "knock_hours": "Not found in this research pass - Schuyler's peddler/solicitor chapter did not surface in search or a blocked code site.",
+    "permit_note": "FilthE already has this permit - no action needed.",
+    "no_knock_list": "Unknown - confirm with Schuyler city clerk (1103 B St, Schuyler NE) or PD.",
+    "source": "https://codelibrary.amlegal.com/codes/schuyler/latest/schuyler_ne/0-0-0-1 (not reachable this round)",
+    "verified": false
+  },
+  "_reference_only_not_a_target_city": {
+    "Central City NE": "5:00 PM-9:00 AM unlawful to solicit unless a prior appointment (i.e. daytime-only default) - typical small-NE-town pattern, cited only to sanity-check the shape of these ordinances, not applied to any HMP target city.",
+    "Wood River NE": "Has its own peddlers/hawkers hours-of-solicitation section (10-201/10-202) with similar daytime-only structure."
+  }
+}

@@ -29,8 +29,8 @@ leads, blind spots". The Code lab shows only Claude Code + the 5 main helpers.
 
 ## Handoffs (messages)
 An event with `kind: "handoff"` and `to: "<agent id>"`. The page shows "picked up" once that agent
-checks in after it. Handoffs to the King are read at 8:12 AM, 6:12 PM, or live when FilthE has the
-page open.
+checks in after it. Handoffs to the King are read by the hourly cloud check (`trig_012h6pQqggc88n8vsj93zayJ`,
+every hour 7 AM-10 PM Central), or instantly when the hub (or the HMP App) fires a wake (`fire_trigger`).
 
 ## The task board (source of truth)
 - Doc `board/current`: `{now:[{id, owner, status, task}], next:[...], waiting:[{id, q}], updatedAt,

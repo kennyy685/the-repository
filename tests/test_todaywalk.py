@@ -23,7 +23,7 @@ KEYS = {"date", "area", "why", "goal_doors", "kind", "list_id", "stops", "spanis
         "goal_note"}                                          # +round 6: always on a walk
 STOP_KEYS = {"pid", "address", "city", "lat", "lon", "pass"}
 NEW_KEYS = {"rough_note", "evidence_note"}                  # additive, only when there's something to say
-NEW_STOP_KEYS = {"year_built", "sqft", "stories", "rough", "house_line"}   # additive house facts (county data)
+NEW_STOP_KEYS = {"year_built", "sqft", "stories", "rough", "house_line", "coach", "door", "why"}   # additive house facts (county data)
 
 
 def num(s):

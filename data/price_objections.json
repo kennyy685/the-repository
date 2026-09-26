@@ -1,0 +1,62 @@
+[
+  {
+    "id": "too-expensive-cash",
+    "objection_en": "That's more than I wanted to spend.",
+    "objection_es": "Es más de lo que quería gastar.",
+    "job_type": "cash (no insurance)",
+    "framework": "validate -> ask what specifically feels high -> show the middle tier next to it, not a discount",
+    "say_en": "That's a fair reaction - let me show you what's actually in that number. Here's our Good option and our Better option side by side; most folks land on Better once they see the warranty difference. Which one fits what you need?",
+    "say_es": "Es una reacción justa - déjeme mostrarle qué incluye ese número. Aquí está la opción Buena y la Mejor, una junto a la otra; la mayoría elige la Mejor al ver la diferencia en la garantía. ¿Cuál se ajusta a lo que necesita?",
+    "never_say": "Never offer to lower the price by covering, waiving or rebating any part of a deductible - not applicable on a pure cash job, but never blur into 'I can make it work' language that implies eating cost off the books. Never say financing guarantees approval."
+  },
+  {
+    "id": "let-me-think-about-it-price",
+    "objection_en": "I need to think about the price.",
+    "objection_es": "Necesito pensar en el precio.",
+    "job_type": "cash and insurance",
+    "framework": "one small ask - name the specific worry, don't re-pitch the whole job",
+    "say_en": "Totally fine - is it the total number, or is it more about timing/paying it out? If it's the number, I can show you the middle option again; if it's timing, we do have a financing partner that doesn't need a credit check for most folks.",
+    "say_es": "Está bien - ¿es el número total, o es más el tiempo/cómo pagarlo? Si es el número, le puedo mostrar otra vez la opción de en medio; si es el tiempo, tenemos un socio de financiamiento que no requiere revisión de crédito para la mayoría.",
+    "never_say": "Never promise a specific financing approval or rate before the lender confirms it (round 21/30: ITIN and no-SSN acceptance still unverified per-lender)."
+  },
+  {
+    "id": "good-better-best-anchor",
+    "objection_en": "(Presenting the quote before any objection is raised - anchoring, not reacting)",
+    "objection_es": "(Presentando la cotización antes de cualquier objeción - anclando, no reaccionando)",
+    "job_type": "cash (no insurance)",
+    "framework": "always show 3 tiers, top one first, so the middle looks reasonable by comparison (search-summary sourced: 60-70% of buyers pick the middle tier when framed this way, ~13% price step between tiers is typical)",
+    "say_en": "I've got three ways to do this: our Best is the full premium system with the longest warranty, Better is our most popular - great materials, strong warranty, and Good meets code with a standard warranty. Most people go with Better. Want me to walk you through what's different?",
+    "say_es": "Tengo tres formas de hacerlo: la Mejor es el sistema premium completo con la garantía más larga, la de en medio es la más popular - buenos materiales, garantía fuerte, y la Buena cumple con el código con garantía estándar. La mayoría elige la de en medio. ¿Le explico las diferencias?",
+    "never_say": "Never present financing or a payment plan as if it changes the actual price of the job, and never rush past the 3-day cancel notice to get a signature while price excitement is high - same-day close is legal here only because the cancel notice is given and explained every time (round 29)."
+  },
+  {
+    "id": "compare-another-bid-price",
+    "objection_en": "I got a cheaper quote from someone else.",
+    "objection_es": "Me dieron una cotización más barata con otra persona.",
+    "job_type": "cash (no insurance)",
+    "framework": "validate -> ask to see it if offered -> compare scope, not just price",
+    "say_en": "Good, it's smart to compare. Can I see what's in their number? A lot of the time a lower price means a thinner warranty or a different material grade - let's line ours up next to theirs so you're comparing the same thing.",
+    "say_es": "Qué bien, es inteligente comparar. ¿Me deja ver qué incluye su número? Muchas veces un precio más bajo significa una garantía más corta o un material diferente - comparemos la nuestra con la de ellos para que sea justo.",
+    "never_say": "Never disparage the other contractor by name or claim they're unregistered/uninsured without proof - keep it to scope comparison."
+  },
+  {
+    "id": "site-unseen-quote",
+    "objection_en": "Can you just give me a number over the phone/text, no need to come out?",
+    "objection_es": "¿Me puede dar un número por teléfono/mensaje, sin necesidad de venir?",
+    "job_type": "cash and insurance",
+    "framework": "give a wide range if pressed, name the reason (attic/ventilation/decking can't be seen from the street or a photo), and make the free inspection the actual ask - never let a phone guess become the number they hold you to.",
+    "say_en": "I could give you a rough range, but I'd rather not - the real number depends on things I can only see up close: the ventilation, the decking under the shingles, how many layers are already up there. If I guess low over the phone and it's wrong once I'm up there, that's worse for both of us. The inspection's free and takes maybe 20-30 minutes - can I come by [day]?",
+    "say_es": "Le podría dar un rango, pero prefiero no hacerlo - el número real depende de cosas que solo se ven de cerca: la ventilación, la madera debajo de las tejas, cuántas capas ya tiene. Si le doy un número bajo por teléfono y luego cambia, es peor para los dos. La inspección es gratis y toma unos 20-30 minutos - ¿puedo pasar el [día]?",
+    "never_say": "Never quote a firm price sight-unseen and never let a phone/text range get treated as the contract number later - if a range is given, say out loud that it's a range, not a quote, and that the real number comes after the inspection."
+  },
+  {
+    "id": "wants-three-bids",
+    "objection_en": "I want to get three bids before I decide.",
+    "objection_es": "Quiero conseguir tres cotizaciones antes de decidir.",
+    "job_type": "cash (no insurance)",
+    "framework": "validate -> ask a diagnostic question (first bid or third?) -> reframe from lowest-price to scope comparison, same as the cheaper-bid objection, without pressuring them to skip the other bids.",
+    "say_en": "That's smart, I'd do the same thing. Quick question so I know how to help - am I the first one out, or have you already got the other two? [if others done] What did you like or not like about them so far? However it shakes out, when you've got all three, line them up side by side on scope and warranty, not just the bottom-line number - a lower price is usually a shorter warranty or a lighter material, not the same job for less. I'll leave you my number with everything written out so it's easy to compare.",
+    "say_es": "Es inteligente, yo haría lo mismo. Una pregunta rápida para saber cómo ayudarle - ¿soy el primero, o ya tiene las otras dos? [si ya las tiene] ¿Qué le gustó o no le gustó de esas? Como sea, cuando tenga las tres, compárelas lado a lado en el alcance y la garantía, no solo el número final - un precio más bajo casi siempre es una garantía más corta o un material más ligero, no el mismo trabajo por menos. Le dejo mi número con todo escrito para que sea fácil comparar.",
+    "never_say": "Never talk them out of getting other bids or imply the other contractors are dishonest - never say anything that could be read as steering them away from a signed competitor's contract (tortious interference risk, round 36). Never promise to 'beat any price' - that invites a race to the bottom and can look like disguised deductible-covering on an insurance job."
+  }
+]

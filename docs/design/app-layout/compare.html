@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMP App Layouts</title>
+<link rel="stylesheet" href="mock.css">
+<style>
+body{padding:28px 16px 48px}
+.wrap{max-width:1240px;margin:0 auto}
+header.top{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+header.top h1{font:800 44px/1 var(--fd)} header.top p{color:var(--ink2);max-width:640px;margin-top:6px}
+header.top .grow{flex:1;min-width:260px}
+.rec{background:linear-gradient(135deg,#3a2a1c,#2a2b2f 70%);border:2px solid var(--hmp);border-radius:16px;padding:16px 18px;margin-bottom:22px}
+.rec b.k{font:800 26px var(--fd);color:var(--hmp2)} .rec p{color:var(--ink2);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.opt{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column}
+.opt.pick{border:2px solid var(--hmp)}
+.opt h2{font:800 28px/1 var(--fd);margin:4px 0 4px} .opt .sub{color:var(--mute);font-size:13.5px;min-height:38px}
+.opt img{width:100%;max-width:300px;display:block;margin:12px auto;border-radius:22px;border:6px solid #0b0b0d}
+.opt ul{list-style:none;margin:6px 0}
+.opt li{padding:7px 0 7px 26px;position:relative;border-bottom:1px solid var(--line);font-size:14px}
+.opt li::before{position:absolute;left:0;top:6px;font:800 16px var(--fd)}
+.opt li.plus::before{content:"+";color:var(--ok)} .opt li.minus::before{content:"–";color:#ff8a80}
+.tt{display:grid;grid-template-columns:1fr auto;font-size:13.5px;margin:10px 0}
+.tt span{padding:4px 0;border-bottom:1px dashed var(--line);color:var(--ink2)} .tt b{padding:4px 0;border-bottom:1px dashed var(--line);font:800 17px var(--fd);text-align:right;color:var(--hmp2)}
+.opt .links{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;padding-top:10px}
+.opt .links a{color:var(--ink);text-decoration:none}
+.lbl{font:700 12px var(--fb);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:8px}
+.now{margin-top:26px;color:var(--ink2);font-size:14px}
+.now a{color:var(--hmp2)}
+</style>
+</head><body>
+<div class="wrap">
+  <header class="top">
+    <div class="grow"><div class="eb o" data-es="App HMP · T75 · elige uno">HMP App · T75 · pick one</div>
+      <h1 data-es="3 formas de acomodar la app">3 ways to lay out the app</h1>
+      <p data-es="Las 3 arreglan lo mismo: Hoy medía 12 pantallas, la Guía de Venta llegaba tarde, el chat estaba enterrado y había cosas del hub de AI. Cambia lo que ves primero y dónde vive cada cosa.">All 3 fix the same audit problems: Today was 12 screens long, the Sale Guide came too late, the chat was buried, and AI-hub stuff was inside the app. They differ in what you see first and where things live.</p></div>
+    <div class="lang"><button data-l="en" class="on">EN</button><button data-l="es">ES</button></div>
+  </header>
+
+  <div class="rec">
+    <b class="k" data-es="Recomiendo B · Siguiente paso">Recommendation: B · Next step</b>
+    <p data-es="Es la que hace lo que pediste: la app te dice qué sigue, qué decir y qué anotar, en cada momento (la Guía de Venta de O7 es la pantalla de inicio). Tomamos de C los botones grandes en Tocar. Si quieres el cambio más chico primero, A es un buen paso intermedio.">It does what you asked for: the app tells you what's next, what to say and what to collect, all day (O7's Sale Guide is the home screen). Borrow C's bigger door buttons for the Knock tab. If you want the smallest change first, A is a good stepping stone.</p>
+  </div>
+
+  <div class="grid">
+    <section class="opt">
+      <div class="eb o" data-es="Opción A">Option A</div><h2 data-es="Primero la ruta">Walk first</h2>
+      <div class="sub">Knock · Due · Leads · Money</div>
+      <img src="shots/option-a-home.png" alt="Option A home screen: today's walk and the next door">
+      <div class="lbl" data-es="Toques">Taps</div>
+      <div class="tt"><span data-es="Anotar puerta">Log a door</span><b>1</b><span data-es="Guía en la puerta">Sale Guide at a door</span><b>1</b><span data-es="Nuevo cliente">Add a lead</span><b>2</b><span data-es="Precio rápido">Quick price</span><b>1</b><span data-es="Seguimientos de mañana">Tomorrow's follow-ups</span><b>1</b><span>EN / ES</span><b>1</b></div>
+      <ul>
+        <li class="plus" data-es="Mejor para: días de tocar puertas; abre directo en la siguiente casa.">Best for: knocking days; opens right on the next house.</li>
+        <li class="plus" data-es="El cambio más chico a la app de hoy: lo más rápido de construir.">Smallest change from today's app: quickest to build.</li>
+        <li class="minus" data-es="A cambio: la Guía de Venta sigue siendo una hoja aparte y el plan del día se reparte entre Tocar y Pendiente. Traducir: Mano Derecha → «¿Cómo se dice?» (2 toques).">Trade-off: the Sale Guide stays a side sheet, and the day's plan is split between Knock and Due. Translate: Right Hand → "How do I say…?" (2 taps).</li>
+      </ul>
+      <div class="links"><a class="ghost" href="option-a.html" data-es="Abrir maqueta ›">Open mockup ›</a><a class="ghost" href="option-a.png" data-es="Imagen">Image</a></div>
+    </section>
+
+    <section class="opt pick">
+      <div class="eb o" data-es="Opción B · recomendada">Option B · recommended</div><h2 data-es="Siguiente paso">Next step</h2>
+      <div class="sub">Now · Knock · + · Leads · Money</div>
+      <img src="shots/option-b-home.png" alt="Option B home screen: the one next step with the words to say">
+      <div class="lbl" data-es="Toques">Taps</div>
+      <div class="tt"><span data-es="Anotar puerta">Log a door</span><b>1</b><span data-es="Guía en la puerta">Sale Guide at a door</span><b>1</b><span data-es="Nuevo cliente">Add a lead</span><b>2</b><span data-es="Precio rápido">Quick price</span><b>2</b><span data-es="Seguimientos de mañana">Tomorrow's follow-ups</span><b>0</b><span>EN / ES</span><b>1</b></div>
+      <ul>
+        <li class="plus" data-es="Mejor para: la «mano derecha»: siempre te dice lo siguiente, con las palabras de la Guía ya puestas.">Best for: the "right hand": it always tells you the next move, with the Sale Guide's words already on it.</li>
+        <li class="plus" data-es="Un solo botón + para empezar todo, incluido «¿Cómo se dice?» (traducción en 2 toques, y ES ⇄ en cada frase).">One + button starts everything, including "Help me say it" (translation in 2 taps, plus ES ⇄ on every line).</li>
+        <li class="minus" data-es="A cambio: 5 pestañas (el máximo), el + abre un menú, y hay que construir el orden de «qué sigue». Trabajo mediano.">Trade-off: 5 tabs (the limit), the + opens a menu, and the "what's next" ranking has to be built. Medium work.</li>
+      </ul>
+      <div class="links"><a class="ghost" href="option-b.html" data-es="Abrir maqueta ›">Open mockup ›</a><a class="ghost" href="option-b.png" data-es="Imagen">Image</a></div>
+    </section>
+
+    <section class="opt">
+      <div class="eb o" data-es="Opción C">Option C</div><h2 data-es="Calle / Oficina">Field / Office</h2>
+      <div class="sub" data-es="Calle: una pantalla · Oficina: Plan · Clientes · Dinero">Field: one screen · Office: Plan · Leads · Money</div>
+      <img src="shots/option-c-home.png" alt="Option C field mode: one door, huge buttons, the words to say, a talk bar">
+      <div class="lbl" data-es="Toques">Taps</div>
+      <div class="tt"><span data-es="Anotar puerta">Log a door</span><b>1</b><span data-es="Guía en la puerta">Sale Guide at a door</span><b>0</b><span data-es="Nuevo cliente">Add a lead</span><b>1–3</b><span data-es="Precio rápido">Quick price</span><b>1</b><span data-es="Seguimientos de mañana">Tomorrow's follow-ups</span><b>1</b><span>EN / ES</span><b>1</b></div>
+      <ul>
+        <li class="plus" data-es="Mejor para: la calle con guantes y sol bajo: botones enormes, nada que buscar, las palabras siempre en pantalla.">Best for: the street in gloves and low sun: huge buttons, nothing to hunt for, the words always on screen.</li>
+        <li class="plus" data-es="«Dilo en español» es 1 toque en la barra de abajo, siempre visible.">"Say it in Spanish" is 1 tap on the bottom bar, always there.</li>
+        <li class="minus" data-es="A cambio: dos modos que aprender; lo de oficina queda detrás del interruptor; es el cambio más grande.">Trade-off: two modes to learn; office work hides behind the switch; the biggest rebuild.</li>
+      </ul>
+      <div class="links"><a class="ghost" href="option-c.html" data-es="Abrir maqueta ›">Open mockup ›</a><a class="ghost" href="option-c.png" data-es="Imagen">Image</a></div>
+    </section>
+  </div>
+
+  <p class="now" data-es="Las 3: pestañas abajo (alcance del pulgar), sin nada del hub de AI, Vista del jefe / Practicar / Imprimir / Precios en «K» (Más), y los avisos legales siempre en texto fijo inglés + español, nunca traducidos en vivo. La app de hoy: &lt;a href=&quot;shots/current-today-12-screens.png&quot;&gt;Hoy en 12 pantallas&lt;/a&gt; · &lt;a href=&quot;audit.md&quot;&gt;auditoría&lt;/a&gt;.">All 3: tabs at the bottom (thumb reach), no AI-hub content, Boss view / Practice Door / Print / Prices under "K" (More), and legal notices always fixed English + Spanish text, never live-translated. Today's app: <a href="shots/current-today-12-screens.png">Today as 12 screens</a> · <a href="audit.md">audit</a>.</p>
+</div>
+<script>
+(function(){
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  function setLang(l){ $$('[data-es]').forEach(e => { if (e.dataset.en === undefined) e.dataset.en = e.innerHTML; e.innerHTML = l === 'es' ? e.dataset.es : e.dataset.en; });
+    $$('.lang button').forEach(b => b.classList.toggle('on', b.dataset.l === l)); document.documentElement.lang = l; }
+  $$('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.l)));
+  if (new URLSearchParams(location.search).get('l') === 'es') setLang('es');
+})();
+</script>
+</body></html>

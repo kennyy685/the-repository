@@ -111,6 +111,13 @@ CREATE TABLE IF NOT EXISTS parcels (        -- buildings from the Nebraska state
 );
 CREATE INDEX IF NOT EXISTS ix_parcels_ll ON parcels(lat, lon);
 CREATE TABLE IF NOT EXISTS parcel_tiles (tile TEXT PRIMARY KEY, fetched_utc TEXT, n INTEGER);
+CREATE TABLE IF NOT EXISTS owner_occ (        -- T23 owners.py: per-house owner-occupied from county data.
+    source TEXT, spid TEXT, house_num INTEGER, street TEXT,   -- NO owner names or mailing addresses, ever
+    lat REAL, lon REAL, owner_occupied INTEGER, sale_date TEXT, tile TEXT, fetched_utc TEXT,
+    PRIMARY KEY (source, spid)
+);
+CREATE INDEX IF NOT EXISTS ix_owner_occ_addr ON owner_occ(house_num, street);
+CREATE TABLE IF NOT EXISTS owner_tiles (source TEXT, tile TEXT, fetched_utc TEXT, n INTEGER, PRIMARY KEY (source, tile));
 
 CREATE TABLE IF NOT EXISTS door_lists (
     list_id TEXT PRIMARY KEY, conv_day TEXT, area TEXT, created_utc TEXT, params TEXT,
@@ -155,6 +162,9 @@ CREATE TABLE IF NOT EXISTS acs_language (       -- Census ACS C16002 (households
     geoid TEXT PRIMARY KEY, level TEXT,         -- spoken at home (T37). level = bg | tract (tract fills in a bg
     total INTEGER, spanish INTEGER,             -- the table skips). spanish = households (or people) speaking Spanish
     source TEXT, vintage TEXT                   -- source = the table used, e.g. C16002
+);
+CREATE TABLE IF NOT EXISTS acs_income (         -- Census ACS B19013: median household income per block group (T163).
+    geoid TEXT PRIMARY KEY, med_income INTEGER, vintage TEXT   -- everyday (cash) score only, never storm scores
 );
 CREATE TABLE IF NOT EXISTS everyday_lists (     -- T50: door lists for old-house neighborhoods, no storm needed.
     list_id TEXT PRIMARY KEY, conv_day TEXT,    -- conv_day = the day the list was made (no storm). Same columns as
