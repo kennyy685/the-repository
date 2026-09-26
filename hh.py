@@ -367,15 +367,17 @@ def main(argv=None):
         from zoneinfo import ZoneInfo
         from hailhunter import todaywalk
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
-        results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
+        raw = todaywalk.load_json(a.results) if a.results else None
+        results = todaywalk.load_results(raw) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        taps = todaywalk.today_taps(raw, day)      # T83: first door of the day / "no" streak for the coach card
         try:
             hud_doc = todaywalk.load_json(hud_path)
         except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
         dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk)   # no walk: stops [] + none_reason
+        doc = todaywalk.today_doc(hud_doc, day, a.doors, results, cfg, dnk=dnk, taps=taps)   # no walk: stops [] + none_reason
         if a.evidence_out:
             with open(a.evidence_out, "w", encoding="utf-8") as f:
                 json.dump(todaywalk.evidence_docs(hud_doc, doc["stops"]), f, indent=1, ensure_ascii=False)

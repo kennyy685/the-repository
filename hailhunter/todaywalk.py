@@ -28,6 +28,10 @@ kind: "siding", rough: true, material, stories, using_reference}` = estimate.est
 footprint = sqft / stories (stories unknown: low = 1-story, high = 2-story), and `house_line {en, es}`
 ("Built 1962 · ~1,400 sq ft · vinyl siding about $10,200-$21,850"). With any rough price the doc gets
 `rough_note {en, es}` (estimate range, not final). Storm walk under evidence_fade_days old: `evidence_note {en, es}`.
+T83 "Before the next door" (research round 14, spec 2): every stop gets `coach {en, es, tags[]}`, one or two short
+rule-based lines (see `coach_for`): the 69-1602 opener on the first door of the day, a reset line after 3+ "no" in a
+row today (`today_taps`), a come-back promise, the hail at that house, a best-time note on a retry, the house's age.
+Logistics, mindset and hail facts only: never insurance paying, never the deductible.
 """
 import json
 import re
@@ -135,6 +139,44 @@ def load_dnk(obj):
         out.add(slug(str(key or "").split("/")[-1]))   # the doc id itself is the slug
     out.discard("")
     return out
+
+
+def today_taps(obj, today):
+    """Today's door taps in the order they happened -> ["no", "not_home", "interested", ...] (T83 streaks).
+    Reads the same docs as `load_results`; a doc's `history` [{result, at}] counts every tap, else the doc's own."""
+    if not obj:
+        return []
+    today = today.isoformat() if isinstance(today, date) else str(today)[:10]
+    items = obj.items() if isinstance(obj, dict) else \
+        [((d.get("id") or d.get("doc_id") or "") if isinstance(d, dict) else "", d) for d in obj]
+    taps = []
+    for key, doc in items:
+        if not isinstance(doc, dict):
+            continue
+        data = doc.get("data") if isinstance(doc.get("data"), dict) else doc
+        k = str(key or "").split("/")[-1]
+        day = str(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else "")
+                  or str(data.get("at") or "")[:10])[:10]
+        if day != today:
+            continue
+        hist = [h for h in data.get("history") or [] if isinstance(h, dict) and h.get("result")]
+        for h in hist or [data]:
+            r = str(h.get("result") or "").strip().lower()
+            if r:
+                taps.append((str(h.get("at") or data.get("at") or ""), "not_home" if r in NOT_HOME else r))
+    taps.sort(key=lambda t: t[0])
+    return [r for _, r in taps]
+
+
+def no_streak(taps):
+    """How many "no" answers in a row at the end of today's taps (not-home doors don't break or add to a streak)."""
+    n = 0
+    for r in reversed(taps or []):
+        if r == "no":
+            n += 1
+        elif r != "not_home":
+            break
+    return n
 
 
 def is_dnk(stop, dnk, city=""):
@@ -596,8 +638,69 @@ def evidence_docs(hud, stops):
     return {"slug_rule": SLUG_RULE, "docs": docs}
 
 
-def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
-    """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs."""
+# ------------------------------------------------------------------ T83: before the next door
+MONTHS_EN3 = [m[:3] for m in MONTHS_EN]
+MONTHS_ES3 = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+RESET_AFTER = 3                                   # "no" answers in a row before the reset line
+
+
+def _hhmm(t, lang):
+    h, m, am = _clock(t)
+    return (f"{h}:{m:02d} {'AM' if am else 'PM'}" if lang == "en" else f"{h}:{m:02d} {'a. m.' if am else 'p. m.'}")
+
+
+def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None, old_before=1980):
+    """The 10-second card shown before door `i` (0 = the next door): {en, es, tags[]}, at most two short lines,
+    picked by rules in this order: first_door (69-1602 opener, no taps yet today), reset (3+ "no" in a row),
+    come_back, hail (storm walks: hud hail_evidence, else the list's hail at the house), retry (not home before:
+    best hours), old_house (built before old_before), else general. Never about insurance paying or deductibles."""
+    lines = []
+    if i == 0 and not taps:
+        lines.append(("first_door", "First door today: say your name, HMP Siding & Roofing, and what you sell, "
+                                    "before anything else.",
+                      "Primera puerta de hoy: di tu nombre, HMP Siding & Roofing y qué vendes, antes que nada."))
+    if i == 0 and no_streak(taps) >= RESET_AFTER:
+        lines.append(("reset", "A few no's in a row is normal on a long walk. Reset, smile, next door.",
+                      "Varios \"no\" seguidos es normal en una ruta larga. Respira, sonríe, siguiente puerta."))
+    cb = stop.get("come_back")
+    if cb:
+        en_t = f" at {_hhmm(cb['time'], 'en')}" if cb.get("time") else " today"
+        es_t = f" a las {_hhmm(cb['time'], 'es')}" if cb.get("time") else " hoy"
+        lines.append(("come_back", f"They asked you to come back{en_t}. Open with: \"You told me to come back today.\"",
+                      f"Te pidieron volver{es_t}. Empieza con: \"Usted me dijo que regresara hoy.\""))
+    if kind == "storm":
+        ev = hail_ev or {}
+        h, day = ev.get("hail_in"), ev.get("day") or storm_day
+        if h is None:
+            h = s.get("hail")
+        try:
+            d = date.fromisoformat(str(day)[:10]) if day else None
+        except ValueError:
+            d = None
+        if h:
+            h = round(float(h), 1)
+            lines.append(("hail", f"{h:g}-inch hail here" + (f" on {MONTHS_EN3[d.month - 1]} {d.day}" if d else "") +
+                          ": check the gutters and soft metals (vents, window wraps) as you walk up.",
+                          f"Aquí cayó granizo de {h:g} pulg." + (f" el {d.day} de {MONTHS_ES3[d.month - 1]}" if d else "")
+                          + ": revisa las canaletas y los metales blandos (ventilas, forros) al acercarte."))
+    if stop.get("pass", 1) >= 2 and not cb and bt and bt.get("start"):
+        win = (bt["start"], bt["end"])
+        lines.append(("retry", f"Not home last time. People are most often home {_span(win, 'en')}.",
+                      f"No estaban la última vez. La gente suele estar en casa {_span(win, 'es')}."))
+    y = stop.get("year_built")
+    if kind != "storm" and y and y < old_before:
+        lines.append(("old_house", f"Built {y}: look at the siding, trim and roof edge for wear as you walk up.",
+                      f"Construida en {y}: revisa el desgaste del siding, las molduras y la orilla del techo al acercarte."))
+    if not lines:
+        lines.append(("general", "Knock, step back, smile. Name and HMP first, then one question.",
+                      "Toca, da un paso atrás, sonríe. Primero tu nombre y HMP, luego una pregunta."))
+    lines = lines[:2]
+    return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
+
+
+def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None):
+    """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
+    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines."""
     tw = _tw(cfg)
     results = results or {}
     today = date.fromisoformat(today) if isinstance(today, str) else today
@@ -679,6 +782,12 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
                   for s in chosen],
         "spanish_share": spanish, "who": who_knocks(spanish, cfg),
     }
+    bt = best_time(today, cfg)
+    ev = hud.get("hail_evidence") or {}
+    for i, (s, st) in enumerate(zip(chosen, doc["stops"])):     # T83: the card before each door
+        st["coach"] = coach_for(i, s, st, best["kind"], L.get("day"),
+                                ev.get(f"{st['address']}|{s.get('city') or ''}") or ev.get(f"{st['address']}|"),
+                                taps, bt, old_before)
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)
@@ -693,9 +802,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
     return doc
 
 
-def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None):
+def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None):
     """Like `pick`, but never None: with no walk to knock, a doc with empty stops and a plain `none_reason`."""
-    doc = pick(hud, today, goal, results, cfg, now, dnk)
+    doc = pick(hud, today, goal, results, cfg, now, dnk, taps)
     if doc is not None:
         return doc
     today = date.fromisoformat(today) if isinstance(today, str) else today
