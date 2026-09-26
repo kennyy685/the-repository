@@ -110,6 +110,20 @@ class WeeklyReport(unittest.TestCase):
         self.assertEqual({L["list_id"] for L in doc["by_list"]}, {"my_list", "everyday_Fremont_310539640003"})
         self.assertEqual(weekly.load_doors({"docs": [{"id": "2026-09-22_P1", "result": "no"}]})[0]["pid"], "P1")
 
+    def test_kind_not_borrowed_from_a_different_list_sharing_the_pid(self):
+        # a door doc's own list_id ("my_list", unknown to hud) must win over a same-pid hud entry on
+        # another list; that other list's kind/turf must not leak onto this door.
+        hud = {"lists": [{"id": "2026-09-10_Fremont", "day": "2026-09-10", "area": "Fremont, NE",
+                          "stops": [{"pid": "P1", "turf": 1}]}]}
+        doors = weekly.load_doors([{"id": "2026-09-20_P1", "data": {"result": "no", "list_id": "my_list",
+                                    "address": "1 Elm St", "city": "Fremont"}}])
+        doc = weekly.report(doors, [], week="all", hud=hud, today="2026-09-26")
+        row = doc["by_list"][0]
+        self.assertEqual(row["list_id"], "my_list")
+        self.assertEqual(row["kind"], "unknown")       # not "storm" borrowed from the other list
+        walk = doc["by_walk"][0]
+        self.assertIsNone(walk["turf"])
+
     def test_week_parsing_and_slug(self):
         s, e = weekly.week_range("2026-W39")
         self.assertEqual((s.isoformat(), e.isoformat()), ("2026-09-21", "2026-09-27"))

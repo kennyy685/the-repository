@@ -245,8 +245,10 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None):
     for r in rows:                                 # which list / walk / kind each door belongs to
         h = pids.get(r["pid"]) or {}
         r["list_id"] = r["list_id"] or h.get("list_id")
-        r["kind"] = r["kind"] or (meta.get(r["list_id"]) or {}).get("kind") or h.get("kind") or "unknown"
-        r["turf"] = r["turf"] if r["turf"] is not None else (h.get("turf") if h.get("list_id") == r["list_id"] else None)
+        same_list = h.get("list_id") == r["list_id"]   # only trust the pid's hud entry when it agrees on list_id
+        r["kind"] = r["kind"] or (meta.get(r["list_id"]) or {}).get("kind") or \
+            (h.get("kind") if same_list else None) or "unknown"
+        r["turf"] = r["turf"] if r["turf"] is not None else (h.get("turf") if same_list else None)
 
     def group(keyf):
         g = {}

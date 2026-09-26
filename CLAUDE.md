@@ -29,6 +29,13 @@ for this. **Where to knock = the engine's hottest zones (FilthE, 2026-09-25)**, 
 enough to become a product (research round 4 covers this). **Ownership (FilthE, 2026-09-25): FilthE owns the app** (the
 software); HMP is its first user.
 
+## Workarounds for now (FilthE, 2026-09-26) - don't keep asking
+- Prices (T51): the quick quote uses `prices_reference` market ranges, labeled "estimate range, not final", until the boss's
+  prices arrive; then it switches automatically.
+- Registration # (T64): print pieces keep a blank line to write it in by hand.
+- Contract lawyer review: deferred. The draft (with the 3-day cancel notice + deductible notice) is the one to use, whole, never a
+  handshake; the lawyer's OK comes later.
+
 ## App look (FilthE, 2026-09-26)
 The HMP App uses **"HMP Pro Dark"**: charcoal + silver/white text, orange (#f5883a) only for accents/primary actions, no pixel
 art or neon. Fonts match the print pieces: **Barlow Semi Condensed** (headings, numbers, buttons) + **Montserrat** (body). The
