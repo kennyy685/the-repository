@@ -17,8 +17,8 @@ Printable one-pager (EN/ES, with the fill-in fields and call-out table; replaced
 - Mark damage on the diagram together so you both leave with the same shared record.
 - Answer technical questions on the spot. Be a calm, helpful expert, not pushy.
 - Ask: what's going in the written scope, when will it arrive, how do we submit anything found later.
-- **Do NOT chalk the roof** - some insurers reject photos of a chalk-marked roof. Use the diagram and tape
-  measure instead.
+- **Chalk one 10x10 ft test square at a time to count hits; don't leave the whole roof chalked for the
+  adjuster's photos.** Mark the rest on the diagram with the tape measure.
 
 **What you can say:** "Here's what we found, here's the measurement, here's the code section."
 **What you canNOT say:** never promise a dollar amount or an outcome. Never say you're negotiating FOR the
@@ -40,8 +40,8 @@ tarjeta de presentación, y la lista de 18 puntos.
 
 **Durante:** camine TODAS las caras del techo con el ajustador, no solo una. Señale cada tubo, ventilación,
 tragaluz y tapajuntas. Marquen el daño juntos en el diagrama. Responda preguntas técnicas con calma. Pregunte
-qué va a incluir el reporte escrito y cuándo llega. **No marque el techo con tiza** - algunas aseguradoras no
-aceptan fotos de un techo marcado con tiza.
+qué va a incluir el reporte escrito y cuándo llega. **Marque con tiza un cuadro de prueba de 10x10 pies (unos
+3x3 m) a la vez para contar los golpes; no deje todo el techo marcado para las fotos del ajustador.**
 
 **Lo que SÍ puede decir:** "esto encontramos, esta es la medida, este es el código."
 **Lo que NO puede decir:** nunca prometa un monto ni un resultado. Nunca diga que está negociando POR el
