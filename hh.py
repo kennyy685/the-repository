@@ -39,6 +39,9 @@
   python3 hh.py followups --leads leads.json [--date D] [--out f]   follow-ups due: touches 2/5/10 days after the
                   first Interested + next steps, grouped today/tomorrow/later (EN/ES). --export-rules = rules for
                   the app's docs/app/followups.js
+  python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]
+                  hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
+                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -349,6 +352,17 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
     p.add_argument("--csv", help="also write the calls as a CSV to this file")
+    p = sub.add_parser("zones", help="hot zones near a town + a walk per zone (JSON for zones/current, walks/<id>)")
+    p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
+    p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
+    p.add_argument("--top", type=int, help="how many zones (default: config zones.top, 12)")
+    p.add_argument("--doors", type=int, help="doors per zone walk (default: config zones.doors, 25)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs), as for todaywalk")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--out", help="also write the zones doc to this file")
+    p.add_argument("--walks-out", help="also write {walks/<zone id>: walk doc} to this file")
     p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
@@ -415,6 +429,46 @@ def main(argv=None):
             print(doc["none_reason"]["en"], file=sys.stderr)
         if a.csv:
             calltoday.write_csv(a.csv, doc["calls"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "zones":                           # reads hud.json; the database (if any) only adds outlines/towns
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import todaywalk, zones
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        conn = None
+        if os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"zones: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+            return 2
+        raw = todaywalk.load_json(a.results) if a.results else None
+        results = todaywalk.load_results(raw) if raw is not None else {}
+        dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
+        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn)
+        if a.walks_out:
+            w = zones.walks(hud_doc, doc, day, a.doors, results, cfg, dnk=dnk, taps=todaywalk.today_taps(raw, day))
+            with open(a.walks_out, "w", encoding="utf-8") as f:
+                json.dump(w, f, indent=1, ensure_ascii=False)
+                f.write("\n")
+        if conn is not None:
+            conn.close()
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
