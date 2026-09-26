@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Option B · Next step</title>
+<link rel="stylesheet" href="mock.css">
+</head><body>
+<div class="stage">
+  <div class="about">
+    <div class="eb">HMP App layout · Option B</div>
+    <h1>Next step</h1>
+    <p>The app opens on <b>Now</b>: the one thing to do right now, with the Sale Guide's words already on it (O7's "Next step" card), then the rest of the day in order. Bottom: <b>Now · Knock · + · Leads · Money</b>.</p>
+    <ul><li>Now merges "Next moves", "Follow-ups" and the day's numbers into one ordered list.</li><li>The orange <b>+</b> is the one place to start anything: log a door, new lead, quick price, help me say it, Right Hand, done for today.</li><li>Translation: + → "Help me say it", and ES ⇄ on every Say line.</li><li>More (boss view, Practice Door, print, prices) → the <b>K</b> button.</li></ul>
+    <div class="taps"><div>Log a door <b>1</b><span class="small">&nbsp;on Knock</span></div><div>Sale Guide at a door <b>1</b></div><div>Add a lead <b>2</b></div><div>Quick price <b>2</b></div><div>Tomorrow's follow-ups <b>0</b><span class="small">&nbsp;on Now</span></div><div>EN / ES <b>1</b></div></div>
+    <p class="small" style="margin-top:12px">Tap around: the + button, Knock, Guide, ES ⇄.</p>
+  </div>
+
+  <div class="phone">
+    <header class="bar">
+      <div class="mark"><svg viewBox="0 0 60 12"><path d="M3 11 L30 2.5 L57 11" fill="none" stroke="#f5883a" stroke-width="3.4"/></svg><b>HMP</b></div>
+      <div class="ctx"><b data-es="Sáb 26 sep">Sat, Sep 26</b><span><i class="dot"></i> <span data-es="En línea">Online</span></span></div>
+      <div class="lang"><button data-l="en" class="on">EN</button><button data-l="es">ES</button></div>
+      <button class="me" data-sheet="more" aria-label="More">K</button>
+    </header>
+
+
+    <!-- NOW -->
+    <section class="scr" id="now">
+      <div class="small" style="margin:4px 0 8px" data-es="Buenas tardes, Kenny. 5 cosas hoy.">Good afternoon, Kenny. 5 things today.</div>
+      <div class="card hot">
+        <div class="row"><div class="grow"><div class="eb o" data-es="Ahora · paso 1 de 8">Now · step 1 of 8</div><div style="font:800 26px/1.05 var(--fd)" data-es="Llama a 103 E 4th St">Call 103 E 4th St back</div></div><span class="chip red" data-es="1 día">1 day</span></div>
+        <div class="step"><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="blk" style="background:var(--bg2)"><div class="eb"><span data-es="Di">Say</span><button class="flip" data-flip data-es="EN ⇄">ES ⇄</button></div>
+          <q data-es="Hola, soy Kenny de HMP. Pasé el jueves por lo del granizo. ¿Le queda bien el martes para la revisión gratis?">Hi, it's Kenny with HMP. I stopped by Thursday about the hail. Does Tuesday work for the free inspection?</q></div>
+        <div class="small" style="margin-bottom:10px"><b data-es="Anota:">Collect:</b> <span data-es="primer nombre · día y hora de inspección">first name · inspection day + time</span></div>
+        <div class="row" style="gap:8px"><button class="say" style="margin:0;flex:1" data-es="Llamar">Call</button><button class="ghost" style="min-height:52px" data-sheet="sg" data-es="Guía">Guide</button><button class="ghost" style="min-height:52px" data-es="Listo">Done</button></div>
+      </div>
+
+      <div class="eb" style="margin:18px 0 0" data-es="Después, en orden">Then, in order</div>
+      <div class="li" data-go="knock"><span class="num" style="color:var(--hmp)">1</span><div class="t"><b data-es="Tocar: Linden St y E 4th St">Knock: Linden St &amp; E 4th St</b><span data-es="18 puertas faltan · mejor 3:30–5:30 PM">18 doors left · best 3:30–5:30 PM</span></div><span class="go">›</span></div>
+      <div class="li"><span class="num" style="color:var(--hmp)">2</span><div class="t"><b data-es="10 AM · 400 Pine St · Tom">10 AM · 400 Pine St · Tom</b><span data-es="Cita de presupuesto · paso 2 de 8">Estimate visit · step 2 of 8</span></div><span class="go">›</span></div>
+      <div class="li"><span class="num" style="color:var(--hmp)">3</span><div class="t"><b data-es="1418 Irving St · reclamo">1418 Irving St · claim</b><span data-es="Mandar certificado, pedir depreciación · atrasado">Send certificate, ask for depreciation · overdue</span></div><span class="go">›</span></div>
+
+      <div class="h2"><span data-es="Mañana">Tomorrow</span><span class="n">2</span></div>
+      <div class="li"><div class="t"><b>104 E 4th St</b><span data-es="Recordatorio 48 h: interesado">48 h reminder: Interested</span></div><span class="chip">9 AM</span></div>
+      <div class="li"><div class="t"><b>402 Pine St</b><span data-es="Traer muestras de siding">Bring siding samples</span></div><span class="chip">11 AM</span></div>
+
+      <div class="h2" data-es="Hoy en números">Today in numbers</div>
+      <div class="tiles" style="grid-template-columns:repeat(4,1fr)">
+        <div class="tile"><b>7</b><span class="small" data-es="puertas">doors</span></div><div class="tile"><b>3</b><span class="small" data-es="pláticas">talks</span></div><div class="tile"><b>1</b><span class="small" data-es="interés">interest</span></div><div class="tile"><b>1</b><span class="small" data-es="citas">booked</span></div>
+      </div>
+      <p class="small" style="margin-top:8px" data-es="Tocaste y anotaste cada puerta. Eso es ganar.">You knocked and logged every door. That's the win.</p>
+    </section>
+
+    <!-- KNOCK -->
+    <section class="scr" id="knock">
+      <div class="card">
+        <div class="row"><div class="grow"><div class="eb o" data-es="Ruta de hoy · tormenta">Today's walk · storm</div>
+          <b style="font:800 20px var(--fd)">Linden St &amp; E 4th St</b></div>
+          <button class="ghost" style="min-height:44px" data-es="Lista / mapa">List / map</button></div>
+        <div class="prog"><i style="width:28%"></i></div>
+        <div class="small" data-es="7 de 25 · vuelta 1 de 3 · ~1 h 30 min más · granizo 1.5&quot; el 10 sep">7 of 25 · pass 1 of 3 · ~1 h 30 m left · 1.5" hail Sep 10</div>
+      </div>
+
+      <div class="card hot">
+        <div class="row"><div class="grow"><div class="eb o" data-es="Siguiente puerta">Next door</div><div class="addr">101<small>E 4th St</small></div></div><span class="chip" data-es="1978">Built 1978</span></div>
+        <div class="why" data-es="Techo de 48 años, granizo de 1.5&quot;. Siding de vinil aprox. $10k–$22k.">48-year-old roof, 1.5" hail. Vinyl siding about $10k–$22k.</div>
+        <div class="d4">
+          <button data-es="No está<span>deja un colgante</span>">Not home<span>leave a hanger</span></button>
+          <button>No</button>
+          <button class="in" data-es="Interesado">Interested</button>
+          <button class="bk" data-es="Cita<span>elige hora</span>">Booked<span>pick a time</span></button>
+        </div>
+        <div class="row" style="gap:8px;margin-top:8px">
+          <button class="say" style="margin:0;flex:1" data-sheet="sg" data-es="Qué decir">What to say</button>
+        </div>
+      </div>
+
+      <div class="eb" style="margin:16px 0 0" data-es="Después">Then</div>
+      <div class="li"><span class="num">100</span><div class="t"><b>E 4th St</b><span>1978 · 45 m</span></div></div>
+      <div class="li"><span class="num">100</span><div class="t"><b>Linden St</b><span>1981 · 120 m</span></div></div>
+    </section>
+
+    <!-- LEADS -->
+    <section class="scr" id="leads">
+      <div class="seg" style="margin:6px 0 10px"><button class="on" data-es="Pendiente 5">Due 5</button><button data-es="Activos 4">Active 4</button><button data-es="Ganados 2">Won 2</button><button data-es="Perdidos 1">Lost 1</button></div>
+      <div class="card late"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">103 E 4th St</b><div class="small" data-es="Paso 1 · En la puerta · tormenta">Step 1 · At the door · storm</div></div><span class="chip red" data-es="1 día">1 day</span></div></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">400 Pine St · Tom</b><div class="small" data-es="Paso 2 · Cita de presupuesto · contado">Step 2 · Estimate visit · cash</div></div><span class="chip o">10 AM</span></div></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">104 E 4th St</b><div class="small" data-es="Paso 1 · Recordatorio 48 h">Step 1 · 48 h reminder</div></div><span class="chip" data-es="Mañana">Tomorrow</span></div></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">105 E 4th St · Maria</b><div class="small" data-es="Paso 2 · Inspección agendada">Step 2 · Inspection set</div></div><span class="chip" data-es="mar">Tue</span></div></div>
+    </section>
+
+    <!-- MONEY -->
+    <section class="scr" id="money">
+      <div class="tiles" style="margin-top:6px">
+        <div class="tile"><span class="eb" data-es="Vendido">Sold</span><b>$32,600</b></div>
+        <div class="tile"><span class="eb" data-es="Cobrado">Collected</span><b style="color:#7fdcae">$12,900</b></div>
+        <div class="tile"><span class="eb" data-es="Falta cobrar">Still owed</span><b style="color:var(--hmp2)">$19,700</b></div>
+        <div class="tile"><span class="eb" data-es="En el banco hipotecario">At mortgage co.</span><b style="color:var(--warn)">$6,400</b></div>
+      </div>
+      <div class="h2"><span data-es="Reclamos abiertos">Open claims</span><span class="n">2</span></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">1418 Irving St</b><div class="small">State Farm · 45-889</div></div><span class="chip red" data-es="Atrasado">Overdue</span></div><div class="small" style="margin-top:6px" data-es="Paso 8 de 10 · Instalado · esperando $11,900">Step 8 of 10 · Installed · waiting on $11,900</div></div>
+      <div class="card"><b style="font:800 20px var(--fd)">105 E 4th St</b><div class="small" data-es="Paso 1 de 10 · Inspeccionado">Step 1 of 10 · Inspected</div></div>
+      <div class="h2"><span data-es="Trabajos de contado">Cash jobs</span><span class="n">1</span></div>
+      <div class="card"><b style="font:800 20px var(--fd)">401 Pine St</b><div class="small" data-es="$14,200 · $0 cobrado">$14,200 · $0 paid</div></div>
+      <p class="small" data-es="El dueño presenta el reclamo y paga su deducible. La aseguradora decide lo que paga.">The homeowner files the claim and pays their own deductible. The insurer decides what it pays.</p>
+    </section>
+
+
+    <!-- + ACTIONS -->
+    <div class="sheet" id="plus"><div class="in"><div class="grab"></div>
+      <div class="top"><div class="grow"><div class="h1" data-es="¿Qué hacemos?">What now?</div></div><button class="x" data-close>✕</button></div>
+      <div class="acts">
+        <button data-go="knock"><svg viewBox="0 0 24 24"><path d="M5 21V4h11l3 3v14"/><circle cx="14" cy="13" r="1.2"/></svg><b data-es="Anotar puerta">Log a door</b><span data-es="La siguiente casa de la ruta">Next house on the walk</span></button>
+        <button data-sheet="nl"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b data-es="Nuevo cliente">New lead</b><span data-es="Referido, llamada, casa vieja">Referral, call-in, old house</span></button>
+        <button data-sheet="qp"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg><b data-es="Precio rápido">Quick price</b><span data-es="Rango para mostrar o mandar">A range to show or text</span></button>
+        <button data-sheet="tr"><svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8M13 21l4-9 4 9M14.5 18h5"/></svg><b data-es="¿Cómo se dice?">Help me say it</b><span data-es="Inglés ⇄ español, en vivo">English ⇄ Spanish, live</span></button>
+        <button data-sheet="rh"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><b data-es="Mano Derecha">Right Hand</b><span data-es="Dilo, yo lo anoto">Say it, I'll log it</span></button>
+        <button data-close><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><b data-es="Terminé por hoy">Done for today</b><span data-es="5 preguntas del día">The 5-question review</span></button>
+      </div>
+    </div></div>
+
+    <nav class="nav">
+      <button data-go="now"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><span data-es="Ahora">Now</span><i class="bd">3</i></button>
+      <button data-go="knock"><svg viewBox="0 0 24 24"><path d="M5 21V4h11l3 3v14"/><circle cx="14" cy="13" r="1.2"/></svg><span data-es="Tocar">Knock</span></button>
+      <button class="plus" data-sheet="plus" aria-label="Add"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></button>
+      <button data-go="leads"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-es="Clientes">Leads</span></button>
+      <button data-go="money"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg><span data-es="Dinero">Money</span></button>
+    </nav>
+  </div>
+</div>
+<script src="sheets.js"></script>
+<script src="mock.js"></script>
+</body></html>

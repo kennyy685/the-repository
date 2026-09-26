@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Option C · Field and Office</title>
+<link rel="stylesheet" href="mock.css">
+</head><body>
+<div class="stage">
+  <div class="about">
+    <div class="eb">HMP App layout · Option C</div>
+    <h1>Field / Office</h1>
+    <p>Two modes, one switch at the top. <b>Field</b> is one screen for the street: the door, 4 huge buttons, the Sale Guide words already showing, and a talk bar. <b>Office</b> is for mornings and nights: <b>Plan · Leads · Money</b>.</p>
+    <ul><li>Field has no tabs at all: nothing to hunt for with gloves on, in low sun.</li><li>Translation: "Say it in Spanish" is one of the 3 talk-bar buttons, always one tap.</li><li>Plan holds tomorrow's follow-ups, tomorrow's walk and the end-of-day review.</li><li>More (boss view, Practice Door, print, prices) → the <b>K</b> button.</li></ul>
+    <div class="taps"><div>Log a door <b>1</b></div><div>Sale Guide at a door <b>0</b><span class="small">&nbsp;always showing</span></div><div>Add a lead <b>1</b><span class="small">&nbsp;say it · 3 by form</span></div><div>Quick price <b>1</b></div><div>Tomorrow's follow-ups <b>1</b></div><div>EN / ES <b>1</b></div></div>
+    <p class="small" style="margin-top:12px">Tap around: Field / Office, the talk bar, ES ⇄.</p>
+  </div>
+
+  <div class="phone">
+    <header class="bar">
+      <div class="mark"><svg viewBox="0 0 60 12"><path d="M3 11 L30 2.5 L57 11" fill="none" stroke="#f5883a" stroke-width="3.4"/></svg><b>HMP</b></div>
+      <div class="modes"><button data-go="field" data-es="Calle">Field</button><button data-go="plan" data-group="plan leads money" data-es="Oficina">Office</button></div>
+      <div class="lang"><button data-l="en" class="on">EN</button><button data-l="es">ES</button></div>
+      <button class="me" data-sheet="more" aria-label="More">K</button>
+    </header>
+
+    <!-- FIELD -->
+    <section class="scr" id="field">
+      <div class="row" style="margin:2px 0 4px"><div class="grow"><b style="font:800 17px var(--fd)">Linden St &amp; E 4th St</b></div><span class="small" data-es="7 de 25 · vuelta 1">7 of 25 · pass 1</span></div>
+      <div class="prog" style="margin-top:0"><i style="width:28%"></i></div>
+      <div class="row" style="margin:14px 0 2px"><div class="grow"><div class="addr" style="font-size:48px">101<small style="font-size:26px">E 4th St</small></div></div><span class="chip" data-es="1978 · 1.5&quot;">1978 · 1.5"</span></div>
+      <div class="why" style="margin-bottom:10px" data-es="Techo de 48 años, granizo del 10 sep. Siding aprox. $10k–$22k.">48-year-old roof, Sep 10 hail. Siding about $10k–$22k.</div>
+      <div class="d4 xl">
+        <button data-es="No está<span>deja un colgante</span>">Not home<span>leave a hanger</span></button>
+        <button>No</button>
+        <button class="in" data-es="Interesado">Interested</button>
+        <button class="bk" data-es="Cita<span>elige hora</span>">Booked<span>pick a time</span></button>
+      </div>
+      <div class="blk" style="margin-top:14px"><div class="eb"><span data-es="Di · paso 1 de 8">Say · step 1 of 8</span><button class="flip" data-flip data-es="EN ⇄">ES ⇄</button></div>
+        <q data-es="Hola, soy Kenny de HMP Siding &amp; Roofing, contratista registrado aquí en Fremont. La tormenta del 10 de septiembre pasó por esta calle. ¿Puedo revisar su techo gratis?">Hi, I'm Kenny with HMP Siding &amp; Roofing, a registered contractor here in Fremont. The Sep 10 storm came through this street. Can I take a free look at your roof?</q></div>
+      <button class="ghost" style="width:100%;justify-content:center" data-sheet="sg" data-es="Preguntas, objeciones y qué anotar ›">Questions, objections, what to collect ›</button>
+      <div class="row" style="margin-top:14px"><span class="small grow" data-es="Siguiente: 100 E 4th St · 45 m">Next: 100 E 4th St · 45 m</span><button class="ghost" style="min-height:40px" data-es="Lista / mapa">List / map</button></div>
+    </section>
+
+    <!-- PLAN (office) -->
+    <section class="scr" id="plan">
+      <div class="h2" style="margin-top:6px"><span data-es="Atrasado y hoy">Overdue + today</span><span class="n">3</span></div>
+      <div class="card late"><div class="row"><div class="grow"><b style="font:800 19px var(--fd)">103 E 4th St</b></div><span class="chip red" data-es="1 día">1 day</span></div><div class="small" data-es="Llamar para agendar la inspección">Call back to set the inspection</div></div>
+      <div class="card late"><div class="row"><div class="grow"><b style="font:800 19px var(--fd)">1418 Irving St</b> <span class="chip" data-es="Reclamo">Claim</span></div><span class="chip red" data-es="Atrasado">Overdue</span></div><div class="small" data-es="Mandar certificado, pedir depreciación">Send certificate, ask for depreciation</div></div>
+      <div class="h2"><span data-es="Mañana">Tomorrow</span><span class="n">3</span></div>
+      <div class="li"><div class="t"><b>104 E 4th St</b><span data-es="Recordatorio 48 h: interesado">48 h reminder: Interested</span></div><span class="chip">9 AM</span></div>
+      <div class="li"><div class="t"><b>402 Pine St</b><span data-es="Traer muestras de siding">Bring siding samples</span></div><span class="chip">11 AM</span></div>
+      <div class="li"><div class="t"><b data-es="Ruta: Dodge St y N Clarkson">Walk: Dodge St &amp; N Clarkson</b><span data-es="25 casas · granizo 1.25&quot; · 3:30–5:30 PM">25 houses · 1.25" hail · 3:30–5:30 PM</span></div><span class="chip o" data-es="Ruta">Walk</span></div>
+      <div class="h2" data-es="Cierre del día">End of day</div>
+      <div class="card">
+        <div class="q"><i>1</i><div><b style="font-weight:600" data-es="¿Cuántas puertas toqué y anoté?">How many doors did I knock and log?</b><span data-es="7 · todas anotadas">7 · all logged</span></div></div>
+        <div class="q"><i>2</i><div data-es="¿A qué interesados les di seguimiento?">Which Interested did I follow up?</div></div>
+        <div class="q"><i>3</i><div data-es="Una cosa que funcionó">One thing that worked</div></div>
+        <button class="big-cta" data-sheet="rh" data-es="Contestar hablando">Answer by talking</button>
+      </div>
+      <div class="h2" data-es="Esta semana">This week</div>
+      <div class="tiles" style="grid-template-columns:repeat(4,1fr)"><div class="tile"><b>31</b><span class="small" data-es="puertas">doors</span></div><div class="tile"><b>9</b><span class="small" data-es="pláticas">talks</span></div><div class="tile"><b>2</b><span class="small" data-es="inspec.">inspect.</span></div><div class="tile"><b>1</b><span class="small" data-es="firmado">signed</span></div></div>
+    </section>
+
+    <!-- LEADS -->
+    <section class="scr" id="leads">
+      <div class="row" style="margin:6px 0 4px"><div class="seg grow" style="margin:0"><button class="on" data-es="Activos 4">Active 4</button><button data-es="Ganados 2">Won 2</button><button data-es="Perdidos 1">Lost 1</button></div></div>
+      <button class="big-cta" data-sheet="nl" style="margin:8px 0 12px" data-es="+ Nuevo cliente">+ New lead</button>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">103 E 4th St</b><div class="small" data-es="Tormenta · seguro">Storm · insurance</div></div><span class="chip red" data-es="1 día">1 day</span></div>
+        <div class="step"><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="row"><span class="small grow" data-es="Paso 1 · En la puerta">Step 1 · At the door</span><button class="flip" data-sheet="sg" data-es="Guía ›">Guide ›</button></div></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">400 Pine St · Tom</b><div class="small" data-es="Casa vieja · contado">Old house · cash</div></div><span class="chip o" data-es="Hoy">Today</span></div>
+        <div class="step"><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="row"><span class="small grow" data-es="Paso 2 · Cita de presupuesto">Step 2 · Estimate visit</span><button class="flip" data-sheet="sg" data-es="Guía ›">Guide ›</button></div></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">105 E 4th St · Maria</b><div class="small" data-es="Tormenta · seguro">Storm · insurance</div></div><span class="chip" data-es="mar">Tue</span></div>
+        <div class="step"><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="row"><span class="small grow" data-es="Paso 2 · Inspección agendada">Step 2 · Inspection set</span><button class="flip" data-sheet="sg" data-es="Guía ›">Guide ›</button></div></div>
+    </section>
+
+    <!-- MONEY -->
+    <section class="scr" id="money">
+      <div class="tiles" style="margin-top:6px">
+        <div class="tile"><span class="eb" data-es="Vendido">Sold</span><b>$32,600</b></div>
+        <div class="tile"><span class="eb" data-es="Cobrado">Collected</span><b style="color:#7fdcae">$12,900</b></div>
+        <div class="tile"><span class="eb" data-es="Falta cobrar">Still owed</span><b style="color:var(--hmp2)">$19,700</b></div>
+        <div class="tile"><span class="eb" data-es="En el banco hipotecario">At mortgage co.</span><b style="color:var(--warn)">$6,400</b></div>
+      </div>
+      <button class="ghost" style="width:100%;justify-content:center;margin-top:10px" data-sheet="qp" data-es="Precio rápido">Quick price</button>
+      <div class="h2"><span data-es="Reclamos abiertos">Open claims</span><span class="n">2</span></div>
+      <div class="card"><div class="row"><div class="grow"><b style="font:800 20px var(--fd)">1418 Irving St</b><div class="small">State Farm · 45-889</div></div><span class="chip red" data-es="Atrasado">Overdue</span></div><div class="small" style="margin-top:6px" data-es="Paso 8 de 10 · Instalado · esperando $11,900">Step 8 of 10 · Installed · waiting on $11,900</div></div>
+      <div class="card"><b style="font:800 20px var(--fd)">105 E 4th St</b><div class="small" data-es="Paso 1 de 10 · Inspeccionado">Step 1 of 10 · Inspected</div></div>
+      <div class="h2"><span data-es="Trabajos de contado">Cash jobs</span><span class="n">1</span></div>
+      <div class="card"><b style="font:800 20px var(--fd)">401 Pine St</b><div class="small" data-es="$14,200 · $0 cobrado">$14,200 · $0 paid</div></div>
+      <p class="small" data-es="El dueño presenta el reclamo y paga su deducible. La aseguradora decide lo que paga.">The homeowner files the claim and pays their own deductible. The insurer decides what it pays.</p>
+    </section>
+
+
+    <div class="talk" data-show-on="field">
+      <button class="main" data-sheet="rh"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span data-es="Dilo, yo lo anoto">Say it, I'll log it</span></button>
+      <button data-sheet="tr"><svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8M13 21l4-9 4 9M14.5 18h5"/></svg><span data-es="Dilo en inglés">Say it in Spanish</span></button>
+      <button data-sheet="qp"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg><span data-es="Precio">Price</span></button>
+    </div>
+    <button class="fab" data-sheet="rh" data-hide-on="field"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span data-es="Mano Derecha">Right Hand</span></button>
+    <nav class="nav" data-hide-on="field">
+      <button data-go="plan"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span data-es="Plan">Plan</span><i class="bd">3</i></button>
+      <button data-go="leads"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-es="Clientes">Leads</span></button>
+      <button data-go="money"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg><span data-es="Dinero">Money</span></button>
+    </nav>
+  </div>
+</div>
+<script src="sheets.js"></script>
+<script src="mock.js"></script>
+</body></html>
