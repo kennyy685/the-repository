@@ -1,6 +1,7 @@
 # Adjuster meeting - one screen (EN / ES)
 
 Print this or open it on your phone before every adjuster meeting. (Research round 22, 2026-09-26.)
+Printable one-pager (EN/ES, with the fill-in fields and call-out table; replaced adjuster-checklist): `docs/print/adjuster-meeting.pdf`.
 
 ## ENGLISH
 

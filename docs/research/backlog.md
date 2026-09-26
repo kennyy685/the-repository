@@ -25,11 +25,16 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
 - [ ] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything
 - [ ] Once HMP has enough call volume that live text-back isn't enough, revisit AI-answering upgrade tiers (CallRail Voice Assist, Podium) for real Spanish-conversation support, not just template texts
-- [ ] Bilingual (Spanish-language) kitchen-table/inspection sales training content - round 27 found none in the
-      general sales-training literature; check trade-specific or Hispanic-market contractor associations directly
 - [ ] Ask FilthE/boss which document HMP actually uses today before an adjuster visit (plain inspection
       authorization, a contingency-on-approval agreement, or going straight to the final contract) - round 27
       found the three are legally different and easy to blur; unknown from research, needs a direct answer
+- [ ] Confirm by phone whether Hearth or Wisetack (round 21's picks) actually accept ITIN-only borrowers with
+      no SSN - round 30 found ITIN home-improvement financing exists generally but couldn't confirm either
+      named lender's own policy (pages blocked)
+- [ ] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
+      content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
+      specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
+      directly next time
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -59,6 +64,9 @@ topics) for Code/Cowork to do directly.
 Round 27 (second track, sales-craft): top-1% door-to-door habits (stance/tone/one-small-ask/daily routine,
 `data/practice_drills.json` - 10 new Practice Door drills) + contingency agreement vs. plain inspection permission
 vs. final contract (legally different, easy to blur; which one HMP uses today is unconfirmed - see backlog above).
+Round 30 (sales-mastery track): bilingual kitchen-table scripts (who's-on-the-deed as a paperwork reason, not a
+pressure tactic; no-status reassurance line) + follow-up scripts for the 2/5/10-day touches after "let me think
+about it" (`data/followup_scripts.json` - 9 EN/ES scripts by touch x channel: door/phone/business_phone).
 Round 29 (backlog track): pricing psychology for cash jobs (Good/Better/Best tiers + anchoring raise close rate
 and ticket size, already planned in O7 - add a visible top tier; same-day close is legal since HMP's 3-day cancel
 notice is already built in; never rush or bury that cancel notice) + hiring a second salesman (Nebraska presumes
