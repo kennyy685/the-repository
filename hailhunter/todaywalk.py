@@ -17,7 +17,8 @@ stale_hours; note is null when fresh), `data_age_hours`. When no walk qualifies,
 Evidence docs (`evidence_docs`): `evidence/<slug>` per house from hud.json hail_evidence; see SLUG_RULE.
 Do-not-knock (`load_dnk`, `pick(dnk=...)`): houses in the app's `dnk/<slug>` docs (same slug rule) never appear.
 Seasons (config today_walk): `storm_max_days_by_month` lets Oct-Mar walks re-knock storms up to ~330 days old that
-aren't fully worked (else 60 days); `best_time_by_month` shortens weekday hours in short-day months (+ "End by dusk").
+aren't fully worked, April/August (shoulder months, T125) 120 days (else 60 days); `best_time_by_month`
+shortens weekday hours in short-day months (+ "End by dusk").
 Winter goal: `goal_factor_by_month` (Dec-Feb 0.65) shrinks the door goal (never below `goal_min_doors`, 10); every
 walk carries `goal_note {en, es}` ("25 doors is a starting session, not a full day"; winter: a smaller goal is normal).
 Come back at (`come_back` on a not-home result, ISO or {date, time}): due today -> the stop gets
@@ -410,7 +411,8 @@ def _by_month(table, day):
 
 def storm_max_days(day, cfg=None):
     """How old a storm can be for a storm walk on `day`: config storm_max_days_by_month for the month
-    (off-season Oct-Mar: ~330 days, re-knock storms not fully worked yet), else storm_max_days (60)."""
+    (off-season Oct-Mar: ~330 days, re-knock storms not fully worked yet; shoulder months Apr/Aug: 120 days, T125),
+    else storm_max_days (60)."""
     tw = _tw(cfg)
     v = _by_month(tw.get("storm_max_days_by_month"), day)
     return tw["storm_max_days"] if v is None else v

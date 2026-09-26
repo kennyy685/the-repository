@@ -188,10 +188,13 @@ DEFAULTS = {
         # Never below goal_min_doors (unless the asked goal itself is smaller).
         "goal_factor_by_month": {"12": 0.65, "1": 0.65, "2": 0.65},
         "goal_min_doors": 10,
-        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (in season, Apr-Sep)...
+        "storm_max_days": 60,       # a storm walk only if the storm is this fresh (peak hail season, May-Jul, and Sep)...
         # ...off-season (Oct-Mar, month number -> days): re-knock storms from the last ~11 months that aren't
-        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it)
-        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330},
+        # fully worked yet (claims are usually allowed ~12 months: a policy term, never promise it).
+        # T125 shoulder months: eastern NE hail peaks May-Jul, so April (few new storms yet) and August (the peak's
+        # storms still unworked) reach back 120 days.
+        "storm_max_days_by_month": {"10": 330, "11": 330, "12": 330, "1": 330, "2": 330, "3": 330,
+                                    "4": 120, "8": 120},
         "storm_min_heat": 15,       # ...and its walk's Hot Zones heat is at least this...
         "storm_min_hail": 1.0,      # ...and its average hail (inches) at least this; else the best everyday walk
         "min_doors": 8,             # skip walks with fewer doors left than this

@@ -30,9 +30,28 @@ class SeasonalStormAge(unittest.TestCase):
 
     def test_limit_by_month(self):
         self.assertEqual(todaywalk.storm_max_days(date(2026, 9, 25), self.cfg), 60)
-        self.assertEqual(todaywalk.storm_max_days(date(2027, 4, 15), self.cfg), 60)
+        self.assertEqual(todaywalk.storm_max_days(date(2027, 5, 15), self.cfg), 60)
+        self.assertEqual(todaywalk.storm_max_days(date(2027, 7, 15), self.cfg), 60)
         for m in (10, 11, 12, 1, 2, 3):
             self.assertEqual(todaywalk.storm_max_days(date(2027 if m < 4 else 2026, m, 5), self.cfg), 330)
+
+    def test_shoulder_months_april_august_120_days(self):
+        """T125: eastern NE hail peaks May-Jul; April and August reach back 120 days."""
+        self.assertEqual(todaywalk.storm_max_days(date(2027, 4, 15), self.cfg), 120)
+        self.assertEqual(todaywalk.storm_max_days(date(2027, 8, 15), self.cfg), 120)
+        for day, pick_on, want in (("2027-05-01", "2027-08-20", "storm"),     # 111 days, August: still a storm walk
+                                   ("2027-05-01", "2027-08-31", "everyday"),  # 122 days: too old even in August
+                                   ("2027-05-01", "2027-09-02", "everyday"),  # 124 days, September: back to 60
+                                   ("2027-01-10", "2027-04-20", "storm"),     # 100 days, April: storm walk
+                                   ("2027-01-10", "2027-05-05", "everyday")): # 115 days, May (peak): 60-day rule
+            hud = json.loads(json.dumps(self.hud))
+            for L in hud["lists"]:
+                if L["id"] == "2026-09-10_Fremont":
+                    L["day"] = day
+            d = todaywalk.pick(hud, pick_on, cfg=self.cfg)
+            self.assertEqual(d["kind"], want, (day, pick_on))
+            if want == "storm":
+                self.assertEqual(d["list_id"], "2026-09-10_Fremont")
 
     def test_in_season_old_storm_is_skipped(self):
         d = todaywalk.pick(self.hud, "2026-09-25", cfg=self.cfg)       # Blair is 208 days old: too old in September

@@ -1,0 +1,318 @@
+{
+"type": "FeatureCollection",
+"note": "Real NWS LSRs from Iowa Mesonet lsr.geojson (OAX,GID,LBF,FSD,DMX,TOP,EAX; 2024-05..2025-08), pulled 2026-09-26 for T117/T118",
+"features": [
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-95.76,
+41.06
+]
+},
+"properties": {
+"valid": "2024-05-24T07:49:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "1 NW Glenwood",
+"county": "Mills",
+"st": "IA",
+"state": "IA",
+"source": "Public",
+"remark": "Report from mPING: 1-inch tree limbs broken; Shingles blown off.",
+"wfo": "OAX",
+"lat": 41.06,
+"lon": -95.76
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-97.22,
+38.93
+]
+},
+"properties": {
+"valid": "2024-05-19T23:50:00Z",
+"type": "G",
+"typetext": "TSTM WND GST",
+"magnitude": "65",
+"unit": "MPH",
+"city": "1 N Abilene",
+"county": "Dickinson",
+"st": "KS",
+"state": "KS",
+"source": "Trained Spotter",
+"remark": "65-70 mph winds. Trees are bending over at times.",
+"wfo": "TOP",
+"lat": 38.93,
+"lon": -97.22
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-94.43,
+39.25
+]
+},
+"properties": {
+"valid": "2024-07-03T00:53:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "1 WNW Liberty",
+"county": "Clay",
+"st": "MO",
+"state": "MO",
+"source": "Utility Company",
+"remark": "Multiple reports of trees and wires down on the north and west side of Liberty. Time estimated from radar.",
+"wfo": "EAX",
+"lat": 39.25,
+"lon": -94.43
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-95.5,
+40.29
+]
+},
+"properties": {
+"valid": "2024-05-24T08:44:00Z",
+"type": "G",
+"typetext": "TSTM WND GST",
+"magnitude": "63",
+"unit": "MPH",
+"city": "4 NW Corning",
+"county": "Atchison",
+"st": "MO",
+"state": "MO",
+"source": "Public",
+"remark": "Personal weather station measured 63 mph wind gust just northwest of Corning.",
+"wfo": "EAX",
+"lat": 40.29,
+"lon": -95.5
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-94.41,
+39.24
+]
+},
+"properties": {
+"valid": "2024-07-03T00:56:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "1 ESE Liberty",
+"county": "Clay",
+"st": "MO",
+"state": "MO",
+"source": "Utility Company",
+"remark": "Downed tree and wires near Arthur Street. Time estimated from radar.",
+"wfo": "EAX",
+"lat": 39.24,
+"lon": -94.41
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-93.9,
+39.1
+]
+},
+"properties": {
+"valid": "2024-06-26T07:00:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "5 ESE Wellington",
+"county": "Lafayette",
+"st": "MO",
+"state": "MO",
+"source": "Utility Company",
+"remark": "Downed power lines near Elm Park Road. Time estimated from radar.",
+"wfo": "EAX",
+"lat": 39.1,
+"lon": -93.9
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-98.76,
+43.26
+]
+},
+"properties": {
+"valid": "2024-07-30T02:41:00Z",
+"type": "N",
+"typetext": "NON-TSTM WND GST",
+"magnitude": "55",
+"unit": "MPH",
+"city": "3 W Geddes",
+"county": "Charles Mix",
+"st": "SD",
+"state": "SD",
+"source": "Mesonet",
+"remark": "Northeast wind behind the line of thunderstorms. Mesonet station RLAS2 Lake Andes RAWS.",
+"wfo": "FSD",
+"lat": 43.26,
+"lon": -98.76
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-94.39,
+38.84
+]
+},
+"properties": {
+"valid": "2024-05-26T04:00:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "2 W Lake Winnebago",
+"county": "Cass",
+"st": "MO",
+"state": "MO",
+"source": "Public",
+"remark": "Large oak tree limb snapped on the west side of Raintree Lake.",
+"wfo": "EAX",
+"lat": 38.84,
+"lon": -94.39
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-96.95,
+38.67
+]
+},
+"properties": {
+"valid": "2024-08-01T01:10:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "Herington",
+"county": "Dickinson",
+"st": "KS",
+"state": "KS",
+"source": "Public",
+"remark": "Gust front from parent storm incoming from the west tore off 1 foot diameter portion of tree. Estimated 65 mph wind gust.",
+"wfo": "TOP",
+"lat": 38.67,
+"lon": -96.95
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-98.61,
+43.47
+]
+},
+"properties": {
+"valid": "2024-07-30T01:40:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "5 WNW Harrison",
+"county": "Douglas",
+"st": "SD",
+"state": "SD",
+"source": "Emergency Mngr",
+"remark": "Roof decking removed on the southwest corner of a shouse and tossed one quarter mile to the southeast. Time estimated from radar.",
+"wfo": "FSD",
+"lat": 43.47,
+"lon": -98.61
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-99.6,
+39.34
+]
+},
+"properties": {
+"valid": "2025-07-06T23:11:00Z",
+"type": "G",
+"typetext": "TSTM WND GST",
+"magnitude": "50",
+"unit": "MPH",
+"city": "2 NW Damar",
+"county": "Rooks",
+"st": "KS",
+"state": "KS",
+"source": "Trained Spotter",
+"remark": "Wind gusts estimated to be at least 50 MPH. Trees moving, but no downed branches or damage at this point.",
+"wfo": "GID",
+"lat": 39.34,
+"lon": -99.6
+}
+},
+{
+"type": "Feature",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-94.73,
+42.09
+]
+},
+"properties": {
+"valid": "2025-08-09T12:15:00Z",
+"type": "D",
+"typetext": "TSTM WND DMG",
+"magnitude": "",
+"unit": null,
+"city": "2 N Glidden",
+"county": "Carroll",
+"st": "IA",
+"state": "IA",
+"source": "Public",
+"remark": "Large pine uprooted and garage doors pushed in. Delayed report via social media, time given in social media post and confirmed by radar.",
+"wfo": "DMX",
+"lat": 42.09,
+"lon": -94.73
+}
+}
+]
+}
