@@ -1,0 +1,52 @@
+[
+  {
+    "step": 1,
+    "id": "walk-perimeter",
+    "title_en": "Walk the perimeter together",
+    "title_es": "Caminen juntos alrededor de la casa",
+    "what_to_do": "Invite the homeowner to walk the outside with you before you go up on the roof or ladder. Point at things as you go - gutters, downspouts, siding corners, window/door trim - don't just talk, walk and point.",
+    "say_en": "Let's walk around together so you can see exactly what I'm looking at, not just hear about it after.",
+    "say_es": "Caminemos juntos para que usted vea exactamente lo que estoy viendo, no solo que se lo cuente después.",
+    "legal_note": "No claim promises yet - this is just looking together, not a scope or a price."
+  },
+  {
+    "step": 2,
+    "id": "point-and-photo",
+    "title_en": "Point, then photograph, then explain - in that order",
+    "title_es": "Señale, luego tome la foto, luego explique - en ese orden",
+    "what_to_do": "Find the damage first and point it out to the homeowner in person (soft/bruised shingle, hail hit on a soft metal - vent, gutter, AC fin; cracked/dented siding, spun turbines). Take the photo with the homeowner watching, not off to the side alone. Say what it is in plain words right after.",
+    "say_en": "See this dent right here on the vent cap? That's a hail hit - soft metal shows it clearest. I'm taking a picture so we both have it on record.",
+    "say_es": "¿Ve esta abolladura en la tapa del respiradero? Eso es un golpe de granizo - el metal blando lo muestra más claro. Voy a tomar la foto para que los dos la tengamos.",
+    "legal_note": "Do not chalk-circle the roof before the adjuster's own photos (round 22 flagged this as disputed practice - some insurers read a chalked roof as tampered evidence). Photograph plainly; let the marks speak for themselves."
+  },
+  {
+    "step": 3,
+    "id": "show-on-phone",
+    "title_en": "Show the photos back on your phone before you leave the yard",
+    "title_es": "Muéstrele las fotos en su teléfono antes de irse del patio",
+    "what_to_do": "Before wrapping up, sit or stand with the homeowner and flip through the photos you just took, side by side (undamaged spot vs. damaged spot helps a lot). Let them ask questions about what they're looking at.",
+    "say_en": "Here's the good area, and here's the damaged one right next to it - see the difference? This is what an adjuster looks for too.",
+    "say_es": "Aquí está el área en buen estado, y aquí la dañada justo al lado - ¿ve la diferencia? Esto es lo que un ajustador también busca.",
+    "legal_note": "Never say 'this will get approved' or 'insurance will pay for this' - say what the photos show, not what a claim will do (44-8604 territory: nothing about the deductible either)."
+  },
+  {
+    "step": 4,
+    "id": "state-the-finding-plainly",
+    "title_en": "State the finding in one plain sentence, no hedging and no over-promising",
+    "title_es": "Diga el hallazgo en una frase clara, sin rodeos y sin prometer de más",
+    "what_to_do": "Summarize what you found in a single sentence the homeowner can repeat to someone else later. Tie it to what it means for the house, not for the insurance company.",
+    "say_en": "What I'm seeing is real hail/wind damage on your roof and siding - the kind that gets worse if it sits, not better.",
+    "say_es": "Lo que veo es daño real de granizo/viento en el techo y el revestimiento - del tipo que empeora si se deja, no mejora.",
+    "legal_note": "Do not say the storm date qualifies them for a claim or that they 'have a case' - that edges toward public-adjuster territory. Describe the damage; the homeowner and their insurer decide the claim."
+  },
+  {
+    "step": 5,
+    "id": "one-clear-next-step",
+    "title_en": "Give exactly one next step, with a name and a form",
+    "title_es": "Dé exactamente un siguiente paso, con nombre y con un documento",
+    "what_to_do": "Name the next step out loud and put a form in their hand for it (inspection-authorization only at this stage - not the final contract, not a contingency agreement, unless HMP's confirmed process says otherwise per the open backlog question). Give a day, not 'soon'.",
+    "say_en": "The next step is just this inspection-authorization form so I can document everything properly - it's not a contract. Can I come back Thursday with the full write-up?",
+    "say_es": "El siguiente paso es solo este formulario de autorización de inspección para documentar todo correctamente - no es un contrato. ¿Puedo regresar el jueves con el informe completo?",
+    "legal_note": "If a contract IS signed at this visit (cash job, no insurance involved), the 3-day cancel notice and, if applicable, the deductible notice must be handed over and explained out loud, in English and Spanish (69-1601, 69-1604(3)) - never silently."
+  }
+]

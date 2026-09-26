@@ -13,4 +13,6 @@ data/*
 !data/city_rules.json
 !data/practice_drills.json
 !data/followup_scripts.json
+!data/inspection_walk.json
+!data/price_objections.json
 .env

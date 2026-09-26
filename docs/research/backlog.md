@@ -82,6 +82,12 @@ notice is already built in; never rush or bury that cancel notice) + hiring a se
 construction workers are employees, not 1099 contractors, regardless of what the paperwork says - real
 misclassification risk if HMP hires commission-only; draw-against-commission for the first 60-90 days is the
 industry-standard fix). Two new backlog items above need the boss's decision and a re-verify once egress allows it.
+Round 31 (sales-mastery track): the inspection walk as a sales moment (`data/inspection_walk.json` - walk the
+perimeter together, point-then-photo-then-explain, show photos back on the phone before leaving the yard, one
+plain-sentence finding, one named next step) + price objections on cash jobs with Good/Better/Best framing
+(`data/price_objections.json` - validate/ask-what's-high/offer-a-path, 3-tier anchoring, "cheaper bid elsewhere"
+handled by scope comparison not price matching). WebFetch and curl both blocked again; everything is
+search-summary sourced. Two new backlog items above (chalking primary source, two more objection scripts).
 Round 32 (backlog track): selling the HMP App to other roofers (not ready - no other customer, no multi-company
 separation; when ready, price flat-tier not per-seat, following the market's own shift away from per-seat pricing)
 + NE bank/credit union home-improvement loans as a no-dealer-fee option (state Dollar & Energy Saving Loan program

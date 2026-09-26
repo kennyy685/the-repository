@@ -323,13 +323,15 @@ def make_list(conn, cfg, area, session=None, turf_size=None, budget_s=None, toda
             "heat": whole["heat"], "why": whole["why"], "geoid": area["geoid"]}
 
 
-def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_size=None, log=print):
+def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_size=None, log=print, budget_s=None):
     """Door lists for the n best neighborhoods (skipping ones with no stored homes). Parcel downloads share one
-    time budget (everyday.parcel_budget_s); after it, only stored buildings are used. Returns (lists, ranked)."""
+    time budget (everyday.parcel_budget_s, or `budget_s` when refresh's overall guard has less left); after it,
+    only stored buildings are used. Returns (lists, ranked)."""
     ev = cfg["everyday"]
     n = ev["refresh_lists"] if n is None else n
     ranked = areas(conn, cfg, near, radius_mi)
-    budget, t0, made = ev["parcel_budget_s"], time.monotonic(), []
+    budget = ev["parcel_budget_s"] if budget_s is None else budget_s
+    t0, made = time.monotonic(), []
     for a in ranked[:2 * n + 3]:
         if len(made) >= n:
             break
@@ -340,7 +342,7 @@ def build_top(conn, cfg, session=None, near=None, radius_mi=None, n=None, turf_s
     return made, ranked
 
 
-def build_towns(conn, cfg, session=None, towns=None, turf_size=None, log=print):
+def build_towns(conn, cfg, session=None, towns=None, turf_size=None, log=print, budget_s=None):
     """T97: everyday lists for the config `everyday_towns` (e.g. Schuyler, Columbus, Lexington: towns with a high
     Spanish-speaking share), built every refresh alongside the top-N lists, whatever their distance from home base.
     Per town: its best `everyday.town_lists` neighborhoods within `everyday.town_radius_mi` of the town (the normal
@@ -349,7 +351,8 @@ def build_towns(conn, cfg, session=None, towns=None, turf_size=None, log=print):
     ev = cfg["everyday"]
     towns = (cfg.get("everyday_towns") or []) if towns is None else towns
     per_town = int(ev.get("town_lists", 1))
-    budget, t0, made = ev.get("town_parcel_budget_s"), time.monotonic(), []
+    budget = ev.get("town_parcel_budget_s") if budget_s is None else budget_s    # budget_s: refresh's guard
+    t0, made = time.monotonic(), []
     for town in towns:
         try:
             ranked = areas(conn, cfg, town, ev.get("town_radius_mi", 5))
