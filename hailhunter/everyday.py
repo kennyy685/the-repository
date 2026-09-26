@@ -7,7 +7,8 @@ the best ones the same way storm lists are made (walkable turfs, csv / xlsx / ma
 heat 0-100 = 100 x old x owners x value x distance x settled x newbuild x weight   (weights: config "everyday")
   old       share of homes built before `old_before`: per house from the parcels when most years are known,
             else the Census decade counts (B25034), else estimated from the Census median year (B25035)
-  owners    owner-occupied share (Census B25003): owners pay for their own siding and roof
+  owners    owner-occupied share (Census B25003): owners pay for their own siding and roof; per house from the
+            county's owner mailing address where one publishes it (owners.py, T23: Sarpy, Douglas, Lancaster)
   value     typical home value: enough to reinvest in, not luxury
   distance  miles from home base
   settled   small cut for homes bought in the last few years
@@ -183,9 +184,16 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
     today = today or datetime.now(ZoneInfo(cfg["timezone"])).date()
     sold_since = (today - timedelta(days=round(365.25 * ev["recent_sale_years"]))).isoformat()
     own = area.get("owners")
-    O = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
+    O_area = ev["owner_unknown"] if own is None else ev["owner_floor"] + (1 - ev["owner_floor"]) * own
+    rows = [dict(p) for p in rows]
+    try:                                             # T23: per-house owner-occupied where a county publishes it
+        owner_data.lookup(conn, rows)
+    except Exception:                                # no cache table / bad rows: the neighborhood share only
+        pass
     out = []
     for p in rows:
+        occ = p.get("owner_occ")                     # True / False from the county, None = use the area share
+        O = O_area if occ is None else (ev["owner_house_yes"] if occ else ev["owner_house_no"])
         year = p["year_built"] or area.get("med_year")
         A = interp(ev["age_curve"], year) if year else ev["old_unknown"]
         mv = p["total_value"] or area.get("med_value")
@@ -203,9 +211,13 @@ def score_houses(conn, cfg, area, session=None, budget_s=None, today=None, log=p
             flags.append("Type from zoning")
         if p["kind"] == "multi":
             flags.append("Ask for owner/landlord")
+        if occ is True:
+            flags.append("Owner lives here (county)")
+        elif occ is False:
+            flags.append("Owner mails elsewhere (likely rental)")
         score = 100 * A * O * V * interp(ev["distance_curve"], dist) * doors.KIND_FACTOR.get(p["kind"], 0.5) * \
             ((1 - ev["sold_penalty"]) if bought else 1.0)
-        out.append({**dict(p), "bg": area["geoid"], "hail_in": None, "owner_share": own, "score": round(score, 1),
+        out.append({**p, "bg": area["geoid"], "hail_in": None, "owner_share": own, "score": round(score, 1),
                     "dist_mi": round(dist, 1), "flags": "; ".join(flags), "bought_recently": bought})
     return out
 
@@ -220,6 +232,9 @@ def turf_heat(stops, area, cfg):
         f.update(share_old=sum(y < ev["old_before"] for y in years) / len(years),
                  share_new=sum(y >= ev["new_since"] for y in years) / len(years),
                  med_year=int(np.median(years)), basis="parcels")
+    occ = [s["owner_occ"] for s in stops if s.get("owner_occ") is not None]
+    if occ and len(occ) >= 0.5 * n:                  # T23: the county's per-house owner flags beat the Census share
+        f["owners"] = sum(1 for o in occ if o) / len(occ)
     vals = [float(s["total_value"]) for s in stops if s.get("total_value")]
     if vals:
         f["med_value"] = float(np.median(vals))

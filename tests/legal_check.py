@@ -16,7 +16,8 @@ Three checks, each printing every failure it finds (file + line), not just the f
 2. CANCEL NOTICE ELEMENTS - docs/print/cancel-notice.html must have, in BOTH its
    English (lang="en") and Spanish (lang="es") sections: the three-business-day
    right, how-to-cancel instructions, and HMP's business mailing address.
-3. BANNED PHRASES - every text file under docs/print/ and every pages/*.html must not
+3. BANNED PHRASES - every text file under docs/print/, every pages/*.html and every
+   data/*.json must not
    make banned claims ("we say registered, not licensed", never say we cover/waive/
    rebate a deductible, promise insurance will pay, or offer a free roof). A phrase
    that appears inside text *forbidding* that exact claim (a rule, a script's "don't
@@ -172,6 +173,11 @@ def _iter_scan_files():
         for fn in sorted(os.listdir(pages_dir)):
             if fn.endswith(".html"):
                 yield os.path.join("pages", fn)
+    data_dir = os.path.join(ROOT, "data")
+    if os.path.isdir(data_dir):
+        for fn in sorted(os.listdir(data_dir)):
+            if fn.endswith(".json"):
+                yield os.path.join("data", fn)
 
 
 def _is_negated(text_before):
@@ -239,7 +245,8 @@ def check_banned_phrases():
                 if _is_regex_alternation(text, idx, phrase):
                     continue  # a '|' alternation inside a detection regex/array, not a sentence
                 window_start = max(0, idx - NEGATION_WINDOW_CHARS)
-                if _is_negated(text[window_start:idx]):
+                window_end = min(len(text), idx + len(phrase) + NEGATION_WINDOW_CHARS)
+                if _is_negated(text[window_start:idx]) or _is_negated(text[idx + len(phrase):window_end]):
                     continue  # a rule/script line forbidding this claim, not the claim itself
                 if _under_negated_heading(text, idx):
                     continue  # sits under a "We can't"/"HMP can't"-style heading

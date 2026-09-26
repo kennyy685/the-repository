@@ -74,6 +74,8 @@ DEFAULTS = {
         "coverage_in": 1.0,         # 'hit' threshold for coverage share
         "coverage_floor": 0.4,      # score multiplier when only a sliver of the area got 1"+
         "owner_floor": 0.3, "owner_unknown": 0.65,
+        # T23: one house's owner factor when the county says the owner lives there (yes) or mails elsewhere (no)
+        "owner_house_yes": 1.0, "owner_house_no": 0.3,
         "homes_full": 500, "homes_floor": 0.3,
         "age_curve": [[1970, 1.0], [1990, 0.95], [2005, 0.88], [2015, 0.8]], "age_unknown": 0.9,
         "mesh_factor": None,        # None = auto-calibrate radar vs ground reports
@@ -113,6 +115,8 @@ DEFAULTS = {
         "median_spread_years": 20,  # no age breakdown: share old ~ 0.5 - (median year - old_before) / (2 x this)
         "age_curve": [[1940, 1.0], [1979, 1.0], [1995, 0.75], [2005, 0.5], [2015, 0.25], [2025, 0.1]],  # one house
         "owner_floor": 0.3, "owner_unknown": 0.65,
+        # T23: one house's owner factor when the county says the owner lives there (yes) or mails elsewhere (no)
+        "owner_house_yes": 1.0, "owner_house_no": 0.3,
         # typical home value -> factor: enough value to reinvest in, but not luxury
         "value_curve": [[60000, 0.5], [110000, 0.85], [150000, 1.0], [350000, 1.0], [500000, 0.8], [800000, 0.6]],
         "value_unknown": 0.9,

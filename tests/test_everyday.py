@@ -227,6 +227,32 @@ class Town(Base):
         self.assertTrue(os.path.exists(res["paths"]["png"]))
         self.assertIsNone(self.conn.execute("SELECT 1 FROM door_lists").fetchone())    # storm lists untouched
 
+    def test_county_owner_flags_rank_owner_occupied_homes_higher(self):
+        """T23 on everyday lists: where the county cache says who lives there, owner-occupied homes outrank rentals."""
+        now = "2026-09-26T00:00:00Z"
+        rows = [("sarpy", f"X{k}", 100 * (k + 1), "OAK ST", 41.45 + k * 0.0004, -96.55, occ, None, "t", now)
+                for k, occ in ((10, 1), (11, 0), (12, None))]           # P10 owner lives there, P11 rental, P12 blank
+        self.conn.executemany("INSERT INTO owner_occ VALUES (?,?,?,?,?,?,?,?,?,?)", rows)
+        self.conn.commit()
+        res = everyday.make_list(self.conn, self.cfg, self.area(), log=QUIET)
+        h = {x["pid"]: x for x in res["houses"]}
+        self.assertEqual((h["P10"]["owner_occ"], h["P11"]["owner_occ"], h["P12"].get("owner_occ")), (True, False, None))
+        self.assertEqual(h["P10"]["owner_source"], "sarpy")
+        self.assertIn("Owner lives here (county)", h["P10"]["flags"])
+        self.assertIn("likely rental", h["P11"]["flags"])
+        # P10-P12 are all 1960s houses with the same value: only the owner flag separates them
+        self.assertGreater(h["P10"]["score"], h["P12"]["score"])        # owner lives there > area share
+        self.assertGreater(h["P12"]["score"], h["P11"]["score"])        # area share > likely rental
+        self.assertLess(h["P11"]["score"], h["P13"]["score"])
+
+    def test_turf_owner_share_from_county_when_half_known(self):
+        stops = [{"lat": 41.45, "lon": -96.55, "owner_occ": k < 3} for k in range(4)]
+        area = {"owners": 0.2, "med_value": 150000}
+        z = everyday.turf_heat(stops, area, self.cfg)
+        self.assertEqual(z["parts"]["owner_share"], 0.75)                # 3 of 4 houses, not the Census 0.2
+        self.assertEqual(everyday.turf_heat([{"lat": 41.45, "lon": -96.55}], area, self.cfg)["parts"]["owner_share"],
+                         0.2)
+
     def test_hud_adds_everyday_lists_and_keeps_every_old_key(self):
         day = (date.today() - timedelta(days=10)).isoformat()          # a storm list alongside
         arr = np.full((60, 60), round(1.6 * 25.4 * 10), np.uint16)

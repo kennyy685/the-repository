@@ -20,7 +20,6 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] GAF Master Elite's Service Finance dealer-tech tie-in: does hitting Master Elite unlock a lower financing bar than going direct
 - [x] Local NE bank/credit union home-improvement loan programs as a no-dealer-fee alternative to name to homeowners - round 32
 - [ ] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP
-- [ ] Roof-chalking vs. insurer photo acceptance: settle the conflict found in round 22 (some sources say never chalk a roof before adjuster photos)
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
 - [ ] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything
@@ -35,6 +34,10 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
       specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
       directly next time
+- [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
+      primary source (manufacturer guidance or an adjuster directly), not another blog
+- [ ] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
+      cash jobs (round 31 covered too-expensive / think-it-over / cheaper-bid but not these two)
 - [ ] Confirm directly (call NUFCU/BCU, or reach catenergy.ne.gov/dwee.nebraska.gov once egress allows) whether
       the Dollar & Energy Saving Loan program and NUFCU/BCU home-improvement loans cover siding/roofing
       replacement specifically, and their real fee schedules (round 32: pages blocked, search-summary only)
