@@ -243,6 +243,11 @@ def check_banned_phrases():
                     continue  # a rule/script line forbidding this claim, not the claim itself
                 if _under_negated_heading(text, idx):
                     continue  # sits under a "We can't"/"HMP can't"-style heading
+                after = lowered[idx + len(plower):idx + len(plower) + 40]
+                if plower == "free roof" and re.match(r"\s*(?:&amp;|&|and)?\s*(?:siding\s*)?(?:&amp;|&|and)?\s*(?:estimate|inspection|check)", after):
+                    continue  # a free estimate/inspection offer, not a free roof
+                if plower == "licensed" and "public adjuster" in lowered[max(0, idx - 300):idx + 300]:
+                    continue  # describes public adjusters (who are licensed), not HMP
                 line_no = text.count("\n", 0, idx) + 1
                 snippet = re.sub(r"\s+", " ", text[max(0, idx - 30):idx + len(phrase) + 30]).strip()
                 failures.append(f"{rel_path}:{line_no}: banned phrase \"{phrase}\" - ...{snippet}...")
