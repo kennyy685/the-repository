@@ -156,8 +156,9 @@
   const R_INT = /\b(interested|interesad[oa]s?|(?:le|les) interesa|call (?:me |him |her |them |us )?back|callback|call-back|wants a (?:price|quote|call)|quiere (?:precio|un precio|estimado|cotizacion|que (?:le )?llame)|llamar(?:le|les)? (?:despues|luego|otra vez|de nuevo))\b/;
 
   /** -> "not_home" | "no" | "interested" | "booked" | null (order matters: "not interested" is a no). */
+  const R_DONE = /\b(inspection (?:is )?(?:done|finished|complete[d]?)|did the inspection|inspected (?:it|the roof)|inspeccion (?:hecha|lista|terminada)|ya (?:inspeccione|revise|la revise))\b/g;
   function parseResult(text) {
-    const t = fold(text);
+    const t = fold(text).replace(R_DONE, " ");
     if (R_NO.test(t)) return "no";
     if (R_NH.test(t)) return "not_home";
     if (R_BOOK.test(t)) return "booked";
@@ -165,7 +166,7 @@
     return null;
   }
   function apptKind(text) {
-    const t = fold(text);
+    const t = fold(text).replace(R_DONE, " ");
     if (/\b(adjuster|ajustador[a]?)\b/.test(t)) return "adjuster";
     if (/\b(estimate|quote|estimado|cotizacion|presupuesto|price)\b/.test(t)) return "estimate";
     if (/\b(inspection|inspect|inspeccion|revision|revisar|booked|appointment|appt|cita|agendad[oa]|agende)\b/.test(t)) return "inspection";
@@ -386,7 +387,7 @@
           let end = start + word.length;
           const w2 = /^\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ'’-]+)/.exec(src.slice(end));
           if (w2 && isCapName(w2[1])) end += w2[0].length;
-          spans.push({ start, end });
+          if (!spans.some(x => x.start === start)) spans.push({ start, end });
           break;
         }
         if (!NAME_FILL.has(fold(word).replace(/[’']s$/, "")) && !NAME_FILL.has(fold(word))) break;
@@ -407,7 +408,7 @@
     return out.replace(/\s{2,}/g, " ").replace(/^[\s,;.-]+|[\s,;-]+$/g, "").slice(0, 300) || (raw && !out ? "" : out);
   }
   function leftoverNote(text, used) {
-    const parts = str(text).split(/(?<=[,;.!?])\s+|\s+-\s+|\n+/).map(p => p.trim()).filter(Boolean);
+    const parts = str(text).split(/(?<=[,;!?]|(?<!\b(?:[Mm]rs?|[Mm]s|[Ss]ra?|[Ss]rta|[Dd]r|[Ss]t|[Aa]ve|[ap]\.m))\.)\s+|\s+-\s+|\n+/).map(p => p.trim()).filter(Boolean);
     const keep = [];
     for (const p of parts) {
       const f = fold(p);

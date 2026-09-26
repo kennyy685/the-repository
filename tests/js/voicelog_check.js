@@ -158,14 +158,15 @@ for (const [t, name] of NAMES) {
   const b = P("3110 Clarkson, need to call the adjuster");
   eq("todo only: next step", [b.next_step && b.next_step.en, b.next_step && b.next_step.due, b.appt], ["Schedule the adjuster meeting", "2026-09-27", null]);
   const c = P("615 Linden interesado el martes, hay que agendar al ajustador");
-  eq("ES todo: no adjuster date", c.claim && c.claim.adjuster_date, undefined);
+  eq("ES todo: no adjuster date", (c.claim || {}).adjuster_date, undefined);
   ok("ES todo: next step", /ajustador/.test(c.next_step.es), c.next_step);
   const e = P("845 N Garden booked Tuesday at 3 and adjuster Friday at 10");
   eq("both: inspection + adjuster", [e.appt.kind, e.appt.day, e.appt.time, e.claim.adjuster_date, e.claim.stage], ["inspection", "2026-09-29", "15:00", "2026-10-02", "adjuster_set"]);
   const f = P("1418 Irving, ajustador el martes a las 11, inspección hecha");
   eq("ES adjuster clause", [f.claim && f.claim.adjuster_date, f.appt && f.appt.kind, f.appt && f.appt.time], ["2026-09-29", "adjuster", "11:00"]);
   const g = P("1418 Irving not home Tuesday, adjuster");
-  eq("adjuster word alone takes no date", g.claim && g.claim.adjuster_date, undefined);
+  eq("adjuster word alone takes no date", (g.claim || {}).adjuster_date, undefined);
+  eq("adjuster word alone: door + day stay", [g.result, (g.claim || {}).stage], ["not_home", undefined]);
   const h = P("3110 Clarkson adjuster coming 10/5, State Farm");
   eq("adjuster with a date in its clause", [h.claim.adjuster_date, h.claim.insurer, h.stage], ["2026-10-05", "State Farm", "adjuster_meeting"]);
 }
