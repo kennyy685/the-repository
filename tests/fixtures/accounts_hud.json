@@ -1,0 +1,230 @@
+{
+ "generated_utc": "2026-09-27T11:30:00Z",
+ "lists": [
+  {
+   "id": "2026-09-20_Fremont",
+   "day": "2026-09-20",
+   "area": "Fremont, NE",
+   "doors": 2,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 2,
+     "avg_hail": 1.4,
+     "value": 300
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "DODGE-1",
+     "address": "105 E 4th St",
+     "city": "Fremont",
+     "hail": 1.6,
+     "kind": "single",
+     "lat": 41.433,
+     "lon": -96.498
+    },
+    {
+     "turf": 1,
+     "stop": 2,
+     "pid": "DODGE-2",
+     "address": "200 N Main St",
+     "city": "Fremont",
+     "hail": 1.2,
+     "kind": "single",
+     "lat": 41.44,
+     "lon": -96.499
+    }
+   ]
+  },
+  {
+   "id": "2026-06-01_Blair",
+   "day": "2026-06-01",
+   "area": "Blair, NE",
+   "doors": 1,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 1,
+     "avg_hail": 2.0,
+     "value": 100
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "WASH-1",
+     "address": "10 Old Storm Rd",
+     "city": "Blair",
+     "hail": 2.0,
+     "kind": "single",
+     "lat": 41.54,
+     "lon": -96.13
+    }
+   ]
+  }
+ ],
+ "everyday_lists": [
+  {
+   "id": "everyday_Fremont_1",
+   "kind": "everyday",
+   "day": "2026-09-25",
+   "area": "Fremont (east), NE",
+   "doors": 1,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 1,
+     "avg_hail": null,
+     "value": 100
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "DODGE-E0",
+     "address": "400 Pine St",
+     "city": "Fremont",
+     "hail": null,
+     "kind": "single",
+     "lat": 41.45,
+     "lon": -96.49
+    }
+   ]
+  }
+ ],
+ "hail_evidence": {
+  "105 E 4th St|Fremont": {
+   "day": "2026-09-20",
+   "hail_in": 1.65,
+   "nearest_report": {
+    "dist_mi": 0.8,
+    "size_in": 1.75,
+    "source": "trained spotter"
+   },
+   "radar_max_in": 1.9
+  }
+ },
+ "targets": [
+  {
+   "rank": 1,
+   "address": "15735 Rosewood St",
+   "city": "Omaha",
+   "type": "Apartments / multi-family",
+   "day": "2026-09-12",
+   "hail": 1.75,
+   "days_ago": 15,
+   "owner": "SOME OWNER LLC",
+   "owner_mail": "PO BOX 1",
+   "score": 40.0,
+   "key": "15735 Rosewood St|Omaha",
+   "contact": {
+    "name": "Springhill Ridge Apartments",
+    "phone": "(402) 891-0742",
+    "ask_for": "Community manager",
+    "confidence": "high"
+   }
+  },
+  {
+   "rank": 2,
+   "address": "15859 Rosewood St",
+   "city": "Omaha",
+   "type": "Apartments / multi-family",
+   "day": "2026-09-12",
+   "hail": 1.5,
+   "days_ago": 15,
+   "owner": "SOME OWNER LLC",
+   "owner_mail": "PO BOX 1",
+   "score": 30.0,
+   "key": "15859 Rosewood St|Omaha",
+   "contact": {
+    "name": "Springhill Ridge Apartments",
+    "phone": "(402) 891-0742",
+    "ask_for": "Community manager",
+    "confidence": "high"
+   }
+  },
+  {
+   "rank": 3,
+   "address": "4 Cell Ln",
+   "city": "Omaha",
+   "type": "Apartments / multi-family",
+   "day": "2026-09-12",
+   "hail": 2.0,
+   "days_ago": 15,
+   "owner": "SOMEBODY",
+   "owner_mail": "",
+   "score": 20.0,
+   "key": "4 Cell Ln|Omaha",
+   "contact": null
+  }
+ ],
+ "storms": [
+  {
+   "day": "2026-09-24",
+   "place": "Wahoo",
+   "state": "NE",
+   "lat": 41.21,
+   "lon": -96.62,
+   "dist_mi": 24.0,
+   "hail": 1.25,
+   "basis": "ground",
+   "reports": 3,
+   "score": 30.0
+  },
+  {
+   "day": "2026-09-24",
+   "place": "Wahoo",
+   "state": "NE",
+   "lat": 41.214,
+   "lon": -96.616,
+   "dist_mi": 24.0,
+   "hail": 0.75,
+   "basis": "ground",
+   "reports": 1,
+   "score": 6.0
+  }
+ ],
+ "wind_events": [
+  {
+   "day": "2026-09-25",
+   "place": "Arlington",
+   "state": "NE",
+   "lat": 41.46,
+   "lon": -96.35,
+   "dist_mi": 8.0,
+   "max_mph": 70,
+   "gust_reports": 1,
+   "damage_reports": 1,
+   "wind_score": 60.0,
+   "wind_parts": {
+    "band": 0.65,
+    "recency": 1.0,
+    "distance": 1.0
+   },
+   "trees_down": 1
+  },
+  {
+   "day": "2026-09-25",
+   "place": "Arlington",
+   "state": "NE",
+   "lat": 41.453,
+   "lon": -96.356,
+   "dist_mi": 8.0,
+   "max_mph": 45,
+   "gust_reports": 1,
+   "damage_reports": 0,
+   "wind_score": 0.0,
+   "wind_parts": {
+    "band": 0.0,
+    "recency": 1.0,
+    "distance": 1.0
+   },
+   "trees_down": 0
+  }
+ ]
+}

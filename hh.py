@@ -21,6 +21,10 @@
                   [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
   python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv calls.csv]   today's BUSINESS call list:
                   apartment/commercial buildings with a known business line in fresh 1"+ hail (JSON for calls/today)
+                  [--accounts f]  + "your accounts hit" (accounts_hit, shown first): see `accounts`
+  python3 hh.py accounts [--accounts accounts.json] [--date D] [--days N] [--no-scout] [--out f]   round 54: new
+                  1"+ hail (or 58+ mph wind) in the last N days over YOUR accounts (app leads, claims, Interested/
+                  Booked doors, data/scout_contacts.json businesses), with the hail report attached (JSON)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
@@ -55,7 +59,7 @@
                   in one go: todaywalk+evidence, calltoday, zones+walks, rentals, followups (with --leads); one JSON
                   file per app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
                   evidence__<slug>.json, rentals__current.json, followups__today.json) + manifest.json; walks get
-                  maps as in zones
+                  maps as in zones. [--accounts f] (+ --leads, --results, scout contacts): calls/today accounts_hit
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -290,6 +294,33 @@ def _basemap_maker(cfg, offline):
                          log=lambda m: print(m, file=sys.stderr))
 
 
+def _ro_conn(cfg):
+    """The engine database read-only (rows by name), or None when there is none (the cloud's app job)."""
+    import sqlite3
+    if not os.path.exists(cfg["paths"]["db"]):
+        return None
+    try:
+        conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except sqlite3.Error:
+        return None
+
+
+def _account_doc(cfg, hud_doc, day, accounts_path=None, days=None, scout=True):
+    """accounts.check() for `accounts` and `calltoday --accounts`: the accounts file + scout contacts; the engine
+    database (if any, read-only) adds radar at the address. Raises OSError/ValueError on an unreadable file."""
+    from hailhunter import accounts
+    from hailhunter.todaywalk import load_json
+    raw = load_json(accounts_path) if accounts_path else None
+    conn = _ro_conn(cfg)
+    try:
+        return accounts.check(hud_doc, accounts.gather(cfg, raw, scout=scout), day, cfg, conn=conn, days=days)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="hh", description="HailHunter storm lead engine")
     ap.add_argument("--config", help="path to config.json")
@@ -433,6 +464,18 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
     p.add_argument("--csv", help="also write the calls as a CSV to this file")
+    p.add_argument("--accounts", help="round 54: your accounts (a list of {kind, key, address, city, lat?, lon?, "
+                                      "since?}, or the app's {leads, claims, doors} exports) -> accounts_hit first")
+    p = sub.add_parser("accounts", help="round 54: new hail/wind over your own accounts (leads, claims, doors, "
+                                        "business contacts), hail report attached (JSON)")
+    p.add_argument("--accounts", help="accounts JSON: a list of {kind: lead|claim|door|commercial, key, address, city, "
+                                      "lat?, lon?, since?}, or the app's exports {leads, claims, doors}")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--days", type=int, help="window in days (default: config accounts.max_days, else "
+                                            "today_walk.storm_max_days = 60)")
+    p.add_argument("--no-scout", action="store_true", help="leave out the data/scout_contacts.json businesses")
+    p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("zones", help="hot zones near a town + a walk per zone (JSON for zones/current, walks/<id>)")
     p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
     p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
@@ -471,6 +514,9 @@ def main(argv=None):
     p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
     p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--no-basemap", action="store_true", help="skip the walk maps (basemap + route fields)")
+    p.add_argument("--accounts", help="round 54: your accounts file (list, or the app's {leads, claims, doors} "
+                                      "exports); with --leads, --results and scout contacts -> calls/today "
+                                      "accounts_hit")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -531,7 +577,8 @@ def main(argv=None):
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
         try:
-            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None for k in ("results", "dnk", "leads")}
+            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None
+                   for k in ("results", "dnk", "leads", "accounts")}
         except (OSError, ValueError) as e:
             print(f"daily: can't read an input file ({type(e).__name__}: {e})", file=sys.stderr)
             return 2
@@ -545,10 +592,13 @@ def main(argv=None):
         if near is None:
             print(f"daily: can't find the town {a.near!r} (give 'lat,lon'); zones use home base", file=sys.stderr)
         maker = None if a.no_basemap else _basemap_maker(cfg, a.offline)
+        acct_conn = _ro_conn(cfg)                  # radar at each account's address, when the database is here
         man = daily.run(cfg, a.out_dir, day, hud_doc, raw["results"], raw["dnk"], raw["leads"], a.doors, near, conn,
-                        benchmarks.load(a.benchmarks, cfg), maker=maker)
-        if conn is not None:
-            conn.close()
+                        benchmarks.load(a.benchmarks, cfg), maker=maker, accounts_raw=raw["accounts"],
+                        acct_conn=acct_conn)
+        for c in (conn, acct_conn):
+            if c is not None:
+                c.close()
         if maker is not None:
             maker.conn.close()
         for e in man["errors"]:
@@ -566,11 +616,39 @@ def main(argv=None):
         except (OSError, ValueError) as e:            # still write a doc the app can show
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
-        doc = calltoday.today_doc(hud_doc, day, cfg)
+        try:                                       # round 54: your accounts hit (scout contacts even without a file)
+            acc = _account_doc(cfg, hud_doc, day, a.accounts)
+        except (OSError, ValueError) as e:
+            print(f"calltoday: can't read {a.accounts} ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        doc = calltoday.today_doc(hud_doc, day, cfg, accounts=acc)
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
         if a.csv:
             calltoday.write_csv(a.csv, doc["calls"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "accounts":                        # reads hud.json; the database (if any) adds radar at the address
+        from zoneinfo import ZoneInfo
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still check (exact-address matches need hud.json, though)
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        try:
+            doc = _account_doc(cfg, hud_doc, day, a.accounts, a.days, scout=not a.no_scout)
+        except (OSError, ValueError) as e:
+            print(f"accounts: can't read {a.accounts} ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        print(f"accounts: {len(doc['alerts'])} hit of {doc['checked']} checked ({doc['located']} on the map, "
+              f"radar {'yes' if doc['radar'] else 'no'}), last {doc['days']} days", file=sys.stderr)
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:

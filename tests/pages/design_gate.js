@@ -66,6 +66,7 @@ const PAGES = [
       // v25: the other screens FilthE uses every day
       { name: "more sheet", steps: ["#moreBtn"] },
       { name: "claim sheet", steps: ["#tb-money", "#tab-money .jcard"] },
+      { name: "claim job step", steps: ["#tb-money", '[data-open="claim:1107-n-h-st"]', '[data-jtopen="build"]'] },   // v25.2 T199: a Job tracker step with its hard stop
       { name: "knock all doors", steps: ["#tb-knock", "#kAllBtn"] },
       { name: "walk menu", steps: ["#tb-knock", '[data-open="walk:"]'] },
       { name: "homeowner view", steps: ["#tb-leads", "#tab-leads .a-card", "[data-ho]"] },
