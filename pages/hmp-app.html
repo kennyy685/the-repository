@@ -117,7 +117,7 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .zone h2{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.2;text-wrap:balance}
 .zone .where{font-size:var(--t-cap);color:var(--muted);margin-top:2px}
 .zone .where.big{font-size:var(--t-body);margin-top:6px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r-md)}
+.stats{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border:1px solid var(--line);border-radius:var(--r-md)}
 .stats > div{padding:var(--s2) var(--s3);min-width:0}
 .stats > div+div{border-left:1px solid var(--line)}
 .stats b{display:block;font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap}
@@ -125,6 +125,8 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .stats span{font-size:12px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .zacts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s2)}
 .zacts .btn{min-width:0}
+.zacts .btn.pri{padding:0 var(--s3)}
+@media (max-width:380px){.ans{gap:8px;padding:0 10px}.ans b{font-size:16px}.ans .i{width:20px;height:20px}.count .big b{font-size:46px}}
 .zacts .btn span{overflow:hidden;text-overflow:ellipsis}
 .appt{display:flex;gap:var(--s3);align-items:center;padding:var(--s3) var(--s4);min-width:0}
 .appt .time{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:var(--r-md);background:var(--hmp-bg);color:var(--hmp-ink);flex:none}
@@ -1876,7 +1878,8 @@ function drawWalkMap(m, nextI){
   const pts = m.w.stops.filter(s => s && numv(s.lat) != null && numv(s.lon) != null); if (pts.length < 1) { svg.closest('.walkmap').hidden = true; return; }
   const wmap = Object.assign({}, m.w, {stops: m.w.stops.map(s => Object.assign({}, s, {lat: numv(s.lat), lon: numv(s.lon)}))});
   try {
-    HMPMap.renderWalkMap(svg, wmap, kBig || !raw ? {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, pad: 16}
+    const plain = !(m.w.basemap && Array.isArray(m.w.basemap.streets));   // no basemap: show the whole walk (a 250 m window would be empty)
+    HMPMap.renderWalkMap(svg, wmap, kBig || !raw || plain ? {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, pad: kBig ? 16 : 12, r: kBig ? 8.5 : 7}
       : {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, center: {lat: numv(raw.lat) - .0002, lon: numv(raw.lon) - .00045}, metersAcross: 250, r: 8});
   } catch (e) { svg.closest('.walkmap').hidden = true; }
 }
@@ -5035,8 +5038,8 @@ function renderZones(){
   if (!zs.length) {   // empty: no fresh hail. Say when Storm Watch looked, and offer the everyday walk
     zmapKey = '';
     soft(box).html = `<div class="zempty-map" aria-hidden="true"><svg viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice"><defs><pattern id="zeBlocks" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4"><rect width="30" height="24" fill="var(--map-street)"/><rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/></pattern></defs>
-      <rect width="390" height="220" fill="url(#zeBlocks)"/><g fill="none"><path d="M-5 58 H395M-5 170 H395M152 -5 V230" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 58 H395M-5 170 H395M152 -5 V230" stroke="var(--map-major)" stroke-width="6.5"/></g>
-      <circle cx="152" cy="170" r="16" fill="var(--you)" opacity=".16"/><circle cx="152" cy="170" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/></svg></div>`;
+      <rect width="390" height="220" fill="url(#zeBlocks)"/><g fill="none"><path d="M-5 58 H395M-5 112 H395M152 -5 V230" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 58 H395M-5 112 H395M152 -5 V230" stroke="var(--map-major)" stroke-width="6.5"/></g>
+      <circle cx="152" cy="112" r="16" fill="var(--you)" opacity=".16"/><circle cx="152" cy="112" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/></svg></div>`;
     const asOf = zonesDoc && (strv(zonesDoc.updated_at) || strv(zonesDoc.as_of)), d = asOf ? new Date(asOf.length === 10 ? asOf + 'T12:00:00' : asOf) : null;
     const when = d && !isNaN(d) ? (ymd(d) === todayStr() ? (lang === 'es' ? 'hoy' : 'today') + (asOf.length > 10 ? ' ' + fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d) : '') : fmtDay(ymd(d), true)) : '';
     soft(card).html = `<section class="card zone" aria-label="${esc(Zs.noHail(SETTINGS.radiusMi))}">${when ? `<div class="eyes"><span class="chip ok">${ic('check')}${esc(Zs.checked(when))}</span></div>` : ''}
@@ -5062,7 +5065,9 @@ function renderZones(){
     const svg = $('#zSvg');
     try {
       const data = zoneMapData(zs), c = show.wc || {lat: show.lat, lon: show.lon};
-      const P = HMPMap.renderZoneMap(svg, data, {width: W0, height: H0, top: show.id, center: {lat: c.lat - .0009, lon: c.lon + .0006}, pad: 8, near: 3500});
+      const hasBase = Object.values(data.walks).some(w => w && w.basemap && Array.isArray(w.basemap.streets));   // no engine basemap yet: a wider plain view, never a blown-up blob
+      const P = HMPMap.renderZoneMap(svg, data, hasBase ? {width: W0, height: H0, top: show.id, center: {lat: c.lat - .0009, lon: c.lon + .0006}, pad: 8, near: 3500}
+        : {width: W0, height: H0, top: show.id, center: {lat: c.lat - .0012, lon: c.lon}, metersAcross: 1800, near: 3500});
       if (P) {
         const [x, y] = P.xy(c.lon, c.lat), pin = $('#zPin');
         if (x > 30 && x < W0 - 30 && y > 40 && y < H0 - 56) { pin.style.left = x.toFixed(0) + 'px'; pin.style.top = (y - 6).toFixed(0) + 'px'; pin.hidden = false; }
@@ -5082,7 +5087,7 @@ function renderZones(){
     ${why ? `<p class="why">${ic('built')}<span>${esc(why)}</span></p>` : ''}
     ${zoneMissing && show.name === zoneMissing ? `<p class="k-stale">${esc(NW().zoneMiss(zoneMissing))}</p>` : ''}
     <div class="zacts"><button type="button" class="btn sec" data-open="drive:${esc(show.id)}" id="zDrive">${ic('car')}<span>${esc(Zs.drive)}</span></button>
-      <button type="button" class="btn pri" id="zGo" data-zgo="${esc(show.id)}"><span>${esc(doors ? Zs.resume(doors, km.stops.length) : Zs.start)}</span>${ic('chev')}</button></div></section>`;
+      <button type="button" class="btn pri" id="zGo" data-zgo="${esc(show.id)}"><span>${esc(doors ? Zs.resume(doors, km.stops.length) : Zs.start)}</span>${doors ? '' : ic('chev')}</button></div></section>`;
 }
 $('#zones').addEventListener('click', ev => {
   const g = ev.target.closest('[data-zgo]'); if (g) { selectZone(g.dataset.zgo, true); return; }
@@ -5152,12 +5157,12 @@ function apptRow(x){
   const note = x.note && !/^\s*$/.test(x.note) ? x.note.replace(/^[^,]*\d\s*(AM|PM|am|pm)\s*,?\s*/, '').replace(/^(inspection|inspección|adjuster|ajustador)[^,]*,\s*/i, '') : '';
   const sub = [x.who, note && note.length < 48 ? note : ''].filter(Boolean).join(' · ');
   const call = x.phone ? `<a class="round" href="tel:${esc(x.phone.replace(/[^\d+]/g, ''))}" aria-label="${esc(Zs.callWho(x.who || shortAddr(x.addr)))}">${ic('phone')}</a>` : '';
-  return `<div class="appt">${tile}<button type="button" class="t" data-open="${x.kind}:${esc(x.id)}"><b>${esc(Zs.kinds[x.a.kind] || '')} · ${esc(shortAddr(x.addr))}</b><span>${esc(sub || whenLabel(x.a))}</span></button>${call}</div>`;
+  return `<div class="appt">${tile}<button type="button" class="t" data-open="${x.kind}:${esc(x.id)}"><b>${esc(Zs.kinds[x.a.kind] || '')} · ${esc(x.addr)}</b><span>${esc(sub || whenLabel(x.a))}</span></button>${call}</div>`;
 }
 function dueRowV25(r){
   const Zs = Z(), late = dueLate(r), d = lateDays(r);
   const chip = late ? `<span class="chip late">${ic('flag')}${esc(Zs.lateD(Math.max(1, d)))}</span>` : r.due > todayStr() ? `<span class="chip">${esc(fmtDay(r.due, true))}</span>` : `<span class="chip">${ic('clock')}${esc(Zs.dueToday)}</span>`;
-  return `<li><button type="button" class="row" data-open="${r.kind}:${esc(r.id)}"><span class="t"><b>${esc(shortAddr(r.address))}</b><span>${esc(r.text || (r.tag || ''))}</span></span><span class="end">${chip}</span></button></li>`;
+  return `<li><button type="button" class="row" data-open="${r.kind}:${esc(r.id)}"><span class="t"><b>${esc(r.address)}</b><span>${esc(r.text || (r.tag || ''))}</span></span><span class="end">${chip}</span></button></li>`;
 }
 function renderToday(){
   const Zs = Z(), g = dueItems(), ap = apptsToday(), apIds = new Set(ap.map(x => x.kind + ':' + x.id));

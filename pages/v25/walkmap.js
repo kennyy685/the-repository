@@ -211,7 +211,7 @@
     fitZs.forEach(z => (z.polygon || [[z.center.lon, z.center.lat]]).forEach(([x, y]) => { b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y); }));
     if (b[2] - b[0] < .004) { const c = (b[0] + b[2]) / 2; b[0] = c - .002; b[2] = c + .002; }
     if (b[3] - b[1] < .003) { const c = (b[1] + b[3]) / 2; b[1] = c - .0015; b[3] = c + .0015; }
-    const P = projection(b, W, H, { fit: 'cover', pad: opts.pad == null ? 34 : opts.pad, center: opts.center });
+    const P = projection(b, W, H, { fit: 'cover', pad: opts.pad == null ? 34 : opts.pad, center: opts.center, metersAcross: opts.metersAcross });
     defs(svg, id);
     el('rect', { width: W, height: H, fill: 'var(--map-land)' }, svg);
     const base = el('g', {}, svg), heat = el('g', { filter: `url(#${id}-blur)` }, svg), top = el('g', {}, svg);
