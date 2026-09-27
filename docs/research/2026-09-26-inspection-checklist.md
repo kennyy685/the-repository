@@ -7,7 +7,7 @@ Documentation only: never state a verdict and never negotiate. Sources: haagglob
 3. Soft metals: vents, flashing, gutter straps.
 4. Gutters/downspouts: round dings; granules inside the gutter.
 5. Siding, storm side first. Vinyl: cracks, chips, round holes. Fiber cement: chipped paint and hairline cracks (look closely).
-6. Chalk-circle every hit BEFORE the photo.
+6. Mark hits inside ONE 10x10 ft test square at a time (tape or a light mark), count them, photograph; never chalk the whole roof: it makes damage look bigger (InterNACHI; rounds 35, 43, 46).
 7. Ladder: level ground, 3-point contact, extending ~3 ft above the roofline.
 8. Roof: check pitch and wetness first. Harness above ~6:12; skip if wet, icy, mossy or windy.
 9. One 10×10 ft test square per slope, away from trees; circle and count the hits (~8+ per square on 2+ slopes is often treated as damage, but it varies by insurer: record the count, not a verdict).

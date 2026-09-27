@@ -8,6 +8,8 @@ homes); the opener offers a free roof and siding inspection after the hail date 
 insurance, claims, deductibles or who pays.
 """
 import csv
+import json
+import os
 import re
 from datetime import date, datetime, timezone
 
@@ -22,7 +24,7 @@ RULES = {"en": "Business lines only. Offer the free inspection; never promise in
                "deductibles, never negotiate a claim.",
          "es": "Solo líneas de negocio. Ofrezcan la inspección gratis; nunca prometan que el seguro va a pagar, nunca "
                "hablen de deducibles, nunca negocien un reclamo."}
-CSV_COLS = ["rank", "name", "phone", "ask_for", "address", "city", "hail_in", "day", "days_ago", "confidence",
+CSV_COLS = ["rank", "kind", "name", "phone", "ask_for", "address", "city", "hail_in", "day", "days_ago", "confidence",
             "why_en", "why_es", "opener_en", "opener_es"]
 
 
@@ -122,14 +124,74 @@ def call_list(hud, today, cfg=None):
     return calls[:ct.get("max_calls", 15)]
 
 
-def today_doc(hud, today, cfg=None):
-    """The `calls/today` doc: {date, calls[], count, rules{en,es}, hud_generated_utc, none_reason?}."""
-    calls = call_list(hud, today, cfg)
+WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+
+
+def load_associations(cfg=None):
+    """data/association_contacts.json `contacts` (T149); a missing or broken file = no association calls."""
+    path = ((cfg or {}).get("paths") or {}).get("association_contacts") or os.path.join("data",
+                                                                                         "association_contacts.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, ValueError):
+        return []
+    return [c for c in (doc.get("contacts") if isinstance(doc, dict) else doc) or [] if isinstance(c, dict)]
+
+
+def association_calls(today, cfg=None, contacts=None):
+    """T149: landlord/HOA association calls for `today` (kind "association"): only on call_today.association_days,
+    up to call_today.association_per_week a week spread over those days, rotating through the callable contacts
+    week by week. Business lines only: a contact without a usable business phone is skipped. The ask is vendor
+    membership or a seat at a member meeting, no insurance talk."""
+    cfg = cfg or {}
+    ct = cfg.get("call_today", {})
+    days = [d for d in (str(x).strip().lower()[:3] for x in ct.get("association_days", ["Tue"])) if d in WEEKDAYS]
+    per_week = int(ct.get("association_per_week", 2) or 0)
+    today_d = date.fromisoformat(today)
+    wd = WEEKDAYS[today_d.weekday()]
+    contacts = load_associations(cfg) if contacts is None else contacts
+    usable = [(c, business_phone(c)) for c in contacts if str(c.get("kind") or "association") == "association"]
+    usable = [(c, p) for c, p in usable if p]
+    if not usable or per_week <= 0 or wd not in days:
+        return []
+    days = sorted(set(days), key=WEEKDAYS.index)
+    i = days.index(wd)
+    n_today = per_week // len(days) + (1 if i < per_week % len(days) else 0)
+    n_today = min(n_today, len(usable))
+    start = today_d.isocalendar()[1] * per_week + sum(per_week // len(days) + (1 if j < per_week % len(days) else 0)
+                                                      for j in range(i))
+    name, town, who = _company(cfg)
+    out = []
+    for k in range(n_today):
+        c, phone = usable[(start + k) % len(usable)]
+        fill = {"en": {"caller": who["en"] or "[name]", "company": name, "town": f" in {town}" if town else ""},
+                "es": {"caller": who["es"] or "[nombre]", "company": name, "town": f" en {town}" if town else ""}}
+        op = {lang: (c.get(f"opener_{lang}") or "").replace("{caller}", fill[lang]["caller"])
+              .replace("{company}", fill[lang]["company"]).replace("{town}", fill[lang]["town"]) for lang in ("en", "es")}
+        out.append({"kind": "association", "name": c.get("name") or "", "phone": phone,
+                    "ask_for": c.get("ask_for") or "", "address": "", "city": c.get("city") or "",
+                    "hail_in": None, "day": None, "days_ago": None, "score": None,
+                    "why": {"en": c.get("why_en") or "", "es": c.get("why_es") or ""}, "opener": op,
+                    "key": f"association|{c.get('name') or ''}", "type": "Landlord/HOA association",
+                    "confidence": c.get("confidence"), "also": []})
+    return out
+
+
+def today_doc(hud, today, cfg=None, associations=None):
+    """The `calls/today` doc: {date, calls[], count, rules{en,es}, hud_generated_utc, none_reason?}.
+    Storm building calls first (kind "building"), then any landlord/HOA association calls for today (kind
+    "association", T149). `associations` = contact list (None = read paths.association_contacts).
+    `none_reason` means no BUILDING in fresh hail today (association calls may still be on the list)."""
+    buildings = call_list(hud, today, cfg)
+    for c in buildings:
+        c["kind"] = "building"
+    calls = buildings + association_calls(today, cfg, associations)
     for i, c in enumerate(calls, 1):
         c["rank"] = i
     doc = {"date": today, "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
            "hud_generated_utc": (hud or {}).get("generated_utc"), "count": len(calls), "calls": calls, "rules": RULES}
-    if not calls:
+    if not buildings:
         doc["none_reason"] = {
             "en": "No apartment or commercial building with a known business line is in recent 1\"+ hail. "
                   "Knock today's walk instead.",
@@ -143,7 +205,8 @@ def write_csv(path, calls):
         w = csv.writer(f)
         w.writerow(CSV_COLS)
         for c in calls:
-            w.writerow([c.get("rank"), c["name"], c["phone"], c["ask_for"], c["address"], c["city"], c["hail_in"],
-                        c["day"], c["days_ago"], c.get("confidence") or "", c["why"]["en"], c["why"]["es"],
+            w.writerow([c.get("rank"), c.get("kind") or "building", c["name"], c["phone"], c["ask_for"], c["address"],
+                        c["city"], "" if c["hail_in"] is None else c["hail_in"], c["day"] or "",
+                        "" if c["days_ago"] is None else c["days_ago"], c.get("confidence") or "", c["why"]["en"], c["why"]["es"],
                         c["opener"]["en"], c["opener"]["es"]])
     return path

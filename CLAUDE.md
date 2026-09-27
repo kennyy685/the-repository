@@ -83,11 +83,21 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 - **App theme: A "Ledger"** (docs/design/references/direction-a.html): light, clean, orange accent (#f5883a); B's big
   door counter on Knock. *History: this replaced "HMP Pro Dark" (charcoal + silver/white, Barlow Semi Condensed +
   Montserrat), ordered earlier the same day.* Print pieces keep the charcoal/orange brand look.
+- **Product name: "Aldaba"** (the iron door knocker; FilthE's pick 2026-09-27; docs/design/product-brand/aldaba/). It's the
+  app's brand when sold to other roofers; HMP stays the first customer and its own brand. Before public use: USPTO
+  trademark search + a lawyer, and check the .com/.app names.
+- Community flyer: **use both** A "Letrero" (color, boards/Chamber) and B "Boletín" (church bulletins, B&W copies) (docs/print/community-flyer/).
+- PR #6 merged to main (FilthE's OK, 2026-09-26); Cowork re-bundles.
 - Referral thank-you (D17): **a handwritten thank-you note only**, no gift cards or money.
 - App layout (T75): **Option B "Next step"** (docs/design/app-layout/option-b.html): tabs Now / Knock / + / Leads /
   Money; home = the Sale Guide card for what to do next; + = add lead / quick price / "help me say it"; ES toggle on
   every script line; C's big door buttons on Knock. No Crew tab in the app (the crew lives in the AI hub as a clean
   team board: a card per AI with role, status dot, now doing, last result).
+
+## How we ship (FilthE, 2026-09-27: "it has to look like a finished product")
+Every page publish follows `docs/release-checklist.md`: all checks green, the King looks at light + dark screenshots against
+the approved mockups (`docs/design/v25-polish/`), legal boxes ticked, then `docs/CHANGELOG.md` gets a line.
+Helpers commit only their own files (`git add <paths>`, never `-A`).
 
 ## Chain of command (FilthE, 2026-09-26)
 - **Claude Code (the cloud session) is the King / lead**: sets priorities on the hub board, gives the orders, runs the
@@ -110,7 +120,7 @@ start blank), so **when FilthE tells you something important, add it here** inst
   Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**. Nastase (Omaha, family-owned since
   1977, roofing/siding/gutters, residential + commercial) already does storm-damage and insurance-claim work: the
   natural partner for the "sub for restoration" path. VTR: no public web presence found (2026-09-25); ask FilthE for
-  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, on houses
+  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, gutters (FilthE confirmed 2026-09-26), on houses
   and apartment complexes.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5 buildings: tear-off
   above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look accents, caulk). Its live job board and
@@ -208,6 +218,11 @@ the crew small: add a helper only for work that repeats.
   in parallel), `qa-tester` (reviews + tests before anything ships; cheaper model).
 - Skills (`.claude/skills/`): `hailhunter-reference`, `engine-change`, `crew-checkin`, `refresh-hmp-hq`,
   `improvement-research`, `/storm-report`, `/door-list DAY TOWN`, `/call-list N`.
+- **Cost rule (FilthE, 2026-09-27):** every helper runs its own requests, so pick the cheapest model that can do the job
+  and keep prompts tight (point to files, don't paste them; ask for short reports). Scouts = haiku (one web topic); Research
+  Lead + QA = sonnet; routine chores (HMP HQ refresh, board posting, data seeding, small doc edits) = haiku via the Agent
+  `model` override, or the King does them directly; builder/designer/engine-mechanic = the main model only for real app,
+  design or engine work. Run 1-3 helpers at a time unless FilthE asks for more.
 - **Research:** FilthE wants regular rounds (he worries about missing areas or focusing on the wrong things); they go
   to `docs/research/` and show in the hub's Code lab. Round 1: knocking, not software, is the bottleneck. Round 2:
   FilthE hasn't knocked a door or run a claim yet and will learn; foundation first (D11: no build freeze), so build

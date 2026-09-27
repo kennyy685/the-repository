@@ -5,15 +5,22 @@ A zone = one walk (turf) of a door list: storm lists whose storm is recent enoug
 month) and everyday (old-house) lists. Ranked by the engine's Hot Zones heat for that walk, within `radius_mi` of
 the town, top `top`. Output = the HMP App's `zones/current` doc:
 {as_of, near {name, lat, lon}, radius_mi, zones: [{id, name, center {lat, lon}, polygon, polygon_kind, score, heat,
- hail_in, storm_day, homes, why {en, es}, walk_id, kind, dist_mi, list_id, turf}], none_reason?}
+ hail_in, storm_day, homes, why {en, es}, walk_id, kind, dist_mi, list_id, turf, walk_polygon, walk_center {lat, lon},
+ homes_total, walk_homes}], none_reason?}
 - kind "wind" zones (T116/T117, `wind_zones`) come after the walk zones: one per wind event, own map layer, no walk
-  (walk_id/list_id/turf/homes/polygon null), plus max_mph, trees_down, wind_dir. none_reason is about walks only.
+  (walk_id/list_id/turf/homes/polygon and the walk_* fields null), plus max_mph, trees_down, wind_dir. none_reason is
+  about walks only.
 - id = walk_id = "<list_id>~t<turf>" (the same walk key the command center and `weekly` use).
 - score = the walk's heat 0-100 (chance of a sale); heat = score / the top zone's score (0-1, for map color).
 - polygon = [[lon, lat], ...] closed ring: the neighborhood's Census block-group outline (simplified) when the
   database has it (everyday lists), else the outline around the walk's houses (polygon_kind "block_group" | "walk"),
   null with fewer than 3 houses.
-- homes = houses left to knock in the walk (houses only, minus done / do-not-knock doors).
+- homes = houses left to knock in the walk (houses only, minus done / do-not-knock doors); homes_total = the same
+  number (the whole turf), walk_homes = the doors in its walks/<zone id> doc (the best `doors`, 25), so the page can say
+  "25 of 60".
+- walk_polygon = the outline around that walk's own stops, widened `zones.walk_buffer_m` (25 m) so the houses sit
+  inside it (a circle for a one-house walk); polygon stays the whole turf. walk_center = the middle of the walk's stops
+  (for the zone pin). The walk is built with the same todaywalk.pick(only=...) as `walks()`, so they always match.
 `walks(...)` builds each zone's walk in the exact `today/walk` shape (todaywalk.pick(only=...)): houses only, best
 doors by door score v2, walking order, coach lines, door score + why per house = the app docs `walks/<zone id>`.
 """
@@ -54,6 +61,22 @@ def _hull(pts):
     return [[round(x, 5), round(y, 5)] for x, y in ring + [ring[0]]]
 
 
+def buffered_hull(pts, buffer_m, max_points=40, n=16):
+    """The outline around (lon, lat) points widened by buffer_m (the hull of a small n-sided circle around each point):
+    closed ring, counter-clockwise; None without points."""
+    pts = [(float(x), float(y)) for x, y in pts]
+    if not pts:
+        return None
+    lat0 = sum(y for _, y in pts) / len(pts)
+    ky = 110574.0
+    kx = ky * math.cos(math.radians(lat0))
+    r = max(float(buffer_m or 0), 0.0)
+    ring = [(x + r * math.cos(2 * math.pi * k / n) / kx, y + r * math.sin(2 * math.pi * k / n) / ky)
+            for x, y in pts for k in range(n if r > 0 else 1)]
+    h = _hull(ring)
+    return simplify(h, max_points) if h else None
+
+
 def simplify(ring, max_points=40):
     """Keep at most `max_points` vertices of a closed ring (even stride, the first point repeated at the end)."""
     if not ring:
@@ -90,8 +113,9 @@ def _name(stops, L):
     return f"{city}: {top}" if city else top
 
 
-def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=None, cfg=None, conn=None):
-    """The `zones/current` doc (see the module doc). near = {name, lat, lon} (default: the company home)."""
+def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=None, cfg=None, conn=None, doors=None):
+    """The `zones/current` doc (see the module doc). near = {name, lat, lon} (default: the company home).
+    doors = the walk size `walks()` will use (default zones.doors), for walk_polygon / walk_homes."""
     zc, tcfg = _zcfg(cfg), tw._tw(cfg)
     today = date.fromisoformat(today) if isinstance(today, str) else today
     home = (cfg or {}).get("home") or DEFAULTS["home"]
@@ -143,6 +167,7 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
         elif z["polygon"] is None:
             z["polygon_kind"] = None
         z["heat"] = round(z["score"] / best, 3) if best else 0.0
+        z.update(walk_shape(hud, today, z, doors or zc["doors"], results, dnk, cfg, zc))
     doc = {"as_of": today.isoformat(), "near": near, "radius_mi": radius,
            "zones": rows + wind_zones(hud, today, near, radius, max_age, zc)}
     if not rows:
@@ -152,6 +177,18 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
             "es": f"No hay rutas con puertas pendientes a menos de {radius:g} millas de {near['name']}. Llegan listas "
                   f"nuevas con la próxima actualización de tormentas."}
     return doc
+
+
+def walk_shape(hud, today, z, doors, results, dnk, cfg, zc):
+    """{walk_polygon, walk_center, homes_total, walk_homes} for one walk zone: its walks/<zone id> stops (the same
+    todaywalk.pick(only=...) call `walks()` makes) vs. every house left in the turf."""
+    w = tw.pick(hud, today, doors, results, cfg, None, dnk, None, only=(z["list_id"], z["turf"]))
+    stops = (w or {}).get("stops") or []
+    pts = [(float(s["lon"]), float(s["lat"])) for s in stops if s.get("lat") is not None and s.get("lon") is not None]
+    return {"walk_polygon": buffered_hull(pts, zc["walk_buffer_m"], zc["polygon_max_points"]),
+            "walk_center": {"lat": round(sum(p[1] for p in pts) / len(pts), 6),
+                            "lon": round(sum(p[0] for p in pts) / len(pts), 6)} if pts else None,
+            "homes_total": z["homes"], "walk_homes": len(stops)}
 
 
 def wind_zones(hud, today, near, radius, max_age, zc):
@@ -196,7 +233,8 @@ def wind_zones(hud, today, near, radius, max_age, zc):
                     "max_mph": mph, "trees_down": trees, "wind_dir": e.get("wind_dir"),
                     "why": {"en": f"{place}, {e['day']}: " + ", ".join(bits_en) + ".",
                             "es": f"{place}, {e['day']}: " + ", ".join(bits_es) + "."},
-                    "walk_id": None, "dist_mi": round(dist, 1), "list_id": None, "turf": None})
+                    "walk_id": None, "dist_mi": round(dist, 1), "list_id": None, "turf": None,
+                    "walk_polygon": None, "walk_center": None, "homes_total": None, "walk_homes": None})
     out.sort(key=lambda z: (-z["score"], z["dist_mi"], z["id"]))
     out = out[:int(zc.get("wind_top", 8))]
     best = out[0]["score"] if out else None

@@ -1,0 +1,236 @@
+[
+  {
+    "id": "address-plate",
+    "step": 1,
+    "en": "Photograph the house number or address marker first, so every photo after it is tied to this property.",
+    "es": "Fotografíe primero el número de la casa o el letrero de la dirección, para que todas las fotos después queden ligadas a esta propiedad.",
+    "when": "any",
+    "why": "Adjusters and your own records need every photo tied to an address without extra notes - a roofing trade-press source names this as the difference between a photo that proves something and one that gets ignored.",
+    "required": true
+  },
+  {
+    "id": "gps-location-on",
+    "step": 2,
+    "en": "Check that your phone's location (GPS) is turned on before you start, so each photo's metadata records where it was taken.",
+    "es": "Antes de empezar, confirme que la ubicación (GPS) de su teléfono esté activada, para que los metadatos de cada foto registren dónde se tomó.",
+    "when": "any",
+    "why": "Photo metadata (EXIF) records date, time and location automatically on most phones - your built-in proof of when and where, but only if location is turned on.",
+    "required": true
+  },
+  {
+    "id": "elevation-front",
+    "step": 3,
+    "en": "Wide shot of the front elevation, roofline to ground, showing the whole side of the house.",
+    "es": "Foto amplia de la fachada frontal, desde el techo hasta el suelo, mostrando todo ese lado de la casa.",
+    "when": "any",
+    "why": "Adjuster training splits every inspection into front/left/rear/right elevations - a wide shot of each proves which side you mean before you zoom into damage.",
+    "required": true
+  },
+  {
+    "id": "elevation-right",
+    "step": 4,
+    "en": "Wide shot of the right elevation.",
+    "es": "Foto amplia del lado derecho de la casa.",
+    "when": "any",
+    "why": "Same elevation-by-elevation standard as the front - lets anyone match a damage photo back to a specific wall later.",
+    "required": true
+  },
+  {
+    "id": "elevation-rear",
+    "step": 5,
+    "en": "Wide shot of the rear elevation.",
+    "es": "Foto amplia de la parte de atrás de la casa.",
+    "when": "any",
+    "why": "Completes the four-sides record - the rear is often the side homeowners forget to mention damage on.",
+    "required": true
+  },
+  {
+    "id": "elevation-left",
+    "step": 6,
+    "en": "Wide shot of the left elevation.",
+    "es": "Foto amplia del lado izquierdo de la casa.",
+    "when": "any",
+    "why": "Completes all four elevations before any close-up photos are taken.",
+    "required": true
+  },
+  {
+    "id": "baseline-vs-storm-side",
+    "step": 7,
+    "en": "Photo an untouched side of the house next to the damaged (storm) side, for comparison.",
+    "es": "Fotografíe un lado de la casa sin daño junto al lado dañado (lado de la tormenta), para comparar.",
+    "when": "siding",
+    "why": "A clean side next to the damaged side shows the difference is from the storm, not wear - adjusters look for that contrast.",
+    "required": false
+  },
+  {
+    "id": "window-screens-ac",
+    "step": 8,
+    "en": "Photo window screens and the AC unit's fins for dents or tears - they show hail size and which direction it hit from.",
+    "es": "Fotografíe las mallas de las ventanas y las aletas del aire acondicionado buscando abolladuras o rasgaduras - muestran el tamaño del granizo y de qué dirección pegó.",
+    "when": "hail",
+    "why": "Soft aluminum fins dent easily and keep the dent shape, unlike siding or shingles - a reliable hail-direction indicator.",
+    "required": false
+  },
+  {
+    "id": "soft-metals",
+    "step": 9,
+    "en": "Close-up photos of soft metals - roof vents, flashing, gutter straps, gutter aprons - showing any dents.",
+    "es": "Fotos de cerca de los metales blandos - ventilas del techo, tapajuntas, soportes de la canaleta - mostrando cualquier abolladura.",
+    "when": "hail",
+    "why": "Soft metal dents are one of the clearest, least-arguable signs of hail size, and one of the first things adjusters check.",
+    "required": true
+  },
+  {
+    "id": "gutters-downspouts",
+    "step": 10,
+    "en": "Photo the gutters and downspouts for dings, and look inside the gutter for loose granules.",
+    "es": "Fotografíe las canaletas y bajantes buscando golpes, y revise adentro de la canaleta si hay gránulos sueltos.",
+    "when": "gutters",
+    "why": "Granules knocked loose by hail collect in the gutter - a photo of them backs up what you found on the roof.",
+    "required": false
+  },
+  {
+    "id": "siding-storm-side",
+    "step": 11,
+    "en": "Wide photo of the storm-facing side of the siding, then move closer.",
+    "es": "Foto amplia del lado del siding que dio hacia la tormenta, luego acérquese.",
+    "when": "siding",
+    "why": "Vinyl cracks/chips and fiber-cement dents show most on the side the wind-driven hail actually hit.",
+    "required": true
+  },
+  {
+    "id": "siding-closeup",
+    "step": 12,
+    "en": "Close-up of each hit on the siding with a coin or tape measure next to it for scale.",
+    "es": "Foto de cerca de cada golpe en el siding, con una moneda o cinta métrica al lado para mostrar el tamaño.",
+    "when": "siding",
+    "why": "A close-up with no size reference is easy to dismiss - a coin or tape measure proves how big the hit really is.",
+    "required": true
+  },
+  {
+    "id": "roof-slope-wide",
+    "step": 13,
+    "en": "Before climbing, take a wide photo of each roof slope from the ground, naming which direction it faces.",
+    "es": "Antes de subir, tome una foto amplia de cada agua del techo desde el suelo, diciendo hacia qué dirección da.",
+    "when": "roof",
+    "why": "Labeling each slope (north/south/east/west) before you climb means every later close-up can be matched to the right part of the roof.",
+    "required": true
+  },
+  {
+    "id": "ground-level-fallback",
+    "step": 14,
+    "en": "If the roof is wet, icy, steep or otherwise unsafe to climb, take ground-level photos of the roofline and edges from multiple angles instead of skipping documentation entirely.",
+    "es": "Si el techo está mojado, con hielo, muy inclinado o no es seguro para subir, tome fotos desde el suelo del borde del techo desde varios ángulos, en lugar de no documentar nada.",
+    "when": "roof",
+    "why": "Ground-level smartphone photos from the right angles can still document a roof's condition when climbing isn't safe - a real fallback, not just 'skip it'.",
+    "required": false
+  },
+  {
+    "id": "test-square-wide",
+    "step": 15,
+    "en": "Mark a 10x10 ft test square on one slope (away from trees/vents) with tape or flags - not chalk - and photograph it wide, showing the whole square.",
+    "es": "Marque un cuadro de prueba de 10x10 pies en un agua (lejos de árboles/ventilas) con cinta o banderines - no con gis - y fotografíelo completo.",
+    "when": "hail",
+    "why": "InterNACHI warns that chalk-circling hits can make damage look bigger than it is; tape or flags mark the square without changing what the photo actually shows.",
+    "required": true
+  },
+  {
+    "id": "test-square-medium",
+    "step": 16,
+    "en": "Medium shot of the test square showing the hits you counted.",
+    "es": "Foto a media distancia del cuadro de prueba mostrando los golpes que contó.",
+    "when": "hail",
+    "why": "A medium shot bridges the wide slope photo and the close-up, so the hit count is traceable back to the exact square.",
+    "required": true
+  },
+  {
+    "id": "test-square-closeup",
+    "step": 17,
+    "en": "Close-up of one hit inside the square with a coin or tape measure for scale.",
+    "es": "Foto de cerca de un golpe dentro del cuadro con una moneda o cinta métrica para mostrar el tamaño.",
+    "when": "hail",
+    "why": "Same scale-reference rule as siding - a close-up hit photo with nothing next to it for size is the easiest kind of photo for an adjuster to wave off.",
+    "required": true
+  },
+  {
+    "id": "repeat-per-slope",
+    "step": 18,
+    "en": "Repeat one test square (wide, medium, close-up) on every slope you can safely reach - most insurers look for hits on 2 or more slopes.",
+    "es": "Repita un cuadro de prueba (amplio, medio, de cerca) en cada agua a la que pueda subir con seguridad - la mayoría de aseguradoras buscan golpes en 2 o más aguas.",
+    "when": "hail",
+    "why": "One square on one slope is easy to call 'not enough'; the same pattern on multiple slopes is harder to argue with.",
+    "required": false
+  },
+  {
+    "id": "wind-lifted-shingles",
+    "step": 19,
+    "en": "Photo any lifted, creased, or missing shingles, and any exposed nail heads.",
+    "es": "Fotografíe tejas de asfalto levantadas, dobladas o faltantes, y cualquier clavo expuesto.",
+    "when": "wind",
+    "why": "Wind damage shows differently than hail - creases, lifted edges and missing shingles are the tell, not round hits.",
+    "required": false
+  },
+  {
+    "id": "wind-soffit-fascia",
+    "step": 20,
+    "en": "Photo any soffit, fascia, or siding panels that are loose, cracked, or blown off.",
+    "es": "Fotografíe cualquier sofito, fascia o panel de siding que esté suelto, agrietado o volado.",
+    "when": "wind",
+    "why": "Wind pulls panels loose at the edges first - a common wind-damage point adjusters check.",
+    "required": false
+  },
+  {
+    "id": "collateral-damage",
+    "step": 21,
+    "en": "Photo any other storm damage nearby - dented mailbox, fence, shed roof, satellite dish, or a neighbor's damaged roof visible from the yard.",
+    "es": "Fotografíe cualquier otro daño de la tormenta cerca - buzón abollado, cerca, techo del cobertizo, antena satelital, o el techo dañado de un vecino visible desde el patio.",
+    "when": "any",
+    "why": "Collateral damage on soft, unrelated objects backs up that a real storm hit this property, not just wear over time.",
+    "required": false
+  },
+  {
+    "id": "chimney-flashing",
+    "step": 22,
+    "en": "Photo the chimney flashing and cap for damage or gaps.",
+    "es": "Fotografíe el tapajuntas y la tapa de la chimenea buscando daño o espacios abiertos.",
+    "when": "roof",
+    "why": "Flashing is a common leak point after a storm and is easy to miss in a general roof photo.",
+    "required": false
+  },
+  {
+    "id": "skylights",
+    "step": 23,
+    "en": "Photo any skylights for cracks or hail hits on the frame.",
+    "es": "Fotografíe cualquier tragaluz buscando grietas o golpes de granizo en el marco.",
+    "when": "roof",
+    "why": "Skylights are a commonly overlooked damage and leak point.",
+    "required": false
+  },
+  {
+    "id": "reference-measurement-note",
+    "step": 24,
+    "en": "If it helps, write down one already-known measurement (like the width of the front door) as a backup size reference, in case a close-up photo's coin or tape isn't clear later.",
+    "es": "Si ayuda, anote una medida ya conocida (como el ancho de la puerta principal) como referencia extra de tamaño, en caso de que la moneda o cinta en una foto de cerca no se vea clara después.",
+    "when": "any",
+    "why": "A backup reference measurement is a simple way to double-check scale later if a close-up photo's coin or tape measure isn't clear.",
+    "required": false
+  },
+  {
+    "id": "show-homeowner",
+    "step": 25,
+    "en": "Before you leave, show the homeowner the photos on your phone and explain what each one means.",
+    "es": "Antes de irse, muéstrele al dueño de casa las fotos en su teléfono y explíquele qué significa cada una.",
+    "when": "any",
+    "why": "Reps who walk the homeowner through the evidence at the door build trust and close faster than reps who just take pictures and talk about it later.",
+    "required": false
+  },
+  {
+    "id": "after-photos",
+    "step": 26,
+    "en": "After the job is done, take the same elevation photos again to make a before/after pair.",
+    "es": "Cuando termine el trabajo, tome las mismas fotos de las fachadas otra vez para tener un par de antes y después.",
+    "when": "any",
+    "why": "Before/after pairs are what wins the next kitchen table and what HMP can use for referrals and reviews.",
+    "required": false
+  }
+]

@@ -1,10 +1,10 @@
 """`hh.py daily --out-dir DIR`: everything the 7:40 AM app job needs, in one go (reads hud.json; no network).
 
-Runs todaywalk (+ evidence), calltoday, zones (+ one walk per zone) and, when a leads export is given, followups.
-Each HMP App doc is written as its own JSON file named by its doc path, "/" -> "__":
+Runs todaywalk (+ evidence), calltoday, zones (+ one walk per zone), rentals and, when a leads export is given,
+followups. Each HMP App doc is written as its own JSON file named by its doc path, "/" -> "__":
   today__walk.json, calls__today.json, zones__current.json, walks__<zone id>.json, evidence__<slug>.json,
-  followups__today.json (only with leads)
-plus manifest.json {date, generated_utc, files{doc path: file name}, skipped[], errors[{part, error}]} so the job
+  rentals__current.json, followups__today.json (only with leads)
+plus manifest.json {date, generated_utc, files{doc path: file name}, skipped[], errors[{part, error}], basemap?} so the job
 knows exactly which docs to write. One part failing never stops the others (its error goes in the manifest).
 """
 import json
@@ -12,7 +12,7 @@ import os
 import re
 from datetime import datetime, timezone
 
-from . import calltoday, todaywalk, zones
+from . import calltoday, rentals, todaywalk, zones
 from .benchmarks import doors_per_hour
 
 MANIFEST = "manifest.json"
@@ -24,9 +24,11 @@ def file_name(doc_path):
 
 
 def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, doors=None, near=None, conn=None,
-        bench=None, now=None):
+        bench=None, now=None, maker=None):
     """Writes the day's app docs into out_dir and returns the manifest. `*_raw` = the app's exports as loaded JSON
-    (None = not given); `near` = a zones.resolve_near() dict (None = home base); `bench` = benchmarks.load()."""
+    (None = not given); `near` = a zones.resolve_near() dict (None = home base); `bench` = benchmarks.load().
+    `maker` = a basemap.Maker: adds `route` + `basemap` to today/walk and every walks/<zone> doc (additive; None =
+    no map fields) and puts its counts in manifest `basemap`."""
     os.makedirs(out_dir, exist_ok=True)
     hud = hud or {}
     results = todaywalk.load_results(results_raw) if results_raw is not None else {}
@@ -51,6 +53,8 @@ def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, 
     def walk():
         doc = todaywalk.today_doc(hud, day, doors, results, cfg, now=now, dnk=dnk, taps=taps,
                                   pace=doors_per_hour(bench))
+        if maker is not None:
+            maker.add(doc)
         put("today/walk", doc)
         for path, ev in todaywalk.evidence_docs(hud, doc["stops"])["docs"].items():
             put(path, ev)
@@ -62,7 +66,10 @@ def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, 
         z = zones.zones(hud, day, near, None, None, results, dnk, cfg, conn)
         put("zones/current", z)
         for path, w in zones.walks(hud, z, day, None, results, cfg, now=now, dnk=dnk, taps=taps).items():
-            put(path, w)
+            put(path, maker.add(w) if maker is not None else w)
+
+    def rentals_doc():
+        put("rentals/current", rentals.hotlist(hud, day, near, None, cfg, conn))
 
     def follow():
         from . import followups, weekly
@@ -71,10 +78,13 @@ def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, 
     part("todaywalk", walk)
     part("calltoday", calls)
     part("zones", zone_docs)
+    part("rentals", rentals_doc)
     if leads_raw is not None:
         part("followups", follow)
     else:
         man["skipped"].append("followups (no --leads)")
+    if maker is not None:
+        man["basemap"] = maker.summary()
     with open(os.path.join(out_dir, MANIFEST), "w", encoding="utf-8") as f:
         json.dump(man, f, indent=1, ensure_ascii=False)
         f.write("\n")

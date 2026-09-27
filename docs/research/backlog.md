@@ -2,7 +2,7 @@
 
 The hourly King check starts the top unchecked topic as a new round (Research Lead + scouts) whenever no round is running.
 Each round: write `docs/research/<date>-round-<n>.md`, post board items, check the topic off here, and add 1-2 new topics it uncovered.
-Web access: if WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
+Web access (updated 2026-09-27, FilthE opened the network): Bash `curl -sSL -m 20 -A "Mozilla/5.0" <url>` reaches trade sites (roofingcontractor, nachi, nrca, jameshardie, eagleview, hover), tools (wisetack, openphone, repcard, spotio, companycam, roofr, salesrabbit, acculynx, hailtrace), gov (census, api.census.gov, api.weather.gov, spc.noaa.gov, *.nebraska.gov, nebraskalegislature.gov), bbb, mopoa, reddit, youtube, wikipedia. Prefer primary sources now. If WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
@@ -20,8 +20,15 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Fold the "chalk one test square at a time, don't chalk the whole roof" rule into
       `docs/guides/adjuster-meeting.md` and the inspection checklist print piece (round 35 found the answer,
       didn't edit the docs)
-- [ ] Get GAF's or a direct adjuster's own confirmation on chalk-marking acceptance (manufacturer/insurer primary
-      source, not a contractor blog) - round 35 could only reach contractor-blog search summaries
+- [x] Get GAF's or a direct adjuster's own confirmation on chalk-marking acceptance (manufacturer/insurer primary
+      source, not a contractor blog) - **round 43**: reached InterNACHI's own official "Mastering Roof
+      Inspections" series (nachi.org, by Kenton Shepard/Nick Gromicko) instead - a real trade-association
+      primary source. It confirms chalk is standard practice but warns it "will create the illusion of larger
+      damage than actually exists" (a different, more precise reason than "insurers reject chalked photos"),
+      and confirms adjuster test squares are 10'x10' (100 sq ft), with "eight hits is a common number" for
+      replacement. GAF's own guidance still not reached (gaf.com still blocked) - good enough to close this
+      item; the "why not to over-chalk" reasoning in `docs/guides/adjuster-meeting.md` should say "makes
+      damage look bigger than it is," not "insurers reject the photos."
 - [ ] Post the §48-2910 bilingual (English/Spanish) worker-classification notice once HMP has a fixed job site or
       shop to post it at (round 35: a real, cheap NE posting requirement most small contractors miss; low
       priority until a second salesman or fixed site exists)
@@ -31,18 +38,29 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [x] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP - round 33
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
-- [ ] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything
+- [x] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything -
+      **round 43: big find - OpenPhone renamed itself Quo (Sept. 2025); openphone.com now 301-redirects to
+      quo.com (confirmed by direct fetch). Tell FilthE/boss to sign up at quo.com, not openphone.com. Price
+      ($15-19/mo Starter) corroborated but quo.com/pricing itself is still proxy-blocked, so re-check the
+      auto-text-back feature (product now leads with an AI voice agent, "Sona") before paying.**
 - [ ] Once HMP has enough call volume that live text-back isn't enough, revisit AI-answering upgrade tiers (CallRail Voice Assist, Podium) for real Spanish-conversation support, not just template texts
 - [ ] Ask FilthE/boss which document HMP actually uses today before an adjuster visit (plain inspection
       authorization, a contingency-on-approval agreement, or going straight to the final contract) - round 27
       found the three are legally different and easy to blur; unknown from research, needs a direct answer
 - [ ] Confirm by phone whether Hearth or Wisetack (round 21's picks) actually accept ITIN-only borrowers with
       no SSN - round 30 found ITIN home-improvement financing exists generally but couldn't confirm either
-      named lender's own policy (pages blocked)
-- [ ] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
+      named lender's own policy (pages blocked). **Round 43: Wisetack's own site (now reachable) was checked
+      directly and simply doesn't address this question either way - still needs the phone call. But the
+      $500-$25,000 / 0-35.9% APR / 3-120mo loan terms and the "no participation fees" language ARE now
+      confirmed straight from wisetack.com.**
+- [x] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
       content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
       specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
-      directly next time
+      directly next time - **round 47**: tried a third angle (well-known D2D roofing trainers/YouTube
+      specifically) - still nothing beyond general Hispanic-marketing/engagement content (IKO, Roofing
+      Contractor's "Techos y Más" launch). Recommend not re-assigning this exact sub-topic again without
+      new evidence (e.g. real YouTube transcripts becoming fetchable, or a Spanish-language contractor
+      forum surfacing).
 - [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
       primary source (manufacturer guidance or an adjuster directly), not another blog
 - [x] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
@@ -53,8 +71,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] If/when HMP considers selling the app later: what a real first outside customer needs structurally
       (per-company data separation, second brand/logo slot, support hours) before any pricing conversation -
       round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
-- [ ] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
-      just calling the listed number (round 34: contact info found, cost unverified, pages blocked)
+- [x] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
+      just calling the listed number (round 34: contact info found, cost unverified, pages blocked) -
+      **round 43: MOPOA confirmed by direct fetch of mopoa.com/membership - $150/yr base, $225-300/yr
+      vendor/contractor tiers with newsletter ads or meeting sponsorship. REOMA and Omaha Landlords
+      Association fees still unconfirmed (lower priority - Omaha-adjacent, not Lincoln).**
 - [x] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
       questions from an individual unit owner - round 36 (`data/objection_scripts_2.json`)
 - [ ] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
@@ -65,10 +86,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
       allows, to get the real 2026 Service Finance dealer-fee schedule and confirm whether Master Elite
       gets better financing terms than plain Certified or a non-GAF-tier contractor (round 33: WebFetch and
-      curl were both fully blocked on every domain tried, search-summary only)
+      curl were both fully blocked on every domain tried, search-summary only). **Round 43: gaf.com still
+      blocked (per FilthE's network-opened list), but the 2012 roofingcontractor.com precedent for tier
+      parity was confirmed by direct fetch - see round 33's update. gaf.com itself is still the open item.**
 - [ ] Call James Hardie's contractor line directly to confirm Select-tier enrollment requirements and
       whether The Edge job's Hardie lap siding installs (done as a sub) count toward Select, or only jobs
-      run under HMP's own Hardie account after enrolling count (round 33)
+      run under HMP's own Hardie account after enrolling count (round 33). **Round 43: confirmed the
+      jameshardie.com/alliance/ page itself has zero enrollment requirements or fee info published for any
+      tier - this phone call is now the only way to get that answer, not just the best way.**
 - [ ] Confirm with the boss whether HMP's Contractor Registration Act number is currently active/renewed
       and record the renewal date (round 37: 48-2107, annual, $40 fee; up to $500 penalty for a first
       citation, no grace period since 2009)
@@ -104,6 +129,22 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       mailing endpoints for T23 owner-occupied from the actual cloud/Mac runner - round 41 found all three
       answering 200/301 from this sandboxed session tonight, contradicting the 2026-09-26 "blocked" note;
       needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164)
+- [ ] Get real Reddit (r/Roofing, r/doortodoor, r/sales) and YouTube-comment quotes on unmet roofing-sales
+      software needs - round 44's WebSearch couldn't reach reddit.com (bot-blocked) or specific comment
+      threads, so topic 2's findings are review-site/vendor-blog sourced, not forum-verified
+- [ ] Sign up for EraHub's free/demo tier directly (not just its blog) to confirm how real its "native
+      dual-language, single-click EN/ES toggle" claim is in practice, before HMP repeats "no competitor
+      does Spanish" in any pitch or landing page (round 44, T166)
+- [ ] Wire `data/door_lines_pro.json` (round 47, 22 EN/ES door-approach/objection/appointment lines) into
+      Practice Door's script library and the app's Sale Guide door-approach + appointment steps - not
+      done yet, needs Builder/Designer
+- [ ] Confirm HMP's actual written workmanship-warranty terms (length, exactly what's covered) with the
+      boss before using any specific-year warranty line at the door - round 47's `trust-warranty-backed`
+      line is deliberately generic ("a written workmanship warranty") until this is confirmed
+- [ ] If a real transcript-fetching method becomes available (round 47: YouTube blocks full player/caption
+      data behind a sign-in wall for raw curl/WebFetch - only page title+description came through, no
+      actual dialogue), retry pulling real door-knock footage from Roof Strategist/D2D Experts/Adam
+      Bensman's channels - this round could not verify any trainer's script word-for-word from footage
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -195,6 +236,19 @@ penalty-free registration grace period expired in 2009. Home Solicitation Sales 
 69-1606/69-1607 (`docs/legal/69-1606.txt`, `69-1607.txt`), fetched direct: 69-1606(5) - zero compensation
 for any work performed before a buyer cancels, a stricter rule than the insurance-specific emergency-work
 carve-out in 44-8603/8607, and one to keep separate in scripts/docs. Two new backlog items above.
+Round 44 (product/strategy track): how CompanyCam/Jobber/Roofr/Hover/ServiceTitan became category
+leaders (each founder solved a real, narrow problem for their own/a family trade business first, for
+years, before selling to a stranger - the wedge was always one free/cheap narrow feature, never a full
+CRM); what roofing salespeople/owners want but don't get beyond round 42's bug list (automatic
+follow-up with no manual setup, one job file for sales+office, small shops wanting fewer reliable
+features not enterprise AI - Reddit/YouTube quotes stayed unreachable, see new backlog items); a
+12-month path (HMP-only through this storm season, then one pilot contractor - Nastase first - for a
+30-day side-by-side with 4-5 numbers defined up front and free/discounted pricing, settings/config +
+onboarding + a named support answer built before any outside user, brand/landing page held until a
+pilot's real numbers exist). Also found EraHub, a smaller roofing CRM already marketing a native EN/ES
+toggle - tempers the "no competitor does Spanish" claim from rounds 12/42. WebFetch/curl blocked on
+every vendor/blog/reddit domain tried this round - all findings are WebSearch summaries; two new
+backlog items above to re-verify directly.
 Round 39 (backlog/legal track): finished fetching the whole Insured Homeowners Protection Act
 (44-8601-8608, `docs/legal/44-8601.txt`, `44-8605.txt`, `44-8606.txt`, `44-8608.txt`) direct from
 nebraskalegislature.gov - Nebraska's actual storm-chaser/assignment-of-benefits law; HMP isn't taking
@@ -205,3 +259,14 @@ and surfaced a separate local requirement round 37's state-level check missed: F
 contractor registration (Resolution 2019-049) for anyone pulling a building permit in city limits/2-mile
 jurisdiction - unconfirmed whether HMP has it. Omaha/Lincoln permit pages stayed blocked; three new
 backlog items above.
+Round 47 (sales track): learning from real door-to-door roofing trainers - opened three named-author
+practitioner sources this round (SPOTIO's Trey Gibson, two Roofr posts by Joel Castelli, Roofing
+Contractor magazine's Jill Bloom), a step up from rounds 25-42's search-summary-only pattern. Real
+mechanics found: knock 3x never the bell, 2 steps back + turn sideways, "did I catch you at a good
+time?", and a direct specific-day appointment ask. The one dangerous find - scripts telling reps to
+claim insurance rates legally can't rise on an "Act of God" claim - was rewritten out entirely, not
+used. YouTube video pages loaded but full player/caption data stayed walled behind a sign-in prompt, so
+no real door-knock transcript could be pulled (see new backlog item above); Reddit stayed fully blocked.
+Spanish-neighborhood sales-script content is still not found anywhere reachable, third round confirming
+the gap (rounds 30, 38, 47) - deprioritized per the updated item above. Output: `data/door_lines_pro.json`
+(22 EN/ES lines, all legal_ok) + this file.
