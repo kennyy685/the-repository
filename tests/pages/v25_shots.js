@@ -117,7 +117,7 @@ const SHOTS = [
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
   // the quick-estimate sheet (+ > Quick price, and a lead's own estimate): no sideways scroll at 360 and 420, EN and ES, light and dark
   ...[360, 420].flatMap(w => [["en", ""], ["es", ""], ["en", "dark"], ["es", "dark"]].map(([lg, th]) => ({ name: `quick-price-${w}-${lg}${th ? "-" + th : ""}`, tab: "now", width: w, lang: lg, theme: th || undefined, steps: ["#plusBtn", '[data-open="est:"]'] }))),
-  ...[360, 420].map(w => ({ name: `lead-estimate-${w}`, tab: "leads", width: w, steps: ['[data-open="lead:2210-e-military-ave"]', '[data-open="est:2210-e-military-ave"]'] })),
+  ...[360, 420].map(w => ({ name: `lead-estimate-${w}`, tab: "leads", width: w, steps: ['[data-f="won"]', '[data-open="lead:2210-e-military-ave"]', '[data-open="est:2210-e-military-ave"]'] })),
   { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="2"]'] },

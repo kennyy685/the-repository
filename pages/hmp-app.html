@@ -2815,7 +2815,7 @@ function renderProof(id){
   const m = walkModel(), stop = m && m.stops.find(s => evKey(s.address, s.city) === id || slugOf(s.address) === id), lead = leads.find(l => l.id === id || evKey(l.address, l.city) === id);
   const addr = strv(e && e.address) || strv(lead && lead.address) || strv(stop && stop.address) || id.replace(/-/g, ' ');
   $('#shEyebrow').textContent = V0.proofEb; $('#shTitle').textContent = addr; $('#shSub').textContent = strv(e && e.city) || strv(lead && lead.city) || strv(stop && stop.city); soft($('#shTrack')).html = '';
-  const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V0.back)}</button></div>` : '';
+  const back = ''   /* v25: Back sits in the sheet header */;
   const size = e ? numv(e.hail_in) : null;
   if (size == null) { soft($('#shBody')).html = `<p class="a-quiet">${esc(V0.proofNone)}</p>${back}`; return; }
   const day = dayOf(e.day), nr = o(e.nearest_report), radar = numv(e.radar_max_in), nrS = numv(nr.size_in), nrD = numv(nr.dist_mi);
@@ -3478,7 +3478,7 @@ function renderEst(id){
   const sig = JSON.stringify([lang, canSave, lv]);
   if (sig !== estSig) { estSig = sig; estCtl.setLang(lang); estCtl.setCanSave(canSave); estCtl.setLead(lv); }
   if (estRules !== prices) { estRules = prices; estCtl.setRules(prices); }
-  const body = $('#shBody'), back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
+  const body = $('#shBody'), back = ''   /* v25: Back sits in the sheet header */;
   if (estCtl.el.parentNode !== body || body.dataset.estBack !== String(!!back)) { body.innerHTML = back; body.dataset.estBack = String(!!back); body.append(estCtl.el); }
 }
 /* ================= v25 lead + claim sheets (critique "Lead sheet"): header, quick actions, the stage bar, the next-step
@@ -4037,7 +4037,7 @@ function makeORD(){   // v23: built the first time an order list opens
   function draw(){
     const l = lead(); if (!l) return;
     const ae = document.activeElement, fk = ae && el.contains(ae) ? ae.dataset.k : null;
-    const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
+    const back = ''   /* v25: Back sits in the sheet header */;
     const p = problem();
     el.innerHTML = back + (p ? calm(p) : `${formHtml(l)}<div class="ord" id="ordRes">${resHtml(l)}</div>`);
     lastAt = orderAt(l); refocus(el, fk);
@@ -4129,7 +4129,7 @@ function renderAdj(id){
   ];
   const X = NX(), packed = ticked(l, 'packed');
   const li = ([label, on, val, tell]) => `<li class="ns-it${on ? ' on' : ''}"><span class="chk" role="img" aria-label="${esc(on ? '✓ ' + label : label)}">${on ? ic('check') : ''}</span><div class="ns-itt"><span>${esc(label)}</span>${val ? `<span class="ns-val">${val}</span>` : ''}${!on ? `<span class="ns-hint warn">${esc(tell ? A.ask : A.missing)}</span>` : ''}</div></li>`;
-  const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
+  const back = ''   /* v25: Back sits in the sheet header */;
   soft($('#shBody')).html = `${back}<div class="adj" id="adjSheet">
     <section class="ns" aria-labelledby="adjH"><div class="ns-top"><span class="ns-of">${esc(A.eb)}</span></div><h3 class="ns-name" id="adjH">${esc(A.h)}</h3>
       ${!c ? `<p class="ns-info">${esc(A.noClaim)}</p>` : ''}
