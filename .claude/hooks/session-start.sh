@@ -15,9 +15,12 @@ if ! python3 -c "import numpy, pandas, requests, PIL, matplotlib, openpyxl, flas
   pip install -q --root-user-action=ignore --ignore-installed blinker -r requirements.txt >&2 || echo "WARN: pip install failed" >&2
 fi
 
-WORK=claude/funny-hawking-2rytou   # keep in step with CLAUDE.md "Work branch"
-timeout 30 git fetch -q origin "+refs/heads/claude/*:refs/remotes/origin/claude/*" 2>/dev/null
 here=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+# Read the shared work branch from CLAUDE.md's "Work branch:" line (the name inside backticks) so this never drifts
+# out of step with CLAUDE.md again; fall back to the current branch if the line is missing or unparsable.
+WORK=$(grep -m1 '^- \*\*Work branch:\*\*\|^- Work branch:' CLAUDE.md 2>/dev/null | grep -oE '`[^`]+`' | head -1 | tr -d '`')
+[ -n "$WORK" ] || WORK="$here"
+timeout 30 git fetch -q origin "+refs/heads/claude/*:refs/remotes/origin/claude/*" 2>/dev/null
 echo "Crew status (session start):"
 if [ "$here" != "$WORK" ]; then
   echo "- You are on '$here'; the shared work branch is '$WORK'. Base your work on it (git fetch origin $WORK) and"
