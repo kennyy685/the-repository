@@ -49,7 +49,7 @@ a{color:inherit}
 body[data-tab="knock"] .composer{display:none}
 body.bossmode .dock,body.bossmode .tabp,body.bossmode .top .lang,body.bossmode #appBanner{display:none!important}
 .composer .field{cursor:text}
-.composer .field .i{color:var(--hmp-ink)}
+.composer .field > .i{color:var(--hmp-ink)}
 .nav button:focus-visible{outline-offset:-2px}
 
 /* ---------- toast (above the dock) ---------- */
@@ -365,9 +365,9 @@ ol.steps li.now{background:var(--hmp-bg);color:var(--hmp-ink);font-weight:600} o
 .tlx li.late .t small{color:var(--late)}
 .notes{margin:0;white-space:pre-wrap;font-size:var(--t-body);overflow-wrap:anywhere}
 .taps{display:flex;flex-wrap:wrap;gap:8px}
-.tap{min-height:44px;padding:0 var(--s3);border-radius:var(--r-sm);border:1px solid var(--ok);color:var(--ok);background:var(--card);font-weight:600;font-size:var(--t-cap)}
-.tap.armed{background:var(--ok);color:var(--on-ink)}
-.tap:disabled{opacity:.5}
+.taps .tap,.ph-view .tap{min-height:44px;padding:0 var(--s3);border-radius:var(--r-sm);border:1px solid var(--ok);color:var(--ok);background:var(--card);font-weight:600;font-size:var(--t-cap)}
+.taps .tap.armed,.ph-view .tap.armed{background:var(--ok);color:var(--on-ink)}
+.taps .tap:disabled{opacity:.5}
 .taps-note{font-size:var(--t-cap);color:var(--muted);margin:0}
 .sheet-acts{display:flex;flex-wrap:wrap;gap:var(--s2)}
 .a-chip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 var(--s2);border-radius:var(--r-sm);font-size:12px;font-weight:500;white-space:nowrap;background:var(--hmp-bg);color:var(--hmp-ink);flex:none}
@@ -1034,7 +1034,7 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
 </div>
 
 <div class="dock" id="dock">
-  <div class="composer" id="composer"><button type="button" class="field" id="rhBtn" data-open="rh:"><svg class="i" aria-hidden="true"><use href="#i-say"/></svg><span class="ph" id="rhBtnT">Tell the Right Hand…</span><span class="mic" aria-hidden="true"><svg class="i i-sm"><use href="#i-mic"/></svg></span></button></div>
+  <div class="composer" id="composer"><button type="button" class="field" id="rhBtn" data-open="rh:"><svg class="i" aria-hidden="true"><use href="#i-say"/></svg><span class="phl" id="rhBtnT">Tell the Right Hand…</span><span class="mic" aria-hidden="true"><svg class="i i-sm"><use href="#i-mic"/></svg></span></button></div>
   <nav class="nav" id="tabs" role="tablist" aria-label="HMP App">
     <button type="button" role="tab" id="tb-now" data-tab="now" aria-controls="tab-now" aria-selected="true"><svg class="i i-lg" aria-hidden="true"><use href="#i-pin"/></svg><span data-t="tabNow">Now</span><span class="dot" id="bd-now"></span></button>
     <button type="button" role="tab" id="tb-knock" data-tab="knock" aria-controls="tab-knock" aria-selected="false" tabindex="-1"><svg class="i i-lg" aria-hidden="true"><use href="#i-door"/></svg><span data-t="tabKnock">Knock</span></button>
@@ -1819,28 +1819,68 @@ function walkMap(m){
 
 /* ---------- today's walk: render (the next door and its 4 buttons come first) ---------- */
 const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
-function doorAddr(s, isNext, k){ const a = splitAddr(s.address), why = whyHouse(s, walk && walk.kind === 'everyday' ? 'everyday' : 'storm').text, hl = houseLineBut(txl(s.house_line), why);   // v19: why this house
-  return `<div class="door-a"><b>${esc(a.no || '·')}</b><span>${esc(a.street)}</span>${isNext ? `<small>${esc(k.nextDoor)}</small>` : ''}${why ? `<span class="d-why">${esc(why)}</span>` : ''}${hl ? `<span class="d-house">${esc(hl)}</span>` : ''}</div>`; }
-// v24.1: the county facts line without the year built when the "why" line already has it (no "built 1980 … Built 1980")
-function houseLineBut(hl, why){
-  const y = /(\d{4})/.exec(String(why || '').match(/(?:built|construida en)\s+\d{4}/i) || ''); if (!hl || !y) return hl;
-  return hl.split(/\s*·\s*/).filter(p => !new RegExp('^(?:built|construida en)\\s+' + y[1] + '$', 'i').test(p.trim())).join(' · ');
+/* ---------- v25 Knock: the walk's name + one ⋯ (walk menu), one rules chip, "2 / 25 knocks today", a cell per door,
+   the walk map (v25/walkmap.js: route along the streets, numbered stops), the next door as an offer card with four
+   answer tiles (Booked is the only orange), then the next doors. ---------- */
+let kBig = false, kAll = false, kOpenPid = null;
+const kSkip = new Set();   // "skip for now" (this visit only): the door goes to the back of the line, nothing is written
+function kNextIdx(m){   // the next door: this round's first untapped door, skipped ones last
+  const pend = m.st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.x.attempt === m.pass);
+  const first = pend.find(o => !kSkip.has(m.stops[o.i].pid)) || pend[0]; return first ? first.i : -1;
 }
-function doorTools(s, canTap, more){
-  const V0 = V(), bits = [];
-  if (proofFor(s.address, s.city)) bits.push(`<button type="button" class="proof" data-proof="${esc(evKey(s.address, s.city))}">${esc(V0.proof)}</button>`);
-  if (canTap && more) bits.push(`<button type="button" class="more" data-more="${esc(s.pid)}" aria-label="${esc(V0.more(s.address))}" title="${esc(V0.moreT)}">⋯</button>`);
-  return bits.length ? `<div class="d-tools">${bits.join('')}</div>` : '';
+function walkZoneOf(w){ if (!w) return null; const zs = zonesAll(), area = strv(w.area);   // the zone this walk belongs to: same doc, zone id, or the same name
+  return zs.find(z => zoneWalk(z) === w) || zs.find(z => w.zone_id && (z.id === pidSafe(strv(w.zone_id)) || z.walkId === pidSafe(strv(w.zone_id)))) || (area ? zs.find(z => z.name === area) : null) || null; }
+function doorHail(s, m){   // {hail, day} for a house: its own proof, else the walk's zone
+  const e = proofFor(s.address, s.city); if (e) return {hail: numv(e.hail_in), day: dayOf(e.day)};
+  const z = walkZoneOf(m.w); if (z && z.hail != null && m.kind !== 'everyday') return {hail: z.hail, day: z.day}; return null;
 }
-function doorBtns(s, canTap, k){
-  const btn = (r, cls) => `<button type="button" class="${cls}" data-r="${r}" data-pid="${esc(s.pid)}"${canTap ? '' : ' disabled'}>${esc(k.b[r][0])}${k.b[r][1] ? `<small>${esc(k.b[r][1])}</small>` : ''}</button>`;
-  return `<div class="d-btns">${btn('not_home', 'b-nh')}${btn('no', 'b-no')}${btn('interested', 'b-int')}${btn('booked', 'b-book')}</div>`;
+function ruleInfo(m){   // knock hours for the walk's town (T123 city rules), as data for the chip and the rules sheet
+  const cc = {}; for (const s of m.stops) if (s.city) cc[s.city] = (cc[s.city] || 0) + 1;
+  const city = Object.keys(cc).sort((a, b) => cc[b] - cc[a])[0] || SETTINGS.company.city, r = cityRule(city);
+  const hours = r && r.hours ? r.hours : null; let warn = false;
+  if (hours) { const n = new Date(), hm = pad2(n.getHours()) + ':' + pad2(n.getMinutes()); warn = hm < hours[0] || hm >= hours[1]; }
+  return {city, hours, verified: !!(r && r.verified), warn};
 }
-function dnkPanel(s){ const V0 = V(); return `<div class="dnkask" role="group" aria-label="${esc(V0.dnkQ(s.address))}"><p>${esc(V0.dnkQ(s.address))}</p><span style="font-size:14px;color:var(--ink2)">${esc(V0.dnkP)}</span><div class="book-acts"><button type="button" class="go-dnk" data-dnk="go" data-pid="${esc(s.pid)}">${esc(V0.dnkGo)}</button><button type="button" data-dnk="cancel">${esc(V0.dnkCancel)}</button></div></div>`; }
-function doorAction(s, at, canTap, kind, k){
+const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
+function walkStatus(m, nextI){   // per RAW walk stop (the engine's order, so route_segments line up): done / no / current / skip / ''
+  const byAddr = new Map(m.stops.map((s, j) => [slugOf(s.address), j]));
+  return m.w.stops.map(s => { const j = byAddr.get(slugOf(strv(s && s.address))); if (j == null) return 'skip';
+    const x = m.st[j]; if (j === nextI) return 'current'; if (x.d && x.d.result === 'no') return 'no'; if (x.d) return 'done'; return ''; });
+}
+function drawWalkMap(m, nextI){
+  const svg = $('#wmSvg'); if (!svg || !window.HMPMap) return;
+  const W = Math.round(svg.getBoundingClientRect().width) || 358, H = kBig ? 440 : 118;
+  const status = walkStatus(m, nextI), cur = status.indexOf('current'), raw = cur >= 0 ? m.w.stops[cur] : null;
+  const pts = m.w.stops.filter(s => s && numv(s.lat) != null && numv(s.lon) != null); if (pts.length < 1) { svg.closest('.walkmap').hidden = true; return; }
+  const wmap = Object.assign({}, m.w, {stops: m.w.stops.map(s => Object.assign({}, s, {lat: numv(s.lat), lon: numv(s.lon)}))});
+  try {
+    HMPMap.renderWalkMap(svg, wmap, kBig || !raw ? {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, pad: 16}
+      : {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, center: {lat: numv(raw.lat) - .0002, lon: numv(raw.lon) - .00045}, metersAcross: 250, r: 8});
+  } catch (e) { svg.closest('.walkmap').hidden = true; }
+}
+function ansTiles(s, canTap){
+  const A = Z().ans, t = (r, icon, cls) => `<button type="button" class="ans${cls ? ' ' + cls : ''}" data-r="${r}" data-pid="${esc(s.pid)}"${canTap ? '' : ' disabled'}>${ic(icon)}<span><b>${esc(A[r][0])}</b><small>${esc(A[r][1])}</small></span></button>`;
+  return `<div class="answers">${t('not_home', 'door')}${t('no', 'ban')}${t('interested', 'star')}${t('booked', 'cal', 'pri')}</div>`;
+}
+function bookForm(kind){
+  const k = K(), t0 = todayStr();
+  const days = [0, 1, 2, 3, 4, 5, 6].map(n => addDays(t0, n));
+  const dayLbl = (d, n) => n === 0 ? k.today : n === 1 ? k.tomorrow : `${toDate(d).toLocaleDateString(locale(), {weekday: 'short'})} ${toDate(d).getDate()}`;
+  const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  return `<div class="kpanel book" role="group" aria-label="${esc(k.bookQ[kind])}"><p>${esc(k.bookQ[kind])}</p>
+    <span class="label">${esc(k.day)}</span><div class="pickrow" data-pick="day">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${booking.day === d}">${esc(dayLbl(d, n))}</button>`).join('')}</div>
+    <span class="label">${esc(k.time2)}</span><div class="pickrow" data-pick="time">${times.map(t => `<button type="button" data-v="${t}" aria-pressed="${booking.time === t}">${clk(t)}</button>`).join('')}</div>
+    <div class="kacts"><button type="button" class="btn pri" data-book="save"${booking.day && booking.time ? '' : ' disabled'}>${ic('cal')}<span>${esc(k.save)}</span></button><button type="button" class="btn sec" data-book="cancel">${esc(k.cancel)}</button></div></div>`;
+}
+function dnkPanel(s){ const V0 = V(), Zs = Z();
+  return `<div class="kpanel" role="group" aria-label="${esc(Zs.skipH)}"><p>${esc(Zs.skipH)}</p><span class="sub">${esc(V0.dnkP)}</span>
+    <div class="kacts"><button type="button" class="btn sec" data-kskip="${esc(s.pid)}">${ic('skip')}<span>${esc(lang === 'es' ? 'Saltar por ahora' : 'Skip for now')}</span></button>
+    <button type="button" class="btn danger" data-dnk="go" data-pid="${esc(s.pid)}">${ic('ban')}<span>${esc(V0.dnkGo)}</span></button>
+    <button type="button" class="btn ghost" data-dnk="cancel">${esc(V0.dnkCancel)}</button></div></div>`; }
+function doorAction(s, at, canTap, kind){
   if (dnkAsk && dnkAsk.pid === s.pid && dnkAsk.at === at) return dnkPanel(s);
   if (bookingPid === s.pid && bookingAt === at) return bookForm(kind);
-  return doorBtns(s, canTap, k);
+  return ansTiles(s, canTap);
 }
 function cbOpts(){
   const t0 = todayStr(), h = new Date().getHours(), out = [];
@@ -1850,135 +1890,135 @@ function cbOpts(){
   if (toSat > 1) out.push({key: 'sat', due: addDays(t0, toSat), label: {en: 'Saturday', es: 'el sábado'}, btn: {en: 'Saturday', es: 'Sábado'}});
   return out;
 }
-function estLink(s, res){   // v17: after Interested or Booked, one tap to price the job (the lead's quick estimate); v22: + Add to calendar
-  const id = slugOf(s.address), l = leads.find(x => x.id === id), ap = res === 'booked' && l ? apptOf(l) : null;
-  const cal = ap ? calLink(ap, l, 'linkbtn') : '';
-  if (!(res === 'interested' || res === 'booked') || !x_canEst()) return cal ? `<div class="d-est">${cal}</div>` : '';
-  const has = l && l.estimate && typeof l.estimate === 'object' && l.estimate.low != null;
-  return `<div class="d-est"><button type="button" class="linkbtn" data-open="est:${esc(id)}">${esc(has ? L().estUpd : L().estNew)} →</button>${cal}</div>`;
-}
 const x_canEst = () => !!DB && CAN_EDIT;
-const KV_ICON = {next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>', list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
-  map: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></svg>'};   // v24.1: every view button shows an icon + its word
-let kView = 'next';   // v24: the Knock tab shows the next door + the next 3; the full list and the map sit behind List / Map (per viewer)
-try { const v = localStorage.getItem('hmp-app-kview'); if (['next', 'list', 'map'].includes(v)) kView = v; } catch (e) { /* fine */ }
+function resLabel(x, d){ const R = Z().res, r = d ? d.result : ''; if (x.gaveUp) return R.gaveUp; if (!x.done && d && r === 'not_home') return R.later(x.attempt); return (R[r] || '') + (r === 'booked' && d.when ? ' · ' + d.when : ''); }
+function kRow(m, i, canTap, kind){   // one door in "All 25"
+  const s = m.stops[i], x = m.st[i], d = x.d, a = splitAddr(s.address), Zs = Z(), nextI = kNextIdx(m), open = !x.done && (kOpenPid === s.pid || (dnkAsk && dnkAsk.pid === s.pid && dnkAsk.at === 'list') || (bookingPid === s.pid && bookingAt === 'list'));
+  const ncls = i === nextI ? ' cur' : x.done || (d && d.result) ? ' done' : '';
+  const sub = d ? resLabel(x, d) : (numv(s.year_built) ? Zs.builtFact(numv(s.year_built)) : whyHouse(s, kind).text);
+  const chip = !d ? '' : d.result === 'booked' ? `<span class="chip ok">${ic('cal')}${esc(Zs.res.booked)}</span>` : d.result === 'interested' ? `<span class="chip hmp">${ic('star')}${esc(Zs.res.interested)}</span>` : '';
+  const undo = d && canTap ? `<button type="button" class="undo" data-undo="${esc(s.pid)}" aria-label="${esc(K().undo)}: ${esc(s.address)}">${esc(K().undo)}</button>` : '';
+  const head = `<span class="n${ncls}">${i + 1}</span><span class="t"><b>${esc(`${a.no} ${a.street}`.trim())}</b><span>${esc(sub || '')}</span></span>`;
+  if (x.done || (d && !open)) return `<li data-pid="${esc(s.pid)}" data-i="${i}"><div class="row">${head}<span class="end">${chip}${undo}</span></div>${estLinkV25(s, d && d.result)}</li>`;
+  if (open) return `<li class="open door" data-pid="${esc(s.pid)}" data-i="${i}"><div class="open-h">${head}${undo}</div>${doorAction(s, 'list', canTap, kind)}</li>`;
+  return `<li data-pid="${esc(s.pid)}" data-i="${i}"><button type="button" class="row" data-kopen="${esc(s.pid)}">${head}<span class="end">${ic('chev')}</span></button></li>`;
+}
+function estLinkV25(s, res){   // v17: after Interested or Booked, one tap to price the job (the lead's quick estimate)
+  if (!(res === 'interested' || res === 'booked') || !x_canEst()) return '';
+  const id = slugOf(s.address), l = leads.find(x => x.id === id), has = l && l.estimate && typeof l.estimate === 'object' && l.estimate.low != null;
+  return `<div style="padding:0 var(--s4) var(--s2) 56px"><button type="button" class="linkbtn" data-open="est:${esc(id)}">${esc(has ? L().estUpd : L().estNew)}${ic('chev', 'i-sm')}</button></div>`;
+}
 function renderKnock(){
-  const box = $('#knock'); const k = K(), V0 = V(), W = NW(); const m = walkModel();
+  const box = $('#knock'), Zs = Z(), k = K(), V0 = V(), m = walkModel();
   if (!m) {
     const old = walk && dayOf(walk.date) && daysFromToday(dayOf(walk.date)) < -WALK_MAX_AGE, zs = zonesAll();
-    soft(box).html = `<div class="k-empty"><div class="k-eb">${esc(k.eb.storm.split('·')[0].trim())}</div><h2>${esc(k.emptyH)}</h2>
-      ${old ? `<p class="k-stale" style="width:100%"><span><b>${esc(V0.stale(fmtDay(dayOf(walk.date), true)))}</b> ${esc(V0.tooOld)}</span></p>` : ''}
-      ${zs.length ? `<button type="button" class="btn go" data-go="now">${esc(W.zonesH)}</button>` : `<p style="margin:0;font-size:var(--t-lg);color:var(--ink2)">${esc(k.emptyP)} <q>${esc(k.emptyQ)}</q></p>
-      ${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" id="kAsk">${esc(k.emptyBtn)}</button>` : ''}`}
-      <p class="a-quiet">${esc(k.emptyNote)}</p></div>`;
-    $('#tally').hidden = true; return;
+    soft(box).html = `<div class="empty kempty"><div class="glyph">${ic('door', 'i-lg')}</div><h3>${esc(Zs.emptyH)}</h3><p>${esc(Zs.emptyP)}</p>
+      ${old ? `<p class="k-stale">${esc(V0.stale(fmtDay(dayOf(walk.date), true)))} ${esc(V0.tooOld)}</p>` : ''}
+      ${zs.length ? `<button type="button" class="btn pri lg" data-go="now">${ic('pin')}<span>${esc(Zs.pickZone)}</span></button>` : SAMPLE && CAN_EDIT ? `<button type="button" class="btn pri lg" id="kAsk">${ic('say')}<span>${esc(k.emptyBtn)}</span></button>` : ''}
+      ${SAMPLE && CAN_EDIT ? `<button type="button" class="btn ghost" id="kOld">${esc(Zs.oldBtn)}</button>` : ''}</div>`;
+    return;
   }
-  const {w, stops, st, pass, nextIdx, kind} = m;
-  const goal = Math.round(numv(w.goal_doors) || stops.length);
-  const mins = Math.max(15, Math.round((numv(w.goal_minutes) || goal * 5) / 15) * 15);
-  const tt = todayTaps();   // one door count, the same one the week box and the review use
-  const doneN = st.filter(x => x.done).length;
-  const talkW = stops.length ? st.filter(x => x.d && TALK.includes(x.d.result)).length / stops.length * 100 : 0;
-  const nhW = stops.length ? st.filter(x => x.d && x.d.result === 'not_home').length / stops.length * 100 : 0;
-  const groups = []; stops.forEach((s, i) => { const a = splitAddr(s.address); const key = a.street.toLowerCase(); const g = groups[groups.length - 1];
-    if (g && g.key === key) g.items.push(i); else groups.push({key, street: a.street, items: [i]}); });
-  const canTap = !!DB && CAN_EDIT;
-  const rows = g => g.items.map(i => {
-    const s = stops[i], x = st[i], d = x.d, isNext = i === nextIdx;
-    const waitLater = !x.done && x.attempt > pass;
-    if (x.done || waitLater) {
-      const res = d ? d.result : '';
-      let label = k.res[res] || '';
-      if (res === 'booked' && d.when) label += ' · ' + d.when;
-      if (x.gaveUp) label = k.gaveUp;
-      else if (waitLater) label = `${k.b.not_home[0]} · ${k.backOn(x.attempt)}`;
-      return `<div class="door done" data-pid="${esc(s.pid)}" data-i="${i}"><div class="door-h">${doorAddr(s, false, k)}<div class="d-right">${doorTools(s, canTap, false)}<span class="d-res ${esc(res)}">${esc(label)}</span>${canTap ? `<button type="button" class="undo" data-undo="${esc(s.pid)}">${esc(k.undo)}</button>` : ''}</div></div>${estLink(s, res)}${dnkAsk && dnkAsk.pid === s.pid ? dnkPanel(s) : ''}</div>`;
-    }
-    const nhNote = x.nh ? `<span class="d-res not_home">${esc(k.pass(x.attempt).replace(/<\/?b>/g, ''))}</span>` : '';
-    return `<div class="door${isNext ? ' next' : ''}" data-pid="${esc(s.pid)}" data-i="${i}"><div class="door-h">${doorAddr(s, isNext, k)}${nhNote}${doorTools(s, canTap, true)}</div>${doorAction(s, 'list', canTap, kind, k)}</div>`;
-  }).join('');
-  const pendingThisPass = st.filter(x => !x.done && x.attempt === pass).length;
-  const passNote = !pendingThisPass ? '' : pass > 1 ? k.passNote(pass, pendingThisPass) : '';
-  const upd = w.updated_at ? whenShort(w.updated_at) : '';
-  const left = Math.max(0, pendingThisPass), minsLeft = Math.max(0, Math.round(mins * (goal ? Math.max(0, goal - tt.doors) / goal : 0) / 15) * 15);
-  const head = `<div class="k-head"><div class="k-top"><span class="k-eb">${esc(W.doorsToday)}</span></div>
-      <div class="kbig" id="kCount"><b>${tt.doors}</b><span>${esc(W.ofGoal(goal))}</span></div>
-      <div class="k-prog"><div class="k-bar" role="img" aria-label="${esc(k.progress(doneN, stops.length).replace(/<\/?b>/g, ''))}"><i class="talk" style="width:${talkW.toFixed(1)}%"></i><i class="nh" style="width:${nhW.toFixed(1)}%"></i></div></div>
-      <p class="kline"><span><b>${tt.talked}</b> ${esc(W.cnt.talked)}</span><span><b>${tt.interested}</b> ${esc(W.cnt.interested)}</span><span><b>${tt.booked}</b> ${esc(W.cnt.booked)}</span><span>${esc(W.leftTime(k.hrs(minsLeft || 15)))}</span></p>
-      <h2 class="k-area" id="kArea">${esc(strv(w.area) || '')}</h2>
-      ${knockRules(m)}
-      ${zoneMissing ? `<p class="k-stale" role="note"><span>${esc(W.zoneMiss(zoneMissing))}</span></p>` : ''}
-      ${txl(w.evidence_note) ? `<p class="k-evid">${esc(txl(w.evidence_note))}</p>` : ''}
-      ${m.stale ? `<div class="k-stale" role="alert"><span><b>${esc(V0.stale(fmtDay(dayOf(w.date), true)))}</b> ${esc(V0.staleP)}</span>${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" id="kAsk">${esc(V0.staleAsk)}</button>` : ''}</div>` : ''}</div>`;
-  const cb = cbAsk ? `<div class="cbask" role="group" aria-label="${esc(V0.cbQ(shortAddr(cbAsk.address)))}"><p>${esc(V0.cbQ(shortAddr(cbAsk.address)))}</p><div class="pickrow">${cbOpts().map(o => `<button type="button" data-cb="${o.key}">${esc(o.btn[lang])}</button>`).join('')}<button type="button" data-cb="skip">${esc(V0.cbSkip)}</button></div></div>` : '';
-  let now;
-  if (nextIdx >= 0) { const s = stops[nextIdx], x = st[nextIdx], coach = s.coach ? txl(s.coach) : '';
-    now = `<div class="k-now" id="kNow" data-pid="${esc(s.pid)}" data-i="${nextIdx}"><div class="k-now-l"><span>${esc(V0.nowH)} · ${k.pass(x.attempt)}</span><span>${esc(V0.left(left))}</span></div>
-      <div class="door-h">${doorAddr(s, false, k)}${doorTools(s, canTap, true)}</div>${coach ? `<p class="k-coach">${esc(coach)}</p>` : ''}${doorAction(s, 'now', canTap, kind, k)}
-      <button type="button" class="btn wts" data-open="guide:${esc(s.pid)}">${esc(W.whatToSay)}</button></div>`;
-  } else now = `<p class="k-alldone">${esc(k.allDone)}</p>`;
-  const rookie = tt.nh >= 3 && !tt.talked ? `<p class="k-normal" id="kNormal">${esc(W.normal)}</p>` : '';
-  // the next 3 doors after this one, in walking order (this pass first)
-  const order = st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.i !== nextIdx).sort((a, b) => (a.x.attempt - b.x.attempt) || (a.i - b.i)).slice(0, 3);
-  const up = order.map(({i}) => { const s = stops[i], a = splitAddr(s.address), why = whyHouse(s, kind).text || txl(s.house_line);
-    return `<li class="kup"><span class="kup-n">${esc(a.no || '·')}</span><span class="kup-t"><b>${esc(a.street)}</b>${why ? `<small>${esc(why)}</small>` : ''}</span></li>`; }).join('');
-  const views = `<div class="seg kviews" role="group" aria-label="${esc(W.views.next)}">${['next', 'list', 'map'].map(v => `<button type="button" data-kview="${v}" id="kView${v[0].toUpperCase() + v.slice(1)}" aria-pressed="${kView === v}">${KV_ICON[v]}<span>${esc(W.views[v])}</span></button>`).join('')}</div>`;
-  const map = kView === 'map' ? walkMap(m) : '';
-  const view = kView === 'list' ? `<div class="k-list">${groups.map(g => `<section class="k-street"><h3>${esc(g.street)} <small>${g.items.length}</small></h3>${rows(g)}</section>`).join('')}</div>`
-    : kView === 'map' ? (map || `<p class="a-quiet">${esc(W.noMap)}</p>`)
-    : up ? `<div class="kthen"><h3 class="dg-h">${esc(W.then)}</h3><ol class="kup-l">${up}</ol></div>` : '';
-  // a live update must never steal the button under FilthE's thumb: remember what had focus and put it back
-  const ae = document.activeElement, keep = ae && box.contains(ae) ? (ae.dataset.r ? (ae.closest('#kNow') ? `#kNow [data-r="${ae.dataset.r}"]` : `.k-list .door[data-pid="${ae.dataset.pid}"] [data-r="${ae.dataset.r}"]`) : ae.id ? '#' + ae.id : null) : null;
+  const {w, stops, st, pass, kind} = m, nextI = kNextIdx(m), canTap = !!DB && CAN_EDIT;
+  const tt = todayTaps(), z = walkZoneOf(w), ri = ruleInfo(m);
+  const title = z ? zoneShort(z) : strv(w.area), city = (z && zoneTown(z)) || (stops[0] && stops[0].city) || '';
+  const pending = st.filter(x => !x.done && x.attempt === pass).length;   // doors left in this round
+  // chips: one rules chip (tap for the rules), and only what matters today
+  const chips = [];
+  if (ri.hours && ri.warn) chips.push(`<button type="button" class="chip tap warn" data-open="rules:">${ic('clock')}<span>${esc(Zs.hoursOut)}</span>${ic('chev', 'chevr')}</button>`);
+  else if (ri.hours) chips.push(`<button type="button" class="chip tap" data-open="rules:">${ic('sun')}<span>${esc(Zs.hoursOk(clk(ri.hours[0]), clk(ri.hours[1])))}</span>${ic('chev', 'chevr')}</button>`);
+  else chips.push(`<button type="button" class="chip tap" data-open="rules:">${ic('ban')}<span>${esc(Zs.signs)}</span>${ic('chev', 'chevr')}</button>`);
+  if (m.stale) chips.push(`<button type="button" class="chip tap warn" ${SAMPLE && CAN_EDIT ? 'id="kAsk"' : 'data-open="walk:"'}>${ic('alert')}<span>${esc(Zs.stale(fmtDay(dayOf(w.date), true)))}</span>${ic('chev', 'chevr')}</button>`);
+  if (pass > 1) chips.push(`<span class="chip hmp">${ic('undo')}${esc(Zs.round(pass))}</span>`);
+  // the count and a cell per door, in walking order
+  const cells = stops.map((s, i) => { const d = st[i].d; return `<i class="${d ? (TALK.includes(d.result) ? 't' : 'n') : ''}"></i>`; }).join('');
+  const rookie = tt.nh >= 3 && !tt.talked ? `<p class="normal">${esc(NW().normal)}</p>` : '';
+  const cb = cbAsk ? `<div class="kpanel" role="group" aria-label="${esc(V0.cbQ(shortAddr(cbAsk.address)))}" style="margin-top:var(--s3)"><p>${esc(V0.cbQ(shortAddr(cbAsk.address)))}</p><div class="pickrow">${cbOpts().map(o => `<button type="button" data-cb="${o.key}">${esc(o.btn[lang])}</button>`).join('')}<button type="button" data-cb="skip">${esc(V0.cbSkip)}</button></div></div>` : '';
+  // the next door: the offer card
+  let offer = '';
+  if (nextI >= 0) {
+    const s = stops[nextI], a = splitAddr(s.address), hl = doorHail(s, m), y = numv(s.year_built), coach = s.coach ? txl(s.coach) : whyHouse(s, kind).text;
+    const facts = [hl && hl.hail != null ? `<span>${ic('hail')}${esc(Zs.hailFact((Math.round(hl.hail * 10) / 10).toFixed(1), hl.day ? fmtDay(hl.day) : ''))}</span>` : '', y ? `<span>${ic('built')}${esc(Zs.builtFact(y))}</span>` : ''].filter(Boolean).join('');
+    const ev = proofFor(s.address, s.city);
+    offer = `<section class="card offer" id="kNow" data-pid="${esc(s.pid)}" data-i="${nextI}" aria-label="${esc(Zs.nextDoor(nextI + 1, stops.length))}">
+      <div class="eb"><span class="label">${esc(Zs.nextDoor(nextI + 1, stops.length))}</span><span class="cap">${esc(Zs.toGo(pending))}</span></div>
+      <div class="addr">${esc(`${a.no} ${a.street}`.trim())}</div>
+      ${facts ? `<div class="facts-row">${facts}</div>` : ''}
+      ${coach ? `<p class="coach">${ic('info')}<span>${esc(coach)}</span></p>` : ''}
+      <div class="tools${ev ? '' : ' two'}"><button type="button" class="btn sec" data-open="guide:${esc(s.pid)}">${ic('say', 'i-sm')}<span>${esc(Zs.say)}</span></button>
+        ${ev ? `<button type="button" class="btn sec" data-proof="${esc(evKey(s.address, s.city))}">${ic('shield', 'i-sm')}<span>${esc(Zs.proof)}</span></button>` : ''}
+        <button type="button" class="btn sec skipb" data-more="${esc(s.pid)}" aria-label="${esc(Zs.skipAria)}"${canTap ? '' : ' disabled'}>${ic('skip', 'i-sm')}</button></div>
+      ${doorAction(s, 'now', canTap, kind)}</section>`;
+  } else offer = `<div class="kdone">${ic('check2')}<span>${esc(Zs.allDone)}</span></div>${DB && CAN_EDIT ? `<button type="button" class="btn pri block" data-done="1" style="margin-top:var(--s3)">${esc(Zs.doneToday)}</button>` : ''}`;
+  // then: the next doors (or all of them)
+  const order = st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.i !== nextI).sort((p, q) => (p.x.attempt - q.x.attempt) || (kSkip.has(stops[p.i].pid) - kSkip.has(stops[q.i].pid)) || (p.i - q.i)).slice(0, 2);
+  const then = kAll ? `<ul class="rows klist">${stops.map((s, i) => kRow(m, i, canTap, kind)).join('')}</ul>`
+    : order.length ? `<ul class="rows">${order.map(({i}) => { const s = stops[i], a = splitAddr(s.address), y = numv(s.year_built);
+        return `<li><div class="row"><span class="n">${i + 1}</span><span class="t"><b>${esc(`${a.no} ${a.street}`.trim())}</b><span>${esc(y ? Zs.builtFact(y) : whyHouse(s, kind).text || txl(s.house_line))}</span></span></div></li>`; }).join('')}</ul>` : '';
   const foot = !canTap && DB ? esc(k.readOnly) : m.hidden ? `${esc(V0.dnkFoot(m.hidden))}${lastDnk && canTap ? ` <button type="button" class="linkbtn" data-dnk-undo="1">${esc(V0.dnkUndo)}</button>` : ''}` : '';
-  const aboutOpen = $('#kAbout') && $('#kAbout').open;
-  soft(box).html = `${head}${cb}${now}${rookie}
-    ${passNote ? `<p class="k-passnote">${esc(passNote)}</p>` : ''}
-    ${views}${view}
-    <details class="fold kabout" id="kAbout"><summary>${esc(W.about)}</summary><div class="k-txt">
-      ${txl(w.why) ? `<p class="k-why">${esc(txl(w.why))}</p>` : ''}
-      <div class="k-facts"><span class="k-fact">${k.goal(goal)}</span><span class="k-fact">${k.time(esc(k.hrs(mins)))}</span><span class="k-fact">${k.houses(stops.length)}</span><span class="k-fact">${k.pass(pass)}</span></div>
-      ${txl(w.goal_note) ? `<p class="k-goalnote">${esc(txl(w.goal_note))}</p>` : ''}
-      <p class="k-prog"><span>${k.progress(doneN, stops.length)}</span></p>
-      ${txl(w.rough_note) ? `<p class="k-rough">${esc(txl(w.rough_note))}</p>` : ''}
-      <div class="k-print"><button type="button" class="btn" id="kPrint">${esc(V0.printBtn)}</button><span>${esc(V0.printSub)}</span></div>${upd ? `<div class="k-upd">${esc(V0.updated(upd, strv(w.updated_by)))}</div>` : ''}</div></details>
-    ${foot ? `<div class="k-foot">${foot}</div>` : ''}`;
-  if (aboutOpen && $('#kAbout')) $('#kAbout').open = true;
+  const ae = document.activeElement, keep = ae && box.contains(ae) ? (ae.dataset.r ? (ae.closest('#kNow') ? `#kNow [data-r="${ae.dataset.r}"]` : `.klist [data-pid="${ae.dataset.pid}"] [data-r="${ae.dataset.r}"]`) : ae.id ? '#' + ae.id : null) : null;
+  soft(box).html = `<div class="area"><h2>${esc(title)}<span class="sub">${esc(Zs.walkSub(city, stops.length, numv(w.walk_mi) ? fmtIn(numv(w.walk_mi)) : ''))}</span></h2>
+      <button type="button" class="iconbtn hit" data-open="walk:" aria-label="${esc(Zs.walkMenu)}">${ic('more')}</button></div>
+    <div class="kchips">${chips.join('')}</div>
+    ${zoneMissing ? `<p class="k-stale" style="margin-top:var(--s2)">${esc(NW().zoneMiss(zoneMissing))}</p>` : ''}
+    ${kBig ? '' : `<div class="count"><div class="big"><div><b>${tt.doors}</b><span>/ ${Math.round(numv(w.goal_doors) || stops.length)}</span><small>${esc(Zs.knocksToday)}</small></div></div>
+      <div class="mini"><div><b>${tt.talked}</b><span>${esc(Zs.talked)}</span></div><div><b>${tt.interested}</b><span>${esc(Zs.interested)}</span></div><div><b>${tt.booked}</b><span>${esc(Zs.booked)}</span></div></div></div>
+    <div class="kbar" aria-hidden="true">${cells}</div>${rookie}`}
+    <div class="walkmap${kBig ? ' big' : ''}" role="img" aria-label="${esc(Zs.walkAria(stops.length, nextI >= 0 ? nextI + 1 : 0))}"><svg id="wmSvg"></svg>
+      <button type="button" class="expand" id="kMapBtn" aria-label="${esc(kBig ? Zs.mapClose : Zs.mapOpen)}" aria-pressed="${kBig}">${ic(kBig ? 'x' : 'map')}</button></div>
+    ${cb}${offer}
+    ${then ? `<div class="shead"><h2>${esc(Zs.then)}</h2><button type="button" id="kAllBtn" class="hit" aria-pressed="${kAll}">${esc(kAll ? Zs.back3 : Zs.all(stops.length))}</button></div>${then}` : ''}
+    ${foot ? `<div class="kfoot">${foot}</div>` : ''}`;
+  drawWalkMap(m, nextI);
   if (keep) { const f = box.querySelector(keep); if (f) f.focus({preventScroll: true}); }
-  renderTally(m);
 }
-function bookForm(kind){
-  const k = K(), t0 = todayStr();
-  const days = [0, 1, 2, 3, 4, 5, 6].map(n => addDays(t0, n));
-  const dayLbl = (d, n) => n === 0 ? k.today : n === 1 ? k.tomorrow : `${toDate(d).toLocaleDateString(locale(), {weekday: 'short'})} ${toDate(d).getDate()}`;
-  const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
-  const tLbl = t => { const [h] = t.split(':').map(Number); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); };
-  return `<div class="book" role="group" aria-label="${esc(k.bookQ[kind])}"><p>${esc(k.bookQ[kind])}</p>
-    <span class="k-l">${esc(k.day)}</span><div class="pickrow" data-pick="day">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${booking.day === d}">${esc(dayLbl(d, n))}</button>`).join('')}</div>
-    <span class="k-l">${esc(k.time2)}</span><div class="pickrow" data-pick="time">${times.map(t => `<button type="button" data-v="${t}" aria-pressed="${booking.time === t}">${tLbl(t)}</button>`).join('')}</div>
-    <div class="book-acts"><button type="button" class="go-save" data-book="save"${booking.day && booking.time ? '' : ' disabled'}>${esc(k.save)}</button><button type="button" data-book="cancel">${esc(k.cancel)}</button></div></div>`;
+/* the walk menu (⋯): about this walk, this week, print, done for today; and the knock rules (the chip) */
+function weekHtml(){
+  const T = L(), t0 = todayStr(), wk = isoWeek(t0), wn = weekNums(t0), lw = lastWeekDoc || {};
+  const est = weekEstimates(leads, wk), estLw = weekEstimates(leads, isoWeek(addDays(t0, -7)));
+  const cnt = x => (x === 'estimates' ? est.n : wn[x] || 0), top = Math.max(1, wn.doors || 0, ...STAT_KEYS.map(cnt));
+  const estSub = est.n ? `<p class="wk-sub">${esc(V().wkEst(est.low === est.high ? kUsd(est.low) : `${kUsd(est.low)}–${kUsd(est.high)}`))}${est.using_reference ? ` <span class="mk">· <b>${esc(V().wkMkt)}</b></span>` : ''}</p>` : '';
+  const ans = weekAnswers(t0), pct = Math.round(ans.rate * 100);
+  const rateRow = ans.n >= 10 ? `<div class="wk-row wk-rate" id="tRate"><span class="wk-l">${esc(V().wkRate)}</span><span class="wk-b"><span class="wk-norm" style="left:20%;width:20%"></span><i style="width:${pct}%"></i></span><span class="wk-v">${pct}%</span><p class="wk-sub">${esc(V().wkRateOf(ans.answered, ans.n))}</p></div>` : '';
+  return {head: `${T.weekH} · ${wn.doors} ${T.stats.doors.toLowerCase()}`, sub: T.weekSub(wk.slice(5).replace(/^0/, ''), weekRange(t0)),
+    body: `${streakHtml(t0)}<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
+      return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small class="wk-lw">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : ''}</div>${x === 'conversations' ? rateRow : ''}`; }).join('')}</div>`};
 }
-function renderTally(m){   // v24: the thumb-zone bar on Knock: Next door · call-backs due · Done for today (the numbers live in the big counter)
-  const k = K(), W = NW(), bar = $('#tally'); bar.hidden = false;
-  const due = callbackCount(), t0 = m.date, again = reviewDoc && reviewDoc.date === t0 || (weekDoc && weekDoc.walks && weekDoc.walks[t0]);
-  const rh = '';
-  soft(bar).html = `<div class="t-acts">${m.nextIdx >= 0 ? `<button type="button" class="t-next" id="tNext">${esc(V().nextBtn)}</button>` : '<span></span>'}<button type="button" class="t-cb${due ? '' : ' none'}" id="tCb">${esc(k.cb(due))}</button>${DB && CAN_EDIT ? `<button type="button" class="t-done" id="tDone">${esc(again ? k.doneAgain : k.done)}</button>` : ''}${rh}</div>`;
+function renderWalkSheet(){
+  const Zs = Z(), k = K(), V0 = V(), m = walkModel();
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.walkH; $('#shTrack').innerHTML = '';
+  if (!m) { $('#shSub').textContent = ''; soft($('#shBody')).html = `<p class="quiet">${esc(Zs.emptyP)}</p>`; return; }
+  const {w, stops, pass} = m, goal = Math.round(numv(w.goal_doors) || stops.length), mins = Math.max(15, Math.round((numv(w.goal_minutes) || numv(w.est_minutes) || goal * 5) / 15) * 15);
+  const z = walkZoneOf(w); $('#shSub').textContent = [z ? zoneShort(z) : strv(w.area), z ? zoneTown(z) : ''].filter(Boolean).join(' · ');
+  const again = reviewDoc && reviewDoc.date === m.date || (weekDoc && weekDoc.walks && weekDoc.walks[m.date]), wk = weekHtml(), upd = w.updated_at ? whenShort(w.updated_at) : '';
+  const facts = [[lang === 'es' ? 'Meta' : 'Goal', `${goal} ${lang === 'es' ? 'puertas' : 'doors'}`], [lang === 'es' ? 'Tiempo' : 'Time', k.hrs(mins)], [lang === 'es' ? 'Casas' : 'Houses', String(stops.length)], [lang === 'es' ? 'Vuelta' : 'Round', `${pass} / 3`]];
+  soft($('#shBody')).html = `<ul class="rows">
+      ${DB && CAN_EDIT ? `<li><button type="button" class="row" data-done="1"><span class="lead">${ic('check2')}</span><span class="t"><b>${esc(again ? Zs.doneAgain : Zs.doneToday)}</b><span>${esc(Z().add.done[1])}</span></span><span class="end">${ic('chev')}</span></button></li>` : ''}
+      <li><button type="button" class="row" id="kPrint" data-print="1"><span class="lead">${ic('print')}</span><span class="t"><b>${esc(Zs.print)}</b><span>${esc(Zs.printS)}</span></span><span class="end">${ic('chev')}</span></button></li></ul>
+    <section class="box"><h3>${esc(NW().about)}</h3>${txl(w.why) ? `<p class="notes">${esc(txl(w.why))}</p>` : ''}${factsHtml(facts.map(([a, b]) => [a, esc(b)]))}
+      ${txl(w.goal_note) ? `<p class="stamp">${esc(txl(w.goal_note))}</p>` : ''}${txl(w.evidence_note) ? `<p class="stamp">${esc(txl(w.evidence_note))}</p>` : ''}${txl(w.rough_note) ? `<p class="stamp">${esc(txl(w.rough_note))}</p>` : ''}
+      ${upd ? `<p class="stamp">${esc(V0.updated(upd, strv(w.updated_by)))}</p>` : ''}</section>
+    <details class="fold"><summary>${esc(wk.head)}</summary><p class="stamp" style="margin-bottom:var(--s3)">${esc(wk.sub)}</p>${wk.body}</details>`;
 }
-$('#tally').addEventListener('click', ev => {
-  const b = ev.target.closest('button'); if (!b) return;
-  if (b.id === 'tCb') { setTab('now'); requestAnimationFrame(() => { const f = $('#dueS'); if (f) f.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: 'start'}); }); }
-  else if (b.id === 'tDone') doneAndReview();
-  else if (b.id === 'tNext') goNext('now');
-});
-function goNext(at, afterI){   // auto-advance: bring the next untapped door into view and put focus on its first button
+function renderRulesSheet(){
+  const m = walkModel(), X = CRX[lang], Zs = Z(); $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.rulesH; $('#shTrack').innerHTML = '';
+  const ri = m ? ruleInfo(m) : {city: SETTINGS.company.city, hours: null, verified: false, warn: false}; $('#shSub').textContent = ri.city;
+  const lines = [];
+  if (ri.warn) lines.push(`<p class="mustl">${ic('clock')}<span><b>${esc(Zs.hoursOut)}.</b> ${esc(X.out)}</span></p>`);
+  lines.push(`<p class="tipl">${ic(ri.hours ? 'sun' : 'info')}<span>${esc(ri.hours ? X.hours(ri.city, clk(ri.hours[0]), clk(ri.hours[1])) + (ri.verified ? '' : X.check) : X.none(ri.city))}</span></p>`);
+  lines.push(`<p class="tipl">${ic('ban')}<span>${esc(X.sign)}</span></p>`);
+  lines.push(`<p class="tipl">${ic('say')}<span>${esc(NW().law)}</span></p>`);
+  soft($('#shBody')).html = `<section class="box">${lines.join('')}</section>`;
+}
+function goNext(at, afterI){   // auto-advance: bring the next door into view and put focus on its first answer
   requestAnimationFrame(() => {
     let tgt = null;
-    if (at === 'list') { const rows = [...document.querySelectorAll('#knock .k-list .door:not(.done)')]; tgt = rows.find(r => +r.dataset.i > (afterI == null ? -1 : afterI)) || rows[0] || null; }
+    if (at === 'list') { const rows = [...document.querySelectorAll('#knock .klist li[data-i]')].filter(r => r.querySelector('[data-kopen]')); tgt = rows.find(r => +r.dataset.i > (afterI == null ? -1 : afterI)) || rows[0] || null; }
     if (!tgt) tgt = $('#kNow');
     if (!tgt) return;
-    const view = at !== 'list' && $('.cbask') ? $('.cbask') : tgt;   // keep the "Come back…" question in view too
-    view.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: at === 'list' ? 'center' : 'start'});
-    const f = tgt.querySelector('.d-btns button:not([disabled])'); if (f) f.focus({preventScroll: true});
-    if (!RM) { tgt.classList.remove('flash'); void tgt.offsetWidth; tgt.classList.add('flash'); }
+    const cbq = at !== 'list' && $('#knock .kpanel[role="group"]');
+    const r = (cbq || tgt).getBoundingClientRect(); if (r.top < 60 || r.bottom > innerHeight - 90) (cbq || tgt).scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: at === 'list' ? 'center' : 'start'});
+    const f = tgt.querySelector('.ans:not([disabled]), [data-kopen]'); if (f) f.focus({preventScroll: true});
+    if (!RM && tgt.id === 'kNow') { tgt.classList.remove('kflash'); void tgt.offsetWidth; tgt.classList.add('kflash'); }
   });
 }
 const focusSoon = sel => requestAnimationFrame(() => { const f = document.querySelector(sel); if (f) f.focus(); });
@@ -1988,31 +2028,35 @@ $('#knock').addEventListener('click', async ev => {
   const at = b.closest('#kNow') ? 'now' : 'list';
   if (b.dataset.r) {
     if (b.dataset.r === 'booked') { bookingPid = b.dataset.pid; bookingAt = at; booking = {day: null, time: null}; dnkAsk = null; renderKnock(); focusSoon('.book button'); return; }
+    if (at === 'list') kOpenPid = null;
     await tapDoor(b.dataset.pid, b.dataset.r, null, at);
   } else if (b.dataset.undo) await undoDoor(b.dataset.undo);
   else if (b.dataset.proof) openSheet('proof:' + b.dataset.proof, b);
-  else if (b.dataset.more) { dnkAsk = {pid: b.dataset.more, at}; bookingPid = null; renderKnock(); focusSoon('.dnkask button'); }
+  else if (b.dataset.more) { dnkAsk = {pid: b.dataset.more, at}; bookingPid = null; renderKnock(); focusSoon('#knock .kpanel button'); }
+  else if (b.dataset.kskip) { kSkip.add(b.dataset.kskip); dnkAsk = null; renderKnock(); goNext('now'); }
+  else if (b.dataset.kopen) { kOpenPid = b.dataset.kopen; dnkAsk = null; bookingPid = null; renderKnock(); focusSoon(`.klist li.open .ans`); }
   else if (b.dataset.dnk === 'go') await markDnk(b.dataset.pid);
   else if (b.dataset.dnk === 'cancel') { dnkAsk = null; renderKnock(); }
   else if (b.dataset.dnkUndo) await undoDnk();
   else if (b.dataset.cb) await comeBack(b.dataset.cb);
-  else if (b.dataset.kview) { kView = b.dataset.kview; try { localStorage.setItem('hmp-app-kview', kView); } catch (e) { /* fine */ } renderKnock(); focusSoon('#kView' + kView[0].toUpperCase() + kView.slice(1)); }
+  else if (b.id === 'kMapBtn') { kBig = !kBig; renderKnock(); focusSoon('#kMapBtn'); }
+  else if (b.id === 'kAllBtn') { kAll = !kAll; kOpenPid = null; renderKnock(); focusSoon('#kAllBtn'); }
   else if (b.id === 'kAsk') openRH(K().emptyQ, true);
-  else if (b.id === 'kPrint') PrintWalk.open(b);
+  else if (b.id === 'kOld') openRH(Z().oldAsk, true);
   else if (b.closest('[data-pick]')) { const k = b.closest('[data-pick]').dataset.pick; booking[k] = b.dataset.v; renderKnock(); focusSoon(`.book [data-pick="${k}"] [data-v="${b.dataset.v}"]`); }
   else if (b.dataset.book === 'cancel') { bookingPid = null; renderKnock(); }
-  else if (b.dataset.book === 'save' && booking.day && booking.time) { const pid = bookingPid; bookingPid = null; await tapDoor(pid, 'booked', {...booking}, bookingAt); }
+  else if (b.dataset.book === 'save' && booking.day && booking.time) { const pid = bookingPid; bookingPid = null; if (at === 'list') kOpenPid = null; await tapDoor(pid, 'booked', {...booking}, bookingAt); }
 });
 // long press (or right-click) on a door: "Don't knock again"
-function openDnk(el){ if (!(DB && CAN_EDIT) || !el) return; longFired = true; dnkAsk = {pid: el.dataset.pid, at: el.id === 'kNow' ? 'now' : 'list'}; bookingPid = null; renderKnock(); focusSoon('.dnkask button'); try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) { /* no buzz: fine */ } }
+function openDnk(el){ if (!(DB && CAN_EDIT) || !el) return; longFired = true; dnkAsk = {pid: el.dataset.pid, at: el.id === 'kNow' ? 'now' : 'list'}; bookingPid = null; renderKnock(); focusSoon('#knock .kpanel button'); try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) { /* no buzz: fine */ } }
 $('#knock').addEventListener('pointerdown', ev => {
   longFired = false; clearTimeout(lpT); if (ev.button > 0) return;
-  const el = ev.target.closest('.door[data-pid], #kNow'); if (!el) return;
+  const el = ev.target.closest('.klist li[data-pid], #kNow'); if (!el) return;
   lpXY = [ev.clientX, ev.clientY]; lpT = setTimeout(() => openDnk(el), 650);
 });
 $('#knock').addEventListener('pointermove', ev => { if (lpXY && Math.hypot(ev.clientX - lpXY[0], ev.clientY - lpXY[1]) > 12) clearTimeout(lpT); });
 for (const t of ['pointerup', 'pointercancel', 'pointerleave']) $('#knock').addEventListener(t, () => clearTimeout(lpT));
-$('#knock').addEventListener('contextmenu', ev => { const el = ev.target.closest('.door[data-pid], #kNow'); if (!el || !(DB && CAN_EDIT)) return; ev.preventDefault(); clearTimeout(lpT); if (!(dnkAsk && dnkAsk.pid === el.dataset.pid)) openDnk(el); longFired = false; });
+$('#knock').addEventListener('contextmenu', ev => { const el = ev.target.closest('.klist li[data-pid], #kNow'); if (!el || !(DB && CAN_EDIT)) return; ev.preventDefault(); clearTimeout(lpT); if (!(dnkAsk && dnkAsk.pid === el.dataset.pid)) openDnk(el); longFired = false; });
 
 /* ---------- today's walk: writes (through the outbox, so a bad signal never loses a tap) ---------- */
 function refused(e){ return e && (e.code === 'invalid_argument' || e.code === 'not_granted' || e.code === 'revoked'); }
@@ -2513,24 +2557,7 @@ function weekNums(t0){   // v24: one number source. This week's stored numbers, 
     out[x] = Math.max(0, stored - today0 + Math.max(today0, live[x])); }
   return out;
 }
-function renderWeek(){
-  const T = L(), t0 = todayStr();
-  // week numbers: bars read as a funnel against this week's doors
-  const wk = isoWeek(t0), wn = weekNums(t0), lw = lastWeekDoc || {};
-  soft($('#tWeekH')).html = `${esc(T.weekH)} · <b>${wn.doors}</b> ${esc(T.stats.doors.toLowerCase())} <small>${esc(T.weekSub(wk.slice(5).replace(/^0/, ''), weekRange(t0)))}</small>`;
-  const est = weekEstimates(leads, wk), estLw = weekEstimates(leads, isoWeek(addDays(t0, -7)));   // v16: estimates = leads, not door taps
-  const cnt = x => (x === 'estimates' ? est.n : wn[x] || 0);
-  const top = Math.max(1, wn.doors || 0, ...STAT_KEYS.map(cnt));
-  const estSub = est.n ? `<p class="wk-sub">${esc(V().wkEst(est.low === est.high ? kUsd(est.low) : `${kUsd(est.low)}–${kUsd(est.high)}`))}${est.using_reference ? ` <span class="mk">· <b>${esc(V().wkMkt)}</b></span>` : ''}</p>` : '';
-  // v18: answer rate from this week's door taps (hidden under 10 taps: too few to mean anything) + honest ranges
-  const ans = weekAnswers(t0), pct = Math.round(ans.rate * 100);
-  const rateRow = ans.n >= 10 ? `<div class="wk-row wk-rate" id="tRate"><span class="wk-l">${esc(V().wkRate)}</span><span class="wk-b" title="${esc(V().wkRateOf(ans.answered, ans.n))}"><span class="wk-norm" style="left:20%;width:20%"></span><i style="width:${pct}%"></i></span><span class="wk-v">${pct}%</span><p class="wk-sub">${esc(V().wkRateOf(ans.answered, ans.n))}</p><p class="wk-note">${esc(V().wkRateNorm)}</p></div>` : '';
-  const inspNote = ans.n >= 25 ? `<p class="wk-note" id="tInspNorm">${esc(V().wkInspNorm)}</p>` : '';
-  soft($('#tWeek')).html = `${streakHtml(t0)}<div class="wk">${STAT_KEYS.map(x => { const v = cnt(x), p = x === 'estimates' ? (lastWeekDoc || estLw.n ? estLw.n : null) : numv(lw[x]);
-    return `<div class="wk-row"><span class="wk-l">${esc(T.stats[x])}${p != null ? `<br><small class="wk-lw">${esc(T.lastWeek)}: ${p}</small>` : ''}</span><span class="wk-b"><i style="width:${(v / top * 100).toFixed(1)}%"></i></span><span class="wk-v">${v}</span>${x === 'estimates' ? estSub : x === 'inspections' ? inspNote : ''}</div>${x === 'conversations' ? rateRow : ''}`; }).join('')}</div>
-    ${!weekDoc && !wn.doors ? sayBox(T.exWeek) : ''}`;
-}
-function renderKnockTab(){ renderKnock(); renderWeek(); }
+function renderKnockTab(){ renderKnock(); }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
 const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
@@ -2710,7 +2737,7 @@ function renderMoney(){
 }
 
 /* ---------- detail sheet (lead or claim) ---------- */
-const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how'];   // v24 sheets that start fresh (no Back to the sheet under them)
+const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how', 'zones', 'due', 'walk'];   // v24 sheets that start fresh (no Back to the sheet under them)
 function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); }
 const FIT_SHEETS = ['plus', 'more', 'drive', 'rules', 'walk', 'dnk'];   // v25: short sheets hug their content; the rest open tall
 function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; $('#sheetWrap').hidden = true; document.body.style.overflow = ''; if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus(); }
@@ -3397,6 +3424,7 @@ function renderSheet(){
   if (!openRef) return;
   const [kind, id] = [openRef.slice(0, openRef.indexOf(':')), openRef.slice(openRef.indexOf(':') + 1)];
   const T = L(), C = T.ct; $('#shClose').setAttribute('aria-label', T.close);
+  $('#shBack').hidden = !sheetBack;   // v25: Back sits in the sheet's header
   if (kind !== 'rh') kcBack();   // v24: the Right Hand chat goes home before anything else draws here
   if (kind === 'rh') { renderRH(); return; }
   if (kind === 'plus') { renderPlus(); return; }
@@ -3408,6 +3436,11 @@ function renderSheet(){
   if (kind === 'rev') { renderReview(); return; }
   if (kind === 'prices') { renderPricesSheet(); return; }
   if (kind === 'how') { renderHowSheet(); return; }
+  if (kind === 'zones') { renderZonesSheet(); return; }   // v25
+  if (kind === 'drive') { renderDriveSheet(id); return; }
+  if (kind === 'due') { renderDueSheet(); return; }
+  if (kind === 'walk') { renderWalkSheet(); return; }
+  if (kind === 'rules') { renderRulesSheet(); return; }
   if (kind === 'proof') { renderProof(id); return; }
   if (kind === 'est') { renderEst(id); return; }
   if (kind === 'ord') { ORD.render(id); return; }   // v22
@@ -3547,6 +3580,7 @@ document.addEventListener('click', ev => {
 $('#shBody').addEventListener('change', ev => { const inp = ev.target.closest('input[type=file][data-slot]'); if (!inp || !openRef || !openRef.startsWith('lead:')) return; const files = inp.files; if (files && files.length) addPhotos(openRef.slice(5), inp.dataset.slot, files); });
 $('#shBody').addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.ph'); if (ph) ph.classList.add('gone'); } }, true);
 $('#shClose').addEventListener('click', closeSheet);
+$('#shBack').addEventListener('click', () => { const r = sheetBack; sheetBack = null; if (r) { openRef = r; $('#sheetWrap').dataset.k = r.slice(0, r.indexOf(':')); $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(r.slice(0, r.indexOf(':')))); renderSheet(); $('#shBody').scrollTop = 0; } });
 $('#scrim').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => {
   if (!openRef) return;
@@ -4483,6 +4517,108 @@ const NWX = {
   }
 };
 const NW = () => NWX[lang];
+/* ================= v25 words (design-system.md §6): short, salesman words, each fact once. ES is written short on purpose. ================= */
+const ZX = {
+  en: {
+    title: {now: 'Now', knock: 'Knock', leads: 'Leads', money: 'Money'},
+    composer: ex => `Tell the Right Hand… “${ex}”`, ex: {now: 'knocked 20, 4 talked', knock: 'knocked 20, 4 talked', leads: 'Rosa, inspection Tuesday 3 PM', money: 'Ann’s check cleared'},
+    talkAria: 'Talk to the Right Hand', moreAria: 'More: boss view, practice, prices, theme', plusAria: 'Add: lead, price, say it', lateAria: n => `${n} late`,
+    // Now
+    best: 'Best zone today', zoneN: n => `Zone #${n}`, storm: d => `Storm ${d}`, oldHouses: 'Old houses', rankOf: (t, i, n) => [t, `#${i} of ${n} hot ${pl(n, 'zone', 'zones')}`].filter(Boolean).join(' · '),
+    tHail: 'hail', tHomes: 'homes', tFrom: w => `from ${w}`, you: 'you', drive: 'Drive', start: 'Start knocking', resume: (d, n) => `Resume · ${d} of ${n}`,
+    youChip: (w, d) => `You: ${w} · ${d}`, heat: 'Hail heat', lower: 'lower', higher: 'higher', allZones: 'All hot zones', mapAria: (n, b, w, d) => `Map: ${n} hot ${pl(n, 'zone', 'zones')}. Best zone: ${b}.${w ? ` You are in ${w}, ${d} away.` : ''}`,
+    checked: t => `Checked ${t}`, noHail: r => `No fresh hail within ${r} mi`, noHailP: 'Storm Watch looks again tomorrow morning. Old houses still need siding and roofs.', oldBtn: 'Knock old houses instead',
+    oldAsk: 'No fresh hail today. Line up an old-house walk for me.',
+    today: 'Today', leadsLink: 'Leads', seeAll: n => `See all ${n}`, lateD: d => `${d} ${pl(d, 'day', 'days')} late`, dueToday: 'Today', noneH: 'Nothing due today', noneP: 'Calls, inspections and checks show up here on their day.',
+    kinds: {inspection: 'Inspection', estimate: 'Estimate visit', adjuster: 'Adjuster', build: 'Build'}, callWho: n => `Call ${n}`, dueH: 'What is due', zonesH: 'Hot zones', knockHere: 'Knock here',
+    driveH: 'Drive there', gmaps: ['Google Maps', 'Directions in Google Maps'], amaps: ['Apple Maps', 'Directions in Apple Maps'],
+    // Knock
+    walkSub: (c, n, mi) => [c, `${n} ${pl(n, 'house', 'houses')}`, mi ? `${mi} mi walk` : ''].filter(Boolean).join(' · '),
+    hoursOk: (a, b) => `Knock hours ${a}–${b}`, hoursOut: 'Outside knock hours · only booked visits', signs: 'Skip “No Soliciting” houses', round: n => `Round ${n}: not-homes from earlier`,
+    stale: d => `Walk from ${d}: ask for a new one`, knocksToday: 'knocks today', talked: 'talked', interested: 'interested', booked: 'booked',
+    nextDoor: (i, n) => `Next door · stop ${i} of ${n}`, toGo: n => `${n} to go`, hailFact: (h, d) => `${h}″ hail${d ? ', ' + d : ''}`, builtFact: y => `Built ${y}`,
+    say: 'What to say', proof: 'Hail proof', skipAria: 'Skip or don’t knock again', ans: {not_home: ['Not home', 'leave a hanger'], no: ['No', 'not today'], interested: ['Interested', 'call back'], booked: ['Booked', 'pick a time']},
+    then: 'Then', all: n => `All ${n}`, back3: 'Next 3', across: 'Across the street', mapOpen: 'Open the big map', mapClose: 'Close the big map', walkMenu: 'Walk menu: print, about this walk, done for today',
+    walkAria: (n, i) => `Walking route: ${n} stops${i ? `, you are at stop ${i}` : ''}`, keyNext: 'next', keyDone: 'done',
+    emptyH: 'No walk yet today', emptyP: 'Pick a hot zone and the app lines up the doors in walking order.', pickZone: 'Pick a hot zone',
+    allDone: 'Every house on this walk is done.', rulesH: 'Knock rules', walkH: 'This walk', doneToday: 'Done for today', doneAgain: 'Update today’s review', print: 'Print today’s walk', printS: 'Paper backup',
+    weekH: 'This week', skipH: 'Skip this house?', res: {not_home: 'Not home', no: 'No', interested: 'Interested', booked: 'Booked', gaveUp: 'Not home 3 times', later: r => `Not home · back in round ${r}`},
+    // Leads
+    leadsNone: 'No leads match this filter.', emptyLeadsH: 'No leads yet', emptyLeadsP: 'Tell the Right Hand about a door, an old house or a referral. It shows up here with its next step.', logLead: 'Add a lead',
+    noNext: 'No next step yet', lateChip: d => `${d} ${pl(d, 'day', 'days')} late`,
+    // Money
+    owed: 'Owed to HMP', onJobs: n => `on ${n} open ${pl(n, 'job', 'jobs')}`, atMort: 'At the mortgage co.', atMortS: 'check needs signing', held: 'Held by insurer', heldS: 'after the build', heldS2: 'not paid yet',
+    hoDed: 'Homeowner deductible', suppOk: 'Supplement approved', cashOwed: 'Cash jobs', cashOwedS: 'homeowners owe', inHand: v => `Checks in hand, not deposited: ${v}`, collected: v => `Collected so far: ${v}`,
+    chase: 'To chase', openJobs: 'Open jobs', paidN: n => `Paid (${n})`, openN: 'Open jobs', stepOf: (s, i, n) => [s, `step ${i} of ${n}`], nextS: s => `next: ${s}`, noNextJob: 'Tell the Right Hand what happens next',
+    days: n => `${n} ${pl(n, 'day', 'days')}`, insurance: 'Insurance', cash: 'Cash', price: 'Price', paidSoFar: 'Paid', stillOwed: 'Owed',
+    emptyEb: 'Money', emptyH: 'No signed jobs yet', emptyP: 'When a homeowner signs, tell the Right Hand. The job, what came in and what is still owed show up here.', logJob: 'Log a signed job',
+    howPaid: 'How an insurance job gets paid', howDays: '45–90 days', youDo: 'You do this', them: 'Homeowner or insurer', signedAsk: 'Signed today: ',
+    path: [['camera', 'Inspect', 'You photograph the damage and show the homeowner.', 1], ['phone', 'Homeowner files', 'They call their own insurer. Their claim, not ours.', 0], ['user', 'Adjuster assigned', 'The insurer sends an adjuster.', 0],
+      ['clip', 'Meet the adjuster', 'You show the damage, photos and measurements.', 1], ['money', 'Scope + first check', 'The insurer pays the first part (ACV).', 0], ['pen', 'Sign + supplements', 'Sign the job. Missed items go in writing.', 1],
+      ['hammer', 'Build', 'Order materials, build, take after photos.', 1], ['check', 'Final check', 'Proof of completion releases the held money.', 0]],
+    // lead + claim sheets
+    call: 'Call', text: 'Text', directions: 'Directions', photos: n => `Photos${n ? ' ' + n : ''}`, addPhone: 'Add phone', stepN: (s, i, n) => [s, `step ${i} of ${n}`], nextStep: s => `next: ${s}`,
+    say2: 'Say', ask: 'Ask', collect: (a, b) => `Collect · ${a} of ${b}`, must: 'By law', send: 'Send', sent: 'Sent', addCal: 'Add to calendar',
+    rPhotos: 'Inspection photos', rPhotosS: (a, b) => `${a} of ${b} · house number, sides, gutters`, rEst: 'Quick estimate', rEstNone: 'None yet', rHome: 'Homeowner view', rHomeS: 'Show the family what you found',
+    rNotes: 'Notes and visits', rNotesS: n => `${n} door ${pl(n, 'visit', 'visits')}`, rNotesNone: 'Details, visits, texts', rClaim: 'The claim', rProof: 'Hail proof', rProofS: (h, d) => `${h}″ hail${d ? ' · ' + d : ''}`,
+    rMoney: 'Money', rMoneyS: (a, b) => `Collected ${a}${b ? ' of ' + b : ''}`, rAdj: 'Adjuster checklist', rAdjS: (a, b) => `${a} of ${b}`, rDetails: 'Claim details', rDetailsS: 'Insurer, adjuster, dates, timeline', rChecklist: 'Money checklist', rChecklistS: 'Where money leaks between the checks',
+    addTime: 'Add a time', noTime: 'No time yet', photosH: 'Inspection photos', notesH: 'Notes and visits', moneyH: 'Money', detailsH: 'Claim details', adjH: 'Adjuster meeting',
+    lateLead: d => `No contact ${d} ${pl(d, 'day', 'days')}`, finished: 'All 8 steps done',
+    // + / More / theme
+    addH: 'Add', add: {say: ['Help me say it', 'English ⇄ Spanish'], lead: ['New lead', 'Referral, call-in, old house'], price: ['Quick price', 'A range to show or text'], door: ['Log a door', 'Next house on the walk'],
+      claim: ['Claim update', 'Insurer, adjuster, checks'], done: ['Done for today', 'The 5-question review']},
+    theme: 'Theme', themes: {auto: 'Auto', light: 'Light', dark: 'Dark'},
+    // homeowner view
+    hoBtn: 'Show homeowner'
+  },
+  es: {
+    title: {now: 'Ahora', knock: 'Tocar', leads: 'Prospectos', money: 'Dinero'},
+    composer: ex => `Dile a la Mano Derecha… “${ex}”`, ex: {now: 'toqué 20, platiqué con 4', knock: 'toqué 20, platiqué con 4', leads: 'Rosa, inspección el martes 3 PM', money: 'ya pasó el cheque de Ann'},
+    talkAria: 'Hablar con la Mano Derecha', moreAria: 'Más: vista del jefe, práctica, precios, tema', plusAria: 'Agregar: prospecto, precio, cómo se dice', lateAria: n => `${n} atrasados`,
+    best: 'Mejor zona hoy', zoneN: n => `Zona #${n}`, storm: d => `Tormenta ${d}`, oldHouses: 'Casas viejas', rankOf: (t, i, n) => [t, `#${i} de ${n} ${pl(n, 'zona', 'zonas')}`].filter(Boolean).join(' · '),
+    tHail: 'granizo', tHomes: 'casas', tFrom: w => `de ${w}`, you: 'ti', drive: 'Manejar', start: 'Empezar a tocar', resume: (d, n) => `Seguir · ${d} de ${n}`,
+    youChip: (w, d) => `Tú: ${w} · ${d}`, heat: 'Granizo', lower: 'menos', higher: 'más', allZones: 'Todas las zonas', mapAria: (n, b, w, d) => `Mapa: ${n} ${pl(n, 'zona caliente', 'zonas calientes')}. Mejor zona: ${b}.${w ? ` Estás en ${w}, a ${d}.` : ''}`,
+    checked: t => `Revisado ${t}`, noHail: r => `Sin granizo nuevo a ${r} mi`, noHailP: 'Storm Watch vuelve a revisar mañana temprano. Las casas viejas igual necesitan siding y techo.', oldBtn: 'Tocar casas viejas',
+    oldAsk: 'Hoy no hay granizo nuevo. Ármame una ruta de casas viejas.',
+    today: 'Hoy', leadsLink: 'Prospectos', seeAll: n => `Ver las ${n}`, lateD: d => `${d} ${pl(d, 'día', 'días')} tarde`, dueToday: 'Hoy', noneH: 'Nada para hoy', noneP: 'Llamadas, inspecciones y cheques salen aquí el día que tocan.',
+    kinds: {inspection: 'Inspección', estimate: 'Presupuesto', adjuster: 'Ajustador', build: 'Obra'}, callWho: n => `Llamar a ${n}`, dueH: 'Pendientes', zonesH: 'Zonas calientes', knockHere: 'Tocar aquí',
+    driveH: 'Manejar ahí', gmaps: ['Google Maps', 'Cómo llegar en Google Maps'], amaps: ['Apple Maps', 'Cómo llegar en Apple Maps'],
+    walkSub: (c, n, mi) => [c, `${n} ${pl(n, 'casa', 'casas')}`, mi ? `${mi} mi a pie` : ''].filter(Boolean).join(' · '),
+    hoursOk: (a, b) => `Horario ${a}–${b}`, hoursOut: 'Fuera de horario · solo citas', signs: 'Salta casas con “No Soliciting”', round: n => `Vuelta ${n}: los que no estaban`,
+    stale: d => `Ruta del ${d}: pide una nueva`, knocksToday: 'toques hoy', talked: 'platicó', interested: 'interés', booked: 'citas',
+    nextDoor: (i, n) => `Siguiente · parada ${i} de ${n}`, toGo: n => `faltan ${n}`, hailFact: (h, d) => `Granizo ${h}″${d ? ', ' + d : ''}`, builtFact: y => `Construida en ${y}`,
+    say: 'Qué decir', proof: 'Prueba', skipAria: 'Saltar o no volver a tocar', ans: {not_home: ['No está', 'deja volante'], no: ['No', 'hoy no'], interested: ['Interesado', 'llamar'], booked: ['Agendado', 'elige hora']},
+    then: 'Después', all: n => `Las ${n}`, back3: 'Siguientes 3', across: 'Enfrente', mapOpen: 'Abrir el mapa grande', mapClose: 'Cerrar el mapa grande', walkMenu: 'Menú de la ruta: imprimir, sobre la ruta, terminé por hoy',
+    walkAria: (n, i) => `Ruta a pie: ${n} paradas${i ? `, vas en la parada ${i}` : ''}`, keyNext: 'sigue', keyDone: 'listas',
+    emptyH: 'Todavía no hay ruta hoy', emptyP: 'Escoge una zona y la app ordena las puertas para caminar.', pickZone: 'Escoger zona',
+    allDone: 'Ya terminaste todas las casas de esta ruta.', rulesH: 'Reglas para tocar', walkH: 'Esta ruta', doneToday: 'Terminé por hoy', doneAgain: 'Actualizar el día', print: 'Imprimir la ruta de hoy', printS: 'Respaldo en papel',
+    weekH: 'Esta semana', skipH: '¿Saltar esta casa?', res: {not_home: 'No está', no: 'No', interested: 'Interesado', booked: 'Agendado', gaveUp: 'No estuvo 3 veces', later: r => `No está · vuelta ${r}`},
+    leadsNone: 'Ningún prospecto con este filtro.', emptyLeadsH: 'Todavía no hay prospectos', emptyLeadsP: 'Dile a la Mano Derecha de una puerta, una casa vieja o un referido. Sale aquí con su siguiente paso.', logLead: 'Agregar prospecto',
+    noNext: 'Sin siguiente paso', lateChip: d => `${d} ${pl(d, 'día', 'días')} tarde`,
+    owed: 'Le deben a HMP', onJobs: n => `en ${n} ${pl(n, 'trabajo abierto', 'trabajos abiertos')}`, atMort: 'Con el banco hipotecario', atMortS: 'falta firmar el cheque', held: 'Lo retiene el seguro', heldS: 'después de la obra', heldS2: 'sin pagar todavía',
+    hoDed: 'Deducible del dueño', suppOk: 'Suplemento aprobado', cashOwed: 'Trabajos de contado', cashOwedS: 'deben los dueños', inHand: v => `Cheques en mano, sin depositar: ${v}`, collected: v => `Cobrado hasta hoy: ${v}`,
+    chase: 'Para cobrar', openJobs: 'Trabajos abiertos', paidN: n => `Pagados (${n})`, openN: 'Trabajos abiertos', stepOf: (s, i, n) => [s, `paso ${i} de ${n}`], nextS: s => `sigue: ${s}`, noNextJob: 'Dile a la Mano Derecha qué sigue',
+    days: n => `${n} ${pl(n, 'día', 'días')}`, insurance: 'Seguro', cash: 'Contado', price: 'Precio', paidSoFar: 'Pagado', stillOwed: 'Deben',
+    emptyEb: 'Dinero', emptyH: 'Todavía no hay trabajos firmados', emptyP: 'Cuando un dueño firme, díselo a la Mano Derecha. El trabajo, lo cobrado y lo que falta salen aquí.', logJob: 'Anotar un trabajo firmado',
+    howPaid: 'Cómo se cobra un trabajo de seguro', howDays: '45–90 días', youDo: 'Lo haces tú', them: 'El dueño o el seguro', signedAsk: 'Firmado hoy: ',
+    path: [['camera', 'Inspección', 'Tomas fotos del daño y se las enseñas al dueño.', 1], ['phone', 'El dueño presenta', 'Él llama a su aseguradora. El reclamo es suyo, no nuestro.', 0], ['user', 'Llega el ajustador', 'La aseguradora manda un ajustador.', 0],
+      ['clip', 'Cita con el ajustador', 'Enseñas el daño, las fotos y las medidas.', 1], ['money', 'Alcance + primer cheque', 'El seguro paga la primera parte (ACV).', 0], ['pen', 'Firma + suplementos', 'Se firma el trabajo. Lo que faltó va por escrito.', 1],
+      ['hammer', 'Obra', 'Pides material, construyes, tomas fotos de después.', 1], ['check', 'Cheque final', 'La prueba de terminado libera el dinero retenido.', 0]],
+    call: 'Llamar', text: 'Texto', directions: 'Cómo llegar', photos: n => `Fotos${n ? ' ' + n : ''}`, addPhone: 'Agregar tel.', stepN: (s, i, n) => [s, `paso ${i} de ${n}`], nextStep: s => `sigue: ${s}`,
+    say2: 'Di', ask: 'Pregunta', collect: (a, b) => `Junta · ${a} de ${b}`, must: 'Por ley', send: 'Mandar', sent: 'Mandado', addCal: 'Agregar al calendario',
+    rPhotos: 'Fotos de la inspección', rPhotosS: (a, b) => `${a} de ${b} · número, lados, canaletas`, rEst: 'Estimado rápido', rEstNone: 'Todavía no', rHome: 'Vista del cliente', rHomeS: 'Enséñale a la familia lo que encontraste',
+    rNotes: 'Notas y visitas', rNotesS: n => `${n} ${pl(n, 'visita', 'visitas')}`, rNotesNone: 'Datos, visitas, textos', rClaim: 'El reclamo', rProof: 'Prueba de granizo', rProofS: (h, d) => `Granizo ${h}″${d ? ' · ' + d : ''}`,
+    rMoney: 'Dinero', rMoneyS: (a, b) => `Cobrado ${a}${b ? ' de ' + b : ''}`, rAdj: 'Lista para el ajustador', rAdjS: (a, b) => `${a} de ${b}`, rDetails: 'Datos del reclamo', rDetailsS: 'Aseguradora, ajustador, fechas', rChecklist: 'Lista del dinero', rChecklistS: 'Dónde se pierde dinero entre cheques',
+    addTime: 'Poner hora', noTime: 'Sin hora', photosH: 'Fotos de la inspección', notesH: 'Notas y visitas', moneyH: 'Dinero', detailsH: 'Datos del reclamo', adjH: 'Cita con el ajustador',
+    lateLead: d => `Sin contacto ${d} ${pl(d, 'día', 'días')}`, finished: 'Los 8 pasos listos',
+    addH: 'Agregar', add: {say: ['¿Cómo se dice?', 'Inglés ⇄ español'], lead: ['Nuevo prospecto', 'Referido, llamada, casa vieja'], price: ['Precio rápido', 'Rango para mostrar o mandar'], door: ['Anotar puerta', 'La siguiente casa de la ruta'],
+      claim: ['Reclamo', 'Aseguradora, ajustador, cheques'], done: ['Terminé por hoy', 'Las 5 preguntas del día']},
+    theme: 'Tema', themes: {auto: 'Auto', light: 'Claro', dark: 'Oscuro'},
+    hoBtn: 'Mostrar al cliente'
+  }
+};
+const Z = () => ZX[lang];
+const ic = (n, cls) => (window.HMPIcons ? HMPIcons.svg(n, cls) : '');   // v25 icon sprite (v25/icons.js)
 const otherLang = () => (lang === 'es' ? 'en' : 'es');
 function withLang(l, fn){ const keep = lang; lang = l; try { return fn(); } finally { lang = keep; } }   // fixed text in the other language, for the ES ⇄ flip
 // a script line (or list) in both languages; ES ⇄ flips only this block. The other language is the app's own fixed text, never a live translation.
@@ -4543,7 +4679,8 @@ function zonesAll(){
     const poly = Array.isArray(z.polygon) ? z.polygon.map(p => (Array.isArray(p) ? {lat: numv(p[1]), lon: numv(p[0])} : ptOf(p))).filter(okPt) : [];   // hailhunter/zones.py: [[lon, lat], ...]
     const id = pidSafe(strv(z.id) || slugOf(z.name) || 'z' + i);
     return {id, name: strv(z.name) || id, lat: c.lat, lon: c.lon, polygon: poly.length >= 3 ? poly : null, score: numv(z.score) || 0, heat: clamp(numv(z.heat) != null ? numv(z.heat) : 0.5, 0, 1),
-            hail: numv(z.hail_in), day: dayOf(z.storm_day), homes: numv(z.homes), why: z.why && typeof z.why === 'object' ? z.why : null, walkId: pidSafe(strv(z.walk_id) || id), kind: z.kind === 'everyday' ? 'everyday' : 'storm', src: 'zones'};
+            hail: numv(z.hail_in), day: dayOf(z.storm_day), homes: numv(z.homes), why: z.why && typeof z.why === 'object' ? z.why : null, walkId: pidSafe(strv(z.walk_id) || id), kind: z.kind === 'everyday' ? 'everyday' : 'storm', src: 'zones',
+            wpoly: Array.isArray(z.walk_polygon) ? z.walk_polygon : null, wc: okPt(ptOf(z.walk_center)) ? ptOf(z.walk_center) : null, walkHomes: numv(z.walk_homes)};   // v25: the walk's own outline + middle (engine, round of 2026-09-27)
   }).filter(Boolean);
   if (!out.length && walkFresh(todayWalkDoc)) { const z = walkZone(todayWalkDoc, 'today'); if (z) out = [z]; }
   const me = here();
@@ -4573,121 +4710,106 @@ const heatCls = h => 'h' + clamp(Math.ceil(h * 5), 1, 5);
 const driveUrl = z => `https://www.google.com/maps/dir/?api=1&destination=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&travelmode=driving`;
 const appleUrl = z => `https://maps.apple.com/?daddr=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&dirflg=d`;
 
-/* ---------- the zones map: our own SVG, always; a Leaflet street map on top only when its tiles really load ---------- */
-function zonesSvg(zs, sel){
-  const W = NW(), me = here(), w = zoneWalk(sel) || (sel && sel.walkId === 'today' ? todayWalkDoc : null);
-  const stops = w ? (w.stops || []).filter(stopOk).map(s => ({lat: numv(s.lat), lon: numv(s.lon), a: splitAddr(s.address)})).filter(okPt) : [];
-  const near = zs.filter(z => !z.far);
-  const pts = [...(near.length ? near : zs).flatMap(z => [z, ...(z.polygon || [])]), ...stops];
-  if (me.real && near.length && near.every(z => z.mi < 40)) pts.push(me);
-  if (!pts.length) return '';
-  const lat0 = pts.reduce((a, p) => a + p.lat, 0) / pts.length, kx = Math.cos(lat0 * Math.PI / 180);
-  const xs = pts.map(p => p.lon * kx), ys = pts.map(p => -p.lat);
-  let minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
-  const pad = Math.max(maxx - minx, maxy - miny, 0.004) * 0.18; minx -= pad; maxx += pad; miny -= pad; maxy += pad;
-  const VW = 600, VH = 340, sc = Math.min(VW / (maxx - minx), VH / (maxy - miny));
-  const ox = (VW - (maxx - minx) * sc) / 2, oy = (VH - (maxy - miny) * sc) / 2;
-  const X = p => (ox + (p.lon * kx - minx) * sc).toFixed(1), Y = p => (oy + (-p.lat - miny) * sc).toFixed(1);
-  // streets: the walk's houses joined per street, in walking order
-  const streets = {}; for (const s of stops) (streets[s.a.street.toLowerCase()] = streets[s.a.street.toLowerCase()] || []).push(s);
-  const lines = Object.values(streets).filter(v => v.length > 1).map(v => `<polyline class="zst" points="${v.map(p => X(p) + ',' + Y(p)).join(' ')}"/>`).join('');
-  const dots = stops.map(p => `<circle class="zhs" cx="${X(p)}" cy="${Y(p)}" r="3"/>`).join('');
-  const zr = z => { if (z.src === 'walk' && stops.length) { const cx = +X(z), cy = +Y(z); return Math.max(26, ...stops.map(p => Math.hypot(+X(p) - cx, +Y(p) - cy) + 14)); }
-    return clamp(12 + Math.sqrt(z.homes || 25) * 2.2, 16, 46); };
-  const shapes = zs.map((z, i) => {
-    const on = sel && z.id === sel.id, cls = `zone ${heatCls(z.heat)}${on ? ' on' : ''}`, lbl = `${z.name}${zoneLine(z) ? ' · ' + zoneLine(z) : ''}`;
-    const shape = z.polygon ? `<polygon points="${z.polygon.map(p => X(p) + ',' + Y(p)).join(' ')}"/>` : `<circle cx="${X(z)}" cy="${Y(z)}" r="${zr(z).toFixed(1)}"/>`;
-    const lx = clamp(+X(z), 90, VW - 90), ly = clamp(+Y(z) - (z.polygon ? 0 : zr(z)) - 8, 16, VH - 8);
-    return `<g class="${cls}" data-zone="${esc(z.id)}" role="button" tabindex="0" aria-label="${esc(lbl)}">${shape}<text class="zlbl" x="${lx}" y="${ly.toFixed(1)}" text-anchor="middle">${esc(i < 4 || on ? (z.name.length > 26 ? z.name.slice(0, 25) + '…' : z.name) : '')}</text></g>`;
-  }).join('');
-  const you = me.real ? `<g class="zyou"><circle cx="${X(me)}" cy="${Y(me)}" r="7"/><text x="${(+X(me) + 11).toFixed(1)}" y="${(+Y(me) + 4).toFixed(1)}">${esc(W.you)}</text></g>` : '';
-  return `<svg class="zsvg" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="${esc(W.mapAria(zs.length))}"><rect class="zbg" width="${VW}" height="${VH}"/>${lines}${shapes}${dots}${you}
-    <g transform="translate(${VW - 24},24)"><path class="znorth" d="M0 -11 L6 6 L0 2 L-6 6 Z"/></g></svg>`;
+/* ---------- v25 Now: the vector hot-zone map (v25/walkmap.js: streets, lots and names from the engine's basemap; a plain
+   block ground when a walk has none), the best zone as an "offer card" over the map's bottom edge, then Today. ---------- */
+const zoneTown = z => { const n = strv(z && z.name), i = n.indexOf(':'); return i > 0 ? n.slice(0, i).trim() : ''; };
+const zoneShort = z => { const n = strv(z && z.name), i = n.indexOf(':'); return i > 0 ? n.slice(i + 1).trim() : n; };
+const miTxt = mi => (mi == null ? '' : `${mi < 10 ? mi.toFixed(1) : Math.round(mi)} mi`);
+const hailTxt = h => `${(Math.round(h * 10) / 10).toFixed(1)}″`;   // one decimal on screen (1.64 -> 1.6″)
+function whyNew(z){   // the zone's why without its hail clause: the tiles above already say the hail (each fact once)
+  const w = z && z.why ? txl(z.why) : ''; if (!w) return '';
+  const parts = w.replace(/\.\s*$/, '').split(/,\s+/).filter(p => !/hail|granizo|\d(\.\d+)?[-\s]?(inch|pulg)/i.test(p));
+  const t = parts.join(', ').replace(/^(and|y)\s+/i, '').trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
 }
-/* Leaflet (cdnjs) + street tiles: the artifact frame usually blocks outside tile images, so the SVG stays unless a tile really
-   loads. A miss is remembered for 3 days on this phone so it doesn't download the library on every open. */
-const LF = {state: 'idle', map: null, layer: null, fitFor: ''};
-function lfBlocked(){ try { const t = +(localStorage.getItem('hmp-app-tiles-off') || 0); return t && Date.now() - t < 3 * 864e5; } catch (e) { return false; } }
-function lfOff(){ LF.state = 'off'; try { localStorage.setItem('hmp-app-tiles-off', String(Date.now())); } catch (e) { /* fine */ }
-  if (LF.map) { try { LF.map.remove(); } catch (e) { /* gone */ } LF.map = null; } const d = document.getElementById('zLeaf'); if (d) d.remove(); const m = $('#zMap'); if (m) m.classList.remove('leaf'); }
-function tryLeaflet(){
-  if (LF.state !== 'idle' || lfBlocked() || !$('#zMap')) return;
-  LF.state = 'loading';
-  const give = setTimeout(() => { if (LF.state === 'loading' || LF.state === 'tiles') lfOff(); }, 9000);
-  const start = () => {
-    if (LF.state !== 'loading' || !window.L) { clearTimeout(give); if (LF.state === 'loading') lfOff(); return; }
-    if (!document.getElementById('lfCssOn')) {   // T169: Leaflet's stylesheet is its own file now, fetched only when the library loaded
-      const ln = document.createElement('link'); ln.id = 'lfCssOn'; ln.rel = 'stylesheet'; ln.href = 'vendor/leaflet-1.9.4.css';
-      ln.onload = start; ln.onerror = () => { clearTimeout(give); lfOff(); }; document.head.append(ln); return;
-    }
-    const host = $('#zMap'); let div = document.getElementById('zLeaf'); if (!div) { div = document.createElement('div'); div.id = 'zLeaf'; div.className = 'zleaf'; host.append(div); }
-    try {
-      LF.map = window.L.map(div, {zoomControl: true, attributionControl: true, scrollWheelZoom: false});
-      LF.state = 'tiles';
-      const tl = window.L.tileLayer(SETTINGS.maps.tiles, {subdomains: 'abcd', maxZoom: 19, attribution: SETTINGS.maps.attribution});
-      let errs = 0;
-      tl.on('tileload', () => { if (LF.state !== 'tiles') return; clearTimeout(give); LF.state = 'on'; host.classList.add('leaf'); drawLeaflet(true); });
-      tl.on('tileerror', () => { if (++errs >= 3 && LF.state === 'tiles') { clearTimeout(give); lfOff(); } });
-      tl.addTo(LF.map); LF.layer = window.L.layerGroup().addTo(LF.map);
-      const zs = zonesAll(); const z = zs[0]; LF.map.setView(z ? [z.lat, z.lon] : [SETTINGS.home.lat, SETTINGS.home.lon], 13);
-    } catch (e) { clearTimeout(give); lfOff(); }
-  };
-  if (window.L) { start(); return; }
-  const sc = document.createElement('script'); sc.src = SETTINGS.maps.leaflet; sc.async = true; sc.onload = start; sc.onerror = () => { clearTimeout(give); lfOff(); };
-  document.head.append(sc);
+function zoneMapData(zs){   // the renderer's shape: engine-style zones ([lon, lat] rings) + the walk doc (with its basemap) per zone
+  const walks = {};
+  const zones = zs.map(z => { const w = z.walkId === 'today' ? todayWalkDoc : (walksById[z.walkId] || walksById[z.id]); if (w) walks[z.id] = w;
+    return {id: z.id, center: {lat: z.lat, lon: z.lon}, polygon: z.polygon ? z.polygon.map(p => [p.lon, p.lat]) : null, walk_polygon: z.wpoly, heat: z.heat, storm_day: z.day}; });
+  return {zones: {zones}, walks};
 }
-function cssVar(n, f){ const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim(); return v || f; }
-function drawLeaflet(fit){
-  if (LF.state !== 'on' || !LF.map || !window.L) return;
-  const zs = zonesAll(), sel = zs.find(z => z.id === zoneSel) || zs[0], Lf = window.L; LF.layer.clearLayers();
-  const b = [];
-  for (const z of zs) {
-    const col = cssVar('--heat-' + heatCls(z.heat).slice(1), '#f5883a'), on = sel && z.id === sel.id;
-    const style = {color: on ? cssVar('--ink', '#fff') : col, weight: on ? 3 : 2, fillColor: col, fillOpacity: 0.35};
-    const shp = z.polygon ? Lf.polygon(z.polygon.map(p => [p.lat, p.lon]), style) : Lf.circle([z.lat, z.lon], Object.assign({radius: clamp(Math.sqrt(z.homes || 25) * 45, 150, 900)}, style));
-    shp.bindTooltip(`${esc(z.name)}${zoneLine(z) ? '<br>' + esc(zoneLine(z)) : ''}`, {permanent: zs.length <= 4 || on, direction: 'top', className: 'zlt'});
-    shp.on('click', () => selectZone(z.id)); shp.addTo(LF.layer); b.push([z.lat, z.lon]);
-  }
-  const me = here(); if (me.real) { Lf.circleMarker([me.lat, me.lon], {radius: 7, color: cssVar('--map-you', '#7fb2ff'), fillOpacity: 1}).addTo(LF.layer); }
-  const key = zs.map(z => z.id).join(',');
-  if ((fit || LF.fitFor !== key) && b.length) { LF.fitFor = key; if (b.length === 1) LF.map.setView(b[0], 15); else LF.map.fitBounds(b, {padding: [30, 30], maxZoom: 15}); }
-}
-
-/* ---------- Now: the map, "Start here", the one next thing, the Due list ---------- */
+let zmapKey = '';
 function renderZones(){
-  const W = NW(), zs = zonesAll(), me = here(), box = $('#zMap');
-  const sel = zs.find(z => z.id === zoneSel) || null, best = zs[0] || null, show = sel || best;
-  soft($('#zH')).html = esc(W.zonesH);
-  if (!zs.length) {
-    box.hidden = true; $('#zMore').hidden = true;
-    soft($('#zStart')).html = `<div class="zstart none"><div class="k-eb">${esc(W.zonesH)}</div><h2 class="zname">${esc(W.noneH)}</h2><p class="a-quiet">${esc(W.noneP)}</p>${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" id="zAsk">${esc(W.askWhere)}</button>` : ''}</div>`;
+  const Zs = Z(), zs = zonesAll(), me = here(), box = $('#zMap'), card = $('#zStart');
+  const loading = !zs.length && appState === 'wait' && !zonesDoc && !todayWalkDoc;
+  if (loading) {   // skeleton in the real shapes (map block, card, rows), never a spinner
+    zmapKey = ''; soft(box).html = '<div class="sk skmap" aria-hidden="true"></div>';
+    soft(card).html = `<div class="card skcard" aria-busy="true" aria-label="${esc(L().appWait)}"><div class="eyes"><span class="sk skl" style="width:110px;height:22px"></span><span class="sk skl" style="width:80px;height:22px"></span></div>
+      <span class="sk skl" style="width:78%;height:20px"></span><span class="sk skl" style="width:40%"></span><span class="sk" style="height:58px;border-radius:12px"></span>
+      <div class="zacts"><span class="sk" style="width:96px;height:48px;border-radius:12px"></span><span class="sk" style="height:48px;border-radius:12px"></span></div></div>`;
     return;
   }
-  box.hidden = false;
-  const svg = zonesSvg(zs, show);
-  const town = strv(show.name).split(':')[0].trim(), far = show.mi != null ? W.mi(show.mi < 10 ? show.mi.toFixed(1) : Math.round(show.mi)) : '';   // v24.1: the zone's town + distance, not "Near Fremont"
-  const cap = `<div class="zcap"><span>${esc(town && far ? W.capAt(town, far, me.real ? W.fromYou : SETTINGS.home.label) : me.real ? W.nearYou : W.nearHome(SETTINGS.home.label))}</span>${LF.state === 'on' ? '' : `<span>${esc(W.simple)}</span>`}</div>`;
-  let sv = box.querySelector('.zsvgw'); if (!sv) { sv = el('div', 'zsvgw'); box.prepend(sv); }
-  soft(sv).html = svg + cap;
-  if (LF.state === 'on') drawLeaflet(false); else if (LF.state === 'idle') setTimeout(tryLeaflet, 50);
-  const active = walk && show && zoneWalk(show) === walk, km = active ? walkModel() : null;
-  const why = show.why ? txl(show.why) : '';
-  soft($('#zStart')).html = `<div class="zstart ${heatCls(show.heat)}" data-zone="${esc(show.id)}"><div class="k-eb">${esc(active ? W.here : W.start)}${show.mi != null ? ' · ' + esc(W.mi(show.mi < 10 ? show.mi.toFixed(1) : Math.round(show.mi))) : ''}</div>
-    <h2 class="zname">${esc(show.name)}</h2>${zoneLine(show) ? `<p class="zline">${esc(zoneLine(show))}${show.day ? ' · ' + esc(fmtDay(show.day)) : ''}</p>` : ''}${why ? `<p class="zwhy">${esc(why)}</p>` : ''}
-    <div class="zacts"><a class="btn ghost" href="${esc(driveUrl(show))}" target="_blank" rel="noopener" id="zDrive">${esc(W.drive)}</a><a class="linkbtn zapple" href="${esc(appleUrl(show))}" target="_blank" rel="noopener">${esc(W.apple)}</a>
-    <button type="button" class="btn go" id="zGo" data-zgo="${esc(show.id)}">${esc(km && km.tally.doors ? W.keepBtn(km.tally.doors, km.stops.length) : W.knockBtn)}</button></div></div>`;
-  const rest = zs.filter(z => z !== show);
-  $('#zMore').hidden = !rest.length;
-  if (rest.length) { soft($('#zMoreS')).html = esc(W.other(rest.length));
-    soft($('#zList')).html = rest.slice(0, 12).map(z => `<li><button type="button" class="zrow ${heatCls(z.heat)}" data-zone="${esc(z.id)}"><i></i><span><b>${esc(z.name)}</b><small>${esc([zoneLine(z), z.mi != null ? W.mi(z.mi < 10 ? z.mi.toFixed(1) : Math.round(z.mi)) : ''].filter(Boolean).join(' · '))}</small></span><em>${esc(W.pick)}</em></button></li>`).join(''); }
+  if (!zs.length) {   // empty: no fresh hail. Say when Storm Watch looked, and offer the everyday walk
+    zmapKey = '';
+    soft(box).html = `<div class="zempty-map" aria-hidden="true"><svg viewBox="0 0 390 220" preserveAspectRatio="xMidYMid slice"><defs><pattern id="zeBlocks" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4"><rect width="30" height="24" fill="var(--map-street)"/><rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/></pattern></defs>
+      <rect width="390" height="220" fill="url(#zeBlocks)"/><g fill="none"><path d="M-5 58 H395M-5 170 H395M152 -5 V230" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 58 H395M-5 170 H395M152 -5 V230" stroke="var(--map-major)" stroke-width="6.5"/></g>
+      <circle cx="152" cy="170" r="16" fill="var(--you)" opacity=".16"/><circle cx="152" cy="170" r="7" fill="var(--you)" stroke="var(--card)" stroke-width="3"/></svg></div>`;
+    const asOf = zonesDoc && (strv(zonesDoc.updated_at) || strv(zonesDoc.as_of)), d = asOf ? new Date(asOf.length === 10 ? asOf + 'T12:00:00' : asOf) : null;
+    const when = d && !isNaN(d) ? (ymd(d) === todayStr() ? (lang === 'es' ? 'hoy' : 'today') + (asOf.length > 10 ? ' ' + fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d) : '') : fmtDay(ymd(d), true)) : '';
+    soft(card).html = `<section class="card zone" aria-label="${esc(Zs.noHail(SETTINGS.radiusMi))}">${when ? `<div class="eyes"><span class="chip ok">${ic('check')}${esc(Zs.checked(when))}</span></div>` : ''}
+      <div><h2>${esc(Zs.noHail(SETTINGS.radiusMi))}</h2><p class="where big">${esc(Zs.noHailP)}</p></div>
+      <button type="button" class="btn pri block" id="zOld">${ic('home')}<span>${esc(Zs.oldBtn)}</span></button></section>`;
+    return;
+  }
+  const sel = zs.find(z => z.id === zoneSel) || null, best = zs[0], show = sel || best, rank = zs.indexOf(show) + 1;
+  const w = zoneWalk(show) || (show.walkId === 'today' ? todayWalkDoc : null);
+  const active = walk && w === walk, km = active ? walkModel() : null, far = me.real ? Zs.you : SETTINGS.home.label;
+  // the map (drawn again only when the zones, the pick or the size change: redraws from live data leave it alone)
+  const W0 = Math.round(box.getBoundingClientRect().width) || Math.min(innerWidth, 600), H0 = 292;
+  const key = [dataVer, show.id, W0, lang].join('|');
+  if (key !== zmapKey || !box.querySelector('svg.m')) {
+    zmapKey = key;
+    const youFar = show.mi != null && show.mi > 3;
+    box.innerHTML = `<div class="zmapw" role="img" aria-label="${esc(Zs.mapAria(zs.length, show.name, youFar ? (me.real ? '' : SETTINGS.home.label) : '', miTxt(show.mi)))}"><svg class="m" id="zSvg"></svg>
+      <div class="zonepin" id="zPin" hidden><b>${rank}</b><span>${esc(zoneShort(show))}${show.hail != null ? ' · ' + esc(hailTxt(show.hail)) : ''}</span></div>
+      <div class="mlegend"><span class="label">${esc(Zs.heat)}</span><span class="hbar"></span><span class="ends"><span>${esc(Zs.lower)}</span><span>${esc(Zs.higher)}</span></span></div>
+      ${youFar ? `<button type="button" class="edge hit" data-open="drive:${esc(show.id)}">${ic('car', 'i-sm')}<span>${esc(Zs.youChip(me.real ? (lang === 'es' ? 'aquí' : 'here') : SETTINGS.home.label, miTxt(show.mi)))}</span>${ic('chev', 'i-sm')}</button>` : ''}
+      <div class="mctl"><button type="button" data-open="zones:" aria-label="${esc(Zs.allZones)}">${ic('list')}</button></div>
+      <div class="mscale" id="zScale" hidden><span>500 ft</span><i></i></div></div>`;
+    const svg = $('#zSvg');
+    try {
+      const data = zoneMapData(zs), c = show.wc || {lat: show.lat, lon: show.lon};
+      const P = HMPMap.renderZoneMap(svg, data, {width: W0, height: H0, top: show.id, center: {lat: c.lat - .0009, lon: c.lon + .0006}, pad: 8, near: 3500});
+      if (P) {
+        const [x, y] = P.xy(c.lon, c.lat), pin = $('#zPin');
+        if (x > 30 && x < W0 - 30 && y > 40 && y < H0 - 56) { pin.style.left = x.toFixed(0) + 'px'; pin.style.top = (y - 6).toFixed(0) + 'px'; pin.hidden = false; }
+        const px = 152.4 * P.pxPerMeter; if (px > 24 && px < 160) { const sc = $('#zScale'); sc.querySelector('i').style.width = px.toFixed(0) + 'px'; sc.hidden = false; }
+      }
+    } catch (e) { /* a broken zone shape: the card below still says where to go */ }
+  }
+  const tiles = [];
+  if (show.hail != null) tiles.push([hailTxt(show.hail), Zs.tHail]);
+  if (show.homes) tiles.push([String(Math.round(show.homes)), Zs.tHomes]);
+  if (show.mi != null) tiles.push([`${show.mi < 10 ? show.mi.toFixed(1) : Math.round(show.mi)}<small> mi</small>`, Zs.tFrom(far), true]);
+  const why = whyNew(show), doors = km ? km.tally.doors : 0;
+  soft(card).html = `<section class="card zone" aria-label="${esc(Zs.best)}" data-zone-card="${esc(show.id)}">
+    <div class="eyes"><span class="chip hmp">${ic(show.kind === 'everyday' ? 'home' : 'hail')}${esc(rank === 1 ? Zs.best : Zs.zoneN(rank))}</span>${show.kind === 'everyday' ? `<span class="chip">${esc(Zs.oldHouses)}</span>` : show.day ? `<span class="chip">${esc(Zs.storm(fmtDay(show.day)))}</span>` : ''}</div>
+    <div><h2>${esc(zoneShort(show))}</h2><p class="where">${esc(Zs.rankOf(zoneTown(show), rank, zs.length))}</p></div>
+    ${tiles.length ? `<div class="stats">${tiles.map(([v, k, raw]) => `<div><b>${raw ? v : esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>` : ''}
+    ${why ? `<p class="why">${ic('built')}<span>${esc(why)}</span></p>` : ''}
+    ${zoneMissing && show.name === zoneMissing ? `<p class="k-stale">${esc(NW().zoneMiss(zoneMissing))}</p>` : ''}
+    <div class="zacts"><button type="button" class="btn sec" data-open="drive:${esc(show.id)}" id="zDrive">${ic('car')}<span>${esc(Zs.drive)}</span></button>
+      <button type="button" class="btn pri" id="zGo" data-zgo="${esc(show.id)}"><span>${esc(doors ? Zs.resume(doors, km.stops.length) : Zs.start)}</span>${ic('chev')}</button></div></section>`;
 }
 $('#zones').addEventListener('click', ev => {
   const g = ev.target.closest('[data-zgo]'); if (g) { selectZone(g.dataset.zgo, true); return; }
-  if (ev.target.closest('#zAsk')) { openRH(K().emptyQ, true); return; }
-  const z = ev.target.closest('[data-zone]'); if (z && !ev.target.closest('a')) { zoneSel = z.dataset.zone; try { localStorage.setItem('hmp-app-zone', zoneSel); } catch (e) { /* fine */ } refreshWalk(); dataVer++; renderApp(true); }
+  if (ev.target.closest('#zOld')) { if (SAMPLE && CAN_EDIT) openRH(Z().oldAsk, true); else setTab('knock'); return; }
 });
-$('#zones').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('g[data-zone]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });
+let zmapW = 0;
+window.addEventListener('resize', () => { const w = Math.round(($('#zMap') || {getBoundingClientRect: () => ({width: 0})}).getBoundingClientRect().width); if (w && w !== zmapW) { zmapW = w; if (tab === 'now' && !bossOn) renderZones(); } });
 
+/* the sheets Now opens: every hot zone (pick one), and Drive (Google or Apple Maps) */
+function renderZonesSheet(){
+  const Zs = Z(), zs = zonesAll(), sel = zs.find(z => z.id === zoneSel) || zs[0];
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.zonesH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
+  soft($('#shBody')).html = zs.length ? `<ul class="rows">${zs.slice(0, 20).map((z, i) => `<li><button type="button" class="row" data-pickzone="${esc(z.id)}" aria-pressed="${sel && z.id === sel.id}"><span class="n${sel && z.id === sel.id ? ' cur' : ''}">${i + 1}</span><span class="t"><b>${esc(z.name)}</b><span>${esc([z.hail != null ? hailTxt(z.hail) + ' ' + Zs.tHail : '', z.homes ? `${Math.round(z.homes)} ${Zs.tHomes}` : '', miTxt(z.mi)].filter(Boolean).join(' · '))}</span></span><span class="end">${ic('chev')}</span></button></li>`).join('')}</ul>` : `<p class="quiet">${esc(NW().noneH)}</p>`;
+}
+function renderDriveSheet(id){
+  const Zs = Z(), z = zonesAll().find(x => x.id === id) || zonesAll()[0]; if (!z) { closeSheet(); return; }
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.driveH; $('#shSub').textContent = [zoneShort(z), zoneTown(z), miTxt(z.mi)].filter(Boolean).join(' · '); $('#shTrack').innerHTML = '';
+  const row = (href, [t, s]) => `<li><a class="row" href="${esc(href)}" target="_blank" rel="noopener"><span class="lead">${ic('nav')}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></a></li>`;
+  soft($('#shBody')).html = `<ul class="rows">${row(driveUrl(z), Zs.gmaps)}${row(appleUrl(z), Zs.amaps)}</ul>`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-pickzone]'); if (!b) return; const id = b.dataset.pickzone; closeSheet(); selectZone(id); });
 /* ---------- one Due list: follow-ups (docs/app/followups.js: next step or the 2 / 5 / 10-day touch after "Interested", one line
    per lead), claims' next steps and adjuster meetings, and leads with no contact in 24 hours. Grouped Today / Tomorrow / Later. ---------- */
 let fuRules;   // db system/followups (hh.py followups --export-rules): undefined = loading, null = missing
@@ -4719,21 +4841,46 @@ function dueItems(){
   dueMemo = {leads, claims, lang, mk, r: fuRules, out: g}; return g;
 }
 const dueTodayN = () => dueItems().today.length;
-function dueRow(r){
-  const W = NW();
-  const chip = r.late ? `<span class="a-chip crit">! ${esc(W.late(r.late))}</span>` : dueChip(r.due);   // late = no contact in 24 h; overdue shows in the due chip
-  const l = r.touch && r.kind === 'lead' ? leads.find(x => x.id === r.id) : null, sc = l ? touchScript(l, r.touch) : null;
-  const scr = sc ? `<details class="drs"><summary>${esc(FSX[lang][sc.ch])}</summary>${flipBlock('ns-say', NX().say, `<q>${esc(sc[lang])}</q>`, `<q>${esc(sc[otherLang()])}</q>`)}</details>` : '';
-  return `<li><button type="button" class="drow${r.late ? ' late' : ''}" data-open="${r.kind}:${esc(r.id)}"><span class="addr">${esc(r.address)} <span class="kind">${esc(r.kind === 'lead' ? L().kLead : L().kClaim)}</span></span>${chip}<span class="what">${esc(r.text || '')}${r.tag ? ` <em class="rem">${esc(r.tag)}</em>` : ''}</span></button>${scr}</li>`;
+/* ---------- v25 Today (Now): one row per appointment today (time tile, who, call), then what is due as list rows
+   (address / one action line / a late chip with a flag). Show 3 + "See all". Scripts live on the lead, not here. ---------- */
+const dueLate = r => r.late || r.overdue > 0 || r.due < todayStr();
+const lateDays = r => Math.max(r.late || 0, r.overdue || 0, r.due < todayStr() ? -daysFromToday(r.due) : 0);
+function lateCount(){ return dueItems().today.filter(dueLate).length; }
+function apptsToday(){
+  const t0 = todayStr(), out = [];
+  for (const l of leads) { const a = apptOf(l); if (a && a.day === t0) out.push({kind: 'lead', id: l.id, a, who: strv(l.first_name), addr: strv(l.address) || l.id, phone: strv(l.phone), note: txl(l.next_step)}); }
+  for (const c of claims) { const a = claimAppt(c); if (a && a.day === t0 && !out.some(x => x.id === c.id)) out.push({kind: 'claim', id: c.id, a, who: strv(c.homeowner_first_name), addr: strv(c.address) || c.id, phone: '', note: txl(c.next_step)}); }
+  return out.sort((x, y) => (x.a.time || '99') < (y.a.time || '99') ? -1 : 1);
 }
-function renderDue(){
-  const W = NW(), g = dueItems(), n = g.today.length;
-  soft($('#dueH')).html = `${esc(W.dueH)} <span class="n">${n || ''}</span>`;
-  if (!leads.length && !claims.length) { soft($('#tDue')).html = `<p class="a-quiet">${esc(W.dueEmpty)}</p>`; return; }
-  const grp = (k, list, open) => `<section class="dgrp" data-g="${k}"><h3 class="dg-h">${esc(W.g[k])} <span class="n">${list.length || ''}</span></h3>${list.length ? `<ul class="fu due-l">${list.map(dueRow).join('')}</ul>` : k === 'today' ? `<p class="a-quiet">${esc(W.dueNone)}</p>` : ''}</section>`;
-  soft($('#tDue')).html = grp('today', g.today) + (g.tomorrow.length ? grp('tomorrow', g.tomorrow) : '') + (g.later.length ? `<details class="fold dlater"><summary>${esc(W.g.later)} <span class="n">${g.later.length}</span></summary><ul class="fu due-l">${g.later.slice(0, 10).map(dueRow).join('')}</ul></details>` : '');
+function apptRow(x){
+  const Zs = Z(), t = x.a.time, [hh, mm] = t ? t.split(':').map(Number) : [null, null];
+  const tile = t ? `<div class="time"><b>${hh % 12 || 12}:${pad2(mm)}</b><small>${hh < 12 ? 'AM' : 'PM'}</small></div>` : `<div class="time day"><b>${esc(Zs.dueToday)}</b></div>`;
+  const note = x.note && !/^\s*$/.test(x.note) ? x.note.replace(/^[^,]*\d\s*(AM|PM|am|pm)\s*,?\s*/, '').replace(/^(inspection|inspección|adjuster|ajustador)[^,]*,\s*/i, '') : '';
+  const sub = [x.who, note && note.length < 48 ? note : ''].filter(Boolean).join(' · ');
+  const call = x.phone ? `<a class="round" href="tel:${esc(x.phone.replace(/[^\d+]/g, ''))}" aria-label="${esc(Zs.callWho(x.who || shortAddr(x.addr)))}">${ic('phone')}</a>` : '';
+  return `<div class="appt">${tile}<button type="button" class="t" data-open="${x.kind}:${esc(x.id)}"><b>${esc(Zs.kinds[x.a.kind] || '')} · ${esc(shortAddr(x.addr))}</b><span>${esc(sub || whenLabel(x.a))}</span></button>${call}</div>`;
 }
-
+function dueRowV25(r){
+  const Zs = Z(), late = dueLate(r), d = lateDays(r);
+  const chip = late ? `<span class="chip late">${ic('flag')}${esc(Zs.lateD(Math.max(1, d)))}</span>` : r.due > todayStr() ? `<span class="chip">${esc(fmtDay(r.due, true))}</span>` : `<span class="chip">${ic('clock')}${esc(Zs.dueToday)}</span>`;
+  return `<li><button type="button" class="row" data-open="${r.kind}:${esc(r.id)}"><span class="t"><b>${esc(shortAddr(r.address))}</b><span>${esc(r.text || (r.tag || ''))}</span></span><span class="end">${chip}</span></button></li>`;
+}
+function renderToday(){
+  const Zs = Z(), g = dueItems(), ap = apptsToday(), apIds = new Set(ap.map(x => x.kind + ':' + x.id));
+  $('#dueH').textContent = Zs.today; $('#dueLeads').textContent = Zs.leadsLink;
+  const rows = g.today.filter(r => !apIds.has(r.kind + ':' + r.id)).sort((a, b) => lateDays(b) - lateDays(a));
+  if (appState === 'wait' && !leads.length && !claims.length) { soft($('#tDue')).html = `<div class="rows" aria-hidden="true"><div class="row"><span class="sk" style="width:52px;height:52px;border-radius:12px"></span><div class="t" style="display:grid;gap:8px"><span class="sk skl" style="width:80%"></span><span class="sk skl" style="width:45%"></span></div></div><div class="row"><div class="t" style="display:grid;gap:8px"><span class="sk skl" style="width:55%"></span><span class="sk skl" style="width:70%"></span></div><span class="sk skl" style="width:70px;height:22px"></span></div></div>`; return; }
+  if (!ap.length && !rows.length) { soft($('#tDue')).html = `<div class="rows"><div class="empty" style="padding:24px"><div class="glyph">${ic('check2', 'i-lg')}</div><h3>${esc(Zs.noneH)}</h3><p>${esc(Zs.noneP)}</p></div></div>`; return; }
+  const show = rows.slice(0, Math.max(0, 3 - Math.max(0, ap.length - 1))), more = rows.length - show.length + g.tomorrow.length + g.later.length;
+  soft($('#tDue')).html = `<ul class="rows">${ap.map(x => `<li>${apptRow(x)}</li>`).join('')}${show.map(dueRowV25).join('')}</ul>
+    ${more > 0 ? `<div class="more-row"><button type="button" class="btn ghost" data-open="due:">${esc(Zs.seeAll(rows.length + g.tomorrow.length + g.later.length))}${ic('chev', 'i-sm')}</button></div>` : ''}`;
+}
+function renderDueSheet(){
+  const Zs = Z(), W = NW(), g = dueItems();
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.dueH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
+  const grp = (k, list) => list.length ? `<div class="shead" style="margin-top:var(--s2)"><h2>${esc(W.g[k])}</h2><span class="cap">${list.length}</span></div><ul class="rows">${list.map(dueRowV25).join('')}</ul>` : '';
+  soft($('#shBody')).html = (grp('today', g.today) + grp('tomorrow', g.tomorrow) + grp('later', g.later.slice(0, 20))) || `<p class="quiet">${esc(W.dueNone)}</p>`;
+}
 /* ---------- the one next thing (Sale Guide card): an appointment today, else the most overdue follow-up, else the next door ---------- */
 function nowPick(){
   const t0 = todayStr();
@@ -4757,38 +4904,7 @@ function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the 
     ${flipBlock('ns-sec', W.collect, col(lang), col(otherLang()))}
     ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}`;
 }
-function renderNowCard(){
-  const W = NW(), box = $('#nowCard'), p = nowPick();
-  if (!p) { box.hidden = true; soft(box).html = ''; return; }
-  box.hidden = false;
-  let eb = W.nowEb, title = '', body = '', acts = '';
-  if (p.kind === 'door') {
-    const a = splitAddr(p.s.address), why = whyHouse(p.s, p.m.kind).text;
-    eb += ' · ' + W.stepOf(1, 8); title = W.nextDoorT(`${a.no} ${a.street}`.trim());
-    body = (why ? `<p class="zline">${esc(why)}</p>` : '') + doorGuide(p.s, p.m.kind === 'everyday' ? 'cash' : 'insurance', true);
-    acts = `<button type="button" class="btn ghost" data-open="guide:${esc(p.s.pid)}">${esc(W.whatToSay)}</button><button type="button" class="btn ghost" data-go="knock">${esc(W.knockTab)}</button>`;
-  } else if (p.kind === 'claim' || p.kind === 'claimdue') {
-    const c = p.c; title = p.a ? W.apptT(CT().k.adjuster, strv(c.address)) : strv(c.address);
-    body = `<p class="zline">${esc(p.a ? whenLabel(p.a) : txl(c.next_step))}</p>${p.a ? `<p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(NX().tips.adjuster)}</p><p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(NX().musts.claim)}</p>` : ''}`;
-    const l = leads.find(x => x.id === c.id);
-    acts = `<button type="button" class="btn ghost" data-open="claim:${esc(c.id)}">${esc(W.open)}</button>${l ? `<button type="button" class="btn ghost" data-open="adj:${esc(l.id)}">${esc(AT().btn)}</button>` : ''}`;
-  } else {
-    const l = p.l, kind = leadKind(l), sid = nsStepOf(l);
-    if (!sid || sid === 'finished') { box.hidden = true; soft(box).html = ''; return; }
-    eb += ' · ' + W.stepOf(nsNum(sid), 8);
-    title = p.a ? W.apptT(CT().k[p.a.kind] || '', shortAddr(strv(l.address))) : p.row && (p.row.late || p.row.overdue || p.row.due < todayStr()) ? W.callT(whoOf(l)) : W.remT(whoOf(l));
-    const say = lg => withLang(lg, () => nsSay(l, sid, kind));
-    const items = nsItems(l, sid, kind).filter(x => !itemOn(l, x)).map(x => x.label);
-    body = `${p.a ? `<p class="zline">${esc(whenLabel(p.a))}</p>` : p.row ? `<p class="zline">${esc(p.row.text)}${p.row.tag ? ' · ' + esc(p.row.tag) : ''}</p>` : ''}
-      ${flipBlock('ns-say', NX().say, `<q>${esc(say(lang))}</q>`, `<q>${esc(say(otherLang()))}</q>`)}
-      ${items.length ? `<p class="gcol-l"><b>${esc(W.collect)}:</b> ${esc(items.slice(0, 3).join(' · '))}</p>` : ''}`;
-    acts = `<button type="button" class="btn ghost" data-open="lead:${esc(l.id)}">${esc(W.guide)}</button>`;
-  }
-  soft(box).html = `<div class="k-eb">${esc(eb)}</div><h2 class="nc-t">${esc(title)}</h2>${body}<div class="nc-acts">${acts}</div>`;
-}
-function renderNow(){
-  renderZones(); renderNowCard(); renderDue();
-}
+function renderNow(){ renderZones(); renderToday(); }
 
 /* ---------- the guide sheet for a door on the walk: Sale Guide step 1 before knocking ---------- */
 function renderGuide(pid){
