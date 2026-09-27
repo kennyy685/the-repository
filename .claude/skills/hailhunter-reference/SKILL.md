@@ -26,7 +26,7 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
     owner-occupied from county owner mailing addresses; see Scoring), `doorscore` (door score v2,
     round 16), `doors` (storm turf lists, xlsx/map optional), `everyday` (T50 old-house lists), `zones` (hot zones +
     one walk per zone), `todaywalk` (O0 Today's knock), `commercial` (apartment/commercial targets, csv/xlsx),
-    `calltoday` (business call list)
+    `calltoday` (business call list), `accounts` (round 54: new hail/wind over HMP's own accounts)
   - selling: `estimate` (T52 price range), `takeoff` (material order list), `followups` (follow-up schedule),
     `hailreport` (T32 one-address hail report)
   - results and learning: `weekly` (week report), `tune` (T35 learning loop), `benchmarks` (T84, reads
@@ -80,7 +80,26 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   stop has `door` + `why`.
 - `python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv f]`: today's BUSINESS call list
   (apartment/commercial with a known business line in fresh 1"+ hail), EN/ES why + opener (free inspection, no
-  insurance talk); JSON for the app's `calls/today` doc.
+  insurance talk); JSON for the app's `calls/today` doc. `--accounts f` (+ scout contacts, always): the doc also gets
+  the "Your accounts hit" block, shown FIRST (round 54, additive; every old field stays): `accounts_title {en, es}`,
+  `accounts_count`, `accounts_checked` (null = no check ran), `accounts_hit[]` = the alerts below plus call-card
+  fields {rank, name, phone, ask_for, hail_in, day, days_ago, why{en,es}, opener{en,es}, also[], call_rank}. Homes
+  (lead/claim/door): name = the address, phone "" (the app's own record, by `key`); never an owner name. Businesses:
+  one row per business line (other buildings in `also`); when that line is also a building call, the row has
+  `call_rank` and the call gets `account_hit: true`. Openers: a free roof and siding check, no insurance talk.
+- `python3 hh.py accounts [--accounts f] [--hud f] [--date D] [--days N] [--no-scout] [--out f]`: round 54 "storm alert
+  on your own accounts" (`accounts.py`). Accounts file = a list of {kind: lead|claim|door|commercial, key, address,
+  city, lat?, lon?, since?} or the app's exports as one file {leads, claims, doors} (leads/claims except stage "lost";
+  doors with result interested/booked; `since` = created_at / date_of_loss / tap date: only LATER hail is new), plus
+  `data/scout_contacts.json` businesses (business lines only). Hail bar = `call_today.min_hail`; window = config
+  `accounts.max_days`, else `today_walk.storm_max_days` (60). Out: {date, since, days, min_hail, checked, located,
+  radar, alerts[], not_located[]}; alert = {key, kind, address, city, event_date, days_ago, peril hail|wind,
+  max_hail_in, max_wind_mph, distance_mi, source, match at|near, hail_report {day, hail_in, nearest_report,
+  radar_max_in} (hud.json hail_evidence shape; null for wind), hail_report_hint {doc "evidence/<slug>", en, es},
+  other_days[]} (+ name, phone, ask_for for businesses). `source`, best first: `radar` (engine database radar at
+  the address; local only), `hail_evidence` / `door_list` / `commercial` (hud.json, that exact address), then
+  "near": `near_house` (storm door-list house within `accounts.near_mi` 0.6), `storm_report` (hud.json storms within
+  `accounts.report_mi` 3), `wind_report` (wind_events with a wind band, 58+ mph or damage, within 3 mi).
 - `python3 hh.py followups --leads leads.json [--date D] [--out f] [--export-rules]`: follow-ups due for
   Interested/booked leads (touches 2/5/10 days after first Interested), grouped today/tomorrow/later, EN/ES.
 - `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results
@@ -88,8 +107,11 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   T84: `industry` = each funnel rate next to data/benchmarks.json ranges {yours, low, typical, high, source_note, vs},
   labeled "industry estimate, not your numbers" (`--benchmarks f`; missing file -> null). todaywalk's goal_note adds an
   industry doors/hour time estimate (+ `pace`) when there are no door results yet.
-- `python3 hh.py daily --out-dir DIR [--date D] [--hud f] [--results f] [--dnk f] [--leads f] [--near T] [--doors N]`:
-  the 7:40 AM app job in one go (todaywalk + evidence, calltoday, zones + walks, followups when --leads given). One JSON
+- `python3 hh.py daily --out-dir DIR [--date D] [--hud f] [--results f] [--dnk f] [--leads f] [--accounts f] [--near T]
+  [--doors N]`: the morning app job in one go (todaywalk + evidence, calltoday + accounts_hit, zones + walks, followups
+  when --leads given). Accounts = `--accounts` + the `--leads` and `--results` exports + scout contacts; alerts with a
+  hail report also get `evidence__<slug>.json` (unless the walk wrote it); manifest `accounts` {checked, located,
+  alerts, radar}. One JSON
   file per app doc, named by doc path with "/" -> "__": `today__walk.json`, `calls__today.json`, `zones__current.json`,
   `walks__<zone id>.json`, `evidence__<slug>.json`, `followups__today.json`, plus `manifest.json` {date, files{doc
   path: file}, skipped[], errors[]}. One part failing never stops the others; exit 1 only if today/walk wasn't written.

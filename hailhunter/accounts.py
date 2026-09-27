@@ -219,23 +219,25 @@ def _geocode(conn, address, city):
 
 
 def _radar(conn, cfg, located, start, today, min_hail):
-    """{account index: {day: reading}} from the database's radar maps (fused with ground reports), every account
-    and every storm day in the window. A reading under min_hail still counts (it beats nearby evidence that day)."""
-    out = {}
+    """({account index: {day: reading}}, radar maps read) from the database's radar maps (fused with ground reports),
+    every account and every storm day in the window. A reading under min_hail still counts (it beats nearby
+    evidence that day)."""
+    out, n = {}, 0
     if conn is None or not located:
-        return out
+        return out, n
     from . import hailreport, mrms, nbhd
     try:
         days = [r[0] for r in conn.execute("SELECT conv_day FROM swaths WHERE conv_day >= ? AND conv_day <= ? "
                                            "ORDER BY conv_day DESC", (start, today))]
     except sqlite3.Error:
-        return out
+        return out, n
     radius = (cfg.get("hail_evidence") or DEFAULTS["hail_evidence"]).get("radius_mi", 10.0)
     for day in days:
         raw, rmeta = mrms.load_grid(cfg, day)
         if raw is None:
             continue
         grid, meta, _ = nbhd.fused_grid(conn, cfg, day)
+        n += 1
         obs = None
         for i, a in located:
             if a["since"] and day <= a["since"]:
@@ -254,7 +256,7 @@ def _radar(conn, cfg, located, start, today, min_hail):
                                                    "source": near["who"]} if near else None,
                                 "radar_max_in": None if rm is None else round(rm, 2)}
             out.setdefault(i, {})[day] = rd
-    return out
+    return out, n
 
 
 def _band(e, cfg):
@@ -368,32 +370,27 @@ def check(hud, accts, today, cfg=None, conn=None, days=None):
                 a["lat"], a["lon"] = ll
         work.append((a, nk))
     located = [(i, a) for i, (a, _) in enumerate(work) if a["lat"] is not None]
-    radar = _radar(conn, cfg, located, start, today, min_hail)
+    radar, radar_days = _radar(conn, cfg, located, start, today, min_hail)
 
     alerts, not_located = [], []
     for i, (a, nk) in enumerate(work):
         at = dict(radar.get(i, {}))            # day -> best reading AT the address (radar first)
-
-        def put(day, rd):
-            old = at.get(day)
-            if old is None or AT.index(rd["source"]) < AT.index(old["source"]) or \
-                    (rd["source"] == old["source"] and rd["hail"] > old["hail"]):
-                at[day] = rd
         e = ev.get(nk)
         if e and fresh(e.get("day"), a) and _float(e.get("hail_in")) is not None:
-            put(e["day"], {"day": e["day"], "peril": "hail", "hail": float(e["hail_in"]), "source": "hail_evidence",
-                           "dist": 0.0, "report": {k: e.get(k) for k in ("day", "hail_in", "nearest_report",
-                                                                          "radar_max_in")}})
+            _put(at, {"day": e["day"], "peril": "hail", "hail": float(e["hail_in"]), "source": "hail_evidence",
+                      "dist": 0.0, "report": {k: e.get(k) for k in ("day", "hail_in", "nearest_report",
+                                                                     "radar_max_in")}})
         for day, hail in stops.get(nk, []):
             if fresh(day, a):
-                put(day, {"day": day, "peril": "hail", "hail": hail, "source": "door_list", "dist": 0.0})
+                _put(at, {"day": day, "peril": "hail", "hail": hail, "source": "door_list", "dist": 0.0})
         for t in targets.get(nk, []):
             h = _float(t.get("hail"))
             if h is not None and fresh(t.get("day"), a):
-                put(t["day"], {"day": t["day"], "peril": "hail", "hail": h, "source": "commercial", "dist": 0.0})
+                _put(at, {"day": t["day"], "peril": "hail", "hail": h, "source": "commercial", "dist": 0.0})
         hits = [rd for rd in at.values() if rd["hail"] >= min_hail]
         if a["lat"] is None:
-            not_located.append(a["key"])
+            if a["kind"] != "commercial":      # the app's own accounts: add lat/lon to check the area around them
+                not_located.append(a["key"])
         else:
             nearby = {}
             for day, (lats, lons, hails) in near.items():      # the closest storm door-list house that day
@@ -434,7 +431,7 @@ def check(hud, accts, today, cfg=None, conn=None, days=None):
                  "event_date": top["day"], "days_ago": (today_d - date.fromisoformat(top["day"])).days,
                  "peril": top["peril"], "max_hail_in": None if top["hail"] is None else round(top["hail"], 2),
                  "max_wind_mph": top.get("mph"), "distance_mi": round(top["dist"], 1), "source": top["source"],
-                 "match": "at" if top["source"] in AT else "near", "hail_report": _report(top, e, nk)}
+                 "match": "at" if top["source"] in AT else "near", "hail_report": _report(top, e)}
         if top["peril"] == "wind":
             alert.update(damage_reports=top["damage_reports"], trees_down=top["trees_down"])
         alert["hail_report_hint"] = hint(alert)
@@ -448,7 +445,15 @@ def check(hud, accts, today, cfg=None, conn=None, days=None):
     alerts.sort(key=lambda x: _rank({"source": x["source"], "peril": x["peril"], "day": x["event_date"],
                                      "hail": x["max_hail_in"]}) + (x["key"],))
     return {"date": today, "since": start, "days": window, "min_hail": min_hail, "checked": len(work),
-            "located": len(located), "radar": bool(radar), "alerts": alerts, "not_located": not_located[:50]}
+            "located": len(located), "radar": radar_days > 0, "alerts": alerts, "not_located": not_located[:50]}
+
+
+def _put(at, rd):
+    """Keep the best reading AT the address for rd's day: radar > hail_evidence > door_list > commercial."""
+    old = at.get(rd["day"])
+    if old is None or AT.index(rd["source"]) < AT.index(old["source"]) or \
+            (rd["source"] == old["source"] and rd["hail"] > old["hail"]):
+        at[rd["day"]] = rd
 
 
 def _rank(rd):
@@ -457,7 +462,7 @@ def _rank(rd):
             -date.fromisoformat(rd["day"]).toordinal(), -(rd["hail"] or 0))
 
 
-def _report(top, e, nk):
+def _report(top, e):
     """The hail report attached to an alert: hud.json hail_evidence's shape {day, hail_in, nearest_report,
     radar_max_in}. Near matches: hail_in null, nearest_report = the evidence used. Wind: null."""
     if top["peril"] != "hail":

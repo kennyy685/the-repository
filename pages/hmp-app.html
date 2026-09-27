@@ -2996,8 +2996,8 @@ const NSX = {
            claim: 'Claim', measure: 'Measure + order', build: 'Build', paid: 'Get paid + review'},
     packetDue: d => `due ${d}`, finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for. Nice work.',
     said: {
-      doorIns: r => `Hi, I'm with ${SETTINGS.company.name}, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing free inspections for the neighbors. Can I take a quick look at your roof and siding?`,
-      doorCash: r => `Hi, I'm with ${SETTINGS.company.name}, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
+      doorIns: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing free inspections for the neighbors — can I take a quick look at your roof and siding?`,   // T174: name, HMP, what we sell first (NE 69-1602)
+      doorCash: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
       stormR: (h, d) => (h ? `The ${d} storm dropped about ${h}-inch hail on this street.` : `The ${d} storm came through this street.`),
       yearR: y => `A lot of homes built around ${y} are due for new siding or a roof.`,
       setIns: "You're all set. I'll text you the time now and again the day before. It takes about 20-30 minutes, and I'll show you every photo.",
@@ -3086,8 +3086,8 @@ const NSX = {
            claim: 'Reclamo', measure: 'Medir + pedir', build: 'Obra', paid: 'Cobrar + reseña'},
     packetDue: d => `para el ${d}`, finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida. Buen trabajo.',
     said: {
-      doorIns: r => `Hola, soy de ${SETTINGS.company.name}, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo inspecciones gratis a los vecinos. ¿Puedo revisar rápido su techo y su siding?`,
-      doorCash: r => `Hola, soy de ${SETTINGS.company.name}, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
+      doorIns: r => `Hola, soy ${SETTINGS.people.es.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo inspecciones gratis a los vecinos — ¿puedo revisar rápido su techo y su siding?`,   // T174: nombre, HMP y lo que vendemos primero (NE 69-1602)
+      doorCash: r => `Hola, soy ${SETTINGS.people.es.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
       stormR: (h, d) => (h ? `La tormenta del ${d} tiró granizo de unas ${h} pulgadas en esta calle.` : `La tormenta del ${d} pasó por esta calle.`),
       yearR: y => `Muchas casas construidas por ${y} ya necesitan siding o techo nuevo.`,
       setIns: 'Ya quedó. Le mando la hora por texto ahora y otra vez un día antes. Tarda unos 20-30 minutos y le enseño todas las fotos.',
