@@ -2736,12 +2736,17 @@ let mPaidOpen = false;
 function jobCard(x){
   const Zs = Z(), T = L();
   if (x.c) { const c = x.c, fin = c.stage === 'paid' || c.stage === 'lost', i = cIdx(c), n = CLAIM_STEPS.length, m = money(c);
-    const segs = CLAIM_STEPS.map((s, k) => `<i class="${c.stage === 'paid' || k < i ? 'd' : k === i && !fin ? 'c' : ''}"></i>`).join('');
+    const md = c.stage === 'lost' ? null : jtModel(c), cur = md && md.steps.find(s => s.id === md.current), nx = md && md.steps.find(s => s.id === md.next);   // v25.2: the Job tracker's 14 steps
+    const segs = md ? md.steps.map(s => `<i class="${s.status !== 'open' ? 'd' : s.id === md.current && !fin ? 'c' : ''}"></i>`).join('') : CLAIM_STEPS.map((s, k) => `<i class="${c.stage === 'paid' || k < i ? 'd' : k === i && !fin ? 'c' : ''}"></i>`).join('');
     const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, due = ns && dayOf(ns.due), late = due && !fin && daysFromToday(due) < 0 ? -daysFromToday(due) : 0;
-    const [st, of] = Zs.stepOf(fin ? cStage(c.stage) : cStage(CLAIM_STEPS[i]), i + 1, n);
+    const [st, of] = md && cur && !fin ? Zs.stepOf(txl(cur.short), cur.n, md.steps.length) : Zs.stepOf(fin ? cStage(c.stage) : cStage(CLAIM_STEPS[i]), i + 1, n);
+    const nxt = md ? (!fin && nx ? txl(nx.short) : '') : !fin && i < n - 1 ? cStage(CLAIM_STEPS[i + 1]).toLowerCase() : '';
+    const rm = md && !fin ? md.reminders[0] : null;   // a due reminder (mortgage endorsement, depreciation request, review link...) comes first
+    const line = rm ? `<span class="nextline">${ic(rm.level === 'late' ? 'flag' : 'clock')}<span>${esc(txl(rm.short))}</span>${jtRemChip(rm)}${ic('chev', 'i-sm')}</span>`
+      : `<span class="nextline">${ic(late ? 'flag' : /bank|check|cheque/i.test(txl(ns)) ? 'phone' : a0(c) ? 'cal' : 'clock')}<span>${esc(txl(ns) || Zs.noNextJob)}</span>${late ? `<span class="chip late">${esc(Zs.lateD(late))}</span>` : ''}${ic('chev', 'i-sm')}</span>`;
     return `<button type="button" class="card jcard" data-open="claim:${esc(c.id)}"><span class="hd"><span><h3>${esc(strv(c.address) || c.id)}</h3><span class="who">${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span></span><span class="chip${c.stage === 'paid' ? ' ok' : ''}">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span></span>
-      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ' · ' + esc(of)}</span>${!fin && i < n - 1 ? `<span>${esc(Zs.nextS(cStage(CLAIM_STEPS[i + 1]).toLowerCase()))}</span>` : ''}</span>`}
-      ${fin ? `<span class="jmoney"><span>${esc(C0().collectedTotal)}: <b>${usd(m.collected)}</b></span></span>` : `<span class="nextline">${ic(late ? 'flag' : /bank|check|cheque/i.test(txl(ns)) ? 'phone' : a0(c) ? 'cal' : 'clock')}<span>${esc(txl(ns) || Zs.noNextJob)}</span>${late ? `<span class="chip late">${esc(Zs.lateD(late))}</span>` : ''}${ic('chev', 'i-sm')}</span>`}</button>`; }
+      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ' · ' + esc(of)}</span>${nxt ? `<span>${esc(Zs.nextS(nxt))}</span>` : ''}</span>`}
+      ${fin ? `<span class="jmoney"><span>${esc(C0().collectedTotal)}: <b>${usd(m.collected)}</b></span></span>` : line}</button>`; }
   const l = x.l, cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0, ns = txl(l.next_step);
   return `<button type="button" class="card jcard" data-open="lead:${esc(l.id)}"><span class="hd"><span><h3>${esc(strv(l.address) || l.id)}</h3><span class="who">${esc([strv(l.first_name), strv(l.city)].filter(Boolean).join(' · '))}</span></span><span class="chip ok">${esc(Zs.cash)}</span></span>
     <span class="jmoney"><span>${esc(Zs.price)} <b>${cm.price != null ? usd(cm.price) : '–'}</b></span><span>${esc(Zs.paidSoFar)} <b>${usd(cm.got)}</b></span><span>${esc(Zs.stillOwed)} <b>${usd(cm.owed)}</b></span></span>
