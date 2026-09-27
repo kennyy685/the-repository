@@ -63,6 +63,26 @@ a finish -> the celebration, a question -> "your spot"; doubles as a screensaver
 6. After-hours mode: late at night the lights go warm and low; robots still working get a desk lamp + coffee cup.
 Plus the ranked picks in FUN-IDEAS.md and the outfit redesign ("make the outfits more appealing").
 
+## Interactive scenes + human/AI awareness (FilthE, 2026-09-27: "add interactive funny scenes, allow more human
+and AI awareness of each other")
+The crew notices FilthE:
+- On open, robots look up, the King nods, the Right Hand waves and greets him by time of day, EN/ES, with a
+  one-line "since you left" count.
+- Robots near the cursor turn their heads to follow it; hover perks one up.
+- A small FilthE figure stands at "your spot" while the hub is open; a waiting robot walks right up to it.
+- Answering a robot's question -> it thanks him (bow / fist-pump) and goes back to work.
+- Idle robots straighten up while he's actively watching; after he goes idle for a while they lounge again.
+FilthE sees the AIs' awareness of each other:
+- Handoff lines: an order draws a glowing line from sender to receiver.
+- Thought icons over working robots (hail cloud, bug, paintbrush...) from what they're doing.
+Interactive funny scenes (tied to real events where possible, classy):
+- Double-click a robot = an in-character reaction (QA drops its clipboard, Storm Watch grumbles, the King fixes its
+  crown).
+- Drag a coffee cup onto a tired/long-working robot = it perks up.
+- A QA "blocked"/bug report -> QA carries a red card to the Builder, who facepalms.
+- A stand-up (several robots working at the board) -> they gather, the King points, one dozes in the back.
+- A big finish -> a high-five chain and a victory lap down the slide.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
