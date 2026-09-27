@@ -68,7 +68,11 @@ def now():
         html = html.replace('<link rel="stylesheet" href="ds.css">',
                             '<link rel="stylesheet" href="ds.css">\n<style>' + TOKENS_CSS +
                             '.legend .bar{background:linear-gradient(90deg,rgba(var(--heat),.18),rgba(var(--heat),.55),rgb(var(--heat)))}'
-                            '.mark svg{width:auto;height:auto}</style>')
+                            '.mark svg{width:auto;height:auto}'
+                            # headless Chrome keeps a window of at least ~500px, which turns on the desktop "stage"
+                            # frame; pin the phone to the top-left so the crop is exactly the 390 x 844 screen
+                            'body.stage{padding:0!important;background:var(--bg)!important}'
+                            '.phone{margin:0!important;border-radius:0!important;box-shadow:none!important}</style>')
         html, n = re.subn(r'<div class="mark">.*?</div>', f'<div class="mark">{appbar_mark(b)}</div>', html, count=1, flags=re.S)
         assert n == 1, "mark not found in now.html"
         write(os.path.join(work, "now.html"), html)

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" class="brand-ronda" data-lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=1440">
+<title>Ronda landing hero</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&family=Unbounded:wght@200..900&display=swap">
+<style>
+@font-face{font-family:"Geist L";src:url(../fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(../fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(../fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Archivo L";src:url(../fonts/Archivo-var.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"Unbounded L";src:url(../fonts/Unbounded-var.woff2) format("woff2");font-weight:200 900;font-display:swap}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+:root:not([data-lang="es"]) .es,[data-lang="es"] .en{display:none!important}
+body{font-family:"Geist","Geist L",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--page);color:var(--text);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.45}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.site{position:relative;min-height:100vh;display:flex;flex-direction:column;padding:0 64px;overflow:hidden}
+.nav{position:relative;z-index:3;height:84px;display:flex;align-items:center;gap:40px;flex:none}
+.logo svg{display:block;height:34px;width:auto}
+.links{display:flex;gap:28px;font-size:15px;font-weight:500;color:var(--text-2)}
+.right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.lang{display:inline-flex;padding:3px;border:1px solid var(--rule);border-radius:10px}
+.lang button{height:28px;padding:0 10px;border-radius:7px;font:500 12px "Geist Mono","Geist Mono L",ui-monospace,monospace;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--chip);color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:54px;padding:0 26px;border-radius:12px;font-weight:600;font-size:16px;white-space:nowrap}
+.btn.pri{background:var(--acc);color:var(--on-acc)}
+.btn.sec{border:1px solid var(--rule-2);color:var(--text)}
+.nav .btn{height:42px;padding:0 18px;font-size:14px}
+.hero{position:relative;z-index:2;flex:1;display:grid;grid-template-columns:minmax(0,1fr) 470px;grid-template-areas:"copy device" "benefits device";grid-template-rows:1fr auto;column-gap:72px;padding-bottom:var(--pb,52px)}
+.copy{grid-area:copy;align-self:center;max-width:720px}
+.eyebrow{margin:0 0 22px;font:500 12px/1.2 "Geist Mono","Geist Mono L",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-family:var(--display);text-wrap:balance;color:var(--text)}
+.sub{margin:26px 0 0;font-size:19px;line-height:1.55;color:var(--text-2);max-width:37em}
+.ctas{display:flex;gap:12px;margin-top:34px}
+.proof{margin:18px 0 0;font-size:14px;color:var(--muted)}
+.benefits{grid-area:benefits;list-style:none;margin:0;padding:26px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;border-top:1px solid var(--rule)}
+.benefits li{display:grid;gap:8px;align-content:start}
+.benefits .tile{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--acc-bg);color:var(--acc-ink);margin-bottom:4px}
+.benefits b{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--text)}
+.benefits p{margin:0;font-size:14px;line-height:1.5;color:var(--text-2)}
+.device{grid-area:device;position:relative;display:grid;place-items:center}
+.motif{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--mw,600px);height:auto;z-index:0;pointer-events:none}
+.phone{position:relative;z-index:1;width:320px;padding:10px;border-radius:54px;background:#0c0d0f;box-shadow:inset 0 0 0 1.5px #34363b,0 50px 90px -40px rgba(12,13,15,.55),0 18px 36px -18px rgba(12,13,15,.35)}
+.screen{position:relative;border-radius:44px;overflow:hidden;background:#f6f7f8}
+.status{height:36px;display:flex;align-items:center;justify-content:space-between;padding:4px 24px 0 30px;color:#18191c;font-weight:600;font-size:13.5px;letter-spacing:-.01em}
+.status .sys svg{width:54px;height:11px;display:block}
+.island{position:absolute;left:50%;top:9px;width:92px;height:25px;border-radius:14px;background:#0c0d0f;transform:translateX(-50%)}
+.screen img{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:no-preference){.phone{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{transform:translateY(14px)}to{transform:none}}}
+
+/* ---------- Aldaba: graphite, one orange knocker ---------- */
+.brand-aldaba{--page:#111214;--text:#f1f2f4;--text-2:#b8bbc2;--muted:#868991;--rule:#2a2c30;--rule-2:#3a3c42;--chip:#26272b;
+  --acc:#f5883a;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.14);--acc-ink:#ffa766;--display:"Bricolage Grotesque","Bricolage L",system-ui,sans-serif;--mw:560px}
+.brand-aldaba h1{font-weight:700;font-variation-settings:"opsz" 96;font-size:82px;line-height:1;letter-spacing:-.03em}
+.brand-aldaba .phone{box-shadow:inset 0 0 0 1.5px #3a3c42,0 50px 100px -30px rgba(0,0,0,.8)}
+
+/* ---------- Paso: paper, tape-measure yellow ---------- */
+.brand-paso{--page:#f6f7f8;--text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--rule:#e3e5e8;--rule-2:#d3d6db;--chip:#e9ebee;
+  --acc:#ffc21a;--on-acc:#18191c;--acc-bg:#fff3c4;--acc-ink:#6b4f00;--display:"Archivo","Archivo L",system-ui,sans-serif;--pb:150px}
+.brand-paso h1{font-weight:800;font-stretch:125%;font-size:70px;line-height:1.02;letter-spacing:-.025em}
+.brand-paso .btn.pri{box-shadow:inset 0 -2px 0 rgba(24,25,28,.18)}
+.tape{position:absolute;z-index:1;left:0;right:0;bottom:44px;height:74px;background:
+  repeating-linear-gradient(90deg,rgba(24,25,28,.5) 0 1.5px,transparent 1.5px 12px) 64px 0/100% 11px no-repeat,
+  repeating-linear-gradient(90deg,rgba(24,25,28,.8) 0 2px,transparent 2px 120px) 64px 0/100% 20px no-repeat,
+  #ffc21a;box-shadow:inset 0 -3px 0 rgba(24,25,28,.1)}
+.tape .hook{position:absolute;left:52px;top:-6px;width:12px;height:86px;border-radius:3px;background:linear-gradient(90deg,#8c9097,#c9ccd1 45%,#7b7f86)}
+.tape ol{list-style:none;margin:0;padding:0 0 0 64px;display:grid;grid-template-columns:repeat(8,120px);height:100%;align-items:end}
+.tape li{display:flex;align-items:baseline;gap:7px;padding:0 0 13px 8px;font:600 13px/1.1 "Archivo","Archivo L",sans-serif;font-stretch:100%;color:#18191c;white-space:nowrap}
+.tape li b{font-weight:800;font-stretch:125%;font-size:20px}
+
+/* ---------- Ronda: paper, radar rings, magenta core ---------- */
+.brand-ronda{--page:#f7f7f9;--text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--rule:#e3e5e8;--rule-2:#d3d6db;--chip:#e9ebee;
+  --acc:#c8288f;--on-acc:#ffffff;--acc-bg:#fbe9f4;--acc-ink:#a11c74;--display:"Unbounded","Unbounded L",system-ui,sans-serif;--mw:680px}
+.brand-ronda h1{font-weight:600;font-size:60px;line-height:1.06;letter-spacing:-.03em}
+</style>
+</head>
+<body>
+<div class="site">
+  <header class="nav">
+    <a class="logo" href="#" aria-label="Ronda home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 185.4 48" role="img"><title>Ronda</title><path d="M36.26 13.72A16 16 0 1 1 18.53 8.96" fill="none" stroke="#18191c" stroke-width="5" stroke-linecap="round"/><circle cx="30.76" cy="9.50" r="3.6" fill="#c8288f"/><circle cx="24" cy="24" r="6.5" fill="#c8288f"/><g transform="translate(60 10.00) scale(0.3562) translate(-3.30 77.00)" fill="#18191c"><path d="M3.3000000000000003 -57.0H22.1L25.5 -36.5V0.0H6.9V-38.0ZM52.7 -57.800000000000004V-41.800000000000004Q50.0 -42.400000000000006 47.35 -42.7Q44.7 -43.0 42.5 -43.0Q37.7 -43.0 33.85 -41.05Q30.0 -39.1 27.75 -34.900000000000006Q25.5 -30.700000000000003 25.5 -24.0L21.8 -28.6Q22.5 -34.7 24.1 -40.1Q25.700000000000003 -45.5 28.5 -49.650000000000006Q31.3 -53.800000000000004 35.45 -56.2Q39.6 -58.6 45.5 -58.6Q47.2 -58.6 49.1 -58.400000000000006Q51.0 -58.2 52.7 -57.800000000000004ZM88.7 1.6Q77.9 1.6 69.80000000000001 -2.2Q61.7 -6.0 57.2 -12.8Q52.7 -19.6 52.7 -28.5Q52.7 -37.5 57.2 -44.25Q61.7 -51.0 69.85 -54.8Q78.0 -58.6 88.7 -58.6Q99.5 -58.6 107.65 -54.8Q115.8 -51.0 120.3 -44.25Q124.8 -37.5 124.8 -28.5Q124.8 -19.5 120.3 -12.75Q115.8 -6.0 107.65 -2.2Q99.5 1.6 88.7 1.6ZM88.7 -12.4Q94.2 -12.4 98.05000000000001 -14.350000000000001Q101.9 -16.3 103.95 -19.9Q106.0 -23.5 106.0 -28.5Q106.0 -33.5 103.95 -37.1Q101.9 -40.7 98.05000000000001 -42.650000000000006Q94.2 -44.6 88.7 -44.6Q83.4 -44.6 79.5 -42.650000000000006Q75.6 -40.7 73.5 -37.1Q71.4 -33.5 71.4 -28.5Q71.4 -23.5 73.5 -19.9Q75.6 -16.3 79.5 -14.350000000000001Q83.4 -12.4 88.7 -12.4ZM128.0 -57.0H146.5L150.2 -34.800000000000004V0.0H131.6V-37.6ZM171.5 -58.6Q179.7 -58.6 185.45 -55.35Q191.2 -52.1 194.25 -46.1Q197.3 -40.1 197.3 -31.8V0.0H178.7V-29.0Q178.7 -36.1 175.2 -39.75Q171.7 -43.400000000000006 165.2 -43.400000000000006Q160.6 -43.400000000000006 157.25 -41.45Q153.9 -39.5 152.05 -35.95Q150.2 -32.4 150.2 -27.5L144.3 -30.6Q145.4 -39.7 149.25 -45.900000000000006Q153.1 -52.1 158.85000000000002 -55.35Q164.60000000000002 -58.6 171.5 -58.6ZM257.6 0.0 255.1 -21.5 258.5 -28.3 255.2 -36.9 259.8 -77.0H279.1L273.4 -29.900000000000002L276.8 0.0ZM261.9 -28.5Q260.4 -19.400000000000002 256.2 -12.650000000000002Q252.0 -5.9 245.6 -2.1500000000000004Q239.2 1.6 231.2 1.6Q222.8 1.6 216.45 -2.2Q210.1 -6.0 206.5 -12.75Q202.9 -19.5 202.9 -28.5Q202.9 -37.5 206.5 -44.25Q210.1 -51.0 216.45 -54.8Q222.8 -58.6 231.2 -58.6Q239.2 -58.6 245.6 -54.85Q252.0 -51.1 256.25 -44.400000000000006Q260.5 -37.7 261.9 -28.5ZM221.7 -28.5Q221.7 -23.900000000000002 223.6 -20.35Q225.5 -16.8 228.85 -14.75Q232.2 -12.700000000000001 236.6 -12.700000000000001Q241.0 -12.700000000000001 244.95 -14.75Q248.9 -16.8 251.9 -20.35Q254.9 -23.900000000000002 256.4 -28.5Q254.9 -33.1 251.9 -36.650000000000006Q248.9 -40.2 244.95 -42.25Q241.0 -44.300000000000004 236.6 -44.300000000000004Q232.2 -44.300000000000004 228.85 -42.25Q225.5 -40.2 223.6 -36.650000000000006Q221.7 -33.1 221.7 -28.5ZM335.90000000000003 0.0 333.40000000000003 -20.700000000000003 336.1 -28.5 333.40000000000003 -36.2 335.90000000000003 -57.0H355.20000000000005L351.70000000000005 -28.5L355.20000000000005 0.0ZM340.5 -28.5Q339.0 -19.400000000000002 334.8 -12.650000000000002Q330.6 -5.9 324.20000000000005 -2.1500000000000004Q317.8 1.6 309.8 1.6Q301.40000000000003 1.6 295.05000000000007 -2.2Q288.70000000000005 -6.0 285.1 -12.75Q281.5 -19.5 281.5 -28.5Q281.5 -37.5 285.1 -44.25Q288.70000000000005 -51.0 295.05000000000007 -54.8Q301.40000000000003 -58.6 309.8 -58.6Q317.8 -58.6 324.20000000000005 -54.85Q330.6 -51.1 334.85 -44.400000000000006Q339.1 -37.7 340.5 -28.5ZM300.3 -28.5Q300.3 -23.900000000000002 302.20000000000005 -20.35Q304.1 -16.8 307.45000000000005 -14.75Q310.8 -12.700000000000001 315.20000000000005 -12.700000000000001Q319.6 -12.700000000000001 323.55 -14.75Q327.5 -16.8 330.5 -20.35Q333.5 -23.900000000000002 335.0 -28.5Q333.5 -33.1 330.5 -36.650000000000006Q327.5 -40.2 323.55 -42.25Q319.6 -44.300000000000004 315.20000000000005 -44.300000000000004Q310.8 -44.300000000000004 307.45000000000005 -42.25Q304.1 -40.2 302.20000000000005 -36.650000000000006Q300.3 -33.1 300.3 -28.5Z"/></g></svg></a>
+    <nav class="links"><a href="#"><span class="en">Product</span><span class="es" lang="es">Producto</span></a><a href="#"><span class="en">How it works</span><span class="es" lang="es">Cómo funciona</span></a><a href="#"><span class="en">Pricing</span><span class="es" lang="es">Precios</span></a></nav>
+    <div class="right">
+      <div class="lang" role="group" aria-label="Language"><button data-set="en" aria-pressed="true">EN</button><button data-set="es" aria-pressed="false">ES</button></div>
+      <a class="btn sec" href="#"><span class="en">Sign in</span><span class="es" lang="es">Entrar</span></a>
+      <a class="btn pri" href="#"><span class="en">Get early access</span><span class="es" lang="es">Quiero acceso anticipado</span></a>
+    </div>
+  </header>
+  <main class="hero">
+    <div class="copy">
+      <p class="eyebrow"><span class="en">For roofing and siding crews</span><span class="es" lang="es">Para cuadrillas de techos y siding</span></p>
+      <h1><span class="en">Know where to knock&nbsp;today.</span><span class="es" lang="es">Hoy ya sabes dónde&nbsp;tocar.</span></h1>
+      <p class="sub"><span class="en">Ronda ranks the storm-hit blocks near you, puts the doors in walking order and coaches every conversation, in English and Spanish.</span><span class="es" lang="es">Ronda ordena las cuadras con daño de tormenta cerca de ti, pone las puertas en orden para caminar y te guía en cada conversación, en inglés y en español.</span></p>
+      <div class="ctas"><a class="btn pri" href="#"><span class="en">Get early access</span><span class="es" lang="es">Quiero acceso anticipado</span></a><a class="btn sec" href="#"><span class="en">See how it works</span><span class="es" lang="es">Mira cómo funciona</span></a></div>
+      <p class="proof"><span class="en">Built in the field with HMP Siding &amp; Roofing, Fremont, Nebraska.</span><span class="es" lang="es">Hecho en el campo con HMP Siding &amp; Roofing, de Fremont, Nebraska.</span></p>
+    </div>
+    <ul class="benefits"><li><span class="tile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 15.2a4 4 0 0 1-.5-8 5.4 5.4 0 0 1 10.4 1 3.5 3.5 0 0 1 .2 7z"/><path d="M8.5 18.6h.01M12 20.3h.01M15.5 18.6h.01" stroke-width="2.6"/></svg></span><b><span class="en">Hot zones, ranked</span><span class="es" lang="es">Zonas calientes, en orden</span></b><p><span class="en">This week's hail near you, block by block. Drive to the best one and start knocking.</span><span class="es" lang="es">El granizo de esta semana cerca de ti, cuadra por cuadra. Maneja a la mejor y empieza a tocar.</span></p></li><li><span class="tile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.2c0-1 .8-1.7 1.7-1.7h12.6c1 0 1.7.8 1.7 1.7v8.6c0 1-.8 1.7-1.7 1.7H9.5L5 20v-3.5c-.6-.2-1-.8-1-1.5z"/><path d="M8 9h8M8 12.3h5"/></svg></span><b><span class="en">A guide for every step</span><span class="es" lang="es">Una guía en cada paso</span></b><p><span class="en">What to say, what to ask and what to collect, from the door to getting paid. Practice with an AI homeowner first.</span><span class="es" lang="es">Qué decir, qué preguntar y qué juntar, de la puerta hasta el cobro. Practica antes con un cliente de IA.</span></p></li><li><span class="tile"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5.5 6v5.3c0 4.3 2.8 7.6 6.5 9.2 3.7-1.6 6.5-4.9 6.5-9.2V6z"/><path d="m9.2 12.2 2 2 3.8-3.9"/></svg></span><b><span class="en">English and Spanish, with guardrails</span><span class="es" lang="es">Inglés y español, con reglas claras</span></b><p><span class="en">Scripts in both languages, the required notices at the right moment, and no promises about what insurance will pay.</span><span class="es" lang="es">Guiones en los dos idiomas, los avisos obligatorios en el momento justo y ninguna promesa sobre lo que pagará el seguro.</span></p></li></ul>
+    <div class="device"><svg class="motif" viewBox="0 0 640 800" aria-hidden="true"><defs><radialGradient id="core" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#c8288f" stop-opacity=".38"/><stop offset=".55" stop-color="#c8288f" stop-opacity=".12"/><stop offset="1" stop-color="#c8288f" stop-opacity="0"/></radialGradient></defs><circle cx="170" cy="330" r="220" fill="url(#core)"/><circle cx="320" cy="400" r="200" fill="none" stroke="#d6d8de" stroke-width="1.2"/><circle cx="320" cy="400" r="290" fill="none" stroke="#d6d8de" stroke-width="1.2"/><circle cx="320" cy="400" r="380" fill="none" stroke="#d6d8de" stroke-width="1.2" stroke-dasharray="3 7"/><circle cx="157.8" cy="159.6" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="104.5" cy="206.0" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="63.9" cy="263.9" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="38.6" cy="329.8" r="10" fill="#c8288f"/><circle cx="38.6" cy="329.8" r="19" fill="none" stroke="#c8288f" stroke-opacity=".35" stroke-width="2"/><circle cx="30.0" cy="400.0" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="38.6" cy="470.2" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="63.9" cy="536.1" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="104.5" cy="594.0" r="6" fill="#18191c" fill-opacity=".28"/><circle cx="157.8" cy="640.4" r="6" fill="#18191c" fill-opacity=".28"/></svg><div class="phone"><div class="screen"><div class="status"><span class="clock">9:41</span><span class="island"></span><span class="sys"><svg viewBox="0 0 64 12" aria-hidden="true"><g fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="3" width="3" height="8" rx="1"/><rect x="13.5" y="1" width="3" height="10" rx="1"/></g><path d="M22.5 4.6a7.6 7.6 0 0 1 10 0M24.6 6.9a4.6 4.6 0 0 1 5.8 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="27.5" cy="9.4" r="1.2" fill="currentColor"/><rect x="39.5" y=".75" width="21" height="10.5" rx="3" fill="none" stroke="currentColor" stroke-opacity=".45"/><rect x="41.3" y="2.5" width="15.5" height="7" rx="1.6" fill="currentColor"/><path d="M62.3 4.2v3.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.4" stroke-linecap="round"/></svg></span></div><img src="now.png" width="390" height="844" alt="The Now screen: today's best hail zone on a map, its hail size, homes and distance, with Drive and Start knocking."></div></div></div>
+  </main>
+  
+</div>
+<script>
+(function(){var r=document.documentElement;
+function set(l){r.setAttribute('data-lang',l);r.lang=l;
+document.querySelectorAll('[data-set]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-set')===l))});
+try{localStorage.setItem('pb-lang',l)}catch(e){}}
+var s=null;try{s=localStorage.getItem('pb-lang')}catch(e){}
+set(!r.hasAttribute('data-fixed')&&(s==='es'||s==='en')?s:(r.getAttribute('data-lang')||'en'));
+document.querySelectorAll('[data-set]').forEach(function(b){b.addEventListener('click',function(){set(b.getAttribute('data-set'))})});
+})();
+</script>
+</body>
+</html>

@@ -212,6 +212,14 @@ function pageAudit() {
       const cs = getComputedStyle(n);
       if (cs.display === "none") return false;
       if (cs.visibility === "hidden" || cs.visibility === "collapse") return false;
+      if (n.tagName === "DETAILS" && !n.open) {
+        // A closed native <details> paints none of its content except <summary> - Chromium suppresses
+        // it internally, not via a computed display:none on the child, so getComputedStyle alone
+        // (checked above) misses this and would otherwise treat a collapsed accordion's contents as
+        // on-screen.
+        const summary = n.querySelector(":scope > summary");
+        if (!(summary && (el === summary || summary.contains(el)))) return false;
+      }
       if (n.tagName === "HTML") break;
     }
     return true;
@@ -364,13 +372,7 @@ function pageAudit() {
     }
   }
 
-  function checkOverlaps(root) {
-    const CTRL_SEL = 'button, a[href], [role="button"], [role="tab"], input:not([type="hidden"]), select, textarea, summary';
-    const items = [...root.querySelectorAll(CTRL_SEL)]
-      .filter((el) => !el.disabled && isVisible(el) && cumOpacity(el) > 0.2)
-      .map((el) => ({ el, r: el.getBoundingClientRect() }))
-      .filter((x) => x.r.width > 2 && x.r.height > 2)
-      .slice(0, 220);   // generous cap; keeps the O(n^2) pass cheap even on a very busy screen
+  function overlapPass(items, rule, describeMsg) {
     const flagged = new Set();
     for (let i = 0; i < items.length; i++) {
       for (let j = i + 1; j < items.length; j++) {
@@ -385,9 +387,39 @@ function pageAudit() {
         const key = describeEl(a.el) + "|" + describeEl(b.el);
         if (flagged.has(key)) continue;
         flagged.add(key);
-        fail("overlap", `overlaps ${describeEl(b.el)} by ${Math.round(ratio * 100)}% of the smaller control's area (e.g. a floating bar covering a button)`, a.el, a.r);
+        fail(rule, describeMsg(a, b, ratio), a.el, a.r);
       }
     }
+  }
+
+  function checkOverlaps(root) {
+    // Interactive controls overlapping each other: the literal ask (a floating bar covering a button).
+    const CTRL_SEL = 'button, a[href], [role="button"], [role="tab"], input:not([type="hidden"]), select, textarea, summary';
+    const controls = [...root.querySelectorAll(CTRL_SEL)]
+      .filter((el) => !el.disabled && isVisible(el) && cumOpacity(el) > 0.2)
+      .map((el) => ({ el, r: el.getBoundingClientRect() }))
+      .filter((x) => x.r.width > 2 && x.r.height > 2)
+      .slice(0, 220);   // generous cap; keeps the O(n^2) pass cheap even on a very busy screen
+    overlapPass(controls, "overlap", (a, b, ratio) =>
+      `overlaps ${describeEl(b.el)} by ${Math.round(ratio * 100)}% of the smaller control's area (e.g. a floating bar covering a button)`);
+
+    // Prominent text (its own font-size >= 18px, with a directly-owned text node - a "big number" or
+    // headline, not just any large ancestor) overlapping other prominent text: a narrow column with a
+    // big bold value in it is exactly how FilthE's garbled-digits bug happened, and no control is
+    // involved, so the pass above alone would miss it entirely.
+    const big = [];
+    for (const el of root.querySelectorAll("*")) {
+      if (!isVisible(el) || cumOpacity(el) <= 0.2) continue;
+      let hasDirectText = false;
+      for (const child of el.childNodes) { if (child.nodeType === 3 && child.nodeValue && child.nodeValue.trim()) { hasDirectText = true; break; } }
+      if (!hasDirectText) continue;
+      if ((parseFloat(getComputedStyle(el).fontSize) || 0) < 18) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width > 2 && r.height > 2) big.push({ el, r });
+      if (big.length >= 220) break;
+    }
+    overlapPass(big, "text-overlap", (a, b, ratio) =>
+      `large text overlaps ${describeEl(b.el)} by ${Math.round(ratio * 100)}% of the smaller element's area (reads as garbled/unreadable, e.g. two card values colliding in a too-narrow column)`);
   }
 
   function checkDuplicateChrome(root) {
@@ -584,9 +616,9 @@ function printReport(findings, rel) {
   } else {
     const byRule = new Map();
     for (const f of findings) { if (!byRule.has(f.rule)) byRule.set(f.rule, []); byRule.get(f.rule).push(f); }
-    const order = ["load-error", "js-error", "audit-error", "audit-crash", "nav-error", "contrast", "contrast-icon",
-      "empty-control", "invisible-control", "tap-target", "font-size", "sideways-scroll", "overlap",
-      "duplicate-control", "broken-image", "broken-svg", "heading-truncated"];
+    const order = ["load-error", "js-error", "audit-error", "audit-crash", "nav-error", "text-overlap", "overlap",
+      "duplicate-control", "broken-image", "broken-svg", "empty-control", "invisible-control", "tap-target",
+      "sideways-scroll", "contrast", "contrast-icon", "font-size", "heading-truncated"];
     const rules = [...byRule.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
     say(`\n${findings.length} problem(s) across ${rules.length} rule(s):\n`);
     for (const rule of rules) {
