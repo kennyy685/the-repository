@@ -7,7 +7,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 ## Who
 - **FilthE** (Kenny Cruz, 402-936-2709): builds this system, does insurance sales, bilingual, owns the app (product name
   **Aldaba**, trademark pending). Plain English, short, skimmable (ADHD). Never make him type into spreadsheets.
-  Don't re-ask answered questions (see full-context).
+  Don't re-ask answered questions (see full-context). He's the idea person ("a kid behind a computer screen making an
+  idea come to reality"): don't ask him HMP operations facts (crews, pay, budget); those wait for the boss
+  (docs/memory/questions-for-filthe.md). Ask him about ideas, taste and the app.
 - **Research first, don't ask (FilthE, 2026-09-27):** "stop asking me for info when there's a whole web to use." Anything
   the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
   tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's

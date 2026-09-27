@@ -7,7 +7,12 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
 ## Answered
 - 12 months / normal Tuesday / what matters most: see full-context.md "FilthE's vision" (2026-09-27).
 
-## Open (asked 2026-09-27)
+**FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
+screen making an idea come to reality." So: don't ask him HMP operations questions (crews, pay, budget, materials,
+the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
+them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
+
+## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - Hours a week he can give to knocking/selling, and what pulls him away.
 - Where the boss stands on insurance restoration and the app (all in / curious / doubtful); does he know what's built?
 - Can HMP pay for materials up front on a first insurance job (~$8-15k before the insurance check)?

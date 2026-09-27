@@ -29,6 +29,8 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
 - **Worktrees for builders (round 55):** when two helpers both edit files, start the file-editing one with the Agent
   tool's `isolation: "worktree"` so it works in its own checkout; the King merges its branch after review. Research-only
   helpers can share the main tree.
+- **Publishing:** a helper that gets a refused publish stops and reports the exact message; only the King decides to
+  resend (auto mode flagged a helper resending on the service's say-so, 2026-09-27; no harm, the live page was verified).
 - **Legal check on every stop:** a Stop hook runs `tests/legal_check.py`; a turn can't end with a legal failure.
 - **Plugins/MCP servers:** Anthropic doesn't security-audit MCP servers, even in its directory. Add none without the
   King reading what it does and FilthE installing it from the card.
