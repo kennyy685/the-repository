@@ -26,7 +26,8 @@ the computer for now."** Don't chase it unless he brings it up.
    `.claude/worktrees/agent-acdc9022eabf9d432` can be deleted). Fold in **T205** ("Step 5 of 14" wraps on phones).
 2. **Engine Mechanic, T203** (storm-age dip/bump for winter walks) + write the new King-trigger prompt with the accounts
    step (T193) into `docs/orders/king-trigger-prompt.md`; the King applies it with update_trigger.
-Then: **Designer/Research** read https://tabnav.com/blog/best-website-design-examples (FilthE sent it 2026-09-27)
+Then: **Research Lead: upgrade the robots** (FilthE's order: research better prompts, tools, skills, models for
+`.claude/agents/*`, then apply the best ones); **Designer/Research** read https://tabnav.com/blog/best-website-design-examples (FilthE sent it 2026-09-27)
 and pull ideas for the Aldaba landing page + an HMP website; **QA T163** bad-signal stress test; **Research Lead** round 59 (claim deadlines, EraHub) with pymupdf; merge the
 "AI hub: Penthouse HQ" work (T190, branch `claude/funny-hawking-2rytou`) when done, keeping the crew-hq design-gate fixes.
 Session-start hook lists stray branches (dreamy-wright, eager-bardeen, focused-cannon, funny-hawking): check and merge

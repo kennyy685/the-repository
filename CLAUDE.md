@@ -14,6 +14,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
   tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's
   prices, registration #, warranty promises, spending money, signing anything, deleting data.
+- **Chain of command (FilthE, 2026-09-27):** FilthE = mastermind at the top; the King = the tip inside the computer;
+  the hub robots (`.claude/agents/*`) = "agents"/"sub agents". "Make them better" = the King researches and upgrades
+  those robots (prompts, tools, skills, models) so they make the King's job easier.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
