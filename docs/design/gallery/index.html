@@ -225,9 +225,8 @@ body{background:var(--bg);color:var(--ink)}
 .gs-fields .field-basic.err .hint .i{width:13px;height:13px}
 .gs-fields .field-basic select{appearance:none;background-image:none}
 
-/* ============ 17. overflow: EN vs long ES ============ */
-.gs-overflow .ofrow{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
-.gs-overflow .ofrow .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+/* ============ 17. overflow: EN vs long ES - reuses .rows/.row/.chip/.btn/.ans/.offer as-is,
+   on purpose, so what breaks here is a real ds.css gap and not a gallery-only container bug */
 </style>
 </head>
 <body>
@@ -776,13 +775,13 @@ body{background:var(--bg);color:var(--ink)}
     <div class="pair">
       <div class="swatch lt"><span class="themetag">Light</span>
         <div class="demo-col">
-          <div class="demo-label">Top bar title</div>
-          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
+          <div class="demo-label">Top bar title (ds.css's real .top h1 rule - no override added here)</div>
+          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
           <div class="demo-label">List row (title + sub, both ellipsis)</div>
-          <div class="ofrow"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
-          <div class="demo-label">Chip</div>
-          <span class="chip late" style="max-width:220px"><svg class="i"><use href="#i-flag"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Atrasado 2 d&iacute;as, llamar al banco</span></span>
-          <div class="demo-label">Button label</div>
+          <div class="rows"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
+          <div class="demo-label">Chip (fits its content - ds.css chips don't cap width)</div>
+          <span class="chip late"><svg class="i"><use href="#i-flag"/></svg>Atrasado 2 d&iacute;as, llamar al banco de la hipoteca</span>
+          <div class="demo-label">Button label (ds.css's real .btn rule - no override added here)</div>
           <button class="btn pri block">Empezar a tocar puertas en este vecindario</button>
           <div class="demo-label">Door button (long ES)</div>
           <div class="answers" style="grid-template-columns:1fr"><button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Agendado</b><small>elige el d&iacute;a y la hora que mejor le acomoden</small></span></button></div>
@@ -792,13 +791,13 @@ body{background:var(--bg);color:var(--ink)}
       </div>
       <div class="swatch dk"><span class="themetag">Dark</span>
         <div class="demo-col">
-          <div class="demo-label">Top bar title</div>
-          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
+          <div class="demo-label">Top bar title (ds.css's real .top h1 rule - no override added here)</div>
+          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
           <div class="demo-label">List row (title + sub, both ellipsis)</div>
-          <div class="ofrow"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
-          <div class="demo-label">Chip</div>
-          <span class="chip late" style="max-width:220px"><svg class="i"><use href="#i-flag"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Atrasado 2 d&iacute;as, llamar al banco</span></span>
-          <div class="demo-label">Button label</div>
+          <div class="rows"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
+          <div class="demo-label">Chip (fits its content - ds.css chips don't cap width)</div>
+          <span class="chip late"><svg class="i"><use href="#i-flag"/></svg>Atrasado 2 d&iacute;as, llamar al banco de la hipoteca</span>
+          <div class="demo-label">Button label (ds.css's real .btn rule - no override added here)</div>
           <button class="btn pri block">Empezar a tocar puertas en este vecindario</button>
           <div class="demo-label">Door button (long ES)</div>
           <div class="answers" style="grid-template-columns:1fr"><button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Agendado</b><small>elige el d&iacute;a y la hora que mejor le acomoden</small></span></button></div>
@@ -808,7 +807,7 @@ body{background:var(--bg);color:var(--ink)}
       </div>
     </div>
     <p class="tok">Truncation rule everywhere: <b>white-space:nowrap; overflow:hidden; text-overflow:ellipsis</b> on one line, never a wrapped 2nd line except sub-lines that are allowed to wrap (coach, empty body).</p>
-    <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Found here: <b>.top h1</b> has <code>flex:1</code> but no <code>min-width:0</code>, so a long title doesn't ellipsis - it pushes the whole bar wider and gets clipped raggedly instead. Same for <b>.btn</b> labels: no overflow rule at all, by design ("verb labels only"), so a long one will spill past the button edge. Neither is fixed here - flag to the Builder if a real screen ever needs a title/label this long.</p>
+    <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Found here, both unmodified ds.css: <b>.top h1</b> has no <code>white-space:nowrap</code> or ellipsis, so a long title wraps to 2 lines instead - and since <b>.top</b> is a fixed 52px with <code>overflow:visible</code>, the second line spills past the bar (see above - it overlaps the nav that follows). <b>.btn</b> has <code>white-space:nowrap</code> but no <code>overflow</code>/ellipsis rule at all, by design ("verb labels only") - this string still fits, but a longer one would spill past the button's rounded edge with nothing to catch it. Neither is fixed here - flag to the Builder before a real screen ever needs a title/label this long.</p>
   </section>
 
   <footer style="margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)">
