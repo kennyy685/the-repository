@@ -12,6 +12,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
   tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's
   prices, registration #, warranty promises, spending money, signing anything, deleting data.
+- **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
+  later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
 - **The boss** owns HMP, speaks Spanish. Spanish side of print = Alex Mendez, 402-889-3385. Mailing address:
   2600 Laverna St, Apt 50, Fremont, NE 68025. Registration # pending (print keeps a blank line).
 - HMP: siding, roofing, gutters, residential + commercial; subs labor for VTR / Nastase; goal = insurance restoration
