@@ -1124,12 +1124,12 @@ const G = {
   body: new THREE.LatheGeometry(bodyPts, 40),
   head: new RoundedBoxGeometry(.38,.25,.31,3,.095),
   visor: new RoundedBoxGeometry(.32,.14,.05,3,.022),
-  eye: new THREE.CircleGeometry(.026, 24),
+  eyes: mergeGeometries([-1,1].map(s => new THREE.CircleGeometry(.026, 24).scale(1.45, 1, 1).translate(s*.066/1, 0, 0))),
   strip: new THREE.TorusGeometry(.2145,.0095,6,64),
   halo: new THREE.TorusGeometry(.216,.03,6,64),
   hand: new THREE.SphereGeometry(.044, 14, 10),
   neck: new THREE.CylinderGeometry(.055,.07,.07,24),
-  ear: new THREE.CylinderGeometry(.038,.038,.018,20),
+  ears: mergeGeometries([-1,1].map(s => new THREE.CylinderGeometry(.038,.038,.018,20).rotateZ(Math.PI/2).translate(s*.193, 0, 0))),
   chase: new THREE.SphereGeometry(.02, 10, 8),
   ring: new THREE.RingGeometry(.36,.4,64),
   badge: new THREE.CircleGeometry(.028, 20),
@@ -1151,8 +1151,8 @@ function makeRobot(a){
   head.add(S(new THREE.Mesh(G.head, shell)));
   const visor = new THREE.Mesh(G.visor, MAT.visor); visor.position.set(0, -.004, .138); head.add(visor);
   const eyeMat = new THREE.MeshBasicMaterial({color:0xfff2e0, toneMapped:false});
-  const eyes = [-1,1].map(s => { const e = new THREE.Mesh(G.eye, eyeMat); e.position.set(s*.066, -.002, .1655); e.scale.set(1.45, .6, 1); head.add(e); return e; });
-  for (const s of [-1,1]){ const e = new THREE.Mesh(G.ear, MAT.brass); e.rotation.z = Math.PI/2; e.position.set(s*.193, 0, 0); head.add(e); }
+  const eyeMesh = new THREE.Mesh(G.eyes, eyeMat); eyeMesh.position.set(0, -.002, .1655); eyeMesh.scale.set(1, .6, 1); head.add(eyeMesh); const eyes = [eyeMesh];
+  head.add(new THREE.Mesh(G.ears, MAT.brass));
   if (def.acc === 'crown'){
     const crown = new THREE.Group(); crown.position.y = .165; crown.scale.setScalar(1.25); head.add(crown);
     const band = new THREE.Mesh(new THREE.CylinderGeometry(.13,.12,.05,40,1,true), MAT.brass); band.material.side = THREE.DoubleSide; crown.add(band);
@@ -1299,7 +1299,7 @@ function animRobot(a, R, t, dt){
   const reading = pose === 'read' || pose === 'meet' && a.id === 'code';
   R.tablet.visible = reading; if (reading){ R.tablet.position.set(0, R.hands[0].position.y + .02, .3); R.tablet.rotation.set(.9, 0, 0); }
   R.cup.visible = pose === 'coffee'; if (R.cup.visible){ R.cup.position.copy(R.hands[1].position).add(V.set(0,.06,.02)); }
-  R.steam.forEach((s,i) => { const on = pose === 'coffee' && !rm; const k = ((t*.6 + i/3) % 1); s.material.opacity = on ? Math.sin(k*Math.PI)*.35 : 0; if (on) s.position.set(R.cup.position.x + Math.sin(k*6+i)*.02, R.cup.position.y + .06 + k*.22, R.cup.position.z); s.scale.setScalar(.05 + k*.06); });
+  R.steam.forEach((s,i) => { const on = pose === 'coffee' && !rm; s.visible = on; const k = ((t*.6 + i/3) % 1); s.material.opacity = on ? Math.sin(k*Math.PI)*.35 : 0; if (on) s.position.set(R.cup.position.x + Math.sin(k*6+i)*.02, R.cup.position.y + .06 + k*.22, R.cup.position.z); s.scale.setScalar(.05 + k*.06); });
   if (a.tip) a.tip.material.color.setHex(pose === 'sleep' ? 0x40221a : (rm || Math.sin(t*4) > 0 ? 0xff6a3d : 0x5a2615));
   // floor: contact shadow + state ring
   const hh = R.hov.position.y; R.shadow.scale.setScalar(.95 - hh*.45); R.shadow.material.opacity = Math.max(.15, .62 - hh*.55);
@@ -1311,6 +1311,7 @@ function animRobot(a, R, t, dt){
   if (rc){ R.ring.material.color.copy(rc); } R.ring.material.opacity = lerp(R.ring.material.opacity, rop, Math.min(1, dt*10)); R.ring.scale.setScalar(rs);
   const sel = HUB.selected === a.id && pose !== 'wait' && pose !== 'blocked'; R.ring2.material.color.copy(EYE); R.ring2.material.opacity = lerp(R.ring2.material.opacity, sel ? .5 : (pose === 'wait' ? .55 : 0), Math.min(1, dt*8));
   if (pose === 'wait') R.ring2.material.color.copy(ORANGE); R.ring2.scale.setScalar(pose === 'wait' ? 1.05 : 1.15);
+  R.ring.visible = R.ring.material.opacity > .01; R.ring2.visible = R.ring2.material.opacity > .01;
   // fade in after a reduced-motion jump
   // overlay anchor: top of the head, and the floor under the robot
   V.set(a.x, hh*1.24 + (a.crown ? 1.46 : 1.3), a.z).project(cam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H;
