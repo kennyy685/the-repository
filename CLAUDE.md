@@ -215,6 +215,11 @@ the crew small: add a helper only for work that repeats.
   in parallel), `qa-tester` (reviews + tests before anything ships; cheaper model).
 - Skills (`.claude/skills/`): `hailhunter-reference`, `engine-change`, `crew-checkin`, `refresh-hmp-hq`,
   `improvement-research`, `/storm-report`, `/door-list DAY TOWN`, `/call-list N`.
+- **Cost rule (FilthE, 2026-09-27):** every helper runs its own requests, so pick the cheapest model that can do the job
+  and keep prompts tight (point to files, don't paste them; ask for short reports). Scouts = haiku (one web topic); Research
+  Lead + QA = sonnet; routine chores (HMP HQ refresh, board posting, data seeding, small doc edits) = haiku via the Agent
+  `model` override, or the King does them directly; builder/designer/engine-mechanic = the main model only for real app,
+  design or engine work. Run 1-3 helpers at a time unless FilthE asks for more.
 - **Research:** FilthE wants regular rounds (he worries about missing areas or focusing on the wrong things); they go
   to `docs/research/` and show in the hub's Code lab. Round 1: knocking, not software, is the bottleneck. Round 2:
   FilthE hasn't knocked a door or run a claim yet and will learn; foundation first (D11: no build freeze), so build

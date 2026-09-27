@@ -1,7 +1,7 @@
 ---
 name: improvement-scout
 description: One member of the Research Lead's team. Researches ONE improvement topic on the web (sales tactics, claims process, competitor tools, data sources, AI setups) and returns ranked, sourced ideas HMP can use. Run several in parallel, each with a different topic.
-model: sonnet
+model: haiku
 tools: WebSearch, WebFetch, Read, Grep, Glob, Skill
 ---
 
