@@ -6,6 +6,11 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
 - 12 months / normal Tuesday / what matters most: see full-context.md "FilthE's vision" (2026-09-27).
+- Pay (2026-09-27): commission once jobs close ("I know I'ma get commission when I make this work and start pulling in
+  houses"). Rate unknown. Later the app/HQ can show his commission pipeline.
+- Selling background (2026-09-27): "I've sold items before so I know and am intellectual in it, I'm not experienced in
+  anything though." Smart and has sold before, but no roofing/claims/door-to-door experience yet: teach from zero
+  (outside the app), skip basic theory he already gets.
 
 **FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
 screen making an idea come to reality." So: don't ask him HMP operations questions (crews, pay, budget, materials,
@@ -20,7 +25,6 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - HMP's crews: how many people, what they can install (roof tear-off? Hardie?), how much work per week they can take.
 - What HMP does best and earns most on (siding / roofing / gutters; houses / apartments); what he wants 10 more of.
 - Nastase and VTR: would they hand HMP storm jobs, or see HMP as competition once HMP sells direct?
-- What he has sold before (anything) and what worked for him.
 - His warm network: towns and neighborhoods where he has family, friends or past customers.
 - His pay deal: commission per job? Salary? (Decides what the app and HQ should count for him.)
 - A monthly budget for growth (yard signs, hangers, tools), even a small one.
