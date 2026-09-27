@@ -1,7 +1,5 @@
 {
-  "contrastIgnoreSelectors": [".bar .mark", ".bar .mark svg", ".mark svg"],
-  "_comment_contrastIgnoreSelectors": "Brand logo marks (the orange HMP roof-chevron in the header) - exempt from contrast/contrast-icon checks. Also skipped: any element with data-gate-ignore=\"logo\" on it or an ancestor, wherever a page marks one directly.",
-  "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses.",
+  "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses. The agents/events/answers collections and the board/current, system/king and system/memory docs are the AI hub's (pages/crew-hq.html; shapes from the crew-checkin skill); the HMP App never reads them.",
   "collections": {
     "leads": {
       "615-n-linden-ave": {
@@ -93,6 +91,25 @@
     "evidence": {
       "615-n-linden-ave-fremont": {"day": "2026-09-24", "hail_in": 2.0, "nearest_report": {"dist_mi": 0.4, "size_in": 1.75, "source": "lsr"}, "radar_max_in": 2.25},
       "1418-n-irving-st-fremont": {"day": "2026-09-24", "hail_in": 1.75, "nearest_report": {"dist_mi": 0.8, "size_in": 1.5, "source": "lsr"}, "radar_max_in": 2.0}
+    },
+    "agents": {
+      "code": {"status": "working", "room": "tests", "doing": "Design gate for every page publish", "task": "T72", "at": "2026-09-27T19:40:00Z"},
+      "qa-tester": {"status": "working", "room": "tests", "doing": "Running the design gate on the HMP App", "task": "T72", "at": "2026-09-27T19:35:00Z"},
+      "builder": {"status": "idle", "room": "dock", "doing": "", "task": "T75", "at": "2026-09-27T16:10:00Z"},
+      "engine-mechanic": {"status": "blocked", "room": "engine", "doing": "Waiting on county permit data", "task": "T23", "at": "2026-09-27T15:00:00Z"},
+      "king": {"status": "working", "room": "board", "doing": "Sunday standup: gate first, then prices", "at": "2026-09-27T19:00:00Z"},
+      "cowork": {"status": "idle", "room": "storm", "doing": "", "at": "2026-09-27T12:00:00Z"},
+      "storm-watch": {"status": "sleeping", "room": "storm", "doing": "Resting until its next run", "at": "2026-09-27T11:54:00Z"}
+    },
+    "events": {
+      "20260927T194000Z-code": {"agent": "code", "at": "2026-09-27T19:40:00Z", "kind": "progress", "lane": "code", "room": "tests", "status": "working", "task": "T72", "text": "Design gate self-test passes; running it on all three pages now."},
+      "20260927T193500Z-qa-tester": {"agent": "qa-tester", "at": "2026-09-27T19:35:00Z", "kind": "start", "lane": "code", "room": "tests", "status": "working", "task": "T72", "text": "Starting the design gate run on the HMP App."},
+      "20260927T190000Z-king": {"agent": "king", "at": "2026-09-27T19:00:00Z", "kind": "handoff", "to": "code", "lane": "board", "room": "board", "status": "working", "task": "T72", "text": "Write the missing design gate before the next app publish."},
+      "20260927T161000Z-builder": {"agent": "builder", "at": "2026-09-27T16:10:00Z", "kind": "done", "lane": "code", "room": "dock", "status": "done", "task": "T75", "text": "Layout B shipped: Now, Knock, +, Leads, Money."},
+      "20260927T120000Z-cowork": {"agent": "cowork", "at": "2026-09-27T12:00:00Z", "kind": "done", "lane": "chat", "room": "storm", "status": "done", "text": "Storm Watch ran: no new hail within 250 miles."}
+    },
+    "answers": {
+      "D17": {"id": "D17", "q": "Referral thank-you: a handwritten note only?", "answer": "Yes", "note": "no gift cards or money", "at": "2026-09-26T20:00:00Z", "by": "FilthE"}
     }
   },
   "docs": {
@@ -131,6 +148,39 @@
     },
     "stats/streak": {"days": 3},
     "stats/week-2026-39": {"doors": 42, "conversations": 11, "inspections": 3, "estimates": 1, "signed": 1, "week": "2026-39"},
-    "stats/week-2026-38": {"doors": 30, "conversations": 7, "inspections": 2, "estimates": 0, "signed": 0}
+    "stats/week-2026-38": {"doors": 30, "conversations": 7, "inspections": 2, "estimates": 0, "signed": 0},
+    "board/current": {
+      "now": [
+        {"id": "T72", "owner": "code", "status": "DOING", "task": "Design gate: contrast, blank buttons, 44px taps, overlaps, duplicates"},
+        {"id": "T51", "owner": "you", "status": "BLOCKED", "task": "Price sheet from the boss"},
+        {"id": "T75", "owner": "builder", "status": "REVIEW", "task": "App layout B: Now / Knock / + / Leads / Money"},
+        {"id": "T61", "owner": "cowork", "status": "TODO", "task": "Re-bundle the engine for Storm Watch"},
+        {"id": "T23", "owner": "engine-mechanic", "status": "BLOCKED", "task": "Owner-occupied per house, not per neighborhood"},
+        {"id": "T64", "owner": "you", "status": "DONE", "task": "Registration number line on print pieces"}
+      ],
+      "next": [
+        {"id": "T85", "owner": "designer", "status": "TODO", "task": "Supplement checklist print piece, EN + ES"},
+        {"id": "T86", "owner": "hub-keeper", "status": "TODO", "task": "Research round: adjuster meeting habits"}
+      ],
+      "waiting": [
+        {"id": "D18", "q": "What is the farthest a crew should drive for a job?"},
+        {"id": "D19", "q": "Is there any budget for paid hail maps?"},
+        {"id": "D17", "q": "Referral thank-you: a handwritten note only?"}
+      ],
+      "updatedAt": "2026-09-27T19:00:00Z", "updatedBy": "King"
+    },
+    "system/king": {
+      "title": "Sunday plan", "summary": "Design gate first, then the price sheet as soon as the boss sends it.",
+      "orders": [
+        {"to": "code", "text": "Write the missing design gate and run it on every page", "task": "T72"},
+        {"to": "builder", "text": "Fix whatever the gate finds on the Money tab", "task": "T75"},
+        {"to": "cowork", "text": "Re-bundle after the gate lands", "task": "T61"}
+      ],
+      "at": "2026-09-27T19:00:00Z"
+    },
+    "system/memory": {
+      "facts": ["FilthE owns the app; HMP is its first user.", "Door knocking and business lines only: no cold texts, no mailers.", "Theme A Ledger: light, clean, orange accent."],
+      "updatedAt": "2026-09-27T18:00:00Z", "updatedBy": "King"
+    }
   }
 }

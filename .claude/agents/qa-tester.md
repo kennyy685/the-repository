@@ -36,28 +36,26 @@ Run these on every review, in addition to `hh.py selftest`:
   viewer approves anything), saves a PNG per page+size to `tests/pages/out/` (gitignored scratch),
   and fails on a real JS error or sideways scroll. A failed *external* resource load (Google Fonts,
   no internet in this sandbox) is logged but does not fail the run - it isn't a bug in the page.
-- **Design quality gate (mandatory before any app publish)** - `node tests/pages/design_gate.js
-  [--page pages/hmp-app.html]` (default page; pass `--page pages/practice-door.html` or
-  `--page pages/crew-hq.html` to check those - run the gate against whichever page(s) the change
-  actually touches). This is the check FilthE asked for after catching white-on-white buttons,
-  duplicate menus and a broken map by eye: run it on every review that touches `pages/*.html`, and
-  **always run it - and read its report - before any HMP App / AI hub / HMP HQ / Practice Door
-  publish**, not just when asked. Renders the page with a mocked `window.claude` + fixture data
-  (leads/claims/doors/today-walk, frozen to "today" 2026-09-27 so it stays deterministic), in light
-  AND dark (`prefers-color-scheme` at all 3 widths x both languages, plus a `data-theme`-override
-  spot check), at 360/390/420px, EN and ES (switched by clicking the page's own `#langEs`/`#langEn`
-  toggle, so it works regardless of how a given page stores the choice underneath), and visits every
-  tab plus the "+" sheet. FAILS on: contrast < 4.5:1 for text (< 3:1 for large text/icons - a brand
-  logo mark is exempt from this one: `data-gate-ignore="logo"` on it or an ancestor, or a selector in
-  the fixture's `contrastIgnoreSelectors`), an empty or effectively invisible button label/icon, tap
-  targets under 44x44px, font sizes under 12px, sideways scroll, interactive elements overlapping
-  each other (e.g. a floating bar covering a button), duplicate identical controls in the same
-  header/nav, JS errors, broken images/0-size SVGs, and heading text cut off mid-word. Prints a
-  readable report grouped by rule and saves a screenshot per failing view (capped) to
-  `tests/pages/design_gate_out/` (gitignored scratch). See `docs/qa/design-gate-v24_1.md` for what it
-  found on `pages/hmp-app.html` and `pages/practice-door.html` and how to read font-size findings
-  there (many of them are one intentional 10-11px design-system choice, not scattered bugs - still
-  real, worth a design call, but report them as one finding, not 1300 of them).
+- **Design quality gate (mandatory before any app publish)** - `node tests/pages/design_gate.js`
+  (release checklist step 2; `--quick` = 360px, light + dark, EN only, ~30s, for while you build;
+  `--page hmp-app` for one page). This is the check FilthE asked for after catching white-on-white
+  buttons and duplicate menus by eye: run it on every review that touches `pages/*.html`, and
+  **always run it - and read its report - before any HMP App / AI hub / Practice Door publish**,
+  not just when asked. Renders `pages/hmp-app.html` (every tab + the "+" and lead sheets),
+  `pages/crew-hq.html` and `pages/practice-door.html` (+ cheat sheet) with a mocked
+  `window.claude` serving `tests/pages/design_gate_fixture.json` (app + hub data, clock frozen to
+  2026-09-27, network blocked, so the same pages always give the same answer), at 360x800 and
+  420x900, light and dark via `prefers-color-scheme` AND forced by `data-theme`, EN and ES. FAILS
+  on: text contrast under WCAG AA (4.5:1, 3:1 large; graded against the real pixels behind the
+  text), an icon-only button's icon under 3:1, a button/link with no visible label or icon (an
+  aria-label alone doesn't count) or a label nobody can see, tap targets under 44x44px, two
+  controls on top of each other or a control covered at every scroll position, the same label +
+  action twice on one screen, and JS errors. Report grouped by rule, each line saying the view,
+  the element and which themes/sizes/languages it fails in; one screenshot per problem (outlined
+  in red) in `tests/pages/out/design_gate/` (gitignored). Exit 2 means the gate itself broke (a
+  view wouldn't open, nothing rendered): fix or report that, never read it as a pass. If you
+  change the gate, `node tests/pages/design_gate.js --self-test` must still pass: it plants every
+  problem on a test page next to look-alikes that must NOT be flagged.
 
 All three are standalone scripts (no repo-wide `npm install` needed) - if any of their runtime
 (playwright/chromium) is missing in a given environment, say so rather than skip the review.

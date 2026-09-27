@@ -10,6 +10,8 @@
  * whichever is due first). selfCheck(rules) runs rules.test_cases (real Python results) and returns the failures.
  * Logistics only: no insurance promises, nothing about the deductible (44-8604). No dependencies.
  */
+(function () {   // one closure: the helpers below (num, pyRound, canon, selfCheck...) stay private, so the app
+                 // can load estimate.js, takeoff.js and followups.js side by side without name clashes
 "use strict";
 var FOLLOWUPS_VERSION = 1;
 var MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -173,6 +175,7 @@ function selfCheck(rules) {
   return fails;
 }
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {followups: followups, selfCheck: selfCheck, FOLLOWUPS_VERSION: FOLLOWUPS_VERSION};
-}
+var api = {followups: followups, selfCheck: selfCheck, FOLLOWUPS_VERSION: FOLLOWUPS_VERSION};
+if (typeof module !== "undefined" && module.exports) module.exports = api;   // node: tests/js/followups_check.js
+if (typeof window !== "undefined") window.HMPFollowups = api;   // the HMP App: <script src="app/followups.js">
+})();

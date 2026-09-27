@@ -16,6 +16,8 @@
  * Returns {version, kind, name, material, lines[], groups[], ask_supplier[], assumptions[], text{en,es}}.
  * Throws Error on a bad job (same cases as the Python ValueError). Materials only: no prices. No dependencies.
  */
+(function () {   // one closure: the helpers below (num, pyRound, canon, selfCheck...) stay private, so the app
+                 // can load estimate.js, takeoff.js and followups.js side by side without name clashes
 var TAKEOFF_RULES_VERSION = 1;
 var EPS = 1e-9;
 
@@ -336,7 +338,8 @@ function selfCheck(rules) {
   return fails;
 }
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {takeoff: takeoff, compute: compute, selfCheck: selfCheck, up: up, fmt: fmt, canon: canon,
-                    TAKEOFF_RULES_VERSION: TAKEOFF_RULES_VERSION};
-}
+var api = {takeoff: takeoff, compute: compute, selfCheck: selfCheck, up: up, fmt: fmt, canon: canon,
+           TAKEOFF_RULES_VERSION: TAKEOFF_RULES_VERSION};
+if (typeof module !== "undefined" && module.exports) module.exports = api;   // node: tests/js/takeoff_check.js
+if (typeof window !== "undefined") window.HMPTakeoff = api;   // the HMP App: <script src="app/takeoff.js">
+})();

@@ -44,7 +44,7 @@
 .est-ctl .u{align-self:center;padding:0 8px 0 0;font:400 12px/1 var(--f-body);color:var(--mute);background:var(--bg);display:none}
 .est-roughout{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--bg2);padding:10px 12px;font-size:14px;color:var(--ink2)}
 .est-roughout b{font:700 18px/1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
-.est-tag{display:inline-flex;align-items:center;font:700 12px/1 var(--f-body);letter-spacing:.08em;padding:5px 8px;background:var(--warn);color:#1d1403;flex:none}
+.est-tag{display:inline-flex;align-items:center;font:700 12px/1 var(--f-body);letter-spacing:.08em;padding:5px 8px;background:var(--warn);color:var(--on-warn);flex:none}
 .est-hint{margin:0;font-size:13px;color:var(--mute)}
 
 /* result: the one bordered-in-orange object on the screen */
@@ -88,7 +88,7 @@
 .est-acts{display:flex;flex-wrap:wrap;gap:8px}
 .est-btn{min-height:48px;padding:10px 16px;background:var(--panel2);border:2px solid var(--line2);color:var(--ink);font:700 15px/1.1 var(--f-body);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .est-btn:hover{background:var(--line)}
-.est-btn.go{background:var(--hmp);border-color:var(--hmp);color:#1b1206}
+.est-btn.go{background:var(--hmp);border-color:var(--hmp);color:var(--on-accent)}
 .est-btn.go:hover{background:var(--hmp2)}
 .est-btn:disabled{opacity:.5;cursor:default}
 .est-small{margin:0;font-size:13px;color:var(--mute)}

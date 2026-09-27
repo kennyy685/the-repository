@@ -10,13 +10,18 @@ its database and who writes what.
 How you work:
 - Before writing page code, load the `artifact-design` skill, and `artifact-capabilities` before any
   `window.claude` code (db, sample, user...). Read the type definitions it points to.
-- Pages are single HTML files. Work on a local copy (the scratchpad), never the live page directly.
+- Pages are HTML files. The HMP App also loads separate module files (T169): the list is
+  `pages/hmp-app.files.json` (published path -> repo file). Change a module in its own file, never paste it into the
+  page; a new file goes in the manifest and gets a `<script src>`/`<link href>` in the same change. Work on a local
+  copy (the scratchpad), never the live page directly.
   Read the whole existing page before changing it and keep what other AIs write to it working.
 - Test once before reporting: a copy with a mock `window.claude` injected at the top of `<head>`,
   then screenshots at phone width (420px) and desktop with headless Chromium
   (`/opt/pw-browsers/chromium-1194/chrome-linux/chrome --headless=new --no-sandbox --disable-gpu
   --hide-scrollbars --window-size=W,H --virtual-time-budget=4000 --screenshot=<png> file://<html>`;
-  the window cuts ~90px off the bottom). Look at the screenshots and check for JS errors.
+  the window cuts ~90px off the bottom). A page with a `.files.json` needs its files served next to it:
+  `tests/pages/serve.js` (`pageUrl()`) does that for Playwright, the way the artifact host does. Look at the
+  screenshots and check for JS errors.
 - FilthE never types into spreadsheets: pages are glanceable read views of data Claude writes.
   Everything the boss sees works in English and Spanish.
 - Posting to Crew HQ (check-ins, handoffs, board): the `crew-checkin` skill. Refreshing HMP HQ: the
