@@ -60,7 +60,7 @@ body.bossmode .dock,body.bossmode .tabp,body.bossmode .top .lang,body.bossmode #
 .app-toast .t-act::after{content:"";position:absolute;inset:-4px}
 
 /* ---------- shared bits ---------- */
-.btn:not(.pri):not(.sec):not(.ghost):not(.ink):not(.danger){background:var(--card);border:1px solid var(--line-2)}   /* older sheet parts write a plain .btn */
+.btn:not(.pri):not(.sec):not(.ghost):not(.ink):not(.danger):not(.go){background:var(--card);border:1px solid var(--line-2)}   /* older sheet parts write a plain .btn */
 .k-eb,.dg-h,.k-l{font:500 var(--t-label)/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .dg-h{margin:var(--s3) 0 var(--s1)}
 .n{font:500 12px/1 var(--f);color:var(--muted);font-variant-numeric:tabular-nums}
@@ -194,6 +194,8 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .kacts{display:flex;flex-wrap:wrap;gap:var(--s2)}
 .kacts .btn{flex:1 1 auto}
 .btn.danger{background:var(--late);color:var(--on-ink)}
+.btn.go{background:var(--hmp);color:var(--on-hmp);border:0}   /* older sheets' primary */
+.btn.go:disabled{background:var(--soft);color:var(--muted)}
 .kdone{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);border-radius:var(--r-lg);background:var(--ok-bg);color:var(--ok);font-weight:600;margin-top:var(--s3)}
 .kdone .i{flex:none}
 .klist .row{min-height:56px}
@@ -1763,7 +1765,7 @@ function applyStatic(){
 // v25: the top bar title, the date (Now only), the Knock mic and the composer's example follow the tab
 function shellStatic(){
   const Zs = Z();
-  $('#scrTitle').textContent = Zs.title[tab] || '';
+  $('#scrTitle').textContent = bossOn ? '' : Zs.title[tab] || '';
   $('#barDate').hidden = tab !== 'now';
   $('#micTop').hidden = tab !== 'knock' || bossOn;
   $('#rhBtnT').textContent = Zs.composer(Zs.ex[tab] || Zs.ex.now);
@@ -4645,7 +4647,7 @@ const NWX = {
     views: {next: 'Next 3', list: 'List', map: 'Map'}, then: 'Then', walkMenu: 'More for this walk', about: 'About this walk', noMap: 'No map: these houses have no map spots.',
     doorsToday: 'Doors today', ofGoal: n => `of ${n}`, cnt: {talked: 'talked', interested: 'interested', booked: 'booked'}, leftTime: t => `~${t} left`,
     normal: 'Most doors won’t answer: 20–40% is normal. Keep going.',
-    flip: 'ES ⇄', flipBack: 'EN ⇄', flipAria: 'Show this in the other language',
+    flip: 'ES', flipBack: 'EN', flipAria: 'Show this in the other language',
     lawEb: 'First, by law', law: 'Say your name, HMP, and what you sell, first thing (NE 69-1602).',
     doorGuide: 'At the door', collect: 'Collect', ask: 'Ask', say: 'Say', must: 'Must do',
     guideCollect: ['First name', 'Best day and time', 'Phone (asked, never bought)', 'Who else decides'],
@@ -4690,7 +4692,7 @@ const NWX = {
     views: {next: 'Siguientes 3', list: 'Lista', map: 'Mapa'}, then: 'Después', walkMenu: 'Más de esta ruta', about: 'Sobre esta ruta', noMap: 'Sin mapa: estas casas no tienen ubicación.',
     doorsToday: 'Puertas hoy', ofGoal: n => `de ${n}`, cnt: {talked: 'pláticas', interested: 'interesados', booked: 'agendados'}, leftTime: t => `~${t} más`,
     normal: 'En la mayoría de las puertas no abren: 20–40% es normal. Sigue.',
-    flip: 'EN ⇄', flipBack: 'ES ⇄', flipAria: 'Ver esto en el otro idioma',
+    flip: 'EN', flipBack: 'ES', flipAria: 'Ver esto en el otro idioma',
     lawEb: 'Primero, por ley', law: 'Di tu nombre, HMP y qué vendes, antes que nada (NE 69-1602).',
     doorGuide: 'En la puerta', collect: 'Junta', ask: 'Pregunta', say: 'Di', must: 'Obligatorio',
     guideCollect: ['Primer nombre', 'Mejor día y hora', 'Teléfono (se pide, nunca se compra)', 'Quién más decide'],
@@ -5092,6 +5094,19 @@ function renderDueSheet(){
   const grp = (k, list) => list.length ? `<div class="shead" style="margin-top:var(--s2)"><h2>${esc(W.g[k])}</h2><span class="cap">${list.length}</span></div><ul class="rows">${list.map(dueRowV25).join('')}</ul>` : '';
   soft($('#shBody')).html = (grp('today', g.today) + grp('tomorrow', g.tomorrow) + grp('later', g.later.slice(0, 20))) || `<p class="quiet">${esc(W.dueNone)}</p>`;
 }
+/* Sale Guide step 1 for a house on the walk (the "What to say" sheet): the law line, say, ask, collect, must */
+function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the walk (no lead yet): law line, say, ask, collect, must
+  const W = NW(), X = NX(), ins = kind !== 'cash';
+  const say = lg => withLang(lg, () => { const S = NX().said, w = whyHouse(s, ins ? 'storm' : 'everyday');
+    const r = ins ? (w.day ? S.stormR(w.hail, fmtDay(w.day)) : '') : (w.year ? S.yearR(Math.floor(w.year / 10) * 10) : ''); return ins ? S.doorIns(r) : S.doorCash(r); });
+  const asks = lg => NSX[lg].asks.door(ins ? 'insurance' : 'cash').map(q => Array.isArray(q) ? `<li>${esc(q[0])}<small>${esc(q[1])}</small></li>` : `<li>${esc(q)}</li>`).join('');
+  const col = lg => `<ul class="gcol">${NWX[lg].guideCollect.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  return `<p class="ns-must law" role="note"><b>${esc(W.lawEb)}</b>${esc(W.law)}</p>
+    ${flipBlock('ns-say', W.say, `<q>${esc(say(lang))}</q>`, `<q>${esc(say(otherLang()))}</q>`)}
+    ${compact ? '' : flipBlock('ns-sec', W.ask, `<ul class="ns-ask">${asks(lang)}</ul>`, `<ul class="ns-ask">${asks(otherLang())}</ul>`)}
+    ${flipBlock('ns-sec', W.collect, col(lang), col(otherLang()))}
+    ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}`;
+}
 function renderNow(){ renderZones(); renderToday(); }
 
 /* ---------- the guide sheet for a door on the walk: Sale Guide step 1 before knocking ---------- */
@@ -5491,7 +5506,7 @@ function setBoss(on){
   if (bossOn && lang !== 'es') { bossPrevLang = lang; setLang('es', true); }
   else if (!bossOn && bossPrevLang) { const l = bossPrevLang; bossPrevLang = null; setLang(l, true); }
   if (bossOn && openRef) closeSheet();
-  renderApp(true); if (bossOn) window.scrollTo(0, 0);
+  shellStatic(); renderApp(true); if (bossOn) window.scrollTo(0, 0);
 }
 document.addEventListener('click', ev => { if (ev.target.closest('[data-boss]')) { if (openRef) closeSheet(); setBoss(!bossOn); } });   // v24: the boss view lives under More
 function renderBoss(){
