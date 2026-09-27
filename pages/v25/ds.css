@@ -8,7 +8,7 @@
   color-scheme:light;
   /* surfaces + ink */
   --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
-  --ink:#18191c; --ink-2:#3d3f45; --muted:#6c6f77; --faint:#9a9da4;
+  --ink:#18191c; --ink-2:#3d3f45; --muted:#676a72; --faint:#9a9da4;   /* muted: 4.6:1 on --soft (the mockups' #6c6f77 was 4.44) */
   /* brand: orange means "do this", one per screen */
   --hmp:#f5883a; --hmp-press:#e7762a; --hmp-ink:#a4520f; --hmp-bg:#fdf1e7; --on-hmp:#1b1206;
   /* status (never the accent) */
@@ -160,7 +160,8 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ---------- segmented ---------- */
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--soft);border-radius:var(--r-md);padding:3px}
-.seg button{height:34px;border-radius:9px;font-size:var(--t-cap);font-weight:500;color:var(--muted);min-width:0;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg button{height:34px;border-radius:9px;position:relative;font-size:var(--t-cap);font-weight:500;color:var(--muted);min-width:0;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg button::after{content:"";position:absolute;left:0;right:0;top:min(-5px,calc(50% - 22px));bottom:min(-5px,calc(50% - 22px))}   /* 44 px finger target around a 34 px segment */
 .seg [aria-pressed="true"],.seg [aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:var(--seg-thumb)}
 
 /* ---------- sheet ---------- */
