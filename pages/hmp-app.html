@@ -394,7 +394,7 @@ ol.steps li.now{background:var(--hmp-bg);color:var(--hmp-ink);font-weight:600} o
    is open (who / papers / when / law / money + one tap per part); a hard stop is amber with a lock; due reminders are
    amber on the day and red after. Orange stays "do this": the current step's number and its next part's ring. */
 .jt{gap:var(--s3)}
-.jt-rems{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.jt-rems{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .jt-rems li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:var(--r-sm);font-size:var(--t-cap);line-height:1.4;color:var(--ink)}
 .jt-rems li .i{width:18px;height:18px;margin-top:1px}
 .jt-rems li b{display:block;font:500 var(--t-label)/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px}
@@ -406,14 +406,14 @@ details.jt-done > summary .i{color:var(--ok)}
 details.jt-done > summary .cnt{color:var(--muted);font-weight:400;font-size:var(--t-cap)}
 details.jt-done > summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:1.75px solid var(--muted);border-bottom:1.75px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px)}
 details.jt-done[open] > summary::after{transform:rotate(-135deg)}
-.jt-dl{list-style:none;margin:0;padding:0 0 var(--s2);display:grid}
+.jt-dl{list-style:none;margin:0;padding:0 0 var(--s2);display:grid;grid-template-columns:minmax(0,1fr)}
 .jt-dl li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:36px;font-size:var(--t-cap);color:var(--ink-2)}
 .jt-dl .d{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
 .jt-dl .d.miss{color:var(--warn)}
 .jt-n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font:600 12px/1 var(--mono);background:var(--soft);color:var(--ink-2);font-variant-numeric:tabular-nums}
 .jt-dl .jt-n{width:24px;height:24px;background:var(--ok-bg);color:var(--ok)}
 .jt-dl li.miss .jt-n{background:var(--warn-bg);color:var(--warn)}
-.jt-list{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--soft)}
+.jt-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--soft)}
 .jt-list > li + li{border-top:1px solid var(--soft)}
 .jt-row{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:56px;padding:var(--s2) 0;text-align:left;color:var(--ink)}
 .jt-row .t{flex:1;min-width:0}
@@ -427,7 +427,7 @@ details.jt-done[open] > summary::after{transform:rotate(-135deg)}
 .jt-eb .k-eb{flex:1;min-width:0}
 .jt-now h4{font-size:var(--t-row);font-weight:600;line-height:1.25;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:anywhere}
 .jt-info{margin:0;font-size:var(--t-cap);line-height:1.4;color:var(--ink-2)}
-.jt-parts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.jt-parts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .jt-part{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:52px;padding:6px 12px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--surface-2);box-shadow:var(--raise);text-align:left;color:var(--ink)}
 .jt-part .ckb{width:24px;height:24px;border-radius:50%;border:1.75px solid var(--line-2);display:grid;place-items:center;flex:none;color:var(--on-ink)}
 .jt-part .ckb .i{width:14px;height:14px;stroke-width:2.6}
@@ -3640,12 +3640,12 @@ function renderLeadText(ref){   // lt:<lead>:<template>: the reminder text, to o
    rest as rows (a lock where a hard stop applies). Data: claim.job + the claim's own fields; nothing else is written. ================= */
 const JTX = {
   en: {h: 'Job tracker', now: 'Now', stepOf: (n, t) => `Step ${n} of ${t}`, who: 'Who', papers: 'Papers', when: 'When', law: 'Law', money: 'Money',
-    next: 'Next', tap: 'Tap when done · stamps today', done: 'Done', notLogged: 'Not logged', of: (a, b) => `${a} of ${b} done`, optional: 'If it applies',
+    next: 'Next', tap: 'Tap when done · stamps today', done: 'Done', notLogged: 'Not logged', of: (a, b) => `${a} of ${b} done`, ofN: (a, b) => `${a} of ${b}`, optional: 'If it applies',
     locked: 'Locked', stop: 'Hard stop', noPaper: 'No paper', printKit: 'Print Kit', otherDay: 'Other day: tell the Right Hand', tellAmt: 'Tell the Right Hand the amount',
     saved: n => `Step ${n} logged`, undone: 'Put back.', closed: 'Job closed', allLogged: 'All 14 steps', dueLbl: 'Due', dueToday: 'Due today', rc: 'Job tracker',
     stepsN: ns => (ns.length === 1 ? `step ${ns[0]}` : `steps ${ns.join(', ')}`), pre: a => `${a}, final check $`},
   es: {h: 'Seguimiento del trabajo', now: 'Ahora', stepOf: (n, t) => `Paso ${n} de ${t}`, who: 'Quién', papers: 'Papeles', when: 'Cuándo', law: 'Ley', money: 'Dinero',
-    next: 'Sigue', tap: 'Toque al terminar · pone la fecha de hoy', done: 'Hecho', notLogged: 'Sin anotar', of: (a, b) => `${a} de ${b} hechos`, optional: 'Si aplica',
+    next: 'Sigue', tap: 'Toque al terminar · pone la fecha de hoy', done: 'Hecho', notLogged: 'Sin anotar', of: (a, b) => `${a} de ${b} hechos`, ofN: (a, b) => `${a} de ${b}`, optional: 'Si aplica',
     locked: 'Bloqueado', stop: 'Alto', noPaper: 'Sin papel', printKit: 'Kit de impresión', otherDay: 'Otro día: dígaselo a la Mano Derecha', tellAmt: 'Dígale el monto a la Mano Derecha',
     saved: n => `Paso ${n} anotado`, undone: 'Regresado.', closed: 'Trabajo cerrado', allLogged: 'Los 14 pasos', dueLbl: 'Vence', dueToday: 'Vence hoy', rc: 'Seguimiento',
     stepsN: ns => (ns.length === 1 ? `paso ${ns[0]}` : `pasos ${ns.join(', ')}`), pre: a => `${a}, cheque final $`}
@@ -3665,19 +3665,19 @@ function jtBar(md, c){   // the claim screen's stage bar, counting the 14 job st
   const a = md.fin || !cur ? (c.stage === 'paid' ? J.closed : cStage(c.stage)) : txl(cur.short), b = md.fin || !cur ? '' : J.stepOf(cur.n, md.steps.length);
   return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ' · ' + esc(b) : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
 }
-function jtRemChip(r){ const J = JT(), d = -daysFromToday(r.due); return r.level === 'late' ? `<span class="chip late">${ic('flag')}${esc(Z().lateD(Math.max(1, d)))}</span>` : `<span class="chip warn">${ic('clock')}${esc(Z().dueToday)}</span>`; }
+function jtRemChip(r){ const d = -daysFromToday(r.due); return r.level === 'late' ? `<span class="chip late">${ic('flag')}${esc(Z().lateD(Math.max(1, d)))}</span>` : `<span class="chip warn">${ic('clock')}${esc(r.due === todayStr() ? Z().dueToday : fmtDay(r.due, true))}</span>`; }
 function jobBox(c, md){
   const J = JT(), edit = DB && CAN_EDIT, tell = SAMPLE && CAN_EDIT, addr = strv(c.address);
   const rems = md.reminders.length ? `<ul class="jt-rems" aria-label="${esc(J.dueLbl)}">${md.reminders.map(r => `<li class="${r.level}">${ic(r.level === 'late' ? 'flag' : 'clock')}<span><b>${esc(r.level === 'late' ? Z().lateD(Math.max(1, -daysFromToday(r.due))) : r.due === todayStr() ? J.dueToday : `${J.dueLbl} ${fmtDay(r.due, true)}`)}</b>${esc(txl(r.text))}</span></li>`).join('')}</ul>` : '';
   const doneSteps = md.steps.filter(s => s.status !== 'open');
   const dl = doneSteps.map(s => { const miss = s.status === 'skipped'; return `<li class="${miss ? 'miss' : ''}"><span class="jt-n">${s.n}</span><span>${esc(txl(s.title))}</span><span class="d${miss ? ' miss' : ''}">${esc(miss ? J.notLogged : s.doneOn ? fmtDay(s.doneOn) : J.done)}</span></li>`; }).join('');
-  const fold = doneSteps.length ? `<details class="jt-done"${md.fin ? ' open' : ''}><summary>${ic('check2')}<span>${esc(md.fin ? J.allLogged : J.done)}</span><span class="cnt">${esc(J.of(doneSteps.filter(s => s.status === 'done').length, md.steps.length))}</span></summary><ol class="jt-dl">${dl}</ol></details>` : '';
+  const fold = doneSteps.length ? `<details class="jt-done"${md.fin ? ' open' : ''}><summary>${ic('check2')}<span>${esc(md.fin ? J.allLogged : J.done)}</span><span class="cnt">${esc(J.ofN(doneSteps.filter(s => s.status === 'done').length, md.steps.length))}</span></summary><ol class="jt-dl">${dl}</ol></details>` : '';
   const openId = jtOpen && jtOpen.id === c.id && md.steps.some(s => s.id === jtOpen.step && s.status === 'open') ? jtOpen.step : md.current;
   const remOf = s => md.reminders.find(r => r.step === s.n);
   const items = md.steps.filter(s => s.status === 'open').map(s => {
     if (s.id !== openId) {
       const lk = s.parts.find(p => p.state === 'locked' && p.need === 'req'), r = remOf(s);
-      const sub = lk && !s.reqDone ? `${J.locked} · ${txl(lk.lock[1] || lk.lock[0])}` : s.reqDone ? J.of(s.reqDone, s.reqN) : txl(s.who);
+      const sub = lk && !s.reqDone ? `${txl(lk.lock[0])}: ${txl(lk.lock[1] || '')}` : s.reqDone ? J.of(s.reqDone, s.reqN) : txl(s.who);
       const end = r ? jtRemChip(r) : lk && !s.reqDone ? `<span class="chip warn">${ic('lock')}${esc(J.locked)}</span>` : s.id === md.current ? `<span class="chip hmp">${esc(J.now)}</span>` : ic('chev');
       return `<li><button type="button" class="jt-row${lk && !s.reqDone ? ' lk' : ''}" data-jtopen="${esc(s.id)}" aria-expanded="false"><span class="jt-n">${s.n}</span><span class="t"><b>${esc(txl(s.title))}</b><span>${esc(sub)}</span></span><span class="end">${end}</span></button></li>`;
     }
@@ -3685,7 +3685,7 @@ function jobBox(c, md){
     const parts = s.parts.map(p => {
       const lbl = txl(p), sm = p.state === 'done' ? (typeof p.val === 'string' ? fmtDay(p.val, true) : J.done) : p.state === 'locked' ? J.locked : p.need === 'opt' ? `${J.optional} · ${J.tap}` : p.tell ? J.tellAmt : J.tap;
       if (p.state === 'done') return `<li><div class="jt-part on"><span class="ckb">${ic('check')}</span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></div></li>`;
-      if (p.state === 'locked') return `<li><div class="jt-part lk"><span class="ckb">${ic('lock')}</span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></div></li>`;
+      if (p.state === 'locked') { if (p.need === 'req') first = false; return `<li><div class="jt-part lk"><span class="ckb">${ic('lock')}</span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></div></li>`; }
       const go = first && p.need === 'req'; if (go) first = false;
       if (p.tell) return tell ? `<li><button type="button" class="jt-part${go ? ' go' : ''}" data-tell="${esc(addr)}" data-pre="${esc(J.pre(shortAddr(addr)))}"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></button></li>`
         : `<li><div class="jt-part"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(J.tellAmt)}</small></span></div></li>`;
@@ -3693,7 +3693,7 @@ function jobBox(c, md){
         : `<li><div class="jt-part"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(NX().roNote)}</small></span></div></li>`;
     }).join('');
     const lk = s.parts.find(p => p.state === 'locked');
-    const stop = lk ? `<div class="jt-stop" role="note"><b>${ic('lock')}${esc(J.stop)} · ${esc(txl(lk.lock[0]))}</b><ul>${lk.lock.slice(1).map(m => `<li>${esc(txl(m))}</li>`).join('')}</ul></div>` : '';
+    const stop = lk ? `<div class="jt-stop" role="note"><b>${ic('lock')}${esc(J.stop)} · ${esc(txl(lk.lock[0]))}:</b><ul>${lk.lock.slice(1).map(m => `<li>${esc(txl(m))}</li>`).join('')}</ul></div>` : '';
     const papers = s.papers.length ? `<span class="jt-paper">${s.papers.map(p => `<span>${p.kit ? ic('print') : ''}${esc(txl(p))}</span>`).join('')}</span>` : esc(J.noPaper);
     const meta = [[J.who, esc(txl(s.who))], [J.papers, papers], [J.when, esc(txl(s.when))], ...(s.law ? [[J.law, esc(txl(s.law)), 'law']] : []), [J.money, esc(txl(s.money))]]
       .map(([k, v, cls]) => `<dt>${esc(k)}</dt><dd${cls ? ` class="${cls}"` : ''}>${v}</dd>`).join('');
@@ -3710,7 +3710,7 @@ function jobBox(c, md){
 async function jtTap(id, key, btn){
   const c = claims.find(x => x.id === id); if (!c || !DB || !CAN_EDIT || !window.HMPJobTrack) return;
   const J = JT(), r = HMPJobTrack.tapPatch(c, key, jtOpts(c));
-  if (r.blocked) { appToast(r.blocked.map(txl).join(' · ')); return; }
+  if (r.blocked) { appToast(`${txl(r.blocked[0])}: ${r.blocked.slice(1).map(txl).join('; ')}`); return; }
   if (btn) btn.disabled = true;
   const at = nowIso(), body = Object.assign({}, r.patch, {updated_at: at, updated_by: 'Job tracker'});
   try { await save({op: 'update', path: 'claims/' + id, body});
@@ -5855,7 +5855,8 @@ async function appAction(a, at){
 function appContext(){
   const t0 = todayStr();
   const ls = leads.slice(0, 60).map(l => ({address: l.address, city: l.city, first_name: l.first_name, source: l.source, type: l.type, stage: l.stage, next: l.next_step, visits: (l.doors_visits || []).length}));
-  const cs = claims.slice(0, 40).map(c => ({address: c.address, stage: c.stage, insurer: c.insurer, claim_no: c.claim_no, adjuster_date: c.adjuster_date, next: c.next_step}));
+  const cs = claims.slice(0, 40).map(c => { const md = jtModel(c), cur = md && md.steps.find(s => s.id === md.current);   // v25.2: where the Job tracker stands
+    return {address: c.address, stage: c.stage, insurer: c.insurer, claim_no: c.claim_no, adjuster_date: c.adjuster_date, next: c.next_step, job_step: cur ? `${cur.n} ${cur.short.en}` : undefined}; });
   const m = walkModel();
   const wk = m ? {area: m.w.area, kind: m.kind, houses: m.stops.length, pass: m.pass, tally: m.tally} : 'no walk loaded for today';
   return `

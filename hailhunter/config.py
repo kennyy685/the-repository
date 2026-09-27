@@ -286,6 +286,20 @@ DEFAULTS = {
         "association_days": ["Tue"],
         "association_per_week": 2
     },
+    # Storm alert on your own accounts (`hh.py accounts`, research round 54 item 3, T193): new hail over an address
+    # HMP already has (app leads, claims, Interested/Booked doors, scout_contacts.json businesses) goes to the top of
+    # calls/today as `accounts_hit`. Hail bar = call_today.min_hail; window = the last `max_days` days when set here
+    # (config.json), else today_walk.storm_max_days (60). With no radar reading AT the address (the cloud run has
+    # hud.json only), nearby evidence counts, marked match "near" with its distance:
+    "accounts": {
+        "near_mi": 0.6,             # a storm door-list house this close had the hail (about the 3x3 radar cells
+                                    # the engine reads at one address, watch.hail_at)
+        "report_mi": 3.0,           # a town's hail reports (hud.json storms) or wind reports (wind_events) centered
+                                    # this close
+        "door_results": ["interested", "booked"],   # app door taps that make a door an account
+        "skip_stages": ["lost"],    # lead/claim stages that are no longer accounts (done/paid = past customer: kept)
+        "max_rows": 25              # accounts_hit rows on calls/today
+    },
     # Rental hot list (`hh.py rentals`, research rounds 34/38): likely-rental single-family (owner's county mailing
     # address is elsewhere, T23) and small 2-4 unit multi-family properties, inside the current hot zones. The
     # statewide parcel layer has no unit count, so `units_est` is a rough guess from the building's square footage;

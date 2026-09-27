@@ -7,6 +7,9 @@
  *   ... --only knock,money                                                            -> only shots whose name contains one of these
  *   ... --set aldaba   v25.1 "Aldaba Graphite" review set (Now, Knock, Knock ES, lead sheet, Money, homeowner step 1; the
  *                      default dark and the Light pick) -> docs/design/v25-polish/built-aldaba/*.png
+ *   ... --set t199     v25.2 Job tracker review set: a claim mid-way (1418 Irving St: steps 1-4, 8, 9 done, step 5 half done,
+ *                      the ACV check in today, tear-off and materials locked), dark + light, EN + ES -> docs/design/v25-polish/t199/
+ * A step "scroll:<selector>" scrolls that element to the top of its scroller instead of clicking it; `height` = a taller window.
  * Themes (v25.1): no `theme` = the app's default (dark "Aldaba Graphite", even on a light phone); theme "light" / "auto" =
  * that pick in More > Theme (localStorage hmp-app-look). The phone itself is in light mode in every shot.
  *
@@ -24,7 +27,7 @@ const { pageUrl, closeServer, takeMisses } = require("./serve");
 const ROOT = path.resolve(__dirname, "..", "..");
 const args = process.argv.slice(2);
 const SET = args.includes("--set") ? args[args.indexOf("--set") + 1] : "all";
-const OUT = path.resolve(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : SET === "aldaba" ? "docs/design/v25-polish/built-aldaba" : "docs/design/v25-polish/built");
+const OUT = path.resolve(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : SET === "aldaba" ? "docs/design/v25-polish/built-aldaba" : SET === "t199" ? "docs/design/v25-polish/t199" : "docs/design/v25-polish/built");
 const ONLY = args.includes("--only") ? args[args.indexOf("--only") + 1].split(",") : null;
 const FIXED_NOW_ISO = "2026-09-27T15:00:00-05:00";
 
@@ -68,6 +71,16 @@ function data(opts = {}) {
     D["system/prices"] = JSON.parse(fs.readFileSync(path.join(__dirname, "v25_prices.json"), "utf8"));
   }
   if (opts.noMoney) { C.claims = {}; for (const k of Object.keys(C.leads)) if (C.leads[k].type === "cash") delete C.leads[k]; }
+  // v25.2 (T199): a claim mid-way through the Job tracker, on Sunday Sep 27: contract signed Fri Sep 25 (3-day cancel ends
+  // midnight Tue Sep 29), itemized description sent to the homeowner but not yet to the insurer, the ACV check in today with
+  // US Bank on it, permit pulled, crew set for Wed Sep 30 -> step 5 is current; materials and tear-off are locked.
+  if (opts.jobDemo) C.claims["1418-irving-st"] = { address: "1418 Irving St", city: "Fremont", homeowner_first_name: "Maria", stage: "signed", insurer: "State Farm", claim_no: "45-902",
+    date_of_loss: "2026-08-08", adjuster_date: "2026-09-02", scope_date: "2026-09-16", rcv: 21800, acv: { amount: 14650, received: "2026-09-27" }, depreciation_held: 5150,
+    mortgage: { company: "US Bank" }, contract_price: 21800, deductible: 2000,
+    job: { contingency_signed: "2026-08-26", adjuster_met: "2026-09-02", contract_signed: "2026-09-25", cancel_by: "2026-09-29", itemized_sent: { homeowner: "2026-09-26" },
+      permit: { pulled: "2026-09-26", number: "B-26-1187", city: "Fremont" }, crew: { name: "Crew 2", scheduled: "2026-09-26", start: "2026-09-30" } },
+    next_step: { en: "Send the itemized description to State Farm", es: "Mandar la descripción detallada a State Farm", due: "2026-09-28" },
+    updated_at: "2026-09-27T14:10:00Z", updated_by: "Job tracker" };
   return { collections: C, docs: D };
 }
 
@@ -144,7 +157,18 @@ const LEAD = ['[data-open="lead:615-n-linden-ave"]'], HO = ['[data-open="lead:39
 const ALDABA = [["now", "now"], ["knock", "knock"], ["knock-es", "knock", "es"], ["lead", "leads", "", LEAD], ["money", "money"], ["homeowner-1", "leads", "", HO]]
   .flatMap(([name, tab, lang, steps]) => [undefined, "light"].map(theme => ({ name: name + (theme ? "-" + theme : ""), tab, lang: lang || undefined, theme, steps })));
 
-module.exports = { data, initScript, SHOTS, ALDABA };
+// v25.2 (T199) Job tracker review set: the claim screen (top, the tracker, step 10's hard stop) and the Money card
+const JOB = ["#tb-money", '[data-open="claim:1418-irving-st"]'], JOBT = [...JOB, "scroll:#jtBox"];
+const T199 = [
+  { name: "claim-top", tab: "money", steps: JOB }, { name: "claim-top-light", tab: "money", theme: "light", steps: JOB },
+  { name: "tracker", tab: "money", steps: JOBT }, { name: "tracker-light", tab: "money", theme: "light", steps: JOBT },
+  { name: "tracker-es", tab: "money", lang: "es", steps: JOBT }, { name: "tracker-es-light", tab: "money", lang: "es", theme: "light", steps: JOBT },
+  { name: "step10-hard-stop", tab: "money", steps: [...JOB, '[data-jtopen="build"]', "scroll:#jtNow"] }, { name: "step10-hard-stop-light", tab: "money", theme: "light", steps: [...JOB, '[data-jtopen="build"]', "scroll:#jtNow"] },
+  { name: "tracker-full", tab: "money", height: 2300, steps: JOB }, { name: "tracker-full-es-light", tab: "money", lang: "es", theme: "light", height: 2300, steps: JOB },
+  { name: "money-jobs", tab: "money", steps: ["scroll:#tab-money .jcard"] }, { name: "money-jobs-light", tab: "money", theme: "light", steps: ["scroll:#tab-money .jcard"] },
+].map(s => Object.assign({ data: { jobDemo: true } }, s));
+
+module.exports = { data, initScript, SHOTS, ALDABA, T199 };
 if (require.main === module) (async () => {
   const { chromium } = loadPlaywright();
   const exe = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(p => fs.existsSync(p));
@@ -153,9 +177,9 @@ if (require.main === module) (async () => {
   const url = await pageUrl("pages/hmp-app.html");
   let bad = 0;
   try {
-    for (const s of SET === "aldaba" ? ALDABA : SHOTS) {
+    for (const s of SET === "aldaba" ? ALDABA : SET === "t199" ? T199 : SHOTS) {
       if (ONLY && !ONLY.some(k => s.name.includes(k))) continue;
-      const ctx = await browser.newContext({ viewport: { width: s.width || 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
+      const ctx = await browser.newContext({ viewport: { width: s.width || 390, height: s.height || 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
       await ctx.route(/^(https?|wss?):/, r => (/^https?:\/\/127\.0\.0\.1[:/]/.test(r.request().url()) ? r.continue() : r.abort()));
       await fontRoutes(ctx);
       const IMG = { hoRoof0001: "ho-roof.jpg", hoSquare01: "ho-testsquare.jpg", hoVent0001: "ho-vent.jpg", hoGutter01: "ho-gutter.jpg", hoSiding01: "ho-siding.jpg" };
@@ -168,7 +192,9 @@ if (require.main === module) (async () => {
       await p.goto(url, { waitUntil: "load" });
       await p.waitForTimeout(700);
       try {
-        for (const sel of s.steps || []) { const loc = p.locator(sel).locator("visible=true").first(); await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {}); await loc.click({ timeout: 3000 }); await p.waitForTimeout(450); }
+        for (const sel of s.steps || []) {
+          if (sel.startsWith("scroll:")) { await p.locator(sel.slice(7)).first().evaluate(e => e.scrollIntoView({ block: "start" })); await p.waitForTimeout(250); continue; }
+          const loc = p.locator(sel).locator("visible=true").first(); await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {}); await loc.click({ timeout: 3000 }); await p.waitForTimeout(450); }
       } catch (e) { errs.push("step failed: " + e.message.split("\n")[0]); }
       await p.waitForTimeout(300);
       const wide = await p.evaluate(() => { const d = document.documentElement, b = document.querySelector('#sheetWrap:not([hidden]) #shBody');   // sideways scroll: the page, or an open sheet
