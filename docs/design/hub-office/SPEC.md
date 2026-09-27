@@ -36,6 +36,11 @@ both logs, EN/ES. The hub stays its own place (nothing from the HMP App).
    - Visible handoffs: a glowing folder flies from sender to receiver on a `handoff` event.
    - Bedtime: sleeping robots dock in charging pods downstairs.
 
+## Screen priority (FilthE, 2026-09-27)
+"This AI hub is primarily for a MacBook, don't worry about an app." Design and polish for the MacBook screen first
+(1440-1512 px wide, ~900 px tall, trackpad + keyboard). Phones only need to keep working (the design gate still
+checks 360/420 px); no phone-first trade-offs.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
