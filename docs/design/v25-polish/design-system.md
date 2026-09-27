@@ -107,5 +107,11 @@ Theme rule: the bare `:root` holds light. `@media (prefers-color-scheme:dark)` g
   file it." Tiers carry "Estimate ranges, not final prices" under the prices until HMP's prices exist. The 3-day cancel
   (with the insurance-denial extension) sits on the contract step, EN and ES. "Registered Nebraska contractor #" +
   blank line. No deductible words anywhere on this screen (the 44-8607 notice lives in the contract).
+- **Settings the builder must wire (boss answers pending, hub D14 and D15). Both default OFF:**
+  `offersClass4` (bool): when on, the Best roof reads "Class 4 impact-rated shingles" and the "Shingles tested for hail
+  impact (UL 2218 Class 4)" row shows; when off, Best = "Premium architectural shingles" and the row is gone.
+  `workmanshipYears` (number or null): when null the warranty row says "Manufacturer warranty" only; when set it reads
+  "Manufacturer + HMP workmanship warranty · HMP workmanship: N years, written in your contract". Never show a Class 4
+  or workmanship claim from a default. Mockup preview: `homeowner.html#p3-c4-wy5`.
 - **Leaving:** the × or "Done" opens "Before you leave" for the salesman: hand over the leave-behind, cancel forms if
   signed, log the visit, then "Leave homeowner view".

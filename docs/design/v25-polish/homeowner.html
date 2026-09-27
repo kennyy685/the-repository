@@ -244,6 +244,12 @@ button.row{width:100%;text-align:left}
 <script>
 /* Content for one inspection. In the app this comes from the lead's inspection (photos, pins, notes) and the job's
    tiers; the house and hail come from the engine. Everything the homeowner reads exists in English and Spanish. */
+/* Claims the boss has to confirm first (hub D14, D15). Both start OFF so the screen never claims what HMP hasn't
+   confirmed. Mockup preview from the hash: "c4" = offersClass4 on, "wy5" = workmanshipYears 5.
+   offersClass4      HMP offers Class 4 impact-rated shingles: the Best roof line + the UL 2218 row. Off = premium architectural.
+   workmanshipYears  years of HMP's written workmanship warranty. null = say "Manufacturer warranty" only. */
+const SET = (() => { const h = (location.hash || '').slice(1).split('-'), wy = h.find(x => /^wy\d+$/.test(x));
+  return { offersClass4: h.includes('c4'), workmanshipYears: wy ? +wy.slice(2) : null }; })();
 const HO = {
   report: { en: 'Inspection report', es: 'Informe de inspección' },
   date: { en: 'Sat, Sep 26, 2026', es: 'sáb 26 sept 2026' },
@@ -292,7 +298,7 @@ const HO = {
   tiers: [
     { name: { en: 'Good', es: 'Buena' }, m: { en: 'Vinyl siding', es: 'Vinil' }, r: { en: 'Architectural shingles', es: 'Tejas arquitectónicas' }, lo: '$25,000', hi: '$32,000' },
     { name: { en: 'Better', es: 'Mejor' }, rec: true, m: { en: 'Insulated vinyl', es: 'Vinil con aislante' }, r: { en: 'Architectural + ice & water shield', es: 'Arquitectónicas + protección hielo y agua' }, lo: '$29,000', hi: '$37,000' },
-    { name: { en: 'Best', es: 'Superior' }, m: { en: 'James Hardie fiber cement', es: 'Fibrocemento James Hardie' }, r: { en: 'Class 4 impact-rated shingles', es: 'Tejas Clase 4, resistentes a impacto' }, lo: '$36,000', hi: '$48,000' }
+    { name: { en: 'Best', es: 'Superior' }, m: { en: 'James Hardie fiber cement', es: 'Fibrocemento James Hardie' }, r: SET.offersClass4 ? { en: 'Class 4 impact-rated shingles', es: 'Tejas Clase 4, resistentes a impacto' } : { en: 'Premium architectural shingles', es: 'Tejas arquitectónicas premium' }, lo: '$36,000', hi: '$48,000' }
   ],
   band: { en: ['Estimate ranges, not final prices.', ' Your exact price comes after we measure.'], es: ['Rangos estimados, no son precios finales.', ' El precio exacto se da después de medir.'] },
   feats: [
@@ -301,12 +307,14 @@ const HO = {
     { l: { en: 'Stiffer, foam-backed panels', es: 'Paneles más firmes, con espuma' }, c: [0, 1, { en: 'Fiber cement', es: 'Fibrocemento' }] },
     { l: { en: 'Ice & water shield at eaves and valleys', es: 'Protección contra hielo y agua en aleros y valles' }, c: [0, 1, 1] },
     { l: { en: 'Factory-baked color finish', es: 'Color horneado de fábrica' }, c: [0, 0, 1] },
-    { l: { en: 'Shingles tested for hail impact (UL 2218 Class 4)', es: 'Tejas probadas contra granizo (UL 2218 Clase 4)' }, c: [0, 0, 1] }
-  ],
+    { l: { en: 'Shingles tested for hail impact (UL 2218 Class 4)', es: 'Tejas probadas contra granizo (UL 2218 Clase 4)' }, c: [0, 0, 1], class4: true }
+  ].filter(f => !f.class4 || SET.offersClass4),
   yes: { en: 'Included', es: 'Incluido' }, no: { en: 'Not included', es: 'No incluido' },
   meta: [
     { icon: 'clock', t: { en: 'Roof 1–2 days, siding 3–5 days', es: 'Techo 1–2 días, revestimiento 3–5 días' }, s: { en: 'Time on site for a typical house', es: 'Tiempo de obra en una casa típica' } },
-    { icon: 'shield', t: { en: 'Two written warranties', es: 'Dos garantías por escrito' }, s: { en: 'Manufacturer + HMP workmanship', es: 'Del fabricante + mano de obra de HMP' } },
+    SET.workmanshipYears
+      ? { icon: 'shield', t: { en: 'Manufacturer + HMP workmanship warranty', es: 'Garantía del fabricante + mano de obra de HMP' }, s: { en: `HMP workmanship: ${SET.workmanshipYears} years, written in your contract`, es: `Mano de obra de HMP: ${SET.workmanshipYears} años, por escrito en su contrato` } }
+      : { icon: 'shield', t: { en: 'Manufacturer warranty', es: 'Garantía del fabricante' }, s: { en: 'From the product maker, in writing', es: 'Del fabricante del producto, por escrito' } },
     { icon: 'swatch', t: { en: 'Try colors on a house like yours', es: 'Pruebe colores en una casa como la suya' }, s: { en: 'James Hardie Designer · opens their site', es: 'James Hardie Designer · abre su página' }, href: 'https://www.jameshardie.com/hardie-designer' }
   ],
   tl: [
