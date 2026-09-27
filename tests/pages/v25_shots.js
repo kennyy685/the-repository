@@ -57,7 +57,8 @@ function data(opts = {}) {
       next_step: { en: "Go over the photos at the table", es: "Revisar las fotos en la mesa", due: "2026-09-27" }, created_at: "2026-09-26T15:00:00Z", updated_at: "2026-09-26T17:00:00Z",
       photos: [ph("hoRoof0001", "roof", [[31.3, 41.7, 7.6], [58.3, 58.3, 6.4], [71.9, 34.7, 7]]), ph("hoSquare01", "sqWide", []), ph("hoVent0001", "metals", [[39.6, 38.9, 8.1], [58.3, 34.7, 6.5], [49, 58.3, 9.2], [66.7, 62.5, 6]]),
         ph("hoGutter01", "gutters", [[26, 48.6, 11.3], [43.8, 45.8, 8.7], [62.5, 51.4, 10]]), ph("hoSiding01", "siding", [[54, 44, 16], [68.5, 67, 7]])],
-      estimate: { low: 25000, high: 48000, at: "2026-09-26T17:00:00Z", job: { type: "mixed", siding_squares: 18, roof_squares: 22, stories: 1, pitch: "std" } } };
+      estimate: { low: 25000, high: 48000, at: "2026-09-26T17:00:00Z", job: { type: "mixed", siding_squares: 18, roof_squares: 22, stories: 1, pitch: "std" } },
+      proposal: { scope: "both", tiers: [], recommended: "better", chosen: null, at: "2026-09-26T17:05:00Z", using_reference: true } };
     C.evidence = Object.assign({}, C.evidence, { "3908-22-st-columbus": { day: "2026-08-08", hail_in: 1.64, radar_max_in: 1.75, nearest_report: { dist_mi: 0.6, size_in: 1.5, source: "lsr" } } });
     D["system/prices"] = JSON.parse(fs.readFileSync(path.join(__dirname, "v25_prices.json"), "utf8"));
   }
