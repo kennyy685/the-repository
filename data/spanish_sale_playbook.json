@@ -1,0 +1,156 @@
+[
+  {
+    "moment": "First words at the door - default formality",
+    "es": "Buenas tardes, disculpe la molestia. Soy {name}, de HMP Siding & Roofing — hacemos techos y siding. ¿Le puedo quitar un minuto?",
+    "en_note": "Good afternoon, sorry to bother you. I'm {name}, from HMP Siding & Roofing — we do roofing and siding. Can I take a minute of your time? Keeps Nebraska's required order (name, company, what we sell) first, all in formal 'usted' (le, disculpe, puedo).",
+    "why": "Every source on Latin American register agrees 'usted' is the safe default in a first business interaction, especially with an older homeowner - switching to 'tú' too soon reads as disrespectful, not friendly.",
+    "avoid": "Don't switch to 'tú' just because the homeowner looks young - wait for them to invite it ('me puede hablar de tú')."
+  },
+  {
+    "moment": "Before pitching anything - naming that trust takes time",
+    "es": "Apenas nos conocemos, así que entiendo perfectamente si quiere pensarlo con calma — no hay ninguna prisa de mi parte.",
+    "en_note": "We just met, so I completely understand if you want to think it over calmly - there's no rush from me.",
+    "why": "A named bilingual roofing-industry sales trainer (Ricardo González, founder/CEO of Bilingual America, writing in Roofing Contractor's Techos y Más) states plainly that trust in Hispanic culture is earned in small proven steps, not assumed on a first meeting - naming this directly, instead of pushing for instant rapport, matches how his sources say trust actually forms.",
+    "avoid": "Never claim instant closeness ('ya somos como familia') to speed things up - that's the opposite of how the source says trust is built, and reads as fake."
+  },
+  {
+    "moment": "Positioning yourself - advisor, not salesman",
+    "es": "No vengo a venderle nada todavía — vengo a revisar su techo y explicarle honestamente lo que encuentro, como un asesor, no como un vendedor.",
+    "en_note": "I'm not here to sell you anything yet - I'm here to check your roof and honestly tell you what I find, like an advisor, not a salesman.",
+    "why": "Near-direct echo of Ricardo González's own rule for roofing contractors working with Latino clients: 'sé su asesor de confianza, no un vendedor astuto' (be their trusted advisor, not a clever salesman).",
+    "avoid": "Don't say this and then immediately hard-close - it only works if the rest of the visit's pacing matches it."
+  },
+  {
+    "moment": "Never overpromise what the visit will find",
+    "es": "No le voy a prometer nada que no pueda cumplir. Si encuentro daño, se lo muestro con fotos; si no encuentro nada, también se lo digo.",
+    "en_note": "I won't promise you anything I can't deliver. If I find damage, I'll show you with photos; if I don't find anything, I'll tell you that too.",
+    "why": "Same named source's rule, 'no les des falsas esperanzas' (don't give false hope), applied here to HMP's own no-promise-on-insurance rule - a real trade-source phrasing for a rule CLAUDE.md already requires.",
+    "avoid": "Never imply the adjuster or insurer will approve or pay - that promise isn't HMP's to make, in Spanish or English."
+  },
+  {
+    "moment": "A decision that involves the whole family",
+    "es": "Si prefieren decidirlo en familia, no hay ningún problema — le dejo las fotos y el estimado por escrito para que lo hablen con calma, o regreso cuando estén todos.",
+    "en_note": "If you'd rather decide this as a family, that's completely fine - I'll leave the photos and written estimate so you can talk it over calmly, or come back when everyone's home.",
+    "why": "Research on Latino homeownership (UnidosUS/NAHREP-type reporting) describes home decisions as often collective and extended-family, not one person's call - offering to leave materials respects that pace instead of forcing a same-visit decision.",
+    "avoid": "Don't frame this as 'both of you need to be here to sign' - round 30 already flagged that exact phrasing as a pressure tactic some sales trainers misuse. Always offer the leave-it-with-them option too."
+  },
+  {
+    "moment": "Extended family, not just a spouse, in the decision or the referral",
+    "es": "En muchas familias, un tío, un hermano o los abuelos también ayudan a decidir estas cosas — si alguien de su familia también necesita una revisión, con gusto le ayudo a esa persona también.",
+    "en_note": "In a lot of families, an uncle, a sibling or the grandparents also help decide these things - if someone in your family also needs a check, I'm happy to help them too.",
+    "why": "Extends round 47's neighbor-based referral ask with this round's specific finding: Latino-homeownership research shows extended family (not just a spouse) is commonly involved financially and in decisions - the referral ask should include that wider circle.",
+    "avoid": "Still one respectful ask, then drop it - never repeated, uninvited contact with family members who weren't part of the visit."
+  },
+  {
+    "moment": "Naming the storm-chaser fear directly, without naming a competitor",
+    "es": "Sé que hay compañías que solo aparecen después de una tormenta y luego desaparecen. Nosotros somos de Fremont — seguimos aquí para la garantía el próximo año también.",
+    "en_note": "I know there are companies that only show up after a storm and then disappear. We're from Fremont - we're still here for the warranty next year too.",
+    "why": "Matches state consumer-protection agencies' own storm-chaser warning pattern in Spanish (Texas DOI's 'conozca las alertas sobre las estafas de contratistas,' Colorado's 'No Más Fraude,' found this round) - saying it first turns a fear homeowners are actively warned about into a trust point for HMP.",
+    "avoid": "Never name or accuse a specific competitor - round 36 already flags that as a real tortious-interference risk."
+  },
+  {
+    "moment": "The two real scam red flags, stated as things HMP won't do",
+    "es": "Nunca le voy a pedir el pago completo por adelantado, ni lo voy a presionar a firmar hoy mismo.",
+    "en_note": "I'll never ask for full payment up front, or pressure you to sign today.",
+    "why": "The two red flags Spanish-language state consumer pages (Texas DOI, Colorado) tell homeowners to watch for after a storm are exactly this: demanding upfront cash and high-pressure same-day signing - saying HMP won't do either is a specific, checkable trust move, not a vague reassurance.",
+    "avoid": "Must be true in practice every time - never take more than the contract's actual deposit, never rush a same-day signature just to close the visit."
+  },
+  {
+    "moment": "Fear of paperwork or immigration status",
+    "es": "Lo único que necesito para el contrato es su nombre. Nunca preguntamos sobre estatus migratorio.",
+    "en_note": "The only thing I need for the contract is your name. We never ask about immigration status.",
+    "why": "Short, standalone version of round 30's fuller no-status line, sized for a quick Practice Door / Sale Guide reference card.",
+    "avoid": "Never ask for ID beyond the name needed for the contract; if financing comes up later, that paperwork requirement is the lender's, not HMP's - say so if asked."
+  },
+  {
+    "moment": "The word 'deducible' - fixed, never softened",
+    "es": "deducible",
+    "en_note": "Deductible. Always this exact word, never paired with a verb that implies HMP covers, waives, reduces, pays or gifts it.",
+    "why": "Neb. Rev. Stat. 44-8604 - CLAUDE.md's hard rule, restated here because this round's sources (Spanish-language state consumer pages) use 'deducible' the same unambiguous way - no reason to ever soften it.",
+    "avoid": "Never say 'cubrir', 'eliminar', 'rebajar', 'pagar' or 'regalar' near 'deducible', in any sentence, ever."
+  },
+  {
+    "moment": "Registered, not licensed - and why a homeowner might ask about 'licencia'",
+    "es": "Somos contratistas registrados en Nebraska. Nebraska no da licencias de contratista para este tipo de trabajo, da registro.",
+    "en_note": "We're registered contractors in Nebraska. Nebraska doesn't issue contractor licenses for this kind of work, it registers them.",
+    "why": "This round found real Spanish-language state consumer pages (Texas DOI) that tell homeowners to 'contrate solo a contratistas con licencia' - accurate for Texas, which does license roofers. A Nebraska homeowner may ask HMP for a 'licencia' expecting that word; this line answers honestly without HMP ever calling itself 'licenciado.'",
+    "avoid": "Never say 'con licencia' or 'licenciado' about HMP, even to answer a homeowner's own question phrased that way - correct the term, don't adopt it."
+  },
+  {
+    "moment": "Walking the inspection together - framed as the state's own advice",
+    "es": "Venga conmigo a ver el techo — así lo ve usted mismo, con fotos, antes de que yo le explique nada. Así es como recomienda hacerlo el Departamento de Seguros.",
+    "en_note": "Come with me to look at the roof - that way you see it yourself, with photos, before I explain anything. That's how the Department of Insurance recommends doing it.",
+    "why": "Nebraska's own Department of Insurance consumer brochure ('After the Storm,' opened directly this round as a PDF) tells homeowners: 'Be sure you are present and watch when contractors inspect your home.' Framing HMP's existing walk-together habit (round 31) as literally following the state's own advice is new this round and directly verified.",
+    "avoid": "Don't overstate it as an endorsement of HMP specifically - it's general consumer advice, not a certification."
+  },
+  {
+    "moment": "Mentioning the state complaint hotline as a trust signal",
+    "es": "Si en algún momento no se siente conforme, el Departamento de Seguros de Nebraska tiene una línea gratuita para consumidores: 1-877-564-7323.",
+    "en_note": "If at any point you're not comfortable, Nebraska's Department of Insurance has a free consumer hotline: 1-877-564-7323.",
+    "why": "Verified directly from the Nebraska DOI's own 'After the Storm' brochure opened this round - offering a homeowner the state's own complaint line, unprompted, is a real, checkable trust signal, not a marketing claim.",
+    "avoid": "Say this plainly, don't oversell it as if HMP is affiliated with the Department - it's information every Nebraska homeowner is entitled to."
+  },
+  {
+    "moment": "No damage found - said with the same honesty framing",
+    "es": "Buenas noticias para usted — no encontré daño de tormenta. No le voy a inventar un problema que no existe.",
+    "en_note": "Good news for you - I didn't find storm damage. I'm not going to invent a problem that isn't there.",
+    "why": "Combines round 36's existing 'no damage found is a trust asset' finding with this round's 'no des falsas esperanzas' source - same honesty principle, now grounded in a named bilingual trade source rather than only search-summary blogs.",
+    "avoid": "Never imply 'an adjuster would probably find something anyway' - that's the fabricated-damage line no honest source approves."
+  },
+  {
+    "moment": "Financing help from a family member (co-signer), if it comes up",
+    "es": "Si algún familiar quiere ayudar con el pago o firmar el financiamiento con usted, eso se puede hablar directamente con el prestamista.",
+    "en_note": "If a family member wants to help with payment or co-sign the financing with you, that's something to discuss directly with the lender.",
+    "why": "Extends round 30's 'financing is between the homeowner and the lender, never HMP' rule to a real researched pattern: Latino homebuyers commonly involve a family co-borrower - HMP should welcome that reality instead of assuming one signer, while still never promising approval.",
+    "avoid": "Never state or imply that a co-signer improves approval odds - that's still the lender's decision, not HMP's to predict."
+  },
+  {
+    "moment": "Keeping a small promise exactly - the follow-through habit",
+    "es": "Le dije que lo iba a llamar el jueves — aquí estoy, como quedamos.",
+    "en_note": "I told you I'd call Thursday - here I am, like we agreed.",
+    "why": "Same named source: trust grows from many small kept promises, not one big gesture, and 'la última impresión es la que más importa' (the last impression matters most) - this is the habit that earns the follow-through, phrased for FilthE to say out loud when he does it.",
+    "avoid": "Don't do this only once - the source's whole point is consistency; missing a promised callback undoes more trust than it built."
+  },
+  {
+    "moment": "Warmth without fake closeness - the 'cariño' balance",
+    "es": "Le voy a explicar todo con cariño y con calma, paso a paso, para que no le quede ninguna duda.",
+    "en_note": "I'll explain everything to you warmly and calmly, step by step, so you have no doubts left.",
+    "why": "The same trade source uses 'cariño' (the caring side of warmth) as the deliberate tone to aim for with Latino clients - distinct from informality ('tú') or false rapport; pairs the warmth with the formal 'usted' set as the default register.",
+    "avoid": "Warmth is tone, not informality - keep 'usted' even while using this line."
+  },
+  {
+    "moment": "Older, Spanish-dominant homeowners - slower pace, no jargon",
+    "es": "Se lo voy a explicar sin tecnicismos, con calma — dígame si algo no le quedó claro y se lo repito.",
+    "en_note": "I'll explain it without technical jargon, calmly - tell me if anything wasn't clear and I'll repeat it.",
+    "why": "Round 47 already found older Latino homeowners are more likely Spanish-dominant and keep closer cultural roots than younger, more bilingual homeowners - this is the practical pacing habit that follows from that finding, not a repeat of it.",
+    "avoid": "Don't assume every older homeowner needs this - offer it, don't insist on it, and never sound like you're talking down to them."
+  },
+  {
+    "moment": "If a homeowner questions why the insurance side feels slow",
+    "es": "El proceso con la aseguradora a veces toma tiempo — eso no lo controlamos ni usted ni nosotros, pero le aviso en cuanto haya novedades.",
+    "en_note": "The insurance process sometimes takes time - neither of us controls that, but I'll let you know as soon as there's news.",
+    "why": "Matches the Nebraska DOI brochure's own advice from the other direction ('Do not feel rushed or pushed to agree to a settlement') - reassures a homeowner that a slow claims process isn't HMP stalling, without promising a timeline or outcome.",
+    "avoid": "Never guess or promise a specific date the insurer will pay - HMP doesn't control the insurer's timeline."
+  },
+  {
+    "moment": "Referral thank-you, matching the family-network finding",
+    "es": "Muchas gracias por confiar en nosotros — si su familia necesita algo más adelante, aquí estamos.",
+    "en_note": "Thank you for trusting us - if your family needs anything down the road, we're here.",
+    "why": "Pairs CLAUDE.md's existing handwritten-thank-you-only referral rule (D17) with this round's extended-family finding - said at the moment of finishing a job, not as a separate ask.",
+    "avoid": "Still no gift cards, discounts or payment for referrals - a handwritten note only, per D17."
+  },
+  {
+    "moment": "When asked directly 'is this a scam?' or similar suspicion",
+    "es": "Es una pregunta justa — aquí tiene mi nombre, el teléfono de la empresa, y puede llamar al Departamento de Seguros de Nebraska para revisar quejas de cualquier compañía, incluida la nuestra.",
+    "en_note": "That's a fair question - here's my name, the company phone number, and you can call Nebraska's Department of Insurance to check complaints on any company, including ours.",
+    "why": "Directly answers the exact fear this round's brief named, using the same real state hotline verified above - inviting a suspicious homeowner to check HMP against the state's own complaint records is stronger than just asserting trustworthiness.",
+    "avoid": "Never get defensive or push past this point - offer the number and let them decide."
+  },
+  {
+    "moment": "Standard closing courtesy, staying in formal register",
+    "es": "Fue un gusto conocerlo/conocerla. Muchas gracias por su tiempo.",
+    "en_note": "It was a pleasure meeting you. Thank you very much for your time. (conocerlo/conocerla - match the homeowner's gender.)",
+    "why": "Closes the visit in the same 'usted' register set at the door opener (entry 1) - a small consistency detail worth stating explicitly since Practice Door should score whether a rep stays in the same register start to finish.",
+    "avoid": "Don't drop into 'tú' just because the visit went well and felt friendly by the end."
+  }
+]

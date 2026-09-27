@@ -60,7 +60,15 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       specifically) - still nothing beyond general Hispanic-marketing/engagement content (IKO, Roofing
       Contractor's "Techos y Más" launch). Recommend not re-assigning this exact sub-topic again without
       new evidence (e.g. real YouTube transcripts becoming fetchable, or a Spanish-language contractor
-      forum surfacing).
+      forum surfacing). **Round 49: the new evidence showed up.** roofingcontractor.com/Techos y Más opened
+      directly this round (curl) and led to a real, named bilingual sales trainer - **Ricardo González,
+      founder/CEO of Bilingual America** (clients incl. Coca-Cola, National Roofing Partners; teaches
+      SpanishPower/SuccessWithHispanics courses) - with two of his own Spanish-language trust-building
+      columns for roofing contractors. Nebraska's own DOI consumer brochure ("After the Storm," opened as a
+      PDF) added real state-level material too (be present at the inspection; the consumer hotline). See
+      `docs/research/2026-09-27-round-49.md` + `data/spanish_sale_playbook.json` (22 entries). Consider this
+      angle answered; a future round could instead try Ricardo González's own site/courses directly if
+      network access to bilingualamerica.com or ricardogonzalez.com ever opens.
 - [x] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
       primary source (manufacturer guidance or an adjuster directly), not another blog - **stale duplicate,
       already closed round 43** (InterNACHI's own "Mastering Roof Inspections" series, see above); leaving

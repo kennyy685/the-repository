@@ -23,5 +23,6 @@ data/*
 !data/association_contacts.json
 !data/photo_checklist.json
 !data/door_lines_pro.json
+!data/spanish_sale_playbook.json
 .env
 .claude/worktrees/
