@@ -178,8 +178,19 @@ materials_ordered|installed|depreciation_requested|paid|lost), insurer, claim_no
 date_of_loss, adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held,
 mortgage{company,amount,check_sent,check_returned}, supplements[]{date,item,asked,approved},
 materials{ordered,supplier,cost}, install{start,done}, completion_sent, depreciation_check{amount,date},
-contract_price, deductible (homeowner's cost, display only), next_step{en,es,due}, notes, updated_at, updated_by};
-tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+contract_price, deductible (homeowner's cost, display only), next_step{en,es,due}, notes, updated_at, updated_by,
+job{...}}; tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+**`job` = the claim screen's Job tracker (v25.2, T199; round 56's 14 steps, logic in `docs/app/jobtrack.js`), all
+optional dates:** {contingency_signed (1), adjuster_met (2), contract_signed + cancel_by (4, cancel_by = last day of the
+3-business-day cancel), itemized_sent{homeowner, insurer} (5, NE 44-8606), supplier_account{name, number, approved} (7),
+crew{name, scheduled, start} (8), permit{pulled, number, city} (9), dumpster, final_inspection (10),
+packet{photos, lien_waiver, warranty} (11), depreciation_requested (12), closed (13), yard_sign, review_requested,
+thank_you_note (14)}. The other steps reuse the fields above: 3 = scope_date, 6 = acv.received/deposited +
+mortgage.check_sent/check_returned, 7 = materials.ordered, 10 = install.start (tear-off) / install.done, 11 =
+completion_sent, 13 = depreciation_check.date. **Hard stops** (the page and the chat's update_claim refuse the write):
+install.start/done only after both itemized_sent dates AND the day after cancel_by; materials.ordered only after
+acv.deposited or supplier_account.approved. Writing `job` from Claude: send the whole sub-object you change (a queued
+merge is shallow), and never log tear-off or materials past a hard stop.
 
 ## Command center database (Cowork owns, https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX)
 Reads published `data/hud.json` (from the `engine/engine.json` bundle). Shared db: `turfs/<listId>~t<n>` = {results},

@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## v25.2 - 2026-09-27
+- Job tracker on every insurance claim: the 14 steps from the contingency agreement to the thank-you note, each with who does it, the papers by name, when, the legal line and the money. One tap logs a step with today's date (Undo on the toast); done steps fold into one line.
+- Hard stops: tear-off can't be logged until the itemized description went to the homeowner AND the insurer (NE 44-8606) and the 3-day cancel is over (the end date shows); materials can't be logged until the ACV check is deposited or a supplier account is approved. The Right Hand chat follows the same stops and logs the new steps ("permit pulled, number 1234").
+- Due reminders in amber (today) and red (late): mortgage endorsement the day the ACV check comes, depreciation request the day the job finishes, review link within 24 hours, warranty registration. The door opener now says your name, HMP and what we sell first (NE 69-1602).
+
 ## v25.1 - 2026-09-27
 - New look, the brand page FilthE picked: dark graphite by default (even when the phone is in light mode), silver text, one orange "do this" button with a soft glow, cards with thin edges and depth. More > Theme: Dark / Light / Auto, saved per phone (every phone starts on Dark once).
 - Real fonts now load with the app (Geist, and Bricolage for screen titles and big numbers like knocks today, the stop address and owed to HMP); before, phones showed their own font.
