@@ -35,7 +35,7 @@ h1,h2,h3,p{margin:0}
 
 /* ---------- layout: phone first ---------- */
 .app{position:relative}
-.bar{display:flex;align-items:center;gap:12px;padding:14px 16px 12px;position:relative;z-index:6}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px 12px;position:relative;z-index:6}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(160deg,#26262c,#141418);border:1px solid var(--line-2);flex:none}
 .mark svg{width:22px;height:22px}
@@ -48,7 +48,7 @@ h1,h2,h3,p{margin:0}
 .ibtn{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;color:var(--ink-2);background:rgba(255,255,255,.06);border:1px solid var(--line)}
 .ibtn:hover{background:rgba(255,255,255,.11)}
 
-.needs{margin:0 16px 12px;padding:12px 12px 10px;position:relative;z-index:6}
+.needs{order:5;flex:1 0 100%;margin:0;padding:12px 12px 10px;position:relative;z-index:6}
 .needs-h{display:flex;align-items:center;gap:8px;padding:0 4px 8px}
 .needs-h .lbl{color:var(--hmp-hi)}
 .count{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--hmp);color:#1b1206;font:600 12px/20px var(--f);text-align:center;box-shadow:0 0 18px var(--hmp-glow)}
@@ -63,6 +63,8 @@ h1,h2,h3,p{margin:0}
 .need b{font-size:12px;font-weight:600;color:var(--hmp-hi);letter-spacing:.01em}
 .need .ask{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .need .where{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.need .top{display:flex;gap:6px;align-items:baseline;min-width:0}
+.need .top .where{display:none}
 .need .i{color:var(--muted)}
 .none{padding:6px 4px 4px;font-size:14px;color:var(--muted)}
 @keyframes needIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -88,7 +90,9 @@ h1,h2,h3,p{margin:0}
 
 .panel{padding:16px 16px 48px;display:grid;gap:14px;position:relative;z-index:6}
 .roster{padding:10px}
-.roster-h{display:flex;align-items:baseline;justify-content:space-between;padding:4px 6px 8px}
+.roster-h{display:flex;align-items:center;gap:10px;padding:4px 6px 8px}
+.roster-h .rsum{display:none;margin-left:auto;gap:10px;font-size:12px;color:var(--muted)}
+.roster-h .rsum span{display:inline-flex;align-items:center;gap:5px}
 .roster ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
 .row{width:100%;display:flex;align-items:center;gap:11px;padding:8px 8px;border-radius:13px;text-align:left}
 .row:hover{background:rgba(255,255,255,.05)}
@@ -181,14 +185,26 @@ h1,h2,h3,p{margin:0}
   body{overflow:hidden}
   .app{height:100vh;min-height:680px;overflow:hidden}
   .stage{position:absolute;inset:0;height:auto}
-  .bar{position:absolute;top:0;left:0;right:0;padding:22px 28px;pointer-events:none}
+  .bar{position:absolute;top:0;left:0;right:0;padding:18px 28px;pointer-events:none;flex-wrap:nowrap;align-items:flex-start}
   .bar > *{pointer-events:auto}
-  .brand{flex:none}
+  .brand{flex:none;padding-top:4px}
+  .clock{margin-top:5px}
+  .seg{margin-top:5px}
+  .needs{order:0;flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 14px;border-radius:16px;margin:0 8px}
+  .needs-h{padding:0;flex:none}
+  .needs .sum{display:none}
+  .needs ul{display:flex;gap:6px;flex:1;min-width:0;overflow:hidden}
+  .needs li{flex:1 1 0;min-width:0;max-width:420px}
+  .need{padding:6px 12px 6px 6px}
+  .need .top .where{display:inline;font-size:11.5px}
+  .need .t > .where{display:none}
+  .need .ask{font-size:14px}
+  .none{padding:0 6px;font-size:13px}
+  .roster-h .rsum{display:flex}
   .brand h1{font-size:22px}
   .clock{display:flex;align-items:center;gap:10px;margin-left:8px;padding:7px 12px;border-radius:999px;background:rgba(10,10,14,.36);border:1px solid var(--line);font:500 13px var(--mono);color:var(--ink-2);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
   .clock em{font-style:normal;color:var(--muted)}
   .bar .spacer{flex:1}
-  .needs{position:absolute;top:84px;left:28px;width:392px;margin:0}
   .panel{position:absolute;top:84px;right:28px;bottom:28px;width:var(--panel-w);padding:0;display:flex;flex-direction:column;gap:12px}
   .roster{flex:1;min-height:0;overflow:auto}
   .card{position:relative;left:auto;right:auto;bottom:auto;transform:none;max-height:none;flex:none;display:none;background:var(--glass-2)}
@@ -215,14 +231,13 @@ h1,h2,h3,p{margin:0}
       <div><h1 id="t-title">The Crew</h1><p id="t-sub">HMP AI hub · Penthouse</p></div>
     </div>
     <div class="clock" id="clock"><span id="clk">6:46 AM</span><em id="t-demo">Demo loop</em></div>
-    <span class="spacer"></span>
+    <section class="needs glass" id="needs" aria-live="polite" aria-labelledby="t-needs">
+      <div class="needs-h"><span class="lbl" id="t-needs">Needs you</span><span class="count" id="ncount" data-n="0">0</span><span class="sum" id="nsum"></span></div>
+      <ul id="nlist"></ul>
+    </section>
     <div class="seg" role="group" aria-label="Language"><button type="button" id="l-en" aria-pressed="true">EN</button><button type="button" id="l-es" aria-pressed="false">ES</button></div>
   </header>
 
-  <section class="needs glass" id="needs" aria-live="polite" aria-labelledby="t-needs">
-    <div class="needs-h"><span class="lbl" id="t-needs">Needs you</span><span class="count" id="ncount" data-n="0">0</span><span class="sum" id="nsum"></span></div>
-    <ul id="nlist"></ul>
-  </section>
 
   <div class="stage" id="stage">
     <div class="sky" id="sky" aria-hidden="true">
@@ -260,7 +275,7 @@ h1,h2,h3,p{margin:0}
   <aside class="panel" id="panel">
     <article class="card glass" id="card" aria-live="polite" aria-label="Robot details"></article>
     <section class="roster glass" aria-labelledby="t-crew">
-      <div class="roster-h"><span class="lbl" id="t-crew">Crew</span><span class="lbl" id="t-crewn" style="text-transform:none;letter-spacing:.02em">9</span></div>
+      <div class="roster-h"><span class="lbl" id="t-crew">Crew</span><span class="lbl" id="t-crewn" style="text-transform:none;letter-spacing:.02em">9</span><span class="rsum" id="rsum"></span></div>
       <ul id="roster"></ul>
     </section>
   </aside>
@@ -594,8 +609,8 @@ function renderNeeds(){
   const sig = lang + '|' + waiting.map(a => a.id + tx(a.ask)).join('|') + '|' + JSON.stringify(n);
   if (sig === needSig) return; needSig = sig;
   const cnt = $('#ncount'); cnt.textContent = waiting.length; cnt.dataset.n = waiting.length;
-  $('#nsum').innerHTML = ['working','blocked','sleeping'].filter(k => n[k]).map((k,i) => '<span' + (i ? ' class="opt"' : '') + '><i class="dot" style="--c:' + stColor(k==='blocked'?'blocked':k) + '"></i>' + n[k] + ' ' + L().sum[k] + '</span>').join('');
-  $('#nlist').innerHTML = waiting.length ? waiting.map(a => '<li><button type="button" class="need" data-id="' + a.id + '"><span class="av" style="--c:var(--st-waiting)">' + avatar(a) + '<i class="sd"></i></span><span class="t"><b>' + esc(tx(a.def.name)) + '</b><span class="ask">' + esc(tx(a.ask)) + '</span><span class="where">' + esc(L().answerIn + ' ' + tx(a.where)) + '</span></span>' + IC.chev + '</button></li>').join('')
+  $('#nsum').innerHTML = $('#rsum').innerHTML = ['working','blocked','sleeping'].filter(k => n[k]).map((k,i) => '<span' + (i ? ' class="opt"' : '') + '><i class="dot" style="--c:' + stColor(k==='blocked'?'blocked':k) + '"></i>' + n[k] + ' ' + L().sum[k] + '</span>').join('');
+  $('#nlist').innerHTML = waiting.length ? waiting.map(a => '<li><button type="button" class="need" data-id="' + a.id + '"><span class="av" style="--c:var(--st-waiting)">' + avatar(a) + '<i class="sd"></i></span><span class="t"><span class="top"><b>' + esc(tx(a.def.name)) + '</b><span class="where">· ' + esc(L().answerIn + ' ' + tx(a.where)) + '</span></span><span class="ask">' + esc(tx(a.ask)) + '</span><span class="where">' + esc(L().answerIn + ' ' + tx(a.where)) + '</span></span>' + IC.chev + '</button></li>').join('')
     : '<li class="none">' + esc(L().none) + '</li>';
 }
 function renderRoster(){
@@ -702,9 +717,9 @@ function placeOverlay(){
   const heads = S && S.ready ? agents.map(a => S.anchors[a.id]).filter(Boolean) : [];
   for (const b of boxes){
     let best = null;
-    for (const shift of [0, -0.36, 0.36, -0.46, 0.46]) for (const lift of [0, 26, 52]){
+    for (const shift of [0, -0.36, 0.36, -0.5, 0.5, -0.8, 0.8]) for (const lift of [0, 28, b.h + 10, b.h*2 + 20]){
       const left = Math.max(8, Math.min(W - b.w - 8, b.ax - b.w/2 + shift*b.w)), top = Math.max(6, b.ay - b.h - 6 - lift);
-      let score = Math.abs(shift)*6 + lift*0.12;
+      let score = Math.abs(shift)*8 + lift*0.1;
       for (const p of placed) if (left < p.left + p.w + 6 && left + b.w + 6 > p.left && top < p.top + p.h + 6 && top + b.h + 6 > p.top) score += 100;
       for (const hd of heads){ if (Math.abs(hd.x - b.ax) + Math.abs(hd.y - b.ay - 10) < 4) continue;
         if (hd.x + 16 > left && hd.x - 16 < left + b.w && hd.fy - 8 > top && hd.y - 18 < top + b.h) score += 12; }
@@ -1164,7 +1179,7 @@ let W = 1, H = 1;
 function area(){
   const wide = HUB.wide;
   if (CAPTURE) return {x0:20, y0:20, x1:W-20, y1:H-20};
-  if (wide){ const pw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--panel-w')) || 344; return {x0:36, y0:120, x1:W - pw - 60, y1:H - 70}; }
+  if (wide){ const pw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--panel-w')) || 344; return {x0:30, y0:128, x1:W - pw - 60, y1:H - 64}; }
   return {x0:-18, y0:58, x1:W + 18, y1:H - 40};
 }
 function fit(){
