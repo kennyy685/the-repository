@@ -127,9 +127,10 @@ start blank), so **when FilthE tells you something important, add it here** inst
   natural partner for the "sub for restoration" path. VTR: no public web presence found (2026-09-25); ask FilthE for
   city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, gutters (FilthE confirmed 2026-09-26), on houses
   and apartment complexes.
-- **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5 buildings: tear-off
-  above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look accents, caulk). Its live job board and
-  a general job tracker were built in other Claude chats.
+- **Several crews of 2-3 people**, adding another. Typical sub work: multi-building apartment siding jobs (tear-off,
+  flashing/tape, 1x4 furring, lap siding, accents, caulk). **FilthE, 2026-09-27: forget The Edge as a job, keep the idea**:
+  don't plan around any one named job; crews can be busy on sub jobs, so schedule around "current jobs". (A job board,
+  the Edge Site Map, was built in another chat; it's a tool, not a focus.)
 - **Brand (logo shared 2026-09-25):** chrome "H.M.P" letters under an orange roof-line chevron, an orange underline,
   "SIDING & ROOFING LLC", "RESIDENCIAL y COMERCIAL", on dark charcoal metal siding. Colors: charcoal ~#404145, orange
   ~#f5883a, silver/white. Company phone on the logo: 402-889-3385. Use this look on everything printed; the photo

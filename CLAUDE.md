@@ -17,8 +17,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
 - **The boss** owns HMP, speaks Spanish. Spanish side of print = Alex Mendez, 402-889-3385. Mailing address:
   2600 Laverna St, Apt 50, Fremont, NE 68025. Registration # pending (print keeps a blank line).
-- HMP: siding, roofing, gutters, residential + commercial; subs labor for VTR / Nastase; goal = insurance restoration
-  direct to homeowners, plus everyday old-house sales.
+- HMP: siding, roofing, gutters, residential + commercial; subs labor for VTR / Nastase (multi-building apartment
+  siding jobs); goal = insurance restoration direct to homeowners, plus everyday old-house sales. Don't plan around any
+  one named job (FilthE: "forget The Edge, keep the idea"); say "current jobs".
 
 ## Goal and core flow
 Success = crews working jobs the system found. App flow: **Now** = map of hot zones (`zones/current`) -> drive ->
