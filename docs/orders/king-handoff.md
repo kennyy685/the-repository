@@ -30,7 +30,9 @@ Then: **Designer FIRST: FilthE picked MacBook direction A (Cockpit).** Restyle A
 like Batman's cave computers: professional, premium, still Aldaba (docs/design/macbook/a-cockpit.html);
 **Builder: Demo data + end-to-end test** (FilthE won't knock until the app is proven: load realistic mock
 houses from public data into Practice/demo only, run a full fake day Now -> Knock -> lead -> claim -> job, fix what breaks);
-**Research Lead: upgrade the robots** (FilthE's order: research better prompts, tools, skills, models for
+**Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
+(HailTrace, Hail Recon, SalesRabbit, Spotio...), pricing, must-haves like teams + other states' laws; output
+docs/research/ file + one-page summary for FilthE); ~~upgrade the robots~~ (done, b7bcf05) (FilthE's order: research better prompts, tools, skills, models for
 `.claude/agents/*`, then apply the best ones); **Designer/Research** read https://tabnav.com/blog/best-website-design-examples (FilthE sent it 2026-09-27)
 and pull ideas for the Aldaba landing page + an HMP website; **QA T163** bad-signal stress test; **Research Lead** round 59 (claim deadlines, EraHub) with pymupdf; merge the
 "AI hub: Penthouse HQ" work (T190, branch `claude/funny-hawking-2rytou`) when done, keeping the crew-hq design-gate fixes.
