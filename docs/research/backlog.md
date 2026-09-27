@@ -61,8 +61,10 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       Contractor's "Techos y Más" launch). Recommend not re-assigning this exact sub-topic again without
       new evidence (e.g. real YouTube transcripts becoming fetchable, or a Spanish-language contractor
       forum surfacing).
-- [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
-      primary source (manufacturer guidance or an adjuster directly), not another blog
+- [x] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
+      primary source (manufacturer guidance or an adjuster directly), not another blog - **stale duplicate,
+      already closed round 43** (InterNACHI's own "Mastering Roof Inspections" series, see above); leaving
+      this checked instead of deleting so the round-43 note above stays the reference.
 - [x] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
       cash jobs - round 38 (`data/price_objections.json`)
 - [ ] Confirm directly (call NUFCU/BCU, or reach catenergy.ne.gov/dwee.nebraska.gov once egress allows) whether
@@ -78,9 +80,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       Association fees still unconfirmed (lower priority - Omaha-adjacent, not Lincoln).**
 - [x] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
       questions from an individual unit owner - round 36 (`data/objection_scripts_2.json`)
-- [ ] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
+- [x] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
       tortious-interference line for talking to a homeowner who already signed with another contractor -
-      round 36's script is careful but sourced only from marketing blogs, not a legal primary source
+      round 36's script is careful but sourced only from marketing blogs, not a legal primary source -
+      **round 48**: found a real, citable Nebraska Supreme Court case (*George Clift Enterprises, Inc. v.
+      Oshkosh Feedyard Corp.*, 306 Neb. 775, 947 N.W.2d 510 (2020)), confirmed by 4 independent legal-
+      reference sites; round 36's script already sits inside the "truthful information / legitimate
+      competition" safe harbor these sources describe. Case-law and law-firm domains themselves stayed
+      blocked this session (WebSearch-summary sourced, not directly fetched) - see new item below.
 - [ ] Wire `data/objection_scripts_2.json` into Practice Door's legal-flag scorecard and add its 3
       situations as new roleplay scenarios (round 36's ranked #1-2; not done yet, needs Builder/Designer)
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
@@ -125,10 +132,16 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Add ACS median household income (B19013) per block group to `nbhd.py`'s `load_acs` (same pattern as
       med_value/med_year already there) so door-list ranking has an affordability signal, not just age/value
       - round 41 (T163)
-- [ ] Re-test Douglas (dcgis.org), Lancaster (gis.lincoln.ne.gov) and Sarpy (geodata.sarpy.gov) parcel/owner-
+- [x] Re-test Douglas (dcgis.org), Lancaster (gis.lincoln.ne.gov) and Sarpy (geodata.sarpy.gov) parcel/owner-
       mailing endpoints for T23 owner-occupied from the actual cloud/Mac runner - round 41 found all three
       answering 200/301 from this sandboxed session tonight, contradicting the 2026-09-26 "blocked" note;
-      needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164)
+      needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164) -
+      **round 48**: found the real working endpoints and exact fields for Douglas
+      (`dcgis.org/server/rest/services/vector/Parcels_public/FeatureServer/0`, `OWNER_NAME`/`ADDRESS1-2`/
+      `OWNER_CITY` vs. `HOUSE`/`STREET_NAM`/`PROP_CITY`) and Lancaster
+      (`gis.lincoln.ne.gov/integration/rest/services/Assessor/TaxParcels/MapServer/0`, `OWNERNME1`/
+      `PSTLADDRESS` vs. `SITEADDRESS`, plus `RESYRBLT`/`CLASSDSCRP` for free) - both live-tested with real
+      sample rows, ready for Code to wire (T164 promoted to a board item, not just research).
 - [ ] Get real Reddit (r/Roofing, r/doortodoor, r/sales) and YouTube-comment quotes on unmet roofing-sales
       software needs - round 44's WebSearch couldn't reach reddit.com (bot-blocked) or specific comment
       threads, so topic 2's findings are review-site/vendor-blog sourced, not forum-verified
@@ -145,6 +158,17 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       data behind a sign-in wall for raw curl/WebFetch - only page title+description came through, no
       actual dialogue), retry pulling real door-knock footage from Roof Strategist/D2D Experts/Adam
       Bensman's channels - this round could not verify any trainer's script word-for-word from footage
+- [ ] Test Douglas's (`dcgis.org`) and Lancaster's (`gis.lincoln.ne.gov`) parcel `FeatureServer`/`MapServer`
+      query limits (`maxRecordCount`, pagination, whether bulk `where=1=1` pulls need an API key) before
+      wiring a full-county pull into `nbhd.py` (round 48 only tested 3-row samples, unauthenticated, both
+      worked); also look up Douglas's single-letter `CLASS` field's code table (residential vs. commercial/
+      ag - unconfirmed, needed to filter the door-list feed to houses)
+- [ ] Once egress allows, open `law.justia.com/cases/nebraska/supreme-court/2020/s-19-700.html` or
+      CourtListener's copy of *George Clift Enterprises, Inc. v. Oshkosh Feedyard Corp.*, 306 Neb. 775 (2020)
+      directly, to quote the Nebraska Supreme Court's own five-element/improper-means text verbatim instead
+      of round 48's converging-search-summary version (crokerlaw.com, horganlawfirm.com, justia.com,
+      courtlistener.com, findlaw.com, nebraska.gov court pages, leagle.com, supremecourt.nebraska.gov were
+      all blocked this session, WebFetch and curl alike)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -270,3 +294,14 @@ no real door-knock transcript could be pulled (see new backlog item above); Redd
 Spanish-neighborhood sales-script content is still not found anywhere reachable, third round confirming
 the gap (rounds 30, 38, 47) - deprioritized per the updated item above. Output: `data/door_lines_pro.json`
 (22 EN/ES lines, all legal_ok) + this file.
+Round 48 (backlog track, done directly by the Research Lead - no scout subagent tool available this round,
+same as 38/45): closed T164 for real - found the live, working Douglas County (`dcgis.org`) and Lancaster
+County (`gis.lincoln.ne.gov`) ArcGIS parcel endpoints and their exact owner-mailing-vs-site-address fields
+(round 41 only got as far as the bare domain, which was a dead default page, not real services), both
+live-tested with real sample rows - ready for Code to wire into `nbhd.py`'s owner-occupied loader alongside
+Sarpy's existing layer. Also found a real, citable Nebraska Supreme Court case for the tortious-interference
+line (*George Clift Enterprises, Inc. v. Oshkosh Feedyard Corp.*, 306 Neb. 775, 947 N.W.2d 510 (2020),
+converged across 4 independent legal-reference sites) confirming round 36's "already signed with another
+contractor" script already sits inside the legal safe harbor. Every law-firm/case-law domain itself stayed
+blocked this session (WebFetch and curl both `403`) - the case citation is WebSearch-summary sourced, not
+directly fetched; two new backlog items above to re-verify/extend.
