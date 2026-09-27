@@ -517,11 +517,14 @@ async function discoverTabs(page) {
 
 async function runOneContext(browser, opts, shared) {
   const context = await browser.newContext({
+    // No isMobile/hasTouch here: this page ships no <meta name="viewport">, and Playwright's
+    // isMobile ("the meta viewport tag is taken into account") makes Chromium fall back to the
+    // classic 980px desktop-fallback layout width when that tag is missing - the requested 360-
+    // 420px viewport is then silently ignored and every width/overlap/tap-target check below would
+    // run against the wrong (way too wide) layout. Plain `viewport` (as tests/pages/shots.js already
+    // does for these same pages) is what actually renders at the width this gate asks for.
     viewport: { width: opts.width, height: 860 },
     colorScheme: opts.colorScheme,
-    deviceScaleFactor: 2,
-    isMobile: true,
-    hasTouch: true,
   });
   await context.addInitScript(buildInitScript(opts));
   const page = await context.newPage();

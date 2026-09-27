@@ -286,6 +286,17 @@ DEFAULTS = {
         "association_days": ["Tue"],
         "association_per_week": 2
     },
+    # Rental hot list (`hh.py rentals`, research rounds 34/38): likely-rental single-family (owner's county mailing
+    # address is elsewhere, T23) and small 2-4 unit multi-family properties, inside the current hot zones. The
+    # statewide parcel layer has no unit count, so `units_est` is a rough guess from the building's square footage;
+    # buildings estimating above max_units are the apartment/commercial track (commercial.py/calltoday.py), not this.
+    "rentals": {
+        "avg_unit_sqft": 900,        # rough sq ft per unit, for estimating a "multi" building's unit count
+        "min_units": 2, "max_units": 4,   # scope: duplex to fourplex
+        "default_units": 2,          # building sq ft unknown: assume the minimum (duplex)
+        "radius_mi": 60, "top": 20,  # zones scanned around --near (more than zones.top: a reference list, not a walk)
+        "max_rows": 500              # hud.json `rental_hotlist` cap (keeps the file small; see hot_zones.max_hud_mb)
+    },
     # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
     # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
     # A price with only one side set uses it for both. Fill these in config.json, not here.

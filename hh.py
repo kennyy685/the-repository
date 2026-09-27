@@ -44,10 +44,15 @@
                   hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
                   shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk.
                   Each walk gets `route` + a vector `basemap` (streets, lots, labels; state GIS, cached; --no-basemap)
+  python3 hh.py rentals [--near Fremont] [--top 20] [--out rentals.json] [--csv rentals.csv]   rental hot list
+                  (research rounds 34/38): likely-rental single-family + small 2-4 unit properties in the current
+                  hot zones (for pitching landlord associations/property managers by business line, and knocking -
+                  never mailing), grouped by zone with counts. JSON for the app's rentals/current doc.
   python3 hh.py daily --out-dir DIR [--date D] [--results f] [--dnk f] [--leads f] [--near T]   the 7:40 AM app job
-                  in one go: todaywalk+evidence, calltoday, zones+walks, followups (with --leads); one JSON file per
-                  app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
-                  evidence__<slug>.json, followups__today.json) + manifest.json; walks get maps as in zones
+                  in one go: todaywalk+evidence, calltoday, zones+walks, rentals, followups (with --leads); one JSON
+                  file per app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
+                  evidence__<slug>.json, rentals__current.json, followups__today.json) + manifest.json; walks get
+                  maps as in zones
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -425,6 +430,14 @@ def main(argv=None):
     p.add_argument("--out", help="also write the zones doc to this file")
     p.add_argument("--walks-out", help="also write {walks/<zone id>: walk doc} to this file")
     p.add_argument("--no-basemap", action="store_true", help="skip the walk map (basemap + route fields)")
+    p = sub.add_parser("rentals", help="rental hot list: likely-rental single-family + 2-4 unit properties in hot "
+                                       "zones (JSON for the app's rentals/current)")
+    p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
+    p.add_argument("--top", type=int, help="how many zones to scan (default: config rentals.top, 20)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p.add_argument("--csv", help="also write the rentals as a CSV to this file")
     p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")

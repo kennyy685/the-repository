@@ -1,9 +1,9 @@
 """`hh.py daily --out-dir DIR`: everything the 7:40 AM app job needs, in one go (reads hud.json; no network).
 
-Runs todaywalk (+ evidence), calltoday, zones (+ one walk per zone) and, when a leads export is given, followups.
-Each HMP App doc is written as its own JSON file named by its doc path, "/" -> "__":
+Runs todaywalk (+ evidence), calltoday, zones (+ one walk per zone), rentals and, when a leads export is given,
+followups. Each HMP App doc is written as its own JSON file named by its doc path, "/" -> "__":
   today__walk.json, calls__today.json, zones__current.json, walks__<zone id>.json, evidence__<slug>.json,
-  followups__today.json (only with leads)
+  rentals__current.json, followups__today.json (only with leads)
 plus manifest.json {date, generated_utc, files{doc path: file name}, skipped[], errors[{part, error}], basemap?} so the job
 knows exactly which docs to write. One part failing never stops the others (its error goes in the manifest).
 """
@@ -12,7 +12,7 @@ import os
 import re
 from datetime import datetime, timezone
 
-from . import calltoday, todaywalk, zones
+from . import calltoday, rentals, todaywalk, zones
 from .benchmarks import doors_per_hour
 
 MANIFEST = "manifest.json"
@@ -68,6 +68,9 @@ def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, 
         for path, w in zones.walks(hud, z, day, None, results, cfg, now=now, dnk=dnk, taps=taps).items():
             put(path, maker.add(w) if maker is not None else w)
 
+    def rentals_doc():
+        put("rentals/current", rentals.hotlist(hud, day, near, None, cfg, conn))
+
     def follow():
         from . import followups, weekly
         put("followups/today", followups.followups(weekly.load_leads(leads_raw), day, cfg))
@@ -75,6 +78,7 @@ def run(cfg, out_dir, day, hud, results_raw=None, dnk_raw=None, leads_raw=None, 
     part("todaywalk", walk)
     part("calltoday", calls)
     part("zones", zone_docs)
+    part("rentals", rentals_doc)
     if leads_raw is not None:
         part("followups", follow)
     else:

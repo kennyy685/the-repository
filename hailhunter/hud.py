@@ -370,6 +370,14 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
         hail_evidence = {}
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
+    everyday_lists = _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10), cfg)
+    try:                                           # rental hot list (rounds 34/38); optional: hud.json is written either way
+        from . import rentals
+        rental_hotlist = rentals.rental_hotlist(lists, everyday_lists, today, cfg)
+    except Exception as e:
+        import sys
+        print(f"  rental_hotlist skipped: {type(e).__name__}: {e}", file=sys.stderr)
+        rental_hotlist = []
     from . import watch
     watch_hits = watch.watch_hits(conn, cfg, watch.load_watch_list(cfg))
     agents = []
@@ -383,8 +391,7 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
             "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
-            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10), cfg),
-            "hail_evidence": hail_evidence,
+            "everyday_lists": everyday_lists, "hail_evidence": hail_evidence, "rental_hotlist": rental_hotlist,
             "company_id": (cfg.get("company") or {}).get("id", "hmp"), "credits": CREDITS}
 
 
@@ -396,6 +403,7 @@ def write(conn, cfg, path=None, max_bytes=None):
     data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
     text = json.dumps(data, separators=(",", ":"))
     ev = cfg.get("everyday", {}).get("max_turfs", 10)
+    today = datetime.now(ZoneInfo(cfg["timezone"])).date()
     for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
         if len(text) <= max_bytes:
             break
@@ -403,6 +411,8 @@ def write(conn, cfg, path=None, max_bytes=None):
         data["everyday_lists"] = _everyday_lists(conn, max(3, min(ev, n // 3)), cfg)
         keep = {_key(s) for L in data["lists"] for s in L["stops"]}          # evidence only for houses still listed
         data["hail_evidence"] = {k: v for k, v in data["hail_evidence"].items() if k in keep}
+        from . import rentals                    # rental hot list follows the same trimmed lists (T23 pattern above)
+        data["rental_hotlist"] = rentals.rental_hotlist(data["lists"], data["everyday_lists"], today, cfg)
         text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)
