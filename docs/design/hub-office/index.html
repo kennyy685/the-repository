@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hub Office Mockups</title>
+<style>
+@font-face{font-family:"Geist";src:url(../v25-polish/fonts/Geist-400.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Geist";src:url(../v25-polish/fonts/Geist-600.woff2) format("woff2");font-weight:600}
+@font-face{font-family:"Geist Mono";src:url(../v25-polish/fonts/GeistMono-500.woff2) format("woff2");font-weight:500}
+:root{color-scheme:dark;--bg:#0b0c0f;--card:#15161a;--line:rgba(255,255,255,.09);--ink:#f5f2ec;--muted:rgba(245,242,236,.6);--brass:#ead1a0;--hmp:#f5883a;
+  --f:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:40px 80px;display:grid;gap:48px}
+.lbl{font:500 11px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(32px,5vw,52px);font-weight:600;letter-spacing:-.025em;line-height:1.05;margin:10px 0 12px;text-wrap:balance}
+h2{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0 0 6px}
+p{margin:0;max-width:68ch;color:var(--muted)}
+.lead{font-size:18px;color:var(--ink);max-width:62ch}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:22px;padding:12px 18px;border-radius:999px;background:var(--hmp);color:#1b1206;font-weight:600;text-decoration:none}
+.cta:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.note{margin-top:14px;font-size:13px}
+figure{margin:0;display:grid;gap:8px}
+figure img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:#111}
+figcaption{font-size:13px;color:var(--muted)}
+figcaption b{color:var(--ink);font-weight:600}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.three{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.phones{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:start}
+ul.moves{margin:0;padding:0;list-style:none;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+ul.moves li{padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line);font-size:14px;color:var(--muted)}
+ul.moves b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+ul.notes{margin:10px 0 0;padding-left:18px;color:var(--muted);display:grid;gap:6px;max-width:80ch}
+code{font:500 13px var(--mono);color:var(--brass)}
+</style></head>
+<body><main class="wrap">
+
+<header>
+  <span class="lbl">HMP AI hub · office view · picked 2026-09-27</span>
+  <h1>Penthouse HQ</h1>
+  <p class="lead">The crew lives in a glass penthouse at dusk on top of a tower: walnut, brushed brass, warm lamps, and the Nebraska sky through the glass. Each AI is a matte ceramic robot with an HMP-orange light strip that shows what it is doing.</p>
+  <a class="cta" href="penthouse.html">Open the live mockup</a>
+  <p class="note">FilthE picked this option (A). Options B and C were stopped at the pick and not built. The page is a mockup with a 60-second demo loop of example data; nothing is published and nothing reads the real hub yet.</p>
+</header>
+
+<section>
+  <span class="lbl">It moves</span>
+  <h2>The same page, 2 seconds apart</h2>
+  <p>Research Lead glides from the coffee bar to its reading chair, Right Hand starts toward the front with a question, and the needs strip picks it up.</p>
+  <div class="two" style="margin-top:16px">
+    <figure><img src="shots/desktop-1280.jpg" width="1280" height="800" alt="Desktop view: the penthouse with nine robots, the needs strip on top and the crew list on the right"><figcaption><b>Desktop, 1280 px.</b> Start of the demo, 6:46 AM.</figcaption></figure>
+    <figure><img src="shots/desktop-1280-2s-later.jpg" width="1280" height="800" alt="The same view two seconds later with robots in new places"><figcaption><b>2 s later.</b> Robots have moved; a second ask appears on top.</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">Phone first</span>
+  <h2>390 px, no sideways scroll</h2>
+  <p>On the phone the needs list comes first, then the room, then the crew. Tap a robot or a row and its card slides up.</p>
+  <div class="phones" style="margin-top:16px">
+    <figure><img src="shots/phone-390.jpg" width="780" height="1688" alt="Phone view with the needs list and the room" loading="lazy"><figcaption><b>Phone.</b> Start of the demo.</figcaption></figure>
+    <figure><img src="shots/phone-390-2s-later.jpg" width="780" height="1688" alt="Phone view two seconds later" loading="lazy"><figcaption><b>2 s later.</b></figcaption></figure>
+    <figure><img src="shots/phone-390-card.jpg" width="780" height="1688" alt="Phone view with the Designer card open" loading="lazy"><figcaption><b>Robot card.</b> Name, job, what it asks you, now doing, last check-in, EN/ES.</figcaption></figure>
+    <figure><img src="shots/phone-390-full-page.jpg" width="780" height="2512" alt="Full phone page" loading="lazy"><figcaption><b>Whole page.</b> Needs you, the room, the crew list.</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">Every state</span>
+  <h2>What each robot does</h2>
+  <ul class="moves" style="margin-top:14px">
+    <li><b><i class="dot" style="background:#b8c1d4"></i>On a break</b>Hovers with a slow breathing light, looks around, blinks, drifts between the sofa, the window and the coffee bar.</li>
+    <li><b><i class="dot" style="background:#62d6a0"></i>Working</b>Glides to its station. Types on a glass keyboard under a glowing screen, reads a tablet, or watches the radar. A light runs around its strip.</li>
+    <li><b><i class="dot" style="background:#f5883a"></i>Waiting on you</b>Glides to the front corner, rises, waves, pulses an orange ring, and shows its one-line ask. It also lands in the "Needs you" strip.</li>
+    <li><b><i class="dot" style="background:#ff6b5f"></i>Blocked</b>Stays at its station, head down, strip turns red, red bubble with the reason.</li>
+    <li><b><i class="dot" style="background:#e7cd95"></i>Just finished</b>Spins, hops, a burst of brass sparks, then a coffee (with steam) and a sit on the sofa.</li>
+    <li><b><i class="dot" style="background:#93a0d8"></i>Asleep</b>Sinks low, eyes dim to a line, slow light, floating "z". Storm Watch sleeps until 6:54 AM, then wakes and scans.</li>
+  </ul>
+  <div class="three" style="margin-top:16px">
+    <figure><img src="shots/state-done-celebration.jpg" width="1280" height="800" alt="QA Tester celebrating with sparks" loading="lazy"><figcaption><b>Done.</b> QA Tester's checks passed; two robots wait at the front.</figcaption></figure>
+    <figure><img src="shots/state-standup.jpg" width="1280" height="800" alt="Three robots at the board for a stand-up" loading="lazy"><figcaption><b>Stand-up.</b> The King and two helpers meet at the board.</figcaption></figure>
+    <figure><img src="shots/state-storm.jpg" width="1280" height="800" alt="Storm clouds and rain behind the glass" loading="lazy"><figcaption><b>Storm mood.</b> When Storm Watch finds fresh hail, clouds roll in with rain and lightning.</figcaption></figure>
+    <figure><img src="shots/state-blocked-card.jpg" width="1280" height="800" alt="Research Lead blocked, with its card open" loading="lazy"><figcaption><b>Blocked + card.</b> Tap a robot: its card shows what it is stuck on.</figcaption></figure>
+    <figure><img src="shots/state-card-es-night.jpg" width="1280" height="800" alt="Spanish view at night" loading="lazy"><figcaption><b>Español + night sky.</b> Every label and line switches with EN/ES.</figcaption></figure>
+    <figure><img src="shots/fallback-no-webgl-desktop.jpg" width="1280" height="800" alt="Still picture used when 3D is off" loading="lazy"><figcaption><b>No 3D on the device.</b> A still picture of the room; the sky, needs list and crew stay live.</figcaption></figure>
+  </div>
+  <div class="phones" style="margin-top:16px">
+    <figure><img src="shots/phone-390-reduced-motion.jpg" width="780" height="1688" alt="Phone view with reduced motion" loading="lazy"><figcaption><b>Reduced motion.</b> Robots step instead of glide; no bobbing, sparks, rain or drifting clouds.</figcaption></figure>
+    <figure><img src="shots/fallback-no-webgl-phone.jpg" width="780" height="1688" alt="Phone still picture fallback" loading="lazy"><figcaption><b>No 3D, phone.</b></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">For the Builder</span>
+  <h2>How it plugs into the hub</h2>
+  <ul class="notes">
+    <li>Hub only: the crew, their work, the board and "needs you". Nothing from the HMP App (no leads, doors, claims, money, app links or app chat).</li>
+    <li>Each robot reads the hub's <code>agents/&lt;id&gt;</code> doc: <code>status</code> picks the behavior, <code>doing</code> and <code>at</code> fill the card, a waiting ask and "answer in" line fill the strip. The demo loop (<code>SCRIPT</code> in the page) is the only mock data.</li>
+    <li>Sky is mood only: "Live sky" follows the time in Fremont (Central); it turns stormy when Storm Watch reports fresh hail. Dusk, Night and Day are there to preview.</li>
+    <li>three.js r169 (MIT) loads from cdn.jsdelivr.net. All art is drawn in code in the page. If WebGL or the CDN is missing, the page shows the built-in still picture after 6 s.</li>
+    <li>Phone speed: static furniture merged by material (about 220 draw calls a frame), pixel ratio capped at 1.75 on phones and lowered if frames run long, rendering pauses when the room is scrolled off screen.</li>
+  </ul>
+</section>
+
+</main></body></html>
