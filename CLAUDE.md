@@ -45,7 +45,8 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
 - King trigger `trig_01MNxMWzvD3ZgRqWxfjtJLEU`: fresh session 7:52 AM / 12:52 PM / 5:52 PM Central + hub instant wake.
   Old triggers are paused, never deleted. Never bind a recurring trigger to a long session.
-- Work branch: `claude/funny-hawking-2rytou`. Merges to main need FilthE's OK.
+- Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
+  main need FilthE's OK.
 
 ## Hard rules (legal)
 - Neb. 44-8604: never offer/imply covering, waiving or rebating a deductible; never pay homeowners for claims.
