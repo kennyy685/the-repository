@@ -77,6 +77,10 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - **Commit work in progress to the repo every ~30 min** (a container restart wiped an unsaved v25 draft).
   Commit only your own files (`git add <paths>`, never `-A`).
 - Grep big files, never read the 8,400-line app whole. Screenshots only for the final pre-publish review.
+- **The King hands itself off; FilthE never has to (FilthE, 2026-09-27).** Past ~200k tokens, or when its jobs are
+  done, the King writes `docs/orders/king-handoff.md` (short: what's live, what's running, what's next), opens a fresh
+  King chat with `create_session` (title "SMUIPO (King)", branch = the work branch, prompt = read the handoff and
+  resume), tells FilthE its name, then archives itself. A fresh King reads `docs/orders/king-handoff.md` first.
 - New chat per job; don't grow one endless session. **Measured 2026-09-27:** one long King chat cost ~$97 in ~2.5 h,
   mostly re-reading its own 500k-token history on every message (at xhigh effort). Hand off to a fresh chat once a
   chat passes ~200k tokens; routine work runs at high effort, not xhigh.
