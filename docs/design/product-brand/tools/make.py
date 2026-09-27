@@ -42,7 +42,21 @@ def assets():
         write(os.path.join(d, "logo-reverse.svg"), lockup_svg(b, ink="#eceef1", pad=4) + "\n")
         write(os.path.join(d, "wordmark.svg"), wordmark_svg(b) + "\n")
         write(os.path.join(d, "icon.svg"), icon_svg(b) + "\n")
+    write(os.path.join(ROOT, "brand-tokens.css"), TOKENS_FILE)
     print("assets ok")
+
+
+TOKENS_FILE = """/* Product brand candidates, as a drop-in for the v25 Ledger system (../v25-polish/ds.css).
+   Load AFTER ds.css and put class="brand-aldaba|brand-paso|brand-ronda" on <html>. Only the accent family changes
+   (--hmp*, --on-hmp, --heat, and --warn for Paso so "waiting" chips don't look like the brand); Geist stays the app
+   face. --display is for the logo lockup, marketing headlines and big numbers on the landing page only. */
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Archivo";src:url(fonts/Archivo-var.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"Unbounded";src:url(fonts/Unbounded-var.woff2) format("woff2");font-weight:200 900;font-display:swap}
+html.brand-aldaba{--display:"Bricolage Grotesque",system-ui,sans-serif} /* 700, opsz 96, -0.03em */
+html.brand-paso{--display:"Archivo",system-ui,sans-serif}               /* 800, font-stretch 125%, -0.025em */
+html.brand-ronda{--display:"Unbounded",system-ui,sans-serif}            /* 600, -0.03em */
+""" + TOKENS_CSS.strip() + "\n"
 
 
 # ---------------------------------------------------------------- 2. app icons (PNG, RGB, full bleed)
@@ -57,7 +71,35 @@ def icons():
     print("icons ok")
 
 
-# ---------------------------------------------------------------- 3. the v25 Now screen in each brand
+# ---------------------------------------------------------------- 3. the v25 Now screen in each brand (EN + ES)
+# Spanish strings follow the app's own ES labels (pages/hmp-app.html: Ahora, Tocar, Agregar, Prospectos, Dinero,
+# Manejar, Empezar a tocar, Dile a la Mano Derecha).
+NOW_ES = [
+    ('<h1>Now <span class="date">Sat, Sep 26</span></h1>', '<h1>Ahora <span class="date">sáb 26 sep</span></h1>'),
+    ('aria-label="Switch to Spanish">ES</button>', 'aria-label="Cambiar a inglés">EN</button>'),
+    ('<span class="label">Hail heat</span>', '<span class="label">Granizo</span>'),
+    ('<span>lower</span><span>higher</span>', '<span>menos</span><span>más</span>'),
+    ('You: Fremont · 45 mi', 'Tú: Fremont · 45 mi'),
+    ('Best zone today</span>', 'Mejor zona hoy</span>'),
+    ('Storm Aug 8</span>', 'Tormenta 8 ago</span>'),
+    ('Columbus · #1 of 12 hot zones', 'Columbus · #1 de 12 zonas calientes'),
+    ('<span>hail</span>', '<span>granizo</span>'), ('<span>homes</span>', '<span>casas</span>'),
+    ('<span>from Fremont</span>', '<span>desde Fremont</span>'),
+    ('Older roofs, most homes owner-lived', 'Techos viejos, casi todos son dueños'),
+    ('Drive</button>', 'Manejar</button>'), ('Start knocking', 'Empezar a tocar'),
+    ('<h2>Today</h2><a href="#">Leads</a>', '<h2>Hoy</h2><a href="#">Prospectos</a>'),
+    ('Inspection · 615 N Linden Ave', 'Inspección · 615 N Linden Ave'),
+    ('Rosa · bring the ladder', 'Rosa · lleva la escalera'),
+    ('Call US Bank about the check', 'Llamar a US Bank por el cheque'),
+    ('Call back to set the inspection', 'Llamar para agendar la inspección'),
+    ('Call Maria back (Spanish)', 'Devolverle la llamada a María (español)'),
+    ('2 days late', '2 días tarde'), ('1 day late', '1 día tarde'),
+    ('Tell the Right Hand… “knocked 20, 4 talked”', 'Dile a la Mano Derecha… “toqué 20, hablé con 4”'),
+    ('>Now<span class="dot', '>Ahora<span class="dot'), ('Knock</button>', 'Tocar</button>'),
+    ('Add</button>', 'Agregar</button>'), ('Leads</button>', 'Prospectos</button>'), ('Money</button>', 'Dinero</button>'),
+]
+
+
 def now():
     src = open(os.path.join(V25, "now.html"), encoding="utf-8").read()
     for b in BRANDS:
@@ -68,15 +110,20 @@ def now():
         html = html.replace('<link rel="stylesheet" href="ds.css">',
                             '<link rel="stylesheet" href="ds.css">\n<style>' + TOKENS_CSS +
                             '.legend .bar{background:linear-gradient(90deg,rgba(var(--heat),.18),rgba(var(--heat),.55),rgb(var(--heat)))}'
-                            '.mark svg{width:auto;height:auto}'
+                            '.mark svg{width:auto;height:auto}.appt b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
                             # headless Chrome keeps a window of at least ~500px, which turns on the desktop "stage"
                             # frame; pin the phone to the top-left so the crop is exactly the 390 x 844 screen
                             'body.stage{padding:0!important;background:var(--bg)!important}'
                             '.phone{margin:0!important;border-radius:0!important;box-shadow:none!important}</style>')
         html, n = re.subn(r'<div class="mark">.*?</div>', f'<div class="mark">{appbar_mark(b)}</div>', html, count=1, flags=re.S)
         assert n == 1, "mark not found in now.html"
-        write(os.path.join(work, "now.html"), html)
-        shot(os.path.join(work, "now.html"), os.path.join(ROOT, b, "now.png"), 390, 844, scale=2)
+        es = html.replace('<html lang="en"', '<html lang="es"')
+        for a, c in NOW_ES:
+            assert a in es, f"Spanish swap: {a!r} not found in now.html"
+            es = es.replace(a, c)
+        for name, text in (("now", html), ("now-es", es)):
+            write(os.path.join(work, f"{name}.html"), text)
+            shot(os.path.join(work, f"{name}.html"), os.path.join(ROOT, b, f"{name}.png"), 390, 844, scale=2)
     print("now ok")
 
 

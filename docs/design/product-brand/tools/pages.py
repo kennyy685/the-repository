@@ -133,11 +133,14 @@ STATUS_SVG = ('<svg viewBox="0 0 64 12" aria-hidden="true"><g fill="currentColor
               '<path d="M62.3 4.2v3.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.4" stroke-linecap="round"/></svg>')
 
 
-def phone(img="now.png"):
+def phone():
     return (f'<div class="phone"><div class="screen"><div class="status"><span class="clock">9:41</span>'
             f'<span class="island"></span><span class="sys">{STATUS_SVG}</span></div>'
-            f'<img src="{img}" width="390" height="844" alt="The Now screen: today\'s best hail zone on a map, '
-            f'its hail size, homes and distance, with Drive and Start knocking."></div></div>')
+            '<img class="en" src="now.png" width="390" height="844" alt="The Now screen: today\'s best hail zone on a map, '
+            'its hail size, homes and distance, with Drive and Start knocking.">'
+            '<img class="es" lang="es" src="now-es.png" width="390" height="844" alt="La pantalla Ahora: la mejor zona de '
+            'granizo de hoy en el mapa, con tamaño del granizo, casas y distancia, y los botones Manejar y Empezar a tocar.">'
+            '</div></div>')
 
 
 def motif(brand):
@@ -521,7 +524,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 32px;align-items:start;margin-bottom:28px}
 .top h1{font-size:clamp(30px,4.4vw,44px);font-weight:600;letter-spacing:-.035em;line-height:1.08;text-wrap:balance;margin-top:10px}
 .top .intro{grid-column:1;max-width:66ch;color:var(--ink-2);font-size:16px}
-.langsw{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.langsw{justify-self:start;display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
 .langsw button{height:30px;padding:0 12px;border-radius:7px;font:500 12px var(--mono);color:var(--muted)}
 .langsw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .tm{grid-column:1 / -1;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--warn-bg);color:var(--ink-2);font-size:14px;max-width:880px}
@@ -553,7 +556,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .note{font-size:12.5px;color:var(--muted);line-height:1.4}
 .sw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
 .sw li{display:flex;gap:10px;align-items:flex-start;min-width:0}
-.sw i{width:34px;height:34px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px rgba(128,128,128,.25)}
+.sw i{width:34px;height:34px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px var(--line-2)}
 .sw span{display:grid;min-width:0}
 .sw b{font-size:13px;font-weight:600;line-height:1.25}
 .sw code{font:500 11.5px var(--mono);color:var(--ink-2)}
@@ -589,7 +592,8 @@ table{border-collapse:collapse;width:100%;min-width:760px}
 th,td{text-align:left;vertical-align:top;padding:13px 16px;border-top:1px solid var(--line);font-size:14px;line-height:1.45}
 thead th{border-top:0;font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--soft)}
 td.nm b{font-size:16px;font-weight:600;letter-spacing:-.01em;display:block}
-td.nm span{font:500 12px var(--mono);color:var(--muted)}
+td.nm{width:150px}
+td.nm .say{font:500 12px var(--mono);color:var(--muted);white-space:nowrap;display:block}
 td .src{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:4px;font-size:12.5px}
 td .src a{color:var(--muted)}
 .chip{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:8px;font-size:12px;font-weight:500;white-space:nowrap}
@@ -644,8 +648,8 @@ def names_table():
     for name, say, status, top, meaning, found, srcs in NAMES:
         en, es, cls = STATUS[status]
         src = "".join(f'<a href="{u}" target="_blank" rel="noopener">{H.escape(lbl)}</a>' for lbl, u in srcs)
-        topchip = f'<br><span class="chip top">{t("Top 3", "Top 3")}</span>' if top else ""
-        rows.append(f'<tr><td class="nm"><b>{name}</b><span>{say}</span>{topchip}</td><td>{t(*meaning)}</td>'
+        topchip = '<span class="chip top">Top 3</span>' if top else ""
+        rows.append(f'<tr><td class="nm"><b>{name}</b><span class="say">{say}</span>{topchip}</td><td>{t(*meaning)}</td>'
                     f'<td>{t(*found)}<div class="src">{src}</div></td><td><span class="chip {cls}">{t(en, es)}</span></td></tr>')
     return "".join(rows)
 
@@ -674,7 +678,7 @@ def compare_html():
          "Antes de quedarse con un nombre: hacer una búsqueda de marca (USPTO y luego un abogado) y revisar los dominios .com y .app. Nada de eso se ha hecho; la búsqueda de abajo solo buscó choques obvios en software de techos y de ventas de campo.")}</p>
   </header>
 
-  <section class="options" aria-label="{t('The three options', 'Las tres opciones')}">{cards}
+  <section class="options" aria-label="The three options">{cards}
   </section>
 
   <section class="block" aria-labelledby="home-h">
