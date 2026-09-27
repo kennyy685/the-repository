@@ -1106,6 +1106,7 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
     <button type="button" class="lang hit" id="langBtn" lang="es" aria-label="Español">ES</button>
     <button type="button" class="avatar hit" id="moreBtn" data-open="more:" aria-label="More">K</button>
   </header>
+  <div class="practice-bar" id="practiceBar" role="status" hidden></div><!-- T201: shown while Practice mode is on -->
 
   <div class="banner" id="appBanner" hidden></div>
   <section class="boss" id="boss" lang="es" aria-label="Vista del jefe" hidden></section>
@@ -1220,12 +1221,13 @@ const SETTINGS = Object.freeze({
 <script src="translate/translate.js"></script>
 <script src="v25/icons.js"></script>
 <script src="v25/walkmap.js"></script>
+<script src="v25/practice.js"></script><!-- T201 Practice mode: writes kept in memory only (pages/v25/practice.js) -->
 <script>
 (() => {
 'use strict';
 /* ================= constants ================= */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPJobTrack', 'HMPTranslate', 'HMPIcons', 'HMPMap'].filter(n => !window[n]);   // T169: module files that didn't load
+const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPJobTrack', 'HMPTranslate', 'HMPIcons', 'HMPMap', 'HMPPractice'].filter(n => !window[n]);   // T169: module files that didn't load
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1674,6 +1676,7 @@ function setHTML(n, html){
 const soft = n => ({set html(v){ setHTML(n, v); }});
 
 /* ================= outbox: writes that can't reach the database wait on this phone and retry by themselves ================= */
+const prOn = () => !!(window.HMPPractice && window.HMPPractice.isOn());   // T201: Practice mode (v25/practice.js) sends save() nowhere
 const OB_KEY = 'hmp-app-outbox';
 let outbox = [], obStored = true, flushing = false, flushT = 0, backoff = 4000, syncOkT = 0;
 try { const s = JSON.parse(localStorage.getItem(OB_KEY) || '[]'); if (Array.isArray(s)) outbox = s.filter(o => o && o.op && o.path); } catch (e) { outbox = []; }
@@ -1727,6 +1730,7 @@ function enqueue(o){
 }
 async function save(o){   // one write; it throws only when the database refuses it (no edit rights)
   o.id = o.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)); o.queuedAt = o.queuedAt || nowIso();
+  if (prOn()) { window.HMPPractice.put(o); applyOverlay(); return 'saved'; }   // T201 Practice mode: this phone's memory only, never the database
   if (dbOps().length || !DB) { enqueue(o); flushSoon(DB ? 0 : null); return 'queued'; }   // stay in order behind older waiting writes
   try { await rawWrite(o); return 'saved'; }
   catch (e) { if (refused(e)) throw e; enqueue(o); flushSoon(); return 'queued'; }
@@ -1774,7 +1778,7 @@ const localDoors = {};   // pid -> {body, t}: a tap shows at once, before the da
 function setLocalDoor(pid, body){ localDoors[pid] = {body, t: Date.now()}; mergeDoors(); }
 function overlayFor(col){
   const m = new Map();
-  for (const o of outbox) {
+  for (const o of window.HMPPractice ? [...outbox, ...window.HMPPractice.ops()] : outbox) {   // T201: practice writes show like waiting ones
     if (!o.path.startsWith(col + '/')) continue; const id = o.path.slice(col.length + 1);
     if (o.op === 'set') m.set(id, clone(o.body)); else if (o.op === 'delete') m.set(id, null);
     else if (o.op === 'update') m.set(id, Object.assign(m.has(id) ? m.get(id) || {} : {__merge: true}, clone(o.body)));
@@ -2746,7 +2750,7 @@ function jobCard(x){
     const line = rm ? `<span class="nextline">${ic(rm.level === 'late' ? 'flag' : 'clock')}<span>${esc(txl(rm.short))}</span>${jtRemChip(rm)}${ic('chev', 'i-sm')}</span>`
       : `<span class="nextline">${ic(late ? 'flag' : /bank|check|cheque/i.test(txl(ns)) ? 'phone' : a0(c) ? 'cal' : 'clock')}<span>${esc(txl(ns) || Zs.noNextJob)}</span>${late ? `<span class="chip late">${esc(Zs.lateD(late))}</span>` : ''}${ic('chev', 'i-sm')}</span>`;
     return `<button type="button" class="card jcard" data-open="claim:${esc(c.id)}"><span class="hd"><span><h3>${esc(strv(c.address) || c.id)}</h3><span class="who">${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span></span><span class="chip${c.stage === 'paid' ? ' ok' : ''}">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span></span>
-      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ' · ' + esc(of)}</span>${nxt ? `<span>${esc(Zs.nextS(nxt))}</span>` : ''}</span>`}
+      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ` · <span class="nw">${esc(of)}</span>`}</span>${nxt ? `<span>${esc(Zs.nextS(nxt))}</span>` : ''}</span>`}
       ${fin ? `<span class="jmoney"><span>${esc(C0().collectedTotal)}: <b>${usd(m.collected)}</b></span></span>` : line}</button>`; }
   const l = x.l, cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0, ns = txl(l.next_step);
   return `<button type="button" class="card jcard" data-open="lead:${esc(l.id)}"><span class="hd"><span><h3>${esc(strv(l.address) || l.id)}</h3><span class="who">${esc([strv(l.first_name), strv(l.city)].filter(Boolean).join(' · '))}</span></span><span class="chip ok">${esc(Zs.cash)}</span></span>
@@ -2889,6 +2893,7 @@ async function addPhotos(id, slot, files){
   for (const [i, f] of list.entries()) {
     phMsg = {text: V().phUp(i + 1, list.length)}; renderSheet();
     try { const blob = await shrink(f); const type = /^image\/(jpeg|png|webp|gif)$/.test(blob.type) ? blob.type : 'image/jpeg';
+      if (prOn()) { const pid = HMPPractice.photoId(); blobUrls.set(pid, URL.createObjectURL(blob)); added.push({id: pid, slot, at: nowIso(), by: 'FilthE'}); continue; }   // T201: shown, never uploaded
       const r = await ASSETS.upload(blob, {type}); blobUrls.set(r.id, r.url); added.push({id: r.id, slot, at: nowIso(), by: 'FilthE'}); }
     catch (e) { err = e; if (e && e.code === 'store_unavailable' && !f._retried) { f._retried = true; await new Promise(r => setTimeout(r, 1500)); try { const r2 = await ASSETS.upload(await shrink(f), {type: 'image/jpeg'}); blobUrls.set(r2.id, r2.url); added.push({id: r2.id, slot, at: nowIso(), by: 'FilthE'}); err = null; continue; } catch (e2) { err = e2; } } break; }
   }
@@ -2899,7 +2904,7 @@ async function addPhotos(id, slot, files){
     catch (e) { err = e; }
   }
   const PE = V().phErr;
-  phMsg = err ? {text: (refused(err) ? K().readOnly : PE[err && err.code] || PE.net), bad: true} : {text: V().phSaved(added.length)};
+  phMsg = err ? {text: (refused(err) ? K().readOnly : PE[err && err.code] || PE.net), bad: true} : {text: prOn() ? HMPPractice.t(lang).photo(added.length) : V().phSaved(added.length)};
   renderSheet();
 }
 async function toggleCheck(id, slot){
@@ -2913,7 +2918,7 @@ async function removePhoto(id, pid){
   phOpen = null; phArm = null;
   try {
     await save({op: 'update', path: 'leads/' + id, body: {photos: photosOf(l).filter(p => p.id !== pid), updated_at: nowIso(), updated_by: 'Photos'}});
-    try { if (ASSETS) await ASSETS.delete(pid); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }
+    try { if (ASSETS && !(window.HMPPractice && HMPPractice.isPhoto(pid))) await ASSETS.delete(pid); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }
     appToast(V().phRemoved);
   } catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
   renderSheet();
@@ -3507,7 +3512,7 @@ function whenChip(a, due, fin){   // the next-step card's time chip: the appoint
 function stageBar(n, total, name, next, fin){
   const segs = Array.from({length: total}, (_, k) => `<i class="${fin || k + 1 < n ? 'd' : k + 1 === n ? 'c' : ''}"></i>`).join('');
   const [a, b] = fin ? [name, ''] : Z().stepN(name, n, total);
-  return `<div class="stagebar" role="img" aria-label="${esc(fin ? name : `${name}, ${b}`)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ' · ' + esc(b) : ''}</span>${next ? `<span>${esc(Z().nextStep(next))}</span>` : ''}</div></div>`;
+  return `<div class="stagebar" role="img" aria-label="${esc(fin ? name : `${name}, ${b}`)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` · <span class="nw">${esc(b)}</span>` : ''}</span>${next ? `<span>${esc(Z().nextStep(next))}</span>` : ''}</div></div>`;
 }
 function leadQuick(l){
   const Zs = Z(), phone = strv(l.phone), num = phone.replace(/[^\d+]/g, ''), pp = photoProgress(l);
@@ -3664,7 +3669,7 @@ function jtBar(md, c){   // the claim screen's stage bar, counting the 14 job st
   const cur = md.steps.find(s => s.id === md.current), nx = md.steps.find(s => s.id === md.next), J = JT();
   const segs = md.steps.map(s => `<i class="${s.status !== 'open' ? 'd' : s.id === md.current ? 'c' : ''}"></i>`).join('');
   const a = md.fin || !cur ? (c.stage === 'paid' ? J.closed : cStage(c.stage)) : txl(cur.short), b = md.fin || !cur ? '' : J.stepOf(cur.n, md.steps.length);
-  return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ' · ' + esc(b) : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
+  return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` · <span class="nw">${esc(b)}</span>` : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
 }
 function jtRemChip(r){ const d = -daysFromToday(r.due); return r.level === 'late' ? `<span class="chip late">${ic('flag')}${esc(Z().lateD(Math.max(1, d)))}</span>` : `<span class="chip warn">${ic('clock')}${esc(r.due === todayStr() ? Z().dueToday : fmtDay(r.due, true))}</span>`; }
 function jobBox(c, md){
@@ -5329,6 +5334,7 @@ function renderMore(){
   soft($('#shBody')).html = `<div class="card"><div class="row" style="min-height:56px"><span class="lead">${ic(themePref === 'light' ? 'sun' : 'moon')}</span><span class="t"><b>${esc(Zs.theme)}</b></span></div>
       <div class="seg themeseg" role="group" aria-label="${esc(Zs.theme)}">${['dark', 'light', 'auto'].map(t => `<button type="button" data-theme-pick="${t}" aria-pressed="${themePref === t}">${esc(Zs.themes[t])}</button>`).join('')}</div></div>
     <ul class="rows">
+    ${window.HMPPractice ? row(`id="practiceBtn" data-practice="${prOn() ? '0' : '1'}" aria-pressed="${prOn()}"`, prOn() ? HMPPractice.t(lang).rowOn : HMPPractice.t(lang).row, 'target') : ''}
     ${row(`id="bossBtn" data-boss="1" aria-pressed="${bossOn}" lang="es"`, M.boss, 'user')}
     ${row(`href="${esc(SETTINGS.links.practiceDoor)}" target="_blank" rel="noopener"`, M.practice, 'door', 'a')}
     ${walkModel() ? row('data-print="1"', M.print, 'print') : ''}
@@ -5655,7 +5661,7 @@ function renderBadges(){   // v25: one red badge, on Now, for late items only (n
 }
 let lastAppKey = '';
 function renderApp(force = true){   // snapshots call it with force=false: nothing is redrawn when nothing on screen changed
-  const key = [tab, lang, bossOn, dataVer, todayStr(), Math.floor(Date.now() / 600000), CAN_EDIT, !!SAMPLE, !!ASSETS, !!DB, appState, openRef].join('|');
+  const key = [tab, lang, bossOn, prOn(), dataVer, todayStr(), Math.floor(Date.now() / 600000), CAN_EDIT, !!SAMPLE, !!ASSETS, !!DB, appState, openRef].join('|');
   if (!force && key === lastAppKey) { renderBadges(); return; }
   lastAppKey = key;
   softDraw = !force;   // v23: a live-data redraw leaves identical parts alone (setHTML)
@@ -5665,6 +5671,7 @@ function renderApp(force = true){   // snapshots call it with force=false: nothi
     if (MOD_MISSING.length) ban.innerHTML = `<span>${esc(T.modMiss)}</span><button type="button" class="btn sec" data-reload="1">${esc(T.reload)}</button>`;   // T169
     else ban.textContent = appState === 'err' ? T.appErr : T.appOff;
     renderBadges();
+    if (window.HMPPractice) HMPPractice.paint($('#practiceBar'), lang);   // T201
     $('#barDate').textContent = toDate(todayStr()).toLocaleDateString(locale(), {weekday: 'short', month: 'short', day: 'numeric'});
     if (bossOn) renderBoss();
     else if (tab === 'now') renderNow(); else if (tab === 'knock') renderKnockTab(); else if (tab === 'leads') renderLeads(); else if (tab === 'money') renderMoney();
@@ -5687,7 +5694,14 @@ function setBoss(on){
   if (bossOn && openRef) closeSheet();
   shellStatic(); renderApp(true); if (bossOn) window.scrollTo(0, 0);
 }
-document.addEventListener('click', ev => { if (ev.target.closest('[data-boss]')) { if (openRef) closeSheet(); setBoss(!bossOn); } });   // v24: the boss view lives under More
+document.addEventListener('click', ev => { if (ev.target.closest('[data-boss]')) { if (openRef) closeSheet(); setBoss(!bossOn); } });
+function setPractice(v){   // T201 Practice mode: on = every save stays in this phone's memory; off = those are thrown away
+  if (!window.HMPPractice) return;
+  const n = HMPPractice.set(v), P = HMPPractice.t(lang);
+  applyOverlay(); renderApp(true);   // redraws the open More sheet too
+  appToast(v ? P.onToast : P.offToast(n));
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-practice]'); if (b) setPractice(b.dataset.practice === '1'); });   // v24: the boss view lives under More
 function renderBoss(){
   const box = $('#boss'), t0 = todayStr(), E = TX.es;
   const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost'), si = CLAIM_STEPS.indexOf('signed');
