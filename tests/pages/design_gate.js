@@ -23,6 +23,8 @@
  *   duplicate      the same label AND the same action twice on one screen (a "Call" on every lead card is not a
  *                  duplicate: each card's button acts on a different lead).
  *   js-error       the page threw while rendering: every other check would be grading a broken page.
+ * Not checked here: sideways scroll (tests/pages/shots.js, same checklist step), font sizes, cut-off headings and
+ * broken images (the harness is offline, so no remote image ever loads). Those were in the first draft of this gate.
  *
  * Themes: light and dark through prefers-color-scheme (how a phone picks), plus the data-theme attribute forcing each
  * one against the system setting (the ":root:not([data-theme=light])" / "[data-theme=dark]" guards the pages use).
@@ -283,7 +285,7 @@ function pageLib() {
       if (g.parentElement && g.parentElement.closest("svg")) continue;
       const r = g.getBoundingClientRect();
       if (r.width < 6 || r.height < 6 || !shown(g)) continue;
-      if (g.tagName === "IMG" && !(g.complete && g.naturalWidth > 0)) continue;
+      // an <img> counts by its box, loaded or not: this harness is offline, so photo thumbnails never load here
       if (g.tagName.toLowerCase() === "svg" && !paintOf(g)) continue;
       out.push(g);
     }
@@ -732,10 +734,14 @@ async function auditView(page, ctx, viewName) {
     await frames(page);
     const pending = await page.evaluate(() => window.__dg.measure());
     if (!pending) continue;
-    await page.evaluate(() => window.__dg.hide(true));
-    await frames(page);
-    const png = await page.screenshot({ animations: "disabled", caret: "hide" });
-    await page.evaluate(() => window.__dg.hide(false));
+    let png;
+    try {
+      await page.evaluate(() => window.__dg.hide(true));
+      await frames(page);
+      png = await page.screenshot({ animations: "disabled", caret: "hide" });
+    } finally {   // never leave the text hidden for the next tab: it would be skipped, not graded
+      await page.evaluate(() => window.__dg.hide(false)).catch(() => {});
+    }
     await page.evaluate((b64) => window.__dg.sample(b64), png.toString("base64"));
   }
   const res = await page.evaluate(() => window.__dg.finish());
