@@ -243,6 +243,22 @@ h1{margin:0;font-family:var(--display);text-wrap:balance;color:var(--text)}
 .brand-ronda{--page:#f7f7f9;--text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--rule:#e3e5e8;--rule-2:#d3d6db;--chip:#e9ebee;
   --acc:#c8288f;--on-acc:#ffffff;--acc-bg:#fbe9f4;--acc-ink:#a11c74;--display:"Unbounded","Unbounded L",system-ui,sans-serif;--mw:680px}
 .brand-ronda h1{font-weight:600;font-size:60px;line-height:1.06;letter-spacing:-.03em}
+
+/* ---------- narrow screens: stack copy, phone, benefits ---------- */
+@media (max-width:1100px){
+  .site{padding:0 20px;min-height:0}
+  .nav{height:68px;gap:16px}.links,.nav .btn.sec{display:none}.logo svg{height:28px}
+  .nav .btn{height:38px;padding:0 14px;font-size:13px}
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "device" "benefits";grid-template-rows:auto;padding-bottom:40px}
+  .copy{padding-top:24px}
+  .brand-aldaba h1{font-size:clamp(40px,11vw,64px)}.brand-paso h1{font-size:clamp(32px,8.6vw,56px)}.brand-ronda h1{font-size:clamp(30px,8vw,48px)}
+  .sub{font-size:17px}.ctas{flex-wrap:wrap}.btn{height:50px;padding:0 20px}
+  .device{margin:40px 0;overflow:visible}.motif{width:min(560px,130vw)}
+  .benefits{grid-template-columns:minmax(0,1fr);gap:22px}
+  .tape{position:relative;left:auto;right:auto;bottom:auto;margin:0 -20px 32px;overflow-x:auto}
+  .tape .hook{left:8px}.tape ol{padding-left:20px;width:max-content}
+}
+@media (max-width:1100px) and (max-width:420px){.nav .btn.pri{display:none}}
 """
 
 
@@ -258,7 +274,7 @@ def hero_html(brand, lang=None):
     return f"""<!doctype html>
 <html lang="{lang or 'en'}" class="brand-{brand}"{fixed}>
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=1440">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{b['name']} landing hero</title>
 <link rel="stylesheet" href="{GOOGLE}">
 <style>{font_faces('../fonts/')}{HERO_CSS}</style>
@@ -618,7 +634,7 @@ td .src a{color:var(--muted)}
 @media (max-width:460px){
   .pc{grid-template-columns:1fr}
   .sw{grid-template-columns:1fr}
-  .iconrow{grid-template-columns:auto auto;}
+  .iconrow{grid-template-columns:auto 1fr}
   .iconrow .note{grid-column:1 / -1}
 }
 """
