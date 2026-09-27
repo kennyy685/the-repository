@@ -64,3 +64,9 @@ Left: publish per the go-live rule (same URL, `crew-hq.files.json` as `files`, o
   cdn.jsdelivr.net/npm/three@0.169.0 to a local `npm pack three@0.169.0`, chromium with `--use-angle=swiftshader`.
 - Watch on a real phone: frame rate (DPR drops itself if frames run long) and the phone blocked bubble, which shows
   the blocked text without the robot's name (narrow layout hides names in bubbles; tap opens the card).
+
+## Live (2026-09-27)
+Published as hub Version 24 (v26 "Penthouse HQ") to https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU with
+`pages/crew-hq.files.json` as files; capabilities carried forward. The live version before it was identical to the
+repo's pre-T190 crew-hq.html (nothing to merge). Not yet seen on a real phone GPU. The instant-wake call
+(`fire_trigger`) is unchanged from v25.
