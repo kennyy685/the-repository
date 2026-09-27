@@ -3,9 +3,34 @@
 The hourly King check starts the top unchecked topic as a new round (Research Lead + scouts) whenever no round is running.
 Each round: write `docs/research/<date>-round-<n>.md`, post board items, check the topic off here, and add 1-2 new topics it uncovered.
 Web access (updated 2026-09-27, FilthE opened the network): Bash `curl -sSL -m 20 -A "Mozilla/5.0" <url>` reaches trade sites (roofingcontractor, nachi, nrca, jameshardie, eagleview, hover), tools (wisetack, openphone, repcard, spotio, companycam, roofr, salesrabbit, acculynx, hailtrace), gov (census, api.census.gov, api.weather.gov, spc.noaa.gov, *.nebraska.gov, nebraskalegislature.gov), bbb, mopoa, reddit, youtube, wikipedia. Prefer primary sources now. If WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
+**Round 52 note (cloud/Claude Code session, same day):** the allow-list differs per session. This
+session could NOT reach uphelp.org, blog.theroofstrategist.com, knockbase.com, doortodoormastery.com,
+spotio.com, roofr.com, hover.to, companycam.com, hailtrace.com, or quo.com (all `CONNECT tunnel failed,
+403`) - used WebSearch summaries for those instead and flagged them "search-summary only" in the round
+file. It COULD reach doi.nebraska.gov (2 Consumer Alert PDFs, ice dams + winter weather - new, useful),
+nebraskalegislature.gov, jameshardie.com's root + install-docs index (but not the actual spec PDF text),
+roofingcontractor.com, nachi.org, nrca.net, eagleview.com, salesrabbit.com, repcard.com, wisetack.com.
+Check `curl -sS "$HTTPS_PROXY/__agentproxy/status"` each round rather than assuming last round's list.
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
+- [ ] Open jameshardie.com's own Best Practices installation PDF directly (not a third-party mirror or
+      a WebSearch summary) to quote the real ColorPlus 30°F / fiber-cement cold-weather figures as a
+      primary source - round 52 found the index page (`installation-instructions-technical-docs/`) but
+      not the PDF text itself; the site allows the domain, so this should be reachable with the right path
+- [ ] Local competitor fall/winter marketing check: is ABC Seamless (Fremont, same-town rival, round 17b)
+      or any other nearby competitor already running a "pre-winter inspection" or "last chance before
+      snow" campaign this fall? (round 52 wrote HMP's own legal-safe version but didn't check what
+      competitors are already saying locally)
+- [x] Off-season selling Oct-Mar: fall wind/tree/ice-dam claims, pre-winter inspection offers (legal
+      wording), winter siding installs + financing, winter door-knocking - **round 52**
+      (`docs/research/2026-09-27-round-52.md`). Builds on the existing
+      `docs/research/2026-09-26-off-season-plan.md` and round 25/T127 (claim deadlines already "years,
+      not days" in claims-101). New this round: ice dams (was in zero print pieces before), a
+      legal-safe pre-winter-inspection script, sharper cold-weather install numbers (Hardie ColorPlus
+      specifically can't go below 30°F), and confirmation from Neb. Rev. Stat. 44-357 + 25-205 that
+      Nebraska's real claim-suit deadline floor is 5 years, not the "1 year" line people hear elsewhere
+      (practical advice to homeowners is unchanged: document and file soon, never state a number).
 - [ ] Confirm Nebraska's actual entry/notice rule for construction in occupied rental units (Uniform
       Residential Landlord and Tenant Act, Ch. 76, nebraskalegislature.gov) before the round-51 tenant-
       notice template goes to print as a final piece - round 51 only found general national practice
