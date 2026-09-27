@@ -73,7 +73,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* ---------- dashboard grid ----------
    phone and tablet: one column in reading order (needs, storms, leads, jobs, crews, AI line)
-   1100+: three columns = you + crews | where to knock + AI line | jobs + leads (the numbers) */
+   1100+: three columns = what needs you + the sales pipeline | where to knock + AI line | jobs + crews */
 .dash{display:flex;flex-direction:column}
 .col{display:contents}
 section{min-width:0}
@@ -129,6 +129,7 @@ a.walk:hover{border-color:var(--line-2)}
 .tile b{display:block;font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
 .tile span{font-size:var(--t-cap);color:var(--muted)}
 .subhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);margin:var(--s4) 0 var(--s2)}
+.subhead .cap{text-align:right}
 .subhead h3{font-size:var(--t-body);font-weight:600}
 .fresh{display:grid;grid-template-columns:minmax(0,1fr) 56px 52px;align-items:center;gap:var(--s3);padding:6px var(--s4);min-height:50px}
 .fresh b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -136,7 +137,6 @@ a.walk:hover{border-color:var(--line-2)}
 .hbar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
 .hbar i{display:block;height:100%;border-radius:3px;background:var(--ink-2)}
 .fresh .h{text-align:right;font-size:var(--t-row);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.scale{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s2);font-size:12px;color:var(--faint)}
 
 /* ---------- leads funnel ---------- */
 .funnel{display:grid;gap:var(--s3);padding:var(--s4)}
@@ -235,9 +235,9 @@ a.walk:hover{border-color:var(--line-2)}
         <div class="shead"><h2 id="hNeeds"></h2><span id="needsMeta"></span></div>
         <div class="rows" id="needs"></div>
       </section>
-      <section id="sCrews" aria-labelledby="hCrews">
-        <div class="shead"><h2 id="hCrews"></h2><span class="meta" id="crewsMeta"></span></div>
-        <div id="crews"></div>
+      <section id="sLeads" aria-labelledby="hLeads">
+        <div class="shead"><h2 id="hLeads"></h2><span id="leadsMeta"></span></div>
+        <div id="leads"></div>
       </section>
     </div>
     <div class="col b">
@@ -252,9 +252,9 @@ a.walk:hover{border-color:var(--line-2)}
         <div class="shead"><h2 id="hJobs"></h2><span id="jobsMeta"></span></div>
         <div id="jobs"></div>
       </section>
-      <section id="sLeads" aria-labelledby="hLeads">
-        <div class="shead"><h2 id="hLeads"></h2><span id="leadsMeta"></span></div>
-        <div id="leads"></div>
+      <section id="sCrews" aria-labelledby="hCrews">
+        <div class="shead"><h2 id="hCrews"></h2><span class="meta" id="crewsMeta"></span></div>
+        <div id="crews"></div>
       </section>
     </div>
   </main>
@@ -272,7 +272,7 @@ a.walk:hover{border-color:var(--line-2)}
       sev: { critical: "Urgent", warning: "Check soon", info: "When you can" },
       updated: "Updated", latest: "Latest storm", bestWalk: "Best walk", storm: "Storm",
       avgHail: "avg hail", doors: "doors to knock", openWalk: "Open the walk in the HMP App",
-      fresh: "Fresh hail", freshMeta: "last 60 days", mi: "mi", hailScale: "bar = hail size, 0 to 3″",
+      fresh: "Fresh hail", freshMeta: "last 60 days", mi: "mi", hailScale: "bar 0–3″",
       inPlay: "in play", doorsLogged: "doors", callsLogged: "calls logged", lost: "Lost",
       noLeads: "No leads yet. Doors and calls you log in the HMP App show up here.",
       hot: "Hottest leads", done: "done", noCrew: "No crew yet", working: (n) => `${n} working`,
@@ -289,7 +289,7 @@ a.walk:hover{border-color:var(--line-2)}
       sev: { critical: "Urgente", warning: "Revisar pronto", info: "Cuando puedas" },
       updated: "Actualizado", latest: "Última tormenta", bestWalk: "Mejor ruta", storm: "Tormenta",
       avgHail: "granizo promedio", doors: "puertas para tocar", openWalk: "Abrir la ruta en la app HMP",
-      fresh: "Granizo reciente", freshMeta: "últimos 60 días", mi: "mi", hailScale: "barra = tamaño del granizo, 0 a 3″",
+      fresh: "Granizo reciente", freshMeta: "últimos 60 días", mi: "mi", hailScale: "barra 0–3″",
       inPlay: "activos", doorsLogged: "puertas", callsLogged: "llamadas anotadas", lost: "Perdidos",
       noLeads: "Todavía no hay prospectos. Las puertas y llamadas que anotes en la app HMP aparecen aquí.",
       hot: "Prospectos más calientes", done: "listo", noCrew: "Sin cuadrilla", working: (n) => `${n} trabajando`,
@@ -356,7 +356,7 @@ a.walk:hover{border-color:var(--line-2)}
   function renderNeeds() {
     $("hNeeds").textContent = t().needs;
     const list = snap.needs_you || [];
-    $("needsMeta").replaceChildren(list.length ? h("span", { class: "count", "aria-label": String(list.length) }, String(list.length)) : "");
+    $("needsMeta").replaceChildren(list.length ? h("span", { class: "count", "aria-label": `${list.length} ${lang === "es" ? "pendientes" : "items"}` }, String(list.length)) : "");
     const box = $("needs"); box.replaceChildren();
     if (!list.length) { box.append(h("div", { class: "allclear" }, ic("check2"), t().allClear)); return; }
     for (const n of list) {
@@ -394,7 +394,7 @@ a.walk:hover{border-color:var(--line-2)}
     }
     const fresh = s.fresh || [];
     if (fresh.length) {
-      box.append(h("div", { class: "subhead" }, h("h3", {}, t().fresh), h("span", { class: "cap" }, t().freshMeta)));
+      box.append(h("div", { class: "subhead" }, h("h3", {}, t().fresh), h("span", { class: "cap" }, `${t().freshMeta} · ${t().hailScale}`)));
       const rows = h("div", { class: "rows" });
       for (const f of fresh) {
         const hail = Number(f.hail) || 0;
@@ -404,7 +404,7 @@ a.walk:hover{border-color:var(--line-2)}
           h("div", { class: "hbar", role: "img", "aria-label": inch(hail) }, h("i", { style: `width:${Math.min(100, hail / 3 * 100).toFixed(1)}%` })),
           h("div", { class: "h" }, inch(hail))));
       }
-      box.append(rows, h("p", { class: "scale" }, t().hailScale));
+      box.append(rows);
     }
   }
 
