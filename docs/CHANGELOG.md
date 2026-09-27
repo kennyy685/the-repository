@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## v25 - 2026-09-27
+- New v25 look in light and dark (Theme: Auto / Light / Dark in More, saved per phone), one icon set, and the Right Hand bar docked above the tabs.
+- Now shows the best zone on a street map with Drive / Start knocking and today's appointments; Knock shows the next door, four big answer buttons and "Stop 3 of 25"; Money shows what's owed to HMP and what to chase.
+- New homeowner view (Your home, Photos, Options, Next steps) with the 3-day cancel notice in English and Spanish; the quick-price sheet no longer scrolls sideways on phones.
+
 ## Practice Door v10 - 2026-09-27
 - New v25 look (light + dark): homeowner cards with icon, difficulty and language chips; chat-style door with the homeowner's avatar and a mic + keyboard bar; cheat sheet as a bottom sheet; scorecard with a big score, pass/fail rows and "Knock again" always at the bottom.
 - Two new hard legal flags, same stop as the deductible: promising their insurance rate won't go up (EN/ES), and "licencia / con licencia" about HMP in Spanish (say "registrados").
