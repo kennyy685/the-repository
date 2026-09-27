@@ -52,7 +52,7 @@ button.row{width:100%;text-align:left}
 .dmap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .compass{position:absolute;left:10px;top:10px;width:38px;height:38px;border-radius:50%;background:var(--card);box-shadow:var(--e2);display:grid;place-items:center;color:var(--ink)}
 .compass svg{width:22px;height:22px}
-.mkey{position:absolute;right:10px;top:10px;display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
+.mkey{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
 .mkey i{width:14px;height:10px;border-radius:2px;background:repeating-linear-gradient(135deg,var(--hmp) 0 1.5px,var(--hmp-bg) 1.5px 4px);box-shadow:inset 0 0 0 1px var(--hmp)}
 .mscale{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
 .mscale i{display:block;height:5px;border:1.5px solid var(--map-label);border-top:0}
@@ -179,6 +179,7 @@ button.row{width:100%;text-align:left}
 
 /* ---------- leave-behind check (salesman) ---------- */
 .exit{position:absolute;inset:0;z-index:5}
+.ho.held{height:844px;min-height:0}.ho.held .hmain{overflow:hidden}
 .xsheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e2);padding:0 var(--s4) calc(var(--s6) + env(safe-area-inset-bottom,0px))}
 .xsheet header{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s4) 0 var(--s3)}
 .xsheet header div{flex:1}
@@ -221,7 +222,7 @@ button.row{width:100%;text-align:left}
   .ch3 .band{margin-left:calc(var(--s5) * -1);padding-left:var(--s5)}
   .ch3 .frow{grid-template-columns:260px repeat(3,1fr)}
   .ch3 .flabel{grid-column:auto;background:none;padding:0 var(--s4) 0 0;display:flex;align-items:center;font-size:var(--t-cap)}
-  .ch3 .cell{min-height:42px;padding:6px}
+  .ch3 .cell{min-height:47px;padding:6px}
   .ch3 .cell:nth-child(2){border-left:1px solid var(--line)}
   .ch3 .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);background:none;border:0;box-shadow:none;margin-top:var(--s4)}
   .ch3 .meta .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
@@ -409,7 +410,7 @@ const HO = {
         <p class="band">${I('info')}<span><b>${HO.band[S.lang][0]}</b>${HO.band[S.lang][1]}</span></p>
         ${HO.feats.map(r => `<div class="frow"><span class="flabel">${t(r.l)}</span>${r.c.map(cell).join('')}</div>`).join('')}
       </div>
-      <div class="rows meta">${HO.meta.map(m => { const inner = `<span class="tile">${I(m.icon)}</span><span class="t"><b>${t(m.t)}</b><span>${t(m.s)}</span></span>${m.href ? `<span class="end">${I('chev')}</span>` : ''}`;
+      <div class="rows meta">${HO.meta.map(m => { const inner = `${m.icon === 'swatch' ? I(m.icon) : `<span class="tile">${I(m.icon)}</span>`}<span class="t"><b>${t(m.t)}</b><span>${t(m.s)}</span></span>${m.href ? `<span class="end">${I('chev')}</span>` : ''}`;
         return m.href ? `<a class="row" href="${m.href}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${inner}</a>` : `<div class="row">${inner}</div>`; }).join('')}</div></section>`;
   }
 
@@ -436,8 +437,8 @@ const HO = {
   function draw() {
     const w = HMP_MAP.today, home = w.stops[8], tab = ho.clientWidth >= 900;   // stop 9 of today's walk: 3908 22 St
     const hm = document.getElementById('hm');
-    if (hm) { const b = hm.getBoundingClientRect(), ppm = tab ? 10.5 : 9;
-      renderHomeMap(hm, w, { width: b.width, height: b.height, home, finds: HO.finds, ppm, street: HO.street, toward: tab ? .22 : .3 });
+    if (hm) { const b = hm.getBoundingClientRect(), ppm = tab ? 13.5 : 9;
+      renderHomeMap(hm, w, { width: b.width, height: b.height, home, finds: HO.finds, ppm, street: HO.street, labelAt: .22, toward: tab ? .26 : .3 });
       document.getElementById('hmscale').style.width = (6.096 * ppm).toFixed(0) + 'px'; }
     const hl = document.getElementById('hl');
     if (hl) { const b = hl.getBoundingClientRect(), P = renderHailMap(hl, HMP_MAP, { width: b.width, height: b.height, home, metersAcross: tab ? 1500 : 1400, center: { lat: home.lat - .0005, lon: home.lon + .0018 } });
@@ -448,7 +449,7 @@ const HO = {
 
   function go(p) { S.p = Math.max(1, Math.min(4, p)); render(); const m = ho.querySelector('.hmain'); if (m) m.scrollTop = 0; }
   function render() {
-    root.lang = S.lang;
+    root.lang = S.lang; ho.classList.toggle('held', S.exit && !ho.classList.contains('tab'));   // a sheet docks to the screen, not the page
     ho.innerHTML = top() + `<main class="hmain">${head()}${[ch1, ch2, ch3, ch4][S.p - 1]()}</main>` + bar() + exit();
     ho.querySelectorAll('[data-p]').forEach(b => b.onclick = () => go(+b.dataset.p));
     ho.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { S.f = +b.dataset.f; S.p = 2; render(); });

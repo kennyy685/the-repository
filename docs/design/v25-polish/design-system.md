@@ -76,7 +76,7 @@ Theme rule: the bare `:root` holds light. `@media (prefers-color-scheme:dark)` g
 | **Toast** `.toast` | Ink pill above the composer, `--on-ink` text, orange action ("Undo"). Auto-hides in 5 s. Confirms every Right Hand log. |
 | **Empty state** `.empty` | 56 px icon tile, 17/600 title, 1-2 line muted body (≤28ch), one button. States what happens next ("Storm Watch looks again tomorrow"). Never a wall of explainer. |
 | **Skeleton** `.sk` | The same shapes as the loaded screen (map block, card lines, row lines), soft shimmer 1.4 s, off with reduced motion. Show after 300 ms, never a spinner. |
-| **Map** | `walkmap.js`. `renderZoneMap(svg, {zones, walks}, opts)` for Now, `renderWalkMap(svg, walk, opts)` for Knock (mini strip 118 px centered on the next door, or the full walk in the Big map). HTML chips on top: zone pin (ink pill + orange rank), edge chip for off-map "you", legend, scale bar, round controls (e2). |
+| **Map** | `walkmap.js`. `renderZoneMap(svg, {zones, walks}, opts)` for Now, `renderWalkMap(svg, walk, opts)` for Knock (mini strip 118 px centered on the next door, or the full walk in the Big map). HTML chips on top: zone pin (ink pill + orange rank), edge chip for off-map "you", legend, scale bar, round controls (e2). Homeowner view: `renderHomeMap` (one house at lot scale) and `renderHailMap` (hail area + home, no zones), section 7. |
 
 ## 6. Copy rules (EN and ES)
 
@@ -86,3 +86,26 @@ Theme rule: the bare `:root` holds light. `@media (prefers-color-scheme:dark)` g
 - ES labels are written short on purpose (not machine-length): "Siguiente · parada 3 de 25", "faltan 23".
 - Legal copy stays: the deductible shows as money the homeowner owes (44-8604), "Their claim, not ours", "registered",
   and no promises that insurance pays.
+
+## 7. Homeowner view (kitchen table) · `homeowner.html`
+
+- **What it is:** the screen the salesman hands the family. Four chapters in a `.seg` stepper: Your home (damage map +
+  spots + hail) → Photos (photo, thumbnails, where-on-the-house locator, plain words, "their insurer decides") →
+  Options (Good/Better/Best, picked per job) → Next steps (timeline, 3-day cancel on the contract step, phone numbers,
+  "yours to keep"). One orange button per chapter ("Next: …", then "Done"). No tab bar, no zones, scores or scripts.
+- **Phone and tablet from one page:** container query at 900 px on the frame. Tablet (1180 x 820 landscape): the stepper
+  moves into the top bar and each chapter fits one screen in two columns (map or photo left, 392 px column right).
+- **Damage map:** `renderHomeMap(svg, walk, {home, finds, ppm, street, labelAt, toward, active, mini})`. The home lot
+  (hmp-bg, dashed hmp-ink), neighbors soft, streets true to scale, a drawn hip roof, and each finding by kind:
+  `slope` (hatched slope), `square` (10 x 10 ft test area to scale), `vent`, `gutter`, `wall` (orange edge). Pins are
+  ink with the number in `--on-ink`; the finding open on Photos turns orange. `mini: true` = the 112 px locator.
+  Roofs use `--map-roof-a/b/c`. Chips: north arrow (top-left), "Damage we found" key (bottom-left), 20 ft scale.
+- **Hail card:** `renderHailMap(svg, data, {home, metersAcross, center})` + one hero figure (1.6″) + date + source +
+  "Weather data, not proof of damage". **Engine asks (not blockers):** building outlines per lot (OSM / Microsoft
+  footprints are free) to replace the drawn roof, and the radar hail contour to replace the padded zone hull.
+- **Legal copy (fixed):** "Your insurance company decides what your policy covers. If you choose to file a claim, you
+  file it." Tiers carry "Estimate ranges, not final prices" under the prices until HMP's prices exist. The 3-day cancel
+  (with the insurance-denial extension) sits on the contract step, EN and ES. "Registered Nebraska contractor #" +
+  blank line. No deductible words anywhere on this screen (the 44-8607 notice lives in the contract).
+- **Leaving:** the × or "Done" opens "Before you leave" for the salesman: hand over the leave-behind, cancel forms if
+  signed, log the visit, then "Leave homeowner view".
