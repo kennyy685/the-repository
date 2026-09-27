@@ -26,7 +26,9 @@ the computer for now."** Don't chase it unless he brings it up.
    `.claude/worktrees/agent-acdc9022eabf9d432` can be deleted). Fold in **T205** ("Step 5 of 14" wraps on phones).
 2. **Engine Mechanic, T203** (storm-age dip/bump for winter walks) + write the new King-trigger prompt with the accounts
    step (T193) into `docs/orders/king-trigger-prompt.md`; the King applies it with update_trigger.
-Then: **Builder: Demo data + end-to-end test** (FilthE won't knock until the app is proven: load realistic mock
+Then: **Designer FIRST: FilthE picked MacBook direction A (Cockpit).** Restyle A's background + panels/boxes to feel
+like Batman's cave computers: professional, premium, still Aldaba (docs/design/macbook/a-cockpit.html);
+**Builder: Demo data + end-to-end test** (FilthE won't knock until the app is proven: load realistic mock
 houses from public data into Practice/demo only, run a full fake day Now -> Knock -> lead -> claim -> job, fix what breaks);
 **Research Lead: upgrade the robots** (FilthE's order: research better prompts, tools, skills, models for
 `.claude/agents/*`, then apply the best ones); **Designer/Research** read https://tabnav.com/blog/best-website-design-examples (FilthE sent it 2026-09-27)
