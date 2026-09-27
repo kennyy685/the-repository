@@ -41,6 +41,7 @@
 .stats{background:var(--well);border-color:var(--hair)}
 .stats > div+div{border-left-color:var(--hair)}
 .row+.row,.rows>li+li>.row,.rows>li+li{border-top-color:var(--hair)}
+.rows>li+li>.row{border-top:0}                   /* one hairline between list items (the li's), not two */
 .rows > .appt + .row,.rows > .row + .appt,.rows > .appt + .appt,.nextline{border-top-color:var(--hair)}
 .facts dt,.facts dd,.lrow{border-top-color:var(--hair)}
 .row .lead,.pstep .ic,.empty .glyph{box-shadow:var(--raise),inset 0 0 0 1px var(--hair)}
