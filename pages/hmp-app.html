@@ -807,8 +807,8 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
 /* ================= v25 homeowner view (docs/design/v25-polish/homeowner.html): tokens only, both themes, phone + tablet (container query at 900 px) ================= */
 #hoView{position:fixed;inset:0;z-index:50;background:var(--bg);color:var(--ink);overflow-y:auto;overscroll-behavior:contain;container:ho/inline-size;display:flex;flex-direction:column}
 #hoView.held{overflow:hidden}
-#hoView .only-tab{display:none}
-@container ho (min-width:900px){#hoView .only-phone{display:none!important}#hoView .only-tab{display:revert}}
+@container ho (min-width:900px){#hoView .only-phone{display:none!important}}
+@container ho (max-width:899.98px){#hoView .only-tab{display:none!important}}
 #hoView .htop{display:flex;align-items:center;gap:var(--s2);min-height:56px;padding:calc(env(safe-area-inset-top,0px) + 6px) var(--s4) 6px;flex:none}
 #hoView .htop .mark{margin-right:var(--s1)}
 #hoView .brand{flex:1;min-width:0;font-size:var(--t-body);font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

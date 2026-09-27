@@ -117,11 +117,11 @@ const SHOTS = [
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
   { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
-  { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="2"]'] },
-  { name: "homeowner-3", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="3"]'] },
-  { name: "homeowner-3-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="3"]'] },
-  { name: "homeowner-4", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="4"]'] },
-  { name: "homeowner-4-es", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="4"]', "#hoView #hoLang"] },
+  { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="2"]'] },
+  { name: "homeowner-3", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="3"]'] },
+  { name: "homeowner-3-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="3"]'] },
+  { name: "homeowner-4", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="4"]'] },
+  { name: "homeowner-4-es", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="4"]', "#hoView #hoLang"] },
   { name: "homeowner-exit", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", "#hoView #hoX"] },
 ];
 
@@ -149,7 +149,7 @@ if (require.main === module) (async () => {
       await p.goto(url, { waitUntil: "load" });
       await p.waitForTimeout(700);
       try {
-        for (const sel of s.steps || []) { const loc = p.locator(sel).first(); await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {}); await loc.click({ timeout: 3000 }); await p.waitForTimeout(450); }
+        for (const sel of s.steps || []) { const loc = p.locator(sel).locator("visible=true").first(); await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {}); await loc.click({ timeout: 3000 }); await p.waitForTimeout(450); }
       } catch (e) { errs.push("step failed: " + e.message.split("\n")[0]); }
       await p.waitForTimeout(300);
       await p.screenshot({ path: path.join(OUT, s.name + ".png") });
