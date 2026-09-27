@@ -178,13 +178,21 @@ DEFAULTS = {
         "sold_after_storm": 0.6     # storm walks: the house was sold after the storm day
     },
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
-    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8},
+    # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
+    # `polygon` covers every house left, the walk only the best `doors`).
+    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8, "walk_buffer_m": 25},
     # Vector basemap for each walk's map (`basemap.py`, walks/<zone id> + today/walk `basemap` + `route`): streets,
     # lots and street labels from Nebraska state GIS, cached in the database. An optional network step with its own
     # time guard (`budget_s` for all walks together); past it, or offline, only cached maps are used (else null).
+    # Walking route along the streets (`route_segments`, `stop_side`): streets are fetched `street_margin_m` around
+    # the stops (wider than the lots' `margin_m`, so the corners a route turns at are in the data); each house snaps
+    # to its own street (the address) within `snap_max_m`, else any street within `snap_any_m`; alleys/drives cost
+    # `route_service_factor` x their length; a hop that needs more than `route_max_detour_m` beyond the straight line
+    # (or finds no street path) is drawn straight and marked gap.
     "basemap": {"enabled": True, "margin_m": 60, "min_span_m": 300, "simplify_m": 1.5, "decimals": 5,
                 "max_kb": 60, "max_age_days": 120, "budget_s": 90, "timeout_s": 20, "max_pages": 4,
-                "label_min_m": 60},
+                "label_min_m": 60, "street_margin_m": 200, "snap_max_m": 150, "snap_any_m": 60,
+                "join_m": 4, "route_service_factor": 2.0, "route_max_detour_m": 600},
     # Wind-zone score (T116, research round 23, `wind.zone_score`): 100 x gust band x scoring.recency_curve x
     # scoring.distance_curve. Separate from hail (never folded into house/door scores). Bands = [min mph, factor]:
     # under 58 mph (NWS severe) = 0. A damage report with no measured gust (NWS files those as severe wind, e.g.
