@@ -39,6 +39,7 @@ ROOT = os.environ.get("CLAUDE_PROJECT_DIR") or os.path.abspath(os.path.join(os.p
 STATE = os.path.join(ROOT, ".claude", "state")
 QUEUE = os.path.join(STATE, "hub-queue.jsonl")
 PENDING = os.path.join(STATE, "hub-flush.pending")
+HELD = os.path.join(STATE, "hub-held.jsonl")  # --hold rows wait here (the stop reminder only counts the queue)
 OUT = os.path.join(STATE, "hub-out")
 
 
@@ -125,7 +126,21 @@ def build(rows, hold=()):
     return events, latest, held
 
 
+def unhold():
+    """Put rows held by an earlier --hold back at the front of the queue."""
+    try:
+        held = open(HELD).readlines()
+    except FileNotFoundError:
+        return
+    lines = read_queue()[0]
+    with open(QUEUE, "w") as f:
+        f.writelines(held + lines)
+    os.remove(HELD)
+
+
 def main(argv):
+    if "--done" not in argv and "--discard" not in argv:
+        unhold()
     lines, rows = read_queue()
     if "--done" in argv or "--discard" in argv:
         try:
@@ -152,9 +167,12 @@ def main(argv):
     events, latest, held = build(rows, hold)
     # a held helper keeps its launch row too, so its description is still there at the real finish
     keep = held | {i for i, r in enumerate(rows) if r and r.get("event") == "launch" and r.get("agent_type") in hold}
-    if not events:  # only launches, scouts or held rows: nothing for the hub, drop the rest of what was read
+    if keep:
+        with open(HELD, "w") as f:
+            f.writelines(ln for i, ln in enumerate(lines) if i in keep)
+    if not events:  # only launches, scouts or held rows: nothing for the hub, drop what was read
         with open(QUEUE, "w") as f:
-            f.writelines([ln for i, ln in enumerate(lines) if i in keep] + read_queue()[0][len(lines):])
+            f.writelines(read_queue()[0][len(lines):])
         print(f"No helper check-ins for the hub (cleared {len(lines) - len(keep)} row(s), holding {len(keep)}).")
         return 0
     os.makedirs(OUT, exist_ok=True)
@@ -176,7 +194,7 @@ def main(argv):
         writes.append({"op": "update", "collection": "agents", "doc_id": hub_id, "file_path": path,
                        "if_version": versions[hub_id]})
     with open(PENDING, "w") as f:
-        json.dump([i for i in range(len(lines)) if i not in keep], f)
+        json.dump(list(range(len(lines))), f)  # held rows already moved to HELD
     print(f"# ArtifactData batch, url {HUB} ({len(events)} event(s)). After it commits: hub_flush.py --done")
     if missing:
         print("# Robots not updated (need --versions): " + ",".join(f"{m}=?" for m in missing))
