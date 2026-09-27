@@ -62,7 +62,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - **Commit work in progress to the repo every ~30 min** (a container restart wiped an unsaved v25 draft).
   Commit only your own files (`git add <paths>`, never `-A`).
 - Grep big files, never read the 8,400-line app whole. Screenshots only for the final pre-publish review.
-- New chat per job; don't grow one endless session.
+- New chat per job; don't grow one endless session. **Measured 2026-09-27:** one long King chat cost ~$97 in ~2.5 h,
+  mostly re-reading its own 500k-token history on every message (at xhigh effort). Hand off to a fresh chat once a
+  chat passes ~200k tokens; routine work runs at high effort, not xhigh.
 - Every page publish follows `docs/release-checklist.md` (checks green, light/dark screenshots vs
   `docs/design/v25-polish/`, legal boxes, CHANGELOG line).
 - The HMP App is a page plus module files (T169): `pages/hmp-app.files.json` maps published path -> repo file. Edit a
