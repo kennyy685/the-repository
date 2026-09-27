@@ -247,7 +247,8 @@
      a drawn roof plan, and each finding marked where it is.
      opts: width, height, home {lat, lon}, ppm (px per meter, default 9), toward (0-1: how far to slide the view from the
            house toward the street, default .3), finds [{n, kind: 'slope'|'square'|'vent'|'gutter'|'wall', at:[u,v]}],
-           active (n of the highlighted finding), mini (tiny locator: no labels, dots for pins), street (label text) */
+           active (n of the highlighted finding), mini (tiny locator: no labels, dots for pins), street (label text),
+           labelAt (where the street name sits, in house widths from the house center, default .15) */
   function renderHomeMap(svg, walk, opts = {}) {
     const W = opts.width || 358, H = opts.height || 300, id = svg.id || 'hm', bm = walk.basemap, home = opts.home;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
@@ -304,7 +305,7 @@
     if (!opts.mini) {
       const st = lines[h.street.li], name = opts.street || (st && st.s.name);
       if (name) {
-        const a = Math.atan2(h.d[1], h.d[0]) * 180 / Math.PI, p = [h.street.q[0] + h.d[0] * h.hw * .95, h.street.q[1] + h.d[1] * h.hw * .95];
+        const a = Math.atan2(h.d[1], h.d[0]) * 180 / Math.PI, k = (opts.labelAt == null ? .15 : opts.labelAt) * h.hw, p = [h.street.q[0] + h.d[0] * k, h.street.q[1] + h.d[1] * k];
         const tx = el('text', { x: p[0].toFixed(1), y: p[1].toFixed(1), transform: `rotate(${a.toFixed(1)} ${p[0].toFixed(1)} ${p[1].toFixed(1)})`, 'text-anchor': 'middle', 'dominant-baseline': 'central', style: 'font:500 12px var(--f);fill:var(--map-label);letter-spacing:.02em' }, svg);
         tx.textContent = name;
       }

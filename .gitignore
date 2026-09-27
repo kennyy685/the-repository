@@ -4,6 +4,8 @@ __pycache__/
 __MACOSX/
 # T72 page screenshot check: scratch PNGs, regenerated each run
 tests/pages/out/
+# T72 design quality gate: scratch failure screenshots + report.txt, regenerated each run
+tests/pages/design_gate_out/
 # Big / regenerated data: the engine rebuilds these with `hh.py refresh`
 data/*
 !data/scout_contacts.json
