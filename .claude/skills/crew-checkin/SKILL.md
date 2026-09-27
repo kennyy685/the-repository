@@ -44,8 +44,8 @@ as a question, never as a separate list.
 
 ## Handoffs (messages)
 An event with `kind: "handoff"` and `to: "<agent id>"`. The page shows "picked up" once that agent
-checks in after it. Handoffs to the King are read by the hourly cloud check (`trig_012h6pQqggc88n8vsj93zayJ`,
-every hour 7 AM-10 PM Central), or instantly when the hub (or the HMP App) fires a wake (`fire_trigger`).
+checks in after it. Handoffs to the King are read by the King's scheduled runs (`trig_01MNxMWzvD3ZgRqWxfjtJLEU`,
+7:52 AM, 12:52 PM, 5:52 PM Central), or instantly when the hub (or the HMP App) fires a wake (`fire_trigger`).
 
 ## The task board (source of truth)
 - Doc `board/current`: `{now:[{id, owner, status, task}], next:[...], waiting:[{id, q}], updatedAt,

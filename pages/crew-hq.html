@@ -56,7 +56,7 @@ h1,h2,h3,p{margin:0}
 .mark svg{width:22px;height:22px}
 .brand h1{font:700 21px/1.05 var(--fd);letter-spacing:-.02em}
 .brand p{font:500 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:3px;white-space:nowrap}
-.live{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font:500 12px var(--f);color:var(--ink-2)}
+.live{white-space:nowrap;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font:500 12px var(--f);color:var(--ink-2)}
 .live .dot{--c:var(--st-idle)}
 .live[data-state="on"] .dot{--c:var(--st-working);animation:blink 1.6s ease-in-out infinite}
 .live[data-state="off"] .dot{--c:var(--st-blocked)}
@@ -111,7 +111,8 @@ h1,h2,h3,p{margin:0}
 .roster{padding:10px}
 .roster-h{display:flex;align-items:center;gap:10px;padding:4px 6px 8px}
 .roster-h .rsum{margin-left:auto;display:flex;gap:10px;font-size:12px;color:var(--muted)}
-.roster-h .rsum span{display:inline-flex;align-items:center;gap:5px}
+.roster-h .rsum{min-width:0;overflow:hidden}
+.roster-h .rsum span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .roster ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
 .row{width:100%;min-height:56px;display:flex;align-items:center;gap:11px;padding:8px;border-radius:13px;text-align:left}
 .row:hover{background:rgba(255,255,255,.05)}
@@ -313,6 +314,8 @@ h1,h2,h3,p{margin:0}
   .needs .sum{display:none}
   .needs ul{display:flex;gap:6px;flex:1;min-width:0;overflow:hidden}
   .needs li{flex:1 1 0;min-width:0;max-width:400px}
+  .needs li:has(.more){flex:none}
+  .roster-h .rsum .opt{display:none}
   .needs .more{width:auto;padding:0 12px;flex:none}
   .none{padding:0 6px;font-size:13px}
   .live,.bar > .seg{margin-top:2px;background:rgba(10,10,14,.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
@@ -499,7 +502,7 @@ const TX = {
     feedEmpty: 'Todavía no hay reportes aquí.', picked: '✓ recibido', notPicked: 'sin recibir todavía',
     never: 'nunca', justNow: 'ahora mismo', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
     live: {preview: 'Vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga.', first: 'En vivo · esperando el primer reporte', wait: 'Conectando…'},
-    liveLast: w => `En vivo · ${w}`,
+    liveLast: w => `En vivo · ${w.replace('hace ', '')}`,
     sky: {live: 'en vivo', dusk: 'atardecer', night: 'noche', day: 'día'}, skyAria: m => `Cielo: ${m}. Toca para cambiar.`,
     ding: on => `Sonido cuando un robot te necesita: ${on ? 'prendido' : 'apagado'}`, dingOn: 'Sonido prendido: oirás un timbre suave cuando algo te necesite.', dingOff: 'Sonido apagado.',
     still: 'El 3D está apagado en este equipo; esto es una foto fija. La lista del equipo sí está en vivo.',
@@ -714,7 +717,7 @@ function renderNeeds(){
   const cnt = $('#ncount'); cnt.textContent = items.length; cnt.dataset.n = items.length;
   const n = {working:0, blocked:0, sleeping:0}; for (const a of bots) { const s = a.disp ? a.disp.status : a.st; if (n[s] != null) n[s]++; }
   $('#nsum').innerHTML = $('#rsum').innerHTML = ['working','blocked','sleeping'].filter(k => n[k]).map((k, i) => '<span' + (i ? ' class="opt"' : '') + '><i class="dot" style="--c:' + stColor(k) + '"></i>' + n[k] + ' ' + esc(T.sum[k]) + '</span>').join('');
-  const cap = isWide ? 3 : 3, show = needsAll ? items : items.slice(0, cap);
+  const cap = isWide && window.innerWidth < 1560 ? 2 : 3, show = needsAll ? items : items.slice(0, cap);
   $('#nlist').innerHTML = items.length ? show.map(i => '<li><button type="button" class="need" data-sel="' + esc(i.key) + '" aria-pressed="' + (selected === i.key) + '">' + i.av +
       '<span class="t"><b>' + esc(i.who) + '</b><span class="ask">' + esc(i.text) + '</span></span>' + IC.chev + '</button></li>').join('') +
       (items.length > cap ? '<li><button type="button" class="more" data-more>' + esc(needsAll ? T.less : T.moreN(items.length)) + '</button></li>' : '')
