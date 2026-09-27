@@ -83,6 +83,13 @@ Interactive funny scenes (tied to real events where possible, classy):
 - A stand-up (several robots working at the board) -> they gather, the King points, one dozes in the back.
 - A big finish -> a high-five chain and a victory lap down the slide.
 
+## More ideas from awareness (lead's picks, 2026-09-27; FilthE asked for more, ranking pending)
+FilthE's desk with sticky notes (each open question is a note; answering sends it flying to the robot) · answers
+ride the suction tube in a capsule · robots talk in short bubbles built from real handoffs ("Builder, T190 is
+yours" / "On it, boss") · work buddies (frequent handoff pairs sit together, fist-bump in passing) · office mood
+lighting from real streaks/blocks · Employee of the Week plaque (most finishes, Sundays) · Team photo button (posed
+crew shot with the date, saved to the trophy wall) · weekend ping-pong for idle robots · Chat Reader's news ticker.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
