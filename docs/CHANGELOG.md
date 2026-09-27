@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## AI hub v26 "Penthouse HQ" - 2026-09-27
+- The hub opens on a live 3D office on two floors (slide down, suction tube up). Every AI is a robot dressed for its job and moves when it really checks in: working at its desk, waiting at "your spot", stuck with a red light, asleep in a charging pod, a sparkle when it finishes.
+- "Needs you" at the top: board questions and any robot waiting on FilthE. Tap one to answer Yes / No / Not now or type a reply; Claude Code is woken in seconds. Camera buttons (All / Up / Down / Follow), live Fremont sky, a "while you were away" replay, progress rings, a trophy wall and an optional ding.
+- Board, Claude Code's orders, memory, the Right Hand box and both logs are below the office, EN/ES everywhere. New robot: the Chat Reader, which keeps the King up to date on other chats.
+
 ## v25.1 - 2026-09-27
 - New look, the brand page FilthE picked: dark graphite by default (even when the phone is in light mode), silver text, one orange "do this" button with a soft glow, cards with thin edges and depth. More > Theme: Dark / Light / Auto, saved per phone (every phone starts on Dark once).
 - Real fonts now load with the app (Geist, and Bricolage for screen titles and big numbers like knocks today, the stop address and owed to HMP); before, phones showed their own font.
