@@ -59,6 +59,12 @@ const PAGES = [
     views: [
       { name: "add sheet", steps: ["#plusBtn"] },
       { name: "lead sheet", steps: ["#tb-leads", "#tab-leads .a-card"] },
+      // v25: the other screens FilthE uses every day
+      { name: "more sheet", steps: ["#moreBtn"] },
+      { name: "claim sheet", steps: ["#tb-money", "#tab-money .jcard"] },
+      { name: "knock all doors", steps: ["#tb-knock", "#kAllBtn"] },
+      { name: "walk menu", steps: ["#tb-knock", '[data-open="walk:"]'] },
+      { name: "homeowner view", steps: ["#tb-leads", "#tab-leads .a-card", "[data-ho]"] },
     ],
   },
   {
