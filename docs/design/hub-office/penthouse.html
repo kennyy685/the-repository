@@ -119,7 +119,7 @@ h1,h2,h3,p{margin:0}
 .fact.ask .v{color:var(--hmp-hi)}
 .fact.stuck .v{color:var(--st-blocked)}
 .fact .s{font-size:13px;color:var(--muted);margin-top:2px}
-.card-x{display:flex;gap:8px;align-items:center}
+.fact.foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 
 /* ---------- overlay: name tags, bubbles, sleep z ---------- */
 .tag{position:absolute;left:0;top:0;padding:3px 9px;border-radius:999px;font:500 11px/1.3 var(--f);letter-spacing:.01em;color:var(--ink);background:rgba(12,12,16,.56);border:1px solid var(--line-2);white-space:nowrap;opacity:0;transition:opacity .35s;will-change:transform}
@@ -474,7 +474,7 @@ function runQueue(a){
 function workPose(a){ const w = DESK[a.id].work; return w === 'type' ? 'type' : w === 'radar' ? 'radar' : 'read'; }
 function setState(a, st, info, instant){
   a.st = st; a.doing = info.doing || a.doing; a.ask = info.ask || null; a.reason = info.reason || null; a.where = info.where || null;
-  a.at = info.at != null ? info.at : minuteNow();
+  a.at = instant && info.at != null ? START + info.at : minuteNow();
   const q = [];
   if (st === 'working') q.push(info.spot === 'standup' ? {spot:'standup', pose:'meet'} : {spot:'desk', pose:workPose(a)});
   else if (st === 'sleeping') q.push({spot:'desk', pose:'sleep'});
@@ -494,7 +494,7 @@ function stepAgent(a, dt){
     const p = a.path, k = 38, damp = 2*Math.sqrt(k)*0.95, n = Math.ceil(dt/0.012), h = dt/n; let c;
     for (let i = 0; i < n; i++){   // small steps keep the glide spring stable on slow frames
       const left = p.len - a.s;
-      a.v = Math.min(1.55, a.v + 2.2*h, Math.sqrt(2*1.6*Math.max(0,left)) + 0.05);
+      a.v = Math.min(1.9, a.v + 2.6*h, Math.sqrt(2*1.9*Math.max(0,left)) + 0.05);
       a.s = Math.min(p.len, a.s + a.v*h);
       c = pointAt(p, Math.min(p.len, a.s + 0.18));
       a.vx += (k*(c[0]-a.x) - damp*a.vx)*h; a.vz += (k*(c[1]-a.z) - damp*a.vz)*h;
@@ -639,13 +639,13 @@ function renderCard(){
   el.style.setProperty('--c', stColor(a.st));
   el.innerHTML = '<div class="card-h"><span class="av">' + avatar(a, true) + '</span><div class="who"><h2>' + esc(tx(c.name)) + '</h2>' +
     '<span class="pill" style="--c:' + stColor(a.st) + '"><i class="dot" style="--c:' + stColor(a.st) + '"></i>' + esc(L().st[a.st]) + '</span></div>' +
-    '<div class="card-x"><div class="seg" role="group" aria-label="' + L().lang + '"><button type="button" data-lang="en" aria-pressed="' + (lang==='en') + '">EN</button><button type="button" data-lang="es" aria-pressed="' + (lang==='es') + '">ES</button></div>' +
-    '<button type="button" class="ibtn" data-close aria-label="' + L().close + '">' + IC.x + '</button></div></div>' +
+    '<button type="button" class="ibtn" data-close aria-label="' + L().close + '">' + IC.x + '</button></div>' +
     '<p class="role">' + esc(tx(c.role)) + '</p><div class="facts">' +
     (a.st === 'waiting' ? '<div class="fact ask"><div class="lbl">' + L().asks + '</div><div class="v">' + esc(tx(a.ask)) + '</div><div class="s">' + esc(L().answerIn + ' ' + tx(a.where)) + '</div></div>' : '') +
     (a.st === 'blocked' ? '<div class="fact stuck"><div class="lbl">' + L().stuck + '</div><div class="v">' + esc(tx(a.reason)) + '</div></div>' : '') +
     '<div class="fact"><div class="lbl">' + L().doing + '</div><div class="v">' + esc(tx(a.doing)) + '</div></div>' +
-    '<div class="fact"><div class="lbl">' + L().last + '</div><div class="v">' + fmt(a.at) + ' <span class="s" style="display:inline">· ' + esc(ago(a.at)) + '</span></div></div></div>';
+    '<div class="fact foot"><div><div class="lbl">' + L().last + '</div><div class="v">' + fmt(a.at) + ' <span class="s" style="display:inline">· ' + esc(ago(a.at)) + '</span></div></div>' +
+    '<div class="seg" role="group" aria-label="' + L().lang + '"><button type="button" data-lang="en" aria-pressed="' + (lang==='en') + '">EN</button><button type="button" data-lang="es" aria-pressed="' + (lang==='es') + '">ES</button></div></div></div>';
   el.classList.add('open');
 }
 let cardSig = '';
@@ -695,7 +695,7 @@ let isWide = false;
 function bubbleKind(a){ if (a.st === 'waiting' && (a.pose === 'wait')) return 'waiting'; if (a.st === 'blocked' && a.pose === 'blocked') return 'blocked'; if (a.pose === 'cheer') return 'done'; return ''; }
 function placeOverlay(){
   const S = window.SCENE; const W = stageEl.clientWidth, H = stageEl.clientHeight;
-  const boxes = [];
+  const boxes = [], tags = [];
   for (const a of agents){
     const o = overlays.get(a.id); const an = S && S.anchors[a.id];
     if (!an || !S.ready){ o.tag.classList.remove('on'); o.bub.classList.remove('on'); o.zz.classList.remove('on'); continue; }
@@ -713,11 +713,16 @@ function placeOverlay(){
     o.bub.classList.toggle('on', showBub);
     const showTag = !showBub && (a.id === selected || isWide);
     o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected);
-    if (showTag){ const tw = o.tag.offsetWidth; o.tag.style.transform = 'translate(' + Math.round(an.x - tw/2) + 'px,' + Math.round(an.y - 26) + 'px)'; }
+    if (showTag){ if (!o.tw || o.tsig !== o.sig){ o.tw = o.tag.offsetWidth; o.tsig = o.sig; } tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     o.zz.classList.toggle('on', a.pose === 'sleep' && !a.moving);
     if (a.pose === 'sleep') o.zz.style.transform = 'translate(' + Math.round(an.x + 4) + 'px,' + Math.round(an.y - 44) + 'px)';
     if (showBub){ if (!o.w){ o.w = o.bub.offsetWidth; o.h = o.bub.offsetHeight; } boxes.push({o, ax:an.x, ay:an.y - 10, w:o.w, h:o.h, pri: kind === 'waiting' ? 0 : 1}); }
   }
+  // tags: the selected one first, then nudge the rest up so none overlap
+  tags.sort((p,q) => (q.sel - p.sel) || (q.y - p.y)); const tp = [];
+  for (const t of tags){ let y = t.y;
+    for (let i = 0; i < 3; i++){ const hit = tp.find(p => t.x < p.x + p.w + 4 && t.x + t.w + 4 > p.x && y < p.y + 22 && y + 22 > p.y); if (!hit) break; y = hit.y - 23; }
+    tp.push({x:t.x, y, w:t.w}); t.o.tag.style.transform = 'translate(' + Math.round(t.x) + 'px,' + Math.round(y) + 'px)'; }
   // keep bubbles apart and inside the stage
   boxes.sort((p,q) => p.ay - q.ay);
   const placed = [];
@@ -777,11 +782,12 @@ function layout(){ isWide = window.innerWidth >= 900; stageEl.classList.toggle('
 window.addEventListener('resize', layout);
 
 /* ---- boot ---- */
-for (const c of CREW){ const i = INIT[c.id]; setState(byId[c.id], i.st, i, true); byId[c.id].at = START + i.at; }
+function reset(){ claims.clear(); for (const c of CREW){ const i = INIT[c.id]; const a = byId[c.id]; a.moving = false; a.spot = null; setState(a, i.st, i, true); } sky.stormTo = 0; }
+reset();
 layout(); applyLang();
 window.HUB = {agents, byId, DESK, POOL, sky, RM, get selected(){ return selected; }, get wide(){ return isWide; }, get demoT(){ return demoT; },
   fallback(){ document.getElementById('app').classList.add('no-gl'); }, layout,
-  seek(sec){ demoT = sec; runScript(); for (const a of agents){ for (let i=0;i<8 && (a.moving || a.queue.length);i++){ if (a.moving) place(a, a.target); runQueue(a); if (a.queue[0] && a.queue[0].dur) { a.poseT = a.queue[0].dur*0.4; break; } } } refreshUI(); }};
+  seek(sec){ reset(); demoT = 0; lastT = 0; runScript(); demoT = sec; runScript(); for (const a of agents){ for (let i=0;i<8 && (a.moving || a.queue.length);i++){ if (a.moving) place(a, a.target); runQueue(a); if (a.queue[0] && a.queue[0].dur) { a.poseT = a.queue[0].dur*0.4; break; } } } refreshUI(); }};
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) window.HUB.fallback(); }, 6000);
 requestAnimationFrame(frame);
 })();
@@ -793,6 +799,7 @@ requestAnimationFrame(frame);
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 
 const HUB = window.HUB, RM = HUB.RM;
 const stage = document.getElementById('stage'), canvas = document.getElementById('gl');
@@ -1092,16 +1099,35 @@ const spot = {};
   spot.glow.rotation.x = -Math.PI/2; spot.glow.position.set(FX,.008,FZ); scene.add(spot.glow);
 }
 
+/* ---------- fewer draw calls: merge the fixed furniture by material (keeps phones smooth) ---------- */
+{
+  scene.updateMatrixWorld(true);
+  const groups = new Map();
+  for (const o of scene.children.slice()){
+    if (!o.isMesh || o.isInstancedMesh || o.userData.dyn) continue; const m = o.material;
+    if (Array.isArray(m) || m.transparent || !o.geometry.index) continue;
+    const key = m.uuid + (o.castShadow ? 'c' : '') + (o.receiveShadow ? 'r' : ''); if (!groups.has(key)) groups.set(key, []); groups.get(key).push(o);
+  }
+  for (const list of groups.values()){
+    if (list.length < 2) continue;
+    const geos = list.map(o => { const g = o.geometry.clone(); for (const k of Object.keys(g.attributes)) if (!['position','normal','uv'].includes(k)) g.deleteAttribute(k); g.morphAttributes = {}; g.clearGroups(); g.applyMatrix4(o.matrixWorld); return g; });
+    if (geos.some(g => !g.attributes.uv || !g.attributes.normal)) continue;
+    const merged = mergeGeometries(geos, false); if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, list[0].material); mesh.castShadow = list[0].castShadow; mesh.receiveShadow = list[0].receiveShadow; scene.add(mesh);
+    for (const o of list){ scene.remove(o); o.geometry.dispose(); } for (const g of geos) g.dispose();
+  }
+}
+
 /* ---------- robots: matte ceramic, black glass visor, the HMP orange light strip ---------- */
 const bodyPts = [[0,0],[.085,.005],[.15,.028],[.19,.075],[.208,.15],[.213,.25],[.207,.35],[.19,.44],[.162,.52],[.12,.585],[.065,.628],[0,.64]].map(p => new THREE.Vector2(p[0], p[1]));
 const G = {
-  body: new THREE.LatheGeometry(bodyPts, 48),
-  head: new RoundedBoxGeometry(.38,.25,.31,4,.095),
+  body: new THREE.LatheGeometry(bodyPts, 40),
+  head: new RoundedBoxGeometry(.38,.25,.31,3,.095),
   visor: new RoundedBoxGeometry(.32,.14,.05,3,.022),
   eye: new THREE.CircleGeometry(.026, 24),
-  strip: new THREE.TorusGeometry(.2145,.0095,10,80),
-  halo: new THREE.TorusGeometry(.216,.03,10,80),
-  hand: new THREE.SphereGeometry(.044, 20, 14),
+  strip: new THREE.TorusGeometry(.2145,.0095,6,64),
+  halo: new THREE.TorusGeometry(.216,.03,6,64),
+  hand: new THREE.SphereGeometry(.044, 14, 10),
   neck: new THREE.CylinderGeometry(.055,.07,.07,24),
   ear: new THREE.CylinderGeometry(.038,.038,.018,20),
   chase: new THREE.SphereGeometry(.02, 10, 8),
@@ -1312,7 +1338,10 @@ function lightFromSky(t){
   MAT.glass.opacity = .1 + (1-day)*.06;
 }
 
+let onScreen = true;
+new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
 function frame(t, dt){
+  if (!onScreen && !CAPTURE) return;
   const now = performance.now();
   const drift = RM.matches || CAPTURE ? 0 : Math.sin(t*.05)*.05;
   if (!dragStart && view.lastDrag && now - view.lastDrag > 5000) view.drag *= Math.pow(.2, dt);
@@ -1355,7 +1384,7 @@ function syncBoard(){ const l = document.documentElement.lang === 'es' ? 'es' : 
 setInterval(syncBoard, 400);
 document.fonts && document.fonts.ready.then(() => { boardMesh.material.map.dispose(); boardMesh.material.map = boardTex(boardLang); boardMesh.material.needsUpdate = true; });
 
-window.SCENE = {ready:true, anchors, frame, resize, get dragged(){ return SC.dragged; }};
+window.SCENE = {ready:true, anchors, frame, resize, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }};
 resize();
 HUB.layout();
 
