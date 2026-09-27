@@ -235,3 +235,18 @@ the crew small: add a helper only for work that repeats.
   to `docs/research/` and show in the hub's Code lab. Round 1: knocking, not software, is the bottleneck. Round 2:
   FilthE hasn't knocked a door or run a claim yet and will learn; foundation first (D11: no build freeze), so build
   tools that also teach him sales and claims.
+
+## FilthE's vision, in his words (2026-09-27)
+Asked "picture 12 months from now, everything went right":
+- **12 months:** "getting this software the best it can get so the company can thrive." He's at houses knocking and
+  selling, making money off commissions and a lot of money for the company. The workers say they love the app and
+  push it. HMP makes a lot of connections, knows a lot, and is the main contractor/builder: "it would be our sign on
+  the yard ... a lot of signs in a lot of yards." A lot of networking, a lot of success.
+- **Beyond:** a normal Tuesday = finding businesses around the area that can use his app, making ads and marketing,
+  talking with people who know AI, working with bigger companies, "being an AI consultant that sells software to
+  businesses", living downtown, wealthy off the product. Uses Claude a lot; knowledgeable.
+- **What this means for the crew:** HMP's results come first (they are the proof for the product and the course,
+  T196). Build toward HMP as a prime contractor (its own yard signs), not only a labor sub. Crews will use the app too,
+  not just the salesman. Keep every system documented and reproducible: it's his consulting portfolio.
+- He worries he isn't "commanding" the crew well. Answer: stating the vision IS the command; the King turns it into
+  priorities and milestones and asks only what only he knows.
