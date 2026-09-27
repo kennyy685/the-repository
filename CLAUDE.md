@@ -91,6 +91,11 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
   every script line; C's big door buttons on Knock. No Crew tab in the app (the crew lives in the AI hub as a clean
   team board: a card per AI with role, status dot, now doing, last result).
 
+## How we ship (FilthE, 2026-09-27: "it has to look like a finished product")
+Every page publish follows `docs/release-checklist.md`: all checks green, the King looks at light + dark screenshots against
+the approved mockups (`docs/design/v25-polish/`), legal boxes ticked, then `docs/CHANGELOG.md` gets a line.
+Helpers commit only their own files (`git add <paths>`, never `-A`).
+
 ## Chain of command (FilthE, 2026-09-26)
 - **Claude Code (the cloud session) is the King / lead**: sets priorities on the hub board, gives the orders, runs the
   Code lab helpers, and acts on the hub + app every hour (7 AM-10 PM Central) or instantly on a wake.
