@@ -60,6 +60,12 @@ body.bossmode .dock,body.bossmode .tabp,body.bossmode .top .lang,body.bossmode #
 .app-toast .t-act::after{content:"";position:absolute;inset:-4px}
 
 /* ---------- shared bits ---------- */
+.btn:not(.pri):not(.sec):not(.ghost):not(.ink):not(.danger){background:var(--card);border:1px solid var(--line-2)}   /* older sheet parts write a plain .btn */
+.k-eb,.dg-h,.k-l{font:500 var(--t-label)/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.dg-h{margin:var(--s3) 0 var(--s1)}
+.n{font:500 12px/1 var(--f);color:var(--muted);font-variant-numeric:tabular-nums}
+.chk .i{width:18px;height:18px;stroke-width:2.4}
+
 .eyes{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
 .quiet{color:var(--muted);font-size:var(--t-body);margin:0}
 .a-quiet{color:var(--muted);font-size:var(--t-body);margin:0}
@@ -2587,19 +2593,30 @@ function leadCard(l){
     ${v.length || pp.n ? `<span class="c-line">${[v.length ? esc(T.visits(v.length)) + (lastV ? ' · ' + esc(T.lastVisit(fmtDay(lastV))) : '') : '', pp.n ? esc(V().phProg(pp.done, pp.total)) : ''].filter(Boolean).join(' · ')}</span>` : ''}</button>`;
 }
 function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
+/* v25 Leads: one segmented control per filter, then list rows: address / the next action / a late chip (source and type live in the lead) */
+function leadRow(l){
+  const Zs = Z(), late = lateLeads().find(x => x.l.id === l.id), due = l.next_step && dayOf(l.next_step.due), fin = ['done', 'lost'].includes(l.stage);
+  const od = due && !fin && daysFromToday(due) < 0 ? -daysFromToday(due) : 0, dl = Math.max(late ? late.days : 0, od);
+  const chip = dl ? `<span class="chip late">${ic('flag')}${esc(Zs.lateChip(dl))}</span>` : fin ? `<span class="chip${l.stage === 'done' ? ' ok' : ''}">${esc(lstageName(l, l.stage))}</span>`
+    : due && daysFromToday(due) === 0 ? `<span class="chip">${ic('clock')}${esc(Zs.dueToday)}</span>` : due ? `<span class="chip">${esc(fmtDay(due, true))}</span>` : '';
+  return `<li><button type="button" class="row a-card" data-open="lead:${esc(l.id)}"><span class="t"><b>${esc(strv(l.address) || l.id)}</b><span>${esc(txl(l.next_step) || lstageName(l, l.stage) || Zs.noNext)}</span></span><span class="end">${chip}${chip ? '' : ic('chev')}</span></button></li>`;
+}
 function renderLeads(){
-  const T = L();
+  const T = L(), Zs = Z();
   const active = leads.filter(l => !WON.includes(l.stage) && l.stage !== 'lost'), won = leads.filter(l => WON.includes(l.stage)), lost = leads.filter(l => l.stage === 'lost');
   const dueIds = new Set([...dueItems().today, ...dueItems().tomorrow].filter(r => r.kind === 'lead').map(r => r.id));   // v24: "Due" first (Today + Tomorrow)
   const sets = {due: leads.filter(l => dueIds.has(l.id)), active, won, lost};
   soft($('#lfStage')).html = ['due', 'active', 'won', 'lost'].map(k => `<button type="button" data-f="${k}" aria-pressed="${leadStageF === k}">${esc(T.fStage[k])}<small>${sets[k].length}</small></button>`).join('');
   const srcs = ['all', ...SOURCES.filter(s => leads.some(l => l.source === s))];
   soft($('#lfSrc')).html = srcs.length > 2 ? srcs.map(s => `<button type="button" data-s="${s}" aria-pressed="${leadSrcF === s}">${esc(s === 'all' ? T.fAll : T.src[s])}</button>`).join('') : '';
+  $('#lfSrc').hidden = srcs.length <= 2;
   $('#lBar').hidden = !leads.length;
   const list = sets[leadStageF].filter(l => leadSrcF === 'all' || l.source === leadSrcF).sort((a, b) => leadDue(a).localeCompare(leadDue(b)) || strv(a.address).localeCompare(strv(b.address)));
-  soft($('#lCards')).html = list.map(leadCard).join('');
-  soft($('#lEmpty')).html = !leads.length && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.leadsEmptyH)}</h3><p>${esc(T.leadsEmptyP)}</p>${sayBox(T.exLead)}<div class="a-how"><h3>${esc(T.howLead)}</h3><ol class="flow">${LEAD_STAGES.slice(0, 9).map(s => `<li>${esc(txl(LSTAGE[s]))}</li>`).join('')}</ol></div></div>`
-    : leads.length && !list.length ? `<p class="a-quiet">${esc(T.leadsNone)}</p>` : '';
+  $('#lCards').hidden = !list.length;
+  soft($('#lCards')).html = list.map(leadRow).join('');
+  if (appState === 'wait' && !leads.length) { soft($('#lEmpty')).html = `<div class="rows lrows" aria-hidden="true">${[80, 60, 70].map(w => `<div class="row"><div class="t" style="display:grid;gap:8px"><span class="sk skl" style="width:${w}%"></span><span class="sk skl" style="width:45%"></span></div></div>`).join('')}</div>`; return; }
+  soft($('#lEmpty')).html = !leads.length ? `<div class="empty"><div class="glyph">${ic('leads', 'i-lg')}</div><h3>${esc(Zs.emptyLeadsH)}</h3><p>${esc(Zs.emptyLeadsP)}</p>${SAMPLE && CAN_EDIT ? `<button type="button" class="btn pri" data-open="nl:">${ic('plus')}<span>${esc(Zs.logLead)}</span></button>` : ''}</div>`
+    : !list.length ? `<div class="empty" style="padding-top:var(--s6)"><p>${esc(Zs.leadsNone)}</p></div>` : '';
 }
 $('#lfStage').addEventListener('click', ev => { const b = ev.target.closest('[data-f]'); if (b) { leadStageF = b.dataset.f; renderLeads(); } });
 $('#lfSrc').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { leadSrcF = b.dataset.s; renderLeads(); } });
@@ -2692,49 +2709,74 @@ function chaseItems(){   // what to chase: supplements with no answer, checks th
   for (const k of Object.keys(out)) out[k].sort((a, b) => b.days - a.days);
   return out;
 }
-function renderChase(){
-  const ch = chaseItems(), V0 = V(), box = $('#mChase');
-  const n = ch.cash.length + ch.supp.length + ch.checks.length; box.hidden = !n; if (!n) { soft(box).html = ''; return; }
-  const grp = (list, head, cls) => !list.length ? '' : `<details><summary class="${cls}"><span class="n">${list.length}</span>${esc(head(list.length).replace(/^\d+\s*/, ''))}</summary><ul>${list.map(x => { const d = x.c || x.l;
-    return `<li><button type="button" data-open="${x.c ? 'claim' : 'lead'}:${esc(d.id)}"><span class="a">${esc(strv(d.address) || d.id)}</span><span class="d ${cls}">${esc(V0.days(x.days))}</span><span class="w">${esc(x.text)}${x.amt ? ' · ' + usd(x.amt) : ''}</span></button></li>`; }).join('')}</ul></details>`;
-  soft(box).html = `<h2 class="ah" id="mChaseH">${esc(V0.chaseH)}</h2>${grp(ch.cash, V0.chaseCash, 'crit')}${grp(ch.supp, V0.chaseSupp, 'warn')}${grp(ch.checks, V0.chaseChecks, 'warn')}`;
+/* ---------- v25 Money: one hero figure (owed to HMP), a stacked bar with its legend (the deductible shows as money the
+   homeowner owes: it is collected, never waived, NE 44-8604), what to chase as rows, then job cards. Empty = the claim
+   path as a tight stepper + one button. ---------- */
+let mPaidOpen = false;
+function jobCard(x){
+  const Zs = Z(), T = L();
+  if (x.c) { const c = x.c, fin = c.stage === 'paid' || c.stage === 'lost', i = cIdx(c), n = CLAIM_STEPS.length, m = money(c);
+    const segs = CLAIM_STEPS.map((s, k) => `<i class="${c.stage === 'paid' || k < i ? 'd' : k === i && !fin ? 'c' : ''}"></i>`).join('');
+    const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, due = ns && dayOf(ns.due), late = due && !fin && daysFromToday(due) < 0 ? -daysFromToday(due) : 0;
+    const [st, of] = Zs.stepOf(fin ? cStage(c.stage) : cStage(CLAIM_STEPS[i]), i + 1, n);
+    return `<button type="button" class="card jcard" data-open="claim:${esc(c.id)}"><span class="hd"><span><h3>${esc(strv(c.address) || c.id)}</h3><span class="who">${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span></span><span class="chip${c.stage === 'paid' ? ' ok' : ''}">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span></span>
+      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ' · ' + esc(of)}</span>${!fin && i < n - 1 ? `<span>${esc(Zs.nextS(cStage(CLAIM_STEPS[i + 1]).toLowerCase()))}</span>` : ''}</span>`}
+      ${fin ? `<span class="jmoney"><span>${esc(C0().collectedTotal)}: <b>${usd(m.collected)}</b></span></span>` : `<span class="nextline">${ic(late ? 'flag' : /bank|check|cheque/i.test(txl(ns)) ? 'phone' : a0(c) ? 'cal' : 'clock')}<span>${esc(txl(ns) || Zs.noNextJob)}</span>${late ? `<span class="chip late">${esc(Zs.lateD(late))}</span>` : ''}${ic('chev', 'i-sm')}</span>`}</button>`; }
+  const l = x.l, cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0, ns = txl(l.next_step);
+  return `<button type="button" class="card jcard" data-open="lead:${esc(l.id)}"><span class="hd"><span><h3>${esc(strv(l.address) || l.id)}</h3><span class="who">${esc([strv(l.first_name), strv(l.city)].filter(Boolean).join(' · '))}</span></span><span class="chip ok">${esc(Zs.cash)}</span></span>
+    <span class="jmoney"><span>${esc(Zs.price)} <b>${cm.price != null ? usd(cm.price) : '–'}</b></span><span>${esc(Zs.paidSoFar)} <b>${usd(cm.got)}</b></span><span>${esc(Zs.stillOwed)} <b>${usd(cm.owed)}</b></span></span>
+    ${cm.plan && !fin ? `<span class="paytrack">${cm.plan.map(payCell).join('')}</span>` : ''}
+    ${fin ? '' : `<span class="nextline">${ic(cm.late30 ? 'flag' : 'clock')}<span>${esc(ns || Zs.noNextJob)}</span>${cm.late30 ? `<span class="chip late">${esc(V().over30)}</span>` : ''}${ic('chev', 'i-sm')}</span>`}</button>`;
 }
+const C0 = () => L().ct, a0 = c => claimAppt(c);
 function renderMoney(){
-  const T = L(), C = T.ct;
+  const T = L(), C = T.ct, Zs = Z(), V0 = V(), box = $('#money');
   const cash = leads.filter(l => l.type === 'cash' && numv(l.contract_price) != null && l.stage !== 'lost');
   const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost').sort(claimSort);
-  const cashOpen = cash.filter(l => { const m = cashMoney(l); return !(m.owed === 0 && m.got > 0); });
-  const cashDone = cash.filter(l => !cashOpen.includes(l));
+  const cashOpen = cash.filter(l => { const m = cashMoney(l); return !(m.owed === 0 && m.got > 0); }), cashDone = cash.filter(l => !cashOpen.includes(l));
   const doneC = claims.filter(c => c.stage === 'paid' || c.stage === 'lost').sort((a, b) => (strv(b.updated_at) > strv(a.updated_at) ? 1 : -1));
   const has = claims.length || cash.length;
-  $('#mTotals').hidden = !has;
-  if (has) {
-    const s = {ins: 0, cash: 0, collected: 0, owedI: 0, owedH: 0, mort: 0, mortN: 0, inHand: 0};
-    for (const c of claims.filter(c => c.stage !== 'lost')) { const m = money(c); s.ins += m.approved; s.collected += m.collected; s.owedI += m.owed; s.mort += m.mortAmt; s.inHand += m.inHand; if (m.mortAmt) s.mortN++; }
-    for (const l of cash) { const m = cashMoney(l); s.cash += m.price || 0; s.collected += m.got; s.owedH += m.owed; }
-    $('#mTotalsH').textContent = T.mTotals;
-    $('#kSold').textContent = T.mSold; $('#vSold').textContent = usd(s.ins + s.cash); $('#sSold').textContent = T.mSoldS(usd(s.ins), usd(s.cash));
-    $('#kCollected').textContent = T.mCollected; $('#vCollected').textContent = usd(s.collected); $('#sCollected').textContent = T.mCollectedS;
-    $('#kOwed').textContent = T.mOwed; $('#vOwed').textContent = usd(s.owedI + s.owedH); $('#sOwed').textContent = T.mOwedS(usd(s.owedI), usd(s.owedH));
-    $('#kMort').textContent = T.mMort; $('#vMort').textContent = usd(s.mort); $('#sMort').textContent = T.mMortS(s.mortN);
-    const total = s.collected + s.inHand + s.mort + s.owedI + s.owedH;
-    const segs = [['in', s.collected, T.mCollected], ['hand', s.inHand, C.inHand], ['mort', s.mort, T.mMort], ['owed', s.owedI + s.owedH, T.mOwed]].filter(x => x[1] > 0 && total);
-    soft($('#moneybar')).html = segs.length ? segs.map(([c, v, n]) => `<span class="${c}" style="flex:${v} 1 0" title="${esc(n)}: ${usd(v)}"></span>`).join('') : '<span class="owed" style="flex:1 1 0"></span>';
-    $('#moneybar').setAttribute('aria-label', `${T.mBar}: ${segs.map(([, v, n]) => `${n} ${usd(v)}`).join(', ') || usd(0)}`);
-    const overdue = openC.filter(c => c.next_step && dayOf(c.next_step.due) && daysFromToday(dayOf(c.next_step.due)) < 0).length;
-    soft($('#moneynote')).html = `<span><b>${esc(T.mCounts(openC.length, overdue))}</b></span>${s.inHand ? `<span><span class="msw hand"></span>${esc(C.inHand)}: <b>${usd(s.inHand)}</b></span>` : ''}`;
+  if (!has && appState === 'wait') { soft(box).html = `<div aria-hidden="true" style="display:grid;gap:12px;padding-top:12px"><span class="sk skl" style="width:90px"></span><span class="sk" style="width:70%;height:44px"></span><span class="sk" style="height:10px"></span>${[1, 2, 3].map(() => '<span class="sk skl" style="width:100%;height:18px"></span>').join('')}</div>`; return; }
+  if (!has) {
+    soft(box).html = `<section class="ehero"><span class="label">${esc(Zs.emptyEb)}</span><h2>${esc(Zs.emptyH)}</h2><p>${esc(Zs.emptyP)}</p>
+      ${SAMPLE && CAN_EDIT ? `<button type="button" class="btn pri block" data-say="${esc(Zs.signedAsk)}" style="margin-top:var(--s2)">${ic('mic')}<span>${esc(Zs.logJob)}</span></button>` : ''}</section>
+      <div class="shead"><h2>${esc(Zs.howPaid)}</h2><span class="cap">${esc(Zs.howDays)}</span></div>
+      <div class="rows path">${Zs.path.map(([icn, b, sp, you]) => `<div class="pstep${you ? ' who' : ''}"><div class="ic">${ic(icn)}</div><div><b>${esc(b)}</b><span>${esc(sp)}</span></div></div>`).join('')}</div>
+      <div class="keyrow"><span><i class="you"></i>${esc(Zs.youDo)}</span><span><i class="them"></i>${esc(Zs.them)}</span></div>
+      <p class="rules">${esc(C.rules)}</p>`;
+    return;
   }
-  renderChase();
-  const g = txl(guideDoc); $('#mTip').hidden = !g; $('#mTipK').textContent = C.tip; $('#mTipT').textContent = g;
-  const sec = (id, list, h, fn) => { $('#' + id + 'Sec').hidden = !list.length; $('#' + id + 'H').textContent = h; $('#' + id + 'N').textContent = list.length || ''; soft($('#' + id)).html = list.map(fn).join(''); };
-  sec('mOpen', openC, T.mOpen, claimCard);
-  sec('mCash', cashOpen, T.mCash, cashCard);
-  const fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
-  sec('mDone', fin, T.mDone, x => x.c ? claimCard(x.c) : cashCard(x.l));
-  soft($('#mEmpty')).html = !has && appState !== 'wait' ? `<div class="a-empty"><h3>${esc(T.moneyEmptyH)}</h3><p>${esc(T.moneyEmptyP)}</p>${sayBox(T.exMoney)}${howHtml(true)}</div>` : '';
-  $('#mHow').hidden = !has; if (has) { $('#mHowS').textContent = C.howMore; soft($('#mHowIn')).html = howHtml(false) + `<p class="gloss" id="mGloss">${V().gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p>`; }   // v24: RCV/ACV words live in "How a claim works"
-  $('#mRules').textContent = C.rules;
+  // the hero: what is still owed to HMP, and where it sits
+  const s = {mort: 0, held: 0, ded: 0, supp: 0, cash: 0, inHand: 0, collected: 0, onlyDep: true};
+  for (const c of openC) { const m = money(c), sp = Math.min(m.supp || 0, m.owed);
+    s.mort += m.mortAmt; s.supp += sp; s.held += m.owed - sp; s.inHand += m.inHand; s.collected += m.collected; if (m.ded != null) s.ded += m.ded; if (m.owed - sp > 0 && !m.acvGot) s.onlyDep = false; }
+  for (const c of doneC) s.collected += money(c).collected;
+  for (const l of cash) { const m = cashMoney(l); s.cash += m.owed; s.collected += m.got; }
+  const total = s.mort + s.held + s.ded + s.supp + s.cash, jobs = openC.length + cashOpen.length;
+  const parts = [['k-mort', s.mort, Zs.atMort, Zs.atMortS], ['k-held', s.held, Zs.held, s.onlyDep ? Zs.heldS : Zs.heldS2], ['k-ho', s.ded, Zs.hoDed, ''], ['k-sup', s.supp, Zs.suppOk, ''], ['k-cash', s.cash, Zs.cashOwed, Zs.cashOwedS]].filter(p => p[1] > 0);
+  const hero = `<section class="mhero" aria-label="${esc(Zs.owed)}"><span class="label">${esc(Zs.owed)}</span>
+    <div class="fig">${usd(total)}<small>${esc(Zs.onJobs(jobs))}</small></div>
+    ${parts.length ? `<div class="stack" role="img" aria-label="${esc(parts.map(p => `${p[2]} ${usd(p[1])}`).join(', '))}">${parts.map(p => `<i class="${p[0]}" style="flex:${p[1]} 1 0"></i>`).join('')}</div>
+    <div class="mlegend2">${parts.map(p => `<div><i class="${p[0]}"></i><span>${esc(p[2])}${p[3] ? ` <small>${esc(p[3])}</small>` : ''}</span><b>${usd(p[1])}</b></div>`).join('')}</div>` : ''}
+    <p class="mnote">${esc([s.inHand ? Zs.inHand(usd(s.inHand)) : '', Zs.collected(usd(s.collected))].filter(Boolean).join(' · '))}</p></section>`;
+  // to chase: rows with the late chip
+  const ch = chaseItems(), chase = [...ch.cash, ...ch.checks, ...ch.supp];
+  const chaseRow = x => { const d = x.c || x.l, isC = !!x.c, m = isC ? money(x.c) : null, isMort = isC && m.mortOut && x.text === V0.chk.mort(m.mortCo || C.mortShort), isSupp = isC && !isMort && ch.supp.includes(x);
+    const ns = isC && x.c.next_step && dayOf(x.c.next_step.due), late = isMort && ns && daysFromToday(ns) < 0 ? -daysFromToday(ns) : 0;
+    const title = isMort ? Zs.mortChase(m.mortCo || C.mortShort) : isSupp ? Zs.suppChase(txl((m.supps.find(s => x.text.indexOf(txl(s.item)) >= 0) || {}).item), x.amt ? usd(x.amt) : (x.text.match(/\$[\d,]+/) || [''])[0]) : x.text + (x.amt ? ' · ' + usd(x.amt) : '');
+    const chip = late ? `<span class="chip late">${ic('flag')}${esc(Zs.lateD(late))}</span>` : !isC ? `<span class="chip late">${ic('flag')}${esc(Zs.days(x.days))}</span>` : `<span class="chip warn">${ic('clock')}${esc(Zs.days(x.days))}</span>`;
+    return `<li><button type="button" class="row" data-open="${isC ? 'claim' : 'lead'}:${esc(d.id)}"><span class="lead">${ic(isMort ? 'bank' : isSupp ? 'file' : 'money')}</span><span class="t"><b>${esc(title)}</b><span>${esc([strv(d.address), strv(d.homeowner_first_name || d.first_name), strv(d.insurer)].filter(Boolean).join(' · '))}</span></span><span class="end">${chip}</span></button></li>`; };
+  const open = [...openC.map(c => ({c})), ...cashOpen.map(l => ({l}))], fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
+  const g = txl(guideDoc);
+  soft(box).html = hero
+    + (chase.length ? `<div class="shead"><h2>${esc(Zs.chase)}</h2></div><ul class="rows">${chase.slice(0, 5).map(chaseRow).join('')}</ul>` : '')
+    + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
+    + `<div class="claims">${(mPaidOpen ? fin : open).map(jobCard).join('') || `<p class="quiet">${esc(C.nothingWaiting)}</p>`}</div>`
+    + (g ? `<p class="tipl" style="margin-top:var(--s4)">${ic('info')}<span>${esc(g)}</span></p>` : '')
+    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p></details>`
+    + `<p class="rules">${esc(C.rules)}</p>`;
 }
+$('#money').addEventListener('click', ev => { if (ev.target.closest('#mPaid')) { mPaidOpen = !mPaidOpen; renderMoney(); } });
 
 /* ---------- detail sheet (lead or claim) ---------- */
 const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how', 'zones', 'due', 'walk'];   // v24 sheets that start fresh (no Back to the sheet under them)
@@ -2795,7 +2837,7 @@ function photosBox(l){
   const after = ps.filter(p => p.slot === 'after').pop(), before = ps.filter(p => p.slot === 'sides').pop() || ps.filter(p => p.slot !== 'after' && p.slot !== 'contract').pop();
   const pair = after && before ? `<div class="ph-pairw"><span class="k-l" style="font:700 12px/1.2 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--label)">${esc(V0.pairH)}</span><div class="ph-pair"><figure>${thumb(before)}<figcaption>${esc(V0.before)}</figcaption></figure><figure>${thumb(after)}<figcaption>${esc(V0.after)}</figcaption></figure></div></div>` : '';
   const row = (s, n) => { const mine = ps.filter(p => p.slot === s), on = mine.length > 0 || ck.includes(s), [name, hint] = V0.slots[s];
-    return `<li class="slot${on ? ' on' : ''}${s === 'after' ? ' after' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${on}" data-chk="${s}" aria-label="${esc(V0.phMarkAria(name))}"${!can || mine.length || s === 'after' ? ' disabled' : ''}>${on ? '✓' : ''}</button>
+    return `<li class="slot${on ? ' on' : ''}${s === 'after' ? ' after' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${on}" data-chk="${s}" aria-label="${esc(V0.phMarkAria(name))}"${!can || mine.length || s === 'after' ? ' disabled' : ''}>${on ? ic('check') : ''}</button>
       <div class="sl-t"><b>${n ? n + '. ' : ''}${esc(name)}</b><span>${esc(hint)}</span>${mine.length ? `<div class="sl-ph">${mine.map(thumb).join('')}</div>` : ''}</div>
       ${can ? `<label class="ph-file sm">${esc(phBusy === s ? '…' : mine.length ? V0.phAddMore : V0.phAdd)}<input type="file" accept="image/*" multiple data-slot="${s}"${phBusy ? ' disabled' : ''}></label>` : ''}</li>`; };
   const msg = phMsg && phMsgFor === l.id ? `<p class="ph-status${phMsg.bad ? ' bad' : ''}" role="status">${esc(phMsg.text)}</p>` : '';
@@ -3259,7 +3301,7 @@ function nsCard(l){
   const photos = photosOf(l).filter(p => p.slot === 'contract');
   const row = x => {
     const on = itemOn(l, x), lock = x.auto || x.mode === 'auto' || x.mode === 'tell' || x.mode === 'option' || !can;
-    const box = `<button type="button" class="chk" role="checkbox" aria-checked="${on}" aria-label="${esc(x.label)}" data-nstick="${esc(x.k)}" data-lead="${esc(l.id)}"${lock ? ' disabled' : ''}>${on ? '✓' : ''}</button>`;
+    const box = `<button type="button" class="chk" role="checkbox" aria-checked="${on}" aria-label="${esc(x.label)}" data-nstick="${esc(x.k)}" data-lead="${esc(l.id)}"${lock ? ' disabled' : ''}>${on ? ic('check') : ''}</button>`;
     let sub = x.val && (x.auto || x.mode === 'tick') ? `<span class="ns-val">${esc(x.val)}</span>` : x.auto && x.mode !== 'tick' ? `<span class="ns-hint">${esc(X.fromLead)}</span>` : '';
     if (!on && x.mode === 'tell') sub = `<span class="ns-hint warn">${esc(X.askIt)}</span>${SAMPLE && CAN_EDIT ? `<button type="button" class="linkbtn ns-tell" data-tell="${esc(strv(l.address))}">${esc(X.tell)}</button>` : ''}`;
     if (x.mode === 'option') sub = `<div class="pickrow ns-opt" role="group" aria-label="${esc(x.label)}">${NSOPT.map(o => `<button type="button" data-nsopt="${o}" data-lead="${esc(l.id)}" aria-pressed="${!!(l.collected && l.collected.option === o)}"${can ? '' : ' disabled'}>${esc(X.opt[o])}</button>`).join('')}</div>`;
@@ -3420,6 +3462,229 @@ function renderEst(id){
   const body = $('#shBody'), back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
   if (estCtl.el.parentNode !== body || body.dataset.estBack !== String(!!back)) { body.innerHTML = back; body.dataset.estBack = String(!!back); body.append(estCtl.el); }
 }
+/* ================= v25 lead + claim sheets (critique "Lead sheet"): header, quick actions, the stage bar, the next-step
+   card, one guide card (Say with one EN/ES switch, Ask, Collect as round checks), then closed rows. Everything else
+   opens from a row (photos, notes and visits, the claim's money and details), so the sheet reads in seconds. ================= */
+const refLeadId = () => { if (!openRef) return null; const k = openRef.slice(0, openRef.indexOf(':')); return ['lead', 'lph', 'lnv'].includes(k) ? openRef.slice(k.length + 1) : k === 'lt' ? openRef.split(':')[1] : null; };
+let gLang = null, gLangFor = null;   // the guide card's language (the whole card flips), per open lead
+const noArrow = s => String(s || '').replace(/\s*→.*$/, '').trim();
+const dropWhen = s => String(s || '').replace(/\s*\b(today|tomorrow|tonight|hoy|mañana|mon(day)?|tue(s(day)?)?|wed(nesday)?|thu(rs(day)?)?|fri(day)?|sat(urday)?|sun(day)?|lun(es)?|mar(tes)?|mi[eé](rcoles)?|jue(ves)?|vie(rnes)?|s[aá]b(ado)?|dom(ingo)?)\b[^,]*?\d{1,2}(:\d{2})?\s*(am|pm|a\.\s?m\.|p\.\s?m\.)\s*,?\s*/i, ' · ').replace(/\s·\s*$/, '').replace(/^\s*·\s*/, '').trim();
+function whenChip(a, due, fin){   // the next-step card's time chip: the appointment, else the due day (late in red, with a flag)
+  const Zs = Z();
+  if (a) { const d = daysFromToday(a.day), day = d === 0 ? (lang === 'es' ? 'Hoy' : 'Today') : d === 1 ? (lang === 'es' ? 'Mañana' : 'Tomorrow') : toDate(a.day).toLocaleDateString(locale(), {weekday: 'short', month: 'short', day: 'numeric'});
+    return `<span class="chip hmp" style="justify-self:start">${ic('clock')}${esc(day + (a.time ? ', ' + clock(a.time) : ''))}</span>`; }
+  if (!due || fin) return '';
+  const d = daysFromToday(due);
+  return d < 0 ? `<span class="chip late" style="justify-self:start">${ic('flag')}${esc(Zs.lateD(-d))}</span>` : `<span class="chip" style="justify-self:start">${ic('clock')}${esc(d === 0 ? Zs.dueToday : fmtDay(due, true))}</span>`;
+}
+function stageBar(n, total, name, next, fin){
+  const segs = Array.from({length: total}, (_, k) => `<i class="${fin || k + 1 < n ? 'd' : k + 1 === n ? 'c' : ''}"></i>`).join('');
+  const [a, b] = fin ? [name, ''] : Z().stepN(name, n, total);
+  return `<div class="stagebar" role="img" aria-label="${esc(fin ? name : `${name}, ${b}`)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ' · ' + esc(b) : ''}</span>${next ? `<span>${esc(Z().nextStep(next))}</span>` : ''}</div></div>`;
+}
+function leadQuick(l){
+  const Zs = Z(), phone = strv(l.phone), num = phone.replace(/[^\d+]/g, ''), pp = photoProgress(l);
+  const dest = encodeURIComponent([strv(l.address), strv(l.city), SETTINGS.company.state].filter(Boolean).join(', '));
+  const tiles = phone ? [`<a href="tel:${esc(num)}">${ic('phone')}<span>${esc(Zs.call)}</span></a>`, `<a href="sms:${esc(num)}">${ic('text')}<span>${esc(Zs.text)}</span></a>`]
+    : SAMPLE && CAN_EDIT ? [`<button type="button" data-tell="${esc(strv(l.address))}" data-pre="${esc(shortAddr(strv(l.address)) + (lang === 'es' ? ', teléfono ' : ', phone '))}">${ic('phone')}<span>${esc(Zs.addPhone)}</span></button>`] : [];
+  tiles.push(`<a href="https://www.google.com/maps/dir/?api=1&amp;destination=${dest}" target="_blank" rel="noopener">${ic('nav')}<span>${esc(Zs.directions)}</span></a>`);
+  if (ASSETS || pp.n) tiles.push(`<button type="button" data-open="lph:${esc(l.id)}">${ic('camera')}<span>${esc(Zs.photos(pp.n))}</span></button>`);
+  return `<div class="quick" style="grid-template-columns:repeat(${tiles.length},minmax(0,1fr))">${tiles.join('')}</div>`;
+}
+function leadNextCard(l, sid, kind){
+  const Zs = Z(), X = NX(), can = !!DB && CAN_EDIT, a = apptOf(l), ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : null, fin = ['done', 'lost'].includes(l.stage) || sid === 'finished';
+  if (sid === 'finished') return `<section class="card nextcard"><span class="chip ok" style="justify-self:start">${ic('check')}${esc(X.finishedH)}</span><h3>${esc(X.finishedP)}</h3></section>`;
+  const title = ns && txl(ns) ? (a && a.time ? dropWhen(txl(ns)) : txl(ns)) : sid ? nsName(sid, kind) : Zs.noNext;
+  const act = sid && can ? nsAction(l, sid, kind) : null, items = sid ? nsItems(l, sid, kind) : [];
+  const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
+  const ready = act && pickReady(act.pick, l.id) && (!act.must || mustOn === musts.length);
+  const label = act ? (sid === 'set' ? (kind === 'cash' ? (lang === 'es' ? 'Empezar la visita' : 'Start the visit') : (lang === 'es' ? 'Empezar inspección' : 'Start inspection')) : noArrow(act.label)) : '';
+  const icon = sid === 'set' || sid === 'inspect' ? 'camera' : sid === 'paper' ? 'pen' : sid === 'door' || (act && act.pick) ? 'cal' : 'check';
+  const cal = a ? `<a class="btn sec calbtn" href="${esc(gcalUrl(a, l))}" target="_blank" rel="noopener" aria-label="${esc(Zs.addCal)}">${ic('cal')}</a>` : '';
+  return `<section class="card nextcard" id="nsCard" data-lead="${esc(l.id)}">${whenChip(a, ns && dayOf(ns.due), fin)}<h3>${esc(title)}</h3>
+    ${act && act.pick ? nsPicker(l, act.pick) : ''}
+    ${act && act.must ? `<p class="hint${mustOn === musts.length ? '' : ' warn'}">${esc(X.mustLeft(mustOn, musts.length))}</p>` : ''}
+    ${act ? `<div class="${cal ? 'two' : ''}"><button type="button" class="btn pri${cal ? '' : ' block'}" data-nsdone="${esc(l.id)}"${ready ? '' : ' disabled'}>${ic(icon)}<span>${esc(label)}</span></button>${cal}</div>
+      ${act.pick && !pickReady(act.pick, l.id) ? `<p class="then">${esc(X.pickFirst)}</p>` : ''}` : cal ? `<div class="sheet-acts">${calLink(a, l, 'btn sec')}</div>` : !can && DB ? `<p class="hint">${esc(X.roNote)}</p>` : ''}
+  </section>`;
+}
+function leadGuide(l, sid, kind){
+  if (!sid || sid === 'finished') return '';
+  if (gLangFor !== l.id) { gLangFor = l.id; gLang = lang; }
+  const gl = gLang || lang, Zs = ZX[gl], X = NSX[gl], can = !!DB && CAN_EDIT;
+  const say = withLang(gl, () => nsSay(l, sid, kind)), asks = (X.asks[sid] || (() => []))(kind);
+  const items = withLang(gl, () => nsItems(l, sid, kind)), on = items.filter(x => itemOn(l, x)).length;
+  const txtKey = {rem1: 'B', rem2: 'C', review: 'R'};
+  const ck = x => { const y = itemOn(l, x), lock = x.auto || x.mode === 'auto' || x.mode === 'tell' || x.mode === 'option' || !can;
+    const box = lock ? `<span class="ckb" aria-hidden="true">${y ? ic('check') : ''}</span>` : `<button type="button" class="ckb" role="checkbox" aria-checked="${y}" aria-label="${esc(x.label)}" data-nstick="${esc(x.k)}" data-lead="${esc(l.id)}">${y ? ic('check') : ''}</button>`;
+    let end = '';
+    if (!y && txtKey[x.k] && strv(l.phone)) end = `<button type="button" class="btn sec sm" data-open="lt:${esc(l.id)}:${txtKey[x.k]}">${esc(Zs.send)}</button>`;
+    else if (!y && x.mode === 'tell' && SAMPLE && CAN_EDIT) end = `<button type="button" class="btn sec sm" data-tell="${esc(strv(l.address))}">${esc(X.tell.split(' ')[0])}</button>`;
+    const sub = x.val && (x.auto || x.mode === 'tick' || y) ? ` <small>${esc(x.val)}</small>` : !y && x.mode === 'tell' ? ` <small>${esc(X.askIt)}</small>` : '';
+    const opt = x.mode === 'option' ? `<div class="gopt pickrow" role="group" aria-label="${esc(x.label)}">${NSOPT.map(o => `<button type="button" data-nsopt="${o}" data-lead="${esc(l.id)}" aria-pressed="${!!(l.collected && l.collected.option === o)}"${can ? '' : ' disabled'}>${esc(X.opt[o])}</button>`).join('')}</div>` : '';
+    const ph = x.photo ? (() => { const ps = photosOf(l).filter(p => p.slot === 'contract'); return `${ps.length ? `<div class="sl-ph" style="padding-left:34px">${ps.map(p => `<button type="button" class="ph" data-ph="${esc(p.id)}"><img src="${esc(blobSrc(p.id))}" alt="${esc(x.label)}" loading="lazy"></button>`).join('')}</div>` : ''}${ASSETS && can ? `<label class="ph-file" style="margin-left:34px;justify-self:start">${esc(phBusy === 'contract' ? '…' : X.addPhoto)}<input type="file" accept="image/*" multiple data-slot="contract"${phBusy ? ' disabled' : ''}></label>` : ''}`; })() : '';
+    return `<div class="ck${y ? ' on' : ''}${x.must ? ' must' : ''}">${box}<span class="tx">${esc(x.label)}${sub}</span>${end}</div>${opt}${ph}`; };
+  const must = withLang(gl, () => nsMust(sid, kind)), tips = withLang(gl, () => nsTips(l, sid, kind));
+  const extra = [];
+  if (sid === 'paper' && kind === 'cash') extra.push(`<p class="mustl">${ic('lock')}<span><b>${esc(X.info)}:</b> ${esc(X.noWork)} ${esc(X.noWorkWhy)}</span></p>`);
+  if (sid === 'paper') extra.push(`<p><b>${esc(X.info)}:</b> ${esc(X.noImm)}</p>`, `<p><b>${esc(X.info)}:</b> ${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel" style="margin:0">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
+  const btns = [];
+  if (can && ((sid === 'table' && kind === 'cash') || (sid === 'inspect' && kind === 'cash') || sid === 'measure')) btns.push(`<button type="button" class="btn sec" data-open="est:${esc(l.id)}">${ic('ruler')}<span>${esc(X.estBtn(l.estimate && numv(l.estimate.low) != null))}</span></button>`);
+  if (sid === 'measure' || sid === 'build') btns.push(`<button type="button" class="btn sec" data-open="ord:${esc(l.id)}">${ic('clip')}<span>${esc(hasOrder(l) ? OT().openList : OT().btn)}</span></button>`);
+  if (sid === 'claim') btns.push(`<button type="button" class="btn sec" data-open="adj:${esc(l.id)}">${ic('clip')}<span>${esc(AT().btn)}</span></button>`);
+  return `<section class="card guide" lang="${gl}" id="guideCard">
+    <div class="gh"><span class="label">${esc(Zs.say2)}</span><div class="seg" role="group" aria-label="${esc(NWX[lang].flipAria)}"><button type="button" data-glang="en" aria-pressed="${gl === 'en'}" lang="en">EN</button><button type="button" data-glang="es" aria-pressed="${gl === 'es'}" lang="es">ES</button></div></div>
+    <p class="gsay">“${esc(say)}”</p>
+    <div class="glist">
+      ${asks.length ? `<span class="label">${esc(Zs.ask)}</span>${asks.map(q => Array.isArray(q) ? `<p class="ask"><span>${esc(q[0])}<small>${esc(q[1])}</small></span></p>` : `<p class="ask"><span>${esc(q)}</span></p>`).join('')}` : ''}
+      ${items.length ? `<span class="label" style="margin-top:6px">${esc(Zs.collect(on, items.length))}</span>${items.map(ck).join('')}` : ''}
+      ${must ? `<p class="mustl" style="margin-top:4px">${ic('shield')}<span><b>${esc(Zs.must)}:</b> ${esc(must)}</span></p>` : ''}
+      ${tips.length ? `<p class="tipl">${ic('info')}<span>${esc(tips[0])}</span></p>` : ''}
+      ${sid === 'paid' ? withLang(gl, () => refBlock()) : ''}
+      ${btns.length ? `<div class="sheet-acts">${btns.join('')}</div>` : ''}
+    </div>${extra.length ? `<div class="ginfo">${extra.join('')}</div>` : ''}</section>`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-glang]'); if (!b) return; gLang = b.dataset.glang; if (openRef) renderSheet(); });
+function leadRows(l){
+  const Zs = Z(), pp = photoProgress(l), estS = l.estimate && typeof l.estimate === 'object' && numv(l.estimate.low) != null ? l.estimate : null, fin = ['done', 'lost'].includes(l.stage);
+  const v = Array.isArray(l.doors_visits) ? l.doors_visits : [], note = (typeof l.notes === 'string' ? l.notes.trim() : txl(l.notes)).split('\n')[0];
+  const ev = proofFor(l.address, l.city), claim = claims.find(c => c.id === l.id);
+  const row = (attrs, icon, t, s) => `<li><button type="button" class="row" ${attrs}><span class="lead">${ic(icon)}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></button></li>`;
+  const rows = [];
+  if (ASSETS || pp.n) rows.push(row(`data-open="lph:${esc(l.id)}"`, 'photo', Zs.rPhotos, Zs.rPhotosS(pp.done, pp.total)));
+  if (estS || !fin) rows.push(row(`data-open="est:${esc(l.id)}"`, 'money', Zs.rEst, estS && window.EstimateScreen ? EstimateScreen.savedLine(estS, lang) : Zs.rEstNone));
+  if (l.stage !== 'lost') rows.push(row(`data-ho="${esc(l.id)}"`, 'home', Zs.rHome, Zs.rHomeS));
+  if (claim) rows.push(row(`data-open="claim:${esc(claim.id)}"`, 'file', Zs.rClaim, [strv(claim.insurer), cStage(claim.stage)].filter(Boolean).join(' · ')));
+  if (hasOrder(l)) rows.push(row(`data-open="ord:${esc(l.id)}"`, 'clip', OT().boxH, orderLine(l)));
+  if (ev) rows.push(row(`data-open="proof:${esc(evKey(l.address, l.city))}"`, 'hail', Zs.rProof, Zs.rProofS((Math.round(numv(ev.hail_in) * 10) / 10).toFixed(1), dayOf(ev.day) ? fmtDay(dayOf(ev.day)) : '')));
+  rows.push(row(`data-open="lnv:${esc(l.id)}"`, 'note', Zs.rNotes, note || (v.length ? Zs.rNotesS(v.length) : Zs.rNotesNone)));
+  return `<ul class="rows moreRows">${rows.join('')}</ul>`;
+}
+function renderLeadSheet(l){
+  const T = L(), Zs = Z(), kind = leadKind(l), sid = nsStepOf(l), late = lateLeads().find(x => x.l.id === l.id);
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = strv(l.address) || l.id;
+  $('#shSub').innerHTML = `<span>${esc([strv(l.first_name), strv(l.city)].filter(Boolean).join(' · '))}</span>${SOURCES.includes(l.source) ? `<span class="chip">${esc(T.src[l.source])}</span>` : ''}${LTYPES.includes(l.type) ? `<span class="chip">${esc(T.typ[l.type])}</span>` : ''}${late ? `<span class="chip late">${ic('flag')}${esc(Zs.lateLead(late.days))}</span>` : ''}`;
+  $('#shTrack').innerHTML = '';
+  let bar = '';
+  if (!sid) bar = stageBar(0, 8, lstageName(l, 'lost'), '', false);
+  else if (sid === 'finished') bar = stageBar(8, 8, NX().finishedH, '', true);
+  else { const n = nsNum(sid), ids = nsIdsFor(kind); bar = stageBar(n, 8, lstageName(l, l.stage), n < 8 ? nsName(ids[n], kind).toLowerCase() : '', false); }
+  soft($('#shBody')).html = leadQuick(l) + bar + leadNextCard(l, sid, kind) + leadGuide(l, sid, kind) + leadRows(l);
+}
+function renderLeadPhotos(id){
+  const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Z().photosH; $('#shSub').textContent = strv(l.address); $('#shTrack').innerHTML = '';
+  soft($('#shBody')).html = ASSETS || photosOf(l).length ? photosBox(l) : `<p class="quiet">${esc(V().phReader || '')}</p>`;
+}
+function renderLeadNotes(id){
+  const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
+  const T = L(), C = T.ct, V0 = V(), Zs = Z(), v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Zs.notesH; $('#shSub').textContent = strv(l.address); $('#shTrack').innerHTML = '';
+  const parts = [];
+  const note = typeof l.notes === 'string' ? l.notes.trim() : txl(l.notes);
+  if (note) parts.push(`<section class="box"><h3>${esc(T.notesH)}</h3><p class="notes">${esc(note)}</p></section>`);
+  const miss = [!strv(l.first_name) ? 'name' : '', !strv(l.phone) ? 'phone' : ''].filter(Boolean);
+  const pairs = [[T.lName, esc(strv(l.first_name))], [T.lPhone, strv(l.phone) ? copyHtml(strv(l.phone)) : ''], [T.lCity, esc(strv(l.city))], [T.lSource, SOURCES.includes(l.source) ? esc(T.src[l.source]) : ''], [T.lType, LTYPES.includes(l.type) ? esc(T.typ[l.type]) : '']].filter(p => p[1]);
+  if (miss.length) pairs.unshift([miss.length === 2 ? V0.askBoth : miss[0] === 'name' ? V0.askName : V0.askPhone, `<span class="ask-it">${esc(V0.ask)}</span>`]);
+  parts.push(`<section class="box"><h3>${esc(T.detailsH)}</h3>${factsHtml(pairs)}</section>`);
+  if (l.type === 'cash' && numv(l.contract_price) != null) { const m = cashMoney(l);
+    parts.push(`<section class="box"><h3>${esc(T.cashH)}</h3>${m.plan ? `<div class="paytrack">${m.plan.map(payCell).join('')}</div>` : ''}<div class="ledger">${lrow(T.price, usd(m.price), 'total')}${!m.plan && m.dep != null ? lrow(T.deposit, usd(m.dep), 'sub') : ''}${lrow(T.paidSoFar, usd(m.got), 'sub')}${lrow(T.owed, usd(m.owed), 'total')}</div></section>`); }
+  parts.push(`<section class="box"><h3>${esc(T.visitsH)}</h3>${v.length ? `<ol class="tlx">${v.slice().reverse().map(x => `<li><span class="d">${dayOf(x.date) ? esc(fmtDay(dayOf(x.date))) : ''}</span><span class="dot"></span><span class="t">${esc(K().res[x.result] || x.result || '')}${x.pass > 1 ? ' · ' + esc(K().pass(x.pass).replace(/<\/?b>/g, '')) : ''}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(T.noVisits)}</p>`}</section>`);
+  const tb = textBox(l); if (tb) parts.push(tb);
+  const hb = hoLeadBox(l); if (hb) parts.push(hb);
+  { const sid = nsStepOf(l), kind = leadKind(l), n = !sid ? 0 : sid === 'finished' ? 9 : nsNum(sid);
+    parts.push(`<section class="box"><h3>${esc(T.stepsH)}</h3><ol class="steps">${nsIdsFor(kind).map((sidk, k) => `<li class="${!sid ? '' : k + 1 < n ? 'done' : k + 1 === n ? 'now' : ''}"><i>${k + 1}</i>${esc(nsName(sidk, kind))}</li>`).join('')}</ol></section>`); }
+  if (SAMPLE && CAN_EDIT) parts.push(`<div class="sheet-acts"><button type="button" class="btn sec" data-tell="${esc(strv(l.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button></div>`);
+  const st = [dayOf(l.created_at) ? T.created(fmtDay(dayOf(l.created_at))) : '', fmtWhen(l.updated_at) ? C.updated(fmtWhen(l.updated_at), strv(l.updated_by)) : ''].filter(Boolean).join(' · ');
+  if (st) parts.push(`<p class="stamp">${esc(st)}</p>`);
+  soft($('#shBody')).html = parts.join('');
+}
+function renderLeadText(ref){   // lt:<lead>:<template>: the reminder text, to open in Messages or copy, then "Mark sent"
+  const [, id, key] = ref.split(':'), l = leads.find(x => x.id === id); if (!l || !TXT[key]) { closeSheet(); return; }
+  const X = NX(), {text} = txtFill(l, key), num = strv(l.phone).replace(/[^\d+]/g, ''), at = textedWith(l, key);
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = X.rem[key] || TXT_NAME[lang][key] || ''; $('#shSub').textContent = strv(l.address); $('#shTrack').innerHTML = '';
+  soft($('#shBody')).html = `<div class="gtext"><p id="ltBody">${esc(text)}</p>${at ? `<span class="ok">${esc(X.sentAt(fmtWhen(at)))}</span>` : ''}</div>
+    <div class="sheet-acts"><a class="btn pri" href="sms:${esc(num)}?&amp;body=${encodeURIComponent(text)}">${ic('text')}<span>${esc(X.openText)}</span></a><button type="button" class="btn sec" data-copy="${esc(text)}">${ic('copy')}<span>${esc(L().ct.copy)}</span></button>
+    ${DB && CAN_EDIT ? `<button type="button" class="btn sec" data-nstext="${esc(key)}" data-lead="${esc(l.id)}">${ic('check')}<span>${esc(X.markSent)}</span></button>` : ''}</div><p class="stamp">${esc(V().txtNote || '')}</p>`;
+}
+
+/* the claim sheet: the same layout as the lead (stage bar, next-step card with the adjuster date, then rows) */
+function renderClaimSheet(c){
+  const T = L(), C = T.ct, Zs = Z(), m = money(c), fin = c.stage === 'paid' || c.stage === 'lost';
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = strv(c.address) || c.id;
+  $('#shSub').innerHTML = `<span>${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span><span class="chip">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span>`;
+  $('#shTrack').innerHTML = '';
+  const i = cIdx(c), n = CLAIM_STEPS.length;
+  const bar = c.stage === 'lost' ? stageBar(0, n, C.lostLbl, '', false) : stageBar(c.stage === 'paid' ? n : i + 1, n, cStage(CLAIM_STEPS[Math.min(i, n - 1)]), i < n - 1 && c.stage !== 'paid' ? cStage(CLAIM_STEPS[i + 1]).toLowerCase() : '', c.stage === 'paid');
+  const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, a = claimAppt(c);
+  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {}, taps = [];
+  if (DB && CAN_EDIT && !fin) { if (m.acvAmt && !m.acvGot) taps.push([C.markAcv, 'acv']); if (m.mortOut) taps.push([C.markBack(m.mortCo || C.mortShort), 'back']); if (m.acvGot && !m.mortOut && !yesv(acv.deposited)) taps.push([C.markDeposit, 'dep']); }
+  const lead = leads.find(l => l.id === c.id);
+  const cal = a ? `<a class="btn sec calbtn" href="${esc(gcalUrl(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step}))}" target="_blank" rel="noopener" aria-label="${esc(Zs.addCal)}">${ic('cal')}</a>` : '';
+  const addTime = a && !a.time && SAMPLE && CAN_EDIT ? `<button type="button" class="btn sec block" data-tell="${esc(strv(c.address))}" data-pre="${esc(shortAddr(strv(c.address)) + (lang === 'es' ? ', ajustador a las ' : ', adjuster at '))}">${ic('clock')}<span>${esc(Zs.addTime)}</span></button>` : '';
+  const card = `<section class="card nextcard">${a ? `<span class="chip hmp" style="justify-self:start">${ic('clock')}${esc(CT().k.adjuster + ' · ' + whenLabel(a))}</span>` : whenChip(null, ns && dayOf(ns.due), fin)}
+    <h3>${esc(ns && txl(ns) ? txl(ns) : fin ? cStage(c.stage) : Zs.noNextJob)}</h3>
+    ${taps.length ? `<div class="taps">${taps.map(([lb, k]) => `<button type="button" class="tap" data-tap="${k}" data-label="${esc(lb)}">${esc(lb)}</button>`).join('')}</div><p class="taps-note">${esc(C.tapsNote)}</p>` : ''}
+    ${addTime || cal ? `<div class="${addTime && cal ? 'two' : ''}">${addTime}${cal && !addTime ? `<div class="sheet-acts">${calLink(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name}, 'btn sec')}</div>` : cal}</div>` : ''}
+    ${!taps.length && !fin && SAMPLE && CAN_EDIT && !addTime ? `<button type="button" class="btn sec" data-tell="${esc(strv(c.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button>` : ''}</section>`;
+  const row = (attrs, icon, t, s) => `<li><button type="button" class="row" ${attrs}><span class="lead">${ic(icon)}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></button></li>`;
+  const rows = [row(`data-open="cmo:${esc(c.id)}"`, 'money', Zs.rMoney, Zs.rMoneyS(usd(m.collected), m.contract != null ? usd(m.contract) : m.approved ? usd(m.approved) : ''))];
+  if (c.stage === 'adjuster_set') { const A = ADJM[lang], on = adjmGet(c.id).length, tot = Object.values(A.items).reduce((k, x) => k + x.length, 0); rows.push(row(`data-open="cadj:${esc(c.id)}"`, 'clip', Zs.rAdj, Zs.rAdjS(on, tot))); }
+  if (c.stage !== 'lost') rows.push(row(`data-open="cmk:${esc(c.id)}"`, 'check2', Zs.rChecklist, Zs.rChecklistS));
+  rows.push(row(`data-open="cdt:${esc(c.id)}"`, 'file', Zs.rDetails, Zs.rDetailsS));
+  if (lead) rows.push(row(`data-open="lead:${esc(lead.id)}"`, 'user', lang === 'es' ? 'El prospecto' : 'The lead', lstageName(lead, lead.stage)));
+  soft($('#shBody')).html = bar + card + `<ul class="rows moreRows">${rows.join('')}</ul>` + (fmtWhen(c.updated_at) ? `<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>` : '');
+}
+function claimSub(kind, id){   // cmo: money · cadj: adjuster checklist · cmk: money checklist · cdt: details + timeline
+  const c = claims.find(x => x.id === id); if (!c) { closeSheet(); return; }
+  const T = L(), C = T.ct, Zs = Z(), m = money(c);
+  $('#shEyebrow').textContent = ''; $('#shSub').textContent = strv(c.address) || c.id; $('#shTrack').innerHTML = '';
+  if (kind === 'cadj') { $('#shTitle').textContent = Zs.adjH; soft($('#shBody')).html = adjMeetBox(c.id); return; }
+  if (kind === 'cmk') { $('#shTitle').textContent = Zs.rChecklist; soft($('#shBody')).html = claimMoneyBox(c); return; }
+  if (kind === 'cmo') {
+    $('#shTitle').textContent = Zs.moneyH;
+    const acv = c.acv && typeof c.acv === 'object' ? c.acv : {}, led = [lrow(C.approvedTotal, usd(m.approved), 'total', [plainS(C.approvedHow)])], defS = t => `<span class="defn">${esc(t)}</span>`, DF = V().def;
+    if (m.rcv != null) led.push(lrow(C.rcv, usd(m.rcv), 'sub', [defS(DF.rcv)]));
+    if (m.acvAmt != null) { const mort = c.mortgage || {}, st = [];
+      st.push(m.acvGot ? okS(dayOf(acv.received) ? C.received(fmtDay(dayOf(acv.received))) : C.receivedYes) : plainS(C.notYet));
+      if (m.mortOut) st.push(waitS(C.atMortSince(m.mortCo || C.mortShort, dayOf(mort.check_sent) ? fmtDay(dayOf(mort.check_sent)) : '')));
+      else if (yesv(mort.check_returned) && !yesv(acv.deposited)) st.push(plainS(C.backFrom(m.mortCo || C.mortShort, dayOf(mort.check_returned) ? fmtDay(dayOf(mort.check_returned)) : '')));
+      if (yesv(acv.deposited)) st.push(okS(dayOf(acv.deposited) ? C.deposited(fmtDay(dayOf(acv.deposited))) : C.depositedYes)); else if (m.acvGot && !m.mortOut) st.push(waitS(C.notDeposited));
+      led.push(lrow(C.acv, usd(m.acvAmt), 'sub', [defS(DF.acv), ...st])); }
+    const depc = c.depreciation_check || {};
+    if (m.held != null) led.push(lrow(C.depHeld, usd(m.held), 'sub', [defS(DF.dep), m.depIn ? okS(`${C.depCheck}: ${usd(m.depAmt)}${dayOf(depc.date) ? ' · ' + fmtDay(dayOf(depc.date)) : ''}`) : plainS(C.depHint)]));
+    else if (m.depIn) led.push(lrow(C.depCheck, usd(m.depAmt), 'sub', [okS(dayOf(depc.date) ? C.received(fmtDay(dayOf(depc.date))) : C.receivedYes)]));
+    for (const s of m.supps) { const asked = numv(s.asked), appr = numv(s.approved), st = [];
+      if (asked != null) st.push(plainS(C.suppAsked(usd(asked)) + (dayOf(s.date) ? ' · ' + fmtDay(dayOf(s.date)) : ''))); else if (dayOf(s.date)) st.push(plainS(fmtDay(dayOf(s.date))));
+      st.push(appr != null ? okS(C.suppApproved(usd(appr))) : s.approved === true ? okS(C.suppYes) : s.approved === false ? plainS(C.suppNo) : waitS(C.suppWait));
+      const what = txl(s.item); led.push(lrow(what ? `${C.supp}: ${what}` : C.supp, appr != null ? usd(appr) : asked != null ? usd(asked) : '', 'sub', st)); }
+    led.push(lrow(C.collectedTotal, usd(m.collected), 'total', m.contract != null ? [plainS(C.ofContract(usd(m.contract)))] : []));
+    soft($('#shBody')).html = `<section class="box"><div class="ledger">${led.join('')}</div>${m.ded != null ? `<div class="hopays"><span>${esc(C.homeownerPays)}</span><span class="a">${usd(m.ded)}</span></div>` : ''}</section><p class="a-rules">${esc(C.rules)}</p>`;
+    return;
+  }
+  $('#shTitle').textContent = Zs.detailsH;
+  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {}, adj = c.adjuster && typeof c.adjuster === 'object' ? c.adjuster : {}, mort = c.mortgage && typeof c.mortgage === 'object' ? c.mortgage : {};
+  const mat = c.materials && typeof c.materials === 'object' ? c.materials : {}, inst = c.install && typeof c.install === 'object' ? c.install : {}, depc = c.depreciation_check || {};
+  const parts = [`<section class="box"><h3>${esc(C.facts)}</h3>${factsHtml([[C.insurer, esc(strv(c.insurer))], [C.claimNo, esc(strv(c.claim_no))], [C.adjuster, esc(strv(adj.name))], [C.adjPhone, strv(adj.phone) ? copyHtml(strv(adj.phone)) : ''],
+    [C.dateOfLoss, fmtFact(c.date_of_loss)], [C.adjMeeting, fmtFact(c.adjuster_date)], [C.scopeDate, fmtFact(c.scope_date)],
+    ...(strv(mort.company) || yesv(mort.check_sent) ? [[C.mortCo, esc(strv(mort.company))], [C.checkSent, fmtFact(mort.check_sent)], [C.checkBack, fmtFact(mort.check_returned)]] : [])])}</section>`,
+    `<section class="box"><h3>${esc(C.job)}</h3>${factsHtml([[C.contract, m.contract != null ? usd(m.contract) : ''], [C.ordered, fmtFact(mat.ordered)], [C.supplier, esc(strv(mat.supplier))], [C.matCost, numv(mat.cost) != null ? usd(numv(mat.cost)) : ''], [C.installStart, fmtFact(inst.start)], [C.installDone, fmtFact(inst.done)], [C.completion, fmtFact(c.completion_sent)]])}</section>`];
+  const ev = []; const add = (v, text, k) => { const d = dayOf(v); if (d) ev.push({d, text, k: k || ''}); };
+  add(c.date_of_loss, C.evLoss); add(c.adjuster_date, C.evAdj); add(c.scope_date, C.evScope); add(acv.received, C.evAcv(m.acvAmt ? usd(m.acvAmt) : ''), 'cash');
+  add(mort.check_sent, C.evMortOut(m.mortCo || C.mortShort)); add(mort.check_returned, C.evMortBack(m.mortCo || C.mortShort)); add(acv.deposited, C.evDeposit, 'cash');
+  for (const s of m.supps) add(s.date, C.evSupp(numv(s.asked) != null ? usd(numv(s.asked)) : ''));
+  add(mat.ordered, C.evMat(strv(mat.supplier))); add(inst.start, C.evStart); add(inst.done, C.evDone); add(c.completion_sent, C.evCompletion); add(depc.date, C.evDepCheck(m.depAmt ? usd(m.depAmt) : ''), 'cash');
+  const t0 = todayStr(); for (const e of ev) if (e.d > t0) e.k += ' future';
+  const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, nd = ns && dayOf(ns.due);
+  if (nd && txl(ns) && c.stage !== 'paid' && c.stage !== 'lost') ev.push({d: nd, text: txl(ns), k: nd >= t0 ? 'future' : 'future late'});
+  ev.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
+  parts.push(`<section class="box"><h3>${esc(C.timeline)}</h3>${ev.length ? `<ol class="tlx">${ev.map(e => `<li class="${e.k.trim()}"><span class="d">${esc(fmtDay(e.d))}</span><span class="dot"></span><span class="t">${e.k.includes('future') ? `<small>${esc(e.k.includes('late') ? C.overdue(-daysFromToday(e.d), fmtDay(e.d)) : C.evNext)}</small>` : ''}${esc(e.text)}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(C.noEvents)}</p>`}</section>`);
+  const note = typeof c.notes === 'string' ? c.notes.trim() : txl(c.notes);
+  if (note) parts.push(`<section class="box"><h3>${esc(C.notes)}</h3><p class="notes">${esc(note)}</p></section>`);
+  if (SAMPLE && CAN_EDIT) parts.push(`<div class="sheet-acts"><button type="button" class="btn sec" data-tell="${esc(strv(c.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button></div>`);
+  soft($('#shBody')).html = parts.join('');
+}
+
 function renderSheet(){
   if (!openRef) return;
   const [kind, id] = [openRef.slice(0, openRef.indexOf(':')), openRef.slice(openRef.indexOf(':') + 1)];
@@ -3445,105 +3710,13 @@ function renderSheet(){
   if (kind === 'est') { renderEst(id); return; }
   if (kind === 'ord') { ORD.render(id); return; }   // v22
   if (kind === 'adj') { renderAdj(id); return; }    // v22
-  if (kind === 'lead') {
-    const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; }
-    const V0 = V();
-    $('#shEyebrow').textContent = [SOURCES.includes(l.source) ? T.src[l.source] : '', LTYPES.includes(l.type) ? T.typ[l.type] : ''].filter(Boolean).join(' · ');
-    $('#shTitle').textContent = strv(l.address) || l.id; $('#shSub').textContent = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · ');
-    soft($('#shTrack')).html = leadTrack(l);
-    const v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
-    const claim = claims.find(c => c.id === l.id);
-    const late = lateLeads().find(x => x.l.id === l.id);
-    const parts = [nsCard(l), calBox(l)];   // v19: the Next-step card comes first; v22: then the appointment + Add to calendar
-    if (late) parts.push(`<p class="k-stale" style="border-left-color:var(--crit);background:var(--crit-soft)"><span><b style="color:var(--crit)">${esc(V0.late(whoOf(l), late.days))}</b> ${esc(V0.lateWhat)}</span></p>`);
-    parts.push(nextBox(l.next_step, ['done', 'lost'].includes(l.stage), 'div'));
-    if (l.type === 'cash' && numv(l.contract_price) != null) { const m = cashMoney(l);
-      parts.push(`<section class="box"><h3>${esc(T.cashH)}</h3>${m.plan ? `<div class="paytrack" style="border-top:0;padding-top:0">${m.plan.map(payCell).join('')}</div>` : ''}<div class="ledger">${lrow(T.price, usd(m.price), 'total')}${!m.plan && m.dep != null ? lrow(T.deposit, usd(m.dep), 'sub') : ''}${lrow(T.paidSoFar, usd(m.got), 'sub')}${lrow(T.owed, usd(m.owed), 'total')}</div></section>`); }
-    const estS = l.estimate && typeof l.estimate === 'object' && numv(l.estimate.low) != null ? l.estimate : null, estFin = ['done', 'lost'].includes(l.stage);
-    if (estS || !estFin) parts.push(`<section class="box"><h3>${esc(T.estH)}</h3>${estS && window.EstimateScreen ? `<p class="est-saved">${esc(EstimateScreen.savedLine(estS, lang))}</p>` : ''}${!estFin ? `<div class="sheet-acts"><button type="button" class="btn" data-open="est:${esc(l.id)}">${esc(estS ? T.estUpd : T.estNew)}</button></div>` : ''}</section>`);
-    parts.push(hoLeadBox(l));   // v21: Show homeowner + Send report
-    parts.push(orderBox(l));    // v22: the saved material order list
-    const tb = textBox(l); if (tb) parts.push(tb);
-    if (ASSETS) parts.push(photosBox(l));
-    { const sid = nsStepOf(l), kind = leadKind(l), n = !sid ? 0 : sid === 'finished' ? 9 : nsNum(sid);   // v19: the 8 sale steps
-      parts.push(`<section class="box"><h3>${esc(T.stepsH)}</h3><ol class="steps">${nsIdsFor(kind).map((id, k) => `<li class="${!sid ? '' : k + 1 < n ? 'done' : k + 1 === n ? 'now' : ''}"><i>${k + 1}</i>${esc(nsName(id, kind))}</li>`).join('')}</ol></section>`); }
-    // details: only what we know; a missing name or phone says "Ask the homeowner" (QA 7)
-    const miss = [!strv(l.first_name) ? 'name' : '', !strv(l.phone) ? 'phone' : ''].filter(Boolean);
-    const pairs = [[T.lName, esc(strv(l.first_name))], [T.lPhone, strv(l.phone) ? copyHtml(strv(l.phone)) : ''], [T.lCity, esc(strv(l.city))], [T.lSource, SOURCES.includes(l.source) ? esc(T.src[l.source]) : ''], [T.lType, LTYPES.includes(l.type) ? esc(T.typ[l.type]) : '']].filter(p => p[1]);
-    if (miss.length) pairs.unshift([miss.length === 2 ? V0.askBoth : miss[0] === 'name' ? V0.askName : V0.askPhone, `<span style="color:var(--warn);font-weight:700">${esc(V0.ask)}</span>`]);
-    parts.push(`<section class="box"><h3>${esc(T.detailsH)}</h3>${factsHtml(pairs)}</section>`);
-    parts.push(`<section class="box"><h3>${esc(T.visitsH)}</h3>${v.length ? `<ol class="tlx">${v.slice().reverse().map(x => `<li><span class="d">${dayOf(x.date) ? esc(fmtDay(dayOf(x.date))) : ''}</span><span class="dot"></span><span class="t">${esc(K().res[x.result] || x.result || '')}${x.pass ? ' · ' + esc(K().pass(x.pass).replace(/<\/?b>/g, '')) : ''}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(T.noVisits)}</p>`}</section>`);
-    const note = typeof l.notes === 'string' ? l.notes.trim() : txl(l.notes);
-    if (note) parts.push(`<section class="box"><h3>${esc(T.notesH)}</h3><p class="notes">${esc(note)}</p></section>`);
-    const ev = proofFor(l.address, l.city);
-    parts.push(`<div class="sheet-acts">${ev ? `<button type="button" class="proof" data-open="proof:${esc(evKey(l.address, l.city))}">${esc(V0.proof)}</button>` : ''}${claim ? `<button type="button" class="btn" data-open="claim:${esc(claim.id)}">${esc(T.openClaim)}</button>` : ''}${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(l.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
-    const st = [dayOf(l.created_at) ? T.created(fmtDay(dayOf(l.created_at))) : '', fmtWhen(l.updated_at) ? C.updated(fmtWhen(l.updated_at), strv(l.updated_by)) : ''].filter(Boolean).join(' · ');
-    if (st) parts.push(`<p class="stamp">${esc(st)}</p>`);
-    soft($('#shBody')).html = parts.join('');
-    return;
-  }
+  if (kind === 'lead') { const l = leads.find(x => x.id === id); if (!l) { closeSheet(); return; } renderLeadSheet(l); return; }   // v25
+  if (kind === 'lph') { renderLeadPhotos(id); return; }
+  if (kind === 'lnv') { renderLeadNotes(id); return; }
+  if (kind === 'lt') { renderLeadText(openRef); return; }
+  if (['cmo', 'cadj', 'cmk', 'cdt'].includes(kind)) { claimSub(kind, id); return; }
   const c = claims.find(x => x.id === id); if (!c) { closeSheet(); return; }
-  const m = money(c);
-  $('#shEyebrow').textContent = [strv(c.insurer), strv(c.claim_no) ? `${C.claim} ${strv(c.claim_no)}` : ''].filter(Boolean).join(' · ');
-  $('#shTitle').textContent = strv(c.address) || c.id;
-  $('#shSub').textContent = [strv(c.city), strv(c.homeowner_first_name) ? `${C.homeowner}: ${strv(c.homeowner_first_name)}` : ''].filter(Boolean).join(' · ');
-  soft($('#shTrack')).html = claimTrack(c);
-  const parts = [nextBox(c.next_step, c.stage === 'paid' || c.stage === 'lost', 'div')];
-  { const ca = claimAppt(c); if (ca) parts.push(calBoxFor(ca, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step})); }   // v22
-  // quick taps (editors only)
-  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {};
-  if (DB && CAN_EDIT && c.stage !== 'paid' && c.stage !== 'lost') {
-    const acts = [];
-    if (m.acvAmt && !m.acvGot) acts.push([C.markAcv, 'acv']);
-    if (m.mortOut) acts.push([C.markBack(m.mortCo || C.mortShort), 'back']);
-    if (m.acvGot && !m.mortOut && !yesv(acv.deposited)) acts.push([C.markDeposit, 'dep']);
-    if (acts.length) parts.push(`<section class="box"><h3>${esc(C.taps)}</h3><div class="taps">${acts.map(([lb, k]) => `<button type="button" class="tap" data-tap="${k}" data-label="${esc(lb)}">${esc(lb)}</button>`).join('')}</div><p class="taps-note">${esc(C.tapsNote)}</p></section>`);
-  }
-  const led = [lrow(C.approvedTotal, usd(m.approved), 'total', [plainS(C.approvedHow)])];
-  const defS = t => `<span class="defn">${esc(t)}</span>`, DF = V().def;
-  if (m.rcv != null) led.push(lrow(C.rcv, usd(m.rcv), 'sub', [defS(DF.rcv)]));
-  if (m.acvAmt != null) { const mort = c.mortgage || {}, st = [];
-    st.push(m.acvGot ? okS(dayOf(acv.received) ? C.received(fmtDay(dayOf(acv.received))) : C.receivedYes) : plainS(C.notYet));
-    if (m.mortOut) st.push(waitS(C.atMortSince(m.mortCo || C.mortShort, dayOf(mort.check_sent) ? fmtDay(dayOf(mort.check_sent)) : '')));
-    else if (yesv(mort.check_returned) && !yesv(acv.deposited)) st.push(plainS(C.backFrom(m.mortCo || C.mortShort, dayOf(mort.check_returned) ? fmtDay(dayOf(mort.check_returned)) : '')));
-    if (yesv(acv.deposited)) st.push(okS(dayOf(acv.deposited) ? C.deposited(fmtDay(dayOf(acv.deposited))) : C.depositedYes)); else if (m.acvGot && !m.mortOut) st.push(waitS(C.notDeposited));
-    led.push(lrow(C.acv, usd(m.acvAmt), 'sub', [defS(DF.acv), ...st])); }
-  const depc = c.depreciation_check || {};
-  if (m.held != null) led.push(lrow(C.depHeld, usd(m.held), 'sub', [defS(DF.dep), m.depIn ? okS(`${C.depCheck}: ${usd(m.depAmt)}${dayOf(depc.date) ? ' · ' + fmtDay(dayOf(depc.date)) : ''}`) : plainS(C.depHint)]));
-  else if (m.depIn) led.push(lrow(C.depCheck, usd(m.depAmt), 'sub', [okS(dayOf(depc.date) ? C.received(fmtDay(dayOf(depc.date))) : C.receivedYes)]));
-  for (const s of m.supps) { const asked = numv(s.asked), appr = numv(s.approved), st = [];
-    if (asked != null) st.push(plainS(C.suppAsked(usd(asked)) + (dayOf(s.date) ? ' · ' + fmtDay(dayOf(s.date)) : ''))); else if (dayOf(s.date)) st.push(plainS(fmtDay(dayOf(s.date))));
-    st.push(appr != null ? okS(C.suppApproved(usd(appr))) : s.approved === true ? okS(C.suppYes) : s.approved === false ? plainS(C.suppNo) : waitS(C.suppWait));
-    const what = txl(s.item); led.push(lrow(what ? `${C.supp}: ${what}` : C.supp, appr != null ? usd(appr) : asked != null ? usd(asked) : '', 'sub', st)); }
-  led.push(lrow(C.collectedTotal, usd(m.collected), 'total', m.contract != null ? [plainS(C.ofContract(usd(m.contract)))] : []));
-  if (c.stage === 'adjuster_set') parts.push(adjMeetBox(c.id));   // v24 · T114
-  parts.push(claimMoneyBox(c));   // v24 · T85
-  parts.push(`<section class="box"><h3>${esc(C.money)}</h3><div class="ledger">${led.join('')}</div>${m.ded != null ? `<div class="hopays"><span>${esc(C.homeownerPays)}:</span><span class="a">${usd(m.ded)}</span></div>` : ''}</section>`);
-  const i = cIdx(c);
-  parts.push(`<section class="box"><h3>${esc(C.steps)}</h3><ol class="steps">${CLAIM_STEPS.map((s, k) => `<li class="${c.stage === 'lost' ? '' : k < i || c.stage === 'paid' ? 'done' : k === i ? 'now' : ''}"><i>${k + 1}</i>${esc(cStage(s))}</li>`).join('')}</ol></section>`);
-  const adj = c.adjuster && typeof c.adjuster === 'object' ? c.adjuster : {}, mort = c.mortgage && typeof c.mortgage === 'object' ? c.mortgage : {};
-  parts.push(`<section class="box"><h3>${esc(C.facts)}</h3>${factsHtml([[C.insurer, esc(strv(c.insurer))], [C.claimNo, esc(strv(c.claim_no))], [C.adjuster, esc(strv(adj.name))], [C.adjPhone, strv(adj.phone) ? copyHtml(strv(adj.phone)) : ''],
-    [C.dateOfLoss, fmtFact(c.date_of_loss)], [C.adjMeeting, fmtFact(c.adjuster_date)], [C.scopeDate, fmtFact(c.scope_date)],
-    ...(strv(mort.company) || yesv(mort.check_sent) ? [[C.mortCo, esc(strv(mort.company))], [C.checkSent, fmtFact(mort.check_sent)], [C.checkBack, fmtFact(mort.check_returned)]] : [])])}</section>`);
-  const mat = c.materials && typeof c.materials === 'object' ? c.materials : {}, inst = c.install && typeof c.install === 'object' ? c.install : {};
-  parts.push(`<section class="box"><h3>${esc(C.job)}</h3>${factsHtml([[C.contract, m.contract != null ? usd(m.contract) : ''], [C.ordered, fmtFact(mat.ordered)], [C.supplier, esc(strv(mat.supplier))], [C.matCost, numv(mat.cost) != null ? usd(numv(mat.cost)) : ''], [C.installStart, fmtFact(inst.start)], [C.installDone, fmtFact(inst.done)], [C.completion, fmtFact(c.completion_sent)]])}</section>`);
-  // timeline
-  const ev = []; const add = (v, text, k) => { const d = dayOf(v); if (d) ev.push({d, text, k: k || ''}); };
-  add(c.date_of_loss, C.evLoss); add(c.adjuster_date, C.evAdj); add(c.scope_date, C.evScope); add(acv.received, C.evAcv(m.acvAmt ? usd(m.acvAmt) : ''), 'cash');
-  add(mort.check_sent, C.evMortOut(m.mortCo || C.mortShort)); add(mort.check_returned, C.evMortBack(m.mortCo || C.mortShort)); add(acv.deposited, C.evDeposit, 'cash');
-  for (const s of m.supps) add(s.date, C.evSupp(numv(s.asked) != null ? usd(numv(s.asked)) : ''));
-  add(mat.ordered, C.evMat(strv(mat.supplier))); add(inst.start, C.evStart); add(inst.done, C.evDone); add(c.completion_sent, C.evCompletion); add(depc.date, C.evDepCheck(m.depAmt ? usd(m.depAmt) : ''), 'cash');
-  const t0 = todayStr(); for (const e of ev) if (e.d > t0) e.k += ' future';
-  const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, nd = ns && dayOf(ns.due);
-  if (nd && txl(ns) && c.stage !== 'paid' && c.stage !== 'lost') ev.push({d: nd, text: txl(ns), k: nd >= t0 ? 'future' : 'future late'});
-  ev.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
-  parts.push(`<section class="box"><h3>${esc(C.timeline)}</h3>${ev.length ? `<ol class="tlx">${ev.map(e => `<li class="${e.k.trim()}"><span class="d">${esc(fmtDay(e.d))}</span><span class="dot"></span><span class="t">${e.k.includes('future') ? `<small>${esc(e.k.includes('late') ? C.overdue(-daysFromToday(e.d), fmtDay(e.d)) : C.evNext)}</small>` : ''}${esc(e.text)}</span></li>`).join('')}</ol>` : `<p class="stamp">${esc(C.noEvents)}</p>`}</section>`);
-  const note = typeof c.notes === 'string' ? c.notes.trim() : txl(c.notes);
-  if (note) parts.push(`<section class="box"><h3>${esc(C.notes)}</h3><p class="notes">${esc(note)}</p></section>`);
-  const lead = leads.find(l => l.id === c.id);
-  if (lead || (SAMPLE && CAN_EDIT)) parts.push(`<div class="sheet-acts">${SAMPLE && CAN_EDIT ? `<button type="button" class="btn" data-tell="${esc(strv(c.address))}">${esc(T.tellKing)}</button>` : ''}</div>`);
-  if (fmtWhen(c.updated_at)) parts.push(`<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>`);
-  soft($('#shBody')).html = parts.join('');
+  renderClaimSheet(c);
 }
 $('#shBody').addEventListener('click', async ev => {
   const b = ev.target.closest('button'); if (!b) return;
@@ -3556,10 +3729,10 @@ $('#shBody').addEventListener('click', async ev => {
   if (b.dataset.back) { const r = sheetBack; sheetBack = null; if (r) { openRef = r; renderSheet(); $('#shBody').scrollTop = 0; } return; }
   if (b.dataset.ph) { phOpen = b.dataset.ph; phArm = null; renderSheet(); const v = $('.ph-view'); if (v) v.scrollIntoView({block: 'nearest'}); return; }
   if (b.dataset.phclose) { phOpen = null; phArm = null; renderSheet(); return; }
-  if (b.dataset.phrm) { if (phArm !== b.dataset.phrm) { phArm = b.dataset.phrm; renderSheet(); return; } await removePhoto(openRef.slice(5), b.dataset.phrm); return; }
-  if (b.dataset.chk) { await toggleCheck(openRef.slice(5), b.dataset.chk); return; }
-  if (b.dataset.txt) { txtPick[openRef.slice(5)] = b.dataset.txt; renderSheet(); return; }
-  if (b.dataset.texted) { b.disabled = true; await markTexted(openRef.slice(5), b.dataset.texted); return; }
+  if (b.dataset.phrm) { if (phArm !== b.dataset.phrm) { phArm = b.dataset.phrm; renderSheet(); return; } await removePhoto(refLeadId(), b.dataset.phrm); return; }
+  if (b.dataset.chk) { await toggleCheck(refLeadId(), b.dataset.chk); return; }
+  if (b.dataset.txt) { txtPick[refLeadId()] = b.dataset.txt; renderSheet(); return; }
+  if (b.dataset.texted) { b.disabled = true; await markTexted(refLeadId(), b.dataset.texted); return; }
   if (b.dataset.tell != null) { openRH(b.dataset.pre != null ? b.dataset.pre : b.dataset.tell + ', '); return; }   // v24: the Right Hand sheet, pre-filled
   if (b.dataset.tap) {
     if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = C.confirm; b._t = setTimeout(() => { b.classList.remove('armed'); b.textContent = b.dataset.label; }, 4000); return; }
@@ -3577,7 +3750,7 @@ document.addEventListener('click', ev => {
   const dn = ev.target.closest('[data-done]'); if (dn) { doneAndReview(); return; }
   const pr = ev.target.closest('[data-print]'); if (pr) { if (openRef) closeSheet(); PrintWalk.open(pr.isConnected ? pr : $('#moreBtn')); return; }
 });
-$('#shBody').addEventListener('change', ev => { const inp = ev.target.closest('input[type=file][data-slot]'); if (!inp || !openRef || !openRef.startsWith('lead:')) return; const files = inp.files; if (files && files.length) addPhotos(openRef.slice(5), inp.dataset.slot, files); });
+$('#shBody').addEventListener('change', ev => { const inp = ev.target.closest('input[type=file][data-slot]'); if (!inp || !refLeadId()) return; const files = inp.files; if (files && files.length) addPhotos(refLeadId(), inp.dataset.slot, files); });
 $('#shBody').addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.ph'); if (ph) ph.classList.add('gone'); } }, true);
 $('#shClose').addEventListener('click', closeSheet);
 $('#shBack').addEventListener('click', () => { const r = sheetBack; sheetBack = null; if (r) { openRef = r; $('#sheetWrap').dataset.k = r.slice(0, r.indexOf(':')); $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(r.slice(0, r.indexOf(':')))); renderSheet(); $('#shBody').scrollTop = 0; } });
@@ -3654,7 +3827,7 @@ const MLX = {
   en: {cal: 'Add to calendar', photos: 'Photo checklist', est: 'Price it', show: 'Show homeowner', paper: 'Paperwork checklist', order: 'Order materials', adj: 'Adjuster prep checklist', review: 'Ask for a review'},
   es: {cal: 'Agregar al calendario', photos: 'Lista de fotos', est: 'Sacar precio', show: 'Enseñar al dueño', paper: 'Lista de papeles', order: 'Pedir material', adj: 'Lista para el ajustador', review: 'Pedir una reseña'}
 };
-function openSub(ref){ const back = openRef && openRef.startsWith('lead:') ? openRef : null; openSheet(ref, null); if (back && openRef === ref) { sheetBack = back; renderSheet(); } }
+function openSub(ref){ const back = openRef && refLeadId() ? openRef : null; openSheet(ref, null); if (back && openRef === ref) { sheetBack = back; renderSheet(); } }
 function scrollSheet(sel){ requestAnimationFrame(() => { const n = document.querySelector('#shBody ' + sel); if (!n) return; n.scrollIntoView({block: 'start', behavior: RM ? 'auto' : 'smooth'});
   const f = n.querySelector('button:not([disabled]), a[href], input'); if (f) f.focus({preventScroll: true}); }); }
 function milestoneActs(l0, lp, sid, kind){
@@ -3662,7 +3835,7 @@ function milestoneActs(l0, lp, sid, kind){
   const cal = () => { const a = apptOf(lp); if (a) out.push({label: M.cal, href: gcalUrl(a, lp), kind: 'cal'}); };
   const go = (label, fn, k) => out.push({label, run: fn, kind: k});
   if (sid === 'door') cal();
-  else if (sid === 'set') { if (kind === 'cash') go(M.est, () => openSub('est:' + id), 'est'); else if (ASSETS) go(M.photos, () => scrollSheet('#phBox'), 'photos'); }
+  else if (sid === 'set') { if (kind === 'cash') go(M.est, () => openSub('est:' + id), 'est'); else if (ASSETS) go(M.photos, () => openSub('lph:' + id), 'photos'); }
   else if (sid === 'inspect') go(M.show, () => HO.open({leadId: id}), 'show');
   else if (sid === 'table') go(M.paper, () => scrollSheet('#nsCard'), 'paper');
   else if (sid === 'paper') go(M.order, () => openSub('ord:' + id), 'order');
@@ -3936,7 +4109,7 @@ function renderAdj(id){
     [A.meas, measOk, hasOrder(l) ? esc(orderLine(l)) : '']
   ];
   const X = NX(), packed = ticked(l, 'packed');
-  const li = ([label, on, val, tell]) => `<li class="ns-it${on ? ' on' : ''}"><span class="chk" role="img" aria-label="${esc(on ? '✓ ' + label : label)}">${on ? '✓' : ''}</span><div class="ns-itt"><span>${esc(label)}</span>${val ? `<span class="ns-val">${val}</span>` : ''}${!on ? `<span class="ns-hint warn">${esc(tell ? A.ask : A.missing)}</span>` : ''}</div></li>`;
+  const li = ([label, on, val, tell]) => `<li class="ns-it${on ? ' on' : ''}"><span class="chk" role="img" aria-label="${esc(on ? '✓ ' + label : label)}">${on ? ic('check') : ''}</span><div class="ns-itt"><span>${esc(label)}</span>${val ? `<span class="ns-val">${val}</span>` : ''}${!on ? `<span class="ns-hint warn">${esc(tell ? A.ask : A.missing)}</span>` : ''}</div></li>`;
   const back = sheetBack ? `<div class="sheet-acts"><button type="button" class="btn" data-back="1">${esc(V().back)}</button></div>` : '';
   soft($('#shBody')).html = `${back}<div class="adj" id="adjSheet">
     <section class="ns" aria-labelledby="adjH"><div class="ns-top"><span class="ns-of">${esc(A.eb)}</span></div><h3 class="ns-name" id="adjH">${esc(A.h)}</h3>
@@ -3945,7 +4118,7 @@ function renderAdj(id){
       <div class="ns-sec"><b class="ns-lb">${esc(A.bringH)}</b><ul class="adj-bring">${A.bring.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <p class="ns-tip"><b>${esc(X.tip)}</b>${esc(X.tips.adjuster)}</p>
       <p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.claim)}</p>
-      <div class="adj-pack"><button type="button" class="chk" role="checkbox" aria-checked="${packed}" aria-label="${esc(A.packed)}" data-nstick="packed" data-lead="${esc(l.id)}"${can ? '' : ' disabled'}>${packed ? '✓' : ''}</button><span>${esc(A.packed)}</span></div>
+      <div class="adj-pack"><button type="button" class="chk" role="checkbox" aria-checked="${packed}" aria-label="${esc(A.packed)}" data-nstick="packed" data-lead="${esc(l.id)}"${can ? '' : ' disabled'}>${packed ? ic('check') : ''}</button><span>${esc(A.packed)}</span></div>
       ${can ? '' : `<p class="ns-hint">${esc(A.roNote)}</p>`}
     </section>${adjMeetBox(c ? c.id : l.id)}</div>`;
 }
@@ -4550,6 +4723,7 @@ const ZX = {
     owed: 'Owed to HMP', onJobs: n => `on ${n} open ${pl(n, 'job', 'jobs')}`, atMort: 'At the mortgage co.', atMortS: 'check needs signing', held: 'Held by insurer', heldS: 'after the build', heldS2: 'not paid yet',
     hoDed: 'Homeowner deductible', suppOk: 'Supplement approved', cashOwed: 'Cash jobs', cashOwedS: 'homeowners owe', inHand: v => `Checks in hand, not deposited: ${v}`, collected: v => `Collected so far: ${v}`,
     chase: 'To chase', openJobs: 'Open jobs', paidN: n => `Paid (${n})`, openN: 'Open jobs', stepOf: (s, i, n) => [s, `step ${i} of ${n}`], nextS: s => `next: ${s}`, noNextJob: 'Tell the Right Hand what happens next',
+    mortChase: co => `${co}: sign the check`, suppChase: (i, a) => [i || 'Supplement', a].filter(Boolean).join(', '),
     days: n => `${n} ${pl(n, 'day', 'days')}`, insurance: 'Insurance', cash: 'Cash', price: 'Price', paidSoFar: 'Paid', stillOwed: 'Owed',
     emptyEb: 'Money', emptyH: 'No signed jobs yet', emptyP: 'When a homeowner signs, tell the Right Hand. The job, what came in and what is still owed show up here.', logJob: 'Log a signed job',
     howPaid: 'How an insurance job gets paid', howDays: '45–90 days', youDo: 'You do this', them: 'Homeowner or insurer', signedAsk: 'Signed today: ',
@@ -4598,6 +4772,7 @@ const ZX = {
     owed: 'Le deben a HMP', onJobs: n => `en ${n} ${pl(n, 'trabajo abierto', 'trabajos abiertos')}`, atMort: 'Con el banco hipotecario', atMortS: 'falta firmar el cheque', held: 'Lo retiene el seguro', heldS: 'después de la obra', heldS2: 'sin pagar todavía',
     hoDed: 'Deducible del dueño', suppOk: 'Suplemento aprobado', cashOwed: 'Trabajos de contado', cashOwedS: 'deben los dueños', inHand: v => `Cheques en mano, sin depositar: ${v}`, collected: v => `Cobrado hasta hoy: ${v}`,
     chase: 'Para cobrar', openJobs: 'Trabajos abiertos', paidN: n => `Pagados (${n})`, openN: 'Trabajos abiertos', stepOf: (s, i, n) => [s, `paso ${i} de ${n}`], nextS: s => `sigue: ${s}`, noNextJob: 'Dile a la Mano Derecha qué sigue',
+    mortChase: co => `${co}: firmar el cheque`, suppChase: (i, a) => [i || 'Suplemento', a].filter(Boolean).join(', '),
     days: n => `${n} ${pl(n, 'día', 'días')}`, insurance: 'Seguro', cash: 'Contado', price: 'Precio', paidSoFar: 'Pagado', stillOwed: 'Deben',
     emptyEb: 'Dinero', emptyH: 'Todavía no hay trabajos firmados', emptyP: 'Cuando un dueño firme, díselo a la Mano Derecha. El trabajo, lo cobrado y lo que falta salen aquí.', logJob: 'Anotar un trabajo firmado',
     howPaid: 'Cómo se cobra un trabajo de seguro', howDays: '45–90 días', youDo: 'Lo haces tú', them: 'El dueño o el seguro', signedAsk: 'Firmado hoy: ',
@@ -5199,7 +5374,7 @@ function adjmSet(id, v){ try { localStorage.setItem(adjmKey(id), JSON.stringify(
 function adjMeetBox(id){
   const A = ADJM[lang], on = adjmGet(id), total = Object.values(A.items).reduce((n, x) => n + x.length, 0);
   const grp = g => `<h4 class="dg-h">${esc(A.g[g])}</h4><ul class="ns-ck">${A.items[g].map((t, i) => { const k = g + i, y = on.includes(k);
-    return `<li class="ns-it${y ? ' on' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${y}" aria-label="${esc(t)}" data-adjm="${esc(k)}" data-adjmid="${esc(id)}">${y ? '✓' : ''}</button><div class="ns-itt"><span>${esc(t)}</span></div></li>`; }).join('')}</ul>`;
+    return `<li class="ns-it${y ? ' on' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${y}" aria-label="${esc(t)}" data-adjm="${esc(k)}" data-adjmid="${esc(id)}">${y ? ic('check') : ''}</button><div class="ns-itt"><span>${esc(t)}</span></div></li>`; }).join('')}</ul>`;
   return `<section class="box" id="adjmBox"><h3>${esc(A.h)} <small class="n">${esc(A.left(on.length, total))}</small></h3>${grp('before')}${grp('during')}${grp('after')}
     <p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(A.can)}</p><p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(A.cant)}</p><p class="stamp">${esc(A.note)}</p></section>`;
 }
