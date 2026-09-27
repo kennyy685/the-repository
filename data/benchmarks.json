@@ -8,7 +8,8 @@
   "doors_to_conversation": {
     "unit": "% of doors knocked that result in any conversation (answer)",
     "low": 20, "typical": 30, "high": 40,
-    "source": "vendor blogs (spotio.com, theroofstrategist.com) - typical door-to-door answer rate"
+    "source": "vendor blogs (spotio.com, theroofstrategist.com) - typical door-to-door answer rate",
+    "verified": "2026-09-27 (round 43): direct fetch of spotio.com/blog/door-to-door-sales/ confirms 'the target is typically a 30-40% contact rate on a given pass through a neighborhood' - typical/high match exactly; SPOTIO's own stated floor is 30%, a bit above this file's low of 20% (20% likely covers weaker/rookie performers this specific quote doesn't address) - kept low as-is, not changed."
   },
   "doors_per_hour": {
     "unit": "doors knocked per hour in normal neighborhoods (25-35 on a tight route)",
@@ -43,7 +44,8 @@
   "overall_close_rate_exclusive_leads": {
     "unit": "% of exclusive/own-generated leads (like door knocks) that close",
     "low": 25, "typical": 30, "high": 35,
-    "source": "subcontractorhub.com industry benchmark commentary"
+    "source": "subcontractorhub.com industry benchmark commentary",
+    "verified": "2026-09-27 (round 43): corroborated (not identical metric) by a direct fetch of spotio.com/blog/door-to-door-sales/, which independently states 'well-run teams close 30-40% of qualified inspection leads' - same order of magnitude from a second, directly-opened source. subcontractorhub.com itself was not reachable this round to confirm word-for-word."
   },
   "overall_close_rate_shared_leads": {
     "unit": "% close rate for shared/bought leads (NOT what HMP uses - no bought lists - kept for contrast only)",
