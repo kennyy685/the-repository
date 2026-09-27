@@ -18,6 +18,10 @@ class TestLegalCheck(unittest.TestCase):
         failures = legal_check.check_cancel_notice_elements()
         self.assertEqual(failures, [], "\n".join(failures))
 
+    def test_contingency_elements(self):
+        failures = legal_check.check_contingency_elements()
+        self.assertEqual(failures, [], "\n".join(failures))
+
     def test_banned_phrases(self):
         failures = legal_check.check_banned_phrases()
         if failures:

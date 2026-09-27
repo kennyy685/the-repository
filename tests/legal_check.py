@@ -6,16 +6,23 @@ Runnable standalone:
 
 Also wired into `hh.py selftest` via tests/test_legal_check.py.
 
-Three checks, each printing every failure it finds (file + line), not just the first:
+Four checks, each printing every failure it finds (file + line), not just the first:
 
 1. STATUTE MATCH - the Nebraska 44-8607 deductible notice printed in
-   docs/print/contract-draft.html and the English copy inside
-   docs/print/contract-draft-es.html must contain the statute's required capitalized
-   sentence, word-for-word (case/whitespace-insensitive), taken straight from
-   docs/legal/44-8607.txt.
+   docs/print/contract-draft.html, docs/print/contingency-agreement.html and the English
+   copy inside docs/print/contract-draft-es.html / contingency-agreement-es.html must
+   contain the statute's required capitalized sentence, word-for-word
+   (case/whitespace-insensitive), taken straight from docs/legal/44-8607.txt.
 2. CANCEL NOTICE ELEMENTS - docs/print/cancel-notice.html must have, in BOTH its
    English (lang="en") and Spanish (lang="es") sections: the three-business-day
    right, how-to-cancel instructions, and HMP's business mailing address.
+2b. CONTINGENCY AGREEMENT ELEMENTS (T188) - docs/print/contingency-agreement.html (EN)
+   and -es.html (ES): contingent on approval / nothing owed on denial, the 69-1604(1)
+   notice word for word from docs/legal/69-1604.txt, the 44-8603 insurance cancel right,
+   2 Notice of Cancellation copies per language (the ES file adds 2 English copies for
+   69-1604(3)), no assignment / not on the check (44-8605), the 44-8606 itemized-
+   description promise, address + phone, the registration line, the draft note, and
+   never "licensed/licenciado".
 3. BANNED PHRASES - every text file under docs/print/, every pages/*.html and every
    data/*.json must not
    make banned claims ("we say registered, not licensed", never say we cover/waive/
@@ -166,6 +173,126 @@ def check_cancel_notice_elements():
     return failures
 
 
+# Required wording in the contingency agreement, per language (compared after tags are stripped and
+# case/whitespace are normalized). Each entry = (what it proves, the exact phrase that must be there).
+_CONTINGENCY_REQUIRED = {
+    "en": [
+        ("header note: draft, pending attorney review", "draft, pending attorney review"),
+        ("contingent on the insurer approving the claim", "this agreement is contingent on your insurer approving your claim"),
+        ("denied claim: homeowner owes nothing, agreement ends", "if your insurer denies the claim, you owe hmp nothing and this agreement ends"),
+        ("no promise the insurer approves or pays", "hmp makes no promise that your insurer will approve or pay"),
+        ("HMP never negotiates the claim", "negotiate or settle your claim, or speak for you with your insurer"),
+        ("not a public adjuster", "act as your public adjuster"),
+        ("44-8605: no assignment, HMP not on the check",
+         "this agreement does not assign any of them to hmp, and hmp is not named as a payee or co-payee on any insurance check"),
+        ("44-8606: itemized description to the insured AND the insurer before work",
+         "before any repair or replacement work starts, hmp will give you and your insurer an itemized description"),
+        ("44-8603: cancel after the insurer's written not-covered notice",
+         "you may also cancel until midnight of the third business day after you receive written notice from your insurer that all or part of the claim"),
+        ("FTC / 69-1604 caption", "buyer's right to cancel"),
+        ("FTC right-to-cancel sentence",
+         "you, the buyer, may cancel this transaction at any time prior to midnight of the third business day after the date of this transaction"),
+        ("cancel form: three business days", "within three business days"),
+        ("cancel form: how to cancel", "to cancel this transaction, mail or deliver"),
+        ("registration line (registered, number left blank)", "registered nebraska contractor #"),
+        ("company phone", "402-889-3385"),
+    ],
+    "es": [
+        ("header note: borrador, pendiente de revisión", "borrador, pendiente de revisión por un abogado"),
+        ("contingent on the insurer approving the claim", "este acuerdo depende de que su aseguradora apruebe su reclamo"),
+        ("denied claim: homeowner owes nothing, agreement ends",
+         "si su aseguradora niega el reclamo, usted no le debe nada a hmp y este acuerdo termina"),
+        ("no promise the insurer approves or pays", "hmp no promete que su aseguradora vaya a aprobar o pagar"),
+        ("HMP never negotiates the claim", "negociar su reclamo ni el pago del seguro, ni hablar por usted con su aseguradora"),
+        ("not a public adjuster", "actuar como su ajustador público"),
+        ("44-8605: no assignment, HMP not on the check",
+         "este acuerdo no le cede ninguno a hmp, y hmp no aparece como beneficiario ni cobeneficiario en ningún cheque del seguro"),
+        ("44-8606: itemized description to the insured AND the insurer before work",
+         "antes de empezar cualquier trabajo de reparación o reemplazo, hmp les entregará a usted y a su aseguradora una descripción detallada"),
+        ("44-8603: cancel after the insurer's written not-covered notice",
+         "también puede cancelar hasta la medianoche del tercer día hábil después de recibir un aviso por escrito de su aseguradora de que todo o parte del reclamo"),
+        ("caption (Spanish)", "derecho del comprador a cancelar"),
+        ("FTC right-to-cancel sentence (Spanish)",
+         "usted, el comprador, puede cancelar esta transacción en cualquier momento antes de la medianoche del tercer día hábil"),
+        ("cancel form: three business days (Spanish)", "dentro de tres días hábiles"),
+        ("cancel form: how to cancel (Spanish)", "para cancelar esta transacción, envíe por correo"),
+        # 69-1604(3): HMP sells in Spanish, so the cancel notice is also given in English.
+        ("69-1604(3): caption also in English", "buyer's right to cancel"),
+        ("69-1604(3): FTC sentence also in English",
+         "you, the buyer, may cancel this transaction at any time prior to midnight of the third business day after the date of this transaction"),
+        ("69-1604(3): English cancel form, three business days", "within three business days"),
+        ("69-1604(3): English cancel form, how to cancel", "to cancel this transaction, mail or deliver"),
+        ("registration line (registrado, number left blank)", "contratista registrado en nebraska #"),
+        ("company phone", "402-889-3385"),
+    ],
+}
+
+# Tear-off Notice of Cancellation copies: the FTC rule wants the buyer handed two, per language given.
+_FORM_END = {"en": "i hereby cancel this transaction", "es": "por medio de la presente cancelo esta transacción"}
+_CONTINGENCY_FORM_COPIES = {
+    "docs/print/contingency-agreement.html": {"en": 2},
+    "docs/print/contingency-agreement-es.html": {"es": 2, "en": 2},
+}
+
+# Words that must never describe HMP (it is "registered", never "licensed") - checked in the visible text.
+_NEVER_WORDS = ("licensed", "licenciado", "licencia")
+
+
+def _extract_1604_notice(statute_text):
+    """69-1604(1)'s required notice, with HMP's name and mailing address put where the statute says to."""
+    m = re.search(r"You may cancel this agreement by mailing a written notice to \(Insert name and mailing address of "
+                  r"seller\) before midnight.*?adding your name and address\.", statute_text, re.S)
+    if not m:
+        raise AssertionError("Could not find the 69-1604(1) notice in docs/legal/69-1604.txt "
+                             "(the statute file may have changed shape)")
+    return m.group(0).replace("(Insert name and mailing address of seller)", f"{SELLER_NAME}, {BUSINESS_ADDRESS}")
+
+
+def check_contingency_elements():
+    """Check 4: the contingency agreement (T188) has every required element, in English and Spanish.
+
+    The 44-8607 deductible notice in these files is checked word for word by check 1; this check covers
+    the rest: contingent on approval / nothing owed on denial, the 69-1604(1) notice word for word, the
+    44-8603 insurance cancel right, both cancel forms, no assignment (44-8605), the 44-8606 promise, HMP's
+    address and phone, the registration line, the draft note, and never "licensed/licenciado".
+    """
+    failures = []
+    notice_1604 = _norm(_extract_1604_notice(_read("docs/legal/69-1604.txt")))
+    for rel_path, lang in zip(CONTINGENCY_FILES, ("en", "es")):
+        try:
+            raw = _read(rel_path)
+        except OSError:
+            failures.append(f"{rel_path}: file not found")
+            continue
+        visible = re.sub(r"<!--.*?-->", " ", raw, flags=re.S)
+        visible = re.sub(r"<(style|script)\b.*?</\1>", " ", visible, flags=re.S)
+        body = _norm(_strip_tags(visible))
+
+        for label, phrase in _CONTINGENCY_REQUIRED[lang]:
+            if _norm(phrase) not in body:
+                failures.append(f"{rel_path}: missing {label} (\"{phrase}\")")
+
+        # 69-1604(1) notice, word for word, in English in both files (the Spanish file also gives it in English).
+        if notice_1604 not in body:
+            failures.append(f"{rel_path}: the 69-1604(1) BUYER'S RIGHT TO CANCEL notice does not match "
+                            f"docs/legal/69-1604.txt word for word (with HMP's name and address inserted)")
+
+        if _norm(BUSINESS_ADDRESS) not in body:
+            failures.append(f"{rel_path}: HMP business address ({BUSINESS_ADDRESS}) not printed")
+        if _norm(SELLER_NAME) not in body:
+            failures.append(f"{rel_path}: seller name ({SELLER_NAME}) not printed")
+
+        for form_lang, want in _CONTINGENCY_FORM_COPIES[rel_path].items():
+            got = body.count(_FORM_END[form_lang])
+            if got < want:
+                failures.append(f"{rel_path}: {got} {form_lang.upper()} Notice of Cancellation cop(ies), need {want}")
+
+        for word in _NEVER_WORDS:
+            if re.search(r"\b" + word + r"\b", body):
+                failures.append(f"{rel_path}: says \"{word}\" (HMP is registered, never licensed)")
+    return failures
+
+
 def _iter_scan_files():
     for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "docs/print")):
         for fn in filenames:
@@ -272,6 +399,7 @@ def run(verbose=True):
     for name, check in (
         ("statute match (44-8607 deductible notice)", check_statute_match),
         ("cancel notice elements (69-1601/69-1604)", check_cancel_notice_elements),
+        ("contingency agreement elements (44-8603/05/06, 69-1604)", check_contingency_elements),
         ("banned phrases", check_banned_phrases),
     ):
         failures = check()
