@@ -63,8 +63,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
   watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
   (write every Agent `description` as a plain-English job line: it's what the hub shows). **No idling:**
-  when a helper finishes, review it and give it the next board job in the same turn; run several at once (the
-  AI hub is how FilthE sees who's doing what). Helpers report back in 10 lines or fewer (their work never enters the
+  when a helper finishes, review it and give it the next board job in the same turn. **2 helpers at a time** (FilthE,
+  2026-09-27: "let's not use too much usage at once"); more only when he asks for a big push. The AI hub is how
+  FilthE sees who's doing what. Helpers report back in 10 lines or fewer (their work never enters the
   King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
   haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
 - **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
