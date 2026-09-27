@@ -275,7 +275,8 @@ def walk_bbox(stops, cfg=None, margin_m=None):
 
 
 def street_bbox(stops, cfg=None):
-    """The wider box streets are fetched and drawn in (stops + basemap.street_margin_m, never smaller than walk_bbox)."""
+    """The wider box streets are fetched and drawn in (stops + basemap.street_margin_m; never smaller than
+    walk_bbox)."""
     b = _bcfg(cfg)
     return walk_bbox(stops, cfg, max(b["street_margin_m"], b["margin_m"]))
 
@@ -401,7 +402,7 @@ def street_key(name):
     'N Broad St' -> ('BROAD', 'ST', 'N'), 'N St' -> ('N', 'ST', '') (a lone letter is the name, not a direction)."""
     ws = [_ORD.sub(r"\1", w) for w in re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper()).split()]
     d = ""
-    if len(ws) >= 3 and ws[0] in _DIR_WORDS or len(ws) == 2 and ws[0] in _DIR_WORDS and ws[1] not in _TYPE_WORDS:
+    if (len(ws) >= 3 and ws[0] in _DIR_WORDS) or (len(ws) == 2 and ws[0] in _DIR_WORDS and ws[1] not in _TYPE_WORDS):
         d, ws = DIRS.get(ws[0], ws[0]), ws[1:]
     if len(ws) >= 3 and ws[-1] in _DIR_WORDS:                 # 'Main St NW'
         d, ws = d or DIRS.get(ws[-1], ws[-1]), ws[:-1]
@@ -559,8 +560,8 @@ def _shortest(sa, sb, segs, adj, fac):
 
 def walk_route(stops, bm, cfg=None):
     """(route_segments, stop_side) for a walk (see the module doc), from its basemap's streets; (None, None) with no
-    basemap. Pure: no network."""
-    if not bm or not bm.get("streets") or not stops:
+    basemap. A basemap without streets near the doors gives straight gap hops and null sides. Pure: no network."""
+    if not bm or not bm.get("bbox") or not stops:
         return None, None
     b = _bcfg(cfg)
     dec = int(b["decimals"]) + 1

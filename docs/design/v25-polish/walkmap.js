@@ -287,12 +287,12 @@
         const s = 3.048 * P.pxPerMeter / 2, q = [[-s, -s], [s, -s], [s, s], [-s, s]].map(([a, b]) => [anchor[0] + h.d[0] * a + h.n[0] * b, anchor[1] + h.d[1] * a + h.n[1] * b]);
         el('path', { d: D(q) + 'Z', fill: 'var(--card)', 'fill-opacity': .55, stroke: 'var(--card)', 'stroke-width': 4, 'stroke-linejoin': 'round' }, ov);
         el('path', { d: D(q) + 'Z', fill: 'none', stroke: 'var(--hmp-ink)', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }, ov);
-        pin = off(s + 11, -(s + 11));
+        pin = off(s + 11, -(s + 11)); anchor = off(s, -s);   // leader starts at the square's corner
       }
       if (f.kind === 'vent') { const s = Math.max(2.6, .45 * P.pxPerMeter); el('rect', { x: anchor[0] - s, y: anchor[1] - s, width: 2 * s, height: 2 * s, rx: 1, fill: 'var(--card)', stroke: 'var(--ink-2)', 'stroke-width': 1 }, ov); pin = off(14, -12); }
       if (f.kind === 'gutter') { edge(A(-1, 1), A(1, 1)); pin = off(0, 17); }
       if (f.kind === 'wall') { edge(A(-1, -1), A(-1, 1)); pin = off(-17, 0); }
-      if (opts.mini) { pin = anchor; if (f.kind === 'gutter') pin = off(0, 5); if (f.kind === 'wall') pin = off(-5, 0); }
+      if (opts.mini) { pin = A(u, v); if (f.kind === 'gutter') pin = off(0, 5); if (f.kind === 'wall') pin = off(-5, 0); }
       if (!opts.mini && pin !== anchor) el('path', { d: D([anchor, pin]), stroke: 'var(--ink-2)', 'stroke-width': 1 }, pins);
       const on = opts.active === f.n, R = opts.mini ? (on ? 6 : 3.2) : 11.5;
       if (on && !opts.mini) el('circle', { cx: pin[0], cy: pin[1], r: R + 7, fill: 'rgb(var(--heat))', opacity: .28 }, pins);
@@ -332,9 +332,13 @@
     const base = el('g', {}, svg), seen = new Set();
     zs.forEach(z => drawBase(svg, data.walks[z.id].basemap, P, { lotOpacity: .55, lotWidth: .4 }, base));
     const pts = []; zs.forEach(z => z.polygon.forEach(p => pts.push(P.xy(p[0], p[1]))));
-    if (pts.length > 2) { const g2 = el('g', { filter: `url(#${id}-blur)` }, svg); el('path', { d: D(hull(pts)) + 'Z', fill: 'rgb(var(--heat))', opacity: .34 }, g2); }
-    if (opts.labels !== false) { const top = el('g', {}, svg); zs.forEach(z => drawLabels(top, data.walks[z.id].basemap.labels.filter(l => /Ave|St|Blvd/.test(l.text)), P, { labelSize: 9, placed: opts.placed || (opts.placed = []) }, seen)); }
+    if (pts.length > 2) {   // padded a little (buf px) so the blur's soft edge doesn't fade out over homes inside a zone
+      const hl = hull(pts), c = centroid(hl), buf = opts.buf == null ? 26 : opts.buf;
+      const pad = hl.map(p => { const dx = p[0] - c[0], dy = p[1] - c[1], L = Math.hypot(dx, dy) || 1; return [p[0] + dx / L * buf, p[1] + dy / L * buf]; });
+      const g2 = el('g', { filter: `url(#${id}-blur)` }, svg); el('path', { d: D(pad) + 'Z', fill: 'rgb(var(--heat))', opacity: .34 }, g2);
+    }
     const [x, y] = P.xy(home.lon, home.lat);
+    if (opts.labels !== false) { const top = el('g', {}, svg), placed = [[x, y, 26, 16]].concat(opts.placed || []); zs.forEach(z => drawLabels(top, data.walks[z.id].basemap.labels.filter(l => /Ave|St|Blvd/.test(l.text)), P, { labelSize: 9, placed }, seen)); }
     el('circle', { cx: x, cy: y, r: 15, fill: 'var(--ink)', opacity: .12 }, svg);
     el('circle', { cx: x, cy: y, r: 6.5, fill: 'var(--ink)', stroke: 'var(--card)', 'stroke-width': 2.5 }, svg);
     return P;

@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="ds.css">
+<style>body{padding:10px;display:flex;gap:10px;flex-wrap:wrap}svg{border:1px solid var(--line);border-radius:16px;background:var(--map-land)}</style></head><body>
+<script src="icons.js"></script>
+<svg id="a" width="358" height="300"></svg><svg id="b" width="358" height="130"></svg><svg id="c" width="720" height="600"></svg><svg id="d" width="96" height="72"></svg>
+<script src="data/columbus.js"></script><script src="walkmap.js"></script>
+<script>
+const w = HMP_MAP.today, s = w.stops[8];
+const finds=[{n:1,kind:'slope',at:[-.45,-.5]},{n:2,kind:'square',at:[.42,-.55]},{n:3,kind:'vent',at:[.1,.35]},{n:4,kind:'gutter',at:[-.35,1]},{n:5,kind:'wall',at:[-1,.1]}];
+const r = renderHomeMap(document.getElementById('a'), w, {width:358,height:300,home:s,finds,ppm:9,street:'22nd St'});
+renderHailMap(document.getElementById('b'), HMP_MAP, {width:358,height:130,home:s,metersAcross:1400});
+renderHomeMap(document.getElementById('c'), w, {width:720,height:600,home:s,finds,ppm:12.5,street:'22nd St',active:2});
+renderHomeMap(document.getElementById('d'), w, {width:96,height:72,home:s,finds,ppm:4,mini:true,active:1,toward:0});
+console.log(s.address, JSON.stringify(r.house && {hw:r.house.hw,hd:r.house.hd,toStreet:r.house.toStreet}));
+</script></body></html>
