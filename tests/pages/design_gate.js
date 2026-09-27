@@ -38,6 +38,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const { pageUrl, closeServer, takeMisses } = require("./serve");   // T169: pages with a files manifest load over http
+
 const ROOT = path.resolve(__dirname, "..", "..");
 const OUT_DIR = path.join(__dirname, "design_gate_out");
 const FIXTURE = JSON.parse(fs.readFileSync(path.join(__dirname, "design_gate_fixture.json"), "utf8"));
@@ -538,7 +540,7 @@ async function runOneContext(browser, opts, shared) {
   });
 
   const findings = [];
-  const fileUrl = "file://" + path.join(ROOT, opts.rel);
+  const fileUrl = await pageUrl(opts.rel);
   let loaded = true;
   try {
     await page.goto(fileUrl, { waitUntil: "networkidle", timeout: 20000 });
@@ -547,6 +549,7 @@ async function runOneContext(browser, opts, shared) {
     loaded = false;
     findings.push({ view: "(load)", rule: "load-error", msg: String((e && e.message) || e), sel: null, rect: null });
   }
+  for (const m of takeMisses()) findings.push({ view: "(load)", rule: "load-error", msg: `file not published (404): ${m} - add it to the page's .files.json`, sel: null, rect: null });
 
   async function runViewAudit(viewId) {
     let vf;
@@ -681,6 +684,7 @@ async function main() {
     for (const f of findings) allFindings.push(Object.assign({ page: combo.rel, theme: combo.themeName, width: combo.width, lang: combo.lang }, f));
   }
   await browser.close();
+  await closeServer();
 
   printReport(allFindings, args.rel);
   process.exitCode = allFindings.length ? 1 : 0;
