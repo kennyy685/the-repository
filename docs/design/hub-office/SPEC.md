@@ -47,25 +47,20 @@ Screenshots are for our own review; FilthE said go live when done (below).
 Still: publish to the same hub URL with `pages/crew-hq.files.json` as `files`, omit capabilities, add a
 CHANGELOG line, and tell FilthE in 5 lines. A refused publish stops the job; tell him the exact message.
 
-## Page status (paused 2026-09-27 for the usage limit)
-Done and pushed: `pages/crew-hq.html` (live data, Needs you, answers in cards incl. robot questions,
-cameras, sky/weather, recap, ding, progress rings, trophies/board feeds for the scene, board, orders,
-memory, Right Hand box, logs, EN/ES), `pages/crew-hq.files.json`, fixture rows, crew-checkin skill.
-Design gate `--quick` on the page: clean except the missing `hub/scene.js`.
-Left: plug in the scene (`pages/hub/scene.js` + `still.webp`, see the scene status below), then the
-full design gate + shots.js, fix findings, publish (go-live rule above), CHANGELOG line.
-Screenshot helper for this container (CDN blocked): route jsdelivr to a local `npm pack three@0.169.0`.
+## Page status (2026-09-27): ready to publish
+Done: `pages/crew-hq.html` with the scene plugged in, `pages/hub/scene.js`, `pages/hub/still.webp` (70 KB, from
+`#capture`), `pages/crew-hq.files.json`, fixture rows, crew-checkin skill. Checks: design gate `--page crew-hq` exit 0
+(12 views), shots.js clean, `release_checks.sh --fast` pass. With the CDN blocked (gate, shots.js) the page shows the
+still and the hint; everything else works.
+Left: publish per the go-live rule (same URL, `crew-hq.files.json` as `files`, omit capabilities, CHANGELOG line).
 
-## Scene status (paused, 2026-09-27)
-- **Done (untested):** `pages/hub/scene.js`, first full draft (parses; never run in a browser yet). It has both floors
-  (upper at +3.1 m, offset back-left (-4.2, -4.6) so the 3/4 camera stacks them), every station from decision 3,
-  the spiral slide and the suction tube as one-way links in the aisle graph, walk/ride movement, the claim-based
-  spots, the pod/desk sleep overflow, the done -> coffee -> lounge chain, idle wandering on the same floor, all 10
-  outfits (merged per material), cameras all/up/down/follow with glide, drag-to-turn, board + trophy canvas redraws,
-  handoff folders, radar, screens, "your spot" glow, the phone savings (static shadow map, merge, DPR drop) and
-  `#capture`. `window.SCENE` follows CONTRACT.md, plus a test-only `settle()`.
-- **Left:** `docs/design/hub-office/scene-harness.html` (fake HUB + demo loop + cam switcher), the Playwright shots
-  (`shots/v2-*`), a visual pass (layout/scale/occlusion checks at 390 px), and `pages/hub/still.webp` from `#capture`.
-- **Known issues / to check:** it has never rendered, so expect first-run bugs. The DOM contract is implied (`#stage`,
-  `#gl` created if missing, `--horizon` on `#sky`); add it to CONTRACT.md. Two floors probably want a taller phone
-  stage (about 130-140vw) than the mockup's 108vw. Robots under the mezzanine's back-left corner may be partly hidden.
+## Scene status (2026-09-27): rendering, reviewed at 390x844 and 1440x900
+- Renders in the real page (three r169 routed locally), day, dusk, night, EN + ES, card open, all four cameras.
+- Fixes in the first browser run: the floor slab z-fought the stone floor (dark stripes; the stone now sits 6 mm above
+  the slab and is a warm mid-tone like the mockup); the furniture merge now keeps each floor's meshes in its own group;
+  Down lifts the upper floor away; progress rings sit beside name tags; bubbles avoid tags; the stage-bar sky button
+  shows its icon when pressed; the still's alt text is EN/ES.
+- Not done (optional): `scene-harness.html` + `shots/v2-*`. Screenshot helper for this container: route
+  cdn.jsdelivr.net/npm/three@0.169.0 to a local `npm pack three@0.169.0`, chromium with `--use-angle=swiftshader`.
+- Watch on a real phone: frame rate (DPR drops itself if frames run long) and the phone blocked bubble, which shows
+  the blocked text without the robot's name (narrow layout hides names in bubbles; tap opens the card).

@@ -53,3 +53,15 @@ Agent: `{id, def, st, spot, seq, instant, hidden}`
 | `resize()` | the page calls it on layout changes |
 | `dragged` | getter: true right after a drag (the page then ignores the tap) |
 | `pick(x, y)` | optional: robot id under a stage point, or null |
+
+## DOM contract (what scene.js looks for in the page)
+| element | rule |
+|---|---|
+| `#stage` (or `HUB.stage`) | the office box (`.stage`, `position:relative`, `overflow:hidden`). The scene sizes the renderer to its `clientWidth`/`clientHeight`, starts drag-to-turn from `pointerdown` on it (not on `.bub`, buttons, links, inputs or `[data-nodrag]`), and reports anchors in its pixel space. The page places the overlay (tags, bubbles, zzz, rings) inside it. Phone height: `clamp(460px,138vw,640px)`; desktop (>= 900 px): fills the window behind the side panel. |
+| `#gl` (or `HUB.canvas`) | the WebGL canvas, absolutely filling `#stage`, transparent (the CSS sky shows through). Created and prepended to `#stage` if missing. Hidden by `.no-gl`. |
+| `#sky` | the CSS sky behind the canvas. The page sets its colors; the scene sets `--horizon` (a % of the stage height, 8-92) on it every frame so the CSS horizon lines up with the building's floor for the current view. |
+| `#still` | `hub/still.webp`, shown only under `.no-gl` (after `HUB.fallback()`, or when the CDN or module fails). Transparent background, rendered from `hub/scene.js` with the page opened at `#capture` (renderer keeps its buffer; after 7 s the frame lands as a data URL in `textarea#cap`). |
+
+Camera views: `all` = both floors; `up` = the upper floor; `down` = the lower floor, and the upper floor lifts away
+and hides (robots on it too, their anchors report `visible:false`) so nothing covers downstairs; `follow` = the selected
+robot. Reduced motion = cut instead of glide or lift.
