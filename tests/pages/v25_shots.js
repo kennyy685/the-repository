@@ -5,6 +5,10 @@
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/v25_shots.js            -> docs/design/v25-polish/built/*.png
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/v25_shots.js --out DIR  -> another folder (scratch)
  *   ... --only knock,money                                                            -> only shots whose name contains one of these
+ *   ... --set aldaba   v25.1 "Aldaba Graphite" review set (Now, Knock, Knock ES, lead sheet, Money, homeowner step 1; the
+ *                      default dark and the Light pick) -> docs/design/v25-polish/built-aldaba/*.png
+ * Themes (v25.1): no `theme` = the app's default (dark "Aldaba Graphite", even on a light phone); theme "light" / "auto" =
+ * that pick in More > Theme (localStorage hmp-app-look). The phone itself is in light mode in every shot.
  *
  * Data = tests/pages/design_gate_fixture.json (leads, claims, stats: the same Rosa / Ann / US Bank the mockups use) + the
  * engine's real Columbus output behind the mockups (docs/design/v25-polish/data/columbus.js: zones/current, walks/<zone> with
@@ -19,7 +23,8 @@ const { pageUrl, closeServer, takeMisses } = require("./serve");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const args = process.argv.slice(2);
-const OUT = path.resolve(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : "docs/design/v25-polish/built");
+const SET = args.includes("--set") ? args[args.indexOf("--set") + 1] : "all";
+const OUT = path.resolve(ROOT, args.includes("--out") ? args[args.indexOf("--out") + 1] : SET === "aldaba" ? "docs/design/v25-polish/built-aldaba" : "docs/design/v25-polish/built");
 const ONLY = args.includes("--only") ? args[args.indexOf("--only") + 1].split(",") : null;
 const FIXED_NOW_ISO = "2026-09-27T15:00:00-05:00";
 
@@ -73,7 +78,7 @@ function initScript(o, dt) {
   function FrozenDate(...a) { if (!new.target) return new RealDate(now()).toString(); return a.length ? new RealDate(...a) : new RealDate(now()); }
   FrozenDate.prototype = RealDate.prototype; FrozenDate.now = now; FrozenDate.parse = RealDate.parse; FrozenDate.UTC = RealDate.UTC; window.Date = FrozenDate;
   try { localStorage.clear(); localStorage.setItem('hmp-app-lang', ${JSON.stringify(o.lang || "en")}); localStorage.setItem('hmp-app-tab', ${JSON.stringify(o.tab || "now")});
-    ${o.theme ? `localStorage.setItem('hmp-app-theme', ${JSON.stringify(o.theme)});` : ""} } catch (e) {}
+    ${o.theme ? `localStorage.setItem('hmp-app-look', ${JSON.stringify(o.theme)});` : ""} } catch (e) {}
   const FIX = ${JSON.stringify(dt)};
   const C = FIX.collections, D = FIX.docs, cp = o => (o == null ? o : JSON.parse(JSON.stringify(o)));
   const split = p => { const i = p.indexOf('/'); return i < 0 ? [p, ''] : [p.slice(0, i), p.slice(i + 1)]; };
@@ -95,8 +100,8 @@ function initScript(o, dt) {
 })();`;
 }
 
-// Geist from Google Fonts on the live page; here the mockups' own copies (docs/design/v25-polish/fonts), so the shots
-// show the real type (nothing leaves the machine)
+// v25.1: the app's fonts are files published next to the page (pages/fonts/, served by ./serve like the host does); this
+// route only answers a Google Fonts request (the print walk sheet's faces) with the mockups' Geist copies, offline
 async function fontRoutes(ctx) {
   const F = path.join(ROOT, "docs/design/v25-polish/fonts");
   const css = [["Geist", 400], ["Geist", 500], ["Geist", 600], ["Geist Mono", 500]].map(([f, w]) => `@font-face{font-family:"${f}";font-weight:${w};font-display:swap;src:url(https://fonts.gstatic.com/local/${f.replace(" ", "")}-${w}.woff2) format("woff2")}`).join("");
@@ -104,16 +109,17 @@ async function fontRoutes(ctx) {
   await ctx.route(/^https:\/\/fonts\.gstatic\.com\/local\//, r => { const f = path.join(F, r.request().url().split("/local/")[1]); return fs.existsSync(f) ? r.fulfill({ status: 200, contentType: "font/woff2", body: fs.readFileSync(f) }) : r.abort(); });
 }
 
-// name, tab, theme, lang, steps (css selectors clicked in order), data options
+// name, tab, theme, lang, steps (css selectors clicked in order), data options. v25.1: the default is dark, so the second
+// look of each screen is the Light pick ("-light")
 const SHOTS = [
-  { name: "now", tab: "now" }, { name: "now-dark", tab: "now", theme: "dark" },
+  { name: "now", tab: "now" }, { name: "now-light", tab: "now", theme: "light" },
   { name: "now-empty", tab: "now", data: { emptyZones: true } }, { name: "now-loading", tab: "now", slow: true },
-  { name: "knock", tab: "knock" }, { name: "knock-dark", tab: "knock", theme: "dark" }, { name: "knock-es", tab: "knock", lang: "es" },
-  { name: "knock-map", tab: "knock", steps: ["#kMapBtn"] }, { name: "knock-es-dark", tab: "knock", lang: "es", theme: "dark" },
-  { name: "leads", tab: "leads" }, { name: "leads-dark", tab: "leads", theme: "dark" },
-  { name: "lead", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]'] }, { name: "lead-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:615-n-linden-ave"]'] },
-  { name: "money", tab: "money" }, { name: "money-dark", tab: "money", theme: "dark" },
-  { name: "money-empty", tab: "money", data: { noMoney: true } }, { name: "money-dark-empty", tab: "money", theme: "dark", data: { noMoney: true } },
+  { name: "knock", tab: "knock" }, { name: "knock-light", tab: "knock", theme: "light" }, { name: "knock-es", tab: "knock", lang: "es" },
+  { name: "knock-map", tab: "knock", steps: ["#kMapBtn"] }, { name: "knock-es-light", tab: "knock", lang: "es", theme: "light" },
+  { name: "leads", tab: "leads" }, { name: "leads-light", tab: "leads", theme: "light" },
+  { name: "lead", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]'] }, { name: "lead-light", tab: "leads", theme: "light", steps: ['[data-open="lead:615-n-linden-ave"]'] },
+  { name: "money", tab: "money" }, { name: "money-light", tab: "money", theme: "light" },
+  { name: "money-empty", tab: "money", data: { noMoney: true } }, { name: "money-light-empty", tab: "money", theme: "light", data: { noMoney: true } },
   { name: "claim", tab: "money", steps: ['[data-open="claim:1107-n-h-st"]'] },
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
   { name: "say-it", tab: "now", steps: ["#plusBtn", '[data-open="say:"]'] }, { name: "new-lead", tab: "now", steps: ["#plusBtn", '[data-open="nl:"]'] },
@@ -121,19 +127,24 @@ const SHOTS = [
   { name: "walk-menu", tab: "knock", steps: ['[data-open="walk:"]'] }, { name: "knock-all", tab: "knock", steps: ["#kAllBtn"] }, { name: "right-hand", tab: "now", steps: ["#rhBtn"] },
   { name: "boss", tab: "now", steps: ["#moreBtn", "#bossBtn"] }, { name: "zones", tab: "now", steps: ['[data-open="zones:"]'] },
   // the quick-estimate sheet (+ > Quick price, and a lead's own estimate): no sideways scroll at 360 and 420, EN and ES, light and dark
-  ...[360, 420].flatMap(w => [["en", ""], ["es", ""], ["en", "dark"], ["es", "dark"]].map(([lg, th]) => ({ name: `quick-price-${w}-${lg}${th ? "-" + th : ""}`, tab: "now", width: w, lang: lg, theme: th || undefined, steps: ["#plusBtn", '[data-open="est:"]'] }))),
+  ...[360, 420].flatMap(w => [["en", ""], ["es", ""], ["en", "light"], ["es", "light"]].map(([lg, th]) => ({ name: `quick-price-${w}-${lg}${th ? "-" + th : ""}`, tab: "now", width: w, lang: lg, theme: th || undefined, steps: ["#plusBtn", '[data-open="est:"]'] }))),
   ...[360, 420].map(w => ({ name: `lead-estimate-${w}`, tab: "leads", width: w, steps: ['[data-f="won"]', '[data-open="lead:2210-e-military-ave"]', '[data-open="est:2210-e-military-ave"]'] })),
   { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
-  { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
+  { name: "homeowner-1-light", tab: "leads", theme: "light", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="2"]'] },
   { name: "homeowner-3", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="3"]'] },
-  { name: "homeowner-3-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="3"]'] },
+  { name: "homeowner-3-light", tab: "leads", theme: "light", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="3"]'] },
   { name: "homeowner-4", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="4"]'] },
   { name: "homeowner-4-es", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="4"]', "#hoView #hoLang"] },
   { name: "homeowner-exit", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", "#hoView #hoX"] },
 ];
 
-module.exports = { data, initScript, SHOTS };
+// v25.1 review set for FilthE (the King shows these before anything is published): default dark + the Light pick
+const LEAD = ['[data-open="lead:615-n-linden-ave"]'], HO = ['[data-open="lead:3908-22-st"]', "[data-ho]"];
+const ALDABA = [["now", "now"], ["knock", "knock"], ["knock-es", "knock", "es"], ["lead", "leads", "", LEAD], ["money", "money"], ["homeowner-1", "leads", "", HO]]
+  .flatMap(([name, tab, lang, steps]) => [undefined, "light"].map(theme => ({ name: name + (theme ? "-" + theme : ""), tab, lang: lang || undefined, theme, steps })));
+
+module.exports = { data, initScript, SHOTS, ALDABA };
 if (require.main === module) (async () => {
   const { chromium } = loadPlaywright();
   const exe = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(p => fs.existsSync(p));
@@ -142,7 +153,7 @@ if (require.main === module) (async () => {
   const url = await pageUrl("pages/hmp-app.html");
   let bad = 0;
   try {
-    for (const s of SHOTS) {
+    for (const s of SET === "aldaba" ? ALDABA : SHOTS) {
       if (ONLY && !ONLY.some(k => s.name.includes(k))) continue;
       const ctx = await browser.newContext({ viewport: { width: s.width || 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
       await ctx.route(/^(https?|wss?):/, r => (/^https?:\/\/127\.0\.0\.1[:/]/.test(r.request().url()) ? r.continue() : r.abort()));

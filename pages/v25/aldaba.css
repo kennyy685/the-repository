@@ -1,0 +1,108 @@
+/* HMP App v25.1 "Aldaba Graphite": the brand layer over the v25 design system (published as v25/aldaba.css, T169).
+   The look of docs/design/product-brand/aldaba/ (index.html, hero.png): graphite ground, layered cards with hairlines and
+   depth, silver type, Bricolage Grotesque for titles and hero numbers, one orange "do this" button with a soft glow.
+   Loaded AFTER the page's own <style>, so a rule here wins over the page's at equal specificity. It changes the look
+   only: no layout, sizes of tap targets or content change here. Colors come from the tokens in v25/ds.css (both themes:
+   the default dark Graphite and the Ledger light pick), never from literals. Motion: 150-250 ms, off with reduced motion. */
+
+/* ---------- the app mark (salesman screens only; the homeowner view stays HMP) ---------- */
+.amark{display:grid;place-items:center;flex:none;color:var(--ink);margin-right:2px}
+.amark svg{display:block;width:29px;height:auto}
+
+/* ---------- type: Bricolage 700 at opsz 96 = screen titles + hero numbers; Geist does everything else ----------
+   Hero numbers (44 px and up) keep the brand page's -0.03em. Titles of 20-31 px open up to -0.015em with a little word
+   space: at that size the display cut at -0.03em runs words together ("LindenAve"). */
+.app > .top h1,.sh h2,.shead h2,.zone h2,.offer .addr,.ehero h2,.empty h3,#hoView .hhead h1,#hoView .chead h2,#hoView .corner h2,
+.count .big b,.mhero .fig,.mini b,.stats b,.appt .time b,#hoView .crow b{
+  font-family:var(--display);font-weight:700;font-variation-settings:"opsz" 96;letter-spacing:-.015em;word-spacing:.05em}
+.count .big b,.mhero .fig{letter-spacing:-.03em;word-spacing:0}
+.mini b,.stats b,.appt .time b,#hoView .crow b{letter-spacing:-.02em;word-spacing:0}
+.top .date,.mhero .fig small,.stats b small,.count .big span,.count .big small{font-family:var(--f);font-variation-settings:normal;letter-spacing:0;word-spacing:0}
+.app > .top h1{font-size:24px;line-height:1.1}
+.top .date{font-weight:400;margin-left:10px}
+.shead{margin-top:28px}
+.shead h2{font-size:20px}
+.sh h2{font-size:27px;line-height:1.1}
+.zone h2{font-size:25px;line-height:1.12}
+.offer .addr{font-size:31px;line-height:1.04}
+.count .big b{font-size:62px;line-height:.86;margin-right:3px}
+.mini b{font-size:24px;line-height:1.05}
+.stats b{font-size:24px;line-height:1.15}
+.mhero .fig{font-size:52px;line-height:1}
+.mhero .fig small{font-weight:500}
+#hoView .hhead h1{font-size:25px}
+#hoView .chead h2{font-size:29px;line-height:1.08}
+.label,.k-eb,.dg-h,.k-l,.ns-lb{letter-spacing:.08em}
+
+/* ---------- surfaces: layered graphite, a hairline edge, a lit top and a long soft shadow ---------- */
+.card,.rows,.box{background:var(--surface);border-color:var(--hair);box-shadow:var(--e1)}
+.zone{box-shadow:var(--e2)}                      /* the best zone floats over the map */
+.stats{background:var(--well);border-color:var(--hair)}
+.stats > div+div{border-left-color:var(--hair)}
+.row+.row,.rows>li+li>.row,.rows>li+li{border-top-color:var(--hair)}
+.rows > .appt + .row,.rows > .row + .appt,.rows > .appt + .appt,.nextline{border-top-color:var(--hair)}
+.facts dt,.facts dd,.lrow{border-top-color:var(--hair)}
+.row .lead,.pstep .ic,.empty .glyph{box-shadow:var(--raise),inset 0 0 0 1px var(--hair)}
+.kpanel,.gtext,.gloss,.ns-tip,.ns-info,.hopays,.banner:not(.bad),.say,.mustl,.ns-must,.k-stale{box-shadow:inset 0 0 0 1px var(--hair)}
+.walkmap,.zempty-map{border-color:var(--hair)}
+.walkmap{box-shadow:var(--e1)}
+.mctl,.mlegend,.edge,.walkmap .mkey,.walkmap .expand{border:1px solid var(--hair)}
+.mctl button+button{border-top-color:var(--hair)}
+.chip.hmp,.a-chip:not(.crit):not(.warn):not(.plain):not(.src):not(.lost):not(.paid){box-shadow:inset 0 0 0 1px var(--hmp-edge)}
+.chip,.a-chip{border-radius:7px}
+
+/* ---------- controls: raised graphite, hairline, a quick press ---------- */
+.btn.sec,.ans:not(.pri),.quick > *,.round,.lang,.flip,.copy,.klist .undo,.pickrow button:not([aria-pressed="true"]),.ns-cancel,.tools .btn,
+#hoView .hbtn:not([aria-pressed="true"]),#hoView .reppanel .ho-sbtn:not(.go),.btn:not(.pri):not(.sec):not(.ghost):not(.ink):not(.danger):not(.go){
+  background:var(--surface-2);border-color:var(--line-2);box-shadow:var(--raise)}
+.quick > *{border-color:var(--hair)}
+.xbtn{box-shadow:var(--raise),inset 0 0 0 1px var(--hair)}
+.seg{box-shadow:inset 0 0 0 1px var(--hair)}
+.seg [aria-pressed="true"],.seg [aria-selected="true"]{background:var(--surface-2)}
+.avatar,.btn.ink{background:var(--plus-bg);box-shadow:var(--plus-edge)}
+
+/* the orange CTA: one per screen, lit from above, a soft glow; pressed = darker, glow pulled in */
+.btn.pri,.btn.go,.ns-done,.ans.pri,#hoView .reppanel .ho-sbtn.go{background:var(--cta);border-color:transparent;box-shadow:var(--glow)}
+.btn.pri:active:not(:disabled),.btn.go:active:not(:disabled),.ns-done:active:not(:disabled),.ans.pri:active:not(:disabled),#hoView .reppanel .ho-sbtn.go:active{background:var(--hmp-press);box-shadow:var(--glow-press)}
+.btn.pri:disabled,.btn.go:disabled,.ns-done:disabled{background:var(--soft);box-shadow:inset 0 0 0 1px var(--line-2)}
+
+/* taps: 150-250 ms, a small press on buttons and tiles; list rows only darken */
+.btn,.ans,.quick > *,.round,.xbtn,.lang,.avatar,.iconbtn,.seg button,.pickrow button,.chip.tap,.flip,.copy,.klist .undo,.ns-done,.linkbtn,
+.nav button,.nav .plus i,.composer .field,.composer .mic,button.row,a.row,.jcard,.appt > button.t,#hoView .hbtn,#hoView .reppanel .ho-sbtn{
+  transition:transform .16s var(--ease),background-color .18s var(--ease),box-shadow .22s var(--ease),border-color .18s var(--ease),color .18s var(--ease)}
+.btn:active:not(:disabled),.ans:active:not(:disabled),.quick > *:active,.round:active,.xbtn:active,.lang:active,.avatar:active,.iconbtn:active,
+.ns-done:active:not(:disabled),.nav .plus:active i,.composer .mic:active,.flip:active,.copy:active,#hoView .hbtn:active{transform:scale(.97)}
+button.row:active,a.row:active,.jcard:active,.appt > button.t:active{background-color:var(--soft)}
+.nav button:active .i{transform:scale(.92)}
+.nav .i{transition:transform .16s var(--ease)}
+
+/* ---------- top bar + dock: glass over graphite ---------- */
+.app > .top{height:56px;background:var(--bar-top);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px)}
+.lang{border-radius:9px}
+.nav,.composer{background:var(--bar);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px)}
+.composer{border-top-color:var(--bar-line)}
+.nav{border-top-color:var(--bar-line)}
+.dock{box-shadow:0 -16px 32px -24px rgba(0,0,0,.5)}
+.composer .field{box-shadow:inset 0 0 0 1px var(--hair)}
+.composer .mic{background:var(--plus-bg);box-shadow:var(--plus-edge)}
+.nav .plus i{background:var(--plus-bg);box-shadow:var(--plus-edge)}
+.nav [aria-selected="true"] > span:not(.dot){font-weight:600}
+@media (min-width:640px){.dock{border-inline-color:var(--hair)}}
+
+/* ---------- sheets: lifted off the page, a lit top edge; open 240 ms, close 180 ms ---------- */
+.sheet{background:var(--sheet-bg);box-shadow:inset 0 1px 0 var(--hair),var(--e2);animation:al-up .24s var(--ease)}
+.scrim{animation:al-fade .2s var(--ease)}
+.sheet-wrap.closing{pointer-events:none}
+.sheet-wrap.closing .sheet{animation:al-down .18s var(--ease) forwards}
+.sheet-wrap.closing .scrim{animation:al-fade-out .18s var(--ease) forwards}
+@keyframes al-up{from{transform:translateY(32px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes al-down{from{transform:none;opacity:1}to{transform:translateY(40px);opacity:0}}
+@keyframes al-fade{from{opacity:0}to{opacity:1}}
+@keyframes al-fade-out{from{opacity:1}to{opacity:0}}
+.app-toast{box-shadow:var(--e2)}
+
+/* ---------- homeowner view: HMP Siding & Roofing's own mark (orange roof line), the same graphite craft ---------- */
+#hoView .htop .mark svg{color:var(--hmp)}
+#hoView .brand{letter-spacing:-.015em}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
