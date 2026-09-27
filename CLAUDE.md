@@ -57,8 +57,11 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   mailers; no owner names for homes. Statute text lives in `docs/legal/`.
 
 ## How we work (save usage - FilthE, 2026-09-27)
-- **1 helper at a time (2 max).** Cheapest model that can do it: scouts/chores = haiku, research/QA = sonnet, main model
-  only for real app/design/engine work. Tight prompts, short reports.
+- **Use agents and subagents (FilthE, 2026-09-27).** The King stays light: it plans, delegates, decides and talks
+  to FilthE. Helpers do the heavy reading, building, screenshots and research, and report back in 10 lines or fewer
+  (their work never enters the King's history, which is what keeps usage down). Run 2-3 helpers in parallel on
+  separate files, more on a big push. Cheapest model that can do it: scouts/chores = haiku, research/QA/publishing =
+  sonnet, main model only for real app/design/engine work.
 - **Commit work in progress to the repo every ~30 min** (a container restart wiped an unsaved v25 draft).
   Commit only your own files (`git add <paths>`, never `-A`).
 - Grep big files, never read the 8,400-line app whole. Screenshots only for the final pre-publish review.
