@@ -31,7 +31,7 @@ CREW = {
     "qa-tester": ("qa-tester", "tests"),
     "engine-mechanic": ("engine-mechanic", "engine"),
 }
-SKIP = {"improvement-scout", "statusline-setup", ""}  # "" = an internal agent with no type: not a crew job
+SKIP = {"improvement-scout", "statusline-setup", "workflow-subagent", ""}  # "" = internal agent; workflow agents: the King posts one line per workflow
 NAMES = {"builder": "Builder", "designer": "Designer", "hub-keeper": "Research Lead", "qa-tester": "QA Tester",
          "engine-mechanic": "Engine Mechanic", "code": "A helper"}
 
