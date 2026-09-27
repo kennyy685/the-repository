@@ -246,7 +246,7 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ---------- T201 Practice mode: a blue "not real" strip under the top bar, a blue edge on the sticky bar, a ring on the
    More button. Blue (--you) on purpose: not the orange "do this", not the amber/red of a problem. ---------- */
-.practice-bar{display:flex;align-items:center;gap:var(--s2);margin:var(--s2) 0 0;padding:4px 4px 4px var(--s3);min-height:52px;border-radius:var(--r-md);
+.practice-bar{display:flex;align-items:center;gap:var(--s2);margin:var(--s2) 0;padding:4px 4px 4px var(--s3);min-height:52px;border-radius:var(--r-md);
   border:1.5px dashed color-mix(in srgb,var(--you) 70%,transparent);background:color-mix(in srgb,var(--you) 12%,var(--bg));color:var(--ink);font-size:var(--t-cap)}
 .practice-bar[hidden]{display:none}
 .practice-bar .pr-tag{flex:none;padding:3px 8px;border-radius:var(--r-pill);background:var(--you);color:var(--bg);font:600 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase}

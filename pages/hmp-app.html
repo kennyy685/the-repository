@@ -2750,7 +2750,7 @@ function jobCard(x){
     const line = rm ? `<span class="nextline">${ic(rm.level === 'late' ? 'flag' : 'clock')}<span>${esc(txl(rm.short))}</span>${jtRemChip(rm)}${ic('chev', 'i-sm')}</span>`
       : `<span class="nextline">${ic(late ? 'flag' : /bank|check|cheque/i.test(txl(ns)) ? 'phone' : a0(c) ? 'cal' : 'clock')}<span>${esc(txl(ns) || Zs.noNextJob)}</span>${late ? `<span class="chip late">${esc(Zs.lateD(late))}</span>` : ''}${ic('chev', 'i-sm')}</span>`;
     return `<button type="button" class="card jcard" data-open="claim:${esc(c.id)}"><span class="hd"><span><h3>${esc(strv(c.address) || c.id)}</h3><span class="who">${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span></span><span class="chip${c.stage === 'paid' ? ' ok' : ''}">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span></span>
-      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ` · <span class="nw">${esc(of)}</span>`}</span>${nxt ? `<span>${esc(Zs.nextS(nxt))}</span>` : ''}</span>`}
+      ${c.stage === 'lost' ? '' : `<span class="steps10${c.stage === 'paid' ? ' paid' : ''}" aria-hidden="true">${segs}</span><span class="stepline"><span><b>${esc(st)}</b>${fin ? '' : ` <span class="nw">· ${esc(of)}</span>`}</span>${nxt ? `<span>${esc(Zs.nextS(nxt))}</span>` : ''}</span>`}
       ${fin ? `<span class="jmoney"><span>${esc(C0().collectedTotal)}: <b>${usd(m.collected)}</b></span></span>` : line}</button>`; }
   const l = x.l, cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0, ns = txl(l.next_step);
   return `<button type="button" class="card jcard" data-open="lead:${esc(l.id)}"><span class="hd"><span><h3>${esc(strv(l.address) || l.id)}</h3><span class="who">${esc([strv(l.first_name), strv(l.city)].filter(Boolean).join(' · '))}</span></span><span class="chip ok">${esc(Zs.cash)}</span></span>
@@ -3512,7 +3512,7 @@ function whenChip(a, due, fin){   // the next-step card's time chip: the appoint
 function stageBar(n, total, name, next, fin){
   const segs = Array.from({length: total}, (_, k) => `<i class="${fin || k + 1 < n ? 'd' : k + 1 === n ? 'c' : ''}"></i>`).join('');
   const [a, b] = fin ? [name, ''] : Z().stepN(name, n, total);
-  return `<div class="stagebar" role="img" aria-label="${esc(fin ? name : `${name}, ${b}`)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` · <span class="nw">${esc(b)}</span>` : ''}</span>${next ? `<span>${esc(Z().nextStep(next))}</span>` : ''}</div></div>`;
+  return `<div class="stagebar" role="img" aria-label="${esc(fin ? name : `${name}, ${b}`)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` <span class="nw">· ${esc(b)}</span>` : ''}</span>${next ? `<span>${esc(Z().nextStep(next))}</span>` : ''}</div></div>`;
 }
 function leadQuick(l){
   const Zs = Z(), phone = strv(l.phone), num = phone.replace(/[^\d+]/g, ''), pp = photoProgress(l);
@@ -3669,7 +3669,7 @@ function jtBar(md, c){   // the claim screen's stage bar, counting the 14 job st
   const cur = md.steps.find(s => s.id === md.current), nx = md.steps.find(s => s.id === md.next), J = JT();
   const segs = md.steps.map(s => `<i class="${s.status !== 'open' ? 'd' : s.id === md.current ? 'c' : ''}"></i>`).join('');
   const a = md.fin || !cur ? (c.stage === 'paid' ? J.closed : cStage(c.stage)) : txl(cur.short), b = md.fin || !cur ? '' : J.stepOf(cur.n, md.steps.length);
-  return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` · <span class="nw">${esc(b)}</span>` : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
+  return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ` <span class="nw">· ${esc(b)}</span>` : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
 }
 function jtRemChip(r){ const d = -daysFromToday(r.due); return r.level === 'late' ? `<span class="chip late">${ic('flag')}${esc(Z().lateD(Math.max(1, d)))}</span>` : `<span class="chip warn">${ic('clock')}${esc(r.due === todayStr() ? Z().dueToday : fmtDay(r.due, true))}</span>`; }
 function jobBox(c, md){

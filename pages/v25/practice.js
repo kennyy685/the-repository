@@ -26,8 +26,8 @@
   var KEY = "hmp-app-practice";
   var TX = {
     en: {
-      row: ["Practice mode", "Try the app: taps, leads and notes save nowhere"],
-      rowOn: ["Practice mode is on", "Nothing you tap is saved. Tap to go back to real saves"],
+      row: ["Practice mode", "Taps, leads and notes save nowhere"],
+      rowOn: ["Practice mode is on", "Nothing you tap is saved"],
       badge: "Practice",
       bar: "Nothing saves",
       off: "Turn off",
@@ -36,8 +36,8 @@
       photo: function (n) { return n + " practice " + (n === 1 ? "photo" : "photos") + " on screen only, not uploaded."; }
     },
     es: {
-      row: ["Modo práctica", "Prueba la app: toques, clientes y notas no se guardan"],
-      rowOn: ["Modo práctica activado", "Nada de lo que toques se guarda. Toca para volver a guardar de verdad"],
+      row: ["Modo práctica", "Toques, clientes y notas no se guardan"],
+      rowOn: ["Modo práctica activado", "Nada de lo que toques se guarda"],
       badge: "Práctica",
       bar: "No se guarda nada",
       off: "Apagar",

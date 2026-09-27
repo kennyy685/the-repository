@@ -24,6 +24,7 @@ for f in tests/js/*_check.js; do run "$(basename "$f" .js)" node "$f"; done
 run hh_selftest python3 hh.py selftest
 if [ "$mode" != "--fast" ]; then
   run shots node tests/pages/shots.js
+  run practice_check node tests/pages/practice_check.js   # T201 Practice mode saves nothing; T205 step label on one line
   if [ "$mode" = "--quick" ]; then run design_gate node tests/pages/design_gate.js --quick
   else run design_gate node tests/pages/design_gate.js; fi
 fi
