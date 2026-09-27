@@ -76,7 +76,7 @@ h1,h2,h3,p{margin:0}
 
 .stage{position:relative;height:clamp(370px,108vw,540px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
-.still{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
+.still{position:absolute;left:0;right:0;top:44px;bottom:48px;width:100%;height:calc(100% - 92px);object-fit:contain;display:none}
 .no-gl .still{display:block}
 .no-gl #gl{display:none}
 .ov{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -211,6 +211,7 @@ h1,h2,h3,p{margin:0}
   .card{position:relative;left:auto;right:auto;bottom:auto;transform:none;max-height:none;flex:none;display:none;background:var(--glass-2)}
   .card.open{display:block;animation:cardIn .45s var(--ease)}
   .skyctl{left:28px;bottom:26px}
+  .still{left:24px;top:120px;bottom:60px;right:calc(var(--panel-w) + 56px);width:auto;height:auto}
   .democlk{display:none}
   .hint{top:auto;bottom:34px;left:auto;right:calc(var(--panel-w) + 56px);text-align:right}
   .bub{max-width:260px}
@@ -318,13 +319,13 @@ const STR = {
   en:{title:'The Crew', sub:'HMP AI hub · Penthouse', needs:'Needs you', none:'Nothing needs you right now.', answerIn:'Answer in',
       crew:'Crew', doing:'Now doing', asks:'Asks you', stuck:'Stuck on', last:'Last check-in', close:'Close',
       live:'Live sky', storm:'Storm', modes:{live:'Live sky', dusk:'Dusk', night:'Night', day:'Day'}, demo:'Demo loop', demoShort:'Demo', pause:'Pause demo', play:'Play demo',
-      hint:'Tap a robot to see what it is doing.', justNow:'just now', ago:m=>m+' min ago', agoH:h=>h+' h ago',
+      hint:'Tap a robot to see what it is doing.', still:'3D is off on this device, so this is a still picture. The crew list is live.', justNow:'just now', ago:m=>m+' min ago', agoH:h=>h+' h ago',
       st:{working:'Working', idle:'On a break', sleeping:'Asleep', waiting:'Waiting on you', blocked:'Blocked', done:'Just finished'},
       sum:{working:'working', blocked:'stuck', sleeping:'asleep'}, lang:'Language'},
   es:{title:'El Equipo', sub:'Centro de IA de HMP · Penthouse', needs:'Te necesitan', none:'Nada pendiente contigo por ahora.', answerIn:'Contesta en',
       crew:'Equipo', doing:'Haciendo ahora', asks:'Te pregunta', stuck:'Atorado en', last:'Último reporte', close:'Cerrar',
       live:'Cielo en vivo', storm:'Tormenta', modes:{live:'Cielo en vivo', dusk:'Atardecer', night:'Noche', day:'Día'}, demo:'Demo en bucle', demoShort:'Demo', pause:'Pausar demo', play:'Seguir demo',
-      hint:'Toca un robot para ver qué está haciendo.', justNow:'justo ahora', ago:m=>'hace '+m+' min', agoH:h=>'hace '+h+' h',
+      hint:'Toca un robot para ver qué está haciendo.', still:'El 3D está apagado en este equipo; esto es una foto fija. La lista del equipo sí está en vivo.', justNow:'justo ahora', ago:m=>'hace '+m+' min', agoH:h=>'hace '+h+' h',
       st:{working:'Trabajando', idle:'En descanso', sleeping:'Dormido', waiting:'Te espera', blocked:'Bloqueado', done:'Acaba de terminar'},
       sum:{working:'trabajando', blocked:'atorado', sleeping:'dormido'}, lang:'Idioma'}
 };
@@ -573,7 +574,7 @@ function updateSky(dt){
 /* ---- demo clock + script ---- */
 const DEMO = true, TEST = /test/.test(location.hash);
 if (TEST) document.documentElement.classList.add('test');
-let demoT = 0, lastT = 0, paused = false, feedChanged = true;
+let demoT = 0, lastT = 0, paused = location.hash === '#capture', feedChanged = true;
 function minuteNow(){ return START + Math.floor((demoT % LOOP)/SPM); }
 function fmt(min){ min = ((Math.round(min) % 1440) + 1440) % 1440; const h = Math.floor(min/60), m = min % 60; return ((h+11)%12+1) + ':' + String(m).padStart(2,'0') + ' ' + (h<12?'AM':'PM'); }
 function runScript(){
@@ -661,7 +662,7 @@ function applyLang(){
   document.documentElement.lang = lang;
   $('#t-title').textContent = L().title; $('#t-sub').textContent = L().sub; $('#t-needs').textContent = L().needs; $('#t-crew').textContent = L().crew;
   $('#t-live').textContent = L().modes[sky.mode]; $('#t-storm').textContent = L().storm; $('#t-demo').textContent = L().demoShort; $('#t-demo2').textContent = L().demoShort;
-  $('#hint').textContent = L().hint; $('#pause').setAttribute('aria-label', paused ? L().play : L().pause);
+  $('#hint').textContent = document.getElementById('app').classList.contains('no-gl') ? L().still : L().hint; $('#pause').setAttribute('aria-label', paused ? L().play : L().pause);
   $('#l-en').setAttribute('aria-pressed', String(lang==='en')); $('#l-es').setAttribute('aria-pressed', String(lang==='es'));
   needSig = ''; renderNeeds.sum = ''; cardSig = ''; for (const o of overlays.values()) o.sig = ''; refreshUI();
   try { localStorage.setItem('hubLang', lang); } catch(e){}
@@ -679,7 +680,7 @@ document.addEventListener('click', e => {
 $('#l-en').onclick = () => { lang = 'en'; applyLang(); };
 $('#l-es').onclick = () => { lang = 'es'; applyLang(); };
 $('#pause').onclick = () => { paused = !paused; $('#pause-ic').innerHTML = paused ? IC.play : IC.pause; $('#pause').setAttribute('aria-label', paused ? L().play : L().pause); };
-function hideHint(){ $('#hint').style.opacity = 0; }
+function hideHint(){ if (!document.getElementById('app').classList.contains('no-gl')) $('#hint').style.opacity = 0; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && selected){ selected = null; cardSig = ''; refreshUI(); } });
 
 /* ---- overlay: tags, bubbles, z (positions come from the 3D scene) ---- */
@@ -786,7 +787,7 @@ function reset(){ claims.clear(); for (const c of CREW){ const i = INIT[c.id]; c
 reset();
 layout(); applyLang();
 window.HUB = {agents, byId, DESK, POOL, sky, RM, get selected(){ return selected; }, get wide(){ return isWide; }, get demoT(){ return demoT; },
-  fallback(){ document.getElementById('app').classList.add('no-gl'); }, layout,
+  fallback(){ document.getElementById('app').classList.add('no-gl'); $('#hint').textContent = L().still; $('#hint').style.opacity = 1; }, layout,
   seek(sec){ reset(); demoT = 0; lastT = 0; runScript(); demoT = sec; runScript(); for (const a of agents){ for (let i=0;i<8 && (a.moving || a.queue.length);i++){ if (a.moving) place(a, a.target); runQueue(a); if (a.queue[0] && a.queue[0].dur) { a.poseT = a.queue[0].dur*0.4; break; } } } refreshUI(); }};
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) window.HUB.fallback(); }, 6000);
 requestAnimationFrame(frame);
@@ -1391,6 +1392,6 @@ HUB.layout();
 
 if (CAPTURE){
   // render a still for the no-WebGL fallback (transparent background; the CSS sky shows through)
-  setTimeout(() => { const out = document.createElement('textarea'); out.id = 'cap'; renderer.render(scene, cam); out.value = canvas.toDataURL('image/webp', .86); document.body.append(out); }, 2500);
+  setTimeout(() => { const out = document.createElement('textarea'); out.id = 'cap'; renderer.render(scene, cam); out.value = canvas.toDataURL('image/webp', .84); document.body.append(out); }, 7000);
 }
 </script>
