@@ -59,3 +59,11 @@ Say-first box on every door (69-1602). 3-day cancel form EN + ES and the itemize
 (44-8606) show as papers with "Needed before work". "Homeowner files their own claim... no deductible help of any
 kind (44-8604)" on every job. "Deductible · paid by homeowner" is listed as a money line. No owner names; "owner-lived",
 never "insured". No coaching text. The mockups show no registration number (it stays blank until the boss gives it).
+
+## A · Batcave layer (FilthE picked A, 2026-09-27: "like Batman's cave computers")
+`batcave.css`, loaded by `a-cockpit.html` only (B/C and `shared.css` untouched). Dark: near-black room (vignette,
+32/160 px grid, faint topo lines, soft scan lines), panels as dark glass monitors (1px cool edge, top highlight, inner
+glow, corner brackets, mono HUD headers with one orange pip), segmented orange gauges, map as a tactical display
+(grid, edge rulers, one slow 9 s sweep, off with reduced motion). Ledger light = clean lab console (same frame, no
+scan lines). Muted text 6:1, faint 4.8:1 on panels. Shots: `shots/batcave-{now,knock,job}-{dark,light}.png`,
+before/after: `batcave-compare.png`.
