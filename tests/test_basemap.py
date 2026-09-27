@@ -63,20 +63,24 @@ class Base(unittest.TestCase):
 
 class Build(Base):
     def test_real_fremont_walk(self):
-        doc = basemap.build(_load("streets")["features"], _load("lots")["features"], self.bbox, self.cfg)
-        self.assertEqual(set(doc), {"bbox", "streets", "lots", "labels", "source", "kb"})
+        sbox = basemap.street_bbox(self.walk["stops"], self.cfg)
+        doc = basemap.build(_load("streets")["features"], _load("lots")["features"], self.bbox, self.cfg, sbox)
+        self.assertEqual(set(doc), {"bbox", "street_bbox", "streets", "lots", "labels", "source", "kb"})
         names = {s["name"] for s in doc["streets"]}
         self.assertTrue({"N Broad St", "W 12th St", "W Linden Ave", "N H St"} <= names, names)
         self.assertEqual({s["cls"] for s in doc["streets"] if s["name"] == "N Broad St"}, {"major"})   # SECONDARY
         self.assertGreater(len(doc["lots"]), 100)
         self.assertLess(doc["kb"], 60)
         self.assertLess(len(json.dumps(doc, separators=(",", ":"))), 60 * 1024)
-        w, s, e, n = self.bbox
-        for st in doc["streets"]:                                     # clipped to the box, rounded to 5 decimals
+        w, s, e, n = sbox
+        for st in doc["streets"]:                                     # clipped to the street box, rounded to 5 decimals
             self.assertGreaterEqual(len(st["path"]), 2)
             for x, y in st["path"]:
                 self.assertTrue(w - 1e-5 <= x <= e + 1e-5 and s - 1e-5 <= y <= n + 1e-5)
                 self.assertEqual(round(x, 5), x)
+        w, s, e, n = self.bbox
+        for lab in doc["labels"]:                                     # names sit inside the page's box
+            self.assertTrue(w - 1e-5 <= lab["at"][0] <= e + 1e-5 and s - 1e-5 <= lab["at"][1] <= n + 1e-5)
         for ring in doc["lots"]:
             self.assertEqual(ring[0], ring[-1])
             self.assertGreaterEqual(len(ring), 4)

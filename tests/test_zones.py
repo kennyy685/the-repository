@@ -21,7 +21,8 @@ from tests.test_todaywalk import KEYS, NEW_KEYS  # noqa: E402
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 DAY = "2026-09-25"
 ZONE_KEYS = {"id", "name", "center", "polygon", "polygon_kind", "score", "heat", "hail_in", "storm_day", "homes", "why",
-             "walk_id", "kind", "dist_mi", "list_id", "turf"}
+             "walk_id", "kind", "dist_mi", "list_id", "turf",
+             "walk_polygon", "walk_center", "homes_total", "walk_homes"}          # + map polish (tests/test_walk_map.py)
 NEVER = re.compile(r"insur|asegur|seguro|deduct|deduc|guarant", re.I)
 
 

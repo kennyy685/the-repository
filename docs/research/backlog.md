@@ -20,8 +20,15 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Fold the "chalk one test square at a time, don't chalk the whole roof" rule into
       `docs/guides/adjuster-meeting.md` and the inspection checklist print piece (round 35 found the answer,
       didn't edit the docs)
-- [ ] Get GAF's or a direct adjuster's own confirmation on chalk-marking acceptance (manufacturer/insurer primary
-      source, not a contractor blog) - round 35 could only reach contractor-blog search summaries
+- [x] Get GAF's or a direct adjuster's own confirmation on chalk-marking acceptance (manufacturer/insurer primary
+      source, not a contractor blog) - **round 43**: reached InterNACHI's own official "Mastering Roof
+      Inspections" series (nachi.org, by Kenton Shepard/Nick Gromicko) instead - a real trade-association
+      primary source. It confirms chalk is standard practice but warns it "will create the illusion of larger
+      damage than actually exists" (a different, more precise reason than "insurers reject chalked photos"),
+      and confirms adjuster test squares are 10'x10' (100 sq ft), with "eight hits is a common number" for
+      replacement. GAF's own guidance still not reached (gaf.com still blocked) - good enough to close this
+      item; the "why not to over-chalk" reasoning in `docs/guides/adjuster-meeting.md` should say "makes
+      damage look bigger than it is," not "insurers reject the photos."
 - [ ] Post the §48-2910 bilingual (English/Spanish) worker-classification notice once HMP has a fixed job site or
       shop to post it at (round 35: a real, cheap NE posting requirement most small contractors miss; low
       priority until a second salesman or fixed site exists)
@@ -31,14 +38,21 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [x] James Hardie "Select" contractor tier: exact requirements, and does The Edge job's Hardie lap siding work already qualify HMP - round 33
 - [ ] Confirm exact door-to-door solicitation hours for Columbus and Schuyler by phone with the city PD/clerk (round 24's web research couldn't reach either ordinance's hours text; `data/city_rules.json` has both flagged "unverified")
 - [ ] Annual/1-year check-up follow-up program for past customers (retention + referrals) - revisit once HMP has 10+ completed jobs (round 24 flagged as premature now)
-- [ ] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything
+- [x] Directly open OpenPhone/Podium/CallRail's own pricing pages (blocked via WebFetch this round; try curl) to confirm round 28's missed-call text-back price table before FilthE/boss buy anything -
+      **round 43: big find - OpenPhone renamed itself Quo (Sept. 2025); openphone.com now 301-redirects to
+      quo.com (confirmed by direct fetch). Tell FilthE/boss to sign up at quo.com, not openphone.com. Price
+      ($15-19/mo Starter) corroborated but quo.com/pricing itself is still proxy-blocked, so re-check the
+      auto-text-back feature (product now leads with an AI voice agent, "Sona") before paying.**
 - [ ] Once HMP has enough call volume that live text-back isn't enough, revisit AI-answering upgrade tiers (CallRail Voice Assist, Podium) for real Spanish-conversation support, not just template texts
 - [ ] Ask FilthE/boss which document HMP actually uses today before an adjuster visit (plain inspection
       authorization, a contingency-on-approval agreement, or going straight to the final contract) - round 27
       found the three are legally different and easy to blur; unknown from research, needs a direct answer
 - [ ] Confirm by phone whether Hearth or Wisetack (round 21's picks) actually accept ITIN-only borrowers with
       no SSN - round 30 found ITIN home-improvement financing exists generally but couldn't confirm either
-      named lender's own policy (pages blocked)
+      named lender's own policy (pages blocked). **Round 43: Wisetack's own site (now reachable) was checked
+      directly and simply doesn't address this question either way - still needs the phone call. But the
+      $500-$25,000 / 0-35.9% APR / 3-120mo loan terms and the "no participation fees" language ARE now
+      confirmed straight from wisetack.com.**
 - [ ] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
       content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
       specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
@@ -53,8 +67,11 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] If/when HMP considers selling the app later: what a real first outside customer needs structurally
       (per-company data separation, second brand/logo slot, support hours) before any pricing conversation -
       round 32 only found pricing-model shape (flat-tier vs. per-seat), not the technical bar
-- [ ] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
-      just calling the listed number (round 34: contact info found, cost unverified, pages blocked)
+- [x] Confirm MOPOA/REOMA/Omaha Landlords Association membership fees and whether HMP needs to join vs.
+      just calling the listed number (round 34: contact info found, cost unverified, pages blocked) -
+      **round 43: MOPOA confirmed by direct fetch of mopoa.com/membership - $150/yr base, $225-300/yr
+      vendor/contractor tiers with newsletter ads or meeting sponsorship. REOMA and Omaha Landlords
+      Association fees still unconfirmed (lower priority - Omaha-adjacent, not Lincoln).**
 - [x] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
       questions from an individual unit owner - round 36 (`data/objection_scripts_2.json`)
 - [ ] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
@@ -65,10 +82,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
       allows, to get the real 2026 Service Finance dealer-fee schedule and confirm whether Master Elite
       gets better financing terms than plain Certified or a non-GAF-tier contractor (round 33: WebFetch and
-      curl were both fully blocked on every domain tried, search-summary only)
+      curl were both fully blocked on every domain tried, search-summary only). **Round 43: gaf.com still
+      blocked (per FilthE's network-opened list), but the 2012 roofingcontractor.com precedent for tier
+      parity was confirmed by direct fetch - see round 33's update. gaf.com itself is still the open item.**
 - [ ] Call James Hardie's contractor line directly to confirm Select-tier enrollment requirements and
       whether The Edge job's Hardie lap siding installs (done as a sub) count toward Select, or only jobs
-      run under HMP's own Hardie account after enrolling count (round 33)
+      run under HMP's own Hardie account after enrolling count (round 33). **Round 43: confirmed the
+      jameshardie.com/alliance/ page itself has zero enrollment requirements or fee info published for any
+      tier - this phone call is now the only way to get that answer, not just the best way.**
 - [ ] Confirm with the boss whether HMP's Contractor Registration Act number is currently active/renewed
       and record the renewal date (round 37: 48-2107, annual, $40 fee; up to $500 penalty for a first
       citation, no grace period since 2009)

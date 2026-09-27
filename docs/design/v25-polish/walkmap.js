@@ -5,6 +5,8 @@
 
    renderWalkMap(svg, walk, opts)   one walk: lots, streets, names, route snapped to the streets, numbered stops
    renderZoneMap(svg, data, opts)   town view: several walks' basemaps stitched, each zone as soft heat, ranked pins
+   renderHomeMap(svg, walk, opts)   homeowner damage map: one house on its real lot, roof plan, numbered findings
+   renderHailMap(svg, data, opts)   homeowner hail map: the storm's hail area around the home (no zones or scores)
 
    Both return {xy(lon,lat) -> [x,y], inView(x,y)} so the page can place HTML chips (zone pin, drive chip) on top. */
 (function (g) {
@@ -21,7 +23,8 @@
     if (o.metersAcross) s = W / (o.metersAcross / 111320);
     else { const sx = (W - 2 * pad) / ((x1 - x0) * k), sy = (H - 2 * pad) / (y1 - y0); s = o.fit === 'cover' ? Math.max(sx, sy) : Math.min(sx, sy); }
     const xy = (lon, lat) => [W / 2 + (lon - cx) * k * s, H / 2 - (lat - cy) * s];
-    return { xy, s, pxPerMeter: s / 111320, inView: (x, y, m = 0) => x >= m && y >= m && x <= W - m && y <= H - m };
+    const ll = (x, y) => ({ lon: cx + (x - W / 2) / (k * s), lat: cy - (y - H / 2) / s });   // screen -> lon/lat
+    return { xy, ll, s, pxPerMeter: s / 111320, inView: (x, y, m = 0) => x >= m && y >= m && x <= W - m && y <= H - m };
   }
 
   // nearest point on a polyline (screen space)
@@ -60,7 +63,7 @@
       bm.lots.forEach(l => el('path', { d: D(l.map(p => P.xy(p[0], p[1]))) + 'Z' }, g));
     }
     const lines = bm.streets.map(s => ({ s, pts: s.path.map(p => P.xy(p[0], p[1])) }));
-    const w = c => (c === 'major' ? 9 : 6.5) * z;
+    const w = c => o.streetWidth ? o.streetWidth(c) : (c === 'major' ? 9 : 6.5) * z;   // streetWidth: true-to-scale widths at lot zoom
     const cas = el('g', { fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, layer);
     lines.forEach(({ s, pts }) => el('path', { d: D(pts), stroke: s.cls === 'major' ? 'var(--map-major-casing)' : 'var(--map-casing)', 'stroke-width': w(s.cls) + 2 }, cas));
     lines.forEach(({ s, pts }) => el('path', { d: D(pts), stroke: s.cls === 'major' ? 'var(--map-major)' : 'var(--map-street)', 'stroke-width': w(s.cls) }, cas));
@@ -195,5 +198,147 @@
     return P;
   }
 
-  g.renderWalkMap = renderWalkMap; g.renderZoneMap = renderZoneMap;
+  /* ---------- homeowner screen: one house at lot scale, and the hail around it ---------- */
+  function inside(p, poly) {   // point in polygon, lon/lat
+    let c = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; }
+    return c;
+  }
+  const centroid = pts => { const q = pts[0][0] === pts[pts.length - 1][0] && pts[0][1] === pts[pts.length - 1][1] ? pts.slice(0, -1) : pts; return [q.reduce((a, p) => a + p[0], 0) / q.length, q.reduce((a, p) => a + p[1], 0) / q.length]; };
+  function nearestSeg(p, lines) {   // nearest street edge: foot point, distance, unit direction, street index
+    let b = null;
+    lines.forEach((l, li) => { const s = l.pts; for (let i = 0; i < s.length - 1; i++) {
+      const [ax, ay] = s[i], [bx, by] = s[i + 1], dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / L)), q = [ax + t * dx, ay + t * dy], d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+      if (!b || d < b.d) { const len = Math.sqrt(L); b = { q, d, dir: [dx / len, dy / len], li }; } } });
+    return b;
+  }
+  /* A house footprint inside its lot, square to the street it faces, set back from it. The engine sends lots but no
+     building outlines yet (OSM / Microsoft building footprints are free if we want the real ones), so this is drawn.
+     at(u, v): u -1..1 along the street (west -> east), v -1..1 from the back eave to the front eave. */
+  function houseIn(lotPx, lines, ppm) {
+    const c = centroid(lotPx), s = nearestSeg(c, lines); if (!s || s.d > 45 * ppm) return null;
+    let n = [-s.dir[1], s.dir[0]]; if (n[0] * (s.q[0] - c[0]) + n[1] * (s.q[1] - c[1]) < 0) n = [-n[0], -n[1]];   // toward the street
+    let d = [-n[1], n[0]]; if (d[0] < 0) d = [-d[0], -d[1]];                                                    // along it, eastward
+    const pd = lotPx.map(p => (p[0] - c[0]) * d[0] + (p[1] - c[1]) * d[1]), pn = lotPx.map(p => (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1]);
+    const d0 = Math.min(...pd), d1 = Math.max(...pd), n0 = Math.min(...pn), n1 = Math.max(...pn), F = d1 - d0, Dp = n1 - n0;
+    if (F < 9 * ppm || Dp < 14 * ppm) return null;
+    const hw = Math.min(F * .66, 17 * ppm), hd = Math.min(Dp * .4, 10.5 * ppm), setback = Math.max(Dp * .22, 6 * ppm);
+    const cu = (d0 + d1) / 2, cv = n1 - setback - hd / 2, hc = [c[0] + d[0] * cu + n[0] * cv, c[1] + d[1] * cu + n[1] * cv];
+    const at = (u, v) => [hc[0] + d[0] * u * hw / 2 + n[0] * v * hd / 2, hc[1] + d[1] * u * hw / 2 + n[1] * v * hd / 2];
+    return { hc, d, n, hw, hd, at, street: s, toStreet: s.d - cv };
+  }
+  function hipRoof(g, h, strong) {   // hip roof from above: back slope in shade, front lit, ends in between
+    const r = Math.max(0, 1 - h.hd / h.hw), A = h.at;
+    const faces = [[[-1, -1], [1, -1], [r, 0], [-r, 0], 'var(--map-roof-c)'], [[-r, 0], [r, 0], [1, 1], [-1, 1], 'var(--map-roof-a)'],
+      [[-1, -1], [-r, 0], [-1, 1], 'var(--map-roof-b)'], [[1, -1], [1, 1], [r, 0], 'var(--map-roof-b)']];
+    faces.forEach(f => el('path', { d: D(f.slice(0, -1).map(p => A(p[0], p[1]))) + 'Z', fill: f[f.length - 1] }, g));
+    const line = { fill: 'none', stroke: strong ? 'var(--ink-2)' : 'var(--map-lotline)', 'stroke-width': strong ? 1.1 : .8, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
+    el('path', { d: D([A(-1, -1), A(1, -1), A(1, 1), A(-1, 1)]) + 'Z', ...line }, g);
+    el('path', { d: D([A(-1, -1), A(-r, 0), A(r, 0), A(1, -1)]) + 'M' + A(-1, 1).join(' ') + 'L' + A(-r, 0).join(' ') + 'M' + A(1, 1).join(' ') + 'L' + A(r, 0).join(' '), ...line, 'stroke-width': strong ? .9 : .6, opacity: strong ? .75 : .8 }, g);
+  }
+  function driveway(g, h, sw) {   // from the front of the house to the street edge, at the east end
+    const len = Math.max(0, h.toStreet - h.hd / 2 - sw / 2);
+    const p = [h.at(.52, 1), h.at(.94, 1)], o = [h.n[0] * len, h.n[1] * len];
+    el('path', { d: D([p[0], p[1], [p[1][0] + o[0], p[1][1] + o[1]], [p[0][0] + o[0], p[0][1] + o[1]]]) + 'Z', fill: 'var(--map-street)', stroke: 'var(--map-casing)', 'stroke-width': .8 }, g);
+  }
+
+  /* renderHomeMap(svg, walk, opts): the damage map. The home's real lot (highlighted) with its neighbors and the street,
+     a drawn roof plan, and each finding marked where it is.
+     opts: width, height, home {lat, lon}, ppm (px per meter, default 9), toward (0-1: how far to slide the view from the
+           house toward the street, default .3), finds [{n, kind: 'slope'|'square'|'vent'|'gutter'|'wall', at:[u,v]}],
+           active (n of the highlighted finding), mini (tiny locator: no labels, dots for pins), street (label text) */
+  function renderHomeMap(svg, walk, opts = {}) {
+    const W = opts.width || 358, H = opts.height || 300, id = svg.id || 'hm', bm = walk.basemap, home = opts.home;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
+    const ppm = opts.ppm || 9, across = W / ppm;
+    const lotI = bm.lots.findIndex(l => inside([home.lon, home.lat], l));
+    // pass 1 finds the house frame; pass 2 re-centers between the house and its street
+    let P = projection(bm.bbox, W, H, { center: home, metersAcross: across });
+    const lines0 = bm.streets.map(s => ({ s, pts: s.path.map(p => P.xy(p[0], p[1])) }));
+    const h0 = lotI >= 0 ? houseIn(bm.lots[lotI].map(p => P.xy(p[0], p[1])), lines0, ppm) : null;
+    if (h0) { const k = opts.toward == null ? .3 : opts.toward, c = [h0.hc[0] + (h0.street.q[0] - h0.hc[0]) * k, h0.hc[1] + (h0.street.q[1] - h0.hc[1]) * k]; P = projection(bm.bbox, W, H, { center: P.ll(c[0], c[1]), metersAcross: across }); }
+    defs(svg, id);
+    const dd = svg.querySelector('defs'), pat = el('pattern', { id: id + '-hatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, dd);
+    el('rect', { width: 5, height: 5, fill: 'rgb(var(--heat))', 'fill-opacity': .18 }, pat);
+    el('path', { d: 'M0 0V5', stroke: 'var(--hmp)', 'stroke-width': 1.5, 'stroke-opacity': .85 }, pat);
+    el('rect', { width: W, height: H, fill: 'var(--map-land)' }, svg);
+    const base = el('g', {}, svg);
+    const sw = c => (c === 'major' ? 13 : 9.5) * ppm;   // curb to curb, true to scale
+    const lines = drawBase(svg, bm, P, { streetWidth: sw, lotWidth: opts.mini ? .5 : .9 }, base);
+    const lotsPx = bm.lots.map(l => l.map(p => P.xy(p[0], p[1])));
+    // neighbors, soft; then the home lot and house
+    const nb = el('g', { opacity: opts.mini ? .55 : .8 }, svg);
+    lotsPx.forEach((l, i) => { if (i === lotI || !l.some(p => P.inView(p[0], p[1], -40))) return; const h = houseIn(l, lines, ppm); if (h) { if (!opts.mini) driveway(nb, h, sw('local')); hipRoof(nb, h, false); } });
+    if (lotI < 0) return { P };
+    const lotPx = lotsPx[lotI], h = houseIn(lotPx, lines, ppm);
+    el('path', { d: D(lotPx) + 'Z', fill: 'var(--hmp-bg)', stroke: 'var(--hmp-ink)', 'stroke-width': opts.mini ? 1 : 1.4, 'stroke-dasharray': opts.mini ? '' : '5 4', 'stroke-linejoin': 'round' }, svg);
+    const hg = el('g', {}, svg);
+    if (!opts.mini) driveway(hg, h, sw('local'));
+    hipRoof(hg, h, true);
+    // findings: the damaged area first, then numbered pins on top
+    const r = Math.max(0, 1 - h.hd / h.hw), A = h.at, out = [], ov = el('g', {}, svg), pins = el('g', {}, svg);
+    const edge = (a, b) => { el('path', { d: D([a, b]), stroke: 'var(--card)', 'stroke-width': opts.mini ? 4 : 7, 'stroke-linecap': 'round' }, ov); el('path', { d: D([a, b]), stroke: 'var(--hmp)', 'stroke-width': opts.mini ? 2.2 : 4, 'stroke-linecap': 'round' }, ov); };
+    (opts.finds || []).forEach(f => {
+      const [u, v] = f.at; let anchor = A(u, v), pin = anchor;
+      const off = (du, dn) => [anchor[0] + h.d[0] * du + h.n[0] * dn, anchor[1] + h.d[1] * du + h.n[1] * dn];
+      if (f.kind === 'slope') el('path', { d: D(v < 0 ? [A(-1, -1), A(1, -1), A(r, 0), A(-r, 0)] : [A(-r, 0), A(r, 0), A(1, 1), A(-1, 1)]) + 'Z', fill: `url(#${id}-hatch)` }, ov);
+      if (f.kind === 'square') {   // the 10 x 10 ft test area, drawn to scale
+        const s = 3.048 * P.pxPerMeter / 2, q = [[-s, -s], [s, -s], [s, s], [-s, s]].map(([a, b]) => [anchor[0] + h.d[0] * a + h.n[0] * b, anchor[1] + h.d[1] * a + h.n[1] * b]);
+        el('path', { d: D(q) + 'Z', fill: 'var(--card)', 'fill-opacity': .55, stroke: 'var(--card)', 'stroke-width': 4, 'stroke-linejoin': 'round' }, ov);
+        el('path', { d: D(q) + 'Z', fill: 'none', stroke: 'var(--hmp-ink)', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }, ov);
+        pin = off(s + 11, -(s + 11));
+      }
+      if (f.kind === 'vent') { const s = Math.max(2.6, .45 * P.pxPerMeter); el('rect', { x: anchor[0] - s, y: anchor[1] - s, width: 2 * s, height: 2 * s, rx: 1, fill: 'var(--card)', stroke: 'var(--ink-2)', 'stroke-width': 1 }, ov); pin = off(14, -12); }
+      if (f.kind === 'gutter') { edge(A(-1, 1), A(1, 1)); pin = off(0, 17); }
+      if (f.kind === 'wall') { edge(A(-1, -1), A(-1, 1)); pin = off(-17, 0); }
+      if (opts.mini) { pin = anchor; if (f.kind === 'gutter') pin = off(0, 5); if (f.kind === 'wall') pin = off(-5, 0); }
+      if (!opts.mini && pin !== anchor) el('path', { d: D([anchor, pin]), stroke: 'var(--ink-2)', 'stroke-width': 1 }, pins);
+      const on = opts.active === f.n, R = opts.mini ? (on ? 6 : 3.2) : 11.5;
+      if (on && !opts.mini) el('circle', { cx: pin[0], cy: pin[1], r: R + 7, fill: 'rgb(var(--heat))', opacity: .28 }, pins);
+      el('circle', { cx: pin[0], cy: pin[1], r: R, fill: on ? 'var(--hmp)' : 'var(--ink)', stroke: 'var(--card)', 'stroke-width': opts.mini ? 1.5 : 2 }, pins);
+      if (!opts.mini) { const tx = el('text', { x: pin[0], y: pin[1] + .5, 'text-anchor': 'middle', 'dominant-baseline': 'central', style: `font:600 12px var(--f);fill:${on ? 'var(--on-hmp)' : 'var(--on-ink)'}` }, pins); tx.textContent = f.n; }
+      out.push({ n: f.n, xy: pin });
+    });
+    // the street the house faces, named where the viewer looks: in front of the house, clear of the pins
+    if (!opts.mini) {
+      const st = lines[h.street.li], name = opts.street || (st && st.s.name);
+      if (name) {
+        const a = Math.atan2(h.d[1], h.d[0]) * 180 / Math.PI, p = [h.street.q[0] + h.d[0] * h.hw * .95, h.street.q[1] + h.d[1] * h.hw * .95];
+        const tx = el('text', { x: p[0].toFixed(1), y: p[1].toFixed(1), transform: `rotate(${a.toFixed(1)} ${p[0].toFixed(1)} ${p[1].toFixed(1)})`, 'text-anchor': 'middle', 'dominant-baseline': 'central', style: 'font:500 12px var(--f);fill:var(--map-label);letter-spacing:.02em' }, svg);
+        tx.textContent = name;
+      }
+    }
+    return { P, pins: out, house: h };
+  }
+
+  function hull(pts) {   // convex hull, monotone chain
+    const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]), cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    p.forEach(q => { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    p.slice().reverse().forEach(q => { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); });
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  }
+  /* renderHailMap(svg, data, opts): the neighborhood with the storm's hail area and the home. No zones, ranks or scores:
+     this is the homeowner's view. The area is the hull of the storm's zones, blurred (the engine can send the radar
+     contour instead). opts: width, height, home {lat, lon}, metersAcross (default 1400), center */
+  function renderHailMap(svg, data, opts = {}) {
+    const W = opts.width || 358, H = opts.height || 120, id = svg.id || 'hl', home = opts.home;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
+    const zs = data.zones.zones.filter(z => data.walks[z.id] && z.polygon && z.storm_day === (opts.day || z.storm_day));
+    const P = projection([0, 0, 1, 1], W, H, { center: opts.center || home, metersAcross: opts.metersAcross || 1400 });
+    defs(svg, id);
+    el('rect', { width: W, height: H, fill: 'var(--map-land)' }, svg);
+    const base = el('g', {}, svg), seen = new Set();
+    zs.forEach(z => drawBase(svg, data.walks[z.id].basemap, P, { lotOpacity: .55, lotWidth: .4 }, base));
+    const pts = []; zs.forEach(z => z.polygon.forEach(p => pts.push(P.xy(p[0], p[1]))));
+    if (pts.length > 2) { const g2 = el('g', { filter: `url(#${id}-blur)` }, svg); el('path', { d: D(hull(pts)) + 'Z', fill: 'rgb(var(--heat))', opacity: .34 }, g2); }
+    if (opts.labels !== false) { const top = el('g', {}, svg); zs.forEach(z => drawLabels(top, data.walks[z.id].basemap.labels.filter(l => /Ave|St|Blvd/.test(l.text)), P, { labelSize: 9, placed: opts.placed || (opts.placed = []) }, seen)); }
+    const [x, y] = P.xy(home.lon, home.lat);
+    el('circle', { cx: x, cy: y, r: 15, fill: 'var(--ink)', opacity: .12 }, svg);
+    el('circle', { cx: x, cy: y, r: 6.5, fill: 'var(--ink)', stroke: 'var(--card)', 'stroke-width': 2.5 }, svg);
+    return P;
+  }
+
+  g.renderWalkMap = renderWalkMap; g.renderZoneMap = renderZoneMap; g.renderHomeMap = renderHomeMap; g.renderHailMap = renderHailMap;
 })(window);
