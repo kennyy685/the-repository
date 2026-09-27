@@ -1,4 +1,6 @@
 {
+  "contrastIgnoreSelectors": [".bar .mark", ".bar .mark svg", ".mark svg"],
+  "_comment_contrastIgnoreSelectors": "Brand logo marks (the orange HMP roof-chevron in the header) - exempt from contrast/contrast-icon checks. Also skipped: any element with data-gate-ignore=\"logo\" on it or an ancestor, wherever a page marks one directly.",
   "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses.",
   "collections": {
     "leads": {
