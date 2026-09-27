@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App - Component Gallery</title>
+<meta name="description" content="T170: every HMP App v25 component, light and dark side by side, checked against on every release.">
+<link rel="stylesheet" href="../v25-polish/ds.css">
+<style>
+/* ============ gallery chrome - owned by this page only, ds.css is the source of truth ============ */
+body{background:var(--bg);color:var(--ink)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 96px}
+.ghead{display:grid;gap:8px;max-width:760px}
+.ghead h1{font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.ghead p{color:var(--muted);font-size:15px;max-width:74ch}
+.ghead p.es{color:var(--faint)}
+.gnav{position:sticky;top:0;z-index:5;display:flex;gap:2px;overflow-x:auto;padding:10px 0;margin-top:16px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.gnav a{flex:none;font-size:12.5px;font-weight:500;color:var(--ink-2);text-decoration:none;padding:6px 10px;border-radius:var(--r-sm);white-space:nowrap}
+.gnav a:hover{background:var(--soft)}
+.gsec{margin-top:52px;scroll-margin-top:56px}
+.gsec .sh2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.gsec h2{font-size:21px;font-weight:600;letter-spacing:-.015em}
+.gsec .src{font:500 11px var(--mono);color:var(--faint)}
+.gsec .desc{color:var(--muted);font-size:13.5px;max-width:74ch;margin-top:4px}
+.gap-note{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--warn-bg);color:var(--warn);
+  border-radius:var(--r-sm);padding:6px 10px;font-size:12.5px;font-weight:500}
+.gap-note .i{width:14px;height:14px;flex:none}
+
+/* the light/dark comparison unit */
+.pair{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
+@media (min-width:820px){.pair{grid-template-columns:1fr 1fr}}
+.swatch{border-radius:var(--r-lg);border:1px solid var(--line);padding:18px;position:relative;overflow:hidden}
+.swatch .themetag{position:absolute;top:10px;right:12px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.tok{margin-top:12px;font:500 11px var(--mono);color:var(--muted);line-height:1.6;letter-spacing:.005em}
+.tok b{color:var(--ink-2);font-weight:500}
+.demo-col{display:grid;gap:12px}
+.demo-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.demo-label{font:500 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+
+/* ---- light/dark token pins: independent of the page's own :root, so both always render correctly ---- */
+.swatch.lt{color-scheme:light;background:var(--bg);color:var(--ink);
+  --bg:#f6f7f8;--card:#ffffff;--soft:#eff1f3;--line:#e3e5e8;--line-2:#d3d6db;
+  --ink:#18191c;--ink-2:#3d3f45;--muted:#6c6f77;--faint:#9a9da4;
+  --hmp-ink:#a4520f;--hmp-bg:#fdf1e7;
+  --late:#c2362b;--late-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fbf2dc;--ok:#1f7a4d;--ok-bg:#e7f4ed;--you:#2f6fde;
+  --e1:0 1px 2px rgba(24,25,28,.05);--e2:0 16px 40px -12px rgba(24,25,28,.28),0 2px 6px rgba(24,25,28,.06);
+  --on-ink:#ffffff;--bar:rgba(255,255,255,.94);--scrim:rgba(24,25,28,.38);--stage:#e9ebee;--skel-hi:#f8f9fa;
+  --map-land:#f2f3f1;--map-lot:#fbfbfa;--map-lotline:#e2e4e6;--map-street:#ffffff;--map-casing:#dfe2e6;
+  --map-major:#fff3e3;--map-major-casing:#efd2ae;--map-label:#5b5e66;--map-water:#d7e5f3;--map-park:#e4efe0;
+  --heat:245,136,58;--route:#18191c;--map-roof-a:#e4e6ea;--map-roof-b:#d6d9de;--map-roof-c:#c8ccd2;
+}
+.swatch.dk{color-scheme:dark;background:var(--bg);color:var(--ink);
+  --bg:#101113;--card:#191a1d;--soft:#232428;--line:#2b2d31;--line-2:#3a3c42;
+  --ink:#f1f2f4;--ink-2:#c9cbd0;--muted:#8f929a;--faint:#6b6e75;
+  --hmp-ink:#ffa766;--hmp-bg:rgba(245,136,58,.14);
+  --late:#ff7166;--late-bg:rgba(255,113,102,.13);--warn:#f0b54a;--warn-bg:rgba(240,181,74,.12);--ok:#4cc38a;--ok-bg:rgba(76,195,138,.13);--you:#5b8ff0;
+  --e1:0 0 0 rgba(0,0,0,0);--e2:0 18px 48px -12px rgba(0,0,0,.7),0 0 0 1px #2b2d31;
+  --on-ink:#101113;--bar:rgba(25,26,29,.94);--scrim:rgba(0,0,0,.55);--stage:#08090a;--skel-hi:#2c2e33;
+  --map-land:#15161a;--map-lot:#1a1b1f;--map-lotline:#24262b;--map-street:#2a2c31;--map-casing:#15161a;
+  --map-major:#3b3226;--map-major-casing:#15161a;--map-label:#9a9da4;--map-water:#142234;--map-park:#152018;
+  --route:#f1f2f4;--map-roof-a:#3a3c42;--map-roof-b:#32343a;--map-roof-c:#2a2c31;
+}
+
+/* ============ 1. color tokens strip ============ */
+.swlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:10px;margin-top:14px}
+.sw{display:grid;gap:5px}
+.sw i{height:36px;border-radius:var(--r-sm);border:1px solid var(--line)}
+.sw span{font:500 11px var(--mono);color:var(--muted)}
+.sw b{display:block;font-size:11.5px;color:var(--ink-2);font-weight:500}
+
+/* ============ 2. top bar ============ */
+.gs-top .top{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg)}
+.gs-top .top.knockvariant .iconbtn{border:1px solid var(--line);background:var(--card)}
+
+/* ============ 3. bottom bar ============ */
+.gs-nav .nav{border:1px solid var(--line);border-radius:var(--r-lg);border-top:1px solid var(--line)}
+
+/* ============ 4. right hand bar (composer) ============ */
+.gs-rh .composer{border:1px solid var(--line);border-radius:var(--r-lg);border-top:1px solid var(--line)}
+.gs-rh .composer + .nav{border-top:1px solid var(--line);border-radius:0 0 var(--r-lg) var(--r-lg);margin-top:-1px}
+.gs-rh .stackframe{border-radius:var(--r-lg);overflow:hidden}
+
+/* ============ 5. buttons ============ */
+.gs-btn .demo-active{background:var(--hmp-press)!important}
+.gs-btn .demo-focus{outline:2px solid var(--you);outline-offset:2px}
+
+/* ============ 6. chips ============ */
+.gs-chip .chip.tap{height:28px;padding:0 10px;font-size:12.5px}
+.gs-chip .chip.tap .chevr{width:12px;height:12px;margin-left:2px;opacity:.7}
+
+/* ============ 8. cards / offer card (from knock.html) ============ */
+.gs-offer .offer{padding:var(--s3) var(--s4) var(--s4);display:grid;gap:10px}
+.gs-offer .offer .eb{display:flex;justify-content:space-between;align-items:center}
+.gs-offer .offer .addr{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.1}
+.gs-offer .facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-cap);color:var(--ink-2)}
+.gs-offer .facts span{display:inline-flex;align-items:center;gap:5px}
+.gs-offer .facts .i{width:15px;height:15px;color:var(--muted)}
+.gs-offer .coach{display:flex;gap:6px;align-items:flex-start;font-size:var(--t-cap);color:var(--ink-2)}
+.gs-offer .coach .i{width:16px;height:16px;color:var(--hmp-ink);margin-top:1px}
+.gs-offer .tools{display:grid;grid-template-columns:1fr 1fr auto;gap:var(--s2)}
+.gs-offer .tools .btn{height:var(--hit-sm);font-size:var(--t-cap);font-weight:500;padding:0 var(--s3);border-radius:var(--r-sm)}
+
+/* ============ 9. list rows ============ */
+.gs-rows .rows.more .row{min-height:52px}
+
+/* ============ 10. stat tiles (now.html .stats, knock.html .mini, money.html hero) ============ */
+.gs-stats .stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--r-md)}
+.gs-stats .stats div{padding:var(--s2) var(--s3)}
+.gs-stats .stats div+div{border-left:1px solid var(--line)}
+.gs-stats .stats b{display:block;font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.gs-stats .stats span{font-size:12px;color:var(--muted)}
+.gs-stats .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);text-align:center}
+.gs-stats .mini b{display:block;font-size:var(--t-title);font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.gs-stats .mini span{font-size:12px;color:var(--muted)}
+.gs-stats .count{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:var(--s4)}
+.gs-stats .count .big{display:flex;align-items:baseline;gap:6px;line-height:.9}
+.gs-stats .count .big b{font-size:44px;font-weight:600;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.gs-stats .count .big span{font-size:var(--t-row);color:var(--muted);font-weight:500}
+.gs-stats .count .big small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:6px}
+.gs-stats .hero .fig{font-size:38px;font-weight:600;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:6px}
+.gs-stats .hero .fig small{font-size:var(--t-row);color:var(--muted);font-weight:500;letter-spacing:0;margin-left:6px}
+.gs-stats .stack{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin-top:var(--s3)}
+.gs-stats .stack i{display:block}
+.gs-stats .k-mort{background:var(--warn)}.gs-stats .k-held{background:var(--line-2)}.gs-stats .k-ho{background:var(--ink-2)}.gs-stats .k-sup{background:var(--hmp)}
+.gs-stats .moneylegend{margin-top:var(--s3);display:grid;gap:2px}
+.gs-stats .moneylegend div{display:flex;align-items:center;gap:var(--s2);font-size:var(--t-body);min-height:26px}
+.gs-stats .moneylegend i{width:10px;height:10px;border-radius:3px;flex:none}
+.gs-stats .moneylegend span{flex:1;color:var(--ink-2)}
+.gs-stats .moneylegend span small{color:var(--muted);font-size:var(--t-cap)}
+.gs-stats .moneylegend b{font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ============ 11. door buttons (answer tiles) ============ */
+.gs-doors .answers{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.gs-doors .ans{height:60px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--card);display:flex;align-items:center;gap:var(--s3);padding:0 var(--s4);text-align:left}
+.gs-doors .ans .i{width:22px;height:22px;color:var(--ink-2)}
+.gs-doors .ans b{display:block;font-size:var(--t-row);font-weight:600;line-height:1.15}
+.gs-doors .ans small{display:block;font-size:12px;color:var(--muted)}
+.gs-doors .ans.pri{background:var(--hmp);border-color:var(--hmp);color:var(--on-hmp)}
+.gs-doors .ans.pri .i,.gs-doors .ans.pri small{color:var(--on-hmp);opacity:.85}
+
+/* ============ 12. sheet ============ */
+.gs-sheet .sheetdemo{border:1px solid var(--line);border-radius:var(--r-xl);background:var(--bg);overflow:hidden}
+.gs-sheet .grab{width:36px;height:5px;border-radius:3px;background:var(--line-2);margin:8px auto 0}
+.gs-sheet .sh{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s3) var(--s4)}
+.gs-sheet .sh h3{font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.gs-sheet .sh .meta{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:var(--t-cap);color:var(--muted)}
+.gs-sheet .sh .x{margin-left:auto;width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.gs-sheet .body{padding:0 var(--s4) var(--s4);display:grid;gap:var(--s3)}
+.gs-sheet .stage8{display:grid;gap:6px}
+.gs-sheet .stage8 .segs{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.gs-sheet .stage8 .segs i{height:5px;border-radius:3px;background:var(--line)}
+.gs-sheet .stage8 .segs i.d{background:var(--ink)}.gs-sheet .stage8 .segs i.c{background:var(--hmp)}
+.gs-sheet .stage8 .tx{display:flex;justify-content:space-between;font-size:var(--t-cap);color:var(--muted)}
+.gs-sheet .stage8 .tx b{color:var(--ink);font-weight:600}
+.gs-sheet .nextcard{padding:var(--s4);display:grid;gap:var(--s3)}
+.gs-sheet .nextcard h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.gs-sheet .nextcard .two{display:grid;grid-template-columns:1fr auto;gap:var(--s2)}
+.gs-sheet .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s2)}
+.gs-sheet .quick button{height:58px;border-radius:var(--r-md);background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:var(--ink-2)}
+.gs-sheet .quick .i{color:var(--ink)}
+.gs-sheet .guide{padding:0}
+.gs-sheet .guide .gh{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4) 0}
+.gs-sheet .guide .seg{width:96px;padding:2px}.gs-sheet .guide .seg button{height:26px;font-size:12px}
+.gs-sheet .gsay{margin:var(--s2) var(--s4) 0;font-size:var(--t-row);line-height:1.4;color:var(--ink);padding-left:var(--s3);border-left:3px solid var(--hmp)}
+.gs-sheet .glist{padding:var(--s3) var(--s4) var(--s4);display:grid;gap:10px}
+.gs-sheet .ck{display:flex;align-items:center;gap:var(--s3);font-size:var(--t-body)}
+.gs-sheet .ck .box{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none}
+.gs-sheet .ck.on .box{background:var(--ok);border-color:var(--ok);color:var(--on-ink)}
+.gs-sheet .ck.on .box .i{width:13px;height:13px;stroke-width:2.6}
+.gs-sheet .ck span{flex:1}
+.gs-sheet .ck.on span{color:var(--ink-2)}
+
+/* ============ 13. toast ============ */
+.gs-toast .toastdemo{position:relative;height:78px;border:1px dashed var(--line-2);border-radius:var(--r-lg)}
+.gs-toast .toast{position:absolute;left:var(--s4);right:var(--s4);bottom:16px;display:flex;align-items:center;gap:var(--s3);background:var(--ink);color:var(--on-ink);border-radius:var(--r-md);padding:var(--s3) var(--s4);box-shadow:var(--e2);font-size:var(--t-body)}
+.gs-toast .toast .i{color:var(--hmp);flex:none}
+.gs-toast .toast button{margin-left:auto;color:var(--hmp);font-weight:600;flex:none}
+
+/* ============ 14. empty / loading / error ============ */
+.gs-states .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--s2);padding:var(--s6) var(--s5)}
+.gs-states .empty .glyph{width:56px;height:56px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);margin-bottom:var(--s2)}
+.gs-states .empty h3{font-size:var(--t-row);font-weight:600}
+.gs-states .empty p{color:var(--muted);font-size:var(--t-body);max-width:30ch}
+.gs-states .empty .btn{margin-top:var(--s3)}
+.gs-states .empty.errstate .glyph{background:var(--late-bg);border-color:var(--late-bg);color:var(--late)}
+.gs-states .skrow{display:flex;gap:var(--s3);align-items:center;padding:var(--s3) var(--s4)}
+.gs-states .skl{height:12px}
+
+/* ============ 15. map pieces ============ */
+.gs-map .mapbg{position:relative;height:230px;border-radius:var(--r-lg);overflow:hidden;background:var(--map-land)}
+.gs-map .mapbg svg{position:absolute;inset:0;width:100%;height:100%}
+.gs-map .mctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;background:var(--card);border-radius:var(--r-md);box-shadow:var(--e2);overflow:hidden}
+.gs-map .mctl button{width:36px;height:36px;display:grid;place-items:center;color:var(--ink-2)}
+.gs-map .mctl button+button{border-top:1px solid var(--line)}
+.gs-map .maplegend{position:absolute;left:10px;top:10px;background:var(--card);border-radius:var(--r-sm);box-shadow:var(--e2);padding:6px 8px;display:flex;flex-direction:column;gap:4px}
+.gs-map .maplegend .label{font-size:9.5px}
+.gs-map .maplegend .bar{width:80px;height:6px;border-radius:3px;background:linear-gradient(90deg,rgba(var(--heat),.18),rgba(var(--heat),.55),#e0602b)}
+.gs-map .maplegend .ends{display:flex;justify-content:space-between;font:500 10px var(--f);color:var(--muted)}
+.gs-map .edge{position:absolute;right:52px;top:10px;display:flex;align-items:center;gap:4px;height:26px;padding:0 9px 0 6px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:11.5px;font-weight:500;color:var(--ink-2)}
+.gs-map .edge .i:first-child{color:var(--you)}
+.gs-map .scale{position:absolute;right:10px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
+.gs-map .scale i{display:block;width:52px;height:5px;border:1.5px solid var(--map-label);border-top:0}
+.gs-map .drivechip{position:absolute;left:10px;bottom:12px;display:flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:var(--r-pill);background:var(--you);color:#fff;font-size:12px;font-weight:600;box-shadow:0 4px 10px -2px rgba(47,111,222,.45)}
+.gs-map .drivechip .i{width:14px;height:14px;stroke-width:2}
+.gs-map .zonepin{position:absolute;left:44%;top:52%;transform:translate(-50%,-100%);display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 4px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;box-shadow:var(--e2);white-space:nowrap}
+.gs-map .zonepin b{display:grid;place-items:center;height:20px;min-width:20px;padding:0 6px;border-radius:var(--r-pill);background:var(--hmp);color:var(--on-hmp);font-size:11.5px}
+.gs-map .walkmini{position:relative;height:110px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+.gs-map .walkmini svg{position:absolute;inset:0;width:100%;height:100%}
+.gs-map .walkmini .expand{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:var(--card);box-shadow:var(--e2);display:grid;place-items:center;color:var(--ink-2)}
+.gs-map .walkmini .expand .i{width:15px;height:15px}
+.gs-map .walkmini .tag{position:absolute;right:8px;top:8px;display:flex;gap:4px}
+.gs-map .walkmini .tag button{height:26px;padding:0 9px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:11.5px;font-weight:500;display:flex;align-items:center;gap:4px;color:var(--ink-2)}
+.gs-map .walkmini .tag .i{width:13px;height:13px}
+
+/* ============ 16. form fields (new: no source page yet - built to the same tokens as .btn/.card) ============ */
+.gs-fields .field-basic{display:grid;gap:6px}
+.gs-fields .field-basic label{font:500 var(--t-cap) var(--f);color:var(--ink-2)}
+.gs-fields .field-basic input,.gs-fields .field-basic select,.gs-fields .field-basic textarea{
+  height:var(--hit);padding:0 var(--s4);border-radius:var(--r-md);border:1px solid var(--line-2);
+  background:var(--card);color:var(--ink);font:400 var(--t-body) var(--f);width:100%}
+.gs-fields .field-basic textarea{height:auto;min-height:92px;padding:var(--s3) var(--s4);resize:vertical;line-height:1.45}
+.gs-fields .field-basic input::placeholder,.gs-fields .field-basic textarea::placeholder{color:var(--muted)}
+.gs-fields .field-basic .hint{font-size:12px;color:var(--muted)}
+.gs-fields .field-basic.err input{border-color:var(--late)}
+.gs-fields .field-basic.err .hint{color:var(--late);display:flex;align-items:center;gap:4px}
+.gs-fields .field-basic.err .hint .i{width:13px;height:13px}
+.gs-fields .field-basic select{appearance:none;background-image:none}
+
+/* ============ 17. overflow: EN vs long ES ============ */
+.gs-overflow .ofrow{display:grid;gap:8px}
+.gs-overflow .ofrow .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+</style>
+</head>
+<body>
+<script src="../v25-polish/icons.js"></script>
+<div class="wrap">
+  <header class="ghead">
+    <span class="label">HMP App design system - T170</span>
+    <h1>Component gallery</h1>
+    <p>Every component in <b>ds.css</b> + <b>icons.js</b> (v25 "Ledger" / "Ledger Night"), light and dark side by side, with the
+      token names each one is built from. This page is the standing reference every release gets checked against - if a
+      screen doesn't match a swatch here, the swatch is wrong or the screen is.</p>
+    <p class="es">Cada componente de ds.css + icons.js, claro y oscuro lado a lado, con los nombres de sus tokens. Esta
+      página es la referencia fija con la que se revisa cada versión.</p>
+  </header>
+
+  <nav class="gnav" aria-label="Sections">
+    <a href="#tokens">Tokens</a><a href="#topbar">Top bar</a><a href="#bottombar">Bottom bar</a><a href="#rhbar">Right Hand bar</a>
+    <a href="#buttons">Buttons</a><a href="#chips">Chips</a><a href="#segmented">Segmented</a><a href="#cards">Cards</a>
+    <a href="#rows">List rows</a><a href="#stats">Stat tiles</a><a href="#doors">Door buttons</a><a href="#sheet">Sheet</a>
+    <a href="#toast">Toast</a><a href="#states">Empty / loading / error</a><a href="#map">Map pieces</a>
+    <a href="#fields">Form fields</a><a href="#overflow">EN / long-ES overflow</a>
+  </nav>
+
+  <!-- ============ 1. TOKENS ============ -->
+  <section class="gsec" id="tokens">
+    <div class="sh2"><h2>Color tokens</h2><span class="src">design-system.md §1 · ds.css :root</span></div>
+    <p class="desc">Every color a component uses comes from one of these. Never a raw hex in component CSS.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="swlist" id="swLight"></div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="swlist" id="swDark"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. TOP BAR ============ -->
+  <section class="gsec gs-top" id="topbar">
+    <div class="sh2"><h2>Top bar</h2><span class="src">.top · design-system.md §5</span></div>
+    <p class="desc">52px. Mark · title 20/600 · optional date or mic · ES/EN pill · avatar "K" = More.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Default (Now)</div>
+          <header class="top"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Now <span class="date">Sat, Sep 26</span></h1><button class="lang" aria-label="Switch to Spanish">ES</button><button class="avatar" aria-label="More">K</button></header>
+          <div class="demo-label">With mic (Knock, bordered)</div>
+          <header class="top knockvariant"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Knock</h1><button class="iconbtn" aria-label="Talk to the Right Hand"><svg class="i"><use href="#i-mic"/></svg></button><button class="lang">ES</button><button class="avatar" aria-label="More">K</button></header>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Default (Now)</div>
+          <header class="top"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Now <span class="date">Sat, Sep 26</span></h1><button class="lang" aria-label="Switch to Spanish">ES</button><button class="avatar" aria-label="More">K</button></header>
+          <div class="demo-label">With mic (Knock, bordered)</div>
+          <header class="top knockvariant"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1>Knock</h1><button class="iconbtn" aria-label="Talk to the Right Hand"><svg class="i"><use href="#i-mic"/></svg></button><button class="lang">ES</button><button class="avatar" aria-label="More">K</button></header>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.top</b> h1 --t-title/600 · <b>.mark svg</b> stroke #f5883a (--hmp, fixed) · <b>.date</b> --t-cap/--muted ·
+      <b>.iconbtn</b> --hit-sm/--r-pill · <b>.lang</b> --mono 12px, border --line · <b>.avatar</b> --ink bg / --on-ink text</p>
+  </section>
+
+  <!-- ============ 3. BOTTOM BAR ============ -->
+  <section class="gsec gs-nav" id="bottombar">
+    <div class="sh2"><h2>Bottom bar</h2><span class="src">.nav · design-system.md §5</span></div>
+    <p class="desc">5 slots, 52px + safe area. Center "Add" is an ink tile with --on-ink plus. One red badge max.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <nav class="nav" aria-label="Tabs">
+          <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-pin"/></svg>Now<span class="dot">3</span></button>
+          <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+          <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+          <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+          <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+        </nav>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <nav class="nav" aria-label="Tabs">
+          <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-pin"/></svg>Now<span class="dot">3</span></button>
+          <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+          <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+          <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+          <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+        </nav>
+      </div>
+    </div>
+    <p class="tok"><b>.nav</b> bg --bar (blur), border-top --line · <b>.nav .on</b> --ink, stroke-width 2.1 · off = --muted ·
+      <b>.plus i</b> 52x34 bg --ink / color --on-ink, radius --r-md · <b>.dot</b> bg --late, ring --card</p>
+  </section>
+
+  <!-- ============ 4. RIGHT HAND BAR ============ -->
+  <section class="gsec gs-rh" id="rhbar">
+    <div class="sh2"><h2>Right Hand bar</h2><span class="src">.composer · design-system.md §5</span></div>
+    <p class="desc">Docked above the tab bar on Now/Leads/Money. Never floats over content. On Knock it becomes the top-bar mic instead (see Top bar).</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="stackframe">
+          <div class="composer"><div class="field"><svg class="i" style="color:var(--hmp-ink)"><use href="#i-say"/></svg><span class="ph">Tell the Right Hand&hellip; &ldquo;knocked 20, 4 talked&rdquo;</span><span class="mic" aria-label="Talk"><svg class="i i-sm"><use href="#i-mic"/></svg></span></div></div>
+          <nav class="nav" aria-label="Tabs">
+            <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-pin"/></svg>Now</button>
+            <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+            <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+            <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+            <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+          </nav>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="stackframe">
+          <div class="composer"><div class="field"><svg class="i" style="color:var(--hmp-ink)"><use href="#i-say"/></svg><span class="ph">Tell the Right Hand&hellip; &ldquo;knocked 20, 4 talked&rdquo;</span><span class="mic" aria-label="Talk"><svg class="i i-sm"><use href="#i-mic"/></svg></span></div></div>
+          <nav class="nav" aria-label="Tabs">
+            <button class="on" aria-current="page"><svg class="i i-lg"><use href="#i-pin"/></svg>Now</button>
+            <button><svg class="i i-lg"><use href="#i-door"/></svg>Knock</button>
+            <button class="plus"><i><svg class="i i-lg"><use href="#i-plus"/></svg></i>Add</button>
+            <button><svg class="i i-lg"><use href="#i-leads"/></svg>Leads</button>
+            <button><svg class="i i-lg"><use href="#i-money"/></svg>Money</button>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.composer</b> bg --bar (blur), border-top --line · <b>.field</b> 44px, bg --soft, --r-pill ·
+      <b>.mic</b> 34px, bg --ink / color --on-ink · icon --hmp-ink</p>
+  </section>
+
+  <!-- ============ 5. BUTTONS ============ -->
+  <section class="gsec gs-btn" id="buttons">
+    <div class="sh2"><h2>Buttons</h2><span class="src">.btn · design-system.md §5</span></div>
+    <p class="desc">sm 36 / default 48 / lg 56. .pri is the one "do this" per screen. Verb labels only.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Sizes · .pri</div>
+          <div class="demo-row"><button class="btn pri sm">Save</button><button class="btn pri">Start knocking</button><button class="btn pri lg">Book the inspection</button></div>
+          <div class="demo-label">Variants · default size</div>
+          <div class="demo-row"><button class="btn pri">Start knocking</button><button class="btn sec">Drive</button><button class="btn ghost">Skip</button></div>
+          <div class="demo-label">States (simulated for screenshot: :active, :focus-visible)</div>
+          <div class="demo-row"><button class="btn pri demo-active">Pressed</button><button class="btn pri demo-focus">Focused</button><button class="btn pri" disabled style="opacity:.38;cursor:not-allowed">Disabled?</button></div>
+          <div class="demo-label">Block</div>
+          <button class="btn pri block">Log a signed job</button>
+        </div>
+        <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>No disabled state is defined in ds.css yet - the faded button above is a guess, not a spec.</p>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Sizes · .pri</div>
+          <div class="demo-row"><button class="btn pri sm">Save</button><button class="btn pri">Start knocking</button><button class="btn pri lg">Book the inspection</button></div>
+          <div class="demo-label">Variants · default size</div>
+          <div class="demo-row"><button class="btn pri">Start knocking</button><button class="btn sec">Drive</button><button class="btn ghost">Skip</button></div>
+          <div class="demo-label">States (simulated for screenshot: :active, :focus-visible)</div>
+          <div class="demo-row"><button class="btn pri demo-active">Pressed</button><button class="btn pri demo-focus">Focused</button><button class="btn pri" disabled style="opacity:.38;cursor:not-allowed">Disabled?</button></div>
+          <div class="demo-label">Block</div>
+          <button class="btn pri block">Log a signed job</button>
+        </div>
+        <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Same gap in dark: no disabled spec yet.</p>
+      </div>
+    </div>
+    <p class="tok"><b>.btn</b> --r-md, font 600/--t-body · <b>.pri</b> bg --hmp, color --on-hmp, :active bg --hmp-press ·
+      <b>.sec</b> bg --card, border --line-2 · <b>.ghost</b> color --ink-2 · focus ring (global) outline --you</p>
+  </section>
+
+  <!-- ============ 6. CHIPS ============ -->
+  <section class="gsec gs-chip" id="chips">
+    <div class="sh2"><h2>Chips</h2><span class="src">.chip · design-system.md §5</span></div>
+    <p class="desc">24px, 28 when tappable with a chevron. Status is always icon + words + tint, never color alone.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Variants</div>
+          <div class="demo-row">
+            <span class="chip">Insurance</span>
+            <span class="chip hmp"><svg class="i"><use href="#i-hail"/></svg>Best zone today</span>
+            <span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span>
+            <span class="chip warn"><svg class="i"><use href="#i-clock"/></svg>20 days</span>
+            <span class="chip ok"><svg class="i"><use href="#i-check"/></svg>Checked today</span>
+          </div>
+          <div class="demo-label">Tappable (28px, chevron)</div>
+          <div class="demo-row"><button class="chip tap"><svg class="i"><use href="#i-sun"/></svg>Knock hours 10 AM&ndash;5 PM<svg class="i chevr"><use href="#i-chev"/></svg></button>
+          <button class="chip tap warn"><svg class="i"><use href="#i-clock"/></svg>Outside knock hours<svg class="i chevr"><use href="#i-chev"/></svg></button></div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Variants</div>
+          <div class="demo-row">
+            <span class="chip">Insurance</span>
+            <span class="chip hmp"><svg class="i"><use href="#i-hail"/></svg>Best zone today</span>
+            <span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span>
+            <span class="chip warn"><svg class="i"><use href="#i-clock"/></svg>20 days</span>
+            <span class="chip ok"><svg class="i"><use href="#i-check"/></svg>Checked today</span>
+          </div>
+          <div class="demo-label">Tappable (28px, chevron)</div>
+          <div class="demo-row"><button class="chip tap"><svg class="i"><use href="#i-sun"/></svg>Knock hours 10 AM&ndash;5 PM<svg class="i chevr"><use href="#i-chev"/></svg></button>
+          <button class="chip tap warn"><svg class="i"><use href="#i-clock"/></svg>Outside knock hours<svg class="i chevr"><use href="#i-chev"/></svg></button></div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.chip</b> bg --soft, color --ink-2 · <b>.hmp</b> --hmp-bg/--hmp-ink · <b>.late</b> --late-bg/--late ·
+      <b>.warn</b> --warn-bg/--warn · <b>.ok</b> --ok-bg/--ok · icon 13px, stroke-width 2.2</p>
+  </section>
+
+  <!-- ============ 7. SEGMENTED ============ -->
+  <section class="gsec gs-seg" id="segmented">
+    <div class="sh2"><h2>Segmented</h2><span class="src">.seg · design-system.md §5</span></div>
+    <p class="desc">Soft track, raised thumb. The only "selected" style in the app.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="seg" role="group" aria-label="Script language" style="width:160px"><button aria-pressed="true">EN</button><button aria-pressed="false">ES</button></div>
+          <div class="seg" role="group" aria-label="Tier" style="width:260px"><button aria-pressed="false">Good</button><button aria-pressed="true">Better</button><button aria-pressed="false">Best</button></div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="seg" role="group" aria-label="Script language" style="width:160px"><button aria-pressed="true">EN</button><button aria-pressed="false">ES</button></div>
+          <div class="seg" role="group" aria-label="Tier" style="width:260px"><button aria-pressed="false">Good</button><button aria-pressed="true">Better</button><button aria-pressed="false">Best</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.seg</b> bg --soft, --r-md, 34px thumb · <b>[aria-pressed="true"]</b> bg --card, color --ink, shadow</p>
+  </section>
+
+  <!-- ============ 8. CARDS / OFFER CARD ============ -->
+  <section class="gsec gs-offer" id="cards">
+    <div class="sh2"><h2>Cards &amp; the offer card</h2><span class="src">.card · design-system.md §5 (offer card pattern)</span></div>
+    <p class="desc">One job per card, --e1. The offer card (zone / next door / next step) is eyebrow + title + facts + coach line + tools + action(s).</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Plain card</div>
+          <div class="card card-pad">One job per card. Content goes here.</div>
+          <div class="demo-label">Offer card (Knock: next door)</div>
+          <section class="card offer" aria-label="Next door">
+            <div class="eb"><span class="label">Next door &middot; stop 3 of 25</span><span class="cap">23 to go</span></div>
+            <div class="addr">3808 22 St</div>
+            <div class="facts"><span><svg class="i"><use href="#i-hail"/></svg>1.6&Prime; hail, Aug 8</span><span><svg class="i"><use href="#i-built"/></svg>Built 1980</span></div>
+            <p class="coach"><svg class="i"><use href="#i-info"/></svg><span>Check the gutters and soft metals as you walk up.</span></p>
+            <div class="tools"><button class="btn sec"><svg class="i i-sm"><use href="#i-say"/></svg>What to say</button><button class="btn sec"><svg class="i i-sm"><use href="#i-shield"/></svg>Hail proof</button><button class="btn sec" aria-label="Skip" style="width:44px;padding:0"><svg class="i i-sm"><use href="#i-skip"/></svg></button></div>
+          </section>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Plain card</div>
+          <div class="card card-pad">One job per card. Content goes here.</div>
+          <div class="demo-label">Offer card (Knock: next door)</div>
+          <section class="card offer" aria-label="Next door">
+            <div class="eb"><span class="label">Next door &middot; stop 3 of 25</span><span class="cap">23 to go</span></div>
+            <div class="addr">3808 22 St</div>
+            <div class="facts"><span><svg class="i"><use href="#i-hail"/></svg>1.6&Prime; hail, Aug 8</span><span><svg class="i"><use href="#i-built"/></svg>Built 1980</span></div>
+            <p class="coach"><svg class="i"><use href="#i-info"/></svg><span>Check the gutters and soft metals as you walk up.</span></p>
+            <div class="tools"><button class="btn sec"><svg class="i i-sm"><use href="#i-say"/></svg>What to say</button><button class="btn sec"><svg class="i i-sm"><use href="#i-shield"/></svg>Hail proof</button><button class="btn sec" aria-label="Skip" style="width:44px;padding:0"><svg class="i i-sm"><use href="#i-skip"/></svg></button></div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.card</b> bg --card, border --line, --r-lg, shadow --e1, pad --s4 · <b>.label</b> mono 11px, --muted, uppercase ·
+      <b>.addr</b> --t-addr/600 · <b>.coach</b> icon --hmp-ink</p>
+  </section>
+
+  <!-- ============ 9. LIST ROWS ============ -->
+  <section class="gsec gs-rows" id="rows">
+    <div class="sh2"><h2>List rows</h2><span class="src">.row · design-system.md §5</span></div>
+    <p class="desc">min 60px. Icon tile &middot; title + one sub line (both ellipsis) &middot; end slot. Lists show 3 + "See all".</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="rows">
+          <div class="row"><div class="lead"><svg class="i"><use href="#i-photo"/></svg></div><div class="t"><b>Inspection photos</b><span>4 of 14 &middot; house number, sides, gutters</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div>
+          <div class="row"><div class="t"><b>1107 N H St</b><span>Call US Bank about the check</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span></div></div>
+          <div class="row"><div class="t"><b>Inspection &middot; 615 N Linden Ave</b><span>Rosa &middot; bring the ladder</span></div><div class="end"><span class="when">4:00 PM</span></div></div>
+          <div class="row"><div class="t"><b>1418 N Irving St</b><span>Call Maria back (Spanish)</span></div><div class="end"><button class="round" aria-label="Call" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--ink-2)"><svg class="i i-sm"><use href="#i-phone"/></svg></button></div></div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="rows">
+          <div class="row"><div class="lead"><svg class="i"><use href="#i-photo"/></svg></div><div class="t"><b>Inspection photos</b><span>4 of 14 &middot; house number, sides, gutters</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div>
+          <div class="row"><div class="t"><b>1107 N H St</b><span>Call US Bank about the check</span></div><div class="end"><span class="chip late"><svg class="i"><use href="#i-flag"/></svg>2 days late</span></div></div>
+          <div class="row"><div class="t"><b>Inspection &middot; 615 N Linden Ave</b><span>Rosa &middot; bring the ladder</span></div><div class="end"><span class="when">4:00 PM</span></div></div>
+          <div class="row"><div class="t"><b>1418 N Irving St</b><span>Call Maria back (Spanish)</span></div><div class="end"><button class="round" aria-label="Call" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--ink-2)"><svg class="i i-sm"><use href="#i-phone"/></svg></button></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.rows</b> bg --card, border --line, --r-lg · <b>.row + .row</b> border-top --soft · <b>.lead</b> 36px tile, bg --soft ·
+      <b>.row .t b</b> --t-body/500 · <b>.row .t span</b> --t-cap/--muted · <b>.when</b> --t-cap/--ink-2 mono nums</p>
+  </section>
+
+  <!-- ============ 10. STAT TILES ============ -->
+  <section class="gsec gs-stats" id="stats">
+    <div class="sh2"><h2>Stat tiles</h2><span class="src">.stats (Now) &middot; .mini (Knock) &middot; hero figure (Money)</span></div>
+    <p class="desc">Figure first, word smaller after ("2 / 25", "knocks today"). Tabular numerals everywhere.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">3-up stat row (Now: zone card)</div>
+          <div class="stats"><div><b>1.6&Prime;</b><span>hail</span></div><div><b>60</b><span>homes</span></div><div><b>45 mi</b><span>from Fremont</span></div></div>
+          <div class="demo-label">Progress mini-stats (Knock)</div>
+          <div class="count"><div class="big"><div><b>2</b><span>/ 25</span><small>knocks today</small></div></div>
+            <div class="mini"><div><b>1</b><span>talked</span></div><div><b>0</b><span>interested</span></div><div><b>0</b><span>booked</span></div></div>
+          </div>
+          <div class="demo-label">Hero figure + stacked bar (Money)</div>
+          <div class="hero"><span class="label">Owed to HMP</span><div class="fig">$19,040<small>on 2 open jobs</small></div>
+            <div class="stack" aria-hidden="true"><i class="k-mort" style="flex:12100"></i><i class="k-held" style="flex:5300"></i><i class="k-ho" style="flex:1000"></i><i class="k-sup" style="flex:640"></i></div>
+            <div class="moneylegend"><div><i class="k-mort"></i><span>At the mortgage co.</span><b>$12,100</b></div><div><i class="k-held"></i><span>Held by insurer</span><b>$5,300</b></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">3-up stat row (Now: zone card)</div>
+          <div class="stats"><div><b>1.6&Prime;</b><span>hail</span></div><div><b>60</b><span>homes</span></div><div><b>45 mi</b><span>from Fremont</span></div></div>
+          <div class="demo-label">Progress mini-stats (Knock)</div>
+          <div class="count"><div class="big"><div><b>2</b><span>/ 25</span><small>knocks today</small></div></div>
+            <div class="mini"><div><b>1</b><span>talked</span></div><div><b>0</b><span>interested</span></div><div><b>0</b><span>booked</span></div></div>
+          </div>
+          <div class="demo-label">Hero figure + stacked bar (Money)</div>
+          <div class="hero"><span class="label">Owed to HMP</span><div class="fig">$19,040<small>on 2 open jobs</small></div>
+            <div class="stack" aria-hidden="true"><i class="k-mort" style="flex:12100"></i><i class="k-held" style="flex:5300"></i><i class="k-ho" style="flex:1000"></i><i class="k-sup" style="flex:640"></i></div>
+            <div class="moneylegend"><div><i class="k-mort"></i><span>At the mortgage co.</span><b>$12,100</b></div><div><i class="k-held"></i><span>Held by insurer</span><b>$5,300</b></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.stats/.mini b</b> --t-title/600, tabular-nums · <b>.count .big b</b> 44-52px/600 ·
+      <b>.hero .fig</b> 38-44px/600 · stack colors: --warn / --line-2 / --ink-2 / --hmp</p>
+  </section>
+
+  <!-- ============ 11. DOOR BUTTONS ============ -->
+  <section class="gsec gs-doors" id="doors">
+    <div class="sh2"><h2>Door buttons</h2><span class="src">.ans (answer tile) · design-system.md §5</span></div>
+    <p class="desc">60px, 2x2. Only Booked is orange. Icon meaning is fixed: door / ban / star / cal.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="answers">
+          <button class="ans"><svg class="i"><use href="#i-door"/></svg><span><b>Not home</b><small>leave a hanger</small></span></button>
+          <button class="ans"><svg class="i"><use href="#i-ban"/></svg><span><b>No</b><small>not today</small></span></button>
+          <button class="ans"><svg class="i"><use href="#i-star"/></svg><span><b>Interested</b><small>call back</small></span></button>
+          <button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Booked</b><small>pick a time</small></span></button>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="answers">
+          <button class="ans"><svg class="i"><use href="#i-door"/></svg><span><b>Not home</b><small>leave a hanger</small></span></button>
+          <button class="ans"><svg class="i"><use href="#i-ban"/></svg><span><b>No</b><small>not today</small></span></button>
+          <button class="ans"><svg class="i"><use href="#i-star"/></svg><span><b>Interested</b><small>call back</small></span></button>
+          <button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Booked</b><small>pick a time</small></span></button>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.ans</b> border --line-2, bg --card, --r-md, 60px · icon 22px --ink-2 · b --t-row/600 · small 12px --muted ·
+      <b>.ans.pri</b> bg/border --hmp, color --on-hmp</p>
+  </section>
+
+  <!-- ============ 12. SHEET ============ -->
+  <section class="gsec gs-sheet" id="sheet">
+    <div class="sh2"><h2>Sheet</h2><span class="src">.sheet · design-system.md §5 (stage bar, guide)</span></div>
+    <p class="desc">Top radius 24, grab handle, header = title + meta + round &times;. Order: quick actions &rarr; stage bar &rarr; next-step card &rarr; guide &rarr; closed rows.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="sheetdemo">
+          <div class="grab"></div>
+          <div class="sh"><div><h3>615 N Linden Ave</h3><div class="meta">Rosa &middot; Fremont <span class="chip">Storm</span><span class="chip">Insurance</span></div></div><button class="x" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+          <div class="body">
+            <div class="quick"><button><svg class="i"><use href="#i-phone"/></svg>Call</button><button><svg class="i"><use href="#i-text"/></svg>Text</button><button><svg class="i"><use href="#i-nav"/></svg>Directions</button><button><svg class="i"><use href="#i-camera"/></svg>Photos 4</button></div>
+            <div class="stage8" aria-label="Step 2 of 8, inspection set"><div class="segs"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="tx"><span><b>Inspection set</b> &middot; step 2 of 8</span><span>next: inspection</span></div></div>
+            <section class="card nextcard"><span class="chip hmp" style="justify-self:start"><svg class="i"><use href="#i-clock"/></svg>Today, 4:00 PM</span><h3>Inspection &middot; bring the ladder</h3><div class="two"><button class="btn pri"><svg class="i"><use href="#i-camera"/></svg>Start inspection</button><button class="btn sec" aria-label="Add to calendar" style="width:48px;padding:0"><svg class="i"><use href="#i-cal"/></svg></button></div></section>
+            <section class="card guide">
+              <div class="gh"><span class="label">Say</span><div class="seg" role="group" aria-label="Script language"><button aria-pressed="true">EN</button><button aria-pressed="false">ES</button></div></div>
+              <p class="gsay">&ldquo;You&rsquo;re all set. I&rsquo;ll text you the time now and again the day before.&rdquo;</p>
+              <div class="glist"><span class="label">Collect &middot; 3 of 5</span>
+                <div class="ck on"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><span>Phone</span></div>
+                <div class="ck"><span class="box"></span><span>Reminder text, day before</span><button class="btn sec sm">Send</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="sheetdemo">
+          <div class="grab"></div>
+          <div class="sh"><div><h3>615 N Linden Ave</h3><div class="meta">Rosa &middot; Fremont <span class="chip">Storm</span><span class="chip">Insurance</span></div></div><button class="x" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+          <div class="body">
+            <div class="quick"><button><svg class="i"><use href="#i-phone"/></svg>Call</button><button><svg class="i"><use href="#i-text"/></svg>Text</button><button><svg class="i"><use href="#i-nav"/></svg>Directions</button><button><svg class="i"><use href="#i-camera"/></svg>Photos 4</button></div>
+            <div class="stage8" aria-label="Step 2 of 8, inspection set"><div class="segs"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="tx"><span><b>Inspection set</b> &middot; step 2 of 8</span><span>next: inspection</span></div></div>
+            <section class="card nextcard"><span class="chip hmp" style="justify-self:start"><svg class="i"><use href="#i-clock"/></svg>Today, 4:00 PM</span><h3>Inspection &middot; bring the ladder</h3><div class="two"><button class="btn pri"><svg class="i"><use href="#i-camera"/></svg>Start inspection</button><button class="btn sec" aria-label="Add to calendar" style="width:48px;padding:0"><svg class="i"><use href="#i-cal"/></svg></button></div></section>
+            <section class="card guide">
+              <div class="gh"><span class="label">Say</span><div class="seg" role="group" aria-label="Script language"><button aria-pressed="true">EN</button><button aria-pressed="false">ES</button></div></div>
+              <p class="gsay">&ldquo;You&rsquo;re all set. I&rsquo;ll text you the time now and again the day before.&rdquo;</p>
+              <div class="glist"><span class="label">Collect &middot; 3 of 5</span>
+                <div class="ck on"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><span>Phone</span></div>
+                <div class="ck"><span class="box"></span><span>Reminder text, day before</span><button class="btn sec sm">Send</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.sheet</b> --r-xl top corners, shadow --e2 · <b>.grab</b> --line-2 · <b>.stage8 .d</b> --ink, <b>.c</b> --hmp, rest --line ·
+      <b>.gsay</b> border-left 3px --hmp · <b>.ck.on .box</b> bg --ok</p>
+  </section>
+
+  <!-- ============ 13. TOAST ============ -->
+  <section class="gsec gs-toast" id="toast">
+    <div class="sh2"><h2>Toast</h2><span class="src">.toast · design-system.md §5</span></div>
+    <p class="desc">Ink pill above the composer. Confirms every Right Hand log. Auto-hides in 5s.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="toastdemo"><div class="toast"><svg class="i"><use href="#i-check2"/></svg><span>Logged: knocked 20, 4 talked</span><button>Undo</button></div></div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="toastdemo"><div class="toast"><svg class="i"><use href="#i-check2"/></svg><span>Logged: knocked 20, 4 talked</span><button>Undo</button></div></div>
+      </div>
+    </div>
+    <p class="tok"><b>.toast</b> bg --ink, color --on-ink, --r-md, shadow --e2 · icon --hmp · action button --hmp/600</p>
+  </section>
+
+  <!-- ============ 14. EMPTY / LOADING / ERROR ============ -->
+  <section class="gsec gs-states" id="states">
+    <div class="sh2"><h2>Empty, loading &amp; error states</h2><span class="src">.empty &middot; .sk · design-system.md §5</span></div>
+    <p class="desc">Empty states say what happens next, never a wall of text. Skeletons show after 300ms, never a spinner.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Empty</div>
+          <div class="empty"><div class="glyph"><svg class="i i-lg"><use href="#i-door"/></svg></div><h3>No walk yet today</h3><p>Pick a hot zone and the app lines up the doors in walking order.</p><button class="btn pri lg"><svg class="i"><use href="#i-pin"/></svg>Pick a hot zone</button></div>
+          <div class="demo-label">Loading (skeleton)</div>
+          <div class="rows">
+            <div class="skrow"><span class="sk" style="width:52px;height:52px;border-radius:12px"></span><div class="t" style="flex:1;display:grid;gap:8px"><span class="sk skl" style="width:80%"></span><span class="sk skl" style="width:45%"></span></div></div>
+            <div class="skrow"><div class="t" style="flex:1;display:grid;gap:8px"><span class="sk skl" style="width:55%"></span><span class="sk skl" style="width:70%"></span></div><span class="sk skl" style="width:60px;height:20px"></span></div>
+          </div>
+          <div class="demo-label">Error <span style="text-transform:none;font:400 11px var(--f);color:var(--muted)">(proposed - not yet in design-system.md)</span></div>
+          <div class="empty errstate"><div class="glyph"><svg class="i i-lg"><use href="#i-alert"/></svg></div><h3>Couldn&rsquo;t load today&rsquo;s walk</h3><p>Check your connection and try again.</p><button class="btn sec">Try again</button></div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Empty</div>
+          <div class="empty"><div class="glyph"><svg class="i i-lg"><use href="#i-door"/></svg></div><h3>No walk yet today</h3><p>Pick a hot zone and the app lines up the doors in walking order.</p><button class="btn pri lg"><svg class="i"><use href="#i-pin"/></svg>Pick a hot zone</button></div>
+          <div class="demo-label">Loading (skeleton)</div>
+          <div class="rows">
+            <div class="skrow"><span class="sk" style="width:52px;height:52px;border-radius:12px"></span><div class="t" style="flex:1;display:grid;gap:8px"><span class="sk skl" style="width:80%"></span><span class="sk skl" style="width:45%"></span></div></div>
+            <div class="skrow"><div class="t" style="flex:1;display:grid;gap:8px"><span class="sk skl" style="width:55%"></span><span class="sk skl" style="width:70%"></span></div><span class="sk skl" style="width:60px;height:20px"></span></div>
+          </div>
+          <div class="demo-label">Error <span style="text-transform:none;font:400 11px var(--f);color:var(--muted)">(proposed - not yet in design-system.md)</span></div>
+          <div class="empty errstate"><div class="glyph"><svg class="i i-lg"><use href="#i-alert"/></svg></div><h3>Couldn&rsquo;t load today&rsquo;s walk</h3><p>Check your connection and try again.</p><button class="btn sec">Try again</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.empty .glyph</b> 56px, bg --card, border --line · <b>.sk</b> gradient --soft/--skel-hi, 1.4s ·
+      error glyph (proposed): bg --late-bg, color --late, same shape as .empty</p>
+    <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Error state has no source page yet - built here from .empty + the late/warn tokens. Confirm with the Builder before shipping it on a real screen.</p>
+  </section>
+
+  <!-- ============ 15. MAP PIECES ============ -->
+  <section class="gsec gs-map" id="map">
+    <div class="sh2"><h2>Map pieces</h2><span class="src">walkmap.js chips · design-system.md §5</span></div>
+    <p class="desc">The basemap itself is drawn by walkmap.js from the engine's street data (not reproduced here). These are the HTML chips that sit on top of it on Now / Knock.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Zone map chips (Now)</div>
+          <div class="mapbg" role="img" aria-label="Map placeholder">
+            <svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid slice"><rect width="390" height="230" fill="url(#g1)"/><defs><pattern id="g1" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4"><rect width="30" height="24" fill="var(--map-street)"/><rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/></pattern></defs>
+              <rect x="150" y="150" width="54" height="40" rx="3" fill="var(--map-park)"/>
+              <path d="M-10 210 C 60 195, 120 218, 190 208 S 320 198, 400 212 L400 230 L-10 230Z" fill="var(--map-water)"/>
+              <g fill="none"><path d="M-5 50 H395M-5 155 H395M140 -5 V235" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 50 H395M-5 155 H395M140 -5 V235" stroke="var(--map-major)" stroke-width="6.5"/></g>
+              <circle cx="330" cy="190" r="14" fill="var(--you)" opacity=".16"/><circle cx="330" cy="190" r="6" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
+            </svg>
+            <div class="zonepin"><b>1</b>22 St &amp; 21 St &middot; 1.6&Prime;</div>
+            <div class="edge"><svg class="i i-sm"><use href="#i-car"/></svg>You: 45 mi<svg class="i i-sm"><use href="#i-chev"/></svg></div>
+            <div class="maplegend"><span class="label">Hail heat</span><span class="bar"></span><span class="ends"><span>lower</span><span>higher</span></span></div>
+            <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
+            <div class="scale"><span>500 ft</span><i></i></div>
+            <div class="drivechip"><svg class="i"><use href="#i-car"/></svg>Drive: 12 min</div>
+          </div>
+          <div class="demo-label">Walk mini-map chips (Knock)</div>
+          <div class="walkmini" role="img" aria-label="Walking route placeholder">
+            <svg viewBox="0 0 358 110" preserveAspectRatio="xMidYMid slice"><rect width="358" height="110" fill="var(--map-lot)"/><path d="M0 55 H358" stroke="var(--map-street)" stroke-width="14"/><path d="M0 55 H358" stroke="var(--map-casing)" stroke-width="15" stroke-opacity=".4"/></svg>
+            <div class="tag"><button><svg class="i"><use href="#i-sun"/></svg>10 AM&ndash;5 PM</button></div>
+            <button class="expand" aria-label="Open the big map"><svg class="i"><use href="#i-map"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Zone map chips (Now)</div>
+          <div class="mapbg" role="img" aria-label="Map placeholder">
+            <svg viewBox="0 0 390 230" preserveAspectRatio="xMidYMid slice"><rect width="390" height="230" fill="url(#g2)"/><defs><pattern id="g2" width="30" height="24" patternUnits="userSpaceOnUse" x="2" y="4"><rect width="30" height="24" fill="var(--map-street)"/><rect x="2.2" y="2.2" width="25.6" height="19.6" rx="1.5" fill="var(--map-land)"/></pattern></defs>
+              <rect x="150" y="150" width="54" height="40" rx="3" fill="var(--map-park)"/>
+              <path d="M-10 210 C 60 195, 120 218, 190 208 S 320 198, 400 212 L400 230 L-10 230Z" fill="var(--map-water)"/>
+              <g fill="none"><path d="M-5 50 H395M-5 155 H395M140 -5 V235" stroke="var(--map-major-casing)" stroke-width="9"/><path d="M-5 50 H395M-5 155 H395M140 -5 V235" stroke="var(--map-major)" stroke-width="6.5"/></g>
+              <circle cx="330" cy="190" r="14" fill="var(--you)" opacity=".16"/><circle cx="330" cy="190" r="6" fill="var(--you)" stroke="var(--card)" stroke-width="3"/>
+            </svg>
+            <div class="zonepin"><b>1</b>22 St &amp; 21 St &middot; 1.6&Prime;</div>
+            <div class="edge"><svg class="i i-sm"><use href="#i-car"/></svg>You: 45 mi<svg class="i i-sm"><use href="#i-chev"/></svg></div>
+            <div class="maplegend"><span class="label">Hail heat</span><span class="bar"></span><span class="ends"><span>lower</span><span>higher</span></span></div>
+            <div class="mctl"><button aria-label="Center on me"><svg class="i"><use href="#i-locate"/></svg></button><button aria-label="Map layers"><svg class="i"><use href="#i-layers"/></svg></button></div>
+            <div class="scale"><span>500 ft</span><i></i></div>
+            <div class="drivechip"><svg class="i"><use href="#i-car"/></svg>Drive: 12 min</div>
+          </div>
+          <div class="demo-label">Walk mini-map chips (Knock)</div>
+          <div class="walkmini" role="img" aria-label="Walking route placeholder">
+            <svg viewBox="0 0 358 110" preserveAspectRatio="xMidYMid slice"><rect width="358" height="110" fill="var(--map-lot)"/><path d="M0 55 H358" stroke="var(--map-street)" stroke-width="14"/><path d="M0 55 H358" stroke="var(--map-casing)" stroke-width="15" stroke-opacity=".4"/></svg>
+            <div class="tag"><button><svg class="i"><use href="#i-sun"/></svg>10 AM&ndash;5 PM</button></div>
+            <button class="expand" aria-label="Open the big map"><svg class="i"><use href="#i-map"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>.zonepin</b> bg --ink, rank badge bg --hmp · <b>.drivechip</b> bg --you · <b>.mctl/.maplegend/.scale/.tag</b> bg --card, shadow --e2 ·
+      basemap: --map-land/--map-lot/--map-street/--map-major/--map-water/--map-park</p>
+  </section>
+
+  <!-- ============ 16. FORM FIELDS ============ -->
+  <section class="gsec gs-fields" id="fields">
+    <div class="sh2"><h2>Form fields</h2><span class="src">new - built from .btn / .card tokens, no source page yet</span></div>
+    <p class="desc">No page uses a raw text input yet (the app collects almost everything through the Right Hand or a tap). This
+      is the canonical look for the day it does, built from the same height/radius/border tokens as .btn and .row.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <label class="field-basic">Phone<input type="tel" placeholder="402-555-0123"></label>
+          <label class="field-basic err">Phone<input type="tel" value="402-555-01"><span class="hint"><svg class="i"><use href="#i-alert"/></svg>Needs 10 digits</span></label>
+          <label class="field-basic">Notes<textarea placeholder="Hail dents on the gutters, north side"></textarea></label>
+          <label class="field-basic">Storm day<select><option>Aug 8, 2026</option><option>Jul 14, 2026</option></select></label>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <label class="field-basic">Phone<input type="tel" placeholder="402-555-0123"></label>
+          <label class="field-basic err">Phone<input type="tel" value="402-555-01"><span class="hint"><svg class="i"><use href="#i-alert"/></svg>Needs 10 digits</span></label>
+          <label class="field-basic">Notes<textarea placeholder="Hail dents on the gutters, north side"></textarea></label>
+          <label class="field-basic">Storm day<select><option>Aug 8, 2026</option><option>Jul 14, 2026</option></select></label>
+        </div>
+      </div>
+    </div>
+    <p class="tok"><b>input/select</b> --hit (48px), --r-md, border --line-2, bg --card · <b>textarea</b> min-height 92, same border ·
+      <b>label</b> --t-cap/--ink-2 · error: border/hint --late · focus ring: global :focus-visible, outline --you</p>
+    <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Proposed pattern - flag to the Builder before using it on a real screen; a single choice should still prefer .seg over a &lt;select&gt;.</p>
+  </section>
+
+  <!-- ============ 17. EN / LONG-ES OVERFLOW ============ -->
+  <section class="gsec gs-overflow" id="overflow">
+    <div class="sh2"><h2>EN vs. long Spanish - overflow check</h2><span class="src">copy rule: design-system.md §6, &le;130 words/screen</span></div>
+    <p class="desc">ES copy is meant to stay short on purpose, but a real name or address can still run long. Every truncating
+      element below is shown with a deliberately long Spanish string to confirm the ellipsis/wrap still holds.</p>
+    <div class="pair">
+      <div class="swatch lt"><span class="themetag">Light</span>
+        <div class="demo-col">
+          <div class="demo-label">Top bar title</div>
+          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
+          <div class="demo-label">List row (title + sub, both ellipsis)</div>
+          <div class="ofrow"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
+          <div class="demo-label">Chip</div>
+          <span class="chip late" style="max-width:220px"><svg class="i"><use href="#i-flag"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Atrasado 2 d&iacute;as, llamar al banco</span></span>
+          <div class="demo-label">Button label</div>
+          <button class="btn pri block">Empezar a tocar puertas en este vecindario</button>
+          <div class="demo-label">Door button (long ES)</div>
+          <div class="answers" style="grid-template-columns:1fr"><button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Agendado</b><small>elige el d&iacute;a y la hora que mejor le acomoden</small></span></button></div>
+          <div class="demo-label">Offer card address (long ES)</div>
+          <section class="card offer"><div class="eb"><span class="label">Siguiente &middot; parada 3 de 25</span><span class="cap">faltan 23</span></div><div class="addr" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">3808 Avenida Roble Norte Apt 2B</div></section>
+        </div>
+      </div>
+      <div class="swatch dk"><span class="themetag">Dark</span>
+        <div class="demo-col">
+          <div class="demo-label">Top bar title</div>
+          <header class="top" style="border:1px solid var(--line);border-radius:var(--r-lg)"><div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div><h1 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Inspecci&oacute;n de da&ntilde;os por granizo y viento</h1><button class="avatar">K</button></header>
+          <div class="demo-label">List row (title + sub, both ellipsis)</div>
+          <div class="ofrow"><div class="row"><div class="t"><b>Calle Roble Norte 3808, apartamento 2B</b><span>Ll&aacute;mala de vuelta para agendar la inspecci&oacute;n de ma&ntilde;ana en la tarde</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div></div>
+          <div class="demo-label">Chip</div>
+          <span class="chip late" style="max-width:220px"><svg class="i"><use href="#i-flag"/></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Atrasado 2 d&iacute;as, llamar al banco</span></span>
+          <div class="demo-label">Button label</div>
+          <button class="btn pri block">Empezar a tocar puertas en este vecindario</button>
+          <div class="demo-label">Door button (long ES)</div>
+          <div class="answers" style="grid-template-columns:1fr"><button class="ans pri"><svg class="i"><use href="#i-cal"/></svg><span><b>Agendado</b><small>elige el d&iacute;a y la hora que mejor le acomoden</small></span></button></div>
+          <div class="demo-label">Offer card address (long ES)</div>
+          <section class="card offer"><div class="eb"><span class="label">Siguiente &middot; parada 3 de 25</span><span class="cap">faltan 23</span></div><div class="addr" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">3808 Avenida Roble Norte Apt 2B</div></section>
+        </div>
+      </div>
+    </div>
+    <p class="tok">Truncation rule everywhere: <b>white-space:nowrap; overflow:hidden; text-overflow:ellipsis</b> on one line, never a wrapped 2nd line except sub-lines that are allowed to wrap (coach, empty body).</p>
+  </section>
+
+  <footer style="margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)">
+    Source: <code>docs/design/v25-polish/</code> (ds.css, icons.js) &middot; baseline: <code>docs/design/gallery/baseline/</code> &middot;
+    render: <code>node docs/design/gallery/render.js</code>
+  </footer>
+</div>
+<script>
+(function () {
+  var L = {bg:'#f6f7f8',card:'#ffffff',soft:'#eff1f3',line:'#e3e5e8','line-2':'#d3d6db',ink:'#18191c','ink-2':'#3d3f45',muted:'#6c6f77',faint:'#9a9da4',
+    hmp:'#f5883a','hmp-ink':'#a4520f','hmp-bg':'#fdf1e7',late:'#c2362b','late-bg':'#fdecea',warn:'#8a5a00','warn-bg':'#fbf2dc',ok:'#1f7a4d','ok-bg':'#e7f4ed',you:'#2f6fde'};
+  var D = {bg:'#101113',card:'#191a1d',soft:'#232428',line:'#2b2d31','line-2':'#3a3c42',ink:'#f1f2f4','ink-2':'#c9cbd0',muted:'#8f929a',faint:'#6b6e75',
+    hmp:'#f5883a','hmp-ink':'#ffa766','hmp-bg':'rgba(245,136,58,.14)',late:'#ff7166','late-bg':'rgba(255,113,102,.13)',warn:'#f0b54a','warn-bg':'rgba(240,181,74,.12)',ok:'#4cc38a','ok-bg':'rgba(76,195,138,.13)',you:'#5b8ff0'};
+  function fill(id, set) {
+    var el = document.getElementById(id); if (!el) return;
+    Object.keys(set).forEach(function (k) {
+      var d = document.createElement('div'); d.className = 'sw';
+      d.innerHTML = '<i style="background:' + set[k] + '"></i><b>' + k + '</b><span>--' + k + '</span>';
+      el.appendChild(d);
+    });
+  }
+  fill('swLight', L); fill('swDark', D);
+})();
+</script>
+</body></html>

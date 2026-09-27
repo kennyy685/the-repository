@@ -72,24 +72,21 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .empty p{color:var(--muted);max-width:32ch}
 
 /* ---------- dashboard grid ----------
-   phone: one column in reading order (needs, storms, leads, jobs, crews)
-   720+: needs across the top, sales | production below; 1100+: three columns */
+   phone and tablet: one column in reading order (needs, storms, leads, jobs, crews, AI line)
+   1100+: three columns = you + crews | where to knock + AI line | jobs + leads (the numbers) */
 .dash{display:flex;flex-direction:column}
 .col{display:contents}
 section{min-width:0}
-@media (min-width:720px){
-  .dash{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--s6);align-items:start}
-  .col{display:flex;flex-direction:column;min-width:0}
-  .col.a{grid-column:1 / -1}
-}
+#sNeeds{order:1}#sStorms{order:2}#sLeads{order:3}#sJobs{order:4}#sCrews{order:5}#ai{order:6}
+@media (min-width:720px) and (max-width:1099px){.app{max-width:780px}}
 @media (min-width:1100px){
-  .dash{grid-template-columns:minmax(0,1.22fr) minmax(0,1fr) minmax(0,1fr)}
-  .col.a{grid-column:auto}
+  .dash{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);column-gap:var(--s6);align-items:start}
+  .col{display:flex;flex-direction:column;min-width:0}
 }
 .shead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);min-height:44px;margin-top:var(--s5);margin-bottom:var(--s1)}
 .shead h2{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:var(--s2)}
 .shead .meta{font-size:var(--t-cap);color:var(--muted);white-space:nowrap}
-.count{min-width:22px;height:22px;padding:0 6px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.count{min-width:24px;height:24px;padding:0 7px;border-radius:var(--r-pill);background:var(--soft);color:var(--ink);font-size:12px;font-weight:600;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
 .act{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 var(--s2) 0 var(--s3);margin-right:calc(-1 * var(--s2));border-radius:var(--r-sm);font-size:var(--t-cap);font-weight:500;color:var(--ink-2);white-space:nowrap}
 .act:hover{background:var(--soft)}
 .act .i{color:var(--faint)}
@@ -114,15 +111,16 @@ a.need:hover{background:var(--soft)}
 .need .nt{font-size:var(--t-body);font-weight:500;line-height:1.45;text-wrap:pretty}
 .need .nt .chip{margin-right:var(--s2)}
 .need .nr{font-size:var(--t-cap);color:var(--muted);line-height:1.4;margin-top:2px;text-wrap:pretty}
-.need .go{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted);white-space:nowrap}
-.need .go .i{color:var(--faint)}
-@media (max-width:519px){.need .go span{display:none}}
+.need > .i{color:var(--faint)}
 .allclear{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);color:var(--ok);font-weight:500}
 
 /* ---------- storms ---------- */
 .headline{font-size:var(--t-cap);color:var(--muted);line-height:1.45;margin-bottom:var(--s3);text-wrap:pretty}
 .walk{display:grid;gap:var(--s3);padding:var(--s4)}
-.walk .chips{display:flex;flex-wrap:wrap;gap:6px}
+a.walk:hover{border-color:var(--line-2)}
+.walk .chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.walk .open{margin-left:auto;display:inline-flex;align-items:center;gap:2px;font-size:var(--t-cap);font-weight:500;color:var(--ink-2)}
+.walk .open .i{color:var(--faint)}
 .walk h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.15}
 .walk .streets{font-size:var(--t-cap);color:var(--muted);margin-top:2px}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r-md)}
@@ -130,12 +128,9 @@ a.need:hover{background:var(--soft)}
 .tile + .tile{border-left:1px solid var(--line)}
 .tile b{display:block;font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
 .tile span{font-size:var(--t-cap);color:var(--muted)}
-.btn{display:flex;align-items:center;justify-content:center;gap:var(--s2);height:48px;padding:0 var(--s4);border-radius:var(--r-md);font-weight:600;font-size:var(--t-body);background:var(--card);border:1px solid var(--line-2);color:var(--ink)}
-.btn:hover{background:var(--soft)}
-.btn .i{color:var(--muted)}
 .subhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);margin:var(--s4) 0 var(--s2)}
 .subhead h3{font-size:var(--t-body);font-weight:600}
-.fresh{display:grid;grid-template-columns:minmax(0,1fr) 56px 52px;align-items:center;gap:var(--s3);padding:var(--s2) var(--s4);min-height:52px}
+.fresh{display:grid;grid-template-columns:minmax(0,1fr) 56px 52px;align-items:center;gap:var(--s3);padding:6px var(--s4);min-height:50px}
 .fresh b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fresh .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hbar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
@@ -192,9 +187,10 @@ a.need:hover{background:var(--soft)}
 /* ---------- AI line ---------- */
 .ai{display:flex;align-items:flex-start;gap:var(--s3);margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line);font-size:var(--t-cap);color:var(--muted)}
 .ai > .i{color:var(--hmp-ink);margin-top:1px}
-.ai p{flex:1;min-width:0;max-width:110ch;text-wrap:pretty}
+.ai > div{flex:1;min-width:0}
+.ai p{text-wrap:pretty}
 .ai p b{color:var(--ink);font-weight:600;margin-right:6px}
-.ai .act{margin-top:-12px}
+.ai .act{margin-left:calc(-1 * var(--s3));margin-bottom:-12px}
 
 /* ---------- skeleton ---------- */
 .sk{background:linear-gradient(90deg,var(--soft) 0,var(--skel-hi) 40%,var(--soft) 80%);background-size:300% 100%;animation:sk 1.4s var(--ease) infinite;border-radius:6px}
@@ -235,34 +231,33 @@ a.need:hover{background:var(--soft)}
 
   <main class="dash" id="dash">
     <div class="col a">
-      <section aria-labelledby="hNeeds">
+      <section id="sNeeds" aria-labelledby="hNeeds">
         <div class="shead"><h2 id="hNeeds"></h2><span id="needsMeta"></span></div>
         <div class="rows" id="needs"></div>
       </section>
-    </div>
-    <div class="col b">
-      <section aria-labelledby="hStorms">
-        <div class="shead"><h2 id="hStorms"></h2><span class="meta" id="stormsMeta"></span></div>
-        <div id="storms"></div>
-      </section>
-      <section aria-labelledby="hLeads">
-        <div class="shead"><h2 id="hLeads"></h2><span id="leadsMeta"></span></div>
-        <div id="leads"></div>
-      </section>
-    </div>
-    <div class="col c">
-      <section aria-labelledby="hJobs">
-        <div class="shead"><h2 id="hJobs"></h2><span id="jobsMeta"></span></div>
-        <div id="jobs"></div>
-      </section>
-      <section aria-labelledby="hCrews">
+      <section id="sCrews" aria-labelledby="hCrews">
         <div class="shead"><h2 id="hCrews"></h2><span class="meta" id="crewsMeta"></span></div>
         <div id="crews"></div>
       </section>
     </div>
+    <div class="col b">
+      <section id="sStorms" aria-labelledby="hStorms">
+        <div class="shead"><h2 id="hStorms"></h2><span class="meta" id="stormsMeta"></span></div>
+        <div id="storms"></div>
+      </section>
+      <footer class="ai" id="ai" hidden></footer>
+    </div>
+    <div class="col c">
+      <section id="sJobs" aria-labelledby="hJobs">
+        <div class="shead"><h2 id="hJobs"></h2><span id="jobsMeta"></span></div>
+        <div id="jobs"></div>
+      </section>
+      <section id="sLeads" aria-labelledby="hLeads">
+        <div class="shead"><h2 id="hLeads"></h2><span id="leadsMeta"></span></div>
+        <div id="leads"></div>
+      </section>
+    </div>
   </main>
-
-  <footer class="ai" id="ai" hidden></footer>
 </div>
 
 <script>
@@ -340,6 +335,7 @@ a.need:hover{background:var(--soft)}
   const fmtIso = (iso) => { const x = new Date(iso); return isNaN(x) ? "" : x.toLocaleDateString(loc(), { month: "short", day: "numeric", timeZone: "America/Chicago" }); };
   const pct = (v) => Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   const inch = (v) => (Number(v) || 0).toFixed(2) + "″";
+  const place = (name) => (lang === "es" ? String(name || "").replace(/\bBuildings?\b/g, (m) => (m.endsWith("s") ? "Edificios" : "Edificio")) : String(name || ""));
   const safeUrl = (u) => (typeof u === "string" && /^https:\/\//.test(u) ? u : null);
   const destName = (u) => { const m = /artifact\/([A-Za-z0-9]+)/.exec(u || ""); return (m && t().dest[m[1]]) || t().open; };
   function chip(sev, text) {
@@ -370,7 +366,7 @@ a.need:hover{background:var(--soft)}
         h("p", { class: "nt" }, chip(n.sev), title),
         rest ? h("p", { class: "nr" }, rest) : null);
       const row = u
-        ? h("a", { class: "need", href: u, target: "_blank", rel: "noopener" }, body, h("span", { class: "go" }, h("span", {}, destName(u)), ic("chev", "i-sm")))
+        ? h("a", { class: "need", href: u, target: "_blank", rel: "noopener", title: `${t().open}: ${destName(u)}` }, body, ic("chev", "i-sm"))
         : h("div", { class: "need" }, body, h("span"));
       box.append(row);
     }
@@ -384,16 +380,16 @@ a.need:hover{background:var(--soft)}
     if (tx(s.headline)) box.append(h("p", { class: "headline" }, tx(s.headline)));
     const w = s.best_walk;
     if (w) {
-      const card = h("div", { class: "card walk" },
+      const u = safeUrl(w.link || s.link);
+      const card = h(u ? "a" : "div", u ? { class: "card walk", href: u, target: "_blank", rel: "noopener", "aria-label": `${t().bestWalk}: ${w.area || ""}. ${t().openWalk}` } : { class: "card walk" },
         h("div", { class: "chips" },
           h("span", { class: "chip hmp" }, ic("hail"), t().bestWalk),
-          w.day ? h("span", { class: "chip" }, ic("cal"), `${t().storm} ${fmtDay(w.day)}`) : null),
+          w.day ? h("span", { class: "chip" }, ic("cal"), `${t().storm} ${fmtDay(w.day)}`) : null,
+          u ? h("span", { class: "open" }, destName(u), ic("chev", "i-sm")) : null),
         h("div", {}, h("h3", {}, w.area || ""), w.streets ? h("p", { class: "streets" }, w.streets) : null),
         h("div", { class: "tiles" },
           h("div", { class: "tile" }, h("b", {}, inch(w.avg_hail)), h("span", {}, t().avgHail)),
           h("div", { class: "tile" }, h("b", {}, String(w.doors ?? "–")), h("span", {}, t().doors))));
-      const u = safeUrl(w.link || s.link);
-      if (u) card.append(h("a", { class: "btn", href: u, target: "_blank", rel: "noopener" }, t().openWalk, ic("chev", "i-sm")));
       box.append(card);
     }
     const fresh = s.fresh || [];
@@ -468,7 +464,7 @@ a.need:hover{background:var(--soft)}
       for (const b of j.buildings || []) {
         const bp = pct(b.progress);
         blds.append(h("div", { class: "bld" },
-          h("div", { class: "nm" }, b.name || "", b.flag ? chip(b.flag.sev, tx(b.flag)) : null),
+          h("div", { class: "nm" }, place(b.name), b.flag ? chip(b.flag.sev, tx(b.flag)) : null),
           h("span", { class: "p" }, bp + "%"),
           h("div", { class: "sub" }, b.crew ? b.crew : h("span", { class: "none" }, t().noCrew), b.updated_at ? ` · ${fmtIso(b.updated_at)}` : ""),
           h("div", { class: "bar", role: "img", "aria-label": `${b.name} ${bp}%` }, h("i", { style: `width:${bp}%` }))));
@@ -491,7 +487,7 @@ a.need:hover{background:var(--soft)}
     if (!crews.length) return;
     const rows = h("div", { class: "rows" });
     for (const c of crews) rows.append(h("div", { class: "crew" }, h("div", { class: "tile-i" }, ic("user")),
-      h("div", { class: "t" }, h("b", {}, c.names || ""), h("span", {}, [c.where, c.job].filter(Boolean).join(" · ")))));
+      h("div", { class: "t" }, h("b", {}, c.names || ""), h("span", {}, [place(c.where), c.job].filter(Boolean).join(" · ")))));
     box.append(rows);
   }
 
@@ -499,7 +495,7 @@ a.need:hover{background:var(--soft)}
     const ai = $("ai"); ai.replaceChildren();
     if (!snap.ai || !tx(snap.ai)) { ai.hidden = true; return; }
     ai.hidden = false;
-    ai.append(ic("say"), h("p", {}, h("b", {}, t().aiLabel), tx(snap.ai)), act(snap.ai.link, destName(snap.ai.link)) || "");
+    ai.append(ic("say"), h("div", {}, h("p", {}, h("b", {}, t().aiLabel), tx(snap.ai)), act(snap.ai.link, destName(snap.ai.link)) || ""));
   }
 
   // ---------- states ----------
