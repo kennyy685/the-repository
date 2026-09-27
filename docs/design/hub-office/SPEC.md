@@ -41,6 +41,14 @@ both logs, EN/ES. The hub stays its own place (nothing from the HMP App).
 (1440-1512 px wide, ~900 px tall, trackpad + keyboard). Phones only need to keep working (the design gate still
 checks 360/420 px); no phone-first trade-offs.
 
+## Fun camera views (FilthE, 2026-09-27: "I know you can come up with funner camera POVs")
+Keys 1-8 on the MacBook, plus the camera buttons: 1 Dollhouse (whole building, Wes Anderson cutaway framing),
+2 Blueprint (top-down architect's plan, robots as glowing dots), 3 Security cam (fish-eye corner CCTV, timestamp +
+grain, Cam 1 up / Cam 2 down), 4 Ride-along (right behind a robot through walks, the slide and the tube),
+5 Through the window (outside in the dusk looking in, Hopper's Nighthawks), 6 Tilt-shift (close, low, shallow depth
+of field so it reads as a real miniature), 7 Tour (slow cinematic orbit), 8 Director mode (auto-cuts to the action:
+a finish -> the celebration, a question -> "your spot"; doubles as a screensaver). Reduced motion: cuts, no orbits.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
