@@ -34,7 +34,8 @@ the sale, what to collect, what's legally required, what's next. **The app is th
 outside it** (FilthE, 2026-09-27: Practice Door + lessons with Claude). No coaching text in the app; a pro needs eyes,
 memory, back office, follow-up, proof and legal armor (docs/research/2026-09-27-round-54.md). Layout B, EN/ES everywhere. **Look = the Aldaba brand** (FilthE, 2026-09-27, "number 4"): graphite dark by
 default, knocker orange, Bricolage headlines + Geist; Light (Ledger) is an option. Salesman screens show the Aldaba
-mark; homeowner-facing screens stay HMP Siding & Roofing.
+mark; homeowner-facing screens stay HMP Siding & Roofing. **Quality bar for everything we build: the Aldaba
+landing page** (docs/design/product-brand/aldaba/): professional, premium, luxury (FilthE, 2026-09-27).
 
 ## Live system
 - HMP App https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT (`pages/hmp-app.html`, own db). No hub content in it.
