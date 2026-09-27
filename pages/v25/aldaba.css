@@ -35,6 +35,7 @@
 .label,.k-eb,.dg-h,.k-l,.ns-lb{letter-spacing:.08em}
 
 /* ---------- surfaces: layered graphite, a hairline edge, a lit top and a long soft shadow ---------- */
+.zmapw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(180deg,transparent,var(--bg));pointer-events:none}   /* the map melts into the page under the zone card */
 .card,.rows,.box{background:var(--surface);border-color:var(--hair);box-shadow:var(--e1)}
 .zone{box-shadow:var(--e2)}                      /* the best zone floats over the map */
 .stats{background:var(--well);border-color:var(--hair)}
@@ -82,7 +83,7 @@ button.row:active,a.row:active,.jcard:active,.appt > button.t:active{background-
 .nav,.composer{background:var(--bar);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px)}
 .composer{border-top-color:var(--bar-line)}
 .nav{border-top-color:var(--bar-line)}
-.dock{box-shadow:0 -16px 32px -24px rgba(0,0,0,.5)}
+.dock{box-shadow:var(--dock-shadow)}
 .composer .field{box-shadow:inset 0 0 0 1px var(--hair)}
 .composer .mic{background:var(--plus-bg);box-shadow:var(--plus-edge)}
 .nav .plus i{background:var(--plus-bg);box-shadow:var(--plus-edge)}

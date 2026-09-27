@@ -8,7 +8,7 @@
  *   node tests/pages/design_gate.js --page hmp-app   only pages whose path contains "hmp-app" (repeatable)
  *   node tests/pages/design_gate.js --shots          also save a screenshot of every view, not just failing ones
  *   node tests/pages/design_gate.js --self-test      prove every check fires on a page built to break them all
- *   narrower runs: --size 360|420, --theme light,dark,data-theme=dark,data-theme=light, --lang en|es, --verbose
+ *   narrower runs: --size 360|420, --theme light,dark,data-theme=dark,data-theme=light,pick=light,pick=auto, --lang en|es, --verbose
  *
  * What fails the gate (every rule is checked on every view: each tab, plus the sheets listed in PAGES):
  *   contrast       text under WCAG AA: 4.5:1, or 3:1 for large text (24px+, or 18.66px+ bold); an icon-only
@@ -28,6 +28,9 @@
  *
  * Themes: light and dark through prefers-color-scheme (how a phone picks), plus the data-theme attribute forcing each
  * one against the system setting (the ":root:not([data-theme=light])" / "[data-theme=dark]" guards the pages use).
+ * A page with its own theme pick (`pickKey`: the HMP App's More > Theme, v25.1) also renders each pick it offers besides
+ * its default: pick=light (Light picked, on a dark phone) and pick=auto (Auto, on a light phone). The four runs above
+ * then show that page's DEFAULT against every phone and claude.ai setting (for the HMP App: dark, even on a light phone).
  * Dates are frozen to 2026-09-27 3 PM Central to match the fixture, and every request off this machine is blocked
  * (fonts, map tiles), so two runs on the same pages give the same answer.
  *
@@ -55,6 +58,7 @@ const PAGES = [
   {
     rel: "pages/hmp-app.html",
     storage: { en: { "hmp-app-lang": "en" }, es: { "hmp-app-lang": "es" } },
+    pickKey: "hmp-app-look",   // v25.1: More > Theme (default dark "Aldaba Graphite"; Light; Auto), per device
     tabs: '#tabs [role="tab"]',
     views: [
       { name: "add sheet", steps: ["#plusBtn"] },
@@ -87,10 +91,13 @@ const THEMES = [
   { id: "dark", scheme: "dark", attr: null },
   { id: "data-theme=dark", scheme: "light", attr: "dark" },
   { id: "data-theme=light", scheme: "dark", attr: "light" },
+  // only for pages with a `pickKey` (their own theme pick in localStorage): the picks besides the page's default
+  { id: "pick=light", scheme: "dark", attr: null, pick: "light" },
+  { id: "pick=auto", scheme: "light", attr: null, pick: "auto" },
 ];
 // Spanish labels run longer (overlaps, cramped buttons); colors don't change with language, so ES skips the two
-// data-theme variants.
-const LANG_THEMES = { en: THEMES.map((t) => t.id), es: ["light", "dark"] };
+// data-theme variants and Auto (ES still renders the Light pick: a page whose default is dark shows its light side there).
+const LANG_THEMES = { en: THEMES.map((t) => t.id), es: ["light", "dark", "pick=light"] };
 
 const MAX_SHOTS = 80;   // one screenshot per distinct problem, up to this many per run
 
@@ -635,7 +642,7 @@ function pageLib() {
 
 /* ================= the mocked window.claude + frozen clock, installed before the page's own scripts ================= */
 function initScript(page, combo, data) {
-  const storage = (page.storage && page.storage[combo.lang]) || {};
+  const storage = Object.assign({}, (page.storage && page.storage[combo.lang]) || {}, combo.pick && page.pickKey ? { [page.pickKey]: combo.pick } : {});
   return `(() => {
   const FIXED = Date.parse(${JSON.stringify(FIXED_NOW_ISO)}), START = Date.now(), RealDate = Date;
   const now = () => FIXED + (RealDate.now() - START);
@@ -840,12 +847,12 @@ async function runCombo(browser, page, combo, opts, shared, data) {
   return { findings, views: views.length, controls: views.reduce((n, v) => n + v.stats.controls, 0), text: views.reduce((n, v) => n + v.stats.text, 0) };
 }
 
-function combosFor(opts) {
+function combosFor(opts, page) {
   const out = [];
   for (const lang of opts.langs) {
     for (const t of THEMES) {
-      if (!LANG_THEMES[lang].includes(t.id) || !opts.themes.includes(t.id)) continue;
-      for (const s of SIZES) if (opts.widths.includes(s.width)) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, width: s.width, height: s.height });
+      if (!LANG_THEMES[lang].includes(t.id) || !opts.themes.includes(t.id) || (t.pick && !(page && page.pickKey))) continue;
+      for (const s of SIZES) if (opts.widths.includes(s.width)) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, pick: t.pick || null, width: s.width, height: s.height });
     }
   }
   return out;
@@ -908,7 +915,7 @@ function parseArgs(argv) {
     else if (a === "--size") o.widths = String(next()).split(",").map((w) => parseInt(w, 10));
     else if (a === "--theme") o.themes = String(next()).split(",");
     else if (a === "--lang") o.langs = String(next()).split(",");
-    else if (a === "--quick") { o.widths = [360]; o.themes = ["light", "dark"]; o.langs = ["en"]; }
+    else if (a === "--quick") { o.widths = [360]; o.themes = ["light", "dark", "pick=light"]; o.langs = ["en"]; }
     else if (a === "--shots") o.shots = true;
     else if (a === "--verbose" || a === "-v") o.verbose = true;
     else if (a === "--self-test") o.selfTest = true;
@@ -976,6 +983,7 @@ async function selfTest(browser) {
   const shared = { shots: MAX_SHOTS, shotFor: new Set() };   // no screenshots from the self-test
   let ok = true;
   for (const t of THEMES) {
+    if (t.pick) continue;   // the self-test page has no theme pick of its own
     const combo = { lang: "en", theme: t.id, scheme: t.scheme, attr: t.attr, width: 360, height: 800 };
     const { findings } = await runCombo(browser, page, combo, opts, shared, { collections: {}, docs: {} });
     const got = new Set(findings.map((f) => `${f.rule} ${f.where}`));
@@ -1005,7 +1013,7 @@ async function main() {
 
     const pages = PAGES.filter((p) => !opts.pages.length || opts.pages.some((q) => p.rel.includes(q)));
     if (!pages.length) { console.error(`no page matches ${opts.pages.join(", ")}`); process.exitCode = 2; return; }
-    const combos = combosFor(opts);
+    const combos = [...new Map(pages.flatMap((p) => combosFor(opts, p)).map((c) => [`${c.theme}|${c.width}|${c.lang}`, c])).values()];   // for the header line
     if (!combos.length) { console.error("that --size/--theme/--lang mix leaves nothing to render"); process.exitCode = 2; return; }
     const data = JSON.parse(fs.readFileSync(FIXTURE_PATH, "utf8"));
     fs.rmSync(OUT_DIR, { recursive: true, force: true });
@@ -1015,8 +1023,9 @@ async function main() {
     const shared = { shots: 0, shotFor: new Set() };
     const results = [];
     for (const page of pages) {
-      const r = { page, findings: [], views: 0, controls: 0, text: 0, combos: combos.map((c) => `${c.theme}|${c.width}|${c.lang}`) };
-      for (const combo of combos) {
+      const pageCombos = combosFor(opts, page);
+      const r = { page, findings: [], views: 0, controls: 0, text: 0, combos: pageCombos.map((c) => `${c.theme}|${c.width}|${c.lang}`) };
+      for (const combo of pageCombos) {
         const out = await runCombo(browser, page, combo, opts, shared, data);
         r.views += out.views; r.controls += out.controls; r.text += out.text;
         for (const f of out.findings) r.findings.push(Object.assign({ combo }, f));

@@ -33,7 +33,7 @@
   --hit-sm:36px; --hit:48px; --hit-lg:56px; --hit-xl:68px;
   --ease:cubic-bezier(.2,.8,.2,1);
   /* surfaces that sit ON ink (dark buttons, the + tab, active segments): never hard-code #fff */
-  --on-ink:#111214; --bar:rgba(20,21,24,.86); --scrim:rgba(4,5,6,.62); --stage:#08090a; --skel-hi:#2c2e33;
+  --on-ink:#111214; --bar:rgba(20,21,24,.92); --scrim:rgba(4,5,6,.62); --stage:#08090a; --skel-hi:#2c2e33;
   --seg-thumb:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5),0 0 0 1px #3a3c42;
   /* map (vector: streets, lots, labels from the engine; no tiles) */
   --map-land:#141518; --map-lot:#18191d; --map-lotline:#24262b; --map-street:#2a2c31; --map-casing:#141518;
@@ -56,6 +56,7 @@
   --well:rgba(6,7,8,.28);                                     /* a recessed strip inside a card (the zone's numbers) */
   --sheet-bg:linear-gradient(180deg,#18191d 0%,#121316 160px); /* a sheet: lifted off the page it covers */
   --cta:linear-gradient(180deg,#f8985a 0%,#f5883a 52%,#f0812f 100%);   /* the one orange "do this" button */
+  --dock-shadow:0 -18px 36px -22px rgba(0,0,0,.75);                  /* the dock sits above the page */
 }
 /* ---------- Ledger (light): the v25 light theme, orange accent kept. Picked Light, or Auto on a light phone ---------- */
 :root[data-theme="light"]{
@@ -76,7 +77,7 @@
   --glow-press:0 3px 8px -4px rgba(231,118,42,.5),inset 0 2px 5px rgba(27,18,6,.14);
   --plus-bg:linear-gradient(180deg,#2c2d32 0%,#18191c 100%); --plus-edge:inset 0 1px 0 rgba(255,255,255,.14),0 6px 14px -8px rgba(24,25,28,.6);
   --bar-top:rgba(246,247,248,.88); --bar-line:rgba(24,25,28,.07);
-  --raise:0 1px 1px rgba(24,25,28,.04); --hmp-edge:rgba(231,118,42,.22); --well:#fafbfb; --sheet-bg:var(--bg);
+  --raise:0 1px 1px rgba(24,25,28,.04); --hmp-edge:rgba(231,118,42,.22); --well:#fafbfb; --sheet-bg:var(--bg); --dock-shadow:none;
 }
 @media (prefers-color-scheme:light){:root[data-look="auto"]:not([data-theme="dark"]){
   color-scheme:light;
@@ -96,7 +97,7 @@
   --glow-press:0 3px 8px -4px rgba(231,118,42,.5),inset 0 2px 5px rgba(27,18,6,.14);
   --plus-bg:linear-gradient(180deg,#2c2d32 0%,#18191c 100%); --plus-edge:inset 0 1px 0 rgba(255,255,255,.14),0 6px 14px -8px rgba(24,25,28,.6);
   --bar-top:rgba(246,247,248,.88); --bar-line:rgba(24,25,28,.07);
-  --raise:0 1px 1px rgba(24,25,28,.04); --hmp-edge:rgba(231,118,42,.22); --well:#fafbfb; --sheet-bg:var(--bg);
+  --raise:0 1px 1px rgba(24,25,28,.04); --hmp-edge:rgba(231,118,42,.22); --well:#fafbfb; --sheet-bg:var(--bg); --dock-shadow:none;
 }}
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:var(--t-body);line-height:1.45;-webkit-font-smoothing:antialiased}

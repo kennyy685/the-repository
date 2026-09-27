@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## v25.1 - draft (not published: FilthE sees the screenshots first)
+- New look, the brand page FilthE picked: dark graphite by default (even when the phone is in light mode), silver text, one orange "do this" button with a soft glow, cards with thin edges and depth. More > Theme: Dark / Light / Auto, saved per phone (every phone starts on Dark once).
+- Real fonts now load with the app (Geist, and Bricolage for screen titles and big numbers like knocks today, the stop address and owed to HMP); before, phones showed their own font.
+- Top bar shows the app's own mark; everything a homeowner sees (homeowner view, print pieces, texts) still says HMP Siding & Roofing. Sheets slide in and out; nothing else moved.
+
 ## v25 - 2026-09-27
 - New v25 look in light and dark (Theme: Auto / Light / Dark in More, saved per phone), one icon set, and the Right Hand bar docked above the tabs.
 - Now shows the best zone on a street map with Drive / Start knocking and today's appointments; Knock shows the next door, four big answer buttons and "Stop 3 of 25"; Money shows what's owed to HMP and what to chase.

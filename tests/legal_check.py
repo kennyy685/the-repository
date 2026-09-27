@@ -36,6 +36,10 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BUSINESS_ADDRESS = "2600 Laverna St, Apt 50, Fremont, NE 68025"
+SELLER_NAME = "HMP Siding & Roofing LLC"
+
+# The insurance contingency agreement (T188): English + Spanish print pieces.
+CONTINGENCY_FILES = ("docs/print/contingency-agreement.html", "docs/print/contingency-agreement-es.html")
 
 # Phrases we must never make as a sales claim about HMP itself.
 BANNED_PHRASES = [
@@ -106,7 +110,7 @@ def check_statute_match():
     failures = []
     statute_notice = _norm(_extract_statute_notice(_read("docs/legal/44-8607.txt")))
 
-    for rel_path in ("docs/print/contract-draft.html", "docs/print/contract-draft-es.html"):
+    for rel_path in ("docs/print/contract-draft.html", "docs/print/contract-draft-es.html") + CONTINGENCY_FILES:
         text = _read(rel_path)
         ded_paragraphs = _extract_ded_paragraphs(text)
         if not ded_paragraphs:
