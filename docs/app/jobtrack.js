@@ -101,6 +101,8 @@ var T = {
   rDep: function (d, f) { return both(function (lg) { return lg === "es" ? "Solicitud de depreciación (factura final + fecha de terminado): el trabajo terminó el " + f(d, lg) + "." : "Depreciation request (final invoice + completion date): the job finished " + f(d, lg) + "."; }); },
   rRev: function (d, f) { return both(function (lg) { return lg === "es" ? "Enlace de reseña al dueño a más tardar el " + f(d, lg) + " (24 horas después de terminar)." : "Review link to the homeowner by " + f(d, lg) + " (24 hours after completion)."; }); },
   rWar: function (d, f) { return both(function (lg) { return lg === "es" ? "Registro de la garantía del fabricante a más tardar el " + f(d, lg) + "." : "Manufacturer warranty registration due " + f(d, lg) + "."; }); },
+  short: { mortgage: { en: "Mortgage endorsement", es: "Endoso del banco" }, depreciation: { en: "Depreciation request", es: "Pedir depreciación" },
+    review: { en: "Review link", es: "Enlace de reseña" }, warranty: { en: "Warranty registration", es: "Registro de garantía" }, build: { en: "Build day: tear-off locked", es: "Día de obra: bloqueado" } },
   rBuild: function (d, f) { return both(function (lg) { return lg === "es" ? "Día de obra " + f(d, lg) + ": quitar lo viejo sigue bloqueado (paso 10)." : "Build day " + f(d, lg) + ": tear-off is still locked (step 10)."; }); }
 };
 
@@ -135,6 +137,7 @@ var REQ = function () { return "req"; }, OPT = function () { return "opt"; };
 var STEPS = [
   { id: "contingency", n: 1, legal: true,
     title: { en: "Contingency agreement signed", es: "Acuerdo contingente firmado" },
+    short: { en: "Contingency", es: "Acuerdo contingente" },
     who: { en: "You + the homeowner, after the free inspection", es: "Usted + el dueño, después de la inspección gratis" },
     papers: [P.contingency, P.cancel],
     when: { en: "Day 0, the same visit as the inspection", es: "Día 0, en la misma visita de la inspección" },
@@ -144,6 +147,7 @@ var STEPS = [
     parts: [{ k: "contingency", path: ["job", "contingency_signed"], en: "Contingency signed", es: "Acuerdo firmado", need: REQ }] },
   { id: "adjuster", n: 2, infer: "scope_in",
     title: { en: "Adjuster meeting", es: "Cita con el ajustador" },
+    short: { en: "Adjuster meeting", es: "Cita con el ajustador" },
     who: { en: "You + the homeowner, with the insurer's adjuster", es: "Usted + el dueño, con el ajustador de la aseguradora" },
     papers: [P.adjuster, P.supplement, P.inspection],
     when: { en: "Usually day 7 to 30", es: "Normalmente del día 7 al 30" },
@@ -153,6 +157,7 @@ var STEPS = [
     parts: [{ k: "adjuster", path: ["job", "adjuster_met"], en: "Meeting done", es: "Cita hecha", need: REQ, bump: "adjuster_set" }] },
   { id: "scope", n: 3, infer: "scope_in",
     title: { en: "Claim approved + scope in", es: "Reclamo aprobado + alcance recibido" },
+    short: { en: "Approval + scope", es: "Aprobación + alcance" },
     who: { en: "The insurer sends it; you check it the same day", es: "La aseguradora lo manda; usted lo revisa el mismo día" },
     papers: [P.scope, P.supplement],
     when: { en: "Usually day 14 to 45", es: "Normalmente del día 14 al 45" },
@@ -161,6 +166,7 @@ var STEPS = [
     parts: [{ k: "scope", path: ["scope_date"], en: "Approval + scope in", es: "Aprobación + alcance recibido", need: REQ, bump: "scope_in" }] },
   { id: "contract", n: 4, infer: "signed",
     title: { en: "Job contract signed + 3-day cancel", es: "Contrato firmado + cancelación de 3 días" },
+    short: { en: "Contract + 3-day cancel", es: "Contrato + cancelación" },
     who: { en: "You + every buyer; an HMP rep signs", es: "Usted + cada comprador; firma un representante de HMP" },
     papers: [P.contract, P.cancel],
     when: { en: "After approval, usually day 15 to 50", es: "Después de la aprobación, normalmente del día 15 al 50" },
@@ -170,6 +176,7 @@ var STEPS = [
     parts: [{ k: "contract", path: ["job", "contract_signed"], en: "Contract signed", es: "Contrato firmado", need: REQ, bump: "signed" }] },
   { id: "itemized", n: 5, legal: true, stop: true,
     title: { en: "Itemized description to the homeowner AND the insurer", es: "Descripción detallada al dueño Y a la aseguradora" },
+    short: { en: "Itemized description", es: "Descripción detallada" },
     who: { en: "You send both copies", es: "Usted manda las dos copias" },
     papers: [P.itemized],
     when: { en: "Before tear-off starts", es: "Antes de empezar a quitar lo viejo" },
@@ -180,6 +187,7 @@ var STEPS = [
       { k: "itemized_ins", path: ["job", "itemized_sent", "insurer"], en: "Sent to the insurer", es: "Enviada a la aseguradora", need: REQ }] },
   { id: "acv", n: 6, infer: "paid",
     title: { en: "ACV check + mortgage endorsement", es: "Cheque ACV + endoso del banco hipotecario" },
+    short: { en: "ACV check + mortgage", es: "Cheque ACV + banco" },
     who: { en: "The insurer issues it; the homeowner calls the mortgage company's loss-draft department; you follow up", es: "La aseguradora lo emite; el dueño llama al departamento de reclamos (loss draft) de su banco; usted da seguimiento" },
     papers: [P.acvCheck, P.loss],
     when: { en: "The endorsement starts the day the check arrives. 1 to 3 weeks; longer on big claims.", es: "El endoso empieza el día que llega el cheque. De 1 a 3 semanas; más en reclamos grandes." },
@@ -191,6 +199,7 @@ var STEPS = [
       { k: "acv_dep", path: ["acv", "deposited"], en: "Deposited", es: "Depositado", need: REQ }] },
   { id: "materials", n: 7, infer: "materials_ordered", stop: true,
     title: { en: "Supplier account + materials ordered", es: "Cuenta con proveedor + material pedido" },
+    short: { en: "Materials", es: "Material" },
     who: { en: "The boss or you apply; you order", es: "El jefe o usted aplica; usted pide" },
     papers: [P.credit, P.order],
     when: { en: "Apply before the job is signed", es: "Aplique antes de firmar el trabajo" },
@@ -200,6 +209,7 @@ var STEPS = [
       { k: "ordered", path: ["materials", "ordered"], en: "Materials ordered", es: "Material pedido", need: REQ, gate: "materials", bump: "materials_ordered" }] },
   { id: "crew", n: 8, infer: "installed",
     title: { en: "Crew scheduled", es: "Cuadrilla programada" },
+    short: { en: "Crew", es: "Cuadrilla" },
     who: { en: "The boss", es: "El jefe" },
     papers: [],
     when: { en: "Before the contract's start date. Shingles seal at about 40°F and up, vinyl turns brittle under about 40°F, Hardie ColorPlus caulk needs 30°F and up.", es: "Antes de la fecha de inicio del contrato. Las tejas sellan desde unos 40°F, el vinil se pone quebradizo bajo unos 40°F, el sellador de Hardie ColorPlus necesita 30°F o más." },
@@ -208,6 +218,7 @@ var STEPS = [
     parts: [{ k: "crew", path: ["job", "crew", "scheduled"], en: "Crew + start day set", es: "Cuadrilla y día de inicio puestos", need: REQ }] },
   { id: "permit", n: 9, legal: true,
     title: { en: "Permit pulled", es: "Permiso sacado" },
+    short: { en: "Permit", es: "Permiso" },
     who: { en: "HMP, the registered contractor", es: "HMP, el contratista registrado" },
     papers: [P.permit],
     when: { en: "Before tear-off, ideally at contract signing", es: "Antes de quitar lo viejo; mejor al firmar el contrato" },
@@ -217,6 +228,7 @@ var STEPS = [
     parts: [{ k: "permit", path: ["job", "permit", "pulled"], en: "Permit pulled", es: "Permiso sacado", need: REQ }] },
   { id: "build", n: 10, infer: "installed", stop: true,
     title: { en: "Dumpster, tear-off, install, final inspection", es: "Contenedor, quitar lo viejo, instalar, inspección final" },
+    short: { en: "Build", es: "Obra" },
     who: { en: "The crew; the city inspector signs off", es: "La cuadrilla; el inspector de la ciudad aprueba" },
     papers: [P.photos, P.sidingScope],
     when: { en: "Usually day 20 to 75", es: "Normalmente del día 20 al 75" },
@@ -229,6 +241,7 @@ var STEPS = [
       { k: "final_insp", path: ["job", "final_inspection"], en: "City final inspection passed", es: "Inspección final de la ciudad aprobada", need: REQ }] },
   { id: "completion", n: 11, infer: "depreciation_requested",
     title: { en: "Completion certificate + packet", es: "Certificado de terminación + paquete" },
+    short: { en: "Completion", es: "Terminación" },
     who: { en: "You, at the final walk-through with the homeowner", es: "Usted, en el recorrido final con el dueño" },
     papers: [P.certificate, P.lien, P.photos, P.warranty],
     when: { en: "The day the job finishes", es: "El día que se termina el trabajo" },
@@ -240,6 +253,7 @@ var STEPS = [
       { k: "pk_warranty", path: ["job", "packet", "warranty"], en: "Manufacturer warranty registered", es: "Garantía del fabricante registrada", need: OPT }] },
   { id: "depreciation", n: 12, infer: "depreciation_requested",
     title: { en: "Depreciation request + supplements", es: "Solicitud de depreciación + suplementos" },
+    short: { en: "Depreciation request", es: "Pedir depreciación" },
     who: { en: "You", es: "Usted" },
     papers: [P.invoice, P.supplement],
     when: { en: "The same day the install is done", es: "El mismo día que se termina la instalación" },
@@ -248,6 +262,7 @@ var STEPS = [
     parts: [{ k: "dep_req", path: ["job", "depreciation_requested"], en: "Depreciation requested", es: "Depreciación solicitada", need: REQ, bump: "depreciation_requested" }] },
   { id: "final", n: 13, infer: "paid",
     title: { en: "Final check in + job closed", es: "Cheque final + trabajo cerrado" },
+    short: { en: "Final check", es: "Cheque final" },
     who: { en: "You", es: "Usted" },
     papers: [],
     when: { en: "Usually by day 90", es: "Normalmente para el día 90" },
@@ -257,6 +272,7 @@ var STEPS = [
       { k: "closed", path: ["job", "closed"], en: "Job closed (paid)", es: "Trabajo cerrado (pagado)", need: REQ, bump: "paid" }] },
   { id: "closeout", n: 14, legal: true,
     title: { en: "Yard sign, review link, thank-you note", es: "Letrero, enlace de reseña, nota de agradecimiento" },
+    short: { en: "Sign, review, note", es: "Letrero, reseña, nota" },
     who: { en: "You", es: "Usted" },
     papers: [P.yardSign, P.note],
     when: { en: "Review link within 24 hours of completion", es: "Enlace de reseña dentro de 24 horas de terminar" },
@@ -280,6 +296,10 @@ var SHAPE = {
   packet: { photos: "d", lien_waiver: "d", warranty: "d" },
   depreciation_requested: "d", closed: "d", yard_sign: "d", review_requested: "d", thank_you_note: "d"
 };
+
+/* which step each claim.job field belongs to (the chat's receipt names the step) */
+var JOB_STEP = { contingency_signed: 1, adjuster_met: 2, contract_signed: 4, cancel_by: 4, itemized_sent: 5, supplier_account: 7, crew: 8, permit: 9,
+  dumpster: 10, final_inspection: 10, packet: 11, depreciation_requested: 12, closed: 13, yard_sign: 14, review_requested: 14, thank_you_note: 14 };
 
 function opt(o) { o = o || {}; return { today: day(o.today) || new Date().toISOString().slice(0, 10), leadSigned: day(o.leadSigned), reviewSent: day(o.reviewSent) || (yes(o.reviewSent) ? true : null), fmt: typeof o.fmt === "function" ? o.fmt : fmtDefault }; }
 
@@ -305,7 +325,7 @@ function reminders(c, o) {
   if (c.stage === "lost" || c.stage === "paid") return [];
   var t = o.today, f = o.fmt, out = [];
   var acv = obj(c.acv), mort = obj(c.mortgage), job = obj(c.job), inst = obj(c.install);
-  var add = function (key, step, due, text, from) { if (t < (from || due)) return; out.push({ key: key, step: step, due: due, level: t > due ? "late" : "due", text: text }); };
+  var add = function (key, step, due, text, from) { if (t < (from || due)) return; out.push({ key: key, step: step, due: due, level: t > due ? "late" : "due", text: text, short: T.short[key] }); };
   var rec = day(acv.received);
   if (rec && !yes(mort.check_sent) && !yes(acv.deposited)) add("mortgage", 6, rec, str(mort.company) ? T.rMort(str(mort.company), rec, f) : T.rMort0(rec, f));
   var fin = [day(inst.done), day(c.completion_sent)].filter(Boolean).sort()[0] || null;
@@ -352,7 +372,7 @@ function model(c, o) {
     if (s.id === "completion" && day(obj(c.install).done) && !yes(obj(job.packet).warranty)) info.push(T.warrantyBy(addDays(day(obj(c.install).done), 30), f));
     if (s.id === "depreciation") { var sp = (Array.isArray(c.supplements) ? c.supplements : []).filter(function (x) { return isObj(x) && (x.approved == null || x.approved === ""); }).length; if (sp) info.push(T.suppOpen(sp)); }
     if (s.id === "final" && num(c.depreciation_held)) info.push(T.depHeld(num(c.depreciation_held)));
-    steps.push({ id: s.id, n: s.n, title: s.title, who: s.who, papers: s.papers, when: s.when, law: s.law, money: s.money, stop: !!s.stop, legal: !!s.legal,
+    steps.push({ id: s.id, n: s.n, title: s.title, short: s.short, who: s.who, papers: s.papers, when: s.when, law: s.law, money: s.money, stop: !!s.stop, legal: !!s.legal,
       parts: parts, reqN: req.length, reqDone: reqDone, done: logged || inferred, inferred: inferred, doneOn: logged ? dates[dates.length - 1] || null : null, info: info, status: "" });
   });
   var by = {}; steps.forEach(function (s) { by[s.id] = s; });
@@ -413,7 +433,7 @@ function selfCheck() {
   return bad;
 }
 
-var api = { JOBTRACK_VERSION: JOBTRACK_VERSION, STEPS: STEPS, SHAPE: SHAPE, CLAIM_STEPS: CLAIM_STEPS, model: model, gates: gates, reminders: reminders,
+var api = { JOBTRACK_VERSION: JOBTRACK_VERSION, STEPS: STEPS, SHAPE: SHAPE, JOB_STEP: JOB_STEP, CLAIM_STEPS: CLAIM_STEPS, model: model, gates: gates, reminders: reminders,
   tapPatch: tapPatch, checkWrite: checkWrite, cancelEnd: cancelEnd, selfCheck: selfCheck };
 root.HMPJobTrack = api;
 if (typeof module !== "undefined" && module.exports) module.exports = api;

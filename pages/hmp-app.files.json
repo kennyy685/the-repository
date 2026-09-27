@@ -8,6 +8,7 @@
     "estimate/estimate-module.css": "pages/estimate/estimate-module.css",
     "estimate/estimate-module.js": "pages/estimate/estimate-module.js",
     "app/followups.js": "docs/app/followups.js",
+    "app/jobtrack.js": "docs/app/jobtrack.js",
     "translate/translate.js": "pages/translate/translate.js",
     "v25/ds.css": "pages/v25/ds.css",
     "v25/icons.js": "pages/v25/icons.js",

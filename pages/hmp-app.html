@@ -390,6 +390,74 @@ ol.steps li.now{background:var(--hmp-bg);color:var(--hmp-ink);font-weight:600} o
 .taps .tap.armed,.ph-view .tap.armed{background:var(--ok);color:var(--on-ink)}
 .taps .tap:disabled{opacity:.5}
 .taps-note{font-size:var(--t-cap);color:var(--muted);margin:0}
+/* v25.2 · T199: the Job tracker on the claim screen (round 56's 14 steps). Done steps fold into one line; the current step
+   is open (who / papers / when / law / money + one tap per part); a hard stop is amber with a lock; due reminders are
+   amber on the day and red after. Orange stays "do this": the current step's number and its next part's ring. */
+.jt{gap:var(--s3)}
+.jt-rems{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.jt-rems li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:var(--r-sm);font-size:var(--t-cap);line-height:1.4;color:var(--ink)}
+.jt-rems li .i{width:18px;height:18px;margin-top:1px}
+.jt-rems li b{display:block;font:500 var(--t-label)/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px}
+.jt-rems li.due{background:var(--warn-bg)}.jt-rems li.due .i,.jt-rems li.due b{color:var(--warn)}
+.jt-rems li.late{background:var(--late-bg)}.jt-rems li.late .i,.jt-rems li.late b{color:var(--late)}
+details.jt-done > summary{min-height:48px;display:flex;align-items:center;gap:var(--s2);cursor:pointer;list-style:none;font-weight:500;color:var(--ink-2)}
+details.jt-done > summary::-webkit-details-marker{display:none}
+details.jt-done > summary .i{color:var(--ok)}
+details.jt-done > summary .cnt{color:var(--muted);font-weight:400;font-size:var(--t-cap)}
+details.jt-done > summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:1.75px solid var(--muted);border-bottom:1.75px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px)}
+details.jt-done[open] > summary::after{transform:rotate(-135deg)}
+.jt-dl{list-style:none;margin:0;padding:0 0 var(--s2);display:grid}
+.jt-dl li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:36px;font-size:var(--t-cap);color:var(--ink-2)}
+.jt-dl .d{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.jt-dl .d.miss{color:var(--warn)}
+.jt-n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font:600 12px/1 var(--mono);background:var(--soft);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.jt-dl .jt-n{width:24px;height:24px;background:var(--ok-bg);color:var(--ok)}
+.jt-dl li.miss .jt-n{background:var(--warn-bg);color:var(--warn)}
+.jt-list{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--soft)}
+.jt-list > li + li{border-top:1px solid var(--soft)}
+.jt-row{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:56px;padding:var(--s2) 0;text-align:left;color:var(--ink)}
+.jt-row .t{flex:1;min-width:0}
+.jt-row .t b{display:block;font-weight:500;font-size:var(--t-body);line-height:1.3}
+.jt-row .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jt-row .end{display:flex;align-items:center;gap:6px;color:var(--faint);flex:none}
+.jt-row.lk .jt-n{background:var(--warn-bg);color:var(--warn)}
+.jt-now{padding:var(--s3) 0 var(--s4);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s3)}
+.jt-now .jt-n{background:var(--hmp);color:var(--on-hmp)}
+.jt-eb{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.jt-eb .k-eb{flex:1;min-width:0}
+.jt-now h4{font-size:var(--t-row);font-weight:600;line-height:1.25;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:anywhere}
+.jt-info{margin:0;font-size:var(--t-cap);line-height:1.4;color:var(--ink-2)}
+.jt-parts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.jt-part{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:52px;padding:6px 12px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--surface-2);box-shadow:var(--raise);text-align:left;color:var(--ink)}
+.jt-part .ckb{width:24px;height:24px;border-radius:50%;border:1.75px solid var(--line-2);display:grid;place-items:center;flex:none;color:var(--on-ink)}
+.jt-part .ckb .i{width:14px;height:14px;stroke-width:2.6}
+.jt-part .t{flex:1;min-width:0}
+.jt-part .t b{display:block;font-weight:500;font-size:var(--t-body);line-height:1.3}
+.jt-part .t small{display:block;font-size:var(--t-cap);color:var(--muted);line-height:1.35}
+.jt-part.go .ckb{border-color:var(--hmp);border-width:2px}
+.jt-part.on{border-color:transparent;background:var(--soft);box-shadow:none}
+.jt-part.on .ckb{background:var(--ok);border-color:var(--ok)}
+.jt-part.on .t small{color:var(--ok)}
+.jt-part.lk{border-style:dashed;background:none;box-shadow:none}
+.jt-part.lk .ckb{border:0;background:var(--warn-bg);color:var(--warn)}
+.jt-part.lk .ckb .i{stroke-width:2}
+.jt-part:disabled{opacity:.6}
+.jt-stop{margin:0;padding:10px 12px;border-radius:var(--r-sm);background:var(--warn-bg);font-size:var(--t-cap);line-height:1.45;color:var(--ink)}
+.jt-stop b{display:flex;align-items:center;gap:6px;font:500 var(--t-label)/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--warn);margin-bottom:4px}
+.jt-stop b .i{width:14px;height:14px}
+.jt-stop ul{margin:0;padding-left:18px;display:grid;gap:2px}
+.jt-meta{margin:0;display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px 12px;font-size:var(--t-cap);line-height:1.4}
+.jt-meta dt{font:500 var(--t-label)/1.7 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.jt-meta dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere;min-width:0}
+.jt-meta dd.law{color:var(--ink)}
+.jt-paper{display:flex;flex-wrap:wrap;gap:4px 6px}
+.jt-paper span{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:var(--r-sm);background:var(--soft);color:var(--ink-2);line-height:1.3}
+.jt-paper .i{width:13px;height:13px;color:var(--muted)}
+.jt-next{margin:0;font-size:var(--t-cap);color:var(--muted)}
+.jt-next b{color:var(--ink-2);font-weight:600}
+.jt-acts{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.jt-acts .btn{min-width:0}
+.jt-acts .btn span{overflow:hidden;text-overflow:ellipsis}
 .sheet-acts{display:flex;flex-wrap:wrap;gap:var(--s2)}
 .a-chip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 var(--s2);border-radius:var(--r-sm);font-size:12px;font-weight:500;white-space:nowrap;background:var(--hmp-bg);color:var(--hmp-ink);flex:none}
 .a-chip.crit{background:var(--late-bg);color:var(--late)}
@@ -1135,7 +1203,8 @@ const SETTINGS = Object.freeze({
   homeowner: {offersClass4: false, workmanshipYears: null},   // v25 homeowner view (hub D14, D15): both OFF until the boss confirms; db system/homeowner overrides
   radiusMi: 120,                                            // hot zones farther than this are listed last
   prices: {doc: 'system/prices', fallback: 'prices_reference', label: {en: 'Estimate range, not final', es: 'Rango estimado, no final'}},
-  links: {practiceDoor: 'https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B', review: ''},   // review: HMP's Google review link once it exists (T121)
+  links: {practiceDoor: 'https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B', review: '',   // review: HMP's Google review link once it exists (T121)
+          printKit: 'https://claude.ai/artifact/98jMahobUhX4DzyBfCRf2R'},   // v25.2: every print piece on one screen (the Job tracker's papers)
   maps: {tiles: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
          leaflet: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'}
 });
@@ -1146,6 +1215,7 @@ const SETTINGS = Object.freeze({
 <script src="app/takeoff.js"></script>
 <script src="estimate/estimate-module.js"></script>
 <script src="app/followups.js"></script>
+<script src="app/jobtrack.js"></script>
 <script src="translate/translate.js"></script>
 <script src="v25/icons.js"></script>
 <script src="v25/walkmap.js"></script>
@@ -1154,7 +1224,7 @@ const SETTINGS = Object.freeze({
 'use strict';
 /* ================= constants ================= */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPTranslate', 'HMPIcons', 'HMPMap'].filter(n => !window[n]);   // T169: module files that didn't load
+const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPJobTrack', 'HMPTranslate', 'HMPIcons', 'HMPMap'].filter(n => !window[n]);   // T169: module files that didn't load
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3559,32 +3629,119 @@ function renderLeadText(ref){   // lt:<lead>:<template>: the reminder text, to o
     ${DB && CAN_EDIT ? `<button type="button" class="btn sec" data-nstext="${esc(key)}" data-lead="${esc(l.id)}">${ic('check')}<span>${esc(X.markSent)}</span></button>` : ''}</div><p class="stamp">${esc(V().txtNote || '')}</p>`;
 }
 
+/* ================= v25.2 · T199: the Job tracker (docs/app/jobtrack.js = round 56's 14 steps, the hard stops, the due reminders).
+   The claim screen's bar counts these 14 steps; the box shows what is due (amber today, red late), done steps folded into one
+   line, the current step open (who / papers / when / law / money, one tap per part = today's date, Undo on the toast) and the
+   rest as rows (a lock where a hard stop applies). Data: claim.job + the claim's own fields; nothing else is written. ================= */
+const JTX = {
+  en: {h: 'Job tracker', now: 'Now', stepOf: (n, t) => `Step ${n} of ${t}`, who: 'Who', papers: 'Papers', when: 'When', law: 'Law', money: 'Money',
+    next: 'Next', tap: 'Tap when done · stamps today', done: 'Done', notLogged: 'Not logged', of: (a, b) => `${a} of ${b} done`, optional: 'If it applies',
+    locked: 'Locked', stop: 'Hard stop', noPaper: 'No paper', printKit: 'Print Kit', otherDay: 'Other day: tell the Right Hand', tellAmt: 'Tell the Right Hand the amount',
+    saved: n => `Step ${n} logged`, undone: 'Put back.', closed: 'Job closed', allLogged: 'All 14 steps', dueLbl: 'Due', dueToday: 'Due today', rc: 'Job tracker',
+    stepsN: ns => (ns.length === 1 ? `step ${ns[0]}` : `steps ${ns.join(', ')}`), pre: a => `${a}, final check $`},
+  es: {h: 'Seguimiento del trabajo', now: 'Ahora', stepOf: (n, t) => `Paso ${n} de ${t}`, who: 'Quién', papers: 'Papeles', when: 'Cuándo', law: 'Ley', money: 'Dinero',
+    next: 'Sigue', tap: 'Toque al terminar · pone la fecha de hoy', done: 'Hecho', notLogged: 'Sin anotar', of: (a, b) => `${a} de ${b} hechos`, optional: 'Si aplica',
+    locked: 'Bloqueado', stop: 'Alto', noPaper: 'Sin papel', printKit: 'Kit de impresión', otherDay: 'Otro día: dígaselo a la Mano Derecha', tellAmt: 'Dígale el monto a la Mano Derecha',
+    saved: n => `Paso ${n} anotado`, undone: 'Regresado.', closed: 'Trabajo cerrado', allLogged: 'Los 14 pasos', dueLbl: 'Vence', dueToday: 'Vence hoy', rc: 'Seguimiento',
+    stepsN: ns => (ns.length === 1 ? `paso ${ns[0]}` : `pasos ${ns.join(', ')}`), pre: a => `${a}, cheque final $`}
+};
+const JT = () => JTX[lang];
+let jtOpen = null, jtUndo = null;   // jtOpen = {id: claim, step: the step the salesman opened}; jtUndo = the last tap's previous values
+const jtFmt = (d, lg) => fmtr('d', lg === 'es' ? 'es-US' : 'en-US', {weekday: 'short', month: 'short', day: 'numeric'}).format(toDate(d));
+function jtOpts(c){
+  const l = leads.find(x => x.id === c.id);
+  return {today: todayStr(), leadSigned: l && leadKind(l) !== 'cash' ? dayOf(l.signed_on) : null, reviewSent: l ? dayOf(textedWith(l, 'R')) : null, fmt: jtFmt};
+}
+function jtModel(c){ try { return window.HMPJobTrack ? HMPJobTrack.model(c, jtOpts(c)) : null; } catch (e) { return null; } }
+const jtItemizedBoth = c => { const it = c && c.job && typeof c.job === 'object' && c.job.itemized_sent && typeof c.job.itemized_sent === 'object' ? c.job.itemized_sent : {}; return !!(dayOf(it.homeowner) && dayOf(it.insurer)); };
+function jtBar(md, c){   // the claim screen's stage bar, counting the 14 job steps (done ink, current orange)
+  const cur = md.steps.find(s => s.id === md.current), nx = md.steps.find(s => s.id === md.next), J = JT();
+  const segs = md.steps.map(s => `<i class="${s.status !== 'open' ? 'd' : s.id === md.current ? 'c' : ''}"></i>`).join('');
+  const a = md.fin || !cur ? (c.stage === 'paid' ? J.closed : cStage(c.stage)) : txl(cur.short), b = md.fin || !cur ? '' : J.stepOf(cur.n, md.steps.length);
+  return `<div class="stagebar" role="img" aria-label="${esc(b ? `${a}, ${b}` : a)}"><div class="segs">${segs}</div><div class="tx"><span><b>${esc(a)}</b>${b ? ' · ' + esc(b) : ''}</span>${nx ? `<span>${esc(Z().nextStep(txl(nx.short)))}</span>` : ''}</div></div>`;
+}
+function jtRemChip(r){ const J = JT(), d = -daysFromToday(r.due); return r.level === 'late' ? `<span class="chip late">${ic('flag')}${esc(Z().lateD(Math.max(1, d)))}</span>` : `<span class="chip warn">${ic('clock')}${esc(Z().dueToday)}</span>`; }
+function jobBox(c, md){
+  const J = JT(), edit = DB && CAN_EDIT, tell = SAMPLE && CAN_EDIT, addr = strv(c.address);
+  const rems = md.reminders.length ? `<ul class="jt-rems" aria-label="${esc(J.dueLbl)}">${md.reminders.map(r => `<li class="${r.level}">${ic(r.level === 'late' ? 'flag' : 'clock')}<span><b>${esc(r.level === 'late' ? Z().lateD(Math.max(1, -daysFromToday(r.due))) : r.due === todayStr() ? J.dueToday : `${J.dueLbl} ${fmtDay(r.due, true)}`)}</b>${esc(txl(r.text))}</span></li>`).join('')}</ul>` : '';
+  const doneSteps = md.steps.filter(s => s.status !== 'open');
+  const dl = doneSteps.map(s => { const miss = s.status === 'skipped'; return `<li class="${miss ? 'miss' : ''}"><span class="jt-n">${s.n}</span><span>${esc(txl(s.title))}</span><span class="d${miss ? ' miss' : ''}">${esc(miss ? J.notLogged : s.doneOn ? fmtDay(s.doneOn) : J.done)}</span></li>`; }).join('');
+  const fold = doneSteps.length ? `<details class="jt-done"${md.fin ? ' open' : ''}><summary>${ic('check2')}<span>${esc(md.fin ? J.allLogged : J.done)}</span><span class="cnt">${esc(J.of(doneSteps.filter(s => s.status === 'done').length, md.steps.length))}</span></summary><ol class="jt-dl">${dl}</ol></details>` : '';
+  const openId = jtOpen && jtOpen.id === c.id && md.steps.some(s => s.id === jtOpen.step && s.status === 'open') ? jtOpen.step : md.current;
+  const remOf = s => md.reminders.find(r => r.step === s.n);
+  const items = md.steps.filter(s => s.status === 'open').map(s => {
+    if (s.id !== openId) {
+      const lk = s.parts.find(p => p.state === 'locked' && p.need === 'req'), r = remOf(s);
+      const sub = lk && !s.reqDone ? `${J.locked} · ${txl(lk.lock[1] || lk.lock[0])}` : s.reqDone ? J.of(s.reqDone, s.reqN) : txl(s.who);
+      const end = r ? jtRemChip(r) : lk && !s.reqDone ? `<span class="chip warn">${ic('lock')}${esc(J.locked)}</span>` : s.id === md.current ? `<span class="chip hmp">${esc(J.now)}</span>` : ic('chev');
+      return `<li><button type="button" class="jt-row${lk && !s.reqDone ? ' lk' : ''}" data-jtopen="${esc(s.id)}" aria-expanded="false"><span class="jt-n">${s.n}</span><span class="t"><b>${esc(txl(s.title))}</b><span>${esc(sub)}</span></span><span class="end">${end}</span></button></li>`;
+    }
+    let first = true;
+    const parts = s.parts.map(p => {
+      const lbl = txl(p), sm = p.state === 'done' ? (typeof p.val === 'string' ? fmtDay(p.val, true) : J.done) : p.state === 'locked' ? J.locked : p.need === 'opt' ? `${J.optional} · ${J.tap}` : p.tell ? J.tellAmt : J.tap;
+      if (p.state === 'done') return `<li><div class="jt-part on"><span class="ckb">${ic('check')}</span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></div></li>`;
+      if (p.state === 'locked') return `<li><div class="jt-part lk"><span class="ckb">${ic('lock')}</span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></div></li>`;
+      const go = first && p.need === 'req'; if (go) first = false;
+      if (p.tell) return tell ? `<li><button type="button" class="jt-part${go ? ' go' : ''}" data-tell="${esc(addr)}" data-pre="${esc(J.pre(shortAddr(addr)))}"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></button></li>`
+        : `<li><div class="jt-part"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(J.tellAmt)}</small></span></div></li>`;
+      return edit ? `<li><button type="button" class="jt-part${go ? ' go' : ''}" data-jt="${esc(p.k)}"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(sm)}</small></span></button></li>`
+        : `<li><div class="jt-part"><span class="ckb"></span><span class="t"><b>${esc(lbl)}</b><small>${esc(NX().roNote)}</small></span></div></li>`;
+    }).join('');
+    const lk = s.parts.find(p => p.state === 'locked');
+    const stop = lk ? `<div class="jt-stop" role="note"><b>${ic('lock')}${esc(J.stop)} · ${esc(txl(lk.lock[0]))}</b><ul>${lk.lock.slice(1).map(m => `<li>${esc(txl(m))}</li>`).join('')}</ul></div>` : '';
+    const papers = s.papers.length ? `<span class="jt-paper">${s.papers.map(p => `<span>${p.kit ? ic('print') : ''}${esc(txl(p))}</span>`).join('')}</span>` : esc(J.noPaper);
+    const meta = [[J.who, esc(txl(s.who))], [J.papers, papers], [J.when, esc(txl(s.when))], ...(s.law ? [[J.law, esc(txl(s.law)), 'law']] : []), [J.money, esc(txl(s.money))]]
+      .map(([k, v, cls]) => `<dt>${esc(k)}</dt><dd${cls ? ` class="${cls}"` : ''}>${v}</dd>`).join('');
+    const nx = md.steps.find(x => x.status === 'open' && x.n > s.n && x.id !== s.id);
+    const kit = s.papers.some(p => p.kit) && SETTINGS.links.printKit ? `<a class="btn sec" href="${esc(SETTINGS.links.printKit)}" target="_blank" rel="noopener">${ic('print')}<span>${esc(J.printKit)}</span></a>` : '';
+    const other = tell && s.parts.some(p => p.state === 'open' && !p.tell) ? `<button type="button" class="btn ghost" data-tell="${esc(addr)}" data-pre="${esc(shortAddr(addr) + ', ' + txl(s.short) + ': ')}">${ic('say')}<span>${esc(J.otherDay)}</span></button>` : '';
+    return `<li class="jt-now" id="jtNow"><div class="jt-eb"><span class="jt-n">${s.n}</span><span class="k-eb">${esc(s.id === md.current ? `${J.now} · ${J.stepOf(s.n, md.steps.length)}` : J.stepOf(s.n, md.steps.length))}</span>${s.reqN > 1 ? `<span class="chip">${esc(J.of(s.reqDone, s.reqN))}</span>` : ''}</div>
+      <h4>${esc(txl(s.title))}</h4>${s.info.map(x => `<p class="jt-info">${esc(txl(x))}</p>`).join('')}
+      <ul class="jt-parts">${parts}</ul>${stop}<dl class="jt-meta">${meta}</dl>
+      ${nx ? `<p class="jt-next">${esc(J.next)}: <b>${nx.n} · ${esc(txl(nx.title))}</b></p>` : ''}${kit || other ? `<div class="jt-acts">${kit}${other}</div>` : ''}</li>`;
+  }).join('');
+  return `<section class="box jt" id="jtBox" aria-label="${esc(J.h)}"><h3>${esc(J.h)}</h3>${rems}${fold}${items ? `<ol class="jt-list">${items}</ol>` : ''}</section>`;
+}
+async function jtTap(id, key, btn){
+  const c = claims.find(x => x.id === id); if (!c || !DB || !CAN_EDIT || !window.HMPJobTrack) return;
+  const J = JT(), r = HMPJobTrack.tapPatch(c, key, jtOpts(c));
+  if (r.blocked) { appToast(r.blocked.map(txl).join(' · ')); return; }
+  if (btn) btn.disabled = true;
+  const at = nowIso(), body = Object.assign({}, r.patch, {updated_at: at, updated_by: 'Job tracker'});
+  try { await save({op: 'update', path: 'claims/' + id, body});
+    jtUndo = {id, prev: Object.assign({}, r.undo, {updated_at: at, updated_by: 'Job tracker'})};
+    appToast(J.saved(r.step), {label: NX().undo, run: jtUndoLast}); }
+  catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); if (refused(e)) CAN_EDIT = false; renderSheet(); }
+}
+async function jtUndoLast(){
+  const u = jtUndo; jtUndo = null; if (!u) return;
+  try { await save({op: 'update', path: 'claims/' + u.id, body: u.prev}); appToast(JT().undone); }
+  catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
+}
+
 /* the claim sheet: the same layout as the lead (stage bar, next-step card with the adjuster date, then rows) */
 function renderClaimSheet(c){
   const T = L(), C = T.ct, Zs = Z(), m = money(c), fin = c.stage === 'paid' || c.stage === 'lost';
   $('#shEyebrow').textContent = ''; $('#shTitle').textContent = strv(c.address) || c.id;
   $('#shSub').innerHTML = `<span>${esc([strv(c.homeowner_first_name), strv(c.insurer), strv(c.claim_no)].filter(Boolean).join(' · '))}</span><span class="chip">${esc(fin ? cStage(c.stage) : Zs.insurance)}</span>`;
   $('#shTrack').innerHTML = '';
-  const i = cIdx(c), n = CLAIM_STEPS.length;
-  const bar = c.stage === 'lost' ? stageBar(0, n, C.lostLbl, '', false) : stageBar(c.stage === 'paid' ? n : i + 1, n, cStage(CLAIM_STEPS[Math.min(i, n - 1)]), i < n - 1 && c.stage !== 'paid' ? cStage(CLAIM_STEPS[i + 1]).toLowerCase() : '', c.stage === 'paid');
+  const i = cIdx(c), n = CLAIM_STEPS.length, md = c.stage === 'lost' ? null : jtModel(c);   // v25.2: the bar counts the Job tracker's 14 steps
+  const bar = md ? jtBar(md, c) : c.stage === 'lost' ? stageBar(0, n, C.lostLbl, '', false) : stageBar(c.stage === 'paid' ? n : i + 1, n, cStage(CLAIM_STEPS[Math.min(i, n - 1)]), i < n - 1 && c.stage !== 'paid' ? cStage(CLAIM_STEPS[i + 1]).toLowerCase() : '', c.stage === 'paid');
   const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, a = claimAppt(c);
-  const acv = c.acv && typeof c.acv === 'object' ? c.acv : {}, taps = [];
-  if (DB && CAN_EDIT && !fin) { if (m.acvAmt && !m.acvGot) taps.push([C.markAcv, 'acv']); if (m.mortOut) taps.push([C.markBack(m.mortCo || C.mortShort), 'back']); if (m.acvGot && !m.mortOut && !yesv(acv.deposited)) taps.push([C.markDeposit, 'dep']); }
   const lead = leads.find(l => l.id === c.id);
   const cal = a ? `<a class="btn sec calbtn" href="${esc(gcalUrl(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step}))}" target="_blank" rel="noopener" aria-label="${esc(Zs.addCal)}">${ic('cal')}</a>` : '';
   const addTime = a && !a.time && SAMPLE && CAN_EDIT ? `<button type="button" class="btn sec block" data-tell="${esc(strv(c.address))}" data-pre="${esc(shortAddr(strv(c.address)) + (lang === 'es' ? ', ajustador a las ' : ', adjuster at '))}">${ic('clock')}<span>${esc(Zs.addTime)}</span></button>` : '';
   const card = `<section class="card nextcard">${a ? `<span class="chip hmp" style="justify-self:start">${ic('clock')}${esc(CT().k.adjuster + ' · ' + whenLabel(a))}</span>` : whenChip(null, ns && dayOf(ns.due), fin)}
     <h3>${esc(ns && txl(ns) ? txl(ns) : fin ? cStage(c.stage) : Zs.noNextJob)}</h3>
-    ${taps.length ? `<div class="taps">${taps.map(([lb, k]) => `<button type="button" class="tap" data-tap="${k}" data-label="${esc(lb)}">${esc(lb)}</button>`).join('')}</div><p class="taps-note">${esc(C.tapsNote)}</p>` : ''}
     ${addTime || cal ? `<div class="${addTime && cal ? 'two' : ''}">${addTime}${cal && !addTime ? `<div class="sheet-acts">${calLink(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name}, 'btn sec')}</div>` : cal}</div>` : ''}
-    ${!taps.length && !fin && SAMPLE && CAN_EDIT && !addTime ? `<button type="button" class="btn sec" data-tell="${esc(strv(c.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button>` : ''}</section>`;
+    ${!fin && SAMPLE && CAN_EDIT && !addTime ? `<button type="button" class="btn sec" data-tell="${esc(strv(c.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button>` : ''}</section>`;
   const row = (attrs, icon, t, s) => `<li><button type="button" class="row" ${attrs}><span class="lead">${ic(icon)}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></button></li>`;
   const rows = [row(`data-open="cmo:${esc(c.id)}"`, 'money', Zs.rMoney, Zs.rMoneyS(usd(m.collected), m.contract != null ? usd(m.contract) : m.approved ? usd(m.approved) : ''))];
   if (c.stage === 'adjuster_set') { const A = ADJM[lang], on = adjmGet(c.id).length, tot = Object.values(A.items).reduce((k, x) => k + x.length, 0); rows.push(row(`data-open="cadj:${esc(c.id)}"`, 'clip', Zs.rAdj, Zs.rAdjS(on, tot))); }
   if (c.stage !== 'lost') rows.push(row(`data-open="cmk:${esc(c.id)}"`, 'check2', Zs.rChecklist, Zs.rChecklistS));
   rows.push(row(`data-open="cdt:${esc(c.id)}"`, 'file', Zs.rDetails, Zs.rDetailsS));
   if (lead) rows.push(row(`data-open="lead:${esc(lead.id)}"`, 'user', lang === 'es' ? 'El prospecto' : 'The lead', lstageName(lead, lead.stage)));
-  soft($('#shBody')).html = bar + card + `<ul class="rows moreRows">${rows.join('')}</ul>` + (fmtWhen(c.updated_at) ? `<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>` : '');
+  soft($('#shBody')).html = bar + card + (md ? jobBox(c, md) : '') + `<ul class="rows moreRows">${rows.join('')}</ul>` + (fmtWhen(c.updated_at) ? `<p class="stamp">${esc(C.updated(fmtWhen(c.updated_at), strv(c.updated_by)))}</p>` : '');
 }
 function claimSub(kind, id){   // cmo: money · cadj: adjuster checklist · cmk: money checklist · cdt: details + timeline
   const c = claims.find(x => x.id === id); if (!c) { closeSheet(); return; }
@@ -3685,14 +3842,8 @@ $('#shBody').addEventListener('click', async ev => {
   if (b.dataset.txt) { txtPick[refLeadId()] = b.dataset.txt; renderSheet(); return; }
   if (b.dataset.texted) { b.disabled = true; await markTexted(refLeadId(), b.dataset.texted); return; }
   if (b.dataset.tell != null) { openRH(b.dataset.pre != null ? b.dataset.pre : b.dataset.tell + ', '); return; }   // v24: the Right Hand sheet, pre-filled
-  if (b.dataset.tap) {
-    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = C.confirm; b._t = setTimeout(() => { b.classList.remove('armed'); b.textContent = b.dataset.label; }, 4000); return; }
-    clearTimeout(b._t); b.disabled = true;
-    const id = openRef.slice(6), t0 = todayStr();
-    const patch = b.dataset.tap === 'acv' ? {acv: {received: t0}} : b.dataset.tap === 'back' ? {mortgage: {check_returned: t0}} : {acv: {deposited: t0}};
-    try { await DB.doc('claims/' + id).update(Object.assign(patch, {updated_at: nowIso(), updated_by: 'page tap'})); appToast(C.saved); }
-    catch (e) { if (refused(e)) { CAN_EDIT = false; appToast(C.readOnly); } else appToast(C.failed); renderSheet(); }
-  }
+  if (b.dataset.jtopen) { jtOpen = {id: openRef.slice(6), step: b.dataset.jtopen}; renderSheet(); const n = $('#jtNow'); if (n) n.scrollIntoView({block: 'nearest'}); return; }   // v25.2: open another job step
+  if (b.dataset.jt) { await jtTap(openRef.slice(6), b.dataset.jt, b); return; }   // v25.2: one tap = today's date on that part
 });
 document.addEventListener('click', ev => {
   const o = ev.target.closest('[data-open]'); if (o) { openSheet(o.dataset.open, o); return; }
