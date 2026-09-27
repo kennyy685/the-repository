@@ -9,6 +9,8 @@
     "estimate/estimate-module.js": "pages/estimate/estimate-module.js",
     "app/followups.js": "docs/app/followups.js",
     "translate/translate.js": "pages/translate/translate.js",
-    "vendor/leaflet-1.9.4.css": "pages/vendor/leaflet-1.9.4.css"
+    "v25/ds.css": "pages/v25/ds.css",
+    "v25/icons.js": "pages/v25/icons.js",
+    "v25/walkmap.js": "pages/v25/walkmap.js"
   }
 }

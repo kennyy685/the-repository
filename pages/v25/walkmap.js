@@ -136,6 +136,11 @@
     const lines = drawBase(svg, bm, P, opts, base);
     // snap each house to its street so the route runs along the street, not zig-zagging across it
     const snaps = stops.map(p => { let b = null; lines.forEach((l, i) => { const n = nearestOn(p, l.pts); if (n && (!b || n.d < b.d)) b = { ...n, i }; }); return b; });
+    // the engine's stop_side: the point on the house's own street in front of it (better than the nearest street)
+    const side = Array.isArray(walk.stop_side) && walk.stop_side.length === stops.length ? walk.stop_side : null;
+    if (side && !bm.plain) side.forEach((sd, i) => { if (sd && Array.isArray(sd.at)) { const q = P.xy(sd.at[0], sd.at[1]); snaps[i] = { q, d: Math.hypot(stops[i][0] - q[0], stops[i][1] - q[1]), i: snaps[i] ? snaps[i].i : -1 }; } });
+    // the engine's route_segments: the walk along the streets door to door (gap = no street path: a light dashed hop)
+    const segs = !bm.plain && Array.isArray(walk.route_segments) && walk.route_segments.length === stops.length - 1 && walk.route_segments.every(g => g && Array.isArray(g.path) && g.path.length > 1) ? walk.route_segments : null;
     const route = [];
     if (bm.plain) stops.forEach((p, i) => route.push({ p, i, gap: i > 0 }));
     else snaps.forEach((sn, i) => {
@@ -150,7 +155,8 @@
     const rl = el('g', { fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
     // split the route into runs: done (faint dashes), to-do (solid), and data gaps (light dashes)
     const runs = []; let run = null;
-    route.forEach((r, k) => {
+    if (segs) segs.forEach((g, k) => runs.push({ kind: g.gap ? 'gap' : (k + 1 <= split ? 'done' : 'todo'), pts: g.path.map(p => P.xy(p[0], p[1])) }));
+    else route.forEach((r, k) => {
       const kind = r.i <= split ? 'done' : 'todo';
       if (k && (r.gap || kind !== run.kind)) { const last = run.pts[run.pts.length - 1]; runs.push(run); run = { kind: r.gap ? 'gap' : kind, pts: [last, r.p] }; if (r.gap) { runs.push(run); run = { kind, pts: [r.p] }; } }
       else if (!run) run = { kind, pts: [r.p] }; else run.pts.push(r.p);
@@ -285,6 +291,7 @@
   function renderHomeMap(svg, walk, opts = {}) {
     const W = opts.width || 358, H = opts.height || 300, id = svg.id || 'hm', bm = walk.basemap, home = opts.home;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
+    if (!bm || !Array.isArray(bm.lots) || !Array.isArray(bm.streets) || !home) return null;
     const ppm = opts.ppm || 9, across = W / ppm;
     const lotI = bm.lots.findIndex(l => inside([home.lon, home.lat], l));
     // pass 1 finds the house frame; pass 2 re-centers between the house and its street
@@ -306,6 +313,7 @@
     lotsPx.forEach((l, i) => { if (i === lotI || !l.some(p => P.inView(p[0], p[1], -40))) return; const h = houseIn(l, lines, ppm); if (h) { if (!opts.mini) driveway(nb, h, sw('local')); hipRoof(nb, h, false); } });
     if (lotI < 0) return { P };
     const lotPx = lotsPx[lotI], h = houseIn(lotPx, lines, ppm);
+    if (!h) return { P };
     el('path', { d: D(lotPx) + 'Z', fill: 'var(--hmp-bg)', stroke: 'var(--hmp-ink)', 'stroke-width': opts.mini ? 1 : 1.4, 'stroke-dasharray': opts.mini ? '' : '5 4', 'stroke-linejoin': 'round' }, svg);
     const hg = el('g', {}, svg);
     if (!opts.mini) driveway(hg, h, sw('local'));
@@ -359,7 +367,7 @@
   function renderHailMap(svg, data, opts = {}) {
     const W = opts.width || 358, H = opts.height || 120, id = svg.id || 'hl', home = opts.home;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
-    const zs = data.zones.zones.filter(z => data.walks[z.id] && z.polygon && z.storm_day === (opts.day || z.storm_day));
+    const zs = data.zones.zones.filter(z => data.walks && data.walks[z.id] && data.walks[z.id].basemap && Array.isArray(data.walks[z.id].basemap.streets) && z.polygon && z.storm_day === (opts.day || z.storm_day));
     const P = projection([0, 0, 1, 1], W, H, { center: opts.center || home, metersAcross: opts.metersAcross || 1400 });
     defs(svg, id);
     el('rect', { width: W, height: H, fill: 'var(--map-land)' }, svg);

@@ -56,6 +56,8 @@ const EXPECT = {
   EstimateScreen: ["create", "saveToLead", "outboxDb", "savedLine", "SUPPORTED_RULES"],
   HMPFollowups: ["followups", "selfCheck", "FOLLOWUPS_VERSION"],
   HMPTranslate: ["sayIt", "readLegal", "checkRisk"],
+  HMPIcons: ["svg", "names", "inject"],                                              // v25: the icon sprite (v25/icons.js)
+  HMPMap: ["renderWalkMap", "renderZoneMap", "renderHomeMap", "renderHailMap"],      // v25: the vector maps (v25/walkmap.js)
 };
 const sandbox = { console, setTimeout, clearTimeout, Promise };
 sandbox.window = sandbox; sandbox.self = sandbox; sandbox.globalThis = sandbox;

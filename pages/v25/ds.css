@@ -199,10 +199,10 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ---------- round checks ---------- */
 .ck{display:flex;align-items:center;gap:var(--s3);font-size:var(--t-body);min-height:36px}
-.ck .box{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none;color:var(--on-ink)}
-.ck.on .box{background:var(--ok);border-color:var(--ok)}
-.ck .box .i{width:13px;height:13px;stroke-width:2.6}
-.ck.on > span:not(.box){color:var(--ink-2)}
+.ck .ckb{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none;color:var(--on-ink)}
+.ck.on .ckb{background:var(--ok);border-color:var(--ok)}
+.ck .ckb .i{width:13px;height:13px;stroke-width:2.6}
+.ck.on > span:not(.ckb){color:var(--ink-2)}
 
 /* ---------- skeleton ---------- */
 .sk{background:linear-gradient(90deg,var(--soft) 0,var(--skel-hi) 40%,var(--soft) 80%);background-size:300% 100%;animation:sk 1.4s var(--ease) infinite;border-radius:6px;display:block}
