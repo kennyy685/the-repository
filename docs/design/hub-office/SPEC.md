@@ -39,7 +39,7 @@ both logs, EN/ES. The hub stays its own place (nothing from the HMP App).
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
-Screenshots (phone + desktop, day + night, EN + ES) go to FilthE before publishing.
+Screenshots are for our own review; FilthE said go live when done (below).
 
 ## Go-live rule (FilthE, 2026-09-27)
 "Just go live when we're done": publish as soon as the build is finished and every check passes
