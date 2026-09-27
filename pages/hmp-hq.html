@@ -1,0 +1,576 @@
+<title>HMP HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&display=swap">
+<style>
+/* HMP HQ v25: the Ledger design system (docs/design/v25-polish/ds.css), light "Ledger" + dark "Ledger Night". */
+:root{
+  color-scheme:light;
+  --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
+  --ink:#18191c; --ink-2:#3d3f45; --muted:#6c6f77; --faint:#9a9da4; --on-ink:#ffffff;
+  --hmp:#f5883a; --hmp-ink:#a4520f; --hmp-bg:#fdf1e7; --on-hmp:#1b1206;
+  --late:#c2362b; --late-bg:#fdecea; --warn:#8a5a00; --warn-bg:#fbf2dc; --ok:#1f7a4d; --ok-bg:#e7f4ed; --you:#2f6fde;
+  --e1:0 1px 2px rgba(24,25,28,.05); --skel-hi:#f8f9fa;
+  --f:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --t-label:11px; --t-cap:13px; --t-body:15px; --t-row:17px; --t-title:20px; --t-addr:26px; --t-num:34px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
+  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75; --on-ink:#101113;
+  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
+  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
+  --e1:0 0 0 rgba(0,0,0,0); --skel-hi:#2c2e33;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
+  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75; --on-ink:#101113;
+  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
+  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
+  --e1:0 0 0 rgba(0,0,0,0); --skel-hi:#2c2e33;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:400 var(--t-body)/1.45 var(--f);-webkit-font-smoothing:antialiased}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--you);outline-offset:2px;border-radius:var(--r-sm)}
+.num{font-variant-numeric:tabular-nums}
+.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.i-sm{width:16px;height:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- frame ---------- */
+.app{max-width:1240px;margin:0 auto;padding-inline:var(--s4);padding-block:var(--s2) var(--s8)}
+@media (min-width:720px){.app{padding-inline:var(--s6)}}
+@media (min-width:1100px){.app{padding-inline:var(--s8)}}
+
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;gap:var(--s3);min-height:64px}
+.mark{display:flex;flex-direction:column;align-items:center;line-height:1;gap:2px;flex:none}
+.mark svg{width:30px;height:9px}
+.mark b{font-weight:600;font-size:11px;letter-spacing:.1em}
+.ttl{flex:1;min-width:0}
+.ttl h1{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.15}
+.ttl h1 span{font-size:var(--t-cap);font-weight:400;color:var(--muted);letter-spacing:0;margin-left:var(--s2)}
+.ttl p{font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--soft);border-radius:var(--r-md);flex:none}
+.seg button{height:44px;min-width:52px;padding:0 var(--s3);border-radius:var(--r-md);font:500 var(--t-cap) var(--mono);letter-spacing:.04em;color:var(--muted)}
+.seg [aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 3px var(--soft),0 1px 2px rgba(24,25,28,.08)}
+
+/* ---------- notes (stale, empty, no data) ---------- */
+.note{display:flex;align-items:flex-start;gap:var(--s2);margin-top:var(--s2);padding:var(--s3) var(--s4);border-radius:var(--r-md);background:var(--warn-bg);color:var(--warn);font-size:var(--t-cap);font-weight:500}
+.note .i{margin-top:-1px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--s2);padding:var(--s8) var(--s6);margin-top:var(--s6)}
+.empty .glyph{width:56px;height:56px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);margin-bottom:var(--s2)}
+.empty h2{font-size:var(--t-row);font-weight:600}
+.empty p{color:var(--muted);max-width:32ch}
+
+/* ---------- dashboard grid ----------
+   phone: one column in reading order (needs, storms, leads, jobs, crews)
+   720+: needs across the top, sales | production below; 1100+: three columns */
+.dash{display:flex;flex-direction:column}
+.col{display:contents}
+section{min-width:0}
+@media (min-width:720px){
+  .dash{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--s6);align-items:start}
+  .col{display:flex;flex-direction:column;min-width:0}
+  .col.a{grid-column:1 / -1}
+}
+@media (min-width:1100px){
+  .dash{grid-template-columns:minmax(0,1.22fr) minmax(0,1fr) minmax(0,1fr)}
+  .col.a{grid-column:auto}
+}
+.shead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);min-height:44px;margin-top:var(--s5);margin-bottom:var(--s1)}
+.shead h2{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:var(--s2)}
+.shead .meta{font-size:var(--t-cap);color:var(--muted);white-space:nowrap}
+.count{min-width:22px;height:22px;padding:0 6px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.act{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 var(--s2) 0 var(--s3);margin-right:calc(-1 * var(--s2));border-radius:var(--r-sm);font-size:var(--t-cap);font-weight:500;color:var(--ink-2);white-space:nowrap}
+.act:hover{background:var(--soft)}
+.act .i{color:var(--faint)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.rows{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);overflow:hidden}
+.rows > * + *{border-top:1px solid var(--soft)}
+.label{font:500 var(--t-label)/1.2 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.cap{font-size:var(--t-cap);color:var(--muted)}
+
+/* chips: status is icon + word + tint, never color alone */
+.chip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 7px;border-radius:6px;font-size:12px;font-weight:500;line-height:1;white-space:nowrap;background:var(--soft);color:var(--ink-2);vertical-align:2px}
+.chip .i{width:13px;height:13px;stroke-width:2.2}
+.chip.late{background:var(--late-bg);color:var(--late)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.hmp{background:var(--hmp-bg);color:var(--hmp-ink)}
+
+/* ---------- needs you ---------- */
+.need{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s3);align-items:center;padding:var(--s3) var(--s3) var(--s3) var(--s4);min-height:60px}
+a.need:hover{background:var(--soft)}
+.need .nt{font-size:var(--t-body);font-weight:500;line-height:1.45;text-wrap:pretty}
+.need .nt .chip{margin-right:var(--s2)}
+.need .nr{font-size:var(--t-cap);color:var(--muted);line-height:1.4;margin-top:2px;text-wrap:pretty}
+.need .go{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted);white-space:nowrap}
+.need .go .i{color:var(--faint)}
+@media (max-width:519px){.need .go span{display:none}}
+.allclear{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);color:var(--ok);font-weight:500}
+
+/* ---------- storms ---------- */
+.headline{font-size:var(--t-cap);color:var(--muted);line-height:1.45;margin-bottom:var(--s3);text-wrap:pretty}
+.walk{display:grid;gap:var(--s3);padding:var(--s4)}
+.walk .chips{display:flex;flex-wrap:wrap;gap:6px}
+.walk h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.15}
+.walk .streets{font-size:var(--t-cap);color:var(--muted);margin-top:2px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r-md)}
+.tile{padding:var(--s2) var(--s3);min-width:0}
+.tile + .tile{border-left:1px solid var(--line)}
+.tile b{display:block;font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile span{font-size:var(--t-cap);color:var(--muted)}
+.btn{display:flex;align-items:center;justify-content:center;gap:var(--s2);height:48px;padding:0 var(--s4);border-radius:var(--r-md);font-weight:600;font-size:var(--t-body);background:var(--card);border:1px solid var(--line-2);color:var(--ink)}
+.btn:hover{background:var(--soft)}
+.btn .i{color:var(--muted)}
+.subhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);margin:var(--s4) 0 var(--s2)}
+.subhead h3{font-size:var(--t-body);font-weight:600}
+.fresh{display:grid;grid-template-columns:minmax(0,1fr) 56px 52px;align-items:center;gap:var(--s3);padding:var(--s2) var(--s4);min-height:52px}
+.fresh b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fresh .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.hbar i{display:block;height:100%;border-radius:3px;background:var(--ink-2)}
+.fresh .h{text-align:right;font-size:var(--t-row);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.scale{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s2);font-size:12px;color:var(--faint)}
+
+/* ---------- leads funnel ---------- */
+.funnel{display:grid;gap:var(--s3);padding:var(--s4)}
+.fighead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.fig{font-size:var(--t-num);font-weight:600;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.fig small{font-size:var(--t-body);color:var(--muted);font-weight:500;letter-spacing:0;margin-left:6px}
+.stack{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden}
+.stack i{display:block;flex:1 1 0;min-width:4px;background:var(--soft)}
+.stack.empty-track i{background:var(--line)}
+.stages{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-cap);color:var(--ink-2)}
+.stages span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.stages i{width:9px;height:9px;border-radius:3px;flex:none}
+.stages b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.stages .z{color:var(--faint)}
+.stages .z b{color:var(--faint);font-weight:500}
+.fnote{font-size:var(--t-cap);color:var(--muted);border-top:1px solid var(--soft);padding-top:var(--s3)}
+.hot{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);min-height:56px}
+.hot .t{flex:1;min-width:0}
+.hot .t b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hot .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- jobs ---------- */
+.job{padding:var(--s4);display:grid;gap:var(--s3)}
+.job + .job{border-top:1px solid var(--line)}
+.jhead{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s3)}
+.jhead h3{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em}
+.jhead .pct{font-size:var(--t-num);font-weight:600;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.jhead .pct small{font-size:var(--t-cap);color:var(--muted);font-weight:500;letter-spacing:0;margin-left:4px}
+.bar{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--ink)}
+.blds{display:grid}
+.bld{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px var(--s3);align-items:center;padding:var(--s3) 0;border-top:1px solid var(--soft)}
+.bld:last-child{padding-bottom:0}
+.bld .nm{font-weight:500;display:flex;flex-wrap:wrap;align-items:center;gap:4px var(--s2);min-width:0}
+.bld .nm .chip{vertical-align:0}
+.bld .p{font-size:var(--t-row);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.bld .sub{font-size:var(--t-cap);color:var(--muted);grid-column:1 / -1}
+.bld .sub .none{color:var(--faint)}
+.bld .bar{grid-column:1 / -1;height:4px;margin-top:6px}
+
+/* ---------- crews ---------- */
+.crew{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s4);min-height:56px}
+.crew .tile-i{width:36px;height:36px;border-radius:var(--r-md);background:var(--soft);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.crew .t{flex:1;min-width:0}
+.crew .t b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crew .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- AI line ---------- */
+.ai{display:flex;align-items:flex-start;gap:var(--s3);margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line);font-size:var(--t-cap);color:var(--muted)}
+.ai > .i{color:var(--hmp-ink);margin-top:1px}
+.ai p{flex:1;min-width:0;max-width:110ch;text-wrap:pretty}
+.ai p b{color:var(--ink);font-weight:600;margin-right:6px}
+.ai .act{margin-top:-12px}
+
+/* ---------- skeleton ---------- */
+.sk{background:linear-gradient(90deg,var(--soft) 0,var(--skel-hi) 40%,var(--soft) 80%);background-size:300% 100%;animation:sk 1.4s var(--ease) infinite;border-radius:6px}
+@keyframes sk{from{background-position:100% 0}to{background-position:0 0}}
+.skrow{display:grid;gap:8px;padding:var(--s4)}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}*{transition:none!important}}
+</style>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0" aria-hidden="true">
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.5 21V4.2M5.5 4.5h11.2l-2.2 4 2.2 4H5.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.6V12l2.9 1.9"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2"/><path d="M12 7.8h.01" stroke-width="2.4"/></symbol>
+  <symbol id="i-hail" viewBox="0 0 24 24"><path d="M7.2 15.2a4 4 0 0 1-.5-8 5.4 5.4 0 0 1 10.4 1 3.5 3.5 0 0 1 .2 7z"/><path d="M8.5 18.6h.01M12 20.3h.01M15.5 18.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.2" width="16" height="15" rx="2"/><path d="M4 10h16M8.5 3.3v3.6M15.5 3.3v3.6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.8"/><path d="M4.8 20c.8-3.6 3.7-5.6 7.2-5.6s6.4 2 7.2 5.6"/></symbol>
+  <symbol id="i-check2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.5 2.5 5-5.1"/></symbol>
+  <symbol id="i-say" viewBox="0 0 24 24"><path d="M4 6.2c0-1 .8-1.7 1.7-1.7h12.6c1 0 1.7.8 1.7 1.7v8.6c0 1-.8 1.7-1.7 1.7H9.5L5 20v-3.5c-.6-.2-1-.8-1-1.5z"/><path d="M8 9h8M8 12.3h5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4.5l8 6.7"/><path d="M6.2 9.6v10h11.6v-10"/><path d="M10.2 19.6v-5h3.6v5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.2 20.5 19H3.5z"/><path d="M12 10v4"/><path d="M12 16.6h.01" stroke-width="2.4"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+    <div class="ttl">
+      <h1>HQ<span id="today"></span></h1>
+      <p id="updated">&nbsp;</p>
+    </div>
+    <div class="seg" role="group" aria-label="Language / Idioma">
+      <button type="button" id="langEn" lang="en" aria-pressed="true" aria-label="English">EN</button>
+      <button type="button" id="langEs" lang="es" aria-pressed="false" aria-label="Español">ES</button>
+    </div>
+  </header>
+
+  <div class="note" id="note" role="status" hidden></div>
+  <div class="empty" id="empty" hidden></div>
+
+  <main class="dash" id="dash">
+    <div class="col a">
+      <section aria-labelledby="hNeeds">
+        <div class="shead"><h2 id="hNeeds"></h2><span id="needsMeta"></span></div>
+        <div class="rows" id="needs"></div>
+      </section>
+    </div>
+    <div class="col b">
+      <section aria-labelledby="hStorms">
+        <div class="shead"><h2 id="hStorms"></h2><span class="meta" id="stormsMeta"></span></div>
+        <div id="storms"></div>
+      </section>
+      <section aria-labelledby="hLeads">
+        <div class="shead"><h2 id="hLeads"></h2><span id="leadsMeta"></span></div>
+        <div id="leads"></div>
+      </section>
+    </div>
+    <div class="col c">
+      <section aria-labelledby="hJobs">
+        <div class="shead"><h2 id="hJobs"></h2><span id="jobsMeta"></span></div>
+        <div id="jobs"></div>
+      </section>
+      <section aria-labelledby="hCrews">
+        <div class="shead"><h2 id="hCrews"></h2><span class="meta" id="crewsMeta"></span></div>
+        <div id="crews"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="ai" id="ai" hidden></footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  // Every word the page itself says, in English and Spanish. Everything else comes from the snapshot doc (en/es fields).
+  const T = {
+    en: {
+      needs: "Needs you", storms: "Storms", leads: "Leads", jobs: "Jobs", crews: "Crews",
+      sev: { critical: "Urgent", warning: "Check soon", info: "When you can" },
+      updated: "Updated", latest: "Latest storm", bestWalk: "Best walk", storm: "Storm",
+      avgHail: "avg hail", doors: "doors to knock", openWalk: "Open the walk in the HMP App",
+      fresh: "Fresh hail", freshMeta: "last 60 days", mi: "mi", hailScale: "bar = hail size, 0 to 3″",
+      inPlay: "in play", doorsLogged: "doors", callsLogged: "calls logged", lost: "Lost",
+      noLeads: "No leads yet. Doors and calls you log in the HMP App show up here.",
+      hot: "Hottest leads", done: "done", noCrew: "No crew yet", working: (n) => `${n} working`,
+      allClear: "Nothing needs you right now.", aiLabel: "AI crew",
+      stale: (d) => `This summary is ${d} days old. Ask Claude to refresh HMP HQ.`,
+      loading: "Loading the latest summary…",
+      noSnapT: "No summary yet", noSnapP: "Ask Claude to refresh HMP HQ. It rebuilds at 8 AM and 6 PM.",
+      noDbT: "Live data is on the published page", noDbP: "Open HMP HQ from its claude.ai link to see today's numbers.",
+      dest: { "6wBLswpVCaBMoc6dbrKcyn": "Site map", "Qkc52bt2JL5gW7ZKWBJDHU": "AI hub", "9N97Uzv8J9EAueSKhCNSPT": "HMP App", "6cCATKJSoyWA7kbH4Em8VX": "Command center" },
+      open: "Open",
+    },
+    es: {
+      needs: "Pendientes para ti", storms: "Tormentas", leads: "Prospectos", jobs: "Trabajos", crews: "Cuadrillas",
+      sev: { critical: "Urgente", warning: "Revisar pronto", info: "Cuando puedas" },
+      updated: "Actualizado", latest: "Última tormenta", bestWalk: "Mejor ruta", storm: "Tormenta",
+      avgHail: "granizo promedio", doors: "puertas para tocar", openWalk: "Abrir la ruta en la app HMP",
+      fresh: "Granizo reciente", freshMeta: "últimos 60 días", mi: "mi", hailScale: "barra = tamaño del granizo, 0 a 3″",
+      inPlay: "activos", doorsLogged: "puertas", callsLogged: "llamadas anotadas", lost: "Perdidos",
+      noLeads: "Todavía no hay prospectos. Las puertas y llamadas que anotes en la app HMP aparecen aquí.",
+      hot: "Prospectos más calientes", done: "listo", noCrew: "Sin cuadrilla", working: (n) => `${n} trabajando`,
+      allClear: "Nada pendiente por ahora.", aiLabel: "Equipo de IA",
+      stale: (d) => `Este resumen tiene ${d} días. Pídele a Claude que actualice HMP HQ.`,
+      loading: "Cargando el resumen más reciente…",
+      noSnapT: "Todavía no hay resumen", noSnapP: "Pídele a Claude que actualice HMP HQ. Se actualiza a las 8 AM y a las 6 PM.",
+      noDbT: "Los datos en vivo están en la página publicada", noDbP: "Abre HMP HQ desde su enlace de claude.ai para ver los números de hoy.",
+      dest: { "6wBLswpVCaBMoc6dbrKcyn": "Mapa de obra", "Qkc52bt2JL5gW7ZKWBJDHU": "Centro de IA", "9N97Uzv8J9EAueSKhCNSPT": "App HMP", "6cCATKJSoyWA7kbH4Em8VX": "Centro de mando" },
+      open: "Abrir",
+    },
+  };
+  // Severity: one icon + one word + one tint, the same everywhere on the page.
+  const SEV = { critical: ["late", "flag"], warning: ["warn", "clock"], info: ["", "info"] };
+  const IN_PLAY_SKIP = ["not_contacted", "done", "lost"];
+
+  let lang = "en", snap = null, dbState = "wait", slow = false;
+  try {
+    const saved = localStorage.getItem("hmphq-lang");
+    lang = saved === "es" || saved === "en" ? saved : (/^es\b/i.test(navigator.language || "") ? "es" : "en");
+  } catch (e) { lang = /^es\b/i.test(navigator.language || "") ? "es" : "en"; }
+
+  // ---------- small DOM helpers ----------
+  function h(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v; else if (k === "style") n.setAttribute("style", v); else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return n;
+  }
+  function ic(name, cls) {
+    const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("class", "i" + (cls ? " " + cls : "")); s.setAttribute("aria-hidden", "true");
+    const u = document.createElementNS("http://www.w3.org/2000/svg", "use"); u.setAttribute("href", "#i-" + name); s.append(u);
+    return s;
+  }
+  const t = () => T[lang];
+  const tx = (o) => (o && (o[lang] || o.en)) || "";
+  const loc = () => (lang === "es" ? "es-US" : "en-US");
+  const fmtDay = (d) => { const x = new Date(String(d).slice(0, 10) + "T12:00:00Z"); return isNaN(x) ? "" : x.toLocaleDateString(loc(), { month: "short", day: "numeric", timeZone: "UTC" }); };
+  const fmtIso = (iso) => { const x = new Date(iso); return isNaN(x) ? "" : x.toLocaleDateString(loc(), { month: "short", day: "numeric", timeZone: "America/Chicago" }); };
+  const pct = (v) => Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
+  const inch = (v) => (Number(v) || 0).toFixed(2) + "″";
+  const safeUrl = (u) => (typeof u === "string" && /^https:\/\//.test(u) ? u : null);
+  const destName = (u) => { const m = /artifact\/([A-Za-z0-9]+)/.exec(u || ""); return (m && t().dest[m[1]]) || t().open; };
+  function chip(sev, text) {
+    const [cls, icon] = SEV[sev] || SEV.info;
+    return h("span", { class: "chip" + (cls ? " " + cls : "") }, ic(icon), text || t().sev[sev] || t().sev.info);
+  }
+  function act(href, label) {
+    const u = safeUrl(href); if (!u) return null;
+    return h("a", { class: "act", href: u, target: "_blank", rel: "noopener" }, label, ic("chev", "i-sm"));
+  }
+  // First sentence becomes the row title; the rest is the quiet detail line.
+  function split(text) {
+    const m = /^(.+?[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡0-9])/.exec(text || "");
+    return m ? [m[1], text.slice(m[0].length)] : [text || "", ""];
+  }
+
+  // ---------- sections ----------
+  function renderNeeds() {
+    $("hNeeds").textContent = t().needs;
+    const list = snap.needs_you || [];
+    $("needsMeta").replaceChildren(list.length ? h("span", { class: "count", "aria-label": String(list.length) }, String(list.length)) : "");
+    const box = $("needs"); box.replaceChildren();
+    if (!list.length) { box.append(h("div", { class: "allclear" }, ic("check2"), t().allClear)); return; }
+    for (const n of list) {
+      const [title, rest] = split(tx(n));
+      const u = safeUrl(n.link);
+      const body = h("div", {},
+        h("p", { class: "nt" }, chip(n.sev), title),
+        rest ? h("p", { class: "nr" }, rest) : null);
+      const row = u
+        ? h("a", { class: "need", href: u, target: "_blank", rel: "noopener" }, body, h("span", { class: "go" }, h("span", {}, destName(u)), ic("chev", "i-sm")))
+        : h("div", { class: "need" }, body, h("span"));
+      box.append(row);
+    }
+  }
+
+  function renderStorms() {
+    const s = snap.storms || {};
+    $("hStorms").textContent = t().storms;
+    $("stormsMeta").textContent = s.latest_storm_day ? `${t().latest} ${fmtDay(s.latest_storm_day)}` : "";
+    const box = $("storms"); box.replaceChildren();
+    if (tx(s.headline)) box.append(h("p", { class: "headline" }, tx(s.headline)));
+    const w = s.best_walk;
+    if (w) {
+      const card = h("div", { class: "card walk" },
+        h("div", { class: "chips" },
+          h("span", { class: "chip hmp" }, ic("hail"), t().bestWalk),
+          w.day ? h("span", { class: "chip" }, ic("cal"), `${t().storm} ${fmtDay(w.day)}`) : null),
+        h("div", {}, h("h3", {}, w.area || ""), w.streets ? h("p", { class: "streets" }, w.streets) : null),
+        h("div", { class: "tiles" },
+          h("div", { class: "tile" }, h("b", {}, inch(w.avg_hail)), h("span", {}, t().avgHail)),
+          h("div", { class: "tile" }, h("b", {}, String(w.doors ?? "–")), h("span", {}, t().doors))));
+      const u = safeUrl(w.link || s.link);
+      if (u) card.append(h("a", { class: "btn", href: u, target: "_blank", rel: "noopener" }, t().openWalk, ic("chev", "i-sm")));
+      box.append(card);
+    }
+    const fresh = s.fresh || [];
+    if (fresh.length) {
+      box.append(h("div", { class: "subhead" }, h("h3", {}, t().fresh), h("span", { class: "cap" }, t().freshMeta)));
+      const rows = h("div", { class: "rows" });
+      for (const f of fresh) {
+        const hail = Number(f.hail) || 0;
+        rows.append(h("div", { class: "fresh" },
+          h("div", { class: "t" }, h("b", {}, [f.place, f.state].filter(Boolean).join(", ")),
+            h("span", {}, [fmtDay(f.day), f.dist_mi != null ? `${f.dist_mi} ${t().mi}` : ""].filter(Boolean).join(" · "))),
+          h("div", { class: "hbar", role: "img", "aria-label": inch(hail) }, h("i", { style: `width:${Math.min(100, hail / 3 * 100).toFixed(1)}%` })),
+          h("div", { class: "h" }, inch(hail))));
+      }
+      box.append(rows, h("p", { class: "scale" }, t().hailScale));
+    }
+  }
+
+  function renderLeads() {
+    const L = snap.leads || {};
+    $("hLeads").textContent = t().leads;
+    $("leadsMeta").replaceChildren(act(L.link, destName(L.link)) || "");
+    const box = $("leads"); box.replaceChildren();
+    const stages = (L.stages || []).filter((x) => x.key !== "lost");
+    const lost = (L.stages || []).find((x) => x.key === "lost");
+    const total = stages.reduce((a, x) => a + (Number(x.count) || 0), 0);
+    const inPlay = stages.filter((x) => !IN_PLAY_SKIP.includes(x.key)).reduce((a, x) => a + (Number(x.count) || 0), 0);
+    // ordered stages: a sequential ramp from light to full ink; Done in green
+    const n = Math.max(1, stages.length - 1);
+    const color = (x, i) => x.key === "done" ? "var(--ok)" : `color-mix(in srgb, var(--ink) ${Math.round(22 + 70 * i / n)}%, var(--line))`;
+    const card = h("div", { class: "card funnel" });
+    card.append(h("div", { class: "fighead" },
+      h("div", { class: "fig" }, String(inPlay), h("small", {}, t().inPlay)),
+      h("span", { class: "cap" }, `${L.doors_logged || 0} ${t().doorsLogged} · ${L.calls_logged || 0} ${t().callsLogged}`)));
+    const stack = h("div", { class: "stack" + (total ? "" : " empty-track"), role: "img",
+      "aria-label": stages.map((x) => `${tx(x)} ${x.count || 0}`).join(", ") });
+    stages.forEach((x, i) => {
+      const c = Number(x.count) || 0;
+      if (total && !c) return;
+      stack.append(h("i", { style: total ? `flex:${c} 1 0;background:${color(x, i)}` : "" }));
+    });
+    card.append(stack);
+    const legend = h("div", { class: "stages" });
+    stages.forEach((x, i) => {
+      const c = Number(x.count) || 0;
+      legend.append(h("span", { class: c ? "" : "z" }, h("i", { style: `background:${c ? color(x, i) : "var(--line)"}` }), tx(x), h("b", {}, String(c))));
+    });
+    if (lost) legend.append(h("span", { class: lost.count ? "" : "z" }, h("i", { style: "background:transparent;box-shadow:inset 0 0 0 1.5px var(--line-2)" }), tx(lost) || t().lost, h("b", {}, String(lost.count || 0))));
+    card.append(legend);
+    if (!total && !(L.doors_logged || L.calls_logged)) card.append(h("p", { class: "fnote" }, t().noLeads));
+    box.append(card);
+    if ((L.hot || []).length) {
+      box.append(h("div", { class: "subhead" }, h("h3", {}, t().hot)));
+      const rows = h("div", { class: "rows" });
+      for (const x of L.hot) rows.append(h("div", { class: "hot" }, h("div", { class: "t" }, h("b", {}, x.address || ""), h("span", {}, [x.stage, x.next].filter(Boolean).join(" · ")))));
+      box.append(rows);
+    }
+  }
+
+  function renderJobs() {
+    const jobs = snap.jobs || [];
+    $("hJobs").textContent = t().jobs;
+    const first = jobs.find((j) => safeUrl(j.link));
+    $("jobsMeta").replaceChildren(first ? act(first.link, destName(first.link)) : "");
+    const box = $("jobs"); box.replaceChildren();
+    if (!jobs.length) return;
+    const card = h("div", { class: "card" });
+    for (const j of jobs) {
+      const p = pct(j.progress);
+      const scope = lang === "es" ? j.scope_es || j.scope_en : j.scope_en;
+      const blds = h("div", { class: "blds" });
+      for (const b of j.buildings || []) {
+        const bp = pct(b.progress);
+        blds.append(h("div", { class: "bld" },
+          h("div", { class: "nm" }, b.name || "", b.flag ? chip(b.flag.sev, tx(b.flag)) : null),
+          h("span", { class: "p" }, bp + "%"),
+          h("div", { class: "sub" }, b.crew ? b.crew : h("span", { class: "none" }, t().noCrew), b.updated_at ? ` · ${fmtIso(b.updated_at)}` : ""),
+          h("div", { class: "bar", role: "img", "aria-label": `${b.name} ${bp}%` }, h("i", { style: `width:${bp}%` }))));
+      }
+      card.append(h("div", { class: "job" },
+        h("div", { class: "jhead" },
+          h("div", {}, h("h3", {}, j.name || ""), scope ? h("p", { class: "cap" }, scope) : null),
+          h("div", { class: "pct" }, p + "%", h("small", {}, t().done))),
+        h("div", { class: "bar", role: "img", "aria-label": `${j.name} ${p}%` }, h("i", { style: `width:${p}%` })),
+        blds));
+    }
+    box.append(card);
+  }
+
+  function renderCrews() {
+    const crews = snap.crews || [];
+    $("hCrews").textContent = t().crews;
+    $("crewsMeta").textContent = crews.length ? t().working(crews.length) : "";
+    const box = $("crews"); box.replaceChildren();
+    if (!crews.length) return;
+    const rows = h("div", { class: "rows" });
+    for (const c of crews) rows.append(h("div", { class: "crew" }, h("div", { class: "tile-i" }, ic("user")),
+      h("div", { class: "t" }, h("b", {}, c.names || ""), h("span", {}, [c.where, c.job].filter(Boolean).join(" · ")))));
+    box.append(rows);
+  }
+
+  function renderAi() {
+    const ai = $("ai"); ai.replaceChildren();
+    if (!snap.ai || !tx(snap.ai)) { ai.hidden = true; return; }
+    ai.hidden = false;
+    ai.append(ic("say"), h("p", {}, h("b", {}, t().aiLabel), tx(snap.ai)), act(snap.ai.link, destName(snap.ai.link)) || "");
+  }
+
+  // ---------- states ----------
+  function skeleton() {
+    const blk = (hgt, w) => h("div", { class: "sk", style: `height:${hgt}px;width:${w || "100%"}` });
+    const card = (lines) => h("div", { class: "rows skrow" }, lines.map(([a, b]) => blk(a, b)));
+    $("hNeeds").textContent = t().needs; $("hStorms").textContent = t().storms; $("hLeads").textContent = t().leads;
+    $("hJobs").textContent = t().jobs; $("hCrews").textContent = t().crews;
+    $("needs").replaceChildren(h("div", { class: "skrow" }, blk(16, "70%"), blk(12, "90%")), h("div", { class: "skrow" }, blk(16, "60%"), blk(12, "80%")), h("div", { class: "skrow" }, blk(16, "75%"), blk(12, "50%")));
+    $("storms").replaceChildren(card([[14, "40%"], [24, "60%"], [56], [44]]));
+    $("leads").replaceChildren(card([[30, "30%"], [10], [12, "85%"]]));
+    $("jobs").replaceChildren(card([[20, "55%"], [8], [14, "70%"], [14, "65%"], [14, "70%"]]));
+    $("crews").replaceChildren(card([[14, "50%"], [14, "60%"]]));
+  }
+
+  function render() {
+    const T0 = t();
+    document.documentElement.lang = lang;
+    $("langEn").setAttribute("aria-pressed", String(lang === "en"));
+    $("langEs").setAttribute("aria-pressed", String(lang === "es"));
+    $("today").textContent = new Date().toLocaleDateString(loc(), { weekday: "short", month: "short", day: "numeric", timeZone: "America/Chicago" });
+    const note = $("note"), empty = $("empty"), dash = $("dash");
+    note.hidden = true; empty.hidden = true;
+
+    if (!snap) {
+      $("updated").textContent = dbState === "wait" ? T0.loading : " ";
+      $("ai").hidden = true;
+      if (dbState === "wait") { dash.hidden = !slow; if (slow) skeleton(); return; }
+      dash.hidden = true;
+      const off = dbState === "off";
+      empty.replaceChildren(h("div", { class: "glyph" }, ic(off ? "info" : "home")),
+        h("h2", {}, off ? T0.noDbT : T0.noSnapT), h("p", {}, off ? T0.noDbP : T0.noSnapP));
+      empty.hidden = false;
+      return;
+    }
+    dash.hidden = false;
+    const upd = new Date(snap.updated_at);
+    if (!isNaN(upd)) {
+      const when = upd.toLocaleString(loc(), { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      $("updated").textContent = `${T0.updated} ${when}`;
+      $("updated").title = snap.updated_by ? `${T0.updated} ${when} · ${snap.updated_by}` : "";
+      if (Date.now() - upd.getTime() > 36 * 36e5) {
+        note.replaceChildren(ic("clock", "i-sm"), h("span", {}, T0.stale(Math.max(2, Math.round((Date.now() - upd.getTime()) / 864e5)))));
+        note.hidden = false;
+      }
+    } else $("updated").textContent = " ";
+
+    // each section draws on its own so one odd field can't blank the page
+    for (const fn of [renderNeeds, renderStorms, renderLeads, renderJobs, renderCrews, renderAi]) {
+      try { fn(); } catch (e) { console.warn("HMP HQ section skipped:", fn.name, e); }
+    }
+  }
+
+  function setLang(l) {
+    if (l === lang) return;
+    lang = l;
+    try { localStorage.setItem("hmphq-lang", l); } catch (e) { /* not saved on this device: fine */ }
+    render();
+  }
+  $("langEn").addEventListener("click", () => setLang("en"));
+  $("langEs").addEventListener("click", () => setLang("es"));
+  render();
+  setTimeout(() => { slow = true; if (!snap && dbState === "wait") render(); }, 300);
+
+  (async () => {
+    let db = null;
+    try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch (e) { db = null; }
+    if (!db) { dbState = "off"; render(); return; }
+    db.doc("hq/snapshot").onSnapshot(
+      (d) => { dbState = "on"; snap = d.exists ? d.data() : null; render(); },
+      () => { if (!snap) dbState = "off"; render(); });
+  })();
+})();
+</script>
