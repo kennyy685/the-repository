@@ -49,6 +49,18 @@ function data(opts = {}) {
     const pid = s.address.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     C.doors["2026-09-27_" + pid] = { date: "2026-09-27", pid, address: s.address, city: "Columbus", result: i ? "no" : "not_home", pass: 1, at: `2026-09-27T1${4 + i}:0${i}:00Z` };
   });
+  // the homeowner view's house: a real lot on the Columbus walk (stop 9, 3908 22 St) with an inspection's photos (the mockups'
+  // sample photos, served as assets) and circled spots, the Aug 8 hail proof, a quick estimate (roof + siding) and the price rules
+  if (!opts.emptyZones) {
+    const ph = (id, slot, marks) => ({ id, slot, at: "2026-09-26T16:0" + id.length % 10 + ":00Z", marks: marks.map(([x, y, r], i) => ({ x: x / 100, y: y / 100, r: r / 200, n: i + 1 })) });
+    C.leads["3908-22-st"] = { address: "3908 22 St", city: "Columbus", first_name: "Dana", phone: "402-555-0199", source: "storm", type: "insurance", stage: "damage_found",
+      next_step: { en: "Go over the photos at the table", es: "Revisar las fotos en la mesa", due: "2026-09-27" }, created_at: "2026-09-26T15:00:00Z", updated_at: "2026-09-26T17:00:00Z",
+      photos: [ph("hoRoof0001", "roof", [[31.3, 41.7, 7.6], [58.3, 58.3, 6.4], [71.9, 34.7, 7]]), ph("hoSquare01", "sqWide", []), ph("hoVent0001", "metals", [[39.6, 38.9, 8.1], [58.3, 34.7, 6.5], [49, 58.3, 9.2], [66.7, 62.5, 6]]),
+        ph("hoGutter01", "gutters", [[26, 48.6, 11.3], [43.8, 45.8, 8.7], [62.5, 51.4, 10]]), ph("hoSiding01", "siding", [[54, 44, 16], [68.5, 67, 7]])],
+      estimate: { low: 25000, high: 48000, at: "2026-09-26T17:00:00Z", job: { type: "mixed", siding_squares: 18, roof_squares: 22, stories: 1, pitch: "std" } } };
+    C.evidence = Object.assign({}, C.evidence, { "3908-22-st-columbus": { day: "2026-08-08", hail_in: 1.64, radar_max_in: 1.75, nearest_report: { dist_mi: 0.6, size_in: 1.5, source: "lsr" } } });
+    D["system/prices"] = JSON.parse(fs.readFileSync(path.join(__dirname, "v25_prices.json"), "utf8"));
+  }
   if (opts.noMoney) { C.claims = {}; for (const k of Object.keys(C.leads)) if (C.leads[k].type === "cash") delete C.leads[k]; }
   return { collections: C, docs: D };
 }
@@ -103,14 +115,14 @@ const SHOTS = [
   { name: "money-empty", tab: "money", data: { noMoney: true } }, { name: "money-dark-empty", tab: "money", theme: "dark", data: { noMoney: true } },
   { name: "claim", tab: "money", steps: ['[data-open="claim:1107-n-h-st"]'] },
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
-  { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]"] },
-  { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]"] },
-  { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", '#hoView [data-p="2"]'] },
-  { name: "homeowner-3", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", '#hoView [data-p="3"]'] },
-  { name: "homeowner-3-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", '#hoView [data-p="3"]'] },
-  { name: "homeowner-4", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", '#hoView [data-p="4"]'] },
-  { name: "homeowner-4-es", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", '#hoView [data-p="4"]', "#hoView #hoLang"] },
-  { name: "homeowner-exit", tab: "leads", steps: ['[data-open="lead:615-n-linden-ave"]', "[data-ho]", "#hoView #hoX"] },
+  { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
+  { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
+  { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="2"]'] },
+  { name: "homeowner-3", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="3"]'] },
+  { name: "homeowner-3-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="3"]'] },
+  { name: "homeowner-4", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="4"]'] },
+  { name: "homeowner-4-es", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-p="4"]', "#hoView #hoLang"] },
+  { name: "homeowner-exit", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", "#hoView #hoX"] },
 ];
 
 module.exports = { data, initScript, SHOTS };
@@ -127,6 +139,9 @@ if (require.main === module) (async () => {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
       await ctx.route(/^(https?|wss?):/, r => (/^https?:\/\/127\.0\.0\.1[:/]/.test(r.request().url()) ? r.continue() : r.abort()));
       await fontRoutes(ctx);
+      const IMG = { hoRoof0001: "ho-roof.jpg", hoSquare01: "ho-testsquare.jpg", hoVent0001: "ho-vent.jpg", hoGutter01: "ho-gutter.jpg", hoSiding01: "ho-siding.jpg" };
+      await ctx.route(/\/_blob\//, r => { const id = decodeURIComponent(r.request().url().split("/_blob/")[1] || ""), f = IMG[id] && path.join(ROOT, "docs/design/v25-polish/img", IMG[id]);
+        return f && fs.existsSync(f) ? r.fulfill({ status: 200, contentType: "image/jpeg", body: fs.readFileSync(f) }) : r.fulfill({ status: 404, body: "" }); });
       await ctx.addInitScript(initScript(s, data(s.data)));
       const p = await ctx.newPage(), errs = [];
       p.on("pageerror", e => errs.push(String(e && e.message || e)));

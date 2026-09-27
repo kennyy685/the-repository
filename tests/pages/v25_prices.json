@@ -1,0 +1,818 @@
+{
+ "version": 2,
+ "updated_at": "2026-09-27T18:23:04Z",
+ "using_reference": true,
+ "reference_items": [
+  "chimney_flashing_job",
+  "downspouts_ft",
+  "extra_layer_sq",
+  "gutter_guards_ft",
+  "gutters_ft",
+  "hardie_siding_sq",
+  "house_wrap_sq",
+  "ice_water_sq",
+  "insulated_vinyl_siding_sq",
+  "min_job",
+  "min_job_roof",
+  "permit",
+  "ridge_vent_ft",
+  "shingle_roof_sq",
+  "skylight_flashing_ft",
+  "soffit_fascia_ft",
+  "vinyl_siding_sq",
+  "window_wrap_ea"
+ ],
+ "reference_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
+ "currency": "USD",
+ "types": [
+  "siding",
+  "roof",
+  "gutters",
+  "mixed"
+ ],
+ "materials": {
+  "vinyl": {
+   "item": "vinyl_siding_sq",
+   "en": "Vinyl siding",
+   "es": "Siding de vinil",
+   "words": {
+    "en": "vinyl",
+    "es": "de vinil"
+   }
+  },
+  "hardie": {
+   "item": "hardie_siding_sq",
+   "en": "James Hardie siding",
+   "es": "Siding James Hardie",
+   "words": {
+    "en": "James Hardie",
+    "es": "James Hardie"
+   }
+  },
+  "insulated_vinyl": {
+   "item": "insulated_vinyl_siding_sq",
+   "en": "Insulated vinyl siding",
+   "es": "Siding de vinil aislado",
+   "words": {
+    "en": "insulated vinyl",
+    "es": "de vinil aislado"
+   }
+  }
+ },
+ "addons": [
+  {
+   "field": "windows",
+   "item": "window_wrap_ea",
+   "unit": "ea",
+   "roof_item": false,
+   "after": "siding",
+   "words": {
+    "en": "window wrap ({q} window{s})",
+    "es": "forro de ventanas ({q} ventana{s})"
+   }
+  },
+  {
+   "field": "ice_water_sq",
+   "item": "ice_water_sq",
+   "unit": "sq",
+   "roof_item": true,
+   "after": "roof",
+   "words": {
+    "en": "ice & water shield ({q} squares)",
+    "es": "barrera de hielo y agua ({q} cuadros)"
+   }
+  },
+  {
+   "field": "ridge_vent_ft",
+   "item": "ridge_vent_ft",
+   "unit": "ft",
+   "roof_item": true,
+   "after": "roof",
+   "words": {
+    "en": "ridge vent ({q} ft)",
+    "es": "ventila de cumbrera ({q} pies)"
+   }
+  },
+  {
+   "field": "chimney",
+   "item": "chimney_flashing_job",
+   "unit": "job",
+   "roof_item": true,
+   "after": "roof",
+   "words": {
+    "en": "chimney flashing ({q} chimney{s})",
+    "es": "tapajuntas de chimenea ({q} chimenea{s})"
+   }
+  },
+  {
+   "field": "skylight_ft",
+   "item": "skylight_flashing_ft",
+   "unit": "ft",
+   "roof_item": true,
+   "after": "roof",
+   "words": {
+    "en": "skylight flashing ({q} ft)",
+    "es": "tapajuntas de tragaluz ({q} pies)"
+   }
+  },
+  {
+   "field": "gutter_guards_ft",
+   "item": "gutter_guards_ft",
+   "unit": "ft",
+   "roof_item": false,
+   "after": "gutters",
+   "words": {
+    "en": "gutter guards ({q} ft)",
+    "es": "protectores de canaleta ({q} pies)"
+   }
+  },
+  {
+   "field": "downspouts_ft",
+   "item": "downspouts_ft",
+   "unit": "ft",
+   "roof_item": false,
+   "after": "gutters",
+   "words": {
+    "en": "downspouts ({q} ft)",
+    "es": "bajantes ({q} pies)"
+   }
+  }
+ ],
+ "prices": {
+  "vinyl_siding_sq": {
+   "low": 700.0,
+   "high": 900.0,
+   "unit": "sq",
+   "en": "Vinyl siding",
+   "es": "Siding de vinil",
+   "source": "market"
+  },
+  "hardie_siding_sq": {
+   "low": 1000.0,
+   "high": 1500.0,
+   "unit": "sq",
+   "en": "James Hardie siding",
+   "es": "Siding James Hardie",
+   "source": "market"
+  },
+  "insulated_vinyl_siding_sq": {
+   "low": 800.0,
+   "high": 1200.0,
+   "unit": "sq",
+   "en": "Insulated vinyl siding",
+   "es": "Siding de vinil aislado",
+   "source": "market",
+   "scope": "national"
+  },
+  "shingle_roof_sq": {
+   "low": 450.0,
+   "high": 550.0,
+   "unit": "sq",
+   "en": "Architectural shingle roof (1-layer tear-off)",
+   "es": "Techo de teja arquitectónica (quitar 1 capa)",
+   "source": "market"
+  },
+  "extra_layer_sq": {
+   "low": 100.0,
+   "high": 150.0,
+   "unit": "sq",
+   "en": "Extra old layer tear-off",
+   "es": "Quitar capa vieja extra",
+   "source": "market"
+  },
+  "soffit_fascia_ft": {
+   "low": 14.0,
+   "high": 17.0,
+   "unit": "ft",
+   "en": "Soffit + fascia",
+   "es": "Sofito + fascia",
+   "source": "market"
+  },
+  "gutters_ft": {
+   "low": 12.0,
+   "high": 16.0,
+   "unit": "ft",
+   "en": "Seamless gutters",
+   "es": "Canaletas sin costura",
+   "source": "market"
+  },
+  "house_wrap_sq": {
+   "low": 100.0,
+   "high": 150.0,
+   "unit": "sq",
+   "en": "House wrap",
+   "es": "Envoltura de casa (house wrap)",
+   "source": "market"
+  },
+  "permit": {
+   "low": 150.0,
+   "high": 350.0,
+   "unit": "job",
+   "en": "Permit",
+   "es": "Permiso",
+   "source": "market"
+  },
+  "ice_water_sq": {
+   "low": 100.0,
+   "high": 125.0,
+   "unit": "sq",
+   "en": "Ice & water shield",
+   "es": "Barrera de hielo y agua (ice & water)",
+   "source": "market",
+   "scope": "national"
+  },
+  "ridge_vent_ft": {
+   "low": 7.0,
+   "high": 15.0,
+   "unit": "ft",
+   "en": "Ridge vent",
+   "es": "Ventila de cumbrera",
+   "source": "market",
+   "scope": "national"
+  },
+  "chimney_flashing_job": {
+   "low": 450.0,
+   "high": 1500.0,
+   "unit": "job",
+   "en": "Chimney flashing (per chimney)",
+   "es": "Tapajuntas de chimenea (por chimenea)",
+   "source": "market",
+   "scope": "national"
+  },
+  "skylight_flashing_ft": {
+   "low": 5.0,
+   "high": 12.0,
+   "unit": "ft",
+   "en": "Skylight flashing",
+   "es": "Tapajuntas de tragaluz",
+   "source": "market",
+   "scope": "national"
+  },
+  "window_wrap_ea": {
+   "low": 100.0,
+   "high": 180.0,
+   "unit": "ea",
+   "en": "Window wrap (aluminum)",
+   "es": "Forro de ventana (aluminio)",
+   "source": "market",
+   "scope": "national"
+  },
+  "gutter_guards_ft": {
+   "low": 6.0,
+   "high": 13.0,
+   "unit": "ft",
+   "en": "Gutter guards",
+   "es": "Protectores de canaleta",
+   "source": "market",
+   "scope": "national"
+  },
+  "downspouts_ft": {
+   "low": 8.0,
+   "high": 15.0,
+   "unit": "ft",
+   "en": "Downspouts",
+   "es": "Bajantes",
+   "source": "market",
+   "scope": "national"
+  },
+  "min_job": {
+   "low": 300.0,
+   "high": 400.0,
+   "unit": "job",
+   "en": "Minimum job",
+   "es": "Trabajo mínimo",
+   "source": "market"
+  },
+  "min_job_roof": {
+   "low": 2500.0,
+   "high": 3000.0,
+   "unit": "job",
+   "en": "Minimum roof job",
+   "es": "Trabajo mínimo de techo",
+   "source": "market"
+  }
+ },
+ "units": {
+  "sq": {
+   "en": "squares",
+   "es": "cuadros"
+  },
+  "ft": {
+   "en": "ft",
+   "es": "pies"
+  },
+  "job": {
+   "en": "job",
+   "es": "trabajo"
+  },
+  "ea": {
+   "en": "each",
+   "es": "c/u"
+  }
+ },
+ "adders": {
+  "steep_pitch": {
+   "pitch_adders": {
+    "low": {
+     "low": 0.0,
+     "high": 0.0
+    },
+    "std": {
+     "low": 0.0,
+     "high": 0.0
+    },
+    "steep": {
+     "low": 0.15,
+     "high": 0.25
+    }
+   },
+   "steep_over": 6,
+   "low_under": 4,
+   "applies_to": "roof items (shingle roof, roof layer tear-off, ice & water, ridge vent, chimney + skylight flashing)"
+  },
+  "stories": {
+   "story_adders": {
+    "1": {
+     "low": 0.0,
+     "high": 0.0
+    },
+    "2": {
+     "low": 0.15,
+     "high": 0.15
+    },
+    "3": {
+     "low": 0.35,
+     "high": 0.35
+    }
+   },
+   "applies_to": "every installed item except the permit"
+  },
+  "extra_layers": {
+   "item": "extra_layer_sq",
+   "per": "square per old layer beyond the first; roof if any, else walls; roof layers also get the pitch adder"
+  },
+  "house_wrap": {
+   "item": "house_wrap_sq",
+   "default": true,
+   "per": "square of siding"
+  },
+  "permit": {
+   "item": "permit",
+   "default": true,
+   "story_adder": false
+  },
+  "min_job": {
+   "low": 300.0,
+   "high": 400.0,
+   "source": "market"
+  },
+  "min_job_roof": {
+   "low": 2500.0,
+   "high": 3000.0,
+   "source": "market"
+  },
+  "min_rule": "roof jobs use min_job_roof unless it is market and min_job is HMP's; the minimum applies when the low or the high total is under it",
+  "round_to": 50
+ },
+ "rough_helper": {
+  "perimeter_factor": 1.1,
+  "story_height_ft": 9,
+  "openings": 0.15,
+  "pitch_factor": {
+   "low": 1.05,
+   "std": 1.12,
+   "steep": 1.25
+  },
+  "formula": "perimeter = 4 x sqrt(footprint) x perimeter_factor; siding squares = perimeter x story_height_ft x stories x (1 - openings) / 100 (1 decimal); roof squares = footprint x pitch_factor[pitch] / 100 (1 decimal)"
+ },
+ "insurance_note": {
+  "en": "For insurance jobs: the insurer's approved scope sets the price.",
+  "es": "Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+ },
+ "reference_warning": {
+  "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+  "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+ },
+ "reference_warning_template": {
+  "en": "Using MARKET REFERENCE prices, not HMP's prices{for_items}. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+  "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP{for_items}. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+ },
+ "reference_for_items": {
+  "en": " for: {items}",
+  "es": " para: {items}"
+ },
+ "national_warning_template": {
+  "en": "National price guide (not Nebraska) for: {items}. Check with a local supplier.",
+  "es": "Guía de precios nacional (no de Nebraska) para: {items}. Confirmen con un proveedor local."
+ },
+ "rough_note": {
+  "en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
+  "es": "Cuadros APROXIMADOS por el tamaño de la casa y los pisos. Midan la casa antes de dar precio."
+ },
+ "type_notes": {
+  "siding": {
+   "en": "Siding job: roof squares left out (use type mixed for both).",
+   "es": "Trabajo de siding: no se contó el techo (usen tipo mixed para los dos)."
+  },
+  "roof": {
+   "en": "Roof job: siding squares left out (use type mixed for both).",
+   "es": "Trabajo de techo: no se contó el siding (usen tipo mixed para los dos)."
+  },
+  "gutters": {
+   "en": "Gutter job: siding and roof left out (use type mixed).",
+   "es": "Trabajo de canaletas: no se contó siding ni techo (usen tipo mixed)."
+  }
+ },
+ "test_cases": [
+  {
+   "name": "siding vinyl",
+   "job": {
+    "type": "siding",
+    "siding_squares": 22,
+    "material": "vinyl"
+   },
+   "expect": {
+    "low": 17750,
+    "high": 23450,
+    "using_reference": true,
+    "line_keys": [
+     "vinyl_siding_sq",
+     "house_wrap_sq",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $17,750 - $23,450 for vinyl siding (22 squares); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $17,750 - $23,450 por siding de vinil (22 cuadros); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "siding hardie",
+   "job": {
+    "type": "siding",
+    "siding_squares": 25.5,
+    "material": "hardie",
+    "stories": 2,
+    "layers": 2,
+    "soffit_ft": 90
+   },
+   "expect": {
+    "low": 36750,
+    "high": 54900,
+    "using_reference": true,
+    "line_keys": [
+     "hardie_siding_sq",
+     "house_wrap_sq",
+     "extra_layer_sq",
+     "soffit_fascia_ft",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $36,750 - $54,900 for James Hardie siding (25.5 squares), soffit + fascia (90 ft); 2 stories, 2 old layers. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $36,750 - $54,900 por siding James Hardie (25.5 cuadros), sofito + fascia (90 pies); 2 pisos, 2 capas viejas. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "roof std",
+   "job": {
+    "type": "roof",
+    "roof_squares": 24,
+    "pitch": "5/12"
+   },
+   "expect": {
+    "low": 10950,
+    "high": 13550,
+    "using_reference": true,
+    "line_keys": [
+     "shingle_roof_sq",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $10,950 - $13,550 for shingle roof (24 squares); 1 story, standard pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $10,950 - $13,550 por techo de teja (24 cuadros); 1 piso, pendiente normal. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "roof steep 2-story",
+   "job": {
+    "type": "roof",
+    "roof_squares": 31.3,
+    "pitch": "8/12",
+    "stories": 2,
+    "layers": 2
+   },
+   "expect": {
+    "low": 22500,
+    "high": 31050,
+    "using_reference": true,
+    "line_keys": [
+     "shingle_roof_sq",
+     "extra_layer_sq",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $22,500 - $31,050 for shingle roof (31.3 squares); 2 stories, steep pitch, 2 old layers. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $22,500 - $31,050 por techo de teja (31.3 cuadros); 2 pisos, pendiente alta, 2 capas viejas. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "gutters only",
+   "job": {
+    "type": "gutters",
+    "gutter_ft": 140,
+    "permit": false
+   },
+   "expect": {
+    "low": 1650,
+    "high": 2250,
+    "using_reference": true,
+    "line_keys": [
+     "gutters_ft"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $1,650 - $2,250 for gutters (140 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $1,650 - $2,250 por canaletas (140 pies); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "mixed",
+   "job": {
+    "type": "mixed",
+    "siding_squares": 18,
+    "roof_squares": 20,
+    "gutter_ft": 120,
+    "soffit_ft": 150,
+    "material": "hardie",
+    "pitch": "steep",
+    "stories": 3
+   },
+   "expect": {
+    "low": 45150,
+    "high": 64100,
+    "using_reference": true,
+    "line_keys": [
+     "hardie_siding_sq",
+     "house_wrap_sq",
+     "shingle_roof_sq",
+     "soffit_fascia_ft",
+     "gutters_ft",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $45,150 - $64,100 for James Hardie siding (18 squares), shingle roof (20 squares), soffit + fascia (150 ft), gutters (120 ft); 3 stories, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $45,150 - $64,100 por siding James Hardie (18 cuadros), techo de teja (20 cuadros), sofito + fascia (150 pies), canaletas (120 pies); 3 pisos, pendiente alta. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "below minimum",
+   "job": {
+    "type": "gutters",
+    "gutter_ft": 12,
+    "permit": false
+   },
+   "expect": {
+    "low": 300,
+    "high": 400,
+    "using_reference": true,
+    "line_keys": [
+     "gutters_ft"
+    ],
+    "minimum": "min_job",
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $300 - $400 for gutters (12 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price. (Minimum job $300 - $400 applied.)",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $300 - $400 por canaletas (12 pies); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio. (Se aplicó el trabajo mínimo $300 - $400.)"
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     }
+    ]
+   }
+  },
+  {
+   "name": "footprint only (rough)",
+   "job": {
+    "type": "mixed",
+    "footprint_sqft": 1450,
+    "stories": 2,
+    "pitch": "7/12"
+   },
+   "expect": {
+    "low": 34250,
+    "high": 45200,
+    "using_reference": true,
+    "line_keys": [
+     "vinyl_siding_sq",
+     "house_wrap_sq",
+     "shingle_roof_sq",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $34,250 - $45,200 for vinyl siding (25.6 squares), shingle roof (18.1 squares); 2 stories, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $34,250 - $45,200 por siding de vinil (25.6 cuadros), techo de teja (18.1 cuadros); 2 pisos, pendiente alta. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     },
+     {
+      "en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
+      "es": "Cuadros APROXIMADOS por el tamaño de la casa y los pisos. Midan la casa antes de dar precio."
+     }
+    ]
+   }
+  },
+  {
+   "name": "insulated vinyl + windows",
+   "job": {
+    "type": "siding",
+    "siding_squares": 20,
+    "material": "insulated_vinyl",
+    "windows": 14,
+    "stories": 2
+   },
+   "expect": {
+    "low": 22450,
+    "high": 34300,
+    "using_reference": true,
+    "line_keys": [
+     "insulated_vinyl_siding_sq",
+     "house_wrap_sq",
+     "window_wrap_ea",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $22,450 - $34,300 for insulated vinyl siding (20 squares), window wrap (14 windows); 2 stories. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $22,450 - $34,300 por siding de vinil aislado (20 cuadros), forro de ventanas (14 ventanas); 2 pisos. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     },
+     {
+      "en": "National price guide (not Nebraska) for: insulated_vinyl_siding_sq, window_wrap_ea. Check with a local supplier.",
+      "es": "Guía de precios nacional (no de Nebraska) para: insulated_vinyl_siding_sq, window_wrap_ea. Confirmen con un proveedor local."
+     }
+    ]
+   }
+  },
+  {
+   "name": "roof add-ons steep",
+   "job": {
+    "type": "roof",
+    "roof_squares": 28,
+    "pitch": "9/12",
+    "ice_water_sq": 4.5,
+    "ridge_vent_ft": 42,
+    "chimney": true,
+    "skylight_ft": 16
+   },
+   "expect": {
+    "low": 16100,
+    "high": 23250,
+    "using_reference": true,
+    "line_keys": [
+     "shingle_roof_sq",
+     "ice_water_sq",
+     "ridge_vent_ft",
+     "chimney_flashing_job",
+     "skylight_flashing_ft",
+     "permit"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $16,100 - $23,250 for shingle roof (28 squares), ice & water shield (4.5 squares), ridge vent (42 ft), chimney flashing (1 chimney), skylight flashing (16 ft); 1 story, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $16,100 - $23,250 por techo de teja (28 cuadros), barrera de hielo y agua (4.5 cuadros), ventila de cumbrera (42 pies), tapajuntas de chimenea (1 chimenea), tapajuntas de tragaluz (16 pies); 1 piso, pendiente alta. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     },
+     {
+      "en": "National price guide (not Nebraska) for: chimney_flashing_job, ice_water_sq, ridge_vent_ft, skylight_flashing_ft. Check with a local supplier.",
+      "es": "Guía de precios nacional (no de Nebraska) para: chimney_flashing_job, ice_water_sq, ridge_vent_ft, skylight_flashing_ft. Confirmen con un proveedor local."
+     }
+    ]
+   }
+  },
+  {
+   "name": "gutters + guards + downspouts",
+   "job": {
+    "type": "gutters",
+    "gutter_ft": 150,
+    "gutter_guards_ft": 150,
+    "downspouts_ft": 60,
+    "permit": false
+   },
+   "expect": {
+    "low": 3150,
+    "high": 5250,
+    "using_reference": true,
+    "line_keys": [
+     "gutters_ft",
+     "gutter_guards_ft",
+     "downspouts_ft"
+    ],
+    "minimum": null,
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $3,150 - $5,250 for gutters (150 ft), gutter guards (150 ft), downspouts (60 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $3,150 - $5,250 por canaletas (150 pies), protectores de canaleta (150 pies), bajantes (60 pies); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     },
+     {
+      "en": "National price guide (not Nebraska) for: downspouts_ft, gutter_guards_ft. Check with a local supplier.",
+      "es": "Guía de precios nacional (no de Nebraska) para: downspouts_ft, gutter_guards_ft. Confirmen con un proveedor local."
+     }
+    ]
+   }
+  },
+  {
+   "name": "add-ons only (below minimum)",
+   "job": {
+    "type": "mixed",
+    "windows": 1,
+    "permit": false
+   },
+   "expect": {
+    "low": 300,
+    "high": 400,
+    "using_reference": true,
+    "line_keys": [
+     "window_wrap_ea"
+    ],
+    "minimum": "min_job",
+    "summary": {
+     "en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $300 - $400 for window wrap (1 window); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price. (Minimum job $300 - $400 applied.)",
+     "es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $300 - $400 por forro de ventanas (1 ventana); 1 piso. El precio final después de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio. (Se aplicó el trabajo mínimo $300 - $400.)"
+    },
+    "warnings": [
+     {
+      "en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+      "es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todavía no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+     },
+     {
+      "en": "National price guide (not Nebraska) for: window_wrap_ea. Check with a local supplier.",
+      "es": "Guía de precios nacional (no de Nebraska) para: window_wrap_ea. Confirmen con un proveedor local."
+     }
+    ]
+   }
+  }
+ ]
+}

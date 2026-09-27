@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" media="print" id="hmpFonts">
 <script>/* v23: the brand fonts never hold up the first paint on a bad signal: the page shows in the phone's own font, then swaps */(()=>{const l=document.getElementById('hmpFonts');if(!l)return;const on=()=>{l.media='all'};if(l.sheet)on();else{l.addEventListener('load',on);l.addEventListener('error',on);}})();</script>
-<script>/* v25: Theme Auto / Light / Dark (More), per device. Auto leaves the viewer's own choice (claude.ai stamps data-theme) alone. */(()=>{let t='auto';try{t=localStorage.getItem('hmp-app-theme')||'auto'}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);})();</script>
+<script>/* v25: Theme Auto / Light / Dark (More), per device. Auto leaves the viewer's own choice (claude.ai stamps data-theme) alone. */(()=>{window.__hmpHostTheme=document.documentElement.getAttribute('data-theme');let t='auto';try{t=localStorage.getItem('hmp-app-theme')||'auto'}catch(e){}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);})();</script>
 <!-- v25 design system (docs/design/v25-polish/design-system.md): tokens, Ledger + Ledger Night, components. Its own file (T169). -->
 <link rel="stylesheet" href="v25/ds.css">
 <link rel="stylesheet" href="estimate/estimate-module.css"><!-- T52 quick estimate: pages/estimate/estimate-module.css (T169) -->
@@ -804,180 +804,207 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
   #psView .ws-page:last-child{break-after:auto}
 }
 
-/* ================= v21: homeowner screen, "Daylight report" (option B). A light, separate scope: the rest of the app stays Pro Dark ================= */
-.ho-launch .el-go{color:var(--hmp)}
-.ho-sum{margin:0;font-size:14px;color:var(--ink2)}
-.ho-sum b{color:var(--ink)}
-.est-show{display:grid;gap:4px;margin-top:4px}
-.est-show .est-btn{justify-content:flex-start;gap:10px}
-.est-show small{font-size:12px;color:var(--mute)}
-#hoView{--h-paper:#f4f2ee;--h-card:#ffffff;--h-ink:#1f2023;--h-char:#404145;--h-char-dk:#2a2b2f;--h-muted:#5b5f67;--h-line:#e2dfd8;
-  --h-orange:#f5883a;--h-orange-ink:#9c4a16;--h-tint:#fdf1e7;--h-mist:#efede8;--h-ok:#2f6b4f;--h-shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
-  color-scheme:light;position:fixed;inset:0;z-index:75;overflow:auto;overscroll-behavior:contain;background:var(--h-paper);color:var(--h-ink);
-  font:500 15px/1.45 "Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-#hoView *{box-sizing:border-box}
-#hoView :focus-visible{outline:3px solid var(--h-orange);outline-offset:2px}
-#hoView button{font:inherit;color:inherit;cursor:pointer}
-#hoView h1,#hoView h2,#hoView h3,#hoView p{margin:0}
-#hoView .ho-head{background:linear-gradient(180deg,#46474c,#35363a);color:#fff;padding-top:env(safe-area-inset-top,0px)}
-#hoView .ho-in{max-width:820px;margin:0 auto;padding:10px 16px 14px}
-#hoView .ho-row{display:flex;align-items:center;gap:8px}
-#hoView .ho-logo{display:inline-grid;justify-items:center;margin-right:auto;line-height:1}
-#hoView .ho-logo svg{width:74px;height:12px;display:block}
-#hoView .ho-logo b{font:800 25px/0.95 "Barlow Semi Condensed","Arial Narrow",sans-serif;letter-spacing:.06em;color:#eef0f2;background:linear-gradient(180deg,#fff,#c9ccd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-#hoView .ho-logo small{font:700 7.5px/1.2 "Montserrat",sans-serif;letter-spacing:.14em;color:#c9ccd1;border-top:2px solid var(--h-orange);padding-top:2px;margin-top:1px}
-#hoView .ho-ic{min-width:44px;min-height:44px;display:grid;place-items:center;border:1px solid #6a6c73;border-radius:10px;background:rgba(255,255,255,.04);color:#e6e8eb;padding:0}
-#hoView .ho-ic svg{width:20px;height:20px}
-#hoView .ho-ic[aria-pressed="true"]{background:var(--h-orange);border-color:var(--h-orange);color:#1b1206}
-#hoView .ho-langs{display:flex;background:rgba(0,0,0,.28);border-radius:10px;padding:3px}
-#hoView .ho-langs button{min-width:44px;min-height:38px;border:0;border-radius:8px;background:transparent;color:#c9ccd1;font:700 15px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.04em}
-#hoView .ho-langs button[aria-pressed="true"]{background:#fff;color:var(--h-ink)}
-#hoView .ho-who{margin-top:12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:13px;color:#c9ccd1}
-#hoView .ho-who b{font:700 20px/1.1 "Barlow Semi Condensed",sans-serif;color:#fff;overflow-wrap:anywhere}
-#hoView .ho-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#d9dbdf;background:rgba(255,255,255,.09);border-radius:99px;padding:3px 10px;flex-basis:100%;max-width:max-content}
-#hoView .ho-chip svg{width:12px;height:12px}
-#hoView .ho-steps{position:sticky;top:0;z-index:3;background:var(--h-paper);border-bottom:1px solid var(--h-line)}
-#hoView .ho-steps .ho-sin{max-width:820px;margin:0 auto;padding:10px 16px;display:flex;gap:6px}
-#hoView .ho-steps button{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;border:0;border-radius:99px;background:var(--h-mist);color:var(--h-muted);font:700 15px/1.05 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-steps button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#hoView .ho-steps i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#cfccc4;color:#fff;display:grid;place-items:center;font-size:13px;flex:none}
-#hoView .ho-steps button[aria-current="step"]{background:var(--h-char);color:#fff}
-#hoView .ho-steps button[aria-current="step"] i{background:var(--h-orange);color:var(--h-ink)}
-#hoView .ho-steps button.done i{background:var(--h-char)}
-#hoView .ho-wrap{max-width:820px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;align-content:start}
-#hoView h1{font:800 36px/1.02 "Barlow Semi Condensed","Arial Narrow",sans-serif;margin-top:16px;text-wrap:balance;letter-spacing:0}
-#hoView .ho-sub{color:var(--h-muted);font-size:15px;margin-top:-8px}
-#hoView .ho-card{background:var(--h-card);border-radius:14px;padding:16px;box-shadow:var(--h-shadow)}
-#hoView .ho-lbl{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--h-muted)}
-/* photos with numbered circles */
-#hoView .ho-plist{display:grid;gap:14px}
-#hoView .ho-pcard{background:var(--h-card);border-radius:14px;overflow:hidden;box-shadow:var(--h-shadow);min-width:0}
-#hoView .ho-ph{position:relative;background:#16171a;min-height:120px;touch-action:manipulation}
-#hoView .ho-ph img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;margin:0 auto}
-#hoView .ho-ph .ho-mks{position:absolute;inset:0;pointer-events:none}
-#hoView .ho-ph.gone{display:grid;place-items:center;color:#c9ccd1;font-size:13px;padding:24px}
-#hoView .ho-ph.gone img,#hoView .ho-ph.gone .ho-mks{display:none}
-#hoView .ho-ph .ho-gone{display:none}
-#hoView .ho-ph.gone .ho-gone{display:block}
-#hoView .ho-mk{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;pointer-events:none;padding:0;border:0;background:transparent}
-#hoView .ho-mk svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-#hoView .ho-mk b{position:absolute;right:-6px;top:-6px;width:24px;height:24px;border-radius:50%;background:var(--h-orange);color:var(--h-ink);font:800 15px/24px "Barlow Semi Condensed",sans-serif;text-align:center;box-shadow:0 0 0 2px #fff}
-#hoView.rep .ho-ph{cursor:crosshair;outline:3px dashed var(--h-orange);outline-offset:-3px}
-#hoView.rep .ho-mk{pointer-events:auto;cursor:pointer}
-#hoView .ho-cap{display:flex;gap:12px;padding:12px 14px 14px;align-items:flex-start}
-#hoView .ho-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--h-char);color:#fff;font:800 17px/30px "Barlow Semi Condensed",sans-serif;text-align:center}
-#hoView .ho-cap b{display:block;font:700 20px/1.15 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-cap div > span{color:var(--h-muted);font-size:14px}
-#hoView .ho-cap .ho-undo{margin-left:auto;flex:none}
-#hoView .ho-empty{background:var(--h-card);border:2px dashed #d3cfc6;border-radius:14px;padding:18px;display:grid;gap:6px}
-#hoView .ho-empty b{font:700 22px/1.15 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-empty p{color:var(--h-muted)}
-/* hail + insurance */
-#hoView .ho-two{display:grid;gap:14px}
-#hoView .ho-hail .ho-cols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:8px}
-#hoView .ho-big{font:800 60px/.9 "Barlow Semi Condensed",sans-serif;font-variant-numeric:tabular-nums}
-#hoView .ho-big small{font-size:24px;color:var(--h-muted);margin-left:3px}
-#hoView .ho-like{color:var(--h-muted);font-size:14px;margin-top:6px}
-#hoView .ho-scale{width:118px;height:auto;display:block}
-#hoView .ho-facts{margin-top:14px;display:grid;gap:8px}
-#hoView .ho-facts div{background:var(--h-mist);border-radius:10px;padding:9px 12px;display:grid}
-#hoView .ho-facts b{font:700 18px/1.2 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-facts em{font-style:normal;font-size:12px;color:var(--h-muted)}
-#hoView .ho-src{color:var(--h-muted);font-size:12px;margin-top:10px}
-#hoView .ho-caveat{margin-top:12px;padding:10px 12px;border-radius:10px;border:1.5px dashed #bdb8ae;font-size:13.5px;color:var(--h-char);display:flex;gap:10px}
-#hoView .ho-caveat svg{flex:none;width:18px;height:18px;margin-top:1px}
-#hoView .ho-ins{background:var(--h-char);color:#fff}
-#hoView .ho-ins b{display:block;font:700 22px/1.18 "Barlow Semi Condensed",sans-serif;margin-bottom:6px}
-#hoView .ho-ins p{color:#dcdee2;font-size:14px}
-/* options */
-#hoView .ho-cmp{background:var(--h-card);border-radius:14px;overflow:hidden;box-shadow:var(--h-shadow)}
-#hoView .ho-cols3{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr))}
-#hoView .ho-col{padding:12px 6px 12px;text-align:center;border:0;border-right:1px solid var(--h-line);background:transparent;display:grid;align-content:start;justify-items:center;gap:3px;min-width:0}
-#hoView .ho-col:last-child{border-right:0}
-#hoView .ho-col.rec{background:var(--h-tint);box-shadow:inset 0 4px 0 var(--h-orange)}
-#hoView .ho-col[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--h-char)}
-#hoView .ho-col.rec[aria-pressed="true"]{box-shadow:inset 0 4px 0 var(--h-orange),inset 0 0 0 3px var(--h-char)}
-#hoView .ho-rib{font:800 11px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--h-orange-ink);min-height:14px}
-#hoView .ho-name{font:800 13.5px/1.1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--h-muted)}
-#hoView .ho-what{font:700 16px/1.1 "Barlow Semi Condensed",sans-serif;min-height:36px;overflow-wrap:anywhere}
-#hoView .ho-price{font:800 20px/1.08 "Barlow Semi Condensed",sans-serif;margin-top:6px;font-variant-numeric:tabular-nums}
-#hoView .ho-price span{display:block;white-space:nowrap}
-#hoView .ho-pick{font-size:11.5px;font-weight:700;color:var(--h-muted);margin-top:6px;min-height:16px}
-#hoView .ho-col[aria-pressed="true"] .ho-pick{color:var(--h-ok)}
-#hoView .ho-rng{text-align:center;font-size:12.5px;font-weight:700;color:var(--h-char);padding:9px 12px;border-top:1px solid var(--h-line);background:#faf9f6}
-#hoView .ho-tbl{overflow-x:auto}
-#hoView table{width:100%;border-collapse:collapse}
-#hoView td{border-top:1px solid var(--h-line);padding:9px 6px;font-size:12.5px;text-align:center;vertical-align:middle;width:calc(100% / var(--n,3))}
-#hoView td.rec{background:var(--h-tint)}
-#hoView tr.sec td{text-align:left;font-size:12.5px;font-weight:700;color:var(--h-char);background:#faf9f6;padding:8px 12px 6px}
-#hoView tr.grp td{text-align:left;font:800 12px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--h-orange-ink);background:var(--h-card);padding:12px 12px 4px;border-top:2px solid var(--h-line)}
-#hoView td svg{width:18px;height:18px;vertical-align:middle}
-#hoView td .no{color:#a19c93;font-weight:700}
-#hoView td .txt{font-weight:600;line-height:1.25}
-#hoView .ho-note{color:var(--h-muted);font-size:13.5px}
-#hoView .ho-warr{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--h-char)}
-#hoView .ho-warr svg{flex:none;width:22px;height:22px}
-#hoView .ho-out{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--h-card);border:1.5px solid var(--h-char);border-radius:12px;color:var(--h-ink);text-decoration:none}
-#hoView .ho-out .sw{display:flex;gap:3px;flex:none}
-#hoView .ho-out .sw i{width:14px;height:28px;border-radius:3px}
-#hoView .ho-out b{display:block;font:700 18px/1.15 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-out span span{font-size:12.5px;color:var(--h-muted)}
-#hoView .ho-out .arr{margin-left:auto;font:800 22px "Barlow Semi Condensed",sans-serif;color:var(--h-orange-ink)}
-/* next steps */
-#hoView .ho-stps{display:grid;gap:12px}
-#hoView .ho-stp{background:var(--h-card);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;box-shadow:var(--h-shadow)}
-#hoView .ho-stp .n{font:800 48px/.85 "Barlow Semi Condensed",sans-serif;color:var(--h-orange);width:30px}
-#hoView .ho-stp b{display:block;font:800 23px/1.1 "Barlow Semi Condensed",sans-serif}
-#hoView .ho-stp p{color:var(--h-muted);font-size:14.5px;margin-top:3px}
-#hoView .ho-cancel{margin-top:10px;padding:11px 12px;border-radius:10px;background:var(--h-tint);border-left:4px solid var(--h-orange);font-size:13.5px;color:var(--h-char)}
-#hoView .ho-cancel b{display:inline;font:700 16px "Barlow Semi Condensed",sans-serif;color:var(--h-ink)}
-#hoView .ho-contact{background:var(--h-char);color:#fff;border-radius:16px;padding:16px;display:grid;gap:0}
-#hoView .ho-contact .q{font:700 20px "Barlow Semi Condensed",sans-serif;margin-bottom:4px}
-#hoView .ho-contact a{display:flex;align-items:center;gap:14px;text-decoration:none;color:#fff;padding:12px 0;border-top:1px solid rgba(255,255,255,.12)}
-#hoView .ho-contact a:first-of-type{border-top:0}
-#hoView .ho-contact .ic{width:46px;height:46px;border-radius:50%;background:var(--h-orange);display:grid;place-items:center;flex:none}
-#hoView .ho-contact .ic svg{width:21px;height:21px}
-#hoView .ho-contact .nm{font-size:13px;color:#dcdee2;font-weight:600}
-#hoView .ho-contact .tel{font:800 30px/1 "Barlow Semi Condensed",sans-serif;margin-top:2px;font-variant-numeric:tabular-nums;user-select:text}
-#hoView .ho-foot{color:var(--h-muted);font-size:12px;line-height:1.6}
-#hoView .ho-foot .blank{display:inline-block;width:90px;border-bottom:1px solid var(--h-muted);margin-left:2px}
-#hoView .ho-next{justify-self:stretch;min-height:54px;border:0;border-radius:12px;background:var(--h-orange);color:#1b1206;font:800 20px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em}
-/* rep tools: only while the rep has them on */
-#hoView .ho-rep{border:2px dashed var(--h-orange);background:#fff8f1;border-radius:14px;padding:12px 14px;display:grid;gap:10px;margin-top:14px}
-#hoView .ho-rep h2{font:800 13px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--h-orange-ink);display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
-#hoView .ho-rep h2 small{font:600 12px/1.3 "Montserrat",sans-serif;letter-spacing:0;text-transform:none;color:var(--h-muted)}
-#hoView .ho-rep p{font-size:13.5px;color:var(--h-char)}
-#hoView .ho-rep .ho-rrow{display:grid;gap:6px}
-#hoView .ho-rep .ho-rl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--h-muted)}
-#hoView .ho-seg{display:flex;flex-wrap:wrap;gap:6px}
-#hoView .ho-seg button{min-height:44px;padding:6px 12px;border:1.5px solid #b8b3aa;border-radius:10px;background:#fff;font:700 15px/1.1 "Barlow Semi Condensed",sans-serif;color:var(--h-ink)}
-#hoView .ho-seg button small{display:block;font:500 11px/1.2 "Montserrat",sans-serif;color:var(--h-muted)}
-#hoView .ho-seg button[aria-pressed="true"]{background:var(--h-char);border-color:var(--h-char);color:#fff}
-#hoView .ho-seg button[aria-pressed="true"] small{color:#dcdee2}
-#hoView .ho-seg button:disabled{opacity:.45;cursor:default}
-#hoView .ho-sbtn{min-height:44px;padding:8px 14px;border:1.5px solid var(--h-char);border-radius:10px;background:#fff;font:700 15px/1.1 "Barlow Semi Condensed",sans-serif;color:var(--h-ink);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-#hoView .ho-sbtn.go{background:var(--h-orange);border-color:var(--h-orange);color:#1b1206}
-#hoView .ho-acts{display:flex;flex-wrap:wrap;gap:8px}
-#hoView .ho-msg{background:#fff;border:1px solid var(--h-line);border-radius:10px;padding:10px 12px;font-size:14px;white-space:pre-line;user-select:text;overflow-wrap:anywhere}
-#hoView .ho-status{font-size:13px;font-weight:700;color:var(--h-ok)}
-#hoView .ho-status.bad{color:#a3321f}
-@media (min-width:700px){
-  #hoView .ho-in,#hoView .ho-wrap,#hoView .ho-steps .ho-sin{padding-left:28px;padding-right:28px}
-  #hoView h1{font-size:46px}
-  #hoView .ho-plist{grid-template-columns:1fr 1fr}
-  #hoView .ho-plist .ho-pcard:first-child{grid-column:1 / -1}
-  #hoView .ho-two{grid-template-columns:1.2fr 1fr;align-items:start}
-  #hoView .ho-price{font-size:28px}
-  #hoView .ho-what{font-size:20px;min-height:0}
-  #hoView td{font-size:14px;padding:11px 10px}
-  #hoView .ho-stps{grid-template-columns:repeat(3,minmax(0,1fr))}
-  #hoView .ho-stp{grid-template-columns:1fr;gap:6px;align-content:start}
-  #hoView .ho-contact{grid-template-columns:auto 1fr 1fr;gap:18px;align-items:center}
-  #hoView .ho-contact .q{margin:0}
-  #hoView .ho-contact a,#hoView .ho-contact a:first-of-type{border-top:0;padding:0}
-  #hoView .ho-next{justify-self:end;min-width:280px}
+/* ================= v25 homeowner view (docs/design/v25-polish/homeowner.html): tokens only, both themes, phone + tablet (container query at 900 px) ================= */
+#hoView{position:fixed;inset:0;z-index:50;background:var(--bg);color:var(--ink);overflow-y:auto;overscroll-behavior:contain;container:ho/inline-size;display:flex;flex-direction:column}
+#hoView.held{overflow:hidden}
+#hoView .only-tab{display:none}
+@container ho (min-width:900px){#hoView .only-phone{display:none!important}#hoView .only-tab{display:revert}}
+#hoView .htop{display:flex;align-items:center;gap:var(--s2);min-height:56px;padding:calc(env(safe-area-inset-top,0px) + 6px) var(--s4) 6px;flex:none}
+#hoView .htop .mark{margin-right:var(--s1)}
+#hoView .brand{flex:1;min-width:0;font-size:var(--t-body);font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hoView .hbtn{width:44px;height:44px;border:1px solid var(--line);background:var(--card)}
+#hoView .hbtn[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+#hoView .who{flex:1;min-width:0;display:grid}
+#hoView .who b{font-size:var(--t-row);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hoView .who span{font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hoView .hhead{display:grid;gap:2px;padding:var(--s1) 0 var(--s4)}
+#hoView .hhead h1{font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;line-height:1.2;margin-top:var(--s1)}
+#hoView .hsteps button{white-space:nowrap;height:40px}
+#hoView .hmain{flex:1;padding:0 var(--s4) var(--s6);width:100%;max-width:720px;margin:0 auto}
+#hoView .chead{margin:var(--s5) 0 var(--s3)}
+#hoView .chead h2{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.12;text-wrap:balance}
+#hoView .chead h2:focus{outline:none}
+#hoView .sect{margin-top:var(--s6)}
+#hoView .pnum{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:var(--t-cap);font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+#hoView .pnum.sm{width:22px;height:22px;font-size:11.5px}
+#hoView .pnum.on{background:var(--hmp);color:var(--on-hmp)}
+#hoView .tile{width:36px;height:36px;border-radius:var(--r-md);background:var(--soft);color:var(--ink-2);display:grid;place-items:center;flex:none}
+#hoView button.row{width:100%;text-align:left}
+#hoView .reppanel{padding:var(--s3) var(--s4);display:grid;gap:var(--s2);margin-bottom:var(--s3);border-color:var(--hmp);box-shadow:inset 3px 0 0 var(--hmp)}
+#hoView .reppanel .rrow{display:grid;gap:6px}
+#hoView .reppanel .stamp.bad{color:var(--late)}
+#hoView .reppanel .btn{justify-self:start}
+#hoView .reppanel .ho-msg{margin:0;padding:var(--s2) var(--s3);background:var(--soft);border-radius:var(--r-sm);font-size:var(--t-cap);white-space:pre-line;user-select:text}
+#hoView .reppanel .ho-acts{display:flex;flex-wrap:wrap;gap:var(--s2)}
+#hoView .reppanel .ho-sbtn{height:44px;padding:0 var(--s4);border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--card);font-weight:600;display:inline-flex;align-items:center;text-decoration:none;color:var(--ink)}
+#hoView .reppanel .ho-sbtn.go{background:var(--hmp);border-color:var(--hmp);color:var(--on-hmp)}
+#hoView .reppanel p{margin:0;font-size:var(--t-cap);color:var(--ink-2)}
+#hoView .nophotos{padding:var(--s4);display:grid;gap:6px}
+#hoView .nophotos p{color:var(--muted)}
+/* 1 · damage map */
+#hoView .dmap{position:relative;height:300px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+#hoView .dmap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#hoView .compass{position:absolute;left:10px;top:10px;width:38px;height:38px;border-radius:50%;background:var(--card);box-shadow:var(--e2);display:grid;place-items:center;color:var(--ink)}
+#hoView .compass svg{width:22px;height:22px}
+#hoView .mkey{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
+#hoView .mkey i{width:14px;height:10px;border-radius:2px;background:repeating-linear-gradient(135deg,var(--hmp) 0 1.5px,var(--hmp-bg) 1.5px 4px);box-shadow:inset 0 0 0 1px var(--hmp)}
+#hoView .mscale{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
+#hoView .mscale i{display:block;height:5px;border:1.5px solid var(--map-label);border-top:0}
+#hoView .finds{margin-top:var(--s3)}
+#hoView .finds .row{min-height:56px;padding-block:10px}
+#hoView .hail{overflow:hidden}
+#hoView .hmap{position:relative;height:128px;border-bottom:1px solid var(--line);background:var(--map-land)}
+#hoView .hmap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#hoView .hpin{position:absolute;transform:translate(-50%,calc(-100% - 12px));display:flex;align-items:center;gap:5px;height:26px;padding:0 10px 0 7px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;white-space:nowrap;box-shadow:var(--e2)}
+#hoView .hpin .i{width:14px;height:14px}
+#hoView .hpin::after{content:"";position:absolute;left:50%;bottom:-4px;width:8px;height:8px;background:var(--ink);transform:translateX(-50%) rotate(45deg);border-radius:1.5px;z-index:-1}
+#hoView .hmap .chip{position:absolute;left:8px;bottom:8px;box-shadow:var(--e2)}
+#hoView .hbody{padding:var(--s4);display:grid;gap:var(--s3)}
+#hoView .hfig{display:flex;align-items:center;gap:var(--s4)}
+#hoView .hfig>b{font-size:52px;font-weight:600;letter-spacing:-.045em;line-height:.9;font-variant-numeric:tabular-nums}
+#hoView .hfig>b small{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:500;margin-left:2px}
+#hoView .hfig div{display:grid;gap:2px}
+#hoView .hfig strong{font-size:var(--t-body);font-weight:600}
+#hoView .hfig span{font-size:var(--t-cap);color:var(--muted)}
+#hoView .note{display:flex;gap:var(--s2);align-items:flex-start;font-size:var(--t-cap);color:var(--ink-2)}
+#hoView .note .i{width:16px;height:16px;color:var(--muted);margin-top:1px}
+#hoView .src{font-size:12px;color:var(--muted)}
+/* 2 · photos */
+#hoView .photo{position:relative;margin:0;border-radius:var(--r-lg);overflow:hidden;background:var(--stage)}
+#hoView .pbox{position:relative}
+#hoView .pbox img{display:block;width:100%;height:auto;min-height:180px;max-height:62vh;object-fit:contain;background:var(--stage)}
+#hoView .pbox.gone img{visibility:hidden}
+#hoView .hmks{position:absolute;inset:0;pointer-events:none}
+#hoView .hmk{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1/1}
+#hoView .hmk svg{display:block;width:100%;height:100%}
+#hoView .pover{position:absolute;display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:var(--r-pill);background:var(--photo-scrim);color:var(--on-photo);font-size:12px;font-weight:500;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#hoView .pover.count{left:10px;top:10px;font-variant-numeric:tabular-nums}
+#hoView .pover.tag{left:10px;bottom:10px;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hoView .pover.hits{right:10px;top:10px;background:var(--hmp);color:var(--on-hmp);font-weight:600;backdrop-filter:none}
+#hoView .pnav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:var(--card);color:var(--ink);box-shadow:var(--e2);display:grid;place-items:center}
+#hoView .pnav.prev{left:10px}#hoView .pnav.next{right:10px}
+#hoView .hstrip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s2);margin-top:var(--s3)}
+#hoView .hstrip button{position:relative;aspect-ratio:4/3;min-height:44px;border-radius:var(--r-sm);overflow:hidden;box-shadow:0 0 0 1px var(--line);background:var(--soft)}
+#hoView .hstrip img{display:block;width:100%;height:100%;object-fit:cover}
+#hoView .hstrip b{position:absolute;left:4px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--photo-scrim);color:var(--on-photo);font-size:10.5px;font-weight:600;display:grid;place-items:center}
+#hoView .hstrip [aria-current="true"]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+#hoView .hstrip [aria-current="true"] b{background:var(--hmp);color:var(--on-hmp)}
+#hoView .capcard{display:grid;grid-template-columns:112px minmax(0,1fr);gap:var(--s4);padding:var(--s3);margin-top:var(--s3);align-items:center}
+#hoView .capcard:has(> .ctext:only-child){grid-template-columns:1fr}
+#hoView .loc{position:relative;height:84px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+#hoView .loc svg{width:100%;height:100%;display:block}
+#hoView .ctext{display:grid;gap:4px;min-width:0}
+#hoView .ctext .tt{display:flex;align-items:center;gap:var(--s2)}
+#hoView .ctext b{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.2}
+#hoView .ctext p{font-size:var(--t-body);color:var(--ink-2)}
+#hoView .plain .row{align-items:flex-start;min-height:0;padding-block:14px}
+#hoView .plain .pins{display:flex;gap:3px;padding-top:1px;flex:none;min-width:47px}
+#hoView .plain p{font-size:var(--t-body);color:var(--ink);flex:1}
+#hoView .ins{display:grid;grid-template-columns:auto 1fr;gap:var(--s3);padding:var(--s4)}
+#hoView .ins b{display:block;font-size:var(--t-row);font-weight:600;line-height:1.25;letter-spacing:-.01em}
+#hoView .ins p{font-size:var(--t-body);color:var(--ink-2);margin-top:4px}
+/* 3 · options */
+#hoView .cmp{overflow:hidden}
+#hoView .tiers{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));grid-template-rows:auto auto auto auto auto}
+#hoView .tier{grid-row:span 5;display:grid;grid-template-rows:subgrid;gap:4px;padding:var(--s3) var(--s2) var(--s4);text-align:center;justify-items:center;align-content:start;color:var(--ink);min-width:0}
+#hoView .tier+.tier{border-left:1px solid var(--line)}
+#hoView .tier.rec{background:var(--hmp-bg);box-shadow:inset 0 3px 0 var(--hmp)}
+#hoView .tier .chip{height:22px;font-size:11.5px;visibility:hidden}
+#hoView .tier.rec .chip,#hoView .tier[aria-pressed="true"] .chip{visibility:visible}
+#hoView .tier[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+#hoView .tier .tm{font-size:var(--t-body);font-weight:600;line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
+#hoView .tier .tr{font-size:12px;color:var(--muted);line-height:1.3;text-wrap:balance}
+#hoView .tier .tp{display:grid;margin-top:var(--s2);font-size:var(--t-row);font-weight:600;letter-spacing:-.02em;line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+#hoView .corner{display:none}
+#hoView .band{display:flex;align-items:center;gap:var(--s2);padding:10px var(--s3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft);font-size:var(--t-cap);color:var(--ink-2);margin:0}
+#hoView .band .i{width:16px;height:16px;color:var(--muted)}
+#hoView .band b{font-weight:600;color:var(--ink)}
+#hoView .frow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+#hoView .frow+.frow{border-top:1px solid var(--line)}
+#hoView .flabel{grid-column:1/-1;padding:8px var(--s3) 0;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+#hoView .cell{display:grid;place-items:center;min-height:38px;padding:4px 6px 8px;text-align:center;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+#hoView .cell+.cell{border-left:1px solid var(--line)}
+#hoView .cell.rec{background:var(--hmp-bg)}
+#hoView .cell .i{width:20px;height:20px;color:var(--ink);stroke-width:2.1}
+#hoView .cell .no{width:12px;height:2px;border-radius:1px;background:var(--line-2)}
+#hoView .meta{margin-top:var(--s3)}
+#hoView .meta .row{min-height:60px}
+#hoView .meta .row .t b{white-space:normal}
+#hoView .sw{display:flex;gap:2px;flex:none}
+#hoView .sw i{width:10px;height:28px;border-radius:3px;box-shadow:inset 0 0 0 1px var(--line-2)}
+/* 4 · next steps */
+#hoView .tl{list-style:none;margin:0;padding:0;display:grid}
+#hoView .tl li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:var(--s3);padding-bottom:var(--s5)}
+#hoView .tl li:not(:last-child)::before{content:"";position:absolute;left:13.25px;top:30px;bottom:2px;width:1.5px;background:var(--line-2)}
+#hoView .tl .node{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line-2);background:var(--card);display:grid;place-items:center;font-size:var(--t-cap);font-weight:600;font-variant-numeric:tabular-nums}
+#hoView .tl li.now .node{background:var(--hmp);border-color:var(--hmp);color:var(--on-hmp)}
+#hoView .tl .tt{display:flex;align-items:center;gap:var(--s2);min-height:28px;flex-wrap:wrap}
+#hoView .tl b{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.25}
+#hoView .tl p{font-size:var(--t-body);color:var(--ink-2);margin-top:2px}
+#hoView .cancel{margin-top:var(--s3);padding:var(--s3) var(--s4);border-radius:var(--r-md);background:var(--card);border:1px solid var(--line-2);display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s3)}
+#hoView .cancel .tile{width:32px;height:32px}
+#hoView .cancel b{font-size:var(--t-body)}
+#hoView .cancel p{font-size:var(--t-cap);color:var(--ink-2);margin-top:4px}
+#hoView .cancel p.how{color:var(--muted)}
+#hoView .contact{padding:var(--s4) var(--s4) var(--s2)}
+#hoView .contact h3{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;margin-bottom:var(--s1)}
+#hoView .crow{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0}
+#hoView .crow+.crow{border-top:1px solid var(--line)}
+#hoView .crow div{flex:1;display:grid;min-width:0}
+#hoView .crow span{font-size:var(--t-cap);color:var(--muted)}
+#hoView .crow b{font-size:var(--t-addr);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+#hoView .round{width:44px;height:44px;color:var(--ink)}
+#hoView .keep{display:flex;gap:var(--s3);align-items:center;padding:var(--s4);margin-top:var(--s3)}
+#hoView .keep b{display:block;font-size:var(--t-body);font-weight:600}
+#hoView .keep span{font-size:var(--t-cap);color:var(--muted)}
+#hoView .hlegal{margin-top:var(--s4);font-size:12px;color:var(--muted);line-height:1.6}
+#hoView .hlegal .blank{display:inline-block;width:92px;border-bottom:1px solid var(--muted);transform:translateY(-3px)}
+/* bottom bar */
+#hoView .hbar{position:sticky;bottom:0;flex:none;display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom,0px));background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:2}
+#hoView .hbar .back{width:var(--hit);padding:0}
+#hoView .hbar .back span{display:none}
+#hoView .hbar .nextb{flex:1;min-width:0}
+#hoView .dots{display:flex;gap:6px;flex:1;justify-content:center}
+#hoView .dots i{width:28px;height:4px;border-radius:2px;background:var(--line-2)}
+#hoView .dots i.done{background:var(--ink)}#hoView .dots i.on{background:var(--hmp)}
+/* the salesman's check before he leaves the table */
+#hoView .hexit{position:fixed;inset:0;z-index:5}
+#hoView .xsheet{position:absolute;left:0;right:0;bottom:0;margin-inline:auto;max-width:640px;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e2);padding:0 var(--s4) calc(var(--s6) + env(safe-area-inset-bottom,0px))}
+#hoView .xsheet header{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s4) 0 var(--s3)}
+#hoView .xsheet header div{flex:1}
+#hoView .xsheet h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em}
+#hoView .xsheet .rows{margin-bottom:var(--s4)}
+#hoView .xbox{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line-2);flex:none;display:grid;place-items:center}
+#hoView .xbox.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+#hoView .xbox .i{width:16px;height:16px;stroke-width:2.2}
+#hoView .xsheet .row{align-items:flex-start;padding-block:14px}
+#hoView .xsheet .row .t b,#hoView .xsheet .row .t span{white-space:normal}
+/* tablet (landscape, shown to the family) */
+@container ho (min-width:900px){
+  #hoView .htop{min-height:72px;padding-inline:var(--s8);gap:var(--s4);border-bottom:1px solid var(--line);background:var(--card)}
+  #hoView .htop .hsteps{width:460px}
+  #hoView .hmain{max-width:none;padding:var(--s5) var(--s8)}
+  #hoView .chead{margin:0 0 var(--s3)}
+  #hoView .ch{display:grid;grid-template-columns:minmax(0,1fr) 392px;gap:var(--s6);align-items:start}
+  #hoView .ch1 .dmap{height:560px}
+  #hoView .ch1 .finds{margin-top:0}
+  #hoView .ch3{display:block}
+  #hoView .ch3 .tiers{grid-template-columns:260px repeat(var(--n),minmax(0,1fr))}
+  #hoView .corner{display:flex;flex-direction:column;justify-content:space-between;grid-row:span 5;padding:var(--s1) var(--s4) var(--s4) var(--s5);gap:var(--s3)}
+  #hoView .corner h2{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.12}
+  #hoView .ch3 .tier .tp{font-size:var(--t-addr)}
+  #hoView .ch3 .frow{grid-template-columns:260px repeat(var(--n),minmax(0,1fr))}
+  #hoView .ch3 .flabel{grid-column:auto;padding:0 var(--s4) 0 var(--s5);display:flex;align-items:center;font-size:var(--t-cap)}
+  #hoView .ch3 .cell:nth-child(2){border-left:1px solid var(--line)}
+  #hoView .ch3 .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);background:none;border:0;box-shadow:none}
+  #hoView .ch3 .meta .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+  #hoView .hbar{padding-inline:var(--s8);gap:var(--s4)}
+  #hoView .hbar .back{width:auto;padding:0 var(--s5)}
+  #hoView .hbar .back span{display:inline}
+  #hoView .hbar .nextb{flex:none;min-width:280px}
+  #hoView .xsheet{left:50%;right:auto;bottom:50%;width:520px;transform:translate(-50%,50%);border-radius:var(--r-xl);padding-top:var(--s2)}
+  #hoView .xsheet .grab{display:none}
 }
-@media (prefers-reduced-motion:reduce){#hoView{scroll-behavior:auto}}
 </style>
 
 <div class="app" id="app">
@@ -1064,19 +1091,7 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
   </aside>
 </div>
 <div class="app-toast" id="appToast" role="status" hidden></div>
-<div id="hoView" role="dialog" aria-modal="true" aria-labelledby="hoAddr" lang="en" hidden>
-  <header class="ho-head"><div class="ho-in">
-    <div class="ho-row">
-      <span class="ho-logo" role="img" aria-label="HMP Siding &amp; Roofing LLC"><svg viewBox="0 0 74 12" aria-hidden="true"><path d="M3 11 L37 2.5 L71 11" fill="none" stroke="#f5883a" stroke-width="3.4" stroke-linejoin="miter" stroke-linecap="square"/></svg><b>H.M.P</b><small>SIDING &amp; ROOFING LLC</small></span>
-      <button type="button" class="ho-ic" id="hoRep" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg><span class="sr" id="hoRepL">Rep tools</span></button>
-      <div class="ho-langs" role="group" aria-label="Language / Idioma"><button type="button" data-hol="en" aria-pressed="true" lang="en">EN</button><button type="button" data-hol="es" aria-pressed="false" lang="es">ES</button></div>
-      <button type="button" class="ho-ic" id="hoClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="sr" id="hoCloseL">Close</span></button>
-    </div>
-    <div class="ho-who"><span class="ho-chip" id="hoChip"></span><b id="hoAddr"></b><span id="hoFor"></span></div>
-  </div></header>
-  <nav class="ho-steps" id="hoSteps"></nav>
-  <main class="ho-wrap" id="hoBody"></main>
-</div>
+<div id="hoView" class="ho" role="dialog" aria-modal="true" aria-label="Homeowner view" lang="en" hidden></div>
 <div id="psView" role="dialog" aria-modal="true" aria-labelledby="psName" hidden>
 <div class="ws-bar"><button type="button" class="ws-back" id="psBack">Back to the app</button><div class="ws-name" id="psName">HMP <span>&middot;</span> Walk sheet</div>
 <div class="ws-seg" role="group" aria-label="Language / Idioma"><button type="button" data-psl="en" aria-pressed="true">EN</button><button type="button" data-psl="es" aria-pressed="false">ES</button></div>
@@ -1097,6 +1112,7 @@ const SETTINGS = Object.freeze({
   },
   colors: {accent: '#f5883a', charcoal: '#404145'},   // brand; the screen look itself lives in the CSS tokens (:root)
   home: {lat: 41.4333, lon: -96.4981, label: 'Fremont'},   // where "near me" starts when the phone can't share its location
+  homeowner: {offersClass4: false, workmanshipYears: null},   // v25 homeowner view (hub D14, D15): both OFF until the boss confirms; db system/homeowner overrides
   radiusMi: 120,                                            // hot zones farther than this are listed last
   prices: {doc: 'system/prices', fallback: 'prices_reference', label: {en: 'Estimate range, not final', es: 'Rango estimado, no final'}},
   links: {practiceDoor: 'https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B', review: ''},   // review: HMP's Google review link once it exists (T121)
@@ -4303,16 +4319,90 @@ function hoLeadBox(l){
     ${sum}${sum ? `<h3 style="font-size:16px">${esc(R.sendH)}</h3>${hoSendBlock(l, p, ml, 'sheet')}` : ''}</section>`;
 }
 
-function makeHO(){   // v23: built the first time the homeowner screen opens
+/* ================= v25 homeowner view (docs/design/v25-polish/homeowner.html, design-system.md §7): what the salesman hands
+   the family at the kitchen table. Four chapters in a .seg stepper: Your home (damage map + spots + hail) -> Photos (the
+   photo, thumbnails, where it is on the house, plain words, "their insurer decides") -> Options (Good / Better / Best,
+   picked per job) -> Next steps (timeline, 3-day cancel on the contract step, EN + ES, phone numbers, yours to keep).
+   One orange button per chapter. No tab bar, zones, scores or scripts. Phone and tablet from one page (container query
+   at 900 px). The rep tools (circle spots, pick the job and the recommended option, send the report) stay behind one
+   button, off by default. Settings the boss still has to confirm (hub D14, D15), both OFF by default: offersClass4,
+   workmanshipYears (SETTINGS.homeowner, overridden by db system/homeowner when Claude writes it).
+   Legal: never "insurance will pay", no deductible words here (the 44-8607 notice lives in the contract), 3-day cancel
+   with the insurance-denial extension in EN and ES, "registered" never "licensed", registration # a blank line. ================= */
+let hoSetDoc = null;
+const hoSettings = () => { const d = hoSetDoc && typeof hoSetDoc === 'object' ? hoSetDoc : {}, base = SETTINGS.homeowner || {};
+  const wy = numv(d.workmanshipYears != null ? d.workmanshipYears : base.workmanshipYears);
+  return {offersClass4: (d.offersClass4 != null ? d.offersClass4 : base.offersClass4) === true, workmanshipYears: wy && wy > 0 && wy < 100 ? Math.round(wy) : null}; };
+const HOV = {
+  en: {report: 'Inspection report', steps: ['Your home', 'Photos', 'Options', 'Next steps'], stepsAria: 'Sections',
+    titles: [n => n ? `${n} ${pl(n, 'spot', 'spots')} we found` : 'Your home', () => 'What we saw up close', n => `${n === 2 ? 2 : 3} ways to fix it`, () => 'What happens next'],
+    next: ['Next: Photos', 'Next: Options', 'Next: What happens next', 'Done'], back: 'Back', by: n => `${n}, ${SETTINGS.company.name}`,
+    mapKey: 'Damage we found', mapNote: 'Pins show the kind of spot, not a measured place.', mapAria: n => `Map of your home from above with ${n} numbered ${pl(n, 'spot', 'spots')}.`,
+    spots: n => `${n} ${pl(n, 'spot', 'spots')} circled`, photoN: (i, n) => `Photo ${i} of ${n}`, prev: 'Previous photo', nextP: 'Next photo',
+    hailAt: 'hail at your address', hailArea: d => `Hail area${d ? ' · ' + d : ''}`, yourHome: 'Your home', like: n => `About the size of a ${n}.`,
+    src: 'Radar estimate, NOAA MRMS, checked by HMP Storm Watch.', caveat: 'Weather data, not proof of damage. The photos show what we found.',
+    plainH: 'In plain words', plain: {slope: 'Shingles that lost their granules wear out faster in the sun and, over time, can let water in.', wall: 'Water can get behind a cracked or holed siding panel and into the wall.',
+      dent: 'Round dents in vents and gutters show how hard the hail hit. They usually still work.', square: 'We count the hits inside a 10 × 10 ft square so everyone sees the same number.'},
+    insH: 'Your insurance company decides what your policy covers.', insP: 'If you choose to file a claim, you file it. We can be there when the adjuster visits, to show what we found.',
+    scope: {siding: 'Siding', roof: 'Roof', both: 'Roof + siding'}, rec: 'Recommended', names: {good: 'Good', better: 'Better', best: 'Best'},
+    band: ['Estimate ranges, not final prices.', ' Your exact price comes after we measure.'], yes: 'Included', no: 'Not included',
+    tier: {siding: {good: 'Vinyl siding', better: 'Insulated vinyl', best: 'James Hardie fiber cement'}, roof: {good: 'Architectural shingles', better: 'Architectural + ice & water shield', best4: 'Class 4 impact-rated shingles', bestP: 'Premium architectural shingles'}},
+    feats: {tear: 'Tear-off, haul-away, daily cleanup', wrap: 'New house wrap and new trim', foam: 'Stiffer, foam-backed panels', fiber: 'Fiber cement', ice: 'Ice & water shield at eaves and valleys', ridge: 'Ridge vent along the peak', bake: 'Factory-baked color finish', ul: 'Shingles tested for hail impact (UL 2218 Class 4)'},
+    timeT: 'Roof 1–2 days, siding 3–5 days', timeS: 'Time on site for a typical house', warrM: 'Manufacturer warranty', warrMS: 'From the product maker, in writing',
+    warrW: 'Manufacturer + HMP workmanship warranty', warrWS: y => `HMP workmanship: ${y} years, written in your contract`, colors: 'Try colors on a house like yours', colorsS: 'James Hardie Designer · opens their site',
+    noOptH: 'Your options come after we measure', noOptP: 'We measure every wall and roof slope, then show you the choices here.', prepH: 'Your options are being prepared', prepP: 'We will show them to you in a moment.',
+    noPhH: 'Photos come after the inspection', noPhP: 'We photograph every side of the house, the roof and the metal parts, then go over them with you here.',
+    tl: [['We measure', 'Every wall and roof slope, about 1 hour. Then your exact price, in writing.', 'Next'], ['Adjuster visit, if you file', 'You file with your insurer. We can be there to show what we found.'],
+      ['Written contract', 'Price, materials, colors and warranty, all in writing. Never a handshake.'], ['Pick your start date', 'We call the day before to confirm.'], ['Build, then a final walk', 'Daily cleanup and a magnet sweep for nails. At the end we walk the job with you.']],
+    cancelT: 'Your 3-day right to cancel', cancelP: 'You can cancel with no penalty until midnight of the third business day after you sign. On an insurance job, also until the third business day after your insurer tells you in writing that all or part of the claim is not covered, if that is later.',
+    cancelHow: 'We explain it out loud and leave you 2 copies of the cancel form, in English and Spanish.', ask: 'Questions? Call us', langK: 'English', langA: 'Español', call: n => `Call ${n}`,
+    keepT: 'Yours to keep', keepS: 'Our printed sheet with our numbers, in English and Spanish.',
+    legal: `${SETTINGS.company.legal} · ${SETTINGS.company.city}, ${SETTINGS.company.state} · Registered ${SETTINGS.company.stateName} contractor #`, close: 'Leave homeowner view'},
+  es: {report: 'Informe de inspección', steps: ['Su casa', 'Fotos', 'Opciones', 'Qué sigue'], stepsAria: 'Secciones',
+    titles: [n => n ? `Encontramos ${n} ${pl(n, 'punto', 'puntos')} con daño` : 'Su casa', () => 'Lo que vimos de cerca', n => `${n === 2 ? 2 : 3} maneras de arreglarlo`, () => 'Qué sigue'],
+    next: ['Sigue: Fotos', 'Sigue: Opciones', 'Sigue: Qué sigue', 'Listo'], back: 'Atrás', by: n => `${n}, ${SETTINGS.company.name}`,
+    mapKey: 'Daño encontrado', mapNote: 'Los puntos muestran el tipo de daño, no un lugar medido.', mapAria: n => `Mapa de su casa vista desde arriba con ${n} ${pl(n, 'punto', 'puntos')}.`,
+    spots: n => `${n} ${pl(n, 'punto marcado', 'puntos marcados')}`, photoN: (i, n) => `Foto ${i} de ${n}`, prev: 'Foto anterior', nextP: 'Foto siguiente',
+    hailAt: 'de granizo en su dirección', hailArea: d => `Zona de granizo${d ? ' · ' + d : ''}`, yourHome: 'Su casa', like: n => `Del tamaño de ${n}, más o menos.`,
+    src: 'Estimado por radar, NOAA MRMS, revisado por HMP Storm Watch.', caveat: 'Datos del clima, no prueba de daño. Las fotos muestran lo que encontramos.',
+    plainH: 'En palabras simples', plain: {slope: 'Las tejas sin granulado se gastan más rápido con el sol y, con el tiempo, pueden dejar pasar el agua.', wall: 'El agua puede meterse detrás de un panel roto o con agujero y llegar a la pared.',
+      dent: 'Las abolladuras redondas en ventilas y canaletas muestran qué tan fuerte pegó el granizo. Casi siempre siguen funcionando.', square: 'Contamos los golpes dentro de un cuadro de 10 × 10 pies para que todos vean el mismo número.'},
+    insH: 'Su aseguradora decide qué cubre su póliza.', insP: 'Si decide presentar un reclamo, usted lo presenta. Podemos estar cuando venga el ajustador, para mostrarle lo que encontramos.',
+    scope: {siding: 'Revestimiento', roof: 'Techo', both: 'Techo + revestimiento'}, rec: 'Recomendada', names: {good: 'Buena', better: 'Mejor', best: 'Superior'},
+    band: ['Rangos estimados, no son precios finales.', ' El precio exacto se da después de medir.'], yes: 'Incluido', no: 'No incluido',
+    tier: {siding: {good: 'Vinil', better: 'Vinil con aislante', best: 'Fibrocemento James Hardie'}, roof: {good: 'Tejas arquitectónicas', better: 'Arquitectónicas + protección hielo y agua', best4: 'Tejas Clase 4, resistentes a impacto', bestP: 'Tejas arquitectónicas premium'}},
+    feats: {tear: 'Quitar lo viejo, llevárnoslo, limpieza diaria', wrap: 'Barrera nueva (house wrap) y molduras nuevas', foam: 'Paneles más firmes, con espuma', fiber: 'Fibrocemento', ice: 'Protección contra hielo y agua en aleros y valles', ridge: 'Ventila de cumbrera en lo alto del techo', bake: 'Color horneado de fábrica', ul: 'Tejas probadas contra granizo (UL 2218 Clase 4)'},
+    timeT: 'Techo 1–2 días, revestimiento 3–5 días', timeS: 'Tiempo de obra en una casa típica', warrM: 'Garantía del fabricante', warrMS: 'Del fabricante del producto, por escrito',
+    warrW: 'Garantía del fabricante + mano de obra de HMP', warrWS: y => `Mano de obra de HMP: ${y} años, por escrito en su contrato`, colors: 'Pruebe colores en una casa como la suya', colorsS: 'James Hardie Designer · abre su página',
+    noOptH: 'Sus opciones vienen después de medir', noOptP: 'Medimos cada pared y cada lado del techo, y luego le enseñamos las opciones aquí.', prepH: 'Estamos preparando sus opciones', prepP: 'Se las enseñamos en un momento.',
+    noPhH: 'Las fotos vienen después de la inspección', noPhP: 'Tomamos fotos de cada lado de la casa, del techo y de las partes de metal, y luego las revisamos con usted aquí.',
+    tl: [['Medimos', 'Cada pared y cada lado del techo, como 1 hora. Luego su precio exacto, por escrito.', 'Sigue'], ['Visita del ajustador, si presenta reclamo', 'Usted presenta el reclamo con su aseguradora. Podemos estar para mostrar lo que encontramos.'],
+      ['Contrato por escrito', 'Precio, materiales, colores y garantía, todo por escrito. Nunca de palabra.'], ['Escoja la fecha de inicio', 'Le llamamos un día antes para confirmar.'], ['La obra y una revisión final', 'Limpieza diaria e imán para los clavos. Al final revisamos el trabajo con usted.']],
+    cancelT: 'Su derecho a cancelar en 3 días', cancelP: 'Puede cancelar sin penalidad hasta la medianoche del tercer día hábil después de firmar. En un trabajo con seguro, también hasta el tercer día hábil después de que su aseguradora le avise por escrito que todo o parte del reclamo no está cubierto, si eso es más tarde.',
+    cancelHow: 'Se lo explicamos en persona y le dejamos 2 copias del formulario de cancelación, en inglés y español.', ask: '¿Preguntas? Llámenos', langK: 'Inglés', langA: 'Español', call: n => `Llamar a ${n}`,
+    keepT: 'Para usted', keepS: 'Nuestra hoja impresa con nuestros números, en inglés y español.',
+    legal: `${SETTINGS.company.legal} · ${SETTINGS.company.city}, ${SETTINGS.company.state} · Contratista registrado en ${SETTINGS.company.stateName} #`, close: 'Salir de la vista del cliente'}
+};
+// the salesman's check before he leaves the table: the APP's language
+const HOEXIT = {en: {t: 'Before you leave', done: 'Leave homeowner view', tools: 'Rep tools', toolsOff: 'Hide rep tools', items: [['Hand over the capabilities sheet', 'Printed, English and Spanish. The phone screen stays with you.'], ['Signed today? Read the 3-day cancel out loud', 'Leave 2 cancel forms, English and Spanish.'], ['Log the visit', 'Tell the Right Hand: “showed 3 options, measure Tuesday”.']], close: 'Close'},
+  es: {t: 'Antes de irse', done: 'Salir de la vista del cliente', tools: 'Herramientas del vendedor', toolsOff: 'Ocultar herramientas', items: [['Entregue la hoja de servicios', 'Impresa, en inglés y español. La pantalla se va con usted.'], ['¿Firmó hoy? Lea en voz alta la cancelación de 3 días', 'Deje 2 formularios de cancelación, en inglés y español.'], ['Anote la visita', 'Dígale a la Mano Derecha: “mostré 3 opciones, medir el martes”.']], close: 'Cerrar'}};
+// where a photo's spot sits on the drawn roof plan, by what the photo shows (u: west -> east, v: back -> front eave)
+const HO_KIND = {roof: 'slope', sqWide: 'square', sqMid: 'square', sqClose: 'square', metals: 'vent', gutters: 'gutter', siding: 'wall', sdCoin: 'wall', sides: 'wall', screens: 'wall', soffit: 'gutter', acFins: 'wall', profile: 'wall', number: 'wall'};
+const HO_AT = {slope: [-.45, -.5], square: [.42, -.55], vent: [.1, .35], gutter: [-.35, 1], wall: [-1, .1]};
+function homeWalk(l){   // the walk doc whose basemap holds this house, and the house's stop (lat/lon)
+  const id = slugOf(l && l.address), docs = [todayWalkDoc, ...Object.values(walksById)].filter(w => w && Array.isArray(w.stops));
+  for (const w of docs) { const s = w.stops.find(x => x && slugOf(x.address) === id && numv(x.lat) != null && numv(x.lon) != null); if (s && w.basemap && Array.isArray(w.basemap.lots)) return {w, home: {lat: numv(s.lat), lon: numv(s.lon)}}; }
+  return null;
+}
+function makeHO(){   // v23: built the first time the homeowner screen opens; v25: the four-chapter "kitchen table" view
   let st = null, lastFrom = null, prevOverflow = '', chain = Promise.resolve(), checked = null, checkFails = [];
   const view = () => $('#hoView');
-  const H = () => HOX[st.lang];
+  const H = () => HOV[st.lang], HX = () => HOX[st.lang];
   const lead = () => (st && st.leadId ? leads.find(x => x.id === st.leadId) || null : null);
-  const canWrite = () => !!(DB && CAN_EDIT && lead());
   const hoLocale = () => (st.lang === 'es' ? 'es-US' : 'en-US');
   const hoDay = (d, o) => { try { return toDate(d).toLocaleDateString(hoLocale(), o || {month: 'short', day: 'numeric', year: 'numeric'}); } catch (e) { return d; } };
 
-  /* ---------- the options: Good / Better / Best from the estimate engine ---------- */
+  /* ---------- the options: Good / Better / Best from the estimate engine (unchanged math since v21) ---------- */
   function rulesProblem(){
     if (prices === undefined) return 'loading';
     if (!prices || typeof prices !== 'object' || !prices.prices) return 'missing';
@@ -4322,7 +4412,8 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
     return checkFails.length ? 'stale' : null;
   }
   const pos = v => { const n = numv(v); return n != null && n > 0 ? n : null; };
-  const class4Rules = () => { const c = prices.prices.class4_roof_sq || prices.prices.impact_roof_sq;   // only when the price sheet carries it
+  const class4Rules = () => { if (!hoSettings().offersClass4) return null;   // v25: only when HMP offers Class 4 (hub D14) AND the price sheet carries it
+    const c = prices.prices.class4_roof_sq || prices.prices.impact_roof_sq;
     return c && numv(c.low) != null && numv(c.high) != null ? Object.assign({}, prices, {prices: Object.assign({}, prices.prices, {shingle_roof_sq: c})}) : null; };
   function model(){
     const out = {problem: null, job: null, avail: {siding: false, roof: false, both: false}, tiers: [], scope: st.scope, notes: [], rough: false, sq: {}, usingRef: false};
@@ -4343,7 +4434,6 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
     if (!scope) { const t = j.type; scope = t === 'mixed' && out.avail.both ? 'both' : t === 'siding' && out.avail.siding ? 'siding' : t === 'roof' && out.avail.roof ? 'roof' : out.avail.roof ? 'roof' : out.avail.siding ? 'siding' : null; }
     out.scope = scope;
     if (!scope) { out.problem = 'nojob'; return out; }
-    // the better roof: ice & water + ridge vent from the quick estimate, else a rough share of the roof size
     const roofSq = goodRoof ? goodRoof.quantities.roof_squares : null;
     let ice = pos(j.ice_water_sq), ridge = pos(j.ridge_vent_ft), own = !!(ice && ridge);
     if (roofSq) {
@@ -4359,7 +4449,7 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
       let r = null;
       if (scope === 'siding') r = run(Object.assign({type: 'siding', material: mats[k]}, sPart, sEx));
       else if (scope === 'roof') r = run(Object.assign({type: 'roof'}, roofJob(k)), k === 'best' ? c4 : null);
-      else {   // both: a mixed job; the best roof is Class 4 only when the sheet has it, else the better roof
+      else {
         const mixed = Object.assign({type: 'mixed', material: mats[k], siding_squares: sq || null, roof_squares: rq || null, footprint_sqft: !sq || !rq ? fp : null}, sEx, roofJob(k === 'best' && !c4 ? 'better' : k));
         r = run(mixed, k === 'best' && c4 ? c4 : null);
       }
@@ -4372,7 +4462,7 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
     return out;
   }
 
-  /* ---------- writes (chained, so an older write can't land after a newer one) ---------- */
+  /* ---------- writes (chained, so an older write can't land after a newer one): lead.photos[i].marks + lead.proposal ---------- */
   function queueWrite(body, what){
     const l = lead(); if (!l) { st.msg = {k: 'noLead', bad: true}; return; }
     if (!(DB && CAN_EDIT)) { st.msg = {k: 'readOnly', bad: true}; return; }
@@ -4397,134 +4487,158 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
     const p = st.prop; queueWrite(() => ({proposal: p}), 'proposal');
   }
 
-  /* ---------- screens ---------- */
-  const yes = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const info = '<svg viewBox="0 0 24 24" fill="none" stroke="#5b5f67" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>';
-  const shield = '<svg viewBox="0 0 24 24" fill="none" stroke="#9c4a16" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round"/></svg>';
-  const phoneI = '<svg viewBox="0 0 24 24" fill="#1f2023" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1z"/></svg>';
-  const seg = (k, items, cur) => `<div class="ho-seg" role="group">${items.map(([v, t, sm, dis]) => `<button type="button" data-k="${k}:${v}" data-hoset="${k}" data-v="${esc(v)}" aria-pressed="${String(cur) === String(v)}"${dis ? ' disabled' : ''}>${esc(t)}${sm ? `<small>${esc(sm)}</small>` : ''}</button>`).join('')}</div>`;
+  /* ---------- pieces ---------- */
+  const pnum = (n, c) => `<span class="pnum ${c || ''}">${n}</span>`;
+  const segH = (k, items, cur) => `<div class="seg" role="group">${items.map(([v, t, dis]) => `<button type="button" data-hoset="${k}" data-v="${esc(v)}" aria-pressed="${String(cur) === String(v)}"${dis ? ' disabled' : ''}>${esc(t)}</button>`).join('')}</div>`;
   function repPanel(inner){
     if (!st.rep) return '';
-    const R = HR(), m = st.msg, msg = m ? `<p class="ho-status${m.bad ? ' bad' : ''}" role="status">${esc(R[m.k] || '')}</p>` : '';
-    return `<section class="ho-rep" lang="${lang}" aria-label="${esc(R.panel)}"><h2>${esc(R.panel)}<small>${esc(R.panelS)}</small></h2>${inner}${msg}</section>`;
+    const R = HR(), m = st.msg, msg = m ? `<p class="stamp${m.bad ? ' bad' : ''}" role="status">${esc(R[m.k] || '')}</p>` : '';
+    return `<section class="card reppanel" lang="${lang}" aria-label="${esc(R.panel)}"><span class="label">${esc(R.panel)}</span><p class="stamp">${esc(R.panelS)}</p>${inner}${msg}</section>`;
   }
   function shownPhotos(l){
     const order = s => { const i = SLOTS.indexOf(s); return i < 0 ? 99 : i; };
     return photosOf(l).filter(p => p.slot !== 'after' && p.slot !== 'contract').map((p, i) => ({p, i})).sort((a, b) => order(a.p.slot) - order(b.p.slot) || a.i - b.i).map(x => x.p);
   }
-  function markHtml(m){
-    const d = (m.r * 200).toFixed(2);
-    return `<span class="ho-mk" data-mk="${m.n}" style="left:${(m.x * 100).toFixed(2)}%;top:${(m.y * 100).toFixed(2)}%;width:${d}%"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#fff" stroke-width="7" opacity=".92"/><circle cx="50" cy="50" r="46" fill="none" stroke="#f5883a" stroke-width="4"/></svg><b>${m.n}</b></span>`;
+  function finds(l){   // each shown photo is one finding, placed on the roof plan by what it shows
+    const used = {};
+    return (l ? shownPhotos(l) : []).map((p, i) => { const w = p.where && typeof p.where === 'object' ? p.where : null;
+      const kind = w && HO_AT[w.kind] ? w.kind : HO_KIND[p.slot] || 'wall'; const k = used[kind] = (used[kind] || 0) + 1, base = HO_AT[kind];
+      const at = w && Array.isArray(w.at) && w.at.length === 2 ? w.at.map(Number) : [clamp(base[0] + (k - 1) * (kind === 'wall' ? 0 : .32), -1, 1), clamp(base[1] + (kind === 'wall' ? (k - 1) * .35 : 0), -1, 1)];
+      return {n: i + 1, kind, at, p}; });
   }
-  function hailCard(l){
+  const markHtml = m => { const d = (m.r * 200).toFixed(2); return `<span class="hmk" style="left:${(m.x * 100).toFixed(2)}%;top:${(m.y * 100).toFixed(2)}%;width:${d}%"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--on-photo)" stroke-width="8" opacity=".9"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--hmp)" stroke-width="4.5"/></svg></span>`; };
+  const slotName = p => (HX().slot[p.slot] || HX().slot.other);
+  function hailCard(l, withMap){
     const e = l ? proofFor(l.address, l.city) : null; if (!e) return '';
-    const X = H(), V0 = VX[st.lang], size = numv(e.hail_in), day = dayOf(e.day), nr = e.nearest_report && typeof e.nearest_report === 'object' ? e.nearest_report : {};
-    const nrS = numv(nr.size_in), nrD = numv(nr.dist_mi), radar = numv(e.radar_max_in), src = strv(nr.source).toLowerCase(), srcName = V0.srcName[src] || '';
-    const name = (V0.hail.find(([t]) => size >= t - 0.02) || [0, ''])[1];
-    const S = 40, qd = 0.955 * S, hd = Math.min(size, 4.5) * S, W = 8 + qd + 18 + hd + 8, Ht = Math.max(qd, hd) + 26, base = Ht - 18;
-    const svg = `<svg class="ho-scale" viewBox="0 0 ${W.toFixed(0)} ${Ht.toFixed(0)}" role="img" aria-label="${esc(X.scale)}"><line x1="2" y1="${base}" x2="${(W - 2).toFixed(1)}" y2="${base}" stroke="#cfccc4" stroke-width="1.5"/>
-      <circle cx="${(8 + qd / 2).toFixed(1)}" cy="${(base - qd / 2).toFixed(1)}" r="${(qd / 2).toFixed(1)}" fill="#c9ccd1" stroke="#8d9097" stroke-width="1.5"/>
-      <circle cx="${(8 + qd + 18 + hd / 2).toFixed(1)}" cy="${(base - hd / 2).toFixed(1)}" r="${(hd / 2).toFixed(1)}" fill="#fdf1e7" stroke="#f5883a" stroke-width="2"/>
-      <text x="${(8 + qd / 2).toFixed(1)}" y="${Ht - 4}" text-anchor="middle" fill="#5b5f67" font-size="10" font-family="Montserrat, sans-serif">${esc(X.quarter)}</text></svg>`;
-    const facts = [day ? [X.dateL, hoDay(day, {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}), ''] : null,
-      nrS != null && nrD != null ? [X.nearL, X.near(fmtIn(nrS), fmtIn(nrD)), srcName] : radar != null ? [X.radarL, `${fmtIn(radar)} ${X.unit}`, ''] : null].filter(Boolean);
-    return `<div class="ho-card ho-hail"><div class="ho-lbl">${esc(X.hailT)}</div>
-      <div class="ho-cols"><div><div class="ho-big">${esc(fmtIn(size))}<small>${esc(X.unit)}</small></div><div class="ho-like">${esc(X.hailL)}${name ? ', ' + esc(X.like(name)) : ''}</div></div>${svg}</div>
-      ${facts.length ? `<div class="ho-facts">${facts.map(([k, v, s]) => `<div><em>${esc(k)}</em><b>${esc(v)}</b>${s ? `<em>${esc(s)}</em>` : ''}</div>`).join('')}</div>` : ''}
-      <p class="ho-src">${esc(X.src)}</p><div class="ho-caveat">${info}<span>${esc(X.caveat)}</span></div></div>`;
+    const X = H(), V0 = VX[st.lang], size = numv(e.hail_in), day = dayOf(e.day), name = (V0.hail.find(([t]) => size >= t - 0.02) || [0, ''])[1];
+    return `<div class="card hail sect">${withMap ? `<div class="hmap"><svg id="hoHail"></svg><span class="hpin" id="hoHailPin" hidden>${ic('home')}${esc(X.yourHome)}</span><span class="chip hmp">${ic('hail')}${esc(X.hailArea(day ? hoDay(day, {month: 'short', day: 'numeric'}) : ''))}</span></div>` : ''}
+      <div class="hbody"><div class="hfig"><b>${esc((Math.round(size * 10) / 10).toFixed(1))}<small>″</small></b><div><strong>${esc(X.hailAt)}</strong>${day ? `<span>${esc(hoDay(day, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'}))}</span>` : ''}${name ? `<span>${esc(X.like(name))}</span>` : ''}</div></div>
+      <p class="src">${esc(X.src)}</p><p class="note">${ic('info')}<span>${esc(X.caveat)}</span></p></div></div>`;
   }
-  function screen1(){
-    const X = H(), R = HR(), l = lead(), ps = l ? shownPhotos(l) : [];
-    const last = ps.map(p => dayOf(p.at)).filter(Boolean).sort().pop();
-    const parts = [`<h1 id="hoH">${esc(X.s1)}</h1><p class="ho-sub">${esc(X.s1sub)}${last ? ' · ' + esc(X.photosOn(hoDay(last))) : ''}</p>`];
-    if (st.rep && ps.length) parts.push(repPanel(`<p>${esc(R.markHelp)}</p><div class="ho-rrow"><span class="ho-rl">${esc(R.size)}</span>${seg('size', ['s', 'm', 'l'].map(k => [k, R.sizes[k]]), st.size)}</div>`));
-    if (ps.length) parts.push(`<div class="ho-plist">${ps.map((p, i) => { const mk = marksOf(p), title = X.slot[p.slot] || X.slot.other;
-      return `<figure class="ho-pcard" style="margin:0"><div class="ho-ph" data-hoph="${esc(p.id)}"><img src="${esc(blobSrc(p.id))}" alt="${esc(title)}" loading="${i < 2 ? 'eager' : 'lazy'}"><div class="ho-mks">${mk.map(markHtml).join('')}</div><span class="ho-gone">${esc(X.photoGone)}</span></div>
-        <figcaption class="ho-cap"><span class="ho-n">${i + 1}</span><div><b>${esc(title)}</b>${mk.length ? `<span>${esc(X.circled(mk.length))}</span>` : ''}</div>${st.rep && mk.length ? `<button type="button" class="ho-sbtn ho-undo" data-k="undo:${esc(p.id)}" data-houndo="${esc(p.id)}" lang="${lang}">${esc(R.undo)}</button>` : ''}</figcaption></figure>`; }).join('')}</div>`);
-    else parts.push(`<div class="ho-empty"><b>${esc(X.noPhotosH)}</b><p>${esc(X.noPhotosP)}</p></div>`);
-    const hail = hailCard(l), ins = !l || leadKind(l) === 'insurance' || hail ? `<div class="ho-card ho-ins"><b>${esc(X.insH)}</b><p>${esc(X.insP)}</p></div>` : '';
-    if (hail || ins) parts.push(`<div class="ho-two">${hail}${ins}</div>`);
-    return parts.join('');
+  const insCard = () => { const X = H(); return `<div class="card ins"><span class="tile">${ic('info')}</span><div><b>${esc(X.insH)}</b><p>${esc(X.insP)}</p></div></div>`; };
+
+  /* ---------- 1 · your home ---------- */
+  function ch1(){
+    const X = H(), l = lead(), fs = finds(l), hw = l ? homeWalk(l) : null, hail = hailCard(l, !!(hw && zonesAll().length));
+    const map = hw && fs.length ? `<div class="dmap" role="img" aria-label="${esc(X.mapAria(fs.length))}"><svg id="hoMap"></svg>
+        <span class="compass" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 15.6 12H8.4z" fill="var(--hmp)" stroke="var(--hmp)"/><text x="12" y="20.6" text-anchor="middle" style="font:600 8.5px var(--f);fill:currentColor;stroke:none">N</text></svg></span>
+        <span class="mkey"><i></i>${esc(X.mapKey)}</span><span class="mscale" id="hoScale"><span>20 ft</span><i></i></span></div><p class="stamp" style="margin-top:6px">${esc(X.mapNote)}</p>` : '';
+    const list = fs.length ? `<div class="rows finds">${fs.map((f, i) => { const mk = marksOf(f.p); return `<button type="button" class="row" data-hof="${i}">${pnum(f.n)}<span class="t"><b>${esc(slotName(f.p))}</b><span>${esc(mk.length ? X.spots(mk.length) : hoDay(dayOf(f.p.at) || todayStr(), {month: 'short', day: 'numeric'}))}</span></span><span class="end">${ic('chev')}</span></button>`; }).join('')}</div>`
+      : `<div class="card nophotos"><b>${esc(X.noPhH)}</b><p>${esc(X.noPhP)}</p></div>`;
+    return `<section class="ch ch1"><div><div class="chead only-phone"><h2 id="hoH">${esc(X.titles[0](fs.length))}</h2></div>${map}</div>
+      <div><div class="chead only-tab"><h2>${esc(X.titles[0](fs.length))}</h2></div>${list}${hail}${!hail && (!l || leadKind(l) === 'insurance') ? `<div class="sect">${insCard()}</div>` : ''}</div></section>`;
   }
-  function screen2(){
-    const X = H(), R = HR(), m = model(), l = lead(), L2 = st.lang;
-    const parts = [`<h1 id="hoH">${esc(X.s2)}</h1>`];
-    // rep tools first: pick the job, the recommended option, see the sizes behind the numbers
+  /* ---------- 2 · photos ---------- */
+  function ch2(){
+    const X = H(), R = HR(), l = lead(), fs = finds(l);
+    if (!fs.length) return `<section class="ch ch2"><div><div class="chead"><h2 id="hoH">${esc(X.titles[1]())}</h2></div><div class="card nophotos"><b>${esc(X.noPhH)}</b><p>${esc(X.noPhP)}</p></div></div><div>${!l || leadKind(l) === 'insurance' ? insCard() : ''}</div></section>`;
+    st.f = clamp(st.f || 0, 0, fs.length - 1);
+    const f = fs[st.f], mk = marksOf(f.p), kinds = [...new Set(fs.map(x => x.kind))];
+    const plain = [['slope', fs.filter(x => x.kind === 'slope' || x.kind === 'square').map(x => x.n)], ['wall', fs.filter(x => x.kind === 'wall').map(x => x.n)], ['dent', fs.filter(x => x.kind === 'vent' || x.kind === 'gutter').map(x => x.n)]].filter(p => p[1].length);
+    const rp = st.rep ? repPanel(`<p class="stamp">${esc(R.markHelp)}</p><div class="rrow"><span class="label">${esc(R.size)}</span>${segH('size', ['s', 'm', 'l'].map(k => [k, R.sizes[k]]), st.size)}</div>${mk.length ? `<button type="button" class="btn sec sm" data-houndo="${esc(f.p.id)}">${ic('undo', 'i-sm')}<span>${esc(R.undo)}</span></button>` : ''}`) : '';
+    return `<section class="ch ch2"><div><div class="chead only-phone"><h2 id="hoH">${esc(X.titles[1]())}</h2></div>${rp}
+      <figure class="photo"><div class="pbox" data-hoph="${esc(f.p.id)}"><img src="${esc(blobSrc(f.p.id))}" alt="${esc(slotName(f.p))}"><div class="hmks">${mk.map(markHtml).join('')}</div></div>
+        <span class="pover count">${esc(X.photoN(st.f + 1, fs.length))}</span><span class="pover tag">${esc(slotName(f.p))}</span>${mk.length ? `<span class="pover hits">${esc(X.spots(mk.length))}</span>` : ''}
+        ${fs.length > 1 ? `<button type="button" class="pnav prev" data-hogo="-1" aria-label="${esc(X.prev)}">${ic('back')}</button><button type="button" class="pnav next" data-hogo="1" aria-label="${esc(X.nextP)}">${ic('chev')}</button>` : ''}</figure>
+      ${fs.length > 1 ? `<div class="hstrip">${fs.map((x, i) => `<button type="button" data-hof="${i}" aria-current="${i === st.f}" aria-label="${esc(slotName(x.p))}"><img src="${esc(blobSrc(x.p.id))}" alt=""><b>${x.n}</b></button>`).join('')}</div>` : ''}</div>
+      <div><div class="chead only-tab"><h2>${esc(X.titles[1]())}</h2></div>
+      <div class="card capcard">${homeWalk(l) ? `<div class="loc" aria-hidden="true"><svg id="hoLoc"></svg></div>` : ''}<div class="ctext"><div class="tt">${pnum(f.n, 'on')}<b>${esc(slotName(f.p))}</b></div>${mk.length ? `<p>${esc(X.spots(mk.length))}</p>` : ''}</div></div>
+      ${plain.length ? `<div class="sect"><div class="shead" style="margin-top:0"><h2>${esc(X.plainH)}</h2></div><div class="rows plain">${plain.map(([k, ns]) => `<div class="row"><span class="pins">${ns.slice(0, 3).map(n => pnum(n, 'sm')).join('')}</span><p>${esc(X.plain[k])}</p></div>`).join('')}</div></div>` : ''}
+      ${!l || leadKind(l) === 'insurance' ? `<div class="sect">${insCard()}</div>` : ''}</div></section>`;
+  }
+  /* ---------- 3 · options ---------- */
+  function ch3(){
+    const X = H(), R = HR(), m = model(), l = lead(), set = hoSettings();
     const rp = [];
-    if (m.problem === 'nojob') rp.push(`<p>${esc(R.needEst)}</p>${l && DB && CAN_EDIT ? `<div class="ho-acts"><button type="button" class="ho-sbtn go" data-k="est" data-hoest="1">${esc(R.makeEst)}</button></div>` : ''}`);
-    else if (m.problem) rp.push(`<p>${esc(R.prob[m.problem] || '')}</p>`);
-    else {
-      rp.push(`<div class="ho-rrow"><span class="ho-rl">${esc(R.scopeL)}</span>${seg('scope', HO_SCOPES.map(s => [s, R.scope[s], m.avail[s] ? '' : R.needSize, !m.avail[s]]), m.scope)}</div>`);
-      rp.push(`<div class="ho-rrow"><span class="ho-rl">${esc(R.recL)}</span>${seg('rec', [['none', R.recNone], ...m.tiers.map(t => [t.key, HOX[lang].names[t.key]])], st.rec || 'none')}</div>`);
-      const notes = [R.sizesUsed(m.sq.siding ? String(m.sq.siding) : '', m.sq.roof ? String(m.sq.roof) : '', m.rough)];
-      if (m.ice && m.ice.sq) notes.push(m.ice.own ? R.iceOwn : R.iceNote(m.ice.sq, m.ice.ft));
-      if (m.scope === 'roof' && !m.class4) notes.push(R.noClass4);
-      if (m.usingRef) notes.push(R.market);
-      if (m.gutters) notes.push(R.leftOut);
-      rp.push(notes.map(n => `<p>${esc(n)}</p>`).join(''));
-      if (l && DB && CAN_EDIT) rp.push(`<div class="ho-acts"><button type="button" class="ho-sbtn" data-k="est" data-hoest="1">${esc(R.changeSizes)}</button></div>`);
-    }
-    parts.push(repPanel(rp.join('')));
-    if (m.problem) {
-      const [h, p] = m.problem === 'nojob' ? [X.noOptH, X.noOptP] : [X.prepH, X.prepP];
-      parts.push(`<div class="ho-empty"><b>${esc(h)}</b><p>${esc(p)}</p></div>`);
-      return parts.join('');
-    }
-    parts.splice(1, 0, `<p class="ho-sub">${esc(X.s2sub(m.scope, m.tiers.length))}</p>`);
-    const n = m.tiers.length, rc = t => (st.rec === t.key ? ' class="rec"' : '');
-    const cols = m.tiers.map(t => `<button type="button" class="ho-col${st.rec === t.key ? ' rec' : ''}" data-k="pick:${t.key}" data-hopick="${t.key}" aria-pressed="${st.chosen === t.key}">
-      <span class="ho-rib">${st.rec === t.key ? esc(X.rec) : ''}</span><span class="ho-name">${esc(X.names[t.key])}</span><span class="ho-what">${esc(hoTierWhat(m.scope, t.key, L2))}</span>
-      <span class="ho-price"><span>${esc(hoUsd(t.low))}</span><span>– ${esc(hoUsd(t.high))}</span></span><span class="ho-pick">${esc(st.chosen === t.key ? X.picked : X.tapPick)}</span></button>`).join('');
-    const Y = yes, N = '<span class="no">–</span>', txt = s => `<span class="txt">${esc(s)}</span>`, W = X.rows;
-    const row = (label, cells) => `<tr class="sec"><td colspan="${n}">${esc(label)}</td></tr><tr>${cells.slice(0, n).map((c, i) => `<td${rc(m.tiers[i])}>${c}</td>`).join('')}</tr>`;
-    const grp = label => `<tr class="grp"><td colspan="${n}">${esc(label)}</td></tr>`;
-    const rows = [];
-    const roofBest = m.class4 ? txt(W.class4) : Y;
-    if (m.scope !== 'roof') { if (m.scope === 'both') rows.push(grp(X.grp.siding));
-      rows.push(row(W.sTear, [Y, Y, Y]), row(W.wrap, [Y, Y, Y]), row(W.foam, [N, Y, txt(W.fiber)])); }
-    if (m.scope !== 'siding') { if (m.scope === 'both') rows.push(grp(X.grp.roof));
-      rows.push(row(W.rTear, [Y, Y, Y]), row(W.arch, [Y, Y, roofBest]), row(W.ice, [N, Y, Y]), row(W.ridge, [N, Y, Y]));
-      if (m.class4) rows.push(row(W.ul, [N, N, Y])); }
-    if (m.scope === 'both') rows.push(grp(X.grp.all));
-    rows.push(row(W.permit, [Y, Y, Y]), row(W.clean, [Y, Y, Y]));
-    parts.push(`<div class="ho-cmp" style="--n:${n}"><div class="ho-cols3" role="group" aria-label="${esc(X.s2)}">${cols}</div><div class="ho-rng">${esc(X.range)}</div><div class="ho-tbl"><table>${rows.join('')}</table></div></div>`);
-    const ins = l && leadKind(l) === 'insurance' && prices.insurance_note ? strv(prices.insurance_note[L2]) : '';
-    parts.push(`<p class="ho-note">${esc(X.rangeNote)}${ins ? ' ' + esc(ins) : ''}</p>`);
-    parts.push(`<div class="ho-card ho-warr">${shield}<span>${esc(X.warranty)}</span></div>`);
-    if (m.scope !== 'roof') parts.push(`<a class="ho-out" href="https://www.jameshardie.com/hardie-designer" target="_blank" rel="noopener noreferrer"><span class="sw" aria-hidden="true"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da;outline:1px solid #ccc"></i></span>
-      <span><b>${esc(X.colors)}</b><span>${esc(X.colorsWhere)}</span></span><span class="arr" aria-hidden="true">↗</span></a>`);
-    return parts.join('');
-  }
-  function screen3(){
-    const X = H(), R = HR(), l = lead(), m = model();
-    const parts = [`<h1 id="hoH">${esc(X.s3)}</h1><p class="ho-sub">${esc(X.s3sub)}</p>`];
     if (st.rep) {
-      const ml = st.msgLang || st.lang, prop = !m.problem && m.tiers.length ? {scope: m.scope, tiers: m.tiers, recommended: st.rec, chosen: st.chosen, class4: m.class4} : null;
-      parts.push(repPanel(`<p><b>${esc(R.sendH)}</b> · ${esc(R.sendS)}</p><div class="ho-rrow"><span class="ho-rl">${esc(R.textLang)}</span>${seg('ml', [['en', 'English'], ['es', 'Español']], ml)}</div>${hoSendBlock(l, prop, ml, 'view')}`));
+      if (m.problem === 'nojob') rp.push(`<p class="stamp">${esc(R.needEst)}</p>${l && DB && CAN_EDIT ? `<button type="button" class="btn sec" data-hoest="1">${esc(R.makeEst)}</button>` : ''}`);
+      else if (m.problem) rp.push(`<p class="stamp">${esc(R.prob[m.problem] || '')}</p>`);
+      else {
+        rp.push(`<div class="rrow"><span class="label">${esc(R.scopeL)}</span>${segH('scope', HO_SCOPES.map(s => [s, R.scope[s], !m.avail[s]]), m.scope)}</div>`);
+        rp.push(`<div class="rrow"><span class="label">${esc(R.recL)}</span>${segH('rec', [['none', R.recNone], ...m.tiers.map(t => [t.key, HOX[lang].names[t.key]])], st.rec || 'none')}</div>`);
+        const notes = [R.sizesUsed(m.sq.siding ? String(m.sq.siding) : '', m.sq.roof ? String(m.sq.roof) : '', m.rough)];
+        if (m.ice && m.ice.sq) notes.push(m.ice.own ? R.iceOwn : R.iceNote(m.ice.sq, m.ice.ft));
+        if (m.usingRef) notes.push(R.market); if (m.gutters) notes.push(R.leftOut);
+        rp.push(notes.map(n => `<p class="stamp">${esc(n)}</p>`).join(''));
+        if (l && DB && CAN_EDIT) rp.push(`<button type="button" class="btn sec sm" data-hoest="1">${esc(R.changeSizes)}</button>`);
+      }
     }
-    parts.push(`<div class="ho-stps">${X.steps.map(([t, p], i) => `<div class="ho-stp"><div class="n" aria-hidden="true">${i + 1}</div><div><b>${esc(t)}</b><p>${esc(p)}</p>${i === 1 ? `<div class="ho-cancel"><b>${esc(X.cancel[0])}</b>${esc(X.cancel[1])}</div>` : ''}</div></div>`).join('')}</div>`);
-    const who = [[HO_PHONE.kenny, X.langK], [HO_PHONE.alex, X.langA]];
-    parts.push(`<div class="ho-contact"><div class="q">${esc(X.questions)}</div>${who.map(([c, lg]) => `<a href="tel:${c.tel}" aria-label="${esc(X.call(c.name))} ${c.phone}"><span class="ic">${phoneI}</span><span><span class="nm">${esc(c.name)} · ${esc(lg)}</span><span class="tel" style="display:block">${c.phone}</span></span></a>`).join('')}</div>`);
-    parts.push(`<p class="ho-foot">${esc(X.company)}<span class="blank"></span></p>`);
-    return parts.join('');
+    if (m.problem) { const [h, p] = m.problem === 'nojob' ? [X.noOptH, X.noOptP] : [X.prepH, X.prepP];
+      return `<section class="ch ch3"><div class="chead"><h2 id="hoH">${esc(X.titles[2](3))}</h2></div>${repPanel(rp.join(''))}<div class="card nophotos"><b>${esc(h)}</b><p>${esc(p)}</p></div></section>`; }
+    const T = X.tier, sc = m.scope, n = m.tiers.length, c4 = m.class4 && set.offersClass4;
+    const roofName = k => k === 'best' ? (c4 ? T.roof.best4 : T.roof.bestP) : T.roof[k];
+    const tm = k => (sc === 'roof' ? roofName(k) : T.siding[k]), tr = k => (sc === 'both' ? roofName(k) : '');
+    const recK = st.rec, feats = [[X.feats.tear, [1, 1, 1]]];
+    if (sc !== 'roof') feats.push([X.feats.wrap, [1, 1, 1]], [X.feats.foam, [0, 1, X.feats.fiber]]);
+    if (sc !== 'siding') feats.push([X.feats.ice, [0, 1, 1]], [X.feats.ridge, [0, 1, 1]]);
+    if (sc !== 'roof') feats.push([X.feats.bake, [0, 0, 1]]);
+    if (sc !== 'siding' && c4) feats.push([X.feats.ul, [0, 0, 1]]);
+    const cell = (c, i) => { const rec = m.tiers[i] && m.tiers[i].key === recK ? ' rec' : '';
+      if (c === 1) return `<span class="cell${rec}">${ic('check')}<span class="sr">${esc(X.yes)}</span></span>`;
+      if (c === 0) return `<span class="cell${rec}"><span class="no"></span><span class="sr">${esc(X.no)}</span></span>`;
+      return `<span class="cell${rec}">${esc(c)}</span>`; };
+    const recCol = m.tiers.findIndex(t => t.key === recK);
+    const tiers = m.tiers.map(t => `<button type="button" class="tier${t.key === recK ? ' rec' : ''}" data-hopick="${t.key}" aria-pressed="${st.chosen === t.key}"><span class="chip hmp">${esc(st.chosen === t.key ? (st.lang === 'es' ? 'Su elección' : 'Your pick') : X.rec)}</span><span class="label">${esc(X.names[t.key])}</span><span class="tm">${esc(tm(t.key))}</span><span class="tr">${esc(tr(t.key))}</span><span class="tp"><span>${esc(hoUsd(t.low))} –</span><span>${esc(hoUsd(t.high))}</span></span></button>`).join('');
+    const w = set.workmanshipYears;
+    const meta = [['clock', X.timeT, X.timeS], w ? ['shield', X.warrW, X.warrWS(w)] : ['shield', X.warrM, X.warrMS]];
+    const ins = l && leadKind(l) === 'insurance' && prices && prices.insurance_note ? strv(prices.insurance_note[st.lang]) : '';
+    return `<section class="ch ch3"><div class="chead only-phone"><h2 id="hoH">${esc(X.titles[2](n))}</h2><span class="chip" style="margin-top:8px">${ic('home')}${esc(X.scope[sc])}</span></div>${repPanel(rp.join(''))}
+      <div class="card cmp" style="--n:${n}"><div class="tiers" style="--n:${n}"><div class="corner"><h2>${esc(X.titles[2](n))}</h2><span class="chip" style="align-self:flex-start">${ic('home')}${esc(X.scope[sc])}</span></div>${tiers}</div>
+        <p class="band">${ic('info')}<span><b>${esc(X.band[0])}</b>${esc(X.band[1])}${ins ? ' ' + esc(ins) : ''}</span></p>
+        ${feats.map(([lb, cs]) => `<div class="frow" style="--rc:${recCol}"><span class="flabel">${esc(lb)}</span>${cs.slice(0, n).map(cell).join('')}</div>`).join('')}</div>
+      <div class="rows meta">${meta.map(([icn, t, sub]) => `<div class="row"><span class="tile">${ic(icn)}</span><span class="t"><b>${esc(t)}</b><span>${esc(sub)}</span></span></div>`).join('')}
+        ${sc !== 'roof' ? `<a class="row" href="https://www.jameshardie.com/hardie-designer" target="_blank" rel="noopener"><span class="sw" aria-hidden="true"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da"></i></span><span class="t"><b>${esc(X.colors)}</b><span>${esc(X.colorsS)}</span></span><span class="end">${ic('chev')}</span></a>` : ''}</div></section>`;
+  }
+  /* ---------- 4 · next steps ---------- */
+  function ch4(){
+    const X = H(), R = HR(), l = lead(), m = model();
+    let rp = '';
+    if (st.rep) { const ml = st.msgLang || st.lang, prop = !m.problem && m.tiers.length ? {scope: m.scope, tiers: m.tiers, recommended: st.rec, chosen: st.chosen, class4: m.class4} : null;
+      rp = repPanel(`<p><b>${esc(R.sendH)}</b> · ${esc(R.sendS)}</p><div class="rrow"><span class="label">${esc(R.textLang)}</span>${segH('ml', [['en', 'English'], ['es', 'Español']], ml)}</div>${hoSendBlock(l, prop, ml, 'view')}`); }
+    const who = [[SETTINGS.people.en, X.langK], [SETTINGS.people.es, X.langA]];
+    return `<section class="ch ch4"><div><div class="chead"><h2 id="hoH">${esc(X.titles[3]())}</h2></div>${rp}
+      <ol class="tl">${X.tl.map(([t, p, now], i) => `<li class="${i === 0 ? 'now' : ''}"><span class="node">${i + 1}</span><div><div class="tt"><b>${esc(t)}</b>${now ? `<span class="chip hmp">${esc(now)}</span>` : ''}</div><p>${esc(p)}</p>
+        ${i === 2 ? `<div class="cancel"><span class="tile">${ic('file')}</span><div><b>${esc(X.cancelT)}</b><p>${esc(X.cancelP)}</p><p class="how">${esc(X.cancelHow)}</p></div></div>` : ''}</div></li>`).join('')}</ol></div>
+      <div><div class="card contact"><h3>${esc(X.ask)}</h3>${who.map(([c, lg]) => `<div class="crow"><div><span>${esc(c.name)} · ${esc(lg)}</span><b>${esc(c.phone)}</b></div><a class="round" href="tel:${esc(c.tel)}" aria-label="${esc(X.call(c.name))}">${ic('phone')}</a></div>`).join('')}</div>
+      <div class="card keep"><span class="tile">${ic('file')}</span><div><b>${esc(X.keepT)}</b><span>${esc(X.keepS)}</span></div></div>
+      <p class="hlegal">${esc(X.legal)}${SETTINGS.company.registrationNo ? esc(SETTINGS.company.registrationNo) : ' <span class="blank"></span>'}</p></div></section>`;
+  }
+  function drawMaps(){
+    const l = lead(), hw = l ? homeWalk(l) : null, tab = view().clientWidth >= 900; if (!hw || !window.HMPMap) return;
+    const fs = finds(l).map(f => ({n: f.n, kind: f.kind, at: f.at}));
+    try {
+      const hm = $('#hoMap'); if (hm) { const b = hm.getBoundingClientRect(), ppm = tab ? 13.5 : 9; HMPMap.renderHomeMap(hm, hw.w, {width: b.width, height: b.height, home: hw.home, finds: fs, ppm, labelAt: .22, toward: tab ? .26 : .3});
+        const sc = $('#hoScale i'); if (sc) sc.style.width = (6.096 * ppm).toFixed(0) + 'px'; }
+      const hl = $('#hoHail'); if (hl) { const b = hl.getBoundingClientRect(), P = HMPMap.renderHailMap(hl, zoneMapData(zonesAll()), {width: b.width, height: b.height, home: hw.home, metersAcross: tab ? 1500 : 1400, center: {lat: hw.home.lat - .0005, lon: hw.home.lon + .0018}});
+        if (P) { const [x, y] = P.xy(hw.home.lon, hw.home.lat), pin = $('#hoHailPin'); if (pin && x > 40 && x < b.width - 40 && y > 30) { pin.style.left = x + 'px'; pin.style.top = y + 'px'; pin.hidden = false; } } }
+      const ml = $('#hoLoc'); if (ml) { const b = ml.getBoundingClientRect(); HMPMap.renderHomeMap(ml, hw.w, {width: b.width, height: b.height, home: hw.home, finds: fs, ppm: b.width / 21, mini: true, active: (st.f || 0) + 1, toward: 0}); }
+    } catch (e) { /* a lot the map can't place: the list and photos still tell the story */ }
   }
   function render(){
     if (!st) return;
-    const v = view(), X = H(), R = HR(), l = lead(), a = document.activeElement, fk = a && v.contains(a) && a.dataset ? a.dataset.k : null;
+    const v = view(), X = H(), l = lead(), E = HOEXIT[lang], a = document.activeElement, fk = a && v.contains(a) ? (a.id || (a.dataset.hof != null ? 'f' + a.dataset.hof : '')) : '';
     if (st.leadId && !l) { close(); return; }
-    v.lang = st.lang; v.classList.toggle('rep', st.rep && st.screen === 0);
-    for (const b of v.querySelectorAll('[data-hol]')) b.setAttribute('aria-pressed', String(b.dataset.hol === st.lang));
-    $('#hoRep').setAttribute('aria-pressed', String(st.rep)); $('#hoRepL').textContent = st.rep ? R.repOff : R.rep; $('#hoRep').title = st.rep ? R.repOff : R.rep; $('#hoRep').lang = lang;
-    $('#hoCloseL').textContent = R.close; $('#hoClose').title = R.close; $('#hoClose').lang = lang;
-    soft($('#hoChip')).html = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>${esc(X.view)}`;
-    $('#hoAddr').textContent = l ? strv(l.address) || l.id : 'HMP Siding & Roofing';
-    $('#hoFor').textContent = l ? [strv(l.city), strv(l.first_name) ? X.forWho(strv(l.first_name)) : ''].filter(Boolean).join(' · ') : '';
-    $('#hoSteps').setAttribute('aria-label', X.stepsAria);
-    soft($('#hoSteps')).html = `<div class="ho-sin">${X.tabs.map((t, i) => `<button type="button" data-k="step:${i}" data-hostep="${i}"${i === st.screen ? ' aria-current="step"' : ''} class="${i < st.screen ? 'done' : ''}"><i>${i + 1}</i><span>${esc(t)}</span></button>`).join('')}</div>`;
-    const body = [screen1, screen2, screen3][st.screen]();
-    const nextBtn = st.screen < 2 ? `<button type="button" class="ho-next" data-k="next" data-hostep="${st.screen + 1}">${esc(X.next(X.tabs[st.screen + 1]))}</button>` : '';
-    soft($('#hoBody')).html = body + nextBtn;
-    if (fk) { const n = v.querySelector(`[data-k="${CSS.escape(fk)}"]`); if (n && !n.disabled) n.focus({preventScroll: true}); }
+    v.lang = st.lang;
+    const addr = l ? strv(l.address) || l.id : SETTINGS.company.name, city = l ? [strv(l.city), SETTINGS.company.state].filter(Boolean).join(', ') : '';
+    const last = l ? photosOf(l).map(p => dayOf(p.at)).filter(Boolean).sort().pop() : null, dd = hoDay(last || todayStr(), {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
+    const steps = `<nav class="seg hsteps" aria-label="${esc(X.stepsAria)}">${X.steps.map((s, i) => `<button type="button" data-hop="${i + 1}" aria-pressed="${st.p === i + 1}">${esc(s)}</button>`).join('')}</nav>`;
+    const top = `<header class="htop"><div class="mark" aria-hidden="true"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+      <span class="brand only-phone">${esc(SETTINGS.company.name)}</span><div class="who only-tab"><b id="hoAddr">${esc(addr)}</b><span>${esc([city, dd].filter(Boolean).join(' · '))}</span></div><span class="only-tab">${steps}</span>
+      <button type="button" class="iconbtn hbtn" id="hoRep" aria-pressed="${st.rep}" aria-label="${esc(st.rep ? E.toolsOff : E.tools)}" lang="${lang}">${ic('pen')}</button>
+      <button type="button" class="lang hit" id="hoLang" lang="${st.lang === 'en' ? 'es' : 'en'}" aria-label="${st.lang === 'en' ? 'Ver en español' : 'Show in English'}">${st.lang === 'en' ? 'ES' : 'EN'}</button>
+      <button type="button" class="iconbtn hbtn" id="hoX" aria-label="${esc(X.close)}">${ic('x')}</button></header>`;
+    const head = `<div class="only-phone"><div class="hhead"><span class="label">${esc(X.report)} · ${esc(dd)}</span><h1>${esc(addr)}</h1><span class="cap">${esc([city, X.by(SETTINGS.people.en.name)].filter(Boolean).join(' · '))}</span></div>${steps}</div>`;
+    const bar = `<footer class="hbar"><button type="button" class="btn sec back" id="hoBack" ${st.p === 1 ? 'style="visibility:hidden"' : ''} aria-label="${esc(X.back)}">${ic('back')}<span>${esc(X.back)}</span></button>
+      <span class="dots only-tab" aria-hidden="true">${[1, 2, 3, 4].map(i => `<i class="${i < st.p ? 'done' : i === st.p ? 'on' : ''}"></i>`).join('')}</span>
+      <button type="button" class="btn pri lg nextb" id="hoNext">${esc(X.next[st.p - 1])}${ic(st.p === 4 ? 'check' : 'chev')}</button></footer>`;
+    const exit = !st.exit ? '' : `<div class="hexit" lang="${lang}"><div class="scrim" id="hoXScrim"></div><div class="xsheet" role="dialog" aria-label="${esc(E.t)}"><div class="grab"></div>
+      <header><div><h3>${esc(E.t)}</h3><span class="cap">${esc(addr)}</span></div><button type="button" class="xbtn" id="hoXClose" aria-label="${esc(E.close)}">${ic('x')}</button></header>
+      <div class="rows">${E.items.map(([t, s], i) => `<div class="row"><span class="xbox${i === 2 && st.logged ? ' ok' : ''}">${i === 2 && st.logged ? ic('check') : ''}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span></div>`).join('')}</div>
+      <button type="button" class="btn pri lg block" id="hoLeave">${esc(E.done)}</button></div></div>`;
+    v.innerHTML = top + `<main class="hmain">${head}${[ch1, ch2, ch3, ch4][st.p - 1]()}</main>` + bar + exit;
+    v.classList.toggle('held', !!st.exit);
+    drawMaps();
+    if (fk) { const n = fk[0] === 'f' && /^f\d+$/.test(fk) ? v.querySelector(`[data-hof="${fk.slice(1)}"]`) : document.getElementById(fk); if (n && !n.disabled) n.focus({preventScroll: true}); }
   }
 
   /* ---------- open / close / events ---------- */
@@ -4532,28 +4646,26 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
     const l = o.leadId ? leads.find(x => x.id === o.leadId) : null;
     const p = l && l.proposal && typeof l.proposal === 'object' ? l.proposal : null;
     const job = o.job || (l && l.estimate && typeof l.estimate === 'object' ? l.estimate.job : null) || null;
-    st = {leadId: l ? l.id : null, job, lang: l && (l.lang === 'es' || l.language === 'es') ? 'es' : lang, screen: 0, rep: false, size: 'm', marks: new Map(), msg: null, msgLang: null,
+    st = {leadId: l ? l.id : null, job, lang: l && (l.lang === 'es' || l.language === 'es') ? 'es' : lang, p: 1, f: 0, rep: false, size: 'm', marks: new Map(), msg: null, msgLang: null, exit: false,
           scope: p && HO_SCOPES.includes(p.scope) ? p.scope : null, rec: p && HO_KEYS.includes(p.recommended) ? p.recommended : null, chosen: p && HO_KEYS.includes(p.chosen) ? p.chosen : null, prop: p};
-    if (!l || !shownPhotos(l).length && !proofFor(l.address, l.city)) st.screen = 1;   // nothing to show on page 1 yet: start at the options
+    if (!l || (!shownPhotos(l).length && !proofFor(l.address, l.city))) st.p = 3;   // nothing to show on the first chapters yet: start at the options
     lastFrom = o.from || document.activeElement;
     const v = view(); prevOverflow = document.body.style.overflow; v.hidden = false; v.scrollTop = 0; document.body.style.overflow = 'hidden';
-    render(); $('#hoClose').focus({preventScroll: true});
+    render(); const x = $('#hoX'); if (x) x.focus({preventScroll: true});
   }
   function close(){
     const v = view(); if (v.hidden) return;
-    v.hidden = true; v.classList.remove('rep'); $('#hoBody').innerHTML = ''; st = null;
+    v.hidden = true; v.innerHTML = ''; st = null;
     document.body.style.overflow = openRef ? 'hidden' : prevOverflow || '';
-    // the sheet may have redrawn meanwhile (a save echoes back): fall back to its Show homeowner button
-    const f = lastFrom && lastFrom.isConnected ? lastFrom : openRef ? $('#shBody [data-ho]') || $('#shBody .est-show button') || $('#shClose') : null;
+    const f = lastFrom && lastFrom.isConnected ? lastFrom : openRef ? $('#shBody [data-ho]') || $('#shClose') : null;
     if (f && f.focus) f.focus({preventScroll: true});
   }
   const isOpen = () => !!st;
-  function go(i){ st.screen = clamp(i, 0, 2); render(); view().scrollTop = 0; const h = $('#hoH'); if (h) { h.tabIndex = -1; h.focus({preventScroll: true}); } }
+  function go(p){ st.p = clamp(p, 1, 4); st.exit = false; render(); const mn = view().querySelector('.hmain'); if (mn) mn.scrollTop = 0; view().scrollTop = 0; const h = $('#hoH'); if (h) { h.tabIndex = -1; h.focus({preventScroll: true}); } }
   view().addEventListener('click', ev => {
     if (!st) return;
-    const mk = st.rep && ev.target.closest('.ho-mk'), ph = ev.target.closest('[data-hoph]');
-    if (mk && ph) { const pid = ph.dataset.hoph, l = lead(), p = l && photosOf(l).find(x => x.id === pid); if (p) setMarks(pid, marksOf(p).filter(m => String(m.n) !== mk.dataset.mk)); return; }
-    if (ph && st.rep && st.screen === 0 && !ph.classList.contains('gone')) {
+    const ph = ev.target.closest('[data-hoph]');
+    if (ph && st.rep && st.p === 2 && !ev.target.closest('button')) {
       const img = ph.querySelector('img'), r = img.getBoundingClientRect(); if (!r.width || !r.height) return;
       const x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height; if (x < 0 || x > 1 || y < 0 || y > 1) return;
       const l = lead(), p = l && photosOf(l).find(q => q.id === ph.dataset.hoph); if (!p) return;
@@ -4561,10 +4673,16 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
       setMarks(p.id, [...cur, {x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, r: {s: 0.04, m: 0.07, l: 0.11}[st.size] || 0.07}]); return;
     }
     const b = ev.target.closest('button'); if (!b) return;
-    if (b.id === 'hoClose') { close(); return; }
+    if (b.id === 'hoX') { st.exit = true; render(); const c = $('#hoXClose'); if (c) c.focus({preventScroll: true}); return; }
+    if (b.id === 'hoXClose' || ev.target.id === 'hoXScrim') { st.exit = false; render(); return; }
+    if (b.id === 'hoLeave') { close(); return; }
     if (b.id === 'hoRep') { st.rep = !st.rep; st.msg = null; render(); return; }
-    if (b.dataset.hol) { if (b.dataset.hol !== st.lang) { st.lang = b.dataset.hol; render(); } return; }
-    if (b.dataset.hostep != null) { go(+b.dataset.hostep); return; }
+    if (b.id === 'hoLang') { st.lang = st.lang === 'en' ? 'es' : 'en'; render(); return; }
+    if (b.id === 'hoBack') { go(st.p - 1); return; }
+    if (b.id === 'hoNext') { if (st.p === 4) { st.exit = true; render(); } else go(st.p + 1); return; }
+    if (b.dataset.hop) { go(+b.dataset.hop); return; }
+    if (b.dataset.hof != null) { st.f = +b.dataset.hof; if (st.p !== 2) go(2); else render(); return; }
+    if (b.dataset.hogo) { const n = finds(lead()).length || 1; st.f = ((st.f || 0) + +b.dataset.hogo + n) % n; render(); return; }
     if (b.dataset.houndo) { const l = lead(), p = l && photosOf(l).find(x => x.id === b.dataset.houndo); if (p) setMarks(p.id, marksOf(p).slice(0, -1)); return; }
     if (b.dataset.hopick) { st.chosen = st.chosen === b.dataset.hopick ? null : b.dataset.hopick; st.msg = null; saveProposal(); render(); return; }
     if (b.dataset.hoset) {
@@ -4576,16 +4694,17 @@ function makeHO(){   // v23: built the first time the homeowner screen opens
       render(); return;
     }
     if (b.dataset.hocopy) { hoCopy(b, $('#hoMsgTxt')); return; }
-    if (b.dataset.hoest) { const id = st.leadId; close(); if (!id) return;   // back to the lead's quick estimate (Back returns to the lead)
+    if (b.dataset.hoest) { const id = st.leadId; close(); if (!id) return;
       if (openRef === 'est:' + id) renderSheet(); else openSheet('est:' + id, openRef ? $('#shClose') : null); return; }
   });
-  view().addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.ho-ph'); if (ph) ph.classList.add('gone'); } }, true);
+  view().addEventListener('error', ev => { if (ev.target && ev.target.tagName === 'IMG') { const ph = ev.target.closest('.pbox, .hstrip button'); if (ph) ph.classList.add('gone'); } }, true);
   view().addEventListener('keydown', ev => {
     ev.stopPropagation();   // the sheet underneath must not react (its Escape and Tab trap)
-    if (ev.key === 'Escape') { close(); return; }
+    if (ev.key === 'Escape') { if (st && st.exit) { st.exit = false; render(); } else close(); return; }
     if (ev.key === 'Tab') { const f = [...view().querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.disabled && n.offsetParent !== null); if (!f.length) return;
       if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); } else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); } }
   });
+  let rsz = 0; window.addEventListener('resize', () => { if (!st) return; clearTimeout(rsz); rsz = setTimeout(() => { if (st) render(); }, 150); });
   return {open, close, render, isOpen, model: () => (st ? model() : null)};
 }
 let hoMod = null;
@@ -4617,7 +4736,7 @@ const NWX = {
     guideCollect: ['First name', 'Best day and time', 'Phone (asked, never bought)', 'Who else decides'],
     guideDone: 'Tap Booked on the door to pick the time.',
     plusH: 'What now?', plus: {door: ['Log a door', 'Next house on the walk'], lead: ['New lead', 'Referral, call-in, old house'], price: ['Quick price', 'A range to show or text'],
-      say: ['Help me say it', 'English ⇄ Spanish'], claim: ['Log a claim update', 'Insurer, adjuster, checks'], done: ['Done for today', 'The 5-question review']},
+      say: ['Help me say it', 'English and Spanish'], claim: ['Log a claim update', 'Insurer, adjuster, checks'], done: ['Done for today', 'The 5-question review']},
     moreH: 'More', more: {boss: ['Boss view', 'Spanish summary for the boss'], practice: ['Practice Door', 'Role-play with an AI homeowner'], print: ['Print today’s walk', 'Paper backup'],
       prices: ['Prices + registration #', 'Where the price ranges come from'], how: ['How a claim works', 'RCV · ACV · depreciation']},
     rhBtn: 'Right Hand', rhEb: 'Your Right Hand', rhH: 'Say it, I’ll log it', rhOff: 'The Right Hand works on the published page for editors.',
@@ -4662,7 +4781,7 @@ const NWX = {
     guideCollect: ['Primer nombre', 'Mejor día y hora', 'Teléfono (se pide, nunca se compra)', 'Quién más decide'],
     guideDone: 'Toca Agendado en la puerta para escoger la hora.',
     plusH: '¿Qué hacemos?', plus: {door: ['Anotar puerta', 'La siguiente casa de la ruta'], lead: ['Nuevo prospecto', 'Referido, llamada, casa vieja'], price: ['Precio rápido', 'Rango para mostrar o mandar'],
-      say: ['¿Cómo se dice?', 'Inglés ⇄ español'], claim: ['Anotar un reclamo', 'Aseguradora, ajustador, cheques'], done: ['Terminé por hoy', 'Las 5 preguntas del día']},
+      say: ['¿Cómo se dice?', 'Inglés y español'], claim: ['Anotar un reclamo', 'Aseguradora, ajustador, cheques'], done: ['Terminé por hoy', 'Las 5 preguntas del día']},
     moreH: 'Más', more: {boss: ['Vista del jefe', 'Resumen en español para el jefe'], practice: ['Puerta de práctica', 'Ensayo con un dueño de casa de IA'], print: ['Imprimir la ruta de hoy', 'Respaldo en papel'],
       prices: ['Precios + número de registro', 'De dónde salen los rangos de precio'], how: ['Cómo funciona un reclamo', 'RCV · ACV · depreciación']},
     rhBtn: 'Mano Derecha', rhEb: 'Tu Mano Derecha', rhH: 'Dilo, yo lo anoto', rhOff: 'La Mano Derecha funciona en la página publicada para los editores.',
@@ -4739,7 +4858,7 @@ const ZX = {
     addTime: 'Add a time', noTime: 'No time yet', photosH: 'Inspection photos', notesH: 'Notes and visits', moneyH: 'Money', detailsH: 'Claim details', adjH: 'Adjuster meeting',
     lateLead: d => `No contact ${d} ${pl(d, 'day', 'days')}`, finished: 'All 8 steps done',
     // + / More / theme
-    addH: 'Add', add: {say: ['Help me say it', 'English ⇄ Spanish'], lead: ['New lead', 'Referral, call-in, old house'], price: ['Quick price', 'A range to show or text'], door: ['Log a door', 'Next house on the walk'],
+    addH: 'Add', add: {say: ['Help me say it', 'English and Spanish'], lead: ['New lead', 'Referral, call-in, old house'], price: ['Quick price', 'A range to show or text'], door: ['Log a door', 'Next house on the walk'],
       claim: ['Claim update', 'Insurer, adjuster, checks'], done: ['Done for today', 'The 5-question review']},
     theme: 'Theme', themes: {auto: 'Auto', light: 'Light', dark: 'Dark'},
     // homeowner view
@@ -4786,7 +4905,7 @@ const ZX = {
     rMoney: 'Dinero', rMoneyS: (a, b) => `Cobrado ${a}${b ? ' de ' + b : ''}`, rAdj: 'Lista para el ajustador', rAdjS: (a, b) => `${a} de ${b}`, rDetails: 'Datos del reclamo', rDetailsS: 'Aseguradora, ajustador, fechas', rChecklist: 'Lista del dinero', rChecklistS: 'Dónde se pierde dinero entre cheques',
     addTime: 'Poner hora', noTime: 'Sin hora', photosH: 'Fotos de la inspección', notesH: 'Notas y visitas', moneyH: 'Dinero', detailsH: 'Datos del reclamo', adjH: 'Cita con el ajustador',
     lateLead: d => `Sin contacto ${d} ${pl(d, 'día', 'días')}`, finished: 'Los 8 pasos listos',
-    addH: 'Agregar', add: {say: ['¿Cómo se dice?', 'Inglés ⇄ español'], lead: ['Nuevo prospecto', 'Referido, llamada, casa vieja'], price: ['Precio rápido', 'Rango para mostrar o mandar'], door: ['Anotar puerta', 'La siguiente casa de la ruta'],
+    addH: 'Agregar', add: {say: ['¿Cómo se dice?', 'Inglés y español'], lead: ['Nuevo prospecto', 'Referido, llamada, casa vieja'], price: ['Precio rápido', 'Rango para mostrar o mandar'], door: ['Anotar puerta', 'La siguiente casa de la ruta'],
       claim: ['Reclamo', 'Aseguradora, ajustador, cheques'], done: ['Terminé por hoy', 'Las 5 preguntas del día']},
     theme: 'Tema', themes: {auto: 'Auto', light: 'Claro', dark: 'Oscuro'},
     hoBtn: 'Mostrar al cliente'
@@ -5092,24 +5211,41 @@ function renderGuide(pid){
 }
 
 /* ---------- the + sheet, More, prices, how a claim works, claim update ---------- */
-const actBtn = (attrs, [t, s], icon) => `<button type="button" class="actb" ${attrs}>${icon || ''}<b>${esc(t)}</b><span>${esc(s)}</span></button>`;
-const IC = {door: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l3 3v14"/><circle cx="14" cy="13" r="1.2"/></svg>', lead: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-  price: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg>', say: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8M13 21l4-9 4 9M14.5 18h5"/></svg>',
-  claim: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>', done: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>'};
+/* v25 + sheet: title-only header, ink icons in soft tiles, "Help me say it" first (most used at the door) */
+const actBtn = (attrs, [t, s], icon) => `<button type="button" class="actb" ${attrs}><span class="tile">${ic(icon)}</span><b>${esc(t)}</b><span class="s">${esc(s)}</span></button>`;
 function renderPlus(){
-  const W = NW(), P = W.plus;
-  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = W.plusH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
-  soft($('#shBody')).html = `<div class="acts">${actBtn('data-go="knock"', P.door, IC.door)}${actBtn('data-open="nl:"', P.lead, IC.lead)}${actBtn('data-open="est:"', P.price, IC.price)}${actBtn('data-open="say:"', P.say, IC.say)}${actBtn('data-open="clu:"', P.claim, IC.claim)}${actBtn('data-done="1"', P.done, IC.done)}</div>`;
+  const A = Z().add;
+  $('#shEyebrow').textContent = ''; $('#shTitle').textContent = Z().addH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
+  soft($('#shBody')).html = `<div class="acts">${actBtn('data-open="say:"', A.say, 'globe')}${actBtn('data-open="nl:"', A.lead, 'user')}${actBtn('data-open="est:"', A.price, 'money')}${actBtn('data-go="knock"', A.door, 'door')}${actBtn('data-open="clu:"', A.claim, 'file')}${DB && CAN_EDIT ? actBtn('data-done="1"', A.done, 'check2') : ''}</div>`;
 }
+/* v25 More (the avatar): Theme (Auto / Light / Dark, per device), then the rest as rows */
+let themePref = 'auto';
+try { const t = localStorage.getItem('hmp-app-theme'); if (['auto', 'light', 'dark'].includes(t)) themePref = t; } catch (e) { /* auto */ }
+let hostTheme = window.__hmpHostTheme == null ? null : window.__hmpHostTheme, themeBusy = false;
+function applyTheme(){
+  const r = document.documentElement; themeBusy = true;
+  if (themePref === 'light' || themePref === 'dark') r.setAttribute('data-theme', themePref);
+  else if (hostTheme) r.setAttribute('data-theme', hostTheme); else r.removeAttribute('data-theme');
+  themeBusy = false;
+}
+try {   // claude.ai stamps data-theme on the page: in Auto that is the choice; with Light or Dark picked here, ours wins
+  new MutationObserver(() => { if (themeBusy) return; const v = document.documentElement.getAttribute('data-theme');
+    if (themePref === 'auto') hostTheme = v; else if (v !== themePref) { hostTheme = v; applyTheme(); } }).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+} catch (e) { /* no observer: the pick still applies at load */ }
+function setTheme(t){ themePref = ['light', 'dark'].includes(t) ? t : 'auto'; try { localStorage.setItem('hmp-app-theme', themePref); } catch (e) { /* this view only */ } applyTheme(); zmapKey = ''; renderApp(true); }
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-theme-pick]'); if (b) setTheme(b.dataset.themePick); });
 function renderMore(){
-  const W = NW(), M = W.more, row = (attrs, [t, s], tag) => `<li><${tag || 'button type="button"'} class="mrow" ${attrs}><span><b>${esc(t)}</b><small>${esc(s)}</small></span><em aria-hidden="true">›</em></${tag ? 'a' : 'button'}></li>`;
+  const W = NW(), M = W.more, Zs = Z();
+  const row = (attrs, [t, s], icon, tag) => `<li><${tag || 'button type="button"'} class="row" ${attrs}><span class="lead">${ic(icon)}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></${tag ? 'a' : 'button'}></li>`;
   $('#shEyebrow').textContent = ''; $('#shTitle').textContent = W.moreH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
-  soft($('#shBody')).html = `<ul class="mlist">
-    ${row(`id="bossBtn" data-boss="1" aria-pressed="${bossOn}" lang="es"`, M.boss)}
-    ${row(`href="${esc(SETTINGS.links.practiceDoor)}" target="_blank" rel="noopener"`, M.practice, 'a')}
-    ${walkModel() ? row('data-print="1"', M.print) : ''}
-    ${row('data-open="prices:"', M.prices)}
-    ${row('data-open="how:"', M.how)}</ul>`;
+  soft($('#shBody')).html = `<div class="card"><div class="row" style="min-height:56px"><span class="lead">${ic(themePref === 'dark' ? 'moon' : 'sun')}</span><span class="t"><b>${esc(Zs.theme)}</b></span></div>
+      <div class="seg themeseg" role="group" aria-label="${esc(Zs.theme)}">${['auto', 'light', 'dark'].map(t => `<button type="button" data-theme-pick="${t}" aria-pressed="${themePref === t}">${esc(Zs.themes[t])}</button>`).join('')}</div></div>
+    <ul class="rows">
+    ${row(`id="bossBtn" data-boss="1" aria-pressed="${bossOn}" lang="es"`, M.boss, 'user')}
+    ${row(`href="${esc(SETTINGS.links.practiceDoor)}" target="_blank" rel="noopener"`, M.practice, 'door', 'a')}
+    ${walkModel() ? row('data-print="1"', M.print, 'print') : ''}
+    ${row('data-open="prices:"', M.prices, 'money')}
+    ${row('data-open="how:"', M.how, 'file')}</ul>`;
 }
 function renderPricesSheet(){
   const W = NW(), C = SETTINGS.company, P = SETTINGS.people;
@@ -5134,9 +5270,9 @@ function renderClaimUpd(){
 /* ---------- the Right Hand: one sheet, reachable from every screen (the chat node moves in and out) ---------- */
 function kcBack(){ const kc = $('#kingChat'), home = $('#kcHome'); if (kc && home && kc.parentNode !== home) home.append(kc); }
 function renderRH(){
-  const W = NW(); $('#shEyebrow').textContent = W.rhEb; $('#shTitle').textContent = W.rhH; $('#shSub').textContent = ''; $('#shTrack').innerHTML = '';
+  const W = NW(); $('#shEyebrow').textContent = ''; $('#shTitle').textContent = W.rhBtn; $('#shSub').textContent = W.rhH; $('#shTrack').innerHTML = '';
   const body = $('#shBody'), kc = $('#kingChat');
-  if (kc.parentNode !== body) { body.innerHTML = ''; body.__h = null; body.append(kc); const q = el('div', 'seg rhq'); q.innerHTML = `<button type="button" data-open="say:">${esc(W.plus.say[0])}</button><button type="button" data-open="nl:">${esc(W.plus.lead[0])}</button>`; body.append(q); }
+  if (kc.parentNode !== body) { body.innerHTML = ''; body.__h = null; body.append(kc); }   // v25: the conversation only (Add has say-it and new lead)
   if (kc.hidden) { if (!body.querySelector('.rh-off')) body.prepend(Object.assign(el('p', 'a-quiet rh-off', W.rhOff))); } else { const o = body.querySelector('.rh-off'); if (o) o.remove(); }
 }
 function openRH(text, send){
@@ -5782,6 +5918,7 @@ function subscribeApp(db){
   db.doc('system/supplements').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('supp', v)) { suppDoc = v; if (openRef && openRef.startsWith('claim:')) renderSheet(); } }, () => {});   // v24 · T85 (optional)
   db.doc('system/city_rules').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('city', v)) { cityDoc = v; bump(); } }, () => {});   // v24 · T123 (optional)
   db.doc('system/followup_scripts').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('fs', v)) { fsDoc = v; bump(); } }, () => {});   // v24 · T134 (optional)
+  db.doc('system/homeowner').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('hoset', v)) { hoSetDoc = v; if (HO.isOpen()) HO.render(); } }, () => {});   // v25 (optional)
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
 }
 /* ================= start ================= */
