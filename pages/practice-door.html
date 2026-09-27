@@ -384,6 +384,8 @@ li.bad .ck-l{color:var(--late)}
 .pro .objs{border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
 .pl-l{font-size:var(--t-cap);color:var(--muted)}
 .pl-a{line-height:1.45;color:var(--ink)}
+.pl-n{margin-top:2px;font-size:var(--t-cap);line-height:1.45;color:var(--muted)}
+.pl-tip{padding:10px var(--s4);font-size:var(--t-cap);line-height:1.45;background:var(--hmp-bg);color:var(--ink)}
 .objs{display:grid;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);overflow:hidden}
 .objs > * + *{border-top:1px solid var(--line)}
 .objs > .eyebrow{padding:10px var(--s4) 6px;background:var(--soft);color:var(--ink-2)}
@@ -421,7 +423,7 @@ li.bad .ck-l{color:var(--late)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true" focusable="false">
 <symbol id="i-door" viewBox="0 0 24 24"><path d="M6.5 20.5V4.8c0-.7.6-1.3 1.3-1.3h8.4c.7 0 1.3.6 1.3 1.3v15.7"/><path d="M4 20.5h16"/><circle cx="14.6" cy="12.2" r=".9" fill="currentColor" stroke="none"/></symbol>
 <symbol id="i-say" viewBox="0 0 24 24"><path d="M4 6.2c0-1 .8-1.7 1.7-1.7h12.6c1 0 1.7.8 1.7 1.7v8.6c0 1-.8 1.7-1.7 1.7H9.5L5 20v-3.5c-.6-.2-1-.8-1-1.5z"/><path d="M8 9h8M8 12.3h5"/></symbol>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
@@ -975,6 +977,12 @@ const T = {
   pg_book: ['Book the look', 'Agendar la revisión'], pg_close: ['Leave on good terms', 'Despedirte bien'],
   first3tips: [['Knock 3 times. Skip the doorbell (a baby might be sleeping).', 'Take 2 steps back and turn sideways, so you look friendly, not pushy.', 'Right after your name, HMP and what you sell: “Did I catch you at a good time?”'],
     ['Toca 3 veces. No uses el timbre (puede haber un bebé dormido).', 'Da 2 pasos para atrás y ponte de lado, para verte amable, no insistente.', 'Justo después de tu nombre, HMP y qué vendes: “¿Le agarro en buen momento?”']],
+  proOpenNote: ['Add “from Fremont” to any opener: the scorecard checks your name, HMP, local and what you sell.', 'A cualquier saludo agrégale “de aquí de Fremont”: el resultado revisa tu nombre, HMP, que eres local y qué vendes.'],
+  /* v10 (round 49): Spanish sale playbook + the "usted" register check (a coaching point, never a legal flag). */
+  playT: ['Spanish sale playbook', 'Guía para vender en español'],
+  c_usted: ['Spoke with “usted” (respect)', 'Habló de “usted” (con respeto)'],
+  ustedAuto: ['Checked from your words: “usted” the whole time.', 'Revisado en tus palabras: “usted” todo el tiempo.'],
+  ustedMiss: ['You used “tú”. With an adult homeowner, stay with “usted” unless they invite “tú”.', 'Usaste “tú”. Con un dueño adulto, quédate con “usted” a menos que te pida hablarle de “tú”.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
 const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure', 'coach_cancel', 'disparage', 'hoa_claim', 'quote', 'bids', 'rate']);
@@ -1370,6 +1378,33 @@ const PRO = [
   { id: "spanish-referral-ask", g: 'close', l: ["After a good visit", "Después de una buena visita"], a: ["If you know a neighbor or family member who could use the same free check, I'd really appreciate the introduction.", "Si conoce a un vecino o familiar que también quiera una revisión gratis, le agradecería mucho la presentación."] }
 ];
 const PRO_ON_HOLD = new Set(['trust-warranty-backed']);
+/* v10 (round 49, data/spanish_sale_playbook.json): 22 lines for Spanish-speaking homeowners, all in "usted", word for
+   word ({name} = Kenny). l = a short label, n = [the English meaning, a Spanish note]. Shown to Spanish-speaking homeowners
+   and in Spanish mode; tests/js/practice_door_rx_check.js keeps them legalScan-clean, "usted" and equal to the data file. */
+const PLAY = [
+  { l: ["First words, formal (add “de aquí de Fremont”)", "Primeras palabras, de usted (agrega “de aquí de Fremont”)"], es: "Buenas tardes, disculpe la molestia. Soy Kenny, de HMP Siding & Roofing — hacemos techos y siding. ¿Le puedo quitar un minuto?", n: ["Good afternoon, sorry to bother you. I'm Kenny, from HMP Siding & Roofing — we do roofing and siding. Can I take a minute of your time? Keeps Nebraska's required order (name, company, what we sell) first, all in formal 'usted' (le, disculpe, puedo).", ""] },
+  { l: ["Trust takes time", "La confianza toma tiempo"], es: "Apenas nos conocemos, así que entiendo perfectamente si quiere pensarlo con calma — no hay ninguna prisa de mi parte.", n: ["We just met, so I completely understand if you want to think it over calmly - there's no rush from me.", ""] },
+  { l: ["Advisor, not salesman", "Asesor, no vendedor"], es: "No vengo a venderle nada todavía — vengo a revisar su techo y explicarle honestamente lo que encuentro, como un asesor, no como un vendedor.", n: ["I'm not here to sell you anything yet - I'm here to check your roof and honestly tell you what I find, like an advisor, not a salesman.", ""] },
+  { l: ["No promises you can’t keep", "Sin prometer de más"], es: "No le voy a prometer nada que no pueda cumplir. Si encuentro daño, se lo muestro con fotos; si no encuentro nada, también se lo digo.", n: ["I won't promise you anything I can't deliver. If I find damage, I'll show you with photos; if I don't find anything, I'll tell you that too.", ""] },
+  { l: ["A family decision", "Decisión en familia"], es: "Si prefieren decidirlo en familia, no hay ningún problema — le dejo las fotos y el estimado por escrito para que lo hablen con calma, o regreso cuando estén todos.", n: ["If you'd rather decide this as a family, that's completely fine - I'll leave the photos and written estimate so you can talk it over calmly, or come back when everyone's home.", ""] },
+  { l: ["The whole family", "La familia extendida"], es: "En muchas familias, un tío, un hermano o los abuelos también ayudan a decidir estas cosas — si alguien de su familia también necesita una revisión, con gusto le ayudo a esa persona también.", n: ["In a lot of families, an uncle, a sibling or the grandparents also help decide these things - if someone in your family also needs a check, I'm happy to help them too.", ""] },
+  { l: ["Storm-chaser fear", "Miedo a los que persiguen tormentas"], es: "Sé que hay compañías que solo aparecen después de una tormenta y luego desaparecen. Nosotros somos de Fremont — seguimos aquí para la garantía el próximo año también.", n: ["I know there are companies that only show up after a storm and then disappear. We're from Fremont - we're still here for the warranty next year too.", ""] },
+  { l: ["Two scam signs HMP never does", "Dos señales de estafa que HMP nunca hace"], es: "Nunca le voy a pedir el pago completo por adelantado, ni lo voy a presionar a firmar hoy mismo.", n: ["I'll never ask for full payment up front, or pressure you to sign today.", ""] },
+  { l: ["Paperwork or status fear", "Miedo a papeles o estatus"], es: "Lo único que necesito para el contrato es su nombre. Nunca preguntamos sobre estatus migratorio.", n: ["The only thing I need for the contract is your name. We never ask about immigration status.", ""] },
+  { l: ["The word “deducible”", "La palabra “deducible”"], es: "deducible", n: ["Always this exact word. Never next to cubrir, eliminar, rebajar, pagar or regalar.", "Siempre esta palabra. Nunca junto a cubrir, eliminar, rebajar, pagar o regalar."] },
+  { l: ["Say “registrados”", "Di “registrados”"], es: "Somos contratistas registrados en Nebraska. Nebraska no da licencias de contratista para este tipo de trabajo, da registro.", n: ["We're registered contractors in Nebraska. Nebraska doesn't issue contractor licenses for this kind of work, it registers them.", ""] },
+  { l: ["Walk the roof together", "Revisar el techo juntos"], es: "Venga conmigo a ver el techo — así lo ve usted mismo, con fotos, antes de que yo le explique nada. Así es como recomienda hacerlo el Departamento de Seguros.", n: ["Come with me to look at the roof - that way you see it yourself, with photos, before I explain anything. That's how the Department of Insurance recommends doing it.", ""] },
+  { l: ["The state’s consumer line", "La línea del estado para consumidores"], es: "Si en algún momento no se siente conforme, el Departamento de Seguros de Nebraska tiene una línea gratuita para consumidores: 1-877-564-7323.", n: ["If at any point you're not comfortable, Nebraska's Department of Insurance has a free consumer hotline: 1-877-564-7323.", ""] },
+  { l: ["No damage found", "No hay daño"], es: "Buenas noticias para usted — no encontré daño de tormenta. No le voy a inventar un problema que no existe.", n: ["Good news for you - I didn't find storm damage. I'm not going to invent a problem that isn't there.", ""] },
+  { l: ["A family co-signer", "Un familiar como aval"], es: "Si algún familiar quiere ayudar con el pago o firmar el financiamiento con usted, eso se puede hablar directamente con el prestamista.", n: ["If a family member wants to help with payment or co-sign the financing with you, that's something to discuss directly with the lender.", ""] },
+  { l: ["Keep small promises", "Cumple lo pequeño"], es: "Le dije que lo iba a llamar el jueves — aquí estoy, como quedamos.", n: ["I told you I'd call Thursday - here I am, like we agreed.", ""] },
+  { l: ["Warm, still “usted”", "Con cariño, siempre de usted"], es: "Le voy a explicar todo con cariño y con calma, paso a paso, para que no le quede ninguna duda.", n: ["I'll explain everything to you warmly and calmly, step by step, so you have no doubts left.", ""] },
+  { l: ["Older homeowners: calm, no jargon", "Mayores: con calma, sin tecnicismos"], es: "Se lo voy a explicar sin tecnicismos, con calma — dígame si algo no le quedó claro y se lo repito.", n: ["I'll explain it without technical jargon, calmly - tell me if anything wasn't clear and I'll repeat it.", ""] },
+  { l: ["“Why is insurance so slow?”", "“¿Por qué tarda tanto el seguro?”"], es: "El proceso con la aseguradora a veces toma tiempo — eso no lo controlamos ni usted ni nosotros, pero le aviso en cuanto haya novedades.", n: ["The insurance process sometimes takes time - neither of us controls that, but I'll let you know as soon as there's news.", ""] },
+  { l: ["Thank-you after the job", "Gracias al terminar"], es: "Muchas gracias por confiar en nosotros — si su familia necesita algo más adelante, aquí estamos.", n: ["Thank you for trusting us - if your family needs anything down the road, we're here.", ""] },
+  { l: ["“Is this a scam?”", "“¿Esto es una estafa?”"], es: "Es una pregunta justa — aquí tiene mi nombre, el teléfono de la empresa, y puede llamar al Departamento de Seguros de Nebraska para revisar quejas de cualquier compañía, incluida la nuestra.", n: ["That's a fair question - here's my name, the company phone number, and you can call Nebraska's Department of Insurance to check complaints on any company, including ours.", ""] },
+  { l: ["Goodbye, formal", "Despedida, de usted"], es: "Fue un gusto conocerlo/conocerla. Muchas gracias por su tiempo.", n: ["It was a pleasure meeting you. Thank you very much for your time. (conocerlo/conocerla - match the homeowner's gender.)", ""] }
+];
 const objFor = o => [].concat(o[2] || []);
 
 const STREETS = ['N Clarkson St', 'E Military Ave', 'N Nye Ave', 'E 23rd St', 'N Broad St', 'E Dodge St', 'N Somers Ave', 'E 9th St'];
@@ -1623,6 +1658,10 @@ const RX = [
   ['deductible', /\b(?:don'?t|do not|no need to|never)\s+worry about (?:the |your |that )?deductibles?\b|\bdeductibles?\b[^.!?]{0,40}\b(?:we'?ll|we will|i'?ll|i will|we can|i can|we could|i could)\s+(?:work with you|take care of|handle|help (?:you )?(?:out|with)|figure (?:it|something) out|make it work)|\b(?:no se preocupe|no te preocupes) (?:por|del) (?:el |su )?deducible/i],
   ['license', /\b(?:we'?re|we are|i'?m|i am|hmp is|hmp'?s|our company is|the company is)\s+(?:all\s+|fully\s+|totally\s+|100%\s+|properly\s+)?licen[sc]ed\b|\blicen[sc]ed,?\s+(?:bonded,?\s+)?(?:and|&)\s+(?:insured|bonded)\b|\b(?:fully|state)[- ]licen[sc]ed\b|\b(?:we|i|hmp)\s+(?:have|hold|got|carry)\s+(?:a|our|the|my|all the)\s+(?:state\s+|contractor'?s?\s+|roofing\s+)?licen[sc]es?\b/i, 'noCheck'],
   ['license', /\b(?:somos|estamos)\s+(?:licenciados|con licencia)\b|\b(?:tenemos|tengo)\s+(?:la |nuestra |mi )?licencia\b|\bcon licencia y (?:seguro|asegurados)\b|\blicenciados y asegurados\b/i, 'noCheck'],
+  /* v10 (2026-09-27, round 49): more Spanish ways to say HMP has a "licencia" ("licenciados", "con licencia", "tenemos
+     licencia"). The answer is "registrados". A driver's license ("licencia de manejo") or the title "el licenciado" is
+     not about HMP, so no flag. */
+  ['license', /\b(?:hmp|nosotros|la compa[nñ][ií]a|nuestra compa[nñ][ií]a|la empresa|nuestra empresa)\s+(?:s[ií]\s+)?(?:es|est[aá]|son|estamos|somos)\s+(?:una\s+)?(?:compa[nñ][ií]a\s+|empresa\s+|contratistas?\s+)?(?:licenciad[oa]s?|con licencia)\b|\b(?:hmp|nosotros|la compa[nñ][ií]a|nuestra compa[nñ][ií]a|la empresa|nuestra empresa)\s+(?:s[ií]\s+)?(?:tiene|tenemos|cuenta con|contamos con)\s+(?:la |su |nuestra |todas las |las )?licencias?\b(?!\s+de\s+(?:manejo|conducir))|\b(?:somos|soy)\s+(?:una\s+)?(?:compa[nñ][ií]a|empresa|contratistas?|techeros?|techadores?)\s+(?:licenciad[oa]s?|con licencia)\b|\b(?:contamos con|tenemos)\s+(?:todas las |las |la |nuestra )?licencias?\b(?!\s+de\s+(?:manejo|conducir))|\b(?:estamos|somos|soy)\s+licenciad[oa]s?\b|\b(?:mi|nuestra)\s+licencia\s+de\s+(?:contratista|techero|techador|construcci[oó]n)\b|^(?:s[ií]|claro(?: que s[ií])?)[,.!]?\s+(?:con licencia|licenciad[oa]s?)\b/i, 'noCheck'],
   ['referral', /\b(?:gift ?cards?|gifts?|\$?\d[\d,]+|cash|money|pay you|rewards?|bonus(?:es)?|discounts?|finder'?s fee|kickbacks?|\d+\s?(?:%|percent) off|free (?:gutter|cleaning|upgrade|month))\b[^.!?]{0,50}\b(?:refer|referral|referrals|referring|send (?:us |me )?(?:your |a |some )?(?:friends?|neighbou?rs?|sister|brother|someone|anyone|family)|sends? (?:us |me )?(?:someone|anyone|a friend|her|him|them)|tell (?:your )?(?:friends|neighbou?rs|family))\b/i, 'negGift'],
   ['referral', /\b(?:refer|referral|referrals|referring|send (?:us |me )?(?:your |a |some )?(?:friends?|neighbou?rs?|sister|brother|someone|anyone|family)|for (?:every|each) (?:friend|neighbou?r|person|referral|job)|tell (?:your )?(?:friends|neighbou?rs|family))\b[^.!?]{0,50}\b(?:gift ?cards?|gifts?|\$?\d[\d,]+|cash|money|pay you|rewards?|bonus(?:es)?|discounts?|finder'?s fee|kickbacks?|\d+\s?(?:%|percent) off)/i, 'negGift'],
   ['referral', /\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b[^.!?]{0,50}(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))|(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))[^.!?]{0,50}\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b/i, 'negGift'],
@@ -1758,12 +1797,31 @@ const HOA_OK = /\b(?:association|hoa|board|management company|property manager|m
 const NODMG_OK = /\b(?:no|not|didn'?t|don'?t|nothing|zero)\b[^.!?]{0,40}\b(?:damage|hail hits?|hits?)\b|\bno (?:vi|encontr[eé]|hay|tiene|veo)\b[^.!?]{0,40}\bda[nñ]o|\bsin da[nñ]o/i;
 const REF_ASK = /\bintroduc\w*|\brefer\w*|\brecomend\w*|\brecomiend\w*|\bpresentaci\w*|\b(?:neighbou?rs?|friends?|vecin[oa]s?|amig[oa]s?)\b[^.!?]{0,40}\b(?:asks?|needs?|mention|tell|pregunta|necesita)\b/i;
 const CLAIM_RX = /\b(?:insurance|insurer|claim|adjuster|policy|seguro|aseguranza|aseguradora|reclamo|ajustador|p[oó]liza)\b/i;
+/* v10 (round 49): Spanish register. "Tú" words said to an adult homeowner are a coaching note (the "usted" check on the
+   scorecard), never a legal flag. English sentences, a line asking permission ("¿le puedo hablar de tú?") and anything
+   after the homeowner invites "tú" don't count. */
+const TU_RX = /(?:^|[^\wáéíóúñü])(?:tú|tu|tus|te|ti|contigo|tuy[oa]s?|vos|eres|estás|tienes|quieres|puedes|sabes|necesitas|vives|vas|oye|mira|dime|déjame|dejame|fíjate|fijate|tenés|querés|podés|sabés)(?=$|[^\wáéíóúñü])/i;
+const TU_ASK = /de t[uú](?![\wáéíóúñü])|tute[aá]/i;
+const TU_INVITE = /h[aá]bl[ae]me de t[uú]|me puedes? hablar de t[uú]|puede(?:s)? tutearme|tut[eé](?:e|a)me|de t[uú] est[aá] bien|tr[aá]tame de t[uú]/i;
+const EN_RX = /\b(?:the|you|your|and|is|it|to|we|of|for|with|what|can|this|that|my|our)\b/gi;
+function tuUsed(turns) {
+  for (const x of turns) {
+    if (x.role !== 'user') { if (TU_INVITE.test(x.content)) return false; continue; }
+    for (const s of (String(x.content).match(/[^.!?;\n]+[.!?;]*/g) || [])) {
+      if (new Set((s.match(EN_RX) || []).map(w => w.toLowerCase())).size >= 2 || TU_ASK.test(s)) continue;
+      if (TU_RX.test(s)) return true;
+    }
+  }
+  return false;
+}
 const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content, scanOpt(S.actual)));
 /* v9: which extra rules apply to this homeowner (HOA unit owner, price over the phone). */
 function scanOpt(k) { const p = P[k] || {}; return { hoa: !!p.hoa, phone: !!p.phone }; }
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, '').replace(/\s+/g, ' ').trim();
 
 /* ---------- Prompts ---------- */
+/* v10 (round 49): a Spanish talk = a Spanish session, or Kenny switched to Spanish. Adds the "usted" check. */
+function esTalk() { return S.sessionLang === 'es' || spanishCount(S.turns.filter(x => x.role === 'user').map(x => x.content).join(' ')) >= 3; }
 function rulesText() {
   const sc = S.sc, p = P[S.actual], es = S.sessionLang === 'es';
   let langRule;
@@ -1823,7 +1881,7 @@ function coachPrompt() {
   const sc = S.sc, p = P[S.actual];
   const outLang = S.lang === 'es' ? 'Spanish (talk to Kenny with "tú")' : 'English';
   const tr = S.turns.map(x => (x.role === 'user' ? 'KENNY: ' : 'HOMEOWNER: ') + x.content).join('\n');
-  const cash = kindOf(S.actual) === 'cash', mustEs = !!p.mustEs && S.sessionLang !== 'es';
+  const cash = kindOf(S.actual) === 'cash', mustEs = !!p.mustEs && S.sessionLang !== 'es', esT = esTalk();
   /* v5: first-line rule (69-1602), Spanish switch, deductible, 3-day form, referral, claim talk (T107). Optional checks say "applies". */
   const ck = [
     'intro: in his FIRST line at the door he said all four: his name, HMP (Siding & Roofing), that they are local / from Fremont, and what HMP sells or offers (roofs, siding, a free inspection or estimate). Nebraska 69-1602 wants this said first thing. Saying "HMP Siding & Roofing" counts as what they sell. Missing any one of the four in the first line = FAIL.',
@@ -1834,6 +1892,7 @@ function coachPrompt() {
     'objection: he handled the main objection calmly: acknowledged it, answered short and honest, no pressure or arguing. If the objection never came up, judge how calm he stayed.' + (cash ? ' On price, a good move is asking what number they had in mind and comparing options (like vinyl vs Hardie); just cutting the price is weak.' : ''),
     ...(cash ? ['nextdate (cash visits only): before the talk ended he locked a specific next date: a day and/or time to come back, bring the written estimate or call ("Saturday at 10", "Tuesday evening", "the first week of March"). "I\'ll call you", "sometime" or "whenever you\'re ready" FAIL. If he never asked for a next step, FAIL.'] : []),
     ...(mustEs ? ['spanish: this homeowner prefers Spanish. PASS only if Kenny switched to Spanish as soon as they asked (or right after their first reply) and stayed in Spanish.'] : []),
+    ...(esT ? ['usted: this talk was in Spanish with an adult homeowner. PASS if Kenny kept "usted" (usted, le, su, puede, disculpe, mire) the whole time; FAIL if he used "tú" (tú, te, tu, puedes, quieres, oye, mira) before the homeowner invited it. Asking "¿le puedo hablar de tú?" is fine. This is a coaching point about respect, not a legal problem: never add a legal flag or fail the legal check for it.'] : []),
     'nodeduct: he did not talk about the deductible, except to say it is always the homeowner\'s part. Any other deductible talk (discounts, "we\'ll work with you on it", "don\'t worry about it", ways around it) FAIL. Never mentioning it is a PASS.',
     'cancelform: ONLY if signing, a contract or starting the job came up: he offered or explained the 3-day cancel form (3 business days to cancel, in writing) before any signature, with no pressure. If signing never came up, give {"id":"cancelform","applies":false}.',
     'referral: ONLY if referrals came up (he asked for one, or the homeowner offered to send someone): he took it as a compliment with a thank-you only, never a gift, gift card, money, discount or reward. If referrals never came up, give {"id":"referral","applies":false}.',
@@ -1862,7 +1921,7 @@ function coachPrompt() {
     focusLine() + ' In "focus", say if this skill came up in this talk (applies) and if he did it (pass), with a note under 15 words. If he missed it, make the first "next" tip about it.',
     '',
     'Reply with only this JSON, no other text:',
-    '{"checks":[' + ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + (p.extra || []).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
+    '{"checks":[' + ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + (esT ? '{"id":"usted","pass":true,"note":"..."},' : '') + (p.extra || []).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
     'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":one of ' + TYPES.map(x => '"' + x + '"').join(', ') + '}, and set the legal check to false (except a "neighbor" flag alone, see above).',
     'outcome is "yes" (homeowner agreed to a look, an estimate or a time, or gave the owner\'s or manager\'s office line), "maybe" or "no". next has exactly 2 concrete things to try next time, each a line to say or a move to make.'
   ].join('\n');
@@ -2244,11 +2303,23 @@ function renderCheat(box, all) {
   sum.append(el('span', null, t('proT')), el('span', 'pro-n', String(shown.length)), ico('chevd'));
   let pg = null;
   for (const x of shown) {
-    if (x.g !== pg) { pl.append(el('div', 'eyebrow', t('pg_' + x.g))); pg = x.g; }
+    if (x.g !== pg) { pl.append(el('div', 'eyebrow', t('pg_' + x.g))); if (x.g === 'open') pl.append(el('div', 'pl-tip', t('proOpenNote'))); pg = x.g; }
     const d = el('div', 'obj pl'); d.append(el('div', 'pl-l', x.l[Li()]), el('div', 'pl-a', x.a[Li()])); pl.append(d);
   }
   pro.append(sum, pl);
-  box.append(op, ob, pro);
+  box.append(op, ob);
+  /* v10 (round 49): the Spanish sale playbook, folded, for Spanish-speaking homeowners and in Spanish mode. */
+  if (all || S.lang === 'es' || (who && grpOf(who) === 'es')) {
+    const pb = el('details', 'pro'), ps = el('summary'), pbl = el('div', 'objs');
+    ps.append(el('span', null, t('playT')), el('span', 'pro-n', String(PLAY.length)), ico('chevd'));
+    for (const x of PLAY) {
+      const d = el('div', 'obj pl'); d.append(el('div', 'pl-l', x.l[Li()]), el('div', 'pl-a', x.es));
+      if (x.n[Li()]) d.append(el('div', 'pl-n', x.n[Li()]));
+      pbl.append(d);
+    }
+    pb.append(ps, pbl); box.append(pb);
+  }
+  box.append(pro);
   if (all || (who && kindOf(who) === 'cash')) {
     const cm = el('section'); cm.append(el('div', 'eyebrow', t('cmpT')));
     const wrap = el('div', 'cmp-wrap'), tb = el('table', 'cmp');
@@ -2594,11 +2665,13 @@ function computeScore(data) {
     intro_ask: () => has(['referral']) ? { ok: false, note: t('r_referral') } : !kenny.some(x => REF_ASK.test(x)) ? { ok: false, note: t('introAskMiss') } : { ok: true },
     hoa: () => (has(['hoa_claim']) || !kenny.some(x => HOA_OK.test(x))) ? { ok: false, note: t('hoaMiss') } : { ok: true, note: t('hoaAuto') },
     noquote: () => (has(['quote']) || (kenny.some(x => RANGE_RX.test(x) && /\d/.test(x)) && !kenny.some(x => NOT_FINAL.test(x)))) ? { ok: false, note: t('noquoteMiss') } : { ok: true },
-    bidsok: () => has(['bids', 'competitor', 'disparage', 'quote']) ? { ok: false, note: t('bidsMiss') } : { ok: true }
+    bidsok: () => has(['bids', 'competitor', 'disparage', 'quote']) ? { ok: false, note: t('bidsMiss') } : { ok: true },
+    /* v10 (round 49): "usted" with an adult homeowner. A coaching point: it never touches the legal check. */
+    usted: () => tuUsed(S.turns) ? { ok: false, note: t('ustedMiss') } : { ok: true, note: t('ustedAuto') }
   };
   const TRIGGER = { cancelform: () => home.some(x => SIGN_ASK.test(x)), referral: () => all.some(x => REF_RX.test(x)) || has(['referral']), claimtalk: () => (!cash && all.some(x => CLAIM_RX.test(x))) || has(['negotiate', 'promise', 'rate']) };
   const skip = p.skip || [], extra = p.extra || [];
-  const ids = ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).concat(['objection'], cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], extra, ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
+  const ids = ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).concat(['objection'], cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], esTalk() ? ['usted'] : [], extra, ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
   const checks = [];
   for (const id of ids) {
     const c = got.find(x => x && x.id === id);

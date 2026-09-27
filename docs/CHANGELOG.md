@@ -1,9 +1,9 @@
 # HMP App changelog (newest first)
 
 ## Practice Door v10 - 2026-09-27
-- New v25 look (Ledger light + Ledger Night dark): homeowner cards with an icon, difficulty and language chips; Rookie switch.
-- At the door: a messaging-style chat with the homeowner's avatar, a mic + keyboard bar, and the cheat sheet as a bottom sheet.
-- Scorecard: big score with a pass/fail bar, rows with icons, a calm legal box, "Knock again" always at the bottom. Legal checks unchanged.
+- New v25 look (light + dark): homeowner cards with icon, difficulty and language chips; chat-style door with the homeowner's avatar and a mic + keyboard bar; cheat sheet as a bottom sheet; scorecard with a big score, pass/fail rows and "Knock again" always at the bottom.
+- Two new hard legal flags, same stop as the deductible: promising their insurance rate won't go up (EN/ES), and "licencia / con licencia" about HMP in Spanish (say "registrados").
+- Cheat sheet adds 21 pro door lines (round 47), the 22-line Spanish playbook (round 49) and 3 first-3-seconds moves; Spanish talks now score "usted" as a coaching point, not a legal fail.
 
 ## v24.1 - 2026-09-27
 - Fixed blank white buttons in dark mode, duplicate menus, "Built 1980" twice, wrong map caption.

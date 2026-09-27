@@ -20,18 +20,19 @@ body{background:var(--bg);color:var(--ink)}
 .gsec h2{font-size:21px;font-weight:600;letter-spacing:-.015em}
 .gsec .src{font:500 11px var(--mono);color:var(--faint)}
 .gsec .desc{color:var(--muted);font-size:13.5px;max-width:74ch;margin-top:4px}
-.gap-note{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--warn-bg);color:var(--warn);
-  border-radius:var(--r-sm);padding:6px 10px;font-size:12.5px;font-weight:500}
-.gap-note .i{width:14px;height:14px;flex:none}
+.gap-note{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;margin-top:10px;background:var(--warn-bg);color:var(--warn);
+  border-radius:var(--r-sm);padding:8px 10px;font-size:12.5px;font-weight:500;line-height:1.4;max-width:100%}
+.gap-note .i{width:14px;height:14px;flex:none;margin-top:1px}
+.gap-note code{font-family:var(--mono);background:rgba(0,0,0,.08);border-radius:4px;padding:0 4px}
 
 /* the light/dark comparison unit */
-.pair{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
-@media (min-width:820px){.pair{grid-template-columns:1fr 1fr}}
+.pair{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:14px}
+@media (min-width:820px){.pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .swatch{border-radius:var(--r-lg);border:1px solid var(--line);padding:18px;position:relative;overflow:hidden}
 .swatch .themetag{position:absolute;top:10px;right:12px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .tok{margin-top:12px;font:500 11px var(--mono);color:var(--muted);line-height:1.6;letter-spacing:.005em}
 .tok b{color:var(--ink-2);font-weight:500}
-.demo-col{display:grid;gap:12px}
+.demo-col{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 .demo-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .demo-label{font:500 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
 
@@ -186,7 +187,7 @@ body{background:var(--bg);color:var(--ink)}
 
 /* ============ 15. map pieces ============ */
 .gs-map .mapbg{position:relative;height:230px;border-radius:var(--r-lg);overflow:hidden;background:var(--map-land)}
-.gs-map .mapbg svg{position:absolute;inset:0;width:100%;height:100%}
+.gs-map .mapbg > svg{position:absolute;inset:0;width:100%;height:100%}
 .gs-map .mctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;background:var(--card);border-radius:var(--r-md);box-shadow:var(--e2);overflow:hidden}
 .gs-map .mctl button{width:36px;height:36px;display:grid;place-items:center;color:var(--ink-2)}
 .gs-map .mctl button+button{border-top:1px solid var(--line)}
@@ -203,7 +204,7 @@ body{background:var(--bg);color:var(--ink)}
 .gs-map .zonepin{position:absolute;left:44%;top:52%;transform:translate(-50%,-100%);display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 4px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;box-shadow:var(--e2);white-space:nowrap}
 .gs-map .zonepin b{display:grid;place-items:center;height:20px;min-width:20px;padding:0 6px;border-radius:var(--r-pill);background:var(--hmp);color:var(--on-hmp);font-size:11.5px}
 .gs-map .walkmini{position:relative;height:110px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
-.gs-map .walkmini svg{position:absolute;inset:0;width:100%;height:100%}
+.gs-map .walkmini > svg{position:absolute;inset:0;width:100%;height:100%}
 .gs-map .walkmini .expand{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:var(--card);box-shadow:var(--e2);display:grid;place-items:center;color:var(--ink-2)}
 .gs-map .walkmini .expand .i{width:15px;height:15px}
 .gs-map .walkmini .tag{position:absolute;right:8px;top:8px;display:flex;gap:4px}
@@ -225,7 +226,7 @@ body{background:var(--bg);color:var(--ink)}
 .gs-fields .field-basic select{appearance:none;background-image:none}
 
 /* ============ 17. overflow: EN vs long ES ============ */
-.gs-overflow .ofrow{display:grid;gap:8px}
+.gs-overflow .ofrow{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .gs-overflow .ofrow .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
 </style>
 </head>
@@ -807,6 +808,7 @@ body{background:var(--bg);color:var(--ink)}
       </div>
     </div>
     <p class="tok">Truncation rule everywhere: <b>white-space:nowrap; overflow:hidden; text-overflow:ellipsis</b> on one line, never a wrapped 2nd line except sub-lines that are allowed to wrap (coach, empty body).</p>
+    <p class="gap-note"><svg class="i"><use href="#i-alert"/></svg>Found here: <b>.top h1</b> has <code>flex:1</code> but no <code>min-width:0</code>, so a long title doesn't ellipsis - it pushes the whole bar wider and gets clipped raggedly instead. Same for <b>.btn</b> labels: no overflow rule at all, by design ("verb labels only"), so a long one will spill past the button edge. Neither is fixed here - flag to the Builder if a real screen ever needs a title/label this long.</p>
   </section>
 
   <footer style="margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)">

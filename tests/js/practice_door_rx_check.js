@@ -7,17 +7,19 @@
  *
  * Exit 0 = all pass. The AI coach is the main check; this set is the backup and the regression guard.
  * v6 (2026-09-26, QA): 19 tricky phrasings + 15 compliant look-alikes added (deductible softening, "basically
- * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy). */
+ * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy).
+ * v10 (2026-09-27): the insurance-rate promise (round 47) and "licencia" said about HMP in Spanish (round 49), each with
+ * compliant look-alikes; the pro lines and the Spanish playbook must equal their data files; taught Spanish keeps "usted". */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "..", "..", "pages", "practice-door.html"), "utf8");
 const a = src.indexOf("const RX = ["), b = src.indexOf("const localFlags");
-const legalScan = new Function(src.slice(a, b) + "\nreturn legalScan;")();
+const { legalScan, tuUsed } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed };")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
-const { OBJ, SKILL, PRO, PRO_ON_HOLD } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD };")();
+const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY };")();
 
 /* [line, expected first flag type or null, optional legalScan context] */
 const HOA = { hoa: true }, PHONE = { phone: true };
@@ -357,6 +359,29 @@ const CASES = [
   ["Eso es entre usted y su aseguradora, no le puedo decir si sube.", null],
   ["No le quito mucho tiempo, son 10 minutos.", null],
   ["No le va a subir el precio del trabajo.", null],
+  /* v10 (round 49): "licencia" said about HMP in Spanish is the same hard flag as "licensed". Answer: "registrados". */
+  ["HMP tiene licencia del estado.", 'license'],
+  ["Somos una compañía con licencia.", 'license'],
+  ["Estamos licenciados en Nebraska.", 'license'],
+  ["Somos contratistas con licencia y seguro.", 'license'],
+  ["Contamos con licencia para techos.", 'license'],
+  ["Sí, tenemos todas las licencias.", 'license'],
+  ["HMP es una empresa licenciada.", 'license'],
+  ["Nuestra compañía está licenciada y asegurada.", 'license'],
+  ["Sí, con licencia y todo.", 'license'],
+  ["Soy contratista licenciado.", 'license'],
+  ["Nuestra licencia de contratista es del estado.", 'license'],
+  /* v10: compliant look-alikes (a driver's license, the title "licenciado", correcting the term) stay clean */
+  ["El seguro exige una licencia de manejo.", null],
+  ["¿Me enseña su licencia de manejo?", null],
+  ["Mi hijo sacó su licencia de manejo.", null],
+  ["Hablé con el licenciado Pérez, el abogado de la asociación.", null],
+  ["No somos licenciados, somos registrados; así funciona en Nebraska.", null],
+  ["Nebraska no da licencias de contratista para este tipo de trabajo, da registro.", null],
+  ["En Texas piden licencia; aquí en Nebraska es registro.", null],
+  ["Asegúrese de que el contratista esté registrado, no importa si dice que tiene licencia.", null],
+  ["Nunca decimos que tenemos licencia: estamos registrados.", null],
+  ["Somos contratistas registrados en Nebraska.", null],
 ];
 
 let fails = 0;
@@ -394,6 +419,38 @@ if (T.f_rate[0] !== `“${ok47.en}”` || T.f_rate[1] !== `“${ok47.es}”`) { 
 (PRO || []).forEach(p => p.a.forEach((x, i) => lines.push(["PRO " + p.id + (i ? " ES" : " EN"), x])));
 T.first3tips.forEach((l, i) => l.forEach(x => lines.push(["first3tips" + (i ? " ES" : " EN"), x])));
 console.log(`${DATA.length} pro lines match the data file${pf ? ` - ${pf} problem(s)` : ""}`);
+/* v10 (round 49): the Spanish sale playbook must equal data/spanish_sale_playbook.json word for word ({name} = Kenny)
+   and stay clean; every Spanish line the page teaches keeps "usted"; the "tú" check itself works both ways. */
+const PB = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "spanish_sale_playbook.json"), "utf8"));
+if (!Array.isArray(PLAY) || PLAY.length !== PB.length) { pf++; console.log("FAIL PLAY has", PLAY && PLAY.length, "lines, data file has", PB.length); }
+PB.forEach((x, i) => { const p = (PLAY || [])[i]; if (!p || p.es !== x.es.replace(/\{name\}/g, "Kenny") || !p.l || !p.l[0] || !p.l[1]) { pf++; console.log("FAIL PLAY entry differs from the data file:", i, x.moment); } });
+(PLAY || []).forEach((p, i) => lines.push(["PLAY " + i, p.es]));
+if (typeof tuUsed !== "function") { pf++; console.log("FAIL tuUsed is missing"); } else {
+  const U = x => ({ role: "user", content: x }), H = x => ({ role: "assistant", content: x });
+  const TU = [
+    [[U("Hola, soy Kenny de HMP Siding & Roofing. ¿Le puedo quitar un minuto?")], false],
+    [[U("¿Te parece el sábado a las 10?")], true],
+    [[U("¿Tienes tiempo ahorita?")], true],
+    [[U("Mira, tu techo tiene golpes.")], true],
+    [[U("Oye, ¿quieres que revise?")], true],
+    [[U("Estás en buenas manos.")], true],
+    [[U("Buenas tardes. ¿Vos sabés si granizó aquí?")], true],
+    [[U("It won't cost you a dime to look.")], false],
+    [[U("Buenas tardes, disculpe la molestia. Soy Kenny, de HMP."), H("Háblame de tú, mijo."), U("Claro, ¿te parece si reviso tu techo?")], false],
+    [[U("¿Prefiere que le hable de tú o de usted?")], false],
+    [[U("Venga conmigo a ver el techo, así lo ve usted mismo.")], false],
+    [[U("Fue un gusto conocerlo. Muchas gracias por su tiempo.")], false],
+  ];
+  for (const [turns, want] of TU) if (tuUsed(turns) !== want) { pf++; console.log("FAIL tú check", want ? "missed" : "false hit", JSON.stringify(turns.map(x => x.content))); }
+  const taught = [];
+  OBJ.forEach(o => taught.push(["OBJ " + o[0][0], o[1][1]]));
+  for (const k of Object.keys(T)) if (/^f_/.test(k) && Array.isArray(T[k])) taught.push([k, T[k][1]]);
+  SKILL.forEach(k => taught.push(["SKILL " + k.id, k.a[1]]));
+  (PRO || []).forEach(p => taught.push(["PRO " + p.id, p.a[1]]));
+  (PLAY || []).forEach((p, i) => taught.push(["PLAY " + i, p.es]));
+  for (const [where, x] of taught) if (tuUsed([U(x)])) { pf++; console.log("FAIL taught Spanish line uses tú:", where); }
+  console.log(`${PB.length} playbook lines match the data file; ${taught.length} taught Spanish lines keep "usted"`);
+}
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);
