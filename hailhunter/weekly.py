@@ -11,8 +11,11 @@ under `data`):
 - optional hud.json: the lists' heat and why, joined per list in `learning`.
 
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
-funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.day, the local
-day, else lead.estimate.at[:10]) is in the week;
+funnel, learning, scorecard, summary{en, es}}. `scorecard` (T166) = the 5 pilot numbers (doors knocked, contact
+rate, inspections per 100 doors, signed jobs, average $ per signed job) next to an industry range each - see
+scorecard.py; same shape as the standalone `hh.py scorecard` command, `company` always "hmp" here (weekly has no
+claims of its own yet, so its signed-job count is leads only). totals.estimates = leads whose quick estimate
+(lead.estimate.day, the local day, else lead.estimate.at[:10]) is in the week;
 totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); contact_rate = share of doors where
 someone answered (No + Interested + Booked, 0-1), in totals and every walk/list; `benchmarks` = rookie ranges
 {contact_rate, inspection_per_door, sign_per_inspection: [low, high], note{en,es}}; per_100 numbers are
@@ -385,6 +388,8 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, 
 
     t = tally(rows)
     n_est, est_value = estimates(leads, start, end)
+    from .scorecard import report as scorecard_report          # T166: the 5 pilot numbers (lazy: avoid an import cycle)
+    card = scorecard_report(all_doors, leads, start=start, end=end, today=today, bench=bench, company="hmp")
     areas = _best_worst(walks, wcfg["min_doors_area"])
     en = (f"{_pl(t['doors'], 'door', 'doors')} knocked, {t['answered']} answered, {t['interested']} interested, "
           f"{_pl(t['booked'], 'inspection', 'inspections')} booked; {round(t['not_home_rate'] * 100)}% not home.")
@@ -396,7 +401,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, 
         "to": end and end.isoformat(), "as_of": today.isoformat(),
         "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
         "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas, "benchmarks": benchmarks(),
-        "industry": _industry(bench, t),
+        "industry": _industry(bench, t), "scorecard": card,
         "rookie": _rookie(all_doors, rookie_plan, today, cfg),
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),

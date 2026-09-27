@@ -28,6 +28,9 @@
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
                   week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py scorecard --doors d.json --leads l.json [--claims c.json] [--from D --to D]   T166: the 5 pilot
+                  numbers (doors knocked, contact rate, inspections/100 doors, signed jobs, avg $/signed job) next
+                  to industry ranges; same JSON shape for a future pilot company (--company, default "hmp")
   python3 hh.py rookie --doors doors.json [--date 2026-10-05]   rookie plan progress (app doc stats/rookie)
   python3 hh.py tune --weekly weekly.json [--min-doors 50] [--apply] [--out tune.json]   T35 learning loop: real door
                   results vs heat -> small weight changes (max 15% each, EN/ES why). DRY RUN unless --apply
@@ -385,6 +388,18 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
     p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--rookie-plan", help="rookie plan (default: data/rookie_plan.json; missing = no rookie section)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("scorecard", help="T166: the 5 pilot numbers (doors, contact rate, inspections/100, "
+                                         "signed jobs, avg $/job) next to industry ranges - same shape for a "
+                                         "future pilot company")
+    p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--claims", help="JSON of the app's claims/<slug> docs (dict or list)")
+    p.add_argument("--from", dest="from_", help="YYYY-MM-DD start of the window (default: every door tap)")
+    p.add_argument("--to", help="YYYY-MM-DD end of the window (default: every door tap)")
+    p.add_argument("--date", help="YYYY-MM-DD for `as_of` (default: today, Central time)")
+    p.add_argument("--company", help='company id, for a future pilot company (default: "hmp")')
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("rookie", help="rookie plan progress: day, block, streak, EN/ES verdict (JSON for stats/rookie)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
@@ -749,6 +764,23 @@ def main(argv=None):
         except (OSError, ValueError) as e:
             print(f"rookie: {e}", file=sys.stderr)
             return 2
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "scorecard":                       # T166: reads the app's exports only, no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import benchmarks, scorecard, weekly
+        from hailhunter.todaywalk import load_json
+        today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        doc = scorecard.report(weekly.load_doors(load_json(a.doors)),
+                               weekly.load_leads(load_json(a.leads)) if a.leads else [],
+                               scorecard.load_claims(load_json(a.claims)) if a.claims else [],
+                               start=a.from_, end=a.to, today=today,
+                               bench=benchmarks.load(a.benchmarks, cfg),   # T84: missing file -> industry null
+                               company=a.company or "hmp")
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:

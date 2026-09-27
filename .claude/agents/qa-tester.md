@@ -37,21 +37,27 @@ Run these on every review, in addition to `hh.py selftest`:
   and fails on a real JS error or sideways scroll. A failed *external* resource load (Google Fonts,
   no internet in this sandbox) is logged but does not fail the run - it isn't a bug in the page.
 - **Design quality gate (mandatory before any app publish)** - `node tests/pages/design_gate.js
-  [--page pages/hmp-app.html]`. This is the check FilthE asked for after catching white-on-white
-  buttons, duplicate menus and a broken map by eye: run it on every review that touches
-  `pages/*.html`, and **always run it - and read its report - before any HMP App / AI hub / HMP HQ /
-  Practice Door publish**, not just when asked. Renders the page with a mocked `window.claude` +
-  fixture data (leads/claims/doors/today-walk, frozen to "today" 2026-09-27 so it stays
-  deterministic), in light AND dark, at 360/390/420px, EN and ES, and visits every tab plus the "+"
-  sheet. FAILS on: contrast < 4.5:1 for text (< 3:1 for large text/icons), an empty or effectively
-  invisible button label/icon, tap targets under 44x44px, font sizes under 12px, sideways scroll,
-  interactive elements overlapping each other (e.g. a floating bar covering a button), duplicate
-  identical controls in the same header/nav, JS errors, broken images/0-size SVGs, and heading text
-  cut off mid-word. Prints a readable report grouped by rule and saves a screenshot per failing
-  view (capped) to `tests/pages/design_gate_out/` (gitignored scratch). See
-  `docs/qa/design-gate-v24_1.md` for what it found on the v24.1 page and how to read font-size
-  findings there (many of them are one intentional 10-11px design-system choice, not scattered bugs
-  - still real, worth a design call, but report them as one finding, not 1300 of them).
+  [--page pages/hmp-app.html]` (default page; pass `--page pages/practice-door.html` or
+  `--page pages/crew-hq.html` to check those - run the gate against whichever page(s) the change
+  actually touches). This is the check FilthE asked for after catching white-on-white buttons,
+  duplicate menus and a broken map by eye: run it on every review that touches `pages/*.html`, and
+  **always run it - and read its report - before any HMP App / AI hub / HMP HQ / Practice Door
+  publish**, not just when asked. Renders the page with a mocked `window.claude` + fixture data
+  (leads/claims/doors/today-walk, frozen to "today" 2026-09-27 so it stays deterministic), in light
+  AND dark (`prefers-color-scheme` at all 3 widths x both languages, plus a `data-theme`-override
+  spot check), at 360/390/420px, EN and ES (switched by clicking the page's own `#langEs`/`#langEn`
+  toggle, so it works regardless of how a given page stores the choice underneath), and visits every
+  tab plus the "+" sheet. FAILS on: contrast < 4.5:1 for text (< 3:1 for large text/icons - a brand
+  logo mark is exempt from this one: `data-gate-ignore="logo"` on it or an ancestor, or a selector in
+  the fixture's `contrastIgnoreSelectors`), an empty or effectively invisible button label/icon, tap
+  targets under 44x44px, font sizes under 12px, sideways scroll, interactive elements overlapping
+  each other (e.g. a floating bar covering a button), duplicate identical controls in the same
+  header/nav, JS errors, broken images/0-size SVGs, and heading text cut off mid-word. Prints a
+  readable report grouped by rule and saves a screenshot per failing view (capped) to
+  `tests/pages/design_gate_out/` (gitignored scratch). See `docs/qa/design-gate-v24_1.md` for what it
+  found on `pages/hmp-app.html` and `pages/practice-door.html` and how to read font-size findings
+  there (many of them are one intentional 10-11px design-system choice, not scattered bugs - still
+  real, worth a design call, but report them as one finding, not 1300 of them).
 
 All three are standalone scripts (no repo-wide `npm install` needed) - if any of their runtime
 (playwright/chromium) is missing in a given environment, say so rather than skip the review.

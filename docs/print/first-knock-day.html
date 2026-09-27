@@ -32,10 +32,10 @@ body { font-family:"Montserrat", sans-serif; color:var(--ink); -webkit-print-col
 h1 { font:800 36pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; margin-top:4pt; }
 .top .sub { font:500 9pt/1.35 "Montserrat"; color:#c9ccd1; margin-top:5pt; }
 
-.body { flex:1; padding:0.26in 0.55in 0.2in 0.62in; display:flex; flex-direction:column; gap:0.17in; }
+.body { flex:1; padding:0.24in 0.55in 0.16in 0.62in; display:flex; flex-direction:column; gap:0.1in; }
 
 /* door script: the boldest block */
-.door { background:var(--char-dk); color:#fff; border-radius:5pt; padding:0.18in 0.24in 0.17in; position:relative; }
+.door { background:var(--char-dk); color:#fff; border-radius:5pt; padding:0.14in 0.24in 0.12in; position:relative; }
 .door .h { display:flex; align-items:baseline; justify-content:space-between; gap:10pt; }
 .door .h .t { font:800 12pt/1 "Barlow Semi Condensed"; letter-spacing:0.12em; text-transform:uppercase; }
 .door .h .t b { color:var(--orange); }
@@ -49,7 +49,7 @@ h1 { font:800 36pt/0.95 "Barlow Semi Condensed"; text-transform:uppercase; margi
 .door .then { margin-top:6pt; font:500 8.2pt/1.35 "Montserrat"; color:#d3d5d9; }
 .door .then b { color:#fff; }
 
-.grid { display:grid; grid-template-columns:1fr 1fr; column-gap:0.32in; row-gap:0.15in; }
+.grid { display:grid; grid-template-columns:1fr 1fr; column-gap:0.32in; row-gap:0.08in; }
 .blk .lab { display:flex; align-items:baseline; gap:6pt; font:800 11pt/1 "Barlow Semi Condensed"; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink); padding-bottom:4pt; border-bottom:1.2pt solid var(--ink); margin-bottom:5pt; }
 .blk .lab .n { color:var(--orange); font-size:13pt; letter-spacing:0; }
 ul.l { list-style:none; }
@@ -70,8 +70,12 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
 .taps div { border:1pt solid var(--ink); border-radius:3pt; text-align:center; padding:5pt 2pt; font:800 10pt/1 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.05em; }
 .taps div.hot { background:var(--orange); border-color:var(--orange); color:#1b1c1f; }
 
+.trust { margin-top:3pt; padding-top:3pt; border-top:0.7pt solid var(--line); display:grid; gap:1pt; }
+.trust p { font:500 6.6pt/1.22 "Montserrat"; color:var(--muted); }
+.trust p b { color:var(--ink); font-weight:700; }
+
 /* footer */
-.foot { background:var(--char-dk); color:#fff; padding:0.16in 0.55in 0.2in 0.62in; display:flex; align-items:flex-end; justify-content:space-between; gap:0.2in; border-top:3pt solid var(--orange); }
+.foot { background:var(--char-dk); color:#fff; padding:0.1in 0.55in 0.13in 0.62in; display:flex; align-items:flex-end; justify-content:space-between; gap:0.2in; border-top:3pt solid var(--orange); }
 .foot .k { font:700 6.8pt/1 "Montserrat"; letter-spacing:0.16em; text-transform:uppercase; color:#a9acb3; }
 .foot .ph { font:800 24pt/1 "Barlow Semi Condensed"; margin-top:3pt; white-space:nowrap; }
 .foot .alt { font:600 7.4pt/1.3 "Montserrat"; color:#c9ccd1; margin-top:3pt; }
@@ -89,6 +93,8 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
 .es ul.no li::before { top:-1.6pt; }
 .es .odds p { font-size:10pt; }
 .es .grid { row-gap:0.34in; }
+.es .trust { margin-top:10pt; padding-top:8pt; }
+.es .trust p { font-size:8.6pt; line-height:1.35; }
 </style>
 </head>
 <body>
@@ -129,7 +135,7 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
   <main class="body">
     <div class="door">
       <div class="h"><span class="t"><b>1</b> At the door &middot; say this first, every time</span><span class="law">It&rsquo;s the law: NE 69-1602</span></div>
-      <div class="say">&ldquo;Hi, I&rsquo;m <i class="bl"></i> with <em>HMP Siding &amp; Roofing</em>. We&rsquo;re checking roofs in the area for <em>storm damage</em>. We&rsquo;re a local Fremont company, not a storm chaser.&rdquo;</div>
+      <div class="say">&ldquo;Hi, I&rsquo;m <i class="bl"></i> with <em>HMP Siding &amp; Roofing</em>. We do roofs and siding. We&rsquo;re checking roofs in the area for <em>storm damage</em>. We&rsquo;re a local Fremont company, not a storm chaser.&rdquo;</div>
       <div class="steps"><div><span class="n">1</span><b>Your name</b></div><div><span class="n">2</span><b>HMP</b></div><div><span class="n">3</span><b>What you sell</b>, one line. Old-house door: &ldquo;We help homeowners update old siding and roofs.&rdquo;</div></div>
       <div class="then"><b>Then ask, don&rsquo;t pitch:</b> &ldquo;Have you noticed any hail damage, or had anyone come look at your roof?&rdquo;</div>
     </div>
@@ -192,6 +198,10 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
         </ul>
       </div>
     </div>
+    <div class="trust">
+      <p><b>Say it:</b> &ldquo;Be there during the inspection; we&rsquo;ll show you everything we find.&rdquo;</p>
+      <p>Insurance questions? The Nebraska Dept. of Insurance free consumer line: <b>1-877-564-7323</b>.</p>
+    </div>
   </main>
 
   <footer class="foot">
@@ -216,7 +226,7 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
   <main class="body">
     <div class="door">
       <div class="h"><span class="t"><b>1</b> En la puerta &middot; esto primero, siempre</span><span class="law">Es la ley: NE 69-1602</span></div>
-      <div class="say">&ldquo;Hola, soy <i class="bl"></i> de <em>HMP Siding &amp; Roofing</em>. Estamos revisando techos en la zona por <em>da&ntilde;os de granizo</em>. Somos una empresa local de Fremont, no somos de paso.&rdquo;</div>
+      <div class="say">&ldquo;Hola, soy <i class="bl"></i> de <em>HMP Siding &amp; Roofing</em>. Hacemos techos y siding. Estamos revisando techos en la zona por <em>da&ntilde;os de granizo</em>. Somos una empresa local de Fremont, no somos de paso.&rdquo;</div>
       <div class="then"><b>Luego pregunte, no venda:</b> &ldquo;&iquest;Ha notado da&ntilde;os por granizo, o ya vino alguien a revisar su techo?&rdquo;</div>
     </div>
 
@@ -270,6 +280,10 @@ ul.no li::before { content:"\00d7"; background:none; transform:none; top:-2.2pt;
           <li>Antes de parar, anote: puertas, con cu&aacute;ntos habl&oacute;, interesados y citas.</li>
         </ul>
       </div>
+    </div>
+    <div class="trust">
+      <p><b>D&iacute;galo:</b> &ldquo;Est&eacute; presente durante la inspecci&oacute;n; le mostramos todo lo que encontremos.&rdquo;</p>
+      <p>&iquest;Preguntas sobre su seguro? L&iacute;nea gratuita del Departamento de Seguros de Nebraska: <b>1-877-564-7323</b>.</p>
     </div>
   </main>
 

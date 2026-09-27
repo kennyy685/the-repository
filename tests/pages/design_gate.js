@@ -101,8 +101,36 @@ function buildInitScript(opts) {
   window.Date = FrozenDate;
 
   try { localStorage.clear(); } catch (e) {}
+  // Best-effort primer for pages that store the language under a single flat localStorage key
+  // (matches hmp-app.html/crew-hq.html's own 'hmp-app-lang' read). This is only a fallback: the
+  // real driver clicks the page's own #langEs/#langEn toggle after load (see runOneContext), which
+  // works regardless of how a given page actually persists its language (a flat key here, or a
+  // field inside a JSON blob elsewhere, as practice-door.html's 'hmp-practice-door-v1' store does -
+  // pre-seeding THAT key with the bare string "es" would replace the whole saved JSON object with
+  // invalid JSON and silently reset every other saved field, which is exactly the bug this avoids).
   try { localStorage.setItem(${JSON.stringify(opts.langKey)}, ${JSON.stringify(opts.lang)}); } catch (e) {}
-  ${opts.themeAttr ? `try { document.documentElement.setAttribute('data-theme', ${JSON.stringify(opts.themeAttr)}); } catch (e) {}` : ""}
+
+  // Brand logo marks (e.g. the orange HMP roof chevron) are exempt from the contrast checks below -
+  // logos are brand identity, not information, and WCAG itself doesn't hold them to text contrast.
+  // Skip an element with data-gate-ignore="logo" on it or any ancestor, or matching a selector this
+  // page's fixture lists under contrastIgnoreSelectors.
+  window.__GATE_IGNORE_SELECTORS__ = ${JSON.stringify(FIXTURE.contrastIgnoreSelectors || [])};
+
+  ${opts.themeAttr ? `
+  // addInitScript can run before document.documentElement exists yet (confirmed: setting it
+  // directly here silently no-ops - document.documentElement is still null at this point on this
+  // page). Apply immediately if it already exists, else the moment it's created.
+  (function () {
+    function applyTheme() {
+      if (!document.documentElement) return false;
+      document.documentElement.setAttribute('data-theme', ${JSON.stringify(opts.themeAttr)});
+      return true;
+    }
+    if (!applyTheme()) {
+      new MutationObserver(function (_muts, obs) { if (applyTheme()) obs.disconnect(); }).observe(document, { childList: true });
+    }
+  })();
+  ` : ""}
 
   const FIX = ${dataJson};
   const C = Object.assign({}, FIX.collections);
@@ -204,6 +232,19 @@ function pageAudit() {
     for (let n = el; n; n = n.parentElement) {
       const cls = typeof n.className === "string" ? n.className : (n.getAttribute && n.getAttribute("class")) || "";
       if (/(^|\s)(sr|sr-only|visually-hidden)(\s|$)/i.test(cls)) return true;
+      if (n.tagName === "HTML") break;
+    }
+    return false;
+  }
+  function isGateIgnored(el) {
+    // Brand logo marks are exempt from contrast checks - see window.__GATE_IGNORE_SELECTORS__
+    // (set from the fixture's contrastIgnoreSelectors) and buildInitScript's comment on it.
+    const selectors = window.__GATE_IGNORE_SELECTORS__ || [];
+    for (let n = el; n; n = n.parentElement) {
+      if (n.getAttribute && n.getAttribute("data-gate-ignore")) return true;
+      for (const sel of selectors) {
+        try { if (n.matches && n.matches(sel)) return true; } catch (e) { /* bad selector: ignore it, don't crash the audit */ }
+      }
       if (n.tagName === "HTML") break;
     }
     return false;
@@ -317,11 +358,13 @@ function pageAudit() {
       const weight = parseInt(cs.fontWeight, 10) || 400;
       const large = fontSize >= 24 || (fontSize >= 18.66 && weight >= 700);
       const need = large ? 3.0 : 4.5;
+      if (isGateIgnored(el)) continue;   // e.g. a brand logo mark - not held to text contrast
       const ratio = contrastRatio(fg, bg);
       if (ratio < need - 0.02) fail("contrast", `text contrast ${ratio.toFixed(2)}:1 (needs ${need}:1${large ? ", large text" : ""}): "${node.nodeValue.trim().slice(0, 40)}"`, el, rect);
     }
     for (const svg of root.querySelectorAll("svg")) {
       if (!isVisible(svg) || svg.closest("defs, symbol")) continue;
+      if (isGateIgnored(svg)) continue;   // e.g. the orange HMP roof-chevron mark
       const rect = svg.getBoundingClientRect();
       if (rect.width < 1 || rect.height < 1) continue;
       const op = cumOpacity(svg);
@@ -550,6 +593,25 @@ async function runOneContext(browser, opts, shared) {
     findings.push({ view: "(load)", rule: "load-error", msg: String((e && e.message) || e), sel: null, rect: null });
   }
   for (const m of takeMisses()) findings.push({ view: "(load)", rule: "load-error", msg: `file not published (404): ${m} - add it to the page's .files.json`, sel: null, rect: null });
+
+  if (loaded && opts.lang === "es") {
+    // The authoritative way to switch language: click the page's own #langEs toggle (present on
+    // every HMP page that has one, same id everywhere) rather than trust the langKey localStorage
+    // primer above. A page can store its language as a flat key (hmp-app.html) or as a field inside
+    // a whole different JSON blob (practice-door.html's single 'hmp-practice-door-v1' store) - the
+    // primer alone gets the second shape wrong, so the click is what actually makes the ES pass
+    // render Spanish, on any page, regardless of how it persists the choice.
+    const langEs = page.locator("#langEs").first();
+    if (await langEs.count()) {
+      try {
+        await langEs.click({ timeout: 3000 });
+        await page.waitForTimeout(250);
+      } catch (e) {
+        findings.push({ view: "(load)", rule: "nav-error", msg: `could not click #langEs to switch language: ${e.message}`, sel: null, rect: null });
+      }
+    }
+    // else: no toggle on this page - the langKey primer set before load is the only lever we have.
+  }
 
   async function runViewAudit(viewId) {
     let vf;

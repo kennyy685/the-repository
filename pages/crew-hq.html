@@ -1434,7 +1434,7 @@ $('#appToast').addEventListener('click', () => { clearTimeout(appToast.t); $('#a
 /* instant wake (FilthE OK'd 2026-09-26): when he answers a question or the live chat sends an order,
    fire the King's hourly trigger now so Claude Code wakes in seconds. Only after a real user action and a
    saved write; bursts fold into one fire per ~20 s. No mcp or a failed call: nothing lost, the hourly run catches it. */
-const WAKE_TRIGGER = 'trig_012h6pQqggc88n8vsj93zayJ', WAKE_GAP = 20000;
+const WAKE_TRIGGER = 'trig_01MNxMWzvD3ZgRqWxfjtJLEU', WAKE_GAP = 20000;
 let MCP = null, wakeLastAt = 0, wakeTimer = 0, wakeBusy = false;
 const wakeQ = [];
 function wake(text){   // text: short "what + doc id"

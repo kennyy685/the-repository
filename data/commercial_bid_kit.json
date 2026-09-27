@@ -1,0 +1,128 @@
+[
+  {
+    "step": 1,
+    "id": "confirm-and-prep",
+    "phase": "before_walk",
+    "en": "Confirm the walk date/time and ask who else will be there (property manager, maintenance super, HOA board, asset manager). Ask for a site map or building list, and how many buildings/units. Bring the vendor packet (COI, W-9, lien waiver template, registration number) even if nobody asked for it.",
+    "es": "Confirme la fecha/hora de la caminata y pregunte quién más estará presente (gerente de la propiedad, superintendente de mantenimiento, junta de la HOA, gerente de activos). Pida un mapa del sitio o lista de edificios, y cuántos edificios/unidades hay. Lleve el paquete de proveedor (COI, W-9, plantilla de exención de gravamen, número de registro) aunque no se lo pidan.",
+    "why": "Knowing who's in the room changes what to bring: an asset manager wants numbers and schedule, a property manager wants day-to-day logistics. Showing up with the packet unasked is what separates HMP from a rep who scrambles for paperwork later.",
+    "docs_needed": ["vendor packet (COI, W-9, lien waiver template)", "registration number", "site map/building list if provided"]
+  },
+  {
+    "step": 2,
+    "id": "open-the-walk",
+    "phase": "walk",
+    "en": "At the start, say your name, HMP, and that you're there to document conditions, not to sell anything yet. Say 'registered' - never 'licensed.'",
+    "es": "Al comenzar, diga su nombre, HMP, y que está ahí para documentar las condiciones, no para vender nada todavía. Diga 'registrado' - nunca 'licenciado.'",
+    "why": "Same opening rule already required at a homeowner's door; it also sets the right tone for a paperwork-driven buyer - a property manager trusts a documenter more than a pitchman on the first visit.",
+    "docs_needed": ["business card"]
+  },
+  {
+    "step": 3,
+    "id": "walk-each-building-exterior",
+    "phase": "walk",
+    "en": "Walk and photograph each building separately, not the property as one blur - label photos by building number/letter. Check every elevation, especially the side that faced the storm's wind. Look for lifted or creased siding, dented gutters/downspouts/AC fins, spun roof turbines, damaged flashing.",
+    "es": "Camine y fotografíe cada edificio por separado, no la propiedad entera como un solo bloque - etiquete las fotos por número/letra de edificio. Revise cada fachada, sobre todo el lado que recibió el viento de la tormenta. Busque siding levantado o doblado, canaletas/bajantes/aletas de aire acondicionado abolladas, turbinas de techo giradas, tapajuntas dañado.",
+    "why": "Multi-building properties (like The Edge's 5 buildings) almost never have identical damage or age - a blended 'whole property' scope reads as sloppy next to a bid that breaks damage out per building.",
+    "docs_needed": ["camera/phone", "building-labeled photo folders"]
+  },
+  {
+    "step": 4,
+    "id": "roof-access-per-building",
+    "phase": "walk",
+    "en": "If the roof is accessible and safe, check each building's membrane, flashing, penetrations and drains. Flag standing water that looks like it's sat more than about 2 days - that's a real red flag, not just cosmetic. Follow a written, site-specific fall-protection plan any time you're 6 feet or higher, especially with tenants and cars below.",
+    "es": "Si el techo es accesible y seguro, revise en cada edificio la membrana, el tapajuntas, las penetraciones y los drenajes. Marque el agua estancada que parezca llevar más de 2 días ahí - es una señal real, no solo cosmética. Siga un plan de protección contra caídas por escrito y específico del sitio siempre que esté a 6 pies o más de altura, sobre todo con inquilinos y autos abajo.",
+    "why": "Ponding water over about 48 hours is the industry's own red flag for membrane stress on flat/low-slope roofs - naming it correctly earns credibility. A written fall-protection plan is required for 6ft+ work, and multi-story occupied buildings raise the stakes.",
+    "docs_needed": ["fall-protection/safety plan", "test-square kit if flat roof"]
+  },
+  {
+    "step": 5,
+    "id": "interior-and-history",
+    "phase": "walk",
+    "en": "Ask the property manager about interior water stains, any tenant-reported leaks, past roof repairs, and whether a roof warranty is still active on any building. Different buildings on the same property can be different ages - don't assume.",
+    "es": "Pregúntele al gerente de la propiedad sobre manchas de agua adentro, fugas reportadas por inquilinos, reparaciones anteriores del techo, y si algún edificio todavía tiene garantía de techo vigente. Edificios diferentes en la misma propiedad pueden tener edades distintas - no asuma.",
+    "why": "An active manufacturer warranty changes the scope (repair vs. replace) and who has to sign off; interior stains the manager already knows about are often the fastest path to a real budget conversation.",
+    "docs_needed": []
+  },
+  {
+    "step": 6,
+    "id": "logistics-questions",
+    "phase": "walk",
+    "en": "Before you leave, ask about parking/dumpster placement, tenant occupancy and quiet hours, gate codes or key access, and who to call the day of work. Write it down - this becomes the phasing and tenant-notice plan in the bid.",
+    "es": "Antes de irse, pregunte sobre estacionamiento/ubicación del contenedor, ocupación de inquilinos y horas de silencio, códigos de acceso o llaves, y a quién llamar el día del trabajo. Anótelo - esto se convierte en el plan de fases y avisos a inquilinos de la propuesta.",
+    "why": "Occupied-building jobs live or die on logistics; naming these details unprompted in the bid is a small thing a rushed competitor usually skips.",
+    "docs_needed": ["site logistics notes"]
+  },
+  {
+    "step": 7,
+    "id": "close-the-walk",
+    "phase": "walk",
+    "en": "Thank them, confirm the format and date they want the written bid by, and ask plainly if other contractors are bidding too - not to badmouth anyone, just to know your timeline. Never suggest a competitor is dishonest or try to talk them out of getting other bids.",
+    "es": "Agradézcales, confirme el formato y la fecha en que quieren la propuesta escrita, y pregunte directamente si otros contratistas también están cotizando - no para hablar mal de nadie, solo para conocer su plazo. Nunca sugiera que un competidor es deshonesto ni intente disuadirlos de pedir otras cotizaciones.",
+    "why": "Knowing the real deadline avoids losing a bid to timing alone; not talking down competitors keeps clear of any tortious-interference line.",
+    "docs_needed": []
+  },
+  {
+    "step": 8,
+    "id": "build-scope-per-building",
+    "phase": "bid_package",
+    "en": "Write the scope of work as one line item per building, not one blended property total - what comes off, what goes on, thickness/material, and any building-specific differences (age, prior repairs, storm side).",
+    "es": "Escriba el alcance del trabajo como una línea por edificio, no un total combinado de la propiedad - qué se retira, qué se instala, el grosor/material, y cualquier diferencia específica de cada edificio (edad, reparaciones previas, lado que recibió la tormenta).",
+    "why": "Property managers and trade guidance agree a proposal should let them compare scope item by item; blending buildings together hides differences and reads as a less careful bid.",
+    "docs_needed": ["per-building scope sheet"]
+  },
+  {
+    "step": 9,
+    "id": "assemble-the-package",
+    "phase": "bid_package",
+    "en": "Put the full package together: cover letter, per-building scope, phasing/schedule, tenant-notice plan, safety-plan summary, insurance certificate (COI) and W-9, references/completed jobs, written warranty terms, payment schedule, and the lien waiver process. Use the vendor packet already built (docs/print/vendor-packet/) as the base.",
+    "es": "Arme el paquete completo: carta de presentación, alcance por edificio, fases/calendario, plan de avisos a inquilinos, resumen del plan de seguridad, certificado de seguro (COI) y W-9, referencias/trabajos terminados, términos de garantía por escrito, calendario de pagos, y el proceso de exención de gravamen. Use el paquete de proveedor ya hecho (docs/print/vendor-packet/) como base.",
+    "why": "This is the same checklist a trade association tells property owners to look for when picking a contractor: permanent business, insurance/workers-comp certificates, references, a written scope with dates and payment terms, and a clearly explained warranty. Bringing it before they have to ask is what stands out.",
+    "docs_needed": ["cover letter", "per-building scope", "schedule/phasing plan", "tenant-notice plan", "safety-plan summary", "COI", "W-9", "references list", "warranty terms", "payment schedule", "lien waiver info"]
+  },
+  {
+    "step": 10,
+    "id": "phasing-and-tenant-notice",
+    "phase": "bid_package",
+    "en": "Plan the work building by building so the property stays occupied throughout - name the order (Building 1 first, then 2, and so on) and give a notice template the manager can post or hand out per building a few days before work starts there (schedule, noise, parking, safety, a contact number).",
+    "es": "Planifique el trabajo edificio por edificio para que la propiedad se mantenga ocupada durante todo el proyecto - nombre el orden (Edificio 1 primero, luego 2, y así) y entregue una plantilla de aviso que el gerente pueda publicar o repartir por edificio unos días antes de empezar ahí (horario, ruido, estacionamiento, seguridad, un número de contacto).",
+    "why": "Occupied multi-building jobs need a clear phase order and a tenant notice the manager can actually use - a ready-made template is a real time-save a property manager notices.",
+    "docs_needed": ["phasing schedule", "tenant notice template (EN/ES)"]
+  },
+  {
+    "step": 11,
+    "id": "deliver-in-person",
+    "phase": "delivery",
+    "en": "Deliver the bid in person if you can, in a real folder or a clean PDF, and walk through it out loud - don't just send it and wait. Point out the warranty terms and your registration/insurance specifically; these are two things that separate the bid that wins from the one that doesn't.",
+    "es": "Entregue la propuesta en persona si puede, en una carpeta real o un PDF limpio, y explíquela en voz alta - no solo la envíe y espere. Señale específicamente los términos de la garantía y su registro/seguro; son dos cosas que separan la propuesta que gana de la que no.",
+    "why": "A 2006 industry consumer survey found the winning bid mentioned certification 77% of the time versus 34% for a typical bid, and offered an enhanced warranty 71% of the time versus 30% typical - both free to say out loud, in a real folder rather than a loose email.",
+    "docs_needed": ["printed or PDF bid package"]
+  },
+  {
+    "step": 12,
+    "id": "first-follow-up",
+    "phase": "follow_up",
+    "en": "Follow up once, 2-3 days after delivering the bid - not to push, just to ask if anything needs explaining (the phasing plan, a line item, the warranty). Offer something useful, don't just ask 'so, did you decide?'",
+    "es": "Haga un seguimiento una vez, 2-3 días después de entregar la propuesta - no para presionar, solo para preguntar si algo necesita explicación (el plan de fases, una partida, la garantía). Ofrezca algo útil, no solo pregunte '¿ya decidió?'",
+    "why": "A follow-up in the 1-2 day range reads as attentive rather than pushy, especially when it offers to explain something instead of just chasing a decision.",
+    "docs_needed": []
+  },
+  {
+    "step": 13,
+    "id": "space-out-and-stop",
+    "phase": "follow_up",
+    "en": "If there's no answer, space out one or two more check-ins over the following weeks, not daily. Stop the moment they say no or that they picked someone else - log it and only reach out again after the next storm or their next budget cycle, never on a repeating timer.",
+    "es": "Si no hay respuesta, espacie uno o dos seguimientos más durante las semanas siguientes, no a diario. Deténgase en cuanto digan que no o que eligieron a alguien más - regístrelo y solo vuelva a contactar después de la próxima tormenta o su próximo ciclo de presupuesto, nunca en un temporizador repetido.",
+    "why": "Same stop-on-a-clear-no rule already used for the pre-call cadence - keeping it consistent here avoids pestering a decision-maker who already said no.",
+    "docs_needed": []
+  },
+  {
+    "step": 14,
+    "id": "if-awarded",
+    "phase": "award",
+    "en": "If HMP wins the job: confirm the start date against the phasing plan, send an updated COI naming the property/owner as additional insured if they ask, hand out the tenant notices per building on schedule, and confirm which lien waiver (conditional/unconditional, progress/final) applies at each payment stage before work starts.",
+    "es": "Si HMP gana el trabajo: confirme la fecha de inicio según el plan de fases, envíe un COI actualizado que nombre a la propiedad/dueño como asegurado adicional si lo piden, reparta los avisos a inquilinos por edificio según el calendario, y confirme qué exención de gravamen (condicional/incondicional, de avance/final) aplica en cada etapa de pago antes de empezar.",
+    "why": "Award is when the paperwork actually gets tested - having the answers ready (the lien waiver types are already built) keeps the job from stalling on admin instead of work.",
+    "docs_needed": ["updated COI (additional insured if requested)", "lien waiver types per payment stage", "tenant notices per building"]
+  }
+]

@@ -1,0 +1,13 @@
+{
+ "doors/2026-09-24_SC-1": {"date": "2026-09-24", "pid": "SC-1", "address": "100 Elm St", "city": "Fremont", "result": "booked"},
+ "doors/2026-09-24_SC-2": {"date": "2026-09-24", "pid": "SC-2", "address": "101 Elm St", "city": "Fremont", "result": "interested"},
+ "doors/2026-09-24_SC-3": {"date": "2026-09-24", "pid": "SC-3", "address": "102 Elm St", "city": "Fremont", "result": "no"},
+ "doors/2026-09-24_SC-4": {"date": "2026-09-24", "pid": "SC-4", "address": "103 Elm St", "city": "Fremont", "result": "no"},
+ "doors/2026-09-24_SC-5": {"date": "2026-09-24", "pid": "SC-5", "address": "104 Elm St", "city": "Fremont", "result": "not_home"},
+ "doors/2026-09-25_SC-6": {"date": "2026-09-25", "pid": "SC-6", "address": "200 Ash St", "city": "Fremont", "result": "booked"},
+ "doors/2026-09-25_SC-7": {"date": "2026-09-25", "pid": "SC-7", "address": "201 Ash St", "city": "Fremont", "result": "not_home"},
+ "doors/2026-09-25_SC-8": {"date": "2026-09-25", "pid": "SC-8", "address": "202 Ash St", "city": "Fremont", "result": "not_home"},
+ "doors/2026-09-26_SC-9": {"date": "2026-09-26", "pid": "SC-9", "address": "300 Birch St", "city": "Fremont", "result": "interested"},
+ "doors/2026-09-26_SC-10": {"date": "2026-09-26", "pid": "SC-10", "address": "301 Birch St", "city": "Fremont", "result": "no"},
+ "doors/2026-09-10_SC-OLD": {"date": "2026-09-10", "pid": "SC-OLD", "address": "1 Old Rd", "city": "Fremont", "result": "not_home"}
+}

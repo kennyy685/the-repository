@@ -3,9 +3,45 @@
 The hourly King check starts the top unchecked topic as a new round (Research Lead + scouts) whenever no round is running.
 Each round: write `docs/research/<date>-round-<n>.md`, post board items, check the topic off here, and add 1-2 new topics it uncovered.
 Web access (updated 2026-09-27, FilthE opened the network): Bash `curl -sSL -m 20 -A "Mozilla/5.0" <url>` reaches trade sites (roofingcontractor, nachi, nrca, jameshardie, eagleview, hover), tools (wisetack, openphone, repcard, spotio, companycam, roofr, salesrabbit, acculynx, hailtrace), gov (census, api.census.gov, api.weather.gov, spc.noaa.gov, *.nebraska.gov, nebraskalegislature.gov), bbb, mopoa, reddit, youtube, wikipedia. Prefer primary sources now. If WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
+**Round 52 note (cloud/Claude Code session, same day):** the allow-list differs per session. This
+session could NOT reach uphelp.org, blog.theroofstrategist.com, knockbase.com, doortodoormastery.com,
+spotio.com, roofr.com, hover.to, companycam.com, hailtrace.com, or quo.com (all `CONNECT tunnel failed,
+403`) - used WebSearch summaries for those instead and flagged them "search-summary only" in the round
+file. It COULD reach doi.nebraska.gov (2 Consumer Alert PDFs, ice dams + winter weather - new, useful),
+nebraskalegislature.gov, jameshardie.com's root + install-docs index (but not the actual spec PDF text),
+roofingcontractor.com, nachi.org, nrca.net, eagleview.com, salesrabbit.com, repcard.com, wisetack.com.
+Check `curl -sS "$HTTPS_PROXY/__agentproxy/status"` each round rather than assuming last round's list.
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
+- [ ] Open jameshardie.com's own Best Practices installation PDF directly (not a third-party mirror or
+      a WebSearch summary) to quote the real ColorPlus 30°F / fiber-cement cold-weather figures as a
+      primary source - round 52 found the index page (`installation-instructions-technical-docs/`) but
+      not the PDF text itself; the site allows the domain, so this should be reachable with the right path
+- [ ] Local competitor fall/winter marketing check: is ABC Seamless (Fremont, same-town rival, round 17b)
+      or any other nearby competitor already running a "pre-winter inspection" or "last chance before
+      snow" campaign this fall? (round 52 wrote HMP's own legal-safe version but didn't check what
+      competitors are already saying locally)
+- [x] Off-season selling Oct-Mar: fall wind/tree/ice-dam claims, pre-winter inspection offers (legal
+      wording), winter siding installs + financing, winter door-knocking - **round 52**
+      (`docs/research/2026-09-27-round-52.md`). Builds on the existing
+      `docs/research/2026-09-26-off-season-plan.md` and round 25/T127 (claim deadlines already "years,
+      not days" in claims-101). New this round: ice dams (was in zero print pieces before), a
+      legal-safe pre-winter-inspection script, sharper cold-weather install numbers (Hardie ColorPlus
+      specifically can't go below 30°F), and confirmation from Neb. Rev. Stat. 44-357 + 25-205 that
+      Nebraska's real claim-suit deadline floor is 5 years, not the "1 year" line people hear elsewhere
+      (practical advice to homeowners is unchanged: document and file soon, never state a number).
+- [ ] Confirm Nebraska's actual entry/notice rule for construction in occupied rental units (Uniform
+      Residential Landlord and Tenant Act, Ch. 76, nebraskalegislature.gov) before the round-51 tenant-
+      notice template goes to print as a final piece - round 51 only found general national practice
+      (24-48hr notice, daytime hours)
+- [ ] Re-open osha.gov directly once egress allows and confirm the fall-protection sample-plan content
+      against `data/commercial_bid_kit.json` step 4's safety-plan wording - round 51: osha.gov was
+      blocked to both WebFetch and curl this session, so the OSHA content there is stated as the known
+      federal standard, not quoted from the primary page
+- [ ] Open bridgman.org's real government RFP bid-packet PDF (a live example of a full commercial
+      roofing bid-package structure) and shieldlineroofing.com's RFP/RFQ template directly, not just via
+      search summary (round 51 found both but didn't fetch either)
 - [ ] Check whether Cowork's command center map UI actually renders `wind_events[].trees_down`/
       `tree_sample`/`wind_dir` (round 26: the data exists in hud.json since T116-118; display side unconfirmed,
       map source is outside this repo)
@@ -60,9 +96,19 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       specifically) - still nothing beyond general Hispanic-marketing/engagement content (IKO, Roofing
       Contractor's "Techos y Más" launch). Recommend not re-assigning this exact sub-topic again without
       new evidence (e.g. real YouTube transcripts becoming fetchable, or a Spanish-language contractor
-      forum surfacing).
-- [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
-      primary source (manufacturer guidance or an adjuster directly), not another blog
+      forum surfacing). **Round 49: the new evidence showed up.** roofingcontractor.com/Techos y Más opened
+      directly this round (curl) and led to a real, named bilingual sales trainer - **Ricardo González,
+      founder/CEO of Bilingual America** (clients incl. Coca-Cola, National Roofing Partners; teaches
+      SpanishPower/SuccessWithHispanics courses) - with two of his own Spanish-language trust-building
+      columns for roofing contractors. Nebraska's own DOI consumer brochure ("After the Storm," opened as a
+      PDF) added real state-level material too (be present at the inspection; the consumer hotline). See
+      `docs/research/2026-09-27-round-49.md` + `data/spanish_sale_playbook.json` (22 entries). Consider this
+      angle answered; a future round could instead try Ricardo González's own site/courses directly if
+      network access to bilingualamerica.com or ricardogonzalez.com ever opens.
+- [x] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
+      primary source (manufacturer guidance or an adjuster directly), not another blog - **stale duplicate,
+      already closed round 43** (InterNACHI's own "Mastering Roof Inspections" series, see above); leaving
+      this checked instead of deleting so the round-43 note above stays the reference.
 - [x] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
       cash jobs - round 38 (`data/price_objections.json`)
 - [ ] Confirm directly (call NUFCU/BCU, or reach catenergy.ne.gov/dwee.nebraska.gov once egress allows) whether
@@ -78,9 +124,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       Association fees still unconfirmed (lower priority - Omaha-adjacent, not Lincoln).**
 - [x] Word-for-word script + legal-flag check for "who signs the HOA claim / who pays the deductible"
       questions from an individual unit owner - round 36 (`data/objection_scripts_2.json`)
-- [ ] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
+- [x] Get a primary source (Nebraska case law or bar-association guidance, not a contractor blog) on the
       tortious-interference line for talking to a homeowner who already signed with another contractor -
-      round 36's script is careful but sourced only from marketing blogs, not a legal primary source
+      round 36's script is careful but sourced only from marketing blogs, not a legal primary source -
+      **round 48**: found a real, citable Nebraska Supreme Court case (*George Clift Enterprises, Inc. v.
+      Oshkosh Feedyard Corp.*, 306 Neb. 775, 947 N.W.2d 510 (2020)), confirmed by 4 independent legal-
+      reference sites; round 36's script already sits inside the "truthful information / legitimate
+      competition" safe harbor these sources describe. Case-law and law-firm domains themselves stayed
+      blocked this session (WebSearch-summary sourced, not directly fetched) - see new item below.
 - [ ] Wire `data/objection_scripts_2.json` into Practice Door's legal-flag scorecard and add its 3
       situations as new roleplay scenarios (round 36's ranked #1-2; not done yet, needs Builder/Designer)
 - [ ] Re-open gaf.com's Residential Program Guidelines PDF and contractors.gaf.com directly once egress
@@ -125,10 +176,16 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Add ACS median household income (B19013) per block group to `nbhd.py`'s `load_acs` (same pattern as
       med_value/med_year already there) so door-list ranking has an affordability signal, not just age/value
       - round 41 (T163)
-- [ ] Re-test Douglas (dcgis.org), Lancaster (gis.lincoln.ne.gov) and Sarpy (geodata.sarpy.gov) parcel/owner-
+- [x] Re-test Douglas (dcgis.org), Lancaster (gis.lincoln.ne.gov) and Sarpy (geodata.sarpy.gov) parcel/owner-
       mailing endpoints for T23 owner-occupied from the actual cloud/Mac runner - round 41 found all three
       answering 200/301 from this sandboxed session tonight, contradicting the 2026-09-26 "blocked" note;
-      needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164)
+      needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164) -
+      **round 48**: found the real working endpoints and exact fields for Douglas
+      (`dcgis.org/server/rest/services/vector/Parcels_public/FeatureServer/0`, `OWNER_NAME`/`ADDRESS1-2`/
+      `OWNER_CITY` vs. `HOUSE`/`STREET_NAM`/`PROP_CITY`) and Lancaster
+      (`gis.lincoln.ne.gov/integration/rest/services/Assessor/TaxParcels/MapServer/0`, `OWNERNME1`/
+      `PSTLADDRESS` vs. `SITEADDRESS`, plus `RESYRBLT`/`CLASSDSCRP` for free) - both live-tested with real
+      sample rows, ready for Code to wire (T164 promoted to a board item, not just research).
 - [ ] Get real Reddit (r/Roofing, r/doortodoor, r/sales) and YouTube-comment quotes on unmet roofing-sales
       software needs - round 44's WebSearch couldn't reach reddit.com (bot-blocked) or specific comment
       threads, so topic 2's findings are review-site/vendor-blog sourced, not forum-verified
@@ -145,6 +202,17 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       data behind a sign-in wall for raw curl/WebFetch - only page title+description came through, no
       actual dialogue), retry pulling real door-knock footage from Roof Strategist/D2D Experts/Adam
       Bensman's channels - this round could not verify any trainer's script word-for-word from footage
+- [ ] Test Douglas's (`dcgis.org`) and Lancaster's (`gis.lincoln.ne.gov`) parcel `FeatureServer`/`MapServer`
+      query limits (`maxRecordCount`, pagination, whether bulk `where=1=1` pulls need an API key) before
+      wiring a full-county pull into `nbhd.py` (round 48 only tested 3-row samples, unauthenticated, both
+      worked); also look up Douglas's single-letter `CLASS` field's code table (residential vs. commercial/
+      ag - unconfirmed, needed to filter the door-list feed to houses)
+- [ ] Once egress allows, open `law.justia.com/cases/nebraska/supreme-court/2020/s-19-700.html` or
+      CourtListener's copy of *George Clift Enterprises, Inc. v. Oshkosh Feedyard Corp.*, 306 Neb. 775 (2020)
+      directly, to quote the Nebraska Supreme Court's own five-element/improper-means text verbatim instead
+      of round 48's converging-search-summary version (crokerlaw.com, horganlawfirm.com, justia.com,
+      courtlistener.com, findlaw.com, nebraska.gov court pages, leagle.com, supremecourt.nebraska.gov were
+      all blocked this session, WebFetch and curl alike)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -270,3 +338,23 @@ no real door-knock transcript could be pulled (see new backlog item above); Redd
 Spanish-neighborhood sales-script content is still not found anywhere reachable, third round confirming
 the gap (rounds 30, 38, 47) - deprioritized per the updated item above. Output: `data/door_lines_pro.json`
 (22 EN/ES lines, all legal_ok) + this file.
+Round 51 (sales track, done directly by the Research Lead - no scout subagent tool available this
+session, same as 38/45/48): the commercial/apartment MEETING after the call gets booked - the property
+walk-through on a multi-building property, the bid package property managers actually check for
+(direct-fetched NRCA primary source), the two free habits a 2006 trade-magazine survey (direct fetch)
+found separate a winning bid from a typical one (real folder/PDF, say the warranty + certification out
+loud), phasing/tenant-notice for occupied buildings, and post-bid follow-up cadence (distinct from
+round 38's pre-call cadence). Output: `data/commercial_bid_kit.json` (14 EN/ES steps, legal_check
+passes) + `docs/research/2026-09-27-round-51.md`. Three new backlog items above (Nebraska landlord-
+tenant notice law, osha.gov re-fetch, bridgman.org/shieldlineroofing.com direct fetch).
+Round 48 (backlog track, done directly by the Research Lead - no scout subagent tool available this round,
+same as 38/45): closed T164 for real - found the live, working Douglas County (`dcgis.org`) and Lancaster
+County (`gis.lincoln.ne.gov`) ArcGIS parcel endpoints and their exact owner-mailing-vs-site-address fields
+(round 41 only got as far as the bare domain, which was a dead default page, not real services), both
+live-tested with real sample rows - ready for Code to wire into `nbhd.py`'s owner-occupied loader alongside
+Sarpy's existing layer. Also found a real, citable Nebraska Supreme Court case for the tortious-interference
+line (*George Clift Enterprises, Inc. v. Oshkosh Feedyard Corp.*, 306 Neb. 775, 947 N.W.2d 510 (2020),
+converged across 4 independent legal-reference sites) confirming round 36's "already signed with another
+contractor" script already sits inside the legal safe harbor. Every law-firm/case-law domain itself stayed
+blocked this session (WebFetch and curl both `403`) - the case citation is WebSearch-summary sourced, not
+directly fetched; two new backlog items above to re-verify/extend.
