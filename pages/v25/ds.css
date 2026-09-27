@@ -1,71 +1,96 @@
 /* HMP App v25 design system, app build (published as v25/ds.css, T169: a module file, never pasted into the page).
-   Source of truth for the look: docs/design/v25-polish/ds.css + design-system.md (theme A "Ledger" + "Ledger Night").
-   Same tokens and component rules as the mockups, minus the mockup-only phone frame. Fonts: Geist + Geist Mono come
-   from the page's Google Fonts link (no local font files), with a system fallback.
+   Source of truth for the look: docs/design/v25-polish/ds.css + design-system.md (theme A "Ledger"), and since v25.1 the
+   product brand FilthE picked (docs/design/product-brand/aldaba/: graphite ground, silver type, one orange knocker).
+   v25.1 themes: "Aldaba Graphite" (dark) is the DEFAULT, on bare :root, whatever the phone's setting; "Ledger" (light)
+   applies only when the salesman picks Light (data-theme="light"), or picks Auto (data-look="auto") on a light phone.
+   The page's head script stamps both attributes before anything paints (pages/hmp-app.html, key hmp-app-look).
+   Fonts: Geist, Geist Mono and Bricolage Grotesque are files published next to the page (pages/fonts/, @font-face in
+   the page), with a system fallback. The brand layer over these components is v25/aldaba.css.
    Rule: never #fff, white or black in a component. Text on an --ink surface is --on-ink. */
 
+/* ---------- Aldaba Graphite (default): graphite ground, lighter layered cards, silver text, orange = "do this" ---------- */
 :root{
-  color-scheme:light;
+  color-scheme:dark;
   /* surfaces + ink */
-  --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
-  --ink:#18191c; --ink-2:#3d3f45; --muted:#676a72; --faint:#9a9da4;   /* muted: 4.6:1 on --soft (the mockups' #6c6f77 was 4.44) */
+  --bg:#111214; --card:#18191c; --soft:#232428; --line:#2a2c30; --line-2:#3a3c42;
+  --ink:#eceef1; --ink-2:#bfc2c8; --muted:#8f929a; --faint:#6b6e75;   /* muted: 4.9:1 on --soft, 5.6:1 on --card */
   /* brand: orange means "do this", one per screen */
-  --hmp:#f5883a; --hmp-press:#e7762a; --hmp-ink:#a4520f; --hmp-bg:#fdf1e7; --on-hmp:#1b1206;
+  --hmp:#f5883a; --hmp-press:#e7762a; --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14); --on-hmp:#1b1206;
   /* status (never the accent) */
-  --late:#c2362b; --late-bg:#fdecea; --warn:#8a5a00; --warn-bg:#fbf2dc; --ok:#1f7a4d; --ok-bg:#e7f4ed; --you:#2f6fde;
-  /* type */
+  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
+  /* type: --display = Bricolage Grotesque 700 (opsz 96, -0.03em) for the app mark, screen titles and hero numbers only */
   --f:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --display:"Bricolage Grotesque","Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --t-label:11px; --t-cap:13px; --t-body:15px; --t-row:17px; --t-title:20px; --t-addr:26px; --t-num:34px; --t-hero:60px;
   /* space (4-pt) */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px;
   /* radii */
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-pill:999px;
-  /* elevation: 0 = flat on the page; 1 = a card; 2 = floats above everything (sheet, toast, menu) */
-  --e1:0 1px 2px rgba(24,25,28,.05); --e2:0 16px 40px -12px rgba(24,25,28,.28),0 2px 6px rgba(24,25,28,.06);
+  /* elevation: 0 = flat on the page; 1 = a card (a lit top edge + a long soft drop, like the landing hero); 2 = floats above everything */
+  --e1:inset 0 1px 0 rgba(255,255,255,.045),0 1px 2px rgba(0,0,0,.35),0 18px 36px -24px rgba(0,0,0,.9);
+  --e2:0 24px 56px -16px rgba(0,0,0,.82),0 2px 8px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.07);
   /* hit sizes */
   --hit-sm:36px; --hit:48px; --hit-lg:56px; --hit-xl:68px;
   --ease:cubic-bezier(.2,.8,.2,1);
   /* surfaces that sit ON ink (dark buttons, the + tab, active segments): never hard-code #fff */
-  --on-ink:#ffffff; --bar:rgba(255,255,255,.94); --scrim:rgba(24,25,28,.38); --stage:#e9ebee; --skel-hi:#f8f9fa;
-  --seg-thumb:0 1px 2px rgba(24,25,28,.1);
+  --on-ink:#111214; --bar:rgba(20,21,24,.86); --scrim:rgba(4,5,6,.62); --stage:#08090a; --skel-hi:#2c2e33;
+  --seg-thumb:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5),0 0 0 1px #3a3c42;
   /* map (vector: streets, lots, labels from the engine; no tiles) */
-  --map-land:#f2f3f1; --map-lot:#fbfbfa; --map-lotline:#e2e4e6; --map-street:#ffffff; --map-casing:#dfe2e6;
-  --map-major:#fff3e3; --map-major-casing:#efd2ae; --map-label:#5b5e66; --map-water:#d7e5f3; --map-park:#e4efe0;
-  --heat:245,136,58; --route:#18191c;
+  --map-land:#141518; --map-lot:#18191d; --map-lotline:#24262b; --map-street:#2a2c31; --map-casing:#141518;
+  --map-major:#3b3226; --map-major-casing:#141518; --map-label:#9a9da4; --map-water:#142234; --map-park:#152018;
+  --heat:245,136,58; --route:#eceef1;
   /* roofs from above on the homeowner damage map: lit / side / shade */
-  --map-roof-a:#e4e6ea; --map-roof-b:#d6d9de; --map-roof-c:#c8ccd2;
+  --map-roof-a:#3a3c42; --map-roof-b:#32343a; --map-roof-c:#2a2c31;
   /* photos: text over a photo, and the dark wash behind it */
   --on-photo:#ffffff; --photo-scrim:rgba(16,17,19,.6);
+  /* v25.1 brand layer (v25/aldaba.css): layered surfaces, the orange CTA's glow, the + tab, the glass bars */
+  --surface:linear-gradient(180deg,#1d1e22 0%,#18191c 72px);   /* a card: a touch lighter at the top, like lit graphite */
+  --surface-2:linear-gradient(180deg,#1b1c20 0%,#18191c 100%); /* buttons + tiles inside a card */
+  --hair:rgba(255,255,255,.075);                              /* hairline on graphite (brighter than --line, still quiet) */
+  --glow:0 10px 26px -12px rgba(245,136,58,.62),0 2px 6px -2px rgba(245,136,58,.3),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(27,18,6,.18);
+  --glow-press:0 4px 12px -6px rgba(245,136,58,.5),inset 0 1px 0 rgba(255,255,255,.18),inset 0 2px 6px rgba(27,18,6,.18);
+  --plus-bg:linear-gradient(180deg,#f4f5f7 0%,#d9dce1 100%); --plus-edge:inset 0 1px 0 rgba(255,255,255,.7),0 6px 16px -8px rgba(0,0,0,.8);
+  --bar-top:rgba(17,18,20,.84); --bar-line:rgba(255,255,255,.06);
 }
-/* Ledger Night: the same system, dark. Neutral graphite, not blue-grey; orange stays the only accent. */
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  color-scheme:dark;
-  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
-  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75;
-  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
-  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
-  --e1:0 0 0 rgba(0,0,0,0); --e2:0 18px 48px -12px rgba(0,0,0,.7),0 0 0 1px #2b2d31;
-  --on-ink:#101113; --bar:rgba(25,26,29,.94); --scrim:rgba(0,0,0,.55); --stage:#08090a; --skel-hi:#2c2e33;
-  --seg-thumb:0 1px 2px rgba(0,0,0,.4),0 0 0 1px #3a3c42;
-  --map-land:#15161a; --map-lot:#1a1b1f; --map-lotline:#24262b; --map-street:#2a2c31; --map-casing:#15161a;
-  --map-major:#3b3226; --map-major-casing:#15161a; --map-label:#9a9da4; --map-water:#142234; --map-park:#152018;
-  --route:#f1f2f4;
-  --map-roof-a:#3a3c42; --map-roof-b:#32343a; --map-roof-c:#2a2c31;
+/* ---------- Ledger (light): the v25 light theme, orange accent kept. Picked Light, or Auto on a light phone ---------- */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
+  --ink:#18191c; --ink-2:#3d3f45; --muted:#676a72; --faint:#9a9da4;   /* muted: 4.6:1 on --soft (the mockups' #6c6f77 was 4.44) */
+  --hmp-ink:#a4520f; --hmp-bg:#fdf1e7;
+  --late:#c2362b; --late-bg:#fdecea; --warn:#8a5a00; --warn-bg:#fbf2dc; --ok:#1f7a4d; --ok-bg:#e7f4ed; --you:#2f6fde;
+  --e1:0 1px 2px rgba(24,25,28,.05); --e2:0 16px 40px -12px rgba(24,25,28,.28),0 2px 6px rgba(24,25,28,.06);
+  --on-ink:#ffffff; --bar:rgba(255,255,255,.94); --scrim:rgba(24,25,28,.38); --stage:#e9ebee; --skel-hi:#f8f9fa;
+  --seg-thumb:0 1px 2px rgba(24,25,28,.1);
+  --map-land:#f2f3f1; --map-lot:#fbfbfa; --map-lotline:#e2e4e6; --map-street:#ffffff; --map-casing:#dfe2e6;
+  --map-major:#fff3e3; --map-major-casing:#efd2ae; --map-label:#5b5e66; --map-water:#d7e5f3; --map-park:#e4efe0;
+  --route:#18191c;
+  --map-roof-a:#e4e6ea; --map-roof-b:#d6d9de; --map-roof-c:#c8ccd2;
+  --surface:#ffffff; --surface-2:#ffffff; --hair:rgba(24,25,28,.09);
+  --glow:0 8px 20px -10px rgba(231,118,42,.6),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(27,18,6,.12);
+  --glow-press:0 3px 8px -4px rgba(231,118,42,.5),inset 0 2px 5px rgba(27,18,6,.14);
+  --plus-bg:linear-gradient(180deg,#2c2d32 0%,#18191c 100%); --plus-edge:inset 0 1px 0 rgba(255,255,255,.14),0 6px 14px -8px rgba(24,25,28,.6);
+  --bar-top:rgba(246,247,248,.88); --bar-line:rgba(24,25,28,.07);
+}
+@media (prefers-color-scheme:light){:root[data-look="auto"]:not([data-theme="dark"]){
+  color-scheme:light;
+  --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
+  --ink:#18191c; --ink-2:#3d3f45; --muted:#676a72; --faint:#9a9da4;
+  --hmp-ink:#a4520f; --hmp-bg:#fdf1e7;
+  --late:#c2362b; --late-bg:#fdecea; --warn:#8a5a00; --warn-bg:#fbf2dc; --ok:#1f7a4d; --ok-bg:#e7f4ed; --you:#2f6fde;
+  --e1:0 1px 2px rgba(24,25,28,.05); --e2:0 16px 40px -12px rgba(24,25,28,.28),0 2px 6px rgba(24,25,28,.06);
+  --on-ink:#ffffff; --bar:rgba(255,255,255,.94); --scrim:rgba(24,25,28,.38); --stage:#e9ebee; --skel-hi:#f8f9fa;
+  --seg-thumb:0 1px 2px rgba(24,25,28,.1);
+  --map-land:#f2f3f1; --map-lot:#fbfbfa; --map-lotline:#e2e4e6; --map-street:#ffffff; --map-casing:#dfe2e6;
+  --map-major:#fff3e3; --map-major-casing:#efd2ae; --map-label:#5b5e66; --map-water:#d7e5f3; --map-park:#e4efe0;
+  --route:#18191c;
+  --map-roof-a:#e4e6ea; --map-roof-b:#d6d9de; --map-roof-c:#c8ccd2;
+  --surface:#ffffff; --surface-2:#ffffff; --hair:rgba(24,25,28,.09);
+  --glow:0 8px 20px -10px rgba(231,118,42,.6),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(27,18,6,.12);
+  --glow-press:0 3px 8px -4px rgba(231,118,42,.5),inset 0 2px 5px rgba(27,18,6,.14);
+  --plus-bg:linear-gradient(180deg,#2c2d32 0%,#18191c 100%); --plus-edge:inset 0 1px 0 rgba(255,255,255,.14),0 6px 14px -8px rgba(24,25,28,.6);
+  --bar-top:rgba(246,247,248,.88); --bar-line:rgba(24,25,28,.07);
 }}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
-  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75;
-  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
-  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
-  --e1:0 0 0 rgba(0,0,0,0); --e2:0 18px 48px -12px rgba(0,0,0,.7),0 0 0 1px #2b2d31;
-  --on-ink:#101113; --bar:rgba(25,26,29,.94); --scrim:rgba(0,0,0,.55); --stage:#08090a; --skel-hi:#2c2e33;
-  --seg-thumb:0 1px 2px rgba(0,0,0,.4),0 0 0 1px #3a3c42;
-  --map-land:#15161a; --map-lot:#1a1b1f; --map-lotline:#24262b; --map-street:#2a2c31; --map-casing:#15161a;
-  --map-major:#3b3226; --map-major-casing:#15161a; --map-label:#9a9da4; --map-water:#142234; --map-park:#152018;
-  --route:#f1f2f4;
-  --map-roof-a:#3a3c42; --map-roof-b:#32343a; --map-roof-c:#2a2c31;
-}
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:var(--t-body);line-height:1.45;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
