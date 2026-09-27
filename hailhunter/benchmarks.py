@@ -20,6 +20,9 @@ RATES = {
     "appointment_to_inspection": ("appointment_to_inspection", 0.01,
                                   "share of booked appointments that happen (0-1)"),
     "inspection_to_signed": ("inspection_to_signed_contract", 0.01, "share of inspections that sign (0-1)"),
+    "avg_dollar_per_signed_job": ("avg_siding_replacement_job_cost", 1.0,
+                                 "USD, average value of a signed job (cash-sale siding reference; "
+                                 "insurance-restoration payouts run higher - see avg_hail_wind_insurance_payout)"),
 }
 
 
