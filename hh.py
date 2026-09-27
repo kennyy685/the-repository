@@ -573,7 +573,7 @@ def main(argv=None):
         raw = todaywalk.load_json(a.results) if a.results else None
         results = todaywalk.load_results(raw) if raw is not None else {}
         dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn)
+        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn, doors=a.doors)
         if a.walks_out:
             w = zones.walks(hud_doc, doc, day, a.doors, results, cfg, dnk=dnk, taps=todaywalk.today_taps(raw, day))
             if not a.no_basemap:                   # optional network step, cached, own time guard

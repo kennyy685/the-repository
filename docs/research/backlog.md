@@ -104,6 +104,12 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       mailing endpoints for T23 owner-occupied from the actual cloud/Mac runner - round 41 found all three
       answering 200/301 from this sandboxed session tonight, contradicting the 2026-09-26 "blocked" note;
       needs the exact ArcGIS layer/field names, then wiring, if confirmed reachable where refresh runs (T164)
+- [ ] Get real Reddit (r/Roofing, r/doortodoor, r/sales) and YouTube-comment quotes on unmet roofing-sales
+      software needs - round 44's WebSearch couldn't reach reddit.com (bot-blocked) or specific comment
+      threads, so topic 2's findings are review-site/vendor-blog sourced, not forum-verified
+- [ ] Sign up for EraHub's free/demo tier directly (not just its blog) to confirm how real its "native
+      dual-language, single-click EN/ES toggle" claim is in practice, before HMP repeats "no competitor
+      does Spanish" in any pitch or landing page (round 44, T166)
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -195,6 +201,19 @@ penalty-free registration grace period expired in 2009. Home Solicitation Sales 
 69-1606/69-1607 (`docs/legal/69-1606.txt`, `69-1607.txt`), fetched direct: 69-1606(5) - zero compensation
 for any work performed before a buyer cancels, a stricter rule than the insurance-specific emergency-work
 carve-out in 44-8603/8607, and one to keep separate in scripts/docs. Two new backlog items above.
+Round 44 (product/strategy track): how CompanyCam/Jobber/Roofr/Hover/ServiceTitan became category
+leaders (each founder solved a real, narrow problem for their own/a family trade business first, for
+years, before selling to a stranger - the wedge was always one free/cheap narrow feature, never a full
+CRM); what roofing salespeople/owners want but don't get beyond round 42's bug list (automatic
+follow-up with no manual setup, one job file for sales+office, small shops wanting fewer reliable
+features not enterprise AI - Reddit/YouTube quotes stayed unreachable, see new backlog items); a
+12-month path (HMP-only through this storm season, then one pilot contractor - Nastase first - for a
+30-day side-by-side with 4-5 numbers defined up front and free/discounted pricing, settings/config +
+onboarding + a named support answer built before any outside user, brand/landing page held until a
+pilot's real numbers exist). Also found EraHub, a smaller roofing CRM already marketing a native EN/ES
+toggle - tempers the "no competitor does Spanish" claim from rounds 12/42. WebFetch/curl blocked on
+every vendor/blog/reddit domain tried this round - all findings are WebSearch summaries; two new
+backlog items above to re-verify directly.
 Round 39 (backlog/legal track): finished fetching the whole Insured Homeowners Protection Act
 (44-8601-8608, `docs/legal/44-8601.txt`, `44-8605.txt`, `44-8606.txt`, `44-8608.txt`) direct from
 nebraskalegislature.gov - Nebraska's actual storm-chaser/assignment-of-benefits law; HMP isn't taking
