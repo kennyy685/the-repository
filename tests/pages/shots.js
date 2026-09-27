@@ -17,6 +17,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
+const { pageUrl, closeServer, takeMisses } = require("./serve");   // T169: pages with a files manifest load over http
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const OUT_DIR = path.join(__dirname, "out");
@@ -68,12 +69,13 @@ async function runWithPlaywright() {
     }
   } finally {
     await browser.close();
+    await closeServer();
   }
   return results;
 }
 
 async function checkOnePlaywright(browser, rel, size) {
-  const fileUrl = "file://" + path.join(ROOT, rel);
+  const fileUrl = await pageUrl(rel);
   const context = await browser.newContext({ viewport: { width: size.width, height: size.height } });
   await context.addInitScript(MOCK_CLAUDE_INIT);
   const page = await context.newPage();
@@ -96,6 +98,7 @@ async function checkOnePlaywright(browser, rel, size) {
   } catch (e) {
     loadError = String(e && e.message || e);
   }
+  for (const m of takeMisses()) errors.push("file not published (404): " + m + " - add it to the page's .files.json");
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth).catch(() => null);
   const clientWidth = await page.evaluate(() => document.documentElement.clientWidth).catch(() => null);
   const sidewaysScroll = scrollWidth != null && clientWidth != null && scrollWidth > clientWidth + 1;
@@ -136,12 +139,13 @@ async function runWithPuppeteer() {
     }
   } finally {
     await browser.close();
+    await closeServer();
   }
   return results;
 }
 
 async function checkOnePuppeteer(browser, rel, size) {
-  const fileUrl = "file://" + path.join(ROOT, rel);
+  const fileUrl = await pageUrl(rel);
   const page = await browser.newPage();
   await page.setViewport({ width: size.width, height: size.height });
   await page.evaluateOnNewDocument(MOCK_CLAUDE_INIT);
@@ -161,6 +165,7 @@ async function checkOnePuppeteer(browser, rel, size) {
   } catch (e) {
     loadError = String(e && e.message || e);
   }
+  for (const m of takeMisses()) errors.push("file not published (404): " + m + " - add it to the page's .files.json");
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth).catch(() => null);
   const clientWidth = await page.evaluate(() => document.documentElement.clientWidth).catch(() => null);
   const sidewaysScroll = scrollWidth != null && clientWidth != null && scrollWidth > clientWidth + 1;
@@ -198,7 +203,8 @@ function runWithChromiumCli() {
         loadError = String(e && e.message || e);
       }
       // The CLI fallback can't inject window.claude, read console errors, or measure scroll
-      // width - it only confirms the page renders without crashing chromium itself.
+      // width - it only confirms the page renders without crashing chromium itself. It also stays on
+      // file:// (execFileSync blocks the local server), so a multi-file page renders without its modules here.
       results.push({
         rel, size, errors, networkNotes: [], loadError, sidewaysScroll: false, scrollWidth: null,
         clientWidth: null, outPath, cliFallback: true,

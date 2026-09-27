@@ -40,6 +40,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const { pageUrl, closeServer, takeMisses } = require("./serve");   // T169: pages with a files manifest load over http
+
 const ROOT = path.resolve(__dirname, "..", "..");
 const OUT_DIR = path.join(__dirname, "out", "design_gate");
 const FIXTURE_PATH = path.join(__dirname, "design_gate_fixture.json");
@@ -788,7 +790,8 @@ async function runCombo(browser, page, combo, opts, shared, data) {
     timezoneId: TIMEZONE,
     reducedMotion: "reduce",
   });
-  await context.route(/^(https?|wss?):/, (r) => r.abort());   // offline on purpose: same result on every machine
+  // offline on purpose (same result on every machine), except the local server that plays the artifact host (T169)
+  await context.route(/^(https?|wss?):/, (r) => (/^https?:\/\/127\.0\.0\.1[:/]/.test(r.request().url()) ? r.continue() : r.abort()));
   await context.addInitScript(initScript(page, combo, data));
   const p = await context.newPage();
   const errors = [];
@@ -797,7 +800,7 @@ async function runCombo(browser, page, combo, opts, shared, data) {
   const ctx = { page, combo, opts, shared };
   const findings = [];
   const views = [];
-  const url = "file://" + (page.file || path.join(ROOT, page.rel));
+  const url = page.file ? "file://" + page.file : await pageUrl(page.rel);
   const load = async () => {
     await p.goto(url, { waitUntil: "load", timeout: 20000 });
     await p.evaluate(() => (document.fonts ? document.fonts.ready : null)).catch(() => {});
@@ -825,6 +828,7 @@ async function runCombo(browser, page, combo, opts, shared, data) {
   } catch (e) {
     findings.push({ view: "(load)", rule: "gate-error", where: "(page)", label: "", detail: `page failed to load: ${e.message.split("\n")[0]}` });
   }
+  for (const m of new Set(takeMisses())) findings.push({ view: "(load)", rule: "gate-error", where: "(page)", label: "", detail: `file not published (404): ${m} - add it to the page's .files.json` });
   for (const e of new Set(errors)) findings.push({ view: "(any)", rule: "js-error", where: "(page)", label: "", detail: e.slice(0, 200) });
   await context.close();
   return { findings, views: views.length, controls: views.reduce((n, v) => n + v.stats.controls, 0), text: views.reduce((n, v) => n + v.stats.text, 0) };
@@ -1024,6 +1028,7 @@ async function main() {
     process.exitCode = gateBroken ? 2 : bad ? 1 : 0;
   } finally {
     await browser.close();
+    await closeServer();
   }
 }
 

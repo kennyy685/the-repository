@@ -98,6 +98,8 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 Every page publish follows `docs/release-checklist.md`: all checks green, the King looks at light + dark screenshots against
 the approved mockups (`docs/design/v25-polish/`), legal boxes ticked, then `docs/CHANGELOG.md` gets a line.
 Helpers commit only their own files (`git add <paths>`, never `-A`).
+The HMP App is a page plus module files (T169): `pages/hmp-app.files.json` lists them (published path -> repo file). Edit a
+module in its own file and publish with that map as `files`; never paste code back into the page.
 
 ## Chain of command (FilthE, 2026-09-26)
 - **Claude Code (the cloud session) is the King / lead**: sets priorities on the hub board, gives the orders, runs the

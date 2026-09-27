@@ -35,10 +35,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
     local Flask tracker)
 - `hailhunter/sources/`: `lsr` (NWS storm reports via Iowa Mesonet), `swdi` (NEXRAD hail), `stormevents` (NCEI),
   `places` (Census towns)
-- `docs/app/*.js`: JS twins of engine math pasted into the HMP App (`estimate.js`, `takeoff.js`, `followups.js`),
-  checked by `node tests/js/*_check.js`
+- `docs/app/*.js`: JS twins of engine math (`estimate.js`, `takeoff.js`, `followups.js`), each one closure that sets
+  `window.HMPEstimateMath` / `HMPTakeoff` / `HMPFollowups` in a page and `module.exports` in node; checked by
+  `node tests/js/*_check.js`. The HMP App loads them as separate published files (below)
 - `pages/`: sources of the Claude pages (`hmp-app.html`, `crew-hq.html`, `practice-door.html`, `voice-test.html`,
-  retired `claim-tracker.html`; `estimate/` and `translate/` modules)
+  retired `claim-tracker.html`; `estimate/`, `translate/`, `vendor/` modules). **The HMP App is a multi-file artifact
+  (T169):** `pages/hmp-app.files.json` maps each published path (`app/estimate.js`, `translate/translate.js`...) to
+  its repo file; the page loads them with `<script src>`/`<link href>`, and a publish passes that map as `files`.
+  Edit the module file, never paste it into the page (`node tests/js/app_files_check.js` fails if one comes back)
 - `docs/print/`: print kit (html + pdf). `docs/orders/`: build orders and roadmap. `docs/research/`: research rounds.
   `docs/design/`, `docs/brand/`: design picks and the app icon.
 - `vendor/shapefile.py`: vendored pure-Python shapefile reader (no pip install needed)

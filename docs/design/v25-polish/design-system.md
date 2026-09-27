@@ -1,7 +1,9 @@
 # HMP App design system (v25, theme A "Ledger" + "Ledger Night")
 
 The code lives in `ds.css` (tokens + components), `icons.js` (the icon sprite) and `walkmap.js` (the map renderer).
-The builder copies them into `pages/hmp-app.html`. Every value below is a token, so no raw px, hex or shadow goes
+The app links them as separate published files (T169), never pasted in: add each to `pages/hmp-app.files.json` (e.g.
+`"ds/ds.css": "docs/design/v25-polish/ds.css"`) and load it with `<link rel="stylesheet" href="ds/ds.css">` /
+`<script src="ds/icons.js">`. Every value below is a token, so no raw px, hex or shadow goes
 into component CSS.
 
 ## 1. Color tokens

@@ -17,6 +17,8 @@
  * Ranges only. No deductible text (Nebraska 44-8604) and never "insurance will pay": the insurer's approved
  * scope sets the price on insurance jobs (rules.insurance_note). No dependencies.
  */
+(function () {   // one closure: the helpers below (num, pyRound, canon, selfCheck...) stay private, so the app
+                 // can load estimate.js, takeoff.js and followups.js side by side without name clashes
 var RULES_VERSION = 2;
 var TYPES = ["siding", "roof", "gutters", "mixed"];
 
@@ -276,7 +278,8 @@ function selfCheck(rules) {
   return fails;
 }
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {estimate: estimate, selfCheck: selfCheck, pitchClass: pitchClass, pyRound: pyRound,
-                    pyRound1: pyRound1, fmtG: fmtG, RULES_VERSION: RULES_VERSION};
-}
+var api = {estimate: estimate, selfCheck: selfCheck, pitchClass: pitchClass, pyRound: pyRound,
+           pyRound1: pyRound1, fmtG: fmtG, RULES_VERSION: RULES_VERSION};
+if (typeof module !== "undefined" && module.exports) module.exports = api;   // node: tests/js/estimate_check.js
+if (typeof window !== "undefined") window.HMPEstimateMath = api;   // the HMP App: <script src="app/estimate.js">
+})();
