@@ -2,7 +2,7 @@
 
 The hourly King check starts the top unchecked topic as a new round (Research Lead + scouts) whenever no round is running.
 Each round: write `docs/research/<date>-round-<n>.md`, post board items, check the topic off here, and add 1-2 new topics it uncovered.
-Web access: if WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
+Web access (updated 2026-09-27, FilthE opened the network): Bash `curl -sSL -m 20 -A "Mozilla/5.0" <url>` reaches trade sites (roofingcontractor, nachi, nrca, jameshardie, eagleview, hover), tools (wisetack, openphone, repcard, spotio, companycam, roofr, salesrabbit, acculynx, hailtrace), gov (census, api.census.gov, api.weather.gov, spc.noaa.gov, *.nebraska.gov, nebraskalegislature.gov), bbb, mopoa, reddit, youtube, wikipedia. Prefer primary sources now. If WebFetch is blocked, use Bash `curl -sS -m 20 <url>` (it goes through the session proxy and usually works: state statutes, county GIS, Mesonet). Save statute text to docs/legal/.
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
