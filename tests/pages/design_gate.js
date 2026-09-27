@@ -638,8 +638,12 @@ function printReport(findings, rel) {
     }
   }
   say("=".repeat(72));
-  fs.writeFileSync(path.join(OUT_DIR, "report.txt"), lines.join("\n") + "\n");
-  console.log(`\nFull text report + failure screenshots: ${path.relative(ROOT, OUT_DIR)}/`);
+  // Named per page: this repo is a shared, multi-agent workspace (see CLAUDE.md's Code lab) - two
+  // gate runs against different pages can genuinely overlap in time, and a single shared report.txt
+  // would let the later run silently clobber the earlier one's report mid-review.
+  const reportPath = path.join(OUT_DIR, `report-${slug(rel)}.txt`);
+  fs.writeFileSync(reportPath, lines.join("\n") + "\n");
+  console.log(`\nFull text report + failure screenshots: ${path.relative(ROOT, reportPath)} / ${path.relative(ROOT, OUT_DIR)}/`);
 }
 
 async function main() {
