@@ -208,9 +208,11 @@ def _account_why(al, n_more=0):
         es = (f"ráfagas de viento de {mph:.0f} mph" if mph else "daños por viento") + \
             f" reportad{'as' if mph else 'os'} a {dist:.1f} mi"
     elif al["match"] == "at":
-        en, es = f'{al["max_hail_in"]:.2f}" hail at the address', f'granizo de {al["max_hail_in"]:.2f}" en la dirección'
+        h = al["max_hail_in"]
+        en, es = f'{h:.2f}" hail at the address', f'granizo de {h:.2f}" en la dirección'
     else:
-        en, es = f'{al["max_hail_in"]:.2f}" hail {dist:.1f} mi away', f'granizo de {al["max_hail_in"]:.2f}" a {dist:.1f} mi'
+        h = al["max_hail_in"]
+        en, es = f'{h:.2f}" hail {dist:.1f} mi away', f'granizo de {h:.2f}" a {dist:.1f} mi'
     en += f" on {d_en} ({_ago(n, 'en')})"
     es += f" el {d_es} ({_ago(n, 'es')})"
     if al["peril"] == "hail" and al["match"] == "near":
