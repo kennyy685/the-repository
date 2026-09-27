@@ -422,7 +422,8 @@ details.jt-done[open] > summary::after{transform:rotate(-135deg)}
 .jt-row .end{display:flex;align-items:center;gap:6px;color:var(--faint);flex:none}
 .jt-row.lk .jt-n{background:var(--warn-bg);color:var(--warn)}
 .jt-now{padding:var(--s3) 0 var(--s4);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s3)}
-.jt-now .jt-n{background:var(--hmp);color:var(--on-hmp)}
+.jt-now .jt-n{background:var(--ink);color:var(--on-ink)}
+.jt-now.cur .jt-n{background:var(--hmp);color:var(--on-hmp)}
 .jt-eb{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
 .jt-eb .k-eb{flex:1;min-width:0}
 .jt-now h4{font-size:var(--t-row);font-weight:600;line-height:1.25;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:anywhere}
@@ -3700,7 +3701,7 @@ function jobBox(c, md){
     const nx = md.steps.find(x => x.status === 'open' && x.n > s.n && x.id !== s.id);
     const kit = s.papers.some(p => p.kit) && SETTINGS.links.printKit ? `<a class="btn sec" href="${esc(SETTINGS.links.printKit)}" target="_blank" rel="noopener">${ic('print')}<span>${esc(J.printKit)}</span></a>` : '';
     const other = tell && s.parts.some(p => p.state === 'open' && !p.tell) ? `<button type="button" class="btn ghost" data-tell="${esc(addr)}" data-pre="${esc(shortAddr(addr) + ', ' + txl(s.short) + ': ')}">${ic('say')}<span>${esc(J.otherDay)}</span></button>` : '';
-    return `<li class="jt-now" id="jtNow"><div class="jt-eb"><span class="jt-n">${s.n}</span><span class="k-eb">${esc(s.id === md.current ? `${J.now} · ${J.stepOf(s.n, md.steps.length)}` : J.stepOf(s.n, md.steps.length))}</span>${s.reqN > 1 ? `<span class="chip">${esc(J.of(s.reqDone, s.reqN))}</span>` : ''}</div>
+    return `<li class="jt-now${s.id === md.current ? ' cur' : ''}" id="jtNow"><div class="jt-eb"><span class="jt-n">${s.n}</span><span class="k-eb">${esc(s.id === md.current ? `${J.now} · ${J.stepOf(s.n, md.steps.length)}` : J.stepOf(s.n, md.steps.length))}</span>${s.reqN > 1 ? `<span class="chip">${esc(J.of(s.reqDone, s.reqN))}</span>` : ''}</div>
       <h4>${esc(txl(s.title))}</h4>${s.info.map(x => `<p class="jt-info">${esc(txl(x))}</p>`).join('')}
       <ul class="jt-parts">${parts}</ul>${stop}<dl class="jt-meta">${meta}</dl>
       ${nx ? `<p class="jt-next">${esc(J.next)}: <b>${nx.n} · ${esc(txl(nx.title))}</b></p>` : ''}${kit || other ? `<div class="jt-acts">${kit}${other}</div>` : ''}</li>`;

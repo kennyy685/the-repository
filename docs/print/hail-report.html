@@ -12,7 +12,10 @@
      Fonts: fonts/ (local, free Google Fonts: Barlow Semi Condensed, Montserrat). Logo: <symbol id="hmp-logo"> (same as door-hanger.html).
      QR codes open a text to Kenny (EN, 402-936-2709) / Alex (ES, 402-889-3385).
      PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=hail-report.pdf file://.../hail-report.html
-     Rules: weather data only, no damage verdict, no coverage promises, nothing about deductibles. -->
+     Rules: weather data only, no damage verdict, no coverage promises, nothing about deductibles.
+     T177: the "Good to know" box quotes the Nebraska DOI's own advice ("After the Storm - The Disaster Claims Process",
+     doi.nebraska.gov, checked 2026-09-27): be present when contractors inspect; toll-free hotline 1-877-564-7323.
+     General state advice, not an endorsement of HMP: never word it as one. Fixed text, not data. -->
 <style>
 @font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(fonts/BarlowSemiCondensed-700.woff) format("woff"); }
 @font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(fonts/BarlowSemiCondensed-800.woff) format("woff"); }
@@ -122,6 +125,15 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
 .note svg { width:0.26in; height:0.26in; flex:none; }
 .note p { font:700 9.4pt/1.4 "Montserrat"; color:var(--char-dk); }
 
+/* closing row: disclaimer | the state's own advice (T177, NE DOI) */
+.close { display:grid; grid-template-columns:1fr 1fr; gap:0.16in; }
+.close .note p { font-size:9pt; }
+.state { border:1pt solid var(--line); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.08in 0.14in 0.09in; }
+.state .k { font:700 6.8pt/1.2 "Montserrat"; letter-spacing:.13em; text-transform:uppercase; color:var(--orange-ink); }
+.state p { margin-top:0.04in; font:500 8.2pt/1.36 "Montserrat"; color:var(--ink); }
+.state b { font-weight:700; color:var(--char-dk); }
+.state .tel { white-space:nowrap; font-weight:800; }
+
 /* contact band: the boldest thing on the page */
 .foot { flex:none; background:linear-gradient(180deg,#404145,#2c2d31); color:#fff; padding:0.16in 0.45in 0.11in; position:relative; }
 .foot::before { content:""; position:absolute; left:0; right:0; top:0; height:4pt; background:var(--orange); }
@@ -182,6 +194,8 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
   th { font-size:10px; } td { font-size:13px; } td.n { font-size:16px; } td .tag { font-size:9px; }
   .hist li { font-size:13.5px; } .hist li b { font-size:17px; } .hist p, .two p.empty, .more { font-size:13px; }
   .note p { font-size:14.5px; }
+  .close { grid-template-columns:1fr; gap:12px; } .close .note p { font-size:14.5px; }
+  .state { padding:12px 14px; } .state .k { font-size:10.5px; } .state p { font-size:14px; }
   .foot { padding:22px 16px 16px; }
   .foot .row { flex-wrap:wrap; gap:16px; }
   .foot .cta { flex:1 1 100%; }
@@ -277,6 +291,9 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
       moreRows: "+ {n} more within {r} miles.",
       hist: "Other hail days here", histEm: "Last 2 years &middot; 3/4″ or larger", noHist: "No other storm days with 3/4 inch or larger hail found at this address.",
       note: "This is weather data, not proof of damage. Only an inspection can confirm damage. Your insurance company decides what your policy covers.",
+      stateK: "Good to know &middot; Nebraska Department of Insurance",
+      state1: "<b>You can be there.</b> The state advises homeowners to be present and watch when any contractor inspects their home. You are welcome to watch ours.",
+      state2: "<b>Questions about insurance?</b> Free consumer hotline: <span class=\"tel\">1-877-564-7323</span>",
       ctaK: "Free roof & siding inspection", ctaWho: "Call or text {n}", alt: "Hablamos español &middot; Alex Mendez 402-889-3385",
       qrCap: "Scan to text {n}", qrShort: "Scan to text {n}", co: "Registered &amp; insured", reg: "NE contractor registration #",
       credit: "<b>Weather data: NOAA/National Weather Service (public domain); not endorsed by NOAA.</b>",
@@ -300,6 +317,9 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
       moreRows: "+ {n} más a menos de {r} millas.",
       hist: "Otros días de granizo aquí", histEm: "Últimos 2 años &middot; 3/4″ o más", noHist: "No encontramos otros días con granizo de 3/4 de pulgada o más en esta dirección.",
       note: "Estos son datos del clima, no una prueba de daños. Solo una inspección puede confirmar daños. Su compañía de seguros decide lo que cubre su póliza.",
+      stateK: "Bueno saberlo &middot; Departamento de Seguros de Nebraska",
+      state1: "<b>Usted puede estar presente.</b> El estado aconseja que el dueño esté presente y mire cuando cualquier contratista inspecciona su casa. Lo invitamos a ver toda nuestra inspección.",
+      state2: "<b>¿Preguntas sobre su seguro?</b> Línea gratuita para consumidores: <span class=\"tel\">1-877-564-7323</span>",
       ctaK: "Inspección gratis de techo y siding", ctaWho: "Llame o mande texto a {n}", alt: "We speak English &middot; Kenny Cruz 402-936-2709",
       qrCap: "Escanee para mandar texto a {n}", qrShort: "Escanee: texto a {n}", co: "Registrados y asegurados", reg: "Registro de contratista NE #",
       credit: "<b>Datos del clima: NOAA/Servicio Meteorológico Nacional (dominio público); NOAA no respalda este reporte.</b>",
@@ -433,7 +453,8 @@ td .tag.noaa { background:#fde9da; color:var(--orange-ink); }
         (reps.length ? '<section class="diag"><div class="label">' + f(t.diag, {r: R}) + ' <em>' + t.diagEm + '</em></div>' + diagram(reps, R, t, l) + '</section>' : '') +
         '<section class="two' + (reps.length ? '' : ' solo') + '">' + (reps.length ? '<div><div class="label">' + t.tbl + '</div>' + table + '</div>' : '') +
           '<div class="hist"><div class="label">' + t.hist + '</div><div class="sub">' + t.histEm + '</div>' + histHtml + '</div></section>' +
-        '<section class="note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#f5883a"/></svg><p>' + t.note + '</p></section>' +
+        '<div class="close"><section class="note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#f5883a"/></svg><p>' + t.note + '</p></section>' +
+          '<section class="state"><div class="k">' + t.stateK + '</div><p>' + t.state1 + '</p><p>' + t.state2 + '</p></section></div>' +
       '</main>' +
       '<footer class="foot"><div class="row"><div class="cta"><div class="k">' + t.ctaK + '</div><div class="who">' + esc(f(t.ctaWho, {n: name})) + '</div>' +
         '<a class="ph" href="tel:+1' + esc(phone.replace(/\D/g, "")) + '">' + esc(phone) + '</a><div class="alt">' + t.alt + '</div></div>' +
