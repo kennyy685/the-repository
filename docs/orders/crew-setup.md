@@ -33,6 +33,15 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
 - **Publishing:** a helper that gets a refused publish stops and reports the exact message; only the King decides to
   resend (auto mode flagged a helper resending on the service's say-so, 2026-09-27; no harm, the live page was verified).
 - **Legal check on every stop:** a Stop hook runs `tests/legal_check.py`; a turn can't end with a legal failure.
+- **Hub check-ins by hook (T21, 2026-09-27):** `.claude/hooks/hub-log.py` runs on PostToolUse (Agent), SubagentStart
+  and SubagentStop and appends one line per helper launch/start/finish to `.claude/state/hub-queue.jsonl` (gitignored).
+  Hooks can't call the hub's database tool, and the hub refuses unpinned writes to existing docs, so
+  `.claude/hooks/hub_flush.py` turns the queue into one batch: start/done events always, robot (`agents/<id>`) updates
+  when given `--versions builder=13,...`. Scouts are skipped (their Research Lead posts); the King's one-off helpers
+  post as `code` events. `stop-hub-reminder.sh` blocks a King stop once while check-ins are unposted
+  (`hub_flush.py --discard` in a session without the hub). Hook payloads checked against Claude Code 2.1.283:
+  SubagentStart {agent_id, agent_type}, SubagentStop {+ agent_transcript_path, last_assistant_message}, the Agent
+  tool's response {status: async_launched, agentId, description}.
 - **Plugins/MCP servers:** Anthropic doesn't security-audit MCP servers, even in its directory. Add none without the
   King reading what it does and FilthE installing it from the card.
 - **Side jobs go through the King, not a separate chat:** the King can message its own helpers but has no line

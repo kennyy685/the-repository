@@ -57,11 +57,15 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   mailers; no owner names for homes. Statute text lives in `docs/legal/`.
 
 ## How we work (save usage - FilthE, 2026-09-27)
-- **Use agents and subagents (FilthE, 2026-09-27).** The King stays light: it plans, delegates, decides and talks
-  to FilthE. Helpers do the heavy reading, building, screenshots and research, and report back in 10 lines or fewer
-  (their work never enters the King's history, which is what keeps usage down). Run 2-3 helpers in parallel on
-  separate files, more on a big push. Cheapest model that can do it: scouts/chores = haiku, research/QA/publishing =
-  sonnet, main model only for real app/design/engine work.
+- **The King is SMUIPO (FilthE, 2026-09-27)** and sits at the top: it gives every helper a board job, does hard work
+  itself (crew setup, reviews, publishing, the trickiest code), and hands smaller jobs to helpers too. **No idling:**
+  when a helper finishes, review it and give it the next board job in the same turn; run several at once (the
+  AI hub is how FilthE sees who's doing what). Helpers report back in 10 lines or fewer (their work never enters the
+  King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
+  haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
+- **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
+  the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
+  reminds once if any are unposted. The King still posts its own review of each result.
 - **Commit work in progress to the repo every ~30 min** (a container restart wiped an unsaved v25 draft).
   Commit only your own files (`git add <paths>`, never `-A`).
 - Grep big files, never read the 8,400-line app whole. Screenshots only for the final pre-publish review.

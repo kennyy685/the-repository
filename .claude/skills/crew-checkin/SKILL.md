@@ -18,6 +18,10 @@ Put their work in their main helper's `doing`, e.g. Research Lead: "4 scouts out
 leads, blind spots". The Code lab shows only Claude Code + the 5 main helpers.
 
 ## Check in / check out
+Helpers' start/finish check-ins are logged by hooks (T21) and posted by the King with
+`python3 .claude/hooks/hub_flush.py` (prints the `batch` writes; `--versions <id>=<n>,...` adds robot updates; run
+`--done` after the batch commits). Use real UTC time (`date -u`), never a guessed one. Hand-written posts below are
+for the King's own status, reviews, handoffs and the board.
 - `update` `agents/<id>`: `{status, room, doing, task, at}`.
   - status: `working` | `idle` | `sleeping` | `waiting` | `blocked` | `done`
   - room: `engine`, `tests`, `data`, `dock`, `board`, or for the chat wing `research`, `storm`,

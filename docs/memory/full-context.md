@@ -103,7 +103,7 @@ the approved mockups (`docs/design/v25-polish/`), legal boxes ticked, then `docs
 Helpers commit only their own files (`git add <paths>`, never `-A`).
 
 ## Chain of command (FilthE, 2026-09-26)
-- **Claude Code (the cloud session) is the King / lead**: sets priorities on the hub board, gives the orders, runs the
+- **Claude Code (the cloud session) is the King / lead, named SMUIPO by FilthE (2026-09-27)**: sets priorities on the hub board, gives the orders, runs the
   Code lab helpers, and acts on the hub + app every hour (7 AM-10 PM Central) or instantly on a wake.
 - **The Right Hand** (the old King) answers FilthE live in the app chat ("Talk to your Right Hand", the page's `sample`
   model), logs what he says (leads, doors, claims), and passes his words to Claude Code as handoffs (`to: "code"`). It
