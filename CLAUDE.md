@@ -58,7 +58,10 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   mailers; no owner names for homes. Statute text lives in `docs/legal/`.
 
 ## How we work (save usage - FilthE, 2026-09-27)
-- **The King is SMUIPO (FilthE, 2026-09-27)** and watches over it all. **The King's chat is FilthE's conversation
+- **The King is SMUIPO (FilthE, 2026-09-27)** and watches over it all, **every Claude session included**, not just its
+  helpers: each run it reads `list_sessions` and writes hub doc `crew/sessions` (title, working/needs you/done, what
+  it's doing, what it needs from FilthE, cost). It can see, interrupt or archive other sessions but can't message
+  them; notes for them go on the board. That's why the hub exists: one place to see every AI and talk to the King. **The King's chat is FilthE's conversation
   bubble, not a workbench:** he talks, SMUIPO decides, hands out jobs and reports results in a few lines. All the
   work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
   watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
