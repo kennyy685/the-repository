@@ -94,6 +94,9 @@ def build(rows, hold=()):
             continue
         if r and r.get("event") == "stop" and last_stop.get(r.get("agent_id") or n) != n:
             continue  # an earlier pause of the same helper: only its last stop is the finish
+        if r and r.get("event") == "start" and any(
+                q and q.get("event") == "stop" and q.get("agent_id") == r.get("agent_id") for q in rows[:n]):
+            continue  # a paused helper resuming its job, not a new job
         if not r or r.get("event") not in ("start", "stop") or r.get("agent_type") in SKIP:
             continue
         hub_id, room = CREW.get(r.get("agent_type"), ("code", "board"))
@@ -169,7 +172,7 @@ def main(argv):
     keep = held | {i for i, r in enumerate(rows) if r and r.get("event") == "launch" and r.get("agent_type") in hold}
     if keep:
         with open(HELD, "w") as f:
-            f.writelines(ln for i, ln in enumerate(lines) if i in keep)
+            f.writelines(dict.fromkeys(ln for i, ln in enumerate(lines) if i in keep))  # re-flushes don't pile up
     if not events:  # only launches, scouts or held rows: nothing for the hub, drop what was read
         with open(QUEUE, "w") as f:
             f.writelines(read_queue()[0][len(lines):])
