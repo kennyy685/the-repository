@@ -64,6 +64,7 @@ h1,h2,h3,p{margin:0}
 .need .ask{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .need .where{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .need .top{display:flex;gap:6px;align-items:baseline;min-width:0}
+.need .top b{white-space:nowrap;flex:none}
 .need .top .where{display:none}
 .need .i{color:var(--muted)}
 .none{padding:6px 4px 4px;font-size:14px;color:var(--muted)}
@@ -73,7 +74,7 @@ h1,h2,h3,p{margin:0}
 .av svg{width:28px;height:28px}
 .av .sd{position:absolute;right:-2px;bottom:-2px;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px var(--bg),0 0 8px var(--c)}
 
-.stage{position:relative;height:clamp(380px,118vw,560px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.stage{position:relative;height:clamp(370px,108vw,540px);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
 .still{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
 .no-gl .still{display:block}
@@ -202,10 +203,10 @@ h1,h2,h3,p{margin:0}
   .none{padding:0 6px;font-size:13px}
   .roster-h .rsum{display:flex}
   .brand h1{font-size:22px}
-  .clock{display:flex;align-items:center;gap:10px;margin-left:8px;padding:7px 12px;border-radius:999px;background:rgba(10,10,14,.36);border:1px solid var(--line);font:500 13px var(--mono);color:var(--ink-2);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .clock{display:flex;align-items:center;gap:10px;margin-left:8px;white-space:nowrap;padding:7px 12px;border-radius:999px;background:rgba(10,10,14,.36);border:1px solid var(--line);font:500 13px var(--mono);color:var(--ink-2);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
   .clock em{font-style:normal;color:var(--muted)}
   .bar .spacer{flex:1}
-  .panel{position:absolute;top:84px;right:28px;bottom:28px;width:var(--panel-w);padding:0;display:flex;flex-direction:column;gap:12px}
+  .panel{position:absolute;top:112px;right:28px;bottom:28px;width:var(--panel-w);padding:0;display:flex;flex-direction:column;gap:12px}
   .roster{flex:1;min-height:0;overflow:auto}
   .card{position:relative;left:auto;right:auto;bottom:auto;transform:none;max-height:none;flex:none;display:none;background:var(--glass-2)}
   .card.open{display:block;animation:cardIn .45s var(--ease)}
@@ -214,8 +215,9 @@ h1,h2,h3,p{margin:0}
   .hint{top:auto;bottom:34px;left:auto;right:calc(var(--panel-w) + 56px);text-align:right}
   .bub{max-width:260px}
 }
+.test .bub,.test .tag,.test .need,.test .zz{transition:none!important;animation-duration:0s!important}
 @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media (max-width:899px){ .bar .clock,.bar .spacer{display:none} .bub{max-width:min(210px,56vw);padding:6px 9px 7px;border-radius:12px} .bub .bt{font-size:12px} .bub .bh{font-size:10.5px;margin-bottom:2px} }
+@media (max-width:899px){ .bar .clock,.bar .spacer{display:none} .bub{max-width:min(210px,56vw);padding:6px 9px 7px;border-radius:12px} .bub{display:flex;align-items:center;gap:6px;max-width:min(190px,50vw)} .bub .bh{margin:0} .bub .bh .nm{display:none} .bub .bt{font-size:12px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block} }
 @media (max-width:380px){ .sum .opt{display:none} }
 @media (prefers-reduced-motion:reduce){
   .sky .clouds,.sky .rain,.zz span,.bub.waiting .ic,.beacon,.sky .stars i,.need{animation:none!important}
@@ -230,7 +232,7 @@ h1,h2,h3,p{margin:0}
       <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5" fill="none" stroke="#f5883a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 14.5h11" stroke="#ead1a0" stroke-width="1.8" stroke-linecap="round"/><path d="M8 18h8" stroke="#ead1a0" stroke-width="1.8" stroke-linecap="round" opacity=".55"/></svg></span>
       <div><h1 id="t-title">The Crew</h1><p id="t-sub">HMP AI hub · Penthouse</p></div>
     </div>
-    <div class="clock" id="clock"><span id="clk">6:46 AM</span><em id="t-demo">Demo loop</em></div>
+    <div class="clock" id="clock"><span id="clk">6:46 AM</span><em id="t-demo">Demo</em></div>
     <section class="needs glass" id="needs" aria-live="polite" aria-labelledby="t-needs">
       <div class="needs-h"><span class="lbl" id="t-needs">Needs you</span><span class="count" id="ncount" data-n="0">0</span><span class="sum" id="nsum"></span></div>
       <ul id="nlist"></ul>
@@ -264,7 +266,7 @@ h1,h2,h3,p{margin:0}
     <p class="hint" id="hint">Tap a robot to see what it is doing.</p>
     <div class="skyctl">
       <div class="seg" role="group" aria-label="Sky" id="skyseg">
-        <button type="button" data-sky="live" aria-pressed="true"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg><span id="t-live">Live sky</span></button>
+        <button type="button" data-sky="mode" aria-pressed="true" id="skymode"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg><span id="t-live">Live sky</span></button>
         <button type="button" data-sky="storm" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M7 16a4.5 4.5 0 1 1 .9-8.9A5.5 5.5 0 0 1 18.4 9 3.6 3.6 0 0 1 17.5 16"/><path d="m12.5 12-2.5 4h3l-2 4"/></svg><span id="t-storm">Storm</span></button>
       </div>
       <button type="button" class="ibtn" id="pause" aria-label="Pause demo"><svg class="i" viewBox="0 0 24 24" id="pause-ic"><path d="M9 6v12M15 6v12"/></svg></button>
@@ -315,13 +317,13 @@ const CREW = [
 const STR = {
   en:{title:'The Crew', sub:'HMP AI hub · Penthouse', needs:'Needs you', none:'Nothing needs you right now.', answerIn:'Answer in',
       crew:'Crew', doing:'Now doing', asks:'Asks you', stuck:'Stuck on', last:'Last check-in', close:'Close',
-      live:'Live sky', storm:'Storm', demo:'Demo loop', demoShort:'Demo', pause:'Pause demo', play:'Play demo',
+      live:'Live sky', storm:'Storm', modes:{live:'Live sky', dusk:'Dusk', night:'Night', day:'Day'}, demo:'Demo loop', demoShort:'Demo', pause:'Pause demo', play:'Play demo',
       hint:'Tap a robot to see what it is doing.', justNow:'just now', ago:m=>m+' min ago', agoH:h=>h+' h ago',
       st:{working:'Working', idle:'On a break', sleeping:'Asleep', waiting:'Waiting on you', blocked:'Blocked', done:'Just finished'},
       sum:{working:'working', blocked:'stuck', sleeping:'asleep'}, lang:'Language'},
   es:{title:'El Equipo', sub:'Centro de IA de HMP · Penthouse', needs:'Te necesitan', none:'Nada pendiente contigo por ahora.', answerIn:'Contesta en',
       crew:'Equipo', doing:'Haciendo ahora', asks:'Te pregunta', stuck:'Atorado en', last:'Último reporte', close:'Cerrar',
-      live:'Cielo en vivo', storm:'Tormenta', demo:'Demo en bucle', demoShort:'Demo', pause:'Pausar demo', play:'Seguir demo',
+      live:'Cielo en vivo', storm:'Tormenta', modes:{live:'Cielo en vivo', dusk:'Atardecer', night:'Noche', day:'Día'}, demo:'Demo en bucle', demoShort:'Demo', pause:'Pausar demo', play:'Seguir demo',
       hint:'Toca un robot para ver qué está haciendo.', justNow:'justo ahora', ago:m=>'hace '+m+' min', agoH:h=>'hace '+h+' h',
       st:{working:'Trabajando', idle:'En descanso', sleeping:'Dormido', waiting:'Te espera', blocked:'Bloqueado', done:'Acaba de terminar'},
       sum:{working:'trabajando', blocked:'atorado', sleeping:'dormido'}, lang:'Idioma'}
@@ -548,11 +550,12 @@ function centralMinute(){ try { const p = new Intl.DateTimeFormat('en-US',{timeZ
 const skyEl = document.getElementById('sky');
 function updateSky(dt){
   // In the real hub, "Live" = the time in Fremont right now; in this demo it follows the demo clock.
-  const min = DEMO ? START + (demoT % LOOP)/SPM : centralMinute();
-  sky.minute = min;
+  const PRESET = {dusk:1150, night:75, day:760};
+  const min = sky.mode !== 'live' ? PRESET[sky.mode] : DEMO ? START + (demoT % LOOP)/SPM : centralMinute();
+  sky.minute = sky.minuteS == null ? min : sky.minuteS + (min - sky.minuteS) * Math.min(1, dt*2.5); sky.minuteS = sky.minute;
   const target = sky.stormManual ? 1 : sky.stormTo;
   sky.storm += (target - sky.storm) * Math.min(1, dt*0.55);
-  const s = skyAt(min), k = sky.storm;
+  const s = skyAt(sky.minute), k = sky.storm;
   const c = {}; for (const key of Object.keys(STORM_C)) c[key] = mixc(s[key], STORM_C[key], k*0.82);
   if (!RM.matches && k > 0.55){ sky.nextFlash -= dt; if (sky.nextFlash <= 0){ sky.flash = 1; sky.nextFlash = 2.8 + Math.random()*4.5; sky.flicker = 0.18; } }
   if (sky.flicker > 0){ sky.flicker -= dt; if (sky.flicker <= 0.06 && sky.flicker > 0.03) sky.flash = Math.max(sky.flash, 0.7); }
@@ -569,6 +572,7 @@ function updateSky(dt){
 
 /* ---- demo clock + script ---- */
 const DEMO = true, TEST = /test/.test(location.hash);
+if (TEST) document.documentElement.classList.add('test');
 let demoT = 0, lastT = 0, paused = false, feedChanged = true;
 function minuteNow(){ return START + Math.floor((demoT % LOOP)/SPM); }
 function fmt(min){ min = ((Math.round(min) % 1440) + 1440) % 1440; const h = Math.floor(min/60), m = min % 60; return ((h+11)%12+1) + ':' + String(m).padStart(2,'0') + ' ' + (h<12?'AM':'PM'); }
@@ -606,10 +610,11 @@ let selected = null, needSig = '', rosterBuilt = false;
 function renderNeeds(){
   const waiting = agents.filter(a => a.st === 'waiting').sort((a,b) => a.at - b.at);
   const n = {working:0, blocked:0, sleeping:0}; for (const a of agents) if (n[a.st] != null) n[a.st]++;
-  const sig = lang + '|' + waiting.map(a => a.id + tx(a.ask)).join('|') + '|' + JSON.stringify(n);
+  const sumSig = lang + JSON.stringify(n);
+  if (sumSig !== renderNeeds.sum){ renderNeeds.sum = sumSig; $('#nsum').innerHTML = $('#rsum').innerHTML = ['working','blocked','sleeping'].filter(k => n[k]).map((k,i) => '<span' + (i ? ' class="opt"' : '') + '><i class="dot" style="--c:' + stColor(k==='blocked'?'blocked':k) + '"></i>' + n[k] + ' ' + L().sum[k] + '</span>').join(''); }
+  const sig = lang + '|' + waiting.map(a => a.id + tx(a.ask)).join('|');
   if (sig === needSig) return; needSig = sig;
   const cnt = $('#ncount'); cnt.textContent = waiting.length; cnt.dataset.n = waiting.length;
-  $('#nsum').innerHTML = $('#rsum').innerHTML = ['working','blocked','sleeping'].filter(k => n[k]).map((k,i) => '<span' + (i ? ' class="opt"' : '') + '><i class="dot" style="--c:' + stColor(k==='blocked'?'blocked':k) + '"></i>' + n[k] + ' ' + L().sum[k] + '</span>').join('');
   $('#nlist').innerHTML = waiting.length ? waiting.map(a => '<li><button type="button" class="need" data-id="' + a.id + '"><span class="av" style="--c:var(--st-waiting)">' + avatar(a) + '<i class="sd"></i></span><span class="t"><span class="top"><b>' + esc(tx(a.def.name)) + '</b><span class="where">· ' + esc(L().answerIn + ' ' + tx(a.where)) + '</span></span><span class="ask">' + esc(tx(a.ask)) + '</span><span class="where">' + esc(L().answerIn + ' ' + tx(a.where)) + '</span></span>' + IC.chev + '</button></li>').join('')
     : '<li class="none">' + esc(L().none) + '</li>';
 }
@@ -655,10 +660,10 @@ function select(id){ selected = (id && id !== selected) ? id : (id ? null : null
 function applyLang(){
   document.documentElement.lang = lang;
   $('#t-title').textContent = L().title; $('#t-sub').textContent = L().sub; $('#t-needs').textContent = L().needs; $('#t-crew').textContent = L().crew;
-  $('#t-live').textContent = L().live; $('#t-storm').textContent = L().storm; $('#t-demo').textContent = L().demo; $('#t-demo2').textContent = L().demoShort;
+  $('#t-live').textContent = L().modes[sky.mode]; $('#t-storm').textContent = L().storm; $('#t-demo').textContent = L().demoShort; $('#t-demo2').textContent = L().demoShort;
   $('#hint').textContent = L().hint; $('#pause').setAttribute('aria-label', paused ? L().play : L().pause);
   $('#l-en').setAttribute('aria-pressed', String(lang==='en')); $('#l-es').setAttribute('aria-pressed', String(lang==='es'));
-  needSig = ''; cardSig = ''; for (const o of overlays.values()) o.sig = ''; refreshUI();
+  needSig = ''; renderNeeds.sum = ''; cardSig = ''; for (const o of overlays.values()) o.sig = ''; refreshUI();
   try { localStorage.setItem('hubLang', lang); } catch(e){}
 }
 document.addEventListener('click', e => {
@@ -667,6 +672,7 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-close')){ selected = null; cardSig = ''; refreshUI(); return; }
   if (t.dataset.sky){ const on = t.getAttribute('aria-pressed') !== 'true';
     if (t.dataset.sky === 'storm'){ sky.stormManual = on; t.setAttribute('aria-pressed', String(on)); }
+    else { const order = ['live','dusk','night','day']; sky.mode = order[(order.indexOf(sky.mode) + 1) % order.length]; $('#t-live').textContent = L().modes[sky.mode]; }
     return; }
   if (t.dataset.id){ selected = selected === t.dataset.id ? null : t.dataset.id; cardSig = ''; refreshUI(); hideHint(); }
 });
@@ -694,12 +700,13 @@ function placeOverlay(){
     const o = overlays.get(a.id); const an = S && S.anchors[a.id];
     if (!an || !S.ready){ o.tag.classList.remove('on'); o.bub.classList.remove('on'); o.zz.classList.remove('on'); continue; }
     const kind = bubbleKind(a);
-    const sig = kind + '|' + lang + '|' + tx(a.ask) + tx(a.reason) + tx(a.doing);
+    const sig = kind + '|' + lang + '|' + isWide + tx(a.ask) + tx(a.reason) + tx(a.doing);
     if (sig !== o.sig){ o.sig = sig;
       o.tag.textContent = tx(a.def.name);
       if (kind){ const head = kind === 'waiting' ? L().st.waiting : kind === 'blocked' ? L().st.blocked : L().st.done;
         o.bub.className = 'bub ' + kind;
-        o.bub.innerHTML = '<div class="bh"><span class="ic">' + (kind==='waiting'?IC.wait:kind==='blocked'?IC.block:IC.done) + '</span>' + esc(tx(a.def.name)) + ' · ' + esc(head) + '</div><div class="bt">' + esc(kind==='waiting'?tx(a.ask):kind==='blocked'?tx(a.reason):tx(a.doing)) + '</div>';
+        const body = kind==='waiting' ? tx(a.ask) : kind==='blocked' ? tx(a.reason) : tx(a.doing);
+        o.bub.innerHTML = '<div class="bh"><span class="ic">' + (kind==='waiting'?IC.wait:kind==='blocked'?IC.block:IC.done) + '</span><span class="nm">' + esc(tx(a.def.name)) + ' · ' + esc(head) + '</span></div><div class="bt">' + esc(isWide || kind !== 'waiting' ? body : tx(a.def.name)) + '</div>';
         o.w = 0; }
     }
     const showBub = !!kind;
@@ -1180,7 +1187,7 @@ function area(){
   const wide = HUB.wide;
   if (CAPTURE) return {x0:20, y0:20, x1:W-20, y1:H-20};
   if (wide){ const pw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--panel-w')) || 344; return {x0:30, y0:128, x1:W - pw - 60, y1:H - 64}; }
-  return {x0:-18, y0:58, x1:W + 18, y1:H - 40};
+  return {x0:-18, y0:46, x1:W + 18, y1:H - 50};
 }
 function fit(){
   aim(view.az);
