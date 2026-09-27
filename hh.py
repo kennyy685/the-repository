@@ -610,6 +610,42 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "rentals":                         # reads hud.json; the database (if any) only resolves --near
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import rentals, todaywalk, zones
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        conn = None
+        if os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"rentals: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+            return 2
+        doc = rentals.hotlist(hud_doc, day, near, a.top, cfg, conn)
+        if conn is not None:
+            conn.close()
+        for z in doc["zones"]:
+            print(f"  {z['count']} rental(s) in the {z['name']} zone", file=sys.stderr)
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        if a.csv:
+            rentals.write_csv(a.csv, doc["rentals"])
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
     if a.cmd == "followups":                       # reads the app's leads export: no database needed
         from zoneinfo import ZoneInfo
         from hailhunter import followups, weekly
