@@ -101,6 +101,14 @@ DEFAULTS = {
         "value_full": 250000,       # median assessed value that earns the full size factor
         "size_unknown": 0.9,
         "compete_towns": ["Omaha", "Lincoln"], "compete_days": 90, "compete_factor": 0.85,
+        # T203 storm-age dip/bump (research round 58 (d)): zone heat only, instead of scoring.recency_curve (which
+        # doors, calls, wind and commercial keep). Flat while fresh, a dip at 45-90 days (chasers signing), a bump
+        # at 90-150 (chasers gone, homeowners still deciding), then a gentler tail than recency_curve because
+        # Nebraska has no short legal cliff (25-205: 5 years). Lifts the winter re-knock walks (Oct-Mar reach
+        # back 330 days). Judgment numbers: tune against real door results. [] = use scoring.recency_curve.
+        "age_curve": [[0, 1.0], [45, 1.0], [90, 0.8], [150, 0.9], [270, 0.7], [365, 0.55], [730, 0.2],
+                      [1095, 0.1]],
+        "second_wave_days": [90, 180],   # "past the chaser rush" reason shows in this storm-age window (days)
         "inspect_rate": 0.03,       # prior: inspections per home knocked at heat 50 (tune with real results)
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0

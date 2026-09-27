@@ -210,7 +210,7 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
     med_val = float(np.median(vals)) if vals else None
     sb = hz["size_base"]
     size = hz["size_unknown"] if med_val is None else sb + (1 - sb) * min(1.0, med_val / hz["value_full"])
-    fresh = interp(sc["recency_curve"], days)
+    fresh = interp(hz.get("age_curve") or sc["recency_curve"], days)   # T203: zone-only dip/bump curve
     opened = 1.0                                   # share not re-roofed since the storm: no permit feed yet
     town = area.split(",")[0].strip()
     compete = hz["compete_factor"] if town in hz["compete_towns"] and days <= hz["compete_days"] else 1.0
@@ -226,6 +226,9 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
         why.append("other roofers likely here")
     if days <= 45:
         why.append(f"fresh storm ({days} days)")
+    wave = hz.get("second_wave_days")
+    if wave and wave[0] <= days <= wave[1]:
+        why.append(f"past the chaser rush ({days} days)")
     if sold >= 3:
         why.append(f"{sold} sold since storm")
     parts = {"damage": round(damage, 3), "insured": round(insured, 3), "roof": roof, "size": round(size, 3),
