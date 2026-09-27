@@ -83,6 +83,9 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 - **App theme: A "Ledger"** (docs/design/references/direction-a.html): light, clean, orange accent (#f5883a); B's big
   door counter on Knock. *History: this replaced "HMP Pro Dark" (charcoal + silver/white, Barlow Semi Condensed +
   Montserrat), ordered earlier the same day.* Print pieces keep the charcoal/orange brand look.
+- **Product name: "Aldaba"** (the iron door knocker; FilthE's pick 2026-09-27; docs/design/product-brand/aldaba/). It's the
+  app's brand when sold to other roofers; HMP stays the first customer and its own brand. Before public use: USPTO
+  trademark search + a lawyer, and check the .com/.app names.
 - Community flyer: **use both** A "Letrero" (color, boards/Chamber) and B "Boletín" (church bulletins, B&W copies) (docs/print/community-flyer/).
 - PR #6 merged to main (FilthE's OK, 2026-09-26); Cowork re-bundles.
 - Referral thank-you (D17): **a handwritten thank-you note only**, no gift cards or money.
