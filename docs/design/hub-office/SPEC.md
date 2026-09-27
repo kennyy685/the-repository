@@ -40,3 +40,18 @@ both logs, EN/ES. The hub stays its own place (nothing from the HMP App).
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
 Screenshots (phone + desktop, day + night, EN + ES) go to FilthE before publishing.
+
+## Go-live rule (FilthE, 2026-09-27)
+"Just go live when we're done": publish as soon as the build is finished and every check passes
+(design gate `--page crew-hq` exit 0, shots.js, `release_checks.sh --fast`), no screenshot stop first.
+Still: publish to the same hub URL with `pages/crew-hq.files.json` as `files`, omit capabilities, add a
+CHANGELOG line, and tell FilthE in 5 lines. A refused publish stops the job; tell him the exact message.
+
+## Page status (paused 2026-09-27 for the usage limit)
+Done and pushed: `pages/crew-hq.html` (live data, Needs you, answers in cards incl. robot questions,
+cameras, sky/weather, recap, ding, progress rings, trophies/board feeds for the scene, board, orders,
+memory, Right Hand box, logs, EN/ES), `pages/crew-hq.files.json`, fixture rows, crew-checkin skill.
+Design gate `--quick` on the page: clean except the missing `hub/scene.js`.
+Left: plug in the scene (`pages/hub/scene.js` + `still.webp`, see the scene status below), then the
+full design gate + shots.js, fix findings, publish (go-live rule above), CHANGELOG line.
+Screenshot helper for this container (CDN blocked): route jsdelivr to a local `npm pack three@0.169.0`.
