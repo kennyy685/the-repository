@@ -22,5 +22,6 @@ data/*
 !data/commercial_calls.json
 !data/association_contacts.json
 !data/photo_checklist.json
+!data/door_lines_pro.json
 .env
 .claude/worktrees/

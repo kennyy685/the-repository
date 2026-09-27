@@ -53,10 +53,14 @@ Rule: every topic must end in something that improves sales, profit or the app. 
       directly and simply doesn't address this question either way - still needs the phone call. But the
       $500-$25,000 / 0-35.9% APR / 3-120mo loan terms and the "no participation fees" language ARE now
       confirmed straight from wisetack.com.**
-- [ ] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
+- [x] Trade-specific or Hispanic-market contractor-association sales training (not general Hispanic-marketing
       content) for the bilingual kitchen-table pitch - round 30 still found nothing aimed at contractors
       specifically; try association sites (NARI, NAHB Hispanic councils) or Spanish-language contractor forums
-      directly next time
+      directly next time - **round 47**: tried a third angle (well-known D2D roofing trainers/YouTube
+      specifically) - still nothing beyond general Hispanic-marketing/engagement content (IKO, Roofing
+      Contractor's "Techos y Más" launch). Recommend not re-assigning this exact sub-topic again without
+      new evidence (e.g. real YouTube transcripts becoming fetchable, or a Spanish-language contractor
+      forum surfacing).
 - [ ] Roof-chalking vs. adjuster-photo-acceptance conflict (round 22, still open after round 31) - find a
       primary source (manufacturer guidance or an adjuster directly), not another blog
 - [x] Word-for-word scripts for the "site unseen quote" and "wants three bids before deciding" objections on
@@ -131,6 +135,16 @@ Rule: every topic must end in something that improves sales, profit or the app. 
 - [ ] Sign up for EraHub's free/demo tier directly (not just its blog) to confirm how real its "native
       dual-language, single-click EN/ES toggle" claim is in practice, before HMP repeats "no competitor
       does Spanish" in any pitch or landing page (round 44, T166)
+- [ ] Wire `data/door_lines_pro.json` (round 47, 22 EN/ES door-approach/objection/appointment lines) into
+      Practice Door's script library and the app's Sale Guide door-approach + appointment steps - not
+      done yet, needs Builder/Designer
+- [ ] Confirm HMP's actual written workmanship-warranty terms (length, exactly what's covered) with the
+      boss before using any specific-year warranty line at the door - round 47's `trust-warranty-backed`
+      line is deliberately generic ("a written workmanship warranty") until this is confirmed
+- [ ] If a real transcript-fetching method becomes available (round 47: YouTube blocks full player/caption
+      data behind a sign-in wall for raw curl/WebFetch - only page title+description came through, no
+      actual dialogue), retry pulling real door-knock footage from Roof Strategist/D2D Experts/Adam
+      Bensman's channels - this round could not verify any trainer's script word-for-word from footage
 
 ## Done
 Rounds 1-21 (docs/research/2026-09-25-*, 2026-09-26-round-*): knocking, sales, claims, siding, legal, 90-day rookie plan,
@@ -245,3 +259,14 @@ and surfaced a separate local requirement round 37's state-level check missed: F
 contractor registration (Resolution 2019-049) for anyone pulling a building permit in city limits/2-mile
 jurisdiction - unconfirmed whether HMP has it. Omaha/Lincoln permit pages stayed blocked; three new
 backlog items above.
+Round 47 (sales track): learning from real door-to-door roofing trainers - opened three named-author
+practitioner sources this round (SPOTIO's Trey Gibson, two Roofr posts by Joel Castelli, Roofing
+Contractor magazine's Jill Bloom), a step up from rounds 25-42's search-summary-only pattern. Real
+mechanics found: knock 3x never the bell, 2 steps back + turn sideways, "did I catch you at a good
+time?", and a direct specific-day appointment ask. The one dangerous find - scripts telling reps to
+claim insurance rates legally can't rise on an "Act of God" claim - was rewritten out entirely, not
+used. YouTube video pages loaded but full player/caption data stayed walled behind a sign-in prompt, so
+no real door-knock transcript could be pulled (see new backlog item above); Reddit stayed fully blocked.
+Spanish-neighborhood sales-script content is still not found anywhere reachable, third round confirming
+the gap (rounds 30, 38, 47) - deprioritized per the updated item above. Output: `data/door_lines_pro.json`
+(22 EN/ES lines, all legal_ok) + this file.
