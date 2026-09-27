@@ -89,6 +89,12 @@ const COUNT_WRITES = (practice) => `(() => { window.__writes = []; const use = w
       ok(!(await p.locator("#practiceBar").isVisible()), "the bar's Turn off did not work");
       ok(!errs.length, "page errors: " + errs.join(" | "));
       await ctx.close(); }
+    // 2b. MacBook Air width (CLAUDE.md: laptop first): the bar and the More switch at 1440 px
+    { const { p, ctx, errs } = await open({ tab: "knock", practice: true, width: 1440 });
+      ok(await p.locator("#practiceBar").isVisible(), "1440: the Practice bar is not showing");
+      await shot(p, "knock-practice-1440");
+      ok(!errs.length, "page errors: " + errs.join(" | "));
+      await ctx.close(); }
     // 3. T205: the claim's step label never breaks mid-number at 390 (EN + ES)
     for (const lang of ["en", "es"]) {
       const { p, ctx, errs } = await open({ tab: "money", lang, data: { jobDemo: true } });
