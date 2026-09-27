@@ -435,6 +435,38 @@ def check_banned_phrases():
     return failures
 
 
+# Check 6 (T174, 69-1602): the app's door openers say the salesman's name, HMP and what we sell BEFORE the hook.
+DOOR_APP = "pages/hmp-app.html"
+# `doorIns: r => `...`` style Sale Guide openers; `${r` is the storm/old-house hook slot.
+_DOOR_RE = re.compile(r"\b(door[A-Z]\w*):\s*r\s*=>\s*`([^`]*)`")
+_NAME_TOKENS = ("${SETTINGS.people.en.first}", "${SETTINGS.people.es.first}",
+                "${SETTINGS.people.en.name}", "${SETTINGS.people.es.name}")
+_SELL_WORDS = ("roof", "siding", "techo", "gutter", "canaleta")
+
+
+def check_door_openers():
+    """Every app door opener: name, then company, then what we sell, all before the `${r` hook (Neb. 69-1602)."""
+    text = _read(DOOR_APP)
+    failures, found = [], 0
+    for m in _DOOR_RE.finditer(text):
+        key, body = m.group(1), m.group(2)
+        if "${r" not in body:
+            continue
+        found += 1
+        line = text.count("\n", 0, m.start()) + 1
+        head = body[: body.index("${r")]
+        where = f"{DOOR_APP}:{line} ({key})"
+        if not any(t in head for t in _NAME_TOKENS):
+            failures.append(f"{where}: no salesman name before the hook (69-1602: name first)")
+        if "${SETTINGS.company.name}" not in head:
+            failures.append(f"{where}: company name not before the hook (69-1602)")
+        if not any(w in head.lower() for w in _SELL_WORDS):
+            failures.append(f"{where}: what we sell (roofs/siding) not said before the hook (69-1602)")
+    if not found:
+        failures.append(f"{DOOR_APP}: no door openers found (door*: r => `...${{r}}...`); did the Sale Guide move?")
+    return failures
+
+
 def run(verbose=True):
     all_failures = []
     for name, check in (
@@ -443,6 +475,7 @@ def run(verbose=True):
         ("contingency agreement elements (44-8603/05/06, 69-1604)", check_contingency_elements),
         ("banned phrases", check_banned_phrases),
         ("cooling-off type: 10pt bold statement + cancel forms (16 CFR 429.1, 69-1604)", check_print_type),
+        ("app door openers: name, HMP, what we sell before the hook (69-1602)", check_door_openers),
     ):
         try:
             failures = check()
