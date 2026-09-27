@@ -12,7 +12,7 @@ This exists because v24 passed every test but still shipped blank buttons and a 
 - [ ] The page's own test drivers (`runall.sh` in the harness folder): every driver ALL PASS.
 - [ ] `python3 tests/legal_check.py`: statute text, cancel-notice elements, banned phrases.
 - [ ] `node tests/pages/shots.js`: no JS errors, no sideways scroll at 360 and 420.
-- [ ] `node tests/pages/design_gate.js`: contrast, empty controls, 44px targets, overlaps, duplicate controls, light and dark.
+- [ ] `node tests/pages/design_gate.js`: contrast, empty controls, 44px targets, overlaps, duplicate controls, light and dark (EN + ES, 360 and 420). Exit 0 only; `--quick` while building.
 - [ ] `python3 hh.py selftest` (and a fresh-folder bundle test if the engine changed).
 - [ ] Module checks the page uses: `tests/js/*_check.js`.
 
