@@ -10,6 +10,11 @@
      Rules: the opener says name + HMP Siding & Roofing + registered contractor + what we sell BEFORE the seasonal hook (NE 69-1602);
      "free inspection" only, never a free-roof hook; no deductible talk at all (NE 44-8604); never promise insurance pays;
      no deadlines or fake urgency; "registered" / "registrado" only; usted in Spanish. Registration # = blank line to write in.
+     Winter row (D26, docs/research/2026-09-27-round-53.md): never "wait for spring". Insurance work = inspect now, the homeowner
+     files now if they choose (we never file for them), build on the next warm stretch above the material's temperature floor
+     (round 52: asphalt shingles self-seal ~40°F, vinyl brittle under ~35-40°F, Hardie ColorPlus caulk/paint needs 30°F+).
+     Cash job = written estimate now, build when it's warm enough. No work before the 3-day cancel ends either way. No filing
+     deadline exists or is implied (NE lets a homeowner sue an insurer for 5 years; "prompt notice" is the policy's own word).
      PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=pre-winter-inspection.pdf file://<path>/pre-winter-inspection.html -->
 <style>
 @font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(fonts/BarlowSemiCondensed-700.woff) format("woff"); }
@@ -93,10 +98,11 @@ ol.pts li b { display:block; font-weight:700; }
 .trust b { color:var(--char-dk); }
 
 /* ---------- door script (page 3) ---------- */
-.sc .body { padding:0.22in 0.5in 0.18in; gap:0.18in; }
-.sc { font-size:8.5pt; line-height:1.36; }
+.sc .body { padding:0.2in 0.5in 0.16in; gap:0.13in; }
+.sc .h { margin-bottom:5pt; }
+.sc { font-size:8.5pt; line-height:1.32; }
 .script { border:1pt solid var(--line); border-radius:6pt; overflow:hidden; }
-.srow { display:grid; grid-template-columns:1.22in 1fr 1fr; column-gap:0.16in; padding:4.5pt 10pt 5pt; border-top:0.8pt solid var(--line); align-items:start; }
+.srow { display:grid; grid-template-columns:1.22in 1fr 1fr; column-gap:0.16in; padding:4pt 10pt 4.5pt; border-top:0.8pt solid var(--line); align-items:start; }
 .srow:first-child { border-top:0; }
 .srow.hd { background:var(--char-dk); color:#fff; padding:5pt 10pt; }
 .srow.hd div { font:800 9.5pt/1.2 "Barlow Semi Condensed"; letter-spacing:0.1em; text-transform:uppercase; }
@@ -111,11 +117,11 @@ ol.pts li b { display:block; font-weight:700; }
 .srow .do { display:block; margin-top:2pt; font-size:7.6pt; color:var(--muted); }
 .srow .do::before { content:"\2192\00a0"; color:var(--orange-ink); font-weight:700; }
 
-.hard { background:var(--char-dk); color:#e3e4e7; border-radius:5pt; padding:8pt 12pt 6pt; border-left:5pt solid var(--orange); }
+.hard { background:var(--char-dk); color:#e3e4e7; border-radius:5pt; padding:7pt 12pt 4pt; border-left:5pt solid var(--orange); }
 .hard .h { margin-bottom:5pt; }
 .hard .h .t { color:#fff; }
 .hard ul { list-style:none; }
-.hard li { position:relative; padding-left:11pt; margin-bottom:4pt; color:#d3d5d9; font-size:8pt; }
+.hard li { position:relative; padding-left:11pt; margin-bottom:3pt; color:#d3d5d9; font-size:8pt; }
 .hard li b { color:#fff; }
 .hard li i { font-style:normal; color:#9fa2a8; }
 .hard li::before { content:"\00d7"; position:absolute; left:0; top:-2pt; font:800 11pt/1.2 "Barlow Semi Condensed"; color:var(--orange); }
@@ -365,13 +371,13 @@ ol.pts li b { display:block; font-weight:700; }
         <div class="srow">
           <div class="k">The hook<small>Facts only, no deadline</small></div>
           <div class="say">“Before the snow, we’re doing <b>free pre-winter inspections</b> on this street. I check the shingles, flashing, gutters and siding. About 20 minutes, and you keep every photo.”</div>
-          <div class="say" lang="es">“Antes de que llegue la nieve, estamos haciendo <b>inspecciones gratis</b> en esta calle. Reviso las tejas, los tapajuntas, las canaletas y el siding. Son unos 20 minutos, y las fotos son suyas.”</div>
+          <div class="say" lang="es">“Antes de la nieve, estamos haciendo <b>inspecciones gratis</b> en esta calle. Reviso las tejas, los tapajuntas, las canaletas y el siding. Son unos 20 minutos, y las fotos son suyas.”</div>
         </div>
 
         <div class="srow">
           <div class="k">Book it</div>
-          <div class="say">“Is now a good time, or is another day better?”<span class="do">Write the day and time on the sheet and leave it.</span></div>
-          <div class="say" lang="es">“¿Le queda bien ahora, o prefiere otro día?”<span class="do">Anote el día y la hora en la hoja y déjesela.</span></div>
+          <div class="say">“Is now a good time, or is another day better?”<span class="do">Write the day and time on the sheet. After dark <span class="nw">(~5 PM, Nov-Feb)</span>, book daylight instead.</span></div>
+          <div class="say" lang="es">“¿Le queda bien ahora, o prefiere otro día?”<span class="do">Anote el día y la hora en la hoja. De noche <span class="nw">(~5 PM, nov-feb)</span>, agende con luz de día.</span></div>
         </div>
 
         <div class="srow">
@@ -387,6 +393,12 @@ ol.pts li b { display:block; font-weight:700; }
         </div>
 
         <div class="srow">
+          <div class="k">“Can you do it this winter?”<small>Never say “wait for spring.” Build above the floor: shingles, vinyl ~40°F · Hardie ~30°F</small></div>
+          <div class="say">“Yes. <b>Storm damage:</b> we inspect now, and you can file now if you choose. <b>Regular repair:</b> written estimate now. Either way, we build on the next warm stretch.”<span class="do">No work before the 3-day cancel ends, either way.</span></div>
+          <div class="say" lang="es">“Sí. <b>Daño de tormenta:</b> inspeccionamos ahora y, si quiere, presenta su reclamo ya. <b>Reparación normal:</b> presupuesto por escrito ahora. Y el trabajo, en cuanto el clima lo permita.”<span class="do">Ningún trabajo hasta que pasen los 3 días para cancelar.</span></div>
+        </div>
+
+        <div class="srow">
           <div class="k">“No thanks”<small>Take no fast</small></div>
           <div class="say">“No problem. I’ll leave this sheet with what to watch for this winter. Have a good day.”<span class="do">Then go.</span></div>
           <div class="say" lang="es">“No hay problema. Le dejo esta hoja con lo que debe vigilar este invierno. Que tenga buen día.”<span class="do">Y váyase.</span></div>
@@ -398,11 +410,6 @@ ol.pts li b { display:block; font-weight:700; }
           <div class="say" lang="es"><span class="do">La hoja en la puerta, nunca en el buzón (ley federal). Anote la puerta en la app.</span></div>
         </div>
 
-        <div class="srow">
-          <div class="k">After dark<small>About 5 PM, Nov-Feb</small></div>
-          <div class="say"><span class="do">Stop inspecting. Book a daylight time instead.</span></div>
-          <div class="say" lang="es"><span class="do">No revise de noche. Agende una hora con luz de día.</span></div>
-        </div>
       </div>
     </section>
 
