@@ -49,6 +49,20 @@ grain, Cam 1 up / Cam 2 down), 4 Ride-along (right behind a robot through walks,
 of field so it reads as a real miniature), 7 Tour (slow cinematic orbit), 8 Director mode (auto-cuts to the action:
 a finish -> the celebration, a question -> "your spot"; doubles as a screensaver). Reduced motion: cuts, no orbits.
 
+## Fun layer approved (FilthE, 2026-09-27: "yes I like the ideas")
+1. Robot eyes: a "See what it sees" picture-in-picture per robot (Storm Watch = live radar, QA = checks going
+   green/red, Builder = the page it builds, etc.).
+2. Personalities: own walk + idle habits per robot (King's cape swish, QA re-checks its clipboard, Storm Watch
+   yawns at 6:54 AM, Designer squints at the board).
+3. Real wins get real parties: confetti + a victory lap down the slide on a finished task; a 5-in-a-row streak
+   lights the trophy wall.
+4. Hail alert moment: real hail from Storm Watch -> sky darkens, lightning, every robot turns to the window, Storm
+   Watch runs to "your spot".
+5. Unlockable outfits: milestones earn gear (Builder's 100th page = gold hard hat, King's winter scarf in December,
+   Huskers hats on game day).
+6. After-hours mode: late at night the lights go warm and low; robots still working get a desk lamp + coffee cup.
+Plus the ranked picks in FUN-IDEAS.md and the outfit redesign ("make the outfits more appealing").
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
