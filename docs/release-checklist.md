@@ -9,7 +9,8 @@ This exists because v24 passed every test but still shipped blank buttons and a 
 - [ ] Capabilities: omit them on publish (they carry forward) unless the change is deliberate.
 
 ## 2. Automatic checks (all must pass)
-- [ ] The page's own test drivers (`runall.sh` in the harness folder): every driver ALL PASS.
+- [ ] **One command runs every check below: `tests/release_checks.sh`** (`--quick` while building, `--fast` skips the
+  browser checks). Exit 0 = step 2 done. The page's own test drivers (`runall.sh`, Mac harness folder), when present: ALL PASS.
 - [ ] `python3 tests/legal_check.py`: statute text, cancel-notice elements, banned phrases.
 - [ ] `node tests/pages/shots.js`: no JS errors, no sideways scroll at 360 and 420.
 - [ ] `node tests/pages/design_gate.js`: contrast, empty controls, 44px targets, overlaps, duplicate controls, light and dark (EN + ES, 360 and 420). Exit 0 only; `--quick` while building.
