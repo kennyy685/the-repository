@@ -4,6 +4,7 @@
   python3 .claude/hooks/hub_flush.py                        # events only; lists which robots also need an update
   python3 .claude/hooks/hub_flush.py --versions builder=13,designer=12   # + pinned agents/<id> status updates
   -> prints the `writes` array: pass it to ArtifactData action "batch" (hub url below), then:
+  python3 .claude/hooks/hub_flush.py --hold qa-tester       # keep a paused helper's rows queued (see below)
   python3 .claude/hooks/hub_flush.py --done                 # batch committed: drop the rows it posted
   python3 .claude/hooks/hub_flush.py --discard              # no hub in this session: drop them unposted
 
@@ -11,6 +12,9 @@ Hub writes to existing docs must be pinned to their version (the server refuses 
 updates need --versions (from the King's last write result or an ArtifactData list of `agents`). Events are new docs
 and need none. One-off helpers never get their own robot (crew-checkin): scouts are left out (their Research Lead
 posts), and the King's own one-off helpers post as events under `code` without touching the King's status.
+SubagentStop also fires when a helper only PAUSES to wait on its own background helpers (the King's notice then says
+"stopped with background work of its own still running"): flush with `--hold <type>,...` so that stop isn't posted
+as a finish; held rows stay queued for the next flush.
 """
 import json
 import os
@@ -79,10 +83,16 @@ def clip(text, n=290):
     return text if len(text) <= n else text[: n - 1].rstrip() + "…"
 
 
-def build(rows):
+def build(rows, hold=()):
     find = describe(rows)
-    events, latest, used = [], {}, set()
-    for r in rows:
+    events, latest, used, held = [], {}, set(), set()
+    last_stop = {r.get("agent_id") or n: n for n, r in enumerate(rows) if r and r.get("event") == "stop"}
+    for n, r in enumerate(rows):
+        if r and r.get("agent_type") in hold and r.get("event") == "stop":
+            held.add(n)
+            continue
+        if r and r.get("event") == "stop" and last_stop.get(r.get("agent_id") or n) != n:
+            continue  # an earlier pause of the same helper: only its last stop is the finish
         if not r or r.get("event") not in ("start", "stop") or r.get("agent_type") in SKIP:
             continue
         hub_id, room = CREW.get(r.get("agent_type"), ("code", "board"))
@@ -112,22 +122,22 @@ def build(rows):
             if desc:
                 upd["task"] = clip(desc, 80)
             latest[hub_id] = upd
-    return events, latest
+    return events, latest, held
 
 
 def main(argv):
     lines, rows = read_queue()
     if "--done" in argv or "--discard" in argv:
         try:
-            n = int(open(PENDING).read().strip()) if "--done" in argv else len(lines)
+            gone = set(json.load(open(PENDING))) if "--done" in argv else set(range(len(lines)))
         except (FileNotFoundError, ValueError):
             print("Nothing pending: run hub_flush.py first.")
             return 1
-        with open(QUEUE, "w") as f:
-            f.writelines(lines[n:])  # rows the hooks added after the flush stay queued
+        with open(QUEUE, "w") as f:  # held rows and rows the hooks added after the flush stay queued
+            f.writelines(ln for i, ln in enumerate(lines) if i not in gone)
         if os.path.exists(PENDING):
             os.remove(PENDING)
-        print(f"Cleared {n} queued row(s); {len(lines) - n} left.")
+        print(f"Cleared {len(gone)} queued row(s); {len(lines) - len(gone)} left.")
         return 0
 
     versions = {}
@@ -136,11 +146,16 @@ def main(argv):
         for part in filter(None, spec.split(",")):
             k, _, v = part.partition("=")
             versions[k.strip()] = int(v)
-    events, latest = build(rows)
-    if not events:  # only launches or scouts: nothing for the hub, drop what was read
+    hold = set()
+    if "--hold" in argv and argv.index("--hold") + 1 < len(argv):
+        hold = set(filter(None, argv[argv.index("--hold") + 1].split(",")))
+    events, latest, held = build(rows, hold)
+    # a held helper keeps its launch row too, so its description is still there at the real finish
+    keep = held | {i for i, r in enumerate(rows) if r and r.get("event") == "launch" and r.get("agent_type") in hold}
+    if not events:  # only launches, scouts or held rows: nothing for the hub, drop the rest of what was read
         with open(QUEUE, "w") as f:
-            f.writelines(read_queue()[0][len(lines):])
-        print(f"No helper check-ins for the hub (cleared {len(lines)} row(s)).")
+            f.writelines([ln for i, ln in enumerate(lines) if i in keep] + read_queue()[0][len(lines):])
+        print(f"No helper check-ins for the hub (cleared {len(lines) - len(keep)} row(s), holding {len(keep)}).")
         return 0
     os.makedirs(OUT, exist_ok=True)
     for f in os.listdir(OUT):
@@ -161,7 +176,7 @@ def main(argv):
         writes.append({"op": "update", "collection": "agents", "doc_id": hub_id, "file_path": path,
                        "if_version": versions[hub_id]})
     with open(PENDING, "w") as f:
-        f.write(str(len(lines)))
+        json.dump([i for i in range(len(lines)) if i not in keep], f)
     print(f"# ArtifactData batch, url {HUB} ({len(events)} event(s)). After it commits: hub_flush.py --done")
     if missing:
         print("# Robots not updated (need --versions): " + ",".join(f"{m}=?" for m in missing))

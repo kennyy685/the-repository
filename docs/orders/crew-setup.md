@@ -39,7 +39,9 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
   `.claude/hooks/hub_flush.py` turns the queue into one batch: start/done events always, robot (`agents/<id>`) updates
   when given `--versions builder=13,...`. Scouts are skipped (their Research Lead posts); the King's one-off helpers
   post as `code` events. `stop-hub-reminder.sh` blocks a King stop once while check-ins are unposted
-  (`hub_flush.py --discard` in a session without the hub). Hook payloads checked against Claude Code 2.1.283:
+  (`hub_flush.py --discard` in a session without the hub). SubagentStop also fires when a helper only pauses to wait on its own background
+  helpers (the King's notice says "background work of its own still running"): flush with `--hold <type>` so the pause
+  isn't posted as a finish; only a helper's last stop posts. Hook payloads checked against Claude Code 2.1.283:
   SubagentStart {agent_id, agent_type}, SubagentStop {+ agent_transcript_path, last_assistant_message}, the Agent
   tool's response {status: async_launched, agentId, description}.
 - **Plugins/MCP servers:** Anthropic doesn't security-audit MCP servers, even in its directory. Add none without the
