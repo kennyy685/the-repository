@@ -6,8 +6,12 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 
 ## Who
 - **FilthE** (Kenny Cruz, 402-936-2709): builds this system, does insurance sales, bilingual, owns the app (product name
-  **Aldaba**, trademark pending). Plain English, short, skimmable (ADHD). Ask before money, legal, customer-facing or
-  deleting data. Never make him type into spreadsheets. Don't re-ask answered questions (see full-context).
+  **Aldaba**, trademark pending). Plain English, short, skimmable (ADHD). Never make him type into spreadsheets.
+  Don't re-ask answered questions (see full-context).
+- **Research first, don't ask (FilthE, 2026-09-27):** "stop asking me for info when there's a whole web to use." Anything
+  the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
+  tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's
+  prices, registration #, warranty promises, spending money, signing anything, deleting data.
 - **The boss** owns HMP, speaks Spanish. Spanish side of print = Alex Mendez, 402-889-3385. Mailing address:
   2600 Laverna St, Apt 50, Fremont, NE 68025. Registration # pending (print keeps a blank line).
 - HMP: siding, roofing, gutters, residential + commercial; subs labor for VTR / Nastase; goal = insurance restoration
