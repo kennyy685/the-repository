@@ -29,3 +29,6 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - His pay deal: commission per job? Salary? (Decides what the app and HQ should count for him.)
 - A monthly budget for growth (yard signs, hangers, tools), even a small one.
 - Who he looks up to (a person or a company), for style and ambition cues.
+- From the job #1 playbook (round 56): cash cushion to front materials; which crew is "next up" for an HMP-owned job;
+  an existing supplier rep, and will the boss personally guarantee a first credit account; deposit % and schedule;
+  Fremont city contractor registration (Resolution 2019-049) held or not; who signs contracts for HMP.
