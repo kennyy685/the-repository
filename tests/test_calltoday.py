@@ -115,5 +115,78 @@ class CallToday(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+TUESDAY = "2026-09-29"
+ASSOC = [
+    {"name": "Assoc A", "city": "Omaha", "phone": "402-210-0273", "kind": "association", "why_en": "a", "why_es": "a",
+     "opener_en": "Hi, this is {caller} with {company}{town}. How do vendors join?",
+     "opener_es": "Hola, habla {caller} de {company}{town}. ¿Cómo se unen los proveedores?"},
+    {"name": "Assoc B", "city": "Omaha", "phone": "402-932-1022", "kind": "association", "why_en": "b", "why_es": "b",
+     "opener_en": "Hi {caller}", "opener_es": "Hola {caller}"},
+    {"name": "Assoc C", "city": "Lincoln", "phone": "(402) 555-7777", "kind": "association", "why_en": "c",
+     "why_es": "c", "opener_en": "Hi", "opener_es": "Hola"},
+    {"name": "No Phone Yet", "city": "Lincoln", "phone": None, "note": "look up", "kind": "association"},
+    {"name": "A Cell", "city": "Omaha", "phone": "(402) 555-1212", "phone_type": "cell", "kind": "association"},
+]
+
+
+class AssociationCalls(unittest.TestCase):
+    """T149: landlord/HOA association calls go after the storm building calls, on the configured day only."""
+
+    def setUp(self):
+        self.cfg = C.load(os.path.join(tempfile.gettempdir(), "no-such-hh-config.json"))
+
+    def test_tuesday_appends_two_after_building_calls(self):
+        doc = calltoday.today_doc(HUD, TUESDAY, self.cfg, associations=ASSOC)
+        kinds = [c["kind"] for c in doc["calls"]]
+        self.assertEqual(kinds, ["building", "building", "association", "association"])
+        self.assertEqual([c["rank"] for c in doc["calls"]], [1, 2, 3, 4])
+        a = doc["calls"][2:]
+        for c in a:
+            self.assertIn(c["name"], {"Assoc A", "Assoc B", "Assoc C"})    # never the null phone or the cell
+            self.assertNotIn("{", c["opener"]["en"] + c["opener"]["es"])
+            for word in ("insurance", "claim", "deductible", "seguro", "reclamo", "deducible"):
+                self.assertNotIn(word, (c["opener"]["en"] + c["opener"]["es"]).lower())
+        self.assertEqual(len({c["name"] for c in a}), 2)
+
+    def test_other_days_and_rotation_and_config(self):
+        self.assertEqual(calltoday.association_calls(TODAY, self.cfg, ASSOC), [])          # Saturday
+        wk1 = [c["name"] for c in calltoday.association_calls(TUESDAY, self.cfg, ASSOC)]
+        wk2 = [c["name"] for c in calltoday.association_calls("2026-10-06", self.cfg, ASSOC)]
+        self.assertEqual(len(wk1), 2)
+        self.assertNotEqual(wk1, wk2)                                                       # rotates weekly
+        self.cfg["call_today"].update(association_days=["Tue", "Thu"], association_per_week=2)
+        self.assertEqual(len(calltoday.association_calls(TUESDAY, self.cfg, ASSOC)), 1)
+        self.assertEqual(len(calltoday.association_calls("2026-10-01", self.cfg, ASSOC)), 1)
+        self.cfg["call_today"]["association_per_week"] = 0
+        self.assertEqual(calltoday.association_calls(TUESDAY, self.cfg, ASSOC), [])
+
+    def test_no_buildings_still_lists_associations_and_real_file_is_business_lines(self):
+        doc = calltoday.today_doc({}, TUESDAY, self.cfg, associations=ASSOC)
+        self.assertEqual(doc["count"], 2)
+        self.assertIn("none_reason", doc)                     # no BUILDING in fresh hail
+        real = calltoday.load_associations(self.cfg)
+        names = " ".join(c["name"] for c in real)
+        for n in ("MOPOA", "Omaha Landlords Association", "REOMA"):
+            self.assertIn(n, names)
+        for c in real:
+            self.assertEqual(c["kind"], "association")
+            self.assertTrue(c["phone"] is None or calltoday.business_phone(c))
+            if c["phone"] is None:
+                self.assertIn("look up", c["note"])
+        self.assertEqual(calltoday.load_associations({"paths": {"association_contacts": "/no/such.json"}}), [])
+
+    def test_csv_has_kind(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            p = os.path.join(tmp, "c.csv")
+            calltoday.write_csv(p, calltoday.today_doc(HUD, TUESDAY, self.cfg, associations=ASSOC)["calls"])
+            with open(p, newline="", encoding="utf-8") as f:
+                rows = list(csv.DictReader(f))
+            self.assertEqual([r["kind"] for r in rows], ["building", "building", "association", "association"])
+            self.assertEqual(rows[2]["hail_in"], "")
+        finally:
+            shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     unittest.main()

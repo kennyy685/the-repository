@@ -1,0 +1,17 @@
+/* Product brand candidates, as a drop-in for the v25 Ledger system (../v25-polish/ds.css).
+   Load AFTER ds.css and put class="brand-aldaba|brand-paso|brand-ronda" on <html>. Only the accent family changes
+   (--hmp*, --on-hmp, --heat, and --warn for Paso so "waiting" chips don't look like the brand); Geist stays the app
+   face. --display is for the logo lockup, marketing headlines and big numbers on the landing page only. */
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Archivo";src:url(fonts/Archivo-var.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"Unbounded";src:url(fonts/Unbounded-var.woff2) format("woff2");font-weight:200 900;font-display:swap}
+html.brand-aldaba{--display:"Bricolage Grotesque",system-ui,sans-serif} /* 700, opsz 96, -0.03em */
+html.brand-paso{--display:"Archivo",system-ui,sans-serif}               /* 800, font-stretch 125%, -0.025em */
+html.brand-ronda{--display:"Unbounded",system-ui,sans-serif}            /* 600, -0.03em */
+html.brand-paso{--hmp:#ffc21a;--hmp-press:#f0ad00;--hmp-ink:#6b4f00;--hmp-bg:#fff3c4;--on-hmp:#18191c;--warn:#a4520f;--warn-bg:#fdf1e7;--heat:240,166,0}
+html.brand-ronda{--hmp:#c8288f;--hmp-press:#ad1f7a;--hmp-ink:#a11c74;--hmp-bg:#fbe9f4;--on-hmp:#ffffff;--heat:200,40,143}
+@media (prefers-color-scheme:dark){
+html.brand-paso:not([data-theme="light"]){--hmp-ink:#ffd45c;--hmp-bg:rgba(255,194,26,.14);--warn:#ffa766;--warn-bg:rgba(245,136,58,.14)}
+html.brand-ronda:not([data-theme="light"]){--hmp:#d23a9c;--hmp-press:#b82a85;--hmp-ink:#ff8ad0;--hmp-bg:rgba(210,58,156,.18)}}
+html.brand-paso[data-theme="dark"]{--hmp-ink:#ffd45c;--hmp-bg:rgba(255,194,26,.14);--warn:#ffa766;--warn-bg:rgba(245,136,58,.14)}
+html.brand-ronda[data-theme="dark"]{--hmp:#d23a9c;--hmp-press:#b82a85;--hmp-ink:#ff8ad0;--hmp-bg:rgba(210,58,156,.18)}

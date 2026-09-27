@@ -7,17 +7,19 @@
  *
  * Exit 0 = all pass. The AI coach is the main check; this set is the backup and the regression guard.
  * v6 (2026-09-26, QA): 19 tricky phrasings + 15 compliant look-alikes added (deductible softening, "basically
- * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy). */
+ * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy).
+ * v10 (2026-09-27): the insurance-rate promise (round 47) and "licencia" said about HMP in Spanish (round 49), each with
+ * compliant look-alikes; the pro lines and the Spanish playbook must equal their data files; taught Spanish keeps "usted". */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "..", "..", "pages", "practice-door.html"), "utf8");
 const a = src.indexOf("const RX = ["), b = src.indexOf("const localFlags");
-const legalScan = new Function(src.slice(a, b) + "\nreturn legalScan;")();
+const { legalScan, tuUsed } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed };")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
-const { OBJ, SKILL } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL };")();
+const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY };")();
 
 /* [line, expected first flag type or null, optional legalScan context] */
 const HOA = { hoa: true }, PHONE = { phone: true };
@@ -318,6 +320,68 @@ const CASES = [
   ["Free roof look?", null],
   ["Mind if I do a free roof inspection?", null],
   ["You get a free roof out of this.", 'deductible'],
+  /* v10 (2026-09-27, round 47): the insurance-rate promise. Never say their rate won't go up, that they can't be
+     dropped, or that a hail / "act of God" claim won't count against them. The only approved answer is T.f_rate. */
+  ["Your rates won't go up.", 'rate'],
+  ["Your insurance rate can't go up for a hail claim.", 'rate'],
+  ["Filing won't raise your premium.", 'rate'],
+  ["Don't worry, your insurance won't go up.", 'rate'],
+  ["A claim won't affect your rates.", 'rate'],
+  ["It's an act of God, so they can't raise your rates.", 'rate'],
+  ["They can't drop you or raise your rates for a storm claim.", 'rate'],
+  ["By law they can't raise your premium for hail.", 'rate'],
+  ["Insurance companies can't raise rates on acts of God.", 'rate'],
+  ["Hail claims don't count against you.", 'rate'],
+  ["There's no rate increase for weather claims.", 'rate'],
+  ["Don't worry about your rates going up.", 'rate'],
+  ["Your policy won't be cancelled over this.", 'rate'],
+  ["No le va a subir el seguro.", 'rate'],
+  ["El seguro no le puede subir la cuota por granizo.", 'rate'],
+  ["No le suben la prima por un reclamo de granizo.", 'rate'],
+  ["Por ley no le pueden subir el seguro.", 'rate'],
+  ["No le van a cancelar la póliza por esto.", 'rate'],
+  ["Su seguro no va a subir.", 'rate'],
+  ["Es un acto de Dios, no le pueden subir.", 'rate'],
+  ["Un reclamo por granizo no le afecta el seguro.", 'rate'],
+  ["La aseguradora no lo puede dar de baja por esto.", 'rate'],
+  ["No se preocupe de que le suban el seguro.", 'rate'],
+  /* v10: compliant look-alikes that must stay clean */
+  ["I can't promise your rate won't go up; that's between you and your insurer.", null],
+  ["Whether your rate goes up is between you and your insurance company.", null],
+  ["Some folks worry their rates will go up. That's a fair question for your agent.", null],
+  ["Nobody can promise your premium won't change.", null],
+  ["I won't tell you your rates won't go up. Ask your agent.", null],
+  ["Documenting the damage doesn't mean you have to file anything.", null],
+  ["A free look doesn't change your coverage, it's just photos.", null],
+  ["They won't touch your roof without your OK.", null],
+  ["No le puedo prometer que no le suba el seguro.", null],
+  ["No sé si le sube el seguro; eso pregúntelo a su agente.", null],
+  ["Eso es entre usted y su aseguradora, no le puedo decir si sube.", null],
+  ["No le quito mucho tiempo, son 10 minutos.", null],
+  ["No le va a subir el precio del trabajo.", null],
+  /* v10 (round 49): "licencia" said about HMP in Spanish is the same hard flag as "licensed". Answer: "registrados". */
+  ["HMP tiene licencia del estado.", 'license'],
+  ["Somos una compañía con licencia.", 'license'],
+  ["Estamos licenciados en Nebraska.", 'license'],
+  ["Somos contratistas con licencia y seguro.", 'license'],
+  ["Contamos con licencia para techos.", 'license'],
+  ["Sí, tenemos todas las licencias.", 'license'],
+  ["HMP es una empresa licenciada.", 'license'],
+  ["Nuestra compañía está licenciada y asegurada.", 'license'],
+  ["Sí, con licencia y todo.", 'license'],
+  ["Soy contratista licenciado.", 'license'],
+  ["Nuestra licencia de contratista es del estado.", 'license'],
+  /* v10: compliant look-alikes (a driver's license, the title "licenciado", correcting the term) stay clean */
+  ["El seguro exige una licencia de manejo.", null],
+  ["¿Me enseña su licencia de manejo?", null],
+  ["Mi hijo sacó su licencia de manejo.", null],
+  ["Hablé con el licenciado Pérez, el abogado de la asociación.", null],
+  ["No somos licenciados, somos registrados; así funciona en Nebraska.", null],
+  ["Nebraska no da licencias de contratista para este tipo de trabajo, da registro.", null],
+  ["En Texas piden licencia; aquí en Nebraska es registro.", null],
+  ["Asegúrese de que el contratista esté registrado, no importa si dice que tiene licencia.", null],
+  ["Nunca decimos que tenemos licencia: estamos registrados.", null],
+  ["Somos contratistas registrados en Nebraska.", null],
 ];
 
 let fails = 0;
@@ -338,7 +402,56 @@ T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
 /* v9: HOA and phone-quote answers must also stay clean under their scenario's extra rules. */
 OBJ.forEach(o => { const who = [].concat(o[2] || []); if (who.includes('hoa')) o[1].forEach((x, i) => lines.push(["OBJ(hoa) " + o[0][0] + (i ? " ES" : " EN"), x, HOA])); if (who.includes('phonequote')) o[1].forEach((x, i) => lines.push(["OBJ(phone) " + o[0][0] + (i ? " ES" : " EN"), x, PHONE])); });
 lines.push(["f_hoa_claim EN (HOA)", T.f_hoa_claim[0], HOA], ["f_hoa_claim ES (HOA)", T.f_hoa_claim[1], HOA], ["h_hoa EN (HOA)", T.h_hoa[0], HOA], ["h_hoa ES (HOA)", T.h_hoa[1], HOA]);
+/* v10 (round 47): the pro-line library must equal data/door_lines_pro.json word for word ({name} = Kenny), and every
+   line, the first-3-seconds tips and the approved rate answer must stay clean. */
+const DATA = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "door_lines_pro.json"), "utf8"));
+let pf = 0;
+if (!Array.isArray(PRO) || PRO.length !== DATA.length) { pf++; console.log("FAIL PRO has", PRO && PRO.length, "lines, data file has", DATA.length); }
+for (const x of DATA) {
+  const p = (PRO || []).find(y => y.id === x.id);
+  if (!p) { pf++; console.log("FAIL PRO is missing", x.id); continue; }
+  if (p.a[0] !== x.en.replace(/\{name\}/g, "Kenny") || p.a[1] !== x.es.replace(/\{name\}/g, "Kenny")) { pf++; console.log("FAIL PRO text differs from the data file:", x.id); }
+  if (!p.l || !p.l[0] || !p.l[1]) { pf++; console.log("FAIL PRO label missing:", x.id); }
+}
+for (const id of (PRO_ON_HOLD || [])) if (!DATA.some(x => x.id === id)) { pf++; console.log("FAIL PRO_ON_HOLD names an unknown line:", id); }
+const ok47 = DATA.find(x => x.id === "objection-insurance-claim-hesitation");
+if (T.f_rate[0] !== `“${ok47.en}”` || T.f_rate[1] !== `“${ok47.es}”`) { pf++; console.log("FAIL f_rate is not the approved rate answer, word for word"); }
+(PRO || []).forEach(p => p.a.forEach((x, i) => lines.push(["PRO " + p.id + (i ? " ES" : " EN"), x])));
+T.first3tips.forEach((l, i) => l.forEach(x => lines.push(["first3tips" + (i ? " ES" : " EN"), x])));
+console.log(`${DATA.length} pro lines match the data file${pf ? ` - ${pf} problem(s)` : ""}`);
+/* v10 (round 49): the Spanish sale playbook must equal data/spanish_sale_playbook.json word for word ({name} = Kenny)
+   and stay clean; every Spanish line the page teaches keeps "usted"; the "tú" check itself works both ways. */
+const PB = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "spanish_sale_playbook.json"), "utf8"));
+if (!Array.isArray(PLAY) || PLAY.length !== PB.length) { pf++; console.log("FAIL PLAY has", PLAY && PLAY.length, "lines, data file has", PB.length); }
+PB.forEach((x, i) => { const p = (PLAY || [])[i]; if (!p || p.es !== x.es.replace(/\{name\}/g, "Kenny") || !p.l || !p.l[0] || !p.l[1]) { pf++; console.log("FAIL PLAY entry differs from the data file:", i, x.moment); } });
+(PLAY || []).forEach((p, i) => lines.push(["PLAY " + i, p.es]));
+if (typeof tuUsed !== "function") { pf++; console.log("FAIL tuUsed is missing"); } else {
+  const U = x => ({ role: "user", content: x }), H = x => ({ role: "assistant", content: x });
+  const TU = [
+    [[U("Hola, soy Kenny de HMP Siding & Roofing. ¿Le puedo quitar un minuto?")], false],
+    [[U("¿Te parece el sábado a las 10?")], true],
+    [[U("¿Tienes tiempo ahorita?")], true],
+    [[U("Mira, tu techo tiene golpes.")], true],
+    [[U("Oye, ¿quieres que revise?")], true],
+    [[U("Estás en buenas manos.")], true],
+    [[U("Buenas tardes. ¿Vos sabés si granizó aquí?")], true],
+    [[U("It won't cost you a dime to look.")], false],
+    [[U("Buenas tardes, disculpe la molestia. Soy Kenny, de HMP."), H("Háblame de tú, mijo."), U("Claro, ¿te parece si reviso tu techo?")], false],
+    [[U("¿Prefiere que le hable de tú o de usted?")], false],
+    [[U("Venga conmigo a ver el techo, así lo ve usted mismo.")], false],
+    [[U("Fue un gusto conocerlo. Muchas gracias por su tiempo.")], false],
+  ];
+  for (const [turns, want] of TU) if (tuUsed(turns) !== want) { pf++; console.log("FAIL tú check", want ? "missed" : "false hit", JSON.stringify(turns.map(x => x.content))); }
+  const taught = [];
+  OBJ.forEach(o => taught.push(["OBJ " + o[0][0], o[1][1]]));
+  for (const k of Object.keys(T)) if (/^f_/.test(k) && Array.isArray(T[k])) taught.push([k, T[k][1]]);
+  SKILL.forEach(k => taught.push(["SKILL " + k.id, k.a[1]]));
+  (PRO || []).forEach(p => taught.push(["PRO " + p.id, p.a[1]]));
+  (PLAY || []).forEach((p, i) => taught.push(["PLAY " + i, p.es]));
+  for (const [where, x] of taught) if (tuUsed([U(x)])) { pf++; console.log("FAIL taught Spanish line uses tú:", where); }
+  console.log(`${PB.length} playbook lines match the data file; ${taught.length} taught Spanish lines keep "usted"`);
+}
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);
-process.exit(fails || lf ? 1 : 0);
+process.exit(fails || lf || pf ? 1 : 0);

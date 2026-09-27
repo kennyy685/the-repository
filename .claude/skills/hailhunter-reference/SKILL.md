@@ -116,10 +116,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   parcel tile when door lists are built (doors/everyday, try/except, 120 s budget, cached 180 days in db tables
   `owner_occ` + `owner_tiles`); `hud.py` sets stop `owner_occ` + new field `owner_source` from the cache (offline).
   Door score v2 then uses the house flag (`parts.owner_basis` = "house") instead of the neighborhood share.
-  Sources: **Sarpy works** (ArcGIS Online `Parcel_Sales2`, all ~77k parcels). Douglas (dcgis.org), Lancaster
-  (gis.lincoln.ne.gov/public .../Assessor/TaxParcels), Dodge (dodge.gisworkshop.com) and geodata.sarpy.gov were
-  blocked from the cloud session on 2026-09-26, so not wired; add a `SOURCES` entry once reachable. Owner NAMES are
-  never requested or stored (homes rule); the mailing address is compared in memory and dropped.
+  Sources (`owners.SOURCES`): **Sarpy, Douglas and Lancaster work** (Sarpy: ArcGIS Online `Parcel_Sales2`, ~77k
+  parcels, with sale date; Douglas: dcgis.org `Parcels_public`; Lancaster: gis.lincoln.ne.gov Assessor/TaxParcels;
+  the last two have no sale date). **Dodge (Fremont) is not wired**: dodge.gisworkshop.com's TLS certificate is
+  expired and http is refused, and TLS checks are never skipped; add a `SOURCES` entry once it is fixed. Owner NAMES
+  are never requested or stored (homes rule); the mailing address is compared in memory and dropped.
+- Everyday heat (T163): also x `afford` = `everyday.income_curve` on the block group's median household income
+  (ACS B19013, table `acs_income`, optional load in `nbhd.load_income`; unknown = 1.0). Cash/old-house score only,
+  never storm, door-score or zone scores.
 - Size: 1" = 0.40, 2" = 0.93. Recency: full to 45 days, 0.4 at 1 yr. Distance: full to 30 mi.
 - Wind (T6): `refresh` pulls NWS wind reports into `wind_obs` and hud.json's `wind_events` (gusts in mph, own
   score). Informational only: door lists and neighborhood scores stay hail-only.

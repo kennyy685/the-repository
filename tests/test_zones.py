@@ -21,7 +21,8 @@ from tests.test_todaywalk import KEYS, NEW_KEYS  # noqa: E402
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 DAY = "2026-09-25"
 ZONE_KEYS = {"id", "name", "center", "polygon", "polygon_kind", "score", "heat", "hail_in", "storm_day", "homes", "why",
-             "walk_id", "kind", "dist_mi", "list_id", "turf"}
+             "walk_id", "kind", "dist_mi", "list_id", "turf",
+             "walk_polygon", "walk_center", "homes_total", "walk_homes"}          # + map polish (tests/test_walk_map.py)
 NEVER = re.compile(r"insur|asegur|seguro|deduct|deduc|guarant", re.I)
 
 
@@ -150,7 +151,7 @@ class Zones(unittest.TestCase):
             zp, wp = os.path.join(t, "z.json"), os.path.join(t, "w.json")
             with contextlib.redirect_stdout(io.StringIO()):
                 rc = hh.main(["zones", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49", "--radius", "30",
-                              "--top", "2", "--doors", "8", "--out", zp, "--walks-out", wp])
+                              "--top", "2", "--doors", "8", "--out", zp, "--walks-out", wp, "--no-basemap"])
             self.assertEqual(rc, 0)
             with open(zp, encoding="utf-8") as f:
                 z = json.load(f)

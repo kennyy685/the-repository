@@ -1,0 +1,40 @@
+{
+  "source": "Research round 34 (docs/research/2026-09-26-round-34.md): landlord / property-owner trade associations. Numbers came from search summaries (the association sites were blocked that round); confirm on the first call. Membership fees not verified: ask FilthE before paying to join.",
+  "legal_reminder": "Business lines only (the association's published office line). Never ask the association for members' personal cells or home numbers, no bought lists, no cold texts. No insurance talk on these calls: the ask is vendor membership or a seat at a meeting.",
+  "contacts": [
+    {
+      "name": "MOPOA (Metro Omaha Property Owners Association)",
+      "city": "Omaha",
+      "phone": "402-210-0273",
+      "kind": "association",
+      "ask_for": "Membership or events coordinator",
+      "why_en": "Omaha-metro landlord group with 500+ members: one relationship reaches hundreds of rental roofs and walls.",
+      "why_es": "Grupo de propietarios de rentas del área de Omaha con más de 500 miembros: una sola relación llega a cientos de techos y paredes de rentas.",
+      "opener_en": "Hi, this is {caller} with {company}{town}. We do roofing and siding for rental owners, and I'd like to ask how a local contractor joins as a vendor member, and whether we could sit in on one of your member meetings.",
+      "opener_es": "Hola, habla {caller} de {company}{town}. Hacemos techos y revestimiento (siding) para dueños de propiedades de renta, y quisiera saber cómo se une un contratista local como miembro proveedor, y si podemos asistir a una de sus reuniones de miembros."
+    },
+    {
+      "name": "Omaha Landlords Association",
+      "city": "Omaha",
+      "phone": "402-932-1022",
+      "kind": "association",
+      "ask_for": "Whoever handles vendor members",
+      "why_en": "Omaha landlords meet here: being a known vendor means duplex and 4-plex owners call us first when a roof or siding needs work.",
+      "why_es": "Aquí se juntan los propietarios de Omaha: ser un proveedor conocido hace que los dueños de dúplex y cuádruplex nos llamen primero cuando un techo o siding necesita trabajo.",
+      "opener_en": "Hi, this is {caller} with {company}{town}. We're a local roofing and siding contractor, and I'd like to know how vendors join your association, and when your next member meeting is so we could attend.",
+      "opener_es": "Hola, habla {caller} de {company}{town}. Somos un contratista local de techos y revestimiento (siding), y quisiera saber cómo se unen los proveedores a su asociación, y cuándo es su próxima reunión de miembros para poder asistir."
+    },
+    {
+      "name": "REOMA (Real Estate Owners & Managers Association)",
+      "city": "Lincoln",
+      "phone": null,
+      "note": "look up (reomalincoln.org): round 34 had no phone number",
+      "kind": "association",
+      "ask_for": "Membership or events coordinator",
+      "why_en": "Lincoln rental owners and managers: 130+ members and 7,000+ units.",
+      "why_es": "Dueños y administradores de rentas de Lincoln: más de 130 miembros y más de 7,000 unidades.",
+      "opener_en": "Hi, this is {caller} with {company}{town}. We do roofing and siding for rental owners, and I'd like to ask how a contractor joins as a vendor member, and whether we could attend one of your meetings.",
+      "opener_es": "Hola, habla {caller} de {company}{town}. Hacemos techos y revestimiento (siding) para dueños de propiedades de renta, y quisiera saber cómo se une un contratista como miembro proveedor, y si podemos asistir a una de sus reuniones."
+    }
+  ]
+}

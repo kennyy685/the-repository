@@ -83,11 +83,21 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 - **App theme: A "Ledger"** (docs/design/references/direction-a.html): light, clean, orange accent (#f5883a); B's big
   door counter on Knock. *History: this replaced "HMP Pro Dark" (charcoal + silver/white, Barlow Semi Condensed +
   Montserrat), ordered earlier the same day.* Print pieces keep the charcoal/orange brand look.
+- **Product name: "Aldaba"** (the iron door knocker; FilthE's pick 2026-09-27; docs/design/product-brand/aldaba/). It's the
+  app's brand when sold to other roofers; HMP stays the first customer and its own brand. Before public use: USPTO
+  trademark search + a lawyer, and check the .com/.app names.
+- Community flyer: **use both** A "Letrero" (color, boards/Chamber) and B "Boletín" (church bulletins, B&W copies) (docs/print/community-flyer/).
+- PR #6 merged to main (FilthE's OK, 2026-09-26); Cowork re-bundles.
 - Referral thank-you (D17): **a handwritten thank-you note only**, no gift cards or money.
 - App layout (T75): **Option B "Next step"** (docs/design/app-layout/option-b.html): tabs Now / Knock / + / Leads /
   Money; home = the Sale Guide card for what to do next; + = add lead / quick price / "help me say it"; ES toggle on
   every script line; C's big door buttons on Knock. No Crew tab in the app (the crew lives in the AI hub as a clean
   team board: a card per AI with role, status dot, now doing, last result).
+
+## How we ship (FilthE, 2026-09-27: "it has to look like a finished product")
+Every page publish follows `docs/release-checklist.md`: all checks green, the King looks at light + dark screenshots against
+the approved mockups (`docs/design/v25-polish/`), legal boxes ticked, then `docs/CHANGELOG.md` gets a line.
+Helpers commit only their own files (`git add <paths>`, never `-A`).
 
 ## Chain of command (FilthE, 2026-09-26)
 - **Claude Code (the cloud session) is the King / lead**: sets priorities on the hub board, gives the orders, runs the
@@ -95,10 +105,12 @@ door. Insurance per house isn't public: "likely insured" = owner-occupied + resi
 - **The Right Hand** (the old King) answers FilthE live in the app chat ("Talk to your Right Hand", the page's `sample`
   model), logs what he says (leads, doors, claims), and passes his words to Claude Code as handoffs (`to: "code"`). It
   takes orders from Claude Code and doesn't reassign Code-lab work.
-- **Its scheduled jobs run in the cloud hourly trigger** `trig_012h6pQqggc88n8vsj93zayJ` (every hour 7 AM-10 PM Central:
-  answers/handoffs/events each run; standup + HMP HQ refresh at 8 AM; wrap + HMP HQ at 6 PM). The old Mac routines
-  (8:12 AM standup `trig_01NKMVTpCBNnHwSC1hdZBHwM`, 6:12 PM wrap `trig_011XswCar2enDNHr1B5N16pi`) are **paused, not
-  deleted**. For instant action: message Claude Code directly, or comment on the hub/app page.
+- **Scheduled jobs (FilthE, 2026-09-27, to save usage):** one King trigger `trig_01MNxMWzvD3ZgRqWxfjtJLEU`, a FRESH
+  session 3x a day (7:52 AM, 12:52 PM, 5:52 PM Central): morning = app data (`hh.py daily`), follow-ups, HMP HQ, brief
+  (+ Monday scorecard); midday = check only; evening = wrap. The hub's instant wake fires the same trigger. Paused, not
+  deleted (they fired into one giant session and burned usage): hourly `trig_012h6pQqggc88n8vsj93zayJ`, 7:40 AM
+  `trig_01V4ijQRdxkFTiR8FuHsPDvE`, Monday `trig_01DUjrKndHBN6rQAa1fDpueG`; old Mac routines
+  `trig_01NKMVTpCBNnHwSC1hdZBHwM`, `trig_011XswCar2enDNHr1B5N16pi`. Never bind a recurring trigger to a long session.
 - **Cowork** still owns the command center and Storm Watch.
 
 ## Start here: what every new session should already know
@@ -110,7 +122,7 @@ start blank), so **when FilthE tells you something important, add it here** inst
   Contractors that hire HMP include **VTR Contracting** and **Nastase Contracting**. Nastase (Omaha, family-owned since
   1977, roofing/siding/gutters, residential + commercial) already does storm-damage and insurance-claim work: the
   natural partner for the "sub for restoration" path. VTR: no public web presence found (2026-09-25); ask FilthE for
-  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, on houses
+  city/full name. Services: siding (incl. James Hardie lap), flashing, soffit, fascia, remodeling, roofing, gutters (FilthE confirmed 2026-09-26), on houses
   and apartment complexes.
 - **Several crews of 2-3 people**, adding another. Current main job: **The Edge Apartments** (5 buildings: tear-off
   above the concrete, new flashing/tape/1x4 furring, gray lap siding, wood-look accents, caulk). Its live job board and
@@ -170,8 +182,8 @@ yes (2026-09-25). Path: **both** - direct to homeowners AND subbing for insuranc
 - **Command center (HUD, Cowork owns):** https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX - reads published
   `data/hud.json` from the `engine/engine.json` bundle. Never delete or overwrite crew results in its db.
 - **Storm Watch:** Cowork's scheduled task, daily 6:54 AM Central: unpacks the engine bundle, runs `refresh` + `diff`,
-  republishes hud.json, logs an alert, sends FilthE a push + email. Then 7:40 AM `trig_01V4ijQRdxkFTiR8FuHsPDvE`
-  writes the app's `today/walk` + `calls/today`; Monday 7:50 AM `trig_01DUjrKndHBN6rQAa1fDpueG` = week scorecard.
+  republishes hud.json, logs an alert, sends FilthE a push + email. Then the King's
+  7:52 AM run writes the app's `today/walk`, `calls/today` and hot zones; Mondays add the week scorecard.
 - **Edge Site Map** (job board db `buildings`): https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn
 - **Practice Door:** https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B - AI homeowner role-play (EN/ES) + scorecard with
   legal flags; uses FilthE's Claude usage.
@@ -208,6 +220,13 @@ the crew small: add a helper only for work that repeats.
   in parallel), `qa-tester` (reviews + tests before anything ships; cheaper model).
 - Skills (`.claude/skills/`): `hailhunter-reference`, `engine-change`, `crew-checkin`, `refresh-hmp-hq`,
   `improvement-research`, `/storm-report`, `/door-list DAY TOWN`, `/call-list N`.
+- **Cost rule (FilthE, 2026-09-27):** every helper runs its own requests, so pick the cheapest model that can do the job
+  and keep prompts tight (point to files, don't paste them; ask for short reports). Scouts = haiku (one web topic); Research
+  Lead + QA = sonnet; routine chores (HMP HQ refresh, board posting, data seeding, small doc edits) = haiku via the Agent
+  `model` override, or the King does them directly; builder/designer/engine-mechanic = the main model only for real app,
+  design or engine work. **Run 1 helper at a time (2 max)**, even if asked to "keep everyone busy" (7 at once burned his
+  whole usage in under an hour, 2026-09-27). Helpers grep the 8,400-line app file, never read it whole; screenshots only
+  for the final pre-publish review; start a new chat per job instead of one endless session.
 - **Research:** FilthE wants regular rounds (he worries about missing areas or focusing on the wrong things); they go
   to `docs/research/` and show in the hub's Code lab. Round 1: knocking, not software, is the bottleneck. Round 2:
   FilthE hasn't knocked a door or run a claim yet and will learn; foundation first (D11: no build freeze), so build

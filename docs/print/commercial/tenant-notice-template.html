@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMP Tenant Notice Template</title>
+<!-- Designer, T182 (round 51). A notice template the PROPERTY MANAGER/LANDLORD sends to residents before exterior
+     siding/roofing work starts - HMP does not deliver it. EN front, ES back (2 pages). v25 look (Geist, Ledger
+     neutrals, one orange accent) under the same charcoal brand band as docs/print/homeowner-leave-behind.html.
+     Legal note (Neb. Rev. Stat. 76-1423, docs/legal/76-1423.txt, verified 2026-09-27): the statute requires at
+     least 24 hours' WRITTEN notice before a landlord enters a unit, stating the purpose and a reasonable time
+     window; the compliance line below states that plainly and nothing more (no legal advice beyond that).
+     Rules (CLAUDE.md): no insurance language, nothing about deductibles, "registered" never the other word.
+     Fonts: ../fonts/ (Geist, local, free). Render: chrome --headless=new --print-to-pdf (letter, 2 pages). -->
+<style>
+@font-face{font-family:"Geist";src:url("../fonts/Geist-400.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Geist";src:url("../fonts/Geist-500.woff2") format("woff2");font-weight:500}
+@font-face{font-family:"Geist";src:url("../fonts/Geist-600.woff2") format("woff2");font-weight:600}
+@font-face{font-family:"Geist Mono";src:url("../fonts/GeistMono-500.woff2") format("woff2");font-weight:500}
+@page{size:letter;margin:0}
+:root{--ink:#18191c;--ink-2:#3d3f45;--muted:#6c6f77;--faint:#9a9da4;--line:#e3e5e8;--line-2:#d3d6db;--soft:#f3f4f6;
+  --hmp:#f5883a;--hmp-ink:#a4520f;--hmp-bg:#fdf1e7;--brand:#404145;--brand-2:#35363a;--on-brand:#ffffff;--on-brand-2:#c9ccd1;--paper:#ffffff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#d9dbdf}
+body{font-family:"Geist",system-ui,sans-serif;color:var(--ink);font-size:9.3pt;line-height:1.42;-webkit-font-smoothing:antialiased;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:8.5in;height:11in;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;margin:0 auto;break-after:page;position:relative}
+@media screen{.page{margin:24px auto;box-shadow:0 10px 40px -12px rgba(0,0,0,.35)}}
+.i{width:13pt;height:13pt;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.label{font:500 6.8pt/1.2 "Geist Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* brand band */
+.band{height:.86in;flex:none;display:flex;align-items:center;gap:.26in;padding:0 .5in;background:linear-gradient(180deg,var(--brand),var(--brand-2));color:var(--on-brand);position:relative}
+.band::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3pt;background:var(--hmp)}
+.logo{width:1.2in;height:.59in;flex:none}
+.bt h1{font-size:18pt;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.bt p{font-size:7.8pt;color:var(--on-brand-2);margin-top:3pt}
+.kick{position:absolute;right:.5in;top:.16in;font:500 6.6pt "Geist Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--on-brand-2)}
+.body{flex:1;display:flex;flex-direction:column;padding:.2in .5in .24in;gap:.15in;min-height:0}
+
+/* header callout: this is a template, not the notice itself */
+.tmpl{display:grid;grid-template-columns:auto 1fr;gap:10pt;padding:9pt 12pt;border:1pt solid var(--line-2);border-radius:10pt;background:var(--soft)}
+.tmpl .ic{width:24pt;height:24pt;border-radius:7pt;background:var(--hmp-bg);color:var(--hmp-ink);display:grid;place-items:center;flex:none}
+.tmpl h3{font-size:10.5pt;font-weight:600;margin-bottom:2pt}
+.tmpl p{font-size:8.2pt;color:var(--ink-2);line-height:1.4}
+
+/* the notice itself, styled apart as a document-within-the-page */
+.notice{border:1pt dashed var(--line-2);border-radius:10pt;padding:.24in .34in .26in;display:flex;flex-direction:column;gap:.19in}
+.notice .letterhead{font:500 7pt/1.3 "Geist Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);text-align:center}
+.notice h2{font-size:13.5pt;font-weight:600;letter-spacing:-.01em;text-align:center;margin-top:2pt}
+
+.fields{display:grid;grid-template-columns:1.5fr 1.3fr 1fr;gap:.2in}
+.fld{display:grid;gap:4pt}
+.fld i{display:block;height:13pt;border-bottom:1pt solid var(--line-2)}
+
+.para{font-size:9.3pt;color:var(--ink-2);line-height:1.55}
+.blank{display:inline-block;min-width:.9in;border-bottom:.8pt solid var(--muted);height:1pt;margin:0 2pt}
+.blank.sm{min-width:.5in}
+.chk{display:inline-flex;align-items:center;gap:4pt;margin:0 3pt}
+.chk b{width:9pt;height:9pt;border:1.1pt solid var(--ink-2);border-radius:2pt;display:inline-block;flex:none}
+
+.sh2{font-size:9.6pt;font-weight:600;margin-top:2pt;margin-bottom:2pt}
+ul.bl{list-style:none;display:grid;gap:4pt}
+ul.bl li{position:relative;padding-left:12pt;font-size:9pt;color:var(--ink-2);line-height:1.42}
+ul.bl li::before{content:"";position:absolute;left:0;top:5pt;width:5pt;height:5pt;border-radius:50%;background:var(--hmp)}
+
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:.22in;padding-top:2pt}
+.contact .k{font:600 8.6pt "Geist";color:var(--ink)}
+.contact .v{font-size:8.6pt;color:var(--ink-2);margin-top:2pt}
+
+.close{display:grid;grid-template-columns:1.3fr 1fr;gap:.22in;align-items:end;padding-top:2pt}
+.close .cap{font-size:8pt;color:var(--muted)}
+.close .fld i{display:block;height:13pt;border-bottom:1pt solid var(--line-2);margin-top:14pt}
+
+.compliance{padding-top:9pt;border-top:1pt solid var(--line)}
+.compliance p{font-size:7.4pt;line-height:1.5;color:var(--muted);font-style:italic}
+.compliance p b{font-style:normal;font-weight:600;color:var(--ink-2)}
+
+.foot{flex:none;display:flex;align-items:baseline;gap:8pt;font-size:7.4pt;color:var(--muted);padding-top:.12in}
+.foot .pg{margin-left:auto;font:500 6.8pt "Geist Mono",monospace;letter-spacing:.08em}
+</style></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0" aria-hidden="true"><symbol id="i-file" viewBox="0 0 24 24"><path d="M6.5 3.8h7.3l3.7 3.7v12.7h-11z"/><path d="M13.5 3.8v4h4M9 12.5h6M9 16h4"/></symbol>
+  <symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
+  <defs>
+    <linearGradient id="hmp-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
+    <linearGradient id="hmp-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
+  </defs>
+  <path d="M174.2 -90 419.01 -0.9 419.01 14.6 174.2 -74.5 -70.61 14.6 -70.61 -0.9Z" fill="#f5883a"/>
+  <g transform="translate(2.4 3)" fill="#1b1c1f"><path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z"/></g>
+  <path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z" fill="url(#hmp-rim)"/>
+  <path d="M268.32 2.6 268.49 3.05 268.94 4.46 269.33 5.88 269.64 7.3 269.88 8.72 270.06 10.15 270.17 11.57 270.2 12.97 270.2 87.03 270.17 88.43 270.06 89.85 269.88 91.28 269.64 92.7 269.33 94.12 268.94 95.54 268.49 96.95 268.32 97.4 293.88 97.4 293.71 96.95 293.26 95.54 292.87 94.12 292.56 92.7 292.32 91.28 292.14 89.85 292.03 88.43 292 87.03 292 60.4 330.51 60.4 333 60.24 335.36 59.77 337.64 58.99 339.8 57.93 341.8 56.59 343.61 55.01 345.19 53.2 346.53 51.2 347.59 49.04 348.37 46.76 348.84 44.4 349 41.91 349 21.09 348.84 18.6 348.37 16.24 347.59 13.96 346.53 11.8 345.19 9.8 343.61 7.99 341.8 6.41 339.8 5.07 337.64 4.01 335.36 3.23 333 2.76 330.51 2.6ZM324.83 15.69 325.89 16.05 326.9 16.55 327.84 17.17 328.69 17.91 329.43 18.76 330.05 19.7 330.55 20.71 330.91 21.77 331.13 22.88 331.2 23.91 331.2 38.09 331.13 39.12 330.91 40.23 330.55 41.29 330.05 42.3 329.43 43.24 328.69 44.09 327.84 44.83 326.9 45.45 325.89 45.95 324.83 46.31 323.72 46.53 322.69 46.6 292 46.6 292 15.4 322.69 15.4 323.72 15.47ZM257.6 97.4 257.6 79.6 239.8 79.6 239.8 97.4ZM126.52 97.4 152.08 97.4 151.91 96.95 151.46 95.54 151.07 94.12 150.76 92.7 150.52 91.28 150.34 89.85 150.23 88.43 150.2 87.03 150.2 52.38 177.66 97.4 177.94 97.4 205.4 52.38 205.4 87.03 205.37 88.43 205.26 89.85 205.08 91.28 204.84 92.7 204.53 94.12 204.14 95.54 203.69 96.95 203.52 97.4 229.08 97.4 228.91 96.95 228.46 95.54 228.07 94.12 227.76 92.7 227.52 91.28 227.34 89.85 227.23 88.43 227.2 87.03 227.2 12.97 227.23 11.57 227.34 10.15 227.52 8.72 227.76 7.3 228.07 5.88 228.46 4.46 228.91 3.05 229.08 2.6 203.52 2.6 203.69 3.05 204.14 4.46 204.53 5.88 204.84 7.3 205.08 8.72 205.26 10.15 205.37 11.57 205.4 12.97 205.4 31.15 177.8 65.12 150.2 31.15 150.2 12.97 150.23 11.57 150.34 10.15 150.52 8.72 150.76 7.3 151.07 5.88 151.46 4.46 151.91 3.05 152.08 2.6 126.52 2.6 126.69 3.05 127.14 4.46 127.53 5.88 127.84 7.3 128.08 8.72 128.26 10.15 128.37 11.57 128.4 12.97 128.4 87.03 128.37 88.43 128.26 89.85 128.08 91.28 127.84 92.7 127.53 94.12 127.14 95.54 126.69 96.95ZM115.8 97.4 115.8 79.6 98 79.6 98 97.4ZM0.72 97.4 26.28 97.4 26.11 96.95 25.66 95.54 25.27 94.12 24.96 92.7 24.72 91.28 24.54 89.85 24.43 88.43 24.4 87.03 24.4 58.4 63.6 58.4 63.6 87.03 63.57 88.43 63.46 89.85 63.28 91.28 63.04 92.7 62.73 94.12 62.34 95.54 61.89 96.95 61.72 97.4 87.28 97.4 87.11 96.95 86.66 95.54 86.27 94.12 85.96 92.7 85.72 91.28 85.54 89.85 85.43 88.43 85.4 87.03 85.4 12.97 85.43 11.57 85.54 10.15 85.72 8.72 85.96 7.3 86.27 5.88 86.66 4.46 87.11 3.05 87.28 2.6 61.72 2.6 61.89 3.05 62.34 4.46 62.73 5.88 63.04 7.3 63.28 8.72 63.46 10.15 63.57 11.57 63.6 12.97 63.6 41.6 24.4 41.6 24.4 12.97 24.43 11.57 24.54 10.15 24.72 8.72 24.96 7.3 25.27 5.88 25.66 4.46 26.11 3.05 26.28 2.6 0.72 2.6 0.89 3.05 1.34 4.46 1.73 5.88 2.04 7.3 2.28 8.72 2.46 10.15 2.57 11.57 2.6 12.97 2.6 87.03 2.57 88.43 2.46 89.85 2.28 91.28 2.04 92.7 1.73 94.12 1.34 95.54 0.89 96.95Z" fill="url(#hmp-face)"/>
+  <path d="M-13.2 113.5Q174.2 107 361.6 113.5Q174.2 126.5 -13.2 113.5Z" fill="#f5883a"/>
+</symbol>
+</svg>
+
+<section class="page" lang="en">
+  <header class="band">
+    <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
+    <div class="bt"><h1>Tenant notice template</h1><p>For property managers &amp; landlords &middot; exterior siding &amp; roofing work</p></div>
+    <span class="kick">Espa&ntilde;ol al reverso</span>
+  </header>
+  <div class="body">
+    <div class="tmpl"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg></span>
+      <div><h3>Template for your records; the landlord sends it.</h3>
+      <p>HMP doesn&#8217;t deliver this to tenants. Copy the notice below onto the property&#8217;s own letterhead and have the property manager or landlord send it before work begins.</p></div>
+    </div>
+
+    <div class="notice">
+      <div class="letterhead">[ Property manager / landlord letterhead ]</div>
+      <h2>Notice to Residents: Exterior Work</h2>
+      <div class="fields">
+        <div class="fld"><span class="label">Property</span><i></i></div>
+        <div class="fld"><span class="label">Building(s) / unit(s)</span><i></i></div>
+        <div class="fld"><span class="label">Date of this notice</span><i></i></div>
+      </div>
+      <p class="para">Management has scheduled exterior <span class="chk"><b></b>siding</span><span class="chk"><b></b>roofing</span> work at this property. Work is expected to begin on <span class="blank"></span> and continue through approximately <span class="blank"></span>, generally between <span class="blank sm"></span> and <span class="blank sm"></span>, on <span class="blank"></span>.</p>
+
+      <div>
+        <div class="sh2">What to expect</div>
+        <ul class="bl">
+          <li>Contractors, ladders, scaffolding and staged materials near the buildings.</li>
+          <li>Normal work noise during the hours above.</li>
+          <li>A dumpster or material staging area at: <span class="blank"></span></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="sh2">What we&#8217;re asking you to do</div>
+        <ul class="bl">
+          <li>Move patio furniture, grills, planters and other items away from exterior walls and windows.</li>
+          <li>Move or park vehicles as directed; keep vehicles away from the work area on the dates above.</li>
+          <li>Keep pets indoors, or on a leash and away from the work area, during work hours.</li>
+        </ul>
+      </div>
+
+      <div class="contact">
+        <div><div class="k">Property manager</div><div class="v">Name: <span class="blank"></span><br>Phone: <span class="blank"></span></div></div>
+        <div><div class="k">Questions about the work itself</div><div class="v">(not your lease) HMP Siding &amp; Roofing<br>402-889-3385</div></div>
+      </div>
+
+      <div class="close">
+        <div class="fld"><span class="cap">Sincerely,</span><i></i><span class="label">Property manager / landlord, title</span></div>
+        <div class="fld"><span class="cap">&nbsp;</span><i></i><span class="label">Date</span></div>
+      </div>
+
+      <div class="compliance"><p><b>Nebraska law</b> (Neb. Rev. Stat. &sect; 76-1423) requires at least 24 hours&#8217; written notice before a landlord enters a unit, stating the purpose and a reasonable time window for entry. This notice is given at least 24 hours before work &mdash; and any entry onto the premises this work requires &mdash; begins on the date above, and states that purpose and time window. If entry into your individual unit becomes necessary, the landlord will provide separate written notice at least 24 hours in advance stating the purpose and anticipated time window for that entry.</p></div>
+    </div>
+
+    <footer class="foot"><span>Template provided by HMP Siding &amp; Roofing LLC &middot; Fremont, NE &middot; not a lease document</span><span class="pg">1/2</span></footer>
+  </div>
+</section>
+
+<section class="page" lang="es">
+  <header class="band">
+    <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
+    <div class="bt"><h1>Plantilla de aviso a inquilinos</h1><p>Para administradores y propietarios &middot; trabajo exterior de revestimiento y techo</p></div>
+    <span class="kick">English on the back</span>
+  </header>
+  <div class="body">
+    <div class="tmpl"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg></span>
+      <div><h3>Plantilla para su archivo; el propietario la env&iacute;a.</h3>
+      <p>HMP no entrega este aviso a los inquilinos. Copie el aviso de abajo en el membrete de la propiedad y pida que el administrador o propietario lo env&iacute;e antes de que comience el trabajo.</p></div>
+    </div>
+
+    <div class="notice">
+      <div class="letterhead">[ Membrete del administrador / propietario ]</div>
+      <h2>Aviso a los residentes: trabajo exterior</h2>
+      <div class="fields">
+        <div class="fld"><span class="label">Propiedad</span><i></i></div>
+        <div class="fld"><span class="label">Edificio(s) / unidad(es)</span><i></i></div>
+        <div class="fld"><span class="label">Fecha de este aviso</span><i></i></div>
+      </div>
+      <p class="para">La administraci&oacute;n ha programado trabajo exterior de <span class="chk"><b></b>revestimiento (siding)</span><span class="chk"><b></b>techo</span> en esta propiedad. Se espera que el trabajo comience el <span class="blank"></span> y contin&uacute;e hasta aproximadamente el <span class="blank"></span>, generalmente entre las <span class="blank sm"></span> y las <span class="blank sm"></span>, los d&iacute;as <span class="blank"></span>.</p>
+
+      <div>
+        <div class="sh2">Qu&eacute; esperar</div>
+        <ul class="bl">
+          <li>Contratistas, escaleras, andamios y materiales cerca de los edificios.</li>
+          <li>Ruido normal de trabajo durante el horario indicado arriba.</li>
+          <li>Un contenedor o &aacute;rea de materiales en: <span class="blank"></span></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="sh2">Qu&eacute; les pedimos que hagan</div>
+        <ul class="bl">
+          <li>Aleje muebles de patio, parrillas, macetas y otros objetos de las paredes exteriores y ventanas.</li>
+          <li>Mueva o estacione veh&iacute;culos seg&uacute;n se indique; mant&eacute;ngalos lejos del &aacute;rea de trabajo en las fechas indicadas.</li>
+          <li>Mantenga a las mascotas adentro, o con correa y lejos del &aacute;rea de trabajo, durante el horario de trabajo.</li>
+        </ul>
+      </div>
+
+      <div class="contact">
+        <div><div class="k">Administrador de la propiedad</div><div class="v">Nombre: <span class="blank"></span><br>Tel&eacute;fono: <span class="blank"></span></div></div>
+        <div><div class="k">Preguntas sobre el trabajo en s&iacute;</div><div class="v">(no sobre su arrendamiento) HMP Siding &amp; Roofing<br>402-889-3385</div></div>
+      </div>
+
+      <div class="close">
+        <div class="fld"><span class="cap">Atentamente,</span><i></i><span class="label">Administrador / propietario, cargo</span></div>
+        <div class="fld"><span class="cap">&nbsp;</span><i></i><span class="label">Fecha</span></div>
+      </div>
+
+      <div class="compliance"><p><b>La ley de Nebraska</b> (Neb. Rev. Stat. &sect; 76-1423) exige al menos 24 horas de aviso por escrito antes de que el propietario ingrese a una unidad, indicando el prop&oacute;sito y un per&iacute;odo de tiempo razonable para el ingreso. Este aviso se entrega al menos 24 horas antes de que comience el trabajo &mdash; y cualquier ingreso a la propiedad que este trabajo requiera &mdash; en la fecha indicada arriba, e indica ese prop&oacute;sito y per&iacute;odo de tiempo. Si se necesita ingresar a su unidad individual, el propietario le dar&aacute; un aviso por escrito separado con al menos 24 horas de anticipaci&oacute;n, indicando el prop&oacute;sito y el per&iacute;odo de tiempo anticipado para ese ingreso.</p></div>
+    </div>
+
+    <footer class="foot"><span>Plantilla de HMP Siding &amp; Roofing LLC &middot; Fremont, NE &middot; no es un documento de arrendamiento</span><span class="pg">2/2</span></footer>
+  </div>
+</section>
+</body></html>

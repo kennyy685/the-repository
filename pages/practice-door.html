@@ -1,400 +1,539 @@
 <title>Practice Door</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&display=swap">
 <style>
+/* Practice Door v10 (2026-09-27): the HMP App v25 design system, theme A "Ledger" + "Ledger Night"
+   (docs/design/v25-polish/ds.css, design-system.md, icons.js). Every color is a token; no #fff/white/black in
+   components. Orange (--hmp) = the one "do this" button per screen. */
 :root{
-  --bg:#eef1f4; --surface:#ffffff; --surface-2:#e4e9ee; --ink:#18212b; --muted:#4f5a66; --line:#cdd4dc;
-  --accent:#93542a; --accent-ink:#ffffff; --accent-soft:#f3e6dc; --accent-strong:#7a4421;
-  --good:#23703f; --good-soft:#e1f1e6; --bad:#b42318; --bad-soft:#fdecea; --bad-line:#eeb4ad;
-  --warn:#9a6400; --warn-soft:#fbf0d9; --warn-line:#e3c47c; --focus:#2b6cb0; --frame:#4f5a66;
-  --shadow:0 1px 2px rgba(24,33,43,.10),0 6px 16px rgba(24,33,43,.08);
-  --r:14px;
-  --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
-  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  --bg:#f6f7f8; --card:#ffffff; --soft:#eff1f3; --line:#e3e5e8; --line-2:#d3d6db;
+  --ink:#18191c; --ink-2:#3d3f45; --muted:#6c6f77; --faint:#9a9da4;
+  --hmp:#f5883a; --hmp-press:#e7762a; --hmp-ink:#a4520f; --hmp-bg:#fdf1e7; --on-hmp:#1b1206;
+  --late:#c2362b; --late-bg:#fdecea; --late-line:#f1c7c2; --warn:#8a5a00; --warn-bg:#fbf2dc; --warn-line:#ecd9a8;
+  --ok:#1f7a4d; --ok-bg:#e7f4ed; --you:#2f6fde;
+  --on-ink:#ffffff; --bar:rgba(255,255,255,.94); --scrim:rgba(24,25,28,.38); --thumb:#ffffff;
+  --me:#18191c; --on-me:#ffffff;
+  --e1:0 1px 2px rgba(24,25,28,.05); --e2:0 16px 40px -12px rgba(24,25,28,.28),0 2px 6px rgba(24,25,28,.06);
+  --f:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
+  --t-label:12px; --t-cap:13px; --t-body:15px; --t-row:17px; --t-title:20px; --t-addr:26px; --t-hero:60px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-pill:999px;
+  --hit:44px; --hit-md:48px; --hit-lg:56px;
+  --ease:cubic-bezier(.2,.8,.2,1);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
-    --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
-    --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
-    --warn:#e0a83c; --warn-soft:#33270f; --warn-line:#6b5220; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
-  }
-}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
+  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75;
+  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
+  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --late-line:rgba(255,113,102,.34); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --warn-line:rgba(240,181,74,.3);
+  --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
+  --on-ink:#101113; --bar:rgba(25,26,29,.94); --scrim:rgba(0,0,0,.55); --thumb:#f1f2f4;
+  --me:#2e3036; --on-me:#f1f2f4;
+  --e1:0 0 0 rgba(0,0,0,0); --e2:0 18px 48px -12px rgba(0,0,0,.7),0 0 0 1px #2b2d31;
+}}
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#10151b; --surface:#19212a; --surface-2:#222c37; --ink:#e8edf2; --muted:#9eabb8; --line:#334252;
-  --accent:#d9925f; --accent-ink:#1b1007; --accent-soft:#3a291d; --accent-strong:#eaa877;
-  --good:#62c987; --good-soft:#16301f; --bad:#ff7a6e; --bad-soft:#3a1815; --bad-line:#74302a;
-  --warn:#e0a83c; --warn-soft:#33270f; --warn-line:#6b5220; --focus:#7fb3ff; --frame:#6c7b8b; --shadow:none;
+  --bg:#101113; --card:#191a1d; --soft:#232428; --line:#2b2d31; --line-2:#3a3c42;
+  --ink:#f1f2f4; --ink-2:#c9cbd0; --muted:#8f929a; --faint:#6b6e75;
+  --hmp-ink:#ffa766; --hmp-bg:rgba(245,136,58,.14);
+  --late:#ff7166; --late-bg:rgba(255,113,102,.13); --late-line:rgba(255,113,102,.34); --warn:#f0b54a; --warn-bg:rgba(240,181,74,.12); --warn-line:rgba(240,181,74,.3);
+  --ok:#4cc38a; --ok-bg:rgba(76,195,138,.13); --you:#5b8ff0;
+  --on-ink:#101113; --bar:rgba(25,26,29,.94); --scrim:rgba(0,0,0,.55); --thumb:#f1f2f4;
+  --me:#2e3036; --on-me:#f1f2f4;
+  --e1:0 0 0 rgba(0,0,0,0); --e2:0 18px 48px -12px rgba(0,0,0,.7),0 0 0 1px #2b2d31;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%}
-button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:disabled{cursor:default;opacity:.5}
-:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-h1,h2{text-wrap:balance}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:var(--t-body);line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default;opacity:.45}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{text-wrap:balance}
+:focus-visible{outline:2px solid var(--you);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+/* icons: one set, 24 grid, 1.75 stroke, round joins */
+.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.i-sm{width:16px;height:16px}.i-lg{width:24px;height:24px}
+.label,.eyebrow{font:500 var(--t-label)/1.35 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.h2{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.chip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 6px;border-radius:var(--r-sm);font-size:12px;font-weight:500;white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.chip .i{width:13px;height:13px;stroke-width:2}
 
-.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:6px 32px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:6px 14px}
-.brand{min-width:0;display:flex;align-items:center;gap:8px;font:700 12.5px/1.2 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
-.lang{flex:none;display:inline-flex;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:3px}
-.lang button{border:0;background:transparent;padding:0 12px;min-height:38px;border-radius:999px;font:600 15px var(--body)}
-.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+/* ---------- frame + top bar ---------- */
+.app{max-width:560px;margin:0 auto;padding-inline:var(--s4)}
+.top{display:flex;align-items:center;gap:var(--s3);min-height:60px}
+.mark{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1}
+.mark svg{width:26px;height:8px;fill:none;stroke:var(--hmp);stroke-width:3.2;stroke-linejoin:round}
+.mark b{font-weight:600;font-size:12px;letter-spacing:.1em}
+.top h1{flex:1;min-width:0;font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{flex:none;display:flex;background:var(--soft);border-radius:var(--r-md)}
+.lang button{min-width:48px;height:var(--hit);padding:0 var(--s2);border:3px solid var(--soft);border-radius:var(--r-md);font:500 12px/1 var(--mono);letter-spacing:.05em;color:var(--ink-2)}
+.lang button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(24,25,28,.12)}
 
-.screen{display:flex;flex-direction:column;gap:16px}
-.eyebrow{font:700 12.5px/1.2 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.screen{display:flex;flex-direction:column;gap:var(--s4);padding-bottom:var(--s8)}
+.stack{display:flex;flex-direction:column;gap:var(--s4)}
+.actions{display:grid;gap:var(--s2)}
 
-/* Setup */
-.hero h1{font:700 46px/.92 var(--display);text-transform:uppercase;letter-spacing:.005em;margin:0 0 8px}
-.lede{margin:0;color:var(--muted);max-width:38ch}
-.count{margin:10px 0 0;font:700 15px var(--body);color:var(--accent-strong)}
-.ticket{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px}
-.addr{font:700 30px/1.05 var(--display);margin-top:4px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 0}
-.stats div{border-top:2px solid var(--line);padding-top:6px;min-width:0}
-.stats dt{font:700 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.stats dd{margin:2px 0 0;font:700 23px/1.1 var(--display);font-variant-numeric:tabular-nums}
-.stats .hail dd{color:var(--accent-strong)}
-.ago{margin:10px 0 0;font-size:14.5px;color:var(--muted)}
-.h2{font:700 23px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:4px 0 10px}
-.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.who{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;min-height:68px;padding:10px 28px 10px 12px;background:var(--surface);border:2px solid var(--line);border-radius:12px}
-.who-name{font:700 19px/1.1 var(--display)}
-.who-tag{font-size:14px;line-height:1.3;color:var(--muted)}
-.who[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
-.who[aria-pressed="true"]::after{content:"";position:absolute;top:12px;right:11px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
-.who-random{grid-column:1/-1;min-height:56px}
-.who-grp{grid-column:1/-1;margin-top:6px}
-.who-wide{grid-column:1/-1}
-.who-grp:first-child{margin-top:0}
-.btn-primary{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:64px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:700 29px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;box-shadow:var(--shadow)}
-.btn-primary:active{transform:translateY(1px)}
-.btn-ghost{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:2px solid var(--line);border-radius:14px;background:var(--surface);font:700 20px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
-.btn-small{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);font:700 17px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
-.actions{display:grid;gap:10px}
-.knock-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:3;grid-template-columns:1fr auto;margin-inline:-16px;padding:10px 16px;background:var(--bg);border-top:1.5px solid var(--line)}
-.knock-bar .btn-ghost{width:auto;min-height:64px;padding-inline:16px;font-size:18px}
-.goal{background:var(--surface-2);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
-.goal-row{display:flex;align-items:center;gap:10px;font-size:15px}
-.goal-row .lbl{width:68px;font-weight:600}
-.stones{display:flex;gap:6px}
-.stones i{width:15px;height:15px;border-radius:50%;border:2px solid var(--muted);opacity:.55}
-.stones i.on{background:var(--accent);border-color:var(--accent);opacity:1}
-.goal-row .n{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
+/* ---------- buttons: one orange per screen ---------- */
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:var(--hit-lg);padding:0 var(--s5);border-radius:var(--r-md);background:var(--hmp);color:var(--on-hmp);font-size:var(--t-row);font-weight:600;letter-spacing:-.01em}
+.btn-primary:active{background:var(--hmp-press)}
+.btn-ghost{display:flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:var(--hit-md);padding:0 var(--s4);border-radius:var(--r-md);background:var(--card);border:1px solid var(--line-2);color:var(--ink);font-size:var(--t-body);font-weight:600}
+.btn-small{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--hit);padding:0 var(--s3);border-radius:var(--r-md);background:var(--card);border:1px solid var(--line-2);color:var(--ink);font-size:var(--t-cap);font-weight:500;white-space:nowrap}
+.btn-small .i{width:17px;height:17px}
+.btn-ghost:active,.btn-small:active{background:var(--soft)}
 
-/* Door */
-#scrDoor{padding-bottom:100px}
-.porch{display:flex;gap:14px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px}
-.doorway{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px}
-.frame{position:relative;width:58px;height:92px;border:4px solid var(--frame);border-bottom:0;border-radius:4px 4px 0 0;background:linear-gradient(#fbe3b0,#e2a55c);perspective:260px}
-.door{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1.5fr;gap:5px;padding:7px 6px;background:var(--accent);transform-origin:left center;transition:transform .9s cubic-bezier(.3,.7,.2,1)}
-.door i{border:1.5px solid rgba(0,0,0,.25);border-radius:2px}
-.door .knob{position:absolute;right:6px;top:54%;width:6px;height:6px;border-radius:50%;background:#e9c77f}
-.doorway.knocking .door{animation:knock .95s ease-in-out 1}
-.doorway.open .door{transform:rotateY(-74deg)}
-@keyframes knock{0%,100%{transform:translateX(0)}8%,38%,68%{transform:translateX(-2px)}20%,50%,80%{transform:translateX(2px)}}
-.plate{font:700 13px/1.3 var(--display);letter-spacing:.06em;background:var(--ink);color:var(--bg);padding:0 6px;border-radius:3px;font-variant-numeric:tabular-nums}
-.porch-info{min-width:0;display:grid;gap:3px}
-.porch-who{font:700 25px/1.05 var(--display)}
-.porch-addr{font-size:14.5px;color:var(--muted)}
-.pips{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;font-size:13.5px;color:var(--muted)}
-.pips i{width:14px;height:6px;border-radius:3px;background:var(--line)}
-.pips i.on{background:var(--accent)}
-.pips span{margin-left:6px;font-variant-numeric:tabular-nums}
-.door-tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;display:grid;grid-template-columns:1fr auto;gap:10px;margin-block:-8px;padding-block:8px;background:var(--bg)}
-.btn-end{border-color:var(--ink)}
-.chat{display:flex;flex-direction:column;gap:12px}
-.sys{align-self:center;text-align:center;font-size:14.5px;color:var(--muted);max-width:34ch}
-.msg{max-width:86%;display:grid;gap:3px}
-.msg .lab{font:700 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.msg .body{padding:10px 14px;border-radius:16px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.home{align-self:flex-start}
-.msg.home .body{background:var(--surface);border:1.5px solid var(--line);border-bottom-left-radius:4px}
-.msg.kenny{align-self:flex-end;justify-items:end}
-.msg.kenny .body{background:var(--accent-soft);border:1.5px solid transparent;border-bottom-right-radius:4px}
-.msg.kenny.flagged .body{border-color:var(--bad)}
-.act{font-style:italic;color:var(--muted)}
-.typing{display:inline-flex;gap:5px;padding:5px 2px}
-.typing i{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
-.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.flag{display:inline-flex;align-items:center;gap:6px;font:700 13.5px/1.25 var(--body);color:var(--bad);background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:8px;padding:5px 9px;text-align:left}
-.flag svg{flex:none}
-.flag.caution{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
-.err{display:grid;gap:10px;justify-items:start;padding:14px;border-radius:var(--r);background:var(--surface);border:2px solid var(--warn)}
-.err p{margin:0;font-weight:600}
-.door-end{display:grid;gap:12px;justify-items:center;text-align:center;padding:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
-.door-end h2{font:700 32px/1 var(--display);text-transform:uppercase;margin:0}
-.door-end.yes h2{color:var(--good)}
-
-/* Composer */
-.composer{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--bg);border-top:1.5px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));margin:0}
-.composer-in{max-width:528px;margin:0 auto;display:flex;align-items:flex-end;gap:8px}
-#box{flex:1;min-width:0;resize:none;font:16.5px/1.35 var(--body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;height:52px;max-height:140px}
-#box:focus{border-color:var(--accent);outline:none}
-#box::placeholder{color:var(--muted)}
-.mic{flex:none;width:52px;height:52px;border-radius:14px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center}
-.mic.on{background:var(--bad);border-color:var(--bad);color:var(--surface)}
-.send{flex:none;height:52px;padding:0 18px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font:700 20px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
-.composer-note{max-width:528px;margin:6px auto 0;font-size:13.5px;color:var(--muted)}
-
-/* Score */
-.score-head h1{font:700 40px/.95 var(--display);text-transform:uppercase;margin:2px 0 4px}
-.reveal{margin:0;color:var(--muted)}
-.loading{display:flex;align-items:center;gap:12px;padding:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);color:var(--muted);font-weight:600}
-.score-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.big{font:700 88px/.85 var(--display);font-variant-numeric:tabular-nums}
-.big small{font-size:38px;color:var(--muted)}
-.pill{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;font:700 16px/1 var(--display);letter-spacing:.05em;text-transform:uppercase;background:var(--surface-2);color:var(--muted)}
-.pill.yes{background:var(--good-soft);color:var(--good)}
-.legal-bad{background:var(--bad-soft);border:2px solid var(--bad);border-radius:var(--r);padding:14px;display:grid;gap:12px}
-.legal-title{display:flex;align-items:center;gap:8px;font:700 24px/1 var(--display);text-transform:uppercase;color:var(--bad)}
-.flag-item{display:grid;gap:4px}
-.flag-rule{font-weight:700;color:var(--bad)}
-.flag-item q{font-style:italic}
-.flag-fix{font-size:15.5px}
-.legal-warn{background:var(--warn-soft);border:2px solid var(--warn-line);border-radius:var(--r);padding:14px;display:grid;gap:12px}
-.legal-warn .legal-title,.legal-warn .flag-rule{color:var(--warn)}
-.checks{list-style:none;margin:0;padding:0;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
-.checks li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
-.checks li:first-child{border-top:0}
-.ck{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--surface)}
-.ck.pass{background:var(--good)}.ck.fail{background:var(--muted)}.ck.bad{background:var(--bad)}
-.ck-l{font-weight:700;line-height:1.25}
-li.bad .ck-l{color:var(--bad)}
-.ck-n{font-size:15.5px;color:var(--muted);margin-top:2px}
-.best blockquote{margin:6px 0 0;font:600 18px/1.4 var(--body);padding:12px 14px;background:var(--good-soft);border-radius:12px}
-.next ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px}
-.next li{display:grid;grid-template-columns:20px 1fr;gap:6px;font-weight:500}
-.next li::before{content:"\2192";color:var(--accent);font-weight:700}
-.transcript{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px}
-.transcript summary{font:700 18px var(--display);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
-.transcript p{margin:8px 0 0;font-size:15.5px}
-.transcript b{font-weight:700;color:var(--muted)}
-
-/* Cheat sheet */
-.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
-.sheet-back{position:absolute;inset:0;background:rgba(10,14,19,.55)}
-.sheet-panel{position:relative;width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--bg);border-radius:18px 18px 0 0;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
-@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
-.sheet-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 10px;background:var(--bg)}
-.sheet-head h2{font:700 28px/1 var(--display);text-transform:uppercase;margin:0}
-.cheat{display:grid;gap:16px}
-.script{font:500 18px/1.45 var(--body);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 0}
-.script b{color:var(--accent-strong)}
-.objs{display:grid;gap:8px;margin-top:6px}
-.obj{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;display:grid;gap:3px}
-.obj-q{font:700 19px/1.15 var(--display)}
-.obj-a{font-size:16.5px}
-.never{background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:12px;padding:12px 14px;display:grid;gap:10px;margin-top:6px}
-.never div{display:grid;gap:2px}
-.never b{color:var(--bad)}
-.never span{font-size:15px}
-.cmp-wrap{overflow-x:auto;margin-top:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px}
-.cmp{width:100%;border-collapse:collapse;font-size:15px;line-height:1.3}
-.cmp th,.cmp td{padding:8px 10px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
-.cmp thead th{border-top:0;font:700 17px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase}
-.cmp tbody th{font-weight:600;color:var(--muted);width:32%}
-.cmp td{font-variant-numeric:tabular-nums}
-.cmp-note{margin:8px 0 0;font-size:14.5px;color:var(--muted)}
-.cmp-note b{color:var(--ink)}
-.off-card{background:var(--surface);border:2px solid var(--warn);border-radius:var(--r);padding:14px 16px}
-.off-card h2{font:700 24px/1.05 var(--display);text-transform:uppercase;margin:0 0 6px}
-.off-card p{margin:0}
-
-/* v4 (2026-09-26): weekly focus, streak, quick drill, field objections */
-.practice{display:grid;gap:10px}
-.focus{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:6px}
-.focus-t{font:700 27px/1.02 var(--display);text-wrap:balance}
-.focus-how{margin:0;font-size:15.5px;color:var(--muted)}
-.trend{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px;font-size:14px;color:var(--muted)}
-.trend i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);opacity:.6}
-.trend i.on{background:var(--good);border-color:var(--good);opacity:1}
-.trend span{margin-left:5px;font-variant-numeric:tabular-nums}
-.prog{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;background:var(--surface-2);border-radius:12px;padding:12px 14px}
-.prog-nums{display:flex;gap:18px}
-.stat{display:grid;gap:1px}
-.stat b{font:700 30px/1 var(--display);font-variant-numeric:tabular-nums}
-.stat span{font-size:13px;line-height:1.2;color:var(--muted);max-width:11ch}
-.week{display:flex;gap:5px}
-.week div{display:grid;justify-items:center;gap:3px;font:600 11.5px/1 var(--body);color:var(--muted)}
-.week i{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);background:var(--surface)}
-.week i.on{background:var(--accent);border-color:var(--accent)}
+/* ---------- setup ---------- */
+#scrSetup{padding-bottom:0}
+.intro{display:grid;gap:var(--s2);justify-items:start}
+.lede{color:var(--ink-2);max-width:42ch}
+.count{display:inline-flex;align-items:center;min-height:24px;padding:3px var(--s2);border-radius:var(--r-sm);background:var(--hmp-bg);color:var(--hmp-ink);font-size:12.5px;font-weight:500;line-height:1.35}
+.practice{display:grid;gap:var(--s3)}
+.focus{padding:var(--s4);display:grid;gap:var(--s2)}
+.focus-t{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.25;text-wrap:balance}
+.focus-how{color:var(--ink-2)}
+.trend{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:var(--t-cap);color:var(--muted)}
+.trend i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--line-2)}
+.trend i.on{background:var(--ok);border-color:var(--ok)}
+.trend span{margin-left:6px;font-variant-numeric:tabular-nums}
+.prog{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s3) var(--s4);margin-top:var(--s2);padding-top:var(--s3);border-top:1px solid var(--line)}
+.week{display:flex;gap:6px}
+.week div{display:grid;justify-items:center;gap:5px;font:500 12px/1 var(--mono);color:var(--muted)}
+.week i{width:22px;height:22px;border-radius:6px;background:var(--soft)}
+.week i.on{background:var(--ink)}
 .week .today{color:var(--ink)}
-.week .today i{border-color:var(--ink)}
-.week .today i.on{border-color:var(--accent-strong)}
-.store-note{flex-basis:100%;margin:0;font-size:13.5px;color:var(--warn)}
-.btn-drill{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 14px;text-align:left;background:var(--surface);border:2px solid var(--accent);border-radius:14px}
-.btn-drill > span{display:grid;gap:2px;min-width:0}
-.btn-drill .dt{font:700 23px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--accent-strong)}
-.btn-drill .ds{font-size:14.5px;line-height:1.25;color:var(--muted)}
-.btn-drill svg{color:var(--accent-strong)}
-.field{display:grid;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px}
-.field .h2{margin:0}
-.field label{font-size:15.5px;color:var(--muted)}
-.tbox{width:100%;resize:vertical;font:16.5px/1.35 var(--body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:10px 12px;min-height:64px}
-.tbox:focus{border-color:var(--accent);outline:none}
-.tbox::placeholder{color:var(--muted)}
-.tbox:disabled{opacity:.75}
-.field-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.field-status{margin:0;font-size:15px;font-weight:600}
-.field-status.bad{color:var(--bad)}
-.field-status.ok{color:var(--good)}
-.field-list summary{font:700 17px var(--display);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
-.field-list .objs{margin-top:8px}
-.field-list .obj{background:var(--bg)}
-.obj-x{justify-self:start;margin-top:4px;min-height:36px;font-size:15px}
-.drill-top{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px}
-.focus-chip{display:flex;gap:8px;align-items:baseline;font-size:15px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px}
-.focus-chip b{color:var(--ink);font-weight:700}
-.focus-chip > span:first-child{flex:none;white-space:nowrap}
-.drill-q{max-width:100%}
-.drill-q .body{font:700 24px/1.15 var(--display);white-space:normal}
-.drill-card{display:grid;gap:10px}
-.drill-card label{font:700 12.5px/1.2 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.pill.ok{background:var(--warn-soft);color:var(--warn)}
-.pill.weak{background:var(--bad-soft);color:var(--bad)}
-.drill-back{font-size:15px;font-weight:600;color:var(--muted)}
-.drill-note{margin:0;font-size:17px;font-weight:500}
-.focus-res{display:grid;gap:4px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
-.focus-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;font-weight:700}
-.focus-note{margin:0;font-size:15.5px;color:var(--muted)}
-.done-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r)}
-.done-list li{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
-.done-list li:first-child{border-top:0}
-.done-q{font:700 18px/1.15 var(--display)}
-.done-when{grid-column:1/-1;font-size:14.5px;color:var(--muted)}
-.done-head h2{font:700 40px/.95 var(--display);text-transform:uppercase;margin:2px 0 4px}
-.done-head p{margin:0;color:var(--muted)}
-
-/* v5 (2026-09-26): Rookie mode switch + hint line, optional checks */
-.rookie{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 14px;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px}
-.rookie[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
-.rookie > span:first-child{display:grid;gap:2px;min-width:0}
-.rookie .rt{font:700 21px/1 var(--display);letter-spacing:.04em;text-transform:uppercase}
-.rookie .rs{font-size:14.5px;line-height:1.25;color:var(--muted)}
-.sw{position:relative;flex:none;width:52px;height:30px;border-radius:999px;background:var(--line);transition:background .15s}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
-.rookie[aria-checked="true"] .sw{background:var(--accent)}
-.rookie[aria-checked="true"] .sw::after{transform:translateX(22px)}
-.hint{display:flex;gap:8px;align-items:flex-start;margin-top:4px;padding:8px 11px;border:1.5px dashed var(--accent);border-radius:10px;background:var(--surface);font-size:15px;line-height:1.35}
-.hint b{flex:none;font:700 13px/1.35 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-strong)}
-.hint.wait{color:var(--muted);border-color:var(--line)}
-.claim{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
-.claim-col{border-radius:12px;padding:10px 12px;display:grid;gap:4px;align-content:start}
-.claim-col.can{background:var(--good-soft);border:1.5px solid var(--good)}
-.claim-col.cant{background:var(--bad-soft);border:1.5px solid var(--bad-line)}
-.claim-col b{font:700 18px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase}
-.claim-col.can b{color:var(--good)}.claim-col.cant b{color:var(--bad)}
-.claim-col ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:15px;line-height:1.3}
-@media (max-width:440px){.claim{grid-template-columns:1fr}}
-.rk-chip{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent-strong);letter-spacing:.06em}
-
-/* v7 (2026-09-26, T131): skill drills picker + "first 3 seconds" line (research round 27) */
-.skills{background:var(--surface);border:1.5px solid var(--line);border-radius:14px}
-.skills summary{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;min-height:60px;padding:10px 14px;cursor:pointer;list-style:none}
+.week .today i{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.prog-nums{display:flex;gap:var(--s4)}
+.stat{display:grid;gap:2px;align-content:start}
+.stat b{font-size:var(--t-title);font-weight:600;line-height:1.1;letter-spacing:-.015em;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;line-height:1.25;color:var(--muted);max-width:12ch}
+.store-note{flex-basis:100%;font-size:var(--t-cap);color:var(--warn)}
+/* list rows (quick drill, skill drills) */
+.rows{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);overflow:hidden}
+.rows > * + *{border-top:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:64px;padding:var(--s3) var(--s4);text-align:left;color:var(--ink)}
+.row .t{flex:1;min-width:0;display:grid;gap:2px}
+.row .t b{font-weight:600;font-size:var(--t-body);line-height:1.3}
+.row .t span{font-size:var(--t-cap);line-height:1.35;color:var(--muted)}
+.row .chev{color:var(--faint);transition:transform .2s var(--ease)}
+.lead{width:36px;height:36px;border-radius:var(--r-md);background:var(--soft);color:var(--ink-2);display:grid;place-items:center;flex:none}
+.lead.hot{background:var(--hmp-bg);color:var(--hmp-ink)}
+.skills summary{list-style:none;cursor:pointer}
 .skills summary::-webkit-details-marker{display:none}
-.skills summary::after{content:"";width:10px;height:10px;border-right:2.6px solid var(--accent-strong);border-bottom:2.6px solid var(--accent-strong);transform:rotate(45deg);margin:-4px 6px 0 0}
-.skills[open] summary::after{transform:rotate(-135deg);margin-top:4px}
-.skills summary > span{display:grid;gap:2px;min-width:0}
-.skills .st{font:700 21px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--accent-strong)}
-.skills .ss{font-size:14.5px;line-height:1.25;color:var(--muted)}
-.skill-list{display:grid;gap:8px;padding:2px 12px 12px}
-.skill{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;min-height:56px;padding:8px 12px;text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:12px}
-.skill > span{display:grid;gap:1px;min-width:0}
-.skill .kt{font:700 18px/1.1 var(--display)}
-.skill .kg{font-size:13.5px;line-height:1.25;color:var(--muted)}
-.skill .kd{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);opacity:.6}
-.skill .kd.pass{background:var(--good);border-color:var(--good);opacity:1}
-.skill .kd.miss{background:var(--warn);border-color:var(--warn);opacity:1}
-.skill .ks{font:700 12.5px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.skill .ks.pass{color:var(--good)}
-.first3{font:500 16.5px/1.4 var(--body);background:var(--accent-soft);border-radius:12px;padding:10px 14px;margin:6px 0 0}
-@media (max-width:360px){.hero h1{font-size:40px}.who-grid{grid-template-columns:1fr}.who-random,.who-wide{grid-column:auto}}
-@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.skills[open] summary .chev{transform:rotate(180deg)}
+.skill-list{display:grid;border-top:1px solid var(--line)}
+.skill{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:60px;padding:var(--s3) var(--s4);text-align:left;color:var(--ink)}
+.skill + .skill{border-top:1px solid var(--line)}
+.skill > span:not(.ks){flex:1;min-width:0;display:grid;gap:2px}
+.skill .kt{font-weight:500;line-height:1.3}
+.skill .kg{font-size:var(--t-cap);line-height:1.35;color:var(--muted)}
+.skill .kd{flex:none;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line-2)}
+.skill .kd.pass{background:var(--ok);border-color:var(--ok)}
+.skill .kd.miss{background:var(--warn);border-color:var(--warn)}
+.skill .ks{flex:none;font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
+.skill .ks.pass{color:var(--ok)}.skill .ks.miss{color:var(--warn)}
+/* practice street (offer card) */
+.ticket{padding:var(--s4);display:grid;gap:var(--s3)}
+.ticket .addr{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.1;margin-top:calc(var(--s1) * -1)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;border:1px solid var(--line);border-radius:var(--r-md)}
+.stats > div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:2px;min-width:0;padding:10px var(--s3)}
+.stats > div + div{border-left:1px solid var(--line)}
+.stats dt{font-size:var(--t-cap);color:var(--muted)}
+.stats dd{margin:0;font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stats .hail dd{color:var(--hmp-ink)}
+.ago{display:flex;gap:6px;align-items:flex-start;font-size:var(--t-cap);color:var(--ink-2)}
+.ago .i{width:16px;height:16px;margin-top:1px;color:var(--hmp-ink)}
+/* rookie switch */
+.rookie{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:64px;padding:var(--s3) var(--s4);text-align:left;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.rookie .t{flex:1;min-width:0;display:grid;gap:2px}
+.rookie .rt{font-weight:600;line-height:1.3}
+.rookie .rs{font-size:var(--t-cap);line-height:1.35;color:var(--muted)}
+.sw{position:relative;flex:none;width:50px;height:30px;border-radius:var(--r-pill);background:var(--line-2);transition:background .18s var(--ease)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--thumb);box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .18s var(--ease)}
+.rookie[aria-checked="true"] .sw{background:var(--ok)}
+.rookie[aria-checked="true"] .sw::after{transform:translateX(20px)}
+.rookie[aria-checked="true"] .lead{background:var(--ok-bg);color:var(--ok)}
+/* homeowner cards */
+.who-sec{display:grid;gap:var(--s3)}
+.who-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2)}
+.who-grp{grid-column:1/-1;margin-top:var(--s3)}
+.who-grp:first-child{margin-top:0}
+.who{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-areas:"ic ck" "name name" "tag tag" "chips chips";grid-template-rows:auto auto auto 1fr;row-gap:2px;align-content:start;min-width:0;min-height:var(--hit);padding:var(--s3);text-align:left;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.who-ic{grid-area:ic;width:32px;height:32px;margin-bottom:6px;border-radius:var(--r-sm);background:var(--soft);color:var(--ink-2);display:grid;place-items:center}
+.who-ic .i{width:18px;height:18px}
+.who-ck{grid-area:ck;justify-self:end;align-self:start;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;color:var(--on-ink)}
+.who-ck .i{width:13px;height:13px;stroke-width:2.6;visibility:hidden}
+.who-name{grid-area:name;font-weight:600;line-height:1.25}
+.who-tag{grid-area:tag;font-size:var(--t-cap);line-height:1.35;color:var(--muted)}
+.who-chips{grid-area:chips;align-self:end;display:flex;flex-wrap:wrap;gap:4px;padding-top:var(--s2)}
+.who[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.who[aria-pressed="true"] .who-ck{background:var(--ink);border-color:var(--ink)}
+.who[aria-pressed="true"] .who-ck .i{visibility:visible}
+.who[aria-pressed="true"] .who-ic{background:var(--hmp-bg);color:var(--hmp-ink)}
+.who-wide,.who-random{grid-column:1/-1;grid-template-columns:32px minmax(0,1fr) 22px;grid-template-areas:"ic name ck" "ic tag ck" "ic chips ck";grid-template-rows:auto auto 1fr;column-gap:var(--s3)}
+.who-random{grid-template-areas:"ic name ck" "ic tag ck";grid-template-rows:auto auto;align-items:center}
+.who-wide .who-ic,.who-random .who-ic{margin-bottom:0}
+.lvl{display:inline-flex;align-items:flex-end;gap:2px;height:11px;margin-right:2px}
+.lvl i{width:3px;border-radius:1px;background:var(--line-2)}
+.lvl i:nth-child(1){height:5px}.lvl i:nth-child(2){height:8px}.lvl i:nth-child(3){height:11px}
+.lvl i.on{background:currentColor}
+.goal{padding:var(--s4);display:grid;gap:var(--s3)}
+.goal-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:var(--s3);font-size:var(--t-cap)}
+.goal-row .lbl{font-weight:500;color:var(--ink-2)}
+.stones{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.stones i{height:6px;border-radius:3px;background:var(--line)}
+.stones i.on{background:var(--ink)}
+.goal-row .n{font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+.field{padding:var(--s4);display:grid;gap:var(--s3)}
+.field > label{font-size:var(--t-cap);color:var(--muted)}
+.tbox{width:100%;resize:vertical;min-height:64px;padding:var(--s3);font:16px/1.4 var(--f);color:var(--ink);background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-md)}
+.tbox:focus{outline:none;border-color:var(--ink-2);box-shadow:0 0 0 3px var(--soft)}
+.tbox::placeholder{color:var(--muted)}
+.tbox:disabled{opacity:.7}
+.field-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s3)}
+.field-status{font-size:var(--t-cap);font-weight:500;color:var(--ink-2)}
+.field-status.bad{color:var(--late)}.field-status.ok{color:var(--ok)}
+.field-list summary{display:flex;align-items:center;min-height:var(--hit);font-weight:500;cursor:pointer}
+.field-list .objs{margin-top:var(--s1)}
+.obj-x{justify-self:start;margin-top:var(--s1)}
+.knock-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);margin-inline:calc(var(--s4) * -1);padding:var(--s3) var(--s4);background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.knock-bar .btn-primary{white-space:nowrap;padding-inline:var(--s3)}
+.knock-bar .btn-ghost{width:auto;min-height:var(--hit-lg);white-space:nowrap}
+
+/* ---------- at the door: a messaging screen ---------- */
+#scrDoor{gap:var(--s3);padding-bottom:128px}
+.chat-head{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;display:grid;gap:var(--s2);margin-inline:calc(var(--s4) * -1);padding:var(--s2) var(--s4) var(--s3);background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-block:1px solid var(--line)}
+.ch-row,.ch-row2{display:flex;align-items:center;gap:var(--s3)}
+.doorway{position:relative;flex:none;width:44px;height:44px}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--hmp-bg);color:var(--hmp-ink)}
+.doorway::after{content:"";position:absolute;right:-2px;bottom:-2px;width:14px;height:14px;border-radius:50%;background:var(--faint);border:2.5px solid var(--card)}
+.doorway.open::after{background:var(--ok)}
+.doorway.knocking::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--hmp);animation:ring 1.3s var(--ease) infinite}
+.doorway.knocking .av{animation:knock .9s ease-in-out 1}
+@keyframes ring{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+@keyframes knock{0%,100%{transform:none}10%,40%,70%{transform:translateX(-2px)}25%,55%,85%{transform:translateX(2px)}}
+.ch-who{flex:1;min-width:0;display:grid;gap:1px}
+.porch-who{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.porch-addr{font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.pips{flex:1;min-width:0;display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted)}
+.pips i{flex:1;max-width:30px;height:5px;border-radius:3px;background:var(--line)}
+.pips i.on{background:var(--ink)}
+.pips span{margin-left:var(--s2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.divider{display:flex;align-items:center;gap:var(--s3);margin-top:var(--s1)}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.divider > span{display:inline-flex;align-items:center;gap:6px;font:500 var(--t-label)/1.35 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.rk-chip{display:inline-flex;align-items:center;height:20px;margin-left:6px;padding:0 6px;border-radius:6px;background:var(--hmp-bg);color:var(--hmp-ink);font:500 12px/1 var(--f);letter-spacing:0;text-transform:none;vertical-align:middle}
+.chat{display:flex;flex-direction:column;gap:var(--s3)}
+.sys{align-self:center;max-width:36ch;padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--soft);font-size:var(--t-cap);line-height:1.4;color:var(--ink-2);text-align:center}
+.msg{max-width:86%;display:grid;gap:6px;justify-items:start}
+.msg .lab{font:500 var(--t-label)/1.35 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+#chat .msg .lab{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.msg .body{padding:10px 14px;border-radius:20px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.home{align-self:flex-start}
+.msg.home .body{background:var(--card);color:var(--ink);border:1px solid var(--line);border-top-left-radius:6px;box-shadow:var(--e1)}
+#chat .msg.home{position:relative;padding-left:38px}
+.mav{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--hmp-bg);color:var(--hmp-ink)}
+.mav .i{width:16px;height:16px}
+.msg.kenny{align-self:flex-end;justify-items:end}
+.msg.kenny .body{background:var(--me);color:var(--on-me);border-top-right-radius:6px}
+.msg.kenny.flagged .body{box-shadow:0 0 0 2px var(--late)}
+.act{font-style:italic;color:var(--muted)}
+.typing{display:inline-flex;gap:5px;padding:6px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.flag{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:5px 10px;border-radius:var(--r-sm);background:var(--late-bg);color:var(--late);font-size:12.5px;font-weight:500;line-height:1.3;text-align:left}
+.flag .ic{display:inline-grid}.flag .i{width:14px;height:14px;stroke-width:2}
+.flag.caution{background:var(--warn-bg);color:var(--warn)}
+.hint{display:flex;gap:var(--s2);align-items:flex-start;max-width:100%;padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--card);border:1px dashed var(--line-2);font-size:var(--t-cap);line-height:1.4;color:var(--ink-2)}
+.hint b{flex:none;font:500 var(--t-label)/1.7 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--hmp-ink)}
+.hint.wait{color:var(--muted)}
+.err{display:grid;gap:var(--s3);justify-items:start;padding:var(--s4);border-radius:var(--r-lg);background:var(--warn-bg);color:var(--ink)}
+.err p{font-weight:500}
+.door-end{display:grid;gap:var(--s3);justify-items:center;text-align:center;padding:var(--s5) var(--s4) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.end-ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--ink-2)}
+.end-ic .end-yes,.door-end.yes .end-ic .end-no{display:none}
+.door-end.yes .end-ic .end-yes{display:block}
+.door-end.yes .end-ic{background:var(--ok-bg);color:var(--ok)}
+.door-end h2{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em}
+/* composer: mic + keyboard bar, docked at the bottom */
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:5;margin:0;padding:var(--s2) var(--s4) calc(var(--s2) + env(safe-area-inset-bottom,0px));background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.composer-in{max-width:528px;margin:0 auto;display:flex;align-items:flex-end;gap:var(--s2)}
+#box{flex:1;min-width:0;height:52px;max-height:140px;resize:none;padding:14px 18px;font:16px/1.4 var(--f);color:var(--ink);background:var(--soft);border:1px solid transparent;border-radius:26px}
+#box:focus{outline:none;background:var(--card);border-color:var(--line-2)}
+#box::placeholder{color:var(--muted)}
+.mic,.send{flex:none;width:var(--hit);height:var(--hit);margin-bottom:4px;border-radius:50%;display:grid;place-items:center}
+.mic{background:var(--ink);color:var(--on-ink)}
+.mic.on{background:var(--late);color:var(--on-ink)}
+.send{background:var(--hmp);color:var(--on-hmp)}
+.send:disabled{opacity:1;background:var(--soft);color:var(--faint)}
+.composer-note{max-width:528px;margin:6px auto 0;font-size:var(--t-cap);color:var(--muted)}
+
+/* ---------- scorecard ---------- */
+#scrScore{padding-bottom:0}
+.score-head{display:grid;gap:var(--s1)}
+.score-head h1{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.reveal{color:var(--ink-2)}
+.loading{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);color:var(--ink-2);font-weight:500}
+.score-top{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.score-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--s3) var(--s4);padding:var(--s4) var(--s4) var(--s4) var(--s5);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.big{display:flex;align-items:baseline;gap:4px;line-height:.9;font-variant-numeric:tabular-nums}
+.big #scoreNum{font-size:var(--t-hero);font-weight:600;letter-spacing:-.045em}
+.big small{font-size:var(--t-title);font-weight:500;color:var(--muted)}
+.score-fig .cap{display:block;margin-top:var(--s2);font-size:var(--t-cap);color:var(--muted)}
+.score-bar{grid-column:1/-1;display:flex;gap:3px}
+.score-bar i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.score-bar i.on{background:var(--ok)}
+.score-bar i.bad{background:var(--late)}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 10px;border-radius:var(--r-sm);font-size:var(--t-cap);font-weight:500;white-space:nowrap;background:var(--soft);color:var(--ink-2)}
+.pill .i{width:15px;height:15px;stroke-width:2}
+.pill.yes{background:var(--ok-bg);color:var(--ok)}
+.pill.ok{background:var(--warn-bg);color:var(--warn)}
+.pill.weak{background:var(--late-bg);color:var(--late)}
+/* legal: clear but calm */
+.legal-bad,.legal-warn{display:grid;gap:var(--s3);padding:var(--s4);background:var(--card);border:1px solid var(--late-line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.legal-warn{border-color:var(--warn-line)}
+.legal-title{display:flex;align-items:center;gap:var(--s3);font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;color:var(--late)}
+.legal-title .ic{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--late-bg);color:var(--late)}
+.legal-title .ic .i{width:18px;height:18px}
+.legal-warn .legal-title{color:var(--warn)}
+.legal-warn .legal-title .ic{background:var(--warn-bg);color:var(--warn)}
+.flag-item{display:grid;gap:6px;padding-top:var(--s3);border-top:1px solid var(--line)}
+.flag-rule{font-weight:600;line-height:1.35;color:var(--ink)}
+.flag-item q{display:block;padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--soft);font-style:italic;color:var(--ink-2)}
+.flag-fix{color:var(--ink-2)}
+.checks{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.checks li{display:flex;align-items:flex-start;gap:var(--s3);min-height:56px;padding:var(--s3) var(--s4)}
+.checks li + li{border-top:1px solid var(--line)}
+.checks li > div{flex:1;min-width:0;padding-top:3px}
+.ck{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.ck .i{width:15px;height:15px;stroke-width:2.5}
+.ck.pass{background:var(--ok-bg);color:var(--ok)}
+.ck.fail{background:var(--soft);color:var(--muted)}
+.ck.bad{background:var(--late-bg);color:var(--late)}
+.ck-l{font-weight:500;line-height:1.35}
+li.bad .ck-l{color:var(--late)}
+.ck-n{margin-top:2px;font-size:var(--t-cap);line-height:1.4;color:var(--muted)}
+.focus-res,.best,.next{display:grid;gap:var(--s2);padding:var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.focus-line{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);font-weight:500}
+.focus-note{font-size:var(--t-cap);color:var(--muted)}
+.best blockquote{margin:0;padding-left:var(--s3);border-left:3px solid var(--hmp);font-size:var(--t-row);line-height:1.4;color:var(--ink)}
+.next ul{margin:0;padding:0;list-style:none;display:grid;gap:var(--s2)}
+.next li{display:flex;align-items:flex-start;gap:var(--s2);font-weight:500;line-height:1.4}
+.next li .i{width:18px;height:18px;margin-top:1px;color:var(--hmp-ink)}
+.transcript{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+.transcript summary{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);min-height:52px;padding:0 var(--s4);font-weight:500;cursor:pointer;list-style:none}
+.transcript summary::-webkit-details-marker{display:none}
+.transcript summary .i{color:var(--faint);transition:transform .2s var(--ease)}
+.transcript[open] summary .i{transform:rotate(180deg)}
+#transcript{display:grid;gap:var(--s2);padding:0 var(--s4) var(--s4)}
+#transcript p{font-size:var(--t-cap);line-height:1.45;color:var(--ink-2)}
+#transcript b{font-weight:600;color:var(--ink)}
+.act-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:3;margin-inline:calc(var(--s4) * -1);padding:var(--s3) var(--s4);background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+
+/* ---------- drills ---------- */
+.drill-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--s3)}
+.drill-top .pips{margin-top:var(--s2);max-width:120px}
+.focus-chip{display:flex;gap:var(--s2);align-items:baseline;padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--soft);font-size:var(--t-cap);line-height:1.4;color:var(--ink-2)}
+.focus-chip b{font-weight:500;color:var(--ink)}
+.focus-chip > span:first-child{flex:none;white-space:nowrap}
+.drill-card{display:grid;gap:var(--s3)}
+.drill-card > label{font:500 var(--t-label)/1.35 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.drill-q{max-width:100%}
+.drill-q .body{padding:var(--s4);font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.3;white-space:normal}
+.drill-back{font-size:var(--t-cap);color:var(--muted)}
+.drill-note{font-weight:500}
+.done-head{display:grid;gap:var(--s1)}
+.done-head h2{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.done-head p{color:var(--ink-2)}
+.done-list{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.done-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px var(--s3);padding:var(--s3) var(--s4)}
+.done-list li + li{border-top:1px solid var(--line)}
+.done-q{font-weight:500;line-height:1.35}
+.done-when{grid-column:1/-1;font-size:var(--t-cap);color:var(--muted)}
+
+/* ---------- cheat sheet (bottom sheet) ---------- */
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet-back{position:absolute;inset:0;background:var(--scrim)}
+.sheet-panel{position:relative;width:100%;max-width:560px;max-height:calc(100% - 40px);overflow:auto;overscroll-behavior:contain;padding:0 var(--s4) calc(var(--s6) + env(safe-area-inset-bottom,0px));background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e2);animation:up .28s var(--ease)}
+@keyframes up{from{transform:translateY(48px);opacity:.5}to{transform:none;opacity:1}}
+.sheet-head{position:sticky;top:0;z-index:1;margin-inline:calc(var(--s4) * -1);padding:0 var(--s4) var(--s3);background:var(--bg)}
+.grab{width:36px;height:5px;margin:8px auto 6px;border-radius:3px;background:var(--line-2)}
+.sh-row{display:flex;align-items:center;gap:var(--s3)}
+.sh-row h2{flex:1;min-width:0;font-size:24px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.x{flex:none;width:var(--hit);height:var(--hit);border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--ink-2)}
+.cheat{display:grid;gap:var(--s5)}
+.cheat > section{display:grid;gap:var(--s2)}
+.cheat > section > .eyebrow:not(:first-child){margin-top:var(--s2)}
+.script{padding:var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);font-size:var(--t-row);line-height:1.45;color:var(--ink)}
+.script b{font-weight:600;color:var(--hmp-ink)}
+.first3{display:grid;gap:10px;margin:0;padding:var(--s3) var(--s4);list-style:none;counter-reset:f3;border-radius:var(--r-md);background:var(--soft);line-height:1.45;color:var(--ink-2)}
+.first3 li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;counter-increment:f3}
+.first3 li::before{content:counter(f3);width:22px;height:22px;margin-top:1px;border-radius:50%;background:var(--card);color:var(--ink);font:600 12px/22px var(--f);text-align:center;font-variant-numeric:tabular-nums}
+/* v10 (round 47): pro-line library, folded */
+.pro{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);overflow:hidden}
+.pro summary{display:flex;align-items:center;gap:var(--s2);min-height:56px;padding:0 var(--s4);font-weight:600;cursor:pointer;list-style:none}
+.pro summary::-webkit-details-marker{display:none}
+.pro summary .i{margin-left:auto;color:var(--muted);transition:transform .2s var(--ease)}
+.pro[open] summary .i{transform:rotate(180deg)}
+.pro-n{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:var(--r-sm);background:var(--soft);color:var(--ink-2);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+.pro .objs{border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+.pl-l{font-size:var(--t-cap);color:var(--muted)}
+.pl-a{line-height:1.45;color:var(--ink)}
+.pl-n{margin-top:2px;font-size:var(--t-cap);line-height:1.45;color:var(--muted)}
+.pl-tip{padding:10px var(--s4);font-size:var(--t-cap);line-height:1.45;background:var(--hmp-bg);color:var(--ink)}
+.objs{display:grid;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);overflow:hidden}
+.objs > * + *{border-top:1px solid var(--line)}
+.objs > .eyebrow{padding:10px var(--s4) 6px;background:var(--soft);color:var(--ink-2)}
+.obj{display:grid;gap:4px;padding:var(--s3) var(--s4)}
+.obj-q{font-weight:600;line-height:1.35}
+.obj-a{line-height:1.45;color:var(--ink-2)}
+.never{display:grid;background:var(--card);border:1px solid var(--late-line);border-radius:var(--r-lg);overflow:hidden}
+.never > div{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--s3);row-gap:3px;padding:var(--s3) var(--s4)}
+.never > div + div{border-top:1px solid var(--line)}
+.never .i{grid-row:1 / span 2;width:18px;height:18px;margin-top:2px;color:var(--late)}
+.never b{font-weight:600;line-height:1.35}
+.never span{font-size:var(--t-cap);line-height:1.45;color:var(--ink-2)}
+.cmp-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+.cmp{width:100%;border-collapse:collapse;font-size:var(--t-cap);line-height:1.35}
+.cmp th,.cmp td{padding:var(--s2) var(--s3);text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+.cmp thead th{border-top:0;font-size:var(--t-body);font-weight:600;color:var(--ink)}
+.cmp tbody th{width:32%;font-weight:500;color:var(--muted)}
+.cmp td{color:var(--ink);font-variant-numeric:tabular-nums}
+.cmp-note{font-size:var(--t-cap);line-height:1.45;color:var(--ink-2)}
+.cmp-note b{font-weight:600;color:var(--ink)}
+.claim{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.claim-col{display:grid;gap:var(--s2);align-content:start;padding:var(--s3) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+.claim-col b{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.claim-col b .i{width:18px;height:18px}
+.claim-col.can b{color:var(--ok)}.claim-col.cant b{color:var(--late)}
+.claim-col ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:var(--t-cap);line-height:1.4;color:var(--ink-2)}
+@media (max-width:440px){.claim{grid-template-columns:1fr}}
+.off-card{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s4);border-radius:var(--r-lg);background:var(--warn-bg)}
+.off-card > .i{margin-top:2px;color:var(--warn)}
+.off-card h2{font-size:var(--t-row);font-weight:600;line-height:1.3}
+.off-card p{margin-top:var(--s1);color:var(--ink-2)}
+
+@media (max-width:380px){.knock-bar .btn-ghost .i{display:none}}
+@media (max-width:340px){.who-grid{grid-template-columns:1fr}.who-wide,.who-random{grid-column:auto}.stats dd{font-size:var(--t-row)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
+
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true" focusable="false">
+<symbol id="i-door" viewBox="0 0 24 24"><path d="M6.5 20.5V4.8c0-.7.6-1.3 1.3-1.3h8.4c.7 0 1.3.6 1.3 1.3v15.7"/><path d="M4 20.5h16"/><circle cx="14.6" cy="12.2" r=".9" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-say" viewBox="0 0 24 24"><path d="M4 6.2c0-1 .8-1.7 1.7-1.7h12.6c1 0 1.7.8 1.7 1.7v8.6c0 1-.8 1.7-1.7 1.7H9.5L5 20v-3.5c-.6-.2-1-.8-1-1.5z"/><path d="M8 9h8M8 12.3h5"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12 19.5 5l-4.8 14.5-3-6z"/><path d="m11.7 13.5 7.8-8.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.6 4.3 4.3L19 7.4"/></symbol>
+<symbol id="i-check2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.5 2.5 5-5.1"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.2 20.5 19H3.5z"/><path d="M12 10v4"/><path d="M12 16.6h.01" stroke-width="2.4"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.6V12l2.9 1.9"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+<symbol id="i-chevd" viewBox="0 0 24 24"><path d="m6 9.5 6 6 6-6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2"/><path d="M12 7.8h.01" stroke-width="2.4"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.6 7.2 19.1l.9-5.4-3.9-3.8 5.4-.8z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5.5 6v5.3c0 4.3 2.8 7.6 6.5 9.2 3.7-1.6 6.5-4.9 6.5-9.2V6z"/><path d="m9.2 12.2 2 2 3.8-3.9"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M5 17v-4.5L6.8 7.6c.2-.6.8-1.1 1.5-1.1h7.4c.7 0 1.3.5 1.5 1.1L19 12.5V17"/><path d="M3.5 17h17M5 12.5h14"/><path d="M6 17v2M18 17v2"/><path d="M8 14.8h.01M16 14.8h.01" stroke-width="2.4"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M4.5 19.5 5.6 15 15.8 4.8a2 2 0 0 1 2.8 2.8L8.4 17.8z"/><path d="M13.8 6.8l2.8 2.8"/></symbol>
+<symbol id="i-hammer" viewBox="0 0 24 24"><path d="M13.4 6.3 17.7 10.6M11 8.7l-6.7 6.7a1.8 1.8 0 0 0 2.6 2.6l6.7-6.7"/><path d="M12.2 4.7l3.1-1.2 5.2 5.2-1.2 3.1-2.2-.3-5.2-5.2z"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M5.2 3.8h3.2l1.6 4.1-2.1 1.3a10.8 10.8 0 0 0 5.9 5.9l1.3-2.1 4.1 1.6v3.2c0 .9-.7 1.6-1.6 1.5C10.3 18.9 5.1 13.7 4.6 6.4c-.1-.9.6-1.6 1.5-1.6z"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M6.5 3.8h7.3l3.7 3.7v12.7h-11z"/><path d="M13.5 3.8v4h4M9 12.5h6M9 16h4"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8.5" cy="12" r="3.8"/><path d="M12.3 12H20M17 12v3M20 12v2"/></symbol>
+<symbol id="i-money" viewBox="0 0 24 24"><path d="M12 3.5v17"/><path d="M16.3 7.6c-.8-1.2-2.3-1.9-4.3-1.9-2.5 0-4.3 1.2-4.3 3 0 4.2 8.8 2.2 8.8 6.4 0 1.9-1.9 3.1-4.5 3.1-2.1 0-3.8-.8-4.6-2.2"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.8"/><path d="M4.8 20c.8-3.6 3.7-5.6 7.2-5.6s6.4 2 7.2 5.6"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8.5 4.5L12 13 3.5 8.5z"/><path d="m3.5 12.4 8.5 4.5 8.5-4.5M3.5 16.2 12 20.7l8.5-4.5"/></symbol>
+<symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7.5h11.5l-3-3M17 16.5H5.5l3 3"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h7"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" stroke-width="2.6"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4.5l8 6.7"/><path d="M6.2 9.6v10h11.6v-10"/><path d="M10.2 19.6v-5h3.6v5"/></symbol>
+<symbol id="i-bank" viewBox="0 0 24 24"><path d="M3.8 9.2 12 4.5l8.2 4.7"/><path d="M5.5 10v7.5M9.8 10v7.5M14.2 10v7.5M18.5 10v7.5M3.8 20h16.4"/></symbol>
+<symbol id="i-clip" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16" rx="2"/><path d="M9 4.5V3.3h6v1.2M9 10h6M9 13.5h6M9 17h3.5"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.3 2.4 3.5 5.3 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.3-3.5-8.5s1.2-6.1 3.5-8.5z"/></symbol>
+<symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M4 7.5h2.8c1.9 0 3 .8 4.2 2.6l2 3c1.2 1.8 2.3 2.6 4.2 2.6H20"/><path d="M4 16.5h2.8c1.2 0 2-.3 2.8-1M20 7.5h-2.8c-1.2 0-2 .3-2.8 1"/><path d="m17.5 5 2.5 2.5-2.5 2.5M17.5 13.2l2.5 2.5-2.5 2.5"/></symbol>
+</svg>
 
 <div class="app">
   <header class="top">
-    <div class="brand"><span class="dot" aria-hidden="true"></span><span>HMP Siding &amp; Roofing</span></div>
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5"/></svg><b>HMP</b></div>
+    <h1 data-t="title">Practice Door</h1>
     <div class="lang" role="group" aria-label="Language / Idioma">
-      <button type="button" id="langEn" aria-pressed="true">English</button>
-      <button type="button" id="langEs" aria-pressed="false">Español</button>
+      <button type="button" id="langEn" aria-pressed="true" aria-label="English">EN</button>
+      <button type="button" id="langEs" aria-pressed="false" aria-label="Español">ES</button>
     </div>
   </header>
 
   <main>
     <!-- 1. Pick a homeowner -->
     <section id="scrSetup" class="screen">
-      <div class="hero">
-        <h1 data-t="title">Practice Door</h1>
+      <div class="intro">
         <p class="lede" data-t="sub"></p>
         <p class="count" id="countLine"></p>
       </div>
       <!-- v4: this week's focus, streak, quick drill -->
       <section class="practice" aria-label="Practice">
-        <div class="focus">
-          <div class="eyebrow" data-t="focusT"></div>
+        <div class="card focus">
+          <div class="label" data-t="focusT"></div>
           <div class="focus-t" id="focusTitle"></div>
           <p class="focus-how" id="focusHow"></p>
           <div class="trend" id="focusTrend"></div>
-        </div>
-        <div class="prog">
-          <div class="week" id="weekStrip" aria-hidden="true"></div>
-          <div class="prog-nums">
-            <div class="stat"><b id="streakN">0</b><span id="streakL"></span></div>
-            <div class="stat"><b id="drillsN">0</b><span id="drillsL"></span></div>
+          <div class="prog">
+            <div class="week" id="weekStrip" aria-hidden="true"></div>
+            <div class="prog-nums">
+              <div class="stat"><b id="streakN">0</b><span id="streakL"></span></div>
+              <div class="stat"><b id="drillsN">0</b><span id="drillsL"></span></div>
+            </div>
+            <p class="store-note" id="storeNote" hidden></p>
           </div>
-          <p class="store-note" id="storeNote" hidden></p>
         </div>
-        <button class="btn-drill" id="drillBtn" type="button">
-          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span><span class="dt" data-t="drillBtn"></span><span class="ds" id="drillSub"></span></span>
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <!-- v7 (T131): 10 skill drills from research round 27, each pass/fail -->
-        <details class="skills" id="skills">
-          <summary><span><span class="st" data-t="skillsT"></span><span class="ss" id="skillsSub"></span></span></summary>
-          <div class="skill-list" id="skillList"></div>
-        </details>
+        <div class="rows">
+          <button class="row" id="drillBtn" type="button">
+            <span class="lead hot"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg></span>
+            <span class="t"><b data-t="drillBtn"></b><span id="drillSub"></span></span>
+            <svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg>
+          </button>
+          <!-- v7 (T131): skill drills from research round 27, each pass/fail -->
+          <details class="skills" id="skills">
+            <summary class="row">
+              <span class="lead"><svg class="i" aria-hidden="true"><use href="#i-clip"/></svg></span>
+              <span class="t"><b data-t="skillsT"></b><span id="skillsSub"></span></span>
+              <svg class="i chev" aria-hidden="true"><use href="#i-chevd"/></svg>
+            </summary>
+            <div class="skill-list" id="skillList"></div>
+          </details>
+        </div>
       </section>
-      <section class="ticket" aria-labelledby="stTitle">
-        <div class="eyebrow" id="stTitle" data-t="street"></div>
+      <section class="card ticket" aria-labelledby="stTitle">
+        <div class="label" id="stTitle" data-t="street"></div>
         <div class="addr" id="stAddr"></div>
         <dl class="stats">
           <div class="hail"><dt id="stHailL" data-t="hailL"></dt><dd id="stHail"></dd></div>
           <div><dt id="stDateL" data-t="stormL"></dt><dd id="stDate"></dd></div>
           <div><dt data-t="builtL"></dt><dd id="stBuilt"></dd></div>
         </dl>
-        <p class="ago" id="stAgo"></p>
+        <p class="ago"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><span id="stAgo"></span></p>
       </section>
       <!-- v5: Rookie mode (easier homeowners + a hint after each reply) -->
       <button class="rookie" id="rookieBtn" type="button" role="switch" aria-checked="false">
-        <span><span class="rt" data-t="rookieT"></span><span class="rs" data-t="rookieS"></span></span>
+        <span class="lead"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg></span>
+        <span class="t"><span class="rt" data-t="rookieT"></span><span class="rs" data-t="rookieS"></span></span>
         <span class="sw" aria-hidden="true"></span>
       </button>
-      <section>
+      <section class="who-sec">
         <h2 class="h2" data-t="who"></h2>
         <div class="who-grid" id="whoGrid"></div>
       </section>
-      <div class="actions knock-bar">
-        <button class="btn-primary" id="knockBtn" type="button">
-          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M3.5 21h17M14.5 12.5v.01" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span data-t="knock"></span>
-        </button>
-        <button class="btn-ghost" id="cheatBtn1" type="button" data-t="cheat"></button>
-      </div>
-      <section class="goal" aria-labelledby="goalT">
-        <div class="eyebrow" id="goalT" data-t="goalT"></div>
+      <section class="card goal" aria-labelledby="goalT">
+        <h2 class="h2" id="goalT" data-t="goalT"></h2>
         <div class="goal-row"><span class="lbl">English</span><span class="stones" id="stonesEn"></span><span class="n" id="nEn"></span></div>
         <div class="goal-row"><span class="lbl">Español</span><span class="stones" id="stonesEs"></span><span class="n" id="nEs"></span></div>
       </section>
       <!-- v4: real objections from the field -->
-      <section class="field" aria-labelledby="fieldT">
+      <section class="card field" aria-labelledby="fieldT">
         <h2 class="h2" id="fieldT" data-t="fieldT"></h2>
         <label for="fieldBox" data-t="fieldL"></label>
         <textarea class="tbox" id="fieldBox" rows="2" maxlength="300"></textarea>
@@ -404,13 +543,17 @@ li.bad .ck-l{color:var(--bad)}
         </div>
         <details class="field-list" id="fieldList" hidden><summary id="fieldListT"></summary><div class="objs" id="fieldItems"></div></details>
       </section>
+      <div class="knock-bar">
+        <button class="btn-primary" id="knockBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-door"/></svg><span data-t="knock"></span></button>
+        <button class="btn-ghost" id="cheatBtn1" type="button"><svg class="i" aria-hidden="true"><use href="#i-say"/></svg><span data-t="cheat"></span></button>
+      </div>
     </section>
 
     <!-- v4: quick drill -->
     <section id="scrDrill" class="screen" hidden>
       <div class="drill-top">
-        <div><div class="eyebrow" id="drillChip"></div><div class="pips" id="drillPips"></div></div>
-        <button class="btn-small btn-end" id="drillStop" type="button" data-t="stop"></button>
+        <div><div class="label" id="drillChip"></div><div class="pips" id="drillPips"></div></div>
+        <button class="btn-small" id="drillStop" type="button" data-t="stop"></button>
       </div>
       <div class="focus-chip" id="drillFocus"></div>
       <div class="drill-card" id="drillCard">
@@ -424,17 +567,17 @@ li.bad .ck-l{color:var(--bad)}
       </div>
       <div class="loading" id="drillLoading" role="status" hidden><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span data-t="grading"></span></div>
       <div class="err" id="drillErr" hidden><p id="drillErrText"></p><button class="btn-small" id="drillRetry" type="button" data-t="retry"></button></div>
-      <div class="screen" id="drillRes" hidden>
+      <div class="stack" id="drillRes" hidden>
         <div class="score-top"><span class="pill" id="drillPill"></span><span class="drill-back" id="drillBack"></span></div>
         <p class="drill-note" id="drillNote"></p>
         <div class="legal-bad" id="drillLegal" hidden></div>
         <div class="legal-warn" id="drillCaution" hidden></div>
         <div class="focus-res" id="drillFocusRes" hidden></div>
-        <div class="best"><div class="eyebrow" data-t="tryLike"></div><blockquote id="drillModel"></blockquote></div>
+        <div class="best"><div class="label" data-t="tryLike"></div><blockquote id="drillModel"></blockquote></div>
         <button class="btn-primary" id="drillNext" type="button"></button>
       </div>
-      <div class="screen" id="drillDone" hidden>
-        <div class="done-head"><div class="eyebrow" id="drillDoneEye"></div><h2 data-t="drillDoneT"></h2><p id="drillDoneSub"></p></div>
+      <div class="stack" id="drillDone" hidden>
+        <div class="done-head"><div class="label" id="drillDoneEye"></div><h2 data-t="drillDoneT"></h2><p id="drillDoneSub"></p></div>
         <ul class="done-list" id="drillDoneList"></ul>
         <div class="actions">
           <button class="btn-primary" id="drillAgain" type="button" data-t="anotherDrill"></button>
@@ -443,26 +586,23 @@ li.bad .ck-l{color:var(--bad)}
       </div>
     </section>
 
-    <!-- 2. At the door -->
+    <!-- 2. At the door: a chat with the homeowner -->
     <section id="scrDoor" class="screen" hidden>
-      <div class="porch">
-        <div class="doorway" id="doorway" aria-hidden="true">
-          <div class="frame"><div class="door"><i></i><i></i><i></i><i></i><b class="knob"></b></div></div>
-          <div class="plate" id="plateNum"></div>
+      <div class="chat-head">
+        <div class="ch-row">
+          <div class="doorway" id="doorway" aria-hidden="true"><span class="av" id="doorAv"></span><span id="plateNum" hidden></span></div>
+          <div class="ch-who"><div class="porch-who" id="doorWho"></div><div class="porch-addr" id="doorAddr"></div></div>
+          <button class="btn-small" id="endBtn" type="button" data-t="end"></button>
         </div>
-        <div class="porch-info">
-          <div class="eyebrow" id="doorChip"></div>
-          <div class="porch-who" id="doorWho"></div>
-          <div class="porch-addr" id="doorAddr"></div>
+        <div class="ch-row2">
           <div class="pips" id="pips"></div>
+          <button class="btn-small" id="cheatBtn2" type="button"><svg class="i" aria-hidden="true"><use href="#i-say"/></svg><span data-t="cheat"></span></button>
         </div>
       </div>
-      <div class="door-tools">
-        <button class="btn-small" id="cheatBtn2" type="button" data-t="cheat"></button>
-        <button class="btn-small btn-end" id="endBtn" type="button" data-t="end"></button>
-      </div>
+      <div class="divider"><span id="doorChip"></span></div>
       <div class="chat" id="chat" aria-live="polite"></div>
       <div class="door-end" id="doorEnd" hidden>
+        <span class="end-ic" aria-hidden="true"><svg class="i i-lg end-yes"><use href="#i-check2"/></svg><svg class="i i-lg end-no"><use href="#i-door"/></svg></span>
         <h2 id="doorEndTitle"></h2>
         <button class="btn-primary" id="scoreBtn" type="button" data-t="seeScore"></button>
       </div>
@@ -471,32 +611,36 @@ li.bad .ck-l{color:var(--bad)}
     <!-- 3. Scorecard -->
     <section id="scrScore" class="screen" hidden>
       <div class="score-head">
-        <div class="eyebrow" id="scoreChip"></div>
+        <div class="label" id="scoreChip"></div>
         <h1 data-t="scorecard"></h1>
         <p class="reveal" id="scoreWho"></p>
       </div>
       <div class="loading" id="scoreLoading" role="status"><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span id="scoreLoadingText"></span></div>
       <div class="err" id="scoreErr" hidden><p id="scoreErrText"></p><button class="btn-small" id="scoreRetry" type="button" data-t="retry"></button></div>
-      <div id="scoreTop" class="score-top" hidden><div class="big"><span id="scoreNum">0</span><small>/<span id="scoreMax">5</span></small></div><span class="pill" id="outcomePill"></span></div>
+      <div id="scoreTop" class="score-hero" hidden>
+        <div class="score-fig"><div class="big"><span id="scoreNum">0</span><small>/<span id="scoreMax">5</span></small></div><span class="cap" data-t="passedL"></span></div>
+        <span class="pill" id="outcomePill"></span>
+        <div class="score-bar" id="scoreBar" aria-hidden="true"></div>
+      </div>
       <div class="legal-bad" id="legalBox" hidden></div>
       <div class="legal-warn" id="cautionBox" hidden></div>
-      <div id="scoreBody" class="screen" hidden>
+      <div id="scoreBody" class="stack" hidden>
         <ul class="checks" id="checks"></ul>
         <div class="focus-res" id="focusRes" hidden></div>
         <div id="claimRes" hidden></div>
-        <div class="best" id="bestWrap" hidden><div class="eyebrow" data-t="bestLine"></div><blockquote id="bestLine"></blockquote></div>
-        <div class="next"><div class="eyebrow" data-t="nextTime"></div><ul id="nextList"></ul></div>
+        <div class="best" id="bestWrap" hidden><div class="label" data-t="bestLine"></div><blockquote id="bestLine"></blockquote></div>
+        <div class="next"><div class="label" data-t="nextTime"></div><ul id="nextList"></ul></div>
       </div>
-      <div class="actions">
-        <button class="btn-primary" id="againBtn" type="button" data-t="again"></button>
-        <button class="btn-ghost" id="newBtn" type="button" data-t="newHome"></button>
+      <details class="transcript"><summary><span data-t="showConvo"></span><svg class="i" aria-hidden="true"><use href="#i-chevd"/></svg></summary><div id="transcript"></div></details>
+      <button class="btn-ghost" id="newBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><span data-t="newHome"></span></button>
+      <div class="act-bar">
+        <button class="btn-primary" id="againBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-door"/></svg><span data-t="again"></span></button>
       </div>
-      <details class="transcript"><summary data-t="showConvo"></summary><div id="transcript"></div></details>
     </section>
 
     <!-- Cheat sheet only (Claude not allowed here) -->
     <section id="scrOff" class="screen" hidden>
-      <div class="off-card"><h2 data-t="offTitle"></h2><p data-t="offBody"></p></div>
+      <div class="off-card"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><div><h2 data-t="offTitle"></h2><p data-t="offBody"></p></div></div>
       <div class="cheat" id="cheatInline"></div>
     </section>
   </main>
@@ -504,11 +648,9 @@ li.bad .ck-l{color:var(--bad)}
 
 <form class="composer" id="composer" hidden autocomplete="off">
   <div class="composer-in">
-    <button type="button" class="mic" id="micBtn" aria-pressed="false" hidden>
-      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
     <textarea id="box" rows="1" enterkeyhint="send" aria-label="Your line"></textarea>
-    <button type="submit" class="send" id="sendBtn" data-t="send"></button>
+    <button type="button" class="mic" id="micBtn" aria-pressed="false" hidden><svg class="i" aria-hidden="true"><use href="#i-mic"/></svg></button>
+    <button type="submit" class="send" id="sendBtn"><svg class="i" aria-hidden="true"><use href="#i-send"/></svg><span class="sr" data-t="send"></span></button>
   </div>
   <p class="composer-note" id="composerNote" hidden></p>
 </form>
@@ -516,7 +658,10 @@ li.bad .ck-l{color:var(--bad)}
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-back" id="sheetBack"></div>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-    <div class="sheet-head"><h2 id="sheetTitle" data-t="cheat"></h2><button class="btn-small" id="sheetClose" type="button" data-t="close"></button></div>
+    <div class="sheet-head">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="sh-row"><h2 id="sheetTitle" data-t="cheat"></h2><button class="x" id="sheetClose" type="button"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg><span class="sr" data-t="close"></span></button></div>
+    </div>
     <div class="cheat" id="cheatBody"></div>
   </div>
 </div>
@@ -605,7 +750,7 @@ const T = {
   r_cancel: ['Door sales need the 3-day right to cancel (FTC rule)', 'Ventas en la puerta llevan 3 días para cancelar (regla FTC)'],
   r_language: ['Contract must be in the language you sold in (FTC rule)', 'El contrato debe ir en el idioma de la venta (regla FTC)'],
   r_authority: ['Only the owner, or someone with written authority, can sign', 'Solo el dueño, o alguien con permiso por escrito, puede firmar'],
-  r_fraud: ['Insurance fraud: the invoice must match the real work', 'Fraude al seguro: la factura debe ser el trabajo real'],
+  r_fraud: ['Insurance fraud: only real damage, and the invoice must match the real work', 'Fraude al seguro: solo daño real, y la factura debe ser el trabajo real'],
   r_guarantee: ['Never guarantee resale value or loan terms', 'Nunca garantices cuánto sube la casa ni un préstamo'],
   f_competitor: ['“Get all three bids. Compare what each one includes, in writing.”', '“Pida las tres cotizaciones. Compare por escrito lo que incluye cada una.”'],
   f_cancel: ['“No rush. If you ever sign, you get 3 business days to cancel, in writing.”', '“Sin prisa. Si algún día firma, tiene 3 días hábiles para cancelar, por escrito.”'],
@@ -750,8 +895,8 @@ const T = {
   canL: ['You can', 'Sí puedes'], cantL: ['You can’t', 'No puedes'],
   canList: [['Document the damage with dated photos', 'Measure (squares, edges, flashing)', 'Cite the building code for an item', 'Send a written supplement with photos', 'Meet the adjuster and show the damage'],
     ['Documentar el daño con fotos con fecha', 'Medir (cuadros, orillas, tapajuntas)', 'Citar el código de construcción de una parte', 'Mandar un suplemento por escrito con fotos', 'Reunirte con el ajustador y enseñarle el daño']],
-  cantList: [['Negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201+)', 'Promise insurance will pay, or a dollar amount', 'Touch the deductible: it is always their part (44-8604)', 'Tell a condo or HOA unit owner to file the roof claim: the association’s master policy decides'],
-    ['Negociar el pago por el dueño (trabajo de ajustador público, Neb. 44-9201+)', 'Prometer que el seguro paga, o una cantidad', 'Tocar el deducible: siempre es su parte (44-8604)', 'Decirle al dueño de una unidad de condominio o HOA que haga el reclamo del techo: decide la póliza maestra de la asociación']],
+  cantList: [['Negotiate the settlement for the homeowner (public adjuster work, Neb. 44-9201+)', 'Promise insurance will pay, or a dollar amount', 'Promise their rate won’t go up, or that they can’t be dropped', 'Touch the deductible: it is always their part (44-8604)', 'Tell a condo or HOA unit owner to file the roof claim: the association’s master policy decides'],
+    ['Negociar el pago por el dueño (trabajo de ajustador público, Neb. 44-9201+)', 'Prometer que el seguro paga, o una cantidad', 'Prometer que no le sube el seguro, o que no lo pueden dar de baja', 'Tocar el deducible: siempre es su parte (44-8604)', 'Decirle al dueño de una unidad de condominio o HOA que haga el reclamo del techo: decide la póliza maestra de la asociación']],
   h_cash: ['Ask one question back, then offer a free estimate and a day to come back.', 'Haz una pregunta de regreso, ofrece un estimado gratis y un día para volver.'],
   /* v7 (2026-09-26, T131, research round 27): skill drills + "first 3 seconds". */
   first3T: ['First 3 seconds', 'Los primeros 3 segundos'],
@@ -798,6 +943,7 @@ const T = {
   c_intro_ask: ['Asked for an introduction (thank-you note only)', 'Pidió una recomendación (solo nota de gracias)'],
   introAskMiss: ['Ask anyway: “If a neighbor asks who checked your roof, I’d appreciate the introduction.”', 'Pídela de todas formas: “Si un vecino pregunta quién revisó su techo, le agradecería la recomendación.”'],
   knockingNoDmg: a => [`You just finished the free inspection at ${a}. You found no storm damage. Goal: tell the truth, show the photos, and ask for an introduction.`, `Acabas de revisar gratis el techo en ${a}. No encontraste daño de tormenta. Meta: decir la verdad, enseñar las fotos y pedir una recomendación.`],
+  f_nodmg: ['“I checked the whole roof and didn’t find storm damage. I won’t file something that isn’t there. Here are the photos.”', '“Revisé todo el techo y no encontré daño de tormenta. No voy a reportar algo que no existe. Aquí están las fotos.”'],
   h_nodmg: ['Say it plainly: no storm damage. Show the photos. Then ask for an introduction.', 'Dilo claro: no hay daño de tormenta. Enseña las fotos. Luego pide una recomendación.'],
   h_signed: ['Don’t talk them out of it. State the 3-day right as a fact, then offer a free second look.', 'No lo convenzas de nada. Di el derecho de 3 días como un dato y ofrece una segunda revisión gratis.'],
   h_hoa: ['HOA roof: it’s the association’s claim. Offer a report for the board and the manager’s number.', 'Techo de HOA: el reclamo es de la asociación. Ofrece un reporte para la junta y el teléfono del administrador.'],
@@ -815,9 +961,31 @@ const T = {
   h_bids: ['Respect it: “Smart, get them.” Then offer to compare scope and warranty line by line.', 'Respétalo: “Muy bien, pídalas.” Luego ofrece comparar alcance y garantía punto por punto.'],
   h_phone: ['No number over the phone. If pressed: a wide range, “not final”. Then ask for a day.', 'Nada de número por teléfono. Si insiste: un rango amplio, “no es final”. Luego pide un día.'],
   skPhone: ['Show the photos (good spot next to the damaged one) and say what they show, not what a claim will do.', 'Enseña las fotos (lo bueno junto a lo dañado) y di lo que muestran, no lo que hará un reclamo.'],
+  /* v10 (2026-09-27, look only): homeowner card chips and the score caption. */
+  lvl1: ['Easy', 'Fácil'], lvl2: ['Medium', 'Media'], lvl3: ['Hard', 'Difícil'],
+  lg_en: ['EN', 'EN'], lg_mix: ['EN/ES', 'EN/ES'], lg_es: ['ES', 'ES'], lg_esOnly: ['ES only', 'Solo ES'],
+  passedL: ['checks passed', 'puntos logrados'],
+  /* v10 (round 47): the insurance-rate promise. The only approved answer (f_rate) is data/door_lines_pro.json's
+     objection-insurance-claim-hesitation line, word for word. */
+  r_rate: ['Never promise their rate won’t go up or that their policy is safe', 'Nunca prometas que no le sube el seguro ni que no le cancelan la póliza'],
+  f_rate: ['“That\'s fair, and that decision\'s totally yours — whether or how you file is between you and your insurance company. Either way, I can document what\'s there now with photos, so you have it if you ever need it, no obligation to file anything.”', '“Eso es válido, y esa decisión es completamente suya — si presenta el reclamo o no, y cómo, es entre usted y su aseguradora. De todas formas, puedo documentar lo que hay ahora con fotos, para que las tenga si algún día las necesita, sin obligación de presentar nada.”'],
+  n_rate: ['Say their rate won’t (or can’t) go up, or that they can’t be dropped', 'Decir que no le va a subir (o no le pueden subir) el seguro, o que no lo pueden dar de baja'],
+  h_rate: ['Rates: never promise. Say it’s their call, then offer to document the damage with photos.', 'Del seguro: nunca prometas. Di que es su decisión y ofrece documentar el daño con fotos.'],
+  /* v10 (round 47): pro door lines (script library) and three more first-3-seconds moves. */
+  proT: ['Pro lines from real trainers', 'Frases de entrenadores reales'],
+  pg_open: ['Open the door', 'Para abrir'], pg_trust: ['Build trust', 'Dar confianza'], pg_obj: ['Objections', 'Objeciones'],
+  pg_book: ['Book the look', 'Agendar la revisión'], pg_close: ['Leave on good terms', 'Despedirte bien'],
+  first3tips: [['Knock 3 times. Skip the doorbell (a baby might be sleeping).', 'Take 2 steps back and turn sideways, so you look friendly, not pushy.', 'Right after your name, HMP and what you sell: “Did I catch you at a good time?”'],
+    ['Toca 3 veces. No uses el timbre (puede haber un bebé dormido).', 'Da 2 pasos para atrás y ponte de lado, para verte amable, no insistente.', 'Justo después de tu nombre, HMP y qué vendes: “¿Le agarro en buen momento?”']],
+  proOpenNote: ['Add “from Fremont” to any opener: the scorecard checks your name, HMP, local and what you sell.', 'A cualquier saludo agrégale “de aquí de Fremont”: el resultado revisa tu nombre, HMP, que eres local y qué vendes.'],
+  /* v10 (round 49): Spanish sale playbook + the "usted" register check (a coaching point, never a legal flag). */
+  playT: ['Spanish sale playbook', 'Guía para vender en español'],
+  c_usted: ['Spoke with “usted” (respect)', 'Habló de “usted” (con respeto)'],
+  ustedAuto: ['Checked from your words: “usted” the whole time.', 'Revisado en tus palabras: “usted” todo el tiempo.'],
+  ustedMiss: ['You used “tú”. With an adult homeowner, stay with “usted” unless they invite “tú”.', 'Usaste “tú”. Con un dueño adulto, quédate con “usted” a menos que te pida hablarle de “tú”.'],
 };
 const CORE = ['deductible', 'promise', 'negotiate'];
-const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure', 'coach_cancel', 'disparage', 'hoa_claim', 'quote', 'bids']);
+const TYPES = CORE.concat(['competitor', 'cancel', 'language', 'authority', 'fraud', 'guarantee', 'energy', 'neighbor', 'license', 'referral', 'contact', 'pressure', 'coach_cancel', 'disparage', 'hoa_claim', 'quote', 'bids', 'rate']);
 /* v5: the "Never say" list always shows these (cheat sheet), plus each homeowner's traps. */
 const CHEAT_BASE = CORE.concat(['license']);
 /* Caution flags: fine when literally true, so they never fail "Stayed legal" on their own. */
@@ -842,6 +1010,7 @@ const P = {
   },
   dropme: {
     label: ['“Insurance will drop me”', '“Me van a quitar el seguro”'], tag: ['Scared to file a claim', 'Le da miedo reclamar'], name: ['Linda', 'Guadalupe'],
+    traps: ['rate'],
     obj: 'afraid a claim will raise rates or get the policy dropped',
     brief: "A careful homeowner in your 50s, watching every dollar. A friend's premium went up after a claim. Main objection: \"If I file a claim my insurance will go up or drop me.\" You warm up if Kenny does not give advice about your policy and simply offers to show you what's on the roof so you have the facts. At some point ask \"So will insurance pay for it?\" to test him."
   },
@@ -1028,11 +1197,31 @@ const ORDER = ['mom', 'retiree', 'chaser', 'already', 'signed', 'hadlook', 'agen
 const REAL = ORDER.filter(k => k !== 'random');
 const kindOf = k => (P[k] && P[k].kind) || 'storm';
 const grpOf = k => (P[k] && (P[k].grp || P[k].kind)) || 'storm';
+/* v10 (look only): each homeowner card's icon (v25 set) and difficulty (1 easy, 2 medium, 3 hard). Display only;
+   the role-play and the scorecard never read it. */
+const LOOK = {
+  mom: ['clock', 1], retiree: ['shield', 3], chaser: ['car', 2], already: ['door', 1], signed: ['pen', 3],
+  hadlook: ['hammer', 2], agentwait: ['phone', 2], dropme: ['file', 2], renter: ['key', 1], rental: ['key', 2],
+  gotcheck: ['money', 3], adjno: ['ban', 3], nodamage: ['check2', 2], manager: ['user', 2], hoa: ['layers', 3],
+  bargain: ['swap', 2], threebids: ['list', 2], phonequote: ['phone', 2], selling: ['home', 2], fixed: ['bank', 2],
+  shopper: ['swap', 3], oldhouse: ['hammer', 3], dad: ['globe', 2], consuelo: ['globe', 2], recien: ['shield', 2],
+  shopperEs: ['swap', 3], rogelio: ['globe', 2], random: ['shuffle', 0]
+};
+/* The language the homeowner answers in: in Spanish mode everyone speaks Spanish (rulesText). */
+function langChip(k) {
+  if (k === 'consuelo') return 'lg_esOnly';
+  if (S.lang === 'es' || (P[k] && P[k].mustEs)) return 'lg_es';
+  return grpOf(k) === 'es' ? 'lg_mix' : 'lg_en';
+}
+/* The door avatar: the picked homeowner's icon; a mystery homeowner stays a plain person until the scorecard. */
+const avIcon = () => (S.persona === 'random' ? 'user' : (LOOK[S.actual] || ['user'])[0]);
 
 const CASH_OBJ = ['shopper', 'shopperEs', 'bargain', 'threebids', 'selling', 'fixed', 'oldhouse'];
 const OBJ = [
   [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.']],
   [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
+  /* v10 (round 47): the rate worry. The only approved answer (data/door_lines_pro.json); never a rate or coverage promise. */
+  [['“If I file, my rate will go up.”', '“Si hago el reclamo, me sube el seguro.”'], ["That's fair, and that decision's totally yours — whether or how you file is between you and your insurance company. Either way, I can document what's there now with photos, so you have it if you ever need it, no obligation to file anything.", "Eso es válido, y esa decisión es completamente suya — si presenta el reclamo o no, y cómo, es entre usted y su aseguradora. De todas formas, puedo documentar lo que hay ahora con fotos, para que las tenga si algún día las necesita, sin obligación de presentar nada."], ['dropme', 'agentwait']],
   [['“Someone already came by.”', '“Ya vino alguien.”'], ['Good, more eyes never hurt. Did they get on the roof or just look from the ground? Happy to give a free second look.', 'Qué bueno, más ojos nunca están de más. ¿Se subieron al techo o solo vieron desde el suelo? Con gusto le doy una segunda revisión gratis.']],
   [['“I rent.”', '“Yo rento.”'], ["Who owns the house? Can I get the owner's or property manager's office number?", '¿Quién es el dueño de la casa? ¿Me da el teléfono de la oficina del dueño o del administrador?']],
   /* v7 (T137, round 30): isolate the real reason; don't re-pitch. */
@@ -1160,14 +1349,71 @@ const SKILL = [
     crit: "Kenny offers to show (or shows) the photos on his phone before leaving, compares a good area with a damaged one (or explains what a photo shows), and says only what the photos show: no 'this will get approved', no 'insurance will cover this', nothing about the deductible.",
     a: ["Before I go, let me show you on my phone. Here's a good spot, and here's the damaged one right next to it. See the difference? That's what an adjuster looks for too. Any questions about what you're seeing?", 'Antes de irme, déjeme enseñarle en mi teléfono. Aquí está un área en buen estado, y aquí la dañada justo al lado. ¿Ve la diferencia? Eso es lo que un ajustador también busca. ¿Tiene alguna pregunta de lo que está viendo?'] }
 ];
+/* v10 (round 47, data/door_lines_pro.json): 22 pro door lines from real trainers, rewritten to HMP's rules, word
+   for word ({name} = Kenny). g = group, l = a short label. The written-warranty line waits for the boss's answer on
+   HMP's workmanship warranty (hub D15), so it stays off until PRO_ON_HOLD is emptied. tests/js/practice_door_rx_check.js
+   keeps every line legalScan-clean and equal to the data file. */
+const PRO = [
+  { id: "courtesy-short-visit", g: 'open', l: ["Door opens: same breath as your opener", "Se abre la puerta: de corrido con tu saludo"], a: ["Hey there, sorry to bother — I'll just take one minute.", "Hola, disculpe la molestia — solo le quito un minuto."] },
+  { id: "opener-compliant-general", g: 'open', l: ["Any street", "Cualquier calle"], a: ["Hi, I'm Kenny with HMP Siding & Roofing — we do siding and roof repair and replacement. I'm in the neighborhood checking roofs, no cost, no obligation. Mind if I take a quick look at yours?", "Hola, soy Kenny de HMP Siding & Roofing — hacemos reparación e instalación de techos y siding. Ando por el vecindario revisando techos, sin costo y sin compromiso. ¿Le importa si le echo un vistazo rápido?"] },
+  { id: "opener-storm-neighbor", g: 'open', l: ["After a storm", "Después de una tormenta"], a: ["Hi, I'm Kenny with HMP Siding & Roofing — siding and roofing. We're out checking a few roofs on this street after the last storm; yours might have some hits too. Want me to take a quick look and show you what I find?", "Hola, soy Kenny de HMP Siding & Roofing — hacemos techos y siding. Andamos revisando algunos techos en esta calle después de la última tormenta; el suyo también podría tener algunos golpes. ¿Quiere que le eche un vistazo rápido y le muestre lo que encuentro?"] },
+  { id: "opener-everyday-age", g: 'open', l: ["Older houses, no storm", "Casas viejas, sin tormenta"], a: ["Hi, I'm Kenny with HMP Siding & Roofing — siding and roof work. A lot of homes on this street are around the same age, and roofs and siding start wearing out about now. I'm doing free checks in the area — want me to take a look at yours?", "Hola, soy Kenny de HMP Siding & Roofing — hacemos techos y siding. Muchas casas en esta calle tienen más o menos la misma edad, y por estos años el techo y el siding empiezan a desgastarse. Estoy haciendo revisiones gratis por aquí — ¿quiere que revise el suyo?"] },
+  { id: "courtesy-catch-good-time", g: 'open', l: ["They look busy (after your opener)", "Se ven ocupados (después de tu saludo)"], a: ["Did I catch you at an OK time? I can come back later if not.", "¿Le agarro en buen momento? Puedo regresar más tarde si no."] },
+  { id: "transition-free-inspection-value", g: 'trust', l: ["Into the free look", "Pasar a la revisión gratis"], a: ["It only takes about 15 minutes — I'll check the roof, take photos, and show you exactly what's there before you decide anything.", "Solo toma unos 15 minutos — reviso el techo, tomo fotos, y le muestro exactamente lo que hay antes de que usted decida algo."] },
+  { id: "rapport-bad-past-contractor", g: 'trust', l: ["Bad past contractor", "Les fue mal con otro contratista"], a: ["That's rough, I hear that a lot. One thing we do — we clean up fully every day, and I'll walk you through exactly what we find before we do anything.", "Qué mal, escucho eso seguido. Una cosa que hacemos — limpiamos todo diario, y le explico exactamente qué encontramos antes de hacer cualquier cosa."] },
+  { id: "trust-local-stick-around", g: 'trust', l: ["Storm-chaser worry", "Miedo a los que persiguen tormentas"], a: ["We're local, based right here in Fremont — if a warranty question comes up next year, I'm not hard to find.", "Somos locales, de aquí mismo de Fremont — si hay una pregunta de garantía el próximo año, no es difícil encontrarme."] },
+  { id: "trust-warranty-backed", g: 'trust', l: ["Warranty in writing", "Garantía por escrito"], a: ["We back our work with a written workmanship warranty — I'll give you that in writing, not just talk.", "Respaldamos nuestro trabajo con una garantía de mano de obra por escrito — se la doy por escrito, no solo de palabra."] },
+  { id: "spanish-relationship-first", g: 'trust', l: ["Spanish-speaking family", "Familia que habla español"], a: ["I want to take care of your roof the way I'd want someone to take care of my own family's house.", "Quiero cuidar su techo como quisiera que alguien cuidara la casa de mi propia familia."] },
+  { id: "objection-spouse", g: 'obj', l: ["“I need to talk to my spouse”", "“Lo tengo que hablar con mi esposo/a”"], a: ["Of course — makes sense to look at it together. Can I text or email you the photos and what I find so you both have it to look at?", "Claro que sí — tiene sentido verlo juntos. ¿Le mando las fotos y lo que encuentro por texto o correo para que los dos lo vean?"] },
+  { id: "objection-more-quotes", g: 'obj', l: ["“I want more quotes”", "“Quiero más cotizaciones”"], a: ["That's smart, get a few. Here's what I found and what I'd charge — happy to answer questions once you've compared.", "Eso es inteligente, consiga varias. Aquí está lo que encontré y lo que cobraría — con gusto respondo preguntas una vez que compare."] },
+  { id: "objection-price-afford", g: 'obj', l: ["“Not sure I can afford it”", "“No sé si me alcanza”"], a: ["No pressure at all — let me leave you the estimate so you have it. If it'd help, we can talk through payment options too; that's between you and the lender, not us.", "Sin presión — le dejo el estimado para que lo tenga. Si le ayuda, también podemos hablar de opciones de pago; eso es entre usted y el prestamista, no con nosotros."] },
+  { id: "objection-not-interested-recent-work", g: 'obj', l: ["“Not interested” / “just had it done”", "“No me interesa” / “ya lo hicimos”"], a: ["No problem at all. If anything comes up down the road, or after the next storm, here's my card — call anytime, no charge to look.", "No hay problema. Si algo surge más adelante, o después de la próxima tormenta, aquí tiene mi tarjeta — llame cuando quiera, revisar no cuesta nada."] },
+  { id: "objection-insurance-claim-hesitation", g: 'obj', l: ["“I don’t want to file” / “my rate will go up”", "“No quiero reclamar” / “me sube el seguro”"], a: ["That's fair, and that decision's totally yours — whether or how you file is between you and your insurance company. Either way, I can document what's there now with photos, so you have it if you ever need it, no obligation to file anything.", "Eso es válido, y esa decisión es completamente suya — si presenta el reclamo o no, y cómo, es entre usted y su aseguradora. De todas formas, puedo documentar lo que hay ahora con fotos, para que las tenga si algún día las necesita, sin obligación de presentar nada."] },
+  { id: "objection-no-time-right-now", g: 'obj', l: ["“No time right now”", "“Ahorita no tengo tiempo”"], a: ["No problem — is there a better day or time I should come back?", "No hay problema — ¿hay un mejor día u hora para regresar?"] },
+  { id: "appointment-direct-ask", g: 'book', l: ["Ask for the day", "Pide el día"], a: ["Sounds good — can we get an inspection on the calendar this week? What day works best for you?", "Perfecto — ¿podemos agendar la inspección esta semana? ¿Qué día le queda mejor?"] },
+  { id: "appointment-specific-day-choice", g: 'book', l: ["Give two choices", "Da dos opciones"], a: ["I've got Tuesday morning or Thursday after 4 open — which is easier for you?", "Tengo el martes en la mañana o el jueves después de las 4 — ¿cuál le queda mejor?"] },
+  { id: "appointment-no-pressure-first", g: 'book', l: ["They can’t decide", "No se deciden"], a: ["No pressure to decide anything today — I just come take a look, show you photos, and give you a number. You take it from there.", "No hay presión para decidir nada hoy — solo vengo, reviso, le muestro fotos, y le doy un número. Usted decide después."] },
+  { id: "appointment-confirm-contact", g: 'book', l: ["Confirm by text", "Confirmar por texto"], a: ["What's the best number to text you a confirmation and a reminder the day before?", "¿Cuál es el mejor número para mandarle una confirmación y un recordatorio un día antes?"] },
+  { id: "graceful-no-leave-card", g: 'close', l: ["A flat no", "Un no rotundo"], a: ["All good, thanks for your time. Here's my card if that ever changes.", "Está bien, gracias por su tiempo. Aquí tiene mi tarjeta por si algo cambia."] },
+  { id: "spanish-referral-ask", g: 'close', l: ["After a good visit", "Después de una buena visita"], a: ["If you know a neighbor or family member who could use the same free check, I'd really appreciate the introduction.", "Si conoce a un vecino o familiar que también quiera una revisión gratis, le agradecería mucho la presentación."] }
+];
+const PRO_ON_HOLD = new Set(['trust-warranty-backed']);
+/* v10 (round 49, data/spanish_sale_playbook.json): 22 lines for Spanish-speaking homeowners, all in "usted", word for
+   word ({name} = Kenny). l = a short label, n = [the English meaning, a Spanish note]. Shown to Spanish-speaking homeowners
+   and in Spanish mode; tests/js/practice_door_rx_check.js keeps them legalScan-clean, "usted" and equal to the data file. */
+const PLAY = [
+  { l: ["First words, formal (add “de aquí de Fremont”)", "Primeras palabras, de usted (agrega “de aquí de Fremont”)"], es: "Buenas tardes, disculpe la molestia. Soy Kenny, de HMP Siding & Roofing — hacemos techos y siding. ¿Le puedo quitar un minuto?", n: ["Good afternoon, sorry to bother you. I'm Kenny, from HMP Siding & Roofing — we do roofing and siding. Can I take a minute of your time? Keeps Nebraska's required order (name, company, what we sell) first, all in formal 'usted' (le, disculpe, puedo).", ""] },
+  { l: ["Trust takes time", "La confianza toma tiempo"], es: "Apenas nos conocemos, así que entiendo perfectamente si quiere pensarlo con calma — no hay ninguna prisa de mi parte.", n: ["We just met, so I completely understand if you want to think it over calmly - there's no rush from me.", ""] },
+  { l: ["Advisor, not salesman", "Asesor, no vendedor"], es: "No vengo a venderle nada todavía — vengo a revisar su techo y explicarle honestamente lo que encuentro, como un asesor, no como un vendedor.", n: ["I'm not here to sell you anything yet - I'm here to check your roof and honestly tell you what I find, like an advisor, not a salesman.", ""] },
+  { l: ["No promises you can’t keep", "Sin prometer de más"], es: "No le voy a prometer nada que no pueda cumplir. Si encuentro daño, se lo muestro con fotos; si no encuentro nada, también se lo digo.", n: ["I won't promise you anything I can't deliver. If I find damage, I'll show you with photos; if I don't find anything, I'll tell you that too.", ""] },
+  { l: ["A family decision", "Decisión en familia"], es: "Si prefieren decidirlo en familia, no hay ningún problema — le dejo las fotos y el estimado por escrito para que lo hablen con calma, o regreso cuando estén todos.", n: ["If you'd rather decide this as a family, that's completely fine - I'll leave the photos and written estimate so you can talk it over calmly, or come back when everyone's home.", ""] },
+  { l: ["The whole family", "La familia extendida"], es: "En muchas familias, un tío, un hermano o los abuelos también ayudan a decidir estas cosas — si alguien de su familia también necesita una revisión, con gusto le ayudo a esa persona también.", n: ["In a lot of families, an uncle, a sibling or the grandparents also help decide these things - if someone in your family also needs a check, I'm happy to help them too.", ""] },
+  { l: ["Storm-chaser fear", "Miedo a los que persiguen tormentas"], es: "Sé que hay compañías que solo aparecen después de una tormenta y luego desaparecen. Nosotros somos de Fremont — seguimos aquí para la garantía el próximo año también.", n: ["I know there are companies that only show up after a storm and then disappear. We're from Fremont - we're still here for the warranty next year too.", ""] },
+  { l: ["Two scam signs HMP never does", "Dos señales de estafa que HMP nunca hace"], es: "Nunca le voy a pedir el pago completo por adelantado, ni lo voy a presionar a firmar hoy mismo.", n: ["I'll never ask for full payment up front, or pressure you to sign today.", ""] },
+  { l: ["Paperwork or status fear", "Miedo a papeles o estatus"], es: "Lo único que necesito para el contrato es su nombre. Nunca preguntamos sobre estatus migratorio.", n: ["The only thing I need for the contract is your name. We never ask about immigration status.", ""] },
+  { l: ["The word “deducible”", "La palabra “deducible”"], es: "deducible", n: ["Always this exact word. Never next to cubrir, eliminar, rebajar, pagar or regalar.", "Siempre esta palabra. Nunca junto a cubrir, eliminar, rebajar, pagar o regalar."] },
+  { l: ["Say “registrados”", "Di “registrados”"], es: "Somos contratistas registrados en Nebraska. Nebraska no da licencias de contratista para este tipo de trabajo, da registro.", n: ["We're registered contractors in Nebraska. Nebraska doesn't issue contractor licenses for this kind of work, it registers them.", ""] },
+  { l: ["Walk the roof together", "Revisar el techo juntos"], es: "Venga conmigo a ver el techo — así lo ve usted mismo, con fotos, antes de que yo le explique nada. Así es como recomienda hacerlo el Departamento de Seguros.", n: ["Come with me to look at the roof - that way you see it yourself, with photos, before I explain anything. That's how the Department of Insurance recommends doing it.", ""] },
+  { l: ["The state’s consumer line", "La línea del estado para consumidores"], es: "Si en algún momento no se siente conforme, el Departamento de Seguros de Nebraska tiene una línea gratuita para consumidores: 1-877-564-7323.", n: ["If at any point you're not comfortable, Nebraska's Department of Insurance has a free consumer hotline: 1-877-564-7323.", ""] },
+  { l: ["No damage found", "No hay daño"], es: "Buenas noticias para usted — no encontré daño de tormenta. No le voy a inventar un problema que no existe.", n: ["Good news for you - I didn't find storm damage. I'm not going to invent a problem that isn't there.", ""] },
+  { l: ["A family co-signer", "Un familiar como aval"], es: "Si algún familiar quiere ayudar con el pago o firmar el financiamiento con usted, eso se puede hablar directamente con el prestamista.", n: ["If a family member wants to help with payment or co-sign the financing with you, that's something to discuss directly with the lender.", ""] },
+  { l: ["Keep small promises", "Cumple lo pequeño"], es: "Le dije que lo iba a llamar el jueves — aquí estoy, como quedamos.", n: ["I told you I'd call Thursday - here I am, like we agreed.", ""] },
+  { l: ["Warm, still “usted”", "Con cariño, siempre de usted"], es: "Le voy a explicar todo con cariño y con calma, paso a paso, para que no le quede ninguna duda.", n: ["I'll explain everything to you warmly and calmly, step by step, so you have no doubts left.", ""] },
+  { l: ["Older homeowners: calm, no jargon", "Mayores: con calma, sin tecnicismos"], es: "Se lo voy a explicar sin tecnicismos, con calma — dígame si algo no le quedó claro y se lo repito.", n: ["I'll explain it without technical jargon, calmly - tell me if anything wasn't clear and I'll repeat it.", ""] },
+  { l: ["“Why is insurance so slow?”", "“¿Por qué tarda tanto el seguro?”"], es: "El proceso con la aseguradora a veces toma tiempo — eso no lo controlamos ni usted ni nosotros, pero le aviso en cuanto haya novedades.", n: ["The insurance process sometimes takes time - neither of us controls that, but I'll let you know as soon as there's news.", ""] },
+  { l: ["Thank-you after the job", "Gracias al terminar"], es: "Muchas gracias por confiar en nosotros — si su familia necesita algo más adelante, aquí estamos.", n: ["Thank you for trusting us - if your family needs anything down the road, we're here.", ""] },
+  { l: ["“Is this a scam?”", "“¿Esto es una estafa?”"], es: "Es una pregunta justa — aquí tiene mi nombre, el teléfono de la empresa, y puede llamar al Departamento de Seguros de Nebraska para revisar quejas de cualquier compañía, incluida la nuestra.", n: ["That's a fair question - here's my name, the company phone number, and you can call Nebraska's Department of Insurance to check complaints on any company, including ours.", ""] },
+  { l: ["Goodbye, formal", "Despedida, de usted"], es: "Fue un gusto conocerlo/conocerla. Muchas gracias por su tiempo.", n: ["It was a pleasure meeting you. Thank you very much for your time. (conocerlo/conocerla - match the homeowner's gender.)", ""] }
+];
 const objFor = o => [].concat(o[2] || []);
 
 const STREETS = ['N Clarkson St', 'E Military Ave', 'N Nye Ave', 'E 23rd St', 'N Broad St', 'E Dodge St', 'N Somers Ave', 'E 9th St'];
 
+/* v10: the v25 icon sprite at the top of the page (one set, 24 grid, 1.75 stroke). */
 const ICON = {
-  warn: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 10v4.5M12 17.5v.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
-  check: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  x: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+  warn: '<span class="ic"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></span>',
+  check: '<svg class="i" aria-hidden="true"><use href="#i-check"/></svg>',
+  x: '<svg class="i" aria-hidden="true"><use href="#i-x"/></svg>'
 };
 
 /* ---------- Pure helpers: dates, spaced repetition, weekly focus (v4; tests extract PURE-START..PURE-END) ---------- */
@@ -1412,6 +1658,10 @@ const RX = [
   ['deductible', /\b(?:don'?t|do not|no need to|never)\s+worry about (?:the |your |that )?deductibles?\b|\bdeductibles?\b[^.!?]{0,40}\b(?:we'?ll|we will|i'?ll|i will|we can|i can|we could|i could)\s+(?:work with you|take care of|handle|help (?:you )?(?:out|with)|figure (?:it|something) out|make it work)|\b(?:no se preocupe|no te preocupes) (?:por|del) (?:el |su )?deducible/i],
   ['license', /\b(?:we'?re|we are|i'?m|i am|hmp is|hmp'?s|our company is|the company is)\s+(?:all\s+|fully\s+|totally\s+|100%\s+|properly\s+)?licen[sc]ed\b|\blicen[sc]ed,?\s+(?:bonded,?\s+)?(?:and|&)\s+(?:insured|bonded)\b|\b(?:fully|state)[- ]licen[sc]ed\b|\b(?:we|i|hmp)\s+(?:have|hold|got|carry)\s+(?:a|our|the|my|all the)\s+(?:state\s+|contractor'?s?\s+|roofing\s+)?licen[sc]es?\b/i, 'noCheck'],
   ['license', /\b(?:somos|estamos)\s+(?:licenciados|con licencia)\b|\b(?:tenemos|tengo)\s+(?:la |nuestra |mi )?licencia\b|\bcon licencia y (?:seguro|asegurados)\b|\blicenciados y asegurados\b/i, 'noCheck'],
+  /* v10 (2026-09-27, round 49): more Spanish ways to say HMP has a "licencia" ("licenciados", "con licencia", "tenemos
+     licencia"). The answer is "registrados". A driver's license ("licencia de manejo") or the title "el licenciado" is
+     not about HMP, so no flag. */
+  ['license', /\b(?:hmp|nosotros|la compa[nñ][ií]a|nuestra compa[nñ][ií]a|la empresa|nuestra empresa)\s+(?:s[ií]\s+)?(?:es|est[aá]|son|estamos|somos)\s+(?:una\s+)?(?:compa[nñ][ií]a\s+|empresa\s+|contratistas?\s+)?(?:licenciad[oa]s?|con licencia)\b|\b(?:hmp|nosotros|la compa[nñ][ií]a|nuestra compa[nñ][ií]a|la empresa|nuestra empresa)\s+(?:s[ií]\s+)?(?:tiene|tenemos|cuenta con|contamos con)\s+(?:la |su |nuestra |todas las |las )?licencias?\b(?!\s+de\s+(?:manejo|conducir))|\b(?:somos|soy)\s+(?:una\s+)?(?:compa[nñ][ií]a|empresa|contratistas?|techeros?|techadores?)\s+(?:licenciad[oa]s?|con licencia)\b|\b(?:contamos con|tenemos)\s+(?:todas las |las |la |nuestra )?licencias?\b(?!\s+de\s+(?:manejo|conducir))|\b(?:estamos|somos|soy)\s+licenciad[oa]s?\b|\b(?:mi|nuestra)\s+licencia\s+de\s+(?:contratista|techero|techador|construcci[oó]n)\b|^(?:s[ií]|claro(?: que s[ií])?)[,.!]?\s+(?:con licencia|licenciad[oa]s?)\b/i, 'noCheck'],
   ['referral', /\b(?:gift ?cards?|gifts?|\$?\d[\d,]+|cash|money|pay you|rewards?|bonus(?:es)?|discounts?|finder'?s fee|kickbacks?|\d+\s?(?:%|percent) off|free (?:gutter|cleaning|upgrade|month))\b[^.!?]{0,50}\b(?:refer|referral|referrals|referring|send (?:us |me )?(?:your |a |some )?(?:friends?|neighbou?rs?|sister|brother|someone|anyone|family)|sends? (?:us |me )?(?:someone|anyone|a friend|her|him|them)|tell (?:your )?(?:friends|neighbou?rs|family))\b/i, 'negGift'],
   ['referral', /\b(?:refer|referral|referrals|referring|send (?:us |me )?(?:your |a |some )?(?:friends?|neighbou?rs?|sister|brother|someone|anyone|family)|for (?:every|each) (?:friend|neighbou?r|person|referral|job)|tell (?:your )?(?:friends|neighbou?rs|family))\b[^.!?]{0,50}\b(?:gift ?cards?|gifts?|\$?\d[\d,]+|cash|money|pay you|rewards?|bonus(?:es)?|discounts?|finder'?s fee|kickbacks?|\d+\s?(?:%|percent) off)/i, 'negGift'],
   ['referral', /\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b[^.!?]{0,50}(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))|(?:recomiend\w*|recomendaci\w*|refier\w*|referid\w*|mand(?:a|e|ar|en)\w* (?:a )?(?:su |un |una |sus )?(?:hermana|hermano|amig[oa]s?|vecin[oa]s?|familia))[^.!?]{0,50}\b(?:tarjetas? de regalo|regalos?|\$?\d[\d,]+|dinero|efectivo|le pago|premios?|bonos?|descuentos?)\b/i, 'negGift'],
@@ -1457,6 +1707,15 @@ const RX = [
   /* v9 (data/price_objections.json): "we'll beat any price" (quote) and talking them out of other bids (bids). */
   ['quote', /\b(?:we'?ll|we will|i'?ll|i will|we can|i can|we always|we'?re gonna|we are going to)\s+(?:beat|match|undercut|top)\s+(?:any|anyone'?s|their|every|the other|whatever|his|her)\b[^.!?]{0,25}\b(?:price|bid|quote|estimate|number|offer|they (?:quote|charge|give))|\ble (?:ganamos|mejoramos|igualamos|bajamos) (?:a )?(?:cualquier|el|su) (?:precio|cotizaci[oó]n|presupuesto|n[uú]mero)/i],
   ['bids', /\b(?:you (?:don'?t|do not) (?:really )?(?:need|have to|want)|no need to|don'?t (?:bother|waste (?:your )?time)|(?:skip|forget(?: about)?) the other)\s+(?:(?:to|get|getting|with|other|more|three|3|two|another|the|any|those|them)\s+)*(?:bids?|quotes?|estimates?|contractors|guys|companies)\b|\bwhy (?:bother|waste (?:your )?time)\b[^.!?]{0,30}\b(?:bids?|quotes?|estimates?)|\bno (?:necesita|tiene que) (?:pedir|buscar|conseguir) (?:m[aá]s|otras) cotizaciones|\bno pierda (?:su |el )?tiempo con (?:otras cotizaciones|los otros|otras compañ[ií]as)/i],
+  /* v10 (2026-09-27, round 47): the insurance-rate promise. Never say their rate or premium won't (or can't) go up,
+     that the insurer can't drop or cancel them, or that a hail / "act of God" claim won't count against them.
+     The only approved answer is f_rate (data/door_lines_pro.json objection-insurance-claim-hesitation). */
+  ['rate', /\b(?:your|their|the|his|her|my)\s+(?:insurance\s+|home\s*owners?'?s?\s+)?(?:rates?|premiums?|insurance|policy|coverage|monthly (?:payment|bill))\s+(?:(?:is|are)\s+)?(?:won'?t|will not|can'?t|cannot|can not|isn'?t going to|is not going to|aren'?t going to|are not going to|doesn'?t|does not|don'?t|do not|shouldn'?t|should not|never)\s+(?:even\s+|ever\s+|legally\s+|really\s+)?(?:go(?:es)? up|rise|increase|change|move|budge|be (?:raised|increased|affected|touched|cancell?ed|dropped|non-?renewed)|get (?:raised|cancell?ed|dropped|non-?renewed))\b/i],
+  ['rate', /\b(?:they|insurance(?: companies| company)?|insurers?|carriers?|your (?:insurer|insurance company|insurance|agent|carrier)|the (?:insurer|insurance company|carrier))\s+(?:(?:legally|by law)\s+)?(?:can'?t|cannot|can not|won'?t|will not|aren'?t allowed to|are not allowed to|isn'?t allowed to|is not allowed to|aren'?t going to|are not going to|isn'?t going to|is not going to|don'?t|do not|doesn'?t|does not|never)\s+(?:legally\s+|even\s+|ever\s+)?(?:(?:raise|increase|hike|bump|up|touch|change)\s+(?:your\s+|the\s+|their\s+|any\s+)?(?:insurance\s+|home\s*owners?'?s?\s+)?(?:rates?|premiums?|insurance|policy|coverage)|(?:drop|cancel|non-?renew|dump|kick out)\s+(?:you|them|your (?:policy|coverage|insurance)|the (?:policy|coverage)))\b/i],
+  ['rate', /\b(?:filing|a claim|the claim|this claim|your claim|one claim|an? (?:hail|storm|weather|wind|roof) claim|(?:hail|storm|weather|wind) claims|an act of god(?: claim)?|acts of god|it)\s+(?:(?:legally|by law)\s+)?(?:won'?t|will not|can'?t|cannot|doesn'?t|does not|don'?t|do not|shouldn'?t|should not|never|isn'?t going to|is not going to)\s+(?:even\s+|ever\s+)?(?:raise|increase|affect|hurt|touch|bump|change|count against|go against|impact|ding)\s+(?:your\s+|the\s+|their\s+)?(?:insurance\s+)?(?:rates?|premiums?|insurance|policy|coverage|record|you)\b/i],
+  ['rate', /\b(?:don'?t|do not|no need to|never)\s+worry about\s+(?:your\s+|the\s+|their\s+)?(?:(?:insurance|rates?|premiums?)\s+)*(?:rates?|premiums?|going up|rising|increasing|(?:getting|being) (?:dropped|cancell?ed|non-?renewed))\b|\b(?:no|zero)\s+(?:rate|premium|insurance)\s+(?:increases?|hikes?|bumps?|jumps?|changes?)\b/i],
+  ['rate', /\bno\s+(?:le|les|se\s+l[oa])\s+(?:(?:va|van)\s+a\s+|(?:puede|pueden|podr[ií]an?)\s+)?(?:subir|suben|sube|aumentar|aumentan|aumenta)\b(?=[^.!?]{0,30}\b(?:seguro|prima|cuota|p[oó]liza|aseguranza|aseguradora|mensualidad|reclamo)\b|\s*[.!?]*\s*$)|\bno\s+(?:le|les|lo|la|los|las)\s+(?:(?:va|van)\s+a\s+|(?:puede|pueden|podr[ií]an?)\s+)?(?:(?:cancelar|cancelan|cancela|quitar|quitan|quita|tumbar|tumban)\s+(?:el\s+|la\s+|su\s+)?(?:seguro|p[oó]liza|aseguranza|cobertura)|dar de baja|dan de baja|da de baja)\b/i],
+  ['rate', /\b(?:el seguro|su seguro|la prima|su prima|la cuota|su cuota|la p[oó]liza|su p[oó]liza|la aseguranza|su aseguranza|la aseguradora|su aseguradora|ellos)\s+no\s+(?:le\s+|les\s+|se\s+l[oa]\s+|lo\s+|la\s+)?(?:(?:va|van)\s+a\s+|(?:puede|pueden|podr[ií]an?)\s+)?(?:subir|sube|suben|aumentar|aumenta|aumentan|cancelar|cancela|cancelan|quitar|quita|quitan|dar de baja|da de baja|dan de baja)\b|\b(?:el reclamo|un reclamo|reclamar|hacer el reclamo|un acto de dios|los actos de dios)(?:\s+(?:por|de)\s+(?:granizo|tormenta|viento))?\s+no\s+(?:le\s+)?(?:(?:va|van)\s+a\s+|puede\s+)?(?:subir|sube|afectar|afecta|contar|cuenta)\b|\bno se preocupe (?:por|de) que (?:le|se lo|se la) (?:suba|suban|cancelen|quiten)\b|\bno te preocupes (?:por|de) que te (?:suba|suban|cancelen|quiten)\b/i],
 ];
 /* v9 (T150): only for an HOA / condo unit owner. The roof is common property: the association files under its master
    policy, so telling the owner "you file the claim" (fine for a house) is wrong here, and so is any dollar talk about
@@ -1538,12 +1797,31 @@ const HOA_OK = /\b(?:association|hoa|board|management company|property manager|m
 const NODMG_OK = /\b(?:no|not|didn'?t|don'?t|nothing|zero)\b[^.!?]{0,40}\b(?:damage|hail hits?|hits?)\b|\bno (?:vi|encontr[eé]|hay|tiene|veo)\b[^.!?]{0,40}\bda[nñ]o|\bsin da[nñ]o/i;
 const REF_ASK = /\bintroduc\w*|\brefer\w*|\brecomend\w*|\brecomiend\w*|\bpresentaci\w*|\b(?:neighbou?rs?|friends?|vecin[oa]s?|amig[oa]s?)\b[^.!?]{0,40}\b(?:asks?|needs?|mention|tell|pregunta|necesita)\b/i;
 const CLAIM_RX = /\b(?:insurance|insurer|claim|adjuster|policy|seguro|aseguranza|aseguradora|reclamo|ajustador|p[oó]liza)\b/i;
+/* v10 (round 49): Spanish register. "Tú" words said to an adult homeowner are a coaching note (the "usted" check on the
+   scorecard), never a legal flag. English sentences, a line asking permission ("¿le puedo hablar de tú?") and anything
+   after the homeowner invites "tú" don't count. */
+const TU_RX = /(?:^|[^\wáéíóúñü])(?:tú|tu|tus|te|ti|contigo|tuy[oa]s?|vos|eres|estás|tienes|quieres|puedes|sabes|necesitas|vives|vas|oye|mira|dime|déjame|dejame|fíjate|fijate|tenés|querés|podés|sabés)(?=$|[^\wáéíóúñü])/i;
+const TU_ASK = /de t[uú](?![\wáéíóúñü])|tute[aá]/i;
+const TU_INVITE = /h[aá]bl[ae]me de t[uú]|me puedes? hablar de t[uú]|puede(?:s)? tutearme|tut[eé](?:e|a)me|de t[uú] est[aá] bien|tr[aá]tame de t[uú]/i;
+const EN_RX = /\b(?:the|you|your|and|is|it|to|we|of|for|with|what|can|this|that|my|our)\b/gi;
+function tuUsed(turns) {
+  for (const x of turns) {
+    if (x.role !== 'user') { if (TU_INVITE.test(x.content)) return false; continue; }
+    for (const s of (String(x.content).match(/[^.!?;\n]+[.!?;]*/g) || [])) {
+      if (new Set((s.match(EN_RX) || []).map(w => w.toLowerCase())).size >= 2 || TU_ASK.test(s)) continue;
+      if (TU_RX.test(s)) return true;
+    }
+  }
+  return false;
+}
 const localFlags = () => S.turns.filter(x => x.role === 'user').flatMap(x => legalScan(x.content, scanOpt(S.actual)));
 /* v9: which extra rules apply to this homeowner (HOA unit owner, price over the phone). */
 function scanOpt(k) { const p = P[k] || {}; return { hoa: !!p.hoa, phone: !!p.phone }; }
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, '').replace(/\s+/g, ' ').trim();
 
 /* ---------- Prompts ---------- */
+/* v10 (round 49): a Spanish talk = a Spanish session, or Kenny switched to Spanish. Adds the "usted" check. */
+function esTalk() { return S.sessionLang === 'es' || spanishCount(S.turns.filter(x => x.role === 'user').map(x => x.content).join(' ')) >= 3; }
 function rulesText() {
   const sc = S.sc, p = P[S.actual], es = S.sessionLang === 'es';
   let langRule;
@@ -1587,7 +1865,7 @@ function rulesText() {
 }
 
 /* The legal rule list, shared by the scorecard coach, the drill grader and the field-answer writer (v4). */
-const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact"); pressured with "both spouses (or owners) have to be here or there\'s no deal", or a price or deal that only holds if everyone signs now (type "pressure"; asking whose name is on the house so the right owner signs, or offering to come back when a co-owner is home, is fine and is a proper paperwork step); told a homeowner who already signed with another contractor to cancel, back out of or get out of that contract, or offered to help cancel it (type "coach_cancel"; stating as a plain fact that Nebraska gives 3 business days to cancel and that it is their decision is fine); said another contractor\'s signed contract is not valid or binding, or scared them with "they\'ll disappear with your deposit" or "storm chasers are all crooks" without proof (type "disparage"; false claims about a named company can also be "competitor"); called normal wear storm damage, suggested filing a claim for damage that is not there, or said "there\'s always something an adjuster will find" (type "fraud"); told a condo, townhome or HOA unit owner to file the roof claim themselves (the roof is common property: the association files under its master policy and the board decides), talked dollar amounts of their deductible share or a special assessment, offered to cover or reduce an assessment, or took a signature or deposit from a unit owner for master-roof work (type "hoa_claim"); gave a firm price sight-unseen (over the phone, by text, or without looking), or promised to beat or match any price (type "quote"; a wide range said out loud as "a range, not final", followed by asking for the free look, is fine); talked a homeowner out of getting other bids, like "you don\'t need other bids" or "don\'t waste your time with them" (type "bids").';
+const LEGAL_LIST = 'offered or hinted to cover, waive, rebate, discount or "take care of" the deductible, or said the roof or repair would cost nothing (type "deductible", Nebraska 44-8604); promised or guaranteed that insurance will pay, cover or approve (type "promise"); said HMP will negotiate, handle, settle or fight the claim, or argue with the insurer or adjuster on their behalf, which is public adjuster work and needs a license (type "negotiate"); made false or unprovable bad claims about another named company, like "they\'re not licensed" or "they\'re scammers" (type "competitor"); pushed for a same-day signature, said the deal is only good today, or skipped or downplayed the 3 business days to cancel a door-to-door contract (type "cancel"); pitched in Spanish but asked for a signature on an English-only paper, or said to sign without reading (type "language"); let or asked someone who is not the owner, like a manager, renter or relative, sign for the owner (type "authority"); agreed to a fake, padded or lowered invoice, billing insurance for work not done, or a "keep the difference" deal (type "fraud"); guaranteed resale value, a price bump when selling, loan approval, an interest rate or payments (type "guarantee"); promised or guaranteed energy savings, lower bills or a savings number like "you\'ll save 30% on heating" (type "energy"; saying insulated vinyl can add some R-value and savings depend on the home is fine); said HMP is "licensed" or "licensed and insured" (HMP is registered with the state of Nebraska and insured, so the right word is "registered") (type "license"); offered a gift, gift card, money, a discount or any reward for a referral (a thank-you is fine) (type "referral"); asked for or accepted an owner\'s or landlord\'s personal cell phone, personal number or home address instead of a business or office line (type "contact"); pressured with "both spouses (or owners) have to be here or there\'s no deal", or a price or deal that only holds if everyone signs now (type "pressure"; asking whose name is on the house so the right owner signs, or offering to come back when a co-owner is home, is fine and is a proper paperwork step); told a homeowner who already signed with another contractor to cancel, back out of or get out of that contract, or offered to help cancel it (type "coach_cancel"; stating as a plain fact that Nebraska gives 3 business days to cancel and that it is their decision is fine); said another contractor\'s signed contract is not valid or binding, or scared them with "they\'ll disappear with your deposit" or "storm chasers are all crooks" without proof (type "disparage"; false claims about a named company can also be "competitor"); called normal wear storm damage, suggested filing a claim for damage that is not there, or said "there\'s always something an adjuster will find" (type "fraud"); told a condo, townhome or HOA unit owner to file the roof claim themselves (the roof is common property: the association files under its master policy and the board decides), talked dollar amounts of their deductible share or a special assessment, offered to cover or reduce an assessment, or took a signature or deposit from a unit owner for master-roof work (type "hoa_claim"); gave a firm price sight-unseen (over the phone, by text, or without looking), or promised to beat or match any price (type "quote"; a wide range said out loud as "a range, not final", followed by asking for the free look, is fine); talked a homeowner out of getting other bids, like "you don\'t need other bids" or "don\'t waste your time with them" (type "bids"); said or implied the homeowner\'s insurance rate or premium won\'t or can\'t go up, that the insurer can\'t or won\'t drop, cancel or non-renew them, or that a hail or "act of God" claim won\'t count against them (type "rate"; the only approved answer: whether or how they file is between them and their insurance company, and HMP can document the damage with photos, no obligation to file).';
 
 /* v9 (T153, T150, price_objections.json): scenario checks. Graded strictly: only the coach's "pass":true passes, and a
    local backup can still fail it (see LOCAL in computeScore). */
@@ -1603,7 +1881,7 @@ function coachPrompt() {
   const sc = S.sc, p = P[S.actual];
   const outLang = S.lang === 'es' ? 'Spanish (talk to Kenny with "tú")' : 'English';
   const tr = S.turns.map(x => (x.role === 'user' ? 'KENNY: ' : 'HOMEOWNER: ') + x.content).join('\n');
-  const cash = kindOf(S.actual) === 'cash', mustEs = !!p.mustEs && S.sessionLang !== 'es';
+  const cash = kindOf(S.actual) === 'cash', mustEs = !!p.mustEs && S.sessionLang !== 'es', esT = esTalk();
   /* v5: first-line rule (69-1602), Spanish switch, deductible, 3-day form, referral, claim talk (T107). Optional checks say "applies". */
   const ck = [
     'intro: in his FIRST line at the door he said all four: his name, HMP (Siding & Roofing), that they are local / from Fremont, and what HMP sells or offers (roofs, siding, a free inspection or estimate). Nebraska 69-1602 wants this said first thing. Saying "HMP Siding & Roofing" counts as what they sell. Missing any one of the four in the first line = FAIL.',
@@ -1614,6 +1892,7 @@ function coachPrompt() {
     'objection: he handled the main objection calmly: acknowledged it, answered short and honest, no pressure or arguing. If the objection never came up, judge how calm he stayed.' + (cash ? ' On price, a good move is asking what number they had in mind and comparing options (like vinyl vs Hardie); just cutting the price is weak.' : ''),
     ...(cash ? ['nextdate (cash visits only): before the talk ended he locked a specific next date: a day and/or time to come back, bring the written estimate or call ("Saturday at 10", "Tuesday evening", "the first week of March"). "I\'ll call you", "sometime" or "whenever you\'re ready" FAIL. If he never asked for a next step, FAIL.'] : []),
     ...(mustEs ? ['spanish: this homeowner prefers Spanish. PASS only if Kenny switched to Spanish as soon as they asked (or right after their first reply) and stayed in Spanish.'] : []),
+    ...(esT ? ['usted: this talk was in Spanish with an adult homeowner. PASS if Kenny kept "usted" (usted, le, su, puede, disculpe, mire) the whole time; FAIL if he used "tú" (tú, te, tu, puedes, quieres, oye, mira) before the homeowner invited it. Asking "¿le puedo hablar de tú?" is fine. This is a coaching point about respect, not a legal problem: never add a legal flag or fail the legal check for it.'] : []),
     'nodeduct: he did not talk about the deductible, except to say it is always the homeowner\'s part. Any other deductible talk (discounts, "we\'ll work with you on it", "don\'t worry about it", ways around it) FAIL. Never mentioning it is a PASS.',
     'cancelform: ONLY if signing, a contract or starting the job came up: he offered or explained the 3-day cancel form (3 business days to cancel, in writing) before any signature, with no pressure. If signing never came up, give {"id":"cancelform","applies":false}.',
     'referral: ONLY if referrals came up (he asked for one, or the homeowner offered to send someone): he took it as a compliment with a thank-you only, never a gift, gift card, money, discount or reward. If referrals never came up, give {"id":"referral","applies":false}.',
@@ -1642,7 +1921,7 @@ function coachPrompt() {
     focusLine() + ' In "focus", say if this skill came up in this talk (applies) and if he did it (pass), with a note under 15 words. If he missed it, make the first "next" tip about it.',
     '',
     'Reply with only this JSON, no other text:',
-    '{"checks":[' + ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + (p.extra || []).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
+    '{"checks":[' + ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"objection","pass":true,"note":"..."},' + (cash ? '{"id":"nextdate","pass":false,"note":"..."},' : '') + (mustEs ? '{"id":"spanish","pass":true,"note":"..."},' : '') + (esT ? '{"id":"usted","pass":true,"note":"..."},' : '') + (p.extra || []).map(id => '{"id":"' + id + '","pass":true,"note":"..."},').join('') + '{"id":"nodeduct","pass":true,"note":"..."},{"id":"cancelform","applies":false},{"id":"referral","applies":false},{"id":"claimtalk","applies":true,"pass":true,"note":"..."},{"id":"legal","pass":true,"note":"..."}],"legal_flags":[],"outcome":"yes","best_line":"one short line Kenny said, quoted exactly","next":["tip one","tip two"],"focus":{"applies":true,"pass":false,"note":"..."}}',
     'legal_flags stays [] when he stayed legal. Otherwise add one item per illegal line: {"quote":"Kenny\'s exact words","type":one of ' + TYPES.map(x => '"' + x + '"').join(', ') + '}, and set the legal check to false (except a "neighbor" flag alone, see above).',
     'outcome is "yes" (homeowner agreed to a look, an estimate or a time, or gave the owner\'s or manager\'s office line), "maybe" or "no". next has exactly 2 concrete things to try next time, each a line to say or a move to make.'
   ].join('\n');
@@ -1782,6 +2061,13 @@ async function semanticCheck(sample, lines) {
 
 /* ---------- Rendering helpers ---------- */
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+/* v10: an icon from the sprite, e.g. ico('door'). Decorative: the words next to it carry the meaning. */
+function ico(name, cls) {
+  const NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg'), u = document.createElementNS(NS, 'use');
+  s.setAttribute('class', 'i' + (cls ? ' ' + cls : '')); s.setAttribute('aria-hidden', 'true');
+  u.setAttribute('href', '#i-' + name); s.append(u);
+  return s;
+}
 const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function scrollEnd() { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' }); }
 
@@ -1846,7 +2132,17 @@ function renderSetup() {
     const wide = mates.length % 2 === 1 && mates[mates.length - 1] === k;
     const b = el('button', 'who' + (k === 'random' ? ' who-random' : '') + (wide ? ' who-wide' : ''));
     b.type = 'button'; b.dataset.p = k; b.setAttribute('aria-pressed', String(S.persona === k));
-    b.append(el('span', 'who-name', p.label[Li()]), el('span', 'who-tag', p.tag[Li()]));
+    /* v10: icon tile, a check ring when picked, then difficulty + language chips. */
+    const lk = LOOK[k] || ['user', 0], tile = el('span', 'who-ic'), ck = el('span', 'who-ck');
+    tile.append(ico(lk[0])); ck.append(ico('check'));
+    b.append(tile, ck, el('span', 'who-name', p.label[Li()]), el('span', 'who-tag', p.tag[Li()]));
+    if (k !== 'random') {
+      const chips = el('span', 'who-chips'), lv = el('span', 'chip'), bars = el('span', 'lvl'), lg = el('span', 'chip');
+      for (let i = 1; i <= 3; i++) bars.append(el('i', i <= lk[1] ? 'on' : ''));
+      lv.append(bars, document.createTextNode(t('lvl' + lk[1])));
+      lg.append(ico('globe'), document.createTextNode(t(langChip(k))));
+      chips.append(lv, lg); b.append(chips);
+    }
     b.addEventListener('click', () => { S.persona = k; S.store.persona = k; saveStore(); fitScenario(k); renderSetup(); });
     g.append(b);
   }
@@ -1979,8 +2275,10 @@ function renderCheat(box, all) {
   p.append(document.createTextNode(pre), el('b', null, date), document.createTextNode(post));
   }
   op.append(p);
-  /* v7 (T131, research round 27): body language before the first word. */
-  op.append(el('div', 'eyebrow', t('first3T')), el('p', 'first3', t('first3')));
+  /* v7 (T131, research round 27) + v10 (round 47): body language before the first word, in the order it happens. */
+  const f3 = el('ol', 'first3'), tips = T.first3tips[Li()];
+  for (const x of [tips[0], tips[1], t('first3'), tips[2]]) f3.append(el('li', null, x));
+  op.append(el('div', 'eyebrow', t('first3T')), f3);
   const ob = el('section'); ob.append(el('div', 'eyebrow', t('ifTheySay')));
   const list = el('div', 'objs');
   const objs = all ? OBJ : OBJ.filter(o => objFor(o).includes(who)).concat(OBJ.filter(o => !o[2]));
@@ -1996,11 +2294,32 @@ function renderCheat(box, all) {
   const nevers = all ? TYPES : CHEAT_BASE.concat((who && P[who].traps) || []).filter((k, i, a) => a.indexOf(k) === i);
   for (const k of nevers) {
     const d = el('div');
-    d.append(el('b', null, t('n_' + k) + ' · ' + t('r_' + k)), el('span', null, t('sayInstead') + ' ' + t(fixKey(k, who))));
+    d.append(ico('ban'), el('b', null, t('n_' + k) + ' · ' + t('r_' + k)), el('span', null, t('sayInstead') + ' ' + t(fixKey(k, who))));
     nb.append(d);
   }
   nv.append(nb);
+  /* v10 (round 47): the pro-line library, grouped and folded so the sheet stays short. */
+  const pro = el('details', 'pro'), sum = el('summary'), shown = PRO.filter(x => !PRO_ON_HOLD.has(x.id)), pl = el('div', 'objs');
+  sum.append(el('span', null, t('proT')), el('span', 'pro-n', String(shown.length)), ico('chevd'));
+  let pg = null;
+  for (const x of shown) {
+    if (x.g !== pg) { pl.append(el('div', 'eyebrow', t('pg_' + x.g))); if (x.g === 'open') pl.append(el('div', 'pl-tip', t('proOpenNote'))); pg = x.g; }
+    const d = el('div', 'obj pl'); d.append(el('div', 'pl-l', x.l[Li()]), el('div', 'pl-a', x.a[Li()])); pl.append(d);
+  }
+  pro.append(sum, pl);
   box.append(op, ob);
+  /* v10 (round 49): the Spanish sale playbook, folded, for Spanish-speaking homeowners and in Spanish mode. */
+  if (all || S.lang === 'es' || (who && grpOf(who) === 'es')) {
+    const pb = el('details', 'pro'), ps = el('summary'), pbl = el('div', 'objs');
+    ps.append(el('span', null, t('playT')), el('span', 'pro-n', String(PLAY.length)), ico('chevd'));
+    for (const x of PLAY) {
+      const d = el('div', 'obj pl'); d.append(el('div', 'pl-l', x.l[Li()]), el('div', 'pl-a', x.es));
+      if (x.n[Li()]) d.append(el('div', 'pl-n', x.n[Li()]));
+      pbl.append(d);
+    }
+    pb.append(ps, pbl); box.append(pb);
+  }
+  box.append(pro);
   if (all || (who && kindOf(who) === 'cash')) {
     const cm = el('section'); cm.append(el('div', 'eyebrow', t('cmpT')));
     const wrap = el('div', 'cmp-wrap'), tb = el('table', 'cmp');
@@ -2019,13 +2338,19 @@ function renderCheat(box, all) {
   box.append(nv);
 }
 /* v9 (T150): for an HOA unit owner, "you file the claim" and "the deductible is your part" are the wrong fixes. */
-function fixKey(type, who) { return who && P[who] && P[who].hoa && (type === 'negotiate' || type === 'deductible') ? 'f_hoa_claim' : 'f_' + type; }
+function fixKey(type, who) {
+  const p = (who && P[who]) || {};
+  if (p.hoa && (type === 'negotiate' || type === 'deductible')) return 'f_hoa_claim';
+  if (p.after && type === 'fraud') return 'f_nodmg';
+  return 'f_' + type;
+}
 function claimCard() {
   const sec = el('section'); sec.append(el('div', 'eyebrow', t('claimT')));
   const wrap = el('div', 'claim');
   for (const [lab, list, cls] of [[t('canL'), T.canList[Li()], 'can'], [t('cantL'), T.cantList[Li()], 'cant']]) {
     const col = el('div', 'claim-col ' + cls);
-    col.append(el('b', null, lab));
+    const hb = el('b'); hb.append(ico(cls === 'can' ? 'check2' : 'ban'), document.createTextNode(lab));
+    col.append(hb);
     const ul = el('ul'); for (const x of list) ul.append(el('li', null, x));
     col.append(ul); wrap.append(col);
   }
@@ -2039,6 +2364,7 @@ function closeSheet() { $('sheet').hidden = true; }
 function renderDoorHead() {
   const sc = S.sc;
   $('plateNum').textContent = String(sc.num);
+  const av = $('doorAv'); av.textContent = ''; av.append(ico(avIcon(), 'i-lg'));
   $('doorChip').textContent = t('practiceN', S.store.count + (S.committed ? 0 : 1));
   if (S.rookieOn) $('doorChip').append(el('span', 'rk-chip', t('rookieT')));
   $('doorWho').textContent = S.persona === 'random' ? t('mystery') : P[S.actual].label[Li()];
@@ -2070,8 +2396,9 @@ function setHomeText(bubble, text) {
   }
 }
 function addHome() {
-  const m = el('div', 'msg home');
-  m.append(el('div', 'lab', t('atDoor')));
+  const m = el('div', 'msg home'), mav = el('span', 'mav');
+  mav.append(ico(avIcon()));
+  m.append(mav, el('div', 'lab', t('atDoor')));
   const body = el('div', 'body');
   const dots = el('span', 'typing'); dots.setAttribute('aria-label', '…'); dots.append(el('i'), el('i'), el('i'));
   body.append(dots); m.append(body);
@@ -2195,6 +2522,7 @@ const HINT_RX = [
   ['h_phone', /\bover the phone\b|\bby text\b|\bno need to come out\b|\bpor tel[eé]fono\b|\bsin venir\b/i],
   ['h_sign', /\bsign\b|\bcontract\b|\bstart (?:next week|monday|tomorrow)|\bfirm(?:o|a|e|ar)\b|\bcontrato\b|\bempiezan\b/i],
   ['h_deduct', /deductib|deducib/i],
+  ['h_rate', /\b(?:my|our|the) (?:insurance )?(?:rates?|premiums?) (?:will|would|might|could|is going to|are going to|go(?:es)? up)|\bpremiums?\b|\binsurance (?:will|would|might|could|is going to) (?:go up|drop|raise|cancel)|\bdrop (?:me|us)\b|\b(?:raise|up) (?:my|our) (?:rates?|premiums?|insurance)\b|\bme (?:va a )?sub(?:e|ir)\b[^.?!]{0,20}\bseguro|\bprima\b|\bme (?:quitan|cancelan|van a quitar|van a cancelar)\b/i],
   ['h_license', /licen[sc]/i],
   ['h_referral', /\b(?:send (?:my |your )?(?:sister|brother|friend|neighbou?r)|your way|refer\w*|recomiend\w*|mando a mi|hermana)\b/i],
   ['h_contact', /\b(?:cell|personal (?:number|phone)|celular)\b/i],
@@ -2330,18 +2658,20 @@ function computeScore(data) {
     nodeduct: () => (has(['deductible']) || kenny.some(dedTalk)) ? { ok: false, note: t('deductMiss') } : { ok: true },
     cancelform: () => (has(['cancel']) || !kenny.some(x => CANCEL_OK.test(x))) ? { ok: false, note: t('cancelMiss') } : { ok: true, note: t('cancelAuto') },
     referral: () => has(['referral']) ? { ok: false, note: t('r_referral') } : { ok: true },
-    claimtalk: () => has(['negotiate', 'promise', 'deductible']) ? { ok: false, note: t('claimMiss') } : { ok: true },
+    claimtalk: () => has(['negotiate', 'promise', 'deductible', 'rate']) ? { ok: false, note: t('claimMiss') } : { ok: true },
     /* v9 scenario checks (strict: the coach must say pass, and these can still fail it). */
     threeday: () => (has(['coach_cancel', 'disparage', 'cancel']) || !kenny.some(x => CANCEL_OK.test(x))) ? { ok: false, note: t('threedayMiss') } : { ok: true },
     honest: () => (has(['fraud', 'promise']) || !kenny.some(x => NODMG_OK.test(x))) ? { ok: false, note: t('honestMiss') } : { ok: true },
     intro_ask: () => has(['referral']) ? { ok: false, note: t('r_referral') } : !kenny.some(x => REF_ASK.test(x)) ? { ok: false, note: t('introAskMiss') } : { ok: true },
     hoa: () => (has(['hoa_claim']) || !kenny.some(x => HOA_OK.test(x))) ? { ok: false, note: t('hoaMiss') } : { ok: true, note: t('hoaAuto') },
     noquote: () => (has(['quote']) || (kenny.some(x => RANGE_RX.test(x) && /\d/.test(x)) && !kenny.some(x => NOT_FINAL.test(x)))) ? { ok: false, note: t('noquoteMiss') } : { ok: true },
-    bidsok: () => has(['bids', 'competitor', 'disparage', 'quote']) ? { ok: false, note: t('bidsMiss') } : { ok: true }
+    bidsok: () => has(['bids', 'competitor', 'disparage', 'quote']) ? { ok: false, note: t('bidsMiss') } : { ok: true },
+    /* v10 (round 49): "usted" with an adult homeowner. A coaching point: it never touches the legal check. */
+    usted: () => tuUsed(S.turns) ? { ok: false, note: t('ustedMiss') } : { ok: true, note: t('ustedAuto') }
   };
-  const TRIGGER = { cancelform: () => home.some(x => SIGN_ASK.test(x)), referral: () => all.some(x => REF_RX.test(x)) || has(['referral']), claimtalk: () => (!cash && all.some(x => CLAIM_RX.test(x))) || has(['negotiate', 'promise']) };
+  const TRIGGER = { cancelform: () => home.some(x => SIGN_ASK.test(x)), referral: () => all.some(x => REF_RX.test(x)) || has(['referral']), claimtalk: () => (!cash && all.some(x => CLAIM_RX.test(x))) || has(['negotiate', 'promise', 'rate']) };
   const skip = p.skip || [], extra = p.extra || [];
-  const ids = ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).concat(['objection'], cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], extra, ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
+  const ids = ['intro', 'storm', 'inspection'].filter(id => !skip.includes(id)).concat(['objection'], cash ? ['nextdate'] : [], mustEs ? ['spanish'] : [], esTalk() ? ['usted'] : [], extra, ['nodeduct', 'cancelform', 'referral', 'claimtalk', 'legal']);
   const checks = [];
   for (const id of ids) {
     const c = got.find(x => x && x.id === id);
@@ -2406,7 +2736,11 @@ function renderScore(data) {
   const oc = data && ['yes', 'maybe', 'no'].includes(data.outcome) ? data.outcome : 'maybe';
   const pill = $('outcomePill');
   pill.textContent = t(oc === 'yes' ? 'outYes' : oc === 'no' ? 'outNo' : 'outMaybe');
+  pill.prepend(ico(oc === 'yes' ? 'check' : oc === 'no' ? 'ban' : 'star'));
   pill.className = 'pill' + (oc === 'yes' ? ' yes' : '');
+  /* v10: one segment per check (green = passed, red = the legal check failed). */
+  const bar = $('scoreBar'); bar.textContent = '';
+  for (const c of checks) bar.append(el('i', c.pass ? 'on' : c.id === 'legal' ? 'bad' : ''));
 
   const ul = $('checks'); ul.textContent = '';
   for (const c of checks) {
@@ -2426,7 +2760,7 @@ function renderScore(data) {
   $('bestWrap').hidden = !best; $('bestLine').textContent = best;
   const nl = $('nextList'); nl.textContent = '';
   const next = (data && Array.isArray(data.next) ? data.next : []).filter(x => typeof x === 'string' && x.trim() && !legalScan(x, scanOpt(S.actual)).length).slice(0, 2);
-  for (const n of next) nl.append(el('li', null, n));
+  for (const n of next) { const li = el('li'); li.append(ico('chev'), el('span', null, n)); nl.append(li); }
   nl.parentElement.hidden = !next.length;
 
   $('scoreLoading').hidden = true; $('scoreErr').hidden = true;
@@ -2522,7 +2856,8 @@ function finishSkill(pass, note, flags, skipped) {
 }
 function renderDrill() {
   const d = S.drill; if (!d) return;
-  const it = d.items[d.i], L = Li(), sum = d.phase === 'summary';
+  /* v9 fix: on the summary d.i is past the end; a skill drill's chip still names its one item (was a JS error). */
+  const it = d.items[Math.min(d.i, d.items.length - 1)], L = Li(), sum = d.phase === 'summary';
   $('drillChip').textContent = d.skill ? t('skillChip') + ' · ' + it.t[L] : t('drillN', Math.min(d.i + 1, d.items.length));
   const pp = $('drillPips'); pp.textContent = ''; pp.hidden = !!d.skill;
   if (!d.skill) for (let i = 0; i < d.items.length; i++) pp.append(el('i', i < d.res.length ? 'on' : ''));

@@ -92,7 +92,7 @@
                 es: "Lo del deducible nunca se traduce en vivo. Lea el aviso fijo del deducible." } },
     { id: "insurance_promise", legal: null, block: false,
       re: /\b(insurance|insurer|seguro|aseguradora)\b[^.?!]{0,40}\b(will|is going to|gonna|va a|van a|pagar[áa]n?)\b[^.?!]{0,20}\b(pay|cover|approve|pagar|cubrir|aprobar)/i,
-      reason: { en: "Sounds like a promise that insurance will pay. Say 'the adjuster decides'.",
+      reason: { en: "Sounds like a promise that insurance will pay: never promise that. Say 'the adjuster decides'.",
                 es: "Suena a promesa de que el seguro pagará. Diga 'el ajustador decide'." } },
     { id: "cancel_terms", legal: "cancel_notice", block: true,
       re: /\b(right to cancel|cancel (?:this|the) (?:contract|transaction)|three business days|3 business days|derecho a cancelar|cancelar (?:el|este) contrato|tres días hábiles|3 días hábiles)\b/i,

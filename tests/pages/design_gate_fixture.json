@@ -1,0 +1,136 @@
+{
+  "contrastIgnoreSelectors": [".bar .mark", ".bar .mark svg", ".mark svg"],
+  "_comment_contrastIgnoreSelectors": "Brand logo marks (the orange HMP roof-chevron in the header) - exempt from contrast/contrast-icon checks. Also skipped: any element with data-gate-ignore=\"logo\" on it or an ancestor, wherever a page marks one directly.",
+  "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses.",
+  "collections": {
+    "leads": {
+      "615-n-linden-ave": {
+        "address": "615 N Linden Ave", "city": "Fremont", "first_name": "Rosa", "phone": "402-555-0123",
+        "source": "storm", "type": "insurance", "stage": "inspection_set",
+        "next_step": {"en": "Inspection today 4 PM, bring the ladder", "es": "Inspección hoy 4 PM, lleva la escalera", "due": "2026-09-27"},
+        "notes": "Hail dents on the gutters, north side.",
+        "doors_visits": [{"date": "2026-09-25", "result": "interested", "pass": 1}],
+        "created_at": "2026-09-23T14:00:00Z", "updated_at": "2026-09-26T19:00:00Z", "updated_by": "King (live)"
+      },
+      "2210-e-military-ave": {
+        "address": "2210 E Military Ave", "city": "Fremont", "first_name": "Dale",
+        "source": "everyday", "type": "cash", "stage": "approved", "contract_price": 14800, "deposit": 4000, "paid": 4000,
+        "next_step": {"en": "Order Hardie lap siding", "es": "Pedir siding Hardie", "due": "2026-09-28"},
+        "estimate": {"low": 13600, "high": 16900, "job": {"type": "siding", "material": "hardie", "siding_squares": 20, "stories": 2}, "at": "2026-08-18T18:00:00Z", "using_reference": false},
+        "payments": [{"kind": "deposit", "amount": 4000, "due": "2026-09-01", "paid_on": "2026-09-01"}, {"kind": "progress", "amount": 5400, "due": "2026-09-22"}, {"kind": "final", "amount": 5400, "due": "2026-10-20"}],
+        "created_at": "2026-08-08T14:00:00Z", "updated_at": "2026-09-26T15:00:00Z", "updated_by": "King (live)"
+      },
+      "1802-n-clarkson-st": {
+        "address": "1802 N Clarkson St", "city": "Fremont",
+        "source": "storm", "type": "insurance", "stage": "contacted",
+        "next_step": {"en": "Call back to set the inspection", "es": "Llamar para agendar la inspección", "due": "2026-09-26"},
+        "doors_visits": [{"date": "2026-09-24", "result": "interested", "pass": 2}],
+        "created_at": "2026-09-24T20:00:00Z", "updated_at": "2026-09-24T20:00:00Z", "updated_by": "Today’s knock"
+      },
+      "1418-n-irving-st": {
+        "address": "1418 N Irving St", "city": "Fremont", "first_name": "Maria", "phone": "402-555-0199", "lang": "es",
+        "source": "storm", "type": "insurance", "stage": "contacted",
+        "next_step": {"en": "Call back to set the inspection", "es": "Llamar para agendar la inspección", "due": "2026-09-26"},
+        "estimate": {"low": 10450, "high": 12950, "job": {"type": "roof", "roof_squares": 23, "stories": 1, "pitch": "std", "layers": 1}, "at": "2026-09-20T18:00:00Z", "using_reference": true},
+        "doors_visits": [{"date": "2026-09-25", "result": "interested", "pass": 1}],
+        "created_at": "2026-09-23T14:00:00Z", "updated_at": "2026-09-23T14:00:00Z", "updated_by": "Today’s knock"
+      },
+      "945-w-9th-st": {
+        "address": "945 W 9th St", "city": "Fremont", "first_name": "Luis",
+        "source": "referral", "type": "insurance", "stage": "claim_filed",
+        "next_step": {"en": "Adjuster meeting Wed 10 AM", "es": "Cita con el ajustador miércoles 10 AM", "due": "2026-10-01"},
+        "created_at": "2026-09-14T14:00:00Z", "updated_at": "2026-09-25T19:00:00Z", "updated_by": "King (live)"
+      },
+      "310-e-5th-st": {
+        "address": "310 E 5th St", "city": "Fremont",
+        "source": "everyday", "type": "cash", "stage": "lost",
+        "next_step": {"en": "Went with another roofer", "es": "Se fue con otro techero", "due": "2026-09-18"},
+        "created_at": "2026-08-28T14:00:00Z", "updated_at": "2026-09-19T14:00:00Z"
+      },
+      "88-w-12th-st": {
+        "address": "88 W 12th St", "city": "Fremont", "first_name": "Hector",
+        "source": "everyday", "type": "cash", "stage": "done", "contract_price": 9200,
+        "payments": [{"kind": "deposit", "amount": 3000, "due": "2026-07-20", "paid_on": "2026-07-20"}, {"kind": "progress", "amount": 3000, "due": "2026-08-01", "paid_on": "2026-08-02"}, {"kind": "final", "amount": 3200, "due": "2026-08-14", "paid_on": "2026-08-14"}],
+        "next_step": {"en": "Collect the final payment", "es": "Cobrar el pago final", "due": "2026-08-14"},
+        "created_at": "2026-06-01T14:00:00Z", "updated_at": "2026-08-14T14:00:00Z"
+      }
+    },
+    "claims": {
+      "945-w-9th-st": {
+        "address": "945 W 9th St", "city": "Fremont", "homeowner_first_name": "Luis",
+        "stage": "claim_filed", "insurer": "State Farm", "claim_no": "45-889", "date_of_loss": "2026-09-24", "deductible": 1000,
+        "next_step": {"en": "Meet the adjuster Wed 10 AM with photos", "es": "Reunirse con el ajustador miércoles 10 AM con fotos", "due": "2026-10-01"},
+        "updated_at": "2026-09-25T19:00:00Z", "updated_by": "King (live)"
+      },
+      "1107-n-h-st": {
+        "address": "1107 N H St", "city": "Fremont", "homeowner_first_name": "Ann",
+        "stage": "materials_ordered", "insurer": "Farm Bureau", "claim_no": "FB-2231", "date_of_loss": "2026-07-01",
+        "rcv": 18400, "acv": {"amount": 12100, "received": "2026-08-20"}, "depreciation_held": 5300,
+        "mortgage": {"company": "US Bank", "check_sent": "2026-08-22"},
+        "supplements": [{"date": "2026-09-02", "item": {"en": "Drip edge", "es": "Gotero"}, "asked": 640, "approved": 640}, {"date": "2026-09-05", "item": {"en": "Starter strip", "es": "Tira de arranque"}, "asked": 380}],
+        "materials": {"ordered": "2026-09-20", "supplier": "ABC Supply", "cost": 7200},
+        "contract_price": 19040, "deductible": 1000,
+        "next_step": {"en": "Call US Bank about the check", "es": "Llamar a US Bank por el cheque", "due": "2026-09-25"},
+        "updated_at": "2026-09-24T14:00:00Z", "updated_by": "King (live)"
+      },
+      "2020-e-6th-st": {
+        "address": "2020 E 6th St", "city": "Fremont", "stage": "paid", "insurer": "Allstate",
+        "rcv": 9800, "acv": {"amount": 7000, "received": "2026-06-01", "deposited": "2026-06-02"},
+        "depreciation_held": 2800, "depreciation_check": {"amount": 2800, "date": "2026-08-01"}, "contract_price": 9800,
+        "updated_at": "2026-08-01T14:00:00Z"
+      }
+    },
+    "doors": {
+      "2026-09-27_31053-linden-1400": {"date": "2026-09-27", "pid": "31053-linden-1400", "address": "1400 N Linden Ave", "city": "Fremont", "result": "not_home", "pass": 1, "at": "2026-09-27T14:05:00Z"},
+      "2026-09-27_31053-linden-1404": {"date": "2026-09-27", "pid": "31053-linden-1404", "address": "1404 N Linden Ave", "city": "Fremont", "result": "no", "pass": 1, "at": "2026-09-27T14:09:00Z"},
+      "2026-09-27_31053-linden-1408": {"date": "2026-09-27", "pid": "31053-linden-1408", "address": "1408 N Linden Ave", "city": "Fremont", "result": "interested", "pass": 1, "at": "2026-09-27T14:13:00Z"},
+      "2026-09-27_31053-irving-615": {"date": "2026-09-27", "pid": "31053-irving-615", "address": "615 N Irving St", "city": "Fremont", "result": "booked", "pass": 1, "at": "2026-09-27T14:20:00Z"},
+      "2026-09-27_31053-irving-619": {"date": "2026-09-27", "pid": "31053-irving-619", "address": "619 N Irving St", "city": "Fremont", "result": "not_home", "pass": 1, "at": "2026-09-27T14:24:00Z", "come_back": {"date": "2026-09-27", "time": "17:30"}}
+    },
+    "dnk": {
+      "1412-n-irving-st": {"address": "1412 N Irving St", "city": "Fremont", "at": "2026-09-20T14:00:00Z", "by": "FilthE"}
+    },
+    "evidence": {
+      "615-n-linden-ave-fremont": {"day": "2026-09-24", "hail_in": 2.0, "nearest_report": {"dist_mi": 0.4, "size_in": 1.75, "source": "lsr"}, "radar_max_in": 2.25},
+      "1418-n-irving-st-fremont": {"day": "2026-09-24", "hail_in": 1.75, "nearest_report": {"dist_mi": 0.8, "size_in": 1.5, "source": "lsr"}, "radar_max_in": 2.0}
+    }
+  },
+  "docs": {
+    "today/walk": {
+      "date": "2026-09-27", "area": "North Fremont, Irving to Linden", "kind": "storm", "list_id": "2026-09-24_Fremont",
+      "why": {"en": "1.75-inch hail hit these streets on Sep 24, and most of these homes were built before 1990.",
+              "es": "Granizo de 1.75 pulgadas pegó en estas calles el 24 de septiembre, y la mayoría de estas casas son de antes de 1990."},
+      "goal_doors": 25,
+      "stops": [
+        {"pid": "31053-linden-1400", "address": "1400 N Linden Ave", "city": "Fremont", "lat": 41.4418, "lon": -96.4981, "pass": 1, "year_built": 1961, "sqft": 1780,
+         "rough": {"low": 11500, "high": 24650, "kind": "siding", "rough": true, "material": "vinyl", "stories": [1, 2], "using_reference": true},
+         "house_line": {"en": "Built 1961 · ~1,780 sq ft · vinyl siding about $11,500-$24,650", "es": "Construida en 1961 · ~1,780 pies² · siding de vinil aprox. $11,500-$24,650"}},
+        {"pid": "31053-linden-1404", "address": "1404 N Linden Ave", "city": "Fremont", "lat": 41.4427, "lon": -96.4981, "pass": 1, "year_built": 1958, "sqft": 1240,
+         "rough": {"low": 9650, "high": 20400, "kind": "siding", "rough": true, "material": "vinyl", "stories": [1], "using_reference": true},
+         "house_line": {"en": "Built 1958 · ~1,240 sq ft · vinyl siding about $9,650-$20,400", "es": "Construida en 1958 · ~1,240 pies² · siding de vinil aprox. $9,650-$20,400"}},
+        {"pid": "31053-linden-1408", "address": "1408 N Linden Ave", "city": "Fremont", "lat": 41.4436, "lon": -96.4981, "pass": 1, "year_built": 1972, "sqft": 2050,
+         "rough": {"low": 12350, "high": 26450, "kind": "siding", "rough": true, "material": "vinyl", "stories": [1, 2], "using_reference": true}},
+        {"pid": "31053-linden-1412", "address": "1412 N Linden Ave", "city": "Fremont", "lat": 41.4445, "lon": -96.4981, "pass": 1},
+        {"pid": "31053-irving-615", "address": "615 N Irving St", "city": "Fremont", "lat": 41.4418, "lon": -96.4960, "pass": 1, "year_built": 1965, "sqft": 1600,
+         "rough": {"low": 10800, "high": 22900, "kind": "siding", "rough": true, "material": "vinyl", "stories": [1, 2], "using_reference": true},
+         "house_line": {"en": "Built 1965 · ~1,600 sq ft · vinyl siding about $10,800-$22,900", "es": "Construida en 1965 · ~1,600 pies² · siding de vinil aprox. $10,800-$22,900"}},
+        {"pid": "31053-irving-619", "address": "619 N Irving St", "city": "Fremont", "lat": 41.4427, "lon": -96.4960, "pass": 1},
+        {"pid": "31053-irving-623", "address": "623 N Irving St", "city": "Fremont", "lat": 41.4436, "lon": -96.4960, "pass": 1},
+        {"pid": "31053-irving-627", "address": "627 N Irving St", "city": "Fremont", "lat": 41.4445, "lon": -96.4960, "pass": 1},
+        {"pid": "31053-e16th-700", "address": "700 E 16th St", "city": "Fremont", "lat": 41.4447, "lon": -96.4930, "pass": 1},
+        {"pid": "31053-e16th-704", "address": "704 E 16th St", "city": "Fremont", "lat": 41.4447, "lon": -96.4921, "pass": 1}
+      ],
+      "spanish_share": 0.4, "who": "either", "est_minutes": 99, "walk_mi": 1.2, "drive_from_home_mi": 0.6,
+      "best_time": {"en": "Best time to knock this Sunday: 10 AM-5 PM.", "es": "Mejor hora para tocar puertas este domingo: de 10 a. m. a 5 p. m.", "start": "10:00", "end": "17:00"},
+      "goal_note": {"en": "25 doors is a starting session, not a full day.", "es": "25 puertas son una sesión para empezar, no un día completo."},
+      "stale": false, "stale_note": null, "data_age_hours": 22.5,
+      "rough_note": {"en": "Siding prices are rough, from the county's house size (market prices, not HMP's yet; stories unknown, so 1 to 2 stories). Estimate range, not final: measure before quoting. For insurance jobs: the insurer's approved scope sets the price.",
+                     "es": "Precios de siding aproximados, según el tamaño de la casa en el condado (precios del mercado, todavía no los de HMP; no se sabe cuántos pisos, así que de 1 a 2 pisos). Rango estimado, no final: midan antes de dar precio. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."},
+      "evidence_note": {"en": "Hail marks on metal (gutters, vents, wraps) fade in a few weeks: inspect and photograph soon.",
+                        "es": "Las marcas de granizo en el metal (canaletas, ventilas, forros) se borran en unas semanas: inspeccionen y tomen fotos pronto."}
+    },
+    "stats/streak": {"days": 3},
+    "stats/week-2026-39": {"doors": 42, "conversations": 11, "inspections": 3, "estimates": 1, "signed": 1, "week": "2026-39"},
+    "stats/week-2026-38": {"doors": 30, "conversations": 7, "inspections": 2, "estimates": 0, "signed": 0}
+  }
+}

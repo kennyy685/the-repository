@@ -39,9 +39,23 @@ The James Hardie Elite Preferred badge showed up only at Omaha siding specialist
 - The fee and volume numbers weren't found; confirm them with a GAF rep.
 
 Second choice: **James Hardie Elite Preferred**, since HMP already installs Hardie lap siding.
+[CORRECTED 2026-09-27 (round 43 verify): James Hardie's real tiers are Enrolled -> Select -> Preferred
+-> Elite - "Elite Preferred" isn't a real tier name, it conflates the top two. See round 33's update.]
 
 ## Rules
 Never name a competitor to a homeowner. Talk about HMP's own strengths. The hard rules in CLAUDE.md are unchanged.
+
+## Verified 2026-09-27 (round 43)
+BBB profiles themselves block automated fetches with a Cloudflare JS challenge (bbb.org is
+network-reachable but returns "just a moment..." to curl) - so these are WebSearch-corroborated,
+not directly opened, but from independent secondary sources repeating the BBB's own numbers:
+- **Home Pride Contractors:** BBB-accredited since 3/17/1994 (table said 1994 - confirmed), A+
+  rating (confirmed), 4.74/5 average over 117 customer reviews, 11 total complaints in the last 3
+  years. Matches the table's "long delays, leak warranty not honored, insurance paperwork not sent"
+  direction.
+- **ABC Seamless of Fremont:** A+ rated, **not** BBB-accredited (confirmed exactly as the table said).
+- **ABC Seamless of Nebraska** (parent/franchise entity): BBB-accredited, rating **A** (table just
+  said "listed" - now more precise).
 
 ## Sources (search summaries)
 - GAF Nebraska contractor directory: https://www.gaf.com/en-us/roofing-contractors/residential/usa/ne
