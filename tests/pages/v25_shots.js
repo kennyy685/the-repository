@@ -115,6 +115,9 @@ const SHOTS = [
   { name: "money-empty", tab: "money", data: { noMoney: true } }, { name: "money-dark-empty", tab: "money", theme: "dark", data: { noMoney: true } },
   { name: "claim", tab: "money", steps: ['[data-open="claim:1107-n-h-st"]'] },
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
+  // the quick-estimate sheet (+ > Quick price, and a lead's own estimate): no sideways scroll at 360 and 420, EN and ES, light and dark
+  ...[360, 420].flatMap(w => [["en", ""], ["es", ""], ["en", "dark"], ["es", "dark"]].map(([lg, th]) => ({ name: `quick-price-${w}-${lg}${th ? "-" + th : ""}`, tab: "now", width: w, lang: lg, theme: th || undefined, steps: ["#plusBtn", '[data-open="est:"]'] }))),
+  ...[360, 420].map(w => ({ name: `lead-estimate-${w}`, tab: "leads", width: w, steps: ['[data-open="lead:2210-e-military-ave"]', '[data-open="est:2210-e-military-ave"]'] })),
   { name: "homeowner-1", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-1-dark", tab: "leads", theme: "dark", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]"] },
   { name: "homeowner-2", tab: "leads", steps: ['[data-open="lead:3908-22-st"]', "[data-ho]", '#hoView [data-hop="2"]'] },
@@ -136,7 +139,7 @@ if (require.main === module) (async () => {
   try {
     for (const s of SHOTS) {
       if (ONLY && !ONLY.some(k => s.name.includes(k))) continue;
-      const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
+      const ctx = await browser.newContext({ viewport: { width: s.width || 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "light", timezoneId: "America/Chicago", locale: s.lang === "es" ? "es-US" : "en-US", reducedMotion: "reduce" });
       await ctx.route(/^(https?|wss?):/, r => (/^https?:\/\/127\.0\.0\.1[:/]/.test(r.request().url()) ? r.continue() : r.abort()));
       await fontRoutes(ctx);
       const IMG = { hoRoof0001: "ho-roof.jpg", hoSquare01: "ho-testsquare.jpg", hoVent0001: "ho-vent.jpg", hoGutter01: "ho-gutter.jpg", hoSiding01: "ho-siding.jpg" };
@@ -152,6 +155,9 @@ if (require.main === module) (async () => {
         for (const sel of s.steps || []) { const loc = p.locator(sel).locator("visible=true").first(); await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {}); await loc.click({ timeout: 3000 }); await p.waitForTimeout(450); }
       } catch (e) { errs.push("step failed: " + e.message.split("\n")[0]); }
       await p.waitForTimeout(300);
+      const wide = await p.evaluate(() => { const d = document.documentElement, b = document.querySelector('#sheetWrap:not([hidden]) #shBody');   // sideways scroll: the page, or an open sheet
+        return [d.scrollWidth > d.clientWidth + 1 ? `page ${d.scrollWidth}>${d.clientWidth}` : '', b && b.scrollWidth > b.clientWidth + 1 ? `sheet ${b.scrollWidth}>${b.clientWidth}` : ''].filter(Boolean).join(', '); });
+      if (wide) errs.push('sideways scroll: ' + wide);
       await p.screenshot({ path: path.join(OUT, s.name + ".png") });
       const miss = takeMisses();
       if (errs.length || miss.length) { bad++; console.log(`[ERR] ${s.name}: ${[...errs, ...miss.map(m => "404 " + m)].join(" | ").slice(0, 400)}`); }

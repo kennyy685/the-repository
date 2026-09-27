@@ -26,6 +26,15 @@ const SIZES = [
   { width: 360, height: 800 },
   { width: 420, height: 900 },
 ];
+// Sheets that open on top of a page and scroll on their own: each one is opened (taps in `steps`, first visible match)
+// and must not scroll sideways either (v25: the quick-estimate sheet did at 360 px). Playwright runs only.
+const SHEETS = {
+  "pages/hmp-app.html": [
+    { name: "quick-price", steps: ["#plusBtn", '[data-open="est:"]'], scroller: "#shBody" },
+    { name: "add", steps: ["#plusBtn"], scroller: "#shBody" },
+    { name: "more", steps: ["#moreBtn"], scroller: "#shBody" },
+  ],
+};
 
 // Present but grants nothing - the same shape a page sees before the viewer approves any
 // capability, or when a capability isn't declared. Every page in PAGES already has a fallback
@@ -109,9 +118,21 @@ async function checkOnePlaywright(browser, rel, size) {
   } catch (e) {
     errors.push("screenshot failed: " + (e && e.message || e));
   }
+  let sheetScroll = null;
+  for (const sh of SHEETS[rel] || []) {
+    try {
+      await page.goto(fileUrl, { waitUntil: "networkidle", timeout: 20000 });
+      await page.waitForTimeout(300);
+      for (const sel of sh.steps) { await page.locator(sel).locator("visible=true").first().click({ timeout: 3000 }); await page.waitForTimeout(300); }
+      const w = await page.evaluate((q) => { const n = document.querySelector(q), d = document.documentElement;
+        return { s: n ? n.scrollWidth : 0, c: n ? n.clientWidth : 0, ds: d.scrollWidth, dc: d.clientWidth }; }, sh.scroller);
+      if (w.s > w.c + 1 || w.ds > w.dc + 1) sheetScroll = `${sh.name} sheet ${Math.max(w.s, w.ds)} > ${Math.max(w.c, w.dc)}`;
+      await page.screenshot({ path: outPath.replace(/\.png$/, `-${sh.name}.png`), fullPage: false });
+    } catch (e) { errors.push(`${sh.name} sheet did not open: ${(e && e.message || e).split("\n")[0]}`); }
+  }
   await context.close();
   return {
-    rel, size, errors, networkNotes, loadError, sidewaysScroll, scrollWidth, clientWidth, outPath,
+    rel, size, errors, networkNotes, loadError, sidewaysScroll: sidewaysScroll || !!sheetScroll, sheetScroll, scrollWidth, clientWidth, outPath,
   };
 }
 
@@ -238,7 +259,7 @@ async function main() {
     const problems = [];
     if (r.loadError) problems.push(`failed to load: ${r.loadError}`);
     if (r.errors.length) problems.push(...r.errors.map((e) => `JS error: ${e}`));
-    if (r.sidewaysScroll) problems.push(`sideways scroll (scrollWidth ${r.scrollWidth} > clientWidth ${r.clientWidth})`);
+    if (r.sidewaysScroll) problems.push(r.sheetScroll ? `sideways scroll in the ${r.sheetScroll}` : `sideways scroll (scrollWidth ${r.scrollWidth} > clientWidth ${r.clientWidth})`);
     const label = `${r.rel} @ ${r.size.width}x${r.size.height}`;
     if (problems.length) {
       anyFail = true;
