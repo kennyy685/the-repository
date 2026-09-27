@@ -115,6 +115,10 @@ const SHOTS = [
   { name: "money-empty", tab: "money", data: { noMoney: true } }, { name: "money-dark-empty", tab: "money", theme: "dark", data: { noMoney: true } },
   { name: "claim", tab: "money", steps: ['[data-open="claim:1107-n-h-st"]'] },
   { name: "add", tab: "now", steps: ["#plusBtn"] }, { name: "more", tab: "now", steps: ["#moreBtn"] },
+  { name: "say-it", tab: "now", steps: ["#plusBtn", '[data-open="say:"]'] }, { name: "new-lead", tab: "now", steps: ["#plusBtn", '[data-open="nl:"]'] },
+  { name: "done-today", tab: "now", steps: ["#plusBtn", "[data-done]"] }, { name: "what-to-say", tab: "knock", steps: ['#kNow [data-open^="guide:"]'] },
+  { name: "walk-menu", tab: "knock", steps: ['[data-open="walk:"]'] }, { name: "knock-all", tab: "knock", steps: ["#kAllBtn"] }, { name: "right-hand", tab: "now", steps: ["#rhBtn"] },
+  { name: "boss", tab: "now", steps: ["#moreBtn", "#bossBtn"] }, { name: "zones", tab: "now", steps: ['[data-open="zones:"]'] },
   // the quick-estimate sheet (+ > Quick price, and a lead's own estimate): no sideways scroll at 360 and 420, EN and ES, light and dark
   ...[360, 420].flatMap(w => [["en", ""], ["es", ""], ["en", "dark"], ["es", "dark"]].map(([lg, th]) => ({ name: `quick-price-${w}-${lg}${th ? "-" + th : ""}`, tab: "now", width: w, lang: lg, theme: th || undefined, steps: ["#plusBtn", '[data-open="est:"]'] }))),
   ...[360, 420].map(w => ({ name: `lead-estimate-${w}`, tab: "leads", width: w, steps: ['[data-f="won"]', '[data-open="lead:2210-e-military-ave"]', '[data-open="est:2210-e-military-ave"]'] })),

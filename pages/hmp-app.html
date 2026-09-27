@@ -1806,41 +1806,6 @@ function walkModel(){
   return {w, stops, st, pass, tally, nextIdx, kind: w.kind === 'everyday' ? 'everyday' : 'storm', date, stale: dayOf(w.date) !== date, hidden};
 }
 
-/* ---------- today's walk: map (plain SVG, no tiles), pins colored by result ---------- */
-const PIN = {none: ['#f2f3f5', '#1a1b1e'], not_home: ['#8d9097', '#8d9097'], no: ['#e0685c', '#e0685c'], interested: ['#ffb27a', '#ffb27a'], booked: ['#43c79b', '#43c79b'], gaveUp: ['#5d6067', '#5d6067']};
-function pinOf(p, m){
-  const r = p.st.d && p.st.d.result;
-  if (p.st.gaveUp) return PIN.gaveUp;
-  if (r === 'not_home') return p.st.done ? PIN.gaveUp : [PIN.not_home[0], '#1a1b1e'];
-  return PIN[r] || PIN.none;
-}
-function walkMap(m){
-  const pts = m.stops.map((s, i) => ({s, i, st: m.st[i]})).filter(p => p.s.lat != null && p.s.lon != null);
-  if (pts.length < 2) return null;
-  const lat0 = pts.reduce((a, p) => a + p.s.lat, 0) / pts.length, kx = Math.cos(lat0 * Math.PI / 180);
-  const xs = pts.map(p => p.s.lon * kx), ys = pts.map(p => -p.s.lat);
-  const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
-  const W = 600, H = 250, P = 26; const span = Math.max(maxx - minx, (maxy - miny) * (W - 2 * P) / (H - 2 * P), 1e-5);
-  const sc = (W - 2 * P) / span; const ox = P + ((W - 2 * P) - (maxx - minx) * sc) / 2, oy = P + ((H - 2 * P) - (maxy - miny) * sc) / 2;
-  const X = p => ox + (p.s.lon * kx - minx) * sc, Y = p => oy + (-p.s.lat - miny) * sc;
-  const mPerPx = 111320 / sc; const nice = [50, 100, 200, 250, 500, 1000, 2000].find(v => v / mPerPx >= 50) || 2000; const barPx = nice / mPerPx;
-  const line = pts.map(p => `${X(p).toFixed(1)},${Y(p).toFixed(1)}`).join(' ');
-  const dots = pts.map(p => { const x = X(p).toFixed(1), y = Y(p).toFixed(1), isN = p.i === m.nextIdx, [stroke, fill] = pinOf(p, m);
-    return `${isN ? `<circle cx="${x}" cy="${y}" r="14" fill="none" style="stroke:#f5883a" stroke-width="3"/>` : ''}<circle cx="${x}" cy="${y}" r="${isN ? 8 : 6.5}" style="fill:${isN ? '#f5883a' : fill};stroke:${isN ? '#f5883a' : stroke}" stroke-width="2.5"/>`; }).join('');
-  const first = pts[0], lastP = pts[pts.length - 1], lg = V().legend;
-  const legend = [['next', '#f5883a', '#f5883a'], ['none', '#f2f3f5', '#1a1b1e'], ['not_home', '#8d9097', '#8d9097'], ['no', '#e0685c', '#e0685c'], ['interested', '#ffb27a', '#ffb27a'], ['booked', '#43c79b', '#43c79b']]
-    .map(([k, c, f]) => `<span><i style="--c:${c};--f:${f}"></i>${esc(lg[k])}</span>`).join('');
-  return `<figure class="k-map" style="margin:0"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(K().mapAria(m.stops.length))}">
-    <rect width="${W}" height="${H}" fill="#1a1b1e"/>
-    <polyline points="${line}" fill="none" stroke="#55575e" stroke-width="3" stroke-linejoin="round" stroke-dasharray="1 7" stroke-linecap="round"/>
-    ${dots}
-    <text x="${(X(first) + 12).toFixed(1)}" y="${(Y(first) - 10).toFixed(1)}" fill="#d6d8dc" font-size="13" font-family="Montserrat, sans-serif" font-weight="700">1</text>
-    <text x="${(X(lastP) + 12).toFixed(1)}" y="${(Y(lastP) - 10).toFixed(1)}" fill="#d6d8dc" font-size="13" font-family="Montserrat, sans-serif" font-weight="700">${pts.length}</text>
-    <g transform="translate(${W - 26},26)"><path d="M0 -12 L6 6 L0 2 L-6 6 Z" fill="#d6d8dc"/><text y="20" text-anchor="middle" fill="#c9ccd2" font-size="11" font-family="Montserrat, sans-serif" font-weight="700">${K().north}</text></g>
-    <g transform="translate(14,${H - 14})"><rect width="${barPx.toFixed(1)}" height="4" fill="#d6d8dc"/><text x="${(barPx + 6).toFixed(1)}" y="5" fill="#c9ccd2" font-size="11" font-family="Montserrat, sans-serif">${nice >= 1000 ? nice / 1000 + ' km' : nice + ' m'} · ${(nice / 1609.34 >= .1 ? (nice / 1609.34).toFixed(1) : (nice * 3.281).toFixed(0) + ' ft').replace(/^(\d+\.\d)$/, '$1 mi')}</text></g>
-  </svg><figcaption><span>${esc(K().mapCap)}</span><span>1 → ${pts.length}</span></figcaption><div class="k-legend">${legend}</div></figure>`;
-}
-
 /* ---------- today's walk: render (the next door and its 4 buttons come first) ---------- */
 const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; const t = fmtr('d', locale(), {hour: 'numeric', minute: '2-digit'}).format(d); return ymd(d) === todayStr() ? t : `${fmtDay(ymd(d), true)}, ${t}`; };
 /* ---------- v25 Knock: the walk's name + one ⋯ (walk menu), one rules chip, "2 / 25 knocks today", a cell per door,
@@ -2572,7 +2537,6 @@ function dueChip(due){
   if (n === 1) return `<span class="a-chip warn">${esc(c.dueTomorrow)}</span>`;
   return `<span class="a-chip plain">${esc(c.due(fmtDay(due, true)))}</span>`;
 }
-function sayBox(text){ return SAMPLE && CAN_EDIT ? `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q><button type="button" class="btn sm" data-say="${esc(text)}">${esc(L().useIt)}</button></div>` : `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(text)}</q></div>`; }
 function weekNums(t0){   // v24: one number source. This week's stored numbers, with TODAY taken from today's live door taps (so the
   // week box, the big counter and the review never disagree before "Done for today" is tapped). Same per-day max rule as applyStat.
   const wd = weekDoc || {}, ob = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {}), walks = ob(wd.walks), king = ob(wd.king);
@@ -2586,31 +2550,6 @@ function renderKnockTab(){ renderKnock(); }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
 const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
-function leadTrack(l){   // v19: the 8 sale steps of the Next-step card (the stage list stays in the data); lost = the old grey track
-  const T = L();
-  const sid = typeof nsStepOf === 'function' ? nsStepOf(l) : null;
-  if (!sid) return `<span><span class="a-track lost" style="--n:8" role="img" aria-label="${esc(lstageName(l, 'lost'))}">${'<i></i>'.repeat(8)}</span><span class="track-lbl"><span><b>${esc(lstageName(l, 'lost'))}</b></span></span></span>`;
-  const kind = leadKind(l), ids = nsIdsFor(kind), fin = sid === 'finished', n = fin ? 9 : nsNum(sid);
-  const segs = ids.map((id, k) => `<i class="${k + 1 < n ? 'done' : k + 1 === n ? 'now' : ''}" title="${k + 1}. ${esc(nsName(id, kind))}"></i>`).join('');
-  const left = fin ? `<b>✓ ${esc(NX().finishedH)}</b>` : `<span class="stepchip">${esc(T.stepOf(n, 8))}</span><b>${esc(nsName(sid, kind))}</b>`;
-  const right = !fin && n < 8 ? `<span>${esc(T.then(nsName(ids[n], kind).toLowerCase()))}</span>` : '';
-  return `<span><span class="a-track${fin ? ' paid' : ''}" style="--n:8" role="img" aria-label="${esc(fin ? NX().finishedH : T.stepOf(n, 8) + ': ' + nsName(sid, kind))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
-}
-function nextBox(ns, finished, tag){
-  const T = L(), text = txl(ns), due = ns && typeof ns === 'object' ? dayOf(ns.due) : null;
-  const late = due && !finished && daysFromToday(due) < 0;
-  return `<${tag || 'span'} class="a-next${late ? ' overdue' : ''}"><span class="lbl"><b>${esc(T.ct.next)}</b>${due && !finished ? dueChip(due) : ''}</span><span class="txt${text ? '' : ' none'}">${esc(text || T.noNextLead)}</span></${tag || 'span'}>`;
-}
-function leadCard(l){
-  const T = L(), v = Array.isArray(l.doors_visits) ? l.doors_visits : [];
-  const meta = [strv(l.city), strv(l.first_name)].filter(Boolean).join(' · ');
-  const late = lateLeads().find(x => x.l.id === l.id), pp = photoProgress(l);
-  const tags = [late ? `<span class="a-chip crit">! ${esc(V().lateChip(late.days))}</span>` : '', SOURCES.includes(l.source) ? `<span class="a-chip src">${esc(T.src[l.source])}</span>` : '', LTYPES.includes(l.type) ? `<span class="a-chip ${l.type === 'cash' ? 'paid' : 'plain'}">${esc(T.typ[l.type])}</span>` : ''].join('');
-  const lastV = v.length ? dayOf(v[v.length - 1].date) : null;
-  return `<button type="button" class="a-card" data-open="lead:${esc(l.id)}"><span class="c-top"><span><span class="c-addr">${esc(strv(l.address) || l.id)}</span><span class="c-meta">${esc(meta)}</span></span><span class="c-tags">${tags}</span></span>
-    ${leadTrack(l)}${nextBox(l.next_step, ['done', 'lost'].includes(l.stage))}
-    ${v.length || pp.n ? `<span class="c-line">${[v.length ? esc(T.visits(v.length)) + (lastV ? ' · ' + esc(T.lastVisit(fmtDay(lastV))) : '') : '', pp.n ? esc(V().phProg(pp.done, pp.total)) : ''].filter(Boolean).join(' · ')}</span>` : ''}</button>`;
-}
 function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
 /* v25 Leads: one segmented control per filter, then list rows: address / the next action / a late chip (source and type live in the lead) */
 function leadRow(l){
@@ -2681,32 +2620,6 @@ function payCell(p){
 }
 const cStage = s => txl(CSTAGE[s] || CSTAGE.inspected);
 const cIdx = c => { const i = CLAIM_STEPS.indexOf(c.stage); return c.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
-function claimTrack(c){
-  const i = cIdx(c), T = L(), n = CLAIM_STEPS.length;
-  const segs = CLAIM_STEPS.map((s, k) => `<i class="${c.stage === 'lost' ? '' : k < i || c.stage === 'paid' ? 'done' : k === i ? 'now' : ''}" title="${k + 1}. ${esc(cStage(s))}"></i>`).join('');
-  const left = c.stage === 'lost' ? `<b>${esc(T.ct.lostLbl)}</b>` : `<span class="stepchip">${esc(T.stepOf(i + 1, n))}</span><b>${esc(cStage(CLAIM_STEPS[i]))}</b>`;
-  const right = c.stage !== 'lost' && i < n - 1 ? `<span>${esc(T.then(cStage(CLAIM_STEPS[i + 1]).toLowerCase()))}</span>` : '';
-  return `<span><span class="a-track${c.stage === 'paid' ? ' paid' : c.stage === 'lost' ? ' lost' : ''}" style="--n:${n}" role="img" aria-label="${esc(c.stage === 'lost' ? T.ct.lostLbl : T.stepOf(i + 1, n) + ': ' + cStage(CLAIM_STEPS[i]))}">${segs}</span><span class="track-lbl"><span>${left}</span>${right}</span></span>`;
-}
-function claimCard(c){
-  const T = L(), C = T.ct, fin = c.stage === 'paid' || c.stage === 'lost', m = money(c);
-  const bits = [strv(c.city), strv(c.homeowner_first_name)].filter(Boolean).map(esc);
-  const clm = [strv(c.insurer) ? esc(strv(c.insurer)) : '', strv(c.claim_no) ? `<span class="nw">${esc(C.claim)} ${esc(strv(c.claim_no))}</span>` : ''].filter(Boolean).join(' · ');
-  const meta = [...bits, clm ? `<span class="clm">${clm}</span>` : ''].filter(Boolean).join(' · ');
-  const top = `<span class="c-top"><span><span class="c-addr">${esc(strv(c.address) || c.id)}</span><span class="c-meta">${meta}</span></span>${fin ? `<span class="c-tags"><span class="a-chip ${c.stage === 'paid' ? 'paid' : 'lost'}">${esc(cStage(c.stage))}</span></span>` : `<span class="c-tags"><span class="a-chip plain">${esc(T.typ.insurance)}</span></span>`}</span>`;
-  if (fin) return `<button type="button" class="a-card compact" data-open="claim:${esc(c.id)}">${top}<span class="c-line">${esc(C.collectedTotal)}: <b>${usd(m.collected)}</b>${m.contract != null ? ' ' + esc(C.ofContract(usd(m.contract))) : ''}</span></button>`;
-  let mon;
-  if (!m.approved && !m.received) mon = `<span class="c-money"><span class="none">${esc(C.noMoney)}</span></span>`;
-  else { const parts = []; if (m.mortAmt) parts.push(`${usd(m.mortAmt)} ${C.atCo(m.mortCo || C.mortShort)}`); if (m.owed) parts.push(`${usd(m.owed)} ${C.fromIns}`); if (m.inHand) parts.push(`${usd(m.inHand)} ${C.toDeposit}`);
-    mon = `<span class="c-money"><span><span class="k"><span class="msw in"></span>${esc(C.moneyIn)}</span><span class="v">${usd(m.collected)}</span></span><span><span class="k">${esc(C.waiting)}</span><span class="v">${usd(m.owed + m.mortAmt + m.inHand)}</span><span class="parts">${esc(parts.join(' · ') || C.nothingWaiting)}</span></span></span>`; }
-  return `<button type="button" class="a-card" data-open="claim:${esc(c.id)}">${top}${claimTrack(c)}${nextBox(c.next_step, false)}${mon}</button>`;
-}
-function cashCard(l){
-  const T = L(), cm = cashMoney(l), fin = cm.price != null && cm.owed === 0 && cm.got > 0;
-  return `<button type="button" class="a-card${fin ? ' compact' : ''}" data-open="lead:${esc(l.id)}"><span class="c-top"><span><span class="c-addr">${esc(strv(l.address) || l.id)}</span><span class="c-meta">${esc([strv(l.city), strv(l.first_name)].filter(Boolean).join(' · '))}</span></span><span class="c-tags">${cm.late30 ? `<span class="a-chip crit">! ${esc(V().over30)}</span>` : ''}<span class="a-chip paid">${esc(T.typ.cash)}</span></span></span>
-    ${fin ? '' : nextBox(l.next_step, false)}
-    <span class="c-money three"><span><span class="k">${esc(T.price)}</span><span class="v">${cm.price != null ? usd(cm.price) : '–'}</span></span><span><span class="k"><span class="msw in"></span>${esc(T.paidSoFar)}</span><span class="v">${usd(cm.got)}</span></span><span><span class="k"><span class="msw owed"></span>${esc(T.owed)}</span><span class="v">${usd(cm.owed)}</span></span></span>${cm.plan && !fin ? `<span class="paytrack">${cm.plan.map(payCell).join('')}</span>` : ''}</button>`;
-}
 function howHtml(withTitle){
   const C = L().ct;
   return `<div class="a-how">${withTitle ? `<h3>${esc(C.howH)}</h3>` : ''}<p class="hsub">${esc(C.howSub)}</p><ol class="strip">${HOW.map(s => `<li><b>${esc(s[lang][0])}</b><span>${esc(s[lang][1])}</span></li>`).join('')}</ol>
@@ -2792,8 +2705,7 @@ function renderMoney(){
     + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
     + `<div class="claims">${(mPaidOpen ? fin : open).map(jobCard).join('') || `<p class="quiet">${esc(C.nothingWaiting)}</p>`}</div>`
     + (g ? `<p class="tipl" style="margin-top:var(--s4)">${ic('info')}<span>${esc(g)}</span></p>` : '')
-    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p></details>`
-    + `<p class="rules">${esc(C.rules)}</p>`;
+    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p><p class="rules">${esc(C.rules)}</p></details>`;
 }
 $('#money').addEventListener('click', ev => { if (ev.target.closest('#mPaid')) { mPaidOpen = !mPaidOpen; renderMoney(); } });
 
@@ -3531,7 +3443,7 @@ function leadGuide(l, sid, kind){
   if (!sid || sid === 'finished') return '';
   if (gLangFor !== l.id) { gLangFor = l.id; gLang = lang; }
   const gl = gLang || lang, Zs = ZX[gl], X = NSX[gl], can = !!DB && CAN_EDIT;
-  const say = withLang(gl, () => nsSay(l, sid, kind)), asks = (X.asks[sid] || (() => []))(kind);
+  const say = withLang(gl, () => nsSay(l, sid, kind)), asks = (X.asks[sid] || (() => []))(kind).slice(0, 2);   // two questions: the sheet reads in seconds
   const items = withLang(gl, () => nsItems(l, sid, kind)), on = items.filter(x => itemOn(l, x)).length;
   const txtKey = {rem1: 'B', rem2: 'C', review: 'R'};
   const ck = x => { const y = itemOn(l, x), lock = x.auto || x.mode === 'auto' || x.mode === 'tell' || x.mode === 'option' || !can;
@@ -5180,29 +5092,6 @@ function renderDueSheet(){
   const grp = (k, list) => list.length ? `<div class="shead" style="margin-top:var(--s2)"><h2>${esc(W.g[k])}</h2><span class="cap">${list.length}</span></div><ul class="rows">${list.map(dueRowV25).join('')}</ul>` : '';
   soft($('#shBody')).html = (grp('today', g.today) + grp('tomorrow', g.tomorrow) + grp('later', g.later.slice(0, 20))) || `<p class="quiet">${esc(W.dueNone)}</p>`;
 }
-/* ---------- the one next thing (Sale Guide card): an appointment today, else the most overdue follow-up, else the next door ---------- */
-function nowPick(){
-  const t0 = todayStr();
-  for (const c of claims) { const a = claimAppt(c); if (a && a.day === t0) return {kind: 'claim', c, a}; }
-  for (const l of leads) { const a = apptOf(l); if (a && a.day === t0 && (a.kind === 'inspection' || a.kind === 'estimate' || a.kind === 'adjuster')) return {kind: 'lead', l, a}; }
-  const g = dueItems(), first = g.today.find(r => r.kind === 'lead' && (r.late || r.overdue || r.due < t0)) || null;
-  if (first) { const l = leads.find(x => x.id === first.id); if (l) return {kind: 'lead', l, row: first}; }
-  const m = walkModel(); if (m && m.nextIdx >= 0) return {kind: 'door', m, s: m.stops[m.nextIdx]};
-  const t = g.today[0]; if (t) { if (t.kind === 'lead') { const l = leads.find(x => x.id === t.id); if (l) return {kind: 'lead', l, row: t}; } const c = claims.find(x => x.id === t.id); if (c) return {kind: 'claimdue', c, row: t}; }
-  return null;
-}
-function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the walk (no lead yet): law line, say, ask, collect, must
-  const W = NW(), X = NX(), ins = kind !== 'cash';
-  const say = lg => withLang(lg, () => { const S = NX().said, w = whyHouse(s, ins ? 'storm' : 'everyday');
-    const r = ins ? (w.day ? S.stormR(w.hail, fmtDay(w.day)) : '') : (w.year ? S.yearR(Math.floor(w.year / 10) * 10) : ''); return ins ? S.doorIns(r) : S.doorCash(r); });
-  const asks = lg => NSX[lg].asks.door(ins ? 'insurance' : 'cash').map(q => Array.isArray(q) ? `<li>${esc(q[0])}<small>${esc(q[1])}</small></li>` : `<li>${esc(q)}</li>`).join('');
-  const col = lg => `<ul class="gcol">${NWX[lg].guideCollect.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
-  return `<p class="ns-must law" role="note"><b>${esc(W.lawEb)}</b>${esc(W.law)}</p>
-    ${flipBlock('ns-say', W.say, `<q>${esc(say(lang))}</q>`, `<q>${esc(say(otherLang()))}</q>`)}
-    ${compact ? '' : flipBlock('ns-sec', W.ask, `<ul class="ns-ask">${asks(lang)}</ul>`, `<ul class="ns-ask">${asks(otherLang())}</ul>`)}
-    ${flipBlock('ns-sec', W.collect, col(lang), col(otherLang()))}
-    ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}`;
-}
 function renderNow(){ renderZones(); renderToday(); }
 
 /* ---------- the guide sheet for a door on the walk: Sale Guide step 1 before knocking ---------- */
@@ -5268,7 +5157,7 @@ function renderHowSheet(){
 function renderClaimUpd(){
   const W = NW(), open = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost').sort(claimSort);
   $('#shEyebrow').textContent = W.cluEb; $('#shTitle').textContent = W.cluH; $('#shSub').textContent = W.cluP; $('#shTrack').innerHTML = '';
-  soft($('#shBody')).html = `${open.length ? `<div class="a-cards">${open.map(claimCard).join('')}</div>` : `<p class="a-quiet">${esc(W.cluNone)}</p>`}
+  soft($('#shBody')).html = `${open.length ? `<div class="claims">${open.map(c => jobCard({c})).join('')}</div>` : `<p class="a-quiet">${esc(W.cluNone)}</p>`}
     ${SAMPLE && CAN_EDIT ? `<div class="say"><b>${esc(L().sayK)}</b><q>${esc(W.cluEx)}</q><button type="button" class="btn" data-tell="" data-pre="${esc(W.cluEx.split(',')[0] + ', ')}">${esc(W.cluTell)}</button></div>` : ''}`;
 }
 
@@ -5414,7 +5303,7 @@ function renderReview(){
       <li><b>${esc(W.q[1])}</b>${ints.length ? `<div class="pickrow" role="group" data-rev="followed">${ints.map(l => `<button type="button" data-v="${esc(l.id)}" aria-pressed="${revDraft.followed.includes(l.id)}">${esc(shortAddr(strv(l.address)))}</button>`).join('')}</div>` : `<p class="a-quiet">${esc(W.noInt)}</p>`}</li>
       <li><b>${esc(W.q[2])}</b>${chips('worked', W.worked)}<input id="revW" type="text" autocomplete="off" placeholder="${esc(W.optText)}" aria-label="${esc(W.q[2])}"></li>
       <li><b>${esc(W.q[3])}</b>${chips('change', W.change)}<input id="revC" type="text" autocomplete="off" placeholder="${esc(W.optText)}" aria-label="${esc(W.q[3])}"></li>
-      <li><b>${esc(W.q[4])}</b>${tom.length ? `<ul class="fu due-l">${tom.slice(0, 6).map(dueRow).join('')}</ul>` : `<p class="a-quiet">${esc(W.noTomorrow)}</p>`}${best ? `<p class="rv">${esc(W.firstKnock(best.name))}</p>` : ''}</li>
+      <li><b>${esc(W.q[4])}</b>${tom.length ? `<ul class="rows">${tom.slice(0, 6).map(dueRowV25).join('')}</ul>` : `<p class="a-quiet">${esc(W.noTomorrow)}</p>`}${best ? `<p class="rv">${esc(W.firstKnock(best.name))}</p>` : ''}</li>
     </ol>
     ${revDraft.msg ? `<p class="ph-status${revDraft.msg.bad ? ' bad' : ''}" role="status" id="revMsg">${esc(revDraft.msg.text)}</p>` : ''}
     ${can ? `<button type="button" class="ns-done" id="revSave"${revDraft.busy ? ' disabled' : ''}>${esc(saved ? W.revAgain : W.revSave)}</button>` : `<p class="a-quiet">${esc(W.revRo)}</p>`}`;
