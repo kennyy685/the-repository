@@ -14,6 +14,10 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
   tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's
   prices, registration #, warranty promises, spending money, signing anything, deleting data.
+- **No knocking yet (FilthE, 2026-09-27):** he knocks only after (1) the app is proven end to end, (2) his permit is
+  in, (3) he knows how to sell (Practice Door + lessons). Until then build and test on realistic mock data from public
+  sources (real Fremont streets + real storm reports, fake homes, never owner names), kept out of the real db. Swap to
+  real houses when he starts pulling them in. Don't push him to knock.
 - **Chain of command (FilthE, 2026-09-27):** FilthE = mastermind at the top; the King = the tip inside the computer;
   the hub robots (`.claude/agents/*`) = "agents"/"sub agents". "Make them better" = the King researches and upgrades
   those robots (prompts, tools, skills, models) so they make the King's job easier.
