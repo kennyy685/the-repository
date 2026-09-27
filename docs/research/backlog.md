@@ -6,6 +6,17 @@ Web access (updated 2026-09-27, FilthE opened the network): Bash `curl -sSL -m 2
 Rule: every topic must end in something that improves sales, profit or the app. No research for its own sake.
 
 ## Next up (top first)
+- [ ] Confirm Nebraska's actual entry/notice rule for construction in occupied rental units (Uniform
+      Residential Landlord and Tenant Act, Ch. 76, nebraskalegislature.gov) before the round-51 tenant-
+      notice template goes to print as a final piece - round 51 only found general national practice
+      (24-48hr notice, daytime hours)
+- [ ] Re-open osha.gov directly once egress allows and confirm the fall-protection sample-plan content
+      against `data/commercial_bid_kit.json` step 4's safety-plan wording - round 51: osha.gov was
+      blocked to both WebFetch and curl this session, so the OSHA content there is stated as the known
+      federal standard, not quoted from the primary page
+- [ ] Open bridgman.org's real government RFP bid-packet PDF (a live example of a full commercial
+      roofing bid-package structure) and shieldlineroofing.com's RFP/RFQ template directly, not just via
+      search summary (round 51 found both but didn't fetch either)
 - [ ] Check whether Cowork's command center map UI actually renders `wind_events[].trees_down`/
       `tree_sample`/`wind_dir` (round 26: the data exists in hud.json since T116-118; display side unconfirmed,
       map source is outside this repo)
@@ -302,6 +313,15 @@ no real door-knock transcript could be pulled (see new backlog item above); Redd
 Spanish-neighborhood sales-script content is still not found anywhere reachable, third round confirming
 the gap (rounds 30, 38, 47) - deprioritized per the updated item above. Output: `data/door_lines_pro.json`
 (22 EN/ES lines, all legal_ok) + this file.
+Round 51 (sales track, done directly by the Research Lead - no scout subagent tool available this
+session, same as 38/45/48): the commercial/apartment MEETING after the call gets booked - the property
+walk-through on a multi-building property, the bid package property managers actually check for
+(direct-fetched NRCA primary source), the two free habits a 2006 trade-magazine survey (direct fetch)
+found separate a winning bid from a typical one (real folder/PDF, say the warranty + certification out
+loud), phasing/tenant-notice for occupied buildings, and post-bid follow-up cadence (distinct from
+round 38's pre-call cadence). Output: `data/commercial_bid_kit.json` (14 EN/ES steps, legal_check
+passes) + `docs/research/2026-09-27-round-51.md`. Three new backlog items above (Nebraska landlord-
+tenant notice law, osha.gov re-fetch, bridgman.org/shieldlineroofing.com direct fetch).
 Round 48 (backlog track, done directly by the Research Lead - no scout subagent tool available this round,
 same as 38/45): closed T164 for real - found the live, working Douglas County (`dcgis.org`) and Lancaster
 County (`gis.lincoln.ne.gov`) ArcGIS parcel endpoints and their exact owner-mailing-vs-site-address fields
