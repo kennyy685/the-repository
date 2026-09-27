@@ -3230,7 +3230,7 @@ function nsItems(l, sid, kind){
       return [it('claimNo', I.claimNo, strv(c && c.claim_no) || strv(l.claim_no), 'tell', {val: strv(c && c.claim_no) || strv(l.claim_no)}),
         it('insurer', I.insurer, strv(c && c.insurer) || strv(l.insurer), 'tell', {val: strv(c && c.insurer) || strv(l.insurer)}),
         it('adjDate', I.adjDate, (c && dayOf(c.adjuster_date)) || LORDER(l.stage) >= LORDER('adjuster_meeting'), 'auto', {val: c && dayOf(c.adjuster_date) ? fmtDay(dayOf(c.adjuster_date), true) : ''}),
-        it('itemized', I.itemized, false, 'tick', {must: false, val: ticked(l, 'itemized') ? fmtDay(dayOf(l.collected.itemized) || todayStr(), true) : ''}), it('packed', I.packed), it('scope', I.scope, (c && (dayOf(c.scope_date) || ci >= CLAIM_STEPS.indexOf('scope_in'))) || false, 'tell')]; }
+        it('itemized', I.itemized, jtItemizedBoth(c), 'tick', {must: false, val: jtItemizedBoth(c) ? fmtDay([c.job.itemized_sent.homeowner, c.job.itemized_sent.insurer].map(dayOf).sort()[1], true) : ticked(l, 'itemized') ? fmtDay(dayOf(l.collected.itemized) || todayStr(), true) : ''}), it('packed', I.packed), it('scope', I.scope, (c && (dayOf(c.scope_date) || ci >= CLAIM_STEPS.indexOf('scope_in'))) || false, 'tell')]; }
     case 'measure': { const dep = arr(l.payments).find(p => p.kind === 'deposit');
       return [it('exact', I.exact, est && !numv(est.job && est.job.footprint_sqft) && (numv(est.job && est.job.siding_squares) || numv(est.job && est.job.roof_squares) || numv(est.job && est.job.gutter_ft))),
         it('order', I.order, hasOrder(l), 'tick', {val: hasOrder(l) ? orderLine(l) : ''}), it('deposit', I.deposit, (dep && dayOf(dep.paid_on)) || numv(l.deposit) > 0, 'tell', {val: numv(l.deposit) > 0 ? usd(numv(l.deposit)) : dep && numv(dep.amount) ? usd(numv(dep.amount)) : ''})]; }
@@ -5222,7 +5222,10 @@ function dueItems(){
     o.late = x.days; if (o.due > t0) o.due = t0; rows.set(key, o); }
   for (const c of claims) { if (['paid', 'lost'].includes(c.stage)) continue; const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null, d = ns && dayOf(ns.due);
     if (d) rows.set('claim:' + c.id, {kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(ns), due: d});
-    const a = claimAppt(c); if (a && !rows.has('claim:' + c.id)) rows.set('claim:' + c.id, {kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: `${CT().k.adjuster} · ${whenLabel(a)}`, due: a.day}); }
+    const a = claimAppt(c); if (a && !rows.has('claim:' + c.id)) rows.set('claim:' + c.id, {kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: `${CT().k.adjuster} · ${whenLabel(a)}`, due: a.day});
+    // v25.2 (T199): a Job tracker due reminder (mortgage endorsement, depreciation request, review link, warranty, a locked build day) wins when it is due first
+    const md = jtModel(c), rm = md && md.reminders[0], had = rows.get('claim:' + c.id);
+    if (rm && (!had || rm.due <= had.due)) rows.set('claim:' + c.id, {kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(rm.short), due: rm.due}); }
   const out = [...rows.values()].sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : (b.late || 0) - (a.late || 0) || a.address.localeCompare(b.address)));
   const g = {today: out.filter(r => r.due <= t0), tomorrow: out.filter(r => r.due === addDays(t0, 1)), later: out.filter(r => r.due > addDays(t0, 1))};
   dueMemo = {leads, claims, lang, mk, r: fuRules, out: g}; return g;
@@ -5532,7 +5535,7 @@ const MCKX = {
     st: {inspected: 'Photos of every damaged slope and side, dated. Note old damage separately.', claim_filed: 'Claim number, adjuster name and phone, date of loss on file.',
       adjuster_set: 'Be at the adjuster meeting with the photo set.', scope_in: 'Compare the insurer’s scope line by line with the photos. Anything missing starts a supplement.',
       signed: 'Contract has the deductible notice and the 3-day cancel notice, both languages.', supplement: 'Send it in writing within about 180 days of the first check: photos, measurements and why each item is needed.',
-      materials_ordered: 'ACV check received and deposited before ordering (unless HMP fronts it).', installed: 'Put the completion date on record: it unlocks the depreciation.',
+      materials_ordered: 'ACV check deposited, or a supplier account approved, before any material order. No fronting cash.', installed: 'Put the completion date on record: it unlocks the depreciation.',
       depreciation_requested: 'Send the final invoice + completion date the day the job finishes, and ask for the depreciation.', paid: 'ACV and depreciation both deposited. Close the loop.'},
     mort: 'Mortgage company on the check: start the endorsement the day the check arrives, not later.', depNow: 'Job installed: ask for the depreciation today (final invoice + completion date).',
     op: 'Overhead & Profit (10% + 10%) when 3+ trades are on the job: ask for it in writing.', suppH: 'Items adjusters often miss', suppP: 'Check each one against the photos and measurements. Add it only if the job needs it.',
@@ -5542,7 +5545,7 @@ const MCKX = {
     st: {inspected: 'Fotos con fecha de cada agua y lado dañado. Anota aparte el daño viejo.', claim_filed: 'Número de reclamo, nombre y teléfono del ajustador, fecha de la pérdida.',
       adjuster_set: 'Estar en la cita con el ajustador con las fotos.', scope_in: 'Compara el alcance de la aseguradora renglón por renglón con las fotos. Lo que falte empieza un suplemento.',
       signed: 'El contrato lleva el aviso del deducible y el aviso de cancelación de 3 días, en los dos idiomas.', supplement: 'Mándalo por escrito dentro de unos 180 días del primer cheque: fotos, medidas y por qué se necesita cada cosa.',
-      materials_ordered: 'Cheque ACV recibido y depositado antes de pedir material (a menos que HMP lo adelante).', installed: 'Registra la fecha de terminado: libera la depreciación.',
+      materials_ordered: 'Cheque ACV depositado, o cuenta con proveedor aprobada, antes de pedir material. No se adelanta dinero.', installed: 'Registra la fecha de terminado: libera la depreciación.',
       depreciation_requested: 'Manda la factura final + la fecha de terminado el mismo día que se acaba el trabajo, y pide la depreciación.', paid: 'ACV y depreciación depositados. Cierra el ciclo.'},
     mort: 'Banco hipotecario en el cheque: empieza el endoso el mismo día que llega el cheque, no después.', depNow: 'Trabajo instalado: pide la depreciación hoy (factura final + fecha de terminado).',
     op: 'Gastos generales y ganancia (10% + 10%) cuando hay 3 o más oficios en el trabajo: pídelos por escrito.', suppH: 'Cosas que el ajustador suele olvidar', suppP: 'Revisa cada una contra las fotos y las medidas. Agrégala solo si el trabajo la necesita.',
@@ -5724,7 +5727,9 @@ This page is the HMP App (tabs Now / Knock / Leads / Money; the Right Hand butto
 - update_lead {address, stage, next_step, notes, first_name, phone, lang, last_contact, contract_price, deposit, paid, payment}: change a lead already in LEADS (contract_price, deposit, paid are dollars for cash jobs; paid = total paid so far). payment {kind: deposit|progress|final, amount, due, paid_on} sets one of the 3 cash-job payments (paid_on YYYY-MM-DD once it is paid). last_contact = "now" (or YYYY-MM-DD) whenever he says he called, texted or talked with that homeowner. lang = "es" or "en", the homeowner's language.
 - log_doors {doors, conversations, inspections, signed}: numbers to ADD to this week's totals. Only what he just reported, never the running total. Every door reported counts, even with no address. The app counts each day once: if he also tapped those doors in Today's knock, the bigger number counts, so just log what he said.
 Estimates are not a log_doors number: the week counts one per lead when a quick estimate is saved on that lead (its estimate.at date), and none of these actions can set lead.estimate. When he says he gave an estimate, log the lead as usual and tell him to open that lead and tap "Make a quick estimate" ("Hacer un estimado rápido"), then Save to the lead.
-- update_claim {address, city, homeowner_first_name, stage, insurer, claim_no, adjuster{name,phone}, date_of_loss, adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held, mortgage{company,amount,check_sent,check_returned}, materials{ordered,supplier,cost}, install{start,done}, completion_sent, depreciation_check{amount,date}, contract_price, deductible, next_step, notes, supplement{date,item,asked,approved}}: create or update an insurance claim (one per house). stage: inspected | claim_filed | adjuster_set | scope_in | signed | supplement | materials_ordered | installed | depreciation_requested | paid | lost. Money in dollars (numbers), dates YYYY-MM-DD (received/deposited/check_sent may also be true).
+- update_claim {address, city, homeowner_first_name, stage, insurer, claim_no, adjuster{name,phone}, date_of_loss, adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held, mortgage{company,amount,check_sent,check_returned}, materials{ordered,supplier,cost}, install{start,done}, completion_sent, depreciation_check{amount,date}, contract_price, deductible, next_step, notes, supplement{date,item,asked,approved}, job{contingency_signed, adjuster_met, contract_signed, itemized_sent{homeowner,insurer}, supplier_account{name,number,approved}, crew{name,scheduled,start}, permit{pulled,number,city}, dumpster, final_inspection, packet{photos,lien_waiver,warranty}, depreciation_requested, closed, yard_sign, review_requested, thank_you_note}}: create or update an insurance claim (one per house). stage: inspected | claim_filed | adjuster_set | scope_in | signed | supplement | materials_ordered | installed | depreciation_requested | paid | lost. Money in dollars (numbers), dates YYYY-MM-DD (received/deposited/check_sent may also be true).
+  job = the claim screen's 14-step Job tracker, one date per thing done (the rest of the steps use the fields above: scope_date, acv, mortgage, materials.ordered, install.start = tear-off started, install.done, completion_sent = completion certificate sent, depreciation_check). Examples: "permit pulled, number 1234" -> job{permit{pulled:<today>, number:"1234"}}; "itemized sent to State Farm" -> job{itemized_sent{insurer:<today>}}; "contract signed" -> job{contract_signed:<today>}; "yard sign is up" -> job{yard_sign:<today>}. A thank-you is a handwritten note only.
+  Hard stops the page enforces (a refused write comes back as a receipt): install.start / install.done (tear-off, install) only after job.itemized_sent has BOTH dates (homeowner AND insurer, NE 44-8606) and the contract's 3-day cancel window is over; materials.ordered only after acv.deposited or job.supplier_account.approved. When one is refused, tell FilthE exactly what is still missing.
 - add_followup {address, en, es, due}: set the next step for a lead or claim (due YYYY-MM-DD).
 next_step is always {en, es, due}: one short line in English AND Spanish, e.g. {"en":"Inspection Tue Sep 29, 3 PM","es":"Inspección mar 29 sep, 3 PM","due":"2026-09-29"}. Put the time of day in the words.
 Turn day names into real dates from NOW (next Tuesday = the coming Tuesday). "inspection at <house>" = stage inspection_set plus an inspection. "interested" = stage contacted with a call-back follow-up tomorrow. A house with an insurer or claim number also gets update_claim.
@@ -5732,6 +5737,14 @@ Example: "knocked 20, talked to 4, inspection at 1418 Irving Tuesday 3pm" -> [{"
 The page shows FilthE a receipt for every write, so your reply can stay short. Never log that HMP covers, waives or discounts a deductible.`;
 
 const AMOUNT_KEYS = ['rcv', 'depreciation_held', 'contract_price', 'deductible'];
+// v25.2 (T199): claim.job, the Job tracker's dates (shape: HMPJobTrack.SHAPE). A date may come as true / "today": it is stamped with today.
+function jobMerge(o, a, shape, pre, t0){
+  let n = 0;
+  for (const [k, t] of Object.entries(shape)) { const v = a[k]; if (v == null || v === '') continue;
+    if (typeof t === 'object') { if (typeof v !== 'object' || Array.isArray(v)) bad(L().rc.why.obj(pre + k)); const r = jobMerge(o[k] && typeof o[k] === 'object' ? o[k] : {}, v, t, pre + k + '.', t0); o[k] = r.o; n += r.n; }
+    else { o[k] = t === 'd' ? (v === true || /^(now|today|hoy)$/i.test(strv(v)) ? t0 : vDate(v, pre + k)) : strv(v).slice(0, 60); n++; } }
+  return {o, n};
+}
 const DATE_KEYS = ['date_of_loss', 'adjuster_date', 'scope_date', 'completion_sent'];
 const NESTED = {adjuster: {name: 's', phone: 's'}, acv: {amount: 'n', received: 'd', deposited: 'd'}, mortgage: {company: 's', amount: 'n', check_sent: 'd', check_returned: 'd'},
   materials: {ordered: 'd', supplier: 's', cost: 'n'}, install: {start: 'd', done: 'd'}, depreciation_check: {amount: 'n', date: 'd'}};
@@ -5812,6 +5825,14 @@ async function appAction(a, at){
       const row = {item: strv(s.item).slice(0, 120)}; if (s.date) row.date = vDate(s.date, 'supplement.date'); if (s.asked != null && s.asked !== '') row.asked = vNum(s.asked, 'supplement.asked');
       if (s.approved === true || s.approved === false) row.approved = s.approved; else if (s.approved != null && s.approved !== '') row.approved = vNum(s.approved, 'supplement.approved');
       c.supplements = [...(Array.isArray(c.supplements) ? c.supplements : []), row].slice(-20); changed = true; }
+    if (window.HMPJobTrack) {   // v25.2: the Job tracker's dates, as job{...} (a job key sent at the top level is taken too)
+      if (a.job != null && (typeof a.job !== 'object' || Array.isArray(a.job))) bad(R.why.obj('job'));
+      const jin = Object.assign({}, ...Object.keys(HMPJobTrack.SHAPE).filter(k => a[k] != null).map(k => ({[k]: a[k]})), a.job || {});
+      if (Object.keys(jin).length) { const t0 = todayStr(), r = jobMerge(c.job && typeof c.job === 'object' ? c.job : {}, jin, HMPJobTrack.SHAPE, 'job.', t0);
+        if (r.n) { if (jin.contract_signed && !jin.cancel_by) r.o.cancel_by = HMPJobTrack.cancelEnd(r.o.contract_signed);
+          c.job = r.o; changed = true; const ns = [...new Set(Object.keys(jin).map(k => HMPJobTrack.JOB_STEP[k]).filter(Boolean))].sort((x, y) => x - y); if (ns.length) bits.push(`${JT().rc}: ${JT().stepsN(ns)}`); } }
+      const why = HMPJobTrack.checkWrite(old || {}, c, {today: todayStr()}); if (why) bad(txl(why));   // the hard stops (44-8606 + the 3-day cancel; no materials on a guess)
+    }
     if (a.next_step) { c.next_step = vNext(a.next_step); changed = true; bits.push(txl(c.next_step)); }
     if (a.notes) { const n = strv(a.notes).slice(0, 600); c.notes = c.notes && old ? `${c.notes}\n${n}`.slice(-1500) : n; changed = true; }
     if (!changed) bad(R.why.empty);
