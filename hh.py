@@ -234,7 +234,7 @@ def _bundled(rel):
     """Which files go in the cloud bundle: engine code, the offline tests + their fixtures (so `selftest` runs in
     the cloud too), config/contacts/tuned weights, and the crew notes."""
     rel = rel.replace(os.sep, "/")
-    if "__pycache__" in rel:
+    if "__pycache__" in rel or rel.startswith(".claude/worktrees/"):
         return False
     if rel.endswith(".py") and (rel.startswith(("hailhunter/", "vendor/", "tests/")) or rel == "hh.py"):
         return True
