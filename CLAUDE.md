@@ -58,8 +58,11 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   mailers; no owner names for homes. Statute text lives in `docs/legal/`.
 
 ## How we work (save usage - FilthE, 2026-09-27)
-- **The King is SMUIPO (FilthE, 2026-09-27)** and sits at the top: it gives every helper a board job, does hard work
-  itself (crew setup, reviews, publishing, the trickiest code), and hands smaller jobs to helpers too. **No idling:**
+- **The King is SMUIPO (FilthE, 2026-09-27)** and watches over it all. **The King's chat is FilthE's conversation
+  bubble, not a workbench:** he talks, SMUIPO decides, hands out jobs and reports results in a few lines. All the
+  work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
+  watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
+  (write every Agent `description` as a plain-English job line: it's what the hub shows). **No idling:**
   when a helper finishes, review it and give it the next board job in the same turn; run several at once (the
   AI hub is how FilthE sees who's doing what). Helpers report back in 10 lines or fewer (their work never enters the
   King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
