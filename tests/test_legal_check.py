@@ -22,6 +22,14 @@ class TestLegalCheck(unittest.TestCase):
         failures = legal_check.check_contingency_elements()
         self.assertEqual(failures, [], "\n".join(failures))
 
+    def test_print_type(self):
+        """Cooling-off type: 10pt bold right-to-cancel statement + Notice of Cancellation forms (16 CFR 429.1, 69-1604)."""
+        try:
+            failures = legal_check.check_print_type()
+        except legal_check.PrintTypeUnavailable as why:
+            self.skipTest(f"no browser to measure the print pieces with: {why}")
+        self.assertEqual(failures, [], "\n".join(failures))
+
     def test_banned_phrases(self):
         failures = legal_check.check_banned_phrases()
         if failures:

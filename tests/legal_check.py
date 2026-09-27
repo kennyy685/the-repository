@@ -6,7 +6,7 @@ Runnable standalone:
 
 Also wired into `hh.py selftest` via tests/test_legal_check.py.
 
-Four checks, each printing every failure it finds (file + line), not just the first:
+Five checks, each printing every failure it finds (file + line), not just the first:
 
 1. STATUTE MATCH - the Nebraska 44-8607 deductible notice printed in
    docs/print/contract-draft.html, docs/print/contingency-agreement.html and the English
@@ -32,6 +32,11 @@ Four checks, each printing every failure it finds (file + line), not just the fi
    window of text right before each hit is checked for a negation/rule word before
    it is flagged - this keeps the check from crying wolf on our own compliance
    training text while still catching a real sales claim.
+4. COOLING-OFF TYPE - FTC 16 CFR 429.1 + Neb. 69-1604(1): the
+   buyer's-right-to-cancel statement and every Notice of Cancellation copy in the contract
+   drafts, cancel-notice.html and the contingency agreements must render at >= 10pt bold
+   (statement in capital and lowercase), no copy clipped off its page. Measured in headless
+   Chromium by tests/print_type_check.js; skipped (not failed) where no browser exists.
 
 Exit code 0 = everything passed. Exit code 1 = at least one real failure below.
 """
@@ -293,6 +298,42 @@ def check_contingency_elements():
     return failures
 
 
+class PrintTypeUnavailable(Exception):
+    """No Node/Playwright/Chromium here (e.g. the cloud bundle): check 5 can't measure, so it is skipped."""
+
+
+def check_print_type():
+    """Check 4: the cooling-off type rules, measured on the rendered pages.
+
+    FTC 16 CFR 429.1(a)/(b) and Neb. 69-1604(1): the buyer's-right-to-cancel statement and every Notice of
+    Cancellation copy in at least 10-point BOLD (the statement also in capital and lowercase letters), and no
+    copy clipped off its page. Runs tests/print_type_check.js (headless Chromium, print media) over the
+    contract drafts, cancel-notice.html and the contingency agreements. Raises PrintTypeUnavailable when
+    there is no browser to measure with.
+    """
+    import json
+    import shutil
+    import subprocess
+
+    script = os.path.join(ROOT, "tests", "print_type_check.js")
+    node = shutil.which("node")
+    if not node or not os.path.exists(script):
+        raise PrintTypeUnavailable("node or tests/print_type_check.js not found")
+    try:
+        proc = subprocess.run([node, script, "--json"], cwd=ROOT, capture_output=True, text=True, timeout=180)
+    except subprocess.TimeoutExpired:
+        return ["tests/print_type_check.js timed out after 180 s"]
+    lines = [ln for ln in proc.stdout.splitlines() if ln.startswith("{")]
+    if not lines:
+        if proc.returncode == 2:
+            raise PrintTypeUnavailable((proc.stderr or "could not start the browser").strip().splitlines()[-1][:200])
+        return [f"tests/print_type_check.js gave no result (exit {proc.returncode}): {proc.stderr.strip()[:300]}"]
+    result = json.loads(lines[-1])
+    if result.get("ok") is None:
+        raise PrintTypeUnavailable(result.get("unavailable") or "browser unavailable")
+    return list(result.get("failures") or [])
+
+
 def _iter_scan_files():
     for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "docs/print")):
         for fn in filenames:
@@ -401,8 +442,14 @@ def run(verbose=True):
         ("cancel notice elements (69-1601/69-1604)", check_cancel_notice_elements),
         ("contingency agreement elements (44-8603/05/06, 69-1604)", check_contingency_elements),
         ("banned phrases", check_banned_phrases),
+        ("cooling-off type: 10pt bold statement + cancel forms (16 CFR 429.1, 69-1604)", check_print_type),
     ):
-        failures = check()
+        try:
+            failures = check()
+        except PrintTypeUnavailable as why:
+            if verbose:
+                print(f"[SKIP] {name}: {why}")
+            continue
         if verbose:
             status = "PASS" if not failures else f"FAIL ({len(failures)})"
             print(f"[{status}] {name}")
