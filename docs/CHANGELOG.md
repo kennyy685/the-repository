@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Practice Door v10 - 2026-09-27
+- New v25 look (Ledger light + Ledger Night dark): homeowner cards with an icon, difficulty and language chips; Rookie switch.
+- At the door: a messaging-style chat with the homeowner's avatar, a mic + keyboard bar, and the cheat sheet as a bottom sheet.
+- Scorecard: big score with a pass/fail bar, rows with icons, a calm legal box, "Knock again" always at the bottom. Legal checks unchanged.
+
 ## v24.1 - 2026-09-27
 - Fixed blank white buttons in dark mode, duplicate menus, "Built 1980" twice, wrong map caption.
 - Knock hours: shown only where they're verified (Omaha 8-6, Lincoln 8-8); calm one-line status.

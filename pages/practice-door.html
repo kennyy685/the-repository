@@ -108,7 +108,7 @@ h1,h2,h3{text-wrap:balance}
 .week .today{color:var(--ink)}
 .week .today i{box-shadow:inset 0 0 0 1.5px var(--ink)}
 .prog-nums{display:flex;gap:var(--s4)}
-.stat{display:grid;gap:2px}
+.stat{display:grid;gap:2px;align-content:start}
 .stat b{font-size:var(--t-title);font-weight:600;line-height:1.1;letter-spacing:-.015em;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;line-height:1.25;color:var(--muted);max-width:12ch}
 .store-note{flex-basis:100%;font-size:var(--t-cap);color:var(--warn)}
@@ -201,7 +201,8 @@ h1,h2,h3{text-wrap:balance}
 .field-list .objs{margin-top:var(--s1)}
 .obj-x{justify-self:start;margin-top:var(--s1)}
 .knock-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);margin-inline:calc(var(--s4) * -1);padding:var(--s3) var(--s4);background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-.knock-bar .btn-ghost{width:auto;min-height:var(--hit-lg)}
+.knock-bar .btn-primary{white-space:nowrap;padding-inline:var(--s3)}
+.knock-bar .btn-ghost{width:auto;min-height:var(--hit-lg);white-space:nowrap}
 
 /* ---------- at the door: a messaging screen ---------- */
 #scrDoor{gap:var(--s3);padding-bottom:128px}
@@ -403,6 +404,7 @@ li.bad .ck-l{color:var(--late)}
 .off-card h2{font-size:var(--t-row);font-weight:600;line-height:1.3}
 .off-card p{margin-top:var(--s1);color:var(--ink-2)}
 
+@media (max-width:380px){.knock-bar .btn-ghost .i{display:none}}
 @media (max-width:340px){.who-grid{grid-template-columns:1fr}.who-wide,.who-random{grid-column:auto}.stats dd{font-size:var(--t-row)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
