@@ -55,3 +55,17 @@ Design gate `--quick` on the page: clean except the missing `hub/scene.js`.
 Left: plug in the scene (`pages/hub/scene.js` + `still.webp`, see the scene status below), then the
 full design gate + shots.js, fix findings, publish (go-live rule above), CHANGELOG line.
 Screenshot helper for this container (CDN blocked): route jsdelivr to a local `npm pack three@0.169.0`.
+
+## Scene status (paused, 2026-09-27)
+- **Done (untested):** `pages/hub/scene.js`, first full draft (parses; never run in a browser yet). It has both floors
+  (upper at +3.1 m, offset back-left (-4.2, -4.6) so the 3/4 camera stacks them), every station from decision 3,
+  the spiral slide and the suction tube as one-way links in the aisle graph, walk/ride movement, the claim-based
+  spots, the pod/desk sleep overflow, the done -> coffee -> lounge chain, idle wandering on the same floor, all 10
+  outfits (merged per material), cameras all/up/down/follow with glide, drag-to-turn, board + trophy canvas redraws,
+  handoff folders, radar, screens, "your spot" glow, the phone savings (static shadow map, merge, DPR drop) and
+  `#capture`. `window.SCENE` follows CONTRACT.md, plus a test-only `settle()`.
+- **Left:** `docs/design/hub-office/scene-harness.html` (fake HUB + demo loop + cam switcher), the Playwright shots
+  (`shots/v2-*`), a visual pass (layout/scale/occlusion checks at 390 px), and `pages/hub/still.webp` from `#capture`.
+- **Known issues / to check:** it has never rendered, so expect first-run bugs. The DOM contract is implied (`#stage`,
+  `#gl` created if missing, `--horizon` on `#sky`); add it to CONTRACT.md. Two floors probably want a taller phone
+  stage (about 130-140vw) than the mockup's 108vw. Robots under the mezzanine's back-left corner may be partly hidden.
