@@ -190,5 +190,18 @@
     </div>
   </footer>
 </main>
+<script>
+window.addEventListener('load', () => {
+  const page = document.querySelector('.page');
+  const foot = document.querySelector('.foot');
+  const pr = page.getBoundingClientRect();
+  const fr = foot.getBoundingClientRect();
+  const cs = getComputedStyle(page);
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;background:#0f0;color:#000;font-size:20px;z-index:9999;padding:8px;font-family:monospace;white-space:pre';
+  d.textContent = 'innerW=' + window.innerWidth + ' pageW=' + pr.width.toFixed(1) + ' pageH=' + pr.height.toFixed(1) + ' cssH=' + cs.height + ' ov=' + cs.overflow + ' footBottomRel=' + (fr.bottom - pr.top).toFixed(1);
+  document.body.appendChild(d);
+});
+</script>
 </body>
 </html>
