@@ -27,7 +27,9 @@ CREW = {
     "qa-tester": ("qa-tester", "tests"),
     "engine-mechanic": ("engine-mechanic", "engine"),
 }
-SKIP = {"improvement-scout", "statusline-setup"}
+SKIP = {"improvement-scout", "statusline-setup", ""}  # "" = an internal agent with no type: not a crew job
+NAMES = {"builder": "Builder", "designer": "Designer", "hub-keeper": "Research Lead", "qa-tester": "QA Tester",
+         "engine-mechanic": "Engine Mechanic", "code": "A helper"}
 
 ROOT = os.environ.get("CLAUDE_PROJECT_DIR") or os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 STATE = os.path.join(ROOT, ".claude", "state")
@@ -84,8 +86,9 @@ def build(rows):
         if not r or r.get("event") not in ("start", "stop") or r.get("agent_type") in SKIP:
             continue
         hub_id, room = CREW.get(r.get("agent_type"), ("code", "board"))
-        desc = find(r) or r.get("agent_type") or "a job"
+        desc = find(r)
         done = r["event"] == "stop"
+        who = NAMES.get(hub_id, "A helper")
         at = r.get("at") or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         t = datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ")
         doc_id = t.strftime("%Y%m%dT%H%M%SZ") + "-" + hub_id
@@ -93,13 +96,22 @@ def build(rows):
             t += timedelta(seconds=1)
             doc_id = t.strftime("%Y%m%dT%H%M%SZ") + "-" + hub_id
         used.add(doc_id)
-        text = f"Finished: {desc}. {KING} is reviewing it." if done else f"Started: {desc}."
-        events.append({"agent": hub_id, "at": at, "kind": "done" if done else "start", "lane": "code", "room": room,
-                       "status": "done" if done else "working", "task": clip(desc, 80), "text": clip(text)} | {"_id": doc_id})
+        if desc:
+            text = f"Finished: {desc}. {KING} is reviewing it." if done else f"Started: {desc}."
+        else:  # launched before the hooks were on: no job description logged
+            text = f"{who} finished; {KING} is reviewing it." if done else f"{who} started a job."
+        ev = {"agent": hub_id, "at": at, "kind": "done" if done else "start", "lane": "code", "room": room,
+              "status": "done" if done else "working", "text": clip(text)}
+        if desc:
+            ev["task"] = clip(desc, 80)
+        events.append(ev | {"_id": doc_id})
         if hub_id != "code":
-            latest[hub_id] = {"status": "done" if done else "working", "room": room,
-                              "doing": clip(("Done, " + KING + " reviewing: " if done else "") + desc, 200),
-                              "task": clip(desc, 80), "at": at}
+            upd = {"status": "done" if done else "working", "room": room, "at": at,
+                   "doing": clip((f"Done, {KING} reviewing: {desc}" if desc else f"Done, {KING} reviewing the result")
+                                 if done else (desc or "Working on a job"), 200)}
+            if desc:
+                upd["task"] = clip(desc, 80)
+            latest[hub_id] = upd
     return events, latest
 
 
