@@ -95,6 +95,7 @@ h1,h2,h3,p{margin:0}
 .ov{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .stagebar{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;display:flex;gap:8px;align-items:center;justify-content:space-between}
 .stagebar .seg,.stagebar .ibtn,.stagetop .ibtn{background:rgba(10,10,14,.5);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.stagebar .ibtn[aria-pressed="true"],.stagetop .ibtn[aria-pressed="true"]{color:#1b1206;background:var(--hmp)}
 .stagebar .seg button{padding:0 11px}
 .stagetop{position:absolute;left:12px;right:12px;top:10px;z-index:4;display:flex;gap:8px;align-items:flex-start;justify-content:space-between;pointer-events:none}
 .stagetop > *{pointer-events:auto}
@@ -333,7 +334,8 @@ h1,h2,h3,p{margin:0}
 }
 @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (max-width:899px){ .bub{display:flex;align-items:center;gap:6px;max-width:min(200px,54vw);padding:6px 9px 7px;border-radius:12px} .bub .bh{margin:0} .bub .bh .nm{display:none} .bub .bt{font-size:12px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block} }
-@media (max-width:400px){ .sum .opt{display:none} .live{padding:0;width:44px;justify-content:center} .live #liveText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} .stagebar .seg button{padding:0 9px} }
+@media (max-width:400px){ .sum .opt{display:none} .stagebar .seg button{padding:0 9px} }
+@media (max-width:560px){ .live{padding:0;width:44px;justify-content:center} .live #liveText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} }
 .test .bub,.test .tag,.test .need,.test .zz,.test .ring{transition:none!important;animation-duration:0s!important}
 @media (prefers-reduced-motion:reduce){
   .sky .clouds,.sky .rain,.zz span,.bub.waiting .ic,.sky .stars i,.need,.live .dot,.recap,.ev.fresh{animation:none!important}
@@ -375,7 +377,7 @@ h1,h2,h3,p{margin:0}
       <div class="vig"></div>
     </div>
     <canvas id="gl" role="img" aria-label="The crew's two-floor office. Each robot is one AI; tap one to see what it is doing."></canvas>
-    <img class="still" id="still" alt="The crew's two-floor office at dusk, with each AI robot at its station." src="hub/still.webp" onerror="this.hidden=true">
+    <img class="still" id="still" alt="The crew's two-floor office, with each AI robot at its station." src="hub/still.webp" onerror="this.hidden=true">
     <div class="ov" id="ov"></div>
     <div class="stagetop">
       <p class="hint" id="hint" data-t="hint">Tap a robot to see what it is doing.</p>
@@ -469,7 +471,7 @@ const TX = {
     liveLast: w => `Live · ${w}`,
     sky: {live: 'live', dusk: 'dusk', night: 'night', day: 'day'}, skyAria: m => `Sky: ${m}. Tap to change.`,
     ding: on => `Ding when a robot needs you: ${on ? 'on' : 'off'}`, dingOn: 'Ding is on: you’ll hear a soft chime when something needs you.', dingOff: 'Ding is off.',
-    still: '3D is off on this device, so this is a still picture. The crew list is live.',
+    still: '3D is off on this device, so this is a still picture. The crew list is live.', stillAlt: "The crew's two-floor office, with each AI robot at its station.",
     replayAria: 'Replay the last 24 hours', noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
     awayH: h => `While you were away · ${h} h`, awayT: (d, s, n) => [`${d} done`, `${s} stuck`, `${n} ${pl(n, 'needs', 'need')} you`].join(' · '),
     copied: 'Copied.', kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
@@ -505,7 +507,7 @@ const TX = {
     liveLast: w => `En vivo · ${w.replace('hace ', '')}`,
     sky: {live: 'en vivo', dusk: 'atardecer', night: 'noche', day: 'día'}, skyAria: m => `Cielo: ${m}. Toca para cambiar.`,
     ding: on => `Sonido cuando un robot te necesita: ${on ? 'prendido' : 'apagado'}`, dingOn: 'Sonido prendido: oirás un timbre suave cuando algo te necesite.', dingOff: 'Sonido apagado.',
-    still: 'El 3D está apagado en este equipo; esto es una foto fija. La lista del equipo sí está en vivo.',
+    still: 'El 3D está apagado en este equipo; esto es una foto fija. La lista del equipo sí está en vivo.', stillAlt: 'La oficina de dos pisos del equipo, con cada robot de IA en su puesto.',
     replayAria: 'Repetir las últimas 24 horas', noReplay: 'Nadie se ha reportado en las últimas 24 horas.', replayW: 'REPETICIÓN', caughtUp: 'Ya vamos al día.',
     awayH: h => `Mientras no estabas · ${h} h`, awayT: (d, s, n) => [`${d} ${pl(d, 'hecha', 'hechas')}`, `${s} ${pl(s, 'atorado', 'atorados')}`, `${n} te ${pl(n, 'necesita', 'necesitan')}`].join(' · '),
     copied: 'Copiado.', kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
@@ -1013,7 +1015,7 @@ function placeOverlay(){
     if (sleeping) o.zz.style.transform = 'translate(' + Math.round(an.x + 4) + 'px,' + Math.round(an.y - 44) + 'px)';
     const p = a.st === 'working' && !an.moving ? progressOf(a) : null;
     o.ring.classList.toggle('on', p != null);
-    if (p != null) { o.ring.querySelector('.fg').setAttribute('stroke-dashoffset', (62.83*(1 - p)).toFixed(2)); o.ring.style.transform = 'translate(' + Math.round(an.x + 12) + 'px,' + Math.round(an.y - 30) + 'px)'; }
+    if (p != null) { o.ring.querySelector('.fg').setAttribute('stroke-dashoffset', (62.83*(1 - p)).toFixed(2)); o.ring.style.transform = 'translate(' + Math.round(showTag ? an.x + o.tw/2 + 4 : an.x + 12) + 'px,' + Math.round(showTag ? an.y - 28 : an.y - 30) + 'px)'; }
     if (showBub) { if (!o.w) { o.w = o.bub.offsetWidth; o.h = o.bub.offsetHeight; } boxes.push({o, id:a.id, ax:an.x, ay:an.y - 10, w:o.w, h:o.h}); }
   }
   tags.sort((p, q) => (q.sel - p.sel) || (q.y - p.y)); const tp = [];
@@ -1027,6 +1029,7 @@ function placeOverlay(){
     for (const shift of [0, -.36, .36, -.5, .5, -.8, .8]) for (const lift of [0, 28, b.h + 10, b.h*2 + 20]) {
       const left = Math.max(8, Math.min(W - b.w - 8, b.ax - b.w/2 + shift*b.w)), top = Math.max(60, b.ay - b.h - 6 - lift);
       let score = Math.abs(shift)*8 + lift*.1;
+      for (const t of tp) if (left < t.x + t.w + 4 && left + b.w + 4 > t.x && top < t.y + 24 && top + b.h + 4 > t.y) score += 30;
       for (const p of placed) if (left < p.left + p.w + 6 && left + b.w + 6 > p.left && top < p.top + p.h + 6 && top + b.h + 6 > p.top) score += 100;
       for (const hd of heads) { if (Math.abs(hd.x - b.ax) + Math.abs(hd.y - b.ay - 10) < 4) continue; if (hd.x + 16 > left && hd.x - 16 < left + b.w && hd.fy - 8 > top && hd.y - 18 < top + b.h) score += 12; }
       if (!best || score < best.score) best = {left, top, score};
@@ -1114,6 +1117,7 @@ function applyStatic(){
   for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
   $('#kcInput').placeholder = st.kcPh; $('#replayBtn').setAttribute('aria-label', L().replayAria);
+  $('#still').alt = L().stillAlt;
   if (document.getElementById('app').classList.contains('no-gl')) $('#hint').textContent = L().still;
   applySkyLabel(); applyDing();
 }

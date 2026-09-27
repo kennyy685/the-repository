@@ -189,7 +189,7 @@ const MAT = {
   brassSoft: std({color:0xb8914b, metalness:1, roughness:.45}),
   walnut: std({map:walnutTex, roughness:.5, metalness:0}),
   slats: std({map:slatTex, roughness:.62}),
-  stone: std({map:stoneTex, roughness:.3, metalness:0, color:0xf4f0ea}),
+  stone: std({map:stoneTex, roughness:.3, metalness:0, color:0x77716a}),
   marble: std({map:marbleTex, roughness:.18}),
   travertine: std({color:0xd8cdbb, roughness:.55}),
   leather: std({color:0x8e4b2a, roughness:.55}),
@@ -249,7 +249,7 @@ const TUBE = {x:-3.9, z:-.7, r:.46, top:4.85};
 /* --- floors, slabs, the tower below --- */
 for (const f of ['down','up']){
   P = GRP[f];
-  box(FX*2, f === 'up' ? .3 : .34, FZ*2, MAT.slab, 0, f === 'up' ? -.15 : -.17, 0, P, false);
+  box(FX*2, f === 'up' ? .3 : .34, FZ*2, MAT.slab, 0, f === 'up' ? -.156 : -.176, 0, P, false);   // top 6 mm under the floor plane (no z-fighting)
   const fl = new THREE.Mesh(new THREE.PlaneGeometry(FX*2, FZ*2), MAT.stone); fl.rotation.x = -Math.PI/2; fl.receiveShadow = true; P.add(fl);
   // ledge light (HMP orange) + brass lip on the two open edges
   box(FX*2, .025, .025, MAT.orange, 0, -.05, FZ + .002, P, false); box(.025, .025, FZ*2, MAT.orange, FX + .002, -.05, 0, P, false);
@@ -519,14 +519,17 @@ const tube = {};
   for (const o of all){
     const m = o.material; if (Array.isArray(m) || m.transparent || !o.geometry.attributes.uv || !o.geometry.attributes.normal) continue;
     if (Object.values(screens).some(s => s.m === o)) continue;
-    const key = m.uuid + (o.castShadow ? 'c' : '') + (o.receiveShadow ? 'r' : '') + (o.geometry.index ? 'i' : 'n');
+    let fl = 's'; for (let q = o.parent; q; q = q.parent) if (q === gUp){ fl = 'u'; break; }
+    o.userData.fl = fl;
+    const key = fl + m.uuid + (o.castShadow ? 'c' : '') + (o.receiveShadow ? 'r' : '') + (o.geometry.index ? 'i' : 'n');
     if (!groups.has(key)) groups.set(key, []); groups.get(key).push(o);
   }
   for (const list of groups.values()){
     if (list.length < 2) continue;
-    const geos = list.map(o => { const g = o.geometry.clone(); for (const k of Object.keys(g.attributes)) if (!['position','normal','uv'].includes(k)) g.deleteAttribute(k); g.morphAttributes = {}; g.clearGroups(); g.applyMatrix4(o.matrixWorld); return g; });
+    const up = list[0].userData.fl === 'u', upInv = gUp.matrixWorld.clone().invert();
+    const geos = list.map(o => { const g = o.geometry.clone(); for (const k of Object.keys(g.attributes)) if (!['position','normal','uv'].includes(k)) g.deleteAttribute(k); g.morphAttributes = {}; g.clearGroups(); g.applyMatrix4(o.matrixWorld); if (up) g.applyMatrix4(upInv); return g; });
     const merged = mergeGeometries(geos, false); if (!merged) continue;
-    const mesh = new THREE.Mesh(merged, list[0].material); mesh.castShadow = list[0].castShadow; mesh.receiveShadow = list[0].receiveShadow; scene.add(mesh);
+    const mesh = new THREE.Mesh(merged, list[0].material); mesh.castShadow = list[0].castShadow; mesh.receiveShadow = list[0].receiveShadow; (up ? gUp : scene).add(mesh);
     for (const o of list){ o.parent.remove(o); o.geometry.dispose(); } for (const g of geos) g.dispose();
   }
 }
@@ -961,6 +964,7 @@ for (const L of LAMPS){ L.l.position.set(...L.p); scene.add(L.l); }
 const cam = new THREE.OrthographicCamera(-5, 5, 5, -5, .1, 140);
 const TARGET = new THREE.Vector3(-1.9, 1.9, -2.2);
 const AZ0 = Math.PI/4 - .06;
+let LIFT = 0;
 const view = {el:.6, drag:0, rect:null, want:{l:-5, r:5, t:5, b:-5}, mode:'', horizon:null};
 function aim(az){ const d = 50; cam.position.set(TARGET.x + Math.sin(az)*Math.cos(view.el)*d, TARGET.y + Math.sin(view.el)*d, TARGET.z + Math.cos(az)*Math.cos(view.el)*d); cam.up.set(0,1,0); cam.lookAt(TARGET); cam.updateMatrixWorld(); cam.matrixWorldInverse.copy(cam.matrixWorld).invert(); }
 function floorBox(f, withWalls){ const F = FL[f], out = [];
@@ -997,6 +1001,10 @@ function updateCamera(dt, snap){
   if (!view.rect || snap || RM.matches || CAPTURE) view.rect = Object.assign({}, want);
   else { const k = 1 - Math.exp(-dt*(mode === 'follow' && view.mode === 'follow' ? 5 : 3.2)); for (const key of ['l','r','t','b']) view.rect[key] += (want[key] - view.rect[key])*k; }
   view.mode = mode; applyRect(view.rect);
+  // Downstairs view: the upper floor lifts away (and hides) so nothing covers the lower floor
+  const lw = mode === 'down' ? 1 : 0; view.lift = view.lift == null || snap || RM.matches || CAPTURE ? lw : view.lift + (lw - view.lift)*Math.min(1, dt*4.5);
+  if (Math.abs(view.lift - lw) < .002) view.lift = lw;
+  LIFT = view.lift*view.lift*(3 - 2*view.lift)*8; gUp.position.y = FL.up.oy + LIFT; gUp.visible = view.lift < .85;
   if (skyEl){ const f = mode === 'follow' ? sims[HUB.selected].floor : mode; const hz = VC.copy(HZ[f] || HZ.all).project(cam); const pct = (1 - hz.y)/2*100;
     view.horizon = view.horizon == null || RM.matches ? pct : view.horizon + (pct - view.horizon)*Math.min(1, dt*3.2);
     const s = Math.max(8, Math.min(92, view.horizon)).toFixed(1) + '%'; if (s !== view.hs){ view.hs = s; skyEl.style.setProperty('--horizon', s); } }
@@ -1021,7 +1029,8 @@ const HAND_PROP_POSES = new Set(['glide','settle','lounge','wait','meet','ride',
 function animRobot(a, sim, R, t, dt){
   const rm = RM.matches, pose = sim.pose, pt = sim.poseT, ph = sim.phase;
   if (pose !== R.lastPose){ R.lastPose = pose; if (pose === 'cheer' && !rm) burst(sim.x, sim.y + 1.35, sim.z); }
-  R.root.position.set(sim.x, sim.y, sim.z);
+  const up = sim.floor === 'up' && !sim.ride ? LIFT : 0;
+  R.root.position.set(sim.x, sim.y + up, sim.z); R.root.visible = !sim.hidden && !(up && !gUp.visible);
   let spin = 0; if (pose === 'cheer' && !rm){ const k = Math.min(1, pt/1.1); spin = (1 - Math.pow(1-k, 3)) * Math.PI*2; }
   R.root.rotation.y = sim.yawDraw + spin;
   const seat = sim.spot && sim.spot.seat && !sim.moving ? .2 : 0;
@@ -1094,9 +1103,9 @@ function animRobot(a, sim, R, t, dt){
   R.ring2.scale.setScalar(pose === 'wait' ? 1.05 : 1.15);
   R.ring.visible = R.ring.material.opacity > .01; R.ring2.visible = R.ring2.material.opacity > .01;
   // overlay anchor: top of the head + the floor under the robot
-  V.set(sim.x, sim.y + hh + 1.2 + R.hat, sim.z).project(cam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H;
-  V.set(sim.x, sim.y, sim.z).project(cam); const fx = (V.x+1)/2*W, fy = (1-V.y)/2*H;
-  const on = ax > -20 && ax < W + 20 && ay > -40 && fy < H + 20;
+  V.set(sim.x, sim.y + up + hh + 1.2 + R.hat, sim.z).project(cam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H;
+  V.set(sim.x, sim.y + up, sim.z).project(cam); const fx = (V.x+1)/2*W, fy = (1-V.y)/2*H;
+  const on = !(up > .3) && ax > -20 && ax < W + 20 && ay > -40 && fy < H + 20;
   const an = anchors[a.id] || (anchors[a.id] = {});
   an.x = ax; an.y = ay; an.fx = fx; an.fy = fy; an.pose = pose; an.moving = !!sim.moving; an.visible = on; an.floor = sim.floor;
 }
