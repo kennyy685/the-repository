@@ -4,8 +4,17 @@ Map tiles are blocked in the app page, so the map is drawn from vectors the engi
   basemap = {bbox: [w, s, e, n], streets: [{name, cls, path: [[lon, lat], ...]}], lots: [[[lon, lat], ...]],
              labels: [{text, at: [lon, lat], angle}], source, kb}
   route   = [[lon, lat], ...] through the stops in walking order (straight lines door to door).
-Both are ADDITIVE fields on walks/<zone id> and today/walk. No data (offline with nothing cached, a server down, the
-time guard used) -> basemap null; the page falls back to its plain map. route needs no network.
+  route_segments = [{from, to, path: [[lon, lat], ...], m, gap}] one per hop stop i -> i+1 (from/to = stop indexes):
+            the walk along the streets, from the street point in front of one house to the next (shortest path on the
+            basemap's streets). gap true = no street path in the data (or a detour over `route_max_detour_m`):
+            path is a straight line then, drawn as a light dashed hop.
+  stop_side = [{street, at: [lon, lat], side, m} | null] one per stop: the street the house is on (its address street
+            when it is in the data, else the nearest), the point on that street in front of the house (`at`, where
+            route_segments start and end), which side of the street the house sits on (compass N/NE/E/SE/S/SW/W/NW,
+            from the street toward the house) and how far back (m). null = no street near enough.
+All are ADDITIVE fields on walks/<zone id> and today/walk. No data (offline with nothing cached, a server down, the
+time guard used) -> basemap, route_segments and stop_side null; the page falls back to its plain map. route needs no
+network.
 
 Sources (checked 2026-09-26 from the cloud session's network, `curl -sS -m 20`):
 - streets: gis.ne.gov Street_Centerlines FeatureServer/0 (statewide NG911 road centerlines: every county, with
@@ -16,13 +25,18 @@ Also responding (not used; the statewide layer already covers them): dcgis.org v
 geodata.sarpy.gov PublicWorks/PublicWorksSarpy layer 3 "Street", gis.ne.gov Highways. Census TIGERweb and
 arcgis.com are blocked by the network proxy.
 
-Size: lines are clipped to the walk's box, simplified (Douglas-Peucker, `simplify_m`), rounded to `decimals`, same-name
+Boxes: lots cover `bbox` (stops + `margin_m`, the box the page fits); streets cover the wider `street_bbox` (stops +
+`street_margin_m`) so the corners a route turns at are there (a street piece the lots box cut off used to make the
+route jump). Street labels sit inside `bbox`.
+Size: lines are clipped to their box, simplified (Douglas-Peucker, `simplify_m`), rounded to `decimals`, same-name
 street pieces are joined, and the whole thing is kept under `max_kb` (coarser lots, then the farthest lots dropped).
 Cache: table basemap_cache (key = the rounded box) in the engine database, `max_age_days`; streets rarely change.
 angle = degrees to rotate the label on a north-up screen (SVG rotate(), clockwise, y down), kept in -90..90.
 """
+import heapq
 import json
 import math
+import re
 import sqlite3
 import string
 import sys
@@ -36,7 +50,7 @@ STREETS_URL = "https://gis.ne.gov/Enterprise/rest/services/Street_Centerlines/Fe
 LOTS_URL = "https://gis.ne.gov/Enterprise/rest/services/StatewideParcelsExternal/FeatureServer/0/query"
 STREET_FIELDS = "PRE_DIR,ST_NAME,ST_TYPE,POS_DIR,ST_CLASS,SP_LIMIT"
 SOURCE = "Nebraska state GIS (NG911 street centerlines, statewide parcels)"
-VERSION = 1                                     # bump to rebuild every cached basemap
+VERSION = 2                                     # bump to rebuild every cached basemap (2: street_bbox)
 M_LAT = 110574.0                                # meters per degree of latitude
 
 DIRS = {"NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W", "NORTHEAST": "NE", "NORTHWEST": "NW",
@@ -241,9 +255,9 @@ def label_for(text, path, lat0, dec):
 
 # ---------- boxes, fetching, building ----------
 
-def walk_bbox(stops, cfg=None):
-    """[w, s, e, n] around the stops + margin (at least min_span_m across), rounded out to 4 decimals (~10 m) so
-    the same walk hits the same cache row. None without stops."""
+def walk_bbox(stops, cfg=None, margin_m=None):
+    """[w, s, e, n] around the stops + margin (`margin_m`, default basemap.margin_m; at least min_span_m across),
+    rounded out to 4 decimals (~10 m) so the same walk hits the same cache row. None without stops."""
     pts = [(float(s["lon"]), float(s["lat"])) for s in stops or [] if s.get("lat") is not None and s.get("lon") is not None]
     if not pts:
         return None
@@ -252,11 +266,18 @@ def walk_bbox(stops, cfg=None):
     s_, n = min(p[1] for p in pts), max(p[1] for p in pts)
     lat0 = (s_ + n) / 2
     kx, ky = _proj(lat0)
-    half_x = max((e - w) * kx / 2 + b["margin_m"], b["min_span_m"] / 2) / kx
-    half_y = max((n - s_) * ky / 2 + b["margin_m"], b["min_span_m"] / 2) / ky
+    m = b["margin_m"] if margin_m is None else margin_m
+    half_x = max((e - w) * kx / 2 + m, b["min_span_m"] / 2) / kx
+    half_y = max((n - s_) * ky / 2 + m, b["min_span_m"] / 2) / ky
     cx, cy = (w + e) / 2, lat0
     return [math.floor((cx - half_x) * 1e4) / 1e4, math.floor((cy - half_y) * 1e4) / 1e4,
             math.ceil((cx + half_x) * 1e4) / 1e4, math.ceil((cy + half_y) * 1e4) / 1e4]
+
+
+def street_bbox(stops, cfg=None):
+    """The wider box streets are fetched and drawn in (stops + basemap.street_margin_m, never smaller than walk_bbox)."""
+    b = _bcfg(cfg)
+    return walk_bbox(stops, cfg, max(b["street_margin_m"], b["margin_m"]))
 
 
 def route(stops, cfg=None):
@@ -289,12 +310,14 @@ def fetch_layer(session, url, bbox, fields, cfg=None, timeout=None):
     return out
 
 
-def build(street_feats, lot_feats, bbox, cfg=None):
-    """The basemap dict from raw ArcGIS features (pure: no network)."""
+def build(street_feats, lot_feats, bbox, cfg=None, street_box=None):
+    """The basemap dict from raw ArcGIS features (pure: no network). Lots are cut to bbox, streets to street_box
+    (default bbox), street labels are placed inside bbox."""
     b = _bcfg(cfg)
     dec, tol = int(b["decimals"]), float(b["simplify_m"])
     lat0 = (bbox[1] + bbox[3]) / 2
     box = tuple(bbox)
+    sbox = tuple(street_box or bbox)
     by_key = {}
     for f in street_feats:
         a = f.get("attributes") or {}
@@ -303,7 +326,7 @@ def build(street_feats, lot_feats, bbox, cfg=None):
         if cls is None:
             continue
         for path in (f.get("geometry") or {}).get("paths") or []:
-            for piece in clip_path([tuple(p[:2]) for p in path], box):
+            for piece in clip_path([tuple(p[:2]) for p in path], sbox):
                 q = _q(simplify(piece, tol, lat0), dec)
                 if len(q) >= 2:
                     by_key.setdefault((name, cls), []).append(q)
@@ -313,8 +336,9 @@ def build(street_feats, lot_feats, bbox, cfg=None):
         joined = join_paths(paths)
         for p in joined:
             streets.append({"name": name, "cls": cls, "path": p})
-        if name and cls != "service":
-            longest = max(joined, key=lambda p: _len_m(p, lat0))
+        inside = [pc for p in joined for pc in clip_path([tuple(x) for x in p], box)]   # labels: in the page's box
+        if name and cls != "service" and inside:
+            longest = max(inside, key=lambda p: _len_m(p, lat0))
             if _len_m(longest, lat0) >= b["label_min_m"]:
                 lab = label_for(name, longest, lat0, dec)
                 if lab:
@@ -330,7 +354,8 @@ def build(street_feats, lot_feats, bbox, cfg=None):
         if max(xs) - min(xs) > 2 * bw or max(ys) - min(ys) > 2 * bh:
             continue                                 # railroad / road right-of-way strips miles long: not a lot
         rings.append(max(rs, key=len))
-    doc = {"bbox": list(bbox), "streets": streets, "lots": [], "labels": labels, "source": SOURCE}
+    doc = {"bbox": list(bbox), "street_bbox": list(sbox), "streets": streets, "lots": [], "labels": labels,
+           "source": SOURCE}
     cx, cy = (bbox[0] + bbox[2]) / 2, lat0
     kx, ky = _proj(lat0)
 
@@ -363,6 +388,224 @@ def _size(doc):
     return len(json.dumps(doc, separators=(",", ":")))
 
 
+# ---------- walking route along the streets ----------
+
+_ORD = re.compile(r"^(\d+)(ST|ND|RD|TH)$")
+_DIR_WORDS = set(DIRS) | set(DIRS.values())
+_TYPE_WORDS = {**{k: v.upper() for k, v in TYPES.items()}, **{v.upper(): v.upper() for v in TYPES.values()}}
+_SIDES = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+
+def street_key(name):
+    """(core, type, dir) for matching an address's street to a map street: '22 St' and '22nd St' -> ('22', 'ST', ''),
+    'N Broad St' -> ('BROAD', 'ST', 'N'), 'N St' -> ('N', 'ST', '') (a lone letter is the name, not a direction)."""
+    ws = [_ORD.sub(r"\1", w) for w in re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper()).split()]
+    d = ""
+    if len(ws) >= 3 and ws[0] in _DIR_WORDS or len(ws) == 2 and ws[0] in _DIR_WORDS and ws[1] not in _TYPE_WORDS:
+        d, ws = DIRS.get(ws[0], ws[0]), ws[1:]
+    if len(ws) >= 3 and ws[-1] in _DIR_WORDS:                 # 'Main St NW'
+        d, ws = d or DIRS.get(ws[-1], ws[-1]), ws[:-1]
+    t = ""
+    if len(ws) >= 2 and ws[-1] in _TYPE_WORDS:
+        t, ws = _TYPE_WORDS[ws[-1]], ws[:-1]
+    return " ".join(ws), t, d
+
+
+def same_street(a, b):
+    """True when two street_key()s name the same street (a missing type or direction on one side still matches)."""
+    return bool(a[0]) and a[0] == b[0] and (not a[1] or not b[1] or a[1] == b[1]) and \
+        (not a[2] or not b[2] or a[2] == b[2])
+
+
+def _addr_street(address):
+    m = re.match(r"^\s*\d+\S*\s+(.+?)\s*$", address or "")
+    return m.group(1) if m else (address or "").strip()
+
+
+def _near(p, a, c, kx, ky):
+    """(t 0-1 along a->c, the nearest point on a-c to p, meters from p)."""
+    dx, dy = (c[0] - a[0]) * kx, (c[1] - a[1]) * ky
+    px, py = (p[0] - a[0]) * kx, (p[1] - a[1]) * ky
+    L2 = dx * dx + dy * dy
+    t = 0.0 if L2 == 0 else max(0.0, min(1.0, (px * dx + py * dy) / L2))
+    return t, (a[0] + t * (c[0] - a[0]), a[1] + t * (c[1] - a[1])), math.hypot(px - t * dx, py - t * dy)
+
+
+def _dist(a, c, kx, ky):
+    return math.hypot((c[0] - a[0]) * kx, (c[1] - a[1]) * ky)
+
+
+def street_graph(bm, cfg=None):
+    """The basemap's streets as a walkable graph: (segments [(a, c, name, cls, meters)], adjacency
+    {node: [(node, cost, meters)]}). Nodes = street vertices (streets meeting at a corner share one). A street end
+    within join_m of another street's side is joined to it (data not split at that corner). Alleys and drives cost
+    route_service_factor x their length, so a route takes them only when they save a real walk."""
+    b = _bcfg(cfg)
+    lat0 = (bm["bbox"][1] + bm["bbox"][3]) / 2
+    kx, ky = _proj(lat0)
+    raw = []
+    for st in bm.get("streets") or []:
+        pts = [tuple(p[:2]) for p in st.get("path") or []]
+        raw += [(a, c, st.get("name") or "", st.get("cls")) for a, c in zip(pts, pts[1:]) if a != c]
+    deg = {}
+    for a, c, _, _ in raw:
+        deg[a] = deg.get(a, 0) + 1
+        deg[c] = deg.get(c, 0) + 1
+    J = float(b["join_m"])
+    jx, jy = J / kx, J / ky
+    splits, links = {}, []
+    for e in (p for p, n in deg.items() if n == 1):          # dead ends: a T corner the data didn't split?
+        best = None
+        for i, (a, c, _, _) in enumerate(raw):
+            if e == a or e == c or not (min(a[0], c[0]) - jx <= e[0] <= max(a[0], c[0]) + jx) or \
+                    not (min(a[1], c[1]) - jy <= e[1] <= max(a[1], c[1]) + jy):
+                continue
+            t, q, d = _near(e, a, c, kx, ky)
+            if d <= J and (best is None or d < best[0]):
+                best = (d, i, t, q)
+        if best:
+            d, i, t, q = best
+            a, c = raw[i][:2]
+            q = a if _dist(q, a, kx, ky) < 0.5 else c if _dist(q, c, kx, ky) < 0.5 else q
+            if q not in (a, c):
+                splits.setdefault(i, []).append((t, q))
+            links.append((e, q))
+    segs = []
+    for i, (a, c, name, cls) in enumerate(raw):
+        pts = [a] + [q for _, q in sorted(splits.get(i, []))] + [c]
+        segs += [(u, v, name, cls, _dist(u, v, kx, ky)) for u, v in zip(pts, pts[1:]) if u != v]
+    segs += [(e, q, "", "link", _dist(e, q, kx, ky)) for e, q in links if e != q]
+    adj = {}
+    fac = float(b["route_service_factor"])
+    for a, c, _, cls, m in segs:
+        w = m * (fac if cls == "service" else 1.0)
+        adj.setdefault(a, []).append((c, w, m))
+        adj.setdefault(c, []).append((a, w, m))
+    return segs, adj
+
+
+def snap_stop(stop, segs, cfg=None, lat0=None, keys=None):
+    """{i (segment), t, at, street, m} = where the house meets its street, or None. The address's own street within
+    snap_max_m wins (a corner house faces its address street); else the nearest street within snap_any_m (alleys and
+    drives last)."""
+    if stop.get("lat") is None or stop.get("lon") is None:
+        return None
+    b = _bcfg(cfg)
+    p = (float(stop["lon"]), float(stop["lat"]))
+    kx, ky = _proj(lat0 if lat0 is not None else p[1])
+    keys = keys if keys is not None else {}
+    want = street_key(_addr_street(stop.get("address")))
+    own = street = alley = None
+    for i, (a, c, name, cls, _) in enumerate(segs):
+        if cls == "link":
+            continue
+        t, q, d = _near(p, a, c, kx, ky)
+        if name not in keys:
+            keys[name] = street_key(name)
+        hit = (d, i, t, q, name)
+        if same_street(want, keys[name]) and d <= b["snap_max_m"] and (own is None or d < own[0]):
+            own = hit
+        if cls == "service":
+            if d <= b["snap_any_m"] and (alley is None or d < alley[0]):
+                alley = hit
+        elif d <= b["snap_any_m"] and (street is None or d < street[0]):
+            street = hit
+    best = own or street or alley
+    if best is None:
+        return None
+    d, i, t, q, name = best
+    return {"i": i, "t": t, "at": q, "street": name, "m": d}
+
+
+def _shortest(sa, sb, segs, adj, fac):
+    """Cheapest street path between two snaps: (list of points from sa.at to sb.at) or None."""
+    ia, ib = sa["i"], sb["i"]
+    a0, a1, _, ca, La = segs[ia]
+    b0, b1, _, cb, Lb = segs[ib]
+    fa, fb = (fac if ca == "service" else 1.0), (fac if cb == "service" else 1.0)
+    best, end = math.inf, None
+    if ia == ib:                                             # same piece of street: straight along it
+        best, end = abs(sa["t"] - sb["t"]) * La * fa, "direct"
+    dist = {a0: sa["t"] * La * fa, a1: (1 - sa["t"]) * La * fa}
+    prev = {n: None for n in dist}
+    goal = {b0: sb["t"] * Lb * fb, b1: (1 - sb["t"]) * Lb * fb}
+    heap = [(d, n) for n, d in dist.items()]
+    heapq.heapify(heap)
+    done = set()
+    while heap:
+        d, u = heapq.heappop(heap)
+        if u in done or d > dist.get(u, math.inf):
+            continue
+        if d >= best:
+            break
+        done.add(u)
+        if u in goal and d + goal[u] < best:
+            best, end = d + goal[u], u
+        for v, w, _ in adj.get(u, ()):
+            nd = d + w
+            if nd < dist.get(v, math.inf):
+                dist[v], prev[v] = nd, u
+                heapq.heappush(heap, (nd, v))
+    if end is None:
+        return None
+    if end == "direct":
+        return [sa["at"], sb["at"]]
+    chain, n = [], end
+    while n is not None:
+        chain.append(n)
+        n = prev[n]
+    return [sa["at"]] + chain[::-1] + [sb["at"]]
+
+
+def walk_route(stops, bm, cfg=None):
+    """(route_segments, stop_side) for a walk (see the module doc), from its basemap's streets; (None, None) with no
+    basemap. Pure: no network."""
+    if not bm or not bm.get("streets") or not stops:
+        return None, None
+    b = _bcfg(cfg)
+    dec = int(b["decimals"]) + 1
+    lat0 = (bm["bbox"][1] + bm["bbox"][3]) / 2
+    kx, ky = _proj(lat0)
+    segs, adj = street_graph(bm, cfg)
+    keys = {}
+    snaps = [snap_stop(s, segs, cfg, lat0, keys) for s in stops]
+
+    def rp(p):
+        return [round(p[0], dec), round(p[1], dec)]
+
+    sides = []
+    for s, sn in zip(stops, snaps):
+        if sn is None:
+            sides.append(None)
+            continue
+        dx = (float(s["lon"]) - sn["at"][0]) * kx
+        dy = (float(s["lat"]) - sn["at"][1]) * ky
+        side = _SIDES[int((math.degrees(math.atan2(dx, dy)) % 360 + 22.5) // 45) % 8] if sn["m"] >= 0.5 else None
+        sides.append({"street": sn["street"], "at": rp(sn["at"]), "side": side, "m": round(sn["m"], 1)})
+    here = [(sn["at"] if sn else (float(s["lon"]), float(s["lat"]))) if s.get("lat") is not None and
+            s.get("lon") is not None else None for s, sn in zip(stops, snaps)]
+    segments = []
+    for i in range(len(stops) - 1):
+        p, q = here[i], here[i + 1]
+        if p is None or q is None:
+            continue
+        straight = _dist(p, q, kx, ky)
+        path = _shortest(snaps[i], snaps[i + 1], segs, adj, float(b["route_service_factor"])) \
+            if snaps[i] and snaps[i + 1] else None
+        m = sum(_dist(u, v, kx, ky) for u, v in zip(path, path[1:])) if path else None
+        gap = path is None or m > straight + float(b["route_max_detour_m"])
+        if gap:
+            path, m = [p, q], straight
+        pts = []
+        for pt in map(rp, path):
+            if not pts or pts[-1] != pt:
+                pts.append(pt)
+        if len(pts) < 2:
+            pts = [rp(p), rp(q)]
+        segments.append({"from": i, "to": i + 1, "path": pts, "m": round(m), "gap": gap})
+    return (segments if len(stops) >= 2 else None), sides
+
+
 # ---------- cache ----------
 
 def open_cache(db_path):
@@ -382,8 +625,9 @@ def open_cache(db_path):
         return conn
 
 
-def cache_key(bbox):
-    return f"v{VERSION}:" + ",".join(f"{v:.4f}" for v in bbox)
+def cache_key(bbox, street_box=None):
+    key = f"v{VERSION}:" + ",".join(f"{v:.4f}" for v in bbox)
+    return key + ("|" + ",".join(f"{v:.4f}" for v in street_box) if street_box else "")
 
 
 class Maker:
@@ -419,7 +663,8 @@ class Maker:
         bbox = walk_bbox(stops, self.cfg)
         if bbox is None or not self.b.get("enabled", True):
             return None
-        key = cache_key(bbox)
+        sbox = street_bbox(stops, self.cfg)
+        key = cache_key(bbox, sbox)
         if key in self.mem:
             return self.mem[key]
         doc = self._cached(key, True)
@@ -432,9 +677,9 @@ class Maker:
             try:
                 with self.rb.step("basemap"):
                     t = self.rb.cap(self.b["timeout_s"])
-                    streets = fetch_layer(self.session, STREETS_URL, bbox, STREET_FIELDS, self.cfg, t)
+                    streets = fetch_layer(self.session, STREETS_URL, sbox, STREET_FIELDS, self.cfg, t)
                     lots = fetch_layer(self.session, LOTS_URL, bbox, "OBJECTID", self.cfg, self.rb.cap(t))
-                doc = build(streets, lots, bbox, self.cfg)
+                doc = build(streets, lots, bbox, self.cfg, sbox)
                 if not doc["streets"] and not doc["lots"]:
                     doc = None                                  # outside Nebraska / nothing there: page falls back
                 else:
@@ -453,7 +698,7 @@ class Maker:
         return doc
 
     def add(self, doc):
-        """Adds route + basemap to one walk doc (in place) and returns it. Never raises."""
+        """Adds route + basemap + route_segments + stop_side to one walk doc (in place) and returns it. Never raises."""
         if not isinstance(doc, dict):
             return doc
         stops = doc.get("stops") or []
@@ -466,6 +711,12 @@ class Maker:
             self.log(f"  basemap: {type(e).__name__}: {str(e)[:120]}")
             doc.setdefault("route", None)
             doc["basemap"] = None
+        try:
+            doc["route_segments"], doc["stop_side"] = walk_route(stops, doc["basemap"], self.cfg)
+        except Exception as e:                                  # the street route is optional too
+            self.stats["errors"] += 1
+            self.log(f"  route: {type(e).__name__}: {str(e)[:120]}")
+            doc["route_segments"], doc["stop_side"] = None, None
         return doc
 
     def summary(self):
