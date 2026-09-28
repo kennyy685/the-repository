@@ -18,6 +18,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   especially the ones he wouldn't have thought of himself. Anticipate the need; don't just add features.
 - **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
   one item per line, nothing extra, so he never edits it.
+- **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
+  on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
