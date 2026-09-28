@@ -15,6 +15,11 @@ Work branch: `claude/amazing-gauss-yzfpq0` (everything pushed). Hub board = task
 - **Print Kit** needs a republish too (its spoken door line said "soy Alex Mendez"; fixed in 4d7d713). Same rule.
 - **Move MacBook layout A + Future look into the real app?** Big change; ask before starting.
 
+## Update 2026-09-28 ~11:00 UTC (King session_01Dm6yRbGAvrPXcttc8q3p33)
+Practice Door v11 QA'd: SHIP. QA fixed icon sprite + markup typo (cf01440); Builder fixed Day 20 ticking off on any 3
+runs (1112eff, steps now match persona/language/Rookie). Fast checks green. Old King session archived. FilthE asleep;
+all three (v25.3, Practice Door, Print Kit) wait on his "publish".
+
 ## Running right now
 Nothing. Practice Door v11 finished (8e03350): Plan tab (20-day path, Go buttons, streak), self-checking
 ready-to-knock list, Objections tab (15 EN/ES), Aldaba look; 17/17 checks. NOT published.
@@ -29,7 +34,7 @@ FilthE (docs/orders/sales-path.md, sent to him), multitenant plan (docs/orders/a
 upgrades x2. Hub v27 (3D) merged into the work branch. King trigger re-enabled with the new prompt (accounts step).
 
 ## Next jobs (2 robots at a time, keep both busy)
-1. **QA the Practice Door v11** (sonnet), then it waits on FilthE's "publish" with v25.3 + Print Kit.
+1. ~~QA the Practice Door v11~~ done (SHIP); waits on FilthE's "publish" with v25.3 + Print Kit.
 2. T77 step 1 (SETTINGS -> `system/settings` doc, zero behavior change) - only AFTER v25.3 is published, so QA'd
    code doesn't move under it.
 3. Cosmetic leftovers: unused NSX tip key, todaywalk pick() args (tiny).
