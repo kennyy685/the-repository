@@ -174,21 +174,49 @@ h1,h2,h3,p{margin:0}
 .row{width:100%;min-height:52px;display:grid;grid-template-columns:22px 32px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 4px;text-align:left;border-radius:var(--r-sm);transition:background .16s;position:relative}
 .row:hover{background:rgba(241,242,244,.04)}
 .row[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--rule-2)}
-.row.stuck::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:repeating-linear-gradient(135deg,var(--st-stuck) 0 2px,transparent 2px 4px)}
+.row.s7-stuck::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:repeating-linear-gradient(135deg,var(--st-stuck) 0 2px,transparent 2px 4px)}
 .row .seat{font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em}
 .row .av32{width:32px;height:32px}
 .row .av32 svg{width:32px;height:32px;display:block}
-.row.asleep .av32,.row.asleep .seat,.row.silent .av32{opacity:.6}
+.row.s7-asleep .av32,.row.s7-asleep .seat,.row.s7-silent .av32{opacity:.6}
 .row .t{min-width:0;display:grid;gap:1px}
 .row .nm{font:500 15px/1.3 var(--f);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .d{font:400 13px/1.4 var(--f);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row.needs .d{color:var(--need-ink)}
-.row.queued .d{color:var(--st-queue)}
+.row.s7-needs .d{color:var(--need-ink)}
+.row.s7-queued .d{color:var(--st-queue)}
 .roster .fl .idot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--intel);margin-right:7px;vertical-align:1px}
 .row .rt{display:grid;justify-items:end;gap:2px}
 .row .since{font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums lining-nums}
 .scouts{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--muted);padding:6px 4px 2px 36px}
 .scouts i{width:5px;height:5px;border-radius:50%;background:var(--intel)}
+
+/* RIGHT NOW (blueprint 7.1): one 24 px row per robot, priority then age; the verb is the one the room shows */
+.now{flex:none;padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid var(--rule)}
+.now-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 6px}
+.now-h .lbl{color:var(--ink-2);white-space:nowrap;flex:none}
+.nsum{font:500 12px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-variant-numeric:tabular-nums lining-nums}
+.nrows{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr)}
+.nrows > li{min-width:0}
+.nrow{position:relative;width:100%;height:24px;display:grid;grid-template-columns:12px 104px minmax(0,1fr) auto 32px;align-items:center;gap:0 8px;padding:0 4px;text-align:left;border-radius:4px;font:400 13px/20px var(--f);color:var(--ink-2);transition:background .16s}
+.nrow > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nrow .gl{width:10px;height:10px;justify-self:center}
+.nrow .nm{color:var(--ink);font-weight:500}
+.nrow .vb b{font-weight:500;color:var(--ci)}
+.nrow .mt{font:500 12px/20px var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums lining-nums;text-align:right;max-width:96px}
+.nrow .ag{font:500 12px/20px var(--mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums lining-nums}
+.nrow:hover,.nrow.hl{background:rgba(241,242,244,.06)}
+.nrow[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--rule-2)}
+.nrow.s7-stuck{margin-left:6px;width:calc(100% - 6px)}
+.nrow.s7-stuck::before{content:"";position:absolute;left:-6px;top:3px;bottom:3px;width:3px;background:repeating-linear-gradient(135deg,var(--st-stuck) 0 1.5px,transparent 1.5px 3.5px)}
+.nrow.s7-asleep,.nrow.s7-silent{color:var(--muted)}
+.nrow.s7-asleep .nm,.nrow.s7-silent .nm,.nrow.s7-queued .nm{color:var(--ink-2)}
+.nrow.you{margin-bottom:2px}
+.nrow.you .nm{color:var(--need-ink)}
+.nrow.you .vb{color:var(--ink)}
+/* the edge arrow: a hovered row whose robot is off-screen (Factorio) */
+.edge{position:absolute;left:0;top:0;z-index:4;display:flex;align-items:center;gap:6px;pointer-events:none;font:500 12px/1.2 var(--f);color:#f1f2f4;text-shadow:0 1px 6px rgba(0,0,0,.9);will-change:transform}
+.edge .ea{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(12,13,15,.82);border:1px solid rgba(241,242,244,.28);color:#f1f2f4}
+.edge svg{width:14px;height:14px;transform:rotate(var(--rot,0deg))}
 
 /* the robot card (museum wall label): a bottom sheet on the phone, the top of the panel on desktop */
 .card{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:30;padding:0 18px 16px;max-height:78vh;overflow:auto;overscroll-behavior:contain;transform:translateY(calc(100% + 24px));transition:transform .28s var(--ease);
@@ -388,10 +416,11 @@ h1,h2,h3,p{margin:0}
   .needs .more{min-height:36px}
   .live{min-height:36px}
   .panel{position:fixed;top:88px;right:var(--gutter);bottom:24px;width:var(--col-w);padding:0;z-index:6}
-  .card{position:relative;left:auto;right:auto;bottom:auto;transform:none;max-height:60%;flex:none;display:none;margin-bottom:10px;padding:0 16px 14px}
+  .card{position:relative;left:auto;right:auto;bottom:auto;transform:none;max-height:52%;flex:0 1 auto;min-height:0;display:none;margin-bottom:10px;padding:0 16px 14px}
+  .card .rail{display:none}   /* RIGHT NOW is always there on the MacBook: the rail would repeat it */
   .card.open{display:block;animation:cardIn .28s var(--ease)}
   .card:not(.open){visibility:visible}
-  .panel.carded[data-tab="crew"] .card{max-height:calc(100% - 52px);flex:0 1 auto}
+  .panel.carded[data-tab="crew"] .card{max-height:none;flex:1 1 auto}
   .panel.carded[data-tab="crew"] .tbody,.panel.carded[data-tab="crew"] .search{display:none}
   .rail button{width:33px;height:40px}
   .panel.carded[data-tab="crew"] .card{margin-bottom:0}
@@ -410,10 +439,10 @@ h1,h2,h3,p{margin:0}
   .bub{max-width:260px}
   .tpanel{padding-bottom:24px}
 }
-@media (min-width:900px) and (min-height:600px) and (max-height:819px){ .row{min-height:46px} .call{grid-template-columns:132px minmax(0,1fr);width:500px} .pip{width:132px;height:132px} .callq{-webkit-line-clamp:2} }
+@media (min-width:900px) and (min-height:600px) and (max-height:819px){ .row{min-height:46px} .nrow{height:22px} .nrow,.nrow .mt,.nrow .ag{line-height:18px} .call{grid-template-columns:132px minmax(0,1fr);width:500px} .pip{width:132px;height:132px} .callq{-webkit-line-clamp:2} }
 @keyframes cardIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 @media (max-width:899px), (max-height:599px){
-  .scrim-top,.scrim-col{display:none}
+  .scrim-top,.scrim-col,.now,.edge{display:none!important}   /* phones: the Crew list below the office carries the same rows */
   .bub{max-width:min(200px,54vw);padding:5px 9px 6px} .bub .bh{display:none} .bub .bt{font-size:12px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block}
   .right{flex:1 1 100%;justify-content:space-between}
   .live{flex:1 1 auto}
@@ -656,6 +685,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="scrim-top" aria-hidden="true"></div>
     <div class="scrim-col" aria-hidden="true"></div>
     <div class="ov" id="ov"></div>
+    <div class="edge" id="edge" hidden aria-hidden="true"><span class="ea"><svg viewBox="0 0 16 16"><path d="M5 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="en" id="edgeName"></span></div>
     <div class="stagetop"><p class="hint" id="hint" data-t="hint">Click a robot to see what it is doing.</p></div>
     <div class="call" id="call" hidden data-nodrag role="dialog" aria-labelledby="callWho">
       <div class="pip" id="pip" aria-hidden="true"></div>
@@ -684,6 +714,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   </div>
 
   <aside class="panel" id="panel" data-nodrag data-tab="crew">
+    <section class="now" id="now" aria-labelledby="nowH">
+      <div class="now-h"><h2 class="lbl" id="nowH">Right now</h2><span class="nsum" id="nowSum"></span></div>
+      <ol class="nrows" id="nowList"></ol>
+    </section>
     <article class="card" id="card" aria-live="polite" aria-label="Details"></article>
     <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, log and chat">
       <button type="button" class="tb" role="tab" id="tab-crew" data-tab="crew" aria-controls="tp-crew" aria-selected="true"><span data-t="tCrew">Crew</span></button>
@@ -781,7 +815,7 @@ const TX = {
     st7: {needs: 'needs you', stuck: 'stuck', silent: 'quiet', done: 'done', working: 'working', queued: 'queued', idle: 'idle', asleep: 'asleep'},
     stSince: (w, t) => `${w} since ${t}`, crewN: n => `Crew · ${n}`, since: {m: n => `+${n}m`, h: n => `+${n}h`, d: n => `+${n}d`}, wakes: t => `wakes ${t}`,
     fl: {up: 'Upstairs', down: 'Downstairs'}, flName: {up: 'Upstairs · Intelligence', down: 'Downstairs · Execution'}, seat: n => `No. ${n}`,
-    f: {now: 'Now', since: 'Since', last: 'Last report', prog: 'Progress', where: 'Where', recent: 'Recent', lives: 'Lives in', reach: 'Reach it'},
+    f: {now: 'Now', since: 'Since', last: 'Last report', prog: 'Progress', where: 'Where', recent: 'Recent', lives: 'Lives in', reach: 'Reach it', queued: 'Queued', why: 'Why', result: 'Result'},
     deskOf: (fl, n) => `${fl}, desk ${n}`, orphan: t => `its run ended at ${t} without a check-out`,
     updated: w => `Updated ${w}`, reconnecting: 'Reconnecting…', refresh: 'Refresh now (R)', refreshed: 'Refreshed.',
     needsNone: 'Nothing needs you', parked: t => `Not now · back at ${t}`, memFull: 'Memory is full (20 facts). Merge some first; nothing was saved.',
@@ -974,6 +1008,7 @@ function sync(first){
   sky.stormTo = Math.max(hail ? 1 : 0, weather.storm);
   sky.rainTo = Math.max(hail ? .6 : 0, weather.rain);
   sceneData(); for (const a of bots) a.st7 = st7For(a);
+  buildNow();
   if (!first) chimeChanges(); else for (const a of bots) lastSt[a.id] = a.st;
   if (gotAgents) { computeWatch(); if (alerts.some(x => x.k === 'storm')) checkKfet(); }
 }
@@ -1242,7 +1277,7 @@ function renderRoster(){
   for (const a of bots) {
     if (a.def.floor !== fl) { fl = a.def.floor; html += '<li class="fl lbl">' + (fl === 'up' ? '<i class="idot" aria-hidden="true"></i>' : '') + esc(T.flName[fl]) + '</li>'; }
     const st = shownSt(a), s7 = s7Of(a);
-    html += '<li><button type="button" class="row ' + s7 + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' + (isNewRow(a) ? '<i class="new-dot" aria-hidden="true"></i>' : '') +
+    html += '<li><button type="button" class="row s7-' + s7 + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' + (isNewRow(a) ? '<i class="new-dot" aria-hidden="true"></i>' : '') +
       '<span class="seat">' + a.def.seat + '</span><span class="av32">' + avatar(a.def) + '</span>' +
       '<span class="t"><span class="nm">' + esc(tx(a.def.name)) + '</span><span class="d">' + esc(lineOf(a, st)) + '</span></span>' +
       '<span class="rt">' + stWord(s7) + '<span class="since">' + esc(rightNote(a, st)) + '</span></span></button></li>';
@@ -1250,6 +1285,114 @@ function renderRoster(){
   }
   $('#roster').innerHTML = html; renderTabDots(); applySearch();
 }
+
+/* ================= RIGHT NOW (blueprint 7.1, CONTRACT v3 HUB.now): verb = animation = row ================= */
+/* the verb comes from, in order: step -> the event kind -> status -> a keyword map on doing -> the role default (7.3) */
+const VERB = {building:'Building', fixing:'Fixing', tuning:'Tuning engine', running:'Running engine', writing:'Writing', publishing:'Publishing', filing:'Filing',
+  designing:'Designing', pinning:'Pinning options', dispatching:'Dispatching', planning:'Planning', reviewing:'Reviewing', relaying:'Relaying', handing:'Handing off',
+  reading:'Reading chats', briefing:'Briefing', researching:'Researching', scanning:'Scanning', testing:'Testing', investigating:'Investigating', verified:'Verified',
+  failed:'Failed', watching:'Watching radar', hail:'Hail found', 'storm-ops':'Running storm ops', shipped:'Shipped',
+  needs:'Needs you', stuck:'Stuck', 'waiting-on':'Waiting', free:'Free', asleep:'Asleep', quiet:'Quiet'};
+const STATE_STEPS = new Set(['needs', 'stuck', 'waiting-on', 'free', 'asleep', 'quiet']);
+const ROLE_VERBS = {code:['dispatching', 'planning', 'reviewing', 'publishing', 'writing', 'handing'], king:['relaying', 'filing', 'handing', 'writing'],
+  builder:['building', 'fixing', 'publishing', 'writing', 'handing'], designer:['designing', 'pinning', 'handing'], 'engine-mechanic':['tuning', 'running', 'fixing', 'building', 'handing'],
+  'qa-tester':['testing', 'investigating', 'verified', 'failed', 'handing'], 'hub-keeper':['researching', 'scanning', 'writing', 'handing'], 'chat-reader':['reading', 'briefing', 'handing'],
+  cowork:['storm-ops', 'running', 'shipped', 'handing'], 'storm-watch':['watching', 'hail']};
+const ROLE_STEP = {code:'dispatching', king:'relaying', builder:'building', designer:'designing', 'engine-mechanic':'tuning', 'qa-tester':'testing', 'hub-keeper':'researching',
+  'chat-reader':'reading', cowork:'storm-ops', 'storm-watch':'watching'};
+const KEYWORDS = [[/\b(test|tests|testing|qa|verify|check(ing)?)\b/i, 'testing'], [/\b(investigat|repro|root cause)/i, 'investigating'], [/\b(research|round|scouts?|sources?)\b/i, 'researching'],
+  [/\b(scan|scanning)\b/i, 'scanning'], [/\b(fix|fixing|bug|patch)/i, 'fixing'], [/\b(publish|deploy|ship)/i, 'publishing'], [/\b(design|mockup|options?|print|layout)/i, 'designing'],
+  [/\b(pin|pinning)\b/i, 'pinning'], [/\b(build|building|page|implement)/i, 'building'], [/\b(plan|planning|stand-?up|priorit)/i, 'planning'], [/\b(review|reviewing)\b/i, 'reviewing'],
+  [/\b(dispatch|orders?|assign)/i, 'dispatching'], [/\b(read|reading|chats?)\b/i, 'reading'], [/\b(brief|briefing)\b/i, 'briefing'], [/\b(hail)\b/i, 'hail'], [/\b(radar|storm watch)\b/i, 'watching'],
+  [/\b(engine|bundle)\b/i, 'running'], [/\b(tune|tuning)\b/i, 'tuning'], [/\b(write|writing|draft|report|findings?)\b/i, 'writing'], [/\b(relay|pass(ing)? (it )?on)\b/i, 'relaying'], [/\b(fil(e|ing))\b/i, 'filing']];
+const METRIC_WORDS = [['sources', 'source'], ['findings', 'finding'], ['files', 'file'], ['checks', 'check'], ['chats', 'chat'], ['scans', 'scan'], ['issues', 'issue'], ['failed', 'failed']];
+function workStep(a){
+  if (a.step && VERB[a.step] && !STATE_STEPS.has(a.step)) return {step:a.step};
+  const ev = events.find(e => e.agent === a.id && !e.approx && e.atMs >= (a.atMs || 0) - 60e3);   // the event kind, while this state lasts
+  if (ev && ev.kind === 'handoff' && ev.to && ev.to !== a.id) return {step:'handing', to:ev.to};
+  const allowed = ROLE_VERBS[a.id] || [], doing = a.doing || '';
+  for (const [rx, v] of KEYWORDS) if (allowed.includes(v) && rx.test(doing)) return {step:v};
+  return {step:ROLE_STEP[a.id] || 'building'};
+}
+const ageShort = ms => { if (!ms) return ''; const m = Math.max(0, Math.floor((Date.now() - ms)/60000)); return m < 1 ? 'now' : m < 60 ? m + 'm' : m < 1440 ? Math.floor(m/60) + 'h' : Math.floor(m/1440) + 'd'; };
+function metricOf(a, s7){
+  if (s7 === 'done' && a.result) return a.result.passed + '/' + a.result.of;
+  if (s7 !== 'working' && s7 !== 'silent') return '';
+  const m = a.metrics || {};
+  if (m.tests && m.passed != null) return m.passed + '/' + m.tests;
+  const p = a.progress; if (p && typeof p === 'object' && p.of) return (p.done || 0) + '/' + p.of; if (typeof p === 'number') return Math.round(Math.max(0, Math.min(1, p))*100) + '%';
+  return '';
+}
+function metricWords(a){ const m = a.metrics || {}, out = [];
+  if (m.tests && m.passed == null) out.push(m.tests + (m.tests === 1 ? ' test' : ' tests'));
+  for (const [k, one] of METRIC_WORDS) if (m[k] != null) out.push(m[k] + ' ' + (m[k] === 1 || k === 'failed' ? one : k));
+  return out.slice(0, 2).join(', '); }
+/* one row: {id, st7, step, verb, metric, since, cocked} + the page's own detail line */
+function nowRow(a){
+  const s7 = a.st7 || 'idle', T = L();
+  let step, verb, detail = '', since = a.atMs || 0;
+  if (s7 === 'needs') { step = 'needs'; verb = VERB.needs; detail = botAsk(a); }
+  else if (s7 === 'stuck') { step = 'stuck'; verb = VERB.stuck; detail = a.doing; }
+  else if (s7 === 'silent') { step = 'quiet'; verb = 'Quiet ' + ageShort(a.atMs); detail = a.doing; }
+  else if (s7 === 'asleep') { step = 'asleep'; verb = VERB.asleep; detail = a.id === 'storm-watch' ? 'till 6:54 AM' : ''; if (a.id === 'storm-watch') since = 0; }
+  else if (s7 === 'queued') { const q = a.qinfo || {}; step = 'waiting-on';
+    if (q.kind === 'handoff') { verb = 'Queued'; detail = 'from ' + (q.from === 'you' ? 'you' : nameOf(q.from)) + (q.task ? ' · ' + q.task : '') + (q.text ? ': ' + q.text : ''); since = q.at || since; }
+    else { verb = 'Waiting on you'; detail = q.who ? q.who + '’s question' : (q.id || '') + (q.text ? ': ' + q.text : ''); } }
+  else if (s7 === 'idle') { step = 'free'; verb = VERB.free; }
+  else if (s7 === 'done') { step = ['verified', 'failed', 'shipped', 'hail'].includes(a.step) ? a.step : a.id === 'qa-tester' && a.result ? (a.result.passed >= a.result.of ? 'verified' : 'failed') : 'shipped'; verb = VERB[step];
+    detail = a.result && a.result.issues ? a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues') + (a.doing ? ' · ' + a.doing : '') : a.doing; }
+  else { const w = workStep(a); step = w.step; verb = w.to ? 'Handing to ' + nameOf(w.to) : VERB[step]; detail = metricWords(a) || a.doing; }
+  return {id:a.id, st7:s7, step, verb, metric:metricOf(a, s7), since, cocked:s7 === 'stuck', detail:detail || ''};
+}
+let nowDetail = {}, nowDomSig = '';
+function buildNow(){
+  const rows = bots.map(nowRow), needOrder = HUB.needs.ids;
+  rows.sort((p, q) => (ST7_RANK[p.st7] - ST7_RANK[q.st7]) ||
+    (p.st7 === 'needs' ? (needOrder.indexOf(p.id) + 99) % 99 - (needOrder.indexOf(q.id) + 99) % 99 : 0) ||
+    ((p.since || 9e15) - (q.since || 9e15)) || (bots.findIndex(b => b.id === p.id) - bots.findIndex(b => b.id === q.id)));
+  nowDetail = {}; for (const r of rows) { nowDetail[r.id] = r.detail; delete r.detail; }
+  const sig = JSON.stringify(rows);
+  if (sig !== buildNow.sig) { buildNow.sig = sig; HUB.now = {v:((HUB.now && HUB.now.v) || 0) + 1, rows}; }
+  renderNow();
+}
+function renderNow(){
+  const list = $('#nowList'); if (!list) return;
+  const rows = (HUB.now && HUB.now.rows) || [], items = gotAgents ? needItems() : [], T = L();
+  let html = '';
+  if (items.length) { const oldest = Math.min(...items.map(i => i.at || Date.now()));
+    html += '<li><button type="button" class="nrow you" data-now="you" style="--c:var(--st-needs)" title="' + esc(items[0].who + ': ' + items[0].text) + '">' + glyph('needs') + '<span class="nm">You</span><span class="vb">' + esc(items.length + ' to answer · oldest ' + ageShort(oldest)) + '</span><span class="mt"></span><span class="ag"></span></button></li>'; }
+  for (const r of rows) { const a = byId[r.id], d = nowDetail[r.id] || '';
+    const tip = tx(a.def.name) + ': ' + r.verb + (d ? ' · ' + d : '') + (r.metric ? ' · ' + r.metric : '') + (a.why ? '\nWhy: ' + a.why : '');
+    html += '<li><button type="button" class="nrow s7-' + r.st7 + '" data-now="' + r.id + '" aria-pressed="' + (selected === r.id) + '" style="--c:' + st7c(r.st7) + ';--ci:var(--in-' + r.st7 + ')" title="' + esc(tip) + '">' +
+      glyph(r.st7) + '<span class="nm">' + esc(tx(a.def.name)) + '</span><span class="vb"><b>' + esc(r.verb) + '</b>' + (d ? ' · ' + esc(d) : '') + '</span>' +
+      '<span class="mt">' + esc(r.metric) + '</span><span class="ag">' + esc(ageShort(r.since)) + '</span></button></li>'; }
+  if (html === nowDomSig) return; nowDomSig = html;
+  const focusId = document.activeElement && list.contains(document.activeElement) ? document.activeElement.dataset.now : null;
+  list.innerHTML = html; nowHl = null;
+  if (focusId) { const b = list.querySelector('[data-now="' + focusId + '"]'); if (b) b.focus(); }
+  const cnt = {}; for (const r of rows) cnt[r.st7] = (cnt[r.st7] || 0) + 1;
+  $('#nowSum').textContent = [['working', 'working'], ['stuck', 'stuck'], ['silent', 'quiet']].filter(([k]) => cnt[k]).map(([k, w]) => cnt[k] + ' ' + w).join(' · ');
+}
+/* row <-> room: hover a row = spotlight + tag (edge arrow if off-screen); hover a robot = its row lights */
+let nowHl = null, nowOff = 0;
+function lightNowRow(id){ if (id === nowHl) return; for (const b of document.querySelectorAll('#nowList .nrow.hl')) b.classList.remove('hl'); nowHl = id; const b = id && document.querySelector('#nowList [data-now="' + id + '"]'); if (b) b.classList.add('hl'); }
+function youClick(){
+  const ids = HUB.needs.ids.filter(id => byId[id] && id !== selected);
+  if (isWide && DB && ids.length) { call.folded = false; call.touched = performance.now(); call.sig = ''; renderCall(); const y = document.querySelector('#callAns [data-a]'); if (y) y.focus(); return; }
+  nextQuestion();
+}
+$('#nowList').addEventListener('click', e => { const b = e.target.closest('[data-now]'); if (!b) return; const id = b.dataset.now;
+  if (id === 'you') { youClick(); return; }
+  clearTimeout(nowOff); if (selected === id) { nowOff = setTimeout(() => { if (selected === id) select(null); }, 280); return; }   // a second click closes (after the double-click window)
+  select(id, {keep:true}); });
+$('#nowList').addEventListener('dblclick', e => { const b = e.target.closest('[data-now]'); if (!b || b.dataset.now === 'you') return; clearTimeout(nowOff); select(b.dataset.now, {keep:true}); setCam('follow'); });
+$('#nowList').addEventListener('pointerover', e => { const b = e.target.closest('[data-now]'); pres.rowHover = b && b.dataset.now !== 'you' ? b.dataset.now : null; });
+$('#nowList').addEventListener('pointerleave', () => { pres.rowHover = null; });
+$('#nowList').addEventListener('focusin', e => { const b = e.target.closest('[data-now]'); if (b && b.dataset.now !== 'you' && e.target.matches(':focus-visible')) pres.rowHover = b.dataset.now; });
+$('#nowList').addEventListener('focusout', () => { pres.rowHover = null; });
+$('#nowList').addEventListener('keydown', e => {   // ↑/↓ walk the rows (the office's floor keys stay outside the list)
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; const bs = [...document.querySelectorAll('#nowList .nrow')], i = bs.indexOf(document.activeElement); if (i < 0) return;
+  e.preventDefault(); e.stopPropagation(); const n = bs[Math.max(0, Math.min(bs.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))]; if (n) n.focus(); });
 
 /* ================= the card (a museum wall label): a robot, or a question ================= */
 /* one answer block for the card, the board, the plate and The Call: crew pick, deadline, "you already decided this",
@@ -1311,7 +1454,7 @@ function cardBot(a){
   const prog = po ? T.progress(po.done || 0, po.of) : p != null ? Math.round(p*100) + '%' : '';
   const ticks = po ? Math.min(24, po.of) : 10, on = Math.round((p || 0)*ticks);
   let scouts = ''; if (a.id === 'hub-keeper') { const sc = scoutList(); if (sc.length) { const w = sc.filter(t => t.status === 'working').length; scouts = '<dt>' + esc(T.scouts(sc.length).replace(/^\d+ /, '')) + '</dt><dd>' + esc(T.scouts(sc.length)) + (w ? ' · ' + esc(T.scoutsNow(w)) : '') + '</dd>'; } }
-  const sinceLine = a.atMs ? T.stSince('', tFmt.format(a.atMs)).trim() : '';
+  const qi = a.qinfo, sinceMs = qi && qi.at ? qi.at : a.atMs, sinceLine = sinceMs ? T.stSince('', tFmt.format(sinceMs)).trim() : '';
   const deskNo = CREW.filter(x => x.floor === c.floor).indexOf(c) + 1;
   return railHtml() + '<div class="card-h"><span class="no">' + esc(T.seat(c.seat)) + (c.title ? ' · ' + esc(tx(c.title)) : '') + '</span><h2>' + esc(tx(c.name)) + '</h2><span class="wear">' + esc(tx(c.wear)) + '</span>' +
       '<span class="stl">' + stWord(s7Of(a)) + (sinceLine ? ' <span class="src">' + esc(sinceLine) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
@@ -1320,7 +1463,10 @@ function cardBot(a){
     (asked ? '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(botAsk(a)) + '</div>' + answerBlock(qid, botAsk(a), a.id) + '</div>' : '') +
     (st === 'blocked' ? '<div class="stuckb"><div class="lbl">' + esc(T.stuck) + '</div><div class="v">' + esc(a.doing || T.nothingNow) + '</div></div>' : '') +
     '<dl class="facts">' +
-    (!asked && st !== 'blocked' ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
+    (qi ? '<dt>' + esc(T.f.queued) + '</dt><dd class="now">' + esc(nowDetail[a.id] || '') + (qi.task ? taskChip(qi.task) : '') + '</dd>' : '') +
+    (!asked && st !== 'blocked' && !qi ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
+    (a.why ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(a.why) + '</dd>' : '') +
+    (a.result ? '<dt>' + esc(T.f.result) + '</dt><dd><span class="num">' + esc(a.result.passed + ' of ' + a.result.of + ' passed') + '</span>' + (a.result.issues ? ' · ' + esc(a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues')) : '') + '</dd>' : '') +
     (prog && st === 'working' ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
     '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + (d.orphan ? ' · <span class="stale">' + esc(T.orphan(tFmt.format(d.orphan))) + '</span>' : d.stale ? ' · <span class="stale">' + esc(T.noCheckout) + '</span>' : '') + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
@@ -1368,7 +1514,7 @@ function select(key, opts){
   selected = key && key !== selected ? key : (key === selected && !(opts && opts.keep) ? null : key);
   if (selected && cam === 'follow' && !byId[selected]) setCam('all');
   if (selected) markOne(selected);
-  cardSig = ''; renderCard(); renderRoster(); renderNeeds(); hideHint(); if (selected && selected.startsWith('t:') || prev && prev.startsWith('t:')) renderBoard();
+  cardSig = ''; renderCard(); renderRoster(); renderNeeds(); renderNow(); hideHint(); if (selected && selected.startsWith('t:') || prev && prev.startsWith('t:')) renderBoard();
   if (selected && selected !== prev) { const c = $('#card'); c.scrollTop = 0; }
   if (opts && opts.focusRail && selected) { const b = document.querySelector('#card .rail [data-sel="' + selected + '"]'); if (b) b.focus(); }
 }
@@ -1641,7 +1787,7 @@ function placeOverlay(){
         o.w = 0; } }
     const showBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
     o.bub.classList.toggle('on', showBub);
-    const showTag = !showBub && (a.id === selected || isWide || statusView);
+    const showTag = !showBub && (a.id === selected || a.id === HUB.hover || isWide || statusView);
     o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected); o.tag.classList.toggle('keep', a.st === 'waiting' || a.st === 'blocked' || a.id === selected);
     if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     const sleeping = an.pose === 'sleep' && !an.moving;
@@ -2045,11 +2191,22 @@ window.addEventListener('pointermove', e => {
 $('#roster').addEventListener('pointerover', e => { const r = e.target.closest('.row'); pres.rowHover = r ? r.dataset.sel : null; });
 $('#roster').addEventListener('pointerleave', () => { pres.rowHover = null; });
 let spotSig = '';
+const panelOpen = () => true;   // item 4 makes the panel closable
+/* the part of the stage he can actually see (the top band and the open panel cover the rest) */
+function seenRect(){ const W = stageEl.clientWidth, H = stageEl.clientHeight; return isWide ? {x0:8, y0:76, x1:(panelOpen() ? W - 340 - 56 : W - 8), y1:H - 8} : {x0:0, y0:0, x1:W, y1:H}; }
 function placeSpot(){
   const el = $('#spot'), S = window.SCENE, id = HUB.hover || (byId[selected] ? selected : null), an = id && isWide && S && S.ready && S.anchors[id];
-  const on = !!(an && an.visible !== false) && cam !== 'eyes';
-  if (on) { const x = Math.round(an.x), y = Math.round((an.y + an.fy)/2), sig = x + ',' + y; if (sig !== spotSig) { spotSig = sig; el.style.setProperty('--sx', x + 'px'); el.style.setProperty('--sy', y + 'px'); } }
+  const R = seenRect(), x = an ? an.x : 0, y = an ? (an.y + an.fy)/2 : 0, inside = !!an && x >= R.x0 && x <= R.x1 && y >= R.y0 && y <= R.y1;
+  const on = !!(an && an.visible !== false) && inside && cam !== 'eyes';
+  if (on) { const sx = Math.round(x), sy = Math.round(y), sig = sx + ',' + sy; if (sig !== spotSig) { spotSig = sig; el.style.setProperty('--sx', sx + 'px'); el.style.setProperty('--sy', sy + 'px'); } }
   el.classList.toggle('on', on);
+  // a hovered RIGHT NOW row whose robot is off-screen: an arrow at the edge points to it (anchors report x,y even off-stage)
+  const ed = $('#edge'), off = !!an && pres.rowHover === id && !inside && isFinite(x) && isFinite(y) && cam !== 'eyes';
+  if (ed.hidden !== !off) ed.hidden = !off;
+  if (off) { const m = 22, cx = Math.max(R.x0 + m, Math.min(R.x1 - m, x)), cy = Math.max(R.y0 + m, Math.min(R.y1 - m, y)), ang = Math.atan2(y - cy, x - cx)*180/Math.PI;
+    if ($('#edgeName').textContent !== tx(byId[id].def.name)) $('#edgeName').textContent = tx(byId[id].def.name);
+    const left = cx > (R.x0 + R.x1)/2; ed.style.flexDirection = left ? 'row-reverse' : 'row';
+    ed.style.transform = 'translate(' + Math.round(left ? cx - ed.offsetWidth + 13 : cx - 13) + 'px,' + Math.round(cy - 13) + 'px)'; ed.style.setProperty('--rot', ang.toFixed(1) + 'deg'); }
 }
 
 /* ================= speech chips over a robot (greeting, poke, coffee) ================= */
@@ -2444,7 +2601,7 @@ function frame(now){
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
   placeOverlay(); mind.tick(now); placeSpot(); placeSays(now);
-  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
+  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }

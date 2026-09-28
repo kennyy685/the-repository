@@ -1,5 +1,5 @@
 {
-  "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses. The agents/events/answers collections and the board/current, system/king and system/memory docs are the AI hub's (pages/crew-hq.html; shapes from the crew-checkin skill); the HMP App never reads them.",
+  "_comment": "T72 design-gate fixture. Adapted from the leads/claims/doors/today-walk shapes used by earlier HMP App test harnesses (scratchpad app24/app25 mock builders). Dates are pinned to 2026-09-27 because design_gate.js freezes Date() to that day, so this stays deterministic no matter when the gate actually runs. CAN_EDIT/isOwner are mocked true (FilthE viewing his own published app is the normal case), matching those earlier harnesses. The agents/events/answers collections and the board/current, system/king and system/memory docs are the AI hub's (pages/crew-hq.html; shapes from the crew-checkin skill); the HMP App never reads them. Hub rows cover every v28 state at the frozen 3 PM: needs (designer), stuck (engine-mechanic), done with a result (qa-tester), working with step + metrics (code, hub-keeper, chat-reader), queued (builder: a handoff not picked up), idle (cowork), asleep (storm-watch), silent (king: working, no check-in for 60 min).",
   "collections": {
     "leads": {
       "615-n-linden-ave": {
@@ -93,18 +93,20 @@
       "1418-n-irving-st-fremont": {"day": "2026-09-24", "hail_in": 1.75, "nearest_report": {"dist_mi": 0.8, "size_in": 1.5, "source": "lsr"}, "radar_max_in": 2.0}
     },
     "agents": {
-      "code": {"status": "working", "room": "tests", "doing": "Design gate for every page publish", "task": "T72", "at": "2026-09-27T19:40:00Z"},
-      "qa-tester": {"status": "working", "room": "tests", "doing": "Running the design gate on the HMP App", "task": "T72", "at": "2026-09-27T19:35:00Z"},
+      "code": {"status": "working", "room": "tests", "doing": "Design gate for every page publish", "task": "T72", "step": "reviewing", "metrics": {"checks": 3}, "at": "2026-09-27T19:40:00Z"},
+      "qa-tester": {"status": "done", "room": "tests", "doing": "Design gate run on the HMP App", "task": "T72", "step": "verified", "result": {"passed": 17, "of": 18, "issues": 1}, "at": "2026-09-27T19:55:00Z"},
       "builder": {"status": "idle", "room": "dock", "doing": "", "task": "T75", "at": "2026-09-27T16:10:00Z"},
       "engine-mechanic": {"status": "blocked", "room": "engine", "doing": "Waiting on county permit data", "task": "T23", "at": "2026-09-27T15:00:00Z"},
       "king": {"status": "working", "room": "board", "doing": "Sunday standup: gate first, then prices", "at": "2026-09-27T19:00:00Z"},
       "cowork": {"status": "idle", "room": "storm", "doing": "", "at": "2026-09-27T12:00:00Z"},
       "storm-watch": {"status": "sleeping", "room": "storm", "doing": "Resting until its next run", "at": "2026-09-27T11:54:00Z"},
       "designer": {"status": "waiting", "room": "studio", "doing": "Two robot finishes are ready", "ask": "Robots in white ceramic or graphite?", "task": "T190", "at": "2026-09-27T19:20:00Z"},
-      "hub-keeper": {"status": "working", "room": "research", "doing": "Research round 56: AI office dashboards", "task": "T191", "progress": {"done": 3, "of": 5}, "at": "2026-09-27T19:30:00Z"},
-      "chat-reader": {"status": "working", "room": "research", "doing": "Reading 2 open chats for the King", "at": "2026-09-27T19:45:00Z"}
+      "hub-keeper": {"status": "working", "room": "research", "doing": "Research round 56: AI office dashboards", "task": "T191", "progress": {"done": 3, "of": 5}, "step": "researching", "metrics": {"sources": 142, "findings": 3}, "why": "FilthE asked for more valuable functions (note 10)", "at": "2026-09-27T19:40:00Z"},
+      "chat-reader": {"status": "working", "room": "research", "doing": "Reading 2 open chats for the King", "step": "reading", "metrics": {"chats": 2}, "at": "2026-09-27T19:45:00Z"}
     },
     "events": {
+      "20260927T195500Z-qa-tester": {"agent": "qa-tester", "at": "2026-09-27T19:55:00Z", "kind": "done", "lane": "code", "room": "tests", "status": "done", "task": "T72", "result": {"passed": 17, "of": 18, "issues": 1}, "text": "Design gate on the HMP App: 17 of 18 pass, 1 contrast issue on the Money tab."},
+      "20260927T195000Z-code": {"agent": "code", "at": "2026-09-27T19:50:00Z", "kind": "handoff", "to": "builder", "lane": "code", "room": "tests", "status": "working", "task": "T211", "text": "Builder: fix the Money tab contrast issue QA found."},
       "20260927T194500Z-chat-reader": {"agent": "chat-reader", "at": "2026-09-27T19:45:00Z", "kind": "start", "lane": "chat", "room": "research", "status": "working", "text": "Reading 2 open chats for the King."},
       "20260927T191000Z-builder": {"agent": "builder", "at": "2026-09-27T19:10:00Z", "kind": "done", "lane": "code", "room": "dock", "status": "done", "task": "T75", "text": "App layout B is ready for review."},
       "20260927T194000Z-code": {"agent": "code", "at": "2026-09-27T19:40:00Z", "kind": "progress", "lane": "code", "room": "tests", "status": "working", "task": "T72", "text": "Design gate self-test passes; running it on all three pages now."},
