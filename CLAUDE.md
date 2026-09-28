@@ -40,7 +40,7 @@ recent-sale proxies (never say "insured"). The app is the salesman's right hand:
 the sale, what to collect, what's legally required, what's next. **The app is the tool; teaching how to sell lives
 outside it** (FilthE, 2026-09-27: Practice Door + lessons with Claude). No coaching text in the app; a pro needs eyes,
 memory, back office, follow-up, proof and legal armor (docs/research/2026-09-27-round-54.md). Layout B, EN/ES everywhere. **Design for a MacBook Air screen first** (FilthE, 2026-09-27: "don't even call it app"; phone later). **Look = the Aldaba brand** (FilthE, 2026-09-27, "number 4"): graphite dark by
-default, knocker orange, Bricolage headlines + Geist; Light (Ledger) is an option. Salesman screens show the Aldaba
+default, knocker orange, Bricolage headlines + Geist; Light (Ledger) is an option. Target feel (FilthE, 2026-09-28): futuristic, modern, really advanced, like Apple ads. Salesman screens show the Aldaba
 mark; homeowner-facing screens stay HMP Siding & Roofing. **Quality bar for everything we build: the Aldaba
 landing page** (docs/design/product-brand/aldaba/): professional, premium, luxury (FilthE, 2026-09-27).
 

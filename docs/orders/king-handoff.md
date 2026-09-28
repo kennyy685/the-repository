@@ -31,7 +31,8 @@ like Batman's cave computers: professional, premium, still Aldaba (docs/design/m
 **Builder: Demo data + end-to-end test** (FilthE won't knock until the app is proven: load realistic mock
 houses from public data into Practice/demo only, run a full fake day Now -> Knock -> lead -> claim -> job, fix what breaks);
 **Research Lead FIRST: pro UI references** (FilthE: "improve the UI, look for professional references"): 10-15
-best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
+FUTURISTIC, modern, really advanced, Apple-ad level (FilthE): Apple product pages + ads (Vision Pro/visionOS
+glass, M-chip pages, Apple Watch Ultra), plus best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
 finds, film HUD designers), what to steal for MacBook layout A, with screenshots; then
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
 (HailTrace, Hail Recon, SalesRabbit, Spotio...), pricing, must-haves like teams + other states' laws; output
