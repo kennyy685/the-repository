@@ -34,6 +34,8 @@ houses from public data into Practice/demo only, run a full fake day Now -> Knoc
 FUTURISTIC, modern, really advanced, Apple-ad level (FilthE): Apple product pages + ads (Vision Pro/visionOS
 glass, M-chip pages, Apple Watch Ultra), plus best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
 finds, film HUD designers), what to steal for MacBook layout A, with screenshots; then
+**PAUSED by FilthE (design first): Builder full fake day** (WIP pushed; resume from its WIP commit: finish core
+day, the QA photo-delete fix in removePhoto() (skip ASSETS.delete when prOn()), then the 24h pieces);
 **Designer: apply the references** to layout A (ambient generative WebGL background, glass, luxury type,
 micro-motion) + a cinematic Aldaba intro/landing (WebGL + scroll), per docs/design/references/README.md;
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
