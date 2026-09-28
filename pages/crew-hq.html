@@ -225,6 +225,7 @@ h1,h2,h3,p{margin:0}
 .card{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:30;padding:0 18px 16px;max-height:78vh;overflow:auto;overscroll-behavior:contain;transform:translateY(calc(100% + 24px));transition:transform .28s var(--ease);
   background:var(--card);-webkit-backdrop-filter:var(--card-fx);backdrop-filter:var(--card-fx);border:1px solid var(--rule-2);border-radius:var(--r);box-shadow:inset 0 1px 0 rgba(241,242,244,.06)}
 .lowfx .card{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:not([data-look="ledger"]) .card{--muted:#9ea1a8}
 .card.open{transform:none}
 .card:not(.open){visibility:hidden;transition:transform .16s var(--ease),visibility 0s .16s}
 .rail{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:4px 0;border-bottom:1px solid var(--rule);position:sticky;top:0;background:inherit;z-index:1}
@@ -493,6 +494,8 @@ h1,h2,h3,p{margin:0}
 @media (min-width:900px) and (min-height:600px) and (max-height:819px){ .row{min-height:46px} .nrow{height:22px} .nrow,.nrow .mt,.nrow .ag{line-height:18px} .call{grid-template-columns:132px minmax(0,1fr);width:500px} .pip{width:132px;height:132px} .callq{-webkit-line-clamp:2} }
 @keyframes cardIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 @media (max-width:899px), (max-height:599px){
+  .card{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .cardscrim{position:fixed;inset:0;z-index:29;background:rgba(6,7,9,.62);animation:plateIn .2s var(--ease) both}
   .scrim-top,.scrim-col,.now,.edge{display:none!important}   /* phones: the Crew list below the office carries the same rows */
   .bub{max-width:min(200px,54vw);padding:5px 9px 6px} .bub .bh{display:none} .bub .bt{font-size:12px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block}
   .right{flex:1 1 100%;justify-content:space-between}
@@ -530,7 +533,8 @@ h1,h2,h3,p{margin:0}
 .trowb{display:contents}
 button.trow{width:100%;text-align:left;border-radius:0;transition:background .16s}
 button.trow:hover{background:rgba(241,242,244,.04)}
-button.task{cursor:pointer}
+button.task{cursor:pointer;position:relative;min-height:24px;vertical-align:middle}
+button.task::before{content:"";position:absolute;left:-4px;right:-4px;top:-3px;bottom:-3px}
 button.task:hover{border-color:var(--brass);color:var(--ink)}
 .cp{width:28px;height:28px;display:inline-grid;place-items:center;border-radius:var(--r-sm);color:var(--muted);opacity:0;transition:opacity .16s;vertical-align:middle;flex:none}
 .cp svg{width:14px;height:14px}
@@ -552,7 +556,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .keys kbd{min-width:24px;padding:2px 7px;text-align:center;font:500 12px var(--mono);color:var(--ink);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:4px}
 .keys dd{margin:0;font-size:14px;color:var(--ink-2);align-self:center}
 #keysMine{margin:14px 0 0 -10px}
-@media (max-width:899px), (max-height:599px){ .cp,.cowork-copy,#keysBtn,.search kbd{display:none} .qplate{display:none} }
+@media (max-width:899px), (max-height:599px){ .cp,.cowork-copy,.search kbd{display:none} .qplate{display:none} button.task{min-height:0} button.task::before{left:-8px;right:-8px;top:-13px;bottom:-13px} }
 
 /* ---------- P3: Make it yours, the mind ---------- */
 #mind{position:absolute;inset:0;width:100%;height:100%;display:block;-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 24%),transparent calc(var(--horizon) - 7%));mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 24%),transparent calc(var(--horizon) - 7%))}
@@ -565,10 +569,9 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .mrow.two .tb{justify-content:flex-start}
 .mrow.foot2{justify-items:start}
 .sw{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-left:-8px}
-.sw button,.sw label{width:42px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;cursor:pointer}
-.sw i{width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.sw button,.sw label{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;cursor:pointer}
+.sw svg{width:26px;height:26px;display:block}
 .sw [aria-checked="true"]::after{content:"";position:absolute;inset:4px;border:1.5px solid var(--ink);border-radius:50%}
-.sw label i{background:conic-gradient(#f1c48a,#f5883a,#e0685c,#a9c5a0,#a8c8e0,#f1c48a)}
 .sw input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .mwarn{font-size:13px;color:var(--st-stuck-ink);min-height:0}
 .mwarn:empty{display:none}
@@ -755,7 +758,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <div class="now-h"><h2 class="lbl" id="nowH">Right now</h2><span class="nsum" id="nowSum"></span></div>
       <ol class="nrows" id="nowList"></ol>
     </section>
-    <article class="card" id="card" aria-live="polite" aria-label="Details"></article>
+    <div class="cardscrim" id="cardScrim" hidden></div>
+    <article class="card" id="card" aria-live="polite" aria-label="Details" tabindex="-1"></article>
     <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, log and memory">
       <button type="button" class="tb" role="tab" id="tab-crew" data-tab="crew" aria-controls="tp-crew" aria-selected="true"><span data-t="tCrew">Crew</span></button>
       <button type="button" class="tb" role="tab" id="tab-board" data-tab="board" aria-controls="tp-board" aria-selected="false" tabindex="-1"><span data-t="tBoard">Board</span></button>
@@ -1186,9 +1190,9 @@ const FACE = {
   glasses:'<circle cx="16" cy="19.2" r="3.4" fill="none" stroke="#d9b56a" stroke-width="1.1"/><circle cx="24" cy="19.2" r="3.4" fill="none" stroke="#d9b56a" stroke-width="1.1"/><path d="M19.4 19h1.2" stroke="#d9b56a" stroke-width="1.1"/>'
 };
 function avatar(def){
-  const g = !!def.graphite, head = g ? '#34353b' : '#efebe4', rim = g ? '#4a4b52' : '#ffffff';
+  const g = !!def.graphite, head = g ? '#34353b' : '#efebe4', rim = g ? '#9a9da5' : '#ffffff';
   return '<svg viewBox="0 0 40 40" aria-hidden="true">' +
-    '<rect x="7" y="9.5" width="26" height="20" rx="8.5" fill="' + head + '" stroke="' + rim + '" stroke-opacity=".35" stroke-width=".6"/>' +
+    '<rect x="7" y="9.5" width="26" height="20" rx="8.5" fill="' + head + '" stroke="' + rim + '" stroke-opacity="' + (g ? '.6' : '.35') + '" stroke-width=".6"/>' +
     '<rect x="10.5" y="14" width="19" height="10.5" rx="5" fill="#0b0b0e"/>' +
     '<rect x="14.4" y="17.2" width="3" height="4" rx="1.5" fill="#fff3e2"/><rect x="22.6" y="17.2" width="3" height="4" rx="1.5" fill="#fff3e2"/>' +
     (FACE[def.outfit] || '') + (HATS[def.outfit] || '') +
@@ -1578,7 +1582,19 @@ function renderCard(force){
   if (!html) { selected = null; renderCard(); return; }
   const top = el.scrollTop; el.innerHTML = html; el.scrollTop = top; el.classList.add('open'); wireAnswers(el); setCarded();
 }
-function setCarded(){ $('#panel').classList.toggle('carded', !!selected); }
+function setCarded(){ $('#panel').classList.toggle('carded', !!selected); syncSheet(); }
+/* phones: the card is a modal bottom sheet over a scrim; the page behind it goes inert until it closes */
+let sheetOpen = false, sheetBack = null;
+function syncSheet(){
+  const want = !isWide && !!selected && $('#card').classList.contains('open'); if (want === sheetOpen) return; sheetOpen = want;
+  const card = $('#card'); $('#cardScrim').hidden = !want;
+  if (want) { sheetBack = document.activeElement; card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); }
+  else { card.removeAttribute('role'); card.removeAttribute('aria-modal'); }
+  for (const el of [$('#bar'), $('#stage'), $('#now'), $('#tabs'), document.querySelector('.search'), $('#tbody'), $('#kingBubble'), $('#call'), $('#callChip')]) if (el) el.inert = want;
+  if (want) { const f = card.querySelector('[data-close]') || card; try { f.focus({preventScroll:true}); } catch (e) { /* focus is a nicety */ } }
+  else if (sheetBack && sheetBack.isConnected) { try { sheetBack.focus({preventScroll:true}); } catch (e) { /* gone */ } sheetBack = null; }
+}
+$('#cardScrim').addEventListener('click', () => select(null));
 function select(key, opts){
   const prev = selected;
   selected = key && key !== selected ? key : (key === selected && !(opts && opts.keep) ? null : key);
@@ -1626,6 +1642,7 @@ async function sendAnswer(id, answer, note, q, to, opts){
 }
 function wireAnswers(root){
   for (const row of root.querySelectorAll('.ans')) {
+    for (const b of row.querySelectorAll('button[data-a]')) b.dataset.q = row.dataset.q;   // each answer button names its question
     const send = val => { const inp = row.querySelector('input'); const note = inp ? inp.value.trim() : '';
       if (val === 'send' && !note) { if (inp) inp.focus(); return; }
       for (const b of row.querySelectorAll('button')) b.disabled = true;
@@ -2106,8 +2123,11 @@ function applyTheme(save){
 let fxAuto = false;
 HUB.onLowFx = on => { fxAuto = !!on; document.getElementById('app').classList.toggle('lowfx', !!mine.low || fxAuto); };
 function swatches(list, cur, names, kind){
-  return list.map(([k, c]) => '<button type="button" role="radio" data-sw="' + kind + '" data-c="' + c + '" aria-checked="' + (cur === c) + '" aria-label="' + esc(names[k]) + '" title="' + esc(names[k]) + '" style="--c:' + c + '"><i></i></button>').join('') +
-    '<label title="' + esc(L().custom) + '" aria-checked="' + !list.some(([, c]) => c === cur) + '"><i></i><input type="color" data-swc="' + kind + '" value="' + cur + '" aria-label="' + esc(L().custom) + '"></label>';
+  const dot = c => '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="' + c + '"/><circle cx="13" cy="13" r="11.5" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg>';
+  const wheel = '<svg viewBox="0 0 26 26" aria-hidden="true">' + list.map(([, c], i) => { const a0 = i/list.length*2*Math.PI - Math.PI/2, a1 = (i + 1)/list.length*2*Math.PI - Math.PI/2;
+    return '<path d="M13 13L' + (13 + 12*Math.cos(a0)).toFixed(2) + ' ' + (13 + 12*Math.sin(a0)).toFixed(2) + 'A12 12 0 0 1 ' + (13 + 12*Math.cos(a1)).toFixed(2) + ' ' + (13 + 12*Math.sin(a1)).toFixed(2) + 'Z" fill="' + c + '"/>'; }).join('') + '</svg>';
+  return list.map(([k, c]) => '<button type="button" role="radio" data-sw="' + kind + '" data-c="' + c + '" aria-checked="' + (cur === c) + '" aria-label="' + esc(names[k]) + '" title="' + esc(names[k]) + '" style="--c:' + c + '">' + dot(c) + '</button>').join('') +
+    '<label title="' + esc(L().custom) + '" aria-checked="' + !list.some(([, c]) => c === cur) + '">' + wheel + '<input type="color" data-swc="' + kind + '" value="' + cur + '" aria-label="' + esc(L().custom) + '"></label>';
 }
 function renderMine(){
   const T = L();
@@ -2721,7 +2741,7 @@ function frame(now){
 }
 function layout(){
   const was = isWide; isWide = window.innerWidth >= 900 && window.innerHeight >= 600;
-  if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); }
+  if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); syncSheet(); }
   if (window.SCENE && window.SCENE.ready) { window.SCENE.resize(); applyViews(); }
   for (const o of overlays.values()) { o.sig = ''; o.w = 0; }
   if (was !== isWide) renderNeeds();
