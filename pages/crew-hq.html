@@ -488,7 +488,40 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .bub.blocked,.bub.done{color:#f1f2f4}
 :root[data-look="ledger"] .stagebar{background:var(--card-solid);border:1px solid var(--rule);border-radius:var(--r);padding:0 6px}
 :root[data-look="ledger"] .live .clk{color:var(--ink)}
+
+/* ---------- P4: spotlight, speech chips, The Call, robot eyes, coffee ---------- */
+.spot{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(circle 140px at var(--sx,50%) var(--sy,50%),transparent 0,transparent 55%,var(--spot-dim,rgba(12,13,15,.14)) 100%)}
+.spot.on{opacity:1}
+.say{position:absolute;left:0;top:0;max-width:260px;padding:6px 10px 7px;border-radius:4px;background:rgba(17,18,20,.9);border-left:2px solid var(--brass);color:#f1f2f4;font:500 13px/1.35 var(--f);opacity:0;transition:opacity .3s;pointer-events:none;will-change:transform}
+.say.on{opacity:1}
+.say b{display:block;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#e3c98f}
+.call{position:absolute;z-index:5;left:var(--gutter);bottom:72px;width:520px;max-width:calc(100% - var(--col-w) - 120px);display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;padding:12px;background:var(--card);-webkit-backdrop-filter:var(--card-fx);backdrop-filter:var(--card-fx);border:1px solid var(--rule-2);border-left:2px solid var(--need);border-radius:var(--r);animation:plateIn .28s var(--ease) both}
+.lowfx .call{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+.pip{width:180px;height:180px;border-radius:var(--r-sm);background:radial-gradient(circle at 50% 40%,rgba(241,196,138,.12),transparent 70%),var(--bg-3);display:grid;place-items:center}
+.pip svg{width:96px;height:96px;opacity:.9}
+.call-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.call-h .lbl{color:var(--need-ink)}
+.call-x{display:flex;align-items:center;gap:2px}
+.callq{margin-top:4px;font:500 16px/1.4 var(--f);color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.call .ans{margin-top:10px}
+.callchip{position:absolute;z-index:5;left:var(--gutter);bottom:72px;display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 6px;border-radius:22px;background:var(--card-solid);border:1px solid var(--need-line);font:500 13px var(--f);color:var(--ink)}
+.callchip svg{width:34px;height:34px}
+.callchip b{font-weight:600;color:var(--need-ink)}
+.eyes{position:absolute;inset:0;pointer-events:none;z-index:3}
+.eyef{position:absolute;inset:0}
+.eyef.v{background:radial-gradient(120% 100% at 50% 50%,transparent 58%,rgba(5,6,8,.75) 100%)}
+.eyef.king::before,.eyef.king::after{content:"";position:absolute;left:0;right:0;height:max(0px,calc((100% - 100vw/2.39)/2));background:#050608;border-color:#c9a45c;border-style:solid;border-width:0}
+.eyef.king::before{top:0;border-bottom-width:1px}.eyef.king::after{bottom:0;border-top-width:1px}
+.eyef.king svg{position:absolute;left:0;right:0;top:0;width:100%;height:70px}
+.eyef.lens svg{position:absolute;inset:0;width:100%;height:100%}
+.eyef.goggles{box-shadow:inset 0 0 0 100vmax rgba(245,136,58,.10)}
+.eyef.storm svg{position:absolute;left:0;right:0;top:0;width:100%;height:90px}
+.eyehud{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);max-width:min(720px,calc(100% - 480px));padding:8px 14px;border-radius:var(--r-sm);background:rgba(12,13,15,.8);font:500 12px/1.4 var(--mono);color:#b8bbc2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eyehud b{color:#f1f2f4;font-weight:500}
+.cupghost{position:fixed;z-index:80;width:36px;height:36px;margin:-18px 0 0 -18px;pointer-events:none;color:#e3c98f}
+@media (max-width:899px), (max-height:599px){ .call,.callchip,#cupBtn,.spot{display:none!important} }
 @media (prefers-reduced-motion:reduce){
+  .call{animation:none!important}
   .mine{animation:none!important}
   .cell b.roll,.qplate{animation:none!important}
   .sky .clouds,.sky .rain,.sky .stars i,.need,.recap,.ev.fresh::before,.beacon,.card.open{animation:none!important}
@@ -536,10 +569,17 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <canvas id="gl" role="img" aria-label="The crew's two-floor office. Each robot is one AI; click one to see what it is doing."></canvas>
     <img class="still" id="still" alt="The crew's two-floor office, with each AI robot at its station." src="hub/still.webp" onerror="this.hidden=true">
     <div class="foot-scrim" aria-hidden="true"></div>
+    <div class="spot" id="spot" aria-hidden="true"></div>
+    <div class="eyes" id="eyes" hidden aria-hidden="true"><div class="eyef" id="eyeFrame"></div><div class="eyehud" id="eyeHud"></div></div>
     <div class="scrim-top" aria-hidden="true"></div>
     <div class="scrim-col" aria-hidden="true"></div>
     <div class="ov" id="ov"></div>
     <div class="stagetop"><p class="hint" id="hint" data-t="hint">Click a robot to see what it is doing.</p></div>
+    <div class="call" id="call" hidden data-nodrag role="dialog" aria-labelledby="callWho">
+      <div class="pip" id="pip" aria-hidden="true"></div>
+      <div class="call-b"><div class="call-h"><span class="lbl" id="callWho"></span><span class="call-x"><button type="button" class="tb" id="callNext" hidden></button><button type="button" class="ibtn" id="callFold" aria-label="Fold"><svg class="i" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button></span></div><p class="callq" id="callQ"></p><div id="callAns"></div></div>
+    </div>
+    <button type="button" class="callchip" id="callChip" hidden data-nodrag></button>
     <div class="recap" id="recap" hidden role="status"><div class="t"><b id="recapH"></b><span id="recapT"></span></div><button type="button" class="btn pri" id="recapPlay" data-t="watch">Watch</button><button type="button" class="ibtn" id="recapX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     <div class="replaybar" id="replayBar" hidden><span id="replayText"></span><button type="button" class="btn" id="replayStop" data-t="stop">Stop</button></div>
     <div class="stagebar" id="stagebar" data-nodrag>
@@ -554,6 +594,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
         <button type="button" class="tb" id="skyBtn" aria-pressed="false">Sky live</button>
         <button type="button" class="tb" id="dingBtn" aria-pressed="false">Sound off</button>
         <button type="button" class="tb" id="replayBtn" data-t="replay">Replay</button>
+        <button type="button" class="tb" id="cupBtn" data-nodrag><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M9 3.5c0 1.5 1.5 1.5 1.5 3M12.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span data-t="cup">Coffee</span></button>
         <button type="button" class="tb" id="keysBtn" aria-haspopup="dialog"><span data-t="keysB">Keys</span><span class="k" aria-hidden="true">?</span></button>
       </div>
     </div>
@@ -612,7 +653,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <div class="mrow"><h3 class="lbl" id="mLookL" data-t="mLook">Look</h3><div class="seg" id="segLook" role="group" aria-labelledby="mLookL"><button type="button" data-look="nocturne" data-t="lkNoc">Nocturne</button><button type="button" data-look="ledger" data-t="lkLed">Ledger</button><button type="button" data-look="midnight" data-t="lkMid">Midnight</button></div></div>
   <div class="mrow"><h3 class="lbl" id="mStripL" data-t="mStrip">Robot light strips</h3><div class="seg" id="segStrip" role="group" aria-labelledby="mStripL"><button type="button" data-strip="ember-only" data-t="stStatus">By status</button><button type="button" data-strip="brand" data-t="stOne">All one color</button></div></div>
   <div class="mrow"><label class="lbl" for="mName" data-t="mName">The hub’s name</label><input id="mName" type="text" maxlength="24" autocomplete="off" spellcheck="false"></div>
-  <div class="mrow two"><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
+  <div class="mrow two"><button type="button" class="tb" id="mCheck" data-t="mCheck">Sound check</button><span></span><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
   <div class="mrow foot2"><button type="button" class="btn" id="mReset" data-t="mReset">Reset</button></div>
 </section>
 <div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl><button type="button" class="tb" id="keysMine"><span class="k" aria-hidden="true">◇</span><span data-t="mineH">Make it yours</span></button></div></div>
@@ -637,6 +678,7 @@ const TX = {
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mNeed: 'Needs you', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
+      cup: 'Coffee', mCheck: 'Sound check',
       mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · English or Spanish · uses your Claude usage',
@@ -662,6 +704,14 @@ const TX = {
     mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color', needLow: r => `That color is too hard to read on this background (${r}:1; it needs 4.5:1). Pick a stronger one.`,
     swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'}, swN: {ember: 'Ember', amber: 'Amber', coral: 'Coral', poppy: 'Poppy'},
     dollyHint: 'Scroll to move in · N for names',
+    greet: h => h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening', sinceLeft: n => n ? `${n} ${n === 1 ? 'update' : 'updates'} since you left.` : 'Nothing new since you left.',
+    receipt: 'Saved · the King has it', heldShort: 'goes out in 90 s or when you’re done', fold: 'Fold', unfold: n => `${n} asks you`, nextCall: n => `+${n}`,
+    eyesB: 'Eyes', coffeeThanks: 'Thanks for the coffee!', coffeeHow: 'Drag the cup onto a robot.',
+    gear: {code: n => `${n} board ${n === 1 ? 'item' : 'items'} done today`, king: n => `${n} ${n === 1 ? 'message' : 'messages'} passed to the King today`, builder: n => `${n} ${n === 1 ? 'decal' : 'decals'} this week`,
+      'hub-keeper': n => `${n} research ${n === 1 ? 'round' : 'rounds'} finished`, cowork: n => `${n} clean storm ${n === 1 ? 'day' : 'days'} in a row`, 'storm-watch': n => `${n} hail ${n === 1 ? 'alert' : 'alerts'} this month`,
+      pass: 'PASS pin: a full pass in the last 24 h', extra: 'EXTRA: a brief the King hasn’t picked up yet', fan: 'Fan open: waiting on your pick'}, gearH: 'Earned',
+    poke: {qa: n => `${n} ${n === 1 ? 'check' : 'checks'} passed today.`, storm: (t, h) => `Last scan ${t}: ${h ? 'hail found.' : 'no new hail.'}`, stormNone: 'No scan yet today.', builder: t => `Last shipped: ${t}`, builderNone: 'Nothing shipped yet this week.',
+      king: n => `${n} board ${n === 1 ? 'item' : 'items'} done.`, busy: p => `One sec… ${p}`, rest: 'Taking a breather.'},
     views: {all: 'Whole', blueprint: 'Blueprint', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', tour: 'Tour', director: 'Director', eyes: 'Eyes'},
     keys: [['1 – 8', 'Camera views (the ones built so far)'], ['9', 'The robot’s eyes'], ['↑ ↓', 'Upstairs / downstairs'], ['← →', 'Next robot'], ['N', 'Hide or show names'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C B L H', 'Crew, Board, Log, Chat'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', blocked: 'stuck', sleeping: 'asleep'},
@@ -697,6 +747,7 @@ const TX = {
       camAll: 'Todo', camUp: 'Arriba', camDown: 'Abajo', camFollow: 'Seguir', camMore: 'Más', watch: 'Ver', stop: 'Parar', replay: 'Repetir',
       tCrew: 'Equipo', tBoard: 'Tablero', tLog: 'Registro', tChat: 'Chat', keysH: 'Teclas', keysB: 'Teclas',
       mineH: 'Hazlo tuyo', mineS: 'Se guarda solo en este equipo. Cada cambio se ve al instante.', mWork: 'Trabajando', mNeed: 'Te necesita', mLook: 'Estilo', lkNoc: 'Nocturno', lkLed: 'Claro', lkMid: 'Medianoche',
+      cup: 'Café', mCheck: 'Prueba de sonido',
       mStrip: 'Luces de los robots', stStatus: 'Por estado', stOne: 'Un solo color', mName: 'Nombre del centro', mReset: 'Restablecer',
       lfAll: 'Todo', lfUp: 'Arriba', lfDown: 'Abajo', lfHand: 'Entregas', lfAns: 'Respuestas', older: 'Anteriores', searchL: 'Buscar en esta pestaña', searchPh: 'Buscar en esta pestaña',
       boardH: 'Tablero', memH: 'Lo que toda IA debe saber', kcTitle: 'Mano Derecha', kcSrc: 'Cambios al tablero, tus preguntas y órdenes al equipo · inglés o español · usa tu cuenta de Claude',
@@ -722,6 +773,14 @@ const TX = {
     mine: 'Hazlo tuyo', lowT: on => `Efectos reducidos: ${on ? 'sí' : 'no'}`, custom: 'Tu propio color', needLow: r => `Ese color no se lee bien sobre este fondo (${r}:1; necesita 4.5:1). Escoge uno más fuerte.`,
     swW: {champagne: 'Champán', pearl: 'Perla', sage: 'Salvia', glacier: 'Glaciar', rose: 'Oro rosa', brass: 'Latón'}, swN: {ember: 'Brasa', amber: 'Ámbar', coral: 'Coral', poppy: 'Amapola'},
     dollyHint: 'Desliza para acercarte · N para nombres',
+    greet: h => h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches', sinceLeft: n => n ? `${n} ${n === 1 ? 'novedad' : 'novedades'} desde que te fuiste.` : 'Nada nuevo desde que te fuiste.',
+    receipt: 'Guardado · el Rey ya lo tiene', heldShort: 'sale en 90 s o cuando termines', fold: 'Minimizar', unfold: n => `${n} te pregunta`, nextCall: n => `+${n}`,
+    eyesB: 'Ojos', coffeeThanks: '¡Gracias por el café!', coffeeHow: 'Arrastra la taza hasta un robot.',
+    gear: {code: n => `${n} ${n === 1 ? 'tarea terminada' : 'tareas terminadas'} hoy en el tablero`, king: n => `${n} ${n === 1 ? 'mensaje pasado' : 'mensajes pasados'} al Rey hoy`, builder: n => `${n} ${n === 1 ? 'calcomanía' : 'calcomanías'} esta semana`,
+      'hub-keeper': n => `${n} ${n === 1 ? 'ronda' : 'rondas'} de investigación terminadas`, cowork: n => `${n} ${n === 1 ? 'día' : 'días'} seguidos con tormentas limpias`, 'storm-watch': n => `${n} ${n === 1 ? 'alerta' : 'alertas'} de granizo este mes`,
+      pass: 'Pin PASS: una revisión completa en las últimas 24 h', extra: 'EXTRA: un resumen que el Rey aún no recoge', fan: 'Abanico abierto: espera tu elección'}, gearH: 'Ganado',
+    poke: {qa: n => `${n} ${n === 1 ? 'revisión pasó' : 'revisiones pasaron'} hoy.`, storm: (t, h) => `Último escaneo ${t}: ${h ? 'hay granizo.' : 'sin granizo nuevo.'}`, stormNone: 'Todavía no escanea hoy.', builder: t => `Lo último que entregó: ${t}`, builderNone: 'Nada entregado esta semana.',
+      king: n => `${n} ${n === 1 ? 'tarea hecha' : 'tareas hechas'} en el tablero.`, busy: p => `Un momento… ${p}`, rest: 'Tomando un respiro.'},
     views: {all: 'Todo', blueprint: 'Plano', cctv: 'Cámara de seguridad', up: 'Arriba', down: 'Abajo', follow: 'Seguir', window: 'Por la ventana', tilt: 'Miniatura', tour: 'Recorrido', director: 'Director', eyes: 'Ojos'},
     keys: [['1 – 8', 'Vistas de cámara (las que ya existen)'], ['9', 'Los ojos del robot'], ['↑ ↓', 'Arriba / abajo'], ['← →', 'Siguiente robot'], ['N', 'Ocultar o mostrar nombres'], ['A', 'Ir a la siguiente pregunta (solo enfoca; no manda nada)'], ['C B L H', 'Equipo, Tablero, Registro, Chat'], ['/', 'Buscar en esta pestaña'], ['R', 'Actualizar ahora'], ['Esc', 'Cerrar'], ['?', 'Esta hoja']],
     sum: {working: 'trabajando', blocked: 'atorados', sleeping: 'dormidos'},
@@ -868,6 +927,7 @@ function sync(first){
   const hail = events.some(e => e.agent === 'storm-watch' && now - e.atMs < 3*3600e3 && mentionsHail(e.text));
   sky.stormTo = Math.max(hail ? 1 : 0, weather.storm);
   sky.rainTo = Math.max(hail ? .6 : 0, weather.rain);
+  sceneData(); if (!first) chimeChanges(); else for (const a of bots) lastSt[a.id] = a.st;
 }
 
 /* ================= the sky: Fremont time of day + weather (mood only) ================= */
@@ -944,17 +1004,18 @@ async function fetchWeather(){
 })();
 
 /* ================= avatars: the robot heads, dressed for the job (drawn, not glyphs) ================= */
+/* outfits v2 silhouettes (docs/design/hub-office/outfits/lineup.html): one hero piece each, nameable at 32 px */
 const HATS = {
-  crown:'<path d="M12.5 9.5 14.5 4.5l3.6 3.4L20 2.8l1.9 5.1 3.6-3.4 2 5z" fill="#d9b56a" stroke="#8a6a2e" stroke-width=".6" stroke-linejoin="round"/><circle cx="20" cy="7.6" r="1" fill="#b3263e"/>',
-  headset:'<path d="M8.5 16a11.5 9 0 0 1 23 0" fill="none" stroke="#d9b56a" stroke-width="1.5"/><path d="M8.7 22c0 3 1.8 4.4 5 4.4" fill="none" stroke="#d9b56a" stroke-width="1.1" stroke-linecap="round"/><path d="M19 30l1 4 1-4z" fill="#d9b56a"/>',
-  captain:'<path d="M9 10.5c1-4.5 5.5-6.5 11-6.5s10 2 11 6.5z" fill="#f3efe7" stroke="#8a8a92" stroke-width=".5"/><rect x="8" y="9.4" width="24" height="2.6" rx="1.2" fill="#1d2230"/><circle cx="20" cy="7.4" r="1.3" fill="#d9b56a"/>',
-  rainhat:'<path d="M6 12c1.5-6 6.5-8.5 14-8.5S32.5 6 34 12c-4 1.4-24 1.4-28 0z" fill="#f2c230" stroke="#b58a12" stroke-width=".6"/><path d="M28 5V1.8" stroke="#d9b56a" stroke-width="1.2"/><circle cx="28" cy="1.6" r="1.4" fill="#ff7a52"/>',
-  hardhat:'<path d="M8.5 11.5c0-5 5-8 11.5-8s11.5 3 11.5 8z" fill="#f5883a"/><rect x="6.5" y="10.4" width="27" height="2.4" rx="1.2" fill="#d96f22"/><path d="M20 3.5v8" stroke="#ffae72" stroke-width="1.4"/>',
-  beret:'<ellipse cx="18" cy="8.6" rx="11" ry="4.6" fill="#b3263e"/><circle cx="18" cy="4.4" r="1.1" fill="#b3263e"/><path d="M31 11l3.5-6" stroke="#f2c230" stroke-width="1.6" stroke-linecap="round"/>',
-  goggles:'<rect x="9" y="7.6" width="22" height="3" rx="1.5" fill="#3b3b40"/><circle cx="15" cy="9" r="3.3" fill="#2a2b30" stroke="#d9b56a" stroke-width=".9"/><circle cx="25" cy="9" r="3.3" fill="#2a2b30" stroke="#d9b56a" stroke-width=".9"/><circle cx="14.2" cy="8.2" r="1" fill="#6fb6d9"/><circle cx="24.2" cy="8.2" r="1" fill="#6fb6d9"/>',
-  glasses:'',
-  explorer:'<path d="M5.5 11.5c3-1.4 26-1.4 29 0-2 1.3-27 1.3-29 0z" fill="#b99a64"/><path d="M11 11c.5-5 4-7.5 9-7.5s8.5 2.5 9 7.5z" fill="#d8bd86"/><rect x="11" y="9" width="18" height="1.8" fill="#6d5431"/>',
-  newsboy:'<path d="M9 11c0-4.5 5-7 11-7s11 2.5 11 7z" fill="#5e5a54"/><path d="M8.5 11c3 1.6 11 2 16 .6" fill="none" stroke="#3f3c38" stroke-width="2.2" stroke-linecap="round"/><circle cx="20" cy="4.6" r="1" fill="#3f3c38"/>'
+  crown:'<path d="M11 11.5c0-4 4-6 9-6s9 2 9 6z" fill="#6e1f2b"/><path d="M11.5 11.8 12.8 4.6l3.4 3.2L20 2.4l3.8 5.4 3.4-3.2 1.3 7.2z" fill="#d9b56a" stroke="#8a6a2e" stroke-width=".5" stroke-linejoin="round"/><circle cx="12.8" cy="4.4" r="1" fill="#e6c987"/><circle cx="20" cy="2.3" r="1.1" fill="#e6c987"/><circle cx="27.2" cy="4.4" r="1" fill="#e6c987"/><circle cx="20" cy="9.6" r="1.2" fill="#f5883a"/>',
+  headset:'<path d="M9 17a11 10 0 0 1 22 0" fill="none" stroke="#e6c987" stroke-width="1.6"/><rect x="4.6" y="14.6" width="4.4" height="7.4" rx="2" fill="#4b2a6b"/><rect x="31" y="14.6" width="4.4" height="7.4" rx="2" fill="#4b2a6b"/><path d="M8.6 22.5c0 3 1.8 4.6 5.2 4.6" fill="none" stroke="#e6c987" stroke-width="1" stroke-linecap="round"/><circle cx="14.2" cy="27.1" r="1.2" fill="#f5883a"/>',
+  hardhat:'<path d="M8.6 11.8c0-5.4 5-8.6 11.4-8.6s11.4 3.2 11.4 8.6z" fill="#e0772c"/><rect x="6.2" y="10.6" width="27.6" height="2.4" rx="1.2" fill="#b95d1c"/><path d="M20 3.4v8" stroke="#f3a064" stroke-width="1.5"/><circle cx="20" cy="8" r="1.6" fill="#fff1d6"/>',
+  beret:'<ellipse cx="17" cy="9.2" rx="12.5" ry="4" fill="#1d1c20" transform="rotate(-8 17 9.2)"/><circle cx="15.6" cy="4.8" r="1" fill="#1d1c20"/><path d="M31.5 10.5l3.6-6.2" stroke="#e0772c" stroke-width="1.7" stroke-linecap="round"/><path d="M35.1 4.3l.5-.9" stroke="#2a2a2e" stroke-width="1.7" stroke-linecap="round"/>',
+  goggles:'<path d="M10.5 10.5c0-3.5 4.5-5.4 9.5-5.4s9.5 1.9 9.5 5.4z" fill="#3b3b40"/><path d="M29 10.2h5.5" stroke="#3b3b40" stroke-width="2.2" stroke-linecap="round"/><rect x="9" y="9.2" width="22" height="2.6" rx="1.3" fill="#2a2a2e"/><circle cx="15" cy="10.2" r="3.4" fill="#f5883a" stroke="#c9a45c" stroke-width="1"/><circle cx="25" cy="10.2" r="3.4" fill="#f5883a" stroke="#c9a45c" stroke-width="1"/>',
+  glasses:'<path d="M7.5 10.8 10 6.4h20l2.5 4.4z" fill="#1f6b45"/><path d="M5 11.2h30" stroke="#17563a" stroke-width="1.6" stroke-linecap="round"/><rect x="18.6" y="6.2" width="2.8" height="1.6" fill="#c9a45c"/>',
+  explorer:'<path d="M3.8 11.6c3.4-1.6 29-1.6 32.4 0-2.2 1.5-30.2 1.5-32.4 0z" fill="#b99a64"/><path d="M11.2 11c.4-5.4 3.6-7.6 8.8-7.6s8.4 2.2 8.8 7.6z" fill="#d8bd86"/><path d="M16.5 4.2 20 6.4l3.5-2.2" fill="none" stroke="#b99a64" stroke-width="1"/><rect x="11.2" y="8.8" width="17.6" height="2" fill="#5b4a2e"/>',
+  captain:'<path d="M9.2 9.8c0-4 4.6-6.4 10.8-6.4s10.8 2.4 10.8 6.4z" fill="#f3efe7" stroke="#b8b4ac" stroke-width=".5"/><rect x="8.4" y="9" width="23.2" height="3" rx="1.2" fill="#1a1d27"/><path d="M11 12.2c3 1.6 15 1.6 18 0" fill="none" stroke="#111" stroke-width="1.4"/><circle cx="20" cy="7" r="1.5" fill="#d9b56a"/><circle cx="20" cy="7" r=".6" fill="#f5883a"/>',
+  rainhat:'<path d="M9.6 11c0-5 4.6-7.6 10.4-7.6S30.4 6 30.4 11z" fill="#f2c230"/><path d="M5 11.5c4 1.2 26 1.2 30 0l1.4 3.2c-4.6 1.4-28.2 1.4-32.8 0z" fill="#dba81b"/><path d="M20 3.6V.8" stroke="#c9a45c" stroke-width="1.1"/><circle cx="20" cy=".9" r="1.1" fill="#f5883a"/>',
+  newsboy:'<path d="M8.6 11.2c-.6-5 5-7.8 11.4-7.8s12 2.8 11.4 7.8z" fill="#8a7b63"/><path d="M8 11.2c3.2 1.8 12 2.2 17.4.6" fill="none" stroke="#5e5444" stroke-width="2.2" stroke-linecap="round"/><circle cx="20" cy="4" r="1" fill="#5e5444"/><rect x="27.4" y="2.4" width="6.6" height="4.2" rx=".5" fill="#f1ede4" transform="rotate(14 30.7 4.5)"/>'
 };
 const FACE = {
   glasses:'<circle cx="16" cy="19.2" r="3.4" fill="none" stroke="#d9b56a" stroke-width="1.1"/><circle cx="24" cy="19.2" r="3.4" fill="none" stroke="#d9b56a" stroke-width="1.1"/><path d="M19.4 19h1.2" stroke="#d9b56a" stroke-width="1.1"/>'
@@ -993,7 +1054,7 @@ const chip = i => '<li><button type="button" class="need' + (chipKeys.has(i.key)
 function renderNeeds(){
   const items = needItems(), T = L(), n = items.length;
   const ids = items.map(i => i.key);
-  if (lastNeedIds && dingOn && ids.some(k => !lastNeedIds.includes(k))) ding();
+  if (lastNeedIds && dingOn && ids.some(k => k.startsWith('q:') && !lastNeedIds.includes(k))) ding();
   lastNeedIds = ids;
   const botIds = items.filter(i => i.bot).map(i => i.key);
   if (botIds.join() !== HUB.needs.ids.join()) HUB.needs = {v:HUB.needs.v + 1, ids:botIds};   // CONTRACT v2: the call pool + the line
@@ -1144,6 +1205,9 @@ function cardQuestion(id){
   return railHtml() + '<div class="card-h"><span class="no">' + esc(id) + '</span><h2>' + esc(T.qWord) + '</h2><span class="wear">' + esc(T.qFrom) + ' · Claude Code</span><span class="stl">' + (st === 'done' ? '<span class="stw" style="--c:var(--st-done)"><i class="g">✓</i>' + esc(T.ansYou) + '</span>' : stWord('waiting')) + '</span>' + closeBtn() + '</div>' +
     '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(x.q) + '</div>' + answerBlock(id, x.q, 'code') + '</div>';
 }
+function gearLine(a){ const T = L(), g = a.gear; if (!g) return ''; const f = T.gear[a.id], parts = [];
+  if (g.count && typeof f === 'function') parts.push(f(g.count)); if (g.flag && T.gear[g.flag]) parts.push(T.gear[g.flag]);
+  return parts.length ? '<dt>' + esc(T.gearH) + '</dt><dd>' + parts.map(esc).join('<br>') + '</dd>' : ''; }
 function cardBot(a){
   const T = L(), c = a.def, d = a.disp || {status:a.st};
   const st = shownSt(a), qid = botAnswerId(a), asked = d.status === 'waiting';
@@ -1160,6 +1224,7 @@ function cardBot(a){
   return railHtml() + '<div class="card-h"><span class="no">' + esc(T.seat(c.seat)) + (c.title ? ' · ' + esc(tx(c.title)) : '') + '</span><h2>' + esc(tx(c.name)) + '</h2><span class="wear">' + esc(tx(c.wear)) + '</span>' +
       '<span class="stl">' + stWord(st) + (sinceLine ? ' <span class="src">' + esc(sinceLine) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
     '<p class="role">' + esc(tx(c.role)) + '</p>' +
+    (builtViews().includes('eyes') ? '<button type="button" class="tb" data-eyes="' + a.id + '"><span class="k" aria-hidden="true">9</span>' + esc(T.eyesB) + '</button>' : '') +
     (asked ? '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(botAsk(a)) + '</div>' + answerBlock(qid, botAsk(a), a.id) + '</div>' : '') +
     (st === 'blocked' ? '<div class="stuckb"><div class="lbl">' + esc(T.stuck) + '</div><div class="v">' + esc(a.doing || T.nothingNow) + '</div></div>' : '') +
     '<dl class="facts">' +
@@ -1167,7 +1232,7 @@ function cardBot(a){
     (prog && st === 'working' ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
     '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + (d.orphan ? ' · <span class="stale">' + esc(T.orphan(tFmt.format(d.orphan))) + '</span>' : d.stale ? ' · <span class="stale">' + esc(T.noCheckout) + '</span>' : '') + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
-    scouts +
+    scouts + gearLine(a) +
     '<dt>' + esc(T.f.where) + '</dt><dd>' + esc(T.deskOf(T.fl[c.floor], deskNo)) + ' · ' + esc(kind) + esc(boss ? T.forBoss(boss) : '') + '</dd>' +
     (mine.length > 1 ? '<dt>' + esc(T.f.recent) + '</dt><dd><ol class="recent">' + mine.map(e => '<li><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span>' + esc(e.text) + '</span></li>').join('') + '</ol></dd>' : '') +
     '<dt>' + esc(T.f.lives) + '</dt><dd>' + esc(tx(c.home)) + '</dd><dt>' + esc(T.f.reach) + '</dt><dd>' + esc(tx(c.reach)) + '</dd></dl>';
@@ -1241,7 +1306,8 @@ async function sendAnswer(id, answer, note, q, to){
       text:`Answer to ${who ? who + "'s question " : ''}${id}: ${answer}${note ? ' (' + note.slice(0, 200) + ')' : ''}${who ? '. Pass it to ' + who + '.' : ''}`.slice(0, 300)}));
     refreshAll(); renderBoard();
     const held = wake(`answered ${id} = ${answer}${note ? ' (' + note.slice(0, 120) + ')' : ''}${who ? ' for ' + who : ''} [answers/${id}, events/${stamp}-you]`);
-    appToast(held ? T.held : SAMPLE && CAN_EDIT && !who ? T.sentLive : T.sentTo(id, T.ans[answer] || answer));
+    HUB.cues.push({kind:'answered', id:byId[to] ? to : 'code', qid:id}); fwoop();   // Special Delivery + the asker's thank-you
+    appToast('✓ ' + T.receipt + (held ? ' · ' + T.heldShort : ''));
     if (SAMPLE && CAN_EDIT && !who) askKing(`I answered ${id} ("${q.slice(0, 200)}"): ${answer}${note ? ' - ' + note : ''}`, true);
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); refreshAll(); renderCard(true); }
 }
@@ -1478,7 +1544,7 @@ function placeOverlay(){
         o.bub.className = 'bub ' + kind;
         o.bub.innerHTML = '<div class="bh">' + esc(kind === 'waiting' ? T.askedBy(tx(a.def.name)) : tx(a.def.name) + ' · ' + head) + '</div><div class="bt">' + esc(isWide || kind !== 'waiting' ? (body || head) : tx(a.def.name)) + '</div>';
         o.w = 0; } }
-    const showBub = !!kind && !an.moving;
+    const showBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
     o.bub.classList.toggle('on', showBub);
     const showTag = !showBub && (a.id === selected || isWide);
     o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected); o.tag.classList.toggle('keep', a.st === 'waiting' || a.st === 'blocked' || a.id === selected);
@@ -1529,7 +1595,8 @@ const BASE_VIEWS = ['all', 'up', 'down', 'follow'];
 const builtViews = () => { const S = window.SCENE, v = S && S.ready && Array.isArray(S.views) ? S.views : BASE_VIEWS; return v; };
 function setCam(k, fromDolly){
   if (!BASE_VIEWS.includes(k) && !builtViews().includes(k)) return;
-  cam = k; store.set('hub-cam', k);
+  if (k === 'eyes' && cam !== 'eyes') preEyes = cam;
+  cam = k; store.set('hub-cam', k === 'eyes' ? preEyes : k);
   if (!fromDolly && typeof dollySel !== 'undefined') { dolly = k === 'follow' ? 2 : k === 'up' || k === 'down' ? 1 : 0; dollySel = false; }
   for (const b of document.querySelectorAll('#camSeg button[data-cam]')) b.setAttribute('aria-pressed', String(b.dataset.cam === k));
   if (k === 'follow' && !byId[selected]) { const w = waitingBots()[0] || bots.find(a => a.st === 'working') || byId.code; select(w.id); }
@@ -1562,6 +1629,7 @@ document.addEventListener('click', e => {
   if (plateOpen && !e.target.closest('#needs')) { plateOpen = false; renderNeeds(); }
   if (!e.target.closest('#viewMenu,#camMore')) closeViewMenu();
   const c = e.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c.classList.contains('cp') ? c : null); return; }
+  const ey = e.target.closest('[data-eyes]'); if (ey) { setCam('eyes'); return; }
   const ty = e.target.closest('[data-type]'); if (ty) { closeQPlate(); select(ty.dataset.type, {keep:true}); const i = $('#card input'); if (i) i.focus(); return; }
   const t = e.target.closest('[data-sel],[data-close],[data-more]'); if (!t) return;
   if (t.hasAttribute('data-more')) { if (isWide) plateOpen = !plateOpen; else needsAll = !needsAll; renderNeeds(); return; }
@@ -1607,6 +1675,7 @@ const typingIn = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT
 const VIEW_KEYS = {'1':'all', '2':'blueprint', '3':'cctv', '4':'follow', '5':'window', '6':'tilt', '7':'tour', '8':'director', '9':'eyes'};
 const TAB_KEYS = {c:'crew', b:'board', l:'log', h:'chat'};
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && cam === 'eyes') { setCam(preEyes || 'all'); return; }
   if (e.key === 'Escape') { if (closeMine()) { $('#mineBtn').focus(); return; } if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
   if (e.metaKey || e.ctrlKey || e.altKey || typingIn(document.activeElement)) return;
   const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #keys'));
@@ -1795,14 +1864,226 @@ function dollyHint(){
   store.set('hub-hint-dolly', '1'); const h = $('#hint'); h.textContent = L().dollyHint; h.style.opacity = 1; setTimeout(() => { if (h.textContent === L().dollyHint) h.style.opacity = 0; }, 6000);
 }
 
+/* ================= P4: what the scene reads for its fun (CONTRACT v2): gear, silence, Storm Watch, the flap sign, bugs ================= */
+const DAY = 864e5;
+const dayOf = ms => dFmt.format(ms), todayK = () => dayOf(Date.now());
+function weekStart(){ const w = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()); const dow = Math.max(0, ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(w)); return Date.now() - dow*DAY - centralMinute()*60000; }   // Monday 00:00 Central
+const TOWNS = {fremont:[41.43, -96.50], omaha:[41.26, -95.93], lincoln:[40.81, -96.70], blair:[41.54, -96.13], wahoo:[41.21, -96.62], columbus:[41.43, -97.37], norfolk:[42.03, -97.42], schuyler:[41.45, -97.06],
+  'west point':[41.84, -96.71], 'grand island':[40.92, -98.34], kearney:[40.70, -99.08], 'north bend':[41.46, -96.78], hooper:[41.61, -96.55], arlington:[41.45, -96.35], valley:[41.31, -96.35], elkhorn:[41.29, -96.24], 'council bluffs':[41.26, -95.86], papillion:[41.15, -96.04], bellevue:[41.14, -95.91], york:[40.87, -97.59], seward:[40.91, -97.10], 'david city':[41.25, -97.13]};
+function bearing(town){ const t = TOWNS[String(town || '').toLowerCase()]; if (!t) return null; const [a1, o1] = TOWNS.fremont.map(v => v*Math.PI/180), [a2, o2] = t.map(v => v*Math.PI/180);
+  const y = Math.sin(o2 - o1)*Math.cos(a2), x = Math.cos(a1)*Math.sin(a2) - Math.sin(a1)*Math.cos(a2)*Math.cos(o2 - o1); return Math.round((Math.atan2(y, x)*180/Math.PI + 360) % 360); }
+function sceneData(){
+  const now = Date.now(), tk = todayK(), ws = weekStart(), month = new Date().toLocaleString('en-US', {timeZone:'America/Chicago', month:'numeric', year:'numeric'});
+  const rows = [...((board && board.now) || []), ...((board && board.next) || [])];
+  const evBy = id => events.filter(e => e.agent === id && !e.approx);
+  const hailEvs = evBy('storm-watch').filter(e => mentionsHail(e.text));
+  for (const a of bots) {
+    const mine = evBy(a.id); let count = 0, flag = '';
+    if (a.id === 'code') count = Math.min(5, Math.max(rows.filter(x => statusKey(x.status) === 'done' && x.at && dayOf(Date.parse(x.at)) === tk).length, mine.filter(e => e.kind === 'done' && dayOf(e.atMs) === tk).length));
+    else if (a.id === 'king') count = mine.filter(e => e.kind === 'handoff' && e.to === 'code' && dayOf(e.atMs) === tk).length;
+    else if (a.id === 'builder') count = mine.filter(e => e.kind === 'done' && e.atMs >= ws).length;
+    else if (a.id === 'designer') flag = a.st === 'waiting' ? 'fan' : '';
+    else if (a.id === 'qa-tester') flag = mine.some(e => e.kind === 'done' && now - e.atMs < DAY && /\bpass/i.test(e.text)) ? 'pass' : '';
+    else if (a.id === 'hub-keeper') count = Math.min(6, mine.filter(e => e.kind === 'done' && /round|ronda/i.test(e.text)).length);
+    else if (a.id === 'cowork') { const days = new Set(mine.filter(e => e.kind === 'done').map(e => dayOf(e.atMs))); let d = 0; while (days.has(dayOf(now - d*DAY))) d++; count = d; }
+    else if (a.id === 'storm-watch') count = hailEvs.filter(e => new Date(e.atMs).toLocaleString('en-US', {timeZone:'America/Chicago', month:'numeric', year:'numeric'}) === month).length;
+    else if (a.id === 'chat-reader') flag = mine.length && mine[0].atMs > (byId.code.atMs || 0) ? 'extra' : '';
+    const pr = a.progress && typeof a.progress === 'object' && a.progress.of ? {done:a.progress.done || 0, of:a.progress.of} : null;
+    const gear = {count, progress:pr, flag};
+    // run watchdog (CONVENIENCES #2): working but silent 30 min (helper) / 45 min (the King)
+    const silent = a.st === 'working' && a.atMs > 0 && now - a.atMs > (a.id === 'code' ? 45 : 30)*60e3 && !replay;
+    const sig = JSON.stringify(gear) + silent;
+    if (a.gsig !== undefined && a.gsig !== sig) a.seq++;
+    a.gsig = sig; a.gear = gear; a.silent = silent;
+  }
+  // Storm Watch's morning
+  const last = hailEvs[0], sw = byId['storm-watch'], st = (sw && sw.storm) || {};
+  const m = last && /(\d+(?:\.\d+)?)\s*(?:"|in\b|inch|pulgada)/i.exec(last.text);
+  const town = st.town || (last && Object.keys(TOWNS).find(t => new RegExp('\\b' + t + '\\b', 'i').test(last.text))) || '';
+  HUB.stormWatch = {dryDays:last ? Math.floor((now - last.atMs)/DAY) : null, lastHailAt:last ? last.atMs : 0, inches:+st.inches || (m ? +m[1] : 0), town, dir:bearing(town)};
+  // the coffee-bar flap sign
+  const lastBlock = events.find(e => e.kind === 'blocked' && !e.approx), blockDays = lastBlock ? Math.floor((now - lastBlock.atMs)/DAY) : null;
+  let best = +store.get('hub-best-block') || 0; if (blockDays != null && blockDays > best) { best = blockDays; store.set('hub-best-block', String(best)); }
+  const flap = {blockDays, bestBlockDays:best, shipped:events.filter(e => e.kind === 'done' && e.atMs >= ws && e.agent !== 'you').length, waiting:needItems().length};
+  const fs2 = JSON.stringify(flap); if (fs2 !== sceneData.flap) { sceneData.flap = fs2; HUB.flap = Object.assign({v:((HUB.flap && HUB.flap.v) || 0) + 1}, flap); }
+  // QA's bug jar
+  const done = new Set(rows.filter(x => statusKey(x.status) === 'done').map(x => x.id));
+  const qaBlocks = events.filter(e => e.agent === 'qa-tester' && e.kind === 'blocked' && e.task);
+  HUB.bugs = {open:[...new Set(qaBlocks.filter(e => !done.has(e.task)).map(e => e.task))], fixedThisWeek:[...new Set(qaBlocks.filter(e => done.has(e.task) && e.atMs >= ws - 7*DAY).map(e => e.task))]};
+}
+Object.defineProperty(HUB, 'afterHours', {get(){ const m = centralMinute(); return m >= 22*60 || m < 5*60; }, configurable:true});
+
+/* ================= presence: the pointer, "watching", hover (CONTRACT v2) ================= */
+const pres = {x:0, y:0, in:false, t:0, moved:0, hover:null, rowHover:null, pickAt:0};
+HUB.pointer = {x:0, y:0, in:false, t:0};
+Object.defineProperty(HUB, 'watching', {get(){ return !document.hidden && (TEST || document.hasFocus()) && performance.now() - pres.moved < 120000; }, configurable:true});
+Object.defineProperty(HUB, 'hover', {get(){ return pres.rowHover || pres.hover; }, configurable:true});
+Object.defineProperty(HUB, 'pip', {get(){ return call.id && !call.folded && !$('#call').hidden ? {id:call.id, kind:'face'} : null; }, configurable:true});
+window.addEventListener('pointermove', e => {
+  const now = performance.now(); pres.moved = now; const r = stageEl.getBoundingClientRect();
+  pres.x = e.clientX - r.left; pres.y = e.clientY - r.top; pres.in = !!(e.target.closest && e.target.closest('#stage')) && !e.target.closest('.stagebar,.call,.callchip');
+  if (now - pres.t < 100) return; pres.t = now;
+  HUB.pointer = {x:Math.round(pres.x), y:Math.round(pres.y), in:pres.in, t:Date.now()};
+  const S = window.SCENE; pres.hover = pres.in && isWide && S && S.ready && S.pick ? S.pick(pres.x, pres.y) : null;
+}, {passive:true});
+$('#roster').addEventListener('pointerover', e => { const r = e.target.closest('.row'); pres.rowHover = r ? r.dataset.sel : null; });
+$('#roster').addEventListener('pointerleave', () => { pres.rowHover = null; });
+let spotSig = '';
+function placeSpot(){
+  const el = $('#spot'), S = window.SCENE, id = HUB.hover || (byId[selected] ? selected : null), an = id && isWide && S && S.ready && S.anchors[id];
+  const on = !!(an && an.visible !== false) && cam !== 'eyes';
+  if (on) { const x = Math.round(an.x), y = Math.round((an.y + an.fy)/2), sig = x + ',' + y; if (sig !== spotSig) { spotSig = sig; el.style.setProperty('--sx', x + 'px'); el.style.setProperty('--sy', y + 'px'); } }
+  el.classList.toggle('on', on);
+}
+
+/* ================= speech chips over a robot (greeting, poke, coffee) ================= */
+const says = new Map();
+function say(id, head, text, ms){
+  let o = says.get(id); if (!o) { const el = document.createElement('div'); el.className = 'say'; el.setAttribute('role', 'status'); $('#ov').append(el); o = {el}; says.set(id, o); }
+  o.el.innerHTML = (head ? '<b>' + esc(head) + '</b>' : '') + esc(text); o.until = performance.now() + (ms || 4500); o.w = 0;
+  const S = window.SCENE; if (!(S && S.ready && S.anchors[id])) appToast((head ? head + ': ' : '') + text, ms || 4500);
+}
+function placeSays(now){
+  const S = window.SCENE;
+  for (const [id, o] of says) { const an = S && S.ready && S.anchors[id], live = now < o.until && an && an.visible !== false;
+    o.el.classList.toggle('on', !!live); if (!live) { if (now > o.until + 400) { o.el.remove(); says.delete(id); } continue; }
+    if (!o.w) { o.w = o.el.offsetWidth; o.h = o.el.offsetHeight; }
+    o.el.style.transform = 'translate(' + Math.round(Math.max(8, Math.min(stageEl.clientWidth - o.w - 8, an.x - o.w/2))) + 'px,' + Math.round(Math.max(60, an.y - o.h - 30)) + 'px)'; }
+}
+/* the greeting: the Right Hand says hello by Fremont time + one "since you left" count; the crew does a roll call */
+function greet(){
+  if (greet.done || !gotEvents || !gotAgents) return; greet.done = true;
+  const T = L(), h = Math.floor(centralMinute()/60), since = lastSeen ? events.filter(e => e.atMs > lastSeen && e.agent !== 'you').length : 0;
+  HUB.cues.push({kind:'arrive'});
+  setTimeout(() => say('king', tx(byId.king.def.name), T.greet(h) + ', FilthE. ' + T.sinceLeft(since), 6500), RMQ.matches ? 0 : 1300);
+}
+
+/* ================= The Call (FUN 4): the first robot waiting gets a face-cam card at the room's bottom-left ================= */
+const call = {id:null, folded:false, at:0, touched:0, queue:[]};
+function renderCall(){
+  const box = $('#call'), chipEl = $('#callChip');
+  const ids = HUB.needs.ids.filter(id => byId[id] && id !== selected);
+  if (!isWide || !ids.length || !DB) { call.id = null; box.hidden = true; chipEl.hidden = true; return; }
+  if (!ids.includes(call.id)) {
+    if (typingIn(document.activeElement)) { if (!call.id) { box.hidden = true; chipEl.hidden = true; } return; }   // never opens while he's typing
+    call.id = ids[0]; call.folded = false; call.at = call.touched = performance.now(); call.sig = '';
+  }
+  const a = byId[call.id], T = L(), n = ids.length - 1, sig = [call.id, lang, botAsk(a), n, call.folded].join('|');
+  box.hidden = call.folded; chipEl.hidden = !call.folded;
+  if (sig === call.sig) return; call.sig = sig;
+  chipEl.innerHTML = avatar(a.def) + '<span><b>' + esc(tx(a.def.name)) + '</b> ' + esc(T.askedBy('').trim()) + (n ? ' · +' + n : '') + '</span>';
+  chipEl.setAttribute('aria-label', T.unfold(tx(a.def.name)));
+  if (call.folded) return;
+  $('#pip').innerHTML = avatar(a.def);
+  $('#callWho').textContent = T.askedBy(tx(a.def.name));
+  $('#callQ').textContent = botAsk(a);
+  const nb = $('#callNext'); nb.hidden = !n; nb.textContent = T.nextCall(n);
+  $('#callFold').setAttribute('aria-label', T.fold); $('#callFold').title = T.fold;
+  const id = botAnswerId(a);
+  $('#callAns').innerHTML = '<div class="ans" data-q="' + esc(id) + '" data-to="' + esc(a.id) + '" data-text="' + esc(botAsk(a)) + '"><button type="button" class="btn" data-a="Yes">' + esc(T.ans.Yes) + '</button><button type="button" class="btn" data-a="No">' + esc(T.ans.No) + '</button><button type="button" class="btn" data-a="Not now">' + esc(T.ans['Not now']) + '</button>' +
+    '<span class="typed"><input type="text" id="callIn" placeholder="' + esc(T.ansPh) + '" aria-label="' + esc(T.ansAria(id)) + '" enterkeyhint="send"><button type="button" class="btn pri" data-a="send">' + esc(T.ansSend) + ' ↵</button></span></div>';
+  wireAnswers($('#callAns'));
+}
+function tickCall(now){
+  if (call.id && !call.folded && !$('#call').hidden && now - call.touched > 60000 && !$('#call').contains(document.activeElement)) { call.folded = true; call.sig = ''; }
+  renderCall();
+}
+$('#call').addEventListener('pointerenter', () => { call.touched = performance.now(); });
+$('#call').addEventListener('focusin', () => { call.touched = performance.now(); });
+$('#callFold').addEventListener('click', () => { call.folded = true; call.sig = ''; renderCall(); $('#callChip').focus(); });
+$('#callChip').addEventListener('click', () => { call.folded = false; call.touched = performance.now(); call.sig = ''; renderCall(); });
+$('#callNext').addEventListener('click', () => { const ids = HUB.needs.ids.filter(id => byId[id] && id !== selected); const i = ids.indexOf(call.id); call.id = ids[(i + 1) % ids.length]; call.touched = performance.now(); call.sig = ''; renderCall(); });
+
+/* ================= robot eyes (FUN 5, key 9): the page draws the gear frame + one HUD line ================= */
+let preEyes = 'all';
+const EYE_FRAMES = {
+  code: '<svg viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 0h400v10l-10 26-20-18-18 22-20-20-16 24-18-22-20 18-20-26-20 26-20-18-18 22-20-20-16 24-18-22-20 18-20-26-20 26-20-18-18 22-16-24-20 20-10-26z" fill="#050608"/><path d="M0 10l10 26 20-18 18 22 20-20 16 24 18-22 20 18 20-26 20 26 20-18 18 22 20-20 16 24 18-22 20 18 20-26 20 26 20-18 18 22 16-24 20 20 10-26" fill="none" stroke="#c9a45c" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>',
+  'qa-tester': '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><mask id="lm"><rect width="160" height="100" fill="#fff"/><circle cx="56" cy="50" r="34" fill="#000"/><circle cx="104" cy="50" r="34" fill="#000"/></mask></defs><rect width="160" height="100" fill="#07080a" mask="url(#lm)"/><circle cx="56" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><circle cx="104" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><path d="M0 0h160v14H0z" fill="#1f6b45" opacity=".85"/></svg>',
+  'engine-mechanic': '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><mask id="gm"><rect width="160" height="100" fill="#fff"/><circle cx="54" cy="50" r="31" fill="#000"/><circle cx="106" cy="50" r="31" fill="#000"/></mask></defs><rect width="160" height="100" fill="#0a0806" mask="url(#gm)"/><circle cx="54" cy="50" r="31" fill="none" stroke="#c9a45c" stroke-width="3"/><circle cx="106" cy="50" r="31" fill="none" stroke="#c9a45c" stroke-width="3"/></svg>',
+  'storm-watch': '<svg viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 0h400v18Q200 60 0 18z" fill="#dba81b"/><path d="M0 18Q200 60 400 18" fill="none" stroke="#8a6a12" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>'
+};
+const EYE_CLASS = {code:'v king', 'qa-tester':'lens', 'engine-mechanic':'lens goggles', 'storm-watch':'v storm'};
+function renderEyes(){
+  const on = cam === 'eyes' && !!byId[selected]; $('#eyes').hidden = !on; if (!on) { renderEyes.sig = ''; return; }
+  const a = byId[selected], T = L(), p = a.progress && typeof a.progress === 'object' && a.progress.of ? ' · ' + a.progress.done + '/' + a.progress.of : '';
+  const sig = [a.id, lang, a.doing, a.task, p].join('|'); if (sig === renderEyes.sig) return; renderEyes.sig = sig;
+  $('#eyeFrame').className = 'eyef ' + (EYE_CLASS[a.id] || 'v'); $('#eyeFrame').innerHTML = EYE_FRAMES[a.id] || '';
+  $('#eyeHud').innerHTML = '<b>' + esc(tx(a.def.name)) + '</b>' + (a.task ? ' · ' + esc(a.task) : '') + ' · ' + esc(lineOf(a, shownSt(a))) + esc(p);
+}
+
+/* ================= poke (double-click a robot) and coffee (drag the cup onto one) ================= */
+const pokeAt = {};
+function pokeLine(a){
+  const T = L(), P = T.poke, tk = todayK();
+  if (a.st === 'working' && progressOf(a) != null) return P.busy(rightNote(a, 'working'));
+  if (a.id === 'qa-tester') return P.qa(events.filter(e => e.agent === a.id && e.kind === 'done' && dayOf(e.atMs) === tk).length);
+  if (a.id === 'storm-watch') { const e = events.find(x => x.agent === a.id && !x.approx); return e && dayOf(e.atMs) === tk ? P.storm(tFmt.format(e.atMs), mentionsHail(e.text)) : P.stormNone; }
+  if (a.id === 'builder') { const e = events.find(x => x.agent === a.id && x.kind === 'done' && x.atMs >= weekStart()); return e ? P.builder(e.text.slice(0, 90)) : P.builderNone; }
+  if (a.id === 'code') return P.king([...((board && board.now) || []), ...((board && board.next) || [])].filter(x => statusKey(x.status) === 'done').length);
+  return a.doing ? a.doing.slice(0, 110) : P.rest;
+}
+function poke(id){
+  const a = byId[id]; if (!a) return; const now = performance.now(); if (now - (pokeAt[id] || -1e9) < 8000) return; pokeAt[id] = now;
+  HUB.cues.push({kind:'poke', id}); say(id, tx(a.def.name), pokeLine(a), 4500); chime(id, 'poke');
+}
+stageEl.addEventListener('dblclick', e => {
+  if (e.target.closest('.stagebar,.call,.callchip,.recap,.replaybar')) return;
+  const S = window.SCENE; if (!S || !S.ready) return; const r = stageEl.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+  const id = (S.pick && S.pick(px, py)) || nearestBot(px, py); if (id) poke(id);
+});
+function nearestBot(px, py){ const S = window.SCENE; let best = null, bd = 38; for (const a of bots) { const an = S.anchors[a.id]; if (!an || an.visible === false) continue; const d = Math.hypot(px - an.x, (py - (an.y + an.fy)/2)*.7); if (d < bd) { bd = d; best = a.id; } } return best; }
+function giveCoffee(id){ const a = byId[id]; if (!a) return; HUB.cues.push({kind:'coffee', id}); say(id, tx(a.def.name), L().coffeeThanks, 3500); }
+(() => {
+  const cup = $('#cupBtn'); let drag = null;
+  cup.addEventListener('pointerdown', e => { if (e.button) return; drag = {x:e.clientX, y:e.clientY, moved:false, ghost:null}; cup.setPointerCapture(e.pointerId); });
+  cup.addEventListener('pointermove', e => { if (!drag) return; if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6) { drag.moved = true; drag.ghost = document.createElement('div'); drag.ghost.className = 'cupghost'; drag.ghost.innerHTML = cup.querySelector('svg').outerHTML; document.body.append(drag.ghost); }
+    if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; } });
+  cup.addEventListener('pointerup', e => { if (!drag) return; const d = drag; drag = null; if (d.ghost) d.ghost.remove();
+    if (!d.moved) { if (byId[selected]) giveCoffee(selected); else appToast(L().coffeeHow, 2400); return; }
+    const S = window.SCENE; if (!S || !S.ready) return; const r = stageEl.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+    const id = (S.pick && S.pick(px, py)) || nearestBot(px, py); if (id) giveCoffee(id); else appToast(L().coffeeHow, 2400); });
+  cup.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; });
+})();
+
+/* ================= signature chimes (FUN 6, ART 8.8 levels): one switch, 1 per 3 s, quiet 10 PM-7 AM except hail ================= */
+let chimeAt = 0;
+const CHIME = {   // [type, freqs Hz, step s, decay s]
+  code:['sawtooth', [196, 294], 0, 1.2], king:['sine', [988, 1480], 0, .9], builder:['square', [800, 800], .14, .09], designer:['triangle', [660, 990], .05, .8],
+  'engine-mechanic':['sine', [1175, 1568], 0, .5], 'qa-tester':['sine', [110, 82], .03, .25], 'hub-keeper':['sine', [523, 659, 784], .13, .5],
+  cowork:['sine', [740, 740], .32, .9], 'storm-watch':['sine', [440, 523], .18, .8], 'chat-reader':['sine', [1047], 0, .6]
+};
+function chime(id, kind, force){
+  if (!force && (!dingOn || Date.now() - chimeAt < 3000)) return;
+  const m = centralMinute(); if (!force && (m >= 22*60 || m < 7*60) && !(id === 'storm-watch' && kind === 'hail')) return;
+  const c = CHIME[id]; if (!c) { if (kind === 'wait') ding(); return; } chimeAt = Date.now();
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume();
+    const t0 = actx.currentTime + .02, lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000; lp.connect(actx.destination);
+    const freqs = kind === 'done' ? [...c[1], c[1][c[1].length - 1]*1.5] : c[1];   // done resolves upward; blocked bends down
+    freqs.forEach((f, i) => { const o = actx.createOscillator(), g = actx.createGain(), t = t0 + i*c[2]; o.type = c[0]; o.frequency.setValueAtTime(f, t);
+      if (kind === 'block') o.frequency.exponentialRampToValueAtTime(f*.84, t + c[3]);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(c[0] === 'sine' || c[0] === 'triangle' ? .07 : .03, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + c[3]);
+      o.connect(g).connect(lp); o.start(t); o.stop(t + c[3] + .05); });
+  } catch (e) { /* no audio here */ }
+}
+function fwoop(){ if (!dingOn) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t0 = actx.currentTime, o = actx.createOscillator(), g = actx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(300, t0); o.frequency.exponentialRampToValueAtTime(90, t0 + .25); g.gain.setValueAtTime(.03, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .28); o.connect(g).connect(actx.destination); o.start(t0); o.stop(t0 + .3); } catch (e) { /* no audio */ } }
+const lastSt = {};
+function chimeChanges(){
+  if (replay) return;
+  for (const a of bots) { const p = lastSt[a.id]; lastSt[a.id] = a.st; if (p === undefined || p === a.st) continue;
+    if (a.st === 'waiting') chime(a.id, 'wait'); else if (a.st === 'done') chime(a.id, 'done'); else if (a.st === 'blocked') chime(a.id, 'block'); }
+}
+$('#mCheck').addEventListener('click', () => { bots.forEach((a, i) => setTimeout(() => { chime(a.id, 'check', true); appToast(tx(a.def.name), 900); }, i*1000)); });
+
 /* ================= the loop ================= */
 let prevNow = performance.now();
 const bdot = $('#bdot');
 function frame(now){
   const dt = Math.max(0, Math.min(TEST ? .35 : .08, (now - prevNow)/1000)); prevNow = now;
   updateSky(dt);
-  const S = window.SCENE; if (S && S.ready) S.frame(now/1000, dt);
-  placeOverlay(); mind.tick(now);
+  const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
+  placeOverlay(); mind.tick(now); placeSpot(); placeSays(now);
+  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
@@ -2044,6 +2325,7 @@ function parseAgent(id, d){
   }
   a.status = STATUS.includes(d.status) ? d.status : 'idle'; a.room = d.room || null; a.doing = d.doing ? String(d.doing).slice(0, 240) : ''; a.task = d.task ? String(d.task).slice(0, 24) : '';
   a.ask = d.ask ? String(d.ask).slice(0, 300) : ''; a.progress = d.progress && (typeof d.progress === 'number' || typeof d.progress === 'object') ? d.progress : null;
+  a.storm = d.storm && typeof d.storm === 'object' ? {inches:+d.storm.inches || 0, town:String(d.storm.town || '').slice(0, 40)} : null;
   a.atMs = Date.parse(d.at || '') || 0;
 }
 function onAgents(snap){
@@ -2135,7 +2417,7 @@ applyTheme(false); applyStatic(); setTab(tab); setCam(cam); layout(); renderCloc
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
-if (TEST) window.__hubTest = {mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
+if (TEST) window.__hubTest = {call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
 </script>

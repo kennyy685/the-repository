@@ -36,6 +36,8 @@ as a question, never as a separate list.
     up by `to` + `q`, not by rebuilding the id. A new question = new `ask` text.
   - `progress`: `{done, of}` (e.g. `{done: 3, of: 5}`) or a number 0-1, while `working`; the hub draws a
     ring over the robot's head.
+  - `storm` (Storm Watch only, optional): `{inches, town}` when a scan finds hail (e.g. `{inches: 1.25,
+    town: "Blair"}`); the hub turns it into the storm cloud's direction and "days since hail".
   - status: `working` | `idle` | `sleeping` | `waiting` | `blocked` | `done`
   - room: `engine`, `tests`, `data`, `dock`, `board`, or for the chat wing `research`, `storm`,
     `studio`, `calls`. Rooms outside your lane are ignored.
