@@ -34,8 +34,10 @@ houses from public data into Practice/demo only, run a full fake day Now -> Knoc
 FUTURISTIC, modern, really advanced, Apple-ad level (FilthE): Apple product pages + ads (Vision Pro/visionOS
 glass, M-chip pages, Apple Watch Ultra), plus best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
 finds, film HUD designers), what to steal for MacBook layout A, with screenshots; then
-**PAUSED by FilthE (design first): Builder full fake day** (WIP pushed; resume from its WIP commit: finish core
-day, the QA photo-delete fix in removePhoto() (skip ASSETS.delete when prOn()), then the 24h pieces);
+**PAUSED by FilthE (design first): Builder full fake day** (90bf61f: practice houses, photo-delete fix, 2 legal locks
+(build day in cancel window, Job done before 44-8606 copies). LEFT: 390px Leads Due row not clickable + possible
+duplicate rows (1418 N Irving, 1802 N Clarkson); drop FD_DEBUG line; wire fullday_check into release_checks; 24h
+pieces not started. Then QA, then publish (the 2 legal locks matter for the live app));
 **Designer: apply the references** to layout A (ambient generative WebGL background, glass, luxury type,
 micro-motion) + a cinematic Aldaba intro/landing (WebGL + scroll), per docs/design/references/README.md;
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
