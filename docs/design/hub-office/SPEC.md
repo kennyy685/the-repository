@@ -94,6 +94,19 @@ crew shot with the date, saved to the trophy wall) · weekend ping-pong for idle
 "I get extremely pleased by convenient things that are extremely helpful and carefully thought of, that I wouldn't
 have thought of." Rank every idea by this first: anticipatory, saves time or worry, non-obvious, zero effort for him.
 
+## Design directive (FilthE, 2026-09-28)
+"Create a premium AI look with abstract generative forms, cinematic scroll interactions, immersive WebGL scenes,
+luxury typography and a dark futuristic aesthetic that feels alive." Applied to the one-screen MacBook hub:
+- Dark futuristic default: deep graphite night; HMP orange + brass are the only warm light; glass and shadow.
+- Abstract generative forms: a live generative layer (flow-field particles / noise shader) behind the office = the
+  crew's "mind": speed/brightness from how many robots work, orange when something needs him, calm when they sleep;
+  handoffs send a streak of light between robots.
+- Immersive WebGL: soft bloom on lights, depth/fog through the glass, floor reflections (guard MacBook Air speed).
+- Cinematic scroll: trackpad scroll over the stage drives the camera (whole building -> floor -> the robot that
+  needs him), not the page; panels reveal with gentle parallax. The page itself stays one screen.
+- Luxury type: large Bricolage display with tight tracking, spaced mono labels, refined numerals.
+- Alive = every motion is driven by real crew data.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
