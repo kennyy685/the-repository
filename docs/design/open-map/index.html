@@ -324,6 +324,60 @@ body.area .plan{opacity:1;transform:none;pointer-events:auto;transition-delay:.0
 .plan .sec:first-child{margin-top:2px}
 .plan .sec .r,.card .sec .r{margin-left:auto;order:2}
 .plan .sec::after,.card #gtBox .sec::after{order:1}
+
+/* ---------- Light (Ledger): same system on paper; the storm replay and list thumbs stay dark screens ---------- */
+:root[data-theme="light"]{color-scheme:light;
+  --page:#eef0ee;--glass:rgba(255,255,255,.86);--glass-2:rgba(255,255,255,.94);--rule:rgba(24,25,28,.09);--rule-2:rgba(24,25,28,.17);
+  --text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--faint:rgba(24,25,28,.4);--chip:#eff1f3;
+  --acc-bg:#fdf1e7;--acc-ink:#a4520f;--good:#1f7a4d;--bad:#c2362b;--h1:#c9971c;--wind:#1f8fd0;--roof:#6f55d9;--door:#1f9d68;--steel:#50607e}
+[data-theme="light"] .vignette{background:radial-gradient(130% 95% at 55% 58%,transparent 55%,rgba(226,229,226,.7) 100%),linear-gradient(180deg,rgba(238,240,238,.9) 0,rgba(238,240,238,.4) 110px,rgba(238,240,238,0) 300px)}
+[data-theme="light"] .grain{opacity:.03}
+[data-theme="light"] .glass{box-shadow:0 18px 50px -24px rgba(24,25,28,.35),0 1px 2px rgba(24,25,28,.05)}
+[data-theme="light"] .lbl.city{color:rgba(24,25,28,.66);text-shadow:0 0 6px #fff,0 0 2px #fff}
+[data-theme="light"] .lbl.city.big{color:rgba(24,25,28,.82)}
+[data-theme="light"] .lbl.town{color:rgba(24,25,28,.5);text-shadow:0 0 5px #fff,0 0 2px #fff}
+[data-theme="light"] .lbl.town.sm{color:rgba(24,25,28,.38)}
+[data-theme="light"] .lbl.road{background:#fff;border-color:#d3d6db;color:#3d3f45}
+[data-theme="light"] .lbl.street{color:rgba(24,25,28,.55);text-shadow:0 0 4px #fff,0 0 2px #fff}
+[data-theme="light"] .lbl.county{color:rgba(24,25,28,.3)}
+[data-theme="light"] .lbl.state{color:rgba(24,25,28,.2)}
+[data-theme="light"] .lbl.bst{color:#3b2410;text-shadow:0 0 3px #fff,0 0 8px #fff,0 0 14px rgba(255,255,255,.9)}
+[data-theme="light"] .lbl.bst.hot{color:#000;text-shadow:0 0 3px #fff,0 0 12px rgba(245,136,58,.9)}
+[data-theme="light"] .amk .dot{box-shadow:0 0 0 3px rgba(255,255,255,.95),0 0 14px var(--c)}
+[data-theme="light"] .amk .pill{background:rgba(255,255,255,.94);color:var(--text);box-shadow:0 8px 22px -10px rgba(24,25,28,.35)}
+[data-theme="light"] .amk .pill b{color:color-mix(in srgb,var(--c) 70%,#000)}
+[data-theme="light"] .amk.sel .dot{box-shadow:0 0 0 3px #fff,0 0 0 7px color-mix(in srgb,var(--c) 35%,transparent),0 0 24px var(--c)}
+[data-theme="light"] .me i{background:#18191c;border-color:#fff;box-shadow:0 0 0 1.5px rgba(24,25,28,.5),0 0 12px rgba(24,25,28,.3)}
+[data-theme="light"] .me span{color:#3d3f45;text-shadow:none;background:rgba(255,255,255,.9)}
+[data-theme="light"] .seg button[aria-pressed="true"]{background:#18191c;color:#fff}
+[data-theme="light"] .tg:not([aria-pressed="true"]) .sl{background:#d3d6db}
+[data-theme="light"] .tg .sl::after{background:#fff}
+[data-theme="light"] .tip,[data-theme="light"] .pop{background:rgba(255,255,255,.98);box-shadow:0 20px 50px -14px rgba(24,25,28,.35)}
+[data-theme="light"] .toast{background:#18191c;color:#fff}
+[data-theme="light"] .team .av{background:#e3e5e8}
+[data-theme="light"] .chip{color:#4a4d55;background:#f3f4f5;border-color:#dcdfe3}
+[data-theme="light"] .pop .tag.rule{color:#7a5a2c}
+[data-theme="light"] .eyes{color:#5b45c0;border-color:rgba(111,85,217,.45)}
+[data-theme="light"] .legal li.warn,[data-theme="light"] .legal li.warn .i{color:#9a5a0c}
+[data-theme="light"] .wsum .fit.bad{color:#b25a00}
+[data-theme="light"] .rows,[data-theme="light"] .card .scroll,[data-theme="light"] .plan .scroll{scrollbar-color:#c9ccd1 transparent}
+[data-theme="light"] :is(.row:hover,.row.hot,.tg:hover,.card .x:hover,.card .x2:hover,.backb:hover,.pn button:hover,.bs:hover,.bs.hot,.pline .pgo,.mini,.gt .ic,.bs .no,.wsum .stp button,.rpc button,.tray .pin,.cmp th button,.btn.ghost){background:rgba(24,25,28,.055)}
+[data-theme="light"] :is(.pline .pgo:hover,.wsum .stp button:hover,.tray .pin button:hover,.cmp th button:hover,.btn.ghost:hover){background:rgba(24,25,28,.1)}
+[data-theme="light"] .mini button[aria-pressed="true"]{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(24,25,28,.15)}
+[data-theme="light"] :is(.stat,.conf,.pchips>div,.claim){background:rgba(255,255,255,.7)}
+[data-theme="light"] :is(.row .cf,.meter,.pbar){background:rgba(24,25,28,.08)}
+[data-theme="light"] .meter .tick{background:rgba(24,25,28,.2)}
+[data-theme="light"] .gt+.gt,[data-theme="light"] .said li{border-color:rgba(24,25,28,.07)}
+[data-theme="light"] .team{border-color:rgba(24,25,28,.18)}
+[data-theme="light"] :is(.plan footer,.card .act){background:linear-gradient(180deg,transparent,rgba(24,25,28,.03))}
+[data-theme="light"] .legal{background:linear-gradient(180deg,rgba(24,25,28,.01),rgba(24,25,28,.04))}
+[data-theme="light"] .pline{background:linear-gradient(100deg,color-mix(in srgb,var(--c) 16%,#fff),#fff 75%)}
+[data-theme="light"] .pline .pv,[data-theme="light"] .bs .n.h,[data-theme="light"] .row .sz{color:color-mix(in srgb,var(--c) 78%,#000)}
+[data-theme="light"] .wsum{background:linear-gradient(135deg,#fdf1e7,#fff)}
+[data-theme="light"] .wk.park .pk,[data-theme="light"] .wk.park .pk::after{background:rgba(255,255,255,.96);color:var(--text)}
+[data-theme="light"] .wk.park .pk{box-shadow:0 8px 20px -8px rgba(24,25,28,.35)}
+.thm button{width:34px;padding:0;display:grid;place-items:center}
+.thm .i{width:16px;height:16px}
 /* one proof line: the first thing an opened area says */
 .pline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;margin:2px 0 4px;padding:10px 10px 10px 12px;border-radius:14px;
   background:linear-gradient(100deg,color-mix(in srgb,var(--c) 17%,transparent),rgba(255,255,255,.015) 70%);border:1px solid color-mix(in srgb,var(--c) 38%,transparent);animation:rowin .45s var(--ease) both}
@@ -360,6 +414,8 @@ body.area .plan{opacity:1;transform:none;pointer-events:auto;transition-delay:.0
 .bsh{padding:0 6px 6px;font:500 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .bsh span{display:flex;align-items:center;justify-content:flex-end;gap:3px;white-space:nowrap}
 .bsh span:nth-child(2){justify-content:flex-start}
+.bsh span:nth-child(n+3){flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:4px}
+.bsh{align-items:end}
 .bs{width:100%;text-align:left;padding:6px;border-radius:10px;transition:background .15s;cursor:default;animation:rowin .4s var(--ease) both}
 .bs:hover,.bs.hot{background:rgba(255,255,255,.055)}
 .bs .no{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font:600 10.5px/1 var(--mono);color:var(--muted);background:rgba(255,255,255,.05);transition:all .25s}
@@ -397,6 +453,7 @@ body.area .card{width:var(--cardW)}
 .card .x2:hover{background:rgba(255,255,255,.07);color:var(--text)}
 .card .x2[aria-pressed="true"]{color:var(--acc-ink);background:var(--acc-bg)}
 .card h2{padding-right:76px}
+.card .when{padding-right:76px}
 .team{display:flex;align-items:center;gap:10px;margin:12px 0 2px;padding:7px 10px;border-radius:12px;border:1px dashed rgba(255,255,255,.12);opacity:.55}
 .team .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:600 11px/1 var(--mono);background:#2a2c31;color:var(--text-2);flex:none}
 .team b{font-weight:500;font-size:12.5px;color:var(--text-2)}
@@ -543,7 +600,7 @@ body.area .hint,body.pins .hint{opacity:0;pointer-events:none}
 <!-- top bar -->
 <div class="top">
   <div class="brand glass">
-    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="#f1f2f4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="#f1f2f4"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="currentColor"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>
     <span class="wm">Aldaba</span><span class="sep"></span>
     <span class="pg"><span class="en">Open map</span><span class="es">Mapa abierto</span></span>
   </div>
@@ -570,6 +627,7 @@ body.area .hint,body.pins .hint{opacity:0;pointer-events:none}
     <div class="seg lang glass" role="group" aria-label="Language">
       <button data-lang="en" aria-pressed="true">EN</button><button data-lang="es" aria-pressed="false">ES</button>
     </div>
+    <div class="seg thm glass" role="group" aria-label="Theme"><button id="thmB" aria-pressed="false"></button></div>
   </div>
 </div>
 
@@ -977,6 +1035,31 @@ const counts={roof:roofPts.length,prmt:permitPts.length,door:doorPts.length};
 const st={days:30,sort:"new",sel:null,hot:null,layers:Object.fromEntries(LAYERS.map(l=>[l.k,l.on])),
   order:[],back:null,walk:null,leave:"now",bsort:"hail",hs:null,pins:[],pendWalk:0};
 const qs=new URLSearchParams(location.search);
+let THEME="dark";try{THEME=localStorage.getItem("aldaba-theme")||THEME}catch(e){}
+if(["light","dark"].includes(qs.get("theme")))THEME=qs.get("theme");
+document.documentElement.dataset.theme=THEME;
+const MAPTHEME={ // [layer, property, dark, light]
+  P:[["bg","background-color","#07080a","#eef0ee"],["town","fill-color","#0f1116","#e5e7e4"],["town-edge","line-color","#2a2f38","#c9ced4"],
+    ["water","fill-color","#0a1823","#cfe0f0"],["water-edge","line-color","#1e4d6d","#9dbfdf"],["stream-glow","line-color","#2a6f9c","#a8cbe8"],
+    ["stream","line-color",null,["match",["get","w"],3,"#7fb0db",2,"#8fbbe0",1,"#a6c9e6","#bcd5ea"]],
+    ["st-local","line-color","#1b1f27","#dadddf"],["st-coll","line-color","#252a34","#cfd3d7"],["st-art","line-color","#313745","#bfc4cb"],
+    ["st-fwy","line-color","#5c6576","#9ba2ad"],["hwy","line-color",null,["match",["get","t"],"I","#7c8491","US","#939aa6","#a9afb8"]],
+    ["hwy-glow","line-opacity",.12,0],["county","line-color","#4a505c","#8e949d"],["rail","line-color","#3a3530","#b3aa9f"],
+    ["dim","fill-color","#040509","#f2f2ee"],["track","line-color","#ffe2c8","#9a5a24"],["best-line","line-color","#fff3e6","#6b3f16"],
+    ["hover-core","line-color","#ffffff","#18191c"],["wind-fill","fill-opacity",.05,.08],["hail-1","fill-opacity",.05,.1],["hail-15","fill-opacity",.08,.12],["hail-2","fill-opacity",.12,.14],
+    ["relief","raster-opacity",.8,.28],["relief","raster-brightness-min",0,1],["relief","raster-brightness-max",1,.55]]};
+MAPTHEME.P.forEach(r=>{if(r[2]===null)r[2]=undefined});
+function applyMapTheme(){if(!useGL||!mapReady)return;const li=THEME==="light";
+  MAPTHEME.P.forEach(([id,pr,d,l])=>{if(!map.getLayer(id))return;const v=li?l:(d===undefined?DARKP[id+pr]:d);if(v===undefined)return;try{map.setPaintProperty(id,pr,v)}catch(e){}});
+  map.setLight(li?{anchor:"map",position:[1.4,210,38],color:"#ffffff",intensity:.15}:{anchor:"map",position:[1.4,210,38],color:"#e6ecff",intensity:.42});
+  if(map.getLayer("homes-3d")){map.setPaintProperty("homes-3d","fill-extrusion-color",hexColor());map.setPaintProperty("homes-3d","fill-extrusion-vertical-gradient",!li)}
+  if(map.getLayer("walk-core")&&st.walk&&st.walk.shown)map.setPaintProperty("walk-core","line-gradient",wgrad(1));
+  if(map.getLayer("wdoors"))map.setPaintProperty("wdoors","circle-color",li?"#ffffff":"#fff4ea");
+  if(map.getLayer("area-line"))map.setPaintProperty("area-line","line-color",["case",["boolean",["feature-state","sel"],false],li?"#18191c":"#ffffff",["get","col"]])}
+const DARKP={};
+function setTheme(th){THEME=th;document.documentElement.dataset.theme=th;try{localStorage.setItem("aldaba-theme",th)}catch(e){}
+  const b=document.getElementById("thmB");if(b){b.innerHTML=ic(th==="light"?"moon":"sun");b.title=th==="light"?"Dark":"Light";b.setAttribute("aria-label",th==="light"?"Switch to dark":"Switch to light")}
+  if(useGL&&mapReady){applyMapTheme()}else onGL(applyMapTheme);if(!useGL)fbDraw();if(st.sel)rpStart(areaOf(st.sel))}
 if(qs.get("lang")==="es")lang="es";
 if(["7","30","90"].includes(qs.get("days")))st.days=+qs.get("days");
 if(qs.get("flat")==="1")st.layers.tilt=false;
@@ -997,6 +1080,7 @@ const FILT={ // layers filtered by storm date
   "hail-2-glow":()=>["all",["==",["get","band"],2],dayF()],"hail-2-edge":()=>["all",["==",["get","band"],2],dayF()],
   "heat":dayF,"heat-haze":dayF,"track":dayF,"wind-fill":dayF,"wind-edge":dayF,"area-fill":dayF,"area-line":dayF};
 const hexColor=()=>["case",["<=",["get","d2"],st.days],"#ff5f5c",["<=",["get","d15"],st.days],"#f7923f",["<=",["get","d1"],st.days],"#f2c14e",
+  THEME==="light"?["interpolate",["linear"],["sqrt",["get","n"]],2,"#e9ebe9",5,"#e1e4e4",12,"#d6dade",24,"#c8ced6",40,"#b8c0cc",55,"#a6b0c0"]:
   ["interpolate",["linear"],["sqrt",["get","n"]],2,"#101318",5,"#151a21",12,"#1c222c",24,"#262e3b",40,"#323c4d",55,"#3f4b62"]];
 let hexK=0; // column height multiplier (animated in on load)
 const hexH=()=>["*",["sqrt",["get","n"]],hexK];
@@ -1094,7 +1178,7 @@ function initGL(){
       attributionControl:false,maxZoom:16.5,minZoom:7,maxPitch:70,fadeDuration:0,antialias:true});
     map.jumpTo({padding:PAD});
     map.touchZoomRotate.disableRotation();
-    map.on("load",()=>{mapReady=true;whenReady.splice(0).forEach(fn=>fn());if(st.days!==30)applyDays();if(st.sel)setSel(st.sel,false)});
+    map.on("load",()=>{mapReady=true;["stream","hwy"].forEach(id=>{if(map.getLayer(id))DARKP[id+"line-color"]=map.getPaintProperty(id,"line-color")});if(THEME==="light")setTimeout(applyMapTheme,0);whenReady.splice(0).forEach(fn=>fn());if(st.days!==30)applyDays();if(st.sel)setSel(st.sel,false)});
     map.on("move",place);map.on("resize",place);
     map.on("mousemove","area-fill",e=>{map.getCanvas().style.cursor="pointer";const id=e.features[0]?.properties.id;if(id!==st.hot)setHot(id)});
     map.on("mouseleave","area-fill",()=>{map.getCanvas().style.cursor="";setHot(null)});
@@ -1211,25 +1295,26 @@ function trkAt(T,u){const Ld=Math.max(0,Math.min(1,u))*T.len;let i=1;while(i<T.c
 const PARTS=[];{const r=rng(31);Object.keys(STORMS).forEach(k=>{for(let i=0;i<44;i++)PARTS.push({k,u:r(),o:(r()*2-1)*(r()<.6?.55:1),sp:.004+r()*.008,ph:r()*6.28,sz:.6+r()*1.2})})}
 const CYC=12000,RUN=4200;let T0=null,lastT=0,lastDraw=0;
 const hexA=(hex,a)=>{const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`};
-function drawFx(t,dt){
+let FXW="255,255,255",FXWARM="255,214,180",FXOP="lighter";
+function drawFx(t,dt){const li=THEME==="light";FXW=li?"24,25,28":"255,255,255";FXWARM=li?"150,70,20":"255,214,180";FXOP=li?"source-over":"lighter";
   const W=innerWidth,H=innerHeight;g2.setTransform(fxD,0,0,fxD,0,0);g2.clearRect(0,0,W,H);
   const P=(x,y)=>project(toLL([x,y]));
   const c=toKm(KOAX);
   // radar range rings (25 km apart) + sweep
-  g2.lineWidth=1;g2.strokeStyle="rgba(255,255,255,.055)";g2.setLineDash([2,5]);
+  g2.lineWidth=1;g2.strokeStyle=`rgba(${FXW},.055)`;g2.setLineDash([2,5]);
   if(!st.sel)[25,50,75,100].forEach(R=>{g2.beginPath();for(let i=0;i<=96;i++){const a=i/96*Math.PI*2,p=P(c[0]+Math.cos(a)*R,c[1]+Math.sin(a)*R);i?g2.lineTo(p.x,p.y):g2.moveTo(p.x,p.y)}g2.stroke()});
   g2.setLineDash([]);
-  const pc=project(KOAX),th=-(t/9000)*Math.PI*2,R=100;g2.globalCompositeOperation="lighter";
+  const pc=project(KOAX),th=-(t/9000)*Math.PI*2,R=100;g2.globalCompositeOperation=FXOP;
   if(!reduce&&!st.sel){const n=26,span=.75;for(let s=0;s<n;s++){const a0=th+span*s/n,a1=th+span*(s+1)/n,al=.075*Math.pow(1-s/n,2.2);
       g2.fillStyle=`rgba(245,136,58,${al})`;g2.beginPath();g2.moveTo(pc.x,pc.y);for(let j=0;j<=3;j++){const a=a0+(a1-a0)*j/3,p=P(c[0]+Math.cos(a)*R,c[1]+Math.sin(a)*R);g2.lineTo(p.x,p.y)}g2.closePath();g2.fill()}
-    const e=P(c[0]+Math.cos(th)*R,c[1]+Math.sin(th)*R);const lg=g2.createLinearGradient(pc.x,pc.y,e.x,e.y);lg.addColorStop(0,"rgba(255,200,160,.45)");lg.addColorStop(1,"rgba(255,200,160,0)");
+    const e=P(c[0]+Math.cos(th)*R,c[1]+Math.sin(th)*R);const lg=g2.createLinearGradient(pc.x,pc.y,e.x,e.y);lg.addColorStop(0,`rgba(${FXWARM},.45)`);lg.addColorStop(1,`rgba(${FXWARM},0)`);
     g2.strokeStyle=lg;g2.lineWidth=1.2;g2.beginPath();g2.moveTo(pc.x,pc.y);g2.lineTo(e.x,e.y);g2.stroke()}
   if(st.layers.hail&&!st.sel){
     // ice glints drifting along each storm's path
     PARTS.forEach(p=>{const T=TRK[p.k];if(T.days>st.days)return;if(!reduce)p.u=(p.u+p.sp*dt/1000)%1;
       const q=trkAt(T,p.u),taper=Math.pow(Math.sin(Math.PI*p.u),.55),off=p.o*T.hw*taper*.9,s=P(q.x+q.nx*off,q.y+q.ny*off);
       if(s.x<0||s.x>W||s.y<0||s.y>H)return;const al=(.16+.34*(.5+.5*Math.sin(t*.0023+p.ph)))*Math.min(1,Math.sin(Math.PI*p.u)*3);
-      g2.fillStyle=`rgba(255,232,210,${al.toFixed(3)})`;g2.beginPath();g2.arc(s.x,s.y,p.sz,0,6.283);g2.fill()});
+      g2.fillStyle=`rgba(${FXWARM},${al.toFixed(3)})`;g2.beginPath();g2.arc(s.x,s.y,p.sz,0,6.283);g2.fill()});
     // each storm replays its path when the timeline playhead passes its day
     const cyc=(t-T0)%CYC;
     Object.values(TRK).forEach(T=>{if(T.days>st.days)return;const us=(st.days-T.days)/st.days;let el=(cyc-us*CYC+CYC)%CYC;if(reduce)el=RUN*.62;if(el>RUN)return;
@@ -1237,13 +1322,13 @@ function drawFx(t,dt){
       const n=30,tail=.3,pts=[];for(let i=0;i<=n;i++){const uu=u-tail*(1-i/n);if(uu<0)continue;const q=trkAt(T,uu);pts.push(P(q.x,q.y))}
       for(let i=1;i<pts.length;i++){const f=i/pts.length;g2.strokeStyle=hexA(T.col,(.08+.6*f*f)*fade);g2.lineWidth=1+6.5*f*f;g2.lineCap="round";g2.beginPath();g2.moveTo(pts[i-1].x,pts[i-1].y);g2.lineTo(pts[i].x,pts[i].y);g2.stroke()}
       const h=pts[pts.length-1];if(!h)return;const rg=g2.createRadialGradient(h.x,h.y,0,h.x,h.y,44);rg.addColorStop(0,hexA(T.col,.75*fade));rg.addColorStop(.35,hexA(T.col,.22*fade));rg.addColorStop(1,hexA(T.col,0));
-      g2.fillStyle=rg;g2.beginPath();g2.arc(h.x,h.y,44,0,6.283);g2.fill();g2.fillStyle=`rgba(255,255,255,${.95*fade})`;g2.beginPath();g2.arc(h.x,h.y,2.6,0,6.283);g2.fill()});
+      g2.fillStyle=rg;g2.beginPath();g2.arc(h.x,h.y,44,0,6.283);g2.fill();g2.fillStyle=`rgba(${FXW},${.95*fade})`;g2.beginPath();g2.arc(h.x,h.y,2.6,0,6.283);g2.fill()});
   }
   if(st.sel)drawAreaFx(t);
   // marching outline on the area you're looking at
   g2.globalCompositeOperation="source-over";
   [st.sel,st.hot].filter((id,i,a)=>id&&a.indexOf(id)===i).forEach(id=>{const f=areaFeat[AREAS.findIndex(a=>a.id===id)];if(!f||f.properties.days>st.days)return;
-    g2.strokeStyle=id===st.sel?"rgba(255,255,255,.9)":"rgba(255,255,255,.5)";g2.lineWidth=1.4;g2.setLineDash([6,5]);g2.lineDashOffset=reduce?0:-t/60;
+    g2.strokeStyle=id===st.sel?`rgba(${FXW},.9)`:`rgba(${FXW},.5)`;g2.lineWidth=1.4;g2.setLineDash([6,5]);g2.lineDashOffset=reduce?0:-t/60;
     g2.beginPath();f.geometry.coordinates[0].forEach((ll,i)=>{const p=project(ll);i?g2.lineTo(p.x,p.y):g2.moveTo(p.x,p.y)});g2.stroke();g2.setLineDash([])});
   // timeline playhead
   if(tl.ph&&!reduce){const u=cyc01(t);tl.ph.setAttribute("transform",`translate(${(tl.wx+u*(tl.W-tl.wx)).toFixed(1)},0)`)}
@@ -1556,7 +1641,8 @@ function homesTo(k,ms){if(!useGL||!mapReady||!map.getLayer("homes-3d"))return;ca
 function focusArea(a,refresh){const i=AREAS.indexOf(a);
   onGL(()=>{map.getSource("dim").setData(dimFC(i));map.setPaintProperty("dim","fill-opacity",.66);
     map.getSource("focus").setData(focusFC(i));map.setPaintProperty("focus-glow","line-opacity",.5);map.setPaintProperty("focus-core","line-opacity",.95);
-    map.getSource("best").setData(bestFC(a));if(!refresh){map.getSource("hover").setData(FC([]));map.setPaintProperty("heat","heatmap-opacity",.28);homesTo(0,700)}});
+    map.getSource("best").setData(bestFC(a));if(!refresh){map.getSource("hover").setData(FC([]));map.setPaintProperty("heat","heatmap-opacity",.28);homesTo(0,700);
+      setTimeout(()=>{if(st.sel&&map.getLayer("homes-3d")){cancelAnimationFrame(hexAnim);hexK=0;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());map.setLayoutProperty("homes-3d","visibility","none")}},760)}});
   setBestLabels(a);if(!useGL)fbDraw()}
 function unfocus(){onGL(()=>{map.setPaintProperty("dim","fill-opacity",0);map.setPaintProperty("focus-glow","line-opacity",0);map.setPaintProperty("focus-core","line-opacity",0);
     ["best","hover","walk","wdoors"].forEach(k=>map.getSource(k).setData(FC([])));map.setPaintProperty("walk-glow","line-opacity",0);
@@ -1582,11 +1668,11 @@ function placeMarks(hit,boxes){const z=zoom(),p=project(START);meEl.style.left=p
 /* ---------- motion in the area view: route from the start point, pulses walking the loop ---------- */
 function drawAreaFx(t){const a=areaOf(st.sel);if(!a)return;const W=st.walk;g2.globalCompositeOperation="source-over";
   if(!W){const p0=project(START),p1=project(a.c),dx=p1.x-p0.x,dy=p1.y-p0.y,d=Math.hypot(dx,dy);
-    if(d>60){const cx=(p0.x+p1.x)/2-dy*.16,cy=(p0.y+p1.y)/2+dx*.16;g2.setLineDash([2,7]);g2.lineDashOffset=reduce?0:-t/40;g2.strokeStyle="rgba(233,236,242,.4)";g2.lineWidth=1.4;g2.lineCap="round";
+    if(d>60){const cx=(p0.x+p1.x)/2-dy*.16,cy=(p0.y+p1.y)/2+dx*.16;g2.setLineDash([2,7]);g2.lineDashOffset=reduce?0:-t/40;g2.strokeStyle=`rgba(${FXW},.4)`;g2.lineWidth=1.4;g2.lineCap="round";
       g2.beginPath();g2.moveTo(p0.x,p0.y);g2.quadraticCurveTo(cx,cy,p1.x,p1.y);g2.stroke();g2.setLineDash([])}}
-  if(W&&W.cum&&W.shown){const Lk=W.cum[W.cum.length-1],n=Math.max(4,Math.round(Lk/.35));g2.globalCompositeOperation="lighter";
+  if(W&&W.cum&&W.shown){const Lk=W.cum[W.cum.length-1],n=Math.max(4,Math.round(Lk/.35));g2.globalCompositeOperation=FXOP;
     for(let j=0;j<n;j++){const u=(((reduce?0:t)/1000*.09)/Lk+j/n)%1;for(let k=0;k<6;k++){const uu=u-k*.004;if(uu<0)continue;const q=trkAt(W,uu),s=project(toLL([q.x,q.y])),al=(1-k/6)*.55;
-      g2.fillStyle=`rgba(255,226,196,${al})`;g2.beginPath();g2.arc(s.x,s.y,k?1.6:2.6,0,6.283);g2.fill()}}
+      g2.fillStyle=`rgba(${FXWARM},${al})`;g2.beginPath();g2.arc(s.x,s.y,k?1.6:2.6,0,6.283);g2.fill()}}
     g2.globalCompositeOperation="source-over"}}
 
 /* ---------- right card: proof, claim hint, homes, legal strip ---------- */
@@ -1714,8 +1800,8 @@ function planWalk(animate=true,k){const a=areaOf(st.sel);if(!a)return;if(!AREAX|
     map.setPaintProperty("walk-glow","line-opacity",.5);revealWalk(animate?1700:0);
     const cam=fitCam(bbox(W.pts),APAD(),{pitch:48,bearing:-12,maxZoom:16.1,slack:.22});animate?map.flyTo({...cam,duration:1300,essential:true}):map.jumpTo(cam)});
   if(!useGL)fbDraw();place()}
-const wgrad=(p)=>p>=1?["interpolate",["linear"],["line-progress"],0,"#ffc08a",.5,"#f5883a",1,"#ffb070"]:
-  ["interpolate",["linear"],["line-progress"],0,"#ffc08a",Math.max(1e-4,p*.999),"#f5883a",Math.max(2e-4,p),"rgba(245,136,58,0)",1,"rgba(245,136,58,0)"];
+const wgrad=(p)=>{const li=THEME==="light",a=li?"#e0661a":"#ffc08a",m=li?"#c8520c":"#f5883a",z=li?"#e0661a":"#ffb070";return p>=1?["interpolate",["linear"],["line-progress"],0,a,.5,m,1,z]:
+  ["interpolate",["linear"],["line-progress"],0,a,Math.max(1e-4,p*.999),m,Math.max(2e-4,p),"rgba(245,136,58,0)",1,"rgba(245,136,58,0)"]};
 function revealWalk(ms){cancelAnimationFrame(RV);const W=st.walk,N=W.doorsF.length,t0=performance.now()+(ms?350:0);
   const step=(now)=>{const u=!ms||reduce?1:Math.max(0,Math.min(1,(now-t0)/ms)),e=1-Math.pow(1-u,3),n=Math.round(N*Math.min(1,e*1.05)),op=["case",["<",["get","i"],n],1,0];
     map.setPaintProperty("walk-core","line-gradient",wgrad(e));map.setPaintProperty("wdoors","circle-opacity",op);map.setPaintProperty("wdoors","circle-stroke-opacity",op);
@@ -1837,6 +1923,7 @@ function fbArea(g,path){const i=AREAS.findIndex(x=>x.id===st.sel),ring=areaFeat[
     W.doorsF.forEach(f=>{const q=fbProj(f.geometry.coordinates);g.beginPath();g.arc(q.x,q.y,2,0,7);g.fillStyle="#fff4ea";g.fill()})}}
 
 /* ---------- wiring ---------- */
+$("thmB").addEventListener("click",()=>setTheme(THEME==="light"?"dark":"light"));setTheme(THEME);
 $("close").addEventListener("click",goBack);$("back").addEventListener("click",goBack);
 $("prevA").addEventListener("click",()=>stepArea(-1));$("nextA").addEventListener("click",()=>stepArea(1));
 $("pinB").addEventListener("click",()=>st.sel&&togglePin(st.sel));
@@ -1981,7 +2068,7 @@ function makeRelief(){if(RELIEF||!useGL)return;
     img.data[o]=6+v*20;img.data[o+1]=7+v*22;img.data[o+2]=10+v*27;img.data[o+3]=Math.round(255*edge)}
   g.putImageData(img,0,0);RELIEF=cv;
   map.addSource("relief",{type:"canvas",canvas:cv,coordinates:[[x0,y1],[x1,y1],[x1,y0],[x0,y0]],animate:false});
-  map.addLayer({id:"relief",type:"raster",source:"relief",paint:{"raster-opacity":.8,"raster-fade-duration":0,"raster-resampling":"linear"}},"county");
+  map.addLayer({id:"relief",type:"raster",source:"relief",paint:{"raster-opacity":.8,"raster-fade-duration":0,"raster-resampling":"linear"}},"county");if(THEME==="light")applyMapTheme();
 }
 
 /* ---------- boot ---------- */
