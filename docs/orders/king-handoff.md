@@ -1,91 +1,26 @@
 # King handoff (read this first, fresh King)
 
-Written by SMUIPO, 2026-09-28 ~19:50 UTC, session `session_01AsMzvyKcsuQnKw9X8HHjzK` (context ~235k, handing off).
-Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md, then `docs/memory/questions-for-filthe.md` (many answers
-today: trust = show the work; claim-ready damage check; required photos gate "adjuster-ready"; HMP-branded homeowner
-damage page; scorecard yes; short reasons).
+Written by SMUIPO, 2026-09-28 ~23:50 UTC, session `session_014eg28DpMQ1EZLj9hVosB8g` (~235k, handing off).
+Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (new today: King's 6 rules, hub dispatch, done = publish +
+tell him, fewer bigger questions, every robot job = own session, max 2), then `docs/memory/questions-for-filthe.md`.
 
 ## FIRST, as the new King
-0. Read "HUB CHAT WIRING" below: FilthE's hub chat answers instantly in the page and hands orders to you. Keep
-   `system/king.wake_trigger` pointing at YOUR poke-only trigger and ack + reply to every order (`re` = his id).
 1. Make your own hub wake trigger (create_trigger, no cron, binds to you) with the SAME prompt as
-   `trig_01Ay7rpe81rci7aYTfSFW112` (get_trigger it: it has the calm fallback line). Write its id to hub doc `system/king`
-   (`wake_trigger`, `live_session`), update CLAUDE.md's id line, disable (never delete) trig_01Ay7rpe81rci7aYTfSFW112.
-2. Archive `session_01AsMzvyKcsuQnKw9X8HHjzK` (me).
-3. Reply to FilthE in the hub King thread (events/<stamp>-code-r, to:"you") in 3 short lines: new King, wake fixed,
-   what's running. Refresh hub doc `crew/sessions` first (every tab, what it does).
+   `trig_01RsYqTCZfeEnStkGS8LYinX` (get_trigger it). Write its id to hub doc `system/king` (`wake_trigger`,
+   `live_session`) and `system/robots.dispatch.king`, update CLAUDE.md's id line, disable (never delete) the old one.
+2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
+3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
-## HUB CHAT WIRING (v28.1, keep it working; Builder 2026-09-28)
-FilthE's main line is the hub chat bubble ("King" mode). How it works now:
-- **Instant voice:** the page itself asks Claude (`sample` capability) as SMUIPO, grounded in board/current,
-  system/king, system/memory, crew/sessions, the crew rows and recent chat. It saves `events/<stamp>-king-i`
-  `{agent:"king", name:"SMUIPO", instant:true, to:"you", re:<his -you-k id>, text, long}`.
-- **Question** -> answered there; his event gets `mode:"answered", kind:"note"`. No wake. Don't answer it again
-  unless he taps "Send to the King too" (that fires a wake).
-- **Order** (build/fix/publish/decide, or anything the data can't answer) -> the page says "Got it, sending to the
-  King: ..." and fires the CURRENT `system/king.wake_trigger` at once. His event gets `mode:"order", order, wake:
-  "ok"|"fail"|"off", wakeAt, trig, deliv` (deliv = the trigger's last_run read ~12 s later).
-- **Your job on each wake:** (1) post an ack at once: `events/<stamp>-code-a` `{agent:"code", kind:"progress",
-  to:"you", re:<id>, text:"On it: ..."}` (the page shows "King is on it"); (2) do the work in helpers; (3) reply
-  `events/<stamp>-code-r` `{agent:"code", kind:"note", to:"you", re:<id>, text, long}` (shows "Done"). Also sweep:
-  every `-you-k` event with `mode:"order"` (or no mode) and no `-code-r` with its `re` is yours, even if its wake
-  was lost.
-- **Status he sees per message:** Sending -> Answered here | Sent to the King -> King got it -> King is on it ->
-  Done. "Nudge again" appears after 4 min with no word, or when a wake failed. When you change the wake trigger,
-  the page re-sends any message whose wake failed or went to the old trigger, once.
-- **Publish needs:** capabilities `db`, `user`, `sample`, and `mcp` with server "Claude Code Remote", tools
-  `["fire_trigger", "get_trigger", "get_session", "list_environments", "create_session"]` (get_trigger = the delivery
-  check; get_session = the King's memory line; the last two = "Fresh King"). Merge with any tools the other hub
-  functions declare.
-- **"Fresh King" button (FilthE: yes, 2026-09-28):** King handoffs made by a King stack sessions one deeper each time,
-  and sessions stop at 8 deep. The hub's King window shows "King memory 236k" (heavy past 200k) and a Fresh King
-  button: it starts the next King from FilthE's own account (depth 0) on the work branch, writes
-  `system/king.pending_king {session, at, from}`, and wakes the old King to write its notes and stop. **A King
-  started this way:** write `system/king` `wake_trigger`, `live_session`, `environment_id`, and delete
-  `pending_king`. **Prefer this over create_session for your own handoff:** post a hub reply asking FilthE to tap
-  Fresh King (one tap) once you pass ~200k.
-  Check: `node tests/pages/hub_chat_check.js` (mocked round trip, dark + Ledger).
-- **Handoff step:** the new King's trigger must be poke-only, bound to its own session, and its id written to
-  `system/king.wake_trigger` BEFORE the old one is disabled. A wake that lands anywhere but the King chat says
-  one calm line only (keep that line in the trigger prompt).
+## Running now (2 = the max)
+- `session_01MBkNjQQ28175TShNsVd7WN` Engine Mechanic: real 2026 storms + likely-insured signals (data + engine only).
+  An earlier Engine run (session_01TqT879, 205k tokens) was paused + archived before committing: its work is lost.
+- `session_01FAiZrYLTN74EXrzmpdCBSW` Designer: Knock screen in docs/design/knock/ (spec in its prompt).
+Both hand off to QA via trig_01PVGRev9d4pF9PABSNcG9XH. When done + QA pass: publish per checklist and tell him.
 
-## WAKE LESSON (why FilthE saw "not working" notifications, 2026-09-28)
-When the hub fires the wake while the King is mid-turn, the fire runs somewhere WITHOUT the repo or the hub, and its
-reply ("can't reply, no hub access") lands on FilthE's Mac as a scary notification. FilthE: "it like panicked".
-Fixes: (a) the trigger prompt now tells such a run to say one calm line only; (b) KEEP YOUR TURNS SHORT: answer him,
-hand work to robots (Agent in background, or their own session), end the turn. Never do long work in the King chat.
-(c) Answer EVERY hub message on the hub, never only in the Claude chat (CLAUDE.md rule, FilthE is the boss).
-
-## Running now
-- `session_01BBugaCxVHUih4FSarp88w2` Designer: 7 AM home screen (commits to the work branch, does not publish; ~190k
-  context, may hand itself off). Review screenshots, then publish the open map (docs/design/open-map/index.html + files
-  data/base.json, streets.json, homes.json, areas.json) after FilthE sees it (he wants to see it first: asked).
-- `session_01WBuhN9Eg7VYnjKzKreQEbH` Builder: Practice Door v12 legal fixes (16 QA findings, docs/research/
-  2026-09-28-practice-door-v12-QA-WIP.md). Does not publish; FilthE must say "publish".
-- A send_later check-in fires into MY session at 20:03 UTC (trig_018x6yDcvUV4NKRX3CL7rZJn): delete it or ignore.
-- Done: claim-ready inspection checklist docs/research/2026-09-28-claim-ready-inspection.md (feeds the Knock screen).
-- Old hub session archived; its Practice Door v12 WIP brought over (9878b2a).
-
-## Open with FilthE (on the hub)
-1. Build hub functions 1, 2, 4, 6 next + remove the 90 s wake hold (our pick yes). 2. King double-checks handoffs
-against real files before answering (our pick yes). 3. What does the finished hub feel like when he opens it?
-
-## Live (done today)
-- Open map v4 (click flow + Ledger light theme): https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV
-- Practice Door v11: https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B
-- AI hub v28.0 + King thread (version 29): https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU. Built on the other hub
-  session's live v28 (amazing-wright b2b50ad) + our King thread; committed fa3d33f.
-- Engine: T211 mortgage share + owner-share fix QA'd PASS; T212 owner line cites "(Census)". 434 tests green.
-
-## Waiting on FilthE
-- Delete 6 old branches in GitHub (all contained in ours; git push to other refs is blocked here): funny-hawking-2rytou,
-  dreamy-wright-nc4nby, eager-bardeen-lj7lfc, inspiring-goldberg-7wc0b4, trusting-dijkstra-luw0nu, focused-cannon-766o1q.
-- Two weekday permit calls (Omaha 402-444-5233, Lincoln 402-441-7521), session_01QEYZAMyqfC3VcASSqJS3mx has the notes.
-
-## Next (in order)
-1. Review + publish the 7 AM screen. 2. Real 2026 storms + likely-insured signals in the map. 3. Knock screen
-(MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
-light-theme column-header overlap in the open map street list.
+## Next (after those)
+7 AM screen (Designer session_01BBugaC archived mid-job, last commit 2566b1c) -> fresh Designer. Then "the map
+learns from your knocks" + track record (lead = inspection yes). Apply new hub-order trigger prompts from
+docs/research/2026-09-28-robot-upgrades.md (Upgrade session_01TuRXA7 done; archive it + Fixer + hub Builder).
 
 ## LIVE 2026-09-28 ~20:35 UTC
 - Practice Door v12 = Version 13; AI hub = Version 30 (checks green).
