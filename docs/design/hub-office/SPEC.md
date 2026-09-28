@@ -163,3 +163,17 @@ CONVENIENCES.md is in (12 picks + 10 small answer/wake bug fixes to ship first).
 
 ## v27 live (2026-09-28)
 Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rate unmeasured (~450 draw calls in Whole view), pod shells too white in daylight, days-since-hail counter small, face-cam in #pip unconfirmed (blank in headless), no notifications capability yet (tab title + chime only), run watchdog uses fixed slots.
+
+## FilthE's v27 walkthrough notes (2026-09-28)
+"The concept is good, it looks good, but it looks a little plain; let's take it further."
+1. The rain streaks down then bends up in the background: fix it (straight, believable rain, only in the sky).
+2. The two floors look stacked on top of each other: make it read as ONE building (shared core/structure, the
+   connector, terraces), not two boxes piled up.
+3. Still no chat bubble to talk to the King: a visible, always-there way to talk to the King (floating bubble).
+4. Too many cameras: cut the un-fun ones, keep the fun ones.
+5. More sound effects (still off by default / easy toggle).
+6. HIS CHARACTER = A CAT that roams everywhere doing cat things (naps in sunbeams, knocks things off desks, sits on
+   keyboards, chases the capsule in the tube, rides the slide...). When an AI needs him, that robot chases the cat or
+   plays with it.
+7. Test it on "society": a simulated user panel + the usual problems app developers check (first-run clarity,
+   usability, accessibility, performance, trust, annoyance), then fix what they'd complain about.
