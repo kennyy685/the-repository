@@ -147,3 +147,14 @@ Published as hub Version 24 (v26 "Penthouse HQ") to https://claude.ai/artifact/Q
 `pages/crew-hq.files.json` as files; capabilities carried forward. The live version before it was identical to the
 repo's pre-T190 crew-hq.html (nothing to merge). Not yet seen on a real phone GPU. The instant-wake call
 (`fire_trigger`) is unchanged from v25.
+
+## RESUME HERE (paused by FilthE, 2026-09-28)
+Research is done or landing: ART-DIRECTION.md ("Nocturne"), FUN-IDEAS.md (+ outfits v2), IDEA-VAULT.md and
+CONVENIENCES.md (committed when their rounds finish). Palette call (lead, FilthE said "use whatever colors"): Nocturne
+night, working = champagne-gold, "needs you" = warm ember orange, all themable via "Make it yours".
+Next step = the v27 build (not started; nothing changed in pages/): 1) architect writes BUILD-v27.md + CONTRACT.md v2
+split into a PAGE track (pages/crew-hq.html) and a SCENE track (pages/hub/scene.js); M1 page = one-screen MacBook
+layout (office fills the screen, right panel tabs Crew/Board/Log/Chat scroll inside) + Nocturne palette +
+reconnect/refresh (R, visibilitychange/online); M1 scene = Nocturne lighting/materials + champagne/ember strips +
+camera system. 2) both builders in parallel. 3) QA + fix loops (gate, shots, fast checks, MacBook 1440/1512 shots).
+4) adversarial review (taste, function, perf + rules). 5) publish per the go-live rule.
