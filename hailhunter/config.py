@@ -269,7 +269,11 @@ DEFAULTS = {
     "rookie": {
         "start_date": None,         # "YYYY-MM-DD" day 1 of the plan; None = the first day with any door tap
         "full_route_doors": 25,     # "Knock your full route" with no door_target = this many doors a day
-        "pace_band": 0.2            # within +/-20% of the block's planned doors = "on pace"
+        "pace_band": 0.2,           # within +/-20% of the block's planned doors = "on pace"
+        # CLAUDE.md "No knocking yet" / docs/orders/sales-path.md: real doors (any block with door_target > 0) are
+        # locked to practice-only until this is set true (past the sales-path.md "ready to knock" checklist), no
+        # matter what day of the plan it is. A practice block (door_target 0) is never gated: it's already practice.
+        "ready_to_knock": False
     },
     # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
     # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but

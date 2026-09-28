@@ -216,9 +216,12 @@ separate — check CLAUDE.md / ask the boss for permit status.
    role-play — something to glance at right before a session, not just after failing a drill.
 4. **Lesson-prompt buttons**: put each day's "paste to Claude" prompt as a button inside Practice Door
    so he doesn't copy from this doc by hand.
-5. **Fix `data/rookie_plan.json`**: its days 9-16 already say "start knocking real doors" — written
-   2026-09-26, a day before the "No knocking yet" rule. It needs a new day-0 gate: don't start real
-   doors until this checklist passes, whatever day that lands on.
+5. ~~Fix `data/rookie_plan.json`~~ **Done (2026-09-28):** its days 9-16 still say "start knocking real
+   doors" (written 2026-09-26, a day before the "No knocking yet" rule) — the plan file itself is
+   unchanged, but `hh.py rookie` / `hh.py weekly` now gate every real-door block (`door_target` > 0)
+   behind config `rookie.ready_to_knock` (default false = practice-only, no matter what day it is; the
+   plan's own goal is kept in the doc as `block.real_door_target` for the app to show). Flip that flag
+   to `true` in `config.json` once this checklist passes.
 
 ---
 

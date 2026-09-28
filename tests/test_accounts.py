@@ -171,9 +171,10 @@ class CallsToday(Base):
         self.assertEqual(([x["address"] for x in biz["also"]], biz["call_rank"]), (["15859 Rosewood St"], 1))
         self.assertIn("1 more of their buildings hit", biz["why"]["en"])
         self.assertIn("Springhill Ridge Apartments after the September 12 hail", biz["opener"]["en"])
+        self.assertEqual(biz["ask_for_es"], "Gerente de la comunidad")         # Spanish twin, additive
         lead = rows[0]
-        for k in ("name", "phone", "ask_for", "address", "city", "hail_in", "day", "why", "opener", "hail_report",
-                  "hail_report_hint", "event_date", "max_hail_in", "distance_mi", "source"):
+        for k in ("name", "phone", "ask_for", "ask_for_es", "address", "city", "hail_in", "day", "why", "opener",
+                  "hail_report", "hail_report_hint", "event_date", "max_hail_in", "distance_mi", "source"):
             self.assertIn(k, lead)
         self.assertEqual((lead["name"], lead["phone"], lead["hail_in"], lead["day"]),
                          ("105 E 4th St", "", 1.65, "2026-09-20"))
@@ -192,7 +193,7 @@ class CallsToday(Base):
             self.assertNotIn(bad, text)
         for r in rows:
             if r["kind"] != "commercial":
-                self.assertEqual((r["phone"], r["name"], r["ask_for"]), ("", r["address"], ""))
+                self.assertEqual((r["phone"], r["name"], r["ask_for"], r["ask_for_es"]), ("", r["address"], "", ""))
             for lang in ("en", "es"):
                 said = r["opener"][lang].lower()
                 for bad in BAD_WORDS:

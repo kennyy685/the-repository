@@ -4,7 +4,8 @@
  * size, days ago; never a homeowner's name or phone), then today's business calls (business lines only).
  * Practice mode with the practice houses gets a made-up doc of the same shape (practiceDoc), never saved.
  *
- *   HMPCalls.view(doc, today)        -> {hits[], calls[], date} or null (no doc, or older than MAX_AGE days)
+ *   HMPCalls.view(doc, today, lang)  -> {hits[], calls[], date} or null (no doc, or older than MAX_AGE days); ask_for
+ *                                       prefers the doc's ask_for_es when lang is "es" (else the EN ask_for)
  *   HMPCalls.practiceDoc(H, today)   -> a calls/today-shaped doc from the practice houses (made-up homes + businesses)
  *   HMPCalls.daysBetween(a, b)       -> whole calendar days from YYYY-MM-DD a to b
  *   HMPCalls.chiDay(ms)              -> the calendar day (YYYY-MM-DD) of a moment in America/Chicago
@@ -59,8 +60,9 @@
   function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : null; }
   function digits(p) { return str(p).replace(/\D/g, ""); }
   function ago(day, today, fallback) { var n = daysBetween(str(day).slice(0, 10), today); return n != null && n >= 0 ? n : num(fallback); }
+  function askFor(o, lang) { return lang === "es" && str(o.ask_for_es) ? str(o.ask_for_es) : str(o.ask_for); }   // Spanish twin (ask_for_es), else the EN text
 
-  function view(doc, today) {
+  function view(doc, today, lang) {
     doc = obj(doc); if (!doc) return null;
     var age = daysBetween(str(doc.date).slice(0, 10), today);
     if (age == null || age < 0 || age > MAX_AGE) return null;
@@ -72,7 +74,7 @@
         hail_in: num(a.hail_in != null ? a.hail_in : a.max_hail_in), wind_mph: num(a.max_wind_mph), day: day, days_ago: ago(day, today, a.days_ago),
         why: obj(a.why), opener: obj(a.opener), hint: obj(a.hail_report_hint), also: Array.isArray(a.also) ? a.also.filter(obj) : [],
         // homes: never a person's name or phone here (the lead record has its own); businesses: their business line
-        name: biz ? str(a.name) || str(a.address) : str(a.address), phone: biz ? str(a.phone) : "", ask_for: biz ? str(a.ask_for) : "", biz: biz};
+        name: biz ? str(a.name) || str(a.address) : str(a.address), phone: biz ? str(a.phone) : "", ask_for: biz ? askFor(a, lang) : "", biz: biz};
       if (h.phone) hitLines[digits(h.phone)] = 1;
       hits.push(h);
     });
@@ -80,7 +82,7 @@
       c = obj(c); if (!c) return;
       var ph = str(c.phone); if (digits(ph).length < 10 || hitLines[digits(ph)]) return;   // business line only; an account hit already shows it
       var day = str(c.day).slice(0, 10);
-      calls.push({kind: str(c.kind) || "building", key: str(c.key), name: str(c.name) || str(c.address), phone: ph, ask_for: str(c.ask_for),
+      calls.push({kind: str(c.kind) || "building", key: str(c.key), name: str(c.name) || str(c.address), phone: ph, ask_for: askFor(c, lang),
         address: str(c.address), city: str(c.city), hail_in: num(c.hail_in), day: day, days_ago: day ? ago(day, today, c.days_ago) : null,
         why: obj(c.why), opener: obj(c.opener), also: Array.isArray(c.also) ? c.also.filter(obj) : []});
     });

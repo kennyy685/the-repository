@@ -47,7 +47,7 @@ const doc = {
       max_hail_in: 1.25, hail_in: 1.25, day: "2026-09-29", name: "Maria Lopez", phone: "402-555-0199", ask_for: "Maria", match: "at", also: [],
       why: { en: "Your lead: 1.25\" hail at the address.", es: "Su prospecto: granizo." }, opener: { en: "Hi", es: "Hola" }, hail_report_hint: { en: "h", es: "h" } },
     { key: "commercial|x", kind: "commercial", address: "100 Main St", city: "Fremont", event_date: "2026-09-27", peril: "wind", max_hail_in: null, max_wind_mph: 61,
-      name: "Main St Apartments", phone: "(402) 555-0110", ask_for: "Leasing", also: [{ address: "102 Main St" }], call_rank: 1 }],
+      name: "Main St Apartments", phone: "(402) 555-0110", ask_for: "Leasing", ask_for_es: "Arrendamiento", also: [{ address: "102 Main St" }], call_rank: 1 }],
   calls: [
     { kind: "building", name: "Main St Apartments", phone: "402.555.0110", address: "100 Main St", hail_in: 1.5, day: "2026-09-27", account_hit: true },
     { kind: "building", name: "Oak Plaza", phone: "402-555-0120", ask_for: "Manager", address: "5 Oak", hail_in: 1.0, day: "2026-09-20", days_ago: 9 },
@@ -66,6 +66,12 @@ if (v) {
   ok(!v.calls.some(c => c.name === "Main St Apartments"), "the account-hit business line shows twice");
   ok(v.calls[0].name === "Oak Plaza" && v.calls[0].days_ago === 9, "calls order/days wrong");
 }
+// ---- ask_for_es: view()'s 3rd arg (lang) prefers the Spanish twin, falls back to EN when it's missing ----
+let vEs = C.view(doc, "2026-09-29", "es");
+ok(vEs.hits[1].ask_for === "Arrendamiento", "es lang did not prefer ask_for_es on an account hit: " + vEs.hits[1].ask_for);
+ok(vEs.calls[0].ask_for === "Manager", "es lang broke ask_for when no ask_for_es twin exists: " + vEs.calls[0].ask_for);
+ok(v.hits[1].ask_for === "Leasing", "no/en lang picked the Spanish ask_for_es by default: " + v.hits[1].ask_for);
+ok(C.view(doc, "2026-09-29", "en").hits[1].ask_for === "Leasing", "explicit en lang picked ask_for_es: " + C.view(doc, "2026-09-29", "en").hits[1].ask_for);
 ok(C.view(doc, "2026-10-01").hits[0].days_ago === 2, "a 2-day-old doc does not recount days ago from the storm day");
 ok(C.view(doc, "2026-10-03") === null, "a doc older than 3 days still shows");
 ok(C.view(null, "2026-09-29") === null && C.view({ date: "2026-09-29" }, "2026-09-29").hits.length === 0, "empty docs mishandled");

@@ -6,11 +6,18 @@ Plan file: a list of blocks {day_range "9-16", focus_en, focus_es, daily_goal, d
 after "Knock" in daily_goal is used ("Knock 20-25 doors" -> 20; "full route" -> rookie.full_route_doors), else 0.
 A block with door_target 0 is a practice block: its days neither extend nor break the streak.
 
+Real-door gate (CLAUDE.md "No knocking yet" / docs/orders/sales-path.md): any block whose door_target is above 0
+is real-door knocking, and stays locked to practice (its effective target forced to 0, `block.gated` true, its
+original goal kept in `block.real_door_target`) until config `rookie.ready_to_knock` is true - the "ready to knock"
+checklist in docs/orders/sales-path.md is HMP's own gate for that flag, not tracked by this module. The plan file's
+shape and its own door_target numbers are never changed by the gate.
+
 Start date: config `rookie.start_date`, else the first day with any door tap, else unset (-> not ready).
-Output (the app's `stats/rookie` doc): {ready, as_of, start_date, start_source, day, plan_days, plan_done, block{...},
-today_doors, block_doors, block_expected, block_days_hit, block_days_counted, streak{days, best}, status
-(practice|on_pace|behind|ahead|not_started), verdict{en, es}}. Verdict wording never shames: behind = "a bit
-behind" + how to catch up. Missing plan or no start -> None (weekly: `rookie` null; `hh.py rookie`: ready false).
+Output (the app's `stats/rookie` doc): {ready, as_of, start_date, start_source, day, plan_days, plan_done,
+ready_to_knock, block{..., real_door_target, gated}, today_doors, block_doors, block_expected, block_days_hit,
+block_days_counted, streak{days, best}, status (practice|on_pace|behind|ahead|not_started), verdict{en, es}}.
+Verdict wording never shames: behind = "a bit behind" + how to catch up; gated = practice-only, names the gate.
+Missing plan or no start -> None (weekly: `rookie` null; `hh.py rookie`: ready false).
 """
 import json
 import os
@@ -65,11 +72,15 @@ def door_target(block, cfg=None):
 
 
 def _blocks(plan, cfg):
+    ready = bool(_cfg(cfg).get("ready_to_knock"))
     out = []
     for b in plan or []:
         r = _range(b)
         if r:
-            out.append({"from_day": r[0], "to_day": r[1], "target": door_target(b, cfg), "src": b})
+            real = door_target(b, cfg)
+            gated = real > 0 and not ready              # real-door block, but the ready-to-knock gate is off
+            out.append({"from_day": r[0], "to_day": r[1], "target": 0 if gated else real, "real_target": real,
+                       "gated": gated, "src": b})
     return sorted(out, key=lambda x: x["from_day"])
 
 
@@ -111,7 +122,8 @@ def progress(doors, plan, as_of, cfg=None):
     day_no = (as_of - start).days + 1
     plan_days = max(b["to_day"] for b in blocks)
     base = {"ready": True, "as_of": as_of.isoformat(), "start_date": start.isoformat(), "start_source": source,
-            "day": day_no, "plan_days": plan_days, "plan_done": day_no > plan_days}
+            "day": day_no, "plan_days": plan_days, "plan_done": day_no > plan_days,
+            "ready_to_knock": bool(rc.get("ready_to_knock"))}
     if day_no < 1:
         return {**base, "block": None, "today_doors": count(as_of), "block_doors": 0, "block_expected": 0,
                 "block_days_hit": 0, "block_days_counted": 0, "streak": {"days": 0, "best": 0},
@@ -161,11 +173,19 @@ def progress(doors, plan, as_of, cfg=None):
     src = b["src"]
     block = {"day_range": src.get("day_range"), "from_day": b["from_day"], "to_day": b["to_day"],
              "focus_en": src.get("focus_en"), "focus_es": src.get("focus_es"), "daily_goal": src.get("daily_goal"),
-             "door_target": t, "drill_ids": list(src.get("drill_ids") or [])}
+             "door_target": t, "real_door_target": b["real_target"], "gated": b["gated"],
+             "drill_ids": list(src.get("drill_ids") or [])}
     dl = f"Day {day_no}" + (" (past the 60-day plan)" if base["plan_done"] else "")
     dl_es = f"Día {day_no}" + (" (ya pasaste el plan de 60 días)" if base["plan_done"] else "")
     band = float(rc["pace_band"])
-    if t == 0:
+    if b["gated"]:
+        status = "practice"
+        en = (f"{dl}: real-door knocking is locked for now ({b['real_target']} doors a day once it's on) - finish "
+              f"the ready-to-knock checklist (docs/orders/sales-path.md) first. Focus on the drills.")
+        es = (f"{dl_es}: tocar puertas reales sigue bloqueado por ahora ({b['real_target']} puertas al día cuando se "
+              f"active) - primero termina la lista de listo para tocar puertas (docs/orders/sales-path.md). "
+              f"Enfócate en los ejercicios.")
+    elif t == 0:
         status = "practice"
         en = f"{dl}: practice block, no door goal yet. Focus on the drills."
         es = f"{dl_es}: etapa de práctica, todavía sin meta de puertas. Enfócate en los ejercicios."

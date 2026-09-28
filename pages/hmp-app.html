@@ -3329,7 +3329,9 @@ function buildStop(l, sid, kind){   // null = ok; else [head, ...missing] for "j
   if (sid !== 'build' || l.stage !== 'job_scheduled') return null;
   const c = claimFor(l), end = workAfter(l);
   if (kind !== 'cash' && c && window.HMPJobTrack) { const g = HMPJobTrack.gates(c, jtOpts(c)).work; if (!g.ok) return [NX().buildStop, ...g.missing.map(txl)]; }
-  return end && !(todayStr() > end) ? [NX().buildStop, NX().buildAfter(fmtDay(end, true))] : null;
+  // buildAfter() is a full "Hard stop: ..." sentence (used standalone elsewhere); strip that lead-in here so the
+  // caller's own "Hard stop · still needed:" prefix (matching the itemized-gate branch above) isn't said twice.
+  return end && !(todayStr() > end) ? [NX().buildStop, NX().buildAfter(fmtDay(end, true)).replace(/^[^:]*:\s*/, '')] : null;
 }
 
 /* ---------- the card ---------- */
@@ -5384,9 +5386,9 @@ let callsRaw = null, callsMemo = null;
 function callsNow(){
   if (!window.HMPCalls) return null;
   const H = window.HMPPractice && HMPPractice.houses ? HMPPractice.houses() : null, t0 = todayStr();
-  if (callsMemo && callsMemo.raw === callsRaw && callsMemo.H === H && callsMemo.t0 === t0) return callsMemo.v;
-  let v = null; try { v = HMPCalls.view(H ? HMPCalls.practiceDoc(H, t0) : callsRaw, t0); } catch (e) { v = null; }
-  callsMemo = {raw: callsRaw, H, t0, v}; return v;
+  if (callsMemo && callsMemo.raw === callsRaw && callsMemo.H === H && callsMemo.t0 === t0 && callsMemo.lang === lang) return callsMemo.v;
+  let v = null; try { v = HMPCalls.view(H ? HMPCalls.practiceDoc(H, t0) : callsRaw, t0, lang); } catch (e) { v = null; }
+  callsMemo = {raw: callsRaw, H, t0, lang, v}; return v;
 }
 function callOpenRef(x, i){   // a home hit on a lead/claim this app has: open that record; anything else: the call sheet
   const m = /^(leads|claims)\/(.+)$/.exec(x.key || '');

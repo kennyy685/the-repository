@@ -96,7 +96,8 @@ def _account(kind, key, d, since):
          "lat": lat if lon is not None else None, "lon": lon if lat is not None else None, "since": _day(since)}
     if kind == "commercial":                   # businesses only: name + business line (never a home, never a cell)
         from .calltoday import business_phone
-        a.update(name=str(d.get("name") or "")[:80], phone=business_phone(d) or "", ask_for=d.get("ask_for") or "")
+        a.update(name=str(d.get("name") or "")[:80], phone=business_phone(d) or "", ask_for=d.get("ask_for") or "",
+                 ask_for_es=d.get("ask_for_es") or "")
     return a
 
 
@@ -298,7 +299,7 @@ def check(hud, accts, today, cfg=None, conn=None, days=None):
     radar, alerts[], not_located[]}. Each alert: {key, kind, address, city, event_date, days_ago, peril: hail|wind,
     max_hail_in, max_wind_mph, distance_mi, source, match: at|near, hail_report {day, hail_in, nearest_report,
     radar_max_in} | null, hail_report_hint {doc, en, es}, other_days[] {day, peril, hail_in, wind_mph, source}}
-    (+ name, phone, ask_for for commercial). Best first: at before near, hail before wind, newest, biggest.
+    (+ name, phone, ask_for/ask_for_es for commercial). Best first: at before near, hail before wind, newest, biggest.
     `conn` = the engine database (read-only is fine; None = hud.json only, as in the cloud run)."""
     cfg = cfg or {}
     hud = hud or {}
@@ -432,7 +433,7 @@ def check(hud, accts, today, cfg=None, conn=None, days=None):
                                 "wind_mph": h.get("mph"), "source": h["source"]} for h in hits[1:]]
         if a["kind"] == "commercial":
             alert.update(name=a.get("name") or "", phone=a.get("phone") or "", ask_for=a.get("ask_for") or "",
-                         confidence=a.get("confidence"))
+                         ask_for_es=a.get("ask_for_es") or "", confidence=a.get("confidence"))
         alerts.append(alert)
     alerts.sort(key=lambda x: _rank({"source": x["source"], "peril": x["peril"], "day": x["event_date"],
                                      "hail": x["max_hail_in"]}) + (x["key"],))

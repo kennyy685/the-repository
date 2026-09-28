@@ -25,8 +25,8 @@ RULES = {"en": "Business lines only. Offer the free inspection; never promise in
                "deductibles, never negotiate a claim.",
          "es": "Solo líneas de negocio. Ofrezcan la inspección gratis; nunca prometan que el seguro va a pagar, nunca "
                "hablen de deducibles, nunca negocien un reclamo."}
-CSV_COLS = ["rank", "kind", "name", "phone", "ask_for", "address", "city", "hail_in", "day", "days_ago", "confidence",
-            "why_en", "why_es", "opener_en", "opener_es"]
+CSV_COLS = ["rank", "kind", "name", "phone", "ask_for", "ask_for_es", "address", "city", "hail_in", "day", "days_ago",
+            "confidence", "why_en", "why_es", "opener_en", "opener_es"]
 
 
 def _digits(phone):
@@ -83,7 +83,7 @@ def _why(t, hail, days, n_more):
 
 
 def call_list(hud, today, cfg=None):
-    """The day's calls, best first: [{name, phone, ask_for, address, city, hail_in, day, why{en,es},
+    """The day's calls, best first: [{name, phone, ask_for, ask_for_es, address, city, hail_in, day, why{en,es},
     opener{en,es}, ...}]. One call per business line: its best building leads; the rest go in `also`."""
     cfg = cfg or {}
     ct = cfg.get("call_today", {})
@@ -119,6 +119,7 @@ def call_list(hud, today, cfg=None):
             op["es"] = opener(prop_es, t["day"], cfg)["es"]
         calls.append({
             "name": name or t["address"], "phone": phone, "ask_for": c.get("ask_for") or "",
+            "ask_for_es": c.get("ask_for_es") or "",
             "address": t["address"], "city": t.get("city") or "", "hail_in": round(hail, 2), "day": t["day"],
             "why": _why(t, hail, days, len(rows) - 1), "opener": op,
             "days_ago": days, "score": score, "key": t.get("key") or f"{t['address']}|{t.get('city') or ''}",
@@ -175,7 +176,8 @@ def association_calls(today, cfg=None, contacts=None):
         op = {lang: (c.get(f"opener_{lang}") or "").replace("{caller}", fill[lang]["caller"])
               .replace("{company}", fill[lang]["company"]).replace("{town}", fill[lang]["town"]) for lang in ("en", "es")}
         out.append({"kind": "association", "name": c.get("name") or "", "phone": phone,
-                    "ask_for": c.get("ask_for") or "", "address": "", "city": c.get("city") or "",
+                    "ask_for": c.get("ask_for") or "", "ask_for_es": c.get("ask_for_es") or "",
+                    "address": "", "city": c.get("city") or "",
                     "hail_in": None, "day": None, "days_ago": None, "score": None,
                     "why": {"en": c.get("why_en") or "", "es": c.get("why_es") or ""}, "opener": op,
                     "key": f"association|{c.get('name') or ''}", "type": "Landlord/HOA association",
@@ -249,7 +251,7 @@ def account_opener(al, cfg=None):
 
 def account_rows(check_doc, today, cfg=None, calls=None):
     """`accounts_hit` rows for calls/today (the block shown FIRST), from accounts.check(): each alert plus the call
-    card fields {rank, name, phone, ask_for, hail_in, day, days_ago, why{en,es}, opener{en,es}, also[]}. Homes
+    card fields {rank, name, phone, ask_for, ask_for_es, hail_in, day, days_ago, why{en,es}, opener{en,es}, also[]}. Homes
     (lead, claim, door): name = the address (never a person), phone "" (the app has its own lead record, `key`).
     Businesses: one row per business line (its best building leads, the rest in `also`); when that line is already a
     building call in `calls`, the row gets `call_rank` and the call gets `account_hit: true` (additive)."""
@@ -264,6 +266,7 @@ def account_rows(check_doc, today, cfg=None, calls=None):
         biz = al["kind"] == "commercial"      # homes: never a person's name or phone here
         row = {**al, "name": (al.get("name") or al["address"]) if biz else al["address"],
                "phone": (al.get("phone") or "") if biz else "", "ask_for": (al.get("ask_for") or "") if biz else "",
+               "ask_for_es": (al.get("ask_for_es") or "") if biz else "",
                "hail_in": al["max_hail_in"], "day": al["event_date"], "opener": account_opener(al, cfg),
                "also": [], "call_rank": None}
         if line:
@@ -316,7 +319,8 @@ def write_csv(path, calls):
         w = csv.writer(f)
         w.writerow(CSV_COLS)
         for c in calls:
-            w.writerow([c.get("rank"), c.get("kind") or "building", c["name"], c["phone"], c["ask_for"], c["address"],
+            w.writerow([c.get("rank"), c.get("kind") or "building", c["name"], c["phone"], c["ask_for"],
+                        c.get("ask_for_es") or "", c["address"],
                         c["city"], "" if c["hail_in"] is None else c["hail_in"], c["day"] or "",
                         "" if c["days_ago"] is None else c["days_ago"], c.get("confidence") or "", c["why"]["en"], c["why"]["es"],
                         c["opener"]["en"], c["opener"]["es"]])
