@@ -9,6 +9,8 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
   profit from the company." Use the system to take the boss's company further, then go "from selling houses to
   possibly selling the system." Rough math (round 18 job $8-15k, round 29 commission 8-30%): ~28-83 jobs; his
   commission % is the biggest lever (boss question below).
+  Then (2026-09-28): "we're gonna get to 100k if we prioritize what we're building instead of worrying how to get
+  there." So: no $100k plans or money math unless he asks; put the effort into building. (Money bar: not now.)
 - Vision answers (2026-09-28, "get in my mind"; detail in full-context.md "Vision answers"): 7 AM = map + hot zones
   + what Aldaba recommends + what to do today. A lead = "a house that has insurance"; insurance first, cash jobs
   later ("likely cash jobs" tag: not now). Why info: "I want to be the one to take that job ... the most houses
