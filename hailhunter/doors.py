@@ -231,8 +231,11 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
         why.append(f"past the chaser rush ({days} days)")
     if sold >= 3:
         why.append(f"{sold} sold since storm")
+    # "owners" is what the heat scored with (the owner_unknown default when no house has data); "owner_share" is the
+    # walk's real share or None, and is the only one hud.json shows (T211 follow-up: a default never looks like data)
     parts = {"damage": round(damage, 3), "insured": round(insured, 3), "roof": roof, "size": round(size, 3),
              "fresh": round(fresh, 3), "open": opened, "compete": compete, "owners": round(own, 3),
+             "owner_share": round(own, 3) if owners else None,
              "mortgage": round(mort, 3), "median_built": med_year, "median_value": med_val, "days": days}
     return {"heat": heat, "why": why[:4], "exp_inspections": round(len(stops) * hz["inspect_rate"] * heat / 50, 1),
             "parts": parts}

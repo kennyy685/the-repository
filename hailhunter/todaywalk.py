@@ -40,7 +40,8 @@ already shows the door-score `why` line and its own come-back text, so those wer
 only for the legally required opener and the come-back fact. Never insurance paying, never the deductible, never a
 sales script or technique tip.
 Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
-one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate.
+one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate. The
+"area N% owners" part only when the walk's owner share is known (`walk_owner`): never the 0.65 scoring default.
 Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
 or heat, no top-up from other walks, houses picked by door score (best first), then put in walking order.
 """
@@ -335,6 +336,14 @@ def who_knocks(share, cfg=None):
     if share is None:
         return "either"
     return "Alex" if share >= lang["spanish_high"] else ("Kenny" if share < lang["spanish_low"] else "either")
+
+
+# ------------------------------------------------------------------ owner share (T211 follow-up)
+def walk_owner(t, L):
+    """A hud.json walk's owner-occupied share for door score v2 (the "area 72% owners" line), or None. Only engines
+    from the T211 follow-up on write an honest one (they also put `owner_share` on the list itself); older ones put
+    the Hot Zones 'unknown' default (0.65) on a storm walk with no Census data, which would read as a real percent."""
+    return (t or {}).get("owner_share") if "owner_share" in (L or {}) else None
 
 
 # ------------------------------------------------------------------ mortgage share (T211, research round 62)
@@ -799,7 +808,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     left = best["left"]
     turf_of = {t.get("turf"): t for t in L.get("turfs") or []}
     storm_day = L.get("day") if best["kind"] == "storm" else None
-    doors = {str(s["pid"]): doorscore.score(s, best["kind"], turf_of.get(s.get("turf"), {}).get("owner_share"),
+    doors = {str(s["pid"]): doorscore.score(s, best["kind"], walk_owner(turf_of.get(s.get("turf")), L),
                                             storm_day, today, cfg) for ss in pools[L["id"]].values() for s in ss}
     if only:                                       # a zone walk: the best doors first (untried before retries)
         left = sorted(left, key=lambda s: -doors[str(s["pid"])]["score"])

@@ -139,6 +139,9 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - House score = size x recency x distance x roof age x building type x owner-occupied x sold-after-storm flag.
   Door score v2 (`doorscore.py`, used by zones): hail, owner-occupied share + recent sale, single-family, roof age,
   value. "Likely insured" = owner-occupied + residential + mortgage/recent sale proxies (round 16).
+  hud.json walk `owner_share` (the door line's "area 72% owners") = real data or null, never the Hot Zones 0.65
+  scoring default; lists carry `owner_share` (Census, house-weighted), and todaywalk/zones trust walk shares only
+  from hud.json whose lists have it (T211 follow-up, `todaywalk.walk_owner`, tests/test_owner_share.py).
 - Per-house owner-occupied (T23, `owners.py`): where a county publishes the owner's MAILING address, same as the
   house address = owner lives there (True), different = landlord (False), blank/PO box = unknown. Downloaded by
   parcel tile when door lists are built (doors/everyday, try/except, 120 s budget, cached 180 days in db tables

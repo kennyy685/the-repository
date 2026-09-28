@@ -180,10 +180,11 @@ def _spanish(conn, list_id, lang):
 def _lists(conn, max_turfs, table="door_lists", cfg=None):
     """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks.
     table="everyday_lists" builds the everyday (no-storm, T50) lists the same way."""
-    from .nbhd import mortgage_shares, spanish_note, spanish_shares
+    from .nbhd import mortgage_shares, owner_shares, spanish_note, spanish_shares
     cfg = cfg or {}
     lang = spanish_shares(conn)
     mort = mortgage_shares(conn)                          # T211
+    owner = owner_shares(conn)                            # T211 follow-up: walks scored before parts had owner_share
     lists = []
     heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
     for L in conn.execute(f"SELECT * FROM {table} ORDER BY created_utc DESC").fetchall():
@@ -192,6 +193,7 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
                                  WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
             turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2) if t["h"] is not None else None,
                           "value": round(t["v"])})
+        scored = {}                                       # turf -> the engine's own owner share of the walk (or None)
         for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
             z = heat.get((L["list_id"], t["turf"]))
             if z:
@@ -200,10 +202,12 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
                     parts = json.loads(z["parts"] or "{}")
                 except (TypeError, ValueError):
                     parts = {}
-                own = parts["owner_share"] if "owner_share" in parts else parts.get("owners")
-                t["owner_share"] = round(own, 3) if isinstance(own, (int, float)) else None
-                # mortgage_share is set below from the Census (T211), not from parts["mortgage"]: that one is the
-                # Hot Zones 'unknown' default (0.6) when the Census has nothing for the walk
+                if "owner_share" in parts:
+                    own = parts["owner_share"]
+                    scored[t["turf"]] = round(own, 3) if isinstance(own, (int, float)) else None
+                # Never parts["owners"]: on a storm walk with no Census data that is the Hot Zones 'unknown' default
+                # (0.65), on an everyday walk a score factor. Walks scored before parts had owner_share take the
+                # Census share below (T211 follow-up), like mortgage_share: parts["mortgage"] is the 0.6 default (T211)
         stops = [dict(r) for r in conn.execute(
             """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
                       p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
@@ -228,12 +232,15 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
             if t["turf"] in streets:
                 t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
         try:                                              # optional: hud.json is written either way
-            sh = _area_shares(conn, L["list_id"], {"spanish": lang, "mortgage": mort})
+            sh = _area_shares(conn, L["list_id"], {"spanish": lang, "mortgage": mort, "owner": owner})
         except Exception:
             sh = {}
         per, share = sh.get("spanish", ({}, None))
         mper, mshare = sh.get("mortgage", ({}, None))
+        oper, oshare = sh.get("owner", ({}, None))
         for t in turfs:                                   # T37: where Alex (Spanish) should knock
+            # the 'area 72% owners' share on door lines: null when unknown, never a default (T211 follow-up)
+            t["owner_share"] = scored[t["turf"]] if t["turf"] in scored else oper.get(t["turf"])
             t["spanish_share"] = per.get(t["turf"])
             note = spanish_note(t["spanish_share"], cfg)
             if note:
@@ -241,20 +248,23 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
             # T211: Census B25081, house-weighted; null when unknown. The number only (the zones/walk docs add the line,
             # todaywalk.mortgage_note): ~300 bytes of text per walk would crowd walks' stops out of the 6 MB cap.
             t["mortgage_share"] = mper.get(t["turf"])
+        # owner_share (list, T211 follow-up): Census owner-occupied share of the list's houses, null when unknown. Its
+        # presence also tells todaywalk/zones the walks' owner_share is honest (older engines: 0.65 default).
         lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
                       "turfs": turfs, "stops": stops, "created_utc": L["created_utc"], "spanish_share": share,
-                      "mortgage_share": mshare})
+                      "mortgage_share": mshare, "owner_share": oshare})
     return lists
 
 
 def _everyday_lists(conn, max_turfs, cfg=None):
     """T50: door lists for old-house neighborhoods (no storm). Same shape as `lists`, plus kind/geoid/heat/why.
     `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
-    from .nbhd import mortgage_shares, spanish_note, spanish_shares
+    from .nbhd import mortgage_shares, owner_shares, spanish_note, spanish_shares
     lists = _lists(conn, max_turfs, "everyday_lists", cfg)
     extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why, params FROM everyday_lists")}
     lang = spanish_shares(conn) if lists else {}
     mort = mortgage_shares(conn) if lists else {}
+    owner = owner_shares(conn) if lists else {}
     high = ((cfg or {}).get("language") or {}).get("spanish_high", 0.30)
     for L in lists:
         e = extra[L["id"]]
@@ -263,6 +273,8 @@ def _everyday_lists(conn, max_turfs, cfg=None):
             L["spanish_share"] = round(lang[e["geoid"]], 3)
         if L["mortgage_share"] is None and e["geoid"] in mort:      # T211: same fallback
             L["mortgage_share"] = round(mort[e["geoid"]], 3)
+        if L["owner_share"] is None and e["geoid"] in owner:        # T211 follow-up: same fallback
+            L["owner_share"] = round(owner[e["geoid"]], 3)
         try:                                                        # T97: built for a config `everyday_towns` entry
             L["town_pick"] = (json.loads(e["params"] or "{}") or {}).get("everyday_town")
         except (TypeError, ValueError, AttributeError):

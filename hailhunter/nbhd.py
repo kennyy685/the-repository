@@ -155,6 +155,13 @@ def mortgage_shares(conn):
             if t and w is not None}
 
 
+def owner_shares(conn):
+    """{block group geoid: Census share of occupied homes lived in by their owner (0-1)}, the share storm walks score
+    with (doors._bg_lookup). A block group with no occupied homes (or no row) is left out: callers read None."""
+    rows = conn.execute("SELECT geoid, occupied, owner FROM acs WHERE level='bg'")
+    return {g: min(1.0, o / occ) for g, occ, o in rows if occ and o is not None}
+
+
 YEAR_BINS = ("b2020", "b2010", "b2000", "b1990", "b1980", "b1970", "b1960", "b1950", "b1940", "b1939")   # B25034_E002..E011
 
 
