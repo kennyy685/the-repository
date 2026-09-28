@@ -604,6 +604,9 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .bub.blocked,.bub.done{color:#f1f2f4}
 :root[data-look="ledger"] .stagebar{background:var(--card-solid);border:1px solid var(--rule);border-radius:var(--r);padding:0 6px}
 :root[data-look="ledger"] .live .clk{color:var(--ink)}
+/* Ledger's ink is dark: the ivory Send button and the toast flip to light text on it */
+:root[data-look="ledger"] .btn.pri,:root[data-look="ledger"] .app-toast{color:var(--bg-2)}
+:root[data-look="ledger"] .btn.pri:hover{background:#000}
 
 /* ---------- P4: spotlight, speech chips, The Call, robot eyes, coffee ---------- */
 .spot{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(circle 140px at var(--sx,50%) var(--sy,50%),transparent 0,transparent 55%,var(--spot-dim,rgba(12,13,15,.14)) 100%)}
