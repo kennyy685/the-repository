@@ -496,9 +496,11 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .say{position:absolute;left:0;top:0;max-width:260px;padding:6px 10px 7px;border-radius:4px;background:rgba(17,18,20,.9);border-left:2px solid var(--brass);color:#f1f2f4;font:500 13px/1.35 var(--f);opacity:0;transition:opacity .3s;pointer-events:none;will-change:transform}
 .say.on{opacity:1}
 .say b{display:block;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#e3c98f}
-.call{position:absolute;z-index:5;left:var(--gutter);bottom:72px;width:520px;max-width:calc(100% - var(--col-w) - 120px);display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;padding:12px;background:var(--card);-webkit-backdrop-filter:var(--card-fx);backdrop-filter:var(--card-fx);border:1px solid var(--rule-2);border-left:2px solid var(--need);border-radius:var(--r);animation:plateIn .28s var(--ease) both}
-.lowfx .call{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
-.pip{width:180px;height:180px;border-radius:var(--r-sm);background:radial-gradient(circle at 50% 40%,rgba(241,196,138,.12),transparent 70%),var(--bg-3);display:grid;place-items:center}
+.call{position:absolute;z-index:5;left:var(--gutter);bottom:72px;width:540px;max-width:calc(100% - var(--col-w) - 120px);display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px;align-items:stretch;animation:plateIn .28s var(--ease) both}
+.call-b{padding:12px 14px;background:var(--card);-webkit-backdrop-filter:var(--card-fx);backdrop-filter:var(--card-fx);border:1px solid var(--rule-2);border-radius:var(--r)}
+.lowfx .call-b{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+/* the scene draws the face into this box on the WebGL canvas underneath, so the box itself stays clear */
+.pip{width:180px;height:180px;align-self:end;border-radius:var(--r);border:1px solid var(--rule-2);border-left:2px solid var(--need);background:radial-gradient(circle at 50% 40%,rgba(241,196,138,.12),transparent 70%),var(--bg-3);display:grid;place-items:center}
 .pip svg{width:96px;height:96px;opacity:.9}
 .call-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .call-h .lbl{color:var(--need-ink)}
@@ -553,7 +555,25 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .recap .clear{margin-top:10px;display:flex;gap:8px;font:500 14px var(--f);color:var(--ink)}
 .recap .clear .g{color:var(--brass-hi)}
 .note-b{display:flex;gap:8px;align-items:center;margin-top:12px}
+
+/* ---------- camera view overlays (S6 views): blueprint grid, security-cam timestamp + grain, tilt-shift blur bands ---------- */
+.viewfx{position:absolute;inset:0;pointer-events:none;z-index:2}
+.vfx-cap{position:absolute;left:var(--gutter,16px);top:96px;font:500 12px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#f1f2f4;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.viewfx.blueprint{background-image:linear-gradient(rgba(168,200,224,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(168,200,224,.10) 1px,transparent 1px),linear-gradient(rgba(168,200,224,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(168,200,224,.05) 1px,transparent 1px);background-size:120px 120px,120px 120px,24px 24px,24px 24px}
+.viewfx.blueprint .vfx-cap{color:#a8c8e0}
+.viewfx.cctv{background:radial-gradient(130% 110% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%);overflow:hidden}
+.viewfx.cctv::before{content:"";position:absolute;inset:-50%;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .6s steps(4) infinite}
+.viewfx.cctv::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.08) 0 1px,transparent 1px 3px)}
+.viewfx.cctv .vfx-cap::before{content:"● ";color:#e0685c}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-8%,4%)}50%{transform:translate(5%,-6%)}75%{transform:translate(-3%,7%)}100%{transform:translate(0,0)}}
+.viewfx.tilt::before,.viewfx.tilt::after{content:"";position:absolute;left:0;right:0;height:26%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.viewfx.tilt::before{top:0;-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
+.viewfx.tilt::after{bottom:0;-webkit-mask-image:linear-gradient(transparent,#000);mask-image:linear-gradient(transparent,#000)}
+.lowfx .viewfx.tilt::before,.lowfx .viewfx.tilt::after{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(rgba(12,13,15,.35),transparent)}
+.pip.live{background:transparent;box-shadow:inset 0 0 0 1px var(--rule-2)}
+.pip.live svg{display:none}
 @media (prefers-reduced-motion:reduce){
+  .viewfx.cctv::before{animation:none!important}
   .call{animation:none!important}
   .mine{animation:none!important}
   .cell b.roll,.qplate{animation:none!important}
@@ -605,6 +625,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <img class="still" id="still" alt="The crew's two-floor office, with each AI robot at its station." src="hub/still.webp" onerror="this.hidden=true">
     <div class="foot-scrim" aria-hidden="true"></div>
     <div class="spot" id="spot" aria-hidden="true"></div>
+    <div class="viewfx" id="viewfx" hidden aria-hidden="true"><span class="vfx-cap" id="vfxCap"></span></div>
     <div class="eyes" id="eyes" hidden aria-hidden="true"><div class="eyef" id="eyeFrame"></div><div class="eyehud" id="eyeHud"></div></div>
     <div class="scrim-top" aria-hidden="true"></div>
     <div class="scrim-col" aria-hidden="true"></div>
@@ -2096,6 +2117,8 @@ function renderCall(){
   }
   const a = byId[call.id], T = L(), n = ids.length - 1, sig = [call.id, lang, botAsk(a), n, call.folded].join('|');
   box.hidden = call.folded; chipEl.hidden = !call.folded;
+  const faceCam = window.SCENE && window.SCENE.ready && builtViews().includes('eyes') && !document.getElementById('app').classList.contains('no-gl');
+  $('#pip').classList.toggle('live', !!faceCam);   // the scene renders the face into this box; the avatar is only the no-3D fallback
   if (sig === call.sig) return; call.sig = sig;
   chipEl.innerHTML = avatar(a.def) + '<span><b>' + esc(tx(a.def.name)) + '</b> ' + esc(T.askedBy('').trim()) + (n ? ' · +' + n : '') + '</span>';
   chipEl.setAttribute('aria-label', T.unfold(tx(a.def.name)));
@@ -2124,7 +2147,7 @@ $('#callNext').addEventListener('click', () => { const ids = HUB.needs.ids.filte
 let preEyes = 'all';
 const EYE_FRAMES = {
   code: '<svg viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 0h400v10l-10 26-20-18-18 22-20-20-16 24-18-22-20 18-20-26-20 26-20-18-18 22-20-20-16 24-18-22-20 18-20-26-20 26-20-18-18 22-16-24-20 20-10-26z" fill="#050608"/><path d="M0 10l10 26 20-18 18 22 20-20 16 24 18-22 20 18 20-26 20 26 20-18 18 22 20-20 16 24 18-22 20 18 20-26 20 26 20-18 18 22 16-24 20 20 10-26" fill="none" stroke="#c9a45c" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>',
-  'qa-tester': '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><mask id="lm"><rect width="160" height="100" fill="#fff"/><circle cx="56" cy="50" r="34" fill="#000"/><circle cx="104" cy="50" r="34" fill="#000"/></mask></defs><rect width="160" height="100" fill="#07080a" mask="url(#lm)"/><circle cx="56" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><circle cx="104" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><path d="M0 0h160v14H0z" fill="#1f6b45" opacity=".85"/></svg>',
+  'qa-tester': '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><mask id="lm"><rect width="160" height="100" fill="#fff"/><circle cx="56" cy="50" r="34" fill="#000"/><circle cx="104" cy="50" r="34" fill="#000"/></mask></defs><rect width="160" height="100" fill="#07080a" mask="url(#lm)"/><circle cx="56" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><circle cx="104" cy="50" r="34" fill="none" stroke="#c9a45c" stroke-width="1.2"/><path d="M0 0h160v6H0z" fill="#17563a" opacity=".9"/></svg>',
   'engine-mechanic': '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><mask id="gm"><rect width="160" height="100" fill="#fff"/><circle cx="54" cy="50" r="31" fill="#000"/><circle cx="106" cy="50" r="31" fill="#000"/></mask></defs><rect width="160" height="100" fill="#0a0806" mask="url(#gm)"/><circle cx="54" cy="50" r="31" fill="none" stroke="#c9a45c" stroke-width="3"/><circle cx="106" cy="50" r="31" fill="none" stroke="#c9a45c" stroke-width="3"/></svg>',
   'storm-watch': '<svg viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 0h400v18Q200 60 0 18z" fill="#dba81b"/><path d="M0 18Q200 60 400 18" fill="none" stroke="#8a6a12" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>'
 };
@@ -2137,6 +2160,15 @@ function renderEyes(){
   $('#eyeHud').innerHTML = '<b>' + esc(tx(a.def.name)) + '</b>' + (a.task ? ' · ' + esc(a.task) : '') + ' · ' + esc(lineOf(a, shownSt(a))) + esc(p);
 }
 
+/* the page's overlays for the scene's special views (SCENE.cctv says which security camera is live) */
+function renderViewFx(){
+  const el = $('#viewfx'), k = ['blueprint', 'cctv', 'tilt'].includes(cam) && builtViews().includes(cam) ? cam : '';
+  el.hidden = !k; if (!k) return; if (el.dataset.k !== k) { el.dataset.k = k; el.className = 'viewfx ' + k; }
+  const T = L(), S = window.SCENE;
+  if (k === 'cctv') { const n = (S && S.cctv) || 1, d = new Date(); const ts = new Intl.DateTimeFormat('en-CA', {timeZone:'America/Chicago', year:'numeric', month:'2-digit', day:'2-digit'}).format(d) + ' ' + new Intl.DateTimeFormat('en-GB', {timeZone:'America/Chicago', hour:'2-digit', minute:'2-digit', second:'2-digit'}).format(d);
+    $('#vfxCap').textContent = 'CAM ' + n + ' · ' + T.fl[n === 2 ? 'down' : 'up'] + ' · ' + ts; }
+  else $('#vfxCap').textContent = k === 'blueprint' ? T.views.blueprint + ' · 1:50' : T.views.tilt;
+}
 /* ================= poke (double-click a robot) and coffee (drag the cup onto one) ================= */
 const pokeAt = {};
 function pokeLine(a){
@@ -2445,7 +2477,7 @@ function frame(now){
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
   placeOverlay(); mind.tick(now); placeSpot(); placeSays(now);
-  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
+  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
