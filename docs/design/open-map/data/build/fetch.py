@@ -1,3 +1,6 @@
+"""Rebuild the open-map basemap from public Nebraska GIS data (gis.ne.gov).
+Run in an empty folder:  python3 fetch.py && python3 blocks.py && python3 enc2.py && python3 base.py && python3 simp.py
+then copy base.json, streets.json, homes.json into docs/design/open-map/data/.  No owner names are fetched."""
 import json,sys,urllib.request,urllib.parse,concurrent.futures as cf,os
 B='https://gis.ne.gov/Enterprise/rest/services/%s/FeatureServer/0/query'
 BBOX='-96.95,40.72,-95.80,41.70'

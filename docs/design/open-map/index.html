@@ -49,6 +49,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .radar-dot{position:absolute;transform:translate(-3px,-3px);display:flex;align-items:center;gap:6px;
   font:500 9.5px/1 var(--mono);letter-spacing:.1em;color:rgba(255,190,140,.7);white-space:nowrap}
+.radar-dot.notext span{opacity:0}
 .radar-dot i{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(245,136,58,.2),0 0 14px var(--acc)}
 
 /* map labels (HTML so the map needs no remote fonts) */
@@ -103,15 +104,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* live strip */
 .pulse{display:flex;align-items:stretch;height:52px;padding:0 4px;min-width:0;flex:0 1 auto;border-radius:16px;overflow:hidden}
-.pulse>div{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:0 13px;border-left:1px solid var(--rule);min-width:0}
+.pulse>div{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:0 12px;border-left:1px solid var(--rule);min-width:0;overflow:hidden}
 .pulse>div:first-child{border-left:0}
-.pulse .k{display:flex;align-items:center;gap:6px;font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.pulse .k{display:flex;align-items:center;gap:6px;font:500 9.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .pulse .v{display:flex;align-items:center;gap:8px;font:650 17px/1 var(--display);letter-spacing:-.02em;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pulse .v small{font:500 11px var(--sans);color:var(--muted);letter-spacing:0}
+.pulse .v small{font:500 11px var(--sans);color:var(--muted);letter-spacing:0;margin-left:6px}
+#kv3{display:flex;align-items:baseline}
 .pulse .live .v{font:500 12px/1 var(--mono);letter-spacing:0;color:var(--text-2)}
 .pulse .live .k i{width:7px;height:7px;border-radius:50%;background:var(--good);animation:live 2.4s infinite}
 @keyframes live{0%{box-shadow:0 0 0 0 rgba(61,220,151,.6)}70%,100%{box-shadow:0 0 0 7px rgba(61,220,151,0)}}
-.spark{display:block;width:72px;height:20px;overflow:visible}
+.spark{display:block;width:60px;height:20px;overflow:visible}
+body.tight1 .seg .lab{display:none}
+body.tight2 .pulse .k3{display:none}
 
 /* left list */
 .list{position:fixed;z-index:4;left:16px;top:82px;bottom:16px;width:var(--listW);display:flex;flex-direction:column;overflow:hidden}
@@ -124,17 +128,17 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sorts button{height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--rule-2);font-size:12px;font-weight:500;color:var(--text-2);transition:all .2s}
 .sorts button[aria-pressed="true"]{background:var(--acc-bg);border-color:rgba(245,136,58,.5);color:var(--acc-ink)}
 .rows{flex:1;overflow:auto;padding:2px 8px 10px;scrollbar-width:thin;scrollbar-color:#333 transparent}
-.row{width:100%;display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:11px;align-items:center;text-align:left;padding:8px 10px;border-radius:12px;
+.row{width:100%;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:8px 8px;border-radius:12px;
   transition:background .2s;border:1px solid transparent;animation:rowin .45s var(--ease) both;cursor:pointer}
 @keyframes rowin{from{opacity:.2;transform:translateY(6px)}}
 .row:hover,.row.hot{background:rgba(255,255,255,.045)}
 .row.sel{background:rgba(245,136,58,.09);border-color:rgba(245,136,58,.3)}
-.row .th{width:46px;height:40px;border-radius:9px;display:block;background:#0a0b0e;border:1px solid rgba(255,255,255,.09);
+.row .th{width:42px;height:40px;border-radius:9px;display:block;background:#0a0b0e;border:1px solid rgba(255,255,255,.09);
   box-shadow:0 0 18px -8px var(--c),inset 0 0 0 1px rgba(0,0,0,.35);object-fit:cover}
 .row.sel .th,.row:hover .th{border-color:color-mix(in srgb,var(--c) 70%,transparent)}
 .row .nm{font-weight:600;font-size:14px;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .meta{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;margin-top:3px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
-.row .sz{display:flex;align-items:center;justify-content:flex-end;gap:5px;font:600 18px/1 var(--display);letter-spacing:-.02em;color:var(--c);white-space:nowrap}
+.row .sz{display:flex;align-items:center;justify-content:flex-end;gap:5px;font:600 17px/1 var(--display);letter-spacing:-.02em;color:var(--c);white-space:nowrap}
 .row .sz small{font:500 11px var(--sans);color:var(--muted);margin-left:1px}
 .row .cf{margin-top:7px;height:3px;width:64px;margin-left:auto;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
 .row .cf i{display:block;height:100%;background:var(--text-2);border-radius:2px}
@@ -143,12 +147,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .empty{padding:30px 14px;color:var(--muted);text-align:center}
 
 /* layers */
-.layers{position:fixed;z-index:4;right:16px;top:82px;width:228px;padding:10px;transition:right .55s var(--ease),width .45s var(--ease),opacity .4s}
+.layers{position:fixed;z-index:4;right:16px;top:82px;width:252px;padding:10px;transition:right .55s var(--ease),width .45s var(--ease),opacity .4s}
 .layers .eyebrow{margin:6px 8px 8px}
 .tg{width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:10px;font-size:13px;font-weight:500;transition:background .2s}
 .tg:hover{background:rgba(255,255,255,.05)}
 .tg .sw{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);flex:none}
 .tg .sw .i{width:14px;height:14px}
+.tg>span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;text-align:left}
 .tg .ct{margin-left:auto;font:500 11px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
 .tg .sl{width:30px;height:18px;border-radius:9px;background:#3a3c42;position:relative;flex:none;transition:background .2s}
 .tg .sl::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#d8d9dc;transition:transform .25s var(--ease)}
@@ -195,7 +200,7 @@ body.card-open .dock .lg{display:none}
 .tip .c{font:500 9px var(--mono);letter-spacing:.06em;padding:2px 5px;border-radius:4px;border:1px solid rgba(245,136,58,.5);color:var(--acc-ink);margin-left:6px}
 
 /* hint when nothing is selected */
-.hint{position:fixed;z-index:3;left:calc(var(--listW) + 32px + (100vw - var(--listW) - 32px - 260px) / 2);bottom:calc(var(--dockH) + 30px);transform:translateX(-50%);padding:10px 16px;border-radius:999px;font-size:13px;color:var(--text-2);
+.hint{position:fixed;z-index:3;left:calc(var(--listW) + 32px + (100vw - var(--listW) - 32px - 284px) / 2);bottom:calc(var(--dockH) + 30px);transform:translateX(-50%);padding:10px 16px;border-radius:999px;font-size:13px;color:var(--text-2);
   display:flex;gap:8px;align-items:center;transition:opacity .4s;white-space:nowrap}
 .hint .i{color:var(--acc);width:16px;height:16px}
 body.card-open .hint{opacity:0;pointer-events:none}
@@ -311,9 +316,9 @@ body.card-open .card{transform:none;opacity:1}
   </div>
   <div class="pulse glass" aria-label="Storm summary">
     <div class="live"><span class="k"><i></i>Storm Watch</span><span class="v"><span class="en">Ran 6:54 AM</span><span class="es">Corrió 6:54 AM</span></span></div>
-    <div class="k1"><span class="k"><span class="en">Hail days 1″+</span><span class="es">Días de granizo 1″+</span><span id="kc1"></span></span><span class="v"><span id="kv1">–</span><svg class="spark" id="spark" viewBox="0 0 72 20" aria-hidden="true"></svg></span></div>
-    <div class="k2"><span class="k"><span class="en">Homes under hail</span><span class="es">Casas bajo granizo</span><span id="kc2"></span></span><span class="v"><span id="kv2">–</span></span></div>
-    <div class="k3"><span class="k"><span class="en">Newest report</span><span class="es">Reporte más nuevo</span><span id="kc3"></span></span><span class="v" id="kv3">–</span></div>
+    <div class="k1"><span class="k"><span class="en">Hail days 1″+</span><span class="es">Días de granizo 1″+</span></span><span class="v"><span id="kv1">–</span><svg class="spark" id="spark" viewBox="0 0 60 20" aria-hidden="true"></svg><span id="kc1"></span></span></div>
+    <div class="k2"><span class="k"><span class="en">Homes under hail</span><span class="es">Casas bajo granizo</span></span><span class="v"><span id="kv2">–</span><span id="kc2"></span></span></div>
+    <div class="k3"><span class="k"><span class="en">Newest report</span><span class="es">Último reporte</span></span><span class="v"><span id="kv3">–</span><span id="kc3"></span></span></div>
   </div>
   <div class="right">
     <span class="sample"><span class="en">Sample data</span><span class="es">Datos de muestra</span></span>
@@ -367,7 +372,7 @@ body.card-open .card{transform:none;opacity:1}
     </span>
     <span class="t"><span class="en">Storm</span><span class="es">Tormenta</span></span>
     <span class="items">
-      <span class="band"><svg width="28" height="10" aria-hidden="true"><defs><linearGradient id="cm" x1="0" x2="1"><stop offset="0" stop-color="#f5883a" stop-opacity="0"/><stop offset="1" stop-color="#ffd2a8"/></linearGradient></defs><path d="M1 5h22" stroke="url(#cm)" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="5" r="3" fill="#fff"/></svg><em class="en">path it moved</em><em class="es">camino que siguió</em></span>
+      <span class="band"><svg width="28" height="10" aria-hidden="true"><defs><linearGradient id="cm" gradientUnits="userSpaceOnUse" x1="1" x2="23" y1="0" y2="0"><stop offset="0" stop-color="#f5883a" stop-opacity="0"/><stop offset="1" stop-color="#ffd2a8"/></linearGradient></defs><path d="M1 5h22" stroke="url(#cm)" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="5" r="3" fill="#fff"/></svg><em class="en">path it moved</em><em class="es">camino que siguió</em></span>
       <span class="band"><svg width="26" height="10" aria-hidden="true"><path d="M1 5h24" stroke="#58c7ff" stroke-width="2" stroke-dasharray="4 4"/></svg><em class="en">wind 58+ mph</em><em class="es">viento 58+ mph</em></span>
     </span>
     <span class="t" id="lgRoofT" hidden><span class="en">Roof age</span><span class="es">Edad techo</span></span>
@@ -673,7 +678,7 @@ const DATA_BBOX=[-96.95,40.72,-95.80,41.70];
 /* ---------- map ---------- */
 let map=null, useGL=false, mapReady=false;const whenReady=[];
 const BOUNDS=[[-96.86,40.78],[-95.84,41.64]];
-const PAD={top:96,bottom:150,left:400,right:256};window.PADX=PAD;
+const PAD={top:96,bottom:150,left:400,right:280};window.PADX=PAD;
 const CAM={center:[-96.34,41.215],zoom:9.3,pitch:50,bearing:-9};
 const dayF=()=>["<=",["get","days"],st.days];
 const FILT={ // layers filtered by storm date
@@ -682,7 +687,7 @@ const FILT={ // layers filtered by storm date
   "hail-2-glow":()=>["all",["==",["get","band"],2],dayF()],"hail-2-edge":()=>["all",["==",["get","band"],2],dayF()],
   "heat":dayF,"heat-haze":dayF,"track":dayF,"wind-fill":dayF,"wind-edge":dayF,"area-fill":dayF,"area-line":dayF};
 const hexColor=()=>["case",["<=",["get","d2"],st.days],"#ff5f5c",["<=",["get","d15"],st.days],"#f7923f",["<=",["get","d1"],st.days],"#f2c14e",
-  ["interpolate",["linear"],["sqrt",["get","n"]],1,"#13151a",5,"#1a1e25",12,"#252a34",24,"#343b48",40,"#485162",55,"#5d6880"]];
+  ["interpolate",["linear"],["sqrt",["get","n"]],2,"#101318",5,"#151a21",12,"#1c222c",24,"#262e3b",40,"#323c4d",55,"#3f4b62"]];
 let hexK=0; // column height multiplier (animated in on load)
 const hexH=()=>["*",["sqrt",["get","n"]],hexK];
 const vis=(k)=>st.layers[k]?"visible":"none";
@@ -729,8 +734,8 @@ function style(){
     L("hail-1","fill","hail",{"fill-color":"#f2c14e","fill-opacity":.05},{filter:FILT["hail-1"](),layout:lay("hail")}),
     L("hail-15","fill","hail",{"fill-color":"#f5883a","fill-opacity":.08},{filter:FILT["hail-15"](),layout:lay("hail")}),
     L("hail-2","fill","hail",{"fill-color":"#ff4f5a","fill-opacity":.12},{filter:FILT["hail-2"](),layout:lay("hail")}),
-    L("heat","heatmap","heat",{"heatmap-weight":["get","w"],"heatmap-intensity":.62,
-      "heatmap-radius":["interpolate",["exponential",2],["zoom"],7,2.6,8,5.2,9,10.4,10,20.8,11,41.6,12,83,13,166],
+    L("heat","heatmap","heat",{"heatmap-weight":["get","w"],"heatmap-intensity":["interpolate",["linear"],["zoom"],10,.62,12,1,13,1.4],
+      "heatmap-radius":["interpolate",["exponential",2],["zoom"],7,2.6,8,5.2,9,10.4,10,20.8,11,38,12,56,13,72],
       "heatmap-color":["interpolate",["linear"],["heatmap-density"],0,"rgba(0,0,0,0)",.1,"rgba(242,193,78,0)",.22,"rgba(242,193,78,.2)",.38,"rgba(245,160,58,.36)",.55,"rgba(245,136,58,.5)",.74,"rgba(255,79,90,.62)",.92,"rgba(255,130,115,.76)",1,"rgba(255,222,200,.88)"],
       "heatmap-opacity":.95},{filter:FILT.heat(),layout:lay("hail")}),
     L("wind-fill","fill","wind",{"fill-color":"#58c7ff","fill-opacity":.05},{filter:FILT["wind-fill"](),layout:lay("wind")}),
@@ -743,11 +748,11 @@ function style(){
     L("area-fill","fill","area",{"fill-color":["get","col"],"fill-opacity":["case",["boolean",["feature-state","sel"],false],.16,["boolean",["feature-state","hot"],false],.1,.0]},{filter:FILT["area-fill"]()}),
     L("area-line","line","area",{"line-color":["case",["boolean",["feature-state","sel"],false],"#ffffff",["get","col"]],
       "line-opacity":["case",["boolean",["feature-state","sel"],false],.95,["boolean",["feature-state","hot"],false],.85,.38],"line-width":["case",["boolean",["feature-state","sel"],false],1.8,1.1],"line-dasharray":[2,1.6]},{filter:FILT["area-line"]()}),
-    L("homes-3d","fill-extrusion","homes",{"fill-extrusion-color":hexColor(),"fill-extrusion-height":hexH(),"fill-extrusion-base":0,"fill-extrusion-opacity":.93,"fill-extrusion-vertical-gradient":true},{layout:lay("homes")}),
+    L("homes-3d","fill-extrusion","homes",{"fill-extrusion-color":hexColor(),"fill-extrusion-height":hexH(),"fill-extrusion-base":0,"fill-extrusion-opacity":.9,"fill-extrusion-vertical-gradient":true},{layout:lay("homes")}),
     L("heat-haze","heatmap","heat",{"heatmap-weight":["get","w"],"heatmap-intensity":.4,
-      "heatmap-radius":["interpolate",["exponential",2],["zoom"],7,4.6,8,9.2,9,18.4,10,36.8,11,73.6,12,147,13,294],
+      "heatmap-radius":["interpolate",["exponential",2],["zoom"],7,4.6,8,9.2,9,18.4,10,30],
       "heatmap-color":["interpolate",["linear"],["heatmap-density"],0,"rgba(0,0,0,0)",.2,"rgba(245,136,58,0)",.5,"rgba(245,136,58,.35)",.8,"rgba(255,90,90,.5)",1,"rgba(255,200,170,.6)"],
-      "heatmap-opacity":.3},{filter:FILT["heat-haze"](),layout:lay("hail")}),
+      "heatmap-opacity":["interpolate",["linear"],["zoom"],9.6,.3,10.2,0]},{maxzoom:10.2,filter:FILT["heat-haze"](),layout:lay("hail")}),
     L("roof","circle","roof",{"circle-radius":["interpolate",["linear"],["zoom"],8,1.4,12,3.5],"circle-color":["interpolate",["linear"],["get","age"],5,"#3b4a6b",18,"#7a70c9",30,"#d6c5ff"],"circle-opacity":.9},{layout:lay("roof")}),
     L("permits","circle","permits",{"circle-radius":["interpolate",["linear"],["zoom"],8,1.6,12,3.6],"circle-color":"#0c0d10","circle-stroke-color":"#e9e9ee","circle-stroke-width":1.2},{layout:lay("prmt")}),
     L("doors","circle","doors",{"circle-radius":["interpolate",["linear"],["zoom"],8,2,12,4.5],"circle-color":"#3ddc97","circle-blur":.2,"circle-stroke-color":"#0c0d10","circle-stroke-width":1},{layout:lay("door")}),
@@ -846,7 +851,7 @@ function place(){
   sortedLabels.forEach(l=>{
     if(z<l.min){l.e.classList.add("hide");return}
     const p=project(l.ll);const y=p.y+((l.off||0)*(z<10?1:0));
-    if(p.x<-100||p.x>W+100||y<-40||y>H+40){l.e.classList.add("hide");return}
+    if(p.x<12||p.x>W-12||y<74||y>H-20){l.e.classList.add("hide");return}
     if(!l.w){l.w=l.e.offsetWidth;l.h=l.e.offsetHeight}
     let rot=0;
     if(l.rot90)rot=-90;
@@ -856,6 +861,7 @@ function place(){
     if(hit(b)){l.e.classList.add("hide");return}
     boxes.push(b);l.e.classList.remove("hide");
     l.e.style.transform=`translate(${p.x}px,${y}px) translate(-50%,-50%)${rot?` rotate(${rot.toFixed(1)}deg)`:""}`});
+  rdot.classList.toggle("notext",hit({x0:k.x+4,x1:k.x+44,y0:k.y-8,y1:k.y+8}));
 }
 
 /* ---------- motion layer: radar sweep, storm paths replaying, ice glints ---------- */
@@ -879,7 +885,7 @@ function drawFx(t,dt){
   [25,50,75,100].forEach(R=>{g2.beginPath();for(let i=0;i<=96;i++){const a=i/96*Math.PI*2,p=P(c[0]+Math.cos(a)*R,c[1]+Math.sin(a)*R);i?g2.lineTo(p.x,p.y):g2.moveTo(p.x,p.y)}g2.stroke()});
   g2.setLineDash([]);
   const pc=project(KOAX),th=-(t/9000)*Math.PI*2,R=100;g2.globalCompositeOperation="lighter";
-  if(!reduce){const n=26,span=.75;for(let s=0;s<n;s++){const a0=th+span*s/n,a1=th+span*(s+1)/n,al=.13*Math.pow(1-s/n,2.2);
+  if(!reduce){const n=26,span=.75;for(let s=0;s<n;s++){const a0=th+span*s/n,a1=th+span*(s+1)/n,al=.075*Math.pow(1-s/n,2.2);
       g2.fillStyle=`rgba(245,136,58,${al})`;g2.beginPath();g2.moveTo(pc.x,pc.y);for(let j=0;j<=3;j++){const a=a0+(a1-a0)*j/3,p=P(c[0]+Math.cos(a)*R,c[1]+Math.sin(a)*R);g2.lineTo(p.x,p.y)}g2.closePath();g2.fill()}
     const e=P(c[0]+Math.cos(th)*R,c[1]+Math.sin(th)*R);const lg=g2.createLinearGradient(pc.x,pc.y,e.x,e.y);lg.addColorStop(0,"rgba(255,200,160,.45)");lg.addColorStop(1,"rgba(255,200,160,0)");
     g2.strokeStyle=lg;g2.lineWidth=1.2;g2.beginPath();g2.moveTo(pc.x,pc.y);g2.lineTo(e.x,e.y);g2.stroke()}
@@ -894,9 +900,9 @@ function drawFx(t,dt){
     Object.values(TRK).forEach(T=>{if(T.days>st.days)return;const us=(st.days-T.days)/st.days;let el=(cyc-us*CYC+CYC)%CYC;if(reduce)el=RUN*.62;if(el>RUN)return;
       const k=el/RUN,u=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,fade=Math.min(1,(1-k)*5,k*8);
       const n=30,tail=.3,pts=[];for(let i=0;i<=n;i++){const uu=u-tail*(1-i/n);if(uu<0)continue;const q=trkAt(T,uu);pts.push(P(q.x,q.y))}
-      for(let i=1;i<pts.length;i++){const f=i/pts.length;g2.strokeStyle=hexA(T.col,(.08+.6*f*f)*fade);g2.lineWidth=1+5*f*f;g2.lineCap="round";g2.beginPath();g2.moveTo(pts[i-1].x,pts[i-1].y);g2.lineTo(pts[i].x,pts[i].y);g2.stroke()}
-      const h=pts[pts.length-1];if(!h)return;const rg=g2.createRadialGradient(h.x,h.y,0,h.x,h.y,34);rg.addColorStop(0,hexA(T.col,.75*fade));rg.addColorStop(.35,hexA(T.col,.22*fade));rg.addColorStop(1,hexA(T.col,0));
-      g2.fillStyle=rg;g2.beginPath();g2.arc(h.x,h.y,34,0,6.283);g2.fill();g2.fillStyle=`rgba(255,255,255,${.95*fade})`;g2.beginPath();g2.arc(h.x,h.y,2.6,0,6.283);g2.fill()});
+      for(let i=1;i<pts.length;i++){const f=i/pts.length;g2.strokeStyle=hexA(T.col,(.08+.6*f*f)*fade);g2.lineWidth=1+6.5*f*f;g2.lineCap="round";g2.beginPath();g2.moveTo(pts[i-1].x,pts[i-1].y);g2.lineTo(pts[i].x,pts[i].y);g2.stroke()}
+      const h=pts[pts.length-1];if(!h)return;const rg=g2.createRadialGradient(h.x,h.y,0,h.x,h.y,44);rg.addColorStop(0,hexA(T.col,.75*fade));rg.addColorStop(.35,hexA(T.col,.22*fade));rg.addColorStop(1,hexA(T.col,0));
+      g2.fillStyle=rg;g2.beginPath();g2.arc(h.x,h.y,44,0,6.283);g2.fill();g2.fillStyle=`rgba(255,255,255,${.95*fade})`;g2.beginPath();g2.arc(h.x,h.y,2.6,0,6.283);g2.fill()});
   }
   // marching outline on the area you're looking at
   g2.globalCompositeOperation="source-over";
@@ -933,8 +939,8 @@ const T={
   pulled:{en:"Pulled",es:"Descargado"},by:{en:"By",es:"Por"},where:{en:"Where",es:"Dónde"},covers:{en:"This number",es:"Este número"},
   sampleTag:{en:"SAMPLE DATA IN THIS MOCKUP",es:"DATOS DE MUESTRA EN ESTA MAQUETA"},
   ball:{en:(s)=>s>=2.5?"tennis ball":s>=2?"hen egg":s>=1.75?"golf ball":s>=1.5?"ping-pong ball":s>=1.25?"half dollar":"quarter",
-        es:(s)=>s>=2.5?"pelota de tenis":s>=2?"huevo":s>=1.75?"pelota de golf":s>=1.5?"pelota de ping-pong":s>=1.25?"moneda de medio dólar":"moneda de 25 centavos"},
-  about:{en:"about a",es:"como una"},
+        es:(s)=>s>=2.5?"una pelota de tenis":s>=2?"un huevo":s>=1.75?"una pelota de golf":s>=1.5?"una pelota de ping-pong":s>=1.25?"una moneda de medio dólar":"una moneda de 25 centavos"},
+  about:{en:"about a",es:"como"},
   win:{en:(d)=>`Showing last ${d} days`,es:(d)=>`Mostrando últimos ${d} días`},
   today:{en:"Today",es:"Hoy"},noHail:{en:"No hail over ¼″",es:"Sin granizo de más de ¼″"},biggest:{en:"biggest",es:"el más grande"},
   areasN:{en:(n)=>`${n} ${n===1?"area":"areas"} on the map`,es:(n)=>`${n} ${n===1?"área":"áreas"} en el mapa`},
@@ -957,7 +963,7 @@ function chip(src,note,storm,xs){return `<button class="chip${xs?" xs":""}" styl
 const THUMB={};
 function thumb(a){if(THUMB[a.id])return THUMB[a.id];
   const W=92,H=80,cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");
-  const [cx,cy]=toKm(a.c),half=Math.max(a.r[0],a.r[1])*1.75,s=W/(2*half);
+  const [cx,cy]=toKm(a.c),half=Math.max(a.r[0],a.r[1])*2.1,s=W/(2*half);
   const P=(ll)=>{const k=toKm(ll);return[W/2+(k[0]-cx)*s,H/2-(k[1]-cy)*s]};
   const lon0=a.c[0]-half/KX,lon1=a.c[0]+half/KX,lat0=a.c[1]-half*H/W/KY,lat1=a.c[1]+half*H/W/KY;
   const inBox=(b)=>!(b[2]<lon0||b[0]>lon1||b[3]<lat0||b[1]>lat1);
@@ -965,11 +971,10 @@ function thumb(a){if(THUMB[a.id])return THUMB[a.id];
   g.fillStyle="#0a0b0e";g.fillRect(0,0,W,H);
   if(BASE)BASE.features.forEach(f=>{const k=f.properties.k;if(k!=="town"&&k!=="water")return;if(!f.b)f.b=bbox(f.geometry.coordinates[0]);if(!inBox(f.b))return;
     g.fillStyle=k==="town"?"#111318":"#0c1f2d";f.geometry.coordinates.forEach(r=>{path(r,1);g.fill()})});
-  if(STR_LL)[[3,"#262b35",.7],[2,"#323845",.9],[1,"#444b5a",1.2],[0,"#6b7385",1.5]].forEach(([c,col,w])=>{g.strokeStyle=col;g.lineWidth=w;STR_LL[c].forEach(l=>{if(inBox(l.b)){path(l.p);g.stroke()}})});
-  g.globalCompositeOperation="lighter";
-  hailFeat.filter(f=>f.properties.storm===a.st).forEach(f=>{const b=f.properties.band;g.fillStyle=b===2?"rgba(255,79,90,.4)":b===1.5?"rgba(245,136,58,.3)":"rgba(242,193,78,.18)";path(f.geometry.coordinates[0],1);g.fill()});
-  windFeat.filter(f=>f.properties.days===STORMS[a.st].days).forEach(f=>{g.strokeStyle="rgba(88,199,255,.75)";g.lineWidth=1.2;g.setLineDash([3,3]);path(f.geometry.coordinates[0],1);g.stroke();g.setLineDash([])});
-  g.globalCompositeOperation="source-over";
+  hailFeat.filter(f=>f.properties.storm===a.st).forEach(f=>{const b=f.properties.band;g.fillStyle=b===2?"rgba(255,79,90,.26)":b===1.5?"rgba(245,136,58,.2)":"rgba(242,193,78,.12)";path(f.geometry.coordinates[0],1);g.fill()});
+  if(STR_LL)[[3,"rgba(190,200,220,.16)",.6],[2,"rgba(190,200,220,.26)",.8],[1,"rgba(200,210,228,.4)",1.1],[0,"rgba(215,222,236,.6)",1.4]].forEach(([c,col,w])=>{g.strokeStyle=col;g.lineWidth=w;STR_LL[c].forEach(l=>{if(inBox(l.b)){path(l.p);g.stroke()}})});
+  hailFeat.filter(f=>f.properties.storm===a.st).forEach(f=>{const b=f.properties.band;g.strokeStyle=bandColor(b);g.globalAlpha=.8;g.lineWidth=1;path(f.geometry.coordinates[0],1);g.stroke();g.globalAlpha=1});
+  windFeat.filter(f=>f.properties.days===STORMS[a.st].days).forEach(f=>{g.strokeStyle="rgba(88,199,255,.8)";g.lineWidth=1.2;g.setLineDash([3,3]);path(f.geometry.coordinates[0],1);g.stroke();g.setLineDash([])});
   const ring=areaFeat[AREAS.indexOf(a)].geometry.coordinates[0];g.strokeStyle="rgba(255,255,255,.9)";g.lineWidth=1.3;g.setLineDash([3,2.5]);path(ring,1);g.stroke();g.setLineDash([]);
   return THUMB[a.id]=cv.toDataURL("image/png")}
 
@@ -982,7 +987,7 @@ function renderList(){
   document.getElementById("listEyebrow").textContent=t("eyebrow",st.days);
   document.getElementById("rows").innerHTML=visA.length?visA.map((a,i)=>{const s=STORMS[a.st];const w=a.wind&&a.hail<1.25;return `
     <div class="row${a.id===st.sel?" sel":""}${a.id===st.hot?" hot":""}" role="button" tabindex="0" data-id="${a.id}" style="--c:${bandColor(a.hail)};animation-delay:${i*35}ms">
-      <img class="th" src="${thumb(a)}" alt="" width="46" height="40">
+      <img class="th" src="${thumb(a)}" alt="" width="42" height="40">
       <span style="min-width:0"><div class="nm">${L(a.name)}</div>
         <div class="meta"><span>${L(s.d)} · ${fmt(a.homes)} ${t("homes")}</span>${chip("assr",fmt(a.homes)+" "+t("homes"),a.st,1)}</div></span>
       <span><div class="sz">${w?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}${chip(w?"nws":"mrms","",a.st,1)}</div>
@@ -1011,7 +1016,7 @@ function renderStrip(){
     const reps=AREAS.filter(a=>a.st===k).flatMap(a=>a.rep).sort((a,b)=>mins(b[2])-mins(a[2]));const r=reps[0];
     document.getElementById("kv3").innerHTML=`${L(s.d)}<small>${r[2]}</small>`;document.getElementById("kc3").innerHTML=chip(r[0],L(r[1]).replace(/<[^>]+>/g,""),k,1)}
   // sparkline: 36 buckets of 2.5 days, biggest hail per bucket
-  const sp=document.getElementById("spark");let h="";const nb=36;
+  const sp=document.getElementById("spark");let h="";const nb=30;
   for(let b=0;b<nb;b++){const days=DAILY.slice(Math.floor(b*90/nb),Math.floor((b+1)*90/nb));const v=Math.max(...days.map(d=>d.v));const lastD=days[days.length-1].d;
     const hh=v>0?Math.max(2,v/2.75*18):1,inW=lastD<=st.days||days[0].d<=st.days;
     h+=`<rect x="${b*2}" y="${19-hh}" width="1.4" height="${hh}" rx=".6" fill="${v>=1?bandColor(v):v>0?"#5a5f6a":"#2a2d33"}" opacity="${inW?1:.3}"/>`}
@@ -1032,7 +1037,7 @@ function renderTimeline(){
     <text x="2" y="${y(1)-3}">1″</text>
     <line x1="0" x2="${W}" y1="${base+.5}" y2="${base+.5}" stroke="rgba(255,255,255,.12)"/>`;
   DAILY.forEach((e,i)=>{const inW=e.d<=st.days,x=i*bw;
-    if(e.v>0){const yy=y(e.v);s+=`<rect x="${(x+bw*.18).toFixed(2)}" y="${yy.toFixed(1)}" width="${(bw*.64).toFixed(2)}" height="${(base-yy).toFixed(1)}" rx="1.2" fill="${e.v>=1?bandColor(e.v):"#4d525c"}" opacity="${inW?1:.35}"/>`;
+    if(e.v>0){const yy=y(e.v);s+=`<rect x="${(x+bw*.14).toFixed(2)}" y="${yy.toFixed(1)}" width="${(bw*.72).toFixed(2)}" height="${(base-yy).toFixed(1)}" rx="1.2" fill="${e.v>=1?bandColor(e.v):"#5a606b"}" opacity="${inW?1:.35}"/>`;
       if(e.storm)s+=`<text class="v" x="${(x+bw/2).toFixed(1)}" y="${(yy-3).toFixed(1)}" text-anchor="middle" opacity="${inW?1:.5}">${fmtIn(e.v)}″</text>`}
     else s+=`<rect x="${(x+bw*.3).toFixed(2)}" y="${base-1.5}" width="${(bw*.4).toFixed(2)}" height="1.5" fill="#262930"/>`});
   // month starts
@@ -1147,8 +1152,11 @@ function setLang(l){lang=l;document.documentElement.lang=l;document.documentElem
   document.querySelectorAll("[data-lang]").forEach(b=>b.tagName==="BUTTON"&&b.setAttribute("aria-pressed",String(b.dataset.lang===l)));
   labels.forEach(setLabelText);
   renderList();renderToggles();renderStrip();renderTimeline();if(st.sel)renderCard();
-  document.getElementById("status").textContent=(BASE?t("status"):t("statusFb"))+(useGL?"":t("offline"));place()}
+  document.getElementById("status").textContent=(BASE?t("status"):t("statusFb"))+(useGL?"":t("offline"));fitTop();place()}
 document.querySelectorAll("button[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+function fitTop(){const p=document.querySelector(".pulse"),b=document.body,over=()=>p.scrollWidth>p.clientWidth+1||[...p.children].some(c=>c.scrollWidth>c.clientWidth+1);
+  b.classList.remove("tight1","tight2");if(over())b.classList.add("tight1");if(over())b.classList.add("tight2")}
+addEventListener("resize",fitTop);
 let tt;function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("on"),3200)}
 
 /* ---------- real data: load, decode, apply ---------- */
@@ -1182,7 +1190,7 @@ function applyHomes(h){const S=h.r,kx=h.kx,ky=h.ky,g=.8*S,R3=Math.sqrt(3);
   HEXALL=[];const feats=[];homesTotal=0;
   h.h.forEach(([q,r,n])=>{homesTotal+=n;const X=S*1.5*q,Y=S*(R3/2*q+R3*r),c=[X/kx,Y/ky];let d1=999,d15=999,d2=999;
     for(const p of polys){if(c[0]<p.bb[0]||c[0]>p.bb[2]||c[1]<p.bb[1]||c[1]>p.bb[3]||!inRing(c,p.ring))continue;if(p.b>=1)d1=Math.min(d1,p.d);if(p.b>=1.5)d15=Math.min(d15,p.d);if(p.b>=2)d2=Math.min(d2,p.d)}
-    HEXALL.push({n,d1});if(n<3)return;
+    HEXALL.push({n,d1});if(n<5)return;
     const ring=[];for(let i=0;i<=6;i++){const a=(i%6)*Math.PI/3;ring.push([(X+g*Math.cos(a))/kx,(Y+g*Math.sin(a))/ky])}
     feats.push(F({type:"Polygon",coordinates:[ring]},{n,d1,d15,d2}))});
   HEX=feats;
@@ -1220,11 +1228,11 @@ function makeRelief(){if(RELIEF||!useGL)return;
   const Lx=-.62,Ly=-.62,Lz=.48,Ln=Math.hypot(Lx,Ly,Lz),Z=11,flat=Lz/Ln;
   for(let py=0;py<N;py++)for(let px=0;px<N;px++){const i=py*N+px,xl=Hh[py*N+Math.max(0,px-1)],xr=Hh[py*N+Math.min(N-1,px+1)],yu=Hh[Math.max(0,py-1)*N+px],yd=Hh[Math.min(N-1,py+1)*N+px];
     const nx=-(xr-xl)/(2*kmx)*Z,ny=-(yd-yu)/(2*kmy)*Z,nl=Math.hypot(nx,ny,1),s=(nx*Lx+ny*Ly+Lz)/(nl*Ln);
-    const v=Math.max(0,Math.min(1,.5+(s-flat)*1.6)),o=i*4;
-    img.data[o]=4+v*30;img.data[o+1]=5+v*32;img.data[o+2]=8+v*38;img.data[o+3]=255}
+    const v=Math.max(0,Math.min(1,.5+(s-flat)*1.7)),o=i*4,ex=Math.min(px,N-1-px)/N,ey=Math.min(py,N-1-py)/N,edge=sm(Math.min(1,Math.min(ex,ey)/.12));
+    img.data[o]=6+v*20;img.data[o+1]=7+v*22;img.data[o+2]=10+v*27;img.data[o+3]=Math.round(255*edge)}
   g.putImageData(img,0,0);RELIEF=cv;
   map.addSource("relief",{type:"canvas",canvas:cv,coordinates:[[x0,y1],[x1,y1],[x1,y0],[x0,y0]],animate:false});
-  map.addLayer({id:"relief",type:"raster",source:"relief",paint:{"raster-opacity":.9,"raster-fade-duration":0,"raster-resampling":"linear"}},"county");
+  map.addLayer({id:"relief",type:"raster",source:"relief",paint:{"raster-opacity":.8,"raster-fade-duration":0,"raster-resampling":"linear"}},"county");
 }
 
 /* ---------- boot ---------- */
@@ -1236,7 +1244,7 @@ loadData();
 const pre=qs.get("area");
 if(pre&&AREAS.some(a=>a.id===pre)){if(useGL)onGL(()=>setSel(pre,false));else setSel(pre,false)}
 place();
-if(document.fonts)document.fonts.ready.then(()=>{labels.forEach(l=>l.w=0);renderTimeline();place()});
+if(document.fonts)document.fonts.ready.then(()=>{labels.forEach(l=>l.w=0);renderTimeline();fitTop();place()});
 requestAnimationFrame(loop);
 if(reduce&&useGL)map.on("render",()=>drawFx(performance.now(),0));
 </script>
