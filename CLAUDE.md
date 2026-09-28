@@ -34,6 +34,13 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
   ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
   paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
+- **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
+  one item per line, nothing extra, so he never edits it.
+- **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
+  on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
+  The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
+- **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
+  system down and to my satisfaction." Build and polish the system on the MacBook; don't plan phone-first work.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
