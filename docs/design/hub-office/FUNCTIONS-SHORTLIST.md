@@ -21,6 +21,11 @@ wouldn't think of, zero effort for you. Every item was checked against today's r
 
 The society test (SOCIETY-TEST.md) found fixes, not missing functions: its S1-S7 ride v28.0. Nothing to add here.
 
+## Built (v28.1, 2026-09-28, waits on "publish hub")
+1, 2, 4 and 6, plus the 90 s wake hold removed and a "Hand it off" button on the runaway alarm (the King-side half of
+3). Data shapes: crew-checkin skill, "Hub v28.1". The King must write `system/schedule` and add `ship` to waiting
+items; until then those parts say so plainly.
+
 ## My pick (lead)
 **1, 2, 4 and 6** first: they're the ones where you currently have to go dig (open chats, check costs, check
 schedules, read orders text). All four read data that already exists, so they fit inside the v28 build without new

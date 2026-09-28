@@ -297,7 +297,8 @@ h1,h2,h3,p{margin:0}
 .spend .big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font:600 22px/1.2 var(--fd);letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums lining-nums}
 .spend .big small{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:6px}
 .spend .src{margin:0}
-.flag{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px;margin-top:6px;padding:8px 10px 8px 12px;border-left:2px solid var(--st-stuck);background:rgba(217,72,59,.10);border-radius:0 var(--r-sm) var(--r-sm) 0;font:500 14px/1.4 var(--f);color:var(--ink)}
+.flag{display:grid;gap:2px;margin-top:6px;padding:8px 10px 4px 12px;border-left:2px solid var(--st-stuck);background:rgba(217,72,59,.10);border-radius:0 var(--r-sm) var(--r-sm) 0;font:500 14px/1.4 var(--f);color:var(--ink)}
+.flag > span:last-child{display:flex;flex-wrap:wrap;gap:0 4px;margin-left:-10px}
 .flag .tb{min-height:36px}
 .slist{list-style:none;margin:0;padding:0;display:grid}
 .srow{width:100%;min-height:52px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 4px;text-align:left;border-radius:var(--r-sm);border-bottom:1px solid var(--rule)}
@@ -326,7 +327,8 @@ h1,h2,h3,p{margin:0}
 .ship h4{margin:0;font:600 16px/1.35 var(--f);color:var(--ink);overflow-wrap:anywhere}
 .ship .qid{font:500 12px var(--mono);color:var(--muted);margin-right:6px}
 .ship .facts{grid-template-columns:72px minmax(0,1fr);margin-top:8px;padding-top:8px}
-.ship .pv{margin-top:10px}
+.ship .pv,.card .pv{margin:10px 0 0}
+.pv .btn{text-decoration:none}
 .orders ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .orders li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;font-size:14px;align-items:baseline}
 .orders .on{font:500 12px var(--mono);color:var(--brass)}
@@ -1015,7 +1017,7 @@ const TX = {
     kinds: {leader: 'leader', main: 'main agent', scheduled: 'scheduled task', helper: 'helper'}, forBoss: n => ` for ${n}`,
     floor: {up: 'Upstairs', down: 'Downstairs'},
     ans: {Yes: 'Yes', No: 'No', 'Not now': 'Not now', 'Ship it': 'Ship it', 'Not yet': 'Not yet', Done: 'Done', 'Tell me more': 'Tell me more'},
-    ops: {spendH: 'Spend', today: 'Today', week: 'This week', about: 'About, from what each chat reports. The hub’s own Right Hand replies aren’t counted.',
+    ops: {spendH: 'Spend (about)', today: 'Today', week: 'This week', about: 'From what each chat reports; the hub’s own Right Hand replies aren’t counted.',
       total: (c, n, d) => `All chats since ${d}: about $${c} (${n} closed)`, noSpend: 'No spend reported yet.',
       chatsH: 'Your chats', chatsN: n => `${n} open`, none: 'The King hasn’t listed your chats yet. It does on its next wake.',
       asOf: t => `as of ${t}`, staleAsOf: t => `as of ${t}: may be out of date`,
@@ -1644,7 +1646,7 @@ function answerBlock(id, q, to, it){
   const opts = Array.isArray(m.options) && m.options.length >= 2 ? m.options.slice(0, 3).map(txv) : m.ship ? ['Ship it', 'Not yet'] : it.sess ? ['Done', 'Tell me more'] : ['Yes', 'No'];
   const later = (it.snoozes || 0) >= 2 ? '<button type="button" class="btn" data-a="Let the King decide">' + esc(T.letKing) + '</button>' : '<button type="button" class="btn" data-a="Not now">' + esc(T.ans['Not now']) + '</button>';
   return (tags.length ? '<div class="asktags">' + tags.join('') + '</div>' : '') + '<div class="ans" data-q="' + esc(id) + '" data-to="' + esc(to || '') + '" data-text="' + esc(q) + '"' + (m.rec ? ' data-rec="' + esc(txv(m.rec)) + '"' : '') + (it.urgent ? ' data-urgent="1"' : '') + (mt && mt.answer !== 'Not now' ? ' data-match="' + esc(mt.id) + '"' : '') + '>' +
-    opts.map(o => '<button type="button" class="btn" data-a="' + esc(o) + '">' + esc(T.ans[o] || o) + '</button>').join('') + later +
+    opts.map((o, i) => '<button type="button" class="btn' + (m.ship && i === 0 ? ' pri' : '') + '" data-a="' + esc(o) + '">' + esc(T.ans[o] || o) + '</button>').join('') + later +
     '<span class="typed"><input type="text" id="ans-' + esc(id) + '" placeholder="' + esc(T.ansPh) + '" aria-label="' + esc(T.ansAria(id)) + '" enterkeyhint="send"><button type="button" class="btn pri" data-a="send">' + esc(T.ansSend) + ' ↵</button></span></div>';
 }
 const closeBtn = () => '<button type="button" class="ibtn" data-close aria-label="' + esc(L().close) + ' (Esc)">' + IC.x + '</button>';
@@ -2742,7 +2744,7 @@ function mkItem(it, m){
 }
 function allAsks(){
   const r = waitingBots().map(a => mkItem({key:a.id, bot:true, who:tx(a.def.name), text:botAsk(a), at:a.atMs, id:botAnswerId(a), to:a.id}, a.meta));
-  const q = openAsks().map(x => mkItem({key:'q:' + x.id, bot:false, who:L().qWord + ' ' + x.id, text:x.q, at:Date.parse(x.at || '') || 0, id:x.id, to:'code'}, x));
+  const q = openAsks().map(x => mkItem({key:'q:' + x.id, bot:false, who:shipOf(x) ? L().ops.shipH : L().qWord + ' ' + x.id, text:shipOf(x) ? txv(shipOf(x).what) || x.q : x.q, at:Date.parse(x.at || '') || 0, id:x.id, to:'code'}, x));
   const s = sessAsks().map(x => mkItem({key:'s:' + x.id, bot:false, who:x.title, text:x.needs_you, at:x.atMs, id:sessQid(x), to:'code', sess:x.id}, Array.isArray(x.options) ? {options:x.options} : {}));
   return [...r, ...q, ...s];
 }
@@ -2939,9 +2941,9 @@ function renderOps(){
   const box = $('#opsBody'); if (!box) return; const O = L().ops, ss = sessions();
   const asOf = ms => { if (!ms) return ''; const old = Date.now() - ms > STALE_MS; return '<span class="src' + (old ? ' stale-note' : '') + '">' + esc((old ? O.staleAsOf : O.asOf)(ago(ms))) + '</span>'; };
   const sp = spendTotals(), hots = ss.map(s => [s, hotOf(s)]).filter(p => p[1]);
-  let html = '<section class="spend" aria-labelledby="spH"><h2 class="lbl" id="spH">' + esc(O.spendH) + '</h2>' +
+  let html = '<section class="spend" aria-labelledby="spH"><h2 class="lbl" id="spH" title="' + esc(O.about) + '">' + esc(O.spendH) + '</h2>' +
     (sessDoc ? '<div class="big"><span><small>' + esc(O.today) + '</small>$' + esc(money(sp.today)) + '</span><span><small>' + esc(O.week) + '</small>$' + esc(money(sp.week)) + '</span></div>' +
-      (sp.total && sp.since ? '<p class="src">' + esc(O.total(money(sp.total), sp.closed, sp.since)) + '</p>' : '') + '<p class="src">' + esc(O.about) + '</p>' : '<p class="empty">' + esc(O.noSpend) + '</p>') +
+      (sp.total && sp.since ? '<p class="src">' + esc(O.total(money(sp.total), sp.closed, sp.since)) + '</p>' : '') : '<p class="empty">' + esc(O.noSpend) + '</p>') +
     hots.map(p => flagHtml(p[0], p[1])).join('') + '</section>';
   const order = {needs:0, working:1, failed:2, done:3}, list = ss.slice().sort((a, b) => (order[a.st] - order[b.st]) || (b.atMs - a.atMs));
   const openN = ss.filter(s => s.st !== 'done').length;
