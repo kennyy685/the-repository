@@ -5,6 +5,11 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- Vision answers (2026-09-28, "get in my mind"; detail in full-context.md "Vision answers"): 7 AM = map + hot zones
+  + what Aldaba recommends + what to do today. A lead = "a house that has insurance"; insurance first, cash jobs
+  later ("likely cash jobs" tag: not now). Why info: "I want to be the one to take that job ... the most houses
+  working ... the most jobs for their workers ... a lot of money off commissions." Goal: $100k by end of 2026.
+  What felt off today: "I didn't know what path we're on" (he woke up to no summary) -> give him the path + a brief.
 - 12 months / normal Tuesday / what matters most: see full-context.md "FilthE's vision" (2026-09-27).
 - Pay (2026-09-27): commission once jobs close ("I know I'ma get commission when I make this work and start pulling in
   houses"). Rate unknown. Later the app/HQ can show his commission pipeline.
@@ -17,14 +22,12 @@ screen making an idea come to reality." So: don't ask him HMP operations questio
 the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
-## Open, for FilthE: what he sees and why (asked 2026-09-28, "get in my mind")
-He loved the open map ("my hat tipped to you") and wants 10x: "be the best at information, leads, and efficiency."
-1. First 10 seconds: at 7 AM you open Aldaba on the MacBook. What do you SEE first, and what should it make you feel?
-2. In your head, what IS a lead: a house, a person, a street, or a moment (right after a storm)? Why?
-3. Standing at a door: the one thing you'd most want to already know about that house before you knock? Why that?
-4. Why does being the best at information matter most to you: beating other roofers, confidence at the door, or else?
-Also pending (quick picks): map speed on the MacBook, "quiet storms" filter, fade areas already walked; round 62:
-roof-age "full roof likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
+## Open, for FilthE (asked 2026-09-28)
+- The $100k by year end: his commissions, or HMP's total sales? (rough math: ~45-65 jobs at 10% or a profit split, vs ~7 roofs of HMP sales)
+- Say "publish Practice Door" (v11: how to talk at the door, 15 objections EN/ES, 20-day plan)?
+- A 7 AM "while you slept" brief on the hub every morning (one small run a day)?
+- Quick picks still open: map speed on the MacBook, "quiet storms" filter, fade walked areas, roof-age "full roof
+  likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - Hours a week he can give to knocking/selling, and what pulls him away.

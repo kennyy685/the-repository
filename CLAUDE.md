@@ -44,7 +44,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 **FilthE's vision (2026-09-27):** in 12 months HMP thrives because of this system: he's knocking and earning
 commissions, crews love and push the app, HMP is the main contractor with "a lot of signs in a lot of yards", lots of
 networking. Then: an AI consultant selling software (Aldaba) to businesses. Order: HMP first, product second.
-Success = crews working jobs the system found. App flow: **Now** = map of hot zones (`zones/current`) -> drive ->
+Success = crews working jobs the system found. **His answers (2026-09-28):** goal = $100k by end of 2026; a lead =
+"a house that has insurance" (insurance first, cash jobs later); 7 AM = map + hot zones + Aldaba's pick + today's plan;
+every open he should feel confident it will find him a lead and guide him (full-context "Vision answers"). App flow: **Now** = map of hot zones (`zones/current`) -> drive ->
 **Knock** = that zone's ranked walk (`walks/<zone>`), one tap per door. "Likely insured" = owner-occupied + residential +
 recent-sale proxies (never say "insured"). The app is the salesman's right hand: every screen says where you are in
 the sale, what to collect, what's legally required, what's next. **The app is the tool; teaching how to sell lives

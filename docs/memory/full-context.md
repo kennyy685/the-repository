@@ -262,3 +262,27 @@ Asked "picture 12 months from now, everything went right":
 - **He needs guidance:** he's an AI consultant, not an app builder. The King consults other AIs (research + design
   seats), brings ONE conclusion + something to look at, then builds one screen at a time from his reactions.
 - App building paused until he agrees on the core (round 61 research + docs/design/open-map mockup).
+
+## Vision answers, in his words (2026-09-28, "get in my mind")
+- **7 AM:** "The first thing I should see is the map. I should see also the hot zones. And I should see what it
+  recommends me and what I should be doing for the day." (Map shows every area; Aldaba's pick + today's plan sit on
+  top as a suggestion, he still chooses.)
+- **A lead = "a house that has insurance."** "If a house doesn't have insurance, then it's honestly not worth it for
+  me to go. We mainly want to work through insurance ... something that's a guaranteed pay." Cash jobs later. Honest
+  frame we gave him: ~9 in 10 homes carry insurance (round 62); we can't see policies, so the filter is owner lives
+  there (can sign) + mortgage (lender requires coverage) + hail really hit + roof age (will a claim pay a full roof).
+- **The sale he pictures:** talk smoothly, offer a service, take an inspection, tell them to contact their insurance,
+  insurance contacts us, we do the job. Wants to know how to talk (Practice Door + lessons, outside the app) and to
+  network ("networking and socializing works a lot").
+- **Why information:** "I want to be at that door. I want to be the one to take that job ... the one who has the most
+  houses working ... gets the most jobs for their workers ... making a lot of money off commissions."
+- **Goal:** "make a hundred thousand by the end of this year" (2026). Faith: "I have faith in God ... our Lord Jesus
+  Christ who will command me to command you the right way." Method he wants: refining, rethinking, research,
+  scenarios, multiple ways, better look; professionalism first.
+- **The feeling (every open):** "confident that the app is going to help me find a lead ... going to guide me ... be
+  there with me ... direct me ... help me out with a lot of the process. Every business owner that uses our system
+  should feel confident and amazed." Product = "a cheat code: it's going to map out everything, find us leads."
+  (The app guides the process: where to go, what's next, what to collect, legal steps. How to talk stays in the
+  Practice Door + lessons.)
+- **What went wrong this morning:** "I felt confused ... I didn't know what path we're on ... because I was sleeping."
+  Fix: every morning he gets "while you slept" (done, running, next, needs you) and the Path, before anything else.
