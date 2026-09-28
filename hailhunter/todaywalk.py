@@ -46,6 +46,7 @@ from datetime import date, datetime, timezone
 from . import doorscore
 from . import estimate as est
 from .config import DEFAULTS
+from .followups import _day as _local_day
 from .geo import haversine_mi
 
 NOT_HOME = {"not_home", "nothome", "not home", "not-home", "no_home", "no esta", "no está"}
@@ -161,8 +162,8 @@ def today_taps(obj, today):
             continue
         data = doc.get("data") if isinstance(doc.get("data"), dict) else doc
         k = str(key or "").split("/")[-1]
-        day = str(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else "")
-                  or str(data.get("at") or "")[:10])[:10]
+        # date > the doc key's date prefix > the tap's "at" timestamp (America/Chicago local day, DST-aware)
+        day = _local_day(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else None) or data.get("at"))
         if day != today:
             continue
         hist = [h for h in data.get("history") or [] if isinstance(h, dict) and h.get("result")]

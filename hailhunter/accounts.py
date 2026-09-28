@@ -40,6 +40,7 @@ from datetime import date, timedelta
 import numpy as np
 
 from .config import DEFAULTS
+from .followups import _day
 from .geo import haversine_mi, haversine_np
 from .watch import hail_at
 from .weekly import _items
@@ -74,15 +75,6 @@ def _norm(s):
 
 def _nk(address, city):
     return f"{_norm(address)}|{_norm(city)}"
-
-
-def _day(v):
-    s = str(v or "")[:10]
-    try:
-        date.fromisoformat(s)
-        return s
-    except ValueError:
-        return None
 
 
 def _float(v):

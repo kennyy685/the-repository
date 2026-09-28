@@ -30,6 +30,7 @@ from collections import Counter
 from datetime import date, timedelta
 
 from .config import DEFAULTS
+from .followups import _day as _local_day
 from .todaywalk import NOT_HOME, _split
 
 TALK = ("no", "interested", "booked")
@@ -75,11 +76,9 @@ def load_doors(obj):
         m = re.match(r"^(\d{4}-\d{2}-\d{2})_(.+)$", key)
         pid = d.get("pid") or (m.group(2) if m else None)
         res = _result(d.get("result"))
-        day = str(d.get("date") or (m.group(1) if m else "") or str(d.get("at") or "")[:10])[:10]
-        try:
-            date.fromisoformat(day)
-        except ValueError:
-            day = None
+        # date > the doc key's date prefix > the tap's "at" timestamp (America/Chicago local day, DST-aware -
+        # a tap after ~7 PM Central is still that Central day even though it's already tomorrow in UTC)
+        day = _local_day(d.get("date") or (m.group(1) if m else None) or d.get("at"))
         if not pid or not res:
             continue
         out.append({"date": day, "pid": str(pid), "address": d.get("address") or "", "city": d.get("city") or "",
@@ -244,7 +243,7 @@ def funnel(leads, start=None, end=None):
         stages.append({"key": "other", "en": "Other", "es": "Otro", "count": c["other"]})
     new = None
     if start and end:
-        new = sum(1 for L in leads if start.isoformat() <= str(L.get("created_at") or "")[:10] <= end.isoformat())
+        new = sum(1 for L in leads if start.isoformat() <= (_local_day(L.get("created_at")) or "") <= end.isoformat())
     return {"stages": stages, "total": len(leads), "open": sum(1 for L in leads if L.get("stage") not in CLOSED),
             "new_this_week": new}
 
