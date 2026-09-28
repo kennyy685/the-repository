@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## AI hub v27 "Nocturne" - 2026-09-28
+- One MacBook screen, no page scroll: the office fills it and a side panel has Crew / Board / Log / Chat tabs. New dark night look (champagne = working, orange only when something needs you), "Make it yours" to change it, a living "mind" in the sky, and trackpad scroll flies the camera in.
+- Answer from the top bar, task cards, search (/), keyboard shortcuts (? shows them), reconnects by itself after the Mac sleeps, refresh with R, proof your answers landed, plus 12 conveniences (smart King wake-ups, missed-run alerts, "Not now" that comes back, a morning note).
+- New outfits and personalities, robots notice you and your cursor, the line at your spot, poke/coffee reactions, stand-ups and celebrations, 9 camera views (blueprint, security cam, ride-along, robot eyes, director mode...).
+
 ## AI hub v26 "Penthouse HQ" - 2026-09-27
 - The hub opens on a live 3D office on two floors (slide down, suction tube up). Every AI is a robot dressed for its job and moves when it really checks in: working at its desk, waiting at "your spot", stuck with a red light, asleep in a charging pod, a sparkle when it finishes.
 - "Needs you" at the top: board questions and any robot waiting on FilthE. Tap one to answer Yes / No / Not now or type a reply; Claude Code is woken in seconds. Camera buttons (All / Up / Down / Follow), live Fremont sky, a "while you were away" replay, progress rings, a trophy wall and an optional ding.
