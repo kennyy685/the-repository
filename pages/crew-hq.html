@@ -916,7 +916,7 @@ const TX = {
     quietD: n => `quiet ${n} days`,
     dClosed: (id, n) => `Closed without your answer: ${id}` + (n ? ` · ${n}` : ''), reopen: 'Reopen', dRemembered: f => `Remembered: “${f}”`, undo: 'Undo', dOrders: t => `New orders: ${t}`, dDefault: (id, a) => `Went with the default on ${id}: ${a}`, changeIt: 'Change it', undone: 'Undone.', reopened: 'Reopened.',
     memMeter: n => `${n} of 20 facts`,
-    morning: 'Good morning', awayT2: h => `While you were away · ${h} h`, overnight: (d, s, n, names) => `Overnight: ${d} done · ${s} stuck` + (names ? ` (${names})` : '') + (n ? ` · ${n} ${n === 1 ? 'needs' : 'need'} you` : ''), swNone: 'Storm Watch hasn’t checked in today.',
+    morning: 'Good morning', awayT2: h => `While you were away · ${h} h`, overnight: (d, s, n, names, morning) => `${morning ? 'Overnight' : 'Since you left'}: ${d} done · ${s} stuck` + (names ? ` (${names})` : '') + (n ? ` · ${n} ${n === 1 ? 'needs' : 'need'} you` : ''), swNone: 'Storm Watch hasn’t checked in today.',
     allClear: t => `All clear. Next run ${t}. You can close the lid.`, watchIt: 'Watch it', todayPill: 'Today', answerWho: n => `Answer ${n}`, plan: t => `The King’s plan: ${t}`,
     stuckRuns: (w, t, n) => `${w} spent ${n} runs on ${t}`, replan: 'Re-plan it', replanned: 'Sent to the King for the next run.',
     nextShort: t => `next run ${t}`, allNormalS: 'All normal', quietS: 'Quiet by design', usageLine: (r, w, h) => `Today: ${r} ${r === 1 ? 'run' : 'runs'} · ${w} ${w === 1 ? 'wake' : 'wakes'} · ${h} Right Hand ${h === 1 ? 'reply' : 'replies'}`, usageH: 'Usage',
@@ -2254,7 +2254,8 @@ const mind = (() => {
     for (let i = 0; i < nv; i++) {
       const p = P[i], e = .8;
       const a = noise(p.x*sc, (p.y + e)*sc, t), b = noise(p.x*sc, (p.y - e)*sc, t), c = noise((p.x + e)*sc, p.y*sc, t), d = noise((p.x - e)*sc, p.y*sc, t);
-      const vx = (a - b)/(2*e)*260, vy = -(c - d)/(2*e)*260, ox = p.x, oy = p.y;
+      // v28 note 1: mostly-vertical curl streaks read as rain that bends up; the mind now drifts sideways like air currents
+      const vx = (a - b)/(2*e)*260*.8 + .9, vy = -(c - d)/(2*e)*260*.28, ox = p.x, oy = p.y;
       p.x += vx*spd; p.y += vy*spd; p.age++;
       if (p.age > p.life || p.x < -4 || p.x > W + 4 || p.y < -4 || p.y > H*.66) { spawn(p); continue; }
       const warm = drive.needX != null && Math.abs(p.x/W - drive.needX) < .15;
@@ -2793,7 +2794,7 @@ async function reopenQ(evId){
 /* ================= the morning note (#12): replaces the recap; three lines at most ================= */
 let noteToday = store.get('hub-note-day') === todayK();
 function morningNote(force){
-  if (!gotAgents || !gotEvents) return;
+  if (!gotAgents || !gotEvents || !gotBoard || !gotAnswers) return;
   const T = L(), now = Date.now(), m = centralMinute(), since = lastSeen || now - 12*3600e3;
   const firstMorning = m >= 300 && m < 660 && store.get('hub-morning') !== todayK();
   const away = lastSeen && now - lastSeen >= 3*3600e3;
@@ -2804,7 +2805,7 @@ function morningNote(force){
   const lines = [];
   for (const d of decisions(since)) lines.push(d);
   for (const p of parkedItems()) if (p.back <= now + 60e3) lines.push({text:T.parkedTag(tFmt.format(p.back - 2*3600e3)) + ' · ' + p.who + ': ' + p.text});
-  const needN = needItems().length, over = {text:T.overnight(done.length, stuck.length, needN, stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ') + (stuck.length > 2 ? ' +' + (stuck.length - 2) : ''))};
+  const needN = needItems().length, over = {text:T.overnight(done.length, stuck.length, needN, stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ') + (stuck.length > 2 ? ' +' + (stuck.length - 2) : ''), firstMorning || force)};
   if (needN) lines.unshift(over); else lines.push(over);   // society S2: the one number the morning is about comes first
   const swe = events.find(e => e.agent === 'storm-watch' && dayOf(e.atMs) === todayK()); lines.push({text:swe ? tx(byId['storm-watch'].def.name) + ': ' + swe.text : T.swNone});
   if (kingDoc && kingDoc.summary && dayOf(Date.parse(kingDoc.at || '') || 0) === todayK()) lines.push({text:T.plan(kingDoc.summary)});
@@ -3136,8 +3137,9 @@ function onEvents(snap){
   gotEvents = true; got();
   sync(false); renderFeeds(); renderCard(); renderBoard(); renderRoster(); refreshLive(); maybeRecap();
 }
-function onBoard(snap){ board = snap.exists ? snap.data() : null; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); }
-function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); }
+let gotBoard = false, gotAnswers = false;
+function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); }
+function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 let kingLoaded = false;
 function onKing(snap){ got(); kingDoc = snap.exists ? snap.data() : null; kingLoaded = true; renderBoard(); computeWatch(); refreshLive(); }
