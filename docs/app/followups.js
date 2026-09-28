@@ -21,12 +21,32 @@ var NOT_HOME = ["not_home", "nothome", "not home", "not-home", "no_home", "no es
 
 function str(v) { return v === null || v === undefined ? "" : String(v); }
 
-function day(v) {                               // "YYYY-MM-DD..." -> "YYYY-MM-DD" when a real date, else null
-  var s = str(v).slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
-  var d = new Date(s + "T00:00:00Z");
-  if (isNaN(d) || d.toISOString().slice(0, 10) !== s) return null;
-  return s;
+var CHICAGO_FMT = (typeof Intl !== "undefined") ? new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit"
+}) : null;
+
+function chicagoDay(d) {                        // a real Date -> its America/Chicago LOCAL calendar date (handles DST)
+  var parts = CHICAGO_FMT.formatToParts(d), map = {};
+  parts.forEach(function (p) { map[p.type] = p.value; });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+
+function day(v) {
+  // Plain "YYYY-MM-DD" stays as-is. A full timestamp ("...T21:00:00Z") converts to its America/Chicago local
+  // calendar date, so a contact after ~7 PM Central doesn't roll to the next day just because it's already
+  // tomorrow in UTC. Anything unparseable falls back to the first 10 characters, then null.
+  var s = str(v), s10 = s.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s10)) return null;
+  if (s.length <= 10 || !/^[T ]/.test(s.slice(10))) {
+    var d0 = new Date(s10 + "T00:00:00Z");
+    if (isNaN(d0) || d0.toISOString().slice(0, 10) !== s10) return null;
+    return s10;
+  }
+  var iso = s.replace(" ", "T");
+  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(iso)) iso += "Z";   // timestamps in this app are stored in UTC
+  var d = new Date(iso);
+  if (isNaN(d)) return null;
+  return CHICAGO_FMT ? chicagoDay(d) : s10;
 }
 
 function addDays(d, n) {
