@@ -879,7 +879,7 @@ const TX = {
     st7: {needs: 'needs you', stuck: 'stuck', silent: 'quiet', done: 'done', working: 'working', queued: 'queued', idle: 'idle', asleep: 'asleep'},
     stSince: (w, t) => `${w} since ${t}`, crewN: n => `Crew · ${n}`, since: {m: n => `+${n}m`, h: n => `+${n}h`, d: n => `+${n}d`}, wakes: t => `wakes ${t}`,
     fl: {up: 'Upstairs', down: 'Downstairs'}, flName: {up: 'Upstairs · Intelligence', down: 'Downstairs · Execution'}, seat: n => `No. ${n}`,
-    f: {now: 'Now', since: 'Since', last: 'Last report', prog: 'Progress', where: 'Where', recent: 'Recent', lives: 'Lives in', reach: 'Reach it', queued: 'Queued', why: 'Why', result: 'Result'},
+    f: {now: 'Now', lastTask: 'Last task', since: 'Since', last: 'Last report', prog: 'Progress', where: 'Where', recent: 'Recent', lives: 'Lives in', reach: 'Reach it', queued: 'Queued', why: 'Why', result: 'Result'},
     deskOf: (fl, n) => `${fl}, desk ${n}`, orphan: t => `its run ended at ${t} without a check-out`,
     updated: w => `Updated ${w}`, reconnecting: 'Reconnecting…', refresh: 'Refresh now (R)', refreshed: 'Refreshed.',
     needsNone: 'Nothing needs you', parked: t => `Not now · back at ${t}`, memFull: 'Memory is full (20 facts). Merge some first; nothing was saved.',
@@ -888,7 +888,7 @@ const TX = {
     skyT: m => `Sky ${m}`, soundT: on => `Sound ${on ? 'on' : 'off'}`,
     today: 'Today', yesterday: 'Yesterday', noHits: q => `Nothing here matches “${q}”.`, copy: 'Copy', copiedS: 'Copied', copyCowork: 'Copy for Cowork',
     cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on the AI hub (crew-checkin skill).`,
-    typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you · ${hubName()}`,
+    typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you — ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
     namesOff: 'Names show on hover. N shows them all.', namesOn: 'Every name shown. N hides them again.',
     mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color',
@@ -908,7 +908,7 @@ const TX = {
     quietD: n => `quiet ${n} days`,
     dClosed: (id, n) => `Closed without your answer: ${id}` + (n ? ` · ${n}` : ''), reopen: 'Reopen', dRemembered: f => `Remembered: “${f}”`, undo: 'Undo', dOrders: t => `New orders: ${t}`, dDefault: (id, a) => `Went with the default on ${id}: ${a}`, changeIt: 'Change it', undone: 'Undone.', reopened: 'Reopened.',
     memMeter: n => `${n} of 20 facts`,
-    morning: 'Good morning', awayT2: h => `While you were away · ${h} h`, overnight: (d, s, names) => `Overnight: ${d} done · ${s} stuck` + (names ? ` (${names})` : ''), swNone: 'Storm Watch hasn’t checked in today.',
+    morning: 'Good morning', awayT2: h => `While you were away · ${h} h`, overnight: (d, s, n, names) => `Overnight: ${d} done · ${s} stuck` + (names ? ` (${names})` : '') + (n ? ` · ${n} ${n === 1 ? 'needs' : 'need'} you` : ''), swNone: 'Storm Watch hasn’t checked in today.',
     allClear: t => `All clear. Next run ${t}. You can close the lid.`, watchIt: 'Watch it', todayPill: 'Today', answerWho: n => `Answer ${n}`, plan: t => `The King’s plan: ${t}`,
     stuckRuns: (w, t, n) => `${w} spent ${n} runs on ${t}`, replan: 'Re-plan it', replanned: 'Sent to the King for the next run.',
     nextShort: t => `next run ${t}`, allNormalS: 'All normal', quietS: 'Quiet by design', usageLine: (r, w, h) => `Today: ${r} ${r === 1 ? 'run' : 'runs'} · ${w} ${w === 1 ? 'wake' : 'wakes'} · ${h} Right Hand ${h === 1 ? 'reply' : 'replies'}`, usageH: 'Usage',
@@ -927,7 +927,7 @@ const TX = {
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
     livesIn: 'Lives in', reachIt: 'Reach it', close: 'Close', progress: (d, o) => `${d} of ${o}`, noneYet: 'none yet',
-    noCheckout: 'no check-out since then', nothingNow: 'Nothing right now.', sleepKing: 'Asleep until the next run, or until you talk to it.', sleepOther: 'Resting in its charging pod until its next run.',
+    noCheckout: 'no check-out since then', noCheckoutAt: t => `no check-out since ${t}`, nothingNow: 'Nothing right now.', sleepKing: 'Asleep until the next run, or until you talk to it.', sleepOther: 'Resting in its charging pod until its next run.',
     tempRole: 'A one-off helper.', scouts: n => `${n} ${pl(n, 'scout', 'scouts')}`, scoutsNow: n => `${n} working now`,
     kinds: {leader: 'leader', main: 'main agent', scheduled: 'scheduled task', helper: 'helper'}, forBoss: n => ` for ${n}`,
     floor: {up: 'Upstairs', down: 'Downstairs'},
@@ -1087,7 +1087,8 @@ function st7For(a){
   const st = a.st;
   if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (st === 'done') return 'done'; if (st === 'sleeping') return 'asleep';
   if (st === 'working') return a.silent ? 'silent' : 'working';
-  return a.queued ? 'queued' : 'idle';
+  if (a.queued) return 'queued';
+  return a.disp && a.disp.stale && !a.disp.orphan ? 'silent' : 'idle';   // still "working" hours after its last check-in: quiet, not free
 }
 /* queued: a handoff to it that it hasn't picked up (no check-in since, last 24 h), or an open question that holds it */
 function queuedOf(a, asks){
@@ -1232,7 +1233,7 @@ function renderNeeds(){
   if (gotAgents) renderNeeds.seeded = true;
   renderPanelTab(n);
   $('#cw').dataset.n = n; rollDigit($('#d10'), Math.min(9, Math.floor(n/10))); rollDigit($('#d1'), n > 99 ? 9 : n % 10); $('#ncount').textContent = ' · ' + n;
-  const baseTitle = renderNeeds.base = hubName();   // "(1) Designer needs you · AI Hub"; plain at zero
+  const baseTitle = renderNeeds.base = hubName();   // "(1) Designer needs you — AI Hub"; plain at zero (it follows Make it yours)
   document.title = n ? T.titleNeeds(n, items[0].bot ? items[0].who : items[0].who) : baseTitle;
   const cnt = {working:0, blocked:0, sleeping:0}; for (const a of bots) { const s = a.disp ? a.disp.status : a.st; if (cnt[s] != null) cnt[s]++; }
   $('#rsum').textContent = ['working', 'blocked', 'sleeping'].filter(k => cnt[k]).map(k => cnt[k] + ' ' + T.sum[k]).join(' · ');
@@ -1241,7 +1242,7 @@ function renderNeeds(){
   const rest = n - show.length, extra = al.length - alShow.length, hasMore = rest > 0 || extra > 0 || cw.length || pk.length;
   if (!hasMore) plateOpen = false;
   const moreAll = [rest ? '+' + rest : '', cw.length ? T.canWaitN(cw.length) : '', pk.length ? T.parkedN(pk.length) : ''].filter(Boolean).join(' · ');
-  const moreLbl = isWide ? '+' + (rest + extra + cw.length + pk.length) : needsAll ? T.less : [n > cap ? T.moreN(n) : '', cw.length ? T.canWaitN(cw.length) : '', pk.length ? T.parkedN(pk.length) : ''].filter(Boolean).join(' · ');
+  const moreLbl = isWide ? (rest + extra ? T.moreN(n + al.length) : [cw.length ? T.canWaitN(cw.length) : '', pk.length ? T.parkedN(pk.length) : ''].filter(Boolean).join(' · ')) : needsAll ? T.less : [n > cap ? T.moreN(n) : '', cw.length ? T.canWaitN(cw.length) : '', pk.length ? T.parkedN(pk.length) : ''].filter(Boolean).join(' · ');
   $('#nlist').innerHTML = alShow.map(alertChip).join('') + (n ? show.map(chip).join('') : (alShow.length ? '' : '<li class="none"><i class="g" aria-hidden="true">✓</i>' + esc(T.needsNone) + '</li>')) +
     (hasMore ? '<li class="mli"><button type="button" class="more" data-more title="' + esc(moreAll) + '" aria-label="' + esc(moreAll) + '" aria-expanded="' + (isWide ? plateOpen : needsAll) + '">' + esc(moreLbl) + '</button></li>' : '') +
     (!isWide && needsAll ? cw.map(i => chip(i, 'quiet')).join('') + pk.map(i => chip(i, 'quiet')).join('') : '');
@@ -1524,6 +1525,7 @@ function cardBot(a){
   const last = events.find(e => e.agent === a.id && e.kind !== 'start' && e.text);
   const mine = events.filter(e => e.agent === a.id).slice(0, 4);
   const doing = a.doing || (st === 'sleeping' ? (a.id === 'king' ? T.sleepKing : T.sleepOther) : T.nothingNow);
+  const quietNow = !!(d.stale || d.orphan || a.silent);   // society S5: a run that ended without a check-out is not "now"
   const p = progressOf(a), po = a.progress && typeof a.progress === 'object' && a.progress.of ? a.progress : null;
   const prog = po ? T.progress(po.done || 0, po.of) : p != null ? Math.round(p*100) + '%' : '';
   const ticks = po ? Math.min(24, po.of) : 10, on = Math.round((p || 0)*ticks);
@@ -1538,11 +1540,12 @@ function cardBot(a){
     (st === 'blocked' ? '<div class="stuckb"><div class="lbl">' + esc(T.stuck) + '</div><div class="v">' + esc(a.doing || T.nothingNow) + '</div></div>' : '') +
     '<dl class="facts">' +
     (qi ? '<dt>' + esc(T.f.queued) + '</dt><dd class="now">' + esc(nowDetail[a.id] || '') + (qi.task ? taskChip(qi.task) : '') + '</dd>' : '') +
-    (!asked && st !== 'blocked' && !qi ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
+    (!asked && st !== 'blocked' && !qi && !quietNow ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
+    (!asked && st !== 'blocked' && !qi && quietNow && a.doing ? '<dt>' + esc(T.f.lastTask) + '</dt><dd>' + esc(a.doing) + (a.task ? taskChip(a.task) : '') + ' · <span class="stale">' + esc(d.orphan ? T.orphan(tFmt.format(d.orphan)) : T.noCheckoutAt(tFmt.format(a.atMs))) + '</span></dd>' : '') +
     (a.why ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(a.why) + '</dd>' : '') +
     (a.result ? '<dt>' + esc(T.f.result) + '</dt><dd><span class="num">' + esc(a.result.passed + ' of ' + a.result.of + ' passed') + '</span>' + (a.result.issues ? ' · ' + esc(a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues')) : '') + '</dd>' : '') +
-    (prog && st === 'working' ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
-    '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + (d.orphan ? ' · <span class="stale">' + esc(T.orphan(tFmt.format(d.orphan))) + '</span>' : d.stale ? ' · <span class="stale">' + esc(T.noCheckout) + '</span>' : '') + '</dd>' +
+    (prog && st === 'working' && !a.silent ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
+    '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
     scouts + gearLine(a) + (a.id === 'code' ? '<dt>' + esc(T.usageH) + '</dt><dd>' + esc(usageLine()) + '</dd>' : '') +
     '<dt>' + esc(T.f.where) + '</dt><dd>' + esc(T.deskOf(T.fl[c.floor], deskNo)) + ' · ' + esc(kind) + esc(boss ? T.forBoss(boss) : '') + '</dd>' +
@@ -1860,51 +1863,63 @@ function overlayFor(a){
 }
 function bubbleKind(a, an){ if (a.st === 'waiting' && (an.pose === 'wait' || an.pose === 'queue')) return 'waiting'; if (a.st === 'blocked' && an.pose === 'blocked') return 'blocked'; return ''; }   // v28: bubbles only for needs you and stuck
 function placeOverlay(){
-  const S = window.SCENE; const W = stageEl.clientWidth;
-  const boxes = [], tags = [];
+  const S = window.SCENE, R = seenRect(), W = R.x1, top0 = isWide ? 84 : 60;   // bubbles stay clear of the top band and the open panel
+  const rank = {}; ((HUB.now && HUB.now.rows) || []).forEach((r, i) => { rank[r.id] = i; });
+  const cands = [], vis = [];
   for (const a of bots) {
     const o = overlayFor(a), an = S && S.ready && S.anchors[a.id];
     if (!an || an.visible === false || a.hidden) { o.tag.classList.remove('on'); o.bub.classList.remove('on'); o.zz.classList.remove('on'); o.ring.classList.remove('on'); continue; }
-    const kind = bubbleKind(a, an);
-    const body = kind === 'waiting' ? botAsk(a) : kind === 'blocked' ? a.doing : a.doing;
+    const kind = bubbleKind(a, an), body = kind === 'waiting' ? botAsk(a) : a.doing;
     const s7 = s7Of(a), sig = kind + '|' + isWide + '|' + s7 + body;
     if (sig !== o.sig) { o.sig = sig; o.tag.innerHTML = glyph(s7) + esc(tx(a.def.name)); o.tag.style.setProperty('--c', st7c(s7)); o.tw = 0;
-      if (kind) { const T = L(), head = T.status[kind === 'done' ? 'done' : kind];
+      if (kind) { const T = L(), head = T.status[kind];
         o.bub.className = 'bub ' + kind;
-        o.bub.innerHTML = '<div class="bh">' + esc(kind === 'waiting' ? T.askedBy(tx(a.def.name)) : tx(a.def.name) + ' · ' + head) + '</div><div class="bt">' + esc(isWide || kind !== 'waiting' ? (body || head) : tx(a.def.name)) + '</div>';
-        o.w = 0; } }
-    const showBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
-    o.bub.classList.toggle('on', showBub);
-    const showTag = !showBub && (a.id === selected || a.id === HUB.hover || namesAll || statusView || s7 === 'needs' || s7 === 'stuck');
-    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected);     if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
+        o.bub.innerHTML = '<div class="bh"><span>' + esc(kind === 'waiting' ? T.askedBy(tx(a.def.name)) : tx(a.def.name) + ' · ' + head) + '</span><span class="bx"></span></div><div class="bt">' + esc(isWide || kind !== 'waiting' ? (body || head) : tx(a.def.name)) + '</div>';
+        o.bx = o.bub.querySelector('.bx'); o.w = 0; } }
+    const wantBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
+    if (wantBub) { if (!o.w) { o.w = o.bub.offsetWidth; o.h = o.bub.offsetHeight; } cands.push({o, id:a.id, kind, ax:an.x, ay:an.y - 10, w:o.w, h:o.h, rank:rank[a.id] == null ? 99 : rank[a.id]}); }
+    vis.push({a, o, an, s7});
+  }
+  // bubbles first, in RIGHT NOW order; one that would still overlap a placed bubble folds into its tag and the kept
+  // bubble says "+1 needs you" (society S1: never two notes clipping each other)
+  cands.sort((p, q) => p.rank - q.rank);
+  const placed = [], heads = S && S.ready ? bots.map(a => S.anchors[a.id]).filter(Boolean) : [];
+  const hits = (l, t, w, h, p, pad) => l < p.left + p.w + pad && l + w + pad > p.left && t < p.top + p.h + pad && t + h + pad > p.top;
+  for (const b of cands) {
+    let best = null;
+    for (const shift of [0, -.36, .36, -.5, .5, -.8, .8]) for (const lift of [0, 28, b.h + 10, b.h*2 + 20]) {
+      const left = Math.max(R.x0, Math.min(W - b.w - 8, b.ax - b.w/2 + shift*b.w)), top = Math.max(top0, b.ay - b.h - 6 - lift);
+      let score = Math.abs(shift)*8 + lift*.1;
+      for (const p of placed) if (hits(left, top, b.w, b.h, p, 6)) score += 100;
+      for (const hd of heads) { if (Math.abs(hd.x - b.ax) + Math.abs(hd.y - b.ay - 10) < 4) continue; if (hd.x + 16 > left && hd.x - 16 < left + b.w && hd.fy - 8 > top && hd.y - 18 < top + b.h) score += 12; }
+      if (!best || score < best.score) best = {left, top, score};
+    }
+    if (best.score >= 100 && placed.length) { const host = placed.find(p => hits(best.left, best.top, b.w, b.h, p, 6)) || placed[0]; host.folded.push(b.kind); continue; }
+    placed.push({left:best.left, top:best.top, w:b.w, h:b.h, id:b.id, o:b.o, folded:[]});
+    b.o.bub.style.setProperty('--tail', Math.max(14, Math.min(b.w - 14, b.ax - best.left)) + 'px');
+    b.o.bub.style.transform = 'translate(' + Math.round(best.left) + 'px,' + Math.round(best.top) + 'px)';
+  }
+  const bubOn = new Set(placed.map(p => p.id));
+  for (const p of placed) { const n = p.folded.length, t = n ? ' · +' + n + (p.folded.every(k => k === 'waiting') ? ' needs you' : ' more') : '';
+    if (p.o.bx && p.o.bx.textContent !== t) { p.o.bx.textContent = t; p.o.w = 0; } }
+  const tags = [];
+  for (const {a, o, an, s7} of vis) {
+    const showBub = bubOn.has(a.id); o.bub.classList.toggle('on', showBub);
+    const showTag = !showBub && (a.id === selected || a.id === HUB.hover || namesAll || statusView || s7 === 'needs' || s7 === 'stuck');   // dark cockpit (note 9)
+    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected);
+    if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     const sleeping = an.pose === 'sleep' && !an.moving;
     o.zz.classList.toggle('on', sleeping);
     if (sleeping) o.zz.style.transform = 'translate(' + Math.round(an.x + 4) + 'px,' + Math.round(an.y - 44) + 'px)';
     const p = a.st === 'working' && !an.moving && showTag ? progressOf(a) : null;   // the ring rides with the tag
     o.ring.classList.toggle('on', p != null);
-    if (p != null) { o.ring.querySelector('.fg').setAttribute('stroke-dashoffset', (56.55*(1 - p)).toFixed(2)); o.ring.style.transform = 'translate(' + Math.round(showTag ? an.x + o.tw/2 + 4 : an.x + 12) + 'px,' + Math.round(showTag ? an.y - 28 : an.y - 30) + 'px)'; }
-    if (showBub) { if (!o.w) { o.w = o.bub.offsetWidth; o.h = o.bub.offsetHeight; } boxes.push({o, id:a.id, ax:an.x, ay:an.y - 10, w:o.w, h:o.h}); }
+    if (p != null) { o.ring.querySelector('.fg').setAttribute('stroke-dashoffset', (56.55*(1 - p)).toFixed(2)); o.ring.style.transform = 'translate(' + Math.round(an.x + o.tw/2 + 4) + 'px,' + Math.round(an.y - 28) + 'px)'; }
   }
-  tags.sort((p, q) => (q.sel - p.sel) || (q.y - p.y)); const tp = [];
+  // tags avoid each other and the bubbles (they step up a line at a time)
+  tags.sort((p, q) => (q.sel - p.sel) || (q.y - p.y)); const tp = placed.map(p => ({x:p.left, y:p.top, w:p.w, h:p.h}));
   for (const t of tags) { let y = t.y;
-    for (let i = 0; i < 3; i++) { const hit = tp.find(p => t.x < p.x + p.w + 4 && t.x + t.w + 4 > p.x && y < p.y + 22 && y + 22 > p.y); if (!hit) break; y = hit.y - 23; }
-    tp.push({x:t.x, y, w:t.w}); t.o.tag.style.transform = 'translate(' + Math.round(t.x) + 'px,' + Math.round(y) + 'px)'; }
-  boxes.sort((p, q) => p.ay - q.ay);
-  const placed = [], heads = S && S.ready ? bots.map(a => S.anchors[a.id]).filter(Boolean) : [];
-  for (const b of boxes) {
-    let best = null;
-    for (const shift of [0, -.36, .36, -.5, .5, -.8, .8]) for (const lift of [0, 28, b.h + 10, b.h*2 + 20]) {
-      const left = Math.max(8, Math.min(W - b.w - 8, b.ax - b.w/2 + shift*b.w)), top = Math.max(60, b.ay - b.h - 6 - lift);
-      let score = Math.abs(shift)*8 + lift*.1;
-      for (const t of tp) if (left < t.x + t.w + 4 && left + b.w + 4 > t.x && top < t.y + 24 && top + b.h + 4 > t.y) score += 30;
-      for (const p of placed) if (left < p.left + p.w + 6 && left + b.w + 6 > p.left && top < p.top + p.h + 6 && top + b.h + 6 > p.top) score += 100;
-      for (const hd of heads) { if (Math.abs(hd.x - b.ax) + Math.abs(hd.y - b.ay - 10) < 4) continue; if (hd.x + 16 > left && hd.x - 16 < left + b.w && hd.fy - 8 > top && hd.y - 18 < top + b.h) score += 12; }
-      if (!best || score < best.score) best = {left, top, score};
-    }
-    placed.push({left:best.left, top:best.top, w:b.w, h:b.h, id:b.id});
-    b.o.bub.style.setProperty('--tail', Math.max(14, Math.min(b.w - 14, b.ax - best.left)) + 'px');
-    b.o.bub.style.transform = 'translate(' + Math.round(best.left) + 'px,' + Math.round(best.top) + 'px)';
-  }
+    for (let i = 0; i < 4; i++) { const hit = tp.find(p => t.x < p.x + p.w + 4 && t.x + t.w + 4 > p.x && y < p.y + (p.h || 22) && y + 22 > p.y); if (!hit) break; y = hit.y - 23; }
+    tp.push({x:t.x, y, w:t.w, h:22}); t.o.tag.style.transform = 'translate(' + Math.round(t.x) + 'px,' + Math.round(y) + 'px)'; }
   placeOverlay.bubbles = placed;
 }
 /* stage taps: a bubble, else the robot under the finger (the scene owns drag-to-turn) */
@@ -1972,6 +1987,7 @@ let tab = TABS.includes(store.get('hub-tab')) ? store.get('hub-tab') : 'crew';
 function setTab(t, focus){
   if (!TABS.includes(t)) return; tab = t; store.set('hub-tab', t); $('#panel').dataset.tab = t;
   if (focus !== 'init' && !panelOpen()) setPanel(true, {remember:false});
+  if (t !== 'crew' && selected && !selected.startsWith('t:') && focus !== 'init') select(null);   // society S3: the card doesn't push the Board down
   for (const k of TABS) { const b = $('#tab-' + k), on = k === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; $('#tp-' + k).hidden = !on; }
   if (focus === true) $('#tab-' + t).focus();
   $('#tbody').scrollTop = 0; renderTabDots(); applySearch();
@@ -2702,7 +2718,8 @@ function morningNote(force){
   const lines = [];
   for (const d of decisions(since)) lines.push(d);
   for (const p of parkedItems()) if (p.back <= now + 60e3) lines.push({text:T.parkedTag(tFmt.format(p.back - 2*3600e3)) + ' · ' + p.who + ': ' + p.text});
-  lines.push({text:T.overnight(done.length, stuck.length, stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ') + (stuck.length > 2 ? ' +' + (stuck.length - 2) : ''))});
+  const needN = needItems().length, over = {text:T.overnight(done.length, stuck.length, needN, stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ') + (stuck.length > 2 ? ' +' + (stuck.length - 2) : ''))};
+  if (needN) lines.unshift(over); else lines.push(over);   // society S2: the one number the morning is about comes first
   const swe = events.find(e => e.agent === 'storm-watch' && dayOf(e.atMs) === todayK()); lines.push({text:swe ? tx(byId['storm-watch'].def.name) + ': ' + swe.text : T.swNone});
   if (kingDoc && kingDoc.summary && dayOf(Date.parse(kingDoc.at || '') || 0) === todayK()) lines.push({text:T.plan(kingDoc.summary)});
   const top = needItems()[0], nr = nextRun();
