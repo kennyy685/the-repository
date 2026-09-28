@@ -174,5 +174,13 @@
     "es": "Hola, disculpe la molestia — solo le quito un minuto.",
     "source_style": "General courtesy add-on matching the 'keep the opening short' principle shared by SPOTIO, Roofr and Roofing Contractor.",
     "legal_ok": true
+  },
+  {
+    "id": "watch-from-the-yard",
+    "situation": "The homeowner wants to see the inspection (or you offer it). Invite them to watch from the yard, never up the ladder, and promise every photo before you leave.",
+    "en": "Want to watch from the yard while I check? I'll show you every photo before I leave.",
+    "es": "¿Quiere ver desde el patio mientras reviso? Le enseño todas las fotos antes de irme.",
+    "source_style": "Nebraska Department of Insurance 'After the Storm' brochure: 'Be sure you are present and watch when contractors inspect your home.' 'From the yard' keeps the homeowner off the ladder (v11, 2026-09-28).",
+    "legal_ok": true
   }
 ]

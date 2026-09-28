@@ -9,16 +9,22 @@
  * v6 (2026-09-26, QA): 19 tricky phrasings + 15 compliant look-alikes added (deductible softening, "basically
  * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy).
  * v10 (2026-09-27): the insurance-rate promise (round 47) and "licencia" said about HMP in Spanish (round 49), each with
- * compliant look-alikes; the pro lines and the Spanish playbook must equal their data files; taught Spanish keeps "usted". */
+ * compliant look-alikes; the pro lines and the Spanish playbook must equal their data files; taught Spanish keeps "usted".
+ * v11 (2026-09-28): offering to call the insurer or file the claim "for you", free extras for the deductible, a
+ * different storm date, and a reward for a review (each with compliant look-alikes); every line Kenny is taught
+ * (openers, answers, drills, pro lines, playbook) must also pass dedTalk, and every drill's model answers must pass
+ * that drill's own local check. */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "..", "..", "pages", "practice-door.html"), "utf8");
 const a = src.indexOf("const RX = ["), b = src.indexOf("const localFlags");
-const { legalScan, tuUsed } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed };")();
+const { legalScan, tuUsed, dedTalk } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed, dedTalk };")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
+/* v11: the homeowners (for their "open" lines). */
+const P = new Function(src.slice(src.indexOf("const P = {"), src.indexOf("const ORDER")) + "\nreturn P;")();
 const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY };")();
 
 /* [line, expected first flag type or null, optional legalScan context] */
@@ -382,6 +388,41 @@ const CASES = [
   ["Asegúrese de que el contratista esté registrado, no importa si dice que tiene licencia.", null],
   ["Nunca decimos que tenemos licencia: estamos registrados.", null],
   ["Somos contratistas registrados en Nebraska.", null],
+  /* v11 (2026-09-28): calling the insurer or filing the claim FOR the homeowner (it is their claim and their call) */
+  ["I can call your insurance and file it for you.", 'negotiate'],
+  ["I'll call your insurance company for you.", 'negotiate'],
+  ["No stress, we can file the claim for you.", 'negotiate'],
+  ["Yo le llamo a su aseguradora y lo presento por usted.", 'negotiate'],
+  ["It's your claim and your call: if you file, you call them, and I can meet the adjuster.", null],
+  ["I can't file it for you; it's your claim.", null],
+  ["You call your insurance company, and I'll meet the adjuster and show the damage.", null],
+  ["Call your insurance company when you're ready; the decision is yours.", null],
+  ["El reclamo es suyo y usted decide: si lo presenta, usted les llama.", null],
+  /* v11: free extras or any allowance to make up for the deductible (44-8604) */
+  ["I'll throw in free gutters to make up for the deductible.", 'deductible'],
+  ["Instead of the deductible, we'll throw in the gutters for free.", 'deductible'],
+  ["Le regalo las canaletas por lo del deducible.", 'deductible'],
+  ["I can't throw in free gutters for the deductible.", null],
+  ["The deductible is always your part, so I can't throw in anything free.", null],
+  ["El deducible siempre es su parte; no le regalamos nada para cubrirlo.", null],
+  /* v11: a different storm date on the report (date-of-loss fraud) */
+  ["We'll say it happened in the newer storm.", 'fraud'],
+  ["Let's just say the damage was from the recent storm.", 'fraud'],
+  ["Decimos que fue en la tormenta más reciente.", 'fraud'],
+  ["My report only uses the real storm date.", null],
+  ["I can't say it was from the newer storm; the report uses the real date.", null],
+  ["The hail report shows which storms hit this address.", null],
+  ["Some policy limits are short, so check yours or call your insurer this week.", null],
+  /* v11: a reward for a review (FTC 16 CFR 465.4; to an insured also 44-8604) */
+  ["Leave us five stars and we'll knock $200 off.", 'referral'],
+  ["We give a $50 gift card for every 5-star review.", 'referral'],
+  ["Post a 5-star review and I'll take 10% off your bill.", 'referral'],
+  ["Le damos $100 de descuento por una reseña de 5 estrellas.", 'referral'],
+  ["Just a big thank-you. An honest review, whatever you think, helps families like yours find us.", null],
+  ["No gifts or discounts for reviews, just an honest one if you want.", null],
+  ["Could you leave us an honest review? It really helps.", null],
+  ["Please leave a 5-star review if you're happy.", null],
+  ["Solo un gran agradecimiento; una reseña honesta nos ayuda mucho.", null],
 ];
 
 let fails = 0;
@@ -396,7 +437,7 @@ OBJ.forEach(o => o[1].forEach((x, i) => lines.push(["OBJ " + o[0][0] + (i ? " ES
 for (const k of Object.keys(T)) if (/^(fh_|f_|h_)/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => lines.push([k + (i ? " ES" : " EN"), x]));
 T.canList.forEach((l, i) => l.forEach(x => lines.push(["can" + i, x])));
 /* v7 (T131): the 10 skill drills' model answers and "to pass" lines, plus the first-3-seconds line. */
-if (!Array.isArray(SKILL) || SKILL.length !== 12) { console.log("FAIL expected 12 skill drills, got", SKILL && SKILL.length); process.exit(1); }
+if (!Array.isArray(SKILL) || SKILL.length !== 17) { console.log("FAIL expected 17 skill drills (v11), got", SKILL && SKILL.length); process.exit(1); }
 SKILL.forEach(k => { k.a.forEach((x, i) => lines.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])); k.g.forEach((x, i) => lines.push(["SKILL goal " + k.id + (i ? " ES" : " EN"), x])); });
 T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
 /* v9: HOA and phone-quote answers must also stay clean under their scenario's extra rules. */
@@ -450,6 +491,27 @@ if (typeof tuUsed !== "function") { pf++; console.log("FAIL tuUsed is missing");
   (PLAY || []).forEach((p, i) => taught.push(["PLAY " + i, p.es]));
   for (const [where, x] of taught) if (tuUsed([U(x)])) { pf++; console.log("FAIL taught Spanish line uses tú:", where); }
   console.log(`${PB.length} playbook lines match the data file; ${taught.length} taught Spanish lines keep "usted"`);
+}
+/* v11: the homeowners' opener lines (shown as "Opener" on the cheat sheet) stay clean too. */
+for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => lines.push(["open " + k + (i ? " ES" : " EN"), x, { hoa: !!P[k].hoa, phone: !!P[k].phone }]));
+/* v11: every line Kenny is taught must also pass dedTalk (the scorecard's "deductible talk" backup), or the page would
+   fail him for saying it; and every drill's model answers must pass that drill's own local check (skillLocal). */
+{
+  const DT = [["The deductible is always the owner's part.", false], ["El deducible siempre es la parte del dueño.", false], ["The deductible is always your part.", false],
+    ["El deducible siempre es su parte.", false], ["We'll work something out on the deductible.", true], ["Del deducible nos arreglamos después.", true]];
+  for (const [x, want] of DT) if (dedTalk(x) !== want) { pf++; console.log("FAIL dedTalk", want ? "missed" : "false hit", JSON.stringify(x)); }
+  const taughtDed = [];
+  OBJ.forEach(o => o[1].forEach((x, i) => taughtDed.push(["OBJ " + o[0][0] + (i ? " ES" : " EN"), x])));
+  SKILL.forEach(k => k.a.forEach((x, i) => taughtDed.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])));
+  (PRO || []).forEach(p => p.a.forEach((x, i) => taughtDed.push(["PRO " + p.id + (i ? " ES" : " EN"), x])));
+  (PLAY || []).forEach((p, i) => { if (p.es.split(/\s+/).length > 1) taughtDed.push(["PLAY " + i, p.es]); });
+  for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => taughtDed.push(["open " + k + (i ? " ES" : " EN"), x]));
+  for (const k of Object.keys(T)) if (/^f_/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => taughtDed.push([k + (i ? " ES" : " EN"), x]));
+  for (const [where, x] of taughtDed) if (dedTalk(x)) { pf++; console.log("FAIL taught line fails dedTalk:", where); }
+  const g = src.indexOf("const PUSH_RX"), h = src.indexOf("async function skillCheck");
+  const skillLocal = new Function("T", src.slice(a, b) + "\nconst Li = () => 0;\n" + src.slice(g, h) + "\nreturn skillLocal;")(T);
+  SKILL.forEach(k => k.a.forEach((x, i) => { const r = skillLocal(k, x); if (r) { pf++; console.log("FAIL drill model answer fails its own check:", k.id, i ? "ES" : "EN", r[0]); } }));
+  console.log(`${taughtDed.length} taught lines pass dedTalk; ${SKILL.length} drills' model answers pass their own checks`);
 }
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
