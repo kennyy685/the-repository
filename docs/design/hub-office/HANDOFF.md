@@ -4,7 +4,7 @@ FilthE OK'd everything built so far (2026-09-28: "everything looks good you got 
 Old chat closed to save usage. Read SPEC.md (decisions + walkthrough notes 1-11) before building.
 
 ## Do next, in order
-1. **Publish v27.1 (smoothness fix).** Repo `pages/crew-hq.html` (commit 6b4ff0c) = the live page with the other
+1. **DONE 2026-09-28: published as hub Version 27.** ~~Publish v27.1 (smoothness fix).~~ Repo `pages/crew-hq.html` (commit 6b4ff0c) = the live page with the other
    session's live-King changes merged in; `pages/hub/scene.js` + `outfits.js` carry the fix. The design gate passes.
    Artifact tool: read https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU first (a publish is refused if not read). If the
    live page differs from the repo page, merge it. Then publish with file_path `pages/crew-hq.html`, files =

@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## AI hub v27.1 - 2026-09-28
+## AI hub v27.1 - 2026-09-28 (live: hub Version 27)
 - Smoother: robots no longer redraw the room's shadows every frame (the stutter); shadows only update when the light moves.
 - Shadow glitches fixed (shadow settings follow the sun's angle; the shadow area fits the building). Lighter on Retina Macs.
 - Add ?perf to the hub link to see live speed numbers in the corner.

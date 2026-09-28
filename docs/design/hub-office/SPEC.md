@@ -164,6 +164,11 @@ CONVENIENCES.md is in (12 picks + 10 small answer/wake bug fixes to ship first).
 ## v27 live (2026-09-28)
 Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rate unmeasured (~450 draw calls in Whole view), pod shells too white in daylight, days-since-hail counter small, face-cam in #pip unconfirmed (blank in headless), no notifications capability yet (tab title + chime only), run watchdog uses fixed slots.
 
+## v27.1 live (2026-09-28)
+Published as hub Version 27 (label "v27.1 smoothness"): shadows only redraw when the light moves, shadow settings follow the
+sun, Retina-lighter; `?perf` shows live speed numbers. The live page before it matched the repo page exactly (nothing
+to merge). Real MacBook fps still unmeasured: FilthE to open the link with `?perf` and send a screenshot.
+
 ## FilthE's v27 walkthrough notes (2026-09-28)
 "The concept is good, it looks good, but it looks a little plain; let's take it further."
 1. The rain streaks down then bends up in the background: fix it (straight, believable rain, only in the sky).
