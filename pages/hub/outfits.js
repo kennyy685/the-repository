@@ -91,7 +91,7 @@ function bend(geo, fn){ const p = geo.attributes.position; for (let i=0;i<p.coun
 
 /* ================= dress ================= */
 export function dress(kit, a, R, def){
-  K = kit; THREE = K.THREE; const O = OM(), MAT = K.MAT, part = K.part, cast = !K.PHONE;
+  K = kit; THREE = K.THREE; const O = OM(), MAT = K.MAT, part = K.part, cast = false;   // v28: outfits ride on robots, which use blob shadows only
   const {HALF, BRIM, PEAK} = K;
   const head = new Map(), body = new Map(), jH = new Map(), jB = new Map();
   R.o = def.outfit; R.jewel = []; R.pop = []; R.live = null; R.moving = [];

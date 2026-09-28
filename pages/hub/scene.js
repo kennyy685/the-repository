@@ -26,14 +26,14 @@ const tx = o => o == null ? '' : typeof o === 'string' ? o : (o[HUB.lang] || o.e
 
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, powerPreference:'high-performance', preserveDrawingBuffer:CAPTURE});
+  renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:true, powerPreference:'high-performance', preserveDrawingBuffer:CAPTURE});
   if (!renderer.getContext()) throw new Error('no gl');
 } catch(e){ HUB.fallback(); throw e; }
 renderer.setClearColor(0x000000, 0);
 // Nocturne (ART 6.2): neutral tone mapping at 1.0 (night 1.05); window.__hubTM = 'agx' is the A/B switch for review shots
 renderer.toneMapping = window.__hubTM === 'agx' ? THREE.AgXToneMapping : THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = PHONE ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
-renderer.shadowMap.autoUpdate = false;           // the shadow pass is redrawn at most 15 times a second (desktop) or when the sun moves (phones: blob shadows)
+renderer.shadowMap.autoUpdate = false;           // v28: the shadow pass redraws only when the static room changes (sun steps, the upper floor lifts); robots use blob shadows
 let DPR = Math.min(window.devicePixelRatio || 1, PHONE ? 1.75 : 2);
 renderer.setPixelRatio(DPR);
 
@@ -980,7 +980,7 @@ const KIT = {THREE, MAT, part, bake, tex, redraw, HALF, BRIM, PEAK, PHONE, glowT
 initOutfits(KIT);
 const robots = {};
 function makeRobot(a){
-  const def = a.def || {}, shell = (def.graphite ? MAT.graphite : MAT.ceramic).clone(), cast = !PHONE;   // own shell copy: a silent robot dims
+  const def = a.def || {}, shell = (def.graphite ? MAT.graphite : MAT.ceramic).clone(), cast = false;   // own shell copy: a silent robot dims; v28: robots never cast into the shadow map (the blob is their shadow)
   const root = new THREE.Group(), hov = new THREE.Group(); root.add(hov); scene.add(root); hov.scale.setScalar(1.24);
   const body = S(new THREE.Mesh(G.body, shell), cast); hov.add(body);
   const stripMat = new THREE.MeshBasicMaterial({color:0xf5883a, toneMapped:false});
@@ -1062,6 +1062,21 @@ const sun = new THREE.DirectionalLight(0xff9a5c, .5); sun.castShadow = true;    
 sun.shadow.mapSize.set(PHONE ? 1024 : 2048, PHONE ? 1024 : 2048);
 Object.assign(sun.shadow.camera, {left:-10, right:10, top:10, bottom:-10, near:1, far:60});
 sun.shadow.bias = -.0004; sun.shadow.normalBias = .02; scene.add(sun); scene.add(sun.target);
+/* v28 shadow fit: the shadow box hugs the two floors' real footprint (walls, tube, lifted upper floor) in the light's own
+ * frame, so the 2048 texels cover the room and nothing else; the bias grows as the light grazes (acne at 8 deg, no
+ * peter-panning at noon). Runs only when the shadow map is redrawn. */
+const SHADOW_PTS = [], SHV = new THREE.Vector3(), shadowEye = new THREE.Camera();   // a Camera looks down -Z, like the shadow camera
+for (const f of ['down', 'up']){ const F = FL[f]; for (const x of [-FX, FX]) for (const z of [-FZ, FZ]) for (const y of [-.05, F.wall + .1]) SHADOW_PTS.push([x + F.ox, y, z + F.oz, f]); }
+SHADOW_PTS.push([TUBE.x, TUBE.top + .2, TUBE.z, 'down']);
+function fitShadow(el){
+  const sc = sun.shadow.camera; shadowEye.position.copy(sun.position); shadowEye.lookAt(sun.target.position); shadowEye.updateMatrixWorld(true);
+  const inv = shadowEye.matrixWorld.clone().invert(); let l = 1e9, r = -1e9, b = 1e9, t = -1e9, n = 1e9, fr = -1e9;
+  for (const [x, y, z, f] of SHADOW_PTS){ const oy = f === 'up' ? gUp.position.y : 0; SHV.set(x, y + oy, z).applyMatrix4(inv);
+    l = Math.min(l, SHV.x); r = Math.max(r, SHV.x); b = Math.min(b, SHV.y); t = Math.max(t, SHV.y); n = Math.min(n, -SHV.z); fr = Math.max(fr, -SHV.z); }
+  const pad = .25; Object.assign(sc, {left:l - pad, right:r + pad, bottom:b - pad, top:t + pad, near:Math.max(.1, n - 1), far:fr + 1}); sc.updateProjectionMatrix();
+  const g = 1 - Math.max(0, Math.min(1, (Math.sin(el) - Math.sin(8*Math.PI/180))/(Math.sin(50*Math.PI/180) - Math.sin(8*Math.PI/180))));   // 1 at a grazing 8 deg, 0 at 50 deg
+  sun.shadow.normalBias = .018 + .027*g; sun.shadow.bias = -.0002 - .0003*g;
+}
 const rim = new THREE.DirectionalLight(0x9fb4ff, .3); rim.position.set(12, 9, -10); rim.target.position.set(-1.5, 1.5, -2); scene.add(rim); scene.add(rim.target);
 const LAMPC = 0xffc38a;
 const LAMPS = [
@@ -1377,6 +1392,7 @@ function animRobot(a, sim, R, t, dt){
   R.stripMat.color.lerp(col, ck); R.haloMat.color.lerp(col, ck); R.glow.material.color.lerp(col, ck);
   R.haloMat.opacity = lerp(R.haloMat.opacity, hop, st === 'waiting' ? 1 : Math.min(1, dt*6));
   R.glow.material.opacity = lerp(R.glow.material.opacity, gop, st === 'waiting' ? 1 : Math.min(1, dt*5));
+  R.glow.visible = R.glow.material.opacity > .005; R.halo.visible = R.haloMat.opacity > .005;   // v28: a faded-out additive layer costs a draw + overdraw, so skip it
 
   const chasing = st === 'working' && (pose === 'type' || pose === 'read' || pose === 'radar' || pose === 'meet' || pose === 'glide' || pose === 'ride') && !rm && !a.silent;
   R.chase.visible = chasing; if (chasing){ const ang = t*(pose === 'ride' ? 9 : 3.2*(R.zone || 1)) + ph; R.chase.position.set(Math.cos(ang)*.218, .25, Math.sin(ang)*.218); }
@@ -1461,7 +1477,7 @@ const PAL = [
   {alt:16,  key:0xfff0da, ki:1.6, el:50, hs:0xb8c4d6, hg:0x4d3d2e, hi:.75, ri:.12, lx:.3,  env:.6, exp:1.0}
 ].map(k => Object.assign(k, {kc:new THREE.Color(k.key), hsc:new THREE.Color(k.hs), hgc:new THREE.Color(k.hg)}));
 const MOOD_W = new THREE.Color(0xffe0b8), MOOD_C = new THREE.Color(0x9fb4ff), STORMB = new THREE.Color(0x9fb2d8), AFTER = new THREE.Color(0xffb877), LAMPCC = new THREE.Color(LAMPC);
-const shadowSun = {el:null, t:0}, light = {lamps:1, dim:1};
+const shadowSun = {el:null, lift:null, vis:null, dirty:true, n:0}, light = {lamps:1, dim:1};
 function lightFromSky(dt){
   const s = HUB.sky && HUB.sky.state, alt = s ? s.alt : -9, storm = s ? s.storm || 0 : 0, flash = s ? s.flash || 0 : 0;
   let i = 0; while (i < PAL.length - 2 && alt > PAL[i+1].alt) i++;
@@ -1470,9 +1486,11 @@ function lightFromSky(dt){
   sun.intensity = L('ki')*(1 - storm*.75) + flash*2.2;
   const el = Math.max(8, L('el'))*Math.PI/180, az = -2.6;                    // from the back-left, through the back glass
   sun.position.set(-1.5 + Math.sin(az)*Math.cos(el)*24, 1 + Math.sin(el)*24, -2 + Math.cos(az)*Math.cos(el)*24); sun.target.position.set(-1.5, 1, -2);
-  shadowSun.t += dt; shadowSun.q = (shadowSun.q || 0) + dt;
-  if (shadowSun.el == null || Math.abs(shadowSun.el - el) > .01 || shadowSun.t > 6){ shadowSun.el = el; shadowSun.t = 0; renderer.shadowMap.needsUpdate = true; }
-  else if (!PHONE && shadowSun.q > 1/15){ shadowSun.q = 0; renderer.shadowMap.needsUpdate = true; }
+  // v28: redraw the shadow pass only when the static room changes: the sun steps (~.6 deg), the upper floor lifts or hides,
+  // or someone calls SCENE.shadowDirty(). Robot motion never triggers it (robots don't cast), so no periodic full passes.
+  if (shadowSun.dirty || shadowSun.el == null || Math.abs(shadowSun.el - el) > .01 || shadowSun.lift !== gUp.position.y || shadowSun.vis !== gUp.visible){
+    shadowSun.el = el; shadowSun.lift = gUp.position.y; shadowSun.vis = gUp.visible; shadowSun.dirty = false; shadowSun.n++;
+    sun.updateMatrixWorld(); sun.target.updateMatrixWorld(); fitShadow(el); renderer.shadowMap.needsUpdate = true; }
   hemi.color.copy(A.hsc).lerp(B.hsc, k); hemi.groundColor.copy(A.hgc).lerp(B.hgc, k);
   const fl = HUB.flap; if (fl && isFinite(fl.blockDays)){ const d = +fl.blockDays; if (d >= 1) hemi.color.lerp(MOOD_W, Math.min(.08, d*.012)); else hemi.color.lerp(MOOD_C, .05); }
   hemi.intensity = L('hi')*(1 - storm*.3) + flash*1.2;
@@ -1489,6 +1507,24 @@ function lightFromSky(dt){
   return light.lamps;
 }
 
+/* v28 dev overlay: ?perf (or #perf, or localStorage hub-perf=1) shows draw calls, triangles, fps, frame-time graph and
+ * shadow passes, read from renderer.info right after the main render. Never on without the flag. */
+const PERF = (() => { try { return /[?&#]perf\b/.test(location.search + location.hash) || localStorage.getItem('hub-perf') === '1'; } catch(e){ return /[?&#]perf\b/.test(location.search + location.hash); } })();
+const perfO = {el:null, g:null, ft:[], last:0, fps:0, calls:0, tris:0, maxCalls:0};
+function perfHud(dt){
+  const o = perfO, i = renderer.info.render; o.calls = i.calls; o.tris = i.triangles; o.maxCalls = Math.max(o.maxCalls, i.calls);
+  if (dt > 0){ o.ft.push(dt*1000); if (o.ft.length > 120) o.ft.shift(); o.fps = o.fps ? o.fps*.92 + (1/dt)*.08 : 1/dt; }
+  const now = performance.now(); if (now - o.last < 250) return; o.last = now;
+  if (!o.el){ o.el = document.createElement('div'); o.el.id = 'perfHud';
+    o.el.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99999;pointer-events:none;background:rgba(10,10,12,.82);color:#e8e6e1;font:11px/1.35 ui-monospace,Menlo,monospace;padding:6px 8px;border-radius:6px;white-space:pre';
+    o.txt = document.createElement('div'); o.cv = document.createElement('canvas'); o.cv.width = 180; o.cv.height = 36; o.cv.style.cssText = 'display:block;margin-top:4px;width:180px;height:36px';
+    o.el.append(o.txt, o.cv); document.body.appendChild(o.el); o.g = o.cv.getContext('2d'); }
+  const ft = o.ft.slice().sort((a, b) => a - b), p95 = ft.length ? ft[Math.floor(ft.length*.95)] : 0;
+  o.txt.textContent = 'calls ' + o.calls + ' (max ' + o.maxCalls + ')  tris ' + (o.tris/1000).toFixed(1) + 'k\n' + 'fps ' + o.fps.toFixed(0) + '  p95 ' + p95.toFixed(1) + ' ms  dpr ' + renderer.getPixelRatio().toFixed(2) + '\n' +
+    'shadow passes ' + shadowSun.n + '  geo ' + renderer.info.memory.geometries + '  tex ' + renderer.info.memory.textures;
+  const g = o.g; g.clearRect(0, 0, 180, 36); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(0, 36 - 16.7*36/50, 180, 1);   // the 60 fps line (16.7 ms of 50)
+  o.ft.forEach((v, k) => { const h = Math.min(36, v*36/50); g.fillStyle = v > 25 ? '#e5484d' : v > 17.5 ? '#f5883a' : '#8fbf8f'; g.fillRect(k*1.5, 36 - h, 1.2, h); });
+}
 let onScreen = true;
 try { new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage); } catch(e){}
 const perf = {acc:0, n:0};
@@ -1590,7 +1626,7 @@ function frame(t, dt){
     if (A && B && !A.hidden && !B.hidden && h.from !== h.to && flights.length < 6 && !RM.matches) spawnFolder(A, B); if (h && h.from === 'king' && h.to === 'code') glint(robots.king); }
   if (!onScreen && !CAPTURE) return;
   const now = performance.now();
-  const drift = RM.matches || CAPTURE ? 0 : Math.sin(t*.05)*.04;
+  const drift = 0;   // v28: no idle camera drift; a slowly turning ortho camera made every edge crawl (no MSAA) and repainted the whole room
   if (!dragStart && view.lastDrag && now - view.lastDrag > 5000) view.drag *= Math.pow(.2, dt);
   view.azLive = AZ0 + drift + view.drag;
   updateCamera(dt, false);
@@ -1640,11 +1676,12 @@ function frame(t, dt){
   radar.disc.material.opacity = lerp(radar.disc.material.opacity, awake ? .75 : .22, Math.min(1, dt*2));
   if (!rm && awake) radar.sweep.rotation.z -= dt*1.6;
   const hail = (HUB.sky && HUB.sky.state && HUB.sky.state.storm > .15) || (swa && swa.st === 'done');
-  radar.blips.forEach((b,i) => { b.material.opacity = lerp(b.material.opacity, hail ? .6 + Math.sin(t*3+i)*.35 : 0, Math.min(1, dt*3)); });
+  radar.blips.forEach((b,i) => { b.material.opacity = lerp(b.material.opacity, hail ? .6 + Math.sin(t*3+i)*.35 : 0, Math.min(1, dt*3)); b.visible = b.material.opacity > .005; });
+  radar.sweep.visible = radar.sweep.material.opacity > .005;
   // "your spot" glows when someone is waiting on you
   const waiting = agents.some(a => sims[a.id] && sims[a.id].pose === 'wait' && !sims[a.id].hidden);
   const bk_ = breathK(); spot.glow.material.opacity = lerp(spot.glow.material.opacity, waiting ? .35 + .35*bk_ : .16, Math.min(1, dt*4));
-  spot.fill.material.opacity = lerp(spot.fill.material.opacity, waiting ? .04 + .04*bk_ : 0, Math.min(1, dt*4));
+  spot.fill.material.opacity = lerp(spot.fill.material.opacity, waiting ? .04 + .04*bk_ : 0, Math.min(1, dt*4)); spot.fill.visible = spot.fill.material.opacity > .003;
   // charging pods: blue breathing glow when a robot sleeps in one
   podGlow.forEach((pg, i) => { const occ = Object.values(sims).some(s => !s.hidden && s.spot === POOL.pod[i] && s.pose === 'sleep');
     pg.glow.material.color.copy(occ ? SLEEPC : BRASSC); pg.glow.material.opacity = lerp(pg.glow.material.opacity, occ ? .45 + (rm ? 0 : Math.sin(t*.9 + i)*.2) : .12 + lamps*.06, Math.min(1, dt*3));
@@ -1673,6 +1710,7 @@ function frame(t, dt){
     if (b.t > b.life){ scene.remove(b.p); b.p.geometry.dispose(); b.p.material.dispose(); bursts.splice(i,1); } }
   const selfR = rcam === pcam && view.sub === 'eyes' && robots[view.subId]; if (selfR) selfR.root.visible = false;   // your own head stays out of your eyes
   renderer.render(scene, rcam);
+  if (PERF) perfHud(rawDt);
   if (selfR) selfR.root.visible = true;
   renderPip();
   // keep phones smooth: drop resolution if frames run long
@@ -1776,7 +1814,7 @@ function pick(x, y){ let best = null, bd = 34;
 function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!sim || sim.hidden) continue;
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
-window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; },
+window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n}; }, shadowDirty(){ shadowSun.dirty = true; },
   get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
 resize();
 HUB.layout && HUB.layout();
