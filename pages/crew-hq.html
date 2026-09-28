@@ -309,8 +309,34 @@ h1,h2,h3,p{margin:0}
 .ev .to{font:500 13px var(--f);color:var(--ink-2)}
 .ev p{margin:1px 0 0;font-size:14px;color:var(--ink-2);overflow-wrap:anywhere}
 
+/* the King chat bubble (note 3): bottom-right beside the panel (the screen corner when the panel is closed) */
+.kbub{position:fixed;z-index:9;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--card-solid);border:1px solid var(--rule-2);color:var(--ink)}
+.kbub .i{width:22px;height:22px}
+.kbub:hover{border-color:var(--brass)}
+.kbub[aria-expanded="true"]{border-color:var(--brass-hi);color:var(--brass-hi)}
+.kdot{position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--brass-hi);box-shadow:0 0 0 2px var(--card-solid)}
+.kwin{position:fixed;z-index:55;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-height:min(72vh,520px);display:flex;flex-direction:column;gap:10px;padding:14px 16px 12px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:var(--r);animation:plateIn .2s var(--ease) both}
+.kwin-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:none}
+.kwin-h .lbl{color:var(--brass-hi)}
+.kwin-h .src{margin-top:2px}
+.kwin-b{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;align-content:start;gap:12px;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent}
+.kc-hi{display:grid;gap:8px;font-size:14px;color:var(--ink-2)}
+.kc-sug{display:flex;flex-wrap:wrap;gap:6px}
+.kc-sug button{min-height:44px;padding:0 12px;border:1px solid var(--rule-2);border-radius:var(--r-sm);font:500 13px var(--f);color:var(--ink-2)}
+.kc-sug button:hover{color:var(--ink);border-color:var(--brass)}
+.kc-off{margin:0;font-size:14px;color:var(--ink-2)}
+.kcptr kbd{font:500 11px var(--mono);color:var(--ink);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:4px;padding:0 5px}
+@media (min-width:900px) and (min-height:600px){
+  .kbub{right:calc(var(--col-w) + var(--gutter) + 16px);bottom:24px;width:48px;height:48px;transition:right .34s var(--ease)}
+  .kwin{left:auto;right:calc(var(--col-w) + var(--gutter) + 16px);bottom:84px;width:380px;max-height:min(520px,calc(100vh - 200px));transition:right .34s var(--ease)}
+  .kc-sug button{min-height:32px}
+  .pclosed .kbub,.pclosed .kwin{right:24px}
+  .stagebar{right:calc(var(--col-w) + var(--gutter) + 84px)}
+}
+@media (prefers-reduced-motion:reduce){ .kwin{animation:none} .kbub,.kwin{transition:none} }
+
 /* Chat: the Right Hand, then memory */
-.kc-log{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.kc-log{list-style:none;margin:0;padding:0;display:grid;gap:10px;align-content:start}
 .kc-log:empty{display:none}
 .kc-log li{display:grid;gap:3px;font-size:15px}
 .kc-log .who{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -573,7 +599,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .say{position:absolute;left:0;top:0;max-width:260px;padding:6px 10px 7px;border-radius:4px;background:rgba(17,18,20,.9);border-left:2px solid var(--brass);color:#f1f2f4;font:500 13px/1.35 var(--f);opacity:0;transition:opacity .3s;pointer-events:none;will-change:transform}
 .say.on{opacity:1}
 .say b{display:block;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#e3c98f}
-.call{position:absolute;z-index:5;left:var(--gutter);bottom:72px;width:540px;max-width:calc(100% - var(--col-w) - 120px);display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px;align-items:stretch;animation:plateIn .28s var(--ease) both}
+.call{position:fixed;z-index:5;left:var(--gutter);bottom:72px;width:540px;max-width:calc(100% - var(--col-w) - 120px);display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px;align-items:stretch;animation:plateIn .28s var(--ease) both}
 .call-b{padding:12px 14px;background:var(--card);-webkit-backdrop-filter:var(--card-fx);backdrop-filter:var(--card-fx);border:1px solid var(--rule-2);border-radius:var(--r)}
 .lowfx .call-b{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
 /* the scene draws the face into this box on the WebGL canvas underneath, so the box itself stays clear */
@@ -584,7 +610,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .call-x{display:flex;align-items:center;gap:2px}
 .callq{margin-top:4px;font:500 16px/1.4 var(--f);color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .call .ans{margin-top:10px}
-.callchip{position:absolute;z-index:5;left:var(--gutter);bottom:72px;display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 6px;border-radius:22px;background:var(--card-solid);border:1px solid var(--need-line);font:500 13px var(--f);color:var(--ink)}
+.callchip{position:fixed;z-index:5;left:var(--gutter);bottom:72px;display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 6px;border-radius:22px;background:var(--card-solid);border:1px solid var(--need-line);font:500 13px var(--f);color:var(--ink)}
 .callchip svg{width:34px;height:34px}
 .callchip b{font-weight:600;color:var(--need-ink)}
 .eyes{position:absolute;inset:0;pointer-events:none;z-index:3}
@@ -710,11 +736,6 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="ov" id="ov"></div>
     <div class="edge" id="edge" hidden aria-hidden="true"><span class="ea"><svg viewBox="0 0 16 16"><path d="M5 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="en" id="edgeName"></span></div>
     <div class="stagetop"><p class="hint" id="hint" data-t="hint">Click a robot to see what it is doing.</p></div>
-    <div class="call" id="call" hidden data-nodrag role="dialog" aria-labelledby="callWho">
-      <div class="pip" id="pip" aria-hidden="true"></div>
-      <div class="call-b"><div class="call-h"><span class="lbl" id="callWho"></span><span class="call-x"><button type="button" class="tb" id="callNext" hidden></button><button type="button" class="ibtn" id="callFold" aria-label="Fold"><svg class="i" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button></span></div><p class="callq" id="callQ"></p><div id="callAns"></div></div>
-    </div>
-    <button type="button" class="callchip" id="callChip" hidden data-nodrag></button>
     <div class="recap" id="recap" hidden role="status" data-nodrag><div class="t"><div class="note-h"><h2 id="recapH"></h2><button type="button" class="ibtn" id="recapX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div id="recapT"></div>
       <div class="note-b"><button type="button" class="btn pri" id="recapPlay">Watch it</button><button type="button" class="tb" id="recapWatch" data-t="watchIt" hidden>Watch it</button></div></div></div>
     <div class="replaybar" id="replayBar" hidden><span id="replayText"></span><button type="button" class="btn" id="replayStop" data-t="stop">Stop</button></div>
@@ -743,11 +764,11 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <ol class="nrows" id="nowList"></ol>
     </section>
     <article class="card" id="card" aria-live="polite" aria-label="Details"></article>
-    <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, log and chat">
+    <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, log and memory">
       <button type="button" class="tb" role="tab" id="tab-crew" data-tab="crew" aria-controls="tp-crew" aria-selected="true"><span data-t="tCrew">Crew</span></button>
       <button type="button" class="tb" role="tab" id="tab-board" data-tab="board" aria-controls="tp-board" aria-selected="false" tabindex="-1"><span data-t="tBoard">Board</span></button>
       <button type="button" class="tb" role="tab" id="tab-log" data-tab="log" aria-controls="tp-log" aria-selected="false" tabindex="-1"><span data-t="tLog">Log</span></button>
-      <button type="button" class="tb" role="tab" id="tab-chat" data-tab="chat" aria-controls="tp-chat" aria-selected="false" tabindex="-1"><span data-t="tChat">Chat</span></button>
+      <button type="button" class="tb" role="tab" id="tab-chat" data-tab="chat" aria-controls="tp-chat" aria-selected="false" tabindex="-1"><span data-t="tChat">Memory</span></button>
     </div>
     <div class="search"><label for="q" class="sr" data-t="searchL">Search this tab</label><input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search this tab"><kbd aria-hidden="true">/</kbd></div>
     <div class="tbody" id="tbody">
@@ -767,21 +788,35 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
         <button type="button" class="tb older" id="olderBtn" hidden data-t="older">Older</button></div>
       </section>
       <section class="tpanel" role="tabpanel" id="tp-chat" aria-labelledby="tab-chat" hidden>
-        <div class="kingchat" id="kingChat" hidden>
-          <div class="subh"><h2 class="lbl" id="kcH" data-t="kcTitle">Right Hand</h2></div>
-          <p class="src" data-t="kcSrc">Board changes, your questions and orders to the crew</p>
-          <ol class="kc-log" id="kcLog" aria-live="polite"></ol>
-          <form class="kc-form" id="kcForm"><label for="kcInput" class="sr" data-t="kcLabel">Message to the Right Hand</label>
-            <input id="kcInput" type="text" autocomplete="off" enterkeyhint="send" placeholder="Tell the Right Hand…">
-            <button type="submit" class="btn pri" id="kcSend" data-t="send">Send</button><button type="button" class="btn" id="kcStop" hidden data-t="stop">Stop</button></form>
-          <div class="kc-status" id="kcStatus" role="status"></div>
-        </div>
-        <p class="empty" id="kcNone" data-t="kcNone">The Right Hand box shows up here when you open the hub signed in as its editor.</p>
-        <details class="fold mem" id="mem" hidden><summary data-t="memH">What every AI should know</summary><ul id="memList"></ul><div class="meta" id="memMeta"></div></details>
+        <p class="src kcptr"><span data-t="kcPtr">To talk to the Right Hand, press</span> <kbd>K</kbd> <span data-t="kcPtr2">or use the chat bubble.</span></p>
+        <details class="fold mem" id="mem" hidden open><summary data-t="memH">What every AI should know</summary><ul id="memList"></ul><div class="meta" id="memMeta"></div></details>
         <p class="foot" data-th="foot"></p>
       </section>
     </div>
   </aside>
+    <div class="call" id="call" hidden data-nodrag role="dialog" aria-labelledby="callWho">
+      <div class="pip" id="pip" aria-hidden="true"></div>
+      <div class="call-b"><div class="call-h"><span class="lbl" id="callWho"></span><span class="call-x"><button type="button" class="tb" id="callNext" hidden></button><button type="button" class="ibtn" id="callFold" aria-label="Fold"><svg class="i" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button></span></div><p class="callq" id="callQ"></p><div id="callAns"></div></div>
+    </div>
+    <button type="button" class="callchip" id="callChip" hidden data-nodrag></button>
+  <!-- the King chat (note 3): a floating bubble + a small window; after the header and the panel in focus order (S6) -->
+  <button type="button" class="kbub" id="kingBubble" data-nodrag aria-haspopup="dialog" aria-expanded="false" aria-controls="kingWin" aria-label="Talk to the Right Hand (K)" title="Talk to the Right Hand (K)">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16h-6.5L6 19.5V16h-.5A1.5 1.5 0 0 1 4.5 14.5Z"/><path d="M12 7.6 14 10l-2 2.4L10 10Z" fill="currentColor" stroke="none"/></svg><i class="kdot" id="kingDot" hidden></i>
+  </button>
+  <section class="kwin" id="kingWin" hidden role="dialog" aria-labelledby="kcH" data-nodrag>
+    <div class="kwin-h"><div><h2 class="lbl" id="kcH" data-t="kcTitle">Right Hand</h2><p class="src" data-t="kcSrc">Board changes, your questions and orders to the crew</p></div>
+      <button type="button" class="ibtn" id="kingX" aria-label="Close (Esc)" title="Close (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="kwin-b" id="kingBody">
+      <div class="kc-hi" id="kcHi"><p data-t="kcHi">Ask about the board, answer a question in your own words, or give the crew an order.</p>
+        <div class="kc-sug" id="kcSug"><button type="button" data-say="What’s blocked right now, and why?">What’s blocked?</button><button type="button" data-say="What did the crew finish today?">Done today?</button><button type="button" data-say="What needs me, most important first?">What needs me?</button></div></div>
+      <ol class="kc-log" id="kcLog" aria-live="polite"></ol>
+    </div>
+    <div class="kc-status" id="kcStatus" role="status"></div>
+    <form class="kc-form" id="kcForm"><label for="kcInput" class="sr" data-t="kcLabel">Message to the Right Hand</label>
+      <input id="kcInput" type="text" autocomplete="off" enterkeyhint="send" placeholder="Tell the Right Hand…">
+      <button type="submit" class="btn pri" id="kcSend" data-t="send">Send</button><button type="button" class="btn" id="kcStop" hidden data-t="stop">Stop</button></form>
+    <p class="kc-off" id="kcNone" hidden></p>
+  </section>
 </div>
 
 <button type="button" class="ptab" id="panelTab" hidden data-nodrag aria-controls="panel" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="pn" id="panelTabN"></span></button>
@@ -826,13 +861,13 @@ const TX = {
   en: {
     st: {title: 'AI Hub', sub: 'Your AI crew', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
-      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
+      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Memory', kcPtr: 'To talk to the Right Hand, press', kcPtr2: 'or use the chat bubble.', kcHi: 'Ask about the board, answer a question in your own words, or give the crew an order.', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mLocked: 'Needs you, stuck and done keep their colors, so they always read at a glance.', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
       cup: 'Coffee', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
       mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · uses your Claude usage',
-      kcNone: 'The Right Hand box shows up here when you open the hub signed in as its editor.',
+      kcNone: 'The Right Hand talks here when you open the hub signed in as its editor.',
       kcLabel: 'Message to the Right Hand', kcPh: 'Tell the Right Hand…', send: 'Send',
       logUp: 'Upstairs log', logUpS: 'Claude Code and its helpers', logDown: 'Downstairs log', logDownS: 'Cowork, Storm Watch and the Chat Reader',
       foot: '<b>How it stays live:</b> a robot moves when its AI checks in; every AI posts here directly. Answer anything that needs you right in its card: Claude Code is woken once, when you’ve answered everything or 90 seconds after your last answer (or it reads it at its next run). A message shows <span class="rcpt">✓ picked up</span> once the AI it went to checks in after it. <span class="stale">No check-out</span> means its last run ended without saying so.'},
@@ -893,7 +928,7 @@ const TX = {
     kinds: {leader: 'leader', main: 'main agent', scheduled: 'scheduled task', helper: 'helper'}, forBoss: n => ` for ${n}`,
     floor: {up: 'Upstairs', down: 'Downstairs'},
     ans: {Yes: 'Yes', No: 'No', 'Not now': 'Not now'}, ansPh: 'Or type your answer', ansSend: 'Send', ansYou: 'You answered', ansSeen: '✓ picked up', ansWait: 'waiting for Claude Code', ansAria: id => `Your answer to ${id}`,
-    sentLive: 'Sent. The Right Hand is answering below.', sentTo: (id, a) => `Sent to Claude Code: ${id} = ${a}.`, ownerOnly: 'Only editors can answer from this page.', sendFail: 'Could not send. Check your connection and tap again.',
+    sentLive: 'Sent. The Right Hand is answering in the chat.', sentTo: (id, a) => `Sent to Claude Code: ${id} = ${a}.`, ownerOnly: 'Only editors can answer from this page.', sendFail: 'Could not send. Check your connection and tap again.',
     kOrders: 'Claude Code’s orders', kNone: 'No orders posted yet.', bEmpty: 'The task board shows up here once Claude Code posts it.',
     bUpdated: (w, by) => `updated ${w}${by ? ' by ' + by : ''}`, bOld: 'may be out of date', memUpdated: (w, by) => `Updated ${w}${by ? ' by ' + by : ''}`,
     tst: {doing: 'Doing', blocked: 'Blocked', review: 'Review', done: 'Done', parked: 'Parked', todo: 'To do'},
@@ -907,6 +942,7 @@ const TX = {
     still: '3D is off on this device, so this is a still picture. The crew list is live.', stillAlt: "The crew's two-floor office, with each AI robot at its station.",
     replayAria: 'Replay the last 24 hours', noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
     awayH: h => `While you were away · ${h} h`, awayT: (d, s, n) => [`${d} done`, `${s} stuck`, `${n} ${pl(n, 'needs', 'need')} you`].join(' · '),
+    kcWhy: {preview: 'Live chat works on the published hub.', nodb: 'Live data isn’t available here, so the Right Hand can’t read the crew.', editor: 'The Right Hand talks here when you open the hub signed in as its editor.', grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', wait: 'Connecting…'},
     copied: 'Copied.', kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). It works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
     rc: {fail: a => `Not saved: ${a}. Only editors can save here.`, dedReply: 'The reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'},
@@ -1708,7 +1744,7 @@ $('#olderBtn').addEventListener('click', () => { logShown += 40; renderFeeds(); 
 function applySearch(){
   const inp = $('#q'); if (!inp) return; const q = normAsk(inp.value);
   const P = $('#tp-' + tab); if (!P) return;
-  const sel = {crew:'#roster > li:not(.fl)', board:'#boardBody .tasks > li, #boardBody .qrow, #ordersBox li', log:'#feed > li:not(.dayh)', chat:'#memList li, #kcLog li'}[tab];
+  const sel = {crew:'#roster > li:not(.fl)', board:'#boardBody .tasks > li, #boardBody .qrow, #ordersBox li', log:'#feed > li:not(.dayh)', chat:'#memList li'}[tab];
   let hits = 0, total = 0;
   for (const tp of document.querySelectorAll('.tpanel')) if (tp !== P) for (const n of tp.querySelectorAll('[data-hit]')) { n.hidden = false; n.removeAttribute('data-hit'); }
   for (const n of P.querySelectorAll(sel)) { total++; const on = !q || normAsk(n.textContent).includes(q); n.hidden = !on; if (q) n.setAttribute('data-hit', ''); else n.removeAttribute('data-hit'); if (on) hits++; }
@@ -1994,8 +2030,9 @@ function nextQuestion(){
 /* ================= keys: never while a field has focus; read e.key (Spanish keyboards); no key ever sends an answer ================= */
 const typingIn = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 const VIEW_KEYS = {'1':'all', '2':'blueprint', '3':'cctv', '4':'follow', '5':'window', '6':'tilt', '7':'tour', '8':'director', '9':'eyes'};
-const TAB_KEYS = {c:'crew', b:'board', l:'log', h:'chat'};
+const TAB_KEYS = {c:'crew', b:'board', l:'log', m:'chat', h:'chat'};
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#kingWin').hidden) { closeKing(true); return; }
   if (e.key === 'Escape' && cam === 'eyes') { setCam(preEyes || 'all'); return; }
   if (e.key === 'Escape' && !$('#recap').hidden) { $('#recap').hidden = true; return; }
   if (e.key === 'Escape' && statusView && !typingIn(document.activeElement)) { setStatusView(false); return; }
@@ -2009,6 +2046,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault(); const i = bots.findIndex(a => a.id === selected), j = (i + (k === 'ArrowRight' ? 1 : bots.length - 1)) % bots.length; select(bots[j].id, {keep:true, focusRail:!!e.target.closest('.rail')}); }
   else if (lk === 'r') refreshNow();
   else if (lk === 'v') setStatusView(!statusView);
+  else if (lk === 'k') { e.preventDefault(); if (!closeKing(true)) openKing(); }
   else if ((lk === 'p' || k === ']') && isWide) setPanel(!panelOpen(), {focus:!!(e.target.closest && e.target.closest('#panel,#panelTab'))});
   else if (lk === 'n') toggleNames();
   else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
@@ -2791,7 +2829,7 @@ function kcAdd(who, text){
   const li = document.createElement('li'); li.className = who;
   const w = document.createElement('span'); w.className = 'who'; w.textContent = who === 'king' ? L().kcKing : L().kcYou;
   const p = document.createElement('p'); p.textContent = text; li.append(w, p);
-  const log = $('#kcLog'); log.append(li); while (log.children.length > 12) log.firstChild.remove(); log.scrollTop = log.scrollHeight;
+  const log = $('#kcLog'); log.append(li); while (log.children.length > 12) log.firstChild.remove(); $('#kcHi').hidden = true; const bd = $('#kingBody'); bd.scrollTop = bd.scrollHeight;
   return li;
 }
 function kcSet(busy, msg){ $('#kcSend').disabled = busy; $('#kcInput').disabled = busy; $('#kcStop').hidden = !busy; $('#kcStatus').textContent = msg || ''; }
@@ -2879,7 +2917,7 @@ async function askKing(message, quick, retry){
       {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false});
     let reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
     if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
-    p.textContent = reply;
+    p.textContent = reply; kingUnread();
     const acts = Array.isArray(out && out.actions) ? out.actions.slice(0, 10) : [];
     if (out && out.promised === true && !acts.some(x => x && x.type === 'order')) acts.push({type:'order', to:'code', text:'From FilthE (the Right Hand promised to pass this on): ' + message.slice(0, 240)});   // the Right Hand keeps its promises; the King is live, so this wakes it now (fix: no more silent ride)
     const done = await applyActions(acts);
@@ -2887,7 +2925,7 @@ async function askKing(message, quick, retry){
     const rcs = document.createElement('div'); rcs.className = 'rcs';
     if (board0.length) rcs.append(rcLine('', '✓ ' + board0.join(' · ')));
     for (const r of receipts) rcs.append(rcLine(!r.ok ? 'no' : r.q ? 'q' : '', (r.ok ? '✓ ' : '! ') + r.text));
-    if (rcs.children.length) li.append(rcs);
+    if (rcs.children.length) { li.append(rcs); const bd = $('#kingBody'); bd.scrollTop = bd.scrollHeight; }
     kcTurns.push({role: 'assistant', content: reply + (done.length ? ' [Did: ' + done.join('; ') + ']' : '')});
     await logKing(reply, done, message); saveChat();
     kcSet(false, '');
@@ -2902,6 +2940,23 @@ async function askKing(message, quick, retry){
     kcSet(false, '');
   } finally { kcBusy = false; if (kcPending.length) { const m = kcPending.splice(0).join('\n'); setTimeout(() => askKing(m, true), 0); } }
 }
+/* the chat bubble (note 3): K or a click opens it; it explains in one line when the page can't talk */
+let kcWhy = 'wait';
+function openKing(){
+  const w = $('#kingWin'); if (!w.hidden) return; closeKeys(); closeMine(); w.hidden = false; $('#kingBubble').setAttribute('aria-expanded', 'true'); $('#kingDot').hidden = true;
+  renderKingWhy(); const b = $('#kingBody'); b.scrollTop = b.scrollHeight;
+  const inp = $('#kcInput'); if (!$('#kcForm').hidden && !inp.disabled) inp.focus(); else $('#kingX').focus();
+}
+function closeKing(back){ const w = $('#kingWin'); if (w.hidden) return false; w.hidden = true; $('#kingBubble').setAttribute('aria-expanded', 'false'); if (back) $('#kingBubble').focus(); return true; }
+function renderKingWhy(){
+  const can = !!(SAMPLE && CAN_EDIT && DB); $('#kcForm').hidden = !can; $('#kcSug').hidden = !can; $('#kcHi').hidden = !can || $('#kcLog').children.length > 0;
+  const n = $('#kcNone'); n.hidden = can; if (!can) n.textContent = L().kcWhy[kcWhy] || L().kcWhy.editor;
+}
+function kingUnread(){ if ($('#kingWin').hidden) $('#kingDot').hidden = false; }
+$('#kingBubble').addEventListener('click', () => { if (!closeKing()) openKing(); });
+$('#kingX').addEventListener('click', () => closeKing(true));
+$('#kcSug').addEventListener('click', e => { const b = e.target.closest('[data-say]'); if (b && SAMPLE && CAN_EDIT) askKing(b.dataset.say, false); });
+document.addEventListener('pointerdown', e => { if (!$('#kingWin').hidden && !e.target.closest('#kingWin,#kingBubble') && !isWide) closeKing(); });
 $('#kcForm').addEventListener('submit', ev => { ev.preventDefault(); const v = $('#kcInput').value.trim(); if (!v) return; $('#kcInput').value = ''; askKing(v, false); });
 $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 
@@ -2988,15 +3043,15 @@ window.addEventListener('focus', () => { freshen(); armSeen(); });
 window.addEventListener('online', () => { recon.n = 0; freshen(); });
 async function connect(){
   const cl = window.claude;
-  if (!cl || typeof cl.use !== 'function') { dbState = 'off'; setLive('off', L().live.preview); return; }
+  if (!cl || typeof cl.use !== 'function') { dbState = 'off'; setLive('off', L().live.preview); kcWhy = 'preview'; renderKingWhy(); return; }
   let db = null; try { db = await cl.use('db'); } catch (e) { db = null; }
-  if (!db) { dbState = 'off'; setLive('off', L().live.na); return; }
+  if (!db) { dbState = 'off'; setLive('off', L().live.na); kcWhy = 'nodb'; renderKingWhy(); return; }
   setLive('wait', L().live.loading); DB = db;
   try { subscribe(db); } catch (e) { dbState = 'off'; setLive('off', L().live.na); return; }
   setTimeout(() => tidy(db, cl), 8000);
   try { const u = await cl.use('user'); CAN_EDIT = u ? await u.canEdit() : false; } catch (e) { CAN_EDIT = false; }
   try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
-  $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#kcNone').hidden = !$('#kingChat').hidden;
+  kcWhy = !CAN_EDIT ? 'editor' : !SAMPLE ? 'grant' : ''; renderKingWhy();
   renderBoard(); renderCard(true);
   if (wakeQ.length) setTimeout(releaseHold, 4000);   // a wake held from the last visit: ride / wait / send per the rules
   try { subs.push(db.collection('wakes').orderBy('at', 'desc').limit(40).onSnapshot(sn => { wakesToday = sn.docs.map(d => Date.parse((d.data() || {}).at || '') || 0); }, () => {})); } catch (e) { /* usage line shows 0 wakes */ }
