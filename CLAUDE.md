@@ -41,6 +41,11 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
 - **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
   system down and to my satisfaction." Build and polish the system on the MacBook; don't plan phone-first work.
+- **The King's 5 rules (FilthE, 2026-09-28: "focus on the hard work, make your workers better"; research:
+  docs/research/2026-09-28-king-orchestration.md):** 1) hand out outcomes (goal, output, tools, limits, done = ...);
+  2) King decides, plans, reviews, answers him; >2 tool calls = a robot; 3) after every robot result log good/redo +
+  why and fix that robot the same turn (report card); 4) 10-20 real past jobs = test set, re-run after robot changes;
+  5) right model per job, repeat mistakes become hooks/skills.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
