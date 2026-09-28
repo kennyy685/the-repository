@@ -3417,9 +3417,19 @@ function stepIcon(st) {
   return { skill: 'clip', quick: 'clock', lesson: 'book', field: 'say', check: 'list' }[st.k] || 'door';
 }
 function runsToday() { const d0 = today(); return S.store.runs.filter(r => r && r.d === d0); }
+/* A logged run counts for a door step only if it matches every filter the step sets: persona
+   (p, or its alt 'or'; 'random' means any persona), language (l) and Rookie mode (rk, 0 or 1). A run
+   missing a field the step filters on (old runs before v11) never matches that filter. */
+function doorRunMatchesStep(st, r) {
+  if (!r) return false;
+  if (st.p && st.p !== 'random' && r.p !== st.p && !(st.or && r.p === st.or)) return false;
+  if (st.l && r.l !== st.l) return false;
+  if ((st.rk === 0 || st.rk === 1) && r.rk !== st.rk) return false;
+  return true;
+}
 function stepDoneToday(st, di) {
   const d0 = today(), sk = S.store.skills || {};
-  if (st.k === 'door') { const rs = runsToday(); return st.x ? rs.length >= st.x : rs.some(r => r.p === st.p || (st.or && r.p === st.or)); }
+  if (st.k === 'door') { const rs = runsToday().filter(r => doorRunMatchesStep(st, r)); return st.x ? rs.length >= st.x : rs.length > 0; }
   if (st.k === 'skill') return !!(sk[st.id] && sk[st.id].d === d0);
   if (st.k === 'quick') return Object.values(S.srs).some(r => r && r.last === d0);
   if (st.k === 'field') return S.field.some(f => f.added === d0);
