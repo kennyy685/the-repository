@@ -33,7 +33,7 @@ body{margin:0;background:var(--bg)}
 body[data-tab="knock"]{--dock-h:74px}
 body.bossmode{--dock-h:24px}
 a{color:inherit}
-.app{max-width:var(--col);margin:0 auto;padding:0 var(--s4) calc(var(--dock-h) + var(--s8));display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0}
+.app{max-width:var(--col);margin:0 auto;padding:0 var(--s4) calc(var(--dock-h) + var(--s8) + var(--toast-h,0px));display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0}
 .app > *{min-width:0}
 .tabp{min-width:0}
 .tabp[hidden]{display:none}
@@ -1661,8 +1661,10 @@ function appToast(msg, act){ const n = $('#appToast'); n.textContent = ''; n.app
       if (a.open) b.dataset.open = a.open; if (a.undo) b.dataset.nsundo = '1'; if (a.kind) b.dataset.act = a.kind; if (typeof a.run === 'function') b.addEventListener('click', a.run);
       b.textContent = a.label; box.append(b); }
     if (box !== n) n.append(box); }
-  n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), acts.length ? 9000 + 3000 * (acts.length - 1) : 3800); }
-$('#appToast').addEventListener('click', ev => { if (ev.target.closest('button, a')) { clearTimeout(appToast.t); $('#appToast').hidden = true; } });
+  // fullday 390px: the toast sat over the last list row with no way to scroll it clear; while it shows, the page gets its height as extra bottom room
+  const room = on => document.body.style.setProperty('--toast-h', on ? (n.offsetHeight + 12) + 'px' : '0px');
+  n.hidden = false; room(true); clearTimeout(appToast.t); appToast.t = setTimeout(() => { n.hidden = true; room(false); }, acts.length ? 9000 + 3000 * (acts.length - 1) : 3800); }
+$('#appToast').addEventListener('click', ev => { if (ev.target.closest('button, a')) { clearTimeout(appToast.t); $('#appToast').hidden = true; document.body.style.setProperty('--toast-h', '0px'); } });
 
 /* ---------- v23: redraws from live data leave identical parts alone ---------- */
 // A snapshot (or the 30 s clock) redraws with renderApp(false): a part whose HTML is the same as last time is not rebuilt, so

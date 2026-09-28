@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Release checklist step 2 in one command (docs/release-checklist.md): every automatic check, one PASS/FAIL table.
-#   tests/release_checks.sh            all checks (legal, module checks, engine selftest, page shots, design gate)
+#   tests/release_checks.sh            all checks (legal, module checks, engine selftest, page shots, practice + fake day, design gate)
 #   tests/release_checks.sh --quick    same, but the design gate runs --quick (360 px, EN) while building
 #   tests/release_checks.sh --fast     skip the two browser checks (seconds instead of minutes)
 # Exit 0 = everything passed. Logs: tests/pages/out/release_checks/<check>.log
@@ -25,6 +25,7 @@ run hh_selftest python3 hh.py selftest
 if [ "$mode" != "--fast" ]; then
   run shots node tests/pages/shots.js
   run practice_check node tests/pages/practice_check.js   # T201 Practice mode saves nothing; T205 step label on one line
+  run fullday_check node tests/pages/fullday_check.js   # full fake sales day in Practice (1470 + 390 px): hard stops, zero db writes
   if [ "$mode" = "--quick" ]; then run design_gate node tests/pages/design_gate.js --quick
   else run design_gate node tests/pages/design_gate.js; fi
 fi

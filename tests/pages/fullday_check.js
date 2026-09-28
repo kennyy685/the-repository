@@ -134,7 +134,6 @@ async function day(browser, url, W, H) {
       if (await p.locator("#sheetWrap:not([hidden])").count()) await click("#shClose");
       await click("#tb-leads");
       for (const f of ["due", "active", "won"]) { if (await p.locator(`[data-open="lead:${lead}"]`).locator("visible=true").count()) break; await click(`#lfStage [data-f="${f}"]`, 300); }
-      if (process.env.FD_DEBUG) console.log(await p.evaluate(() => [...document.querySelectorAll('[data-open^="lead:"]')].map(e => e.dataset.open + ":" + Math.round(e.getBoundingClientRect().height))));
       await click(`[data-open="lead:${lead}"]`, 600); };
     const done = async (label) => { const b = vis("#nsCard [data-nsdone]"); ok(await b.isEnabled(), label + ": Done is disabled"); await b.scrollIntoViewIfNeeded(); await b.click(); await p.waitForTimeout(600); };
     const stepName = () => text("#shBody .stagebar .tx");
