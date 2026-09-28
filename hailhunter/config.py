@@ -194,6 +194,21 @@ DEFAULTS = {
     # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
     # `polygon` covers every house left, the walk only the best `doors`).
     "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8, "walk_buffer_m": 25},
+    # Path step 4 (`hh.py season`, season.py): this season's REAL hail in eastern Nebraska for the open map
+    # (data/storms-<year>.json). Its own network step: never part of `refresh`, so Storm Watch and hud.json don't change.
+    # bbox = [west, south, east, north]: Columbus to Omaha, Lincoln to Norfolk's south edge. Zones = ground reports
+    # within `cluster_km` of the zone's biggest report (no chaining), rank = size/agree/recent/homes (weights sum 1).
+    "season": {"bbox": [-97.9, 40.35, -95.3, 42.2], "states": ["NE"], "wfos": ["OAX", "GID"],
+               "min_size_in": 0.75, "cluster_km": 10, "zone_min_km": 4, "zone_max_km": 14, "radar_min_in": 0.75,
+               "match_km": 4, "match_min": 30, "place_min_homes": 300, "place_hail_km": 6,
+               "size_curve": [[0.75, 0.2], [1.0, 0.45], [1.25, 0.6], [1.5, 0.75], [1.75, 0.87], [2.0, 1.0]],
+               "weights": {"size": 0.4, "agree": 0.2, "recent": 0.2, "homes": 0.2},
+               "recent_half_life_days": 45, "homes_full": 6000,
+               "likely": {"mortgage_weight": 0.25, "high": 60, "medium": 40},
+               "mesh": True, "mesh_budget_s": 300, "census_max_age_days": 180, "outline_buffer_m": 2000,
+               # radar-only zones: MRMS >= mesh_zone_min_in over >= mesh_zone_min_cells km2 no ground zone covers;
+               # MESH runs high, so its size counts x mesh_trust in the score
+               "mesh_zone_min_in": 1.25, "mesh_zone_min_cells": 4, "mesh_zones_per_day": 6, "mesh_trust": 0.8},
     # Vector basemap for each walk's map (`basemap.py`, walks/<zone id> + today/walk `basemap` + `route`): streets,
     # lots and street labels from Nebraska state GIS, cached in the database. An optional network step with its own
     # time guard (`budget_s` for all walks together); past it, or offline, only cached maps are used (else null).

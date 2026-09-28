@@ -60,6 +60,9 @@
                   file per app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
                   evidence__<slug>.json, rentals__current.json, followups__today.json) + manifest.json; walks get
                   maps as in zones. [--accounts f] (+ --leads, --results, scout contacts): calls/today accounts_hit
+  python3 hh.py season [--year Y] [--out F] [--no-mesh]   Path step 4: this season's REAL hail in eastern Nebraska
+                  (NWS/SPC/NCEI reports, NEXRAD + MRMS radar) ranked into hot zones with Census likely-insured
+                  signals -> data/storms-<year>.json for the open map. Own network step: refresh/hud.json unchanged.
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -519,6 +522,12 @@ def main(argv=None):
     p.add_argument("--accounts", help="round 54: your accounts file (list, or the app's {leads, claims, doors} "
                                       "exports); with --leads, --results and scout contacts -> calls/today "
                                       "accounts_hit")
+    p = sub.add_parser("season", help="Path step 4: this season's real hail + likely-insured signals for the open map "
+                                      "(data/storms-<year>.json); never touches hud.json")
+    p.add_argument("--year", type=int, help="season year (default: this year)")
+    p.add_argument("--date", help="YYYY-MM-DD 'today' for days-ago and ranking (default: today, Central time)")
+    p.add_argument("--out", help="output file (default: data/storms-<year>.json)")
+    p.add_argument("--no-mesh", action="store_true", help="skip the MRMS radar grids (faster)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -656,6 +665,19 @@ def main(argv=None):
             with open(a.out, "w", encoding="utf-8") as f:
                 f.write(text + "\n")
         print(text)
+        return 0
+    if a.cmd == "season":                          # own network step: no database, never touches hud.json
+        from hailhunter import season
+        fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
+        from datetime import date as _date
+        today = _date.fromisoformat(a.date) if a.date else None
+        doc = season.run(fetcher, cfg, year=a.year, today=today, mesh=False if a.no_mesh else None)
+        out = a.out or os.path.join(HERE, "data", f"storms-{doc['season']}.json")
+        size = season.write(doc, out)
+        top = ", ".join(f"{z['name']} {z['date']} ({z['hail_in']:g} in, {z['score']})" for z in doc["zones"][:3])
+        print(f"wrote {out} ({size // 1024} KB): {len(doc['reports'])} reports, {len(doc['storm_days'])} storm days, "
+              f"{len(doc['zones'])} zones, {len(doc['areas'])} towns; top: {top or 'none'}"
+              + (f"; {len(doc['errors'])} source errors" if doc["errors"] else ""))
         return 0
     if a.cmd == "zones":                           # reads hud.json; the database (if any) only adds outlines/towns
         import sqlite3

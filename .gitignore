@@ -23,6 +23,8 @@ data/*
 !data/door_lines_pro.json
 !data/spanish_sale_playbook.json
 !data/commercial_bid_kit.json
+# Path step 4: this season's real hail for the open map (`hh.py season`)
+!data/storms-*.json
 .env
 .claude/worktrees/
 # T21 hub check-in queue (hooks write it, hub_flush.py posts it)
