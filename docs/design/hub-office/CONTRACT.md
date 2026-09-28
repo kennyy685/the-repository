@@ -181,7 +181,7 @@ Unknown ids fall back to the v27 work pose. New anchor poses: `stamp`, `pin`, `s
 | field | meaning |
 |---|---|
 | `views` | v28.0: `['all','up','down','follow','cctv','window','tilt','director','eyes']` (only what is built). |
-| `anchors[id].pose` | adds `stamp`, `pin`, `slide-card`. Off-screen robots report their projected `x,y` anyway (may be outside the stage) so the page can draw an edge arrow. |
+| `anchors[id].pose` | adds `stamp`, `pin`, `slide-card`, and `hold` (queued: standing at its desk or the QA queue rack; not a waiting pose, so no waiting bubble). Off-screen robots report their projected `x,y` anyway (may be outside the stage) so the page can draw an edge arrow. |
 | `pipDrawn` | getter: true once the scene has rendered a face into `#pip` this call (while `HUB.pip` is set; false again when the call closes). The page keeps its avatar on the soft gradient in `#pip` until this is true, then makes the box clear (`.pip.live`). Missing = false: the avatar stays, never an empty black box. |
 
 ### DOM, new elements (page owns them)
