@@ -87,6 +87,13 @@ against real files before answering (our pick yes). 3. What does the finished hu
 (MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
 light-theme column-header overlap in the open map street list.
 
+## PAUSED by FilthE (2026-09-28 "too much at once"): resume only when he says
+- Knock screen Designer session_0185evJPrsmWUGcHwM3u6Y9X (interrupted right after start; spec in its prompt).
+- 7 AM screen: Designer session_01BBugaC was archived mid-job (last commit 2566b1c). Resume = fresh Designer.
+- Waiting on the King: apply new hub-order trigger prompts from docs/research/2026-09-28-robot-upgrades.md.
+- Done, waiting on "publish hub": Fixer session_01EXX2WM (instant chat + robot orders), hub Builder session_014TaKrJ (fn 1/2/4/6).
+Running: Engine session_01TqT879 (real 2026 storms). Max 2 at a time.
+
 ## HUB FROZEN (FilthE 2026-09-28: hub work felt like busywork)
 Finish only: Fixer (instant chat + robot orders), Builder functions 1/2/4/6, tiny report card. Then stop hub work.
 Next big job: Knock screen (MacBook first), start it when the hub Builder finishes.
