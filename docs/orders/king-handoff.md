@@ -36,6 +36,13 @@ When both exist: read the research summary (grep the recommendation), look at th
 direction in plain words + publish the mockup as a private artifact for him to click (Artifact tool; the mockup is
 ours). Ask him yes/no/more-like-this. Then build one screen at a time.
 
+## Round 61 result (done, ddf639e)
+Surfacing problem, not missing data: the engine already has MRMS radar hail, NWS/SPC reports, mPING, owner-occupied
+proxies (more than SalesRabbit/Spotio get). Proposed: Now screen = open pannable map, every zone a pin, he taps to pick;
+evidence badge (source + size + date) on the pin; wire Douglas/Lancaster owner-occ (round 48, unwired); mPING as the
+same-hour first look. No legal way to know who called their insurer. Don't buy CoreLogic/Verisk (same signal class).
+docs/design/open-map/ is OUR Designer's mockup (not someone else's).
+
 ## Other sessions
 - "Hub office handoff continuation" (session_01M33ssCLDWhuj7KBYtEqtW7, branch claude/amazing-wright-lds9q5) is
   working on hub v27.1. I posted a hub note: merge our branch first so it doesn't publish over the live-King wake.
