@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-28: hub work "maybe" felt like busywork -> hub FROZEN after the in-flight jobs (instant chat + robot orders, functions 1/2/4/6, tiny report card). No v28.1/v28.2 looks, no more hub functions unless he asks. Knock screen = next big job (yes).
 - 2026-09-28: a lead in the map's score = a yes to an inspection. Backtest vs last season: no separate job (we have no claim data, so it would be half circular); real proof = his first inspection yes.
 - 2026-09-28: trust in a hot zone = "knowing the system has gotten me a lead before" -> show a track record (leads found by the system, per zone type) on the map; build "map learns from your knocks" after real storms (yes).
 - 2026-09-28 (King decided, FilthE: "what you think is best"): every robot gets a lessons notebook at once, Builder checked first (most redo: ~30 QA fixes on Practice Door v12); legal gate blocks automatically, always says why, King can override.

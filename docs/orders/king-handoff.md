@@ -78,7 +78,11 @@ against real files before answering (our pick yes). 3. What does the finished hu
 (MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
 light-theme column-header overlap in the open map street list.
 
-## The hub is NOT done (FilthE, 2026-09-28: "we had way more going for the hub")
+## HUB FROZEN (FilthE 2026-09-28: hub work felt like busywork)
+Finish only: Fixer (instant chat + robot orders), Builder functions 1/2/4/6, tiny report card. Then stop hub work.
+Next big job: Knock screen (MacBook first), start it when the hub Builder finishes.
+
+## (old) The hub is NOT done (FilthE, 2026-09-28: "we had way more going for the hub")
 Live = v28.0. Still to build: v28.1 "One building" + v28.2 "Dressed with data" (docs/design/hub-office/BUILD-v28.md),
 the 9 functions in FUNCTIONS-SHORTLIST.md (King's pick 1, 2, 4, 6 first; asked FilthE 2026-09-28), CONVENIENCES.md
 top 12, SPEC.md notes 1-11, remove the 90 s wake hold on card answers. Hub page source of truth = branch
