@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-28: "yes and yes" = build hub functions 1, 2, 4, 6 + remove the 90 s wake hold; King double-checks handoffs against real files.
 - Satisfied when (2026-09-28): "when it starts making me money, duh. I won't be satisfied until I know I have a system
   with promising info, leads, guidance and efficiency." Also: no phone app for now; robots each open their own session
   and close it when done; stop the second hub session (one King only); start the 7 AM screen.
@@ -83,3 +84,4 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
     "lead-safe certified", and the capabilities sheet's Y/N stays blank.
   - Does HMP's business line have WhatsApp Business? Then the parked Spanish line "¿Le mando las fotos por WhatsApp o
     por mensaje de texto?" can go into the Practice Door playbook (never a personal number).
+  - Does HMP offer payment plans / financing? Until yes, the Practice Door never mentions it (v12 "let me think" card).
