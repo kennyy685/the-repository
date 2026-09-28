@@ -419,8 +419,9 @@ h1,h2,h3,p{margin:0}
   radial-gradient(55% 30% at 72% 26%,#353a46 0,rgba(38,42,52,.9) 42%,transparent 74%),
   radial-gradient(80% 30% at 50% 58%,#2b2f38 0,rgba(30,33,41,.85) 45%,transparent 75%),
   linear-gradient(to bottom,rgba(24,27,34,.95),rgba(34,38,48,.6) 70%,transparent)}
-.sky .rain{position:absolute;inset:-20% -20% 0 -20%;opacity:calc(var(--rain) * .55);background:repeating-linear-gradient(104deg,transparent 0 13px,rgba(200,215,235,.28) 13px 14px,transparent 14px 29px);background-size:100% 90px;animation:rain .5s linear infinite}
-@keyframes rain{to{background-position:22px 90px}}
+/* rain (note 1): straight streaks on a canvas (a repeating gradient in a 90 px tile zig-zagged at the seams), sky only */
+.sky .rain{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 5%),transparent var(--horizon));mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 5%),transparent var(--horizon))}
 .sky .flash{position:absolute;inset:0;background:radial-gradient(90% 70% at 62% 20%,rgba(235,240,255,.95),rgba(200,212,255,.35) 50%,transparent 80%);opacity:var(--flash);mix-blend-mode:screen}
 .sky .vig{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 55%,transparent 55%,rgba(5,6,10,.45) 100%)}
 
@@ -726,7 +727,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <div class="lm" style="left:77%"><svg width="150" height="20" viewBox="0 0 150 20"><g stroke="var(--land-far)" stroke-width="1.4" fill="none"><path d="M5 20V2M55 20V3M105 20V4M145 20V5"/><path d="M1 4h8M51 5h8M101 6h8M141 7h8"/><path d="M5 5Q30 11 55 6T105 7T145 8" stroke-width=".8"/></g></svg></div>
       <div class="town" id="town"></div>
       <div class="deck"></div>
-      <div class="rain"></div>
+      <canvas class="rain" id="rain" aria-hidden="true"></canvas>
       <div class="flash"></div>
       <div class="vig"></div>
     </div>
@@ -1157,6 +1158,29 @@ function updateSky(dt){
   st.setProperty('--storm', k.toFixed(3)); st.setProperty('--rain', sky.rain.toFixed(3)); st.setProperty('--flash', (sky.flash*.6).toFixed(3));
   HUB.sky.state = {alt:s.alt, storm:k, rain:sky.rain, flash:sky.flash, glow:c.glow, low:c.low, top:c.top, lights:s.lights, wind:weather.wind};
 }
+/* rain (note 1): particles, so nothing tiles; they lean with the wind and stop at the horizon (the mask hides the land) */
+const rain = (() => {
+  const cv = document.getElementById('rain'), cx = cv.getContext('2d'), MAX = 240;
+  let W = 0, H = 0, drops = [], last = 0, drawn = false, still = '', hz = .58, hzAt = 0;
+  function size(){ const r = cv.getBoundingClientRect(), d = Math.min(1.5, window.devicePixelRatio || 1), w = Math.max(2, Math.round(r.width*d)), h = Math.max(2, Math.round(r.height*d));
+    if (w === W && h === H) return false; W = cv.width = w; H = cv.height = h; drops = []; return true; }
+  function spawn(p, anywhere){ const k = H/900 + .35; p.x = Math.random()*(W + H*.5) - H*.35; p.y = anywhere ? Math.random()*H*hz : -Math.random()*H*.25; p.len = (13 + Math.random()*15)*k; p.v = (950 + Math.random()*550)*k; p.a = .14 + Math.random()*.2; return p; }
+  function tick(now){
+    const level = sky.rain;
+    if (level < .02) { if (drawn) { cx.clearRect(0, 0, W, H); drawn = false; still = ''; } last = now; return; }
+    if (now - hzAt > 500) { hzAt = now; const v = parseFloat(skyEl.style.getPropertyValue('--horizon') || getComputedStyle(skyEl).getPropertyValue('--horizon')); if (isFinite(v)) hz = Math.max(.08, Math.min(.92, v/100)); }
+    const resized = size(), n = Math.round(MAX*Math.min(1, level));
+    while (drops.length < n) drops.push(spawn({}, true)); if (drops.length > n) drops.length = n;
+    const key = n + '|' + W + 'x' + H; if (RMQ.matches && !resized && key === still) return;   // reduced motion: one still frame
+    const dt = RMQ.matches ? 0 : Math.min(.05, Math.max(0, (now - last)/1000)); last = now; still = RMQ.matches ? key : '';
+    const wind = weather.wind == null ? 8 : weather.wind, ang = Math.min(.36, .1 + wind*.012), sx = Math.sin(ang), sy = Math.cos(ang);
+    cx.clearRect(0, 0, W, H); cx.lineCap = 'round'; cx.lineWidth = Math.max(1, W/1700);
+    for (const p of drops) { p.x += sx*p.v*dt; p.y += sy*p.v*dt; if (p.y - p.len > H*hz || p.x - p.len > W) spawn(p, false);
+      cx.strokeStyle = 'rgba(200,215,235,' + (p.a*Math.min(1, .45 + level*.7)).toFixed(3) + ')'; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - sx*p.len, p.y - sy*p.len); cx.stroke(); }
+    drawn = true;
+  }
+  return {tick};
+})();
 /* real Fremont weather (the NWS station at Fremont's airport); if the page can't fetch it, the sky is clock-only */
 async function fetchWeather(){
   try {
@@ -2811,7 +2835,7 @@ function frame(now){
   const dt = Math.max(0, Math.min(TEST ? .35 : .08, (now - prevNow)/1000)); prevNow = now;
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
-  placeOverlay(); mind.tick(now); placeSpot(); placeSays(now);
+  placeOverlay(); mind.tick(now); rain.tick(now); placeSpot(); placeSays(now);
   if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); soundTick(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
@@ -3182,7 +3206,7 @@ applyTheme(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); re
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
-if (TEST) window.__hubTest = {call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
+if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
 </script>
