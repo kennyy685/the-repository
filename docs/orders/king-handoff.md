@@ -87,6 +87,12 @@ against real files before answering (our pick yes). 3. What does the finished hu
 (MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
 light-theme column-header overlap in the open map street list.
 
+## LIVE 2026-09-28 ~20:35 UTC
+- Practice Door v12 = Version 13; AI hub = Version 30 (checks green).
+- NEEDS FILTHE: publisher widened hub mcp grant to get_trigger, get_session, list_environments, create_session
+  (Fresh King / Hand it off buttons). He never OK'd create_session. Keep or remove = his call (asked on hub).
+  Real tap untested. Phone shot: chat bubble covers the Memory tab label.
+
 ## PAUSED by FilthE (2026-09-28 "too much at once"): resume only when he says
 - Knock screen Designer session_0185evJPrsmWUGcHwM3u6Y9X (interrupted right after start; spec in its prompt).
 - 7 AM screen: Designer session_01BBugaC was archived mid-job (last commit 2566b1c). Resume = fresh Designer.
