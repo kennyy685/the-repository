@@ -39,6 +39,9 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
   that raises or drops the lead. Legal: the app never says "has insurance"; it shows the proof signals (owner lives
   there, has a mortgage = lender requires insurance, recent sale) as "likely insured". Proof the system works =
   track record later (picks vs. what happened).
+- Follow-up (2026-09-28): scorecard of Aldaba's picks ("7 of 10 had damage") = yes. Damage check at the door =
+  "everything I need to comply with the insurance claim" (adjuster-ready: photos, soft metals, collateral, date of
+  loss, per slope/elevation). Proof on each pick = short reason, tap for more.
 - Old hub session (2026-09-28): "yes": save Practice Door v12 work, then close it.
 
 **FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
