@@ -33,7 +33,7 @@ renderer.setClearColor(0x000000, 0);
 // Nocturne (ART 6.2): neutral tone mapping at 1.0 (night 1.05); window.__hubTM = 'agx' is the A/B switch for review shots
 renderer.toneMapping = window.__hubTM === 'agx' ? THREE.AgXToneMapping : THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = PHONE ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
-renderer.shadowMap.autoUpdate = !PHONE;          // phones: robots use blob shadows, the static map is redrawn only when the sun moves
+renderer.shadowMap.autoUpdate = false;           // the shadow pass is redrawn at most 15 times a second (desktop) or when the sun moves (phones: blob shadows)
 let DPR = Math.min(window.devicePixelRatio || 1, PHONE ? 1.75 : 2);
 renderer.setPixelRatio(DPR);
 
@@ -151,6 +151,7 @@ const FONT_H = '"Bricolage Grotesque", Geist, system-ui, sans-serif', FONT = 'Ge
 const TONE = {orange:'#f1c48a', white:'rgba(241,242,244,.6)', green:'#9fbfa6', red:'#e0685c', need:'#f5883a'};
 function fitText(g, s, max, font, size, min = 14){ let z = size; g.font = font.replace('#', z); while (z > min && g.measureText(s).width > max){ z -= 2; g.font = font.replace('#', z); } return s; }
 /* the glass board (ART 6.6): the real counts, DOING / STUCK / DONE TODAY as ivory rows at 60%; only NEEDS YOU is ember */
+const boardFlip = {t:1, a:0};
 const BL = {en:['DOING','STUCK','DONE TODAY','NEEDS YOU'], es:['EN CURSO','ATASCADAS','HECHAS HOY','TE ESPERAN']};
 function boardCounts(){
   const b = HUB.boardInfo || {}, cols = Array.isArray(b.cols) ? b.cols : [], n = {doing:0, stuck:0, done:0};
@@ -170,7 +171,8 @@ const boardT = tex(1024, 520, (g,w,h) => {
   rows.forEach(([label, v, c], i) => { const y = 132 + i*92;
     g.fillStyle = 'rgba(241,242,244,.12)'; g.fillRect(44, y, w - 88, 1.5);
     g.fillStyle = c; g.font = '500 26px ' + MONO; g.textAlign = 'left'; g.fillText(label, 44, y + 58);
-    g.font = '600 60px ' + FONT_H; g.textAlign = 'right'; g.fillText(String(v).padStart(2, '0'), w - 44, y + 66); g.textAlign = 'left';
+    if (boardFlip.t < 1){ flapText(g, String(v).padStart(2, '0'), w - 44 - 108, y + 18, 54, 64, '600 50px ' + FONT_H, boardFlip.t, i*.13); g.fillStyle = c; }
+    else { g.font = '600 60px ' + FONT_H; g.textAlign = 'right'; g.fillText(String(v).padStart(2, '0'), w - 44, y + 66); } g.textAlign = 'left';
     for (let k = 0; k < Math.min(10, v); k++){ g.globalAlpha = .7; g.beginPath(); g.arc(420 + k*26, y + 49, 7, 0, Math.PI*2); g.fill(); } g.globalAlpha = 1; });
 });
 /* the trophy wall: HUB.trophies.list, newest first, up to 12 plaques */
@@ -1115,18 +1117,41 @@ function fitRect(points, maxScale){
 /* the view registry (BUILD S1): every cam id the page may ask for; unbuilt ids render as their fallback */
 const VIEWS = {
   all:{built:true}, up:{built:true}, down:{built:true}, follow:{built:true, sel:true}, ride:{built:true, sel:true, as:'follow'},
-  blueprint:{built:false}, cctv:{built:false}, window:{built:false}, tilt:{built:false}, tour:{built:false}, director:{built:false},
-  eyes:{built:false, sel:true, fallback:'follow'}
+  blueprint:{built:true, el:1.5, az:0}, cctv:{built:true, persp:true}, window:{built:true, persp:true}, tilt:{built:true, el:.42}, tour:{built:true}, director:{built:true},
+  eyes:{built:true, sel:true, persp:true}
 };
+/* perspective views (cctv, window, eyes) render through pcam; everything else is the orthographic cutaway */
+const pcam = new THREE.PerspectiveCamera(60, 1, .05, 200);
+let rcam = cam;
+const TOUR = [['all', 5], ['up', 5], ['box', 5, [[-4.4,0,-2.2],[-2.2,2.4,1.6]], 'up'], ['box', 5, [[-2.2,0,-.2],[3,1.8,1.6]], 'up'], ['down', 5], ['box', 5, [[.8,0,1.4],[4.6,1.8,3.4]], 'down'], ['box', 5, [[-3.2,0,-.8],[-.6,1.8,2.2]], 'down']];
+const tour = {i:0, t:0}, director = {mode:'all', id:null, t:0, hold:0, seen:{}};
+const cctv = {i:0, t:0};
+function boxPts(b, f){ const F = FL[f], out = []; for (const x of [b[0][0], b[1][0]]) for (const y of [b[0][1], b[1][1]]) for (const z of [b[0][2], b[1][2]]) out.push(new THREE.Vector3(x + F.ox, y + F.oy, z + F.oz)); return out; }
+/* Director (8): cuts on real moments with a 400 ms settle: a finish -> that robot, a new question -> your spot, a ride -> its eyes */
+function directorPick(dt){
+  const d = director; d.t += dt; d.hold -= dt;
+  for (const a of HUB.agents || []){ const sim = sims[a.id]; if (!sim || sim.hidden) continue; const prev = d.seen[a.id]; d.seen[a.id] = a.st + '|' + !!sim.ride;
+    if (prev === undefined || prev === d.seen[a.id]) continue;
+    if (sim.ride && d.hold < 2){ d.mode = 'eyes'; d.id = a.id; d.hold = sim.ride.kind === 'slide' ? 2.6 : 1.4; }
+    else if (a.st === 'done'){ d.mode = 'follow'; d.id = a.id; d.hold = 5; }
+    else if (a.st === 'waiting'){ d.mode = 'spot'; d.id = a.id; d.hold = 6; } }
+  if (d.hold <= 0){ d.mode = 'all'; d.id = null; }
+  if ((d.mode === 'follow' || d.mode === 'eyes') && (!sims[d.id] || sims[d.id].hidden)) d.mode = 'all';
+  return d;
+}
 const builtViews = () => Object.keys(VIEWS).filter(k => VIEWS[k].built && k !== 'ride');
 function camMode(){
   let m = HUB.cam, v = VIEWS[m];
+  if (m === 'eyes' && RM.matches) m = 'follow', v = VIEWS.follow;          // reduced motion: no first-person ride
   if (!v) m = 'all'; else if (!v.built) m = v.fallback || 'all'; else if (v.as) m = v.as;
   if (VIEWS[m].sel){ const id = HUB.selected, sim = id && sims[id]; if (!sim || sim.hidden) return 'all'; }
   return m;
 }
-function wantRect(mode){
-  if (mode === 'follow'){ const sim = sims[HUB.selected]; const c = new THREE.Vector3(sim.x, sim.y + .7, sim.z);
+function wantRect(mode, id, extra){
+  if (mode === 'spot') return fitRect(boxPts([[.6,0,1.2],[4.6,1.9,3.4]], 'down'), 140);
+  if (mode === 'box') return fitRect(boxPts(extra[0], extra[1]), 160);
+  if (mode === 'tilt'){ const f = (sims[HUB.selected] && sims[HUB.selected].floor) || 'up'; return fitRect(boxPts([[-3.2,0,-2.4],[3.2,1.4,2.4]], f), 150); }
+  if (mode === 'follow'){ const sim = sims[id || HUB.selected]; const c = new THREE.Vector3(sim.x, sim.y + .7, sim.z);
     const pts = [c.clone().add(new THREE.Vector3(-2.6, -.7, -2.6)), c.clone().add(new THREE.Vector3(2.6, -.7, 2.6)), c.clone().add(new THREE.Vector3(-2.6, 1.3, 2.6)), c.clone().add(new THREE.Vector3(2.6, 1.3, -2.6))];
     return fitRect(pts, 120); }
   return fitRect(BOXES[mode] || BOXES.all);
@@ -1138,12 +1163,25 @@ const HZ = {down:new THREE.Vector3(2.5, 1.25, -FZ), up:new THREE.Vector3(FL.up.o
 const tw = {key:null, from:null, t:1};
 const RK = ['l','r','t','b'];
 function updateCamera(dt, snap){
-  const mode = camMode(), want = wantRect(mode), A = area();
-  const key = mode + '|' + (mode === 'follow' ? HUB.selected : '') + '|' + Math.round(A.x0) + ',' + Math.round(A.y0) + ',' + Math.round(A.x1) + ',' + Math.round(A.y1);
+  const top = camMode(), A = area();
+  let mode = top, id = HUB.selected, extra = null;
+  if (top === 'director' && !RM.matches){ const d = directorPick(dt); mode = d.mode; id = d.id; }
+  else if (top === 'director') mode = 'all';
+  if (top === 'tour'){ const T = TOUR[tour.i % TOUR.length]; if (!RM.matches){ tour.t += dt; if (tour.t > T[1]){ tour.t = 0; tour.i++; } } const T2 = TOUR[tour.i % TOUR.length]; mode = T2[0]; extra = T2.slice(2); }
+  view.sub = mode; view.subId = id;
+  const V_ = VIEWS[mode] || {};
+  if (V_.persp){ rcam = pcam; view.mode = mode; perspCam(mode, id, dt); gUp.position.y = FL.up.oy; LIFT = 0; view.lift = 0; gUp.visible = true; tw.key = null; horizonFrom(pcam, dt); return; }
+  rcam = cam;
+  // orientation: the view's own elevation / azimuth (blueprint looks straight down, tilt sits low), glided with the rect
+  const elT = V_.el ?? .6, azT = V_.az != null ? V_.az : view.azLive;
+  const key = mode + '|' + (mode === 'follow' ? id : '') + '|' + (top === 'tour' ? tour.i : '') + '|' + Math.round(A.x0) + ',' + Math.round(A.y0) + ',' + Math.round(A.x1) + ',' + Math.round(A.y1);
   const cut = !view.rect || snap || RM.matches || CAPTURE;
-  if (key !== tw.key){ if (!cut){ tw.from = Object.assign({}, view.rect); tw.t = 0; } else tw.t = 1; tw.key = key; }
+  if (key !== tw.key){ if (!cut){ tw.from = Object.assign({}, view.rect, {el:view.el, az:view.azNow}); tw.t = 0; tw.dur = top === 'director' ? .4 : .75; } else tw.t = 1; tw.key = key; }
+  if (cut || tw.t >= 1){ view.el = elT; view.azNow = azT; } else { const e = ease(Math.min(1, tw.t + dt/tw.dur)); view.el = tw.from.el + (elT - tw.from.el)*e; let da = azT - tw.from.az; da = Math.atan2(Math.sin(da), Math.cos(da)); view.azNow = tw.from.az + da*e; }
+  aim(view.azNow);
+  const want = wantRect(mode, id, extra);
   if (cut){ view.rect = Object.assign({}, want); tw.t = 1; }
-  else if (tw.t < 1){ tw.t = Math.min(1, tw.t + dt/.75); const e = ease(tw.t); for (const k of RK) view.rect[k] = tw.from[k] + (want[k] - tw.from[k])*e; }
+  else if (tw.t < 1){ tw.t = Math.min(1, tw.t + dt/(tw.dur || .75)); const e = ease(tw.t); for (const k of RK) view.rect[k] = tw.from[k] + (want[k] - tw.from[k])*e; }
   else if (mode === 'follow'){ const k = 1 - Math.exp(-dt*5); for (const q of RK) view.rect[q] += (want[q] - view.rect[q])*k; }
   else view.rect = Object.assign({}, want);
   view.mode = mode; applyRect(view.rect);
@@ -1151,11 +1189,33 @@ function updateCamera(dt, snap){
   const lw = mode === 'down' ? 1 : 0; view.lift = view.lift == null || snap || RM.matches || CAPTURE ? lw : view.lift + (lw - view.lift)*Math.min(1, dt*4.5);
   if (Math.abs(view.lift - lw) < .002) view.lift = lw;
   LIFT = view.lift*view.lift*(3 - 2*view.lift)*8; gUp.position.y = FL.up.oy + LIFT; gUp.visible = view.lift < .85;
-  if (skyEl){ const f = mode === 'follow' ? sims[HUB.selected].floor : mode; const hz = VC.copy(HZ[f] || HZ.all).project(cam); const pct = (1 - hz.y)/2*100;
-    view.horizon = view.horizon == null || RM.matches ? pct : view.horizon + (pct - view.horizon)*Math.min(1, dt*3.2);
-    const s = Math.max(8, Math.min(92, view.horizon)).toFixed(1) + '%'; if (s !== view.hs){ view.hs = s; skyEl.style.setProperty('--horizon', s); } }
+  if (skyEl){ const f = mode === 'follow' ? (sims[id] ? sims[id].floor : 'all') : mode === 'box' ? extra[1] : mode; const hz = VC.copy(HZ[f] || HZ.all).project(cam); setHorizon((1 - hz.y)/2*100, dt); }
 }
-function resize(){ W = stage.clientWidth || 1; H = stage.clientHeight || 1; renderer.setSize(W, H, false); aim(AZ0 + view.drag); updateCamera(0, true); }
+function setHorizon(pct, dt){ if (!skyEl) return; view.horizon = view.horizon == null || RM.matches ? pct : view.horizon + (pct - view.horizon)*Math.min(1, dt*3.2);
+  const s = Math.max(8, Math.min(92, view.horizon)).toFixed(1) + '%'; if (s !== view.hs){ view.hs = s; skyEl.style.setProperty('--horizon', s); } }
+function horizonFrom(c, dt){ const d = new THREE.Vector3(); c.getWorldDirection(d); d.y = 0; d.normalize().multiplyScalar(150).add(c.position); d.y = 0; d.project(c); setHorizon((1 - d.y)/2*100, dt); }
+/* the perspective views */
+const HEADV = new THREE.Vector3(), FWD = new THREE.Vector3();
+function perspCam(mode, id, dt){
+  pcam.aspect = W/H;
+  if (mode === 'cctv'){               // Security cam: Cam 1 up / Cam 2 down, a new camera every 8 s; the page adds the timestamp + grain
+    if (!RM.matches){ cctv.t += dt; if (cctv.t > 8){ cctv.t = 0; cctv.i++; } }
+    const up = cctv.i % 2 === 0, F = FL[up ? 'up' : 'down'];
+    pcam.fov = 72; pcam.position.set(F.ox + FX - .25, F.oy + (up ? 2.25 : 2.55), F.oz - FZ + .3); pcam.lookAt(F.ox - .6, F.oy + .2, F.oz + 1.2);
+  } else if (mode === 'window'){      // Through the window: outside the upper glass, looking in at the Code lab
+    const F = FL.up, sway = RM.matches ? 0 : Math.sin(performance.now()/1000*.12)*.6;
+    pcam.fov = 42; pcam.position.set(F.ox + .4 + sway, F.oy + 1.45, F.oz - FZ - 3.4); pcam.lookAt(F.ox + .2, F.oy + .85, F.oz + .9);
+  } else {                            // Robot eyes (key 9): from the visor, fov 70; the slide / tube ride in first person at fov 110
+    const sim = sims[id], R = robots[id]; if (!sim || !R) return;
+    const riding = !!sim.ride; pcam.fov = riding ? 110 : 70;
+    HEADV.set(0, R.hov.position.y*1 + .82*1.24, 0); R.root.localToWorld(HEADV);
+    const yaw = sim.yawDraw + R.head.rotation.y, pit = R.head.rotation.x*.8 + (riding ? .15 : .12);
+    FWD.set(Math.sin(yaw)*Math.cos(pit), -Math.sin(pit), Math.cos(yaw)*Math.cos(pit));
+    pcam.position.copy(HEADV).addScaledVector(FWD, .24); pcam.lookAt(VC.copy(pcam.position).add(FWD));
+  }
+  pcam.updateProjectionMatrix(); pcam.updateMatrixWorld();
+}
+function resize(){ W = stage.clientWidth || 1; H = stage.clientHeight || 1; renderer.setSize(W, H, false); view.azLive = AZ0 + view.drag; if (view.azNow == null) view.azNow = view.azLive; aim(view.azNow); updateCamera(0, true); }
 // drag to turn the building a little (a tap still selects: the page ignores taps right after a drag)
 let dragStart = null; const SC = {dragged:false};
 const NODRAG = '.bub,button,a,input,textarea,select,[data-nodrag]';
@@ -1297,6 +1357,7 @@ function animRobot(a, sim, R, t, dt){
   if (S === 'idle' && HUB.watching && !habit) hy *= .35;
   if (qStage === 1 && !rm && ((t + ph) % 9) < 1.4) hy = .9;                           // a glance up the stairs
   if (qStage === 2){ hp = .26; } else if (qStage === 3){ hp = .35; }
+  if (sim.lookWin > 0){ sim.lookWin -= dt; const aw = Math.atan2(Math.sin(Math.PI - sim.yawDraw), Math.cos(Math.PI - sim.yawDraw)); hy = Math.max(-1.3, Math.min(1.3, aw)); hp = -.12; look.set(Math.sign(aw)*.6, .2, 0); }
   const hkx = Math.min(1, dt*4); R.head.rotation.x = lerp(R.head.rotation.x, hp, hkx); R.head.rotation.y = lerp(R.head.rotation.y, hy, Math.min(1, dt*(sim.moving ? 5 : 3))); R.head.rotation.z = lerp(R.head.rotation.z, hr, hkx);
   // eyes (hub/eyes.js)
   const blink = sim.blinkT > 0 && !rm && pose !== 'sleep' ? .08 : 1;
@@ -1374,9 +1435,10 @@ function animRobot(a, sim, R, t, dt){
   R.ring2.scale.setScalar(pose === 'wait' ? 1.05 : 1.15);
   R.ring.visible = R.ring.material.opacity > .01; R.ring2.visible = R.ring2.material.opacity > .01;
   // overlay anchor: top of the head + the floor under the robot
-  V.set(sim.x, sim.y + up + hh + 1.2 + R.hat, sim.z).project(cam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H;
-  V.set(sim.x, sim.y + up, sim.z).project(cam); const fx = (V.x+1)/2*W, fy = (1-V.y)/2*H;
-  const on = !(up > .3) && ax > -20 && ax < W + 20 && ay > -40 && fy < H + 20;
+  V.set(sim.x, sim.y + up + hh + 1.2 + R.hat, sim.z).project(rcam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H, behind = V.z > 1;
+  V.set(sim.x, sim.y + up, sim.z).project(rcam); const fx = (V.x+1)/2*W, fy = (1-V.y)/2*H;
+  const persFloor = rcam === pcam ? (view.sub === 'cctv' ? (cctv.i % 2 === 0 ? 'up' : 'down') : view.sub === 'window' ? 'up' : null) : null;
+  const on = !(up > .3) && !behind && !(persFloor && sim.floor !== persFloor) && !(rcam === pcam && view.sub === 'eyes' && view.subId === a.id) && ax > -20 && ax < W + 20 && ay > -40 && fy < H + 20;
   const an = anchors[a.id] || (anchors[a.id] = {});
   an.x = ax; an.y = ay; an.fx = fx; an.fy = fy; an.pose = sim.bow != null ? 'bow' : sim.poke != null ? 'poke' : pose === 'wait' && sim.slot > 0 ? 'queue' : R.zone > 1 ? 'zone' : pose; an.moving = !!sim.moving; an.visible = on; an.floor = sim.floor;
   // floor reflection, desk status bar, after-hours lamp
@@ -1408,7 +1470,9 @@ function lightFromSky(dt){
   sun.intensity = L('ki')*(1 - storm*.75) + flash*2.2;
   const el = Math.max(8, L('el'))*Math.PI/180, az = -2.6;                    // from the back-left, through the back glass
   sun.position.set(-1.5 + Math.sin(az)*Math.cos(el)*24, 1 + Math.sin(el)*24, -2 + Math.cos(az)*Math.cos(el)*24); sun.target.position.set(-1.5, 1, -2);
-  if (!renderer.shadowMap.autoUpdate){ shadowSun.t += dt; if (shadowSun.el == null || Math.abs(shadowSun.el - el) > .01 || shadowSun.t > 6){ shadowSun.el = el; shadowSun.t = 0; renderer.shadowMap.needsUpdate = true; } }
+  shadowSun.t += dt; shadowSun.q = (shadowSun.q || 0) + dt;
+  if (shadowSun.el == null || Math.abs(shadowSun.el - el) > .01 || shadowSun.t > 6){ shadowSun.el = el; shadowSun.t = 0; renderer.shadowMap.needsUpdate = true; }
+  else if (!PHONE && shadowSun.q > 1/15){ shadowSun.q = 0; renderer.shadowMap.needsUpdate = true; }
   hemi.color.copy(A.hsc).lerp(B.hsc, k); hemi.groundColor.copy(A.hgc).lerp(B.hgc, k);
   const fl = HUB.flap; if (fl && isFinite(fl.blockDays)){ const d = +fl.blockDays; if (d >= 1) hemi.color.lerp(MOOD_W, Math.min(.08, d*.012)); else hemi.color.lerp(MOOD_C, .05); }
   hemi.intensity = L('hi')*(1 - storm*.3) + flash*1.2;
@@ -1489,8 +1553,8 @@ function stepAwareness(agents, dt){
       if (lap){ const sm = sims[lap.id], free = POOL.lounge.find(p => p.f === 'down' && !claims.has(p)); if (free){ release(sm); claims.set(free, sm.id); sm.queue = [{spot:null, pose:'cheer', dur:1.2}]; go(sm, free); } } } }
   fx_.finish = fin;
   // your spot + the tube base, in stage px (for the page's overlays and the mind)
-  V1.set(FIG.x, 1.2, FIG.z).project(cam); points.spot.x = (V1.x + 1)/2*W; points.spot.y = (1 - V1.y)/2*H; points.spot.visible = V1.z < 1 && points.spot.x > -20 && points.spot.x < W + 20;
-  V1.set(TUBE.x, .1, TUBE.z).project(cam); points.tube.x = (V1.x + 1)/2*W; points.tube.y = (1 - V1.y)/2*H; points.tube.visible = points.tube.x > -20 && points.tube.x < W + 20;
+  V1.set(FIG.x, 1.2, FIG.z).project(rcam); points.spot.x = (V1.x + 1)/2*W; points.spot.y = (1 - V1.y)/2*H; points.spot.visible = V1.z < 1 && points.spot.x > -20 && points.spot.x < W + 20;
+  V1.set(TUBE.x, .1, TUBE.z).project(rcam); points.tube.x = (V1.x + 1)/2*W; points.tube.y = (1 - V1.y)/2*H; points.tube.visible = points.tube.x > -20 && points.tube.x < W + 20;
 }
 function runCues(){
   const q = HUB.cues; if (!Array.isArray(q)) return false; let any = false;
@@ -1528,8 +1592,7 @@ function frame(t, dt){
   const now = performance.now();
   const drift = RM.matches || CAPTURE ? 0 : Math.sin(t*.05)*.04;
   if (!dragStart && view.lastDrag && now - view.lastDrag > 5000) view.drag *= Math.pow(.2, dt);
-  const az = AZ0 + drift + view.drag;
-  if (view.azNow == null || Math.abs(az - view.azNow) > 1e-5){ view.azNow = az; aim(az); }
+  view.azLive = AZ0 + drift + view.drag;
   updateCamera(dt, false);
   if (readTheme()) redraw(boardT);
   // The Call (ART 8.4): the pool rises over the first in line (HUB.needs.ids[0], else the first waiting robot) in 1.2 s
@@ -1543,11 +1606,14 @@ function frame(t, dt){
   const pk = ease(call.k)*(cs && !(cs.floor === 'up' && !gUp.visible) ? 1 : 0);
   pool.intensity = 18*2.5*pk;          // ART's 18, scaled for r169's physical units
   poolDecal.visible = pk > .01; if (cs){ poolDecal.position.set(cs.x, cs.y + (cs.floor === 'up' && !cs.ride ? LIFT : 0) + .012, cs.z); poolDecal.material.opacity = .22*pk; }
+  const bolt = stepStorm(dt);
   const lamps = lightFromSky(dt);
+  if (bolt){ sun.intensity += 3*bolt; hemi.intensity += 1.2*bolt; }
   // board + trophies redraw when their data or the language changes
   const lang = HUB.lang; const bv = HUB.boardInfo && HUB.boardInfo.v, tv = HUB.trophies && HUB.trophies.v;
-  const bsig = bv + '|' + JSON.stringify(boardCounts());
-  if (bsig !== seen.board || lang !== seen.lang){ seen.board = bsig; redraw(boardT); }
+  const bsig = bv + '|' + JSON.stringify(boardCounts()), run = HUB.boardInfo ? tx(HUB.boardInfo.when) : '';
+  if (bsig !== seen.board || lang !== seen.lang){ if (seen.board != null && run !== seen.run && !RM.matches) boardFlip.t = 0; seen.run = run; seen.board = bsig; redraw(boardT); }
+  if (boardFlip.t < 1){ boardFlip.t = Math.min(1, boardFlip.t + dt/1.4); if ((boardFlip.a += dt) > .07 || boardFlip.t >= 1){ boardFlip.a = 0; redraw(boardT); } }
   if (tv !== seen.trophies || lang !== seen.lang){ seen.trophies = tv; redraw(trophyT);
     const top = HUB.trophies && HUB.trophies.list && HUB.trophies.list[0] && HUB.trophies.list[0].id;
     if (seen.trophyTop !== undefined && top && top !== seen.trophyTop && !RM.matches) sweep.userData.t = 0; seen.trophyTop = top || null; }
@@ -1605,12 +1671,99 @@ function frame(t, dt){
       arr[k*3] += (v[0] + Math.sin(b.t*5 + v[3])*.12)*dt; arr[k*3+1] += v[1]*dt; arr[k*3+2] += (v[2] + Math.cos(b.t*4 + v[3])*.12)*dt; }
     b.p.geometry.attributes.position.needsUpdate = true; b.p.material.opacity = Math.max(0, Math.min(1, (b.life - b.t)/(b.life*.35)));
     if (b.t > b.life){ scene.remove(b.p); b.p.geometry.dispose(); b.p.material.dispose(); bursts.splice(i,1); } }
-  renderer.render(scene, cam);
+  const selfR = rcam === pcam && view.sub === 'eyes' && robots[view.subId]; if (selfR) selfR.root.visible = false;   // your own head stays out of your eyes
+  renderer.render(scene, rcam);
+  if (selfR) selfR.root.visible = true;
+  renderPip();
   // keep phones smooth: drop resolution if frames run long
   if (!cap && !CAPTURE){ perf.acc += Math.min(.1, rawDt || 0); perf.n++; if (perf.acc > 2){ const avg = perf.acc/perf.n;
     if (avg > .026 && DPR > 1){ DPR = Math.max(1, DPR - .25); pw.dprSet = DPR; renderer.setPixelRatio(DPR); resize();
       if (!lowfx){ lowfx = true; try { HUB.onLowFx && HUB.onLowFx(true); } catch(e){} halos.forEach((h, i) => { if (i % 2) h.visible = false; }); lampRefl.forEach(r => r.visible = false); } }
     perf.acc = 0; perf.n = 0; } }
+}
+/* ================= Storm Watch's morning (FUN 7), the hail moment, the flap boards (FUN 8) ================= */
+const GLYPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function flapText(g, text, x, y, cw, ch, font, flip, seed){        // split-flap cells: ivory glyphs on dark leaves; unsettled cells show a random glyph
+  g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (let i=0;i<text.length;i++){ const c = text[i], cx = x + i*cw;
+    if (c !== ' '){ g.fillStyle = '#16161a'; g.fillRect(cx + 1, y, cw - 2, ch); g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(cx + 1, y + ch/2 - .5, cw - 2, 1); }
+    const settled = flip >= 1 || flip > .15 + (i*.37 + seed) % .6; const ch_ = settled ? c : GLYPH[Math.floor(Math.random()*GLYPH.length)];
+    g.fillStyle = '#f1f2f4'; if (c !== ' ') g.fillText(ch_, cx + cw/2, y + ch/2 + 1); }
+  g.textBaseline = 'alphabetic'; }
+const storm = {note:null, noteK:1, noteKey:'', counter:null, cnt:'', flipT:1, cloud:null, notches:[], hail:null};
+{
+  P = gDown;
+  storm.counterT = tex(256, 150, (g, w, h) => { g.clearRect(0,0,w,h); const gr = g.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#d9bd82'); gr.addColorStop(1,'#8a6a3a');
+    g.fillStyle = gr; g.beginPath(); g.roundRect(0,0,w,h,12); g.fill(); g.fillStyle = '#2a1c0c'; g.font = '600 17px ' + MONO; g.textAlign = 'center';
+    g.fillText(HUB.lang === 'es' ? 'DÍAS SIN GRANIZO' : 'DAYS SINCE HAIL', w/2, 26);
+    flapText(g, storm.cnt.padStart(2, ' '), 68, 40, 60, 92, '600 64px ' + FONT_H, storm.flipT, .1); });
+  storm.counter = dyn(new THREE.Mesh(new THREE.PlaneGeometry(.3, .176), std({map:storm.counterT, transparent:true, roughness:.4, metalness:.3})));
+  storm.counter.position.set(-1.62, .98, .98); storm.counter.scale.setScalar(1.35); storm.counter.rotation.set(-.15, Math.PI/4, 0); storm.counter.renderOrder = 8; storm.counter.visible = false; P.add(storm.counter);
+  for (let i=0;i<12;i++){ const an = -Math.PI/2 + i*.2; const m = new THREE.Mesh(new THREE.BoxGeometry(.03, .02, .03), MAT.bronze); m.position.set(-2.0 + Math.cos(an)*.52, .79, .6 + Math.sin(an)*.52); m.rotation.y = -an; m.visible = false; P.add(dyn(m)); storm.notches.push(m); }
+  storm.noteT = tex(256, 256, (g, w, h) => { g.clearRect(0,0,w,h); const k = storm.noteK, n = storm.noteData || {};
+    const fog = g.createRadialGradient(128,128,10,128,128,120); fog.addColorStop(0,'rgba(235,240,245,.55)'); fog.addColorStop(.7,'rgba(235,240,245,.3)'); fog.addColorStop(1,'rgba(235,240,245,0)'); g.fillStyle = fog; g.fillRect(0,0,w,h);
+    g.globalCompositeOperation = 'destination-out'; g.strokeStyle = 'rgba(0,0,0,.95)'; g.fillStyle = 'rgba(0,0,0,.95)'; g.lineWidth = 9; g.lineCap = 'round';   // a finger wipes the fog
+    g.beginPath(); g.arc(128, 104, 38, -Math.PI/2, -Math.PI/2 + Math.PI*2*Math.min(1, k/.45)); g.stroke();
+    if (!n.hail && k > .45){ g.beginPath(); g.moveTo(92, 142); g.lineTo(92 + 72*Math.min(1, (k - .45)/.25), 142 - 76*Math.min(1, (k - .45)/.25)); g.stroke(); }
+    if (k > .7){ g.globalAlpha = Math.min(1, (k - .7)/.3); g.font = '600 40px ' + MONO; g.textAlign = 'center'; g.fillText(n.label || '', 128, 196); g.globalAlpha = 1; } g.globalCompositeOperation = 'source-over'; });
+  storm.note = new THREE.Mesh(new THREE.PlaneGeometry(.62, .62), new THREE.MeshBasicMaterial({map:storm.noteT, transparent:true, depthWrite:false, toneMapped:false}));
+  storm.note.position.set(TUBE.x + .34, 1.45, TUBE.z + .34); storm.note.rotation.y = Math.PI/4; storm.note.renderOrder = 7; storm.note.visible = false; scene.add(storm.note);
+  storm.cloudT = tex(256, 256, (g, w, h) => { g.clearRect(0,0,w,h); const blob = (x, y, r, a) => { const gr = g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,`rgba(58,62,74,${a})`); gr.addColorStop(1,'rgba(58,62,74,0)'); g.fillStyle = gr; g.fillRect(x-r,y-r,r*2,r*2); };
+    blob(128, 70, 80, .85); blob(70, 78, 50, .7); blob(186, 78, 50, .7); blob(128, 150, 60, .8); for (let i=0;i<12;i++) blob(96 + (i*23)%70, 190 + (i%3)*14, 18, .35); });
+  storm.cloud = new THREE.Sprite(new THREE.SpriteMaterial({map:storm.cloudT, transparent:true, opacity:0, depthWrite:false, depthTest:false, toneMapped:false})); storm.cloud.renderOrder = -3; storm.cloud.visible = false; scene.add(storm.cloud);
+  storm.flapT = tex(512, 200, (g, w, h) => { g.fillStyle = '#0e0e11'; g.fillRect(0,0,w,h); g.strokeStyle = '#c9a45c'; g.lineWidth = 3; g.strokeRect(3,3,w-6,h-6);
+    const f = HUB.flap || {}, es = storm.flapLang === 'es';
+    const rows = es ? [['DÍAS SIN BLOQUEOS', f.blockDays], ['ENTREGADO', f.shipped], ['TE ESPERAN', f.waiting]] : [['DAYS WITHOUT A BLOCK', f.blockDays], ['SHIPPED THIS WEEK', f.shipped], ['WAITING ON YOU', f.waiting]];
+    rows.forEach(([l, v], i) => { const y = 16 + i*60; g.fillStyle = 'rgba(241,242,244,.62)'; g.font = '500 22px ' + MONO; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText(l, 22, y + 24);
+      flapText(g, String(v == null ? '--' : Math.min(99, v | 0)).padStart(2, '0'), w - 118, y, 46, 50, '600 36px ' + FONT_H, storm.flapFlip, i*.2);
+      if (i === 2 && v > 0){ g.fillStyle = TONE.need; g.fillRect(w - 128, y + 8, 4, 34); } }); });
+  storm.flapLang = 'en'; storm.flapFlip = 1; storm.flapAt = 0;
+  storm.flap = dyn(new THREE.Mesh(new THREE.PlaneGeometry(1.0, .39), std({map:storm.flapT, roughness:.5, metalness:.2})));
+  storm.flap.position.set(-1.1, 2.2, 3.05); storm.flap.visible = false; P.add(storm.flap);
+  storm.rods = [-.4, .4].map(dx => { const r = cyl(.006, .006, .45, MAT.brass, -1.1 + dx, 2.62, 3.05, 6); r.userData.dyn = true; r.visible = false; return r; });
+}
+const MS_DAY = 86400e3;
+function stepStorm(dt){
+  const sw = HUB.stormWatch, rm = RM.matches, swA = HUB.byId && HUB.byId['storm-watch'];
+  const cnt = sw && isFinite(sw.dryDays) ? String(Math.min(99, Math.max(0, sw.dryDays | 0))) : '';
+  storm.counter.visible = !!cnt;
+  if (cnt && cnt !== storm.cnt){ storm.flipT = rm || !storm.cnt ? 1 : 0; storm.cnt = cnt; redraw(storm.counterT); }
+  if (storm.flipT < 1){ storm.flipT = Math.min(1, storm.flipT + dt/1.1); if ((storm.f1 = (storm.f1 || 0) + dt) > .07 || storm.flipT >= 1){ storm.f1 = 0; redraw(storm.counterT); } }
+  if (storm.lang !== HUB.lang){ storm.lang = HUB.lang; if (cnt) redraw(storm.counterT); }
+  const nn = Math.min(12, swA && swA.gear ? swA.gear.count | 0 : 0); storm.notches.forEach((m, i) => m.visible = i < nn);
+  const m = fremontMin(), recent = !!(sw && sw.lastHailAt && Date.now() - Date.parse(sw.lastHailAt) < 18*3600e3);
+  const show = !!sw && m >= 414 && m < 1320;
+  const label = recent && sw.inches ? (+sw.inches).toFixed(2).replace(/0$/, '') + '"' : '6:54', key = show + '|' + label;
+  if (key !== storm.noteKey){ storm.noteKey = key; storm.noteData = {hail:recent, label}; storm.noteK = rm ? 1 : 0; redraw(storm.noteT); }
+  storm.note.visible = show;
+  if (storm.noteK < 1){ storm.noteK = Math.min(1, storm.noteK + dt/1.5); if ((storm.f2 = (storm.f2 || 0) + dt) > .1 || storm.noteK >= 1){ storm.f2 = 0; redraw(storm.noteT); } }
+  const cloudOn = !!(sw && sw.lastHailAt && Date.now() - Date.parse(sw.lastHailAt) < MS_DAY && isFinite(sw.dir)) || !!storm.hail;
+  if (cloudOn){ const src = storm.hail || sw, dir = (+src.dir || 0)*Math.PI/180, inch = Math.max(.75, +src.inches || 1), hgt = 3 + Math.min(2.5, inch)*2.6;
+    storm.cloud.position.set(-1 + Math.sin(dir)*13, 2 + hgt*.55, -1 - Math.cos(dir)*13); storm.cloud.scale.set(hgt*1.25, hgt, 1); }
+  storm.cloud.visible = cloudOn || storm.cloud.material.opacity > .02; storm.cloud.material.opacity = lerp(storm.cloud.material.opacity, cloudOn ? .85 : 0, rm ? 1 : Math.min(1, dt*.8));
+  const fl = HUB.flap; storm.flap.visible = !!fl; storm.rods.forEach(r => r.visible = !!fl);
+  if (fl){ const sig = JSON.stringify([fl.blockDays, fl.shipped, fl.waiting]); storm.flapAt += dt;
+    if (sig !== storm.flapSig || storm.flapAt > 20){ const first = storm.flapSig == null; if (storm.flapAt > 20) storm.flapLang = storm.flapLang === 'en' ? 'es' : 'en'; storm.flapAt = 0; storm.flapSig = sig; storm.flapFlip = rm || first ? 1 : 0; redraw(storm.flapT); }
+    if (storm.flapFlip < 1){ storm.flapFlip = Math.min(1, storm.flapFlip + dt/1.2); if ((storm.f3 = (storm.f3 || 0) + dt) > .07 || storm.flapFlip >= 1){ storm.f3 = 0; redraw(storm.flapT); } } }
+  const hl = storm.hail; if (hl){ hl.t += dt; if (hl.t > 14){ storm.hail = null; const s2 = sims['storm-watch']; if (s2 && swA) applyState(s2, swA, false); } }
+  return hl && !rm ? ([[.3,.45],[.6,.7],[2.1,2.25]].some(([a, b]) => hl.t > a && hl.t < b) ? 1 : 0) : 0;
+}
+CUE_LATE.hail = (c) => {
+  storm.hail = {t:0, inches:+c.inches || 1, dir:+c.dir || 0};
+  if (RM.matches) return;
+  for (const s2 of Object.values(sims)) if (!s2.hidden) s2.lookWin = 5;
+  const sw = sims['storm-watch']; if (sw && !sw.hidden && !sw.ride){ sw.lookWin = 0; sw.queue = [{spot:'front', pose:'wait'}]; }
+};
+/* The Call face-cam (FUN 4): while HUB.pip is set, the asker's face is scissor-rendered into the page's #pip box */
+const fcam = new THREE.PerspectiveCamera(30, 1, .05, 30);
+function renderPip(){
+  const pp = HUB.pip; if (!pp || !pp.id) return; const sim = sims[pp.id], R = robots[pp.id]; if (!sim || !R || sim.hidden) return;
+  const el = document.getElementById('pip'); if (!el) return; const r = el.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+  const w = Math.round(r.width), h = Math.round(r.height), x = Math.round(r.left - sr.left), y = Math.round(r.top - sr.top); if (w < 8 || h < 8 || el.offsetParent === null) return;
+  HEADV.set(0, R.hov.position.y + .82*1.24, 0); R.root.localToWorld(HEADV);
+  const yaw = sim.yawDraw; fcam.aspect = w/h; fcam.position.set(HEADV.x + Math.sin(yaw)*.95, HEADV.y + .06, HEADV.z + Math.cos(yaw)*.95); fcam.lookAt(HEADV.x, HEADV.y - .02, HEADV.z); fcam.updateProjectionMatrix();
+  const yb = H - y - h; renderer.setScissorTest(true); renderer.setScissor(x, yb, w, h); renderer.setViewport(x, yb, w, h); renderer.clear(); renderer.render(scene, fcam);
+  renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H);
 }
 function burstSmall(p){ burst(p.x, p.y, p.z, 10, .9); }
 
@@ -1624,11 +1777,11 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
 window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; },
-  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points};
+  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
 resize();
 HUB.layout && HUB.layout();
 
 if (CAPTURE){
   // render a still for the no-WebGL fallback (transparent background; the page's CSS sky shows through)
-  setTimeout(() => { const out = document.createElement('textarea'); out.id = 'cap'; renderer.render(scene, cam); out.value = canvas.toDataURL('image/webp', .8); document.body.append(out); }, 7000);
+  setTimeout(() => { const out = document.createElement('textarea'); out.id = 'cap'; renderer.render(scene, rcam); out.value = canvas.toDataURL('image/webp', .8); document.body.append(out); }, 7000);
 }
