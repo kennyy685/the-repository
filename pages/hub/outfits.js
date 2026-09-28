@@ -91,7 +91,7 @@ function bend(geo, fn){ const p = geo.attributes.position; for (let i=0;i<p.coun
 
 /* ================= dress ================= */
 export function dress(kit, a, R, def){
-  K = kit; THREE = K.THREE; const O = OM(), MAT = K.MAT, part = K.part, cast = !K.PHONE;
+  K = kit; THREE = K.THREE; const O = OM(), MAT = K.MAT, part = K.part, cast = false;   // v28: outfits ride on robots, which use blob shadows only
   const {HALF, BRIM, PEAK} = K;
   const head = new Map(), body = new Map(), jH = new Map(), jB = new Map();
   R.o = def.outfit; R.jewel = []; R.pop = []; R.live = null; R.moving = [];
@@ -318,7 +318,7 @@ export function stateOf(a, sim){
   if (p === 'cheer') return 'done';
   if (a.st === 'waiting' && (p === 'wait' || p === 'queue')) return 'wait';
   if (p === 'blocked') return 'blocked';
-  if (a.st === 'working' && (p === 'type' || p === 'read' || p === 'radar' || p === 'meet' || p === 'zone')) return 'work';
+  if (a.st === 'working' && (p === 'type' || p === 'read' || p === 'radar' || p === 'meet' || p === 'zone' || p === 'stamp' || p === 'pin' || p === 'slide-card')) return 'work';   // v28 step poses
   if (p === 'ride') return 'ride';
   return 'idle';
 }
@@ -379,7 +379,7 @@ export function animOutfit(kit, a, sim, R, t, dt, info){
     const g = R.faceG, down = S === 'work' || S === 'sleep';
     if (S === 'blocked') ease(g, dt, 5, [0,.01,0], [-.1,0,.2]); else ease(g, dt, 5, [0, down ? -.1 : 0, down ? .012 : 0], [down ? .55 : sim.pose === 'cheer' ? -.3*flour : 0, 0, 0]);
     R.lenses.emissiveIntensity = lerp(R.lenses.emissiveIntensity, S === 'work' ? 1.6 : 0, k8); R.lenses.emissive.copy(K.TH.need);
-    const p = prog && prog.of ? Math.max(0, Math.min(1, prog.done/prog.of)) : 0; const na = (135 - p*270)*Math.PI/180 + (S === 'blocked' ? wig(9, .035) : 0);
+    const p = prog && prog.of ? Math.max(0, Math.min(1, prog.done/prog.of)) : 0; const na = (135 - p*270)*Math.PI/180 + (S === 'blocked' ? wig(9, .035) : 0) + (S === 'work' && info.step === 'running' ? wig(2.2, .5) : 0);   // v28: running = the needle sweeps
     R.needle.rotation.z = lerp(R.needle.rotation.z, na, rm ? 1 : Math.min(1, dt*4));
     if (R.prop && sim.pose === 'cheer' && !rm) R.prop.rotation.y = cheerK*TAU;
   } else if (o === 'glasses'){

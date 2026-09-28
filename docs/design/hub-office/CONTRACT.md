@@ -1,6 +1,6 @@
-# Hub page <-> 3D scene contract (T190), v2 for v27
+# Hub page <-> 3D scene contract (T190), v3 for v28
 
-v2 (2026-09-28) adds the fields in "v2 additions" at the bottom; the build plan is BUILD-v27.md. Every v2 field is
+v3 (2026-09-28, v28) adds "v3 additions" at the very bottom (build plan BUILD-v28.md); v2 (v27) added "v2 additions" (BUILD-v27.md). Every v2 field is
 optional: the scene falls back to v26 behaviour when one is missing, and the page works with no scene. Two builders
 work in parallel (PAGE = `pages/crew-hq.html`, SCENE = `pages/hub/scene.js`); a new field goes here first, in its
 own commit, before either file uses it.
@@ -125,3 +125,68 @@ New agent fields (page computes, bumps `seq` when `gear` or `silent` changes):
 - The page pushes each handoff onto `HUB.handoffs` and fires its own mind comet at the same moment; the scene still
   shifts the queue.
 - No field ever carries HMP App data (leads, doors, homeowners, claims, money).
+
+## v3 additions (v28, 2026-09-28)
+
+v3 serves BUILD-v28.md. Every v3 field is optional: the scene falls back to v27 when one is missing; the page works
+with no scene. `HUB.observatory`, `HUB.flows` and `HUB.cat` are specified now and built in v28.1.
+
+### English only (note 11)
+`HUB.lang` stays and always returns `'en'`. `def.name`, `def.title` keep their `{en, es}` shape (old data), but only
+`.en` is shown. Nothing new needs Spanish.
+
+### def.floor v3 (the floors = kinds of work, blueprint 5)
+| floor | agents |
+|---|---|
+| `up` (Intelligence: know, test, watch) | `hub-keeper` (Research Lead), `qa-tester`, `storm-watch` |
+| `down` (Execution: build, make, run) | `code` (the King), `king` (Right Hand), `builder`, `designer`, `engine-mechanic`, `chat-reader`, `cowork` + YOU |
+The page flips `def.floor`; the scene owns the desks, the dispatch table (King + Right Hand), the QA bench, the radar
+table by the upstairs glass and the experiment table. Sleeping still = a charging pod downstairs.
+
+### window.HUB, new fields (page writes, scene reads)
+| field | meaning |
+|---|---|
+| `now` | `{v, rows:[{id, st7, step, verb, metric, since, cocked}]}`, one row per robot in RIGHT NOW order (priority, then age). `st7`: `needs` \| `stuck` \| `done` \| `working` \| `queued` \| `idle` \| `asleep` \| `silent`. `step`: the resolved verb id (table below), the scene picks the animation from it, so the list and the room never disagree. `verb`: the words shown. `metric`: short text or `''`. `since`: ms. `cocked`: true for stuck rows (the page tilts the row; the scene may tilt the desk bar). `v` bumps when any row changes. Missing: the scene uses `agent.st` + its v27 work poses. |
+| `panel` | getter: `'open'` \| `'closed'` (the side panel, note 8). `HUB.area` already reflects it (closed: `x1:W-40`); the page calls `SCENE.resize()` right after a toggle. |
+| `theme` (v3 keys) | adds `done:'#3fbf94'` (verdigris), `queue:'#cdb896'` (stone), `intel:'#6cb8ec'` (the Intelligence floor accent, never a status); `stuck` default becomes `#d9483b`. Make it yours changes `work` only; `need`, `stuck`, `done` are locked. |
+| `cam` (v3 values) | `all` / `up` / `down` / `follow` / `cctv` / `window` / `tilt` / `director` / `eyes`; v28.1 adds `observatory` (key O) and `cat` (key Y). `blueprint` and `tour` are no longer offered (a stored old value maps to `all`). |
+| `observatory` (v28.1) | `{v, seats:[{id, st7}], lanes:{research:[w], build:[w], qa:[w]}, needs, health:{ok, top}, flow, friction, shipped, last:{text, at}}` (blueprint 8.3). Redraw the table texture only when `v` changes. |
+| `flows` (v28.1) | a queue of `{from, to, task, dir:'up'\|'down'\|'same', kind:'build'\|'verdict'\|'finding'\|'note'}` from handoff events; the scene shifts it. The page keeps pushing `handoffs` too until v28.1 ships; a scene that reads `flows` ignores `handoffs`. |
+| `cat` (v28.1) | `{v, name, coat:'#hex'}`: FilthE's cat. The scene owns its roaming; a robot in `HUB.needs.ids` walks to the cat and plays with it; while `HUB.watching`, the cat sits at "your spot". Cues: `{kind:'cat', what:'pet'\|'treat'}` (page buttons). |
+
+### Agent, new fields (page passes through from `agents/<id>`; `seq` bumps when `step` or `queued` changes)
+- `step`: the raw verb id the crew posted (optional); `HUB.now.rows[].step` is the resolved one the scene should use.
+- `metrics`: whitelisted counts `{sources, findings, tests, passed, failed, issues, files, checks, chats, scans}`.
+- `result`: `{passed, of, issues}` on the agent row until its next state (QA screens, the Right Hand's card).
+- `why`: one line, 90 chars max, "why this, why now" (FUNCTIONS-SHORTLIST #8; optional).
+- `queued`: true when a handoff to it isn't picked up yet or its task `holds` on someone else (page-derived).
+
+### Verb ids (`step`) → what the room shows
+| step | robots | scene animation |
+|---|---|---|
+| `building`, `fixing`, `tuning`, `writing`, `publishing`, `filing` | Builder, Engine Mechanic, Research Lead, King, Right Hand | `type` at its desk; the page frame / desk screen fills to `progress` |
+| `running` | Engine Mechanic | `type` + the gauge needle |
+| `designing`, `pinning` | Designer | `pin` at the easel / pin wall |
+| `dispatching`, `planning`, `reviewing` | the King | `slide-card` at the dispatch table (`planning`: at the board) |
+| `relaying`, `handing` | Right Hand, anyone | carries an envelope (v28.1 walks it to the tube; v28.0 = `type`) |
+| `reading`, `briefing` | Chat Reader | `read` (newspaper) |
+| `researching`, `scanning` | Research Lead | `read` at the experiment table |
+| `testing`, `investigating`, `verified`, `failed` | QA Tester | `stamp` at the QA bench (device screens tick) |
+| `watching`, `hail` | Storm Watch | `radar` (hail: to the glass rail) |
+| `storm-ops`, `shipped` | Cowork | `read` at the map table / cheer |
+| `needs`, `stuck`, `waiting-on`, `free`, `asleep`, `quiet` | anyone | the v27 state poses (line, head down, queue rack, lounge, pod, dim) |
+Unknown ids fall back to the v27 work pose. New anchor poses: `stamp`, `pin`, `slide-card`.
+
+### window.SCENE (v3)
+| field | meaning |
+|---|---|
+| `views` | v28.0: `['all','up','down','follow','cctv','window','tilt','director','eyes']` (only what is built). |
+| `anchors[id].pose` | adds `stamp`, `pin`, `slide-card`, and `hold` (queued: standing at its desk or the QA queue rack; not a waiting pose, so no waiting bubble). Off-screen robots report their projected `x,y` anyway (may be outside the stage) so the page can draw an edge arrow. |
+| `pipDrawn` | getter: true once the scene has rendered a face into `#pip` this call (while `HUB.pip` is set; false again when the call closes). The page keeps its avatar on the soft gradient in `#pip` until this is true, then makes the box clear (`.pip.live`). Missing = false: the avatar stays, never an empty black box. |
+
+### DOM, new elements (page owns them)
+| element | rule |
+|---|---|
+| `#now` | RIGHT NOW, the top of `#panel` above the tabs. Drag-to-turn never starts on it. |
+| `#panelTab` | the slim right-edge tab shown when the panel is closed (needs count). `[data-nodrag]`. |
+| `#kingBubble`, `#kingWin` | the floating King chat button and its window (note 3). `[data-nodrag]`. |

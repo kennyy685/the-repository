@@ -1,5 +1,15 @@
 # HMP App changelog (newest first)
 
+## AI hub v28.0 "calm and clear" - 2026-09-28
+- Talk to the King right in the hub: the chat bubble opens a King thread (your message wakes Claude Code at once; its reply lands in the same thread as easy-to-read paragraphs and numbered questions, with a dot and a toast). The Right Hand is one tap away for instant answers.
+- RIGHT NOW crew list, 7 clear status states, a side panel you can close, robots re-seated by kind of work, fewer cameras, more (optional) sound, straight rain only in the sky, English only.
+- Wake safety: the hub only wakes the trigger the King names in system/king; Ledger (light) look's Send buttons are readable again.
+
+## AI hub v27.1 - 2026-09-28 (live: hub Version 27)
+- Smoother: robots no longer redraw the room's shadows every frame (the stutter); shadows only update when the light moves.
+- Shadow glitches fixed (shadow settings follow the sun's angle; the shadow area fits the building). Lighter on Retina Macs.
+- Add ?perf to the hub link to see live speed numbers in the corner.
+
 ## v25.3 - 2026-09-28
 - Practice mode (60 practice houses, a full fake sales day) to try the app risk-free; Calls today on Now (account hits + business calls) and a storm-age line on claims.
 - Legal locks: tear-off/install can't be logged until the itemized description reached the homeowner AND the insurer (44-8606) and the 3-day cancel window is over; the spoken door opener now says the knocker's own name in EN and ES (69-1602), not always Alex's.

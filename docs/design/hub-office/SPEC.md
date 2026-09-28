@@ -163,3 +163,32 @@ CONVENIENCES.md is in (12 picks + 10 small answer/wake bug fixes to ship first).
 
 ## v27 live (2026-09-28)
 Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rate unmeasured (~450 draw calls in Whole view), pod shells too white in daylight, days-since-hail counter small, face-cam in #pip unconfirmed (blank in headless), no notifications capability yet (tab title + chime only), run watchdog uses fixed slots.
+
+## v27.1 live (2026-09-28)
+Published as hub Version 27 (label "v27.1 smoothness"): shadows only redraw when the light moves, shadow settings follow the
+sun, Retina-lighter; `?perf` shows live speed numbers. The live page before it matched the repo page exactly (nothing
+to merge). Real MacBook fps still unmeasured: FilthE to open the link with `?perf` and send a screenshot.
+
+## FilthE's v27 walkthrough notes (2026-09-28)
+"The concept is good, it looks good, but it looks a little plain; let's take it further."
+1. The rain streaks down then bends up in the background: fix it (straight, believable rain, only in the sky).
+2. The two floors look stacked on top of each other: make it read as ONE building (shared core/structure, the
+   connector, terraces), not two boxes piled up.
+3. Still no chat bubble to talk to the King: a visible, always-there way to talk to the King (floating bubble).
+4. Too many cameras: cut the un-fun ones, keep the fun ones.
+5. More sound effects (still off by default / easy toggle).
+6. HIS CHARACTER = A CAT that roams everywhere doing cat things (naps in sunbeams, knocks things off desks, sits on
+   keyboards, chases the capsule in the tube, rides the slide...). When an AI needs him, that robot chases the cat or
+   plays with it.
+7. Test it on "society": a simulated user panel + the usual problems app developers check (first-run clarity,
+   usability, accessibility, performance, trust, annoyance), then fix what they'd complain about.
+8. The side panel must be closable: one click (and a key) hides it so the penthouse fills the whole screen; it
+   slides back when needed (e.g. something needs him) and remembers his choice.
+9. "It all looks a little too crowded": declutter. Fewer labels/chips/controls visible at once; show detail on
+   hover/when relevant (dark-cockpit rule). Calm by default.
+10. "There could be more valuable functions. I'm not satisfied yet, I know we can add more." Keep hunting for
+   high-value functions (society test + conveniences + blueprint), ranked by usefulness to him.
+11. PERSONAL, ENGLISH-ONLY (FilthE, 2026-09-28): "This hub is for me. It shouldn't even be called the HMP AI hub.
+   The AI hub lives in my computer; it's strictly mine. It can be in English." -> English only (no ES work needed;
+   keep existing ES strings only where free), no "HMP" in its name or UI; its name is his to pick (Make it yours;
+   default "AI Hub").
