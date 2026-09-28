@@ -138,6 +138,7 @@ h1,h2,h3,p{margin:0}
 .still{position:absolute;left:0;right:0;top:56px;bottom:64px;width:100%;height:calc(100% - 120px);object-fit:contain;display:none}
 .no-gl .still{display:block}
 .no-gl #gl{display:none}
+.no-gl #camSeg{display:none}
 .foot-scrim{position:absolute;left:0;right:0;bottom:0;height:22%;background:var(--scrim-foot);pointer-events:none}
 .ov{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .stagetop{position:absolute;left:12px;right:12px;top:10px;z-index:4;display:flex;gap:8px;align-items:flex-start;justify-content:center;pointer-events:none}
@@ -934,7 +935,7 @@ const TX = {
       king: n => `${n} board ${n === 1 ? 'item' : 'items'} done.`, busy: p => `One sec… ${p}`, rest: 'Taking a breather.'},
     views: {all: 'Whole', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', director: 'Director', eyes: 'Eyes'},
     keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B L M', 'Board, Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
-    sum: {working: 'working', blocked: 'stuck', sleeping: 'asleep'},
+    sum: {working: 'working', stuck: 'stuck', silent: 'quiet', asleep: 'asleep'},
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
     livesIn: 'Lives in', reachIt: 'Reach it', close: 'Close', progress: (d, o) => `${d} of ${o}`, noneYet: 'none yet',
@@ -1070,6 +1071,7 @@ function mentionsHail(text){
 }
 
 /* push live state to the scene: a new seq whenever what a robot is doing changes */
+const doneSeen = {};   // id -> when this page saw it turn done (a new seq while done); RIGHT NOW shows done for 6 s like the room (blueprint 3.1)
 function sync(first){
   const now = Date.now();
   for (const a of bots) a.disp = displayState(a, now);
@@ -1080,7 +1082,8 @@ function sync(first){
     const spot = st === 'working' && d.room === 'board' && a.id !== 'code' && a.id !== 'king' ? 'standup' : null;
     a.qinfo = st === 'idle' ? queuedOf(a, asks) : null; a.queued = !!a.qinfo;   // CONTRACT v3: queued is page-derived
     const sig = st + '|' + spot + '|' + (a.step || '') + '|' + a.queued;
-    if (sig !== a.sig) { a.instant = !a.sig || !!first || RMQ.matches; a.sig = sig; a.st = st; a.spot = spot; a.seq++; }
+    if (sig !== a.sig) { if (st === 'done' && a.sig && !first) { doneSeen[a.id] = Date.now(); setTimeout(refreshAll, 6100); }   // done shows 6 s, on the scene's clock
+      a.instant = !a.sig || !!first || RMQ.matches; a.sig = sig; a.st = st; a.spot = spot; a.seq++; }
     a.since = a.atMs || 0;
   }
   // Storm mood: Storm Watch reported hail in the last 3 hours
@@ -1096,7 +1099,8 @@ function sync(first){
 /* the 7-state id (blueprint 3.1): the scene state, plus queued (derived) and silent (the run watchdog) */
 function st7For(a){
   const st = a.st;
-  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (st === 'done') return 'done'; if (st === 'sleeping') return 'asleep';
+  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (st === 'sleeping') return 'asleep';
+  if (st === 'done') return Date.now() - (doneSeen[a.id] || 0) < 6000 ? 'done' : 'idle';   // 6 s, then free (a reload shows it free, as the room does)
   if (st === 'working') return a.silent ? 'silent' : 'working';
   if (a.queued) return 'queued';
   return a.disp && a.disp.stale && !a.disp.orphan ? 'silent' : 'idle';   // still "working" hours after its last check-in: quiet, not free
@@ -1260,17 +1264,19 @@ function renderNeeds(){
   if (lastNeedIds && dingOn && ids.some(k => k.startsWith('q:') && !lastNeedIds.includes(k))) ding();
   lastNeedIds = ids;
   const botIds = items.filter(i => i.bot).map(i => i.key);
-  if (botIds.join() !== HUB.needs.ids.join()) {   // CONTRACT v2: the call pool + the line
-    const added = botIds.filter(id => !HUB.needs.ids.includes(id)); HUB.needs = {v:HUB.needs.v + 1, ids:botIds};
+  if (botIds.join() !== HUB.needs.ids.join()) HUB.needs = {v:HUB.needs.v + 1, ids:botIds};   // CONTRACT v2: the call pool + the line
+  if (!replay) {   // a replay's states are not new needs: compare with the live ids, which only move outside a replay
+    const liveIds = renderNeeds.live || [], added = botIds.filter(id => !liveIds.includes(id));
     if (added.length && renderNeeds.seeded && !panelOpen()) setPanel(true, {remember:false});   // something new needs him: the panel slides back (his choice stays saved)
+    renderNeeds.live = botIds;
   }
   if (gotAgents) renderNeeds.seeded = true;
   renderPanelTab(n);
   $('#cw').dataset.n = n; rollDigit($('#d10'), Math.min(9, Math.floor(n/10))); rollDigit($('#d1'), n > 99 ? 9 : n % 10); $('#ncount').textContent = ' · ' + n;
   const baseTitle = renderNeeds.base = hubName();   // "(1) Designer needs you — AI Hub"; plain at zero (it follows Make it yours)
   document.title = n ? T.titleNeeds(n, items[0].bot ? items[0].who : items[0].who) : baseTitle;
-  const cnt = {working:0, blocked:0, sleeping:0}; for (const a of bots) { const s = a.disp ? a.disp.status : a.st; if (cnt[s] != null) cnt[s]++; }
-  $('#rsum').textContent = ['working', 'blocked', 'sleeping'].filter(k => cnt[k]).map(k => cnt[k] + ' ' + T.sum[k]).join(' · ');
+  const cnt = {}; for (const a of bots) if (a.st7) cnt[a.st7] = (cnt[a.st7] || 0) + 1;   // the 7-state counts, so it matches RIGHT NOW
+  $('#rsum').textContent = ['working', 'stuck', 'silent', 'asleep'].filter(k => cnt[k]).map(k => cnt[k] + ' ' + T.sum[k]).join(' · ');
   const al = alerts, cw = canWaitItems(), pk = parkedItems();
   const alShow = isWide ? al.slice(0, 1) : al, cap = isWide ? Math.max(1, 2 - alShow.length) : 3, show = !isWide && needsAll ? items : items.slice(0, cap);
   const rest = n - show.length, extra = al.length - alShow.length, hasMore = rest > 0 || extra > 0 || cw.length || pk.length;
@@ -1433,7 +1439,7 @@ function workStep(a){
   const ev = events.find(e => e.agent === a.id && !e.approx && e.atMs >= (a.atMs || 0) - 60e3);   // the event kind, while this state lasts
   if (ev && ev.kind === 'handoff' && ev.to && ev.to !== a.id) return {step:'handing', to:ev.to};
   const allowed = ROLE_VERBS[a.id] || [], doing = a.doing || '';
-  for (const [rx, v] of KEYWORDS) if (allowed.includes(v) && rx.test(doing)) return {step:v};
+  for (const [rx, v] of KEYWORDS) { if (v === 'hail' && !mentionsHail(doing)) continue; if (allowed.includes(v) && rx.test(doing)) return {step:v}; }   // 'no hail' is not Hail found
   return {step:ROLE_STEP[a.id] || 'building'};
 }
 const ageShort = ms => { if (!ms) return ''; const m = Math.max(0, Math.floor((Date.now() - ms)/60000)); return m < 1 ? 'now' : m < 60 ? m + 'm' : m < 1440 ? Math.floor(m/60) + 'h' : Math.floor(m/1440) + 'd'; };
@@ -1463,6 +1469,7 @@ function nowRow(a){
   else if (s7 === 'idle') { step = 'free'; verb = VERB.free; }
   else if (s7 === 'done') { step = ['verified', 'failed', 'shipped', 'hail'].includes(a.step) ? a.step : a.id === 'qa-tester' && a.result ? (a.result.passed >= a.result.of ? 'verified' : 'failed') : 'shipped'; verb = VERB[step];
     detail = a.result && a.result.issues ? a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues') + (a.doing ? ' · ' + a.doing : '') : a.doing; }
+  else if (a.spot === 'standup') { step = 'planning'; verb = 'In stand-up'; detail = a.doing; }   // the room plays the board meeting
   else { const w = workStep(a); step = w.step; verb = w.to ? 'Handing to ' + nameOf(w.to) : VERB[step]; detail = metricWords(a) || a.doing; }
   return {id:a.id, st7:s7, step, verb, metric:metricOf(a, s7), since, cocked:s7 === 'stuck', detail:detail || ''};
 }
@@ -1995,7 +2002,7 @@ function setCam(k, fromDolly){
   for (const b of document.querySelectorAll('#camSeg button[data-cam]')) b.setAttribute('aria-pressed', String(b.dataset.cam === k));
   if (k === 'follow' && !byId[selected]) { const w = waitingBots()[0] || bots.find(a => a.st === 'working') || byId.code; select(w.id); }
 }
-function applyViews(){ const v = builtViews(); $('#camMore').hidden = !v.some(x => MORE_VIEWS.includes(x)); for (const b of document.querySelectorAll('#camSeg button[data-cam]')) b.hidden = !v.includes(b.dataset.cam) && !BASE_VIEWS.includes(b.dataset.cam); }
+function applyViews(){ const v = builtViews(); $('#camMore').hidden = !v.some(x => MORE_VIEWS.includes(x)); for (const b of document.querySelectorAll('#camSeg button[data-cam]')) { b.hidden = !v.includes(b.dataset.cam) && !BASE_VIEWS.includes(b.dataset.cam); b.setAttribute('aria-pressed', String(b.dataset.cam === cam)); } }   // a restored More view (set before the scene was ready) presses nothing here
 $('#camSeg').addEventListener('click', e => { const b = e.target.closest('button[data-cam]'); if (!b) return; if (b.dataset.cam === 'eyes' && !byId[selected]) nextOrKing(); setCam(b.dataset.cam); });
 $('#skyBtn').addEventListener('click', () => { sky.mode = SKY_MODES[(SKY_MODES.indexOf(sky.mode) + 1) % SKY_MODES.length]; applySkyLabel(); renderClock(); });
 function applySkyLabel(){ const T = L(), b = $('#skyBtn'); b.textContent = T.skyT(T.sky[sky.mode]); b.title = T.skyAria(T.sky[sky.mode]); b.setAttribute('aria-pressed', String(sky.mode !== 'live')); }
@@ -2233,7 +2240,7 @@ $('#mine').addEventListener('input', e => {
   if (e.target.id === 'mName') { mine.name = e.target.value.slice(0, 24); applyTheme(true); }
   if (e.target.id === 'mVol') { vol = Math.max(0, Math.min(1, (+e.target.value || 0)/100)); store.set('hub-vol', String(vol)); e.target.setAttribute('aria-valuetext', Math.round(vol*100) + '%');
     if (master) master.gain.setTargetAtTime(vol, actx.currentTime, .05);
-    if (Date.now() - (renderMine.prev || 0) > 350) { renderMine.prev = Date.now(); chime('chat-reader', 'check', true); } }   // hear the new level
+    if (dingOn && Date.now() - (renderMine.prev || 0) > 350) { renderMine.prev = Date.now(); chime('chat-reader', 'check', true); } }   // hear the new level (only with sound on)
 });
 $('#mine').addEventListener('change', e => { if (e.target.closest('[data-swc]')) renderMine(); });
 document.addEventListener('pointerdown', e => { if (!$('#mine').hidden && !e.target.closest('#mine,#mineBtn,#keysMine')) closeMine(); });
@@ -2411,11 +2418,11 @@ function seenRect(){ const W = stageEl.clientWidth, H = stageEl.clientHeight; re
 function placeSpot(){
   const el = $('#spot'), S = window.SCENE, id = HUB.hover || (byId[selected] ? selected : null), an = id && isWide && S && S.ready && S.anchors[id];
   const R = seenRect(), x = an ? an.x : 0, y = an ? (an.y + an.fy)/2 : 0, inside = !!an && x >= R.x0 && x <= R.x1 && y >= R.y0 && y <= R.y1;
-  const on = !!(an && an.visible !== false) && inside && cam !== 'eyes';
+  const on = !!(an && an.visible !== false) && inside && (cam !== 'eyes' || RMQ.matches);
   if (on) { const sx = Math.round(x), sy = Math.round(y), sig = sx + ',' + sy; if (sig !== spotSig) { spotSig = sig; el.style.setProperty('--sx', sx + 'px'); el.style.setProperty('--sy', sy + 'px'); } }
   el.classList.toggle('on', on);
   // a hovered RIGHT NOW row whose robot is off-screen: an arrow at the edge points to it (anchors report x,y even off-stage)
-  const ed = $('#edge'), off = !!an && pres.rowHover === id && !inside && isFinite(x) && isFinite(y) && cam !== 'eyes';
+  const ed = $('#edge'), off = !!an && pres.rowHover === id && !inside && isFinite(x) && isFinite(y) && (cam !== 'eyes' || RMQ.matches);
   if (ed.hidden !== !off) ed.hidden = !off;
   if (off) { const m = 22, cx = Math.max(R.x0 + m, Math.min(R.x1 - m, x)), cy = Math.max(R.y0 + m, Math.min(R.y1 - m, y)), ang = Math.atan2(y - cy, x - cx)*180/Math.PI;
     if ($('#edgeName').textContent !== tx(byId[id].def.name)) $('#edgeName').textContent = tx(byId[id].def.name);
@@ -2493,7 +2500,7 @@ const EYE_FRAMES = {
 };
 const EYE_CLASS = {code:'v king', 'qa-tester':'lens', 'engine-mechanic':'lens goggles', 'storm-watch':'v storm'};
 function renderEyes(){
-  const on = cam === 'eyes' && !!byId[selected]; $('#eyes').hidden = !on; if (!on) { renderEyes.sig = ''; return; }
+  const on = cam === 'eyes' && !RMQ.matches && !!byId[selected]; $('#eyes').hidden = !on; if (!on) { renderEyes.sig = ''; return; }   // reduced motion: the scene shows Follow, so no visor
   const a = byId[selected], T = L(), p = a.progress && typeof a.progress === 'object' && a.progress.of ? ' · ' + a.progress.done + '/' + a.progress.of : '';
   const sig = [a.id, a.doing, a.task, p].join('|'); if (sig === renderEyes.sig) return; renderEyes.sig = sig;
   $('#eyeFrame').className = 'eyef ' + (EYE_CLASS[a.id] || 'v'); $('#eyeFrame').innerHTML = EYE_FRAMES[a.id] || '';
@@ -2589,9 +2596,10 @@ function rainAmbience(){
   try { const c = audio();
     if (!rainSrc) { rainSrc = c.createBufferSource(); rainSrc.buffer = noise(); rainSrc.loop = true; const hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 400; lp.type = 'lowpass'; lp.frequency.value = 2200;
       rainGain = c.createGain(); rainGain.gain.value = 0; rainSrc.connect(hp).connect(lp).connect(rainGain).connect(bus()); rainSrc.start(); }
-    rainGain.gain.setTargetAtTime(want, c.currentTime, .9);
+    rainGain.gain.setTargetAtTime(want, c.currentTime, document.hidden ? .2 : .9);
     if (!want) { const s = rainSrc; setTimeout(() => { if (rainSrc === s && rainGain.gain.value < .002) { try { s.stop(); } catch (e) { /* stopped */ } rainSrc = null; } }, 4500); }
   } catch (e) { /* no audio */ } }
+document.addEventListener('visibilitychange', rainAmbience);   // a hidden tab has no frames (soundTick stops): fade the loop out here, not all night
 /* the room's moments, read from the scene's anchors ~7 times a second: rides, typing under the pointer, rain */
 const lastPose = {};
 function soundTick(){
@@ -2605,7 +2613,7 @@ const lastSt = {};
 function chimeChanges(){
   if (replay) return;
   for (const a of bots) { const p = lastSt[a.id]; lastSt[a.id] = a.st; if (p === undefined || p === a.st) continue;
-    if (a.st === 'waiting') chime(a.id, 'wait'); else if (a.st === 'done') chime(a.id, 'done'); else if (a.st === 'blocked') chime(a.id, 'block'); }
+    if (a.st === 'waiting') chime(a.id, 'wait'); else if (a.st === 'done') chime(a.id, a.id === 'storm-watch' && (a.step === 'hail' || mentionsHail(a.doing)) ? 'hail' : 'done'); else if (a.st === 'blocked') chime(a.id, 'block'); }   // hail rings through quiet hours (Make it yours)
 }
 $('#mCheck').addEventListener('click', () => { bots.forEach((a, i) => setTimeout(() => { chime(a.id, 'check', true); appToast(tx(a.def.name), 900); }, i*1000)); });
 
@@ -3152,7 +3160,7 @@ function onEvents(snap){
   sync(false); renderFeeds(); renderCard(); renderBoard(); renderRoster(); refreshLive(); maybeRecap();
 }
 let gotBoard = false, gotAnswers = false;
-function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); }
+function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); }
 function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 let kingLoaded = false;

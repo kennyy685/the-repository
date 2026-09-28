@@ -273,7 +273,7 @@ export function dress(kit, a, R, def){
     const card = R.card = mk(hg, .14, .09, .08);
     const cardT = (back) => K.tex(128, 88, (g,w,h) => { g.fillStyle = '#f6f1e6'; g.fillRect(0,0,w,h); g.strokeStyle = 'rgba(0,0,0,.25)'; g.strokeRect(3,3,w-6,h-6);
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 ' + (back ? 26 : 30) + 'px Geist, system-ui, sans-serif'; g.fillStyle = back ? '#f5883a' : '#141414';
-      g.fillText(back ? '¡EXTRA!' : (K.HUB.lang === 'es' ? 'PRENSA' : 'PRESS'), w/2, h/2 + 2); });
+      g.fillText(back ? 'EXTRA!' : (K.HUB.lang === 'es' ? 'PRENSA' : 'PRESS'), w/2, h/2 + 2); });
     R.cardFront = cardT(false); const cf = new THREE.Mesh(new THREE.PlaneGeometry(.088, .06), std({map:R.cardFront, roughness:.6})); cf.position.z = .002; card.add(cf);
     const cbk = new THREE.Mesh(new THREE.PlaneGeometry(.088, .06), std({map:cardT(true), roughness:.6})); cbk.rotation.y = Math.PI; cbk.position.z = -.002; card.add(cbk);
     card.rotation.set(0, .5, -.28);
