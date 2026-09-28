@@ -1,8 +1,8 @@
-<title>HMP AI Hub</title>
-<!-- AI hub (Crew HQ), v27 "Nocturne" (board T190). A multi-file artifact: pages/crew-hq.files.json maps hub/scene.js
+<title>AI Hub</title>
+<!-- AI hub, v28 "Calm and clear" (board T190). FilthE's private hub, English only. A multi-file artifact: pages/crew-hq.files.json maps hub/scene.js
      (the three.js world), hub/still.webp (no-WebGL still) and fonts/*. Hub only: the crew, their work, the board,
-     questions for FilthE. Nothing from the HMP App lives here. Contract: docs/design/hub-office/CONTRACT.md (v2).
-     Build plan: docs/design/hub-office/BUILD-v27.md (PAGE track). -->
+     questions for FilthE. Nothing from the HMP App lives here. Contract: docs/design/hub-office/CONTRACT.md (v3).
+     Build plan: docs/design/hub-office/BUILD-v28.md (PAGE track). -->
 <style>
 @font-face{font-family:"Geist";src:url(fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Geist";src:url(fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
@@ -192,7 +192,6 @@ h1,h2,h3,p{margin:0}
 .card-h{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px 0 12px;border-bottom:1px solid var(--rule)}
 .card-h .no{font:500 11px var(--mono);letter-spacing:.12em;color:var(--brass)}
 .card-h h2{grid-column:1;font:600 34px/1.05 var(--fd);letter-spacing:-.03em;font-variation-settings:"opsz" 96;text-wrap:balance;margin-top:2px}
-:lang(es) .card-h h2{font-size:28px}
 .card-h .wear{grid-column:1;font:400 13px/1.4 var(--f);color:var(--muted)}
 .card-h .stl{grid-column:1;margin-top:6px}
 .card-h [data-close]{grid-column:2;grid-row:1 / span 2;align-self:start}
@@ -587,7 +586,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <header class="bar" id="bar">
     <div class="brand">
       <span class="mark" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M14 2.5 25.5 14 14 25.5 2.5 14Z" fill="none" stroke="#c9a45c" stroke-width="1.4"/><path d="M14 9.5 18.5 14 14 18.5 9.5 14Z" fill="#f1c48a"/></svg></span>
-      <div><h1 data-t="title" id="hubName">The Crew</h1><p class="folio" data-t="sub">AI hub · Fremont, NE</p></div>
+      <div><h1 data-t="title" id="hubName">AI Hub</h1><p class="folio" data-t="sub">Your AI crew</p></div>
     </div>
     <section class="needs" id="needs" aria-labelledby="needsH">
       <div class="needs-h"><span class="cw" id="cw" data-n="0" aria-hidden="true"><i class="bdot" id="bdot"></i><span class="cells"><span class="cell"><b id="d10">0</b></span><span class="cell"><b id="d1">0</b></span></span></span><h2 class="lbl" id="needsH"><span data-t="needs">Needs you</span><span class="sr" id="ncount">0</span><span class="nexthdr" id="nextHdr"></span></h2></div>
@@ -600,7 +599,6 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <button type="button" class="tb today" id="todayBtn" hidden data-t="todayPill">Today</button>
       <button type="button" class="ibtn" id="refreshBtn" aria-label="Refresh now (R)"><svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/></svg></button>
       <button type="button" class="ibtn" id="mineBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Make it yours"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5 20.5 12 12 20.5 3.5 12Z"/><path d="M12 8.5 15.5 12 12 15.5 8.5 12Z" fill="currentColor" stroke="none"/></svg></button>
-      <div class="seg" role="group" aria-label="Language / Idioma"><button type="button" id="langEn" aria-pressed="true" lang="en">EN</button><button type="button" id="langEs" aria-pressed="false" lang="es">ES</button></div>
     </div>
   </header>
 
@@ -686,7 +684,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <section class="tpanel" role="tabpanel" id="tp-chat" aria-labelledby="tab-chat" hidden>
         <div class="kingchat" id="kingChat" hidden>
           <div class="subh"><h2 class="lbl" id="kcH" data-t="kcTitle">Right Hand</h2></div>
-          <p class="src" data-t="kcSrc">Board changes, your questions and orders to the crew · English or Spanish</p>
+          <p class="src" data-t="kcSrc">Board changes, your questions and orders to the crew</p>
           <ol class="kc-log" id="kcLog" aria-live="polite"></ol>
           <form class="kc-form" id="kcForm"><label for="kcInput" class="sr" data-t="kcLabel">Message to the Right Hand</label>
             <input id="kcInput" type="text" autocomplete="off" enterkeyhint="send" placeholder="Tell the Right Hand…">
@@ -727,19 +725,18 @@ if (TEST) document.documentElement.classList.add('test');
 const store = {get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch (e) { /* private mode: not remembered */ } }};
 const GLYPH = {working:'●', idle:'○', sleeping:'◐', waiting:'◆', blocked:'■', done:'✓'};   // status = glyph + word + color, never color alone
 
-/* ================= language (per viewer), every sentence in English and Spanish ================= */
-let lang = store.get('hmp-app-lang') === 'es' ? 'es' : 'en';
+/* ================= words (English only: the hub is FilthE's own space, v28 note 11) ================= */
 const pl = (n, one, many) => (n === 1 ? one : many);
 const TX = {
   en: {
-    st: {title: 'The Crew', sub: 'AI hub · Fremont, NE', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
+    st: {title: 'AI Hub', sub: 'Your AI crew', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mNeed: 'Needs you', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
       cup: 'Coffee', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
       mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
-      boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · English or Spanish · uses your Claude usage',
+      boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · uses your Claude usage',
       kcNone: 'The Right Hand box shows up here when you open the hub signed in as its editor.',
       kcLabel: 'Message to the Right Hand', kcPh: 'Tell the Right Hand…', send: 'Send',
       logUp: 'Upstairs log', logUpS: 'Claude Code and its helpers', logDown: 'Downstairs log', logDownS: 'Cowork, Storm Watch and the Chat Reader',
@@ -755,8 +752,8 @@ const TX = {
     groups: {needs: 'Needs you', blocked: 'Stuck', doing: 'Doing', review: 'Review', todo: 'To do', parked: 'Parked', done: 'Done'},
     skyT: m => `Sky ${m}`, soundT: on => `Sound ${on ? 'on' : 'off'}`,
     today: 'Today', yesterday: 'Yesterday', noHits: q => `Nothing here matches “${q}”.`, copy: 'Copy', copiedS: 'Copied', copyCowork: 'Copy for Cowork',
-    cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on Crew HQ (crew-checkin skill).`,
-    typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you — ${hubName()}`,
+    cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on the AI hub (crew-checkin skill).`,
+    typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you · ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
     namesOff: 'Names hidden. Press N to show them.', namesOn: 'Names shown.',
     mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color', needLow: r => `That color is too hard to read on this background (${r}:1; it needs 4.5:1). Pick a stronger one.`,
@@ -818,98 +815,10 @@ const TX = {
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). It works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
     rc: {fail: a => `Not saved: ${a}. Only editors can save here.`, dedReply: 'The reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'},
     useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.', wakeOk: 'Claude Code is on it now.', wakeLater: 'Saved. Claude Code picks it up at its next run.'
-  },
-  es: {
-    st: {title: 'El Equipo', sub: 'Centro de IA · Fremont, NE', needs: 'Te necesitan', crew: 'Equipo', hint: 'Haz clic en un robot para ver qué está haciendo.', hintTap: 'Toca un robot para ver qué está haciendo.',
-      camAll: 'Todo', camUp: 'Arriba', camDown: 'Abajo', camFollow: 'Seguir', camMore: 'Más', watch: 'Ver', stop: 'Parar', replay: 'Repetir',
-      tCrew: 'Equipo', tBoard: 'Tablero', tLog: 'Registro', tChat: 'Chat', keysH: 'Teclas', keysB: 'Teclas',
-      mineH: 'Hazlo tuyo', mineS: 'Se guarda solo en este equipo. Cada cambio se ve al instante.', mWork: 'Trabajando', mNeed: 'Te necesita', mLook: 'Estilo', lkNoc: 'Nocturno', lkLed: 'Claro', lkMid: 'Medianoche',
-      cup: 'Café', mCheck: 'Prueba de sonido', todayPill: 'Hoy', watchIt: 'Verlo',
-      mStrip: 'Luces de los robots', stStatus: 'Por estado', stOne: 'Un solo color', mName: 'Nombre del centro', mReset: 'Restablecer',
-      lfAll: 'Todo', lfUp: 'Arriba', lfDown: 'Abajo', lfHand: 'Entregas', lfAns: 'Respuestas', older: 'Anteriores', searchL: 'Buscar en esta pestaña', searchPh: 'Buscar en esta pestaña',
-      boardH: 'Tablero', memH: 'Lo que toda IA debe saber', kcTitle: 'Mano Derecha', kcSrc: 'Cambios al tablero, tus preguntas y órdenes al equipo · inglés o español · usa tu cuenta de Claude',
-      kcNone: 'La caja de la Mano Derecha aparece aquí cuando abres el centro con tu cuenta de editor.',
-      kcLabel: 'Mensaje para la Mano Derecha', kcPh: 'Dile a la Mano Derecha…', send: 'Enviar',
-      logUp: 'Registro de arriba', logUpS: 'Claude Code y sus ayudantes', logDown: 'Registro de abajo', logDownS: 'Cowork, Vigía de Tormentas y el Lector de Chats',
-      foot: '<b>Cómo se mantiene en vivo:</b> un robot se mueve cuando su IA se reporta; cada IA publica aquí directamente. Contesta lo que te necesita en su tarjeta: Claude Code se despierta una vez, cuando contestas todo o 90 segundos después de tu última respuesta (o lo lee en su siguiente corrida). Un mensaje muestra <span class="rcpt">✓ recibido</span> cuando la IA a la que se mandó se reporta después. <span class="stale">Sin despedida</span> quiere decir que su última corrida terminó sin avisar.'},
-    status: {working: 'trabajando', idle: 'libre', sleeping: 'dormido', waiting: 'te necesita', blocked: 'atorado', done: 'listo'},
-    stSince: (w, t) => `${w} desde ${t}`, crewN: n => `Equipo · ${n}`, since: {m: n => `+${n} min`, h: n => `+${n} h`, d: n => `+${n} d`}, wakes: t => `despierta ${t}`,
-    fl: {up: 'Arriba', down: 'Abajo'}, seat: n => `No. ${n}`,
-    f: {now: 'Ahora', since: 'Desde', last: 'Último reporte', prog: 'Avance', where: 'Dónde', recent: 'Reciente', lives: 'Vive en', reach: 'Contacto'},
-    deskOf: (fl, n) => `${fl}, escritorio ${n}`, orphan: t => `su corrida terminó a las ${t} sin despedirse`,
-    updated: w => `Actualizado ${w}`, reconnecting: 'Reconectando…', refresh: 'Actualizar ahora (R)', refreshed: 'Actualizado.',
-    needsNone: 'Nadie te espera ahora', parked: t => `Ahora no · vuelve a las ${t}`, memFull: 'La memoria está llena (20 datos). Junta algunos primero; no se guardó nada.',
-    held: 'Guardado. Claude Code lo recibe en 90 s, o en cuanto contestes todo.', parkedT: t => `Ahora no. Vuelve a las ${t}.`, ownersH: {filthe: 'FilthE', boss: 'El jefe'},
-    groups: {needs: 'Te necesitan', blocked: 'Atoradas', doing: 'En curso', review: 'Revisar', todo: 'Pendientes', parked: 'En pausa', done: 'Hechas'},
-    skyT: m => `Cielo ${m}`, soundT: on => on ? 'Con sonido' : 'Sin sonido',
-    today: 'Hoy', yesterday: 'Ayer', noHits: q => `Nada aquí coincide con “${q}”.`, copy: 'Copiar', copiedS: 'Copiado', copyCowork: 'Copiar para Cowork',
-    cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on Crew HQ (crew-checkin skill).`,
-    typeIt: 'Escribir…', titleNeeds: (n, who) => `(${n}) ${who} te espera — ${hubName()}`,
-    task: {h: 'Tarea', owner: 'Dueño', status: 'Estado', age: 'Edad', log: 'Registro', ans: 'Respuestas', none: 'Esta tarea ya no está en el tablero.', nolog: 'Nada en el registro la menciona todavía.'},
-    namesOff: 'Nombres ocultos. Presiona N para verlos.', namesOn: 'Nombres visibles.',
-    mine: 'Hazlo tuyo', lowT: on => `Efectos reducidos: ${on ? 'sí' : 'no'}`, custom: 'Tu propio color', needLow: r => `Ese color no se lee bien sobre este fondo (${r}:1; necesita 4.5:1). Escoge uno más fuerte.`,
-    swW: {champagne: 'Champán', pearl: 'Perla', sage: 'Salvia', glacier: 'Glaciar', rose: 'Oro rosa', brass: 'Latón'}, swN: {ember: 'Brasa', amber: 'Ámbar', coral: 'Coral', poppy: 'Amapola'},
-    dollyHint: 'Desliza para acercarte · N para nombres',
-    run: t => `la corrida de las ${t}`, rides: (t, m) => `Va en la corrida de las ${t} · en ${m} min`, ridesNight: t => `Guardado. Va en la corrida de las ${t}. Nada corre mientras duermes.`, wakeNow: 'Despertar ya', woke: 'Despertando a Claude Code.',
-    midRun: 'El Rey está en vivo y ocupado en otra cosa; lo recibe en cuanto se libere.', saving: 'Modo ahorro · los despertares vuelven tras la siguiente llamada que funcione',
-    allNormal: (n, t) => `Todo en orden · ${n} trabajando · siguiente corrida ${t}`, quietDesign: t => `En calma a propósito · siguiente corrida ${t}`,
-    missed: m => `El Rey no ha respondido en ${m} min · está en vivo, debería tardar cerca de un minuto`, runNow: 'Revisar ya',
-    swMiss: 'Vigía de Tormentas no corrió a las 6:54 AM · la Mac quizá dormía o Cowork estaba cerrado', kfet: 'hubo tormentas en el aeropuerto de Fremont anoche',
-    parkedN: n => `Pospuestas · ${n}`, canWaitN: n => `Pueden esperar · ${n}`, parkedTag: t => `pospuesta ${t}`, thenNow: (a, b) => `Antes: ${a}. Ahora: ${b}, sigue esperando.`, letKing: 'Que decida el Rey', answerNow: 'Contestar ya',
-    sameAs: (d, id, a) => `Ya contestaste esto el ${d} (${id}): “${a}”`, sameBtn: 'Misma respuesta', stillTrue: '¿Sigue igual?', notSame: 'No es lo mismo', saidNotNow: d => `Dijiste Ahora no el ${d}.`,
-    carried: t => `La misma pregunta de las ${t}; tu respuesta se pasó sola.`, overrides: (d, id) => `Esto cambia tu respuesta del ${d} (${id}). Se le avisará al equipo.`,
-    suggests: (r, w) => `El equipo sugiere: ${r}${w ? ' · ' + w : ''}`, goingWith: (r, t) => `Se hace ${r} en ${t} si no lo cambias.`, goingNow: r => `El equipo va con: ${r}`, yourCall: 'Tú decides',
-    holding: (names, runs) => `Frena a ${names}` + (runs ? ` · esperó ${runs} ${runs === 1 ? 'corrida' : 'corridas'}` : ''),
-    proof: {saved: 'Guardado', rides: t => `Va a las ${t}`, king: 'Con el Rey', read: 'Leído', done: 'Hecho'}, change: 'Cambiar', dropped: (id, w) => `Tu respuesta a ${id} no le ha llegado a ${w}`, resend: 'Reenviar',
-    quietD: n => `${n} días sin movimiento`,
-    dClosed: (id, n) => `Cerrada sin tu respuesta: ${id}` + (n ? ` · ${n}` : ''), reopen: 'Reabrir', dRemembered: f => `Se recordó: “${f}”`, undo: 'Deshacer', dOrders: t => `Órdenes nuevas: ${t}`, dDefault: (id, a) => `Se tomó la opción por defecto en ${id}: ${a}`, changeIt: 'Cambiar', undone: 'Deshecho.', reopened: 'Reabierta.',
-    memMeter: n => `${n} de 20 datos`,
-    morning: 'Buenos días', awayT2: h => `Mientras no estabas · ${h} h`, overnight: (d, s, names) => `Anoche: ${d} ${d === 1 ? 'hecha' : 'hechas'} · ${s} ${s === 1 ? 'atorado' : 'atorados'}` + (names ? ` (${names})` : ''), swNone: 'Vigía de Tormentas no se ha reportado hoy.',
-    allClear: t => `Todo en orden. Siguiente corrida ${t}. Puedes cerrar la laptop.`, watchIt: 'Verlo', todayPill: 'Hoy', answerWho: n => `Contestar a ${n}`, plan: t => `El plan del Rey: ${t}`,
-    stuckRuns: (w, t, n) => `${w} lleva ${n} corridas en ${t}`, replan: 'Replanear', replanned: 'Enviado al Rey para la siguiente corrida.',
-    nextShort: t => `sig. corrida ${t}`, allNormalS: 'Todo en orden', quietS: 'En calma', usageLine: (r, w, h) => `Hoy: ${r} ${r === 1 ? 'corrida' : 'corridas'} · ${w} ${w === 1 ? 'despertar' : 'despertares'} · ${h} ${h === 1 ? 'respuesta' : 'respuestas'} de la Mano Derecha`, usageH: 'Uso',
-    nextIn: (t, m) => `corrida de las ${t} en ${m} min`,
-    greet: h => h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches', sinceLeft: n => n ? `${n} ${n === 1 ? 'novedad' : 'novedades'} desde que te fuiste.` : 'Nada nuevo desde que te fuiste.',
-    receipt: 'Guardado · el Rey ya lo tiene', heldShort: 'sale en 90 s o cuando termines', fold: 'Minimizar', unfold: n => `${n} te pregunta`, nextCall: n => `+${n}`,
-    eyesB: 'Ojos', coffeeThanks: '¡Gracias por el café!', coffeeHow: 'Arrastra la taza hasta un robot.',
-    gear: {code: n => `${n} ${n === 1 ? 'tarea terminada' : 'tareas terminadas'} hoy en el tablero`, king: n => `${n} ${n === 1 ? 'mensaje pasado' : 'mensajes pasados'} al Rey hoy`, builder: n => `${n} ${n === 1 ? 'calcomanía' : 'calcomanías'} esta semana`,
-      'hub-keeper': n => `${n} ${n === 1 ? 'ronda' : 'rondas'} de investigación terminadas`, cowork: n => `${n} ${n === 1 ? 'día' : 'días'} seguidos con tormentas limpias`, 'storm-watch': n => `${n} ${n === 1 ? 'alerta' : 'alertas'} de granizo este mes`,
-      pass: 'Pin PASS: una revisión completa en las últimas 24 h', extra: 'EXTRA: un resumen que el Rey aún no recoge', fan: 'Abanico abierto: espera tu elección'}, gearH: 'Ganado',
-    poke: {qa: n => `${n} ${n === 1 ? 'revisión pasó' : 'revisiones pasaron'} hoy.`, storm: (t, h) => `Último escaneo ${t}: ${h ? 'hay granizo.' : 'sin granizo nuevo.'}`, stormNone: 'Todavía no escanea hoy.', builder: t => `Lo último que entregó: ${t}`, builderNone: 'Nada entregado esta semana.',
-      king: n => `${n} ${n === 1 ? 'tarea hecha' : 'tareas hechas'} en el tablero.`, busy: p => `Un momento… ${p}`, rest: 'Tomando un respiro.'},
-    views: {all: 'Todo', blueprint: 'Plano', cctv: 'Cámara de seguridad', up: 'Arriba', down: 'Abajo', follow: 'Seguir', window: 'Por la ventana', tilt: 'Miniatura', tour: 'Recorrido', director: 'Director', eyes: 'Ojos'},
-    keys: [['1 – 8', 'Vistas de cámara (las que ya existen)'], ['9', 'Los ojos del robot'], ['↑ ↓', 'Arriba / abajo'], ['← →', 'Siguiente robot'], ['N', 'Ocultar o mostrar nombres'], ['A', 'Ir a la siguiente pregunta (solo enfoca; no manda nada)'], ['C B L H', 'Equipo, Tablero, Registro, Chat'], ['/', 'Buscar en esta pestaña'], ['R', 'Actualizar ahora'], ['Esc', 'Cerrar'], ['?', 'Esta hoja']],
-    sum: {working: 'trabajando', blocked: 'atorados', sleeping: 'dormidos'},
-    none: 'Nada pendiente contigo por ahora.', moreN: n => `Las ${n}`, less: 'Menos',
-    qWord: 'Pregunta', qFrom: 'En el tablero', askedBy: n => `${n} pregunta`, asks: 'Te pregunta', stuck: 'Atorado en', doing: 'Haciendo ahora', lastRes: 'Último resultado', lastCheck: 'Último reporte', recent: 'Reciente',
-    livesIn: 'Vive en', reachIt: 'Cómo contactarlo', close: 'Cerrar', progress: (d, o) => `${d} de ${o}`, noneYet: 'ninguno todavía',
-    noCheckout: 'no se ha despedido desde entonces', nothingNow: 'Nada por ahora.', sleepKing: 'Dormida hasta la siguiente corrida, o hasta que le hables.', sleepOther: 'Descansando en su cápsula de carga hasta su siguiente corrida.',
-    tempRole: 'Un ayudante de una sola tarea.', scouts: n => `${n} ${pl(n, 'explorador', 'exploradores')}`, scoutsNow: n => `${n} trabajando ahora`,
-    kinds: {leader: 'líder', main: 'agente principal', scheduled: 'tarea programada', helper: 'ayudante'}, forBoss: n => ` de ${n}`,
-    floor: {up: 'Arriba', down: 'Abajo'},
-    ans: {Yes: 'Sí', No: 'No', 'Not now': 'Ahora no'}, ansPh: 'O escribe tu respuesta', ansSend: 'Enviar', ansYou: 'Respondiste', ansSeen: '✓ recibido', ansWait: 'esperando a Claude Code', ansAria: id => `Tu respuesta a ${id}`,
-    sentLive: 'Enviado. La Mano Derecha está contestando abajo.', sentTo: (id, a) => `Enviado a Claude Code: ${id} = ${a}.`, ownerOnly: 'Solo los editores pueden contestar desde esta página.', sendFail: 'No se pudo enviar. Revisa tu conexión y toca otra vez.',
-    kOrders: 'Órdenes de Claude Code', kNone: 'Todavía no hay órdenes.', bEmpty: 'El tablero aparece aquí cuando Claude Code lo publique.',
-    bUpdated: (w, by) => `actualizado ${w}${by ? ' por ' + by : ''}`, bOld: 'puede estar desactualizado', memUpdated: (w, by) => `Actualizado ${w}${by ? ' por ' + by : ''}`,
-    tst: {doing: 'En curso', blocked: 'Bloqueada', review: 'Revisar', done: 'Hecha', parked: 'En pausa', todo: 'Pendiente'},
-    gOwner: {filthe: 'FilthE', boss: 'El jefe', code: 'Claude Code', cowork: 'Cowork', x: 'Otros'}, openN: n => `${n} ${pl(n, 'abierta', 'abiertas')}`, doneN: n => `Hechas (${n})`, nextTag: 'Después', noneOpen: 'Nada abierto.', answeredH: 'Contestadas, esperando a Claude Code',
-    feedEmpty: 'Todavía no hay reportes aquí.', picked: '✓ recibido', notPicked: 'sin recibir todavía',
-    never: 'nunca', justNow: 'ahora mismo', justNowU: 'hace un momento', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
-    live: {preview: 'Vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga.', first: 'En vivo · esperando el primer reporte', wait: 'Conectando…'},
-    liveLast: w => `En vivo · ${w.replace('hace ', '')}`,
-    sky: {live: 'en vivo', dusk: 'atardecer', night: 'noche', day: 'día'}, skyAria: m => `Cielo: ${m}. Toca para cambiar.`,
-    ding: on => `Sonido cuando un robot te necesita: ${on ? 'prendido' : 'apagado'}`, dingOn: 'Sonido prendido: oirás un timbre suave cuando algo te necesite.', dingOff: 'Sonido apagado.',
-    still: 'El 3D está apagado en este equipo; esto es una foto fija. La lista del equipo sí está en vivo.', stillAlt: 'La oficina de dos pisos del equipo, con cada robot de IA en su puesto.',
-    replayAria: 'Repetir las últimas 24 horas', noReplay: 'Nadie se ha reportado en las últimas 24 horas.', replayW: 'REPETICIÓN', caughtUp: 'Ya vamos al día.',
-    awayH: h => `Mientras no estabas · ${h} h`, awayT: (d, s, n) => [`${d} ${pl(d, 'hecha', 'hechas')}`, `${s} ${pl(s, 'atorado', 'atorados')}`, `${n} te ${pl(n, 'necesita', 'necesitan')}`].join(' · '),
-    copied: 'Copiado.', kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
-    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). Vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
-    rc: {fail: a => `No se guardó: ${a}. Solo los editores pueden guardar aquí.`, dedReply: 'Se retuvo la respuesta: hablaba de cubrir un deducible, y eso es ilegal en Nebraska (44-8604).'},
-    useApp: 'Aquí no se registra. Puertas, prospectos, reclamos y dinero van en el chat de la HMP App.', wakeOk: 'Claude Code ya lo está atendiendo.', wakeLater: 'Guardado. Claude Code lo atiende en su siguiente corrida.'
   }
 };
-const L = () => TX[lang];
-const tx = o => o == null ? '' : typeof o === 'string' ? o : (o[lang] || o.en || '');
+const L = () => TX.en;
+const tx = o => o == null ? '' : typeof o === 'string' ? o : (o.en || '');   // def.name/def.title keep their {en, es} shape (old data); only .en shows
 const D = (en, es) => ({en, es});
 const dFmt = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Chicago', month: 'short', day: 'numeric'});
 const tFmt = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit'});
@@ -967,7 +876,7 @@ const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*per
 const HUB = window.HUB = {
   RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
   sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [],
-  get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return lang; },
+  get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return 'en'; },
   get breath(){ return breath(); },
   get area(){ const W = stageEl.clientWidth, H = stageEl.clientHeight;   // the rect the camera frames the room in (stage px)
     return isWide ? {x0:40, y0:88, x1:W - 420, y1:H - 64} : {x0:-12, y0:46, x1:W + 12, y1:H - 50}; },
@@ -1153,7 +1062,7 @@ function renderNeeds(){
   const botIds = items.filter(i => i.bot).map(i => i.key);
   if (botIds.join() !== HUB.needs.ids.join()) HUB.needs = {v:HUB.needs.v + 1, ids:botIds};   // CONTRACT v2: the call pool + the line
   $('#cw').dataset.n = n; rollDigit($('#d10'), Math.min(9, Math.floor(n/10))); rollDigit($('#d1'), n > 99 ? 9 : n % 10); $('#ncount').textContent = ' · ' + n;
-  const baseTitle = renderNeeds.base || (renderNeeds.base = document.title);   // "(1) Designer needs you — The Crew"; plain at zero
+  const baseTitle = renderNeeds.base = hubName();   // "(1) Designer needs you · AI Hub"; plain at zero
   document.title = n ? T.titleNeeds(n, items[0].bot ? items[0].who : items[0].who) : baseTitle;
   const cnt = {working:0, blocked:0, sleeping:0}; for (const a of bots) { const s = a.disp ? a.disp.status : a.st; if (cnt[s] != null) cnt[s]++; }
   $('#rsum').textContent = ['working', 'blocked', 'sleeping'].filter(k => cnt[k]).map(k => cnt[k] + ' ' + T.sum[k]).join(' · ');
@@ -1385,7 +1294,7 @@ function renderCard(force){
   if (!selected) { el.classList.remove('open'); el.innerHTML = ''; cardSig = ''; setCarded(); return; }
   const a = byId[selected], typing = el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT';
   const rail = bots.map(b => shownSt(b)).join();
-  const sig = [lang, selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
+  const sig = [selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
   if (!force && (sig === cardSig || typing)) return;
   cardSig = sig;
   const html = a ? cardBot(a) : selected.startsWith('q:') ? cardQuestion(selected.slice(2)) : selected.startsWith('t:') ? cardTask(selected.slice(2)) : '';
@@ -1502,8 +1411,8 @@ function boardInfo(){
   const next = all.filter(x => statusKey(x.status) === 'todo').map(x => ({tone:'white', w:W(x)}));
   const done = all.filter(x => statusKey(x.status) === 'done').map(x => ({tone:'green', w:W(x)}));
   const ms = Date.parse((board && board.updatedAt) || '');
-  HUB.boardInfo = {v:HUB.boardInfo.v + 1, title:lang === 'es' ? 'Órdenes de hoy' : "Today's orders", when:'CLAUDE CODE' + (ms ? ' · ' + whenLabel(ms).toUpperCase() : ''),
-    cols:[{label:lang === 'es' ? 'AHORA' : 'NOW', items:now.slice(0, 5)}, {label:lang === 'es' ? 'SIGUE' : 'NEXT', items:next.slice(0, 5)}, {label:lang === 'es' ? 'LISTO' : 'DONE', items:done.slice(0, 5)}]};
+  HUB.boardInfo = {v:HUB.boardInfo.v + 1, title:"Today's orders", when:'CLAUDE CODE' + (ms ? ' · ' + whenLabel(ms).toUpperCase() : ''),
+    cols:[{label:'NOW', items:now.slice(0, 5)}, {label:'NEXT', items:next.slice(0, 5)}, {label:'DONE', items:done.slice(0, 5)}]};
 }
 /* the trophy wall downstairs: finished board tasks + "done" check-ins from the last 7 days */
 function trophies(){
@@ -1587,11 +1496,10 @@ function refreshLive(){
   setLive('on', healthShort && s < 120 ? healthShort : upd + ' · ' + T.nextShort(nextRun().label));   // one health line (#2); the age when data is older
   $('#live').title = upd + (healthText ? ' · ' + healthText : '');
 }
-const WX_ES = [[/thunder|t-storm/i, 'tormenta'], [/hail/i, 'granizo'], [/snow/i, 'nieve'], [/rain|shower|drizzle/i, 'lluvia'], [/fog|mist|haze/i, 'neblina'], [/partly|mostly sunny|mostly clear/i, 'parcial'], [/cloud|overcast/i, 'nublado'], [/clear|sunny|fair/i, 'despejado'], [/wind|breez/i, 'viento']];
 function renderClock(){
   $('#clk').textContent = tFmt.format(Date.now());
   let w = '';
-  if (weather.tempF != null) { const d = lang === 'es' ? (WX_ES.find(([re]) => re.test(weather.text)) || [0, ''])[1] : weather.text; w = ' · ' + weather.tempF + '°F' + (d ? ' ' + d.toUpperCase() : ''); }
+  if (weather.tempF != null) { const d = weather.text; w = ' · ' + weather.tempF + '°F' + (d ? ' ' + d.toUpperCase() : ''); }
   $('#clkW').textContent = w + (sky.mode === 'live' ? '' : ' · ' + L().sky[sky.mode].toUpperCase());
 }
 function refreshAll(){ sync(false); renderNeeds(); renderRoster(); renderCard(); refreshLive(); }
@@ -1664,7 +1572,7 @@ function placeOverlay(){
     if (!an || an.visible === false || a.hidden) { o.tag.classList.remove('on'); o.bub.classList.remove('on'); o.zz.classList.remove('on'); o.ring.classList.remove('on'); continue; }
     const kind = bubbleKind(a, an);
     const body = kind === 'waiting' ? botAsk(a) : kind === 'blocked' ? a.doing : a.doing;
-    const sig = kind + '|' + lang + '|' + isWide + body;
+    const sig = kind + '|' + isWide + body;
     if (sig !== o.sig) { o.sig = sig; o.tag.textContent = tx(a.def.name); o.tw = 0;
       if (kind) { const T = L(), head = T.status[kind === 'done' ? 'done' : kind];
         o.bub.className = 'bub ' + kind;
@@ -2116,7 +2024,7 @@ function renderCall(){
     if (typingIn(document.activeElement)) { if (!call.id) { box.hidden = true; chipEl.hidden = true; } return; }   // never opens while he's typing
     call.id = ids[0]; call.folded = false; call.at = call.touched = performance.now(); call.sig = '';
   }
-  const a = byId[call.id], T = L(), n = ids.length - 1, sig = [call.id, lang, botAsk(a), n, call.folded].join('|');
+  const a = byId[call.id], T = L(), n = ids.length - 1, sig = [call.id, botAsk(a), n, call.folded].join('|');
   box.hidden = call.folded; chipEl.hidden = !call.folded;
   const faceCam = window.SCENE && window.SCENE.ready && builtViews().includes('eyes') && !document.getElementById('app').classList.contains('no-gl');
   $('#pip').classList.toggle('live', !!faceCam);   // the scene renders the face into this box; the avatar is only the no-3D fallback
@@ -2156,7 +2064,7 @@ const EYE_CLASS = {code:'v king', 'qa-tester':'lens', 'engine-mechanic':'lens go
 function renderEyes(){
   const on = cam === 'eyes' && !!byId[selected]; $('#eyes').hidden = !on; if (!on) { renderEyes.sig = ''; return; }
   const a = byId[selected], T = L(), p = a.progress && typeof a.progress === 'object' && a.progress.of ? ' · ' + a.progress.done + '/' + a.progress.of : '';
-  const sig = [a.id, lang, a.doing, a.task, p].join('|'); if (sig === renderEyes.sig) return; renderEyes.sig = sig;
+  const sig = [a.id, a.doing, a.task, p].join('|'); if (sig === renderEyes.sig) return; renderEyes.sig = sig;
   $('#eyeFrame').className = 'eyef ' + (EYE_CLASS[a.id] || 'v'); $('#eyeFrame').innerHTML = EYE_FRAMES[a.id] || '';
   $('#eyeHud').innerHTML = '<b>' + esc(tx(a.def.name)) + '</b>' + (a.task ? ' · ' + esc(a.task) : '') + ' · ' + esc(lineOf(a, shownSt(a))) + esc(p);
 }
@@ -2533,14 +2441,13 @@ const WRITE_MS = 10000;
 const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'timeout'})), WRITE_MS))]);
 async function save(o){ if (!DB) throw Object.assign(new Error('offline'), {code:'offline'}); await withTimeout(DB.doc(o.path).set(o.body)); return 'saved'; }
 
-/* ================= language ================= */
+/* ================= static words ================= */
 function applyStatic(){
-  document.documentElement.lang = lang;
-  $('#langEn').setAttribute('aria-pressed', String(lang === 'en')); $('#langEs').setAttribute('aria-pressed', String(lang === 'es'));
+  document.documentElement.lang = 'en';
   const st = L().st;
   for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
-  $('#q').placeholder = st.searchPh; if (!$('#keys').hidden) renderKeys(); $('#logFilter').setAttribute('aria-label', lang === 'es' ? 'Mostrar' : 'Show');
+  $('#q').placeholder = st.searchPh; if (!$('#keys').hidden) renderKeys(); $('#logFilter').setAttribute('aria-label', 'Show');
   $('#kcInput').placeholder = st.kcPh; $('#replayBtn').title = L().replayAria; $('#refreshBtn').setAttribute('aria-label', L().refresh); $('#refreshBtn').title = L().refresh;
   $('#tabs').setAttribute('aria-label', [st.tCrew, st.tBoard, st.tLog, st.tChat].join(' · '));
   $('#still').alt = L().stillAlt;
@@ -2549,13 +2456,6 @@ function applyStatic(){
   if (document.getElementById('app').classList.contains('no-gl')) $('#hint').textContent = L().still;
   applySkyLabel(); applyDing();
 }
-function setLang(l){
-  lang = l === 'es' ? 'es' : 'en'; store.set('hmp-app-lang', lang);
-  applyStatic(); for (const o of overlays.values()) o.sig = '';
-  renderBoard(); renderNeeds(); renderRoster(); renderCard(true); renderFeeds(); refreshLive(); renderMemory(); renderClock();
-}
-$('#langEn').addEventListener('click', () => setLang('en'));
-$('#langEs').addEventListener('click', () => setLang('es'));
 
 const DED_RX = /(cover|waive|pay(ing)? (for|off)?|eat|absorb|rebate|discount|skip|free|cubr|perdon|pag(ar|amos)|descont|regal)[^.]{0,40}(deductible|deducible)|(deductible|deducible)[^.]{0,30}(covered|waived|free|gratis|cubierto|perdonado|no pagas|we pay|pagamos)/i;
 /* ================= the King, live on this page ================= */
@@ -2563,7 +2463,7 @@ let SAMPLE = null, CAN_EDIT = false, kcBusy = false, kcCtl = null;
 const kcTurns = [], kcPending = [];
 const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 const stampOf = (iso) => iso.replace(/[-:]/g, '');
-const KING_RULES = `You are the Right Hand: FilthE's live assistant in the HMP AI Hub for HMP Siding & Roofing LLC (Fremont, Nebraska). Claude Code is the King (the lead AI): it sets priorities and runs the Code lab; you take its orders and never reassign Code-lab work. FilthE (19, bilingual) is the boss's right-hand man; he runs the AI side and does the sales. You are answering him LIVE inside the HMP AI Hub (the Crew HQ link), the page where the AI crew lives. Your scheduled runs (8:12 AM standup, 6:12 PM wrap) do the summaries; right now you answer him and make small board updates.
+const KING_RULES = `You are the Right Hand: FilthE's live assistant in his AI Hub, his private page where his AI crew lives. The crew works for HMP Siding & Roofing LLC (Fremont, Nebraska). Claude Code is the King (the lead AI): it sets priorities and runs the Code lab; you take its orders and never reassign Code-lab work. FilthE (19, bilingual) is the boss's right-hand man at HMP; he runs the AI side and does the sales. You are answering him LIVE inside the AI Hub (its chat bubble). Your scheduled runs (8:12 AM standup, 6:12 PM wrap) do the summaries; right now you answer him and make small board updates.
 
 Your powers here, applied through "actions":
 - close_question {id, note}: remove a question from "Waiting on you" once FilthE has answered it or it no longer applies.
