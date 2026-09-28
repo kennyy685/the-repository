@@ -4,16 +4,18 @@
    2. The light follows you: the field's warm light leans toward the pointer and moves to each screen's focus
       (map on Now, door card on Knock, next step on Job); glass rims brighten under the pointer.
    3. Panels settle in on a spring (CSS); hero numbers count up once per visit.
-   24h safety (the tool stays open all day on a MacBook Air):
-   - frame cap 24 fps while you're active, 12 fps after 60 s without input, fully stopped after 3 min idle
-     (the last frame stays on screen); any key/pointer/wheel wakes it. Stopped while the tab is hidden.
+   24h safety (the tool stays open all day on a MacBook Air; details in notes.md "24h safety"):
+   - frame cap 30 fps while you're active, 12 fps after 60 s without input, fully stopped after 3 min idle
+     (the last frame stays on screen); any key/pointer/wheel wakes it. Stopped while the tab is hidden or frozen.
+     The main thread wakes only for frames it draws (timer + one rAF), never 60/120x a second.
    - time never grows: motion is a seamless 4-minute loop driven by one wrapped phase angle, so float precision
      is identical at hour 1 and hour 24. dt is clamped, so waking up never jumps.
    - no per-frame allocation: one program, one 3-vertex buffer, uniforms set from plain numbers, one bound
-     frame function. Canvas backing store capped at 480x300 px whatever the display.
-   - WebGL context lost -> stop, hide the canvas, the CSS gradient in future.css shows (static). Restored -> rebuild once.
-   - prefers-reduced-motion: one still frame (redrawn on resize/theme/screen change), never a loop. No WebGL at all:
-     the CSS gradient. */
+     frame function, no closures/arrays/strings in the loop. Canvas backing store capped at 480x300 px.
+   - WebGL context lost -> stop, hide the canvas, the static CSS gradient in future.css shows. Restored -> rebuild
+     once. Lost 3 times in 10 min (a sick GPU) -> stay on the gradient for the rest of the session.
+   - prefers-reduced-motion: no WebGL context at all, the static CSS gradient (turned on/off live if the setting
+     changes). No WebGL support: the same gradient. */
 (function () {
   'use strict';
   const root = document.documentElement;
@@ -24,6 +26,8 @@
   const PERIOD = 240;          // seconds per seamless loop of the field
   const SCALE = 0.25, MAXW = 480, MAXH = 300;
   const IDLE_SLOW = 60e3, IDLE_STOP = 180e3;
+  const FPS_ON = 1000 / 30, FPS_IDLE = 1000 / 12;
+  const LOSS_MAX = 3, LOSS_WINDOW = 600e3;
 
   /* ---------------- ambient field ---------------- */
   const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
@@ -74,6 +78,7 @@ void main(){
   cv.setAttribute('aria-hidden', 'true');
   let gl = null, prog = null, buf = null, U = null, alive = false;
   let raf = 0, timer = 0, last = 0, phase = 0;
+  let losses = 0, firstLoss = 0, dead = false;
   const TAU = Math.PI * 2;
   let lastInput = performance.now(), hidden = document.hidden;
   // smoothed state (numbers only, no objects per frame)
@@ -129,7 +134,9 @@ void main(){
     mx += (tmx - mx) * k * 0.6; my += (tmy - my) * k * 0.6;
     th += (tth - th) * Math.min(1, k * 2.2); en += (ten - en) * k;
     draw();
-    timer = setTimeout(tick, idle > IDLE_SLOW ? 1000 / 12 : 1000 / 24);
+    // aim the next wake so timer + rAF lands on the cap (the rAF adds up to one vsync on top of the timer)
+    const gap = idle > IDLE_SLOW ? FPS_IDLE : FPS_ON;
+    timer = setTimeout(tick, Math.max(0, gap - (performance.now() - now) - 8));
   }
   function halt() { clearTimeout(timer); timer = 0; cancelAnimationFrame(raf); raf = 0; }
   function wake() {
@@ -137,20 +144,37 @@ void main(){
     if (alive && !hidden && !RM.matches && !raf && !timer) { last = performance.now(); raf = requestAnimationFrame(frame); }
   }
   function still() { if (alive) { settle(); size(); draw(); } }
-  function kick() { if (RM.matches) still(); else wake(); }
+  function kick() { if (RM.matches) stop(); else if (!alive && !dead && !hidden) start(); else wake(); }
+  // Reduced motion (or a sick GPU): release the context entirely; the CSS gradient under it is the fallback.
+  function stop() {
+    halt(); cv.classList.remove('on');
+    if (gl && alive) { alive = false; const ext = gl.getExtension('WEBGL_lose_context'); if (ext) { stopping = true; ext.loseContext(); } }
+  }
+  let stopping = false, wired = false;
 
   function start() {
-    if (!build()) { cv.remove(); return; }
-    alive = true; size();
+    if (RM.matches || dead) return;                                  // static gradient only
+    if (!wire()) return;
+    if (gl && gl.isContextLost()) { const ext = gl.getExtension('WEBGL_lose_context'); if (ext) ext.restoreContext(); return; }
+    if (!build()) { dead = true; cv.remove(); return; }
+    alive = true; size(); settle(); draw();
+    requestAnimationFrame(() => { if (alive) cv.classList.add('on'); });
+    wake();
+  }
+  function wire() {
+    if (wired) return true; wired = true;
     cv.addEventListener('webglcontextlost', e => {
       e.preventDefault(); alive = false; halt(); cv.classList.remove('on');   // CSS gradient shows
+      if (stopping) { stopping = false; return; }                   // we released it on purpose (reduced motion)
+      const now = performance.now();
+      if (!losses || now - firstLoss > LOSS_WINDOW) { losses = 0; firstLoss = now; }
+      if (++losses >= LOSS_MAX) dead = true;                         // stop trying; gradient for the session
     });
     cv.addEventListener('webglcontextrestored', () => {
-      if (build()) { alive = true; size(); settle(); draw(); cv.classList.add('on'); kick(); }
+      if (dead || RM.matches) return;
+      if (build()) { alive = true; size(); settle(); draw(); cv.classList.add('on'); wake(); }
     });
-    settle(); draw();
-    requestAnimationFrame(() => cv.classList.add('on'));
-    kick();
+    return true;
   }
 
   /* ---------------- inputs ---------------- */
@@ -177,10 +201,12 @@ void main(){
     hidden = document.hidden;
     if (hidden) halt(); else kick();
   });
+  document.addEventListener('freeze', () => { hidden = true; halt(); });          // page lifecycle (Chrome)
+  document.addEventListener('resume', () => { hidden = document.hidden; kick(); });
   RM.addEventListener && RM.addEventListener('change', () => { halt(); kick(); });
   let rz = 0;
-  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { size(); if (RM.matches || (!raf && !timer)) still(); }, 120); });
-  new MutationObserver(() => { tth = root.dataset.theme === 'light' ? 1 : 0; if (RM.matches) still(); else wake(); })
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { size(); if (!raf && !timer) still(); }, 120); });
+  new MutationObserver(() => { tth = root.dataset.theme === 'light' ? 1 : 0; if (!raf && !timer) still(); wake(); })
     .observe(root, {attributes: true, attributeFilter: ['data-theme']});
 
   /* ---------------- panels: spring stagger index, one-time count-up ---------------- */
@@ -205,7 +231,7 @@ void main(){
 
   function init() {
     document.body.appendChild(cv);
-    start();
+    kick();
     setView();
     addEventListener('hashchange', () => setTimeout(setView, 0));
     setTimeout(countUp, 120);

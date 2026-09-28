@@ -2,8 +2,8 @@
    Loaded by a-cockpit.html in place of batcave.css (?look=batcave brings the old layer back for comparison).
    Applies docs/design/references/README.md Part 1: glass that catches light instead of HUD brackets and scan lines,
    depth from light + color temperature, one hero number per panel, continuous gauges, spring motion.
-   Behind the glass: an ambient generative field drawn by future.js (raw WebGL, no library, 1/4 resolution, ~24 fps,
-   stops when the tab is hidden, one still frame with reduced motion). The body gradient below is its static fallback.
+   Behind the glass: an ambient generative field drawn by future.js (raw WebGL, no library, 1/4 resolution, 30 fps cap,
+   stops when the tab is hidden or after 3 min idle, no WebGL at all with reduced motion). The body gradient below is its static fallback.
    Large panels are translucent WITHOUT backdrop blur on purpose: the field is already soft, and blurring a moving
    background every frame is the GPU cost the research warns about. Blur is kept for the small floating surfaces
    over the (static) map only. Contrast: body text 12:1+, muted 6:1+, faint 4.6:1+ on the lightest glass (AA). */
