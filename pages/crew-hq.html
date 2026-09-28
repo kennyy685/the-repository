@@ -21,13 +21,21 @@
   --bronze:#5a4630; --paper:#f1ede4; --paper-ink:#111214;
   /* theme layer: working, needs you, jewelry, stuck */
   --work:#f1c48a; --need:#f5883a; --need-ink:#ffa766; --need-deep:#9a4a16; --need-bg:rgba(245,136,58,.12); --need-line:rgba(245,136,58,.55); --on-need:#1b1206;
-  --jewel:#c9a45c; --jewel-hi:#e3c98f; --jewel-lo:#8a6a3a; --stuck:#e0685c;
+  --work-ink:#f1c48a; --jewel:#c9a45c; --jewel-hi:#e3c98f; --jewel-lo:#8a6a3a; --stuck:var(--st-stuck);
   /* aliases so ART's CSS drops in */
   --ember:var(--need); --ember-ink:var(--need-ink); --ember-bg:var(--need-bg); --ember-line:var(--need-line); --on-ember:var(--on-need);
   --brass:var(--jewel); --brass-hi:var(--jewel-hi); --brass-lo:var(--jewel-lo); --champagne:var(--work);
   /* status: glyph + word + color, never color alone */
-  --st-work:#9fbfa6; --st-idle:#a39a8c; --st-sleep:#8e95ab; --st-wait:var(--need); --st-stuck:var(--stuck); --st-done:var(--jewel-hi); --human:#d9b877;
-  --st-working:var(--st-work); --st-sleeping:var(--st-sleep); --st-waiting:var(--st-wait); --st-blocked:var(--st-stuck);
+  /* v28: 7 states (blueprint 3.1). Color is held back for needs / stuck / done; working is champagne (normal, not a signal).
+     Make it yours changes --work only; needs, stuck and done are locked so no pick can make them unreadable. */
+  --st-work:var(--work); --st-idle:#a39a8c; --st-sleep:#8e95ab; --st-wait:var(--need); --st-stuck:#d9483b; --st-stuck-ink:#ef7a6c;
+  --st-done:#3fbf94; --st-queue:#cdb896; --st-silent:#8b8e95; --human:#d9b877; --ok:#9fbfa6;
+  --intel:#6cb8ec; --intel-dim:rgba(108,184,236,.35);   /* the Intelligence floor accent, never a status */
+  --st-needs:var(--need); --st-working:var(--st-work); --st-queued:var(--st-queue); --st-asleep:var(--st-sleep);
+  --st-sleeping:var(--st-sleep); --st-waiting:var(--st-wait); --st-blocked:var(--st-stuck);
+  /* the ink each state's words use (glyphs and rules use --st-*) */
+  --in-needs:var(--need-ink); --in-stuck:var(--st-stuck-ink); --in-silent:var(--st-silent); --in-done:var(--st-done); --in-working:var(--work-ink);
+  --in-queued:var(--st-queue); --in-idle:var(--st-idle); --in-asleep:var(--st-sleep);
   /* surfaces */
   --card:rgba(17,18,20,.80); --card-fx:blur(24px) saturate(1.05); --card-solid:rgba(17,18,20,.96);
   --scrim-top:linear-gradient(to bottom,rgba(12,13,15,.84) 0,rgba(12,13,15,.55) 64px,rgba(12,13,15,0) 132px);
@@ -56,7 +64,9 @@ h1,h2,h3,p{margin:0}
 .num,time{font-variant-numeric:tabular-nums lining-nums}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .g{font-style:normal;display:inline-block;min-width:1em;text-align:center;font-family:var(--f),"Apple Symbols","Segoe UI Symbol",sans-serif}
-.stw{display:inline-flex;align-items:center;gap:4px;font:500 12px/1.2 var(--f);color:var(--c);white-space:nowrap}
+.stw{display:inline-flex;align-items:center;gap:5px;font:500 12px/1.2 var(--f);color:var(--ci,var(--c));white-space:nowrap}
+.stw .gl,.gl{width:10px;height:10px;flex:none;color:var(--c)}
+.gl{display:inline-block;vertical-align:-1px}
 /* controls: quiet, hairline, 6 px radius; mono text buttons with a brass underline when active */
 .tb{min-height:44px;min-width:44px;justify-content:center;padding:0 10px;display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);border-radius:var(--r-sm);position:relative;white-space:nowrap}
 .tb:hover{color:var(--ink)}
@@ -90,7 +100,7 @@ h1,h2,h3,p{margin:0}
 .live .lc{display:grid;min-width:0}
 .live .l1{white-space:nowrap}
 .live .dot{width:7px;height:7px;border-radius:50%;background:var(--st-idle);flex:none}
-.live[data-state="on"] .dot{background:var(--st-work)}
+.live[data-state="on"] .dot{background:var(--ok)}
 .live[data-state="off"] .dot{background:var(--stuck)}
 .live .clk{color:var(--ink)}
 .live .upd{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
@@ -164,19 +174,21 @@ h1,h2,h3,p{margin:0}
 .row{width:100%;min-height:52px;display:grid;grid-template-columns:22px 32px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 4px;text-align:left;border-radius:var(--r-sm);transition:background .16s;position:relative}
 .row:hover{background:rgba(241,242,244,.04)}
 .row[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--rule-2)}
-.row.stuck::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;background:var(--stuck)}
+.row.stuck::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:repeating-linear-gradient(135deg,var(--st-stuck) 0 2px,transparent 2px 4px)}
 .row .seat{font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em}
 .row .av32{width:32px;height:32px}
 .row .av32 svg{width:32px;height:32px;display:block}
-.row.asleep .av32,.row.asleep .seat{opacity:.6}
+.row.asleep .av32,.row.asleep .seat,.row.silent .av32{opacity:.6}
 .row .t{min-width:0;display:grid;gap:1px}
 .row .nm{font:500 15px/1.3 var(--f);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .d{font:400 13px/1.4 var(--f);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row.waiting .d{color:var(--need-ink)}
+.row.needs .d{color:var(--need-ink)}
+.row.queued .d{color:var(--st-queue)}
+.roster .fl .idot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--intel);margin-right:7px;vertical-align:1px}
 .row .rt{display:grid;justify-items:end;gap:2px}
 .row .since{font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums lining-nums}
 .scouts{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--muted);padding:6px 4px 2px 36px}
-.scouts i{width:5px;height:5px;border-radius:50%;background:var(--st-work)}
+.scouts i{width:5px;height:5px;border-radius:50%;background:var(--intel)}
 
 /* the robot card (museum wall label): a bottom sheet on the phone, the top of the panel on desktop */
 .card{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:30;padding:0 18px 16px;max-height:78vh;overflow:auto;overscroll-behavior:contain;transform:translateY(calc(100% + 24px));transition:transform .28s var(--ease);
@@ -187,7 +199,7 @@ h1,h2,h3,p{margin:0}
 .rail{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:4px 0;border-bottom:1px solid var(--rule);position:sticky;top:0;background:inherit;z-index:1}
 .rail button{flex:none;width:44px;height:44px;display:grid;place-items:center;position:relative;border-radius:var(--r-sm)}
 .rail svg{width:28px;height:28px;display:block}
-.rail .g{position:absolute;right:2px;bottom:2px;font-size:9px;line-height:1;color:var(--c)}
+.rail .gl{position:absolute;right:3px;bottom:3px;width:9px;height:9px}
 .rail button[aria-pressed="true"]::before{content:"";position:absolute;inset:6px;border:1.5px solid var(--brass);border-radius:50%}
 .card-h{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px 0 12px;border-bottom:1px solid var(--rule)}
 .card-h .no{font:500 11px var(--mono);letter-spacing:.12em;color:var(--brass)}
@@ -200,7 +212,7 @@ h1,h2,h3,p{margin:0}
 .ask .lbl{color:var(--need-ink)}
 .ask .v{margin-top:4px;font:500 17px/1.4 var(--f);letter-spacing:-.005em;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
 .stuckb{margin-top:14px;padding:2px 0 2px 14px;border-left:2px solid var(--stuck)}
-.stuckb .lbl{color:var(--stuck)}
+.stuckb .lbl{color:var(--st-stuck-ink)}
 .stuckb .v{margin-top:4px;font:500 15px/1.45 var(--f)}
 .facts{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px 12px;margin:14px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
 .card-h + .facts{border-top:0;margin-top:0}
@@ -276,7 +288,7 @@ h1,h2,h3,p{margin:0}
 .kc-log .who{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .kc-log li.king .who{color:var(--brass-hi)}
 .kc-log .rcs{display:grid;gap:4px}
-.rc{display:block;width:100%;text-align:left;border-left:2px solid var(--st-work);padding:6px 10px;font:500 13px/1.3 var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px;color:var(--ink-2)}
+.rc{display:block;width:100%;text-align:left;border-left:2px solid var(--ok);padding:6px 10px;font:500 13px/1.3 var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px;color:var(--ink-2)}
 .rc.no{border-left-color:var(--stuck)}
 .rc[aria-expanded="true"]{white-space:normal}
 .kc-form{display:flex;gap:8px;align-items:center}
@@ -303,7 +315,7 @@ h1,h2,h3,p{margin:0}
 .bub.waiting{background:var(--paper);color:var(--paper-ink);border-left:3px solid var(--need)}
 .bub.waiting .bh{color:var(--need-deep)}
 .bub.blocked{background:rgba(17,18,20,.86);color:var(--ink);border-left:2px solid var(--stuck)}
-.bub.blocked .bh{color:var(--stuck)}
+.bub.blocked .bh{color:var(--st-stuck-ink)}
 .bub.done{background:rgba(17,18,20,.86);color:var(--ink);border-left:2px solid var(--brass)}
 .bub.done .bh{color:var(--brass-hi)}
 .zz{position:absolute;left:0;top:0;opacity:0;transition:opacity .5s;font:500 12px var(--f);color:#9a9ca3}
@@ -314,6 +326,18 @@ h1,h2,h3,p{margin:0}
 .ring circle{fill:none;stroke-width:1.5}
 .ring .bg{stroke:rgba(241,242,244,.18)}
 .ring .fg{stroke:var(--st-work);transition:stroke-dashoffset .8s var(--ease)}
+
+/* ---------- V: status view. The room goes grey and dim; every robot's glyph + name stays lit in its status color ---------- */
+#gl,.sky{transition:filter .3s var(--ease)}
+.sv #gl{filter:grayscale(1) brightness(.5)}
+.sv .sky{filter:grayscale(1) brightness(.5)}
+.sv #mind{visibility:hidden}
+.sv .tag{font-weight:600}
+.sv .tag .gl{width:12px;height:12px}
+.svcap{position:absolute;z-index:4;left:var(--gutter,16px);top:96px;display:flex;align-items:center;gap:8px;font:500 11px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#f1f2f4;text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none}
+.svcap kbd{font:500 11px var(--mono);border:1px solid rgba(241,242,244,.3);border-radius:4px;padding:0 5px}
+@media (max-width:899px), (max-height:599px){ .svcap{top:56px;left:12px} }
+.tag .gl{margin-right:5px;vertical-align:-1px}
 
 /* ---------- the sky (the room's glass shows it; the Fremont clock + weather drive the tokens) ---------- */
 .sky{position:absolute;inset:0;overflow:hidden;background:linear-gradient(to bottom,var(--sky-top) 0%,var(--sky-mid) calc(var(--horizon) - 26%),var(--sky-low) calc(var(--horizon) - 5%),var(--sky-glow) var(--horizon),var(--land-far) calc(var(--horizon) + .5%),var(--land) 100%)}
@@ -467,7 +491,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .sw [aria-checked="true"]::after{content:"";position:absolute;inset:4px;border:1.5px solid var(--ink);border-radius:50%}
 .sw label i{background:conic-gradient(#f1c48a,#f5883a,#e0685c,#a9c5a0,#a8c8e0,#f1c48a)}
 .sw input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.mwarn{font-size:13px;color:var(--stuck);min-height:0}
+.mwarn{font-size:13px;color:var(--st-stuck-ink);min-height:0}
 .mwarn:empty{display:none}
 .mine input[type=text]{min-height:44px;background:transparent;border:0;border-bottom:1px solid var(--rule-2);padding:0 2px;font:500 15px var(--f)}
 .mine input[type=text]:focus{outline:none;border-bottom-color:var(--brass-hi)}
@@ -478,7 +502,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   --card:rgba(251,250,247,.90); --card-solid:rgba(251,250,247,.98);
   --scrim-top:linear-gradient(to bottom,rgba(243,242,238,.94) 0,rgba(243,242,238,.8) 64px,rgba(243,242,238,0) 132px);
   --scrim-col:linear-gradient(to left,rgba(243,242,238,.95) 0,rgba(243,242,238,.95) 400px,rgba(243,242,238,0) 580px);
-  --st-work:#3f7a4c; --st-idle:#6d6558; --st-sleep:#4d5670; --stuck:#b3372b; --jewel:#8a6a2e; --jewel-hi:#7a5a1e; --human:#7a5a1e}
+  --st-idle:#6d6558; --st-sleep:#4d5670; --st-stuck:#b3372b; --st-stuck-ink:#a3301f; --st-done:#1f7a57; --st-queue:#7d6a48; --st-silent:#6b6e75; --ok:#3f7a4c;
+  --intel:#2d74a8; --jewel:#8a6a2e; --jewel-hi:#7a5a1e; --human:#7a5a1e}
 :root[data-look="midnight"]{--bg:#060709; --bg-2:#0a0b0d; --bg-3:#111215; --card:rgba(9,10,12,.84); --card-solid:rgba(9,10,12,.97);
   --scrim-top:linear-gradient(to bottom,rgba(6,7,9,.9) 0,rgba(6,7,9,.6) 64px,rgba(6,7,9,0) 132px);
   --scrim-col:linear-gradient(to left,rgba(6,7,9,.9) 0,rgba(6,7,9,.9) 400px,rgba(6,7,9,0) 580px)}
@@ -529,8 +554,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .wakeline .tb{min-height:32px;padding:0 6px;color:var(--brass-hi)}
 .nexthdr{display:block;color:var(--brass);letter-spacing:.08em}
 .nexthdr:empty{display:none}
-.need.alert{background:rgba(224,104,92,.10);border-left-color:var(--stuck)}
-.need.alert b{color:var(--stuck)}
+.need.alert{background:rgba(217,72,59,.10);border-left-color:var(--st-stuck)}
+.need.alert b{color:var(--st-stuck-ink)}
 .need.quiet{background:rgba(241,242,244,.04);border-left-color:var(--rule-2)}
 .need.quiet b{color:var(--ink-2)}
 .nplate h3{padding:6px 4px 2px}
@@ -579,6 +604,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   .cell b.roll,.qplate{animation:none!important}
   .sky .clouds,.sky .rain,.sky .stars i,.need,.recap,.ev.fresh::before,.beacon,.card.open{animation:none!important}
   .card,.tag,.bub{transition:none}
+  #gl,.sky{transition:none}
 }
 </style>
 
@@ -625,6 +651,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="foot-scrim" aria-hidden="true"></div>
     <div class="spot" id="spot" aria-hidden="true"></div>
     <div class="viewfx" id="viewfx" hidden aria-hidden="true"><span class="vfx-cap" id="vfxCap"></span></div>
+    <p class="svcap" id="svCap" hidden>Status view <kbd>V</kbd></p>
     <div class="eyes" id="eyes" hidden aria-hidden="true"><div class="eyef" id="eyeFrame"></div><div class="eyehud" id="eyeHud"></div></div>
     <div class="scrim-top" aria-hidden="true"></div>
     <div class="scrim-col" aria-hidden="true"></div>
@@ -704,8 +731,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 <section class="mine" id="mine" hidden role="dialog" aria-labelledby="mineH">
   <div class="mine-h"><h2 id="mineH" data-t="mineH">Make it yours</h2><button type="button" class="ibtn" id="mineX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <p class="src" data-t="mineS">Saved on this device only. Every change shows right away.</p>
-  <div class="mrow"><h3 class="lbl" id="mWorkL" data-t="mWork">Working</h3><div class="sw" id="swWork" role="radiogroup" aria-labelledby="mWorkL"></div></div>
-  <div class="mrow"><h3 class="lbl" id="mNeedL" data-t="mNeed">Needs you</h3><div class="sw" id="swNeed" role="radiogroup" aria-labelledby="mNeedL"></div><p class="mwarn" id="mNeedWarn" role="status"></p></div>
+  <div class="mrow"><h3 class="lbl" id="mWorkL" data-t="mWork">Working</h3><div class="sw" id="swWork" role="radiogroup" aria-labelledby="mWorkL"></div><p class="src" id="mLocked" data-t="mLocked">Needs you, stuck and done keep their colors, so they always read at a glance.</p></div>
   <div class="mrow"><h3 class="lbl" id="mLookL" data-t="mLook">Look</h3><div class="seg" id="segLook" role="group" aria-labelledby="mLookL"><button type="button" data-look="nocturne" data-t="lkNoc">Nocturne</button><button type="button" data-look="ledger" data-t="lkLed">Ledger</button><button type="button" data-look="midnight" data-t="lkMid">Midnight</button></div></div>
   <div class="mrow"><h3 class="lbl" id="mStripL" data-t="mStrip">Robot light strips</h3><div class="seg" id="segStrip" role="group" aria-labelledby="mStripL"><button type="button" data-strip="ember-only" data-t="stStatus">By status</button><button type="button" data-strip="brand" data-t="stOne">All one color</button></div></div>
   <div class="mrow"><label class="lbl" for="mName" data-t="mName">The hub’s name</label><input id="mName" type="text" maxlength="24" autocomplete="off" spellcheck="false"></div>
@@ -723,7 +749,17 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp
 const TEST = /test/.test(location.hash);
 if (TEST) document.documentElement.classList.add('test');
 const store = {get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch (e) { /* private mode: not remembered */ } }};
-const GLYPH = {working:'●', idle:'○', sleeping:'◐', waiting:'◆', blocked:'■', done:'✓'};   // status = glyph + word + color, never color alone
+/* status = glyph + word + color, never color alone. v28: 7 states from the data (blueprint 3.1) + silent from the watchdog */
+const ST7_OF = {working:'working', idle:'idle', sleeping:'asleep', waiting:'needs', blocked:'stuck', done:'done'};
+const ST7_RANK = {needs:1, stuck:2, silent:2.5, done:3, working:4, queued:5, idle:6, asleep:7};
+const GL = {needs:'<path d="M6 .9 11.1 6 6 11.1.9 6Z"/>', stuck:'<path d="M1.6 1.6H8V4h2.4v6.4H1.6Z"/>',
+  done:'<path d="M2.1 6.3 4.8 9 9.9 3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  working:'<circle cx="6" cy="6" r="4"/>', queued:'<path d="M2.6 1.4h6.8L6 6l3.4 4.6H2.6L6 6Z"/>',
+  idle:'<circle cx="6" cy="6" r="3.9" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  asleep:'<circle cx="6" cy="6" r="3.9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 2.1a3.9 3.9 0 0 0 0 7.8Z"/>',
+  silent:'<circle cx="6" cy="6" r="3.9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1.9 1.5"/>'};
+const glyph = s7 => '<svg class="gl" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">' + (GL[s7] || GL.idle) + '</svg>';
+const st7c = s7 => 'var(--st-' + s7 + ')';
 
 /* ================= words (English only: the hub is FilthE's own space, v28 note 11) ================= */
 const pl = (n, one, many) => (n === 1 ? one : many);
@@ -732,7 +768,7 @@ const TX = {
     st: {title: 'AI Hub', sub: 'Your AI crew', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
-      mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mNeed: 'Needs you', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
+      mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mLocked: 'Needs you, stuck and done keep their colors, so they always read at a glance.', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
       cup: 'Coffee', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
       mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
@@ -742,8 +778,9 @@ const TX = {
       logUp: 'Upstairs log', logUpS: 'Claude Code and its helpers', logDown: 'Downstairs log', logDownS: 'Cowork, Storm Watch and the Chat Reader',
       foot: '<b>How it stays live:</b> a robot moves when its AI checks in; every AI posts here directly. Answer anything that needs you right in its card: Claude Code is woken once, when you’ve answered everything or 90 seconds after your last answer (or it reads it at its next run). A message shows <span class="rcpt">✓ picked up</span> once the AI it went to checks in after it. <span class="stale">No check-out</span> means its last run ended without saying so.'},
     status: {working: 'working', idle: 'idle', sleeping: 'asleep', waiting: 'needs you', blocked: 'stuck', done: 'done'},
+    st7: {needs: 'needs you', stuck: 'stuck', silent: 'quiet', done: 'done', working: 'working', queued: 'queued', idle: 'idle', asleep: 'asleep'},
     stSince: (w, t) => `${w} since ${t}`, crewN: n => `Crew · ${n}`, since: {m: n => `+${n}m`, h: n => `+${n}h`, d: n => `+${n}d`}, wakes: t => `wakes ${t}`,
-    fl: {up: 'Upstairs', down: 'Downstairs'}, seat: n => `No. ${n}`,
+    fl: {up: 'Upstairs', down: 'Downstairs'}, flName: {up: 'Upstairs · Intelligence', down: 'Downstairs · Execution'}, seat: n => `No. ${n}`,
     f: {now: 'Now', since: 'Since', last: 'Last report', prog: 'Progress', where: 'Where', recent: 'Recent', lives: 'Lives in', reach: 'Reach it'},
     deskOf: (fl, n) => `${fl}, desk ${n}`, orphan: t => `its run ended at ${t} without a check-out`,
     updated: w => `Updated ${w}`, reconnecting: 'Reconnecting…', refresh: 'Refresh now (R)', refreshed: 'Refreshed.',
@@ -756,8 +793,8 @@ const TX = {
     typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you · ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
     namesOff: 'Names hidden. Press N to show them.', namesOn: 'Names shown.',
-    mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color', needLow: r => `That color is too hard to read on this background (${r}:1; it needs 4.5:1). Pick a stronger one.`,
-    swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'}, swN: {ember: 'Ember', amber: 'Amber', coral: 'Coral', poppy: 'Poppy'},
+    mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color',
+    swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'},
     dollyHint: 'Scroll to move in · N for names',
     run: t => `the ${t} run`, rides: (t, m) => `Rides the ${t} run · in ${m} min`, ridesNight: t => `Saved. Rides the ${t} run. Nothing runs while you sleep.`, wakeNow: 'Wake now', woke: 'Waking Claude Code now.',
     midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
@@ -826,29 +863,29 @@ function ago(ms){ const T = L(); if (!ms) return T.never; const s = (Date.now() 
 function whenLabel(ms, approx){ if (!ms) return ''; if (approx) return dFmt.format(ms); return dFmt.format(ms) === dFmt.format(Date.now()) ? tFmt.format(ms) : dFmt.format(ms); }
 
 /* ================= who lives here (ids match agents/<id>); status comes from check-ins ================= */
-const CREW = [
-  {id:'code', name:D('Claude Code','Claude Code'), title:D('The King','El Rey'), color:'#4fb8ac', outfit:'crown', floor:'up', lane:'code', kind:'leader',
-   role:D('The King. Sets the board, gives the orders and runs the helpers upstairs. You talk to it in Claude Code; it is woken in seconds when you answer here.','El Rey. Arma el tablero, da las órdenes y dirige a los ayudantes de arriba. Le hablas en Claude Code; se despierta en segundos cuando contestas aquí.'),
-   home:D('Claude Code in the cloud (claude.ai/code), plus your Mac.','Claude Code en la nube (claude.ai/code), y tu Mac.'), reach:D('Talk to it in Claude Code, or answer a question here.','Háblale en Claude Code, o contesta una pregunta aquí.')},
-  {id:'king', name:D('Right Hand','Mano Derecha'), color:'#9b7be0', outfit:'headset', floor:'up', lane:'board', kind:'main',
-   role:D('Answers you live on this page and in the app chat, and passes your words to Claude Code.','Te contesta en vivo en esta página y en el chat de la app, y le pasa tus palabras a Claude Code.'),
-   home:D('The chat in the HMP App, and the box below the office.','El chat de la HMP App, y la caja debajo de la oficina.'), reach:D('Type to it below the office.','Escríbele debajo de la oficina.')},
-  {id:'builder', name:D('Builder','Constructor'), color:'#5aa9e6', outfit:'hardhat', floor:'up', lane:'code', kind:'helper', boss:'code',
-   role:D('Builds the pages, this hub included.','Construye las páginas, incluido este centro.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
-  {id:'designer', name:D('Designer','Diseñador'), color:'#e07a9a', outfit:'beret', floor:'up', lane:'code', kind:'helper', boss:'code',
-   role:D('Page design and print pieces. Brings 2 or 3 options for you to pick.','Diseño de páginas e impresos. Te trae 2 o 3 opciones para escoger.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
-  {id:'engine-mechanic', name:D('Engine Mechanic','Mecánico del Motor'), color:'#d0693e', outfit:'goggles', floor:'up', lane:'code', kind:'helper', boss:'code',
-   role:D('Builds, fixes and runs the storm engine.','Construye, arregla y corre el motor de tormentas.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
-  {id:'qa-tester', name:D('QA Tester','Control de Calidad'), color:'#7cc47a', outfit:'glasses', floor:'up', lane:'code', kind:'helper', boss:'code',
-   role:D('Reviews and tests every change before it ships.','Revisa y prueba cada cambio antes de que salga.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
+const CREW = [   /* v28 floors = kinds of work (CONTRACT v3): upstairs Intelligence (know, test, watch), downstairs Execution (build, make, run) + you */
   {id:'hub-keeper', name:D('Research Lead','Jefe de Investigación'), color:'#a3a86a', outfit:'explorer', floor:'up', lane:'code', kind:'helper', boss:'code',
    role:D('Runs research rounds with a team of scouts and ranks what they find.','Hace rondas de investigación con exploradores y ordena lo que encuentran.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
-  {id:'cowork', name:D('Cowork','Cowork'), color:'#e0a84a', graphite:true, outfit:'captain', floor:'down', lane:'chat', kind:'main',
-   role:D('Runs the storm map and the daily engine bundle. Storm Watch reports to it.','Maneja el mapa de tormentas y el paquete diario del motor. Vigía de Tormentas le reporta.'), home:D('Claude Cowork, in the cloud.','Claude Cowork, en la nube.'), reach:D('Tell Claude Code; it passes the order on.','Dile a Claude Code; él pasa la orden.')},
-  {id:'storm-watch', name:D('Storm Watch','Vigía de Tormentas'), color:'#f2c230', graphite:true, outfit:'rainhat', floor:'down', lane:'chat', kind:'scheduled', boss:'cowork',
+  {id:'qa-tester', name:D('QA Tester','Control de Calidad'), color:'#7cc47a', outfit:'glasses', floor:'up', lane:'code', kind:'helper', boss:'code',
+   role:D('Reviews and tests every change before it ships.','Revisa y prueba cada cambio antes de que salga.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
+  {id:'storm-watch', name:D('Storm Watch','Vigía de Tormentas'), color:'#f2c230', graphite:true, outfit:'rainhat', floor:'up', lane:'chat', kind:'scheduled', boss:'cowork',
    role:D('Sleeps at night. Wakes at 6:54 AM, scans for new hail and sends the alert.','Duerme de noche. Despierta a las 6:54 AM, busca granizo nuevo y manda la alerta.'), home:D('A scheduled task in Cowork.','Una tarea programada en Cowork.'), reach:D('Runs by itself daily. Ask Claude Code to change it.','Corre sola cada día. Pide a Claude Code que la cambie.')},
+  {id:'code', name:D('Claude Code','Claude Code'), title:D('The King','El Rey'), color:'#4fb8ac', outfit:'crown', floor:'down', lane:'code', kind:'leader',
+   role:D('The King. Sets the board, gives the orders and runs the helpers from the dispatch table. You talk to it in Claude Code; it is woken in seconds when you answer here.'),
+   home:D('Claude Code in the cloud (claude.ai/code), plus your Mac.','Claude Code en la nube (claude.ai/code), y tu Mac.'), reach:D('Talk to it in Claude Code, or answer a question here.','Háblale en Claude Code, o contesta una pregunta aquí.')},
+  {id:'king', name:D('Right Hand','Mano Derecha'), color:'#9b7be0', outfit:'headset', floor:'down', lane:'board', kind:'main',
+   role:D('Answers you live in this hub’s chat bubble and in the app chat, and passes your words to Claude Code.'),
+   home:D('The chat bubble at the bottom right of this hub, and the chat in the HMP App.'), reach:D('Press K, or click the chat bubble.')},
+  {id:'builder', name:D('Builder','Constructor'), color:'#5aa9e6', outfit:'hardhat', floor:'down', lane:'code', kind:'helper', boss:'code',
+   role:D('Builds the pages, this hub included.','Construye las páginas, incluido este centro.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
+  {id:'designer', name:D('Designer','Diseñador'), color:'#e07a9a', outfit:'beret', floor:'down', lane:'code', kind:'helper', boss:'code',
+   role:D('Page design and print pieces. Brings 2 or 3 options for you to pick.','Diseño de páginas e impresos. Te trae 2 o 3 opciones para escoger.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
+  {id:'engine-mechanic', name:D('Engine Mechanic','Mecánico del Motor'), color:'#d0693e', outfit:'goggles', floor:'down', lane:'code', kind:'helper', boss:'code',
+   role:D('Builds, fixes and runs the storm engine.','Construye, arregla y corre el motor de tormentas.'), home:D('A helper inside Claude Code.','Un ayudante dentro de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
   {id:'chat-reader', name:D('Chat Reader','Lector de Chats'), color:'#c9a45c', graphite:true, outfit:'newsboy', floor:'down', lane:'chat', kind:'helper', boss:'code',
-   role:D('Reads your other Claude chats on Claude Code’s runs and tells the King what is going on, so you never repeat yourself.','Lee tus otros chats de Claude en las corridas de Claude Code y le cuenta al Rey qué pasa, para que no te repitas.'), home:D('A small helper on Claude Code’s scheduled runs.','Un ayudante pequeño en las corridas programadas de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')}
+   role:D('Reads your other Claude chats on Claude Code’s runs and tells the King what is going on, so you never repeat yourself.','Lee tus otros chats de Claude en las corridas de Claude Code y le cuenta al Rey qué pasa, para que no te repitas.'), home:D('A small helper on Claude Code’s scheduled runs.','Un ayudante pequeño en las corridas programadas de Claude Code.'), reach:D('Ask Claude Code.','Pídeselo a Claude Code.')},
+  {id:'cowork', name:D('Cowork','Cowork'), color:'#e0a84a', graphite:true, outfit:'captain', floor:'down', lane:'chat', kind:'main',
+   role:D('Runs the storm map and the daily engine bundle. Storm Watch reports to it.','Maneja el mapa de tormentas y el paquete diario del motor. Vigía de Tormentas le reporta.'), home:D('Claude Cowork, in the cloud.','Claude Cowork, en la nube.'), reach:D('Tell Claude Code; it passes the order on.','Dile a Claude Code; él pasa la orden.')}
 ];
 /* what each one wears (the card's outfit line) */
 const WEAR = {code:D('Crown, cape','Corona, capa'), king:D('Headset, gold tie','Diadema, corbata dorada'), builder:D('Hard hat, tool belt','Casco, cinturón de herramientas'),
@@ -863,7 +900,8 @@ const STATUS = ['working', 'idle', 'sleeping', 'waiting', 'blocked', 'done'];
 
 /* ================= state ================= */
 const bots = CREW.map((c, i) => ({id:c.id, def:c, st:c.kind === 'scheduled' ? 'sleeping' : 'idle', spot:null, seq:0, instant:true, hidden:false,
-  status:c.kind === 'scheduled' ? 'sleeping' : 'idle', room:null, doing:'', task:'', ask:'', progress:null, atMs:0, sig:'', since:0}));
+  status:c.kind === 'scheduled' ? 'sleeping' : 'idle', room:null, doing:'', task:'', ask:'', progress:null, atMs:0, sig:'', since:0,
+  step:'', metrics:null, result:null, why:'', queued:false, qinfo:null, st7:c.kind === 'scheduled' ? 'asleep' : 'idle'}));
 const byId = Object.fromEntries(bots.map(a => [a.id, a]));
 const temps = new Map();      // one-off helpers (scouts): no robot, one line on their boss's card
 let events = [], board = null, kingDoc = null, answers = {}, memDoc = null, DB = null;
@@ -871,7 +909,7 @@ let selected = null, dbState = 'wait', replay = null, gotAgents = false, gotEven
 let cam = ['all', 'up', 'down', 'follow'].includes(store.get('hub-cam')) ? store.get('hub-cam') : 'all';
 let dingOn = store.get('hub-ding') === 'on';
 /* CONTRACT v2: the theme the room's strips read (Make it yours rewrites it; v bumps on every change) */
-const THEME0 = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#e0685c', sleep:'#3a3632', jewel:'#c9a45c', stripMode:'ember-only', name:''};
+const THEME0 = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#d9483b', done:'#3fbf94', queue:'#cdb896', intel:'#6cb8ec', sleep:'#3a3632', jewel:'#c9a45c', stripMode:'ember-only', name:''};
 const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*performance.now()/5000));   // the shared 5 s "needs you" breath
 const HUB = window.HUB = {
   RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
@@ -920,11 +958,14 @@ function mentionsHail(text){
 /* push live state to the scene: a new seq whenever what a robot is doing changes */
 function sync(first){
   const now = Date.now();
+  for (const a of bots) a.disp = displayState(a, now);
+  const asks = gotAgents ? allAsks() : [];
   for (const a of bots) {
-    const d = displayState(a, now); a.disp = d;
+    const d = a.disp;
     const st = d.status === 'waiting' && botAnswer(a) ? 'idle' : d.status;   // answered (or parked): it goes back to its day
     const spot = st === 'working' && d.room === 'board' && a.id !== 'code' && a.id !== 'king' ? 'standup' : null;
-    const sig = st + '|' + spot;
+    a.qinfo = st === 'idle' ? queuedOf(a, asks) : null; a.queued = !!a.qinfo;   // CONTRACT v3: queued is page-derived
+    const sig = st + '|' + spot + '|' + (a.step || '') + '|' + a.queued;
     if (sig !== a.sig) { a.instant = !a.sig || !!first || RMQ.matches; a.sig = sig; a.st = st; a.spot = spot; a.seq++; }
     a.since = a.atMs || 0;
   }
@@ -932,8 +973,26 @@ function sync(first){
   const hail = events.some(e => e.agent === 'storm-watch' && now - e.atMs < 3*3600e3 && mentionsHail(e.text));
   sky.stormTo = Math.max(hail ? 1 : 0, weather.storm);
   sky.rainTo = Math.max(hail ? .6 : 0, weather.rain);
-  sceneData(); if (!first) chimeChanges(); else for (const a of bots) lastSt[a.id] = a.st;
+  sceneData(); for (const a of bots) a.st7 = st7For(a);
+  if (!first) chimeChanges(); else for (const a of bots) lastSt[a.id] = a.st;
   if (gotAgents) { computeWatch(); if (alerts.some(x => x.k === 'storm')) checkKfet(); }
+}
+
+/* the 7-state id (blueprint 3.1): the scene state, plus queued (derived) and silent (the run watchdog) */
+function st7For(a){
+  const st = a.st;
+  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (st === 'done') return 'done'; if (st === 'sleeping') return 'asleep';
+  if (st === 'working') return a.silent ? 'silent' : 'working';
+  return a.queued ? 'queued' : 'idle';
+}
+/* queued: a handoff to it that it hasn't picked up (no check-in since, last 24 h), or an open question that holds it */
+function queuedOf(a, asks){
+  if (replay) return null;
+  const h = events.find(e => e.kind === 'handoff' && e.to === a.id && e.agent !== a.id && !e.approx && e.atMs > (a.atMs || 0) && Date.now() - e.atMs < DAY);
+  if (h) return {kind:'handoff', from:h.agent, task:h.task, text:h.text, at:h.atMs};
+  const it = (asks || []).find(i => i.key !== a.id && (i.holds || []).includes(a.id));
+  if (it) return {kind:'hold', key:it.key, id:it.id, who:it.bot ? it.who : '', text:it.text, at:it.at};
+  return null;
 }
 
 /* ================= the sky: Fremont time of day + weather (mood only) ================= */
@@ -1042,8 +1101,10 @@ const IC = {
   chev:'<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>',
   x:'<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>'
 };
-const stColor = st => 'var(--st-' + st + ')';
-const stWord = st => '<span class="stw" style="--c:' + stColor(st) + '"><i class="g" aria-hidden="true">' + GLYPH[st] + '</i>' + esc(L().status[st]) + '</span>';
+const stColor = st => st7c(ST7_OF[st] || st);
+/* one status word for rows, cards and the rail: takes a 7-state id or an old status */
+const stWord = (st, word) => { const s = ST7_OF[st] || st; return '<span class="stw" style="--c:' + st7c(s) + ';--ci:var(--in-' + s + ')">' + glyph(s) + esc(word || L().st7[s] || s) + '</span>'; };
+const s7Of = a => a.st7 || ST7_OF[shownSt(a)] || 'idle';
 const nameOf = id => { const a = byId[canon(id)]; return a ? tx(a.def.name) : (temps.get(id) || {}).name || (id === 'you' ? 'FilthE' : id); };
 function sinceText(ms){ const T = L(); if (!ms) return ''; const m = Math.max(0, Math.floor((Date.now() - ms)/60000)); return m < 60 ? T.since.m(m) : m < 1440 ? T.since.h(Math.floor(m/60)) : T.since.d(Math.floor(m/1440)); }
 
@@ -1133,7 +1194,7 @@ let seenMap = null; try { seenMap = JSON.parse(store.get('hub-seen-map') || 'nul
 if (!seenMap || typeof seenMap !== 'object') seenMap = {}; for (const k of ['tabs', 'rows', 'tasks']) if (!seenMap[k] || typeof seenMap[k] !== 'object') seenMap[k] = {};
 let seenSaveT = 0, viewedT = 0;
 function saveSeen(){ clearTimeout(seenSaveT); seenSaveT = setTimeout(() => store.set('hub-seen-map', JSON.stringify(seenMap)), 400); }
-const rowSig = a => shownSt(a) + '|' + (a.doing || '') + '|' + (a.ask || '');
+const rowSig = a => s7Of(a) + '|' + (a.doing || '') + '|' + (a.ask || '');
 const taskSig = x => statusKey(x.status) + '|' + (x.owner || '') + '|' + (x.task || '');
 function isNewRow(a){ if (!gotAgents || replay) return false; const v = seenMap.rows[a.id]; if (v == null) { seenMap.rows[a.id] = rowSig(a); saveSeen(); return false; } return v !== rowSig(a); }
 function isNewTask(x){ if (!board) return false; const v = seenMap.tasks[x.id]; if (v == null) { seenMap.tasks[x.id] = taskSig(x); saveSeen(); return false; } return v !== taskSig(x); }
@@ -1179,12 +1240,12 @@ function renderRoster(){
   $('#crewH').textContent = T.crewN(bots.length);
   let html = '', fl = null;
   for (const a of bots) {
-    if (a.def.floor !== fl) { fl = a.def.floor; html += '<li class="fl lbl">' + esc(T.fl[fl]) + '</li>'; }
-    const st = shownSt(a);
-    html += '<li><button type="button" class="row ' + (st === 'sleeping' ? 'asleep' : st === 'blocked' ? 'stuck' : st) + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' + (isNewRow(a) ? '<i class="new-dot" aria-hidden="true"></i>' : '') +
+    if (a.def.floor !== fl) { fl = a.def.floor; html += '<li class="fl lbl">' + (fl === 'up' ? '<i class="idot" aria-hidden="true"></i>' : '') + esc(T.flName[fl]) + '</li>'; }
+    const st = shownSt(a), s7 = s7Of(a);
+    html += '<li><button type="button" class="row ' + s7 + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' + (isNewRow(a) ? '<i class="new-dot" aria-hidden="true"></i>' : '') +
       '<span class="seat">' + a.def.seat + '</span><span class="av32">' + avatar(a.def) + '</span>' +
       '<span class="t"><span class="nm">' + esc(tx(a.def.name)) + '</span><span class="d">' + esc(lineOf(a, st)) + '</span></span>' +
-      '<span class="rt">' + stWord(st) + '<span class="since">' + esc(rightNote(a, st)) + '</span></span></button></li>';
+      '<span class="rt">' + stWord(s7) + '<span class="since">' + esc(rightNote(a, st)) + '</span></span></button></li>';
     if (a.id === 'hub-keeper') { const sc = scoutList(); if (sc.length) { const w = sc.filter(t => t.status === 'working').length; html += '<li class="scouts">' + sc.slice(0, 8).map(() => '<i></i>').join('') + esc(T.scouts(sc.length)) + (w ? ' · ' + esc(T.scoutsNow(w)) : '') + '</li>'; } }
   }
   $('#roster').innerHTML = html; renderTabDots(); applySearch();
@@ -1226,14 +1287,14 @@ function answerBlock(id, q, to, it){
 }
 const closeBtn = () => '<button type="button" class="ibtn" data-close aria-label="' + esc(L().close) + ' (Esc)">' + IC.x + '</button>';
 function railHtml(){
-  return '<div class="rail" role="group" aria-label="' + esc(L().crewN(bots.length)) + '">' + bots.map(a => { const st = shownSt(a);
-    return '<button type="button" data-sel="' + a.id + '" data-rail aria-pressed="' + (a.id === selected) + '" aria-label="' + esc(tx(a.def.name) + ' · ' + L().status[st]) + '" title="' + esc(tx(a.def.name)) + '" style="--c:' + stColor(st) + '">' + avatar(a.def) + '<i class="g" aria-hidden="true">' + GLYPH[st] + '</i></button>'; }).join('') + '</div>';
+  return '<div class="rail" role="group" aria-label="' + esc(L().crewN(bots.length)) + '">' + bots.map(a => { const st = s7Of(a);
+    return '<button type="button" data-sel="' + a.id + '" data-rail aria-pressed="' + (a.id === selected) + '" aria-label="' + esc(tx(a.def.name) + ' · ' + L().st7[st]) + '" title="' + esc(tx(a.def.name)) + '" style="--c:' + st7c(st) + '">' + avatar(a.def) + glyph(st) + '</button>'; }).join('') + '</div>';
 }
 function cardQuestion(id){
   const T = L(), x = ((board && board.waiting) || []).find(w => w.id === id);
   if (!x) return '';
   const st = answerOf(id) ? 'done' : 'waiting';
-  return railHtml() + '<div class="card-h"><span class="no">' + esc(id) + '</span><h2>' + esc(T.qWord) + '</h2><span class="wear">' + esc(T.qFrom) + ' · Claude Code</span><span class="stl">' + (st === 'done' ? '<span class="stw" style="--c:var(--st-done)"><i class="g">✓</i>' + esc(T.ansYou) + '</span>' : stWord('waiting')) + '</span>' + closeBtn() + '</div>' +
+  return railHtml() + '<div class="card-h"><span class="no">' + esc(id) + '</span><h2>' + esc(T.qWord) + '</h2><span class="wear">' + esc(T.qFrom) + ' · Claude Code</span><span class="stl">' + (st === 'done' ? stWord('done', T.ansYou) : stWord('needs')) + '</span>' + closeBtn() + '</div>' +
     '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(x.q) + '</div>' + answerBlock(id, x.q, 'code') + '</div>';
 }
 function gearLine(a){ const T = L(), g = a.gear; if (!g) return ''; const f = T.gear[a.id], parts = [];
@@ -1253,7 +1314,7 @@ function cardBot(a){
   const sinceLine = a.atMs ? T.stSince('', tFmt.format(a.atMs)).trim() : '';
   const deskNo = CREW.filter(x => x.floor === c.floor).indexOf(c) + 1;
   return railHtml() + '<div class="card-h"><span class="no">' + esc(T.seat(c.seat)) + (c.title ? ' · ' + esc(tx(c.title)) : '') + '</span><h2>' + esc(tx(c.name)) + '</h2><span class="wear">' + esc(tx(c.wear)) + '</span>' +
-      '<span class="stl">' + stWord(st) + (sinceLine ? ' <span class="src">' + esc(sinceLine) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
+      '<span class="stl">' + stWord(s7Of(a)) + (sinceLine ? ' <span class="src">' + esc(sinceLine) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
     '<p class="role">' + esc(tx(c.role)) + '</p>' +
     (builtViews().includes('eyes') ? '<button type="button" class="tb" data-eyes="' + a.id + '"><span class="k" aria-hidden="true">9</span>' + esc(T.eyesB) + '</button>' : '') +
     (asked ? '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(botAsk(a)) + '</div>' + answerBlock(qid, botAsk(a), a.id) + '</div>' : '') +
@@ -1279,9 +1340,9 @@ function cardTask(id){
   const ans = Object.values(answers).filter(a => a && (a.id === id || rx.test(String(a.q || '') + ' ' + String(a.note || ''))));
   const at = Math.max(x ? Date.parse(x.at || '') || 0 : 0, evs.length ? evs[0].atMs : 0);
   const k = x ? statusKey(x.status) : '';
-  const stMap = {doing:'working', blocked:'blocked', review:'waiting', done:'done', parked:'sleeping', todo:'idle'};
+  const stMap = {doing:'working', blocked:'stuck', review:'queued', done:'done', parked:'asleep', todo:'idle'};
   return railHtml() + '<div class="card-h"><span class="no">' + esc(T.task.h) + ' · ' + esc(id) + ' ' + cpBtn(id) + '</span><h2>' + esc(x ? x.task : id) + '</h2>' +
-    (x ? '<span class="wear">' + esc(ownerLabel(x.owner)) + (x._next ? ' · ' + esc(T.nextTag) : '') + '</span><span class="stl"><span class="stw" style="--c:' + stColor(stMap[k]) + '"><i class="g">' + GLYPH[stMap[k]] + '</i>' + esc(T.tst[k]) + '</span>' + (at ? ' <span class="src">' + esc(sinceText(at).replace('+', '')) + '</span>' : '') + '</span>' : '<span class="wear">' + esc(T.task.none) + '</span>') + closeBtn() + '</div>' +
+    (x ? '<span class="wear">' + esc(ownerLabel(x.owner)) + (x._next ? ' · ' + esc(T.nextTag) : '') + '</span><span class="stl">' + stWord(stMap[k], T.tst[k]) + (at ? ' <span class="src">' + esc(sinceText(at).replace('+', '')) + '</span>' : '') + '</span>' : '<span class="wear">' + esc(T.task.none) + '</span>') + closeBtn() + '</div>' +
     '<dl class="facts">' +
     (x ? '<dt>' + esc(T.task.owner) + '</dt><dd' + (isHuman(x.owner) ? ' style="color:var(--human)"' : '') + '>' + esc(ownerLabel(x.owner)) + '</dd><dt>' + esc(T.task.status) + '</dt><dd>' + esc(T.tst[k]) + '</dd>' : '') +
     (at ? '<dt>' + esc(T.task.age) + '</dt><dd>' + esc(ago(at)) + ' · <time>' + esc(whenLabel(at)) + '</time></dd>' : '') +
@@ -1293,7 +1354,7 @@ function renderCard(force){
   const el = $('#card');
   if (!selected) { el.classList.remove('open'); el.innerHTML = ''; cardSig = ''; setCarded(); return; }
   const a = byId[selected], typing = el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT';
-  const rail = bots.map(b => shownSt(b)).join();
+  const rail = bots.map(b => s7Of(b)).join();
   const sig = [selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
   if (!force && (sig === cardSig || typing)) return;
   cardSig = sig;
@@ -1431,14 +1492,14 @@ function renderMemory(){
   const ms = Date.parse(memDoc.updatedAt || ''); $('#memMeta').textContent = ms ? L().memUpdated(ago(ms), memDoc.updatedBy || '') : '';
 }
 const KIND = {start:'▶', progress:'•', done:'✓', handoff:'→', blocked:'■', waiting:'◆', note:'·', sleep:'◐', decided:'◇'};
-const KIND_C = {done:'var(--st-done)', blocked:'var(--stuck)', waiting:'var(--need)', handoff:'var(--brass)', start:'var(--st-work)', decided:'var(--brass-hi)'};
+const KIND_C = {done:'var(--st-done)', blocked:'var(--st-stuck)', waiting:'var(--need)', handoff:'var(--brass)', start:'var(--st-work)', decided:'var(--brass-hi)'};
 function pickedUp(e){ const a = byId[e.to]; if (a && a.atMs > e.atMs) return true; return events.some(x => x.agent === e.to && x.atMs > e.atMs); }
 function evItem(e){
   const a = byId[e.agent], who = e.name && !a ? e.name : nameOf(e.agent);
   const to = e.kind === 'handoff' && e.to ? ' <span class="to">→ ' + esc(nameOf(e.to)) + '</span><span class="rcpt' + (pickedUp(e) ? '' : ' no') + '">' + esc(pickedUp(e) ? L().picked : L().notPicked) + '</span>' : '';
   return '<li class="ev' + (e._fresh ? ' fresh' : '') + (replay && replay.cur === e.id ? ' hl' : '') + '"><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span class="k" style="--c:' + (KIND_C[e.kind] || 'var(--muted)') + '" aria-hidden="true">' + (KIND[e.kind] || '·') + '</span><div><span class="who">' + esc(who) + '</span>' + to + (e.task ? taskChip(e.task) : '') + '<p>' + esc(e.text) + '</p></div>' + cpBtn((e.atMs ? tFmt.format(e.atMs) + ' ' : '') + who + (e.to && e.kind === 'handoff' ? ' → ' + nameOf(e.to) : '') + ': ' + e.text) + '</li>';
 }
-function floorOfEvent(e){ const a = byId[e.agent]; if (a) return a.def.floor; if (e.agent === 'you') return 'up'; const t = temps.get(e.agent); if (t && byId[canon(t.boss || '')]) return byId[canon(t.boss)].def.floor; return e.lane === 'chat' ? 'down' : 'up'; }
+function floorOfEvent(e){ const a = byId[e.agent]; if (a) return a.def.floor; if (e.agent === 'you') return 'down'; const t = temps.get(e.agent); if (t && byId[canon(t.boss || '')]) return byId[canon(t.boss)].def.floor; return e.lane === 'chat' ? 'down' : 'up'; }
 /* the Log: one list, newest first, day headers, a filter, and "Older" for the rest of what's loaded */
 let logFilter = 'all', logShown = 40;
 const dayKey = ms => dFmt.format(ms);
@@ -1572,15 +1633,15 @@ function placeOverlay(){
     if (!an || an.visible === false || a.hidden) { o.tag.classList.remove('on'); o.bub.classList.remove('on'); o.zz.classList.remove('on'); o.ring.classList.remove('on'); continue; }
     const kind = bubbleKind(a, an);
     const body = kind === 'waiting' ? botAsk(a) : kind === 'blocked' ? a.doing : a.doing;
-    const sig = kind + '|' + isWide + body;
-    if (sig !== o.sig) { o.sig = sig; o.tag.textContent = tx(a.def.name); o.tw = 0;
+    const s7 = s7Of(a), sig = kind + '|' + isWide + '|' + s7 + body;
+    if (sig !== o.sig) { o.sig = sig; o.tag.innerHTML = glyph(s7) + esc(tx(a.def.name)); o.tag.style.setProperty('--c', st7c(s7)); o.tw = 0;
       if (kind) { const T = L(), head = T.status[kind === 'done' ? 'done' : kind];
         o.bub.className = 'bub ' + kind;
         o.bub.innerHTML = '<div class="bh">' + esc(kind === 'waiting' ? T.askedBy(tx(a.def.name)) : tx(a.def.name) + ' · ' + head) + '</div><div class="bt">' + esc(isWide || kind !== 'waiting' ? (body || head) : tx(a.def.name)) + '</div>';
         o.w = 0; } }
     const showBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
     o.bub.classList.toggle('on', showBub);
-    const showTag = !showBub && (a.id === selected || isWide);
+    const showTag = !showBub && (a.id === selected || isWide || statusView);
     o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected); o.tag.classList.toggle('keep', a.st === 'waiting' || a.st === 'blocked' || a.id === selected);
     if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     const sleeping = an.pose === 'sleep' && !an.moving;
@@ -1729,6 +1790,7 @@ const TAB_KEYS = {c:'crew', b:'board', l:'log', h:'chat'};
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && cam === 'eyes') { setCam(preEyes || 'all'); return; }
   if (e.key === 'Escape' && !$('#recap').hidden) { $('#recap').hidden = true; return; }
+  if (e.key === 'Escape' && statusView && !typingIn(document.activeElement)) { setStatusView(false); return; }
   if (e.key === 'Escape') { if (closeMine()) { $('#mineBtn').focus(); return; } if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
   if (e.metaKey || e.ctrlKey || e.altKey || typingIn(document.activeElement)) return;
   const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #keys'));
@@ -1738,6 +1800,7 @@ document.addEventListener('keydown', e => {
   else if ((k === 'ArrowLeft' || k === 'ArrowRight') && selected && byId[selected] && !e.target.closest('#tabs')) {
     e.preventDefault(); const i = bots.findIndex(a => a.id === selected), j = (i + (k === 'ArrowRight' ? 1 : bots.length - 1)) % bots.length; select(bots[j].id, {keep:true, focusRail:!!e.target.closest('.rail')}); }
   else if (lk === 'r') refreshNow();
+  else if (lk === 'v') setStatusView(!statusView);
   else if (lk === 'n') toggleNames();
   else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
   else if (TAB_KEYS[lk]) { if (tab === TAB_KEYS[lk] && lk === 'c' && selected) select(null); setTab(TAB_KEYS[lk]); }
@@ -1745,12 +1808,14 @@ document.addEventListener('keydown', e => {
   else if (k === '?') { e.preventDefault(); if (!closeKeys()) openKeys(); }
 });
 function nextOrKing(){ const w = waitingBots()[0] || byId.code; select(w.id, {keep:true}); }
+/* V: the status view (Two Point overlays): find the problem in one second on a busy day */
+let statusView = false;
+function setStatusView(on){ statusView = !!on; document.getElementById('app').classList.toggle('sv', statusView); $('#svCap').hidden = !statusView; for (const o of overlays.values()) o.tw = 0; }
 
 /* ================= Make it yours (per device, hub-theme): only the theme layer changes ================= */
 const SW_WORK = [['champagne', '#f1c48a'], ['pearl', '#e8e2d4'], ['sage', '#a9c5a0'], ['glacier', '#a8c8e0'], ['rose', '#e8b4a0'], ['brass', '#d8b56a']];
-const SW_NEED = [['ember', '#f5883a'], ['amber', '#f2a93b'], ['coral', '#f27a5e'], ['poppy', '#ef5b4b']];
 const LOOK_BG = {nocturne:'#0c0d0f', ledger:'#f3f2ee', midnight:'#060709'};
-const THEME_DEF = {work:'#f1c48a', need:'#f5883a', look:'nocturne', strip:'ember-only', name:'', low:false};
+const THEME_DEF = {work:'#f1c48a', look:'nocturne', strip:'ember-only', name:'', low:false};   // v28: needs / stuck / done are locked (blueprint 3.1)
 let mine = Object.assign({}, THEME_DEF); try { const t = JSON.parse(store.get('hub-theme') || 'null'); if (t && typeof t === 'object') mine = Object.assign(mine, t); } catch (e) { /* defaults */ }
 const hx = h => /^#[0-9a-f]{6}$/i.test(String(h)) ? String(h).toLowerCase() : null;
 const toHex = c => '#' + c.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
@@ -1766,11 +1831,12 @@ function needTokens(need, look){
 function applyTheme(save){
   const R = document.documentElement.style, look = LOOK_BG[mine.look] ? mine.look : 'nocturne';
   if (look === 'nocturne') document.documentElement.removeAttribute('data-look'); else document.documentElement.setAttribute('data-look', look);
-  const work = hx(mine.work) || THEME_DEF.work, need = hx(mine.need) || THEME_DEF.need, nt = needTokens(need, look), [r, g, b] = hex(nt.ui);
-  R.setProperty('--work', work); R.setProperty('--need', nt.ui); R.setProperty('--need-ink', nt.ink); R.setProperty('--need-deep', nt.deep);
+  const pick = hx(mine.work) || THEME_DEF.work, need = THEME0.need, nt = needTokens(need, look), [r, g, b] = hex(nt.ui);
+  const work = Math.hypot(...hex(pick).map((v, i) => v - hex(need)[i])) < 70 ? '#ece6d8' : pick;   // an orange accent would read as "needs you": working goes ivory
+  R.setProperty('--work', work); R.setProperty('--work-ink', look === 'ledger' ? mixHex(work, '#000000', .58) : work); R.setProperty('--need', nt.ui); R.setProperty('--need-ink', nt.ink); R.setProperty('--need-deep', nt.deep);
   R.setProperty('--need-bg', `rgba(${r},${g},${b},${look === 'ledger' ? .1 : .12})`); R.setProperty('--need-line', `rgba(${r},${g},${b},.55)`);
   document.getElementById('app').classList.toggle('lowfx', !!mine.low || fxAuto);
-  HUB.theme = {v:(HUB.theme.v || 0) + 1, work, idle:mixHex(work, '#a89c86', .5), need, stuck:THEME0.stuck, sleep:THEME0.sleep, jewel:THEME0.jewel,
+  HUB.theme = {v:(HUB.theme.v || 0) + 1, work, idle:mixHex(work, '#a89c86', .5), need, stuck:THEME0.stuck, done:THEME0.done, queue:THEME0.queue, intel:THEME0.intel, sleep:THEME0.sleep, jewel:THEME0.jewel,
     stripMode:mine.strip === 'brand' ? 'brand' : 'ember-only', name:String(mine.name || '').slice(0, 24)};
   const hn = $('#hubName'); if (hn) hn.textContent = hubName();
   if (save) store.set('hub-theme', JSON.stringify(mine));
@@ -1785,7 +1851,6 @@ function swatches(list, cur, names, kind){
 function renderMine(){
   const T = L();
   $('#swWork').innerHTML = swatches(SW_WORK, hx(mine.work) || THEME_DEF.work, T.swW, 'work');
-  $('#swNeed').innerHTML = swatches(SW_NEED, hx(mine.need) || THEME_DEF.need, T.swN, 'need');
   for (const b of document.querySelectorAll('#segLook [data-look]')) b.setAttribute('aria-pressed', String(b.dataset.look === (mine.look || 'nocturne')));
   for (const b of document.querySelectorAll('#segStrip [data-strip]')) b.setAttribute('aria-pressed', String(b.dataset.strip === (mine.strip || 'ember-only')));
   const n = $('#mName'); if (document.activeElement !== n) n.value = mine.name || ''; n.placeholder = T.st.title;
@@ -1793,26 +1858,21 @@ function renderMine(){
   $('#mLow').textContent = T.lowT(!!mine.low); $('#mLow').setAttribute('aria-pressed', String(!!mine.low));
   $('#mineBtn').setAttribute('aria-label', T.mine); $('#mineBtn').title = T.mine;
 }
-function setNeed(c){
-  const nt = needTokens(c, mine.look || 'nocturne');
-  if (!nt.ok) { $('#mNeedWarn').textContent = L().needLow(nt.r); renderMine(); return; }
-  $('#mNeedWarn').textContent = ''; mine.need = c; applyTheme(true); renderMine();
-}
 function openMine(){ closeKeys(); renderMine(); $('#mine').hidden = false; $('#mineBtn').setAttribute('aria-expanded', 'true'); $('#mineX').focus(); }
 function closeMine(){ if ($('#mine').hidden) return false; $('#mine').hidden = true; $('#mineBtn').setAttribute('aria-expanded', 'false'); return true; }
 $('#mineBtn').addEventListener('click', () => { if (!closeMine()) openMine(); });
 $('#keysMine').addEventListener('click', openMine);
 $('#mineX').addEventListener('click', () => { closeMine(); $('#mineBtn').focus(); });
 $('#mine').addEventListener('click', e => {
-  const sw = e.target.closest('[data-sw]'); if (sw) { if (sw.dataset.sw === 'work') { mine.work = sw.dataset.c; applyTheme(true); renderMine(); } else setNeed(sw.dataset.c); return; }
-  const lk = e.target.closest('[data-look]'); if (lk) { mine.look = lk.dataset.look; const nt = needTokens(hx(mine.need) || THEME_DEF.need, mine.look); if (!nt.ok) mine.need = THEME_DEF.need; applyTheme(true); renderMine(); return; }
+  const sw = e.target.closest('[data-sw]'); if (sw) { mine.work = sw.dataset.c; applyTheme(true); renderMine(); return; }
+  const lk = e.target.closest('[data-look]'); if (lk) { mine.look = lk.dataset.look; applyTheme(true); renderMine(); return; }
   const st = e.target.closest('[data-strip]'); if (st) { mine.strip = st.dataset.strip; applyTheme(true); renderMine(); return; }
   if (e.target.closest('#mSound')) { $('#dingBtn').click(); renderMine(); return; }
   if (e.target.closest('#mLow')) { mine.low = !mine.low; applyTheme(true); renderMine(); return; }
-  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); $('#mNeedWarn').textContent = ''; applyTheme(true); renderMine(); }
+  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); }
 });
 $('#mine').addEventListener('input', e => {
-  const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; if (c.dataset.swc === 'work') { mine.work = v; applyTheme(true); } else { const nt = needTokens(v, mine.look || 'nocturne'); $('#mNeedWarn').textContent = nt.ok ? '' : L().needLow(nt.r); if (nt.ok) { mine.need = v; applyTheme(true); } } return; }
+  const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; mine.work = v; applyTheme(true); return; }
   if (e.target.id === 'mName') { mine.name = e.target.value.slice(0, 24); applyTheme(true); }
 });
 $('#mine').addEventListener('change', e => { if (e.target.closest('[data-swc]')) renderMine(); });
@@ -2636,7 +2696,14 @@ function parseAgent(id, d){
   a.meta = {}; for (const k of ['rec', 'why', 'by', 'default', 'options', 'holds', 'urgent']) if (Object.prototype.hasOwnProperty.call(d, k)) a.meta[k] = d[k];
   a.storm = d.storm && typeof d.storm === 'object' ? {inches:+d.storm.inches || 0, town:String(d.storm.town || '').slice(0, 40)} : null;
   a.atMs = Date.parse(d.at || '') || 0;
+  // CONTRACT v3 (all optional): step (a verb id), metrics (whitelisted counts), result {passed, of, issues}, why (90 chars)
+  a.step = typeof d.step === 'string' && /^[a-z][a-z-]{1,20}$/.test(d.step) ? d.step : '';
+  let m = null; if (d.metrics && typeof d.metrics === 'object') for (const k of METRIC_KEYS) { const v = d.metrics[k]; if (v !== null && v !== '' && Number.isFinite(+v)) (m = m || {})[k] = Math.max(0, Math.round(+v)); }
+  a.metrics = m;
+  const r = d.result; a.result = r && typeof r === 'object' && Number.isFinite(+r.of) && +r.of > 0 ? {passed:Math.max(0, +r.passed || 0), of:+r.of, issues:Math.max(0, +r.issues || 0)} : null;
+  a.why = d.why ? String(tx(d.why)).slice(0, 90) : '';
 }
+const METRIC_KEYS = ['sources', 'findings', 'tests', 'passed', 'failed', 'issues', 'files', 'checks', 'chats', 'scans'];
 function onAgents(snap){
   for (const doc of snap.docs) { const d = doc.data(); if (d && !MERGED[doc.id] && d.kind !== 'merged') parseAgent(doc.id, d); }
   const first = !gotAgents; gotAgents = true; got();
