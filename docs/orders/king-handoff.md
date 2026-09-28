@@ -34,3 +34,4 @@ Lead = a house with insurance; insurance first, cash later. $100k = his own inco
 Every reply ends with 1-3 questions (with our pick) + open "what do you see / why" questions. Wants 10x: best at
 information, leads, efficiency. Research round 62 + 62b done (docs/research/). Waiting on him: "publish Practice
 Door" (v11), 7 AM brief trigger (yes/no), MacBook map speed.
+Fresh King: open with ONE "what do you see" question about the Knock screen (FilthE said yes).
