@@ -169,6 +169,15 @@ Published as hub Version 27 (label "v27.1 smoothness"): shadows only redraw when
 sun, Retina-lighter; `?perf` shows live speed numbers. The live page before it matched the repo page exactly (nothing
 to merge). Real MacBook fps still unmeasured: FilthE to open the link with `?perf` and send a screenshot.
 
+## v28.0 live (2026-09-28)
+Published as hub Version 28 (label "v28.0 calm and clear"): RIGHT NOW, re-seat by kind of work, 7-state status + V view,
+closable panel (P), King chat bubble (K), fewer cameras, sound kit, declutter, straight rain, English only, wake safety
+(no hard-coded trigger; live `system/king.wake_trigger` is set). Pre-publish check (4 reviewers + skeptics) fixed 20
+items (The Call's black face box, seat plates, failed runs cheering, "no hail" read as hail, done lasting 6 s, replay
+reopening a closed panel, Ledger Send buttons...). Live before it matched v27.1 exactly (nothing to merge). Screens:
+`shots/v28/`. Left for v28.1: V keeps in-room status lamps lit (needs a contract field), The Call covers the front-line
+robot at 1440 (pre-existing), canvas rain ignores low-fx.
+
 ## FilthE's v27 walkthrough notes (2026-09-28)
 "The concept is good, it looks good, but it looks a little plain; let's take it further."
 1. The rain streaks down then bends up in the background: fix it (straight, believable rain, only in the sky).
