@@ -94,6 +94,11 @@ Budget (MacBook Air): net +20 draw calls max, no new real-time lights, no new sh
 ---
 
 ## v28.1 "One building"
+Research for this chunk: RESEARCH-v28.1.md (2026-09-28). Take from it: one continuous outer frame (corner posts + edge
+beams full height, both floors), every connector on the same X/Z line on both floors, the cat's states
+(thinking / working / needs you / celebrating / error, after claude-pet), and the cat's no-nag rule (it reacts only
+to a real event and never repeats a "needs you" after he answered). Items marked [search, unverified] there need a
+check before they're built on.
 - SCENE: **one building (note 2)**: a shared structural core around the glass tube (columns + slab edge that run
   through both floors), the connector as a real stair/bridge landing, terraces, so the floors read as one building,
   not two stacked boxes. **The Observatory (M3)** on the tube top: walnut ring table, brass torus, dark glass top,
