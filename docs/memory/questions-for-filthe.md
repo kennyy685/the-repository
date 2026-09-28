@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-28: trust in a hot zone = "knowing the system has gotten me a lead before" -> show a track record (leads found by the system, per zone type) on the map; build "map learns from your knocks" after real storms (yes).
 - 2026-09-28 (King decided, FilthE: "what you think is best"): every robot gets a lessons notebook at once, Builder checked first (most redo: ~30 QA fixes on Practice Door v12); legal gate blocks automatically, always says why, King can override.
 - 2026-09-28: robot report card on the hub = yes; "don't just settle for what works, always find ways to improve" = weekly improvement round + research beyond our 5 rules.
 - 2026-09-28: "yes and yes" = build hub functions 1, 2, 4, 6 + remove the 90 s wake hold; King double-checks handoffs against real files.
