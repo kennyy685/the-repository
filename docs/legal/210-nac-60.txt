@@ -1,0 +1,42 @@
+Title 210 - Nebraska Department of Insurance
+Chapter 60 - Unfair Property and Casualty Settlement Practices Rule
+Adopted under the Unfair Insurance Claims Settlement Practices Act, Neb. Rev. Stat. 44-1536 to 44-1544.
+Effective September 1, 1992 (still in force; confirmed against current Cornell LII / Justia indexes, 2026-09-28).
+Source: doi.nebraska.gov, direct PDF fetch (docs/research round 59 follow-up), https://doi.nebraska.gov/sites/default/files/doc/Chapter%2060.pdf
+
+Selected sections relevant to notice-of-loss / claim-reporting deadlines (full chapter also covers
+documentation, misrepresentation, settlement timelines, etc. - excerpted here for the notice-deadline
+question; read the source PDF for the complete rule):
+
+003.09 "Notification of claim" means any notification by a claimant, whether in writing or by other means
+acceptable under the terms of an insurance policy, business custom or statute, to an insurer or its agent
+which reasonably apprises the insurer of the facts pertinent to a claim;
+
+005.03 No insurer shall deny a claim based upon the failure of a first party claimant to give written notice
+of loss within a specific time limit unless the written notice requirement is a written policy condition, or
+the first party claimant's failure to give written notice after being requested to do so is so unreasonable
+as to constitute a breach of the claimant's contractual duty to cooperate with the insurer.
+
+006.01 Every insurer, upon receiving notification of a claim shall, within fifteen (15) days, acknowledge
+the receipt of such notice unless payment is made within that period of time. ...
+
+006.04 Every insurer, upon receiving notification of claim, shall provide, within fifteen (15) days, the
+necessary claim forms, instructions and reasonable assistance so that claimants can comply with the
+insurer's reasonable requirements and policy conditions. ...
+
+007. Standards for the prompt investigation of claims. Every insurer shall, within fifteen (15) days of
+notification of claim, initiate investigation of any claim presented by a claimant.
+
+008.01 Within fifteen (15) days after receipt by the insurer of settlement information or a properly
+executed proof of loss, the claimant shall be advised of the acceptance or denial of the claim by the
+insurer. No insurer shall deny a claim on the grounds of a specific policy provision, condition or exclusion
+unless reference to such provision, condition, or exclusion is included in the denial. ...
+
+Plain-English takeaway (not legal advice - confirm with an attorney/the DOI for anything specific):
+- This regulation is about how NEBRASKA INSURERS must behave, not a deadline law for homeowners.
+- 005.03 is the closest thing to a state rule on notice deadlines: an insurer can only deny a claim for
+  late notice if (a) the policy itself actually has a written time-limit condition, or (b) the delay was
+  unreasonable enough to break the homeowner's duty to cooperate. Nebraska does not set the number of
+  days itself - that number, if any, lives in the policy.
+- The 15-day windows in 006-008 are the INSURER's response clock (acknowledge, start investigating, accept/
+  deny) once notice is given - not a homeowner filing deadline.
