@@ -5,6 +5,10 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- $100k (2026-09-28): it's HIS OWN income: "I mean me. I'm literally the one building this ... my boss, he'll
+  profit from the company." Use the system to take the boss's company further, then go "from selling houses to
+  possibly selling the system." Rough math (round 18 job $8-15k, round 29 commission 8-30%): ~28-83 jobs; his
+  commission % is the biggest lever (boss question below).
 - Vision answers (2026-09-28, "get in my mind"; detail in full-context.md "Vision answers"): 7 AM = map + hot zones
   + what Aldaba recommends + what to do today. A lead = "a house that has insurance"; insurance first, cash jobs
   later ("likely cash jobs" tag: not now). Why info: "I want to be the one to take that job ... the most houses
@@ -23,13 +27,13 @@ the boss's plans). Those go on the list below for the boss, asked only when a de
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
 ## Open, for FilthE (asked 2026-09-28)
-- The $100k by year end: his commissions, or HMP's total sales? (rough math: ~45-65 jobs at 10% or a profit split, vs ~7 roofs of HMP sales)
 - Say "publish Practice Door" (v11: how to talk at the door, 15 objections EN/ES, 20-day plan)?
 - A 7 AM "while you slept" brief on the hub every morning (one small run a day)?
 - Quick picks still open: map speed on the MacBook, "quiet storms" filter, fade walked areas, roof-age "full roof
   likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
+- FilthE's commission % per job: the biggest lever in his $100k plan (10% = ~83 jobs, 30% = ~28). Added 2026-09-28.
 - Hours a week he can give to knocking/selling, and what pulls him away.
 - Where the boss stands on insurance restoration and the app (all in / curious / doubtful); does he know what's built?
 - Can HMP pay for materials up front on a first insurance job (~$8-15k before the insurance check)?
