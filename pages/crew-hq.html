@@ -201,6 +201,8 @@ h1,h2,h3,p{margin:0}
 .stuckb .lbl{color:var(--stuck)}
 .stuckb .v{margin-top:4px;font:500 15px/1.45 var(--f)}
 .facts{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px 12px;margin:14px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
+.card-h + .facts{border-top:0;margin-top:0}
+.ans .btn{padding:0 8px;white-space:nowrap}
 .facts dt{font:500 11px/1.9 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .facts dd{margin:0;font:400 14px/1.55 var(--f);color:var(--ink-2);overflow-wrap:anywhere;min-width:0}
 .facts dd.now{font:500 16px/1.45 var(--f);color:var(--ink)}
@@ -364,7 +366,7 @@ h1,h2,h3,p{margin:0}
   .card.open{display:block;animation:cardIn .28s var(--ease)}
   .card:not(.open){visibility:visible}
   .panel.carded[data-tab="crew"] .card{max-height:calc(100% - 52px);flex:0 1 auto}
-  .panel.carded[data-tab="crew"] .tbody{display:none}
+  .panel.carded[data-tab="crew"] .tbody,.panel.carded[data-tab="crew"] .search{display:none}
   .rail button{width:33px;height:40px}
   .panel.carded[data-tab="crew"] .card{margin-bottom:0}
   .panel.carded[data-tab="crew"] .tabs{margin-top:auto;padding-top:10px}
@@ -391,7 +393,62 @@ h1,h2,h3,p{margin:0}
   .live{flex:1 1 auto}
 }
 .test .bub,.test .tag,.test .need,.test .zz,.test .ring,.test .card{transition:none!important;animation-duration:0s!important}
+
+/* ---------- P2: quick answers, search, history, new-since dots, copy, keys ---------- */
+.qplate{position:absolute;z-index:45;top:calc(100% + 6px);left:0;width:360px;max-width:calc(100vw - 32px);padding:14px 14px 12px;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r);animation:plateIn .2s var(--ease) both}
+.qplate .lbl{color:var(--need-ink)}
+.qplate .qfull{margin-top:4px;font:500 15px/1.4 var(--f);color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
+.qplate .ans{margin-top:10px}
+.qplate .typeit{grid-column:1 / -1;justify-self:start;min-height:36px;padding:0 2px;font:500 13px var(--f);color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-2)}
+.qplate .typeit:hover{color:var(--ink)}
+@keyframes plateIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.cell b.roll{animation:roll .32s var(--ease-out) both}
+.cell + .cell b.roll{animation-delay:.06s}
+@keyframes roll{from{transform:translateY(-70%);opacity:0}to{transform:none;opacity:1}}
+.search{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);flex:none}
+.search input{flex:1;min-width:0;min-height:44px;background:transparent;border:0;padding:0 2px;font:400 13px var(--f)}
+.search input:focus{outline:none}
+.search:focus-within{border-bottom-color:var(--brass)}
+.search input::placeholder{color:var(--muted)}
+.search input::-webkit-search-cancel-button{filter:invert(.6)}
+.search kbd{font:500 11px var(--mono);color:var(--muted);border:1px solid var(--rule-2);border-radius:4px;padding:1px 6px}
+.nohit{padding:16px 2px;color:var(--muted);font-size:13px}
+.lfilter{display:flex;flex-wrap:wrap;gap:0 2px;margin:0 -8px 4px}
+.lfilter .tb{padding:0 7px;letter-spacing:.08em}
+.older{margin-top:6px}
+.dayh{padding:14px 2px 4px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.new-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--brass-hi);vertical-align:middle;flex:none}
+.tabs .tb .new-dot{position:absolute;top:10px;right:14%}
+.row .new-dot{position:absolute;left:6px;top:8px}
+.trow .new-dot{position:absolute;left:-10px;top:17px}
+.trowb{display:contents}
+button.trow{width:100%;text-align:left;border-radius:0;transition:background .16s}
+button.trow:hover{background:rgba(241,242,244,.04)}
+button.task{cursor:pointer}
+button.task:hover{border-color:var(--brass);color:var(--ink)}
+.cp{width:28px;height:28px;display:inline-grid;place-items:center;border-radius:var(--r-sm);color:var(--muted);opacity:0;transition:opacity .16s;vertical-align:middle;flex:none}
+.cp svg{width:14px;height:14px}
+.cp:hover{color:var(--ink)}
+:is(.ev,.orders li,.ans-done,.card-h,.cpwrap):hover .cp,.cp:focus-visible{opacity:1}
+.ev{padding-right:30px}
+.ev .cp{position:absolute;right:0;top:6px}
+.cowork-copy{margin-top:6px;min-height:32px;padding:0 10px;border:1px solid var(--rule-2);border-radius:var(--r-sm);font:500 12px var(--f);color:var(--ink-2)}
+.cowork-copy:hover{color:var(--ink);border-color:var(--brass)}
+.tfacts .ev{padding-right:0}
+.viewmenu{position:fixed;z-index:50;min-width:200px;padding:6px;display:grid;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r)}
+.viewmenu .tb{justify-content:flex-start}
+.keys{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(12,13,15,.55);padding:16px}
+.keys-in{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px 24px 22px;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r)}
+.keys-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.keys h2{font:600 30px/1.15 var(--fd);letter-spacing:-.02em;font-variation-settings:"opsz" 96}
+.keys dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;margin:0}
+.keys dt{display:flex;gap:4px;justify-content:flex-end}
+.keys kbd{min-width:24px;padding:2px 7px;text-align:center;font:500 12px var(--mono);color:var(--ink);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:4px}
+.keys dd{margin:0;font-size:14px;color:var(--ink-2);align-self:center}
+.tagsoff .tag:not(.keep){opacity:0!important}
+@media (max-width:899px), (max-height:599px){ .cp,.cowork-copy,#keysBtn,.search kbd{display:none} .qplate{display:none} }
 @media (prefers-reduced-motion:reduce){
+  .cell b.roll,.qplate{animation:none!important}
   .sky .clouds,.sky .rain,.sky .stars i,.need,.recap,.ev.fresh::before,.beacon,.card.open{animation:none!important}
   .card,.tag,.bub{transition:none}
 }
@@ -453,6 +510,7 @@ h1,h2,h3,p{margin:0}
         <button type="button" class="tb" id="skyBtn" aria-pressed="false">Sky live</button>
         <button type="button" class="tb" id="dingBtn" aria-pressed="false">Sound off</button>
         <button type="button" class="tb" id="replayBtn" data-t="replay">Replay</button>
+        <button type="button" class="tb" id="keysBtn" aria-haspopup="dialog"><span data-t="keysB">Keys</span><span class="k" aria-hidden="true">?</span></button>
       </div>
     </div>
   </div>
@@ -465,6 +523,7 @@ h1,h2,h3,p{margin:0}
       <button type="button" class="tb" role="tab" id="tab-log" data-tab="log" aria-controls="tp-log" aria-selected="false" tabindex="-1"><span data-t="tLog">Log</span></button>
       <button type="button" class="tb" role="tab" id="tab-chat" data-tab="chat" aria-controls="tp-chat" aria-selected="false" tabindex="-1"><span data-t="tChat">Chat</span></button>
     </div>
+    <div class="search"><label for="q" class="sr" data-t="searchL">Search this tab</label><input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search this tab"><kbd aria-hidden="true">/</kbd></div>
     <div class="tbody" id="tbody">
       <section class="tpanel" role="tabpanel" id="tp-crew" aria-labelledby="tab-crew">
         <div><div class="roster-h"><h2 class="lbl" id="crewH"></h2><span class="rsum" id="rsum"></span></div>
@@ -475,8 +534,11 @@ h1,h2,h3,p{margin:0}
         <div id="ordersBox"></div>
       </section>
       <section class="tpanel" role="tabpanel" id="tp-log" aria-labelledby="tab-log" hidden>
-        <div><div class="subh"><h2 class="lbl" data-t="logUp">Upstairs log</h2><span class="src" data-t="logUpS">Claude Code and its helpers</span></div><ol class="feed" id="feedCode"></ol></div>
-        <div><div class="subh"><h2 class="lbl" data-t="logDown">Downstairs log</h2><span class="src" data-t="logDownS">Cowork, Storm Watch and the Chat Reader</span></div><ol class="feed" id="feedChat"></ol></div>
+        <div><div class="lfilter" role="group" id="logFilter" aria-label="Show">
+          <button type="button" class="tb" data-lf="all" aria-pressed="true" data-t="lfAll">All</button><button type="button" class="tb" data-lf="up" aria-pressed="false" data-t="lfUp">Upstairs</button><button type="button" class="tb" data-lf="down" aria-pressed="false" data-t="lfDown">Downstairs</button><button type="button" class="tb" data-lf="handoff" aria-pressed="false" data-t="lfHand">Handoffs</button><button type="button" class="tb" data-lf="answers" aria-pressed="false" data-t="lfAns">Answers</button>
+        </div>
+        <ol class="feed" id="feed"></ol>
+        <button type="button" class="tb older" id="olderBtn" hidden data-t="older">Older</button></div>
       </section>
       <section class="tpanel" role="tabpanel" id="tp-chat" aria-labelledby="tab-chat" hidden>
         <div class="kingchat" id="kingChat" hidden>
@@ -497,6 +559,8 @@ h1,h2,h3,p{margin:0}
 </div>
 
 <div class="app-toast" id="appToast" role="status" hidden></div>
+<div class="viewmenu" id="viewMenu" hidden role="menu"></div>
+<div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl></div></div>
 <script>
 (() => {
 'use strict';
@@ -516,7 +580,8 @@ const TX = {
   en: {
     st: {title: 'The Crew', sub: 'AI hub · Fremont, NE', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
-      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat',
+      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
+      lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · English or Spanish · uses your Claude usage',
       kcNone: 'The Right Hand box shows up here when you open the hub signed in as its editor.',
       kcLabel: 'Message to the Right Hand', kcPh: 'Tell the Right Hand…', send: 'Send',
@@ -532,6 +597,13 @@ const TX = {
     held: 'Saved. Claude Code gets it in 90 s, or as soon as you’ve answered everything.', parkedT: t => `Not now. It comes back at ${t}.`, ownersH: {filthe: 'FilthE', boss: 'The boss'},
     groups: {needs: 'Needs you', blocked: 'Stuck', doing: 'Doing', review: 'Review', todo: 'To do', parked: 'Parked', done: 'Done'},
     skyT: m => `Sky ${m}`, soundT: on => `Sound ${on ? 'on' : 'off'}`,
+    today: 'Today', yesterday: 'Yesterday', noHits: q => `Nothing here matches “${q}”.`, copy: 'Copy', copiedS: 'Copied', copyCowork: 'Copy for Cowork',
+    cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on Crew HQ (crew-checkin skill).`,
+    typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you — ${hubName()}`,
+    task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
+    namesOff: 'Names hidden. Press N to show them.', namesOn: 'Names shown.',
+    views: {all: 'Whole', blueprint: 'Blueprint', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', tour: 'Tour', director: 'Director', eyes: 'Eyes'},
+    keys: [['1 – 8', 'Camera views (the ones built so far)'], ['9', 'The robot’s eyes'], ['↑ ↓', 'Upstairs / downstairs'], ['← →', 'Next robot'], ['N', 'Hide or show names'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C B L H', 'Crew, Board, Log, Chat'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', blocked: 'stuck', sleeping: 'asleep'},
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
@@ -563,7 +635,8 @@ const TX = {
   es: {
     st: {title: 'El Equipo', sub: 'Centro de IA · Fremont, NE', needs: 'Te necesitan', crew: 'Equipo', hint: 'Haz clic en un robot para ver qué está haciendo.', hintTap: 'Toca un robot para ver qué está haciendo.',
       camAll: 'Todo', camUp: 'Arriba', camDown: 'Abajo', camFollow: 'Seguir', camMore: 'Más', watch: 'Ver', stop: 'Parar', replay: 'Repetir',
-      tCrew: 'Equipo', tBoard: 'Tablero', tLog: 'Registro', tChat: 'Chat',
+      tCrew: 'Equipo', tBoard: 'Tablero', tLog: 'Registro', tChat: 'Chat', keysH: 'Teclas', keysB: 'Teclas',
+      lfAll: 'Todo', lfUp: 'Arriba', lfDown: 'Abajo', lfHand: 'Entregas', lfAns: 'Respuestas', older: 'Anteriores', searchL: 'Buscar en esta pestaña', searchPh: 'Buscar en esta pestaña',
       boardH: 'Tablero', memH: 'Lo que toda IA debe saber', kcTitle: 'Mano Derecha', kcSrc: 'Cambios al tablero, tus preguntas y órdenes al equipo · inglés o español · usa tu cuenta de Claude',
       kcNone: 'La caja de la Mano Derecha aparece aquí cuando abres el centro con tu cuenta de editor.',
       kcLabel: 'Mensaje para la Mano Derecha', kcPh: 'Dile a la Mano Derecha…', send: 'Enviar',
@@ -579,6 +652,13 @@ const TX = {
     held: 'Guardado. Claude Code lo recibe en 90 s, o en cuanto contestes todo.', parkedT: t => `Ahora no. Vuelve a las ${t}.`, ownersH: {filthe: 'FilthE', boss: 'El jefe'},
     groups: {needs: 'Te necesitan', blocked: 'Atoradas', doing: 'En curso', review: 'Revisar', todo: 'Pendientes', parked: 'En pausa', done: 'Hechas'},
     skyT: m => `Cielo ${m}`, soundT: on => on ? 'Con sonido' : 'Sin sonido',
+    today: 'Hoy', yesterday: 'Ayer', noHits: q => `Nada aquí coincide con “${q}”.`, copy: 'Copiar', copiedS: 'Copiado', copyCowork: 'Copiar para Cowork',
+    cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on Crew HQ (crew-checkin skill).`,
+    typeIt: 'Escribir…', titleNeeds: (n, who) => `(${n}) ${who} te espera — ${hubName()}`,
+    task: {h: 'Tarea', owner: 'Dueño', status: 'Estado', age: 'Edad', log: 'Registro', ans: 'Respuestas', none: 'Esta tarea ya no está en el tablero.', nolog: 'Nada en el registro la menciona todavía.'},
+    namesOff: 'Nombres ocultos. Presiona N para verlos.', namesOn: 'Nombres visibles.',
+    views: {all: 'Todo', blueprint: 'Plano', cctv: 'Cámara de seguridad', up: 'Arriba', down: 'Abajo', follow: 'Seguir', window: 'Por la ventana', tilt: 'Miniatura', tour: 'Recorrido', director: 'Director', eyes: 'Ojos'},
+    keys: [['1 – 8', 'Vistas de cámara (las que ya existen)'], ['9', 'Los ojos del robot'], ['↑ ↓', 'Arriba / abajo'], ['← →', 'Siguiente robot'], ['N', 'Ocultar o mostrar nombres'], ['A', 'Ir a la siguiente pregunta (solo enfoca; no manda nada)'], ['C B L H', 'Equipo, Tablero, Registro, Chat'], ['/', 'Buscar en esta pestaña'], ['R', 'Actualizar ahora'], ['Esc', 'Cerrar'], ['?', 'Esta hoja']],
     sum: {working: 'trabajando', blocked: 'atorados', sleeping: 'dormidos'},
     none: 'Nada pendiente contigo por ahora.', moreN: n => `Las ${n}`, less: 'Menos',
     qWord: 'Pregunta', qFrom: 'En el tablero', askedBy: n => `${n} pregunta`, asks: 'Te pregunta', stuck: 'Atorado en', doing: 'Haciendo ahora', lastRes: 'Último resultado', lastCheck: 'Último reporte', recent: 'Reciente',
@@ -851,7 +931,9 @@ function renderNeeds(){
   lastNeedIds = ids;
   const botIds = items.filter(i => i.bot).map(i => i.key);
   if (botIds.join() !== HUB.needs.ids.join()) HUB.needs = {v:HUB.needs.v + 1, ids:botIds};   // CONTRACT v2: the call pool + the line
-  $('#cw').dataset.n = n; $('#d10').textContent = Math.min(9, Math.floor(n/10)); $('#d1').textContent = n > 99 ? 9 : n % 10; $('#ncount').textContent = ' · ' + n;
+  $('#cw').dataset.n = n; rollDigit($('#d10'), Math.min(9, Math.floor(n/10))); rollDigit($('#d1'), n > 99 ? 9 : n % 10); $('#ncount').textContent = ' · ' + n;
+  const baseTitle = renderNeeds.base || (renderNeeds.base = document.title);   // "(1) Designer needs you — The Crew"; plain at zero
+  document.title = n ? T.titleNeeds(n, items[0].bot ? items[0].who : items[0].who) : baseTitle;
   const cnt = {working:0, blocked:0, sleeping:0}; for (const a of bots) { const s = a.disp ? a.disp.status : a.st; if (cnt[s] != null) cnt[s]++; }
   $('#rsum').textContent = ['working', 'blocked', 'sleeping'].filter(k => cnt[k]).map(k => cnt[k] + ' ' + T.sum[k]).join(' · ');
   const cap = isWide ? 2 : 3, show = !isWide && needsAll ? items : items.slice(0, cap);
@@ -861,7 +943,40 @@ function renderNeeds(){
     : '<li class="none"><i class="g" aria-hidden="true">✓</i>' + esc(T.needsNone) + '</li>';
   const pl8 = $('#nplate'); pl8.hidden = !(isWide && plateOpen);
   if (!pl8.hidden) pl8.innerHTML = '<ul>' + items.slice(cap).map(chip).join('') + '</ul>';
+  if (qplate.key && !items.some(i => i.key === qplate.key)) closeQPlate();
 }
+function rollDigit(el, d){ d = String(d); if (el.textContent === d) return; el.textContent = d; el.classList.remove('roll'); if (!RMQ.matches && !TEST) { void el.offsetWidth; el.classList.add('roll'); } }
+const hubName = () => (HUB.theme && HUB.theme.name) || L().st.title;
+/* hover or focus a chip: a plate with the whole question and Yes / No / Not now, so he can answer from the top */
+const qplate = {key:null, el:null, t:0};
+function needFor(key){ return needItems().find(i => i.key === key); }
+function openQPlate(li){
+  if (!isWide || !DB) return;
+  const btn = li.querySelector('.need'); if (!btn) return;
+  const key = btn.dataset.sel; if (qplate.key === key && qplate.el && qplate.el.isConnected) return;
+  closeQPlate(); const it = needFor(key); if (!it) return;
+  const T = L(), a = it.bot ? byId[key] : null, id = a ? botAnswerId(a) : key.slice(2);
+  const el = document.createElement('div'); el.className = 'qplate'; el.setAttribute('role', 'group'); el.setAttribute('aria-label', it.who);
+  el.innerHTML = '<div class="lbl">' + esc(a ? T.askedBy(it.who) : it.who) + '</div><div class="qfull">' + esc(it.text) + '</div>' +
+    '<div class="ans" data-q="' + esc(id) + '" data-to="' + esc(a ? a.id : 'code') + '" data-text="' + esc(it.text) + '"><button type="button" class="btn" data-a="Yes">' + esc(T.ans.Yes) + '</button><button type="button" class="btn" data-a="No">' + esc(T.ans.No) + '</button><button type="button" class="btn" data-a="Not now">' + esc(T.ans['Not now']) + '</button>' +
+    '<button type="button" class="typeit" data-type="' + esc(key) + '">' + esc(T.typeIt) + '</button></div>';
+  const box = $('#needs'), r = btn.getBoundingClientRect(), rb = box.getBoundingClientRect();
+  el.style.left = Math.max(0, Math.min(rb.width - 360, r.left - rb.left)) + 'px';
+  box.append(el); wireAnswers(el); qplate.key = key; qplate.el = el;
+  el.addEventListener('mouseenter', () => clearTimeout(qplate.t));
+  el.addEventListener('mouseleave', () => { clearTimeout(qplate.t); qplate.t = setTimeout(() => { if (!(qplate.el && qplate.el.contains(document.activeElement))) closeQPlate(); }, 260); });
+  el.addEventListener('focusout', e => { if (!el.contains(e.relatedTarget) && !$('#nlist').contains(e.relatedTarget)) { clearTimeout(qplate.t); qplate.t = setTimeout(closeQPlate, 120); } });
+}
+function closeQPlate(){ clearTimeout(qplate.t); if (qplate.el) qplate.el.remove(); qplate.key = null; qplate.el = null; }
+$('#nlist').addEventListener('mouseover', e => { const li = e.target.closest('#nlist > li'); if (li && li.querySelector('.need')) { clearTimeout(qplate.t); openQPlate(li); } });
+$('#nlist').addEventListener('focusin', e => { const li = e.target.closest('#nlist > li'); if (li && li.querySelector('.need')) { clearTimeout(qplate.t); openQPlate(li); } });
+$('#nlist').addEventListener('mouseleave', () => { clearTimeout(qplate.t); qplate.t = setTimeout(() => { if (!(qplate.el && qplate.el.contains(document.activeElement))) closeQPlate(); }, 260); });
+$('#nlist').addEventListener('focusout', e => { if (!$('#nlist').contains(e.relatedTarget) && !(qplate.el && qplate.el.contains(e.relatedTarget))) { clearTimeout(qplate.t); qplate.t = setTimeout(closeQPlate, 120); } });
+/* Notifications (CONVENIENCES #10): this account's artifact runtime (contract 0.2.58) has no notifications capability,
+   so v27 ships the tab title ("(1) Designer needs you") + this chime only.
+   TODO(notifications): when a notifications capability exists, notify only while the tab is hidden, only his loops
+   (newly blocked on him, 15 min pre-run with questions open, missed run, his loop closed), max one per 10 min, merged;
+   a click focuses the tab and opens that card. */
 /* the needs-you bell (ART 8.8): C5 + G5, felt-damped, quiet; off by default, one switch */
 let actx = null, dingAt = 0;
 function ding(){
@@ -873,6 +988,41 @@ function ding(){
       g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.05, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + 1.1);
       o.connect(g).connect(lp); o.start(t0); o.stop(t0 + 1.2); }
   } catch (e) { /* no audio here */ }
+}
+
+/* ================= new since he last looked (per device, hub-seen-map): a brass dot, never orange ================= */
+let seenMap = null; try { seenMap = JSON.parse(store.get('hub-seen-map') || 'null'); } catch (e) { seenMap = null; }
+if (!seenMap || typeof seenMap !== 'object') seenMap = {}; for (const k of ['tabs', 'rows', 'tasks']) if (!seenMap[k] || typeof seenMap[k] !== 'object') seenMap[k] = {};
+let seenSaveT = 0, viewedT = 0;
+function saveSeen(){ clearTimeout(seenSaveT); seenSaveT = setTimeout(() => store.set('hub-seen-map', JSON.stringify(seenMap)), 400); }
+const rowSig = a => shownSt(a) + '|' + (a.doing || '') + '|' + (a.ask || '');
+const taskSig = x => statusKey(x.status) + '|' + (x.owner || '') + '|' + (x.task || '');
+function isNewRow(a){ if (!gotAgents || replay) return false; const v = seenMap.rows[a.id]; if (v == null) { seenMap.rows[a.id] = rowSig(a); saveSeen(); return false; } return v !== rowSig(a); }
+function isNewTask(x){ if (!board) return false; const v = seenMap.tasks[x.id]; if (v == null) { seenMap.tasks[x.id] = taskSig(x); saveSeen(); return false; } return v !== taskSig(x); }
+function newestEv(){ const e = events.find(x => !x.approx); return e ? e.atMs : 0; }
+function tabHasNew(t){
+  if (t === 'crew') return bots.some(isNewRow);
+  if (t === 'board') return [...((board && board.now) || []), ...((board && board.next) || [])].some(isNewTask);
+  if (t === 'log') { if (!gotEvents) return false; if (seenMap.tabs.log == null) { seenMap.tabs.log = newestEv(); saveSeen(); } return newestEv() > seenMap.tabs.log; }
+  return false;
+}
+function renderTabDots(){
+  for (const t of ['crew', 'board', 'log']) { const b = $('#tab-' + t), on = tabHasNew(t), d = b.querySelector('.new-dot');
+    if (on && !d) b.insertAdjacentHTML('beforeend', '<i class="new-dot" aria-hidden="true"></i>'); else if (!on && d) d.remove();
+    if (on && t === tab) armViewed(); }
+}
+function armViewed(){ clearTimeout(viewedT); viewedT = setTimeout(() => { if (looking()) markViewed(tab); }, 4000); }
+function markViewed(t){
+  if (t === 'crew') { for (const a of bots) seenMap.rows[a.id] = rowSig(a); }
+  else if (t === 'board') { for (const x of [...((board && board.now) || []), ...((board && board.next) || [])]) seenMap.tasks[x.id] = taskSig(x); }
+  else if (t === 'log') seenMap.tabs.log = newestEv();
+  else return;
+  saveSeen(); if (t === 'crew') renderRoster(); else if (t === 'board') renderBoard(); renderTabDots();
+}
+function markOne(key){
+  if (byId[key]) seenMap.rows[key] = rowSig(byId[key]);
+  else if (key && key.startsWith('t:')) { const x = taskOf(key.slice(2)); if (x) seenMap.tasks[x.id] = taskSig(x); }
+  else return; saveSeen();
 }
 
 /* ================= the crew list: fixed seats 01-10, two floors, like mission-control consoles ================= */
@@ -893,13 +1043,13 @@ function renderRoster(){
   for (const a of bots) {
     if (a.def.floor !== fl) { fl = a.def.floor; html += '<li class="fl lbl">' + esc(T.fl[fl]) + '</li>'; }
     const st = shownSt(a);
-    html += '<li><button type="button" class="row ' + (st === 'sleeping' ? 'asleep' : st === 'blocked' ? 'stuck' : st) + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' +
+    html += '<li><button type="button" class="row ' + (st === 'sleeping' ? 'asleep' : st === 'blocked' ? 'stuck' : st) + '" data-sel="' + a.id + '" aria-pressed="' + (a.id === selected) + '">' + (isNewRow(a) ? '<i class="new-dot" aria-hidden="true"></i>' : '') +
       '<span class="seat">' + a.def.seat + '</span><span class="av32">' + avatar(a.def) + '</span>' +
       '<span class="t"><span class="nm">' + esc(tx(a.def.name)) + '</span><span class="d">' + esc(lineOf(a, st)) + '</span></span>' +
       '<span class="rt">' + stWord(st) + '<span class="since">' + esc(rightNote(a, st)) + '</span></span></button></li>';
     if (a.id === 'hub-keeper') { const sc = scoutList(); if (sc.length) { const w = sc.filter(t => t.status === 'working').length; html += '<li class="scouts">' + sc.slice(0, 8).map(() => '<i></i>').join('') + esc(T.scouts(sc.length)) + (w ? ' · ' + esc(T.scoutsNow(w)) : '') + '</li>'; } }
   }
-  $('#roster').innerHTML = html;
+  $('#roster').innerHTML = html; renderTabDots(); applySearch();
 }
 
 /* ================= the card (a museum wall label): a robot, or a question ================= */
@@ -909,7 +1059,7 @@ function answerBlock(id, q, to){
   else if (a) {
     if (a.answer === 'Not now' && a.back) return '<div class="ans-done">' + esc(T.parked(tFmt.format(Date.parse(a.back.after)))) + '</div>';
     const ms = Date.parse(a.at || ''); const seen = kingSeen(ms);
-    return '<div class="ans-done">' + esc(T.ansYou) + ' <b>' + esc(a.answer === 'Reply' ? (a.note || 'Reply') : (T.ans[a.answer] || a.answer)) + '</b>' + (a.note && a.answer !== 'Reply' ? ': ' + esc(a.note) : '') + (ms ? ' · ' + esc(whenLabel(ms)) : '') + '<span class="rcpt' + (seen ? '' : ' no') + '">' + esc(seen ? T.ansSeen : T.ansWait) + '</span></div>'; }
+    return '<div class="ans-done">' + esc(T.ansYou) + ' <b>' + esc(a.answer === 'Reply' ? (a.note || 'Reply') : (T.ans[a.answer] || a.answer)) + '</b>' + (a.note && a.answer !== 'Reply' ? ': ' + esc(a.note) : '') + (ms ? ' · ' + esc(whenLabel(ms)) : '') + '<span class="rcpt' + (seen ? '' : ' no') + '">' + esc(seen ? T.ansSeen : T.ansWait) + '</span> ' + cpBtn(id + ': ' + (a.answer === 'Reply' ? a.note : a.answer + (a.note ? ' (' + a.note + ')' : ''))) + '</div>'; }
   if (!DB) return '';
   return '<div class="ans" data-q="' + esc(id) + '" data-to="' + esc(to || '') + '" data-text="' + esc(q) + '">' +
     '<button type="button" class="btn" data-a="Yes">' + esc(T.ans.Yes) + '</button><button type="button" class="btn" data-a="No">' + esc(T.ans.No) + '</button><button type="button" class="btn" data-a="Not now">' + esc(T.ans['Not now']) + '</button>' +
@@ -946,7 +1096,7 @@ function cardBot(a){
     (asked ? '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(botAsk(a)) + '</div>' + answerBlock(qid, botAsk(a), a.id) + '</div>' : '') +
     (st === 'blocked' ? '<div class="stuckb"><div class="lbl">' + esc(T.stuck) + '</div><div class="v">' + esc(a.doing || T.nothingNow) + '</div></div>' : '') +
     '<dl class="facts">' +
-    (!asked && st !== 'blocked' ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? '<span class="task">' + esc(a.task) + '</span>' : '') + '</dd>' : '') +
+    (!asked && st !== 'blocked' ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
     (prog && st === 'working' ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
     '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + (d.orphan ? ' · <span class="stale">' + esc(T.orphan(tFmt.format(d.orphan))) + '</span>' : d.stale ? ' · <span class="stale">' + esc(T.noCheckout) + '</span>' : '') + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
@@ -955,16 +1105,36 @@ function cardBot(a){
     (mine.length > 1 ? '<dt>' + esc(T.f.recent) + '</dt><dd><ol class="recent">' + mine.map(e => '<li><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span>' + esc(e.text) + '</span></li>').join('') + '</ol></dd>' : '') +
     '<dt>' + esc(T.f.lives) + '</dt><dd>' + esc(tx(c.home)) + '</dd><dt>' + esc(T.f.reach) + '</dt><dd>' + esc(tx(c.reach)) + '</dd></dl>';
 }
+/* a task: everything the hub knows about it in one place */
+const CP_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
+const cpBtn = text => '<button type="button" class="cp" data-copy="' + esc(text) + '" aria-label="' + esc(L().copy) + '" title="' + esc(L().copy) + '">' + CP_SVG + '</button>';
+const taskRx = id => new RegExp('(^|[^A-Za-z0-9])' + id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])');
+function taskOf(id){ return [...((board && board.now) || []).map(x => Object.assign({_next:false}, x)), ...((board && board.next) || []).map(x => Object.assign({_next:true}, x))].find(x => x.id === id); }
+function cardTask(id){
+  const T = L(), x = taskOf(id), rx = taskRx(id);
+  const evs = events.filter(e => e.task === id || rx.test(e.text));
+  const ans = Object.values(answers).filter(a => a && (a.id === id || rx.test(String(a.q || '') + ' ' + String(a.note || ''))));
+  const at = Math.max(x ? Date.parse(x.at || '') || 0 : 0, evs.length ? evs[0].atMs : 0);
+  const k = x ? statusKey(x.status) : '';
+  const stMap = {doing:'working', blocked:'blocked', review:'waiting', done:'done', parked:'sleeping', todo:'idle'};
+  return railHtml() + '<div class="card-h"><span class="no">' + esc(T.task.h) + ' · ' + esc(id) + ' ' + cpBtn(id) + '</span><h2>' + esc(x ? x.task : id) + '</h2>' +
+    (x ? '<span class="wear">' + esc(ownerLabel(x.owner)) + (x._next ? ' · ' + esc(T.nextTag) : '') + '</span><span class="stl"><span class="stw" style="--c:' + stColor(stMap[k]) + '"><i class="g">' + GLYPH[stMap[k]] + '</i>' + esc(T.tst[k]) + '</span>' + (at ? ' <span class="src">' + esc(sinceText(at).replace('+', '')) + '</span>' : '') + '</span>' : '<span class="wear">' + esc(T.task.none) + '</span>') + closeBtn() + '</div>' +
+    '<dl class="facts">' +
+    (x ? '<dt>' + esc(T.task.owner) + '</dt><dd' + (isHuman(x.owner) ? ' style="color:var(--human)"' : '') + '>' + esc(ownerLabel(x.owner)) + '</dd><dt>' + esc(T.task.status) + '</dt><dd>' + esc(T.tst[k]) + '</dd>' : '') +
+    (at ? '<dt>' + esc(T.task.age) + '</dt><dd>' + esc(ago(at)) + ' · <time>' + esc(whenLabel(at)) + '</time></dd>' : '') +
+    (ans.length ? '<dt>' + esc(T.task.ans) + '</dt><dd>' + ans.map(a => '<div class="cpwrap">' + esc((a.id || '') + ': ' + (T.ans[a.answer] || a.answer) + (a.note ? ' (' + a.note + ')' : '')) + ' ' + cpBtn((a.id || '') + ': ' + a.answer + (a.note ? ' (' + a.note + ')' : '')) + '</div>').join('') + '</dd>' : '') +
+    '<dt>' + esc(T.task.log) + '</dt><dd>' + (evs.length ? '<ol class="feed tfacts">' + evs.slice(0, 20).map(evItem).join('') + '</ol>' : esc(T.task.nolog)) + '</dd></dl>';
+}
 let cardSig = '';
 function renderCard(force){
   const el = $('#card');
   if (!selected) { el.classList.remove('open'); el.innerHTML = ''; cardSig = ''; setCarded(); return; }
   const a = byId[selected], typing = el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT';
   const rail = bots.map(b => shownSt(b)).join();
-  const sig = [lang, selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify((board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
+  const sig = [lang, selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
   if (!force && (sig === cardSig || typing)) return;
   cardSig = sig;
-  const html = a ? cardBot(a) : selected.startsWith('q:') ? cardQuestion(selected.slice(2)) : '';
+  const html = a ? cardBot(a) : selected.startsWith('q:') ? cardQuestion(selected.slice(2)) : selected.startsWith('t:') ? cardTask(selected.slice(2)) : '';
   if (!html) { selected = null; renderCard(); return; }
   const top = el.scrollTop; el.innerHTML = html; el.scrollTop = top; el.classList.add('open'); wireAnswers(el); setCarded();
 }
@@ -973,7 +1143,8 @@ function select(key, opts){
   const prev = selected;
   selected = key && key !== selected ? key : (key === selected && !(opts && opts.keep) ? null : key);
   if (selected && cam === 'follow' && !byId[selected]) setCam('all');
-  cardSig = ''; renderCard(); renderRoster(); renderNeeds(); hideHint();
+  if (selected) markOne(selected);
+  cardSig = ''; renderCard(); renderRoster(); renderNeeds(); hideHint(); if (selected && selected.startsWith('t:') || prev && prev.startsWith('t:')) renderBoard();
   if (selected && selected !== prev) { const c = $('#card'); c.scrollTop = 0; }
   if (opts && opts.focusRail && selected) { const b = document.querySelector('#card .rail [data-sel="' + selected + '"]'); if (b) b.focus(); }
 }
@@ -1021,6 +1192,8 @@ function wireAnswers(root){
 /* ================= the board, King's orders, memory, logs ================= */
 function ownerKey(o){ const s = String(o || '').toLowerCase(); if (s.startsWith('king')) return 'king'; if (s.startsWith('cow')) return 'cowork'; if (s.startsWith('code') || s.includes('claude code')) return 'code'; if (s.startsWith('fil') || s === 'you') return 'filthe'; if (s.startsWith('boss') || s.startsWith('jefe') || s.startsWith('the boss')) return 'boss'; const a = byId[canon(s)]; if (a) return a.def.lane === 'chat' ? 'cowork' : 'code'; return 'x'; }
 function statusKey(s){ const u = String(s || '').toUpperCase(); if (u.startsWith('DOING') || u.startsWith('ONGOING')) return 'doing'; if (u.startsWith('BLOCK')) return 'blocked'; if (u.startsWith('REVIEW')) return 'review'; if (u.startsWith('DONE')) return 'done'; if (u.startsWith('PARK')) return 'parked'; return 'todo'; }
+const taskChip = id => /^[TD]\d+$/i.test(id) && !/^D/i.test(id) ? '<button type="button" class="task" data-sel="t:' + esc(id) + '">' + esc(id) + '</button>' : '<span class="task">' + esc(id) + '</span>';
+const coworkSilent = () => { const c = byId.cowork; let last = c.atMs || 0; for (const e of events) if (e.agent === 'cowork') { last = Math.max(last, e.atMs); break; } return Date.now() - last > 24*3600e3; };
 const isHuman = o => ['filthe', 'boss'].includes(ownerKey(o));
 function ownerLabel(o){ const k = ownerKey(o), T = L(); if (T.ownersH[k]) return T.ownersH[k]; const a = byId[canon(String(o || '').toLowerCase())]; return a ? tx(a.def.name) : String(o || '?'); }
 function kingHtml(){
@@ -1030,7 +1203,8 @@ function kingHtml(){
   const head = '<div class="subh"><h2 class="lbl">' + esc(T.kOrders) + '</h2>' + (ms ? '<span class="src">' + esc(whenLabel(ms)) + '</span>' : '') + '</div>';
   if (!kingDoc || !(kingDoc.orders || []).length) return '<div class="orders">' + head + '<p class="empty">' + esc(T.kNone) + '</p>' + logList + '</div>';
   return '<div class="orders">' + head + (kingDoc.summary ? '<p class="ksum">' + esc(kingDoc.summary) + '</p>' : '') +
-    '<ol>' + kingDoc.orders.slice(0, 8).map((o, i) => '<li><span class="on">' + String(i + 1).padStart(2, '0') + '</span><span><span class="to' + (isHuman(o.to) ? ' human' : '') + '">' + esc(ownerLabel(o.to)) + '</span>' + esc(o.text) + (o.task ? '<span class="task">' + esc(o.task) + '</span>' : '') + '</span></li>').join('') + '</ol>' + logList + '</div>';
+    '<ol>' + kingDoc.orders.slice(0, 8).map((o, i) => '<li><span class="on">' + String(i + 1).padStart(2, '0') + '</span><span><span class="to' + (isHuman(o.to) ? ' human' : '') + '">' + esc(ownerLabel(o.to)) + '</span>' + esc(o.text) + (o.task ? taskChip(o.task) : '') + ' ' + cpBtn(o.text + (o.task ? ' (' + o.task + ')' : '')) +
+      (ownerKey(o.to) === 'cowork' && coworkSilent() ? '<br><button type="button" class="cowork-copy" data-copy="' + esc(T.cwPrompt(o.text, o.task)) + '">' + esc(T.copyCowork) + '</button>' : '') + '</span></li>').join('') + '</ol>' + logList + '</div>';
 }
 const doneOpen = new Set();
 const GROUP_ORDER = ['blocked', 'doing', 'review', 'todo', 'parked'];
@@ -1039,8 +1213,8 @@ function renderBoard(){
   $('#ordersBox').innerHTML = kingHtml();
   if (!board) { box.innerHTML = '<p class="empty">' + esc(T.bEmpty) + '</p>'; $('#boardSrc').textContent = ''; return; }
   const row = x => { const k = statusKey(x.status), at = Date.parse(x.at || '') || 0;
-    return '<li class="trow s-' + k + '"><span class="tid">' + esc(x.id) + '</span><span class="tt">' + esc(x.task) + '</span><span class="tmeta"><span class="own' + (isHuman(x.owner) ? ' human' : '') + '">' + esc(ownerLabel(x.owner)) + '</span>' +
-      (x._next ? '<span class="nx">' + esc(T.nextTag) + '</span>' : '') + (at ? '<span class="num">' + esc(sinceText(at).replace('+', '')) + '</span>' : '') + '</span></li>'; };
+    return '<li><button type="button" class="trow s-' + k + '" data-sel="t:' + esc(x.id) + '" aria-pressed="' + (selected === 't:' + x.id) + '">' + (isNewTask(x) ? '<i class="new-dot" aria-hidden="true"></i>' : '') + '<span class="tid">' + esc(x.id) + '</span><span class="tt">' + esc(x.task) + '</span><span class="tmeta"><span class="own' + (isHuman(x.owner) ? ' human' : '') + '">' + esc(ownerLabel(x.owner)) + '</span>' +
+      (x._next ? '<span class="nx">' + esc(T.nextTag) + '</span>' : '') + (at ? '<span class="num">' + esc(sinceText(at).replace('+', '')) + '</span>' : '') + '</span></button></li>'; };
   const all = [...(board.now || []).map(x => Object.assign({}, x, {_next:false})), ...(board.next || []).map(x => Object.assign({}, x, {_next:true}))];
   const open = openAsks(), answered = (board.waiting || []).filter(x => answerOf(x.id));
   const grp = (key, label, n, inner) => '<section class="bgroup"><h3 class="lbl"><span>' + esc(label) + '</span><span class="num">' + n + '</span></h3>' + inner + '</section>';
@@ -1056,7 +1230,7 @@ function renderBoard(){
   for (const d of box.querySelectorAll('details[data-g]')) d.addEventListener('toggle', () => { if (d.open) doneOpen.add(d.dataset.g); else doneOpen.delete(d.dataset.g); });
   const ms = Date.parse(board.updatedAt || board.syncedAt || ''); const old = ms && Date.now() - ms > 24*3600e3;
   $('#boardSrc').innerHTML = ms ? esc(T.bUpdated(ago(ms), board.updatedBy || '')) + (old ? ' · <span class="stale">' + esc(T.bOld) + '</span>' : '') : '';
-  boardInfo(); trophies();
+  boardInfo(); trophies(); renderTabDots(); applySearch();
 }
 /* what the glass board upstairs shows: real cards by column */
 function boardInfo(){
@@ -1090,15 +1264,55 @@ function pickedUp(e){ const a = byId[e.to]; if (a && a.atMs > e.atMs) return tru
 function evItem(e){
   const a = byId[e.agent], who = e.name && !a ? e.name : nameOf(e.agent);
   const to = e.kind === 'handoff' && e.to ? ' <span class="to">→ ' + esc(nameOf(e.to)) + '</span><span class="rcpt' + (pickedUp(e) ? '' : ' no') + '">' + esc(pickedUp(e) ? L().picked : L().notPicked) + '</span>' : '';
-  return '<li class="ev' + (e._fresh ? ' fresh' : '') + (replay && replay.cur === e.id ? ' hl' : '') + '"><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span class="k" style="--c:' + (KIND_C[e.kind] || 'var(--muted)') + '" aria-hidden="true">' + (KIND[e.kind] || '·') + '</span><div><span class="who">' + esc(who) + '</span>' + to + (e.task ? '<span class="task">' + esc(e.task) + '</span>' : '') + '<p>' + esc(e.text) + '</p></div></li>';
+  return '<li class="ev' + (e._fresh ? ' fresh' : '') + (replay && replay.cur === e.id ? ' hl' : '') + '"><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span class="k" style="--c:' + (KIND_C[e.kind] || 'var(--muted)') + '" aria-hidden="true">' + (KIND[e.kind] || '·') + '</span><div><span class="who">' + esc(who) + '</span>' + to + (e.task ? taskChip(e.task) : '') + '<p>' + esc(e.text) + '</p></div>' + cpBtn((e.atMs ? tFmt.format(e.atMs) + ' ' : '') + who + (e.to && e.kind === 'handoff' ? ' → ' + nameOf(e.to) : '') + ': ' + e.text) + '</li>';
 }
 function floorOfEvent(e){ const a = byId[e.agent]; if (a) return a.def.floor; if (e.agent === 'you') return 'up'; const t = temps.get(e.agent); if (t && byId[canon(t.boss || '')]) return byId[canon(t.boss)].def.floor; return e.lane === 'chat' ? 'down' : 'up'; }
+/* the Log: one list, newest first, day headers, a filter, and "Older" for the rest of what's loaded */
+let logFilter = 'all', logShown = 40;
+const dayKey = ms => dFmt.format(ms);
+function dayLabel(ms){ const T = L(), k = dayKey(ms); if (k === dayKey(Date.now())) return T.today; if (k === dayKey(Date.now() - 864e5)) return T.yesterday; return k; }
+function logPass(e){
+  if (logFilter === 'up' || logFilter === 'down') return floorOfEvent(e) === logFilter;
+  if (logFilter === 'handoff') return e.kind === 'handoff' && e.agent !== 'you';
+  if (logFilter === 'answers') return e.agent === 'you' || e.kind === 'decided';
+  return true;
+}
 function renderFeeds(){
-  for (const f of ['up', 'down']) {
-    const list = events.filter(e => floorOfEvent(e) === f).slice(0, 40);
-    (f === 'up' ? $('#feedCode') : $('#feedChat')).innerHTML = list.length ? list.map(evItem).join('') : '<li class="empty">' + esc(L().feedEmpty) + '</li>';
-  }
+  const all = events.filter(logPass), list = all.slice(0, logShown);
+  let html = '', day = '';
+  for (const e of list) { const k = e.atMs ? dayKey(e.atMs) : ''; if (k !== day) { day = k; html += '<li class="dayh">' + esc(e.atMs ? dayLabel(e.atMs) : '') + '</li>'; } html += evItem(e); }
+  $('#feed').innerHTML = html || '<li class="empty">' + esc(L().feedEmpty) + '</li>';
+  $('#olderBtn').hidden = all.length <= logShown;
   for (const e of events) e._fresh = false;
+  renderTabDots(); applySearch();
+}
+$('#logFilter').addEventListener('click', e => { const b = e.target.closest('[data-lf]'); if (!b) return; logFilter = b.dataset.lf; logShown = 40;
+  for (const x of document.querySelectorAll('#logFilter [data-lf]')) x.setAttribute('aria-pressed', String(x === b)); renderFeeds(); });
+$('#olderBtn').addEventListener('click', () => { logShown += 40; renderFeeds(); });
+
+/* search: "/" focuses it; filters what the active tab shows; Esc clears */
+function applySearch(){
+  const inp = $('#q'); if (!inp) return; const q = normAsk(inp.value);
+  const P = $('#tp-' + tab); if (!P) return;
+  const sel = {crew:'#roster > li:not(.fl)', board:'#boardBody .tasks > li, #boardBody .qrow, #ordersBox li', log:'#feed > li:not(.dayh)', chat:'#memList li, #kcLog li'}[tab];
+  let hits = 0, total = 0;
+  for (const tp of document.querySelectorAll('.tpanel')) if (tp !== P) for (const n of tp.querySelectorAll('[data-hit]')) { n.hidden = false; n.removeAttribute('data-hit'); }
+  for (const n of P.querySelectorAll(sel)) { total++; const on = !q || normAsk(n.textContent).includes(q); n.hidden = !on; if (q) n.setAttribute('data-hit', ''); else n.removeAttribute('data-hit'); if (on) hits++; }
+  if (tab === 'log') for (const h of P.querySelectorAll('#feed > .dayh')) { let n = h.nextElementSibling, any = false; while (n && !n.classList.contains('dayh')) { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }
+  if (tab === 'crew') for (const h of P.querySelectorAll('#roster > .fl')) { let n = h.nextElementSibling, any = false; while (n && !n.classList.contains('fl')) { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !!q && !any; }
+  let nh = P.querySelector('.nohit'); if (q && total && !hits) { if (!nh) { nh = document.createElement('p'); nh.className = 'nohit'; P.prepend(nh); } nh.textContent = L().noHits(inp.value.trim()); } else if (nh) nh.remove();
+}
+$('#q').addEventListener('input', applySearch);
+$('#q').addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); e.target.value = ''; applySearch(); e.target.blur(); } });
+
+/* copy: quiet buttons on task ids, answers, orders and log lines */
+async function copyText(text, btn){
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+    try { const t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0'; document.body.append(t); t.select(); ok = document.execCommand('copy'); t.remove(); } catch (e2) { ok = false; }
+  }
+  if (btn) { const was = btn.getAttribute('title'); btn.setAttribute('title', ok ? L().copiedS : text); btn.style.color = ok ? 'var(--brass-hi)' : ''; setTimeout(() => { btn.setAttribute('title', was || ''); btn.style.color = ''; }, 1500); }
+  appToast(ok ? L().copiedS : text, 1500);
 }
 function setLive(state, text){ const el = $('#live'); el.dataset.state = state; $('#liveText').textContent = text; }
 /* "Updated just now": from the newest snapshot of anything, ticking in place */
@@ -1200,7 +1414,7 @@ function placeOverlay(){
     const showBub = !!kind && !an.moving;
     o.bub.classList.toggle('on', showBub);
     const showTag = !showBub && (a.id === selected || isWide);
-    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected);
+    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected); o.tag.classList.toggle('keep', a.st === 'waiting' || a.st === 'blocked' || a.id === selected);
     if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     const sleeping = an.pose === 'sleep' && !an.moving;
     o.zz.classList.toggle('on', sleeping);
@@ -1266,7 +1480,7 @@ function setTab(t, focus){
   if (!TABS.includes(t)) return; tab = t; store.set('hub-tab', t); $('#panel').dataset.tab = t;
   for (const k of TABS) { const b = $('#tab-' + k), on = k === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; $('#tp-' + k).hidden = !on; }
   if (focus) $('#tab-' + t).focus();
-  $('#tbody').scrollTop = 0;
+  $('#tbody').scrollTop = 0; renderTabDots(); applySearch();
 }
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; if (b.dataset.tab === 'crew' && tab === 'crew' && selected && isWide) select(null); setTab(b.dataset.tab); });
 $('#tabs').addEventListener('keydown', e => {
@@ -1278,28 +1492,69 @@ $('#tabs').addEventListener('keydown', e => {
 /* ================= one click handler for rows, needs, the rail and cards ================= */
 document.addEventListener('click', e => {
   if (plateOpen && !e.target.closest('#needs')) { plateOpen = false; renderNeeds(); }
+  if (!e.target.closest('#viewMenu,#camMore')) closeViewMenu();
+  const c = e.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c.classList.contains('cp') ? c : null); return; }
+  const ty = e.target.closest('[data-type]'); if (ty) { closeQPlate(); select(ty.dataset.type, {keep:true}); const i = $('#card input'); if (i) i.focus(); return; }
   const t = e.target.closest('[data-sel],[data-close],[data-more]'); if (!t) return;
   if (t.hasAttribute('data-more')) { if (isWide) plateOpen = !plateOpen; else needsAll = !needsAll; renderNeeds(); return; }
   if (t.hasAttribute('data-close')) { select(null); return; }
   if (t.closest('#nplate')) { plateOpen = false; }
+  if (t.closest('.qplate')) closeQPlate();
+  if (t.dataset.sel.startsWith('t:') && !isWide) setTab('board');
   select(t.dataset.sel, t.hasAttribute('data-rail') ? {keep:true, focusRail:true} : null);
 });
 
+/* ================= the camera "More" menu (only views the scene has built) ================= */
+const MORE_KEYS = {blueprint:'2', cctv:'3', window:'5', tilt:'6', tour:'7', director:'8', eyes:'9'};
+function openViewMenu(){
+  const extra = builtViews().filter(v => !BASE_VIEWS.includes(v)); if (!extra.length) return;
+  const m = $('#viewMenu'), r = $('#camMore').getBoundingClientRect();
+  m.innerHTML = extra.map(v => '<button type="button" class="tb" role="menuitemradio" data-cam="' + v + '" aria-checked="' + (cam === v) + '"><span class="k">' + (MORE_KEYS[v] || '') + '</span>' + esc(L().views[v] || v) + '</button>').join('');
+  m.hidden = false; m.style.left = Math.round(r.left) + 'px'; m.style.bottom = Math.round(innerHeight - r.top + 6) + 'px';
+  $('#camMore').setAttribute('aria-expanded', 'true'); const f = m.querySelector('button'); if (f) f.focus();
+}
+function closeViewMenu(){ if ($('#viewMenu').hidden) return; $('#viewMenu').hidden = true; $('#camMore').setAttribute('aria-expanded', 'false'); }
+$('#camMore').addEventListener('click', () => { if ($('#viewMenu').hidden) openViewMenu(); else closeViewMenu(); });
+$('#viewMenu').addEventListener('click', e => { const b = e.target.closest('[data-cam]'); if (b) { setCam(b.dataset.cam); closeViewMenu(); } });
+
+/* ================= names on/off (N), the keys sheet (?) ================= */
+let namesOff = store.get('hub-names') === 'off';
+function applyNames(){ document.getElementById('app').classList.toggle('tagsoff', namesOff); }
+function toggleNames(){ namesOff = !namesOff; store.set('hub-names', namesOff ? 'off' : 'on'); applyNames(); appToast(namesOff ? L().namesOff : L().namesOn, 1800); }
+function renderKeys(){ $('#keysList').innerHTML = L().keys.map(([k, d]) => '<dt>' + k.split(' ').map(x => x === '–' ? '<span aria-hidden="true">–</span>' : '<kbd>' + esc(x) + '</kbd>').join('') + '</dt><dd>' + esc(d) + '</dd>').join(''); }
+function openKeys(){ renderKeys(); $('#keys').hidden = false; $('#keysX').focus(); }
+function closeKeys(){ if ($('#keys').hidden) return false; $('#keys').hidden = true; return true; }
+$('#keysBtn').addEventListener('click', openKeys);
+$('#keysX').addEventListener('click', closeKeys);
+$('#keys').addEventListener('click', e => { if (e.target === $('#keys')) closeKeys(); });
+function nextQuestion(){
+  const it = needItems()[0]; if (!it) return;
+  if (!isWide) { const b = document.querySelector('#nlist .need'); if (b) b.scrollIntoView({block:'nearest'}); }
+  select(it.key, {keep:true});
+  const y = document.querySelector('#card .ans [data-a="Yes"]'); if (y) y.focus();   // focus only: Enter confirms the focused button; no key sends by itself
+}
+
 /* ================= keys: never while a field has focus; read e.key (Spanish keyboards); no key ever sends an answer ================= */
 const typingIn = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+const VIEW_KEYS = {'1':'all', '2':'blueprint', '3':'cctv', '4':'follow', '5':'window', '6':'tilt', '7':'tour', '8':'director', '9':'eyes'};
+const TAB_KEYS = {c:'crew', b:'board', l:'log', h:'chat'};
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
+  if (e.key === 'Escape') { if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
   if (e.metaKey || e.ctrlKey || e.altKey || typingIn(document.activeElement)) return;
-  const k = e.key, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs'));
-  if (k === '1') setCam('all');
-  else if (k === '4') setCam('follow');
+  const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #keys'));
+  if (VIEW_KEYS[k]) { const v = VIEW_KEYS[k]; if (BASE_VIEWS.includes(v) || builtViews().includes(v)) { if (v === 'eyes' && !byId[selected]) nextOrKing(); setCam(v); } }
   else if (k === 'ArrowUp' && !inList) { e.preventDefault(); setCam('up'); }
   else if (k === 'ArrowDown' && !inList) { e.preventDefault(); setCam('down'); }
   else if ((k === 'ArrowLeft' || k === 'ArrowRight') && selected && byId[selected] && !e.target.closest('#tabs')) {
     e.preventDefault(); const i = bots.findIndex(a => a.id === selected), j = (i + (k === 'ArrowRight' ? 1 : bots.length - 1)) % bots.length; select(bots[j].id, {keep:true, focusRail:!!e.target.closest('.rail')}); }
-  else if (k === 'r' || k === 'R') refreshNow();
-  else return;
+  else if (lk === 'r') refreshNow();
+  else if (lk === 'n') toggleNames();
+  else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
+  else if (TAB_KEYS[lk]) { if (tab === TAB_KEYS[lk] && lk === 'c' && selected) select(null); setTab(TAB_KEYS[lk]); }
+  else if (k === '/') { e.preventDefault(); const q = $('#q'); q.focus(); q.select(); }
+  else if (k === '?') { e.preventDefault(); if (!closeKeys()) openKeys(); }
 });
+function nextOrKing(){ const w = waitingBots()[0] || byId.code; select(w.id, {keep:true}); }
 
 /* ================= the loop ================= */
 let prevNow = performance.now();
@@ -1352,7 +1607,7 @@ async function fireWake(quiet){
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden && wakeQ.length) fireWake(true); });
 window.addEventListener('pagehide', () => { if (wakeQ.length) fireWake(true); });
-function appToast(msg){ const n = $('#appToast'); n.textContent = msg; n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), 3800); }
+function appToast(msg, ms){ const n = $('#appToast'); n.textContent = msg; n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), ms || 3800); }
 $('#appToast').addEventListener('click', () => { clearTimeout(appToast.t); $('#appToast').hidden = true; });
 const WRITE_MS = 10000;
 const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'timeout'})), WRITE_MS))]);
@@ -1365,6 +1620,7 @@ function applyStatic(){
   const st = L().st;
   for (const n of document.querySelectorAll('[data-t]')) { const v = st[n.dataset.t]; if (v != null) n.textContent = v; }
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
+  $('#q').placeholder = st.searchPh; if (!$('#keys').hidden) renderKeys(); $('#logFilter').setAttribute('aria-label', lang === 'es' ? 'Mostrar' : 'Show');
   $('#kcInput').placeholder = st.kcPh; $('#replayBtn').title = L().replayAria; $('#refreshBtn').setAttribute('aria-label', L().refresh); $('#refreshBtn').title = L().refresh;
   $('#tabs').setAttribute('aria-label', [st.tCrew, st.tBoard, st.tLog, st.tChat].join(' · '));
   $('#still').alt = L().stillAlt;
@@ -1635,7 +1891,7 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 }
 
 /* ================= start ================= */
-applyStatic(); setTab(tab); setCam(cam); layout(); renderClock();
+applyStatic(); setTab(tab); setCam(cam); layout(); renderClock(); applyNames();
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
