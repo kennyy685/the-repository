@@ -1083,7 +1083,7 @@ const LAMPS = [
   {l:new THREE.PointLight(LAMPC, 16, 8, 2), p:[.4 + FL.up.ox, FL.up.oy + 1.55, .72 + FL.up.oz], k:16, halo:[[-.9,1.7,.72],[.4,1.7,.72],[1.7,1.7,.72]].map(([x,y,z]) => [x + FL.up.ox, y + FL.up.oy, z + FL.up.oz])},  // the Code lab bar
   {l:new THREE.PointLight(LAMPC, 7, 5, 2),  p:[1.0 + FL.up.ox, FL.up.oy + 1.12, -2.45 + FL.up.oz], k:7, halo:[[1.0 + FL.up.ox, FL.up.oy + 1.15, -2.62 + FL.up.oz]]},   // the King's desk lamp
   {l:new THREE.PointLight(LAMPC, 12, 7, 2), p:[3.4, 1.55, -.4], k:12, halo:[[3.4, 1.64, -.4]]},                                     // downstairs: sofa arc lamp
-  {l:new THREE.PointLight(LAMPC, 10, 7, 2), p:[-1.1, 1.7, 2.6], k:10, halo:[[-1.65, 1.84, 3.0], [-.75, 1.84, 3.0]]},               // coffee bar pendants
+  {l:new THREE.PointLight(LAMPC, 10, 7, 2), p:[-1.1, 1.7, 2.6], k:10, halo:[[-1.2, 1.84, 3.0, 1.45]]},               // coffee bar pendants (v28: the two overlapping halos are one wide sprite: half the additive overdraw)
   {l:new THREE.PointLight(LAMPC, 5, 5, 2),  p:[-2.4, 2.5, -2.1], k:5, halo:[[-3.4,2.77,-2.5],[-1.5,2.77,-2.5],[-3.4,2.77,-1.6],[-1.5,2.77,-1.6]]}   // charging bay downlights
 ];
 if (!PHONE) LAMPS.push({l:new THREE.PointLight(LAMPC, 6, 5, 2), p:[-4.25 + FL.up.ox, FL.up.oy + 1.45, 1.95 + FL.up.oz], k:6, halo:[[-4.25 + FL.up.ox, FL.up.oy + 1.52, 1.95 + FL.up.oz]]});   // Research corner
@@ -1091,7 +1091,7 @@ if (!PHONE) LAMPS.push({l:new THREE.PointLight(LAMPC, 6, 5, 2), p:[-4.25 + FL.up
 const halos = [];
 for (const L of LAMPS){ L.l.position.set(...L.p); scene.add(L.l);
   for (const h of L.halo){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffd9ae, transparent:true, opacity:.35, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
-    sp.scale.setScalar(L.k > 9 ? .7 : .5); sp.renderOrder = 8;
+    sp.scale.setScalar(L.k > 9 ? .7 : .5); if (h[3]) sp.scale.x = h[3]; sp.renderOrder = 8;
     if (h[1] > 2.95){ sp.position.set(h[0] - FL.up.ox, h[1] - FL.up.oy, h[2] - FL.up.oz); gUp.add(sp); } else { sp.position.set(...h); scene.add(sp); } halos.push(sp); } }
 // the call pool (signature 1): one SpotLight made now at 0, so it never recompiles shaders
 const pool = new THREE.SpotLight(LAMPC, 0, 7, .38, .7, 1.6); pool.position.set(0, 3.2, 0); scene.add(pool); scene.add(pool.target);
