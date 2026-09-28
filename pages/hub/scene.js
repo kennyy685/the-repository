@@ -26,7 +26,9 @@ const tx = o => o == null ? '' : typeof o === 'string' ? o : (o[HUB.lang] || o.e
 
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:true, powerPreference:'high-performance', preserveDrawingBuffer:CAPTURE});
+  // v28: no native MSAA on Retina/phones (DPR >= 1.5 already supersamples, and MSAA + alpha is the slow Safari/macOS path);
+  // a DPR-1 screen keeps MSAA, since 1x pixels are cheap and its edges would stair-step without it
+  renderer = new THREE.WebGLRenderer({canvas, antialias:(window.devicePixelRatio || 1) < 1.5, alpha:true, powerPreference:'high-performance', preserveDrawingBuffer:CAPTURE});
   if (!renderer.getContext()) throw new Error('no gl');
 } catch(e){ HUB.fallback(); throw e; }
 renderer.setClearColor(0x000000, 0);
@@ -1073,7 +1075,7 @@ function fitShadow(el){
   const inv = shadowEye.matrixWorld.clone().invert(); let l = 1e9, r = -1e9, b = 1e9, t = -1e9, n = 1e9, fr = -1e9;
   for (const [x, y, z, f] of SHADOW_PTS){ const oy = f === 'up' ? gUp.position.y : 0; SHV.set(x, y + oy, z).applyMatrix4(inv);
     l = Math.min(l, SHV.x); r = Math.max(r, SHV.x); b = Math.min(b, SHV.y); t = Math.max(t, SHV.y); n = Math.min(n, -SHV.z); fr = Math.max(fr, -SHV.z); }
-  const pad = .25; Object.assign(sc, {left:l - pad, right:r + pad, bottom:b - pad, top:t + pad, near:Math.max(.1, n - 1), far:fr + 1}); sc.updateProjectionMatrix();
+  const pad = .25; Object.assign(sc, {left:l - pad, right:r + pad, bottom:b - pad, top:t + pad, near:.5, far:fr + 1}); sc.updateProjectionMatrix();
   const g = 1 - Math.max(0, Math.min(1, (Math.sin(el) - Math.sin(8*Math.PI/180))/(Math.sin(50*Math.PI/180) - Math.sin(8*Math.PI/180))));   // 1 at a grazing 8 deg, 0 at 50 deg
   sun.shadow.normalBias = .018 + .027*g; sun.shadow.bias = -.0002 - .0003*g;
 }
