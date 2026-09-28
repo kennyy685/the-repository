@@ -1,5 +1,11 @@
 # HMP App changelog (newest first)
 
+## Practice Door v11 - 2026-09-28
+- New Plan tab: the 4-week practice-only path (docs/orders/sales-path.md) with today's day on top of Practice, one tap to start each step (language, homeowner and Rookie mode set for you), a checkbox per day and its own streak. Saved on this device only.
+- Ready-to-knock checklist that checks itself from your practice (opener passes in a row per language, runs, Rookie-off runs, drills passed, clean trap and Spanish-only runs, streak), plus "I can" for the one only you can judge.
+- Objections tab: the top 15 legal answers, EN and ES side by side, searchable, with "I know it by heart" marks (they feed the checklist). Lesson prompts are buttons: copy or open straight in Claude.
+- Aldaba look (graphite by default, Bricolage titles, the Aldaba mark) and a two-column MacBook layout; phone layout unchanged in order.
+
 ## AI hub v27 "Nocturne" - 2026-09-28
 - One MacBook screen, no page scroll: the office fills it and a side panel has Crew / Board / Log / Chat tabs. New dark night look (champagne = working, orange only when something needs you), "Make it yours" to change it, a living "mind" in the sky, and trackpad scroll flies the camera in.
 - Answer from the top bar, task cards, search (/), keyboard shortcuts (? shows them), reconnects by itself after the Mac sleeps, refresh with R, proof your answers landed, plus 12 conveniences (smart King wake-ups, missed-run alerts, "Not now" that comes back, a morning note).
