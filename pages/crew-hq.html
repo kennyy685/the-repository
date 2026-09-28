@@ -922,7 +922,8 @@ const TX = {
     nextShort: t => `next run ${t}`, allNormalS: 'All normal', quietS: 'Quiet by design', usageLine: (r, w, h) => `Today: ${r} ${r === 1 ? 'run' : 'runs'} · ${w} ${w === 1 ? 'wake' : 'wakes'} · ${h} Right Hand ${h === 1 ? 'reply' : 'replies'}`, usageH: 'Usage',
     nextIn: (t, m) => `${t} run in ${m} min`,
     greet: h => h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening', sinceLeft: n => n ? `${n} ${n === 1 ? 'update' : 'updates'} since you left.` : 'Nothing new since you left.',
-    receipt: 'Saved · the King has it', heldShort: 'goes out in 90 s or when you’re done', fold: 'Fold', unfold: n => `${n} asks you`, nextCall: n => `+${n}`,
+    receipt: 'Saved · the King has it', receiptRide: t => `Saved · rides the ${t} run`, wakeOffT: t => `Saved. Instant wake is off, so Claude Code reads it at the ${t} run.`,
+    wakeOffS: 'Instant wake off', wakeOffL: t => `Instant wake off: answers ride the ${t} run until the King posts its wake trigger.`, heldShort: 'goes out in 90 s or when you’re done', fold: 'Fold', unfold: n => `${n} asks you`, nextCall: n => `+${n}`,
     eyesB: 'Eyes', coffeeThanks: 'Thanks for the coffee!', coffeeHow: 'Drag the cup onto a robot.',
     gear: {code: n => `${n} board ${n === 1 ? 'item' : 'items'} done today`, king: n => `${n} ${n === 1 ? 'message' : 'messages'} passed to the King today`, builder: n => `${n} ${n === 1 ? 'decal' : 'decals'} this week`,
       'hub-keeper': n => `${n} research ${n === 1 ? 'round' : 'rounds'} finished`, cowork: n => `${n} clean storm ${n === 1 ? 'day' : 'days'} in a row`, 'storm-watch': n => `${n} hail ${n === 1 ? 'alert' : 'alerts'} this month`,
@@ -1683,7 +1684,7 @@ async function sendAnswer(id, answer, note, q, to, opts){
     const held = wake(`answered ${id} = ${answer}${note ? ' (' + note.slice(0, 120) + ')' : ''}${who ? ' for ' + who : ''}${opts.same ? '; re-ask of ' + opts.same + (who ? ' by ' + who : '') + ': save to memory' : ''}${answer === 'Let the King decide' ? '; research it, pick, post one decided event' : ''} [answers/${id}, events/${stamp}-you]`, opts.urgent);
     unparked.delete(id); if (!$('#recap').hidden) setTimeout(() => { $('#recap').hidden = true; }, 2000);
     HUB.cues.push({kind:'answered', id:byId[to] ? to : 'code', qid:id}); fwoop();   // Special Delivery + the asker's thank-you
-    appToast('✓ ' + T.receipt + (held ? ' · ' + T.heldShort : '') + (opts.ovMsg ? ' ' + opts.ovMsg : ''), opts.ovMsg ? 6000 : 3800);
+    appToast('✓ ' + (wakeOff() ? T.receiptRide(nextRun().label) : T.receipt + (held ? ' · ' + T.heldShort : '')) + (opts.ovMsg ? ' ' + opts.ovMsg : ''), opts.ovMsg ? 6000 : 3800);
     if (SAMPLE && CAN_EDIT && !who && answer === 'Reply') askKing(`I answered ${id} ("${q.slice(0, 200)}"): ${note}`, true);   // only typed replies get a Right Hand follow-up (#1.7)
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); refreshAll(); renderCard(true); }
 }
@@ -2669,6 +2670,7 @@ function proofOf(id, a){
   if (fin) return {k:'done', ev:fin};
   if (re.length || (kingDoc && Date.parse(kingDoc.answersReadAt || '') >= ms)) return {k:'read'};
   if (heldHas(id)) return wakeMode === 'ride' && ride.label ? {k:'rides', t:ride.label} : {k:'saved'};
+  if (wakeOff()) return {k:'rides', t:nextRun().label};   // no instant wake: it rides the next run
   return {k:'king'};
 }
 async function undoAnswer(id){
@@ -2733,8 +2735,8 @@ function computeWatch(){
     if (ran && !passed) out.push({k:'dropped', text:T.dropped(id, nameOf(a.to)), btn:'resend', data:id}); }
   alerts = out;
   const working = bots.filter(a => a.st === 'working').length;
-  healthText = working ? T.allNormal(working, nr.label) : T.quietDesign(nr.label);
-  healthShort = (working ? T.allNormalS : T.quietS) + ' · ' + T.nextShort(nr.label);
+  healthText = (working ? T.allNormal(working, nr.label) : T.quietDesign(nr.label)) + (wakeOff() ? ' · ' + T.wakeOffL(nr.label) : '');
+  healthShort = (wakeOff() ? T.wakeOffS : working ? T.allNormalS : T.quietS) + ' · ' + T.nextShort(nr.label);
 }
 let kfetStorm = false;
 async function checkKfet(){ if (checkKfet.at && Date.now() - checkKfet.at < 3600e3) return; checkKfet.at = Date.now();
@@ -2855,12 +2857,17 @@ setInterval(() => { if (!document.hidden) fetchWeather(); }, 15*60000);
 /* ================= wake Claude Code (FilthE OK'd 2026-09-26), held so one sitting = one wake (fix 3) =================
    Answers save at once. The wake fires once: 90 s after his last answer, or as soon as nothing is left to answer, or
    when he leaves the tab. A held wake survives a reload (hub-wake-held) and goes out on the next open. */
-const WAKE_TRIGGER_FALLBACK = 'trig_01LNd9FCen5TUumzGCPvinAb', WAKE_GAP = 20000, WAKE_HOLD = 90000;
-function wakeTrigger(){ const t = kingDoc && kingDoc.wake_trigger; return typeof t === 'string' && t.startsWith('trig_') ? t : WAKE_TRIGGER_FALLBACK; }   // system/king.wake_trigger: the King's live session's own poke trigger; Kings hand off, so this must not be hard-coded only
+const WAKE_GAP = 20000, WAKE_HOLD = 90000;
+/* v28 wake safety: the page only fires the trigger the King names in system/king.wake_trigger (its live session's own
+   poke). No hard-coded fallback: that trigger is switched off now. Without one, answers stay saved and ride the next
+   run, and the health line says "Instant wake off". */
+function wakeTrigger(){ const t = kingDoc && kingDoc.wake_trigger; return typeof t === 'string' && /^trig_[A-Za-z0-9]{6,}$/.test(t) ? t : null; }
+const wakeOff = () => kingLoaded && !wakeTrigger();
 let MCP = null, wakeLastAt = Date.now() - WAKE_GAP, wakeTimer = 0, wakeBusy = false;
 let wakeQ = []; try { const h = JSON.parse(store.get('hub-wake-held') || '[]'); if (Array.isArray(h)) wakeQ = h.map(String).slice(0, 20); } catch (e) { wakeQ = []; }
 const keepHeld = () => store.set('hub-wake-held', JSON.stringify(wakeQ));
 function wake(text, urgent){
+  if (wakeOff()) { clearHeld(); return false; }   // instant wake off: the saved docs ride the next run
   wakeQ.push(String(text).replace(/\s+/g, ' ').slice(0, 300)); keepHeld();
   if (!holdSince) { holdSince = Date.now(); store.set('hub-wake-since', String(holdSince)); }
   if (urgent) { fireWake(); return false; }                     // urgent skips the hold
@@ -2873,12 +2880,14 @@ function wake(text, urgent){
 }
 async function fireWake(quiet){
   clearTimeout(wakeTimer); wakeTimer = 0; if (!wakeQ.length || wakeBusy) return;
+  if (!kingLoaded) { wakeTimer = setTimeout(releaseHold, 5000); return; }   // system/king not read yet: ask again in a moment
+  if (!wakeTrigger()) { clearHeld(); renderWakeLine(); if (!quiet) appToast(L().wakeOffT(nextRun().label)); return; }
   const items = wakeQ.splice(0); keepHeld(); wakeLastAt = Date.now(); wakeBusy = true;
   const text = ('AI hub, instant wake. FilthE just acted: ' + items.join(' | ') + '. Read the docs named here and act on them.').slice(0, 1800);
   let ok = false, limited = false;
   try {
     const m = MCP || (window.claude && typeof window.claude.use === 'function' ? await window.claude.use('mcp') : null);
-    if (m) { MCP = m; await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id:wakeTrigger(), text}); ok = true; }
+    const trig = wakeTrigger(); if (m && trig) { MCP = m; await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id:trig, text}); ok = true; }
   } catch (e) { ok = false; limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }   // no retry (it is a write); the next run still reads the saved docs
   wakeBusy = false; holdSince = 0; store.set('hub-wake-since', ''); wakeMode = '';
   if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:items.length}).catch(() => {}); }
@@ -3130,7 +3139,8 @@ function onEvents(snap){
 function onBoard(snap){ board = snap.exists ? snap.data() : null; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); }
 function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
-function onKing(snap){ got(); kingDoc = snap.exists ? snap.data() : null; renderBoard(); }
+let kingLoaded = false;
+function onKing(snap){ got(); kingDoc = snap.exists ? snap.data() : null; kingLoaded = true; renderBoard(); computeWatch(); refreshLive(); }
 /* ================= always fresh: resubscribe on return, with backoff on failure (CONVENIENCES #6) ================= */
 const recon = {n:0, timer:0, check:0, showing:false, dead:false};
 let subs = [];
