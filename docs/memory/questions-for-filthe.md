@@ -32,3 +32,9 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - From the job #1 playbook (round 56): cash cushion to front materials; which crew is "next up" for an HMP-owned job;
   an existing supplier rep, and will the boss personally guarantee a first credit account; deposit % and schedule;
   Fremont city contractor registration (Resolution 2019-049) held or not; who signs contracts for HMP.
+- From Practice Door v11 (2026-09-28, docs/research/2026-09-28-practice-door-v11.md):
+  - Is HMP an EPA Lead-Safe Certified Firm, with a certified renovator? Taking painted siding off a pre-1978 house is an
+    EPA "RRP" job (Nebraska is run by EPA directly), and most Fremont houses are that old. Until yes, nobody says
+    "lead-safe certified", and the capabilities sheet's Y/N stays blank.
+  - Does HMP's business line have WhatsApp Business? Then the parked Spanish line "¿Le mando las fotos por WhatsApp o
+    por mensaje de texto?" can go into the Practice Door playbook (never a personal number).
