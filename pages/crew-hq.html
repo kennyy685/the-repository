@@ -413,6 +413,16 @@ h1,h2,h3,p{margin:0}
 .kt-wait i{width:6px;height:6px;border-radius:50%;background:var(--st-work,var(--brass));animation:ktp 1.4s ease-in-out infinite}
 @keyframes ktp{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){ .kt-wait i{animation:none} }
+/* v28.1 "Start a fresh King": the King's memory use + a button that starts the next King from his own account */
+.kfresh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font:500 11px/1.3 var(--mono);letter-spacing:.04em;color:var(--muted)}
+.kfresh .kf-t{flex:1 1 auto;min-width:0}
+.kfresh[data-hot] .kf-t{color:var(--brass-hi)}
+.kfresh .kf-ask{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex-basis:100%;color:var(--ink-2)}
+.kfresh .kf-ask[hidden]{display:none}
+.kf-b{min-height:32px;padding:0 10px;border:1px solid var(--rule-2);border-radius:var(--r-sm);font:500 11px var(--mono);letter-spacing:.04em;color:var(--ink)}
+.kf-b:hover{border-color:var(--brass)} .kf-b.pri{border-color:var(--brass);color:var(--brass-hi)}
+.kfresh[data-hot] #kFreshBtn{border-color:var(--brass);color:var(--brass-hi)}
+.kf-b:disabled{opacity:.5}
 /* v28.1: per-message status under his messages; SMUIPO's instant answers carry a small tag */
 .kt-log .kt-st{margin:2px 0 0;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:4px 8px;font:500 11px/1.3 var(--mono);letter-spacing:.04em;color:var(--muted)}
 .kt-log .kt-st span::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:currentColor;vertical-align:1px;opacity:.9}
@@ -890,6 +900,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="kwin-h"><div><h2 class="lbl" id="kcH">King</h2><p class="src" id="kcSub">Claude Code, live</p></div>
       <button type="button" class="ibtn" id="kingX" aria-label="Close (Esc)" title="Close (Esc)"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     <div class="kmode" id="kMode" role="group" aria-label="Who you talk to"><button type="button" data-kmode="king" aria-pressed="true">King</button><button type="button" data-kmode="rh" aria-pressed="false">Right Hand</button></div>
+    <div class="kfresh" id="kFresh" hidden><span class="kf-t" id="kFreshT"></span><button type="button" class="kf-b" id="kFreshBtn">Fresh King</button><span class="kf-ask" id="kFreshAsk" hidden><span id="kFreshQ"></span><button type="button" class="kf-b pri" data-fk="yes">Start</button><button type="button" class="kf-b" data-fk="no">Cancel</button></span></div>
     <div class="kwin-b" id="kingBody">
       <div class="kc-hi" id="ktHi" hidden><p>Talk to the King like a chat. Questions get an answer here in seconds. Orders go straight to the live King, who does the work and reports back right here.</p>
         <div class="kc-sug" id="ktSug"><button type="button" data-say="What are you working on right now?">What are you on?</button><button type="button" data-say="What needs me today, most important first?">What needs me?</button></div></div>
@@ -1057,6 +1068,9 @@ const TX = {
     replayAria: 'Replay the last 24 hours', noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
     awayH: h => `While you were away · ${h} h`, awayT: (d, s, n) => [`${d} done`, `${s} stuck`, `${n} ${pl(n, 'needs', 'need')} you`].join(' · '),
     kcWhy: {preview: 'Live chat works on the published hub.', nodb: 'Live data isn’t available here, so the Right Hand can’t read the crew.', editor: 'The Right Hand talks here when you open the hub signed in as its editor.', grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', wait: 'Connecting…'},
+    fk: {btn: 'Fresh King', ask: 'Start a fresh King? The old one writes its notes, then hands off.', mem: k => `King memory ${k}k`, full: k => `King memory ${k}k · getting heavy, start a fresh one`,
+      starting: m => `New King starting · ${m} min`, started: 'Starting a fresh King. It says hello here in a few minutes.', live: 'The new King is live.',
+      fail: 'Couldn’t start a fresh King. The hub needs its Claude Code Remote permission; reload, allow it, and try again.'},
     kt: {title: 'King', sub: 'SMUIPO · answers in seconds · orders go straight to the live King', instant: 'instant',
       st: {sending: 'Sending…', thinking: 'Thinking…', answered: 'Answered here', also: 'Send to the King too', toKing: 'Sent to the King', gotIt: 'King got it',
         working: 'King is on it', done: 'Done · the King replied', failed: 'Didn’t reach the King. Saved.', lineDown: 'The King’s line is down. Saved; it goes out when the King is back.',
@@ -3387,7 +3401,7 @@ async function askKing(message, quick, retry){
 let kcWhy = 'wait';
 function openKing(){
   const w = $('#kingWin'); if (!w.hidden) return; closeKeys(); closeMine(); w.hidden = false; $('#kingBubble').setAttribute('aria-expanded', 'true'); $('#kingDot').hidden = true;
-  renderKingWhy(); if (kMode === 'king') markThreadRead(); const b = $('#kingBody'); b.scrollTop = b.scrollHeight;
+  renderKingWhy(); readKingCtx(); if (kMode === 'king') markThreadRead(); const b = $('#kingBody'); b.scrollTop = b.scrollHeight;
   const inp = $('#kcInput'); if (!$('#kcForm').hidden && !inp.disabled) inp.focus(); else $('#kingX').focus();
 }
 function closeKing(back){ const w = $('#kingWin'); if (w.hidden) return false; w.hidden = true; $('#kingBubble').setAttribute('aria-expanded', 'false'); if (back) $('#kingBubble').focus(); return true; }
@@ -3397,7 +3411,7 @@ function renderKingWhy(){
   $('#kcLog').hidden = kt; $('#ktLog').hidden = !kt;
   $('#kcHi').hidden = kt || !can || $('#kcLog').children.length > 0; $('#ktHi').hidden = !kt || !can || $('#ktLog').children.length > 0;
   const n = $('#kcNone'); n.hidden = can; if (!can) n.textContent = kt && kcWhy !== 'preview' && kcWhy !== 'nodb' && kcWhy !== 'wait' ? L().kt.none : (L().kcWhy[kcWhy] || L().kcWhy.editor);
-  renderWait();
+  renderWait(); renderFresh();
 }
 function kingUnread(){ if ($('#kingWin').hidden) $('#kingDot').hidden = false; }
 
@@ -3595,6 +3609,67 @@ $('#kcForm').addEventListener('submit', ev => { ev.preventDefault(); const v = $
 $('#ktSug').addEventListener('click', e => { const b = e.target.closest('[data-say]'); if (b && CAN_EDIT && DB) sendToKing(b.dataset.say); });
 $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 
+/* ================= v28.1 "Start a fresh King" (FilthE 2026-09-28: "yes") =================
+   A King that starts the next King makes it one session deeper, and sessions stop at 8 deep (a Builder hit it
+   2026-09-28). This button starts the next King from FilthE's own account instead (depth 0), shows how full the
+   current King is (get_session), tells the old King to write its notes, and marks system/king.pending_king until the
+   new King writes its own live_session + wake_trigger (docs/orders/king-handoff.md). */
+const REPO_URL = 'https://github.com/kennyy685/the-repository', WORK_BRANCH = 'claude/amazing-gauss-yzfpq0', KING_HEAVY = 200000;
+let kingCtx = null, kingCtxAt = 0, fkBusy = false;
+async function readKingCtx(){
+  const sid = kingDoc && kingDoc.live_session; if (!sid || !CAN_EDIT || Date.now() - kingCtxAt < 60000) return; kingCtxAt = Date.now();
+  try { const m = await getMcp(); const r = m ? await m.callTool('Claude Code Remote', 'get_session', {session_id:String(sid)}, {cache:false}) : null;
+    const p = r && r.payload, x = p && typeof p === 'object' ? (p.ccr || p) : null, meta = (x && x.external_metadata) || {};
+    kingCtx = x ? {session:String(sid), used:+((meta.context_usage || {}).used_tokens) || 0, model:(x.session_context && x.session_context.model) || ''} : null;
+  } catch (e) { kingCtx = null; }   // get_session not allowed: the button still works, without the memory line
+  renderFresh();
+}
+function renderFresh(){
+  const box = $('#kFresh'); if (!box) return; const T = L().fk;
+  const show = kMode === 'king' && CAN_EDIT && !!DB; box.hidden = !show; if (!show) return;
+  const pend = kingDoc && kingDoc.pending_king, pAt = pend ? Date.parse(pend.at || '') || 0 : 0;
+  const starting = pend && pend.session && pend.session !== (kingDoc && kingDoc.live_session) && Date.now() - pAt < 45*60000;
+  const used = kingCtx && kingCtx.session === (kingDoc && kingDoc.live_session) ? kingCtx.used : 0, heavy = used > KING_HEAVY;
+  $('#kFreshT').textContent = fkBusy ? T.started : starting ? T.starting(Math.max(0, Math.floor((Date.now() - pAt)/60000))) : used ? (heavy ? T.full(Math.round(used/1000)) : T.mem(Math.round(used/1000))) : '';
+  $('#kFreshBtn').hidden = !!starting || fkBusy || !$('#kFreshAsk').hidden; $('#kFreshBtn').textContent = T.btn;
+  if (heavy && !starting) box.dataset.hot = '1'; else delete box.dataset.hot;
+  $('#kFreshQ').textContent = T.ask;
+}
+function freshPrompt(old, oldTrig){
+  return `You are SMUIPO, the King: FilthE's lead AI for HMP Siding & Roofing. FilthE started you fresh from the AI hub with the "Start a fresh King" button, so you are a top-level session (the old King chain was near the 8-deep session limit). Repo kennyy685/the-repository, work branch ${WORK_BRANCH}.
+Old King: ${old || '(none recorded)'}; its wake trigger: ${oldTrig || '(none)'}.
+1) Read CLAUDE.md, then docs/orders/king-handoff.md (FIRST steps + HUB CHAT WIRING).
+2) The old King was just told to write its handoff notes and stop. If get_session shows it still working, check back in 3-5 minutes (send_later), then git pull and read docs/orders/king-handoff.md again.
+3) Make your own poke-only wake trigger (create_trigger, no cron, bound to you) with the same prompt as the old one (get_trigger it). Update hub doc system/king: wake_trigger = yours, live_session = your session id, environment_id, and remove pending_king. Then disable (never delete) the old trigger, update CLAUDE.md's trigger id line, and archive the old King once it is idle.
+4) Say hello to FilthE in the hub King thread in 3 short lines (events/<stamp>-code-r, to:"you"), ending with 1-3 numbered questions with your pick.`;
+}
+async function startFreshKing(){
+  if (fkBusy || !CAN_EDIT || !DB) return; fkBusy = true; $('#kFreshAsk').hidden = true; renderFresh();
+  const T = L().fk, old = String((kingDoc && kingDoc.live_session) || ''), oldTrig = wakeTrigger() || '';
+  let ok = false;
+  try {
+    const m = await getMcp(); if (!m) throw new Error('no mcp');
+    let env = kingDoc && typeof kingDoc.environment_id === 'string' && /^env_/.test(kingDoc.environment_id) ? kingDoc.environment_id : '';
+    if (!env) { const r = await m.callTool('Claude Code Remote', 'list_environments', {}, {cache:false}); const l = ((r && r.payload && r.payload.environments) || []);
+      const e = l.find(x => x.kind === 'anthropic_cloud' && x.state === 'active') || l.find(x => x.state === 'active'); env = e ? e.environment_id : ''; }
+    if (!env) throw new Error('no environment');
+    const args = {environment_id:env, title:'SMUIPO (King)', source_url:REPO_URL, source_revision:WORK_BRANCH, outcome_branch:WORK_BRANCH, tags:['king'], prompt:freshPrompt(old, oldTrig)};
+    if (kingCtx && kingCtx.model) args.model = kingCtx.model;   // the same model the King runs on now
+    let r; try { r = await m.callTool('Claude Code Remote', 'create_session', Object.assign({permission_mode:'auto'}, args)); }
+    catch (e) { if (e && e.retryable === false && /permission/i.test(String(e.message || ''))) r = await m.callTool('Claude Code Remote', 'create_session', args); else throw e; }
+    const p = (r && r.payload) || {}, sid = String(p.session_id || p.id || (p.session && p.session.id) || (p.ccr && p.ccr.id) || '');
+    if (!/^session_/.test(sid)) throw new Error('no session id');
+    const at = nowIso(); ok = true;
+    try { await withTimeout(DB.doc('system/king').update({pending_king:{session:sid, at, from:old}})); } catch (e) { /* the hello in the thread still shows it */ }
+    try { await save({path:'events/' + stampOf(at) + '-you-fk', body:{agent:'you', name:'FilthE', at, kind:'handoff', to:'code', lane:'board', room:'board', status:'done', task:'', text:('Started a fresh King from the hub: ' + sid + '. Old King: ' + (old || 'none') + '.').slice(0, 300)}}); } catch (e) { /* log line only */ }
+    if (oldTrig) fireNow('FilthE started a fresh King from the hub: ' + sid + '. Finish your current step, update docs/orders/king-handoff.md (what is live, what is running, what is next), commit and push, then stop. The new King makes its own wake trigger, disables yours and archives you.');
+  } catch (e) { ok = false; }
+  fkBusy = false; renderFresh(); appToast(ok ? T.started : T.fail, ok ? 5000 : 7000);
+}
+$('#kFreshBtn').addEventListener('click', () => { $('#kFreshAsk').hidden = false; renderFresh(); const y = $('#kFresh [data-fk="yes"]'); if (y) y.focus(); });
+$('#kFresh').addEventListener('click', e => { const b = e.target.closest('[data-fk]'); if (!b) return; if (b.dataset.fk === 'yes') startFreshKing(); else { $('#kFreshAsk').hidden = true; renderFresh(); $('#kFreshBtn').focus(); } });
+setInterval(() => { if (!document.hidden && !$('#kingWin').hidden) { renderFresh(); readKingCtx(); } }, 60000);
+
 /* ================= live data ================= */
 function parseAgent(id, d){
   const a = byId[id];
@@ -3634,7 +3709,7 @@ function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; rende
 function onSessions(snap){ got(); sessDoc = snap.exists ? snap.data() : null; trackSpend(); computeWatch(); refreshAll(); renderOps(); }
 function onSchedule(snap){ got(); schedDoc = snap.exists ? snap.data() : null; computeWatch(); renderNeeds(); renderOps(); }
 let kingLoaded = false;
-function onKing(snap){ got(); kingDoc = snap.exists ? snap.data() : null; kingLoaded = true; renderBoard(); computeWatch(); refreshLive(); sweepThread(); }
+function onKing(snap){ got(); const wasLive = kingDoc && kingDoc.live_session; kingDoc = snap.exists ? snap.data() : null; if (wasLive && kingDoc && kingDoc.live_session && kingDoc.live_session !== wasLive) { appToast(L().fk.live); kingCtxAt = 0; kingCtx = null; } renderFresh(); kingLoaded = true; renderBoard(); computeWatch(); refreshLive(); sweepThread(); }
 /* ================= always fresh: resubscribe on return, with backoff on failure (CONVENIENCES #6) ================= */
 const recon = {n:0, timer:0, check:0, showing:false, dead:false};
 let subs = [];

@@ -12,7 +12,7 @@ const OUT = path.join(__dirname, "out"); fs.mkdirSync(OUT, { recursive: true });
 const MOCK = () => {
   const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
   const docs = new Map([
-    ["system/king", { wake_trigger: "trig_TESTwake01", live_session: "session_x", orders: [] }],
+    ["system/king", { wake_trigger: "trig_TESTwake01", live_session: "session_OLDKING", orders: [] }],
     ["board/current", { now: [{ id: "T1", owner: "Code", status: "DOING", task: "Hub instant chat" }], next: [], waiting: [] }],
     ["crew/sessions", { sessions: [{ title: "SMUIPO (King)", state: "working", doing: "Talking with you" }] }],
     ["system/memory", { facts: ["FilthE wants instant answers in the hub"] }],
@@ -44,6 +44,9 @@ const MOCK = () => {
   sample.json = async () => ({ reply: "ok", actions: [] });
   const mcp = { callTool: async (server, tool, input) => { calls.push({ tool, input });
     if (tool === "fire_trigger") { window.__mock.lastRun = { status: "SUCCEEDED", fired_at: new Date().toISOString() }; return { payload: {} }; }
+    if (tool === "get_session") return { payload: { ccr: { id: input.session_id, external_metadata: { context_usage: { used_tokens: 236000 } }, session_context: { model: "m-test" } } } };
+    if (tool === "list_environments") return { payload: { environments: [{ environment_id: "env_TEST", kind: "anthropic_cloud", state: "active" }] } };
+    if (tool === "create_session") return { payload: { session_id: "session_NEWKING01" } };
     if (tool === "get_trigger") return { payload: { trigger: { id: input.trigger_id, enabled: true, last_run: window.__mock.lastRun } } };
     return { payload: {} }; } };
   const user = { canEdit: async () => true, isOwner: async () => false };
@@ -99,6 +102,26 @@ const MOCK = () => {
     if (!done.some((t) => /^Done/.test(t))) fails.push(look + ": done not shown");
     await page.screenshot({ path: path.join(OUT, `hub-chat-${look}-done.png`) });
     const tg = await page.$("#ktLog li.king.inst .kt-tag"); if (tg) { const bb = await tg.boundingBox(); const cs = await tg.evaluate((n) => { const c = getComputedStyle(n); return [c.display, c.visibility, c.opacity, c.color, c.fontSize].join(" "); }); if (!bb || bb.width < 10) fails.push(look + ": tag not visible " + cs); else console.log(look, "tag", JSON.stringify(bb), cs); }
+    // 3) "Start a fresh King": memory line says heavy, two-step confirm, session made from his account, old King told
+    if (look === "graphite") {
+      await page.evaluate(() => { const w = document.getElementById("kingWin"); w.hidden = true; document.getElementById("kingBubble").click(); });
+      await page.waitForTimeout(800);
+      const t = await page.textContent("#kFreshT");
+      if (!/236k/.test(t) || !/heavy/.test(t)) fails.push("fresh: memory line wrong (" + t + ")");
+      await page.click("#kFreshBtn"); await page.waitForTimeout(200);
+      await page.screenshot({ path: path.join(OUT, "hub-chat-fresh-ask.png") });
+      await page.click('#kFresh [data-fk="yes"]'); await page.waitForTimeout(1500);
+      const r = await page.evaluate(() => ({ cs: window.__mock.calls.filter((c) => c.tool === "create_session").map((c) => c.input), k: window.__mock.docs.get("system/king"),
+        lastFire: window.__mock.calls.filter((c) => c.tool === "fire_trigger").pop() }));
+      if (r.cs.length !== 1 || r.cs[0].environment_id !== "env_TEST" || r.cs[0].source_revision !== "claude/amazing-gauss-yzfpq0" || r.cs[0].model !== "m-test") fails.push("fresh: create_session args " + JSON.stringify(r.cs));
+      if (!r.k.pending_king || r.k.pending_king.session !== "session_NEWKING01") fails.push("fresh: pending_king not written");
+      if (!r.lastFire || !/fresh King/.test(r.lastFire.input.text)) fails.push("fresh: old King not told");
+      const t2 = await page.textContent("#kFreshT"); if (!/New King starting/.test(t2)) fails.push("fresh: no starting line (" + t2 + ")");
+      await page.evaluate(() => { const k = window.__mock.docs.get("system/king"); window.__mock.docs.set("system/king", Object.assign({}, k, { live_session: "session_NEWKING01", wake_trigger: "trig_NEWwake02" })); window.__mock.fire(); });
+      await page.waitForTimeout(400);
+      await page.screenshot({ path: path.join(OUT, "hub-chat-fresh-live.png") });
+      const t3 = await page.textContent("#kFreshT"); if (/starting/.test(t3)) fails.push("fresh: still 'starting' after the new King went live");
+    }
     await page.close();
   }
   await browser.close(); await closeServer();

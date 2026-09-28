@@ -53,6 +53,9 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
   (photos + damage, EN/ES) to show the homeowner.
   Homeowner damage page carries HMP Siding & Roofing name + logo ("sure").
 - Old hub session (2026-09-28): "yes": save Practice Door v12 work, then close it.
+- Hub instant chat (2026-09-28, "yes and not yet"): (1) YES, build a "Start a fresh King" button on the hub (starts the
+  next King from his own account so King handoffs never hit the 8-deep session limit); (2) NOT YET: the instant voice
+  only talks; board changes stay with the real King.
 
 **FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
 screen making an idea come to reality." So: don't ask him HMP operations questions (crews, pay, budget, materials,
