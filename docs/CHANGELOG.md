@@ -1,5 +1,11 @@
 # HMP App changelog (newest first)
 
+## Practice Door v12 - 2026-09-28
+- 10 new homeowners: the rest of the sale after the knock (damage found, deductible shock, the first check, the adjuster visit, partly covered, "second thoughts" call, job done) plus someone who looks you up, a bilingual couple and an old storm. New "After the knock" section.
+- Houses and the Random homeowner now match Fremont (real house ages, Spanish speakers, retirees, hail season vs. winter). The next step is scored on storm doors too, plus 10 scene checks, 4 drills and 13 new answers in EN/ES.
+- Tighter legal backup: offering to file or call the insurer "for you", free extras to cover the deductible, a different storm date, and a reward for a review now get flagged.
+- Built on top of v11 (Plan, top 15, Aldaba look): new homeowners in v11's cards, the MacBook picker fills every row, top-15 card 4 now asks one question first (merged with the research drill, one answer per objection), and v11's HOA card no longer trips the deductible check.
+
 ## AI hub v28.0 "Calm and clear" - 2026-09-28 (live: hub Version 28)
 - RIGHT NOW list on the right: every robot's status in one line (needs you, stuck, working, queued, done, free, asleep, quiet). Robots now sit by kind of work: upstairs thinks (Research Lead, QA, Storm Watch), downstairs does. Press V and the room goes grey so only problems stay lit.
 - Calmer screen: P hides the side panel (it slides back when something needs you), a round chat bubble bottom-right talks to the King (K), 4 camera buttons (Whole, Follow, Eyes, More), name tags only when they matter, straight rain only in the sky, English only, named "AI Hub".

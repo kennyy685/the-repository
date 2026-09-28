@@ -35,7 +35,8 @@ the boss's plans). Those go on the list below for the boss, asked only when a de
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
 ## Open, for FilthE (asked 2026-09-28)
-- Say "publish Practice Door" (v11: how to talk at the door, 15 objections EN/ES, 20-day plan)?
+- Say "publish Practice Door" (v12 = v11's 20-day plan and 15 objections EN/ES, plus the rest of the sale: 10 new
+  homeowners after the knock, Fremont houses, tighter legal checks)?
 - A 7 AM "while you slept" brief on the hub every morning (one small run a day)?
 - Quick picks still open: map speed on the MacBook, "quiet storms" filter, fade walked areas, roof-age "full roof
   likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
@@ -56,3 +57,9 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - From the job #1 playbook (round 56): cash cushion to front materials; which crew is "next up" for an HMP-owned job;
   an existing supplier rep, and will the boss personally guarantee a first credit account; deposit % and schedule;
   Fremont city contractor registration (Resolution 2019-049) held or not; who signs contracts for HMP.
+- From Practice Door v12 (2026-09-28, docs/research/2026-09-28-practice-door-v12.md):
+  - Is HMP an EPA Lead-Safe Certified Firm, with a certified renovator? Taking painted siding off a pre-1978 house is an
+    EPA "RRP" job (Nebraska is run by EPA directly), and most Fremont houses are that old. Until yes, nobody says
+    "lead-safe certified", and the capabilities sheet's Y/N stays blank.
+  - Does HMP's business line have WhatsApp Business? Then the parked Spanish line "¿Le mando las fotos por WhatsApp o
+    por mensaje de texto?" can go into the Practice Door playbook (never a personal number).

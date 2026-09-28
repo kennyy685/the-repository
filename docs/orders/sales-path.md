@@ -89,10 +89,13 @@ Practice these out loud, don't just read them.
    opciones de pago; eso es entre usted y el prestamista."*
 
 4. **"That's more than I wanted to spend."** (after a cash quote)
-   EN: *"Fair reaction — let me show you what's actually in that number. Here's Good and Better side
-   by side; most folks land on Better once they see the warranty difference. Which fits you?"*
-   ES: *"Es justo — déjeme mostrarle qué incluye ese número. Aquí está la opción Buena y la Mejor;
-   la mayoría elige la Mejor al ver la garantía. ¿Cuál le queda?"*
+   EN: *"Fair reaction — what part feels high: the total, or next to another bid you got? Either way,
+   let me show you what's actually in that number. Here's Good and Better side by side, so you can see
+   the warranty difference. Which fits you?"*
+   ES: *"Es justo — ¿qué parte le parece alta: el total, o comparado con otra cotización que tiene? De
+   todas formas, déjeme mostrarle qué incluye ese número. Aquí está la opción Buena y la Mejor, lado a
+   lado, para que vea la diferencia en la garantía. ¿Cuál le queda?"*
+   Ask first, then show (Practice Door v12 merged its "Ask before you answer" drill into this one).
 
 5. **"Let me think about it."** (price)
    EN: *"Totally fine — is it the total number, or more about timing/paying it out? If it's the
