@@ -9,3 +9,6 @@
   · research trig_01Kuk945GDiwKdjaWgxXEMX6 · qa trig_01PVGRev9d4pF9PABSNcG9XH
 - Only hard/strategy calls go to the King (`system/king.wake_trigger`).
 - Fixer session_01EXX2WMTpDg1ry5joJWKMAg: wire this into Hub Chat (this replaces "orders go to the King").
+- Robot ids on the hub differ from dispatch keys: engine = `engine-mechanic`, research = `hub-keeper`, qa = `qa-tester`.
+- QA loop: Builder/Designer/Engine fire QA with "send back to <their trigger>"; QA sends a FAIL back once, a second
+  FAIL goes to the King. QA + Research triggers should run on sonnet (King sets it). Current prompts + why: `docs/research/2026-09-28-robot-upgrades.md`.
