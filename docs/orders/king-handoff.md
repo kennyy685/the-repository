@@ -38,6 +38,12 @@ your OK" update format, every robot job = its own session, no phone app for now)
 (MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
 light-theme column-header overlap in the open map street list.
 
+## The hub is NOT done (FilthE, 2026-09-28: "we had way more going for the hub")
+Live = v28.0. Still to build: v28.1 "One building" + v28.2 "Dressed with data" (docs/design/hub-office/BUILD-v28.md),
+the 9 functions in FUNCTIONS-SHORTLIST.md (King's pick 1, 2, 4, 6 first; asked FilthE 2026-09-28), CONVENIENCES.md
+top 12, SPEC.md notes 1-11, remove the 90 s wake hold on card answers. Hub page source of truth = branch
+claude/amazing-wright-lds9q5 until merged. Every wake: refresh hub doc crew/sessions (every tab, what it does).
+
 ## FilthE today
 "Satisfied when it makes me money; a system with promising info, leads, guidance and efficiency." Robots = coworkers,
 King = boss. He likes "do what's best" autonomy, but the safety guard needs explicit words for merges over the shared
