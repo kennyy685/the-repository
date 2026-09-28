@@ -41,6 +41,13 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
 - **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
   system down and to my satisfaction." Build and polish the system on the MacBook; don't plan phone-first work.
+- **The King's 5 rules (FilthE, 2026-09-28: "focus on the hard work, make your workers better"; research:
+  docs/research/2026-09-28-king-orchestration.md):** 1) hand out outcomes (goal, output, tools, limits, done = ...);
+  2) King decides, plans, reviews, answers him; >2 tool calls = a robot; 3) after every robot result log good/redo +
+  why and fix that robot the same turn (report card); 4) 10-20 real past jobs = test set, re-run after robot changes;
+  5) right model per job, repeat mistakes become hooks/skills.
+  6) never settle (FilthE, 2026-09-28): always research how to do it better; weekly improvement round every Sunday
+  8:47 AM CT (trig_01Mg1PNnUNegxcYxmDjG3B5b) posts top 3 upgrades to the King, who decides and applies.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
@@ -82,6 +89,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   reply (never only in the Claude chat), even if it lands mid-job; keep big jobs in robots so the King stays free. The old 3x-daily King trigger
   `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
   bind a recurring (cron) trigger to a long session.
+- **Hub answers must feel instant (FilthE, 2026-09-28):** "answer me in the hub, not make me wait like a chat." Hub Chat
+  answers in seconds in the page itself; orders go straight to the right robot (docs/orders/hub-dispatch.md), only
+  hard calls to the King. The King = decide + hard work, robots build. No phone pushes.
 - Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
   main need FilthE's OK.
 

@@ -77,8 +77,8 @@ FilthE answers in the hub; the King reads `answers` on every run (and is woken i
 - `answer: "Not now"` is NOT a decision: it carries `back: {after: <ISO time>}` (2 h later) and
   `snoozes: n`. The hub hides the question until `after`, then asks again. Don't act on it and don't
   re-ask it before `after`; there is no wake for it.
-- Every answer wakes the King at once (hub v28.1; the old 90 s hold is gone). Answers sent while a wake is
-  going out follow a moment later, so one wake can still name several answers.
+- Every answer wakes the King a few seconds later (hub v28.1; the old 90 s hold is gone): quick taps ride one
+  wake, so one wake can still name several answers.
 - Chat answers (hub v28.1): `answers/s-<session id without "session_">-q<hash>` with `session` = the full id. Pass it
   into that chat (SendMessage), then clear that chat's `needs_you` in `crew/sessions`.
 - "Ship it" / "Not yet" on a ship card: Ship it = publish or merge per `docs/release-checklist.md`, then take the

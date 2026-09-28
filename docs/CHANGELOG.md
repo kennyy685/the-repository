@@ -3,7 +3,7 @@
 ## AI hub v28.1 "Know everything at a glance" - 2026-09-28 (ready, waits on FilthE's "publish hub")
 - New Chats tab (S): every open Claude chat in one list, the ones that need you on top (and in your Needs strip; answer right there, the King passes it into that chat). Each shows what it's doing, what it cost, and a link to open it.
 - Spend meter on top: today and this week, about. A chat that passes $25, or burns $10+ an hour, gets flagged "Hand it off?" with one button (the King has it write its note and start fresh).
-- "Is everything running?": every scheduled job with On / Paused (grey, on purpose) / Broke (red, and an alert), last run and next run. "Ready to ship" cards on the Board: what it is, QA result, what changes, Preview, one Ship it button. Answers now wake the King the moment you tap (the 90-second wait is gone).
+- "Is everything running?": every scheduled job with On / Paused (grey, on purpose) / Broke (red, and an alert), last run and next run. "Ready to ship" cards on the Board: what it is, QA result, what changes, Preview, one Ship it button. Answers now wake the King a few seconds after you tap (the 90-second wait is gone).
 
 ## Practice Door v12 - 2026-09-28
 - 10 new homeowners: the rest of the sale after the knock (damage found, deductible shock, the first check, the adjuster visit, partly covered, "second thoughts" call, job done) plus someone who looks you up, a bilingual couple and an old storm. New "After the knock" section.
