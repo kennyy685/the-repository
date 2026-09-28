@@ -8,6 +8,7 @@
  *   node tests/pages/design_gate.js --page hmp-app   only pages whose path contains "hmp-app" (repeatable)
  *   node tests/pages/design_gate.js --shots          also save a screenshot of every view, not just failing ones
  *   node tests/pages/design_gate.js --self-test      prove every check fires on a page built to break them all
+ *   a page may add its own sizes (the hub: 1440x900, its MacBook layout); they run by default, or with --size 1440
  *   narrower runs: --size 360|420, --theme light,dark,data-theme=dark,data-theme=light,pick=light,pick=auto, --lang en|es, --verbose
  *
  * What fails the gate (every rule is checked on every view: each tab, plus the sheets listed in PAGES):
@@ -17,7 +18,8 @@
  *   empty-control  a button/link/tab with no visible label or icon (an aria-label alone is invisible on screen), or a
  *                  label that is there but can't be seen (under 1.5:1: v24's white-on-white buttons).
  *   tap-target     a button, link or field smaller than 44x44 px (a link inside a sentence is exempt; a checkbox
- *                  counts its whole <label>).
+ *                  counts its whole <label>). At 900 px and wider (a laptop with a trackpad: the hub's 1440 run) the
+ *                  bar is WCAG 2.2 AA's 24x24.
  *   overlap        two controls on top of each other, or a control that stays covered (e.g. by the tab bar) at every
  *                  scroll position. Content that only passes under a fixed bar while scrolling is fine.
  *   duplicate      the same label AND the same action twice on one screen (a "Call" on every lead card is not a
@@ -52,7 +54,8 @@ const FIXED_NOW_ISO = "2026-09-27T15:00:00-05:00";
 const TIMEZONE = "America/Chicago";
 
 // The pages the release checklist ships. `tabs` = the page's own tab buttons (each one is a view); `views` = extra
-// screens reached by tapping through `steps` (CSS selectors, first visible match) from a fresh load.
+// screens reached by tapping through `steps` (CSS selectors, first visible match) from a fresh load; a view's `root`
+// (optional) limits that view's check to one element, for a light-dismiss popover. `sizes` = extra sizes for this page.
 // `storage` = what the page reads from localStorage to pick its language.
 const PAGES = [
   {
@@ -74,8 +77,14 @@ const PAGES = [
   {
     rel: "pages/crew-hq.html",
     storage: { en: { "hmp-app-lang": "en" }, es: { "hmp-app-lang": "es" } },
-    tabs: null,
-    views: [],
+    // society test S8 (2026-09-28): the hub is a MacBook page first, so it is also checked at 1440x900, inside its
+    // four tabs, with a robot's card open and with "Make it yours" open (it used to be checked only at phone width, closed)
+    sizes: [{ width: 1440, height: 900 }],
+    tabs: '#tabs [role="tab"]',
+    views: [
+      { name: "robot card", steps: ["#tab-crew", "#roster .row"] },
+      { name: "make it yours", steps: ["#mineBtn"], root: "#mine" },   // light-dismiss popover: checked on its own
+    ],
   },
   {
     rel: "pages/practice-door.html",
@@ -104,7 +113,8 @@ const MAX_SHOTS = 80;   // one screenshot per distinct problem, up to this many 
 /* ================= runs inside the page: must be self-contained (it is injected as source text) ================= */
 function pageLib() {
   if (window.__dg) return;
-  const MIN_TAP = 44;
+  // phones (touch): 44x44. The hub's MacBook layout (>= 900 px, trackpad): WCAG 2.2 AA target size, 24x24 (2.5.8)
+  const MIN_TAP = innerWidth >= 900 ? 24 : 44;
   const BLANK = 1.5;   // below this a label is effectively invisible
   const BUTTONISH = 'button, a[href], summary, input[type="button"], input[type="submit"], input[type="reset"], input[type="image"], [role="button"], [role="link"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"]';
   const CONTROL = BUTTONISH + ', input:not([type="hidden"]), select, textarea, [role="checkbox"], [role="radio"], label';
@@ -223,6 +233,10 @@ function pageLib() {
 
   /* ---- which layer is on screen, what scrolls ---- */
   function activeRoot() {   // an open modal (any size: a short bottom sheet too) is the whole screen; the rest is inert
+    // a view can name its own root: a light-dismiss popover (a click outside closes it) is checked on its own, since
+    // what it covers is one click away, not stuck under it (PAGES `views[].root`)
+    const forced = window.__dgRoot && document.querySelector(window.__dgRoot);
+    if (forced && shown(forced)) return forced;
     const vw = VW(), vh = VH(), clamp = (v, hi) => Math.min(Math.max(v, 0), hi - 1);
     let best = null;
     for (const m of document.querySelectorAll('[aria-modal="true"], dialog')) {
@@ -835,7 +849,9 @@ async function runCombo(browser, page, combo, opts, shared, data) {
       try {
         await load();
         for (const sel of v.steps) { await clickStep(p, sel); await frames(p, 400); }
+        await p.evaluate((r) => { window.__dgRoot = r || null; }, v.root || null);
         add(await auditView(p, ctx, v.name));
+        await p.evaluate(() => { window.__dgRoot = null; });
       } catch (e) { findings.push({ view: v.name, rule: "gate-error", where: "(page)", label: "", detail: `could not open this view: ${e.message.split("\n")[0]}` }); }
     }
   } catch (e) {
@@ -852,7 +868,7 @@ function combosFor(opts, page) {
   for (const lang of opts.langs) {
     for (const t of THEMES) {
       if (!LANG_THEMES[lang].includes(t.id) || !opts.themes.includes(t.id) || (t.pick && !(page && page.pickKey))) continue;
-      for (const s of SIZES) if (opts.widths.includes(s.width)) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, pick: t.pick || null, width: s.width, height: s.height });
+      for (const s of [...SIZES, ...((page && page.sizes) || [])]) if (opts.widths.includes(s.width) || (!opts.sizeGiven && !SIZES.some((x) => x.width === s.width))) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, pick: t.pick || null, width: s.width, height: s.height });
     }
   }
   return out;
@@ -912,10 +928,10 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i], next = () => argv[++i];
     if (a === "--page") o.pages.push(next());
-    else if (a === "--size") o.widths = String(next()).split(",").map((w) => parseInt(w, 10));
+    else if (a === "--size") { o.widths = String(next()).split(",").map((w) => parseInt(w, 10)); o.sizeGiven = true; }
     else if (a === "--theme") o.themes = String(next()).split(",");
     else if (a === "--lang") o.langs = String(next()).split(",");
-    else if (a === "--quick") { o.widths = [360]; o.themes = ["light", "dark", "pick=light"]; o.langs = ["en"]; }
+    else if (a === "--quick") { o.widths = [360]; o.sizeGiven = true; o.themes = ["light", "dark", "pick=light"]; o.langs = ["en"]; }
     else if (a === "--shots") o.shots = true;
     else if (a === "--verbose" || a === "-v") o.verbose = true;
     else if (a === "--self-test") o.selfTest = true;
@@ -923,7 +939,7 @@ function parseArgs(argv) {
     else { console.error(`unknown option ${a} (try --help)`); process.exit(2); }
   }
   const bad = [...o.langs.filter((l) => !LANG_THEMES[l]), ...o.themes.filter((t) => !THEMES.some((x) => x.id === t)),
-    ...o.widths.filter((w) => !SIZES.some((x) => x.width === w))];
+    ...o.widths.filter((w) => ![...SIZES, ...PAGES.flatMap((pg) => pg.sizes || [])].some((x) => x.width === w))];
   if (bad.length) { console.error(`unknown --lang/--theme/--size value: ${bad.join(", ")} (try --help)`); process.exit(2); }
   return o;
 }
