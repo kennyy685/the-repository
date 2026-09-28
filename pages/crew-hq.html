@@ -2329,7 +2329,7 @@ function releaseHold(){
   if (!kingRunning() && byId.code.atMs > holdSince && holdSince) { clearHeld(); return; }   // a King (maybe woken from his phone) already checked in: it reads them
   if (kingRunning()) { wakeMode = 'mid'; renderWakeLine(); return; }
   const nr = nextRun();
-  if (saving() || quietHours() || nr.min <= 20) { wakeMode = 'ride'; ride = {label:nr.label, ms:nr.ms}; renderWakeLine(); return; }
+  if (saving()) { wakeMode = 'ride'; ride = {label:nr.label, ms:nr.ms}; renderWakeLine(); return; }   // live King (2026-09-28): no scheduled runs to ride; only a usage limit holds a wake
   fireWake();
 }
 function watchHold(){
