@@ -54,8 +54,12 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - HMP HQ https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj · Practice Door https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B
 - Command center (Cowork's, read-only for us) https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: never write its
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
-- King trigger `trig_01MNxMWzvD3ZgRqWxfjtJLEU`: fresh session 7:52 AM / 12:52 PM / 5:52 PM Central + hub instant wake.
-  Old triggers are paused, never deleted. Never bind a recurring trigger to a long session.
+- **The King is live on the hub (FilthE, 2026-09-28):** "I want to mainly use the AI hub ... be live, not scheduled
+  runs." Hub Chat wakes the live King chat instantly via a poke-only trigger bound to that chat; its id is in hub doc
+  `system/king.wake_trigger` (now `trig_01LNd9FCen5TUumzGCPvinAb`). On handoff the new King makes its own poke-only
+  trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. The old 3x-daily King trigger
+  `trig_01MNxMWzvD3ZgRqWxfjtJLEU` gets paused once the new hub is live. Old triggers are paused, never deleted. Never
+  bind a recurring (cron) trigger to a long session.
 - Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
   main need FilthE's OK.
 
