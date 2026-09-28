@@ -197,8 +197,8 @@ export function dress(kit, a, R, def){
     // emerald eyeshade (hatG), brass spectacles (own group), loupe (faceG), clipboard with real ticks (prop), PASS pin
     const hg = R.hatG = mk(R.head, 0, .085, 0), k = new Map();
     part(k, new THREE.CylinderGeometry(.192, .192, .03, 40, 1, true), O.strap, 0, -.01, 0); bk(hg, k);
-    const vis = new THREE.Mesh(new THREE.RingGeometry(.19, .3, 32, 1, Math.PI/2 - .95, 1.9).rotateX(-Math.PI/2), O.emerald); vis.rotation.x = .38; vis.position.y = .01; vis.scale.z = 1.08; vis.renderOrder = 5; hg.add(vis);
-    const vb = new THREE.Mesh(ring(.3, .005, 1.9, 32).rotateX(-Math.PI/2).rotateY(Math.PI/2 - .95 + 0), MAT.brass); vb.rotation.x = .38; vb.position.y = .01; hg.add(vb); R.jewel.push(vb);
+    const vis = new THREE.Mesh(new THREE.RingGeometry(.19, .3, 32, 1, -Math.PI/2 - .95, 1.9).rotateX(-Math.PI/2), O.emerald); vis.rotation.x = .38; vis.position.y = .01; vis.scale.z = 1.08; vis.renderOrder = 5; hg.add(vis);
+    const vb = new THREE.Mesh(ring(.3, .005, 1.9, 32).rotateZ(-Math.PI/2 - .95).rotateX(-Math.PI/2), MAT.brass); vb.rotation.x = .38; vb.position.y = .01; hg.add(vb); R.jewel.push(vb);
     const sp = R.specs = mk(R.head, 0, 0, 0), sk = new Map();
     for (const s of [-1,1]){ part(sk, ring(.06, .009, TAU, 28), MAT.brass, s*.07, 0, .176); part(sk, new THREE.CylinderGeometry(.005, .005, .12, 6), MAT.brass, s*.125, 0, .115, Math.PI/2); part(sk, new THREE.CircleGeometry(.057, 20), MAT.glassTop, s*.07, 0, .178); }
     part(sk, ring(.018, .006, Math.PI, 12), MAT.brass, 0, .015, .178); bk(sp, sk);

@@ -597,6 +597,43 @@ const spot = {};
   spot.glow = flat(new THREE.RingGeometry(1.88, 1.97, 64, 1, a0, al), new THREE.MeshBasicMaterial({color:0xf1c48a, transparent:true, opacity:.25, depthWrite:false, toneMapped:false, blending:THREE.AdditiveBlending}), FX, .008, FZ);
   spot.fill = flat(new THREE.CircleGeometry(1.9, 48, a0, al), new THREE.MeshBasicMaterial({color:0xf1c48a, transparent:true, opacity:0, depthWrite:false, toneMapped:false, blending:THREE.AdditiveBlending}), FX, .005, FZ);
 }
+/* ================= your figure + the line at your spot (FUN 2): brass posts, a velvet rope, up to 5 slots, a wait sign ================= */
+const FIG = {x:4.3, z:2.6};              // beside the line, so it never hides a face from the 3/4 camera
+const LINE = [[3.58,2.6],[2.98,2.54],[2.38,2.48],[1.78,2.42],[1.18,2.36]];
+const lineUI = {ropes:[], n:-1, sign:null, signText:''};
+{
+  // you: a quiet graphite figure with a brass collar pin, facing the line
+  const k = new Map(), fy = Math.atan2(LINE[0][0] - FIG.x, LINE[0][1] - FIG.z);
+  MAT.jacket = std({color:0x2a2b30, roughness:.7}); MAT.trouser = std({color:0x1b1c20, roughness:.8}); MAT.skin = std({color:0xb89c84, roughness:.6});
+  for (const s_ of [-1,1]) part(k, new THREE.CylinderGeometry(.06, .055, .82, 12), MAT.trouser, s_*.085, .41, 0);
+  part(k, new RoundedBoxGeometry(.4, .62, .24, 3, .09), MAT.jacket, 0, 1.13, 0);
+  for (const s_ of [-1,1]) part(k, new THREE.CylinderGeometry(.05, .045, .6, 10), MAT.jacket, s_*.24, 1.1, .02, 0, 0, s_*.08);
+  part(k, new THREE.CylinderGeometry(.05, .055, .08, 12), MAT.skin, 0, 1.48, 0); part(k, new THREE.SphereGeometry(.12, 20, 14), MAT.skin, 0, 1.62, 0, 0, 0, 0, 1, 1.12, 1);
+  part(k, new THREE.SphereGeometry(.018, 8, 6), MAT.brass, -.1, 1.34, .12);
+  const g = new THREE.Group(); bake(k, g, true); g.position.set(FIG.x, 0, FIG.z); g.rotation.y = fy; P.add(g); blob(FIG.x, FIG.z, .7, .7, .45);
+  // brass posts on the room side of the line, a leather bench behind it
+  const dir = new THREE.Vector2(LINE[0][0] - LINE[4][0], LINE[0][1] - LINE[4][1]).normalize(), off = [dir.y*.42, -dir.x*.42];   // posts behind the line (room side)
+  lineUI.posts = LINE.map(([x, z]) => [x + off[0], z + off[1]]); lineUI.posts.push([LINE[4][0] - dir.x*.58 + off[0], LINE[4][1] - dir.y*.58 + off[1]]);
+  const pk = new Map(); for (const [x, z] of lineUI.posts){ part(pk, new THREE.CylinderGeometry(.018, .018, .86, 10), MAT.brass, x, .43, z); part(pk, new THREE.SphereGeometry(.03, 10, 8), MAT.brass, x, .88, z); part(pk, new THREE.CylinderGeometry(.09, .1, .025, 16), MAT.brass, x, .012, z); }
+  bake(pk, P, true);
+  const bx = (LINE[1][0] + LINE[3][0])/2 + off[0]*1.9, bz = (LINE[1][1] + LINE[3][1])/2 + off[1]*1.9, byaw = -Math.atan2(dir.y, dir.x);
+  const bench = rbox(1.3, .1, .34, .04, MAT.leather, bx, .36, bz); bench.rotation.y = byaw;
+  for (const s_ of [-1,1]){ const lg = box(.03, .32, .28, MAT.brass, bx + Math.cos(byaw)*s_*.55, .16, bz - Math.sin(byaw)*s_*.55); lg.rotation.y = byaw; }
+  // the rope: one sagging velvet segment per gap (shown for the robots in line), plus the unhooked end at zero
+  const ropeM = std({color:0x6b1528, roughness:.6});
+  for (let i=0;i<5;i++){ const [x0, z0] = lineUI.posts[i], [x1, z1] = lineUI.posts[i+1];
+    const c = new THREE.QuadraticBezierCurve3(new THREE.Vector3(x0, .82, z0), new THREE.Vector3((x0+x1)/2, .6, (z0+z1)/2), new THREE.Vector3(x1, .82, z1));
+    const r = new THREE.Mesh(new THREE.TubeGeometry(c, 16, .014, 6), ropeM); r.visible = false; P.add(dyn(r)); lineUI.ropes.push(r); }
+  { const [x0, z0] = lineUI.posts[0]; const c = new THREE.QuadraticBezierCurve3(new THREE.Vector3(x0, .82, z0), new THREE.Vector3(x0 + .06, .45, z0 + .04), new THREE.Vector3(x0 + .02, .2, z0 + .1));
+    lineUI.loose = dyn(new THREE.Mesh(new THREE.TubeGeometry(c, 12, .014, 6), ropeM)); P.add(lineUI.loose); }
+  // the wait sign on the first post (redrawn at most once a minute)
+  lineUI.tex = tex(256, 96, (g2, w, h) => { g2.clearRect(0,0,w,h); const gr = g2.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#e3c98f'); gr.addColorStop(1,'#a8823f');
+    g2.fillStyle = gr; g2.beginPath(); g2.roundRect(2,2,w-4,h-4,10); g2.fill(); g2.strokeStyle = 'rgba(60,40,15,.5)'; g2.lineWidth = 2; g2.beginPath(); g2.roundRect(8,8,w-16,h-16,6); g2.stroke();
+    g2.fillStyle = '#2a1c0c'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; fitText(g2, lineUI.signText, w - 36, '600 #px ' + MONO, 30, 14); g2.fillText(lineUI.signText, w/2, h/2 + 2); });
+  const [sx, sz] = lineUI.posts[0];
+  lineUI.sign = dyn(new THREE.Mesh(new THREE.PlaneGeometry(.42, .16), std({map:lineUI.tex, transparent:true, metalness:.5, roughness:.4})));
+  lineUI.sign.position.set(sx, 1.02, sz); lineUI.sign.rotation.y = Math.PI/4; lineUI.sign.visible = false; P.add(lineUI.sign);
+}
 
 /* ================= the spiral slide (down) ================= */
 const V1 = new THREE.Vector3(), V2 = new THREE.Vector3();
@@ -700,7 +737,7 @@ const DESK = {
 const BOARD_AT = [-FX, -.35];
 const POOL = {
   standup: [[-3.2,-.3],[-3.45,-1.05],[-3.45,.45],[-3.9,-1.7],[-3.95,1.1]].map(([x,z]) => SP('up', x, z, face(x, z, ...BOARD_AT), z < -.6 ? 'A0' : 'L1', {})),
-  front:   [SP('down', 3.75, 2.6, Q, 'FS'), SP('down', 3.1, 3.0, Q + .15, 'FS'), SP('down', 4.25, 1.95, Q - .15, 'FS'), SP('down', 2.55, 2.55, Q + .3, 'FS')],
+  front:   LINE.map(([x, z], i) => SP('down', x, z, face(x, z, FIG.x, FIG.z), i < 2 ? 'FS' : i < 4 ? 'F4' : 'F3', {slot:i})),
   coffee:  [SP('down', -1.75, 2.35, 0, 'F1'), SP('down', -1.1, 2.35, 0, 'F2'), SP('down', -.45, 2.35, 0, 'F2')],
   lounge:  [SP('down', 3.45, -.6, -Math.PI/2, 'R1', {sofa:true}), SP('down', 3.45, .45, -Math.PI/2, 'R1', {sofa:true}),
             SP('down', 2.25, .95, face(2.25, .95, 2.95, -.1), 'R1'), SP('down', 2.3, -.95, face(2.3, -.95, 2.95, -.1), 'B4'),
@@ -782,7 +819,7 @@ function spotFor(sim, a, key){
   if (key === 'wander') return claim(sim, Math.random() < .3 ? 'coffee' : 'lounge', true) || claim(sim, 'lounge', true);
   if (key === 'coffee') return claim(sim, 'coffee') || claim(sim, 'lounge');
   if (key === 'lounge') return claim(sim, 'lounge') || claim(sim, 'coffee');
-  if (key === 'front') return claim(sim, 'front') || claim(sim, 'lounge');
+  if (key === 'front'){ const i = lineOrder().indexOf(sim.id); if (i >= 0 && i < 5){ release(sim); sim.slot = i; return POOL.front[i]; } sim.slot = -1; return claim(sim, 'lounge'); }
   if (key === 'standup') return claim(sim, 'standup') || deskFor(sim, a);
   return null;
 }
@@ -974,6 +1011,8 @@ function makeRobot(a){
     hl:[new THREE.Vector3(-.28,.32,.04), new THREE.Vector3(.28,.32,.04)], lastPose:'', hat:def.outfit && def.outfit !== 'headset' && def.outfit !== 'glasses' ? (def.outfit === 'crown' ? .17 : .12) : 0};
   R.shell = shell; R.shellC = shell.color.clone();
   R.zoneDecal = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .8), new THREE.MeshBasicMaterial({map:glowTex, color:0xffc38a, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
+  R.thought = new THREE.Sprite(new THREE.SpriteMaterial({map:thoughtTex.clone(), transparent:true, opacity:0, depthWrite:false, toneMapped:false})); R.thought.material.map.repeat.set(1/5, 1);
+  R.thought.scale.setScalar(.2); R.thought.visible = false; R.thought.renderOrder = 9; root.add(R.thought);
   R.zoneDecal.rotation.x = -Math.PI/2; R.zoneDecal.position.set(0, .752, .62); R.zoneDecal.visible = false; root.add(R.zoneDecal);
   // polished-floor reflection (ART 6.4): a vertically stretched additive sprite under a downstairs robot
   R.refl = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xf1c48a, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
@@ -1006,8 +1045,9 @@ const folderG = (() => { const k = new Map();
   part(k, new THREE.ConeGeometry(.14, .085, 3).rotateX(Math.PI/2).rotateY(Math.PI).scale(1.05, .06, 1), MAT.manila, 0, .007, -.04);
   part(k, new THREE.CylinderGeometry(.022, .022, .008, 16), MAT.brass, 0, .012, .0); return k; })();
 const trailMat = new THREE.SpriteMaterial({map:glowTex, color:0xc9a45c, transparent:true, opacity:.5, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false});
-function spawnFolder(from, to){
-  const g = new THREE.Group(); bake(folderG, g, false);
+const cardG = (() => { const k = new Map(); part(k, new THREE.BoxGeometry(.12, .005, .17), new THREE.MeshBasicMaterial({color:0xe0685c, toneMapped:false}), 0, 0, 0); return k; })();
+function spawnFolder(from, to, kind){
+  const g = new THREE.Group(); bake(kind === 'card' ? cardG : folderG, g, false);
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xe3c98f, transparent:true, opacity:.5, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false})); glow.scale.setScalar(.4); g.add(glow);
   const trail = []; for (let i=0;i<8;i++){ const sp = new THREE.Sprite(trailMat); sp.scale.setScalar(.12 - i*.011); sp.visible = false; scene.add(sp); trail.push(sp); }
   scene.add(g); flights.push({g, glow, from, to, t:0, trail, hist:[]});
@@ -1132,6 +1172,29 @@ const lerp = (a,b,t) => a + (b-a)*t;
 const DIM = new THREE.Color(0x8a6f4a), EYE = new THREE.Color(0xfff2e0), EYE_DIM = new THREE.Color(0x3a3f55), EYE_RED = new THREE.Color(0xffc7bd), GOLD = new THREE.Color(0xead1a0), SLEEPC = new THREE.Color(0x8e95ab), CHAMP = new THREE.Color(0xf1c48a), BRASSC = new THREE.Color(0xc9a45c);
 const cTmp = new THREE.Color();
 const HAND_PROP_POSES = new Set(['glide','settle','lounge','wait','meet','ride','idle']);
+/* thought icons over working robots, from the words in agent.doing: hail cloud, bug, paintbrush, wrench, book */
+const thoughtTex = tex(320, 64, (g, w, h) => { g.clearRect(0,0,w,h); g.strokeStyle = '#f1f2f4'; g.fillStyle = '#f1f2f4'; g.lineWidth = 3.2; g.lineCap = g.lineJoin = 'round';
+  const bub = x => { g.save(); g.fillStyle = 'rgba(17,18,20,.72)'; g.beginPath(); g.arc(x + 32, 30, 27, 0, Math.PI*2); g.fill(); g.restore(); };
+  for (let i=0;i<5;i++) bub(i*64);
+  g.beginPath(); g.arc(22, 30, 8, Math.PI*.5, Math.PI*1.5); g.arc(32, 22, 10, Math.PI, 0); g.arc(43, 30, 8, -Math.PI*.5, Math.PI*.5); g.closePath(); g.stroke();   // cloud
+  for (const [x, y] of [[24,46],[32,49],[40,46]]){ g.beginPath(); g.arc(x, y, 2.2, 0, Math.PI*2); g.fill(); }                                                   // hail
+  g.beginPath(); g.ellipse(96, 32, 9, 12, 0, 0, Math.PI*2); g.stroke(); g.beginPath(); g.moveTo(96, 20); g.lineTo(96, 44); for (const s_ of [-1,1]) for (const y of [26,33,40]){ g.moveTo(96 + s_*9, y); g.lineTo(96 + s_*16, y - 3); } g.stroke();   // bug
+  g.beginPath(); g.moveTo(150, 16); g.lineTo(166, 40); g.stroke(); g.beginPath(); g.ellipse(168, 44, 5, 8, -.6, 0, Math.PI*2); g.fill();                     // brush
+  g.beginPath(); g.moveTo(212, 44); g.lineTo(228, 24); g.stroke(); g.beginPath(); g.arc(231, 20, 7, Math.PI*.2, Math.PI*1.7); g.stroke();                        // wrench
+  g.beginPath(); g.moveTo(272, 20); g.lineTo(288, 24); g.lineTo(304, 20); g.lineTo(304, 42); g.lineTo(288, 46); g.lineTo(272, 42); g.closePath(); g.moveTo(288, 24); g.lineTo(288, 46); g.stroke(); });   // book
+const THOUGHT = [/hail|storm|granizo|tormenta|radar|weather/i, /bug|fix|error|test|qa\b|gate|check|prueba/i, /design|color|colour|layout|css|font|look|diseñ|icon/i, /engine|build|code|script|deploy|publish|motor|page|refactor/i, /research|read|doc|learn|study|brief|investig|lee/i];
+function thoughtOf(a){ const d = String(a.doing || ''); if (!d) return -1; for (let i=0;i<THOUGHT.length;i++) if (THOUGHT[i].test(d)) return i; return -1; }
+const rollcall = {t:-1};
+const CUE = {}, CUE_LATE = {};
+CUE_LATE.arrive = () => { if (!RM.matches) rollcall.t = 0; };
+CUE_LATE.poke = (c) => { const sim = c.id && sims[c.id], R = robots[c.id]; if (!sim || !R) return; if (!RM.matches){ sim.poke = 0; if (!sim.moving && HUB.byId[c.id] && HUB.byId[c.id].st !== 'working'){ R.hab = {t:0}; } } };
+CUE_LATE.coffee = (c) => { const sim = c.id && sims[c.id]; if (sim) sim.perk = RM.matches ? 3.9 : 0; };
+function lineOrder(){ const H = HUB, ag = H.agents || []; if (lineOrder.f === frameNo) return lineOrder.v; lineOrder.f = frameNo;
+  let ids = H.needs && Array.isArray(H.needs.ids) ? H.needs.ids.filter(id => H.byId && H.byId[id] && H.byId[id].st === 'waiting') : ag.filter(a => a.st === 'waiting').sort((p, q) => (p.since || 0) - (q.since || 0)).map(a => a.id);
+  for (const a of ag) if (a.st === 'waiting' && !ids.includes(a.id)) ids.push(a.id);
+  return (lineOrder.v = ids); }
+function fmtWait(ms){ const m = Math.max(0, Math.floor(ms/60e3)), h = Math.floor(m/60); return h ? h + ' h ' + (m % 60) + ' min' : m + ' min'; }
+let frameNo = 0;
 const SEATN = {code:1, king:2, builder:3, designer:4, 'engine-mechanic':5, 'qa-tester':6, 'hub-keeper':7, cowork:8, 'storm-watch':9, 'chat-reader':10};
 const V3 = new THREE.Vector3(), V2d = new THREE.Vector2(), SCR_W = new THREE.Color(0xffffff), SCR_DIM = new THREE.Color(0xb8a89a);
 let zoneNow = [], zonePrev = [];
@@ -1172,7 +1235,16 @@ function animRobot(a, sim, R, t, dt){
   // a silent robot (the run watchdog): the shell dims slightly
   R.shell.color.lerp(a.silent ? cTmp.copy(R.shellC).multiplyScalar(.7) : R.shellC, Math.min(1, dt*3));
   // the thank-you bow (Special Delivery): 400 ms forward and back
-  let bowX = 0; if (sim.bow != null){ sim.bow += dt; const k = sim.bow/.8; if (k >= 1) sim.bow = null; else bowX = Math.sin(k*Math.PI)*.42; }
+  // the thank-you (Special Delivery), in the outfit's own way: bow + cape sweep, salute, cap tip, glasses push, hard-hat tap
+  let bowX = 0, thank = null; const oft = a.def && a.def.outfit;
+  if (sim.bow != null){ sim.bow += dt; const k = sim.bow/1.1; if (k >= 1) sim.bow = null; else { const e = Math.sin(k*Math.PI);
+    if (oft === 'captain') thank = {R:[.14, 1.02, .16]}; else if (oft === 'glasses') thank = {R:[.07, .96, .22]}; else if (oft === 'hardhat') thank = {R:[.1, 1.06 + Math.max(0, Math.sin(k*20))*.02, .06]};
+    else if (oft === 'newsboy'){ thank = {R:[.12, 1.05, .14]}; bowX = e*.18; } else { bowX = e*.42; if (oft === 'crown') R.habitSwish = e*.5; } } }
+  // poke (the page shows the line) and coffee (perks up)
+  if (sim.poke != null){ sim.poke += dt; if (sim.poke > 1.6) sim.poke = null; }
+  if (sim.perk != null){ sim.perk += dt; if (sim.perk > 4) sim.perk = null; }
+  // the line: posture ages with the wait (alert, settled, seated reading, dozing upright)
+  const inLine = pose === 'wait', qAge = a.since ? (Date.now() - a.since)/60e3 : 0, qStage = !inLine ? -1 : qAge < 10 ? 0 : qAge < 60 ? 1 : qAge < 240 ? 2 : 3;
   const seat = sim.spot && sim.spot.seat && !sim.moving ? .2 : 0;
   const S = stateOf(a, sim), seatN = SEATN[a.id] ?? 0;
   // in the zone (FUN 3): 45 min of unbroken work -> lean in 8 deg, the chase runs 1.5x, a warm pool on the desk
@@ -1182,10 +1254,12 @@ function animRobot(a, sim, R, t, dt){
   // blocked, acted out: try, recoil, sigh, tap the visor, try again; the cycle slows from 6 s to 20 s as the block ages
   const bAge = a.since ? (Date.now() - a.since)/3600e3 : 0, bCyc = 6 + 14*Math.min(1, bAge/3), bf = pose === 'blocked' && !rm ? ((t + ph)/bCyc) % 1 : -1;
   const sigh = bf > .4 && bf < .65 ? Math.sin((bf - .4)/.25*Math.PI) : 0;
-  R.h = lerp(R.h, (HOVER[pose] ?? .22) + seat - sigh*.03 - (sim.tiptoe ? .06 : 0), Math.min(1, dt*(pose === 'ride' ? 10 : pose === 'sleep' ? 1.2 : 3)));
+  const lift = (qStage > 0 ? [0, -.16, -.26, -.28][qStage] : 0) + (sim.perk != null ? .05 : 0) + (HUB.hover === a.id ? .03 : 0) + (S === 'idle' && HUB.watching ? .02 : 0) + (sim.poke != null ? Math.abs(Math.sin(sim.poke*6))*.06*Math.max(0, 1 - sim.poke) : 0);
+  R.h = lerp(R.h, (HOVER[pose] ?? .22) + seat + lift - sigh*.03 - (sim.tiptoe ? .06 : 0), Math.min(1, dt*(pose === 'ride' ? 10 : pose === 'sleep' ? 1.2 : 3)));
   // breathing: +-6 mm on a 4.2 s sine (6 s asleep), phase by seat so no two robots breathe together
   const bob = rm ? 0 : Math.sin(t*2*Math.PI/(pose === 'sleep' ? 6 : 4.2) + seatN*1.37)*.006;
-  const jump = (pose === 'cheer' && !rm) ? Math.abs(Math.sin(pt*5.2)) * .2 * Math.max(0, 1 - pt/2.2) : 0;
+  let jump = (pose === 'cheer' && !rm) ? Math.abs(Math.sin(pt*5.2)) * .2 * Math.max(0, 1 - pt/2.2) : 0;
+  if (sim.hi5 != null){ sim.hi5 += dt; if (sim.hi5 > .7) sim.hi5 = null; else if (sim.hi5 > 0){ jump += Math.sin(sim.hi5/.7*Math.PI)*.22; } }
   R.hov.position.y = R.h + bob + jump;
   const wob = rm ? 0 : sim.wobble*sim.wobble;
   R.hov.rotation.z = sim.bank + Math.sin(t*19 + ph)*.2*wob; R.hov.rotation.x = sim.pitch + Math.cos(t*15 + ph)*.12*wob + bowX + .14*R.zoneK;
@@ -1210,10 +1284,23 @@ function animRobot(a, sim, R, t, dt){
     else { const ang = Math.atan2(o.x - sim.x, o.z - sim.z) - sim.yawDraw; const d = Math.atan2(Math.sin(ang), Math.cos(ang)), k = Math.min(1, gl.t/.25)*Math.min(1, (gl.dur - gl.t)/.4);
       look.set(Math.max(-1, Math.min(1, d/1.1))*k, .1*k, 0); if (gl.t > gl.head) hy = lerp(hy, Math.max(-.9, Math.min(.9, d))*.8, k); } }
   if (habit){ if (habit.hp != null) hp = habit.hp; if (habit.hy != null) hy = habit.hy; if (habit.look) look.copy(habit.look); }
+  // awareness: roll call, the cursor, hover, being watched (heads turn in the robot's own frame; the camera sits at view.azNow)
+  const toCam = Math.atan2(Math.sin((view.azNow || AZ0) - sim.yawDraw), Math.cos((view.azNow || AZ0) - sim.yawDraw));
+  const awake = pose !== 'sleep' && pose !== 'ride' && !sim.moving;
+  if (rollcall.t >= 0 && awake){ const t0 = (seatN - 1)*.07, k = (rollcall.t - t0)/.6; if (k > 0 && k < 1){ const e = Math.sin(k*Math.PI); hy = lerp(hy, Math.max(-1.2, Math.min(1.2, toCam)), e); hp = lerp(hp, -.18, e); look.set(0, 0, 0); } }
+  if (rollcall.t >= 0 && a.id === 'code' && rollcall.t > .75 && rollcall.t < 1.2) hp = Math.sin((rollcall.t - .75)/.45*Math.PI)*.3;   // the King nods last
+  const pt_ = HUB.pointer, anP = anchors[a.id];
+  if (pt_ && pt_.in && anP && awake && S !== 'blocked' && Math.abs(Date.now() - pt_.t) < 4000 || pt_ && pt_.in && anP && awake && S !== 'blocked' && Math.abs(performance.now() - pt_.t) < 4000){
+    const dx = pt_.x - anP.x, dy = pt_.y - (anP.y + anP.fy)/2, d = Math.hypot(dx, dy);
+    if (d < 300){ const k = (1 - d/300)*.9; hy = lerp(hy, Math.max(-1.1, Math.min(1.1, toCam + dx/300*.9)), k); hp = lerp(hp, Math.max(-.3, Math.min(.3, dy/300*.4)), k*.6); look.set(Math.max(-1, Math.min(1, dx/150)), -Math.max(-1, Math.min(1, dy/150)), 0); } }
+  if (HUB.hover === a.id && awake){ hy = lerp(hy, Math.max(-1.2, Math.min(1.2, toCam)), .85); hp = -.1; look.set(0, 0, 0); }
+  if (S === 'idle' && HUB.watching && !habit) hy *= .35;
+  if (qStage === 1 && !rm && ((t + ph) % 9) < 1.4) hy = .9;                           // a glance up the stairs
+  if (qStage === 2){ hp = .26; } else if (qStage === 3){ hp = .35; }
   const hkx = Math.min(1, dt*4); R.head.rotation.x = lerp(R.head.rotation.x, hp, hkx); R.head.rotation.y = lerp(R.head.rotation.y, hy, Math.min(1, dt*(sim.moving ? 5 : 3))); R.head.rotation.z = lerp(R.head.rotation.z, hr, hkx);
   // eyes (hub/eyes.js)
   const blink = sim.blinkT > 0 && !rm && pose !== 'sleep' ? .08 : 1;
-  const eyeShape = habit && habit.eyes ? habit.eyes : S === 'ride' ? 'ride' : S === 'done' ? 'done' : S;
+  const eyeShape = habit && habit.eyes ? habit.eyes : qStage === 3 || R.dozer ? 'sleep' : sim.perk != null ? 'wait' : S === 'ride' ? 'ride' : S === 'done' || thank ? 'done' : S;
   setEyes(R.E, eyeShape, V2d.set(look.x, look.y), habit && habit.open != null ? habit.open : blink, pose === 'sleep' ? EYE_DIM : S === 'blocked' ? EYE_RED : EYE, dt, rm);
   // the light strip (ART 6.6): working champagne + chase dot, idle champagne toward ceramic, waiting ember on the shared
   // 5 s breath, stuck oxide steady, asleep off with a brass pilot dot. Colors come from HUB.theme; never multiplyScalar.
@@ -1238,7 +1325,10 @@ function animRobot(a, sim, R, t, dt){
   const L0 = R.hl[0], R0 = R.hl[1];
   if (pose === 'type'){ L0.set(-.12, .5 + (rm?0:Math.max(0,Math.sin(t*15+ph))*.025), .3); R0.set(.12, .5 + (rm?0:Math.max(0,Math.sin(t*15+ph+Math.PI))*.025), .3); }
   else if (pose === 'read' || pose === 'radar'){ L0.set(-.12, .55, .25); R0.set(.12, .55 + (rm?0:Math.max(0,Math.sin(t*.7+ph)-.9)*.3), .27); }
-  else if (pose === 'wait'){ L0.set(-.27, .33, .06); R0.set(.3, .8 + (rm?0:Math.sin(t*6)*.04), .1 + (rm?0:Math.sin(t*6)*.05)); }
+  else if (pose === 'wait'){
+    if (qStage <= 0 && sim.slot === 0){ L0.set(-.27, .33, .06); R0.set(.3, .8 + (rm?0:Math.sin(t*6)*.04), .1 + (rm?0:Math.sin(t*6)*.05)); }   // front of the line: a small wave
+    else if (qStage >= 2){ L0.set(-.12, .5, .28); R0.set(.12, .5, .28); }                                                                     // seated, reading
+    else { L0.set(-.09, .42, .22); R0.set(.09, .42, .22); } }                                                                                 // hands together
   else if (pose === 'blocked'){
     if (bf < .3 || bf > .8){ const tap = rm ? 0 : Math.max(0, Math.sin(t*9))*.02; L0.set(-.12, .52 + tap, .32); R0.set(.12, .52, .32); if (bf >= 0 && Math.sin(t*9) > .95) R.blip = .3; }   // try
     else if (bf < .4){ L0.set(-.25, .86, .06); R0.set(.25, .86, .06); }                                     // recoil
@@ -1251,19 +1341,24 @@ function animRobot(a, sim, R, t, dt){
   else if (pose === 'meet'){ L0.set(-.27, .33, .06); R0.set(.19, .5 + (rm?0:Math.max(0,Math.sin(t*1.1+ph))*.08), .22); }
   else { const sw = rm ? 0 : Math.sin(t*1.7 + ph)*.02; L0.set(-.28, .32 + sw, .05); R0.set(.28, .32 - sw, .05); }
   if (habit && habit.L) L0.copy(habit.L); if (habit && habit.R) R0.copy(habit.R);
+  if (thank) R0.set(...thank.R);
+  if (sim.poke != null && a.st === 'working') R0.set(.2, .92, .14);                    // working: "one sec" (a finger up)
+  if (sim.perk != null) R0.set(.1, .56, .25);
+  if (R.pointer) R0.set(.3, 1.0, .25);                                                   // the King points at the board
   const hk = Math.min(1, dt*(pose === 'type' ? 18 : 7));
   R.hands[0].position.lerp(L0, hk); R.hands[1].position.lerp(R0, hk);
   // props
   const reading = pose === 'read' && !R.prop || pose === 'meet' && a.id === 'code';
-  R.tablet.visible = reading; if (reading){ R.tablet.position.set(0, R.hands[0].position.y + .02, .3); R.tablet.rotation.set(.9, 0, 0); }
+  const reading2 = reading || qStage === 2; R.tablet.visible = reading2; if (qStage === 2){ R.tablet.position.set(0, R.hands[0].position.y + .02, .3); R.tablet.rotation.set(.9, 0, 0); }
+  if (reading) if (reading){ R.tablet.position.set(0, R.hands[0].position.y + .02, .3); R.tablet.rotation.set(.9, 0, 0); }
   if (R.prop){ const show = HAND_PROP_POSES.has(pose) || pose === 'read' || pose === 'radar'; R.prop.visible = show;
     if (pose === 'read' || pose === 'radar'){ R.prop.position.set(.1, .08, .06); R.prop.rotation.set(-.9, 0, 0); } else if (show){ R.prop.position.set(0, .06, .03); R.prop.rotation.set(-.15, 0, a.def && a.def.outfit === 'newsboy' ? .25 : 0); } }
   // wardrobe v2: the state grammar for this robot's edition (hub/outfits.js)
   if (R.blip > 0) R.blip -= dt;
   const anPrev = anchors[a.id];
   animOutfit(KIT, a, sim, R, t, dt, {breath:br, small:!anPrev || (anPrev.fy - anPrev.y) < 60, swish:R.swish || 0, wind:HUB.sky && HUB.sky.state && +HUB.sky.state.wind || 0, storm:HUB.sky && HUB.sky.state && HUB.sky.state.storm || 0});
-  R.cup.visible = pose === 'coffee'; if (R.cup.visible) R.cup.position.copy(R.hands[1].position).add(V.set(0,.06,.02));
-  R.steam.forEach((s,i) => { const on = pose === 'coffee' && !rm; s.visible = on; if (!on) return; const k = ((t*.6 + i/3) % 1); s.material.opacity = Math.sin(k*Math.PI)*.35;
+  R.cup.visible = pose === 'coffee' || sim.perk != null; if (R.cup.visible) R.cup.position.copy(R.hands[1].position).add(V.set(0,.06,.02));
+  R.steam.forEach((s,i) => { const on = R.cup.visible && !rm; s.visible = on; if (!on) return; const k = ((t*.6 + i/3) % 1); s.material.opacity = Math.sin(k*Math.PI)*.35;
     s.position.set(R.cup.position.x + Math.sin(k*6+i)*.02, R.cup.position.y + .06 + k*.22, R.cup.position.z); s.scale.setScalar(.05 + k*.06); });
   // floor: contact shadow + state ring (hidden while riding: the floor is far below)
   const hh = R.hov.position.y, riding = pose === 'ride';
@@ -1283,10 +1378,13 @@ function animRobot(a, sim, R, t, dt){
   V.set(sim.x, sim.y + up, sim.z).project(cam); const fx = (V.x+1)/2*W, fy = (1-V.y)/2*H;
   const on = !(up > .3) && ax > -20 && ax < W + 20 && ay > -40 && fy < H + 20;
   const an = anchors[a.id] || (anchors[a.id] = {});
-  an.x = ax; an.y = ay; an.fx = fx; an.fy = fy; an.pose = sim.bow != null ? 'bow' : pose; an.moving = !!sim.moving; an.visible = on; an.floor = sim.floor;
+  an.x = ax; an.y = ay; an.fx = fx; an.fy = fy; an.pose = sim.bow != null ? 'bow' : sim.poke != null ? 'poke' : pose === 'wait' && sim.slot > 0 ? 'queue' : R.zone > 1 ? 'zone' : pose; an.moving = !!sim.moving; an.visible = on; an.floor = sim.floor;
   // floor reflection, desk status bar, after-hours lamp
   const refOn = sim.floor === 'down' && !sim.ride && !lowfx && pose !== 'sleep';
   R.refl.visible = refOn; if (refOn){ R.refl.material.color.copy(R.stripMat.color); R.refl.material.opacity = .18*light.lamps; }
+  const ti = a.st === 'working' && !sim.moving && S === 'work' ? thoughtOf(a) : -1;
+  if (ti >= 0){ R.thought.material.map.offset.x = ti/5; R.thought.visible = true; R.thought.position.set(.34, hh*1.24 + 1.42 + R.hat + (rm ? 0 : Math.sin(t*1.6 + ph)*.03), 0); R.thought.material.opacity = lerp(R.thought.material.opacity, .85, Math.min(1, dt*3)); }
+  else { R.thought.material.opacity = lerp(R.thought.material.opacity, 0, Math.min(1, dt*5)); R.thought.visible = R.thought.material.opacity > .02; }
   const db = deskBars[a.id]; if (db){ db.im.setColorAt(db.k, a.silent ? TH.silent : pose === 'sleep' ? TH.sleep : a.st === 'waiting' ? TH.need : a.st === 'blocked' ? TH.stuck : a.st === 'working' ? TH.work : cTmp.copy(TH.idle).multiplyScalar(.55)); db.im.instanceColor.needsUpdate = true; }
   R.after.visible = !!HUB.afterHours && a.st === 'working' && !sim.moving && !!DESK[a.id] && sim.spot === DESK[a.id] && !DESK[a.id].seat && a.id !== 'storm-watch' && a.id !== 'code' && a.id !== 'king';
 }
@@ -1340,7 +1438,6 @@ const lampRefl = [[3.4,-.4],[-1.65,3.0],[-.75,3.0]].map(([x,z]) => { const sp = 
   sp.center.set(.5, 1); sp.scale.set(.3, 1.1, 1); sp.position.set(x, .01, z); sp.renderOrder = 2; scene.add(sp); return sp; });
 
 /* ================= cues (CONTRACT v2 HUB.cues): shift every cue; unknown kinds are ignored ================= */
-const CUE = {};
 const deliveries = [];
 const capsuleG = (() => { const k = new Map(); part(k, new THREE.CylinderGeometry(.035,.035,.1,14), MAT.brass, 0, 0, 0); part(k, new THREE.SphereGeometry(.035,14,8), MAT.brass, 0, .05, 0); part(k, new THREE.SphereGeometry(.035,14,8), MAT.brass, 0, -.05, 0);
   part(k, new THREE.TorusGeometry(.036,.006,6,16), MAT.bronze, 0, 0, 0, Math.PI/2); return k; })();
@@ -1365,9 +1462,39 @@ function stepDeliveries(dt){
     d.g.rotation.set(d.t < 1.4 && d.t > .5 ? 0 : Math.PI/2, d.t*3, 0); }
   return inTube;
 }
+/* the line, the stand-up, QA's red card, the big finish, SCENE.points: once per frame */
+const points = {spot:{x:0, y:0, visible:false}, tube:{x:0, y:0, visible:false}};
+const fx_ = {qaSt:null, finish:null, finishDay:null};
+function stepAwareness(agents, dt){
+  frameNo++; if (rollcall.t >= 0){ rollcall.t += dt; if (rollcall.t > 1.4) rollcall.t = -1; }
+  // the line: re-slot robots when the order changes; rope hooked per robot in line, unhooked at zero; the wait sign
+  const order = lineOrder(), n = Math.min(5, order.length);
+  order.forEach((id, i) => { const sim = sims[id]; if (!sim || sim.hidden || sim.moving || sim.ride || i >= 5) return; if (sim.slot !== i && !sim.queue.length) sim.queue = [{spot:'front', pose:'wait'}]; });
+  if (n !== lineUI.n){ lineUI.n = n; lineUI.ropes.forEach((r, i) => r.visible = i < n); lineUI.loose.visible = n === 0; lineUI.sign.visible = n > 0; }
+  if (n){ const a0 = HUB.byId && HUB.byId[order[0]]; const txt = (HUB.lang === 'es' ? 'ESPERA ' : 'WAIT ') + fmtWait(a0 && a0.since ? Date.now() - a0.since : 0) + (order.length > 5 ? '  +' + (order.length - 5) : '');
+    if (txt !== lineUI.signText){ lineUI.signText = txt; redraw(lineUI.tex); } }
+  // stand-up: 3+ at the board -> the King points at it, one of them dozes
+  const su = agents.filter(a => a.spot === 'standup' && a.st === 'working' && sims[a.id] && !sims[a.id].moving);
+  for (const a of agents){ const R = robots[a.id]; if (!R) continue; R.pointer = su.length >= 3 && a.id === 'code' && sims.code && !sims.code.moving; R.dozer = su.length >= 3 && su[su.length - 1] === a && ((performance.now()/1000) % 14) < 5; }
+  // QA carries a red card to the Builder when QA gets stuck on the Builder's task
+  const qa = HUB.byId && HUB.byId['qa-tester'], bu = HUB.byId && HUB.byId.builder;
+  if (qa){ if (fx_.qaSt && fx_.qaSt !== 'blocked' && qa.st === 'blocked' && bu && (qa.task && qa.task === bu.task || bu.task && String(qa.doing || '').includes(bu.task)) && sims['qa-tester'] && sims.builder && !RM.matches) spawnFolder(sims['qa-tester'], sims.builder, 'card');
+    fx_.qaSt = qa.st; }
+  // the big finish (whole board done, once a day): a high-five chain and one victory lap down the slide
+  const bc = boardCounts(), fin = bc.done > 0 && bc.doing === 0 && bc.stuck === 0 && bc.needs === 0;
+  if (fin && fx_.finish === false && !RM.matches){ const day = new Date().toDateString(); let last = null; try { last = localStorage.getItem('hub-finish'); } catch(e){}
+    if (last !== day){ try { localStorage.setItem('hub-finish', day); } catch(e){}
+      agents.forEach((a, i) => { const sm = sims[a.id]; if (sm && !sm.hidden && !sm.moving) sm.hi5 = -i*.12; });
+      const lap = agents.find(a => sims[a.id] && sims[a.id].floor === 'up' && (a.st === 'idle' || a.st === 'done') && !sims[a.id].moving);
+      if (lap){ const sm = sims[lap.id], free = POOL.lounge.find(p => p.f === 'down' && !claims.has(p)); if (free){ release(sm); claims.set(free, sm.id); sm.queue = [{spot:null, pose:'cheer', dur:1.2}]; go(sm, free); } } } }
+  fx_.finish = fin;
+  // your spot + the tube base, in stage px (for the page's overlays and the mind)
+  V1.set(FIG.x, 1.2, FIG.z).project(cam); points.spot.x = (V1.x + 1)/2*W; points.spot.y = (1 - V1.y)/2*H; points.spot.visible = V1.z < 1 && points.spot.x > -20 && points.spot.x < W + 20;
+  V1.set(TUBE.x, .1, TUBE.z).project(cam); points.tube.x = (V1.x + 1)/2*W; points.tube.y = (1 - V1.y)/2*H; points.tube.visible = points.tube.x > -20 && points.tube.x < W + 20;
+}
 function runCues(){
   const q = HUB.cues; if (!Array.isArray(q)) return false; let any = false;
-  while (q.length){ const c = q.shift(); any = true; const fn = c && CUE[c.kind]; if (fn) try { fn(c); } catch(e){} }
+  while (q.length){ const c = q.shift(); any = true; const fn = c && (CUE[c.kind] || CUE_LATE[c.kind]); if (fn) try { fn(c); } catch(e){} }
   return any;
 }
 /* power (CONTRACT v2 HUB.power): full / saver (30 fps, DPR 1.25) / paused; 30 fps idle cap after 10 s calm */
@@ -1428,6 +1555,7 @@ function frame(t, dt){
   seen.lang = lang;
   const rm = RM.matches;
   for (const a of agents){ const sim = sims[a.id]; if (!sim.hidden) animRobot(a, sim, robots[a.id], t, dt); }
+  stepAwareness(agents, dt);
   // station screens wake when their robot works there
   for (const [id, sc] of Object.entries(screens)){
     let sim = sims[id], here = sim && !sim.hidden && sim.spot && sim.spot === DESK[id];
@@ -1449,8 +1577,8 @@ function frame(t, dt){
   radar.blips.forEach((b,i) => { b.material.opacity = lerp(b.material.opacity, hail ? .6 + Math.sin(t*3+i)*.35 : 0, Math.min(1, dt*3)); });
   // "your spot" glows when someone is waiting on you
   const waiting = agents.some(a => sims[a.id] && sims[a.id].pose === 'wait' && !sims[a.id].hidden);
-  spot.glow.material.opacity = lerp(spot.glow.material.opacity, waiting ? .6 + (rm ? 0 : Math.sin(t*4)*.25) : .16, Math.min(1, dt*4));
-  spot.fill.material.opacity = lerp(spot.fill.material.opacity, waiting ? .07 + (rm ? 0 : Math.sin(t*4)*.03) : 0, Math.min(1, dt*4));
+  const bk_ = breathK(); spot.glow.material.opacity = lerp(spot.glow.material.opacity, waiting ? .35 + .35*bk_ : .16, Math.min(1, dt*4));
+  spot.fill.material.opacity = lerp(spot.fill.material.opacity, waiting ? .04 + .04*bk_ : 0, Math.min(1, dt*4));
   // charging pods: blue breathing glow when a robot sleeps in one
   podGlow.forEach((pg, i) => { const occ = Object.values(sims).some(s => !s.hidden && s.spot === POOL.pod[i] && s.pose === 'sleep');
     pg.glow.material.color.copy(occ ? SLEEPC : BRASSC); pg.glow.material.opacity = lerp(pg.glow.material.opacity, occ ? .45 + (rm ? 0 : Math.sin(t*.9 + i)*.2) : .12 + lamps*.06, Math.min(1, dt*3));
@@ -1496,7 +1624,7 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
 window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; },
-  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }};
+  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points};
 resize();
 HUB.layout && HUB.layout();
 
