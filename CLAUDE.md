@@ -16,6 +16,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   prices, registration #, warranty promises, spending money, signing anything, deleting data.
 - **What delights him (FilthE, 2026-09-28):** convenient, extremely helpful things that were carefully thought through,
   especially the ones he wouldn't have thought of himself. Anticipate the need; don't just add features.
+- **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
+  one item per line, nothing extra, so he never edits it.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
