@@ -18,6 +18,13 @@ Next King handoffs should come from the hub button, not create_session, or the c
 2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
 3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
+## KNOWN PROBLEMS (2026-09-28 23:58)
+- King chain depth cap (8): a King made by a King can't create triggers/sessions. FilthE must tap Fresh King on the hub
+  (starts from his account, resets the chain). session_01HnpGXN (capped King) archived; session_014eg28D stays King.
+- Hub instant answers are stale (offered to publish Practice Door v12, already live): feed it what's live.
+- Robot lines + robot->QA handoff untested; may hit the same cap.
+- Rule: robots commit before any pause (a paused Engine lost ~$4 of work).
+
 ## Running now (2 = the max)
 - `session_01MBkNjQQ28175TShNsVd7WN` Engine Mechanic: real 2026 storms + likely-insured signals (data + engine only).
   An earlier Engine run (session_01TqT879, 205k tokens) was paused + archived before committing: its work is lost.
