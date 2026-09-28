@@ -67,3 +67,34 @@ glow, corner brackets, mono HUD headers with one orange pip), segmented orange g
 (grid, edge rulers, one slow 9 s sweep, off with reduced motion). Ledger light = clean lab console (same frame, no
 scan lines). Muted text 6:1, faint 4.8:1 on panels. Shots: `shots/batcave-{now,knock,job}-{dark,light}.png`,
 before/after: `batcave-compare.png`.
+
+## A · Future layer (default look since 2026-09-28: "futuristic, like Apple ads")
+`future.css` + `future.js`, loaded by `a-cockpit.html` (`?look=batcave` brings the old layer back). Glass that catches
+light, an ambient generative field behind it, spring motion. Before/after: `future-compare.png` (Batcave vs Future,
+Now / Knock / Job). Shots: `shots/future-*.png`.
+
+### 24h safety (the work screens stay open all day on a MacBook Air)
+- **Frame cap:** 30 fps while you're active, 12 fps after 60 s without input, **stopped after 3 min idle** (the last
+  frame stays on screen; any key, pointer, wheel or focus wakes it). Stopped while the tab is hidden or frozen. The
+  loop is a timer plus one rAF per drawn frame, so the main thread never wakes 60/120 times a second.
+- **No growth:** time is one wrapped angle (a seamless 4-minute loop), so float precision is the same at hour 1 and
+  hour 24; dt is clamped so waking never jumps. Nothing is allocated per frame (one program, one 3-vertex buffer,
+  uniforms from plain numbers). Canvas is capped at 480x300 px on any display. Tested: heap flat over the run.
+- **Fallbacks:** WebGL context lost -> the static CSS gradient shows, rebuilt once on restore; **3 losses in 10 min
+  -> gradient for the rest of the session** (no loss/restore loop on a sick GPU). `prefers-reduced-motion` -> no
+  WebGL context at all, just the gradient (switched live if the setting changes). No WebGL -> the gradient.
+
+## Intro / landing: `intro.html` (Part 2 of docs/design/references/README.md)
+The cinematic side. Work screens stay ambient; this page goes full cinema. Sample data, `$ —` prices.
+- **Hero:** OGL (jsDelivr) storm field (domain-warped clouds lit from inside, the light follows the pointer) plus 1,800
+  GPU particles. One "story" number drives both: 0 storm (hail falls), 1 hot zone (isolines, particles orbit in
+  rings over the zone), 2 door (everything gathers to one point), 3 signed (warm bloom, calm constellation).
+- **Scroll story:** GSAP ScrollTrigger (scrubbed timeline) + Lenis, pinned with plain CSS sticky. Storm -> hot zone ->
+  door -> signed, on a live map card (swath sweeps in, zone draws itself, map zooms to the walk, door card, signed card).
+  If the CDN is unreachable, a native scroll handler switches chapters and CSS does the rest.
+- **Big moment:** `aldabaBurst(x, y)`, canvas 2D, no library, 180 preallocated sparks + a shockwave, 1.4 s, then
+  the canvas is removed. Fires once when the story reaches Signed and on "Mark signed". Portable into the app.
+- **Type:** Bricolage 790 vs 220 weight contrast for the headlines, Geist body, Geist Mono readouts. EN/ES (`?lang=es`).
+- **Safety:** display rate only while scrolling/moving, 30 fps otherwise, asleep after 2 min without input,
+  stopped when hidden; context loss or reduced motion -> the static gradient.
+- Shots: `shots/intro-1-hero(-es)`, `-2-zone`, `-3-door`, `-4-signed(-es)`, `-5-moment` (burst mid-flight).
