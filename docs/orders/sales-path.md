@@ -247,3 +247,67 @@ knockbase.com, servicetitan.com, canvasslite.com, qomon.com, doornoc.com) — sa
   "optimism/pessimism predicts persistence" claim (commonly attributed to a Seligman/MetLife insurance
   study) — search summary only, not independently opened; the underlying study is real and
   well-known, but not verified here first-hand.
+
+## Moved from the app (T195, 2026-09-28)
+
+FilthE, 2026-09-27: "the app is the tool; teaching lives outside it." These lines left the HMP App
+(`pages/hmp-app.html`) and belong in lessons / the Practice Door. The app kept: the 69-1602 opener, the
+insurance "the claim is yours, the deductible is yours" table line, the 3-day cancel said out loud, every
+Must do / By law line, the hard stops, the Collect lists, the step and what's next. EN + ES removed together.
+
+**Step scripts (Sale Guide "Say" lines, steps 2-8):**
+- Set, insurance: "You're all set. I'll text you the time now and again the day before. It takes about
+  20-30 minutes, and I'll show you every photo." Cash: "...I'll measure and give you three options with prices."
+- Inspect, insurance: "I'll start with the house number, then every side of the house and the roof. I only
+  photograph what I see; then we sit down and go over it together." Cash: "I'll measure the walls and the roof
+  and take a few photos. Then we sit down with three options."
+- Table, cash: "Here are three options: good, better and best. Each is an estimate range until I measure
+  exactly. Which one fits you?"
+- Claim: "When you call your insurance, ask for the claim number and text it to me. When the adjuster calls,
+  tell me the day and time: I'll be on the roof with them the same hour."
+- Measure: "I'll measure everything exactly, order the materials and set the build day with you. The deposit
+  holds the order."
+- Build: "The crew comes on <day>. We protect the yard, clean up every day and run a magnet for nails. I'll
+  send you photos when it's done."
+- Paid: "Thank you for trusting HMP. If you're happy with the work, a quick review helps a small local crew a
+  lot. Who else on your street should I check on?"
+- Referral, read out loud at the finished job: "Thank you for choosing HMP. Most of our work comes from people
+  like you telling a friend or neighbor. If anyone comes to mind, we'd love an introduction." (The rule stays in
+  the app: referrals are never paid, discounted or rewarded; a handwritten note only.)
+
+**Tips (lesson material):**
+- Booked for today or tomorrow: call to confirm, don't only text.
+- Safety first: ladder tied off, 3 points of contact, no roof when it is wet.
+- Siding: prove the mismatch. Photograph the panel profile and color, and the back of a loose piece.
+  (The app still asks for the "Siding profile photo" in Collect.)
+- Buying signals: questions about the install, cancelling or the warranty mean they are close. Answer, then
+  ask for the decision. Don't keep pitching.
+- Show only 3 prices: Good (vinyl), Better (insulated vinyl), Best (James Hardie). Price each one with the
+  quick estimate.
+- Table question (cash): "What matters most to you: price, looks or how long it lasts?"
+- Adjuster meeting: "Answer technical questions calmly: facts, not pressure." and "You can say: 'Here's what we
+  found, here's the measurement, here's the code section.'" (the Never line stays in the app).
+
+**Mindset / praise lines (gone, not moved):** "Most doors won't answer: 20-40% is normal. Keep going." (Knock);
+"First weeks are usually near the low end; that's normal." (the benchmark stays: "Typical: 20-40%");
+"Nice work." (twice); "Logged every door ... That's the win."
+
+**Follow-up objection scripts:** the app carried an unused copy of `data/followup_scripts.json` (day-2/5/10
+revisit and call words, "what's the one thing you're weighing most..."); it was never shown, so the copy and its
+database listener were deleted. The file itself stays in `data/` as lesson material.
+
+**Engine coach card (T83, `hailhunter/todaywalk.py coach_for`):** the Knock card no longer shows it. It showed
+"Reset, smile, next door" / "Knock, step back, smile" mindset lines. The card now shows the door facts line
+(door score "why") and, when the homeowner asked for it, "They asked you to come back at <time>." The engine
+still writes `coach`; trimming it there is an engine job (skill `engine-change`).
+
+**Added (T189):** the fall/winter line is what's-next info, so it went into the Sale Guide EN/ES (door, set,
+measure and build steps, October-March): "Cold months: inspect now, no need to wait for spring (a claim is the
+homeowner's call, filed when they choose). Build on the next stretch of days above the material's temperature
+floor (shingles and vinyl about 40°F, Hardie paint and caulk 30°F)." For lessons, the door version from round 53:
+"We can start your free inspection and get your claim moving today - and do the work as soon as the weather
+allows, no need to wait for spring."
+
+**Left in the app, worth a look (unsure):** the "Done for today" review still asks "One thing that worked?" /
+"One thing you'd change tomorrow?" with chips (The opener, Shorter opener, Knock faster...). It saves a daily
+record, so it stayed; it reads like self-coaching and could move to lessons if FilthE agrees.

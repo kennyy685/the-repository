@@ -223,7 +223,6 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .klist li.open{padding:0 var(--s4) var(--s4)}
 .klist .open-h{display:flex;align-items:center;gap:var(--s3);min-height:56px}
 .kfoot{margin-top:var(--s4);font-size:var(--t-cap);color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2)}
-.normal{margin:var(--s2) 0 0;padding:var(--s2) var(--s3);border-radius:var(--r-sm);background:var(--ok-bg);color:var(--ok);font-size:var(--t-cap);font-weight:500}
 .kempty{padding-top:56px}
 .kflash{animation:kf .9s var(--ease)}
 @keyframes kf{from{box-shadow:0 0 0 3px var(--hmp-bg)}to{box-shadow:var(--e1)}}
@@ -1607,7 +1606,7 @@ const VX = {
     nudge: (a, r) => r === 'booked' ? `${a}: booked. Price it while you are there?` : `${a}: interested. Price it while you are there?`,
     wkEst: r => `${r} in estimates`, wkMkt: 'market prices',
     // v18: answer rate (same rule as hailhunter/weekly.py contact_rate) + honest ranges
-    wkRate: 'Answer rate', wkRateOf: (a, n) => `${a} of ${n} tapped doors answered`, wkRateNorm: 'Normal: 20–40%. First weeks are usually near the low end; that’s normal.',
+    wkRate: 'Answer rate', wkRateOf: (a, n) => `${a} of ${n} tapped doors answered`, wkRateNorm: 'Typical: 20–40%.',
     wkInspNorm: 'About 1–4 inspections per 100 doors is normal.'
   },
   es: {
@@ -1663,7 +1662,7 @@ const VX = {
     printBtn: 'Imprimir la ruta de hoy', printSub: 'Respaldo en papel por si el teléfono se apaga o no hay señal.',
     nudge: (a, r) => r === 'booked' ? `${a}: agendado. ¿Le das precio de una vez?` : `${a}: interesado. ¿Le das precio de una vez?`,
     wkEst: r => `${r} en presupuestos`, wkMkt: 'precios del mercado',
-    wkRate: 'Abrieron', wkRateOf: (a, n) => `${a} de ${n} puertas tocadas abrieron`, wkRateNorm: 'Lo normal: 20–40%. Las primeras semanas casi siempre salen cerca del mínimo; eso es normal.',
+    wkRate: 'Abrieron', wkRateOf: (a, n) => `${a} de ${n} puertas tocadas abrieron`, wkRateNorm: 'Lo típico: 20–40%.',
     wkInspNorm: 'Lo normal es de 1 a 4 inspecciones por cada 100 puertas.'
   }
 };
@@ -1906,7 +1905,7 @@ function walkStops(w){
   return w.stops.filter(s => stopOk(s) && !dnk[slugOf(s.address)])
     .map((s, i) => ({pid: pidSafe(s.pid || slugOf(s.address) || 'h' + i), address: strv(s.address), city: strv(s.city), lat: numv(s.lat), lon: numv(s.lon), base: clamp(Math.round(numv(s.pass) || 1), 1, 3), i,
       house_line: s.house_line && typeof s.house_line === 'object' ? s.house_line : null, year_built: numv(s.year_built),   // optional county facts line (hh.py todaywalk)
-      why: s.why && typeof s.why === 'object' && !Array.isArray(s.why) ? s.why : null, coach: s.coach && typeof s.coach === 'object' ? s.coach : null}));   // v24: door score v2 "why" + the T83 coach card
+      why: s.why && typeof s.why === 'object' && !Array.isArray(s.why) ? s.why : null, come_back: s.come_back && typeof s.come_back === 'object' && /^\d\d:\d\d$|^$/.test(strv(s.come_back.time)) ? s.come_back : null}));   // v24: door score v2 "why"; T195: the engine's coach lines are not shown, only its come-back promise
 }
 function doorState(s){
   const d = doorDocs[s.pid];
@@ -2042,14 +2041,13 @@ function renderKnock(){
   if (pass > 1) chips.push(`<span class="chip hmp">${ic('undo')}${esc(Zs.round(pass))}</span>`);
   // the count and a cell per door, in walking order
   const cells = stops.map((s, i) => { const d = st[i].d; return `<i class="${d ? (TALK.includes(d.result) ? 't' : 'n') : ''}"></i>`; }).join('');
-  const rookie = tt.nh >= 3 && !tt.talked ? `<p class="normal">${esc(NW().normal)}</p>` : '';
   const cb = cbAsk ? `<div class="kpanel" role="group" aria-label="${esc(V0.cbQ(shortAddr(cbAsk.address)))}" style="margin-top:var(--s3)"><p>${esc(V0.cbQ(shortAddr(cbAsk.address)))}</p><div class="pickrow">${cbOpts().map(o => `<button type="button" data-cb="${o.key}">${esc(o.btn[lang])}</button>`).join('')}<button type="button" data-cb="skip">${esc(V0.cbSkip)}</button></div></div>` : '';
   // the next door: the offer card
   let offer = '';
   if (nextI >= 0) {
     const s = stops[nextI], a = splitAddr(s.address), hl = doorHail(s, m), y = numv(s.year_built);
     // the engine's door line minus what the facts row already says (hail, year built): each fact once (fullday check, 2026-09-28)
-    const coach = s.coach ? txl(s.coach) : s.why ? txl(s.why).replace(/\.\s*$/, '').split(/,\s+/).filter(p => !((hl && hl.hail != null && /hail|granizo/i.test(p)) || (y && /built|construida/i.test(p)))).join(', ').replace(/^./, c => c.toUpperCase()) : whyHouse(s, kind).text;
+    const coach = s.come_back ? Zs.backAt(s.come_back.time ? clk(s.come_back.time) : '') : s.why ? txl(s.why).replace(/\.\s*$/, '').split(/,\s+/).filter(p => !((hl && hl.hail != null && /hail|granizo/i.test(p)) || (y && /built|construida/i.test(p)))).join(', ').replace(/^./, c => c.toUpperCase()) : whyHouse(s, kind).text;
     const facts = [hl && hl.hail != null ? `<span>${ic('hail')}${esc(Zs.hailFact((Math.round(hl.hail * 10) / 10).toFixed(1), hl.day ? fmtDay(hl.day) : ''))}</span>` : '', y ? `<span>${ic('built')}${esc(Zs.builtFact(y))}</span>` : ''].filter(Boolean).join('');
     const ev = proofFor(s.address, s.city);
     offer = `<section class="card offer" id="kNow" data-pid="${esc(s.pid)}" data-i="${nextI}" aria-label="${esc(Zs.nextDoor(nextI + 1, stops.length))}">
@@ -2075,7 +2073,7 @@ function renderKnock(){
     ${zoneMissing ? `<p class="k-stale" style="margin-top:var(--s2)">${esc(NW().zoneMiss(zoneMissing))}</p>` : ''}
     ${kBig ? '' : `<div class="count"><div class="big"><div><b>${tt.doors}</b><span>/ ${Math.round(numv(w.goal_doors) || stops.length)}</span><small>${esc(Zs.knocksToday)}</small></div></div>
       <div class="mini"><div><b>${tt.talked}</b><span>${esc(Zs.talked)}</span></div><div><b>${tt.interested}</b><span>${esc(Zs.interested)}</span></div><div><b>${tt.booked}</b><span>${esc(Zs.booked)}</span></div></div></div>
-    <div class="kbar" aria-hidden="true">${cells}</div>${rookie}`}
+    <div class="kbar" aria-hidden="true">${cells}</div>`}
     <div class="walkmap${kBig ? ' big' : ''}" role="img" aria-label="${esc(Zs.walkAria(stops.length, nextI >= 0 ? nextI + 1 : 0))}"><svg id="wmSvg"></svg>
       <button type="button" class="expand" id="kMapBtn" aria-label="${esc(kBig ? Zs.mapClose : Zs.mapOpen)}" aria-pressed="${kBig}">${ic(kBig ? 'x' : 'map')}</button></div>
     ${cb}${offer}
@@ -3037,23 +3035,14 @@ const NSX = {
     say: 'Say', ask: 'Ask', collect: 'Collect', must: 'Must do', tip: 'Tip', info: 'Info', fromLead: 'from the lead',
     name: {door: 'At the door', set: ['Inspection set', 'Estimate visit set'], inspect: ['Inspection', 'Estimate visit'], table: 'Talk at the table', paper: 'Paperwork',
            claim: 'Claim', measure: 'Measure + order', build: 'Build', paid: 'Get paid + review'},
-    packetDue: d => `due ${d}`, finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for. Nice work.',
+    packetDue: d => `due ${d}`, finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for.',
     said: {
       doorIns: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing free inspections for the neighbors — can I take a quick look at your roof and siding?`,   // T174: name, HMP, what we sell first (NE 69-1602)
       doorCash: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
       stormR: (h, d) => (h ? `The ${d} storm dropped about ${h}-inch hail on this street.` : `The ${d} storm came through this street.`),
       yearR: y => `A lot of homes built around ${y} are due for new siding or a roof.`,
-      setIns: "You're all set. I'll text you the time now and again the day before. It takes about 20-30 minutes, and I'll show you every photo.",
-      setCash: "You're all set. I'll text you the time now and again the day before. I'll measure and give you three options with prices.",
-      inspectIns: "I'll start with the house number, then every side of the house and the roof. I only photograph what I see; then we sit down and go over it together.",
-      inspectCash: "I'll measure the walls and the roof and take a few photos. Then we sit down with three options.",
       tableIns: "Here's what I found, photo by photo. If you decide to call your insurance, the claim is yours: you file it and their adjuster decides. The deductible is always yours. I'll meet the adjuster and show the damage.",
-      tableCash: 'Here are three options: good, better and best. Each is an estimate range until I measure exactly. Which one fits you?',
-      paper: 'This is our written contract. You have 3 business days to cancel for any reason: here are two copies of the cancel notice, one is yours. Please initial here that I explained it.',
-      claim: "When you call your insurance, ask for the claim number and text it to me. When the adjuster calls, tell me the day and time: I'll be on the roof with them the same hour.",
-      measure: "I'll measure everything exactly, order the materials and set the build day with you. The deposit holds the order.",
-      build: d => `The crew comes ${d ? 'on ' + d : 'on build day'}. We protect the yard, clean up every day and run a magnet for nails. I'll send you photos when it's done.`,
-      paid: "Thank you for trusting HMP. If you're happy with the work, a quick review helps a small local crew a lot. Who else on your street should I check on?"
+      paper: 'This is our written contract. You have 3 business days to cancel for any reason: here are two copies of the cancel notice, one is yours. Please initial here that I explained it.'
     },
     asks: {
       door: k => [k === 'cash' ? 'How old are the siding and the roof?' : 'Have you seen leaks, dented gutters or cracked siding since the storm?', 'What day and time work for a 20-minute look?',
@@ -3061,7 +3050,7 @@ const NSX = {
       set: () => ['Is the time still good?', ['Will everyone who decides be there?', 'A scheduling question, never a condition.'], 'Any gate, dog or parking I should know about?'],
       inspect: k => (k === 'cash' ? ['What bothers you most about the house now?', 'Any colors or styles you like?', 'When would you want the work done?']
                                   : ['Any leaks or ceiling stains inside?', 'How old is the roof? Any repairs since you moved in?', 'May I go up on the roof? (only if it is dry and safe)']),
-      table: k => (k === 'cash' ? ['Which one fits you best: good, better or best?', 'What matters most to you: price, looks or how long it lasts?', 'Is everyone who decides here?']
+      table: k => (k === 'cash' ? ['Which one fits you best: good, better or best?', 'Is everyone who decides here?']
                                 : ['What questions do you have about how a claim works?', 'Do you want to call your insurance about this? It is your decision.', 'Is everyone who decides here?']),
       paper: k => [['Whose name is on the house? That person signs.', 'Paperwork: the cancel notice has to reach the person who signs.'], 'Any questions about the contract before you sign?', 'Do you have your copy of the cancel notice?', ...(k === 'cash' ? [] : ['Did you read the deductible notice? The deductible is always yours.'])],
       claim: () => ['Did you get a claim number yet?', 'When is the adjuster coming?', 'Can you forward me the scope when it comes?'],
@@ -3070,11 +3059,6 @@ const NSX = {
       paid: () => ['Are you happy with how it turned out?', 'Would you leave us a quick review?', 'Who else on your street should I check on?']
     },
     tips: {
-      soon: 'Booked for today or tomorrow: call to confirm, don\'t only text.',
-      safety: 'Safety first: ladder tied off, 3 points of contact, no roof when it is wet.',
-      mismatch: 'Siding: prove the mismatch. Photograph the panel profile and color, and the back of a loose piece.',
-      signals: "Buying signals: questions about the install, cancelling or the warranty mean they are close. Answer, then ask for the decision. Don't keep pitching.",
-      gbb: 'Show only 3 prices: Good (vinyl), Better (insulated vinyl), Best (James Hardie). Price each one with the quick estimate.',
       adjuster: 'Bring the adjuster checklist: claim #, dated photos of every slope, roof diagram, storm-date proof.'
     },
     musts: {
@@ -3089,6 +3073,7 @@ const NSX = {
     },
     noWork: 'We don’t start any work until your 3 days to cancel are over.', noWorkWhy: 'Nebraska 69-1606(5): on a regular (non-insurance) sale, no work starts and nothing is charged before the 3-day cancel window ends. Emergency insurance work (a tarp) with signed approval is separate.',
     noImm: 'We never ask about immigration status. We only need the name of the person who signs.',
+    winter: 'Cold months: inspect now, no need to wait for spring (a claim is the homeowner’s call, filed when they choose). Build on the next stretch of days above the material’s temperature floor (shingles and vinyl about 40°F, Hardie paint and caulk 30°F).',
     whoFirst: 'Nebraska law (69-1601): the 3-day right to cancel applies even when the homeowner called you first. Give the cancel form, in English and Spanish, every time.',
     cancelBy: d => `3-day cancel ends at midnight ${d}. Write it on both copies. Sundays and federal holidays don't count.`,
     items: {
@@ -3114,7 +3099,7 @@ const NSX = {
     pickQ: {door: ['When is the inspection?', 'When is the estimate visit?'], claim1: 'When is the adjuster coming?', measure: 'Which day does the build start?', build0: 'Which day does the build start?'},
     then: (s, d) => `Then: ${s}${d ? ' · follow-up ' + d : ''}`, pickFirst: 'Pick the day first.',
     buildAfter: d => `Hard stop: the 3-day cancel window ends ${d}. Work days start after it.`, buildStop: 'Hard stop · still needed',
-    moved: (n, s) => `Moved to step ${n}: ${s}`, finished: 'All steps done. Nice work.', undo: 'Undo', undone: 'Put back.',
+    moved: (n, s) => `Moved to step ${n}: ${s}`, finished: 'All steps done.', undo: 'Undo', undone: 'Put back.',
     roNote: 'Only editors can tick or move steps here.',
     next: {
       set: ['Inspection', 'Estimate visit'], table: ['Go over the photos at the table', 'Show Good/Better/Best at the table'], paper: 'Paperwork: written contract + explain the 3-day cancel',
@@ -3128,23 +3113,14 @@ const NSX = {
     say: 'Di', ask: 'Pregunta', collect: 'Junta', must: 'Obligatorio', tip: 'Consejo', info: 'Dato', fromLead: 'del prospecto',
     name: {door: 'En la puerta', set: ['Inspección agendada', 'Cita de presupuesto agendada'], inspect: ['Inspección', 'Cita de presupuesto'], table: 'Plática en la mesa', paper: 'Papeles',
            claim: 'Reclamo', measure: 'Medir + pedir', build: 'Obra', paid: 'Cobrar + reseña'},
-    packetDue: d => `para el ${d}`, finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida. Buen trabajo.',
+    packetDue: d => `para el ${d}`, finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida.',
     said: {
       doorIns: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo inspecciones gratis a los vecinos — ¿puedo revisar rápido su techo y su siding?`,   // T174/T-legal: dice el nombre real de quien toca la puerta (hoy Kenny, bilingüe), nunca el contacto de español (NE 69-1602)
       doorCash: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
       stormR: (h, d) => (h ? `La tormenta del ${d} tiró granizo de unas ${h} pulgadas en esta calle.` : `La tormenta del ${d} pasó por esta calle.`),
       yearR: y => `Muchas casas construidas por ${y} ya necesitan siding o techo nuevo.`,
-      setIns: 'Ya quedó. Le mando la hora por texto ahora y otra vez un día antes. Tarda unos 20-30 minutos y le enseño todas las fotos.',
-      setCash: 'Ya quedó. Le mando la hora por texto ahora y otra vez un día antes. Voy a medir y le doy tres opciones con precio.',
-      inspectIns: 'Empiezo con el número de la casa, luego cada lado de la casa y el techo. Solo tomo fotos de lo que veo; después nos sentamos y lo revisamos juntos.',
-      inspectCash: 'Voy a medir las paredes y el techo y tomar unas fotos. Luego nos sentamos con tres opciones.',
       tableIns: 'Esto es lo que encontré, foto por foto. Si decide llamar a su seguro, el reclamo es suyo: usted lo presenta y su ajustador decide. El deducible siempre lo paga usted. Yo me reúno con el ajustador y le muestro el daño.',
-      tableCash: 'Aquí hay tres opciones: buena, mejor y la mejor. Cada una es un rango estimado hasta medir exacto. ¿Cuál le queda mejor?',
-      paper: 'Este es nuestro contrato por escrito. Tiene 3 días hábiles para cancelar por cualquier razón: aquí tiene dos copias del aviso de cancelación, una es suya. Ponga sus iniciales aquí de que se lo expliqué.',
-      claim: 'Cuando llame a su seguro, pida el número de reclamo y mándemelo por texto. Cuando le llame el ajustador, dígame el día y la hora: yo estaré en el techo con él a la misma hora.',
-      measure: 'Voy a medir todo exacto, pedir el material y agendar la obra con usted. El depósito aparta el pedido.',
-      build: d => `La cuadrilla llega ${d ? 'el ' + d : 'el día de la obra'}. Cuidamos el jardín, limpiamos todos los días y pasamos un imán para los clavos. Le mando fotos al terminar.`,
-      paid: 'Gracias por confiar en HMP. Si le gustó el trabajo, una reseña rápida nos ayuda mucho. ¿A quién más en su calle le reviso su casa?'
+      paper: 'Este es nuestro contrato por escrito. Tiene 3 días hábiles para cancelar por cualquier razón: aquí tiene dos copias del aviso de cancelación, una es suya. Ponga sus iniciales aquí de que se lo expliqué.'
     },
     asks: {
       door: k => [k === 'cash' ? '¿Qué tan viejos son el siding y el techo?' : '¿Ha visto goteras, canaletas golpeadas o siding roto desde la tormenta?', '¿Qué día y hora le quedan para una revisión de 20 minutos?',
@@ -3152,7 +3128,7 @@ const NSX = {
       set: () => ['¿Sigue bien la hora?', ['¿Van a estar todos los que deciden?', 'Es para agendar, nunca una condición.'], '¿Hay reja, perro o algo del estacionamiento que deba saber?'],
       inspect: k => (k === 'cash' ? ['¿Qué es lo que más le molesta de la casa ahora?', '¿Algún color o estilo que le guste?', '¿Para cuándo quiere el trabajo?']
                                   : ['¿Hay goteras o manchas en los techos por dentro?', '¿Qué edad tiene el techo? ¿Alguna reparación desde que llegó?', '¿Me permite subir al techo? (solo si está seco y es seguro)']),
-      table: k => (k === 'cash' ? ['¿Cuál le queda mejor: buena, mejor o la mejor?', '¿Qué le importa más: el precio, cómo se ve o cuánto dura?', '¿Están aquí todos los que deciden?']
+      table: k => (k === 'cash' ? ['¿Cuál le queda mejor: buena, mejor o la mejor?', '¿Están aquí todos los que deciden?']
                                 : ['¿Qué preguntas tiene de cómo funciona un reclamo?', '¿Quiere llamar a su seguro por esto? Es su decisión.', '¿Están aquí todos los que deciden?']),
       paper: k => [['¿A nombre de quién está la casa? Esa persona firma.', 'Es de los papeles: el aviso de cancelación tiene que llegarle a quien firma.'], '¿Tiene preguntas del contrato antes de firmar?', '¿Tiene su copia del aviso de cancelación?', ...(k === 'cash' ? [] : ['¿Leyó el aviso del deducible? El deducible siempre es suyo.'])],
       claim: () => ['¿Ya le dieron número de reclamo?', '¿Cuándo viene el ajustador?', '¿Me puede reenviar el alcance cuando llegue?'],
@@ -3161,11 +3137,6 @@ const NSX = {
       paid: () => ['¿Le gustó cómo quedó?', '¿Nos deja una reseña rápida?', '¿A quién más en su calle le reviso su casa?']
     },
     tips: {
-      soon: 'Agendado para hoy o mañana: llama para confirmar, no solo mandes texto.',
-      safety: 'Primero la seguridad: escalera amarrada, 3 puntos de apoyo, nada de techo mojado.',
-      mismatch: 'Siding: prueba que no hay igual. Toma foto del perfil y color del panel, y de la parte de atrás de una pieza suelta.',
-      signals: 'Señales de compra: preguntas de la instalación, de cancelar o de la garantía quieren decir que ya casi. Contesta y pide la decisión. No sigas vendiendo.',
-      gbb: 'Enseña solo 3 precios: Buena (vinil), Mejor (vinil aislado), La mejor (James Hardie). Saca el precio de cada una con el presupuesto rápido.',
       adjuster: 'Lleva la lista del ajustador: número de reclamo, fotos con fecha de cada agua, dibujo del techo, prueba de la fecha de la tormenta.'
     },
     musts: {
@@ -3180,6 +3151,7 @@ const NSX = {
     },
     noWork: 'No empezamos ningún trabajo hasta que terminen sus 3 días para cancelar.', noWorkWhy: 'Nebraska 69-1606(5): en una venta normal (sin seguro), no se empieza ningún trabajo ni se cobra nada antes de que terminen los 3 días para cancelar. El trabajo de emergencia del seguro (una lona) con aprobación firmada es aparte.',
     noImm: 'Nunca preguntamos por el estatus migratorio. Solo necesitamos el nombre de la persona que firma.',
+    winter: 'Meses fríos: se inspecciona ya, no hay que esperar a la primavera (el reclamo lo decide el dueño y lo presenta cuando quiera). La obra va en los siguientes días arriba de la temperatura mínima del material (tejas y vinil unos 40°F, pintura y sellador de Hardie 30°F).',
     whoFirst: 'Ley de Nebraska (69-1601): el derecho de cancelar en 3 días aplica aunque el cliente te haya llamado primero. Entrega el formulario de cancelación, en inglés y en español, siempre.',
     cancelBy: d => `Los 3 días para cancelar terminan a la medianoche del ${d}. Escríbelo en las dos copias. Los domingos y días feriados federales no cuentan.`,
     items: {
@@ -3205,7 +3177,7 @@ const NSX = {
     pickQ: {door: ['¿Cuándo es la inspección?', '¿Cuándo es la cita de presupuesto?'], claim1: '¿Cuándo viene el ajustador?', measure: '¿Qué día empieza la obra?', build0: '¿Qué día empieza la obra?'},
     then: (s, d) => `Luego: ${s}${d ? ' · seguimiento ' + d : ''}`, pickFirst: 'Primero escoge el día.',
     buildAfter: d => `Alto: el plazo de 3 días para cancelar termina el ${d}. El trabajo empieza después.`, buildStop: 'Alto · todavía falta',
-    moved: (n, s) => `Pasó al paso ${n}: ${s}`, finished: 'Todos los pasos listos. Buen trabajo.', undo: 'Deshacer', undone: 'Regresado.',
+    moved: (n, s) => `Pasó al paso ${n}: ${s}`, finished: 'Todos los pasos listos.', undo: 'Deshacer', undone: 'Regresado.',
     roNote: 'Solo los editores pueden marcar o avanzar pasos aquí.',
     next: {
       set: ['Inspección', 'Cita de presupuesto'], table: ['Revisar las fotos en la mesa', 'Enseñar Buena/Mejor/La mejor en la mesa'], paper: 'Papeles: contrato por escrito + explicar los 3 días para cancelar',
@@ -3340,20 +3312,15 @@ function nsSay(l, sid, kind){
   if (sid === 'door') { const stop = leadStop(l), w = whyHouse(stop || {address: l.address, city: l.city}, stop && ins ? 'storm' : 'lead');   // the walk's storm day only for a house on today's walk
     const r = ins ? (w.day ? S.stormR(w.hail, fmtDay(w.day)) : '') : (w.year ? S.yearR(Math.floor(w.year / 10) * 10) : '');
     return ins ? S.doorIns(r) : S.doorCash(r); }
-  if (sid === 'set') return ins ? S.setIns : S.setCash;
-  if (sid === 'inspect') return ins ? S.inspectIns : S.inspectCash;
-  if (sid === 'table') return ins ? S.tableIns : S.tableCash;
-  if (sid === 'build') { const ns = l.next_step, d = l.stage === 'job_scheduled' && ns && dayOf(ns.due); return S.build(d ? fmtDay(d, true) : ''); }
-  return S[sid] || '';
+  if (sid === 'table') return ins ? S.tableIns : '';   // T195: legal disclosure only (the claim is theirs, the deductible is theirs)
+  return sid === 'paper' ? S.paper : '';   // T195: the 3-day cancel said out loud; no other scripts (teaching lives outside the app)
 }
 function nsTips(l, sid, kind){
   const T = NX().tips, out = [];
-  if (sid === 'set') { const d = l.next_step && dayOf(l.next_step.due); if (d && daysFromToday(d) >= 0 && daysFromToday(d) <= 1) out.push(T.soon); }
-  if (sid === 'inspect') { out.push(T.safety); if (kind !== 'cash') out.push(T.mismatch); }
-  if (sid === 'table') { if (kind === 'cash') out.push(T.gbb); out.push(T.signals); }
   if (sid === 'claim') out.push(T.adjuster);
   return out;
 }
+const nsWinter = sid => { const m = +todayStr().slice(5, 7); return ['door', 'set', 'measure', 'build'].includes(sid) && (m >= 10 || m <= 3) ? NX().winter : ''; };   // T189: Oct-Mar, the off-season
 function nsMust(sid, kind){
   const M = NX().musts, ins = kind !== 'cash';
   if (sid === 'door' || sid === 'table' || sid === 'paid') return ins ? M[sid] : '';
@@ -3403,6 +3370,7 @@ function nsCard(l){
   if (sid === 'measure' || sid === 'build') extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(hasOrder(l) ? OT().openList : OT().btn)}</button></div>`);   // v22
   if (sid === 'claim') extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="adj:${esc(l.id)}">${esc(AT().btn)}</button></div>`);   // v22
   if (sid === 'paper' && kind === 'cash') extra.push(flipBlock('ns-say', X.say, `<q>${esc(X.noWork)}</q>`, `<q>${esc(NSX[otherLang()].noWork)}</q>`) + `<p class="ns-info" id="nsNoWork"><b>${esc(X.info)}</b>${esc(X.noWorkWhy)}</p>`);   // v24 · T155
+  if (nsWinter(sid)) extra.push(`<p class="ns-info" id="nsWinter"><b>${esc(X.info)}</b>${esc(nsWinter(sid))}</p>`);
   if (sid === 'paper') extra.push(`<p class="ns-info" id="nsNoImm"><b>${esc(X.info)}</b>${esc(X.noImm)}</p>`, `<p class="ns-info"><b>${esc(X.info)}</b>${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
   const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
   const ready = pickReady(act && act.pick, l.id) && (!act || !act.must || mustOn === musts.length);
@@ -3414,10 +3382,10 @@ function nsCard(l){
   return `<section class="ns" id="nsCard" data-lead="${esc(l.id)}" aria-labelledby="nsName">
     <div class="ns-top"><span class="ns-of">${esc(X.of(n))} · ${esc(X.kind[kind])}</span></div>
     <h3 class="ns-name" id="nsName">${esc(nsName(sid, kind))}</h3>
-    ${flipBlock('ns-say', X.say, `<q>${esc(nsSay(l, sid, kind))}</q>`, `<q>${esc(withLang(otherLang(), () => nsSay(l, sid, kind)))}</q>`)}
+    ${nsSay(l, sid, kind) ? flipBlock('ns-say', X.say, `<q>${esc(nsSay(l, sid, kind))}</q>`, `<q>${esc(withLang(otherLang(), () => nsSay(l, sid, kind)))}</q>`) : ''}
     ${asks ? flipBlock('ns-sec', X.ask, `<ul class="ns-ask">${asks}</ul>`, `<ul class="ns-ask">${askL(otherLang())}</ul>`) : ''}
     ${sid === 'paid' ? refBlock() : ''}
-    ${tips.map(t => `<p class="ns-tip"><b>${esc(X.tip)}</b>${esc(t)}</p>`).join('')}
+    ${tips.map(t => `<p class="ns-info"><b>${esc(X.info)}</b>${esc(t)}</p>`).join('')}
     <div class="ns-sec"><b class="ns-lb">${esc(X.collect)}</b><ul class="ns-ck">${items.map(row).join('')}</ul></div>
     ${extra.join('')}
     ${must ? `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(must)}</p>` : ''}
@@ -3432,8 +3400,7 @@ function nsCard(l){
 // introductions only: never paid, discounted or rewarded, no gifts or money, nothing near a deductible (NE 44-8604).
 function refBlock(){
   const W = NW();
-  return `<div class="ns-ref" id="refAsk">${flipBlock('ns-say', W.refEb, `<p class="ns-lb2">${esc(W.refP)}</p><q>${esc(W.refSay)}</q>`, `<p class="ns-lb2">${esc(NWX[otherLang()].refP)}</p><q>${esc(NWX[otherLang()].refSay)}</q>`)}
-    <p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(W.refNote)}</p><p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(W.refRule)}</p></div>`;
+  return `<div class="ns-ref" id="refAsk"><p class="ns-info"><b>${esc(W.refEb)}</b>${esc(W.refNote)}</p><p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(W.refRule)}</p></div>`;
 }
 /* ---------- writes (through the outbox: a bad signal never loses a tick) ---------- */
 async function nsWrite(id, patch, okMsg, undo){
@@ -3617,14 +3584,15 @@ function leadGuide(l, sid, kind){
   const must = withLang(gl, () => nsMust(sid, kind)), tips = withLang(gl, () => nsTips(l, sid, kind));
   const extra = [];
   if (sid === 'paper' && kind === 'cash') extra.push(`<p class="mustl">${ic('lock')}<span><b>${esc(X.info)}:</b> ${esc(X.noWork)} ${esc(X.noWorkWhy)}</span></p>`);
+  { const wl = withLang(gl, () => nsWinter(sid)); if (wl) extra.push(`<p><b>${esc(X.info)}:</b> ${esc(wl)}</p>`); }
   if (sid === 'paper') extra.push(`<p><b>${esc(X.info)}:</b> ${esc(X.noImm)}</p>`, `<p><b>${esc(X.info)}:</b> ${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel" style="margin:0">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
   const btns = [];
   if (can && ((sid === 'table' && kind === 'cash') || (sid === 'inspect' && kind === 'cash') || sid === 'measure')) btns.push(`<button type="button" class="btn sec" data-open="est:${esc(l.id)}">${ic('ruler')}<span>${esc(X.estBtn(l.estimate && numv(l.estimate.low) != null))}</span></button>`);
   if (sid === 'measure' || sid === 'build') btns.push(`<button type="button" class="btn sec" data-open="ord:${esc(l.id)}">${ic('clip')}<span>${esc(hasOrder(l) ? OT().openList : OT().btn)}</span></button>`);
   if (sid === 'claim') btns.push(`<button type="button" class="btn sec" data-open="adj:${esc(l.id)}">${ic('clip')}<span>${esc(AT().btn)}</span></button>`);
   return `<section class="card guide" lang="${gl}" id="guideCard">
-    <div class="gh"><span class="label">${esc(Zs.say2)}</span><div class="seg" role="group" aria-label="${esc(NWX[lang].flipAria)}"><button type="button" data-glang="en" aria-pressed="${gl === 'en'}" lang="en">EN</button><button type="button" data-glang="es" aria-pressed="${gl === 'es'}" lang="es">ES</button></div></div>
-    <p class="gsay">“${esc(say)}”</p>
+    <div class="gh"><span class="label">${esc(say ? Zs.say2 : NWX[gl].guide)}</span><div class="seg" role="group" aria-label="${esc(NWX[lang].flipAria)}"><button type="button" data-glang="en" aria-pressed="${gl === 'en'}" lang="en">EN</button><button type="button" data-glang="es" aria-pressed="${gl === 'es'}" lang="es">ES</button></div></div>
+    ${say ? `<p class="gsay">“${esc(say)}”</p>` : ''}
     <div class="glist">
       ${asks.length ? `<span class="label">${esc(Zs.ask)}</span>${asks.map(q => Array.isArray(q) ? `<p class="ask"><span>${esc(q[0])}<small>${esc(q[1])}</small></span></p>` : `<p class="ask"><span>${esc(q)}</span></p>`).join('')}` : ''}
       ${items.length ? `<span class="label" style="margin-top:6px">${esc(Zs.collect(on, items.length))}</span>${items.map(ck).join('')}` : ''}
@@ -4294,7 +4262,7 @@ function renderAdj(id){
       ${!c ? `<p class="ns-info">${esc(A.noClaim)}</p>` : ''}
       <div class="ns-sec"><b class="ns-lb">${esc(A.have)}</b><ul class="ns-ck">${rows.map(li).join('')}</ul></div>
       <div class="ns-sec"><b class="ns-lb">${esc(A.bringH)}</b><ul class="adj-bring">${A.bring.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-      <p class="ns-tip"><b>${esc(X.tip)}</b>${esc(X.tips.adjuster)}</p>
+      <p class="ns-info"><b>${esc(X.info)}</b>${esc(X.tips.adjuster)}</p>
       <p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.claim)}</p>
       <div class="adj-pack"><button type="button" class="chk" role="checkbox" aria-checked="${packed}" aria-label="${esc(A.packed)}" data-nstick="packed" data-lead="${esc(l.id)}"${can ? '' : ' disabled'}>${packed ? ic('check') : ''}</button><span>${esc(A.packed)}</span></div>
       ${can ? '' : `<p class="ns-hint">${esc(A.roNote)}</p>`}
@@ -4886,12 +4854,11 @@ const NWX = {
     mapAria: n => `Map of ${n} hot ${pl(n, 'zone', 'zones')}`, you: 'You', tiles: 'Street map', simple: 'Simple map',
     zoneMiss: z => `The door list for ${z} is not ready yet. Showing today's walk instead.`,
     nowEb: 'Now', stepOf: (n, t) => `Step ${n} of ${t}`, nextDoorT: a => `Next door: ${a}`, callT: a => `Call ${a} back`, apptT: (k, a) => `${k}: ${a}`, remT: a => `Follow up with ${a}`,
-    open: 'Open', guide: 'Guide', whatToSay: 'What to say', knockTab: 'Knock',
+    open: 'Open', guide: 'Guide', whatToSay: 'Door guide', knockTab: 'Knock',
     dueH: 'Due', g: {today: 'Today', tomorrow: 'Tomorrow', later: 'Later'}, dueNone: 'Nothing due today.', dueEmpty: 'Nothing to follow up yet. Leads you log show up here on the day they are due.',
     rem: {2: '48 h reminder', 5: '5-day reminder', 10: '10-day reminder'}, remWhat: 'Interested: call or text back', late: d => `No contact ${d} ${pl(d, 'day', 'days')}`,
     views: {next: 'Next 3', list: 'List', map: 'Map'}, then: 'Then', walkMenu: 'More for this walk', about: 'About this walk', noMap: 'No map: these houses have no map spots.',
     doorsToday: 'Doors today', ofGoal: n => `of ${n}`, cnt: {talked: 'talked', interested: 'interested', booked: 'booked'}, leftTime: t => `~${t} left`,
-    normal: 'Most doors won’t answer: 20–40% is normal. Keep going.',
     flip: 'ES', flipBack: 'EN', flipAria: 'Show this in the other language',
     lawEb: 'First, by law', law: 'Say your name, HMP, and what you sell, first thing (NE 69-1602).',
     doorGuide: 'At the door', collect: 'Collect', ask: 'Ask', say: 'Say', must: 'Must do',
@@ -4913,7 +4880,7 @@ const NWX = {
     nlOr: 'Or tell the Right Hand: “new lead at 2210 Clarkson, Rosa, referral”.', nlRo: 'Only editors can add leads here.',
     cluEb: 'Claims', cluH: 'Log a claim update', cluP: 'Tap a claim for its quick taps, or say the update to the Right Hand.', cluEx: '1418 Irving, adjuster Tuesday, State Farm, claim 45-889',
     cluTell: 'Say it to the Right Hand', cluNone: 'No open claims yet.',
-    revEb: 'Done for today', revH: 'Today in 5 questions', badge: n => `Logged every door: ${n} ${pl(n, 'door', 'doors')} today. That’s the win.`, badgeNone: 'No doors logged today yet.',
+    revEb: 'Done for today', revH: 'Today in 5 questions', badge: n => `Logged: ${n} ${pl(n, 'door', 'doors')} today.`, badgeNone: 'No doors logged today yet.',
     q: ['How many doors did you knock and log?', 'Which Interested leads did you follow up with?', 'One thing that worked?', 'One thing you’d change tomorrow?', 'Tomorrow: follow-ups and first knock'],
     q1: (d, t, i, b) => `${d} doors · ${t} talked · ${i} interested · ${b} booked`, q1fix: 'Wrong number? Tell the Right Hand.', noInt: 'No Interested leads waiting.',
     worked: ['The opener', 'Hail proof', 'Asking for a time', 'Speaking Spanish', 'Coming back later'], change: ['Start earlier', 'Shorter opener', 'Ask for the time sooner', 'Follow up the same day', 'Knock faster'],
@@ -4921,7 +4888,7 @@ const NWX = {
     revSave: 'Save today’s review', revSaved: 'Saved. See you tomorrow.', revQueued: 'Saved on this phone. It sends when you are back online.', revFail: 'That did not save. Try again.', revAgain: 'Update today’s review', revRo: 'Only editors can save the review.',
     pricesEb: 'Settings', pricesH: 'Prices + registration #', pricesRef: 'Market ranges (not HMP’s own prices yet). Every price shows as “Estimate range, not final”.',
     pricesOwn: 'HMP’s own prices are set.', pricesNone: 'Prices are not loaded yet.', regK: 'Contractor registration #', regNone: 'Pending from the boss (print pieces keep a blank line).', mailK: 'Mailing address', phK: 'Phones',
-    refEb: 'Ask for referrals', refP: 'Read it out loud at the finished job:', refSay: 'Thank you for choosing HMP. Most of our work comes from people like you telling a friend or neighbor. If anyone comes to mind, we’d love an introduction.',
+    refEb: 'Referrals',
     refNote: 'Then send a handwritten thank-you note. A note only: no gift, gift card, money or discount, ever.', refRule: 'Referrals are compliments and introductions only: never paid, discounted or rewarded, and nothing that touches a deductible (NE 44-8604).'
   },
   es: {
@@ -4931,12 +4898,11 @@ const NWX = {
     mapAria: n => `Mapa de ${n} ${pl(n, 'zona caliente', 'zonas calientes')}`, you: 'Tú', tiles: 'Mapa de calles', simple: 'Mapa simple',
     zoneMiss: z => `La lista de puertas de ${z} todavía no está lista. Se muestra la ruta de hoy.`,
     nowEb: 'Ahora', stepOf: (n, t) => `Paso ${n} de ${t}`, nextDoorT: a => `Siguiente puerta: ${a}`, callT: a => `Llama a ${a}`, apptT: (k, a) => `${k}: ${a}`, remT: a => `Dale seguimiento a ${a}`,
-    open: 'Abrir', guide: 'Guía', whatToSay: 'Qué decir', knockTab: 'Tocar',
+    open: 'Abrir', guide: 'Guía', whatToSay: 'Guía de puerta', knockTab: 'Tocar',
     dueH: 'Pendientes', g: {today: 'Hoy', tomorrow: 'Mañana', later: 'Después'}, dueNone: 'Nada pendiente para hoy.', dueEmpty: 'Todavía no hay seguimientos. Los prospectos que registres aparecen aquí el día que toca.',
     rem: {2: 'Recordatorio 48 h', 5: 'Recordatorio 5 días', 10: 'Recordatorio 10 días'}, remWhat: 'Interesado: llamar o mandar texto', late: d => `Sin contacto ${d} ${pl(d, 'día', 'días')}`,
     views: {next: 'Siguientes 3', list: 'Lista', map: 'Mapa'}, then: 'Después', walkMenu: 'Más de esta ruta', about: 'Sobre esta ruta', noMap: 'Sin mapa: estas casas no tienen ubicación.',
     doorsToday: 'Puertas hoy', ofGoal: n => `de ${n}`, cnt: {talked: 'pláticas', interested: 'interesados', booked: 'agendados'}, leftTime: t => `~${t} más`,
-    normal: 'En la mayoría de las puertas no abren: 20–40% es normal. Sigue.',
     flip: 'EN', flipBack: 'ES', flipAria: 'Ver esto en el otro idioma',
     lawEb: 'Primero, por ley', law: 'Di tu nombre, HMP y qué vendes, antes que nada (NE 69-1602).',
     doorGuide: 'En la puerta', collect: 'Junta', ask: 'Pregunta', say: 'Di', must: 'Obligatorio',
@@ -4958,7 +4924,7 @@ const NWX = {
     nlOr: 'O dile a la Mano Derecha: “nuevo prospecto en 2210 Clarkson, Rosa, referido”.', nlRo: 'Solo los editores pueden agregar prospectos aquí.',
     cluEb: 'Reclamos', cluH: 'Anotar un reclamo', cluP: 'Toca un reclamo para sus toques rápidos, o dile la novedad a la Mano Derecha.', cluEx: '1418 Irving, ajustador el martes, State Farm, reclamo 45-889',
     cluTell: 'Decírselo a la Mano Derecha', cluNone: 'Todavía no hay reclamos abiertos.',
-    revEb: 'Terminé por hoy', revH: 'Hoy en 5 preguntas', badge: n => `Anotaste cada puerta: ${n} ${pl(n, 'puerta', 'puertas')} hoy. Eso es ganar.`, badgeNone: 'Todavía no hay puertas anotadas hoy.',
+    revEb: 'Terminé por hoy', revH: 'Hoy en 5 preguntas', badge: n => `Anotadas: ${n} ${pl(n, 'puerta', 'puertas')} hoy.`, badgeNone: 'Todavía no hay puertas anotadas hoy.',
     q: ['¿Cuántas puertas tocaste y anotaste?', '¿A qué interesados les diste seguimiento?', '¿Una cosa que funcionó?', '¿Una cosa que cambiarías mañana?', 'Mañana: seguimientos y primera puerta'],
     q1: (d, t, i, b) => `${d} puertas · ${t} pláticas · ${i} interesados · ${b} agendados`, q1fix: '¿Número mal? Díselo a la Mano Derecha.', noInt: 'No hay interesados esperando.',
     worked: ['El saludo', 'La prueba de granizo', 'Pedir una hora', 'Hablar español', 'Regresar después'], change: ['Empezar más temprano', 'Saludo más corto', 'Pedir la hora antes', 'Dar seguimiento el mismo día', 'Tocar más rápido'],
@@ -4966,7 +4932,7 @@ const NWX = {
     revSave: 'Guardar el día', revSaved: 'Guardado. Nos vemos mañana.', revQueued: 'Se guardó en este teléfono. Se manda cuando vuelva la señal.', revFail: 'No se guardó. Intenta otra vez.', revAgain: 'Actualizar el día', revRo: 'Solo los editores pueden guardar el día.',
     pricesEb: 'Ajustes', pricesH: 'Precios + número de registro', pricesRef: 'Rangos del mercado (todavía no los precios de HMP). Cada precio sale como “Rango estimado, no final”.',
     pricesOwn: 'Ya están los precios de HMP.', pricesNone: 'Los precios todavía no cargan.', regK: 'Número de registro de contratista', regNone: 'Pendiente del jefe (lo impreso deja una línea en blanco).', mailK: 'Dirección postal', phK: 'Teléfonos',
-    refEb: 'Pedir referidos', refP: 'Léelo en voz alta al terminar el trabajo:', refSay: 'Gracias por escoger a HMP. Casi todo nuestro trabajo viene de personas como usted que le cuentan a un amigo o vecino. Si se le ocurre alguien, nos encantaría que nos presente.',
+    refEb: 'Referidos',
     refNote: 'Luego manda una nota de agradecimiento escrita a mano. Solo la nota: nunca regalo, tarjeta de regalo, dinero ni descuento.', refRule: 'Los referidos son solo cumplidos y presentaciones: nunca se pagan, se descuentan ni se premian, y nada que toque el deducible (NE 44-8604).'
   }
 };
@@ -4991,7 +4957,7 @@ const ZX = {
     hoursOk: (a, b) => `Knock hours ${a}–${b}`, hoursOut: 'Outside knock hours · only booked visits', signs: 'Skip “No Soliciting” houses', round: n => `Round ${n}: not-homes from earlier`,
     stale: d => `Walk from ${d}: ask for a new one`, knocksToday: 'knocks today', talked: 'talked', interested: 'interested', booked: 'booked',
     nextDoor: (i, n) => `Next door · stop ${i} of ${n}`, toGo: n => `${n} to go`, hailFact: (h, d) => `${h}″ hail${d ? ', ' + d : ''}`, builtFact: y => `Built ${y}`,
-    say: 'What to say', proof: 'Hail proof', skipAria: 'Skip or don’t knock again', ans: {not_home: ['Not home', 'leave a hanger'], no: ['No', 'not today'], interested: ['Interested', 'call back'], booked: ['Booked', 'pick a time']},
+    say: 'Door guide', proof: 'Hail proof', backAt: t => (t ? `They asked you to come back at ${t}.` : 'They asked you to come back today.'), skipAria: 'Skip or don’t knock again', ans: {not_home: ['Not home', 'leave a hanger'], no: ['No', 'not today'], interested: ['Interested', 'call back'], booked: ['Booked', 'pick a time']},
     then: 'Then', all: n => `All ${n}`, back3: 'Next 3', across: 'Across the street', mapOpen: 'Open the big map', mapClose: 'Close the big map', walkMenu: 'Walk menu: print, about this walk, done for today',
     walkAria: (n, i) => `Walking route: ${n} stops${i ? `, you are at stop ${i}` : ''}`, keyNext: 'next', keyDone: 'done',
     emptyH: 'No walk yet today', emptyP: 'Pick a hot zone and the app lines up the doors in walking order.', pickZone: 'Pick a hot zone',
@@ -5042,7 +5008,7 @@ const ZX = {
     hoursOk: (a, b) => `Horario ${a}–${b}`, hoursOut: 'Fuera de horario · solo citas', signs: 'Salta casas con “No Soliciting”', round: n => `Vuelta ${n}: los que no estaban`,
     stale: d => `Ruta del ${d}: pide una nueva`, knocksToday: 'toques hoy', talked: 'platicó', interested: 'interés', booked: 'citas',
     nextDoor: (i, n) => `Siguiente · parada ${i} de ${n}`, toGo: n => `faltan ${n}`, hailFact: (h, d) => `Granizo ${h}″${d ? ', ' + d : ''}`, builtFact: y => `Construida en ${y}`,
-    say: 'Qué decir', proof: 'Prueba', skipAria: 'Saltar o no volver a tocar', ans: {not_home: ['No está', 'deja volante'], no: ['No', 'hoy no'], interested: ['Interesado', 'llamar'], booked: ['Agendado', 'elige hora']},
+    say: 'Guía de puerta', proof: 'Prueba', backAt: t => (t ? `Te pidieron volver a las ${t}.` : 'Te pidieron volver hoy.'), skipAria: 'Saltar o no volver a tocar', ans: {not_home: ['No está', 'deja volante'], no: ['No', 'hoy no'], interested: ['Interesado', 'llamar'], booked: ['Agendado', 'elige hora']},
     then: 'Después', all: n => `Las ${n}`, back3: 'Siguientes 3', across: 'Enfrente', mapOpen: 'Abrir el mapa grande', mapClose: 'Cerrar el mapa grande', walkMenu: 'Menú de la ruta: imprimir, sobre la ruta, terminé por hoy',
     walkAria: (n, i) => `Ruta a pie: ${n} paradas${i ? `, vas en la parada ${i}` : ''}`, keyNext: 'sigue', keyDone: 'listas',
     emptyH: 'Todavía no hay ruta hoy', emptyP: 'Escoge una zona y la app ordena las puertas para caminar.', pickZone: 'Escoger zona',
@@ -5366,7 +5332,7 @@ function renderDueSheet(){
   const grp = (k, list) => list.length ? `<div class="shead" style="margin-top:var(--s2)"><h2>${esc(W.g[k])}</h2><span class="cap">${list.length}</span></div><ul class="rows">${list.map(dueRowV25).join('')}</ul>` : '';
   soft($('#shBody')).html = (grp('today', g.today) + grp('tomorrow', g.tomorrow) + grp('later', g.later.slice(0, 20))) || `<p class="quiet">${esc(W.dueNone)}</p>`;
 }
-/* Sale Guide step 1 for a house on the walk (the "What to say" sheet): the law line, say, ask, collect, must */
+/* Sale Guide step 1 for a house on the walk (the "Door guide" sheet): the law line, say, ask, collect, must */
 function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the walk (no lead yet): law line, say, ask, collect, must
   const W = NW(), X = NX(), ins = kind !== 'cash';
   const say = lg => withLang(lg, () => { const S = NX().said, w = whyHouse(s, ins ? 'storm' : 'everyday');
@@ -5377,7 +5343,8 @@ function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the 
     ${flipBlock('ns-say', W.say, `<q>${esc(say(lang))}</q>`, `<q>${esc(say(otherLang()))}</q>`)}
     ${compact ? '' : flipBlock('ns-sec', W.ask, `<ul class="ns-ask">${asks(lang)}</ul>`, `<ul class="ns-ask">${asks(otherLang())}</ul>`)}
     ${flipBlock('ns-sec', W.collect, col(lang), col(otherLang()))}
-    ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}`;
+    ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}
+    ${compact || !nsWinter('door') ? '' : `<p class="ns-info"><b>${esc(X.info)}</b>${esc(nsWinter('door'))}</p>`}`;
 }
 /* ---------- Calls today (Now): calls/today from the King (hh.py daily): "Storm hit your customer" rows first (address, hail,
    days ago; never a homeowner's name or phone), then business calls (business lines only). Practice + practice houses:
@@ -5711,13 +5678,13 @@ function claimMoneyBox(c){
   const cur = c.stage === 'paid' ? 'paid' : CLAIM_STEPS[i];
   const flags = [];
   if (c.stage === 'installed' && !m.depIn) flags.push(`<p class="ns-must" role="note" id="mckDep"><b>${esc(M.first)}</b>${esc(M.depNow)}</p>`);
-  if (strv(mort.company) && !yesv(mort.check_returned)) flags.push(`<p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(M.mort)}</p>`);
+  if (strv(mort.company) && !yesv(mort.check_returned)) flags.push(`<p class="ns-info"><b>${esc(NX().info)}</b>${esc(M.mort)}</p>`);
   const steps = CLAIM_STEPS.map((s, k) => `<li class="${c.stage === 'paid' || k < i ? 'done' : k === i ? 'now' : ''}"><b>${esc(cStage(s))}</b><span>${esc(M.st[s])}</span></li>`).join('');
   const supp = ['scope_in', 'signed', 'supplement', 'materials_ordered'].includes(c.stage);
   const byTrade = {}; for (const x of suppItems()) (byTrade[x.trade] = byTrade[x.trade] || []).push(x);
   return `<section class="box mck" id="mckBox"><h3>${esc(M.h)}</h3>
     <p class="mck-now"><span class="k-eb">${esc(M.now)} · ${esc(cStage(cur))}</span>${esc(M.st[cur])}</p>${flags.join('')}
-    ${supp ? `<p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(M.op)}</p><details class="fold" id="mckSupp"><summary>${esc(M.suppH)}</summary><p class="a-quiet">${esc(M.suppP)}</p>${Object.entries(byTrade).map(([t, xs]) => `<h4 class="dg-h">${esc(M.trade[t] || t)}</h4><ul class="gcol">${xs.map(x => `<li>${esc(lang === 'es' ? x.es : x.en)}</li>`).join('')}</ul>`).join('')}</details>` : ''}
+    ${supp ? `<p class="ns-info"><b>${esc(NX().info)}</b>${esc(M.op)}</p><details class="fold" id="mckSupp"><summary>${esc(M.suppH)}</summary><p class="a-quiet">${esc(M.suppP)}</p>${Object.entries(byTrade).map(([t, xs]) => `<h4 class="dg-h">${esc(M.trade[t] || t)}</h4><ul class="gcol">${xs.map(x => `<li>${esc(lang === 'es' ? x.es : x.en)}</li>`).join('')}</ul>`).join('')}</details>` : ''}
     <details class="fold"><summary>${esc(M.all)}</summary><ol class="mck-l">${steps}</ol></details>
     <p class="stamp">${esc(M.rule)}</p></section>`;
 }
@@ -5727,16 +5694,14 @@ function claimMoneyBox(c){
 const ADJM = {
   en: {h: 'Adjuster meeting', g: {before: 'Before', during: 'During (walk it together)', after: 'After'},
     items: {before: ['Confirm the time. Arrive early; ladder up before the adjuster gets there.', 'Claim number, date of loss, homeowner’s phone', 'Your inspection photos', 'Roof / elevation diagram: slopes numbered, N/S/E/W marked', 'Tape measure, flashlight, charged phone, business card', 'The supplement checklist (items adjusters often miss)'],
-      during: ['Walk EVERY slope and side with the adjuster, not just one', 'Point out every pipe boot, vent, skylight and flashing', 'Mark the damage on the diagram together', 'Answer technical questions calmly: facts, not pressure', 'Ask what goes in the written scope, when it arrives, and how to send anything found later', 'Chalk one 10×10 test square at a time to count hits; don’t chalk the whole roof for the photos'],
+      during: ['Walk EVERY slope and side with the adjuster, not just one', 'Point out every pipe boot, vent, skylight and flashing', 'Mark the damage on the diagram together', 'Ask what goes in the written scope, when it arrives, and how to send anything found later', 'Chalk one 10×10 test square at a time to count hits; don’t chalk the whole roof for the photos'],
       after: ['Get a copy of the adjuster’s notes or scope before they leave', 'Compare it line by line with the supplement checklist; send anything missing in writing']},
-    can: 'You can say: “Here’s what we found, here’s the measurement, here’s the code section.”',
     cant: 'Never promise a dollar amount or an outcome, never say you negotiate FOR the homeowner (that needs a public-adjuster license, NE 44-9201), never mention covering, waiving or discounting the deductible (44-8604).',
     note: 'Ticks stay on this phone.', left: (n, t) => `${n} of ${t} ticked`},
   es: {h: 'Cita con el ajustador', g: {before: 'Antes', during: 'Durante (caminen juntos)', after: 'Después'},
     items: {before: ['Confirma la hora. Llega temprano; escalera lista antes de que llegue el ajustador.', 'Número de reclamo, fecha de la pérdida, teléfono del dueño', 'Tus fotos de la inspección', 'Diagrama del techo: caras numeradas, N/S/E/O marcados', 'Cinta métrica, linterna, teléfono cargado, tarjeta de presentación', 'La lista de suplementos (lo que el ajustador suele olvidar)'],
-      during: ['Camina TODAS las caras y lados con el ajustador, no solo uno', 'Señala cada tubo, ventila, tragaluz y tapajuntas', 'Marquen juntos el daño en el diagrama', 'Contesta preguntas técnicas con calma: datos, no presión', 'Pregunta qué va en el reporte escrito, cuándo llega y cómo mandar lo que se encuentre después', 'Marque con tiza un cuadro de prueba de 10×10 pies a la vez para contar los golpes; no deje todo el techo marcado para las fotos'],
+      during: ['Camina TODAS las caras y lados con el ajustador, no solo uno', 'Señala cada tubo, ventila, tragaluz y tapajuntas', 'Marquen juntos el daño en el diagrama', 'Pregunta qué va en el reporte escrito, cuándo llega y cómo mandar lo que se encuentre después', 'Marque con tiza un cuadro de prueba de 10×10 pies a la vez para contar los golpes; no deje todo el techo marcado para las fotos'],
       after: ['Pide una copia de las notas o del alcance antes de que se vaya', 'Compáralo renglón por renglón con la lista de suplementos; manda por escrito lo que falte']},
-    can: 'Sí puedes decir: “Esto encontramos, esta es la medida, este es el código.”',
     cant: 'Nunca prometas un monto ni un resultado, nunca digas que negocias POR el dueño (eso requiere licencia de ajustador público, NE 44-9201), nunca menciones cubrir, perdonar o descontar el deducible (44-8604).',
     note: 'Las marcas se guardan en este teléfono.', left: (n, t) => `${n} de ${t} marcados`}
 };
@@ -5748,7 +5713,7 @@ function adjMeetBox(id){
   const grp = g => `<h4 class="dg-h">${esc(A.g[g])}</h4><ul class="ns-ck">${A.items[g].map((t, i) => { const k = g + i, y = on.includes(k);
     return `<li class="ns-it${y ? ' on' : ''}"><button type="button" class="chk" role="checkbox" aria-checked="${y}" aria-label="${esc(t)}" data-adjm="${esc(k)}" data-adjmid="${esc(id)}">${y ? ic('check') : ''}</button><div class="ns-itt"><span>${esc(t)}</span></div></li>`; }).join('')}</ul>`;
   return `<section class="box" id="adjmBox"><h3>${esc(A.h)} <small class="n">${esc(A.left(on.length, total))}</small></h3>${grp('before')}${grp('during')}${grp('after')}
-    <p class="ns-tip"><b>${esc(NX().tip)}</b>${esc(A.can)}</p><p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(A.cant)}</p><p class="stamp">${esc(A.note)}</p></section>`;
+    <p class="ns-must" role="note"><b>${esc(NX().must)}</b>${esc(A.cant)}</p><p class="stamp">${esc(A.note)}</p></section>`;
 }
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-adjm]'); if (!b) return; const id = b.dataset.adjmid, v = adjmGet(id), k = b.dataset.adjm;
   adjmSet(id, v.includes(k) ? v.filter(x => x !== k) : [...v, k]); renderSheet(); });
@@ -5782,19 +5747,6 @@ function knockRules(m){
     return `<details class="k-rules warn" id="kRules" role="note"><summary><span class="kr-dot" aria-hidden="true"></span><b>${esc(X.outShort(clk(r.hours[0]), clk(r.hours[1])))}</b><span class="kr-more">${esc(X.details)}</span></summary><p><b>${esc(X.out)}</b> ${esc(line)}</p></details>`; }
   return `<p class="k-rules" id="kRules" role="note">${esc(line)}</p>`;
 }
-
-/* ================= v24 · T134: the words for each follow-up touch (data/followup_scripts.json: db system/followup_scripts when Claude
-   writes it, else this copy). Channel = a door revisit, or a call when the homeowner gave the number. Never a cold text. ================= */
-let fsDoc;
-const FS_DEFAULT = [{"touch": 1, "channel": "door", "en": "Hi again — I was in the area and wanted to check in. Last time you said you wanted to think it over. What's the one thing you're weighing most — the price, the timing, or comparing another bid? I can help with that.", "es": "Hola de nuevo — andaba por aquí y quise pasar a ver cómo va. La última vez dijo que quería pensarlo. ¿Qué es lo que más está pensando — el precio, el tiempo, o comparar con otra cotización? Le puedo ayudar con eso."}, {"touch": 1, "channel": "phone", "en": "Hi {first_name}, it's Kenny/Alex with HMP — following up like you asked. No pressure, just checking: is it the price, the timing, or wanting to compare another bid that you're weighing? I can send whatever helps.", "es": "Hola {first_name}, soy Kenny/Alex de HMP — le sigo como quedamos. Sin presión, solo pregunto: ¿es el precio, el tiempo, o quiere comparar con otra cotización? Le puedo mandar lo que le ayude."}, {"touch": 1, "channel": "business_phone", "en": "Hi, this is Kenny/Alex with HMP Siding & Roofing, following up on the free inspection we talked about for {address}. Is now still a good time, or is there something specific you'd like more detail on before deciding?", "es": "Hola, soy Kenny/Alex de HMP Siding & Roofing, dando seguimiento a la inspección gratis que hablamos para {address}. ¿Sigue siendo buen momento, o hay algo específico que le gustaría saber antes de decidir?"}, {"touch": 2, "channel": "door", "en": "Hi, just stopping by again on {address} — have you had a chance to look at any other quotes? Happy to go over ours side by side, or answer anything that wasn't clear.", "es": "Hola, paso de nuevo por {address} — ¿ya pudo ver otras cotizaciones? Con gusto revisamos la nuestra juntos, o le aclaro lo que no haya quedado claro."}, {"touch": 2, "channel": "phone", "en": "Hi {first_name}, Kenny/Alex again from HMP. Have you had a chance to compare bids yet? If price is the sticking point, we may have a financing option — happy to explain, no obligation.", "es": "Hola {first_name}, soy Kenny/Alex de HMP otra vez. ¿Ya pudo comparar cotizaciones? Si el precio es lo que le detiene, puede que haya opción de financiamiento — con gusto le explico, sin compromiso."}, {"touch": 2, "channel": "business_phone", "en": "Hi, following up again on the {address} inspection/estimate for HMP — want to make sure you have everything you need to make a decision. Anything I can clarify?", "es": "Hola, doy seguimiento de nuevo sobre la inspección/cotización de {address} para HMP — quiero asegurarme que tenga todo lo necesario para decidir. ¿Le aclaro algo?"}, {"touch": 3, "channel": "door", "en": "Hi, one more check-in on {address} — our schedule is filling up and I want to make sure you still have a spot if you decide to move forward. Any update, or should I check back another time?", "es": "Hola, un último seguimiento sobre {address} — nuestro calendario se está llenando y quiero asegurarme que tenga lugar si decide seguir adelante. ¿Alguna novedad, o le busco en otro momento?"}, {"touch": 3, "channel": "phone", "en": "Hi {first_name}, last check-in from HMP on {address} — totally understand if now isn't the time. Just let me know either way so I can update your file, and I'm here whenever you're ready.", "es": "Hola {first_name}, último seguimiento de HMP sobre {address} — entiendo si no es el momento. Solo avíseme para actualizar su archivo, y aquí estoy cuando esté listo."}, {"touch": 3, "channel": "business_phone", "en": "Hi, last follow-up from HMP on {address} — let me know if you'd like to move forward or if the timing changed. Either way, thanks for considering us.", "es": "Hola, último seguimiento de HMP sobre {address} — avíseme si quiere seguir adelante o si cambió el momento. De cualquier forma, gracias por considerarnos."}];
-function touchScript(l, touch){
-  const list = fsDoc && Array.isArray(fsDoc.scripts) ? fsDoc.scripts : Array.isArray(fsDoc) ? fsDoc : FS_DEFAULT;
-  const ch = strv(l.phone) ? 'phone' : 'door', x = list.find(y => y && +y.touch === +touch && y.channel === ch) || list.find(y => y && +y.touch === +touch && y.channel === 'door');
-  if (!x) return null;
-  const fill = (t, lg) => strv(t).replace(/Kenny\/Alex/g, SETTINGS.people[lg].first).replace(/\{first_name\}/g, strv(l.first_name) || (lg === 'es' ? 'señor/señora' : 'there')).replace(/\{address\}/g, shortAddr(strv(l.address)));
-  return {ch, en: fill(x.en, 'en'), es: fill(x.es, 'es')};
-}
-const FSX = {en: {door: 'What to say at the door', phone: 'What to say on the call (they gave you the number)'}, es: {door: 'Qué decir en la puerta', phone: 'Qué decir en la llamada (te dieron el número)'}};
 
 /* ---------- whole app ---------- */
 function renderBadges(){   // v25: one red badge, on Now, for late items only (nothing else in the tab bar counts)
@@ -6196,7 +6148,6 @@ function subscribeApp(db){
     () => { if (takeoffRules === undefined) { takeoffRules = null; if (openRef && openRef.startsWith('ord:')) renderSheet(); } });
   db.doc('system/supplements').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('supp', v)) { suppDoc = v; if (openRef && openRef.startsWith('claim:')) renderSheet(); } }, () => {});   // v24 · T85 (optional)
   db.doc('system/city_rules').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('city', v)) { cityDoc = v; bump(); } }, () => {});   // v24 · T123 (optional)
-  db.doc('system/followup_scripts').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('fs', v)) { fsDoc = v; bump(); } }, () => {});   // v24 · T134 (optional)
   db.doc('system/homeowner').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('hoset', v)) { hoSetDoc = v; if (HO.isOpen()) HO.render(); } }, () => {});   // v25 (optional)
   db.doc('meta/guide').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('guide', v)) { guideDoc = v; bump(); } }, () => {});
 }
