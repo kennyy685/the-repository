@@ -5,11 +5,11 @@ for a pause near the 5-hour usage limit, which resets 10:40 AM Central).
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md, then `docs/orders/path.md` (the Path), then
 `docs/memory/questions-for-filthe.md` (his answers today) and `docs/design/taste.md`.
 
-## FIRST, as the new King
-1. Make your own hub wake trigger (create_trigger, no cron, binds to you), write its id to hub doc `system/king`
-   (`wake_trigger`, `live_session`), update CLAUDE.md's id line, disable (never delete) `trig_016CgJfFQ1bECbKDy4mE5X9L`.
-2. Archive session_012Re5t1fke5fB1A4R6n4P3n once the 2 helpers below have committed.
-3. Morning rule: start FilthE's day with "while you slept" (done / running / next / needs you) + where we are on the Path.
+## FIRST, as the new King (session_01FERv6AGSv3mJ7kZTLTcybV)
+1. Your hub wake trigger is ALREADY made: `trig_01NHQW42S6i4iKTWWcWAwbF4`, in hub `system/king` + CLAUDE.md. Skip it.
+2. Archive the old King session_012Re5t1fke5fB1A4R6n4P3n (its work is all pushed; nothing running).
+3. Say hi on the hub, open with ONE "what do you see" question about the Knock screen, then give the Designer its
+   job (finish the click flow). Morning rule: "while you slept" + where we are on the Path first.
 
 ## Live
 - Open map mockup (private artifact, ours): https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV v3 = rich look
