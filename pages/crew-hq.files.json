@@ -1,0 +1,16 @@
+{
+  "about": "T190: the AI hub is a multi-file artifact. Publish `page` to `url` with the Artifact tool's `files` = the map below (published path -> repo file, paths relative to the repo root). The hub's own files live in pages/hub/; the fonts are shared read-only with the HMP App. Contract between the page and the 3D scene: docs/design/hub-office/CONTRACT.md.",
+  "url": "https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU",
+  "page": "pages/crew-hq.html",
+  "files": {
+    "hub/scene.js": "pages/hub/scene.js",
+    "hub/outfits.js": "pages/hub/outfits.js",
+    "hub/eyes.js": "pages/hub/eyes.js",
+    "hub/still.webp": "pages/hub/still.webp",
+    "fonts/Geist-400.woff2": "pages/fonts/Geist-400.woff2",
+    "fonts/Geist-500.woff2": "pages/fonts/Geist-500.woff2",
+    "fonts/Geist-600.woff2": "pages/fonts/Geist-600.woff2",
+    "fonts/GeistMono-500.woff2": "pages/fonts/GeistMono-500.woff2",
+    "fonts/BricolageGrotesque-var.woff2": "pages/fonts/BricolageGrotesque-var.woff2"
+  }
+}

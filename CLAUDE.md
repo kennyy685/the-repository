@@ -21,6 +21,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 - **Chain of command (FilthE, 2026-09-27):** FilthE = mastermind at the top; the King = the tip inside the computer;
   the hub robots (`.claude/agents/*`) = "agents"/"sub agents". "Make them better" = the King researches and upgrades
   those robots (prompts, tools, skills, models) so they make the King's job easier.
+- **What delights him (FilthE, 2026-09-28):** convenient, extremely helpful things that were carefully thought through,
+  especially the ones he wouldn't have thought of himself. Anticipate the need; don't just add features.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.

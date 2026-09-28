@@ -99,9 +99,14 @@
       "engine-mechanic": {"status": "blocked", "room": "engine", "doing": "Waiting on county permit data", "task": "T23", "at": "2026-09-27T15:00:00Z"},
       "king": {"status": "working", "room": "board", "doing": "Sunday standup: gate first, then prices", "at": "2026-09-27T19:00:00Z"},
       "cowork": {"status": "idle", "room": "storm", "doing": "", "at": "2026-09-27T12:00:00Z"},
-      "storm-watch": {"status": "sleeping", "room": "storm", "doing": "Resting until its next run", "at": "2026-09-27T11:54:00Z"}
+      "storm-watch": {"status": "sleeping", "room": "storm", "doing": "Resting until its next run", "at": "2026-09-27T11:54:00Z"},
+      "designer": {"status": "waiting", "room": "studio", "doing": "Two robot finishes are ready", "ask": "Robots in white ceramic or graphite?", "task": "T190", "at": "2026-09-27T19:20:00Z"},
+      "hub-keeper": {"status": "working", "room": "research", "doing": "Research round 56: AI office dashboards", "task": "T191", "progress": {"done": 3, "of": 5}, "at": "2026-09-27T19:30:00Z"},
+      "chat-reader": {"status": "working", "room": "research", "doing": "Reading 2 open chats for the King", "at": "2026-09-27T19:45:00Z"}
     },
     "events": {
+      "20260927T194500Z-chat-reader": {"agent": "chat-reader", "at": "2026-09-27T19:45:00Z", "kind": "start", "lane": "chat", "room": "research", "status": "working", "text": "Reading 2 open chats for the King."},
+      "20260927T191000Z-builder": {"agent": "builder", "at": "2026-09-27T19:10:00Z", "kind": "done", "lane": "code", "room": "dock", "status": "done", "task": "T75", "text": "App layout B is ready for review."},
       "20260927T194000Z-code": {"agent": "code", "at": "2026-09-27T19:40:00Z", "kind": "progress", "lane": "code", "room": "tests", "status": "working", "task": "T72", "text": "Design gate self-test passes; running it on all three pages now."},
       "20260927T193500Z-qa-tester": {"agent": "qa-tester", "at": "2026-09-27T19:35:00Z", "kind": "start", "lane": "code", "room": "tests", "status": "working", "task": "T72", "text": "Starting the design gate run on the HMP App."},
       "20260927T190000Z-king": {"agent": "king", "at": "2026-09-27T19:00:00Z", "kind": "handoff", "to": "code", "lane": "board", "room": "board", "status": "working", "task": "T72", "text": "Write the missing design gate before the next app publish."},
