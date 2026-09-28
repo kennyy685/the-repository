@@ -314,12 +314,12 @@ h1,h2,h3,p{margin:0}
 .ev p{margin:1px 0 0;font-size:14px;color:var(--ink-2);overflow-wrap:anywhere}
 
 /* the King chat bubble (note 3): bottom-right beside the panel (the screen corner when the panel is closed) */
-.kbub{position:fixed;z-index:9;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--card-solid);border:1px solid var(--rule-2);color:var(--ink)}
+.kbub{position:fixed;z-index:9;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--card-solid);border:1px solid var(--rule-2);color:var(--ink)}
 .kbub .i{width:22px;height:22px}
 .kbub:hover{border-color:var(--brass)}
 .kbub[aria-expanded="true"]{border-color:var(--brass-hi);color:var(--brass-hi)}
 .kdot{position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--brass-hi);box-shadow:0 0 0 2px var(--card-solid)}
-.kwin{position:fixed;z-index:55;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-height:min(72vh,520px);display:flex;flex-direction:column;gap:10px;padding:14px 16px 12px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:var(--r);animation:plateIn .2s var(--ease) both}
+.kwin{position:fixed;z-index:55;left:8px;right:8px;bottom:calc(136px + env(safe-area-inset-bottom,0px));max-height:min(72vh,520px);display:flex;flex-direction:column;gap:10px;padding:14px 16px 12px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:var(--r);animation:plateIn .2s var(--ease) both}
 .kwin-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:none}
 .kwin-h .lbl{color:var(--brass-hi)}
 .kwin-h .src{margin-top:2px}
@@ -497,6 +497,7 @@ h1,h2,h3,p{margin:0}
 @media (max-width:899px), (max-height:599px){
   .card{background:var(--card-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
   .cardscrim{position:fixed;inset:0;z-index:29;background:rgba(6,7,9,.62);animation:plateIn .2s var(--ease) both}
+  .panel{padding-bottom:148px}   /* the chat bubble floats above the office's stage bar; nothing ends up under it */
   .scrim-top,.scrim-col,.now,.edge{display:none!important}   /* phones: the Crew list below the office carries the same rows */
   .bub{max-width:min(200px,54vw);padding:5px 9px 6px} .bub .bh{display:none} .bub .bt{font-size:12px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block}
   .right{flex:1 1 100%;justify-content:space-between}
