@@ -74,3 +74,14 @@ research, 6 AI-agent interface research, 7 virtual/isometric offices, 8 game env
 9 specific visual refs, 10 architecture, 11 floor plan, 12 materials, 13 lighting, 14 character design,
 15 status/interaction system, 16 animations, 17 UI elements, 18 fun-not-childish, 19 efficient-not-boring,
 20 a complete design language.
+
+## Framing (FilthE, 2026-09-28, from a second AI he agreed with)
+The screenshots ARE the product, not concept art. The next step is not "make it prettier" but "make the Hub function
+like a professional AI organization while keeping this visual world": the visual operating system for the AI team.
+- Don't change the existing architecture/design unless there's a real functional reason. Re-seating agents to the
+  new floor split (upstairs = Research Lead, QA, Storm Watch; downstairs = Builder, Claude Code, Designer, Engine
+  Mechanic, Chat Reader, Cowork, Right Hand; then YOU) is a functional reason; rebuilding the rooms is not.
+- A glanceable RIGHT NOW list, one line per agent with a status color + verb (Builder - Building, Research Lead -
+  Researching, QA - Waiting, Designer - Designing, Right Hand - Needs Kenny), matched by what you SEE happening in
+  the room.
+- The research question for every reference: "What can AI Hub steal from this to make its own system better?"
