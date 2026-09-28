@@ -172,6 +172,7 @@
         {"id": "T86", "owner": "hub-keeper", "status": "TODO", "task": "Research round: adjuster meeting habits"}
       ],
       "waiting": [
+        {"id": "D20", "q": "Publish App v25.3?", "ship": {"what": "HMP App v25.3: faster map, Spanish fixes", "preview_url": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT", "qa": {"passed": 42, "of": 42}, "changes": "The live app updates for everyone who opens it; the old version stays in history."}},
         {"id": "D18", "q": "What is the farthest a crew should drive for a job?"},
         {"id": "D19", "q": "Is there any budget for paid hail maps?"},
         {"id": "D17", "q": "Referral thank-you: a handwritten note only?"}
@@ -186,6 +187,24 @@
         {"to": "cowork", "text": "Re-bundle after the gate lands", "task": "T61"}
       ],
       "at": "2026-09-27T19:00:00Z"
+    },
+    "crew/sessions": {
+      "sessions": [
+        {"id": "session_01KINGaaaaaaaaaaaaaaaaaa", "title": "SMUIPO (King)", "state": "working", "doing": "Talking with you, running the robots", "needs_you": "", "cost_usd": 41.2, "created": "2026-09-27T18:00:00Z", "updated": "2026-09-27T19:30:00Z"},
+        {"id": "session_01BUILDaaaaaaaaaaaaaaaaa", "title": "Builder: hub functions", "state": "working", "doing": "Building the Chats tab", "needs_you": "", "cost_usd": 6.4, "created": "2026-09-27T17:30:00Z", "updated": "2026-09-27T19:25:00Z"},
+        {"id": "session_01PERMITaaaaaaaaaaaaaaaa", "title": "Permit office calls (T202)", "state": "needs_you", "doing": "Columbus confirmed online: no permit needed", "needs_you": "Call Omaha 402-444-5233 and Lincoln 402-441-7521 on a weekday, 8 AM+", "cost_usd": 3.61, "updated": "2026-09-27T15:41:04Z"},
+        {"id": "session_01DONEaaaaaaaaaaaaaaaaaa", "title": "Designer: print kit", "state": "done", "doing": "Print kit v3 ready", "needs_you": "", "cost_usd": 12.9, "updated": "2026-09-27T12:10:00Z"}
+      ],
+      "archived": {"count": 14, "cost_usd": 811.1, "since": "2026-09-21"}, "updatedAt": "2026-09-27T19:30:00Z", "updatedBy": "SMUIPO (King)"
+    },
+    "system/schedule": {
+      "jobs": [
+        {"id": "trig_storm", "name": "Storm Watch", "enabled": false, "cron": "CRON_TZ=America/Chicago 54 6 * * *", "why": "paused while the King is live", "last": {"status": "SUCCEEDED", "at": "2026-09-26T11:54:00Z"}},
+        {"id": "trig_king", "name": "King wake (hub chat)", "enabled": true, "last": {"status": "SUCCEEDED", "at": "2026-09-27T19:20:00Z"}},
+        {"id": "trig_score", "name": "Monday scorecard", "enabled": true, "cron": "45 13 * * 1", "next_run_at": "2026-09-28T13:45:00Z", "last": {"status": "FAILED", "at": "2026-09-21T13:45:00Z"}},
+        {"id": "trig_morning", "name": "Morning data", "enabled": true, "cron": "CRON_TZ=America/Chicago 40 7 * * *", "next_run_at": "2026-09-28T12:40:00Z", "last": {"status": "SUCCEEDED", "at": "2026-09-27T12:40:00Z"}}
+      ],
+      "at": "2026-09-27T19:30:00Z", "by": "SMUIPO (King)"
     },
     "system/memory": {
       "facts": ["FilthE owns the app; HMP is its first user.", "Door knocking and business lines only: no cold texts, no mailers.", "Theme A Ledger: light, clean, orange accent."],
