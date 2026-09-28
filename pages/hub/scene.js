@@ -1510,9 +1510,11 @@ function lightFromSky(dt){
 /* v28 dev overlay: ?perf (or #perf, or localStorage hub-perf=1) shows draw calls, triangles, fps, frame-time graph and
  * shadow passes, read from renderer.info right after the main render. Never on without the flag. */
 const PERF = (() => { try { return /[?&#]perf\b/.test(location.search + location.hash) || localStorage.getItem('hub-perf') === '1'; } catch(e){ return /[?&#]perf\b/.test(location.search + location.hash); } })();
-const perfO = {el:null, g:null, ft:[], last:0, fps:0, calls:0, tris:0, maxCalls:0};
-function perfHud(dt){
-  const o = perfO, i = renderer.info.render; o.calls = i.calls; o.tris = i.triangles; o.maxCalls = Math.max(o.maxCalls, i.calls);
+const perfO = {el:null, g:null, ft:[], last:0, fps:0, calls:0, tris:0, maxCalls:0, shCalls:0, shAt:0};
+function perfHud(dt, shPass){
+  const o = perfO, i = renderer.info.render;
+  if (shPass){ o.shCalls = Math.max(0, i.calls - o.calls); o.shAt = performance.now(); } else { o.calls = i.calls; o.tris = i.triangles; }
+  o.maxCalls = Math.max(o.maxCalls, i.calls);
   if (dt > 0){ o.ft.push(dt*1000); if (o.ft.length > 120) o.ft.shift(); o.fps = o.fps ? o.fps*.92 + (1/dt)*.08 : 1/dt; }
   const now = performance.now(); if (now - o.last < 250) return; o.last = now;
   if (!o.el){ o.el = document.createElement('div'); o.el.id = 'perfHud';
@@ -1521,7 +1523,7 @@ function perfHud(dt){
     o.el.append(o.txt, o.cv); document.body.appendChild(o.el); o.g = o.cv.getContext('2d'); }
   const ft = o.ft.slice().sort((a, b) => a - b), p95 = ft.length ? ft[Math.floor(ft.length*.95)] : 0;
   o.txt.textContent = 'calls ' + o.calls + ' (max ' + o.maxCalls + ')  tris ' + (o.tris/1000).toFixed(1) + 'k\n' + 'fps ' + o.fps.toFixed(0) + '  p95 ' + p95.toFixed(1) + ' ms  dpr ' + renderer.getPixelRatio().toFixed(2) + '\n' +
-    'shadow passes ' + shadowSun.n + '  geo ' + renderer.info.memory.geometries + '  tex ' + renderer.info.memory.textures;
+    'shadow passes ' + shadowSun.n + ' (' + o.shCalls + ' calls, last ' + (o.shAt ? ((now - o.shAt)/1000).toFixed(0) + ' s ago' : '-') + ')\ngeo ' + renderer.info.memory.geometries + '  tex ' + renderer.info.memory.textures;
   const g = o.g; g.clearRect(0, 0, 180, 36); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(0, 36 - 16.7*36/50, 180, 1);   // the 60 fps line (16.7 ms of 50)
   o.ft.forEach((v, k) => { const h = Math.min(36, v*36/50); g.fillStyle = v > 25 ? '#e5484d' : v > 17.5 ? '#f5883a' : '#8fbf8f'; g.fillRect(k*1.5, 36 - h, 1.2, h); });
 }
@@ -1709,8 +1711,9 @@ function frame(t, dt){
     b.p.geometry.attributes.position.needsUpdate = true; b.p.material.opacity = Math.max(0, Math.min(1, (b.life - b.t)/(b.life*.35)));
     if (b.t > b.life){ scene.remove(b.p); b.p.geometry.dispose(); b.p.material.dispose(); bursts.splice(i,1); } }
   const selfR = rcam === pcam && view.sub === 'eyes' && robots[view.subId]; if (selfR) selfR.root.visible = false;   // your own head stays out of your eyes
+  const shPass = PERF && renderer.shadowMap.needsUpdate; if (PERF){ renderer.info.autoReset = false; renderer.info.reset(); }   // perf: count the shadow pass too
   renderer.render(scene, rcam);
-  if (PERF) perfHud(rawDt);
+  if (PERF){ perfHud(rawDt, shPass); renderer.info.autoReset = true; }
   if (selfR) selfR.root.visible = true;
   renderPip();
   // keep phones smooth: drop resolution if frames run long
@@ -1814,7 +1817,7 @@ function pick(x, y){ let best = null, bd = 34;
 function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!sim || sim.hidden) continue;
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
-window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n}; }, shadowDirty(){ shadowSun.dirty = true; },
+window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
   get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
 resize();
 HUB.layout && HUB.layout();
