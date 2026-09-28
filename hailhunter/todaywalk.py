@@ -40,7 +40,7 @@ already shows the door-score `why` line and its own come-back text, so those wer
 only for the legally required opener and the come-back fact. Never insurance paying, never the deductible, never a
 sales script or technique tip.
 Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
-one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate. The
+one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners, Census), bought 2021"): an estimate. The
 "area N% owners" part only when the walk's owner share is known (`walk_owner`): never the 0.65 scoring default.
 Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
 or heat, no top-up from other walks, houses picked by door score (best first), then put in walking order.

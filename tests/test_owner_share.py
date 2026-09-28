@@ -132,8 +132,8 @@ class DoorLines(unittest.TestCase):
         for s in self.stops():
             t = turf_of.get(s["pid"])
             if t == 1:
-                self.assertIn("likely owner-occupied (area 72% owners)", s["why"]["en"])
-                self.assertIn("(72% dueños en la zona)", s["why"]["es"])
+                self.assertIn("likely owner-occupied (area 72% owners, Census)", s["why"]["en"])
+                self.assertIn("(72% dueños en la zona, Censo)", s["why"]["es"])
             elif t == 2:
                 self.assertIsNone(OWNER_PCT.search(s["why"]["en"] + " " + s["why"]["es"]), s["why"])
                 self.assertEqual(s["door"]["parts"]["owner_basis"], "unknown")
