@@ -19,7 +19,7 @@ const fs = require("fs");
 const path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "..", "..", "pages", "practice-door.html"), "utf8");
 const a = src.indexOf("const RX = ["), b = src.indexOf("const localFlags");
-const { legalScan, tuUsed, dedTalk } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed, dedTalk };")();
+const { legalScan, tuUsed, dedTalk, startsEarly } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed, dedTalk, startsEarly };")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
@@ -423,6 +423,16 @@ const CASES = [
   ["Could you leave us an honest review? It really helps.", null],
   ["Please leave a 5-star review if you're happy.", null],
   ["Solo un gran agradecimiento; una reseña honesta nos ayuda mucho.", null],
+  /* v12 QA fixes (2026-09-28): more ways to say "I'll call your insurer for you", a free-work reward for a review, and any storm month */
+  ["Let me call your insurance company for you.", 'negotiate'],
+  ["I'll call them for you.", 'negotiate'],
+  ["Yo le hablo a su aseguranza.", 'negotiate'],
+  ["Yo me encargo de llamar a su aseguradora.", 'negotiate'],
+  ["Leave us 5 stars and we'll clean your gutters free.", 'referral'],
+  ["Déjenos una reseña y le limpiamos las canaletas gratis.", 'referral'],
+  ["Let's say it was from the June storm.", 'fraud'],
+  ["Decimos que fue de la granizada de junio.", 'fraud'],
+  ["It's your claim and your call. If you file, you call your insurer, and I can meet the adjuster and show the damage.", null],
 ];
 
 let fails = 0;
@@ -516,7 +526,16 @@ for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => lines
     ["El deducible siempre es su parte.", false], ["We'll work something out on the deductible.", true], ["Del deducible nos arreglamos después.", true],
     /* v12: the HOA card (v11 top 15) says the deductible is the board's call; "the board will cover it" is still deductible talk */
     ["The deductible or a special assessment is a board decision with their insurer.", false], ["El deducible es decisión de la junta.", false],
-    ["The board will take care of your deductible.", true]];
+    ["The board will take care of your deductible.", true],
+    /* v12 QA: the safe phrases only count after a "to be" verb, so a promise to cover "your part" is still caught */
+    ["Nosotros cubrimos la parte del dueño del deducible.", true], ["Nosotros pagamos la parte del dueño del deducible.", true],
+    ["We'll cover your part of the deductible.", true]];
+  /* v12 QA: the "no work inside the 3 business days" backup (69-1606(5)) */
+  const SE = [["No problem, we can start tomorrow.", true], ["No hay problema, empezamos mañana.", true],
+    ["Sure, we'll start tomorrow right after breakfast.", true],
+    ["We can't start tomorrow; nothing starts until your 3 business days are over.", false],
+    ["Nada empieza hasta que terminen sus 3 días hábiles.", false]];
+  for (const [x, want] of SE) if (startsEarly(x) !== want) { pf++; console.log("FAIL startsEarly", want ? "missed" : "false hit", JSON.stringify(x)); }
   for (const [x, want] of DT) if (dedTalk(x) !== want) { pf++; console.log("FAIL dedTalk", want ? "missed" : "false hit", JSON.stringify(x)); }
   const taughtDed = [];
   OBJ.forEach(o => o[1].forEach((x, i) => taughtDed.push(["OBJ " + o[0][0] + (i ? " ES" : " EN"), x])));
@@ -531,6 +550,17 @@ for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => lines
   const skillLocal = new Function("T", src.slice(a, b) + "\nconst Li = () => 0;\n" + src.slice(g, h) + "\nreturn skillLocal;")(T);
   SKILL.forEach(k => k.a.forEach((x, i) => { const r = skillLocal(k, x); if (r) { pf++; console.log("FAIL drill model answer fails its own check:", k.id, i ? "ES" : "EN", r[0]); } }));
   console.log(`${taughtDed.length} taught lines pass dedTalk; ${SKILL.length} drills' model answers pass their own checks`);
+}
+/* v12 QA: rookie quick hints in the after-the-knock scenes use the scene's own hint, never the door "estimate range"
+   or "offer the cancel form" hints (which are the traps those scenes grade). */
+{
+  const hs = src.indexOf("const HINT_RX = ["), he = src.indexOf("function hintPrompt");
+  const S = { actual: "", kenny: 1, sessionLang: "en", turns: [] };
+  const localHint = new Function("P", "S", "spanishCount", "kindOf", src.slice(hs, he) + "\nreturn localHint;")(P, S, () => 9, k => (P[k] && P[k].kind) || "storm");
+  const HC = [["founddmg", "How much am I going to get?", "h_found"], ["deductShock", "Can you just knock the $4,500 off your price?", "h_dedshock"],
+    ["coldfeet", "Honestly, could your crew just start tomorrow?", "h_doubt"], ["losdos", "How much is this going to cost us?", null]];
+  for (const [who, line, want] of HC) { S.actual = who; const got = localHint(line); if (got !== want) { pf++; console.log("FAIL rookie hint", who, JSON.stringify(line), "gave", got, "want", want); } }
+  console.log(`${HC.length} after-the-knock hint cases checked`);
 }
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
