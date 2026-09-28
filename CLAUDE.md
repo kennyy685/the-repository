@@ -58,7 +58,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   runs." Hub Chat wakes the live King chat instantly via a poke-only trigger bound to that chat; its id is in hub doc
   `system/king.wake_trigger` (now `trig_01LNd9FCen5TUumzGCPvinAb`). On handoff the new King makes its own poke-only
   trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. The old 3x-daily King trigger
-  `trig_01MNxMWzvD3ZgRqWxfjtJLEU` gets paused once the new hub is live. Old triggers are paused, never deleted. Never
+  `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
   bind a recurring (cron) trigger to a long session.
 - Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
   main need FilthE's OK.
