@@ -15,6 +15,7 @@
     "v25/walkmap.js": "pages/v25/walkmap.js",
     "v25/practice.js": "pages/v25/practice.js",
     "v25/practice-houses.js": "pages/v25/practice-houses.js",
+    "v25/calls.js": "pages/v25/calls.js",
     "v25/aldaba.css": "pages/v25/aldaba.css",
     "fonts/Geist-400.woff2": "pages/fonts/Geist-400.woff2",
     "fonts/Geist-500.woff2": "pages/fonts/Geist-500.woff2",

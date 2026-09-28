@@ -15,6 +15,9 @@
  *         -> no lost tap, no door twice, the count stays right
  *   19:30 an evening tap (after 7 PM Central = the next UTC day): still Tuesday's door, the claim is still locked
  *   overnight the app stays open (the 30 s redraw keeps running): timers, listeners, DOM size and JS heap stay flat
+ *   also: the late badge counts calendar days in Central time (the lead last reached Fri 3 PM is "4 days late" at 6:30 AM Tue,
+ *         not 3 x 24 h); the King's calls/today shows on Now ("Storm hit your customer" first, address + hail + days ago, no
+ *         names, no insurance talk); the claim's storm is 52 days old, so no "check your policy's time limit" line yet
  *   00:01 Wed: the cancel window is over -> the tear-off unlocks; 07:00 Wed: yesterday's taps are not today's, yesterday's
  *         follow-ups (the interested door, the booked visit) are due today; a Wednesday tap is a Wednesday door
  * Runs at 1470 x 956 (MacBook first).  NODE_PATH=/opt/node22/lib/node_modules node tests/pages/day24_check.js [--out DIR]
@@ -165,7 +168,8 @@ async function run(browser, url, W, H) {
     await click('[data-jtopen="build"]').catch(() => {});
     const stop = await p.locator("#jtNow .jt-stop").count() ? await p.locator("#jtNow .jt-stop").first().innerText() : "";
     const tear = await p.locator('#jtNow [data-jt="tear_off"]').count();
-    return { locked: !!stop && !tear, stop }; };
+    const age = await p.locator("#shBody #stormAge").count();
+    return { locked: !!stop && !tear, stop, age }; };
   let zone1 = null, booked = null, h0 = null, late0 = null;
   try {
     await step("06:30 open", async () => {
@@ -173,9 +177,14 @@ async function run(browser, url, W, H) {
       await tab("leads"); await click('#lfStage [data-f="due"]', 300);
       const due = await text("#lCards");
       ok(/1753 N Clarkson/.test(due) && /1 day late|late/i.test(due), "6:30: the lead due yesterday is not in Due as late: " + due.slice(0, 200));
+      // last contact Fri Sep 25 3 PM Central -> Tue 6:30 AM: 87.5 hours (3 x 24 h) but 4 calendar days in Fremont
+      const ld = await lateDays("1753 N Clarkson");
+      ok(ld === 4, "6:30 Tue: the lead last reached Fri 3 PM is not '4 days late' (calendar days, Central): " + ld);
+      ok(!(await p.locator("#callsS").isVisible()), "6:30: Calls today shows with no calls/today doc");
       await shot("0630-leads-due");
       const j = await jtLocked();
       ok(j.locked && /cancel/i.test(j.stop), "6:30 Tue: the claim signed Fri is not locked by the cancel window (ends midnight Tue): " + j.stop);
+      ok(j.age === 0, "6:30 Tue: the claim's storm (Aug 8) is 52 days old but the storm-age line shows (starts at 60)");
       await shot("0630-claim-locked");
       await tab("now");
     });
@@ -192,13 +201,31 @@ async function run(browser, url, W, H) {
       const docs = Object.assign({}, k.docs, { "leads/1753-n-clarkson-st": Object.assign({}, lead, {
         next_step: { en: "Call first: " + hint.en + " Share the hail report.", es: "Llamar primero: " + hint.es + " Compartir el reporte de granizo.", due: "2026-09-29" },
         updated_at: "2026-09-29T12:52:00Z", updated_by: "King" }) });
-      delete docs["calls/today"]; delete docs["rentals/current"];   // the App doesn't read these
+      delete docs["rentals/current"];   // the App doesn't read this one
       zone1 = k.docs["zones/current"].zones.find(z => (k.docs["walks/" + z.id] || { stops: [] }).stops.some(s => s.address === "1753 N Clarkson St")).id;
       await p.evaluate(d => window.__db.king(d), docs);
       await tick(1500);
       const z = await text("#zones");
       ok(/Fremont/.test(z), "7:52: the King's zones did not show on the open app without a reload: " + z.slice(0, 160));
       await shot("0752-now-zones");
+      // Calls today: the account hit first, address + hail + days ago, no names / insurance talk
+      const calls = await p.locator("#callsS").innerText().catch(() => "");
+      ok(/Calls today/.test(calls) && /1753 N Clarkson St\s*Storm hit your customer · [\d.]+″ hail · today/.test(calls), "7:52: Now has no 'Storm hit your customer' row for 1753 N Clarkson St: " + calls.slice(0, 240));
+      ok(!/insurance|deductible|claim/i.test(calls), "7:52: Calls today talks insurance: " + calls);
+      const first = await p.locator("#tCalls li").first().innerText().catch(() => "");
+      ok(/Storm hit your customer/.test(first), "7:52: the first call row is not the account hit: " + first);
+      await p.locator("#callsS").evaluate(e => e.scrollIntoView({ block: "center" })); await tick(200);
+      await shot("0752-now-calls");
+      const hitRef = await p.locator("#tCalls li button[data-open]").first().getAttribute("data-open");
+      ok(hitRef === "lead:1753-n-clarkson-st", "7:52: the account hit row does not open the lead it hit: " + hitRef);
+      await p.evaluate(() => document.querySelector("#tCalls li button[data-open]").click()); await tick(600);
+      ok(/1753 N Clarkson/.test(await text("#shTitle")), "7:52: tapping the account hit does not open that lead");
+      await closeSheet();
+      await p.evaluate(() => document.querySelector("#langBtn").click()); await tick(400);
+      const es = await p.locator("#callsS").innerText().catch(() => "");
+      ok(/Llamadas de hoy/.test(es) && /1753 N Clarkson St\s*Tormenta sobre su cliente · granizo de [\d.]+″ · hoy/.test(es), "7:52 ES: the account hit row is not in Spanish: " + es.slice(0, 200));
+      await shot("0752-now-calls-es");
+      await p.evaluate(() => document.querySelector("#langBtn").click()); await tick(400);
       await tab("leads"); await click('#lfStage [data-f="due"]', 300);
       const due = await text("#lCards");
       ok(/1753 N Clarkson[\s\S]{0,120}Call first/.test(due), "7:52: the account hit (Call first + hail report) is not on the lead in Due: " + due.slice(0, 240));
@@ -234,7 +261,7 @@ async function run(browser, url, W, H) {
       const a = await p.evaluate(() => document.querySelector("#kNow").dataset.pid);
       await click('#kNow .ans[data-r="not_home"]', 100);
       const k = await kingDocs(p, "2026-09-29");                // the King read the doors BEFORE the slow tap landed
-      const docs = Object.assign({}, k.docs); delete docs["calls/today"]; delete docs["rentals/current"];
+      const docs = Object.assign({}, k.docs); delete docs["rentals/current"];
       ok(!Object.keys(await p.evaluate(() => window.__db.C.doors)).some(x => x.endsWith("_" + a)), "the slow tap was already saved (the test lost its race)");
       await p.evaluate(d => window.__db.king(d), docs);
       await tick(1000);
@@ -305,7 +332,7 @@ async function run(browser, url, W, H) {
     await step("07:52 day 2 + tap", async () => {
       await at("2026-09-30T07:52:00");
       const k = await kingDocs(p, "2026-09-30");
-      const docs = Object.assign({}, k.docs); delete docs["calls/today"]; delete docs["rentals/current"];
+      const docs = Object.assign({}, k.docs); delete docs["rentals/current"];
       await p.evaluate(d => window.__db.king(d), docs);
       await tick(1500);
       await at("2026-09-30T09:00:00");

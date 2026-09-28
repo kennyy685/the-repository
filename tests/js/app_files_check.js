@@ -60,6 +60,7 @@ const EXPECT = {
   HMPIcons: ["svg", "names", "inject"],                                              // v25: the icon sprite (v25/icons.js)
   HMPMap: ["renderWalkMap", "renderZoneMap", "renderHomeMap", "renderHailMap"],      // v25: the vector maps (v25/walkmap.js)
   HMPPractice: ["isOn", "set", "put", "ops", "count", "photoId", "isPhoto", "t", "paint", "loadHouses", "houses", "wantHouses"],   // T201: Practice mode (v25/practice.js)
+  HMPCalls: ["view", "practiceDoc", "daysBetween", "chiDay", "stormAge", "t"],       // calls/today on Now + storm age (v25/calls.js)
 };
 const sandbox = { console, setTimeout, clearTimeout, Promise };
 sandbox.window = sandbox; sandbox.self = sandbox; sandbox.globalThis = sandbox;

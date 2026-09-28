@@ -142,6 +142,13 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .appt .time small{font-size:10.5px;font-weight:600;letter-spacing:.05em}
 .appt .time.day b{font-size:var(--t-cap)}
 .appt > button.t{flex:1;min-width:0;text-align:left;min-height:44px}
+.callrow .ctile{width:40px;height:40px;border-radius:var(--r-md);background:var(--soft);color:var(--ink-2);display:grid;place-items:center;flex:none}
+.callrow.hit .ctile{background:var(--hmp-bg);color:var(--hmp-ink)}
+.callrow .appt > button.t b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.callrow .appt > button.t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calls-rule{margin-top:var(--s2)}
+.storm-age{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:var(--t-cap);line-height:1.4;color:var(--muted)}
+.storm-age .i{flex:none;margin-top:1px}
 .appt .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .appt .t span{display:block;font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rows > .appt + .row,.rows > .row + .appt,.rows > .appt + .appt{border-top:1px solid var(--soft)}
@@ -1122,6 +1129,10 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
       <div class="shead"><h2 id="dueH">Today</h2><button type="button" data-go="leads" id="dueLeads" class="hit">Leads</button></div>
       <div id="tDue"></div>
     </section>
+    <section id="callsS" aria-labelledby="callsH" hidden>
+      <div class="shead"><h2 id="callsH">Calls today</h2><span class="cap" id="callsN"></span></div>
+      <div id="tCalls"></div>
+    </section>
   </section>
 
   <!-- ============ KNOCK: today's walk, the next door first ============ -->
@@ -1223,12 +1234,13 @@ const SETTINGS = Object.freeze({
 <script src="v25/icons.js"></script>
 <script src="v25/walkmap.js"></script>
 <script src="v25/practice.js"></script><!-- T201 Practice mode: writes kept in memory only (pages/v25/practice.js) -->
+<script src="v25/calls.js"></script><!-- calls/today on Now: account hits + business calls, storm age (pages/v25/calls.js) -->
 <script>
 (() => {
 'use strict';
 /* ================= constants ================= */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPJobTrack', 'HMPTranslate', 'HMPIcons', 'HMPMap', 'HMPPractice'].filter(n => !window[n]);   // T169: module files that didn't load
+const MOD_MISSING = ['HMPEstimateMath', 'HMPTakeoff', 'EstimateScreen', 'HMPFollowups', 'HMPJobTrack', 'HMPTranslate', 'HMPIcons', 'HMPMap', 'HMPPractice', 'HMPCalls'].filter(n => !window[n]);   // T169: module files that didn't load
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2615,7 +2627,9 @@ function lateLeadsNow(){
     if (due && due > t0) continue;   // a call-back set for a later day is a plan, not a miss
     const ref = lastContactMs(l) || tsOf(l.created_at); if (!ref) continue;
     const hrs = (now - ref) / HOUR; if (hrs < 24) continue;
-    out.push({l, days: Math.max(1, Math.floor(hrs / 24)), ref});
+    // the badge counts calendar days in Fremont (America/Chicago), not 24-hour periods: Fri 3 PM -> Tue 6:30 AM = 4 days
+    const cd = window.HMPCalls ? HMPCalls.daysBetween(HMPCalls.chiDay(ref), HMPCalls.chiDay(now)) : null;
+    out.push({l, days: Math.max(1, cd != null ? cd : Math.floor(hrs / 24)), ref});
   }
   return out.sort((a, b) => a.ref - b.ref);
 }
@@ -3763,6 +3777,12 @@ async function jtUndoLast(){
   catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
 }
 
+/* round 59: once the storm (date of loss) is 60+ days old, a quiet line: check your policy's time limit. Never a countdown,
+   never a carrier's deadline (v25/calls.js stormAge) */
+function stormAgeHtml(c){
+  const n = window.HMPCalls ? HMPCalls.stormAge(dayOf(c.date_of_loss), todayStr()) : null;
+  return n == null ? '' : `<p class="storm-age" id="stormAge">${ic('info', 'i-sm')}<span>${esc(HMPCalls.t(lang).stormAge(n))}</span></p>`;
+}
 /* the claim sheet: the same layout as the lead (stage bar, next-step card with the adjuster date, then rows) */
 function renderClaimSheet(c){
   const T = L(), C = T.ct, Zs = Z(), m = money(c), fin = c.stage === 'paid' || c.stage === 'lost';
@@ -3776,7 +3796,7 @@ function renderClaimSheet(c){
   const cal = a ? `<a class="btn sec calbtn" href="${esc(gcalUrl(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name, next_step: c.next_step}))}" target="_blank" rel="noopener" aria-label="${esc(Zs.addCal)}">${ic('cal')}</a>` : '';
   const addTime = a && !a.time && SAMPLE && CAN_EDIT ? `<button type="button" class="btn sec block" data-tell="${esc(strv(c.address))}" data-pre="${esc(shortAddr(strv(c.address)) + (lang === 'es' ? ', ajustador a las ' : ', adjuster at '))}">${ic('clock')}<span>${esc(Zs.addTime)}</span></button>` : '';
   const card = `<section class="card nextcard">${a ? `<span class="chip hmp" style="justify-self:start">${ic('clock')}${esc(CT().k.adjuster + ' · ' + whenLabel(a))}</span>` : whenChip(null, ns && dayOf(ns.due), fin)}
-    <h3>${esc(ns && txl(ns) ? txl(ns) : fin ? cStage(c.stage) : Zs.noNextJob)}</h3>
+    <h3>${esc(ns && txl(ns) ? txl(ns) : fin ? cStage(c.stage) : Zs.noNextJob)}</h3>${fin ? '' : stormAgeHtml(c)}
     ${addTime || cal ? `<div class="${addTime && cal ? 'two' : ''}">${addTime}${cal && !addTime ? `<div class="sheet-acts">${calLink(a, {address: c.address, city: c.city, first_name: c.homeowner_first_name}, 'btn sec')}</div>` : cal}</div>` : ''}
     ${!fin && SAMPLE && CAN_EDIT && !addTime ? `<button type="button" class="btn sec" data-tell="${esc(strv(c.address))}">${ic('say')}<span>${esc(T.tellKing)}</span></button>` : ''}</section>`;
   const row = (attrs, icon, t, s) => `<li><button type="button" class="row" ${attrs}><span class="lead">${ic(icon)}</span><span class="t"><b>${esc(t)}</b><span>${esc(s)}</span></span><span class="end">${ic('chev')}</span></button></li>`;
@@ -3856,6 +3876,7 @@ function renderSheet(){
   if (kind === 'zones') { renderZonesSheet(); return; }   // v25
   if (kind === 'drive') { renderDriveSheet(id); return; }
   if (kind === 'due') { renderDueSheet(); return; }
+  if (kind === 'call') { renderCallSheet(id); return; }   // Now: Calls today (v25/calls.js)
   if (kind === 'walk') { renderWalkSheet(); return; }
   if (kind === 'rules') { renderRulesSheet(); return; }
   if (kind === 'proof') { renderProof(id); return; }
@@ -5347,7 +5368,59 @@ function doorGuide(s, kind, compact){   // Sale Guide step 1 for a house on the 
     ${flipBlock('ns-sec', W.collect, col(lang), col(otherLang()))}
     ${compact || !ins ? '' : `<p class="ns-must" role="note"><b>${esc(X.must)}</b>${esc(X.musts.door)}</p>`}`;
 }
-function renderNow(){ renderZones(); renderToday(); }
+/* ---------- Calls today (Now): calls/today from the King (hh.py daily): "Storm hit your customer" rows first (address, hail,
+   days ago; never a homeowner's name or phone), then business calls (business lines only). Practice + practice houses:
+   HMPCalls.practiceDoc (made-up homes and businesses, never saved). ---------- */
+let callsRaw = null, callsMemo = null;
+function callsNow(){
+  if (!window.HMPCalls) return null;
+  const H = window.HMPPractice && HMPPractice.houses ? HMPPractice.houses() : null, t0 = todayStr();
+  if (callsMemo && callsMemo.raw === callsRaw && callsMemo.H === H && callsMemo.t0 === t0) return callsMemo.v;
+  let v = null; try { v = HMPCalls.view(H ? HMPCalls.practiceDoc(H, t0) : callsRaw, t0); } catch (e) { v = null; }
+  callsMemo = {raw: callsRaw, H, t0, v}; return v;
+}
+function callOpenRef(x, i){   // a home hit on a lead/claim this app has: open that record; anything else: the call sheet
+  const m = /^(leads|claims)\/(.+)$/.exec(x.key || '');
+  if (m && m[1] === 'leads' && leads.some(l => l.id === m[2])) return 'lead:' + m[2];
+  if (m && m[1] === 'claims' && claims.some(c => c.id === m[2])) return 'claim:' + m[2];
+  return 'call:' + i;
+}
+function callFacts(x){ const T = HMPCalls.t(lang);
+  return [x.peril === 'wind' ? T.wind(x.wind_mph != null ? Math.round(x.wind_mph) : null) : x.hail_in != null ? T.hail(hailTxt(x.hail_in)) : '', x.days_ago != null ? T.ago(x.days_ago) : ''].filter(Boolean).join(' · '); }
+const telOf = p => strv(p).replace(/[^\d+]/g, '');
+function callRow(x, i){
+  const T = HMPCalls.t(lang), hit = i.startsWith('h');
+  const b = hit ? (x.biz ? x.name : x.address) : x.name;   // the address stays readable at phone width; the label leads the second line
+  const sub = hit ? [T.hitLbl, callFacts(x), x.biz && x.phone ? x.phone : ''].filter(Boolean).join(' · ')
+    : [x.phone, x.ask_for ? T.askFor(x.ask_for) : '', callFacts(x)].filter(Boolean).join(' · ');
+  const call = x.phone ? `<a class="round" href="tel:${esc(telOf(x.phone))}" aria-label="${esc(T.callAria(x.name))}">${ic('phone')}</a>` : '';
+  return `<li class="callrow${hit ? ' hit' : ''}"><div class="appt"><span class="ctile">${ic(hit ? 'hail' : 'phone')}</span><button type="button" class="t" data-open="${esc(callOpenRef(x, i))}"><b>${esc(b)}</b><span>${esc(sub)}</span></button>${call}</div></li>`;
+}
+function renderCalls(){
+  const v = callsNow(), sec = $('#callsS'); if (!sec) return;
+  const n = v ? v.hits.length + v.calls.length : 0; sec.hidden = !n; if (!n) return;
+  const T = HMPCalls.t(lang);
+  $('#callsH').textContent = T.h; $('#callsN').textContent = String(n);
+  soft($('#tCalls')).html = `<ul class="rows">${v.hits.map((x, i) => callRow(x, 'h' + i)).join('')}${v.calls.map((x, i) => callRow(x, 'c' + i)).join('')}</ul>
+    <p class="stamp calls-rule">${esc(v.practice ? T.practice + ' · ' + T.rules : T.rules)}</p>`;
+}
+function renderCallSheet(id){
+  const v = callsNow(), x = v && (id[0] === 'h' ? v.hits : v.calls)[+id.slice(1)]; if (!x) { closeSheet(); return; }
+  const T = HMPCalls.t(lang), hit = id[0] === 'h';
+  $('#shEyebrow').textContent = hit ? T.hitLbl : T.callLbl; $('#shTitle').textContent = x.biz || !hit ? x.name : x.address;
+  $('#shSub').textContent = [x.address !== x.name ? x.address : '', strv(x.city), callFacts(x)].filter(Boolean).join(' · '); $('#shTrack').innerHTML = '';
+  const facts = [];
+  if (x.phone) facts.push([T.phone, copyHtml(x.phone) + (x.ask_for ? ` <span class="stamp">${esc(T.askFor(x.ask_for))}</span>` : '')]);
+  if (txl(x.why)) facts.push([T.why, esc(txl(x.why))]);
+  if (hit && txl(x.hint)) facts.push([T.hint, esc(txl(x.hint))]);
+  if (x.also.length) facts.push([T.also, esc(x.also.map(a => strv(a.address)).filter(Boolean).join(' · '))]);
+  const say = lg => { const o = x.opener; return o ? strv(o[lg]) || strv(o.en) : ''; };
+  soft($('#shBody')).html = `${facts.length ? `<section class="box">${factsHtml(facts)}</section>` : ''}
+    ${say(lang) ? flipBlock('ns-say', T.say, `<q>${esc(say(lang))}</q>`, `<q>${esc(say(otherLang()))}</q>`) : ''}
+    ${x.phone ? `<div class="sheet-acts"><a class="btn pri block" href="tel:${esc(telOf(x.phone))}">${ic('phone')}<span>${esc(T.callAria(x.phone))}</span></a></div>` : ''}
+    <p class="stamp">${esc(T.rules)}</p>`;
+}
+function renderNow(){ renderZones(); renderToday(); renderCalls(); }
 
 /* ---------- the guide sheet for a door on the walk: Sale Guide step 1 before knocking ---------- */
 function renderGuide(pid){
@@ -6079,6 +6152,7 @@ function subscribeApp(db){
   db.doc('today/walk').onSnapshot(s => { ok(); const v = s.exists ? s.data() : null; if (changed('walk', v)) { todayRaw = v; pickFeeds(); bump(); } else renderAppSoon(); }, fail);
   // v24: hot zones (hh.py zones) and one walk per zone; today/walk stays the fallback
   db.doc('zones/current').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('zones', v)) { zonesRaw = v; pickFeeds(); bump(); } }, () => {});
+  db.doc('calls/today').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('calls', v)) { callsRaw = v; bump(); } }, () => {});   // the King's morning calls + account hits (v25/calls.js)
   db.collection('walks').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && Array.isArray(v.stops)) o[d.id] = v; } if (changed('walks', o)) { walksRaw = o; pickFeeds(); bump(); } }, () => {});
   db.doc('system/followups').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('fu', v)) { fuRules = v; bump(); } }, () => { if (fuRules === undefined) fuRules = null; });
   db.collection('dnk').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v) o[d.id] = v; } if (changed('dnk', o)) { dnkRaw = o; applyOverlay(); } }, () => {});

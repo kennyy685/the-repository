@@ -8,6 +8,8 @@
  *   -> hard stops: the Right Hand's tear-off is refused (44-8606 + cancel window), the Job tracker shows the lock,
  *      the lead's "Job done" is refused -> Job #1 tracker steps 1-9 tapped -> itemized to homeowner AND insurer
  *   -> 4 days later the window is over: tear-off + install unlock and log.
+ * Also: Now's Calls today in Practice (made-up "Storm hit your customer" homes on the practice streets + made-up business
+ * lines 402-555-01xx), and the claim screen's quiet storm-age line (Jun 13 storm = 107 days: "check your policy's time limit").
  * The database gets ZERO writes and no photo is uploaded or deleted. Runs at 1470x956 (MacBook first) then 390x844.
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/fullday_check.js [--out DIR] [--only 1470|390]   Exit 0 = pass. */
 "use strict";
@@ -94,6 +96,18 @@ async function day(browser, url, W, H) {
       await click("#shClose");
       ok(/Fremont/.test(await text("#zones")), "Now: the best zone is not a Fremont practice zone");
       await shot("now-zones");
+      // Calls today in Practice: 2 made-up customers' homes hit by the Jun 13 storm first, then 2 made-up business lines
+      const calls = await p.locator("#callsS").innerText().catch(() => "");
+      const rows = await p.locator("#tCalls li").allInnerTexts();
+      ok(rows.length === 4 && /Storm hit your customer/.test(rows[0]) && /Storm hit your customer/.test(rows[1]) && /107 days ago/.test(rows[0]), "Practice: Calls today is not 2 account hits first (107 days ago) + 2 calls: " + JSON.stringify(rows));
+      ok(/402-555-01\d\d/.test(rows[2] || "") && /Practice/.test(calls), "Practice: the business calls are not made-up 402-555-01xx lines marked Practice");
+      ok(!/insurance|deductible/i.test(calls), "Practice: Calls today talks insurance: " + calls);
+      await p.locator("#callsS").evaluate(e => e.scrollIntoView({ block: "center" })); await p.waitForTimeout(250);
+      await shot("now-calls-practice");
+      await click("#tCalls li:nth-child(3) button[data-open]", 600);
+      ok(/Practice: apartments/.test(await text("#shTitle")) && /402-555-01/.test(await text("#shBody")), "Practice: a business call row does not open its call sheet");
+      await shot("call-sheet-practice");
+      await click("#shClose");
     });
     await step("pick-zone", async () => {
       await click('[data-open="zones:"]');
@@ -223,6 +237,10 @@ async function day(browser, url, W, H) {
       await click("#tb-money");
       await click(`[data-open="claim:${cid()}"]`, 700);
       ok(await p.locator("#jtBox").count() === 1, "the claim screen has no Job tracker");
+      // round 59: the Jun 13 storm is 107 days old -> one quiet line, no countdown, no carrier deadline
+      const age = await p.locator("#shBody #stormAge").innerText().catch(() => "");
+      ok(/Storm is 107 days old: check your policy's time limit/.test(age), "the claim screen has no storm-age line for a 107-day-old storm: " + age);
+      ok(!/deadline|left|remaining/i.test(age), "the storm-age line reads like a countdown: " + age);
       await p.locator("#jtBox").evaluate(e => e.scrollIntoView({ block: "start" })); await p.waitForTimeout(250);
       await shot("tracker-open");
       // step 10 (build) shows the hard stop: 44-8606 both copies + the cancel window
