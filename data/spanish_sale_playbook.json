@@ -77,10 +77,10 @@
     "avoid": "Never say 'con licencia' or 'licenciado' about HMP, even to answer a homeowner's own question phrased that way - correct the term, don't adopt it."
   },
   {
-    "moment": "Walking the inspection together - framed as the state's own advice",
-    "es": "Venga conmigo a ver el techo — así lo ve usted mismo, con fotos, antes de que yo le explique nada. Así es como recomienda hacerlo el Departamento de Seguros.",
-    "en_note": "Come with me to look at the roof - that way you see it yourself, with photos, before I explain anything. That's how the Department of Insurance recommends doing it.",
-    "why": "Nebraska's own Department of Insurance consumer brochure ('After the Storm,' opened directly this round as a PDF) tells homeowners: 'Be sure you are present and watch when contractors inspect your home.' Framing HMP's existing walk-together habit (round 31) as literally following the state's own advice is new this round and directly verified.",
+    "moment": "Watching the inspection from the yard - framed as the state's own advice",
+    "es": "Si quiere, véalo desde el patio mientras reviso — así lo ve usted mismo, con fotos, antes de que yo le explique nada. Así es como recomienda hacerlo el Departamento de Seguros.",
+    "en_note": "If you like, watch from the yard while I check - that way you see it yourself, with photos, before I explain anything. That's how the Department of Insurance recommends doing it.",
+    "why": "Nebraska's own Department of Insurance consumer brochure ('After the Storm,' opened directly this round as a PDF) tells homeowners: 'Be sure you are present and watch when contractors inspect your home.' Framing HMP's existing walk-together habit (round 31) as literally following the state's own advice is new this round and directly verified. v12 (2026-09-28): the homeowner watches from the yard, not from the roof: same state advice, no one else on the ladder.",
     "avoid": "Don't overstate it as an endorsement of HMP specifically - it's general consumer advice, not a certification."
   },
   {
@@ -152,5 +152,19 @@
     "en_note": "It was a pleasure meeting you. Thank you very much for your time. (conocerlo/conocerla - match the homeowner's gender.)",
     "why": "Closes the visit in the same 'usted' register set at the door opener (entry 1) - a small consistency detail worth stating explicitly since Practice Door should score whether a rep stays in the same register start to finish.",
     "avoid": "Don't drop into 'tú' just because the visit went well and felt friendly by the end."
+  },
+  {
+    "moment": "Before insurance work starts - the itemized list goes to the homeowner and the insurer",
+    "es": "Antes de empezar cualquier trabajo, usted y su aseguradora reciben la misma lista detallada: el trabajo, los materiales, la mano de obra, los cargos y el total. Así lo pide la ley de Nebraska.",
+    "en_note": "Before any work starts, you and your insurer get the same itemized list: work, materials, labor, fees and total. Nebraska law requires it (44-8606).",
+    "why": "Neb. 44-8606: before insurance-paid work, the contractor gives an itemized description of the work, materials, labor, fees and total to the insured AND the insurer; 44-8608 voids the contract otherwise. Open backlog item: put the insurer copy in the scripts (v12, 2026-09-28).",
+    "avoid": "Don't call it 'the insurance estimate' or promise the insurer will approve it; it is HMP's own itemized list."
+  },
+  {
+    "moment": "A relative translates at the door - turn to the one who decides",
+    "es": "Con permiso, se lo explico también a su esposa en español, para que los dos escuchen lo mismo.",
+    "en_note": "Excuse me, let me explain it to your wife in Spanish too, so you both hear the same thing. (Say 'a su mamá' when an adult child is translating for a parent.)",
+    "why": "In many Latino households the decision-maker may not be the one talking (RISMedia, 2023). A loose translation like 'we pay nothing' is how a deductible promise slips in; saying it yourself in Spanish keeps both spouses on the same honest answer (v12, 2026-09-28).",
+    "avoid": "Don't talk only to the English speaker, and don't let a relative's loose translation stand."
   }
 ]
