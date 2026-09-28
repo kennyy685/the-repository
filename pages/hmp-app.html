@@ -311,6 +311,7 @@ button.row,a.row{cursor:pointer;text-decoration:none;background:none}
 .nextcard .then{font-size:var(--t-cap);color:var(--muted);text-align:center;margin:-4px 0 0}
 .nextcard .hint{font-size:var(--t-cap);color:var(--muted);margin:0}
 .nextcard .hint.warn{color:var(--warn);font-weight:500}
+.nextcard .ns-stop,.nextcard .ns-after,.ns-pick .ns-after{display:flex;gap:6px;align-items:flex-start;color:var(--warn);font-size:var(--t-cap);font-weight:500;margin:0}.nextcard .ns-stop .i,.ns-after .i{flex:none;width:14px;height:14px;margin-top:2px}
 .guide{padding:0}
 .guide .gh{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s3) var(--s4) 0}
 .guide .seg{width:104px;padding:2px}
@@ -2019,7 +2020,9 @@ function renderKnock(){
   // the next door: the offer card
   let offer = '';
   if (nextI >= 0) {
-    const s = stops[nextI], a = splitAddr(s.address), hl = doorHail(s, m), y = numv(s.year_built), coach = s.coach ? txl(s.coach) : whyHouse(s, kind).text;
+    const s = stops[nextI], a = splitAddr(s.address), hl = doorHail(s, m), y = numv(s.year_built);
+    // the engine's door line minus what the facts row already says (hail, year built): each fact once (fullday check, 2026-09-28)
+    const coach = s.coach ? txl(s.coach) : s.why ? txl(s.why).replace(/\.\s*$/, '').split(/,\s+/).filter(p => !((hl && hl.hail != null && /hail|granizo/i.test(p)) || (y && /built|construida/i.test(p)))).join(', ').replace(/^./, c => c.toUpperCase()) : whyHouse(s, kind).text;
     const facts = [hl && hl.hail != null ? `<span>${ic('hail')}${esc(Zs.hailFact((Math.round(hl.hail * 10) / 10).toFixed(1), hl.day ? fmtDay(hl.day) : ''))}</span>` : '', y ? `<span>${ic('built')}${esc(Zs.builtFact(y))}</span>` : ''].filter(Boolean).join('');
     const ev = proofFor(s.address, s.city);
     offer = `<section class="card offer" id="kNow" data-pid="${esc(s.pid)}" data-i="${nextI}" aria-label="${esc(Zs.nextDoor(nextI + 1, stops.length))}">
@@ -2889,15 +2892,20 @@ async function shrink(f){   // phones make 5-10 MB photos: send about 1-2 MB ins
 async function addPhotos(id, slot, files){
   if (!ASSETS || !id) return;
   const list = [...files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name || '')); if (!list.length) return;
-  phBusy = slot; phMsgFor = id; const added = []; let err = null;
+  phBusy = slot; phMsgFor = id; const added = [], real = new Map(); let err = null;   // real: uploaded asset id -> its blob
   for (const [i, f] of list.entries()) {
     phMsg = {text: V().phUp(i + 1, list.length)}; renderSheet();
     try { const blob = await shrink(f); const type = /^image\/(jpeg|png|webp|gif)$/.test(blob.type) ? blob.type : 'image/jpeg';
       if (prOn()) { const pid = HMPPractice.photoId(); blobUrls.set(pid, URL.createObjectURL(blob)); added.push({id: pid, slot, at: nowIso(), by: 'FilthE'}); continue; }   // T201: shown, never uploaded
-      const r = await ASSETS.upload(blob, {type}); blobUrls.set(r.id, r.url); added.push({id: r.id, slot, at: nowIso(), by: 'FilthE'}); }
-    catch (e) { err = e; if (e && e.code === 'store_unavailable' && !f._retried) { f._retried = true; await new Promise(r => setTimeout(r, 1500)); try { const r2 = await ASSETS.upload(await shrink(f), {type: 'image/jpeg'}); blobUrls.set(r2.id, r2.url); added.push({id: r2.id, slot, at: nowIso(), by: 'FilthE'}); err = null; continue; } catch (e2) { err = e2; } } break; }
+      const r = await ASSETS.upload(blob, {type}); blobUrls.set(r.id, r.url); real.set(r.id, blob); added.push({id: r.id, slot, at: nowIso(), by: 'FilthE'}); }
+    catch (e) { err = e; if (e && e.code === 'store_unavailable' && !f._retried) { f._retried = true; await new Promise(r => setTimeout(r, 1500)); try { const b2 = await shrink(f), r2 = await ASSETS.upload(b2, {type: 'image/jpeg'}); blobUrls.set(r2.id, r2.url); real.set(r2.id, b2); added.push({id: r2.id, slot, at: nowIso(), by: 'FilthE'}); err = null; continue; } catch (e2) { err = e2; } } break; }
   }
   phBusy = null;
+  if (real.size && prOn()) for (const a of added) {   // T201: Practice turned on mid-upload: the save below stays in memory, so the real files would be orphans
+    const b = real.get(a.id); if (!b) continue;
+    try { await ASSETS.delete(a.id); } catch (e) { /* storage cleanup can wait */ }
+    a.id = HMPPractice.photoId(); blobUrls.set(a.id, URL.createObjectURL(b));
+  }
   if (added.length) {
     const l = leads.find(x => x.id === id);
     try { const r = await save({op: 'update', path: 'leads/' + id, body: {photos: [...(l ? photosOf(l) : []), ...added].slice(-80), updated_at: nowIso(), updated_by: 'Photos'}}); if (r === 'queued') noteQueued(); }
@@ -2918,7 +2926,7 @@ async function removePhoto(id, pid){
   phOpen = null; phArm = null;
   try {
     await save({op: 'update', path: 'leads/' + id, body: {photos: photosOf(l).filter(p => p.id !== pid), updated_at: nowIso(), updated_by: 'Photos'}});
-    try { if (ASSETS && !(window.HMPPractice && HMPPractice.isPhoto(pid))) await ASSETS.delete(pid); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }
+    try { if (ASSETS && !prOn() && !(window.HMPPractice && HMPPractice.isPhoto(pid))) await ASSETS.delete(pid); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }   // T201: in Practice the real file stays (only the practice copy of the row changed)
     appToast(V().phRemoved);
   } catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
   renderSheet();
@@ -3076,6 +3084,7 @@ const NSX = {
     },
     pickQ: {door: ['When is the inspection?', 'When is the estimate visit?'], claim1: 'When is the adjuster coming?', measure: 'Which day does the build start?', build0: 'Which day does the build start?'},
     then: (s, d) => `Then: ${s}${d ? ' · follow-up ' + d : ''}`, pickFirst: 'Pick the day first.',
+    buildAfter: d => `Hard stop: the 3-day cancel window ends ${d}. Work days start after it.`, buildStop: 'Hard stop · still needed',
     moved: (n, s) => `Moved to step ${n}: ${s}`, finished: 'All steps done. Nice work.', undo: 'Undo', undone: 'Put back.',
     roNote: 'Only editors can tick or move steps here.',
     next: {
@@ -3166,6 +3175,7 @@ const NSX = {
     },
     pickQ: {door: ['¿Cuándo es la inspección?', '¿Cuándo es la cita de presupuesto?'], claim1: '¿Cuándo viene el ajustador?', measure: '¿Qué día empieza la obra?', build0: '¿Qué día empieza la obra?'},
     then: (s, d) => `Luego: ${s}${d ? ' · seguimiento ' + d : ''}`, pickFirst: 'Primero escoge el día.',
+    buildAfter: d => `Alto: el plazo de 3 días para cancelar termina el ${d}. El trabajo empieza después.`, buildStop: 'Alto · todavía falta',
     moved: (n, s) => `Pasó al paso ${n}: ${s}`, finished: 'Todos los pasos listos. Buen trabajo.', undo: 'Deshacer', undone: 'Regresado.',
     roNote: 'Solo los editores pueden marcar o avanzar pasos aquí.',
     next: {
@@ -3271,14 +3281,27 @@ function nsAction(l, sid, kind){
       if (l.stage === 'adjuster_meeting') return {label: Ds.claim2, apply: () => Object.assign({stage: 'approved'}, nx(N.claim3, Ns.claim3, addDays(t0, 2)))};
       return {label: Ds.claim0, apply: () => Object.assign({stage: 'claim_filed'}, nx(N.claim1, Ns.claim1, addDays(t0, 3)))};
     case 'measure': case 'build':
-      if (sid === 'measure' || l.stage !== 'job_scheduled') return {label: sid === 'measure' ? Ds.measure : Ds.build0, pick: {days: 14, time: false, q: NX().pickQ[sid === 'measure' ? 'measure' : 'build0']},
+      if (sid === 'measure' || l.stage !== 'job_scheduled') return {label: sid === 'measure' ? Ds.measure : Ds.build0, pick: {days: 14, time: false, q: NX().pickQ[sid === 'measure' ? 'measure' : 'build0'], after: workAfter(l)},
         apply: p => { const w = whenPair(p.day); return Object.assign({stage: 'job_scheduled'}, nx(N.build(w.en), Ns.build(w.es), p.day)); }};
       return {label: Ds.build1, apply: () => Object.assign({stage: 'done', completed_on: t0}, nx(N.paid, Ns.paid, addDays(t0, 1)))};
     case 'paid': return {label: Ds.paid, apply: () => nx(N.fin, Ns.fin)};
   }
   return null;
 }
-const pickReady = (pk, id) => !pk || (nsPick && nsPick.id === id && nsPick.day && (!pk.time || nsPick.time));
+const pickReady = (pk, id) => !pk || (nsPick && nsPick.id === id && nsPick.day && (!pk.time || nsPick.time)) && !(pk.after && nsPick.day <= pk.after);
+// hard stops on the lead card (fullday check, 2026-09-28): no work day inside a 3-day cancel window (69-1601/1606(5): the
+// lead's own signing and the claim's contract), and "job done" on an insurance job only past the claim's work gate
+// (44-8606: itemized description to the homeowner AND the insurer). The Job tracker and the Right Hand already enforce these.
+function workAfter(l){
+  const c = claimFor(l), g = c && window.HMPJobTrack ? HMPJobTrack.gates(c, jtOpts(c)).work : null;
+  return [dayOf(l.cancel_by), g && g.cancelEnd].filter(Boolean).sort().pop() || null;
+}
+function buildStop(l, sid, kind){   // null = ok; else [head, ...missing] for "job done"
+  if (sid !== 'build' || l.stage !== 'job_scheduled') return null;
+  const c = claimFor(l), end = workAfter(l);
+  if (kind !== 'cash' && c && window.HMPJobTrack) { const g = HMPJobTrack.gates(c, jtOpts(c)).work; if (!g.ok) return [NX().buildStop, ...g.missing.map(txl)]; }
+  return end && !(todayStr() > end) ? [NX().buildStop, NX().buildAfter(fmtDay(end, true))] : null;
+}
 
 /* ---------- the card ---------- */
 function nsSay(l, sid, kind){
@@ -3320,7 +3343,8 @@ function nsPicker(l, pk){
   const times = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
   const tLbl = t => { const h = +t.slice(0, 2); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); };
   return `<div class="ns-pick" role="group" aria-label="${esc(pk.q)}"><p>${esc(pk.q)}</p>
-    <span class="k-l">${esc(k.day)}</span><div class="pickrow" data-nspick="day" data-lead="${esc(l.id)}">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${p.day === d}">${esc(dayLbl(d, n))}</button>`).join('')}</div>
+    ${pk.after && pk.after >= t0 ? `<p class="hint warn ns-after">${ic('lock')}<span>${esc(NX().buildAfter(fmtDay(pk.after, true)))}</span></p>` : ''}
+    <span class="k-l">${esc(k.day)}</span><div class="pickrow" data-nspick="day" data-lead="${esc(l.id)}">${days.map((d, n) => `<button type="button" data-v="${d}" aria-pressed="${p.day === d}"${pk.after && d <= pk.after ? ' disabled' : ''}>${esc(dayLbl(d, n))}</button>`).join('')}</div>
     ${pk.time ? `<span class="k-l">${esc(k.time2)}</span><div class="pickrow" data-nspick="time" data-lead="${esc(l.id)}">${times.map(t => `<button type="button" data-v="${t}" aria-pressed="${p.time === t}">${tLbl(t)}</button>`).join('')}</div>` : ''}</div>`;
 }
 function nsCard(l){
@@ -3399,7 +3423,8 @@ async function nsOption(id, o){
 async function nsDone(id){
   const l = leads.find(x => x.id === id); if (!l || !DB || !CAN_EDIT) return;
   const kind = leadKind(l), sid = nsStepOf(l), act = sid && nsAction(l, sid, kind); if (!act) return;
-  if (!pickReady(act.pick, id)) { appToast(NX().pickFirst); return; }
+  if (!pickReady(act.pick, id)) { appToast(act.pick && act.pick.after && nsPick && nsPick.day && nsPick.day <= act.pick.after ? NX().buildAfter(fmtDay(act.pick.after, true)) : NX().pickFirst); renderApp(true); return; }
+  const stop = buildStop(l, sid, kind); if (stop) { appToast(`${stop[0]}: ${stop.slice(1).join('; ')}`); renderApp(true); return; }
   if (act.must) { const ms = nsItems(l, sid, kind).filter(x => x.must); if (ms.some(x => !itemOn(l, x))) return; }
   const at = nowIso(), pk = nsPick || {}, patch = act.apply(pk), done = [...new Set([...stepDoneOf(l), sid])];
   const nid = nsStepOf(Object.assign({}, l, patch, {step: {done}}));
@@ -3529,13 +3554,15 @@ function leadNextCard(l, sid, kind){
   const title = ns && txl(ns) ? (a && a.time ? dropWhen(txl(ns)) : txl(ns)) : sid ? nsName(sid, kind) : Zs.noNext;
   const act = sid && can ? nsAction(l, sid, kind) : null, items = sid ? nsItems(l, sid, kind) : [];
   const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
-  const ready = act && pickReady(act.pick, l.id) && (!act.must || mustOn === musts.length);
+  const bs = act ? buildStop(l, sid, kind) : null;   // the lead card's own hard stop ("job done" before the window or the itemized copies)
+  const ready = act && !bs && pickReady(act.pick, l.id) && (!act.must || mustOn === musts.length);
   const label = act ? (sid === 'set' ? (kind === 'cash' ? (lang === 'es' ? 'Empezar la visita' : 'Start the visit') : (lang === 'es' ? 'Empezar inspección' : 'Start inspection')) : noArrow(act.label)) : '';
   const icon = sid === 'set' || sid === 'inspect' ? 'camera' : sid === 'paper' ? 'pen' : sid === 'door' || (act && act.pick) ? 'cal' : 'check';
   const cal = a ? `<a class="btn sec calbtn" href="${esc(gcalUrl(a, l))}" target="_blank" rel="noopener" aria-label="${esc(Zs.addCal)}">${ic('cal')}</a>` : '';
   return `<section class="card nextcard" id="nsCard" data-lead="${esc(l.id)}">${whenChip(a, ns && dayOf(ns.due), fin)}<h3>${esc(title)}</h3>
     ${act && act.pick ? nsPicker(l, act.pick) : ''}
     ${act && act.must ? `<p class="hint${mustOn === musts.length ? '' : ' warn'}">${esc(X.mustLeft(mustOn, musts.length))}</p>` : ''}
+    ${bs ? `<p class="hint warn ns-stop" role="note">${ic('lock')}<span><b>${esc(bs[0])}:</b> ${esc(bs.slice(1).join('; '))}</span></p>` : ''}
     ${act ? `<div class="${cal ? 'two' : ''}"><button type="button" class="btn pri${cal ? '' : ' block'}" data-nsdone="${esc(l.id)}"${ready ? '' : ' disabled'}>${ic(icon)}<span>${esc(label)}</span></button>${cal}</div>
       ${act.pick && !pickReady(act.pick, l.id) ? `<p class="then">${esc(X.pickFirst)}</p>` : ''}` : cal ? `<div class="sheet-acts">${calLink(a, l, 'btn sec')}</div>` : !can && DB ? `<p class="hint">${esc(X.roNote)}</p>` : ''}
   </section>`;
@@ -5038,6 +5065,30 @@ function miles(a, b){ const R = 3958.8, r = x => x * Math.PI / 180, dl = r(b.lat
 
 /* ---------- hot zones: zones/current, else today's walk as the one zone ---------- */
 let zonesDoc = null, walksById = {}, todayWalkDoc = null, zoneSel = null;
+let zonesRaw = null, walksRaw = {}, todayRaw = null, evRaw = {};   // T206: what the database says (zonesDoc & co. = what the app shows)
+function pickFeeds(){   // T206: while Practice mode has its practice houses loaded, they stand in for zones/walks/evidence (never saved)
+  const H = window.HMPPractice && HMPPractice.houses ? HMPPractice.houses() : null;
+  const first = H && H.zones && Array.isArray(H.zones.zones) && H.zones.zones[0];
+  zonesDoc = H ? H.zones : zonesRaw; walksById = H ? H.walks : walksRaw; todayWalkDoc = H ? (first && H.walks[first.walk_id || first.id]) || null : todayRaw;
+  evidence = H ? Object.assign({}, evRaw, H.evidence) : evRaw; refreshWalk(); dataVer++;
+}
+let prHousesBusy = false;
+function prHousesScript(){   // the practice houses file (v25/practice-houses.js, ~100 KB) loads only when he asks for it
+  if (window.HMPPracticeHouses) return Promise.resolve();
+  return new Promise((ok, no) => { const el = document.createElement('script'); el.src = 'v25/practice-houses.js'; el.onload = ok; el.onerror = no; document.head.append(el); });
+}
+async function setPracticeHouses(v, quiet){
+  if (!window.HMPPractice || !prOn() || prHousesBusy) return;
+  const P = HMPPractice.t(lang);
+  if (!v) { HMPPractice.loadHouses(null); pickFeeds(); renderApp(true); if (!quiet) appToast(P.unloadToast); return; }
+  prHousesBusy = true;
+  try { await prHousesScript(); const n = HMPPractice.loadHouses(window.HMPPracticeHouses, todayStr());
+    if (n && zoneSel && !(window.HMPPracticeHouses.walks || {})[zoneSel]) zoneSel = null;   // a real zone's pick doesn't carry over
+    pickFeeds(); renderApp(true); if (!quiet && n) appToast(P.loadToast(n)); }
+  catch (e) { if (!quiet) appToast(P.loadFail); }
+  finally { prHousesBusy = false; }
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-prhouses]'); if (b) setPracticeHouses(b.dataset.prhouses === '1'); });
 try { zoneSel = localStorage.getItem('hmp-app-zone') || null; } catch (e) { zoneSel = null; }
 const walkFresh = w => { const d = w && dayOf(w.date); if (!d || !Array.isArray(w.stops) || !w.stops.length) return false; const age = daysFromToday(d); return age <= 0 && age >= -WALK_MAX_AGE; };
 const ptOf = p => Array.isArray(p) ? {lat: numv(p[0]), lon: numv(p[1])} : p && typeof p === 'object' ? {lat: numv(p.lat), lon: numv(p.lon != null ? p.lon : p.lng)} : {lat: null, lon: null};
@@ -5335,6 +5386,7 @@ function renderMore(){
       <div class="seg themeseg" role="group" aria-label="${esc(Zs.theme)}">${['dark', 'light', 'auto'].map(t => `<button type="button" data-theme-pick="${t}" aria-pressed="${themePref === t}">${esc(Zs.themes[t])}</button>`).join('')}</div></div>
     <ul class="rows">
     ${window.HMPPractice ? row(`id="practiceBtn" data-practice="${prOn() ? '0' : '1'}" aria-pressed="${prOn()}"`, prOn() ? HMPPractice.t(lang).rowOn : HMPPractice.t(lang).row, 'target') : ''}
+    ${prOn() && HMPPractice.loadHouses ? row(`id="prHousesBtn" data-prhouses="${HMPPractice.houses() ? '0' : '1'}" aria-pressed="${!!HMPPractice.houses()}"`, HMPPractice.houses() ? HMPPractice.t(lang).loaded : HMPPractice.t(lang).load, 'pin') : ''}
     ${row(`id="bossBtn" data-boss="1" aria-pressed="${bossOn}" lang="es"`, M.boss, 'user')}
     ${row(`href="${esc(SETTINGS.links.practiceDoor)}" target="_blank" rel="noopener"`, M.practice, 'door', 'a')}
     ${walkModel() ? row('data-print="1"', M.print, 'print') : ''}
@@ -5698,10 +5750,10 @@ document.addEventListener('click', ev => { if (ev.target.closest('[data-boss]'))
 function setPractice(v){   // T201 Practice mode: on = every save stays in this phone's memory; off = those are thrown away
   if (!window.HMPPractice) return;
   const n = HMPPractice.set(v), P = HMPPractice.t(lang);
-  applyOverlay(); renderApp(true);   // redraws the open More sheet too
+  pickFeeds(); applyOverlay(); renderApp(true);   // redraws the open More sheet too (T206: off = the real zones/walks again)
   appToast(v ? P.onToast : P.offToast(n));
 }
-document.addEventListener('click', ev => { const b = ev.target.closest('[data-practice]'); if (b) setPractice(b.dataset.practice === '1'); });   // v24: the boss view lives under More
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-practice]'); if (b) setPractice(b.dataset.practice === '1'); });   // T201: the Practice switch (More) and the Practice bar's Turn off
 function renderBoss(){
   const box = $('#boss'), t0 = todayStr(), E = TX.es;
   const openC = claims.filter(c => c.stage !== 'paid' && c.stage !== 'lost'), si = CLAIM_STEPS.indexOf('signed');
@@ -6017,17 +6069,17 @@ function subscribeApp(db){
   const bump = () => { dataVer++; renderAppSoon(); };
   db.collection('leads').onSnapshot(s => { ok(); leadsSeen = true; const v = list(s); if (changed('leads', v)) { leadsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
   db.collection('claims').onSnapshot(s => { ok(); const v = list(s); if (changed('claims', v)) { claimsRaw = v; applyOverlay(); } else renderAppSoon(); }, fail);
-  db.doc('today/walk').onSnapshot(s => { ok(); const v = s.exists ? s.data() : null; if (changed('walk', v)) { todayWalkDoc = v; refreshWalk(); bump(); } else renderAppSoon(); }, fail);
+  db.doc('today/walk').onSnapshot(s => { ok(); const v = s.exists ? s.data() : null; if (changed('walk', v)) { todayRaw = v; pickFeeds(); bump(); } else renderAppSoon(); }, fail);
   // v24: hot zones (hh.py zones) and one walk per zone; today/walk stays the fallback
-  db.doc('zones/current').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('zones', v)) { zonesDoc = v; refreshWalk(); bump(); } }, () => {});
-  db.collection('walks').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && Array.isArray(v.stops)) o[d.id] = v; } if (changed('walks', o)) { walksById = o; refreshWalk(); bump(); } }, () => {});
+  db.doc('zones/current').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('zones', v)) { zonesRaw = v; pickFeeds(); bump(); } }, () => {});
+  db.collection('walks').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && Array.isArray(v.stops)) o[d.id] = v; } if (changed('walks', o)) { walksRaw = o; pickFeeds(); bump(); } }, () => {});
   db.doc('reviews/' + todayStr()).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('review', v)) { reviewDoc = v; bump(); } }, () => {});
   db.doc('system/followups').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('fu', v)) { fuRules = v; bump(); } }, () => { if (fuRules === undefined) fuRules = null; });
   { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs); v19: 8 weeks back, for the streak
     db.collection('doors').where('date', '>=', addDays(mon, -56)).where('date', '<=', sun).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
   db.collection('doors').where('date', '==', todayStr()).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } if (changed('doors', o)) { doorRaw = o; mergeDoors(); bump(); } }, () => {});
   db.collection('dnk').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v) o[d.id] = v; } if (changed('dnk', o)) { dnkRaw = o; applyOverlay(); } }, () => {});
-  db.collection('evidence').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && numv(v.hail_in) != null) o[d.id] = v; } if (changed('ev', o)) { evidence = o; bump(); } }, () => {});
+  db.collection('evidence').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && numv(v.hail_in) != null) o[d.id] = v; } if (changed('ev', o)) { evRaw = o; pickFeeds(); bump(); } }, () => {});
   const t0 = todayStr();
   db.doc('stats/week-' + isoWeek(t0)).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('wk', v)) { weekDoc = v; bump(); } }, () => {});
   db.doc('stats/week-' + isoWeek(addDays(t0, -7))).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('lw', v)) { lastWeekDoc = v; bump(); } }, () => {});
@@ -6049,6 +6101,7 @@ if (bossOn) { document.body.classList.add('bossmode'); $('#boss').hidden = false
 refreshWalk();
 setTab(tab);
 connect();
+if (window.HMPPractice && HMPPractice.wantHouses && HMPPractice.wantHouses()) setPracticeHouses(true, true);   // T206: loaded before on this phone
 locate();   // v24: "near me" when the phone shares its location (the artifact frame usually says no: then the office)
 renderSync();
 setInterval(() => { if (!document.hidden) { renderApp(false); refreshLive(); } }, 30000);   // due dates, "x min ago"

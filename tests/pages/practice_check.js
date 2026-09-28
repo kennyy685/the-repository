@@ -95,6 +95,23 @@ const COUNT_WRITES = (practice) => `(() => { window.__writes = []; const use = w
       await shot(p, "knock-practice-1440");
       ok(!errs.length, "page errors: " + errs.join(" | "));
       await ctx.close(); }
+    // 2c. Practice on: removing a REAL photo changes only the practice copy of the lead; the cloud file is never deleted
+    { const { p, ctx, errs } = await open({ tab: "leads", practice: true });
+      await p.evaluate(() => { window.__assetDeletes = []; });
+      await p.evaluate(async () => { const a = await window.claude.use("assets"); const d = a.delete; a.delete = async id => { window.__assetDeletes.push(id); return d(id); }; });
+      await click(p, '[data-open="lead:3908-22-st"]');
+      await click(p, '[data-open="lph:3908-22-st"]');
+      await click(p, '[data-ph="hoRoof0001"]');
+      await click(p, '[data-phrm="hoRoof0001"]');
+      await click(p, '[data-phrm="hoRoof0001"]');
+      const del = await p.evaluate(() => window.__assetDeletes.slice());
+      ok(del.length === 0, "Practice on: removing a real photo deleted the cloud file: " + JSON.stringify(del));
+      const left = await p.evaluate(() => { const o = window.HMPPractice.ops().find(x => x.path === "leads/3908-22-st"); return o && o.body && Array.isArray(o.body.photos) ? o.body.photos.map(x => x.id) : null; });
+      ok(left && !left.includes("hoRoof0001"), "Practice on: the photo removal was not kept as a practice write: " + JSON.stringify(left));
+      ok((await p.evaluate(() => window.__writes.slice())).length === 0, "Practice on: the photo removal wrote to the database");
+      await shot(p, "photo-remove-practice");
+      ok(!errs.length, "page errors: " + errs.join(" | "));
+      await ctx.close(); }
     // 3. T205: the claim's step label never breaks mid-number at 390 (EN + ES)
     for (const lang of ["en", "es"]) {
       const { p, ctx, errs } = await open({ tab: "money", lang, data: { jobDemo: true } });
