@@ -83,7 +83,8 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
   bind a recurring (cron) trigger to a long session.
 - **Hub answers must feel instant (FilthE, 2026-09-28):** "answer me in the hub, not make me wait like a chat." Hub Chat
-  answers in seconds in the page itself; orders still go to the King. No phone pushes.
+  answers in seconds in the page itself; orders go straight to the right robot (docs/orders/hub-dispatch.md), only
+  hard calls to the King. The King = decide + hard work, robots build. No phone pushes.
 - Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
   main need FilthE's OK.
 
