@@ -46,6 +46,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   2) King decides, plans, reviews, answers him; >2 tool calls = a robot; 3) after every robot result log good/redo +
   why and fix that robot the same turn (report card); 4) 10-20 real past jobs = test set, re-run after robot changes;
   5) right model per job, repeat mistakes become hooks/skills.
+  6) never settle (FilthE, 2026-09-28): always research how to do it better; weekly improvement round every Sunday
+  8:47 AM CT (trig_01Mg1PNnUNegxcYxmDjG3B5b) posts top 3 upgrades to the King, who decides and applies.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.

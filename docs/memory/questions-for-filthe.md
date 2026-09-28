@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-28: robot report card on the hub = yes; "don't just settle for what works, always find ways to improve" = weekly improvement round + research beyond our 5 rules.
 - 2026-09-28: "yes and yes" = build hub functions 1, 2, 4, 6 + remove the 90 s wake hold; King double-checks handoffs against real files.
 - Satisfied when (2026-09-28): "when it starts making me money, duh. I won't be satisfied until I know I have a system
   with promising info, leads, guidance and efficiency." Also: no phone app for now; robots each open their own session
