@@ -423,7 +423,7 @@ h1,h2,h3,p{margin:0}
 .kt-log .kt-st[data-k="no"]{color:var(--ink-2)} .kt-log .kt-st[data-k="no"] span::before{background:var(--stuck)}
 .kt-log .kt-st button{min-height:32px;padding:0 10px;border:1px solid var(--rule-2);border-radius:var(--r-sm);font:500 11px var(--mono);letter-spacing:.04em;color:var(--ink)}
 .kt-log .kt-st button:hover{border-color:var(--brass)}
-.kt-log .who .tag{margin-left:8px;padding:1px 6px;border:1px solid var(--rule-2);border-radius:999px;font:500 10px var(--mono);letter-spacing:.08em;color:var(--muted)}
+.kt-log .who .kt-tag{margin-left:8px;padding:1px 6px;border:1px solid var(--rule-2);border-radius:999px;font:500 10px var(--mono);letter-spacing:.08em;color:var(--muted)}
 .kt-log .thinking{color:var(--muted)} .kt-log .thinking::after{content:"";display:inline-block;width:6px;height:6px;margin-left:8px;border-radius:50%;background:var(--brass);animation:ktp 1.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){ .kt-log .kt-st span::before,.kt-log .thinking::after{animation:none} }
 @media (min-width:900px) and (min-height:600px){ .kmode button{min-height:32px} }
@@ -3462,9 +3462,9 @@ function stHtml(e){ const s = msgStatus(e), T = L().kt.st; if (!s) return '';
 function renderThread(fromData){
   const log = $('#ktLog'), items = threadItems(), T = L().kt, bd = $('#kingBody');
   const atEnd = bd.scrollHeight - bd.scrollTop - bd.clientHeight < 40;
-  const liveHtml = id => '<li class="king inst" data-live="' + esc(id) + '"><span class="who">' + esc(T.king) + '<b class="tag">' + esc(T.instant) + '</b></span><div class="msg">' + (ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(T.st.thinking) + '</p>') + '</div></li>';
+  const liveHtml = id => '<li class="king inst" data-live="' + esc(id) + '"><span class="who">' + esc(T.king) + '<b class="kt-tag">' + esc(T.instant) + '</b></span><div class="msg">' + (ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(T.st.thinking) + '</p>') + '</div></li>';
   log.innerHTML = items.map(e => { const me = e.agent === 'you', inst = isInstant(e);
-    let h = '<li class="' + (me ? 'you' : 'king') + (inst ? ' inst' : '') + '" data-ev="' + esc(e.id) + '"><span class="who">' + esc(me ? T.you : T.king) + (inst ? '<b class="tag">' + esc(T.instant) + '</b>' : '') + '<time>' + esc(tShort(e.atMs)) + '</time></span><div class="msg">' + fmtMsg(e.long || e.text) + '</div>' + (me ? stHtml(e) : '') + '</li>';
+    let h = '<li class="' + (me ? 'you' : 'king') + (inst ? ' inst' : '') + '" data-ev="' + esc(e.id) + '"><span class="who">' + esc(me ? T.you : T.king) + (inst ? '<b class="kt-tag">' + esc(T.instant) + '</b>' : '') + '<time>' + esc(tShort(e.atMs)) + '</time></span><div class="msg">' + fmtMsg(e.long || e.text) + '</div>' + (me ? stHtml(e) : '') + '</li>';
     if (me && ktLive[e.id] && !items.some(x => isInstant(x) && x.re === e.id)) h += liveHtml(e.id);
     return h; }).join('');
   if (fromData) { const last = items.filter(x => isKingReply(x) || isInstant(x)).pop();
@@ -3529,7 +3529,7 @@ async function instantAnswer(id, text){
     ktLive[id].text = reply; paintLive(id);
     const at = nowIso();
     await withTimeout(DB.doc('events/' + stampOf(at) + '-king-i').set({agent:'king', name:'SMUIPO', at, kind:'note', to:'you', re:id, instant:true, lane:'board', room:'board', status:'idle', task:'', text:reply.replace(/\s+/g, ' ').slice(0, 300), long:reply}));
-    if (tag === 'ANSWER') await withTimeout(DB.doc('events/' + id).update({mode:'answered'}));
+    if (tag === 'ANSWER') await withTimeout(DB.doc('events/' + id).update({mode:'answered', kind:'note'}));   // answered here: not a handoff, so Claude Code's row doesn't say "Queued"
     delete ktLive[id];
   } catch (e) {
     const code = e && e.code; if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) SAMPLE = null;
@@ -3546,7 +3546,7 @@ async function orderKing(id, text, order, again){
   let wakeSt = 'off';
   if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".');
     wakeSt = r.ok ? 'ok' : 'fail'; if (r.ok) checkDelivery(id, trig, Date.now()); }
-  const upd = {mode:'order', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
+  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
   try { await withTimeout(DB.doc('events/' + id).update(upd)); } catch (e) { /* status shows from the next snapshot or not at all */ }
   renderThread();
