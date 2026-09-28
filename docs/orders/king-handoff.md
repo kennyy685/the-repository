@@ -1,37 +1,44 @@
 # King handoff (read this first, fresh King)
 
-Written by SMUIPO, 2026-09-28 ~14:40 UTC, session `session_012Re5t1fke5fB1A4R6n4P3n` (context ~270k; FilthE asked
-for a pause near the 5-hour usage limit, which resets 10:40 AM Central).
-Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md, then `docs/orders/path.md` (the Path), then
-`docs/memory/questions-for-filthe.md` (his answers today) and `docs/design/taste.md`.
+Written by SMUIPO, 2026-09-28 ~19:20 UTC, session `session_01FERv6AGSv3mJ7kZTLTcybV` (context ~265k, handing off).
+Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (new rules today: copy-paste blocks, "Done, waiting for
+your OK" update format, every robot job = its own session, no phone app for now), then
+`docs/memory/questions-for-filthe.md`.
 
-## FIRST, as the new King (session_01FERv6AGSv3mJ7kZTLTcybV)
-1. Your hub wake trigger is ALREADY made: `trig_01NHQW42S6i4iKTWWcWAwbF4`, in hub `system/king` + CLAUDE.md. Skip it.
-2. Archive the old King session_012Re5t1fke5fB1A4R6n4P3n (its work is all pushed; nothing running).
-3. Say hi on the hub, open with ONE "what do you see" question about the Knock screen, then give the Designer its
-   job (finish the click flow). Morning rule: "while you slept" + where we are on the Path first.
+## FIRST, as the new King
+1. Make your own hub wake trigger (create_trigger, no cron, binds to you), write its id to hub doc `system/king`
+   (`wake_trigger`, `live_session`), update CLAUDE.md's id line, disable (never delete) `trig_01NHQW42S6i4iKTWWcWAwbF4`.
+2. Archive `session_01FERv6AGSv3mJ7kZTLTcybV` (me).
+3. Reply to FilthE in the hub King thread: `events/<stamp>-code-r` with `to:"you"`, `re`, `text`, `long` (see skill
+   crew-checkin, "Hub Chat with the King"). He was asked to send a test message to confirm the wake works.
 
-## Live
-- Open map mockup (private artifact, ours): https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV v3 = rich look
-  ("hat tipped"). Publish = file docs/design/open-map/index.html + files map data/base.json, data/streets.json,
-  data/homes.json (fonts already there; add data/areas.json if the Designer uses it).
-- HMP App v25.3 live, db clean (0 leads/doors/claims; FilthE's "18 houses" = sample dots or Practice memory).
+## Live (done today)
+- Open map v4 (click flow + Ledger light theme): https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV
+- Practice Door v11: https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B
+- AI hub v28.0 + King thread (version 29): https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU. Built on the other hub
+  session's live v28 (amazing-wright b2b50ad) + our King thread; committed fa3d33f.
+- Engine: T211 mortgage share + owner-share fix QA'd PASS; T212 owner line cites "(Census)". 434 tests green.
 
-## Running when I paused (may have finished; check git log)
-1. Designer: click flow on the open map (fly in, ONE proof line then best streets, getting there = drive time + knock
-   time left + permit clock, full-roof hint, mortgage share, walk route, Start knocking; "Our doors" labeled sample).
-   PAUSED mid-job (WIP commit, was self-checking). Next: a fresh Designer finishes + screenshots, then publish.
-2. Engine Mechanic: owner-share fix DONE (e278b34, 433 tests OK; next: add "(Census)" source to the owner line). Then QA
-   (qa-tester, sonnet) on T211 mortgage share (2e48f35) + this fix.
+## Running
+- `session_01BBugaCxVHUih4FSarp88w2` "Designer: 7 AM home screen" (own session, per FilthE's new rule). It commits to
+  the work branch, does NOT publish, posts on the hub board and archives itself. You review screenshots, then publish
+  the open map (docs/design/open-map/index.html + files data/base.json, streets.json, homes.json, areas.json).
+- `session_01STawByegL8ENCwJWZV6cQm` "Hub v28.0: check + ship (resume)" on branch amazing-wright: INTERRUPTED at
+  FilthE's word (one King / one hub session only). Its status said "Practice Door v12 stacking in progress". Check
+  `git log origin/claude/amazing-wright-lds9q5` for anything newer than e762abd; bring real work over by file (not a
+  branch merge: no merge base), then archive that session. Watch out: it may have unpushed work.
 
-## Next (Path step 3): 7 AM home screen, decided today
-Map + hot zones + Aldaba's top 3 (#1 lit, one-line reason) + today's plan (where to knock + time window, follow-ups,
-inspections/adjuster meetings). Tapping a pick flies straight in. Then step 4: this season's real storms + likely-
-insured signals (owner lives there, mortgage share, recent sale, roof age) in the mockup.
+## Waiting on FilthE
+- Delete 6 old branches in GitHub (all contained in ours; git push to other refs is blocked here): funny-hawking-2rytou,
+  dreamy-wright-nc4nby, eager-bardeen-lj7lfc, inspiring-goldberg-7wc0b4, trusting-dijkstra-luw0nu, focused-cannon-766o1q.
+- Two weekday permit calls (Omaha 402-444-5233, Lincoln 402-441-7521), session_01QEYZAMyqfC3VcASSqJS3mx has the notes.
 
-## FilthE today (all saved in memory)
-Lead = a house with insurance; insurance first, cash later. $100k = his own income; "build first", no money math.
-Every reply ends with 1-3 questions (with our pick) + open "what do you see / why" questions. Wants 10x: best at
-information, leads, efficiency. Research round 62 + 62b done (docs/research/). Waiting on him: "publish Practice
-Door" (v11), 7 AM brief trigger (yes/no), MacBook map speed.
-Fresh King: open with ONE "what do you see" question about the Knock screen (FilthE said yes).
+## Next (in order)
+1. Review + publish the 7 AM screen. 2. Real 2026 storms + likely-insured signals in the map. 3. Knock screen
+(MacBook first, no phone work). Small: Ledger (light) contrast in the hub top bar + RIGHT NOW (add Ledger to design_gate);
+light-theme column-header overlap in the open map street list.
+
+## FilthE today
+"Satisfied when it makes me money; a system with promising info, leads, guidance and efficiency." Robots = coworkers,
+King = boss. He likes "do what's best" autonomy, but the safety guard needs explicit words for merges over the shared
+tree ("yes, commit and push ...").
