@@ -42,6 +42,10 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
 - Follow-up (2026-09-28): scorecard of Aldaba's picks ("7 of 10 had damage") = yes. Damage check at the door =
   "everything I need to comply with the insurance claim" (adjuster-ready: photos, soft metals, collateral, date of
   loss, per slope/elevation). Proof on each pick = short reason, tap for more.
+- Knock screen (2026-09-28): "yes and yes": (1) a house can't be marked adjuster-ready until every required photo
+  from docs/research/2026-09-28-claim-ready-inspection.md is taken; (2) finishing a house makes a clean damage page
+  (photos + damage, EN/ES) to show the homeowner.
+  Homeowner damage page carries HMP Siding & Roofing name + logo ("sure").
 - Old hub session (2026-09-28): "yes": save Practice Door v12 work, then close it.
 
 **FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
