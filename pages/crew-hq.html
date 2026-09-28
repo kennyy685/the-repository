@@ -763,9 +763,9 @@ const TX = {
     swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'}, swN: {ember: 'Ember', amber: 'Amber', coral: 'Coral', poppy: 'Poppy'},
     dollyHint: 'Scroll to move in · N for names',
     run: t => `the ${t} run`, rides: (t, m) => `Rides the ${t} run · in ${m} min`, ridesNight: t => `Saved. Rides the ${t} run. Nothing runs while you sleep.`, wakeNow: 'Wake now', woke: 'Waking Claude Code now.',
-    midRun: 'The King is working; it reads this before it checks out.', saving: 'Saving mode · instant wakes resume after the next successful call',
+    midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
     allNormal: (n, t) => `All normal · ${n} working · next run ${t}`, quietDesign: t => `Quiet by design · next run ${t}`,
-    missed: t => `The ${t} run never checked in`, missed2: (n, t) => `${n} runs missed since ${t} · the schedule may be paused`, pickUp: (t, m) => `The ${t} run will pick it up in ${m} min`, runNow: 'Run it now',
+    missed: m => `No reply from the King in ${m} min · it is live, this should take about a minute`, runNow: 'Check now',
     swMiss: 'Storm Watch didn’t run at 6:54 AM · the Mac was probably asleep or Cowork was closed', kfet: 'storms at Fremont airport overnight',
     parkedN: n => `Parked · ${n}`, canWaitN: n => `Can wait · ${n}`, parkedTag: t => `parked ${t}`, thenNow: (a, b) => `Then: ${a}. Now: ${b}, still waiting.`, letKing: 'Let the King decide', answerNow: 'Answer now',
     sameAs: (d, id, a) => `You answered this ${d} (${id}): “${a}”`, sameBtn: 'Same answer', stillTrue: 'Still true?', notSame: 'Not the same', saidNotNow: d => `You said Not now on ${d}.`,
@@ -851,9 +851,9 @@ const TX = {
     swW: {champagne: 'Champán', pearl: 'Perla', sage: 'Salvia', glacier: 'Glaciar', rose: 'Oro rosa', brass: 'Latón'}, swN: {ember: 'Brasa', amber: 'Ámbar', coral: 'Coral', poppy: 'Amapola'},
     dollyHint: 'Desliza para acercarte · N para nombres',
     run: t => `la corrida de las ${t}`, rides: (t, m) => `Va en la corrida de las ${t} · en ${m} min`, ridesNight: t => `Guardado. Va en la corrida de las ${t}. Nada corre mientras duermes.`, wakeNow: 'Despertar ya', woke: 'Despertando a Claude Code.',
-    midRun: 'El Rey está trabajando; lo lee antes de despedirse.', saving: 'Modo ahorro · los despertares vuelven tras la siguiente llamada que funcione',
+    midRun: 'El Rey está en vivo y ocupado en otra cosa; lo recibe en cuanto se libere.', saving: 'Modo ahorro · los despertares vuelven tras la siguiente llamada que funcione',
     allNormal: (n, t) => `Todo en orden · ${n} trabajando · siguiente corrida ${t}`, quietDesign: t => `En calma a propósito · siguiente corrida ${t}`,
-    missed: t => `La corrida de las ${t} nunca se reportó`, missed2: (n, t) => `${n} corridas perdidas desde las ${t} · el horario quizá está en pausa`, pickUp: (t, m) => `La corrida de las ${t} lo recoge en ${m} min`, runNow: 'Correr ya',
+    missed: m => `El Rey no ha respondido en ${m} min · está en vivo, debería tardar cerca de un minuto`, runNow: 'Revisar ya',
     swMiss: 'Vigía de Tormentas no corrió a las 6:54 AM · la Mac quizá dormía o Cowork estaba cerrado', kfet: 'hubo tormentas en el aeropuerto de Fremont anoche',
     parkedN: n => `Pospuestas · ${n}`, canWaitN: n => `Pueden esperar · ${n}`, parkedTag: t => `pospuesta ${t}`, thenNow: (a, b) => `Antes: ${a}. Ahora: ${b}, sigue esperando.`, letKing: 'Que decida el Rey', answerNow: 'Contestar ya',
     sameAs: (d, id, a) => `Ya contestaste esto el ${d} (${id}): “${a}”`, sameBtn: 'Misma respuesta', stillTrue: '¿Sigue igual?', notSame: 'No es lo mismo', saidNotNow: d => `Dijiste Ahora no el ${d}.`,
@@ -1776,7 +1776,7 @@ function convClick(b){
   if (d.unpark) { unparked.add(d.unpark); renderCard(true); renderBoard(); return; }
   if (d.undo) { undoAnswer(d.undo); return; }
   if (b.hasAttribute('data-wakenow')) { if (wakeQ.length) { fireWake(); appToast(T.woke, 2000); } return; }
-  if (d.alert === 'run') { wake('watchdog: a scheduled King run never checked in; FilthE tapped Run it now', true); return; }
+  if (d.alert === 'run') { wake('watchdog: no reply from the King since the last wake; FilthE tapped Check now', true); return; }
   if (d.alert === 'replan') { const [ag, task] = (d.id || '').split('|'); handoffToCode(`${nameOf(ag)} has been stuck on ${task} for 2+ runs. Re-plan it (FilthE, from the hub).`, task).then(ok => { if (ok) { const st = stuckRuns().find(x => x.agent === ag && x.task === task); if (st) { replanned.add(st.key); store.set('hub-replanned', JSON.stringify([...replanned].slice(-50))); } appToast(T.replanned, 2500); renderNeeds(); } }); return; }
   if (d.alert === 'resend') { const a = answers[d.id]; if (a) wake(`resend: answer to ${d.id} (${a.answer}${a.note ? ', ' + a.note : ''}) never reached ${nameOf(a.to)}; pass it on [answers/${d.id}]`); appToast(T.receipt, 2000); return; }
   if (d.dec === 'undo-mem') { undoMemory(d.id); return; }
@@ -2358,12 +2358,10 @@ setInterval(() => { if (!document.hidden) renderWakeLine(); }, 15000);
 let alerts = [], healthText = '', healthShort = '';
 function computeWatch(){
   const T = L(), nr = nextRun(), out = [];
-  const everCode = codeCheckins().length > 0, ins = codeCheckins();
-  if (everCode && !kingRunning()) {
-    const miss = passedSlots(10).filter(s => s.ago >= 20 && !ins.some(t => t >= s.ms - 5*60e3 && t <= s.ms + 20*60e3));
-    const lastMissAfterRun = miss.filter(s => !ins.some(t => t > s.ms + 20*60e3));
-    if (lastMissAfterRun.length >= 2) out.push({k:'missed', text:T.missed2(lastMissAfterRun.length, lastMissAfterRun[0].label), btn:nr.min < 60 ? '' : 'run'});
-    else if (lastMissAfterRun.length === 1) out.push({k:'missed', text:nr.min < 60 ? T.missed(lastMissAfterRun[0].label) + ' · ' + T.pickUp(nr.label, nr.min) : T.missed(lastMissAfterRun[0].label), btn:nr.min < 60 ? '' : 'run'});
+  const ins = codeCheckins();
+  if (!kingRunning()) {   // the King is live now (no scheduled runs to wait on): flag it only if a wake went out and 15+ min passed with no reply
+    const lastWake = Math.max(0, ...wakesToday), mins = lastWake ? Math.round((Date.now() - lastWake)/60000) : 0;
+    if (lastWake && mins >= 15 && !ins.some(t => t > lastWake)) out.push({k:'missed', text:T.missed(mins), btn:'run'});
   }
   const sw = byId['storm-watch'], m = centralMinute();
   if (sw.atMs && m > 6*60 + 54 + 30 && !events.some(e => e.agent === 'storm-watch' && dayOf(e.atMs) === todayK()) && dayOf(sw.atMs) !== todayK())
@@ -2496,7 +2494,8 @@ setInterval(() => { if (!document.hidden) fetchWeather(); }, 15*60000);
 /* ================= wake Claude Code (FilthE OK'd 2026-09-26), held so one sitting = one wake (fix 3) =================
    Answers save at once. The wake fires once: 90 s after his last answer, or as soon as nothing is left to answer, or
    when he leaves the tab. A held wake survives a reload (hub-wake-held) and goes out on the next open. */
-const WAKE_TRIGGER = 'trig_01MNxMWzvD3ZgRqWxfjtJLEU', WAKE_GAP = 20000, WAKE_HOLD = 90000;
+const WAKE_TRIGGER_FALLBACK = 'trig_01LNd9FCen5TUumzGCPvinAb', WAKE_GAP = 20000, WAKE_HOLD = 90000;
+function wakeTrigger(){ const t = kingDoc && kingDoc.wake_trigger; return typeof t === 'string' && t.startsWith('trig_') ? t : WAKE_TRIGGER_FALLBACK; }   // system/king.wake_trigger: the King's live session's own poke trigger; Kings hand off, so this must not be hard-coded only
 let MCP = null, wakeLastAt = Date.now() - WAKE_GAP, wakeTimer = 0, wakeBusy = false;
 let wakeQ = []; try { const h = JSON.parse(store.get('hub-wake-held') || '[]'); if (Array.isArray(h)) wakeQ = h.map(String).slice(0, 20); } catch (e) { wakeQ = []; }
 const keepHeld = () => store.set('hub-wake-held', JSON.stringify(wakeQ));
@@ -2518,7 +2517,7 @@ async function fireWake(quiet){
   let ok = false, limited = false;
   try {
     const m = MCP || (window.claude && typeof window.claude.use === 'function' ? await window.claude.use('mcp') : null);
-    if (m) { MCP = m; await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id:WAKE_TRIGGER, text}); ok = true; }
+    if (m) { MCP = m; await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id:wakeTrigger(), text}); ok = true; }
   } catch (e) { ok = false; limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }   // no retry (it is a write); the next run still reads the saved docs
   wakeBusy = false; holdSince = 0; store.set('hub-wake-since', ''); wakeMode = '';
   if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:items.length}).catch(() => {}); }
@@ -2674,7 +2673,7 @@ async function applyActions(actions){
     await safe({op: 'set', path: 'system/king', body: k});
     for (const [i, o] of orders.entries()) {
       const path = `events/${stampOf(at)}-king-o${i}`;
-      try { await save({op: 'set', path, body: {agent: 'king', at, kind: 'handoff', to: o.to, lane: 'board', room: 'board', status: 'working', task: o.task, text: o.text}}); if (!o.ride) wake(`order to ${o.to}: ${o.text.slice(0, 140)} [${path}]`, URGENT_RX.test(o.text)); }
+      try { await save({op: 'set', path, body: {agent: 'king', at, kind: 'handoff', to: o.to, lane: 'board', room: 'board', status: 'working', task: o.task, text: o.text}}); if (!o.ride) wake(`order to ${o.to}: ${o.text.slice(0, 140)} [${path}]`, o.to === 'code' || URGENT_RX.test(o.text)); }   // orders to the King (from the Chat tab) always skip the hold
       catch (e) { receipts.push({ok: false, text: L().rc.fail(path)}); }
     }
   }
@@ -2702,7 +2701,7 @@ async function askKing(message, quick, retry){
     if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
     p.textContent = reply;
     const acts = Array.isArray(out && out.actions) ? out.actions.slice(0, 10) : [];
-    if (out && out.promised === true && !acts.some(x => x && x.type === 'order')) acts.push({type:'order', to:'code', text:'From FilthE (the Right Hand promised to pass this on): ' + message.slice(0, 240), ride:true});   // the Right Hand keeps its promises; rides the next run
+    if (out && out.promised === true && !acts.some(x => x && x.type === 'order')) acts.push({type:'order', to:'code', text:'From FilthE (the Right Hand promised to pass this on): ' + message.slice(0, 240)});   // the Right Hand keeps its promises; the King is live, so this wakes it now (fix: no more silent ride)
     const done = await applyActions(acts);
     const board0 = done.filter(x => !receipts.some(r => r.text === x));
     const rcs = document.createElement('div'); rcs.className = 'rcs';
