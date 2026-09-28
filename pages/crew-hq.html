@@ -450,11 +450,12 @@ h1,h2,h3,p{margin:0}
   .card .rail{display:none}   /* RIGHT NOW is always there on the MacBook: the rail would repeat it */
   .card.open{display:block;animation:cardIn .28s var(--ease)}
   .card:not(.open){visibility:visible}
-  .panel.carded[data-tab="crew"] .card{max-height:none;flex:1 1 auto}
-  .panel.carded[data-tab="crew"] .tbody,.panel.carded[data-tab="crew"] .search{display:none}
+  #tab-crew,#tp-crew{display:none!important}   /* RIGHT NOW is the crew list here */
+  .panel.cardfull .card{max-height:none;flex:1 1 auto}
+  .panel.cardfull .tbody,.panel.cardfull .search{display:none}
   .rail button{width:33px;height:40px}
-  .panel.carded[data-tab="crew"] .card{margin-bottom:0}
-  .panel.carded[data-tab="crew"] .tabs{margin-top:auto;padding-top:10px}
+  .panel.cardfull .card{margin-bottom:0}
+  .panel.cardfull .tabs{margin-top:auto;padding-top:10px}
   .card-h [data-close]{width:36px;height:36px}
   .tabs .tb{min-height:40px}
   .tbody{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent;padding-right:6px;margin-right:-6px}
@@ -932,7 +933,7 @@ const TX = {
     poke: {qa: n => `${n} ${n === 1 ? 'check' : 'checks'} passed today.`, storm: (t, h) => `Last scan ${t}: ${h ? 'hail found.' : 'no new hail.'}`, stormNone: 'No scan yet today.', builder: t => `Last shipped: ${t}`, builderNone: 'Nothing shipped yet this week.',
       king: n => `${n} board ${n === 1 ? 'item' : 'items'} done.`, busy: p => `One sec… ${p}`, rest: 'Taking a breather.'},
     views: {all: 'Whole', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', director: 'Director', eyes: 'Eyes'},
-    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C B L M', 'Crew, Board, Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
+    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B L M', 'Board, Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', blocked: 'stuck', sleeping: 'asleep'},
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
@@ -1631,7 +1632,7 @@ function renderCard(force){
   if (!html) { selected = null; renderCard(); return; }
   const top = el.scrollTop; el.innerHTML = html; el.scrollTop = top; el.classList.add('open'); wireAnswers(el); setCarded();
 }
-function setCarded(){ $('#panel').classList.toggle('carded', !!selected); syncSheet(); }
+function setCarded(){ const p = $('#panel'); p.classList.toggle('carded', !!selected); p.classList.toggle('cardfull', !!selected && (!selected.startsWith('t:') || tab === 'crew')); syncSheet(); }
 /* phones: the card is a modal bottom sheet over a scrim; the page behind it goes inert until it closes */
 let sheetOpen = false, sheetBack = null;
 function syncSheet(){
@@ -2029,21 +2030,32 @@ $('#panelTab').addEventListener('click', () => setPanel(true, {focus:true}));
 
 /* ================= the panel's tabs: Crew / Board / Log / Chat (last one remembered) ================= */
 const TABS = ['crew', 'board', 'log', 'chat'];
+/* blueprint 7.1: on the MacBook RIGHT NOW replaces the Crew tab's list, so the tabs are Board · Log · Memory (Board first);
+   phones keep the Crew tab (RIGHT NOW is hidden there) */
+const liveTabs = () => isWide ? TABS.slice(1) : TABS;
 let tab = TABS.includes(store.get('hub-tab')) ? store.get('hub-tab') : 'crew';
 function setTab(t, focus){
-  if (!TABS.includes(t)) return; tab = t; store.set('hub-tab', t); $('#panel').dataset.tab = t;
+  if (!TABS.includes(t)) return; if (isWide && t === 'crew') t = 'board';
+  tab = t; if (focus !== 'init' || !isWide) store.set('hub-tab', t); $('#panel').dataset.tab = t;
   if (focus !== 'init' && !panelOpen()) setPanel(true, {remember:false});
-  if (t !== 'crew' && selected && !selected.startsWith('t:') && focus !== 'init') select(null);   // society S3: the card doesn't push the Board down
+  if ((t !== 'crew' || isWide) && selected && !selected.startsWith('t:') && focus !== 'init') select(null);   // society S3: a tab click closes a robot's card, so the tab's own list shows
   for (const k of TABS) { const b = $('#tab-' + k), on = k === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; $('#tp-' + k).hidden = !on; }
   if (focus === true) $('#tab-' + t).focus();
   $('#tbody').scrollTop = 0; renderTabDots(); applySearch();
 }
-$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; if (b.dataset.tab === 'crew' && tab === 'crew' && selected && isWide) select(null); setTab(b.dataset.tab); });
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; setTab(b.dataset.tab); });
 $('#tabs').addEventListener('keydown', e => {
-  const i = TABS.indexOf(tab); let j = null;
-  if (e.key === 'ArrowRight') j = (i + 1) % TABS.length; else if (e.key === 'ArrowLeft') j = (i + TABS.length - 1) % TABS.length; else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = TABS.length - 1;
-  if (j != null) { e.preventDefault(); e.stopPropagation(); setTab(TABS[j], true); }
+  const T = liveTabs(), i = Math.max(0, T.indexOf(tab)); let j = null;
+  if (e.key === 'ArrowRight') j = (i + 1) % T.length; else if (e.key === 'ArrowLeft') j = (i + T.length - 1) % T.length; else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = T.length - 1;
+  if (j != null) { e.preventDefault(); e.stopPropagation(); setTab(T[j], true); }
 });
+/* C on the MacBook: the crew is RIGHT NOW, so C goes to its top row (the You row = The Call, focus only; else the first robot's card) */
+function crewKey(){
+  if (selected && !selected.startsWith('t:')) { select(null); return; }
+  if (gotAgents && needItems().length) { const y = document.querySelector('#nowList [data-now="you"]'); if (y) y.focus(); youClick(); return; }
+  const r = HUB.now && HUB.now.rows && HUB.now.rows[0]; if (!r) return; select(r.id, {keep:true});
+  const b = document.querySelector('#nowList [data-now="' + r.id + '"]'); if (b) b.focus();
+}
 
 /* ================= one click handler for rows, needs, the rail and cards ================= */
 document.addEventListener('click', e => {
@@ -2143,6 +2155,7 @@ document.addEventListener('keydown', e => {
   else if ((lk === 'p' || k === ']') && isWide) setPanel(!panelOpen(), {focus:!!(e.target.closest && e.target.closest('#panel,#panelTab'))});
   else if (lk === 'n') toggleNames();
   else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
+  else if (lk === 'c' && isWide) crewKey();
   else if (TAB_KEYS[lk]) { if (tab === TAB_KEYS[lk] && lk === 'c' && selected) select(null); setTab(TAB_KEYS[lk]); }
   else if (k === '/') { e.preventDefault(); const q = $('#q'); q.focus(); q.select(); }
   else if (k === '?') { e.preventDefault(); if (!closeKeys()) openKeys(); }
@@ -2444,8 +2457,8 @@ function renderCall(){
   }
   const a = byId[call.id], T = L(), n = ids.length - 1, sig = [call.id, botAsk(a), n, call.folded].join('|');
   box.hidden = call.folded; chipEl.hidden = !call.folded;
-  const faceCam = window.SCENE && window.SCENE.ready && builtViews().includes('eyes') && !document.getElementById('app').classList.contains('no-gl');
-  $('#pip').classList.toggle('live', !!faceCam);   // the scene renders the face into this box; the avatar is only the no-3D fallback
+  const faceCam = !!(window.SCENE && window.SCENE.ready && window.SCENE.pipDrawn === true) && !document.getElementById('app').classList.contains('no-gl');
+  $('#pip').classList.toggle('live', faceCam);   // clear only once the scene confirms it drew the face (CONTRACT v3 pipDrawn); else the avatar, never an empty box
   if (sig === call.sig) return; call.sig = sig;
   chipEl.innerHTML = avatar(a.def) + '<span><b>' + esc(tx(a.def.name)) + '</b> ' + esc(T.askedBy('').trim()) + (n ? ' · +' + n : '') + '</span>';
   chipEl.setAttribute('aria-label', T.unfold(tx(a.def.name)));
@@ -2846,7 +2859,7 @@ function frame(now){
 }
 function layout(){
   const was = isWide; isWide = window.innerWidth >= 900 && window.innerHeight >= 600;
-  if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); syncSheet(); }
+  if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); syncSheet(); if (isWide && tab === 'crew') setTab('board', 'init'); }
   if (window.SCENE && window.SCENE.ready) { window.SCENE.resize(); applyViews(); }
   for (const o of overlays.values()) { o.sig = ''; o.w = 0; }
   if (was !== isWide) renderNeeds();
