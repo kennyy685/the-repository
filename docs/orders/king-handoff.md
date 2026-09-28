@@ -1,50 +1,46 @@
 # King handoff (read this first, fresh King)
 
-Written by SMUIPO, 2026-09-28 ~10:15 UTC, from session `session_01NTcwmN4Li8EXCNStRVVuaE` (context too long).
-Work branch: `claude/amazing-gauss-yzfpq0` (everything pushed). Hub board = task list. CLAUDE.md has all standing orders
-(read it: new ones tonight = MacBook first, futuristic Apple-ad look, no knocking yet, chain of command, keep every robot busy).
+Written by SMUIPO 2026-09-28 ~12:15 UTC from session_01Dm6yRbGAvrPXcttc8q3p33 (hit ~190k tokens). Work branch
+`claude/amazing-gauss-yzfpq0`. CLAUDE.md has all standing orders (new today: King is LIVE on the hub, every AI hands
+itself off when heavy, FilthE's app reset in docs/memory/full-context.md last section).
 
-## Waiting on FilthE (one word each)
-- **"publish"** -> put app **v25.3** live. QA said SHIP twice (latest re-check at 1f22303; all 17 release checks green).
-  In it: Practice mode + 60 practice houses, Calls today + storm-hit-your-customer rows, legal locks (no build day in the
-  3-day cancel window, no Job done before 44-8606 copies), midnight/Central-time/weak-signal fixes, door opener uses the
-  knocker's own name in EN+ES, coaching text removed (T195). CHANGELOG draft is in QA's report (docs/CHANGELOG.md).
-  How: publishing needs the live page Read first (~300k tokens), so give it to a **sonnet helper** in a fresh context:
-  Artifact read https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT, then publish pages/hmp-app.html with files = map in
-  pages/hmp-app.files.json. Never force/overwrite_unread. Only on FilthE's direct word in the King chat.
-- **Print Kit** needs a republish too (its spoken door line said "soy Alex Mendez"; fixed in 4d7d713). Same rule.
-- **Move MacBook layout A + Future look into the real app?** Big change; ask before starting.
+## FIRST, as the new King (in this order)
+1. Make your own hub wake line: `create_trigger` (name "Hub -> live King (instant, no schedule)", no cron, no
+   persistent_session_id = binds to YOU, initiation own_followup, prompt "AI hub message from FilthE (live King wake).
+   Read the hub text appended below, act on it, reply to him on the hub, flush check-ins.").
+2. Write its id to hub doc `system/king` field `wake_trigger` (ArtifactData get, then update with if_version). The hub
+   reads it on every wake. Update CLAUDE.md's trigger id line. Disable (don't delete) the old one
+   `trig_01LNd9FCen5TUumzGCPvinAb` once yours is in `system/king`.
+3. Archive the old King session_01Dm6yRbGAvrPXcttc8q3p33 once its 2 helpers are done (check the files below exist
+   on the branch; if both are there, archive it).
+4. Reply to FilthE on the hub (events, agent "king") that you're the new King.
 
-## Update 2026-09-28 ~11:00 UTC (King session_01Dm6yRbGAvrPXcttc8q3p33)
-Practice Door v11 QA'd: SHIP. QA fixed icon sprite + markup typo (cf01440); Builder fixed Day 20 ticking off on any 3
-runs (1112eff, steps now match persona/language/Rookie). Fast checks green. Old King session archived. FilthE asleep;
-all three (v25.3, Practice Door, Print Kit) wait on his "publish".
+## Live now
+- HMP App v25.3 (artifact v11). AI hub v26 (Chat wakes the live King). 3x-daily King trigger PAUSED.
+- NOT published: Practice Door v11 (QA SHIP + Day 20 fix 1112eff) and Print Kit fix (4d7d713). Need FilthE's word.
 
-## Update 2026-09-28 ~11:35 UTC
-- **App v25.3 is LIVE** (artifact v11, FilthE said "publish, the app"). **AI hub v26 live**: Chat wakes the live King
-  (poke trigger id in hub `system/king.wake_trigger`). 3x-daily King trigger PAUSED. Still unpublished: Practice Door
-  v11, Print Kit (need FilthE's word). T77 step 1 is now unblocked.
+## FilthE's reset (most important)
+He said the app feels pointless and confusing, looks flat ("HTML stuff", not alive), and he doesn't know how to lead
+us. He wants: (1) an OPEN MAP of every area with a high chance of something to sell; HE picks, we never pick for
+him; (2) the SOURCE of every fact shown (did hail fall, size, date, which source, confidence); (3) leads the second
+they're out (all public signals, not just our scoring). Insurance claims are private: be honest, use legal proxies.
+He needs guidance: consult other AIs, bring ONE conclusion + something to look at, build one screen at a time.
+**App building is PAUSED until he agrees on the direction.**
 
-## Running right now
-Nothing. Practice Door v11 finished (8e03350): Plan tab (20-day path, Go buttons, streak), self-checking
-ready-to-knock list, Objections tab (15 EN/ES), Aldaba look; 17/17 checks. NOT published.
+## Running when I left (their results land as files)
+1. Research Lead round 61 -> `docs/research/2026-09-28-round-61-lead-areas.md` (top tools, public lead signals
+   ranked by speed, insurance-claims answer, recommended core screen + top 5 data layers).
+2. Designer -> `docs/design/open-map/index.html` + `shot.png` (map-first "where to work" mockup, alive Aldaba look,
+   sources on every number, EN/ES, sample data).
+When both exist: read the research summary (grep the recommendation), look at the mockup, then give FilthE ONE
+direction in plain words + publish the mockup as a private artifact for him to click (Artifact tool; the mockup is
+ours). Ask him yes/no/more-like-this. Then build one screen at a time.
 
-## Done today (2026-09-28)
-MacBook layout A picked -> Batcave pass -> Future layer (glass, living WebGL bg, 24h-safe) + cinematic Aldaba intro
-(docs/design/macbook/). Fake sales day + 24h fake clock + bad-signal tests all in release_checks. Engine: storm-age
-curve T203, proof numbers T209, Central-time dates everywhere, coach_for trimmed, ask_for_es, rookie plan gated by
-ready_to_knock. Research: Aldaba business study, pricing doc (docs/orders/aldaba-pricing.md), state legal packs
-(NE verified, 9 states UNVERIFIED, never use them), claim-notice deadlines (round 59, 210 NAC 60), sales path for
-FilthE (docs/orders/sales-path.md, sent to him), multitenant plan (docs/orders/aldaba-multitenant-plan.md), robot
-upgrades x2. Hub v27 (3D) merged into the work branch. King trigger re-enabled with the new prompt (accounts step).
-
-## Next jobs (2 robots at a time, keep both busy)
-1. ~~QA the Practice Door v11~~ done (SHIP); waits on FilthE's "publish" with v25.3 + Print Kit.
-2. T77 step 1 (SETTINGS -> `system/settings` doc, zero behavior change) - only AFTER v25.3 is published, so QA'd
-   code doesn't move under it.
-3. Cosmetic leftovers: unused NSX tip key, todaywalk pick() args (tiny).
-4. Research: re-verify the 9 state packs when the network allows .gov sites.
+## Other sessions
+- "Hub office handoff continuation" (session_01M33ssCLDWhuj7KBYtEqtW7, branch claude/amazing-wright-lds9q5) is
+  working on hub v27.1. I posted a hub note: merge our branch first so it doesn't publish over the live-King wake.
+  Check it; when done, merge its branch (and claude/funny-hawking-2rytou, 11 commits) into ours.
+- Permit-calls session (session_01QEYZAMyqfC3VcASSqJS3mx) waits on FilthE's Omaha/Lincoln calls (T202).
 
 ## Waiting on FilthE / boss (don't nag)
-T202 permit calls (Omaha 402-444-5233, Lincoln 402-441-7521). T71, T51 price sheet, T64 registration #. D27 (boss): will
-HMP ever work outside Nebraska?
+T202 permit calls, T71, T51 price sheet, T64 registration #, D27.
