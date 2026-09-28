@@ -87,6 +87,7 @@ const PAGES = [
       { name: "robot card", steps: ['#now [data-now]:not([data-now="you"]), #roster .row'] },
       { name: "make it yours", steps: ["#mineBtn"], root: "#mine" },   // light-dismiss popover: checked on its own
       { name: "king chat", steps: ["#kingBubble"], root: "#kingWin" },   // v28.0: the King thread (his message + a formatted reply)
+      { name: "chat card", steps: ["#tab-ops", '#opsBody [data-sel="s:session_01PERMITaaaaaaaaaaaaaaaa"]'] },   // v28.1: a chat that needs him (spend + schedule show on the tab itself)
     ],
   },
   {

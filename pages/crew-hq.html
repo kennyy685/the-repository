@@ -291,6 +291,44 @@ h1,h2,h3,p{margin:0}
 .qrow .qq{font:500 15px/1.4 var(--f);color:var(--ink)}
 .qrow.open{border-left:2px solid var(--need);padding-left:12px}
 .orders{display:grid;gap:10px}
+/* v28.1 functions (FUNCTIONS-SHORTLIST 1, 2, 4, 6): the Chats tab (spend, your chats, is everything running) + Ready to ship */
+.ops{display:grid;gap:18px}
+.spend{display:grid;gap:4px;padding:12px 14px;border:1px solid var(--rule-2);border-radius:var(--r)}
+.spend .big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font:600 22px/1.2 var(--fd);letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums lining-nums}
+.spend .big small{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.spend .src{margin:0}
+.flag{display:grid;gap:2px;margin-top:6px;padding:8px 10px 4px 12px;border-left:2px solid var(--st-stuck);background:rgba(217,72,59,.10);border-radius:0 var(--r-sm) var(--r-sm) 0;font:500 14px/1.4 var(--f);color:var(--ink)}
+.flag > span:last-child{display:flex;flex-wrap:wrap;gap:0 4px;margin-left:-10px}
+.flag .tb{min-height:36px}
+.slist{list-style:none;margin:0;padding:0;display:grid}
+.srow{width:100%;min-height:52px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 4px;text-align:left;border-radius:var(--r-sm);border-bottom:1px solid var(--rule)}
+.srow:hover{background:rgba(241,242,244,.04)}
+:root[data-look="ledger"] .srow:hover{background:rgba(22,23,26,.04)}
+.srow[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--rule-2)}
+.srow .sd{width:8px;height:8px;border-radius:50%;background:var(--c,var(--st-idle))}
+.srow .t{min-width:0;display:grid;gap:1px}
+.srow .nm{font:500 15px/1.3 var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.srow .d{font:400 13px/1.4 var(--f);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow.needs .d{color:var(--need-ink)}
+.srow .rt{display:grid;justify-items:end;gap:2px;font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+.srow .rt b{font-weight:500;color:var(--ink-2)}
+.srow.hot .rt b{color:var(--st-stuck-ink)}
+.stale-note{color:var(--need-ink)}
+.jobs{list-style:none;margin:0;padding:0;display:grid}
+.job{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:4px 10px;padding:9px 4px;border-bottom:1px solid var(--rule)}
+.job .sd{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.job.paused .sd{background:none;box-shadow:inset 0 0 0 1.5px var(--st-sleep)}
+.job .nm{font:500 14px/1.3 var(--f);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job .st{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--c)}
+.job.paused .st{color:var(--muted)}
+.job .when{grid-column:2 / 4;font:400 12px/1.4 var(--f);color:var(--muted)}
+.job.broke .when{color:var(--st-stuck-ink)}
+.ship{padding:12px 2px 12px 12px;border-left:2px solid var(--st-done);border-bottom:1px solid var(--rule)}
+.ship h4{margin:0;font:600 16px/1.35 var(--f);color:var(--ink);overflow-wrap:anywhere}
+.ship .qid{font:500 12px var(--mono);color:var(--muted);margin-right:6px}
+.ship .facts{grid-template-columns:72px minmax(0,1fr);margin-top:8px;padding-top:8px}
+.ship .pv,.card .pv{margin:10px 0 0}
+.pv .btn{text-decoration:none}
 .orders ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .orders li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;font-size:14px;align-items:baseline}
 .orders .on{font:500 12px var(--mono);color:var(--brass)}
@@ -385,7 +423,7 @@ h1,h2,h3,p{margin:0}
 .kt-log .kt-st[data-k="no"]{color:var(--ink-2)} .kt-log .kt-st[data-k="no"] span::before{background:var(--stuck)}
 .kt-log .kt-st button{min-height:32px;padding:0 10px;border:1px solid var(--rule-2);border-radius:var(--r-sm);font:500 11px var(--mono);letter-spacing:.04em;color:var(--ink)}
 .kt-log .kt-st button:hover{border-color:var(--brass)}
-.kt-log .who .tag{margin-left:8px;padding:1px 6px;border:1px solid var(--rule-2);border-radius:999px;font:500 10px var(--mono);letter-spacing:.08em;color:var(--muted)}
+.kt-log .who .kt-tag{margin-left:8px;padding:1px 6px;border:1px solid var(--rule-2);border-radius:999px;font:500 10px var(--mono);letter-spacing:.08em;color:var(--muted)}
 .kt-log .thinking{color:var(--muted)} .kt-log .thinking::after{content:"";display:inline-block;width:6px;height:6px;margin-left:8px;border-radius:50%;background:var(--brass);animation:ktp 1.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){ .kt-log .kt-st span::before,.kt-log .thinking::after{animation:none} }
 @media (min-width:900px) and (min-height:600px){ .kmode button{min-height:32px} }
@@ -806,9 +844,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     </section>
     <div class="cardscrim" id="cardScrim" hidden></div>
     <article class="card" id="card" aria-live="polite" aria-label="Details" tabindex="-1"></article>
-    <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, log and memory">
+    <div class="tabs" role="tablist" id="tabs" aria-label="Crew, board, chats, log and memory">
       <button type="button" class="tb" role="tab" id="tab-crew" data-tab="crew" aria-controls="tp-crew" aria-selected="true"><span data-t="tCrew">Crew</span></button>
       <button type="button" class="tb" role="tab" id="tab-board" data-tab="board" aria-controls="tp-board" aria-selected="false" tabindex="-1"><span data-t="tBoard">Board</span></button>
+      <button type="button" class="tb" role="tab" id="tab-ops" data-tab="ops" aria-controls="tp-ops" aria-selected="false" tabindex="-1"><span data-t="tOps">Chats</span></button>
       <button type="button" class="tb" role="tab" id="tab-log" data-tab="log" aria-controls="tp-log" aria-selected="false" tabindex="-1"><span data-t="tLog">Log</span></button>
       <button type="button" class="tb" role="tab" id="tab-chat" data-tab="chat" aria-controls="tp-chat" aria-selected="false" tabindex="-1"><span data-t="tChat">Memory</span></button>
     </div>
@@ -821,6 +860,9 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
       <section class="tpanel" role="tabpanel" id="tp-board" aria-labelledby="tab-board" hidden>
         <div id="boardPanel"><div class="subh"><h2 class="lbl" id="boardH" data-t="boardH">Board</h2><span class="src" id="boardSrc"></span></div><div id="boardBody"></div></div>
         <div id="ordersBox"></div>
+      </section>
+      <section class="tpanel" role="tabpanel" id="tp-ops" aria-labelledby="tab-ops" hidden>
+        <div class="ops" id="opsBody"></div>
       </section>
       <section class="tpanel" role="tabpanel" id="tp-log" aria-labelledby="tab-log" hidden>
         <div><div class="lfilter" role="group" id="logFilter" aria-label="Show">
@@ -919,7 +961,7 @@ const TX = {
   en: {
     st: {title: 'AI Hub', sub: 'Your AI crew', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camFollow: 'Follow', camEyes: 'Eyes', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay 24 h', svB: 'Status view',
-      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Memory', kcPtr: 'To talk to the King, press', kcPtr2: 'or use the chat bubble.', kcHi: 'Ask about the board, answer a question in your own words, or give the crew an order.', keysH: 'Keys', keysB: 'Keys',
+      tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Memory', tOps: 'Chats', kcPtr: 'To talk to the King, press', kcPtr2: 'or use the chat bubble.', kcHi: 'Ask about the board, answer a question in your own words, or give the crew an order.', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mLocked: 'Needs you, stuck and done keep their colors, so they always read at a glance.', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
       cup: 'Coffee: drag onto a robot', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
       mSoundH: 'Sound', mSoundS: 'Off until you turn it on. Quiet from 10 PM to 7 AM, except hail.', mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
@@ -977,7 +1019,7 @@ const TX = {
     poke: {qa: n => `${n} ${n === 1 ? 'check' : 'checks'} passed today.`, storm: (t, h) => `Last scan ${t}: ${h ? 'hail found.' : 'no new hail.'}`, stormNone: 'No scan yet today.', builder: t => `Last shipped: ${t}`, builderNone: 'Nothing shipped yet this week.',
       king: n => `${n} board ${n === 1 ? 'item' : 'items'} done.`, busy: p => `One sec… ${p}`, rest: 'Taking a breather.'},
     views: {all: 'Whole', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', director: 'Director', eyes: 'Eyes'},
-    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B L M', 'Board, Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
+    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B S L M', 'Board, Chats (spend + schedule), Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', stuck: 'stuck', silent: 'quiet', asleep: 'asleep'},
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
@@ -986,7 +1028,21 @@ const TX = {
     tempRole: 'A one-off helper.', scouts: n => `${n} ${pl(n, 'scout', 'scouts')}`, scoutsNow: n => `${n} working now`,
     kinds: {leader: 'leader', main: 'main agent', scheduled: 'scheduled task', helper: 'helper'}, forBoss: n => ` for ${n}`,
     floor: {up: 'Upstairs', down: 'Downstairs'},
-    ans: {Yes: 'Yes', No: 'No', 'Not now': 'Not now'}, ansPh: 'Or type your answer', ansSend: 'Send', ansYou: 'You answered', ansSeen: '✓ picked up', ansWait: 'waiting for Claude Code', ansAria: id => `Your answer to ${id}`,
+    ans: {Yes: 'Yes', No: 'No', 'Not now': 'Not now', 'Ship it': 'Ship it', 'Not yet': 'Not yet', Done: 'Done', 'Tell me more': 'Tell me more'},
+    ops: {spendH: 'Spend (about)', today: 'Today', week: 'This week', about: 'From what each chat reports; the hub’s own Right Hand replies aren’t counted.',
+      total: (c, n, d) => `All chats since ${d}: about $${c} (${n} closed)`, noSpend: 'No spend reported yet.',
+      chatsH: 'Your chats', chatsN: n => `${n} open`, none: 'The King hasn’t listed your chats yet. It does on its next wake.',
+      asOf: t => `as of ${t}`, staleAsOf: t => `as of ${t}: may be out of date`,
+      st: {needs: 'needs you', working: 'working', done: 'done', failed: 'failed'},
+      answered: 'You answered · the King passes it on', open: 'Open this chat', cost: 'Cost', doing: 'Doing', updated: 'Updated', started: 'Started', needsYou: 'Needs you', chatWord: 'Chat',
+      hot: (n, c, m) => `${n}: $${c} in ${m}. Hand it off?`, hotTotal: (n, c) => `${n}: $${c} so far. Hand it off?`, handoff: 'Hand it off', keep: 'Keep going',
+      handed: 'Sent. The King has it write its handoff note and start a fresh chat.', kept: t => `OK. It flags again at $${t}.`,
+      schedH: 'Is everything running?', schedNone: 'The King hasn’t posted the schedule yet. It does on its next wake.',
+      schedSum: (on, p, b) => [on ? on + ' on' : '', p ? p + ' paused' : '', b ? b + ' broke' : ''].filter(Boolean).join(' · ') || 'nothing scheduled',
+      js: {on: 'On', paused: 'Paused', broke: 'Broke', done: 'Done'}, pausedWhy: 'paused on purpose',
+      last: (ok, t) => `last run ${ok ? '✓' : '✗'} ${t}`, noRun: 'no run yet', next: t => `next ${t}`, poke: 'runs when poked',
+      brokeAlert: n => `${n} failed its last run`, stoppedAlert: n => `${n} stopped on its own`, look: 'Look',
+      shipH: 'Ready to ship', shipN: n => `${n} waiting on your word`, shipQa: 'QA', shipIf: 'If yes', shipPv: 'Preview', shipping: 'Shipping'}, ansPh: 'Or type your answer', ansSend: 'Send', ansYou: 'You answered', ansSeen: '✓ picked up', ansWait: 'waiting for Claude Code', ansAria: id => `Your answer to ${id}`,
     sentLive: 'Sent. The Right Hand is answering in the chat.', sentTo: (id, a) => `Sent to Claude Code: ${id} = ${a}.`, ownerOnly: 'Only editors can answer from this page.', sendFail: 'Could not send. Check your connection and tap again.',
     kOrders: 'Claude Code’s orders', kNone: 'No orders posted yet.', bEmpty: 'The task board shows up here once Claude Code posts it.',
     bUpdated: (w, by) => `updated ${w}${by ? ' by ' + by : ''}`, bOld: 'may be out of date', memUpdated: (w, by) => `Updated ${w}${by ? ' by ' + by : ''}`,
@@ -1066,7 +1122,7 @@ const bots = CREW.map((c, i) => ({id:c.id, def:c, st:c.kind === 'scheduled' ? 's
   step:'', metrics:null, result:null, why:'', queued:false, qinfo:null, st7:c.kind === 'scheduled' ? 'asleep' : 'idle'}));
 const byId = Object.fromEntries(bots.map(a => [a.id, a]));
 const temps = new Map();      // one-off helpers (scouts): no robot, one line on their boss's card
-let events = [], board = null, kingDoc = null, answers = {}, memDoc = null, DB = null;
+let events = [], board = null, kingDoc = null, answers = {}, memDoc = null, DB = null, sessDoc = null, schedDoc = null;
 let selected = null, dbState = 'wait', replay = null, gotAgents = false, gotEvents = false;
 let cam = ['all', 'up', 'down', 'follow', 'cctv', 'window', 'tilt', 'director'].includes(store.get('hub-cam')) ? store.get('hub-cam') : 'all';   // v28: a stored blueprint / tour maps to 'all'
 let dingOn = store.get('hub-ding') === 'on';
@@ -1306,7 +1362,7 @@ function sinceText(ms){ const T = L(); if (!ms) return ''; const m = Math.max(0,
 let needsAll = false, plateOpen = false, lastNeedIds = null;
 let chipKeys = new Set();
 const alertChip = x => '<li>' + (x.btn ? '<button type="button" class="need alert" data-alert="' + x.btn + '" data-id="' + esc(x.data || '') + '" title="' + esc(x.text) + '">' : '<div class="need alert" title="' + esc(x.text) + '">') +
-  '<b>' + esc(x.text) + '</b>' + (x.btn ? '<span class="nq">' + esc(x.btn === 'run' ? L().runNow : x.btn === 'replan' ? L().replan : L().resend) + '</span></button>' : '</div>') + '</li>';
+  '<b>' + esc(x.text) + '</b>' + (x.btn ? '<span class="nq">' + esc(x.btn === 'run' ? L().runNow : x.btn === 'replan' ? L().replan : x.btn === 'chat' || x.btn === 'ops' ? L().ops.look : L().resend) + '</span></button>' : '</div>') + '</li>';
 const chip = (i, cls) => '<li><button type="button" class="need' + (cls ? ' ' + cls : '') + (chipKeys.has(i.key) ? '' : ' in') + '" data-sel="' + esc(i.key) + '" aria-pressed="' + (selected === i.key) + '" title="' + esc(i.text + (holdLine(i) ? ' · ' + holdLine(i) : '')) + '" aria-label="' + esc(i.who + ': ' + i.text) + '">' +
   '<b>' + esc(i.who) + '</b><span class="nq">' + esc(i.text) + '</span>' + (i.at ? '<time>' + esc(sinceText(i.at).replace('+', '')) + '</time>' : '') + '</button></li>';
 function renderNeeds(){
@@ -1415,12 +1471,13 @@ function isNewTask(x){ if (!board) return false; const v = seenMap.tasks[x.id]; 
 function newestEv(){ const e = events.find(x => !x.approx); return e ? e.atMs : 0; }
 function tabHasNew(t){
   if (t === 'crew') return bots.some(isNewRow);
+  if (t === 'ops') return sessAsks().length > 0 || alerts.some(x => x.k === 'spend' || x.k === 'sched');
   if (t === 'board') return [...((board && board.now) || []), ...((board && board.next) || [])].some(isNewTask);
   if (t === 'log') { if (!gotEvents) return false; if (seenMap.tabs.log == null) { seenMap.tabs.log = newestEv(); saveSeen(); } return newestEv() > seenMap.tabs.log; }
   return false;
 }
 function renderTabDots(){
-  for (const t of ['crew', 'board', 'log']) { const b = $('#tab-' + t), on = tabHasNew(t), d = b.querySelector('.new-dot');
+  for (const t of ['crew', 'board', 'ops', 'log']) { const b = $('#tab-' + t), on = tabHasNew(t), d = b.querySelector('.new-dot');
     if (on && !d) b.insertAdjacentHTML('beforeend', '<i class="new-dot" aria-hidden="true"></i>'); else if (!on && d) d.remove();
     if (on && t === tab) armViewed(); }
 }
@@ -1602,10 +1659,10 @@ function answerBlock(id, q, to, it){
   const mt = nearMatch(id, q);
   if (mt) { const d = dFmt.format(Date.parse(mt.at || '') || Date.now()), old = Date.now() - Date.parse(mt.at || '') > 14*DAY;
     tags.push(mt.answer === 'Not now' ? '<span>' + esc(T.saidNotNow(d)) + '</span>' : '<span class="mt">' + esc(T.sameAs(d, mt.id, mt.answer === 'Reply' ? mt.note : (T.ans[mt.answer] || mt.answer) + (mt.note ? ' (' + mt.note + ')' : ''))) + '</span><span><button type="button" class="tb" data-same="' + esc(mt.id) + '">' + esc(old ? T.stillTrue : T.sameBtn) + '</button><button type="button" class="tb" data-notsame="' + esc(id) + '">' + esc(T.notSame) + '</button></span>'); }
-  const opts = Array.isArray(m.options) && m.options.length >= 2 ? m.options.slice(0, 3).map(txv) : ['Yes', 'No'];
+  const opts = Array.isArray(m.options) && m.options.length >= 2 ? m.options.slice(0, 3).map(txv) : m.ship ? ['Ship it', 'Not yet'] : it.sess ? ['Done', 'Tell me more'] : ['Yes', 'No'];
   const later = (it.snoozes || 0) >= 2 ? '<button type="button" class="btn" data-a="Let the King decide">' + esc(T.letKing) + '</button>' : '<button type="button" class="btn" data-a="Not now">' + esc(T.ans['Not now']) + '</button>';
   return (tags.length ? '<div class="asktags">' + tags.join('') + '</div>' : '') + '<div class="ans" data-q="' + esc(id) + '" data-to="' + esc(to || '') + '" data-text="' + esc(q) + '"' + (m.rec ? ' data-rec="' + esc(txv(m.rec)) + '"' : '') + (it.urgent ? ' data-urgent="1"' : '') + (mt && mt.answer !== 'Not now' ? ' data-match="' + esc(mt.id) + '"' : '') + '>' +
-    opts.map(o => '<button type="button" class="btn" data-a="' + esc(o) + '">' + esc(T.ans[o] || o) + '</button>').join('') + later +
+    opts.map((o, i) => '<button type="button" class="btn' + (m.ship && i === 0 ? ' pri' : '') + '" data-a="' + esc(o) + '">' + esc(T.ans[o] || o) + '</button>').join('') + later +
     '<span class="typed"><input type="text" id="ans-' + esc(id) + '" placeholder="' + esc(T.ansPh) + '" aria-label="' + esc(T.ansAria(id)) + '" enterkeyhint="send"><button type="button" class="btn pri" data-a="send">' + esc(T.ansSend) + ' ↵</button></span></div>';
 }
 const closeBtn = () => '<button type="button" class="ibtn" data-close aria-label="' + esc(L().close) + ' (Esc)">' + IC.x + '</button>';
@@ -1618,7 +1675,7 @@ function cardQuestion(id){
   if (!x) return '';
   const st = answerOf(id) ? 'done' : 'waiting';
   return railHtml() + '<div class="card-h"><span class="no">' + esc(id) + '</span><h2>' + esc(T.qWord) + '</h2><span class="wear">' + esc(T.qFrom) + ' · Claude Code</span><span class="stl">' + (st === 'done' ? stWord('done', T.ansYou) : stWord('needs')) + '</span>' + closeBtn() + '</div>' +
-    '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(x.q) + '</div>' + answerBlock(id, x.q, 'code') + '</div>';
+    '<div class="ask"><div class="lbl">' + esc(T.asks) + '</div><div class="v">' + esc(x.q) + '</div>' + (shipOf(x) ? shipFacts(shipOf(x)) : '') + answerBlock(id, x.q, 'code') + '</div>';
 }
 function gearLine(a){ const T = L(), g = a.gear; if (!g) return ''; const f = T.gear[a.id], parts = [];
   if (g.count && typeof f === 'function') parts.push(f(g.count)); if (g.flag && T.gear[g.flag]) parts.push(T.gear[g.flag]);
@@ -1683,10 +1740,10 @@ function renderCard(force){
   if (!selected) { el.classList.remove('open'); el.innerHTML = ''; cardSig = ''; setCarded(); return; }
   const a = byId[selected], typing = el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT';
   const rail = bots.map(b => s7Of(b)).join();
-  const sig = [selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
+  const sig = [selected, rail, a ? [a.st, a.disp && a.disp.status, a.disp && a.disp.orphan, a.doing, a.ask, a.task, JSON.stringify(a.progress), a.atMs, events.length && events[0].id].join('|') : JSON.stringify(selected.startsWith('t:') ? [taskOf(selected.slice(2)), Object.keys(answers).length] : selected.startsWith('s:') ? [sessions().find(x => x.id === selected.slice(2)) || null, spendKept[selected.slice(2)] || 0] : (board || {}).waiting || []), JSON.stringify(answers[selected.slice(2)] || (selected.startsWith('s:') && answers[sessQidById(selected.slice(2))]) || (a && (answers[qidOf(a)] || answers[qidOld(a)])) || ''), !!DB, Math.floor(Date.now()/60000)].join('#');
   if (!force && (sig === cardSig || typing)) return;
   cardSig = sig;
-  const html = a ? cardBot(a) : selected.startsWith('q:') ? cardQuestion(selected.slice(2)) : selected.startsWith('t:') ? cardTask(selected.slice(2)) : '';
+  const html = a ? cardBot(a) : selected.startsWith('q:') ? cardQuestion(selected.slice(2)) : selected.startsWith('t:') ? cardTask(selected.slice(2)) : selected.startsWith('s:') ? cardSession(selected.slice(2)) : '';
   if (!html) { selected = null; renderCard(); return; }
   const top = el.scrollTop; el.innerHTML = html; el.scrollTop = top; el.classList.add('open'); wireAnswers(el); setCarded();
 }
@@ -1736,12 +1793,13 @@ async function sendAnswer(id, answer, note, q, to, opts){
     }
     if (opts.same) note = (note ? note + ' ' : '') + '(same as ' + opts.same + ')';
     if (opts.overrides) { note = (note ? note + ' ' : '') + '(overrides ' + opts.overrides + ')'; const om = answers[opts.overrides]; opts.ovMsg = T.overrides(dFmt.format(Date.parse((om && om.at) || '') || Date.now()), opts.overrides); }
-    const doc = {id, q, answer, note, at, by:'FilthE', to: to || 'code'}; if (answer === 'Let the King decide') doc.letKing = true;
+    const sess = id.startsWith('s-') ? sessions().find(v => sessQid(v) === id) : null;
+    const doc = {id, q, answer, note, at, by:'FilthE', to: to || 'code'}; if (answer === 'Let the King decide') doc.letKing = true; if (sess) doc.session = sess.id;
     await withTimeout(DB.doc('answers/' + id).set(doc)); answers[id] = doc;
     await withTimeout(DB.doc('events/' + stamp + '-you').set({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task:id, status:'done', room:'board', at,
       text:`Answer to ${who ? who + "'s question " : ''}${id}: ${answer}${note ? ' (' + note.slice(0, 200) + ')' : ''}${who ? '. Pass it to ' + who + '.' : ''}`.slice(0, 300)}));
     refreshAll(); renderBoard();
-    const held = wake(`answered ${id} = ${answer}${note ? ' (' + note.slice(0, 120) + ')' : ''}${who ? ' for ' + who : ''}${opts.same ? '; re-ask of ' + opts.same + (who ? ' by ' + who : '') + ': save to memory' : ''}${answer === 'Let the King decide' ? '; research it, pick, post one decided event' : ''} [answers/${id}, events/${stamp}-you]`, opts.urgent);
+    const held = wake(`answered ${id} = ${answer}${note ? ' (' + note.slice(0, 120) + ')' : ''}${who ? ' for ' + who : ''}${opts.same ? '; re-ask of ' + opts.same + (who ? ' by ' + who : '') + ': save to memory' : ''}${answer === 'Let the King decide' ? '; research it, pick, post one decided event' : ''}${sess ? '; pass it into chat "' + String(sess.title).slice(0, 60) + '" (' + sess.id + ') and clear its needs_you in crew/sessions' : ''}${answer === 'Ship it' ? '; ship it: publish/merge per docs/release-checklist.md, then take it off board waiting' : ''} [answers/${id}, events/${stamp}-you]`, opts.urgent);
     unparked.delete(id); if (!$('#recap').hidden) setTimeout(() => { $('#recap').hidden = true; }, 2000);
     HUB.cues.push({kind:'answered', id:byId[to] ? to : 'code', qid:id}); fwoop();   // Special Delivery + the asker's thank-you
     appToast('✓ ' + (wakeOff() ? T.receiptRide(nextRun().label) : T.receipt + (held ? ' · ' + T.heldShort : '')) + (opts.ovMsg ? ' ' + opts.ovMsg : ''), opts.ovMsg ? 6000 : 3800);
@@ -1789,9 +1847,10 @@ function renderBoard(){
     return '<li><button type="button" class="trow s-' + k + '" data-sel="t:' + esc(x.id) + '" aria-pressed="' + (selected === 't:' + x.id) + '">' + (isNewTask(x) ? '<i class="new-dot" aria-hidden="true"></i>' : '') + '<span class="tid">' + esc(x.id) + '</span><span class="tt">' + esc(x.task) + '</span><span class="tmeta"><span class="own' + (isHuman(x.owner) ? ' human' : '') + '">' + esc(ownerLabel(x.owner)) + '</span>' +
       (x._next ? '<span class="nx">' + esc(T.nextTag) + '</span>' : '') + (ta ? '<span class="num">' + esc(sinceText(ta).replace('+', '')) + '</span>' : '') + (qd ? '<span class="qdays">' + esc(T.quietD(qd)) + '</span>' : '') + '</span></button></li>'; };
   const all = [...(board.now || []).map(x => Object.assign({}, x, {_next:false})), ...(board.next || []).map(x => Object.assign({}, x, {_next:true}))];
-  const open = openAsks(), answered = (board.waiting || []).filter(x => answerOf(x.id));
+  const ships = (board.waiting || []).filter(shipOf), open = openAsks().filter(x => !shipOf(x)), answered = (board.waiting || []).filter(x => answerOf(x.id) && !shipOf(x));
   const grp = (key, label, n, inner) => '<section class="bgroup"><h3 class="lbl"><span>' + esc(label) + '</span><span class="num">' + n + '</span></h3>' + inner + '</section>';
   let html = '';
+  if (ships.length) html += grp('ship', T.ops.shipH, ships.length, '<div>' + ships.map(shipCard).join('') + '</div>');
   if (open.length) html += grp('needs', T.groups.needs, open.length, '<div>' + open.map(x => '<div class="qrow open"><span class="qid">' + esc(x.id) + '</span><span class="qq">' + esc(x.q) + '</span>' + answerBlock(x.id, x.q, 'code', findItem(x.id)) + '</div>').join('') + '</div>');
   for (const g of GROUP_ORDER) { const list = all.filter(x => statusKey(x.status) === g).sort((p, q) => (quietDays(q) - quietDays(p)) || (p._next - q._next));   /* forgotten tasks float up (#11) */ if (list.length) html += grp(g, T.groups[g], list.length, '<ul class="tasks">' + list.map(row).join('') + '</ul>'); }
   const done = all.filter(x => statusKey(x.status) === 'done');
@@ -1869,7 +1928,7 @@ $('#olderBtn').addEventListener('click', () => { logShown += 40; renderFeeds(); 
 function applySearch(){
   const inp = $('#q'); if (!inp) return; const q = normAsk(inp.value);
   const P = $('#tp-' + tab); if (!P) return;
-  const sel = {crew:'#roster > li:not(.fl)', board:'#boardBody .tasks > li, #boardBody .qrow, #ordersBox li', log:'#feed > li:not(.dayh)', chat:'#memList li'}[tab];
+  const sel = {crew:'#roster > li:not(.fl)', board:'#boardBody .tasks > li, #boardBody .qrow, #boardBody .ship, #ordersBox li', ops:'#opsBody .slist > li, #opsBody .jobs > li', log:'#feed > li:not(.dayh)', chat:'#memList li'}[tab];
   let hits = 0, total = 0;
   for (const tp of document.querySelectorAll('.tpanel')) if (tp !== P) for (const n of tp.querySelectorAll('[data-hit]')) { n.hidden = false; n.removeAttribute('data-hit'); }
   for (const n of P.querySelectorAll(sel)) { total++; const on = !q || normAsk(n.textContent).includes(q); n.hidden = !on; if (q) n.setAttribute('data-hit', ''); else n.removeAttribute('data-hit'); if (on) hits++; }
@@ -2087,7 +2146,7 @@ $('#panelBtn').addEventListener('click', () => setPanel(false, {focus:true}));
 $('#panelTab').addEventListener('click', () => setPanel(true, {focus:true}));
 
 /* ================= the panel's tabs: Crew / Board / Log / Chat (last one remembered) ================= */
-const TABS = ['crew', 'board', 'log', 'chat'];
+const TABS = ['crew', 'board', 'ops', 'log', 'chat'];
 /* blueprint 7.1: on the MacBook RIGHT NOW replaces the Crew tab's list, so the tabs are Board · Log · Memory (Board first);
    phones keep the Crew tab (RIGHT NOW is hidden there) */
 const liveTabs = () => isWide ? TABS.slice(1) : TABS;
@@ -2121,7 +2180,7 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#viewMenu,#camMore')) closeViewMenu();
   if (!e.target.closest('#optMenu,#optBtn')) closeOptMenu();
   const c = e.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c.classList.contains('cp') ? c : null); return; }
-  const cv = e.target.closest('[data-same],[data-notsame],[data-unpark],[data-undo],[data-wakenow],[data-alert],[data-dec]');
+  const cv = e.target.closest('[data-same],[data-notsame],[data-unpark],[data-undo],[data-wakenow],[data-alert],[data-dec],[data-handoff],[data-keep]');
   if (cv) { convClick(cv); return; }
   const ey = e.target.closest('[data-eyes]'); if (ey) { setCam('eyes'); return; }
   const ty = e.target.closest('[data-type]'); if (ty) { closeQPlate(); select(ty.dataset.type, {keep:true}); const i = $('#card input'); if (i) i.focus(); return; }
@@ -2142,6 +2201,10 @@ function convClick(b){
   if (d.unpark) { unparked.add(d.unpark); renderCard(true); renderBoard(); return; }
   if (d.undo) { undoAnswer(d.undo); return; }
   if (b.hasAttribute('data-wakenow')) { if (wakeQ.length) { fireWake(); appToast(T.woke, 2000); } return; }
+  if (d.alert === 'chat') { if (d.id) select('s:' + d.id, {keep:true}); return; }
+  if (d.alert === 'ops') { setTab('ops'); return; }
+  if (d.handoff) { askHandoff(d.handoff); return; }
+  if (d.keep) { keepGoing(d.keep); return; }
   if (d.alert === 'run') { wake('watchdog: no reply from the King since the last wake; FilthE tapped Check now', true); return; }
   if (d.alert === 'replan') { const [ag, task] = (d.id || '').split('|'); handoffToCode(`${nameOf(ag)} has been stuck on ${task} for 2+ runs. Re-plan it (FilthE, from the hub).`, task).then(ok => { if (ok) { const st = stuckRuns().find(x => x.agent === ag && x.task === task); if (st) { replanned.add(st.key); store.set('hub-replanned', JSON.stringify([...replanned].slice(-50))); } appToast(T.replanned, 2500); renderNeeds(); } }); return; }
   if (d.alert === 'resend') { const a = answers[d.id]; if (a) wake(`resend: answer to ${d.id} (${a.answer}${a.note ? ', ' + a.note : ''}) never reached ${nameOf(a.to)}; pass it on [answers/${d.id}]`); appToast(T.receipt, 2000); return; }
@@ -2192,7 +2255,7 @@ function nextQuestion(){
 /* ================= keys: never while a field has focus; read e.key (Spanish keyboards); no key ever sends an answer ================= */
 const typingIn = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 const VIEW_KEYS = {'1':'all', '2':'follow', '3':'eyes', '4':'cctv', '5':'window', '6':'tilt', '7':'director'};
-const TAB_KEYS = {c:'crew', b:'board', l:'log', m:'chat', h:'chat'};
+const TAB_KEYS = {c:'crew', b:'board', s:'ops', l:'log', m:'chat', h:'chat'};
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('#kingWin').hidden) { closeKing(true); return; }
   if (e.key === 'Escape' && cam === 'eyes') { setCam(preEyes || 'all'); return; }
@@ -2696,8 +2759,9 @@ function mkItem(it, m){
 }
 function allAsks(){
   const r = waitingBots().map(a => mkItem({key:a.id, bot:true, who:tx(a.def.name), text:botAsk(a), at:a.atMs, id:botAnswerId(a), to:a.id}, a.meta));
-  const q = openAsks().map(x => mkItem({key:'q:' + x.id, bot:false, who:L().qWord + ' ' + x.id, text:x.q, at:Date.parse(x.at || '') || 0, id:x.id, to:'code'}, x));
-  return [...r, ...q];
+  const q = openAsks().map(x => mkItem({key:'q:' + x.id, bot:false, who:shipOf(x) ? L().ops.shipH : L().qWord + ' ' + x.id, text:shipOf(x) ? txv(shipOf(x).what) || x.q : x.q, at:Date.parse(x.at || '') || 0, id:x.id, to:'code'}, x));
+  const s = sessAsks().map(x => mkItem({key:'s:' + x.id, bot:false, who:x.title, text:x.needs_you, at:x.atMs, id:sessQid(x), to:'code', sess:x.id}, Array.isArray(x.options) ? {options:x.options} : {}));
+  return [...r, ...q, ...s];
 }
 /* the real blocker on top (#9): robots held, then runs missed, then age; stopped robots first (fix 6) */
 function needItems(){
@@ -2709,7 +2773,8 @@ function parkedItems(){
   for (const [id, a] of Object.entries(answers)) { if (!a || a.answer !== 'Not now' || !a.back || !answerOf(id)) continue;
     const bot = bots.find(b => b.disp && b.disp.status === 'waiting' && (qidOf(b) === id || qidOld(b) === id));
     const x = ((board && board.waiting) || []).find(w => w.id === id);
-    if (bot) out.push({key:bot.id, who:tx(bot.def.name), text:botAsk(bot), id, back:Date.parse(a.back.after)}); else if (x) out.push({key:'q:' + id, who:L().qWord + ' ' + id, text:x.q, id, back:Date.parse(a.back.after)}); }
+    const ss = !bot && !x && id.startsWith('s-') ? sessions().find(v => sessQid(v) === id) : null;
+    if (bot) out.push({key:bot.id, who:tx(bot.def.name), text:botAsk(bot), id, back:Date.parse(a.back.after)}); else if (x) out.push({key:'q:' + id, who:L().qWord + ' ' + id, text:x.q, id, back:Date.parse(a.back.after)}); else if (ss) out.push({key:'s:' + ss.id, who:ss.title, text:ss.needs_you, id, back:Date.parse(a.back.after)}); }
   return out;
 }
 function findItem(id){ return allAsks().find(i => i.id === id); }
@@ -2754,6 +2819,161 @@ async function undoAnswer(id){
     appToast(L().undone, 1500); refreshAll(); renderBoard(); renderCard(true);
   } catch (e) { appToast(L().sendFail); }
 }
+
+/* ================= v28.1 functions (FUNCTIONS-SHORTLIST, FilthE's yes 2026-09-28) =================
+   1 your chats (crew/sessions), 2 spend meter + runaway alarm, 4 is everything running (system/schedule),
+   6 ready to ship (a board waiting item with ship:{what, preview_url, qa, changes}). The King writes both docs;
+   the page only reads them (plus FilthE's answers, a hand-off event and a wake). */
+const STALE_MS = 3*3600e3, HOT_TOTAL = 25, HOT_RATE = 10;
+const SESS_ST = {working:'working', running:'working', active:'working', needs_you:'needs', 'needs you':'needs', needs:'needs', blocked:'needs', waiting:'needs',
+  done:'done', idle:'done', completed:'done', review_ready:'done', archived:'done', failed:'failed', error:'failed'};
+const SESS_S7 = {needs:'needs', working:'working', done:'done', failed:'stuck'};
+function sessions(){
+  const arr = sessDoc && Array.isArray(sessDoc.sessions) ? sessDoc.sessions : [];
+  return arr.filter(x => x && typeof x.id === 'string' && /^[A-Za-z0-9_-]{4,80}$/.test(x.id)).slice(0, 40).map(x => {
+    const needs = String(x.needs_you || '').trim(); let st = SESS_ST[String(x.state || '').toLowerCase()] || 'working'; if (needs && st !== 'failed') st = 'needs';
+    return {id:x.id, title:String(x.title || x.id).slice(0, 80), doing:String(x.doing || '').slice(0, 200), needs_you:needs.slice(0, 300), options:x.options, st,
+      cost:Math.max(0, +x.cost_usd || 0), cost_today_usd:x.cost_today_usd, atMs:Date.parse(x.updated || '') || 0, startMs:Date.parse(x.created || x.started || '') || 0}; });
+}
+const sessQid = s => 's-' + s.id.replace(/^session_/, '').slice(0, 40) + '-q' + shortHash(normAsk(s.needs_you));
+const sessQidById = id => { const s = sessions().find(x => x.id === id); return s ? sessQid(s) : ''; };
+function sessAsks(){ return sessions().filter(s => s.st === 'needs' && s.needs_you && !answerOf(sessQid(s))); }
+const money = n => { n = +n || 0; return n >= 100 ? Math.round(n).toLocaleString('en-US') : n.toFixed(2).replace(/\.00$/, ''); };
+const minsLabel = m => m < 90 ? Math.max(1, Math.round(m)) + ' min' : (m/60).toFixed(1).replace(/\.0$/, '') + ' h';
+const whenFull = ms => dayOf(ms) === todayK() ? tFmt.format(ms) : dFmt.format(ms) + ', ' + tFmt.format(ms);
+const dateOnly = v => { const s = String(v || ''); return Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T12:00:00Z' : s) || 0; };
+function weekStartMs(){ const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()));
+  return Date.now() - centralMinute()*60000 - ((Math.max(0, dow) + 6) % 7)*DAY; }
+/* spend: the King may send spend:{today_usd, week_usd} or per-chat cost_today_usd; otherwise a chat counts today if it
+   reported today (so "about": a chat that ran yesterday and today counts whole) */
+function spendTotals(){
+  const d = sessDoc || {}, sp = d.spend && typeof d.spend === 'object' ? d.spend : {}, tk = todayK(), ws = weekStartMs();
+  let today = 0, week = 0, open = 0;
+  for (const s of sessions()) { open += s.cost; if (s.cost_today_usd != null) today += +s.cost_today_usd || 0; else if (s.atMs && dayOf(s.atMs) === tk) today += s.cost; if (s.atMs >= ws) week += s.cost; }
+  const ar = d.archived && typeof d.archived === 'object' ? d.archived : {}, arc = +ar.cost_usd || 0, arSince = dateOnly(ar.since);
+  if (ar.week_usd != null) week += +ar.week_usd || 0; else if (arSince >= ws) week += arc;
+  if (sp.today_usd != null) today = +sp.today_usd || 0; if (sp.week_usd != null) week = +sp.week_usd || 0;
+  return {today, week, total:open + arc, closed:+ar.count || 0, since:arSince ? dFmt.format(arSince) : ''};
+}
+/* runaway alarm: $25+ in one chat, or $10+/h (from its start time, or from what this device saw on earlier refreshes) */
+let spendSamples = {}, spendKept = {};
+try { spendSamples = JSON.parse(store.get('hub-spend-samples') || '{}') || {}; } catch (e) { spendSamples = {}; }
+try { spendKept = JSON.parse(store.get('hub-spend-kept') || '{}') || {}; } catch (e) { spendKept = {}; }
+function trackSpend(){
+  const ss = sessions(), out = {};
+  for (const s of ss) { if (!s.atMs) continue; const arr = (spendSamples[s.id] || []).filter(p => p && s.atMs - p.at <= 4*3600e3);
+    if (!arr.length || s.atMs > arr[arr.length - 1].at) arr.push({cost:s.cost, at:s.atMs}); out[s.id] = arr.slice(-12); }
+  spendSamples = out; store.set('hub-spend-samples', JSON.stringify(out));
+}
+function hotOf(s){
+  if (!s || s.st === 'done' || s.st === 'failed') return null;
+  const kept = +spendKept[s.id] || 0; if (kept && s.cost < kept + HOT_TOTAL) return null;
+  const O = L().ops; let best = null;
+  if (s.startMs && s.atMs - s.startMs >= 20*60000) { const m = (s.atMs - s.startMs)/60000; if (s.cost/(m/60) >= HOT_RATE) best = {c:s.cost, m}; }
+  const p = (spendSamples[s.id] || []).find(x => s.atMs - x.at >= 15*60000 && s.atMs - x.at <= 3*3600e3);
+  if (p) { const d = s.cost - p.cost, m = (s.atMs - p.at)/60000; if (d > 0 && d/(m/60) >= HOT_RATE && (!best || d/m > best.c/best.m)) best = {c:d, m}; }
+  if (best) return {text:O.hot(s.title, money(best.c), minsLabel(best.m))};
+  if (s.cost >= HOT_TOTAL) return {text:O.hotTotal(s.title, money(s.cost))};
+  return null;
+}
+async function askHandoff(id){
+  const s = sessions().find(x => x.id === id), T = L(); if (!s || !DB) return; const at = nowIso(), stamp = stampOf(at);
+  try {
+    await withTimeout(DB.doc('events/' + stamp + '-you').set({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task:'fresh-chat', session:s.id, status:'done', room:'board', at,
+      text:`Hand off "${s.title}" (about $${money(s.cost)}): write + commit its handoff note, start a fresh chat from it, archive this one after the new one checks in.`.slice(0, 300)}));
+    wake(`hand off chat "${s.title.slice(0, 60)}" (${s.id}): FilthE tapped Hand it off [events/${stamp}-you]`, true);
+    keepGoing(id, true); appToast(T.ops.handed, 4500);
+  } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); }
+}
+function keepGoing(id, quiet){
+  const s = sessions().find(x => x.id === id); if (!s) return;
+  spendKept[id] = Math.max(s.cost, .01); store.set('hub-spend-kept', JSON.stringify(spendKept));
+  if (!quiet) appToast(L().ops.kept(money(s.cost + HOT_TOTAL)));
+  computeWatch(); renderNeeds(); renderOps(); renderCard(true);
+}
+const flagHtml = (s, h) => '<div class="flag"><span>' + esc(h.text) + '</span><span>' + (DB ? '<button type="button" class="tb" data-handoff="' + esc(s.id) + '">' + esc(L().ops.handoff) + '</button>' : '') +
+  '<button type="button" class="tb" data-keep="' + esc(s.id) + '">' + esc(L().ops.keep) + '</button></span></div>';
+/* schedule: paused on purpose (grey ring) is not broke (red): enabled + last run failed, or switched off with an ended_reason */
+function jobs(){ const j = schedDoc && Array.isArray(schedDoc.jobs) ? schedDoc.jobs : []; return j.filter(x => x && (x.name || x.id)).slice(0, 30); }
+const jobName = j => String(j.name || j.id).slice(0, 60);
+const jobFailed = j => /fail|error|timeout|crash/i.test(String((j.last && j.last.status) || ''));
+function jobState(j){
+  const why = String(j.ended_reason || '');
+  if (j.enabled === false) return /run_once_fired/i.test(why) ? 'done' : why ? 'broke' : 'paused';
+  return jobFailed(j) ? 'broke' : 'on';
+}
+function cronLabel(j){
+  if (j.when) return txv(j.when).slice(0, 60);
+  let c = String(j.cron || j.cron_expression || '').trim();
+  if (!c) { const o = Date.parse(j.run_once_at || ''); return o ? 'Once, ' + whenFull(o) : L().ops.poke; }
+  let tz = 'UTC'; const m0 = c.match(/^CRON_TZ=(\S+)\s+(.*)$/); if (m0) { tz = m0[1]; c = m0[2]; }
+  const f = c.split(/\s+/); if (f.length !== 5) return '';
+  if (f[1] === '*' && f[2] === '*' && f[4] === '*') return 'Hourly';
+  const ev = f[1].match(/^\*\/(\d+)$/); if (ev) return `Every ${ev[1]} h`;
+  const days = f[4] === '*' ? 'Daily' : f[4] === '1-5' ? 'Weekdays' : {'0':'Sundays', '1':'Mondays', '2':'Tuesdays', '3':'Wednesdays', '4':'Thursdays', '5':'Fridays', '6':'Saturdays', '7':'Sundays'}[f[4]];
+  if (!days || !/^\d+$/.test(f[0]) || !/^\d+$/.test(f[1]) || f[2] !== '*' || f[3] !== '*') return '';
+  const h = +f[1], mi = +f[0]; let t;
+  if (tz === 'UTC') { const n = new Date(); t = tFmt.format(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), h, mi)); }
+  else t = ((h % 12) || 12) + ':' + String(mi).padStart(2, '0') + ' ' + (h < 12 ? 'AM' : 'PM');
+  return days + ' ' + t;
+}
+const JOB_C = {on:'var(--st-done)', paused:'var(--st-sleep)', broke:'var(--st-stuck-ink)', done:'var(--st-idle)'};
+function jobRow(j){
+  const O = L().ops, st = jobState(j), last = j.last || {}, lms = Date.parse(last.at || last.fired_at || last.finished_at || '') || 0, nms = Date.parse(j.next_run_at || '') || 0;
+  const bits = [cronLabel(j), st === 'paused' ? (j.why ? txv(j.why).slice(0, 80) : O.pausedWhy) : '', st === 'broke' && j.ended_reason ? String(j.ended_reason).replace(/_/g, ' ') : '',
+    lms ? O.last(!jobFailed(j), whenFull(lms)) : O.noRun, st === 'on' && nms ? O.next(whenFull(nms)) : ''].filter(Boolean);
+  return '<li class="job ' + st + '" style="--c:' + JOB_C[st] + '"><i class="sd" aria-hidden="true"></i><span class="nm">' + esc(jobName(j)) + '</span><span class="st">' + esc(O.js[st]) + '</span><span class="when">' + esc(bits.join(' · ')) + '</span></li>';
+}
+/* ready to ship: a board waiting item carrying ship:{what, preview_url, qa, changes}; "Ship it" = the King publishes */
+const shipOf = x => x && x.ship && typeof x.ship === 'object' ? x.ship : null;
+function shipFacts(sh){
+  const O = L().ops, q = sh.qa, qa = q && typeof q === 'object' ? (q.of ? (+q.passed || 0) + ' of ' + (+q.of) + ' passed' : txv(q.text || '')) : txv(q || '');
+  const url = /^https:\/\/[^\s"'<>]+$/.test(String(sh.preview_url || '')) ? String(sh.preview_url) : '';
+  const dl = (qa ? '<dt>' + esc(O.shipQa) + '</dt><dd>' + esc(qa.slice(0, 200)) + '</dd>' : '') + (sh.changes ? '<dt>' + esc(O.shipIf) + '</dt><dd>' + esc(txv(sh.changes).slice(0, 300)) + '</dd>' : '');
+  return (dl ? '<dl class="facts">' + dl + '</dl>' : '') + (url ? '<p class="pv"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(O.shipPv) + ' ↗</a></p>' : '');
+}
+function shipCard(x){
+  const sh = shipOf(x), what = txv(sh.what) || x.q;
+  return '<div class="ship"><h4><span class="qid">' + esc(x.id) + '</span>' + esc(what) + '</h4>' + (x.q && x.q !== what ? '<p class="src">' + esc(x.q) + '</p>' : '') + shipFacts(sh) +
+    answerBlock(x.id, x.q, 'code', findItem(x.id) || {m:x}) + '</div>';
+}
+/* a chat's card */
+function cardSession(id){
+  const T = L(), O = T.ops, s = sessions().find(x => x.id === id); if (!s) return '';
+  const qid = sessQid(s), url = 'https://claude.ai/code/' + encodeURIComponent(s.id), h = hotOf(s), asked = s.st === 'needs' && s.needs_you;
+  return railHtml() + '<div class="card-h"><span class="no">' + esc(O.chatWord) + '</span><h2>' + esc(s.title) + '</h2><span class="wear">Claude Code</span><span class="stl">' + stWord(SESS_S7[s.st], O.st[s.st]) +
+      (s.atMs ? ' <span class="src">' + esc(sinceText(s.atMs).replace('+', '')) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
+    (asked ? '<div class="ask"><div class="lbl">' + esc(O.needsYou) + '</div><div class="v">' + esc(s.needs_you) + '</div>' + answerBlock(qid, s.needs_you, 'code', findItem(qid) || {sess:s.id, m:{}}) + '</div>' : '') +
+    (h ? flagHtml(s, h) : '') +
+    '<dl class="facts">' + (s.doing ? '<dt>' + esc(O.doing) + '</dt><dd class="now">' + esc(s.doing) + '</dd>' : '') +
+    '<dt>' + esc(O.cost) + '</dt><dd><span class="num">about $' + esc(money(s.cost)) + '</span></dd>' +
+    (s.startMs ? '<dt>' + esc(O.started) + '</dt><dd>' + esc(whenFull(s.startMs)) + '</dd>' : '') +
+    '<dt>' + esc(O.updated) + '</dt><dd>' + (s.atMs ? esc(ago(s.atMs)) + ' · <time>' + esc(whenFull(s.atMs)) + '</time>' : '—') + '</dd></dl>' +
+    '<p class="pv"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(O.open) + ' ↗</a></p>';
+}
+/* the Chats tab: spend on top, then your chats (needs you first), then the schedule strip */
+function renderOps(){
+  const box = $('#opsBody'); if (!box) return; const O = L().ops, ss = sessions();
+  const asOf = ms => { if (!ms) return ''; const old = Date.now() - ms > STALE_MS; return '<span class="src' + (old ? ' stale-note' : '') + '">' + esc((old ? O.staleAsOf : O.asOf)(ago(ms))) + '</span>'; };
+  const sp = spendTotals(), hots = ss.map(s => [s, hotOf(s)]).filter(p => p[1]);
+  let html = '<section class="spend" aria-labelledby="spH"><h2 class="lbl" id="spH" title="' + esc(O.about) + '">' + esc(O.spendH) + '</h2>' +
+    (sessDoc ? '<div class="big"><span><small>' + esc(O.today) + '</small>$' + esc(money(sp.today)) + '</span><span><small>' + esc(O.week) + '</small>$' + esc(money(sp.week)) + '</span></div>' +
+      (sp.total && sp.since ? '<p class="src">' + esc(O.total(money(sp.total), sp.closed, sp.since)) + '</p>' : '') : '<p class="empty">' + esc(O.noSpend) + '</p>') +
+    hots.map(p => flagHtml(p[0], p[1])).join('') + '</section>';
+  const order = {needs:0, working:1, failed:2, done:3}, list = ss.slice().sort((a, b) => (order[a.st] - order[b.st]) || (b.atMs - a.atMs));
+  const openN = ss.filter(s => s.st !== 'done').length;
+  html += '<section aria-labelledby="chH"><div class="subh"><h2 class="lbl" id="chH">' + esc(O.chatsH) + (sessDoc ? ' · ' + esc(O.chatsN(openN)) : '') + '</h2>' + asOf(sessDoc ? Date.parse(sessDoc.updatedAt || '') || 0 : 0) + '</div>' +
+    (list.length ? '<ul class="slist">' + list.map(s => { const ans = s.st === 'needs' && answers[sessQid(s)], line = s.st === 'needs' ? (ans ? O.answered : s.needs_you) : s.doing || O.st[s.st];
+      return '<li><button type="button" class="srow ' + s.st + (hotOf(s) ? ' hot' : '') + '" data-sel="s:' + esc(s.id) + '" aria-pressed="' + (selected === 's:' + s.id) + '" style="--c:' + st7c(SESS_S7[s.st]) + '" aria-label="' + esc(s.title + ', ' + O.st[s.st] + ': ' + line + ', about $' + money(s.cost)) + '">' +
+        '<i class="sd" aria-hidden="true"></i><span class="t"><span class="nm">' + esc(s.title) + '</span><span class="d">' + esc(line) + '</span></span><span class="rt"><b>$' + esc(money(s.cost)) + '</b><span>' + esc(s.atMs ? sinceText(s.atMs).replace('+', '') : '') + '</span></span></button></li>'; }).join('') + '</ul>'
+      : '<p class="empty">' + esc(O.none) + '</p>') + '</section>';
+  const js = jobs(), sc = {on:0, paused:0, broke:0, done:0}; for (const j of js) sc[jobState(j)]++;
+  const rank = {broke:0, on:1, paused:2, done:3};
+  html += '<section aria-labelledby="scH"><div class="subh"><h2 class="lbl" id="scH">' + esc(O.schedH) + '</h2>' + asOf(schedDoc ? Date.parse(schedDoc.at || schedDoc.updatedAt || '') || 0 : 0) + '</div>' +
+    (schedDoc ? '<p class="src">' + esc(O.schedSum(sc.on, sc.paused, sc.broke)) + '</p><ul class="jobs">' + js.slice().sort((a, b) => rank[jobState(a)] - rank[jobState(b)]).map(jobRow).join('') + '</ul>' : '<p class="empty">' + esc(O.schedNone) + '</p>') + '</section>';
+  box.innerHTML = html; renderTabDots(); if (tab === 'ops') applySearch();
+}
+setInterval(() => { if (!document.hidden && tab === 'ops') renderOps(); }, 60000);   // "as of" and "since" stay true
 
 /* ================= wake policy (#1): hold, ride the next run, wait for a running King, safety net, two devices ================= */
 const URGENT_RX = /\b(urgent|asap|right now|emergency|urgente|ya mismo|ahorita|emergencia)\b/i;
@@ -2807,6 +3027,8 @@ function computeWatch(){
     const ran = events.some(e => e.agent === 'code' && e.kind === 'start' && e.atMs > ms) && byId.code.atMs > ms && !kingRunning();
     const passed = events.some(e => e.agent === 'code' && e.kind === 'handoff' && e.to === a.to && e.atMs > ms) || events.some(e => e.re === id);
     if (ran && !passed) out.push({k:'dropped', text:T.dropped(id, nameOf(a.to)), btn:'resend', data:id}); }
+  for (const s of sessions()) { const h = hotOf(s); if (h) out.push({k:'spend', text:h.text, btn:'chat', data:s.id}); }
+  for (const j of jobs()) { const st = jobState(j); if (st === 'broke') out.push({k:'sched', text:(j.enabled === false ? T.ops.stoppedAlert : T.ops.brokeAlert)(jobName(j)), btn:'ops'}); }
   alerts = out;
   const working = bots.filter(a => a.st === 'working').length;
   healthText = (working ? T.allNormal(working, nr.label) : T.quietDesign(nr.label)) + (wakeOff() ? ' · ' + T.wakeOffL(nr.label) : '');
@@ -2989,7 +3211,7 @@ function applyStatic(){
   for (const n of document.querySelectorAll('[data-th]')) { const v = st[n.dataset.th]; if (v != null) n.innerHTML = v; }
   $('#q').placeholder = st.searchPh; if (!$('#keys').hidden) renderKeys(); $('#logFilter').setAttribute('aria-label', 'Show');
   $('#kcInput').placeholder = st.kcPh; $('#replayBtn').title = L().replayAria; $('#refreshBtn').setAttribute('aria-label', L().refresh); $('#refreshBtn').title = L().refresh;
-  $('#tabs').setAttribute('aria-label', [st.tCrew, st.tBoard, st.tLog, st.tChat].join(' · '));
+  $('#tabs').setAttribute('aria-label', [st.tCrew, st.tBoard, st.tOps, st.tLog, st.tChat].join(' · '));
   $('#still').alt = L().stillAlt;
   if (matchMedia('(pointer:coarse)').matches) $('#hint').textContent = st.hintTap;
   $('#hubName').textContent = hubName(); if (!$('#mine').hidden) renderMine();
@@ -3240,9 +3462,9 @@ function stHtml(e){ const s = msgStatus(e), T = L().kt.st; if (!s) return '';
 function renderThread(fromData){
   const log = $('#ktLog'), items = threadItems(), T = L().kt, bd = $('#kingBody');
   const atEnd = bd.scrollHeight - bd.scrollTop - bd.clientHeight < 40;
-  const liveHtml = id => '<li class="king inst" data-live="' + esc(id) + '"><span class="who">' + esc(T.king) + '<b class="tag">' + esc(T.instant) + '</b></span><div class="msg">' + (ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(T.st.thinking) + '</p>') + '</div></li>';
+  const liveHtml = id => '<li class="king inst" data-live="' + esc(id) + '"><span class="who">' + esc(T.king) + '<b class="kt-tag">' + esc(T.instant) + '</b></span><div class="msg">' + (ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(T.st.thinking) + '</p>') + '</div></li>';
   log.innerHTML = items.map(e => { const me = e.agent === 'you', inst = isInstant(e);
-    let h = '<li class="' + (me ? 'you' : 'king') + (inst ? ' inst' : '') + '" data-ev="' + esc(e.id) + '"><span class="who">' + esc(me ? T.you : T.king) + (inst ? '<b class="tag">' + esc(T.instant) + '</b>' : '') + '<time>' + esc(tShort(e.atMs)) + '</time></span><div class="msg">' + fmtMsg(e.long || e.text) + '</div>' + (me ? stHtml(e) : '') + '</li>';
+    let h = '<li class="' + (me ? 'you' : 'king') + (inst ? ' inst' : '') + '" data-ev="' + esc(e.id) + '"><span class="who">' + esc(me ? T.you : T.king) + (inst ? '<b class="kt-tag">' + esc(T.instant) + '</b>' : '') + '<time>' + esc(tShort(e.atMs)) + '</time></span><div class="msg">' + fmtMsg(e.long || e.text) + '</div>' + (me ? stHtml(e) : '') + '</li>';
     if (me && ktLive[e.id] && !items.some(x => isInstant(x) && x.re === e.id)) h += liveHtml(e.id);
     return h; }).join('');
   if (fromData) { const last = items.filter(x => isKingReply(x) || isInstant(x)).pop();
@@ -3307,7 +3529,7 @@ async function instantAnswer(id, text){
     ktLive[id].text = reply; paintLive(id);
     const at = nowIso();
     await withTimeout(DB.doc('events/' + stampOf(at) + '-king-i').set({agent:'king', name:'SMUIPO', at, kind:'note', to:'you', re:id, instant:true, lane:'board', room:'board', status:'idle', task:'', text:reply.replace(/\s+/g, ' ').slice(0, 300), long:reply}));
-    if (tag === 'ANSWER') await withTimeout(DB.doc('events/' + id).update({mode:'answered'}));
+    if (tag === 'ANSWER') await withTimeout(DB.doc('events/' + id).update({mode:'answered', kind:'note'}));   // answered here: not a handoff, so Claude Code's row doesn't say "Queued"
     delete ktLive[id];
   } catch (e) {
     const code = e && e.code; if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) SAMPLE = null;
@@ -3324,7 +3546,7 @@ async function orderKing(id, text, order, again){
   let wakeSt = 'off';
   if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".');
     wakeSt = r.ok ? 'ok' : 'fail'; if (r.ok) checkDelivery(id, trig, Date.now()); }
-  const upd = {mode:'order', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
+  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
   try { await withTimeout(DB.doc('events/' + id).update(upd)); } catch (e) { /* status shows from the next snapshot or not at all */ }
   renderThread();
@@ -3410,6 +3632,8 @@ let gotBoard = false, gotAnswers = false;
 function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); }
 function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
+function onSessions(snap){ got(); sessDoc = snap.exists ? snap.data() : null; trackSpend(); computeWatch(); refreshAll(); renderOps(); }
+function onSchedule(snap){ got(); schedDoc = snap.exists ? snap.data() : null; computeWatch(); renderNeeds(); renderOps(); }
 let kingLoaded = false;
 function onKing(snap){ got(); kingDoc = snap.exists ? snap.data() : null; kingLoaded = true; renderBoard(); computeWatch(); refreshLive(); sweepThread(); }
 /* ================= always fresh: resubscribe on return, with backoff on failure (CONVENIENCES #6) ================= */
@@ -3430,7 +3654,9 @@ function subscribe(db){
     db.doc('board/current').onSnapshot(onBoard, onErr),
     db.doc('system/king').onSnapshot(onKing, onErr),
     db.collection('answers').onSnapshot(onAnswers, onErr),
-    db.doc('system/memory').onSnapshot(onMemory, onErr)
+    db.doc('system/memory').onSnapshot(onMemory, onErr),
+    db.doc('crew/sessions').onSnapshot(onSessions, onErr),
+    db.doc('system/schedule').onSnapshot(onSchedule, onErr)
   ];
 }
 function reconnect(){
@@ -3484,7 +3710,7 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 /* ================= start ================= */
 $('#todayBtn').hidden = !noteToday;
 applyTheme(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
-sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
+sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
