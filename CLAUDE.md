@@ -31,6 +31,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   what i think, why i think." Mix quick picks with open "what do you see / why" questions (offer our guess to react
   to). Save his answers in `docs/memory/questions-for-filthe.md`. The bar: "to be the best we have to be the best
   when it comes to information, leads, and efficiency", "about 10x better", no ceiling.
+  **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
+  ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
+  paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
