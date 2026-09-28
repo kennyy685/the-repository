@@ -30,6 +30,23 @@ class TestLegalCheck(unittest.TestCase):
             self.skipTest(f"no browser to measure the print pieces with: {why}")
         self.assertEqual(failures, [], "\n".join(failures))
 
+    def test_door_openers(self):
+        """The app's Sale Guide door openers say name + HMP + what we sell before the storm/old-house hook (69-1602, T174)."""
+        failures = legal_check.check_door_openers()
+        self.assertEqual(failures, [], "\n".join(failures))
+
+    def test_door_openers_catch_the_t174_bug(self):
+        """The pre-T174 opener (no name, what we sell only after the hook) must fail."""
+        bad = ("      doorIns: r => `Hi, I'm with ${SETTINGS.company.name}, a registered contractor. ${r || 'storm'} "
+               "Can I take a quick look at your roof and siding?`,\n")
+        real = legal_check._read
+        legal_check._read = lambda path: bad
+        try:
+            failures = legal_check.check_door_openers()
+        finally:
+            legal_check._read = real
+        self.assertEqual(len(failures), 2, "\n".join(failures))
+
     def test_banned_phrases(self):
         failures = legal_check.check_banned_phrases()
         if failures:

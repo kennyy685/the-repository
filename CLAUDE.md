@@ -14,12 +14,30 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   the web can answer (laws, industry norms, tools, Spanish terms, best practice): research it, pick the best default,
   tell him in one line (he can override). Only ask a person for what only HMP knows or must commit to: the boss's
   prices, registration #, warranty promises, spending money, signing anything, deleting data.
+- **No knocking yet (FilthE, 2026-09-27):** he knocks only after (1) the app is proven end to end, (2) his permit is
+  in, (3) he knows how to sell (Practice Door + lessons). Until then build and test on realistic mock data from public
+  sources (real Fremont streets + real storm reports, fake homes, never owner names), kept out of the real db. Swap to
+  real houses when he starts pulling them in. Don't push him to knock.
+- **Chain of command (FilthE, 2026-09-27):** FilthE = mastermind at the top; the King = the tip inside the computer;
+  the hub robots (`.claude/agents/*`) = "agents"/"sub agents". "Make them better" = the King researches and upgrades
+  those robots (prompts, tools, skills, models) so they make the King's job easier.
 - **What delights him (FilthE, 2026-09-28):** convenient, extremely helpful things that were carefully thought through,
   especially the ones he wouldn't have thought of himself. Anticipate the need; don't just add features.
 - **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
   one item per line, nothing extra, so he never edits it.
 - **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
   on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
+- **Always ask him questions (FilthE, 2026-09-28):** "always ask me questions from your part, on advice or what i
+  didnt see or overlooked or didnt think". Every reply to him ends with 1-3 short numbered questions (blind spots,
+  advice, next ideas), each with our pick so he can answer "1 yes 2 no". Ideas/taste/strategy only: facts still get
+  researched first, ops facts wait for the boss. Helpers end reports with "For FilthE:" one thing he may have missed.
+  **Get in his head (2026-09-28):** "talk to me more, work with me more, get in my mind, ask me what i visualize,
+  what i think, why i think." Mix quick picks with open "what do you see / why" questions (offer our guess to react
+  to). Save his answers in `docs/memory/questions-for-filthe.md`. The bar: "to be the best we have to be the best
+  when it comes to information, leads, and efficiency", "about 10x better", no ceiling.
+  **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
+  ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
+  paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
@@ -33,13 +51,17 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 **FilthE's vision (2026-09-27):** in 12 months HMP thrives because of this system: he's knocking and earning
 commissions, crews love and push the app, HMP is the main contractor with "a lot of signs in a lot of yards", lots of
 networking. Then: an AI consultant selling software (Aldaba) to businesses. Order: HMP first, product second.
-Success = crews working jobs the system found. App flow: **Now** = map of hot zones (`zones/current`) -> drive ->
+Success = crews working jobs the system found. **His answers (2026-09-28):** goal = $100k by end of 2026; a lead =
+"a house that has insurance" (insurance first, cash jobs later); 7 AM = map + hot zones + Aldaba's pick + today's plan;
+every open he should feel confident it will find him a lead and guide him (full-context "Vision answers"). App flow: **Now** = map of hot zones (`zones/current`) -> drive ->
 **Knock** = that zone's ranked walk (`walks/<zone>`), one tap per door. "Likely insured" = owner-occupied + residential +
 recent-sale proxies (never say "insured"). The app is the salesman's right hand: every screen says where you are in
 the sale, what to collect, what's legally required, what's next. **The app is the tool; teaching how to sell lives
 outside it** (FilthE, 2026-09-27: Practice Door + lessons with Claude). No coaching text in the app; a pro needs eyes,
-memory, back office, follow-up, proof and legal armor (docs/research/2026-09-27-round-54.md). Layout B, EN/ES everywhere. **Look = the Aldaba brand** (FilthE, 2026-09-27, "number 4"): graphite dark by
-default, knocker orange, Bricolage headlines + Geist; Light (Ledger) is an option. Salesman screens show the Aldaba
+memory, back office, follow-up, proof and legal armor (docs/research/2026-09-27-round-54.md). Layout B, EN/ES everywhere. **Design for a MacBook Air screen first** (FilthE, 2026-09-27: "don't even call it app"; phone later). **Look = the Aldaba brand** (FilthE, 2026-09-27, "number 4"): graphite dark by
+default, knocker orange, Bricolage headlines + Geist; Light (Ledger) is an option. Target feel (FilthE, 2026-09-28): futuristic, modern, really advanced, like Apple ads; premium AI look,
+abstract generative forms, cinematic scroll, immersive WebGL, luxury type, dark and alive (full cinema on landing +
+big moments; work screens keep it ambient and fast). Salesman screens show the Aldaba
 mark; homeowner-facing screens stay HMP Siding & Roofing. **Quality bar for everything we build: the Aldaba
 landing page** (docs/design/product-brand/aldaba/): professional, premium, luxury (FilthE, 2026-09-27).
 
@@ -50,9 +72,14 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - HMP HQ https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj · Practice Door https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B
 - Command center (Cowork's, read-only for us) https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: never write its
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
-- King trigger `trig_01MNxMWzvD3ZgRqWxfjtJLEU`: fresh session 7:52 AM / 12:52 PM / 5:52 PM Central + hub instant wake.
-  Old triggers are paused, never deleted. Never bind a recurring trigger to a long session.
-- Work branch: `claude/funny-hawking-2rytou`. Merges to main need FilthE's OK.
+- **The King is live on the hub (FilthE, 2026-09-28):** "I want to mainly use the AI hub ... be live, not scheduled
+  runs." Hub Chat wakes the live King chat instantly via a poke-only trigger bound to that chat; its id is in hub doc
+  `system/king.wake_trigger` (now `trig_01NHQW42S6i4iKTWWcWAwbF4`; old `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
+  trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. The old 3x-daily King trigger
+  `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
+  bind a recurring (cron) trigger to a long session.
+- Work branch: `claude/amazing-gauss-yzfpq0` (since 2026-09-27 evening; holds all of `funny-hawking-2rytou`). Merges to
+  main need FilthE's OK.
 
 ## Hard rules (legal)
 - Neb. 44-8604: never offer/imply covering, waiving or rebating a deductible; never pay homeowners for claims.
@@ -64,14 +91,33 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   mailers; no owner names for homes. Statute text lives in `docs/legal/`.
 
 ## How we work (save usage - FilthE, 2026-09-27)
-- **Use agents and subagents (FilthE, 2026-09-27).** The King stays light: it plans, delegates, decides and talks
-  to FilthE. Helpers do the heavy reading, building, screenshots and research, and report back in 10 lines or fewer
-  (their work never enters the King's history, which is what keeps usage down). Run 2-3 helpers in parallel on
-  separate files, more on a big push. Cheapest model that can do it: scouts/chores = haiku, research/QA/publishing =
-  sonnet, main model only for real app/design/engine work.
+- **The King is SMUIPO (FilthE, 2026-09-27)** and watches over it all, **every Claude session included**, not just its
+  helpers: each run it reads `list_sessions` and writes hub doc `crew/sessions` (title, working/needs you/done, what
+  it's doing, what it needs from FilthE, cost). It can see, interrupt or archive other sessions but can't message
+  them; notes for them go on the board. That's why the hub exists: one place to see every AI and talk to the King. **The King's chat is FilthE's conversation
+  bubble, not a workbench:** he talks, SMUIPO decides, hands out jobs and reports results in a few lines. All the
+  work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
+  watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
+  (write every Agent `description` as a plain-English job line: it's what the hub shows). **No idling:**
+  when a helper finishes, review it and give it the next board job in the same turn. **2 helpers at a time** (FilthE,
+  2026-09-27: "let's not use too much usage at once"); more only when he asks for a big push. The AI hub is how
+  FilthE sees who's doing what. Helpers report back in 10 lines or fewer (their work never enters the
+  King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
+  haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
+- **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
+  the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
+  reminds once if any are unposted. The King still posts its own review of each result.
 - **Commit work in progress to the repo every ~30 min** (a container restart wiped an unsaved v25 draft).
   Commit only your own files (`git add <paths>`, never `-A`).
 - Grep big files, never read the 8,400-line app whole. Screenshots only for the final pre-publish review.
+- **The King hands itself off; FilthE never has to (FilthE, 2026-09-27).** Past ~200k tokens, or when its jobs are
+  done, the King writes `docs/orders/king-handoff.md` (short: what's live, what's running, what's next), opens a fresh
+  King chat with `create_session` (title "SMUIPO (King)", branch = the work branch, prompt = read the handoff and
+  resume), tells FilthE its name, then archives itself. A fresh King reads `docs/orders/king-handoff.md` first.
+- **Every AI hands itself off when heavy (FilthE, 2026-09-28; the King tells all AI):** any Claude session (King,
+  Cowork, Code, helpers) that passes ~200k tokens or finishes its job: pause, write a short handoff note (what's done,
+  what's running, what's next) in the repo or on the hub board, start a fresh chat that reads it, then close the old
+  one. FilthE never has to do it. Helpers: finish your job and report short instead of growing.
 - New chat per job; don't grow one endless session. **Measured 2026-09-27:** one long King chat cost ~$97 in ~2.5 h,
   mostly re-reading its own 500k-token history on every message (at xhigh effort). Hand off to a fresh chat once a
   chat passes ~200k tokens; routine work runs at high effort, not xhigh.

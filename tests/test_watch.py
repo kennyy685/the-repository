@@ -56,7 +56,8 @@ class Watch(unittest.TestCase):
         self.assertEqual(watch.watch_hits(self.conn, self.cfg, places, days_back=5, today=date(2026, 9, 25)), [])
 
     def test_new_hits_for_the_morning_brief(self):
-        contact = {"name": "Springhill Ridge Apartments", "phone": "(402) 204-4528", "ask_for": "Community manager"}
+        contact = {"name": "Springhill Ridge Apartments", "phone": "(402) 204-4528", "ask_for": "Community manager",
+                   "ask_for_es": "Gerente de la comunidad"}
         old = {"watch_hits": [{"name": "The Edge", "day": "2026-09-12"}],
                "targets": [{"key": "15859 Rosewood St|Omaha", "day": "2026-06-10"}]}
         new = {"watch_hits": [{"name": "The Edge", "day": "2026-09-12"}, {"name": "The Edge", "day": "2026-09-24"}],
@@ -66,8 +67,8 @@ class Watch(unittest.TestCase):
                             "hail": 1.5, "contact": None}]}                     # no contact: not a call alert
         got = watch.new_hits(old, new)
         self.assertEqual([w["day"] for w in got["watch"]], ["2026-09-24"])
-        self.assertEqual([(c["name"], c["phone"]) for c in got["contacts"]],
-                         [("Springhill Ridge Apartments", "(402) 204-4528")])
+        self.assertEqual([(c["name"], c["phone"], c["ask_for_es"]) for c in got["contacts"]],
+                         [("Springhill Ridge Apartments", "(402) 204-4528", "Gerente de la comunidad")])
 
     def test_diff_command_reports_contact_hits(self):
         old = {"storms": [], "targets": [], "watch_hits": []}

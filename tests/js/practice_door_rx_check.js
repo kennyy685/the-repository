@@ -19,7 +19,7 @@ const { legalScan, tuUsed } = new Function(src.slice(a, b) + "\nreturn { legalSc
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
-const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY };")();
+const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY, TOP15 } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY, TOP15: typeof TOP15 === 'undefined' ? null : TOP15 };")();
 
 /* [line, expected first flag type or null, optional legalScan context] */
 const HOA = { hoa: true }, PHONE = { phone: true };
@@ -448,9 +448,24 @@ if (typeof tuUsed !== "function") { pf++; console.log("FAIL tuUsed is missing");
   SKILL.forEach(k => taught.push(["SKILL " + k.id, k.a[1]]));
   (PRO || []).forEach(p => taught.push(["PRO " + p.id, p.a[1]]));
   (PLAY || []).forEach((p, i) => taught.push(["PLAY " + i, p.es]));
+  (TOP15 || []).forEach(o => taught.push(["TOP15 " + o.id, o.a[1]]));
   for (const [where, x] of taught) if (tuUsed([U(x)])) { pf++; console.log("FAIL taught Spanish line uses tú:", where); }
   console.log(`${PB.length} playbook lines match the data file; ${taught.length} taught Spanish lines keep "usted"`);
 }
+/* v11 (2026-09-28): the top 15 objections must equal docs/orders/sales-path.md word for word (its "[day]" placeholder
+   reads "Saturday" / "sábado" on the page) and stay clean (the HOA and phone answers under their scenario's rules). */
+const SP = fs.readFileSync(path.join(__dirname, "..", "..", "docs", "orders", "sales-path.md"), "utf8");
+const spSec = SP.slice(SP.indexOf("## Top 15 objections"), SP.indexOf("## Ready-to-knock checklist"));
+const spQ = lang => [...spSec.matchAll(new RegExp(lang + ': \\*"([\\s\\S]*?)"\\*', "g"))].map(m => m[1].replace(/\s+/g, " ").trim());
+const spEn = spQ("EN"), spEs = spQ("ES");
+if (!Array.isArray(TOP15) || TOP15.length !== 15 || spEn.length !== 15 || spEs.length !== 15) { pf++; console.log("FAIL TOP15 has", TOP15 && TOP15.length, "items; sales-path.md has", spEn.length, "EN /", spEs.length, "ES"); }
+else TOP15.forEach((o, i) => {
+  const en = spEn[i].replace("[day]", "Saturday"), es = spEs[i].replace("[día]", "sábado");
+  if (o.a[0] !== en || o.a[1] !== es) { pf++; console.log("FAIL TOP15 differs from sales-path.md:", i + 1, o.id); }
+  if (!o.q || !o.q[0] || !o.q[1]) { pf++; console.log("FAIL TOP15 question missing:", o.id); }
+  o.a.forEach((x, j) => lines.push(["TOP15 " + o.id + (j ? " ES" : " EN"), x, o.hoa ? HOA : o.phone ? PHONE : undefined]));
+});
+console.log(`${(TOP15 || []).length} top-15 answers match docs/orders/sales-path.md`);
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);

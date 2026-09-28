@@ -29,10 +29,34 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
   and stays light; long King chats are what burn usage, not helpers.
 - **Worktrees for builders (round 55):** when two helpers might edit the SAME files, start one with the Agent
   tool's `isolation: "worktree"` so it works in its own checkout; the King merges its branch after review. Research-only
-  helpers can share the main tree.
+  helpers can share the main tree. **Caution (confirmed against Claude Code's own docs, 2026-09-28):** a worktree
+  branches from the repo's *default* branch (`main`), not the session's current branch, unless the `worktree.baseRef`
+  setting is `"head"` - which we haven't set (this round left `.claude/settings.json` untouched on purpose). So a
+  helper with `isolation: "worktree"` today would silently branch off stale `main`, missing everything on our real
+  work branch (`claude/amazing-gauss-yzfpq0`). Don't set `isolation: worktree` as a default in any `.claude/agents/*.md`
+  frontmatter until `worktree.baseRef: "head"` is set too - that's a `settings.json` change for the King/FilthE to
+  decide on, not a small edit. `.claude/worktrees/` is already gitignored, so a worktree a helper leaves behind
+  doesn't show up as untracked files in `git status`.
 - **Publishing:** a helper that gets a refused publish stops and reports the exact message; only the King decides to
   resend (auto mode flagged a helper resending on the service's say-so, 2026-09-27; no harm, the live page was verified).
 - **Legal check on every stop:** a Stop hook runs `tests/legal_check.py`; a turn can't end with a legal failure.
+- **Hub check-ins by hook (T21, 2026-09-27):** `.claude/hooks/hub-log.py` runs on PostToolUse (Agent), SubagentStart
+  and SubagentStop and appends one line per helper launch/start/finish to `.claude/state/hub-queue.jsonl` (gitignored).
+  Hooks can't call the hub's database tool, and the hub refuses unpinned writes to existing docs, so
+  `.claude/hooks/hub_flush.py` turns the queue into one batch: start/done events always, robot (`agents/<id>`) updates
+  when given `--versions builder=13,...`. Scouts are skipped (their Research Lead posts); the King's one-off helpers
+  post as `code` events. `stop-hub-reminder.sh` blocks a King stop once while check-ins are unposted
+  (`hub_flush.py --discard` in a session without the hub). SubagentStop also fires when a helper only pauses to wait on its own background
+  helpers (the King's notice says "background work of its own still running"): flush with `--hold <type>` so the pause
+  isn't posted as a finish; only a helper's last stop posts. Hook payloads checked against Claude Code 2.1.283:
+  SubagentStart {agent_id, agent_type}, SubagentStop {+ agent_transcript_path, last_assistant_message}, the Agent
+  tool's response {status: async_launched, agentId, description}.
+- **Don't poll a background helper - there's no tool for it (confirmed against Claude Code's own docs, fetched
+  2026-09-28):** a background subagent's result reaches the King as a completion notification on its own; asking it
+  for progress before that arrives just spends a turn to get back "still running." A helper that itself launches
+  background helpers of its own already waits for them before it reports - that's the real "background work of
+  its own still running" pause `--hold` exists for, not a bug to chase. On "what's X doing," check the hub or
+  `list_sessions` instead of messaging the helper.
 - **Plugins/MCP servers:** Anthropic doesn't security-audit MCP servers, even in its directory. Add none without the
   King reading what it does and FilthE installing it from the card.
 - **Side jobs go through the King, not a separate chat:** the King can message its own helpers but has no line
@@ -41,6 +65,13 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
 - **The hub is where FilthE looks, not the chats:** the King posts `agents/<id>` + an event (skill `crew-checkin`)
   when a helper starts and when it reports back, and on "what's everyone doing?" checks every Claude chat
   (list_sessions) and answers in one place. A chat waiting on FilthE gets named with the exact reply to paste.
+- **A site blocked by the proxy - check the proxy, not just retry the site (T194, 2026-09-28):** before assuming a
+  site is unreachable, run `curl -sS "$HTTPS_PROXY/__agentproxy/status"` (already `docs/research/backlog.md`'s
+  practice) - it names the last real block/reset and why, so a helper isn't guessing. Any Bash-capable helper
+  (Research Lead, Designer, Engine Mechanic, Builder, QA Tester) can then try `curl -sS -m 20 -A "Mozilla/5.0" <url>`
+  itself. The Improvement Scout has no Bash tool (by design - haiku, research-only), so it can't run either check:
+  it should say the exact blocked host in its report instead of giving up on the topic, so the Research Lead (which
+  has Bash) can retry it when merging scout reports, the way `docs/research/backlog.md` already tracks re-checks.
 
 ## Where to learn more (written for AIs to read)
 - Claude Code docs index for agents: https://code.claude.com/docs/llms.txt (append `.md` to any docs page URL for

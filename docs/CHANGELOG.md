@@ -9,11 +9,27 @@
 - Smoother: robots no longer redraw the room's shadows every frame (the stutter); shadows only update when the light moves.
 - Shadow glitches fixed (shadow settings follow the sun's angle; the shadow area fits the building). Lighter on Retina Macs.
 - Add ?perf to the hub link to see live speed numbers in the corner.
+## v25.3 - 2026-09-28
+- Practice mode (60 practice houses, a full fake sales day) to try the app risk-free; Calls today on Now (account hits + business calls) and a storm-age line on claims.
+- Legal locks: tear-off/install can't be logged until the itemized description reached the homeowner AND the insurer (44-8606) and the 3-day cancel window is over; the spoken door opener now says the knocker's own name in EN and ES (69-1602), not always Alex's.
+- Midnight/Central-time fixes (day-keyed listeners roll over correctly, the 7 PM Central off-by-one is gone), a bad-signal-safe outbox retry scheduler, and coaching/sales-script text removed from the app (a pro needs eyes and memory, not canned lines).
+
+## Practice Door v11 - 2026-09-28
+- New Plan tab: the 4-week practice-only path (docs/orders/sales-path.md) with today's day on top of Practice, one tap to start each step (language, homeowner and Rookie mode set for you), a checkbox per day and its own streak. Saved on this device only.
+- Ready-to-knock checklist that checks itself from your practice (opener passes in a row per language, runs, Rookie-off runs, drills passed, clean trap and Spanish-only runs, streak), plus "I can" for the one only you can judge.
+- Objections tab: the top 15 legal answers, EN and ES side by side, searchable, with "I know it by heart" marks (they feed the checklist). Lesson prompts are buttons: copy or open straight in Claude.
+- Aldaba look (graphite by default, Bricolage titles, the Aldaba mark) and a two-column MacBook layout; phone layout unchanged in order.
 
 ## AI hub v27 "Nocturne" - 2026-09-28
 - One MacBook screen, no page scroll: the office fills it and a side panel has Crew / Board / Log / Chat tabs. New dark night look (champagne = working, orange only when something needs you), "Make it yours" to change it, a living "mind" in the sky, and trackpad scroll flies the camera in.
 - Answer from the top bar, task cards, search (/), keyboard shortcuts (? shows them), reconnects by itself after the Mac sleeps, refresh with R, proof your answers landed, plus 12 conveniences (smart King wake-ups, missed-run alerts, "Not now" that comes back, a morning note).
 - New outfits and personalities, robots notice you and your cursor, the line at your spot, poke/coffee reactions, stand-ups and celebrations, 9 camera views (blueprint, security cam, ride-along, robot eyes, director mode...).
+- AI hub: Chat wakes the live King instantly; no scheduled runs.
+
+## v25.2 - 2026-09-27
+- Job tracker on every insurance claim: the 14 steps from the contingency agreement to the thank-you note, each with who does it, the papers by name, when, the legal line and the money. One tap logs a step with today's date (Undo on the toast); done steps fold into one line.
+- Hard stops: tear-off can't be logged until the itemized description went to the homeowner AND the insurer (NE 44-8606) and the 3-day cancel is over (the end date shows); materials can't be logged until the ACV check is deposited or a supplier account is approved. The Right Hand chat follows the same stops and logs the new steps ("permit pulled, number 1234").
+- Due reminders in amber (today) and red (late): mortgage endorsement the day the ACV check comes, depreciation request the day the job finishes, review link within 24 hours, warranty registration. The door opener now says your name, HMP and what we sell first (NE 69-1602).
 
 ## AI hub v26 "Penthouse HQ" - 2026-09-27
 - The hub opens on a live 3D office on two floors (slide down, suction tube up). Every AI is a robot dressed for its job and moves when it really checks in: working at its desk, waiting at "your spot", stuck with a red light, asleep in a charging pod, a sparkle when it finishes.

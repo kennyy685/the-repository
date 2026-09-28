@@ -69,6 +69,7 @@ const PAGES = [
       // v25: the other screens FilthE uses every day
       { name: "more sheet", steps: ["#moreBtn"] },
       { name: "claim sheet", steps: ["#tb-money", "#tab-money .jcard"] },
+      { name: "claim job step", steps: ["#tb-money", '[data-open="claim:1107-n-h-st"]', '[data-jtopen="build"]'] },   // v25.2 T199: a Job tracker step with its hard stop
       { name: "knock all doors", steps: ["#tb-knock", "#kAllBtn"] },
       { name: "walk menu", steps: ["#tb-knock", '[data-open="walk:"]'] },
       { name: "homeowner view", steps: ["#tb-leads", "#tab-leads .a-card", "[data-ho]"] },
@@ -91,7 +92,8 @@ const PAGES = [
     rel: "pages/practice-door.html",
     storage: { en: { "hmp-practice-door-v1": '{"lang":"en"}' }, es: { "hmp-practice-door-v1": '{"lang":"es"}' } },
     tabs: null,
-    views: [{ name: "cheat sheet", steps: ["#cheatBtn1"] }],
+    // v11: the Plan (4-week path + ready-to-knock) and the top 15 objections, each its own tab
+    views: [{ name: "cheat sheet", steps: ["#cheatBtn1"] }, { name: "plan", steps: ["#tabPlan"] }, { name: "objections", steps: ["#tabObj"] }],
   },
 ];
 

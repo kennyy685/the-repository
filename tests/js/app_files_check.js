@@ -55,9 +55,12 @@ const EXPECT = {
   HMPTakeoff: ["takeoff", "selfCheck", "TAKEOFF_RULES_VERSION"],
   EstimateScreen: ["create", "saveToLead", "outboxDb", "savedLine", "SUPPORTED_RULES"],
   HMPFollowups: ["followups", "selfCheck", "FOLLOWUPS_VERSION"],
+  HMPJobTrack: ["model", "gates", "reminders", "tapPatch", "checkWrite", "cancelEnd", "SHAPE", "JOB_STEP", "selfCheck"],   // v25.2 T199: the Job tracker (app/jobtrack.js)
   HMPTranslate: ["sayIt", "readLegal", "checkRisk"],
   HMPIcons: ["svg", "names", "inject"],                                              // v25: the icon sprite (v25/icons.js)
   HMPMap: ["renderWalkMap", "renderZoneMap", "renderHomeMap", "renderHailMap"],      // v25: the vector maps (v25/walkmap.js)
+  HMPPractice: ["isOn", "set", "put", "ops", "count", "photoId", "isPhoto", "t", "paint", "loadHouses", "houses", "wantHouses"],   // T201: Practice mode (v25/practice.js)
+  HMPCalls: ["view", "practiceDoc", "daysBetween", "chiDay", "stormAge", "t"],       // calls/today on Now + storm age (v25/calls.js)
 };
 const sandbox = { console, setTimeout, clearTimeout, Promise };
 sandbox.window = sandbox; sandbox.self = sandbox; sandbox.globalThis = sandbox;

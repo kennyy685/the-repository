@@ -1,7 +1,11 @@
-"""Offline tests for T166 (round 44): the `scorecard` section of `hh.py weekly` and the standalone
-`hh.py scorecard` command - the 5 pilot numbers (doors knocked, contact rate, inspections booked per 100 doors,
-signed jobs, average $ per signed job) next to industry ranges from data/benchmarks.json.
-Fixtures: tests/fixtures/scorecard_doors.json, scorecard_leads.json, scorecard_claims.json.
+"""Offline tests for T166 (round 44) and T209 (round 58, Aldaba proof numbers): the `scorecard` section of
+`hh.py weekly` and the standalone `hh.py scorecard` command - doors knocked, contact rate, inspections booked per
+100 doors, signed jobs, signed-job rate, average $ per signed job, and knock-to-signed median days - next to
+industry ranges from data/benchmarks.json.
+Fixtures: tests/fixtures/scorecard_doors.json, scorecard_leads.json, scorecard_claims.json. `claims/202-ash-st` has
+a door tap on 2026-09-25 (scorecard_doors.json) and `job.contract_signed: 2026-09-28` -> a 3-day knock-to-signed
+gap; `claims/1418-irving-st` has a signed date but NO matching door tap in these fixtures, so it must be left out
+of the median rather than guessed.
 """
 import contextlib
 import io
@@ -104,6 +108,41 @@ class ScorecardMetrics(unittest.TestCase):
         self.assertEqual(scorecard.report([], [], today="2026-09-27")["company"], "hmp")
         self.assertEqual(scorecard.report([], [], today="2026-09-27", company="acme")["company"], "acme")
 
+    # ---- T209: signed-job rate + knock-to-signed median days ----------------------------------------------------
+    def test_signed_job_rate_is_signed_over_inspections(self):
+        doc = scorecard.report(self.doors, self.leads, self.claims, today="2026-09-27")
+        # 6 signed / 2 booked doors (SC-1, SC-6) in the fixtures.
+        self.assertEqual(doc["metrics"]["signed_job_rate"], round(6 / 2, 3))
+
+    def test_signed_job_rate_is_null_with_no_inspections(self):
+        doc = scorecard.report([], [{"id": "a", "stage": "job_scheduled"}], today="2026-09-27")
+        self.assertIsNone(doc["metrics"]["signed_job_rate"])
+
+    def test_knock_to_signed_days_only_counts_rows_with_both_dates(self):
+        # 202 Ash St: door tap 2026-09-25 -> job.contract_signed 2026-09-28 = 3 days. 1418 Irving St has a signed
+        # date but no door tap in these fixtures, so it's left out rather than guessed; every other signed row
+        # (leads, and claims without job.contract_signed) has no signed date at all.
+        doc = scorecard.report(self.doors, self.leads, self.claims, today="2026-09-27")
+        self.assertEqual(doc["knock_to_signed_days"], {"median": 3, "n": 1})
+
+    def test_knock_to_signed_days_is_null_without_claims(self):
+        doc = scorecard.report(self.doors, self.leads, today="2026-09-27")     # leads have no signed-date field
+        self.assertEqual(doc["knock_to_signed_days"], {"median": None, "n": 0})
+
+    def test_knock_to_signed_days_never_crashes_on_empty_data(self):
+        doc = scorecard.report([], [], [], today="2026-09-27")
+        self.assertEqual(doc["knock_to_signed_days"], {"median": None, "n": 0})
+        self.assertIsNone(doc["metrics"]["signed_job_rate"])
+
+    def test_knock_to_signed_days_median_of_several(self):
+        doors = [{"date": "2026-09-01", "address": "1 A St", "pid": "1", "result": "booked"},
+                {"date": "2026-09-05", "address": "2 B St", "pid": "2", "result": "booked"}]
+        claims = [{"id": "1-a-st", "address": "1 A St", "stage": "signed", "job": {"contract_signed": "2026-09-06"}},
+                 {"id": "2-b-st", "address": "2 B St", "stage": "signed", "job": {"contract_signed": "2026-09-14"}}]
+        doc = scorecard.report(doors, [], claims, today="2026-09-27")
+        # gaps: 5 days (1 A St), 9 days (2 B St) -> median 7
+        self.assertEqual(doc["knock_to_signed_days"], {"median": 7, "n": 2})
+
 
 class ScorecardCli(unittest.TestCase):
     def _run(self, args):
@@ -161,6 +200,32 @@ class WeeklyScorecardSection(unittest.TestCase):
         doc = weekly.report(self.doors, self.leads, week="2026-39", today="2026-09-26", bench=benchmarks.load())
         self.assertIsNotNone(doc["scorecard"]["industry"])
         self.assertIn("avg_dollar_per_signed_job", doc["scorecard"]["industry"]["rates"])
+
+    def test_scorecard_section_has_the_t209_proof_fields_even_with_no_data(self):
+        card = weekly.report(self.doors, self.leads, week="2026-39", today="2026-09-26")["scorecard"]
+        self.assertIn("signed_job_rate", card["metrics"])                          # leads-only: no booked doors here
+        self.assertEqual(card["knock_to_signed_days"], {"median": None, "n": 0})   # no claims passed -> never guessed
+
+    def test_scorecard_section_folds_in_claims_when_given(self):
+        doors = weekly.load_doors(load(DOORS))
+        leads = weekly.load_leads(load(LEADS))
+        claims = scorecard.load_claims(load(CLAIMS))
+        doc = weekly.report(doors, leads, week="all", today="2026-09-27", claims=claims)
+        card = doc["scorecard"]
+        self.assertEqual(card["metrics"]["signed_jobs"], 6)                # same claims-folded count as ScorecardMetrics
+        self.assertEqual(card["knock_to_signed_days"], {"median": 3, "n": 1})   # 202 Ash St: tap 09-25 -> signed 09-28
+
+    def test_cli_weekly_accepts_claims(self):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = hh.main(["weekly", "--doors", DOORS, "--leads", LEADS, "--claims", CLAIMS,
+                         "--week", "all", "--date", "2026-09-27"])
+        self.assertEqual(rc, 0)
+        card = json.loads(out.getvalue())["scorecard"]
+        self.assertEqual(card["metrics"]["signed_jobs"], 6)
+        self.assertEqual(card["knock_to_signed_days"], {"median": 3, "n": 1})
 
 
 if __name__ == "__main__":

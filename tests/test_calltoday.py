@@ -18,7 +18,7 @@ from hailhunter import config as C  # noqa: E402
 
 TODAY = "2026-09-26"
 SPRING = {"name": "Springhill Ridge Apartments", "phone": "(402) 891-0742", "ask_for": "Community manager",
-          "confidence": "high"}
+          "ask_for_es": "Gerente de la comunidad", "confidence": "high"}
 
 
 def target(addr, city, day, hail, contact, kind="Apartments / multi-family", score=10.0):
@@ -55,10 +55,12 @@ class CallToday(unittest.TestCase):
         self.assertEqual([c["name"] for c in doc["calls"]], ["Springhill Ridge Apartments", "Super Saver (Fallbrook)"])
         self.assertEqual(doc["count"], 2)
         first = doc["calls"][0]
-        for k in ("name", "phone", "ask_for", "address", "city", "hail_in", "day", "why", "opener"):
+        for k in ("name", "phone", "ask_for", "ask_for_es", "address", "city", "hail_in", "day", "why", "opener"):
             self.assertIn(k, first)
         self.assertEqual((first["address"], first["hail_in"], first["day"], first["rank"]),
                          ("15735 Rosewood St", 1.75, "2026-09-12", 1))
+        self.assertEqual(first["ask_for_es"], "Gerente de la comunidad")     # Spanish twin, additive
+        self.assertEqual(doc["calls"][1]["ask_for_es"], "")                 # no twin in this contact: empty, not English
         self.assertEqual([a["address"] for a in first["also"]], ["15859 Rosewood St"])      # one call per line
         self.assertIn("14 days ago", first["why"]["en"])
         self.assertIn("hace 14 días", first["why"]["es"])
@@ -109,6 +111,7 @@ class CallToday(unittest.TestCase):
                 rows = list(csv.DictReader(f))
             self.assertEqual([r["name"] for r in rows], ["Springhill Ridge Apartments", "Super Saver (Fallbrook)"])
             self.assertTrue(rows[0]["opener_es"].startswith("Hola"))
+            self.assertEqual(rows[0]["ask_for_es"], "Gerente de la comunidad")
             with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(hh.main(["calltoday", "--hud", os.path.join(tmp, "missing.json"), "--date", TODAY]), 0)
         finally:
@@ -118,6 +121,7 @@ class CallToday(unittest.TestCase):
 TUESDAY = "2026-09-29"
 ASSOC = [
     {"name": "Assoc A", "city": "Omaha", "phone": "402-210-0273", "kind": "association", "why_en": "a", "why_es": "a",
+     "ask_for": "Membership coordinator", "ask_for_es": "Coordinador(a) de membresía",
      "opener_en": "Hi, this is {caller} with {company}{town}. How do vendors join?",
      "opener_es": "Hola, habla {caller} de {company}{town}. ¿Cómo se unen los proveedores?"},
     {"name": "Assoc B", "city": "Omaha", "phone": "402-932-1022", "kind": "association", "why_en": "b", "why_es": "b",
@@ -141,6 +145,9 @@ class AssociationCalls(unittest.TestCase):
         self.assertEqual(kinds, ["building", "building", "association", "association"])
         self.assertEqual([c["rank"] for c in doc["calls"]], [1, 2, 3, 4])
         a = doc["calls"][2:]
+        by_name = {c["name"]: c for c in a}
+        self.assertEqual(by_name["Assoc A"]["ask_for_es"], "Coordinador(a) de membresía")
+        self.assertEqual(by_name["Assoc C"]["ask_for_es"], "")             # no twin given: empty, not the EN text
         for c in a:
             self.assertIn(c["name"], {"Assoc A", "Assoc B", "Assoc C"})    # never the null phone or the cell
             self.assertNotIn("{", c["opener"]["en"] + c["opener"]["es"])

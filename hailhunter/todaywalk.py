@@ -8,6 +8,9 @@ Output: {date, area, why{en,es}, goal_doors, kind: storm|everyday, list_id,
          stops:[{pid, address, city, lat, lon, pass}], spanish_share, who: Kenny|Alex|either}
 `spanish_share` (T37) = Census share of Spanish-speaking households on today's houses (null when unknown);
 `who` = who should knock: Alex (Spanish) when the share is high, Kenny when low, either in between or unknown.
+`mortgage_share` (T211) = Census ACS B25081 share of owner-lived homes with a mortgage on today's houses (house-weighted
+from the walks' block groups, null when unknown); `mortgage_note {en, es}` (only when known, see `mortgage_note`) =
+"About 70% of owner-lived homes here have a mortgage (Census). Mortgage companies require home coverage."
 `why` is one plain sentence in English and Spanish: no scores, no ids.
 Added (additive): `est_minutes` (min_per_door x doors + the walk between stops at walk_mph), `walk_mi`,
 `drive_from_home_mi` (straight line, company home -> first stop), `best_time {en, es, start, end}` (config
@@ -29,12 +32,16 @@ kind: "siding", rough: true, material, stories, using_reference}` = estimate.est
 footprint = sqft / stories (stories unknown: low = 1-story, high = 2-story), and `house_line {en, es}`
 ("Built 1962 · ~1,400 sq ft · vinyl siding about $10,200-$21,850"). With any rough price the doc gets
 `rough_note {en, es}` (estimate range, not final). Storm walk under evidence_fade_days old: `evidence_note {en, es}`.
-T83 "Before the next door" (research round 14, spec 2): every stop gets `coach {en, es, tags[]}`, one or two short
-rule-based lines (see `coach_for`): the 69-1602 opener on the first door of the day, a reset line after 3+ "no" in a
-row today (`today_taps`), a come-back promise, the hail at that house, a best-time note on a retry, the house's age.
-Logistics, mindset and hail facts only: never insurance paying, never the deductible.
+T83 "Before the next door" (research round 14, spec 2): every stop gets `coach` (see `coach_for`), the 69-1602
+opener on the first door of the day (`today_taps`) and, on a stop with a promise from a prior visit, the come-back
+time. Null when neither applies. T195 (2026-09-28): mindset lines (reset, "knock, step back, smile"), inspection
+tips (hail/soft-metals, old-house wear) and the come-back script moved to `docs/orders/sales-path.md`; the app
+already shows the door-score `why` line and its own come-back text, so those were pure duplication. `coach` stays
+only for the legally required opener and the come-back fact. Never insurance paying, never the deductible, never a
+sales script or technique tip.
 Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
-one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate.
+one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners, Census), bought 2021"): an estimate. The
+"area N% owners" part only when the walk's owner share is known (`walk_owner`): never the 0.65 scoring default.
 Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
 or heat, no top-up from other walks, houses picked by door score (best first), then put in walking order.
 """
@@ -46,6 +53,7 @@ from datetime import date, datetime, timezone
 from . import doorscore
 from . import estimate as est
 from .config import DEFAULTS
+from .followups import _day as _local_day
 from .geo import haversine_mi
 
 NOT_HOME = {"not_home", "nothome", "not home", "not-home", "no_home", "no esta", "no está"}
@@ -161,8 +169,8 @@ def today_taps(obj, today):
             continue
         data = doc.get("data") if isinstance(doc.get("data"), dict) else doc
         k = str(key or "").split("/")[-1]
-        day = str(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else "")
-                  or str(data.get("at") or "")[:10])[:10]
+        # date > the doc key's date prefix > the tap's "at" timestamp (America/Chicago local day, DST-aware)
+        day = _local_day(data.get("date") or (k[:10] if re.match(r"^\d{4}-\d{2}-\d{2}_", k) else None) or data.get("at"))
         if day != today:
             continue
         hist = [h for h in data.get("history") or [] if isinstance(h, dict) and h.get("result")]
@@ -309,13 +317,18 @@ def why_sentence(kind, why, stops, day=None, old_before=1980, strong_before=None
 
 
 # ------------------------------------------------------------------ who knocks (T37)
-def spanish_for(chosen, L, turf_share):
-    """House-weighted Spanish-speaking share of today's stops from their walks' shares (list's share as fallback)."""
-    by_turf = {t.get("turf"): t.get("spanish_share") for t in L.get("turfs") or []}
+def _share_for(chosen, turf_share, by_turf, list_share):
+    """House-weighted share of today's stops: each stop takes its walk's share (by_turf), else the list's share."""
     v = [by_turf.get(s.get("turf"), turf_share) for s in chosen]
-    v = [x if x is not None else L.get("spanish_share") for x in v]
+    v = [x if x is not None else list_share for x in v]
     v = [float(x) for x in v if x is not None]
     return round(sum(v) / len(v), 3) if v else None
+
+
+def spanish_for(chosen, L, turf_share):
+    """House-weighted Spanish-speaking share of today's stops from their walks' shares (list's share as fallback)."""
+    return _share_for(chosen, turf_share, {t.get("turf"): t.get("spanish_share") for t in L.get("turfs") or []},
+                      L.get("spanish_share"))
 
 
 def who_knocks(share, cfg=None):
@@ -323,6 +336,50 @@ def who_knocks(share, cfg=None):
     if share is None:
         return "either"
     return "Alex" if share >= lang["spanish_high"] else ("Kenny" if share < lang["spanish_low"] else "either")
+
+
+# ------------------------------------------------------------------ owner share (T211 follow-up)
+def walk_owner(t, L):
+    """A hud.json walk's owner-occupied share for door score v2 (the "area 72% owners" line), or None. Only engines
+    from the T211 follow-up on write an honest one (they also put `owner_share` on the list itself); older ones put
+    the Hot Zones 'unknown' default (0.65) on a storm walk with no Census data, which would read as a real percent."""
+    return (t or {}).get("owner_share") if "owner_share" in (L or {}) else None
+
+
+# ------------------------------------------------------------------ mortgage share (T211, research round 62)
+def walk_mortgage(t, L):
+    """A hud.json walk's Census mortgage share, or None. Only engines from T211 on write an honest one (they also put
+    `mortgage_share` on the list itself); older ones put the Hot Zones 'unknown' default (0.6) on the walk."""
+    return (t or {}).get("mortgage_share") if "mortgage_share" in (L or {}) else None
+
+
+def mortgage_for(chosen, L, turf_share):
+    """House-weighted Census mortgage share of today's stops (list's share as fallback), like spanish_for."""
+    return _share_for(chosen, turf_share, {t.get("turf"): walk_mortgage(t, L) for t in L.get("turfs") or []},
+                      L.get("mortgage_share"))
+
+
+def mortgage_note(share, cfg=None):
+    """One plain line {en, es} for the Census share of owner-lived homes with a mortgage around a walk; None when
+    unknown. Rounded to 5% (block-group survey numbers are estimates). An area fact: never the word "insured", never
+    a claim about one house or about what an insurer pays."""
+    try:
+        share = float(share)
+    except (TypeError, ValueError):
+        return None
+    if not share >= 0:                                # NaN or negative: bad data, say nothing
+        return None
+    share = min(share, 1.0)
+    low = {**DEFAULTS["mortgage"], **((cfg or {}).get("mortgage") or {})}["low_share"]
+    p = int(round(share * 20)) * 5
+    en, es = ("Under 5%", "menos del 5%") if p <= 0 else ("Over 95%", "más del 95%") if p >= 100 else \
+        (f"About {p}%", f"cerca del {p}%")
+    en += " of owner-lived homes here have a mortgage (Census)"
+    es = f"En esta zona, {es} de las casas donde vive el dueño tienen hipoteca (Censo)"
+    if share < low:
+        return {"en": en + ": many are owned outright.", "es": es + ": muchas ya están pagadas."}
+    return {"en": en + ". Mortgage companies require home coverage.",
+            "es": es + ". Las compañías hipotecarias exigen cobertura para la casa."}
 
 
 # ------------------------------------------------------------------ the pick
@@ -664,10 +721,7 @@ def evidence_docs(hud, stops):
     return {"slug_rule": SLUG_RULE, "docs": docs}
 
 
-# ------------------------------------------------------------------ T83: before the next door
-MONTHS_EN3 = [m[:3] for m in MONTHS_EN]
-MONTHS_ES3 = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
-RESET_AFTER = 3                                   # "no" answers in a row before the reset line
+# ------------------------------------------------------------------ T83: before the next door (69-1602 opener + come-back)
 
 
 def _hhmm(t, lang):
@@ -676,57 +730,31 @@ def _hhmm(t, lang):
 
 
 def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None, old_before=1980):
-    """The 10-second card shown before door `i` (0 = the next door): {en, es, tags[]}, at most two short lines,
-    picked by rules in this order: first_door (69-1602 opener, no taps yet today), reset (3+ "no" in a row),
-    come_back, hail (storm walks: hud hail_evidence, else the list's hail at the house), retry (not home before:
-    best hours), old_house (built before old_before), else general. Never about insurance paying or deductibles."""
+    """The card shown before door `i` (0 = the next door): {en, es, tags[]}, or None when neither rule applies.
+    Rules, in order: first_door (69-1602 opener, no taps yet today), come_back (a promise from a prior visit).
+    T195 (2026-09-28): the reset/mindset line, the hail and old-house inspection tips, the retry best-hours tip
+    and the come-back script were coaching text, not legal or door-fact content - moved to
+    docs/orders/sales-path.md. `s`, `kind`, `storm_day`, `hail_ev`, `bt` and `old_before` are accepted for call
+    compatibility but no longer change the output. Never about insurance paying or deductibles, never a script."""
     lines = []
     if i == 0 and not taps:
         lines.append(("first_door", "First door today: say your name, HMP Siding & Roofing, and what you sell, "
                                     "before anything else.",
                       "Primera puerta de hoy: di tu nombre, HMP Siding & Roofing y qué vendes, antes que nada."))
-    if i == 0 and no_streak(taps) >= RESET_AFTER:
-        lines.append(("reset", "A few no's in a row is normal on a long walk. Reset, smile, next door.",
-                      "Varios \"no\" seguidos es normal en una ruta larga. Respira, sonríe, siguiente puerta."))
     cb = stop.get("come_back")
     if cb:
         en_t = f" at {_hhmm(cb['time'], 'en')}" if cb.get("time") else " today"
         es_t = f" a las {_hhmm(cb['time'], 'es')}" if cb.get("time") else " hoy"
-        lines.append(("come_back", f"They asked you to come back{en_t}. Open with: \"You told me to come back today.\"",
-                      f"Te pidieron volver{es_t}. Empieza con: \"Usted me dijo que regresara hoy.\""))
-    if kind == "storm":
-        ev = hail_ev or {}
-        h, day = ev.get("hail_in"), ev.get("day") or storm_day
-        if h is None:
-            h = s.get("hail")
-        try:
-            d = date.fromisoformat(str(day)[:10]) if day else None
-        except ValueError:
-            d = None
-        if h:
-            h = round(float(h), 1)
-            lines.append(("hail", f"{h:g}-inch hail here" + (f" on {MONTHS_EN3[d.month - 1]} {d.day}" if d else "") +
-                          ": check the gutters and soft metals (vents, window wraps) as you walk up.",
-                          f"Aquí cayó granizo de {h:g} pulg." + (f" el {d.day} de {MONTHS_ES3[d.month - 1]}" if d else "")
-                          + ": revisa las canaletas y los metales blandos (ventilas, forros) al acercarte."))
-    if stop.get("pass", 1) >= 2 and not cb and bt and bt.get("start"):
-        win = (bt["start"], bt["end"])
-        lines.append(("retry", f"Not home last time. People are most often home {_span(win, 'en')}.",
-                      f"No estaban la última vez. La gente suele estar en casa {_span(win, 'es')}."))
-    y = stop.get("year_built")
-    if kind != "storm" and y and y < old_before:
-        lines.append(("old_house", f"Built {y}: look at the siding, trim and roof edge for wear as you walk up.",
-                      f"Construida en {y}: revisa el desgaste del siding, las molduras y la orilla del techo al acercarte."))
+        lines.append(("come_back", f"They asked you to come back{en_t}.", f"Te pidieron volver{es_t}."))
     if not lines:
-        lines.append(("general", "Knock, step back, smile. Name and HMP first, then one question.",
-                      "Toca, da un paso atrás, sonríe. Primero tu nombre y HMP, luego una pregunta."))
+        return None
     lines = lines[:2]
     return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
 
 
 def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None, pace=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
-    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines.
+    `taps` = today's door results in order (`today_taps`), for the `coach` card's first-door (69-1602) rule.
     `only` = (list_id, turf): build that one walk (a hot zone's walk), see the module doc."""
     tw = _tw(cfg)
     results = results or {}
@@ -780,7 +808,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     left = best["left"]
     turf_of = {t.get("turf"): t for t in L.get("turfs") or []}
     storm_day = L.get("day") if best["kind"] == "storm" else None
-    doors = {str(s["pid"]): doorscore.score(s, best["kind"], turf_of.get(s.get("turf"), {}).get("owner_share"),
+    doors = {str(s["pid"]): doorscore.score(s, best["kind"], walk_owner(turf_of.get(s.get("turf")), L),
                                             storm_day, today, cfg) for ss in pools[L["id"]].values() for s in ss}
     if only:                                       # a zone walk: the best doors first (untried before retries)
         left = sorted(left, key=lambda s: -doors[str(s["pid"])]["score"])
@@ -805,6 +833,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
         " & ".join(k for k, _ in streets.most_common(2))
     old_before = ((cfg or {}).get("everyday") or {}).get("old_before", 1980)
     spanish = spanish_for(chosen, L, best["turf"].get("spanish_share"))
+    mortgage = mortgage_for(chosen, L, walk_mortgage(best["turf"], L))
     doc = {
         "date": today.isoformat(), "area": area,
         "why": why_sentence(best["kind"], best["why"], chosen, L.get("day") if best["kind"] == "storm" else None,
@@ -817,7 +846,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
                    **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {}),
                    **house_facts(s, cfg, today)}
                   for s in chosen],
-        "spanish_share": spanish, "who": who_knocks(spanish, cfg),
+        "spanish_share": spanish, "who": who_knocks(spanish, cfg), "mortgage_share": mortgage,
     }
     bt = best_time(today, cfg)
     ev = hud.get("hail_evidence") or {}
@@ -839,6 +868,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     note = evidence_note(best["kind"], L.get("day"), today, cfg)
     if note:
         doc["evidence_note"] = note
+    note = mortgage_note(mortgage, cfg)                           # T211: only when the Census share is known
+    if note:
+        doc["mortgage_note"] = note
     return doc
 
 
@@ -860,7 +892,7 @@ def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None,
                   "es": "Todavía no hay listas de puertas: la actualización de tormentas no ha hecho ninguna. "
                         "Revisa que Storm Watch haya corrido."}
     doc = {"date": today.isoformat(), "area": None, "why": None, "goal_doors": 0, "kind": None, "list_id": None,
-           "stops": [], "spanish_share": None, "who": "either", "est_minutes": 0, "walk_mi": 0.0,
+           "stops": [], "spanish_share": None, "mortgage_share": None, "who": "either", "est_minutes": 0, "walk_mi": 0.0,
            "drive_from_home_mi": None, "best_time": best_time(today, cfg), "none_reason": reason}
     doc.update(freshness(hud, now, cfg))
     return doc

@@ -81,11 +81,11 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
         en.append("owner lives here" if occ else "likely a rental")
         es.append("vive el dueño" if occ else "probablemente rentada")
     elif basis == "area" and owner >= 0.5:
-        en.append(f"likely owner-occupied (area {round(owner * 100)}% owners)")
-        es.append(f"probablemente vive el dueño ({round(owner * 100)}% dueños en la zona)")
+        en.append(f"likely owner-occupied (area {round(owner * 100)}% owners, Census)")
+        es.append(f"probablemente vive el dueño ({round(owner * 100)}% dueños en la zona, Censo)")
     elif basis == "area":
-        en.append(f"many renters here (area {round(owner * 100)}% owners)")
-        es.append(f"muchos inquilinos ({round(owner * 100)}% dueños en la zona)")
+        en.append(f"many renters here (area {round(owner * 100)}% owners, Census)")
+        es.append(f"muchos inquilinos ({round(owner * 100)}% dueños en la zona, Censo)")
     sold_after = bool(kind == "storm" and s.get("sold_after_storm"))
     if sale_y and not sold_after and (recent or kind == "everyday"):
         en.append(f"bought {sale_y}")

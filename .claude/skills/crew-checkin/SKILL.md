@@ -27,6 +27,11 @@ in 10 lines or fewer what is going on in each, and checks in here like any robot
 as a question, never as a separate list.
 
 ## Check in / check out
+Helpers' start/finish check-ins are logged by hooks (T21) and posted by the King with
+`python3 .claude/hooks/hub_flush.py` (prints the `batch` writes; `--versions <id>=<n>,...` adds robot updates; run
+`--done` after the batch commits; `--hold <type>` when the King's notice says a helper only paused with
+background work still running). Use real UTC time (`date -u`), never a guessed one. Hand-written posts below are
+for the King's own status, reviews, handoffs and the board.
 - `update` `agents/<id>`: `{status, room, doing, task, at}`, plus two optional fields:
   - `ask`: the exact question, when status is `waiting` (else the hub shows `doing` as the question).
     FilthE answers it right in the robot's card. The answer lands in `answers/<id>-q<hash>` (hub v27: a

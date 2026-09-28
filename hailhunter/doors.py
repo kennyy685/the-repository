@@ -210,7 +210,7 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
     med_val = float(np.median(vals)) if vals else None
     sb = hz["size_base"]
     size = hz["size_unknown"] if med_val is None else sb + (1 - sb) * min(1.0, med_val / hz["value_full"])
-    fresh = interp(sc["recency_curve"], days)
+    fresh = interp(hz.get("age_curve") or sc["recency_curve"], days)   # T203: zone-only dip/bump curve
     opened = 1.0                                   # share not re-roofed since the storm: no permit feed yet
     town = area.split(",")[0].strip()
     compete = hz["compete_factor"] if town in hz["compete_towns"] and days <= hz["compete_days"] else 1.0
@@ -226,10 +226,16 @@ def hot_zone(stops, cfg, storm_day, area, mortgage=None, today=None):
         why.append("other roofers likely here")
     if days <= 45:
         why.append(f"fresh storm ({days} days)")
+    wave = hz.get("second_wave_days")
+    if wave and wave[0] <= days <= wave[1]:
+        why.append(f"past the chaser rush ({days} days)")
     if sold >= 3:
         why.append(f"{sold} sold since storm")
+    # "owners" is what the heat scored with (the owner_unknown default when no house has data); "owner_share" is the
+    # walk's real share or None, and is the only one hud.json shows (T211 follow-up: a default never looks like data)
     parts = {"damage": round(damage, 3), "insured": round(insured, 3), "roof": roof, "size": round(size, 3),
              "fresh": round(fresh, 3), "open": opened, "compete": compete, "owners": round(own, 3),
+             "owner_share": round(own, 3) if owners else None,
              "mortgage": round(mort, 3), "median_built": med_year, "median_value": med_val, "days": days}
     return {"heat": heat, "why": why[:4], "exp_inspections": round(len(stops) * hz["inspect_rate"] * heat / 50, 1),
             "parts": parts}

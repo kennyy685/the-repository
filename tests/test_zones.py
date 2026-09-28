@@ -22,7 +22,8 @@ FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 DAY = "2026-09-25"
 ZONE_KEYS = {"id", "name", "center", "polygon", "polygon_kind", "score", "heat", "hail_in", "storm_day", "homes", "why",
              "walk_id", "kind", "dist_mi", "list_id", "turf",
-             "walk_polygon", "walk_center", "homes_total", "walk_homes"}          # + map polish (tests/test_walk_map.py)
+             "walk_polygon", "walk_center", "homes_total", "walk_homes",          # + map polish (tests/test_walk_map.py)
+             "mortgage_share", "mortgage_note"}                                   # + T211 (tests/test_mortgage_share.py)
 NEVER = re.compile(r"insur|asegur|seguro|deduct|deduc|guarant", re.I)
 
 
@@ -46,9 +47,10 @@ class DoorScore(unittest.TestCase):
         p = d["parts"]
         want = 100 * p["hail"] * p["owner_fit"] * p["kind"] * p["roof_age"] * p["value"] * p["sold_after_storm"]
         self.assertAlmostEqual(d["score"], round(want, 1))
-        self.assertEqual(d["why"]["en"], '1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021')
+        self.assertEqual(d["why"]["en"],
+                         '1.6" hail, built 1978, likely owner-occupied (area 72% owners, Census), bought 2021')
         self.assertEqual(d["why"]["es"], "Granizo de 1.6 pulg., construida en 1978, probablemente vive el dueño "
-                                         "(72% dueños en la zona), comprada en 2021")
+                                         "(72% dueños en la zona, Censo), comprada en 2021")
         self.assertIsNone(NEVER.search(d["why"]["en"] + d["why"]["es"]))
 
     def test_sold_after_storm_and_rentals_score_lower(self):
@@ -58,8 +60,19 @@ class DoorScore(unittest.TestCase):
         self.assertLess(sold["score"], good)
         self.assertIn("sold after the storm (2026)", sold["why"]["en"])
         self.assertLess(self.s(base, own=0.2)["score"], good)
-        self.assertIn("many renters here", self.s(base, own=0.2)["why"]["en"])
+        self.assertIn("many renters here (area 20% owners, Census)", self.s(base, own=0.2)["why"]["en"])
         self.assertLess(self.s({**base, "kind": "multi"}, own=0.8)["score"], good)
+
+    def test_area_owner_lines_cite_census_like_t211_mortgage_note(self):
+        """T212: the "area N% owners" door line names its source (Census), the same way T211's mortgage_note does,
+        so FilthE doesn't have to take an unsourced percent on faith. Fails without the (Census)/(Censo) tag."""
+        base = {"hail": 1.6, "built": 1978, "value": 160000, "kind": "single"}
+        owned = self.s(base, own=0.72)["why"]
+        self.assertIn("(area 72% owners, Census)", owned["en"])
+        self.assertIn("(72% dueños en la zona, Censo)", owned["es"])
+        rented = self.s(base, own=0.2)["why"]
+        self.assertIn("(area 20% owners, Census)", rented["en"])
+        self.assertIn("(20% dueños en la zona, Censo)", rented["es"])
 
     def test_weights_come_from_config(self):
         cfg = copy.deepcopy(self.cfg)
@@ -127,8 +140,9 @@ class Zones(unittest.TestCase):
             self.assertEqual(f"walks/{doc['zone_id']}", key)
             self.assertLessEqual(len(doc["stops"]), 12)
             for s in doc["stops"]:
-                self.assertTrue({"coach", "door", "why"} <= set(s))
-                self.assertIsNone(NEVER.search(s["why"]["en"] + s["why"]["es"] + s["coach"]["en"] + s["coach"]["es"]))
+                self.assertTrue({"coach", "door", "why"} <= set(s))    # coach: T195, present but null unless
+                coach_text = (s["coach"]["en"] + s["coach"]["es"]) if s["coach"] else ""  # a rule fires
+                self.assertIsNone(NEVER.search(s["why"]["en"] + s["why"]["es"] + coach_text))
             self.assertNotIn("105 E 4th St", [s["address"] for s in doc["stops"]])
         t2 = w["walks/2026-09-10_Fremont~t2"]
         self.assertEqual({turf_of[s["pid"]] for s in t2["stops"]}, {2})  # that walk only, no top-up

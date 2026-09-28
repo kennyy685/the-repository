@@ -101,6 +101,14 @@ DEFAULTS = {
         "value_full": 250000,       # median assessed value that earns the full size factor
         "size_unknown": 0.9,
         "compete_towns": ["Omaha", "Lincoln"], "compete_days": 90, "compete_factor": 0.85,
+        # T203 storm-age dip/bump (research round 58 (d)): zone heat only, instead of scoring.recency_curve (which
+        # doors, calls, wind and commercial keep). Flat while fresh, a dip at 45-90 days (chasers signing), a bump
+        # at 90-150 (chasers gone, homeowners still deciding), then a gentler tail than recency_curve because
+        # Nebraska has no short legal cliff (25-205: 5 years). Lifts the winter re-knock walks (Oct-Mar reach
+        # back 330 days). Judgment numbers: tune against real door results. [] = use scoring.recency_curve.
+        "age_curve": [[0, 1.0], [45, 1.0], [90, 0.8], [150, 0.9], [270, 0.7], [365, 0.55], [730, 0.2],
+                      [1095, 0.1]],
+        "second_wave_days": [90, 180],   # "past the chaser rush" reason shows in this storm-age window (days)
         "inspect_rate": 0.03,       # prior: inspections per home knocked at heat 50 (tune with real results)
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
@@ -159,6 +167,11 @@ DEFAULTS = {
         "spanish_high": 0.30,       # share of Spanish-speaking households at/above this: reason line + who "Alex"
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
+    },
+    # T211 (research round 62): Census ACS B25081 share of owner-lived homes with a mortgage, per block group -> one
+    # plain line on walks/zones (todaywalk.mortgage_note). An area fact, never the word "insured". US average ~0.61.
+    "mortgage": {
+        "low_share": 0.40           # below this the line says "many are owned outright" instead of the lender line
     },
     # Door score v2 (research round 16, `hailhunter/doorscore.py`): one house, 0-100 = 100 x hail x owner_fit x kind x
     # roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale)
@@ -261,7 +274,11 @@ DEFAULTS = {
     "rookie": {
         "start_date": None,         # "YYYY-MM-DD" day 1 of the plan; None = the first day with any door tap
         "full_route_doors": 25,     # "Knock your full route" with no door_target = this many doors a day
-        "pace_band": 0.2            # within +/-20% of the block's planned doors = "on pace"
+        "pace_band": 0.2,           # within +/-20% of the block's planned doors = "on pace"
+        # CLAUDE.md "No knocking yet" / docs/orders/sales-path.md: real doors (any block with door_target > 0) are
+        # locked to practice-only until this is set true (past the sales-path.md "ready to knock" checklist), no
+        # matter what day of the plan it is. A practice block (door_target 0) is never gated: it's already practice.
+        "ready_to_knock": False
     },
     # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
     # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
@@ -285,6 +302,20 @@ DEFAULTS = {
         # Only on these weekdays (Mon..Sun); up to association_per_week spread over them, rotating each week.
         "association_days": ["Tue"],
         "association_per_week": 2
+    },
+    # Storm alert on your own accounts (`hh.py accounts`, research round 54 item 3, T193): new hail over an address
+    # HMP already has (app leads, claims, Interested/Booked doors, scout_contacts.json businesses) goes to the top of
+    # calls/today as `accounts_hit`. Hail bar = call_today.min_hail; window = the last `max_days` days when set here
+    # (config.json), else today_walk.storm_max_days (60). With no radar reading AT the address (the cloud run has
+    # hud.json only), nearby evidence counts, marked match "near" with its distance:
+    "accounts": {
+        "near_mi": 0.6,             # a storm door-list house this close had the hail (about the 3x3 radar cells
+                                    # the engine reads at one address, watch.hail_at)
+        "report_mi": 3.0,           # a town's hail reports (hud.json storms) or wind reports (wind_events) centered
+                                    # this close
+        "door_results": ["interested", "booked"],   # app door taps that make a door an account
+        "skip_stages": ["lost"],    # lead/claim stages that are no longer accounts (done/paid = past customer: kept)
+        "max_rows": 25              # accounts_hit rows on calls/today
     },
     # Rental hot list (`hh.py rentals`, research rounds 34/38): likely-rental single-family (owner's county mailing
     # address is elsewhere, T23) and small 2-4 unit multi-family properties, inside the current hot zones. The

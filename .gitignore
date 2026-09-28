@@ -25,3 +25,5 @@ data/*
 !data/commercial_bid_kit.json
 .env
 .claude/worktrees/
+# T21 hub check-in queue (hooks write it, hub_flush.py posts it)
+.claude/state/

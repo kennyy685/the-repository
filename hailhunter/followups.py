@@ -23,11 +23,13 @@ Logistics only: no insurance promises, nothing about the deductible (44-8604). C
 HMP the number (no cold calls or texts).
 """
 import re
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from .config import DEFAULTS
 
 RULES_VERSION = 1
+_CHICAGO = ZoneInfo("America/Chicago")   # HMP is in Fremont, NE (Central time); handles DST
 MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 MON_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 YES = ("interested", "booked")
@@ -39,14 +41,28 @@ def _rules(cfg=None):
 
 
 def _day(v):
-    """"YYYY-MM-DD..." -> "YYYY-MM-DD" when it is a real date, else None."""
-    s = str(v or "")[:10]
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", s):
+    """Plain "YYYY-MM-DD" stays as-is. A full timestamp ("...T21:00:00Z") converts to its America/Chicago
+    LOCAL calendar date (handles DST), so a contact after ~7 PM Central doesn't roll to the next day just
+    because it's already tomorrow in UTC. Anything unparseable falls back to the first 10 characters, then None."""
+    s = str(v or "")
+    s10 = s[:10]
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", s10):
         return None
+    if len(s) <= 10 or not re.match(r"^[T ]", s[10:]):
+        try:
+            return date.fromisoformat(s10).isoformat()
+        except ValueError:
+            return None
     try:
-        return date.fromisoformat(s).isoformat()
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
     except ValueError:
-        return None
+        try:
+            return date.fromisoformat(s10).isoformat()
+        except ValueError:
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)   # timestamps in this app are stored in UTC
+    return dt.astimezone(_CHICAGO).date().isoformat()
 
 
 def _add(d, n):
@@ -227,6 +243,12 @@ RULE_TEST_CASES = [
          "next_step": {"en": "Call back", "due": "2026-02-30"}},
         {"id": "n", "address": "3 A St", "doors_visits": [{"date": "2026-09-20", "result": "not_home"},
                                                           {"at": "2026-09-21T10:00:00Z", "result": "Interested"}]}]),
+    ("evening_contact_local_day", "2026-09-28", [    # 7:01 PM Central tap must anchor to that LOCAL day, not UTC's
+        {"id": "o", "address": "500 Pine St", "stage": "contacted",
+         "doors_visits": [{"at": "2026-09-27T00:01:00Z", "result": "interested"}]}]),
+    ("dst_fallback_local_day", "2026-11-01", [        # Nov 1 2026 DST fallback: still CDT (-5) just before 2 AM local
+        {"id": "p", "address": "600 Pine St", "stage": "contacted",
+         "doors_visits": [{"at": "2026-11-01T05:30:00Z", "result": "interested"}]}]),
 ]
 
 

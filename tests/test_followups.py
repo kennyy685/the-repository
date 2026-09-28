@@ -85,6 +85,28 @@ class Followups(unittest.TestCase):
         self.assertIn("free estimate", self.run_f([c], "2026-09-26")["today"][0]["reason"]["en"])
         self.assertIn("un estimado gratis", self.run_f([c], "2026-09-26")["today"][0]["reason"]["es"])
 
+    def test_day_uses_america_chicago_local_date(self):
+        # Central time, not UTC: a contact just after 7 PM Central is still "today" in Chicago even though
+        # it's already tomorrow in UTC. 6:59 PM stays put (control); 7:01 PM crosses local midnight in UTC
+        # but must NOT cross the local calendar day. Sep 2026 is Central Daylight Time (UTC-5).
+        self.assertEqual(F._day("2026-09-26T23:59:00Z"), "2026-09-26")   # 6:59 PM CDT
+        self.assertEqual(F._day("2026-09-27T00:01:00Z"), "2026-09-26")   # 7:01 PM CDT -> still Sep 26 locally
+        # DST boundaries: the correct local offset (CDT -5 vs CST -6) depends on the date, not a fixed number.
+        self.assertEqual(F._day("2026-11-01T05:30:00Z"), "2026-11-01")   # fall back: still CDT here (00:30 local)
+        self.assertEqual(F._day("2026-03-08T05:30:00Z"), "2026-03-07")   # spring forward: still CST here (23:30 local)
+        # plain dates and bad input are unaffected
+        self.assertEqual(F._day("2026-09-24"), "2026-09-24")
+        self.assertIsNone(F._day("junk"))
+
+    def test_evening_contact_does_not_shift_the_schedule_a_day(self):
+        # Without the fix, an "interested" tap at 7:01 PM Central (00:01 UTC the next day) anchors the touch
+        # schedule one day late, so the day-2 touch lands on the 29th (tomorrow) instead of the 28th (today).
+        L = [lead(doors_visits=[{"at": "2026-09-27T00:01:00Z", "result": "interested"}])]
+        d = self.run_f(L, "2026-09-28")
+        self.assertEqual(len(d["today"]), 1, d)
+        t = d["today"][0]
+        self.assertEqual((t["kind"], t["touch"], t["due"], t["overdue"]), ("touch", 1, "2026-09-28", False))
+
     def test_bad_input(self):
         with self.assertRaises(ValueError):
             F.followups([], "2026-02-30")

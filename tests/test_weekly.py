@@ -79,6 +79,17 @@ class WeeklyReport(unittest.TestCase):
         self.assertEqual((c["contacted"], c["inspection_set"], c["approved"], c["done"], c["lost"]), (2, 2, 1, 1, 1))
         self.assertEqual((fn["total"], fn["open"], fn["new_this_week"]), (7, 5, 5))
 
+    def test_new_this_week_uses_local_day_across_the_sunday_night_boundary(self):
+        # Sunday 8 PM Central = Monday 01:00 UTC. Without America/Chicago conversion, a lead created then
+        # truncates to the UTC date and rolls into the NEXT ISO week (Monday-Sunday) instead of staying in
+        # the week it was actually created in, Central time.
+        leads = weekly.load_leads({
+            "leads/1-elm-st": {"address": "1 Elm St", "stage": "contacted", "created_at": "2026-09-28T01:00:00Z"}})
+        fn39 = weekly.report([], leads, week="2026-39", today="2026-09-27")["funnel"]   # Mon 9/21 - Sun 9/27
+        fn40 = weekly.report([], leads, week="2026-40", today="2026-10-04")["funnel"]   # Mon 9/28 - Sun 10/4
+        self.assertEqual(fn39["new_this_week"], 1)
+        self.assertEqual(fn40["new_this_week"], 0)
+
     def test_learning_joins_heat_and_why(self):
         L = {x["list_id"]: x for x in self.doc["learning"]["lists"]}
         self.assertTrue(self.doc["learning"]["hud"])

@@ -1,12 +1,15 @@
-"""Scorecard (T166, round 44): the 5 pilot numbers at a glance - doors knocked, contact rate, inspections booked
-per 100 doors, signed jobs, and average $ per signed job - each next to an industry range from data/benchmarks.json
-(T84, labeled "industry estimate, not your numbers"). Feeds the `scorecard` section of `hh.py weekly` and the
-standalone `hh.py scorecard` command. Same JSON shape for HMP and any future pilot company (`company` id, default
-"hmp"), so a second company's numbers sit next to HMP's, apples to apples.
+"""Scorecard (T166, round 44; T209 added the Aldaba proof numbers, round 58): the pilot numbers at a glance -
+doors knocked, contact rate, inspections booked per 100 doors, signed jobs, signed-job rate (signed / inspections),
+average $ per signed job, and knock-to-signed time (median days) - each next to an industry range from
+data/benchmarks.json (T84, labeled "industry estimate, not your numbers") where one exists. These are HMP's own
+pilot case-study numbers (docs/research/2026-09-28-aldaba-business.md): the receipts for selling Aldaba later, not
+a promise to anyone. Feeds the `scorecard` section of `hh.py weekly` and the standalone `hh.py scorecard` command.
+Same JSON shape for HMP and any future pilot company (`company` id, default "hmp"), so a second company's numbers
+sit next to HMP's, apples to apples.
 
 Inputs: `doors` = weekly.load_doors() output; `leads` = weekly.load_leads() output (leads/<slug>); `claims` =
 load_claims() output (claims/<slug>, the HMP App's insurance-claim collection, T25/SKILL.md schema) - optional,
-weekly.py has no claims of its own yet so its embedded scorecard passes none.
+weekly.py has no claims of its own yet so its embedded scorecard passes none unless `hh.py weekly --claims` is given.
 
 "Signed" (a won job, whatever it's called in the app) means the contract is signed:
 - a lead counts once its stage reaches `job_scheduled` in the 9-stage funnel (a job doesn't go on the calendar
@@ -18,11 +21,18 @@ null when none of them do yet (never counted as $0) - `signed_jobs_priced` says 
 
 Unlike doors (which have a `date` and so can be windowed by `start`/`end`), leads/claims have no reliable
 signed-date field yet, so every signed one counts toward `signed_jobs` regardless of the window.
+
+Knock-to-signed time (T209): median days from the first door tap at an address to that job's real signed date.
+Leads still have no signed-date field, so only claims (which record one in `job.contract_signed`, the Job
+tracker's step 4, YYYY-MM-DD - see docs/app/jobtrack.js) can feed this; a signed row with no matching door tap or
+no `job.contract_signed` yet is left out rather than guessed. `knock_to_signed_days` is null with `n: 0` until at
+least one signed job has both dates - never invented.
 """
+import statistics
 from datetime import date
 
 from .benchmarks import industry_ranges
-from .weekly import STAGE_KEYS, _items, tally
+from .weekly import STAGE_KEYS, _items, slug, tally
 
 LEAD_SIGNED_AT = STAGE_KEYS.index("job_scheduled")     # job_scheduled, done count; lost never does
 CLAIM_STAGE_KEYS = ["inspected", "claim_filed", "adjuster_set", "scope_in", "signed", "supplement",
@@ -63,6 +73,47 @@ def _as_date(d):
     return date.fromisoformat(d) if isinstance(d, str) else d
 
 
+def _knock_dates(doors):
+    """address slug -> earliest door-tap date (YYYY-MM-DD), from every door tap (never windowed - a knock can
+    predate the reporting window)."""
+    out = {}
+    for d in doors or []:
+        day, addr = d.get("date"), slug(d.get("address"))
+        if not day or not addr:
+            continue
+        if addr not in out or day < out[addr]:
+            out[addr] = day
+    return out
+
+
+def _signed_date(row):
+    """The real date a signed row's contract was signed, only when the schema actually records one: a claim's
+    `job.contract_signed` (YYYY-MM-DD, T199 Job tracker step 4). Leads have no such field yet (T209) - returns
+    None rather than guessing one."""
+    job = row.get("job")
+    d = str((job or {}).get("contract_signed") or "")[:10] if isinstance(job, dict) else ""
+    try:
+        date.fromisoformat(d)
+        return d
+    except ValueError:
+        return None
+
+
+def _knock_to_signed_days(signed_rows, knock_dates):
+    """(median days, how many signed rows fed it) from first knock to `job.contract_signed`, for the signed rows
+    that have both a matching door tap (by address slug) and a recorded signed date; (None, 0) with neither."""
+    days = []
+    for r in signed_rows:
+        signed = _signed_date(r)
+        knocked = knock_dates.get(slug(r.get("address") or r.get("id")))
+        if not signed or not knocked:
+            continue
+        gap = (date.fromisoformat(signed) - date.fromisoformat(knocked)).days
+        if gap >= 0:                                # a signed date before the first known knock isn't trustworthy
+            days.append(gap)
+    return (statistics.median(days), len(days)) if days else (None, 0)
+
+
 def report(doors, leads=None, claims=None, start=None, end=None, today=None, bench=None, company="hmp"):
     """The 5-number scorecard doc. `doors` = every loaded door tap (filtered here to [start, end] inclusive;
     either None = every door tap, same "all" meaning as weekly.report's `week="all"`). `start`/`end` = date or
@@ -78,6 +129,7 @@ def report(doors, leads=None, claims=None, start=None, end=None, today=None, ben
     signed = _signed(leads, STAGE_KEYS, LEAD_SIGNED_AT) + _signed(claims, CLAIM_STAGE_KEYS, CLAIM_SIGNED_AT)
     avg_price, priced = _avg_contract_price(signed)
     sign_rate = round(len(signed) / t["booked"], 3) if t["booked"] else None
+    knock_to_signed, knock_to_signed_n = _knock_to_signed_days(signed, _knock_dates(doors))
     yours = {"contact_rate": t["contact_rate"] if t["doors"] else None,
              "inspection_rate_per_100": t["inspection_rate_per_100"] if t["doors"] else None,
              "inspection_rate_per_100_experienced": t["inspection_rate_per_100"] if t["doors"] else None,
@@ -93,8 +145,12 @@ def report(doors, leads=None, claims=None, start=None, end=None, today=None, ben
             "contact_rate": t["contact_rate"],
             "inspections_per_100_doors": t["inspection_rate_per_100"],
             "signed_jobs": len(signed),
+            "signed_job_rate": sign_rate,                      # T209: signed / inspections (booked), 0-1, null if no inspections yet
             "avg_dollar_per_signed_job": avg_price,
         },
         "signed_jobs_priced": priced,
+        # T209: median days from first door knock to a claim's real job.contract_signed date; leads have no signed
+        # date yet so only claims feed this (see module docstring) - null/0 rather than a guess until one does.
+        "knock_to_signed_days": {"median": knock_to_signed, "n": knock_to_signed_n},
         "industry": industry_ranges(bench, yours),
     }

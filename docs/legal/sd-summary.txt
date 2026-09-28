@@ -1,0 +1,45 @@
+SOUTH DAKOTA - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. sdlegislature.gov is egress-blocked in this environment (WebFetch and curl
+both refused). Below is a search-engine paraphrase corroborated across 2+ secondary sources, not
+read verbatim. Re-verify at sdlegislature.gov before use.
+
+1. Deductible waiver/rebate - SDCL Sec. 58-33-66
+   Paraphrase: "No contractor providing residential roofing goods and services to any person or
+   entity may advertise or promise to pay or rebate all or part of any applicable insurance
+   deductible." UNIQUE REMEDY vs. other states: violation makes the CONTRACT ITSELF null and void,
+   not just a fine/misdemeanor or a right for the insurer to disregard the estimate. Worth flagging
+   to FilthE as the strictest downside of any state on this list, if HMP ever expands there.
+   Source: propertyinsurancecoveragelaw blog (Colorado SB 12-038 companion doc referencing similar
+   language); direct SDCL search summary.
+
+2. Storm-specific cancel extension - SDCL Sec. 58-33-67 (UNIQUE TO SD ON THIS LIST)
+   Paraphrase: a homeowner who signed a written storm-damage repair contract for residential roofing
+   may cancel within 72 HOURS after being notified that the property insurer has denied coverage, in
+   whole or in part - a claim-outcome-triggered cancel right layered on top of the general 3-day
+   cooling-off period below. No other state in this batch had a comparable rule surface in this
+   round's searches - double check this is real and current before repeating it anywhere.
+   Source: search-summary citing SDCL 58-33-67 directly.
+
+3. General home-solicitation ("door to door") cancel right - SDCL 37-24-5.1 to 37-24-5.7
+   Paraphrase: buyer may cancel any time before midnight of the 3rd business day after the
+   transaction; seller must furnish a duplicate "NOTICE OF CANCELLATION" form; on cancellation the
+   seller must return trade-ins/payments/negotiable instruments within 10 business days.
+   Source: SD Dept. of Consumer Protection "Door to Door Sales" statute compilation (PDF, not
+   opened directly - egress-blocked); FindLaw/kirschenbaumesq.com summary of 37-24-5.3.
+
+4. Contractor registration/licensing - NO statewide contractor license for roofers in South Dakota.
+   The state requires a contractor's EXCISE TAX license (2% gross-receipts tax on construction, all
+   trades) from the Dept. of Revenue - a tax registration, not a trade credential. Only electricians
+   and plumbers carry state-issued trade licenses. Local city/county licenses may apply (e.g. Rapid
+   City has its own roofing-contractor ordinance).
+   Source: contractorsliability.com SD general contractor guide; procore.com SD contractor license
+   guide; Rapid City Municipal Code 15.04.140 (roofing-specific local ordinance, referenced not read).
+
+5. Public adjuster - not independently checked. UNVERIFIED.
+6. Assignment of benefits - not independently checked. UNVERIFIED.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- SDCL 58-33-66 / 58-33-67 - https://sdlegislature.gov/Statutes/58-33 (chapter index; specific
+  sections not confirmed reachable)
+- SDCL 37-24-5.1 to .7 - https://consumer.sd.gov/docs/DoorToDoor_Statutes37-24-5.1-5.7.pdf
+- Rapid City Municipal Code 15.04.140, Contractor licenses - https://rapidcity.municipal.codes/RCMC/15.04.140
