@@ -34,6 +34,8 @@ houses from public data into Practice/demo only, run a full fake day Now -> Knoc
 FUTURISTIC, modern, really advanced, Apple-ad level (FilthE): Apple product pages + ads (Vision Pro/visionOS
 glass, M-chip pages, Apple Watch Ultra), plus best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
 finds, film HUD designers), what to steal for MacBook layout A, with screenshots; then
+**Designer: apply the references** to layout A (ambient generative WebGL background, glass, luxury type,
+micro-motion) + a cinematic Aldaba intro/landing (WebGL + scroll), per docs/design/references/README.md;
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
 (HailTrace, Hail Recon, SalesRabbit, Spotio...), pricing, must-haves like teams + other states' laws; output
 docs/research/ file + one-page summary for FilthE); ~~upgrade the robots~~ (done, b7bcf05) (FilthE's order: research better prompts, tools, skills, models for
