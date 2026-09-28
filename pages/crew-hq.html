@@ -214,7 +214,7 @@ h1,h2,h3,p{margin:0}
 .recent{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .recent li{display:grid;grid-template-columns:62px 1fr;gap:8px;font-size:13px}
 .recent time{font:500 12px var(--mono);color:var(--muted)}
-.stale{color:var(--need-ink)}
+.stale{color:var(--brass-hi)}
 /* answering: three equal quiet buttons, a type box, one ivory Send */
 .ans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .ans .typed{grid-column:1 / -1;display:flex;gap:8px;align-items:center}
@@ -2439,6 +2439,8 @@ function restoreChat(){ try { const c = JSON.parse(store.get('hub-kc') || 'null'
 let prevNow = performance.now();
 const bdot = $('#bdot');
 function frame(now){
+  if (HUB.power === 'saver' && now - (frame.last || 0) < 32) { requestAnimationFrame(frame); return; }   // battery: ~30 fps while unfocused or untouched 2 min
+  frame.last = now;
   const dt = Math.max(0, Math.min(TEST ? .35 : .08, (now - prevNow)/1000)); prevNow = now;
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
