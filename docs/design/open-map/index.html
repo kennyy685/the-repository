@@ -322,8 +322,21 @@ body.tight1 .steps{display:none!important}
 body.area .plan{opacity:1;transform:none;pointer-events:auto;transition-delay:.04s}
 .plan .scroll{flex:1;overflow:auto;padding:14px 18px 6px;scrollbar-width:thin;scrollbar-color:#333 transparent}
 .plan .sec:first-child{margin-top:2px}
-.plan .sec .r{margin-left:auto;order:2}
-.plan .sec::after{order:1}
+.plan .sec .r,.card .sec .r{margin-left:auto;order:2}
+.plan .sec::after,.card #gtBox .sec::after{order:1}
+/* one proof line: the first thing an opened area says */
+.pline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;margin:2px 0 4px;padding:10px 10px 10px 12px;border-radius:14px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--c) 17%,transparent),rgba(255,255,255,.015) 70%);border:1px solid color-mix(in srgb,var(--c) 38%,transparent);animation:rowin .45s var(--ease) both}
+.pline .pv{font:700 30px/.9 var(--display);letter-spacing:-.045em;color:var(--c);white-space:nowrap}
+.pline .pv small{font:600 15px var(--display);margin-left:1px;letter-spacing:0}
+.pline .pt{font-size:12.5px;line-height:1.35;color:var(--text-2);min-width:0}
+.pline .pt .chip{vertical-align:1px;margin-left:2px}
+.pline .pgo{display:inline-flex;align-items:center;gap:2px;height:28px;padding:0 6px 0 10px;border-radius:9px;font:500 12px var(--sans);color:var(--text);background:rgba(255,255,255,.07);white-space:nowrap}
+.pline .pgo .i{width:14px;height:14px}
+.pline .pgo:hover{background:rgba(255,255,255,.13)}
+.proof.flash{animation:pflash 1.4s var(--ease)}
+@keyframes pflash{0%,100%{box-shadow:0 0 0 0 transparent}25%{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 60%,transparent)}}
+.card #gtBox .sec:first-child{margin-top:14px}
 .mini{display:inline-flex;padding:2px;gap:1px;border-radius:8px;background:rgba(255,255,255,.05);text-transform:none;letter-spacing:0}
 .mini button{height:22px;padding:0 8px;border-radius:6px;font:500 11px var(--sans);color:var(--muted);white-space:nowrap}
 .mini button[aria-pressed="true"]{background:rgba(255,255,255,.14);color:var(--text)}
@@ -426,6 +439,11 @@ body.area .card{width:var(--cardW)}
 .agelg b{color:var(--text-2);font-weight:500}
 .claim p{margin:9px 0 0;font-size:12.5px;color:var(--text-2);line-height:1.45}
 .claim p.q{font-size:11.5px;color:var(--muted);margin-top:4px}
+.claim .duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px;padding-top:11px;border-top:1px solid var(--rule)}
+.claim .duo .k{font-size:11.5px;color:var(--text-2);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.claim .duo .v{margin-top:5px;font:700 24px/1 var(--display);letter-spacing:-.02em}
+.claim .duo .v small{font:600 13px var(--display)}
+.claim .duo .d{margin-top:4px;font-size:11px;color:var(--muted);line-height:1.35}
 .claim .mort{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline;margin-top:11px;padding-top:10px;border-top:1px solid var(--rule)}
 .claim .mort .k{font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:6px}
 .claim .mort .v{font:700 22px/1 var(--display);letter-spacing:-.02em;grid-row:span 2}
@@ -1294,13 +1312,13 @@ const T={
   team:{en:"Kenny is here today",es:"Kenny está aquí hoy"},teamSub:{en:"Team view turns on when a second salesman joins",es:"La vista de equipo se prende cuando se una un segundo vendedor"},off:{en:"Off",es:"Apagado"},
   replay:{en:"Storm replay",es:"Repetición"},rpAria:{en:"Replay of the storm crossing this area",es:"Repetición de la tormenta cruzando esta área"},
   sureK:{en:"How sure",es:"Qué tan seguro"},repK:{en:"Reports",es:"Reportes"},prmShort:{en:"Roof permits",es:"Permisos"},since:{en:"since",es:"desde"},
-  claimQ:{en:"Will a claim likely pay a full roof?",es:"¿Un reclamo pagaría un techo completo?"},eyes:{en:"Eyes only",es:"Solo para ti"},
+  claimQ:{en:"Full roof likely?",es:"¿Techo completo probable?"},eyes:{en:"Eyes only",es:"Solo para ti"},
   v_part:{en:"Often not in full",es:"Muchas veces no completo"},v_mix:{en:"Depends on the roof",es:"Depende del techo"},v_full:{en:"More likely in full",es:"Más probable que sí"},
   claimWhy:{en:(y)=>`Most roofs here are about ${y} years old.`,es:(y)=>`La mayoría de los techos aquí tienen unos ${y} años.`},
   ageLo:{en:"under 10 yr",es:"menos de 10"},ageMid:{en:"10–15 yr",es:"10–15 años"},ageHi:{en:"15+ yr",es:"15+ años"},
   acv:{en:"Many carriers pay only depreciated value on roofs past about 10–15 years.",es:"Muchas aseguradoras pagan solo el valor depreciado en techos de más de unos 10–15 años."},
   notPromise:{en:"A pattern, not a promise: every policy is different.",es:"Es un patrón, no una promesa: cada póliza es diferente."},
-  mortK:{en:"Homes with a mortgage",es:"Casas con hipoteca"},mortWhy:{en:"Lenders require home coverage while a loan is open.",es:"Los prestamistas exigen cobertura de la casa mientras haya un préstamo."},
+  mortK:{en:"Homes with a mortgage",es:"Casas con hipoteca"},ownWhy:{en:"The owner can sign for the work.",es:"El dueño puede firmar el trabajo."},mortWhy:{en:"Lenders require home coverage while a loan is open.",es:"Los prestamistas exigen cobertura de la casa mientras haya un préstamo."},
   zipN:{en:(z)=>`ZIP ${z}, ACS 2020–24`,es:(z)=>`código postal ${z}, ACS 2020–24`},
   homesHere:{en:"Homes here",es:"Casas aquí"},
   legalT:{en:(n)=>`Legal · ${n}`,es:(n)=>`Legal · ${n}`},lgHours:{en:(a,b)=>`Knock ${a}–${b}`,es:(a,b)=>`Toca de ${a} a ${b}`},
@@ -1318,6 +1336,9 @@ const T={
   startLbl:{en:"Start · sample",es:"Salida · muestra"},
   planEy:{en:(n)=>`Plan · ${n}`,es:(n)=>`Plan · ${n}`},
   noon:{en:"noon",es:"mediodía"},
+  plHail:{en:"hail",es:"de granizo"},plWind:{en:"wind",es:"de viento"},plRep:{en:(n)=>n>1?`${n} reports agree`:"1 report",es:(n)=>n>1?`${n} reportes coinciden`:"1 reporte"},
+  proofBtn:{en:"Proof",es:"Prueba"},seeProof:{en:"See the replay, every report and why",es:"Ver la repetición, cada reporte y por qué"},
+  proofSec:{en:"The proof",es:"La prueba"},
   sampleW:{en:"sample",es:"muestra"},sampleDoor:{en:"Sample door (not real)",es:"Puerta de muestra (no es real)"},
 };
 const t=(k,...a)=>{const v=T[k][lang];return typeof v==="function"?v(...a):v};
@@ -1439,7 +1460,7 @@ const idle=(fn)=>(window.requestIdleCallback||((f)=>setTimeout(f,60)))(fn);
 const areaOf=(id)=>AREAS.find(x=>x.id===id);
 const lenM=(p)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot((p[i][0]-p[i-1][0])*KX,(p[i][1]-p[i-1][1])*KY);return s*1000};
 const hsh=(s)=>{let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
-const SVG={
+const SVG={chev:'<path d="M9 6l6 6-6 6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
   car:'<path d="M5 16h14M6.5 16l1.3-4.6A2 2 0 0 1 9.7 10h4.6a2 2 0 0 1 1.9 1.4L17.5 16"/><path d="M4 16v2.5h2.5V17M20 16v2.5h-2.5V17"/><circle cx="8" cy="16" r=".4"/><circle cx="16" cy="16" r=".4"/>',
   clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   id:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 15.5c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/>',
@@ -1579,6 +1600,19 @@ function renderCard(){
     <h2>${L(a.name)}</h2>
     <p class="where">${L(a.sub)} · ${a.county} Co.</p>
     <div class="team" title="${t("teamSub")}"><span class="av">K</span><span><b>${t("team")}</b><small>${t("teamSub")}</small></span><span class="off">${t("off")}</span></div>
+    <div id="gtBox"></div>
+    <div class="sec">${t("claimQ")}<span class="eyes">${ic("lock")}${t("eyes")}</span></div>
+    <div class="claim">
+      <div class="ans"><b style="color:${vc}">${t("v_"+mx.v)}</b><span>${t("claimWhy",a.roof)}</span></div>
+      <div class="agebar" role="img" aria-label="${lo}% / ${mid}% / ${hi}%"><i style="width:${lo}%;background:#4f9a82"></i><i style="width:${mid}%;background:#caa14e"></i><i style="width:${hi}%;background:#d9776a"></i></div>
+      <div class="agelg"><span style="--c:#4f9a82">${t("ageLo")} <b>${lo}%</b></span><span style="--c:#caa14e">${t("ageMid")} <b>${mid}%</b></span><span style="--c:#d9776a">${t("ageHi")} <b>${hi}%</b></span>${chip("roof",a.roof+" "+t("yr"),a.st,1)}</div>
+      <p class="q">${t("acv")} ${chip("ndoi","",a.st,1)} ${t("notPromise")}</p>
+      <div class="duo">
+        <div><div class="k">${t("mortK")} ${chip("b25081",`${fmt(mo[2])} / ${fmt(mo[3])} · ZIP ${mo[0]}`,a.st,1)}</div><div class="v">${Math.round(mo[1])}<small>%</small></div><div class="d">${t("mortWhy")} <span style="opacity:.8">(${t("zipN",mo[0])})</span></div></div>
+        <div><div class="k">${t("ownK")} ${chip("hmst",a.owner+"%",a.st,1)}</div><div class="v">${a.owner}<small>%</small></div><div class="d">${t("ownWhy")}</div></div>
+      </div>
+    </div>
+    <div class="sec" id="proofSec">${t("proofSec")}</div>
     <div class="proof">
       <canvas id="rp" aria-label="${t("rpAria")}"></canvas>
       <div class="ov"><div class="stone" style="--r:${stoneR/2}px"></div><div>
@@ -1597,15 +1631,6 @@ function renderCard(){
     <div class="sec">${t("why")}</div>
     <div class="conf"><div class="meter"><i id="mt"></i><span class="tick" style="left:55%"></span><span class="tick" style="left:75%"></span></div>
       <ul class="why">${a.why.map(([sg,txt])=>`<li><span class="s ${sg>0?"p":"m"}">${sg>0?"+":"−"}</span><span>${L(txt)}</span></li>`).join("")}</ul></div>
-    <div class="sec">${t("claimQ")}<span class="eyes">${ic("lock")}${t("eyes")}</span></div>
-    <div class="claim">
-      <div class="ans"><b style="color:${vc}">${t("v_"+mx.v)}</b><span>${t("claimWhy",a.roof)}</span></div>
-      <div class="agebar" role="img" aria-label="${lo}% / ${mid}% / ${hi}%"><i style="width:${lo}%;background:#4f9a82"></i><i style="width:${mid}%;background:#caa14e"></i><i style="width:${hi}%;background:#d9776a"></i></div>
-      <div class="agelg"><span style="--c:#4f9a82">${t("ageLo")} <b>${lo}%</b></span><span style="--c:#caa14e">${t("ageMid")} <b>${mid}%</b></span><span style="--c:#d9776a">${t("ageHi")} <b>${hi}%</b></span>${chip("roof",a.roof+" "+t("yr"),a.st,1)}</div>
-      <p>${t("acv")} ${chip("ndoi","",a.st,1)}</p><p class="q">${t("notPromise")}</p>
-      <div class="mort"><span class="k">${t("mortK")} ${chip("b25081",`${fmt(mo[2])} / ${fmt(mo[3])} · ZIP ${mo[0]}`,a.st,1)}</span><span class="v">${Math.round(mo[1])}<small>%</small></span>
-        <span class="d">${t("mortWhy")} <span style="opacity:.8">(${t("zipN",mo[0])})</span></span></div>
-    </div>
     <div class="sec">${t("homesHere")}</div>
     <div class="stats">
       <div class="stat"><div class="k">${t("homesK")} ${chip("assr",fmt(a.homes)+" "+t("homes"),a.st)}</div><div class="v">${fmt(a.homes)}</div></div>
@@ -1614,7 +1639,7 @@ function renderCard(){
                `<div class="stat"><div class="k">${t("ownK")} ${chip("hmst",a.owner+"%",a.st)}</div><div class="v">${a.owner}<small>%</small></div></div>`}
       <div class="stat"><div class="k">${t("prmK")} ${L(s.d)} ${chip("prmt",String(a.permits),a.st)}</div><div class="v">${a.permits}</div></div>
     </div>`;
-  $("legal").innerHTML=legalHTML(a);
+  $("legal").innerHTML=legalHTML(a);renderGT(a);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{const m=$("mt");if(m)m.style.width=a.conf+"%"}));
   rpStart(a);
 }
@@ -1635,26 +1660,33 @@ function daybar(tr){const x0=450,x1=1290,W=290,X=(m)=>(Math.max(x0,Math.min(x1,m
   const sx=X(tr.sun);s+=`<g transform="translate(${sx.toFixed(1)},13)"><circle r="3.4" fill="#ffd27a"/>${[0,1,2,3,4,5,6,7].map(k=>{const an=k*Math.PI/4;return `<line x1="${(Math.cos(an)*5).toFixed(1)}" y1="${(Math.sin(an)*5).toFixed(1)}" x2="${(Math.cos(an)*6.8).toFixed(1)}" y2="${(Math.sin(an)*6.8).toFixed(1)}" stroke="#ffd27a" stroke-width="1"/>`}).join("")}</g>`;
   [480,720,960,1200].forEach(m=>{s+=`<text x="${X(m).toFixed(1)}" y="32" text-anchor="middle">${m===720?t("noon"):fmtHr(m)}</text>`});
   return s+"</svg>"}
-function renderPlan(){const a=areaOf(st.sel);if(!a)return;const tr=trip(a),pm=permit(tr.tw,tr.day),R=streetRows(a),W=st.walk&&st.walk.id===a.id?st.walk:null;
-  const by={hail:(x,y)=>y.hail-x.hail||y.roof-x.roof||y.h-x.h,roof:(x,y)=>y.roof-x.roof||y.hail-x.hail||y.h-x.h,homes:(x,y)=>y.h-x.h||y.hail-x.hail}[st.bsort];
-  const rows=[...R].sort(by),sc=tr.tw.src||"tbd";
+function renderGT(a){const box=$("gtBox");if(!box)return;const tr=trip(a),pm=permit(tr.tw,tr.day),sc=tr.tw.src||"tbd";
   const pv=pm.k==="ok"?`<div class="v ok">${t("permOk",fmtDate(pm.until))} <span class="smp">${t("sampleW")}</span>${chip("perm",fmtDate(pm.until),a.st,1)}</div><div class="d">${t("permOkD",pm.left,tr.tw.n,pm.total)}</div>${pm.total?`<div class="pbar"><i style="width:${Math.round(pm.left/pm.total*100)}%"></i></div>`:""}`:
     pm.k==="exp"?`<div class="v bad">${t("permExp",fmtDate(pm.on))} <span class="smp">${t("sampleW")}</span>${chip("perm",fmtDate(pm.on),a.st,1)}</div><div class="d">${t("permExpD",tr.tw.n)}</div>`:
     `<div class="v na">${t("permNone")} ${chip("tbd","",a.st,1)}</div><div class="d">${t("permNoneD",tr.tw.n)}</div>`;
-  $("planBody").innerHTML=`
+  box.innerHTML=`
     <div class="sec">${t("getting")}<span class="r mini" role="group"><button data-leave="now" aria-pressed="${!tr.tmr}">${t("leaveNow",fmtClock(NOWM))}</button><button data-leave="tmr" aria-pressed="${tr.tmr}">${t("leaveTmr")}</button></span></div>
     <div class="gt"><span class="ic">${ic("car")}</span><div><div class="v">${tr.drive} min<small>${t("drive")} · ${tr.mi.toFixed(tr.mi<10?1:0)} mi</small>${chip("drive",tr.drive+" min",a.st,1)}</div>
       <div class="d">${t("fromStart")}${tr.tmr?" · "+t("leaveAt",fmtClock(tr.dep)):""}</div></div></div>
     <div class="gt"><span class="ic">${ic("clock")}</span><div><div class="v ${tr.left>0?"":"bad"}">${tr.left>0?fmtDur(tr.left):t("noTime")}<small>${t("toKnock")}</small>${chip(sc,tr.known?`${fmtHr(tr.tw.h[0])}–${fmtHr(tr.tw.h[1])}`:t("hoursNC"),a.st,1)}</div>
       <div class="d">${t("arrive",fmtClock(tr.arr))} · ${tr.known?t("legalUntil",tr.tw.n,fmtClock(tr.end))+(tr.end>tr.sun?" · "+t("darkAt",fmtClock(tr.sun)):""):`<b>${t("hoursNC")}</b> · ${t("untilSunset",fmtClock(tr.sun))}`} ${chip("sun",fmtClock(tr.sun),a.st,1)}</div>
       ${daybar(tr)}</div></div>
-    <div class="gt"><span class="ic">${ic("id")}</span><div>${pv}</div></div>
+    <div class="gt"><span class="ic">${ic("id")}</span><div>${pv}</div></div>`}
+function proofLine(a){const s=STORMS[a.st],wind=a.wind&&a.hail<1.25,n=a.rep.length,top=a.rep.map(r=>r[2]).sort()[0]||s.time,col=bandColor(a.hail);
+  return `<div class="pline" style="--c:${col}"><span class="pv">${wind?a.wind:fmtIn(a.hail)}<small>${wind?"mph":"″"}</small></span>
+    <span class="pt">${t(wind?"plWind":"plHail")} · ${L(s.d)} · ${t("plRep",n)} ${chip(wind?"nws":"mrms",wind?a.wind+" mph":fmtIn(a.hail)+" in · "+L(s.d),a.st,1)}</span>
+    <button class="pgo" id="seeProof" title="${t("seeProof")}">${t("proofBtn")}${ic("chev")}</button></div>`}
+function renderPlan(){const a=areaOf(st.sel);if(!a)return;const tr=trip(a),R=streetRows(a),W=st.walk&&st.walk.id===a.id?st.walk:null;
+  const by={hail:(x,y)=>y.hail-x.hail||y.roof-x.roof||y.h-x.h,roof:(x,y)=>y.roof-x.roof||y.hail-x.hail||y.h-x.h,homes:(x,y)=>y.h-x.h||y.hail-x.hail}[st.bsort];
+  const rows=[...R].sort(by);
+  $("planBody").innerHTML=`
+    ${proofLine(a)}
     <div class="sec">${t("best")}<span class="r mini" role="group">${["hail","roof","homes"].map(k=>`<button data-bsort="${k}" aria-pressed="${st.bsort===k}">${t("s_"+k)}</button>`).join("")}</span></div>
     <div class="bsh"><span></span><span>${t("colStreet")} ${chip("gis","",a.st,1)}</span><span>${t("colHomes")} ${chip("blk","",a.st,1)}</span><span>${t("colHail")} ${chip("mrms","",a.st,1)}</span><span>${t("colRoof")} ${chip("roof","",a.st,1)}</span></div>
     <div id="bsRows">${rows.map((r,j)=>`<div class="bs${W?(r.i<W.k?" in":" out"):""}${st.hs===r.i?" hot":""}" data-i="${r.i}" style="--c:${bandColor(Math.max(1,r.hail))};animation-delay:${j*28}ms">
       <span class="no">${W&&r.i<W.k?r.i+1:"·"}</span><span style="min-width:0"><div class="nm">${r.n}</div><div class="ft">${stretch(r)}</div></span>
       <span class="n">${r.h}</span><span class="n h">${r.hail>=1?fmtIn(r.hail)+"″":"&lt;1″"}</span><span class="n">${r.roof}</span></div>`).join("")||`<div class="empty">…</div>`}</div>`;
-  renderPlanFoot(a,tr);
+  renderPlanFoot(a,tr);renderGT(a);
 }
 function renderPlanFoot(a,tr){const W=st.walk&&st.walk.id===a.id?st.walk:null,X=AREAX&&AREAX[a.id],f=$("planFoot");
   if(!W){f.innerHTML=`<button class="btn" id="planGo"${X?"":" disabled"}>${ic("route")}${t("planBtn")}</button><p class="note">${t("planNote")}</p>`;return}
@@ -1756,6 +1788,7 @@ function enterArea(id,{fly=true,push=true}={}){const a=areaOf(id);if(!a)return;c
   setFS(st.sel,"sel",false);st.sel=id;setFS(id,"sel",true);document.body.classList.add("area");
   Object.values(marks).forEach(m=>m.e.classList.toggle("sel",m.a.id===id));document.querySelectorAll(".row").forEach(r=>r.classList.toggle("sel",r.dataset.id===id));
   closePop();renderCard();renderPlan();renderANav();$("cardBody").scrollTop=0;$("planBody").scrollTop=0;
+  if(st.pendWalk&&AREAX&&AREAX[id]){st.pendWalk=0;setTimeout(()=>planWalk(false),0)}
   focusArea(a);
   if(useGL){if(mapReady&&fly)map.flyTo({...areaCam(a),duration:first?1500:1150,curve:1.3,essential:true});else onGL(()=>map.jumpTo(areaCam(a)))}else fbDraw();
   if(push){try{const sObj={aldabaArea:id};if(!first&&history.state&&history.state.aldabaArea)history.replaceState(sObj,"");else history.pushState(sObj,"");HIST=true}catch(e){HIST=false}}
@@ -1809,13 +1842,14 @@ $("prevA").addEventListener("click",()=>stepArea(-1));$("nextA").addEventListene
 $("pinB").addEventListener("click",()=>st.sel&&togglePin(st.sel));
 $("tray").addEventListener("click",e=>{const u=e.target.closest("[data-unpin]");if(u){togglePin(u.dataset.unpin);return}if(e.target.closest("#cmpGo"))openCmp()});
 $("cmpw").addEventListener("click",e=>{if(e.target.id==="cmpw"||e.target.closest("#cmpX")){closeCmp();return}const o=e.target.closest("[data-open]");if(o){closeCmp();enterArea(o.dataset.open)}});
-$("planBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
+$("planBody").addEventListener("click",e=>{if(e.target.closest("#seeProof")){const p=$("proofSec"),b=$("cardBody");if(p&&b){b.scrollTo({top:p.offsetTop-10,behavior:reduce?"auto":"smooth"});const pr=b.querySelector(".proof");if(pr){pr.classList.remove("flash");void pr.offsetWidth;pr.classList.add("flash")}}return}
   const bs=e.target.closest("[data-bsort]");if(bs){st.bsort=bs.dataset.bsort;renderPlan()}});
 $("planBody").addEventListener("mouseover",e=>{const r=e.target.closest(".bs");hoverStreet(r?+r.dataset.i:null)});
 $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
   else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>s.n).join(", ")))}});
-$("cardBody").addEventListener("click",e=>{if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
+$("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
+  if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});
 addEventListener("keydown",e=>{if(e.key==="Escape"){if(pop.classList.contains("on"))closePop();else if(!$("cmpw").hidden)closeCmp();else if(st.sel)goBack()}
   else if(st.sel&&(e.key==="ArrowLeft"||e.key==="ArrowRight")&&$("cmpw").hidden&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();stepArea(e.key==="ArrowLeft"?-1:1)}});
@@ -1851,7 +1885,7 @@ document.querySelectorAll("[data-sort]").forEach(b=>b.addEventListener("click",(
 function renderToggles(){document.getElementById("toggles").innerHTML=LAYERS.map(l=>`
   <button class="tg${l.sep?" sep":""}" title="${L(l.n)}" data-layer="${l.k}" aria-pressed="${st.layers[l.k]}" style="--c:${l.c}">
     <span class="sw"><svg class="i" viewBox="0 0 24 24">${l.ic}</svg></span><span>${L(l.n)}</span>
-    <span class="ct">${l.k==="homes"?(homesTotal?fmtK(homesTotal):""):counts[l.k]!=null?fmt(counts[l.k])+(l.k==="door"?` · ${t("sampleW")}`:""):""}</span><span class="sl"></span></button>`).join("")}
+    <span class="ct">${l.k==="homes"?(homesTotal?fmtK(homesTotal):""):l.k==="door"?`<span class="smp">${t("sampleW")}</span>`:counts[l.k]!=null?fmt(counts[l.k]):""}</span><span class="sl"></span></button>`).join("")}
 function setLayer(k,on,quiet){st.layers[k]=on;const l=LAYERS.find(x=>x.k===k);
   if(k==="tilt"){if(useGL)map.easeTo({pitch:on?CAM.pitch:0,bearing:on?CAM.bearing:0,duration:900})}
   else if(useGL&&mapReady)l.ids.forEach(id=>map.getLayer(id)&&map.setLayoutProperty(id,"visibility",on?"visible":"none"));
@@ -1909,7 +1943,8 @@ function applyHomes(h){const S=h.r,kx=h.kx,ky=h.ky,g=.8*S,R3=Math.sqrt(3);
   HEX=feats;
   onGL(()=>{map.getSource("homes").setData(FC(feats));
     // columns rise in on load
-    const t0=performance.now(),to=64;const up=(now)=>{const k=reduce?1:Math.min(1,(now-t0)/1500),e=1-Math.pow(1-k,3);hexK=to*e;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());if(k<1)requestAnimationFrame(up)};
+    const t0=performance.now(),to=64;const up=(now)=>{if(st.sel){hexK=0;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());map.setLayoutProperty("homes-3d","visibility","none");return}
+      const k=reduce?1:Math.min(1,(now-t0)/1500),e=1-Math.pow(1-k,3);hexK=to*e;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());if(k<1)requestAnimationFrame(up)};
     setTimeout(()=>requestAnimationFrame(up),250)});
   renderToggles();renderStrip()}
 const getJSON=(n)=>fetch("data/"+n+".json").then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.json()});
