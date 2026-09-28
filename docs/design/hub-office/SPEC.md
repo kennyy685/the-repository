@@ -90,6 +90,10 @@ yours" / "On it, boss") · work buddies (frequent handoff pairs sit together, fi
 lighting from real streaks/blocks · Employee of the Week plaque (most finishes, Sundays) · Team photo button (posed
 crew shot with the date, saved to the trophy wall) · weekend ping-pong for idle robots · Chat Reader's news ticker.
 
+## What pleases him most (FilthE, 2026-09-28)
+"I get extremely pleased by convenient things that are extremely helpful and carefully thought of, that I wouldn't
+have thought of." Rank every idea by this first: anticipatory, saves time or worry, non-obvious, zero effort for him.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
