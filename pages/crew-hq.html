@@ -439,6 +439,29 @@ h1,h2,h3,p{margin:0}
   .bub{max-width:260px}
   .tpanel{padding-bottom:24px}
 }
+/* the closable panel (note 8): P or ] hides it and the office fills the screen; a slim tab on the right edge brings it back */
+.pbtn,.ptab{display:none}
+@media (min-width:900px) and (min-height:600px){
+  .panel{transition:transform .34s var(--ease),opacity .26s var(--ease),visibility 0s}
+  .pbtn{display:grid;place-items:center;position:absolute;left:-44px;top:0;width:36px;height:36px;border-radius:var(--r-sm);color:var(--ink-2);background:rgba(12,13,15,.55);border:1px solid var(--rule)}
+  .pbtn:hover{color:var(--ink);border-color:var(--rule-2)}
+  .pclosed .panel{transform:translateX(calc(100% + 64px));opacity:0;visibility:hidden;transition:transform .34s var(--ease),opacity .26s var(--ease),visibility 0s .34s}
+  .scrim-col{transition:opacity .34s var(--ease)}
+  .pclosed .scrim-col{opacity:0}
+  .ptab{position:fixed;z-index:8;right:0;top:88px;display:flex;flex-direction:column;align-items:center;gap:8px;width:36px;min-height:88px;padding:12px 0;border-radius:var(--r) 0 0 var(--r);background:var(--card-solid);border:1px solid var(--rule-2);border-right:0;color:var(--ink-2)}
+  .ptab[hidden]{display:none}
+  .ptab:hover{color:var(--ink)}
+  .ptab .pn{writing-mode:vertical-rl;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+  .ptab.need .pn{color:var(--need-ink)}
+  .ptab .pn b{font:600 13px/1 var(--mono);letter-spacing:0}
+  .stagebar,.stagetop,.recap,.replaybar,.still,.call{transition:right .34s var(--ease),left .34s var(--ease),width .34s var(--ease),max-width .34s var(--ease)}
+  .pclosed .stagebar{right:calc(var(--gutter) + 72px)}
+  .pclosed .stagetop{right:var(--gutter)}
+  .pclosed .recap,.pclosed .replaybar{left:50%;width:min(520px,calc(100% - 160px))}
+  .pclosed .still{width:calc(100% - 80px)}
+  .pclosed .call{max-width:calc(100% - 120px)}
+}
+@media (prefers-reduced-motion:reduce){ .panel,.pclosed .panel,.scrim-col,.stagebar,.stagetop,.recap,.replaybar,.still,.call{transition:none!important} }
 @media (min-width:900px) and (min-height:600px) and (max-height:819px){ .row{min-height:46px} .nrow{height:22px} .nrow,.nrow .mt,.nrow .ag{line-height:18px} .call{grid-template-columns:132px minmax(0,1fr);width:500px} .pip{width:132px;height:132px} .callq{-webkit-line-clamp:2} }
 @keyframes cardIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 @media (max-width:899px), (max-height:599px){
@@ -714,6 +737,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   </div>
 
   <aside class="panel" id="panel" data-nodrag data-tab="crew">
+    <button type="button" class="pbtn" id="panelBtn" aria-controls="panel" aria-expanded="true" aria-label="Hide the panel (P)" title="Hide the panel (P)"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/><path d="M19 5v14"/></svg></button>
     <section class="now" id="now" aria-labelledby="nowH">
       <div class="now-h"><h2 class="lbl" id="nowH">Right now</h2><span class="nsum" id="nowSum"></span></div>
       <ol class="nrows" id="nowList"></ol>
@@ -760,6 +784,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   </aside>
 </div>
 
+<button type="button" class="ptab" id="panelTab" hidden data-nodrag aria-controls="panel" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="pn" id="panelTabN"></span></button>
 <div class="app-toast" id="appToast" role="status" hidden></div>
 <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
 <section class="mine" id="mine" hidden role="dialog" aria-labelledby="mineH">
@@ -944,6 +969,9 @@ let cam = ['all', 'up', 'down', 'follow'].includes(store.get('hub-cam')) ? store
 let dingOn = store.get('hub-ding') === 'on';
 /* CONTRACT v2: the theme the room's strips read (Make it yours rewrites it; v bumps on every change) */
 const THEME0 = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#d9483b', done:'#3fbf94', queue:'#cdb896', intel:'#6cb8ec', sleep:'#3a3632', jewel:'#c9a45c', stripMode:'ember-only', name:''};
+/* the side panel (note 8): open or closed on the MacBook, remembered per device (hub-panel); phones always show it */
+let panelState = store.get('hub-panel') === 'closed' ? 'closed' : 'open';
+const panelOpen = () => !isWide || panelState === 'open';
 const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*performance.now()/5000));   // the shared 5 s "needs you" breath
 const HUB = window.HUB = {
   RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
@@ -951,7 +979,8 @@ const HUB = window.HUB = {
   get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return 'en'; },
   get breath(){ return breath(); },
   get area(){ const W = stageEl.clientWidth, H = stageEl.clientHeight;   // the rect the camera frames the room in (stage px)
-    return isWide ? {x0:40, y0:88, x1:W - 420, y1:H - 64} : {x0:-12, y0:46, x1:W + 12, y1:H - 50}; },
+    return isWide ? {x0:40, y0:88, x1:panelOpen() ? W - 420 : W - 40, y1:H - 64} : {x0:-12, y0:46, x1:W + 12, y1:H - 50}; },
+  get panel(){ return panelOpen() ? 'open' : 'closed'; },   // CONTRACT v3
   fallback(){ document.getElementById('app').classList.add('no-gl'); const h = $('#hint'); h.textContent = L().still; h.style.opacity = 1; },
   layout(){ layout(); }
 };
@@ -1156,7 +1185,12 @@ function renderNeeds(){
   if (lastNeedIds && dingOn && ids.some(k => k.startsWith('q:') && !lastNeedIds.includes(k))) ding();
   lastNeedIds = ids;
   const botIds = items.filter(i => i.bot).map(i => i.key);
-  if (botIds.join() !== HUB.needs.ids.join()) HUB.needs = {v:HUB.needs.v + 1, ids:botIds};   // CONTRACT v2: the call pool + the line
+  if (botIds.join() !== HUB.needs.ids.join()) {   // CONTRACT v2: the call pool + the line
+    const added = botIds.filter(id => !HUB.needs.ids.includes(id)); HUB.needs = {v:HUB.needs.v + 1, ids:botIds};
+    if (added.length && renderNeeds.seeded && !panelOpen()) setPanel(true, {remember:false});   // something new needs him: the panel slides back (his choice stays saved)
+  }
+  if (gotAgents) renderNeeds.seeded = true;
+  renderPanelTab(n);
   $('#cw').dataset.n = n; rollDigit($('#d10'), Math.min(9, Math.floor(n/10))); rollDigit($('#d1'), n > 99 ? 9 : n % 10); $('#ncount').textContent = ' · ' + n;
   const baseTitle = renderNeeds.base = hubName();   // "(1) Designer needs you · AI Hub"; plain at zero
   document.title = n ? T.titleNeeds(n, items[0].bot ? items[0].who : items[0].who) : baseTitle;
@@ -1512,6 +1546,7 @@ function setCarded(){ $('#panel').classList.toggle('carded', !!selected); }
 function select(key, opts){
   const prev = selected;
   selected = key && key !== selected ? key : (key === selected && !(opts && opts.keep) ? null : key);
+  if (selected && !panelOpen()) setPanel(true, {remember:false});   // the card lives in the panel
   if (selected && cam === 'follow' && !byId[selected]) setCam('all');
   if (selected) markOne(selected);
   cardSig = ''; renderCard(); renderRoster(); renderNeeds(); renderNow(); hideHint(); if (selected && selected.startsWith('t:') || prev && prev.startsWith('t:')) renderBoard();
@@ -1849,13 +1884,40 @@ function applySkyLabel(){ const T = L(), b = $('#skyBtn'); b.textContent = T.sky
 $('#dingBtn').addEventListener('click', () => { dingOn = !dingOn; store.set('hub-ding', dingOn ? 'on' : 'off'); applyDing(); appToast(dingOn ? L().dingOn : L().dingOff); if (dingOn) { dingAt = 0; ding(); } });
 function applyDing(){ const b = $('#dingBtn'); b.textContent = L().soundT(dingOn); b.title = L().ding(dingOn); b.setAttribute('aria-pressed', String(dingOn)); }
 
+/* ================= the closable panel (note 8): button, P / ], remembered; comes back when something new needs him ================= */
+function setPanel(open, opts){
+  opts = opts || {}; const want = open ? 'open' : 'closed'; if (want === panelState) return;
+  panelState = want; if (opts.remember !== false) store.set('hub-panel', want);
+  applyPanel(true);
+  if (!open && opts.focus) $('#panelTab').focus();
+  if (open && opts.focus) $('#panelBtn').focus();
+}
+function applyPanel(moved){
+  const closed = !panelOpen(), p = $('#panel');
+  document.getElementById('app').classList.toggle('pclosed', closed);
+  p.inert = closed; if (closed) p.setAttribute('aria-hidden', 'true'); else p.removeAttribute('aria-hidden');
+  $('#panelTab').hidden = !closed; $('#panelBtn').setAttribute('aria-expanded', String(!closed)); $('#panelTab').setAttribute('aria-expanded', String(!closed));
+  renderPanelTab();
+  if (moved && window.SCENE && window.SCENE.ready) { try { window.SCENE.resize(); } catch (e) { /* the scene re-frames on its next frame anyway */ } }
+  for (const o of overlays.values()) o.w = 0;
+}
+function renderPanelTab(n){
+  if (n == null) n = gotAgents ? needItems().length : 0;
+  const t = $('#panelTab'); t.classList.toggle('need', n > 0);
+  $('#panelTabN').innerHTML = n ? '<b>' + n + '</b> need' + (n === 1 ? 's' : '') + ' you' : 'Panel';
+  const lbl = 'Show the panel (P)' + (n ? ' · ' + n + (n === 1 ? ' needs' : ' need') + ' you' : ''); t.setAttribute('aria-label', lbl); t.title = lbl;
+}
+$('#panelBtn').addEventListener('click', () => setPanel(false, {focus:true}));
+$('#panelTab').addEventListener('click', () => setPanel(true, {focus:true}));
+
 /* ================= the panel's tabs: Crew / Board / Log / Chat (last one remembered) ================= */
 const TABS = ['crew', 'board', 'log', 'chat'];
 let tab = TABS.includes(store.get('hub-tab')) ? store.get('hub-tab') : 'crew';
 function setTab(t, focus){
   if (!TABS.includes(t)) return; tab = t; store.set('hub-tab', t); $('#panel').dataset.tab = t;
+  if (focus !== 'init' && !panelOpen()) setPanel(true, {remember:false});
   for (const k of TABS) { const b = $('#tab-' + k), on = k === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; $('#tp-' + k).hidden = !on; }
-  if (focus) $('#tab-' + t).focus();
+  if (focus === true) $('#tab-' + t).focus();
   $('#tbody').scrollTop = 0; renderTabDots(); applySearch();
 }
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; if (b.dataset.tab === 'crew' && tab === 'crew' && selected && isWide) select(null); setTab(b.dataset.tab); });
@@ -1947,6 +2009,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault(); const i = bots.findIndex(a => a.id === selected), j = (i + (k === 'ArrowRight' ? 1 : bots.length - 1)) % bots.length; select(bots[j].id, {keep:true, focusRail:!!e.target.closest('.rail')}); }
   else if (lk === 'r') refreshNow();
   else if (lk === 'v') setStatusView(!statusView);
+  else if ((lk === 'p' || k === ']') && isWide) setPanel(!panelOpen(), {focus:!!(e.target.closest && e.target.closest('#panel,#panelTab'))});
   else if (lk === 'n') toggleNames();
   else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
   else if (TAB_KEYS[lk]) { if (tab === TAB_KEYS[lk] && lk === 'c' && selected) select(null); setTab(TAB_KEYS[lk]); }
@@ -2191,7 +2254,6 @@ window.addEventListener('pointermove', e => {
 $('#roster').addEventListener('pointerover', e => { const r = e.target.closest('.row'); pres.rowHover = r ? r.dataset.sel : null; });
 $('#roster').addEventListener('pointerleave', () => { pres.rowHover = null; });
 let spotSig = '';
-const panelOpen = () => true;   // item 4 makes the panel closable
 /* the part of the stage he can actually see (the top band and the open panel cover the rest) */
 function seenRect(){ const W = stageEl.clientWidth, H = stageEl.clientHeight; return isWide ? {x0:8, y0:76, x1:(panelOpen() ? W - 340 - 56 : W - 8), y1:H - 8} : {x0:0, y0:0, x1:W, y1:H}; }
 function placeSpot(){
@@ -2607,6 +2669,7 @@ function frame(now){
 }
 function layout(){
   const was = isWide; isWide = window.innerWidth >= 900 && window.innerHeight >= 600;
+  if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); }
   if (window.SCENE && window.SCENE.ready) { window.SCENE.resize(); applyViews(); }
   for (const o of overlays.values()) { o.sig = ''; o.w = 0; }
   if (was !== isWide) renderNeeds();
@@ -2949,7 +3012,7 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 
 /* ================= start ================= */
 $('#todayBtn').hidden = !noteToday;
-applyTheme(false); applyStatic(); setTab(tab); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
+applyTheme(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
