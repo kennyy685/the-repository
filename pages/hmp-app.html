@@ -1697,7 +1697,7 @@ const soft = n => ({set html(v){ setHTML(n, v); }});
 /* ================= outbox: writes that can't reach the database wait on this phone and retry by themselves ================= */
 const prOn = () => !!(window.HMPPractice && window.HMPPractice.isOn());   // T201: Practice mode (v25/practice.js) sends save() nowhere
 const OB_KEY = 'hmp-app-outbox';
-let outbox = [], obStored = true, flushing = false, flushT = 0, backoff = 4000, syncOkT = 0;
+let outbox = [], obStored = true, flushing = false, flushT = 0, flushAt = 0, flushAgain = false, backoff = 4000, syncOkT = 0;
 try { const s = JSON.parse(localStorage.getItem(OB_KEY) || '[]'); if (Array.isArray(s)) outbox = s.filter(o => o && o.op && o.path); } catch (e) { outbox = []; }
 function obSave(){ try { localStorage.setItem(OB_KEY, JSON.stringify(outbox)); obStored = true; } catch (e) { obStored = false; } renderSync(); }
 const WRITE_MS = 10000;
@@ -1754,15 +1754,22 @@ async function save(o){   // one write; it throws only when the database refuses
   try { await rawWrite(o); return 'saved'; }
   catch (e) { if (refused(e)) throw e; enqueue(o); flushSoon(); return 'queued'; }
 }
-function flushSoon(ms){ clearTimeout(flushT); flushT = setTimeout(flush, ms == null ? backoff : ms); }
+/* T163 bad signal: ONE retry scheduler. An armed retry is never lost or pushed later: a call that wants a later time keeps the
+   sooner one; a flush asked for while one is running runs again right after it (flushAgain), and it drains writes queued
+   mid-flush in the same pass. Safety net below: 'online', back to the app, and a slow check while anything waits. */
+function flushSoon(ms){
+  const d = Math.max(0, ms == null ? backoff : ms), at = Date.now() + d;
+  if (flushT && flushAt <= at) return;
+  clearTimeout(flushT); flushAt = at; flushT = setTimeout(() => { flushT = 0; flushAt = 0; flush(); }, d);
+}
 async function flush(){
-  if (flushing) return;
+  if (flushing) { flushAgain = true; return; }
+  flushAgain = false;
   if (!outbox.length) { renderSync(); return; }
   if (!DB) { flushSoon(); return; }
   flushing = true; let wrote = 0, failed = false, dropped = 0;
   try {
-    for (const o of dbOps()) {
-      if (!outbox.includes(o)) continue;
+    for (let o = dbOps()[0]; o; o = dbOps()[0]) {   // the live outbox each time: a tap queued mid-flush goes out in this pass
       o.inflight = true;
       try { await rawWrite(o); wrote++; }
       catch (e) { o.inflight = false; if (refused(e)) { dropped++; } else { failed = true; break; } }
@@ -1770,8 +1777,9 @@ async function flush(){
     }
   } finally { flushing = false; for (const o of outbox) o.inflight = false; }
   applyOverlay();
-  if (failed) { backoff = Math.min(60000, Math.round(backoff * 1.7)); flushSoon(); renderSync(); return; }
+  if (failed) { backoff = wrote ? 4000 : Math.min(60000, Math.round(backoff * 1.7)); flushSoon(); renderSync(); return; }   // it grows only while nothing gets through
   backoff = 4000;
+  if (flushAgain || dbOps().length) flushSoon(0);
   if (dropped) appToast(K().readOnly);
   const km = outbox.find(o => o.op === 'king');
   if (km && SAMPLE && CAN_EDIT && !kcBusy) { if (Date.now() < kingNextAt) flushSoon(kingNextAt - Date.now() + 50); else { outbox = outbox.filter(x => x !== km); obSave(); askKing(km.text, false, km); } }
@@ -1789,6 +1797,7 @@ function renderSync(justSaved){
 $('#syncChip').addEventListener('click', () => { backoff = 4000; flushSoon(0); });
 window.addEventListener('online', () => flushSoon(0));
 document.addEventListener('visibilitychange', () => { if (!document.hidden && outbox.length) flushSoon(0); });
+setInterval(() => { if (dbOps().length && !flushing && !flushT) flushSoon(0); }, 20000);   // T163 safety net: waiting writes always have a retry armed
 
 /* ---------- what the page shows = the database + writes still waiting on this phone + taps not echoed back yet ---------- */
 let leadsSeen = false;   // the leads collection has answered at least once (applyStat recounts estimates from it)
