@@ -588,6 +588,131 @@ body.area .hint,body.pins .hint{opacity:0;pointer-events:none}
   .top{gap:8px}
   .seg button{padding:0 9px}
 }
+
+/* ---------- 7 AM home (Today tab) ---------- */
+.ltabs{display:flex;gap:4px;margin:12px 12px 0;padding:4px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--rule)}
+.ltabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:background .2s,color .2s}
+.ltabs button .i{width:15px;height:15px}
+.ltabs button[aria-selected="true"]{background:var(--glass-2);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 4px 14px -6px rgba(0,0,0,.6)}
+.ltabs button[aria-selected="true"] .i{color:var(--acc)}
+.ltabs .ct{font:500 10.5px/1 var(--mono);padding:3px 5px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--muted)}
+body:not(.tab-all) .list>:is(header,.sorts,.rows,footer){display:none}
+body.tab-all .today{display:none}
+body:not(.tab-all) .hint{opacity:0;pointer-events:none}
+.today{flex:1;overflow:auto;padding:0 16px 14px;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.today .hh{padding:18px 4px 2px}
+.today h1{margin:0;font:700 27px/1.08 var(--display);letter-spacing:-.028em;text-wrap:balance}
+.today h1 em{font-style:normal;color:var(--acc)}
+.today .smp{font:500 8.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc-ink);border:1px dashed color-mix(in srgb,var(--acc) 55%,transparent);border-radius:4px;padding:2px 4px;vertical-align:1px;white-space:nowrap}
+.brief{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:12px;font-size:12px;color:var(--text-2)}
+.brief>span{display:inline-flex;align-items:center;gap:6px}
+.brief .ok i{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent)}
+.brief .warn{color:var(--bad)}
+.today .sec .you{margin-left:auto;order:2;font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--acc-ink)}
+.today .sec::after{order:1}
+.picks{display:flex;flex-direction:column;gap:6px}
+.pick{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:11px;align-items:start;text-align:left;width:100%;padding:11px 11px 11px 10px;border-radius:14px;
+  border:1px solid var(--rule);background:rgba(255,255,255,.02);transition:background .2s,border-color .2s,transform .25s var(--ease);animation:rowin .5s var(--ease) both}
+.pick:hover{background:rgba(255,255,255,.05);border-color:var(--rule-2);transform:translateY(-1px)}
+.pick .rk{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:600 13px/1 var(--mono);color:var(--text-2);background:rgba(255,255,255,.06);border:1px solid var(--rule)}
+.pick .bd{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pick .nm{display:flex;align-items:center;gap:8px;font:650 15px/1.15 var(--sans);letter-spacing:-.01em}
+.pick .nm em{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:var(--on-acc);background:var(--acc);padding:3px 5px;border-radius:4px}
+.pick .why{font-size:12.5px;line-height:1.4;color:var(--text-2)}
+.pick .fx{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:2px;font:500 11px/1.2 var(--mono);color:var(--muted)}
+.pick .fx span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.pick .fx .i{width:12px;height:12px}
+.pick .fx .ok{color:var(--good)}.pick .fx .warn{color:var(--h1)}
+.pick .vv{display:flex;flex-direction:column;align-items:flex-end;gap:10px;font:700 19px/1 var(--display);letter-spacing:-.02em;color:var(--c);white-space:nowrap}
+.pick .vv .v{white-space:nowrap}
+.pick .vv small{font:500 11px var(--sans);color:var(--muted);margin-left:1px}
+.pick .go{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:var(--muted);border:1px solid var(--rule-2);transition:all .2s}
+.pick .go .i{width:13px;height:13px}
+.pick:hover .go{color:var(--on-acc);background:var(--acc);border-color:var(--acc)}
+.today.drawn .pick{animation:none}
+.pick.lit{padding:14px 12px 14px 11px;border-color:rgba(245,136,58,.55);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(245,136,58,.2),rgba(245,136,58,.04) 55%,transparent),rgba(255,255,255,.025);
+  box-shadow:0 0 0 1px rgba(245,136,58,.12),0 18px 40px -22px rgba(245,136,58,.75)}
+.pick.lit::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,200,150,.18) 45%,transparent 60%) 0 0/250% 100% no-repeat;animation:sheen 5.5s var(--ease) 1s infinite}
+@keyframes sheen{0%{background-position:130% 0}40%,100%{background-position:-60% 0}}
+.pick.lit .rk{background:var(--acc);color:var(--on-acc);border-color:var(--acc);box-shadow:0 0 18px -2px rgba(245,136,58,.8)}
+.pick.lit .nm{font-size:17px}
+.pick.lit .why{color:var(--text)}
+.pick.lit .go{color:var(--on-acc);background:var(--acc);border-color:var(--acc)}
+.skip{display:flex;gap:8px;align-items:flex-start;margin:9px 2px 0;font-size:12px;line-height:1.4;color:var(--muted)}
+.skip .i{width:14px;height:14px;margin-top:1px;color:var(--bad)}
+.dstrip{display:block;width:100%;height:auto;margin:2px 0 0;overflow:visible}
+.dstrip .base{fill:rgba(255,255,255,.1)}.dstrip .dark{fill:rgba(88,110,170,.16)}
+.dstrip .ap{fill:#b69cff}.dstrip .ap.adj{fill:#cdb8ff}.dstrip .drv{fill:rgba(255,255,255,.35)}
+.dstrip .kn{fill:var(--acc)}.dstrip .ov{fill:var(--bad);opacity:.9}
+.dstrip .sunc{fill:#ffd27a}.dstrip .sunr{stroke:#ffd27a;stroke-width:1.1}
+.dstrip .now line{stroke:var(--text);stroke-width:1.4}.dstrip .now circle{fill:var(--text)}
+.dstrip text{font:500 9px var(--mono);fill:var(--muted)}
+.lgd{display:flex;gap:12px;margin:2px 0 10px;font-size:11px;color:var(--muted)}
+.lgd span{display:inline-flex;align-items:center;gap:5px}
+.lgd i{width:10px;height:6px;border-radius:2px;background:var(--acc)}.lgd i.ap{background:#b69cff}.lgd i.dk{background:rgba(88,110,170,.4)}
+.it{border:1px solid var(--rule);border-radius:14px;padding:12px;margin-top:8px;background:rgba(255,255,255,.02)}
+.it .ih{display:flex;align-items:center;gap:9px}
+.it .ih .n{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:600 11px/1 var(--mono);background:rgba(255,255,255,.07);color:var(--text-2);flex:none}
+.it .ih .tt{font-weight:600;font-size:13.5px;min-width:0}
+.it .ih .tm{margin-left:auto;font:500 11.5px/1 var(--mono);color:var(--text-2);white-space:nowrap}
+.it.kn{border-color:rgba(245,136,58,.35);background:linear-gradient(180deg,rgba(245,136,58,.07),rgba(245,136,58,.015))}
+.it.kn .ih .n{background:var(--acc);color:var(--on-acc)}
+.it .il{margin:7px 0 0;font-size:12px;color:var(--text-2);line-height:1.5}
+.kwalk{display:grid;grid-template-columns:auto 1fr auto;gap:14px;margin:10px 0 0;padding:9px 11px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid var(--rule)}
+.kwalk b{display:block;font:650 15px/1.1 var(--display);letter-spacing:-.01em}
+.kwalk small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kwalk>div{min-width:0}
+.kw{display:flex;gap:9px;align-items:flex-start;margin-top:9px;padding:9px 10px;border-radius:10px;font-size:12px;line-height:1.45;color:var(--text-2)}
+.kw .i{width:16px;height:16px;flex:none;margin-top:1px}
+.kw.bad{background:color-mix(in srgb,var(--bad) 12%,transparent);border:1px solid color-mix(in srgb,var(--bad) 45%,transparent)}
+.kw.bad b,.kw.bad .i{color:var(--bad)}
+.kw.ok{background:color-mix(in srgb,var(--good) 9%,transparent);border:1px solid color-mix(in srgb,var(--good) 35%,transparent)}
+.kw.ok b,.kw.ok .i{color:var(--good)}
+.lnk{color:var(--acc-ink);text-decoration:underline;text-underline-offset:2px;font-size:12px;min-height:24px}
+.fixb{width:100%;margin-top:7px;min-height:38px;padding:8px 12px;border-radius:10px;font-size:12.5px;font-weight:600;color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--rule-2);text-align:left;transition:background .2s}
+.fixb:hover{background:rgba(255,255,255,.1)}
+.btn.sm{height:42px;font-size:14px;margin-top:10px;border-radius:11px}
+.fu{display:grid;gap:2px;padding:9px 0 0;margin-top:9px;border-top:1px solid var(--rule)}
+.fu:first-of-type{border-top:0;margin-top:4px}
+.fu .ad,.ap .ad{font-weight:600;font-size:13px}
+.fu .ar{font-size:11.5px;color:var(--muted)}
+.fu .ar em{font-style:normal;color:var(--acc-ink);font-weight:600}
+.fu .nt,.ap .nt{font-size:12px;color:var(--text-2);line-height:1.4}
+.it .ap{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:9px 0 0;margin-top:9px;border-top:1px solid var(--rule)}
+.it .ap:first-of-type{border-top:0;margin-top:4px}
+.it .ap>span:last-child{display:grid;gap:2px}
+.it .ap .at{font:600 12px/1.3 var(--mono);color:#cdb8ff}
+.it .ap .lg{display:flex;gap:6px;align-items:flex-start;margin-top:3px;font-size:11.5px;color:var(--muted)}
+.it .ap .lg .i{width:13px;height:13px;margin-top:1px;color:var(--good)}
+.today .foot{margin:14px 4px 0;font-size:11.5px;color:var(--muted);line-height:1.45}
+/* map: Aldaba's top 3 get a rank in the dot; #1 is lit */
+.amk .rk{display:none}
+.amk.rank{transform:translate(-11px,-50%)}
+.amk.rank .dot{width:22px;height:22px;display:grid;place-items:center}
+.amk.rank .rk{display:block;font:700 11px/1 var(--mono);color:#140c05}
+.amk.rank1 .dot{box-shadow:0 0 0 3px rgba(10,11,13,.85),0 0 0 6px rgba(245,136,58,.55),0 0 34px 6px rgba(245,136,58,.7)}
+.amk.rank1 .dot::after{border-color:#ffb070;animation-duration:1.8s}
+.amk.rank1 .pill{border-color:rgba(245,136,58,.7)}
+/* light */
+[data-theme="light"] .ltabs{background:rgba(24,25,28,.04)}
+[data-theme="light"] .ltabs button[aria-selected="true"]{background:#fff;box-shadow:0 1px 3px rgba(24,25,28,.12)}
+[data-theme="light"] .ltabs .ct,[data-theme="light"] .pick .rk,[data-theme="light"] .it .ih .n{background:rgba(24,25,28,.06)}
+[data-theme="light"] .pick,[data-theme="light"] .it{background:rgba(255,255,255,.6)}
+[data-theme="light"] .pick:hover{background:#fff}
+[data-theme="light"] .pick.lit{background:radial-gradient(120% 140% at 0% 0%,rgba(245,136,58,.16),rgba(245,136,58,.03) 55%,transparent),#fff;box-shadow:0 14px 34px -20px rgba(200,82,12,.55)}
+[data-theme="light"] .pick.lit::after{background-image:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.7) 45%,transparent 60%)}
+[data-theme="light"] .it.kn{background:linear-gradient(180deg,#fff5ec,#fff)}
+[data-theme="light"] .kwalk{background:rgba(24,25,28,.035)}
+[data-theme="light"] .fixb{background:#fff}
+[data-theme="light"] .dstrip .base{fill:rgba(24,25,28,.12)}[data-theme="light"] .dstrip .dark{fill:rgba(60,80,140,.12)}
+[data-theme="light"] .dstrip .ap{fill:#8a6fe0}[data-theme="light"] .dstrip .ap.adj{fill:#6f55d9}[data-theme="light"] .dstrip .drv{fill:rgba(24,25,28,.3)}
+[data-theme="light"] .dstrip .sunc{fill:#e0a21a}[data-theme="light"] .dstrip .sunr{stroke:#e0a21a}
+[data-theme="light"] .it .ap .at{color:#6f55d9}[data-theme="light"] .lgd i.ap{background:#8a6fe0}
+[data-theme="light"] .today{scrollbar-color:#c9ccd1 transparent}
+[data-theme="light"] .amk.rank1 .dot{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(245,136,58,.5),0 0 26px 4px rgba(245,136,58,.55)}
+@media (prefers-reduced-motion:reduce){.pick.lit::after{animation:none}}
 </style>
 </head>
 <body>
@@ -633,6 +758,11 @@ body.area .hint,body.pins .hint{opacity:0;pointer-events:none}
 
 <!-- open list of areas -->
 <aside class="list glass" aria-label="Areas">
+  <div class="ltabs" role="tablist" aria-label="Today or all areas">
+    <button role="tab" data-tab="today" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/></svg><span class="en">Today</span><span class="es">Hoy</span></button>
+    <button role="tab" data-tab="all" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="en">All areas</span><span class="es">Todas las áreas</span><span class="ct" id="allN"></span></button>
+  </div>
+  <div class="today" id="today"></div>
   <header>
     <p class="eyebrow" id="listEyebrow"></p>
     <h1 id="listTitle"></h1>
@@ -795,6 +925,12 @@ const SRC = {
   ndoi:{code:"NDOI",c:"#cdb8ff",kind:"rule",pulled:"2026-09-28",name:{en:"Nebraska Dept. of Insurance + agents",es:"Depto. de Seguros de Nebraska + agentes"},
     what:{en:"Nebraska's Department of Insurance: the adjuster works out Actual Cash Value first; the gap up to full replacement is paid only if the policy has that coverage. Independent agents report more carriers paying only depreciated value once a roof passes about 10–15 years. A general pattern, never a prediction for one policy.",es:"El Departamento de Seguros de Nebraska: el ajustador calcula primero el Valor Real en Efectivo; la diferencia hasta el reemplazo completo solo se paga si la póliza tiene esa cobertura. Agentes independientes dicen que más aseguradoras pagan solo el valor depreciado cuando el techo pasa de unos 10–15 años. Es un patrón general, nunca una predicción para una póliza."},
     site:"doi.nebraska.gov",by:{en:"Research round 62",es:"Investigación, ronda 62"}},
+  pick:{code:"PICK",c:"#f5883a",kind:"est",pulled:{en:"Storm Watch run, 6:54 AM",es:"Corrida de Storm Watch, 6:54 a. m."},name:{en:"How Aldaba ranks today's areas",es:"Cómo Aldaba ordena las áreas de hoy"},
+    what:{en:"A simple, open score: hail size 30%, owner-lived homes 20%, how new the storm is 15%, how few other crews (roof permits) 15%, roof age 10%, how well the reports agree 10%. Areas where your permit has expired are skipped. It only suggests: you pick.",es:"Una puntuación sencilla y abierta: tamaño del granizo 30%, casas donde vive el dueño 20%, qué tan nueva es la tormenta 15%, pocas cuadrillas (permisos de techo) 15%, edad del techo 10%, qué tanto coinciden los reportes 10%. Se saltan las áreas donde tu permiso venció. Solo sugiere: tú escoges."},
+    site:"Aldaba",by:{en:"Aldaba estimate",es:"Estimado de Aldaba"}},
+  win:{code:"WINDOW",c:"#ffd27a",kind:"est",pulled:"2026-09-28",name:{en:"Best time to find people home",es:"Mejor hora para encontrar a la gente en casa"},
+    what:{en:"Door-to-door norm: weekdays after about 4 PM when people are back from work, Saturday from about 10 AM, Sunday after about 1 PM. The day ends at sunset or the town's legal hours, whichever is first. Your own logged answer rates replace this once you knock.",es:"Norma de puerta en puerta: entre semana después de las 4 p. m., cuando la gente regresa del trabajo; sábado desde las 10 a. m.; domingo después de la 1 p. m. El día termina al atardecer o con el horario legal del pueblo, lo que llegue primero. Tus propios datos lo reemplazan cuando empieces a tocar."},
+    site:{en:"door-to-door sales norms (outside view)",es:"normas de ventas de puerta en puerta (vista de afuera)"},by:{en:"Aldaba estimate",es:"Estimado de Aldaba"}},
   tbd:{code:"TBD",c:"#8a8f99",kind:"tbd",name:{en:"Town rules not checked yet",es:"Reglas del pueblo sin revisar"},
     what:{en:"We haven't verified this town's door-to-door rules (hours, permit, signs). Call the city office before knocking here.",es:"Todavía no revisamos las reglas de puerta en puerta de este pueblo (horario, permiso, letreros). Llama a la oficina de la ciudad antes de tocar aquí."},
     site:{en:"city office",es:"oficina de la ciudad"},by:{en:"Not checked",es:"Sin revisar"}},
@@ -804,7 +940,7 @@ const TAG={sample:{en:"SAMPLE DATA IN THIS MOCKUP",es:"DATOS DE MUESTRA EN ESTA 
 
 /* ---------- storms ---------- */
 const STORMS = {
-  s1:{date:"2026-09-14",days:14,time:"6:04–6:31 PM",d:{en:"Sep 14",es:"14 sep"},long:{en:"Sunday, Sep 14, 2026",es:"domingo 14 de sep. de 2026"},
+  s1:{date:"2026-09-14",days:14,time:"6:04–6:31 PM",d:{en:"Sep 14",es:"14 sep"},long:{en:"Monday, Sep 14, 2026",es:"lunes 14 de sep. de 2026"},
       path:[[-96.80,41.63],[-96.62,41.53],[-96.50,41.46],[-96.40,41.39],[-96.28,41.31],[-96.17,41.25],[-96.05,41.20]],w:[7.5,4.6,2.2],core:[.12,.72]},
   s2:{date:"2026-09-03",days:25,time:"4:40–5:05 PM",d:{en:"Sep 3",es:"3 sep"},long:{en:"Thursday, Sep 3, 2026",es:"jueves 3 de sep. de 2026"},
       path:[[-96.33,41.68],[-96.22,41.60],[-96.14,41.53],[-96.14,41.44],[-96.15,41.37],[-96.09,41.31]],w:[6,3.2,0],core:[0,0]},
@@ -948,9 +1084,12 @@ const STREETS = [
 const COUNTIES=[["Dodge",[-96.74,41.63]],["Washington",[-96.36,41.64]],["Douglas",[-96.42,41.35]],["Saunders",[-96.80,41.10]],["Sarpy",[-96.18,41.03]],["Cass",[-96.12,40.86]],["Lancaster",[-96.84,40.95]]];
 
 /* ---------- click flow: sample clock, sample start point, towns ---------- */
-const NOWM=13*60+5;              // SAMPLE clock: 1:05 PM today
+const NOWM=7*60+2;               // SAMPLE clock: 7:02 AM today (the 7 AM home)
 const TMR="2026-09-29";
 const START=[-96.4981,41.4333];  // SAMPLE start point: downtown Fremont (Main St & 6th St)
+const WIN={0:780,1:960,2:960,3:960,4:960,5:960,6:600}; // best time to find people home, by weekday: Sun after church, Mon-Fri after work, Sat morning (outside view)
+const bestStart=(iso)=>WIN[new Date(iso+"T12:00:00").getDay()];
+let PK={};                        // Aldaba's top 3 today: area id -> rank
 const PACE=25;                   // doors an hour used for plans (outside view 20-30)
 const TOWNS={ // rules: research round 24 (real). permit dates: SAMPLE
   fremont:{n:"Fremont",h:null,src:"fmc",perm:{k:"ok",iss:"2026-09-12",days:30}},
@@ -1246,7 +1385,7 @@ COUNTIES.forEach(([n,ll])=>addLabel("county",{en:n+" Co.",es:"Condado "+n},ll,8.
 addLabel("state","Iowa",[-95.80,41.43],8,9);
 const marks={};
 AREAS.forEach((a,i)=>{const e=document.createElement("button");e.className="amk";e.style.setProperty("--c",bandColor(a.hail));e.style.setProperty("--d",(i*.37%2.6)+"s");
-  e.innerHTML=`<span class="dot"></span><span class="pill"><span class="nm"></span><b></b></span>`;
+  e.innerHTML=`<span class="dot"><span class="rk"></span></span><span class="pill"><span class="nm"></span><b></b></span>`;
   e.addEventListener("click",()=>setSel(a.id));e.addEventListener("mouseenter",()=>setHot(a.id));e.addEventListener("mouseleave",()=>setHot(null));
   ov.appendChild(e);marks[a.id]={e,a}});
 let sortedLabels=null;
@@ -1255,7 +1394,7 @@ function place(){
   const k=project(KOAX);rdot.style.left=k.x+"px";rdot.style.top=k.y+"px";
   // area markers + greedy label collision (selected, then hovered, then most homes)
   const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days);
-  const order=[...visA].sort((x,y)=>(y.id===st.sel)-(x.id===st.sel)||(y.id===st.hot)-(x.id===st.hot)||y.homes-x.homes);
+  const order=[...visA].sort((x,y)=>(y.id===st.sel)-(x.id===st.sel)||(y.id===st.hot)-(x.id===st.hot)||(PK[x.id]||9)-(PK[y.id]||9)||y.homes-x.homes);
   const boxes=[...document.querySelectorAll(st.sel?".plan,.top .glass,.card,.layers,.tray:not([hidden])":".list,.dock,.top .glass,.layers,.hint,.tray:not([hidden])")].map(el=>{const r=el.getBoundingClientRect();return{x0:r.left,x1:r.right,y0:r.top,y1:r.bottom}}).filter(b=>b.x1>b.x0);
   const hit=(b)=>boxes.some(o=>!(b.x1<o.x0||b.x0>o.x1||b.y1<o.y0||b.y0>o.y1));
   AREAS.forEach(a=>marks[a.id].e.classList.toggle("off",!visA.includes(a)));
@@ -1365,12 +1504,45 @@ const T={
   win:{en:(d)=>`Showing last ${d} days`,es:(d)=>`Mostrando últimos ${d} días`},
   today:{en:"Today",es:"Hoy"},noHail:{en:"No hail over ¼″",es:"Sin granizo de más de ¼″"},biggest:{en:"biggest",es:"el más grande"},
   areasN:{en:(n)=>`${n} ${n===1?"area":"areas"} on the map`,es:(n)=>`${n} ${n===1?"área":"áreas"} en el mapa`},
+  /* 7 AM home */
+  dows:{en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],es:["domingo","lunes","martes","miércoles","jueves","viernes","sábado"]},
+  gm:{en:"Good morning, Kenny.",es:"Buenos días, Kenny."},
+  found:{en:(n)=>`Aldaba found <em>${n} places</em> to knock today.`,es:(n)=>`Aldaba encontró <em>${n} lugares</em> para tocar hoy.`},
+  quiet:{en:"no new hail overnight",es:"sin granizo nuevo anoche"},
+  swRan:{en:"Storm Watch ran 6:54 AM",es:"Storm Watch corrió 6:54 a. m."},swChecked:{en:(n)=>`${n} areas checked`,es:(n)=>`${n} áreas revisadas`},
+  permClock:{en:(n)=>`Fremont permit: ${n} days left`,es:(n)=>`Permiso de Fremont: quedan ${n} días`},
+  aldTop:{en:"Aldaba's top 3",es:"Top 3 de Aldaba"},youChoose:{en:"you choose",es:"tú decides"},aldPick:{en:"Aldaba's pick",es:"Recomendada"},
+  noPicks:{en:"No area with hail in this date range.",es:"Ninguna área con granizo en estas fechas."},
+  wHail:{en:(v)=>`${v}″ hail`,es:(v)=>`granizo de ${v}″`},wWind:{en:(v)=>`${v} mph wind`,es:(v)=>`viento de ${v} mph`},
+  wNew:{en:"newest storm",es:"la tormenta más nueva"},wOwn:{en:(n)=>`${n} owner-lived homes`,es:(n)=>`${n} casas donde vive el dueño`},
+  wNot:{en:"you haven't knocked here yet",es:"aún no has tocado aquí"},wOurs:{en:(n)=>`${n} doors done so far`,es:(n)=>`${n} puertas hechas hasta hoy`},
+  wRoof:{en:(n)=>`roofs about ${n} yr old`,es:(n)=>`techos de unos ${n} años`},wNear:{en:(n)=>`${n} min away`,es:(n)=>`a ${n} min`},
+  pOk:{en:"permit ✓",es:"permiso ✓"},pTbd:{en:"rules not checked",es:"reglas sin revisar"},
+  flyTo:{en:(n)=>`Fly to ${n}`,es:(n)=>`Ir a ${n}`},
+  skipped:{en:(n,v,tw,d)=>`Skipped ${n} (${v}): your ${tw} permit expired ${d}.`,es:(n,v,tw,d)=>`Se saltó ${n} (${v}): tu permiso de ${tw} venció el ${d}.`},
+  todayPlan:{en:"Today's plan",es:"El plan de hoy"},stripA:{en:"Your day from 7 AM to 8 PM",es:"Tu día de 7 a. m. a 8 p. m."},
+  afterDark:{en:"after sunset",es:"después del atardecer"},
+  knock:{en:"Knock",es:"Tocar"},leaveBy:{en:(c,m)=>`Leave ${c} · ${m} min drive`,es:(c,m)=>`Sal a las ${c} · ${m} min manejando`},
+  winWhy:{en:"people are home after work",es:"la gente ya llegó del trabajo"},
+  from:{en:"from",es:"desde"},fuOnWay:{en:"follow-ups on the way",es:"seguimientos en el camino"},
+  planning:{en:"Planning the walk…",es:"Planeando la ruta…"},
+  pastSun:{en:(c,d)=>`Ends ${c}: ${d} after sunset`,es:(c,d)=>`Termina ${c}: ${d} después del atardecer`},
+  pastSunD:{en:(n,c)=>`The walk plus ${n} follow-up stops runs past dark (sun sets ${c}).`,es:(n,c)=>`La ruta más ${n} seguimientos se pasa de la noche (el sol se pone a las ${c}).`},
+  fixEarly:{en:(c)=>`Leave at ${c} instead, do the follow-ups first`,es:(c)=>`Mejor sal a las ${c} y haz primero los seguimientos`},
+  beforeSun:{en:(c,d)=>`Done ${c}, ${d} before sunset`,es:(c,d)=>`Terminas ${c}, ${d} antes del atardecer`},
+  undo:{en:"undo",es:"deshacer"},fixed:{en:"Leaving earlier. The walk now ends before dark.",es:"Sales más temprano. La ruta ya termina antes de oscurecer."},
+  openWalk:{en:"Open the walk",es:"Abrir la ruta"},
+  fuDue:{en:"Follow-ups due",es:"Seguimientos pendientes"},apDue:{en:"Inspections + adjusters",es:"Inspecciones + ajustadores"},
+  lastSeen:{en:(d)=>`last ${d}`,es:(d)=>`última ${d}`},onWay:{en:"on your walk",es:"en tu ruta"},
+  insp:{en:"Inspection",es:"Inspección"},adj:{en:"Adjuster",es:"Ajustador"},
+  adjLegal:{en:"You document and meet. Never negotiate the claim or talk deductible.",es:"Documentas y te reúnes. Nunca negocies el reclamo ni hables del deducible."},
+  homeFoot:{en:"Tap a pick to fly in. Aldaba suggests; you decide. Times, doors and appointments are sample data.",es:"Toca una opción para entrar. Aldaba sugiere; tú decides. Horas, puertas y citas son datos de muestra."},
   months:{en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],es:["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]},
   rivers:{en:(n)=>n+" River",es:(n)=>"Río "+n},
   checked:{en:"Checked",es:"Revisado"},
   ofN:{en:(i,n)=>`${i} of ${n}`,es:(i,n)=>`${i} de ${n}`},
   st1:{en:"Pick area",es:"Elegir área"},st2:{en:"Plan walk",es:"Planear ruta"},st3:{en:"Knock",es:"Tocar"},
-  getting:{en:"Getting there",es:"Cómo llegar"},leaveNow:{en:(c)=>`Now, ${c}`,es:(c)=>`Ahora, ${c}`},leaveTmr:{en:"Tomorrow 9 AM",es:"Mañana 9 a. m."},
+  getting:{en:"Getting there",es:"Cómo llegar"},leaveNow:{en:(c)=>`Today, ${c}`,es:(c)=>`Hoy, ${c}`},leaveTmr:{en:"Tomorrow 9 AM",es:"Mañana 9 a. m."},
   drive:{en:"drive",es:"manejando"},fromStart:{en:"From downtown Fremont (sample start point)",es:"Desde el centro de Fremont (punto de salida de muestra)"},
   leaveAt:{en:(c)=>`leaving tomorrow ${c}`,es:(c)=>`saliendo mañana a las ${c}`},
   toKnock:{en:"to knock",es:"para tocar"},arrive:{en:(c)=>`Arrive ${c}`,es:(c)=>`Llegas ${c}`},
@@ -1579,7 +1751,7 @@ function sunsetMin(ll,iso){const rad=Math.PI/180,D0=Date.parse(iso+"T00:00:00Z")
 
 /* ---------- getting there: drive, legal knock time, permit ---------- */
 function trip(a){const tw=TOWNS[TOWN_OF[a.id]],km=Math.hypot((a.c[0]-START[0])*KX,(a.c[1]-START[1])*KY),road=km*1.3,sp=road<8?40:road<25?62:80,
-  drive=Math.round(3+road/sp*60),tmr=st.leave==="tmr",day=tmr?TMR:TODAY,dep=tmr?540:NOWM,arr=dep+drive,sun=Math.round(sunsetMin(a.c,day)),
+  drive=Math.round(3+road/sp*60),tmr=st.leave==="tmr",day=tmr?TMR:TODAY,dep=tmr?540:Math.max(NOWM,bestStart(TODAY)-drive),arr=dep+drive,sun=Math.round(sunsetMin(a.c,day)),
   end=tw.h?tw.h[1]:sun,from=Math.max(arr,tw.h?tw.h[0]:arr),left=Math.max(0,end-from);
   return{tw,mi:road*.6214,drive,dep,arr,sun,end,from,left,day,known:!!tw.h,tmr}}
 function permit(tw,day){const p=tw.perm;if(!p)return{k:"none"};
@@ -1594,6 +1766,7 @@ let AREAX=null;
 function applyAreas(d){AREAX={};const k=1/d.o;
   Object.entries(d.areas).forEach(([id,a])=>{const dec=(arr)=>{let x=a.o[0],y=a.o[1];const o=[];for(let i=0;i<arr.length;i+=2){x+=arr[i];y+=arr[i+1];o.push([x*k,y*k])}return o};
     AREAX[id]={park:dec(a.park)[0],pn:a.pn,s:a.s.map(s=>({n:s.n,b:s.b,h:s.h,m:s.m,f:s.f,t:s.t,p:dec(s.p)})),c:a.c.map(dec),r:a.r.map(dec)}});
+  renderHome();
   if(st.sel){const a=areaOf(st.sel);renderPlan();focusArea(a,true);if(st.pendWalk){st.pendWalk=0;planWalk(false)}}}
 const hailFor=(b,a)=>b>=2?a.hail:Math.min(a.hail,b>=1.5?1.75:b>=1?1.25:.75);
 function streetRows(a){const X=AREAX&&AREAX[a.id];if(!X)return[];
@@ -1751,7 +1924,7 @@ function renderGT(a){const box=$("gtBox");if(!box)return;const tr=trip(a),pm=per
     pm.k==="exp"?`<div class="v bad">${t("permExp",fmtDate(pm.on))} <span class="smp">${t("sampleW")}</span>${chip("perm",fmtDate(pm.on),a.st,1)}</div><div class="d">${t("permExpD",tr.tw.n)}</div>`:
     `<div class="v na">${t("permNone")} ${chip("tbd","",a.st,1)}</div><div class="d">${t("permNoneD",tr.tw.n)}</div>`;
   box.innerHTML=`
-    <div class="sec">${t("getting")}<span class="r mini" role="group"><button data-leave="now" aria-pressed="${!tr.tmr}">${t("leaveNow",fmtClock(NOWM))}</button><button data-leave="tmr" aria-pressed="${tr.tmr}">${t("leaveTmr")}</button></span></div>
+    <div class="sec">${t("getting")}<span class="r mini" role="group"><button data-leave="now" aria-pressed="${!tr.tmr}">${t("leaveNow",fmtClock(Math.max(NOWM,bestStart(TODAY)-tr.drive)))}</button><button data-leave="tmr" aria-pressed="${tr.tmr}">${t("leaveTmr")}</button></span></div>
     <div class="gt"><span class="ic">${ic("car")}</span><div><div class="v">${tr.drive} min<small>${t("drive")} · ${tr.mi.toFixed(tr.mi<10?1:0)} mi</small>${chip("drive",tr.drive+" min",a.st,1)}</div>
       <div class="d">${t("fromStart")}${tr.tmr?" · "+t("leaveAt",fmtClock(tr.dep)):""}</div></div></div>
     <div class="gt"><span class="ic">${ic("clock")}</span><div><div class="v ${tr.left>0?"":"bad"}">${tr.left>0?fmtDur(tr.left):t("noTime")}<small>${t("toKnock")}</small>${chip(sc,tr.known?`${fmtHr(tr.tw.h[0])}–${fmtHr(tr.tw.h[1])}`:t("hoursNC"),a.st,1)}</div>
@@ -1888,6 +2061,110 @@ function goBack(){if(HIST&&history.state&&history.state.aldabaArea){try{history.
 addEventListener("popstate",e=>{const id=e.state&&e.state.aldabaArea;if(id&&areaOf(id))enterArea(id,{push:false});else if(st.sel)exitArea()});
 function stepArea(d){const o=st.order,i=o.indexOf(st.sel);if(i<0||!o.length)return;enterArea(o[(i+d+o.length)%o.length])}
 
+/* ---------- 7 AM home: Aldaba's top 3 + today's plan (SAMPLE clock, SAMPLE appointments, no owner names) ---------- */
+const OURS=AREAS.map((a,i)=>doorPts.filter(f=>inRing(f.geometry.coordinates,areaFeat[i].geometry.coordinates[0])).length);
+const DAY_PLAN={ // SAMPLE: made-up house numbers on real streets from data/areas.json. Never owner names.
+  fu:[{area:"north-fremont",st:"N Union St",no:2240,last:"2026-09-25",n:{en:"Asked you to come back Monday afternoon",es:"Pidió que volvieras el lunes en la tarde"}},
+      {area:"north-fremont",st:"N Irving Ave",no:1917,last:"2026-09-26",n:{en:"Hanger left, no answer twice",es:"Se dejó volante, no abrió dos veces"}},
+      {area:"east-fremont",st:"N Grant St",no:1405,last:"2026-09-24",n:{en:"Call back from the business line: wants to talk after the adjuster comes",es:"Llamar desde la línea del negocio: quiere hablar después de que venga el ajustador"}}],
+  ap:[{k:"insp",at:630,dur:45,area:"north-fremont",st:"N Hancock St",no:2126,n:{en:"Roof + siding inspection. Asked for it at the door Sep 26.",es:"Inspección de techo + siding. La pidió en la puerta el 26 sep."}},
+      {k:"adj",at:810,dur:60,area:"east-fremont",st:"Parkview Dr",no:1542,n:{en:"Adjuster meeting. You show the damage you documented; the claim is the homeowner's.",es:"Cita con el ajustador. Muestras el daño que documentaste; el reclamo es del dueño."}}]};
+const FU_MIN=12; // minutes per follow-up stop on the way (talk + a short walk)
+function pickScore(a){const i=AREAS.indexOf(a),s=STORMS[a.st],wind=!!(a.wind&&a.hail<1.25),oh=Math.round(a.homes*a.owner/1000)*10,
+  tr=trip(a),pm=permit(tr.tw,TODAY),comp=a.permits/a.homes*100,cl=(x)=>Math.max(0,Math.min(1,x));
+  const f={hail:wind?cl((a.wind-50)/30)*.7:cl((a.hail-.75)/1.25),fresh:Math.exp(-s.days/25),homes:cl(oh/2500),room:1-cl(comp/2),roof:cl((a.roof-10)/15),conf:a.conf/100};
+  const sc=.3*f.hail+.15*f.fresh+.2*f.homes+.15*f.room+.1*f.roof+.1*f.conf-(tr.tw.src?0:.03)-(tr.drive>45?.05:0);
+  return{a,sc,f,oh,ours:OURS[i],tr,pm,comp,wind,block:pm.k==="exp"?pm:null}}
+const cap=(x)=>x.charAt(0).toUpperCase()+x.slice(1);
+function pickWhy(p,newest){const a=p.a,c=[];
+  if(STORMS[a.st].days===newest)c.push([1.2,t("wNew")]);
+  c.push([p.f.homes+.1,t("wOwn",fmt(p.oh))]);
+  if(!p.ours)c.push([.62,t("wNot")]);else c.push([.2,t("wOurs",p.ours)]);
+  if(a.roof>=22)c.push([p.f.roof*.7,t("wRoof",a.roof)]);
+  if(p.tr.drive<=15)c.push([.5,t("wNear",p.tr.drive)]);
+  c.sort((x,y)=>y[0]-x[0]);
+  return cap([p.wind?t("wWind",a.wind):t("wHail",fmtIn(a.hail)),...c.slice(0,2).map(x=>x[1])].join(", "))}
+let PICKS=[],SKIP=null;
+function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),all=visA.map(pickScore).sort((x,y)=>y.sc-x.sc);
+  PICKS=all.filter(p=>!p.block).slice(0,3);SKIP=all.find(p=>p.block&&p.sc>(PICKS[2]?PICKS[2].sc:0))||null;
+  const newest=Math.min(...visA.map(a=>STORMS[a.st].days));PICKS.forEach(p=>p.why=pickWhy(p,newest));
+  PK={};PICKS.forEach((p,i)=>PK[p.a.id]=i+1);
+  Object.values(marks).forEach(m=>{const r=PK[m.a.id];m.e.classList.toggle("rank",!!r);m.e.classList.toggle("rank1",r===1);m.e.querySelector(".rk").textContent=r||""})}
+/* the #1 pick's afternoon: follow-ups on the way, then the walk; warn if it runs past sunset */
+function knockPlan(){const p=PICKS[0];if(!p)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
+  const dep=Math.max(NOWM,bestStart(TODAY)-tr.drive-early),arr=dep+tr.drive,door0=Math.max(arr,bestStart(TODAY)-early);
+  const fu=DAY_PLAN.fu.filter(f=>f.area===a.id),fuMin=fu.length*FU_MIN;
+  if(!AREAX||!AREAX[a.id])return{a,tr,dep,arr,door0,sun,fu,fuMin,W:null};
+  const k=autoK(a,Math.max(0,sun-Math.max(arr+early,bestStart(TODAY)))),W=walkFor(a,k),end=door0+fuMin+W.min;
+  return{a,tr,dep,arr,door0,sun,fu,fuMin,W,k,end,over:Math.round(end-sun),st0:AREAX[a.id].s[0].n}}
+function dayStrip(K){const x0=420,x1=1230,W=316,X=(m)=>((Math.max(x0,Math.min(x1,m))-x0)/(x1-x0)*W).toFixed(1);
+  let s=`<svg class="dstrip" viewBox="0 0 ${W} 46" role="img" aria-label="${t("stripA")}">`;
+  if(K)s+=`<rect x="${X(K.sun)}" y="12" width="${W-X(K.sun)}" height="14" rx="3" class="dark"/>`;
+  s+=`<rect x="0" y="18" width="${W}" height="2" rx="1" class="base"/>`;
+  DAY_PLAN.ap.forEach(ap=>{s+=`<rect x="${X(ap.at)}" y="12" width="${Math.max(4,X(ap.at+ap.dur)-X(ap.at))}" height="14" rx="3.5" class="ap ${ap.k}"/>`});
+  if(K){s+=`<rect x="${X(K.dep)}" y="16" width="${Math.max(2,X(K.arr)-X(K.dep))}" height="6" rx="3" class="drv"/>`;
+    if(K.end){const e=Math.min(K.end,K.sun);s+=`<rect x="${X(K.door0)}" y="11" width="${Math.max(4,X(e)-X(K.door0))}" height="16" rx="4" class="kn"/>`;
+      if(K.over>0)s+=`<rect x="${X(K.sun)}" y="11" width="${Math.max(3,X(K.end)-X(K.sun))}" height="16" rx="4" class="ov"/>`}
+    const sx=X(K.sun);s+=`<g transform="translate(${sx},19)"><circle r="3.6" class="sunc"/>${[0,1,2,3,4,5,6,7].map(k=>{const an=k*Math.PI/4;return `<line x1="${(Math.cos(an)*5.4).toFixed(1)}" y1="${(Math.sin(an)*5.4).toFixed(1)}" x2="${(Math.cos(an)*7.4).toFixed(1)}" y2="${(Math.sin(an)*7.4).toFixed(1)}" class="sunr"/>`}).join("")}</g>`}
+  s+=`<g class="now" transform="translate(${X(NOWM)},0)"><line x1="0" x2="0" y1="6" y2="30"/><circle cx="0" cy="6" r="2.6"/></g>`;
+  [480,720,960,1200].forEach(m=>{s+=`<text x="${X(m)}" y="43" text-anchor="middle">${m===720?t("noon"):fmtHr(m)}</text>`});
+  return s+"</svg>"}
+const addr=(x)=>`${x.no} ${x.st}`;
+function renderHome(){const box=$("today");if(!box)return;computePicks();
+  const allN=AREAS.filter(a=>STORMS[a.st].days<=st.days).length;$("allN").textContent=allN;
+  const d=new Date(TODAY+"T12:00:00"),dn=T.dows[lang][d.getDay()],K=knockPlan(),fr=TOWNS.fremont,fp=permit(fr,TODAY);
+  const P=PICKS.map((p,i)=>{const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
+    const facts=`<span>${ic("car")}${tr.drive} min</span><span>${ic("clock")}${fmtClock(tr.from)}–${fmtClock(tr.end)}</span>${p.pm.k==="ok"?`<span class="ok">${ic("id")}${t("pOk")}</span>`:`<span class="warn">${ic("id")}${t("pTbd")}</span>`}`;
+    return `<button class="pick${i?"":" lit"}" data-pick="${a.id}" style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
+      <span class="rk">${i+1}</span>
+      <span class="bd"><span class="nm">${L(a.name)}${i?"":`<em>${t("aldPick")}</em>`}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
+      <span class="vv"><span class="v">${p.wind?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}).join("");
+  const skip=SKIP?`<p class="skip">${ic("sign")}<span>${t("skipped",L(SKIP.a.name),SKIP.wind?SKIP.a.wind+" mph":fmtIn(SKIP.a.hail)+"″",SKIP.tr.tw.n,fmtDate(SKIP.block.on))} ${chip("perm",fmtDate(SKIP.block.on),SKIP.a.st,1)}</span></p>`:"";
+  let kn="";
+  if(K){const cls=K.W?(K.over>0?"bad":"ok"):"",sunC=chip("sun",fmtClock(K.sun),K.a.st,1);
+    const warn=!K.W?`<div class="kw">${t("planning")}</div>`:K.over>0?
+      `<div class="kw bad" role="alert">${ic("sun")}<span><b>${t("pastSun",fmtClock(K.end),fmtDur(K.over))}</b><br>${t("pastSunD",K.fu.length,fmtClock(K.sun))} ${sunC}</span></div>
+       <button class="fixb" id="fixEarly" data-early="${Math.ceil((K.over+5)/5)*5}">${t("fixEarly",fmtClock(K.dep-Math.ceil((K.over+5)/5)*5))}</button>`:
+      `<div class="kw ok">${ic("sun")}<span><b>${t("beforeSun",fmtClock(K.end),fmtDur(K.sun-K.end))}</b> ${sunC}${st.early?` · <button class="lnk" id="fixUndo">${t("undo")}</button>`:""}</span></div>`;
+    kn=`<div class="it kn ${cls}">
+      <div class="ih"><span class="n">1</span><span class="tt">${t("knock")} · <b>${L(K.a.name)}</b></span><span class="tm">${fmtClock(K.door0)}–${fmtClock(K.sun)}</span></div>
+      <div class="il">${t("leaveBy",fmtClock(K.dep),K.tr.drive)} · ${t("winWhy")} ${chip("win",fmtClock(bestStart(TODAY))+"+",K.a.st,1)}</div>
+      ${K.W?`<div class="kwalk"><div><b>${K.W.doors}</b><small>${t("doors")}</small></div><div><b>${t("streetsN",K.k)}</b><small>${t("from")} ${K.st0}</small></div><div><b>${K.fu.length}</b><small>${t("fuOnWay")}</small></div></div>`:""}
+      ${warn}
+      <button class="btn sm" data-walk="${K.a.id}">${ic("route")}${t("openWalk")}</button></div>`}
+  const walkSt=K&&K.W?AREAX[K.a.id].s.slice(0,K.k).map(x=>x.n):[];
+  const fus=DAY_PLAN.fu.map(f=>{const on=K&&f.area===K.a.id;return `<div class="fu"><span class="ad">${addr(f)} <span class="smp">${t("sampleW")}</span></span>
+      <span class="ar">${L(areaOf(f.area).name)} · ${t("lastSeen",fmtDate(f.last))}${on?` · <em>${t("onWay")}</em>`:""}</span><span class="nt">${L(f.n)}</span></div>`}).join("");
+  const aps=DAY_PLAN.ap.map(ap=>`<div class="ap ${ap.k}"><span class="at">${fmtClock(ap.at)}</span><span><span class="ad">${t(ap.k)} · ${addr(ap)} <span class="smp">${t("sampleW")}</span></span>
+      <span class="nt">${L(ap.n)}</span>${ap.k==="adj"?`<span class="lg">${ic("shield")}${t("adjLegal")}</span>`:""}</span></div>`).join("");
+  box.innerHTML=`
+    <header class="hh">
+      <p class="eyebrow">${dn} · ${fmtDate(TODAY)} · ${fmtClock(NOWM)} <span class="smp">${t("sampleW")}</span></p>
+      <h1>${t("gm")}<br>${t("found",PICKS.length)}</h1>
+      <div class="brief"><span class="ok"><i></i>${t("swRan")}</span><span>${t("quiet")}</span><span>${t("swChecked",allN)}</span>${fp.k==="ok"?`<span class="${fp.left<=7?"warn":""}">${t("permClock",fp.left)} ${chip("perm",fmtDate(fp.until),"s1",1)}</span>`:""}</div>
+    </header>
+    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]?PICKS[0].a.st:"s1",1)}<span class="r you">${t("youChoose")}</span></div>
+    <div class="picks">${P||`<div class="empty">${t("noPicks")}</div>`}</div>${skip}
+    <div class="sec">${t("todayPlan")}</div>
+    ${dayStrip(K)}
+    <div class="lgd"><span><i class="kn"></i>${t("knock")}</span><span><i class="ap"></i>${t("insp")} / ${t("adj")}</span><span><i class="dk"></i>${t("afterDark")}</span></div>
+    ${kn}
+    <div class="it"><div class="ih"><span class="n">2</span><span class="tt">${t("fuDue")}</span><span class="tm">${DAY_PLAN.fu.length}</span></div>${fus}</div>
+    <div class="it"><div class="ih"><span class="n">3</span><span class="tt">${t("apDue")}</span><span class="tm">${DAY_PLAN.ap.length}</span></div>${aps}</div>
+    <p class="foot">${t("homeFoot")}</p>`;
+  requestAnimationFrame(()=>setTimeout(()=>box.classList.add("drawn"),900));
+}
+function setTab(tb){st.tab=tb;document.body.classList.toggle("tab-all",tb==="all");
+  document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===tb)));place()}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+$("today").addEventListener("click",e=>{if(e.target.closest(".chip"))return;
+  const pk=e.target.closest("[data-pick]");if(pk){enterArea(pk.dataset.pick);return}
+  const wk=e.target.closest("[data-walk]");if(wk){if(st.sel===wk.dataset.walk)planWalk(true);else{st.pendWalk=1;enterArea(wk.dataset.walk)}return}
+  const fx=e.target.closest("#fixEarly");if(fx){st.early=(st.early||0)+ +fx.dataset.early;renderHome();toast(t("fixed"));return}
+  if(e.target.closest("#fixUndo")){st.early=0;renderHome()}});
+$("today").addEventListener("mouseover",e=>{const r=e.target.closest("[data-pick]");setHot(r?r.dataset.pick:null)});
+$("today").addEventListener("mouseleave",()=>setHot(null));
+
 /* ---------- pin + compare ---------- */
 function renderPinBtn(){const b=$("pinB"),on=st.pins.includes(st.sel);b.setAttribute("aria-pressed",String(on));b.title=on?t("unpin"):t("pin");b.setAttribute("aria-label",b.title)}
 function togglePin(id){const i=st.pins.indexOf(id);if(i>=0)st.pins.splice(i,1);else{st.pins.push(id);if(st.pins.length>2)st.pins.shift()}renderTray();if(st.sel)renderPinBtn()}
@@ -1964,7 +2241,7 @@ function applyDays(){
   if(useGL&&mapReady){Object.entries(FILT).forEach(([id,fn])=>map.getLayer(id)&&map.setFilter(id,fn()));map.setPaintProperty("homes-3d","fill-extrusion-color",hexColor())}
   if(st.sel&&STORMS[AREAS.find(a=>a.id===st.sel).st].days>st.days)setSel(null);
   T0=performance.now()-900; // restart the replay from the window's first day
-  renderList();renderStrip();renderTimeline();if(!useGL)fbDraw();place();
+  renderList();renderHome();renderStrip();renderTimeline();if(!useGL)fbDraw();place();
 }
 document.querySelectorAll("[data-days]").forEach(b=>b.addEventListener("click",()=>{st.days=+b.dataset.days;applyDays()}));
 document.querySelectorAll("[data-sort]").forEach(b=>b.addEventListener("click",()=>{st.sort=b.dataset.sort;
@@ -1982,7 +2259,7 @@ document.getElementById("toggles").addEventListener("click",e=>{const b=e.target
 function setLang(l){lang=l;document.documentElement.lang=l;document.documentElement.dataset.lang=l;
   document.querySelectorAll("[data-lang]").forEach(b=>b.tagName==="BUTTON"&&b.setAttribute("aria-pressed",String(b.dataset.lang===l)));
   labels.forEach(setLabelText);
-  renderList();renderToggles();renderStrip();renderTimeline();if(st.sel){renderCard();renderPlan();renderANav();if(st.walk)drawWalkMarks()}renderTray();
+  renderList();renderHome();renderToggles();renderStrip();renderTimeline();if(st.sel){renderCard();renderPlan();renderANav();if(st.walk)drawWalkMarks()}renderTray();
   meEl.querySelector("span").textContent=t("startLbl");if(!document.getElementById("cmpw").hidden)openCmp();
   document.getElementById("status").textContent=(BASE?t("status"):t("statusFb"))+(useGL?"":t("offline"));fitTop();place()}
 document.querySelectorAll("button[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
@@ -2079,6 +2356,7 @@ setLang(lang);
 loadData();
 const pre=qs.get("area");
 if(qs.get("leave")==="tmr")st.leave="tmr";
+if(qs.get("tab")==="all")setTab("all");
 if(qs.get("rp")!=null&&!isNaN(+qs.get("rp")))RP.fixed=Math.max(0,Math.min(1,+qs.get("rp")));
 st.pins=(qs.get("pins")||"").split(",").filter(id=>AREAS.some(a=>a.id===id)).slice(0,2);renderTray();
 if(pre&&AREAS.some(a=>a.id===pre)){if(qs.get("walk")==="1")st.pendWalk=1;if(useGL)onGL(()=>setSel(pre,false));else setSel(pre,false)}
