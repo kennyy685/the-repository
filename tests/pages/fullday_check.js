@@ -241,6 +241,8 @@ async function day(browser, url, W, H) {
       const age = await p.locator("#shBody #stormAge").innerText().catch(() => "");
       ok(/Storm is 107 days old: check your policy's time limit/.test(age), "the claim screen has no storm-age line for a 107-day-old storm: " + age);
       ok(!/deadline|left|remaining/i.test(age), "the storm-age line reads like a countdown: " + age);
+      await p.locator("#shBody #stormAge").evaluate(e => e.scrollIntoView({ block: "center" })).catch(() => {}); await p.waitForTimeout(250);
+      await shot("claim-storm-age");
       await p.locator("#jtBox").evaluate(e => e.scrollIntoView({ block: "start" })); await p.waitForTimeout(250);
       await shot("tracker-open");
       // step 10 (build) shows the hard stop: 44-8606 both copies + the cancel window
