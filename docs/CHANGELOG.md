@@ -1,15 +1,15 @@
 # HMP App changelog (newest first)
 
-## AI hub v28.1 "Know everything at a glance" - 2026-09-28 (ready, waits on FilthE's "publish hub")
+## AI hub v28.1 "Know everything at a glance" - 2026-09-28 (NOT live yet: held 2026-09-28, design gate fails on the Fresh King button, 32 px tap on phones)
 - New Chats tab (S): every open Claude chat in one list, the ones that need you on top (and in your Needs strip; answer right there, the King passes it into that chat). Each shows what it's doing, what it cost, and a link to open it.
 - Spend meter on top: today and this week, about. A chat that passes $25, or burns $10+ an hour, gets flagged "Hand it off?" with one button (the King has it write its note and start fresh).
 - "Is everything running?": every scheduled job with On / Paused (grey, on purpose) / Broke (red, and an alert), last run and next run. "Ready to ship" cards on the Board: what it is, QA result, what changes, Preview, one Ship it button. Answers now wake the King a few seconds after you tap (the 90-second wait is gone).
 
-## Practice Door v12 - 2026-09-28
+## Practice Door v12 - 2026-09-28 (live: Practice Door Version 13)
 - 10 new homeowners: the rest of the sale after the knock (damage found, deductible shock, the first check, the adjuster visit, partly covered, "second thoughts" call, job done) plus someone who looks you up, a bilingual couple and an old storm. New "After the knock" section.
 - Houses and the Random homeowner now match Fremont (real house ages, Spanish speakers, retirees, hail season vs. winter). The next step is scored on storm doors too, plus 10 scene checks, 4 drills and 13 new answers in EN/ES.
 - Tighter legal backup: offering to file or call the insurer "for you", free extras to cover the deductible, a different storm date, and a reward for a review now get flagged.
-- QA fixes before publish (not live yet): "signed with another company" card now says 3 business days and never nudges them to cancel; no financing promise; no claim advice on the partly-covered letter; "registered and insured", never "licensed"; cancel form in English AND Spanish; rookie hints, cheat sheet (no door tips after the knock), Spanish-only check, dark-theme seam and MacBook layout fixed.
+- QA fixes (in this live version): "signed with another company" card now says 3 business days and never nudges them to cancel; no financing promise; no claim advice on the partly-covered letter; "registered and insured", never "licensed"; cancel form in English AND Spanish; rookie hints, cheat sheet (no door tips after the knock), Spanish-only check, dark-theme seam and MacBook layout fixed.
 - Built on top of v11 (Plan, top 15, Aldaba look): new homeowners in v11's cards, the MacBook picker fills every row, top-15 card 4 now asks one question first (merged with the research drill, one answer per objection), and v11's HOA card no longer trips the deductible check.
 
 ## AI hub v28.0 "Calm and clear" - 2026-09-28 (live: hub Version 28)
