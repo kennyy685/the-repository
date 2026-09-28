@@ -27,6 +27,10 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   didnt see or overlooked or didnt think". Every reply to him ends with 1-3 short numbered questions (blind spots,
   advice, next ideas), each with our pick so he can answer "1 yes 2 no". Ideas/taste/strategy only: facts still get
   researched first, ops facts wait for the boss. Helpers end reports with "For FilthE:" one thing he may have missed.
+  **Get in his head (2026-09-28):** "talk to me more, work with me more, get in my mind, ask me what i visualize,
+  what i think, why i think." Mix quick picks with open "what do you see / why" questions (offer our guess to react
+  to). Save his answers in `docs/memory/questions-for-filthe.md`. The bar: "to be the best we have to be the best
+  when it comes to information, leads, and efficiency", "about 10x better", no ceiling.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.

@@ -17,6 +17,15 @@ screen making an idea come to reality." So: don't ask him HMP operations questio
 the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
+## Open, for FilthE: what he sees and why (asked 2026-09-28, "get in my mind")
+He loved the open map ("my hat tipped to you") and wants 10x: "be the best at information, leads, and efficiency."
+1. First 10 seconds: at 7 AM you open Aldaba on the MacBook. What do you SEE first, and what should it make you feel?
+2. In your head, what IS a lead: a house, a person, a street, or a moment (right after a storm)? Why?
+3. Standing at a door: the one thing you'd most want to already know about that house before you knock? Why that?
+4. Why does being the best at information matter most to you: beating other roofers, confidence at the door, or else?
+Also pending (quick picks): map speed on the MacBook, "quiet storms" filter, fade areas already walked; round 62:
+roof-age "full roof likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
+
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - Hours a week he can give to knocking/selling, and what pulls him away.
 - Where the boss stands on insurance restoration and the app (all in / curious / doubtful); does he know what's built?
