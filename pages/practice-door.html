@@ -49,7 +49,7 @@
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--ambient) no-repeat,var(--bg);color:var(--ink);font-family:var(--f);font-size:var(--t-body);line-height:1.45;-webkit-font-smoothing:antialiased}
+body{margin:0;min-height:100vh;background-color:var(--bg);background-image:var(--ambient);background-repeat:no-repeat;color:var(--ink);font-family:var(--f);font-size:var(--t-body);line-height:1.45;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:disabled{cursor:default;opacity:.45}
 h1,h2,h3,p{margin:0}
@@ -558,13 +558,15 @@ li.bad .ck-l{color:var(--late)}
   .setup-a{grid-column:1;grid-row:1}
   .setup-b{grid-column:2;grid-row:1 / span 2}
   .setup-c{grid-column:1;grid-row:2}
+  /* v12 QA: the picker runs ~1,000px past the left column; keep the lower left cards in view while it scrolls. */
+  .setup-c{position:sticky;top:var(--s4);align-self:start}
   #scrSetup > .knock-bar{grid-column:1 / -1;grid-row:3;margin-inline:0;border:1px solid var(--hair);border-radius:var(--r-lg) var(--r-lg) 0 0;max-width:640px;justify-self:center;width:100%}
   .who-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   /* v12: three columns here, so the card that spans is the one alone on the last row of 3 (who-w3) or the second of 2
      (who-w3b, spans 2); the phone's odd-count "wide" card goes back to a normal tile. */
   .who-wide:not(.who-w3):not(.who-w3b){grid-column:auto;grid-template-columns:32px minmax(0,1fr);grid-template-areas:"ic ck" "name name" "tag tag" "chips chips";grid-template-rows:auto auto auto 1fr;column-gap:normal}
   .who-wide:not(.who-w3):not(.who-w3b) .who-ic{margin-bottom:6px}
-  .who-w3,.who-w3b{grid-template-columns:32px minmax(0,1fr) 22px;grid-template-areas:"ic name ck" "ic tag ck" "ic chips ck";grid-template-rows:auto auto 1fr;column-gap:var(--s3)}
+  .who-w3,.who-w3b{grid-template-columns:32px minmax(0,1fr) 22px;grid-template-areas:"ic name ck" "ic tag ck" "ic chips ck";grid-template-rows:auto auto auto;align-content:start;column-gap:var(--s3)}
   .who-w3 .who-ic,.who-w3b .who-ic{margin-bottom:0}
   .who-w3{grid-column:1/-1}.who-w3b{grid-column:span 2}
   .plan-hero{gap:var(--s8)}
@@ -1683,8 +1685,8 @@ const LOOK = {
   shopper: ['swap', 3], oldhouse: ['hammer', 3], dad: ['globe', 2], consuelo: ['globe', 2], recien: ['shield', 2],
   shopperEs: ['swap', 3], rogelio: ['globe', 2], random: ['shuffle', 0],
   /* v12 */
-  founddmg: ['file', 2], deductShock: ['money', 3], checkday: ['bank', 3], adjmeet: ['user', 3], partial: ['ban', 3],
-  checklist: ['search', 2], losdos: ['globe', 3], coldfeet: ['phone', 2], finaldone: ['check2', 1], latestorm: ['clock', 2]
+  founddmg: ['file', 2], deductShock: ['alert', 3], checkday: ['bank', 3], adjmeet: ['user', 3], partial: ['clip', 3],
+  checklist: ['search', 2], losdos: ['globe', 3], coldfeet: ['phone', 2], finaldone: ['star', 1], latestorm: ['info', 2]
 };
 /* The language the homeowner answers in: in Spanish mode everyone speaks Spanish (rulesText). */
 function langChip(k) {
@@ -1698,15 +1700,15 @@ const avIcon = () => (S.persona === 'random' ? 'user' : (LOOK[S.actual] || ['use
 
 const CASH_OBJ = ['shopper', 'shopperEs', 'bargain', 'threebids', 'selling', 'fixed', 'oldhouse'];
 const OBJ = [
-  [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.']],
+  [['“My husband/wife isn’t home.”', '“Mi esposo/esposa no está.”'], ['Let me look now so I have real photos to show you both tonight. No pressure to decide today.', 'Déjeme revisar ahora para tener fotos reales y enseñárselas a los dos esta noche. No tiene que decidir hoy.'], null, 'door'],
   [['“My insurance will drop me.”', '“Me van a quitar el seguro.”'], ["I can't speak for your policy. I'm just here to show you what's on your roof, free, so you have the facts either way.", 'No puedo hablar por su póliza. Solo vengo a enseñarle lo que tiene su techo, gratis, para que tenga los datos de todos modos.']],
   /* v10 (round 47): the rate worry. The only approved answer (data/door_lines_pro.json); never a rate or coverage promise. */
   [['“If I file, my rate will go up.”', '“Si hago el reclamo, me sube el seguro.”'], ["That's fair, and that decision's totally yours — whether or how you file is between you and your insurance company. Either way, I can document what's there now with photos, so you have it if you ever need it, no obligation to file anything.", "Eso es válido, y esa decisión es completamente suya — si presenta el reclamo o no, y cómo, es entre usted y su aseguradora. De todas formas, puedo documentar lo que hay ahora con fotos, para que las tenga si algún día las necesita, sin obligación de presentar nada."], ['dropme', 'agentwait']],
-  [['“Someone already came by.”', '“Ya vino alguien.”'], ['Good, more eyes never hurt. Did they get on the roof or just look from the ground? Happy to give a free second look.', 'Qué bueno, más ojos nunca están de más. ¿Se subieron al techo o solo vieron desde el suelo? Con gusto le doy una segunda revisión gratis.']],
-  [['“I rent.”', '“Yo rento.”'], ["Who owns the house? Can I get the owner's or property manager's office number?", '¿Quién es el dueño de la casa? ¿Me da el teléfono de la oficina del dueño o del administrador?']],
+  [['“Someone already came by.”', '“Ya vino alguien.”'], ['Good, more eyes never hurt. Did they get on the roof or just look from the ground? Happy to give a free second look.', 'Qué bueno, más ojos nunca están de más. ¿Se subieron al techo o solo vieron desde el suelo? Con gusto le doy una segunda revisión gratis.'], null, 'door'],
+  [['“I rent.”', '“Yo rento.”'], ["Who owns the house? Can I get the owner's or property manager's office number?", '¿Quién es el dueño de la casa? ¿Me da el teléfono de la oficina del dueño o del administrador?'], null, 'door'],
   /* v7 (T137, round 30): isolate the real reason; don't re-pitch. */
   [['“Let me think about it.”', '“Déjeme pensarlo.”'], ['Of course, take your time. So I know what to bring back: is it the price, the timing, another bid, or talking it over with your spouse?', 'Claro, tómese su tiempo. Para saber qué le traigo: ¿es el precio, el tiempo, otra cotización o platicarlo con su esposa o esposo?']],
-  [['“Not interested.”', '“No me interesa.”'], ['No worries. Mind if I leave this bilingual card? (Then leave and go to the next door.)', 'No se preocupe. ¿Le puedo dejar esta tarjeta bilingüe? (Luego vete a la siguiente puerta.)']],
+  [['“Not interested.”', '“No me interesa.”'], ['No worries. Mind if I leave this bilingual card? (Then leave and go to the next door.)', 'No se preocupe. ¿Le puedo dejar esta tarjeta bilingüe? (Luego vete a la siguiente puerta.)'], null, 'door'],
   /* Third item = the homeowner this answer is for (shown first when that homeowner is picked). */
   [['“I need three bids.”', '“Necesito tres cotizaciones.”'], ['Smart. Let me give you a free written estimate so you can compare line by line: materials, warranty, who does the work.', 'Muy bien pensado. Le doy un estimado gratis por escrito para que compare punto por punto: materiales, garantía y quién hace el trabajo.'], ['bargain', 'threebids']],
   [['“Why fix it if I’m selling?”', '“¿Para qué lo arreglo si voy a vender?”'], ["Buyers' inspectors check the roof and siding first. A free estimate tells you the cost, so you can fix it or price it in. Your call.", 'El inspector del comprador revisa primero el techo y el siding. Un estimado gratis le dice cuánto cuesta, y usted decide si lo arregla o lo descuenta del precio.'], 'selling'],
@@ -1749,10 +1751,11 @@ const OBJ = [
   [['“What do we get for a 5-star review?”', '“¿Qué nos dan por una reseña de 5 estrellas?”'], ["Just a big thank-you. An honest review, whatever you think, helps families like yours find us. Mind if our sign stays in the yard for a couple of weeks?", 'Solo un gran agradecimiento. Una reseña honesta, lo que usted piense, ayuda a que familias como la suya nos encuentren. ¿Nos permite dejar el letrero en su jardín un par de semanas?'], 'finaldone'],
   [['“The hail was last year. Isn’t it too late?”', '“El granizo fue el año pasado. ¿Ya no es muy tarde?”'], ["That depends on your policy, and some limits are short, so check it or call your insurance company this week. I can take dated photos today, so you have them either way.", 'Eso depende de su póliza, y algunos plazos son cortos, así que revísela o llame a su aseguradora esta semana. Hoy le puedo tomar fotos con fecha, para que las tenga de todos modos.'], 'latestorm'],
   [['“Hold on, let me look you up… only a few reviews?”', '“Permítame, lo busco en internet… ¿solo unas cuantas reseñas?”'], ["Please do. We're still building our reviews. What you can check tonight: our Nebraska contractor registration (I can show you the paperwork), my City of Fremont permit, our business line, and a certificate of insurance we can send you.", 'Claro, búsquenos. Todavía estamos juntando reseñas. Lo que puede revisar hoy mismo: nuestro registro de contratista en Nebraska (le puedo enseñar los papeles), mi permiso de la Ciudad de Fremont, el teléfono del negocio y un certificado de seguro que le podemos mandar.'], 'checklist'],
+  [['“My comadre says you cover the deductible. So we pay nothing, right?”', '“Mi comadre dice que ustedes cubren el deducible. Entonces no pagamos nada, ¿verdad?”'], ["Señora, con permiso: el deducible siempre es su parte, y su aseguradora decide lo que cubre. La revisión sí es gratis. Tony, same for you: the deductible is always your part, and the look is free.", 'Señora, con permiso: el deducible siempre es su parte, y su aseguradora decide lo que cubre. La revisión sí es gratis. Y a usted, Tony, lo mismo: el deducible siempre es su parte, y la revisión es gratis.'], 'losdos'],
   /* Use only while the 30-day City of Fremont solicitor permit is current (data/city_rules.json). */
   [['“Do you even have a permit to knock here?”', '“¿Tiene permiso para tocar puertas aquí?”'], ["Yes, here's my City of Fremont solicitor permit, and our business line. Take your time looking.", 'Sí, aquí tiene mi permiso de la Ciudad de Fremont para vender de puerta en puerta, y el teléfono del negocio. Revíselo con calma.'], ['chaser', 'checklist', 'retiree']],
   /* Fremont can revoke the permit for knocking at a house posted "No Peddlers/Solicitors" (data/city_rules.json). */
-  [['“Didn’t you see the No Soliciting sign?”', '“¿Qué no vio el letrero de ‘No se aceptan vendedores’?”'], ["You're right, I'm sorry to bother you. Have a good day. (Then leave, no card, and mark it Do Not Knock in the app.)", 'Tiene razón, disculpe la molestia. Que tenga buen día. (Luego vete, sin tarjeta, y márcala “No tocar” en la app.)']],
+  [['“Didn’t you see the No Soliciting sign?”', '“¿Qué no vio el letrero de ‘No se aceptan vendedores’?”'], ["You're right, I'm sorry to bother you. Have a good day. (Then leave, no card, and mark it Do Not Knock in the app.)", 'Tiene razón, disculpe la molestia. Que tenga buen día. (Luego vete, sin tarjeta, y márcala “No tocar” en la app.)'], null, 'door'],
 ];
 /* v7 (2026-09-26, T131): the 10 skill drills from data/practice_drills.json (research round 27).
    id, t = title, q = what's at the door (or a solo prompt in parentheses), g = the short "to pass" line,
@@ -2748,6 +2751,7 @@ function scrollEnd() { window.scrollTo({ top: document.documentElement.scrollHei
 
 function show(name) {
   S.screen = name;
+  if (S.langBack && ['setup', 'off', 'plan', 'obj'].includes(name)) { S.lang = S.langBack; S.langBack = null; applyLang(); }
   for (const [id, n] of [['scrSetup', 'setup'], ['scrDoor', 'door'], ['scrScore', 'score'], ['scrOff', 'off'], ['scrDrill', 'drill'], ['scrPlan', 'plan'], ['scrObj', 'obj']]) $(id).hidden = n !== name;
   $('langEn').disabled = $('langEs').disabled = name === 'door' || name === 'drill';
   /* v11: the three tabs show on the start screens only (never mid-door, mid-drill or on a scorecard). */
@@ -2962,12 +2966,18 @@ function renderCheat(box, all) {
   }
   op.append(p);
   /* v7 (T131, research round 27) + v10 (round 47): body language before the first word, in the order it happens. */
-  const f3 = el('ol', 'first3'), tips = T.first3tips[Li()];
-  for (const x of [tips[0], tips[1], t('first3'), tips[2]]) f3.append(el('li', null, x));
-  op.append(el('div', 'eyebrow', t('first3T')), f3);
+  const offDoorTips = who && (P[who].after || P[who].at || P[who].phone);
+  if (!offDoorTips) {
+    const f3 = el('ol', 'first3'), tips = T.first3tips[Li()];
+    for (const x of [tips[0], tips[1], t('first3'), tips[2]]) f3.append(el('li', null, x));
+    op.append(el('div', 'eyebrow', t('first3T')), f3);
+  }
   const ob = el('section'); ob.append(el('div', 'eyebrow', t('ifTheySay')));
   const list = el('div', 'objs');
-  const objs = all ? OBJ : OBJ.filter(o => objFor(o).includes(who)).concat(OBJ.filter(o => !o[2]));
+  /* v12 QA: after the knock (driveway, kitchen table) and on the phone there is no door to knock on: skip the
+     first-3-seconds door tips and the door-only objections (o[3] === 'door'). */
+  const offDoor = who && (P[who].after || P[who].at || P[who].phone);
+  const objs = all ? OBJ : OBJ.filter(o => objFor(o).includes(who)).concat(OBJ.filter(o => !o[2] && !(offDoor && o[3] === 'door')));
   for (const [q, a] of objs) { const d = el('div', 'obj'); d.append(el('div', 'obj-q', q[Li()]), el('div', 'obj-a', a[Li()])); list.append(d); }
   /* v4: his own objections from real doors (answers already passed legalScan). */
   if (S.field.length) {
@@ -3220,6 +3230,7 @@ const HINT_RX = [
   ['h_agent', /\bagent\b|\bagente\b/i],
   ['h_price', /\bballpark\b|\bhow much\b|\bprice\b|\bcost\b|\bcu[aá]nto\b|\bprecio\b/i]
 ];
+const AFTER_HINT_RX = /\$|\b(?:how much|price|cost|pay|paid|check|money|dollars?|bucks|deductib\w*|start|begin|tomorrow|crew|cu[aá]nto|precio|cuesta|pag\w*|cheque|dinero|deducib\w*|empie?z\w*|ma[nñ]ana)\b/i;
 function localHint(reply) {
   const p = P[S.actual];
   if (S.kenny === 0) return p.hint || (p.sys === 'knockingNoDmg' ? 'h_nodmg' : p.phone ? 'h_phone' : p.hoa ? 'h_hoa' : 'h_open');
@@ -3227,7 +3238,13 @@ function localHint(reply) {
   if (p.hoa && /deductib|deducib|claim|reclamo|assessment|cuota|file|share/i.test(reply)) return 'h_hoa';
   if (p.sys === 'knockingNoDmg' && /find|found|damage|neighbou?r|something|encontr|da[nñ]o|vecin/i.test(reply)) return 'h_nodmg';
   if (p.mustEs && S.sessionLang !== 'es' && spanishCount(S.turns.filter(x => x.role === 'user').map(x => x.content).join(' ')) < 3) return 'h_spanish';
-  for (const [k, rx] of HINT_RX) if (rx.test(reply)) return k;
+  /* v12 QA: after-the-knock and phone scenes have their own hint for money, deductible and start-date talk; the generic
+     door hints ("give an estimate range", "offer the cancel form") would teach the very trap those scenes grade. */
+  if (p.hint && (p.after || p.at) && AFTER_HINT_RX.test(reply)) return p.hint;
+  for (const [k, rx] of HINT_RX) {
+    if (k === 'h_price' && (kindOf(S.actual) !== 'cash' || p.at)) continue;
+    if (rx.test(reply)) return k;
+  }
   return null;
 }
 function hintPrompt() {
@@ -3418,7 +3435,9 @@ function recordDoor(data) {
      actually spoke Spanish. */
   if (c.legal === 1) {
     st.clean[S.actual] = today();
-    if (S.sessionLang === 'es' && spanishCount(S.turns.filter(x => x.role === 'user').map(x => x.content).join(' ')) >= 3) st.clean._es = today();
+    /* v12 QA: "Spanish-only" means every line he said was Spanish, and never the bilingual couple (two languages by design). */
+    const kl = S.turns.filter(x => x.role === 'user').map(x => x.content);
+    if (S.sessionLang === 'es' && !P[S.actual].langBoth && kl.length >= 3 && kl.every(x => spanishCount(x) >= 2)) st.clean._es = today();
   }
   if (r.focus.pass === true || r.focus.pass === false) pushTrend(r.focus.pass, 'door', r.focus.f.id);
   saveStore();
@@ -3742,7 +3761,8 @@ function runStep(st, alt) {
   if (!st) return;
   if (st.k === 'lesson' || st.k === 'check') { goTab('plan'); const tg = st.k === 'check' ? $('readyCard') : $('dayCard'); if (tg) tg.scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); return; }
   if (st.k === 'obj') { goTab('obj'); return; }
-  if (st.l && st.l !== S.lang) { S.lang = st.l; S.store.lang = st.l; }
+  /* v12 QA: the step's language lasts for this run only; show() puts his own language back on the start screens. */
+  if (st.l && st.l !== S.lang) { S.langBack = S.langBack || S.lang; S.lang = st.l; }
   if (st.k === 'door') { const p = alt || st.p; S.persona = p; S.store.persona = p; if (st.rk === 0 || st.rk === 1) S.store.rookie = !!st.rk; }
   saveStore(); applyLang();
   if (st.k === 'field') { show(S.off ? 'off' : 'setup'); if (!S.off) { $('fieldBox').scrollIntoView({ block: 'center' }); $('fieldBox').focus({ preventScroll: true }); } return; }

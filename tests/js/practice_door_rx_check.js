@@ -551,6 +551,17 @@ for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => lines
   SKILL.forEach(k => k.a.forEach((x, i) => { const r = skillLocal(k, x); if (r) { pf++; console.log("FAIL drill model answer fails its own check:", k.id, i ? "ES" : "EN", r[0]); } }));
   console.log(`${taughtDed.length} taught lines pass dedTalk; ${SKILL.length} drills' model answers pass their own checks`);
 }
+/* v12 QA: rookie quick hints in the after-the-knock scenes use the scene's own hint, never the door "estimate range"
+   or "offer the cancel form" hints (which are the traps those scenes grade). */
+{
+  const hs = src.indexOf("const HINT_RX = ["), he = src.indexOf("function hintPrompt");
+  const S = { actual: "", kenny: 1, sessionLang: "en", turns: [] };
+  const localHint = new Function("P", "S", "spanishCount", "kindOf", src.slice(hs, he) + "\nreturn localHint;")(P, S, () => 9, k => (P[k] && P[k].kind) || "storm");
+  const HC = [["founddmg", "How much am I going to get?", "h_found"], ["deductShock", "Can you just knock the $4,500 off your price?", "h_dedshock"],
+    ["coldfeet", "Honestly, could your crew just start tomorrow?", "h_doubt"], ["losdos", "How much is this going to cost us?", null]];
+  for (const [who, line, want] of HC) { S.actual = who; const got = localHint(line); if (got !== want) { pf++; console.log("FAIL rookie hint", who, JSON.stringify(line), "gave", got, "want", want); } }
+  console.log(`${HC.length} after-the-knock hint cases checked`);
+}
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);

@@ -4,6 +4,7 @@
 - 10 new homeowners: the rest of the sale after the knock (damage found, deductible shock, the first check, the adjuster visit, partly covered, "second thoughts" call, job done) plus someone who looks you up, a bilingual couple and an old storm. New "After the knock" section.
 - Houses and the Random homeowner now match Fremont (real house ages, Spanish speakers, retirees, hail season vs. winter). The next step is scored on storm doors too, plus 10 scene checks, 4 drills and 13 new answers in EN/ES.
 - Tighter legal backup: offering to file or call the insurer "for you", free extras to cover the deductible, a different storm date, and a reward for a review now get flagged.
+- QA fixes before publish (not live yet): "signed with another company" card now says 3 business days and never nudges them to cancel; no financing promise; no claim advice on the partly-covered letter; "registered and insured", never "licensed"; cancel form in English AND Spanish; rookie hints, cheat sheet (no door tips after the knock), Spanish-only check, dark-theme seam and MacBook layout fixed.
 - Built on top of v11 (Plan, top 15, Aldaba look): new homeowners in v11's cards, the MacBook picker fills every row, top-15 card 4 now asks one question first (merged with the research drill, one answer per objection), and v11's HOA card no longer trips the deductible check.
 
 ## AI hub v28.0 "Calm and clear" - 2026-09-28 (live: hub Version 28)
