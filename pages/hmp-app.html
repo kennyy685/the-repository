@@ -5606,7 +5606,6 @@ function renderReview(){
   const best = zonesAll()[0], tom = dueItems().tomorrow;
   const saved = reviewDoc && reviewDoc.date === t0;
   soft(body).html = `<div class="badge${t.doors ? ' on' : ''}" id="revBadge">${t.doors ? '✓ ' : ''}${esc(t.doors ? W.badge(t.doors) : W.badgeNone)}</div>
-    <p class="a-quiet" id="revNormal">${esc(W.normal)}</p>
     <ol class="revq">
       <li><b>${esc(W.q[0])}</b><p class="rv">${esc(W.q1(t.doors, t.talked, t.interested, t.booked))}</p><small>${esc(W.q1fix)}</small></li>
       <li><b>${esc(W.q[1])}</b>${ints.length ? `<div class="pickrow" role="group" data-rev="followed">${ints.map(l => `<button type="button" data-v="${esc(l.id)}" aria-pressed="${revDraft.followed.includes(l.id)}">${esc(shortAddr(strv(l.address)))}</button>`).join('')}</div>` : `<p class="a-quiet">${esc(W.noInt)}</p>`}</li>
