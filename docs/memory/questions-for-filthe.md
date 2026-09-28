@@ -57,6 +57,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
+- What wording HMP puts on a damage report that goes to a carrier: photos + counts only, or notes too? (claim checklist, 2026-09-28)
 - FilthE's commission % per job: the biggest lever in his $100k plan (10% = ~83 jobs, 30% = ~28). Added 2026-09-28.
 - Hours a week he can give to knocking/selling, and what pulls him away.
 - Where the boss stands on insurance restoration and the app (all in / curious / doubtful); does he know what's built?
