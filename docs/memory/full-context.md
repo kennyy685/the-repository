@@ -250,3 +250,15 @@ Asked "picture 12 months from now, everything went right":
   not just the salesman. Keep every system documented and reproducible: it's his consulting portfolio.
 - He worries he isn't "commanding" the crew well. Answer: stating the vision IS the command; the King turns it into
   priorities and milestones and asks only what only he knows.
+
+## FilthE's reset (2026-09-28, after v25.3 went live): "the app feels pointless, I'm lost"
+- **Open view, not a pick:** don't choose where he starts; show him the map of every area with a real chance of
+  something to sell, and let HIM pick.
+- **Show the source of everything:** per area/house he must see why it's there: did hail fall, how big, when, which
+  source said so, how sure we are. No black-box scores.
+- **Leads the second they're out:** find ALL high-chance areas fast (storm data, permits, roof age...), not only our
+  own scoring. He asked about homes that called their insurer: claims data is private; research legal proxies.
+- **Look:** current UI feels "simple, HTML-looking, not alive, confusing, no point". Needs the Aldaba premium look.
+- **He needs guidance:** he's an AI consultant, not an app builder. The King consults other AIs (research + design
+  seats), brings ONE conclusion + something to look at, then builds one screen at a time from his reactions.
+- App building paused until he agrees on the core (round 61 research + docs/design/open-map mockup).
