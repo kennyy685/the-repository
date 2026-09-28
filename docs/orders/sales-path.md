@@ -301,6 +301,26 @@ database listener were deleted. The file itself stays in `data/` as lesson mater
 (door score "why") and, when the homeowner asked for it, "They asked you to come back at <time>." The engine
 still writes `coach`; trimming it there is an engine job (skill `engine-change`).
 
+**Engine `coach` field trimmed (T195 follow-up, 2026-09-28):** `coach_for` now only writes the 69-1602 opener
+(first door of the day) and a bare come-back fact ("They asked you to come back at <time>"); the field is `null`
+on every other stop (kept, not removed, per the hud.json/today-walk contract). Moved out, all lesson material now:
+- **Reset line** (3+ "no" in a row): "A few no's in a row is normal on a long walk. Reset, smile, next door." /
+  "Varios \"no\" seguidos es normal en una ruta larga. Respira, sonríe, siguiente puerta."
+- **General fallback** (no other rule fired): "Knock, step back, smile. Name and HMP first, then one question." /
+  "Toca, da un paso atrás, sonríe. Primero tu nombre y HMP, luego una pregunta."
+- **Come-back script** (was appended to the come-back fact): "Open with: \"You told me to come back today.\"" /
+  "Empieza con: \"Usted me dijo que regresara hoy.\""
+- **Hail inspection tip** (storm walks, was appended to the hail-at-this-house fact): "check the gutters and soft
+  metals (vents, window wraps) as you walk up." / "revisa las canaletas y los metales blandos (ventilas, forros)
+  al acercarte." (The hail fact itself is not lost - it's already in the door score `why` line the app shows.)
+- **Old-house inspection tip** (everyday walks, built before `old_before`, was appended to the "Built <year>"
+  fact): "look at the siding, trim and roof edge for wear as you walk up." / "revisa el desgaste del siding, las
+  molduras y la orilla del techo al acercarte." (The year-built fact itself is not lost - `house_line` already
+  shows it.)
+- **Retry best-hours tip** (not home last pass): "Not home last time. People are most often home <window>." /
+  "No estaban la última vez. La gente suele estar en casa <window>." (The window is not lost - it's the walk's
+  own `best_time` field.)
+
 **Added (T189):** the fall/winter line is what's-next info, so it went into the Sale Guide EN/ES (door, set,
 measure and build steps, October-March): "Cold months: inspect now, no need to wait for spring (a claim is the
 homeowner's call, filed when they choose). Build on the next stretch of days above the material's temperature

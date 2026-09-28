@@ -29,10 +29,13 @@ kind: "siding", rough: true, material, stories, using_reference}` = estimate.est
 footprint = sqft / stories (stories unknown: low = 1-story, high = 2-story), and `house_line {en, es}`
 ("Built 1962 · ~1,400 sq ft · vinyl siding about $10,200-$21,850"). With any rough price the doc gets
 `rough_note {en, es}` (estimate range, not final). Storm walk under evidence_fade_days old: `evidence_note {en, es}`.
-T83 "Before the next door" (research round 14, spec 2): every stop gets `coach {en, es, tags[]}`, one or two short
-rule-based lines (see `coach_for`): the 69-1602 opener on the first door of the day, a reset line after 3+ "no" in a
-row today (`today_taps`), a come-back promise, the hail at that house, a best-time note on a retry, the house's age.
-Logistics, mindset and hail facts only: never insurance paying, never the deductible.
+T83 "Before the next door" (research round 14, spec 2): every stop gets `coach` (see `coach_for`), the 69-1602
+opener on the first door of the day (`today_taps`) and, on a stop with a promise from a prior visit, the come-back
+time. Null when neither applies. T195 (2026-09-28): mindset lines (reset, "knock, step back, smile"), inspection
+tips (hail/soft-metals, old-house wear) and the come-back script moved to `docs/orders/sales-path.md`; the app
+already shows the door-score `why` line and its own come-back text, so those were pure duplication. `coach` stays
+only for the legally required opener and the come-back fact. Never insurance paying, never the deductible, never a
+sales script or technique tip.
 Door score v2 (research round 16, `doorscore.score`): every stop also gets `door {score 0-100, parts}` and `why {en, es}`,
 one plain line ("1.6" hail, built 1978, likely owner-occupied (area 72% owners), bought 2021"): an estimate.
 Zone walks (`pick(only=(list_id, turf))`, used by `hh.py zones`): the walk is that one walk (turf) only, whatever its age
@@ -665,10 +668,7 @@ def evidence_docs(hud, stops):
     return {"slug_rule": SLUG_RULE, "docs": docs}
 
 
-# ------------------------------------------------------------------ T83: before the next door
-MONTHS_EN3 = [m[:3] for m in MONTHS_EN]
-MONTHS_ES3 = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
-RESET_AFTER = 3                                   # "no" answers in a row before the reset line
+# ------------------------------------------------------------------ T83: before the next door (69-1602 opener + come-back)
 
 
 def _hhmm(t, lang):
@@ -677,57 +677,31 @@ def _hhmm(t, lang):
 
 
 def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None, old_before=1980):
-    """The 10-second card shown before door `i` (0 = the next door): {en, es, tags[]}, at most two short lines,
-    picked by rules in this order: first_door (69-1602 opener, no taps yet today), reset (3+ "no" in a row),
-    come_back, hail (storm walks: hud hail_evidence, else the list's hail at the house), retry (not home before:
-    best hours), old_house (built before old_before), else general. Never about insurance paying or deductibles."""
+    """The card shown before door `i` (0 = the next door): {en, es, tags[]}, or None when neither rule applies.
+    Rules, in order: first_door (69-1602 opener, no taps yet today), come_back (a promise from a prior visit).
+    T195 (2026-09-28): the reset/mindset line, the hail and old-house inspection tips, the retry best-hours tip
+    and the come-back script were coaching text, not legal or door-fact content - moved to
+    docs/orders/sales-path.md. `s`, `kind`, `storm_day`, `hail_ev`, `bt` and `old_before` are accepted for call
+    compatibility but no longer change the output. Never about insurance paying or deductibles, never a script."""
     lines = []
     if i == 0 and not taps:
         lines.append(("first_door", "First door today: say your name, HMP Siding & Roofing, and what you sell, "
                                     "before anything else.",
                       "Primera puerta de hoy: di tu nombre, HMP Siding & Roofing y qué vendes, antes que nada."))
-    if i == 0 and no_streak(taps) >= RESET_AFTER:
-        lines.append(("reset", "A few no's in a row is normal on a long walk. Reset, smile, next door.",
-                      "Varios \"no\" seguidos es normal en una ruta larga. Respira, sonríe, siguiente puerta."))
     cb = stop.get("come_back")
     if cb:
         en_t = f" at {_hhmm(cb['time'], 'en')}" if cb.get("time") else " today"
         es_t = f" a las {_hhmm(cb['time'], 'es')}" if cb.get("time") else " hoy"
-        lines.append(("come_back", f"They asked you to come back{en_t}. Open with: \"You told me to come back today.\"",
-                      f"Te pidieron volver{es_t}. Empieza con: \"Usted me dijo que regresara hoy.\""))
-    if kind == "storm":
-        ev = hail_ev or {}
-        h, day = ev.get("hail_in"), ev.get("day") or storm_day
-        if h is None:
-            h = s.get("hail")
-        try:
-            d = date.fromisoformat(str(day)[:10]) if day else None
-        except ValueError:
-            d = None
-        if h:
-            h = round(float(h), 1)
-            lines.append(("hail", f"{h:g}-inch hail here" + (f" on {MONTHS_EN3[d.month - 1]} {d.day}" if d else "") +
-                          ": check the gutters and soft metals (vents, window wraps) as you walk up.",
-                          f"Aquí cayó granizo de {h:g} pulg." + (f" el {d.day} de {MONTHS_ES3[d.month - 1]}" if d else "")
-                          + ": revisa las canaletas y los metales blandos (ventilas, forros) al acercarte."))
-    if stop.get("pass", 1) >= 2 and not cb and bt and bt.get("start"):
-        win = (bt["start"], bt["end"])
-        lines.append(("retry", f"Not home last time. People are most often home {_span(win, 'en')}.",
-                      f"No estaban la última vez. La gente suele estar en casa {_span(win, 'es')}."))
-    y = stop.get("year_built")
-    if kind != "storm" and y and y < old_before:
-        lines.append(("old_house", f"Built {y}: look at the siding, trim and roof edge for wear as you walk up.",
-                      f"Construida en {y}: revisa el desgaste del siding, las molduras y la orilla del techo al acercarte."))
+        lines.append(("come_back", f"They asked you to come back{en_t}.", f"Te pidieron volver{es_t}."))
     if not lines:
-        lines.append(("general", "Knock, step back, smile. Name and HMP first, then one question.",
-                      "Toca, da un paso atrás, sonríe. Primero tu nombre y HMP, luego una pregunta."))
+        return None
     lines = lines[:2]
     return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
 
 
 def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None, pace=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
-    `taps` = today's door results in order (`today_taps`), for the coaching card's first-door and reset lines.
+    `taps` = today's door results in order (`today_taps`), for the `coach` card's first-door (69-1602) rule.
     `only` = (list_id, turf): build that one walk (a hot zone's walk), see the module doc."""
     tw = _tw(cfg)
     results = results or {}

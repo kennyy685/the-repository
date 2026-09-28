@@ -127,8 +127,9 @@ class Zones(unittest.TestCase):
             self.assertEqual(f"walks/{doc['zone_id']}", key)
             self.assertLessEqual(len(doc["stops"]), 12)
             for s in doc["stops"]:
-                self.assertTrue({"coach", "door", "why"} <= set(s))
-                self.assertIsNone(NEVER.search(s["why"]["en"] + s["why"]["es"] + s["coach"]["en"] + s["coach"]["es"]))
+                self.assertTrue({"coach", "door", "why"} <= set(s))    # coach: T195, present but null unless
+                coach_text = (s["coach"]["en"] + s["coach"]["es"]) if s["coach"] else ""  # a rule fires
+                self.assertIsNone(NEVER.search(s["why"]["en"] + s["why"]["es"] + coach_text))
             self.assertNotIn("105 E 4th St", [s["address"] for s in doc["stops"]])
         t2 = w["walks/2026-09-10_Fremont~t2"]
         self.assertEqual({turf_of[s["pid"]] for s in t2["stops"]}, {2})  # that walk only, no top-up

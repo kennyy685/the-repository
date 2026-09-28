@@ -543,7 +543,7 @@ def main(argv=None):
         raw = todaywalk.load_json(a.results) if a.results else None
         results = todaywalk.load_results(raw) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
-        taps = todaywalk.today_taps(raw, day)      # T83: first door of the day / "no" streak for the coach card
+        taps = todaywalk.today_taps(raw, day)      # T83: whether today's first door has been knocked yet
         try:
             hud_doc = todaywalk.load_json(hud_path)
         except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
