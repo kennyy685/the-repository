@@ -10,6 +10,7 @@
 - One MacBook screen, no page scroll: the office fills it and a side panel has Crew / Board / Log / Chat tabs. New dark night look (champagne = working, orange only when something needs you), "Make it yours" to change it, a living "mind" in the sky, and trackpad scroll flies the camera in.
 - Answer from the top bar, task cards, search (/), keyboard shortcuts (? shows them), reconnects by itself after the Mac sleeps, refresh with R, proof your answers landed, plus 12 conveniences (smart King wake-ups, missed-run alerts, "Not now" that comes back, a morning note).
 - New outfits and personalities, robots notice you and your cursor, the line at your spot, poke/coffee reactions, stand-ups and celebrations, 9 camera views (blueprint, security cam, ride-along, robot eyes, director mode...).
+- AI hub: Chat wakes the live King instantly; no scheduled runs.
 
 ## v25.2 - 2026-09-27
 - Job tracker on every insurance claim: the 14 steps from the contingency agreement to the thank-you note, each with who does it, the papers by name, when, the legal line and the money. One tap logs a step with today's date (Undo on the toast); done steps fold into one line.
