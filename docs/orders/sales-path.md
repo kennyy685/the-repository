@@ -98,10 +98,12 @@ Practice these out loud, don't just read them.
    Ask first, then show (Practice Door v12 merged its "Ask before you answer" drill into this one).
 
 5. **"Let me think about it."** (price)
-   EN: *"Totally fine — is it the total number, or more about timing/paying it out? If it's the
-   number, I can show the middle option again; if it's timing, there's a financing option too."*
+   EN: *"Totally fine — is it the total number, or more about timing/paying it out? If it's the number,
+   I can show the middle option again; if it's timing, I'll ask the office what payment options we
+   have and let you know."*
    ES: *"Está bien — ¿es el número, o el tiempo/cómo pagarlo? Si es el número, le muestro otra vez la
-   opción de en medio; si es el tiempo, hay una opción de financiamiento."*
+   opción de en medio; si es el tiempo, le pregunto a la oficina qué opciones de pago tenemos y le
+   aviso."*
 
 6. **"Not interested" / "we just had that done."**
    EN: *"No problem at all. If anything comes up down the road, or after the next storm, here's my
@@ -120,23 +122,23 @@ Practice these out loud, don't just read them.
    ES: *"No hay problema — ¿hay un mejor día u hora para regresar?"*
 
 9. **"I already signed with another company."**
-   EN: *"That's good you're moving on it — not here to talk you out of anything. If you signed in the
-   last 3 days, Nebraska gives you the right to cancel with no penalty, yours whether it's them or us.
-   Also smart to check who'll still be around in 6 months for a warranty issue. Want a free second
-   look before you're locked in for good?"*
-   ES: *"Qué bien que ya avanza — no vengo a convencerlo de nada. Si firmó en los últimos 3 días, la
-   ley de Nebraska le da derecho a cancelar sin penalidad, sea con ellos o con nosotros. También es
-   inteligente ver quién va a estar aquí en 6 meses. ¿Quiere una segunda opinión gratis antes de
-   comprometerse del todo?"*
+   EN: *"That's good you're moving on it — I'm not here to talk you out of anything. Nebraska gives
+   every homeowner 3 business days after signing to cancel a door-to-door contract, and that's your
+   call, with them or with us. Either way, ask them who handles the warranty. If you ever want a
+   second opinion, here's my card."*
+   ES: *"Qué bien que ya avanza — no vengo a convencerlo de nada. La ley de Nebraska le da 3 días
+   hábiles después de firmar para cancelar un contrato hecho en su casa, y eso lo decide usted, sea
+   con ellos o con nosotros. De todas formas, pregúnteles quién atiende la garantía. Si algún día
+   quiere una segunda opinión, aquí tiene mi tarjeta."*
    Never: say their contract is invalid, call the other company a scam without proof, or tell them
    to cancel — that's their call (tortious interference is a real legal line).
 
 10. **We inspect and find no damage.**
     EN: *"Good news — I checked the whole roof and I'm not seeing damage that would hold up with an
-    adjuster. I'm not going to file something that isn't there. Here's what I did find. If anything
-    changes after the next storm, I'd appreciate the introduction to a neighbor."*
-    ES: *"Buenas noticias — revisé todo el techo y no veo daño que se sostenga con un ajustador. No
-    voy a presentar un reclamo que no existe. Esto sí encontré. Si algo cambia, le agradecería la
+    adjuster. I won't call normal wear storm damage. Here's what I did find. If anything changes
+    after the next storm, I'd appreciate the introduction to a neighbor."*
+    ES: *"Buenas noticias — revisé todo el techo y no veo daño que se sostenga con un ajustador. No voy
+    a decir que es daño de tormenta si no lo es. Esto sí encontré. Si algo cambia, le agradecería la
     presentación con un vecino."*
 
 11. **"The adjuster already said no damage."**
@@ -173,12 +175,12 @@ Practice these out loud, don't just read them.
     de cerca. La inspección es gratis, toma 20-30 minutos — ¿puedo pasar el [día]?"*
 
 15. **"Are you registered? Are you even insured? You're not one of those storm chasers?"**
-    EN: *"Good question, glad you asked. We're local, based right here in Fremont, registered with
-    the state — not licensed, Nebraska doesn't license contractors, it registers them, and I can show
-    you that. If a warranty question ever comes up, I'm not hard to find."*
-    ES: *"Buena pregunta, qué bueno que la hace. Somos locales, de aquí de Fremont, registrados con
-    el estado — no licenciados, Nebraska no da licencias a contratistas, los registra, y se lo puedo
-    mostrar. Si hay una pregunta de garantía, no es difícil encontrarme."*
+    EN: *"Good question, glad you asked. We're local, based right here in Fremont, registered with the
+    state and insured — Nebraska registers contractors for this kind of work instead of licensing
+    them — and I can show you that. If a warranty question ever comes up, I'm not hard to find."*
+    ES: *"Buena pregunta, qué bueno que la hace. Somos locales, de aquí de Fremont, registrados con el
+    estado y asegurados — Nebraska no da licencias de contratista para este tipo de trabajo, da
+    registro — y se lo puedo mostrar. Si hay una pregunta de garantía, no es difícil encontrarme."*
     Never say "licensed." Never claim a specific registration number until the boss's is final.
 
 ---
