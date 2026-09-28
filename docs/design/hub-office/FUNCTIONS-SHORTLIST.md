@@ -19,7 +19,7 @@ wouldn't think of, zero effort for you. Every item was checked against today's r
 | 8 | **"Why" line on each robot** | One line under "Now" on every robot: why this job, why now ("because you said Yes to D12", "next on the board after T199"). | Research round v28 (#12): the best agent-town tools show the *why*, not just the *what*. You never have to ask "why is it doing that?" | Page S, crew S |
 | 9 | **Sunday report card** | One card on Sunday night: shipped, hours stuck, hours the crew waited on you, $ spent, $ per thing shipped, best helper, vs last week. | Nobody tracks whether the crew is getting better or more expensive. | Page M |
 
-Items from the society test (panel complaints that are really missing functions) get added below when the test lands.
+The society test (SOCIETY-TEST.md) found fixes, not missing functions: its S1-S7 ride v28.0. Nothing to add here.
 
 ## My pick (lead)
 **1, 2, 4 and 6** first: they're the ones where you currently have to go dig (open chats, check costs, check
