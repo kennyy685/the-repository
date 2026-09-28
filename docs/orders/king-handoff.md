@@ -6,12 +6,39 @@ today: trust = show the work; claim-ready damage check; required photos gate "ad
 damage page; scorecard yes; short reasons).
 
 ## FIRST, as the new King
+0. Read "HUB CHAT WIRING" below: FilthE's hub chat answers instantly in the page and hands orders to you. Keep
+   `system/king.wake_trigger` pointing at YOUR poke-only trigger and ack + reply to every order (`re` = his id).
 1. Make your own hub wake trigger (create_trigger, no cron, binds to you) with the SAME prompt as
    `trig_01Ay7rpe81rci7aYTfSFW112` (get_trigger it: it has the calm fallback line). Write its id to hub doc `system/king`
    (`wake_trigger`, `live_session`), update CLAUDE.md's id line, disable (never delete) trig_01Ay7rpe81rci7aYTfSFW112.
 2. Archive `session_01AsMzvyKcsuQnKw9X8HHjzK` (me).
 3. Reply to FilthE in the hub King thread (events/<stamp>-code-r, to:"you") in 3 short lines: new King, wake fixed,
    what's running. Refresh hub doc `crew/sessions` first (every tab, what it does).
+
+## HUB CHAT WIRING (v28.1, keep it working; Builder 2026-09-28)
+FilthE's main line is the hub chat bubble ("King" mode). How it works now:
+- **Instant voice:** the page itself asks Claude (`sample` capability) as SMUIPO, grounded in board/current,
+  system/king, system/memory, crew/sessions, the crew rows and recent chat. It saves `events/<stamp>-king-i`
+  `{agent:"king", name:"SMUIPO", instant:true, to:"you", re:<his -you-k id>, text, long}`.
+- **Question** -> answered there; his event gets `mode:"answered", kind:"note"`. No wake. Don't answer it again
+  unless he taps "Send to the King too" (that fires a wake).
+- **Order** (build/fix/publish/decide, or anything the data can't answer) -> the page says "Got it, sending to the
+  King: ..." and fires the CURRENT `system/king.wake_trigger` at once. His event gets `mode:"order", order, wake:
+  "ok"|"fail"|"off", wakeAt, trig, deliv` (deliv = the trigger's last_run read ~12 s later).
+- **Your job on each wake:** (1) post an ack at once: `events/<stamp>-code-a` `{agent:"code", kind:"progress",
+  to:"you", re:<id>, text:"On it: ..."}` (the page shows "King is on it"); (2) do the work in helpers; (3) reply
+  `events/<stamp>-code-r` `{agent:"code", kind:"note", to:"you", re:<id>, text, long}` (shows "Done"). Also sweep:
+  every `-you-k` event with `mode:"order"` (or no mode) and no `-code-r` with its `re` is yours, even if its wake
+  was lost.
+- **Status he sees per message:** Sending -> Answered here | Sent to the King -> King got it -> King is on it ->
+  Done. "Nudge again" appears after 4 min with no word, or when a wake failed. When you change the wake trigger,
+  the page re-sends any message whose wake failed or went to the old trigger, once.
+- **Publish needs:** capabilities `db`, `user`, `sample`, and `mcp` with server "Claude Code Remote", tools
+  `["fire_trigger", "get_trigger"]` (get_trigger = the delivery check; without it the ack/reply still show).
+  Check: `node tests/pages/hub_chat_check.js` (mocked round trip, dark + Ledger).
+- **Handoff step:** the new King's trigger must be poke-only, bound to its own session, and its id written to
+  `system/king.wake_trigger` BEFORE the old one is disabled. A wake that lands anywhere but the King chat says
+  one calm line only (keep that line in the trigger prompt).
 
 ## WAKE LESSON (why FilthE saw "not working" notifications, 2026-09-28)
 When the hub fires the wake while the King is mid-turn, the fire runs somewhere WITHOUT the repo or the hub, and its

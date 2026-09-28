@@ -89,6 +89,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   reply (never only in the Claude chat), even if it lands mid-job; keep big jobs in robots so the King stays free. The old 3x-daily King trigger
   `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
   bind a recurring (cron) trigger to a long session.
+- **Hub chat is instant (v28.1):** the page answers FilthE as SMUIPO in seconds (`sample`); orders fire
+  `system/king.wake_trigger` at once. The King acks each order (`-code-a`, kind progress, re his id) then replies
+  (`-code-r`). Wiring + publish caps: `docs/orders/king-handoff.md` "HUB CHAT WIRING".
 - **Hub answers must feel instant (FilthE, 2026-09-28):** "answer me in the hub, not make me wait like a chat." Hub Chat
   answers in seconds in the page itself; orders go straight to the right robot (docs/orders/hub-dispatch.md), only
   hard calls to the King. The King = decide + hard work, robots build. No phone pushes.

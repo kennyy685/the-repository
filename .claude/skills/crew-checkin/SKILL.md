@@ -137,7 +137,10 @@ Claude chat:** `set` `events/<YYYYMMDDTHHMMSSZ>-code-r` `{agent:"code", at, kind
 lane:"board", room:"board", status, task, text, long}`: `text` = a one-line summary (300 max, shows in the Log), `long`
 = the full reply (4000 max). Plain text: short paragraphs split by blank lines, `1.`/`-` lines become lists, links
 are clickable; no markdown symbols. End with the 1-3 numbered questions (with our pick). One reply per message he
-sent (several of his messages in one wake can share one reply). The hub shows "Waiting on the King · n min" until a
+sent (several of his messages in one wake can share one reply). **v28.1 instant chat:** the page answers questions itself
+(`events/<stamp>-king-i`, `instant:true`; his event then has `mode:"answered"`: no reply needed). Orders carry
+`mode:"order"` and `order` (one line); ack first with `events/<stamp>-code-a` `{agent:"code", kind:"progress",
+to:"you", re:<his id>, text:"On it: ..."}`, then reply as above. Full wiring: `docs/orders/king-handoff.md`. The hub shows "Waiting on the King · n min" until a
 reply lands, then a dot on the bubble and a toast.
 
 ## Robot sessions from hub orders (2026-09-28)
