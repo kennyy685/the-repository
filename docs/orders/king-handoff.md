@@ -51,6 +51,12 @@ and pull ideas for the Aldaba landing page + an HMP website; **QA T163** bad-sig
 Session-start hook lists stray branches (dreamy-wright, eager-bardeen, focused-cannon, funny-hawking): check and merge
 real work, or tell FilthE they look abandoned.
 
+## Queue (FilthE 2026-09-28: "keep putting everyone to work", 2 at a time)
+1. Research Lead: sales lessons path for FilthE (he won't knock until he can sell): week-by-week plan using the
+   Practice Door + lessons with Claude, EN/ES objections, the legal door opener. 2. T210 pricing-shape doc (haiku).
+3. Designer+Builder: bring MacBook layout A + Future look into the real app (ask FilthE before starting: big change).
+4. Publish app update (Practice mode, legal locks, date fixes, calls/alerts) after QA, only on FilthE's direct OK.
+
 ## Waiting on FilthE (don't nag)
 T202 permit calls Monday 8 AM+ (Omaha 402-444-5233, Lincoln 402-441-7521). T71 Fremont permit records, T51 price sheet
 (boss), T64 registration # (boss).
