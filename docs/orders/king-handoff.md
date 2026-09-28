@@ -30,6 +30,9 @@ Then: **Designer FIRST: FilthE picked MacBook direction A (Cockpit).** Restyle A
 like Batman's cave computers: professional, premium, still Aldaba (docs/design/macbook/a-cockpit.html);
 **Builder: Demo data + end-to-end test** (FilthE won't knock until the app is proven: load realistic mock
 houses from public data into Practice/demo only, run a full fake day Now -> Knock -> lead -> claim -> job, fix what breaks);
+**Research Lead FIRST: pro UI references** (FilthE: "improve the UI, look for professional references"): 10-15
+best-in-class desktop dashboards/command centers (Linear, Stripe, Palantir, Bloomberg, Vercel, Arc, Mobbin/Dribbble
+finds, film HUD designers), what to steal for MacBook layout A, with screenshots; then
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
 (HailTrace, Hail Recon, SalesRabbit, Spotio...), pricing, must-haves like teams + other states' laws; output
 docs/research/ file + one-page summary for FilthE); ~~upgrade the robots~~ (done, b7bcf05) (FilthE's order: research better prompts, tools, skills, models for
