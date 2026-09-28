@@ -183,3 +183,7 @@ Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rat
    hover/when relevant (dark-cockpit rule). Calm by default.
 10. "There could be more valuable functions. I'm not satisfied yet, I know we can add more." Keep hunting for
    high-value functions (society test + conveniences + blueprint), ranked by usefulness to him.
+11. PERSONAL, ENGLISH-ONLY (FilthE, 2026-09-28): "This hub is for me. It shouldn't even be called the HMP AI hub.
+   The AI hub lives in my computer; it's strictly mine. It can be in English." -> English only (no ES work needed;
+   keep existing ES strings only where free), no "HMP" in its name or UI; its name is his to pick (Make it yours;
+   default "AI Hub").

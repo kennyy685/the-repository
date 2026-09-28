@@ -44,6 +44,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 ## Live system
 - HMP App https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT (`pages/hmp-app.html`, own db). No hub content in it.
 - AI hub https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU (`pages/crew-hq.html`): `board/current` = task source of truth.
+  The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
 - HMP HQ https://claude.ai/artifact/HhK5UGhHG3VpNR7HuaqEpj · Practice Door https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B
 - Command center (Cowork's, read-only for us) https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: never write its
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
