@@ -25,3 +25,14 @@ FilthE: "you focus on the main work, the hard work ... make your workers better,
 Sources: [1] anthropic.com/engineering/multi-agent-research-system [2] anthropic.com/engineering/building-effective-agents
 [3] code.claude.com/docs/en/sub-agents [4] en.wikipedia.org/wiki/High_Output_Management [5] en.wikipedia.org/wiki/Kaizen
 [6] code.claude.com/docs/en/hooks-guide
+
+## Beyond the 5 rules (follow-up research, same day; sources: Anthropic multi-agent post, code.claude.com sub-agents + agent-teams)
+King's picks, in order (all small effort):
+1. `memory: project` on every robot: each keeps its own lessons file and stops repeating mistakes, no King tokens.
+2. Pin `skills:`, `model`, `effort`, `maxTurns` in each agent file (cost + behavior fixed, no runaways).
+3. Quality-gate hooks (subagent Stop / TaskCompleted, exit 2 = send back): legal wording checks (deductible, "insured",
+   "licensed", owner names) block bad work before it reaches the King.
+4. Judge rubric on a 20-job test set (cheap model scores: accurate, sources real, complete, legal-safe, cost).
+5. Written brief template with size rules (fact = 1 robot / 3-10 calls; compare = 2-4 robots).
+Later (M): tool-tester robot that rewrites vague tool/skill descriptions; parallel "argue it out" reviews for big calls.
+Skip: agent teams for routine work, more than 3-5 robots at once, robots chatting nonstop, a huge eval set first.
