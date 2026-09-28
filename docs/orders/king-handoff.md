@@ -16,8 +16,8 @@ Work branch: `claude/amazing-gauss-yzfpq0` (everything pushed). Hub board = task
 - **Move MacBook layout A + Future look into the real app?** Big change; ask before starting.
 
 ## Running right now
-- Builder: Practice Door v11 upgrade (sales-path Plan view, 5 improvements). WIP already pushed (8e03350...). When it
-  reports: review, then QA it, then it needs FilthE's "publish" too.
+Nothing. Practice Door v11 finished (8e03350): Plan tab (20-day path, Go buttons, streak), self-checking
+ready-to-knock list, Objections tab (15 EN/ES), Aldaba look; 17/17 checks. NOT published.
 
 ## Done today (2026-09-28)
 MacBook layout A picked -> Batcave pass -> Future layer (glass, living WebGL bg, 24h-safe) + cinematic Aldaba intro
@@ -29,7 +29,7 @@ FilthE (docs/orders/sales-path.md, sent to him), multitenant plan (docs/orders/a
 upgrades x2. Hub v27 (3D) merged into the work branch. King trigger re-enabled with the new prompt (accounts step).
 
 ## Next jobs (2 robots at a time, keep both busy)
-1. After the Practice Door reports: QA it.
+1. **QA the Practice Door v11** (sonnet), then it waits on FilthE's "publish" with v25.3 + Print Kit.
 2. T77 step 1 (SETTINGS -> `system/settings` doc, zero behavior change) - only AFTER v25.3 is published, so QA'd
    code doesn't move under it.
 3. Cosmetic leftovers: unused NSX tip key, todaywalk pick() args (tiny).
