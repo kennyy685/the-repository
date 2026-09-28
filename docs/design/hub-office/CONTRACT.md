@@ -109,6 +109,7 @@ New agent fields (page computes, bumps `seq` when `gear` or `silent` changes):
 | `tweening` | getter: true while a camera glide runs (the scroll push-in waits for false). |
 | `busy` | getter: true while a glide, flight, ride, celebration or cue plays (the page holds `power:'saver'` until false). |
 | `points` | `{spot:{x, y, visible}, tube:{x, y, visible}}` in stage px, updated every frame: "your spot" and the tube base, for the page's overlays and the mind. |
+| `cctv` | getter: `1` (Cam 1, upstairs) or `2` (Cam 2, downstairs) while `cam` is `cctv`; the scene switches every 8 s, the page labels its timestamp overlay with it. |
 | `anchors[id].pose` | v2 adds `bow`, `poke`, `queue` (standing in the line), `zone` (in the zone). The page still shows the waiting bubble only for `wait` or `queue`. |
 
 ### DOM, new elements (page owns them)
