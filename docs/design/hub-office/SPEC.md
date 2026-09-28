@@ -177,3 +177,9 @@ Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rat
    plays with it.
 7. Test it on "society": a simulated user panel + the usual problems app developers check (first-run clarity,
    usability, accessibility, performance, trust, annoyance), then fix what they'd complain about.
+8. The side panel must be closable: one click (and a key) hides it so the penthouse fills the whole screen; it
+   slides back when needed (e.g. something needs him) and remembers his choice.
+9. "It all looks a little too crowded": declutter. Fewer labels/chips/controls visible at once; show detail on
+   hover/when relevant (dark-cockpit rule). Calm by default.
+10. "There could be more valuable functions. I'm not satisfied yet, I know we can add more." Keep hunting for
+   high-value functions (society test + conveniences + blueprint), ranked by usefulness to him.
