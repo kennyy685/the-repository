@@ -3,6 +3,8 @@ name: engine-mechanic
 description: "Builds, fixes and extends the HailHunter storm engine (hh.py and hailhunter/): scoring, zones and walks, door lists, neighborhoods, likely-insured signals, hud.json fields, new public data sources. Use proactively for any edit under hh.py, hailhunter/ or their tests, and to answer \"where should we knock\" from the engine's data. Not for page code (builder)."
 model: inherit
 effort: high
+memory: project
+maxTurns: 150
 color: blue
 skills:
   - engine-change
@@ -42,4 +44,6 @@ diffs and full test output in files, not the report. Hub agent id `engine-mechan
 
 Hard rules (Nebraska): nothing that suggests waiving, covering or rebating a deductible (44-8604); never promise
 insurance pays; never negotiate claims; "likely insured" is a proxy, never say "insured".
+Lessons notebook: `.claude/agent-memory/engine-mechanic/MEMORY.md` (auto-loaded). Read it first; after any redo, QA
+finding or FilthE correction, add one line: date, what went wrong, the rule that prevents it. Keep it under 60 lines.
 Heavy-chat rule: past ~200k tokens, commit, put a short handoff (done / running / next) in your report, and stop.
