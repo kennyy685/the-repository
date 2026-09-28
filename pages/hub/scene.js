@@ -524,8 +524,8 @@ screen('king', 'chat', 1.2, .415, .5, .34, 1.0);
   const cols = [[-.3, 3], [.3, 2], [.9, 1], [1.5, 2]];
   for (const [cx, n] of cols){ box(.11, .003, .012, MAT.brass, cx, .747, .56, P, false);
     for (let i=0;i<n;i++){ const c = box(.1, .004, .13, MAT.paper, cx + (i%2 ? .012 : -.008), .748 + i*.001, .66 + i*.1, P, false); c.rotation.y = (i%2 ? .05 : -.04); } }
-  dispatch.card = dyn(box(.1, .005, .13, MAT.paper, -.05, .752, .72, P, false));        // the King's card (slide-card moves it)
-  dispatch.cardA = new THREE.Vector3(-.05, .752, .72); dispatch.cardB = new THREE.Vector3(.5, .752, .72);
+  dispatch.card = dyn(box(.1, .005, .13, MAT.paper, -.12, .752, .24, P, false));        // the King's card in hand (slide-card moves it)
+  dispatch.cardA = new THREE.Vector3(-.12, .752, .24); dispatch.cardB = new THREE.Vector3(.5, .752, .24);
   const k = new Map();                                             // the Right Hand's note tray
   part(k, new THREE.BoxGeometry(.24, .012, .17), MAT.brass, 0, 0, 0); for (const s of [-1,1]) part(k, new THREE.BoxGeometry(.24, .03, .008), MAT.brass, 0, .015, s*.085);
   for (let i=0;i<3;i++) part(k, new THREE.BoxGeometry(.2, .004, .13), MAT.paper, (i-1)*.01, .012 + i*.005, 0, 0, (i-1)*.1);
@@ -551,7 +551,7 @@ screen('engine-mechanic', 'engine', -1.8, .435, .5, .34, 1.0);
 }
 // the design studio (front left): the Designer's desk and a standing easel (the pin wall + Shipped shelf come in v28.2)
 desk(-3.1, 2.6, 1.1, .6, 'design', 'designer');
-const easel = {x:-3.75, z:1.98, yaw:.75};
+const easel = {x:-3.62, z:1.95, yaw:.75};
 {
   const t = tex(128, 160, (g,w,h) => { g.fillStyle = '#efe9df'; g.fillRect(0,0,w,h);          // the board: two options pinned, a swatch strip
     ['#d98d5a','#ead1a0','#2a2b2f','#c9a45c','#9fbfa6'].forEach((c,i) => { g.fillStyle = c; g.fillRect(10 + i*22, 10, 18, 18); });
@@ -676,9 +676,9 @@ const deskBars = {}, barMats = {};
   P = gUp;
   { const k = new Map();                                            // QA Tester: a clipboard (its rubber stamp is loose: it stamps with it)
     part(k, new THREE.BoxGeometry(.2, .012, .27), MAT.leather, 0, .006, 0); part(k, new THREE.BoxGeometry(.16, .004, .21), MAT.paper, 0, .014, .01); part(k, new THREE.BoxGeometry(.07, .02, .03), MAT.brass, 0, .02, -.12);
-    const g = new THREE.Group(); bake(k, g, false); g.position.set(1.66, .745, .84); g.rotation.y = -.3; P.add(g);
-    const sk = new Map(); part(sk, new THREE.CylinderGeometry(.03,.034,.05,12), MAT.walnut, 0, .03, 0); part(sk, new THREE.SphereGeometry(.028,10,8), MAT.walnut, 0, .08, 0); part(sk, new THREE.CylinderGeometry(.04,.04,.012,12), MAT.walnut, 0, .006, 0);
-    qa.stamp = new THREE.Group(); bake(sk, qa.stamp, false); qa.stamp.traverse(o => { o.userData.dyn = true; }); qa.rest = new THREE.Vector3(1.9, .745, .86); qa.stamp.position.copy(qa.rest); P.add(qa.stamp); }
+    const g = new THREE.Group(); bake(k, g, false); g.position.set(1.6, .745, .6); g.rotation.y = -.3; P.add(g);
+    const sk = new Map(); part(sk, new THREE.CylinderGeometry(.022,.03,.09,12), MAT.walnut, 0, .06, 0); part(sk, new THREE.SphereGeometry(.034,12,8), MAT.walnut, 0, .12, 0); part(sk, new THREE.CylinderGeometry(.045,.045,.016,14), MAT.brass, 0, .008, 0);
+    qa.stamp = new THREE.Group(); bake(sk, qa.stamp, false); qa.stamp.traverse(o => { o.userData.dyn = true; }); qa.rest = new THREE.Vector3(1.84, .745, .74); qa.stamp.position.copy(qa.rest); P.add(qa.stamp); }
   { const x = -.28, z = -2.2;                                       // Research Lead: a big open book, on the experiment table
     const k = new Map(); for (const s of [-1,1]) part(k, new THREE.BoxGeometry(.19, .03, .26), MAT.paper, s*.1, .02, 0, 0, 0, s*.08); part(k, new THREE.BoxGeometry(.42, .012, .28), MAT.leatherDark, 0, .002, 0);
     const g = new THREE.Group(); bake(k, g, false); g.position.set(x, .75, z); g.rotation.y = .35; P.add(g); }
@@ -929,9 +929,34 @@ function spotFor(sim, a, key){
   if (key === 'coffee') return claim(sim, 'coffee') || claim(sim, 'lounge');
   if (key === 'lounge') return claim(sim, 'lounge') || claim(sim, 'coffee');
   if (key === 'front'){ const i = lineOrder().indexOf(sim.id); if (i >= 0 && i < 5){ release(sim); sim.slot = i; return POOL.front[i]; } sim.slot = -1; return claim(sim, 'lounge'); }
-  if (key === 'standup') return claim(sim, 'standup') || deskFor(sim, a);
+  if (key === 'standup' || key === 'board') return claim(sim, 'standup') || deskFor(sim, a);
+  if (key === 'rack' || key === 'rail') return claim(sim, key) || deskFor(sim, a);
   return null;
 }
+/* CONTRACT v3 HUB.now: one RIGHT NOW row per robot; rows[i].step (the resolved verb) picks the work animation, so the list and
+ * the room never disagree. Missing rows: agent.step, then the v27 work pose. Unknown verbs fall back to the v27 work pose. */
+const NOWC = {ref:null, v:undefined, map:{}};
+function nowRow(id){ const n = HUB.now; if (!n || !Array.isArray(n.rows)) return null;
+  if (n !== NOWC.ref || n.v !== NOWC.v){ NOWC.ref = n; NOWC.v = n.v; NOWC.map = {}; for (const r of n.rows) if (r && typeof r.id === 'string') NOWC.map[r.id] = r; }
+  return NOWC.map[id] || null; }
+const STEP = {building:'type', fixing:'type', tuning:'type', writing:'type', publishing:'type', filing:'type', running:'type', relaying:'type', handing:'type',
+  designing:'pin', pinning:'pin', dispatching:'slide-card', reviewing:'slide-card', planning:'plan', reading:'read', briefing:'read', researching:'read',
+  scanning:'read', 'storm-ops':'read', testing:'stamp', investigating:'stamp', verified:'stamp', failed:'stamp', watching:'radar', hail:'hail', shipped:'shipped'};
+const OWN = {pin:'designer', stamp:'qa-tester', 'slide-card':'code'};      // these need their prop: the easel, the stamp, the dispatch cards
+function stepOf(a){ const r = nowRow(a.id); return r && typeof r.step === 'string' ? r.step : typeof a.step === 'string' ? a.step : ''; }
+function planFor(a){                                                         // a working robot's {spot, pose, cheer}, or null = the v27 pose
+  const p = STEP[stepOf(a)]; if (!p) return null;
+  if (OWN[p]) return {pose:OWN[p] === a.id ? p : 'type'};
+  if (p === 'radar') return a.id === 'storm-watch' ? {pose:'radar'} : null;
+  if (p === 'hail') return a.id === 'storm-watch' ? {spot:'rail', pose:'radar'} : null;
+  if (p === 'plan') return a.id === 'code' ? {spot:'board', pose:'meet'} : {pose:'type'};
+  if (p === 'shipped') return {cheer:true};
+  return {pose:p};
+}
+const planKey = p => p ? (p.spot || '') + ':' + (p.pose || '') + (p.cheer ? '!' : '') : '';
+/* the state the room acts out: the agent's st, plus queued (CONTRACT v3: a handoff to it not picked up, or its task holds) */
+function estOf(a){ const r = nowRow(a.id), q = r ? r.st7 === 'queued' : !!a.queued;
+  return q && a.st !== 'waiting' && a.st !== 'blocked' && a.st !== 'sleeping' ? 'queued' : a.st; }
 function place(sim, spot){ sim.x = spot.x; sim.z = spot.z; sim.y = spot.y; sim.floor = spot.f; sim.vx = sim.vz = 0; sim.yaw = sim.yawDraw = spot.yaw; sim.spot = spot; sim.moving = false; sim.legs = null; sim.ride = null; }
 function go(sim, spot){
   if (!spot) return false;
@@ -946,15 +971,19 @@ function runQueue(sim, a){
     const step = sim.queue[0];
     if (!step.started){ step.started = true; const sp = step.spot ? spotFor(sim, a, step.spot) : null; if (sp && go(sim, sp)) return; }
     if (sim.moving) return;
-    if (!step.posed){ step.posed = true; sim.pose = step.pose; sim.poseT = 0; if (sim.spot) sim.yaw = sim.spot.yaw; }
+    if (!step.posed){ step.posed = true; sim.pose = resolvePose(sim, step); sim.poseT = 0; if (sim.spot) sim.yaw = sim.spot.yaw; }
     if (step.dur && sim.poseT < step.dur) return;
     sim.queue.shift();
   }
 }
-function workPose(sim, spot){ const w = spot && spot.work; return w === 'radar' ? 'radar' : w === 'read' ? 'read' : 'type'; }
+function workPose(sim, spot){ if (sim.stepPose && spot === DESK[sim.id]) return sim.stepPose; const w = spot && spot.work; return w === 'radar' ? 'radar' : w === 'read' ? 'read' : 'type'; }
 function applyState(sim, a, instant){
-  const st = a.st, q = [];
-  if (st === 'working'){ if (a.spot === 'standup') q.push({spot:'standup', pose:'meet'}); else q.push({spot:'desk', pose:'work'}); }
+  const st = sim.est || a.st, q = [], plan = st === 'working' ? sim.plan : null;
+  sim.stepPose = plan && plan.pose && !plan.spot ? plan.pose : null;
+  if (st === 'working'){ if (a.spot === 'standup') q.push({spot:'standup', pose:'meet'});
+    else if (plan && plan.spot) q.push({spot:plan.spot, pose:plan.pose || 'work'});
+    else { if (plan && plan.cheer) q.push({spot:'desk', pose:'cheer', dur:2.4}); q.push({spot:'desk', pose:'work'}); } }
+  else if (st === 'queued') q.push({spot:a.id === 'qa-tester' ? 'rack' : 'desk', pose:'hold'});   // queued: at the QA queue rack, or its own desk
   else if (st === 'sleeping') q.push({spot:'pod', pose:'sleep'});
   else if (st === 'waiting') q.push({spot:'front', pose:'wait'});
   else if (st === 'blocked') q.push({spot:'desk', pose:'blocked'});
@@ -1026,7 +1055,7 @@ function stepSim(sim, a, dt){
   }
   stepQueue(sim, a);
   // idle life: drift between lounge + coffee spots on the same floor every so often
-  if (!sim.moving && !sim.queue.length && (a.st === 'idle' || a.st === 'done') && !RM.matches){
+  if (!sim.moving && !sim.queue.length && ((sim.est || a.st) === 'idle' || (sim.est || a.st) === 'done') && !RM.matches){
     if (!sim.wanderAt) sim.wanderAt = sim.poseT + 9 + Math.random()*7;
     else if (sim.poseT > sim.wanderAt){ sim.wanderAt = 0; sim.queue = [{spot:'wander', pose:'lounge', dyn:true}]; }
   }
@@ -1036,13 +1065,16 @@ function syncAgent(a, i){
   const sim = simFor(a, i);
   if (a.hidden){ if (!sim.hidden){ sim.hidden = true; release(sim); sim.seq = undefined; } return sim; }
   if (sim.hidden){ sim.hidden = false; }
-  if (sim.seq !== a.seq){
-    const first = sim.seq === undefined; sim.seq = a.seq;
-    if (!first && !RM.matches && (a.st === 'done' || a.st === 'waiting'))   // the others glance: eyes first, then heads
+  // v28: re-plan on a new seq, or when the RIGHT NOW row changes what the room should show (a new step, queued on/off)
+  const est = estOf(a), plan = est === 'working' && a.spot !== 'standup' ? planFor(a) : null, pk = est + '|' + planKey(plan);
+  if (sim.seq !== a.seq || sim.pk !== pk){
+    const first = sim.seq === undefined, seqCh = sim.seq !== a.seq; sim.seq = a.seq; sim.pk = pk; sim.est = est; sim.plan = plan; sim.stepId = stepOf(a);
+    if (est === 'done' && (seqCh || first)) sim.doneAt = first ? -1e9 : performance.now();
+    if (seqCh && !first && !RM.matches && (a.st === 'done' || a.st === 'waiting'))   // the others glance: eyes first, then heads
       for (const o of Object.values(sims)) if (o !== sim && !o.hidden) o.glance = {id:a.id, t:0, dur:2.6, head:.18 + Math.random()*.25};
     if (sim.ride){ sim.pending = true; }
     else applyState(sim, a, first || !!a.instant && first);
-  }
+  } else sim.stepId = stepOf(a);
   return sim;
 }
 
@@ -1350,7 +1382,44 @@ window.addEventListener('pointercancel', () => { dragStart = null; });
 
 /* ================= per frame ================= */
 const V = new THREE.Vector3(), anchors = {};
-const HOVER = {glide:.24, settle:.22, lounge:.2, type:.36, read:.34, radar:.3, meet:.24, wait:.5, blocked:.34, cheer:.36, coffee:.3, sleep:.035, ride:.14};
+const HOVER = {glide:.24, settle:.22, lounge:.2, type:.36, read:.34, radar:.3, meet:.24, wait:.5, blocked:.34, cheer:.36, coffee:.3, sleep:.035, ride:.14,
+  stamp:.36, pin:.34, 'slide-card':.36, hold:.24};
+const WORK_POSES = new Set(['type', 'read', 'radar', 'meet', 'stamp', 'pin', 'slide-card']);   // a robot at work (v28 adds the step poses)
+const STEP_HANDS = new Set(['stamp', 'pin', 'slide-card']);
+/* v28 step poses (CONTRACT v3 verbs): stamp = QA's verdict at the bench, pin = the Designer at the easel, slide-card = the King at the
+ * dispatch table. The hands reach real points in the room (world -> the robot's hover space), so hand and prop meet. Reduced
+ * motion: the final pose, no cycle. */
+const WA = {v:new THREE.Vector3(), n:new THREE.Vector3()};
+function toHov(R, p, out){ R.hov.updateWorldMatrix(true, false); return R.hov.worldToLocal(out.copy(p)); }
+function stepHands(a, sim, R, pose, t, rm, L0, R0){
+  const ph = sim.phase;
+  if (pose === 'stamp'){                                                   // lift, slam, press, ease back; a tick on every press
+    const per = 1.6, u = rm ? .55 : ((t + ph) % per)/per;
+    const lift = u < .35 ? .15*ease(u/.35) : u < .48 ? .15*(1 - (u - .35)/.13) : u < .66 ? 0 : .04*ease((u - .66)/.34);
+    const P0 = gUp.localToWorld(WA.v.set(1.6, .765, .6)); P0.y += .13 + lift; toHov(R, P0, R0);
+    P0.set(1.76, .79, .5); gUp.localToWorld(P0); toHov(R, P0, L0);             // the other hand steadies the clipboard
+    if (qa.stamp.parent !== R.hands[1]){ R.hands[1].add(qa.stamp); qa.stamp.position.set(0, -.13/1.24, 0); qa.stamp.rotation.set(0, 0, 0); qa.stamp.scale.setScalar(1/1.24); }
+    const step = sim.stepId;
+    if (rm){ if (qa.rmKey !== step){ qa.rmKey = step; qa.n = 8; qa.fail = step === 'failed'; redraw(qaT); } }
+    else if (R.lastU != null && R.lastU < .48 && u >= .48){ qa.n = qa.n % 8 + 1; qa.fail = step === 'failed'; redraw(qaT); R.thump = .12; }
+    R.lastU = u; return true;
+  }
+  if (pose === 'pin'){                                                     // reach to the board, press a pin, hold, back; three spots in turn
+    const per = 2.4, u = rm ? .5 : ((t + ph) % per)/per, i = rm ? 0 : Math.floor((t + ph)/per) % 3, off = [[-.1,.1],[.1,-.02],[-.03,-.15]][i];
+    const P0 = easel.g.localToWorld(WA.v.set(easel.pin.x + off[0], easel.pin.y + off[1], easel.pin.z)), N = WA.n.set(Math.sin(easel.yaw), 0, Math.cos(easel.yaw));
+    const out = u < .3 ? .14*(1 - ease(u/.3)) : u < .42 ? 0 : u < .72 ? .012 : .14*ease((u - .72)/.28);
+    P0.addScaledVector(N, .035 + out); toHov(R, P0, L0); R0.set(.12, .56, .24);   // the other hand holds a swatch card
+    return true;
+  }
+  if (pose === 'slide-card'){                                              // hand onto the card, slide it a column over, lift, rest
+    const per = 3.2, cyc = rm ? 0 : Math.floor((t + ph)/per), u = rm ? .4 : ((t + ph) % per)/per, from = cyc % 2 ? dispatch.cardB : dispatch.cardA, to = cyc % 2 ? dispatch.cardA : dispatch.cardB;
+    const k = u < .15 ? 0 : u < .5 ? ease((u - .15)/.35) : 1; dispatch.card.position.lerpVectors(from, to, k); dispatch.card.rotation.y = Math.sin(k*Math.PI)*.12;
+    const hover = u < .15 ? .1*(1 - u/.15) : u < .5 ? 0 : u < .62 ? .1*(u - .5)/.12 : .1;
+    if (u < .75){ WA.v.copy(dispatch.card.position); WA.v.y += .035 + hover; toHov(R, WA.v, R0); } else R0.set(.12, .5, .3);
+    L0.set(-.12, .5, .3); return true;
+  }
+  return false;
+}
 const lerp = (a,b,t) => a + (b-a)*t;
 const DIM = new THREE.Color(0x8a6f4a), EYE = new THREE.Color(0xfff2e0), EYE_DIM = new THREE.Color(0x3a3f55), EYE_RED = new THREE.Color(0xffc7bd), GOLD = new THREE.Color(0xead1a0), SLEEPC = new THREE.Color(0x8e95ab), CHAMP = new THREE.Color(0xf1c48a), BRASSC = new THREE.Color(0xc9a45c);
 const cTmp = new THREE.Color();
@@ -1414,7 +1483,8 @@ function animRobot(a, sim, R, t, dt){
   const up = sim.floor === 'up' && !sim.ride ? LIFT : 0;
   R.root.position.set(sim.x, sim.y + up, sim.z); R.root.visible = !sim.hidden && !(up && !gUp.visible);
   let spin = 0; if (pose === 'cheer' && !rm){ const k = Math.min(1, pt/1.1); spin = (1 - Math.pow(1-k, 3)) * Math.PI*2; }
-  R.root.rotation.y = sim.yawDraw + spin;
+  R.poseYaw = lerp(R.poseYaw || 0, pose === 'pin' && !sim.moving ? -.45 : 0, rm ? 1 : Math.min(1, dt*4));   // the Designer turns to its easel
+  R.root.rotation.y = sim.yawDraw + spin + R.poseYaw;
   // a silent robot (the run watchdog): the shell dims slightly
   R.shell.color.lerp(a.silent ? cTmp.copy(R.shellC).multiplyScalar(.7) : R.shellC, Math.min(1, dt*3));
   // the thank-you bow (Special Delivery): 400 ms forward and back
@@ -1431,7 +1501,7 @@ function animRobot(a, sim, R, t, dt){
   const seat = sim.spot && sim.spot.seat && !sim.moving ? .2 : 0;
   const S = stateOf(a, sim), seatN = SEATN[a.id] ?? 0;
   // in the zone (FUN 3): 45 min of unbroken work -> lean in 8 deg, the chase runs 1.5x, a warm pool on the desk
-  const zone = a.st === 'working' && a.since && Date.now() - a.since > 45*60e3 && (pose === 'type' || pose === 'read' || pose === 'radar') && !sim.moving;
+  const zone = a.st === 'working' && a.since && Date.now() - a.since > 45*60e3 && WORK_POSES.has(pose) && pose !== 'meet' && !sim.moving;
   R.zone = zone ? 1.5 : 1; if (zone) zoneNow.push(sim);
   R.zoneK = lerp(R.zoneK || 0, zone ? 1 : 0, Math.min(1, dt*2)); R.zoneDecal.visible = R.zoneK > .02; R.zoneDecal.material.opacity = .2*R.zoneK;
   // blocked, acted out: try, recoil, sigh, tap the visor, try again; the cycle slows from 6 s to 20 s as the block ages
@@ -1443,7 +1513,7 @@ function animRobot(a, sim, R, t, dt){
   const bob = rm ? 0 : Math.sin(t*2*Math.PI/(pose === 'sleep' ? 6 : 4.2) + seatN*1.37)*.006;
   let jump = (pose === 'cheer' && !rm) ? Math.abs(Math.sin(pt*5.2)) * .2 * Math.max(0, 1 - pt/2.2) : 0;
   if (sim.hi5 != null){ sim.hi5 += dt; if (sim.hi5 > .7) sim.hi5 = null; else if (sim.hi5 > 0){ jump += Math.sin(sim.hi5/.7*Math.PI)*.22; } }
-  R.hov.position.y = R.h + bob + jump;
+  R.thump = Math.max(0, (R.thump || 0) - dt); R.hov.position.y = R.h + bob + jump - R.thump*.1;   // v28: a small dip on each stamp press
   const wob = rm ? 0 : sim.wobble*sim.wobble;
   R.hov.rotation.z = sim.bank + Math.sin(t*19 + ph)*.2*wob; R.hov.rotation.x = sim.pitch + Math.cos(t*15 + ph)*.12*wob + bowX + .14*R.zoneK;
   // cape / tie / antenna spring (stiffness 120, damping .7), driven by turning and speed
@@ -1459,9 +1529,15 @@ function animRobot(a, sim, R, t, dt){
   else if (pose === 'lounge' || pose === 'settle'){ hy = rm ? 0 : Math.sin(t*.35 + ph)*.45; hp = rm ? 0 : Math.sin(t*.23+ph)*.06; }
   else if (pose === 'meet') hp = rm ? 0 : Math.max(0, Math.sin(t*1.4+ph))*.12;
   else if (pose === 'ride') hp = sim.ride && sim.ride.kind === 'tube' ? -.2 : -.1;
+  else if (pose === 'stamp') hp = .3;                                                   // eyes on the paper
+  else if (pose === 'pin'){ hp = -.02; hy = -.55; }                                     // eyes on the easel
+  else if (pose === 'slide-card'){ hp = .24; hy = Math.max(-.5, Math.min(.5, (dispatch.card.position.x - sim.x)*1.2)); }   // eyes follow the card
+  else if (pose === 'hold') hp = .1;                                                    // queued: waiting its turn, patient
+  if (pose === 'radar' && sim.spot && sim.spot.rail) hp = -.3;                          // hail: at the glass rail, looking out at the sky
   if (sim.moving && !sim.ride) hy = Math.max(-.6, Math.min(.6, (sim.turnD || 0)*.7));
   const look = V3.set(0, 0, 0);
   if (S === 'work') look.set(rm ? 0 : Math.sin(t*1.3 + ph)*.8, -.3, 0); else if (S === 'idle') look.set(rm ? 0 : Math.sin(t*.4 + ph)*.6, rm ? 0 : Math.sin(t*.27 + ph*2)*.4, 0);
+  if (pose === 'pin') look.set(-.9, .1, 0); else if (pose === 'stamp') look.set(.35, -.7, 0); else if (pose === 'slide-card') look.set(Math.max(-1, Math.min(1, (dispatch.card.position.x - sim.x)*2.5)), -.6, 0);
   const gl = sim.glance; if (gl){ gl.t += dt; const o = sims[gl.id];
     if (!o || gl.t > gl.dur || o.hidden) sim.glance = null;
     else { const ang = Math.atan2(o.x - sim.x, o.z - sim.z) - sim.yawDraw; const d = Math.atan2(Math.sin(ang), Math.cos(ang)), k = Math.min(1, gl.t/.25)*Math.min(1, (gl.dur - gl.t)/.4);
@@ -1502,14 +1578,17 @@ function animRobot(a, sim, R, t, dt){
   R.glow.material.opacity = lerp(R.glow.material.opacity, gop, st === 'waiting' ? 1 : Math.min(1, dt*5));
   R.glow.visible = R.glow.material.opacity > .005; R.halo.visible = R.haloMat.opacity > .005;   // v28: a faded-out additive layer costs a draw + overdraw, so skip it
 
-  const chasing = st === 'working' && (pose === 'type' || pose === 'read' || pose === 'radar' || pose === 'meet' || pose === 'glide' || pose === 'ride') && !rm && !a.silent;
+  const chasing = st === 'working' && (WORK_POSES.has(pose) || pose === 'glide' || pose === 'ride') && !rm && !a.silent;
   R.chase.visible = chasing; if (chasing){ const ang = t*(pose === 'ride' ? 9 : 3.2*(R.zone || 1)) + ph; R.chase.position.set(Math.cos(ang)*.218, .25, Math.sin(ang)*.218); }
   const asleep = pose === 'sleep'; R.pilot.visible = asleep;
   if (asleep) R.pilot.material.opacity = rm ? .8 : .45 + .5*(.5 - .5*Math.cos(2*Math.PI*t/6 + ph));
   // hands
   const L0 = R.hl[0], R0 = R.hl[1];
   if (pose === 'type'){ L0.set(-.12, .5 + (rm?0:Math.max(0,Math.sin(t*15+ph))*.025), .3); R0.set(.12, .5 + (rm?0:Math.max(0,Math.sin(t*15+ph+Math.PI))*.025), .3); }
+  else if (pose === 'radar' && sim.spot && sim.spot.rail){ L0.set(-.2, .56, .32); R0.set(.2, .56, .32); }   // both hands on the glass rail
   else if (pose === 'read' || pose === 'radar'){ L0.set(-.12, .55, .25); R0.set(.12, .55 + (rm?0:Math.max(0,Math.sin(t*.7+ph)-.9)*.3), .27); }
+  else if (stepHands(a, sim, R, pose, t, rm, L0, R0)){ /* stamp / pin / slide-card */ }
+  else if (pose === 'hold'){ L0.set(-.09, .42, .22); R0.set(.09, .42, .22); }
   else if (pose === 'wait'){
     if (qStage <= 0 && sim.slot === 0){ L0.set(-.27, .33, .06); R0.set(.3, .8 + (rm?0:Math.sin(t*6)*.04), .1 + (rm?0:Math.sin(t*6)*.05)); }   // front of the line: a small wave
     else if (qStage >= 2){ L0.set(-.12, .5, .28); R0.set(.12, .5, .28); }                                                                     // seated, reading
@@ -1530,8 +1609,9 @@ function animRobot(a, sim, R, t, dt){
   if (sim.poke != null && a.st === 'working') R0.set(.2, .92, .14);                    // working: "one sec" (a finger up)
   if (sim.perk != null) R0.set(.1, .56, .25);
   if (R.pointer) R0.set(.3, 1.0, .25);                                                   // the King points at the board
-  const hk = Math.min(1, dt*(pose === 'type' ? 18 : 7));
+  const hk = rm && STEP_HANDS.has(pose) ? 1 : Math.min(1, dt*(pose === 'type' ? 18 : STEP_HANDS.has(pose) ? 14 : 7));
   R.hands[0].position.lerp(L0, hk); R.hands[1].position.lerp(R0, hk);
+  if (a.id === 'qa-tester' && pose !== 'stamp' && qa.stamp.parent !== gUp){ gUp.add(qa.stamp); qa.stamp.position.copy(qa.rest); qa.stamp.rotation.set(0, 0, 0); qa.stamp.scale.setScalar(1); R.lastU = null; }
   // props
   const reading = pose === 'read' && !R.prop || pose === 'meet' && a.id === 'code';
   const reading2 = reading || qStage === 2; R.tablet.visible = reading2; if (qStage === 2){ R.tablet.position.set(0, R.hands[0].position.y + .02, .3); R.tablet.rotation.set(.9, 0, 0); }
@@ -1541,7 +1621,7 @@ function animRobot(a, sim, R, t, dt){
   // wardrobe v2: the state grammar for this robot's edition (hub/outfits.js)
   if (R.blip > 0) R.blip -= dt;
   const anPrev = anchors[a.id];
-  animOutfit(KIT, a, sim, R, t, dt, {breath:br, small:!anPrev || (anPrev.fy - anPrev.y) < 60, swish:R.swish || 0, wind:HUB.sky && HUB.sky.state && +HUB.sky.state.wind || 0, storm:HUB.sky && HUB.sky.state && HUB.sky.state.storm || 0});
+  animOutfit(KIT, a, sim, R, t, dt, {step:sim.stepId, breath:br, small:!anPrev || (anPrev.fy - anPrev.y) < 60, swish:R.swish || 0, wind:HUB.sky && HUB.sky.state && +HUB.sky.state.wind || 0, storm:HUB.sky && HUB.sky.state && HUB.sky.state.storm || 0});
   R.cup.visible = pose === 'coffee' || sim.perk != null; if (R.cup.visible) R.cup.position.copy(R.hands[1].position).add(V.set(0,.06,.02));
   R.steam.forEach((s,i) => { const on = R.cup.visible && !rm; s.visible = on; if (!on) return; const k = ((t*.6 + i/3) % 1); s.material.opacity = Math.sin(k*Math.PI)*.35;
     s.position.set(R.cup.position.x + Math.sin(k*6+i)*.02, R.cup.position.y + .06 + k*.22, R.cup.position.z); s.scale.setScalar(.05 + k*.06); });
@@ -1690,9 +1770,9 @@ function stepAwareness(agents, dt){
   if (n !== lineUI.n){ lineUI.n = n; lineUI.ropes.forEach((r, i) => r.visible = i < n); lineUI.loose.visible = n === 0; lineUI.sign.visible = n > 0; }
   if (n){ const a0 = HUB.byId && HUB.byId[order[0]]; const txt = (HUB.lang === 'es' ? 'ESPERA ' : 'WAIT ') + fmtWait(a0 && a0.since ? Date.now() - a0.since : 0) + (order.length > 5 ? '  +' + (order.length - 5) : '');
     if (txt !== lineUI.signText){ lineUI.signText = txt; redraw(lineUI.tex); } }
-  // stand-up: 3+ at the board -> the King points at it, one of them dozes
+  // stand-up: 3+ at the board -> the King points at it, one of them dozes; v28: the King planning at the board points too
   const su = agents.filter(a => a.spot === 'standup' && a.st === 'working' && sims[a.id] && !sims[a.id].moving);
-  for (const a of agents){ const R = robots[a.id]; if (!R) continue; R.pointer = su.length >= 3 && a.id === 'code' && sims.code && !sims.code.moving; R.dozer = su.length >= 3 && su[su.length - 1] === a && ((performance.now()/1000) % 14) < 5; }
+  for (const a of agents){ const R = robots[a.id]; if (!R) continue; R.pointer = a.id === 'code' && sims.code && !sims.code.moving && (su.length >= 3 || POOL.standup.includes(sims.code.spot)); R.dozer = su.length >= 3 && su[su.length - 1] === a && ((performance.now()/1000) % 14) < 5; }
   // QA carries a red card to the Builder when QA gets stuck on the Builder's task
   const qa = HUB.byId && HUB.byId['qa-tester'], bu = HUB.byId && HUB.byId.builder;
   if (qa){ if (fx_.qaSt && fx_.qaSt !== 'blocked' && qa.st === 'blocked' && bu && (qa.task && qa.task === bu.task || bu.task && String(qa.doing || '').includes(bu.task)) && sims['qa-tester'] && sims.builder && !RM.matches) spawnFolder(sims['qa-tester'], sims.builder, 'card');
@@ -1779,12 +1859,13 @@ function frame(t, dt){
   for (const [id, sc] of Object.entries(screens)){
     let sim = sims[id], here = sim && !sim.hidden && sim.spot && sim.spot === DESK[id];
     if (id[0] === '~'){ sim = Object.values(sims).find(s => s.spot && s.spot.hot === id); here = !!sim; }
-    const on = here && (sim.pose === 'type' || sim.pose === 'read' || sim.pose === 'radar') ? .95 : here && sim.pose === 'blocked' ? .5 : .16;
+    const on = here && WORK_POSES.has(sim.pose) && sim.pose !== 'meet' ? .95 : here && sim.pose === 'blocked' ? .5 : .16;
     sc.on = lerp(sc.on, on, Math.min(1, dt*3)); sc.m.material.opacity = sc.on;
     const blip = here && sim.pose === 'blocked' && robots[sim.id] && robots[sim.id].blip > 0;
     sc.m.material.color.copy(blip ? TH.stuck : here && sim.pose === 'blocked' ? SCR_DIM : SCR_W);
     if (here && sim.pose === 'type' && !rm) sc.t.offset.y = (sc.t.offset.y + dt*.06) % 1;
   }
+  if (qa.phone) qa.phone.material.opacity = screens['qa-tester'].on;   // the QA phone wakes with the laptop glass
   // Cowork's wall map brightens while Cowork is up
   const cw = sims['cowork']; wallMap.m.material.opacity = lerp(wallMap.m.material.opacity, cw && !cw.hidden && cw.pose !== 'sleep' ? .75 : .3, Math.min(1, dt*2));
   // radar: sweeps while Storm Watch is awake, blips once it finds hail
@@ -1913,14 +1994,20 @@ CUE_LATE.hail = (c) => {
 };
 /* The Call face-cam (FUN 4): while HUB.pip is set, the asker's face is scissor-rendered into the page's #pip box */
 const fcam = new THREE.PerspectiveCamera(30, 1, .05, 30);
+/* SCENE.pipDrawn (lead, v28): true once the face was really drawn into #pip for the current HUB.pip id; false when HUB.pip is
+ * null or this frame's face render didn't run, so the page keeps its avatar fallback instead of a black box */
+const pipSt = {id:null, drawn:false};
 function renderPip(){
-  const pp = HUB.pip; if (!pp || !pp.id) return; const sim = sims[pp.id], R = robots[pp.id]; if (!sim || !R || sim.hidden) return;
+  const pp = HUB.pip; pipSt.drawn = false; if (!pp || !pp.id){ pipSt.id = null; return; } pipSt.id = pp.id;
+  const sim = sims[pp.id], R = robots[pp.id]; if (!sim || !R || sim.hidden) return;
   const el = document.getElementById('pip'); if (!el) return; const r = el.getBoundingClientRect(), sr = stage.getBoundingClientRect();
   const w = Math.round(r.width), h = Math.round(r.height), x = Math.round(r.left - sr.left), y = Math.round(r.top - sr.top); if (w < 8 || h < 8 || el.offsetParent === null) return;
   HEADV.set(0, R.hov.position.y + .82*1.24, 0); R.root.localToWorld(HEADV);
   const yaw = sim.yawDraw; fcam.aspect = w/h; fcam.position.set(HEADV.x + Math.sin(yaw)*.95, HEADV.y + .06, HEADV.z + Math.cos(yaw)*.95); fcam.lookAt(HEADV.x, HEADV.y - .02, HEADV.z); fcam.updateProjectionMatrix();
+  const vis = R.root.visible; R.root.visible = true;                   // an upstairs asker still shows its face while the floor is lifted away
   const yb = H - y - h; renderer.setScissorTest(true); renderer.setScissor(x, yb, w, h); renderer.setViewport(x, yb, w, h); renderer.clear(); renderer.render(scene, fcam);
-  renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H);
+  renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); R.root.visible = vis;
+  pipSt.drawn = true;
 }
 function burstSmall(p){ burst(p.x, p.y, p.z, 10, .9); }
 
@@ -1934,7 +2021,7 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
 window.SCENE = {ready:true, anchors, frame, resize, pick, settle, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
-  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
+  get views(){ return builtViews(); }, get tweening(){ return tw.t < 1; }, get pipDrawn(){ return !!(pipSt.drawn && HUB.pip && HUB.pip.id === pipSt.id); }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
 resize();
 HUB.layout && HUB.layout();
 
