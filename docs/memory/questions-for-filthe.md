@@ -9,6 +9,7 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
   chooses); today's plan = where to knock + best time window, then follow-ups due, then inspections/adjuster
   meetings; an opened area shows one proof line first, best streets right under it. Also yes: drive time + knock
   time left, permit clock, "Kenny is here today" slot (off until a 2nd salesman), quiet storms, fade walked areas.
+  Top pick explains itself in one line (e.g. "newest hail, 2,400 owner-lived homes, nobody's knocked yet").
 - $100k (2026-09-28): it's HIS OWN income: "I mean me. I'm literally the one building this ... my boss, he'll
   profit from the company." Use the system to take the boss's company further, then go "from selling houses to
   possibly selling the system." Rough math (round 18 job $8-15k, round 29 commission 8-30%): ~28-83 jobs; his
