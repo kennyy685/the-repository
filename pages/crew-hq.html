@@ -568,6 +568,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .mrow.two{grid-template-columns:1fr 1fr;gap:4px;margin:0 -10px}
 .mrow.two .tb{justify-content:flex-start}
 .mrow.foot2{justify-items:start}
+.sndrow{display:flex;align-items:center;gap:8px;margin-left:-10px}
+.sndrow input[type=range]{flex:1 1 auto;min-width:0;height:44px;accent-color:var(--brass-hi);background:transparent;cursor:pointer}
+.sndrow input[type=range]:disabled{opacity:.45;cursor:default}
+@media (min-width:900px) and (min-height:600px){ .sndrow input[type=range]{height:32px} }
 .sw{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-left:-8px}
 .sw button,.sw label{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;cursor:pointer}
 .sw svg{width:26px;height:26px;display:block}
@@ -833,7 +837,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <div class="mrow"><h3 class="lbl" id="mLookL" data-t="mLook">Look</h3><div class="seg" id="segLook" role="group" aria-labelledby="mLookL"><button type="button" data-look="nocturne" data-t="lkNoc">Nocturne</button><button type="button" data-look="ledger" data-t="lkLed">Ledger</button><button type="button" data-look="midnight" data-t="lkMid">Midnight</button></div></div>
   <div class="mrow"><h3 class="lbl" id="mStripL" data-t="mStrip">Robot light strips</h3><div class="seg" id="segStrip" role="group" aria-labelledby="mStripL"><button type="button" data-strip="ember-only" data-t="stStatus">By status</button><button type="button" data-strip="brand" data-t="stOne">All one color</button></div></div>
   <div class="mrow"><label class="lbl" for="mName" data-t="mName">The hub’s name</label><input id="mName" type="text" maxlength="24" autocomplete="off" spellcheck="false"></div>
-  <div class="mrow two"><button type="button" class="tb" id="mCheck" data-t="mCheck">Sound check</button><span></span><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
+  <div class="mrow"><h3 class="lbl" id="mSoundL" data-t="mSoundH">Sound</h3>
+    <div class="sndrow"><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><input type="range" id="mVol" min="0" max="100" step="5" aria-labelledby="mSoundL" aria-label="Volume"><button type="button" class="tb" id="mCheck" data-t="mCheck">Sound check</button></div>
+    <p class="src" data-t="mSoundS">Off until you turn it on. Quiet from 10 PM to 7 AM, except hail.</p></div>
+  <div class="mrow two"><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
   <div class="mrow foot2"><button type="button" class="btn" id="mReset" data-t="mReset">Reset</button></div>
 </section>
 <div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl><button type="button" class="tb" id="keysMine"><span class="k" aria-hidden="true">◇</span><span data-t="mineH">Make it yours</span></button></div></div>
@@ -868,7 +875,7 @@ const TX = {
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Memory', kcPtr: 'To talk to the Right Hand, press', kcPtr2: 'or use the chat bubble.', kcHi: 'Ask about the board, answer a question in your own words, or give the crew an order.', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mLocked: 'Needs you, stuck and done keep their colors, so they always read at a glance.', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
       cup: 'Coffee: drag onto a robot', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
-      mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
+      mSoundH: 'Sound', mSoundS: 'Off until you turn it on. Quiet from 10 PM to 7 AM, except hail.', mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · uses your Claude usage',
       kcNone: 'The Right Hand talks here when you open the hub signed in as its editor.',
@@ -942,7 +949,7 @@ const TX = {
     live: {preview: 'Preview: live data loads on the published page', na: 'Live data isn’t available here', loading: 'Loading…', lost: 'Lost the live connection. Reload.', first: 'Live · waiting for the first check-in', wait: 'Connecting…'},
     liveLast: w => `Live · ${w}`,
     sky: {live: 'live', dusk: 'dusk', night: 'night', day: 'day'}, skyAria: m => `Sky: ${m}. Tap to change.`,
-    ding: on => `Ding when a robot needs you: ${on ? 'on' : 'off'}`, dingOn: 'Ding is on: you’ll hear a soft chime when something needs you.', dingOff: 'Ding is off.',
+    ding: on => `Sound: ${on ? 'on' : 'off'}`, dingOn: 'Sound is on: a soft chime when something needs you, plus the room’s small sounds. Quiet 10 PM to 7 AM.', dingOff: 'Sound is off.',
     still: '3D is off on this device, so this is a still picture. The crew list is live.', stillAlt: "The crew's two-floor office, with each AI robot at its station.",
     replayAria: 'Replay the last 24 hours', noReplay: 'Nothing checked in during the last 24 hours yet.', replayW: 'REPLAY', caughtUp: 'Caught up to now.',
     awayH: h => `While you were away · ${h} h`, awayT: (d, s, n) => [`${d} done`, `${s} stuck`, `${n} ${pl(n, 'needs', 'need')} you`].join(' · '),
@@ -1286,14 +1293,27 @@ $('#nlist').addEventListener('focusout', e => { if (!$('#nlist').contains(e.rela
    TODO(notifications): when a notifications capability exists, notify only while the tab is hidden, only his loops
    (newly blocked on him, 15 min pre-run with questions open, missed run, his loop closed), max one per 10 min, merged;
    a click focuses the tab and opens that card. */
-/* the needs-you bell (ART 8.8): C5 + G5, felt-damped, quiet; off by default, one switch */
-let actx = null, dingAt = 0;
+/* ================= the sound kit (note 5): one master switch (off by default) + a volume, all Web Audio synthesis, no files.
+   Quiet hours 10 PM-7 AM (hail still sounds). Chimes: at most one per 3 s. ================= */
+let actx = null, master = null, noiseBuf = null, dingAt = 0, sfxAt = 0;
+let vol = (() => { const v = parseFloat(store.get('hub-vol')); return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : .7; })();
+function audio(){
+  if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); master = actx.createGain(); master.gain.value = vol; master.connect(actx.destination); }
+  if (actx.state === 'suspended') actx.resume().catch(() => {});
+  return actx;
+}
+const bus = () => { audio(); return master; };
+const soundQuiet = () => { const m = centralMinute(); return m >= 22*60 || m < 7*60; };
+const sfxOk = kind => dingOn && !document.hidden && (!soundQuiet() || kind === 'hail');
+function noise(){ if (!noiseBuf) { const c = audio(), n = c.sampleRate*2; noiseBuf = c.createBuffer(1, n, c.sampleRate); const d = noiseBuf.getChannelData(0); let b = 0; for (let i = 0; i < n; i++) { b = .97*b + .03*(Math.random()*2 - 1); d[i] = (Math.random()*2 - 1)*.6 + b*4; } } return noiseBuf; }
+document.addEventListener('pointerdown', () => { if (actx && actx.state === 'suspended') actx.resume().catch(() => {}); }, {passive:true});
+/* the needs-you bell (ART 8.8): C5 + G5, felt-damped, quiet */
 function ding(){
-  if (document.hidden || Date.now() - dingAt < 3000) return; dingAt = Date.now();
+  if (!sfxOk() || Date.now() - dingAt < 3000) return; dingAt = Date.now();
   try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t0 = actx.currentTime;
-    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000; lp.connect(actx.destination);
-    for (const f of [523.25, 784]) { const o = actx.createOscillator(), g = actx.createGain(); o.type = 'sine'; o.frequency.value = f;
+    const c = audio(), t0 = c.currentTime;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000; lp.connect(bus());
+    for (const f of [523.25, 784]) { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = f;
       g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.05, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + 1.1);
       o.connect(g).connect(lp); o.start(t0); o.stop(t0 + 1.2); }
   } catch (e) { /* no audio here */ }
@@ -1952,7 +1972,7 @@ function applyViews(){ const v = builtViews(); $('#camMore').hidden = !v.some(x 
 $('#camSeg').addEventListener('click', e => { const b = e.target.closest('button[data-cam]'); if (!b) return; if (b.dataset.cam === 'eyes' && !byId[selected]) nextOrKing(); setCam(b.dataset.cam); });
 $('#skyBtn').addEventListener('click', () => { sky.mode = SKY_MODES[(SKY_MODES.indexOf(sky.mode) + 1) % SKY_MODES.length]; applySkyLabel(); renderClock(); });
 function applySkyLabel(){ const T = L(), b = $('#skyBtn'); b.textContent = T.skyT(T.sky[sky.mode]); b.title = T.skyAria(T.sky[sky.mode]); b.setAttribute('aria-pressed', String(sky.mode !== 'live')); }
-$('#dingBtn').addEventListener('click', () => { dingOn = !dingOn; store.set('hub-ding', dingOn ? 'on' : 'off'); applyDing(); appToast(dingOn ? L().dingOn : L().dingOff); if (dingOn) { dingAt = 0; ding(); } });
+$('#dingBtn').addEventListener('click', () => { dingOn = !dingOn; store.set('hub-ding', dingOn ? 'on' : 'off'); applyDing(); if (!$('#mine').hidden) renderMine(); rainAmbience(); appToast(dingOn ? L().dingOn : L().dingOff); if (dingOn) { dingAt = 0; ding(); } });
 function applyDing(){ const b = $('#dingBtn'); b.textContent = L().soundT(dingOn); b.title = L().ding(dingOn); b.setAttribute('aria-pressed', String(dingOn)); }
 
 /* ================= the closable panel (note 8): button, P / ], remembered; comes back when something new needs him ================= */
@@ -2152,6 +2172,7 @@ function renderMine(){
   for (const b of document.querySelectorAll('#segStrip [data-strip]')) b.setAttribute('aria-pressed', String(b.dataset.strip === (mine.strip || 'ember-only')));
   const n = $('#mName'); if (document.activeElement !== n) n.value = mine.name || ''; n.placeholder = T.st.title;
   $('#mSound').textContent = T.soundT(dingOn); $('#mSound').setAttribute('aria-pressed', String(dingOn));
+  const mv = $('#mVol'); if (document.activeElement !== mv) mv.value = String(Math.round(vol*100)); mv.setAttribute('aria-valuetext', Math.round(vol*100) + '%');
   $('#mLow').textContent = T.lowT(!!mine.low); $('#mLow').setAttribute('aria-pressed', String(!!mine.low));
   $('#mineBtn').setAttribute('aria-label', T.mine); $('#mineBtn').title = T.mine;
 }
@@ -2171,6 +2192,9 @@ $('#mine').addEventListener('click', e => {
 $('#mine').addEventListener('input', e => {
   const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; mine.work = v; applyTheme(true); return; }
   if (e.target.id === 'mName') { mine.name = e.target.value.slice(0, 24); applyTheme(true); }
+  if (e.target.id === 'mVol') { vol = Math.max(0, Math.min(1, (+e.target.value || 0)/100)); store.set('hub-vol', String(vol)); e.target.setAttribute('aria-valuetext', Math.round(vol*100) + '%');
+    if (master) master.gain.setTargetAtTime(vol, actx.currentTime, .05);
+    if (Date.now() - (renderMine.prev || 0) > 350) { renderMine.prev = Date.now(); chime('chat-reader', 'check', true); } }   // hear the new level
 });
 $('#mine').addEventListener('change', e => { if (e.target.closest('[data-swc]')) renderMine(); });
 document.addEventListener('pointerdown', e => { if (!$('#mine').hidden && !e.target.closest('#mine,#mineBtn,#keysMine')) closeMine(); });
@@ -2240,7 +2264,7 @@ const mind = (() => {
   return {tick, comet(from, to){ const S = window.SCENE, sw = stageEl.clientWidth || 1, ax = id => { const an = S && S.ready && S.anchors && S.anchors[id]; return an ? an.x/sw : .5; };
     if (!RMQ.matches) comets.push({x0:ax(from), x1:ax(to), t0:performance.now(), dur:1400}); }, read: readCrew};
 })();
-function pushHandoff(from, to){ HUB.handoffs.push({from, to}); mind.comet(from, to); }
+function pushHandoff(from, to){ HUB.handoffs.push({from, to}); mind.comet(from, to); paperFlick(); }
 
 /* ================= the scroll push-in (ART 8.2): wheel over the room steps Whole -> floor -> robot ================= */
 let dolly = cam === 'follow' ? 2 : cam === 'up' || cam === 'down' ? 1 : 0, dollySel = false;
@@ -2491,8 +2515,7 @@ function chime(id, kind, force){
   const m = centralMinute(); if (!force && (m >= 22*60 || m < 7*60) && !(id === 'storm-watch' && kind === 'hail')) return;
   const c = CHIME[id]; if (!c) { if (kind === 'wait') ding(); return; } chimeAt = Date.now();
   try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume();
-    const t0 = actx.currentTime + .02, lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000; lp.connect(actx.destination);
+    audio(); const t0 = actx.currentTime + .02, lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3000; lp.connect(bus());
     const freqs = kind === 'done' ? [...c[1], c[1][c[1].length - 1]*1.5] : c[1];   // done resolves upward; blocked bends down
     freqs.forEach((f, i) => { const o = actx.createOscillator(), g = actx.createGain(), t = t0 + i*c[2]; o.type = c[0]; o.frequency.setValueAtTime(f, t);
       if (kind === 'block') o.frequency.exponentialRampToValueAtTime(f*.84, t + c[3]);
@@ -2500,7 +2523,44 @@ function chime(id, kind, force){
       o.connect(g).connect(lp); o.start(t); o.stop(t + c[3] + .05); });
   } catch (e) { /* no audio here */ }
 }
-function fwoop(){ if (!dingOn) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t0 = actx.currentTime, o = actx.createOscillator(), g = actx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(300, t0); o.frequency.exponentialRampToValueAtTime(90, t0 + .25); g.gain.setValueAtTime(.03, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .28); o.connect(g).connect(actx.destination); o.start(t0); o.stop(t0 + .3); } catch (e) { /* no audio */ } }
+/* the tube's fwoop (answer sent, a ride up the tube) */
+function fwoop(){ if (!sfxOk()) return; try { const c = audio(), t0 = c.currentTime, o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(300, t0); o.frequency.exponentialRampToValueAtTime(90, t0 + .25); g.gain.setValueAtTime(.03, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .28); o.connect(g).connect(bus()); o.start(t0); o.stop(t0 + .3); } catch (e) { /* no audio */ } }
+/* the slide's whee: a soft triangle glide up, then settling */
+function whee(){ if (!sfxOk() || Date.now() - sfxAt < 1200) return; sfxAt = Date.now();
+  try { const c = audio(), t0 = c.currentTime, o = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+    o.type = 'triangle'; o.frequency.setValueAtTime(380, t0); o.frequency.exponentialRampToValueAtTime(980, t0 + .32); o.frequency.exponentialRampToValueAtTime(560, t0 + .95);
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.03, t0 + .05); g.gain.setValueAtTime(.03, t0 + .55); g.gain.exponentialRampToValueAtTime(.0001, t0 + 1.05);
+    o.connect(g).connect(lp).connect(bus()); o.start(t0); o.stop(t0 + 1.1); } catch (e) { /* no audio */ } }
+/* a paper flick on a handoff: a short band-passed noise swipe */
+function paperFlick(){ if (!sfxOk() || Date.now() - sfxAt < 1200) return; sfxAt = Date.now();
+  try { const c = audio(), t0 = c.currentTime, s = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain(); s.buffer = noise();
+    bp.type = 'bandpass'; bp.Q.value = .8; bp.frequency.setValueAtTime(1800, t0); bp.frequency.exponentialRampToValueAtTime(5200, t0 + .08);
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.12, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + .12);
+    s.connect(bp).connect(g).connect(bus()); s.start(t0, Math.random()*1.5, .14); } catch (e) { /* no audio */ } }
+/* typing ticks: only while he hovers a robot that is typing */
+function typeTicks(){ try { const c = audio(); for (let i = 0, n = 1 + (Math.random() < .5 ? 1 : 0); i < n; i++) { const t0 = c.currentTime + Math.random()*.14, s = c.createBufferSource(), hp = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = noise(); hp.type = 'highpass'; hp.frequency.value = 2800; g.gain.setValueAtTime(.05*(.55 + Math.random()*.45), t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .02);
+  s.connect(hp).connect(g).connect(bus()); s.start(t0, Math.random()*1.8, .03); } } catch (e) { /* no audio */ } }
+/* rain ambience while the sky rains: looped soft noise, low and filtered, fading with the rain */
+let rainSrc = null, rainGain = null;
+function rainAmbience(){
+  const want = sfxOk() && sky.rain > .08 ? Math.min(1, sky.rain)*.07 : 0;
+  if (!want && !rainSrc) return;
+  try { const c = audio();
+    if (!rainSrc) { rainSrc = c.createBufferSource(); rainSrc.buffer = noise(); rainSrc.loop = true; const hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 400; lp.type = 'lowpass'; lp.frequency.value = 2200;
+      rainGain = c.createGain(); rainGain.gain.value = 0; rainSrc.connect(hp).connect(lp).connect(rainGain).connect(bus()); rainSrc.start(); }
+    rainGain.gain.setTargetAtTime(want, c.currentTime, .9);
+    if (!want) { const s = rainSrc; setTimeout(() => { if (rainSrc === s && rainGain.gain.value < .002) { try { s.stop(); } catch (e) { /* stopped */ } rainSrc = null; } }, 4500); }
+  } catch (e) { /* no audio */ } }
+/* the room's moments, read from the scene's anchors ~7 times a second: rides, typing under the pointer, rain */
+const lastPose = {};
+function soundTick(){
+  const S = window.SCENE; rainAmbience(); if (!dingOn || !(S && S.ready && S.anchors)) return;
+  for (const a of bots) { const an = S.anchors[a.id]; if (!an) continue; const p = an.pose, was = lastPose[a.id]; lastPose[a.id] = p;
+    if (p === 'ride' && was && was !== 'ride' && !replay) { if (an.floor === 'up') whee(); else fwoop(); } }
+  const h = HUB.hover, an = h && S.anchors[h];
+  if (an && an.pose === 'type' && !an.moving && sfxOk() && Math.random() < .7) typeTicks();
+}
 const lastSt = {};
 function chimeChanges(){
   if (replay) return;
@@ -2752,7 +2812,7 @@ function frame(now){
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
   placeOverlay(); mind.tick(now); placeSpot(); placeSays(now);
-  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
+  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); soundTick(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
