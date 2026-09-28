@@ -82,7 +82,8 @@ const PAGES = [
     rel: "pages/practice-door.html",
     storage: { en: { "hmp-practice-door-v1": '{"lang":"en"}' }, es: { "hmp-practice-door-v1": '{"lang":"es"}' } },
     tabs: null,
-    views: [{ name: "cheat sheet", steps: ["#cheatBtn1"] }],
+    // v11: the Plan (4-week path + ready-to-knock) and the top 15 objections, each its own tab
+    views: [{ name: "cheat sheet", steps: ["#cheatBtn1"] }, { name: "plan", steps: ["#tabPlan"] }, { name: "objections", steps: ["#tabObj"] }],
   },
 ];
 
