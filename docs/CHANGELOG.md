@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## v25.3 - 2026-09-28
+- Practice mode (60 practice houses, a full fake sales day) to try the app risk-free; Calls today on Now (account hits + business calls) and a storm-age line on claims.
+- Legal locks: tear-off/install can't be logged until the itemized description reached the homeowner AND the insurer (44-8606) and the 3-day cancel window is over; the spoken door opener now says the knocker's own name in EN and ES (69-1602), not always Alex's.
+- Midnight/Central-time fixes (day-keyed listeners roll over correctly, the 7 PM Central off-by-one is gone), a bad-signal-safe outbox retry scheduler, and coaching/sales-script text removed from the app (a pro needs eyes and memory, not canned lines).
+
 ## Practice Door v11 - 2026-09-28
 - New Plan tab: the 4-week practice-only path (docs/orders/sales-path.md) with today's day on top of Practice, one tap to start each step (language, homeowner and Rookie mode set for you), a checkbox per day and its own streak. Saved on this device only.
 - Ready-to-knock checklist that checks itself from your practice (opener passes in a row per language, runs, Rookie-off runs, drills passed, clean trap and Spanish-only runs, streak), plus "I can" for the one only you can judge.
