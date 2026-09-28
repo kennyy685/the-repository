@@ -622,7 +622,7 @@ const podGlow = [];
 }
 plant(4.32, 1.4, .62); plant(-4.05, 3.0, .7);
 /* ================= the instrument room (ART 6.6): one 1.25x hero prop per desk, brass plates No. 01-10, status bars ================= */
-const SEATS = [['code','01'],['king','02'],['builder','03'],['designer','04'],['engine-mechanic','05'],['qa-tester','06'],['hub-keeper','07'],['cowork','08'],['storm-watch','09'],['chat-reader','10']];
+const SEATS = [['hub-keeper','01'],['qa-tester','02'],['storm-watch','03'],['code','04'],['king','05'],['builder','06'],['designer','07'],['engine-mechanic','08'],['chat-reader','09'],['cowork','10']];   // v28: the page's CREW order (upstairs 01-03)
 const plateT = tex(512, 128, (g,w,h) => {
   SEATS.forEach(([, n], i) => { const x = (i%5)*102, y = Math.floor(i/5)*64;
     const gr = g.createLinearGradient(x, y, x, y + 60); gr.addColorStop(0,'#e3c98f'); gr.addColorStop(.5,'#c9a45c'); gr.addColorStop(1,'#8a6a3a'); g.fillStyle = gr; g.fillRect(x + 1, y + 2, 100, 60);
@@ -720,6 +720,7 @@ const spot = {};
 const FIG = {x:4.3, z:2.6};              // beside the line, so it never hides a face from the 3/4 camera
 const LINE = [[3.58,2.6],[2.98,2.54],[2.38,2.48],[1.78,2.42],[1.18,2.36]];
 const lineUI = {ropes:[], n:-1, sign:null, signText:''};
+let figG = null;                         // your figure's group: renderPip hides it (it stands between the first asker and the face-cam)
 {
   // you: a quiet graphite figure with a brass collar pin, facing the line
   const k = new Map(), fy = Math.atan2(LINE[0][0] - FIG.x, LINE[0][1] - FIG.z);
@@ -729,7 +730,7 @@ const lineUI = {ropes:[], n:-1, sign:null, signText:''};
   for (const s_ of [-1,1]) part(k, new THREE.CylinderGeometry(.05, .045, .6, 10), MAT.jacket, s_*.24, 1.1, .02, 0, 0, s_*.08);
   part(k, new THREE.CylinderGeometry(.05, .055, .08, 12), MAT.skin, 0, 1.48, 0); part(k, new THREE.SphereGeometry(.12, 20, 14), MAT.skin, 0, 1.62, 0, 0, 0, 0, 1, 1.12, 1);
   part(k, new THREE.SphereGeometry(.018, 8, 6), MAT.brass, -.1, 1.34, .12);
-  const g = new THREE.Group(); bake(k, g, true); g.position.set(FIG.x, 0, FIG.z); g.rotation.y = fy; P.add(g); blob(FIG.x, FIG.z, .7, .7, .45);
+  const g = new THREE.Group(); bake(k, g, true); g.position.set(FIG.x, 0, FIG.z); g.rotation.y = fy; P.add(g); figG = g; blob(FIG.x, FIG.z, .7, .7, .45);
   // brass posts on the room side of the line, a leather bench behind it
   const dir = new THREE.Vector2(LINE[0][0] - LINE[4][0], LINE[0][1] - LINE[4][1]).normalize(), off = [dir.y*.42, -dir.x*.42];   // posts behind the line (room side)
   lineUI.posts = LINE.map(([x, z]) => [x + off[0], z + off[1]]); lineUI.posts.push([LINE[4][0] - dir.x*.58 + off[0], LINE[4][1] - dir.y*.58 + off[1]]);
@@ -972,6 +973,10 @@ function planFor(a){                                                         // 
   return {pose:p};
 }
 const planKey = p => p ? (p.spot || '') + ':' + (p.pose || '') + (p.cheer ? '!' : '') : '';
+/* a done robot's verb (verified / failed / shipped / hail): the RIGHT NOW row's while it shows done; once the row drops to idle
+ * (6 s) the step we already planned with stays, so the room doesn't re-plan (and cheer again) when the list moves on */
+function doneStep(a, sim){ const r = nowRow(a.id); if (r && r.st7 === 'done' && typeof r.step === 'string') return r.step;
+  return sim.seq === a.seq && sim.est === 'done' ? sim.dstep || '' : typeof a.step === 'string' ? a.step : ''; }
 /* the state the room acts out: the agent's st, plus queued (CONTRACT v3: a handoff to it not picked up, or its task holds) */
 function estOf(a){ const r = nowRow(a.id), q = r ? r.st7 === 'queued' : !!a.queued;
   return q && a.st !== 'waiting' && a.st !== 'blocked' && a.st !== 'sleeping' ? 'queued' : a.st; }
@@ -1005,7 +1010,11 @@ function applyState(sim, a, instant){
   else if (st === 'sleeping') q.push({spot:'pod', pose:'sleep'});
   else if (st === 'waiting') q.push({spot:'front', pose:'wait'});
   else if (st === 'blocked') q.push({spot:'desk', pose:'blocked'});
-  else if (st === 'done') q.push({spot:null, pose:'cheer', dur:2.4}, {spot:'coffee', pose:'coffee', dur:6}, {spot:'lounge', pose:'lounge'});
+  else if (st === 'done'){ const ds = sim.dstep;                   // CONTRACT v3 verbs: failed = the stamp at the QA bench, hail = the radar at the rail; a failed run never cheers
+    if (ds === 'failed' && a.id === 'qa-tester') q.push({spot:'desk', pose:'stamp', dur:2.4});
+    else if (ds === 'hail' && a.id === 'storm-watch') q.push({spot:'rail', pose:'radar', dur:6});
+    else if (ds !== 'failed') q.push({spot:null, pose:'cheer', dur:2.4});
+    q.push({spot:'coffee', pose:'coffee', dur:6}, {spot:'lounge', pose:'lounge'}); }
   else q.push({spot:'idle', pose:'lounge'});
   sim.queue = q; sim.wanderAt = 0;
   // the pose at a spot follows the spot (work pose at a desk, coffee at the bar, lounge elsewhere)
@@ -1084,9 +1093,10 @@ function syncAgent(a, i){
   if (a.hidden){ if (!sim.hidden){ sim.hidden = true; release(sim); sim.seq = undefined; } return sim; }
   if (sim.hidden){ sim.hidden = false; }
   // v28: re-plan on a new seq, or when the RIGHT NOW row changes what the room should show (a new step, queued on/off)
-  const est = estOf(a), plan = est === 'working' && a.spot !== 'standup' ? planFor(a) : null, pk = est + '|' + planKey(plan);
+  const est = estOf(a), plan = est === 'working' && a.spot !== 'standup' ? planFor(a) : null, ds = est === 'done' ? doneStep(a, sim) : '';
+  const pk = est + '|' + (est === 'done' ? ds : planKey(plan));
   if (sim.seq !== a.seq || sim.pk !== pk){
-    const first = sim.seq === undefined, seqCh = sim.seq !== a.seq; sim.seq = a.seq; sim.pk = pk; sim.est = est; sim.plan = plan; sim.stepId = stepOf(a);
+    const first = sim.seq === undefined, seqCh = sim.seq !== a.seq; sim.seq = a.seq; sim.pk = pk; sim.est = est; sim.plan = plan; sim.dstep = ds; sim.stepId = stepOf(a);
     if (est === 'done' && (seqCh || first)) sim.doneAt = first ? -1e9 : performance.now();
     if (seqCh && !first && !RM.matches && (a.st === 'done' || a.st === 'waiting'))   // the others glance: eyes first, then heads
       for (const o of Object.values(sims)) if (o !== sim && !o.hidden) o.glance = {id:a.id, t:0, dur:2.6, head:.18 + Math.random()*.25};
@@ -1115,7 +1125,7 @@ const DONE_MS = 6000;
 function statusOf(a, sim){
   if (sim.pose === 'sleep') return 'asleep';
   const st = sim.est || a.st;
-  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (a.silent) return 'silent';
+  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (a.silent || (nowRow(a.id) || {}).st7 === 'silent') return 'silent';   // the watchdog, or a stale check-in the list shows Quiet
   if (sim.pose === 'cheer' || st === 'done' && sim.doneAt != null && performance.now() - sim.doneAt < DONE_MS) return 'done';
   return st === 'working' ? 'working' : st === 'queued' ? 'queued' : 'idle';
 }
@@ -1479,7 +1489,7 @@ function lineOrder(){ const H = HUB, ag = H.agents || []; if (lineOrder.f === fr
   return (lineOrder.v = ids); }
 function fmtWait(ms){ const m = Math.max(0, Math.floor(ms/60e3)), h = Math.floor(m/60); return h ? h + ' h ' + (m % 60) + ' min' : m + ' min'; }
 let frameNo = 0;
-const SEATN = {code:1, king:2, builder:3, designer:4, 'engine-mechanic':5, 'qa-tester':6, 'hub-keeper':7, cowork:8, 'storm-watch':9, 'chat-reader':10};
+const SEATN = {'hub-keeper':1, 'qa-tester':2, 'storm-watch':3, code:4, king:5, builder:6, designer:7, 'engine-mechanic':8, 'chat-reader':9, cowork:10};
 const V3 = new THREE.Vector3(), V2d = new THREE.Vector2(), SCR_W = new THREE.Color(0xffffff), SCR_DIM = new THREE.Color(0xb8a89a);
 let zoneNow = [], zonePrev = [];
 function fremontMin(){ const n = Date.now(); if (fremontMin.at && n - fremontMin.at < 20e3) return fremontMin.v; fremontMin.at = n;
@@ -1533,7 +1543,7 @@ function animRobot(a, sim, R, t, dt){
   const seat = sim.spot && sim.spot.seat && !sim.moving ? .2 : 0;
   const S = stateOf(a, sim), seatN = SEATN[a.id] ?? 0;
   // in the zone (FUN 3): 45 min of unbroken work -> lean in 8 deg, the chase runs 1.5x, a warm pool on the desk
-  const zone = a.st === 'working' && a.since && Date.now() - a.since > 45*60e3 && WORK_POSES.has(pose) && pose !== 'meet' && !sim.moving;
+  const zone = a.st === 'working' && !a.silent && a.since && Date.now() - a.since > 45*60e3 && WORK_POSES.has(pose) && pose !== 'meet' && !sim.moving;
   R.zone = zone ? 1.5 : 1; if (zone) zoneNow.push(sim);
   R.zoneK = lerp(R.zoneK || 0, zone ? 1 : 0, Math.min(1, dt*2)); R.zoneDecal.visible = R.zoneK > .02; R.zoneDecal.material.opacity = .2*R.zoneK;
   // blocked, acted out: try, recoil, sigh, tap the visor, try again; the cycle slows from 6 s to 20 s as the block ages
@@ -1607,7 +1617,7 @@ function animRobot(a, sim, R, t, dt){
   else if (stc === 'done'){ col = TH.done; hop = .3; gop = .18; }
   else if (stc === 'working' || pose === 'ride'){ col = TH.work; hop = .3; gop = .16; }
   else if (stc === 'queued'){ col = cTmp.copy(TH.queue).lerp(QDIM, .45); hop = .05; gop = .03; }
-  if (brand && pose !== 'sleep') col = TH.need;
+  if (brand && (stc === 'working' || stc === 'idle' || stc === 'queued')) col = TH.work;   // 'All one color': one calm color; needs / stuck / done / quiet keep theirs (ember stays locked to needs)
   const ck = rm ? 1 : Math.min(1, dt*8);
   R.stripMat.color.lerp(col, ck); R.haloMat.color.lerp(col, ck); R.glow.material.color.lerp(col, ck);
   R.haloMat.opacity = lerp(R.haloMat.opacity, hop, stc === 'needs' ? 1 : Math.min(1, dt*6));
@@ -2104,8 +2114,10 @@ function renderPip(){
   HEADV.set(0, R.hov.position.y + .82*1.24, 0); R.root.localToWorld(HEADV);
   const yaw = sim.yawDraw; fcam.aspect = w/h; fcam.position.set(HEADV.x + Math.sin(yaw)*.95, HEADV.y + .06, HEADV.z + Math.cos(yaw)*.95); fcam.lookAt(HEADV.x, HEADV.y - .02, HEADV.z); fcam.updateProjectionMatrix();
   const vis = R.root.visible; R.root.visible = true;                   // an upstairs asker still shows its face while the floor is lifted away
+  const fv = figG ? figG.visible : false, hid = []; if (figG) figG.visible = false;   // your figure (and a robot ahead in line) would sit between the face-cam and the face
+  for (const id in robots){ const o = robots[id]; if (o !== R && o.root.visible && Math.hypot(o.root.position.x - fcam.position.x, o.root.position.z - fcam.position.z) < .7){ o.root.visible = false; hid.push(o); } }
   const yb = H - y - h; renderer.setScissorTest(true); renderer.setScissor(x, yb, w, h); renderer.setViewport(x, yb, w, h); renderer.clear(); renderer.render(scene, fcam);
-  renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); R.root.visible = vis;
+  renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H); R.root.visible = vis; if (figG) figG.visible = fv; for (const o of hid) o.root.visible = true;
   pipSt.drawn = true;
 }
 function burstSmall(p){ burst(p.x, p.y, p.z, 10, .9); }

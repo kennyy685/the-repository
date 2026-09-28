@@ -42,3 +42,10 @@ Old chat closed to save usage. Read SPEC.md (decisions + walkthrough notes 1-11)
   verbs match the room, The Call shows the avatar or the face, never a black box); (3) re-render still.webp from
   `#capture` if time allows; (4) publish per the steps above; ping FilthE.
 - Waiting on FilthE: picks from FUNCTIONS-SHORTLIST.md; "yes Fable for v28.1" or not.
+
+## SHIPPED 2026-09-28 ~18:20 UTC: v28.0 live as hub Version 28
+- Checked together (gate, shots, release checks, 1440/1512/phone/no-CDN renders), 20 fixes (commit 7cdffff) + Ledger
+  Send contrast (b9acc67), still.webp re-rendered from v28. Published with `pages/crew-hq.files.json`. Screens: shots/v28/.
+- The King's branch (claude/amazing-gauss-yzfpq0) has an OLDER pages/crew-hq.html: its live-King wake edits are already
+  inside v28. Never publish the hub page from that branch; merge claude/amazing-wright-lds9q5 into it first.
+- Next: v28.1 "One building" (BUILD-v28.md). Waiting on FilthE: picks from FUNCTIONS-SHORTLIST.md.

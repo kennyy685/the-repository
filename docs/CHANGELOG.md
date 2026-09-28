@@ -1,9 +1,10 @@
 # HMP App changelog (newest first)
 
-## AI hub v28.0 "calm and clear" - 2026-09-28
+## AI hub v28.0 "Calm and clear" - 2026-09-28 (live: hub Version 28)
+- RIGHT NOW list on the right: every robot's status in one line (needs you, stuck, working, queued, done, free, asleep, quiet). Robots now sit by kind of work: upstairs thinks (Research Lead, QA, Storm Watch), downstairs does. Press V and the room goes grey so only problems stay lit.
+- Calmer screen: P hides the side panel (it slides back when something needs you), a round chat bubble bottom-right talks to the King (K), 4 camera buttons (Whole, Follow, Eyes, More), name tags only when they matter, straight rain only in the sky, English only, named "AI Hub".
+- The Call shows the robot's real face (was a black box), more sounds (still off by default, with a volume slider), and about 20 fixes from a full check before going live.
 - Talk to the King right in the hub: the chat bubble opens a King thread (your message wakes Claude Code at once; its reply lands in the same thread as easy-to-read paragraphs and numbered questions, with a dot and a toast). The Right Hand is one tap away for instant answers.
-- RIGHT NOW crew list, 7 clear status states, a side panel you can close, robots re-seated by kind of work, fewer cameras, more (optional) sound, straight rain only in the sky, English only.
-- Wake safety: the hub only wakes the trigger the King names in system/king; Ledger (light) look's Send buttons are readable again.
 
 ## AI hub v27.1 - 2026-09-28 (live: hub Version 27)
 - Smoother: robots no longer redraw the room's shadows every frame (the stutter); shadows only update when the light moves.
