@@ -147,6 +147,7 @@ body.narrow .cam{display:inline-flex}
 .card-where dt{color:var(--mute)} .card-where dd{margin:0;color:var(--ink2)}
 /* answers, receipts, memory */
 .ans{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.ans .btn.sm{min-width:44px}   /* T72 design gate: "Sí" alone was 41x44 - a short label + 4px/8px padding fell under the 44px tap target */
 .ans input{flex:1 1 150px;min-width:0;background:var(--bg);border:2px solid var(--line2);color:var(--ink);padding:5px 8px;font:inherit;font-size:13px}
 .ans-done{grid-column:2;font-size:13px;color:var(--ink2);margin-top:4px}
 .rcpt{font-family:var(--f-label);font-size:10px;letter-spacing:.03em;margin-left:6px;color:var(--done);white-space:nowrap}
