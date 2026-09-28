@@ -156,7 +156,7 @@ const sweepTex = tex(256, 256, (g) => { g.clearRect(0,0,256,256); for (let i=0;i
 
 /* the board: whatever the page puts in HUB.boardInfo (the King's orders), drawn as frosted glass */
 const FONT_H = '"Bricolage Grotesque", Geist, system-ui, sans-serif', FONT = 'Geist, system-ui, sans-serif', MONO = '"Geist Mono", ui-monospace, monospace';
-const TONE = {orange:'#f1c48a', white:'rgba(241,242,244,.6)', green:'#9fbfa6', red:'#e0685c', need:'#f5883a'};
+const TONE = {orange:'#f1c48a', white:'rgba(241,242,244,.6)', green:'#9fbfa6', red:'#d9483b', need:'#f5883a', done:'#3fbf94'};
 function fitText(g, s, max, font, size, min = 14){ let z = size; g.font = font.replace('#', z); while (z > min && g.measureText(s).width > max){ z -= 2; g.font = font.replace('#', z); } return s; }
 /* the glass board (ART 6.6): the real counts, DOING / STUCK / DONE TODAY as ivory rows at 60%; only NEEDS YOU is ember */
 const boardFlip = {t:1, a:0};
@@ -644,18 +644,36 @@ const DESKS = {
   'qa-tester':       {f:'up',   x:1.3,  z:.72,  d:.6,   bw:.9,  an:[2.86, .5, .745, .16]},            // the QA bench
   'storm-watch':     {f:'up',   x:2.95, z:-2.15,d:1.04, bw:.5,  py:.2, by:.155, an:[3.56, -2.62, 0, .9]}   // the radar table (a floor pole)
 };
-const deskBars = {}, barMats = {};
+const deskBars = {}, andons = {};
+const ANDON_OFF = new THREE.Color(0x2b2522);
 {
-  const plates = {up:[], down:[]}, bars = {up:[], down:[]};
+  const plates = {up:[], down:[]}, bars = {up:[], down:[]}, lamps = {up:[], down:[]};
   SEATS.forEach(([id], i) => { const D = DESKS[id]; const u0 = (i%5)*102/512, v1 = 1 - Math.floor(i/5)*64/128;
     const pg = new THREE.PlaneGeometry(.15, .045); const uv = pg.attributes.uv; uv.setXY(0, u0 + 2/512, v1 - 2/128); uv.setXY(1, u0 + 100/512, v1 - 2/128); uv.setXY(2, u0 + 2/512, v1 - 62/128); uv.setXY(3, u0 + 100/512, v1 - 62/128);
-    pg.translate(D.x, D.py ?? .715, D.z + D.d/2 + .004); plates[D.f].push(pg); bars[D.f].push([id, D.x, D.z + D.d/2 + .006, D.bw, D.by ?? .688]); });
+    pg.translate(D.x, D.py ?? .715, D.z + D.d/2 + .004); plates[D.f].push(pg); bars[D.f].push([id, D.x, D.z + D.d/2 + .006, D.bw, D.by ?? .688]); lamps[D.f].push([id, ...D.an]); });
   for (const f of ['up','down']){
+    P = GRP[f];
     const m = new THREE.Mesh(mergeGeometries(plates[f]), std({map:plateT, metalness:.6, roughness:.4})); GRP[f].add(dyn(m));
-    // hairline status light bars: one InstancedMesh per floor, colored per robot state every frame
-    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, .008, .006), new THREE.MeshBasicMaterial({toneMapped:false}), bars[f].length);
-    bars[f].forEach(([id, x, z, w, y], k) => { M4.compose(VP.set(x, y, z), QT.identity(), VS.set(w, 1, 1)); im.setMatrixAt(k, M4); im.setColorAt(k, new THREE.Color(0x3a3632)); deskBars[id] = {im, k, x, y, z, w}; });
-    GRP[f].add(dyn(im)); barMats[f] = im;
+    // hairline status light bars: one InstancedMesh per floor, colored per robot state; v28: a stuck bar is hatched (every other
+    // dash dark), cocked 6 deg and 3x taller (the flight-strip "cocked strip"), per-instance aHatch
+    const bg = new THREE.BoxGeometry(1, .008, .006); bg.setAttribute('aHatch', new THREE.InstancedBufferAttribute(new Float32Array(bars[f].length), 1));
+    const bm = new THREE.MeshBasicMaterial({toneMapped:false});
+    bm.onBeforeCompile = sh => {
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aHatch; varying float vHatch; varying float vBx;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvHatch = aHatch; vBx = position.x;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vHatch; varying float vBx;').replace('#include <color_fragment>', '#include <color_fragment>\nif (vHatch > .5 && fract(vBx*16.0) > .5) diffuseColor.rgb *= .16;');
+    };
+    const im = new THREE.InstancedMesh(bg, bm, bars[f].length);
+    bars[f].forEach(([id, x, z, w, y], k) => { M4.compose(VP.set(x, y, z), QT.identity(), VS.set(w, 1, 1)); im.setMatrixAt(k, M4); im.setColorAt(k, new THREE.Color(0x3a3632)); deskBars[id] = {im, k, x, y, z, w, cls:'', fill:1}; });
+    GRP[f].add(dyn(im));
+    // the andon (blueprint 4: Toyota stack light): a small 2-tier lamp on each desk, off (smoked) until needed: the top tier lights
+    // oxide when the robot is stuck, the bottom tier ember when it needs FilthE. Steady, never blinking. One InstancedMesh per floor.
+    const lm = new THREE.InstancedMesh(new THREE.CylinderGeometry(.024, .024, .042, 14), new THREE.MeshBasicMaterial({toneMapped:false}), lamps[f].length*2);
+    lamps[f].forEach(([id, x, z, y0, pole], k) => {
+      cyl(.006, .006, pole, MAT.brass, x, y0 + pole/2, z, 8).castShadow = false; cyl(.028, .032, .012, MAT.brass, x, y0 + .006, z, 14).castShadow = false;
+      cyl(.027, .027, .008, MAT.brass, x, y0 + pole + .096, z, 14).castShadow = false;                // the brass cap
+      for (let tier = 0; tier < 2; tier++){ M4.compose(VP.set(x, y0 + pole + .025 + tier*.046, z), QT.identity(), VS.set(1, 1, 1)); lm.setMatrixAt(k*2 + tier, M4); lm.setColorAt(k*2 + tier, ANDON_OFF); }
+      andons[id] = {im:lm, k:k*2, need:null, stuck:null}; });
+    GRP[f].add(dyn(lm)); andons[f] = {im:lm, dirty:false};
   }
   // hero props (ART 6.6), grouped tight on each desk
   P = gDown;
@@ -1078,16 +1096,28 @@ function syncAgent(a, i){
   return sim;
 }
 
-/* ================= theme (CONTRACT v2 HUB.theme): the strip colors; re-read only when theme.v changes ================= */
-const THEME_DEF = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#e0685c', sleep:'#3a3632', jewel:'#c9a45c'};
+/* ================= theme (CONTRACT v2 + v3 HUB.theme): the status colors; re-read only when theme.v changes =================
+ * v3 (blueprint 3.1): stuck moves darker (#d9483b, tritan-safe vs ember), done = verdigris, queue = stone, intel = the Intelligence
+ * floor's accent (never a status). Color is held back for needs / stuck / done; working is champagne, "normal, not a signal". */
+const THEME_DEF = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#d9483b', sleep:'#3a3632', jewel:'#c9a45c', done:'#3fbf94', queue:'#cdb896', intel:'#6cb8ec'};
 const TH = {v:undefined, mode:'ember-only', silent:new THREE.Color(0x6d6a66)};
 for (const k of Object.keys(THEME_DEF)) TH[k] = new THREE.Color(THEME_DEF[k]);
 function readTheme(){
   const t = HUB.theme, v = t ? t.v : null; if (v === TH.v) return false; TH.v = v;
   for (const k of Object.keys(THEME_DEF)){ const c = t && typeof t[k] === 'string' && /^#[0-9a-f]{6}$/i.test(t[k]) ? t[k] : THEME_DEF[k]; TH[k].set(c); }
   TH.mode = t && t.stripMode === 'brand' ? 'brand' : 'ember-only';
-  TONE.need = '#' + TH.need.getHexString(); TONE.orange = '#' + TH.work.getHexString(); TONE.red = '#' + TH.stuck.getHexString();
+  TONE.need = '#' + TH.need.getHexString(); TONE.orange = '#' + TH.work.getHexString(); TONE.red = '#' + TH.stuck.getHexString(); TONE.done = '#' + TH.done.getHexString();
+  MAT.intel.color.copy(TH.intel); for (const f of ['up', 'down']) if (andons[f]) andons[f].dirty = true;
   return true;
+}
+/* the 7-state class the room shows (blueprint 3.1): needs > stuck > silent > done (6 s) > working > queued > idle; asleep by pose */
+const DONE_MS = 6000;
+function statusOf(a, sim){
+  if (sim.pose === 'sleep') return 'asleep';
+  const st = sim.est || a.st;
+  if (st === 'waiting') return 'needs'; if (st === 'blocked') return 'stuck'; if (a.silent) return 'silent';
+  if (sim.pose === 'cheer' || st === 'done' && sim.doneAt != null && performance.now() - sim.doneAt < DONE_MS) return 'done';
+  return st === 'working' ? 'working' : st === 'queued' ? 'queued' : 'idle';
 }
 readTheme();
 /* the shared "needs you" breath (HUB.breath), with our own 5 s clock as the fallback */
@@ -1106,7 +1136,7 @@ const G = {
   ears: mergeGeometries([-1,1].map(s => new THREE.CylinderGeometry(.038,.038,.018,20).rotateZ(Math.PI/2).translate(s*.193, 0, 0))),
   chase: new THREE.SphereGeometry(.02, 10, 8),
   pilot: new THREE.SphereGeometry(.009, 8, 6),
-  ring: new THREE.RingGeometry(.36,.4,64),
+  ring: new THREE.RingGeometry(.36,.4,64), selRing: new THREE.RingGeometry(.385,.4,72),
   badge: new THREE.CircleGeometry(.03, 20),
   tablet: new RoundedBoxGeometry(.26,.012,.18,2,.006),
   cup: new THREE.CylinderGeometry(.035,.03,.065,16)
@@ -1144,7 +1174,7 @@ function makeRobot(a){
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({map:blobTex, transparent:true, opacity:.55, depthWrite:false})); shadow.rotation.x = -Math.PI/2; shadow.position.y = .008; root.add(shadow);
   const ringMat = new THREE.MeshBasicMaterial({color:0xf5883a, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false, side:THREE.DoubleSide});
   const ring = new THREE.Mesh(G.ring, ringMat); ring.rotation.x = -Math.PI/2; ring.position.y = .01; ring.visible = false; root.add(ring);
-  const ring2 = new THREE.Mesh(G.ring, ringMat.clone()); ring2.rotation.x = -Math.PI/2; ring2.position.y = .011; ring2.visible = false; root.add(ring2);
+  const ring2 = new THREE.Mesh(G.selRing, ringMat.clone()); ring2.rotation.x = -Math.PI/2; ring2.position.y = .011; ring2.visible = false; root.add(ring2);
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xf5883a, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false})); glow.scale.set(1,.6,1); glow.position.y = .25; hov.add(glow);
   const pilot = new THREE.Mesh(G.pilot, new THREE.MeshBasicMaterial({color:0xc9a45c, transparent:true, opacity:0, toneMapped:false})); pilot.position.set(0, .25, .226); pilot.visible = false; hov.add(pilot);
   stripMat.color.copy(TH.idle); haloMat.color.copy(TH.idle);
@@ -1422,7 +1452,7 @@ function stepHands(a, sim, R, pose, t, rm, L0, R0){
 }
 const lerp = (a,b,t) => a + (b-a)*t;
 const DIM = new THREE.Color(0x8a6f4a), EYE = new THREE.Color(0xfff2e0), EYE_DIM = new THREE.Color(0x3a3f55), EYE_RED = new THREE.Color(0xffc7bd), GOLD = new THREE.Color(0xead1a0), SLEEPC = new THREE.Color(0x8e95ab), CHAMP = new THREE.Color(0xf1c48a), BRASSC = new THREE.Color(0xc9a45c);
-const cTmp = new THREE.Color();
+const cTmp = new THREE.Color(), QDIM = new THREE.Color(0x1a1816);
 const HAND_PROP_POSES = new Set(['glide','settle','lounge','wait','meet','ride','idle']);
 /* thought icons over working robots, from the words in agent.doing: hail cloud, bug, paintbrush, wrench, book */
 const thoughtTex = tex(320, 64, (g, w, h) => { g.clearRect(0,0,w,h); g.strokeStyle = '#f1f2f4'; g.fillStyle = '#f1f2f4'; g.lineWidth = 3.2; g.lineCap = g.lineJoin = 'round';
@@ -1564,21 +1594,25 @@ function animRobot(a, sim, R, t, dt){
   setEyes(R.E, eyeShape, V2d.set(look.x, look.y), habit && habit.open != null ? habit.open : blink, pose === 'sleep' ? EYE_DIM : S === 'blocked' ? EYE_RED : EYE, dt, rm);
   // the light strip (ART 6.6): working champagne + chase dot, idle champagne toward ceramic, waiting ember on the shared
   // 5 s breath, stuck oxide steady, asleep off with a brass pilot dot. Colors come from HUB.theme; never multiplyScalar.
-  const st = a.st, brand = TH.mode === "brand", br = breathK();
+  // v28 (blueprint 3.1): 7 states; color only for needs (ember, the one breath), stuck (oxide, steady), done (verdigris, 6 s);
+  // working champagne, queued stone dimmed, idle stone, silent grey, asleep off with the pilot dot
+  const st = a.st, brand = TH.mode === "brand", br = breathK(), stc = statusOf(a, sim); R.stc = stc;
   let col = TH.idle, hop = .1, gop = .06;
-  if (pose === 'sleep'){ col = TH.sleep; hop = 0; gop = 0; }
-  else if (st === 'waiting'){ col = TH.need; hop = rm ? .6 : .3 + .6*br; gop = rm ? .45 : .2 + .5*br; }
-  else if (st === 'blocked'){ col = TH.stuck; hop = .24; gop = .14; }
-  else if (st === 'working' || pose === 'cheer' || pose === 'ride'){ col = TH.work; hop = .3; gop = .16; }
-  if (a.silent && st !== 'waiting'){ col = TH.silent; hop = .04; gop = 0; }
+  if (stc === 'asleep'){ col = TH.sleep; hop = 0; gop = 0; }
+  else if (stc === 'needs'){ col = TH.need; hop = rm ? .6 : .3 + .6*br; gop = rm ? .45 : .2 + .5*br; }
+  else if (stc === 'stuck'){ col = TH.stuck; hop = .24; gop = .14; }
+  else if (stc === 'silent'){ col = TH.silent; hop = .04; gop = 0; }
+  else if (stc === 'done'){ col = TH.done; hop = .3; gop = .18; }
+  else if (stc === 'working' || pose === 'ride'){ col = TH.work; hop = .3; gop = .16; }
+  else if (stc === 'queued'){ col = cTmp.copy(TH.queue).lerp(QDIM, .45); hop = .05; gop = .03; }
   if (brand && pose !== 'sleep') col = TH.need;
   const ck = rm ? 1 : Math.min(1, dt*8);
   R.stripMat.color.lerp(col, ck); R.haloMat.color.lerp(col, ck); R.glow.material.color.lerp(col, ck);
-  R.haloMat.opacity = lerp(R.haloMat.opacity, hop, st === 'waiting' ? 1 : Math.min(1, dt*6));
-  R.glow.material.opacity = lerp(R.glow.material.opacity, gop, st === 'waiting' ? 1 : Math.min(1, dt*5));
+  R.haloMat.opacity = lerp(R.haloMat.opacity, hop, stc === 'needs' ? 1 : Math.min(1, dt*6));
+  R.glow.material.opacity = lerp(R.glow.material.opacity, gop, stc === 'needs' ? 1 : Math.min(1, dt*5));
   R.glow.visible = R.glow.material.opacity > .005; R.halo.visible = R.haloMat.opacity > .005;   // v28: a faded-out additive layer costs a draw + overdraw, so skip it
 
-  const chasing = st === 'working' && (WORK_POSES.has(pose) || pose === 'glide' || pose === 'ride') && !rm && !a.silent;
+  const chasing = stc === 'working' && (WORK_POSES.has(pose) || pose === 'glide' || pose === 'ride') && !rm;
   R.chase.visible = chasing; if (chasing){ const ang = t*(pose === 'ride' ? 9 : 3.2*(R.zone || 1)) + ph; R.chase.position.set(Math.cos(ang)*.218, .25, Math.sin(ang)*.218); }
   const asleep = pose === 'sleep'; R.pilot.visible = asleep;
   if (asleep) R.pilot.material.opacity = rm ? .8 : .45 + .5*(.5 - .5*Math.cos(2*Math.PI*t/6 + ph));
@@ -1632,11 +1666,11 @@ function animRobot(a, sim, R, t, dt){
   if (pose === 'wait'){ rc = TH.need; const k = rm ? .5 : (t*.2) % 1; rs = 1 + k*.9; rop = (1-k)*.7; }
   else if (pose === 'blocked'){ rc = TH.stuck; rop = .35; }
   else if (pose === 'cheer'){ rc = GOLD; const k = Math.min(1, pt/1.2); rs = 1 + k*1.6; rop = (1-k)*.9; }
-  else if (HUB.selected === a.id && !riding){ rc = EYE; rop = .35; }
   if (rc) R.ring.material.color.copy(rc); R.ring.material.opacity = lerp(R.ring.material.opacity, riding ? 0 : rop, Math.min(1, dt*10)); R.ring.scale.setScalar(rs);
-  const sel = HUB.selected === a.id && pose !== 'wait' && pose !== 'blocked' && !riding;
-  R.ring2.material.color.copy(pose === 'wait' ? TH.need : EYE); R.ring2.material.opacity = lerp(R.ring2.material.opacity, sel ? .5 : (pose === 'wait' ? .55 : 0), Math.min(1, dt*8));
-  R.ring2.scale.setScalar(pose === 'wait' ? 1.05 : 1.15);
+  // v28: the selection ring is a thin brass ring under the selected robot (a grown-up plumbob), over any state ring
+  const sel = HUB.selected === a.id && !riding;
+  R.ring2.material.color.copy(sel ? TH.jewel : TH.need); R.ring2.material.opacity = lerp(R.ring2.material.opacity, sel ? .85 : (pose === 'wait' ? .55 : 0), Math.min(1, dt*8));
+  R.ring2.scale.setScalar(sel ? 1.18 : 1.05);
   R.ring.visible = R.ring.material.opacity > .01; R.ring2.visible = R.ring2.material.opacity > .01;
   // overlay anchor: top of the head + the floor under the robot
   V.set(sim.x, sim.y + up + hh + 1.2 + R.hat, sim.z).project(rcam); const ax = (V.x+1)/2*W, ay = (1-V.y)/2*H, behind = V.z > 1;
@@ -1651,8 +1685,69 @@ function animRobot(a, sim, R, t, dt){
   const ti = a.st === 'working' && !sim.moving && S === 'work' ? thoughtOf(a) : -1;
   if (ti >= 0){ R.thought.material.map.offset.x = ti/5; R.thought.visible = true; R.thought.position.set(.34, hh*1.24 + 1.42 + R.hat + (rm ? 0 : Math.sin(t*1.6 + ph)*.03), 0); R.thought.material.opacity = lerp(R.thought.material.opacity, .85, Math.min(1, dt*3)); }
   else { R.thought.material.opacity = lerp(R.thought.material.opacity, 0, Math.min(1, dt*5)); R.thought.visible = R.thought.material.opacity > .02; }
-  const db = deskBars[a.id]; if (db){ db.im.setColorAt(db.k, a.silent ? TH.silent : pose === 'sleep' ? TH.sleep : a.st === 'waiting' ? TH.need : a.st === 'blocked' ? TH.stuck : a.st === 'working' ? TH.work : cTmp.copy(TH.idle).multiplyScalar(.55)); db.im.instanceColor.needsUpdate = true; }
+  deskStatus(a, stc, dt, rm);
   R.after.visible = !!HUB.afterHours && a.st === 'working' && !sim.moving && !!DESK[a.id] && sim.spot === DESK[a.id] && !DESK[a.id].seat && a.id !== 'storm-watch' && a.id !== 'chat-reader' && a.id !== 'code' && a.id !== 'king';
+}
+
+/* v28 desk status (M2 #8): the hairline bar in the status color (stuck: hatched, cocked, taller; done: a 900 ms verdigris fill), and
+ * the andon's two tiers. Buffers are touched only when something changes. */
+const ZAX = new THREE.Vector3(0, 0, 1), cBar = new THREE.Color();
+function deskStatus(a, stc, dt, rm){
+  const db = deskBars[a.id];
+  if (db){
+    if (db.cls !== stc){ db.fillT = stc === 'done' && db.cls && !rm ? 0 : null; db.cls = stc; db.dirty = true; }
+    if (db.fillT != null){ db.fillT += dt; db.dirty = true; if (db.fillT >= .9) db.fillT = null; }
+    const c = stc === 'silent' ? TH.silent : stc === 'asleep' ? TH.sleep : stc === 'needs' ? TH.need : stc === 'stuck' ? TH.stuck : stc === 'done' ? TH.done :
+      stc === 'working' ? TH.work : cBar.copy(stc === 'queued' ? TH.queue : TH.idle).multiplyScalar(stc === 'queued' ? .5 : .55);
+    const hex = c.getHex(); if (hex !== db.hex){ db.hex = hex; db.im.setColorAt(db.k, c); db.im.instanceColor.needsUpdate = true; }
+    if (db.dirty){ db.dirty = false; const stuck = stc === 'stuck', fill = db.fillT != null ? ease(db.fillT/.9) : 1;
+      QT.setFromAxisAngle(ZAX, stuck ? -.1 : 0); M4.compose(VP.set(db.x - db.w*(1 - fill)/2, db.y + (stuck ? .006 : 0), db.z), QT, VS.set(Math.max(.001, db.w*fill), stuck ? 3 : 1, 1));
+      db.im.setMatrixAt(db.k, M4); db.im.instanceMatrix.needsUpdate = true;
+      const ha = db.im.geometry.attributes.aHatch; ha.setX(db.k, stuck ? 1 : 0); ha.needsUpdate = true; }
+  }
+  const an = andons[a.id];
+  if (an){ const need = stc === 'needs', stuck = stc === 'stuck', fl = andons[DESKS[a.id].f];
+    if (an.need !== need || an.stuck !== stuck || fl.dirty){ an.need = need; an.stuck = stuck;
+      an.im.setColorAt(an.k, need ? TH.need : ANDON_OFF); an.im.setColorAt(an.k + 1, stuck ? TH.stuck : ANDON_OFF); an.im.instanceColor.needsUpdate = true; } }
+}
+/* the status mark over the head, only when it matters (blueprint 6, Two Point): ◆ needs you (on the shared breath), ■ stuck
+ * (steady), ✓ done (fades by 6 s). Working and idle show nothing. One InstancedMesh for the whole crew, billboarded. */
+const markTex = tex(384, 128, (g, w, h) => {
+  g.clearRect(0, 0, w, h);
+  for (let i = 0; i < 3; i++){ const cx = i*128 + 64, cy = 64;
+    const gr = g.createRadialGradient(cx, cy, 8, cx, cy, 62); gr.addColorStop(0, 'rgba(0,0,0,.62)'); gr.addColorStop(.62, 'rgba(0,0,0,.4)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(i*128, 0, 128, 128); g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineCap = g.lineJoin = 'round';
+    if (i === 0){ g.beginPath(); g.moveTo(cx, cy - 34); g.lineTo(cx + 30, cy); g.lineTo(cx, cy + 34); g.lineTo(cx - 30, cy); g.closePath(); g.fill(); }                 // ◆
+    else if (i === 1){ g.beginPath(); g.moveTo(cx - 26, cy - 26); g.lineTo(cx + 12, cy - 26); g.lineTo(cx + 26, cy - 12); g.lineTo(cx + 26, cy + 26); g.lineTo(cx - 26, cy + 26); g.closePath(); g.fill(); }   // ■ with a notch
+    else { g.lineWidth = 15; g.beginPath(); g.moveTo(cx - 28, cy + 2); g.lineTo(cx - 8, cy + 24); g.lineTo(cx + 30, cy - 24); g.stroke(); } }                         // ✓
+});
+const MARKS = (() => {
+  const geo = new THREE.PlaneGeometry(1, 1), n = 16;
+  geo.setAttribute('aTile', new THREE.InstancedBufferAttribute(new Float32Array(n), 1)); geo.setAttribute('aAlpha', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
+  const mat = new THREE.ShaderMaterial({uniforms:{map:{value:markTex}}, transparent:true, depthWrite:false, toneMapped:false,
+    vertexShader:'attribute float aTile; attribute float aAlpha; varying vec2 vUv; varying float vA; varying vec3 vC;\nvoid main(){ vUv = vec2((uv.x + aTile)/3.0, uv.y); vA = aAlpha; vC = instanceColor; gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0); }',
+    fragmentShader:'uniform sampler2D map; varying vec2 vUv; varying float vA; varying vec3 vC;\nvoid main(){ vec4 t = texture2D(map, vUv); float a = t.a * vA; if (a < .01) discard; gl_FragColor = vec4(vC * t.r, a);\n#include <colorspace_fragment>\n}'});
+  const im = new THREE.InstancedMesh(geo, mat, n); im.count = 0; im.frustumCulled = false; im.renderOrder = 9; im.setColorAt(0, new THREE.Color()); scene.add(im);
+  return {im, n};
+})();
+const MK_TILE = {needs:0, stuck:1, done:2}, MKP = new THREE.Vector3();
+function stepMarks(agents){
+  const im = MARKS.im, tile = im.geometry.attributes.aTile, alpha = im.geometry.attributes.aAlpha, br = breathK(), now = performance.now();
+  const ppm = rcam === cam ? H/Math.max(1e-3, cam.top - cam.bottom) : 0;             // stage px per meter (ortho)
+  let n = 0;
+  for (const a of agents){
+    const sim = sims[a.id], R = robots[a.id], an = anchors[a.id]; if (!sim || !R || sim.hidden || !an || !an.visible || !R.root.visible) continue;
+    const stc = R.stc, k = MK_TILE[stc]; if (k === undefined || n >= MARKS.n) continue;
+    if (rcam === pcam && view.sub === 'eyes' && view.subId === a.id) continue;
+    const age = stc === 'done' && sim.doneAt != null ? now - sim.doneAt : 0, al = stc === 'needs' ? (RM.matches ? 1 : .55 + .45*br) : stc === 'done' ? Math.max(0, Math.min(1, (DONE_MS - age)/900)) : 1;
+    if (al <= .01) continue;
+    const s = ppm ? Math.max(.1, Math.min(.34, 22/ppm)) : .2;
+    MKP.set(0, R.hov.position.y + (1.2 + R.hat)*1.0 + s*.7, 0); R.root.localToWorld(MKP);
+    M4.compose(MKP, rcam.quaternion, VS.set(s, s, s)); im.setMatrixAt(n, M4);
+    im.setColorAt(n, stc === 'needs' ? TH.need : stc === 'stuck' ? TH.stuck : TH.done); tile.setX(n, k); alpha.setX(n, al); n++;
+  }
+  im.count = n; im.visible = n > 0;
+  if (n){ im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; tile.needsUpdate = true; alpha.needsUpdate = true; }
 }
 
 /* sky -> lights. Four keyed states by sun altitude (ART section 3): night, blue hour, golden, day; lerped in between.
@@ -1827,7 +1922,7 @@ function frame(t, dt){
   if (!dragStart && view.lastDrag && now - view.lastDrag > 5000) view.drag *= Math.pow(.2, dt);
   view.azLive = AZ0 + drift + view.drag;
   updateCamera(dt, false);
-  if (readTheme()) redraw(boardT);
+  if (readTheme()){ redraw(boardT); redraw(qaT); }
   // The Call (ART 8.4): the pool rises over the first in line (HUB.needs.ids[0], else the first waiting robot) in 1.2 s
   const nIds = HUB.needs && Array.isArray(HUB.needs.ids) ? HUB.needs.ids : null;
   let first = nIds ? nIds.find(id => sims[id] && !sims[id].hidden && HUB.byId && HUB.byId[id]) : null;
@@ -1854,6 +1949,7 @@ function frame(t, dt){
   seen.lang = lang;
   const rm = RM.matches;
   for (const a of agents){ const sim = sims[a.id]; if (!sim.hidden) animRobot(a, sim, robots[a.id], t, dt); }
+  stepMarks(agents); andons.up.dirty = andons.down.dirty = false;
   stepAwareness(agents, dt);
   // station screens wake when their robot works there
   for (const [id, sc] of Object.entries(screens)){
@@ -1882,7 +1978,7 @@ function frame(t, dt){
   spot.fill.material.opacity = lerp(spot.fill.material.opacity, waiting ? .04 + .04*bk_ : 0, Math.min(1, dt*4)); spot.fill.visible = spot.fill.material.opacity > .003;
   // charging pods: blue breathing glow when a robot sleeps in one
   podGlow.forEach((pg, i) => { const occ = Object.values(sims).some(s => !s.hidden && s.spot === POOL.pod[i] && s.pose === 'sleep');
-    pg.glow.material.color.copy(occ ? SLEEPC : BRASSC); pg.glow.material.opacity = lerp(pg.glow.material.opacity, occ ? .45 + (rm ? 0 : Math.sin(t*.9 + i)*.2) : .12 + lamps*.06, Math.min(1, dt*3));
+    pg.glow.material.color.copy(occ ? SLEEPC : BRASSC); pg.glow.material.opacity = lerp(pg.glow.material.opacity, occ ? .45 : .12 + lamps*.06, Math.min(1, dt*3));
     pg.strip.material.color.copy(occ ? SLEEPC : DIM); });
   // the slide: light streak chasing each rider; the tube: the suction ring
   let sl = null, tb = null; for (const s of Object.values(sims)){ if (s.ride && s.ride.kind === 'slide') sl = s; if (s.ride && s.ride.kind === 'tube') tb = s; }
