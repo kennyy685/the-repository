@@ -61,3 +61,7 @@ Run these on every review, in addition to `hh.py selftest`:
 
 All three are standalone scripts (no repo-wide `npm install` needed) - if any of their runtime
 (playwright/chromium) is missing in a given environment, say so rather than skip the review.
+
+
+Heavy-chat rule (FilthE, 2026-09-28): if your context passes ~200k tokens, stop growing: commit your work, write a short
+handoff (done / running / next) in your report, and end so a fresh helper can pick it up.

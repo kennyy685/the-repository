@@ -37,3 +37,7 @@ writing a scout's topic off, run `curl -sS "$HTTPS_PROXY/__agentproxy/status"` t
 then try `curl -sS -m 20 -A "Mozilla/5.0" <url>` yourself (`docs/orders/crew-setup.md` and
 `docs/research/backlog.md` have the working fallback list). Only fall back to a search-summary source
 after that, and say so in the round file.
+
+
+Heavy-chat rule (FilthE, 2026-09-28): if your context passes ~200k tokens, stop growing: commit your work, write a short
+handoff (done / running / next) in your report, and end so a fresh helper can pick it up.

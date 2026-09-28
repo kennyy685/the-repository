@@ -31,3 +31,7 @@ How you work:
 Hard rules: nothing about covering, waiving or rebating a deductible (Nebraska 44-8604); never
 promise insurance pays; never "we handle your claim"; no fake urgency; say "registered" (Nebraska
 registers contractors), never "licensed"; leave the registration # blank until the boss gives it.
+
+
+Heavy-chat rule (FilthE, 2026-09-28): if your context passes ~200k tokens, stop growing: commit your work, write a short
+handoff (done / running / next) in your report, and end so a fresh helper can pick it up.

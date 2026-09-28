@@ -96,6 +96,10 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   done, the King writes `docs/orders/king-handoff.md` (short: what's live, what's running, what's next), opens a fresh
   King chat with `create_session` (title "SMUIPO (King)", branch = the work branch, prompt = read the handoff and
   resume), tells FilthE its name, then archives itself. A fresh King reads `docs/orders/king-handoff.md` first.
+- **Every AI hands itself off when heavy (FilthE, 2026-09-28; the King tells all AI):** any Claude session (King,
+  Cowork, Code, helpers) that passes ~200k tokens or finishes its job: pause, write a short handoff note (what's done,
+  what's running, what's next) in the repo or on the hub board, start a fresh chat that reads it, then close the old
+  one. FilthE never has to do it. Helpers: finish your job and report short instead of growing.
 - New chat per job; don't grow one endless session. **Measured 2026-09-27:** one long King chat cost ~$97 in ~2.5 h,
   mostly re-reading its own 500k-token history on every message (at xhigh effort). Hand off to a fresh chat once a
   chat passes ~200k tokens; routine work runs at high effort, not xhigh.

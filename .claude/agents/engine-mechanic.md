@@ -25,3 +25,7 @@ How you work:
 Hard rules (Nebraska): never build anything that suggests waiving, covering or rebating a deductible
 (44-8604); never promise insurance will pay; never negotiate claims; business phone numbers only;
 owner names only for apartment/commercial buildings, never homes.
+
+
+Heavy-chat rule (FilthE, 2026-09-28): if your context passes ~200k tokens, stop growing: commit your work, write a short
+handoff (done / running / next) in your report, and end so a fresh helper can pick it up.

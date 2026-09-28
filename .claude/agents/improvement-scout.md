@@ -20,3 +20,7 @@ what exists. You only research: never edit files, never contact anyone, never si
 If a site is blocked (WebFetch fails or a proxy error comes back), you have no Bash tool to retry it
 yourself - name the exact host in your report instead of dropping the topic. The Research Lead can
 retry it with curl (`docs/orders/crew-setup.md` has the fallback) when merging your report.
+
+
+Heavy-chat rule (FilthE, 2026-09-28): if your context passes ~200k tokens, stop growing: commit your work, write a short
+handoff (done / running / next) in your report, and end so a fresh helper can pick it up.
