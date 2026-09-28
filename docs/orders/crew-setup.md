@@ -40,6 +40,8 @@ Many AIs touch the same repo and databases. What went wrong once, and the rule t
 - **Publishing:** a helper that gets a refused publish stops and reports the exact message; only the King decides to
   resend (auto mode flagged a helper resending on the service's say-so, 2026-09-27; no harm, the live page was verified).
 - **Legal check on every stop:** a Stop hook runs `tests/legal_check.py`; a turn can't end with a legal failure.
+  Helpers too (round 3): builder/designer/engine-mechanic run `.claude/hooks/subagent-legal-check.sh` at their own stop
+  (blocks once, then the helper must name the failure). Each robot's "Done means" list is its finish line.
 - **Hub check-ins by hook (T21, 2026-09-27):** `.claude/hooks/hub-log.py` runs on PostToolUse (Agent), SubagentStart
   and SubagentStop and appends one line per helper launch/start/finish to `.claude/state/hub-queue.jsonl` (gitignored).
   Hooks can't call the hub's database tool, and the hub refuses unpinned writes to existing docs, so
