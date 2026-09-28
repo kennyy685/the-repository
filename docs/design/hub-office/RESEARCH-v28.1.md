@@ -302,26 +302,30 @@ item 1, BUILD-v28.md's M0 budget line).
    into: v28.1, alongside RESEARCH-v28 item 7/11. [opened]
    `gamedeveloper.com/game-platforms/how-townscaper-works-a-story-four-games-in-the-making`.
 
-6. **A single locked camera angle, with one or two verified "anchor" points, is how impossible-looking connections
-   read as seamless.** Monument Valley's navigation system deliberately keeps manual markup to a minimum and instead
-   verifies, in screen-space, that a handful of specific points line up from the game's fixed camera — the illusion
-   only has to hold from that one angle. Why it helps: the hub already has a fixed isometric camera family (Whole /
-   Follow / Eyes) — pick 1-2 specific points (the tube base against the lower floor, the Observatory's cantilever
-   edge against the upper floor) and explicitly verify, per camera preset, that they align pixel-perfect; this is a
-   QA checklist item, not new art. Effort: **S** (QA only). Plugs into: v28.1, camera QA before ship (the "every
-   milestone" shot checklist in BUILD-v28.md). [search, unverified] GameDeveloper.com "Making the impossible
-   possible in Monument Valley"; not opened directly this round.
+6. **A single locked camera angle, with verified "anchor" points, is how impossible-looking connections read as
+   seamless.** Confirmed in substance (paraphrase, not a literal quote). GameDeveloper.com's making-of piece quotes
+   lead engineer Pashley: the automatic connection system works by "ordering those nodes in depth order from the
+   game camera," and decisions about what connects to what are made "only... when the geometry was in one of the
+   snap positions" — i.e. camera-relative, minimal manual markup, verified at specific configurations rather than
+   continuously. That's the same idea as "a handful of points verified from a fixed camera," in the article's own
+   engineering language rather than the exact screen-space-anchor phrasing used here. Why it helps: the hub already
+   has a fixed isometric camera family (Whole / Follow / Eyes) — pick 1-2 specific points (the tube base against the
+   lower floor, the Observatory's cantilever edge against the upper floor) and explicitly verify, per camera preset,
+   that they align pixel-perfect; this is a QA checklist item, not new art. Effort: **S** (QA only). Plugs into:
+   v28.1, camera QA before ship. [opened]
+   `gamedeveloper.com/design/making-the-impossible-possible-in-i-monument-valley-i-`.
 
 7. **A soft, static contact shadow under the upper floor is cheaper and more convincing than more real lighting.**
-   Standard isometric game-art practice: pick one light direction and bake a **single consistent soft shadow**
-   wherever one shape overhangs another, rather than adding a real-time light to sell depth. Why it helps: the
-   Observatory's cantilever and any part of the upper floor that overhangs the lower one should get a static,
-   baked-in darkening decal on the lower floor's ceiling/props directly underneath — exactly the kind of "shadow as
-   an animated texture" trick RESEARCH-v28.md (item 7) already commits to, just applied specifically to the
-   floor-to-floor overlap instead of furniture. Effort: **S** (one more baked decal, no new light/shadow caster —
-   stays inside the "no new real-time lights" budget). Plugs into: v28.1, SCENE "one building" / Observatory
-   under-glow (already planned to be additive-sprite based, so this is the same technique one layer lower). [search,
-   unverified] general isometric-art shadow tutorials (Screaming Brain Studios); not opened directly this round.
+   Confirmed. Screaming Brain Studios' own isometric-shadows tutorial states the rationale directly: "you can save
+   on memory by using pre-baked shadows and 2D tiles rather than utilizing real-time shadows... it's always handy to
+   know a few methods for simulating shadows" where an engine can't (or shouldn't) produce them live. Its actual
+   techniques are single-direction baked shadow tiles built once in an image editor, matching "pick one light
+   direction and bake a single consistent shadow." Why it helps: the Observatory's cantilever and any part of the
+   upper floor that overhangs the lower one should get a static, baked-in darkening decal on the lower floor's
+   ceiling/props directly underneath — exactly the kind of "shadow as an animated texture" trick RESEARCH-v28.md
+   (item 7) already commits to, just applied specifically to the floor-to-floor overlap instead of furniture.
+   Effort: **S** (one more baked decal, no new light/shadow caster). Plugs into: v28.1, SCENE "one building" /
+   Observatory under-glow. [opened] `screamingbrainstudios.com/isometric-shadows/`.
 
 8. **Terraces/setbacks — already in the BUILD-v28.md wording — are what McLaren's own "fingers and streets" motif
    (already cited in the blueprint) does at building scale: it breaks a single flat facade into stepped volumes
