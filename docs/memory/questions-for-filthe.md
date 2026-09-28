@@ -32,6 +32,15 @@ and in `full-context.md` if it changes the plan, then drop it from "Open".
   anything though." Smart and has sold before, but no roofing/claims/door-to-door experience yet: teach from zero
   (outside the app), skip basic theory he already gets.
 
+- Trust (2026-09-28, new King asked "what makes you trust a zone?"): "proof that the system works, and that the ai
+  can give me enough context of the information it uses gaining my trust that it knows what it doing." Why a house is
+  a lead to him: "the app telling me they have insurance, I see visible damage in person, and other facts." So: every
+  pick shows its work (each signal + source + date, tap to see it), and the Knock screen has a "damage I see" check
+  that raises or drops the lead. Legal: the app never says "has insurance"; it shows the proof signals (owner lives
+  there, has a mortgage = lender requires insurance, recent sale) as "likely insured". Proof the system works =
+  track record later (picks vs. what happened).
+- Old hub session (2026-09-28): "yes": save Practice Door v12 work, then close it.
+
 **FilthE, 2026-09-27:** "I honestly can't answer really any of those questions, I'm really just a kid behind a computer
 screen making an idea come to reality." So: don't ask him HMP operations questions (crews, pay, budget, materials,
 the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
