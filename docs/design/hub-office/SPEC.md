@@ -160,3 +160,6 @@ camera system. 2) both builders in parallel. 3) QA + fix loops (gate, shots, fas
 4) adversarial review (taste, function, perf + rules). 5) publish per the go-live rule.
 Idea Vault round (IDEA-VAULT.md) was stopped mid-run on pause; re-run it before or during the build if wanted.
 CONVENIENCES.md is in (12 picks + 10 small answer/wake bug fixes to ship first).
+
+## v27 live (2026-09-28)
+Published as hub Version 25 ("Nocturne"). Open items: real MacBook Air frame rate unmeasured (~450 draw calls in Whole view), pod shells too white in daylight, days-since-hail counter small, face-cam in #pip unconfirmed (blank in headless), no notifications capability yet (tab title + chime only), run watchdog uses fixed slots.
