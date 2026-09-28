@@ -1260,7 +1260,7 @@ if (!PHONE) LAMPS.push({l:new THREE.PointLight(LAMPC, 6, 5, 2), p:UPW(-4.25, 1.4
 // bloom without a composer: an additive sprite halo on every lamp fixture (ART 6.4)
 const halos = [];
 for (const L of LAMPS){ L.l.position.set(...L.p); scene.add(L.l);
-  for (const h of L.halo){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffd9ae, transparent:true, opacity:.35, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
+  for (const h of L.halo){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:L.up ? 0xffecdc : 0xffd9ae, transparent:true, opacity:.35, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
     sp.scale.setScalar(L.k > 9 ? .7 : .5); if (h[3]) sp.scale.x = h[3]; sp.renderOrder = 8;
     if (h[1] > 2.95){ sp.position.set(h[0] - FL.up.ox, h[1] - FL.up.oy, h[2] - FL.up.oz); gUp.add(sp); } else { sp.position.set(...h); scene.add(sp); } halos.push(sp); } }
 // the call pool (signature 1): one SpotLight made now at 0, so it never recompiles shaders
@@ -1761,7 +1761,7 @@ const PAL = [
   {alt:1.5, key:0xffb46b, ki:1.5, el:20, hs:0x4a5680, hg:0x3a2a1f, hi:.6, ri:.25, lx:1,   env:.5, exp:1.0},
   {alt:16,  key:0xfff0da, ki:1.6, el:50, hs:0xb8c4d6, hg:0x4d3d2e, hi:.75, ri:.12, lx:.3,  env:.6, exp:1.0}
 ].map(k => Object.assign(k, {kc:new THREE.Color(k.key), hsc:new THREE.Color(k.hs), hgc:new THREE.Color(k.hg)}));
-const MOOD_W = new THREE.Color(0xffe0b8), MOOD_C = new THREE.Color(0x9fb4ff), STORMB = new THREE.Color(0x9fb2d8), AFTER = new THREE.Color(0xffb877), LAMPCC = new THREE.Color(LAMPC);
+const LAMPUPC = new THREE.Color(0xffdcbc), MOOD_W = new THREE.Color(0xffe0b8), MOOD_C = new THREE.Color(0x9fb4ff), STORMB = new THREE.Color(0x9fb2d8), AFTER = new THREE.Color(0xffb877), LAMPCC = new THREE.Color(LAMPC);
 const shadowSun = {el:null, lift:null, vis:null, dirty:true, n:0}, light = {lamps:1, dim:1};
 function lightFromSky(dt){
   const s = HUB.sky && HUB.sky.state, alt = s ? s.alt : -9, storm = s ? s.storm || 0 : 0, flash = s ? s.flash || 0 : 0;
@@ -1784,9 +1784,10 @@ function lightFromSky(dt){
   light.lamps = (L('lx') + storm*.3)*(after ? 1.2 : 1);
   // the call pool: lamps ease to .88x while someone waits (1.2 s), the SpotLight rises to 18 above the first in line
   light.dim = 1 - .12*call.k;
-  for (const Lp of LAMPS){ Lp.l.intensity = Lp.k*light.lamps*light.dim; Lp.l.color.copy(LAMPCC).lerp(AFTER, after ? 1 : 0); }
+  // v28 (blueprint 3.4): the upstairs task lights are 4000K and quieter (0.85x), downstairs keeps its warm 3000K pools; after hours all go warm
+  for (const Lp of LAMPS){ Lp.l.intensity = Lp.k*light.lamps*light.dim*(Lp.up ? .85 : 1); Lp.l.color.copy(Lp.up ? LAMPUPC : LAMPCC).lerp(AFTER, after ? 1 : 0); }
   const hk = Math.min(1, light.lamps)*light.dim; for (const h of halos) h.material.opacity = .35*hk; for (const r of lampRefl) r.material.opacity = .18*hk;
-  MAT.opal.emissiveIntensity = .5 + 1.3*Math.min(1.2, light.lamps);
+  MAT.opal.emissiveIntensity = MAT.opalCool.emissiveIntensity = .5 + 1.3*Math.min(1.2, light.lamps);
   scene.environmentIntensity = L('env')*(1 - storm*.2);
   renderer.toneMappingExposure = L('exp');
   return light.lamps;
