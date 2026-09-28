@@ -31,6 +31,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   what i think, why i think." Mix quick picks with open "what do you see / why" questions (offer our guess to react
   to). Save his answers in `docs/memory/questions-for-filthe.md`. The bar: "to be the best we have to be the best
   when it comes to information, leads, and efficiency", "about 10x better", no ceiling.
+  **Fewer, bigger questions (2026-09-28):** "focus on work, unless you have ground breaking next level". Decide small
+  stuff yourself; ask only next-level questions, and not every reply needs one.
   **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
   ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
   paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
