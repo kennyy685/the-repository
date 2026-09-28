@@ -38,6 +38,8 @@ finds, film HUD designers), what to steal for MacBook layout A, with screenshots
 (build day in cancel window, Job done before 44-8606 copies). LEFT: 390px Leads Due row not clickable + possible
 duplicate rows (1418 N Irving, 1802 N Clarkson); drop FD_DEBUG line; wire fullday_check into release_checks; 24h
 pieces not started. Then QA, then publish (the 2 legal locks matter for the live app));
+**PAUSED by FilthE: Designer future layer** (work screens done as WIP fe86825+; left: intro.html cinematic
+landing, future-compare.png, 24h safety note) - resume only when he says;
 **Designer: apply the references** to layout A (ambient generative WebGL background, glass, luxury type,
 micro-motion) + a cinematic Aldaba intro/landing (WebGL + scroll), per docs/design/references/README.md;
 **Research Lead: Aldaba for businesses** (FilthE said yes: which trades pay first, competitor prices
