@@ -5,6 +5,9 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- Satisfied when (2026-09-28): "when it starts making me money, duh. I won't be satisfied until I know I have a system
+  with promising info, leads, guidance and efficiency." Also: no phone app for now; robots each open their own session
+  and close it when done; stop the second hub session (one King only); start the 7 AM screen.
 - 7 AM screen + area order (2026-09-28, "all questions look good"): Aldaba's pick = top 3 with #1 lit up (he still
   chooses); today's plan = where to knock + best time window, then follow-ups due, then inspections/adjuster
   meetings; an opened area shows one proof line first, best streets right under it. Also yes: drive time + knock

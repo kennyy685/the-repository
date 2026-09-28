@@ -106,6 +106,12 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   FilthE sees who's doing what. Helpers report back in 10 lines or fewer (their work never enters the
   King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
   haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
+- **Every robot job = its own session (FilthE, 2026-09-28):** "every ai robot when given a task to handle should open
+  its own session and close it upon finish." The robots in the hub office (Designer, Builder, Engine Mechanic, QA,
+  Research Lead...) are the King's coworkers, titled by what they do; the King is their boss. Give each job its own
+  Claude session (`create_session`, title "<Robot>: <job>", work branch), it reports on the hub board and archives
+  when done; the King checks it with `get_session` and archives it if it forgot. In-chat Agent helpers only for tiny
+  checks. Still max 2 at a time.
 - **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
   the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
   reminds once if any are unposted. The King still posts its own review of each result.
