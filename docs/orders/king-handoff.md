@@ -4,6 +4,13 @@ Written by SMUIPO, 2026-09-28 ~23:50 UTC, session `session_014eg28DpMQ1EZLj9hVos
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (new today: King's 6 rules, hub dispatch, done = publish +
 tell him, fewer bigger questions, every robot job = own session, max 2), then `docs/memory/questions-for-filthe.md`.
 
+## SNAG (King session_01HnpGXN, 2026-09-28 23:55 UTC)
+This King chat is at lineage depth 8 (the cap): create_trigger and create_session fail. So it could NOT make its own
+wake trigger or start robot sessions. Old wake `trig_01RsYqTCZfeEnStkGS8LYinX` stays enabled and bound to the old King
+`session_014eg28D`, which is kept OPEN (not archived) so Hub Chat still wakes someone. Fix: FilthE taps Fresh King on
+the hub (starts from his account, depth 0); that King does the FIRST steps below, then archives 014eg28D + 01HnpGXN.
+Next King handoffs should come from the hub button, not create_session, or the chain stays at the cap.
+
 ## FIRST, as the new King
 1. Make your own hub wake trigger (create_trigger, no cron, binds to you) with the SAME prompt as
    `trig_01RsYqTCZfeEnStkGS8LYinX` (get_trigger it). Write its id to hub doc `system/king` (`wake_trigger`,
