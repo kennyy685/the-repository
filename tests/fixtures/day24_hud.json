@@ -1,0 +1,1470 @@
+{
+ "mock": true,
+ "source": "MOCK for tests/pages/day24_check.js: the real SPC 2026-06-13 Fremont 1.00\" hail report replayed as an overnight storm on 2026-09-29; practice houses (real streets, made-up numbers, no owners). Never the real database.",
+ "generated_utc": "2026-09-29T11:54:00Z",
+ "lists": [
+  {
+   "id": "2026-09-29_Fremont_1",
+   "day": "2026-09-29",
+   "area": "Fremont: E 18th St & N Clarkson St",
+   "doors": 20,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 20,
+     "avg_hail": 1.25,
+     "value": 900,
+     "heat": 40.0,
+     "why": [
+      "1.25\" hail",
+      "fresh storm (0 days)"
+     ]
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "MOCK-587-e-18th-st",
+     "address": "587 E 18th St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.44622,
+     "lon": -96.490397,
+     "year_built": 1991,
+     "score": 60
+    },
+    {
+     "turf": 1,
+     "stop": 2,
+     "pid": "MOCK-1753-n-clarkson-st",
+     "address": "1753 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.446083,
+     "lon": -96.490396,
+     "year_built": 1948,
+     "score": 59
+    },
+    {
+     "turf": 1,
+     "stop": 3,
+     "pid": "MOCK-562-e-17th-st",
+     "address": "562 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445945,
+     "lon": -96.490396,
+     "year_built": 1977,
+     "score": 58
+    },
+    {
+     "turf": 1,
+     "stop": 4,
+     "pid": "MOCK-1735-n-clarkson-st",
+     "address": "1735 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445824,
+     "lon": -96.490396,
+     "year_built": 1924,
+     "score": 57
+    },
+    {
+     "turf": 1,
+     "stop": 5,
+     "pid": "MOCK-1713-n-clarkson-st",
+     "address": "1713 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445682,
+     "lon": -96.490396,
+     "year_built": 1912,
+     "score": 56
+    },
+    {
+     "turf": 1,
+     "stop": 6,
+     "pid": "MOCK-1681-n-clarkson-st",
+     "address": "1681 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.445311,
+     "lon": -96.490395,
+     "year_built": 1912,
+     "score": 55
+    },
+    {
+     "turf": 1,
+     "stop": 7,
+     "pid": "MOCK-563-e-17th-st",
+     "address": "563 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445107,
+     "lon": -96.490395,
+     "year_built": 1991,
+     "score": 54
+    },
+    {
+     "turf": 1,
+     "stop": 8,
+     "pid": "MOCK-1665-n-clarkson-st",
+     "address": "1665 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.44495,
+     "lon": -96.490395,
+     "year_built": 1961,
+     "score": 53
+    },
+    {
+     "turf": 1,
+     "stop": 9,
+     "pid": "MOCK-1649-n-clarkson-st",
+     "address": "1649 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.444782,
+     "lon": -96.490395,
+     "year_built": 1938,
+     "score": 52
+    },
+    {
+     "turf": 1,
+     "stop": 10,
+     "pid": "MOCK-1664-n-union-st",
+     "address": "1664 N Union St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445079,
+     "lon": -96.490937,
+     "year_built": 1983,
+     "score": 51
+    },
+    {
+     "turf": 1,
+     "stop": 11,
+     "pid": "MOCK-1680-n-union-st",
+     "address": "1680 N Union St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.445215,
+     "lon": -96.490938,
+     "year_built": 1964,
+     "score": 50
+    },
+    {
+     "turf": 1,
+     "stop": 12,
+     "pid": "MOCK-515-e-17th-st",
+     "address": "515 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445352,
+     "lon": -96.490938,
+     "year_built": 1991,
+     "score": 49
+    },
+    {
+     "turf": 1,
+     "stop": 13,
+     "pid": "MOCK-514-e-17th-st",
+     "address": "514 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445807,
+     "lon": -96.490939,
+     "year_built": 1961,
+     "score": 48
+    },
+    {
+     "turf": 1,
+     "stop": 14,
+     "pid": "MOCK-1714-n-union-st",
+     "address": "1714 N Union St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.44567,
+     "lon": -96.490939,
+     "year_built": 1972,
+     "score": 47
+    },
+    {
+     "turf": 1,
+     "stop": 15,
+     "pid": "MOCK-1738-n-union-st",
+     "address": "1738 N Union St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445945,
+     "lon": -96.490939,
+     "year_built": 1952,
+     "score": 46
+    },
+    {
+     "turf": 1,
+     "stop": 16,
+     "pid": "MOCK-1764-n-union-st",
+     "address": "1764 N Union St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.446082,
+     "lon": -96.490939,
+     "year_built": 1977,
+     "score": 45
+    },
+    {
+     "turf": 1,
+     "stop": 17,
+     "pid": "MOCK-1736-n-clarkson-st",
+     "address": "1736 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445809,
+     "lon": -96.489775,
+     "year_built": 1977,
+     "score": 44
+    },
+    {
+     "turf": 1,
+     "stop": 18,
+     "pid": "MOCK-1712-n-clarkson-st",
+     "address": "1712 N Clarkson St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445671,
+     "lon": -96.489775,
+     "year_built": 1948,
+     "score": 43
+    },
+    {
+     "turf": 1,
+     "stop": 19,
+     "pid": "MOCK-615-e-17th-st",
+     "address": "615 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445312,
+     "lon": -96.489652,
+     "year_built": 1924,
+     "score": 42
+    },
+    {
+     "turf": 1,
+     "stop": 20,
+     "pid": "MOCK-639-e-17th-st",
+     "address": "639 E 17th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.445122,
+     "lon": -96.489652,
+     "year_built": 1961,
+     "score": 41
+    }
+   ]
+  },
+  {
+   "id": "2026-09-29_Fremont_2",
+   "day": "2026-09-29",
+   "area": "Fremont: Mayfair Ave & E Linden Ave",
+   "doors": 20,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 20,
+     "avg_hail": 1.0,
+     "value": 900,
+     "heat": 35.0,
+     "why": [
+      "1.0\" hail",
+      "fresh storm (0 days)"
+     ]
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "MOCK-1342-mayfair-ave",
+     "address": "1342 Mayfair Ave",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.441959,
+     "lon": -96.480914,
+     "year_built": 1924,
+     "score": 60
+    },
+    {
+     "turf": 1,
+     "stop": 2,
+     "pid": "MOCK-1314-mayfair-ave",
+     "address": "1314 Mayfair Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441797,
+     "lon": -96.480913,
+     "year_built": 1952,
+     "score": 59
+    },
+    {
+     "turf": 1,
+     "stop": 3,
+     "pid": "MOCK-1264-e-linden-ave",
+     "address": "1264 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441623,
+     "lon": -96.480941,
+     "year_built": 1952,
+     "score": 58
+    },
+    {
+     "turf": 1,
+     "stop": 4,
+     "pid": "MOCK-1236-e-linden-ave",
+     "address": "1236 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.44165,
+     "lon": -96.481464,
+     "year_built": 1964,
+     "score": 57
+    },
+    {
+     "turf": 1,
+     "stop": 5,
+     "pid": "MOCK-1214-e-linden-ave",
+     "address": "1214 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441649,
+     "lon": -96.481709,
+     "year_built": 1983,
+     "score": 56
+    },
+    {
+     "turf": 1,
+     "stop": 6,
+     "pid": "MOCK-1239-e-linden-ave",
+     "address": "1239 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.441185,
+     "lon": -96.481182,
+     "year_built": 1964,
+     "score": 55
+    },
+    {
+     "turf": 1,
+     "stop": 7,
+     "pid": "MOCK-1257-e-linden-ave",
+     "address": "1257 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.44111,
+     "lon": -96.48107,
+     "year_built": 1983,
+     "score": 54
+    },
+    {
+     "turf": 1,
+     "stop": 8,
+     "pid": "MOCK-1269-e-linden-ave",
+     "address": "1269 E Linden Ave",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441116,
+     "lon": -96.480885,
+     "year_built": 1952,
+     "score": 53
+    },
+    {
+     "turf": 1,
+     "stop": 9,
+     "pid": "MOCK-1288-e-12th-st",
+     "address": "1288 E 12th St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.44086,
+     "lon": -96.480973,
+     "year_built": 1977,
+     "score": 52
+    },
+    {
+     "turf": 1,
+     "stop": 10,
+     "pid": "MOCK-1264-e-12th-st",
+     "address": "1264 E 12th St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440681,
+     "lon": -96.480973,
+     "year_built": 1952,
+     "score": 51
+    },
+    {
+     "turf": 1,
+     "stop": 11,
+     "pid": "MOCK-1214-e-12th-st",
+     "address": "1214 E 12th St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.440702,
+     "lon": -96.481446,
+     "year_built": 1968,
+     "score": 50
+    },
+    {
+     "turf": 1,
+     "stop": 12,
+     "pid": "MOCK-1214-n-grant-st",
+     "address": "1214 N Grant St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440701,
+     "lon": -96.481705,
+     "year_built": 1956,
+     "score": 49
+    },
+    {
+     "turf": 1,
+     "stop": 13,
+     "pid": "MOCK-1238-n-grant-st",
+     "address": "1238 N Grant St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440921,
+     "lon": -96.481549,
+     "year_built": 1991,
+     "score": 48
+    },
+    {
+     "turf": 1,
+     "stop": 14,
+     "pid": "MOCK-1262-n-grant-st",
+     "address": "1262 N Grant St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441116,
+     "lon": -96.481549,
+     "year_built": 1912,
+     "score": 47
+    },
+    {
+     "turf": 1,
+     "stop": 15,
+     "pid": "MOCK-1284-n-grant-st",
+     "address": "1284 N Grant St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.44128,
+     "lon": -96.481549,
+     "year_built": 1938,
+     "score": 46
+    },
+    {
+     "turf": 1,
+     "stop": 16,
+     "pid": "MOCK-1262-n-hancock-st",
+     "address": "1262 N Hancock St",
+     "city": "Fremont",
+     "hail": 1.25,
+     "kind": "single",
+     "lat": 41.441236,
+     "lon": -96.480418,
+     "year_built": 1912,
+     "score": 45
+    },
+    {
+     "turf": 1,
+     "stop": 17,
+     "pid": "MOCK-1284-n-hancock-st",
+     "address": "1284 N Hancock St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.441236,
+     "lon": -96.480144,
+     "year_built": 1956,
+     "score": 44
+    },
+    {
+     "turf": 1,
+     "stop": 18,
+     "pid": "MOCK-1236-n-hancock-st",
+     "address": "1236 N Hancock St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440917,
+     "lon": -96.480254,
+     "year_built": 1991,
+     "score": 43
+    },
+    {
+     "turf": 1,
+     "stop": 19,
+     "pid": "MOCK-1334-e-12th-st",
+     "address": "1334 E 12th St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440715,
+     "lon": -96.480299,
+     "year_built": 1924,
+     "score": 42
+    },
+    {
+     "turf": 1,
+     "stop": 20,
+     "pid": "MOCK-1314-e-12th-st",
+     "address": "1314 E 12th St",
+     "city": "Fremont",
+     "hail": 1.0,
+     "kind": "single",
+     "lat": 41.440714,
+     "lon": -96.480473,
+     "year_built": 1964,
+     "score": 41
+    }
+   ]
+  },
+  {
+   "id": "2026-09-29_Fremont_3",
+   "day": "2026-09-29",
+   "area": "Fremont: Nye Dr & W 21st St",
+   "doors": 20,
+   "turfs": [
+    {
+     "turf": 1,
+     "doors": 20,
+     "avg_hail": 1.5,
+     "value": 900,
+     "heat": 30.0,
+     "why": [
+      "1.5\" hail",
+      "fresh storm (0 days)"
+     ]
+    }
+   ],
+   "stops": [
+    {
+     "turf": 1,
+     "stop": 1,
+     "pid": "MOCK-2140-nye-dr",
+     "address": "2140 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.75,
+     "kind": "single",
+     "lat": 41.45029,
+     "lon": -96.503126,
+     "year_built": 1938,
+     "score": 60
+    },
+    {
+     "turf": 1,
+     "stop": 2,
+     "pid": "MOCK-2150-nye-dr",
+     "address": "2150 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.450269,
+     "lon": -96.503558,
+     "year_built": 1938,
+     "score": 59
+    },
+    {
+     "turf": 1,
+     "stop": 3,
+     "pid": "MOCK-2162-nye-dr",
+     "address": "2162 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.450012,
+     "lon": -96.50374,
+     "year_built": 1972,
+     "score": 58
+    },
+    {
+     "turf": 1,
+     "stop": 4,
+     "pid": "MOCK-2172-nye-dr",
+     "address": "2172 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449798,
+     "lon": -96.503985,
+     "year_built": 1983,
+     "score": 57
+    },
+    {
+     "turf": 1,
+     "stop": 5,
+     "pid": "MOCK-2180-nye-dr",
+     "address": "2180 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449523,
+     "lon": -96.504135,
+     "year_built": 1991,
+     "score": 56
+    },
+    {
+     "turf": 1,
+     "stop": 6,
+     "pid": "MOCK-634-w-21st-st",
+     "address": "634 W 21st St",
+     "city": "Fremont",
+     "hail": 1.75,
+     "kind": "single",
+     "lat": 41.449354,
+     "lon": -96.504166,
+     "year_built": 1956,
+     "score": 55
+    },
+    {
+     "turf": 1,
+     "stop": 7,
+     "pid": "MOCK-612-w-21st-st",
+     "address": "612 W 21st St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449208,
+     "lon": -96.504231,
+     "year_built": 1912,
+     "score": 54
+    },
+    {
+     "turf": 1,
+     "stop": 8,
+     "pid": "MOCK-2193-nye-dr",
+     "address": "2193 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449227,
+     "lon": -96.503585,
+     "year_built": 1938,
+     "score": 53
+    },
+    {
+     "turf": 1,
+     "stop": 9,
+     "pid": "MOCK-2183-nye-dr",
+     "address": "2183 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449387,
+     "lon": -96.503483,
+     "year_built": 1983,
+     "score": 52
+    },
+    {
+     "turf": 1,
+     "stop": 10,
+     "pid": "MOCK-2171-nye-dr",
+     "address": "2171 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449517,
+     "lon": -96.503417,
+     "year_built": 1956,
+     "score": 51
+    },
+    {
+     "turf": 1,
+     "stop": 11,
+     "pid": "MOCK-2161-nye-dr",
+     "address": "2161 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.75,
+     "kind": "single",
+     "lat": 41.449637,
+     "lon": -96.503319,
+     "year_built": 1938,
+     "score": 50
+    },
+    {
+     "turf": 1,
+     "stop": 12,
+     "pid": "MOCK-2151-nye-dr",
+     "address": "2151 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449742,
+     "lon": -96.503193,
+     "year_built": 1968,
+     "score": 49
+    },
+    {
+     "turf": 1,
+     "stop": 13,
+     "pid": "MOCK-2139-nye-dr",
+     "address": "2139 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449789,
+     "lon": -96.502992,
+     "year_built": 1977,
+     "score": 48
+    },
+    {
+     "turf": 1,
+     "stop": 14,
+     "pid": "MOCK-2129-nye-dr",
+     "address": "2129 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449814,
+     "lon": -96.502788,
+     "year_built": 1952,
+     "score": 47
+    },
+    {
+     "turf": 1,
+     "stop": 15,
+     "pid": "MOCK-2117-nye-dr",
+     "address": "2117 Nye Dr",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449691,
+     "lon": -96.502444,
+     "year_built": 1972,
+     "score": 46
+    },
+    {
+     "turf": 1,
+     "stop": 16,
+     "pid": "MOCK-524-w-21st-st",
+     "address": "524 W 21st St",
+     "city": "Fremont",
+     "hail": 1.75,
+     "kind": "single",
+     "lat": 41.449403,
+     "lon": -96.502576,
+     "year_built": 1952,
+     "score": 45
+    },
+    {
+     "turf": 1,
+     "stop": 17,
+     "pid": "MOCK-540-w-21st-st",
+     "address": "540 W 21st St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449306,
+     "lon": -96.502783,
+     "year_built": 1912,
+     "score": 44
+    },
+    {
+     "turf": 1,
+     "stop": 18,
+     "pid": "MOCK-558-w-21st-st",
+     "address": "558 W 21st St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.449347,
+     "lon": -96.503196,
+     "year_built": 1912,
+     "score": 43
+    },
+    {
+     "turf": 1,
+     "stop": 19,
+     "pid": "MOCK-541-w-21st-st",
+     "address": "541 W 21st St",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.448738,
+     "lon": -96.503057,
+     "year_built": 1968,
+     "score": 42
+    },
+    {
+     "turf": 1,
+     "stop": 20,
+     "pid": "MOCK-2044-n-colson-ave",
+     "address": "2044 N Colson Ave",
+     "city": "Fremont",
+     "hail": 1.5,
+     "kind": "single",
+     "lat": 41.448714,
+     "lon": -96.50353,
+     "year_built": 1956,
+     "score": 41
+    }
+   ]
+  }
+ ],
+ "everyday_lists": [],
+ "hail_evidence": {
+  "587 E 18th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1753 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "562 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1735 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1713 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1681 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "563 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1665 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1649 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1664 N Union St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1680 N Union St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "515 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "514 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1714 N Union St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1738 N Union St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1764 N Union St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1736 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1712 N Clarkson St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "615 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "639 E 17th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1342 Mayfair Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1314 Mayfair Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1264 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1236 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1214 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1239 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1257 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1269 E Linden Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1288 E 12th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1264 E 12th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1214 E 12th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1214 N Grant St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1238 N Grant St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1262 N Grant St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1284 N Grant St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1262 N Hancock St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.25,
+   "radar_max_in": 1.5,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1284 N Hancock St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1236 N Hancock St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1334 E 12th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "1314 E 12th St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.0,
+   "radar_max_in": 1.25,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2140 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.75,
+   "radar_max_in": 2.0,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2150 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2162 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2172 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2180 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "634 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.75,
+   "radar_max_in": 2.0,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "612 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2193 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2183 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2171 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2161 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.75,
+   "radar_max_in": 2.0,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2151 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2139 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2129 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2117 Nye Dr|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "524 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.75,
+   "radar_max_in": 2.0,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "540 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "558 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "541 W 21st St|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  },
+  "2044 N Colson Ave|Fremont": {
+   "day": "2026-09-29",
+   "hail_in": 1.5,
+   "radar_max_in": 1.75,
+   "nearest_report": {
+    "dist_mi": 0.4,
+    "size_in": 1.0,
+    "source": "lsr"
+   }
+  }
+ },
+ "targets": [],
+ "wind_events": [],
+ "storms": [
+  {
+   "day": "2026-09-29",
+   "place": "Fremont",
+   "state": "NE",
+   "lat": 41.44,
+   "lon": -96.49,
+   "dist_mi": 1.0,
+   "hail": 1.5,
+   "basis": "ground",
+   "reports": 2,
+   "score": 60.0,
+   "time_local": "03:40"
+  }
+ ]
+}

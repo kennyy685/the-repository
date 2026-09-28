@@ -1504,7 +1504,11 @@ const K = () => KT[lang];
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const locale = () => (lang === 'es' ? 'es-US' : 'en-US');
 const numv = v => { if (typeof v === 'number' && isFinite(v)) return v; if (typeof v === 'string') { const s = v.replace(/[$,\s]/g, ''); if (s !== '' && isFinite(+s)) return +s; } return null; };
-const dayOf = v => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : null);
+// 24h check (2026-09-28): a full timestamp ("2026-09-30T00:30:00Z" = 7:30 PM Tuesday in Fremont) is that moment's LOCAL day,
+// not its first 10 characters (the UTC day, a day ahead every evening after 7 PM Central); a plain "YYYY-MM-DD" stays as is
+const dayOf = v => { if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(v)) return null;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.*(Z|[+-]\d{2}:?\d{2})$/.test(v)) { const d = new Date(v); if (!isNaN(d)) return ymd(d); }
+  return v.slice(0, 10); };
 const yesv = v => v === true || (typeof v === 'string' && v.trim() !== '' && !/^(false|no|0)$/i.test(v.trim()));
 const strv = v => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : '');
 // v23: one formatter per locale + options, reused (building an Intl formatter on every date or dollar was the top cost of a redraw)
@@ -6063,6 +6067,7 @@ async function connect(){
   renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
 }
+let subDay = null, rollDay = () => {};   // 24h check: the calendar day the day-keyed listeners are on; rollDay() moves them at midnight
 function subscribeApp(db){
   const fail = () => { if (appState !== 'on') { appState = 'err'; dbState = 'off'; setLive('off', L().live.lost); } renderAppSoon(); };
   const ok = () => { if (appState !== 'on') { appState = 'on'; dbState = 'on'; refreshLive(); } };
@@ -6075,16 +6080,30 @@ function subscribeApp(db){
   // v24: hot zones (hh.py zones) and one walk per zone; today/walk stays the fallback
   db.doc('zones/current').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('zones', v)) { zonesRaw = v; pickFeeds(); bump(); } }, () => {});
   db.collection('walks').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && Array.isArray(v.stops)) o[d.id] = v; } if (changed('walks', o)) { walksRaw = o; pickFeeds(); bump(); } }, () => {});
-  db.doc('reviews/' + todayStr()).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('review', v)) { reviewDoc = v; bump(); } }, () => {});
   db.doc('system/followups').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('fu', v)) { fuRules = v; bump(); } }, () => { if (fuRules === undefined) fuRules = null; });
-  { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs); v19: 8 weeks back, for the streak
-    db.collection('doors').where('date', '>=', addDays(mon, -56)).where('date', '<=', sun).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
-  db.collection('doors').where('date', '==', todayStr()).onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } if (changed('doors', o)) { doorRaw = o; mergeDoors(); bump(); } }, () => {});
   db.collection('dnk').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v) o[d.id] = v; } if (changed('dnk', o)) { dnkRaw = o; applyOverlay(); } }, () => {});
   db.collection('evidence').onSnapshot(s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && numv(v.hail_in) != null) o[d.id] = v; } if (changed('ev', o)) { evRaw = o; pickFeeds(); bump(); } }, () => {});
-  const t0 = todayStr();
-  db.doc('stats/week-' + isoWeek(t0)).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('wk', v)) { weekDoc = v; bump(); } }, () => {});
-  db.doc('stats/week-' + isoWeek(addDays(t0, -7))).onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('lw', v)) { lastWeekDoc = v; bump(); } }, () => {});
+  // 24h check (2026-09-28): the doc/queries keyed to TODAY (today's door taps, this week's taps, today's review, the week
+  // stats) follow the calendar: left open overnight, the app used to keep Tuesday's taps as Wednesday's doors, and a
+  // Wednesday tap vanished from Knock 20 s later (its echo never came: the listener still asked for Tuesday).
+  const dayUnsubs = [];
+  const on = (ref, ok, err) => { const u = ref.onSnapshot(ok, err); if (typeof u === 'function') dayUnsubs.push(u); };
+  const subscribeDay = () => {
+    subDay = todayStr();
+    on(db.doc('reviews/' + todayStr()), s => { const v = s.exists ? s.data() : null; if (changed('review', v)) { reviewDoc = v; bump(); } }, () => {});
+    { const mon = weekMonday(todayStr()), sun = addDays(mon, 6);   // v18: this ISO week's taps, for the answer rate (today's come from doorDocs); v19: 8 weeks back, for the streak
+      on(db.collection('doors').where('date', '>=', addDays(mon, -56)).where('date', '<=', sun), s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[d.id] = v; } if (changed('wkdoors', o)) { weekDoorRaw = o; bump(); } }, () => {}); }
+    on(db.collection('doors').where('date', '==', todayStr()), s => { const o = {}; for (const d of s.docs) { const v = d.data(); if (v && v.pid) o[pidSafe(v.pid)] = v; } if (changed('doors', o)) { doorRaw = o; mergeDoors(); bump(); } }, () => {});
+    const t0 = todayStr();
+    on(db.doc('stats/week-' + isoWeek(t0)), s => { const v = s.exists ? s.data() : null; if (changed('wk', v)) { weekDoc = v; bump(); } }, () => {});
+    on(db.doc('stats/week-' + isoWeek(addDays(t0, -7))), s => { const v = s.exists ? s.data() : null; if (changed('lw', v)) { lastWeekDoc = v; bump(); } }, () => {});
+  };
+  subscribeDay();
+  rollDay = () => { if (todayStr() === subDay) return;
+    while (dayUnsubs.length) { try { dayUnsubs.pop()(); } catch (e) { /* already closed */ } }
+    for (const k of ['review', 'wkdoors', 'doors', 'wk', 'lw']) delete sig[k];
+    doorRaw = {}; weekDoorRaw = {}; reviewDoc = null; weekDoc = null; lastWeekDoc = null; for (const k of Object.keys(localDoors)) delete localDoors[k];
+    subscribeDay(); mergeDoors(); bump(); };
   db.doc('stats/streak').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('streak', v)) { streakDoc = v; bump(); } }, () => {});   // v19
   db.doc('system/prices').onSnapshot(s => { const v = s.exists ? s.data() : null; if (changed('prices', v)) { prices = v; if (openRef && openRef.startsWith('est:')) renderSheet(); if (HO.isOpen()) HO.render(); } },
     () => { if (prices === undefined) { prices = null; if (openRef && openRef.startsWith('est:')) renderSheet(); } });
@@ -6106,7 +6125,8 @@ connect();
 if (window.HMPPractice && HMPPractice.wantHouses && HMPPractice.wantHouses()) setPracticeHouses(true, true);   // T206: loaded before on this phone
 locate();   // v24: "near me" when the phone shares its location (the artifact frame usually says no: then the office)
 renderSync();
-setInterval(() => { if (!document.hidden) { renderApp(false); refreshLive(); } }, 30000);   // due dates, "x min ago"
+setInterval(() => { rollDay(); if (!document.hidden) { renderApp(false); refreshLive(); } }, 30000);   // due dates, "x min ago"; midnight moves the day-keyed listeners
+document.addEventListener('visibilitychange', () => { if (!document.hidden) rollDay(); });
 })();
 </script>
 <script type="text/x-hmp-svg" id="psDefs">
