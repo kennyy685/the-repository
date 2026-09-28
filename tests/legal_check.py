@@ -439,13 +439,26 @@ def check_banned_phrases():
 DOOR_APP = "pages/hmp-app.html"
 # `doorIns: r => `...`` style Sale Guide openers; `${r` is the storm/old-house hook slot.
 _DOOR_RE = re.compile(r"\b(door[A-Z]\w*):\s*r\s*=>\s*`([^`]*)`")
-_NAME_TOKENS = ("${SETTINGS.people.en.first}", "${SETTINGS.people.es.first}",
-                "${SETTINGS.people.en.name}", "${SETTINGS.people.es.name}")
+# A name interpolation must name a PERSON (SETTINGS.people.<side>.first/name), not the company.
+_NAME_TOKEN_RE = re.compile(r"\$\{SETTINGS\.people\.\w+\.(?:first|name)\}")
 _SELL_WORDS = ("roof", "siding", "techo", "gutter", "canaleta")
+# Whoever is actually knocking today (a single bilingual salesman) must say his own true name at
+# the door in EVERY language - never a different person's name, even one that's a real HMP
+# contact elsewhere. `people.en.*` is that knocker's real identity in this codebase (SETTINGS'
+# only "person who knocks" record); `people.es.*` is Alex Mendez, the Spanish print/phone
+# contact, who never knocks. A door line built from `people.es.*` says a name that is not the
+# speaker's - the exact 69-1602 defect this check exists to catch.
+_KNOCKER_TOKENS = ("${SETTINGS.people.en.first}", "${SETTINGS.people.en.name}")
 
 
 def check_door_openers():
-    """Every app door opener: name, then company, then what we sell, all before the `${r` hook (Neb. 69-1602)."""
+    """Every app door opener: name, then company, then what we sell, all before the `${r` hook (Neb. 69-1602).
+
+    Also (T-legal, 2026-09-28): the name said must be the actual knocker's own true name in EVERY
+    language, never a different person's (69-1602 requires "the seller's individual name" - the
+    person actually standing at the door, not a same-language "voice" borrowed from someone else,
+    such as the Spanish print/phone contact who never knocks).
+    """
     text = _read(DOOR_APP)
     failures, found = [], 0
     for m in _DOOR_RE.finditer(text):
@@ -456,8 +469,15 @@ def check_door_openers():
         line = text.count("\n", 0, m.start()) + 1
         head = body[: body.index("${r")]
         where = f"{DOOR_APP}:{line} ({key})"
-        if not any(t in head for t in _NAME_TOKENS):
+        name_tokens = _NAME_TOKEN_RE.findall(head)
+        if not name_tokens:
             failures.append(f"{where}: no salesman name before the hook (69-1602: name first)")
+        elif name_tokens[0] not in _KNOCKER_TOKENS:
+            failures.append(
+                f"{where}: spoken name is {name_tokens[0]}, not the knocker's own name "
+                f"({' or '.join(_KNOCKER_TOKENS)}) - 69-1602 requires the person AT THE DOOR to give "
+                f"their own true name, in every language, not a different person's"
+            )
         if "${SETTINGS.company.name}" not in head:
             failures.append(f"{where}: company name not before the hook (69-1602)")
         if not any(w in head.lower() for w in _SELL_WORDS):
