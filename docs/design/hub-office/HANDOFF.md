@@ -32,3 +32,13 @@ Old chat closed to save usage. Read SPEC.md (decisions + walkthrough notes 1-11)
   Artifact read the hub URL (read every line) → publish `pages/crew-hq.html` with `pages/crew-hq.files.json` as files,
   label "v28.0 calm and clear" → CHANGELOG + SPEC "v28.0 live" → hub check-in → push-notify FilthE.
 - FilthE is near his usage limit: keep it lean (no extra QA agent unless a check fails).
+
+## PAUSED 2026-09-28 ~14:05 UTC (FilthE near his usage limit) - resume here
+- v28.0 PAGE + SCENE are both merged on claude/amazing-wright-lds9q5 (32b5d40) but NOT yet checked together and NOT
+  published. Live is still v27.1 (hub Version 27). The scene builder was stopped mid-way through trimming the old
+  Tour camera code and before re-rendering `pages/hub/still.webp` (the still is still v27's picture).
+- Resume: (1) `node tests/pages/design_gate.js --page crew-hq` exit 0, `node tests/pages/shots.js`, `bash
+  tests/release_checks.sh --fast`; (2) 1440x900 shot with three.js routed locally (robots at the v28 desks, RIGHT NOW
+  verbs match the room, The Call shows the avatar or the face, never a black box); (3) re-render still.webp from
+  `#capture` if time allows; (4) publish per the steps above; ping FilthE.
+- Waiting on FilthE: picks from FUNCTIONS-SHORTLIST.md; "yes Fable for v28.1" or not.
