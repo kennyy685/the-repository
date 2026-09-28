@@ -1299,17 +1299,17 @@ function fitRect(points, maxScale){
   const cx = (mnx + mxx)/2, cy = (mny + mxy)/2, ax = (A.x0 + A.x1)/2, ay = (A.y0 + A.y1)/2;
   const l = cx - ax/s, t = cy + ay/s; return {l, r:l + W/s, t, b:t - H/s};
 }
-/* the view registry (BUILD S1): every cam id the page may ask for; unbuilt ids render as their fallback */
+/* the view registry (CONTRACT v3 SCENE.views): every cam id the page may ask for. v28 drops Blueprint (the page's V overlay does its job)
+ * and Tour (Director covers the screensaver): a stored old value renders as 'all'. */
 const VIEWS = {
   all:{built:true}, up:{built:true}, down:{built:true}, follow:{built:true, sel:true}, ride:{built:true, sel:true, as:'follow'},
-  blueprint:{built:true, el:1.5, az:0}, cctv:{built:true, persp:true}, window:{built:true, persp:true}, tilt:{built:true, el:.42}, tour:{built:true}, director:{built:true},
+  cctv:{built:true, persp:true}, window:{built:true, persp:true}, tilt:{built:true, el:.42}, director:{built:true},
   eyes:{built:true, sel:true, persp:true}
 };
 /* perspective views (cctv, window, eyes) render through pcam; everything else is the orthographic cutaway */
 const pcam = new THREE.PerspectiveCamera(60, 1, .05, 200);
 let rcam = cam;
-const TOUR = [['all', 5], ['up', 5], ['box', 5, [[-4.4,0,-2.2],[-2.2,2.4,1.6]], 'up'], ['box', 5, [[-2.2,0,-.2],[3,1.8,1.6]], 'up'], ['down', 5], ['box', 5, [[.8,0,1.4],[4.6,1.8,3.4]], 'down'], ['box', 5, [[-3.2,0,-.8],[-.6,1.8,2.2]], 'down']];
-const tour = {i:0, t:0}, director = {mode:'all', id:null, t:0, hold:0, seen:{}};
+const director = {mode:'all', id:null, t:0, hold:0, seen:{}};
 const cctv = {i:0, t:0};
 function boxPts(b, f){ const F = FL[f], out = []; for (const x of [b[0][0], b[1][0]]) for (const y of [b[0][1], b[1][1]]) for (const z of [b[0][2], b[1][2]]) out.push(new THREE.Vector3(x + F.ox, y + F.oy, z + F.oz)); return out; }
 /* Director (8): cuts on real moments with a 400 ms settle: a finish -> that robot, a new question -> your spot, a ride -> its eyes */
@@ -1332,9 +1332,8 @@ function camMode(){
   if (VIEWS[m].sel){ const id = HUB.selected, sim = id && sims[id]; if (!sim || sim.hidden) return 'all'; }
   return m;
 }
-function wantRect(mode, id, extra){
+function wantRect(mode, id){
   if (mode === 'spot') return fitRect(boxPts([[.6,0,1.2],[4.6,1.9,3.4]], 'down'), 140);
-  if (mode === 'box') return fitRect(boxPts(extra[0], extra[1]), 160);
   if (mode === 'tilt'){ const f = (sims[HUB.selected] && sims[HUB.selected].floor) || 'up'; return fitRect(boxPts([[-3.2,0,-2.4],[3.2,1.4,2.4]], f), 150); }
   if (mode === 'follow'){ const sim = sims[id || HUB.selected]; const c = new THREE.Vector3(sim.x, sim.y + .7, sim.z);
     const pts = [c.clone().add(new THREE.Vector3(-2.6, -.7, -2.6)), c.clone().add(new THREE.Vector3(2.6, -.7, 2.6)), c.clone().add(new THREE.Vector3(-2.6, 1.3, 2.6)), c.clone().add(new THREE.Vector3(2.6, 1.3, -2.6))];
@@ -1349,22 +1348,22 @@ const tw = {key:null, from:null, t:1};
 const RK = ['l','r','t','b'];
 function updateCamera(dt, snap){
   const top = camMode(), A = area();
-  let mode = top, id = HUB.selected, extra = null;
+  let mode = top, id = HUB.selected;
   if (top === 'director' && !RM.matches){ const d = directorPick(dt); mode = d.mode; id = d.id; }
   else if (top === 'director') mode = 'all';
-  if (top === 'tour'){ const T = TOUR[tour.i % TOUR.length]; if (!RM.matches){ tour.t += dt; if (tour.t > T[1]){ tour.t = 0; tour.i++; } } const T2 = TOUR[tour.i % TOUR.length]; mode = T2[0]; extra = T2.slice(2); }
   view.sub = mode; view.subId = id;
   const V_ = VIEWS[mode] || {};
   if (V_.persp){ rcam = pcam; view.mode = mode; perspCam(mode, id, dt); gUp.position.y = FL.up.oy; LIFT = 0; view.lift = 0; gUp.visible = true; tw.key = null; horizonFrom(pcam, dt); return; }
   rcam = cam;
-  // orientation: the view's own elevation / azimuth (blueprint looks straight down, tilt sits low), glided with the rect
+  // orientation: the view's own elevation / azimuth (tilt sits low), glided with the rect; a new HUB.area (the side panel closing
+  // or opening, CONTRACT v3 HUB.panel) is part of the key, so the room re-frames with the same 750 ms glide
   const elT = V_.el ?? .6, azT = V_.az != null ? V_.az : view.azLive;
-  const key = mode + '|' + (mode === 'follow' ? id : '') + '|' + (top === 'tour' ? tour.i : '') + '|' + Math.round(A.x0) + ',' + Math.round(A.y0) + ',' + Math.round(A.x1) + ',' + Math.round(A.y1);
+  const key = mode + '|' + (mode === 'follow' ? id : '') + '|' + Math.round(A.x0) + ',' + Math.round(A.y0) + ',' + Math.round(A.x1) + ',' + Math.round(A.y1);
   const cut = !view.rect || snap || RM.matches || CAPTURE;
   if (key !== tw.key){ if (!cut){ tw.from = Object.assign({}, view.rect, {el:view.el, az:view.azNow}); tw.t = 0; tw.dur = top === 'director' ? .4 : .75; } else tw.t = 1; tw.key = key; }
   if (cut || tw.t >= 1){ view.el = elT; view.azNow = azT; } else { const e = ease(Math.min(1, tw.t + dt/tw.dur)); view.el = tw.from.el + (elT - tw.from.el)*e; let da = azT - tw.from.az; da = Math.atan2(Math.sin(da), Math.cos(da)); view.azNow = tw.from.az + da*e; }
   aim(view.azNow);
-  const want = wantRect(mode, id, extra);
+  const want = wantRect(mode, id);
   if (cut){ view.rect = Object.assign({}, want); tw.t = 1; }
   else if (tw.t < 1){ tw.t = Math.min(1, tw.t + dt/(tw.dur || .75)); const e = ease(tw.t); for (const k of RK) view.rect[k] = tw.from[k] + (want[k] - tw.from[k])*e; }
   else if (mode === 'follow'){ const k = 1 - Math.exp(-dt*5); for (const q of RK) view.rect[q] += (want[q] - view.rect[q])*k; }
@@ -1374,7 +1373,7 @@ function updateCamera(dt, snap){
   const lw = mode === 'down' ? 1 : 0; view.lift = view.lift == null || snap || RM.matches || CAPTURE ? lw : view.lift + (lw - view.lift)*Math.min(1, dt*4.5);
   if (Math.abs(view.lift - lw) < .002) view.lift = lw;
   LIFT = view.lift*view.lift*(3 - 2*view.lift)*8; gUp.position.y = FL.up.oy + LIFT; gUp.visible = view.lift < .85;
-  if (skyEl){ const f = mode === 'follow' ? (sims[id] ? sims[id].floor : 'all') : mode === 'box' ? extra[1] : mode; const hz = VC.copy(HZ[f] || HZ.all).project(cam); setHorizon((1 - hz.y)/2*100, dt); }
+  if (skyEl){ const f = mode === 'follow' ? (sims[id] ? sims[id].floor : 'all') : mode; const hz = VC.copy(HZ[f] || HZ.all).project(cam); setHorizon((1 - hz.y)/2*100, dt); }
 }
 function setHorizon(pct, dt){ if (!skyEl) return; view.horizon = view.horizon == null || RM.matches ? pct : view.horizon + (pct - view.horizon)*Math.min(1, dt*3.2);
   const s = Math.max(8, Math.min(92, view.horizon)).toFixed(1) + '%'; if (s !== view.hs){ view.hs = s; skyEl.style.setProperty('--horizon', s); } }
@@ -1400,7 +1399,10 @@ function perspCam(mode, id, dt){
   }
   pcam.updateProjectionMatrix(); pcam.updateMatrixWorld();
 }
-function resize(){ W = stage.clientWidth || 1; H = stage.clientHeight || 1; renderer.setSize(W, H, false); view.azLive = AZ0 + view.drag; if (view.azNow == null) view.azNow = view.azLive; aim(view.azNow); updateCamera(0, true); }
+/* v28: a new canvas size cuts; the same size with a new HUB.area (the side panel closed or opened, HUB.panel) glides 750 ms like any
+ * other re-frame (cut under reduced motion) */
+function resize(){ const w = stage.clientWidth || 1, h = stage.clientHeight || 1, sized = w !== W || h !== H; W = w; H = h;
+  if (sized) renderer.setSize(W, H, false); view.azLive = AZ0 + view.drag; if (view.azNow == null) view.azNow = view.azLive; aim(view.azNow); updateCamera(0, sized || !view.rect); }
 // drag to turn the building a little (a tap still selects: the page ignores taps right after a drag)
 let dragStart = null; const SC = {dragged:false};
 const NODRAG = '.bub,button,a,input,textarea,select,[data-nodrag]';
