@@ -108,7 +108,8 @@ h1,h2,h3,p{margin:0}
 .cell b{display:block;font-weight:600}
 .needs .lbl{white-space:nowrap}
 .needs ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.need{width:100%;min-height:48px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;padding:6px 12px 6px 12px;text-align:left;background:var(--need-bg);border-left:2px solid var(--need);border-radius:0 var(--r-sm) var(--r-sm) 0;animation:needIn .32s var(--ease) both}
+.need{width:100%;min-height:48px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;padding:6px 12px 6px 12px;text-align:left;background:var(--need-bg);border-left:2px solid var(--need);border-radius:0 var(--r-sm) var(--r-sm) 0}
+.need.in{animation:needIn .32s var(--ease) both}
 .need:hover{background:rgba(245,136,58,.18)}
 .need[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--need-line)}
 .need b{grid-column:1;font:600 12px/1.2 var(--f);color:var(--need-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -438,16 +439,57 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .viewmenu{position:fixed;z-index:50;min-width:200px;padding:6px;display:grid;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r)}
 .viewmenu .tb{justify-content:flex-start}
 .keys{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(12,13,15,.55);padding:16px}
-.keys-in{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px 24px 22px;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r)}
+.keys-in{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px 24px 22px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:var(--r)}
 .keys-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .keys h2{font:600 30px/1.15 var(--fd);letter-spacing:-.02em;font-variation-settings:"opsz" 96}
 .keys dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;margin:0}
 .keys dt{display:flex;gap:4px;justify-content:flex-end}
 .keys kbd{min-width:24px;padding:2px 7px;text-align:center;font:500 12px var(--mono);color:var(--ink);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:4px}
 .keys dd{margin:0;font-size:14px;color:var(--ink-2);align-self:center}
+#keysMine{margin:14px 0 0 -10px}
 .tagsoff .tag:not(.keep){opacity:0!important}
 @media (max-width:899px), (max-height:599px){ .cp,.cowork-copy,#keysBtn,.search kbd{display:none} .qplate{display:none} }
+
+/* ---------- P3: Make it yours, the mind ---------- */
+#mind{position:absolute;inset:0;width:100%;height:100%;display:block;-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 24%),transparent calc(var(--horizon) - 7%));mask-image:linear-gradient(to bottom,#000 0,#000 calc(var(--horizon) - 24%),transparent calc(var(--horizon) - 7%))}
+.lowfx #mind{display:none}
+.mine{position:fixed;z-index:65;top:64px;right:16px;width:min(380px,calc(100vw - 32px));max-height:calc(100vh - 80px);overflow:auto;padding:18px 20px 16px;display:grid;gap:14px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:var(--r);animation:plateIn .2s var(--ease) both}
+.mine-h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mine h2{font:600 30px/1.15 var(--fd);letter-spacing:-.02em;font-variation-settings:"opsz" 96}
+.mrow{display:grid;gap:8px}
+.mrow.two{grid-template-columns:1fr 1fr;gap:4px;margin:0 -10px}
+.mrow.two .tb{justify-content:flex-start}
+.mrow.foot2{justify-items:start}
+.sw{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-left:-8px}
+.sw button,.sw label{width:42px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;cursor:pointer}
+.sw i{width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.sw [aria-checked="true"]::after{content:"";position:absolute;inset:4px;border:1.5px solid var(--ink);border-radius:50%}
+.sw label i{background:conic-gradient(#f1c48a,#f5883a,#e0685c,#a9c5a0,#a8c8e0,#f1c48a)}
+.sw input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mwarn{font-size:13px;color:var(--stuck);min-height:0}
+.mwarn:empty{display:none}
+.mine input[type=text]{min-height:44px;background:transparent;border:0;border-bottom:1px solid var(--rule-2);padding:0 2px;font:500 15px var(--f)}
+.mine input[type=text]:focus{outline:none;border-bottom-color:var(--brass-hi)}
+/* Ledger (light) and Midnight (deeper): only the neutrals change; the room stays the room */
+:root[data-look="ledger"]{color-scheme:light;
+  --bg:#f3f2ee; --bg-2:#fbfaf7; --bg-3:#e8e6e0; --ink:#16171a; --ink-2:#3b3e45; --muted:#62656d;
+  --rule:rgba(22,23,26,.10); --rule-2:rgba(22,23,26,.20); --rule-solid:#d9d6cf; --rule-solid-2:#c8c4bb;
+  --card:rgba(251,250,247,.90); --card-solid:rgba(251,250,247,.98);
+  --scrim-top:linear-gradient(to bottom,rgba(243,242,238,.94) 0,rgba(243,242,238,.8) 64px,rgba(243,242,238,0) 132px);
+  --scrim-col:linear-gradient(to left,rgba(243,242,238,.95) 0,rgba(243,242,238,.95) 400px,rgba(243,242,238,0) 580px);
+  --st-work:#3f7a4c; --st-idle:#6d6558; --st-sleep:#4d5670; --stuck:#b3372b; --jewel:#8a6a2e; --jewel-hi:#7a5a1e; --human:#7a5a1e}
+:root[data-look="midnight"]{--bg:#060709; --bg-2:#0a0b0d; --bg-3:#111215; --card:rgba(9,10,12,.84); --card-solid:rgba(9,10,12,.97);
+  --scrim-top:linear-gradient(to bottom,rgba(6,7,9,.9) 0,rgba(6,7,9,.6) 64px,rgba(6,7,9,0) 132px);
+  --scrim-col:linear-gradient(to left,rgba(6,7,9,.9) 0,rgba(6,7,9,.9) 400px,rgba(6,7,9,0) 580px)}
+:root[data-look="midnight"] .sky{filter:brightness(.72)}
+/* the overlay in the room always reads light-on-dark, whatever the look */
+.tag,.hint{color:#f1f2f4}
+.tag.sel{color:#e3c98f}
+.bub.blocked,.bub.done{color:#f1f2f4}
+:root[data-look="ledger"] .stagebar{background:var(--card-solid);border:1px solid var(--rule);border-radius:var(--r);padding:0 6px}
+:root[data-look="ledger"] .live .clk{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){
+  .mine{animation:none!important}
   .cell b.roll,.qplate{animation:none!important}
   .sky .clouds,.sky .rain,.sky .stars i,.need,.recap,.ev.fresh::before,.beacon,.card.open{animation:none!important}
   .card,.tag,.bub{transition:none}
@@ -468,6 +510,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="right">
       <div class="live" id="live" data-state="wait" role="status"><i class="dot" aria-hidden="true"></i><span class="lc"><span class="l1"><span class="clk" id="clk"></span><span class="wx" id="clkW"></span></span><span class="upd" id="liveText">Connecting…</span></span></div>
       <button type="button" class="ibtn" id="refreshBtn" aria-label="Refresh now (R)"><svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/></svg></button>
+      <button type="button" class="ibtn" id="mineBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Make it yours"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5 20.5 12 12 20.5 3.5 12Z"/><path d="M12 8.5 15.5 12 12 15.5 8.5 12Z" fill="currentColor" stroke="none"/></svg></button>
       <div class="seg" role="group" aria-label="Language / Idioma"><button type="button" id="langEn" aria-pressed="true" lang="en">EN</button><button type="button" id="langEs" aria-pressed="false" lang="es">ES</button></div>
     </div>
   </header>
@@ -475,6 +518,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <div class="stage" id="stage">
     <div class="sky" id="sky" aria-hidden="true">
       <div class="stars" id="stars"></div>
+      <canvas id="mind" aria-hidden="true"></canvas>
       <div class="sun"></div>
       <div class="clouds" id="clouds-a"></div>
       <div class="clouds b" id="clouds-b"></div>
@@ -560,7 +604,18 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 
 <div class="app-toast" id="appToast" role="status" hidden></div>
 <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
-<div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl></div></div>
+<section class="mine" id="mine" hidden role="dialog" aria-labelledby="mineH">
+  <div class="mine-h"><h2 id="mineH" data-t="mineH">Make it yours</h2><button type="button" class="ibtn" id="mineX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <p class="src" data-t="mineS">Saved on this device only. Every change shows right away.</p>
+  <div class="mrow"><h3 class="lbl" id="mWorkL" data-t="mWork">Working</h3><div class="sw" id="swWork" role="radiogroup" aria-labelledby="mWorkL"></div></div>
+  <div class="mrow"><h3 class="lbl" id="mNeedL" data-t="mNeed">Needs you</h3><div class="sw" id="swNeed" role="radiogroup" aria-labelledby="mNeedL"></div><p class="mwarn" id="mNeedWarn" role="status"></p></div>
+  <div class="mrow"><h3 class="lbl" id="mLookL" data-t="mLook">Look</h3><div class="seg" id="segLook" role="group" aria-labelledby="mLookL"><button type="button" data-look="nocturne" data-t="lkNoc">Nocturne</button><button type="button" data-look="ledger" data-t="lkLed">Ledger</button><button type="button" data-look="midnight" data-t="lkMid">Midnight</button></div></div>
+  <div class="mrow"><h3 class="lbl" id="mStripL" data-t="mStrip">Robot light strips</h3><div class="seg" id="segStrip" role="group" aria-labelledby="mStripL"><button type="button" data-strip="ember-only" data-t="stStatus">By status</button><button type="button" data-strip="brand" data-t="stOne">All one color</button></div></div>
+  <div class="mrow"><label class="lbl" for="mName" data-t="mName">The hub’s name</label><input id="mName" type="text" maxlength="24" autocomplete="off" spellcheck="false"></div>
+  <div class="mrow two"><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
+  <div class="mrow foot2"><button type="button" class="btn" id="mReset" data-t="mReset">Reset</button></div>
+</section>
+<div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl><button type="button" class="tb" id="keysMine"><span class="k" aria-hidden="true">◇</span><span data-t="mineH">Make it yours</span></button></div></div>
 <script>
 (() => {
 'use strict';
@@ -581,6 +636,8 @@ const TX = {
     st: {title: 'The Crew', sub: 'AI hub · Fremont, NE', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
       camAll: 'Whole', camUp: 'Up', camDown: 'Down', camFollow: 'Follow', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Chat', keysH: 'Keys', keysB: 'Keys',
+      mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mNeed: 'Needs you', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
+      mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · English or Spanish · uses your Claude usage',
       kcNone: 'The Right Hand box shows up here when you open the hub signed in as its editor.',
@@ -602,6 +659,9 @@ const TX = {
     typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you — ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
     namesOff: 'Names hidden. Press N to show them.', namesOn: 'Names shown.',
+    mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color', needLow: r => `That color is too hard to read on this background (${r}:1; it needs 4.5:1). Pick a stronger one.`,
+    swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'}, swN: {ember: 'Ember', amber: 'Amber', coral: 'Coral', poppy: 'Poppy'},
+    dollyHint: 'Scroll to move in · N for names',
     views: {all: 'Whole', blueprint: 'Blueprint', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', tour: 'Tour', director: 'Director', eyes: 'Eyes'},
     keys: [['1 – 8', 'Camera views (the ones built so far)'], ['9', 'The robot’s eyes'], ['↑ ↓', 'Upstairs / downstairs'], ['← →', 'Next robot'], ['N', 'Hide or show names'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C B L H', 'Crew, Board, Log, Chat'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', blocked: 'stuck', sleeping: 'asleep'},
@@ -636,6 +696,8 @@ const TX = {
     st: {title: 'El Equipo', sub: 'Centro de IA · Fremont, NE', needs: 'Te necesitan', crew: 'Equipo', hint: 'Haz clic en un robot para ver qué está haciendo.', hintTap: 'Toca un robot para ver qué está haciendo.',
       camAll: 'Todo', camUp: 'Arriba', camDown: 'Abajo', camFollow: 'Seguir', camMore: 'Más', watch: 'Ver', stop: 'Parar', replay: 'Repetir',
       tCrew: 'Equipo', tBoard: 'Tablero', tLog: 'Registro', tChat: 'Chat', keysH: 'Teclas', keysB: 'Teclas',
+      mineH: 'Hazlo tuyo', mineS: 'Se guarda solo en este equipo. Cada cambio se ve al instante.', mWork: 'Trabajando', mNeed: 'Te necesita', mLook: 'Estilo', lkNoc: 'Nocturno', lkLed: 'Claro', lkMid: 'Medianoche',
+      mStrip: 'Luces de los robots', stStatus: 'Por estado', stOne: 'Un solo color', mName: 'Nombre del centro', mReset: 'Restablecer',
       lfAll: 'Todo', lfUp: 'Arriba', lfDown: 'Abajo', lfHand: 'Entregas', lfAns: 'Respuestas', older: 'Anteriores', searchL: 'Buscar en esta pestaña', searchPh: 'Buscar en esta pestaña',
       boardH: 'Tablero', memH: 'Lo que toda IA debe saber', kcTitle: 'Mano Derecha', kcSrc: 'Cambios al tablero, tus preguntas y órdenes al equipo · inglés o español · usa tu cuenta de Claude',
       kcNone: 'La caja de la Mano Derecha aparece aquí cuando abres el centro con tu cuenta de editor.',
@@ -657,6 +719,9 @@ const TX = {
     typeIt: 'Escribir…', titleNeeds: (n, who) => `(${n}) ${who} te espera — ${hubName()}`,
     task: {h: 'Tarea', owner: 'Dueño', status: 'Estado', age: 'Edad', log: 'Registro', ans: 'Respuestas', none: 'Esta tarea ya no está en el tablero.', nolog: 'Nada en el registro la menciona todavía.'},
     namesOff: 'Nombres ocultos. Presiona N para verlos.', namesOn: 'Nombres visibles.',
+    mine: 'Hazlo tuyo', lowT: on => `Efectos reducidos: ${on ? 'sí' : 'no'}`, custom: 'Tu propio color', needLow: r => `Ese color no se lee bien sobre este fondo (${r}:1; necesita 4.5:1). Escoge uno más fuerte.`,
+    swW: {champagne: 'Champán', pearl: 'Perla', sage: 'Salvia', glacier: 'Glaciar', rose: 'Oro rosa', brass: 'Latón'}, swN: {ember: 'Brasa', amber: 'Ámbar', coral: 'Coral', poppy: 'Amapola'},
+    dollyHint: 'Desliza para acercarte · N para nombres',
     views: {all: 'Todo', blueprint: 'Plano', cctv: 'Cámara de seguridad', up: 'Arriba', down: 'Abajo', follow: 'Seguir', window: 'Por la ventana', tilt: 'Miniatura', tour: 'Recorrido', director: 'Director', eyes: 'Ojos'},
     keys: [['1 – 8', 'Vistas de cámara (las que ya existen)'], ['9', 'Los ojos del robot'], ['↑ ↓', 'Arriba / abajo'], ['← →', 'Siguiente robot'], ['N', 'Ocultar o mostrar nombres'], ['A', 'Ir a la siguiente pregunta (solo enfoca; no manda nada)'], ['C B L H', 'Equipo, Tablero, Registro, Chat'], ['/', 'Buscar en esta pestaña'], ['R', 'Actualizar ahora'], ['Esc', 'Cerrar'], ['?', 'Esta hoja']],
     sum: {working: 'trabajando', blocked: 'atorados', sleeping: 'dormidos'},
@@ -922,7 +987,8 @@ function needItems(){
   const q = openAsks().map(x => ({key:'q:' + x.id, bot:false, who:L().qWord + ' ' + x.id, text:x.q, at:Date.parse(x.at || '') || 0}));
   return [...r, ...q];
 }
-const chip = i => '<li><button type="button" class="need" data-sel="' + esc(i.key) + '" aria-pressed="' + (selected === i.key) + '" title="' + esc(i.text) + '" aria-label="' + esc(i.who + ': ' + i.text) + '">' +
+let chipKeys = new Set();
+const chip = i => '<li><button type="button" class="need' + (chipKeys.has(i.key) ? '' : ' in') + '" data-sel="' + esc(i.key) + '" aria-pressed="' + (selected === i.key) + '" title="' + esc(i.text) + '" aria-label="' + esc(i.who + ': ' + i.text) + '">' +
   '<b>' + esc(i.who) + '</b><span class="nq">' + esc(i.text) + '</span>' + (i.at ? '<time>' + esc(sinceText(i.at).replace('+', '')) + '</time>' : '') + '</button></li>';
 function renderNeeds(){
   const items = needItems(), T = L(), n = items.length;
@@ -941,6 +1007,7 @@ function renderNeeds(){
   $('#nlist').innerHTML = n ? show.map(chip).join('') +
       (n > cap ? '<li class="mli"><button type="button" class="more" data-more aria-expanded="' + (isWide ? plateOpen : needsAll) + '">' + esc(isWide ? '+' + (n - cap) : needsAll ? T.less : T.moreN(n)) + '</button></li>' : '')
     : '<li class="none"><i class="g" aria-hidden="true">✓</i>' + esc(T.needsNone) + '</li>';
+  chipKeys = new Set(ids);
   const pl8 = $('#nplate'); pl8.hidden = !(isWide && plateOpen);
   if (!pl8.hidden) pl8.innerHTML = '<ul>' + items.slice(cap).map(chip).join('') + '</ul>';
   if (qplate.key && !items.some(i => i.key === qplate.key)) closeQPlate();
@@ -1348,7 +1415,7 @@ function tickReplay(){
   if (!e) { $('#replayText').innerHTML = '<b>' + esc(L().replayW) + '</b>' + esc(L().caughtUp); replay.timer = setTimeout(() => stopReplay(false), 2200); return; }
   const prev = replay.over.get(e.agent) || {};
   replay.over.set(e.agent, {status:e.status && STATUS.includes(e.status) ? e.status : KIND_STATUS[e.kind] || prev.status || 'idle', room:e.room || prev.room, doing:e.text});
-  if (e.kind === 'handoff' && byId[e.to]) HUB.handoffs.push({from:e.agent, to:e.to});
+  if (e.kind === 'handoff' && byId[e.to]) pushHandoff(e.agent, e.to);
   replay.cur = e.id;
   $('#replayText').innerHTML = '<b>' + esc(L().replayW) + ' ' + replay.i + '/' + replay.evs.length + '</b>' + esc(tFmt.format(e.atMs)) + ' · ' + esc(nameOf(e.agent)) + ': ' + esc(e.text);
   refreshAll(); renderFeeds();
@@ -1460,9 +1527,10 @@ stageEl.addEventListener('pointerup', e => {
 /* ================= cameras, sky, sound ================= */
 const BASE_VIEWS = ['all', 'up', 'down', 'follow'];
 const builtViews = () => { const S = window.SCENE, v = S && S.ready && Array.isArray(S.views) ? S.views : BASE_VIEWS; return v; };
-function setCam(k){
+function setCam(k, fromDolly){
   if (!BASE_VIEWS.includes(k) && !builtViews().includes(k)) return;
   cam = k; store.set('hub-cam', k);
+  if (!fromDolly && typeof dollySel !== 'undefined') { dolly = k === 'follow' ? 2 : k === 'up' || k === 'down' ? 1 : 0; dollySel = false; }
   for (const b of document.querySelectorAll('#camSeg button[data-cam]')) b.setAttribute('aria-pressed', String(b.dataset.cam === k));
   if (k === 'follow' && !byId[selected]) { const w = waitingBots()[0] || bots.find(a => a.st === 'working') || byId.code; select(w.id); }
 }
@@ -1539,7 +1607,7 @@ const typingIn = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT
 const VIEW_KEYS = {'1':'all', '2':'blueprint', '3':'cctv', '4':'follow', '5':'window', '6':'tilt', '7':'tour', '8':'director', '9':'eyes'};
 const TAB_KEYS = {c:'crew', b:'board', l:'log', h:'chat'};
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
+  if (e.key === 'Escape') { if (closeMine()) { $('#mineBtn').focus(); return; } if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
   if (e.metaKey || e.ctrlKey || e.altKey || typingIn(document.activeElement)) return;
   const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #keys'));
   if (VIEW_KEYS[k]) { const v = VIEW_KEYS[k]; if (BASE_VIEWS.includes(v) || builtViews().includes(v)) { if (v === 'eyes' && !byId[selected]) nextOrKing(); setCam(v); } }
@@ -1556,6 +1624,177 @@ document.addEventListener('keydown', e => {
 });
 function nextOrKing(){ const w = waitingBots()[0] || byId.code; select(w.id, {keep:true}); }
 
+/* ================= Make it yours (per device, hub-theme): only the theme layer changes ================= */
+const SW_WORK = [['champagne', '#f1c48a'], ['pearl', '#e8e2d4'], ['sage', '#a9c5a0'], ['glacier', '#a8c8e0'], ['rose', '#e8b4a0'], ['brass', '#d8b56a']];
+const SW_NEED = [['ember', '#f5883a'], ['amber', '#f2a93b'], ['coral', '#f27a5e'], ['poppy', '#ef5b4b']];
+const LOOK_BG = {nocturne:'#0c0d0f', ledger:'#f3f2ee', midnight:'#060709'};
+const THEME_DEF = {work:'#f1c48a', need:'#f5883a', look:'nocturne', strip:'ember-only', name:'', low:false};
+let mine = Object.assign({}, THEME_DEF); try { const t = JSON.parse(store.get('hub-theme') || 'null'); if (t && typeof t === 'object') mine = Object.assign(mine, t); } catch (e) { /* defaults */ }
+const hx = h => /^#[0-9a-f]{6}$/i.test(String(h)) ? String(h).toLowerCase() : null;
+const toHex = c => '#' + c.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+const mixHex = (a, b, t) => toHex(mixc(hex(a), hex(b), t));
+const relLum = h => { const f = v => { v /= 255; return v <= .04045 ? v/12.92 : Math.pow((v + .055)/1.055, 2.4); }; const [r, g, b] = hex(h); return .2126*f(r) + .7152*f(g) + .0722*f(b); };
+const ratio = (a, b) => { const x = relLum(a), y = relLum(b); return (Math.max(x, y) + .05)/(Math.min(x, y) + .05); };
+function needTokens(need, look){
+  const bg = LOOK_BG[look] || LOOK_BG.nocturne, light = look === 'ledger';
+  let ui = need, ink = light ? mixHex(need, '#000000', .42) : mixHex(need, '#ffffff', .22);
+  if (light) { let t = .1; while (ratio(ui, bg) < 3 && t < .8) { ui = mixHex(need, '#000000', t); t += .08; } }
+  return {ui, ink, deep:mixHex(need, '#000000', .55), ok:ratio(ink, bg) >= 4.5 && ratio(ui, bg) >= 3, r:ratio(ink, bg).toFixed(1)};
+}
+function applyTheme(save){
+  const R = document.documentElement.style, look = LOOK_BG[mine.look] ? mine.look : 'nocturne';
+  if (look === 'nocturne') document.documentElement.removeAttribute('data-look'); else document.documentElement.setAttribute('data-look', look);
+  const work = hx(mine.work) || THEME_DEF.work, need = hx(mine.need) || THEME_DEF.need, nt = needTokens(need, look), [r, g, b] = hex(nt.ui);
+  R.setProperty('--work', work); R.setProperty('--need', nt.ui); R.setProperty('--need-ink', nt.ink); R.setProperty('--need-deep', nt.deep);
+  R.setProperty('--need-bg', `rgba(${r},${g},${b},${look === 'ledger' ? .1 : .12})`); R.setProperty('--need-line', `rgba(${r},${g},${b},.55)`);
+  document.getElementById('app').classList.toggle('lowfx', !!mine.low || fxAuto);
+  HUB.theme = {v:(HUB.theme.v || 0) + 1, work, idle:mixHex(work, '#a89c86', .5), need, stuck:THEME0.stuck, sleep:THEME0.sleep, jewel:THEME0.jewel,
+    stripMode:mine.strip === 'brand' ? 'brand' : 'ember-only', name:String(mine.name || '').slice(0, 24)};
+  const hn = $('#hubName'); if (hn) hn.textContent = hubName();
+  if (save) store.set('hub-theme', JSON.stringify(mine));
+  renderNeeds.base && renderNeeds();
+}
+let fxAuto = false;
+HUB.onLowFx = on => { fxAuto = !!on; document.getElementById('app').classList.toggle('lowfx', !!mine.low || fxAuto); };
+function swatches(list, cur, names, kind){
+  return list.map(([k, c]) => '<button type="button" role="radio" data-sw="' + kind + '" data-c="' + c + '" aria-checked="' + (cur === c) + '" aria-label="' + esc(names[k]) + '" title="' + esc(names[k]) + '" style="--c:' + c + '"><i></i></button>').join('') +
+    '<label title="' + esc(L().custom) + '" aria-checked="' + !list.some(([, c]) => c === cur) + '"><i></i><input type="color" data-swc="' + kind + '" value="' + cur + '" aria-label="' + esc(L().custom) + '"></label>';
+}
+function renderMine(){
+  const T = L();
+  $('#swWork').innerHTML = swatches(SW_WORK, hx(mine.work) || THEME_DEF.work, T.swW, 'work');
+  $('#swNeed').innerHTML = swatches(SW_NEED, hx(mine.need) || THEME_DEF.need, T.swN, 'need');
+  for (const b of document.querySelectorAll('#segLook [data-look]')) b.setAttribute('aria-pressed', String(b.dataset.look === (mine.look || 'nocturne')));
+  for (const b of document.querySelectorAll('#segStrip [data-strip]')) b.setAttribute('aria-pressed', String(b.dataset.strip === (mine.strip || 'ember-only')));
+  const n = $('#mName'); if (document.activeElement !== n) n.value = mine.name || ''; n.placeholder = T.st.title;
+  $('#mSound').textContent = T.soundT(dingOn); $('#mSound').setAttribute('aria-pressed', String(dingOn));
+  $('#mLow').textContent = T.lowT(!!mine.low); $('#mLow').setAttribute('aria-pressed', String(!!mine.low));
+  $('#mineBtn').setAttribute('aria-label', T.mine); $('#mineBtn').title = T.mine;
+}
+function setNeed(c){
+  const nt = needTokens(c, mine.look || 'nocturne');
+  if (!nt.ok) { $('#mNeedWarn').textContent = L().needLow(nt.r); renderMine(); return; }
+  $('#mNeedWarn').textContent = ''; mine.need = c; applyTheme(true); renderMine();
+}
+function openMine(){ closeKeys(); renderMine(); $('#mine').hidden = false; $('#mineBtn').setAttribute('aria-expanded', 'true'); $('#mineX').focus(); }
+function closeMine(){ if ($('#mine').hidden) return false; $('#mine').hidden = true; $('#mineBtn').setAttribute('aria-expanded', 'false'); return true; }
+$('#mineBtn').addEventListener('click', () => { if (!closeMine()) openMine(); });
+$('#keysMine').addEventListener('click', openMine);
+$('#mineX').addEventListener('click', () => { closeMine(); $('#mineBtn').focus(); });
+$('#mine').addEventListener('click', e => {
+  const sw = e.target.closest('[data-sw]'); if (sw) { if (sw.dataset.sw === 'work') { mine.work = sw.dataset.c; applyTheme(true); renderMine(); } else setNeed(sw.dataset.c); return; }
+  const lk = e.target.closest('[data-look]'); if (lk) { mine.look = lk.dataset.look; const nt = needTokens(hx(mine.need) || THEME_DEF.need, mine.look); if (!nt.ok) mine.need = THEME_DEF.need; applyTheme(true); renderMine(); return; }
+  const st = e.target.closest('[data-strip]'); if (st) { mine.strip = st.dataset.strip; applyTheme(true); renderMine(); return; }
+  if (e.target.closest('#mSound')) { $('#dingBtn').click(); renderMine(); return; }
+  if (e.target.closest('#mLow')) { mine.low = !mine.low; applyTheme(true); renderMine(); return; }
+  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); $('#mNeedWarn').textContent = ''; applyTheme(true); renderMine(); }
+});
+$('#mine').addEventListener('input', e => {
+  const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; if (c.dataset.swc === 'work') { mine.work = v; applyTheme(true); } else { const nt = needTokens(v, mine.look || 'nocturne'); $('#mNeedWarn').textContent = nt.ok ? '' : L().needLow(nt.r); if (nt.ok) { mine.need = v; applyTheme(true); } } return; }
+  if (e.target.id === 'mName') { mine.name = e.target.value.slice(0, 24); applyTheme(true); }
+});
+$('#mine').addEventListener('change', e => { if (e.target.closest('[data-swc]')) renderMine(); });
+document.addEventListener('pointerdown', e => { if (!$('#mine').hidden && !e.target.closest('#mine,#mineBtn,#keysMine')) closeMine(); });
+
+/* ================= the mind: the crew's thoughts as a flow field in the sky (ART 6.5; page code, not three.js) ================= */
+const mind = (() => {
+  const cv = $('#mind'), cx = cv.getContext('2d');
+  let W = 0, H = 0, P = [], last = 0, acc = 0, visible = true, still = 0, comets = [], drive = {speed:.5, share:.6, alpha:.18, choppy:1, needX:null, t:0};
+  const N = () => isWide ? 700 : 250, FPS = () => isWide ? 30 : 24;
+  // small value noise -> curl field
+  const perm = new Uint8Array(512); for (let i = 0; i < 256; i++) perm[i] = i; for (let i = 255; i > 0; i--) { const j = (i*2654435761 >>> 0) % (i + 1); const t = perm[i]; perm[i] = perm[j]; perm[j] = t; } for (let i = 0; i < 256; i++) perm[i + 256] = perm[i];
+  const fade = t => t*t*(3 - 2*t), lerp = (a, b, t) => a + (b - a)*t;
+  const h3 = (x, y, z) => perm[(perm[(perm[x & 255] + y) & 255] + z) & 255]/255;
+  function noise(x, y, z){ const X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z), fx = fade(x - X), fy = fade(y - Y), fz = fade(z - Z);
+    const a = lerp(lerp(h3(X, Y, Z), h3(X + 1, Y, Z), fx), lerp(h3(X, Y + 1, Z), h3(X + 1, Y + 1, Z), fx), fy);
+    const b = lerp(lerp(h3(X, Y, Z + 1), h3(X + 1, Y, Z + 1), fx), lerp(h3(X, Y + 1, Z + 1), h3(X + 1, Y + 1, Z + 1), fx), fy); return lerp(a, b, fz); }
+  function spawn(p){ p.x = Math.random()*W; p.y = Math.random()*H*.62; p.life = 60 + Math.random()*160; p.age = 0; p.warm = false; return p; }
+  function size(){ const r = cv.getBoundingClientRect(); const w = Math.max(2, Math.round(r.width/2)), h = Math.max(2, Math.round(r.height/2)); if (w === W && h === H) return; W = cv.width = w; H = cv.height = h; P = []; for (let i = 0; i < N(); i++) P.push(spawn({})); }
+  function readCrew(){
+    const n = bots.length, cnt = s => bots.filter(a => a.st === s).length;
+    const work = cnt('working'), active = bots.filter(a => ['working', 'waiting', 'blocked', 'done'].includes(a.st)).length, asleep = cnt('sleeping');
+    drive.speed = asleep === n ? .15 : .25 + .75*(work/n); drive.share = .4 + .6*(active/n); drive.alpha = (asleep === n ? .10 : .10 + .18*Math.min(1, active/Math.max(1, n*.6)))*.7;   // faint thread-light
+    drive.choppy = cnt('blocked') ? 1.6 : 1;
+    const id = HUB.needs.ids[0], S = window.SCENE, an = id && S && S.ready && S.anchors && S.anchors[id];
+    const sw = stageEl.clientWidth || 1; drive.needX = id ? (an && an.visible !== false ? an.x/sw : .5) : null;
+  }
+  function step(dt){
+    const th = HUB.theme || THEME0, sc = .0045*drive.choppy, spd = drive.speed*60*dt, t = (drive.t += dt*.05*drive.speed);
+    cx.globalCompositeOperation = 'destination-out'; cx.fillStyle = 'rgba(0,0,0,.07)'; cx.fillRect(0, 0, W, H); cx.globalCompositeOperation = 'source-over';
+    const nv = Math.floor(P.length*drive.share), br = breath(), [wr, wg, wb] = hex(th.work), [nr, ng, nb] = hex(th.need);
+    cx.lineWidth = .8; cx.lineCap = 'round';
+    for (let i = 0; i < nv; i++) {
+      const p = P[i], e = .8;
+      const a = noise(p.x*sc, (p.y + e)*sc, t), b = noise(p.x*sc, (p.y - e)*sc, t), c = noise((p.x + e)*sc, p.y*sc, t), d = noise((p.x - e)*sc, p.y*sc, t);
+      const vx = (a - b)/(2*e)*260, vy = -(c - d)/(2*e)*260, ox = p.x, oy = p.y;
+      p.x += vx*spd; p.y += vy*spd; p.age++;
+      if (p.age > p.life || p.x < -4 || p.x > W + 4 || p.y < -4 || p.y > H*.66) { spawn(p); continue; }
+      const warm = drive.needX != null && Math.abs(p.x/W - drive.needX) < .15;
+      const fadeA = Math.min(1, p.age/20, (p.life - p.age)/20);
+      if (warm) cx.strokeStyle = `rgba(${nr},${ng},${nb},${(Math.min(.35, drive.alpha*1.6)*br*fadeA).toFixed(3)})`;
+      else if (i % 3 === 0) cx.strokeStyle = `rgba(${wr},${wg},${wb},${(drive.alpha*fadeA).toFixed(3)})`;
+      else cx.strokeStyle = `rgba(241,242,244,${(drive.alpha*.8*fadeA).toFixed(3)})`;
+      cx.beginPath(); cx.moveTo(ox, oy); cx.lineTo(p.x, p.y); cx.stroke();
+    }
+    // handoff comets: a brass streak from the sender's x to the receiver's, 400 ms tail
+    const now = performance.now(), [jr, jg, jb] = hex(th.jewel);
+    comets = comets.filter(k => now - k.t0 < k.dur + 400);
+    for (const k of comets) { const pos = u => { const q = Math.max(0, Math.min(1, u)); const e2 = q < .5 ? 2*q*q : 1 - Math.pow(-2*q + 2, 2)/2; return [lerp(k.x0, k.x1, e2)*W, H*(.3 - .12*Math.sin(Math.PI*e2))]; };
+      const u1 = (now - k.t0)/k.dur, u0 = (now - k.t0 - 400)/k.dur; if (u0 >= 1) continue;
+      const g = 8; cx.lineWidth = 1.4;
+      for (let s2 = 0; s2 < g; s2++) { const ua = lerp(u0, Math.min(1, u1), s2/g), ub = lerp(u0, Math.min(1, u1), (s2 + 1)/g); const [x0, y0] = pos(ua), [x1, y1] = pos(ub);
+        cx.strokeStyle = `rgba(${jr},${jg},${jb},${(.15 + .75*(s2 + 1)/g).toFixed(3)})`; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke(); } }
+  }
+  function tick(now){
+    if (!cv.isConnected) return;
+    const off = document.hidden || !visible || document.getElementById('app').classList.contains('lowfx') || HUB.power === 'paused';
+    if (off) { last = now; return; }
+    if (!(window.SCENE && window.SCENE.ready) && !document.getElementById('app').classList.contains('no-gl')) { last = now; return; }   // let the 3D boot first
+    size();
+    if (RMQ.matches) { if (now - still > 60000 || !still) { still = now; readCrew(); cx.clearRect(0, 0, W, H); for (let i = 0; i < 90; i++) step(1/30); } return; }
+    const dt = (now - last)/1000; last = now; acc += Math.min(.25, dt);
+    const f = 1/FPS(); if (acc < f) return; const d = Math.min(.1, acc); acc = 0;
+    if (!(tick.n = ((tick.n || 0) + 1) % 30)) readCrew();
+    step(d);
+  }
+  try { new IntersectionObserver(es => { visible = es.some(e => e.isIntersecting); }).observe(stageEl); } catch (e) { /* always visible */ }
+  return {tick, comet(from, to){ const S = window.SCENE, sw = stageEl.clientWidth || 1, ax = id => { const an = S && S.ready && S.anchors && S.anchors[id]; return an ? an.x/sw : .5; };
+    if (!RMQ.matches) comets.push({x0:ax(from), x1:ax(to), t0:performance.now(), dur:1400}); }, read: readCrew};
+})();
+function pushHandoff(from, to){ HUB.handoffs.push({from, to}); mind.comet(from, to); }
+
+/* ================= the scroll push-in (ART 8.2): wheel over the room steps Whole -> floor -> robot ================= */
+let dolly = cam === 'follow' ? 2 : cam === 'up' || cam === 'down' ? 1 : 0, dollySel = false;
+const dollyIn = {acc:0, lock:false, stepAt:0, lastWheel:0};
+Object.defineProperty(HUB, 'dolly', {get(){ return dolly; }, configurable:true});
+function dollyFocus(){ const n = HUB.needs.ids[0]; if (n) return n; const st = bots.find(a => a.st === 'blocked'); if (st) return st.id; if (byId[selected]) return selected; return 'code'; }
+function setDolly(d){
+  d = Math.max(0, Math.min(2, d)); if (d === dolly) return; const f = dollyFocus(); dolly = d;
+  if (d === 0) { if (dollySel && byId[selected]) select(null); dollySel = false; setCam('all', true); }
+  else if (d === 1) { if (dollySel && byId[selected]) select(null); dollySel = false; setCam(byId[f].def.floor, true); }
+  else { if (selected !== f) { select(f, {keep:true}); dollySel = true; } setCam('follow', true); }
+  dollyIn.stepAt = performance.now(); dollyIn.lock = true; hideHint();
+}
+stageEl.addEventListener('wheel', e => {
+  if (!isWide || !matchMedia('(pointer:fine)').matches) return;
+  if (e.target.closest('.stagebar,.recap,.replaybar,.qplate')) return;
+  let dy = e.deltaY, dx = e.deltaX; if (e.deltaMode === 1) { dy *= 16; dx *= 16; } else if (e.deltaMode === 2) { dy *= innerHeight; dx *= innerWidth; }
+  e.preventDefault();
+  if (Math.abs(dx) > Math.abs(dy)) return;   // horizontal swipes are ignored
+  if (e.ctrlKey) dy = -dy*4;   // a trackpad pinch: spread = move in
+  const now = performance.now(), quiet = now - dollyIn.lastWheel; dollyIn.lastWheel = now;
+  if (dollyIn.lock) {   // one swipe with inertia never skips two detents: wait for the glide AND 180 ms of quiet
+    const S = window.SCENE, tw = S && typeof S.tweening === 'boolean' ? S.tweening : now - dollyIn.stepAt < 750;
+    if (tw || quiet < 180 || now - dollyIn.stepAt < 180) return; dollyIn.lock = false; dollyIn.acc = 0; }
+  dollyIn.acc += dy;
+  if (Math.abs(dollyIn.acc) >= 90) { const dir = Math.sign(dollyIn.acc); dollyIn.acc = 0; setDolly(dolly + dir); }
+}, {passive:false});
+setInterval(() => { if (dollyIn.lock) { const S = window.SCENE, now = performance.now(), tw = S && typeof S.tweening === 'boolean' ? S.tweening : now - dollyIn.stepAt < 750; if (!tw && now - dollyIn.lastWheel > 180 && now - dollyIn.stepAt > 180) { dollyIn.lock = false; dollyIn.acc = 0; } } }, 60);
+function dollyHint(){
+  if (!isWide || !matchMedia('(pointer:fine)').matches || store.get('hub-hint-dolly') || document.getElementById('app').classList.contains('no-gl')) return;
+  store.set('hub-hint-dolly', '1'); const h = $('#hint'); h.textContent = L().dollyHint; h.style.opacity = 1; setTimeout(() => { if (h.textContent === L().dollyHint) h.style.opacity = 0; }, 6000);
+}
+
 /* ================= the loop ================= */
 let prevNow = performance.now();
 const bdot = $('#bdot');
@@ -1563,7 +1802,7 @@ function frame(now){
   const dt = Math.max(0, Math.min(TEST ? .35 : .08, (now - prevNow)/1000)); prevNow = now;
   updateSky(dt);
   const S = window.SCENE; if (S && S.ready) S.frame(now/1000, dt);
-  placeOverlay();
+  placeOverlay(); mind.tick(now);
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
@@ -1625,6 +1864,7 @@ function applyStatic(){
   $('#tabs').setAttribute('aria-label', [st.tCrew, st.tBoard, st.tLog, st.tChat].join(' · '));
   $('#still').alt = L().stillAlt;
   if (matchMedia('(pointer:coarse)').matches) $('#hint').textContent = st.hintTap;
+  $('#hubName').textContent = hubName(); if (!$('#mine').hidden) renderMine();
   if (document.getElementById('app').classList.contains('no-gl')) $('#hint').textContent = L().still;
   applySkyLabel(); applyDing();
 }
@@ -1815,7 +2055,7 @@ function onEvents(snap){
   const seen = new Set(events.map(e => e.id));
   events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
-  if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) HUB.handoffs.push({from:e.agent, to:e.to}); }
+  if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) pushHandoff(e.agent, e.to); }
   gotEvents = true; got();
   sync(false); renderFeeds(); renderCard(); renderBoard(); renderRoster(); refreshLive(); maybeRecap();
 }
@@ -1891,7 +2131,7 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 }
 
 /* ================= start ================= */
-applyStatic(); setTab(tab); setCam(cam); layout(); renderClock(); applyNames();
+applyTheme(false); applyStatic(); setTab(tab); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderFeeds(); armSeen();
 connect(); fetchWeather();
 setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
