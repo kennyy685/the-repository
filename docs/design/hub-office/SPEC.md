@@ -107,6 +107,12 @@ luxury typography and a dark futuristic aesthetic that feels alive." Applied to 
 - Luxury type: large Bricolage display with tight tracking, spaced mono labels, refined numerals.
 - Alive = every motion is driven by real crew data.
 
+## Its own identity (FilthE, 2026-09-28)
+"Don't base the main colors off the HMP stuff or the name either; I can customize this part to our looking since
+it's only my account." The hub is private to FilthE: its palette and its name are its own, not HMP orange/graphite
+and not "HMP"/"Aldaba". Default = the look he picks from 3 rendered options (docs/design/hub-office/identity/),
+plus a "Make it yours" panel in the hub (accent color, theme, the hub's name), saved per device.
+
 ## Quality bar
 Premium like the Aldaba landing page. Phone first (390 px), smooth, a still-image fallback with no WebGL, reduced
 motion honored. Design gate exits 0 (`--page crew-hq`), `release_checks.sh --fast` and shots.js pass.
