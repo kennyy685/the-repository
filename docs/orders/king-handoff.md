@@ -21,7 +21,7 @@ Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md, then `docs/orders/pa
 1. Designer: click flow on the open map (fly in, ONE proof line then best streets, getting there = drive time + knock
    time left + permit clock, full-roof hint, mortgage share, walk route, Start knocking; "Our doors" labeled sample).
    Review shot-click.png, then publish to the same artifact.
-2. Engine Mechanic: owner-share fix (no fake "65% owners" default shown as data; tests/test_owner_share.py). Then QA
+2. Engine Mechanic: owner-share fix DONE (e278b34, 433 tests OK; next: add "(Census)" source to the owner line). Then QA
    (qa-tester, sonnet) on T211 mortgage share (2e48f35) + this fix.
 
 ## Next (Path step 3): 7 AM home screen, decided today
