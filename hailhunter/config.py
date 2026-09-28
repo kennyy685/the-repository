@@ -168,6 +168,11 @@ DEFAULTS = {
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
     },
+    # T211 (research round 62): Census ACS B25081 share of owner-lived homes with a mortgage, per block group -> one
+    # plain line on walks/zones (todaywalk.mortgage_note). An area fact, never the word "insured". US average ~0.61.
+    "mortgage": {
+        "low_share": 0.40           # below this the line says "many are owned outright" instead of the lender line
+    },
     # Door score v2 (research round 16, `hailhunter/doorscore.py`): one house, 0-100 = 100 x hail x owner_fit x kind x
     # roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale)
     # x recent sale): owner + bought in the last recent_sale_years = 1.0, owner + older sale = 0.7, renter = 0.4.

@@ -70,12 +70,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json] [--evidence-out ev.json]`:
   O0 "Today's knock": ONE walk (fresh strong storm walk, else best everyday walk), houses only in walking order, for
   the HMP App's `today/walk` doc; adds est_minutes, walk_mi, drive_from_home_mi, best_time{en,es}, stale + stale_note
-  (hud.json >36 h old), spanish_share + who, per-stop `coach {en, es, tags}` (T83); no walk -> stops [] +
+  (hud.json >36 h old), spanish_share + who, mortgage_share + mortgage_note{en,es} (T211: Census B25081 share of
+  owner-lived homes with a mortgage, area fact, never "insured"), per-stop `coach {en, es, tags}` (T83); no walk -> stops [] +
   none_reason{en,es}. `--evidence-out` writes `evidence/<slug>` docs (slug = "address city" lowercased,
   non-alphanumerics to "-"). `--results` = the app's door taps. Seasonal: Oct-Mar storm walks may use storms up to
   330 days old; Nov-Feb knock 3:30-5:30 PM.
 - `python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]`:
-  hot zones (app doc `zones/current`: id = walk id, center, polygon, score, heat 0-1, why EN/ES) + one walk per zone in
+  hot zones (app doc `zones/current`: id = walk id, center, polygon, score, heat 0-1, why EN/ES, mortgage_share +
+  mortgage_note EN/ES or null (T211; hud.json walks/lists carry the share only, neighborhoods also the note)) + one walk per zone in
   today/walk shape (`walks/<zone id>`), houses ranked by door score v2 (weights in config.json `door_score`); every
   stop has `door` + `why`.
 - `python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv f]`: today's BUSINESS call list

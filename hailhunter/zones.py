@@ -6,7 +6,9 @@ month) and everyday (old-house) lists. Ranked by the engine's Hot Zones heat for
 the town, top `top`. Output = the HMP App's `zones/current` doc:
 {as_of, near {name, lat, lon}, radius_mi, zones: [{id, name, center {lat, lon}, polygon, polygon_kind, score, heat,
  hail_in, storm_day, homes, why {en, es}, walk_id, kind, dist_mi, list_id, turf, walk_polygon, walk_center {lat, lon},
- homes_total, walk_homes}], none_reason?}
+ homes_total, walk_homes, mortgage_share, mortgage_note {en, es}}], none_reason?}
+- mortgage_share / mortgage_note (T211, optional): Census share of owner-lived homes with a mortgage around the walk and
+  its one plain line (`todaywalk.mortgage_note`); null when unknown or when hud.json is from an engine before T211.
 - kind "wind" zones (T116/T117, `wind_zones`) come after the walk zones: one per wind event, own map layer, no walk
   (walk_id/list_id/turf/homes/polygon and the walk_* fields null), plus max_mph, trees_down, wind_dir. none_reason is
   about walks only.
@@ -155,7 +157,8 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
                     "why": tw.why_sentence(kind, c["why"], left, L.get("day") if kind == "storm" else None,
                                            old_before, tcfg.get("old_strong_before")),
                     "walk_id": f"{L['id']}~t{t.get('turf')}", "kind": kind, "dist_mi": round(dist, 1),
-                    "list_id": L["id"], "turf": t.get("turf"), "_geoid": L.get("geoid") if kind == "everyday" else None})
+                    "list_id": L["id"], "turf": t.get("turf"), "_geoid": L.get("geoid") if kind == "everyday" else None,
+                    **mortgage_fields(t, L, cfg)})
     rows.sort(key=lambda z: (-z["score"], z["dist_mi"], z["id"]))
     rows = rows[:top]
     rings = bg_rings(conn, {z["_geoid"] for z in rows if z["_geoid"]}, zc["polygon_max_points"])
@@ -177,6 +180,15 @@ def zones(hud, today, near=None, radius_mi=None, top=None, results=None, dnk=Non
             "es": f"No hay rutas con puertas pendientes a menos de {radius:g} millas de {near['name']}. Llegan listas "
                   f"nuevas con la próxima actualización de tormentas."}
     return doc
+
+
+def mortgage_fields(t, L, cfg=None):
+    """T211: {mortgage_share, mortgage_note} for one walk zone: the walk's Census share from hud.json, else its list's
+    (an everyday list falls back to its neighborhood). Both null when unknown or from an engine before T211."""
+    m = tw.walk_mortgage(t, L)
+    if m is None:
+        m = L.get("mortgage_share")
+    return {"mortgage_share": m, "mortgage_note": tw.mortgage_note(m, cfg)}
 
 
 def walk_shape(hud, today, z, doors, results, dnk, cfg, zc):
@@ -234,7 +246,8 @@ def wind_zones(hud, today, near, radius, max_age, zc):
                     "why": {"en": f"{place}, {e['day']}: " + ", ".join(bits_en) + ".",
                             "es": f"{place}, {e['day']}: " + ", ".join(bits_es) + "."},
                     "walk_id": None, "dist_mi": round(dist, 1), "list_id": None, "turf": None,
-                    "walk_polygon": None, "walk_center": None, "homes_total": None, "walk_homes": None})
+                    "walk_polygon": None, "walk_center": None, "homes_total": None, "walk_homes": None,
+                    "mortgage_share": None, "mortgage_note": None})
     out.sort(key=lambda z: (-z["score"], z["dist_mi"], z["id"]))
     out = out[:int(zc.get("wind_top", 8))]
     best = out[0]["score"] if out else None

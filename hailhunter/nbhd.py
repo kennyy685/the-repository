@@ -29,6 +29,9 @@ ACS_TABLES = {"b25001": {"B25001_E001": "hu"},
               "b25003": {"B25003_E001": "occupied", "B25003_E002": "owner", "B25003_E003": "renter"},
               "b25035": {"B25035_E001": "med_year"},
               "b25077": {"B25077_E001": "med_value"}}
+# Every table above is REQUIRED (one failed download drops that whole vintage, and with no vintage the run stops).
+# Extra tables load in their own optional loaders below instead - B25081 mortgages (load_mortgages, T23/T211), B19013
+# income, B25034 year built, C16002 language - so a Census hiccup on one of them never costs the 6:54 AM run.
 
 
 def _vendor():
@@ -89,7 +92,10 @@ def load_acs(conn, fetcher, cfg, log=print):
 
 
 def load_mortgages(conn, fetcher, want, vintage, log=print):
-    """ACS B25081 (owner homes with a mortgage) for Hot Zones. Optional: a missing table never stops a run."""
+    """ACS B25081 (owner homes with a mortgage) for Hot Zones and the walk/zone mortgage line (T211). Optional: a
+    missing table never stops a run. Columns (2023 + 2024 5-year, checked against the Census variable list):
+    E001 = owner-occupied homes, E002 = with a mortgage, contract to purchase or similar debt (E003-E008 are its
+    sub-lines), E009 = without a mortgage."""
     try:
         txt = fetcher.get(ACS_DIR.format(y=vintage, t="b25081"), ttl=None, cache=False).decode("utf-8", "replace")
         lines = txt.splitlines()
@@ -143,8 +149,10 @@ def load_income(conn, fetcher, want, vintage, log=print):
 
 
 def mortgage_shares(conn):
-    """{block group geoid: share of owner homes with a mortgage}."""
-    return {g: w / t for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage") if t}
+    """{block group geoid: share of owner homes with a mortgage (0-1)}. An area with no owner-lived homes (or no row)
+    is left out, so callers read it as None (unknown)."""
+    return {g: min(1.0, w / t) for g, t, w in conn.execute("SELECT geoid, total, with_mortgage FROM acs_mortgage")
+            if t and w is not None}
 
 
 YEAR_BINS = ("b2020", "b2010", "b2000", "b1990", "b1980", "b1970", "b1960", "b1950", "b1940", "b1939")   # B25034_E002..E011

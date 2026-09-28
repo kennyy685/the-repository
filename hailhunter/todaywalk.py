@@ -8,6 +8,9 @@ Output: {date, area, why{en,es}, goal_doors, kind: storm|everyday, list_id,
          stops:[{pid, address, city, lat, lon, pass}], spanish_share, who: Kenny|Alex|either}
 `spanish_share` (T37) = Census share of Spanish-speaking households on today's houses (null when unknown);
 `who` = who should knock: Alex (Spanish) when the share is high, Kenny when low, either in between or unknown.
+`mortgage_share` (T211) = Census ACS B25081 share of owner-lived homes with a mortgage on today's houses (house-weighted
+from the walks' block groups, null when unknown); `mortgage_note {en, es}` (only when known, see `mortgage_note`) =
+"About 70% of owner-lived homes here have a mortgage (Census). Mortgage companies require home coverage."
 `why` is one plain sentence in English and Spanish: no scores, no ids.
 Added (additive): `est_minutes` (min_per_door x doors + the walk between stops at walk_mph), `walk_mi`,
 `drive_from_home_mi` (straight line, company home -> first stop), `best_time {en, es, start, end}` (config
@@ -313,13 +316,18 @@ def why_sentence(kind, why, stops, day=None, old_before=1980, strong_before=None
 
 
 # ------------------------------------------------------------------ who knocks (T37)
-def spanish_for(chosen, L, turf_share):
-    """House-weighted Spanish-speaking share of today's stops from their walks' shares (list's share as fallback)."""
-    by_turf = {t.get("turf"): t.get("spanish_share") for t in L.get("turfs") or []}
+def _share_for(chosen, turf_share, by_turf, list_share):
+    """House-weighted share of today's stops: each stop takes its walk's share (by_turf), else the list's share."""
     v = [by_turf.get(s.get("turf"), turf_share) for s in chosen]
-    v = [x if x is not None else L.get("spanish_share") for x in v]
+    v = [x if x is not None else list_share for x in v]
     v = [float(x) for x in v if x is not None]
     return round(sum(v) / len(v), 3) if v else None
+
+
+def spanish_for(chosen, L, turf_share):
+    """House-weighted Spanish-speaking share of today's stops from their walks' shares (list's share as fallback)."""
+    return _share_for(chosen, turf_share, {t.get("turf"): t.get("spanish_share") for t in L.get("turfs") or []},
+                      L.get("spanish_share"))
 
 
 def who_knocks(share, cfg=None):
@@ -327,6 +335,42 @@ def who_knocks(share, cfg=None):
     if share is None:
         return "either"
     return "Alex" if share >= lang["spanish_high"] else ("Kenny" if share < lang["spanish_low"] else "either")
+
+
+# ------------------------------------------------------------------ mortgage share (T211, research round 62)
+def walk_mortgage(t, L):
+    """A hud.json walk's Census mortgage share, or None. Only engines from T211 on write an honest one (they also put
+    `mortgage_share` on the list itself); older ones put the Hot Zones 'unknown' default (0.6) on the walk."""
+    return (t or {}).get("mortgage_share") if "mortgage_share" in (L or {}) else None
+
+
+def mortgage_for(chosen, L, turf_share):
+    """House-weighted Census mortgage share of today's stops (list's share as fallback), like spanish_for."""
+    return _share_for(chosen, turf_share, {t.get("turf"): walk_mortgage(t, L) for t in L.get("turfs") or []},
+                      L.get("mortgage_share"))
+
+
+def mortgage_note(share, cfg=None):
+    """One plain line {en, es} for the Census share of owner-lived homes with a mortgage around a walk; None when
+    unknown. Rounded to 5% (block-group survey numbers are estimates). An area fact: never the word "insured", never
+    a claim about one house or about what an insurer pays."""
+    try:
+        share = float(share)
+    except (TypeError, ValueError):
+        return None
+    if not share >= 0:                                # NaN or negative: bad data, say nothing
+        return None
+    share = min(share, 1.0)
+    low = {**DEFAULTS["mortgage"], **((cfg or {}).get("mortgage") or {})}["low_share"]
+    p = int(round(share * 20)) * 5
+    en, es = ("Under 5%", "menos del 5%") if p <= 0 else ("Over 95%", "más del 95%") if p >= 100 else \
+        (f"About {p}%", f"cerca del {p}%")
+    en += " of owner-lived homes here have a mortgage (Census)"
+    es = f"En esta zona, {es} de las casas donde vive el dueño tienen hipoteca (Censo)"
+    if share < low:
+        return {"en": en + ": many are owned outright.", "es": es + ": muchas ya están pagadas."}
+    return {"en": en + ". Mortgage companies require home coverage.",
+            "es": es + ". Las compañías hipotecarias exigen cobertura para la casa."}
 
 
 # ------------------------------------------------------------------ the pick
@@ -780,6 +824,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
         " & ".join(k for k, _ in streets.most_common(2))
     old_before = ((cfg or {}).get("everyday") or {}).get("old_before", 1980)
     spanish = spanish_for(chosen, L, best["turf"].get("spanish_share"))
+    mortgage = mortgage_for(chosen, L, walk_mortgage(best["turf"], L))
     doc = {
         "date": today.isoformat(), "area": area,
         "why": why_sentence(best["kind"], best["why"], chosen, L.get("day") if best["kind"] == "storm" else None,
@@ -792,7 +837,7 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
                    **({"come_back": results[str(s["pid"])]["come_back"]} if str(s["pid"]) in due_ids else {}),
                    **house_facts(s, cfg, today)}
                   for s in chosen],
-        "spanish_share": spanish, "who": who_knocks(spanish, cfg),
+        "spanish_share": spanish, "who": who_knocks(spanish, cfg), "mortgage_share": mortgage,
     }
     bt = best_time(today, cfg)
     ev = hud.get("hail_evidence") or {}
@@ -814,6 +859,9 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     note = evidence_note(best["kind"], L.get("day"), today, cfg)
     if note:
         doc["evidence_note"] = note
+    note = mortgage_note(mortgage, cfg)                           # T211: only when the Census share is known
+    if note:
+        doc["mortgage_note"] = note
     return doc
 
 
@@ -835,7 +883,7 @@ def today_doc(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None,
                   "es": "Todavía no hay listas de puertas: la actualización de tormentas no ha hecho ninguna. "
                         "Revisa que Storm Watch haya corrido."}
     doc = {"date": today.isoformat(), "area": None, "why": None, "goal_doors": 0, "kind": None, "list_id": None,
-           "stops": [], "spanish_share": None, "who": "either", "est_minutes": 0, "walk_mi": 0.0,
+           "stops": [], "spanish_share": None, "mortgage_share": None, "who": "either", "est_minutes": 0, "walk_mi": 0.0,
            "drive_from_home_mi": None, "best_time": best_time(today, cfg), "none_reason": reason}
     doc.update(freshness(hud, now, cfg))
     return doc
