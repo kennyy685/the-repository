@@ -142,10 +142,13 @@ h1,h2,h3,p{margin:0}
 .ov{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .stagetop{position:absolute;left:12px;right:12px;top:10px;z-index:4;display:flex;gap:8px;align-items:flex-start;justify-content:center;pointer-events:none}
 .hint{text-align:center;font:500 12px/1.4 var(--f);color:var(--ink);text-shadow:0 1px 8px rgba(0,0,0,.9);transition:opacity .6s;max-width:420px}
-.stagebar{position:absolute;left:8px;right:8px;bottom:8px;z-index:4;display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:2px 4px;background:rgba(12,13,15,.78);border:1px solid var(--rule);border-radius:var(--r)}
+.stagebar{position:absolute;left:8px;right:8px;bottom:8px;z-index:4;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:2px;padding:2px 4px;background:rgba(12,13,15,.78);border:1px solid var(--rule);border-radius:var(--r)}
 .stagebar .row2{display:flex;align-items:center;justify-content:space-between;gap:2px;flex-wrap:nowrap;min-width:0}
 .stagebar .cams .k{display:none}
-.stagebar .opts{justify-content:flex-end}
+.stagebar .cams{flex:1 1 auto;justify-content:flex-start}
+.optbtn{border:0}
+.optmenu .tb{justify-content:space-between;gap:14px}
+.optmenu .k{margin-left:auto}
 .recap{position:absolute;left:12px;right:12px;top:56px;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;background:var(--card-solid);border:1px solid var(--rule-2);border-radius:var(--r);animation:needIn .5s var(--ease) both}
 .recap .t{flex:1;min-width:0;display:grid;gap:2px}
 .recap b{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass-hi)}
@@ -331,7 +334,6 @@ h1,h2,h3,p{margin:0}
   .kwin{left:auto;right:calc(var(--col-w) + var(--gutter) + 16px);bottom:84px;width:380px;max-height:min(520px,calc(100vh - 200px));transition:right .34s var(--ease)}
   .kc-sug button{min-height:32px}
   .pclosed .kbub,.pclosed .kwin{right:24px}
-  .stagebar{right:calc(var(--col-w) + var(--gutter) + 84px)}
 }
 @media (prefers-reduced-motion:reduce){ .kwin{animation:none} .kbub,.kwin{transition:none} }
 
@@ -455,7 +457,7 @@ h1,h2,h3,p{margin:0}
   .tabs .tb{min-height:40px}
   .tbody{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent;padding-right:6px;margin-right:-6px}
   .row{min-height:52px}
-  .stagebar{left:var(--gutter);right:calc(var(--col-w) + var(--gutter) + 40px);bottom:24px;flex-direction:row;justify-content:space-between;align-items:center;background:none;border:0;padding:0;gap:16px}
+  .stagebar{left:var(--gutter);right:calc(var(--col-w) + var(--gutter) + 84px);bottom:24px;flex-direction:row;justify-content:space-between;align-items:center;background:none;border:0;padding:0;gap:16px}
   .stagebar .cams .k{display:inline}
   .stagebar .row2{gap:0}
   .stagetop{left:var(--gutter);right:calc(var(--col-w) + var(--gutter) + 40px);top:92px}
@@ -550,7 +552,6 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .keys kbd{min-width:24px;padding:2px 7px;text-align:center;font:500 12px var(--mono);color:var(--ink);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:4px}
 .keys dd{margin:0;font-size:14px;color:var(--ink-2);align-self:center}
 #keysMine{margin:14px 0 0 -10px}
-.tagsoff .tag:not(.keep){opacity:0!important}
 @media (max-width:899px), (max-height:599px){ .cp,.cowork-copy,#keysBtn,.search kbd{display:none} .qplate{display:none} }
 
 /* ---------- P3: Make it yours, the mind ---------- */
@@ -744,13 +745,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
         <button type="button" class="tb" data-cam="eyes" aria-pressed="false" hidden><span class="k" aria-hidden="true">3</span><span data-t="camEyes">Eyes</span></button>
         <button type="button" class="tb" id="camMore" aria-haspopup="menu" aria-expanded="false" hidden><span class="k" aria-hidden="true">4–7</span><span data-t="camMore">More</span></button>
       </div>
-      <div class="row2 opts">
-        <button type="button" class="tb" id="skyBtn" aria-pressed="false">Sky live</button>
-        <button type="button" class="tb" id="dingBtn" aria-pressed="false">Sound off</button>
-        <button type="button" class="tb" id="replayBtn" data-t="replay">Replay</button>
-        <button type="button" class="tb" id="cupBtn" data-nodrag><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M9 3.5c0 1.5 1.5 1.5 1.5 3M12.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span data-t="cup">Coffee</span></button>
-        <button type="button" class="tb" id="keysBtn" aria-haspopup="dialog"><span data-t="keysB">Keys</span><span class="k" aria-hidden="true">?</span></button>
-      </div>
+      <button type="button" class="ibtn optbtn" id="optBtn" aria-haspopup="true" aria-expanded="false" aria-controls="optMenu" aria-label="Sky, sound, replay, coffee and keys" title="Sky, sound, replay, coffee and keys"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></button>
     </div>
   </div>
 
@@ -819,6 +814,14 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 <button type="button" class="ptab" id="panelTab" hidden data-nodrag aria-controls="panel" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="pn" id="panelTabN"></span></button>
 <div class="app-toast" id="appToast" role="status" hidden></div>
 <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
+<div class="viewmenu optmenu" id="optMenu" hidden role="group" aria-label="Sky, sound, replay, coffee and keys" data-nodrag>
+  <button type="button" class="tb" id="skyBtn" aria-pressed="false">Sky live</button>
+  <button type="button" class="tb" id="dingBtn" aria-pressed="false">Sound off</button>
+  <button type="button" class="tb" id="svBtn" aria-pressed="false"><span data-t="svB">Status view</span><span class="k" aria-hidden="true">V</span></button>
+  <button type="button" class="tb" id="replayBtn"><span data-t="replay">Replay 24 h</span></button>
+  <button type="button" class="tb" id="cupBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M9 3.5c0 1.5 1.5 1.5 1.5 3M12.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span data-t="cup">Coffee: drag onto a robot</span></button>
+  <button type="button" class="tb" id="keysBtn" aria-haspopup="dialog"><span data-t="keysB">Keys</span><span class="k" aria-hidden="true">?</span></button>
+</div>
 <section class="mine" id="mine" hidden role="dialog" aria-labelledby="mineH">
   <div class="mine-h"><h2 id="mineH" data-t="mineH">Make it yours</h2><button type="button" class="ibtn" id="mineX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <p class="src" data-t="mineS">Saved on this device only. Every change shows right away.</p>
@@ -857,10 +860,10 @@ const pl = (n, one, many) => (n === 1 ? one : many);
 const TX = {
   en: {
     st: {title: 'AI Hub', sub: 'Your AI crew', needs: 'Needs you', crew: 'Crew', hint: 'Click a robot to see what it is doing.', hintTap: 'Tap a robot to see what it is doing.',
-      camAll: 'Whole', camFollow: 'Follow', camEyes: 'Eyes', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay',
+      camAll: 'Whole', camFollow: 'Follow', camEyes: 'Eyes', camMore: 'More', watch: 'Watch', stop: 'Stop', replay: 'Replay 24 h', svB: 'Status view',
       tCrew: 'Crew', tBoard: 'Board', tLog: 'Log', tChat: 'Memory', kcPtr: 'To talk to the Right Hand, press', kcPtr2: 'or use the chat bubble.', kcHi: 'Ask about the board, answer a question in your own words, or give the crew an order.', keysH: 'Keys', keysB: 'Keys',
       mineH: 'Make it yours', mineS: 'Saved on this device only. Every change shows right away.', mWork: 'Working', mLocked: 'Needs you, stuck and done keep their colors, so they always read at a glance.', mLook: 'Look', lkNoc: 'Nocturne', lkLed: 'Ledger', lkMid: 'Midnight',
-      cup: 'Coffee', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
+      cup: 'Coffee: drag onto a robot', mCheck: 'Sound check', todayPill: 'Today', watchIt: 'Watch it',
       mStrip: 'Robot light strips', stStatus: 'By status', stOne: 'All one color', mName: 'The hub’s name', mReset: 'Reset',
       lfAll: 'All', lfUp: 'Up', lfDown: 'Down', lfHand: 'Handoffs', lfAns: 'Answers', older: 'Older', searchL: 'Search this tab', searchPh: 'Search this tab',
       boardH: 'Board', memH: 'What every AI should know', kcTitle: 'Right Hand', kcSrc: 'Board changes, your questions and orders to the crew · uses your Claude usage',
@@ -883,10 +886,10 @@ const TX = {
     cwPrompt: (t, id) => `From the King, via the AI hub: ${t}${id ? ' (' + id + ')' : ''}. When it’s done, check in on the AI hub (crew-checkin skill).`,
     typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you · ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
-    namesOff: 'Names hidden. Press N to show them.', namesOn: 'Names shown.',
+    namesOff: 'Names show on hover. N shows them all.', namesOn: 'Every name shown. N hides them again.',
     mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color',
     swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'},
-    dollyHint: 'Scroll to move in · N for names',
+    dollyHint: 'Scroll to move in · N for every name · V for status',
     run: t => `the ${t} run`, rides: (t, m) => `Rides the ${t} run · in ${m} min`, ridesNight: t => `Saved. Rides the ${t} run. Nothing runs while you sleep.`, wakeNow: 'Wake now', woke: 'Waking Claude Code now.',
     midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
     allNormal: (n, t) => `All normal · ${n} working · next run ${t}`, quietDesign: t => `Quiet by design · next run ${t}`,
@@ -1774,7 +1777,7 @@ function refreshLive(){
 function renderClock(){
   $('#clk').textContent = tFmt.format(Date.now());
   let w = '';
-  if (weather.tempF != null) { const d = weather.text; w = ' · ' + weather.tempF + '°F' + (d ? ' ' + d.toUpperCase() : ''); }
+  if (weather.tempF != null) { const d = weather.storm || weather.rain || sky.stormTo > .5 ? weather.text : ''; w = ' · ' + weather.tempF + '°F' + (d ? ' ' + d.toUpperCase() : ''); }   // calm: words only when it storms
   $('#clkW').textContent = w + (sky.mode === 'live' ? '' : ' · ' + L().sky[sky.mode].toUpperCase());
 }
 function refreshAll(){ sync(false); renderNeeds(); renderRoster(); renderCard(); refreshLive(); }
@@ -1838,7 +1841,7 @@ function overlayFor(a){
   const ring = document.createElement('div'); ring.className = 'ring'; ring.innerHTML = '<svg viewBox="0 0 22 22"><circle class="bg" cx="11" cy="11" r="9"/><circle class="fg" cx="11" cy="11" r="9" stroke-dasharray="56.55" stroke-dashoffset="56.55"/></svg>';
   ov.append(tag, zz, ring, bub); o = {tag, bub, zz, ring, sig:'', w:0, h:0}; overlays.set(a.id, o); return o;
 }
-function bubbleKind(a, an){ if (a.st === 'waiting' && (an.pose === 'wait' || an.pose === 'queue')) return 'waiting'; if (a.st === 'blocked' && an.pose === 'blocked') return 'blocked'; if (an.pose === 'cheer') return 'done'; return ''; }
+function bubbleKind(a, an){ if (a.st === 'waiting' && (an.pose === 'wait' || an.pose === 'queue')) return 'waiting'; if (a.st === 'blocked' && an.pose === 'blocked') return 'blocked'; return ''; }   // v28: bubbles only for needs you and stuck
 function placeOverlay(){
   const S = window.SCENE; const W = stageEl.clientWidth;
   const boxes = [], tags = [];
@@ -1855,13 +1858,12 @@ function placeOverlay(){
         o.w = 0; } }
     const showBub = !!kind && !an.moving && !(kind === 'waiting' && call.id === a.id && !$('#call').hidden);   // The Call already shows this question
     o.bub.classList.toggle('on', showBub);
-    const showTag = !showBub && (a.id === selected || a.id === HUB.hover || isWide || statusView);
-    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected); o.tag.classList.toggle('keep', a.st === 'waiting' || a.st === 'blocked' || a.id === selected);
-    if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
+    const showTag = !showBub && (a.id === selected || a.id === HUB.hover || namesAll || statusView || s7 === 'needs' || s7 === 'stuck');
+    o.tag.classList.toggle('on', showTag); o.tag.classList.toggle('sel', a.id === selected);     if (showTag) { if (!o.tw) o.tw = o.tag.offsetWidth; tags.push({o, x:an.x - o.tw/2, y:an.y - 26, w:o.tw, sel:a.id === selected}); }
     const sleeping = an.pose === 'sleep' && !an.moving;
     o.zz.classList.toggle('on', sleeping);
     if (sleeping) o.zz.style.transform = 'translate(' + Math.round(an.x + 4) + 'px,' + Math.round(an.y - 44) + 'px)';
-    const p = a.st === 'working' && !an.moving ? progressOf(a) : null;
+    const p = a.st === 'working' && !an.moving && showTag ? progressOf(a) : null;   // the ring rides with the tag
     o.ring.classList.toggle('on', p != null);
     if (p != null) { o.ring.querySelector('.fg').setAttribute('stroke-dashoffset', (56.55*(1 - p)).toFixed(2)); o.ring.style.transform = 'translate(' + Math.round(showTag ? an.x + o.tw/2 + 4 : an.x + 12) + 'px,' + Math.round(showTag ? an.y - 28 : an.y - 30) + 'px)'; }
     if (showBub) { if (!o.w) { o.w = o.bub.offsetWidth; o.h = o.bub.offsetHeight; } boxes.push({o, id:a.id, ax:an.x, ay:an.y - 10, w:o.w, h:o.h}); }
@@ -1968,6 +1970,7 @@ $('#tabs').addEventListener('keydown', e => {
 document.addEventListener('click', e => {
   if (plateOpen && !e.target.closest('#needs')) { plateOpen = false; renderNeeds(); }
   if (!e.target.closest('#viewMenu,#camMore')) closeViewMenu();
+  if (!e.target.closest('#optMenu,#optBtn')) closeOptMenu();
   const c = e.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c.classList.contains('cp') ? c : null); return; }
   const cv = e.target.closest('[data-same],[data-notsame],[data-unpark],[data-undo],[data-wakenow],[data-alert],[data-dec]');
   if (cv) { convClick(cv); return; }
@@ -2008,12 +2011,21 @@ function openViewMenu(){
 }
 function closeViewMenu(){ if ($('#viewMenu').hidden) return; $('#viewMenu').hidden = true; $('#camMore').setAttribute('aria-expanded', 'false'); }
 $('#camMore').addEventListener('click', () => { if ($('#viewMenu').hidden) openViewMenu(); else closeViewMenu(); });
+/* the "···" menu (declutter, note 9): sky, sound, status view, replay, coffee, keys */
+function openOptMenu(){ const m = $('#optMenu'), r = $('#optBtn').getBoundingClientRect(); closeViewMenu();
+  m.hidden = false; m.style.visibility = ''; m.style.left = 'auto'; m.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px'; m.style.bottom = Math.round(innerHeight - r.top + 6) + 'px';
+  $('#optBtn').setAttribute('aria-expanded', 'true'); const f = m.querySelector('button'); if (f) f.focus(); }
+function closeOptMenu(){ const m = $('#optMenu'); if (m.hidden) return false; m.hidden = true; m.style.visibility = ''; $('#optBtn').setAttribute('aria-expanded', 'false'); return true; }
+$('#optBtn').addEventListener('click', () => { if (!closeOptMenu()) openOptMenu(); });
+$('#svBtn').addEventListener('click', () => { setStatusView(!statusView); closeOptMenu(); });
+$('#replayBtn').addEventListener('click', () => closeOptMenu());
+$('#keysBtn').addEventListener('click', () => closeOptMenu());
 $('#viewMenu').addEventListener('click', e => { const b = e.target.closest('[data-cam]'); if (b) { setCam(b.dataset.cam); closeViewMenu(); } });
 
 /* ================= names on/off (N), the keys sheet (?) ================= */
-let namesOff = store.get('hub-names') === 'off';
-function applyNames(){ document.getElementById('app').classList.toggle('tagsoff', namesOff); }
-function toggleNames(){ namesOff = !namesOff; store.set('hub-names', namesOff ? 'off' : 'on'); applyNames(); appToast(namesOff ? L().namesOff : L().namesOn, 1800); }
+let namesAll = store.get('hub-names') === 'all';   // v28 dark cockpit: names show on hover, selection, needs you and stuck; N shows them all
+function applyNames(){ for (const o of overlays.values()) o.tw = 0; }
+function toggleNames(){ namesAll = !namesAll; store.set('hub-names', namesAll ? 'all' : 'calm'); applyNames(); appToast(namesAll ? L().namesOn : L().namesOff, 1800); }
 function renderKeys(){ $('#keysList').innerHTML = L().keys.map(([k, d]) => '<dt>' + k.split(' ').map(x => x === '–' ? '<span aria-hidden="true">–</span>' : '<kbd>' + esc(x) + '</kbd>').join('') + '</dt><dd>' + esc(d) + '</dd>').join(''); }
 function openKeys(){ renderKeys(); $('#keys').hidden = false; $('#keysX').focus(); }
 function closeKeys(){ if ($('#keys').hidden) return false; $('#keys').hidden = true; return true; }
@@ -2037,9 +2049,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && cam === 'eyes') { setCam(preEyes || 'all'); return; }
   if (e.key === 'Escape' && !$('#recap').hidden) { $('#recap').hidden = true; return; }
   if (e.key === 'Escape' && statusView && !typingIn(document.activeElement)) { setStatusView(false); return; }
-  if (e.key === 'Escape') { if (closeMine()) { $('#mineBtn').focus(); return; } if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
+  if (e.key === 'Escape') { if (closeMine()) { $('#mineBtn').focus(); return; } if (closeKeys()) return; if (!$('#viewMenu').hidden) { closeViewMenu(); $('#camMore').focus(); return; } if (closeOptMenu()) { $('#optBtn').focus(); return; } if (qplate.el) { closeQPlate(); return; } if (plateOpen) { plateOpen = false; renderNeeds(); return; } if (selected) { select(null); return; } }
   if (e.metaKey || e.ctrlKey || e.altKey || typingIn(document.activeElement)) return;
-  const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #keys'));
+  const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k, inList = !!(e.target.closest && e.target.closest('.tbody, #card, #tabs, #viewMenu, #optMenu, #keys, #nowList'));
   if (VIEW_KEYS[k]) { const v = VIEW_KEYS[k]; if (BASE_VIEWS.includes(v) || builtViews().includes(v)) { if (v === 'eyes' && !byId[selected]) nextOrKing(); setCam(v); } }
   else if (k === 'ArrowUp' && !inList) { e.preventDefault(); setCam('up'); }
   else if (k === 'ArrowDown' && !inList) { e.preventDefault(); setCam('down'); }
@@ -2059,7 +2071,7 @@ document.addEventListener('keydown', e => {
 function nextOrKing(){ const w = waitingBots()[0] || byId.code; select(w.id, {keep:true}); }
 /* V: the status view (Two Point overlays): find the problem in one second on a busy day */
 let statusView = false;
-function setStatusView(on){ statusView = !!on; document.getElementById('app').classList.toggle('sv', statusView); $('#svCap').hidden = !statusView; for (const o of overlays.values()) o.tw = 0; }
+function setStatusView(on){ statusView = !!on; document.getElementById('app').classList.toggle('sv', statusView); $('#svCap').hidden = !statusView; $('#svBtn').setAttribute('aria-pressed', String(statusView)); for (const o of overlays.values()) o.tw = 0; }
 
 /* ================= Make it yours (per device, hub-theme): only the theme layer changes ================= */
 const SW_WORK = [['champagne', '#f1c48a'], ['pearl', '#e8e2d4'], ['sage', '#a9c5a0'], ['glacier', '#a8c8e0'], ['rose', '#e8b4a0'], ['brass', '#d8b56a']];
@@ -2423,12 +2435,12 @@ function giveCoffee(id){ const a = byId[id]; if (!a) return; HUB.cues.push({kind
   const cup = $('#cupBtn'); let drag = null;
   cup.addEventListener('pointerdown', e => { if (e.button) return; drag = {x:e.clientX, y:e.clientY, moved:false, ghost:null}; cup.setPointerCapture(e.pointerId); });
   cup.addEventListener('pointermove', e => { if (!drag) return; if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6) { drag.moved = true; drag.ghost = document.createElement('div'); drag.ghost.className = 'cupghost'; drag.ghost.innerHTML = cup.querySelector('svg').outerHTML; document.body.append(drag.ghost); }
-    if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; } });
-  cup.addEventListener('pointerup', e => { if (!drag) return; const d = drag; drag = null; if (d.ghost) d.ghost.remove();
+    if (drag.ghost) { $('#optMenu').style.visibility = 'hidden'; drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; } });
+  cup.addEventListener('pointerup', e => { if (!drag) return; const d = drag; drag = null; if (d.ghost) d.ghost.remove(); closeOptMenu();
     if (!d.moved) { if (byId[selected]) giveCoffee(selected); else appToast(L().coffeeHow, 2400); return; }
     const S = window.SCENE; if (!S || !S.ready) return; const r = stageEl.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
     const id = (S.pick && S.pick(px, py)) || nearestBot(px, py); if (id) giveCoffee(id); else appToast(L().coffeeHow, 2400); });
-  cup.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; });
+  cup.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; closeOptMenu(); });
 })();
 
 /* ================= signature chimes (FUN 6, ART 8.8 levels): one switch, 1 per 3 s, quiet 10 PM-7 AM except hail ================= */
@@ -2676,7 +2688,7 @@ function morningNote(force){
   const top = needItems()[0], nr = nextRun();
   const head = firstMorning || force ? T.greet(Math.floor(m/60)) : T.awayT2(Math.round((now - lastSeen)/3600e3));
   $('#recapH').textContent = head;
-  $('#recapT').innerHTML = '<ul>' + lines.slice(0, 6).map(l => '<li>' + esc(l.text) + (l.btn ? ' <button type="button" class="tb" data-dec="' + l.btn + '" data-id="' + esc(l.data) + '">' + esc(l.btn === 'undo-mem' ? T.undo : l.btn === 'reopen' ? T.reopen : T.changeIt) + '</button>' : '') + '</li>').join('') + '</ul>' +
+  $('#recapT').innerHTML = '<ul>' + lines.slice(0, 3).map(l => '<li>' + esc(l.text) + (l.btn ? ' <button type="button" class="tb" data-dec="' + l.btn + '" data-id="' + esc(l.data) + '">' + esc(l.btn === 'undo-mem' ? T.undo : l.btn === 'reopen' ? T.reopen : T.changeIt) + '</button>' : '') + '</li>').join('') + '</ul>' +
     (top ? '' : '<p class="clear"><i class="g" aria-hidden="true">✓</i>' + esc(T.allClear(nr.label)) + '</p>');
   $('#recapPlay').textContent = top ? T.answerWho(top.bot ? top.who : top.id) : T.watchIt; $('#recapPlay').dataset.go = top ? top.key : '';
   $('#recapWatch').hidden = !top; $('#recap').hidden = false; recap.since = since;
