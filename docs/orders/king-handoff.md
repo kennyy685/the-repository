@@ -1,53 +1,36 @@
 # King handoff (read this first, fresh King)
 
-Written by SMUIPO 2026-09-28 ~12:15 UTC from session_01Dm6yRbGAvrPXcttc8q3p33 (hit ~190k tokens). Work branch
-`claude/amazing-gauss-yzfpq0`. CLAUDE.md has all standing orders (new today: King is LIVE on the hub, every AI hands
-itself off when heavy, FilthE's app reset in docs/memory/full-context.md last section).
+Written by SMUIPO, 2026-09-28 ~14:40 UTC, session `session_012Re5t1fke5fB1A4R6n4P3n` (context ~270k; FilthE asked
+for a pause near the 5-hour usage limit, which resets 10:40 AM Central).
+Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md, then `docs/orders/path.md` (the Path), then
+`docs/memory/questions-for-filthe.md` (his answers today) and `docs/design/taste.md`.
 
-## FIRST, as the new King (in this order)
-1. Make your own hub wake line: `create_trigger` (name "Hub -> live King (instant, no schedule)", no cron, no
-   persistent_session_id = binds to YOU, initiation own_followup, prompt "AI hub message from FilthE (live King wake).
-   Read the hub text appended below, act on it, reply to him on the hub, flush check-ins.").
-2. Write its id to hub doc `system/king` field `wake_trigger` (ArtifactData get, then update with if_version). The hub
-   reads it on every wake. Update CLAUDE.md's trigger id line. Disable (don't delete) the old one
-   `trig_01LNd9FCen5TUumzGCPvinAb` once yours is in `system/king`.
-3. Archive the old King session_01Dm6yRbGAvrPXcttc8q3p33 once its 2 helpers are done (check the files below exist
-   on the branch; if both are there, archive it).
-4. Reply to FilthE on the hub (events, agent "king") that you're the new King.
+## FIRST, as the new King
+1. Make your own hub wake trigger (create_trigger, no cron, binds to you), write its id to hub doc `system/king`
+   (`wake_trigger`, `live_session`), update CLAUDE.md's id line, disable (never delete) `trig_016CgJfFQ1bECbKDy4mE5X9L`.
+2. Archive session_012Re5t1fke5fB1A4R6n4P3n once the 2 helpers below have committed.
+3. Morning rule: start FilthE's day with "while you slept" (done / running / next / needs you) + where we are on the Path.
 
-## Live now
-- HMP App v25.3 (artifact v11). AI hub v26 (Chat wakes the live King). 3x-daily King trigger PAUSED.
-- NOT published: Practice Door v11 (QA SHIP + Day 20 fix 1112eff) and Print Kit fix (4d7d713). Need FilthE's word.
+## Live
+- Open map mockup (private artifact, ours): https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV v3 = rich look
+  ("hat tipped"). Publish = file docs/design/open-map/index.html + files map data/base.json, data/streets.json,
+  data/homes.json (fonts already there; add data/areas.json if the Designer uses it).
+- HMP App v25.3 live, db clean (0 leads/doors/claims; FilthE's "18 houses" = sample dots or Practice memory).
 
-## FilthE's reset (most important)
-He said the app feels pointless and confusing, looks flat ("HTML stuff", not alive), and he doesn't know how to lead
-us. He wants: (1) an OPEN MAP of every area with a high chance of something to sell; HE picks, we never pick for
-him; (2) the SOURCE of every fact shown (did hail fall, size, date, which source, confidence); (3) leads the second
-they're out (all public signals, not just our scoring). Insurance claims are private: be honest, use legal proxies.
-He needs guidance: consult other AIs, bring ONE conclusion + something to look at, build one screen at a time.
-**App building is PAUSED until he agrees on the direction.**
+## Running when I paused (may have finished; check git log)
+1. Designer: click flow on the open map (fly in, ONE proof line then best streets, getting there = drive time + knock
+   time left + permit clock, full-roof hint, mortgage share, walk route, Start knocking; "Our doors" labeled sample).
+   Review shot-click.png, then publish to the same artifact.
+2. Engine Mechanic: owner-share fix (no fake "65% owners" default shown as data; tests/test_owner_share.py). Then QA
+   (qa-tester, sonnet) on T211 mortgage share (2e48f35) + this fix.
 
-## Running when I left (their results land as files)
-1. Research Lead round 61 -> `docs/research/2026-09-28-round-61-lead-areas.md` (top tools, public lead signals
-   ranked by speed, insurance-claims answer, recommended core screen + top 5 data layers).
-2. Designer -> `docs/design/open-map/index.html` + `shot.png` (map-first "where to work" mockup, alive Aldaba look,
-   sources on every number, EN/ES, sample data).
-When both exist: read the research summary (grep the recommendation), look at the mockup, then give FilthE ONE
-direction in plain words + publish the mockup as a private artifact for him to click (Artifact tool; the mockup is
-ours). Ask him yes/no/more-like-this. Then build one screen at a time.
+## Next (Path step 3): 7 AM home screen, decided today
+Map + hot zones + Aldaba's top 3 (#1 lit, one-line reason) + today's plan (where to knock + time window, follow-ups,
+inspections/adjuster meetings). Tapping a pick flies straight in. Then step 4: this season's real storms + likely-
+insured signals (owner lives there, mortgage share, recent sale, roof age) in the mockup.
 
-## Round 61 result (done, ddf639e)
-Surfacing problem, not missing data: the engine already has MRMS radar hail, NWS/SPC reports, mPING, owner-occupied
-proxies (more than SalesRabbit/Spotio get). Proposed: Now screen = open pannable map, every zone a pin, he taps to pick;
-evidence badge (source + size + date) on the pin; wire Douglas/Lancaster owner-occ (round 48, unwired); mPING as the
-same-hour first look. No legal way to know who called their insurer. Don't buy CoreLogic/Verisk (same signal class).
-docs/design/open-map/ is OUR Designer's mockup (not someone else's).
-
-## Other sessions
-- "Hub office handoff continuation" (session_01M33ssCLDWhuj7KBYtEqtW7, branch claude/amazing-wright-lds9q5) is
-  working on hub v27.1. I posted a hub note: merge our branch first so it doesn't publish over the live-King wake.
-  Check it; when done, merge its branch (and claude/funny-hawking-2rytou, 11 commits) into ours.
-- Permit-calls session (session_01QEYZAMyqfC3VcASSqJS3mx) waits on FilthE's Omaha/Lincoln calls (T202).
-
-## Waiting on FilthE / boss (don't nag)
-T202 permit calls, T71, T51 price sheet, T64 registration #, D27.
+## FilthE today (all saved in memory)
+Lead = a house with insurance; insurance first, cash later. $100k = his own income; "build first", no money math.
+Every reply ends with 1-3 questions (with our pick) + open "what do you see / why" questions. Wants 10x: best at
+information, leads, efficiency. Research round 62 + 62b done (docs/research/). Waiting on him: "publish Practice
+Door" (v11), 7 AM brief trigger (yes/no), MacBook map speed.
