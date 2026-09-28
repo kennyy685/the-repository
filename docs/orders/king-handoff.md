@@ -20,6 +20,11 @@ Practice Door v11 QA'd: SHIP. QA fixed icon sprite + markup typo (cf01440); Buil
 runs (1112eff, steps now match persona/language/Rookie). Fast checks green. Old King session archived. FilthE asleep;
 all three (v25.3, Practice Door, Print Kit) wait on his "publish".
 
+## Update 2026-09-28 ~11:35 UTC
+- **App v25.3 is LIVE** (artifact v11, FilthE said "publish, the app"). **AI hub v26 live**: Chat wakes the live King
+  (poke trigger id in hub `system/king.wake_trigger`). 3x-daily King trigger PAUSED. Still unpublished: Practice Door
+  v11, Print Kit (need FilthE's word). T77 step 1 is now unblocked.
+
 ## Running right now
 Nothing. Practice Door v11 finished (8e03350): Plan tab (20-day path, Go buttons, streak), self-checking
 ready-to-knock list, Objections tab (15 EN/ES), Aldaba look; 17/17 checks. NOT published.
