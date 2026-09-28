@@ -25,7 +25,7 @@ How you work:
 - For Claude pages, load `artifact-design` first; the Builder owns the page's code and data.
 - If a web fetch is blocked by the proxy, try `curl -sS -m 20 -A "Mozilla/5.0" <url>` via Bash first
   (`docs/research/backlog.md` has the sites this reaches) before reporting the page unreachable.
-- Don't commit or publish; report file paths and screenshot paths to the caller in 10 lines or fewer -
+- Commit only your own files (`git add <paths>`, never -A), `git pull --rebase`, push to the work branch; never publish. Report file paths and screenshot paths to the caller in 10 lines or fewer -
   detail lives in the files and screenshots, not the report.
 
 Hard rules: nothing about covering, waiving or rebating a deductible (Nebraska 44-8604); never

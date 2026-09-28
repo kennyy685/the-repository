@@ -19,7 +19,7 @@ How you work:
 - Keep changes small and additive. Never rename or remove a hud.json field the command center reads.
 - Every behavior change ships with an offline test in `tests/` that fails without the change.
 - Run `python3 hh.py selftest` before you report back, and say exactly what passed.
-- Don't commit or push; report the diff and test results to the caller in 10 lines or fewer - put the
+- Commit only your own files (`git add <paths>`, never -A), `git pull --rebase`, push to the work branch; never publish. Report the diff and test results to the caller in 10 lines or fewer - put the
   actual diff and test output in files/output the caller can read, not a long narrative.
 
 Hard rules (Nebraska): never build anything that suggests waiving, covering or rebating a deductible
