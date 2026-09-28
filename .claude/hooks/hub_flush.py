@@ -174,6 +174,7 @@ def main(argv):
         with open(HELD, "w") as f:
             f.writelines(dict.fromkeys(ln for i, ln in enumerate(lines) if i in keep))  # re-flushes don't pile up
     if not events:  # only launches, scouts or held rows: nothing for the hub, drop what was read
+        os.makedirs(os.path.dirname(QUEUE), exist_ok=True)  # fresh container: no state dir yet
         with open(QUEUE, "w") as f:
             f.writelines(read_queue()[0][len(lines):])
         print(f"No helper check-ins for the hub (cleared {len(lines) - len(keep)} row(s), holding {len(keep)}).")
