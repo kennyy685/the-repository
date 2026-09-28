@@ -6,20 +6,24 @@ here repeats what's already found. `[opened]` = the page was actually fetched an
 a search-engine summary of the page, not opened directly (this container's egress proxy blocks most of these
 domains — see the note at the end) — treat these as **unverified**, one step down from `[opened]`.
 
-**Top 5, plain English:**
+**Top 5, plain English (updated after the 2026-09-28 verification pass — see the note at the end):**
 1. Give the shortlist's schedule/cost cards real scripts instead of guesses: GitHub's own "disabled because of 60
-   days inactivity" banner + one **Enable** button, and a cost alarm at **50-70%** of budget, not 80% — both proven,
-   both a one-line change to what's already planned.
+   days inactivity" banner + one **Enable** button (proven, `[opened]`). The cost-alarm number is downgraded: opened
+   Langfuse's own docs this round and they don't say "50-70%, not 80%" anywhere — that figure isn't Langfuse's to
+   credit. Pick our own buffer (50-70% is reasonable general cost-alerting practice) without citing Langfuse for it.
 2. There's already an open-source Shimeji-style cat built **for Claude Code** (`claude-pet`) with almost exactly our
    plan: one shared cat, states for thinking/working/needs-you/done/error. Steal its state list outright.
-3. The cat's "needs you" cue has to ride on a real event and back off gently, or it becomes Clippy — Duolingo had to
-   learn this the hard way and rewrote its whole streak system because of it. Bake that into the cat's rules now,
-   before it ships.
+3. The cat's "needs you" cue has to ride on a real event and back off gently, or it becomes Clippy — now confirmed
+   directly from Luke Swartz's Stanford thesis and a write-up that quotes it ("interrupted without asking
+   permission... difficult to disable"), and Duolingo's real, confirmed 40%-retention streak redesign shows the same
+   "match the ask to what's actually owed" lesson. Bake both into the cat's rules now, before it ships.
 4. The single cheapest fix for "two stacked boxes": wrap both floors in **one continuous outer frame** (corner posts
-   / edge beams that run the full height, unbroken) — this is literally how SimTower-style games and split-level
-   houses read as one building despite offset floors.
+   / edge beams that run the full height, unbroken) — this reads clearly by eye in SimTower-style games and
+   split-level houses, though after this pass the SimTower/Project Highrise half of the sourcing is downgraded to
+   "visually true, not stated in either opened source's text"; the split-level-home half stays solid.
 5. Keep the tube, the stair and every other cross-floor connector on the **exact same X/Z line** on both floors —
-   Fallout Shelter's whole vault design turns on this one rule (misaligned shafts read as separate rooms).
+   confirmed this round via a Fallout Shelter layout guide (the original Fandom page is unreachable, 403 both plain
+   and with a spoofed user-agent): "a vault with elevators wherever they fit makes everyone take a tour."
 
 ---
 
@@ -39,30 +43,38 @@ interaction each card should copy.
    (FilthE's picks from FUNCTIONS-SHORTLIST #4/#7), the `system/schedule` doc already spec'd there.
    [opened] `github.com/efrecon/gh-action-keepalive` (README explains the 60-day rule directly).
 
-2. **Cost alarms fire at 50-70% of the budget, not at the limit, and can be scoped to one tag/model/session.**
-   Langfuse's own guidance: a straight 80% threshold doesn't leave enough buffer for a bursty session, and alerts
-   can be filtered to one environment or session so a single expensive chat doesn't get lost in the daily total.
-   Why it helps: FUNCTIONS-SHORTLIST #2 already has the right shape ("$41 in 90 min. Hand off?") but no stated
-   threshold — this gives an exact number to use instead of guessing one. Effort: **S** (a constant, not new
-   plumbing). Plugs into: v28.2, FUNCTIONS-SHORTLIST #2's spend-meter build. [search, unverified]
-   `langfuse.com/changelog/2026-06-19-monitors` (page itself is blocked by the egress proxy; summary only).
+2. **Langfuse does offer threshold-based cost alerts — but "50-70%, not 80%" isn't Langfuse's own number.** Opened
+   the actual changelog: Langfuse's June 2026 "Monitors and Alerts" release lets you set a threshold on a metric
+   (e.g. average cost per trace, an eval score, p95 latency) and fires to Slack/webhook/GitHub Actions "the moment
+   it drifts" — confirmed. But the page names no percentage at all, and neither does its Spend Alerts doc (a
+   monetary threshold on the whole Langfuse Cloud bill, not per-tag/model/session). The "50-70%, not 80%" figure
+   traces to a third-party cost-tuning guide, not Langfuse. Why it helps: FUNCTIONS-SHORTLIST #2 still has the right
+   shape ("$41 in 90 min. Hand off?") — just pick our own buffer (50-70% is reasonable general practice) as our own
+   judgment call, not a cited Langfuse recommendation. Effort: **S** (a constant, not new plumbing). Plugs into:
+   v28.2, FUNCTIONS-SHORTLIST #2's spend-meter build. [opened] `langfuse.com/changelog/2026-06-19-monitors` and
+   `langfuse.com/docs/administration/spend-alerts` (both reachable this round; neither states a 50-70%/80% number
+   or per-tag/model/session scoping).
 
-3. **A session that needs you says exactly what it needs, and a jump-to-the-result is one click away.** GitHub's
-   "mission control" for Copilot coding agents lets you watch a session's real-time log, steer it mid-run (pause /
-   refine / restart) without killing it, and jump straight from the session card to the pull request it produced.
-   Why it helps: FUNCTIONS-SHORTLIST #1 ("what it needs from you in plain words") and #6 ("Ready to ship... preview
-   link") both want this; this confirms "one click to the actual output" (PR, preview) belongs on the card itself,
-   not a level down. Effort: **M** (needs a stored link per session, not just a status). Plugs into: v28.2,
-   FUNCTIONS-SHORTLIST #1 + #6. [search, unverified] `github.blog` posts on Agent HQ / mission control (blocked by
-   the proxy; summary only, corroborated by `visualstudiomagazine.com` and `agentpatterns.ai` search results).
+3. **A session that needs you says exactly what it needs, and a jump-to-the-result is one click away.** Confirmed
+   near word-for-word: GitHub's own blog post on mission control says it lets you "watch real-time session logs,
+   steer mid-run (pause, refine, or restart), and jump straight into the resulting pull requests—all in one place."
+   The companion changelog post adds: "Quick links on the task make it easy to navigate straight to the pull
+   request." Why it helps: FUNCTIONS-SHORTLIST #1 ("what it needs from you in plain words") and #6 ("Ready to
+   ship... preview link") both want this; this confirms "one click to the actual output" (PR, preview) belongs on
+   the card itself, not a level down. Effort: **M** (needs a stored link per session, not just a status). Plugs
+   into: v28.2, FUNCTIONS-SHORTLIST #1 + #6. [opened]
+   `github.blog/ai-and-ml/github-copilot/how-to-orchestrate-agents-using-mission-control/` and
+   `github.blog/changelog/2025-10-28-a-mission-control-to-assign-steer-and-track-copilot-coding-agent-tasks/`.
 
-4. **Group sessions by project/working directory first, state second.** OpenAI's Codex CLI dashboard (`codex
-   agents`) groups tasks by working directory and shows each one's state plus its most recent activity line, so you
-   scan by "which project" before "which robot." Why it helps: the hub's own crew is small (7-8 named robots), so
+4. **Group sessions by project/working directory first, state second.** Confirmed: OpenAI's Codex CLI Agents
+   Dashboard (`codex agents`, added in Codex CLI 0.149.0) "groups tasks by their working directory... This makes it
+   easier to see which project each task belongs to," with counts by state (Need input / Working / Ready) up top.
+   The walkthrough doesn't actually show a literal "most recent activity line" per task, so that detail is dropped —
+   state + directory grouping is what's confirmed. Why it helps: the hub's own crew is small (7-8 named robots), so
    this matters less for "which robot" and more for **the King's own chats list** (FUNCTIONS-SHORTLIST #1), which is
    really a list of *projects/chats*, not robots — group by branch/topic, not just chronologically. Effort: **S**
-   (a sort key, not new data). Plugs into: v28.2, FUNCTIONS-SHORTLIST #1 ("Your chats, one list"). [search,
-   unverified] `proflead.dev` walkthrough (blocked by the proxy; summary only).
+   (a sort key, not new data). Plugs into: v28.2, FUNCTIONS-SHORTLIST #1 ("Your chats, one list"). [opened]
+   `proflead.dev/posts/openai-codex-agents-dashboard-codex-queue/`.
 
 5. **An activity heatmap (GitHub-style) makes "is this crew actually working" readable in one glance, for free.**
    `droid-dash`, an open-source TUI for Factory.ai's coding-agent sessions, puts a calendar heatmap of session
@@ -75,34 +87,39 @@ interaction each card should copy.
    literally be the same data, drawn as a heat-strip instead of a paragraph. [opened]
    `github.com/izikeros/droid-dash` README.
 
-6. **"Single pane of glass, follows you across devices" is the actual bar competitors set.** Warp's cloud-agent
-   dashboard and GitHub's mission control both frame themselves as one unified view that works the same on desktop,
-   web, mobile and CLI — a session started one place is steerable from any other. Why it helps: less an idea to
-   build than a reminder of the bar — the hub is already MacBook-first by FilthE's own rule, so this doesn't argue
-   for a mobile build, but it's worth stating explicitly as a **non-goal** rather than an oversight (see "don't do"
-   below). Effort: n/a (a framing note). [search, unverified] `warp.dev` blog and GitHub blog (both blocked by the
-   proxy; summary only, cross-confirmed by two independent search results).
+6. **"Single pane of glass, follows you across devices" is the actual bar competitors set.** Confirmed: Warp's own
+   post is literally titled "A single pane of glass for managing all of your cloud agents" and says of its Oz
+   product, "We've also made it easier to handoff agent sessions... Start an agent — or ten — on your phone,
+   continue on your laptop, and then move it back to the cloud to continue working overnight." GitHub's mission
+   control post lists the same reach: create a task from github.com, Copilot chat, or "the GitHub Mobile agents task
+   page," then continue in Codespaces, VS Code Insiders or the CLI. Why it helps: less an idea to build than a
+   reminder of the bar — the hub is already MacBook-first by FilthE's own rule, so this doesn't argue for a mobile
+   build, but it's worth stating explicitly as a **non-goal** rather than an oversight (see "don't do" below).
+   Effort: n/a (a framing note). [opened] `warp.dev/blog/multi-harness-cloud-agent-orchestration` and the two GitHub
+   posts cited in item 3 above.
 
-7. **Per-run traces, not just per-day totals, when you need to know which run blew the budget.** Sentry's AI Agents
-   Dashboard keeps a table of every agent run — trace id, duration, tool calls, tokens, cost, timestamp — alongside
-   the daily rollup. Why it helps: FUNCTIONS-SHORTLIST #2's spend meter is daily/weekly only; if a single run is the
-   problem, today's design has no drill-down. Worth a "see what ran today" expand on the spend line rather than a
-   new page. Effort: **S** (the King's `crew/sessions` doc already has per-session `cost_usd`; this is a UI
-   affordance, not new data). Plugs into: v28.2, FUNCTIONS-SHORTLIST #2. [search, unverified] `docs.sentry.io`
-   (blocked by the proxy; summary only).
+7. **Per-run traces, not just per-day totals, when you need to know which run blew the budget.** Confirmed
+   word-for-word: Sentry's Agents Dashboard docs describe "a traces table showing trace ID, agents, root duration,
+   errors, LLM calls, tool calls, total tokens, total cost, and timestamp" below the daily-rollup widgets. Why it
+   helps: FUNCTIONS-SHORTLIST #2's spend meter is daily/weekly only; if a single run is the problem, today's design
+   has no drill-down. Worth a "see what ran today" expand on the spend line rather than a new page. Effort: **S**
+   (the King's `crew/sessions` doc already has per-session `cost_usd`; this is a UI affordance, not new data).
+   Plugs into: v28.2, FUNCTIONS-SHORTLIST #2. [opened] `docs.sentry.io/product/insights/ai/agents/dashboard/`.
 
-8. **A "hand off to fresh session" button is table stakes, and Cursor's version confirms the trigger: "needs your
-   input" plus a cost/length threshold, not a fixed timer.** Cursor's web dashboard tracks agents through Linear's
-   "My Issues" view and flags one when it needs input or finishes; it doesn't auto-hand-off on a clock. Why it
-   helps: confirms FUNCTIONS-SHORTLIST #3's plan (a manual "Hand off" button, not an automatic one) is the right
-   call — no new build implied, just validation. Effort: n/a. [search, unverified] search summary only, multiple
-   sources agree (`linear.app/changelog`, `techcrunch.com`).
+8. **Cursor confirms the trigger is "needs input or finished," not a clock — but "cost/length threshold" was our own
+   overreach.** Confirmed via Linear's own changelog: "You can monitor all issues delegated to Cursor and other
+   agents from the My Issues view and you'll be notified when an agent needs your input or when their work is
+   complete." No timer, cost or length threshold is mentioned anywhere on the page — that clause wasn't supported,
+   cut. Why it helps: still confirms FUNCTIONS-SHORTLIST #3's plan (a manual "Hand off" button, flagged by a real
+   state change, not automatic on a clock) is the right call. Effort: n/a. [opened]
+   `linear.app/changelog/2025-08-21-cursor-agent`.
 
-**Note on this topic's sourcing:** almost every vendor's own blog/docs domain (github.blog, warp.dev, sentry docs,
-langfuse.com, mindstudio.ai, danwahlin.github.io) is blocked by this container's egress proxy, so most of the above
-is search-engine summary, not a page actually read — flagged `[search, unverified]` throughout. The two items marked
-`[opened]` (GitHub's keepalive README, droid-dash's README) are the ones to trust most; the rest are worth a second
-look by whoever builds v28.2, ideally from a session whose proxy allows those domains.
+**Note on this topic's sourcing (updated 2026-09-28):** the egress proxy was widened this round, and every vendor
+domain named above (github.blog, warp.dev, docs.sentry.io, langfuse.com, linear.app, proflead.dev) is now reachable
+by `curl` through the proxy — the WebFetch tool itself still refused several of them, so this pass fetched raw HTML
+with `curl` and read it directly instead. All 6 findings in this topic are now `[opened]` and confirmed, with one
+correction (item 2's "50-70%, not 80%" figure isn't in Langfuse's own docs) and one clause cut (item 8's "cost/length
+threshold" claim, not supported). See "Verification pass (2026-09-28)" at the end of this file for the full tally.
 
 ---
 
@@ -125,68 +142,95 @@ gap this covers.
    in `HUB.needs`/status tokens). Plugs into: v28.1, "FilthE's cat" section, `HUB.cat` block. [opened]
    `github.com/xtrimsystems/claude-pet` README.
 
-2. **Idle variety comes from a short, repeatable chain, not a big random table.** oneko (the original cursor-chasing
-   cat, 30+ years of clones) doesn't pick from dozens of animations — it runs one fixed **idle chain**: sit → groom
-   → paw at something → scratch → yawn → curl up and sleep, waking with a startle the instant the cursor moves, and
-   occasionally waving while asleep. Why it helps: a short, well-ordered chain reads as "a cat doing cat things" far
-   better than a big randomized pool, and it's much cheaper to build and QA. Effort: **S**. Plugs into: v28.1, the
-   cat's idle behaviors (currently listed as a flat list: nap, knock a pencil, sit on a keyboard — turn that list
-   into an ordered chain with one rare "wave" beat). [search, unverified] Wikipedia *Neko (software)* and multiple
-   GitHub forks agree on this exact chain; not opened directly this round (a prior round may have opened Wikipedia
-   *Neko*, but not this file's sources).
+2. **Idle variety comes from a small, weighted set, not a big random table — but the specific "chain" we wrote wasn't
+   real.** Opened both cited sources and neither describes a sit→groom→paw→scratch→yawn→curl-up chain with waving.
+   Wikipedia's *Neko (software)* only says the original 1989 Mac port "would scratch at the borders" when the cursor
+   left its window and "eventually fall asleep when left idle" — no groom/paw/yawn/wave steps. Reading the actual
+   `oneko.js` source (the modern JS port behind most current clones) shows the real shape: a tiny idle set (`idle`,
+   `scratchSelf`, `scratchWall[N/S/E/W]`, `tired`→`sleeping`) chosen *randomly*, not in a fixed order, plus a
+   distinct `alert` sprite that plays for one beat when the cursor starts moving again (the "startle" is real; the
+   rest of the described chain was not). Why it helps: the corrected version is still the right lesson — 5-6 named
+   states beat a big randomized pool, and it's cheaper to build and QA — just steal the real state names (idle /
+   scratch-self / scratch-wall / tired / sleeping / alert-on-wake), not the invented chain. Effort: **S**. Plugs
+   into: v28.1, the cat's idle behaviors (currently a flat list: nap, knock a pencil, sit on a keyboard — turn that
+   into a small weighted set plus the alert-on-wake beat). [opened] `en.wikipedia.org/wiki/Neko_(software)` and
+   `raw.githubusercontent.com/adryd325/oneko.js/master/oneko.js` (source read directly).
 
-3. **A concrete, tunable "how often" number: idle actions fire every 3-8 seconds, and any single behavior can be
-   set to frequency 0 to turn it off.** Shimeji's own config system uses this range for its randomized idle actions
-   and lets each behavior be individually disabled. Why it helps: gives an actual number instead of "sometimes" —
-   and the "can be set to 0" idea maps directly onto FilthE's Make-it-yours panel: if a specific cat gag (say,
-   knocking things off desks) annoys him, he can turn off just that one, not the whole cat. Effort: **S** (one
-   config table + a per-behavior toggle in Make it yours). Plugs into: v28.1, cat behaviors + the existing Make it
-   yours panel. [search, unverified] search summary only (Shimeji-ee source/docs pages).
+3. **"Set a behavior's Frequency to 0 to turn it off" is real; "fires every 3-8 seconds" is not — Shimeji's
+   `Frequency` is a weight, not a timer.** `kilkakon.com` itself wouldn't load this round (connection reset through
+   the egress proxy — still unreachable), but its readme, mirrored at `github.com/gil/shimeji-ee`, confirms the
+   disable trick directly: "it's not too hard to... turn off certain behaviors (hint: set frequency to 0)." Reading
+   Shimeji-ee's actual `behaviors.xml` shows `Frequency` is a relative pick-weight between competing behaviors
+   (values like 1, 50, 100, 200) — there's no literal seconds figure anywhere to cite, so "every 3-8 seconds" is
+   cut. Why it helps: the "can be set to 0" idea still maps directly onto FilthE's Make-it-yours panel — if a
+   specific cat gag annoys him, turn off just that one, not the whole cat. Effort: **S** (one config table using
+   relative weights, not literal seconds, + a per-behavior toggle in Make it yours). Plugs into: v28.1, cat
+   behaviors + the existing Make it yours panel. [opened] `raw.githubusercontent.com/gil/shimeji-ee/master/readme.txt`
+   and `raw.githubusercontent.com/TigerHix/shimeji-ee/master/conf/behaviors.xml`;
+   `kilkakon.com/shimeji/affordances.php` still unreachable this round (connection reset — worth a retry elsewhere).
 
-4. **The reward for watching a pet should be watching it — not points, timers or streaks.** Neko Atsume's own
-   design (widely written about) has no wait-timers, no quests, no push to compete with friends; the "reward" a cat
-   leaves when it goes is a small gift (fish), not a score, and the core loop is just "cats do cute things, you
-   check in for 30 seconds." Why it helps: directly answers "how can a pet carry a notification without nagging" —
-   the cat playing with a robot **is** the notification (you see it happening, no popup needed), and if a token is
-   left behind (say, a pencil moved, a paw print), it should be a small found detail, never a counter FilthE has to
-   manage. Effort: n/a (a design rule, not a build item). [search, unverified] search summary of multiple game-design
-   retrospectives; not opened directly.
+4. **The reward for watching a pet should be watching it — not points, timers or streaks.** Confirmed the core
+   claim: cats "give you silver and gold fishes as gifts, which are the currency" — a gift, not a score — and some
+   cats "have special conditions... or they're just plain rare," which is the actual hook, not a quest log or a
+   streak counter. One nuance found: the source's whole thesis is that Neko Atsume *is* "a game about the act of
+   waiting" (no fast-forward, no way to summon a cat), so "no wait-timers" should read as "no countdown UI nagging
+   you to come back," not "nothing to wait for." Why it helps: directly answers "how can a pet carry a notification
+   without nagging" — the cat playing with a robot **is** the notification (you see it happening, no popup needed),
+   and if a token is left behind it should be a small found detail, never a counter FilthE has to manage. Effort:
+   n/a (a design rule, not a build item). [opened] `notes.highlysuspect.agency/blog/nekos/`.
 
 5. **The failure mode to avoid by name: taking control away from the user is where "funny" turns into
-   "frustrating," even in games designed to be annoying on purpose.** Desktop Goose's own postmortem coverage: the
-   goose stealing the literal mouse cursor is the one mechanic players call out as going from funny-once to
-   actually-annoying on repeat; leaving notes and dropping memes stayed liked. Why it helps: a hard boundary for the
-   cat — knock a (virtual) pencil off a desk, sit on a keyboard (visual only), fine; anything that steals the
-   camera, blocks a click target, or takes over an input the user is mid-action on is not. Effort: n/a (rule).
-   Plugs into: v28.1, cat behavior list (as a constraint, see "don't do" below). [search, unverified] search summary
-   of GameSpot/press coverage; not opened directly.
+   "frustrating."** Partly confirmed, softened: there's no single "postmortem" that explicitly contrasts
+   cursor-stealing (bad) with notes/memes (liked) — that specific contrast was this round's own inference, not
+   something any opened source states outright, so it's downgraded. What is confirmed: press coverage converges on
+   cursor-stealing specifically as *the* disruptive mechanic — PC Gamer's own headline is "The horrible goose can
+   now live on your desktop and steal your cursor," and the reporter notes mid-article, "He keeps honking and
+   stealing my cursor as I attempt to write this." (GameSpot's coverage page returned a 403 this round —
+   unreachable, cited via PC Gamer instead.) Why it helps: still a fair hard boundary for the cat — knock a
+   (virtual) pencil off a desk, sit on a keyboard (visual only), fine; anything that steals the cursor, blocks a
+   click target, or takes over an input the user is mid-action on is not. Effort: n/a (rule). Plugs into: v28.1, cat
+   behavior list (as a constraint, see "don't do" below). [opened]
+   `pcgamer.com/the-horrible-goose-can-now-live-on-your-desktop-and-steal-your-cursor/`.
 
-6. **Clippy's actual failure, per Microsoft's own retrospective, wasn't the character — it was interrupting without
-   being asked, and reappearing after being dismissed.** Luke Swartz's study (widely cited, including by Microsoft
-   staff after the fact) found Clippy broke basic social norms: it appeared mid-task uninvited, offered help nobody
-   asked for, and was hard to permanently dismiss. Why it helps: this is the exact shape of the risk in "when an AI
-   needs him, that robot chases the cat" — as long as the chase only starts on a **real** `needs_you` event (never
-   on a timer, never repeating after he's answered it), the hub is already on the safe side of this lesson by
-   design. Worth stating explicitly as a locked rule, not an assumption. Effort: n/a (rule, already mostly true by
-   the hub's own "every animation is a real event" principle). [search, unverified] search summary of multiple
-   retrospectives citing the same 2003 Swartz study; not opened directly.
+6. **Clippy's actual failure wasn't the character — it was interrupting without being asked, and being hard to turn
+   off.** Confirmed directly. Luke Swartz's 2003 Stanford honors thesis ("Why People Hate the Paperclip," advised by
+   Prof. Clifford Nass) is real, and its own abstract matches the claim: agent behavior "if it obeys standards of
+   social etiquette" shapes user response. A fuller write-up quotes the finding precisely: "the paperclip broke the
+   basic social norms we apply to a 'colleague.' It interrupted without asking permission, offered help when it was
+   no longer needed, and was overly present, almost predatory" — and separately, "the character was difficult to
+   disable." (The originally-cited `thenewstack.io` article is now gated behind a hard subscribe-wall with no
+   article text reachable — swapped for the primary thesis page plus a write-up that quotes it.) Why it helps: this
+   is the exact shape of the risk in "when an AI needs him, that robot chases the cat" — as long as the chase only
+   starts on a **real** `needs_you` event (never on a timer, never repeating after he's answered it), the hub is
+   already on the safe side of this lesson by design. Effort: n/a (rule, already mostly true by the hub's own
+   "every animation is a real event" principle). [opened] `xenon.stanford.edu/~lswartz/paperclip/` (primary thesis
+   page) and `mundobytes.com/en/the-story-of-Clippy/` (quotes the study's findings directly).
 
-7. **Duolingo had to publicly walk back its escalating-guilt notifications and redesign around "one lesson keeps the
-   streak," which lifted 7-day retention 40%.** The lesson explicitly stated in its own postmortems: match the
-   notification's intensity to the actual cost of the miss, and never punish an off day. Why it helps: if the cat's
-   "needs you" cue has levels (an ear-perk first, only later sitting and staring), it should scale with how overdue
-   the thing actually is — CONVENIENCES.md already has this instinct for text notifications ("silence is a safe
-   answer"); this extends the same rule to the cat's body language. Effort: **S** (2-3 intensity poses instead of
-   one). Plugs into: v28.1, the cat's "needs you" cue. [search, unverified] search summary of Duolingo's own blog +
-   press coverage; not opened directly.
+7. **Duolingo redesigned its streak around "just finish one lesson," and it measurably worked — the "40%" number is
+   real, "escalating-guilt notifications" was our own gloss.** Confirmed the concrete part: "instead of needing to
+   complete your full daily goal, all it takes to keep your streak going is finishing just one lesson," and "since
+   the update, there's been a 40% increase in learners maintaining a streak of seven days or more." (Source is a
+   third-party UX write-up, not Duolingo's own blog — Duolingo's own blog didn't surface this exact figure this
+   round, so treat the 40% as one write-up's reported number, not first-party-confirmed.) The "escalating-guilt
+   notifications" half wasn't found stated anywhere this round — the confirmed change is to the streak-completion
+   rule itself, not to notification copy; that clause is cut. Why it helps: if the cat's "needs you" cue has levels
+   (an ear-perk first, only later sitting and staring), it should scale with how overdue the thing actually is —
+   CONVENIENCES.md already has this instinct for text notifications ("silence is a safe answer"); this extends the
+   same rule to the cat's body language. Effort: **S** (2-3 intensity poses instead of one). Plugs into: v28.1, the
+   cat's "needs you" cue. [opened] `designfolio.substack.com/p/crazy-ux-redesign-duolingo`.
 
-8. **Rare, scheduled "big" events read better than constant small ones.** Neko Atsume and Animal Crossing both hold
-   back their best moments (a rare cat, a rare visitor) for occasional appearances rather than constant rotation —
-   the rarity is what makes them notable. Why it helps: reserve one or two genuinely rare cat behaviors (say, once a
-   day at most: curling up asleep on the Observatory's warm under-glow, or riding the full tube capsule end-to-end)
-   instead of adding more everyday idle animations — a rare beat is memorable, a common one becomes wallpaper.
-   Effort: **S** (a daily-once guard on 1-2 specific behaviors). Plugs into: v28.1, cat behaviors. [search,
-   unverified] general game-design consensus from the same sources above; not independently opened.
+8. **Rare, scheduled "big" events read better than constant small ones — confirmed for Neko Atsume, not for Animal
+   Crossing.** Neko Atsume: confirmed. "Some cats have special conditions, like a seasonal requirement, a specific
+   toy, or they're just plain rare; but most cats are decently common" — chasing the rare ones is the stated core
+   goal ("the primary goal is to track down and take pictures of all cats"). Animal Crossing: cut. This round's
+   search turned up the opposite read — multiple villager-rarity write-ups agree there's no deliberate "held-back
+   rare visitor" design; perceived rarity is mostly a side effect of how many villagers share a species pool, and
+   what people call "rare" is usually really "popular" (Raymond, Judy, Marshal), not intentionally scarce. Why it
+   helps: the Neko Atsume half alone still supports the idea — reserve one or two genuinely rare cat behaviors (say,
+   once a day at most: curling up asleep on the Observatory's warm under-glow, or riding the full tube capsule
+   end-to-end) instead of adding more everyday idle animations. Effort: **S** (a daily-once guard on 1-2 specific
+   behaviors). Plugs into: v28.1, cat behaviors. [opened] `notes.highlysuspect.agency/blog/nekos/`; the Animal
+   Crossing half is cut, not supported by this round's sources.
 
 ---
 
@@ -197,25 +241,33 @@ BUILD-v28.md's v28.1 plan already says the right words in general ("a shared str
 that concrete, each checked against the "no new real-time lights, no new shadow casters" budget (RESEARCH-v28.md
 item 1, BUILD-v28.md's M0 budget line).
 
-1. **Wrap both floors in one continuous outer frame — the single highest-leverage move.** Project Highrise and
-   SimTower (its direct ancestor) both keep a tower's whole cutaway inside **one unbroken outer envelope**: a single
-   rectangular frame with floors as colored bands inside it, never two separate boxes stacked. Why it helps: this is
-   probably the one change that does the most against "looks like two stacked boxes" for the least cost — extend
-   the vertical corner posts / edge beams already planned for the "shared structural core" so they run the *full*
-   height of the building silhouette (both floors), not just around the tube. It's geometry FilthE will register
-   instantly even though he'd never describe it this precisely himself — exactly his rule. Effort: **M** (new static
-   geometry, no lights). Plugs into: v28.1, SCENE "one building (note 2)". [search, unverified] Project Highrise
-   reviews/Wikipedia describing the shared SimTower-style cutaway envelope; not opened directly this round.
+1. **Wrap both floors in one continuous outer frame — the single highest-leverage move.** Opened both cited sources
+   and neither actually spells out "one unbroken outer envelope" in text — that's this round's own visual reading of
+   these games' well-known screenshots, not a sentence either page states. Wikipedia's *Project Highrise* article
+   confirms only that it's "considered... the spiritual successor to SimTower." `pietriots.com` confirms a narrower,
+   related detail: "different types of rooms are colour coded so you can get an idea of what is filling your
+   building at a distance" (matching SimTower's convention) — real, but short of "one continuous frame." Why it
+   helps: the underlying visual pattern is still real and checkable by eye (both games do render as a single
+   bounded silhouette), so the recommendation stands — extend the vertical corner posts / edge beams already
+   planned for the "shared structural core" so they run the *full* height of the building silhouette — just don't
+   cite these two sources as having said so in words. Effort: **M** (new static geometry, no lights). Plugs into:
+   v28.1, SCENE "one building (note 2)". [opened] `en.wikipedia.org/wiki/Project_Highrise` and
+   `pietriots.com/2018/10/18/project-highrise/` — neither states the "continuous outer frame" claim directly; the
+   colour-banding detail is confirmed, the frame/envelope claim is downgraded to "visually plausible, not textually
+   sourced."
 
-2. **Keep every cross-floor connector on the exact same vertical line.** Fallout Shelter's elevator design is
-   explicit about this: shafts stack in the *same two X/Y positions on every level*, and that's precisely what
-   makes multi-floor vaults read as one connected structure instead of a "tour." An elevator placed wherever it fits
-   on each floor is called out as the thing that breaks the read. Why it helps: audit the tube, the stair/bridge
+2. **Keep every cross-floor connector on the exact same vertical line.** Confirmed, via a substitute source —
+   `fallout.fandom.com` returned a 403 both directly and with a spoofed browser user-agent (still unreachable this
+   round). A Fallout Shelter layout guide makes the identical point: "Scattering elevators wherever you happen to
+   need them is what ruins most vaults. Pick your columns early and keep them consistent on every floor... A vault
+   with elevators in the same two positions on every level moves dwellers vertically in a straight line. A vault
+   with elevators wherever they fit makes everyone take a tour." Why it helps: audit the tube, the stair/bridge
    landing and any glass panel so they share one exact axis on both floors — right now the tube's base and top are
    already speced at fixed local coordinates (blueprint 5.3: x0.3, z2.95), so this is really a QA check ("does
    everything the eye should read as 'the spine' actually share one line from every camera angle"), not new
    geometry. Effort: **S** (a QA pass, maybe minor coordinate nudges). Plugs into: v28.1, SCENE "one building".
-   [search, unverified] Fandom wiki summary; not opened directly.
+   [opened] `lazybatman.com/2026/09/19/fallout-shelter-layout-guide/` (source swapped; `fallout.fandom.com`
+   unreachable — 403 both plain and with a spoofed user-agent).
 
 3. **A genuine sightline through the building, not just the tube, sells "one structure" the way a real atrium
    does.** Double-height atria in real buildings use open risers and glass balustrades specifically so light and
@@ -238,15 +290,17 @@ item 1, BUILD-v28.md's M0 budget line).
    geometry). Plugs into: v28.1, SCENE "one building". [opened] `en.wikipedia.org/wiki/Split-level_home`.
 
 5. **Reuse the room's own baked-texture trick to make the seam between floors match, not just the geometry.**
-   RESEARCH-v28.md (item 7, already in the plan) has the room baking AO/wear into the same canvas textures used for
-   the travertine and walnut grain. Townscaper's whole visual trick is the inverse of that same idea: one
-   consistent procedural rule applied at every block boundary so facades always read as continuous, no matter how
-   the blocks are placed. Why it helps: apply the *same* baked-texture pass across the floor-to-floor seam
-   specifically (today likely two separately-baked textures that don't line up at the transition) so the material
-   grain, not just the structure, continues from one floor into the next. Zero new runtime cost — reuses tooling
-   that already exists. Effort: **S** (a texture-authoring pass, not new code). Plugs into: v28.1, alongside
-   RESEARCH-v28 item 7/11 (already-planned baked AO/roughness work). [search, unverified] Townscaper design-process
-   write-ups (GameDeveloper.com); not opened directly this round (search result, HN and ArchDaily corroborate).
+   Confirmed the mechanism, in different terms than "baked texture." GameDeveloper.com's interview with creator
+   Oskar Stalberg describes Townscaper's continuity as a Wave Function Collapse constraint solver: "adjacency rules
+   need to be established by assessing each of the individual chunks," so every new block is checked against what
+   can validly sit next to it — that's what keeps facades reading as continuous at any boundary. It's a geometry/
+   placement rule in the source, not literally a shared baked-texture pass — that specific technique is this file's
+   own extension of the idea to HMP's case, not something the article describes as texture work. Why it helps:
+   apply the *same idea* (one consistent rule enforced at every boundary) to the floor-to-floor seam specifically,
+   via the baked-texture tooling RESEARCH-v28.md (item 7) already has — so the material grain, not just the
+   structure, continues from one floor into the next. Effort: **S** (a texture-authoring pass, not new code). Plugs
+   into: v28.1, alongside RESEARCH-v28 item 7/11. [opened]
+   `gamedeveloper.com/game-platforms/how-townscaper-works-a-story-four-games-in-the-making`.
 
 6. **A single locked camera angle, with one or two verified "anchor" points, is how impossible-looking connections
    read as seamless.** Monument Valley's navigation system deliberately keeps manual markup to a minimum and instead
