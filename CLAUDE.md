@@ -146,6 +146,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - New chat per job; don't grow one endless session. **Measured 2026-09-27:** one long King chat cost ~$97 in ~2.5 h,
   mostly re-reading its own 500k-token history on every message (at xhigh effort). Hand off to a fresh chat once a
   chat passes ~200k tokens; routine work runs at high effort, not xhigh.
+- **Done = publish + tell him (FilthE, 2026-09-28):** "if stuff gets done, then publish it and tell me what got done so we
+  don't accidentally keep forgetting." Finished + QA-passed work gets published (release checklist), then one hub
+  post: what went live, link, what changed. Merges to main still need his OK.
 - Every page publish follows `docs/release-checklist.md` (checks green, light/dark screenshots vs
   `docs/design/v25-polish/`, legal boxes, CHANGELOG line).
 - The HMP App is a page plus module files (T169): `pages/hmp-app.files.json` maps published path -> repo file. Edit a
