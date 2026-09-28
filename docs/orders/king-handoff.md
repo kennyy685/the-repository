@@ -34,7 +34,16 @@ FilthE's main line is the hub chat bubble ("King" mode). How it works now:
   Done. "Nudge again" appears after 4 min with no word, or when a wake failed. When you change the wake trigger,
   the page re-sends any message whose wake failed or went to the old trigger, once.
 - **Publish needs:** capabilities `db`, `user`, `sample`, and `mcp` with server "Claude Code Remote", tools
-  `["fire_trigger", "get_trigger"]` (get_trigger = the delivery check; without it the ack/reply still show).
+  `["fire_trigger", "get_trigger", "get_session", "list_environments", "create_session"]` (get_trigger = the delivery
+  check; get_session = the King's memory line; the last two = "Fresh King"). Merge with any tools the other hub
+  functions declare.
+- **"Fresh King" button (FilthE: yes, 2026-09-28):** King handoffs made by a King stack sessions one deeper each time,
+  and sessions stop at 8 deep. The hub's King window shows "King memory 236k" (heavy past 200k) and a Fresh King
+  button: it starts the next King from FilthE's own account (depth 0) on the work branch, writes
+  `system/king.pending_king {session, at, from}`, and wakes the old King to write its notes and stop. **A King
+  started this way:** write `system/king` `wake_trigger`, `live_session`, `environment_id`, and delete
+  `pending_king`. **Prefer this over create_session for your own handoff:** post a hub reply asking FilthE to tap
+  Fresh King (one tap) once you pass ~200k.
   Check: `node tests/pages/hub_chat_check.js` (mocked round trip, dark + Ledger).
 - **Handoff step:** the new King's trigger must be poke-only, bound to its own session, and its id written to
   `system/king.wake_trigger` BEFORE the old one is disabled. A wake that lands anywhere but the King chat says
