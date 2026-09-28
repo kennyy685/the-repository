@@ -414,6 +414,8 @@ def main(argv=None):
     p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--claims", help="T209: JSON of the app's claims/<slug> docs (dict or list) - folds insurance "
+                                    "claims into the embedded scorecard's signed-job/knock-to-signed numbers")
     p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
@@ -867,7 +869,7 @@ def main(argv=None):
         return 0
     if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
         from zoneinfo import ZoneInfo
-        from hailhunter import benchmarks, rookie, weekly
+        from hailhunter import benchmarks, rookie, scorecard, weekly
         from hailhunter.todaywalk import load_json
         today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
@@ -882,7 +884,8 @@ def main(argv=None):
                                 weekly.load_leads(load_json(a.leads)) if a.leads else [],
                                 week=a.week, hud=hud_doc, today=today, cfg=cfg,
                                 bench=benchmarks.load(a.benchmarks, cfg),   # T84: missing file -> industry null
-                                rookie_plan=rookie.load_plan(a.rookie_plan, cfg))   # missing plan -> rookie null
+                                rookie_plan=rookie.load_plan(a.rookie_plan, cfg),   # missing plan -> rookie null
+                                claims=scorecard.load_claims(load_json(a.claims)) if a.claims else None)  # T209
         except ValueError as e:
             print(f"weekly: {e}", file=sys.stderr)
             return 2

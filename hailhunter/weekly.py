@@ -11,10 +11,12 @@ under `data`):
 - optional hud.json: the lists' heat and why, joined per list in `learning`.
 
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
-funnel, learning, scorecard, summary{en, es}}. `scorecard` (T166) = the 5 pilot numbers (doors knocked, contact
-rate, inspections per 100 doors, signed jobs, average $ per signed job) next to an industry range each - see
-scorecard.py; same shape as the standalone `hh.py scorecard` command, `company` always "hmp" here (weekly has no
-claims of its own yet, so its signed-job count is leads only). totals.estimates = leads whose quick estimate
+funnel, learning, scorecard, summary{en, es}}. `scorecard` (T166; T209 added the Aldaba proof numbers) = the pilot
+numbers (doors knocked, contact rate, inspections per 100 doors, signed jobs, signed-job rate, average $ per
+signed job, knock-to-signed median days) next to an industry range each - see scorecard.py; same shape as the
+standalone `hh.py scorecard` command, `company` always "hmp" here. Pass `claims` (optional, `hh.py weekly
+--claims`) to fold insurance claims into the scorecard's signed-job/knock-to-signed numbers too; without it the
+scorecard's signed-job count is leads only, same as before T209. totals.estimates = leads whose quick estimate
 (lead.estimate.day, the local day, else lead.estimate.at[:10]) is in the week;
 totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); contact_rate = share of doors where
 someone answered (No + Interested + Booked, 0-1), in totals and every walk/list; `benchmarks` = rookie ranges
@@ -313,13 +315,16 @@ def _rookie(doors, plan, today, cfg):
 
 
 # ------------------------------------------------------------------ the report
-def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, rookie_plan=None):
+def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, rookie_plan=None, claims=None):
     """The week's results doc. `doors`/`leads` = load_doors/load_leads output; `week` = "2026-39",
     "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day).
     `bench` (T84) = the data/benchmarks.json doc (benchmarks.load()): adds `industry` = each funnel rate next to an
     industry range {yours, low, typical, high, source_note, vs}, labeled "industry estimate, not your numbers";
     None (no file) -> `industry` is null. `rookie_plan` = rookie.load_plan() blocks: adds `rookie` = rookie.progress
-    over ALL door taps as of `today` (day, block, streak, EN/ES verdict); None (no plan / no start) -> null."""
+    over ALL door taps as of `today` (day, block, streak, EN/ES verdict); None (no plan / no start) -> null.
+    `claims` (T209, optional) = scorecard.load_claims() output: folded into the embedded `scorecard` section's
+    signed-job count, avg $/job and knock-to-signed days, same as `hh.py scorecard --claims`; None (default) ->
+    the scorecard section stays leads-only, same as before T209."""
     wcfg = {**DEFAULTS["weekly"], **((cfg or {}).get("weekly") or {})}
     doors = [dict(d) for d in doors or []]         # don't change the caller's rows
     all_doors = list(doors)
@@ -388,8 +393,9 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, 
 
     t = tally(rows)
     n_est, est_value = estimates(leads, start, end)
-    from .scorecard import report as scorecard_report          # T166: the 5 pilot numbers (lazy: avoid an import cycle)
-    card = scorecard_report(all_doors, leads, start=start, end=end, today=today, bench=bench, company="hmp")
+    from .scorecard import report as scorecard_report          # T166: the pilot numbers (lazy: avoid an import cycle)
+    card = scorecard_report(all_doors, leads, claims or [], start=start, end=end, today=today, bench=bench,
+                            company="hmp")
     areas = _best_worst(walks, wcfg["min_doors_area"])
     en = (f"{_pl(t['doors'], 'door', 'doors')} knocked, {t['answered']} answered, {t['interested']} interested, "
           f"{_pl(t['booked'], 'inspection', 'inspections')} booked; {round(t['not_home_rate'] * 100)}% not home.")
