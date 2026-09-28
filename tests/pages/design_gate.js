@@ -82,7 +82,8 @@ const PAGES = [
     sizes: [{ width: 1440, height: 900 }],
     tabs: '#tabs [role="tab"]',
     views: [
-      { name: "robot card", steps: ["#tab-crew", "#roster .row"] },
+      // v28: on the MacBook RIGHT NOW is the crew list (no Crew tab); phones keep the Crew tab's roster
+      { name: "robot card", steps: ['#now [data-now]:not([data-now="you"]), #roster .row'] },
       { name: "make it yours", steps: ["#mineBtn"], root: "#mine" },   // light-dismiss popover: checked on its own
     ],
   },
