@@ -93,4 +93,6 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
     "lead-safe certified", and the capabilities sheet's Y/N stays blank.
   - Does HMP's business line have WhatsApp Business? Then the parked Spanish line "¿Le mando las fotos por WhatsApp o
     por mensaje de texto?" can go into the Practice Door playbook (never a personal number).
+  - Warranty: what does HMP promise? Practice Door (live, from v11) says "we're still here for the warranty next year" and
+    "companies that show up after a storm and then disappear": soften both until the boss answers (flagged 2026-09-28).
   - Does HMP offer payment plans / financing? Until yes, the Practice Door never mentions it (v12 "let me think" card).
