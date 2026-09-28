@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## AI hub v27.1 - 2026-09-28
+- Smoother: robots no longer redraw the room's shadows every frame (the stutter); shadows only update when the light moves.
+- Shadow glitches fixed (shadow settings follow the sun's angle; the shadow area fits the building). Lighter on Retina Macs.
+- Add ?perf to the hub link to see live speed numbers in the corner.
+
 ## AI hub v27 "Nocturne" - 2026-09-28
 - One MacBook screen, no page scroll: the office fills it and a side panel has Crew / Board / Log / Chat tabs. New dark night look (champagne = working, orange only when something needs you), "Make it yours" to change it, a living "mind" in the sky, and trackpad scroll flies the camera in.
 - Answer from the top bar, task cards, search (/), keyboard shortcuts (? shows them), reconnects by itself after the Mac sleeps, refresh with R, proof your answers landed, plus 12 conveniences (smart King wake-ups, missed-run alerts, "Not now" that comes back, a morning note).
