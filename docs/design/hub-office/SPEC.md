@@ -158,3 +158,5 @@ layout (office fills the screen, right panel tabs Crew/Board/Log/Chat scroll ins
 reconnect/refresh (R, visibilitychange/online); M1 scene = Nocturne lighting/materials + champagne/ember strips +
 camera system. 2) both builders in parallel. 3) QA + fix loops (gate, shots, fast checks, MacBook 1440/1512 shots).
 4) adversarial review (taste, function, perf + rules). 5) publish per the go-live rule.
+Idea Vault round (IDEA-VAULT.md) was stopped mid-run on pause; re-run it before or during the build if wanted.
+CONVENIENCES.md is in (12 picks + 10 small answer/wake bug fixes to ship first).
