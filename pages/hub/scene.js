@@ -510,7 +510,7 @@ P = gDown;
 desk(3.9, -2.5, 1.0, .6, 'map', 'cowork');
 { // the press desk: a brass-legged standing desk, today's papers stacked on it
   const x = 2.6, z = -2.4;
-  box(.5, .04, .4, MAT.walnut, x, 1.0, z); for (const dx of [-.2,.2]) cyl(.018,.018,1.0,MAT.brass,x+dx,.5,z,8); box(.46, .012, .02, MAT.brass, x, .972, z + .19, P, false);
+  box(.5, .04, .4, MAT.walnut, x, 1.0, z); for (const dx of [-.2,.2]) cyl(.018,.018,1.0,MAT.brass,x+dx,.5,z,8); box(.46, .1, .02, MAT.walnut, x, .93, z + .19);   // the apron carries the plate + bar
   screen('chat-reader', 'news', x, z - .09, .4, .26, 1.25, 0, P, 1.027);
   for (let i=0;i<3;i++){ const p = box(.2,.01,.27,MAT.paper,x + .12, 1.026 + i*.011, z + .05, P); p.rotation.y = .3 + (i-1)*.14; }
 }
@@ -638,7 +638,7 @@ const DESKS = {
   builder:           {f:'down', x:-2.9, z:.5,   d:.65,  bw:.8,  an:[-3.35, .25, .745, .16]},         // the build bench
   'engine-mechanic': {f:'down', x:-1.8, z:.5,   d:.65,  bw:.8,  an:[-1.35, .25, .745, .16]},
   designer:          {f:'down', x:-3.1, z:2.6,  d:.6,   bw:.8,  an:[-2.65, 2.42, .745, .16]},
-  'chat-reader':     {f:'down', x:2.6,  z:-2.4, d:.4,   bw:.36, py:.955, by:.93, an:[2.79, -2.53, 1.02, .12]},   // the press desk
+  'chat-reader':     {f:'down', x:2.6,  z:-2.4, d:.4,   bw:.36, py:.938, by:.897, an:[2.79, -2.53, 1.02, .12]},   // the press desk
   cowork:            {f:'down', x:3.9,  z:-2.5, d:.6,   bw:.7,  an:[4.3, -2.72, .745, .16]},
   'hub-keeper':      {f:'up',   x:.2,   z:-2.45,d:.8,   bw:.9,  an:[1.02, -2.28, .745, .16]},         // the experiment table
   'qa-tester':       {f:'up',   x:1.3,  z:.72,  d:.6,   bw:.9,  an:[2.86, .5, .745, .16]},            // the QA bench
