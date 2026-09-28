@@ -362,45 +362,94 @@ item 1, BUILD-v28.md's M0 budget line).
 
 ## Sources
 
-Opened this round:
+Opened in the original round:
 - [claude-pet: Shimeji-style animated desktop pet for Claude Code](https://github.com/xtrimsystems/claude-pet)
 - [Split-level home — Wikipedia](https://en.wikipedia.org/wiki/Split-level_home)
 - [droid-dash: TUI dashboard for Factory.ai Droid session analytics](https://github.com/izikeros/droid-dash)
 - [gh-action-keepalive: keeps scheduled workflows from GitHub's 60-day auto-disable](https://github.com/efrecon/gh-action-keepalive)
 
-Search summaries only (page blocked by this container's egress proxy, or not fetched this round — treat as
-unverified, worth a second look from a session that can reach these domains):
-- GitHub Copilot "Agent HQ" / mission control: `github.blog/ai-and-ml/github-copilot/how-to-orchestrate-agents-using-mission-control/`,
-  `github.blog/changelog/2025-10-28-a-mission-control-to-assign-steer-and-track-copilot-coding-agent-tasks/`,
-  `visualstudiomagazine.com/articles/2025/10/28/github-introduces-agent-hq...`
-- OpenAI Codex `codex agents` dashboard: `proflead.dev/posts/openai-codex-agents-dashboard-codex-queue/`,
-  `developers.openai.com/codex/cloud`
-- Cursor background agents / "My Issues": `linear.app/changelog/2025-08-21-cursor-agent`,
-  `techcrunch.com/2025/06/30/cursor-launches-a-web-app-to-manage-ai-coding-agents/`
-- Warp cloud agents "single pane of glass": `warp.dev/blog/multi-harness-cloud-agent-orchestration`
-- Sentry AI Agents Dashboard: `docs.sentry.io/product/insights/ai/agents/dashboard/`, `docs.sentry.io/ai/monitoring/agents/dashboards/`
-- Langfuse Monitors/alert thresholds: `langfuse.com/changelog/2026-06-19-monitors`, `langfuse.com/docs/observability/features/token-and-cost-tracking`
+Opened in the 2026-09-28 verification pass (every `[search]`/`[search, unverified]` item above; the network's egress
+proxy was widened before this pass, and `curl` reached every domain below even where the WebFetch tool itself still
+refused a few of them):
+- [GitHub: How to orchestrate agents using mission control](https://github.blog/ai-and-ml/github-copilot/how-to-orchestrate-agents-using-mission-control/) — confirms item 3 (and 6) almost verbatim
+- [GitHub changelog: A mission control to assign, steer, and track Copilot coding agent tasks](https://github.blog/changelog/2025-10-28-a-mission-control-to-assign-steer-and-track-copilot-coding-agent-tasks/)
+- [proflead.dev: OpenAI Codex Agents Dashboard and Codex Queue Tutorial](https://proflead.dev/posts/openai-codex-agents-dashboard-codex-queue/) — confirms item 4's grouping claim; "activity line" detail not found, dropped
+- [Warp: A single pane of glass for managing all of your cloud agents](https://www.warp.dev/blog/multi-harness-cloud-agent-orchestration) — confirms item 6
+- [Sentry docs: Agents Dashboards](https://docs.sentry.io/product/insights/ai/agents/dashboard/) — confirms item 7 almost verbatim
+- [Linear changelog: Cursor background agents](https://linear.app/changelog/2025-08-21-cursor-agent) — confirms item 8's core claim; "cost/length threshold" clause not supported, cut
+- [Langfuse changelog: Monitors and Alerts](https://langfuse.com/changelog/2026-06-19-monitors) and [Langfuse docs: Spend Alerts](https://langfuse.com/docs/administration/spend-alerts) — no "50-70%/80%" figure or per-tag/session scoping in either; item 2 corrected
+- [Wikipedia: Neko (software)](https://en.wikipedia.org/wiki/Neko_(software)) and [oneko.js source (adryd325)](https://github.com/adryd325/oneko.js) — the described sit→groom→paw→yawn→wave chain isn't real; item 2 (Topic 2) corrected to the actual idle/scratch/tired/sleeping/alert state set
+- [gil/shimeji-ee readme](https://github.com/gil/shimeji-ee/blob/master/readme.txt) and [TigerHix/shimeji-ee behaviors.xml](https://github.com/TigerHix/shimeji-ee/blob/master/conf/behaviors.xml) — confirm "Frequency 0 disables a behavior"; "every 3-8 seconds" is not real (Frequency is a pick-weight, not a timer), cut
+- [notes.highlysuspect.agency: Neko Atsume is a game where you can pay to miss the point of the game](https://notes.highlysuspect.agency/blog/nekos/) — confirms item 4 (Topic 2) and the Neko Atsume half of item 8
+- [PC Gamer: The horrible goose can now live on your desktop and steal your cursor](https://www.pcgamer.com/the-horrible-goose-can-now-live-on-your-desktop-and-steal-your-cursor/) — confirms cursor-stealing is the headline annoyance for item 5 (Topic 2); GameSpot's page (`gamespot.com/articles/annoy-yourself-with-this-untitled-goose-game-virtu/1100-6473237/`) returned 403, unreachable
+- [Luke Swartz: Why People Hate the Paperclip (Stanford honors thesis)](https://xenon.stanford.edu/~lswartz/paperclip/) and [Mundobytes: The story of Clippy](https://mundobytes.com/en/the-story-of-Clippy/) — confirm item 6 (Topic 2) with direct quotes; original `thenewstack.io` link is now gated behind a subscribe-wall with no article text reachable, swapped out
+- [designfolio.substack.com: Crazy UX redesign, Duolingo's engagement surge by 40%](https://designfolio.substack.com/p/crazy-ux-redesign-duolingo) — confirms the "one lesson keeps the streak" + 40% figure for item 7 (Topic 2); "escalating-guilt notifications" clause not supported, cut. (A third-party write-up, not Duolingo's own blog — the 40% figure is that write-up's reported number, not independently first-party-confirmed.)
+- [Wikipedia: Project Highrise](https://en.wikipedia.org/wiki/Project_Highrise) and [pietriots.com: Project Highrise review](https://pietriots.com/2018/10/18/project-highrise/) — neither states the "one continuous outer frame" claim in words; item 1 (Topic 3) downgraded to "visually plausible, not textually sourced"
+- [lazybatman.com: Fallout Shelter Layout Guide](https://lazybatman.com/2026/09/19/fallout-shelter-layout-guide/) — confirms item 2 (Topic 3) near-verbatim; original `fallout.fandom.com/wiki/Elevator_(Fallout_Shelter)` link returned 403 both plain and with a spoofed user-agent, still unreachable, swapped out
+- [GameDeveloper.com: Making the impossible possible in Monument Valley](https://www.gamedeveloper.com/design/making-the-impossible-possible-in-i-monument-valley-i-) — confirms item 6 (Topic 3) as a fair paraphrase of the engineering description
+- [GameDeveloper.com: How Townscaper works](https://www.gamedeveloper.com/game-platforms/how-townscaper-works-a-story-four-games-in-the-making) — confirms item 5 (Topic 3) via its Wave Function Collapse adjacency-rule description (not literally "baked texture," that mapping is this file's own extension)
+- [Screaming Brain Studios: Isometric Shadows](https://screamingbrainstudios.com/isometric-shadows/) — confirms item 7 (Topic 3) directly
+
+Still unreachable this round (worth a retry from elsewhere):
+- `kilkakon.com` — connection reset through the egress proxy on every attempt (Shimeji-ee affordances tutorial; a
+  GitHub-mirrored readme substituted for the one claim that mattered)
+- `fallout.fandom.com` — 403, both plain and with a spoofed browser user-agent (Fandom's own bot protection, not the
+  proxy; a strategy-guide substitute was used instead)
+- `thenewstack.io` — loads, but the specific Clippy article is now behind a hard subscribe/onboarding wall with no
+  article text in the HTML (a Stanford primary source + a write-up that quotes it substituted instead)
+- `gamespot.com` — 403 on the Desktop Goose article (PC Gamer substituted instead)
+
+Search summaries only, not opened (not in scope for this pass — background/context items only, not load-bearing for
+any ranked finding above):
 - Vercel cron / third-party heartbeat monitoring (Cronitor, Tickstem, PulseWatch pattern): community + vendor pages,
   `vercel.com/docs/cron-jobs/manage-cron-jobs`
-- Neko/oneko idle chain: Wikipedia *Neko (software)*, `github.com/winebarrel/Neco`, `github.com/Sky-creates/Oneko`
-- Shimeji-ee behavior frequency/config: `kilkakon.com/shimeji/affordances.php`, `sourceforge.net/app/shimeji-ee/`
-- Neko Atsume design (no timers/quests, gifts not scores): `notes.highlysuspect.agency/blog/nekos/`,
-  GameSkinny, Medium (Alexia Mandeville game-design breakdown)
-- Desktop Goose postmortem/reaction: GameSpot, ScreenRant, `samperson.itch.io/desktop-goose`
-- Clippy failure analysis (Luke Swartz study, Chris Pratley): `thenewstack.io/humanity-vs-clippy-...`,
-  Medium ("5 Lessons from Microsoft's Clippy"), `windowsforum.com/news/clippy-lessons-for-microsoft-copilot-...`
-- Duolingo streak redesign: `duolingo.deconstructoroffun.com/mechanics/streaks`, `blog.duolingo.com/hi-its-duo-the-ai-behind-the-meme/`,
-  `designfolio.substack.com/p/crazy-ux-redesign-duolingo`
-- Project Highrise / SimTower cutaway envelope: Wikipedia *Project Highrise*, `pietriots.com/2018/10/18/project-highrise/`
-- Fallout Shelter elevator-shaft alignment: `fallout.fandom.com/wiki/Elevator_(Fallout_Shelter)`, Steam Community discussions
-- Monument Valley screen-space anchor navigation: `gamedeveloper.com/design/making-the-impossible-possible-in-i-monument-valley-i-`
-- Townscaper's per-block procedural facade continuity: `gamedeveloper.com/game-platforms/how-townscaper-works-a-story-four-games-in-the-making`,
-  Hacker News discussion, ArchDaily
 - Double-height atrium / glass-stair sightlines: architecture-press roundups (Architizer, Elevated Stairs, Cindrebay)
-- Isometric shadow/lighting convention: `screamingbrainstudios.com/isometric-shadows/`, `screamingbrainstudios.com/isometric-lighting/`
+  — item 3 (Topic 3) was already tagged `[opened]` in the original round via its Wikipedia *Split-level home* half,
+  so out of scope for this pass; flagged here only as a note that the atrium half specifically is still search-only
 
 *Written by the Research Lead, 2026-09-28, for BUILD-v28.md's v28.1 "One building" chunk. Read alongside
 AI-HUB-BLUEPRINT.md, RESEARCH-v28.md, FUN-IDEAS.md, CONVENIENCES.md and FUNCTIONS-SHORTLIST.md — nothing here
 repeats their content. No 3 improvement-scouts were available to dispatch this round (no agent-launch tool in this
 session); the Research Lead ran all three topics directly with WebSearch/WebFetch instead, so treat "opened" vs.
-"search" tags above literally rather than as a scout's self-report.*
+"search" tags above literally rather than as a scout's self-report. Verification pass (2026-09-28) below.*
+
+---
+
+## Verification pass (2026-09-28)
+
+Ran a second pass over every finding tagged `[search]`/`[search, unverified]` in this file (18 findings) now that the
+container's egress proxy has been widened. The WebFetch tool still refused several vendor domains directly, so pages
+were fetched with `curl` through the proxy and read from the raw HTML instead — that worked for every domain except
+three (see below).
+
+- **Confirmed as written (tag changed to `[opened]`, link/wording tightened to match the source):** 9 —
+  GitHub mission control (Topic 1 #3), Sentry Agents Dashboard (Topic 1 #7), Cursor/Linear "My Issues" (Topic 1 #8,
+  minus one cut clause), Warp "single pane of glass" (Topic 1 #6), Neko Atsume gifts-not-score (Topic 2 #4, minor
+  nuance added), Clippy/Swartz study (Topic 2 #6), Duolingo streak redesign (Topic 2 #7, minus one cut clause),
+  Townscaper facade continuity (Topic 3 #5), Isometric shadow baking (Topic 3 #7).
+- **Corrected (kept, but the claim, number or source was wrong and is now fixed):** 6 — Langfuse cost-alarm
+  percentage (Topic 1 #2: no 50-70%/80% figure in Langfuse's own docs), OpenAI Codex dashboard (Topic 1 #4: grouping
+  confirmed, "activity line" detail dropped), oneko idle chain (Topic 2 #2: the described chain doesn't exist;
+  replaced with the real state set from the actual source), Shimeji frequency (Topic 2 #3: "every 3-8 seconds" isn't
+  real, `Frequency` is a pick-weight not a timer), Desktop Goose (Topic 2 #5: no formal "postmortem" found, softened
+  to what press coverage actually shows), Monument Valley (Topic 3 #6: confirmed as a paraphrase, not a literal
+  quote, worded accordingly).
+- **Cut (a clause struck as unsupported, finding otherwise kept):** 1 (partial, counted within "corrected" above,
+  called out separately here since it affected the Top 5) — Animal Crossing half of Topic 2 #8 (rare-events claim):
+  this round's sources say villager "rarity" isn't deliberate design; struck, the Neko Atsume half of the same
+  finding stands. Project Highrise/SimTower "continuous outer frame" (Topic 3 #1) is a borderline case: kept as a
+  recommendation but downgraded from "sourced" to "visually plausible, not textually confirmed" since neither opened
+  source states it in words.
+- **Still unreachable (host down or blocked, not a page-content issue):** 3 hosts — `kilkakon.com` (connection reset
+  through the proxy on every attempt), `fallout.fandom.com` (403, both plain and with a spoofed user-agent — looks
+  like Fandom's own bot protection, not the proxy), `thenewstack.io` (loads, but the specific article is behind a
+  hard subscribe-wall with no article text in the HTML). A working substitute source was found and used for all
+  three, so no finding was left unverified — the original links are kept in the text with a note, and the
+  unreachable hosts are listed above for a future retry.
+
+**Top-5 impact:** yes, one item changed. #1 ("cost alarm at 50-70% of budget, not 80%") no longer credits Langfuse
+for a number Langfuse's own docs don't state; the GitHub-banner half of that item is unaffected. #4 (continuous outer
+frame) is now labeled as visually plausible rather than source-confirmed for its SimTower/Project Highrise half; the
+recommendation itself is unchanged. #3 and #5 got *stronger* (Clippy/Duolingo and the Fallout Shelter elevator claim
+are now directly quote-confirmed rather than search-summarized). #2 was untouched (already `[opened]` before this
+pass).
