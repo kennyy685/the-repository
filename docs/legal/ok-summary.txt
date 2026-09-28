@@ -1,0 +1,44 @@
+OKLAHOMA - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. oklegislature.gov and oscn.net are egress-blocked in this environment
+(WebFetch and curl both refused). Below is a search-engine paraphrase corroborated across 2+
+secondary sources, not read verbatim. Re-verify at oklegislature.gov before use.
+
+1. Deductible waiver/rebate - 59 O.S. Sec. 1151.30 (Oklahoma Roofing Contractor Registration Act,
+   from HB 1940, effective 11/1/2022)
+   IMPORTANT: an earlier search pass returned a different, likely-wrong cite ("Title 36 Sec.
+   3614.1" / Insurance Code). A follow-up, more targeted search consistently landed on 59 O.S.
+   1151.30, inside the same Title 59 Roofing Contractor Registration Act as the registration
+   requirement below (Justia's own section page). Treat 59 O.S. 1151.30 as the working cite but
+   flag it for direct confirmation - two different secondary sources disagreed on the Title number.
+   Paraphrase: a roofing contractor paid from insurance proceeds shall not, as an inducement,
+   "advertise or promise to pay, directly or indirectly, all or part of any applicable insurance
+   deductible or offer to compensate an insured for providing any service." If violated, the
+   insurer need not consider that contractor's estimate; contractors/adjusters/insurers must give
+   written notice of the law with any estimate.
+   Source: law.justia.com OK Title 59 Sec. 1151.30; roofingcontractor.com; whirlwindroofing.com.
+
+2. Home-solicitation cancel right - 14A O.S. Sec. 2-502 (Oklahoma Consumer Credit Code, NOT Title 15)
+   Paraphrase: buyer may cancel a home solicitation sale by midnight of the 3rd business day after
+   signing. Notice of cancellation need not be in any particular form; mailed notice is effective
+   on deposit. No emergency-services exception carve-out found beyond the standard one. No
+   storm-specific extension found.
+   Source: law.justia.com OK Title 14A Sec. 2-502.
+
+3. Contractor registration/licensing - Oklahoma Roofing Contractor Registration Act (RCRA), 59 O.S.
+   Sec. 1151.1 to 1151.x, administered by the Construction Industries Board (CIB), effective 2010.
+   REGISTRATION (not a trade license/exam) required before advertising or acting as a roofing
+   contractor; liability insurance of $500,000+, workers'-comp proof. Failure to register is a
+   misdemeanor (up to $500/violation). Use "registered," not "licensed," for Oklahoma too - same
+   pattern as Nebraska.
+   Source: oklahoma.gov CIB "Active Roofing Contractor Requirements"; law.justia.com Title 59
+   Sec. 1151.4/1151.5.
+
+4. Public adjuster - not independently checked. UNVERIFIED.
+5. Assignment of benefits - not independently checked. UNVERIFIED.
+6. Door-to-door permit - no statewide permit statute found beyond the 14A-2-502 cancel-right rule;
+   local permits vary by city.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- 59 O.S. 1151.30 - https://law.justia.com/codes/oklahoma/title-59/section-59-1151-30/
+- 14A O.S. 2-502 - https://law.justia.com/codes/oklahoma/title-14a/section-14a-2-502/
+- Oklahoma CIB, Active Roofing Contractor Requirements - https://oklahoma.gov/cib/your-industry/roofing/active-roofing-contractor-requirements.html

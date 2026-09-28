@@ -1,0 +1,43 @@
+MINNESOTA - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. revisor.mn.gov is egress-blocked in this environment (WebFetch and curl both
+refused). Below is a search-engine paraphrase corroborated across 2+ secondary sources, not read
+verbatim. Re-verify at revisor.mn.gov before use.
+
+1. Deductible waiver/rebate - Minn. Stat. Sec. 325E.66 (Trade Practices)
+   Paraphrase: "Residential contractors providing residential roofing goods and services to be paid
+   by an insured from the proceeds of a property or casualty insurance policy shall not advertise or
+   promise to pay or rebate all or part of any applicable insurance deductible." Contractors must
+   include a written notice of this rule in their initial estimate. If violated, the insurer need
+   not consider that contractor's estimate; the insured or insurer may sue for damages. Same
+   enforcement pattern as Colorado's 6-22-105 and Nebraska's 44-8604.
+   Source: law.justia.com Minn. Stat. 325E.66 (2010 text, likely still current - re-verify); MN Dept.
+   of Labor and Industry "Contractors and insurance deductibles" page; mplsroofing.com.
+
+2. Home-solicitation cancel right - Minn. Stat. Sec. 325G.06 (and 325G.07/.08 for notice/writing
+   requirements)
+   Paraphrase: buyer may cancel by midnight of the 3rd business day after the sale; cancellation by
+   mail is effective on deposit; seller who performed work before cancellation gets NO compensation
+   (same rule as Nebraska's 69-1606(5)). "Home solicitation sale" definition matches Nebraska's
+   69-1601 closely (personal solicitation away from seller's place of business, $25+ purchase price).
+   No storm-specific extension found.
+   Source: revisor.mn.gov 325G.06 (via search summary, page itself not opened); madgettlaw.com legal
+   blog on the same section.
+
+3. Contractor registration/licensing - Minnesota REQUIRES A STATE LICENSE (not just registration)
+   for residential roofers: "Residential Roofer," "Residential Building Contractor," or "Residential
+   Remodeler" license from the Dept. of Labor and Industry (DLI), including an exam for
+   employees/qualifying persons. Subcontractor roofers need only register (not license) through
+   DLI's Construction Contractor Registration Program. Contractors under $15,000/yr gross residential
+   receipts are exempt but need a Certificate of Exemption. Minnesota is stricter than Nebraska here
+   - use "licensed" for MN prime roofing contractors, "registered" for MN subcontractors.
+   Source: MN DLI "Residential contractors, remodelers, roofers" page; dli.mn.gov roofer-license page.
+
+4. Public adjuster - not independently checked. UNVERIFIED.
+5. Assignment of benefits - not independently checked. UNVERIFIED.
+6. Door-to-door permit - no statewide permit statute found beyond the 325G.06 cancel-right rule;
+   local permits vary by city.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- Minn. Stat. 325E.66 - https://law.justia.com/codes/minnesota/2010/324-338/325E/325E_66.html
+- Minn. Stat. 325G.06 - https://www.revisor.mn.gov/statutes/cite/325G.06
+- MN DLI, Residential contractors, remodelers, roofers - https://www.dli.mn.gov/business/residential-contractors-remodelers-roofers

@@ -1,0 +1,42 @@
+COLORADO - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. leg.colorado.gov and colorado.public.law are egress-blocked in this
+environment (WebFetch and curl both refused). Below is a search-engine paraphrase corroborated
+across 2+ secondary sources, not read verbatim. Re-verify at leg.colorado.gov before use.
+
+1. Deductible waiver/rebate - C.R.S. 6-22-105 (from SB 12-038, 2012)
+   Paraphrase: "A roofing contractor that performs roofing work, the payment for which will be made
+   from the proceeds of a property and casualty insurance policy...shall not advertise or promise to
+   pay, waive, or rebate all or part of any insurance deductible applicable to the claim." If
+   violated, the insurer need not consider that contractor's estimate, and the property owner or
+   insurer can sue the contractor for damages.
+   Source: law.justia.com CRS 6-22-105; coloradoroofing.org; redhawkroofing.com.
+
+2. Home-solicitation cancel right - C.R.S. 5-3-402 (Consumer Credit Code, Home Solicitation Sales
+   part)
+   Paraphrase: buyer may cancel by midnight of the 3rd business day after signing. Notice by mail is
+   effective on deposit. Emergency-services exception requires a separate signed statement AND the
+   seller must have made a "substantial beginning of performance" before cancellation notice.
+   NOTE: Colorado's roofing deductible law lives in Title 6, Article 22 (a roofing-specific act,
+   separate from the general home-solicitation Title 5 cancel-right) - two different titles to keep
+   straight if HMP ever expands there. No storm-specific extension found for the general cancel
+   right.
+   Source: colorado.public.law CRS 5-3-402; hollingtonlawfirm.com.
+
+3. Contractor registration/licensing - Colorado Roofing Contractor Registration Act, C.R.S.
+   12-150-101 et seq. STATEWIDE REGISTRATION with DORA (not a trade exam/license) - minimum
+   liability insurance + surety bond, no trade exam. No statewide roofing license; local
+   municipalities (e.g. Denver) layer on their own license/certificate requirements. Use
+   "registered," not "licensed," for the statewide piece.
+   Source: coloradoroofing.org "Do Contractors Need a Colorado Roofing License?"; procore.com.
+
+4. Public adjuster - not independently checked. UNVERIFIED.
+5. Assignment of benefits - Colorado has had AOB-related insurance-code activity in recent years
+   (property-insurance reform bills); not independently checked this round. UNVERIFIED - flag for a
+   dedicated look given Colorado's active hail market.
+6. Door-to-door permit - no statewide permit statute found beyond the 5-3-402 cancel-right rule;
+   local permits vary by city.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- C.R.S. 6-22-105 - https://law.justia.com/codes/colorado/title-6/residential-roofing-services/article-22/section-6-22-105/
+- C.R.S. 5-3-402 - https://colorado.public.law/statutes/crs_5-3-402
+- coloradoroofing.org, "Do Contractors Need a Colorado Roofing License?" - https://www.coloradoroofing.org/news/do-contractors-need-a-colorado-roofing-license
