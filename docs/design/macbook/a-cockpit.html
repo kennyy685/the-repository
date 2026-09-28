@@ -159,9 +159,14 @@
   .outs .btn{height:44px}.outs .btn.pri{height:50px}
   .panel .in{gap:12px;padding:16px}
 }
+.fx{display:none} /* parts only the Future layer shows */
 .why{display:grid;gap:8px;font-size:13px;color:var(--ink-2)}.why span{display:flex;gap:9px;align-items:center}.why .i{width:16px;height:16px;color:var(--muted)}
 </style>
-<link rel="stylesheet" href="batcave.css"><!-- Batcave layer (A only): dark-glass monitors, tactical map, lab-console light -->
+<link rel="stylesheet" href="batcave.css" id="look-batcave"><!-- Batcave layer: dark-glass monitors, tactical map, lab-console light -->
+<link rel="stylesheet" href="future.css" id="look-future"><!-- Future layer (default): Apple-grade glass, ambient field, spring motion -->
+<script>/* one look at a time: default Future, ?look=batcave for the old layer (compare) */
+(function () { var b = /[?&]look=batcave\b/.test(location.search); document.documentElement.dataset.look = b ? 'batcave' : 'future';
+  document.getElementById(b ? 'look-future' : 'look-batcave').media = 'not all'; })();</script>
 </head>
 <body>
 <div class="app">
@@ -227,7 +232,8 @@ window.render = function () {
   const v = document.body.dataset.view || 'now';
   $('h1').textContent = T({now: 'now', knock: 'knock', job: 'pipeline'}[v]);
   // money strip
-  $('money').innerHTML = `<div class="lead"><div class="eb">${T('pipeVal')}</div><div class="v num"><span class="ph">$ —</span></div><p>39 ${T('open')} · ${T('pricesPending')}</p></div>` +
+  $('money').innerHTML = `<div class="lead"><div class="eb">${T('pipeVal')}</div><div class="v num"><span class="ph">$ —</span></div><p>39 ${T('open')} · ${T('pricesPending')}</p>` +
+    `<div class="fx fx-lead"><span class="eb">${T('pipe')}</span><b class="hero">39</b><p>${T('open')} · <span class="ph">$ —</span> ${T('pricesPending').toLowerCase()}</p></div></div>` +
     STAGES.map((s, i) => `<button class="stg" data-go="job"><span class="eb">${T(s.t)}</span><span class="c"><b class="num">${s.count}</b>${MONEY}</span><span class="nx">${tx(PIPE[s.k][0].next)}</span><span class="bar"><i style="width:${[100, 39, 17, 9, 4][i]}%"></i></span></button>`).join('');
   $('cmap').innerHTML = M.cityMap({pick: 1});
   $('hotchip').innerHTML = ic('hail') + '5 ' + T('hotZones').toLowerCase();
@@ -275,5 +281,6 @@ window.render = function () {
 };
 window.addEventListener('hashchange', () => render());
 </script>
+<script src="future.js"></script>
 </body>
 </html>
