@@ -26,7 +26,7 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
     owner-occupied from county owner mailing addresses; see Scoring), `doorscore` (door score v2,
     round 16), `doors` (storm turf lists, xlsx/map optional), `everyday` (T50 old-house lists), `zones` (hot zones +
     one walk per zone), `todaywalk` (O0 Today's knock), `commercial` (apartment/commercial targets, csv/xlsx),
-    `calltoday` (business call list)
+    `calltoday` (business call list), `accounts` (round 54: new hail/wind over HMP's own accounts)
   - selling: `estimate` (T52 price range), `takeoff` (material order list), `followups` (follow-up schedule),
     `hailreport` (T32 one-address hail report)
   - results and learning: `weekly` (week report), `tune` (T35 learning loop), `benchmarks` (T84, reads
@@ -35,10 +35,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
     local Flask tracker)
 - `hailhunter/sources/`: `lsr` (NWS storm reports via Iowa Mesonet), `swdi` (NEXRAD hail), `stormevents` (NCEI),
   `places` (Census towns)
-- `docs/app/*.js`: JS twins of engine math pasted into the HMP App (`estimate.js`, `takeoff.js`, `followups.js`),
-  checked by `node tests/js/*_check.js`
+- `docs/app/*.js`: JS twins of engine math (`estimate.js`, `takeoff.js`, `followups.js`), each one closure that sets
+  `window.HMPEstimateMath` / `HMPTakeoff` / `HMPFollowups` in a page and `module.exports` in node; checked by
+  `node tests/js/*_check.js`. The HMP App loads them as separate published files (below)
 - `pages/`: sources of the Claude pages (`hmp-app.html`, `crew-hq.html`, `practice-door.html`, `voice-test.html`,
-  retired `claim-tracker.html`; `estimate/` and `translate/` modules)
+  retired `claim-tracker.html`; `estimate/`, `translate/`, `vendor/` modules). **The HMP App is a multi-file artifact
+  (T169):** `pages/hmp-app.files.json` maps each published path (`app/estimate.js`, `translate/translate.js`...) to
+  its repo file; the page loads them with `<script src>`/`<link href>`, and a publish passes that map as `files`.
+  Edit the module file, never paste it into the page (`node tests/js/app_files_check.js` fails if one comes back)
 - `docs/print/`: print kit (html + pdf). `docs/orders/`: build orders and roadmap. `docs/research/`: research rounds.
   `docs/design/`, `docs/brand/`: design picks and the app icon.
 - `vendor/shapefile.py`: vendored pure-Python shapefile reader (no pip install needed)
@@ -66,17 +70,38 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - `python3 hh.py todaywalk --doors 25 [--date D] [--results doors.json] [--out walk.json] [--evidence-out ev.json]`:
   O0 "Today's knock": ONE walk (fresh strong storm walk, else best everyday walk), houses only in walking order, for
   the HMP App's `today/walk` doc; adds est_minutes, walk_mi, drive_from_home_mi, best_time{en,es}, stale + stale_note
-  (hud.json >36 h old), spanish_share + who, per-stop `coach {en, es, tags}` (T83); no walk -> stops [] +
+  (hud.json >36 h old), spanish_share + who, mortgage_share + mortgage_note{en,es} (T211: Census B25081 share of
+  owner-lived homes with a mortgage, area fact, never "insured"), per-stop `coach {en, es, tags}` (T83); no walk -> stops [] +
   none_reason{en,es}. `--evidence-out` writes `evidence/<slug>` docs (slug = "address city" lowercased,
   non-alphanumerics to "-"). `--results` = the app's door taps. Seasonal: Oct-Mar storm walks may use storms up to
   330 days old; Nov-Feb knock 3:30-5:30 PM.
 - `python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]`:
-  hot zones (app doc `zones/current`: id = walk id, center, polygon, score, heat 0-1, why EN/ES) + one walk per zone in
+  hot zones (app doc `zones/current`: id = walk id, center, polygon, score, heat 0-1, why EN/ES, mortgage_share +
+  mortgage_note EN/ES or null (T211; hud.json walks/lists carry the share only, neighborhoods also the note)) + one walk per zone in
   today/walk shape (`walks/<zone id>`), houses ranked by door score v2 (weights in config.json `door_score`); every
   stop has `door` + `why`.
 - `python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv f]`: today's BUSINESS call list
   (apartment/commercial with a known business line in fresh 1"+ hail), EN/ES why + opener (free inspection, no
-  insurance talk); JSON for the app's `calls/today` doc.
+  insurance talk); JSON for the app's `calls/today` doc. `--accounts f` (+ scout contacts, always): the doc also gets
+  the "Your accounts hit" block, shown FIRST (round 54, additive; every old field stays): `accounts_title {en, es}`,
+  `accounts_count`, `accounts_checked` (null = no check ran), `accounts_hit[]` = the alerts below plus call-card
+  fields {rank, name, phone, ask_for, hail_in, day, days_ago, why{en,es}, opener{en,es}, also[], call_rank}. Homes
+  (lead/claim/door): name = the address, phone "" (the app's own record, by `key`); never an owner name. Businesses:
+  one row per business line (other buildings in `also`); when that line is also a building call, the row has
+  `call_rank` and the call gets `account_hit: true`. Openers: a free roof and siding check, no insurance talk.
+- `python3 hh.py accounts [--accounts f] [--hud f] [--date D] [--days N] [--no-scout] [--out f]`: round 54 "storm alert
+  on your own accounts" (`accounts.py`). Accounts file = a list of {kind: lead|claim|door|commercial, key, address,
+  city, lat?, lon?, since?} or the app's exports as one file {leads, claims, doors} (leads/claims except stage "lost";
+  doors with result interested/booked; `since` = created_at / date_of_loss / tap date: only LATER hail is new), plus
+  `data/scout_contacts.json` businesses (business lines only). Hail bar = `call_today.min_hail`; window = config
+  `accounts.max_days`, else `today_walk.storm_max_days` (60). Out: {date, since, days, min_hail, checked, located,
+  radar, alerts[], not_located[]}; alert = {key, kind, address, city, event_date, days_ago, peril hail|wind,
+  max_hail_in, max_wind_mph, distance_mi, source, match at|near, hail_report {day, hail_in, nearest_report,
+  radar_max_in} (hud.json hail_evidence shape; null for wind), hail_report_hint {doc "evidence/<slug>", en, es},
+  other_days[]} (+ name, phone, ask_for for businesses). `source`, best first: `radar` (engine database radar at
+  the address; local only), `hail_evidence` / `door_list` / `commercial` (hud.json, that exact address), then
+  "near": `near_house` (storm door-list house within `accounts.near_mi` 0.6), `storm_report` (hud.json storms within
+  `accounts.report_mi` 3), `wind_report` (wind_events with a wind band, 58+ mph or damage, within 3 mi).
 - `python3 hh.py followups --leads leads.json [--date D] [--out f] [--export-rules]`: follow-ups due for
   Interested/booked leads (touches 2/5/10 days after first Interested), grouped today/tomorrow/later, EN/ES.
 - `python3 hh.py weekly --doors doors.json --leads leads.json [--week YYYY-WW|all] [--hud hud.json] [--out f]`: results
@@ -84,8 +109,11 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   T84: `industry` = each funnel rate next to data/benchmarks.json ranges {yours, low, typical, high, source_note, vs},
   labeled "industry estimate, not your numbers" (`--benchmarks f`; missing file -> null). todaywalk's goal_note adds an
   industry doors/hour time estimate (+ `pace`) when there are no door results yet.
-- `python3 hh.py daily --out-dir DIR [--date D] [--hud f] [--results f] [--dnk f] [--leads f] [--near T] [--doors N]`:
-  the 7:40 AM app job in one go (todaywalk + evidence, calltoday, zones + walks, followups when --leads given). One JSON
+- `python3 hh.py daily --out-dir DIR [--date D] [--hud f] [--results f] [--dnk f] [--leads f] [--accounts f] [--near T]
+  [--doors N]`: the morning app job in one go (todaywalk + evidence, calltoday + accounts_hit, zones + walks, followups
+  when --leads given). Accounts = `--accounts` + the `--leads` and `--results` exports + scout contacts; alerts with a
+  hail report also get `evidence__<slug>.json` (unless the walk wrote it); manifest `accounts` {checked, located,
+  alerts, radar}. One JSON
   file per app doc, named by doc path with "/" -> "__": `today__walk.json`, `calls__today.json`, `zones__current.json`,
   `walks__<zone id>.json`, `evidence__<slug>.json`, `followups__today.json`, plus `manifest.json` {date, files{doc
   path: file}, skipped[], errors[]}. One part failing never stops the others; exit 1 only if today/walk wasn't written.
@@ -111,15 +139,22 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
 - House score = size x recency x distance x roof age x building type x owner-occupied x sold-after-storm flag.
   Door score v2 (`doorscore.py`, used by zones): hail, owner-occupied share + recent sale, single-family, roof age,
   value. "Likely insured" = owner-occupied + residential + mortgage/recent sale proxies (round 16).
+  hud.json walk `owner_share` (the door line's "area 72% owners") = real data or null, never the Hot Zones 0.65
+  scoring default; lists carry `owner_share` (Census, house-weighted), and todaywalk/zones trust walk shares only
+  from hud.json whose lists have it (T211 follow-up, `todaywalk.walk_owner`, tests/test_owner_share.py).
 - Per-house owner-occupied (T23, `owners.py`): where a county publishes the owner's MAILING address, same as the
   house address = owner lives there (True), different = landlord (False), blank/PO box = unknown. Downloaded by
   parcel tile when door lists are built (doors/everyday, try/except, 120 s budget, cached 180 days in db tables
   `owner_occ` + `owner_tiles`); `hud.py` sets stop `owner_occ` + new field `owner_source` from the cache (offline).
   Door score v2 then uses the house flag (`parts.owner_basis` = "house") instead of the neighborhood share.
-  Sources: **Sarpy works** (ArcGIS Online `Parcel_Sales2`, all ~77k parcels). Douglas (dcgis.org), Lancaster
-  (gis.lincoln.ne.gov/public .../Assessor/TaxParcels), Dodge (dodge.gisworkshop.com) and geodata.sarpy.gov were
-  blocked from the cloud session on 2026-09-26, so not wired; add a `SOURCES` entry once reachable. Owner NAMES are
-  never requested or stored (homes rule); the mailing address is compared in memory and dropped.
+  Sources (`owners.SOURCES`): **Sarpy, Douglas and Lancaster work** (Sarpy: ArcGIS Online `Parcel_Sales2`, ~77k
+  parcels, with sale date; Douglas: dcgis.org `Parcels_public`; Lancaster: gis.lincoln.ne.gov Assessor/TaxParcels;
+  the last two have no sale date). **Dodge (Fremont) is not wired**: dodge.gisworkshop.com's TLS certificate is
+  expired and http is refused, and TLS checks are never skipped; add a `SOURCES` entry once it is fixed. Owner NAMES
+  are never requested or stored (homes rule); the mailing address is compared in memory and dropped.
+- Everyday heat (T163): also x `afford` = `everyday.income_curve` on the block group's median household income
+  (ACS B19013, table `acs_income`, optional load in `nbhd.load_income`; unknown = 1.0). Cash/old-house score only,
+  never storm, door-score or zone scores.
 - Size: 1" = 0.40, 2" = 0.93. Recency: full to 45 days, 0.4 at 1 yr. Distance: full to 30 mi.
 - Wind (T6): `refresh` pulls NWS wind reports into `wind_obs` and hud.json's `wind_events` (gusts in mph, own
   score). Informational only: door lists and neighborhood scores stay hail-only.
@@ -148,8 +183,19 @@ materials_ordered|installed|depreciation_requested|paid|lost), insurer, claim_no
 date_of_loss, adjuster_date, scope_date, rcv, acv{amount,received,deposited}, depreciation_held,
 mortgage{company,amount,check_sent,check_returned}, supplements[]{date,item,asked,approved},
 materials{ordered,supplier,cost}, install{start,done}, completion_sent, depreciation_check{amount,date},
-contract_price, deductible (homeowner's cost, display only), next_step{en,es,due}, notes, updated_at, updated_by};
-tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+contract_price, deductible (homeowner's cost, display only), next_step{en,es,due}, notes, updated_at, updated_by,
+job{...}}; tips in `meta/guide` {en, es}. Money in dollars, dates YYYY-MM-DD.
+**`job` = the claim screen's Job tracker (v25.2, T199; round 56's 14 steps, logic in `docs/app/jobtrack.js`), all
+optional dates:** {contingency_signed (1), adjuster_met (2), contract_signed + cancel_by (4, cancel_by = last day of the
+3-business-day cancel), itemized_sent{homeowner, insurer} (5, NE 44-8606), supplier_account{name, number, approved} (7),
+crew{name, scheduled, start} (8), permit{pulled, number, city} (9), dumpster, final_inspection (10),
+packet{photos, lien_waiver, warranty} (11), depreciation_requested (12), closed (13), yard_sign, review_requested,
+thank_you_note (14)}. The other steps reuse the fields above: 3 = scope_date, 6 = acv.received/deposited +
+mortgage.check_sent/check_returned, 7 = materials.ordered, 10 = install.start (tear-off) / install.done, 11 =
+completion_sent, 13 = depreciation_check.date. **Hard stops** (the page and the chat's update_claim refuse the write):
+install.start/done only after both itemized_sent dates AND the day after cancel_by; materials.ordered only after
+acv.deposited or supplier_account.approved. Writing `job` from Claude: send the whole sub-object you change (a queued
+merge is shallow), and never log tear-off or materials past a hard stop.
 
 ## Command center database (Cowork owns, https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX)
 Reads published `data/hud.json` (from the `engine/engine.json` bundle). Shared db: `turfs/<listId>~t<n>` = {results},

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App v25 · Lead</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+.behind{flex:1}
+.sheet .body{flex:1;overflow:hidden;padding:0 var(--s4) var(--s6);display:grid;gap:var(--s3);align-content:start}
+.sh{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s3) var(--s4) var(--s3)}
+.sh h2{font-size:24px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.sh .meta{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:var(--t-cap);color:var(--muted)}
+.sh .x{margin-left:auto;width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s2)}
+.quick button{height:62px;border-radius:var(--r-md);background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:var(--ink-2)}
+.quick .i{color:var(--ink)}
+.stage8{display:grid;gap:6px}
+.stage8 .segs{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.stage8 .segs i{height:5px;border-radius:3px;background:var(--line)}
+.stage8 .segs i.d{background:var(--ink)}.stage8 .segs i.c{background:var(--hmp)}
+.stage8 .tx{display:flex;justify-content:space-between;font-size:var(--t-cap);color:var(--muted)}
+.stage8 .tx b{color:var(--ink);font-weight:600}
+.nextcard{padding:var(--s4);display:grid;gap:var(--s3)}
+.nextcard h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.nextcard .two{display:grid;grid-template-columns:1fr auto;gap:var(--s2)}
+.guide{padding:0}
+.guide .gh{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4) 0}
+.guide .seg{width:96px;padding:2px}.guide .seg button{height:26px;font-size:12px}
+.gsay{margin:var(--s2) var(--s4) 0;font-size:var(--t-row);line-height:1.4;color:var(--ink);padding-left:var(--s3);border-left:3px solid var(--hmp)}
+.glist{padding:var(--s3) var(--s4) var(--s4);display:grid;gap:10px}
+.glist .label{margin-bottom:-2px}
+.ck{display:flex;align-items:center;gap:var(--s3);font-size:var(--t-body)}
+.ck .box{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none}
+.ck.on .box{background:var(--ok);border-color:var(--ok);color:var(--on-ink)}
+.ck.on .box .i{width:13px;height:13px;stroke-width:2.6}
+.ck span{flex:1}
+.ck small{color:var(--muted);font-size:var(--t-cap)}
+.ck.on span{color:var(--ink-2)}
+.ask{display:flex;gap:var(--s2);font-size:var(--t-body)}
+.ask::before{content:"?";flex:none;width:22px;height:22px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--muted)}
+.more .row{min-height:52px}
+.more .row .t b{font-weight:500}
+</style></head>
+<body class="stage">
+<script src="icons.js"></script>
+<div class="phone">
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>
+    <h1>Leads</h1>
+  </header>
+  <div class="behind"></div>
+  <div class="scrim"></div>
+
+  <section class="sheet" role="dialog" aria-label="Lead: 615 N Linden Ave">
+    <div class="grab"></div>
+    <div class="sh">
+      <div>
+        <h2>615 N Linden Ave</h2>
+        <div class="meta">Rosa · Fremont <span class="chip">Storm</span><span class="chip">Insurance</span></div>
+      </div>
+      <button class="x" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="body">
+      <div class="quick">
+        <button><svg class="i"><use href="#i-phone"/></svg>Call</button>
+        <button><svg class="i"><use href="#i-text"/></svg>Text</button>
+        <button><svg class="i"><use href="#i-nav"/></svg>Directions</button>
+        <button><svg class="i"><use href="#i-camera"/></svg>Photos 4</button>
+      </div>
+
+      <div class="stage8" aria-label="Step 2 of 8, inspection set">
+        <div class="segs"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="tx"><span><b>Inspection set</b> · step 2 of 8</span><span>next: inspection</span></div>
+      </div>
+
+      <section class="card nextcard">
+        <span class="chip hmp" style="justify-self:start"><svg class="i"><use href="#i-clock"/></svg>Today, 4:00 PM</span>
+        <h3>Inspection · bring the ladder</h3>
+        <div class="two">
+          <button class="btn pri"><svg class="i"><use href="#i-camera"/></svg>Start inspection</button>
+          <button class="btn sec" aria-label="Add to calendar" style="width:48px;padding:0"><svg class="i"><use href="#i-cal"/></svg></button>
+        </div>
+      </section>
+
+      <section class="card guide">
+        <div class="gh"><span class="label">Say</span><div class="seg" role="group" aria-label="Script language"><button aria-pressed="true">EN</button><button aria-pressed="false">ES</button></div></div>
+        <p class="gsay">“You’re all set. I’ll text you the time now and again the day before. It takes 20–30 minutes, and I’ll show you every photo.”</p>
+        <div class="glist">
+          <span class="label">Ask</span>
+          <p class="ask">Is 4 PM still good?</p>
+          <p class="ask">Will everyone who decides be there?</p>
+          <span class="label" style="margin-top:6px">Collect · 3 of 5</span>
+          <div class="ck on"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><span>Phone <small>402-555-0123</small></span></div>
+          <div class="ck on"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><span>Day and time</span></div>
+          <div class="ck on"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><span>Reminder text, right away</span></div>
+          <div class="ck"><span class="box"></span><span>Reminder text, day before</span><button class="btn sec sm">Send</button></div>
+          <div class="ck"><span class="box"></span><span>Everyone who decides will be there</span></div>
+        </div>
+      </section>
+
+      <div class="rows more">
+        <div class="row"><div class="lead"><svg class="i"><use href="#i-photo"/></svg></div><div class="t"><b>Inspection photos</b><span>4 of 14 · house number, sides, gutters</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div>
+        <div class="row"><div class="lead"><svg class="i"><use href="#i-money"/></svg></div><div class="t"><b>Quick estimate</b><span>None yet</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div>
+        <div class="row"><div class="lead"><svg class="i"><use href="#i-note"/></svg></div><div class="t"><b>Notes and visits</b><span>Hail dents on the gutters, north side</span></div><div class="end"><svg class="i"><use href="#i-chev"/></svg></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+</body></html>

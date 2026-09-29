@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba Knock</title>
+<!-- DESIGN MOCKUP ONLY. Not the HMP App. Streets are real (Nebraska GIS); every home and knock is SAMPLE DATA. -->
+<style>
+@font-face{font-family:"Geist L";src:url(fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+:root{
+  color-scheme:dark;
+  --page:#07080a;--panel:rgba(16,17,20,.78);--panel-2:rgba(26,27,31,.9);--rule:rgba(255,255,255,.075);--rule-2:rgba(255,255,255,.14);
+  --text:#f1f2f4;--text-2:#b8bbc2;--muted:#80838b;--faint:rgba(241,242,244,.34);--chip:#1d1e22;--chip-2:#26272b;
+  --acc:#f5883a;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.14);--acc-ink:#ffa766;
+  --h1:#f2c14e;--h15:#f5883a;--h2:#ff4f5a;
+  --o-na:#8a8f99;--o-no:#ff7a6b;--o-back:#58c7ff;--o-roofer:#b69cff;--o-yes:#f5883a;--o-sign:#f2c14e;
+  --good:#3ddc97;--bad:#ff7a6b;--street:#2a2d33;--street-2:#3a3e46;
+  --display:"Bricolage L","Bricolage Grotesque",system-ui,sans-serif;
+  --sans:"Geist L","Geist",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Geist Mono L","Geist Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --leftW:292px;--rightW:340px;--solid:#111215;
+}
+:root[data-theme="light"]{color-scheme:light;
+  --page:#eef0ee;--panel:rgba(255,255,255,.9);--panel-2:#fff;--rule:rgba(24,25,28,.09);--rule-2:rgba(24,25,28,.17);
+  --text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--faint:rgba(24,25,28,.4);--chip:#f1f2f3;--chip-2:#e7e9ec;
+  --acc-bg:#fdf1e7;--acc-ink:#a4520f;--h1:#b8860b;--h15:#d9661c;--h2:#d42c3a;
+  --o-na:#7c818b;--o-no:#c2362b;--o-back:#1f7fc0;--o-roofer:#6f55d9;--o-yes:#e0701f;--o-sign:#a77a09;
+  --good:#1f7a4d;--bad:#c2362b;--street:#d9dcdf;--street-2:#c3c7cc;--solid:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--page);color:var(--text);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.45}
+:root:not([data-lang="es"]) .es,[data-lang="es"] .en{display:none!important}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:var(--mono);font-weight:500}
+kbd{font:500 10px/1 var(--mono);padding:3px 5px;border-radius:5px;border:1px solid var(--rule-2);color:var(--muted);background:transparent}
+
+/* ambient: a slow hail-colored field behind the door, grain on top */
+.amb{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(60% 55% at 50% 38%,color-mix(in srgb,var(--hc,#f5883a) 16%,transparent),transparent 70%),
+             radial-gradient(90% 70% at 50% 120%,rgba(245,136,58,.08),transparent 60%)}
+.amb::after{content:"";position:absolute;inset:0;background:conic-gradient(from 0deg at 50% 40%,transparent 0 20%,color-mix(in srgb,var(--hc,#f5883a) 7%,transparent) 30%,transparent 45%);animation:spin 38s linear infinite;opacity:.8}
+@keyframes spin{to{transform:rotate(360deg)}}
+[data-theme="light"] .amb{opacity:.55}
+.grain{position:fixed;inset:-50%;pointer-events:none;z-index:0;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+[data-theme="light"] .grain{opacity:.025}
+.glass{background:var(--panel);border:1px solid var(--rule);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+  border-radius:18px;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.04)}
+[data-theme="light"] .glass{box-shadow:0 18px 50px -24px rgba(24,25,28,.3),0 1px 2px rgba(24,25,28,.05)}
+
+/* ---------- app frame ---------- */
+.app{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:64px 1fr;gap:12px;padding:14px 16px 16px}
+.top{display:flex;align-items:center;gap:12px;min-width:0}
+.brand{display:flex;align-items:center;gap:10px;height:52px;padding:0 16px 0 12px;flex:none}
+.brand svg{height:28px;width:28px}
+.brand .wm{font:700 19px/1 var(--display);letter-spacing:-.02em}
+.brand .sep{width:1px;height:20px;background:var(--rule-2);margin:0 4px}
+.brand .pg{font-weight:500;color:var(--text-2);font-size:13.5px;white-space:nowrap;display:flex;gap:5px}
+.brand .pg b{color:var(--text);font-weight:600}
+.back{display:flex;align-items:center;gap:6px;height:52px;padding:0 14px 0 10px;color:var(--text-2);font-weight:500;font-size:13px;white-space:nowrap}
+.back:hover{color:var(--text)}
+.steps{display:flex;align-items:center;gap:4px;height:52px;padding:0 8px;flex:none}
+.steps>span{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--muted);white-space:nowrap}
+.steps>span i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:600 10px/1 var(--mono);border:1px solid var(--rule-2);font-style:normal}
+.steps>span.done i{background:var(--chip-2);color:var(--good);border-color:transparent}
+.steps>span.on{background:var(--acc);color:var(--on-acc)}
+.steps>span.on i{border-color:rgba(0,0,0,.25)}
+.stats{display:flex;align-items:stretch;height:52px;padding:0 4px;min-width:0;flex:0 1 auto;overflow:hidden}
+.stats>div{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:0 13px;border-left:1px solid var(--rule);flex:none;white-space:nowrap}
+.stats>div:first-child{border-left:0}
+.stats .k{font:500 9.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.stats .v{font:650 18px/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.stats .v small{font:500 11px var(--sans);color:var(--muted);letter-spacing:0}
+.stats .yes .v{color:var(--acc-ink)}
+.stats .bar{width:84px;height:4px;border-radius:2px;background:var(--chip-2);overflow:hidden;margin-top:1px}
+.stats .bar b{display:block;height:100%;background:var(--acc);border-radius:2px;transition:width .5s var(--ease)}
+.right{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
+.sample{display:inline-flex;align-items:center;gap:7px;height:22px;padding:0 8px;border-radius:999px;border:1px dashed rgba(245,136,58,.55);
+  font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc-ink);background:rgba(245,136,58,.06);white-space:nowrap}
+.seg{display:inline-flex;padding:4px;gap:2px;border-radius:13px;height:44px;align-items:center;flex:none}
+.seg button{height:34px;padding:0 11px;border-radius:9px;font:500 12px var(--mono);color:var(--text-2);transition:background .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--page)}
+body.tight .stats .k5{display:none}
+body.tight2 .back span,body.tight2 .steps>span>span,body.tight2 .stats small,body.tight2 .say>span:first-of-type{display:none}
+body.tight2 .stats>div{padding:0 10px}
+
+.main{display:grid;grid-template-columns:var(--leftW) minmax(0,1fr) var(--rightW);gap:12px;min-height:0}
+
+/* ---------- left: the walk ---------- */
+.walk{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.walk header{padding:16px 16px 10px;border-bottom:1px solid var(--rule)}
+.eyebrow{margin:0;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.walk h2{margin:8px 0 4px;font:650 19px/1.1 var(--display);letter-spacing:-.02em}
+.walk .sub{margin:0;color:var(--text-2);font-size:12.5px}
+.walk .rows{flex:1;overflow:auto;padding:4px 8px 12px;scrollbar-width:thin}
+.sthd{position:sticky;top:0;z-index:2;background:var(--solid);margin:0 -8px;padding:10px 16px 8px;border-bottom:1px solid var(--rule);display:flex;align-items:baseline;gap:8px}
+.sthd b{font:600 13px var(--sans)}
+.sthd span{font:500 10.5px var(--mono);color:var(--muted);margin-left:auto;white-space:nowrap}
+.side{padding:9px 8px 3px;font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.row{display:grid;grid-template-columns:18px 50px 1fr auto;align-items:center;gap:8px;width:100%;height:34px;padding:0 8px;border-radius:9px;text-align:left;font-size:12.5px;color:var(--text-2);transition:background .15s}
+.row:hover{background:var(--chip)}
+.row .dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--faint);justify-self:center}
+.row .n{font:600 13px/1 var(--mono);color:var(--text);font-variant-numeric:tabular-nums}
+.row .tg{display:flex;gap:5px;align-items:center;min-width:0;overflow:hidden;white-space:nowrap;color:var(--muted);font-size:11.5px}
+.row .tg em{font-style:normal;font:500 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var(--acc-bg);color:var(--acc-ink)}
+.row .sc{font:500 11px/1 var(--mono);color:var(--muted)}
+.row.done .dot{border:0;background:var(--oc)}
+.row.done .n{color:var(--text-2)}
+.row.done .tg{color:var(--oc)}
+.row.skip{opacity:.42}
+.row.skip .dot{border-style:dashed}
+.row.cur{background:var(--acc-bg);box-shadow:inset 0 0 0 1px rgba(245,136,58,.45)}
+.row.cur .dot{border:0;background:var(--acc);box-shadow:0 0 0 4px rgba(245,136,58,.22),0 0 12px var(--acc)}
+.row.cur .n{color:var(--acc-ink)}
+.row.late{opacity:.55}
+.sunset{display:flex;align-items:center;gap:8px;margin:8px 4px;padding:8px 10px;border-radius:10px;border:1px dashed rgba(242,193,78,.5);color:var(--h1);font-size:11.5px;font-weight:500}
+
+/* ---------- center: the door ---------- */
+.door{position:relative;display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);min-height:0;overflow:hidden}
+.dhead{display:flex;align-items:center;gap:10px;padding:12px 18px 0}
+.dhead .pos{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dhead .pos b{color:var(--text);font-weight:500}
+.dhead .nav{margin-left:auto;display:flex;gap:6px}
+.dhead .nav button{display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:9px;border:1px solid var(--rule-2);font-size:12px;color:var(--text-2)}
+.dhead .nav button:hover{color:var(--text);border-color:var(--faint)}
+.dbody{overflow:auto;padding:4px 22px 16px;scrollbar-width:thin}
+.hero{display:flex;align-items:flex-end;gap:22px;margin-top:2px}
+.num{font:750 112px/.86 var(--display);letter-spacing:-.055em;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,var(--text) 30%,color-mix(in srgb,var(--text) 55%,var(--hc)) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:rise .45s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.hero .st{padding-bottom:10px;min-width:0}
+.hero .st h1{margin:0;font:650 30px/1.05 var(--display);letter-spacing:-.02em;white-space:nowrap}
+.hero .st p{margin:6px 0 0;color:var(--text-2);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
+.hero .st p span{display:inline-flex;align-items:center;gap:5px}
+.pickr{margin-left:auto;align-self:center;display:grid;place-items:center;position:relative;width:86px;height:86px;flex:none;cursor:help}
+.pickr svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.pickr b{font:650 26px/1 var(--display);letter-spacing:-.02em}
+.pickr small{position:absolute;bottom:17px;font:500 8.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.skipnote{margin:14px 0 0;display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--chip);color:var(--text-2);font-size:13px}
+
+/* say-first line (69-1602) */
+.say{display:flex;align-items:center;gap:10px;margin:14px 0 0;padding:9px 12px;border-radius:12px;border:1px solid var(--rule-2);font-size:13px;color:var(--text-2)}
+.say b{color:var(--text);font-weight:600;white-space:nowrap}
+.say>span:first-of-type{white-space:nowrap}
+.say .dotsep{width:4px;height:4px;border-radius:50%;background:var(--faint)}
+.law{margin-left:auto;font:500 10px/1 var(--mono);letter-spacing:.06em;padding:4px 6px;border-radius:5px;background:rgba(224,195,160,.12);color:#e0c3a0;white-space:nowrap;cursor:help}
+[data-theme="light"] .law{background:#f4ece2;color:#7a5a33}
+
+/* why tiles */
+.lbl{display:flex;align-items:center;gap:8px;margin:16px 0 8px;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lbl::after{content:"";flex:1;height:1px;background:var(--rule)}
+.why{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:10px}
+.tile{position:relative;padding:12px 14px 12px;border-radius:14px;background:var(--chip);border:1px solid var(--rule);min-width:0;overflow:hidden}
+.tile .k{font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tile .v{margin-top:9px;font:700 34px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.tile .v small{font:600 14px var(--display);margin-left:3px;color:var(--text-2)}
+.tile .d{margin-top:6px;font-size:12.5px;color:var(--text-2);line-height:1.35}
+.tile .d.stk{display:flex;align-items:center;gap:6px;color:var(--text)}.tile .d.stk .i{width:13px;height:13px;flex:none;color:var(--hc)}
+.tile .d.rb b{font-weight:600}.tile .d.rb-prime b{color:var(--good)}.tile .d.rb-check b{color:var(--o-sign)}
+.tile .src{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 6px;border-radius:5px;font:500 9.5px/1 var(--mono);letter-spacing:.05em;border:1px solid var(--rule-2);color:var(--muted);white-space:nowrap;cursor:help}
+.chip i{width:6px;height:6px;border-radius:50%;background:var(--c,var(--muted))}
+.chip.s{border-style:dashed;color:var(--acc-ink);border-color:rgba(245,136,58,.45)}
+.tile.hail{background:linear-gradient(160deg,color-mix(in srgb,var(--hc) 22%,var(--chip)) 0,var(--chip) 75%)}
+.tile.hail .v{color:var(--hc)}
+.hailviz{position:absolute;right:10px;top:10px;opacity:.9}
+.reps{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:3px}
+.reps li{display:flex;gap:7px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.reps li b{font:500 11px var(--mono);color:var(--text-2);flex:none}
+.reps li span{overflow:hidden;text-overflow:ellipsis}
+.sig{list-style:none;margin:9px 0 0;padding:0;display:grid;gap:5px}
+.sig li{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2)}
+.sig li .i{width:15px;height:15px}
+.sig li.y .i{color:var(--good)}
+.sig li.n{color:var(--faint)}
+.sig li.n .i{color:var(--faint)}
+.tile .v.ins{display:flex;align-items:baseline;gap:8px}
+.tile .v.ins small{font:500 12px var(--sans);color:var(--muted);margin:0}
+.meter{display:flex;gap:3px;margin-top:10px}
+.meter i{flex:1;height:4px;border-radius:2px;background:var(--chip-2)}
+.meter i.on{background:var(--hc)}
+
+/* damage from the street */
+.seen{display:flex;flex-wrap:wrap;gap:6px}
+.seen button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 9px;border-radius:9px;border:1px solid var(--rule-2);font-size:12px;color:var(--text-2);transition:all .15s}
+.seen button:hover{border-color:var(--faint);color:var(--text)}
+.seen button[aria-pressed="true"]{background:var(--acc-bg);border-color:rgba(245,136,58,.6);color:var(--acc-ink)}
+.seen button .i{width:15px;height:15px}
+.seen .none[aria-pressed="true"]{background:var(--chip-2);border-color:var(--rule-2);color:var(--text)}
+
+/* collect */
+.collect{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.collect div{padding:9px 10px;border-radius:11px;border:1px solid var(--rule);display:flex;align-items:center;gap:8px;min-width:0}
+.collect div .i{color:var(--acc-ink)}
+.collect b{font-size:12px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.collect span{display:none}
+
+/* outcome bar */
+.bar5{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.6fr;gap:8px;padding:12px;border-top:1px solid var(--rule);background:linear-gradient(180deg,transparent,rgba(0,0,0,.18))}
+[data-theme="light"] .bar5{background:linear-gradient(180deg,transparent,rgba(24,25,28,.03))}
+.ob{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;height:68px;padding:11px 12px 10px;border-radius:13px;background:var(--chip);border:1px solid var(--rule);text-align:left;transition:transform .12s var(--ease),border-color .15s,background .15s}
+.ob:hover{border-color:var(--oc);background:color-mix(in srgb,var(--oc) 10%,var(--chip))}
+.ob:active{transform:scale(.97)}
+.ob.was{border-color:var(--oc);box-shadow:inset 0 0 0 1px var(--oc);background:color-mix(in srgb,var(--oc) 14%,var(--chip))}
+.ob .i{color:var(--oc);width:20px;height:20px}
+.ob b{font-weight:600;font-size:13.5px;line-height:1.1}
+.ob kbd{position:absolute;right:9px;top:9px}
+.ob.yes{background:var(--acc);border-color:var(--acc);color:var(--on-acc);box-shadow:0 14px 40px -16px rgba(245,136,58,.8)}
+.ob.yes .i{color:var(--on-acc)}
+.ob.yes b{font:700 19px/1 var(--display);letter-spacing:-.01em}
+.ob.yes kbd{color:rgba(27,18,6,.6);border-color:rgba(27,18,6,.3)}
+.ob.yes:hover{background:#ff9446}
+.ob.yes::after{content:"";position:absolute;inset:-1px;border-radius:13px;box-shadow:0 0 0 0 rgba(245,136,58,.6);animation:yp 2.8s infinite}
+@keyframes yp{0%{box-shadow:0 0 0 0 rgba(245,136,58,.45)}70%,100%{box-shadow:0 0 0 12px rgba(245,136,58,0)}}
+.minor{display:flex;gap:16px;align-items:center;padding:0 14px 12px;font-size:12px;color:var(--muted)}
+.minor button{display:inline-flex;align-items:center;gap:6px;color:var(--text-2)}
+.minor button:hover{color:var(--text)}
+.minor .i{width:15px;height:15px}
+.minor .sp{margin-left:auto}
+
+/* ---------- right: map + log ---------- */
+.side2{display:grid;grid-template-rows:auto 1fr;gap:12px;min-height:0}
+.mapc{padding:12px 12px 10px;position:relative}
+.mapc .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+#mini{display:block;width:100%;height:268px}
+#mini .bg{stroke:var(--street);stroke-width:2;fill:none;stroke-linecap:round}
+#mini .ctx{stroke:var(--street);stroke-width:2.2;fill:none;stroke-linecap:round}
+#mini .ws{stroke:var(--street-2);stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#mini .done{stroke:var(--acc);stroke-width:2.2;fill:none;stroke-linecap:round;opacity:.9}
+#mini text{font:500 9px var(--sans);fill:var(--muted);letter-spacing:.04em}
+#mini .sn{fill:var(--text-2);font-weight:600}
+#mini .hd0{fill:var(--page);stroke:var(--faint);stroke-width:1}
+#mini .hd1{stroke:var(--page);stroke-width:1}
+#mini .cur{fill:var(--acc)}
+#mini .ring{fill:none;stroke:var(--acc);stroke-width:1.5;animation:ping 2.2s var(--ease) infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ping{0%{transform:scale(.6);opacity:1}80%,100%{transform:scale(2.6);opacity:0}}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;background:var(--oc)}
+.logc{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.logc .tabs{display:flex;gap:2px;padding:10px 10px 0}
+.logc .tabs button{height:30px;padding:0 9px;white-space:nowrap;border-radius:8px;font-size:12px;font-weight:500;color:var(--muted)}
+.logc .tabs button[aria-selected="true"]{background:var(--chip-2);color:var(--text)}
+.logc .body{flex:1;overflow:auto;padding:6px 12px 12px;scrollbar-width:thin}
+.ev{display:grid;grid-template-columns:44px 10px 1fr;gap:8px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--rule);font-size:12.5px}
+.ev .t{font:500 11px var(--mono);color:var(--muted)}
+.ev i{width:8px;height:8px;border-radius:50%;background:var(--oc)}
+.ev b{font-weight:600;font-family:var(--mono);font-size:12px}
+.ev span{color:var(--text-2)}
+.ev.new{animation:rise .4s var(--ease)}
+.learn{display:grid;gap:10px;padding-top:6px}
+.lrow .top2{display:flex;justify-content:space-between;font-size:12.5px}
+.lrow .top2 b{font-weight:600}
+.lrow .top2 span{font:500 11px var(--mono);color:var(--muted)}
+.stack{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;background:var(--chip-2)}
+.stack i{background:var(--oc)}
+.lnote{font-size:11.5px;color:var(--muted);line-height:1.4;margin:4px 0 0}
+/* track record line (the map learns from your knocks) */
+.trk{display:flex;align-items:center;gap:9px;margin:10px 0 0;padding:8px 12px;border-radius:12px;background:var(--acc-bg);border:1px solid rgba(245,136,58,.3);font-size:13px;color:var(--text);min-width:0}
+.trk>.i{width:14px;height:14px;color:var(--acc);flex:none}
+.trk>span{min-width:0}.trk small{color:var(--muted);font-size:11.5px;margin-left:6px}
+.trk .chip{margin-left:auto;flex:none}
+.trk.few{background:var(--chip);border-color:var(--rule);color:var(--text-2)}.trk.few>.i{color:var(--muted)}
+.lsec{font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:4px 0 0}
+.fu{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:9px 2px;border-bottom:1px solid var(--rule);font-size:12.5px}
+.fu b{font:600 12px var(--mono)}
+.fu span{color:var(--text-2)}
+.fu em{grid-column:2;font-style:normal;font-size:11.5px;color:var(--o-back)}
+.empty{color:var(--muted);font-size:12.5px;padding:10px 2px}
+
+/* ---------- toast (one tap already saved; refine if you want) ---------- */
+.toast{position:fixed;left:var(--tx,50%);top:86px;transform:translate(-50%,-16px);opacity:0;pointer-events:none;z-index:30;display:flex;align-items:center;gap:12px;
+  padding:10px 10px 10px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--rule-2);box-shadow:0 20px 60px -20px rgba(0,0,0,.8);transition:all .3s var(--ease);font-size:13px;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast{box-shadow:0 20px 60px -20px rgba(0,0,0,.8),0 0 0 1px color-mix(in srgb,var(--oc) 40%,transparent)}
+.toast i.d{width:9px;height:9px;border-radius:50%;background:var(--oc)}
+.toast .opts{display:flex;gap:4px}
+.toast .opts button,.toast .undo{height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--rule-2);font-size:12px;color:var(--text-2)}
+.toast .opts button[aria-pressed="true"]{background:var(--text);color:var(--page);border-color:var(--text)}
+.toast .undo{display:flex;align-items:center;gap:6px}
+
+/* ---------- YES: the win + fast capture ---------- */
+.yesw{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(5,6,8,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+[data-theme="light"] .yesw{background:rgba(230,232,230,.6)}
+.yesw.on{display:flex}
+#burst{position:fixed;inset:0;pointer-events:none;z-index:41}
+.ysheet{position:relative;z-index:42;width:min(980px,calc(100vw - 48px));max-height:calc(100vh - 48px);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden;border-radius:22px;background:var(--panel-2);border:1px solid rgba(245,136,58,.35);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.9),0 0 0 1px rgba(245,136,58,.15),0 0 80px -20px rgba(245,136,58,.35);animation:pop .5s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:none}}
+.ysheet .hd{position:relative;padding:22px 26px 18px;display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--rule);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(245,136,58,.28),transparent 55%)}
+.medal{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:var(--acc);color:var(--on-acc);box-shadow:0 12px 40px -10px var(--acc);flex:none}
+.medal .i{width:30px;height:30px;stroke-width:2.2}
+.ysheet .hd h2{margin:0;font:750 34px/1 var(--display);letter-spacing:-.03em}
+.ysheet .hd p{margin:6px 0 0;color:var(--text-2);font-size:13.5px}
+.ysheet .hd p b{color:var(--acc-ink);font-weight:600}
+.ysheet .hd .cnt{margin-left:auto;text-align:right}
+.ysheet .hd .cnt b{display:block;font:750 44px/1 var(--display);letter-spacing:-.03em;color:var(--acc-ink)}
+.ysheet .hd .cnt span{font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ysheet .bd{overflow:auto;padding:4px 26px 16px;display:grid;grid-template-columns:1.15fr 1fr;gap:26px;scrollbar-width:thin}
+.fld{margin-top:16px}
+.fld>.k{display:flex;align-items:center;gap:8px;font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fld>.k .req{color:var(--acc-ink)}
+.opts2{display:flex;flex-wrap:wrap;gap:6px}
+.opts2 button{height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--rule-2);font-size:13px;color:var(--text-2)}
+.opts2 button[aria-pressed="true"]{background:var(--text);color:var(--page);border-color:var(--text)}
+.opts2 button:hover{border-color:var(--faint)}
+.inp{height:38px;width:100%;padding:0 12px;border-radius:10px;border:1px solid var(--rule-2);background:var(--chip);font:500 14px var(--mono)}
+.inp::placeholder{color:var(--faint)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.auto{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:12.5px;color:var(--text-2)}
+.auto b{font-family:var(--mono);color:var(--text);font-weight:500}
+.photos{margin-top:16px;padding:14px;border-radius:14px;border:1px solid var(--rule);background:var(--chip)}
+.photos .ph{display:flex;align-items:baseline;gap:10px}
+.photos .ph b{font:700 26px/1 var(--display);letter-spacing:-.02em;white-space:nowrap}
+.photos .ph span{font-size:12.5px;color:var(--text-2)}
+.pbar{height:6px;border-radius:3px;background:var(--chip-2);margin:10px 0 12px;overflow:hidden}
+.pbar b{display:block;height:100%;width:0;background:var(--good)}
+.pgrid{display:grid;gap:10px}
+.pgrid h4{margin:0 0 5px;font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pgrid ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:5px}
+.pgrid li{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 8px;border-radius:7px;border:1px solid var(--rule-2);font-size:12px;color:var(--text-2)}
+.pgrid li b{font:500 10.5px var(--mono);color:var(--muted)}
+.pgrid li.hit{border-color:rgba(245,136,58,.5);color:var(--acc-ink)}
+.lock{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:12px;color:var(--muted)}
+.legalbox{margin-top:16px;display:grid;gap:7px}
+.legalbox div{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--text-2);line-height:1.4}
+.legalbox div .law{margin-left:0;flex:none;margin-top:1px}
+.ysheet .ft{display:flex;align-items:center;gap:12px;padding:14px 26px;border-top:1px solid var(--rule)}
+.ysheet .ft .note{font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 20px;border-radius:12px;font-weight:600;font-size:14.5px}
+.btn.pri{background:var(--acc);color:var(--on-acc);margin-left:auto}
+.btn.pri:hover{background:#ff9446}
+.btn.sec{border:1px solid var(--rule-2);color:var(--text-2)}
+
+/* tooltip */
+.tip{position:fixed;z-index:60;max-width:300px;padding:10px 12px;border-radius:11px;background:var(--panel-2);border:1px solid var(--rule-2);box-shadow:0 20px 50px -20px rgba(0,0,0,.8);font-size:12px;color:var(--text-2);line-height:1.45;pointer-events:none;opacity:0;transition:opacity .15s}
+.tip.on{opacity:1}
+.tip b{display:block;color:var(--text);font-size:12.5px;margin-bottom:3px}
+.tip em{display:block;margin-top:6px;font-style:normal;font:500 9.5px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+
+@media (max-width:1360px){:root{--leftW:262px;--rightW:300px}.num{font-size:112px}.collect{grid-template-columns:repeat(5,1fr)}.collect span{display:none}#mini{height:232px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="amb" id="amb"></div><div class="grain"></div>
+<div class="app">
+  <div class="top">
+    <div class="brand glass">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="currentColor"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>
+      <span class="wm">Aldaba</span><span class="sep"></span>
+      <span class="pg"><span class="en">Knock ·</span><span class="es">Tocar ·</span> <b id="zoneN"></b></span>
+    </div>
+    <a class="back glass" href="../open-map/index.html" title="Back to the map"><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span><span class="en">Map</span><span class="es">Mapa</span></span></a>
+    <div class="steps glass" aria-label="Where you are in the sale">
+      <span class="done"><i>✓</i><span class="en">Area</span><span class="es">Área</span></span>
+      <span class="done"><i>✓</i><span class="en">Walk</span><span class="es">Ruta</span></span>
+      <span class="on"><i>3</i><span class="en">Knock</span><span class="es">Tocar</span></span>
+    </div>
+    <div class="stats glass" id="stats" aria-label="Today so far"></div>
+    <div class="right">
+            <div class="seg glass" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="es" aria-pressed="false">ES</button></div>
+      <div class="seg glass" role="group" aria-label="Theme"><button id="thm" aria-pressed="false" title="Light / dark"></button></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <aside class="walk glass" aria-label="Walk order">
+      <header>
+        <p class="eyebrow" style="display:flex;justify-content:space-between;align-items:center;white-space:nowrap;gap:8px"><span><span class="en">Your walk · in order</span><span class="es">Tu ruta · en orden</span></span><span class="sample"><span class="en">Sample homes</span><span class="es">Casas de muestra</span></span></p>
+        <h2 id="walkT"></h2>
+        <p class="sub" id="walkS"></p>
+      </header>
+      <div class="rows" id="rows"></div>
+    </aside>
+
+    <section class="door glass" id="door" aria-live="polite">
+      <div class="dhead">
+        <span class="pos" id="pos"></span>
+        <div class="nav">
+          <button id="prev" title="Previous door (←)"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><kbd>←</kbd></button>
+          <button id="next" title="Next door (→)"><span id="nextL"></span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><kbd>→</kbd></button>
+        </div>
+      </div>
+      <div class="dbody" id="dbody"></div>
+      <div>
+        <div class="bar5" id="bar5"></div>
+        <div class="minor">
+          <button id="signB"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="10" rx="2"/><path d="M12 15v5M7 10h10"/></svg><span class="en">No soliciting sign · skip</span><span class="es">Letrero de no vendedores · saltar</span><kbd>S</kbd></button>
+          <button id="undoB"><svg class="i" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg><span class="en">Undo last</span><span class="es">Deshacer</span><kbd>Z</kbd></button>
+          <span class="sp" id="saved"></span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side2">
+      <div class="mapc glass">
+        <div class="hd"><p class="eyebrow"><span class="en">Where you are</span><span class="es">Dónde estás</span></p><span class="chip" data-src="gis"><i style="--c:#8fa3c8"></i>GIS</span></div>
+        <svg id="mini" role="img" aria-label="Walk map"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="logc glass">
+        <div class="tabs" role="tablist">
+          <button role="tab" data-tab="log" aria-selected="true"><span class="en">Today's knocks</span><span class="es">Toques de hoy</span></button>
+          <button role="tab" data-tab="back" aria-selected="false"><span class="en">Come back</span><span class="es">Regresar</span></button>
+          <button role="tab" data-tab="learn" aria-selected="false"><span class="en">Map learns</span><span class="es">El mapa aprende</span></button>
+        </div>
+        <div class="body" id="logB"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="yesw" id="yesw"><div class="ysheet" id="yesS" role="dialog" aria-modal="true" aria-label="Inspection yes"></div></div>
+<canvas id="burst" aria-hidden="true"></canvas>
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+const $=(id)=>document.getElementById(id);
+let lang="en",D=null,cur=0,tab="log";
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const KEY="aldaba.knock.v1";
+
+/* ---------- words (EN / ES) ---------- */
+const T={
+  o_na:{en:"No answer",es:"No abrió"},o_no:{en:"Not interested",es:"No le interesa"},o_back:{en:"Come back",es:"Regresar"},
+  o_roofer:{en:"Has a roofer",es:"Ya tiene techero"},o_yes:{en:"Inspection YES",es:"Inspección SÍ"},o_sign:{en:"No soliciting sign",es:"Letrero de no vendedores"},
+  left:{en:"Doors left",es:"Puertas que faltan"},knocked:{en:"Knocked today",es:"Tocadas hoy"},opened:{en:"Opened",es:"Abrieron"},
+  yesT:{en:"Inspections today",es:"Inspecciones hoy"},sunset:{en:"Sunset",es:"Atardecer"},fit:{en:(n)=>`~${n} doors fit`,es:(n)=>`caben ~${n} puertas`},
+  pace:{en:"Pace",es:"Ritmo"},perHr:{en:"/hr",es:"/h"},
+  doorOf:{en:(i,n)=>`Door <b>${i}</b> of ${n}`,es:(i,n)=>`Puerta <b>${i}</b> de ${n}`},
+  westSide:{en:"West side",es:"Lado oeste"},eastSide:{en:"East side",es:"Lado este"},
+  walkS:{en:(a,b,n)=>`${a} → ${b} · ${n} doors to knock, rentals and new roofs skipped`,es:(a,b,n)=>`${a} → ${b} · ${n} puertas para tocar, sin rentas ni techos nuevos`},
+  homes:{en:(n)=>`${n} homes`,es:(n)=>`${n} casas`},
+  sk_rent:{en:"Rental · skip",es:"Renta · saltar"},sk_sign:{en:"Sign on file · skip",es:"Letrero registrado · saltar"},sk_new:{en:"New roof 2025 · skip",es:"Techo nuevo 2025 · saltar"},
+  skipWhy:{en:{rent:"Skipped: the tax bill mails to another address, so the owner likely doesn't live here (a renter can't order a roof inspection).",sign:"Skipped: a “No Soliciting” sign was logged here. Fremont's permit can be taken away for ignoring one.",new:"Skipped: a roof permit was pulled here in 2025, so the roof is likely new."},
+    es:{rent:"Se salta: el recibo de impuestos va a otra dirección, así que el dueño probablemente no vive aquí (un inquilino no puede pedir una inspección del techo).",sign:"Se salta: aquí se registró un letrero de “No vendedores”. En Fremont te pueden quitar el permiso por ignorarlo.",new:"Se salta: aquí se sacó un permiso de techo en 2025, así que el techo probablemente es nuevo."}},
+  knockAnyway:{en:"Knock anyway",es:"Tocar de todos modos"},
+  sunsetDiv:{en:(c)=>`Sunset ${c} · doors below move to tomorrow`,es:(c)=>`Atardecer ${c} · las de abajo pasan a mañana`},
+  built:{en:(y)=>`Built ${y}`,es:(y)=>`Construida en ${y}`},
+  roofMat:{en:{"3-tab":"3-tab shingles",architectural:"architectural shingles"},es:{"3-tab":"tejas de 3 lengüetas",architectural:"tejas arquitectónicas"}},
+  sidMat:{en:{vinyl:"vinyl siding",aluminum:"aluminum siding",wood:"wood siding","fiber cement":"fiber cement siding"},es:{vinyl:"siding de vinilo",aluminum:"siding de aluminio",wood:"siding de madera","fiber cement":"siding de fibrocemento"}},
+  sayFirst:{en:"At the door, first:",es:"En la puerta, primero:"},
+  sayName:{en:"your name",es:"tu nombre"},saySell:{en:"roofing, siding, gutters",es:"techos, siding, canaletas"},
+  why:{en:"Why this house",es:"Por qué esta casa"},
+  stackL:{en:(n,y)=>n>=2?`Hail here ${n} times since ${y}`:`First hail here since ${y}`,es:(n,y)=>n>=2?`Granizo aquí ${n} veces desde ${y}`:`Primer granizo aquí desde ${y}`},
+  rbL:{en:{young:"Young roof (estimate)",prime:"Prime roof age (estimate)",check:"Check the policy first (estimate)"},es:{young:"Techo joven (estimado)",prime:"Edad ideal del techo (estimado)",check:"Revisar la póliza primero (estimado)"}},
+  hailK:{en:"Hail near it",es:"Granizo cerca"},hailD:{en:(d,n)=>`${d} · ${n} days ago`,es:(d,n)=>`${d} · hace ${n} días`},
+  nearest:{en:(s,mi)=>`Nearest report: ${s}, ${mi} mi`,es:(s,mi)=>`Reporte más cercano: ${s}, ${mi} mi`},
+  insK:{en:"Likely insured",es:"Probablemente asegurada"},insOf:{en:"signals",es:"señales"},
+  s_own:{en:"Owner lives here",es:"El dueño vive aquí"},s_mort:{en:"Mortgage on record",es:"Hipoteca registrada"},
+  s_sale:{en:(y)=>`Bought ${y}`,es:(y)=>`Comprada en ${y}`},s_noSale:{en:"No recent sale",es:"Sin venta reciente"},s_noMort:{en:"No mortgage found",es:"Sin hipoteca registrada"},
+  roofK:{en:"Roof age",es:"Edad del techo"},yrs:{en:"yrs",es:"años"},roofD:{en:(m,y)=>`${m} · no roof permit since ${y}`,es:(m,y)=>`${m} · sin permiso de techo desde ${y}`},
+  seenL:{en:"Damage I see from the street",es:"Daño que veo desde la calle"},
+  d_gutters:{en:"Gutter dents",es:"Canaletas abolladas"},d_screens:{en:"Torn screens",es:"Mallas rotas"},d_ac:{en:"AC fins bent",es:"Aletas del A/C dobladas"},
+  d_vents:{en:"Dented vents",es:"Ventilas abolladas"},d_siding:{en:"Siding cracks",es:"Grietas en siding"},d_none:{en:"None seen",es:"No veo nada"},
+  collectL:{en:"If they say yes, collect",es:"Si dice que sí, anota"},
+  c1:{en:"A time",es:"Una hora"},c1d:{en:"now, later today or a day",es:"ahora, hoy más tarde o un día"},
+  c2:{en:"What to inspect",es:"Qué revisar"},c2d:{en:"roof, siding, gutters",es:"techo, siding, canaletas"},
+  c3:{en:"Their phone",es:"Su teléfono"},c3d:{en:"for the time and the report",es:"para la cita y el reporte"},
+  c4:{en:"Date + insurer",es:"Fecha + aseguradora"},c4d:{en:"when they noticed it",es:"cuándo lo notaron"},
+  c5:{en:(n)=>`${n} photos`,es:(n)=>`${n} fotos`},c5d:{en:"at the inspection",es:"en la inspección"},
+  next:{en:(n)=>`Next ${n}`,es:(n)=>`Sigue ${n}`},
+  savedL:{en:(n)=>`${n} knocks logged today · saved on this Mac`,es:(n)=>`${n} toques anotados hoy · guardado en esta Mac`},
+  undo:{en:"Undo",es:"Deshacer"},undone:{en:"Undone",es:"Deshecho"},
+  t_tonight:{en:"Tonight",es:"Hoy en la noche"},t_tomorrow:{en:"Tomorrow 4 PM",es:"Mañana 4 p. m."},t_sat:{en:"Saturday 10 AM",es:"Sábado 10 a. m."},
+  r_signed:{en:"Already signed",es:"Ya firmó"},r_quotes:{en:"Getting quotes",es:"Pidiendo precios"},r_came:{en:"One came by",es:"Ya vino uno"},
+  n_dnk:{en:"Asked: don't knock again",es:"Pidió: no volver a tocar"},
+  na_hanger:{en:"Left a door hanger",es:"Dejé volante"},
+  logE:{en:"No knocks yet.",es:"Aún no hay toques."},
+  backE:{en:"Nobody asked you to come back yet.",es:"Nadie te ha pedido regresar todavía."},
+  w_tonight:{en:"tonight",es:"hoy en la noche"},w_tomorrow:{en:"tomorrow 4 PM",es:"mañana 4 p. m."},w_sat:{en:"Sat 10 AM",es:"sáb 10 a. m."},
+  learnT:{en:"Every knock is saved with its street, time and signals. It feeds the track record on each door card and on the map's picks: under 20 doors it says so instead of guessing. A yes = an inspection agreed, never a verdict on coverage.",es:"Cada toque se guarda con su calle, hora y señales. Alimenta el historial de cada tarjeta y de las opciones del mapa: con menos de 20 puertas lo dice en vez de adivinar. Un sí = una inspección aceptada, nunca un juicio sobre la cobertura."},
+  trkL:{en:{door:"Doors like this",z:"This zone",st:"This street",all:"All doors so far"},es:{door:"Puertas como esta",z:"Esta zona",st:"Esta calle",all:"Todas las puertas hasta ahora"}},
+  trkY:{en:(y,d,p)=>`${y} inspection ${y===1?"yes":"yeses"} from ${d} doors${p!=null?` (~${p}%)`:""}`,es:(y,d,p)=>`${y} sí a inspección de ${d} puertas${p!=null?` (~${p}%)`:""}`},
+  trkS:{en:(y,d,p)=>`${y} / ${d} doors · ~${p}%`,es:(y,d,p)=>`${y} / ${d} puertas · ~${p}%`},trkSF:{en:(d,n)=>`${d} of ${n} doors: not enough yet`,es:(d,n)=>`${d} de ${n} puertas: aún no alcanza`},
+  trkFew:{en:(d,n)=>`not enough doors yet (${d} of ${n})`,es:(d,n)=>`aún no hay suficientes puertas (${d} de ${n})`},
+  hB:{en:{h0:"under 1″ hail",h1:"1–1.5″ hail",h2:"1.5–2″ hail",h3:"2″+ hail"},es:{h0:"granizo de menos de 1″",h1:"granizo de 1–1.5″",h2:"granizo de 1.5–2″",h3:"granizo de 2″ o más"}},
+  iB:{en:{i1:"0–1 of 3 signals",i2:"2 of 3 signals",i3:"3 of 3 signals"},es:{i1:"0–1 de 3 señales",i2:"2 de 3 señales",i3:"3 de 3 señales"}},
+  rB:{en:{young:"young roof",prime:"prime roof age",check:"roof 15+ yrs"},es:{young:"techo joven",prime:"edad ideal del techo",check:"techo de 15+ años"}},
+  lsecB:{en:"Yeses by hail size (all doors)",es:"Síes por tamaño de granizo (todas las puertas)"},lsecS:{en:"By street (today)",es:"Por calle (hoy)"},
+  opened2:{en:(a,b)=>`${a} of ${b} opened`,es:(a,b)=>`${a} de ${b} abrieron`},
+  nearYes:{en:"next to a yes",es:"junto a un sí"},
+  /* YES */
+  yesH:{en:"Inspection YES",es:"Inspección SÍ"},yesP:{en:(a,t)=>`<b>${a}</b> · saved at ${t} · Fill what you can; the rest waits for the inspection.`,es:(a,t)=>`<b>${a}</b> · guardado a las ${t} · Llena lo que puedas; lo demás espera a la inspección.`},
+  yesCnt:{en:"today",es:"hoy"},
+  f_when:{en:"When",es:"Cuándo"},w_now:{en:"Right now",es:"Ahora mismo"},w_630:{en:"Today 6:30 PM",es:"Hoy 6:30 p. m."},w_tmr:{en:"Tomorrow",es:"Mañana"},w_pick:{en:"Pick a day",es:"Elegir día"},
+  f_what:{en:"They agreed to an inspection of",es:"Aceptó una inspección de"},a_roof:{en:"Roof",es:"Techo"},a_siding:{en:"Siding",es:"Siding"},a_gutters:{en:"Gutters",es:"Canaletas"},a_windows:{en:"Window wraps",es:"Marcos de ventana"},
+  f_phone:{en:"Phone they give you",es:"Teléfono que te den"},f_noticed:{en:"When they noticed damage",es:"Cuándo notaron el daño"},
+  n_storm:{en:"Night of the storm",es:"La noche de la tormenta"},n_later:{en:"Days after",es:"Días después"},n_now:{en:"Just now, at the door",es:"Ahora, en la puerta"},n_unk:{en:"Not sure",es:"No sabe"},
+  f_ins:{en:"Insurance company",es:"Aseguradora"},unk:{en:"Not sure",es:"No sabe"},other:{en:"Other",es:"Otra"},
+  f_filed:{en:"Already reported it?",es:"¿Ya lo reportó?"},f_prior:{en:"Prior hail claim or repair?",es:"¿Reclamo o reparación anterior?"},f_leak:{en:"Any leak now?",es:"¿Hay goteras?"},
+  yes_:{en:"Yes",es:"Sí"},no_:{en:"No",es:"No"},
+  f_storm:{en:"Storm date (auto)",es:"Fecha de tormenta (auto)"},stormAuto:{en:(d,s,mi)=>`<b>${d}</b> · nearest report ${s}, ${mi} mi · not confirmed at this address`,es:(d,s,mi)=>`<b>${d}</b> · reporte más cercano ${s}, ${mi} mi · no confirmado en esta dirección`},
+  phT:{en:"Adjuster-ready photos",es:"Fotos listas para el ajustador"},phS:{en:"taken at the inspection, in this order",es:"se toman en la inspección, en este orden"},
+  pg1:{en:"Ground",es:"Suelo"},pg2:{en:"Roof · per slope",es:"Techo · por lado"},pg3:{en:"Siding · per side",es:"Siding · por lado"},
+  p_plate:{en:"House number",es:"Número de casa"},p_elev:{en:"Each side, wide",es:"Cada lado, amplia"},p_gut:{en:"Gutter dents",es:"Canaletas"},p_down:{en:"Downspouts",es:"Bajantes"},
+  p_ac:{en:"AC fins",es:"Aletas A/C"},p_scr:{en:"Screens",es:"Mallas"},p_spat:{en:"Fresh spatter",es:"Salpicadura fresca"},p_dent:{en:"Dent close-up",es:"Abolladura de cerca"},
+  p_slope:{en:"Slope, wide",es:"Lado, amplia"},p_sq:{en:"Test square + count",es:"Cuadro de prueba + conteo"},p_ridge:{en:"Ridge + valleys",es:"Cumbrera + valles"},p_vent:{en:"Vents + flashing",es:"Ventilas + tapajuntas"},p_rep:{en:"Old repairs",es:"Parches viejos"},
+  p_sid:{en:"Cracks, holes, chips",es:"Grietas, hoyos, astillas"},
+  lockT:{en:"Can't be marked adjuster-ready until every photo is in. A tapped “not found” counts too.",es:"No se marca lista para el ajustador hasta tener todas las fotos. Un “no se encontró” también cuenta."},
+  seenPre:{en:"Seen from the street",es:"Visto desde la calle"},
+  lg1:{en:"Say “likely insured” to yourself only; the app never says a home is insured. No deductible talk of any kind.",es:"“Probablemente asegurada” es solo para ti; la app nunca dice que una casa tiene seguro. Nada de hablar del deducible."},
+  lg2:{en:"We document the damage and can meet the adjuster. The insurance company decides the claim.",es:"Documentamos el daño y podemos estar con el ajustador. La aseguradora decide el reclamo."},
+  lg3:{en:"An inspection is not a sale. Any sale later: the cancel form (3 business days), English and Spanish, every time.",es:"Una inspección no es una venta. Cualquier venta después: el formulario de cancelación (3 días hábiles), en inglés y español, siempre."},
+  lg4:{en:"Before any insurance work: an itemized description to the homeowner and to the insurer.",es:"Antes de cualquier trabajo de seguro: una descripción detallada al dueño y a la aseguradora."},
+  saveNext:{en:"Save lead · next door",es:"Guardar cliente · siguiente puerta"},later:{en:"Finish later",es:"Terminar después"},
+  ftNote:{en:"Already saved the moment you tapped YES.",es:"Ya se guardó en cuanto tocaste SÍ."},
+  leadN:{en:(n)=>`Lead #${n} today`,es:(n)=>`Cliente #${n} hoy`},
+  now:{en:"now",es:"ahora"},nearestS:{en:"NEAREST",es:"MÁS CERCANO"},leadsT:{en:"inspections today",es:"inspecciones hoy"},
+};
+const t=(k,...a)=>{const v=T[k];if(!v)return k;const x=v[lang]??v.en;return typeof x==="function"?x(...a):x};
+
+/* ---------- sources (tap any tag) ---------- */
+const SRC={
+  gis:{c:"#8fa3c8",k:"real",n:{en:"Nebraska street centerlines",es:"Líneas de calles de Nebraska"},w:{en:"Real streets from the Nebraska GIS portal, same file as the open map.",es:"Calles reales del portal GIS de Nebraska, el mismo archivo del mapa abierto."}},
+  nws:{c:"#ff9f6b",k:"real",n:{en:"NWS storm report (open map storm)",es:"Reporte de tormenta del NWS (tormenta del mapa)"},w:{en:"Nearest hail report to this house. Reports are estimates and can be miles away, so it says “nearest report”, never “confirmed at this address”.",es:"El reporte de granizo más cercano. Son estimados y pueden estar a millas, por eso dice “reporte más cercano”, nunca “confirmado en esta dirección”."}},
+  asr:{c:"#a9b8d6",k:"sample",n:{en:"Dodge County Assessor",es:"Asesor del Condado de Dodge"},w:{en:"Year built, roof material, and whether the tax bill mails to this house (the owner lives here). Public record, no owner names used.",es:"Año de construcción, material del techo y si el recibo de impuestos llega a esta casa (el dueño vive aquí). Registro público, sin nombres."}},
+  rod:{c:"#a9b8d6",k:"sample",n:{en:"Register of Deeds",es:"Registro de Escrituras"},w:{en:"A recorded mortgage (deed of trust) means a lender, and lenders require home insurance. A signal, not proof.",es:"Una hipoteca registrada significa un banco, y los bancos exigen seguro de casa. Una señal, no una prueba."}},
+  prm:{c:"#b69cff",k:"sample",n:{en:"Fremont building permits",es:"Permisos de construcción de Fremont"},w:{en:"Last roof permit on file. None since a year means the roof is at least that old.",es:"Último permiso de techo registrado. Si no hay desde un año, el techo tiene al menos esa edad."}},
+  stk:{c:"#ff9f6b",k:"real",n:{en:"Repeat hail (public reports since 2024)",es:"Granizo repetido (reportes públicos desde 2024)"},w:{en:"Days with a public hail report of 0.75 in or more within 5 km of this house since 2024 (NWS, SPC, NOAA), plus this storm. A signal for the list, not proof of damage at this address.",es:"Días con un reporte público de granizo de 0.75 pulg. o más a 5 km de esta casa desde 2024 (NWS, SPC, NOAA), más esta tormenta. Una señal para la lista, no prueba de daño en esta dirección."}},
+  rb:{c:"#b69cff",k:"est",n:{en:"Roof age band",es:"Rango de edad del techo"},w:{en:"From the roof age above, an estimate: under 8 yrs young, 8-14 yrs prime, 15+ check the policy first (older roofs can have different policy terms).",es:"De la edad del techo, un estimado: menos de 8 años joven, 8-14 años ideal, 15+ revisar la póliza primero (los techos viejos pueden tener otros términos en la póliza)."}},
+  lrn:{c:"#f5883a",k:"sample",n:{en:"Your track record",es:"Tu historial"},w:{en:"Every door you log, grouped by what the door card showed: hail size, repeat hail, likely-insured signals, roof-age band. It uses the closest group with 20+ doors; under 20 it says so instead of guessing. The % leans toward a typical 5% while doors are few. A yes = they agreed to an inspection, never a verdict on coverage. In this mockup: made-up past knocks + your taps today.",es:"Cada puerta que anotas, agrupada por lo que mostró la tarjeta: tamaño del granizo, granizo repetido, señales de probablemente asegurada, edad del techo. Usa el grupo más parecido con 20+ puertas; con menos de 20 lo dice en vez de adivinar. El % se inclina hacia un 5% típico mientras hay pocas puertas. Un sí = aceptaron una inspección, nunca un juicio sobre la cobertura. En esta maqueta: toques pasados inventados + tus toques de hoy."}},
+  law:{c:"#e0c3a0",k:"rule",n:{en:"Nebraska law 69-1602",es:"Ley de Nebraska 69-1602"},w:{en:"In a home sale, say at the start, clearly: your name, the business, and what you sell.",es:"En una venta a domicilio, di desde el principio y claro: tu nombre, la empresa y lo que vendes."}},
+  pick:{c:"#f5883a",k:"est",n:{en:"How Aldaba ranks a door",es:"Cómo Aldaba califica una puerta"},w:{en:"Open score out of 100: hail size 35, owner lives here 20, mortgage 15, roof age 10, recent sale 10, repeat hail 10 (2 days 5, 3+ days 10).",es:"Puntaje abierto de 100: tamaño del granizo 35, el dueño vive aquí 20, hipoteca 15, edad del techo 10, venta reciente 10, granizo repetido 10 (2 días 5, 3+ días 10)."}},
+  chk:{c:"#3ddc97",k:"est",n:{en:"Claim-ready checklist",es:"Lista lista-para-reclamo"},w:{en:"From our 2026-09-28 research: what adjusters look for (storm date, collateral damage, fresh vs. old marks, filed on time).",es:"De nuestra investigación del 28-09-2026: lo que buscan los ajustadores (fecha, daño colateral, marcas nuevas vs. viejas, a tiempo)."}},
+};
+const TAG={real:{en:"REAL PUBLIC DATA",es:"DATOS PÚBLICOS REALES"},sample:{en:"SAMPLE IN THIS MOCKUP",es:"MUESTRA EN ESTA MAQUETA"},rule:{en:"PUBLIC RULE",es:"REGLA PÚBLICA"},est:{en:"ALDABA ESTIMATE",es:"ESTIMADO DE ALDABA"}};
+const chip=(s,label)=>`<span class="chip${SRC[s].k==="sample"?" s":""}" data-src="${s}"><i style="--c:${SRC[s].c}"></i>${label}</span>`;
+const L=(o)=>o[lang]??o.en;
+
+/* ---------- icons ---------- */
+const IC={
+  door:'<path d="M6 21V4h12v17"/><path d="M4 21h16M14 12h.01"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  hammer:'<path d="M14 6l4 4M3 21l9-9M12 3l9 9-3 3-9-9z"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  check:'<path d="M5 12l5 5L19 7"/>',dash:'<path d="M6 12h12"/>',home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>',
+  roof:'<path d="M3 12 12 5l9 7"/><path d="M6 10v9h12v-9"/>',drop:'<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+  cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  shield:'<path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/>',
+  gut:'<path d="M3 7h18l-2 4H5z"/><path d="M17 11v9"/>',grid:'<path d="M4 4h16v16H4zM4 12h16M12 4v16"/>',wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 16h15a3 3 0 1 1-3 3M3 12h8"/>',
+  fan:'<circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-6 4-6M14 12c4 0 6 1 6 4M12 14c0 4-1 6-4 6M10 12c-4 0-6-1-6-4"/>',wall:'<path d="M3 5h18v14H3zM3 10h18M3 15h18M9 5v5M15 10v5M9 15v4"/>',
+};
+const ic=(n,c="i")=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const OUT={na:{ic:"door",k:"1"},no:{ic:"x",k:"2"},back:{ic:"clock",k:"3"},roofer:{ic:"hammer",k:"4"},yes:{ic:"star",k:"5"},sign:{ic:"lock",k:"S"}};
+const oc=(o)=>`var(--o-${o})`;
+
+/* ---------- time ---------- */
+const fmtClock=(m)=>{m=Math.round(m);let h=Math.floor(m/60),mm=m%60;const ap=h>=12?(lang==="es"?"p. m.":"PM"):(lang==="es"?"a. m.":"AM");h=h%12||12;return `${h}:${String(mm).padStart(2,"0")} ${ap}`};
+const fmtDur=(m)=>{m=Math.max(0,Math.round(m));const h=Math.floor(m/60);return h?`${h}h ${m%60}m`:`${m}m`};
+const hailColor=(v)=>v>=2?"var(--h2)":v>=1.5?"var(--h15)":"var(--h1)";
+const HC_RAW=(v)=>v>=2?"#ff4f5a":v>=1.5?"#f5883a":"#f2c14e";
+
+/* ---------- state: the knock log ---------- */
+let EV=[];      // every knock: seeded sample + what you tap (saved in localStorage)
+let refine=null;
+function loadLog(){const saved=store.get(KEY,null);
+  if(saved&&saved.v===1){EV=saved.ev;return}
+  EV=D.log.map((e,i)=>({...stamp(byId[e.door],e.o,e.m),...(e.when?{when:e.when}:{}),...(e.yes?{yes:{...e.yes}}:{}),seen:e.seen||[],seed:true}))}
+function saveLog(){store.set(KEY,{v:1,ev:EV})}
+let byId={};
+function stamp(h,o,m){const iso=`${D.clock.today}T${String(Math.floor((m+300)/60)%24).padStart(2,"0")}:${String(Math.round(m)%60).padStart(2,"0")}:00Z`; // CDT = UTC-5
+  return{id:`k-${h.id}-${Math.round(m)}`,at:iso,m:Math.round(m),door:h.id,st:h.st,no:h.no,ll:h.ll,zone:D.zone.id,storm:D.zone.storm,o,
+    sig:{hail:h.hail,own:h.own,mort:h.mort,sale:h.sale,roof:h.roof,score:h.score,stack:h.stack?.n??null,rb:h.rb?.band??null},by:"filthe",src:"mockup"}}
+const lastOf=(id)=>{for(let i=EV.length-1;i>=0;i--)if(EV[i].door===id)return EV[i];return null};
+const knockable=(h)=>h.kind==="res"||h.force;
+let NOW=0;
+function clockNow(){const done=EV.filter(e=>!e.seed).length;return D.clock.now+done*2.6}
+
+/* ---------- derived ---------- */
+function stats(){const K=D.homes.filter(knockable),today=EV.filter(e=>e.o!=="sign"),
+  opened=today.filter(e=>e.o!=="na").length,yes=today.filter(e=>e.o==="yes").length,
+  left=K.filter(h=>!lastOf(h.id)).length,now=clockNow(),el=Math.max(20,now-D.clock.start),pace=Math.round(today.length/el*60)||25,
+  toSun=D.clock.sunset-now,fit=Math.max(0,Math.floor(toSun/60*pace));
+  return{K,today,opened,yes,left,now,pace,toSun,fit}}
+
+/* ---------- render: top stats ---------- */
+function renderStats(S){const pct=S.K.length?Math.round((S.K.length-S.left)/S.K.length*100):0;
+  $("stats").innerHTML=`
+  <div><span class="k">${t("left")}</span><span class="v">${S.left}<small>/ ${S.K.length}</small></span><span class="bar"><b style="width:${pct}%"></b></span></div>
+  <div><span class="k">${t("knocked")}</span><span class="v">${S.today.length}<small>${t("opened")} ${S.opened}</small></span></div>
+  <div class="yes"><span class="k">${t("yesT")}</span><span class="v">${S.yes}${ic("star")}</span></div>
+  <div class="k4"><span class="k">${t("sunset")} ${fmtClock(D.clock.sunset)}</span><span class="v">${fmtDur(S.toSun)}<small>${t("fit",S.fit)}</small></span></div>
+  <div class="k5"><span class="k">${t("pace")}</span><span class="v">${S.pace}<small>${t("perHr")}</small></span></div>`}
+
+/* ---------- render: walk list ---------- */
+function renderWalk(S){const box=$("rows");let html="",lastSt=-1,lastSide="",kIdx=0,sunDone=false;
+  const pending=D.homes.filter(h=>knockable(h)&&!lastOf(h.id));const cutId=pending[S.fit]?.id;
+  const yesIdx=new Set();EV.filter(e=>e.o==="yes").forEach(e=>{const h=byId[e.door];D.homes.forEach(x=>{if(x.s===h.s&&x.side===h.side&&x.id!==h.id&&Math.abs(x.no-h.no)<=40)yesIdx.add(x.id)})});
+  D.homes.forEach((h,i)=>{
+    if(h.s!==lastSt){const s=D.streets[h.s],n=D.homes.filter(x=>x.s===h.s).length;
+      html+=`<div class="sthd"><b>${s.n}</b><span>${s.f.replace(/ St$/,"")} → ${s.t.replace(/ St$/,"")} · ${t("homes",n)}</span></div>`;lastSt=h.s;lastSide=""}
+    if(h.side!==lastSide){html+=`<div class="side">${h.side==="W"?t("westSide"):t("eastSide")}</div>`;lastSide=h.side}
+    if(h.id===cutId&&!sunDone){html+=`<div class="sunset">${ic("sun")}${t("sunsetDiv",fmtClock(D.clock.sunset))}</div>`;sunDone=true}
+    const e=lastOf(h.id),sk=!knockable(h),isCur=i===cur;
+    let cls="row",tg="",style="";
+    if(e){cls+=" done";style=`--oc:${oc(e.o)}`;tg=`${t("o_"+e.o)}${e.when?` · ${t("w_"+e.when)}`:""}`}
+    else if(sk){cls+=" skip";tg=t("sk_"+h.kind)}
+    else{tg=`<span style="color:${hailColor(h.hail)}">${h.hail}″</span> · ${[h.own,h.mort,h.sale&&h.sale>=2016].filter(Boolean).length}/3 · ${h.roof}${lang==="es"?"a":"y"}`+(yesIdx.has(h.id)?` <em>${t("nearYes")}</em>`:"");
+      if(sunDone)cls+=" late"}
+    if(isCur)cls+=" cur";
+    html+=`<button class="${cls}" style="${style}" data-i="${i}"><span class="dot"></span><span class="n">${h.no}</span><span class="tg">${tg}</span><span class="sc">${sk||e?"":h.score}</span></button>`});
+  box.innerHTML=html;
+  const s=D.homes[cur].s,tot=D.homes.filter(knockable).length;
+  $("walkT").textContent=D.streets.map(x=>x.n).join(" + ");
+  $("walkS").textContent=t("walkS",D.streets[0].f,D.streets[D.streets.length-1].t,tot);
+  box.querySelectorAll(".row").forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  const c=box.querySelector(".row.cur");if(c){const r=c.offsetTop-box.clientHeight*.38;box.scrollTo({top:r,behavior:scrolled?"smooth":"auto"})}scrolled=true}
+let scrolled=false;
+
+/* ---------- render: the door ---------- */
+function hailSvg(v){const r=Math.round(8+v*9);return `<svg class="hailviz" width="70" height="70" viewBox="0 0 70 70" aria-hidden="true">
+  <circle cx="35" cy="35" r="${r}" fill="none" stroke="${HC_RAW(v)}" stroke-opacity=".5" stroke-dasharray="2 3"/>
+  <circle cx="35" cy="35" r="${Math.round(r*.62)}" fill="${HC_RAW(v)}" fill-opacity=".16"/></svg>`}
+function renderDoor(S){const h=D.homes[cur],e=lastOf(h.id),sk=!knockable(h),kList=D.homes.filter(knockable),ki=kList.indexOf(h);
+  document.documentElement.style.setProperty("--hc",HC_RAW(h.hail));
+  const rep=D.zone.rep[0],days=Math.round((Date.parse(D.clock.today)-Date.parse(D.zone.date))/864e5),dLbl=new Date(D.zone.date+"T12:00:00").toLocaleDateString(lang==="es"?"es-MX":"en-US",{month:"short",day:"numeric"});
+  const sigs=[[h.own,t("s_own"),"asr"],[h.mort,h.mort?t("s_mort"):t("s_noMort"),"rod"],[h.sale&&h.sale>=2016,h.sale&&h.sale>=2016?t("s_sale",h.sale):h.sale?t("s_sale",h.sale):t("s_noSale"),"asr"]];
+  const nSig=sigs.filter(s=>s[0]).length,noPermit=2026-h.roof;
+  $("pos").innerHTML=ki>=0?t("doorOf",ki+1,kList.length)+` · ${h.side==="W"?t("westSide"):t("eastSide")}`:`${h.side==="W"?t("westSide"):t("eastSide")}`;
+  const nx=D.homes.slice(cur+1).find(x=>knockable(x)&&!lastOf(x.id));$("nextL").textContent=nx?t("next",nx.no):"";
+  const seen=(st.seen[h.id]||e?.seen||[]);
+  const ring=2*Math.PI*38,sc=h.score/100;
+  let html=`<div class="hero"><div class="num" key="${h.id}">${h.no}</div>
+    <div class="st"><h1>${h.st}</h1><p><span>${ic("home")}${t("built",h.yb)}</span><span>${ic("roof")}${L(T.roofMat)[h.mat]}</span><span>${ic("wall")}${L(T.sidMat)[h.sid]}</span></p></div>
+    <div class="pickr" data-src="pick"><svg width="86" height="86" viewBox="0 0 86 86"><circle cx="43" cy="43" r="38" fill="none" stroke="var(--chip-2)" stroke-width="5"/>
+      <circle cx="43" cy="43" r="38" fill="none" stroke="${HC_RAW(h.hail)}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(ring*sc).toFixed(1)} ${ring.toFixed(1)}"/></svg><b>${h.score}</b><small>score</small></div></div>`;
+  if(sk)html+=`<div class="skipnote">${ic("eye")}<span>${L(T.skipWhy)[h.kind]}</span></div>`;
+  html+=`<div class="say">${ic("shield")}<span>${t("sayFirst")}</span><b>${t("sayName")}</b><span class="dotsep"></span><b>HMP Siding &amp; Roofing</b><span class="dotsep"></span><b>${t("saySell")}</b>${`<span class="law" data-src="law">69-1602</span>`}</div>
+  <div class="lbl">${t("why")}</div>
+  <div class="why">
+    <div class="tile hail">${hailSvg(h.hail)}<div class="k">${t("hailK")}</div><div class="v">${h.hail.toFixed(2)}<small>in</small></div>
+      <div class="d">${t("hailD",dLbl,days)}</div>
+      <ul class="reps">${D.zone.rep.map(r=>`<li><b>${r[1].toFixed(2)}″</b><span>${{nws:"NWS",mping:"mPING",mrms:"Radar"}[r[0]]} · ${lang==="es"?r[3]:r[2]}</span></li>`).join("")}</ul>
+      ${h.stack?`<div class="d stk">${ic("drop")}<b>${t("stackL",h.stack.n,h.stack.since)}</b></div>`:""}
+      <div class="src">${chip("nws",`${t("nearestS")} ${h.mi} mi`)}${h.stack?chip("stk",`${h.stack.n}× ${lang==="es"?"DESDE":"SINCE"} ${h.stack.since}`):""}</div></div>
+    <div class="tile"><div class="k">${t("insK")}</div><div class="v ins">${nSig}<small>/ 3 ${t("insOf")}</small></div>
+      <ul class="sig">${sigs.map(s=>`<li class="${s[0]?"y":"n"}">${ic(s[0]?"check":"dash")}${s[1]}</li>`).join("")}</ul>
+      <div class="src">${chip("asr","ASSESSOR")}${chip("rod","DEEDS")}</div></div>
+    <div class="tile"><div class="k">${t("roofK")}</div><div class="v">~${h.roof}<small>${t("yrs")}</small></div>
+      <div class="meter">${[5,10,15,20,25].map(y=>`<i class="${h.roof>=y?"on":""}"></i>`).join("")}</div>
+      <div class="d">${t("roofD",L(T.roofMat)[h.mat],noPermit)}</div>${h.rb?`<div class="d rb rb-${h.rb.band}"><b>${L(T.rbL)[h.rb.band]}</b></div>`:""}<div class="src">${chip("prm","PERMITS")}${h.rb?chip("rb","EST."):""}</div></div>
+  </div>${trackLine(h)}
+  <div class="lbl">${t("seenL")}</div>
+  <div class="seen" id="seen">${["gutters","screens","ac","vents","siding"].map(k=>`<button data-k="${k}" aria-pressed="${seen.includes(k)}">${ic({gutters:"gut",screens:"grid",ac:"fan",vents:"wind",siding:"wall"}[k])}${t("d_"+k)}</button>`).join("")}
+    <button class="none" data-k="none" aria-pressed="${seen.includes("none")}">${t("d_none")}</button></div>
+  <div class="lbl">${t("collectL")} ${chip("chk","CHECKLIST")}</div>
+  <div class="collect">
+    <div>${ic("cal")}<b>${t("c1")}</b><span>${t("c1d")}</span></div>
+    <div>${ic("eye")}<b>${t("c2")}</b><span>${t("c2d")}</span></div>
+    <div>${ic("phone")}<b>${t("c3")}</b><span>${t("c3d")}</span></div>
+    <div>${ic("drop")}<b>${t("c4")}</b><span>${t("c4d")}</span></div>
+    <div>${ic("cam")}<b>${t("c5",PHOTO_N)}</b><span>${t("c5d")}</span></div>
+  </div>`;
+  $("dbody").innerHTML=html;
+  $("seen").querySelectorAll("button").forEach(b=>b.onclick=()=>{const k=b.dataset.k;let s=(st.seen[h.id]||[...(e?.seen||[])]);
+    if(k==="none")s=s.includes("none")?[]:["none"];else{s=s.filter(x=>x!=="none");s=s.includes(k)?s.filter(x=>x!==k):[...s,k]}
+    st.seen[h.id]=s;if(e){e.seen=s;saveLog()}renderDoor(stats())});
+  $("bar5").innerHTML=["na","no","back","roofer","yes"].map(o=>`<button class="ob ${o==="yes"?"yes":""}${e&&e.o===o?" was":""}" data-o="${o}" style="--oc:${oc(o)}"${sk&&!h.force?" disabled":""}>${ic(OUT[o].ic)}<b>${t("o_"+o)}</b><kbd>${OUT[o].k}</kbd></button>`).join("");
+  if(sk){$("bar5").innerHTML=`<button class="ob" style="--oc:var(--acc);grid-column:1/-1;height:52px;flex-direction:row;align-items:center;justify-content:center;gap:10px" id="force">${ic("door")}<b>${t("knockAnyway")}</b></button>`;
+    $("force").onclick=()=>{h.force=true;render()}}
+  else $("bar5").querySelectorAll(".ob").forEach(b=>b.onclick=()=>tap(b.dataset.o));
+  $("saved").textContent=t("savedL",EV.length);
+  bindTips($("door"))}
+const st={seen:{}};
+
+/* ---------- render: mini map ---------- */
+let PJ=null;
+function proj(){const [x0,y0,x1,y1]=D.box,k=Math.cos(41.46*Math.PI/180),svg=$("mini"),W=svg.clientWidth||316,H=svg.clientHeight||268;
+  const sx=(x1-x0)*k,sy=y1-y0,s=Math.min((W-16)/sx,(H-16)/sy),ox=(W-sx*s)/2,oy=(H-sy*s)/2;
+  PJ={W,H,f:(p)=>[(ox+(p[0]-x0)*k*s).toFixed(1),(oy+(y1-p[1])*s).toFixed(1)]}}
+function renderMap(){proj();const f=PJ.f,svg=$("mini");const path=(pts)=>"M"+pts.map(p=>f(p).join(",")).join("L");
+  let s=`<rect width="100%" height="100%" fill="transparent"/>`;
+  D.bg.forEach(a=>{const pts=[];for(let i=1;i<a.length;i+=2)pts.push([a[i],a[i+1]]);s+=`<path class="bg" d="${path(pts)}"/>`});
+  D.ctx.forEach(c=>{s+=`<path class="ctx" d="${path(c.p)}"/>`});
+  D.streets.forEach(c=>{s+=`<path class="ws" d="${path(c.p)}"/>`});
+  if(D.link.length)s+=`<path class="ws" d="${path(D.link)}" style="stroke-width:3;stroke-dasharray:2 5"/>`;
+  D.streets.forEach((c,i)=>{const m=c.p[Math.floor(c.p.length*.5)],[x,y]=f(m),dx=i?14:-10;s+=`<text x="${+x+dx}" y="${y}" transform="rotate(-90 ${+x+dx} ${y})" text-anchor="middle" class="sn">${c.n}</text>`});
+  D.homes.forEach((h,i)=>{const [x,y]=f(h.ll),e=lastOf(h.id);
+    if(e)s+=`<circle class="hd1" cx="${x}" cy="${y}" r="3.6" fill="${oc(e.o)}"/>`;
+    else if(knockable(h))s+=`<circle class="hd0" cx="${x}" cy="${y}" r="2.6"/>`;
+    else s+=`<circle cx="${x}" cy="${y}" r="1.6" fill="var(--faint)" opacity=".5"/>`});
+  const h=D.homes[cur],[cx,cy]=f(h.ll);
+  s+=`<circle class="ring" cx="${cx}" cy="${cy}" r="6"/><circle class="cur" cx="${cx}" cy="${cy}" r="5.5" stroke="var(--page)" stroke-width="2"/>`;
+  svg.setAttribute("viewBox",`0 0 ${PJ.W} ${PJ.H}`);svg.innerHTML=s;
+  $("legend").innerHTML=["na","no","back","roofer","yes"].map(o=>`<span style="--oc:${oc(o)}"><i></i>${t("o_"+o)}</span>`).join("")}
+
+/* ---------- the map learns: twin of hailhunter/learning.py like(); table = D.learn.t (sample past knocks) + your taps ---------- */
+const OUTC=["na","no","back","roofer","yes"];
+const hBand=(x)=>"h"+D.learn.cuts.filter(c=>+x>=c).length;
+const iBand=(g,yr)=>{const n=(g.own?1:0)+(g.mort?1:0)+(g.sale&&+String(g.sale).slice(0,4)>=+(yr||D.clock.today.slice(0,4))-10?1:0);return n>=3?"i3":n===2?"i2":"i1"};
+const sBand=(n)=>n>=3?"s3":n===2?"s2":"s1";
+function doorKeys(g,yr){if(g.hail==null||isNaN(+g.hail))return[];const h=hBand(g.hail),i=iBand(g,yr),r=["young","prime","check"].includes(g.rb)?g.rb:null;return[...(r?[`h:${h}|i:${i}|r:${r}`]:[]),`h:${h}|i:${i}`,`h:${h}`]}
+function learnTable(){const T2={};for(const k in D.learn.t)T2[k]=[...D.learn.t[k]];const add=(k,y)=>{const c=T2[k]||(T2[k]=[0,0]);c[0]++;c[1]+=y?1:0};
+  const by={};EV.forEach(e=>{if(!OUTC.includes(e.o))return;const p=by[e.door];by[e.door]={e,yes:e.o==="yes"||!!(p&&p.yes)}});
+  Object.values(by).forEach(({e,yes})=>{const g=e.sig||{};add("all",yes);if(e.zone)add("z:"+e.zone,yes);if(e.st)add("st:"+e.st,yes);doorKeys(g,String(e.at||"").slice(0,4)).forEach(k=>add(k,yes));if(g.hail!=null&&!isNaN(+g.hail)&&g.stack!=null)add(`h:${hBand(g.hail)}|s:${sBand(g.stack)}`,yes)});
+  return T2}
+function like(T2,keys,kind){const Ld=D.learn,need=Ld.min,k=Ld.k,[d0,y0]=T2.all||[0,0],p=(y0+k*Ld.prior_rate)/(d0+k),lab=(key)=>key==="all"?"all":key.startsWith("z:")?"z":key.startsWith("st:")?"st":kind;
+  for(const key of [...keys,"all"]){const[d,y]=T2[key]||[0,0];if(d>=need)return{key,d,y,enough:true,pct:Math.round((y+k*p)/(d+k)*100),lab:lab(key)}}
+  const first=keys.find(x=>T2[x])||keys[0]||"all",[d,y]=T2[first]||[0,0];return{key:first,d,y,enough:false,lab:lab(first)}}
+function trackLine(h){if(!D.learn)return"";const r=like(learnTable(),doorKeys({hail:h.hail,own:h.own,mort:h.mort,sale:h.sale,rb:h.rb?.band}),"door");
+  const m=r.key.startsWith("h:")?r.key.split("|").map(p=>{const[a,b]=p.split(":");return L(T[{h:"hB",i:"iB",r:"rB"}[a]])[b]}).join(", "):"";
+  return `<div class="trk${r.enough?"":" few"}">${ic("star")}<span><b>${L(T.trkL)[r.lab]}:</b> ${r.enough?t("trkY",r.y,r.d,r.pct):t("trkFew",r.d,D.learn.min)}${m?`<small>${m}</small>`:""}</span>${chip("lrn",lang==="es"?"MUESTRA":"SAMPLE")}</div>`}
+
+/* ---------- render: log / come back / learns ---------- */
+function renderLog(){const b=$("logB");document.querySelectorAll(".logc .tabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===tab));
+  if(tab==="log"){const L2=[...EV].reverse();b.innerHTML=L2.length?L2.map((e,i)=>`<div class="ev${i===0&&!e.seed&&fresh?" new":""}" style="--oc:${oc(e.o)}"><span class="t">${fmtClock(e.m).replace(/ (PM|AM|p\. m\.|a\. m\.)$/,"")}</span><i></i><span><b>${e.no}</b> ${e.st.replace(/^N /,"")} · ${t("o_"+e.o)}${e.when?` · ${t("w_"+e.when)}`:""}${e.dnk?` · ${t("n_dnk")}`:""}</span></div>`).join(""):`<p class="empty">${t("logE")}</p>`}
+  else if(tab==="back"){const B=EV.filter(e=>e.o==="back"&&lastOf(e.door)===e);
+    b.innerHTML=B.length?B.map(e=>`<div class="fu"><b>${e.no}</b><span>${e.st}</span><em>${ic("clock")} ${t("w_"+(e.when||"tonight"))}</em></div>`).join(""):`<p class="empty">${t("backE")}</p>`}
+  else{const rows=D.streets.map((s,i)=>{const E=EV.filter(e=>e.st===s.n&&e.o!=="sign"),n=E.length||1,c=(o)=>E.filter(e=>e.o===o).length;
+      const seg=["yes","back","roofer","no","na"].map(o=>`<i style="--oc:${oc(o)};width:${c(o)/n*100}%"></i>`).join("");
+      return `<div class="lrow"><div class="top2"><b>${s.n}</b><span>${t("opened2",E.length-c("na"),E.length)} · ${c("yes")} ${ic("star").replace('class="i"','class="i" style="width:12px;height:12px;vertical-align:-2px"')}</span></div><div class="stack">${seg}</div></div>`}).join("");
+    const T2=D.learn?learnTable():null,hb=T2?["h3","h2","h1","h0"].map(x=>{const[d,y]=T2["h:"+x]||[0,0],r=like(T2,["h:"+x],"door"),en=r.enough&&r.key==="h:"+x;
+      return `<div class="lrow"><div class="top2"><b>${L(T.hB)[x]}</b><span>${en?t("trkS",y,d,r.pct):t("trkSF",d,D.learn.min)}</span></div><div class="stack"><i style="--oc:${oc("yes")};width:${en?Math.min(100,r.pct*4):0}%"></i></div></div>`}).join(""):"";
+    b.innerHTML=`<div class="learn">${T2?`<p class="lsec">${t("lsecB")} ${chip("lrn",lang==="es"?"MUESTRA":"SAMPLE")}</p>${hb}<p class="lsec">${t("lsecS")}</p>`:""}${rows}<p class="lnote">${t("learnT")}</p></div>`}
+  fresh=false}
+let fresh=false;
+
+/* ---------- actions ---------- */
+function nextOpen(from){for(let i=from+1;i<D.homes.length;i++)if(knockable(D.homes[i])&&!lastOf(D.homes[i].id))return i;return from}
+function go(i){cur=Math.max(0,Math.min(D.homes.length-1,i));render()}
+function tap(o){const h=D.homes[cur];const e=stamp(h,o,clockNow());e.seen=st.seen[h.id]||[];e.sec=Math.round(60+Math.random()*120);
+  if(o==="back")e.when="tonight";
+  if(o==="na")e.hanger=false;
+  if(o==="yes")e.yes={when:"now",scope:["roof"],m:e.m,phone:"",noticed:null,carrier:null,filed:null,prior:null,leak:null,photos:{req:PHOTO_N,done:0}};
+  EV.push(e);saveLog();fresh=true;
+  if(o==="yes"){openYes(e,h);return}
+  const was=cur;cur=nextOpen(cur);render();toast(e,was)}
+function undo(){const e=[...EV].reverse().find(x=>!x.seed);if(!e)return;EV.splice(EV.lastIndexOf(e),1);saveLog();cur=D.homes.findIndex(h=>h.id===e.door);render();
+  const el=$("toast");el.style.setProperty("--oc","var(--muted)");el.innerHTML=`<i class="d"></i><span>${t("undone")} · ${e.no} ${e.st}</span>`;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),1800)}
+let tt=0;
+function toast(e,was){const el=$("toast");const r=$("door").getBoundingClientRect();el.style.setProperty("--tx",(r.left+r.width/2)+"px");el.style.setProperty("--oc",oc(e.o));
+  let opts="";
+  if(e.o==="back")opts=["tonight","tomorrow","sat"].map(k=>`<button data-f="when" data-v="${k}" aria-pressed="${e.when===k}">${t("t_"+k)}</button>`).join("");
+  if(e.o==="roofer")opts=["signed","quotes","came"].map(k=>`<button data-f="roofer" data-v="${k}" aria-pressed="${e.roofer===k}">${t("r_"+k)}</button>`).join("");
+  if(e.o==="no")opts=`<button data-f="dnk" data-v="1" aria-pressed="${!!e.dnk}">${t("n_dnk")}</button>`;
+  if(e.o==="na")opts=`<button data-f="hanger" data-v="1" aria-pressed="${!!e.hanger}">${t("na_hanger")}</button>`;
+  el.innerHTML=`<i class="d"></i><span><b class="mono">${e.no}</b> · ${t("o_"+e.o)}</span><span class="opts">${opts}</span><button class="undo">${ic("x")}${t("undo")} <kbd>Z</kbd></button>`;
+  el.classList.add("on");
+  el.querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{const f=b.dataset.f;if(f==="when"||f==="roofer")e[f]=b.dataset.v;else e[f]=!e[f];saveLog();toast(e,was);render()});
+  el.querySelector(".undo").onclick=undo;
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),5200)}
+
+/* ---------- YES ---------- */
+const PHOTOS=[["pg1",[["p_plate",1],["p_elev",4],["p_gut",1],["p_down",1],["p_ac",1],["p_scr",1],["p_spat",1],["p_dent",1]]],
+  ["pg2",[["p_slope",4],["p_sq",4],["p_ridge",1],["p_vent",1],["p_rep",1]]],["pg3",[["p_sid",4]]]];
+const PHOTO_N=PHOTOS.reduce((q,g)=>q+g[1].reduce((a,p)=>a+p[1],0),0);
+const SEEN_TO_PHOTO={gutters:"p_gut",screens:"p_scr",ac:"p_ac",vents:"p_vent",siding:"p_sid"};
+let yesE=null,yesH=null;
+function openYes(e,h){yesE=e;yesH=h;renderYes();$("yesw").classList.add("on");burst();render()}
+function renderYes(){const e=yesE,h=yesH,y=e.yes,n=EV.filter(x=>x.o==="yes").length,rep=D.zone.rep[0];
+  const dLong=new Date(D.zone.date+"T12:00:00").toLocaleDateString(lang==="es"?"es-MX":"en-US",{weekday:"short",month:"short",day:"numeric"});
+  const opt=(f,v,lab,multi)=>{const on=multi?(y[f]||[]).includes(v):y[f]===v;return `<button data-f="${f}" data-v="${v}" data-m="${multi?1:0}" aria-pressed="${on}">${lab}</button>`};
+  const hits=new Set((e.seen||[]).map(k=>SEEN_TO_PHOTO[k]).filter(Boolean));
+  $("yesS").innerHTML=`<div class="hd"><div class="medal">${ic("star")}</div>
+    <div><h2>${t("yesH")}</h2><p>${t("yesP",`${h.no} ${h.st}`,fmtClock(y.m))}</p></div>
+    <div class="cnt"><b>${n}</b><span>${t("leadsT")}</span></div></div>
+  <div class="bd"><div>
+    <div class="fld"><div class="k">${ic("cal")}${t("f_when")}</div><div class="opts2">${opt("when","now",t("w_now"))}${opt("when","630",t("w_630"))}${opt("when","tmr",t("w_tmr"))}${opt("when","pick",t("w_pick"))}</div></div>
+    <div class="fld"><div class="k">${ic("eye")}${t("f_what")}</div><div class="opts2">${["roof","siding","gutters","windows"].map(k=>opt("scope",k,t("a_"+k),1)).join("")}</div></div>
+    <div class="two" style="grid-template-columns:200px 1fr">
+      <div class="fld"><div class="k">${ic("phone")}${t("f_phone")}</div><input class="inp" id="ph" inputmode="tel" placeholder="(402) ___-____" value="${y.phone||""}"></div>
+      <div class="fld"><div class="k">${ic("clock")}${t("f_noticed")}</div><div class="opts2">${opt("noticed","storm",t("n_storm"))}${opt("noticed","later",t("n_later"))}${opt("noticed","door",t("n_now"))}${opt("noticed","unk",t("n_unk"))}</div></div>
+    </div>
+    <div class="fld"><div class="k">${ic("drop")}${t("f_storm")}</div><div class="auto">${chip("nws","NWS")}<span>${t("stormAuto",dLong,`${rep[1]}″`,h.mi)}</span></div></div>
+    <div class="fld"><div class="k">${ic("shield")}${t("f_ins")}</div><div class="opts2">${["State Farm","Farm Bureau","American Family","Allstate","Progressive"].map(c=>opt("carrier",c,c)).join("")}${opt("carrier","other",t("other"))}${opt("carrier","unk",t("unk"))}</div></div>
+    <div class="two" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="fld"><div class="k">${t("f_filed")}</div><div class="opts2">${opt("filed","y",t("yes_"))}${opt("filed","n",t("no_"))}</div></div>
+      <div class="fld"><div class="k">${t("f_prior")}</div><div class="opts2">${opt("prior","y",t("yes_"))}${opt("prior","n",t("no_"))}${opt("prior","u",t("unk"))}</div></div>
+      <div class="fld"><div class="k">${t("f_leak")}</div><div class="opts2">${opt("leak","y",t("yes_"))}${opt("leak","n",t("no_"))}</div></div>
+    </div>
+  </div><div>
+    <div class="photos"><div class="ph"><b>0 / ${PHOTO_N}</b><span>${t("phT")} · ${t("phS")}</span></div><div class="pbar"><b></b></div>
+      <div class="pgrid">${PHOTOS.map(g=>`<div><h4>${t(g[0])}</h4><ul>${g[1].map(p=>`<li class="${hits.has(p[0])?"hit":""}" ${hits.has(p[0])?`title="${t("seenPre")}"`:""}>${hits.has(p[0])?ic("eye","i").replace('class="i"','class="i" style="width:13px;height:13px"'):""}${t(p[0])}${p[1]>1?` <b>×${p[1]}</b>`:""}</li>`).join("")}</ul></div>`).join("")}</div>
+      <div class="lock">${ic("lock")}<span>${t("lockT")}</span></div></div>
+    <div class="legalbox">
+      <div><span class="law">44-8604</span><span>${t("lg1")}</span></div>
+      <div><span class="law">PA lic.</span><span>${t("lg2")}</span></div>
+      <div><span class="law">69-1604</span><span>${t("lg3")}</span></div>
+      <div><span class="law">44-8606</span><span>${t("lg4")}</span></div>
+    </div>
+  </div></div>
+  <div class="ft"><span class="note">${ic("check","i")} ${t("ftNote")}</span><button class="btn sec" id="later">${t("later")}</button><button class="btn pri" id="saveY">${ic("check")}${t("saveNext")} <kbd style="color:rgba(27,18,6,.6);border-color:rgba(27,18,6,.3)">↵</kbd></button></div>`;
+  $("yesS").querySelectorAll(".opts2 button").forEach(b=>b.onclick=()=>{const f=b.dataset.f,v=b.dataset.v;
+    if(b.dataset.m==="1"){const a=y[f]||[];y[f]=a.includes(v)?a.filter(x=>x!==v):[...a,v]}else y[f]=y[f]===v?null:v;saveLog();renderYes()});
+  $("ph").oninput=(ev)=>{y.phone=ev.target.value;saveLog()};
+  $("saveY").onclick=closeYes;$("later").onclick=closeYes;bindTips($("yesS"))}
+function closeYes(){$("yesw").classList.remove("on");const was=cur;cur=nextOpen(cur);render();
+  const n=EV.filter(x=>x.o==="yes").length,el=$("toast");el.style.setProperty("--oc","var(--acc)");
+  el.innerHTML=`<i class="d"></i><span><b>${t("leadN",n)}</b> · ${yesH.no} ${yesH.st}</span>`;el.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("on"),2600);yesE=null}
+
+/* the win: a burst of hail-colored sparks from the YES button (motion that means something) */
+function burst(){const c=$("burst"),x=c.getContext("2d"),dpr=devicePixelRatio||1;c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.scale(dpr,dpr);
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cx=innerWidth/2,cy=innerHeight*.28,P=[];for(let i=0;i<140;i++){const a=Math.random()*Math.PI*2,v=2+Math.random()*7;P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,r:1+Math.random()*2.6,l:1,c:["#f5883a","#ffa766","#f2c14e","#fff1e0"][i%4]})}
+  let f=0;(function tick(){x.clearRect(0,0,innerWidth,innerHeight);
+    x.globalCompositeOperation="lighter";const g=x.createRadialGradient(cx,cy,0,cx,cy,260+f*6);g.addColorStop(0,`rgba(245,136,58,${Math.max(0,.35-f/120)})`);g.addColorStop(1,"rgba(245,136,58,0)");x.fillStyle=g;x.fillRect(0,0,innerWidth,innerHeight);
+    P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.vx*=.985;p.l-=.011;if(p.l>0){x.globalAlpha=p.l;x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}});
+    x.globalAlpha=1;if(++f<100)requestAnimationFrame(tick);else x.clearRect(0,0,innerWidth,innerHeight)})()}
+
+/* ---------- tooltips (every tag says who said it) ---------- */
+function bindTips(root){root.querySelectorAll("[data-src]").forEach(el=>{el.onmouseenter=()=>{const s=SRC[el.dataset.src],tp=$("tip");
+  tp.innerHTML=`<b>${L(s.n)}</b>${L(s.w)}<em>${L(TAG[s.k])}</em>`;const r=el.getBoundingClientRect();tp.style.left=Math.min(innerWidth-316,r.left)+"px";tp.style.top=(r.bottom+8)+"px";tp.classList.add("on")};
+  el.onmouseleave=()=>$("tip").classList.remove("on")})}
+
+/* ---------- render all ---------- */
+function render(){const S=stats();renderStats(S);renderWalk(S);renderDoor(S);renderMap();renderLog();
+  document.body.classList.toggle("tight",innerWidth<1500);document.body.classList.toggle("tight2",innerWidth<1300);bindTips(document.querySelector(".mapc"))}
+
+/* ---------- controls ---------- */
+function setLang(l){lang=l;document.documentElement.dataset.lang=l;document.documentElement.lang=l;document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));store.set("aldaba.lang",l);render();if(yesE)renderYes()}
+function setTheme(th){document.documentElement.dataset.theme=th;$("thm").innerHTML=th==="light"?ic("sun"):'<svg class="i" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>';$("thm").setAttribute("aria-pressed",th==="light");store.set("aldaba.theme",th)}
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+$("thm").onclick=()=>setTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
+$("prev").onclick=()=>go(cur-1);$("next").onclick=()=>{const n=D.homes.slice(cur+1).findIndex(x=>knockable(x)&&!lastOf(x.id));go(n<0?cur+1:cur+1+n)};
+$("undoB").onclick=undo;$("signB").onclick=()=>tap("sign");
+document.querySelectorAll(".logc .tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderLog()});
+addEventListener("keydown",(ev)=>{if(ev.target.tagName==="INPUT")return;
+  if(yesE){if(ev.key==="Enter"||ev.key==="Escape"){ev.preventDefault();closeYes()}return}
+  const m={"1":"na","2":"no","3":"back","4":"roofer","5":"yes",s:"sign",S:"sign"}[ev.key];
+  if(m&&knockable(D.homes[cur])){tap(m);return}
+  if(ev.key==="z"||ev.key==="Z")undo();if(ev.key==="ArrowLeft")go(cur-1);if(ev.key==="ArrowRight")$("next").onclick()});
+addEventListener("resize",()=>render());
+
+/* ---------- boot ---------- */
+fetch("data/walk.json").then(r=>r.json()).then(d=>{D=d;D.homes.forEach(h=>byId[h.id]=h);$("zoneN").textContent=L(D.zone.name);
+  loadLog();const q=new URLSearchParams(location.search);
+  lang=q.get("lang")||store.get("aldaba.lang","en");setTheme(q.get("theme")||store.get("aldaba.theme","dark"));
+  if(q.has("fresh")){EV=D.log.map(e=>({...stamp(byId[e.door],e.o,e.m),...(e.when?{when:e.when}:{}),...(e.yes?{yes:{...e.yes}}:{}),seen:e.seen||[],seed:true}))}
+  cur=nextOpen(-1);document.documentElement.dataset.lang=lang;document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+  $("zoneN").textContent=L(D.zone.name);render();
+  if(q.has("seen"))q.get("seen").split(",").forEach(k=>{(st.seen[D.homes[cur].id]=st.seen[D.homes[cur].id]||[]).push(k)}),render();
+  if(q.has("yes"))tap("yes");
+  document.fonts&&document.fonts.ready.then(()=>render())});
+</script>
+</body>
+</html>

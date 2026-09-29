@@ -1,0 +1,268 @@
+<title>HMP App v25 Polish</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+body{padding-inline:16px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 64px}
+.hero{display:grid;gap:10px;max-width:700px}
+.hero h1{font-size:34px;font-weight:600;letter-spacing:-.035em;line-height:1.1;text-wrap:balance}
+.hero p{color:var(--ink-2);font-size:16px;max-width:62ch}
+.hero .es{color:var(--muted);font-size:14px}
+.nums{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:6px}
+.nums div{display:flex;align-items:baseline;gap:6px}
+.nums b{font-size:24px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.nums span{font-size:13px;color:var(--muted)}
+.nums s{color:var(--faint);font-size:15px;text-decoration-thickness:1.5px}
+h2.sh{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:44px 0 4px}
+p.shp{color:var(--muted);margin:0 0 16px;max-width:64ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:10px;align-items:center;justify-content:space-between;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);padding:10px 0;margin-top:18px;border-bottom:1px solid var(--line)}
+.bar nav{display:flex;gap:4px;overflow-x:auto}
+.bar nav a{font-size:13px;font-weight:500;color:var(--ink-2);text-decoration:none;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.bar nav a:hover{background:var(--soft)}
+.bar .seg{width:150px;flex:none}
+
+.fixes{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.fix{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:28px 1fr;gap:4px 10px}
+.fix .n{font:500 12px var(--mono);color:var(--hmp-ink);padding-top:2px}
+.fix b{font-weight:600;font-size:15px}
+.fix p{grid-column:2;font-size:13.5px;color:var(--muted);margin:0}
+
+.screen{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.screen header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:12px}
+.screen h3{font-size:19px;font-weight:600;letter-spacing:-.015em}
+.screen header p{font-size:13.5px;color:var(--muted);margin:0;max-width:60ch}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:start}
+figure{margin:0;display:grid;gap:6px}
+figure img{width:100%;height:auto;border-radius:14px;border:1px solid var(--line);display:block;background:var(--soft)}
+figcaption{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+figcaption .chip{height:20px;font-size:11px}
+figure.before img{opacity:.92}
+.changes{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.changes li{display:flex;gap:8px;font-size:14px;color:var(--ink-2)}
+.changes li .i{width:16px;height:16px;color:var(--ok);margin-top:2px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.links a{font-size:13px;font-weight:500;color:var(--ink);text-decoration:none;border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;display:inline-flex;gap:6px;align-items:center}
+.links a .i{width:14px;height:14px}
+[data-show="light"] .t-dark,[data-show="dark"] .t-light{display:none}
+.shots.wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));margin-top:12px}
+.shots.wide figure img{border-radius:12px}
+.ask{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--warn-bg);font-size:14px;color:var(--ink-2);max-width:78ch}
+.ask .i{width:18px;height:18px;color:var(--warn);flex:none;margin-top:1px}
+.ask b{color:var(--ink);font-weight:600}
+
+.issues{width:100%;border-collapse:collapse;font-size:14px}
+.tablebox{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.issues th,.issues td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--soft);vertical-align:top}
+.issues th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.issues td:first-child{font-weight:500;min-width:170px}
+.issues td:last-child{color:var(--ink-2);min-width:220px}
+
+.ds{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h4{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw div{display:grid;gap:4px;font-size:11px;color:var(--muted)}
+.sw i{height:34px;border-radius:8px;border:1px solid var(--line)}
+.ts{display:grid;gap:6px}
+.ts div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.ts span:last-child{font:500 11px var(--mono);color:var(--muted)}
+.ic{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.ic div{display:grid;justify-items:center;gap:4px;padding:8px 2px;border-radius:10px;background:var(--soft);font-size:10.5px;color:var(--muted)}
+.ic .i{width:22px;height:22px;color:var(--ink)}
+footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+footer a{color:var(--ink-2)}
+</style>
+
+<div class="wrap" id="top" data-show="light">
+  <section class="hero">
+    <span class="label">HMP App · v24 → v25 · design review</span>
+    <h1>From a start to a finished product</h1>
+    <p>Same app, same flow (map of hot zones → drive → the doors in order). What changes: a real map from the engine's street data, one type scale, one icon set, a proper dark mode, and about half the words.</p>
+    <p class="es">La misma app y el mismo flujo. Cambia: un mapa real con calles y lotes, un solo estilo de letra e íconos, modo oscuro de verdad, y la mitad de las palabras.</p>
+    <div class="nums">
+      <div><s>681</s><b>108</b><span>words on a lead</span></div>
+      <div><s>21</s><b>8</b><span>font sizes</span></div>
+      <div><s>26</s><b>16</b><span>text styles on Knock (map labels included)</span></div>
+      <div><s>4</s><b>1</b><span>tab badges</span></div>
+    </div>
+  </section>
+
+  <div class="bar">
+    <nav aria-label="Sections"><a href="#seen">What you saw</a><a href="#now">Now</a><a href="#knock">Knock</a><a href="#lead">Lead</a><a href="#money">Money</a><a href="#homeowner">Homeowner</a><a href="#fixes">Top 15</a><a href="#system">System</a></nav>
+    <div class="seg" role="group" aria-label="Show light or dark"><button id="showLight" aria-pressed="true">Light</button><button id="showDark" aria-pressed="false">Dark</button></div>
+  </div>
+
+  <h2 class="sh" id="seen">What you saw on your Mac, and the fix</h2>
+  <p class="shp">Your Mac asks claude.ai for dark mode. The app's old dark colors never got the new look, so buttons went blank and the page turned grey-purple.</p>
+  <div class="tablebox"><table class="issues">
+    <thead><tr><th>You saw</th><th>Why</th><th>v25</th></tr></thead>
+    <tbody>
+      <tr><td>Blank white buttons (next to ES, the center +, "Next 3", "Done for today")</td><td>White text on a color that turns white in dark mode</td><td>A new token (on-ink) so text on dark buttons is always readable. Every control has an icon and a word.</td></tr>
+      <tr><td>Muddy grey-purple look</td><td>Old "Pro Dark" colors, claude.ai's purple showing through</td><td>"Ledger Night": neutral graphite, same orange. Designed screen by screen, below.</td></tr>
+      <tr><td>Red blob map with zigzag dots, "Near Fremont"</td><td>No streets or lots; stops joined in order cross the street each time</td><td>Real vector map: streets, names, lots, route along the street, numbered stops, you-dot, soft heat, legend, scale.</td></tr>
+      <tr><td>"Keep knocking" vs "Start knocking", "Pass 1 of 3", "25 left this pass", "Built 1980" twice, two ⋯</td><td>System words and repeated facts</td><td>"Stop 3 of 25 · 23 to go". Each fact once. One ⋯. "Resume · 2 of 25" only when you already started.</td></tr>
+      <tr><td>Big red "outside knock hours" paragraph</td><td>The full rules shown as an alert</td><td>One small chip: "Outside knock hours · only booked visits ›". Tap it for the rules.</td></tr>
+      <tr><td>Money empty = 8 boxes of text</td><td>The claim explainer used as the empty screen</td><td>An 8-step line with icons (one line each) and one button: "Log a signed job".</td></tr>
+      <tr><td>"Right Hand" pill covering cards</td><td>Floating button</td><td>A chat bar docked above the tabs. On Knock it's a mic in the top bar.</td></tr>
+      <tr><td>Bottom bar looks unfinished</td><td>Small icons, blank +, 4 badges</td><td>24 px icons on one baseline, "Add" labeled, one red badge (late items).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sh" id="now">Now</h2>
+  <p class="shp">The map is drawn from the engine's real Columbus data: 12 zones, the streets and lots of every walk. The best zone gets an outline, a pin, and the card under it.</p>
+  <article class="screen">
+    <header><h3>Map of hot zones + the best zone</h3><p>Before: an empty grey box and a card that repeats the hail line twice.</p></header>
+    <div class="shots">
+      <figure class="before t-light"><img src="before/now.png" alt="v24 Now screen, light" loading="lazy"><figcaption><span class="chip">v24</span>today</figcaption></figure>
+      <figure class="before t-dark"><img src="before/now-dark.png" alt="v24 Now screen in dark mode with a blank language button and a blank plus button" loading="lazy"><figcaption><span class="chip">v24</span>dark: blank ES/EN + Add</figcaption></figure>
+      <figure class="t-light"><img src="after/now.png" alt="v25 Now screen with a vector street map of Columbus and the best zone card" loading="lazy"><figcaption><span class="chip hmp">v25</span>light</figcaption></figure>
+      <figure class="t-dark"><img src="after/now-dark.png" alt="v25 Now screen in dark mode" loading="lazy"><figcaption><span class="chip hmp">v25</span>dark</figcaption></figure>
+      <figure><img src="after/now-loading.png" alt="v25 Now loading skeleton" loading="lazy"><figcaption><span class="chip hmp">v25</span>loading</figcaption></figure>
+      <figure><img src="after/now-empty.png" alt="v25 Now with no fresh hail" loading="lazy"><figcaption><span class="chip hmp">v25</span>no hail</figcaption></figure>
+    </div>
+    <ul class="changes">
+      <li><svg class="i"><use href="#i-check"/></svg>You are 45 mi away, so "You: Fremont · 45 mi" sits on the map edge instead of the wrong "Near Fremont".</li>
+      <li><svg class="i"><use href="#i-check"/></svg>Three numbers (1.6″ hail, 60 homes, 45 mi) and one why-line that adds something new.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>Today = one row per appointment and late call. Scripts live on the lead, not on Now.</li>
+    </ul>
+    <div class="links"><a href="now.html"><svg class="i"><use href="#i-chev"/></svg>Open the mockup</a><a href="now.html#dark"><svg class="i"><use href="#i-moon"/></svg>Dark</a><a href="now.html#loading">Loading</a><a href="now.html#empty">Empty</a></div>
+  </article>
+
+  <h2 class="sh" id="knock">Knock</h2>
+  <p class="shp">Today's real walk: 25 houses on 22 St and 21 St, Columbus. The four answers sit in the thumb zone.</p>
+  <article class="screen">
+    <header><h3>The next door, with the route on a real map</h3><p>The route follows the street. Grey check = done, × = No, orange = next, numbers = coming up. They match the "Then" list.</p></header>
+    <div class="shots">
+      <figure class="before t-light"><img src="before/knock.png" alt="v24 Knock screen" loading="lazy"><figcaption><span class="chip">v24</span>26 text styles</figcaption></figure>
+      <figure class="before t-dark"><img src="before/knock-dark.png" alt="v24 Knock in dark mode with blank buttons" loading="lazy"><figcaption><span class="chip">v24</span>dark</figcaption></figure>
+      <figure class="t-light"><img src="after/knock.png" alt="v25 Knock screen with the walk map strip, next door card and four answer buttons" loading="lazy"><figcaption><span class="chip hmp">v25</span>light</figcaption></figure>
+      <figure class="t-dark"><img src="after/knock-dark-late.png" alt="v25 Knock in dark mode, outside knock hours chip" loading="lazy"><figcaption><span class="chip hmp">v25</span>dark, after hours</figcaption></figure>
+      <figure><img src="after/knock-map.png" alt="v25 Knock big map with the full 25-stop route" loading="lazy"><figcaption><span class="chip hmp">v25</span>big map</figcaption></figure>
+      <figure><img src="after/knock-es.png" alt="v25 Knock in Spanish" loading="lazy"><figcaption><span class="chip hmp">v25</span>español</figcaption></figure>
+      <figure><img src="after/knock-empty.png" alt="v25 Knock with no walk yet" loading="lazy"><figcaption><span class="chip hmp">v25</span>no walk yet</figcaption></figure>
+    </div>
+    <div class="links"><a href="knock.html"><svg class="i"><use href="#i-chev"/></svg>Open the mockup</a><a href="knock.html#map">Big map</a><a href="knock.html#es">Español</a><a href="knock.html#dark-late">Dark</a><a href="knock.html#empty">Empty</a></div>
+  </article>
+
+  <h2 class="sh" id="lead">A lead</h2>
+  <article class="screen">
+    <header><h3>615 N Linden Ave · Rosa</h3><p>Before: 681 words and 52 buttons open at once. After: the next step first, one guide card, and everything else behind three rows.</p></header>
+    <div class="shots">
+      <figure class="before"><img src="before/lead.png" alt="v24 lead sheet" loading="lazy"><figcaption><span class="chip">v24</span>681 words</figcaption></figure>
+      <figure class="t-light"><img src="after/lead.png" alt="v25 lead sheet with quick actions, stage bar, next step and guide" loading="lazy"><figcaption><span class="chip hmp">v25</span>light</figcaption></figure>
+      <figure class="t-dark"><img src="after/lead-dark.png" alt="v25 lead sheet in dark mode" loading="lazy"><figcaption><span class="chip hmp">v25</span>dark</figcaption></figure>
+    </div>
+    <div class="links"><a href="lead.html"><svg class="i"><use href="#i-chev"/></svg>Open the mockup</a><a href="lead.html#dark">Dark</a></div>
+  </article>
+
+  <h2 class="sh" id="money">Money</h2>
+  <article class="screen">
+    <header><h3>One figure first, then what to chase</h3><p>Two open claims: $19,040 owed, split into mortgage co., insurer, homeowner deductible and an approved supplement. The empty screen shows how an insurance job gets paid.</p></header>
+    <div class="shots">
+      <figure class="before t-light"><img src="before/money.png" alt="v24 Money screen" loading="lazy"><figcaption><span class="chip">v24</span>4 equal tiles</figcaption></figure>
+      <figure class="before t-dark"><img src="before/money-dark.png" alt="v24 Money empty state in dark mode" loading="lazy"><figcaption><span class="chip">v24</span>empty, dark</figcaption></figure>
+      <figure class="t-light"><img src="after/money.png" alt="v25 Money with the owed figure and two claims" loading="lazy"><figcaption><span class="chip hmp">v25</span>2 claims</figcaption></figure>
+      <figure class="t-light"><img src="after/money-empty.png" alt="v25 Money empty state with an 8-step path" loading="lazy"><figcaption><span class="chip hmp">v25</span>empty</figcaption></figure>
+      <figure class="t-dark"><img src="after/money-dark.png" alt="v25 Money in dark mode" loading="lazy"><figcaption><span class="chip hmp">v25</span>2 claims, dark</figcaption></figure>
+      <figure class="t-dark"><img src="after/money-dark-empty.png" alt="v25 Money empty state in dark mode" loading="lazy"><figcaption><span class="chip hmp">v25</span>empty, dark</figcaption></figure>
+    </div>
+    <div class="links"><a href="money.html"><svg class="i"><use href="#i-chev"/></svg>Open the mockup</a><a href="money.html#empty">Empty</a><a href="money.html#dark">Dark</a></div>
+  </article>
+
+  <h2 class="sh" id="homeowner">Homeowner screen</h2>
+  <p class="shp">Your pick B "Daylight report", rebuilt on the v25 system. It's what you show the family at the kitchen table, in this order: damage map, photos, plain words, 3 options, what happens next. One screen works on the phone and on a tablet.</p>
+  <p class="shp" style="margin-top:-10px">Su opción B, con el diseño v25: mapa del daño, fotos, palabras simples, 3 opciones y qué sigue. En teléfono y en tableta.</p>
+  <article class="screen">
+    <header><h3>3908 22nd St, Columbus · sample inspection</h3><p>The map shows the house's real lot from the engine's Columbus data (Aug 8 hail, 1.6″), with each finding numbered on the roof. The photos and findings are stand-ins.</p></header>
+    <div class="shots">
+      <figure class="before"><img src="before/homeowner.png" alt="Option B Daylight report before v25: charcoal header, photo cards with lettered rings" loading="lazy"><figcaption><span class="chip">B</span>before</figcaption></figure>
+      <figure class="t-light"><img src="after/homeowner-1.png" alt="v25 homeowner screen, Your home: damage map of the house from above with 5 numbered spots, the list of spots, and the hail card" loading="lazy"><figcaption><span class="chip hmp">v25</span>1 · your home</figcaption></figure>
+      <figure class="t-light"><img src="after/homeowner-2.png" alt="v25 homeowner screen, Photos: big photo with rings, thumbnails, where-on-the-house locator, plain words, insurance note" loading="lazy"><figcaption><span class="chip hmp">v25</span>2 · photos</figcaption></figure>
+      <figure class="t-light"><img src="after/homeowner-3.png" alt="v25 homeowner screen, Options: Good, Better, Best with estimate ranges" loading="lazy"><figcaption><span class="chip hmp">v25</span>3 · options</figcaption></figure>
+      <figure class="t-light"><img src="after/homeowner-4.png" alt="v25 homeowner screen, Next steps: 5-step timeline with the 3-day right to cancel, phone numbers" loading="lazy"><figcaption><span class="chip hmp">v25</span>4 · next steps</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-1-dark.png" alt="v25 homeowner screen, Your home, dark" loading="lazy"><figcaption><span class="chip hmp">v25</span>1 · dark</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-2-dark.png" alt="v25 homeowner screen, Photos, dark" loading="lazy"><figcaption><span class="chip hmp">v25</span>2 · dark</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-3-dark.png" alt="v25 homeowner screen, Options, dark" loading="lazy"><figcaption><span class="chip hmp">v25</span>3 · dark</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-4-dark.png" alt="v25 homeowner screen, Next steps, dark" loading="lazy"><figcaption><span class="chip hmp">v25</span>4 · dark</figcaption></figure>
+      <figure><img src="after/homeowner-3-es.png" alt="v25 homeowner screen, Options, in Spanish" loading="lazy"><figcaption><span class="chip hmp">v25</span>opciones</figcaption></figure>
+      <figure><img src="after/homeowner-4-es.png" alt="v25 homeowner screen, Next steps with the cancel notice, in Spanish" loading="lazy"><figcaption><span class="chip hmp">v25</span>qué sigue</figcaption></figure>
+      <figure><img src="after/homeowner-exit.png" alt="Before you leave: a short check for the salesman" loading="lazy"><figcaption><span class="chip hmp">v25</span>before you leave</figcaption></figure>
+    </div>
+    <div class="shots wide">
+      <figure class="t-light"><img src="after/homeowner-tablet-1.png" alt="Tablet, landscape: damage map on the left, spots and hail card on the right" loading="lazy"><figcaption><span class="chip hmp">tablet</span>1 · your home</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-tablet-1-dark.png" alt="Tablet, landscape, dark: damage map and hail card" loading="lazy"><figcaption><span class="chip hmp">tablet</span>1 · dark</figcaption></figure>
+      <figure><img src="after/homeowner-tablet-2.png" alt="Tablet, landscape: big photo with thumbnails, locator and plain words" loading="lazy"><figcaption><span class="chip hmp">tablet</span>2 · photos</figcaption></figure>
+      <figure class="t-light"><img src="after/homeowner-tablet-3.png" alt="Tablet, landscape: the three options side by side" loading="lazy"><figcaption><span class="chip hmp">tablet</span>3 · options</figcaption></figure>
+      <figure class="t-dark"><img src="after/homeowner-tablet-3-dark.png" alt="Tablet, landscape, dark: the three options" loading="lazy"><figcaption><span class="chip hmp">tablet</span>3 · dark</figcaption></figure>
+      <figure><img src="after/homeowner-tablet-4.png" alt="Tablet, landscape: timeline with the cancel notice, phone numbers" loading="lazy"><figcaption><span class="chip hmp">tablet</span>4 · next steps</figcaption></figure>
+    </div>
+    <ul class="changes">
+      <li><svg class="i"><use href="#i-check"/></svg>A real map of their house: its own lot and street, the roof from above, and 5 numbered spots. The same numbers show on the photos and in the list.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>One step at a time with one orange "Next" button. On a tablet, each step fits on one screen.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>Hail stays honest: 1.6″ on Aug 8 by radar, with "Weather data, not proof of damage" right under it. The homeowner never sees hot zones or scores.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>Good / Better / Best, picked per job (the chip says Roof + siding). "Estimate ranges, not final prices" sits right under the prices.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>Legal: the 3-day right to cancel is on the contract step, in English and Spanish. The screen says "registered", keeps a blank line for the #, says nothing about the deductible, and never says insurance will pay.</li>
+      <li><svg class="i"><use href="#i-check"/></svg>The X or "Done" opens a short check for you: hand over the sheet, leave the cancel forms if they signed, log the visit.</li>
+    </ul>
+    <p class="ask"><svg class="i"><use href="#i-alert"/></svg><span><b>Your call:</b> the only capabilities sheet in the print kit is written for contractors ("labor crews for contractors"). For a homeowner, the Inspection Photos report and the Estimate Range sheet may fit better. For now the check says "capabilities sheet", as ordered.</span></p>
+    <div class="links"><a href="homeowner.html"><svg class="i"><use href="#i-chev"/></svg>Open the mockup</a><a href="homeowner.html#tablet">Tablet</a><a href="homeowner.html#dark"><svg class="i"><use href="#i-moon"/></svg>Dark</a><a href="homeowner.html#es">Español</a><a href="homeowner.html#p4-exit">Before you leave</a></div>
+  </article>
+
+  <h2 class="sh" id="fixes">Top 15 fixes, by impact</h2>
+  <p class="shp">The builder works them in this order. The full screen-by-screen critique (every screen, word counts, cut targets) is in the repo: docs/design/v25-polish/critique.md.</p>
+  <div class="fixes">
+    <div class="fix"><span class="n">01</span><b>Real dark mode + on-ink</b><p>Fixes the blank buttons and the muddy look you saw.</p></div>
+    <div class="fix"><span class="n">02</span><b>Vector map on Now and Knock</b><p>Streets, lots, route along the street, numbered stops, you-dot, heat.</p></div>
+    <div class="fix"><span class="n">03</span><b>Lead: next step first</b><p>681 → about 110 words; the rest behind 3 rows.</p></div>
+    <div class="fix"><span class="n">04</span><b>One type scale</b><p>8 sizes, 3 weights. Mono only for tiny labels.</p></div>
+    <div class="fix"><span class="n">05</span><b>One icon set</b><p>No more ⇄ → ✓ ⋯ typed as text.</p></div>
+    <div class="fix"><span class="n">06</span><b>Each fact once</b><p>No second hail line, year, step or heading.</p></div>
+    <div class="fix"><span class="n">07</span><b>Knock header</b><p>Rules chip, one ⋯, "Stop 3 of 25 · 23 to go".</p></div>
+    <div class="fix"><span class="n">08</span><b>Answer buttons</b><p>Icon + word + hint. Only Booked is orange.</p></div>
+    <div class="fix"><span class="n">09</span><b>Docked Right Hand</b><p>A chat bar above the tabs, never over cards.</p></div>
+    <div class="fix"><span class="n">10</span><b>Money: one figure</b><p>Owed first, a split bar, then claims. Empty = 8-step path.</p></div>
+    <div class="fix"><span class="n">11</span><b>List rows</b><p>Address / action / chip. Show 3, then "See all".</p></div>
+    <div class="fix"><span class="n">12</span><b>Status chips</b><p>Flag + "2 days late", not red mono text.</p></div>
+    <div class="fix"><span class="n">13</span><b>Bottom bar</b><p>Bigger icons, "Add" labeled, one badge.</p></div>
+    <div class="fix"><span class="n">14</span><b>Loading + empty states</b><p>Skeletons in the real shapes; empties that say what's next.</p></div>
+    <div class="fix"><span class="n">15</span><b>Sheets</b><p>Round × close, no orange ring on open, one grab handle.</p></div>
+  </div>
+
+  <h2 class="sh" id="system">The system the builder applies</h2>
+  <p class="shp">Tokens, type, icons and components live in ds.css, icons.js and walkmap.js. The builder copies them into the app so every screen matches.</p>
+  <div class="ds">
+    <div class="panel"><h4>Color (switches with theme)</h4>
+      <div class="sw">
+        <div><i style="background:var(--bg)"></i>bg</div><div><i style="background:var(--card)"></i>card</div><div><i style="background:var(--ink)"></i>ink</div><div><i style="background:var(--muted)"></i>muted</div>
+        <div><i style="background:var(--hmp)"></i>hmp</div><div><i style="background:var(--late)"></i>late</div><div><i style="background:var(--warn)"></i>warn</div><div><i style="background:var(--ok)"></i>ok</div>
+        <div><i style="background:var(--you)"></i>you</div><div><i style="background:var(--map-land)"></i>map land</div><div><i style="background:var(--map-major)"></i>major road</div><div><i style="background:var(--map-park)"></i>park</div>
+      </div>
+    </div>
+    <div class="panel"><h4>Type scale · Geist</h4>
+      <div class="ts">
+        <div><span style="font-size:52px;font-weight:600;letter-spacing:-.045em;line-height:1">2</span><span>hero 52</span></div>
+        <div><span style="font-size:26px;font-weight:600;letter-spacing:-.025em">3808 22 St</span><span>addr 26</span></div>
+        <div><span style="font-size:20px;font-weight:600">22 St &amp; 21 St</span><span>title 20</span></div>
+        <div><span style="font-size:17px;font-weight:600">Booked</span><span>row 17</span></div>
+        <div><span style="font-size:15px">Check the gutters as you walk up.</span><span>body 15</span></div>
+        <div><span style="font-size:13px;color:var(--muted)">Columbus · 25 houses</span><span>cap 13</span></div>
+        <div><span class="label">Next door · stop 3</span><span>label 11</span></div>
+      </div>
+    </div>
+    <div class="panel"><h4>Icons · 24 grid · 1.75 stroke</h4><div class="ic" id="iconGrid"></div></div>
+  </div>
+
+  <footer>Designer · 2026-09-26 · Files: docs/design/v25-polish (critique.md, design-system.md, ds.css, icons.js, walkmap.js, now/knock/lead/money/homeowner.html; walkmap.js adds renderHomeMap and renderHailMap). Map data: engine output for Columbus, Aug 8 hail. Homeowner screen: 2026-09-27.</footer>
+</div>
+
+<script src="icons.js"></script>
+<script>
+(function () {
+  const wrap = document.getElementById('top'), L = document.getElementById('showLight'), Dk = document.getElementById('showDark');
+  function set(v) { wrap.dataset.show = v; L.setAttribute('aria-pressed', v === 'light'); Dk.setAttribute('aria-pressed', v === 'dark'); try { localStorage.setItem('v25-show', v); } catch (e) {} }
+  let v = null; try { v = localStorage.getItem('v25-show'); } catch (e) {}
+  if (!v) { const t = document.documentElement.getAttribute('data-theme'); v = t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+  set(v); L.onclick = () => set('light'); Dk.onclick = () => set('dark');
+  const names = ['pin','door','plus','leads','money','mic','phone','text','say','nav','car','camera','cal','clock','hail','built','home','flag','star','ban','shield','skip','check','x','info','photo','file','pen','hammer','bank','locate','layers','map','sun','moon','user'];
+  document.getElementById('iconGrid').innerHTML = names.map(n => `<div><svg class="i"><use href="#i-${n}"/></svg>${n}</div>`).join('');
+})();
+</script>

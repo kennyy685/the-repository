@@ -11,8 +11,13 @@ under `data`):
 - optional hud.json: the lists' heat and why, joined per list in `learning`.
 
 Output: {week, from, to, as_of, totals, by_kind, by_list, by_walk, areas{best, worst, en, es}, follow_ups,
-funnel, learning, summary{en, es}}. totals.estimates = leads whose quick estimate (lead.estimate.day, the local
-day, else lead.estimate.at[:10]) is in the week;
+funnel, learning, scorecard, summary{en, es}}. `scorecard` (T166; T209 added the Aldaba proof numbers) = the pilot
+numbers (doors knocked, contact rate, inspections per 100 doors, signed jobs, signed-job rate, average $ per
+signed job, knock-to-signed median days) next to an industry range each - see scorecard.py; same shape as the
+standalone `hh.py scorecard` command, `company` always "hmp" here. Pass `claims` (optional, `hh.py weekly
+--claims`) to fold insurance claims into the scorecard's signed-job/knock-to-signed numbers too; without it the
+scorecard's signed-job count is leads only, same as before T209. totals.estimates = leads whose quick estimate
+(lead.estimate.day, the local day, else lead.estimate.at[:10]) is in the week;
 totals.estimates_value = {low, high, using_reference} (sums of those ranges; using_reference = market prices). Rates: not_home_rate = share of doors not home (0-1); contact_rate = share of doors where
 someone answered (No + Interested + Booked, 0-1), in totals and every walk/list; `benchmarks` = rookie ranges
 {contact_rate, inspection_per_door, sign_per_inspection: [low, high], note{en,es}}; per_100 numbers are
@@ -25,6 +30,7 @@ from collections import Counter
 from datetime import date, timedelta
 
 from .config import DEFAULTS
+from .followups import _day as _local_day
 from .todaywalk import NOT_HOME, _split
 
 TALK = ("no", "interested", "booked")
@@ -70,11 +76,9 @@ def load_doors(obj):
         m = re.match(r"^(\d{4}-\d{2}-\d{2})_(.+)$", key)
         pid = d.get("pid") or (m.group(2) if m else None)
         res = _result(d.get("result"))
-        day = str(d.get("date") or (m.group(1) if m else "") or str(d.get("at") or "")[:10])[:10]
-        try:
-            date.fromisoformat(day)
-        except ValueError:
-            day = None
+        # date > the doc key's date prefix > the tap's "at" timestamp (America/Chicago local day, DST-aware -
+        # a tap after ~7 PM Central is still that Central day even though it's already tomorrow in UTC)
+        day = _local_day(d.get("date") or (m.group(1) if m else None) or d.get("at"))
         if not pid or not res:
             continue
         out.append({"date": day, "pid": str(pid), "address": d.get("address") or "", "city": d.get("city") or "",
@@ -239,7 +243,7 @@ def funnel(leads, start=None, end=None):
         stages.append({"key": "other", "en": "Other", "es": "Otro", "count": c["other"]})
     new = None
     if start and end:
-        new = sum(1 for L in leads if start.isoformat() <= str(L.get("created_at") or "")[:10] <= end.isoformat())
+        new = sum(1 for L in leads if start.isoformat() <= (_local_day(L.get("created_at")) or "") <= end.isoformat())
     return {"stages": stages, "total": len(leads), "open": sum(1 for L in leads if L.get("stage") not in CLOSED),
             "new_this_week": new}
 
@@ -310,13 +314,16 @@ def _rookie(doors, plan, today, cfg):
 
 
 # ------------------------------------------------------------------ the report
-def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, rookie_plan=None):
+def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, rookie_plan=None, claims=None):
     """The week's results doc. `doors`/`leads` = load_doors/load_leads output; `week` = "2026-39",
     "all" or None (= the week of `today`); `today` = date for overdue follow-ups (default: the week's last day).
     `bench` (T84) = the data/benchmarks.json doc (benchmarks.load()): adds `industry` = each funnel rate next to an
     industry range {yours, low, typical, high, source_note, vs}, labeled "industry estimate, not your numbers";
     None (no file) -> `industry` is null. `rookie_plan` = rookie.load_plan() blocks: adds `rookie` = rookie.progress
-    over ALL door taps as of `today` (day, block, streak, EN/ES verdict); None (no plan / no start) -> null."""
+    over ALL door taps as of `today` (day, block, streak, EN/ES verdict); None (no plan / no start) -> null.
+    `claims` (T209, optional) = scorecard.load_claims() output: folded into the embedded `scorecard` section's
+    signed-job count, avg $/job and knock-to-signed days, same as `hh.py scorecard --claims`; None (default) ->
+    the scorecard section stays leads-only, same as before T209."""
     wcfg = {**DEFAULTS["weekly"], **((cfg or {}).get("weekly") or {})}
     doors = [dict(d) for d in doors or []]         # don't change the caller's rows
     all_doors = list(doors)
@@ -385,6 +392,9 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, 
 
     t = tally(rows)
     n_est, est_value = estimates(leads, start, end)
+    from .scorecard import report as scorecard_report          # T166: the pilot numbers (lazy: avoid an import cycle)
+    card = scorecard_report(all_doors, leads, claims or [], start=start, end=end, today=today, bench=bench,
+                            company="hmp")
     areas = _best_worst(walks, wcfg["min_doors_area"])
     en = (f"{_pl(t['doors'], 'door', 'doors')} knocked, {t['answered']} answered, {t['interested']} interested, "
           f"{_pl(t['booked'], 'inspection', 'inspections')} booked; {round(t['not_home_rate'] * 100)}% not home.")
@@ -396,7 +406,7 @@ def report(doors, leads, week=None, hud=None, today=None, cfg=None, bench=None, 
         "to": end and end.isoformat(), "as_of": today.isoformat(),
         "totals": {**t, "houses": len({r["pid"] for r in rows}), "estimates": n_est, "estimates_value": est_value},
         "by_kind": by_kind, "by_list": lists, "by_walk": walks, "areas": areas, "benchmarks": benchmarks(),
-        "industry": _industry(bench, t),
+        "industry": _industry(bench, t), "scorecard": card,
         "rookie": _rookie(all_doors, rookie_plan, today, cfg),
         "follow_ups": follow_ups(leads, today),
         "funnel": funnel(leads, start, end),

@@ -1,0 +1,79 @@
+{
+ "leads": {
+  "leads/105-e-4th-st": {
+   "address": "105 E 4th St",
+   "city": "Fremont",
+   "stage": "contacted",
+   "created_at": "2026-09-01T15:00:00Z",
+   "homeowner_first_name": "Rosa",
+   "phone": "402-555-0101"
+  },
+  "leads/9-far-away-ln": {
+   "address": "9 Far Away Ln",
+   "city": "Lincoln",
+   "lat": 40.8,
+   "lon": -96.7,
+   "stage": "contacted",
+   "created_at": "2026-09-02T15:00:00Z"
+  },
+  "leads/10-old-storm-rd": {
+   "address": "10 Old Storm Rd",
+   "city": "Blair",
+   "stage": "inspection_set",
+   "created_at": "2026-05-01T15:00:00Z"
+  },
+  "leads/200-n-main-st": {
+   "address": "200 N Main St",
+   "city": "Fremont",
+   "stage": "lost",
+   "created_at": "2026-09-01T15:00:00Z"
+  }
+ },
+ "claims": {
+  "claims/200-n-main-st-fremont": {
+   "address": "200 N Main St",
+   "city": "Fremont",
+   "stage": "claim_filed",
+   "date_of_loss": "2026-09-20",
+   "homeowner_first_name": "Maria"
+  },
+  "claims/50-near-st-fremont": {
+   "address": "50 Near St",
+   "city": "Fremont",
+   "lat": 41.436,
+   "lon": -96.4985,
+   "stage": "inspected",
+   "date_of_loss": "2026-05-01",
+   "homeowner_first_name": "Ana"
+  }
+ },
+ "doors": {
+  "doors/2026-09-10_P1": {
+   "date": "2026-09-10",
+   "pid": "P1",
+   "address": "77 Wahoo Ave",
+   "city": "Wahoo",
+   "lat": 41.215,
+   "lon": -96.615,
+   "result": "interested"
+  },
+  "doors/2026-09-10_P2": {
+   "date": "2026-09-10",
+   "pid": "P2",
+   "address": "300 Wind Rd",
+   "city": "Arlington",
+   "lat": 41.4525,
+   "lon": -96.357,
+   "result": "booked"
+  },
+  "doors/2026-09-10_P3": {
+   "date": "2026-09-10",
+   "pid": "P3",
+   "address": "5 No St",
+   "city": "Wahoo",
+   "lat": 41.215,
+   "lon": -96.615,
+   "result": "no"
+  }
+ }
+}

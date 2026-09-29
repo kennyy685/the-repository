@@ -1,6 +1,6 @@
 """Door score v2 (research round 16): how good one house is to knock, 0-100, with one plain line why {en, es}.
 
-door = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm   (weights: config `door_score`)
+door = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm x stack   (weights: config `door_score`)
 - hail: storm walks only, the hail at the house through `hail_curve` (everyday walks: 1.0).
 - owner_fit ("likely insured" in round 16, NEVER shown with that word): renter_base + (1 - renter_base) x owner x
   (no_sale + (1 - no_sale) x recent), where owner = the house's own owner-occupied flag when the data has one
@@ -13,6 +13,11 @@ door = 100 x hail x owner_fit x kind x roof_age x value x sold_after_storm   (we
 - roof_age: years since built (roof_year when known) through `age_curve`; unknown = `age_unknown`.
 - value: assessed value band through `value_curve`; unknown = `value_unknown`.
 - sold_after_storm: storm walks, the house changed hands after the storm day (the new owner may not have a claim).
+- stack (storm stacking, stacking.py): storm walks, hail days near the house over the last 3 seasons (stop field
+  `stack_count`, set by todaywalk from data/hail-history.json + storms-<year>.json) -> capped factor 1.0 / 1.15 / 1.3;
+  no count on the stop = 1.0. parts `stack_count` + `stack_since`; why line "hail here 3 times since 2024".
+- roof_band (flag only, no score change): young / prime (~8-14 yrs) / check (15+, check the policy first), from
+  roof_year or year built (an estimate); parts `roof_band`.
 Returns {score, parts{...}, why{en, es}}. The why line is an estimate in plain words ("likely owner-occupied,
 bought 2021"): no insurance claims, no promises.
 T23: per-house owner-occupied comes from owners.py (county owner mailing address vs the house address); parts
@@ -20,6 +25,7 @@ T23: per-house owner-occupied comes from owners.py (county owner mailing address
 """
 from datetime import date
 
+from . import stacking
 from .config import DEFAULTS
 from .geo import interp
 
@@ -61,6 +67,9 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
         es.append(f"construida en {built}" if built and roof == built else f"techo de {roof}")
     else:
         parts["roof_age"] = ds["age_unknown"]
+    rb = stacking.roof_band(built, _year(s.get("roof_year")), today, cfg)
+    if rb:
+        parts["roof_band"] = rb["band"]
     # owner fit (round 16's "likely insured", never called that on screen)
     occ = s.get("owner_occ")
     if occ is True or occ is False:
@@ -81,11 +90,11 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
         en.append("owner lives here" if occ else "likely a rental")
         es.append("vive el dueño" if occ else "probablemente rentada")
     elif basis == "area" and owner >= 0.5:
-        en.append(f"likely owner-occupied (area {round(owner * 100)}% owners)")
-        es.append(f"probablemente vive el dueño ({round(owner * 100)}% dueños en la zona)")
+        en.append(f"likely owner-occupied (area {round(owner * 100)}% owners, Census)")
+        es.append(f"probablemente vive el dueño ({round(owner * 100)}% dueños en la zona, Censo)")
     elif basis == "area":
-        en.append(f"many renters here (area {round(owner * 100)}% owners)")
-        es.append(f"muchos inquilinos ({round(owner * 100)}% dueños en la zona)")
+        en.append(f"many renters here (area {round(owner * 100)}% owners, Census)")
+        es.append(f"muchos inquilinos ({round(owner * 100)}% dueños en la zona, Censo)")
     sold_after = bool(kind == "storm" and s.get("sold_after_storm"))
     if sale_y and not sold_after and (recent or kind == "everyday"):
         en.append(f"bought {sale_y}")
@@ -105,10 +114,21 @@ def score(s, kind, owner_share=None, storm_day=None, today=None, cfg=None):
     if sold_after:
         en.append(f"sold after the storm ({sale_y})" if sale_y else "sold after the storm")
         es.append(f"vendida después de la tormenta ({sale_y})" if sale_y else "vendida después de la tormenta")
+    # storm stacking: repeat hail days near the house (storm walks only; unknown = 1.0)
+    parts["stack"] = 1.0
+    n = s.get("stack_count")
+    if kind == "storm" and isinstance(n, int) and n > 0:
+        sc = stacking.scfg(cfg)
+        since = s.get("stack_since") or stacking.since_year(today, sc)
+        parts.update({"stack": stacking.factor(n, sc), "stack_count": n, "stack_since": since})
+        if n >= 2:
+            line = stacking.stack_line(n, since)
+            en.insert(1 if h is not None else 0, line["en"].lower())
+            es.insert(1 if h is not None else 0, line["es"].lower())
     total = 100.0
-    for key in ("hail", "owner_fit", "kind", "roof_age", "value", "sold_after_storm"):
+    for key in ("hail", "owner_fit", "kind", "roof_age", "value", "sold_after_storm", "stack"):
         total *= parts[key]
-    return {"score": round(total, 1), "parts": parts,
+    return {"score": round(min(total, 100.0), 1), "parts": parts,
             "why": {"en": _cap(", ".join(en)) if en else "No house details on file",
                     "es": _cap(", ".join(es)) if es else "Sin datos de la casa"}}
 

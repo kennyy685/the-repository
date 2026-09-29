@@ -1,0 +1,8 @@
+# Builder lessons (newest last; one line each: date, what went wrong, the rule)
+- 2026-09-28 Practice Door v11/v12: ~30 QA fixes. "3 days" -> "3 business days"; cancel form EN AND ES; promised financing HMP doesn't have; "not licensed/no licenciados" (say "registered and insured"); "walk you through your options"/"offer a re-inspection" = claim advice; "before you're locked in"/"who'll be around in 6 months" = pushing a cancel. Rule: legal read of every new taught line (Done means 3).
+- 2026-09-28 Practice Door: backup regexes let "No problem, we can start tomorrow" and "cubrimos la parte del dueño del deducible" through. Rule: every new safe-phrase regex gets a bad-line test case in tests/js/practice_door_rx_check.js.
+- 2026-09-28 Top-15 cards must match docs/orders/sales-path.md word for word (the test checks). Change both in one commit.
+- 2026-09-28 Hub v28 lived on claude/amazing-wright-lds9q5 while this branch had an older copy. Rule: find the newest copy of a page before editing.
+- 2026-09-28 Two Builders in pages/crew-hq.html at once. Rule: check crew/sessions + events, post which blocks you own.
+- 2026-09-27 App publish blocked by the safety guard until FilthE's own words. Rule: never publish; report "ready, waiting on your word".
+- 2026-09-29 release_checks.sh --quick needs ~10 min (hub_live_check alone ~5 min on fake clock), so a 300 s cap looks like a hang. Rule: run checks with timeout 600+ in background, or per check; publish of a big page needs a full Read of the live file (330k tokens): read live first only when about to publish.

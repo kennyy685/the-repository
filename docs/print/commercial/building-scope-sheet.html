@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMP Building Scope Sheet</title>
+<!-- Designer, T182 (round 51). Commercial/multi-building field sheet: one page filled out per building on a
+     property (The Edge-style job). v25 look (Geist, Ledger neutrals, one orange accent) under the same charcoal
+     brand band as docs/print/homeowner-leave-behind.html. English with Spanish sub-labels (not a full ES page -
+     this is a working office/crew document, not a customer piece).
+     Fields: property, building #, elevations N/E/S/W, scope by trade (siding/roof/trim/flashing/gutters),
+     measurements, photo refs, phase/dates, crew, notes. No dollar amounts, no verdicts, no insurance language.
+     Rules (CLAUDE.md): "registered", never the other word; registration # stays a blank line.
+     Fonts: ../fonts/ (Geist, local, free). Render: chrome --headless=new --print-to-pdf (letter, 1 page).
+     Print one copy per building; write the building number/letter and photo numbers by hand on site. -->
+<style>
+@font-face{font-family:"Geist";src:url("../fonts/Geist-400.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Geist";src:url("../fonts/Geist-500.woff2") format("woff2");font-weight:500}
+@font-face{font-family:"Geist";src:url("../fonts/Geist-600.woff2") format("woff2");font-weight:600}
+@font-face{font-family:"Geist Mono";src:url("../fonts/GeistMono-500.woff2") format("woff2");font-weight:500}
+@page{size:letter;margin:0}
+:root{--ink:#18191c;--ink-2:#3d3f45;--muted:#6c6f77;--faint:#9a9da4;--line:#e3e5e8;--line-2:#d3d6db;--soft:#f3f4f6;
+  --hmp:#f5883a;--hmp-ink:#a4520f;--hmp-bg:#fdf1e7;--brand:#404145;--brand-2:#35363a;--on-brand:#ffffff;--on-brand-2:#c9ccd1;--paper:#ffffff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#d9dbdf}
+body{font-family:"Geist",system-ui,sans-serif;color:var(--ink);font-size:9.1pt;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:8.5in;height:11in;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;margin:0 auto;position:relative}
+@media screen{.page{margin:24px auto;box-shadow:0 10px 40px -12px rgba(0,0,0,.35)}}
+.i{width:13pt;height:13pt;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.label{font:500 6.6pt/1.2 "Geist Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.label .es{display:block;font:400 6.6pt/1.25 "Geist";letter-spacing:0;text-transform:none;color:var(--faint);margin-top:1pt}
+/* brand band: the only dark area; the chrome logo needs it */
+.band{height:.86in;flex:none;display:flex;align-items:center;gap:.26in;padding:0 .5in;background:linear-gradient(180deg,var(--brand),var(--brand-2));color:var(--on-brand);position:relative}
+.band::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3pt;background:var(--hmp)}
+.logo{width:1.2in;height:.59in;flex:none}
+.bt h1{font-size:18pt;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.bt p{font-size:7.8pt;color:var(--on-brand-2);margin-top:3pt}
+.kick{position:absolute;right:.5in;top:.16in;font:500 6.6pt "Geist Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--on-brand-2);text-align:right;max-width:1.9in;line-height:1.3}
+.body{flex:1;display:flex;flex-direction:column;padding:.18in .5in .22in;gap:.13in;min-height:0}
+.sh{display:flex;align-items:baseline;gap:8pt;margin-bottom:6pt}
+.sh h2{font-size:11pt;font-weight:600;letter-spacing:-.01em}
+.sh p{font-size:7.6pt;color:var(--muted)}
+
+/* identity fields */
+.idrow{display:grid;gap:.16in}
+.idrow.a{grid-template-columns:2fr .68fr 1.3fr .82fr}
+.idrow.b{grid-template-columns:repeat(5,1fr)}
+.fld{display:grid;gap:4pt}
+.fld i{display:block;height:13pt;border-bottom:1pt solid var(--line-2)}
+
+/* elevations */
+.elev{display:grid;grid-template-columns:repeat(4,1fr);gap:.14in}
+.ecard{border:1pt solid var(--line-2);border-radius:8pt;padding:6.5pt 9pt 7.5pt}
+.ecard .hd{display:flex;align-items:center;gap:6pt}
+.ecard .bx{width:10.5pt;height:10.5pt;border:1.2pt solid var(--line-2);border-radius:2.5pt;flex:none;background:var(--paper)}
+.ecard b{font-size:11pt;font-weight:600}
+.ecard span{display:block;font-size:6.8pt;color:var(--muted)}
+.ecard .cond{margin-top:6pt}
+.ecard .cond .label{margin-bottom:3pt}
+.ecard .cond i{display:block;height:12pt;border-bottom:1pt solid var(--line-2)}
+
+/* scope by trade */
+.scope{display:grid}
+.scope .r{display:grid;grid-template-columns:15pt 1.5fr 1.9fr 1fr 1fr;gap:9pt;align-items:center;padding:6.5pt 0;border-bottom:1pt solid var(--soft)}
+.scope .r.hd{padding:0 0 4pt;border-bottom:1pt solid var(--line-2)}
+.scope .r.hd span{font:500 6.6pt/1.2 "Geist Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.scope .bx{width:10.5pt;height:10.5pt;border:1.2pt solid var(--line-2);border-radius:2.5pt;background:var(--paper)}
+.scope .name{font-size:9.2pt;font-weight:600}
+.scope .name .es{display:block;font-size:7.2pt;color:var(--muted);font-weight:400}
+.scope i{display:block;height:13pt;border-bottom:1pt solid var(--line-2)}
+.scope .u{font:500 6.6pt "Geist Mono",monospace;color:var(--faint);white-space:nowrap;margin-left:4pt}
+
+/* photo reference log */
+.plog{display:grid}
+.plog .r{display:grid;grid-template-columns:26pt 62pt 1fr;gap:10pt;align-items:center;padding:5pt 0;border-bottom:1pt solid var(--soft)}
+.plog .r.hd{padding:0 0 4pt;border-bottom:1pt solid var(--line-2)}
+.plog .r.hd span{font:500 6.6pt/1.2 "Geist Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.plog .n{font:600 8.6pt "Geist Mono",monospace;color:var(--faint)}
+.plog i{display:block;height:12pt;border-bottom:1pt solid var(--line-2)}
+
+/* notes */
+.notes{display:grid;gap:0}
+.notes i{display:block;height:15pt;border-bottom:1pt solid var(--line-2)}
+
+.foot{margin-top:auto;padding-top:.1in;border-top:1pt solid var(--line);display:flex;align-items:center;gap:8pt;font-size:7.4pt;color:var(--muted)}
+.foot .blank{display:inline-block;width:.9in;border-bottom:.8pt solid var(--muted);height:8pt}
+.foot .bld{margin-left:auto;font:600 7.4pt "Geist Mono",monospace;color:var(--ink-2);letter-spacing:.02em}
+.foot .bld i{display:inline-block;width:.4in;border-bottom:.8pt solid var(--muted);height:8pt;font-style:normal;vertical-align:bottom}
+</style></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0" aria-hidden="true">
+  <symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
+  <defs>
+    <linearGradient id="hmp-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
+    <linearGradient id="hmp-face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#e9ebee"/><stop offset=".56" stop-color="#c9ccd1"/><stop offset=".8" stop-color="#dfe1e5"/><stop offset="1" stop-color="#f3f4f6"/></linearGradient>
+  </defs>
+  <path d="M174.2 -90 419.01 -0.9 419.01 14.6 174.2 -74.5 -70.61 14.6 -70.61 -0.9Z" fill="#f5883a"/>
+  <g transform="translate(2.4 3)" fill="#1b1c1f"><path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z"/></g>
+  <path d="M-1.57 3.9 -1.15 5.2 -0.8 6.5 -0.51 7.8 -0.29 9.1 -0.13 10.4 -0.03 11.7 0 13 0 87 -0.03 88.3 -0.13 89.6 -0.29 90.9 -0.51 92.2 -0.8 93.5 -1.15 94.8 -1.57 96.1 -2.05 97.4 -2.59 98.7 -3.2 100 30.2 100 29.59 98.7 29.05 97.4 28.57 96.1 28.15 94.8 27.8 93.5 27.51 92.2 27.29 90.9 27.13 89.6 27.03 88.3 27 87 27 61 61 61 61 87 60.97 88.3 60.87 89.6 60.71 90.9 60.49 92.2 60.2 93.5 59.85 94.8 59.43 96.1 58.95 97.4 58.41 98.7 57.8 100 91.2 100 90.59 98.7 90.05 97.4 89.57 96.1 89.15 94.8 88.8 93.5 88.51 92.2 88.29 90.9 88.13 89.6 88.03 88.3 88 87 88 13 88.03 11.7 88.13 10.4 88.29 9.1 88.51 7.8 88.8 6.5 89.15 5.2 89.57 3.9 90.05 2.6 90.59 1.3 91.2 0 57.8 0 58.41 1.3 58.95 2.6 59.43 3.9 59.85 5.2 60.2 6.5 60.49 7.8 60.71 9.1 60.87 10.4 60.97 11.7 61 13 61 39 27 39 27 13 27.03 11.7 27.13 10.4 27.29 9.1 27.51 7.8 27.8 6.5 28.15 5.2 28.57 3.9 29.05 2.6 29.59 1.3 30.2 0 -3.2 0 -2.59 1.3 -2.05 2.6ZM124.23 3.9 124.65 5.2 125 6.5 125.29 7.8 125.51 9.1 125.67 10.4 125.77 11.7 125.8 13 125.8 87 125.77 88.3 125.67 89.6 125.51 90.9 125.29 92.2 125 93.5 124.65 94.8 124.23 96.1 123.75 97.4 123.21 98.7 122.6 100 156 100 155.39 98.7 154.85 97.4 154.37 96.1 153.95 94.8 153.6 93.5 153.31 92.2 153.09 90.9 152.93 89.6 152.83 88.3 152.8 87 152.8 61.64 176.2 100 179.4 100 202.8 61.64 202.8 87 202.77 88.3 202.67 89.6 202.51 90.9 202.29 92.2 202 93.5 201.65 94.8 201.23 96.1 200.75 97.4 200.21 98.7 199.6 100 233 100 232.39 98.7 231.85 97.4 231.37 96.1 230.95 94.8 230.6 93.5 230.31 92.2 230.09 90.9 229.93 89.6 229.83 88.3 229.8 87 229.8 13 229.83 11.7 229.93 10.4 230.09 9.1 230.31 7.8 230.6 6.5 230.95 5.2 231.37 3.9 231.85 2.6 232.39 1.3 233 0 199.6 0 200.21 1.3 200.75 2.6 201.23 3.9 201.65 5.2 202 6.5 202.29 7.8 202.51 9.1 202.67 10.4 202.77 11.7 202.8 13 202.8 30.23 177.8 61 152.8 30.23 152.8 13 152.83 11.7 152.93 10.4 153.09 9.1 153.31 7.8 153.6 6.5 153.95 5.2 154.37 3.9 154.85 2.6 155.39 1.3 156 0 122.6 0 123.21 1.3 123.75 2.6ZM265.55 2.6 266.03 3.9 266.45 5.2 266.8 6.5 267.09 7.8 267.31 9.1 267.47 10.4 267.57 11.7 267.6 13 267.6 87 267.57 88.3 267.47 89.6 267.31 90.9 267.09 92.2 266.8 93.5 266.45 94.8 266.03 96.1 265.55 97.4 265.01 98.7 264.4 100 297.8 100 297.19 98.7 296.65 97.4 296.17 96.1 295.75 94.8 295.4 93.5 295.11 92.2 294.89 90.9 294.73 89.6 294.63 88.3 294.6 87 294.6 63 330.6 63 333.34 62.82 336.04 62.28 338.64 61.4 341.1 60.19 343.38 58.66 345.45 56.85 347.26 54.78 348.79 52.5 350 50.04 350.88 47.44 351.42 44.74 351.6 42 351.6 21 351.42 18.26 350.88 15.56 350 12.96 348.79 10.5 347.26 8.22 345.45 6.15 343.38 4.34 341.1 2.81 338.64 1.6 336.04 0.72 333.34 0.18 330.6 0 294.6 0 292.6 0 264.4 0 265.01 1.3ZM324.15 18.2 324.9 18.46 325.6 18.8 326.25 19.24 326.84 19.76 327.36 20.35 327.8 21 328.14 21.7 328.4 22.45 328.55 23.22 328.6 24 328.6 38 328.55 38.78 328.4 39.55 328.14 40.3 327.8 41 327.36 41.65 326.84 42.24 326.25 42.76 325.6 43.2 324.9 43.54 324.15 43.8 323.38 43.95 322.6 44 294.6 44 294.6 18 322.6 18 323.38 18.05ZM118.4 100 118.4 77 95.4 77 95.4 100ZM260.2 100 260.2 77 237.2 77 237.2 100Z" fill="url(#hmp-rim)"/>
+  <path d="M268.32 2.6 268.49 3.05 268.94 4.46 269.33 5.88 269.64 7.3 269.88 8.72 270.06 10.15 270.17 11.57 270.2 12.97 270.2 87.03 270.17 88.43 270.06 89.85 269.88 91.28 269.64 92.7 269.33 94.12 268.94 95.54 268.49 96.95 268.32 97.4 293.88 97.4 293.71 96.95 293.26 95.54 292.87 94.12 292.56 92.7 292.32 91.28 292.14 89.85 292.03 88.43 292 87.03 292 60.4 330.51 60.4 333 60.24 335.36 59.77 337.64 58.99 339.8 57.93 341.8 56.59 343.61 55.01 345.19 53.2 346.53 51.2 347.59 49.04 348.37 46.76 348.84 44.4 349 41.91 349 21.09 348.84 18.6 348.37 16.24 347.59 13.96 346.53 11.8 345.19 9.8 343.61 7.99 341.8 6.41 339.8 5.07 337.64 4.01 335.36 3.23 333 2.76 330.51 2.6ZM324.83 15.69 325.89 16.05 326.9 16.55 327.84 17.17 328.69 17.91 329.43 18.76 330.05 19.7 330.55 20.71 330.91 21.77 331.13 22.88 331.2 23.91 331.2 38.09 331.13 39.12 330.91 40.23 330.55 41.29 330.05 42.3 329.43 43.24 328.69 44.09 327.84 44.83 326.9 45.45 325.89 45.95 324.83 46.31 323.72 46.53 322.69 46.6 292 46.6 292 15.4 322.69 15.4 323.72 15.47ZM257.6 97.4 257.6 79.6 239.8 79.6 239.8 97.4ZM126.52 97.4 152.08 97.4 151.91 96.95 151.46 95.54 151.07 94.12 150.76 92.7 150.52 91.28 150.34 89.85 150.23 88.43 150.2 87.03 150.2 52.38 177.66 97.4 177.94 97.4 205.4 52.38 205.4 87.03 205.37 88.43 205.26 89.85 205.08 91.28 204.84 92.7 204.53 94.12 204.14 95.54 203.69 96.95 203.52 97.4 229.08 97.4 228.91 96.95 228.46 95.54 228.07 94.12 227.76 92.7 227.52 91.28 227.34 89.85 227.23 88.43 227.2 87.03 227.2 12.97 227.23 11.57 227.34 10.15 227.52 8.72 227.76 7.3 228.07 5.88 228.46 4.46 228.91 3.05 229.08 2.6 203.52 2.6 203.69 3.05 204.14 4.46 204.53 5.88 204.84 7.3 205.08 8.72 205.26 10.15 205.37 11.57 205.4 12.97 205.4 31.15 177.8 65.12 150.2 31.15 150.2 12.97 150.23 11.57 150.34 10.15 150.52 8.72 150.76 7.3 151.07 5.88 151.46 4.46 151.91 3.05 152.08 2.6 126.52 2.6 126.69 3.05 127.14 4.46 127.53 5.88 127.84 7.3 128.08 8.72 128.26 10.15 128.37 11.57 128.4 12.97 128.4 87.03 128.37 88.43 128.26 89.85 128.08 91.28 127.84 92.7 127.53 94.12 127.14 95.54 126.69 96.95ZM115.8 97.4 115.8 79.6 98 79.6 98 97.4ZM0.72 97.4 26.28 97.4 26.11 96.95 25.66 95.54 25.27 94.12 24.96 92.7 24.72 91.28 24.54 89.85 24.43 88.43 24.4 87.03 24.4 58.4 63.6 58.4 63.6 87.03 63.57 88.43 63.46 89.85 63.28 91.28 63.04 92.7 62.73 94.12 62.34 95.54 61.89 96.95 61.72 97.4 87.28 97.4 87.11 96.95 86.66 95.54 86.27 94.12 85.96 92.7 85.72 91.28 85.54 89.85 85.43 88.43 85.4 87.03 85.4 12.97 85.43 11.57 85.54 10.15 85.72 8.72 85.96 7.3 86.27 5.88 86.66 4.46 87.11 3.05 87.28 2.6 61.72 2.6 61.89 3.05 62.34 4.46 62.73 5.88 63.04 7.3 63.28 8.72 63.46 10.15 63.57 11.57 63.6 12.97 63.6 41.6 24.4 41.6 24.4 12.97 24.43 11.57 24.54 10.15 24.72 8.72 24.96 7.3 25.27 5.88 25.66 4.46 26.11 3.05 26.28 2.6 0.72 2.6 0.89 3.05 1.34 4.46 1.73 5.88 2.04 7.3 2.28 8.72 2.46 10.15 2.57 11.57 2.6 12.97 2.6 87.03 2.57 88.43 2.46 89.85 2.28 91.28 2.04 92.7 1.73 94.12 1.34 95.54 0.89 96.95Z" fill="url(#hmp-face)"/>
+  <path d="M-13.2 113.5Q174.2 107 361.6 113.5Q174.2 126.5 -13.2 113.5Z" fill="#f5883a"/>
+</symbol>
+</svg>
+
+<section class="page">
+  <header class="band">
+    <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
+    <div class="bt"><h1>Building scope sheet</h1><p>HMP Siding &amp; Roofing LLC &middot; Commercial / multi-building &middot; Fremont, NE</p></div>
+    <span class="kick">One sheet per building<br>Una hoja por edificio</span>
+  </header>
+  <div class="body">
+    <div class="idrow a">
+      <div class="fld"><span class="label">Property<span class="es">Propiedad</span></span><i></i></div>
+      <div class="fld"><span class="label">Building #<span class="es">Edificio N.&ordm;</span></span><i></i></div>
+      <div class="fld"><span class="label">Address / unit range<span class="es">Direcci&oacute;n o rango de unidades</span></span><i></i></div>
+      <div class="fld"><span class="label">Date<span class="es">Fecha</span></span><i></i></div>
+    </div>
+    <div class="idrow b">
+      <div class="fld"><span class="label">Property manager<span class="es">Gerente de propiedad</span></span><i></i></div>
+      <div class="fld"><span class="label">Phase (# of #)<span class="es">Fase (N.&ordm; de N.&ordm;)</span></span><i></i></div>
+      <div class="fld"><span class="label">Crew / lead<span class="es">Cuadrilla / l&iacute;der</span></span><i></i></div>
+      <div class="fld"><span class="label">Start date<span class="es">Fecha de inicio</span></span><i></i></div>
+      <div class="fld"><span class="label">Target completion<span class="es">Finalizaci&oacute;n meta</span></span><i></i></div>
+    </div>
+
+    <section>
+      <div class="sh"><h2>Elevations inspected</h2><p>Fachadas inspeccionadas &middot; check each side documented</p></div>
+      <div class="elev">
+        <div class="ecard"><div class="hd"><span class="bx"></span><b>N</b><span>North &middot; Norte</span></div><div class="cond"><span class="label">Condition<span class="es">Estado</span></span><i></i></div></div>
+        <div class="ecard"><div class="hd"><span class="bx"></span><b>E</b><span>East &middot; Este</span></div><div class="cond"><span class="label">Condition<span class="es">Estado</span></span><i></i></div></div>
+        <div class="ecard"><div class="hd"><span class="bx"></span><b>S</b><span>South &middot; Sur</span></div><div class="cond"><span class="label">Condition<span class="es">Estado</span></span><i></i></div></div>
+        <div class="ecard"><div class="hd"><span class="bx"></span><b>W</b><span>West &middot; Oeste</span></div><div class="cond"><span class="label">Condition<span class="es">Estado</span></span><i></i></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sh"><h2>Scope by trade</h2><p>Alcance por oficio &middot; check what&#8217;s in this building&#8217;s scope</p></div>
+      <div class="scope">
+        <div class="r hd"><span></span><span>Trade &middot; Oficio</span><span>Material / spec &middot; Especificaci&oacute;n</span><span>Measurement &middot; Medida</span><span>Photo ref &middot; Foto N.&ordm;</span></div>
+        <div class="r"><span class="bx"></span><div class="name">Siding<span class="es">Revestimiento (siding)</span></div><i></i><div style="display:flex;align-items:baseline"><i style="flex:1"></i><span class="u">qty/unit</span></div><i></i></div>
+        <div class="r"><span class="bx"></span><div class="name">Roof<span class="es">Techo</span></div><i></i><div style="display:flex;align-items:baseline"><i style="flex:1"></i><span class="u">squares</span></div><i></i></div>
+        <div class="r"><span class="bx"></span><div class="name">Trim, fascia &amp; soffit<span class="es">Moldura, fascia y sofito</span></div><i></i><div style="display:flex;align-items:baseline"><i style="flex:1"></i><span class="u">LF</span></div><i></i></div>
+        <div class="r"><span class="bx"></span><div class="name">Flashing<span class="es">Tapajuntas</span></div><i></i><div style="display:flex;align-items:baseline"><i style="flex:1"></i><span class="u">LF</span></div><i></i></div>
+        <div class="r"><span class="bx"></span><div class="name">Gutters &amp; downspouts<span class="es">Canaletas y bajantes</span></div><i></i><div style="display:flex;align-items:baseline"><i style="flex:1"></i><span class="u">LF / ct</span></div><i></i></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sh"><h2>Photo reference log</h2><p>Registro de fotos &middot; tie each photo number to what it shows</p></div>
+      <div class="plog">
+        <div class="r hd"><span>#</span><span>Elevation &middot; Fachada</span><span>Subject &middot; Qu&eacute; muestra</span></div>
+        <div class="r"><span class="n">1</span><i></i><i></i></div>
+        <div class="r"><span class="n">2</span><i></i><i></i></div>
+        <div class="r"><span class="n">3</span><i></i><i></i></div>
+        <div class="r"><span class="n">4</span><i></i><i></i></div>
+        <div class="r"><span class="n">5</span><i></i><i></i></div>
+        <div class="r"><span class="n">6</span><i></i><i></i></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sh"><h2>Notes</h2><p>Notas</p></div>
+      <div class="notes"><i></i><i></i><i></i></div>
+    </section>
+
+    <footer class="foot">
+      <span>HMP Siding &amp; Roofing LLC &middot; Fremont, NE &middot; Registered Nebraska contractor # <i class="blank"></i></span>
+      <span class="bld">BUILDING <i></i> OF <i></i></span>
+    </footer>
+  </div>
+</section>
+</body></html>

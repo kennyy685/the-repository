@@ -101,6 +101,14 @@ DEFAULTS = {
         "value_full": 250000,       # median assessed value that earns the full size factor
         "size_unknown": 0.9,
         "compete_towns": ["Omaha", "Lincoln"], "compete_days": 90, "compete_factor": 0.85,
+        # T203 storm-age dip/bump (research round 58 (d)): zone heat only, instead of scoring.recency_curve (which
+        # doors, calls, wind and commercial keep). Flat while fresh, a dip at 45-90 days (chasers signing), a bump
+        # at 90-150 (chasers gone, homeowners still deciding), then a gentler tail than recency_curve because
+        # Nebraska has no short legal cliff (25-205: 5 years). Lifts the winter re-knock walks (Oct-Mar reach
+        # back 330 days). Judgment numbers: tune against real door results. [] = use scoring.recency_curve.
+        "age_curve": [[0, 1.0], [45, 1.0], [90, 0.8], [150, 0.9], [270, 0.7], [365, 0.55], [730, 0.2],
+                      [1095, 0.1]],
+        "second_wave_days": [90, 180],   # "past the chaser rush" reason shows in this storm-age window (days)
         "inspect_rate": 0.03,       # prior: inspections per home knocked at heat 50 (tune with real results)
         "close_storm_mi": 60, "close_storm_min_in": 1.0, "close_storm_lists": 3,
         "max_turfs": 40, "max_hud_mb": 6.0
@@ -160,6 +168,11 @@ DEFAULTS = {
         "spanish_low": 0.10,        # below this: who "Kenny"; in between (or unknown): "either"
         "retry_days": 7             # retry a failed Census language download after this many days
     },
+    # T211 (research round 62): Census ACS B25081 share of owner-lived homes with a mortgage, per block group -> one
+    # plain line on walks/zones (todaywalk.mortgage_note). An area fact, never the word "insured". US average ~0.61.
+    "mortgage": {
+        "low_share": 0.40           # below this the line says "many are owned outright" instead of the lender line
+    },
     # Door score v2 (research round 16, `hailhunter/doorscore.py`): one house, 0-100 = 100 x hail x owner_fit x kind x
     # roof_age x value x sold_after_storm. owner_fit = renter_base + (1 - renter_base) x owner x (no_sale + (1 - no_sale)
     # x recent sale): owner + bought in the last recent_sale_years = 1.0, owner + older sale = 0.7, renter = 0.4.
@@ -177,8 +190,53 @@ DEFAULTS = {
         "value_unknown": 0.9,
         "sold_after_storm": 0.6     # storm walks: the house was sold after the storm day
     },
+    # Storm stacking + roof-age sweet spot (stacking.py, research 2026-09-29 picks 1-2): hail DAYS with a public report
+    # >= min_in within hit_km of a house over the last `seasons` seasons -> factor[count] (capped, last entry = 3+);
+    # roof_band: age < prime[0] young, prime[0]-prime[1] prime, above = "check the policy first" (a flag, no score change).
+    # use_history: today's walk + zone walks read data/hail-history.json + storms-<year>.json (no files = no change).
+    "stacking": {"min_in": 0.75, "seasons": 3, "hit_km": 5, "factor": [1.0, 1.0, 1.15, 1.3], "use_history": True,
+                 "roof_band": {"prime": [8, 14], "built_max": 25}},
+    # The map learns from your knocks (learning.py): smoothed inspection-yes rate per signal band, shrunk toward
+    # prior_rate (5%: industry 1-5% of knocked doors book an inspection, 8-15% in fresh storm zones) with the weight
+    # of prior_doors doors; nothing is shown as a rate under min_doors doors. factor_cap = how far a track record may
+    # nudge a map pick (x0.85 to x1.15). hail_cuts = hail bands in inches (<1, 1-1.5, 1.5-2, 2+).
+    "learning": {"prior_rate": 0.05, "prior_doors": 20, "min_doors": 20, "factor_cap": [0.85, 1.15],
+                 "hail_cuts": [1.0, 1.5, 2.0]},
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
-    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8},
+    # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
+    # `polygon` covers every house left, the walk only the best `doors`).
+    "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8, "walk_buffer_m": 25},
+    # Path step 4 (`hh.py season`, season.py): this season's REAL hail in eastern Nebraska for the open map
+    # (data/storms-<year>.json). Its own network step: never part of `refresh`, so Storm Watch and hud.json don't change.
+    # bbox = [west, south, east, north]: Columbus to Omaha, Lincoln to Norfolk's south edge. Zones = ground reports
+    # within `cluster_km` of the zone's biggest report (no chaining), rank = size/agree/recent/homes (weights sum 1).
+    "season": {"bbox": [-97.9, 40.35, -95.3, 42.2], "states": ["NE"], "wfos": ["OAX", "GID"],
+               "min_size_in": 0.75, "cluster_km": 10, "zone_min_km": 4, "zone_max_km": 14, "radar_min_in": 0.75,
+               "match_km": 4, "match_min": 30, "place_min_homes": 300, "place_hail_km": 6,
+               "size_curve": [[0.75, 0.2], [1.0, 0.45], [1.25, 0.6], [1.5, 0.75], [1.75, 0.87], [2.0, 1.0]],
+               "weights": {"size": 0.4, "agree": 0.2, "recent": 0.2, "homes": 0.2},
+               "recent_half_life_days": 45, "homes_full": 6000,
+               "likely": {"mortgage_weight": 0.25, "high": 60, "medium": 40},
+               "mesh": True, "mesh_budget_s": 300, "census_max_age_days": 180, "outline_buffer_m": 2000,
+               # radar-only zones: MRMS >= mesh_zone_min_in over >= mesh_zone_min_cells km2 no ground zone covers;
+               # MESH runs high, so a radar-only zone's size = MESH x mesh_trust, capped at radar_hail_cap_in (shown
+               # and scored as a "radar estimate"); a zone with no town inside is named after the nearest place
+               # within nearest_town_km ("Rural area near X"); a radar-only zone
+               # with no Nebraska place that close is out of state (Iowa) and dropped
+               "mesh_zone_min_in": 1.25, "mesh_zone_min_cells": 4, "mesh_zones_per_day": 6, "mesh_trust": 0.8,
+               "radar_hail_cap_in": 2.75, "nearest_town_km": 30},
+    # Vector basemap for each walk's map (`basemap.py`, walks/<zone id> + today/walk `basemap` + `route`): streets,
+    # lots and street labels from Nebraska state GIS, cached in the database. An optional network step with its own
+    # time guard (`budget_s` for all walks together); past it, or offline, only cached maps are used (else null).
+    # Walking route along the streets (`route_segments`, `stop_side`): streets are fetched `street_margin_m` around
+    # the stops (wider than the lots' `margin_m`, so the corners a route turns at are in the data); each house snaps
+    # to its own street (the address) within `snap_max_m`, else any street within `snap_any_m`; alleys/drives cost
+    # `route_service_factor` x their length; a hop that needs more than `route_max_detour_m` beyond the straight line
+    # (or finds no street path) is drawn straight and marked gap.
+    "basemap": {"enabled": True, "margin_m": 60, "min_span_m": 300, "simplify_m": 1.5, "decimals": 5,
+                "max_kb": 60, "max_age_days": 120, "budget_s": 90, "timeout_s": 20, "max_pages": 4,
+                "label_min_m": 60, "street_margin_m": 200, "snap_max_m": 150, "snap_any_m": 60,
+                "join_m": 4, "route_service_factor": 2.0, "route_max_detour_m": 600},
     # Wind-zone score (T116, research round 23, `wind.zone_score`): 100 x gust band x scoring.recency_curve x
     # scoring.distance_curve. Separate from hail (never folded into house/door scores). Bands = [min mph, factor]:
     # under 58 mph (NWS severe) = 0. A damage report with no measured gust (NWS files those as severe wind, e.g.
@@ -247,7 +305,11 @@ DEFAULTS = {
     "rookie": {
         "start_date": None,         # "YYYY-MM-DD" day 1 of the plan; None = the first day with any door tap
         "full_route_doors": 25,     # "Knock your full route" with no door_target = this many doors a day
-        "pace_band": 0.2            # within +/-20% of the block's planned doors = "on pace"
+        "pace_band": 0.2,           # within +/-20% of the block's planned doors = "on pace"
+        # CLAUDE.md "No knocking yet" / docs/orders/sales-path.md: real doors (any block with door_target > 0) are
+        # locked to practice-only until this is set true (past the sales-path.md "ready to knock" checklist), no
+        # matter what day of the plan it is. A practice block (door_target 0) is never gated: it's already practice.
+        "ready_to_knock": False
     },
     # T35 learning loop (`hh.py tune --weekly weekly.json`): real door results -> small weight changes.
     # `--apply` writes paths.tuned (data/tuned.json); load() merges its `tuned_weights` on top of config.json, but
@@ -266,7 +328,36 @@ DEFAULTS = {
         "min_hail": 1.0,            # inches at the building
         "max_days": 365,            # storm no older than this
         "max_calls": 15,            # calls on the list
-        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"]   # hud targets[].type; never homes
+        "kinds": ["Apartments / multi-family", "Commercial", "Industrial"],   # hud targets[].type; never homes
+        # T149: landlord/HOA association calls (paths.association_contacts), added after the building calls.
+        # Only on these weekdays (Mon..Sun); up to association_per_week spread over them, rotating each week.
+        "association_days": ["Tue"],
+        "association_per_week": 2
+    },
+    # Storm alert on your own accounts (`hh.py accounts`, research round 54 item 3, T193): new hail over an address
+    # HMP already has (app leads, claims, Interested/Booked doors, scout_contacts.json businesses) goes to the top of
+    # calls/today as `accounts_hit`. Hail bar = call_today.min_hail; window = the last `max_days` days when set here
+    # (config.json), else today_walk.storm_max_days (60). With no radar reading AT the address (the cloud run has
+    # hud.json only), nearby evidence counts, marked match "near" with its distance:
+    "accounts": {
+        "near_mi": 0.6,             # a storm door-list house this close had the hail (about the 3x3 radar cells
+                                    # the engine reads at one address, watch.hail_at)
+        "report_mi": 3.0,           # a town's hail reports (hud.json storms) or wind reports (wind_events) centered
+                                    # this close
+        "door_results": ["interested", "booked"],   # app door taps that make a door an account
+        "skip_stages": ["lost"],    # lead/claim stages that are no longer accounts (done/paid = past customer: kept)
+        "max_rows": 25              # accounts_hit rows on calls/today
+    },
+    # Rental hot list (`hh.py rentals`, research rounds 34/38): likely-rental single-family (owner's county mailing
+    # address is elsewhere, T23) and small 2-4 unit multi-family properties, inside the current hot zones. The
+    # statewide parcel layer has no unit count, so `units_est` is a rough guess from the building's square footage;
+    # buildings estimating above max_units are the apartment/commercial track (commercial.py/calltoday.py), not this.
+    "rentals": {
+        "avg_unit_sqft": 900,        # rough sq ft per unit, for estimating a "multi" building's unit count
+        "min_units": 2, "max_units": 4,   # scope: duplex to fourplex
+        "default_units": 2,          # building sq ft unknown: assume the minimum (duplex)
+        "radius_mi": 60, "top": 20,  # zones scanned around --near (more than zones.top: a reference list, not a walk)
+        "max_rows": 500              # hud.json `rental_hotlist` cap (keeps the file small; see hot_zones.max_hud_mb)
     },
     # T52 quick estimate (`hh.py estimate`): HMP's OWN prices, set by the boss (T51). Each {low, high} in dollars,
     # installed. null = not set yet: the estimate then uses `prices_reference` for that item and says so loudly.
@@ -360,7 +451,8 @@ DEFAULTS = {
     },
     "paths": {"db": "data/hailhunter.db", "cache": "data/cache", "export": "data/export",
               "tuned": "data/tuned.json", "tune_history": "data/tune_history.json",
-              "rookie_plan": "data/rookie_plan.json"}
+              "rookie_plan": "data/rookie_plan.json",
+              "association_contacts": "data/association_contacts.json"}
 }
 
 # T35: the only config keys `hh.py tune` may change (section -> key -> [min, max]). data/tuned.json can't touch

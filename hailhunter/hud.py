@@ -31,6 +31,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
     for L in conn.execute("SELECT * FROM door_lists").fetchall():
         lists_by_day.setdefault(L["conv_day"], []).append(L)
     from .nbhd import mortgage_shares, spanish_shares
+    from .todaywalk import mortgage_note
     mort = mortgage_shares(conn)
     lang = spanish_shares(conn)                    # T37
     out = []
@@ -64,6 +65,7 @@ def _neighborhoods(conn, cfg, since, limit=60):
             "homes": hu, "homes_hit": round(hu * (h["frac_ge_1"] or 0)),
             "owner_occ": h["owner_share"], "median_built": h["med_year"], "score": h["score"],
             "mortgage_share": round(mort[h["geoid"]], 3) if h["geoid"] in mort else None,
+            "mortgage_note": mortgage_note(mort.get(h["geoid"]), cfg),        # T211: one plain EN/ES line, or null
             "spanish_share": round(lang[h["geoid"]], 3) if h["geoid"] in lang else None,
             "lat": h["lat"], "lon": h["lon"], "list_id": list_id, "turfs": turfs, "first_stop": first_stop,
         })
@@ -146,30 +148,43 @@ def _wind_events(conn, cfg, since, limit=40):
     return out[:limit]
 
 
+def _area_shares(conn, list_id, shares):
+    """Census shares for a whole list and per walk, house-weighted: each stop takes its block group's share (T37
+    Spanish, T211 mortgage). shares = {name: {geoid: share}} -> {name: ({turf: share}, list share)}, None where no
+    stop has data. One block-group lookup serves every share."""
+    from .nbhd import bgs_of_points
+    shares = {k: v for k, v in shares.items() if v}
+    if not shares:
+        return {}
+    rows = conn.execute("""SELECT s.turf, p.lat, p.lon FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
+                           WHERE s.list_id=?""", (list_id,)).fetchall()
+    geo = bgs_of_points(conn, [(r["lat"], r["lon"]) for r in rows], only=set().union(*shares.values()))
+    avg = lambda v: round(sum(v) / len(v), 3) if v else None  # noqa: E731
+    out = {}
+    for k, m in shares.items():
+        per, every = {}, []
+        for r, g in zip(rows, geo):
+            if g in m:
+                per.setdefault(r["turf"], []).append(m[g])
+                every.append(m[g])
+        out[k] = ({t: avg(v) for t, v in per.items()}, avg(every))
+    return out
+
+
 def _spanish(conn, list_id, lang):
     """T37: share of Spanish-speaking households for a whole list and per walk (house-weighted: each stop takes its
     block group's Census share). ({turf: share}, list share); None where no stop has data."""
-    from .nbhd import bgs_of_points
-    if not lang:
-        return {}, None
-    rows = conn.execute("""SELECT s.turf, p.lat, p.lon FROM door_list_stops s LEFT JOIN parcels p ON p.pid = s.pid
-                           WHERE s.list_id=?""", (list_id,)).fetchall()
-    geo = bgs_of_points(conn, [(r["lat"], r["lon"]) for r in rows], only=set(lang))
-    per, every = {}, []
-    for r, g in zip(rows, geo):
-        if g in lang:
-            per.setdefault(r["turf"], []).append(lang[g])
-            every.append(lang[g])
-    avg = lambda v: round(sum(v) / len(v), 3) if v else None  # noqa: E731
-    return {t: avg(v) for t, v in per.items()}, avg(every)
+    return _area_shares(conn, list_id, {"spanish": lang}).get("spanish", ({}, None))
 
 
 def _lists(conn, max_turfs, table="door_lists", cfg=None):
     """Door lists for hud.json: every walk's numbers and Hot Zones heat; stops for the first max_turfs walks.
     table="everyday_lists" builds the everyday (no-storm, T50) lists the same way."""
-    from .nbhd import spanish_note, spanish_shares
+    from .nbhd import mortgage_shares, owner_shares, spanish_note, spanish_shares
     cfg = cfg or {}
     lang = spanish_shares(conn)
+    mort = mortgage_shares(conn)                          # T211
+    owner = owner_shares(conn)                            # T211 follow-up: walks scored before parts had owner_share
     lists = []
     heat = {(r["list_id"], r["turf"]): r for r in conn.execute("SELECT * FROM door_list_turfs")}
     for L in conn.execute(f"SELECT * FROM {table} ORDER BY created_utc DESC").fetchall():
@@ -178,18 +193,21 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
                                  WHERE list_id=? GROUP BY turf ORDER BY turf""", (L["list_id"],)):
             turfs.append({"turf": t["turf"], "doors": t["n"], "avg_hail": round(t["h"], 2) if t["h"] is not None else None,
                           "value": round(t["v"])})
+        scored = {}                                       # turf -> the engine's own owner share of the walk (or None)
         for t in turfs:                                   # Hot Zones (T23): heat, reasons, expected inspections
             z = heat.get((L["list_id"], t["turf"]))
             if z:
                 t.update({"heat": z["heat"], "why": json.loads(z["why"] or "[]"), "exp_inspections": z["exp_inspections"]})
-                try:                                      # door score v2: the walk's neighborhood owner/mortgage shares
+                try:                                      # door score v2: the walk's neighborhood owner share
                     parts = json.loads(z["parts"] or "{}")
                 except (TypeError, ValueError):
                     parts = {}
-                own = parts["owner_share"] if "owner_share" in parts else parts.get("owners")
-                t["owner_share"] = round(own, 3) if isinstance(own, (int, float)) else None
-                if isinstance(parts.get("mortgage"), (int, float)):
-                    t["mortgage_share"] = round(parts["mortgage"], 3)
+                if "owner_share" in parts:
+                    own = parts["owner_share"]
+                    scored[t["turf"]] = round(own, 3) if isinstance(own, (int, float)) else None
+                # Never parts["owners"]: on a storm walk with no Census data that is the Hot Zones 'unknown' default
+                # (0.65), on an everyday walk a score factor. Walks scored before parts had owner_share take the
+                # Census share below (T211 follow-up), like mortgage_share: parts["mortgage"] is the 0.6 default (T211)
         stops = [dict(r) for r in conn.execute(
             """SELECT s.turf, s.stop, s.pid, s.address, s.hail_in AS hail, s.score, s.flags, p.city, p.zip, p.kind,
                       p.year_built AS built, p.lat, p.lon, p.total_value AS value, p.sqft,
@@ -214,32 +232,49 @@ def _lists(conn, max_turfs, table="door_lists", cfg=None):
             if t["turf"] in streets:
                 t["streets"] = ", ".join(k for k, _ in sorted(streets[t["turf"]].items(), key=lambda x: -x[1])[:3])
         try:                                              # optional: hud.json is written either way
-            per, share = _spanish(conn, L["list_id"], lang)
+            sh = _area_shares(conn, L["list_id"], {"spanish": lang, "mortgage": mort, "owner": owner})
         except Exception:
-            per, share = {}, None
+            sh = {}
+        per, share = sh.get("spanish", ({}, None))
+        mper, mshare = sh.get("mortgage", ({}, None))
+        oper, oshare = sh.get("owner", ({}, None))
         for t in turfs:                                   # T37: where Alex (Spanish) should knock
+            # the 'area 72% owners' share on door lines: null when unknown, never a default (T211 follow-up)
+            t["owner_share"] = scored[t["turf"]] if t["turf"] in scored else oper.get(t["turf"])
             t["spanish_share"] = per.get(t["turf"])
             note = spanish_note(t["spanish_share"], cfg)
             if note:
                 t["why"] = list(t.get("why") or []) + [note]
+            # T211: Census B25081, house-weighted; null when unknown. The number only (the zones/walk docs add the line,
+            # todaywalk.mortgage_note): ~300 bytes of text per walk would crowd walks' stops out of the 6 MB cap.
+            t["mortgage_share"] = mper.get(t["turf"])
+        # owner_share (list, T211 follow-up): Census owner-occupied share of the list's houses, null when unknown. Its
+        # presence also tells todaywalk/zones the walks' owner_share is honest (older engines: 0.65 default).
         lists.append({"id": L["list_id"], "day": L["conv_day"], "area": L["area"], "doors": L["n_doors"],
-                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"], "spanish_share": share})
+                      "turfs": turfs, "stops": stops, "created_utc": L["created_utc"], "spanish_share": share,
+                      "mortgage_share": mshare, "owner_share": oshare})
     return lists
 
 
 def _everyday_lists(conn, max_turfs, cfg=None):
     """T50: door lists for old-house neighborhoods (no storm). Same shape as `lists`, plus kind/geoid/heat/why.
     `day` is the day the list was made; stops have hail null and sold_after_storm false. Best heat first."""
-    from .nbhd import spanish_note, spanish_shares
+    from .nbhd import mortgage_shares, owner_shares, spanish_note, spanish_shares
     lists = _lists(conn, max_turfs, "everyday_lists", cfg)
     extra = {r["list_id"]: r for r in conn.execute("SELECT list_id, geoid, heat, why, params FROM everyday_lists")}
     lang = spanish_shares(conn) if lists else {}
+    mort = mortgage_shares(conn) if lists else {}
+    owner = owner_shares(conn) if lists else {}
     high = ((cfg or {}).get("language") or {}).get("spanish_high", 0.30)
     for L in lists:
         e = extra[L["id"]]
         L.update({"kind": "everyday", "geoid": e["geoid"], "heat": e["heat"], "why": json.loads(e["why"] or "[]")})
         if L["spanish_share"] is None and e["geoid"] in lang:       # no mapped stops: the neighborhood's own share
             L["spanish_share"] = round(lang[e["geoid"]], 3)
+        if L["mortgage_share"] is None and e["geoid"] in mort:      # T211: same fallback
+            L["mortgage_share"] = round(mort[e["geoid"]], 3)
+        if L["owner_share"] is None and e["geoid"] in owner:        # T211 follow-up: same fallback
+            L["owner_share"] = round(owner[e["geoid"]], 3)
         try:                                                        # T97: built for a config `everyday_towns` entry
             L["town_pick"] = (json.loads(e["params"] or "{}") or {}).get("everyday_town")
         except (TypeError, ValueError, AttributeError):
@@ -370,6 +405,14 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
         hail_evidence = {}
     wind_events = _wind_events(conn, cfg, since) if \
         conn.execute("SELECT 1 FROM wind_obs LIMIT 1").fetchone() else []
+    everyday_lists = _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10), cfg)
+    try:                                           # rental hot list (rounds 34/38); optional: hud.json is written either way
+        from . import rentals
+        rental_hotlist = rentals.rental_hotlist(lists, everyday_lists, today, cfg)
+    except Exception as e:
+        import sys
+        print(f"  rental_hotlist skipped: {type(e).__name__}: {e}", file=sys.stderr)
+        rental_hotlist = []
     from . import watch
     watch_hits = watch.watch_hits(conn, cfg, watch.load_watch_list(cfg))
     agents = []
@@ -383,8 +426,7 @@ def build(conn, cfg, max_turfs=None, max_targets=80):
     return {"generated_utc": iso(datetime.now(timezone.utc)), "home": cfg["home"], "radius_mi": cfg["hunt_radius_mi"],
             "counts": counts, "storms": storms, "lists": lists, "targets": targets,
             "neighborhoods": neighborhoods, "wind_events": wind_events, "watch_hits": watch_hits, "agents": agents,
-            "everyday_lists": _everyday_lists(conn, cfg.get("everyday", {}).get("max_turfs", 10), cfg),
-            "hail_evidence": hail_evidence,
+            "everyday_lists": everyday_lists, "hail_evidence": hail_evidence, "rental_hotlist": rental_hotlist,
             "company_id": (cfg.get("company") or {}).get("id", "hmp"), "credits": CREDITS}
 
 
@@ -396,6 +438,7 @@ def write(conn, cfg, path=None, max_bytes=None):
     data = build(conn, cfg, max_turfs=hz.get("max_turfs", 40))
     text = json.dumps(data, separators=(",", ":"))
     ev = cfg.get("everyday", {}).get("max_turfs", 10)
+    today = datetime.now(ZoneInfo(cfg["timezone"])).date()
     for n in (30, 20, 10):                        # too big: fewer walks carry their stops (nothing else changes)
         if len(text) <= max_bytes:
             break
@@ -403,6 +446,8 @@ def write(conn, cfg, path=None, max_bytes=None):
         data["everyday_lists"] = _everyday_lists(conn, max(3, min(ev, n // 3)), cfg)
         keep = {_key(s) for L in data["lists"] for s in L["stops"]}          # evidence only for houses still listed
         data["hail_evidence"] = {k: v for k, v in data["hail_evidence"].items() if k in keep}
+        from . import rentals                    # rental hot list follows the same trimmed lists (T23 pattern above)
+        data["rental_hotlist"] = rentals.rental_hotlist(data["lists"], data["everyday_lists"], today, cfg)
         text = json.dumps(data, separators=(",", ":"))
     with open(path + ".tmp", "w") as f:
         f.write(text)

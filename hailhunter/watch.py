@@ -69,7 +69,8 @@ def new_hits(old_hud, new_hud, min_hail=1.0):
     seen_t = {(t["key"], t["day"]) for t in old_hud.get("targets", [])}
     contacts = [{"name": (t.get("contact") or {}).get("name") or t["address"], "address": t["address"], "city": t["city"],
                  "day": t["day"], "hail": t["hail"], "phone": (t.get("contact") or {}).get("phone", ""),
-                 "ask_for": (t.get("contact") or {}).get("ask_for", "")}
+                 "ask_for": (t.get("contact") or {}).get("ask_for", ""),
+                 "ask_for_es": (t.get("contact") or {}).get("ask_for_es", "")}
                 for t in new_hud.get("targets", [])
                 if t.get("contact") and t["hail"] >= min_hail and (t["key"], t["day"]) not in seen_t]
     return {"watch": watch, "contacts": contacts}

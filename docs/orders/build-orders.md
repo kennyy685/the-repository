@@ -91,7 +91,7 @@ this week's inspections. Big text, no English, no AI office.
 ## Also on the board (not builds)
 - **T5 (Cowork):** bundle the engine from GitHub main into the command center.
 - **T50 (Engine Mechanic):** old-house leads, in progress.
-- **T56 (FilthE):** before/after photos at The Edge + first 5 Google reviews (guide in docs/guides).
+- **T56 (FilthE):** before/after photos from HMP's jobs + first 5 Google reviews (guide in docs/guides).
 - **T57 (everyone):** the King + Claude Code run the day; helpers are called for real jobs.
 - **T49 (later):** Crew HQ new look (round 3 plan in docs/research).
 

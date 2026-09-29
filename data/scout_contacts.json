@@ -14,6 +14,7 @@
    "phone_note": "Leasing office, Mon-Fri 9-5, closed weekends (property site FAQ). Burlington Capital Properties HQ main line 402-444-1630 (1004 Farnam St, Omaha), confirmed on Burlington's own site. 402-895-8614 on the property site is a FAX, so don't dial it. No public regional-manager line. Old line (402) 204-4528 (changed per listing 2026-09-26).",
    "website": "https://www.springhillridge.com/",
    "ask_for": "Community manager. If they defer, call Burlington HQ and ask who handles capital projects and vendor bids for Springhill Ridge.",
+   "ask_for_es": "Gerente de la comunidad. Si lo remiten, llame a las oficinas centrales de Burlington y pregunte quién maneja los proyectos de capital y las cotizaciones de proveedores para Springhill Ridge.",
    "note": "15735 Rosewood St, Omaha 68136. 282 units, 3 stories, detached garages (year built: 2007 per scout, 2012 per ApartmentFinder, unverified). Correction: Burlington manages about 78 communities / 11,000+ units in 15 states now; '200 properties' is its 30-year total.",
    "confidence": "high",
    "source_urls": [
@@ -39,6 +40,7 @@
    "phone_note": "Local leasing line on the property site. Toll-free (833) 703-0166 is also listed. Office Mon-Fri 9-6, Sat 10-5. Better regional contact: Asset Living Omaha office (402) 325-1601, 450 Regency Pkwy Ste 200 (assetliving.com). Owner NewStreet Properties (402) 884-4411, 14747 California St, Omaha (newstreetprop.com). Old line (402) 932-0909 (changed per listing 2026-09-26).",
    "website": "https://www.landingsatbellevue.com/",
    "ask_for": "Community manager, then the Asset Living Omaha office. NewStreet (owner) for capital/roof decisions.",
+   "ask_for_es": "Gerente de la comunidad, luego la oficina de Asset Living en Omaha. NewStreet (dueño) para decisiones de capital/techo.",
    "note": "10215 Cape Cod Landing, Bellevue 68123. NewStreet lists 306 units, bought 2012 (RentCafe says 360 units, 10 three-story buildings, built 2006). NewStreet owns about 7 more Omaha apartment complexes, so one owner could mean many roofs.",
    "confidence": "high",
    "source_urls": [
@@ -63,6 +65,7 @@
    "phone_note": "Local number on the property's own site (toll-free 866-640-9076 also listed). The old number (402) 243-5059 does NOT appear on the site, so don't use it. Office Mon-Fri 9-6, Sat 10-2. Edward Rose HQ is in Bloomfield Hills, MI; its main line 248-686-5300 shows only in directories, not on its own site. Old line (402) 408-6338 (changed per listing 2026-09-26).",
    "website": "https://www.andoverpointeapartments.com/",
    "ask_for": "Community manager. Ask who handles exterior/roof claims for Edward Rose's Nebraska properties.",
+   "ask_for_es": "Gerente de la comunidad. Pregunte quién maneja los reclamos de exterior/techo de las propiedades de Edward Rose en Nebraska.",
    "note": "13106 Chandler Road Plaza, La Vista 68138. 438 units, 3 stories (Apartments.com). Own site says construction completed 2023 (Apartments.com says 2017, likely phased). Roofs are new, so pitch hail documentation for warranty/insurance, not replacement.",
    "confidence": "high",
    "source_urls": [
@@ -86,6 +89,7 @@
    "phone_note": "Local number on the property site; toll-free (844) 379-8947. Office Mon-Fri 9-6, Sat 10-4. Same Asset Living Omaha office as The Landings: (402) 325-1601, 450 Regency Pkwy Ste 200.",
    "website": "https://www.echoparkomaha.com/",
    "ask_for": "Community manager, then the Asset Living Omaha office (one regional contact covers this and The Landings).",
+   "ask_for_es": "Gerente de la comunidad, luego la oficina de Asset Living en Omaha (un solo contacto regional cubre esta propiedad y The Landings).",
    "note": "The site lists 7561 S 146th St, Omaha 68138; 7565 appears on listings for the same complex. 281 units, 3-story buildings, built 2021-2023 (sources differ). Roofs are new, so pitch documentation.",
    "confidence": "high",
    "source_urls": [
@@ -107,6 +111,7 @@
    "phone_note": "Crown Property Management main office line (9507 Q St, Omaha), confirmed on Crown's own site. No separate on-site number is published.",
    "website": "https://www.crownmanagementomaha.com/",
    "ask_for": "Property manager for Southwinds",
+   "ask_for_es": "Gerente de la propiedad de Southwinds",
    "note": "Buildings at 4710-4740 Virginia St, Bellevue 68157 (Bellevue, not Omaha; Crown's listings spell it 'Southwind's'). 96 units, 3 stories, built 1992 (ApartmentFinder): ~34-year-old roofs, strong replacement candidate.",
    "confidence": "high",
    "source_urls": [
@@ -128,6 +133,7 @@
    "phone_note": "Village Green leasing office, Mon-Fri 8-5, closed weekends (property site). M. Timm corporate publishes no phone; its site has a web form only.",
    "website": "https://villagegreen.mtimm.com/",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "Office at 1005 Village Green Dr, Norfolk 68701. 132 units, 3 stories, built 1991 (ApartmentFinder); rentable garages. M. Timm was founded in 1983, acts as its own general contractor and runs 15 communities, including Amberwood in Norfolk. They may self-perform repairs, so lead with free documentation.",
    "confidence": "high",
    "source_urls": [
@@ -150,6 +156,7 @@
    "phone_note": "Listed as the 'Royal Management Office' line (122 S 5th St, Norfolk) on the company's own site. The site was last updated Feb 2025, so the number could be stale.",
    "website": "https://houseforrentnorfolkne.com/",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "1402/1404/1406 Country Club Rd, Norfolk: 60 units. Royal also lists about 73 more units at 6 other Norfolk/Wisner addresses, plus storage units in Belden.",
    "confidence": "medium",
    "source_urls": [
@@ -170,6 +177,7 @@
    "phone_note": "Only on ApartmentFinder (a listing site; may be a call-tracking line). No property website or management company found anywhere. NOT confirmed.",
    "website": "",
    "ask_for": "Whoever answers: ask for the property manager and the name of the management company.",
+   "ask_for_es": "Quien conteste: pregunte por el/la gerente de la propiedad y el nombre de la empresa administradora.",
    "note": "14455 Harrison St, Omaha 68138 (Sarpy Co.). 54 units, 3 stories, built 2003, rentable garages. Redfin: last sold Oct 2006 and shows an Oct 2025 commercial permit, so ask what work was done.",
    "confidence": "low",
    "source_urls": [
@@ -190,6 +198,7 @@
    "phone_note": "Main line on fallbrookassisted.com and on MJ Senior Living's site. MJ's home office (527 N Broadway, Wahoo) has no public phone.",
    "website": "https://fallbrookassisted.com/",
    "ask_for": "Executive director or maintenance/facilities director",
+   "ask_for_es": "Director(a) ejecutivo(a) o director(a) de mantenimiento/instalaciones",
    "note": "6600 Juliet Ct, Lincoln 68521. 71 apartments (54 assisted living + 17 memory care), opened about 2018-19. MJ runs 7 Nebraska communities, including Pemberly Place in Lincoln (402-413-9770) and Echo Hills in La Vista (531-721-2500).",
    "confidence": "high",
    "source_urls": [
@@ -212,6 +221,7 @@
    "phone_note": "B&R Stores corporate line (brstores.com; mail: PO Box 5824, Lincoln 68505). Store line 402-438-8880 (super-saver.com): use it only to ask who handles building maintenance. No public facilities contact.",
    "website": "https://brstores.com/",
    "ask_for": "Facilities/maintenance manager at corporate",
+   "ask_for_es": "Gerente de instalaciones/mantenimiento en las oficinas corporativas",
    "note": "840 Fallbrook Blvd, Lincoln 68521. B&R has been family-owned since 1964: 8 store banners (Super Saver, Russ's Market, Cash Saver and others) in NE/IA/MO, 2,000+ staff, so multi-store potential. The scout said 9 banners; the site lists 8.",
    "confidence": "high",
    "source_urls": [
@@ -232,6 +242,7 @@
    "phone_note": "Dealership main line on andersonfordsouth.com (sales, service and parts share it). Body shop 531-248-5275. Anderson Auto Group publishes no corporate phone. Closed Sundays.",
    "website": "https://www.andersonfordsouth.com/",
    "ask_for": "General manager or facilities",
+   "ask_for_es": "Gerente general o instalaciones",
    "note": "3201 Yankee Hill Rd, Lincoln 68516 (group name: Anderson Ford of Lincoln South). Anderson Auto Group lists 9 dealerships, not 8: 3 in Lincoln, 4 in Grand Island, 2 in St. Joseph MO.",
    "confidence": "high",
    "source_urls": [
@@ -251,6 +262,7 @@
    "phone_note": "",
    "website": "",
    "ask_for": "Owner or listing broker",
+   "ask_for_es": "Dueño(a) o el/la corredor(a) del anuncio",
    "note": "Built 1991, renovated 2022; was listed for sale - offer a pre-sale roof report. Pull Platte County owner record.",
    "confidence": "low",
    "checked": "2026-09-24"
@@ -271,6 +283,7 @@
    "phone_note": "Corporate line on rentcip.com. Property lines: North Pointe Villas (402) 858-1557; Villas at Wilderness Ridge (402) 858-1337; Brynwood (402) 436-3460; WH Flats (402) 858-1095.",
    "website": "https://www.rentcip.com",
    "ask_for": "Director of maintenance/facilities or the regional property manager (capital projects)",
+   "ask_for_es": "Director(a) de mantenimiento/instalaciones o el/la gerente regional de la propiedad (proyectos de capital)",
    "note": "One call covers 7 buildings (~$130M assessed) in Lincoln. WH Flats in Wilderness Hills got 1.49\" on Jul 3; the site lists 3055 Crescent Dr, so confirm the 3101 parcel. North Pointe Villas on Fletcher Ave is 3 parcels with 1.23-1.27\" on Aug 19; it has flats plus villas with garages. Villas at Wilderness Ridge and Brynwood are 3 parcels with 1.43\" on Jul 3. CIP runs 39+ communities with 7,200+ apartments in NE, IA and MN.",
    "confidence": "high",
    "source_urls": [
@@ -296,6 +309,7 @@
    "phone_note": "NEBCO Realty Group line listed on nebcoinc.com/companies (same as NEBCO main office).",
    "website": "https://nebcoinc.com/realty/",
    "ask_for": "NEBCO Realty Group property manager for Fallbrook",
+   "ask_for_es": "Gerente de la propiedad de NEBCO Realty Group para Fallbrook",
    "note": "5 NEBCO-owned buildings in Fallbrook (NW Lincoln), ~$45M, 1.46\" on Jun 10. 245 Fallbrook Blvd holds the state Dept. of Water, Energy & Environment main office. 575 and 643 are office/retail with space for lease. NEBCO Realty also manages Landmark Centre, Chalco Valley Business Park and Hills Farm Lakes. NEBCO owns a contractor (Constructors, Inc.), so pitch the photo report as independent documentation.",
    "confidence": "high",
    "source_urls": [
@@ -319,6 +333,7 @@
    "phone_note": "Speedway main line (speedwayproperties.com/contact). Telegraph Flats leasing (402) 323-3285; Telegraph Lofts West leasing (402) 792-4515.",
    "website": "https://www.speedwayproperties.com",
    "ask_for": "Property management / facilities manager",
+   "ask_for_es": "Administración de la propiedad / gerente de instalaciones",
    "note": "Telegraph Flats (98 apartments plus retail) and Telegraph Lofts West (36 apartments), ~$31M, 1.42\" on Jun 10. Speedway manages 200+ properties (5M+ sq ft) in Lincoln. 1935 O St (EADO LLC) shares the Telegraph owners' mailing address. 2100 Fletcher Ave Unit B (1.23\" on Aug 19) is owned by an LLC mailed to Speedway's office at 340 Victory Ln. Confirm both on the call.",
    "confidence": "high",
    "source_urls": [
@@ -343,6 +358,7 @@
    "phone_note": "NAI FMA main line (naifmarealty.com/contact-us).",
    "website": "https://www.naifmarealty.com",
    "ask_for": "Property management department: manager for Northridge Center and 68th Street Place",
+   "ask_for_es": "Departamento de administración de propiedades: gerente de Northridge Center y 68th Street Place",
    "note": "Enterprise Company Inc's county mailing address is NAI FMA's own suite (1248 O St Ste 550), so NAI FMA likely manages its Northridge Center strip (Ace Hardware, Dollar General, Wells Fargo; 1.46\" on Jun 10) and the 68th Street Place office (1.47\" on Jun 10). NAI FMA's flyer lists it as leasing agent for Legacy Square offices at 8055 O St (1.48\" on Jun 10). NAI FMA manages 3.8M+ sq ft. The link is inferred, so confirm who approves roof work.",
    "confidence": "medium",
    "source_urls": [
@@ -366,6 +382,7 @@
    "phone_note": "Concorde main line (concordemgmt.com/contact). Horizon leasing office (402) 413-2188 (horizonlivingtoday.com).",
    "website": "https://concordemgmt.com",
    "ask_for": "Property manager or maintenance director",
+   "ask_for_es": "Gerente de la propiedad o director(a) de mantenimiento",
    "note": "Horizon Apartments & Villas at 4730 Innovation Dr (Nebraska Tech Park) is 2 condo parcels, ~$16.7M, 1.43\" on Jun 10. Concorde also runs sister property Horizon Ridge. 2755 Jamie Ln is a multi-tenant strip (My Gym, bars; 1.4\" on Jul 3) whose owner LLC is mailed to Concorde's office (1314 O St Ste 101).",
    "confidence": "high",
    "source_urls": [
@@ -386,6 +403,7 @@
    "phone_note": "Albers Co. office (albersco.net/contact).",
    "website": "https://albersco.net",
    "ask_for": "Property management",
+   "ask_for_es": "Administración de la propiedad",
    "note": "Wilderness Hills shopping center, south Lincoln: 2901 Crescent Dr (Five Below, Sally Beauty and others) and 2933 Crescent Dr, ~$4.3M, 1.49\" on Jul 3. Both owner LLCs are mailed to Albers Co. at 9060 Andermatt Dr. Albers has been in Lincoln since 1994.",
    "confidence": "high",
    "source_urls": [
@@ -406,6 +424,7 @@
    "phone_note": "Property management line on Broad Reach's East Park Plaza page.",
    "website": "https://www.broadreachretail.com/property/east-park-plaza-shopping-center/",
    "ask_for": "Property manager for East Park Plaza",
+   "ask_for_es": "Gerente de la propiedad de East Park Plaza",
    "note": "216,543 sq ft shopping center at 66th & O, anchored by Russ's Market and Marcus Theatres. $13.3M, 1.47\" on Jun 10. The owner is out of state and bought it recently, so a local photo report is useful to them.",
    "confidence": "high",
    "source_urls": [
@@ -425,6 +444,7 @@
    "phone_note": "On hampton1.com and on Hampton's lease flyer for 7441 O St.",
    "website": "https://hampton1.com",
    "ask_for": "Property management",
+   "ask_for_es": "Administración de la propiedad",
    "note": "Multi-tenant medical/office building (Gallagher, Lincoln Family Medical and others), $4.8M, 1.48\" on Jun 10. Hampton owns or manages 750,000+ sq ft in five Lincoln developments. It is also a general contractor, so offer to be its roofing/siding sub.",
    "confidence": "high",
    "source_urls": [
@@ -445,6 +465,7 @@
    "phone_note": "Dealership main line (toyotaoflincoln.com).",
    "website": "https://www.toyotaoflincoln.com/",
    "ask_for": "General manager, and who handles facilities at Baxter corporate",
+   "ask_for_es": "Gerente general, y quién maneja instalaciones en las oficinas corporativas de Baxter",
    "note": "Toyota dealership, $5.9M, 1.49\" on Jul 3. Baxter has 31 locations (NE, KS, CO, WI), including Lexus of Lincoln and B Street Collision nearby on S 37th St, so one win could open more.",
    "confidence": "high",
    "source_urls": [
@@ -465,6 +486,7 @@
    "phone_note": "Main/corporate line on duteau.com.",
    "website": "https://www.duteau.com/",
    "ask_for": "President/owner's office or facilities",
+   "ask_for_es": "Oficina del/de la presidente/dueño(a), o instalaciones",
    "note": "Parcel owned by DuTeau Chevrolet Co., $2.6M, 1.49\" on Jul 3. The building's use isn't published, so confirm it on the call. DuTeau's Chevrolet store (7300 S 27th St) and Subaru store (2750 Jamie Ln) are nearby; ask about those roofs too.",
    "confidence": "high",
    "source_urls": [
@@ -483,6 +505,7 @@
    "phone_note": "B&R corporate (brstores.com/contact). Store: (402) 563-1884 (super-saver.com).",
    "website": "https://www.super-saver.com/stores/super-saver-columbus",
    "ask_for": "Facilities/maintenance at B&R corporate",
+   "ask_for_es": "Instalaciones/mantenimiento en las oficinas corporativas de B&R",
    "note": "Grocery store built 2024, $6.1M, 1.27\" on Aug 8 (Columbus, a fresh storm). It's the same corporate contact as Super Saver Fallbrook on the existing list, so pitch both in one call. The roof is new, so offer damage documentation for the warranty.",
    "confidence": "high",
    "source_urls": [
@@ -502,6 +525,7 @@
    "phone_note": "Main/sales line on columbusmotorcompanyne.com/contact.",
    "website": "https://www.columbusmotorcompanyne.com/",
    "ask_for": "General manager or dealer principal",
+   "ask_for_es": "Gerente general o dueño(a) principal del concesionario",
    "note": "Dealership built 1990, $2.7M, 1.27\" on Aug 8 (Columbus). The county data has no owner, so confirm the dealer owns the building.",
    "confidence": "high",
    "source_urls": [
@@ -520,6 +544,7 @@
    "phone_note": "The plant website shows no phone. Get the plant's business line from a partner co-op or stop in.",
    "website": "https://www.specialtyagformulations.com/",
    "ask_for": "Plant manager",
+   "ask_for_es": "Gerente de planta",
    "note": "100,000 sq ft micronutrient plant that opened in fall 2024 (up to 40 employees), $11.8M. It took 1.92\" on Jul 8, the biggest hail on this list. The roof is new, so pitch a damage report for warranty/insurance.",
    "confidence": "low",
    "source_urls": [
@@ -543,6 +568,7 @@
    "phone_note": "Leasing office (broadmoor.cc). Broadmoor corporate (402) 392-1800 per BBB listing. Second line (531) 201-2237 also listed (2026-09-26).",
    "website": "https://www.broadmoor.cc/property_items/harrison-hills-by-broadmoor/",
    "ask_for": "Community manager, then Broadmoor's maintenance/facilities director",
+   "ask_for_es": "Gerente de la comunidad, luego el director de mantenimiento/instalaciones de Broadmoor",
    "note": "484 units in 22 three-story buildings, built 2003 (roofs ~23 years old), ~$38M across 5 parcels, 1.09-1.16\" on Apr 23. Broadmoor runs 40+ communities in Omaha, Lincoln, Des Moines and Sioux City.",
    "confidence": "high",
    "source_urls": [
@@ -568,6 +594,7 @@
    "phone_note": "Local line on thewillowcreekapthomes.com (toll-free 833-217-9891). RentCafe lists Briar Capital Management, so confirm the current manager.",
    "website": "https://www.thewillowcreekapthomes.com/",
    "ask_for": "Community manager; ask who approves capital projects for the owner",
+   "ask_for_es": "Gerente de la comunidad; pregunte quién aprueba los proyectos de capital para el dueño",
    "note": "156 units in 5 three-story buildings plus garages, built 1986 (roofs likely aging), ~$7.6M, 1.13-1.21\" on Apr 23. The owner is out of state, so a photo report helps them.",
    "confidence": "high",
    "source_urls": [
@@ -587,6 +614,7 @@
    "phone_note": "Leasing on highlandmeadowsapartments.com. Seldin corporate (402) 333-7373 (seldin.com/Contact). Old line (866) 720-4529 (changed per listing 2026-09-26).",
    "website": "https://www.highlandmeadowsapartments.com/",
    "ask_for": "Community manager, then Seldin's regional manager",
+   "ask_for_es": "Gerente de la comunidad, luego el gerente regional de Seldin",
    "note": "198 units, 3 stories, built 2003, detached garages, $17.3M, 1.06\" on Jun 13 (same Bellevue storm as The Landings and Southwinds). Seldin is Omaha-based and manages communities across the central US.",
    "confidence": "high",
    "source_urls": [
@@ -608,6 +636,7 @@
    "phone_note": "Local leasing line on tiburonviewapartments.com (also 866-403-5457). NewStreet (owner) (402) 884-4411 (newstreetprop.com/contact).",
    "website": "https://www.tiburonviewapartments.com/",
    "ask_for": "Community manager or Asset Living regional manager",
+   "ask_for_es": "Gerente de la comunidad o gerente regional de Asset Living",
    "note": "120 units in 5 three-story buildings, built 2000, $11.5M, 1.09\" on Apr 23. It has the same manager as The Landings and Echo Park and the same owner as The Landings on the existing list, so bundle it into those calls.",
    "confidence": "high",
    "source_urls": [
@@ -630,6 +659,7 @@
    "phone_note": "Slumberland HQ (slumberland.com/pages/about-us). Columbus store (402) 563-9200 (stores.slumberland.com).",
    "website": "https://www.slumberland.com/",
    "ask_for": "Facilities / store development at HQ",
+   "ask_for_es": "Instalaciones / desarrollo de tiendas en las oficinas centrales",
    "note": "The Lincoln store building is $2.4M with 1.29\" on Aug 19. The Columbus store (built 1985, $1.2M) took 1.64\" on Aug 8, but county data has no owner and it may be a franchise, so ask HQ; if not company-owned, ask the store for the building owner. 120+ stores in 12 states.",
    "confidence": "high",
    "source_urls": [
@@ -650,6 +680,7 @@
    "phone_note": "Main line on the SCC location page.",
    "website": "https://www.southeast.edu/about/locations/jack-j-huck-continuing-education-center.php",
    "ask_for": "Facilities/physical plant director; ask how to get on the bidders list",
+   "ask_for_es": "Director(a) de instalaciones/planta física; pregunte cómo entrar en la lista de proveedores",
    "note": "Public/bid process. Five-story continuing-ed center plus the adjacent condo unit, ~$9.6M, 1.47\" on Jun 10. Work goes out to bid, so the goal is to give them the free report and get on the bid list.",
    "confidence": "high",
    "source_urls": [
@@ -668,6 +699,7 @@
    "phone_note": "City office line on the city website; hours 8-5.",
    "website": "https://www.hickman.ne.gov/",
    "ask_for": "City administrator or public works",
+   "ask_for_es": "Administrador(a) municipal u obras públicas",
    "note": "Public/bid process. City offices at 115 Locust St, $4.7M, 1.59\" on Jun 10, the highest hail among the Lincoln-area targets. The council approves spending; offer the free photo report as documentation for their decision.",
    "confidence": "high",
    "source_urls": [
@@ -686,6 +718,7 @@
    "phone_note": "Property office line on seldin.com. Seldin corporate office: (402) 333-7373.",
    "website": "https://www.seldin.com/homesteadvillage",
    "ask_for": "Community manager; ask who at Seldin handles maintenance and capital projects",
+   "ask_for_es": "Gerente de la comunidad; pregunte quién en Seldin maneja mantenimiento y proyectos de capital",
    "note": "Blank city: I worked out Beatrice from the parcel's county (Gage) and coordinates, and listings confirm 1119 Monroe St, Beatrice. Senior/disabled income-based apartments built 1980, $2.7M, 1.33\" hail on Sep 12, the freshest storm. Seldin also manages Gretna Landing (see the Metonic entry).",
    "confidence": "high",
    "source_urls": [
@@ -705,6 +738,7 @@
    "phone_note": "Front desk line from the VisitNebraska directory listing; not checked on the Wyndham site.",
    "website": "https://www.super8.com",
    "ask_for": "General manager or owner",
+   "ask_for_es": "Gerente general o dueño(a)",
    "note": "Blank city: I worked out Crete from the parcel's county (Saline) and coordinates, and listings confirm Super 8 at 1880 W 12th St. 39 rooms, 17,472 sq ft, built 1999 and renovated 2016, $1.3M. 2.13\" hail on Aug 17 is the biggest hail on this list. It was listed for sale on LoopNet (no longer advertised), so a photo report is useful to a seller or new owner.",
    "confidence": "medium",
    "source_urls": [
@@ -725,6 +759,7 @@
    "phone_note": "Hotel line on the brand site (choicehotels.com). Villa Amore restaurant is in the same building.",
    "website": "https://www.choicehotels.com/nebraska/lincoln/country-inn-suites-hotels/ne068",
    "ask_for": "General manager or chief engineer/maintenance",
+   "ask_for_es": "Gerente general o ingeniero(a) jefe/mantenimiento",
    "note": "Full-service hotel with conference space for up to 200, at N 27th & I-80. $3.1M, 1.29\" hail on Aug 19. The owner is out of state (Michigan), so the GM is the way in to reach the owner.",
    "confidence": "high",
    "source_urls": [
@@ -745,6 +780,7 @@
    "phone_note": "Store line on uhaul.com. Roof decisions likely go through AMERCO Real Estate / U-Haul regional facilities.",
    "website": "https://www.uhaul.com/Locations/Self-Storage-near-Lincoln-NE-68521/730073/",
    "ask_for": "General manager; ask for the U-Haul area/facilities maintenance contact",
+   "ask_for_es": "Gerente general; pida el contacto de mantenimiento de área/instalaciones de U-Haul",
    "note": "2 parcels with the same owner, $7.8M total: 1930 Fletcher is the store with indoor climate-controlled storage, and 2000 Fletcher is next door (likely more storage; confirm). 1.23\" hail on Aug 19. AREC = AMERCO Real Estate Co. is my inference from the owner name and Phoenix tax address.",
    "confidence": "high",
    "source_urls": [
@@ -764,6 +800,7 @@
    "phone_note": "Hotel line on woodspring.com.",
    "website": "https://www.woodspring.com/extended-stay-hotels/locations/nebraska/lincoln/woodspring-suites-lincoln",
    "ask_for": "General manager",
+   "ask_for_es": "Gerente general",
    "note": "Extended-stay hotel (formerly Value Place), $3.3M, 1.23\" hail on Aug 19. The owner is out of state. It's next to the U-Haul parcels, so the rep can cover both in one visit.",
    "confidence": "high",
    "source_urls": [
@@ -783,6 +820,7 @@
    "phone_note": "Office line on northpointelincoln.org.",
    "website": "https://www.northpointelincoln.org/",
    "ask_for": "Church administrator or facilities/building lead (staff page: northpointelincoln.org/staff)",
+   "ask_for_es": "Administrador(a) de la iglesia o encargado(a) de instalaciones/edificio (página de personal: northpointelincoln.org/staff)",
    "note": "The church owns its unit in the North Creek Business Park condo, $2.6M, 1.23\" hail on Aug 19. Ask whether the condo association handles the roof. RR&T Enterprises owns Unit D next door (2240 Fletcher; not researched).",
    "confidence": "high",
    "source_urls": [
@@ -802,6 +840,7 @@
    "phone_note": "Bryan Health main operator on bryanhealth.com (also 1-877-577-9277). Clinic front desk: 402-481-6343. Ask the operator for facilities.",
    "website": "https://www.bryanhealth.com/locations/physician-offices/profile/northpointeurgentcare/",
    "ask_for": "Facilities management / plant operations director",
+   "ask_for_es": "Gerencia de instalaciones / director(a) de operaciones de planta",
    "note": "Bryan owns Unit 1 of the Autumn Ridge condo (medical plaza north of 27th & Superior), $5.2M, 1.29\" hail on Aug 19. A hospital system runs many buildings, so aim for the facilities department, not the clinic. Matterhorn LLC owns 5100 N 26th St next door (not researched).",
    "confidence": "high",
    "source_urls": [
@@ -820,6 +859,7 @@
    "phone_note": "Main store line on hy-vee.com.",
    "website": "https://www.hy-vee.com/stores/detail.aspx?s=36",
    "ask_for": "Store director; ask who handles facilities/roof claims for the store",
+   "ask_for_es": "Director(a) de tienda; pregunte quién maneja instalaciones/reclamos de techo de la tienda",
    "note": "Large grocery store with pharmacy and Starbucks, built 2005, $3.9M, 1.27\" hail on Aug 8 in Columbus. Owner not in county data. Hy-Vee runs 300+ stores, so the decision likely goes to corporate facilities.",
    "confidence": "high",
    "source_urls": [
@@ -839,6 +879,7 @@
    "phone_note": "Leasing line on the Apartments.com listing (directory). I could not find a website for Silver Leaf.",
    "website": "https://www.apartments.com/oak-park-apartments-norfolk-ne/b80678c/",
    "ask_for": "Property manager or maintenance supervisor",
+   "ask_for_es": "Gerente de la propiedad o supervisor(a) de mantenimiento",
    "note": "67 units, 3 stories, built 1985, $2.4M, 1.05\" hail on Jul 20. ForRent pairs it with 'Grove Park', so Silver Leaf may run more Norfolk buildings; ask.",
    "confidence": "medium",
    "source_urls": [
@@ -859,6 +900,7 @@
    "phone_note": "Both complexes list this number in the Norfolk Family Coalition directory (2017, may be out of date). SeniorResource lists Boulevard Village at 402-844-2080.",
    "website": "https://norfolkfamilycoalition.org/2017/10/elderly-disabled/",
    "ask_for": "Property manager; ask who owns both complexes",
+   "ask_for_es": "Gerente de la propiedad; pregunte quién es dueño de ambos complejos",
    "note": "Rebecca Manor is 1981, $5.3M, 1.05\" hail on Jul 20. Boulevard Village is 1972 (2 parcels), $1.2M, 1.3\" hail on Jun 29. HUD-assisted housing. If it turns out to be the city's Norfolk Housing Agency, treat it as public/bid process.",
    "confidence": "medium",
    "source_urls": [
@@ -878,6 +920,7 @@
    "phone_note": "J. Allen office line on rentjallen.com. Property leasing line on Apartments.com: (402) 940-8824.",
    "website": "https://www.rentjallen.com",
    "ask_for": "Property manager/maintenance at J. Allen Properties",
+   "ask_for_es": "Gerente de la propiedad/mantenimiento en J. Allen Properties",
    "note": "60 units, 2 stories, built 1989, $4.0M, 1.16\" hail on Jun 29. The adjacent parcels 1406 Riverside Blvd (1990, $4.3M) and 1100 Hespe Dr (1976, $1.8M) had the same hail and their owner is unknown; ask whether J. Allen runs them too. J. Allen's management of this complex comes from the Apartments.com listing.",
    "confidence": "medium",
    "source_urls": [
@@ -898,6 +941,7 @@
    "phone_note": "Metonic main line on metonic.net (owner/asset manager). Gretna Landing leasing: (402) 526-5775 (own site). Allora 168 leasing: (866) 503-4241 (greystar.com).",
    "website": "https://metonic.net/",
    "ask_for": "Metonic asset/property management lead for Gretna Landing and Allora",
+   "ask_for_es": "Encargado(a) de administración de activos/propiedades de Metonic para Gretna Landing y Allora",
    "note": "Both parcels have the owner's mailing address (12149 W Center Rd). Gretna Landing is $4.1M with 1.02\" hail on Jul 3. The Allora parcel is $26.9M (townhome-style apartments) with 1.09\" hail on Apr 23; Greystar lists Allora 168 at 16751 Morgan Ave, so confirm that the Colleen Ct parcel is part of it. Metonic has properties in 6 states.",
    "confidence": "high",
    "source_urls": [
@@ -919,6 +963,7 @@
    "phone_note": "Venue line on venue5twenty-two.com.",
    "website": "https://www.venue5twenty-two.com/",
    "ask_for": "Owner (Kylie or Lori)",
+   "ask_for_es": "Dueña (Kylie o Lori)",
    "note": "Multi-event venue in south Lincoln owned by Gana Venue LLC, $2.3M, 1.43\" hail on Jul 3. Owner-operated, so the person who answers can decide.",
    "confidence": "high",
    "source_urls": [
@@ -938,6 +983,7 @@
    "phone_note": "Leasing office on rentatredwood.com, open Tue-Fri 10-6 and Sat 10-4.",
    "website": "https://rentatredwood.com/apartments/ne/bellevue/redwood-bellevue-south-25th-street/contact/",
    "ask_for": "Community manager; ask for the regional maintenance/construction contact",
+   "ask_for_es": "Gerente de la comunidad; pida el contacto regional de mantenimiento/construcción",
    "note": "Single-story, townhome-style rental community, $17.5M, 1.1\" hail on Jun 13. Redwood corporate in Ohio owns it and runs many communities, so the local office passes roof decisions up to them.",
    "confidence": "high",
    "source_urls": [
@@ -957,6 +1003,7 @@
    "phone_note": "Leasing line on bluestematlavista.com.",
    "website": "https://www.bluestematlavista.com/",
    "ask_for": "Community manager or maintenance supervisor",
+   "ask_for_es": "Gerente de la comunidad o supervisor(a) de mantenimiento",
    "note": "Apartment community in Harrison Hills, $8.7M, 1.16\" hail on Apr 23 (older storm). The owner is out of state and it was recently rebranded, so ask whether the roof has been inspected since April.",
    "confidence": "high",
    "source_urls": [
@@ -976,6 +1023,7 @@
    "phone_note": "On-site leasing line. Perry Reid corporate (402) 488-1666.",
    "website": "https://www.sunridgeaptsbeatrice.com/",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "Beatrice, NE 68310. 24-48 units, built ~1999-2000. Sep 12 storm area.",
    "confidence": "medium",
    "source_urls": [
@@ -995,6 +1043,7 @@
    "phone_note": "Seldin corporate line; leasing email columbusplace@seldin.com.",
    "website": "https://www.seldin.com/columbusplace",
    "ask_for": "Community manager",
+   "ask_for_es": "Gerente de la comunidad",
    "note": "Columbus, NE. 34-unit senior independent living (55+).",
    "confidence": "medium",
    "source_urls": [
@@ -1013,6 +1062,7 @@
    "phone_note": "Listing-site line; ask who manages the property.",
    "website": "",
    "ask_for": "Manager",
+   "ask_for_es": "Gerente",
    "note": "Grand Island, NE 68803. 60 units, built 1979.",
    "confidence": "low",
    "source_urls": [
@@ -1033,6 +1083,7 @@
    "phone_note": "Office at 3030 Park Lane Dr.",
    "website": "https://www.chateauimperial.com/",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "Hastings, NE 68901. 55-66 units, built 1971.",
    "confidence": "medium",
    "source_urls": [
@@ -1052,6 +1103,7 @@
    "phone_note": "On-site leasing line, Mon-Fri 9-6.",
    "website": "https://autumnpark.mtimm.com/",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "Grand Island, NE 68803. 144 units, built 1997. Bundle with M. Timm's other properties.",
    "confidence": "high",
    "source_urls": [
@@ -1071,6 +1123,7 @@
    "phone_note": "Clinic front desk, Ste 100 (clinic site, Yelp, Healthgrades). A tenant line, not the owner's.",
    "website": "https://www.fallbrookfamilyhealthcenter.com/",
    "ask_for": "Office manager: who handles the building/roof for FMC Paradocs LLC",
+   "ask_for_es": "Gerente de oficina: quién maneja el edificio/techo de FMC Paradocs LLC",
    "note": "Multi-tenant medical building.",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1086,6 +1139,7 @@
    "phone_note": "Hotel front desk (Choice Hotels site, Yelp).",
    "website": "https://www.choicehotels.com/nebraska/lincoln/sleep-inn-hotels/ne144",
    "ask_for": "Hotel general manager",
+   "ask_for_es": "Gerente general del hotel",
    "note": "Branded hotel: call the hotel line only.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1101,6 +1155,7 @@
    "phone_note": "Krueger Development office (LIBA directory, BuildZoom).",
    "website": "https://www.kruegerdevelopment.com/",
    "ask_for": "Krueger Development property management",
+   "ask_for_es": "Administración de propiedades de Krueger Development",
    "note": "Owner match inferred from the family name.",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1116,6 +1171,7 @@
    "phone_note": "Only a patient-financing customer line was found; not useful for the building.",
    "website": "https://www.proceedfinance.com/",
    "ask_for": "Facilities / real estate contact at Optum",
+   "ask_for_es": "Instalaciones / contacto de bienes raíces en Optum",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1131,6 +1187,7 @@
    "phone_note": "Company office (BBB, hausmann.build).",
    "website": "https://www.hausmann.build/offices/lincoln/",
    "ask_for": "Office manager",
+   "ask_for_es": "Gerente de oficina",
    "note": "A builder: they may do their own roof.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1146,6 +1203,7 @@
    "phone_note": "Hotel line (Yelp listing at this address).",
    "website": "",
    "ask_for": "Hotel general manager",
+   "ask_for_es": "Gerente general del hotel",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1161,6 +1219,7 @@
    "phone_note": "Main tenant's line, Ste 200 (Yelp, Healthgrades).",
    "website": "",
    "ask_for": "Clinic office manager, or the owner Senhoc Properties LLC",
+   "ask_for_es": "Gerente de oficina de la clínica, o el dueño Senhoc Properties LLC",
    "note": "Multi-tenant medical building.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1176,6 +1235,7 @@
    "phone_note": "Not found. A brokerage manages an 'Esquire Plaza' at 237 S 70th St, but that isn't clearly this building.",
    "website": "",
    "ask_for": "Ask a tenant in person who handles the building/roof",
+   "ask_for_es": "Pregúntele en persona a un inquilino quién se encarga del edificio/techo",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1191,6 +1251,7 @@
    "phone_note": "Ameritas corporate switchboard, not a property line: expect a transfer.",
    "website": "https://www.ameritas.com/contact/corporate-offices/",
    "ask_for": "Ameritas corporate real estate / facilities",
+   "ask_for_es": "Bienes raíces corporativos / instalaciones de Ameritas",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1206,6 +1267,7 @@
    "phone_note": "AmanaCare's line, Suite 7 (Yelp). A tenant line.",
    "website": "",
    "ask_for": "Property manager for C Street LLC",
+   "ask_for_es": "Gerente de la propiedad de C Street LLC",
    "note": "Heads-up: tenant Malybuilt Restoration is a roofing/siding competitor. Don't pitch them.",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1221,6 +1283,7 @@
    "phone_note": "Branch line (bank branch directory, Yellow Pages).",
    "website": "https://www.cattlebank.com/",
    "ask_for": "Branch manager",
+   "ask_for_es": "Gerente de sucursal",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1236,6 +1299,7 @@
    "phone_note": "A leasing contact's number is on a lease listing, but it may be a personal cell, so it's left out.",
    "website": "",
    "ask_for": "Leasing contact on the Cityfeet listing, or the property manager",
+   "ask_for_es": "Contacto de arrendamiento en el anuncio de Cityfeet, o el/la gerente de la propiedad",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1251,6 +1315,7 @@
    "phone_note": "Walgreens store line (tenant), not the landlord.",
    "website": "",
    "ask_for": "Store manager: ask who the landlord / property manager is",
+   "ask_for_es": "Gerente de tienda: pregunte quién es el dueño/gerente de la propiedad",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1266,6 +1331,7 @@
    "phone_note": "Branch line (bank branch directory).",
    "website": "https://www.1fsb.bank/",
    "ask_for": "Branch manager",
+   "ask_for_es": "Gerente de sucursal",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1281,6 +1347,7 @@
    "phone_note": "Only the state DMV office line was found; not a landlord line.",
    "website": "",
    "ask_for": "Property manager for Cattle 4700 LLC",
+   "ask_for_es": "Gerente de la propiedad de Cattle 4700 LLC",
    "note": "A state office is the tenant.",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1296,6 +1363,7 @@
    "phone_note": "Company contact page for this address.",
    "website": "https://www.frontiercooperative.com/locations/frontier-lincoln-office",
    "ask_for": "Facilities / office manager",
+   "ask_for_es": "Instalaciones / gerente de oficina",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1311,6 +1379,7 @@
    "phone_note": "Not found.",
    "website": "",
    "ask_for": "Property manager for 1081 Properties LLC",
+   "ask_for_es": "Gerente de la propiedad de 1081 Properties LLC",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1326,6 +1395,7 @@
    "phone_note": "Only F&G's policyholder line was found; not useful for the building.",
    "website": "",
    "ask_for": "Facilities / property manager for Orion Lincoln NE LLC",
+   "ask_for_es": "Instalaciones / gerente de la propiedad de Orion Lincoln NE LLC",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1341,6 +1411,7 @@
    "phone_note": "Company line (css-design.com, Lincoln Manufacturing Council).",
    "website": "https://www.css-design.com/",
    "ask_for": "Office manager",
+   "ask_for_es": "Gerente de oficina",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1356,6 +1427,7 @@
    "phone_note": "Agency line (Yelp, Opendi).",
    "website": "https://www.keelerandassociates.com",
    "ask_for": "Office manager",
+   "ask_for_es": "Gerente de oficina",
    "note": "County data says built 2023: the address match may be off.",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1371,6 +1443,7 @@
    "phone_note": "Facility main line",
    "website": "pcplattsmouth.com",
    "ask_for": "Administrator or facility manager",
+   "ask_for_es": "Administrador(a) o gerente de instalaciones",
    "note": "Large flat commercial roof.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1386,6 +1459,7 @@
    "phone_note": "Leasing office (parkviewomaha.com contact page). Yelp shows a different number; use caution.",
    "website": "parkviewomaha.com",
    "ask_for": "Leasing office / property manager",
+   "ask_for_es": "Oficina de arrendamiento / gerente de la propiedad",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1401,6 +1475,7 @@
    "phone_note": "NIC Conference Center line, the most general public number found",
    "website": "innovate.unl.edu",
    "ask_for": "Facilities / building management office",
+   "ask_for_es": "Instalaciones / oficina de administración del edificio",
    "note": "University campus: roof work likely goes through university facilities and bids.",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1416,6 +1491,7 @@
    "phone_note": "Management office (several directories)",
    "website": "naifmarealty.com",
    "ask_for": "Property manager for Belmont Shopping Center",
+   "ask_for_es": "Gerente de la propiedad de Belmont Shopping Center",
    "note": "Strip center, several tenants.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1431,6 +1507,7 @@
    "phone_note": "Credit union main line; nearest branch listed at 5101 N 27th St (approximate match)",
    "website": "libertyfirstcu.com",
    "ask_for": "Branch manager / facilities",
+   "ask_for_es": "Gerente de sucursal / instalaciones",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1446,6 +1523,7 @@
    "phone_note": "Store line (tenant)",
    "website": "7dayfurniture.net",
    "ask_for": "Store manager: ask who the landlord is",
+   "ask_for_es": "Gerente de tienda: pregunte quién es el dueño",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1461,6 +1539,7 @@
    "phone_note": "Clinic main line",
    "website": "dclkidneycare.org",
    "ask_for": "Facility / office manager",
+   "ask_for_es": "Gerente de instalaciones / oficina",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1476,6 +1555,7 @@
    "phone_note": "Store main line",
    "website": "hy-vee.com",
    "ask_for": "Store director: ask for the facilities contact",
+   "ask_for_es": "Director(a) de tienda: pida el contacto de instalaciones",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1491,6 +1571,7 @@
    "phone_note": "Leasing office",
    "website": "academylincoln.com",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "Same complex as 201 N 18th St and 1755 Q St.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1506,6 +1587,7 @@
    "phone_note": "Leasing office (same complex as 1850 P St)",
    "website": "academylincoln.com",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1521,6 +1603,7 @@
    "phone_note": "Branch main line",
    "website": "nufcu.org",
    "ask_for": "Branch manager",
+   "ask_for_es": "Gerente de sucursal",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1536,6 +1619,7 @@
    "phone_note": "Department admin line",
    "website": "lincoln.ne.gov",
    "ask_for": "LFR facilities / admin office",
+   "ask_for_es": "Instalaciones de LFR / oficina administrativa",
    "note": "City building: roof work goes through city bids. Low priority.",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1551,6 +1635,7 @@
    "phone_note": "Leasing office; same management inferred",
    "website": "academylincoln.com",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "",
    "confidence": "medium",
    "checked": "2026-09-26"
@@ -1566,6 +1651,7 @@
    "phone_note": "Parish office",
    "website": "huskercatholic.com",
    "ask_for": "Parish office / facilities",
+   "ask_for_es": "Oficina parroquial / instalaciones",
    "note": "",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1581,6 +1667,7 @@
    "phone_note": "A number appears on rental listing sites, but it may be a small landlord's personal phone, so it's left out.",
    "website": "",
    "ask_for": "Property manager",
+   "ask_for_es": "Gerente de la propiedad",
    "note": "City was blank in the source data; this is Crete, NE.",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1596,6 +1683,7 @@
    "phone_note": "Not found",
    "website": "",
    "ask_for": "Owner: check the county assessor or drive by",
+   "ask_for_es": "Dueño(a): revise el catastro del condado o pase por el lugar",
    "note": "Likely a small individually owned rental.",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1611,6 +1699,7 @@
    "phone_note": "The listing number may be a personal cell, so it's left out.",
    "website": "",
    "ask_for": "Duane Wessel (owner/manager)",
+   "ask_for_es": "Duane Wessel (dueño/gerente)",
    "note": "",
    "confidence": "low",
    "checked": "2026-09-26"
@@ -1627,6 +1716,7 @@
    "phone_note": "Leasing office",
    "website": "",
    "ask_for": "Leasing office / property manager",
+   "ask_for_es": "Oficina de arrendamiento / gerente de la propiedad",
    "note": "1503-1507 Glenmore Dr are one complex.",
    "confidence": "high",
    "checked": "2026-09-26"
@@ -1642,6 +1732,7 @@
    "phone_note": "Not found",
    "website": "",
    "ask_for": "Owner: check the county assessor or drive by",
+   "ask_for_es": "Dueño(a): revise el catastro del condado o pase por el lugar",
    "note": "Likely an individually owned rental.",
    "confidence": "low",
    "checked": "2026-09-26"

@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba Intro</title>
+<meta name="description" content="Aldaba: from storm to signed. The cinematic intro for the field-sales tool built with HMP Siding & Roofing.">
+<meta name="color-scheme" content="dark">
+<!--
+  Aldaba intro / landing (design mockup, 2026-09-28). Brief: CLAUDE.md "Target feel" + docs/design/references/README.md Part 2.
+  - Hero: OGL (cdn.jsdelivr.net/npm/ogl) generative storm field + ~1,800 GPU particles. Particles and field are driven by
+    one "story" number (0 storm, 1 hot zone, 2 door, 3 signed) so the background itself tells the story as you scroll.
+    All motion is computed in the shaders from seeds + one wrapped time value: no per-frame allocation.
+  - Scroll story: GSAP ScrollTrigger (scrubbed timeline) + Lenis (smooth scroll). Pinning is plain CSS sticky, so the page
+    still reads top to bottom if the CDN is unreachable (a native scroll handler then switches chapters).
+  - Big moment: a signed-deal burst in plain canvas 2D (no library, 180 preallocated sparks, 1.4 s, then the canvas is removed).
+    Portable into the app as-is.
+  - Safety: scene capped at 30 fps when nothing is moving, stops when the tab is hidden, the hero is off screen with the
+    scene settled, or after 2 min without input; WebGL context loss or prefers-reduced-motion -> static CSS gradient.
+  Sample data only (real Fremont street names, made-up house numbers, no owner names). Prices stay "$ -" placeholders.
+-->
+<style>
+@font-face{font-family:"Geist";src:url(../product-brand/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist";src:url(../product-brand/fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist";src:url(../product-brand/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url(../product-brand/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url(../product-brand/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-stretch:75% 100%;font-display:swap}
+
+:root{
+  --bg:#060709;--ink:#f5f5f3;--ink-2:#c9ccd2;--muted:#9ea3ad;--faint:#7d828c;
+  --acc:#f5883a;--acc-hi:#ffb07a;--acc-deep:#d9621c;--cool:#8fa6cc;
+  --glass:rgba(16,17,21,.56);--glass-2:rgba(22,23,28,.72);
+  --rim:rgba(255,255,255,.1);--rim-top:rgba(255,255,255,.2);--hair:rgba(255,255,255,.07);
+  --f:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --display:"Bricolage Grotesque","Geist",system-ui,sans-serif;
+  --ease:cubic-bezier(.32,.72,0,1);
+  --spring:var(--ease);
+  --pad:64px;
+}
+@supports (transition-timing-function:linear(0,1)){
+  :root{--spring:linear(0,.053,.173,.321,.47,.605,.719,.81,.88,.931,.967,.99,1.004,1.012,1.015,1.015,1.014,1.012,1.01,1.007,1.005,1.004,1.002,1.002,1.001,1,1,1,1)}
+}
+/* both themes resolve to the cinematic dark: the landing is a "big moment" surface (CLAUDE.md), no light variant */
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:dark}}
+:root[data-theme="dark"]{color-scheme:dark}
+
+*{box-sizing:border-box}
+html{background:var(--bg)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  /* static fallback for the WebGL scene (context loss, reduced motion, no WebGL, CDN unreachable) */
+  background-image:radial-gradient(60% 55% at 72% 38%,rgba(245,136,58,.13),transparent 70%),
+    radial-gradient(50% 50% at 18% 12%,rgba(120,146,196,.1),transparent 70%),
+    radial-gradient(120% 90% at 50% 120%,rgba(245,136,58,.06),transparent 60%);
+  background-attachment:fixed}
+html[lang="es"] .en,html:not([lang="es"]) .es{display:none}
+a{color:inherit}
+::selection{background:rgba(245,136,58,.35)}
+
+#scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.6s var(--ease)}
+#scene.on{opacity:1}
+main,header,footer{position:relative;z-index:1}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:20;height:72px;display:flex;align-items:center;gap:28px;padding:0 var(--pad);
+  background:linear-gradient(180deg,rgba(6,7,9,.7),rgba(6,7,9,0));}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand svg{width:28px;height:28px}
+.brand b{font:700 21px/1 var(--display);letter-spacing:-.02em;font-variation-settings:"opsz" 96}
+.nav nav{margin-left:auto;display:flex;align-items:center;gap:26px;font-size:14px;color:var(--ink-2)}
+.nav nav a{text-decoration:none;transition:color .2s}
+.nav nav a:hover{color:var(--ink)}
+.lang{display:flex;padding:3px;border-radius:99px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--hair)}
+.lang button{all:unset;cursor:pointer;font:500 12px var(--mono);letter-spacing:.06em;padding:6px 11px;border-radius:99px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:rgba(255,255,255,.12);color:var(--ink)}
+.lang button:focus-visible,.btn:focus-visible,.nav a:focus-visible{outline:2px solid var(--acc-hi);outline-offset:3px}
+
+/* ---------- hero ---------- */
+.hero{min-height:100vh;display:grid;grid-template-rows:1fr auto;padding:120px var(--pad) 64px}
+.readout{justify-self:end;align-self:start;margin-top:12px;min-width:258px;padding:16px 18px;border-radius:16px;background:var(--glass);
+  box-shadow:inset 0 1px 0 var(--rim-top),inset 0 0 0 1px var(--hair),0 30px 60px -30px rgba(0,0,0,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  font:500 12px/1.9 var(--mono);color:var(--muted);letter-spacing:.04em}
+.readout .live{display:flex;align-items:center;gap:8px;color:var(--ink);letter-spacing:.14em;text-transform:uppercase;font-size:11px;margin-bottom:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(245,136,58,.18),0 0 18px rgba(245,136,58,.8)}
+.readout .row{display:flex;justify-content:space-between;gap:24px}
+.readout .row b{color:var(--ink);font-weight:500}
+.hero-copy{max-width:1120px}
+.eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 26px;font:500 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--acc-hi)}
+.eyebrow i{width:26px;height:1px;background:currentColor;opacity:.7}
+h1{margin:0;font-family:var(--display);font-size:clamp(84px,10.6vw,172px);line-height:.86;letter-spacing:-.05em;font-variation-settings:"opsz" 96}
+h1 .l1{display:block;font-weight:790}
+h1 .l2{display:block;font-weight:220;letter-spacing:-.045em;padding-left:.06em}
+h1 .l2 em{font-style:normal;font-weight:790;background:linear-gradient(100deg,#ffd2ae 0%,var(--acc) 38%,var(--acc-deep) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:48px;margin-top:40px}
+.lede{margin:0;max-width:560px;font-size:20px;line-height:1.5;color:var(--ink-2)}
+.cta{display:flex;align-items:center;gap:22px;flex:none}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:12px;height:60px;padding:0 30px;border-radius:99px;
+  background:linear-gradient(180deg,#ffa05c,var(--acc) 55%,#e8702a);color:#1a0d04;font:600 18px var(--f);letter-spacing:-.005em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 0 0 1px rgba(245,136,58,.5),0 18px 50px -12px rgba(245,136,58,.65);
+  transition:transform .5s var(--spring),box-shadow .3s}
+.btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 0 1px rgba(245,136,58,.6),0 24px 60px -12px rgba(245,136,58,.8)}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px;height:18px}
+.cta small{font:500 12px/1.6 var(--mono);color:var(--muted);letter-spacing:.04em}
+.cue{position:absolute;right:var(--pad);bottom:64px;display:none}
+
+/* hero intro reveal (runs once; skipped with reduced motion) */
+@media (prefers-reduced-motion:no-preference){
+  .hero .rv{opacity:0;transform:translateY(28px);filter:blur(8px);animation:rv 1.4s var(--spring) forwards;animation-delay:calc(.25s + var(--d,0) * 110ms)}
+  @keyframes rv{to{opacity:1;transform:none;filter:none}}
+}
+
+/* ---------- story ---------- */
+#story{position:relative;height:520vh}
+.pin{position:sticky;top:0;height:100vh;display:grid;grid-template-columns:minmax(380px,500px) 1fr;gap:56px;align-items:center;padding:88px var(--pad) 48px}
+.chapters{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr;align-content:center}
+.rail{display:flex;gap:8px;margin-bottom:44px}
+.rail span{flex:1;display:grid;gap:10px;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);transition:color .4s}
+.rail span i{height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;position:relative}
+.rail span i::after{content:"";position:absolute;inset:0;background:var(--acc);transform-origin:left;transform:scaleX(var(--f,0))}
+.rail span.on{color:var(--ink)}
+.chs{position:relative;min-height:420px}
+.ch{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(40px);filter:blur(6px);transition:opacity .7s var(--ease),transform .9s var(--spring),filter .7s var(--ease);pointer-events:none}
+.ch.on{opacity:1;transform:none;filter:none;pointer-events:auto}
+.ch.past{transform:translateY(-40px)}
+.ch .n{font:500 13px var(--mono);color:var(--acc-hi);letter-spacing:.16em}
+.ch h2{margin:14px 0 22px;font:760 60px/1 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96}
+.ch h2 .thin{font-weight:230}
+.ch p{margin:0;font-size:19px;line-height:1.55;color:var(--ink-2);max-width:440px}
+.ch .fact{margin-top:28px;display:flex;gap:28px}
+.ch .fact div{display:grid;gap:4px}
+.ch .fact b{font:700 34px/1 var(--display);letter-spacing:-.03em;font-variation-settings:"opsz" 96}
+.ch .fact span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+.stage{position:relative;height:min(700px,100%);border-radius:28px;overflow:hidden;background:rgba(10,11,14,.55);
+  box-shadow:inset 0 1px 0 var(--rim-top),inset 0 0 0 1px var(--rim),0 60px 120px -40px rgba(0,0,0,.95),0 0 0 1px rgba(0,0,0,.4)}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.045),transparent 30%);pointer-events:none;z-index:3}
+.hud{position:absolute;top:0;left:0;right:0;z-index:4;display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--hair);background:rgba(10,11,14,.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.hud div{padding:14px 20px;display:grid;gap:3px;border-right:1px solid var(--hair)}
+.hud div:last-child{border-right:0}
+.hud > div > span{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hud b{font:500 22px/1.1 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hud b small{font-size:12px;color:var(--muted);margin-left:3px}
+.hud .hot b{color:var(--acc-hi)}
+#map{position:absolute;inset:0;width:100%;height:100%}
+.st-label{font:500 9px var(--mono);letter-spacing:.12em;fill:#7d828c;text-transform:uppercase}
+
+/* overlays inside the stage */
+.ov{position:absolute;z-index:5;border-radius:18px;background:var(--glass-2);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);
+  box-shadow:inset 0 1px 0 var(--rim-top),inset 0 0 0 1px var(--rim),0 30px 60px -24px rgba(0,0,0,.9)}
+.k{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.zonecard{left:24px;bottom:24px;width:300px;padding:18px 20px}
+.zonecard .t{display:flex;align-items:center;gap:8px}
+.zonecard .big{display:flex;align-items:baseline;gap:10px;margin:10px 0 12px}
+.zonecard .big b{font:760 54px/1 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96}
+.zonecard .big span{color:var(--ink-2);font-size:14px}
+.zonecard .g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:12px;border-top:1px solid var(--hair)}
+.zonecard .g b{display:block;font:600 16px var(--f)}
+.zonecard .g span{font-size:11.5px;color:var(--muted)}
+.walk{left:24px;bottom:24px;width:280px;padding:14px 8px 8px}
+.walk .k{padding:0 12px 8px;display:flex;justify-content:space-between}
+.walk ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.walk li{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;font-size:13.5px;color:var(--ink-2)}
+.walk li i{font:500 11px var(--mono);font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--ink-2)}
+.walk li b{font:500 12px var(--mono);color:var(--muted)}
+.walk li.cur{background:rgba(245,136,58,.12);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(245,136,58,.3)}
+.walk li.cur i{background:var(--acc);color:#1a0d04}
+.walk li.cur b{color:var(--acc-hi)}
+.door{right:24px;top:92px;width:340px;padding:20px}
+.door h3{margin:8px 0 4px;font:700 28px/1.05 var(--display);letter-spacing:-.025em;font-variation-settings:"opsz" 96}
+.door .sub{font-size:13px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.chip{font:500 11.5px var(--f);padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--hair);color:var(--ink-2)}
+.chip.a{background:rgba(245,136,58,.13);box-shadow:inset 0 0 0 1px rgba(245,136,58,.35);color:var(--acc-hi)}
+.say{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px var(--hair);font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.say b{display:block;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acc-hi);margin-bottom:4px}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:14px}
+.keys > span{display:grid;gap:3px;justify-items:center;padding:9px 2px 8px;border-radius:10px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--hair);font-size:10.5px;color:var(--muted);text-align:center;line-height:1.2}
+.keys > span kbd{font:500 13px var(--mono);color:var(--ink)}
+.keys > span.go{background:rgba(245,136,58,.16);box-shadow:inset 0 0 0 1px rgba(245,136,58,.45);color:var(--acc-hi)}
+.signed{right:24px;top:92px;width:340px;padding:22px}
+.stamp{display:flex;align-items:center;gap:12px}
+.stamp .ring{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffb57e,var(--acc) 60%,#c85a18);box-shadow:0 0 0 6px rgba(245,136,58,.15),0 0 40px rgba(245,136,58,.6)}
+.stamp .ring svg{width:22px;height:22px}
+.stamp b{font:780 40px/1 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96}
+.papers{list-style:none;margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--hair);display:grid;gap:11px}
+.papers li{display:grid;grid-template-columns:18px 1fr;gap:10px;font-size:13.5px;color:var(--ink-2);line-height:1.4}
+.papers li svg{width:16px;height:16px;margin-top:2px}
+.papers li small{display:block;color:var(--muted);font-size:11.5px}
+.money{margin-top:16px;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px var(--hair)}
+.money b{font:500 18px var(--mono)}
+.money span{font-size:12px;color:var(--muted)}
+
+/* native fallback (no GSAP): chapter classes drive the stage. With GSAP the timeline owns these properties. */
+html:not(.gs) .stage [data-in]{transition:opacity .6s var(--ease),transform .8s var(--spring)}
+html:not(.gs) .stage [data-in]{opacity:0;transform:translateY(16px)}
+html:not(.gs) .stage[data-ch="0"] [data-in~="0"],html:not(.gs) .stage[data-ch="1"] [data-in~="1"],
+html:not(.gs) .stage[data-ch="2"] [data-in~="2"],html:not(.gs) .stage[data-ch="3"] [data-in~="3"]{opacity:1;transform:none}
+html:not(.gs) .stage #mapzoom{transition:transform 1.2s var(--spring);transform-origin:520px 225px}
+html:not(.gs) .stage[data-ch="2"] #mapzoom,html:not(.gs) .stage[data-ch="3"] #mapzoom{transform:translate(-150px,40px) scale(2.3)}
+
+/* ---------- big moment ---------- */
+.moment{min-height:100vh;display:grid;place-items:center;padding:120px var(--pad);text-align:center}
+.moment .eyebrow{justify-content:center}
+.moment h2,.armor h2{margin:0 auto;max-width:980px;font:760 clamp(52px,6vw,92px)/.95 var(--display);letter-spacing:-.045em;font-variation-settings:"opsz" 96}
+.moment h2 .thin,.armor h2 .thin{font-weight:220}
+.moment p.lede{margin:24px auto 0}
+.job{margin:56px auto 0;width:560px;padding:26px 28px;border-radius:24px;background:var(--glass-2);text-align:left;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:inset 0 1px 0 var(--rim-top),inset 0 0 0 1px var(--rim),0 50px 100px -40px rgba(0,0,0,.95);transition:box-shadow .6s var(--ease)}
+.job.done{box-shadow:inset 0 1px 0 rgba(255,210,170,.5),inset 0 0 0 1px rgba(245,136,58,.5),0 0 80px -10px rgba(245,136,58,.45),0 50px 100px -40px rgba(0,0,0,.95)}
+.job .top{display:flex;justify-content:space-between;align-items:center}
+.job h3{margin:10px 0 4px;font:700 32px/1.05 var(--display);letter-spacing:-.03em;font-variation-settings:"opsz" 96}
+.job .sub{color:var(--muted);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:22px 0}
+.steps span{display:grid;gap:8px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.steps span i{height:4px;border-radius:4px;background:rgba(255,255,255,.1);transition:background .5s var(--ease),box-shadow .5s}
+.steps span.on i{background:var(--acc)}
+.steps span.on{color:var(--ink-2)}
+.job .bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:18px;border-top:1px solid var(--hair)}
+.job .bar .w{display:grid;gap:2px}
+.job .bar .w b{font:760 34px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-variation-settings:"opsz" 96}
+.job .bar .w span{font-size:12px;color:var(--muted)}
+.pill{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:99px;background:rgba(255,255,255,.07);color:var(--ink-2);transition:background .4s,color .4s}
+.job.done .pill{background:var(--acc);color:#1a0d04}
+.note{margin-top:22px;font:500 12px var(--mono);letter-spacing:.04em;color:var(--muted)}
+
+/* ---------- legal armor ---------- */
+.armor{padding:80px var(--pad) 140px;text-align:center}
+.armor .grid{margin:64px auto 0;max-width:1180px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:left}
+.armor .card{padding:26px;border-radius:22px;background:var(--glass);box-shadow:inset 0 1px 0 var(--rim-top),inset 0 0 0 1px var(--hair);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.armor .card .k{color:var(--acc-hi)}
+.armor .card h3{margin:14px 0 8px;font:700 24px/1.15 var(--display);letter-spacing:-.02em;font-variation-settings:"opsz" 96}
+.armor .card p{margin:0;color:var(--ink-2);font-size:15px}
+.finale{padding:40px var(--pad) 72px;display:grid;justify-items:center;gap:22px;text-align:center}
+.finale .word{font:800 clamp(120px,17vw,260px)/.8 var(--display);letter-spacing:-.06em;font-variation-settings:"opsz" 96;
+  background:linear-gradient(180deg,#f5f5f3 20%,rgba(245,245,243,.12));-webkit-background-clip:text;background-clip:text;color:transparent}
+.finale p{margin:0;color:var(--muted);font-size:14px}
+.finale p b{color:var(--ink-2);font-weight:500}
+
+@media (max-width:1100px){
+  :root{--pad:28px}
+  .pin{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:20px;padding-top:84px}
+  .chs{min-height:230px}.ch h2{font-size:42px}.ch p{font-size:16px}.ch .fact{display:none}.rail{margin-bottom:20px}
+  .hero-foot{flex-direction:column;align-items:flex-start}
+  .armor .grid{grid-template-columns:1fr}
+  .job{width:100%}
+  .door,.signed{width:280px}.zonecard,.walk{width:250px}
+  .nav nav a{display:none}
+}
+@media (max-width:640px){
+  :root{--pad:16px}
+  .readout{display:none}
+  h1{font-size:64px}
+  .hud{grid-template-columns:repeat(2,1fr)}
+  .door,.signed{left:12px;right:12px;width:auto;top:auto;bottom:12px}
+  .walk,.zonecard{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .ch,.btn,.job,.steps span i{transition:none!important}
+}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Aldaba">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="#f5f5f3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="#f5f5f3"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>
+    <b>Aldaba</b>
+  </a>
+  <nav>
+    <a href="#story"><span class="en">How it works</span><span class="es" lang="es">Cómo funciona</span></a>
+    <a href="#moment"><span class="en">Big moments</span><span class="es" lang="es">Grandes momentos</span></a>
+    <a href="#armor"><span class="en">Legal armor</span><span class="es" lang="es">Blindaje legal</span></a>
+    <div class="lang" role="group" aria-label="Language / Idioma">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="readout rv" style="--d:5" aria-label="Sample storm">
+      <div class="live"><span class="dot"></span><span class="en">Storm cell · sample</span><span class="es" lang="es">Celda de tormenta · muestra</span></div>
+      <div class="row"><span class="en">Max hail</span><span class="es" lang="es">Granizo máx.</span><b>1.75 in</b></div>
+      <div class="row"><span class="en">Reported</span><span class="es" lang="es">Reportado</span><b>Sep 27 · 6:42 PM</b></div>
+      <div class="row"><span class="en">Over</span><span class="es" lang="es">Sobre</span><b>Fremont, NE</b></div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow rv" style="--d:0"><i></i><span class="en">Aldaba · field sales for roofing and siding</span><span class="es" lang="es">Aldaba · ventas en campo para techos y siding</span></p>
+      <h1>
+        <span class="l1 rv" style="--d:1"><span class="en">From storm</span><span class="es" lang="es">De la tormenta</span></span>
+        <span class="l2 rv" style="--d:2"><span class="en">to <em>signed.</em></span><span class="es" lang="es">a la <em>firma.</em></span></span>
+      </h1>
+      <div class="hero-foot">
+        <p class="lede rv" style="--d:3"><span class="en">Aldaba finds last night's hail, ranks the doors under it and keeps every paper in order, so your crews work jobs the system found.</span><span class="es" lang="es">Aldaba encuentra el granizo de anoche, ordena las puertas que quedaron debajo y mantiene cada papel en orden, para que tus cuadrillas trabajen en obras que encontró el sistema.</span></p>
+        <div class="cta rv" style="--d:4">
+          <a class="btn" href="#story"><span class="en">See it work</span><span class="es" lang="es">Míralo en acción</span>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v14M4 11l6 6 6-6"/></svg></a>
+          <small><span class="en">Built in the field with<br>HMP Siding &amp; Roofing</span><span class="es" lang="es">Hecho en el campo con<br>HMP Siding &amp; Roofing</span></small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCROLL STORY ============ -->
+  <section id="story" aria-label="Storm to signed">
+    <div class="pin">
+      <div class="chapters">
+        <div class="rail" aria-hidden="true">
+          <span data-r="0"><i></i><span class="en">Storm</span><span class="es" lang="es">Tormenta</span></span>
+          <span data-r="1"><i></i><span class="en">Hot zone</span><span class="es" lang="es">Zona caliente</span></span>
+          <span data-r="2"><i></i><span class="en">Door</span><span class="es" lang="es">Puerta</span></span>
+          <span data-r="3"><i></i><span class="en">Signed</span><span class="es" lang="es">Firmado</span></span>
+        </div>
+        <div class="chs">
+          <article class="ch on" data-ch="0">
+            <div class="n">01 / 04</div>
+            <h2><span class="en">Hail fell overnight.<br><span class="thin">You know where.</span></span><span class="es" lang="es">Anoche cayó granizo.<br><span class="thin">Ya sabes dónde.</span></span></h2>
+            <p><span class="en">Aldaba reads the public storm reports and draws the swath over your streets before your first coffee.</span><span class="es" lang="es">Aldaba lee los reportes públicos de tormentas y dibuja la franja sobre tus calles antes de tu primer café.</span></p>
+            <div class="fact"><div><b>1.75 in</b><span class="en">max hail</span><span class="es" lang="es">granizo máx.</span></div><div><b>6:42 PM</b><span class="en">reported</span><span class="es" lang="es">reportado</span></div></div>
+          </article>
+          <article class="ch" data-ch="1">
+            <div class="n">02 / 04</div>
+            <h2><span class="en">A hot zone,<br><span class="thin">not a guess.</span></span><span class="es" lang="es">Una zona caliente,<br><span class="thin">no una corazonada.</span></span></h2>
+            <p><span class="en">The swath becomes blocks ranked by hail size, roof age and owner-lived homes. Drive to the best one.</span><span class="es" lang="es">La franja se vuelve cuadras ordenadas por tamaño de granizo, edad del techo y casas donde vive el dueño. Maneja a la mejor.</span></p>
+            <div class="fact"><div><b>412</b><span class="en">doors</span><span class="es" lang="es">puertas</span></div><div><b>0.8 mi</b><span class="en">from you</span><span class="es" lang="es">de ti</span></div></div>
+          </article>
+          <article class="ch" data-ch="2">
+            <div class="n">03 / 04</div>
+            <h2><span class="en">One door at a time.<br><span class="thin">One tap each.</span></span><span class="es" lang="es">Una puerta a la vez.<br><span class="thin">Un toque por puerta.</span></span></h2>
+            <p><span class="en">A ranked walk. Every door shows what the law says to say first and what to collect before you leave.</span><span class="es" lang="es">Una ruta ordenada. Cada puerta muestra lo que la ley pide decir primero y qué recoger antes de irte.</span></p>
+            <div class="fact"><div><b>1–5</b><span class="en">outcome keys</span><span class="es" lang="es">teclas de resultado</span></div><div><b>↓</b><span class="en">next door</span><span class="es" lang="es">siguiente puerta</span></div></div>
+          </article>
+          <article class="ch" data-ch="3">
+            <div class="n">04 / 04</div>
+            <h2><span class="en">Signed.<br><span class="thin">Papers in order.</span></span><span class="es" lang="es">Firmado.<br><span class="thin">Papeles en orden.</span></span></h2>
+            <p><span class="en">3-day cancel form in English and Spanish, the itemized description for homeowner and insurer, photos filed. Then the next door.</span><span class="es" lang="es">Formulario de cancelación de 3 días en inglés y español, la descripción detallada para el dueño y la aseguradora, fotos archivadas. Y a la siguiente puerta.</span></p>
+            <div class="fact"><div><b>3/3</b><span class="en">papers</span><span class="es" lang="es">papeles</span></div><div><b>$ —</b><span class="en">prices pending</span><span class="es" lang="es">precios pendientes</span></div></div>
+          </article>
+        </div>
+      </div>
+
+      <div class="stage" data-ch="0" aria-hidden="true">
+        <div class="hud">
+          <div class="hot"><span class="en">Max hail</span><span class="es" lang="es">Granizo máx.</span><b><span id="h-hail">0.00</span><small>in</small></b></div>
+          <div><span class="en">Doors in zone</span><span class="es" lang="es">Puertas en zona</span><b id="h-doors">—</b></div>
+          <div><span class="en">Walk</span><span class="es" lang="es">Ruta</span><b id="h-walk">—</b></div>
+          <div><span class="en">Signed today</span><span class="es" lang="es">Firmados hoy</span><b id="h-signed">0</b></div>
+        </div>
+        <svg id="map" viewBox="0 0 800 700" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <clipPath id="sweep"><rect id="sweep-r" x="0" y="0" width="0" height="700"/></clipPath>
+            <radialGradient id="youg"><stop offset="0" stop-color="#9fb6de" stop-opacity=".55"/><stop offset="1" stop-color="#9fb6de" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g id="mapzoom">
+            <g id="streets"></g>
+            <g id="houses"></g>
+            <g id="swath" clip-path="url(#sweep)">
+              <g filter="url(#soft)">
+                <ellipse cx="470" cy="300" rx="360" ry="150" transform="rotate(-16 470 300)" fill="#f5883a" opacity=".16"/>
+                <ellipse cx="495" cy="292" rx="240" ry="95" transform="rotate(-16 495 292)" fill="#f5883a" opacity=".22"/>
+                <ellipse cx="525" cy="282" rx="130" ry="52" transform="rotate(-16 525 282)" fill="#ffb07a" opacity=".32"/>
+              </g>
+              <g fill="none" stroke="#f5883a" stroke-width="1" stroke-dasharray="3 5" opacity=".65">
+                <ellipse cx="470" cy="300" rx="360" ry="150" transform="rotate(-16 470 300)"/>
+                <ellipse cx="495" cy="292" rx="240" ry="95" transform="rotate(-16 495 292)"/>
+                <ellipse cx="525" cy="282" rx="130" ry="52" transform="rotate(-16 525 282)"/>
+              </g>
+              <g class="st-label" style="fill:#ffb07a">
+                <text x="148" y="352">1.00 in</text><text x="286" y="330">1.50 in</text><text x="420" y="296">1.75 in</text>
+              </g>
+            </g>
+            <g id="hothouses"></g>
+            <path id="zone" d="M428 236 L606 196 L648 268 L604 336 L456 356 L412 298 Z" fill="rgba(245,136,58,.08)" stroke="#f5883a" stroke-width="1.6" stroke-linejoin="round"/>
+            <g id="zonetag" transform="translate(560 184)">
+              <rect x="0" y="-18" width="118" height="26" rx="13" fill="rgba(20,21,26,.85)" stroke="rgba(245,136,58,.5)"/>
+              <circle cx="14" cy="-5" r="3.5" fill="#f5883a"/>
+              <text x="24" y="-1" style="font:600 11px Geist,system-ui;fill:#f5f5f3">Zone A · 412</text>
+            </g>
+            <polyline id="route" fill="none" stroke="#ffb07a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+            <g id="pins"></g>
+            <g id="you" transform="translate(300 470)">
+              <circle r="26" fill="url(#youg)"/><circle r="6" fill="#9fb6de" stroke="#0b0c0f" stroke-width="2"/>
+            </g>
+          </g>
+        </svg>
+
+        <div class="ov zonecard" data-in="1">
+          <div class="t"><span class="dot"></span><span class="k"><span class="en">Zone A · best today</span><span class="es" lang="es">Zona A · la mejor hoy</span></span></div>
+          <div class="big"><b>412</b><span class="en">doors under 1.75 in hail</span><span class="es" lang="es">puertas bajo granizo de 1.75 in</span></div>
+          <div class="g">
+            <div><b>71%</b><span class="en">owner-lived</span><span class="es" lang="es">vive el dueño</span></div>
+            <div><b>~1998</b><span class="en">typical roof</span><span class="es" lang="es">techo típico</span></div>
+            <div><b>0.8 mi</b><span class="en">from you</span><span class="es" lang="es">de ti</span></div>
+          </div>
+        </div>
+
+        <div class="ov walk" data-in="2 3">
+          <div class="k"><span><span class="en">Ranked walk</span><span class="es" lang="es">Ruta ordenada</span></span><span>1 / 38</span></div>
+          <ol>
+            <li class="cur"><i>1</i><span>2140 N Clarkson St</span><b>92</b></li>
+            <li><i>2</i><span>2156 N Clarkson St</span><b>90</b></li>
+            <li><i>3</i><span>2211 N Clarkson St</span><b>88</b></li>
+            <li><i>4</i><span>1935 E 22nd St</span><b>85</b></li>
+            <li><i>5</i><span>1951 E 22nd St</span><b>83</b></li>
+          </ol>
+        </div>
+
+        <div class="ov door" data-in="2">
+          <span class="k"><span class="en">Door 1 · score 92</span><span class="es" lang="es">Puerta 1 · puntaje 92</span></span>
+          <h3>2140 N Clarkson St</h3>
+          <div class="sub">Fremont, NE · <span class="en">sample home</span><span class="es" lang="es">casa de muestra</span></div>
+          <div class="chips">
+            <span class="chip a"><span class="en">Hail 1.75 in</span><span class="es" lang="es">Granizo 1.75 in</span></span>
+            <span class="chip"><span class="en">Roof ~1998</span><span class="es" lang="es">Techo ~1998</span></span>
+            <span class="chip"><span class="en">Owner-lived</span><span class="es" lang="es">Vive el dueño</span></span>
+          </div>
+          <div class="say"><b><span class="en">Say first · Neb. 69-1602</span><span class="es" lang="es">Decir primero · Neb. 69-1602</span></b><span class="en">Your name, HMP Siding &amp; Roofing, and what you sell.</span><span class="es" lang="es">Tu nombre, HMP Siding &amp; Roofing y lo que vendes.</span></div>
+          <div class="keys">
+            <span><kbd>1</kbd><span class="en">Not home</span><span class="es" lang="es">No está</span></span>
+            <span><kbd>2</kbd><span class="en">Talked</span><span class="es" lang="es">Habló</span></span>
+            <span class="go"><kbd>3</kbd><span class="en">Inspect</span><span class="es" lang="es">Inspección</span></span>
+            <span><kbd>4</kbd><span class="en">Come back</span><span class="es" lang="es">Volver</span></span>
+            <span><kbd>5</kbd><span class="en">No</span><span class="es" lang="es">No</span></span>
+          </div>
+        </div>
+
+        <div class="ov signed" data-in="3">
+          <div class="stamp"><span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#1a0d04" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b><span class="en">Signed</span><span class="es" lang="es">Firmado</span></b></div>
+          <div class="sub" style="margin-top:10px;color:var(--muted);font-size:13px">2140 N Clarkson St · <span class="en">roof + gutters</span><span class="es" lang="es">techo + canaletas</span></div>
+          <ul class="papers">
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3L13 4.5"/></svg><span><span class="en">3-day cancel form · EN + ES</span><span class="es" lang="es">Cancelación de 3 días · EN + ES</span><small>Neb. 69-1601 / 69-1604</small></span></li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3L13 4.5"/></svg><span><span class="en">Itemized description · homeowner + insurer</span><span class="es" lang="es">Descripción detallada · dueño + aseguradora</span><small>Neb. 44-8606</small></span></li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="#f5883a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3L13 4.5"/></svg><span><span class="en">24 damage photos filed</span><span class="es" lang="es">24 fotos del daño archivadas</span></span></li>
+          </ul>
+          <div class="money"><span class="en">Contract</span><span class="es" lang="es">Contrato</span><b>$ —</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIG MOMENT ============ -->
+  <section class="moment" id="moment">
+    <div>
+      <p class="eyebrow"><i></i><span class="en">Big moments</span><span class="es" lang="es">Grandes momentos</span><i></i></p>
+      <h2><span class="en">The moments that matter <span class="thin">get a moment.</span></span><span class="es" lang="es">Los momentos que importan <span class="thin">tienen su momento.</span></span></h2>
+      <p class="lede"><span class="en">Work screens stay calm and fast. When a deal is signed, the app celebrates once, then gets out of the way.</span><span class="es" lang="es">Las pantallas de trabajo se quedan tranquilas y rápidas. Cuando se firma un trato, la app lo celebra una vez y luego se quita del camino.</span></p>
+      <div class="job" id="job">
+        <div class="top"><span class="k"><span class="en">Job · Zone A</span><span class="es" lang="es">Trabajo · Zona A</span></span><span class="pill" id="job-pill"><span class="en">Inspected</span><span class="es" lang="es">Inspeccionado</span></span></div>
+        <h3>2140 N Clarkson St</h3>
+        <div class="sub"><span class="en">Roof + gutters · adjuster meeting done · sample job</span><span class="es" lang="es">Techo + canaletas · reunión con el ajustador hecha · trabajo de muestra</span></div>
+        <div class="steps" id="steps">
+          <span class="on"><i></i><span class="en">New</span><span class="es" lang="es">Nuevo</span></span>
+          <span class="on"><i></i><span class="en">Inspected</span><span class="es" lang="es">Inspecc.</span></span>
+          <span><i></i><span class="en">Signed</span><span class="es" lang="es">Firmado</span></span>
+          <span><i></i><span class="en">Production</span><span class="es" lang="es">Producción</span></span>
+          <span><i></i><span class="en">Paid</span><span class="es" lang="es">Pagado</span></span>
+        </div>
+        <div class="bar">
+          <div class="w"><b id="wk">3</b><span class="en">signed this week</span><span class="es" lang="es">firmados esta semana</span></div>
+          <button class="btn" id="sign" type="button"><span class="en">Mark signed</span><span class="es" lang="es">Marcar firmado</span>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg></button>
+        </div>
+      </div>
+      <p class="note"><span class="en">One burst · 1.4 s · nothing left running afterwards</span><span class="es" lang="es">Una explosión · 1.4 s · nada queda corriendo después</span></p>
+    </div>
+  </section>
+
+  <!-- ============ LEGAL ARMOR ============ -->
+  <section class="armor" id="armor">
+    <p class="eyebrow" style="justify-content:center"><i></i><span class="en">Legal armor</span><span class="es" lang="es">Blindaje legal</span><i></i></p>
+    <h2><span class="en">Built for Nebraska law. <span class="thin">On every door.</span></span><span class="es" lang="es">Hecho para la ley de Nebraska. <span class="thin">En cada puerta.</span></span></h2>
+    <div class="grid">
+      <div class="card"><span class="k">Neb. 69-1602</span><h3><span class="en">Who you are, first</span><span class="es" lang="es">Quién eres, primero</span></h3><p><span class="en">Name, company and what you sell, shown on every door before anything else.</span><span class="es" lang="es">Nombre, empresa y lo que vendes, en cada puerta antes que nada.</span></p></div>
+      <div class="card"><span class="k">Neb. 69-1601 · 69-1604</span><h3><span class="en">3-day cancel, EN + ES</span><span class="es" lang="es">Cancelación de 3 días, EN + ES</span></h3><p><span class="en">The cancel form comes with every sale, in both languages, and the job waits for the window.</span><span class="es" lang="es">El formulario de cancelación va con cada venta, en los dos idiomas, y el trabajo espera el plazo.</span></p></div>
+      <div class="card"><span class="k">Neb. 44-8606</span><h3><span class="en">Itemized, to both</span><span class="es" lang="es">Detallado, para los dos</span></h3><p><span class="en">The itemized description goes to the homeowner and the insurer before insurance work starts.</span><span class="es" lang="es">La descripción detallada va al dueño y a la aseguradora antes de empezar un trabajo de seguro.</span></p></div>
+    </div>
+  </section>
+
+  <section class="finale">
+    <div class="word" aria-hidden="true">Aldaba</div>
+    <p><span class="en"><b>Built in the field with HMP Siding &amp; Roofing</b> · Fremont, Nebraska · sample data only</span><span class="es" lang="es"><b>Hecho en el campo con HMP Siding &amp; Roofing</b> · Fremont, Nebraska · solo datos de muestra</span></p>
+  </section>
+</main>
+
+<!-- Libraries: jsDelivr (npm). The page works without them (native scroll, static gradient). -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js" defer></script>
+
+<script>
+/* ---------------- language (EN default, ?lang=es) ---------------- */
+(function () {
+  const html = document.documentElement;
+  const set = l => {
+    html.lang = l;
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+    try { const u = new URL(location.href); if (l === 'es') u.searchParams.set('lang', 'es'); else u.searchParams.delete('lang'); history.replaceState(null, '', u); } catch (e) {}
+  };
+  set(/[?&]lang=es\b/.test(location.search) ? 'es' : 'en');
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => set(b.dataset.lang)));
+})();
+
+/* ---------------- shared story state (read by the WebGL scene) ---------------- */
+window.ALDABA = {story: 0, lastInput: performance.now(), moving: 0, wake: null, burstAt: -1};
+</script>
+
+<script>
+/* ---------------- stage: streets, houses, route (built once) ---------------- */
+(function () {
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+  const streets = document.getElementById('streets'), houses = document.getElementById('houses'), hot = document.getElementById('hothouses');
+  const XS = [], YS = [];
+  for (let x = 20; x <= 800; x += 76) XS.push(x);
+  for (let y = 60; y <= 700; y += 58) YS.push(y);
+  const MAJ_X = 400, MAJ_Y = 408, Y23 = 176;
+  XS.forEach(x => el('line', {x1: x, y1: 0, x2: x, y2: 700, stroke: x === MAJ_X ? 'rgba(255,255,255,.2)' : 'rgba(255,255,255,.075)', 'stroke-width': x === MAJ_X ? 3 : 1.2}, streets));
+  YS.forEach(y => el('line', {x1: 0, y1: y, x2: 800, y2: y, stroke: (y === MAJ_Y || y === Y23) ? 'rgba(255,255,255,.2)' : 'rgba(255,255,255,.075)', 'stroke-width': (y === MAJ_Y || y === Y23) ? 3 : 1.2}, streets));
+  const lab = (x, y, t, rot) => { const n = el('text', {x, y, class: 'st-label'}, streets); if (rot) n.setAttribute('transform', `rotate(-90 ${x} ${y})`); n.textContent = t; };
+  lab(28, MAJ_Y - 6, 'E Military Ave'); lab(28, Y23 - 6, 'E 23rd St'); lab(MAJ_X - 6, 690, 'N Broad St', true); lab(XS[7] - 6, 690, 'N Clarkson St', true); lab(XS[3] - 6, 690, 'N Nye Ave', true);
+  // point in polygon for the zone
+  const Z = [[428, 236], [606, 196], [648, 268], [604, 336], [456, 356], [412, 298]];
+  const inZone = (x, y) => { let c = false; for (let i = 0, j = Z.length - 1; i < Z.length; j = i++) { const [xi, yi] = Z[i], [xj, yj] = Z[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const hotList = [];
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < XS.length - 1; i++) for (let j = 0; j < YS.length - 1; j++) {
+    const x0 = XS[i] + 9, y0 = YS[j] + 9, bw = XS[i + 1] - XS[i] - 18, bh = YS[j + 1] - YS[j] - 18;
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 5; c++) {
+      if (rnd() < 0.12) continue;
+      const hx = x0 + c * (bw / 5) + 1.5, hy = y0 + r * (bh - 11) ;
+      const z = inZone(hx + 4, hy + 4);
+      el('rect', {x: hx.toFixed(1), y: hy.toFixed(1), width: 8, height: 9, rx: 1.6, fill: 'rgba(255,255,255,.13)'}, houses);
+      if (z) { el('rect', {x: hx.toFixed(1), y: hy.toFixed(1), width: 8, height: 9, rx: 1.6, fill: '#f5883a'}, hot); hotList.push([hx + 4, hy + 4]); }
+    }
+  }
+  // the walk: 7 hot houses along one street, in order
+  const rows = [...new Set(hotList.map(p => Math.round(p[1])))].sort((a, b) => a - b);
+  const mid = Math.floor(rows.length / 2) - 1;
+  const rowA = hotList.filter(p => Math.round(p[1]) === rows[mid]).sort((a, b) => a[0] - b[0]);
+  const rowB = hotList.filter(p => Math.round(p[1]) === rows[mid + 1]).sort((a, b) => b[0] - a[0]);
+  const band = rowA.filter((p, i) => i % 2 === 0).slice(0, 4).concat(rowB.filter((p, i) => i % 2 === 0).slice(-3));
+  const route = document.getElementById('route'), pins = document.getElementById('pins');
+  route.setAttribute('points', band.map((p, i) => `${p[0].toFixed(1)},${(p[1] + (i < 4 ? -9 : 17)).toFixed(1)}`).join(' '));
+  band.forEach((p, i) => {
+    const g = el('g', {class: 'pin', transform: `translate(${p[0].toFixed(1)} ${(p[1] + (i < 4 ? -9 : 17)).toFixed(1)})`}, pins);
+    el('circle', {r: i ? 3.8 : 5.6, fill: i ? '#1b1c21' : '#f5883a', stroke: i ? '#ffb07a' : '#ffd2ae', 'stroke-width': i ? 1.2 : 2}, g);
+    const t = el('text', {y: i ? 1.6 : 2.1, 'text-anchor': 'middle', style: `font:600 ${i ? 4.4 : 6}px 'Geist Mono',monospace;fill:${i ? '#ffb07a' : '#1a0d04'}`}, g);
+    t.textContent = i + 1;
+  });
+  window.ALDABA.route = band;
+})();
+</script>
+
+<script>
+/* ---------------- signed-deal burst: canvas 2D, no library, portable into the app ----------------
+   burst(x, y): 180 sparks + a shockwave ring from a screen point. Everything preallocated in one Float32Array,
+   runs ~1.4 s on rAF, then the canvas is removed and its backing store released. Reduced motion: no-op. */
+window.aldabaBurst = (function () {
+  const N = 180, F = 7;   // x, y, vx, vy, life, size, hue
+  const P = new Float32Array(N * F);
+  let cv = null, cx = null, raf = 0, t0 = 0, ox = 0, oy = 0, dpr = 1;
+  const DUR = 1400;
+  function frame(now) {
+    const t = now - t0, dt = Math.min(0.033, (now - (frame.last || now)) / 1000); frame.last = now;
+    const w = cv.width, h = cv.height;
+    cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, w, h);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // shockwave ring
+    const k = Math.min(1, t / 700);
+    if (k < 1) {
+      const e = 1 - Math.pow(1 - k, 3);
+      cx.globalCompositeOperation = 'lighter';
+      cx.lineWidth = 2 + 10 * (1 - e);
+      cx.strokeStyle = `rgba(255,176,122,${(0.55 * (1 - k)).toFixed(3)})`;
+      cx.beginPath(); cx.arc(ox, oy, 20 + 260 * e, 0, 6.2832); cx.stroke();
+      cx.fillStyle = `rgba(255,150,80,${(0.22 * (1 - k)).toFixed(3)})`;
+      cx.beginPath(); cx.arc(ox, oy, 30 + 120 * e, 0, 6.2832); cx.fill();
+    }
+    cx.globalCompositeOperation = 'lighter';
+    const drag = Math.pow(0.9, dt * 60);
+    for (let i = 0; i < N; i++) {
+      const o = i * F;
+      let life = P[o + 4] - dt / (0.7 + 0.7 * (i % 7) / 7);
+      P[o + 4] = life;
+      if (life <= 0) continue;
+      P[o + 2] *= drag; P[o + 3] = P[o + 3] * drag + 420 * dt;
+      const px = P[o] += P[o + 2] * dt, py = P[o + 1] += P[o + 3] * dt;
+      const s = P[o + 5] * (0.4 + 0.6 * life);
+      const hot = life > 0.7;
+      cx.fillStyle = hot ? `rgba(255,232,205,${life.toFixed(3)})` : `rgba(${P[o + 6] > 0.5 ? '255,176,110' : '245,136,58'},${life.toFixed(3)})`;
+      // streak along velocity
+      cx.beginPath(); cx.ellipse(px, py, s * 2.6, s * 0.7, Math.atan2(P[o + 3], P[o + 2]), 0, 6.2832); cx.fill();
+    }
+    if (t < DUR) raf = requestAnimationFrame(frame); else end();
+  }
+  function end() {
+    cancelAnimationFrame(raf); raf = 0;
+    if (cv) { cv.width = cv.height = 0; cv.remove(); cv = cx = null; }
+  }
+  return function burst(x, y) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    end();
+    dpr = Math.min(2, devicePixelRatio || 1);
+    cv = document.createElement('canvas');
+    cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:50';
+    cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+    document.body.appendChild(cv); cx = cv.getContext('2d');
+    ox = x; oy = y;
+    for (let i = 0; i < N; i++) {
+      const o = i * F, a = Math.random() * 6.2832, sp = 180 + Math.pow(Math.random(), 0.6) * 900;
+      P[o] = x; P[o + 1] = y; P[o + 2] = Math.cos(a) * sp; P[o + 3] = Math.sin(a) * sp - 160;
+      P[o + 4] = 1; P[o + 5] = 1.2 + Math.random() * 2.6; P[o + 6] = Math.random();
+    }
+    t0 = performance.now(); frame.last = t0; window.ALDABA.burstAt = t0;
+    raf = requestAnimationFrame(frame);
+  };
+})();
+
+/* big-moment demo */
+(function () {
+  const job = document.getElementById('job'), btn = document.getElementById('sign'), wk = document.getElementById('wk');
+  const pill = document.getElementById('job-pill'), steps = document.querySelectorAll('#steps > span');
+  let done = false;
+  btn.addEventListener('click', () => {
+    const r = btn.getBoundingClientRect();
+    window.aldabaBurst(r.left + r.width / 2, r.top + r.height / 2);
+    if (done) return; done = true;
+    job.classList.add('done'); steps[2].classList.add('on');
+    pill.innerHTML = '<span class="en">Signed</span><span class="es" lang="es">Firmado</span>';
+    wk.textContent = '4';
+    window.ALDABA.lastInput = performance.now(); window.ALDABA.wake && window.ALDABA.wake();
+  });
+})();
+</script>
+
+<script>
+/* ---------------- scroll story ----------------
+   GSAP ScrollTrigger + Lenis when the CDN loads; otherwise a native scroll handler sets the chapter and CSS does the rest. */
+(function () {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const story = document.getElementById('story'), stage = document.querySelector('.stage');
+  const chs = document.querySelectorAll('.ch'), rails = document.querySelectorAll('.rail > span');
+  const H = {hail: document.getElementById('h-hail'), doors: document.getElementById('h-doors'), walk: document.getElementById('h-walk'), signed: document.getElementById('h-signed')};
+  let ch = -1, burstArmed = true;
+
+  function setCh(n) {
+    if (n === ch) return; ch = n;
+    stage.dataset.ch = n;
+    chs.forEach((c, i) => { c.classList.toggle('on', i === n); c.classList.toggle('past', i < n); });
+    rails.forEach((r, i) => r.classList.toggle('on', i <= n));
+  }
+  function hud(p) {  // p = 0..4 story units
+    const c = x => Math.max(0, Math.min(1, x));
+    H.hail.textContent = (1.75 * c(p / 0.8)).toFixed(2);
+    const d = c((p - 1) / 0.45); H.doors.textContent = d > 0 ? String(Math.round(412 * d)) : '—';
+    const w = c((p - 2) / 0.45); H.walk.textContent = w > 0 ? (0.8 * w).toFixed(1) + ' mi' : '—';
+    H.signed.textContent = p > 3.15 ? '1' : '0';
+  }
+  function progress(p) {   // p = 0..1 across the story
+    const u = p * 4;
+    setCh(Math.min(3, Math.floor(u)));
+    rails.forEach((r, i) => r.style.setProperty('--f', Math.max(0, Math.min(1, u - i)).toFixed(3)));
+    hud(u);
+    window.ALDABA.story = Math.max(0, Math.min(3, u - 0.35));
+    window.ALDABA.lastInput = performance.now(); window.ALDABA.wake && window.ALDABA.wake();
+    if (u > 3.2 && burstArmed && !RM) {            // the signed moment fires once per pass
+      burstArmed = false;
+      const r = document.querySelector('.signed .ring').getBoundingClientRect();
+      if (r.width) window.aldabaBurst(r.left + r.width / 2, r.top + r.height / 2);
+    } else if (u < 2.8) burstArmed = true;
+  }
+  function heroProgress() {  // before the story: the storm (0)
+    const r = story.getBoundingClientRect();
+    if (r.top > 0) window.ALDABA.story = 0;
+    else if (r.bottom < innerHeight) window.ALDABA.story = 3;
+  }
+
+  function native() {
+    let pend = 0;
+    const on = () => { if (pend) return; pend = requestAnimationFrame(() => {
+      pend = 0; const r = story.getBoundingClientRect(), span = r.height - innerHeight;
+      const p = Math.max(0, Math.min(1, -r.top / span));
+      progress(p); heroProgress();
+    }); };
+    addEventListener('scroll', on, {passive: true}); addEventListener('resize', on); on();
+  }
+
+  function withGsap() {
+    const {gsap, ScrollTrigger} = window;
+    gsap.registerPlugin(ScrollTrigger);
+    document.documentElement.classList.add('gs');
+    if (!RM && window.Lenis) {
+      const lenis = new Lenis({duration: 1.15, easing: t => 1 - Math.pow(1 - t, 4), smoothWheel: true, anchors: true});
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+      window.ALDABA.lenis = lenis;
+    }
+    // hidden start states
+    const L = sel => stage.querySelectorAll(sel);
+    gsap.set('#sweep-r', {attr: {width: 0}});
+    gsap.set('#zone', {strokeDasharray: 1000, strokeDashoffset: 1000, fillOpacity: 0});
+    gsap.set(['#zonetag', '#hothouses', '#route', '#pins .pin'], {opacity: 0});
+    gsap.set('#route', {strokeDasharray: 600, strokeDashoffset: 600});
+    gsap.set('#pins .pin', {scale: 0, transformOrigin: 'center center'});
+    gsap.set(L('.ov'), {opacity: 0, y: 24, scale: .98});
+    gsap.set('#mapzoom', {svgOrigin: '520 280'});
+
+    const tl = gsap.timeline({defaults: {ease: 'none'}});
+    // 0 -> 1 storm: the swath sweeps in from the west
+    tl.to('#sweep-r', {attr: {width: 800}, duration: 0.8, ease: 'power2.out'}, 0)
+      .fromTo('#swath', {opacity: .6}, {opacity: 1, duration: .6}, 0.2)
+    // 1 -> 2 hot zone
+      .to('#swath', {opacity: .38, duration: .4}, 1)
+      .to('#zone', {strokeDashoffset: 0, duration: .6, ease: 'power2.inOut'}, 1)
+      .to('#zone', {fillOpacity: 1, duration: .3}, 1.35)
+      .to('#hothouses', {opacity: 1, duration: .4}, 1.2)
+      .to('#zonetag', {opacity: 1, duration: .2}, 1.45)
+      .to(L('.zonecard'), {opacity: 1, y: 0, scale: 1, duration: .35, ease: 'power3.out'}, 1.3)
+    // 2 -> 3 door: zoom to the block, draw the walk
+      .to(L('.zonecard'), {opacity: 0, y: -16, duration: .25}, 2)
+      .to('#zonetag', {opacity: 0, duration: .2}, 2)
+      .to('#mapzoom', {scale: 2.3, x: -180, y: 60, duration: .7, ease: 'power2.inOut'}, 2)
+      .to('#swath', {opacity: .22, duration: .4}, 2)
+      .to('#zone', {opacity: .3, duration: .4}, 2)
+      .to('#route', {opacity: 1, strokeDashoffset: 0, duration: .5, ease: 'power1.inOut'}, 2.35)
+      .to('#pins .pin', {opacity: 1, scale: 1, duration: .25, stagger: .04, ease: 'back.out(2)'}, 2.35)
+      .to(L('.walk'), {opacity: 1, y: 0, scale: 1, duration: .35, ease: 'power3.out'}, 2.3)
+      .to(L('.door'), {opacity: 1, y: 0, scale: 1, duration: .35, ease: 'power3.out'}, 2.45)
+    // 3 -> 4 signed
+      .to(L('.door'), {opacity: 0, y: -18, scale: .98, duration: .25}, 3)
+      .to(L('.signed'), {opacity: 1, y: 0, scale: 1, duration: .35, ease: 'back.out(1.6)'}, 3.12)
+      .to('#mapzoom', {scale: 2.05, duration: 1, ease: 'power1.out'}, 3)
+      .set({}, {}, 4);
+
+    ScrollTrigger.create({
+      trigger: story, start: 'top top', end: 'bottom bottom', animation: tl, scrub: RM ? true : 0.6,
+      onUpdate: self => progress(self.progress),
+      onLeave: () => { window.ALDABA.story = 3; },
+      onLeaveBack: () => { window.ALDABA.story = 0; }
+    });
+    progress(0);
+  }
+
+  let tries = 0;
+  (function boot() {
+    if (window.gsap && window.ScrollTrigger) return withGsap();
+    if (++tries > 40 || document.readyState === 'complete' && tries > 4) return native();   // CDN unreachable
+    setTimeout(boot, 50);
+  })();
+})();
+</script>
+
+<script type="module">
+/* ---------------- WebGL scene: OGL, one fullscreen field + one GPU particle system ----------------
+   story 0 storm (turbulent lit clouds, hail falling) -> 1 hot zone (isolines, particles orbit in rings)
+   -> 2 door (everything gathers to one point) -> 3 signed (warm bloom, particles drift out as a calm constellation).
+   Safety: all motion lives in the shaders (seeds + one wrapped time), no allocation per frame; render scale capped;
+   full rate only while something moves, 30 fps otherwise, stopped when hidden / idle 2 min;
+   context loss or reduced motion -> the CSS gradient on <body>. */
+const cv = document.getElementById('scene');
+const RM = matchMedia('(prefers-reduced-motion: reduce)');
+const A = window.ALDABA;
+let OGL;
+try { OGL = await import('https://cdn.jsdelivr.net/npm/ogl@1.0.11/src/index.js'); } catch (e) { OGL = null; }
+if (OGL && !RM.matches) start();
+
+function start() {
+  const {Renderer, Program, Mesh, Triangle, Geometry, Transform} = OGL;
+  let renderer;
+  try { renderer = new Renderer({canvas: cv, dpr: 1, alpha: false, antialias: false, depth: false, powerPreference: 'high-performance', webgl: 1}); }
+  catch (e) { return; }
+  const gl = renderer.gl;
+  if (!gl) return;
+  gl.clearColor(0.024, 0.027, 0.035, 1);
+
+  const FIELD_V = `attribute vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`;
+  const FIELD_F = `precision highp float;
+uniform vec2 uRes;uniform float uA;uniform float uS;uniform vec2 uMouse;uniform vec2 uFocus;uniform float uFlash;
+float h(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+  return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 r=mat2(.8,-.6,.6,.8);for(int i=0;i<5;i++){v+=a*n(p);p=r*p*2.02+11.3;a*=.5;}return v;}
+void main(){
+  vec2 uv=gl_FragCoord.xy/uRes;float asp=uRes.x/uRes.y;
+  vec2 p=(uv-.5)*vec2(asp,1.);
+  float st=1.-smoothstep(0.,1.3,uS);            /* storm weight */
+  float wz=max(0.,1.-abs(uS-1.)*1.1);           /* hot zone */
+  float wd=max(0.,1.-abs(uS-2.)*1.1);           /* door */
+  float ws=smoothstep(2.2,3.,uS);               /* signed */
+  vec2 o1=vec2(cos(uA),sin(uA)),o2=vec2(cos(2.*uA+1.),sin(2.*uA+1.));
+  /* clouds: domain-warped fbm, stronger warp in the storm */
+  vec2 q=p*1.35+vec2(.15*uA,0.);
+  vec2 w=vec2(fbm(q+o1*.6),fbm(q-o1*.6+5.2));
+  float c=fbm(q+(1.2+1.6*st)*w+o2*.4);
+  float c2=fbm(q*2.1+w*2.+o1);
+  float body=smoothstep(.22,.78,c);
+  /* light inside the clouds: warm core that follows the pointer, cool rim from the upper left */
+  vec2 f=(vec2(uFocus.x,1.-uFocus.y)-.5)*vec2(asp,1.)+uMouse*vec2(.25,-.2);
+  float d=length((p-f)*vec2(.75,1.));
+  float core=exp(-d*d*(2.4-1.2*st));
+  float cool=exp(-dot(p-vec2(-asp*.45,.55),p-vec2(-asp*.45,.55))*1.3);
+  vec3 col=vec3(.018,.02,.026);
+  col+=vec3(.085,.09,.108)*body*(.5+.9*st)+vec3(.05,.052,.062)*c2*body*(.4+.6*st);
+  col+=vec3(1.,.5,.2)*core*(.05+.9*pow(body,1.5)+.35*c2*body)*(.35+.65*st+.4*uFlash);
+  col+=vec3(.35,.45,.68)*cool*body*.22*(.4+.6*st);
+  /* hot zone: isolines of the heat around the focus */
+  float heat=exp(-d*d*6.5);
+  float iso=pow(1.-abs(fract(heat*5.+.02*sin(uA*2.))*2.-1.),30.)*smoothstep(.1,.3,heat);
+  col+=vec3(1.,.55,.25)*iso*.28*wz;
+  col+=vec3(1.,.5,.2)*heat*.08*wz;
+  /* door: one tight light */
+  float pt=exp(-d*d*60.);
+  col+=vec3(1.,.72,.5)*(pt*.6+exp(-d*d*9.)*.08)*wd;
+  /* signed: warm bloom from below, clouds settle into silk */
+  float silk=pow(max(cos(p.x*4.+p.y*6.+2.*c+uA),0.),6.);
+  col+=vec3(1.,.52,.2)*(exp(-dot(p-vec2(0.,-.9),p-vec2(0.,-.9))*1.2)*.16+silk*.035*body)*ws;
+  col*=1.-.75*dot(uv-.5,uv-.5)*1.6;
+  gl_FragColor=vec4(col,1.);
+}`;
+  const PART_V = `precision highp float;
+attribute vec4 seed;
+uniform float uT;uniform float uS;uniform float uAsp;uniform float uPx;uniform vec2 uFocus;uniform vec2 uMouse;
+varying float vA;varying vec3 vC;
+vec2 rot(vec2 v,float a){float c=cos(a),s=sin(a);return vec2(c*v.x-s*v.y,s*v.x+c*v.y);}
+void main(){
+  float s=clamp(uS+(seed.y-.5)*.5,0.,3.);     /* staggered: each particle changes formation at its own moment */
+  float w0=max(0.,1.-s),w1=max(0.,1.-abs(s-1.)),w2=max(0.,1.-abs(s-2.)),w3=max(0.,s-2.);
+  vec2 F=(vec2(uFocus.x,1.-uFocus.y)*2.-1.)*vec2(uAsp,1.)+uMouse*vec2(.3,-.25);
+  /* storm: hail falling on a slant */
+  float sp=.10+.2*seed.z;
+  float fy=fract(seed.y+uT*sp);
+  vec2 p0=vec2((seed.x*2.-1.)*uAsp*1.25+(fy-.5)*.5,1.15-fy*2.3);
+  /* hot zone: concentric rings around the focus */
+  float k=floor(seed.z*5.);
+  float r1=.12+k*.13+(seed.w-.5)*.03;
+  vec2 p1=F+rot(vec2(r1,0.),seed.x*6.2832+uT*.05*(1.2-k*.18))*vec2(1.,.8);
+  /* door: gather to one point with a slow halo */
+  float r2=.012+pow(seed.w,2.5)*.34;
+  vec2 p2=F+rot(vec2(r2,0.),seed.x*6.2832+uT*(.35-.3*seed.w));
+  /* signed: out into a calm constellation */
+  vec2 dir=rot(vec2(1.,0.),seed.x*6.2832);
+  vec2 p3=F*.4+dir*(.35+seed.w*1.6)*vec2(uAsp*.8,1.)+.03*vec2(sin(uT*.2+seed.z*9.),cos(uT*.17+seed.y*7.));
+  vec2 p=(p0*w0+p1*w1+p2*w2+p3*w3)/max(.0001,w0+w1+w2+w3);
+  gl_Position=vec4(p.x/uAsp,p.y,0.,1.);
+  float tw=.6+.4*sin(uT*1.7+seed.x*40.);
+  gl_PointSize=uPx*((1.+2.2*seed.w)*w0+(1.2+1.8*seed.z)*w1+(1.+2.4*(1.-seed.w))*w2+(1.+1.6*seed.z)*w3);
+  vec3 cold=vec3(.75,.82,.95),warm=vec3(1.,.56,.24),hot=vec3(1.,.82,.62);
+  vC=cold*w0+warm*w1+hot*w2+mix(warm,hot,seed.z)*w3;
+  vA=(.28+.35*seed.z)*w0+(.5+.4*(1.-k/5.))*w1*tw+(.55+.45*(1.-seed.w))*w2+(.22+.3*seed.z)*tw*w3;
+}`;
+  const PART_F = `precision highp float;varying float vA;varying vec3 vC;
+void main(){vec2 c=gl_PointCoord-.5;float d=dot(c,c);float a=smoothstep(.25,0.,d);gl_FragColor=vec4(vC*a*vA,1.);}`;
+
+  const scene = new Transform();
+  const field = new Program(gl, {vertex: FIELD_V, fragment: FIELD_F, depthTest: false, depthWrite: false,
+    uniforms: {uRes: {value: [1, 1]}, uA: {value: 0}, uS: {value: 0}, uMouse: {value: [0, 0]}, uFocus: {value: [0.62, 0.42]}, uFlash: {value: 0}}});
+  const fieldMesh = new Mesh(gl, {geometry: new Triangle(gl), program: field});
+  fieldMesh.setParent(scene);
+
+  const COUNT = 1800, seeds = new Float32Array(COUNT * 4);
+  for (let i = 0; i < seeds.length; i++) seeds[i] = Math.random();
+  const pgeo = new Geometry(gl, {seed: {size: 4, data: seeds}});
+  const parts = new Program(gl, {vertex: PART_V, fragment: PART_F, transparent: true, depthTest: false, depthWrite: false,
+    uniforms: {uT: {value: 0}, uS: {value: 0}, uAsp: {value: 1}, uPx: {value: 1}, uFocus: {value: [0.62, 0.42]}, uMouse: {value: [0, 0]}}});
+  parts.setBlendFunc(gl.ONE, gl.ONE);
+  const partMesh = new Mesh(gl, {mode: gl.POINTS, geometry: pgeo, program: parts, frustumCulled: false});
+  partMesh.setParent(scene);
+
+  // uniform value arrays are reused (mutated in place), never replaced
+  const uRes = field.uniforms.uRes.value, fMouse = field.uniforms.uMouse.value, pMouse = parts.uniforms.uMouse.value;
+  const fFocus = field.uniforms.uFocus.value, pFocus = parts.uniforms.uFocus.value;
+  const SCALE = 0.62;   // render scale vs CSS px (the field is soft; saves ~60% of fill on a Retina Air)
+  function resize() {
+    const w = Math.min(1600, Math.round(innerWidth * SCALE)), h = Math.min(1000, Math.round(innerHeight * SCALE));
+    renderer.setSize(w, h);
+    cv.style.width = '100vw'; cv.style.height = '100vh';
+    uRes[0] = w; uRes[1] = h;
+    parts.uniforms.uAsp.value = w / h;
+    parts.uniforms.uPx.value = Math.max(1, h / 620);
+  }
+  resize();
+
+  // focus per story beat (0..1 of the viewport, y down): hero upper right, then behind the stage
+  const FOC = [[0.66, 0.36], [0.775, 0.44], [0.57, 0.46], [0.66, 0.4]];
+  let s = A.story, fx = FOC[0][0], fy = FOC[0][1], mx = 0, my = 0, tmx = 0, tmy = 0;
+  let phase = 0, t = 0, last = performance.now(), raf = 0, timer = 0, alive = true, hidden = document.hidden;
+  const TAU = Math.PI * 2, PERIOD = 180;
+
+  function render(now) {
+    raf = 0;
+    if (!alive || hidden) return;
+    const dt = Math.min(0.1, Math.max(0, (now - last) / 1000)); last = now;
+    phase = (phase + dt * TAU / PERIOD) % TAU;       // one wrapped angle: identical precision at hour 1 and hour 24
+    t = (t + dt) % 600;                               // particle clock, wraps every 10 min (hail loops are seamless per particle)
+    const k = 1 - Math.exp(-dt * 3.2);
+    s += (A.story - s) * k;
+    const i = Math.min(2, Math.floor(s)), fr = s - i, a = FOC[i], b = FOC[i + 1];
+    const tfx = a[0] + (b[0] - a[0]) * fr, tfy = a[1] + (b[1] - a[1]) * fr;
+    fx += (tfx - fx) * k; fy += (tfy - fy) * k;
+    mx += (tmx - mx) * k * .5; my += (tmy - my) * k * .5;
+    const flash = A.burstAt > 0 ? Math.max(0, 1 - (now - A.burstAt) / 900) : 0;
+    field.uniforms.uA.value = phase; field.uniforms.uS.value = s; field.uniforms.uFlash.value = flash;
+    fMouse[0] = pMouse[0] = mx; fMouse[1] = pMouse[1] = my;
+    fFocus[0] = pFocus[0] = fx; fFocus[1] = pFocus[1] = fy;
+    parts.uniforms.uT.value = t; parts.uniforms.uS.value = s;
+    renderer.render({scene});
+    schedule(now);
+  }
+  function schedule(now) {
+    const idle = now - A.lastInput;
+    if (idle > 120e3) return;                                       // asleep; any input wakes it
+    const busy = idle < 1500 || Math.abs(A.story - s) > 0.002 || (A.burstAt > 0 && now - A.burstAt < 1000);
+    if (busy) raf = requestAnimationFrame(render);                  // scrolling/pointer: display rate
+    else timer = setTimeout(() => { timer = 0; raf = requestAnimationFrame(render); }, Math.max(0, 1000 / 30 - (performance.now() - now) - 8));
+  }
+  function halt() { cancelAnimationFrame(raf); clearTimeout(timer); raf = timer = 0; }
+  function wake() { if (alive && !hidden && !raf && !timer) { last = performance.now(); raf = requestAnimationFrame(render); } }
+  A.wake = wake;
+
+  let pend = 0, pe = null;
+  addEventListener('pointermove', e => { pe = e; if (!pend) pend = requestAnimationFrame(() => { pend = 0; tmx = pe.clientX / innerWidth - .5; tmy = pe.clientY / innerHeight - .5; A.lastInput = performance.now(); wake(); }); }, {passive: true});
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(ev => addEventListener(ev, () => { A.lastInput = performance.now(); wake(); }, {passive: true}));
+  document.addEventListener('visibilitychange', () => { hidden = document.hidden; if (hidden) halt(); else wake(); });
+  let rz = 0; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { resize(); wake(); }, 120); });
+  cv.addEventListener('webglcontextlost', e => { e.preventDefault(); alive = false; halt(); cv.classList.remove('on'); });   // body gradient shows
+  RM.addEventListener && RM.addEventListener('change', () => { if (RM.matches) { alive = false; halt(); cv.classList.remove('on'); } });
+
+  renderer.render({scene});
+  requestAnimationFrame(() => cv.classList.add('on'));
+  wake();
+}
+</script>
+</body>
+</html>

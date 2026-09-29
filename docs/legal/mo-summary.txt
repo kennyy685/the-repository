@@ -1,0 +1,42 @@
+MISSOURI - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. revisor.mo.gov is egress-blocked in this environment (WebFetch and curl both
+refused). Below is a search-engine paraphrase corroborated across 2+ secondary sources, not read
+verbatim. Re-verify at revisor.mo.gov before use.
+
+1. Deductible waiver/rebate - RSMo Sec. 407.725 (Merchandising Practices Act)
+   Paraphrase: near-identical wording to Nebraska's 44-8604 - "a contractor shall not advertise or
+   promise to pay or rebate all or any portion of any insurance deductible as an inducement to the
+   sale of goods or services," with the same expanded definition (allowance, discount, compensation,
+   gift, prize, bonus, coupon, credit, referral fee). SAME SECTION also bars a contractor from
+   representing/negotiating an insurance claim on the owner's behalf for roof or exterior repair
+   work - i.e. Missouri's public-adjuster-style claims-negotiation ban is folded into this same
+   statute, not a separate insurance-code section. Useful: this doubles as the public-adjuster-limit
+   citation for Missouri.
+   Source: law.justia.com RSMo 407.725; carnahanevans.com "New Law Governing Roof & Exterior Repair".
+
+2. Home-solicitation cancel right - RSMo Sec. 407.705 (and 407.700-.720 series)
+   Paraphrase: buyer may cancel by midnight of the 3rd business day after signing; "business day"
+   excludes Saturday, Sunday, legal holidays. Cancellation by mailed notice is effective on deposit.
+   No storm-specific extension found.
+   Source: law.justia.com RSMo 407.705; FindLaw RSMo 407.710.
+
+3. Contractor registration/licensing - Missouri Senate Bill 326, effective 1/1/2023: STATEWIDE
+   REGISTRATION (not a trade license) with the Dept. of Commerce and Insurance, requiring $1M
+   liability insurance, vehicle insurance, workers'-comp. No statewide roofing license; cities/
+   counties layer on their own local licenses. Use "registered," not "licensed," for the statewide
+   piece, but check local-city wording since some Missouri cities may use "licensed" for their own
+   permit.
+   Source: freedomroofingmo.com; missouriroofauthority.com; frgwillhelp.com Missouri roofing guides.
+
+4. Public adjuster / claims negotiation - see item 1 above; RSMo 407.725 itself appears to bar a
+   contractor from negotiating an owner's insurance claim for roof/exterior work. UNVERIFIED against
+   primary text; the exact scope (does it also require a public-adjuster license generally, or just
+   bar contractors specifically) needs the real statute text.
+5. Assignment of benefits - not independently checked. UNVERIFIED.
+6. Door-to-door permit - no statewide permit statute found beyond the 407.705 cancel-right rule;
+   local permits vary by city.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- RSMo 407.725 - https://law.justia.com/codes/missouri/title-xxvi/chapter-407/section-407-725/
+- RSMo 407.705 - https://law.justia.com/codes/missouri/title-xxvi/chapter-407/section-407-705/
+- freedomroofingmo.com, "Do Roofers in Missouri Need to Be Licensed and Insured?" - https://freedomroofingmo.com/do-roofers-st-louis-need-licensed-insured/

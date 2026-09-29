@@ -10,7 +10,7 @@ What counts: leads, inspections, claims, jobs. A part matters if it gets FilthE 
 | 3 | **Follow-up engine** | Most sales need 5+ touches; most reps stop at 1-2 | 48 h / 5 day / 10 day reminders + one "Due" list (Today / Tomorrow / Later) | round 9 |
 | 4 | **Daily coaching** | 35-43% of new reps quit in 90 days | End-of-day review (5 questions), before-the-next-door card, rookie framing | T83 |
 | 5 | **Voice** | Typing at a door doesn't happen | First test that the mic works in the Claude app on iPhone, then hold-to-talk logging with a confirm card | T79, T82 |
-| 6 | **Spanish edge** | 63% of roofers are Latino; no competitor does Spanish well | Fixed glossary, "help me say it", read-aloud of fixed legal notices | T73, T80, T81 |
+| 6 | **Spanish edge** | Latino workers drove ~3/4 of roofing's new labor-force growth by 2020 (BLS, corrected round 43 - "63% of roofers" was wrong, not in the source); no competitor does Spanish well | Fixed glossary, "help me say it", read-aloud of fixed legal notices | T73, T80, T81 |
 | 7 | **Claims + money** | Where the money is made or lost | One home for claims (see loose end), checks to chase, referral ask at completion | round 9 |
 | 8 | **Product later** | FilthE may sell the app | Move HMP's name, phones and prices into one settings object | T77 |
 
