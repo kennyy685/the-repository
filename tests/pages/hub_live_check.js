@@ -759,7 +759,7 @@ async function scenarioWeekly(browser, url) {
   ok(/Best helper/.test(txt), `${L}: no best helper row`);
   const order = await a.p.$$eval("#tp-crew > .xblock, #tp-crew > div", els => els.filter(e => !e.hidden).map(e => e.id || e.className));
   ok(order[0] === "wkBlock", `${L}: the card isn't at the top of Crew (${order.join(",")})`);
-  await a.tick(125000);
+  await a.tick(65000);
   const w1 = await wkWrites(a.p);
   ok(w1.length === 1 && w1[0] === W40, `${L}: crew/weeks writes ${JSON.stringify(w1)} (want one ${W40})`);
   ok((await log(a.p)).some(x => x[0] === "acquire" && x[1] === W40), `${L}: wrote without taking the lease`);
@@ -770,7 +770,7 @@ async function scenarioWeekly(browser, url) {
   await a.ctx.close();
   // a second open (the doc's there now): no rewrite, same card
   const b = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc } }), now: new Date(SUN.getTime() + 40 * 60000) });
-  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(125000);
+  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(65000);
   ok(!(await wkWrites(b.p)).length, `${L}: a second open rewrote the week doc`);
   ok(await b.p.isVisible("#wkBlock") && /Shipped\s*2/.test(await b.p.textContent("#wkBlock")), `${L}: second open lost the card`);
   await b.ctx.close();
@@ -820,7 +820,7 @@ async function scenarioWeeklyEdges(browser, url) {
   // the log was trimmed inside the week (no event before it / system/tidy says so): Shipped + Stuck "not tracked yet", no $/ship, no write
   for (const [k, docs] of [["no older event", wkDocs({ whole: false })], ["tidy inside the week", wkDocs({ extra: { "system/tidy": { deleted_through: "2026-09-29T12:00:00Z", at: "2026-10-01T00:00:00Z" } } })]]) {
     const c = await open(browser, url, { docs, now: SUN });
-    await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(125000);
+    await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(8000);
     const t = await c.p.textContent("#wkBlock");
     ok(/Shipped\s*not tracked yet/.test(t) && /Stuck\s*not tracked yet/.test(t) && !/\$ per ship/.test(t), `${L}: ${k}: a partial week shows numbers (${t.slice(0, 200)})`);
     ok(!(await wkWrites(c.p)).length, `${L}: ${k}: a partial week was written`);
