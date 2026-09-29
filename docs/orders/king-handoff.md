@@ -18,6 +18,13 @@ Next King handoffs should come from the hub button, not create_session, or the c
 2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
 3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
+## 2026-09-29 01:46 UTC (latest)
+- LIVE: AI hub Version 31 (freeze fixed, 18-scenario live check), Knock preview https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU.
+- RUNNING: hub v28.1 One building session_016ezDyTJ7bpC4c8kzD8WMCJ (ultracode); open map v5 Designer
+  session_019jAdfacYrQmrfkPBuf1xov; app code-health finisher session_01MnduKbrqyhnd66wsr61WhL.
+- King checks every 5 min via send_later (FilthE asked). Hub next after v28.1: v28.2 + functions 3/5/7/8/9, ultracode.
+  Then deep ideas he approved: score every call + night shift.
+
 ## 2026-09-29 01:07 UTC: FilthE OK'd 3 robots ("usage can handle it")
 - Hub: session_01PwbnuZLG2xnZVnniirsJuB (ultracode) freeze fixed, 18 checks pass, final QA + publish. Then v28.1 build.
 - For the app: session_01GW26yM9kK9WaGLzHzLqeew Designer, open map v5 = real storms + 7 AM home, publish.
