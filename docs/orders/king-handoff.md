@@ -31,6 +31,10 @@ Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude
 6. LESSONS: in-chat Workflows die with the King's container (restart 23:10 killed the contest): run big workflows inside
    a robot session. Robots that end a turn "waiting on checks" stall: tell them to run checks in the foreground.
 
+## 2026-09-29 23:18 UTC: King session_01SfsYEdTDMqAoks8wBn8j6g took over
+- Wake trigger trig_01W2Rwqb5hk5wPihn8t23UgG (hub system/king + robots.dispatch.king); trig_014pzRWx + trig_01RCGrLe
+  already disabled; session_01BRhiPY archived. Both robots (contest 019snB4B, D 01FJMyDx) working at 23:16.
+
 ## 2026-09-29 16:37 UTC: King session_01BRhiPYparx9TSui1Tu7oSB took over
 - Wake trigger trig_014pzRWxgovShuQovAfRwQ8j (hub system/king + robots.dispatch.king); trig_01CyKokD disabled;
   session_012p3ZTe archived. Self-test wake armed 16:38Z. Check-in trig_01FNRejT (16:57Z) watches Builder 01JH3N6T.
