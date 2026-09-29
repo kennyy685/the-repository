@@ -25,7 +25,7 @@ CATALOG = [
     ("pocket-card/pocket-card.pdf", "Pocket card", "door", "What to say first, in your pocket."),
     ("walk-sheet.pdf", "Walk sheet", "door", "Paper backup of today's walk for a dead phone."),
     ("first-knock-day.pdf", "First knock day", "door", "The plan for your first day at the doors."),
-    ("pre-winter-inspection.pdf", "Pre-winter inspection", "door", "Free inspection leave-behind (EN/ES) + the door script, for Oct-Nov."),
+    ("pre-winter-inspection.pdf", "Pre-winter inspection", "door", "Roof check leave-behind (EN/ES) + the door script, for Oct-Nov."),
     ("yard-sign.pdf", "Yard sign", "door", "24 x 18 for every job."),
     ("contingency-agreement.pdf", "Contingency agreement", "legal", "Signed before the adjuster. Draft until the attorney review."),
     ("contingency-agreement-es.pdf", "Acuerdo contingente", "legal", "Spanish version. Draft until the attorney review."),

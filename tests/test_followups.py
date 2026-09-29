@@ -82,8 +82,8 @@ class Followups(unittest.TestCase):
         d = self.run_f([b], "2026-09-28")                      # visit day passed: only the (late) step
         self.assertEqual([r["kind"] for r in d["today"]], ["next_step"])
         c = lead(type="cash", source="everyday")
-        self.assertIn("free estimate", self.run_f([c], "2026-09-26")["today"][0]["reason"]["en"])
-        self.assertIn("un estimado gratis", self.run_f([c], "2026-09-26")["today"][0]["reason"]["es"])
+        self.assertIn("set a time for an estimate", self.run_f([c], "2026-09-26")["today"][0]["reason"]["en"])
+        self.assertIn("para agendar un estimado.", self.run_f([c], "2026-09-26")["today"][0]["reason"]["es"])
 
     def test_day_uses_america_chicago_local_date(self):
         # Central time, not UTC: a contact just after 7 PM Central is still "today" in Chicago even though

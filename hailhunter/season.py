@@ -259,6 +259,23 @@ def mesh_max(grid, lat, lon, radius_km):
     return round(float(inside.max()), 2) if inside.size else None
 
 
+def days_ago(storm, today, tz="America/Chicago"):
+    """Whole days from a storm to `today` (a date or "YYYY-MM-DD"), counted on the storm's local calendar date:
+    "2026-08-08" or a timestamp like "2026-08-09T04:00:00Z" (11 PM Aug 8 in Nebraska) both count from Aug 8."""
+    s = str(storm)
+    if "T" in s:
+        d = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        d = (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).astimezone(ZoneInfo(tz)).date()
+    else:
+        d = date.fromisoformat(s[:10])
+    return (date.fromisoformat(str(today)[:10]) - d).days
+
+
+def age_line(age):
+    """The zone why-line for the storm's age (the same line in season zones and the night brief's map areas)."""
+    return [1 if age <= 60 else (0 if age <= 150 else -1), {"en": f"{age} days ago.", "es": f"Hace {age} días."}]
+
+
 def _why(z, sig, age, sc):
     en_s, es_s = size_name(z["hail_in"])
     n, srcs = len(z["report_ids"]), list(z["sources"])
@@ -280,8 +297,7 @@ def _why(z, sig, age, sc):
         why.append([1 if z["mesh_in"] >= 1.0 else 0,
                     {"en": f"Radar estimate up to {z['mesh_in']:g} in (MRMS).",
                      "es": f"El radar estima hasta {z['mesh_in']:g} pulg. (MRMS)."}])
-    why.append([1 if age <= 60 else (0 if age <= 150 else -1),
-                {"en": f"{age} days ago.", "es": f"Hace {age} días."}])
+    why.append(age_line(age))
     if sig.get("owner_homes") is not None:
         why.append([1 if sig["owner_homes"] >= 1000 else -1,
                     {"en": f"About {sig['owner_homes']:,} owner-lived homes in the zone (Census).",
@@ -422,7 +438,7 @@ def build_zones(reports, radar, meshes, census, today, sc, places=None, history=
         if kind == "radar" and places and not (near or nearest):
             return   # radar hail with no Nebraska place within nearest_town_km: out of state (the area is NE only)
         sig = signals(zone_rows(bgs, lat, lon, rad, grp, sc), vintage, sc)
-        age = (today - date.fromisoformat(day)).days
+        age = days_ago(day, today)
         n = len(grp)
         hail = max(r["size_in"] for r in grp) if grp else \
             round(min(mesh * sc["mesh_trust"], sc.get("radar_hail_cap_in", 99)), 2)

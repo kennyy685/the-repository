@@ -107,9 +107,9 @@ Practice these out loud, don't just read them.
 
 6. **"Not interested" / "we just had that done."**
    EN: *"No problem at all. If anything comes up down the road, or after the next storm, here's my
-   card — call anytime, no charge to look."*
+   card — call anytime for a roof check."*
    ES: *"No hay problema. Si algo surge después, o tras la próxima tormenta, aquí tiene mi tarjeta —
-   llame cuando quiera, revisar no cuesta nada."*
+   llame cuando quiera para una revisión del techo."*
 
 7. **"I don't want to file a claim / my rate will go up."**
    EN: *"That's fair, and totally your call — whether or how you file is between you and your

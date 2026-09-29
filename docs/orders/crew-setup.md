@@ -7,6 +7,9 @@ the foundation. Improve it the same way we improve the app: find what slows us d
 - **Settings** (`.claude/settings.json`): `NODE_PATH` so node tests find Playwright; a SessionStart hook
   (`.claude/hooks/session-start.sh`) installs `requirements.txt` in fresh cloud containers; a PreToolUse guard
   (`.claude/hooks/block-git-add-all.sh`) stops anyone staging the whole shared tree.
+- **Fresh container, tests won't run** (`No module named pytest`, or a blinker uninstall error): run
+  `pip install --ignore-installed blinker -r requirements.txt pytest` once. Debian's blinker has no RECORD file, so a
+  plain `pip install -r requirements.txt` fails on it; the SessionStart hook now runs the same line (QA, 2026-09-29).
 - **One command for release checklist step 2:** `tests/release_checks.sh` (`--quick` while building, `--fast` = no browser).
 - **How we decide:** `docs/orders/decision-method.md`. **Research first, don't ask FilthE:** CLAUDE.md.
 - **Crew:** `.claude/agents/` (builder, designer, engine-mechanic, hub-keeper = Research Lead, improvement-scout,

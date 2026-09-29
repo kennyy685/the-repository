@@ -12,7 +12,7 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 
 if ! python3 -c "import numpy, pandas, requests, PIL, matplotlib, openpyxl, flask" 2>/dev/null; then
   # Debian ships blinker without a RECORD file, so pip can't upgrade it in place (flask needs a newer one).
-  pip install -q --root-user-action=ignore --ignore-installed blinker -r requirements.txt >&2 || echo "WARN: pip install failed" >&2
+  pip install -q --root-user-action=ignore --ignore-installed blinker -r requirements.txt pytest >&2 || echo "WARN: pip install failed" >&2
 fi
 
 here=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)

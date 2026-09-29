@@ -3035,7 +3035,7 @@ const NSX = {
     packetDue: d => `due ${d}`, finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for.',
     said: {
       doorIns: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing roof checks for the neighbors — can I take a quick look at your roof and siding?`,   // T174: name, HMP, what we sell first (NE 69-1602)
-      doorCash: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
+      doorCash: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you an estimate for new siding or a roof?`,
       stormR: (h, d) => (h ? `The ${d} storm dropped about ${h}-inch hail on this street.` : `The ${d} storm came through this street.`),
       yearR: y => `A lot of homes built around ${y} are due for new siding or a roof.`,
       tableIns: "Here's what I found, photo by photo. If you decide to call your insurance, the claim is yours: you file it and their adjuster decides. The deductible is always yours. I'll meet the adjuster and show the damage.",
@@ -3113,7 +3113,7 @@ const NSX = {
     packetDue: d => `para el ${d}`, finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida.',
     said: {
       doorIns: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo revisiones del techo a los vecinos — ¿puedo revisar rápido su techo y su siding?`,   // T174/T-legal: dice el nombre real de quien toca la puerta (hoy Kenny, bilingüe), nunca el contacto de español (NE 69-1602)
-      doorCash: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
+      doorCash: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un estimado para siding o techo nuevo?`,
       stormR: (h, d) => (h ? `La tormenta del ${d} tiró granizo de unas ${h} pulgadas en esta calle.` : `La tormenta del ${d} pasó por esta calle.`),
       yearR: y => `Muchas casas construidas por ${y} ya necesitan siding o techo nuevo.`,
       tableIns: 'Esto es lo que encontré, foto por foto. Si decide llamar a su seguro, el reclamo es suyo: usted lo presenta y su ajustador decide. El deducible siempre lo paga usted. Yo me reúno con el ajustador y le muestro el daño.',
