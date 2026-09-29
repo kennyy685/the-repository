@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## AI hub v35: branch watch, Sunday report, Shipped shelf - 2026-09-29 (queue chunks C, D, F, G; 3 QA rounds; checks green: 50 live scenarios, chat, shelf, design gate, release --fast)
+## AI hub v35: branch watch, Sunday report, Shipped shelf - 2026-09-29 (live: AI hub Version 37; queue chunks C, D, F, G; 3 QA rounds; checks green: 50 live scenarios, chat, shelf, design gate, release --fast)
 - Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK (the King re-checks the branch before merging); Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
 - Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then the last 3 stay in the Log. Numbers the page can't fully see say "not tracked yet", never a guess.
 - The 3D studio has a Shipped shelf: one box per thing shipped this week (max 8, hover for its name), counted from the whole week. 11 new tests prove the live conveniences; one fix: "Read" proof now counts only the King and its helpers.
