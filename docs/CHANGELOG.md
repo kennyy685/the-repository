@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## Open map: the "days ago" line points to the customer's policy - 2026-09-29 (age line; QA PASS, live: open map Version 14)
+## Open map: the "days ago" line points to the customer's policy - 2026-09-29 (age line; QA PASS, live: open map Version 15, with the code-health FX fix)
 - Each area's age line now counts to today's Nebraska date and reads: "52 days ago. Time limits to file are in the customer's policy; ask them to check it." / "Hace 52 días. Los plazos para reportar están en la póliza del cliente; que la revise." It makes no legal claim and shows no countdown or "Deadline" badge at any age. The same words go on the engine's zone reasons and on the old-storm PNG map note.
 - Tests stop bad wording from coming back (expires, running out, last day, hurry, "only N days left", no cutoff/deadline, in EN and ES). They also cover a storm dated after today (never shows "-1 days ago") and 11:30 PM in Chicago, when UTC is already the next day.
 - QA lows fixed: tapping the open area's marker or using prev/next keeps the card's own walk; the night shift's fallback has `zwalks`; the walk maps can't be tricked by an id like "constructor".
