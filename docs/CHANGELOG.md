@@ -5,6 +5,11 @@
 - One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
 - SAMPLE tag only on the samples, which moved under Preview (Last night / Quiet night / Storm night). A failed storm update says so on the strip. The open map is now in the design gate (night strip, 1440 dark + light) and has its own page check.
 
+## HMP App "Proven day" - 2026-09-29 (QA pending)
+- A full real work day now runs as one automatic test (7 AM map -> knock -> lead -> inspection -> claim -> price -> contract -> follow-ups -> day numbers), in English, Spanish and on a slow signal: `tests/pages/e2e_day_check.js`, part of the release checks.
+- A bad signal never loses a tap now, even if the app closes mid-save, and every Done shows at once instead of waiting. "Done for today" opens the review right away.
+- The contract step shows the fixed cancel notice (EN + ES, with the cancel date) and the deductible notice word for word, one tap each. Report: docs/research/2026-09-29-app-e2e.md.
+
 ## Night shift "Since last night" - 2026-09-29 (live: open map Version 8; QA PASS)
 - While you sleep, Aldaba gets your morning ready: the open map's 7 AM home now opens with "Since last night": new hail by town and size, zones that moved up or down, walks that changed (doors knocked), and a plain line like "No new hail since last night; best zone is still Malcolm." Tap any chip to fly there. Your top 3 show "↑ from #5" when a zone climbed overnight.
 - Engine `hailhunter/night.py` + `hh.py night`: refresh, re-rank, then one small brief (Aldaba's pick + where to start the walk + door count + why + a backup zone), keeping last night's for the diff. The page runs on SAMPLE briefs (a quiet night, and a replay of the real Sep 13 storm night; switch under Preview). hud.json and Storm Watch untouched; nothing is scheduled yet (the King decides).

@@ -1745,8 +1745,9 @@ async function rawWrite(o){
 }
 const dbOps = () => outbox.filter(o => o.op !== 'king');
 function enqueue(o){
-  if (o.op === 'set' || o.op === 'delete') outbox = outbox.filter(x => x.inflight || !(['set', 'delete', 'update'].includes(x.op) && x.path === o.path));   // the newest full write of a doc wins: no duplicates
-  else if (o.op === 'update') { const p = outbox.find(x => !x.inflight && x.path === o.path && (x.op === 'set' || x.op === 'update')); if (p) { Object.assign(p.body, o.body); obSave(); applyOverlay(); return; } }
+  const busy = x => x.inflight || x.direct;   // on its way: never merged into or dropped (it may already have landed)
+  if (o.op === 'set' || o.op === 'delete') outbox = outbox.filter(x => busy(x) || !(['set', 'delete', 'update'].includes(x.op) && x.path === o.path));   // the newest full write of a doc wins: no duplicates
+  else if (o.op === 'update') { const p = outbox.find(x => !busy(x) && x.path === o.path && (x.op === 'set' || x.op === 'update')); if (p) { Object.assign(p.body, o.body); obSave(); applyOverlay(); return; } }
   outbox.push(o); obSave(); applyOverlay();
 }
 async function save(o){   // one write; it throws only when the database refuses it (no edit rights)
