@@ -363,10 +363,14 @@ def night_cmd(a, cfg, log=print):
                 break
     season_path = a.season or os.path.join(HERE, "data", f"storms-{day[:4]}.json")
     try:
-        areas = night.map_areas(todaywalk.load_json(season_path))
+        season_doc = todaywalk.load_json(season_path)
+        areas = night.map_areas(season_doc)
     except (OSError, ValueError):
-        areas = []                               # no season file: the brief just carries no map area ids
+        season_doc, areas = None, []             # no season file: the brief just carries no map area ids
     doc = night.brief(hud_doc, zdoc, w, day, prev, cfg, areas=areas)
+    if season_doc:                               # the map's shapes for the areas it names (a pick west of the map box)
+        from hailhunter import openmap
+        doc["map"] = openmap.extra(season_doc, night.area_ids(doc))
     if err:
         doc["refresh_error"] = err
     if os.path.exists(cur):

@@ -663,6 +663,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .pick .bd{min-width:0;display:flex;flex-direction:column;gap:4px}
 .pick .nm{display:flex;align-items:center;gap:8px;font:650 15px/1.15 var(--sans);letter-spacing:-.01em}
 .pick .nm em{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:var(--on-acc);background:var(--acc);padding:3px 5px;border-radius:4px}
+.pick .nm em.bk{color:var(--text-2);background:transparent;border:1px solid var(--rule-2)}
 .pick .why{font-size:12.5px;line-height:1.4;color:var(--text-2)}
 /* track record (the map learns from your knocks): SAMPLE knocks until knocking starts */
 .trk{display:flex;align-items:flex-start;gap:6px;font-size:12px;line-height:1.35;color:var(--text)}
@@ -910,6 +911,14 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
    ===================================================================== */
 /* REAL = data/real.js (built by data/build/real.py from the engine's data/storms-2026.json). Without it the page runs on the samples below. */
 const REAL = window.REAL || null;
+/* the night brief's own areas (`map`, hailhunter/openmap.py, real.js shapes): the pick + backup + top walks the map box
+   doesn't hold (e.g. Columbus, west of it) still open as areas. Ids already in real.js win. */
+if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT_REAL.map)(()=>{const X=window.NIGHT_REAL.map,have=new Set(REAL.AREAS.map(a=>a.id)),
+  ago=(d)=>Math.round((new Date(REAL.today+"T12:00:00Z")-new Date(d+"T12:00:00Z"))/864e5);
+  Object.entries(X.storms||{}).forEach(([k,s])=>{if(REAL.STORMS[k])return;REAL.STORMS[k]={...s,days:ago(s.date)};
+    const e=REAL.DAILY.find(x=>x.d===REAL.STORMS[k].days);if(e&&!e.storm){e.storm=k;e.v=Math.max(e.v,s.max)}});
+  (X.areas||[]).forEach(a=>{if(have.has(a.id)||!REAL.STORMS[a.st])return;REAL.AREAS.push(a);have.add(a.id);
+    const tk=String(a.town||a.name.en).toLowerCase().replace(/ /g,"-");REAL.TOWN_OF[a.id]=tk;if(!REAL.TOWNS[tk])REAL.TOWNS[tk]=a.town||a.name.en})})();
 const TODAY = REAL ? REAL.today : "2026-09-28";
 const KNOCK_URL = "https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU"; // the Knock page: one tap per door
 const nv = (x, suf = "") => x == null ? "–" : x + suf;
@@ -1289,6 +1298,16 @@ let map=null, useGL=false, mapReady=false;const whenReady=[];
 const BOUNDS=[[-96.86,40.78],[-95.84,41.64]];
 const PAD={top:96,bottom:150,left:400,right:280};window.PADX=PAD;
 const CAM={center:[-96.34,41.215],zoom:9.3,pitch:50,bearing:-9};
+/* home view: the map box, widened (same framing) to take in the real brief's pick + backup when one sits outside it
+   (Columbus), so Aldaba's pick is always on screen and tappable */
+function homeFit(){const b=window.NIGHT_REAL;if(!b||b.kind!=="night_brief")return;
+  const pts=[b.pick,b.backup].filter(c=>c&&c.center&&c.center.lon!=null).map(c=>[+c.center.lon,+c.center.lat]),m=.08;
+  const out=pts.filter(([x,y])=>x<BOUNDS[0][0]||x>BOUNDS[1][0]||y<BOUNDS[0][1]||y>BOUNDS[1][1]);if(!out.length)return;
+  const bx=()=>[BOUNDS[0][0],BOUNDS[0][1],BOUNDS[1][0],BOUNDS[1][1]],c0=fitCam(bx(),PAD,{});
+  BOUNDS[0]=[Math.min(BOUNDS[0][0],...out.map(p=>p[0]-m)),Math.min(BOUNDS[0][1],...out.map(p=>p[1]-m))];
+  BOUNDS[1]=[Math.max(BOUNDS[1][0],...out.map(p=>p[0]+m)),Math.max(BOUNDS[1][1],...out.map(p=>p[1]+m))];
+  const c1=fitCam(bx(),PAD,{});CAM.zoom+=c1.zoom-c0.zoom;CAM.center=[CAM.center[0]+c1.center[0]-c0.center[0],CAM.center[1]+c1.center[1]-c0.center[1]]}
+homeFit();
 const dayF=()=>["<=",["get","days"],st.days];
 const FILT={ // layers filtered by storm date
   "hail-1":()=>["all",["==",["get","band"],1],dayF()],"hail-15":()=>["all",["==",["get","band"],1.5],dayF()],"hail-2":()=>["all",["==",["get","band"],2],dayF()],
@@ -1617,7 +1636,7 @@ const T={
   insp:{en:"Inspection",es:"Inspección"},adj:{en:"Adjuster",es:"Ajustador"},
   adjLegal:{en:"You document and meet. Never negotiate the claim or talk deductible.",es:"Documentas y te reúnes. Nunca negocies el reclamo ni hables del deducible."},
   nightT:{en:"Since last night",es:"Desde anoche"},nightAt:{en:(c)=>`ran ${c}`,es:(c)=>`corrió ${c}`},
-  nNew:{en:"New hail",es:"Granizo nuevo"},nReal:{en:"Last night",es:"Anoche"},nPick:{en:"Aldaba's pick",es:"Recomendada"},nBackup:{en:"Backup",es:"Respaldo"},
+  nNew:{en:"New hail",es:"Granizo nuevo"},nReal:{en:"Last night",es:"Anoche"},nPick:{en:"Aldaba's pick",es:"Recomendada"},nBackup:{en:"Backup",es:"Respaldo"},oldH:{en:"older homes",es:"casas viejas"},
   nRefErr:{en:"Last night's storm update failed; this uses the day before's storm data.",es:"La actualización de tormentas de anoche falló; esto usa los datos del día anterior."},nMoved:{en:"Moved",es:"Cambió de puesto"},nWalks:{en:"Walks",es:"Rutas"},
   nKnocked:{en:(n)=>`${n} doors knocked`,es:(n)=>`${n} puertas tocadas`},nAdded:{en:(n)=>`${n} doors added`,es:(n)=>`${n} puertas nuevas`},
   nWas:{en:(r,w)=>`#${r} (was #${w})`,es:(r,w)=>`#${r} (antes #${w})`},nNewZ:{en:"new",es:"nueva"},nGone:{en:(n)=>`off the top 12: ${n}`,es:(n)=>`fuera del top 12: ${n}`},nPrev:{en:"Preview",es:"Vista previa"},
@@ -2209,13 +2228,20 @@ function pickWhy(p,newest){const a=p.a,c=[];
   c.sort((x,y)=>y[0]-x[0]);
   return cap([p.wind?t("wWind",a.wind):t("wHail",fmtIn(a.hail)),...c.slice(0,2).map(x=>x[1])].join(", "))}
 let PICKS=[],SKIP=null;
-function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),all=visA.map(pickScore).sort((x,y)=>y.sc-x.sc);
+/* with the real night brief the top 3 IS the brief's `top` (hailhunter/night.py top_cards: pick, backup, then the next
+   storm walks), so the list always agrees with Aldaba's pick; the page's own ranking is for the samples / no brief */
+function briefTop(){if(typeof NIGHT_REAL==="undefined"||!NIGHT_REAL||nightKey()!=="real")return null;const b=NIGHT_REAL;
+  const top=(b.top&&b.top.length?b.top:[b.pick,b.backup]).filter(Boolean);return top.length?top:null}
+function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),bt=briefTop();
+  if(bt){SKIP=null;PICKS=bt.map(c=>{const id=nzId(c),a=id?areaOf(id):null,p=a?pickScore(a):{a:null};
+      p.card=c;p.bk=!!(NIGHT_REAL.backup&&c.zone_id===NIGHT_REAL.backup.zone_id);p.why=escN(L(c.why))||(a?pickWhy(p,STORMS[a.st].days):"");return p})}
+  else{const all=visA.map(pickScore).sort((x,y)=>y.sc-x.sc);
   PICKS=all.filter(p=>!p.block).slice(0,3);SKIP=all.find(p=>p.block&&p.sc>(PICKS[2]?PICKS[2].sc:0))||null;
-  const newest=Math.min(...visA.map(a=>STORMS[a.st].days));PICKS.forEach(p=>p.why=pickWhy(p,newest));
-  PK={};PICKS.forEach((p,i)=>PK[p.a.id]=i+1);
+  const newest=Math.min(...visA.map(a=>STORMS[a.st].days));PICKS.forEach(p=>p.why=pickWhy(p,newest))}
+  PK={};PICKS.forEach((p,i)=>{if(p.a&&!PK[p.a.id])PK[p.a.id]=i+1});
   Object.values(marks).forEach(m=>{const r=PK[m.a.id];m.e.classList.toggle("rank",!!r);m.e.classList.toggle("rank1",r===1);m.e.querySelector(".rk").textContent=r||""})}
 /* the #1 pick's afternoon: follow-ups on the way, then the walk; warn if it runs past sunset */
-function knockPlan(){const p=PICKS[0];if(!p)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
+function knockPlan(){const p=PICKS[0];if(!p||!p.a)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
   const dep=Math.max(NOWM,bestStart(TODAY)-tr.drive-early),arr=dep+tr.drive,door0=Math.max(arr,bestStart(TODAY)-early);
   const fu=DAY_PLAN.fu.filter(f=>f.area===a.id),fuMin=fu.length*FU_MIN;
   if(!AREAX||!AREAX[a.id])return{a,tr,dep,arr,door0,sun,fu,fuMin,W:null};
@@ -2279,14 +2305,23 @@ function nightHTML(){const b=nightB();if(!b)return"";
     ${wk?`<div class="nl">${t("nWalks")}</div><div class="nr">${wk}</div>`:""}
     ${b.sample?`<p class="nf">${escN(L(b.sample))}</p>`:""}
     ${seg?`<div class="nb"><span>${t("nPrev")}</span>${seg}</div>`:""}</section>`}
+/* a brief card the map has no area for (an old-house backup, a storm newer than the season file): taps fly to its middle */
+function cardPick(p,i){const c=p.card,ev=c.kind!=="storm",ctr=c.center&&c.center.lon!=null?`${+c.center.lon},${+c.center.lat}`:"";
+  const facts=`${c.dist_mi!=null?`<span>${ic("car")}${Math.round(c.dist_mi)} mi</span>`:""}<span>${ic("door")}${+c.doors||0} ${t("doors")}</span>`;
+  return `<button class="pick${i?"":" lit"}"${ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(c.hail_in||1)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
+    <span class="rk">${i+1}</span>
+    <span class="bd"><span class="nm">${escN(c.name)}${c.storm_day?`<span class="dt">${fmtDate(c.storm_day)}</span>`:""}${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
+    <span class="vv"><span class="v">${ev?`<small>${t("oldH")}</small>`:fmtIn(c.hail_in)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}
+function flyPt(v){const[x,y]=String(v).split(",").map(Number);if(!isFinite(x)||!isFinite(y))return;
+  if(useGL&&mapReady)map.flyTo({center:[x,y],zoom:12.6,pitch:st.layers.tilt?48:0,padding:PAD,duration:1300,essential:true})}
 function renderHome(){const box=$("today");if(!box)return;computePicks();
   const allN=AREAS.filter(a=>STORMS[a.st].days<=st.days).length;$("allN").textContent=allN;
   const d=new Date(TODAY+"T12:00:00"),dn=T.dows[lang][d.getDay()],K=knockPlan(),fr=TOWNS.fremont,fp=permit(fr,TODAY);
-  const P=PICKS.map((p,i)=>{const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
+  const P=PICKS.map((p,i)=>{if(!p.a)return cardPick(p,i);const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
     const facts=`<span>${ic("car")}${tr.drive} min</span><span>${ic("clock")}${fmtClock(tr.from)}–${fmtClock(tr.end)}</span>${p.pm.k==="ok"?`<span class="ok">${ic("id")}${t("pOk")}</span>`:`<span class="warn">${ic("id")}${t("pTbd")}</span>`}`;
     return `<button class="pick${i?"":" lit"}" data-pick="${a.id}" style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
       <span class="rk">${i+1}</span>
-      <span class="bd"><span class="nm">${L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}${(m=>m?`<span class="mv${m.k==="new"?" nw":""}">${m.k==="up"?t("nUpFrom",m.was):t("nNewPick")}</span>`:"")(nightMove(a.id))}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
+      <span class="bd"><span class="nm">${p.card?escN(p.card.name):L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}${(m=>m?`<span class="mv${m.k==="new"?" nw":""}">${m.k==="up"?t("nUpFrom",m.was):t("nNewPick")}</span>`:"")(nightMove(a.id))}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
       <span class="vv"><span class="v">${p.wind?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}).join("");
   const skip=SKIP?`<p class="skip">${ic("sign")}<span>${t("skipped",L(SKIP.a.name),SKIP.wind?SKIP.a.wind+" mph":fmtIn(SKIP.a.hail)+"″",SKIP.tr.tw.n,fmtDate(SKIP.block.on))} ${chip("perm",fmtDate(SKIP.block.on),SKIP.a.st,1)}</span></p>`:"";
   let kn="";
@@ -2313,7 +2348,7 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
       <div class="brief"><span class="ok"><i></i>${t("swRan")}</span>${NIGHT?"":`<span>${t("quiet")}</span>`}<span>${t("swChecked",allN)}</span>${fp.k==="ok"?`<span class="${fp.left<=7?"warn":""}">${t("permClock",fp.left)} ${chip("perm",fmtDate(fp.until),"s1",1)}</span>`:""}</div>
     </header>
     ${nightHTML()}
-    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]?PICKS[0].a.st:"s1",1)}${LEARN?chip("lrn","",PICKS[0]?PICKS[0].a.st:"s1",1):""}<span class="r you">${t("youChoose")}</span></div>
+    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]&&PICKS[0].a?PICKS[0].a.st:"s1",1)}${LEARN?chip("lrn","",PICKS[0]&&PICKS[0].a?PICKS[0].a.st:"s1",1):""}<span class="r you">${t("youChoose")}</span></div>
     <div class="picks">${P||`<div class="empty">${t("noPicks")}</div>`}</div>${skip}
     <div class="sec">${t("todayPlan")}</div>
     ${dayStrip(K)}
@@ -2331,6 +2366,7 @@ $("today").addEventListener("click",e=>{if(e.target.closest(".chip"))return;
   const ng=e.target.closest("[data-night]");if(ng){st.night=ng.dataset.night;renderHome();return}
   const nz=e.target.closest("[data-nz]");if(nz){enterArea(nz.dataset.nz);return}
   const pk=e.target.closest("[data-pick]");if(pk){enterArea(pk.dataset.pick);return}
+  const fl=e.target.closest("[data-fly]");if(fl){flyPt(fl.dataset.fly);return}
   const wk=e.target.closest("[data-walk]");if(wk){if(st.sel===wk.dataset.walk)planWalk(true);else{st.pendWalk=1;enterArea(wk.dataset.walk)}return}
   const fx=e.target.closest("#fixEarly");if(fx){st.early=(st.early||0)+ +fx.dataset.early;renderHome();toast(t("fixed"));return}
   if(e.target.closest("#fixUndo")){st.early=0;renderHome()}});
