@@ -29,3 +29,6 @@ session_0198WMMBLyNhuDqjngDSS7RZ | hub chunk specs session_011x69CLsekQqvCCEPFoa
 docs/design/hub-office/QUEUE-SPECS.md) | everything-we-have summary session_01Hrxq1jY88e4GX15hnXtXf2.
 PING = one hub post to "you" when ALL are done (+ docs/orders/everything-we-have.md). No phone push (CLAUDE.md).
 After the usage reset: back to max 4 at once.
+
+## Merge to main: APPROVED by FilthE (2026-09-29 ~14:12 UTC, "yes")
+When the sync robot (session_01QWjHv7ABHZ7BT5c6YnVBnx) is done AND release_checks + pytest are green on claude/amazing-gauss-yzfpq0: the King merges claude/amazing-gauss-yzfpq0 into main (PR + merge, no force), then tells FilthE on the hub. One-time OK for this merge only.
