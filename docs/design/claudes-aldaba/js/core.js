@@ -77,6 +77,12 @@
     if (es == null) es = en;
     return '<span class="en">' + en + '</span><span class="es">' + es + '</span>';
   };
+  /** A.both(() => A.fmt.date(d)) → the value rendered in EN and ES as A.L spans (escaped); survives a language switch */
+  A.both = function (fn) {
+    const keep = A.lang; let en = '', es = '';
+    try { A.lang = 'en'; en = fn(); A.lang = 'es'; es = fn(); } catch (e) { console.warn('[aldaba] both() failed:', e); } finally { A.lang = keep; }
+    return A.L(A.esc(en), A.esc(es));
+  };
   A.setLang = function (l) {
     l = l === 'es' ? 'es' : 'en';
     if (l === A.lang) return;
@@ -597,10 +603,22 @@
   function syncSlot(k, animate) {
     const el = slotEls()[k]; if (!el) return;
     const has = el.childElementCount > 0, on = el.hasAttribute('data-on');
-    if (has && !on) { el.setAttribute('data-on', ''); if (animate && k !== 'center' && k !== 'overlay') M.reveal(el, { y: k === 'bottom' ? -14 : 12, ms: 560 }); }
-    else if (!has && on) {
-      if (animate && !A.still && k !== 'center' && k !== 'overlay') M.exit([el], { ms: 150 }).then(() => { if (!el.childElementCount) el.removeAttribute('data-on'); try { el.getAnimations().forEach((a) => a.cancel()); } catch (e) { /* ignore */ } });
-      else el.removeAttribute('data-on');
+    const surface = k !== 'center' && k !== 'overlay';
+    if (has) {
+      if (el._leaving) { el._leaving = false; try { el.getAnimations().forEach((a) => a.cancel()); } catch (e) { /* ignore */ } }
+      if (!on) { el.setAttribute('data-on', ''); if (animate && surface) M.reveal(el, { y: k === 'bottom' ? -14 : 12, ms: 560 }); }
+    } else if (on) {
+      if (animate && !A.still && surface) {
+        if (el._leaving) return;
+        el._leaving = true;
+        M.exit([el], { ms: 150 }).then(() => {
+          if (!el._leaving) return;
+          el._leaving = false;
+          if (!el.childElementCount) el.removeAttribute('data-on');
+          try { el.getAnimations().forEach((a) => a.cancel()); } catch (e) { /* ignore */ }
+          if (A.view && A.world && A.world.setInset) A.world.setInset(measureInset(), { ms: 300 });
+        });
+      } else el.removeAttribute('data-on');
     }
   }
   function syncSlots(animate) { slotIds.forEach((k) => syncSlot(k, animate)); }
@@ -611,9 +629,13 @@
     const wr = W.el.getBoundingClientRect(), bar = document.getElementById('topbar');
     const ins = { l: 0, r: 0, t: 0, b: 0 };
     if (bar) ins.t = Math.max(0, bar.getBoundingClientRect().bottom - wr.top + 6);
-    if (s.left && s.left.hasAttribute('data-on')) ins.l = Math.max(0, s.left.getBoundingClientRect().right - wr.left + 6);
-    if (s.right && s.right.hasAttribute('data-on')) ins.r = Math.max(0, wr.right - s.right.getBoundingClientRect().left + 6);
-    if (s.bottom && s.bottom.hasAttribute('data-on')) ins.b = Math.max(0, wr.bottom - s.bottom.getBoundingClientRect().top + 6);
+    const on = (n) => n && n.hasAttribute('data-on') && !n._leaving;
+    if (on(s.left)) ins.l = Math.max(0, s.left.getBoundingClientRect().right - wr.left + 6);
+    if (on(s.right)) ins.r = Math.max(0, wr.right - s.right.getBoundingClientRect().left + 6);
+    if (on(s.bottom)) ins.b = Math.max(0, wr.bottom - s.bottom.getBoundingClientRect().top + 6);
+    // the map HUD (zoom, scale) sits bottom-right; a short right panel leaves that corner free
+    ins.hudR = on(s.right) && s.right.getBoundingClientRect().bottom > wr.bottom - 170 ? ins.r : 0;
+    ins.hudB = on(s.bottom) && s.bottom.getBoundingClientRect().right > wr.right - 140 ? ins.b : 0;
     return ins;
   }
   A.measureInset = measureInset;

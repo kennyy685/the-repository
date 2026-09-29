@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/deal.css
+   Owner: the deal builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="deal"] or a class prefixed "deal-" so views never collide. */

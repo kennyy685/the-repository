@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/now.css
+   Owner: the now builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="now"] or a class prefixed "now-" so views never collide. */

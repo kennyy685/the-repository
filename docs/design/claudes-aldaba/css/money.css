@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/money.css
+   Owner: the money builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="money"] or a class prefixed "money-" so views never collide. */

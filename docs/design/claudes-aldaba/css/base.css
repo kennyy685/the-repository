@@ -28,7 +28,7 @@
   /* map: read by the canvas at runtime (A.world re-reads them on theme change) */
   --map-land:#07080a; --map-water:#0e1a23; --map-water-line:#1d3445; --map-water-label:#5d7f95;
   --map-stream:#15283a; --map-river:#26485f; --map-town:rgba(241,242,244,.028); --map-town-line:#23252a;
-  --map-county:#2c2e34; --map-rail:#34373e; --map-street:#1e2126; --map-street-2:#2c3037; --map-art:#30343b;
+  --map-county:#2c2e34; --map-grid:#24262b; --map-rail:#34373e; --map-street:#1e2126; --map-street-2:#2c3037; --map-art:#30343b;
   --map-hwy:#50555f; --map-label:#80838b; --map-label-2:#d4d6db; --map-halo:#07080a; --map-beam:#c9ccd2;
   --shadow:rgba(0,0,0,.6);
   /* type */
@@ -54,7 +54,7 @@
   --bad:#c42f38; --bad-bg:rgba(196,47,56,.09); --info:#2d5dc0; --info-bg:rgba(45,93,192,.09);
   --map-land:#eef0ee; --map-water:#cfdbe0; --map-water-line:#a9bec7; --map-water-label:#557386;
   --map-stream:#b4c7cf; --map-river:#8fa9b6; --map-town:rgba(24,25,28,.04); --map-town-line:#d3d5cf;
-  --map-county:#b3b5af; --map-rail:#b9bbb5; --map-street:#d2d4ce; --map-street-2:#bdc0b9; --map-art:#b7bab3;
+  --map-county:#b3b5af; --map-grid:#c9cbc5; --map-rail:#b9bbb5; --map-street:#d2d4ce; --map-street-2:#bdc0b9; --map-art:#b7bab3;
   --map-hwy:#8d918a; --map-label:#6c6f77; --map-label-2:#26282c; --map-halo:#eef0ee; --map-beam:#3d3f45;
   --shadow:rgba(24,25,28,.16);
 }}
@@ -70,7 +70,7 @@
   --bad:#c42f38; --bad-bg:rgba(196,47,56,.09); --info:#2d5dc0; --info-bg:rgba(45,93,192,.09);
   --map-land:#eef0ee; --map-water:#cfdbe0; --map-water-line:#a9bec7; --map-water-label:#557386;
   --map-stream:#b4c7cf; --map-river:#8fa9b6; --map-town:rgba(24,25,28,.04); --map-town-line:#d3d5cf;
-  --map-county:#b3b5af; --map-rail:#b9bbb5; --map-street:#d2d4ce; --map-street-2:#bdc0b9; --map-art:#b7bab3;
+  --map-county:#b3b5af; --map-grid:#c9cbc5; --map-rail:#b9bbb5; --map-street:#d2d4ce; --map-street-2:#bdc0b9; --map-art:#b7bab3;
   --map-hwy:#8d918a; --map-label:#6c6f77; --map-label-2:#26282c; --map-halo:#eef0ee; --map-beam:#3d3f45;
   --shadow:rgba(24,25,28,.16);
 }
@@ -359,6 +359,7 @@ button.row:hover,a.row:hover{background:var(--panel-2)}
   .app{height:auto;min-height:100%;overflow:visible;display:flex;flex-direction:column;gap:12px;padding-bottom:28px}
   .topbar{position:sticky;top:env(safe-area-inset-top,0px);left:auto;right:auto;margin:10px var(--gut) 0;height:auto;padding:8px 8px 8px 12px;
     display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand ctl" "tabs tabs" "meta meta";gap:8px 10px}
+  .topbar{order:0}.world{order:1}.stage{order:2}
   .brand{grid-area:brand;min-width:0}
   .bar__sep{display:none}
   .tabs{grid-area:tabs;width:100%}

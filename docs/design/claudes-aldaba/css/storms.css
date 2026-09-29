@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/storms.css
+   Owner: the storms builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="storms"] or a class prefixed "storms-" so views never collide. */

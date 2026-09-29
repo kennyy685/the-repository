@@ -1,0 +1,86 @@
+<title>Claude's Aldaba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/now.css">
+<link rel="stylesheet" href="css/storms.css">
+<link rel="stylesheet" href="css/knock.css">
+<link rel="stylesheet" href="css/deal.css">
+<link rel="stylesheet" href="css/money.css">
+<link rel="stylesheet" href="css/intro.css">
+<link rel="stylesheet" href="css/director.css">
+
+<div id="app" class="app">
+  <header id="topbar" class="topbar">
+    <a class="brand" href="#now" data-view="now" data-label-en="Aldaba, Claude's cut. Go to Now" data-label-es="Aldaba, versión de Claude. Ir a Ahora">
+      <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <path d="M9 19 24 8 39 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="24" cy="17" r="3" fill="currentColor"/>
+        <circle cx="24" cy="31.5" r="10" fill="none" stroke="var(--acc)" stroke-width="5"/>
+      </svg>
+      <span class="brand__word">Aldaba</span>
+      <span class="brand__cut" data-tip="Claude's own cut of Aldaba: product design, engineering and motion by Claude, on real Nebraska data." data-tip-es="La versión de Aldaba hecha por Claude: diseño de producto, ingeniería y animación de Claude, con datos reales de Nebraska."><i data-icon="spark" class="i--sm"></i><span class="en">Claude's cut</span><span class="es">Versión de Claude</span></span>
+    </a>
+    <span class="bar__sep" aria-hidden="true"></span>
+    <nav class="tabs" data-label-en="Views" data-label-es="Vistas">
+      <span class="tabs__ind" aria-hidden="true"></span>
+      <a class="tab" href="#now" data-view="now" data-tip="Press 1" data-tip-es="Tecla 1"><span class="tab__dot" aria-hidden="true"></span><span class="en">Now</span><span class="es">Ahora</span></a>
+      <a class="tab" href="#storms" data-view="storms" data-tip="Press 2" data-tip-es="Tecla 2"><span class="tab__dot" aria-hidden="true"></span><span class="en">Storms</span><span class="es">Tormentas</span></a>
+      <a class="tab" href="#knock" data-view="knock" data-tip="Press 3" data-tip-es="Tecla 3"><span class="tab__dot" aria-hidden="true"></span><span class="en">Knock</span><span class="es">Tocar</span></a>
+      <a class="tab" href="#deal" data-view="deal" data-tip="Press 4" data-tip-es="Tecla 4"><span class="tab__dot" aria-hidden="true"></span><span class="en">Deal</span><span class="es">Trato</span></a>
+      <a class="tab" href="#money" data-view="money" data-tip="Press 5" data-tip-es="Tecla 5"><span class="tab__dot" aria-hidden="true"></span><span class="en">Money</span><span class="es">Dinero</span></a>
+    </nav>
+    <div class="bar__meta">
+      <span class="clock" id="clock" data-tip="Story time: the whole app lives on the morning of Tuesday, Sep 29, 2026." data-tip-es="Hora de la historia: toda la app vive en la mañana del martes 29 de sep. de 2026.">Tue, Sep 29 · 7:02 AM</span>
+      <span class="chip chip--sample" tabindex="0" data-tip="Storms, streets and Census numbers are real public data. Homes are samples on real streets until knocking starts. No owner names." data-tip-es="Tormentas, calles y números del Censo son datos públicos reales. Las casas son de muestra en calles reales hasta empezar a tocar puertas. Sin nombres de dueños."><span class="chip__ring" aria-hidden="true"></span><span class="en">Sample homes<span class="chip__more"> · real storms</span></span><span class="es">Casas de muestra<span class="chip__more"> · tormentas reales</span></span></span>
+    </div>
+    <div class="bar__ctl">
+      <button id="film" type="button" class="btn btn--secondary btn--sm" data-label-en="Play the film" data-label-es="Ver la película"><i data-icon="play" class="i--sm"></i><span class="film__label"><span class="en">Play the film</span><span class="es">Ver la película</span></span></button>
+      <div class="seg" role="group" data-label-en="Language" data-label-es="Idioma">
+        <button id="lang-en" type="button" data-lang-set="en" aria-pressed="true" lang="en">EN</button>
+        <button id="lang-es" type="button" data-lang-set="es" aria-pressed="false" lang="es">ES</button>
+      </div>
+      <div class="seg" role="group" data-label-en="Theme" data-label-es="Tema">
+        <button id="theme-dark" type="button" data-theme-set="dark" aria-pressed="false" data-label-en="Dark" data-label-es="Oscuro" data-tip="Dark" data-tip-es="Oscuro"><i data-icon="moon"></i></button>
+        <button id="theme-light" type="button" data-theme-set="light" aria-pressed="false" data-label-en="Light" data-label-es="Claro" data-tip="Light" data-tip-es="Claro"><i data-icon="sun"></i></button>
+        <button id="theme-system" type="button" data-theme-set="system" aria-pressed="true" data-label-en="Match my system" data-label-es="Igual que mi sistema" data-tip="Match my system" data-tip-es="Igual que mi sistema"><i data-icon="system"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="stage" class="stage">
+    <div id="slot-center" class="slot slot--center"></div>
+    <aside id="slot-left" class="slot slot--left" data-label-en="Details" data-label-es="Detalles"></aside>
+    <aside id="slot-right" class="slot slot--right" data-label-en="More" data-label-es="Más"></aside>
+    <section id="slot-bottom" class="slot slot--bottom" data-label-en="Dock" data-label-es="Barra inferior"></section>
+  </main>
+
+  <div id="world" class="world" tabindex="0" role="application" data-label-en="Map of eastern Nebraska. Drag to move, scroll to zoom, 0 to return." data-label-es="Mapa del este de Nebraska. Arrastra para mover, desplaza para acercar, 0 para volver.">
+    <canvas class="world__cv world__cv--base" aria-hidden="true"></canvas>
+    <div class="world__veil" aria-hidden="true"></div>
+    <canvas class="world__cv world__cv--gl" aria-hidden="true"></canvas>
+    <div class="world__vignette" aria-hidden="true"></div>
+    <canvas class="world__cv world__cv--top" aria-hidden="true"></canvas>
+    <div class="world__pins"></div>
+    <div class="hud"></div>
+  </div>
+
+  <div id="slot-overlay" class="slot slot--overlay"></div>
+  <div id="fx" class="fx" aria-hidden="true"></div>
+</div>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px">Claude's Aldaba needs JavaScript to draw the map.</p></noscript>
+
+<script src="data/nl.js"></script>
+<script src="data/extra.js"></script>
+<script src="js/core.js"></script>
+<script src="js/world.js"></script>
+<script src="js/intro.js"></script>
+<script src="js/now.js"></script>
+<script src="js/storms.js"></script>
+<script src="js/knock.js"></script>
+<script src="js/deal.js"></script>
+<script src="js/money.js"></script>
+<script src="js/director.js"></script>
+<script src="js/boot.js"></script>

@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/director.css
+   Owner: the director builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="director"] or a class prefixed "director-" so views never collide. */

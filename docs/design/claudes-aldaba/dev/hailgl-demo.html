@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HailGL Demo</title>
+<style>
+@font-face { font-family: "Geist"; src: url(../fonts/Geist-400.woff2) format("woff2"); font-weight: 400; font-display: block; }
+@font-face { font-family: "Geist"; src: url(../fonts/Geist-500.woff2) format("woff2"); font-weight: 500; font-display: block; }
+@font-face { font-family: "Geist"; src: url(../fonts/Geist-600.woff2) format("woff2"); font-weight: 600; font-display: block; }
+@font-face { font-family: "Geist Mono"; src: url(../fonts/GeistMono-500.woff2) format("woff2"); font-weight: 500; font-display: block; }
+@font-face { font-family: "Bricolage"; src: url(../fonts/BricolageGrotesque-var.woff2) format("woff2"); font-weight: 200 800; font-display: block; }
+:root {
+  --page: #0b0c0e; --text: #f1f2f4; --text-2: #b8bbc2; --muted: #868991; --rule: #2a2c30; --acc: #f5883a;
+}
+:root[data-theme="light"] { --page: #f6f7f8; --text: #18191c; --text-2: #3d3f45; --muted: #6c6f77; --rule: #d3d6db; --acc: #c4561a; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--page); color: var(--text); overflow: hidden;
+  font-family: "Geist", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.vignette { position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 95% at 55% 45%, transparent 52%, rgba(0,0,0,.55) 100%); }
+:root[data-theme="light"] .vignette { background: radial-gradient(120% 95% at 55% 45%, transparent 60%, rgba(0,0,0,.06) 100%); }
+.hud { position: fixed; pointer-events: none; }
+.tl { left: 44px; top: 40px; max-width: 520px; }
+.eyebrow { font: 500 11px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--acc); }
+h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025em; margin: 14px 0 12px; }
+.sub { font: 400 14px/1.5 "Geist", sans-serif; color: var(--text-2); max-width: 430px; }
+.sub b { color: var(--text); font-weight: 500; }
+.bl { left: 44px; bottom: 38px; }
+.legend .lab { font: 500 10.5px/1 "Geist Mono", monospace; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+.legend .bar { width: 240px; height: 6px; border-radius: 3px; }
+.legend .ticks { position: relative; width: 240px; height: 16px; margin-top: 7px; font: 500 10.5px/1 "Geist Mono", monospace; color: var(--text-2); }
+.legend .ticks span { position: absolute; transform: translateX(-50%); }
+.scale { margin-bottom: 22px; font: 500 10.5px/1 "Geist Mono", monospace; color: var(--muted); letter-spacing: .06em; }
+.scale i { display: block; height: 5px; border: 1px solid var(--muted); border-top: 0; margin-bottom: 6px; opacity: .8; }
+.br { right: 44px; bottom: 38px; text-align: right; font: 500 10.5px/1.6 "Geist Mono", monospace; color: var(--muted); letter-spacing: .04em; }
+.tr { right: 44px; top: 42px; text-align: right; }
+.clock { font: 500 11px/1 "Geist Mono", monospace; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.clock b { display: block; font: 600 30px/1 "Geist", sans-serif; letter-spacing: -.02em; color: var(--text); margin-top: 10px; font-variant-numeric: tabular-nums; }
+.track { width: 220px; height: 2px; background: var(--rule); margin: 14px 0 0 auto; position: relative; border-radius: 1px; }
+.track i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--acc); border-radius: 1px; }
+</style>
+</head>
+<body>
+<canvas id="base"></canvas>
+<canvas id="gl"></canvas>
+<div class="vignette"></div>
+<div class="hud tl"><div class="eyebrow" id="eyebrow"></div><h1 id="title"></h1><div class="sub" id="sub"></div></div>
+<div class="hud tr" id="tr"></div>
+<div class="hud bl"><div class="scale" id="scale"></div><div class="legend"><div class="lab">Hail size, inches</div><div class="bar" id="bar"></div><div class="ticks" id="ticks"></div></div></div>
+<div class="hud br" id="perf"></div>
+<script src="../data/nl.js"></script>
+<script src="../js/lib/hailgl.js"></script>
+<script>
+(function () {
+  'use strict';
+  var Q = new URLSearchParams(location.search);
+  var MODE = Q.get('mode') || 'replay';
+  var TFIX = Q.has('t') ? parseFloat(Q.get('t')) : null;
+  var THEME = Q.get('theme') === 'light' ? 'light' : 'dark';
+  var SYNC = Q.get('sync') === '1';
+  var NSTONES = Q.has('n') ? parseInt(Q.get('n'), 10) : 5000;
+  if (THEME === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+  var NL = window.NL, HailGL = window.HailGL;
+  var lat0 = NL.pick.center.lat, lon0 = NL.pick.center.lon, cosL = Math.cos(lat0 * Math.PI / 180);
+  function project(p) { return [(p[0] - lon0) * cosL, -(p[1] - lat0)]; }
+  var MI = 1 / 69.17; // world units per mile (north-south)
+  var aug = NL.storms.find(function (s) { return s.date === '2026-08-08'; });
+  var augAreas = NL.areas.filter(function (a) { return a.st === aug.id; });
+
+  /* ---------- views */
+  var V = {
+    field: { center: [-96.66, 41.19], miles: 118, fieldBounds: [-97.75, 40.55, -95.65, 41.85], res: 640,
+      eyebrow: '2026 season · Eastern Nebraska', title: 'Every storm, one field.',
+      sub: '<b>18 storm days</b> and <b>38 hail areas</b> from NOAA SPC reports and MRMS radar, drawn as one living surface. Lines every 0.1 in, bold every 0.5 in.' },
+    season: { center: [-96.66, 41.19], miles: 118, fieldBounds: [-97.75, 40.55, -95.65, 41.85], res: 640, arrival: 'season',
+      eyebrow: 'Season replay · March to September', title: 'The season, storm by storm.', sub: 'Each storm burns in along its real path, in date order.' },
+    replay: { center: [-97.352, 41.414], miles: 30, fieldBounds: [-97.66, 41.27, -97.07, 41.56], res: 512, single: true,
+      eyebrow: 'Storm replay · Sat, Aug 8 2026', title: 'Columbus, 1.38 in.',
+      sub: 'The swath burns in along the storm’s real path. Every stone lands where hail fell, sized by what the radar saw.' },
+    hail: { center: [-97.372, 41.428], miles: 7.2, fieldBounds: [-97.52, 41.35, -97.22, 41.52], res: 640, single: true,
+      eyebrow: 'Close-up · Columbus · Aug 8 swath', title: '22 St & 21 St.',
+      sub: 'Street level. The field, the stones and the impact rings share one coordinate system with the map.' }
+  };
+  var view = V[MODE] || V.replay;
+
+  /* ---------- canvases */
+  var base = document.getElementById('base'), glc = document.getElementById('gl');
+  var bctx = base.getContext('2d');
+  var kit = HailGL.create(glc, { theme: THEME });
+  var W = 0, H = 0, DPR = 1, cam = { cx: 0, cy: 0, k: 1 }, M = new Float32Array(9);
+
+  function layout() {
+    W = window.innerWidth; H = window.innerHeight; DPR = Math.min(2, window.devicePixelRatio || 1);
+    base.width = Math.round(W * DPR); base.height = Math.round(H * DPR);
+    kit.resize(W, H, DPR);
+    var c = project(view.center);
+    cam.cx = c[0]; cam.cy = c[1]; cam.k = W / (view.miles * MI);
+    HailGL.camera(cam.cx, cam.cy, cam.k, W, H, M);
+    drawBase();
+    drawScale();
+  }
+  function px(p) { var w = project(p); return [(w[0] - cam.cx) * cam.k + W / 2, (w[1] - cam.cy) * cam.k + H / 2]; }
+
+  /* ---------- basemap (Canvas2D, dense and real) */
+  function pathOf(ctx, pts, close) {
+    ctx.beginPath();
+    for (var i = 0; i < pts.length; i++) { var q = px(pts[i]); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }
+    if (close) ctx.closePath();
+  }
+  function drawBase() {
+    var ctx = bctx, dark = THEME === 'dark';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var g = ctx.createRadialGradient(W * 0.56, H * 0.46, 0, W * 0.56, H * 0.46, Math.max(W, H) * 0.8);
+    if (dark) { g.addColorStop(0, '#16181c'); g.addColorStop(1, '#090a0c'); } else { g.addColorStop(0, '#fbfbfc'); g.addColorStop(1, '#eef0f2'); }
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    var zoom = view.miles < 12, mid = view.miles < 50;
+    var L = NL.base, i, b;
+    var ink = dark ? function (a) { return 'rgba(255,255,255,' + a + ')'; } : function (a) { return 'rgba(20,22,26,' + a + ')'; };
+    // towns (filled footprints)
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'town') continue;
+      pathOf(ctx, b.p, true); ctx.fillStyle = ink(zoom ? 0.018 : 0.035); ctx.fill(); ctx.strokeStyle = ink(0.09); ctx.lineWidth = 0.7; ctx.stroke(); }
+    // water
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'water') continue;
+      if (b.poly) { pathOf(ctx, b.p, true); ctx.fillStyle = dark ? 'rgba(64,104,140,0.22)' : 'rgba(90,140,190,0.22)'; ctx.fill();
+        ctx.strokeStyle = dark ? 'rgba(110,160,200,0.22)' : 'rgba(70,120,170,0.3)'; ctx.lineWidth = 0.6; ctx.stroke(); }
+      else { pathOf(ctx, b.p); ctx.strokeStyle = dark ? 'rgba(100,150,190,0.3)' : 'rgba(70,120,170,0.35)'; ctx.lineWidth = 1; ctx.stroke(); } }
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'stream') continue;
+      pathOf(ctx, b.p); ctx.strokeStyle = dark ? 'rgba(100,150,190,0.2)' : 'rgba(70,120,170,0.3)'; ctx.lineWidth = zoom ? 1.4 : 0.8; ctx.stroke(); }
+    // county lines
+    ctx.setLineDash([5, 4]);
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'county') continue;
+      pathOf(ctx, b.p, b.poly); ctx.strokeStyle = ink(0.11); ctx.lineWidth = 0.8; ctx.stroke(); }
+    ctx.setLineDash([]);
+    // Columbus streets at street level
+    if (mid && NL.columbus) {
+      for (i = 0; i < NL.columbus.length; i++) { b = NL.columbus[i];
+        pathOf(ctx, b.p); ctx.strokeStyle = ink(zoom ? (b.c <= 2 ? 0.22 : 0.12) : (b.c <= 2 ? 0.16 : 0.1)); ctx.lineWidth = zoom ? (b.c <= 2 ? 1.6 : 0.9) : (b.c <= 2 ? 0.9 : 0.6); ctx.stroke(); }
+    }
+    // rail + highways
+    ctx.setLineDash([2, 3]);
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'rail') continue; pathOf(ctx, b.p); ctx.strokeStyle = ink(0.13); ctx.lineWidth = 0.8; ctx.stroke(); }
+    ctx.setLineDash([]);
+    for (i = 0; i < L.length; i++) { b = L[i]; if (b.k !== 'hwy') continue;
+      pathOf(ctx, b.p); ctx.strokeStyle = ink(zoom ? 0.3 : 0.18); ctx.lineWidth = zoom ? 2.2 : 1.1; ctx.stroke(); }
+    // storm path (the replay rides this line)
+    if (view.single) {
+      ctx.setLineDash([1, 5]); ctx.lineCap = 'round';
+      pathOf(ctx, aug.path); ctx.strokeStyle = ink(0.35); ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.setLineDash([]); ctx.lineCap = 'butt';
+    }
+    // labels
+    ctx.font = '500 10.5px "Geist Mono", monospace'; ctx.textBaseline = 'middle';
+    var labels = [];
+    Object.keys(NL.places).forEach(function (n) { labels.push([n, NL.places[n], 1]); });
+    if (mid) for (i = 0; i < L.length; i++) { b = L[i]; if (b.k === 'town' && b.n && b.a > 0.3 && !NL.places[b.n]) {
+      var cx = 0, cy = 0; b.p.forEach(function (q) { cx += q[0]; cy += q[1]; }); labels.push([b.n, [cx / b.p.length, cy / b.p.length], 0]); } }
+    if (zoom) labels.push(['22 St', [NL.pick.start.lon, NL.pick.start.lat], 2]);
+    labels.forEach(function (lb) {
+      var q = px(lb[1]); if (q[0] < -50 || q[0] > W + 50 || q[1] < -20 || q[1] > H + 20) return;
+      var txt = lb[0].toUpperCase();
+      ctx.fillStyle = ink(lb[2] ? 0.8 : 0.45);
+      ctx.beginPath(); ctx.arc(q[0], q[1], lb[2] ? 2.2 : 1.5, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = ink(lb[2] ? 0.72 : 0.42);
+      if (ctx.letterSpacing !== undefined) ctx.letterSpacing = '1.4px';
+      ctx.fillText(txt, q[0] + 8, q[1] + 0.5);
+    });
+  }
+  function drawScale() {
+    var miles = view.miles > 60 ? 20 : view.miles > 20 ? 5 : 1, w = miles * MI * cam.k;
+    document.getElementById('scale').innerHTML = '<i style="width:' + w.toFixed(1) + 'px"></i>' + miles + ' mi';
+  }
+
+  /* ---------- HUD */
+  document.getElementById('eyebrow').textContent = view.eyebrow;
+  document.getElementById('title').textContent = view.title;
+  document.getElementById('sub').innerHTML = view.sub;
+  document.getElementById('bar').style.background = HailGL.legendGradient(THEME, 0.5, 2.5);
+  document.getElementById('ticks').innerHTML = [[0.5, '0.5'], [1, '1'], [1.5, '1.5'], [2, '2'], [2.5, '2.5+']].map(function (t) {
+    return '<span style="left:' + ((t[0] - 0.5) / 2 * 100) + '%">' + t[1] + '</span>'; }).join('');
+
+  /* ---------- data -> GPU */
+  var t0 = performance.now();
+  var field = HailGL.fieldFromStorms({
+    storms: view.single ? [aug] : NL.storms, areas: view.single ? augAreas : NL.areas,
+    bounds: view.fieldBounds, res: view.res, project: project, arrival: view.arrival || 'path' });
+  var buildMs = performance.now() - t0;
+  kit.field.setField(field);
+  var REPLAY = 9, PERIOD = 12.5;
+  if (MODE === 'replay') {
+    kit.hail.spawn({ count: NSTONES, sampler: HailGL.sampler(field, { min: 0.55 }), dur: REPLAY, lag: 0.03,
+      fall: { height: 0.2, speed: 0.26 } });
+  } else if (MODE === 'hail') {
+    kit.hail.spawn({ count: Q.has('n') ? NSTONES : 1400, sampler: HailGL.sampler(field, { min: 0.6, size: [0.5, 1.02] }), loop: 3.2,
+      fall: { height: 0.24, speed: 0.3 } });
+  }
+
+  // path helper: storm position along the path for a 0..1 reveal
+  var pathW = aug.path.map(project), segL = [], totL = 0;
+  for (var i = 1; i < pathW.length; i++) { var l = Math.hypot(pathW[i][0] - pathW[i - 1][0], pathW[i][1] - pathW[i - 1][1]); segL.push(l); totL += l; }
+  function along(r) {
+    var d = Math.max(0, Math.min(1, r)) * totL;
+    for (var i = 0; i < segL.length; i++) { if (d <= segL[i] || i === segL.length - 1) { var f = segL[i] ? d / segL[i] : 0;
+      return [pathW[i][0] + (pathW[i + 1][0] - pathW[i][0]) * f, pathW[i][1] + (pathW[i + 1][1] - pathW[i][1]) * f]; } d -= segL[i]; }
+    return pathW[0];
+  }
+  // deterministic ring schedule so ?t= freezes rings exactly
+  var ringKeys = {}, lastT = -1e9;
+  function schedule(t, period, life, fn) {
+    if (t < lastT) { kit.rings.clear(); ringKeys = {}; }
+    lastT = t;
+    for (var k = Math.max(0, Math.floor((t - life) / period)); k * period <= t; k++) {
+      if (ringKeys[k]) continue; ringKeys[k] = 1; fn(k * period, k);
+    }
+  }
+  var pickW = project([NL.pick.start.lon, NL.pick.start.lat]);
+  var trEl = document.getElementById('tr');
+  function ease(x) { x = Math.max(0, Math.min(1, x)); return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+  var pathMi = totL * 69.17;
+  function setClock(r) {
+    // real distance along the storm's path (NL storm path, engine); the storm time is not in the data, so no clock
+    var mi = r * pathMi;
+    trEl.innerHTML = '<div class="clock">Along the storm path<b>' + mi.toFixed(1) + ' <span style="color:var(--muted);font-size:18px">/ ' + pathMi.toFixed(1) + ' mi</span></b></div><div class="track"><i style="width:' + (r * 100).toFixed(1) + '%"></i></div>';
+  }
+
+  /* ---------- frame */
+  var gl = kit.gl, perfEl = document.getElementById('perf'), start = performance.now();
+  var cpu = [], frames = [], lastStamp = 0, frameNo = 0, pix = new Uint8Array(4), syncs = [];
+  var FO = { t: 0, reveal: undefined, opacity: 1 }, HO = { t: 0, residue: 14 }, RO = { t: 0 }, FRONT = [0, 0, 1, 0];
+  if (MODE === 'hail') { HO.scale = 2.2; HO.ringSize = 22; HO.persp = 0.26; HO.residue = 2.5; }
+  function frame(stamp) {
+    var t = TFIX != null ? TFIX : (performance.now() - start) / 1000;
+    var c0 = performance.now();
+    if (gl) { gl.viewport(0, 0, glc.width, glc.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    else if (kit.ctx) { kit.ctx.setTransform(1, 0, 0, 1, 0, 0); kit.ctx.clearRect(0, 0, glc.width, glc.height); }
+    FO.t = t; HO.t = t; RO.t = t;
+    if (MODE === 'replay') {
+      var local = t % PERIOD, r = ease(local / REPLAY);
+      FO.reveal = r; HO.t = local; RO.t = local;
+      kit.field.draw(M, FO);
+      kit.hail.draw(M, HO);
+      schedule(local, 0.55, 1.8, function (tk) {
+        if (tk > REPLAY) return;
+        var p = HailGL.frontAt(field, ease(tk / REPLAY), aug.id, FRONT); kit.rings.add(p[0], p[1], { t0: tk, size: 64, life: 1.8, color: '#ff8a5a', width: 1.1 });
+      });
+      kit.rings.draw(M, RO);
+      setClock(r);
+    } else if (MODE === 'season') {
+      FO.reveal = Math.min(1.1, (t % 14) / 12);
+      kit.field.draw(M, FO);
+    } else {
+      FO.reveal = undefined;
+      kit.field.draw(M, FO);
+      if (MODE === 'hail') kit.hail.draw(M, HO);
+      schedule(t, 1.5, 2.4, function (tk) { kit.rings.add(pickW[0], pickW[1], { t0: tk, size: MODE === 'hail' ? 110 : 46, life: 2.4 }); });
+      kit.rings.draw(M, RO);
+    }
+    if (SYNC && gl) { gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pix); }
+    var c1 = performance.now();
+    frameNo++;
+    if (frameNo > 30 && frameNo <= 150) {
+      cpu.push(c1 - c0);
+      if (lastStamp) frames.push(stamp - lastStamp);
+      if (frameNo === 150) report();
+    }
+    lastStamp = stamp;
+    requestAnimationFrame(frame);
+  }
+  function avg(a) { return a.reduce(function (s, x) { return s + x; }, 0) / Math.max(1, a.length); }
+  function p95(a) { var b = a.slice().sort(function (x, y) { return x - y; }); return b[Math.floor(b.length * 0.95)] || 0; }
+  function report() {
+    var res = { mode: kit.mode, view: MODE, stones: kit.hail.count(), dpr: DPR, buildMs: +buildMs.toFixed(1),
+      cpuAvgMs: +avg(cpu).toFixed(3), cpuP95Ms: +p95(cpu).toFixed(3), frameAvgMs: +avg(frames).toFixed(2), frameP95Ms: +p95(frames).toFixed(2), sync: SYNC,
+      fieldTex: field.w + 'x' + field.h, frames: cpu.length };
+    window.__hglPerf = res;
+    console.log('HGLPERF ' + JSON.stringify(res));
+    perfEl.innerHTML = 'HailGL · ' + res.mode + (res.stones ? ' · ' + res.stones.toLocaleString() + ' stones' : '') +
+      '<br>' + (SYNC ? 'draw+gpu ' : 'draw ') + res.cpuAvgMs.toFixed(2) + ' ms · frame ' + res.frameAvgMs.toFixed(1) + ' ms (120 frames)';
+  }
+  window.addEventListener('resize', layout);
+  layout();
+  var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  fontsReady.then(function () { drawBase(); window.__hglReady = true; });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

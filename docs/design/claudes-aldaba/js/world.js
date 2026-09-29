@@ -20,7 +20,7 @@
   /** handy camera targets: pass to flyTo({bounds: W.presets.region}) */
   W.presets = {
     state: [[BBOX[0], BBOX[1]], [BBOX[2], BBOX[3]]],
-    region: [[-97.46, 41.2], [-95.94, 41.58]],
+    region: [[-97.62, 41.16], [-95.86, 41.62]],
     fremont: [[-96.56, 41.40], [-96.44, 41.48]],
     columbus: [[-97.43, 41.40], [-97.31, 41.47]]
   };
@@ -116,7 +116,7 @@
 
   /* ======================= palette (tokens → canvas colors) ======================= */
   let pal = {};
-  const PK = { land: '--map-land', water: '--map-water', waterLine: '--map-water-line', waterLabel: '--map-water-label', stream: '--map-stream', river: '--map-river', town: '--map-town', townLine: '--map-town-line', county: '--map-county', rail: '--map-rail', street: '--map-street', street2: '--map-street-2', art: '--map-art', hwy: '--map-hwy', label: '--map-label', label2: '--map-label-2', halo: '--map-halo', beam: '--map-beam', page: '--page', panel: '--panel', panel2: '--panel-2', panel3: '--panel-3', text: '--text', text2: '--text-2', muted: '--muted', faint: '--faint', rule: '--rule', rule2: '--rule-2', rule3: '--rule-3', acc: '--acc', accInk: '--acc-ink', accBg: '--acc-bg', onAcc: '--on-acc', h0: '--h0', h1: '--h1', h15: '--h15', h2: '--h2', ok: '--ok', bad: '--bad', info: '--info', shadow: '--shadow' };
+  const PK = { land: '--map-land', water: '--map-water', waterLine: '--map-water-line', waterLabel: '--map-water-label', stream: '--map-stream', river: '--map-river', town: '--map-town', townLine: '--map-town-line', county: '--map-county', grid: '--map-grid', rail: '--map-rail', street: '--map-street', street2: '--map-street-2', art: '--map-art', hwy: '--map-hwy', label: '--map-label', label2: '--map-label-2', halo: '--map-halo', beam: '--map-beam', page: '--page', panel: '--panel', panel2: '--panel-2', panel3: '--panel-3', text: '--text', text2: '--text-2', muted: '--muted', faint: '--faint', rule: '--rule', rule2: '--rule-2', rule3: '--rule-3', acc: '--acc', accInk: '--acc-ink', accBg: '--acc-bg', onAcc: '--on-acc', h0: '--h0', h1: '--h1', h15: '--h15', h2: '--h2', ok: '--ok', bad: '--bad', info: '--info', shadow: '--shadow' };
   function readPal() {
     const p = {};
     for (const k in PK) p[k] = A.tok(PK[k]) || '#888';
@@ -137,6 +137,7 @@
   Object.defineProperty(W, 'zoom', { get: () => cam.z });
 
   function mkFrame(now, dt) {
+    if (!W.w) { W.w = 1; W.h = 1; }
     const s = Math.pow(2, cam.z), ins = insetCur;
     const fw = Math.max(40, W.w - ins.l - ins.r), fh = Math.max(40, W.h - ins.t - ins.b);
     const ox = ins.l + fw / 2 - cam.x * s, oy = ins.t + fh / 2 - cam.y * s;
@@ -240,12 +241,18 @@
   /** setInset({l,r,t,b}, {ms}) the free map area between panels; the camera center stays put, the map slides */
   W.setInset = function (ins, o = {}) {
     const n = { l: ins.l || 0, r: ins.r || 0, t: ins.t || 0, b: ins.b || 0 };
+    hudIns = { r: ins.hudR != null ? ins.hudR : n.r, b: ins.hudB != null ? ins.hudB : n.b }; hudLast = '';
     insetTo = n;
     if (!o.ms || A.still) { insetCur = Object.assign({}, n); insetTw = null; invalidate(); return; }
     insetTw = { from: Object.assign({}, insetCur), to: n, t0: null, ms: o.ms }; wake();
   };
   /** setDim(0..1, {ms}) push the basemap back (money view, overlays) */
-  W.setDim = function (v, o = {}) { dimTo = Math.min(1, Math.max(0, v || 0)); if (A.still || o.ms === 0) dimCur = dimTo; wake(); invalidate(); };
+  W.setDim = function (v, o = {}) {
+    dimTo = Math.min(1, Math.max(0, v || 0));
+    if (A.still || o.ms === 0) dimCur = dimTo;
+    if (veil) veil.style.opacity = String(dimTo * 0.78); // CSS transition carries it
+    wake(); invalidate('top');
+  };
   W.options = function (o) { Object.assign(opts, o || {}); if (hudEl) hudEl.hidden = !opts.hud; invalidate(); return Object.assign({}, opts); };
 
   /* ======================= layers ======================= */
@@ -352,7 +359,6 @@
     }
     if (dimCur !== dimTo) {
       const st = dt / 500; dimCur = dimCur < dimTo ? Math.min(dimTo, dimCur + st) : Math.max(dimTo, dimCur - st);
-      if (veil) veil.style.opacity = String(dimCur * 0.78);
       dirty.top = true; anim = anim || dimCur !== dimTo;
     }
     // layer fades
@@ -394,7 +400,7 @@
     const unders = layers.filter((L) => !L.drawGL && L.draw2d && L.z < 100 && L.visible !== false && L._op > 0.003);
     if (dirty.base) {
       dirty.base = false;
-      const camKey = lastKey + '|' + A.theme + '|' + opts.labels;
+      const camKey = lastKey + '|' + A.theme;
       if (unders.length) {
         if (!cache) { cache = document.createElement('canvas'); cache.width = cvB.width; cache.height = cvB.height; cC = cache.getContext('2d'); }
         if (cache.width !== cvB.width || cache.height !== cvB.height) { cache.width = cvB.width; cache.height = cvB.height; cache._k = ''; }
@@ -459,10 +465,17 @@
     ctx.setLineDash([6 * px, 4 * px]); ctx.strokeStyle = pal.county; ctx.lineWidth = px; draw('county');
     if (z > 9) { ctx.globalAlpha = sm(z, 9, 10); ctx.setLineDash([2.5 * px, 3 * px]); ctx.strokeStyle = pal.rail; ctx.lineWidth = px * 0.9; draw('rail'); }
     ctx.setLineDash([]); ctx.globalAlpha = 1;
+    // survey marks: Nebraska is laid out on the 6-mile PLSS township grid; a faint cross every 6 miles gives scale
+    if (opts.grid !== false && z > 7.6 && z < 12.4) {
+      const sp = 6 / MI, arm = 2.6 * px, x0 = Math.floor(v[0] / sp) * sp, y0 = Math.floor(v[1] / sp) * sp;
+      ctx.globalAlpha = sm(z, 7.6, 8.4) * (1 - sm(z, 11.6, 12.4)); ctx.strokeStyle = pal.grid; ctx.lineWidth = px; ctx.beginPath();
+      for (let x = x0; x <= v[2]; x += sp) for (let y = y0; y <= v[3]; y += sp) { ctx.moveTo(x - arm, y); ctx.lineTo(x + arm, y); ctx.moveTo(x, y - arm); ctx.lineTo(x, y + arm); }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
     // streets fade in as you zoom
-    if (z > 11.4) { ctx.globalAlpha = sm(z, 11.4, 12.8); ctx.strokeStyle = z > 15 ? pal.street2 : pal.street; ctx.lineWidth = px * strokeW(z, 0.55); draw('street'); }
-    if (z > 10) {
-      ctx.globalAlpha = sm(z, 10, 11); ctx.strokeStyle = pal.art;
+    if (z > 9.2) { ctx.globalAlpha = 0.25 + 0.75 * sm(z, 9.2, 12.6); ctx.strokeStyle = z > 15 ? pal.street2 : pal.street; ctx.lineWidth = px * strokeW(z, z < 11 ? 0.5 : 0.55); draw('street'); }
+    if (z > 8.8) {
+      ctx.globalAlpha = 0.35 + 0.65 * sm(z, 8.8, 11); ctx.strokeStyle = pal.art;
       ctx.lineWidth = px * strokeW(z, 0.7); draw('art1');
       ctx.lineWidth = px * strokeW(z, 0.95); draw('art0'); draw('street2');
     }
@@ -493,6 +506,14 @@
     if (f.inset.t > 1) boxes.push([-1e5, -1e5, 1e5, f.inset.t - 2]);
     if (f.inset.b > 1) boxes.push([-1e5, f.h - f.inset.b + 2, 1e5, 1e5]);
     const vis = (q, m) => q[0] > -m && q[1] > -m && q[0] < f.w + m && q[1] < f.h + m;
+    // DOM pins win over labels
+    for (const P of pins.values()) {
+      if (P.off) continue;
+      if (P.pw == null) { P.pw = P.node.offsetWidth || 0; P.ph = P.node.offsetHeight || 0; }
+      const q = f.project(P.ll), x = q[0] + P.dx, y = q[1] + P.dy, w = P.pw, h = P.ph;
+      const ax = P.t === ANCH.left ? x : P.t === ANCH.right ? x - w : x - w / 2, ay = P.t === ANCH.bottom ? y - h : P.t === ANCH.top ? y : y - h / 2;
+      boxes.push([ax - 3, ay - 3, ax + w + 3, ay + h + 3]);
+    }
     // places
     for (const p of LBL.places) {
       const a = (p.tier === 1 ? sm(z, 7.2, 8) : sm(z, 8.8, 9.5)) * (1 - sm(z, 13.4, 14.2));
@@ -500,8 +521,10 @@
       const q = f.projectW(p.w[0], p.w[1]); if (!vis(q, 80)) continue;
       const font = p.tier === 1 ? '600 12px ' + FUI : '500 10.5px ' + FUI, ls = p.tier === 1 ? '2.2px' : '1.5px', s = p.n.toUpperCase();
       const w = measure(ctx, font, s, ls);
-      if (!tryBox(boxes, [q[0] - w / 2 - 5, q[1] - 10, q[0] + w / 2 + 5, q[1] + 10])) continue;
-      txt(ctx, s, q[0], q[1], font, p.tier === 1 ? pal.label2 : pal.label, a * la, ls);
+      for (const dy of [0, 30, -30]) { // a pin sitting on the town pushes its name below or above
+        if (!tryBox(boxes, [q[0] - w / 2 - 5, q[1] + dy - 10, q[0] + w / 2 + 5, q[1] + dy + 10])) continue;
+        txt(ctx, s, q[0], q[1] + dy, font, p.tier === 1 ? pal.label2 : pal.label, a * la, ls); break;
+      }
     }
     // rivers (italic, along the water)
     const ra = sm(z, 8.6, 9.4) * (1 - sm(z, 14, 15));
@@ -550,7 +573,7 @@
     // street names (only when you are at street level, a few, never clutter)
     if (opts.streetNames && z > 15.1) {
       const a = sm(z, 15.1, 15.8) * la, v = f.view; let n = 0;
-      const font = '500 10.5px ' + FUI;
+      const font = '500 10.5px ' + FUI, placed = [];
       for (const s of LBL.streets) {
         if (n >= 14) break;
         if (!hitBB(s.bb, v)) continue;
@@ -558,15 +581,16 @@
         const L = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), w = measure(ctx, font, s.n, '0.2px');
         if (L < w + 28) continue;
         const q = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2]; if (!vis(q, -10)) continue;
+        if (placed.some((o) => o.n === s.n && Math.hypot(o.q[0] - q[0], o.q[1] - q[1]) < 420)) continue;
         const ang = upright(Math.atan2(p1[1] - p0[1], p1[0] - p0[0])), c = Math.abs(Math.cos(ang)), sn = Math.abs(Math.sin(ang));
         const bw = w * c + 14 * sn + 6, bh = w * sn + 14 * c + 6;
         if (!tryBox(boxes, [q[0] - bw / 2, q[1] - bh / 2, q[0] + bw / 2, q[1] + bh / 2])) continue;
         ctx.save(); ctx.translate(q[0], q[1]); ctx.rotate(ang); txt(ctx, s.n, 0, 0, font, pal.label2, a * 0.9, '0.2px'); ctx.restore();
-        n++;
+        placed.push({ n: s.n, q }); n++;
       }
     }
     // the radar the beam comes from
-    if (f.ambient !== undefined && ambientOn && W.hasGL && X.radar && z > 8 && z < 12.6) {
+    if (ambientOn && !A.still && W.hasGL && X.radar && z > 8 && z < 12.6) {
       const q = f.project(X.radar.c);
       if (vis(q, -10) && tryBox(boxes, [q[0] - 6, q[1] - 6, q[0] + 44, q[1] + 6])) {
         const a = 0.75 * la * (1 - sm(z, 12, 12.6));
@@ -581,7 +605,7 @@
   W.roundRect = roundRect;
 
   /* ---------- HUD: scale bar + zoom + attribution ---------- */
-  let hudBar = null, hudTxt = null, hudLast = '';
+  let hudBar = null, hudTxt = null, hudLast = '', hudIns = { r: 0, b: 0 };
   function buildHud() {
     hudEl = el.querySelector('.hud') || document.createElement('div');
     hudEl.className = 'hud'; hudEl.id = 'hud';
@@ -605,8 +629,8 @@
   }
   function updateHud(f) {
     if (!hudEl) return;
-    const k = f.inset.r.toFixed(0) + ',' + f.inset.b.toFixed(0) + ',' + f.w + ',' + f.h;
-    if (k !== hudLast) { hudLast = k; hudEl.style.transform = 'translate(' + -(f.inset.r + 14) + 'px,' + -(f.inset.b + 14) + 'px)'; }
+    const k = hudIns.r.toFixed(0) + ',' + hudIns.b.toFixed(0) + ',' + f.w + ',' + f.h;
+    if (k !== hudLast) { hudLast = k; hudEl.style.transform = 'translate(' + -(hudIns.r + 14) + 'px,' + -(hudIns.b + 14) + 'px)'; }
     const mpp = MI / f.scale, ftpp = mpp * 5280;
     let label, px;
     if (ftpp * 100 < 1000) {
@@ -614,7 +638,7 @@
       px = st / ftpp; label = st + (A.lang === 'es' ? ' pies' : ' ft');
     } else {
       const steps = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100]; let st = steps[0]; for (const s of steps) if (s / mpp <= 110) st = s;
-      px = st / mpp; label = A.fmt.num(st, st < 1 ? 2 : 0).replace(/\.?0+$/, (m) => (st < 1 ? m : '')) + ' mi';
+      px = st / mpp; label = A.fmt.num(st, st === 0.25 ? 2 : st < 1 ? 1 : 0) + ' mi';
     }
     if (hudTxt.textContent !== label) hudTxt.textContent = label;
     hudBar.style.transform = 'scaleX(' + (px / 100).toFixed(4) + ')';
@@ -710,7 +734,7 @@
       if (r.layer && r.layer.onClick) A.safe('layer click', () => r.layer.onClick(r.item, r.pt));
       A.emit('map:click', { layer: r.layer && r.layer.id, item: r.item, lon: r.pt.lon, lat: r.pt.lat, x: r.pt.x, y: r.pt.y });
     }
-    ['pointerdown', 'keydown', 'wheel'].forEach((t) => addEventListener(t, () => { const was = performance.now() - lastInput > 90000; lastInput = performance.now(); if (was) invalidate('gl'); }, { passive: true, capture: true }));
+    ['pointerdown', 'pointermove', 'keydown', 'wheel'].forEach((t) => addEventListener(t, () => { const was = performance.now() - lastInput > 90000; lastInput = performance.now(); if (was) invalidate('gl'); }, { passive: true, capture: true }));
     document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
   }
 
@@ -825,7 +849,7 @@
         }
       }
     }
-    const sig = 2.4 / MI, R = 3 * sig;
+    const sig = 1.8 / MI, R = 3 * sig;
     for (const st of N.storms || []) {
       const P = (st.path || []).map((p) => toW(p[0], p[1])); if (P.length < 2 || !st.max) continue;
       for (let s = 1; s < P.length; s++) {
@@ -836,7 +860,7 @@
           for (let i = Math.max(0, c0[0]); i <= Math.min(nx - 1, c1[0]); i++) {
             const px = a[0] + (i + 0.5) * cw; const t = Math.max(0, Math.min(1, ((px - p0[0]) * dx + (py - p0[1]) * dy) / L2));
             const ex = px - (p0[0] + t * dx), ey = py - (p0[1] + t * dy), d2 = ex * ex + ey * ey;
-            const v = st.max * 0.92 * Math.exp(-d2 / (2 * sig * sig)); const q = j * nx + i; if (v > data[q]) data[q] = v;
+            const v = st.max * 0.88 * Math.exp(-d2 / (2 * sig * sig)); const q = j * nx + i; if (v > data[q]) data[q] = v;
           }
         }
       }
@@ -869,18 +893,18 @@
   const HAIL_VS = '#version 300 es\nin vec2 a_p;\nout vec2 v_w;\nuniform mat3 u_inv;\nvoid main(){ vec3 w = u_inv * vec3(a_p, 1.0); v_w = w.xy; gl_Position = vec4(a_p, 0.0, 1.0); }';
   const HAIL_FS = [
     '#version 300 es', 'precision highp float;', 'in vec2 v_w;', 'out vec4 o;',
-    'uniform sampler2D u_f; uniform vec4 u_fb; uniform float u_mul, u_alpha, u_sweep, u_on, u_light;',
+    'uniform sampler2D u_f; uniform vec4 u_fb; uniform float u_mul, u_alpha, u_sweep, u_on, u_light, u_zf;',
     'uniform vec2 u_radar; uniform vec3 u_h1, u_h15, u_h2, u_beam;',
     'void main(){',
     '  vec2 uv = (v_w - u_fb.xy) / (u_fb.zw - u_fb.xy);',
     '  float inb = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);',
     '  float v = texture(u_f, uv).r * u_mul * inb;',
     '  vec3 c = mix(u_h1, u_h15, smoothstep(1.1, 1.55, v)); c = mix(c, u_h2, smoothstep(1.7, 2.25, v));',
-    '  float heat = smoothstep(0.5, 1.15, v) * (0.13 + 0.2 * smoothstep(1.0, 2.4, v));',
+    '  float heat = smoothstep(0.62, 1.2, v) * (0.07 + 0.15 * smoothstep(1.0, 2.4, v)) * u_zf;',
     '  float q = v * 4.0; float fw = max(fwidth(q), 1e-4);',
     '  float iso = 1.0 - smoothstep(0.35, 1.25, abs(fract(q + 0.5) - 0.5) / fw);',
     '  float major = 1.0 - mod(floor(q + 0.5), 2.0);',
-    '  iso *= smoothstep(0.55, 0.85, v) * mix(0.32, 0.72, major);',
+    '  iso *= smoothstep(0.62, 0.9, v) * mix(0.2, 0.5, major);',
     '  vec2 r = v_w - u_radar; r.y = -r.y;',
     '  float ang = atan(r.y, r.x);',
     '  float dA = mod(ang - u_sweep, 6.2831853);',
@@ -888,7 +912,7 @@
     '  float range = 1.0 - smoothstep(95.0, 150.0, dist);',
     '  float trail = exp(-dA * 1.8) * u_on * range;',
     '  float beam = (exp(-dA * 55.0) * 0.055 + exp(-dA * 4.0) * 0.012) * u_on * range * smoothstep(0.0, 6.0, dist);',
-    '  float a = clamp(heat * (1.0 + 1.5 * trail) + iso * (0.6 + 0.7 * trail), 0.0, 0.92);',
+    '  float a = clamp(heat * (1.0 + 1.6 * trail) + iso * (0.75 + 0.9 * trail), 0.0, 0.9);',
     '  vec3 col = c * (1.0 + 0.3 * trail * (1.0 - u_light));',
     '  vec3 outc = col * a + u_beam * beam * (1.0 - a);',
     '  float oa = a + beam * (1.0 - a);',
@@ -907,7 +931,7 @@
         glx.uniforms(R.prog, {
           u_inv: f.inv, u_f: { tex: R.tex.tex, unit: 0 }, u_fb: [HF.x0, HF.y0, HF.x1, HF.y1], u_mul: R.tex.mul, u_alpha: f.alpha,
           u_sweep: f.sweep == null ? sweepA : f.sweep, u_on: ambientOn && !A.still ? 1 : 0, u_light: pal.light ? 1 : 0,
-          u_radar: rc, u_h1: pal.rgb.h1, u_h15: pal.rgb.h15, u_h2: pal.rgb.h2, u_beam: pal.rgb.beam
+          u_zf: 1 - 0.88 * sm(f.zoom, 12.2, 15), u_radar: rc, u_h1: pal.rgb.h1, u_h15: pal.rgb.h15, u_h2: pal.rgb.h2, u_beam: pal.rgb.beam
         });
         glx.drawQuad(R.prog);
       },

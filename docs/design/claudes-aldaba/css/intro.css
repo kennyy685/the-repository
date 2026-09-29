@@ -1,0 +1,3 @@
+/* Claude's Aldaba · css/intro.css
+   Owner: the intro builder. Styles for this view only; reuse the classes in base.css first (see CONTRACT.md).
+   Scope every rule under :root[data-view="intro"] or a class prefixed "intro-" so views never collide. */
