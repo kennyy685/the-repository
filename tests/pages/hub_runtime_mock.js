@@ -69,7 +69,7 @@
   const mcp = {callTool: (server, tool, input) => { log.push(['mcp', tool, input]); if (M.first_call_mcp && !once.call) { once.call = 1; return later(() => { throw err(M.first_call_mcp); }); } if (tool === 'list_sessions') return listSessions(); return gate('mcp', () => { return {payload: tool === 'get_session' ? {id:'s', status:'idle', title:'SMUIPO (King)'} : tool === 'create_session' ? {id:'session_new'} : tool === 'list_environments' ? {environments:[{environment_id:'env_test', kind:'anthropic_cloud', state:'active'}]} : {ok:true}, content:[{type:'text', text:'{}'}]}; }); },
     watchTool: () => () => {}, server: async () => ({})};
   const user = {isOwner: () => gate('user', () => true), canEdit: () => gate('user', () => true), can: () => gate('user', () => true), id: () => gate('user', () => 'u_owner'), me: () => gate('user', () => ({id:'u_owner', name:'FilthE'})), profiles: async () => ({})};
-  const permissions = {state: async (n) => { log.push(['perm', n]); return n ? (M.perm || 'prompt') : {}; }, request: async (names) => { log.push(['permreq', names]); return {}; }};
+  const permissions = {state: async (n) => { log.push(['perm', n]); return n ? (M.perm || 'prompt') : {}; }, request: (names) => { log.push(['permreq', names]); if (M.reqMs) return new Promise(r => setTimeout(() => r({'mcp:Claude Code Remote':M.reqAnswer || 'granted'}), M.reqMs)); return Promise.resolve({}); }};   // modes.reqMs: he takes that long on the consent prompt; reqAnswer granted|denied
   const caps = {db, sample, mcp, user, permissions, assets: null};
   window.claude = {use: (n) => {
     const m = mode('use_' + n);

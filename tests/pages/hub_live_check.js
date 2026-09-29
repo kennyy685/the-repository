@@ -388,6 +388,24 @@ async function scenarioLivePrompt(browser, url) {   // not allowed yet: no call 
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();
 }
+async function scenarioLiveSlowConsent(browser, url) {   // QA 2026-09-29: he reads the consent prompt for 40 s; the read still lands, and a "no" stops quietly
+  const L = "live-slow-consent";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "prompt", reqMs: 40000 } });
+  await p.click("#lvGo", { timeout: 2000 }); await tick(20000);
+  ok(await lists(p) === 0, `${L}: read sent before he answered the prompt`);
+  ok(await probe(p) < 500, `${L}: main thread busy while the prompt is open`);
+  await tick(22000);
+  ok(await lists(p) === 1 && (await robot(p, "builder")).st === "working", `${L}: slow consent lost the read (${await lists(p)})`);
+  await tick(61000); ok(await lists(p) === 2, `${L}: no minute re-read after a slow consent`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+  const b = await open(browser, url, { modes: { perm: "prompt", reqMs: 3000, reqAnswer: "denied" } });
+  await b.p.click("#lvGo", { timeout: 2000 }); await b.tick(70000);
+  ok(await lists(b.p) === 0, `${L}: read sent after he said no`);
+  ok(/Live off/.test(await b.p.textContent("#brief")), `${L}: a "no" isn't reported`);
+  ok(!b.errs.length, `${L}: page errors after no: ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+}
 async function scenarioLiveRefused(browser, url) {   // the tool isn't in the grant: say so, keep the hand-written view, never kill the King wake
   const L = "live-refused";
   const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", list: "not_in_manifest" } });
@@ -458,6 +476,7 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
     await run("live-chats", () => scenarioLiveChats(browser, url, null, "live-chats"));
     await run("live-chats-phone", () => scenarioLiveChats(browser, url, { width: 390, height: 844 }, "live-chats-phone"));
     await run("live-prompt", () => scenarioLivePrompt(browser, url));
+    await run("live-slow-consent", () => scenarioLiveSlowConsent(browser, url));
     await run("live-refused", () => scenarioLiveRefused(browser, url));
     await run("live-hang", () => scenarioLiveHang(browser, url));
     await run("live-text", () => scenarioLiveText(browser, url));
@@ -466,5 +485,5 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (25 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (26 scenarios)");
 })();
