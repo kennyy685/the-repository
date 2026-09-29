@@ -592,7 +592,7 @@ const SHELF = {max:8, x:-FX + .22, y:2.666, z0:3.2, dz:.18, v:undefined, list:[]
     const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#e3c98f'); gr.addColorStop(.5, '#c9a45c'); gr.addColorStop(1, '#8a6a3a');
     g.fillStyle = gr; g.beginPath(); g.roundRect(2, 2, w - 4, h - 4, 8); g.fill(); g.strokeStyle = 'rgba(60,40,15,.5)'; g.lineWidth = 2; g.beginPath(); g.roundRect(8, 8, w - 16, h - 16, 5); g.stroke();
     g.fillStyle = '#3a2610'; g.textBaseline = 'middle'; g.font = '600 26px ' + MONO; g.textAlign = 'left'; g.fillText('SHIPPED', 22, h/2 + 1);
-    g.font = '600 38px ' + MONO; g.textAlign = 'right'; g.fillText(String(SHELF.n), w - 22, h/2 + 2); });
+    g.font = '600 38px ' + MONO; g.textAlign = 'right'; g.fillText(String(SHELF.count != null ? SHELF.count : SHELF.n), w - 22, h/2 + 2); });   // the week's true count (boxes cap at 8)
   const lab = dyn(new THREE.Mesh(new THREE.PlaneGeometry(.25, .07), std({map:SHELF.labelT, transparent:true, roughness:.45, metalness:.1})));
   lab.rotation.y = Math.PI/2; lab.position.set(-FX + .175, 2.703, 1.59); lab.visible = false; P.add(lab); SHELF.lab = lab;
 }
@@ -2037,8 +2037,9 @@ function stepShelf(dt){
     const still = RM.matches || lowfx || now - Z.t0 < 8000, old = Z.pos; Z.pos = new Map();
     list.forEach((it, i) => { const id = String(it.id), tz = Z.z0 - i*Z.dz, p = old.get(id); Z.pos.set(id, p ? Object.assign(p, {tz}) : {z:tz, tz, y:still ? 0 : .42, vy:0, h:hash32(id)}); });
     if (still) for (const p of Z.pos.values()){ p.z = p.tz; p.y = 0; p.vy = 0; }
-    const n0 = Z.n; Z.list = list; Z.n = list.length; Z.anim = true; Z.hv = -1;
-    Z.im.count = Z.n; Z.im.visible = Z.lab.visible = Z.n > 0; if (Z.n && Z.n !== n0) redraw(Z.labelT); }
+    const n0 = Z.n, c0 = Z.count, hc = HUB.shipped && HUB.shipped.count; Z.list = list; Z.n = list.length; Z.anim = true; Z.hv = -1;
+    Z.count = Number.isFinite(+hc) && hc !== null && +hc >= Z.n ? Math.floor(+hc) : Z.n;   // HUB.shipped.count: the whole week; missing = the boxes
+    Z.im.count = Z.n; Z.im.visible = Z.lab.visible = Z.n > 0; if (Z.n && (Z.n !== n0 || Z.count !== c0)) redraw(Z.labelT); }
   if (!Z.n){ Z.boxes.length = 0; if (Z.hover){ Z.hover = null; shelfTag(null); } return; }
   // stage px for each box + the one under the pointer (no robot hovered, pointer on the stage)
   const ptr = HUB.pointer, can = ptr && ptr.in && !HUB.hover && !SC.dragged; let best = -1, bd = 1e9, rad = 12;
@@ -2797,7 +2798,7 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
 
 /* test helper (not part of the contract): the cat's and the handoffs' state */
 function debug(){ return {cat:{x:CAT.x, z:CAT.z, floor:CAT.floor, alt:CAT.alt, state:catInfo.state, act:CAT.act, pose:CAT.pose, q:CAT.q.length, moving:CAT.moving, with:CAT.with, withPose:CAT.with && sims[CAT.with] ? sims[CAT.with].pose : null, armed:CAT.armed},
-  shelf:{n:SHELF.n, count:SHELF.im.count, im:SHELF.im.visible, sign:SHELF.lab.visible, tag:!!(SHELF.el && SHELF.el.style.opacity === '1')},
+  shelf:{n:SHELF.n, count:SHELF.im.count, total:SHELF.count, im:SHELF.im.visible, sign:SHELF.lab.visible, tag:!!(SHELF.el && SHELF.el.style.opacity === '1')},
   flows:FLOW.list.map(f => ({dir:f.dir, launched:f.launched, arrived:f.arrived, sW:f.sW, rW:f.rW, taken:f.taken, p:[+f.p.x.toFixed(2), +f.p.y.toFixed(2), +f.p.z.toFixed(2)]})), walk:FLOW.walk, watching:!!HUB.watching, lift:LIFT}; }
 window.SCENE = {ready:true, anchors, frame, resize, pick, settle, debug, shelfProbe, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
   get views(){ return builtViews(); }, get cat(){ return catOn() ? catInfo : null; }, get tweening(){ return tw.t < 1; }, get pipDrawn(){ return !!(pipSt.drawn && HUB.pip && HUB.pip.id === pipSt.id); }, get busy(){ return isBusy(); }, points, get shelf(){ return {v:SHELF.v, n:SHELF.n, boxes:SHELF.boxes.slice(), hover:SHELF.hover ? Object.assign({}, SHELF.hover) : null}; }, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};

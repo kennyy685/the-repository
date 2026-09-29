@@ -7,7 +7,7 @@
  *            (measured in one frame, with and without the shelf), the plank merged into the static walnut (+0),
  *            nothing on the shelf casts a shadow
  *   hover    the pointer over box 2 = SCENE.shelf.hover is ship 2, #shelfTag shows its text; off the box = tag hidden
- *   max      9 ships = 8 boxes; back to 0 = empty again (sign hidden, tag hidden)
+ *   max      9 ships = 8 boxes, the sign reads HUB.shipped.count when given (the week's true total); back to 0 = empty again (sign hidden, tag hidden)
  *   drop     full motion: a ship added later lands on the shelf (starts above it, ends on it)
  *   no-gl    three.js unreachable: the still shows, no #shelfTag, no page error (the no-WebGL path is unchanged)
  *   wiring   the page itself (no lock): 3 ship events + 1 "ready to publish" event in the db. Once the page sets
@@ -121,6 +121,9 @@ async function main() {
         ok(await until(p, () => window.SCENE.shelf.n === 8), "max: 9 ships did not cap at 8 boxes (n " + (await shelf(p)).n + ")");
         const pr = await p.evaluate(() => window.SCENE.shelfProbe()); ok(pr.delta <= 4, "max: 8 boxes cost " + pr.delta + " calls");
         await p.screenshot({ path: path.join(OUT, "max-1440.png") });
+        const tot = (await shelf(p)).dbg.total; ok(tot === 8, "max: with no HUB.shipped.count the sign should count the 8 boxes (got " + tot + ")");
+        await p.evaluate(list => { window.__ship = { v: window.__ship.v + 1, list, count: 14 }; }, nine);   // the week's true total rides count
+        ok(await until(p, () => window.SCENE.debug().shelf.total === 14), "max: the sign ignores HUB.shipped.count (total " + (await shelf(p)).dbg.total + ")");
         await setShips(p, []);
         ok(await until(p, () => window.SCENE.shelf.n === 0), "max: back to 0 ships left boxes");
         const s = await shelf(p); ok(!s.dbg.im && !s.dbg.sign && (!s.tag || s.tag.op === "0"), "max: empty again but sign/boxes/tag show: " + JSON.stringify(s));

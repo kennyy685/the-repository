@@ -20,6 +20,8 @@
  *   merge-watch / merge-missing / merge-edges   C system/git: button sets, ahead>200, one merge item per tap (lease, read-back,
  *               retry), main apart, Hide local, no doc / junk / hidden / old, bad counts, stale answer re-tap, failed answer write
  *   tidy-keeps  tidy() keeps the report weeks + 14 days of ship events and writes system/tidy.deleted_through
+ *   tidy-big    1,300+ lines: tidy reaches the oldest 40 (reads the tail first)
+ *   round3      two quick merges (one lease holder), junk main.behind, the week's ships beyond the newest 120 (Observatory, HUB.shipped.count, live update)
  *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, past weeks in the Log,
  *               spend missing/stale, 0 ships, trimmed week = not tracked + no write, DST weeks
  *   cv-wake cv-watchdog cv-notnow cv-same cv-suggests cv-resub cv-decided cv-proof cv-blocker cv-stale cv-morning
@@ -779,7 +781,7 @@ async function scenarioWeekly(browser, url) {
   ok(await b.p.isVisible("#wkBlock") && /Shipped\s*2/.test(await b.p.textContent("#wkBlock")), `${L}: second open lost the card`);
   await b.ctx.close();
   // Monday 12:01: gone from Crew, in the Log with the weeks before it
-  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc, [W38]: { week: "2026-W38", label: "Week of Sep 14 – 20", shipped: 3, spent_usd: null, waited_h: 2, stuck_h: 1 } } }), now: MON });
+  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc, [W38]: { week: "2026-W38", label: "Week of Sep 14 – 20", shipped: 3, spent_usd: null, waited_h: 2, stuck_h: 1 }, "crew/weeks-2026-W37": { week: "2026-W37", label: "Week of Sep 7 – 13", shipped: 4, waited_h: 1, stuck_h: 0 } } }), now: MON });
   await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(1500);
   ok(!(await c.p.isVisible("#wkBlock")), `${L}: Monday 12:01 still shows the card in Crew`);
   await c.p.click("#tab-log", { timeout: 2000 }); await c.tick(600);
@@ -1121,6 +1123,53 @@ async function scenarioCvMorning(browser, url) {   // #12 the first open of the 
   noErr(L, c.errs); await c.ctx.close();
 }
 
+async function scenarioRound3(browser, url) {   // QA round 3: two quick merges on different branches, junk main.behind, the week's ships beyond the newest 120, tidy on a big log
+  const L = "round3";
+  // two Merge it taps on two clean branches, back to back: both land (one lease holder per page load), no "busy"
+  const g = JSON.parse(JSON.stringify(GIT_DOC)); g.branches[1].conflicts = 0;
+  const a = await open(browser, url, { docs: hoDocs({ "system/git": g }) });
+  await a.p.click("#tab-board", { timeout: 2000 }); await a.tick(400);
+  await clickMerge(a.p); await a.tick(300);
+  await a.p.click('#boardBody [data-git="merge"][data-b="claude/stoic-darwin-ikqmrj"]', { timeout: 2000 }).catch(e => fails.push(`${L}: second Merge it not clickable`)); await a.tick(2500);
+  const bw = ((await a.p.evaluate(() => window.__mockDb.store.get("board/current"))).waiting || []).filter(w => w.merge).map(w => w.merge.branch);
+  ok(bw.length === 2 && bw.includes("claude/stoic-darwin-ikqmrj") && !(await log(a.p)).some(x => x[0] === "acquire-busy"), `${L}: two quick merges: ${JSON.stringify(bw)}`);
+  ok(!a.errs.length, `${L}: page errors (two merges): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // main.behind missing: "main not checked yet", never "All branches merged ✓"
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": { at: "2026-09-29T00:00:00Z", main: { behind: "?" }, branches: [GIT_DOC.branches[2]] } }) });
+  await b.p.click("#tab-ops", { timeout: 2000 }); await b.tick(300);
+  const tb = await b.p.textContent("#opsBody");
+  ok(/main not checked yet/.test(tb) && !/All branches merged/.test(tb), `${L}: junk main.behind read as merged`);
+  await b.ctx.close();
+  // 10 ships early in the week (older than the newest 120 lines): Observatory 10, shelf 8 boxes + count 10; a new ship live = 11
+  const d = hoDocs();
+  for (let i = 0; i < 10; i++) d[`events/20260928T060${i}00Z-code`] = { agent: "code", kind: "done", at: `2026-09-28T06:0${i}:00Z`, text: `Published page v${i}` };
+  const c = await open(browser, url, { docs: d });
+  await c.tick(2000);
+  const r1 = await c.p.evaluate(() => ({ obs: window.HUB.observatory && window.HUB.observatory.shipped, n: window.HUB.shipped && window.HUB.shipped.list.length, count: window.HUB.shipped && window.HUB.shipped.count, loaded: window.__hubT.byId ? 1 : 0 }));
+  ok(r1.obs === 10 && r1.n === 8 && r1.count === 10, `${L}: week ships beyond the loaded lines: ${JSON.stringify(r1)}`);
+  await c.p.evaluate(() => { window.__mockDb.store.set("events/20260929T002900Z-builder", { agent: "builder", kind: "done", at: "2026-09-29T00:29:00Z", text: "Published App v99 to the live link" }); window.__mockDb.notify(); });
+  await c.tick(3000);
+  const r2 = await c.p.evaluate(() => ({ obs: window.HUB.observatory.shipped, count: window.HUB.shipped.count, first: window.HUB.shipped.list[0].text }));
+  ok(r2.obs === 11 && r2.count === 11 && /v99/.test(r2.first), `${L}: a live ship didn't update the week count: ${JSON.stringify(r2)}`);
+  ok(await c.p.evaluate(() => window.__hubT.weekStart() === window.__hubT.wkStartOf(Date.now())), `${L}: weekStart() isn't the DST-correct week start`);
+  ok(!c.errs.length, `${L}: page errors (week ships): ${c.errs.slice(0, 4).join(" | ")}`);
+  await c.ctx.close();
+}
+async function scenarioTidyBig(browser, url) {   // 1,300+ lines: tidy reaches the oldest (the newest-1000 read never did)
+  const L = "tidy-big";
+  const d = hoDocs(), pad = n => String(n).padStart(2, "0");
+  for (let i = 0; i < 1150; i++) { const day = 1 + Math.floor(i / 100), m = i % 100; d[`events/202609${pad(day)}T${pad(Math.floor(m / 60))}${pad(m % 60)}00Z-code`] = { agent: "code", kind: "note", at: `2026-09-${pad(day)}T${pad(Math.floor(m / 60))}:${pad(m % 60)}:00Z`, text: "old line " + i }; }
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const n0 = await p.evaluate(() => [...window.__mockDb.store.keys()].filter(k => k.startsWith("events/")).length);
+  await tick(130000);
+  const r = await p.evaluate(() => { const s = window.__mockDb.store, k = [...s.keys()].filter(x => x.startsWith("events/")); return { n: k.length, first: s.has("events/20260901T000000Z-code"), fortieth: s.has("events/20260901T003900Z-code"), fortyfirst: s.has("events/20260901T004000Z-code"), tidy: s.get("system/tidy") }; });
+  ok(n0 > 1300 && r.n === n0 - 40 && !r.first && !r.fortieth && r.fortyfirst, `${L}: tidy didn't trim the 40 oldest of ${n0} (${JSON.stringify(r)})`);
+  ok(r.tidy && r.tidy.deleted_through === "2026-09-01T00:39:00Z", `${L}: system/tidy wrong ${JSON.stringify(r.tidy)}`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -1163,6 +1212,8 @@ async function scenarioCvMorning(browser, url) {   // #12 the first open of the 
     await run("merge-missing", () => scenarioMergeMissing(browser, url));
     await run("merge-edges", () => scenarioMergeEdges(browser, url));
     await run("tidy-keeps", () => scenarioTidyKeeps(browser, url));
+    await run("tidy-big", () => scenarioTidyBig(browser, url));
+    await run("round3", () => scenarioRound3(browser, url));
     await run("sunday-report", () => scenarioWeekly(browser, url));
     await run("sunday-report-edges", () => scenarioWeeklyEdges(browser, url));
     await run("cv-wake", () => scenarioCvWake(browser, url));
@@ -1180,5 +1231,5 @@ async function scenarioCvMorning(browser, url) {   // #12 the first open of the 
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (48 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (50 scenarios)");
 })();

@@ -22,6 +22,7 @@
     return later(fn);
   }
   const frz = o => JSON.parse(JSON.stringify(o));
+  const leases = new Map();   // path -> {holder, until}
   const once = {};   // one-shot modes (first_use_mcp, first_call_mcp, clobber_board)
   function snapDoc(path){ const id = path.split('/').pop(), b = store.get(path); return {id, exists: !!b, data: () => b ? frz(b) : undefined, metadata:{fromCache:false, hasPendingWrites:false}}; }
   function collDocs(coll){ const out = []; for (const k of store.keys()) { const i = k.lastIndexOf('/'); if (k.slice(0, i) === coll) out.push(snapDoc(k)); } return out; }
@@ -52,7 +53,10 @@
         notify(); }),
       update: (data) => gate('dbw', () => { if (!store.has(path)) throw err('invalid_argument'); store.set(path, Object.assign(store.get(path), frz(data))); log.push(['update', path]); notify(); }),
       delete: () => gate('dbw', () => { store.delete(path); log.push(['delete', path]); notify(); }),
-      acquire: (o) => gate('dbw', () => { log.push(['acquire', path, o && o.holder]); return {acquired:true, version:1, expiresAt:new Date(Date.now() + ((o && o.ttlMs) || 30000)).toISOString(), holder:o && o.holder}; }),   // db.d.ts lease (one writer at a time)
+      acquire: (o) => gate('dbw', () => {   // db.d.ts lease: another holder's live lease = {acquired:false}; the same holder renews
+        const now = Date.now(), cur = leases.get(path), h = o && o.holder, ttl = Math.max(1000, Math.min(600000, (o && o.ttlMs) || 30000));
+        if (cur && cur.holder !== h && cur.until > now) { log.push(['acquire-busy', path, h]); return {acquired:false, expiresAt:new Date(cur.until).toISOString()}; }
+        leases.set(path, {holder:h, until:now + ttl}); log.push(['acquire', path, h]); return {acquired:true, version:1, expiresAt:new Date(now + ttl).toISOString(), holder:h}; }),
       onSnapshot: (n, e) => onSnap(() => snapDoc(path), n, e),
       collection: (p) => collRef(path + '/' + p)};
   }
