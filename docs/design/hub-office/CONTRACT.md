@@ -226,5 +226,5 @@ The shelf: a walnut strip along the top of the lower slat wall (above the trophy
 AI-HUB-BLUEPRINT change 7). One small kraft box per ship, the newest nearest the front (the viewer's left), max 8, a
 brass "SHIPPED n" sign at the back end only when n > 0. Draw calls: the plank merges into the static walnut mesh (+0),
 the boxes are one InstancedMesh (+1, hidden at 0), the sign is one plane (+1, hidden at 0): **+2 at most, +0 when
-empty**; nothing on the shelf casts a shadow. A new ship drops onto the shelf (0.6 s) unless reduced motion or low-fx,
+empty**; the boxes and the sign cast no shadow (no shadow-pass calls). A new ship drops onto the shelf (0.6 s) unless reduced motion or low-fx,
 which place it at once. No-WebGL: nothing (the still is unchanged).
