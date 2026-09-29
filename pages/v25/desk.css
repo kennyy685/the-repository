@@ -36,6 +36,7 @@
   .composer .field{height:56px;width:100%;padding:0;justify-content:center;border-radius:var(--r-md);background:var(--soft)}
   .composer .field > .i,.composer .field .phl{display:none}
   .composer .mic{width:40px;height:40px}
+  #micTop{display:none!important}   /* the rail's Right Hand button is always there; the top-bar copy is for the phone's Knock */
 
   /* ---------- the page beside the rail ---------- */
   .app{max-width:none;margin:0 0 0 var(--rail);padding:0 var(--gut) var(--s8);transition:margin-right .22s var(--ease)}
