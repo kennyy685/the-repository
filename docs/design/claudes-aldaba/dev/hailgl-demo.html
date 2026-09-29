@@ -243,7 +243,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
       kit.hail.draw(M, HO);
       schedule(local, 0.55, 1.8, function (tk) {
         if (tk > REPLAY) return;
-        var p = HailGL.frontAt(field, ease(tk / REPLAY), aug.id, FRONT); kit.rings.add(p[0], p[1], { t0: tk, size: 64, life: 1.8, color: '#ff8a5a', width: 1.1 });
+        var p = HailGL.frontAt(field, ease(tk / REPLAY), aug.id, FRONT); kit.rings.add(p[0], p[1], { t0: tk, size: 120, life: 1.8, color: '#ffe2b8', width: 1.2, alpha: 0.85 });
       });
       kit.rings.draw(M, RO);
       setClock(r);

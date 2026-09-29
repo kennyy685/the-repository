@@ -319,7 +319,7 @@
           warpAt(i, px, py);
           var ev = stormEval(g, px + WX[i], py + WY[i]);
           if (ev.v <= 0) { tmp[i] = 0; continue; }
-          var v = ev.v * (1 + 0.075 * AN[i]);
+          var v = ev.v * (1 + 0.04 * AN[i]);
           tmp[i] = v; tmpA[i] = ev.a;
           if (v > pk) pk = v;
         }
@@ -364,7 +364,7 @@
           if (sd >= 0) kf = 0.6 + 0.4 * sstep(0, Math.max(1, R * 0.6), sd);
           else kf = 0.6 * Math.exp(-(sd / 1.7) * (sd / 1.7));
           if (kf < 0.02) { tmp[i] = 0; continue; }
-          v = kf * (1 + 0.07 * AN[i]);
+          v = kf * (1 + 0.04 * AN[i]);
           tmp[i] = v;
           if (gs) { var eg = stormEval(gs, wx, wy); tmpA[i] = eg.v > 0 ? eg.a : gs.aMax; }
           else tmpA[i] = Math.hypot(wx - cxm, wy - cym);
@@ -426,7 +426,24 @@
       out[i * 4 + 2] = arr ? Math.round(clamp(arr[i], 0, 1) * 255) : 0;
       out[i * 4 + 3] = Math.round(clamp(g[i] / 3, 0, 1) * 255);
     }
-    return out;
+    // relief: central-difference gradient, normalized by the 95th percentile slope so any world units light the same
+    var gx = new Float32Array(n), gy = new Float32Array(n), mags = [], x, y;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      i = y * w + x;
+      var ax = d[y * w + Math.min(x + 1, w - 1)] - d[y * w + Math.max(x - 1, 0)];
+      var ay = d[Math.min(y + 1, h - 1) * w + x] - d[Math.max(y - 1, 0) * w + x];
+      gx[i] = ax * 0.5; gy[i] = ay * 0.5;
+      if (d[i] > 0.4 && (i & 3) === 0) mags.push(Math.sqrt(ax * ax + ay * ay) * 0.5);
+    }
+    mags.sort(function (a, b) { return a - b; });
+    var gmax = mags.length ? Math.max(mags[Math.floor(mags.length * 0.95)], 1e-6) : 1;
+    var nrm = new Uint8Array(n * 4), k2 = 0.5 / (1.6 * gmax);
+    for (i = 0; i < n; i++) {
+      nrm[i * 4] = Math.round(clamp(0.5 + gx[i] * k2, 0, 1) * 255);
+      nrm[i * 4 + 1] = Math.round(clamp(0.5 + gy[i] * k2, 0, 1) * 255);
+      nrm[i * 4 + 2] = 0; nrm[i * 4 + 3] = 255;
+    }
+    return { rgba: out, nrm: nrm, gscale: 1.6 * gmax };
   }
   function boxH(src, dst, w, h, r) {
     var inv = 1 / (2 * r + 1);
@@ -480,8 +497,10 @@
     '}'].join('\n');
 
   var FS_FIELD = [
-    'uniform sampler2D uTex;',
+    'uniform sampler2D uTex, uNrm;',
     'uniform vec2 uTexSize;',
+    'uniform vec3 uLightDir;',
+    'uniform float uRelief, uGScale;',
     'uniform float uT, uReveal, uRevealOn, uFeather, uFrontW, uFrontAmp, uOpacity, uGlow, uContours, uFill, uGhost;',
     'uniform float uLineW, uIdxW, uInk, uSheen, uStep, uIdxStep;',
     'uniform vec4 uStops;',
@@ -489,7 +508,7 @@
     'varying vec2 vUV;',
     'float dec(vec4 t) { return (t.r * 65280.0 + t.g * 255.0) * (4.0 / 65535.0); }',
     // B-spline bicubic in 4 bilinear taps: smooth (C2) contours at any zoom
-    'vec4 cubic(vec2 uv) {',
+    'vec4 cubic(sampler2D tx, vec2 uv) {',
     '  vec2 st = uv * uTexSize - 0.5;',
     '  vec2 i = floor(st);',
     '  vec2 f = st - i;',
@@ -501,10 +520,10 @@
     '  vec2 g0 = w0 + w1; vec2 g1 = w2 + w3;',
     '  vec2 h0 = (i - 0.5 + w1 / g0) / uTexSize;',
     '  vec2 h1 = (i + 1.5 + w3 / g1) / uTexSize;',
-    '  vec4 a = texture2D(uTex, vec2(h0.x, h0.y));',
-    '  vec4 b = texture2D(uTex, vec2(h1.x, h0.y));',
-    '  vec4 c = texture2D(uTex, vec2(h0.x, h1.y));',
-    '  vec4 d = texture2D(uTex, vec2(h1.x, h1.y));',
+    '  vec4 a = texture2D(tx, vec2(h0.x, h0.y));',
+    '  vec4 b = texture2D(tx, vec2(h1.x, h0.y));',
+    '  vec4 c = texture2D(tx, vec2(h0.x, h1.y));',
+    '  vec4 d = texture2D(tx, vec2(h1.x, h1.y));',
     '  return g0.y * (g0.x * a + g1.x * b) + g1.y * (g0.x * c + g1.x * d);',
     '}',
     'float hash12(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
@@ -516,7 +535,16 @@
     '  return clamp(0.5 * wpx - d + 0.5, 0.0, 1.0) * (1.0 - smoothstep(crowd * 0.5, crowd, df));',
     '}',
     'void main() {',
-    '  vec4 s = cubic(vUV);',
+    '  vec4 s = cubic(uTex, vUV);',
+    // relief in screen space: texel gradient pushed through the pixel Jacobian, so it scales with zoom and rotation
+    '  vec2 gt = (cubic(uNrm, vUV).xy * 2.0 - 1.0) * uGScale;',
+    '  vec2 tc = vUV * uTexSize;',
+    '  vec2 gr = vec2(dot(gt, dFdx(tc)), dot(gt, dFdy(tc))) * uRelief;',
+    '  vec3 nn = normalize(vec3(-gr, 1.0));',
+    '  float dif = dot(nn, uLightDir) / max(uLightDir.z, 0.2);',
+    '  float shade = clamp(mix(1.0, dif, 0.75), 0.3, 1.75);',
+    '  vec3 hv = normalize(uLightDir + vec3(0.0, 0.0, 1.0));',
+    '  float spec = pow(max(dot(nn, hv), 0.0), 36.0) * smoothstep(0.02, 0.35, length(gr));',
     '  float v = dec(s);',
     '  float arr = s.b;',
     '  float gv = texture2D(uTex, vUV).a * 3.0;',
@@ -529,7 +557,7 @@
     '  float big = smoothstep(uStops.y, uStops.w + 0.6, v);',
     '  vec3 col = hglRamp(v, uStops, uGold, uOrange, uRed);',
     '  col = mix(col, uHot, front * 0.55 * a0);',
-    '  float fillA = a0 * mix(0.055, 0.34, big) * uFill;',
+    '  float fillA = a0 * mix(0.06, 0.36, big * big) * uFill;',
     '  float gate = smoothstep(uStops.x - 0.07, uStops.x - 0.025, v);',
     '  float minor = iso(v, uStep, uLineW, 0.42) * gate;',
     '  float idx = iso(v, uIdxStep, mix(uLineW * 1.15, uIdxW, a0), 0.6) * gate;',
@@ -544,12 +572,12 @@
     '  float la = minor * (0.16 + 0.22 * a0) * mix(0.6, 1.0, wave) * (1.0 + 0.8 * sweep) * uContours;',
     '  float ia = idx * mix(0.4, 0.95, a0) * (0.82 + 0.18 * wave + 0.5 * sweep) * uContours;',
     '  la = min(la, 1.0); ia = min(ia, 1.0);',
-    '  vec3 C = col * fillA; float A = fillA;',
+    '  vec3 C = col * fillA * shade; float A = fillA;',
     '  C = lineCol * la + C * (1.0 - la); A = la + A * (1.0 - la);',
     '  C = idxCol * ia + C * (1.0 - ia); A = ia + A * (1.0 - ia);',
     '  float core = pow(smoothstep(0.9, 2.7, v), 1.3) * 0.5;',
     '  float halo = smoothstep(0.2, 1.4, gv) * (1.0 - a0 * 0.4) * 0.17;',
-    '  vec3 Em = col * ((core + halo) * uGlow + sweep * 0.07 * a0) + uHot * front * (0.12 + 0.55 * a0) * gate;',
+    '  vec3 Em = col * ((core * shade + halo) * uGlow + sweep * 0.07 * a0) + mix(col, white, 0.3) * spec * a0 * 0.3 * uGlow + uHot * front * (0.12 + 0.55 * a0) * gate;',
     '  float k = mix(uGhost, 1.0, vis) * edge * uOpacity;',
     '  if (uInk > 0.5) { C = C * k; A = A * k; }',
     '  else { C = (C + Em) * k; A = A * k; }',
@@ -594,7 +622,7 @@
     '  float w = aCorner.y * ext;',
     '  vQ = vec2(u, w);',
     '  gl_Position = vec4(p0 + (dir * u + perp * w) * uPx, 0.0, 1.0);',
-    '  vP = vec4(r, len, soft, smoothstep(1.0, 0.78, hh) * uAlpha * (0.7 + 0.3 * aB.x) * (1.0 - 0.35 * hh * hh));',
+    '  vP = vec4(r, len, soft, smoothstep(1.0, 0.62, hh) * uAlpha * (0.7 + 0.3 * aB.x));',
     '  vec2 L = normalize(vec2(-0.6, 0.8));',
     '  vSpec = vec2(dot(L, dir), dot(L, perp)) * r * 0.42;',
     '}'].join('\n');
@@ -780,7 +808,7 @@
       S.P = {
         field: program(VS_FIELD, FS_FIELD, ['aCorner'], ['uM', 'uRect', 'uTex', 'uTexSize', 'uT', 'uReveal', 'uRevealOn', 'uFeather',
           'uFrontW', 'uFrontAmp', 'uOpacity', 'uGlow', 'uContours', 'uFill', 'uGhost', 'uLineW', 'uIdxW', 'uInk', 'uSheen', 'uStep',
-          'uIdxStep', 'uStops', 'uGold', 'uOrange', 'uRed', 'uHot'], true),
+          'uIdxStep', 'uStops', 'uGold', 'uOrange', 'uRed', 'uHot', 'uNrm', 'uLightDir', 'uRelief', 'uGScale'], true),
         rings: program(VS_RINGS, FS_RING, ['aCorner', 'aR0', 'aR1', 'aRC'], common, false)
       };
       if (S.canInst) {
@@ -801,7 +829,7 @@
         gl.bufferData(gl.ARRAY_BUFFER, S.hailData, gl.STATIC_DRAW);
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
-      S.fieldTex = null;
+      S.fieldTex = null; S.nrmTex = null;
       if (S.fieldBytes) uploadField();
       S.vao = {};
       if (S.canVao) {
@@ -890,20 +918,25 @@
     function pxUniform(u) { gl.uniform2f(u, 2 / (gl.drawingBufferWidth || 1), 2 / (gl.drawingBufferHeight || 1)); }
 
     /* ---------------- field */
+    function uploadTex(tex, f, bytes) {
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, f.w, f.h, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
     function uploadField() {
       var f = S.field;
       if (!S.fieldTex) S.fieldTex = gl.createTexture();
+      if (!S.nrmTex) S.nrmTex = gl.createTexture();
       var flip = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL), pre = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
       var cs = gl.getParameter(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL), align = gl.getParameter(gl.UNPACK_ALIGNMENT);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
       gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
       var prevTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
-      gl.bindTexture(gl.TEXTURE_2D, S.fieldTex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, f.w, f.h, 0, gl.RGBA, gl.UNSIGNED_BYTE, S.fieldBytes);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      uploadTex(S.fieldTex, f, S.fieldBytes.rgba);
+      uploadTex(S.nrmTex, f, S.fieldBytes.nrm);
       gl.bindTexture(gl.TEXTURE_2D, prevTex);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, pre);
       gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, cs); gl.pixelStorei(gl.UNPACK_ALIGNMENT, align);
@@ -924,10 +957,20 @@
       begin();
       gl.useProgram(P.p);
       useLayout('field', setupField);
+      var prevAct = S.restore ? gl.getParameter(gl.ACTIVE_TEXTURE) : 0;
+      gl.activeTexture(gl.TEXTURE1);
+      var prevTex1 = S.restore ? gl.getParameter(gl.TEXTURE_BINDING_2D) : null;
+      gl.bindTexture(gl.TEXTURE_2D, S.nrmTex);
       gl.activeTexture(gl.TEXTURE0);
       var prevTex = S.restore ? gl.getParameter(gl.TEXTURE_BINDING_2D) : null;
       gl.bindTexture(gl.TEXTURE_2D, S.fieldTex);
-      gl.uniform1i(u.uTex, 0);
+      gl.uniform1i(u.uTex, 0); gl.uniform1i(u.uNrm, 1);
+      // light from the map's north-west, swaying slowly so the relief breathes
+      // screen space, y up: default light from the upper left
+      var tt = num(o.t, S.now), az = num(o.lightAz, 2.36) + 0.3 * Math.sin(tt * 0.21), el = num(o.lightEl, 0.8);
+      gl.uniform3f(u.uLightDir, Math.cos(az) * Math.cos(el), Math.sin(az) * Math.cos(el), Math.sin(el));
+      gl.uniform1f(u.uRelief, o.relief === false ? 0 : num(o.relief, 1) * 42 * dpr);
+      gl.uniform1f(u.uGScale, S.fieldBytes.gscale);
       gl.uniformMatrix3fv(u.uM, false, m);
       gl.uniform4f(u.uRect, f.x0, f.y0, f.x1, f.y1);
       gl.uniform2f(u.uTexSize, f.w, f.h);
@@ -954,7 +997,10 @@
       blendMode(o.blend);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       unsetLayout(0);
-      if (S.restore) gl.bindTexture(gl.TEXTURE_2D, prevTex);
+      if (S.restore) {
+        gl.bindTexture(gl.TEXTURE_2D, prevTex);
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, prevTex1); gl.activeTexture(prevAct);
+      }
       end();
     }
 
@@ -1101,6 +1147,7 @@
       for (var k in P) if (P[k]) gl.deleteProgram(P[k].p);
       gl.deleteBuffer(S.quad); gl.deleteBuffer(S.hailBuf); gl.deleteBuffer(S.ringBuf);
       if (S.fieldTex) gl.deleteTexture(S.fieldTex);
+      if (S.nrmTex) gl.deleteTexture(S.nrmTex);
       if (S.canVao) for (k in S.vao) { if (gl2) gl.deleteVertexArray(S.vao[k]); else S.ext.vao.deleteVertexArrayOES(S.vao[k]); }
     }
 

@@ -23,8 +23,8 @@
   var MONO = '"Geist Mono","Geist Mono L",ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 
   var THEMES = {
-    dark: { ink: '#f1f2f4', line: '#2b2d32', acc: '#f5883a', h1: '#f2c14e', h15: '#f5883a', h2: '#ff4f5a', bg: '#07080a' },
-    light: { ink: '#18191c', line: '#d0d2cc', acc: '#f5883a', h1: '#c9960e', h15: '#d8661a', h2: '#d9303c', bg: '#eef0ee' }
+    dark: { ink: '#f1f2f4', line: '#2b2d32', acc: '#f5883a', h0: '#5f636b', h1: '#f2c14e', h15: '#f5883a', h2: '#ff4f5a', bg: '#07080a' },
+    light: { ink: '#18191c', line: '#d0d2cc', acc: '#f5883a', h0: '#a3a5aa', h1: '#c9960e', h15: '#d8661a', h2: '#d9303c', bg: '#eef0ee' }
   };
 
   // ---------------------------------------------------------------- small utils
@@ -33,7 +33,9 @@
   function eo(x) { return 1 - Math.pow(1 - x, 3); }
   function eio(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
   function eback(x) { var c = 1.5; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }
-  function hash(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function hash(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16;   // finalize: similar addresses must not cluster
+    return h >>> 0; }
   function rng(seed) {
     var a = seed >>> 0;
     return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -235,6 +237,13 @@
     two: function (b, r) {                                 // 1980-1999: two-story with attached garage
       var W = 32 + r() * 6, D = 28, h = 18.4, p = r() < 0.5 ? 7 / 12 : 8 / 12, F = 1.1;
       var gl = r() < 0.28, gf = r() < 0.45, gz = -(2.5 + r() * 4), shut = r() < 0.5, pair = r() < 0.5;
+      var gx = gl ? -22 : W;
+      function garage() {
+        b.mass({ x: gx, w: 22, z: gz, d: 24, h: 9.6, roof: gf ? 'front' : 'gable', p: gf ? 6 / 12 : p, found: 0.45 });
+        if (pair && !gf) { b.garage(gx + 2.2, 0.45, 8, 7, gz, { rows: 4 }); b.garage(gx + 11.8, 0.45, 8, 7, gz, { rows: 4 }); }
+        else b.garage(gx + 3, 0.45, 16, 7, gz, { rows: 4 });
+      }
+      if (gl) garage();                                    // painter's order: a left garage's gable end sits behind the house
       b.mass({ x: 0, w: W, z: 0, d: D, h: h, roof: 'gable', p: p, found: F });
       b.winS(W, D * 0.5, 11.4, 3.2, 4.6, {});
       [W * 0.12, W * 0.5 - 1.6, W * 0.88 - 3.2].forEach(function (x) { b.win(x, 11.4, 3.2, 4.6, 0, { cols: 2, rows: 2, shutters: shut }); });
@@ -242,10 +251,7 @@
       b.win(W * 0.92 - 5.8, 3.3, 5.8, 4.8, 0, { cols: 2, rows: 2, shutters: shut });
       b.door(W * 0.5 - 1.6, F, 3.2, 7, 0, { transom: true });
       b.stoop(W * 0.5 - 3, 6, 0, 3.6, F);
-      b.mass({ x: gl ? -22 : W, w: 22, z: gz, d: 24, h: 9.6, roof: gf ? 'front' : 'gable', p: gf ? 6 / 12 : p, found: 0.45 });
-      var gx = gl ? -22 : W;
-      if (pair && !gf) { b.garage(gx + 2.2, 0.45, 8, 7, gz, { rows: 4 }); b.garage(gx + 11.8, 0.45, 8, 7, gz, { rows: 4 }); }
-      else b.garage(gx + 3, 0.45, 16, 7, gz, { rows: 4 });
+      if (!gl) garage();
     },
     large: function (b, r) {                               // 2000+: larger two-story, front gable, 3-car garage
       var W = 44 + r() * 6, D = 34, h = 19.6, p = 8 / 12, hip = r() < 0.6, F = 1.2, bx = hip ? 7.5 : 3, bw = 16, gz = -7;
@@ -282,11 +288,15 @@
       var pts = p.poly || (p.faces ? [].concat.apply([], p.faces.map(function (f) { return f.poly; })) : [p.a, p.b]);
       pts.forEach(function (q) { var v = proj(q); minX = Math.min(minX, v[0]); maxX = Math.max(maxX, v[0]); minY = Math.min(minY, v[1]); maxY = Math.max(maxY, v[1]); });
     });
-    var padX = Math.max(w * 0.075, 16), padT = fs * 3.6 + h * 0.06, padB = fs * 2.9 + h * 0.07;
+    var padX = w >= 900 ? w * 0.13 : Math.max(w * 0.075, 16), padT = fs * 3.6 + h * 0.06, padB = fs * 2.9 + h * 0.07;
     var bw = maxX - minX, bh = maxY - minY, aw = w - 2 * padX, ah = h - padT - padB;
-    var sRef = Math.min(aw / 56, ah / 31);
+    var sRef = Math.min(aw / 60, ah / 34);                 // a small house stays smaller than a big one
     var s = Math.min(aw / bw, ah / bh, sRef);
     var ox = w / 2 - s * (minX + maxX) / 2, oy = (h - padB) - s * maxY;
+    // center the whole composition (callouts + house + dimension) most of the way, so low ranches don't sink
+    var gap = fs * 1.7 + h * 0.035, cTop = oy + s * minY - gap - fs, cBot = oy + s * maxY + Math.max(fs * 1.55, 12) + fs * 0.7;
+    var dy = (h - cBot - cTop) / 2 * 0.65;
+    oy += Math.max(4 - cTop, Math.min(h - 4 - cBot, dy));
     function S(p) { var v = proj(p); return [ox + s * v[0], oy + s * v[1]]; }
     function Sv(v) { return [s * (v[0] + v[2] * KX), -s * (v[1] + v[2] * KY)]; }
     var L = { w: w, h: h, s: s, fs: fs, S: S, groundY: oy + s * maxY, x0: ox + s * minX, x1: ox + s * maxX, top: oy + s * minY,
@@ -311,7 +321,7 @@
     if (scene.lamp) L.lamp = S(scene.lamp);
     hailLayout(L, scene, rng(scene.seed ^ 0xa11ce));
     // annotation band above the roof
-    L.bandY = Math.max(fs + 9, L.top - (fs * 1.7 + h * 0.035));
+    L.bandY = Math.max(fs + 9, L.top - gap);
     L.dimY = L.groundY + Math.max(fs * 1.55, 12);
     return L;
   }
@@ -350,12 +360,13 @@
     var lenE = Math.hypot(Es[0], Es[1]), lenV = Math.hypot(Vs[0], Vs[1]);
     q.at = at; q.uv = uv; q.umin = umin; q.umax = umax; q.vmax = vmax; q.Es = Es; q.Vs = Vs; q.E0 = E0;
     q.area = area(q.pts); q.main = !!p.main; q.small = !!p.small;
+    q.sh = [-Vs[0] / lenV * 0.9, -Vs[1] / lenV * 0.9];        // course shadow offset (toward the eave)
     // world unit vectors on the plane -> screen (for the rings lying on the roof)
     var le = Math.hypot(p.E1[0] - p.E0[0], p.E1[1] - p.E0[1], p.E1[2] - p.E0[2]), lv = Math.hypot(p.V[0], p.V[1], p.V[2]);
     q.bu = [Es[0] / le / s, Es[1] / le / s]; q.bv = [Vs[0] / lv / s, Vs[1] / lv / s];     // per px of world radius
     // shingle courses: count from the on-screen slope length, joints per roof age
     var age = scene.age, sp = clamp(s * 0.36, 2.5, 4.6), n = clamp(Math.round(lenV * vmax / sp), 3, 72);
-    var threeTab = age >= 17, sigma = 0.18 + clamp(age / 26, 0, 1) * 0.55, base = 0.045 + clamp(age, 0, 30) * 0.0016;
+    var threeTab = age >= 17, sigma = 0.12 + clamp(age / 26, 0, 1) * 0.4, base = 0.05 + clamp(age, 0, 30) * 0.0015;
     var streaks = [];
     if (age >= 15) for (var st = 0, ns = 2 + Math.floor(rr() * 3); st < ns; st++) streaks.push([umin + rr() * (umax - umin), 0.01 + rr() * 0.03, vmax * (0.25 + rr() * 0.5)]);
     var spots = clamp((age - 10) / 55, 0, 0.35);
@@ -366,10 +377,10 @@
       while (u < umax) {
         var wpx = threeTab ? tw : sp * (1.3 + rr() * 2.3), u1 = u + wpx / lenE;
         var tone = (rr() * 2 - 1) * sigma;
-        if (rr() < spots) tone += rr() < 0.5 ? 1.1 : -0.9;
+        if (rr() < spots) tone += rr() < 0.55 ? 0.7 : -0.55;   // granule loss / patched tabs
         var mid = (u + u1) / 2, boost = 0;
-        streaks.forEach(function (sk) { if (Math.abs(mid - sk[0]) < sk[1] && v0 > vmax - sk[2]) boost += 0.5 * (1 - (vmax - v0) / sk[2]); });
-        tone += boost + (v0 / vmax) * 0.25;            // lighter toward the ridge (top light)
+        streaks.forEach(function (sk) { if (Math.abs(mid - sk[0]) < sk[1] && v0 > vmax - sk[2]) boost -= 0.45 * (1 - (vmax - v0) / sk[2]); });
+        tone += boost;                                 // streaks: dark runs down from the ridge on old roofs
         var a0 = at(u, v0), a1 = at(u1, v0), a2 = at(u1, v1), a3 = at(u, v1);
         tabs.push({ q: [a0, a1, a2, a3], tone: tone, u: (mid - umin) / (umax - umin) });
         u = u1;
@@ -465,7 +476,6 @@
     var dark = th.bg ? lum(th.bg) < 0.45 : !(th.ink && lum(th.ink) < 0.5);
     var d = dark ? THEMES.dark : THEMES.light, T = { dark: dark };
     for (var k in d) T[k] = th[k] || d[k];
-    if (th.h0) T.h0 = th.h0;
     var bg = T.bg, ink = T.ink;
     function c(v) { return 'rgb(' + v.map(Math.round).join(',') + ')'; }
     T.wallF = c(dark ? mix(bg, ink, 0.05) : mix(bg, '#ffffff', 0.72));
@@ -516,12 +526,20 @@
   function render(ctx, L, T, st, o) {
     var w = L.w, h = L.h, hl = o.highlight || null;
     if (T.bg) { ctx.fillStyle = T.bg; ctx.fillRect(0, 0, w, h); } else ctx.clearRect(0, 0, w, h);
+    backdrop(ctx, L, T, st);
     if (L.sheet) sheet(ctx, L, T, st);
     ground(ctx, L, T, st);
     for (var i = 0; i < L.parts.length; i++) drawPart(ctx, L.parts[i], L, T, st, hl);
     hailDraw(ctx, L, T, st, hl, o);
     notesDraw(ctx, L, T, st, o);
     if (o.ambient && L.knock && st.t > DURATION) ambient(ctx, L, T, st.t - DURATION);
+  }
+
+  function backdrop(ctx, L, T, st) {                    // a soft studio light behind the house
+    var cx = (L.x0 + L.x1) / 2, cy = (L.top + L.groundY) / 2, r = Math.max(L.x1 - L.x0, L.groundY - L.top) * 0.85;
+    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, rgba(T.dark ? T.ink : '#ffffff', (T.dark ? 0.045 : 0.6) * st.G)); g.addColorStop(1, rgba(T.dark ? T.ink : '#ffffff', 0));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, L.w, L.h);
   }
 
   function sheet(ctx, L, T, st) {
@@ -589,6 +607,12 @@
         if (fp > 0) {
           ctx.globalAlpha = fp; ctx.fillStyle = T.roof; ctx.beginPath(); pathPoly(ctx, q.pts); ctx.fill(); ctx.globalAlpha = 1;
           if (q.courses) shingles(ctx, q, T, st, on, dim);
+          if (q.E0 && q.vmax) {
+            var tip = [q.E0[0] + q.Vs[0] * q.vmax, q.E0[1] + q.Vs[1] * q.vmax], lg = ctx.createLinearGradient(q.E0[0], q.E0[1], tip[0], tip[1]);
+            lg.addColorStop(0, rgba(T.shade, T.dark ? 0.18 : 0.03)); lg.addColorStop(1, rgba(T.dark ? T.ink : '#ffffff', T.dark ? 0.05 : 0.18));
+            ctx.globalAlpha = fp; ctx.fillStyle = lg; ctx.beginPath(); pathPoly(ctx, q.pts); ctx.fill(); ctx.globalAlpha = 1;
+          }
+          if (on) { ctx.fillStyle = rgba(T.acc, 0.07); ctx.beginPath(); pathPoly(ctx, q.pts); ctx.fill(); }
         }
         ctx.strokeStyle = rgba(stroke, sa); ctx.lineWidth = lw; ctx.beginPath(); partial(ctx, q.pts, true, lp); ctx.stroke();
         break;
@@ -653,16 +677,22 @@
       var c = q.courses[k];
       for (var j = 0; j < c.tabs.length; j++) {
         var tb = c.tabs[j]; if (tb.u > rev * 1.02) break;
-        var tone = tb.tone, a = c.base * Math.abs(tone) * (T.dark ? 1.1 : 1.3);
-        ctx.fillStyle = tone >= 0 ? rgba(lightTone, a * dim) : rgba(T.shade, a * (T.dark ? 2.4 : 1.1) * dim);
+        var tone = tb.tone, a = c.base * Math.abs(tone) * (T.dark ? 1.5 : 1.6);
+        ctx.fillStyle = tone >= 0 ? rgba(lightTone, a * dim) : rgba(T.shade, a * (T.dark ? 1.7 : 0.9) * dim);
         ctx.beginPath(); pathPoly(ctx, tb.q); ctx.fill();
       }
-      // butt edge of the course + tab joints
-      ctx.strokeStyle = on ? rgba(T.acc, 0.4) : rgba(T.ink, (T.dark ? 0.15 : 0.2) * dim); ctx.lineWidth = 0.55; ctx.beginPath();
-      var a0 = c.line[0], a1 = c.line[1];
-      ctx.moveTo(a0[0], a0[1]); ctx.lineTo(a0[0] + (a1[0] - a0[0]) * rev, a0[1] + (a1[1] - a0[1]) * rev);
-      for (j = 0; j < c.tabs.length; j++) { var tq = c.tabs[j].q; if (c.tabs[j].u > rev) break; ctx.moveTo(tq[0][0], tq[0][1]); ctx.lineTo(tq[3][0], tq[3][1]); }
-      ctx.strokeStyle = on ? rgba(T.acc, 0.4) : rgba(T.ink, (T.dark ? 0.1 : 0.13) * dim);
+      // butt edge of the course: a shadow line on the course below, a lit edge on top, then the tab slots
+      var a0 = c.line[0], a1 = c.line[1], ex = a0[0] + (a1[0] - a0[0]) * rev, ey = a0[1] + (a1[1] - a0[1]) * rev, sh = q.sh;
+      if (k > 0) {
+        ctx.strokeStyle = rgba(T.shade, (T.dark ? 0.55 : 0.07) * dim); ctx.lineWidth = 0.8; ctx.beginPath();
+        ctx.moveTo(a0[0] - sh[0], a0[1] - sh[1]); ctx.lineTo(ex - sh[0], ey - sh[1]); ctx.stroke();
+      }
+      ctx.strokeStyle = on ? rgba(T.acc, 0.45) : rgba(T.ink, (T.dark ? 0.16 : 0.22) * dim); ctx.lineWidth = 0.5; ctx.beginPath();
+      ctx.moveTo(a0[0], a0[1]); ctx.lineTo(ex, ey);
+      for (j = 0; j < c.tabs.length; j++) {
+        var tq = c.tabs[j].q; if (c.tabs[j].u > rev) break;
+        ctx.moveTo(tq[0][0], tq[0][1]); ctx.lineTo(tq[0][0] + (tq[3][0] - tq[0][0]) * 0.72, tq[0][1] + (tq[3][1] - tq[0][1]) * 0.72);
+      }
       ctx.stroke();
     }
     ctx.restore();
@@ -891,13 +921,23 @@
       draw(canvas, home, Object.assign({}, o, { ambient: false }));
       return { stop: function () {} };
     }
-    var ambientOn = o.ambient !== false, t0 = null, speed = o.speed || 1;
+    var ambientOn = o.ambient !== false && typeof document !== 'undefined', t0 = null, speed = o.speed || 1, still = null;
     function frame(now) {
       if (stopped) return;
       if (t0 == null) t0 = now;
       var t = (now - t0) / 1000 * speed + (o.from || 0);
       var P = prepare(canvas, home, o);
-      render(P.ctx, P.L, P.T, state(t, o.hailReveal), Object.assign({}, o, { ambient: ambientOn }));
+      if (t >= DURATION && ambientOn) {
+        // after the build, the drawing is still: cache it once and only paint the knock ring on top
+        var key = canvas.__house.key + '|' + canvas.width + 'x' + canvas.height;
+        if (!still || still.key !== key) {
+          render(P.ctx, P.L, P.T, state(DURATION + 1, o.hailReveal), Object.assign({}, o, { ambient: false }));
+          var off = document.createElement('canvas'); off.width = canvas.width; off.height = canvas.height;
+          off.getContext('2d').drawImage(canvas, 0, 0); still = { key: key, img: off };
+        }
+        P.ctx.save(); P.ctx.setTransform(1, 0, 0, 1, 0, 0); P.ctx.drawImage(still.img, 0, 0); P.ctx.restore();
+        ambient(P.ctx, P.L, P.T, t - DURATION);
+      } else render(P.ctx, P.L, P.T, state(t, o.hailReveal), Object.assign({}, o, { ambient: false }));
       if (t < DURATION || ambientOn) id = raf(frame);
       else if (o.onDone) o.onDone();
     }

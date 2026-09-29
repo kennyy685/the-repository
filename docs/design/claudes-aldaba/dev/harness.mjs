@@ -31,9 +31,13 @@ export function args(argv, defs) {
   return o;
 }
 
-export async function launch() {
+/** launch chromium with WebGL on SwiftShader. o.cpu2d: also rasterize Canvas2D in software (smoke test only: SwiftShader
+    runs "GPU" canvas on the CPU inside the GPU process, which starves Playwright's click-stability checks). */
+export async function launch(o = {}) {
   const { chromium } = await loadPlaywright();
-  return chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const args = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
+  if (o.cpu2d) args.push('--disable-accelerated-2d-canvas');
+  return chromium.launch({ args });
 }
 
 /** route every request: app.test → disk (index.html wrapped), fonts.googleapis.com → empty CSS, everything else aborted */

@@ -154,8 +154,8 @@
     f.project = (ll) => [((ll[0] - LON0) * KX) * s + ox, (LAT0 - ll[1]) * s + oy];
     f.projectW = (x, y) => [x * s + ox, y * s + oy];
     f.unproject = (p) => W.toLonLat([(p[0] - ox) / s, (p[1] - oy) / s]);
-    f.toWorldCtx = (ctx) => ctx.setTransform(s * W.dpr, 0, 0, s * W.dpr, ox * W.dpr, oy * W.dpr);
-    f.toScreenCtx = (ctx) => ctx.setTransform(W.dpr, 0, 0, W.dpr, 0, 0);
+    f.toWorldCtx = (ctx, r) => { r = r || (ctx.canvas && ctx.canvas.width ? ctx.canvas.width / W.w : W.dpr); ctx.setTransform(s * r, 0, 0, s * r, ox * r, oy * r); };
+    f.toScreenCtx = (ctx, r) => { r = r || (ctx.canvas && ctx.canvas.width ? ctx.canvas.width / W.w : W.dpr); ctx.setTransform(r, 0, 0, r, 0, 0); };
     f.inView = (ll, m = 40) => { const q = f.project(ll); return q[0] > -m && q[1] > -m && q[0] < W.w + m && q[1] < W.h + m; };
     return f;
   }
@@ -311,7 +311,7 @@
   /* ======================= canvases + loop ======================= */
   let el, cvB, cvG, cvT, veil, hudEl, cB, cT, cG2 = null, cache = null, cC = null;
   let dirty = { base: true, gl: true, top: true }, running = false, keepUntil = 0, lastInput = performance.now();
-  let lastKey = '', lastAmb = 0, ambientOn = true, sweepA = 2.2, movingPrev = false;
+  let lastKey = '', lastAmb = 0, ambientOn = true, sweepA = 2.2, movingPrev = false, drag1 = false;
   function invalidate(what) { if (!what) { dirty.base = dirty.gl = dirty.top = true; } else dirty[what] = true; wake(); }
   W.invalidate = invalidate;
   W.keepAlive = (ms) => { keepUntil = Math.max(keepUntil, performance.now() + (ms || 500)); wake(); };
@@ -326,10 +326,21 @@
     const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height)), d = Math.min(2, window.devicePixelRatio || 1);
     if (w === W.w && h === W.h && d === W.dpr) return;
     W.w = w; W.h = h; W.dpr = d;
-    for (const c of [cvB, cvG, cvT, cache]) if (c) { c.width = Math.round(w * d); c.height = Math.round(h * d); }
+    for (const c of [cvG, cvT]) if (c) { c.width = Math.round(w * d); c.height = Math.round(h * d); }
+    setBaseRes(baseRes || d, true);
     invalidate();
   }
 
+  /* the basemap is the heaviest raster: it draws at 1x while the camera moves and at full DPR once it rests */
+  let baseRes = 0, restTimer = 0;
+  function setBaseRes(r, force) {
+    if (!cvB || (!force && r === baseRes)) return;
+    baseRes = r;
+    const bw = Math.round(W.w * r), bh = Math.round(W.h * r);
+    if (cvB.width !== bw || cvB.height !== bh) { cvB.width = bw; cvB.height = bh; }
+    if (cache && (cache.width !== bw || cache.height !== bh)) { cache.width = bw; cache.height = bh; cache._k = ''; }
+    dirty.base = true;
+  }
   function frame(now, dt) {
     if (!el) { running = false; return false; }
     let anim = false;
@@ -372,6 +383,11 @@
     const key = cam.x.toFixed(10) + ',' + cam.y.toFixed(10) + ',' + cam.z.toFixed(6) + ',' + insetCur.l.toFixed(1) + ',' + insetCur.r.toFixed(1) + ',' + insetCur.t.toFixed(1) + ',' + insetCur.b.toFixed(1) + ',' + W.w + ',' + W.h + ',' + W.dpr;
     const moved = key !== lastKey; lastKey = key;
     if (moved) dirty.base = dirty.gl = dirty.top = true;
+    if (W.dpr > 1) {
+      if (moved && (flight || inertia || zoomAnim || drag1 || insetTw)) { restTimer = now; setBaseRes(1); }
+      else if (baseRes !== W.dpr && now - restTimer > 90) setBaseRes(W.dpr);
+      if (baseRes !== W.dpr) anim = true;
+    }
     // ambient beam (throttled to ~30 fps when it is the only thing moving)
     const amb = ambientActive(now);
     let ambDraw = false;
@@ -677,16 +693,17 @@
       const p = local(e); ptrs.set(e.pointerId, p);
       if (pinch && ptrs.size >= 2) {
         const [a, b] = Array.from(ptrs.values()); const d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-        panPx(m[0] - pinch.m[0], m[1] - pinch.m[1]); zoomAround(m, pinch.z + Math.log2(d / pinch.d)); pinch.m = m; invalidate();
+        drag1 = true; panPx(m[0] - pinch.m[0], m[1] - pinch.m[1]); zoomAround(m, pinch.z + Math.log2(d / pinch.d)); pinch.m = m; invalidate();
       } else if (drag && drag.id === e.pointerId && !drag.passive) {
         const dx = p[0] - drag.p[0], dy = p[1] - drag.p[1]; drag.p = p;
         if (!drag.moved && Math.hypot(p[0] - drag.p0[0], p[1] - drag.p0[1]) > 4) { drag.moved = true; el.classList.add('is-drag'); A.ui.hideTip(); }
-        if (drag.moved) { panPx(dx, dy); invalidate(); const t = performance.now(); samples.push([t, p[0], p[1]]); while (samples.length > 2 && t - samples[0][0] > 100) samples.shift(); }
+        if (drag.moved) { drag1 = true; panPx(dx, dy); invalidate(); const t = performance.now(); samples.push([t, p[0], p[1]]); while (samples.length > 2 && t - samples[0][0] > 100) samples.shift(); }
       }
     });
     const up = (e) => {
       if (!ptrs.has(e.pointerId)) return;
       ptrs.delete(e.pointerId);
+      drag1 = false;
       if (pinch) { if (ptrs.size < 2) { pinch = null; drag = null; } return; }
       if (!drag || drag.id !== e.pointerId) return;
       el.classList.remove('is-drag');

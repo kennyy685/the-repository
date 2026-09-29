@@ -19,7 +19,7 @@ const PROBE = () => {
   });
 };
 
-const browser = await launch();
+const browser = await launch({ cpu2d: true });
 const rows = [];
 for (const view of views) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, colorScheme: 'dark' });
@@ -42,7 +42,7 @@ for (const view of views) {
     const el = loc.nth(i);
     try {
       if (!(await el.isVisible())) continue;
-      await el.click({ timeout: 2000 }); clicks++;
+      await el.click({ timeout: 5000 }); clicks++;
       await page.waitForTimeout(still ? 60 : 350);
     } catch (e) { notes.push('click ' + i + ' failed: ' + String(e.message).split('\n')[0].slice(0, 90)); }
     const cur = await page.evaluate(() => window.A && A.view.current);
@@ -58,7 +58,7 @@ for (const view of views) {
   // sizes
   const hs = {};
   for (const [w, h] of [[1440, 900], [1280, 800], [400, 860]]) {
-    await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(still ? 250 : 900);
+    await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(still ? 700 : 1200);
     hs[w] = await page.evaluate(() => document.scrollingElement.scrollWidth <= innerWidth);
     if (w === 400) {
       const gut = await page.evaluate(() => { const r = document.getElementById('world').getBoundingClientRect(); return Math.round(r.left); });

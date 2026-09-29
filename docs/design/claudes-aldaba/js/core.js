@@ -795,6 +795,7 @@
     }
     UI.fitBar = fitBar;
     fitBar();
+    try { const nav = A.$('.tabs', bar); if (nav) new ResizeObserver(() => moveInd(true)).observe(nav); } catch (e) { /* ignore */ }
     let rz = 0;
     addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitBar(); moveInd(true); A.view.relayout({ ms: 0 }); }); });
     try { document.fonts && document.fonts.ready.then(() => { fitBar(); moveInd(true); }); } catch (e) { /* ignore */ }
