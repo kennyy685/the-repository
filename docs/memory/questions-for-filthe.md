@@ -65,6 +65,11 @@ screen making an idea come to reality." So: don't ask him HMP operations questio
 the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
+- **Open map "days ago" (2026-09-29):** (1) cards count from today, not the day the data was built: **yes**. (2) What the
+  age line should tell him at the door: **the claim deadline**. Built as the truthful version: "52 days ago. Deadline:
+  Nebraska sets no cutoff in days; policies ask for prompt notice (check the policy)." No countdown: Nebraska's floor is
+  5 years for suits (44-357 + 25-205), so a countdown would be false urgency.
+
 ## Open, for FilthE (asked 2026-09-28)
 - Say "publish Practice Door" (v12 = v11's 20-day plan and 15 objections EN/ES, plus the rest of the sale: 10 new
   homeowners after the knock, Fremont houses, tighter legal checks)?

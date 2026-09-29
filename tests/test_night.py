@@ -436,7 +436,9 @@ class MapTopFollowsPick(unittest.TestCase):
         z = {"date": "2026-08-08", "why": [[1, {"en": "Biggest report: 1.5 in.", "es": "x"}],
                                            [1, {"en": "51 days ago.", "es": "Hace 51 días."}]]}
         got = openmap._why(z, "2026-09-29")
-        self.assertEqual(got[1], [1, {"en": "52 days ago.", "es": "Hace 52 días."}])
+        self.assertTrue(got[1][1]["en"].startswith("52 days ago. Deadline: Nebraska sets no cutoff in days"), got[1])
+        self.assertTrue(got[1][1]["es"].startswith("Hace 52 días. Plazo:"), got[1])
+        self.assertEqual(openmap._why({"date": "2026-08-08", "why": [got[1]]}, "2026-09-30")[0][1]["en"][:12], "53 days ago.")
         self.assertEqual(got[0], z["why"][0])
         self.assertIs(openmap._why(z, None), z["why"])                   # no brief date: the season file's own line
 

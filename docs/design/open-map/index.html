@@ -1890,6 +1890,15 @@ const esTime=(s)=>lang==="es"?s.replace(/\s?AM$/," a. m.").replace(/\s?PM$/," p.
 const clockMin=(s)=>{const m=s.match(/(\d+):(\d+)\s*(AM|PM)/);return(+m[1]%12+(m[3]==="PM"?12:0))*60+ +m[2]};
 const fmtDate=(iso)=>{const d=new Date(iso+"T12:00:00"),m=T.months[lang][d.getMonth()];return lang==="es"?`${d.getDate()} ${m}`:`${m} ${d.getDate()}`};
 const daysBetween=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+/* an area's "N days ago" reason, counted to TODAY's Nebraska date when the page is opened (FilthE 2026-09-29: the data
+   files are built the night before), plus the claim-deadline rule he asked for there. Nebraska sets no claim cutoff in
+   days (suits: 5-year floor, Neb. 44-357 + 25-205); policies ask for prompt notice. Never a countdown. Same text as
+   hailhunter/season.py age_line. */
+const ctToday=()=>{try{return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago"}).format(new Date())}catch(e){return TODAY}};
+function ageLine(n){return [n<=60?1:n<=150?0:-1,{en:`${n} days ago. Deadline: Nebraska sets no cutoff in days; policies ask for prompt notice (check the policy).`,
+  es:`Hace ${n} días. Plazo: Nebraska no fija un corte en días; las pólizas piden aviso pronto (revise la póliza).`}]}
+function ageWhy(a,w){const tx=w&&w[1];if(!tx||!/^\d+ days ago\./.test(tx.en||"")||!/^d\d{8}$/.test(a.st||""))return w;
+  const n=daysBetween(a.st.slice(1,5)+"-"+a.st.slice(5,7)+"-"+a.st.slice(7,9),ctToday());return n>=0?ageLine(n):w}
 const addDays=(iso,n)=>{const d=new Date(iso+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
 /* sunset, minutes after local midnight (CDT, UTC-5; good until Nov 1) - NOAA / Wikipedia sunrise equation */
 function sunsetMin(ll,iso){const rad=Math.PI/180,D0=Date.parse(iso+"T00:00:00Z"),n=Math.ceil(D0/864e5+2440587.5-2451545+.0008),Js=n-ll[0]/360,
@@ -2046,7 +2055,7 @@ function renderCard(){
     <ul class="said">${a.rep.map(([src,txt,tm])=>`<li>${chip(src,L(txt).replace(/<[^>]+>/g,""),a.st)}<span>${L(txt)}</span><span class="tm">${tm?esTime(tm):""}</span></li>`).join("")}</ul>
     <div class="sec">${t("why")}</div>
     <div class="conf"><div class="meter"><i id="mt"></i><span class="tick" style="left:55%"></span><span class="tick" style="left:75%"></span></div>
-      <ul class="why">${a.why.map(([sg,txt])=>`<li><span class="s ${sg>0?"p":"m"}">${sg>0?"+":"−"}</span><span>${L(txt)}</span></li>`).join("")}</ul></div>
+      <ul class="why">${a.why.map(w=>ageWhy(a,w)).map(([sg,txt])=>`<li><span class="s ${sg>0?"p":"m"}">${sg>0?"+":"−"}</span><span>${L(txt)}</span></li>`).join("")}</ul></div>
     <div class="sec">${t("homesHere")}</div>
     <div class="stats">
       <div class="stat"><div class="k">${t("homesK")} ${chip(REAL?(a.hb?"cens":"acs"):"assr",fmt(a.homes)+" "+t("homes"),a.st)}</div><div class="v">${fmt(a.homes)}</div></div>

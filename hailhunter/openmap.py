@@ -11,7 +11,7 @@ import re
 
 from .season import age_line, days_ago
 
-AGE_EN = re.compile(r'^\d+ days ago\.$')
+AGE_EN = re.compile(r'^\d+ days ago\.')
 
 KX, KY = 111.32 * math.cos(41.2 * math.pi / 180), 110.57
 MON = {'en': 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(), 'es': 'ene feb mar abr may jun jul ago sep oct nov dic'.split()}

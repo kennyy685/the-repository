@@ -90,6 +90,15 @@ async function main() {
     await t.p.click('[data-night="real"]');
     s = await t.strip();
     ok(!s.sample && s.head === REAL.headline.es, "back to the real brief failed");
+    // an area's "N days ago" reason counts to TODAY's Nebraska date (not the day the data file was built) and carries
+    // the claim-deadline rule (FilthE 2026-09-29); other reasons pass through untouched
+    const ct = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago" }).format(new Date());
+    const want = Math.round((new Date(ct + "T12:00:00Z") - new Date("2026-08-08T12:00:00Z")) / 864e5);
+    const ag = await t.p.evaluate(() => [ageWhy({ st: "d20260808" }, [1, { en: "51 days ago.", es: "Hace 51 días." }]),
+      ageWhy({ st: "d20260808" }, [1, { en: "Biggest report: 1.5 in.", es: "x" }])]);
+    ok(ag[0][1].en.startsWith(`${want} days ago. Deadline: Nebraska sets no cutoff in days`), `age line: ${JSON.stringify(ag[0])} (want ${want})`);
+    ok(ag[0][1].es.startsWith(`Hace ${want} días. Plazo:`), `age line ES: ${ag[0][1].es}`);
+    ok(ag[1][1].en === "Biggest report: 1.5 in.", "age line: a non-age reason was rewritten");
     ok(!t.errors.length, "real: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
 
