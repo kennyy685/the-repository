@@ -144,8 +144,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
   watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
   (write every Agent `description` as a plain-English job line: it's what the hub shows). **No idling:**
-  when a helper finishes, review it and give it the next board job in the same turn. **2 helpers at a time** (FilthE,
-  2026-09-27: "let's not use too much usage at once"); more only when he asks for a big push. The AI hub is how
+  when a helper finishes, review it and give it the next board job in the same turn. **4 robots at a time** (FilthE, 2026-09-29; was 2). The AI hub is how
   FilthE sees who's doing what. Helpers report back in 10 lines or fewer (their work never enters the
   King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
   haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
@@ -154,9 +153,12 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   Research Lead...) are the King's coworkers, titled by what they do; the King is their boss. Give each job its own
   Claude session (`create_session`, title "<Robot>: <job>", work branch), it reports on the hub board and archives
   when done; the King checks it with `get_session` and archives it if it forgot. In-chat Agent helpers only for tiny
-  checks. Still max 2 at a time.
-- **Ultracode on the hub for now (FilthE, 2026-09-29: "just use it on the hub for now, then for the system"):** hub
-  robot jobs get the word "ultracode" in the prompt (multi-agent build + verify). App/system later, when he says.
+  checks. Max 4 at a time.
+- **Iron age (FilthE, 2026-09-29 13:45: "robot limit at 4 on ultracode ... go next level on building, themes, ideas"):**
+  up to 4 robots at once, every robot job gets "ultracode" (app + system too now). Bar = revolution, not polish.
+- **Everything live (FilthE, 2026-09-29):** the hub's board and answers must always match what's true, by itself; a
+  hand-rewritten board is a failure. Until that's built, the King refreshes `board/current` + `system/king` on every
+  robot finish and every check-in.
 - **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
   the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
   reminds once if any are unposted. The King still posts its own review of each result.

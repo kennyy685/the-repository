@@ -12,6 +12,12 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 - 12:02: RUNNING session_01Ck7V69BXGkVHVim6SzdqNy Engine (drawn walks for top-3 + backup, handoff NEXT 1) and
   session_012136rntxeMkoRn5S6AezDk Builder ("free" sweep + PDF re-render, NEXT 2+3). Check-in via send_later ~12:47Z.
   Test wake at 11:22 and 7 AM wake at 12:00 both landed in this chat.
+- 13:46: FilthE: 4 robots, ultracode on all. Engine session_01Ck7V69 done+archived (open map v13). RUNNING: Builder
+  session_012136rn ("free" sweep, in QA), Engine session_019aik3Z (QA lows), Builder session_01RRaZWW (ultracode
+  code-health sweep + fresh-King error text + save stuck QA reports), Designer session_01Us5Ubj (ultracode 3 next-level
+  7 AM looks). QA trigger prompt now calls add_repo push first. Board + system/king rewritten (were 12 h stale: the hub
+  told FilthE to press Fresh King; he doesn't need one). NEXT when a slot frees: hub "live board" (board/answers built
+  from real events + sessions by themselves, ultracode).
 
 ## FIRST, as the new King (written 2026-09-29 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc)
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
