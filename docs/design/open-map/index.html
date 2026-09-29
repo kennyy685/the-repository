@@ -923,6 +923,20 @@ if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT
     const e=REAL.DAILY.find(x=>x.d===REAL.STORMS[k].days);if(e&&!e.storm){e.storm=k;e.v=Math.max(e.v,s.max)}});
   (X.areas||[]).forEach(a=>{if(have.has(a.id)||!REAL.STORMS[a.st])return;REAL.AREAS.push(a);have.add(a.id);
     const tk=String(a.town||a.name.en).toLowerCase().replace(/ /g,"-");REAL.TOWN_OF[a.id]=tk;if(!REAL.TOWNS[tk])REAL.TOWNS[tk]=a.town||a.name.en})})();
+/* the night brief's walks + street tiles (`map.walks`, `map.tiles`, hailhunter/mapwalk.py): each card's own walk (the
+   Knock app's order, street by street, corner to corner: no door points) and real street lines where data/streets.json
+   has none (Columbus, Schuyler, David City...). Names escaped, numbers checked; anything malformed is dropped. */
+const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
+  const esc=(v)=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
+    num=(v)=>typeof v==="number"&&isFinite(v),pt=(p)=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1]),
+    line=(a)=>Array.isArray(a)&&a.every(pt),ints=(a)=>Array.isArray(a)&&a.length>=4&&a.every(num);
+  Object.entries(b.map.walks||{}).forEach(([id,w])=>{try{
+    const s=(w.s||[]).filter(x=>x&&line(x.p)&&x.p.length>=2).map(x=>({n:esc(x.n),b:num(x.b)?x.b:0,h:num(x.h)?Math.max(0,Math.round(x.h)):0,
+      m:num(x.m)?x.m:0,f:esc(x.f),t:esc(x.t),p:x.p}));
+    if(!s.length||!pt(w.park)||!Array.isArray(w.c)||!Array.isArray(w.r)||w.r.length!==s.length||w.c.length!==s.length||!w.c.every(c=>line(c))||!w.r.every(r=>line(r)&&r.length))return;
+    out.walks[String(id)]={park:w.park,pn:[esc((w.pn||[])[0]),esc((w.pn||[])[1])],s,c:w.c,r:w.r}}catch(e){}});
+  (b.map.tiles||[]).forEach(t=>{if(t&&pt(t.o)&&num(t.s)&&t.s>0&&Array.isArray(t.t)&&t.t.length===4&&t.t.every(c=>Array.isArray(c)&&c.every(ints)))out.tiles.push(t)});
+  return out})();
 const TODAY = REAL ? REAL.today : "2026-09-28";
 const KNOCK_URL = "https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU"; // the Knock page: one tap per door
 const nv = (x, suf = "") => x == null ? "–" : x + suf;
@@ -1898,6 +1912,7 @@ let AREAX=null;
 function applyAreas(d){AREAX={};const k=1/d.o;
   Object.entries(d.areas).forEach(([id,a])=>{const dec=(arr)=>{let x=a.o[0],y=a.o[1];const o=[];for(let i=0;i<arr.length;i+=2){x+=arr[i];y+=arr[i+1];o.push([x*k,y*k])}return o};
     AREAX[id]={park:dec(a.park)[0],pn:a.pn,s:a.s.map(s=>({n:s.n,b:s.b,h:s.h,m:s.m,f:s.f,t:s.t,p:dec(s.p)})),c:a.c.map(dec),r:a.r.map(dec)}});
+  Object.assign(AREAX,NIGHT_X.walks); // the brief's pick/backup/top walks win: the map draws the Knock app's walk
   renderHome();
   if(st.sel){const a=areaOf(st.sel);renderPlan();focusArea(a,true);if(st.pendWalk){st.pendWalk=0;planWalk(false)}}}
 const hailFor=(b,a)=>REAL?(b>0?a.hail:.75):b>=2?a.hail:Math.min(a.hail,b>=1.5?1.75:b>=1?1.25:.75);
@@ -2500,10 +2515,12 @@ function applyBase(b){BASE=b;
   Object.keys(THUMB).forEach(k=>delete THUMB[k]);renderList();
   if(!useGL)fbDraw();place();
 }
-function applyStreets(s){const [ox,oy]=s.o,k=1/s.s;STR_LL=[];const feats=[];
-  s.t.forEach((lines,c)=>{const arr=[];let chunk=[];lines.forEach(a=>{let x=a[0],y=a[1];const pts=[[ox+x*k,oy+y*k]];for(let i=2;i<a.length;i+=2){x+=a[i];y+=a[i+1];pts.push([ox+x*k,oy+y*k])}
+function applyStreets(s0){STR_LL=[[],[],[],[]];const feats=[];
+  // data/streets.json (the map box) + the night brief's tiles around walks outside it: same encoding, same layers
+  [s0,...NIGHT_X.tiles].filter(Boolean).forEach(s=>{const [ox,oy]=s.o,k=1/s.s;
+  s.t.forEach((lines,c)=>{const arr=STR_LL[c];let chunk=[];lines.forEach(a=>{let x=a[0],y=a[1];const pts=[[ox+x*k,oy+y*k]];for(let i=2;i<a.length;i+=2){x+=a[i];y+=a[i+1];pts.push([ox+x*k,oy+y*k])}
       arr.push({p:pts,b:bbox(pts)});chunk.push(pts);if(chunk.length>=400){feats.push(F({type:"MultiLineString",coordinates:chunk},{c}));chunk=[]}});
-    if(chunk.length)feats.push(F({type:"MultiLineString",coordinates:chunk},{c}));STR_LL[c]=arr});
+    if(chunk.length)feats.push(F({type:"MultiLineString",coordinates:chunk},{c}))})});
   onGL(()=>map.getSource("streets").setData(FC(feats)));
   if(st.sel)focusArea(AREAS.find(a=>a.id===st.sel),true);
   idle(()=>AREAS.forEach((a,i)=>idle(()=>focusFC(i))));
@@ -2527,9 +2544,9 @@ const getJSON=(n)=>fetch("data/"+n+".json").then(r=>{if(!r.ok)throw new Error(n+
 function loadData(){
   getJSON("base").then(applyBase).catch(e=>{console.warn("basemap data not loaded, using drawn fallback",e);
     onGL(()=>["fb-city","fb-grid","fb-river","fb-road","fb-street"].forEach(id=>map.setLayoutProperty(id,"visibility","visible")))});
-  getJSON("streets").then(applyStreets).catch(e=>console.warn("streets not loaded",e));
+  getJSON("streets").then(applyStreets).catch(e=>{console.warn("streets not loaded",e);if(NIGHT_X.tiles.length)applyStreets(null)});
   getJSON("homes").then(applyHomes).catch(e=>console.warn("homes not loaded",e));
-  getJSON("areas").then(applyAreas).catch(e=>console.warn("area streets not loaded",e));
+  getJSON("areas").then(applyAreas).catch(e=>{console.warn("area streets not loaded",e);applyAreas({o:1,areas:{}})});
 }
 
 /* ---------- relief shading (decorative): noise hills + real river valleys ---------- */

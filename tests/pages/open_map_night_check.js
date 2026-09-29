@@ -149,6 +149,45 @@ async function main() {
     ok(!t.errors.length, "hostile brief: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
 
+    // 7. map-west (2026-09-29): a pick west of the old street box draws ITS walk (the Knock app's order, from the start
+    //    street) on real streets from the brief's own tile; a malformed walk/tile is dropped, never an error
+    const mw = JSON.parse(require("child_process").execFileSync("python3", ["-c",
+      "import json,sys;sys.path.insert(0,'.');sys.path.insert(0,'tests');import test_mapwalk as T;from hailhunter import mapwalk;" +
+      "d,w=T.columbus();print(json.dumps({'walks':{'z0808-columbus':mapwalk.page_walk(w,1.64)},'tiles':[mapwalk.tile(d['feats'],mapwalk.tile_box(w))]}))"],
+      { cwd: ROOT }).toString());
+    const BW = { ...BR, map: { ...BR.map, ...mw } };
+    t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify(BW) + ";");
+    await t.p.waitForFunction(() => typeof AREAX !== "undefined" && AREAX && AREAX["z0808-columbus"] && STR_LL, null, { timeout: 10000 });
+    await t.p.click('.picks .pick[data-pick="z0808-columbus"]');
+    await t.p.evaluate(() => planWalk(false));
+    const wk = await t.p.evaluate(() => {
+      const X = AREAX["z0808-columbus"], W = st.walk, bb = W && W.pts ? bbox(W.pts) : null;
+      const near = STR_LL.flat().filter((l) => l.b[0] < -97.36 && l.b[2] > -97.39 && l.b[1] < 41.45 && l.b[3] > 41.43).length;
+      return { sel: st.sel, names: X.s.map((s) => s.n), id: W && W.id, n: W && W.pts ? W.pts.length : 0, k: W && W.k, bb, near,
+        rows: [...document.querySelectorAll(".plan")].map((e) => e.textContent).join(" ") };
+    });
+    ok(wk.sel === "z0808-columbus", `map-west: the pick did not open (${wk.sel})`);
+    ok(wk.names.join() === "22 St,21 St", `map-west: walk streets ${wk.names} (want the Knock app's 22 St, 21 St)`);
+    ok(wk.id === "z0808-columbus" && wk.n > 10, `map-west: no walk drawn for the Columbus pick: ${JSON.stringify(wk)}`);
+    ok(wk.bb && wk.bb[0] > -97.40 && wk.bb[2] < -97.36 && wk.bb[1] > 41.43 && wk.bb[3] < 41.45, `map-west: walk not in Columbus: ${JSON.stringify(wk.bb)}`);
+    ok(wk.near > 50, `map-west: no real streets around the Columbus walk (${wk.near} lines)`);
+    ok(/22 St/.test(wk.rows), "map-west: the plan panel does not name the start street 22 St");
+    ok(!t.errors.length, "map-west: JS errors: " + t.errors.join(" | "));
+    await t.ctx.close();
+    // 7b. junk walks/tiles are dropped quietly
+    const junk = JSON.parse(JSON.stringify(BW));
+    junk.map.walks["z0808-columbus"].s[0].p = "nope";
+    junk.map.walks["z0808-columbus"].s[1].n = '<img src=x onerror="window.__x=1">';
+    junk.map.tiles.push({ o: [0, 0], s: 1, t: [["x"]] });
+    t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify(junk) + ";");
+    await t.p.click('.picks .pick[data-pick="z0808-columbus"]');
+    await t.p.waitForTimeout(300);
+    const jk = await t.p.evaluate(() => ({ x: window.__x || 0, img: document.querySelectorAll("img[src=x]").length, tiles: NIGHT_X.tiles.length,
+      walk: !!NIGHT_X.walks["z0808-columbus"] }));
+    ok(!jk.x && !jk.img && jk.tiles === 1 && !jk.walk, `map-west junk: ${JSON.stringify(jk)}`);
+    ok(!t.errors.length, "map-west junk: JS errors: " + t.errors.join(" | "));
+    await t.ctx.close();
+
     // 6. an older brief (no top, no map): the list is still pick + backup; an in-box pick keeps the designed view
     t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify({ ...BR, top: undefined, map: undefined,
       pick: { ...BR.pick, area_id: "z0613-fremont", center: { lat: 41.32, lon: -96.45 } } }) + ";");
@@ -164,6 +203,6 @@ async function main() {
   }
   for (const m of takeMisses()) if (!/night\.js$/.test(m)) fails.push("file not in the files map: " + m);
   if (fails.length) { console.log("FAIL\n  " + fails.join("\n  ")); process.exit(1); }
-  console.log("PASS: open map night strip reads the real brief (EN/ES), samples only under Preview, missing/broken/failed-refresh handled; top 3 follows the brief's pick + backup; home view reaches a pick west of the box");
+  console.log("PASS: open map night strip reads the real brief (EN/ES), samples only under Preview, missing/broken/failed-refresh handled; top 3 follows the brief's pick + backup; home view reaches a pick west of the box; a Columbus pick draws its own walk on real streets");
 }
 main().catch((e) => { console.error("open_map_night_check.js crashed: " + (e.stack || e)); process.exit(2); });

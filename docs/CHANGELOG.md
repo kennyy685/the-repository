@@ -1,5 +1,8 @@
 # HMP App changelog (newest first)
 
+## Open map: every pick draws its walk - 2026-09-29 (map-west; QA pending, then republished)
+- Tap Aldaba's pick anywhere (Columbus, Schuyler, David City, Fremont, Blair, Wahoo, Omaha-Lincoln) and the map draws that pick's own walk: the Knock app's order, starting on the start street (tonight: 22 St, then 21 St), on real streets. Street by street, corner to corner: no house numbers, no door points, no owner names.
+- Outside the old Omaha-Lincoln street box the night shift adds a small street tile around the walk (~15-30 KB, gis.ne.gov, same source as the rest of the map), so the page stays light on hotel wifi. It all rides in `data/night.js`; the night routine is unchanged.
 ## Open map: top 3 agrees with Aldaba's pick - 2026-09-29 (open map republished; QA PASS, its 3 notes fixed)
 - "Aldaba's top 3" now follows the night brief: #1 = Aldaba's pick, #2 = the backup, then the next storm walk (tonight: Columbus 22 St & 21 St, Omaha older homes, Columbus 36 Ave & 18 St). No more Malcolm on the list while the pick says Columbus.
 - A pick outside the old map box (Columbus) now opens as a real area, and the home view widens to show the pick + backup. The brief carries it (`top` + `map` in `data/night.js`), so it stays right every night with no extra step.

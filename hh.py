@@ -371,6 +371,16 @@ def night_cmd(a, cfg, log=print):
     if season_doc:                               # the map's shapes for the areas it names (a pick west of the map box)
         from hailhunter import openmap
         doc["map"] = openmap.extra(season_doc, night.area_ids(doc))
+    if not getattr(a, "no_basemap", False):      # the cards' walks on real streets + a street tile where the map has none
+        from hailhunter import mapwalk
+        maker = _basemap_maker(cfg, a.offline)
+        try:
+            mw = mapwalk.extra(doc, w, maker, cfg)
+        finally:
+            maker.conn.close()
+        if mw["walks"] or mw["tiles"]:
+            doc.setdefault("map", {}).update(mw)
+        log(f"Map walks: {len(mw['walks'])}, street tiles: {len(mw['tiles'])}")
     if err:
         doc["refresh_error"] = err
     if os.path.exists(cur):
@@ -395,6 +405,7 @@ def night_cmd(a, cfg, log=print):
 
 
 OPEN_MAP_FILES = os.path.join(HERE, "docs", "design", "open-map", "index.files.json")
+NIGHT_JS_MAX = 400_000      # bytes: the brief + its map walks + street tiles (~15-30 KB a tile) stay light on hotel wifi
 
 
 def night_shift_cmd(a, cfg, log=print):
@@ -416,12 +427,13 @@ def night_shift_cmd(a, cfg, log=print):
         return 2
     n = argparse.Namespace(no_refresh=a.dry_run, offline=a.offline, hud=None, date=None, near=None, radius=None,
                            top=None, doors=None, results=a.results, dnk=a.dnk, prev=a.prev or repo_js,
-                           js_out=repo_js, season=None, out_dir=None)
+                           js_out=repo_js, season=None, out_dir=None, no_basemap=False)
     tmp = None
     if a.dry_run:
         tmp = tempfile.mkdtemp(prefix="night-shift-dry-")
         n.hud = os.path.join(HERE, "tests", "fixtures", "today_hud.json")
         n.date, n.near, n.out_dir = "2026-09-25", "41.43,-96.49", tmp
+        n.offline = True                                # map walks + tiles: cache only, never the network
         n.prev = a.prev                                 # a dry run never diffs against the real published brief
         n.js_out = os.path.join(tmp, "night.js")
     rc = night_cmd(n, cfg, log=log)
@@ -433,7 +445,7 @@ def night_shift_cmd(a, cfg, log=print):
     except OSError:
         text = ""
     doc = night.from_js(text)
-    if doc is None or not text.startswith(night.JS_HEAD) or len(text) > 200_000:
+    if doc is None or not text.startswith(night.JS_HEAD) or len(text) > NIGHT_JS_MAX:
         print(f"night-shift: {n.js_out} is not a good night brief; do NOT publish", file=sys.stderr)
         return 1
     if doc.get("refresh_error"):
@@ -700,6 +712,7 @@ def main(argv=None):
                                   "default: <out-dir>/brief.json")
     p.add_argument("--js-out", help="also write the open map's copy (e.g. docs/design/open-map/data/night.js)")
     p.add_argument("--season", help="season file for the open map's area ids (default: data/storms-<year>.json)")
+    p.add_argument("--no-basemap", action="store_true", help="skip the open map's walks + street tiles (brief `map`)")
     p = sub.add_parser("night-shift", help="the nightly job for a fresh cloud session: refresh -> night brief -> the "
                                             "open map's data/night.js, then one PUBLISH line (runbook: "
                                             "docs/orders/night-shift-runbook.md)")
