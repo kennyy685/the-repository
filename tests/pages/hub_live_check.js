@@ -244,17 +244,17 @@ async function scenarioReport(browser, url, kind) {
   const body = await p.textContent("#rcBody");
   if (kind === "missing") ok(/No reviews yet/.test(body), `${L}: missing doc should say "No reviews yet" (got "${body.slice(0, 80)}")`);
   if (kind === "present") {
-    ok(await p.$$eval("#rcBody .rc li", x => x.length) === 12, `${L}: expected 12 lines before More`);
+    ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 12, `${L}: expected 12 lines before More`);
     ok(/\$\d/.test(body) && /redo/.test(body) && /good/.test(body), `${L}: lines lack verdict/cost`);
-    const first = await p.textContent("#rcBody .rc li:first-child"); ok(/Job number 1\b/.test(first), `${L}: not newest first (${first.slice(0, 60)})`);
+    const first = await p.textContent("#rcBody .rcard li:first-child"); ok(/Job number 1\b/.test(first), `${L}: not newest first (${first.slice(0, 60)})`);
     await p.click("#rcBody [data-rcmore]", { timeout: 2000 }).catch(e => fails.push(`${L}: More: ${e.message.split("\n")[0]}`)); await tick(200);
-    ok(await p.$$eval("#rcBody .rc li", x => x.length) === 15, `${L}: More didn't show all 15`);
+    ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 15, `${L}: More didn't show all 15`);
     await p.click('#nowList [data-now="builder"]', { timeout: 2000 }).catch(e => fails.push(`${L}: builder row: ${e.message.split("\n")[0]}`)); await tick(600);
     const card = await p.textContent("#card");
     ok(/Report card/.test(card) && /\d+\/5 good/.test(card), `${L}: the robot card lacks its hit rate (${card.slice(0, 120)})`);
-    ok(await p.$$eval("#card .rc li", x => x.length) === 3, `${L}: the robot card should show its last 3 lines`);
+    ok(await p.$$eval("#card .rcard li", x => x.length) === 3, `${L}: the robot card should show its last 3 lines`);
   }
-  if (kind === "malformed") ok(await p.$$eval("#rcBody .rc li", x => x.length) === 2, `${L}: expected the 2 valid rows (got "${body.slice(0, 120)}")`);
+  if (kind === "malformed") ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 2, `${L}: expected the 2 valid rows (got "${body.slice(0, 120)}")`);
   await p.screenshot({ path: path.join(OUT, L + ".png") });
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();

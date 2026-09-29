@@ -801,8 +801,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .obs-seats{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .obs-seats .gl{width:10px;height:10px}
 .obs-lanes{display:grid;gap:10px}
-.obs-lane{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;align-items:baseline}
-.obs-lane h3{margin:0;font:500 10px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.obs-lane{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;align-items:baseline}
+.obs-lane h3{margin:0;white-space:nowrap;font:500 10px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .obs-lane ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .obs-lane li{display:flex;gap:6px;align-items:baseline;font:400 12px/1.35 var(--f);color:var(--ink-2);min-width:0}
 .obs-lane li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -814,18 +814,18 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .obs-meters span{font:500 10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 .obs-meters small{font:400 11px/1.3 var(--f);color:var(--muted)}
 .obs-last{margin:0;font:400 12px/1.4 var(--mono);color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rc{list-style:none;margin:0;padding:0;display:grid}
-.rc li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 2px;border-bottom:1px solid var(--rule)}
-.rc .rc-l{font:500 13px/1.4 var(--f);color:var(--ink);min-width:0;overflow-wrap:anywhere}
-.rc .rc-l em{font-style:normal;color:var(--muted);font-weight:400}
-.rc .rc-v{font:500 12px/1.4 var(--mono);white-space:nowrap;text-align:right}
-.rc .rc-v.good{color:var(--st-done)}
-.rc .rc-v.redo{color:var(--brass-hi)}
-.rc .rc-w{grid-column:1 / -1;font:400 12px/1.4 var(--f);color:var(--muted);overflow-wrap:anywhere}
+.rcard{list-style:none;margin:0;padding:0;display:grid}
+.rcard li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 2px;border-bottom:1px solid var(--rule)}
+.rcard .rc-l{font:500 13px/1.4 var(--f);color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.rcard .rc-l em{font-style:normal;color:var(--muted);font-weight:400}
+.rcard .rc-v{font:500 12px/1.4 var(--mono);white-space:nowrap;text-align:right}
+.rcard .rc-v.good{color:var(--st-done)}
+.rcard .rc-v.redo{color:var(--brass-hi)}
+.rcard .rc-w{grid-column:1 / -1;font:400 12px/1.4 var(--f);color:var(--muted);overflow-wrap:anywhere}
 .rc-empty{margin:0;padding:8px 2px;font:400 13px/1.4 var(--f);color:var(--muted)}
 .rc-more{margin-top:8px}
 .rc-rate{font:500 12px var(--mono);color:var(--ink-2)}
-.card .rc li{padding:6px 0}
+.card .rcard li{padding:6px 0}
 .catrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .catrow input[type=text]{flex:1 1 140px;min-width:0}
 @media (min-width:900px) and (min-height:600px){
@@ -1788,10 +1788,11 @@ function cardBot(a){
     (!asked && st !== 'blocked' && !qi && quietNow && a.doing ? '<dt>' + esc(T.f.lastTask) + '</dt><dd>' + esc(a.doing) + (a.task ? taskChip(a.task) : '') + ' · <span class="stale">' + esc(d.orphan ? T.orphan(tFmt.format(d.orphan)) : T.noCheckoutAt(tFmt.format(a.atMs))) + '</span></dd>' : '') +
     (a.why ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(a.why) + '</dd>' : '') +
     (a.result ? '<dt>' + esc(T.f.result) + '</dt><dd><span class="num">' + esc(a.result.passed + ' of ' + a.result.of + ' passed') + '</span>' + (a.result.issues ? ' · ' + esc(a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues')) : '') + '</dd>' : '') +
+    rcCard(a) +
     (prog && st === 'working' && !a.silent ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
     '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
-    scouts + gearLine(a) + rcCard(a) + (a.id === 'code' ? '<dt>' + esc(T.usageH) + '</dt><dd>' + esc(usageLine()) + '</dd>' : '') +
+    scouts + gearLine(a) + (a.id === 'code' ? '<dt>' + esc(T.usageH) + '</dt><dd>' + esc(usageLine()) + '</dd>' : '') +
     '<dt>' + esc(T.f.where) + '</dt><dd>' + esc(T.deskOf(T.fl[c.floor], deskNo)) + ' · ' + esc(kind) + esc(boss ? T.forBoss(boss) : '') + '</dd>' +
     (mine.length > 1 ? '<dt>' + esc(T.f.recent) + '</dt><dd><ol class="recent">' + mine.map(e => '<li><time>' + esc(whenLabel(e.atMs, e.approx)) + '</time><span>' + esc(e.text) + '</span></li>').join('') + '</ol></dd>' : '') +
     '<dt>' + esc(T.f.lives) + '</dt><dd>' + esc(tx(c.home)) + '</dd><dt>' + esc(T.f.reach) + '</dt><dd>' + esc(tx(c.reach)) + '</dd></dl>';
@@ -2490,7 +2491,7 @@ function computeObservatory(){
   } catch (e) { /* the Observatory is a view: a bad board row never stops the page */ }
 }
 const LANE_NAMES = {research:'Research', build:'Build', qa:'QA'};
-const LANE_ST = {doing:['DOING', 'var(--st-working)'], blocked:['STUCK', 'var(--st-stuck-ink)'], todo:['TO DO', 'var(--muted)'], done:['DONE', 'var(--st-done)']};
+const LANE_ST = {doing:['DOING', 'var(--in-working)'], blocked:['STUCK', 'var(--st-stuck-ink)'], todo:['TO DO', 'var(--muted)'], done:['DONE', 'var(--st-done)']};
 function renderObs(){
   const box = $('#obsCard'), o = HUB.observatory; if (!box || !o) return;
   const lane = k => '<div class="obs-lane"><h3>' + LANE_NAMES[k] + ' · ' + o.lanes[k].filter(x => x.st === 'doing').length + '</h3><ul>' +
@@ -2546,8 +2547,8 @@ function tannoyEvent(e){
 }
 
 /* FilthE's cat (HUB.cat): name, coat, on/off from Make it yours, per device (hub-cat) */
-const COATS = [['ginger', '#d08a4a'], ['tuxedo', '#2b2b30'], ['grey', '#8d9096'], ['cream', '#e6d5b8'], ['tabby', '#8a6a4a']];
-const COAT_NAMES = {ginger:'Ginger', tuxedo:'Tuxedo', grey:'Grey', cream:'Cream', tabby:'Tabby'};
+const COATS = [['ginger', '#d08a4a'], ['smoke', '#6e6e78'], ['silver', '#b4b7bd'], ['cream', '#e6d5b8'], ['tabby', '#9a7550']];
+const COAT_NAMES = {ginger:'Ginger', smoke:'Smoke', silver:'Silver', cream:'Cream', tabby:'Tabby'};
 const CAT_DEF = {name:'Miso', coat:'#d08a4a', on:true};
 let catPref = Object.assign({}, CAT_DEF);
 try { const c = JSON.parse(store.get('hub-cat') || 'null'); if (c && typeof c === 'object') { if (typeof c.name === 'string') catPref.name = c.name.slice(0, 16); if (hx(c.coat)) catPref.coat = hx(c.coat); if (typeof c.on === 'boolean') catPref.on = c.on; } } catch (e) { /* defaults */ }
@@ -2620,12 +2621,12 @@ function renderReport(){
   $('#rcRate').textContent = rcRate(rows);
   if (!rows.length) { box.innerHTML = '<p class="rc-empty">No reviews yet. The King adds one line for each finished robot job.</p>'; return; }
   const shown = rcAll ? rows : rows.slice(0, 12);
-  box.innerHTML = '<ol class="rc">' + shown.map(r => rcRowHtml(r, true)).join('') + '</ol>' + (rows.length > 12 ? '<button type="button" class="tb rc-more" data-rcmore>' + (rcAll ? 'Less' : 'More · ' + (rows.length - 12)) + '</button>' : '');
+  box.innerHTML = '<ol class="rcard">' + shown.map(r => rcRowHtml(r, true)).join('') + '</ol>' + (rows.length > 12 ? '<button type="button" class="tb rc-more" data-rcmore>' + (rcAll ? 'Less' : 'More · ' + (rows.length - 12)) + '</button>' : '');
 }
 $('#rcBody').addEventListener('click', e => { if (e.target.closest('[data-rcmore]')) { rcAll = !rcAll; renderReport(); } });
 function rcCard(a){
   const mine = rcRows().filter(r => r.id === a.id); if (!rcDoc && !mine.length) return '';
-  return '<dt>Report card</dt><dd>' + (mine.length ? '<span class="rc-rate">' + esc(rcRate(mine)) + '</span><ol class="rc">' + mine.slice(0, 3).map(r => rcRowHtml(r, false)).join('') + '</ol>' : '<span class="src">No reviews yet.</span>') + '</dd>';
+  return '<dt>Report card</dt><dd>' + (mine.length ? '<span class="rc-rate">' + esc(rcRate(mine)) + '</span><ol class="rcard">' + mine.slice(0, 3).map(r => rcRowHtml(r, false)).join('') + '</ol>' : '<span class="src">No reviews yet.</span>') + '</dd>';
 }
 function onReport(snap){
   got(); try { rcDoc = snap.exists ? snap.data() : null; if (!rcDoc || typeof rcDoc !== 'object') rcDoc = null; } catch (e) { rcDoc = null; }
