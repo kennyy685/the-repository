@@ -381,9 +381,9 @@ def night_cmd(a, cfg, log=print):
             mw = {"walks": {}, "tiles": []}
         finally:
             maker.conn.close()
-        if mw["walks"] or mw["tiles"]:
+        if mw["walks"] or mw.get("zwalks") or mw["tiles"]:
             doc.setdefault("map", {}).update(mw)
-        log(f"Map walks: {len(mw['walks'])}, street tiles: {len(mw['tiles'])}")
+        log(f"Map walks: {len(mw.get('zwalks') or mw['walks'])}, street tiles: {len(mw['tiles'])}")
     if err:
         doc["refresh_error"] = err
     if os.path.exists(cur):
