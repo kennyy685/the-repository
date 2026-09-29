@@ -49,7 +49,7 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
 - **Be serious, work on what matters (FilthE, 2026-09-29 06:55):** priority = money: the app proven end to end, real
-  lead data, night shift. No more hub features (cat, looks, extras) after the v28.4 wake fix unless he asks.
+  lead data, night shift. No more hub features (cat, looks, extras) after the v28.4 wake fix unless he asks. **He asked (14:05): finish the whole hub list, ultracode on, sync, test, then wait for his next ask with a brief summary (`docs/orders/hub-queue.md`).**
   Same night: "I want to be wowed when I come back" / "I want to say we're out of the copper age" = the bar is a
   leap, not polish. Ultracode is the King's call now ("use it when you feel like it").
 - **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
