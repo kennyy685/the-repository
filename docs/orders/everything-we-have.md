@@ -1,9 +1,15 @@
 # Everything we have (2026-09-29 evening, AFTER ALL sync by the Builder)
 
-Checked tonight (~20:00 UTC, work branch 2c331b8): 527 engine/unit tests PASS, `hh.py selftest` PASS, full
-`tests/release_checks.sh` with browsers: RELEASE_RESULT_LINE. Live smoke: all 5 live pages match the repo byte for byte
-(only drift: the map's `data/night.js` says "51 days ago" vs repo "52"; the 2:40 AM night shift overwrites it) and all 5
-render at 1470x900 with 0 JS errors, no stuck Loading, no sideways scroll. Legend: WORKS / PARTLY / BROKEN / UNVERIFIED.
+## Checks tonight (work branch after merging the King branch): ALL GREEN
+- **pytest: 527 passed**, 0 failed. `hh.py selftest` PASS.
+- **Release checks: 26 / 26 PASS** (`tests/release_checks.sh`, run in parts because the full run is longer than 10 min):
+  legal + 11 module checks + selftest (13 fast) · shots, practice, full fake day, 24 h clock, hub live (50 scenarios),
+  hub chat, HQ live, app live, real E2E day, bad signal, desk, open map night (12 browser) · design gate on all 4 pages
+  (hub 162 views, app 4 sizes x 108 views, Practice Door 48, open map 12).
+- **1 fix made:** the hub scrolled sideways on a 360 px phone (the "brief" box could not shrink below its text).
+  One CSS line in `pages/crew-hq.html`; in the repo, **not published yet** (the live hub still has it; phone is "later").
+- Live smoke (earlier today): all 5 live pages match the repo and render with 0 JS errors.
+  Legend below: WORKS / PARTLY / BROKEN / UNVERIFIED.
 
 ## Hub (the crew's office)
 - **AI Hub** https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU, v35 (Version 37). Where FilthE talks to the King, sees every robot live
@@ -27,7 +33,7 @@ render at 1470x900 with 0 JS errors, no stuck Loading, no sideways scroll. Legen
 - **HailHunter Core / Storm Watch** https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: Cowork's, 6:54 AM. UNVERIFIED by us (read-only; Cowork's engine re-bundle T61 was never confirmed, `docs/orders/roadmap.md`).
 
 ## For the app (engine + things that run themselves)
-- **Engine** `hh.py` + `hailhunter/` (13.3k lines, 40+ modules): storms, zones, walks, stacking, learning, night, season. WORKS (521 tests + selftest today).
+- **Engine** `hh.py` + `hailhunter/` (13.3k lines, 40+ modules): storms, zones, walks, stacking, learning, night, season. WORKS (527 tests + selftest tonight).
 - **Night shift**: trigger `trig_01C3zVLmdJNfikq5ocXwWNWQ`, 2:40 AM Central daily, last run SUCCEEDED; runs `hh.py night-shift` (`docs/orders/night-shift-runbook.md`),
   republishes only the map's `data/night.js` (brief dated 2026-09-29 in repo). WORKS; ~$0.30-0.60/night per runbook.
 - **Weekly crew review** `trig_01Mg1PNnUNegxcYxmDjG3B5b`, Sundays 8:47 AM. Never run yet (next 10-04). UNVERIFIED.
@@ -37,7 +43,7 @@ render at 1470x900 with 0 JS errors, no stuck Loading, no sideways scroll. Legen
   and one-shot "King: check final sync".
 
 ## Around it
-- **Print Kit** https://claude.ai/artifact/98jMahobUhX4DzyBfCRf2R (37 pieces, 09-27). PARTLY: PDFs in `docs/print` not re-rendered after the "roof check" wording change (CHANGELOG).
+- **Print Kit** https://claude.ai/artifact/98jMahobUhX4DzyBfCRf2R (37 pieces, 09-27). PARTLY: repo PDFs were re-rendered with the "roof check" wording (982ebe2), but the published kit (09-27) predates it.
 - **Legal armor**: `tests/legal_check.py` PASS; statute text in `docs/legal/`; 3-day cancel + deductible notice in the app. Contract lawyer review still deferred (`docs/memory/full-context.md:42`).
 - **Crew setup**: 6 robots (`.claude/agents/`), hooks (`.claude/hooks/`), release checks, research rounds in `docs/research/`.
 
@@ -63,7 +69,7 @@ render at 1470x900 with 0 JS errors, no stuck Loading, no sideways scroll. Legen
 - Voicelog demo (`pages/voicelog`): not in `pages/hmp-app.files.json`, so not in the app.
 
 ## Waiting on FilthE
-- **PR #7** https://github.com/kennyy685/the-repository/pull/7 (work branch -> main, approved by him 14:12): he clicks Merge.
-- Pushing the work branch into the King branch (`stoic-darwin`) needs his OK.
+- **PR #7** https://github.com/kennyy685/the-repository/pull/7 (work branch -> main, approved by him 14:12): still open; he clicks Merge.
+- Work branch and King branch (`stoic-darwin`) are synced tonight (same commit).
 - Delete leftover branches `amazing-wright` + `funny-hawking` (King default: yes).
 - Boss questions in `docs/memory/questions-for-filthe.md` (registration #, warranty, OK to say "free").
