@@ -162,6 +162,9 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   hub froze live while every check passed, because checks only ran offline. Now: every publish also runs a live-data
   smoke test (page seeded with the real db docs + mocked runtime, click every button, send a chat); a runtime call
   (mcp, sample, db) must never freeze a page (timeout + try/catch, page stays usable). Code-health sweep = next job.
+- **Hub publish = real round trip (2026-09-29):** after v31 every order showed wake:"fail" for an hour and nobody
+  noticed (mocked tests passed). After every hub publish the King checks a REAL order reaches it (event wake:"ok" and
+  the King chat wakes) before saying it works; every 5-min check also reads his hub messages directly.
 - Every page publish follows `docs/release-checklist.md` (checks green, light/dark screenshots vs
   `docs/design/v25-polish/`, legal boxes, CHANGELOG line).
 - The HMP App is a page plus module files (T169): `pages/hmp-app.files.json` maps published path -> repo file. Edit a
