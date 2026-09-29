@@ -1,0 +1,186 @@
+[
+  {
+    "id": "opener-compliant-general",
+    "situation": "Standard door opener, any neighborhood, any reason for knocking - the required legal shape (69-1602: name, HMP, what we sell, first thing) built around a real trainer's 'short, one reason, one open question' structure.",
+    "en": "Hi, I'm {name} with HMP Siding & Roofing — we do siding and roof repair and replacement. I'm in the neighborhood checking roofs, no obligation. Mind if I take a quick look at yours?",
+    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos reparación e instalación de techos y siding. Ando por el vecindario revisando techos, sin compromiso. ¿Le importa si le echo un vistazo rápido?",
+    "source_style": "Restructured from Roofr's door-opener example (name+company+hook+free-inspection offer) to put the 69-1602 legal order first.",
+    "legal_ok": true
+  },
+  {
+    "id": "opener-storm-neighbor",
+    "situation": "Storm-hit street, framing the visit around recent hail/wind without claiming certain damage.",
+    "en": "Hi, I'm {name} with HMP Siding & Roofing — siding and roofing. We're out checking a few roofs on this street after the last storm; yours might have some hits too. Want me to take a quick look and show you what I find?",
+    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos techos y siding. Andamos revisando algunos techos en esta calle después de la última tormenta; el suyo también podría tener algunos golpes. ¿Quiere que le eche un vistazo rápido y le muestre lo que encuentro?",
+    "source_style": "Adapted from SPOTIO's storm-damage script (Trey Gibson) - removed 'price-lock guarantee' and 'underpaid claims' framing (implies an insurance outcome HMP can't promise); kept the neighbor-street framing and the low-pressure, uncertain phrasing ('might have').",
+    "legal_ok": true
+  },
+  {
+    "id": "opener-everyday-age",
+    "situation": "Non-storm, everyday pitch for an older house (age-based lead, not hail-based).",
+    "en": "Hi, I'm {name} with HMP Siding & Roofing — siding and roof work. A lot of homes on this street are around the same age, and roofs and siding start wearing out about now. I'm doing roof checks in the area — want me to take a look at yours?",
+    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos techos y siding. Muchas casas en esta calle tienen más o menos la misma edad, y por estos años el techo y el siding empiezan a desgastarse. Estoy haciendo revisiones del techo por aquí — ¿quiere que revise el suyo?",
+    "source_style": "Adapted from Roofr's everyday (non-storm) pitch example ('A bunch of these homes were built around the same time...').",
+    "legal_ok": true
+  },
+  {
+    "id": "rapport-bad-past-contractor",
+    "situation": "Homeowner mentions a bad experience with a previous contractor (mess left behind, no follow-up, etc.).",
+    "en": "That's rough, I hear that a lot. One thing we do — we clean up fully every day, and I'll walk you through exactly what we find before we do anything.",
+    "es": "Qué mal, escucho eso seguido. Una cosa que hacemos — limpiamos todo diario, y le explico exactamente qué encontramos antes de hacer cualquier cosa.",
+    "source_style": "Adapted from Roofr's rapport-building example ('Ah, that sucks... my crew's kind of obsessive about it'). Only say this if it's actually true for HMP's crews.",
+    "legal_ok": true
+  },
+  {
+    "id": "transition-free-inspection-value",
+    "situation": "Moving from the opener into the actual inspection ask.",
+    "en": "It only takes about 15 minutes — I'll check the roof, take photos, and show you exactly what's there before you decide anything.",
+    "es": "Solo toma unos 15 minutos — reviso el techo, tomo fotos, y le muestro exactamente lo que hay antes de que usted decida algo.",
+    "source_style": "Adapted from SPOTIO ('a 15-minute photo walkthrough') and Roofr's instant-estimate framing.",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-spouse",
+    "situation": "Top objection #1: 'I need to talk to my spouse/partner first.'",
+    "en": "Of course — makes sense to look at it together. Can I text or email you the photos and what I find so you both have it to look at?",
+    "es": "Claro que sí — tiene sentido verlo juntos. ¿Le mando las fotos y lo que encuentro por texto o correo para que los dos lo vean?",
+    "source_style": "Adapted close to verbatim from Roofr: \"Of course. Can I email you an estimate right now so you have something to look at together later?\"",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-more-quotes",
+    "situation": "Top objection #2: 'I want to get a few more quotes first.'",
+    "en": "That's smart, get a few. Here's what I found and what I'd charge — happy to answer questions once you've compared.",
+    "es": "Eso es inteligente, consiga varias. Aquí está lo que encontré y lo que cobraría — con gusto respondo preguntas una vez que compare.",
+    "source_style": "Adapted close to verbatim from Roofr: \"Of course. Here's mine. Happy to answer questions once you've had a chance to compare.\"",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-price-afford",
+    "situation": "Top objection #3: 'I'm not sure I can afford it right now.'",
+    "en": "No pressure at all — let me leave you the estimate so you have it. If it'd help, we can talk through payment options too; that's between you and the lender, not us.",
+    "es": "Sin presión — le dejo el estimado para que lo tenga. Si le ayuda, también podemos hablar de opciones de pago; eso es entre usted y el prestamista, no con nosotros.",
+    "source_style": "Adapted from Roofr ('No pressure. Let me give you the estimate... talk through payment options'); added HMP's existing no-promise financing rule (round 30) - never state approval odds or terms.",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-not-interested-recent-work",
+    "situation": "Top objection #4: 'Not interested' or 'we just had that done.'",
+    "en": "No problem at all. If anything comes up down the road, or after the next storm, here's my card — call anytime for a roof check.",
+    "es": "No hay problema. Si algo surge más adelante, o después de la próxima tormenta, aquí tiene mi tarjeta — llame cuando quiera para una revisión del techo.",
+    "source_style": "Adapted close to verbatim from Roofr: \"No problem at all — if you need roofing work down the road, call us anytime for a free estimate. Here's my card.\"",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-insurance-claim-hesitation",
+    "situation": "Top objection #5: 'I don't want to file a claim' or 'my insurance rate will go up if I file.' Rewritten from scratch - the source scripts found for this objection are NOT safe to use (see round 47 WATCH OUT).",
+    "en": "That's fair, and that decision's totally yours — whether or how you file is between you and your insurance company. Either way, I can document what's there now with photos, so you have it if you ever need it, no obligation to file anything.",
+    "es": "Eso es válido, y esa decisión es completamente suya — si presenta el reclamo o no, y cómo, es entre usted y su aseguradora. De todas formas, puedo documentar lo que hay ahora con fotos, para que las tenga si algún día las necesita, sin obligación de presentar nada.",
+    "source_style": "Deliberate rewrite of search-summary-only scripts (The Roof Strategist, Aged Lead Store) that told reps to claim insurance rates legally can't rise for an 'Act of God' claim, and to push urgency about reduced roof lifespan. Both removed: no rate promise, no filing-urgency pressure. Matches CLAUDE.md's 'never promise insurance will pay' and 'document damage, don't control the claim' rules.",
+    "legal_ok": true
+  },
+  {
+    "id": "appointment-direct-ask",
+    "situation": "Closing the porch conversation into a booked inspection.",
+    "en": "Sounds good — can we get an inspection on the calendar this week? What day works best for you?",
+    "es": "Perfecto — ¿podemos agendar la inspección esta semana? ¿Qué día le queda mejor?",
+    "source_style": "Adapted close to verbatim from Roofr: \"Can we schedule in an inspection this week? What days work best for you?\"",
+    "legal_ok": true
+  },
+  {
+    "id": "appointment-specific-day-choice",
+    "situation": "Offering two concrete options instead of an open-ended 'whenever' - keeps the ask specific, never 'I'll call you.'",
+    "en": "I've got Tuesday morning or Thursday after 4 open — which is easier for you?",
+    "es": "Tengo el martes en la mañana o el jueves después de las 4 — ¿cuál le queda mejor?",
+    "source_style": "Extends round 5/27's 'always a specific day, never a vague follow-up' rule using the two-option close pattern common to SPOTIO and Roofr's scripts.",
+    "legal_ok": true
+  },
+  {
+    "id": "appointment-no-pressure-first",
+    "situation": "Homeowner is hesitant to commit to anything on the spot.",
+    "en": "No pressure to decide anything today — I just come take a look, show you photos, and give you a number. You take it from there.",
+    "es": "No hay presión para decidir nada hoy — solo vengo, reviso, le muestro fotos, y le doy un número. Usted decide después.",
+    "source_style": "Matches SPOTIO and Roofr's shared 'no-pressure, information-first' close framing.",
+    "legal_ok": true
+  },
+  {
+    "id": "appointment-confirm-contact",
+    "situation": "Getting a phone number specifically to confirm/remind about the booked inspection (the homeowner is giving it for this purpose, so later texts about it are allowed under HMP's channel rules).",
+    "en": "What's the best number to text you a confirmation and a reminder the day before?",
+    "es": "¿Cuál es el mejor número para mandarle una confirmación y un recordatorio un día antes?",
+    "source_style": "Adapted from Roofr's speed/professionalism habit ('get their contact info and send over a formal quote the same day').",
+    "legal_ok": true
+  },
+  {
+    "id": "graceful-no-leave-card",
+    "situation": "A flat 'no' - leave the door on good terms.",
+    "en": "All good, thanks for your time. Here's my card if that ever changes.",
+    "es": "Está bien, gracias por su tiempo. Aquí tiene mi tarjeta por si algo cambia.",
+    "source_style": "Adapted close to verbatim from Roofr.",
+    "legal_ok": true
+  },
+  {
+    "id": "courtesy-catch-good-time",
+    "situation": "Homeowner seems busy, rushed or annoyed when they answer.",
+    "en": "Did I catch you at an OK time? I can come back later if not.",
+    "es": "¿Le agarro en buen momento? Puedo regresar más tarde si no.",
+    "source_style": "Adapted close to verbatim from Roofing Contractor magazine (Jill Bloom): \"Did I catch you at a good time?\"",
+    "legal_ok": true
+  },
+  {
+    "id": "trust-warranty-backed",
+    "situation": "Building credibility once the homeowner is engaged - warranty as proof, not just a claim.",
+    "en": "We back our work with a written workmanship warranty — I'll give you that in writing, not just talk.",
+    "es": "Respaldamos nuestro trabajo con una garantía de mano de obra por escrito — se la doy por escrito, no solo de palabra.",
+    "source_style": "Adapted from Roofr's warranty line; dropped their specific year-count and 'we register it' phrasing (avoids confusion with contractor registration) until HMP's own written warranty terms are confirmed with the boss - see round 47 backlog note.",
+    "legal_ok": true
+  },
+  {
+    "id": "trust-local-stick-around",
+    "situation": "Contrasting HMP with a storm-chaser crew, used proactively in the first pitch (not just as an objection response).",
+    "en": "We're local, based right here in Fremont — if a warranty question comes up next year, I'm not hard to find.",
+    "es": "Somos locales, de aquí mismo de Fremont — si hay una pregunta de garantía el próximo año, no es difícil encontrarme.",
+    "source_style": "General storm-chaser-contrast framing (also echoes round 36's already-signed-contract script, here used as a proactive trust line rather than a rebuttal).",
+    "legal_ok": true
+  },
+  {
+    "id": "spanish-relationship-first",
+    "situation": "Spanish-speaking household, especially an older homeowner - lead with relationship, not transaction (per round 30/47's finding, general not word-for-word sourced).",
+    "en": "I want to take care of your roof the way I'd want someone to take care of my own family's house.",
+    "es": "Quiero cuidar su techo como quisiera que alguien cuidara la casa de mi propia familia.",
+    "source_style": "Relationship-first framing per search-summary sources on engaging Latino homeowners (IKO, Roofing Contractor's IRE coverage) - directional, not a verbatim sales script.",
+    "legal_ok": true
+  },
+  {
+    "id": "spanish-referral-ask",
+    "situation": "Right after a good visit in a tight-knit or Spanish-speaking neighborhood, where word of mouth travels fast.",
+    "en": "If you know a neighbor or family member who could use the same roof check, I'd really appreciate the introduction.",
+    "es": "Si conoce a un vecino o familiar que también quiera una revisión del techo, le agradecería mucho la presentación.",
+    "source_style": "Sourced from Roofing Contractor/IKO's 'one good job can lead to several more in the same neighborhood' finding on Latino-community word of mouth; pairs with CLAUDE.md's existing handwritten-thank-you referral rule (D17).",
+    "legal_ok": true
+  },
+  {
+    "id": "objection-no-time-right-now",
+    "situation": "Homeowner is clearly busy but not a flat no - offer to come back on their terms.",
+    "en": "No problem — is there a better day or time I should come back?",
+    "es": "No hay problema — ¿hay un mejor día u hora para regresar?",
+    "source_style": "Adapted from Roofing Contractor's 'ask if there's a better time to come back' plus Roofr's timing note (best answer rates weekday late afternoon / weekend mornings).",
+    "legal_ok": true
+  },
+  {
+    "id": "courtesy-short-visit",
+    "situation": "First words right as the door opens, before the full opener - keeps it low-pressure from the first half-second.",
+    "en": "Hey there, sorry to bother — I'll just take one minute.",
+    "es": "Hola, disculpe la molestia — solo le quito un minuto.",
+    "source_style": "General courtesy add-on matching the 'keep the opening short' principle shared by SPOTIO, Roofr and Roofing Contractor.",
+    "legal_ok": true
+  },
+  {
+    "id": "watch-from-the-yard",
+    "situation": "The homeowner wants to see the inspection (or you offer it). Invite them to watch from the yard, never up the ladder, and promise every photo before you leave.",
+    "en": "Want to watch from the yard while I check? I'll show you every photo before I leave.",
+    "es": "¿Quiere ver desde el patio mientras reviso? Le enseño todas las fotos antes de irme.",
+    "source_style": "Nebraska Department of Insurance 'After the Storm' brochure: 'Be sure you are present and watch when contractors inspect your home.' 'From the yard' keeps the homeowner off the ladder (v12, 2026-09-28).",
+    "legal_ok": true
+  }
+]

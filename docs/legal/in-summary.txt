@@ -1,0 +1,48 @@
+INDIANA - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. iga.in.gov, codes.findlaw.com and law.justia.com are egress-blocked in this
+environment (WebFetch and curl both refused). Below is a search-engine paraphrase corroborated
+across 2+ secondary sources, not read verbatim. Re-verify at iga.in.gov before use.
+
+1. Deductible waiver/rebate - IC 24-5-11-10.5 (Home Improvement Contracts Act / "HICA")
+   IMPORTANT: an earlier search pass returned a different, likely-wrong cite ("IC 27-1-15.8-4",
+   framed as insurance fraud). A follow-up, more targeted search consistently landed on
+   IC 24-5-11-10.5, titled "Prohibited Acts; Contracts With Insured Consumers for Exterior
+   Improvements; Right to Cancel; Services Performed; Acting as Public Adjuster Prohibited" - this
+   is the working cite, corroborated by Justia, FindLaw and LawServer all agreeing on the section
+   number and title.
+   Paraphrase: a "real property improvement supplier" shall not advertise, offer, or promise to pay
+   or rebate any part of an insurance deductible to induce a person to enter into a contract, nor
+   grant an allowance/discount against the price, nor pay compensation (gifts, prizes, bonuses,
+   coupons, credits, referral fees). SAME SECTION also says the supplier shall not act as a public
+   adjuster - Indiana folds its public-adjuster-limit language into this same statute, useful for
+   the legal-pack's public-adjuster field.
+   Source: law.justia.com IC 24-5-11-10.5; FindLaw IN 24-5-11-10.5; lawserver.com.
+
+2. Home-solicitation cancel right - IC 24-5-10-9 (Home Solicitation Sales, Ch. 10) - note the
+   original guess of "IC 24-4.5" was wrong; the real chapter is IC 24-5-10, with a parallel/updated
+   chapter IC 24-5-11-10.6 for contracts entered after 6/30/2017 specifically for home-improvement
+   contracts.
+   Paraphrase: buyer may cancel before midnight of the 3rd business day after the parties finally
+   agree; "business day" excludes Sunday and legal holidays. Two copies of a written cancellation
+   notice (10-point boldface, on a separate document) are required. Violation is a Class C
+   infraction and a deceptive act actionable by the AG or the consumer.
+   Source: law.justia.com IC 24-5-10-9; theindianalawyer.com "cooling-off periods".
+
+3. Contractor registration/licensing - NO state-level trade license for roofers (or general
+   contractors) in Indiana; contractors register with the Indiana Secretary of State (standard
+   business registration, not trade-specific). Cities/counties (Indianapolis, Fort Wayne, Evansville,
+   South Bend) run their own local licensing programs. IC 24-5-11 (HICA) imposes written-contract
+   rules on residential home-improvement work over $150 regardless of local licensing.
+   Source: indianaroofauthority.com; adaptdigitalsolutions.com Indiana contractor guide.
+
+4. Public adjuster - see item 1 (IC 24-5-11-10.5 bars the contractor itself from acting as a public
+   adjuster). Indiana's general public-adjuster licensing statute (IC 27-1-27, referenced in one
+   search result) not independently checked. UNVERIFIED beyond that cross-reference.
+5. Assignment of benefits - not independently checked. UNVERIFIED.
+6. Door-to-door permit - no statewide permit statute found beyond the IC 24-5-10-9 cancel-right
+   rule; local permits vary by city/county.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- IC 24-5-11-10.5 - https://law.justia.com/codes/indiana/title-24/article-5/chapter-11/section-24-5-11-10-5/
+- IC 24-5-10-9 - https://law.justia.com/codes/indiana/2019/title-24/article-5/chapter-10/section-24-5-10-9/
+- indianaroofauthority.com, Indiana Roofing Contractor Licensing Requirements - https://indianaroofauthority.com/indiana-roofing-contractor-licensing-requirements/

@@ -1,0 +1,6 @@
+# QA Tester lessons (newest last; one line each: date, what went wrong, the rule)
+- 2026-09-28 Practice Door v12: 1 high, 6 medium, 9 low, all with exact fix wording and tested regexes. That format is the bar.
+- 2026-09-28 tests/legal_check.py passed lines that broke the law in spirit ("3 days", financing promise, claim advice). Rule: always read new customer/taught lines by eye, and hand back a regex or test case for each miss.
+- 2026-09-29 Knock mockup: '3-day cancel' and 'free inspection' passed the designer's own legal box. Rule: grep every new EN/ES string for `3[- ]day` without business, and `free|gratis` before PASS.
+- 2026-09-29 Hub v28.1: hub_live_check/design_gate/shots all PASS but the cat no-nag rule failed (same question re-posted = 2nd play) and Shipped over-counted "ready to publish": those checks run without three.js and without adversarial text. Rule: for scene behavior, drive it in a real-clock three.js harness (local three@0.169 copy, swiftshader is ~0.2x speed, wait for `armed`); for regex counters, feed 10+ plausible negatives before PASS.
+- 2026-09-29: hub events stamped 14:00 while the real clock said 13:07 (guessed times sort wrong on the hub). Rule: every hub doc id and `at` = real `date -u +%Y%m%dT%H%M%SZ`, never a guess.

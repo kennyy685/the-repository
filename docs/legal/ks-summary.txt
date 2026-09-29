@@ -1,0 +1,38 @@
+KANSAS - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. ksrevisor.gov and kslegislature.gov are egress-blocked in this environment
+(WebFetch and curl both refused). Below is a search-engine paraphrase corroborated across 2+
+secondary sources, not read verbatim. Re-verify at ksrevisor.gov before use.
+
+1. Deductible waiver/rebate - K.S.A. 50-6,132 / 50-6,133 (Kansas Residential Roofing Practices Act,
+   from 2011 HB 2307)
+   Paraphrase: "A residential roofing contractor providing roofing goods and services to be paid by
+   an insured from the proceeds of a property or casualty insurance policy shall not advertise or
+   promise to pay or rebate all or any part of an applicable insurance deductible." Same "allowance/
+   discount/compensation" definition pattern as Nebraska's 44-8604.
+   Source: ksrevisor.gov 50-6,132 / 50-6,133 (via search summary); Rhoden Roofing, Roofing Contractor
+   trade-press summaries.
+
+2. Home-solicitation cancel right - K.S.A. 50-640 (Kansas Consumer Protection Act, "Door-to-door
+   sales; cancellation; required disclosures; notice of cancellation")
+   Paraphrase: buyer may cancel by midnight of the 3rd business day after signing a door-to-door
+   sale of $25+; seller must disclose orally AND in writing and give a duplicate Notice of
+   Cancellation form. No storm-specific extension found.
+   Source: FindLaw KS 50-640; Douglas County KS DA FAQ; KS AG "Your Home and Car" consumer page.
+
+3. Contractor registration/licensing - Kansas Roofing Registration Act (KRRA), K.S.A. 50-6,122 to
+   50-6,128 (2013). Roofing contractors must get a REGISTRATION CERTIFICATE from the Kansas
+   Attorney General's Roofing Registration Unit (not a trade license) - certificate of liability +
+   workers'-comp insurance, $125-250 fee. Registration number must be given to any permit-issuing
+   official. This is the closest match to Nebraska's model - use "registered," not "licensed," for
+   Kansas roofing contractors too.
+   Source: KS AG "Roofing Registration" page; kansasroofingassociation.org.
+
+4. Public adjuster - not independently checked. UNVERIFIED.
+5. Assignment of benefits - not independently checked. UNVERIFIED.
+6. Door-to-door permit - no statewide permit statute found beyond the 50-640 cancel-right rule;
+   local permits vary by city.
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- K.S.A. 50-6,132 / 50-6,133 - https://ksrevisor.gov/statutes/chapters/ch50/050_006_0132.html , 0133.html
+- K.S.A. 50-640 - https://ksrevisor.gov/statutes/chapters/ch50/050_006_0040.html
+- Kansas AG, Roofing Registration - https://www.ag.ks.gov/divisions/civil/licensing-inspections/roofing-registration

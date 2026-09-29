@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HMP App v25 · Homeowner</title>
+<!-- MOCKUP (Designer, 2026-09-27). FilthE's pick B "Daylight report", rebuilt on the v25 system (ds.css, icons.js,
+     walkmap.js). What he shows the family at the kitchen table, in round 40's order: damage map -> photos -> plain words
+     -> 3 options -> what happens next -> leave-behind. Phone and tablet from one page: the layout follows the frame's
+     width (container query at 900 px).
+     States from the hash, joined with "-": dark, light, es, p1..p4 (chapter), f1..f5 (photo), tablet, exit, flat
+     (flat = no stage around the frame, for screenshots). Example: homeowner.html#tablet-dark-p3
+     SAMPLE: the house is a real lot from the engine's Columbus basemap (Aug 8 hail, 1.64 in); the findings and photos
+     are stand-ins, the prices are market ranges (docs/research/2026-09-26-market-prices.md), not HMP's.
+     Legal (CLAUDE.md): never "insurance will pay", no deductible talk (the fixed 44-8607 notice lives in the contract),
+     3-day cancel shown at the contract step, "registered" never "licensed", registration # left blank. -->
+<link rel="stylesheet" href="ds.css">
+<style>
+:root{--on-photo:#ffffff;--photo-scrim:rgba(16,17,19,.6)}
+/* ---------- frame: 390 phone, or 1180 x 820 tablet (landscape) ---------- */
+.ho{container:ho/inline-size;width:390px;max-width:100%;min-height:844px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:clip}
+.ho.tab{width:1180px;height:820px;min-height:0}
+@media (min-width:500px){body.stage{padding:24px 16px}.ho{border-radius:28px;box-shadow:0 0 0 1px var(--line-2),0 30px 60px -20px rgba(24,25,28,.35)}.ho.tab{border-radius:20px}}
+html.flat body.stage{padding:0;background:var(--bg)}html.flat .ho{border-radius:0;box-shadow:none}
+@container ho (min-width:900px){.only-phone{display:none!important}}
+@container ho (max-width:899.98px){.only-tab{display:none!important}}
+
+/* ---------- top bar ---------- */
+.htop{display:flex;align-items:center;gap:var(--s3);height:56px;padding:0 var(--s4);flex:none}
+.brand{flex:1;font-size:var(--t-body);font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.htop .x{border:1px solid var(--line);background:var(--card)}
+.who{flex:1;min-width:0;display:grid}
+.who b{font-size:var(--t-row);font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who span{font-size:var(--t-cap);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htop .steps{width:460px;flex:none}
+.hhead{display:grid;gap:2px;padding:var(--s1) 0 var(--s4)}
+.hhead h1{font-size:var(--t-title);font-weight:600;letter-spacing:-.02em;line-height:1.2;margin-top:var(--s1)}
+.steps button{white-space:nowrap}
+
+/* ---------- body ---------- */
+.hmain{flex:1;padding:0 var(--s4) var(--s6)}
+.chead{margin:var(--s5) 0 var(--s3)}
+.chead h2{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.12;text-wrap:balance}
+.sect{margin-top:var(--s6)}
+.stack{display:grid;gap:var(--s3)}
+.pnum{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:var(--t-cap);font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+.pnum.sm{width:22px;height:22px;font-size:11.5px}
+.pnum.on{background:var(--hmp);color:var(--on-hmp)}
+.tile{width:36px;height:36px;border-radius:var(--r-md);background:var(--soft);color:var(--ink-2);display:grid;place-items:center;flex:none}
+button.row{width:100%;text-align:left}
+.rows .row .end .i{width:18px;height:18px}
+
+/* ---------- 1 · damage map ---------- */
+.dmap{position:relative;height:300px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+.dmap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.compass{position:absolute;left:10px;top:10px;width:38px;height:38px;border-radius:50%;background:var(--card);box-shadow:var(--e2);display:grid;place-items:center;color:var(--ink)}
+.compass svg{width:22px;height:22px}
+.mkey{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--card);box-shadow:var(--e2);font-size:12px;font-weight:500;color:var(--ink-2)}
+.mkey i{width:14px;height:10px;border-radius:2px;background:repeating-linear-gradient(135deg,var(--hmp) 0 1.5px,var(--hmp-bg) 1.5px 4px);box-shadow:inset 0 0 0 1px var(--hmp)}
+.mscale{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font:500 10px var(--f);color:var(--map-label)}
+.mscale i{display:block;height:5px;border:1.5px solid var(--map-label);border-top:0}
+.finds{margin-top:var(--s3)}
+.finds .row{min-height:56px;padding-block:10px}
+.hail{overflow:hidden}
+.hmap{position:relative;height:128px;border-bottom:1px solid var(--line);background:var(--map-land)}
+.hmap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hpin{position:absolute;transform:translate(-50%,calc(-100% - 12px));display:flex;align-items:center;gap:5px;height:26px;padding:0 10px 0 7px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12px;font-weight:600;white-space:nowrap;box-shadow:var(--e2)}
+.hpin .i{width:14px;height:14px}
+.hpin::after{content:"";position:absolute;left:50%;bottom:-4px;width:8px;height:8px;background:var(--ink);transform:translateX(-50%) rotate(45deg);border-radius:1.5px;z-index:-1}
+.hmap .chip{position:absolute;left:8px;bottom:8px;box-shadow:var(--e2)}
+.hbody{padding:var(--s4);display:grid;gap:var(--s3)}
+.hfig{display:flex;align-items:center;gap:var(--s4)}
+.hfig>b{font-size:52px;font-weight:600;letter-spacing:-.045em;line-height:.9;font-variant-numeric:tabular-nums}
+.hfig>b small{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:500;margin-left:2px}
+.hfig div{display:grid;gap:2px}
+.hfig strong{font-size:var(--t-body);font-weight:600}
+.hfig span{font-size:var(--t-cap);color:var(--muted)}
+.note{display:flex;gap:var(--s2);align-items:flex-start;font-size:var(--t-cap);color:var(--ink-2)}
+.note .i{width:16px;height:16px;color:var(--muted);margin-top:1px}
+.src{font-size:12px;color:var(--muted)}
+
+/* ---------- 2 · photos ---------- */
+.photo{position:relative;margin:0;aspect-ratio:4/3;max-width:100%;border-radius:var(--r-lg);overflow:hidden;background:var(--stage)}
+.photo img{display:block;width:100%;height:100%;object-fit:cover}
+.photo svg.rings{position:absolute;inset:0;width:100%;height:100%}
+.pover{position:absolute;display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:var(--r-pill);background:var(--photo-scrim);color:var(--on-photo);font-size:12px;font-weight:500;backdrop-filter:blur(6px)}
+.pover.count{left:10px;top:10px;font-variant-numeric:tabular-nums}
+.pover.tag{left:10px;bottom:10px}
+.pover.hits{right:10px;top:10px;background:var(--hmp);color:var(--on-hmp);font-weight:600;backdrop-filter:none}
+.pnav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:var(--card);color:var(--ink);box-shadow:var(--e2);display:grid;place-items:center}
+.pnav.prev{left:10px}.pnav.next{right:10px}
+.pnav.prev .i{transform:scaleX(-1)}
+.strip{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s2);margin-top:var(--s3)}
+.strip button{position:relative;aspect-ratio:4/3;border-radius:var(--r-sm);overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+.strip img{display:block;width:100%;height:100%;object-fit:cover}
+.strip b{position:absolute;left:4px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--photo-scrim);color:var(--on-photo);font-size:10.5px;font-weight:600;display:grid;place-items:center}
+.strip [aria-current="true"]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+.strip [aria-current="true"] b{background:var(--hmp);color:var(--on-hmp)}
+.capcard{display:grid;grid-template-columns:112px 1fr;gap:var(--s4);padding:var(--s3);margin-top:var(--s3);align-items:center}
+.loc{position:relative;height:84px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+.loc svg{width:100%;height:100%;display:block}
+.ctext{display:grid;gap:4px;min-width:0}
+.ctext .tt{display:flex;align-items:center;gap:var(--s2)}
+.ctext b{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.ctext p{font-size:var(--t-body);color:var(--ink-2)}
+.shead h2{font-size:var(--t-row)}
+.plain .row{align-items:flex-start;min-height:0;padding-block:14px}
+.plain .pins{display:flex;gap:3px;padding-top:1px;flex:none;min-width:47px}
+.plain p{font-size:var(--t-body);color:var(--ink);flex:1}
+.ins{display:grid;grid-template-columns:auto 1fr;gap:var(--s3);padding:var(--s4);margin-top:var(--s3)}
+.ins b{display:block;font-size:var(--t-row);font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.ins p{font-size:var(--t-body);color:var(--ink-2);margin-top:4px}
+
+/* ---------- 3 · options ---------- */
+.cmp{overflow:hidden}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto auto auto auto}
+.tier{grid-row:span 5;display:grid;grid-template-rows:subgrid;gap:4px;padding:var(--s3) var(--s2) var(--s4);text-align:center;justify-items:center;align-content:start}
+.tier+.tier{border-left:1px solid var(--line)}
+.tier.rec{background:var(--hmp-bg);box-shadow:inset 0 3px 0 var(--hmp)}
+.tier .chip{height:22px;font-size:11.5px;visibility:hidden}
+.tier.rec .chip{visibility:visible}
+.tier .label{color:var(--muted)}
+.tier .tm{font-size:var(--t-body);font-weight:600;line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
+.tier .tr{font-size:12px;color:var(--muted);line-height:1.3;text-wrap:balance}
+.tier .tp{display:grid;margin-top:var(--s2);font-size:var(--t-row);font-weight:600;letter-spacing:-.02em;line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+.corner{display:none}
+.band{display:flex;align-items:center;gap:var(--s2);padding:10px var(--s3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft);font-size:var(--t-cap);color:var(--ink-2)}
+.band .i{width:16px;height:16px;color:var(--muted)}
+.band b{font-weight:600;color:var(--ink)}
+.frow{display:grid;grid-template-columns:repeat(3,1fr)}
+.frow+.frow{border-top:1px solid var(--line)}
+.flabel{grid-column:1/-1;padding:8px var(--s3) 0;font-size:12.5px;font-weight:500;color:var(--ink-2);background:linear-gradient(90deg,transparent 33.333%,var(--hmp-bg) 33.333% 66.666%,transparent 66.666%)}
+.cell{display:grid;place-items:center;min-height:38px;padding:4px 6px 8px;text-align:center;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.cell+.cell{border-left:1px solid var(--line)}
+.cell.rec{background:var(--hmp-bg)}
+.cell .i{width:20px;height:20px;color:var(--ink);stroke-width:2.1}
+.cell .no{width:12px;height:2px;border-radius:1px;background:var(--line-2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.meta{margin-top:var(--s3)}
+.meta .row{min-height:60px}
+.meta .row .t b{white-space:normal}
+.sw{display:flex;gap:2px;flex:none}
+.sw i{width:10px;height:28px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(24,25,28,.12)}
+
+/* ---------- 4 · next steps ---------- */
+.tl{list-style:none;margin:0;padding:0;display:grid}
+.tl li{position:relative;display:grid;grid-template-columns:28px 1fr;gap:var(--s3);padding-bottom:var(--s5)}
+.tl li:not(:last-child)::before{content:"";position:absolute;left:13.25px;top:30px;bottom:2px;width:1.5px;background:var(--line-2)}
+.tl .node{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line-2);background:var(--card);display:grid;place-items:center;font-size:var(--t-cap);font-weight:600;font-variant-numeric:tabular-nums}
+.tl li.now .node{background:var(--hmp);border-color:var(--hmp);color:var(--on-hmp)}
+.tl .tt{display:flex;align-items:center;gap:var(--s2);min-height:28px}
+.tl b{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.tl p{font-size:var(--t-body);color:var(--ink-2);margin-top:2px}
+.cancel{margin-top:var(--s3);padding:var(--s3) var(--s4);border-radius:var(--r-md);background:var(--card);border:1px solid var(--line-2);display:grid;grid-template-columns:auto 1fr;gap:var(--s3)}
+.cancel .tile{width:32px;height:32px;background:var(--soft)}
+.cancel b{font-size:var(--t-body)}
+.cancel p{font-size:var(--t-cap);color:var(--ink-2);margin-top:4px}
+.cancel p.how{color:var(--muted)}
+.contact{padding:var(--s4) var(--s4) var(--s2)}
+.contact h3{font-size:var(--t-row);font-weight:600;letter-spacing:-.01em;margin-bottom:var(--s1)}
+.crow{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0}
+.crow+.crow{border-top:1px solid var(--line)}
+.crow div{flex:1;display:grid}
+.crow span{font-size:var(--t-cap);color:var(--muted)}
+.crow b{font-size:var(--t-addr);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.round{width:44px;height:44px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--ink);flex:none;background:var(--card)}
+.keep{display:flex;gap:var(--s3);align-items:center;padding:var(--s4);margin-top:var(--s3)}
+.keep b{display:block;font-size:var(--t-body);font-weight:600}
+.keep span{font-size:var(--t-cap);color:var(--muted)}
+.legal{margin-top:var(--s4);font-size:12px;color:var(--muted);line-height:1.6}
+.legal .blank{display:inline-block;width:92px;border-bottom:1px solid var(--muted);transform:translateY(-3px)}
+
+/* ---------- bottom bar ---------- */
+.hbar{position:sticky;bottom:0;flex:none;display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom,0px));background:var(--bar);backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:2}
+.hbar .back{width:var(--hit);padding:0}
+.hbar .back .i{transform:scaleX(-1)}
+.hbar .back span{display:none}
+.hbar .nextb{flex:1}
+.dots{display:flex;gap:6px;flex:1;justify-content:center}
+.dots i{width:28px;height:4px;border-radius:2px;background:var(--line-2)}
+.dots i.done{background:var(--ink)}.dots i.on{background:var(--hmp)}
+
+/* ---------- leave-behind check (salesman) ---------- */
+.exit{position:absolute;inset:0;z-index:5}
+.ho.held{height:844px;min-height:0}.ho.held .hmain{overflow:hidden}
+.xsheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e2);padding:0 var(--s4) calc(var(--s6) + env(safe-area-inset-bottom,0px))}
+.xsheet header{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s4) 0 var(--s3)}
+.xsheet header div{flex:1}
+.xsheet h3{font-size:var(--t-title);font-weight:600;letter-spacing:-.015em}
+.xsheet .xclose{width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2)}
+.xsheet .rows{margin-bottom:var(--s4)}
+.box{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line-2);flex:none;display:grid;place-items:center}
+.box.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+.box .i{width:16px;height:16px;stroke-width:2.2}
+.xsheet .row{align-items:flex-start;padding-block:14px}
+.xsheet .row .t b,.xsheet .row .t span{white-space:normal}
+.xsheet .row .t b{font-size:var(--t-body)}
+
+/* ---------- tablet (landscape, shown to the family) ---------- */
+@container ho (min-width:900px){
+  .htop{height:72px;padding:0 var(--s8);gap:var(--s4);border-bottom:1px solid var(--line);background:var(--card)}
+  .htop .mark{margin-right:var(--s1)}
+  .hmain{overflow:auto;padding:var(--s5) var(--s8)}
+  .chead{margin:0 0 var(--s3)}
+  .ch{display:grid;grid-template-columns:1fr 392px;gap:var(--s6);align-items:start}
+  .ch1 .dmap{height:632px}
+  .ch1 .finds{margin-top:0}
+  .ch1 .finds .row{min-height:52px;padding-block:8px}
+  .ch1 .hail{margin-top:var(--s4)}
+  .ch1 .hmap{height:108px}
+  .ch1 .hbody{padding:var(--s3) var(--s4) var(--s4);gap:10px}
+  .ch2 .capcard{margin-top:0;grid-template-columns:132px 1fr}
+  .ch2 .loc{height:100px}
+  .ch2 .sect{margin-top:var(--s4)}
+  .ch3{display:block}
+  .ch3 .tiers{grid-template-columns:260px repeat(3,1fr)}
+  .corner{display:flex;flex-direction:column;justify-content:space-between;grid-row:span 5;padding:var(--s1) var(--s4) var(--s4) 0;gap:var(--s3)}
+  .corner h2{font-size:var(--t-addr);font-weight:600;letter-spacing:-.025em;line-height:1.12}
+  .ch3 .tier{padding:var(--s4) var(--s3) var(--s4)}
+  .ch3 .tier .tm{font-size:var(--t-row)}
+  .ch3 .tier .tr{font-size:var(--t-cap)}
+  .ch3 .tier .tp{font-size:var(--t-addr);letter-spacing:-.025em;line-height:1.15}
+  .ch3 .corner+.tier{border-left:1px solid var(--line)}
+  .ch3 .cmp{padding-left:var(--s5)}
+  .ch3 .band{margin-left:calc(var(--s5) * -1);padding-left:var(--s5)}
+  .ch3 .frow{grid-template-columns:260px repeat(3,1fr)}
+  .ch3 .flabel{grid-column:auto;background:none;padding:0 var(--s4) 0 0;display:flex;align-items:center;font-size:var(--t-cap)}
+  .ch3 .cell{min-height:47px;padding:6px}
+  .ch3 .cell:nth-child(2){border-left:1px solid var(--line)}
+  .ch3 .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);background:none;border:0;box-shadow:none;margin-top:var(--s4)}
+  .ch3 .meta .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1)}
+  .ch3 .meta .row+.row{border-top:1px solid var(--line)}
+  .ch4 .contact{margin-top:0}
+  .hbar{padding:var(--s3) var(--s8);gap:var(--s4)}
+  .hbar .back{width:auto;padding:0 var(--s5)}
+  .hbar .back span{display:inline}
+  .hbar .nextb{flex:none;min-width:280px}
+  .xsheet{left:50%;right:auto;bottom:50%;width:520px;transform:translate(-50%,50%);border-radius:var(--r-xl);padding-top:var(--s2)}
+  .xsheet .grab{display:none}
+}
+</style></head>
+<body class="stage">
+<script src="icons.js"></script>
+<div class="ho" id="ho"></div>
+<script src="data/columbus.js"></script>
+<script src="walkmap.js"></script>
+<script>
+/* Content for one inspection. In the app this comes from the lead's inspection (photos, pins, notes) and the job's
+   tiers; the house and hail come from the engine. Everything the homeowner reads exists in English and Spanish. */
+/* Claims the boss has to confirm first (hub D14, D15). Both start OFF so the screen never claims what HMP hasn't
+   confirmed. Mockup preview from the hash: "c4" = offersClass4 on, "wy5" = workmanshipYears 5.
+   offersClass4      HMP offers Class 4 impact-rated shingles: the Best roof line + the UL 2218 row. Off = premium architectural.
+   workmanshipYears  years of HMP's written workmanship warranty. null = say "Manufacturer warranty" only. */
+const SET = (() => { const h = (location.hash || '').slice(1).split('-'), wy = h.find(x => /^wy\d+$/.test(x));
+  return { offersClass4: h.includes('c4'), workmanshipYears: wy ? +wy.slice(2) : null }; })();
+const HO = {
+  report: { en: 'Inspection report', es: 'Informe de inspección' },
+  date: { en: 'Sat, Sep 26, 2026', es: 'sáb 26 sept 2026' },
+  address: '3908 22nd St', street: '22nd St',
+  city: { en: 'Columbus, NE · Kenny Cruz, HMP Siding & Roofing', es: 'Columbus, NE · Kenny Cruz, HMP Siding & Roofing' },
+  cityShort: { en: 'Columbus, NE · inspected Sep 26, 2026', es: 'Columbus, NE · inspección 26 sept 2026' },
+  steps: [{ en: 'Your home', es: 'Su casa' }, { en: 'Photos', es: 'Fotos' }, { en: 'Options', es: 'Opciones' }, { en: 'Next steps', es: 'Qué sigue' }],
+  titles: [{ en: '5 spots we found', es: 'Encontramos 5 puntos con daño' }, { en: 'What we saw up close', es: 'Lo que vimos de cerca' },
+    { en: '3 ways to fix it', es: '3 maneras de arreglarlo' }, { en: 'What happens next', es: 'Qué sigue' }],
+  next: [{ en: 'Next: Photos', es: 'Sigue: Fotos' }, { en: 'Next: Options', es: 'Sigue: Opciones' }, { en: 'Next: What happens next', es: 'Sigue: Qué sigue' }, { en: 'Done', es: 'Listo' }],
+  back: { en: 'Back', es: 'Atrás' },
+  mapKey: { en: 'Damage we found', es: 'Daño encontrado' },
+  finds: [
+    { n: 1, kind: 'slope', at: [-.45, -.5], img: 'img/ho-roof.jpg', marks: [[31.3, 41.7, 7.6], [58.3, 58.3, 6.4], [71.9, 34.7, 7]],
+      title: { en: 'North roof slope', es: 'Techo, lado norte' }, count: { en: '3 hail hits', es: '3 golpes de granizo' },
+      cap: { en: 'The hail knocked the granules off. The black mat underneath now shows.', es: 'El granizo arrancó el granulado. Ya se ve la base negra de abajo.' } },
+    { n: 2, kind: 'square', at: [.42, -.55], img: 'img/ho-testsquare.jpg', marks: [], hits: { en: '9 hits', es: '9 golpes' },
+      title: { en: 'Test area, 10 × 10 ft', es: 'Área de prueba, 10 × 10 pies' }, count: { en: '9 hits in 100 sq ft', es: '9 golpes en 100 pies²' },
+      cap: { en: 'We counted 9 hits inside one 10 × 10 ft square on the north slope.', es: 'Contamos 9 golpes dentro de un cuadro de 10 × 10 pies, lado norte.' } },
+    { n: 3, kind: 'vent', at: [.1, .35], img: 'img/ho-vent.jpg', marks: [[39.6, 38.9, 8.1], [58.3, 34.7, 6.5], [49, 58.3, 9.2], [66.7, 62.5, 6]],
+      title: { en: 'Roof vent', es: 'Ventila del techo' }, count: { en: '4 round dents', es: '4 abolladuras redondas' },
+      cap: { en: 'Round dents in soft metal show how big the hail was.', es: 'Las abolladuras redondas en el metal blando muestran el tamaño del granizo.' } },
+    { n: 4, kind: 'gutter', at: [-.35, 1], img: 'img/ho-gutter.jpg', marks: [[26, 48.6, 11.3], [43.8, 45.8, 8.7], [62.5, 51.4, 10]],
+      title: { en: 'Front gutter', es: 'Canaleta del frente' }, count: { en: '3 dents', es: '3 abolladuras' },
+      cap: { en: 'Dents along the face of the gutter.', es: 'Abolladuras a lo largo del frente de la canaleta.' } },
+    { n: 5, kind: 'wall', at: [-1, .1], img: 'img/ho-siding.jpg', marks: [[54, 44, 16], [68.5, 67, 7]],
+      title: { en: 'West wall siding', es: 'Revestimiento, pared oeste' }, count: { en: '1 crack, 1 hole', es: '1 grieta, 1 agujero' },
+      cap: { en: 'A crack and a hole in the vinyl panels.', es: 'Una grieta y un agujero en los paneles de vinil.' } }
+  ],
+  photo: { en: 'Photo', es: 'Foto' }, of: { en: 'of', es: 'de' }, sample: { en: 'Sample photo', es: 'Foto de muestra' },
+  hail: { at: { en: 'hail at your address', es: 'de granizo en su dirección' }, date: { en: 'Saturday, Aug 8, 2026', es: 'sábado 8 de agosto de 2026' },
+    like: { en: 'A bit bigger than a ping-pong ball.', es: 'Un poco más grande que una pelota de ping-pong.' },
+    area: { en: 'Hail area · Aug 8', es: 'Zona de granizo · 8 ago' }, home: { en: 'Your home', es: 'Su casa' },
+    src: { en: 'Radar estimate, NOAA MRMS, checked by HMP Storm Watch.', es: 'Estimado por radar, NOAA MRMS, revisado por HMP Storm Watch.' },
+    caveat: { en: 'Weather data, not proof of damage. The photos show what we found.', es: 'Datos del clima, no prueba de daño. Las fotos muestran lo que encontramos.' } },
+  plainHead: { en: 'In plain words', es: 'En palabras simples' },
+  plain: [
+    { pins: [1, 2], en: 'Shingles that lost their granules wear out faster in the sun and, over time, can let water in.', es: 'Las tejas sin granulado se gastan más rápido con el sol y, con el tiempo, pueden dejar pasar el agua.' },
+    { pins: [5], en: 'Water can get behind a cracked siding panel and into the wall.', es: 'El agua puede meterse detrás de un panel roto y llegar a la pared.' },
+    { pins: [3, 4], en: 'The vent and gutter still work. Their dents show how hard the hail hit.', es: 'La ventila y la canaleta todavía funcionan. Sus abolladuras muestran qué tan fuerte pegó el granizo.' }
+  ],
+  insurer: { head: { en: 'Your insurance company decides what your policy covers.', es: 'Su aseguradora decide qué cubre su póliza.' },
+    body: { en: 'If you choose to file a claim, you file it. We can be there when the adjuster visits, to show what we found.', es: 'Si decide presentar un reclamo, usted lo presenta. Podemos estar cuando venga el ajustador, para mostrarle lo que encontramos.' } },
+  scope: { en: 'Roof + siding', es: 'Techo + revestimiento' },
+  rec: { en: 'Recommended', es: 'Recomendada' },
+  tiers: [
+    { name: { en: 'Good', es: 'Buena' }, m: { en: 'Vinyl siding', es: 'Vinil' }, r: { en: 'Architectural shingles', es: 'Tejas arquitectónicas' }, lo: '$25,000', hi: '$32,000' },
+    { name: { en: 'Better', es: 'Mejor' }, rec: true, m: { en: 'Insulated vinyl', es: 'Vinil con aislante' }, r: { en: 'Architectural + ice & water shield', es: 'Arquitectónicas + protección hielo y agua' }, lo: '$29,000', hi: '$37,000' },
+    { name: { en: 'Best', es: 'Superior' }, m: { en: 'James Hardie fiber cement', es: 'Fibrocemento James Hardie' }, r: SET.offersClass4 ? { en: 'Class 4 impact-rated shingles', es: 'Tejas Clase 4, resistentes a impacto' } : { en: 'Premium architectural shingles', es: 'Tejas arquitectónicas premium' }, lo: '$36,000', hi: '$48,000' }
+  ],
+  band: { en: ['Estimate ranges, not final prices.', ' Your exact price comes after we measure.'], es: ['Rangos estimados, no son precios finales.', ' El precio exacto se da después de medir.'] },
+  feats: [
+    { l: { en: 'Tear-off, haul-away, daily cleanup', es: 'Quitar lo viejo, llevárnoslo, limpieza diaria' }, c: [1, 1, 1] },
+    { l: { en: 'New house wrap and new trim', es: 'Barrera nueva (house wrap) y molduras nuevas' }, c: [1, 1, 1] },
+    { l: { en: 'Stiffer, foam-backed panels', es: 'Paneles más firmes, con espuma' }, c: [0, 1, { en: 'Fiber cement', es: 'Fibrocemento' }] },
+    { l: { en: 'Ice & water shield at eaves and valleys', es: 'Protección contra hielo y agua en aleros y valles' }, c: [0, 1, 1] },
+    { l: { en: 'Factory-baked color finish', es: 'Color horneado de fábrica' }, c: [0, 0, 1] },
+    { l: { en: 'Shingles tested for hail impact (UL 2218 Class 4)', es: 'Tejas probadas contra granizo (UL 2218 Clase 4)' }, c: [0, 0, 1], class4: true }
+  ].filter(f => !f.class4 || SET.offersClass4),
+  yes: { en: 'Included', es: 'Incluido' }, no: { en: 'Not included', es: 'No incluido' },
+  meta: [
+    { icon: 'clock', t: { en: 'Roof 1–2 days, siding 3–5 days', es: 'Techo 1–2 días, revestimiento 3–5 días' }, s: { en: 'Time on site for a typical house', es: 'Tiempo de obra en una casa típica' } },
+    SET.workmanshipYears
+      ? { icon: 'shield', t: { en: 'Manufacturer + HMP workmanship warranty', es: 'Garantía del fabricante + mano de obra de HMP' }, s: { en: `HMP workmanship: ${SET.workmanshipYears} years, written in your contract`, es: `Mano de obra de HMP: ${SET.workmanshipYears} años, por escrito en su contrato` } }
+      : { icon: 'shield', t: { en: 'Manufacturer warranty', es: 'Garantía del fabricante' }, s: { en: 'From the product maker, in writing', es: 'Del fabricante del producto, por escrito' } },
+    { icon: 'swatch', t: { en: 'Try colors on a house like yours', es: 'Pruebe colores en una casa como la suya' }, s: { en: 'James Hardie Designer · opens their site', es: 'James Hardie Designer · abre su página' }, href: 'https://www.jameshardie.com/hardie-designer' }
+  ],
+  tl: [
+    { t: { en: 'We measure', es: 'Medimos' }, p: { en: 'Every wall and roof slope, about 1 hour. Then your exact price, in writing.', es: 'Cada pared y cada lado del techo, como 1 hora. Luego su precio exacto, por escrito.' }, now: { en: 'Next', es: 'Sigue' } },
+    { t: { en: 'Adjuster visit, if you file', es: 'Visita del ajustador, si presenta reclamo' }, p: { en: 'You file with your insurer. We can be there to show what we found.', es: 'Usted presenta el reclamo con su aseguradora. Podemos estar para mostrar lo que encontramos.' } },
+    { t: { en: 'Written contract', es: 'Contrato por escrito' }, p: { en: 'Price, materials, colors and warranty, all in writing. Never a handshake.', es: 'Precio, materiales, colores y garantía, todo por escrito. Nunca de palabra.' }, cancel: true },
+    { t: { en: 'Pick your start date', es: 'Escoja la fecha de inicio' }, p: { en: 'We call the day before to confirm.', es: 'Le llamamos un día antes para confirmar.' } },
+    { t: { en: 'Build, then a final walk', es: 'La obra y una revisión final' }, p: { en: 'Daily cleanup and a magnet sweep for nails. At the end we walk the job with you.', es: 'Limpieza diaria e imán para los clavos. Al final revisamos el trabajo con usted.' } }
+  ],
+  cancel: { t: { en: 'Your 3-day right to cancel', es: 'Su derecho a cancelar en 3 días' },
+    p: { en: 'You can cancel with no penalty until midnight of the third business day after you sign. On an insurance job, also until the third business day after your insurer tells you in writing that all or part of the claim is not covered, if that is later.',
+         es: 'Puede cancelar sin penalidad hasta la medianoche del tercer día hábil después de firmar. En un trabajo con seguro, también hasta el tercer día hábil después de que su aseguradora le avise por escrito que todo o parte del reclamo no está cubierto, si eso es más tarde.' },
+    how: { en: 'We explain it out loud and leave you 2 copies of the cancel form, in English and Spanish.', es: 'Se lo explicamos en persona y le dejamos 2 copias del formulario de cancelación, en inglés y español.' } },
+  ask: { en: 'Questions? Call us', es: '¿Preguntas? Llámenos' },
+  contacts: [{ name: 'Kenny Cruz', lang: { en: 'English', es: 'Inglés' }, tel: '402-936-2709' }, { name: 'Alex Mendez', lang: { en: 'Español', es: 'Español' }, tel: '402-889-3385' }],
+  call: { en: 'Call', es: 'Llamar' },
+  keep: { t: { en: 'Yours to keep', es: 'Para usted' }, s: { en: 'Our printed sheet with our numbers, in English and Spanish.', es: 'Nuestra hoja impresa con nuestros números, en inglés y español.' } },
+  legal: { en: 'HMP Siding & Roofing LLC · Fremont, NE · Registered Nebraska contractor #', es: 'HMP Siding & Roofing LLC · Fremont, NE · Contratista registrado en Nebraska #' },
+  // the salesman's check before he leaves the table (round 40, T159): the app's language, not the homeowner's
+  exit: { t: { en: 'Before you leave', es: 'Antes de irse' }, done: { en: 'Leave homeowner view', es: 'Salir de la vista del cliente' },
+    items: [
+      { t: { en: 'Hand over the capabilities sheet', es: 'Entregue la hoja de servicios' }, s: { en: 'Printed, English and Spanish. The phone screen stays with you.', es: 'Impresa, en inglés y español. La pantalla se va con usted.' } },
+      { t: { en: 'Signed today? Read the 3-day cancel out loud', es: '¿Firmó hoy? Lea en voz alta la cancelación de 3 días' }, s: { en: 'Leave 2 cancel forms, English and Spanish.', es: 'Deje 2 formularios de cancelación, en inglés y español.' } },
+      { t: { en: 'Log the visit', es: 'Anote la visita' }, s: { en: 'Tell the Right Hand: “showed 3 options, measure Tuesday”.', es: 'Dígale a la Mano Derecha: “mostré 3 opciones, medir el martes”.' }, done: true }
+    ] }
+};
+
+(function () {
+  const H = (location.hash || '').slice(1).split('-');
+  const S = { lang: H.includes('es') ? 'es' : 'en', p: +((H.find(x => /^p[1-4]$/.test(x)) || 'p1').slice(1)), f: +((H.find(x => /^f[1-5]$/.test(x)) || 'f1').slice(1)) - 1, exit: H.includes('exit') };
+  const root = document.documentElement, ho = document.getElementById('ho');
+  if (H.includes('flat')) root.classList.add('flat');
+  if (H.includes('tablet')) ho.classList.add('tab');
+  const t = o => (o && typeof o === 'object' && 'en' in o) ? o[S.lang] : o;
+  const I = (n, c = '') => n === 'swatch'
+    ? '<span class="sw" aria-hidden="true"><i style="background:#5b6770"></i><i style="background:#a39a86"></i><i style="background:#7d3b33"></i><i style="background:#e8e4da"></i></span>'
+    : `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+  const pnum = (n, c = '') => `<span class="pnum ${c}">${n}</span>`;
+  const mark = '<div class="mark"><svg viewBox="0 0 40 12"><path d="M2 10.5 20 2.5 38 10.5" fill="none" stroke="#f5883a" stroke-width="3.2" stroke-linejoin="round"/></svg><b>HMP</b></div>';
+  const steps = () => `<nav class="seg steps" aria-label="${t({ en: 'Sections', es: 'Secciones' })}">${HO.steps.map((s, i) => `<button data-p="${i + 1}" aria-pressed="${S.p === i + 1}">${t(s)}</button>`).join('')}</nav>`;
+
+  const top = () => `<header class="htop">${mark}
+      <span class="brand only-phone">HMP Siding &amp; Roofing</span>
+      <div class="who only-tab"><b>${HO.address}</b><span>${t(HO.cityShort)}</span></div>
+      <span class="only-tab">${steps()}</span>
+      <button class="lang" id="lang" aria-label="${S.lang === 'en' ? 'Ver en español' : 'Show in English'}">${S.lang === 'en' ? 'ES' : 'EN'}</button>
+      <button class="iconbtn x" id="x" aria-label="${t({ en: 'Leave homeowner view', es: 'Salir de la vista del cliente' })}">${I('x')}</button></header>`;
+
+  const head = () => `<div class="only-phone"><div class="hhead"><span class="label">${t(HO.report)} · ${t(HO.date)}</span><h1>${HO.address}</h1><span class="cap">${t(HO.city)}</span></div>${steps()}</div>`;
+
+  function ch1() {
+    return `<section class="ch ch1"><div><div class="chead only-phone"><h2>${t(HO.titles[0])}</h2></div>
+      <div class="dmap" role="img" aria-label="${t({ en: 'Map of your home from above: 5 numbered spots with damage on the roof, gutter and west wall. 22nd St is in front.', es: 'Mapa de su casa vista desde arriba: 5 puntos con daño en el techo, la canaleta y la pared oeste. Enfrente está 22nd St.' })}">
+        <svg id="hm"></svg>
+        <span class="compass" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 15.6 12H8.4z" fill="var(--hmp)" stroke="var(--hmp)"/><text x="12" y="20.6" text-anchor="middle" style="font:600 8.5px var(--f);fill:currentColor;stroke:none">N</text></svg></span>
+        <span class="mkey"><i></i>${t(HO.mapKey)}</span>
+        <span class="mscale"><span>20 ft</span><i id="hmscale"></i></span>
+      </div></div>
+      <div><div class="chead only-tab"><h2>${t(HO.titles[0])}</h2></div>
+      <div class="rows finds">${HO.finds.map((f, i) => `<button class="row" data-f="${i}">${pnum(f.n)}<span class="t"><b>${t(f.title)}</b><span>${t(f.count)}</span></span><span class="end">${I('chev')}</span></button>`).join('')}</div>
+      <div class="card hail sect">
+        <div class="hmap"><svg id="hl"></svg><span class="hpin" id="hlpin">${I('home')}${t(HO.hail.home)}</span><span class="chip hmp">${I('hail')}${t(HO.hail.area)}</span></div>
+        <div class="hbody">
+          <div class="hfig"><b>1.6<small>″</small></b><div><strong>${t(HO.hail.at)}</strong><span>${t(HO.hail.date)}</span><span>${t(HO.hail.like)}</span></div></div>
+          <p class="src">${t(HO.hail.src)}</p>
+          <p class="note">${I('info')}<span>${t(HO.hail.caveat)}</span></p>
+        </div>
+      </div></div></section>`;
+  }
+
+  function rings(f) {
+    return `<svg class="rings" viewBox="0 0 100 75" aria-hidden="true">${f.marks.map(m => { const r = m[2] / 2 + 1.4, cy = m[1] * .75;
+      return `<circle cx="${m[0]}" cy="${cy}" r="${r}" fill="none" stroke="var(--on-photo)" stroke-width="4" opacity=".85" vector-effect="non-scaling-stroke"/><circle cx="${m[0]}" cy="${cy}" r="${r}" fill="none" stroke="var(--hmp)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`; }).join('')}</svg>`;
+  }
+  function ch2() {
+    const f = HO.finds[S.f];
+    return `<section class="ch ch2"><div><div class="chead only-phone"><h2>${t(HO.titles[1])}</h2></div>
+      <figure class="photo"><img src="${f.img}" alt="${t(f.title)}: ${t(f.cap)}">${rings(f)}
+        <span class="pover count">${t(HO.photo)} ${S.f + 1} ${t(HO.of)} ${HO.finds.length}</span><span class="pover tag">${t(HO.sample)}</span>
+        ${f.hits ? `<span class="pover hits">${t(f.hits)}</span>` : ''}
+        <button class="pnav prev" data-go="-1" aria-label="${t({ en: 'Previous photo', es: 'Foto anterior' })}">${I('chev')}</button>
+        <button class="pnav next" data-go="1" aria-label="${t({ en: 'Next photo', es: 'Foto siguiente' })}">${I('chev')}</button></figure>
+      <div class="strip">${HO.finds.map((x, i) => `<button data-f="${i}" aria-current="${i === S.f}" aria-label="${t(x.title)}"><img src="${x.img}" alt=""><b>${x.n}</b></button>`).join('')}</div></div>
+      <div><div class="chead only-tab"><h2>${t(HO.titles[1])}</h2></div>
+      <div class="card capcard"><div class="loc" aria-hidden="true"><svg id="ml"></svg></div>
+        <div class="ctext"><div class="tt">${pnum(f.n, 'on')}<b>${t(f.title)}</b></div><p>${t(f.cap)}</p></div></div>
+      <div class="sect"><div class="shead" style="margin-top:0"><h2>${t(HO.plainHead)}</h2></div>
+        <div class="rows plain">${HO.plain.map(p => `<div class="row"><span class="pins">${p.pins.map(n => pnum(n, 'sm')).join('')}</span><p>${p[S.lang]}</p></div>`).join('')}</div>
+        <div class="card ins"><span class="tile">${I('info')}</span><div><b>${t(HO.insurer.head)}</b><p>${t(HO.insurer.body)}</p></div></div></div></div></section>`;
+  }
+
+  function ch3() {
+    const cell = (c, i) => { const rec = HO.tiers[i].rec ? ' rec' : '';
+      if (c === 1) return `<span class="cell${rec}">${I('check')}<span class="sr">${t(HO.yes)}</span></span>`;
+      if (c === 0) return `<span class="cell${rec}"><span class="no"></span><span class="sr">${t(HO.no)}</span></span>`;
+      return `<span class="cell${rec}">${t(c)}</span>`; };
+    return `<section class="ch ch3"><div class="chead only-phone"><h2>${t(HO.titles[2])}</h2><span class="chip" style="margin-top:8px">${I('home')}${t(HO.scope)}</span></div>
+      <div class="card cmp">
+        <div class="tiers"><div class="corner"><h2>${t(HO.titles[2])}</h2><span class="chip" style="align-self:flex-start">${I('home')}${t(HO.scope)}</span></div>
+          ${HO.tiers.map(x => `<div class="tier${x.rec ? ' rec' : ''}"><span class="chip hmp">${t(HO.rec)}</span><span class="label">${t(x.name)}</span><span class="tm">${t(x.m)}</span><span class="tr">${t(x.r)}</span><span class="tp"><span>${x.lo} –</span><span>${x.hi}</span></span></div>`).join('')}</div>
+        <p class="band">${I('info')}<span><b>${HO.band[S.lang][0]}</b>${HO.band[S.lang][1]}</span></p>
+        ${HO.feats.map(r => `<div class="frow"><span class="flabel">${t(r.l)}</span>${r.c.map(cell).join('')}</div>`).join('')}
+      </div>
+      <div class="rows meta">${HO.meta.map(m => { const inner = `${m.icon === 'swatch' ? I(m.icon) : `<span class="tile">${I(m.icon)}</span>`}<span class="t"><b>${t(m.t)}</b><span>${t(m.s)}</span></span>${m.href ? `<span class="end">${I('chev')}</span>` : ''}`;
+        return m.href ? `<a class="row" href="${m.href}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${inner}</a>` : `<div class="row">${inner}</div>`; }).join('')}</div></section>`;
+  }
+
+  function ch4() {
+    const c = HO.cancel;
+    return `<section class="ch ch4"><div><div class="chead"><h2>${t(HO.titles[3])}</h2></div>
+      <ol class="tl">${HO.tl.map((s, i) => `<li class="${i === 0 ? 'now' : ''}"><span class="node">${i + 1}</span><div><div class="tt"><b>${t(s.t)}</b>${s.now ? `<span class="chip hmp">${t(s.now)}</span>` : ''}</div><p>${t(s.p)}</p>
+        ${s.cancel ? `<div class="cancel"><span class="tile">${I('file')}</span><div><b>${t(c.t)}</b><p>${t(c.p)}</p><p class="how">${t(c.how)}</p></div></div>` : ''}</div></li>`).join('')}</ol></div>
+      <div><div class="card contact"><h3>${t(HO.ask)}</h3>${HO.contacts.map(k => `<div class="crow"><div><span>${k.name} · ${t(k.lang)}</span><b>${k.tel}</b></div><a class="round" href="tel:+1${k.tel.replace(/-/g, '')}" aria-label="${t(HO.call)} ${k.name}">${I('phone')}</a></div>`).join('')}</div>
+      <div class="card keep"><span class="tile">${I('file')}</span><div><b>${t(HO.keep.t)}</b><span>${t(HO.keep.s)}</span></div></div>
+      <p class="legal">${t(HO.legal)} <span class="blank"></span></p></div></section>`;
+  }
+
+  const bar = () => `<footer class="hbar">
+      <button class="btn sec back" id="back" ${S.p === 1 ? 'style="visibility:hidden"' : ''} aria-label="${t(HO.back)}">${I('chev')}<span>${t(HO.back)}</span></button>
+      <span class="dots only-tab" aria-hidden="true">${[1, 2, 3, 4].map(i => `<i class="${i < S.p ? 'done' : i === S.p ? 'on' : ''}"></i>`).join('')}</span>
+      <button class="btn pri lg nextb" id="next">${t(HO.next[S.p - 1])}${I(S.p === 4 ? 'check' : 'chev')}</button></footer>`;
+
+  const exit = () => !S.exit ? '' : `<div class="exit"><div class="scrim" id="xscrim"></div><div class="xsheet" role="dialog" aria-label="${t(HO.exit.t)}"><div class="grab"></div>
+      <header><div><h3>${t(HO.exit.t)}</h3><span class="cap">${HO.address}</span></div><button class="xclose" id="xclose" aria-label="${t({ en: 'Close', es: 'Cerrar' })}">${I('x')}</button></header>
+      <div class="rows">${HO.exit.items.map(x => `<div class="row"><span class="box${x.done ? ' ok' : ''}">${x.done ? I('check') : ''}</span><span class="t"><b>${t(x.t)}</b><span>${t(x.s)}</span></span></div>`).join('')}</div>
+      <button class="btn pri lg block">${t(HO.exit.done)}</button></div></div>`;
+
+  function draw() {
+    const w = HMP_MAP.today, home = w.stops[8], tab = ho.clientWidth >= 900;   // stop 9 of today's walk: 3908 22 St
+    const hm = document.getElementById('hm');
+    if (hm) { const b = hm.getBoundingClientRect(), ppm = tab ? 13.5 : 9;
+      renderHomeMap(hm, w, { width: b.width, height: b.height, home, finds: HO.finds, ppm, street: HO.street, labelAt: .22, toward: tab ? .26 : .3 });
+      document.getElementById('hmscale').style.width = (6.096 * ppm).toFixed(0) + 'px'; }
+    const hl = document.getElementById('hl');
+    if (hl) { const b = hl.getBoundingClientRect(), P = renderHailMap(hl, HMP_MAP, { width: b.width, height: b.height, home, metersAcross: tab ? 1500 : 1400, center: { lat: home.lat - .0005, lon: home.lon + .0018 } });
+      const [x, y] = P.xy(home.lon, home.lat), pin = document.getElementById('hlpin'); pin.style.left = x + 'px'; pin.style.top = y + 'px'; }
+    const ml = document.getElementById('ml');
+    if (ml) { const b = ml.getBoundingClientRect(); renderHomeMap(ml, w, { width: b.width, height: b.height, home, finds: HO.finds, ppm: b.width / 21, mini: true, active: S.f + 1, toward: 0 }); }
+  }
+
+  function go(p) { S.p = Math.max(1, Math.min(4, p)); render(); const m = ho.querySelector('.hmain'); if (m) m.scrollTop = 0; }
+  function render() {
+    root.lang = S.lang; ho.classList.toggle('held', S.exit && !ho.classList.contains('tab'));   // a sheet docks to the screen, not the page
+    ho.innerHTML = top() + `<main class="hmain">${head()}${[ch1, ch2, ch3, ch4][S.p - 1]()}</main>` + bar() + exit();
+    ho.querySelectorAll('[data-p]').forEach(b => b.onclick = () => go(+b.dataset.p));
+    ho.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { S.f = +b.dataset.f; S.p = 2; render(); });
+    ho.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { S.f = (S.f + +b.dataset.go + 5) % 5; render(); });
+    document.getElementById('lang').onclick = () => { S.lang = S.lang === 'en' ? 'es' : 'en'; render(); };
+    document.getElementById('back').onclick = () => go(S.p - 1);
+    document.getElementById('next').onclick = () => { if (S.p === 4) { S.exit = true; render(); } else go(S.p + 1); };
+    document.getElementById('x').onclick = () => { S.exit = true; render(); };
+    const xc = () => { S.exit = false; render(); };
+    ['xclose', 'xscrim'].forEach(id => { const e = document.getElementById(id); if (e) e.onclick = xc; });
+    draw();
+  }
+  render();
+  window.addEventListener('hashchange', () => location.reload());
+})();
+</script>
+</body></html>

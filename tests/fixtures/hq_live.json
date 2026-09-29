@@ -1,0 +1,255 @@
+{
+ "docs": {
+  "hq/snapshot": {
+   "ai": {
+    "en": "Evening update (Sep 27): the Print Kit was republished (37 pieces, 95 pages). You answered 'not now' on five open questions (Class 4 shingles, workmanship warranty length, Quo phone service, MOPOA membership, the Nastase pilot) — parked, not off the table. The App v25.2 (Job #1 tracker) is built and tested, waiting on your go-ahead to publish. The 2 Omaha/Lincoln permit calls are still open before Job #1 outside Fremont. No doors knocked yet today — that's expected, not a problem.",
+    "es": "Actualización de la tarde (27 de sept.): se volvió a publicar el Print Kit (37 piezas, 95 páginas). Dijiste 'todavía no' a cinco preguntas abiertas (tejas Clase 4, años de garantía de mano de obra, servicio de teléfono Quo, membresía de MOPOA, el piloto de Nastase) — quedan pausadas, no descartadas. La app v25.2 (con el rastreador del Trabajo #1) ya está lista y probada, esperando tu visto bueno para publicarla. Las 2 llamadas de permisos de Omaha y Lincoln siguen pendientes antes del Trabajo #1 fuera de Fremont. Todavía no se ha tocado ninguna puerta hoy — eso es normal, no un problema.",
+    "link": "https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU"
+   },
+   "crews": [
+    {
+     "job": "The Edge Apartments",
+     "names": "Mandi, Leo",
+     "where": "Building 2"
+    },
+    {
+     "job": "The Edge Apartments",
+     "names": "Oscar, Diego",
+     "where": "Building 3"
+    },
+    {
+     "job": "The Edge Apartments",
+     "names": "Francisco, Eric, David",
+     "where": "Building 5"
+    }
+   ],
+   "jobs": [
+    {
+     "buildings": [
+      {
+       "crew": "",
+       "flag": {
+        "en": "No update in 5 days",
+        "es": "Sin actualizar en 5 días",
+        "sev": "warning"
+       },
+       "name": "Building 1",
+       "progress": 75,
+       "updated_at": "2026-09-22T21:50:15Z"
+      },
+      {
+       "crew": "Mandi, Leo",
+       "flag": {
+        "en": "No update in 4 days",
+        "es": "Sin actualizar en 4 días",
+        "sev": "warning"
+       },
+       "name": "Building 2",
+       "progress": 75,
+       "updated_at": "2026-09-23T19:14:43Z"
+      },
+      {
+       "crew": "Oscar, Diego",
+       "flag": {
+        "en": "No update in 4 days",
+        "es": "Sin actualizar en 4 días",
+        "sev": "warning"
+       },
+       "name": "Building 3",
+       "progress": 5.56,
+       "updated_at": "2026-09-23T21:26:09Z"
+      },
+      {
+       "crew": "",
+       "flag": {
+        "en": "Not started, no crew",
+        "es": "Sin empezar, sin cuadrilla",
+        "sev": "info"
+       },
+       "name": "Building 4",
+       "progress": 0,
+       "updated_at": "2026-09-22T22:00:40Z"
+      },
+      {
+       "crew": "Francisco, Eric, David",
+       "flag": {
+        "en": "No update in 4 days",
+        "es": "Sin actualizar en 4 días",
+        "sev": "warning"
+       },
+       "name": "Building 5",
+       "progress": 18.75,
+       "updated_at": "2026-09-23T22:03:10Z"
+      }
+     ],
+     "link": "https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn",
+     "name": "The Edge Apartments",
+     "progress": 34.9,
+     "scope_en": "Siding tear-off and reinstall, 5 buildings",
+     "scope_es": "Quitar y reinstalar siding, 5 edificios"
+    }
+   ],
+   "leads": {
+    "calls_logged": 0,
+    "doors_logged": 0,
+    "hot": [],
+    "link": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT",
+    "stages": [
+     {
+      "count": 0,
+      "en": "Not contacted",
+      "es": "Sin contactar",
+      "key": "not_contacted"
+     },
+     {
+      "count": 0,
+      "en": "Contacted / knocked",
+      "es": "Contactado / tocado",
+      "key": "knocked"
+     },
+     {
+      "count": 0,
+      "en": "Inspection set",
+      "es": "Inspección agendada",
+      "key": "inspection"
+     },
+     {
+      "count": 0,
+      "en": "Damage found",
+      "es": "Daño encontrado",
+      "key": "damage"
+     },
+     {
+      "count": 0,
+      "en": "Claim filed",
+      "es": "Reclamo presentado",
+      "key": "claim"
+     },
+     {
+      "count": 0,
+      "en": "Adjuster meeting",
+      "es": "Cita con el ajustador",
+      "key": "adjuster"
+     },
+     {
+      "count": 0,
+      "en": "Approved",
+      "es": "Aprobado",
+      "key": "approved"
+     },
+     {
+      "count": 0,
+      "en": "Job scheduled",
+      "es": "Trabajo agendado",
+      "key": "scheduled"
+     },
+     {
+      "count": 0,
+      "en": "Done",
+      "es": "Terminado",
+      "key": "done"
+     },
+     {
+      "count": 0,
+      "en": "Lost",
+      "es": "Perdido",
+      "key": "lost"
+     }
+    ]
+   },
+   "needs_you": [
+    {
+     "en": "The App's new update (v25.2, with the Job #1 tracker) is built and tested — it just needs your 'yes, publish' to go live.",
+     "es": "La actualización nueva de la app (v25.2, con el rastreador del Trabajo #1) ya está lista y probada — solo falta que digas 'sí, publícala' para que salga.",
+     "link": "https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU",
+     "sev": "warning"
+    },
+    {
+     "en": "The Edge: no building updated in 4+ days (Building 1: 5 days; Buildings 2, 3 and 5: 4 days each). Send a photo of each so the site map stays right.",
+     "es": "The Edge: ningún edificio se ha actualizado en 4+ días (edificio 1: 5 días; edificios 2, 3 y 5: 4 días cada uno). Manda una foto de cada uno para que el mapa esté al día.",
+     "link": "https://claude.ai/artifact/6wBLswpVCaBMoc6dbrKcyn",
+     "sev": "warning"
+    },
+    {
+     "en": "2 permit calls (Omaha, Lincoln) are still needed before Job #1 outside Fremont: Omaha 402-444-5233, Lincoln 402-441-7521 (weekdays, 8-4).",
+     "es": "Todavía faltan 2 llamadas de permisos (Omaha, Lincoln) antes del Trabajo #1 fuera de Fremont: Omaha 402-444-5233, Lincoln 402-441-7521 (entre semana, 8-4).",
+     "link": "https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU",
+     "sev": "info"
+    },
+    {
+     "en": "Storm check (Sep 27): no new 1-inch-plus hail within 150 miles, no notable wind near Fremont in the last 3 days. Best walk today: Columbus (36 Ave, 18 St, 37 Ave), 67 homes, 1.64 inch average.",
+     "es": "Revisión de tormenta (27 de sept.): sin granizo nuevo de 1 pulgada o más en 150 millas, sin daño de viento notable cerca de Fremont en los últimos 3 días. Mejor zona hoy: Columbus (36 Ave, calle 18, 37 Ave), 67 casas, promedio 1.64 pulgadas.",
+     "link": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT",
+     "sev": "info"
+    },
+    {
+     "en": "Send Fremont the permit-log records request from your email (T71, you said yes). The text is ready: just add your name, email and phone.",
+     "es": "Manda a Fremont la solicitud de registros de permisos desde tu correo (T71, dijiste que sí). El texto está listo: solo pon tu nombre, correo y teléfono.",
+     "link": "https://claude.ai/artifact/Qkc52bt2JL5gW7ZKWBJDHU",
+     "sev": "info"
+    }
+   ],
+   "storms": {
+    "best_walk": {
+     "area": "Columbus",
+     "avg_hail": 1.64,
+     "day": "2026-08-08",
+     "doors": 67,
+     "link": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT",
+     "streets": "36 Ave, 18 St, 37 Ave",
+     "turf": 1
+    },
+    "fresh": [
+     {
+      "day": "2026-09-12",
+      "dist_mi": 81,
+      "hail": 1.78,
+      "place": "Beatrice",
+      "score": 70,
+      "state": "NE"
+     },
+     {
+      "day": "2026-08-08",
+      "dist_mi": 44,
+      "hail": 1.5,
+      "place": "Columbus",
+      "score": 68,
+      "state": "NE"
+     },
+     {
+      "day": "2026-09-08",
+      "dist_mi": 153,
+      "hail": 2.25,
+      "place": "Ankeny",
+      "score": 62,
+      "state": "IA"
+     },
+     {
+      "day": "2026-08-04",
+      "dist_mi": 41,
+      "hail": 2.08,
+      "place": "Council Bluffs",
+      "score": 58,
+      "state": "IA"
+     },
+     {
+      "day": "2026-08-17",
+      "dist_mi": 125,
+      "hail": 2.18,
+      "place": "Ord",
+      "score": 57,
+      "state": "NE"
+     }
+    ],
+    "headline": {
+     "en": "Morning check (Sep 27): no new hail within 150 miles, no wind damage near Fremont in 3 days. Best walk: Columbus (36 Ave, 18 St, 37 Ave), 67 homes, 1.64 inch average. Two small towns with old radar hail: Unadilla 2.34 inch (Aug 19) and Dorchester 2.6 inch (Aug 17).",
+     "es": "Revisión por la mañana (27 de sept.): sin granizo nuevo en 150 millas, sin daño de viento cerca de Fremont en 3 días. Mejor zona: Columbus (36 Ave, calle 18, 37 Ave), 67 casas, promedio 1.64 pulgadas. Dos pueblos chicos con granizo antiguo por radar: Unadilla 2.34 pulgadas (19 de agosto) y Dorchester 2.6 pulgadas (17 de agosto)."
+    },
+    "latest_storm_day": "2026-09-19",
+    "link": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT"
+   },
+   "updated_at": "2026-09-27T23:20:00Z",
+   "updated_by": "Claude Code (King) via sonnet helper"
+  }
+ }
+}

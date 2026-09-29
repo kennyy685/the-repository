@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aldaba Desktop B · Board</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Direction B "Board": top tabs, no sidebar. Home = today's leads on top + the money pipeline as a 5-column board. */
+.app{display:grid;grid-template-rows:60px minmax(0,1fr);height:100vh}
+.top{display:flex;align-items:center;gap:28px;padding:0 28px;border-bottom:1px solid var(--hair);background:var(--card)}
+.tabs{display:flex;gap:4px;height:100%}
+.tab{position:relative;display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--muted);font-weight:500;transition:color .15s}
+.tab:hover{color:var(--ink)}
+.tab[aria-current="page"]{color:var(--ink)}
+.tab[aria-current="page"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;border-radius:2px;background:var(--acc)}
+.tab .n{font:500 11px var(--mono);color:var(--faint)}
+.top .r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font-weight:600;font-size:12px}
+main{min-height:0;position:relative}
+/* NOW */
+[data-screen="now"]{grid-template-rows:auto minmax(0,1fr);gap:22px;height:100%;padding:24px 28px}
+.today{display:grid;grid-template-columns:430px minmax(0,1fr);gap:24px;align-items:stretch}
+.brief{display:flex;flex-direction:column;justify-content:space-between;padding:4px 0}
+.brief h1{margin:10px 0 0;font:700 44px/1.02 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.03em;text-wrap:balance}
+.brief h1 em{font-style:normal;color:var(--acc)}
+.brief .acts{display:flex;gap:10px;margin-top:18px}
+.zones{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px}
+.zc{position:relative;overflow:hidden;display:grid;grid-template-rows:minmax(118px,1fr) auto;text-align:left;transition:transform .2s var(--ease),box-shadow .2s}
+.zc:hover{transform:translateY(-2px);box-shadow:var(--e2)}
+.zc .mapw{position:relative}
+.zc .rk{position:absolute;left:12px;top:12px}
+.zc .in{padding:12px 14px 14px}
+.zc b{display:block;font:700 18px/1.15 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.01em}
+.zc .m{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--muted)}.zc .m strong{color:var(--ink);font:600 13px var(--mono)}
+.zc.best{box-shadow:var(--e1),0 0 0 1px var(--acc-edge)}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;min-height:0}
+.colm{display:flex;flex-direction:column;gap:10px;min-height:0;padding:12px;border-radius:14px;background:var(--well);box-shadow:inset 0 0 0 1px var(--hair)}
+.ch{display:flex;align-items:baseline;gap:8px;padding:2px 4px 6px}
+.ch h3{margin:0;font-size:13px;font-weight:600}
+.ch .c{font:500 12px var(--mono);color:var(--muted)}
+.ch .v{margin-left:auto;font-size:13px}
+.ch + .bar{margin:-2px 4px 4px;height:4px}
+.lc{padding:12px 14px;display:grid;gap:8px;font-size:13px;transition:transform .18s var(--ease)}
+.lc:hover{transform:translateY(-1px)}
+.lc .a{display:flex;justify-content:space-between;gap:8px}.lc .a b{font-weight:600;font-size:14px}
+.lc .nx{display:flex;gap:8px;align-items:flex-start;color:var(--ink-2)}.lc .nx .i{width:15px;height:15px;margin-top:2px;color:var(--muted)}
+.lc.due .nx .i{color:var(--acc)}
+.lc .f{display:flex;gap:6px}
+.lc.sel{box-shadow:var(--e1),0 0 0 1.5px var(--acc)}
+.more{font-size:12px;color:var(--muted);padding:4px 6px}
+.colm .lc:first-of-type .go{display:flex}
+.go{display:none;margin-top:2px}
+.go .btn{height:32px;font-size:13px;padding:0 12px;flex:1}
+/* KNOCK */
+[data-screen="knock"]{height:100%;position:relative}
+[data-screen="knock"] > .mapw{position:absolute;inset:0}
+.float{position:absolute;background:var(--glass);backdrop-filter:blur(16px);border-radius:16px;box-shadow:var(--e2)}
+.wl{left:24px;top:24px;bottom:24px;width:380px;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.wl .hd{padding:18px 18px 14px;border-bottom:1px solid var(--hair)}
+.wl h2{margin:6px 0 10px;font:700 22px/1.1 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.015em}
+.wl .row{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 18px;font-size:13px;border-bottom:1px solid var(--hair)}
+.wl .row .k{font:700 14px var(--display);color:var(--muted)}
+.wl .row.cur{background:var(--acc-bg);box-shadow:inset 3px 0 0 var(--acc)}.wl .row.cur .k{color:var(--acc-ink)}
+.wl .row.past{color:var(--muted)}
+.prog{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}.prog b{color:var(--ink)}
+.pill{right:24px;top:24px;display:flex;align-items:center;gap:14px;padding:8px 10px 8px 16px;font-size:13px;border-radius:999px}
+.pill b{font-weight:600}
+.dc{right:24px;bottom:24px;width:560px;padding:22px}
+.dc h2{margin:6px 0 4px;font:700 40px/1 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.03em}
+.dc .facts{display:flex;gap:8px;margin:14px 0}
+.dc .outs{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;margin-top:14px}
+.dc .outs .btn{height:54px;flex-direction:column;gap:2px;font-size:13px}
+.dc .outs .btn .kbd{height:16px;min-width:16px;font-size:10px}
+.dc .outs .pri{font-size:15px}
+.dc .foot{display:flex;gap:8px;margin-top:10px}
+.dc .foot .btn{height:36px;font-size:13px}.dc .foot .btn:last-child{margin-left:auto}
+@media (max-height:880px){.brief h1{font-size:36px}.zc{grid-template-rows:minmax(90px,1fr) auto}.board{gap:10px}.lc{padding:10px 12px;gap:6px}}
+@media (max-width:1400px){.search{min-width:200px}.today{grid-template-columns:360px minmax(0,1fr)}.brief h1{font-size:34px}.dc{width:500px}}
+/* JOB */
+[data-screen="job"]{height:100%;overflow:auto;padding:22px 28px;grid-template-rows:auto auto minmax(0,1fr);gap:20px}
+.crumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.crumb .i{width:14px;height:14px}
+.jh{display:flex;align-items:flex-end;gap:20px}
+.jh h1{margin:8px 0 0;font:700 52px/.98 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.035em}
+.jh .r{margin-left:auto;display:flex;gap:8px}
+.steps{display:grid;grid-template-columns:repeat(10,1fr);padding:18px 20px 16px}
+.st{position:relative;display:grid;justify-items:center;gap:8px;text-align:center;font-size:12px;color:var(--muted)}
+.st::before{content:"";position:absolute;top:13px;left:-50%;right:50%;height:2px;background:var(--line-2)}
+.st:first-child::before{display:none}
+.st.done::before,.st.cur::before{background:var(--ink-2)}
+.st .o{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:1.5px solid var(--line-2);font:700 12px var(--display)}
+.st.done .o{background:var(--ink-2);border-color:var(--ink-2);color:var(--bg)}
+.st.cur .o{background:var(--acc);border-color:var(--acc);color:var(--on-acc);box-shadow:0 0 0 6px var(--acc-bg)}
+.st.cur{color:var(--ink);font-weight:600}
+.st small{font:500 10.5px var(--mono);color:var(--faint)}
+.st .i{width:14px;height:14px}
+.cols{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;min-height:0}
+.pad{padding:18px 20px}
+.ns{background:linear-gradient(180deg,var(--acc-bg),transparent 70%),var(--card)}
+.ns b{display:block;font:700 30px/1.05 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.02em;margin:8px 0 4px}
+.ns .acts{display:flex;gap:8px;margin:18px 0}
+.pp{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--hair);font-size:13px}
+.pp:first-of-type{border-top:0}.pp .ok{color:var(--ok)}.pp .no{color:var(--faint)}
+.pp small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.mrow{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-top:1px solid var(--hair);font-size:13px}
+.mrow:first-of-type{border-top:0}
+.mrow.big{padding:4px 0 14px}.mrow.big .ph{font:700 34px var(--display);color:var(--faint)}
+.tl{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:7px 0;font-size:13px}
+.tl .d{font:500 11px var(--mono);color:var(--muted);padding-top:2px}
+.card h4{margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="mark" id="mk"></div>
+    <nav class="tabs">
+      <button class="tab" data-go="now"><span data-t="now"></span><span class="n">5</span></button>
+      <button class="tab" data-go="knock"><span data-t="knock"></span><span class="n">12</span></button>
+      <button class="tab" data-go="job"><span data-t="pipeline"></span><span class="n">39</span></button>
+      <button class="tab"><span data-t="calls"></span><span class="n">3</span></button>
+      <button class="tab"><span data-t="money"></span></button>
+    </nav>
+    <div class="r">
+      <div class="search" id="srch"></div>
+      <div class="seg"><button data-lang="en">EN</button><button data-lang="es">ES</button></div>
+      <div class="seg"><button data-theme-btn="dark">Graphite</button><button data-theme-btn="light">Ledger</button></div>
+      <span class="av">K</span>
+    </div>
+  </header>
+  <main>
+    <section data-screen="now">
+      <div class="today">
+        <div class="brief" id="brief"></div>
+        <div class="zones" id="zones"></div>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+    <section data-screen="knock" style="--d:block">
+      <div class="mapw" id="wmap"></div>
+      <div class="float wl" id="wl"></div>
+      <div class="float pill" id="pill"></div>
+      <div class="float dc" id="dc"></div>
+    </section>
+    <section data-screen="job" id="job"></section>
+  </main>
+</div>
+<div class="sample" data-t="sample"></div>
+<script src="../../../pages/v25/icons.js"></script>
+<script src="shared.js"></script>
+<script>
+const M = MB, $ = id => document.getElementById(id);
+function miniMap(z) { // crop the city map around one zone
+  const svg = M.cityMap({pick: z.id, labels: false});
+  return svg.replace(/viewBox="0 0 1000 620"/, `viewBox="${z.x - 230} ${z.y - 100} 460 200"`);
+}
+window.render = function () {
+  const {T, tx, ic, ZONES, DOORS, STAGES, PIPE, STEPS, STEPN, STEPD, JOB, TL, MONEY} = M;
+  $('mk').innerHTML = M.MARK + 'aldaba';
+  $('srch').innerHTML = ic('target') + `<span>${T('search')}</span><span class="kbd">⌘K</span>`;
+  const z = ZONES[0];
+  $('brief').innerHTML = `<div><span class="eb">${T('today')} · ${T('storm')}</span>
+    <h1>${M.lang === 'es' ? `<em>64 puertas</em> con granizo de 1.75″ a 0.8 mi. <em>3 llamadas</em> para hoy.` : `<em>64 doors</em> under 1.75″ hail, 0.8 mi away. <em>3 calls</em> due today.`}</h1></div>
+    <div class="acts"><button class="btn pri lg" data-go="knock">${ic('door')}${T('startKnock')} · ${T('zone')} 1 <span class="kbd">K</span></button><button class="btn lg">${ic('phone')}${T('calls')} · 3</button></div>`;
+  $('zones').innerHTML = ZONES.slice(0, 3).map((q, i) => `<button class="card zc ${i ? '' : 'best'}" data-go="knock"><div class="mapw">${miniMap(q)}<span class="rk chip ${i ? '' : 'acc'}">#${q.id}${i ? '' : ' · ' + T('bestZone')}</span></div>
+    <div class="in"><b>${q.name}</b><div class="m"><span><strong>${q.hail}″</strong> ${T('hail')}</span><span><strong>${q.homes}</strong> ${T('homes')}</span><span><strong>${q.dist}</strong> ${T('mi')}</span><span style="margin-left:auto"><strong>${q.score}</strong></span></div></div></button>`).join('');
+  const icn = {ins: 'shield', cash: 'money'};
+  $('board').innerHTML = STAGES.map((s, si) => `<div class="colm"><div class="ch"><h3>${T(s.t)}</h3><span class="c">${s.count}</span><span class="v">${MONEY}</span></div><div class="bar"><i style="width:${[100, 39, 17, 9, 4][si]}%"></i></div>` +
+    PIPE[s.k].map(p => `<div class="card lc ${p.due === 'today' ? 'due' : ''} ${p.a === JOB.a ? 'sel' : ''}" ${p.a === JOB.a ? 'data-go="job" style="cursor:pointer"' : ''}><div class="a"><b>${p.a}</b>${MONEY}</div><div class="nx">${ic(p.due === 'today' ? 'flag' : 'clock')}<span>${tx(p.next)}</span></div>
+      <div class="f"><span class="chip">${ic(icn[p.type])}${p.type === 'ins' ? T('insurance') : T('cash')}</span><span class="chip">${tx(p.src)}</span>${p.due === 'today' ? `<span class="chip acc">${T('today2')}</span>` : ''}</div></div>`).join('') +
+    (s.count > PIPE[s.k].length ? `<div class="more">+ ${s.count - PIPE[s.k].length} ${T('more')}</div>` : '') + `</div>`).join('');
+  // knock
+  $('wmap').innerHTML = M.walkMap({cur: 4});
+  $('wl').innerHTML = `<div class="hd"><span class="eb">${T('walk')} · ${T('zone')} 1</span><h2>${z.name}</h2><div class="bar"><i style="width:19%"></i></div><div class="prog"><span><b>3</b> ${T('of')} 64 ${T('knocked')}</span><span><b>1</b> ${T('talked')}</span><span><b>1</b> ${T('insp')}</span></div></div><div style="overflow:hidden">` +
+    DOORS.map(d => `<div class="row ${d.s === 'next' ? 'cur' : d.s ? 'past' : ''}"><span class="k">${d.n}</span><span>${d.addr}<br><span class="muted" style="font-size:12px">${d.built} · ~${d.roof} ${T('yrs')}${d.owner ? ' · ' + T('ownerLived').toLowerCase() : ''}</span></span>${d.s === 'insp' ? `<span class="chip ok">${ic('check')}</span>` : d.s === 'talk' ? `<span class="chip">${T('talkedB')}</span>` : d.s === 'na' ? `<span class="chip">${T('noAnswer')}</span>` : d.s === 'next' ? `<span class="chip acc">${T('now')}</span>` : ''}</div>`).join('') + '</div>';
+  $('pill').innerHTML = `${ic('hail')}<span><b>${z.hail}″</b> ${T('hail')} · ${z.storm}</span><span class="muted">·</span><span><b>4</b> ${T('of')} 12</span><button class="btn" style="height:30px;font-size:12px">${ic('car')}${T('drive')}</button>`;
+  const d = DOORS[3];
+  $('dc').innerHTML = `<span class="eb">${T('doorNow')} · 4 ${T('of')} 12</span><h2>${d.addr}</h2><div class="muted">Fremont · ${T('zone')} 1</div>
+    <div class="facts"><span class="chip">${ic('built')}${T('built')} ${d.built}</span><span class="chip">${ic('home')}${T('roof')} ~${d.roof} ${T('yrs')}</span><span class="chip">${ic('user')}${T('ownerLived')}</span></div>
+    <div class="legal">${ic('shield')}<span>${T('sayFirst')}</span></div>
+    <div class="outs"><button class="btn pri">${T('setInsp')}<span class="kbd">1</span></button><button class="btn">${T('talkedB')}<span class="kbd">2</span></button><button class="btn">${T('noAnswer')}<span class="kbd">3</span></button><button class="btn">${T('notInt')}<span class="kbd">4</span></button></div>
+    <div class="foot"><button class="btn">${ic('camera')}${T('photos')}</button><button class="btn">${ic('note')}${T('note')}</button><button class="btn">${ic('ban')}${T('noKnock')}</button><button class="btn">${T('nextDoor')} <span class="kbd">↓</span></button></div>`;
+  // job
+  $('job').innerHTML = `<div><div class="crumb"><span data-go="job">${T('pipeline')}</span>${ic('chev')}<span>${T('stageInsp')}</span>${ic('chev')}<span style="color:var(--ink)">${JOB.a}</span></div>
+    <div class="jh"><div><h1>${JOB.a}</h1><div style="display:flex;gap:8px;margin-top:12px;align-items:center"><span class="chip acc">${ic('shield')}${T('insurance')}</span><span class="chip">${T('roofGut')}</span><span class="muted" style="font-size:13px">${JOB.town}</span></div></div>
+    <div class="r"><button class="btn lg">${ic('phone')}</button><button class="btn lg">${ic('camera')}${T('photos')} · 24</button><button class="btn lg">${ic('nav')}${T('openMap')}</button></div></div></div>
+    <div class="card steps">${STEPS.map((s, i) => `<div class="st ${i < JOB.cur ? 'done' : i === JOB.cur ? 'cur' : ''}"><span class="o">${i < JOB.cur ? ic('check') : i + 1}</span><span>${tx(STEPN[s])}</span><small>${STEPD[i] || ' '}</small></div>`).join('')}</div>
+    <div class="cols">
+      <div style="display:grid;gap:16px;align-content:start"><div class="card pad ns"><span class="eb">${T('nextStep')}</span><b>${T('adjMeet')}</b><span class="muted">${T('adjWhen')}</span><div class="acts"><button class="btn pri lg">${ic('cal')}${T('addCal')}</button><button class="btn lg">${ic('nav')}${T('openMap')}</button></div><div class="legal">${ic('shield')}<span>${T('legalBox')}</span></div></div></div>
+      <div style="display:grid;gap:16px;align-content:start"><div class="card pad"><h4 class="eb">${T('moneyH')}<span class="chip">${T('pricesPending')}</span></h4><div class="mrow big"><span>${T('jobValue')}</span>${MONEY}</div>${['acv', 'dep', 'deduct', 'comm'].map(k => `<div class="mrow"><span>${T(k)}</span>${MONEY}</div>`).join('')}</div>
+        <div class="card pad"><h4 class="eb">${T('timeline')}</h4>${TL.slice(0, 4).map(t => `<div class="tl"><span class="d">${t.d}</span><span>${tx(t.t)}</span></div>`).join('')}</div></div>
+      <div style="display:grid;gap:16px;align-content:start"><div class="card pad"><h4 class="eb">${T('papers')}</h4>${[['p1', 1, '24 · Sep 25'], ['p2', 1, T('signedOn')], ['p3', 0, T('needed')], ['p4', 0, T('later')], ['p5', 0, T('later')]].map(([k, ok, m]) => `<div class="pp"><span class="${ok ? 'ok' : 'no'}">${ic(ok ? 'check' : 'clock')}</span><span>${T(k)}<small ${m === T('needed') ? 'style="color:var(--warn)"' : ''}>${m}</small></span></div>`).join('')}</div></div>
+    </div>`;
+};
+window.addEventListener('hashchange', () => render());
+</script>
+</body>
+</html>

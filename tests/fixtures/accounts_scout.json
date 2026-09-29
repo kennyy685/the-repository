@@ -1,0 +1,26 @@
+{
+ "source": "test",
+ "contacts": [
+  {
+   "match": [
+    "15735 Rosewood St",
+    "15859 Rosewood St"
+   ],
+   "name": "Springhill Ridge Apartments",
+   "manager": "Test Capital",
+   "phone": "(402) 891-0742",
+   "ask_for": "Community manager",
+   "ask_for_es": "Gerente de la comunidad",
+   "confidence": "high"
+  },
+  {
+   "match": [
+    "4 Cell Ln"
+   ],
+   "name": "Cell Apts",
+   "phone": "(402) 555-1212",
+   "phone_type": "cell",
+   "ask_for": "Owner"
+  }
+ ]
+}

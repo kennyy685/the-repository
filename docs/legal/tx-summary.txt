@@ -1,0 +1,50 @@
+TEXAS - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. statutes.capitol.texas.gov, codes.findlaw.com and law.justia.com are all
+egress-blocked in this environment (WebFetch and curl both refused). Below is a search-engine
+paraphrase corroborated across 2+ secondary sources, not read verbatim. Re-verify at
+statutes.capitol.texas.gov before use.
+
+1. Deductible waiver/rebate - Texas Insurance Code Sec. 707.002 (added by HB 2102, 2019, effective
+   9/1/2019)
+   Paraphrase: it is a violation for a contractor to "pay for, waive, absorb, rebate, credit or
+   offset, or otherwise assist the insured in any other manner in avoiding monetary payment of the
+   required insurance deductible applicable to the insurance claim for repairs to the roof." A
+   Class B misdemeanor (up to $2,000 fine / 180 days). Contracts of $1,000+ tied to an insurance
+   settlement must carry a written notice that the policyholder is responsible for the deductible.
+   Source: multiple contractor/insurance-law blogs citing Tex. Ins. Code 707.002; capitol.texas.gov
+   HB 2102 bill text (not opened directly).
+
+2. Home-solicitation cancel right - Texas Business & Commerce Code Chapter 601 ("Cancellation of
+   Certain Consumer Transactions"), Subchapter B, esp. Sec. 601.052-.053
+   Paraphrase: buyer may cancel by midnight of the 3rd business day after signing, for a sale
+   solicited away from the seller's place of business, $25+ goods/services or $100+ real estate.
+   Seller must disclose orally AND in writing, and attach a duplicate Notice of Cancellation form.
+   No storm-specific extension found for this chapter; Texas has a SEPARATE, roofing-specific
+   claim-related rule under Ins. Code 707 above.
+   Source: Texas Law Help "3-Day Right to Cancel"; Texas AG consumer page; FindLaw Bus&Com 601.053.
+
+3. Contractor registration/licensing - NO statewide roofing license today. TDLR does not regulate
+   roofing contractors as of this round; a voluntary RCAT (Roofing Contractors Association of Texas)
+   credential exists. NOTE: Texas HB 3344 creates a new "Reroofing Contractor" regulatory framework
+   under TDLR, nominally effective 9/1/2025, but the search summary says the advisory board was
+   still being set up - CONFIRM current status before telling FilthE Texas needs no registration;
+   this may have changed since. Many Texas cities (Houston, San Antonio, Austin, Dallas) require
+   local registration/permits regardless of state law.
+   Source: servicetitan.com Texas roofing guide; proroofersofconroe.com "New Texas Reroofing License".
+
+4. Public adjuster / claims negotiation - not independently checked. Texas Insurance Code
+   Chapter 4102 licenses public adjusters; assume same "don't negotiate claims" restriction applies.
+   UNVERIFIED.
+
+5. Assignment of benefits - Texas has seen AOB-abuse litigation/legislation activity (more so on
+   the auto-glass/property side); not independently checked this round. UNVERIFIED - flag for a
+   dedicated look before HMP does any AOB-adjacent paperwork in Texas.
+
+6. Door-to-door permit - no statewide permit statute found beyond Ch. 601's cancel-right rule;
+   local permits vary by city (see above).
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- Tex. Ins. Code 707.002 (HB 2102, 2019) - via bluetrusstx.com, dfwroofers.com, rhsb.com summaries
+- Tex. Bus. & Com. Code Ch. 601 - https://law.justia.com/codes/texas/2024/business-and-commerce-code/title-12/chapter-601/subchapter-b/
+- Texas Law Help, 3-Day Right to Cancel - https://texaslawhelp.org/article/the-3-day-right-to-cancel-a-purchase
+- servicetitan.com, Texas Roofing License guide - https://www.servicetitan.com/licensing/roofing/texas

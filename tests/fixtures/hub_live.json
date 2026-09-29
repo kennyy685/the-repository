@@ -1,0 +1,2291 @@
+{
+"_comment": "hub_live_check.js fixture: the real AI hub db shapes (read 2026-09-29, the day it froze live), every word scrubbed by tests/pages/hub_live_fixture.py (keys, times, enums and lengths kept).",
+"docs": {
+"agents/builder": {
+"at": "2026-09-29T00:09:15Z",
+"boss": "code",
+"color": "chat pl",
+"doing": "test test test board plan build map robot hub build storm check build map ship build board plan note chat test fix note answer board build test stor",
+"kind": "helper",
+"lane": "code",
+"metrics": {
+"checks": 3,
+"issues": 30,
+"passed": 3
+},
+"name": "Builder",
+"progress": {
+"done": 0,
+"of": 5
+},
+"result": {
+"issues": 0,
+"of": 3,
+"passed": 3
+},
+"role": "zone answer king ship door roof page plan chat plan note hub hub map answer board map a",
+"room": "tests",
+"status": "working",
+"step": "testing",
+"task": "code-health",
+"why": "robot walk walk note answer king board plan note note build test map"
+},
+"agents/claims-coach": {
+"at": "",
+"doing": "",
+"kind": "merged",
+"lane": "code",
+"mergedInto": "sales-coach",
+"name": "zone page te",
+"room": "",
+"status": "idle",
+"task": ""
+},
+"agents/code": {
+"at": "2026-09-28T13:55:19Z",
+"doing": "map ship build map check storm zone page test king king zone check fix door check fix answer king zo",
+"kind": "main",
+"lane": "code",
+"name": "SMUIPO",
+"room": "board",
+"status": "idle",
+"step": "planning",
+"task": "T190"
+},
+"agents/commercial-scout": {
+"at": "",
+"doing": "",
+"kind": "merged",
+"lane": "code",
+"mergedInto": "scout",
+"name": "chat fix note",
+"room": "",
+"status": "idle",
+"task": ""
+},
+"agents/cowork": {
+"at": "2026-09-25T22:33:49Z",
+"doing": "zone answer zone answer ship hub note answer ship door robot build board map door answer zone page fix note note chat roof page test test map robo",
+"kind": "main",
+"lane": "chat",
+"name": "Cowork",
+"role": "page test plan storm test map answer king ship build chat boar",
+"room": "studio",
+"status": "done",
+"task": "T42"
+},
+"agents/cowork-2": {
+"at": "2026-09-25T17:19:00Z",
+"boss": "cowork",
+"doing": "answer roof king board chat king board chat roof robot map check storm ship bui",
+"kind": "merged",
+"lane": "chat",
+"mergedInto": "cowork",
+"name": "build boa",
+"role": "test map page king zone page map check build board",
+"room": "studio",
+"status": "done",
+"task": "T20"
+},
+"agents/designer": {
+"at": "2026-09-29T00:04:00Z",
+"boss": "code",
+"color": "hub map",
+"doing": "door roof zone page plan walk check build plan door answer robot build map answer king test king zone page fix door rob",
+"kind": "helper",
+"lane": "code",
+"metrics": {
+"checks": 8,
+"files": 14
+},
+"name": "Designer",
+"result": {
+"issues": 0,
+"of": 8,
+"passed": 8
+},
+"role": "board hub chat test test storm robot storm zone answer test board fix answer robot",
+"room": "dock",
+"status": "done",
+"step": "verified",
+"task": "storm ship note not",
+"why": "king king ship hub hub fix door ship pa"
+},
+"agents/engine-mechanic": {
+"at": "2026-09-28T23:59:56Z",
+"doing": "ship walk walk walk walk page roof check build chat test test fix check chat board build plan door ship door answer king zone page p",
+"kind": "helper",
+"lane": "code",
+"name": "note note walk",
+"room": "engine",
+"status": "done",
+"step": "building",
+"task": "robot note",
+"why": "storm test king king king test plan hub"
+},
+"agents/hub-keeper": {
+"at": "2026-09-28T19:27:29Z",
+"boss": "code",
+"doing": "storm ship hub hub note walk check plan storm test m",
+"kind": "helper",
+"lane": "code",
+"name": "fix walk chec",
+"role": "roof roof zone door page plan walk answer ship walk robot map check storm robot chat roof check map answer",
+"room": "data",
+"status": "working",
+"step": "researching",
+"task": "ship answer board chat zone robot storm test fix wal",
+"why": "zone answer roof check chat plan chat king plan walk walk check"
+},
+"agents/improvement-scout": {
+"at": "2026-09-25T21:40:00Z",
+"boss": "hub-keeper",
+"doing": "",
+"kind": "merged",
+"lane": "code",
+"name": "Scouts",
+"room": "data",
+"status": "idle",
+"task": "R1"
+},
+"agents/king": {
+"at": "2026-09-27T23:11:20Z",
+"doing": "king plan hub fix check plan note chat test map door roof roof ship door page roof robot storm ship build fix page roof robot storm",
+"kind": "main",
+"lane": "board",
+"name": "ship walk",
+"room": "board",
+"status": "idle",
+"task": ""
+},
+"agents/marketing": {
+"at": "",
+"doing": "door roof ship walk robot build test b",
+"kind": "merged",
+"lane": "chat",
+"mergedInto": "sales-coach",
+"name": "Marketing",
+"room": "",
+"status": "sleeping",
+"task": "T8"
+},
+"agents/marketing-lead": {
+"at": "",
+"doing": "",
+"kind": "merged",
+"lane": "code",
+"mergedInto": "sales-coach",
+"name": "build map page",
+"room": "",
+"status": "idle",
+"task": ""
+},
+"agents/qa-tester": {
+"at": "2026-09-28T12:52:00Z",
+"boss": "code",
+"doing": "king king ship door ship door roof king roof robot hub chat board hub chat fix note chat king king king zone door roof zone walk note",
+"kind": "helper",
+"lane": "code",
+"name": "fix hub s",
+"role": "page map answer robot storm zone page roof check storm roo",
+"room": "tests",
+"status": "done",
+"step": "verified",
+"task": "T190"
+},
+"agents/sales-coach": {
+"at": "2026-09-26T02:25:00Z",
+"boss": "cowork",
+"doing": "zone walk answer ship door check fix note door check fix walk door roof king board map door ship page",
+"kind": "helper",
+"lane": "chat",
+"name": "board plan",
+"room": "studio",
+"status": "working",
+"task": "T44"
+},
+"agents/scout": {
+"at": "2026-09-26T02:25:00Z",
+"doing": "ship note answer board plan door ship note door roof check storm robot chat board chat fix walk check storm check board hub bu",
+"kind": "helper",
+"lane": "chat",
+"name": "Scout",
+"room": "research",
+"status": "working",
+"task": "T11"
+},
+"agents/storm-analyst": {
+"at": "",
+"doing": "",
+"kind": "merged",
+"lane": "code",
+"mergedInto": "engine-mechanic",
+"name": "answer robot",
+"room": "",
+"status": "idle",
+"task": ""
+},
+"agents/storm-watch": {
+"at": "2026-09-25T13:42:02Z",
+"doing": "plan storm test plan door zone robot build plan hub hub fix door zone door roo",
+"kind": "scheduled",
+"lane": "chat",
+"name": "walk page b",
+"room": "storm",
+"status": "sleeping",
+"task": ""
+},
+"agents/writer": {
+"at": "",
+"doing": "roof check map answer robot ch",
+"kind": "merged",
+"lane": "chat",
+"mergedInto": "sales-coach",
+"name": "Writer",
+"room": "",
+"status": "idle",
+"task": "T7"
+},
+"answers/D10": {
+"answer": "Yes",
+"at": "2026-09-25T22:05:00Z",
+"note": "page roof king test map check plan hub fix walk check plan storm zone robot hub map answer robot note"
+},
+"answers/D11": {
+"answer": "No",
+"at": "2026-09-25T21:01:00Z",
+"note": "page test map robot hub note hub map check plan note door robot hub storm ship answer ship build map check build chat zone page"
+},
+"answers/D12": {
+"answer": "board b",
+"at": "2026-09-26T02:16:13Z",
+"by": "FilthE",
+"id": "D12",
+"note": "",
+"q": "answer test test test storm robot storm robot build board fix answer zone robot storm check plan door roof page m"
+},
+"answers/D13": {
+"answer": "answer roof king ship answer board chat ki",
+"at": "2026-09-26T15:40:00Z",
+"by": "FilthE",
+"id": "D13",
+"note": "door ship hub build plan door robot map ship walk door zone check fix ans",
+"q": "hub chat plan hub fix door roof page fi"
+},
+"answers/D14": {
+"answer": "board b",
+"at": "2026-09-27T23:11:20Z",
+"by": "FilthE",
+"id": "D14",
+"note": "",
+"q": "build test test plan door robot note answer board map page king roof roof page map zone robot walk page plan build map door robot bu",
+"to": "code"
+},
+"answers/D15": {
+"answer": "board b",
+"at": "2026-09-27T23:10:49Z",
+"by": "FilthE",
+"id": "D15",
+"note": "",
+"q": "king roof robot note chat plan hub storm check storm check chat roof roof king ship build plan storm roof zone robot note build map page test plan chat bo",
+"to": "code"
+},
+"answers/D19": {
+"answer": "board b",
+"at": "2026-09-27T23:11:03Z",
+"by": "FilthE",
+"id": "D19",
+"note": "",
+"q": "walk answer robot chat test fix answer test plan build board hub fix hub note answer board plan chat fi",
+"to": "code"
+},
+"answers/D22": {
+"answer": "board b",
+"at": "2026-09-27T23:11:10Z",
+"by": "FilthE",
+"id": "D22",
+"note": "",
+"q": "map zone walk note walk door robot storm ship door zone walk answer king test storm roof page roof ship answer zone door zone check plan storm",
+"to": "code"
+},
+"answers/D23": {
+"answer": "board b",
+"at": "2026-09-27T23:11:17Z",
+"by": "FilthE",
+"id": "D23",
+"note": "",
+"q": "answer zone answer board chat roof robot hub fix page board hub storm king king ship note walk check fix hub map door roof king plan storm test storm robot note answer test map c",
+"to": "code"
+},
+"answers/D6": {
+"answer": "No",
+"at": "2026-09-26T15:30:00Z",
+"by": "FilthE",
+"id": "D6",
+"note": "robot hub hub note chat test storm zone walk robot map door ship no",
+"q": "plan storm check map ship door roof robot map zone walk robot map robot storm check fix note an"
+},
+"answers/D7": {
+"answer": "Yes",
+"at": "2026-09-26T02:15:56Z",
+"by": "FilthE",
+"id": "D7",
+"note": "",
+"q": "roof check chat zone robot build storm zone robot hub storm robot build plan note w"
+},
+"answers/D9": {
+"answer": "Yes",
+"at": "2026-09-26T02:15:48Z",
+"by": "FilthE",
+"id": "D9",
+"note": "",
+"q": "zone answer king plan hub map robot storm robot storm check plan build chat zone"
+},
+"answers/W1": {
+"answer": "board b",
+"at": "2026-09-28T23:58:31Z",
+"back": {
+"after": "2026-09-29T01:58:31Z",
+"snap": {
+"ask": "roof page test king test king plan walk note door check map zone door ship walk check chat test map",
+"doing": "map ship build map check storm zone page test king king zone check fix door check fix answer king zo",
+"progress": null,
+"task": "T190"
+}
+},
+"by": "FilthE",
+"id": "W1",
+"note": "",
+"q": "",
+"snoozes": 1,
+"to": "code"
+},
+"answers/W2": {
+"answer": "board b",
+"at": "2026-09-28T23:58:31Z",
+"back": {
+"after": "2026-09-29T01:58:31Z",
+"snap": {
+"ask": "roof page test king test king plan walk note door check map zone door ship walk check chat test map",
+"doing": "map ship build map check storm zone page test king king zone check fix door check fix answer king zo",
+"progress": null,
+"task": "T190"
+}
+},
+"by": "FilthE",
+"id": "W2",
+"note": "",
+"q": "",
+"snoozes": 1,
+"to": "code"
+},
+"answers/builder-q1slpbl1": {
+"answer": "Yes",
+"at": "2026-09-28T11:02:16Z",
+"by": "FilthE",
+"id": "builder-q1slpbl1",
+"note": "",
+"q": "answer zone ship build plan walk door zone check map page plan build test king roo",
+"to": "builder"
+},
+"board/current": {
+"next": [
+{
+"id": "X0",
+"owner": "page fix doo",
+"status": "NEXT",
+"task": "hub note walk robot note door roof robot build chat fix walk robot note door ship note answer king plan storm sh"
+},
+{
+"id": "X1",
+"owner": "QA",
+"status": "NEXT",
+"task": "answer ship hub fix check fix page map ship wa"
+},
+{
+"id": "X2",
+"owner": "Designer",
+"status": "NEXT",
+"task": "check fix page fix check storm roof check b"
+},
+{
+"id": "X3",
+"owner": "fix door check",
+"status": "NEXT",
+"task": "walk check board hub map ro"
+},
+{
+"id": "X4",
+"owner": "Builder",
+"status": "NEXT",
+"task": "board plan door ship page map check chat fix wal"
+},
+{
+"id": "X5",
+"owner": "Builder",
+"status": "NEXT",
+"task": "ship walk walk door roof roof page roof zone walk doo"
+},
+{
+"id": "X6",
+"owner": "King",
+"status": "NEXT",
+"task": "door robot build board storm robot walk robot walk pag"
+},
+{
+"id": "X7",
+"owner": "King",
+"status": "NEXT",
+"task": "walk page map page roof check map answer test storm check"
+}
+],
+"now": [
+{
+"id": "N0",
+"owner": "Builder",
+"status": "DOING",
+"task": "hub map check fix page roof ship hub chat king plan chat board sto"
+},
+{
+"id": "N1",
+"owner": "fix door check",
+"status": "DOING",
+"task": "map check map door check fix door ship build fix page te"
+},
+{
+"id": "N2",
+"owner": "Designer",
+"status": "DOING",
+"task": "test king zone door zone ans"
+}
+],
+"source": "note note door page test fix door answer king zone ship answer king roof ship build map robot build map robot bu",
+"syncedAt": "2026-09-29T00:10:00Z",
+"updatedAt": "2026-09-29T00:05:00Z",
+"updatedBy": "SMUIPO (King)",
+"waiting": [
+{
+"id": "W1",
+"owner": "FilthE",
+"status": "WAITING",
+"task": "walk answer roof ship note chat plan storm test map check fix walk do"
+},
+{
+"id": "W2",
+"owner": "FilthE",
+"status": "WAITING",
+"task": "build map answer zone walk door ship door roof robot b"
+},
+{
+"id": "W3",
+"owner": "FilthE",
+"status": "WAITING",
+"task": "test test fix check build fix door answer robot chat kin"
+},
+{
+"id": "W4",
+"owner": "Boss",
+"status": "WAITING",
+"task": "check chat roof zone answer robot storm test plan storm ship answer board map robot hub bu"
+}
+]
+},
+"crew/sessions": {
+"archived": {
+"cost_usd": 811.1,
+"count": 14,
+"since": "answer rob"
+},
+"note": "zone door page fix door ship answer ship door ship note hub hub fix answer boa",
+"sessions": [
+{
+"cost_usd": 17.28,
+"doing": "walk walk note note answer test storm zone ship door robot chat zone robot wal",
+"id": "session_TEST78c4f97889a4cc5df616",
+"needs_you": "walk check build test fix page map robot storm check",
+"state": "working",
+"title": "SMUIPO (King)",
+"updated": "2026-09-28T23:57:00Z"
+},
+{
+"cost_usd": 0,
+"doing": "roof roof zone page test king plan door answer king test plan walk",
+"id": "session_TEST3f8434b351ab464d6150",
+"needs_you": "",
+"state": "working",
+"title": "build storm zone page plan hub bu",
+"updated": "2026-09-28T23:57:00Z"
+},
+{
+"cost_usd": 0,
+"doing": "robot walk page test storm roof robot hu",
+"id": "session_TEST56784aa02d2bce7435be",
+"needs_you": "",
+"state": "working",
+"title": "plan storm test test k",
+"updated": "2026-09-28T23:57:00Z"
+}
+],
+"updatedAt": "2026-09-29T00:10:00Z",
+"updatedBy": "SMUIPO (King)"
+},
+"events/20260928T094002Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T09:40:02Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"text": "ship door zone robot chat king king board m"
+},
+"events/20260928T094423Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T09:44:23Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"text": "robot hub storm ship doo"
+},
+"events/20260928T094442Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T09:44:42Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"text": "ship door zone robot chat king king board m"
+},
+"events/20260928T095851Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T09:58:51Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"text": "robot hub storm ship doo"
+},
+"events/20260928T100148Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T10:01:48Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"text": "ship door zone robot chat king king board m"
+},
+"events/20260928T100203Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T10:02:03Z",
+"kind": "start",
+"lane": "code",
+"room": "data",
+"status": "working",
+"task": "page fix page test board fix walk walk answer roof ship door zone answer zone",
+"text": "robot note note hub note answer robot hub build fix hub storm robot build board map shi"
+},
+"events/20260928T100725Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T10:07:25Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"text": "page fix hub chat fix walk walk note chat fix p"
+},
+"events/20260928T100739Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T10:07:39Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "king king board storm robot map answer robot build fix page roof robot note walk",
+"text": "robot hub chat roof check chat king zone ship build plan hub map ship answer ship walk walk chec"
+},
+"events/20260928T101133Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T10:11:33Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T101327Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T10:13:27Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T101517Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T10:15:17Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"task": "king king plan chat fix hub build map s",
+"text": "plan note walk door answer king ship build test m"
+},
+"events/20260928T101736Z-code": {
+"agent": "code",
+"at": "2026-09-28T10:17:36Z",
+"kind": "start",
+"lane": "code",
+"room": "board",
+"status": "working",
+"text": "plan door answer board"
+},
+"events/20260928T102847Z-code": {
+"agent": "code",
+"at": "2026-09-28T10:28:47Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "done",
+"text": "board storm zone robot chat king king boar"
+},
+"events/20260928T103842Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T10:38:42Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"text": "ship door zone robot chat king king board m"
+},
+"events/20260928T103854Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T10:38:54Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "storm check fix note answer zone door",
+"text": "fix walk robot hub map page roof king roof page"
+},
+"events/20260928T103900Z-king-review": {
+"agent": "king",
+"at": "2026-09-28T10:39:00Z",
+"kind": "review",
+"room": "board",
+"text": "page board chat plan storm robot build fix walk answer zone page roof zone robot storm check chat board plan storm zone robot walk page map zone ship hub map zone robot map",
+"who": "SMUIPO"
+},
+"events/20260928T104532Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T10:45:32Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T110000Z-king-review": {
+"agent": "king",
+"at": "2026-09-28T11:00:00Z",
+"kind": "review",
+"room": "board",
+"text": "king zone walk page roof king king king test storm king zone door roof king ship note walk note note answer robot map robot walk walk page test storm zone walk note bui",
+"who": "SMUIPO"
+},
+"events/20260928T110216Z-you": {
+"agent": "you",
+"at": "2026-09-28T11:02:16Z",
+"kind": "handoff",
+"lane": "board",
+"name": "FilthE",
+"room": "board",
+"status": "done",
+"task": "builder-q1slpbl1",
+"text": "build fix hub chat king king plan door page roof page plan build fix an",
+"to": "code"
+},
+"events/20260928T110831Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T11:08:31Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "fix page test map page king test plan",
+"text": "map check build test test map page roof zone wa"
+},
+"events/20260928T111200Z-king": {
+"agent": "king",
+"at": "2026-09-28T11:12:00Z",
+"kind": "note",
+"room": "board",
+"text": "note build plan door page roof page board build fix door check map check storm ship door answer ship door ship build test king board build plan storm robot build test test map ship note door zone door zone che",
+"who": "SMUIPO"
+},
+"events/20260928T111225Z-code": {
+"agent": "code",
+"at": "2026-09-28T11:12:25Z",
+"kind": "start",
+"lane": "code",
+"room": "board",
+"status": "working",
+"task": "build chat plan door check plan storm robot not",
+"text": "board hub build storm king zone ship door robot storm roo"
+},
+"events/20260928T111608Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T11:16:08Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T111814Z-code": {
+"agent": "code",
+"at": "2026-09-28T11:18:14Z",
+"kind": "start",
+"lane": "code",
+"room": "board",
+"status": "working",
+"task": "fix hub hub chat plan chat test plan note",
+"text": "test board chat plan note answer zone door robot cha"
+},
+"events/20260928T112000Z-king-review": {
+"agent": "king",
+"at": "2026-09-28T11:20:00Z",
+"kind": "review",
+"room": "board",
+"text": "roof robot note answer board map answer roof check build chat test test plan door answer king plan build storm roof ship note door zone robot storm te",
+"who": "SMUIPO"
+},
+"events/20260928T112212Z-code": {
+"agent": "code",
+"at": "2026-09-28T11:22:12Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "done",
+"text": "board storm zone robot chat king king boar"
+},
+"events/20260928T112400Z-king": {
+"agent": "king",
+"at": "2026-09-28T11:24:00Z",
+"kind": "note",
+"room": "board",
+"text": "robot walk robot note answer king king board chat king board hub storm test storm zone answer ship build storm test map door ship hub",
+"who": "SMUIPO"
+},
+"events/20260928T112819Z-code": {
+"agent": "code",
+"at": "2026-09-28T11:28:19Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "done",
+"text": "board storm zone robot chat king king boar"
+},
+"events/20260928T113500Z-king-review": {
+"agent": "king",
+"at": "2026-09-28T11:35:00Z",
+"kind": "review",
+"room": "board",
+"text": "storm roof page map door zone door page map page king zone robot map answer board build test plan door check map check chat fix hub fix note hub note door roof king",
+"who": "SMUIPO"
+},
+"events/20260928T115339Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T11:53:39Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "page plan note note hub build storm check map door check",
+"text": "answer ship hub note answer ship answer roof zone page king plan d"
+},
+"events/20260928T115339Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T11:53:39Z",
+"kind": "start",
+"lane": "code",
+"room": "data",
+"status": "working",
+"task": "chat board fix check plan hub map robot build chat fix answ",
+"text": "robot build board map zone ship walk page map door answer king king s"
+},
+"events/20260928T115500Z-king": {
+"agent": "king",
+"at": "2026-09-28T11:55:00Z",
+"kind": "note",
+"room": "board",
+"text": "ship walk door page board map door check fix note door robot storm check map check fix hub hub note build plan chat test test storm check build board storm zone check build plan note chat king roof ship note hub chat king board plan hub chat",
+"who": "SMUIPO"
+},
+"events/20260928T120021Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T12:00:21Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"text": "page fix hub chat fix walk walk note chat fix p"
+},
+"events/20260928T120300Z-code": {
+"agent": "code",
+"at": "2026-09-28T12:03:00Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "working",
+"task": "T190",
+"text": "hub hub chat roof roof king king zone check map zone ship build plan walk note door check chat plan note door sh"
+},
+"events/20260928T120300Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:03:00Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "working",
+"task": "handoff",
+"text": "chat zone answer ship walk walk check storm test fix check plan build test board storm king test storm zone page fix walk note chat fix walk check build storm robot hub hub map robot map answer zone page board chat tes"
+},
+"events/20260928T120301Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T12:03:01Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"task": "T190",
+"text": "door page test board chat king king ship hub storm king king test test board map answer zone page test king board"
+},
+"events/20260928T120500Z-king-order": {
+"agent": "king",
+"at": "2026-09-28T12:05:00Z",
+"kind": "handoff",
+"room": "board",
+"text": "hub map ship walk robot build storm roof king ship hub hub hub note answer ship door zone ship door robot hub build fix check board storm test map answer test fix page plan chat zone page roof ship page roof zone ship walk answer board plan chat board fix hub storm ship note chat roof ship walk walk walk walk walk walk",
+"to": "all",
+"who": "SMUIPO"
+},
+"events/20260928T121421Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T12:14:21Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "note build board hub chat roof page fix an"
+},
+"events/20260928T121500Z-king-hubnote": {
+"agent": "king",
+"at": "2026-09-28T12:15:00Z",
+"kind": "handoff",
+"room": "board",
+"text": "page test plan build map page plan door roof robot map door zone ship note walk note chat plan build chat plan hub chat king test test king board plan build test test map ship page roof robot walk note answer test plan build plan walk walk walk walk walk robot",
+"to": "door page fix walk answer zone walk robot map shi",
+"who": "SMUIPO"
+},
+"events/20260928T122000Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T12:20:00Z",
+"by": "code",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "T190",
+"text": "storm roof page map page roof robot hub storm king board hub hub note note door roof page map page roof zone door roof page board storm check storm king roof check fix door shi"
+},
+"events/20260928T122000Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:20:00Z",
+"kind": "handoff",
+"room": "board",
+"text": "door roof page plan note note answer king zone robot note build test test king king plan door answer king king board build chat king ship build fix answer ship walk walk walk robot map zone door ship note chat fix check map ship walk page plan hub map check fix walk page king plan hub hub fix walk walk walk walk walk walk wal",
+"to": "king pla",
+"who": "SMUIPO"
+},
+"events/20260928T122130Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:21:30Z",
+"kind": "waiting",
+"lane": "board",
+"room": "king",
+"status": "note chat",
+"task": "open-map",
+"text": "king plan walk door answer ship door roof robot map check storm roof robot storm robot build chat plan door zone answer board build storm zone door page board map check map door ship build plan storm roof page board build plan st"
+},
+"events/20260928T122500Z-king-review": {
+"agent": "king",
+"at": "2026-09-28T12:25:00Z",
+"kind": "review",
+"room": "board",
+"text": "walk door robot note note build fix answer king king plan door answer king board storm king king plan chat fix note walk door check map ship hub chat test map page test fix hub fix hub hub storm ship walk robot walk page board storm robot walk note build fix walk door c",
+"who": "SMUIPO"
+},
+"events/20260928T123443Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T12:34:43Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "roof roof page plan note chat board fix door zone",
+"text": "roof zone page plan hub chat fix door check map door zone ro"
+},
+"events/20260928T123500Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:35:00Z",
+"kind": "decided",
+"lane": "board",
+"room": "king",
+"status": "working",
+"task": "open-map",
+"text": "chat board plan build board storm test storm test test test board storm test map robot note door answer board map robot hub fix hub chat test fix page fix answer zone ship build test board chat"
+},
+"events/20260928T124500Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:45:00Z",
+"fact": "robot build test plan storm ship hub hub hub map page roof page test board chat plan walk d",
+"kind": "decided",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "ask-filthe",
+"text": "hub chat plan walk door answer robot storm roof page plan note note door page king roof ship build storm check plan build test board build plan"
+},
+"events/20260928T124530Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:45:30Z",
+"kind": "waiting",
+"lane": "board",
+"room": "king",
+"status": "note chat",
+"task": "open-map",
+"text": "storm robot map check storm roof check chat fix hub chat king board plan door ship page king ship answer test map answer roof ship hub storm zone robot build plan chat plan hub map robot hub fix check chat king king plan chat king king ship note"
+},
+"events/20260928T124627Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T12:46:27Z",
+"kind": "start",
+"lane": "code",
+"room": "data",
+"status": "working",
+"task": "page test board fix page plan door page map door check chat roof king king board",
+"text": "zone door check build fix answer king plan note walk note hub chat board build map answer roof pag"
+},
+"events/20260928T124700Z-king": {
+"agent": "king",
+"at": "2026-09-28T12:47:00Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "working",
+"task": "round-62",
+"text": "storm robot build chat test board chat king plan note chat plan note answer robot walk page board storm ship answer board plan storm check chat roof roof king ship build map page map robot map ship walk page k"
+},
+"events/20260928T125200Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T12:52:00Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"task": "T190",
+"text": "test king king board map answer zone check build fix answer robot note walk check fix walk robot hub hub build test test fix page test plan walk"
+},
+"events/20260928T125924Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T12:59:24Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"text": "page fix hub chat fix walk walk note chat fix p"
+},
+"events/20260928T130055Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T13:00:55Z",
+"kind": "start",
+"lane": "code",
+"room": "data",
+"status": "working",
+"task": "plan build test fix walk walk answer test storm zone ship build fix page plan h",
+"text": "plan chat test plan note door roof robot storm roof roof check plan storm robot storm test fix door roof che"
+},
+"events/20260928T130130Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:01:30Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "round-62",
+"text": "hub chat king zone ship page map ship walk walk door robot hub hub build chat roof robot map zone walk walk door page board plan build fix note note chat test fix note chat plan note walk page plan chat plan note walk check s"
+},
+"events/20260928T131419Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T13:14:19Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "note build board hub chat roof page fix an"
+},
+"events/20260928T131430Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T13:14:30Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"text": "page fix hub chat fix walk walk note chat fix p"
+},
+"events/20260928T131540Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T13:15:40Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "ship walk note hub build chat test map check fix door answer",
+"text": "roof check build test fix door zone page map check storm roof ship page"
+},
+"events/20260928T131540Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T13:15:40Z",
+"kind": "start",
+"lane": "code",
+"room": "engine",
+"status": "working",
+"task": "plan walk answer robot storm zone robot storm king king roof king roof zone page",
+"text": "zone ship build map ship answer zone robot walk walk answer board chat test test map door pa"
+},
+"events/20260928T131600Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:16:00Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "note chat",
+"task": "open-map",
+"text": "note walk check fix check build plan hub note build storm test king king board plan door answer zone robot storm test fix check plan build storm check storm roof page map page board build fix walk check board hub fix hub hub hub note note answer board fix hub"
+},
+"events/20260928T133000Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:30:00Z",
+"fact": "chat king ship note answer king roof check board chat roof zone walk door zone walk robot chat plan door ship build storm",
+"kind": "decided",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "get-in-his-head",
+"text": "door robot walk walk note door check storm ship hub fix walk page king test map check board chat test test king ship page map robot map pa"
+},
+"events/20260928T133030Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:30:30Z",
+"kind": "waiting",
+"lane": "board",
+"room": "king",
+"status": "note chat",
+"task": "vision",
+"text": "note note note chat board chat test king roof king roof zone ship door zone ship answer ship door ship hub build storm test storm roof roof page king board chat board storm king plan hub chat roof page test fix hub hub storm roof"
+},
+"events/20260928T133805Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T13:38:05Z",
+"kind": "done",
+"lane": "code",
+"room": "engine",
+"status": "done",
+"text": "chat roof king king board plan note door check pl"
+},
+"events/20260928T133840Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T13:38:40Z",
+"kind": "start",
+"lane": "code",
+"room": "engine",
+"status": "working",
+"task": "plan note note chat plan storm test king king test test map answer test test s",
+"text": "door page plan storm zone ship note chat roof roof zone door roof robot hub hub note doo"
+},
+"events/20260928T134000Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:40:00Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "T211",
+"text": "roof ship build storm robot walk note note door zone door robot hub map check map answer board chat zone door zone ship note chat fix note door answer board map page roof zone page king ship note door answer robot map answer s"
+},
+"events/20260928T135500Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:55:00Z",
+"fact": "fix door page roof robot map ship door page plan storm test test map page plan hub map door answer zone answer board storm ship note walk walk walk",
+"kind": "decided",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "vision",
+"text": "zone robot walk check map zone answer roof ship note door zone ship note chat zone ship walk door roof king test test fix page roof roof page king test test plan hub hub storm king ship hub storm"
+},
+"events/20260928T135508Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T13:55:08Z",
+"kind": "done",
+"lane": "code",
+"room": "engine",
+"status": "done",
+"text": "chat roof king king board plan note door check pl"
+},
+"events/20260928T135519Z-code": {
+"agent": "code",
+"at": "2026-09-28T13:55:19Z",
+"kind": "note",
+"lane": "code",
+"room": "board",
+"status": "idle",
+"task": "T190",
+"text": "robot storm robot storm roof page fix hub fix hub map check map ship page fix walk page test king zone robot hub storm zone door roof robot map door page fix check map page test stor"
+},
+"events/20260928T135530Z-king": {
+"agent": "king",
+"at": "2026-09-28T13:55:30Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "working",
+"task": "path",
+"text": "note chat test king ship walk robot map answer ship answer board hub storm king zone ship page board fix note chat plan door robot note note hub storm ship note note answer king plan storm king ship answer test test bo"
+},
+"events/20260928T140300Z-king": {
+"agent": "king",
+"at": "2026-09-28T14:03:00Z",
+"kind": "handoff",
+"lane": "board",
+"room": "king",
+"status": "waiting",
+"task": "handoff",
+"text": "king zone walk robot map page plan build chat plan build test test test board hub chat fix walk check map ship door ship walk robot note chat plan build plan walk note chat board hub note hub stor",
+"to": "king"
+},
+"events/20260928T142000Z-king": {
+"agent": "king",
+"at": "2026-09-28T14:20:00Z",
+"fact": "answer robot map robot note walk walk door robot chat king roof ship door rob",
+"kind": "decided",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "king",
+"text": "robot walk answer test king zone robot storm king ship walk robot storm robot storm test board hub build storm robot walk robot chat plan storm check storm test king kin"
+},
+"events/20260928T144000Z-king": {
+"agent": "king",
+"at": "2026-09-28T14:40:00Z",
+"kind": "note",
+"lane": "board",
+"room": "king",
+"status": "waiting",
+"task": "pause",
+"text": "plan build fix answer robot chat plan chat plan chat test board build storm zone door roof zone ship build map robot walk walk page test board fix walk answer test test map ship page fix door check chat"
+},
+"events/20260928T144500Z-king": {
+"agent": "king",
+"at": "2026-09-28T14:45:00Z",
+"kind": "done",
+"lane": "board",
+"room": "king",
+"status": "done",
+"task": "owner-share",
+"text": "storm test test fix check build test fix hub storm roof robot storm roof king king zone check plan door ship hub fix walk walk door answer board build plan storm robot wal"
+},
+"events/20260928T163512Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T16:35:12Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "answer roof check build map zone answer ship pag",
+"text": "note chat fix note chat roof check storm check board storm"
+},
+"events/20260928T163512Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T16:35:12Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"task": "board fix answer zone ship build fix door zone robot",
+"text": "answer test board chat zone ship answer king ship door check fi"
+},
+"events/20260928T163828Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-28T16:38:28Z",
+"kind": "done",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"text": "ship door zone robot chat king king board m"
+},
+"events/20260928T163834Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T16:38:34Z",
+"kind": "start",
+"lane": "code",
+"room": "engine",
+"status": "working",
+"task": "page plan walk check map ship door roof page",
+"text": "note note chat plan note hub note door zone ship build"
+},
+"events/20260928T164354Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T16:43:54Z",
+"kind": "done",
+"lane": "code",
+"room": "engine",
+"status": "done",
+"text": "chat roof king king board plan note door check pl"
+},
+"events/20260928T164403Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T16:44:03Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "check chat plan note note not",
+"text": "door check chat roof zone answer robot"
+},
+"events/20260928T164430Z-king": {
+"agent": "king",
+"at": "2026-09-28T16:44:30Z",
+"kind": "note",
+"lane": "board",
+"room": "board",
+"status": "done",
+"text": "map door answer robot hub chat test plan door page test plan note walk answer robot walk note walk walk check board storm zone robot map robot chat roof page board chat fix hub build chat plan note note note build test board fix walk note hub fix answer king roof che"
+},
+"events/20260928T170018Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T17:00:18Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "note build board hub chat roof page fix an"
+},
+"events/20260928T170054Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:00:54Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "king ship answer robot hu",
+"text": "plan storm check fix hub chat board"
+},
+"events/20260928T170100Z-king": {
+"agent": "king",
+"at": "2026-09-28T17:01:00Z",
+"kind": "note",
+"lane": "board",
+"room": "board",
+"status": "done",
+"text": "note walk page board fix page roof ship hub map door zone walk answer robot storm zone page map robot chat king king zone page king zone ship build chat roof king ship door ship build test map check build chat zone walk page roof king king roof zone answer board chat plan walk check fix hub fix walk walk walk wal"
+},
+"events/20260928T170537Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:05:37Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T171111Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:11:11Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"text": "fix answer board chat"
+},
+"events/20260928T171512Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:15:12Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T171655Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:16:55Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T172144Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:21:44Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"text": "fix answer board chat"
+},
+"events/20260928T172520Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T17:25:20Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T173000Z-king": {
+"agent": "king",
+"at": "2026-09-28T17:30:00Z",
+"kind": "note",
+"lane": "board",
+"room": "board",
+"status": "needs",
+"text": "build test test king test king ship note chat plan build storm roof page roof robot map answer test fix hub note answer board chat zone ship build board build test king king zone check plan hub build board chat plan note answer roo"
+},
+"events/20260928T181750Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T18:17:50Z",
+"kind": "done",
+"lane": "code",
+"result": {
+"issues": 0,
+"of": 3,
+"passed": 3
+},
+"room": "dock",
+"status": "done",
+"step": "shipped",
+"task": "T190",
+"text": "plan hub storm test fix check board build chat zone check fix note note chat fix answer board storm ship note note hub hub build board chat zone walk answer robot build test storm robot build board map door answe"
+},
+"events/20260928T181751Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T18:17:51Z",
+"kind": "handoff",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"task": "T190",
+"text": "zone door zone answer roof roof robot map robot storm check chat plan chat roof page roof robot storm roof robot walk robot note build map door roof check board plan door page test storm robot map check plan chat boar",
+"to": "code"
+},
+"events/20260928T184610Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T18:46:10Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "zone answer test map page map page plan door ch",
+"text": "hub chat roof roof check chat plan build test map door ch"
+},
+"events/20260928T190547Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:05:47Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T191033Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:10:33Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "answer ship answer zone answer tes",
+"text": "ship note door page map page map check plan"
+},
+"events/20260928T191043Z-code": {
+"agent": "code",
+"at": "2026-09-28T19:10:43Z",
+"kind": "start",
+"lane": "code",
+"room": "board",
+"status": "working",
+"task": "storm ship answer zone robot storm roof shi",
+"text": "board plan build plan door check build storm zone rob"
+},
+"events/20260928T191122Z-code": {
+"agent": "code",
+"at": "2026-09-28T19:11:22Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "done",
+"text": "board storm zone robot chat king king boar"
+},
+"events/20260928T191133Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:11:33Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T191500Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:15:00Z",
+"kind": "note",
+"lane": "board",
+"long": "ship build board plan storm roof page map zone answer board chat roof roof robot note note chat fix page board hub hub fi\n\npage test king plan build map answer robot map robot map zone p\n\n1. plan note walk check fix check board build map robot map check plan hub\n2. hub chat fix page plan note walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "done",
+"text": "plan walk check board plan note answer robot storm zone robot build storm robot hub build board fix page plan storm k",
+"to": "you"
+},
+"events/20260928T192200Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:22:00Z",
+"kind": "note",
+"lane": "board",
+"long": "walk walk door check plan note door roof robot walk robot\n\nbuild test plan chat fix d\n- answer robot hub fix note d\n\nroof shi\n- page plan storm ship door robot hub storm check storm roof zone ship walk door check plan chat test storm ship note note walk door answer s\n- build storm ship page plan walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk\n1. walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk wal\n3. walk walk walk walk walk walk\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"room": "board",
+"status": "working",
+"task": "handoff",
+"text": "page king ship door zone robot chat king zone walk walk note walk answer roof page fix walk page test test king plan door ship n",
+"to": "you"
+},
+"events/20260928T192729Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T19:27:29Z",
+"kind": "start",
+"lane": "code",
+"room": "data",
+"status": "working",
+"task": "ship answer board chat zone robot storm test fix wal",
+"text": "door zone door answer ship hub storm zone door page king roof"
+},
+"events/20260928T192942Z-hub-keeper": {
+"agent": "hub-keeper",
+"at": "2026-09-28T19:29:42Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"text": "page fix hub chat fix walk walk note chat fix p"
+},
+"events/20260928T193126Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:31:26Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "answer ship walk",
+"text": "board plan note walk answer zone robot note answer test plan note chat test map check build storm check map ship answer robot build test fix answer board chat board storm zone wal"
+},
+"events/20260928T193421Z-you-k": {
+"agent": "you",
+"at": "2026-09-28T19:34:21Z",
+"chat": true,
+"kind": "handoff",
+"lane": "board",
+"name": "FilthE",
+"room": "board",
+"status": "done",
+"task": "",
+"text": "build fix door robot storm king king ship build map check bo",
+"to": "code"
+},
+"events/20260928T193805Z-you-k": {
+"agent": "you",
+"at": "2026-09-28T19:38:05Z",
+"chat": true,
+"kind": "handoff",
+"lane": "board",
+"name": "FilthE",
+"room": "board",
+"status": "done",
+"task": "",
+"text": "page map do",
+"to": "code"
+},
+"events/20260928T194000Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:40:00Z",
+"kind": "note",
+"lane": "board",
+"long": "zone walk answer robot chat roof king plan buil\n\ntest test fix hub map zone door ship page plan note note note hub storm ship walk robot walk note chat plan note note walk robot walk robot build board plan chat plan door zone walk check chat plan chat test test test board build\n\nchat king plan walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n\nwalk walk walk walk walk walk wal\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n3. walk walk walk walk walk walk walk wa\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk w\n5. walk walk walk walk walk walk walk walk walk\n6. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n7. walk walk walk walk walk walk walk w\n8. walk walk walk walk walk\n9. walk walk walk wal\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"re": "20260928T193421Z-you-k",
+"room": "board",
+"status": "working",
+"task": "T190",
+"text": "storm robot walk answer test king zone robot hub note walk page map robot map door robot storm king test king board plan hub storm roof ship hub hub chat fix answer zon",
+"to": "you"
+},
+"events/20260928T194118Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:41:18Z",
+"kind": "done",
+"lane": "code",
+"result": {
+"issues": 0,
+"of": 5,
+"passed": 5
+},
+"room": "dock",
+"status": "done",
+"task": "answer ship walk",
+"text": "map zone answer king plan storm ship hub map answer robot hub map answer king plan build map answer test fix note note chat zone ship answer ship answer ship build plan note door check fix check plan"
+},
+"events/20260928T194400Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T19:44:00Z",
+"kind": "handoff",
+"lane": "code",
+"long": "roof zone ship hub map check board build board hub chat roof robot storm check\n\n1. board chat fix check board plan walk answer robot chat roof check storm test king king zone ship hub fix check build fix note answer ship page roof ship note build board hub note door che\n2. plan storm check chat board plan walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n3. walk walk walk walk walk walk wal\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n5. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n6. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "dock",
+"status": "done",
+"task": "zone page king board ch",
+"text": "ship build storm zone ship door check build chat test test plan walk walk door page king ship page plan note note chat test map zone walk door ship build board build board plan note walk note door page test map zone door robot chat plan door zone answer robot hub n",
+"to": "code"
+},
+"events/20260928T194600Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:46:00Z",
+"kind": "note",
+"lane": "board",
+"long": "fix walk door answer ship page board hub map door robot hub note\n\n1. note chat zone walk walk page king roof ship page\n2. roof roof robot build storm roof king test plan build plan note walk check storm king zone walk note hub chat king test plan build fix door roof robot map answer king ship hub fix walk walk walk walk walk walk wal\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk walk walk walk\n- walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n- walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n- walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "working",
+"task": "T190",
+"text": "king roof king ship build chat fix walk answer test map check board storm test map check plan walk answer board fix door roof roof page test storm test storm zone door zone check fix door ship note build map check",
+"to": "you"
+},
+"events/20260928T194808Z-builder-chat": {
+"agent": "builder",
+"at": "2026-09-28T19:48:08Z",
+"kind": "handoff",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "",
+"text": "fix door zone ship hub note door page test king plan build map zone page roof check storm robot build map check fix walk robot hub hub build board build chat plan walk robot walk robot walk check board hub fix page board hub hub hu",
+"to": "builder"
+},
+"events/20260928T194809Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T19:48:09Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "",
+"text": "note walk robot build test storm king king board plan door answer zone robot storm king king plan build map zone answer"
+},
+"events/20260928T195000Z-code-fixer": {
+"agent": "code",
+"at": "2026-09-28T19:50:00Z",
+"kind": "handoff",
+"lane": "board",
+"room": "board",
+"status": "working",
+"task": "hub-comms",
+"text": "zone answer ship walk walk answer ship walk walk page plan door robot map page map door roof check map ship door roof check board map answer board map zone robot build plan walk walk note walk door answer ship page test plan build board build plan note chat king plan storm robot walk page board fix walk walk walk walk walk walk walk walk walk w",
+"to": "fixer"
+},
+"events/20260928T195126Z-code": {
+"agent": "code",
+"at": "2026-09-28T19:51:26Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"step": "investigating",
+"task": "roof king test",
+"text": "robot note note note chat king roof king roof ship note note note door ship note answer board hub fix hub fix door",
+"why": "roof roof king zone page test bo"
+},
+"events/20260928T195200Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:52:00Z",
+"kind": "note",
+"lane": "board",
+"long": "map zone check storm zone answer king roof page king plan walk answer ship hub hub storm ship hub storm king ki\n\nking ship door ship walk note answer zone walk walk page map check chat test storm ship build board build chat plan chat roof roof robot note build map page test test fix hub note\n\nwalk w\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk walk walk walk walk walk walk walk walk w\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa",
+"re": "20260928T193805Z-you-k",
+"room": "board",
+"status": "working",
+"task": "wake",
+"text": "build map zone ship build board fix check map check fix check storm roof check board build fix door answer test test king zone door robot storm test board storm roof ship hub hub fix check",
+"to": "you"
+},
+"events/20260928T195600Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:56:00Z",
+"kind": "note",
+"lane": "board",
+"long": "fix note hub hub chat board chat zone door zone ship page\n\nmap page board build test map answer king ship build plan build fix page map robot buil\n\nchat boa\n1. build test board build test map door ship answer robot map zone robot storm ship note walk robot build board plan storm check map ship walk walk walk walk walk walk walk walk w\n2. walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"re": "20260928T193805Z-you-k",
+"room": "board",
+"status": "working",
+"task": "T190",
+"text": "map page test fix hub build storm ship answer test king king king test king plan note door answer zone walk page plan note door page test fix hub b",
+"to": "you"
+},
+"events/20260928T195800Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T19:58:00Z",
+"kind": "note",
+"lane": "board",
+"long": "plan note chat board build board hub build storm c\n\nstorm roof ship note note walk walk walk note chat roof roof check chat test storm test king plan hub fix page king zone answer zone walk robot note walk note chat board hub build board fix note note door robot chat king ship answer test fix walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa",
+"room": "board",
+"status": "working",
+"task": "hub-comms",
+"text": "map page plan chat board map page map answer test fix answer board plan chat board build board build board plan walk robot build b",
+"to": "you"
+},
+"events/20260928T195917Z-code": {
+"agent": "code",
+"at": "2026-09-28T19:59:17Z",
+"kind": "done",
+"lane": "code",
+"long": "check fix answer test king board plan note build storm ro\n\n1. hub storm zone ship door ship walk check chat fix hub build storm zone page roof king roof ship door robot note chat king test test fix note build storm check chat plan walk check plan hub note door check fix note build test fix walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"metrics": {
+"files": 14,
+"findings": 14
+},
+"room": "tests",
+"status": "done",
+"step": "shipped",
+"task": "roof king test",
+"text": "chat king roof zone check map door zone page fix check storm king ship door answer robot chat test storm robot note door check plan note chat test board build storm check fix check map check map door robot build map robot note note walk door s",
+"to": "code"
+},
+"events/20260928T200000Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:00:00Z",
+"kind": "note",
+"lane": "board",
+"long": "answer king roof robot buil\n\nfix walk note note chat plan chat plan note note hub hub fix note walk note answer ship door answer ship walk answer king board map page king plan storm check plan door robot build storm ship page king zone robot map page king board storm check storm ship hub hub note walk walk walk walk walk walk walk w\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"room": "board",
+"status": "working",
+"task": "hub-comms",
+"text": "roof check build map door zone ship door answer board storm test plan build board fix page board build",
+"to": "you"
+},
+"events/20260928T200121Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:01:21Z",
+"kind": "done",
+"lane": "code",
+"result": {
+"issues": 0,
+"of": 9,
+"passed": 9
+},
+"room": "dock",
+"status": "done",
+"task": "",
+"text": "hub hub storm check fix page plan door ship door roof king plan storm robot storm test storm zone robot note door page test map robot note build storm check map door robot map robot storm ship build plan door robot hub build storm roof king ro",
+"to": "code"
+},
+"events/20260928T200200Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:02:00Z",
+"kind": "note",
+"lane": "board",
+"long": "note chat zone page m\n\ncheck storm roof zone robot storm king king ship hub map page roof check plan n\n\nchat test map page map check fix door robot storm zone walk robot note note door page board hub build storm robot map page king test test board storm king plan hub storm check storm robot walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "working",
+"task": "hub-comms",
+"text": "board build plan note hub chat plan hub note walk robot walk answer robot hub chat test test board pla",
+"to": "you"
+},
+"events/20260928T200400Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:04:00Z",
+"kind": "note",
+"lane": "board",
+"long": "walk door check storm roof page plan storm robot build board bui\n\n1. board hub note note answer king test map ship build board hub build chat plan cha\n2. roof king plan hub storm robot hub fix answer test fix walk check board hub note walk robot chat zone robot build test test map zone answer board hub fix walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "working",
+"task": "robots",
+"text": "map door ship walk walk door answer ship hub build board hub build plan storm test king board map ship",
+"to": "you"
+},
+"events/20260928T200409Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T20:04:09Z",
+"kind": "start",
+"lane": "code",
+"room": "engine",
+"status": "working",
+"task": "robot note",
+"text": "door roof king ship build chat test test fix hub map door roof robot hub storm robot storm roof king king board plan note door ch"
+},
+"events/20260928T200600Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:06:00Z",
+"kind": "note",
+"lane": "board",
+"long": "map page king plan chat king zone door answer zone ship walk page map page plan hub storm robot map ship hub build board hub fix hub hub hub note answer ship door zone door answer board map ship note walk answer king ship page plan chat roof king zone walk\n\nnote note walk door roof robot walk walk walk walk walk walk wal\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n5. walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "done",
+"task": "robots",
+"text": "plan walk answer roof roof roof king board hub storm roof ship note answer test storm roof roof check board hub build fix check chat roof roof check storm test k",
+"to": "you"
+},
+"events/20260928T200643Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:06:43Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"task": "",
+"text": "roof page fix check map zone robot build map robot storm test king ship build map door zone door ship door zone ship page test map page roof page king roof zone ship note build test fix check board fix page map answer test king ship page king pl",
+"to": "code"
+},
+"events/20260928T200716Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T20:07:16Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "storm ship note not",
+"text": "roof robot chat roof zone ship walk page king ship walk door check plan build board fix check fix hub fix walk walk an"
+},
+"events/20260928T200800Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:08:00Z",
+"kind": "note",
+"lane": "board",
+"long": "page fix hub chat test plan build test fix door check fix walk walk walk\n\n1. robot build chat zone page king zone door ship walk door check board plan note answer robot build map answer board build storm check build board chat k\n2. ship answer test board plan build chat fix answer roof roof robot hub note walk walk walk walk walk walk walk walk walk walk walk wa\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "working",
+"task": "robots",
+"text": "test board build chat plan door page map robot storm test storm robot chat zone check plan build board hub note note note walk note build",
+"to": "you"
+},
+"events/20260928T200801Z-code-builder": {
+"agent": "code",
+"at": "2026-09-28T20:08:01Z",
+"kind": "handoff",
+"lane": "board",
+"room": "board",
+"status": "todo",
+"task": "report-card",
+"text": "check fix hub map answer robot chat roof roof robot storm king zone robot map answer ship hub hub storm king king plan build fix door check plan hub storm check chat test king ship note walk robot hub storm check map door robot",
+"to": "builder"
+},
+"events/20260928T200930Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:09:30Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "storm check fix page king ship build plan chat",
+"text": "king board storm roof roof page map ship note answer shi"
+},
+"events/20260928T201000Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:10:00Z",
+"kind": "done",
+"lane": "code",
+"result": {
+"issues": 0,
+"of": 3,
+"passed": 3
+},
+"room": "dock",
+"status": "done",
+"task": "",
+"text": "check map ship hub note door robot map zone answer roof king test board plan storm check chat fix walk page test test test king king plan walk answer robot note build board build map ship walk answer test storm robot map ship walk check plan storm roo"
+},
+"events/20260928T201000Z-code-upgrade": {
+"agent": "code",
+"at": "2026-09-28T20:10:00Z",
+"kind": "handoff",
+"lane": "board",
+"room": "board",
+"status": "todo",
+"task": "robots-upgrade",
+"text": "page fix check build test map check storm check storm roof robot chat board fix page plan storm check build storm zone page board storm zone check chat test board fix door ship walk page king king test test map robot hub fix answer board plan hub storm zone door ship answer robot note build plan note walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"to": "research"
+},
+"events/20260928T201001Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:10:01Z",
+"kind": "handoff",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"task": "",
+"text": "zone ship note build storm test plan door ship page map check map check chat king ship page test map ship answer roof robot storm king test map page king board map page board map zone page board map answer board plan walk walk walk door ship note note build plan",
+"to": "code"
+},
+"events/20260928T201001Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:10:01Z",
+"kind": "note",
+"lane": "board",
+"long": "roof check build fix walk page board storm robot note walk door roof roof\n1. ship note chat zone check map answer board plan note hub map robot chat roof roof robot storm robot chat k\n2. plan hub note walk walk robot hub map zone door check map door answer zone page pl\n3. build fix hub fix walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n5. walk walk walk walk walk walk walk walk\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"room": "board",
+"status": "working",
+"task": "robots",
+"text": "note note walk walk answer robot note build map answer robot build board storm robot chat plan hub chat fix walk page fix no",
+"to": "you"
+},
+"events/20260928T201200Z-code-upgrade": {
+"agent": "code",
+"at": "2026-09-28T20:12:00Z",
+"kind": "handoff",
+"lane": "board",
+"room": "board",
+"status": "todo",
+"task": "robots-upgrade",
+"text": "fix door zone answer king ship page fix page plan walk robot note note answer zone page king zone page roof zone ship build chat fix check board fix check board chat board chat fix check fix note door check build test board chat test king",
+"to": "research"
+},
+"events/20260928T201201Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:12:01Z",
+"kind": "note",
+"lane": "board",
+"long": "1. chat roof page test fix check build board hub storm robot chat roof ship page roof page map zone page board fix walk answer robot map robot hub chat test\n2. fix answer king plan walk check plan storm test plan door zone ship answer roof check storm ship build plan note answer robot walk robot map ship walk wal\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa",
+"room": "board",
+"status": "working",
+"task": "robots",
+"text": "zone ship walk check plan hub build storm ship answer test plan walk answer robot map robot chat board plan door page test fix page map ship door ship pa",
+"to": "you"
+},
+"events/20260928T201400Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:14:00Z",
+"kind": "note",
+"lane": "board",
+"long": "1. zone page king zone robot chat roof check chat board plan note chat king board plan note chat plan storm king test map door ship page map ship answer zone check fix note chat boar\n2. build storm ship walk walk page map page plan chat zone walk door robot walk note build map answer board fix walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk walk walk walk walk walk walk walk walk walk\n- walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n- walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"room": "board",
+"status": "working",
+"task": "robots",
+"text": "roof robot walk check fix note walk answer ship hub fix door answer roof ship door roof ship build fix hub hub storm ship pa",
+"to": "you"
+},
+"events/20260928T201600Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:16:00Z",
+"kind": "note",
+"lane": "board",
+"long": "board build board map answer robot chat test storm check board chat t\n\nplan build board fix hub build board plan storm robot build map ship walk robot note note note hub map check storm zone robot build plan door ship note answer test ma\n\npage test king ship page roof page plan chat test map robot walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "hub hub map page board map answer ship note note note build chat roof king roof king king board plan door answer ship walk not",
+"to": "you"
+},
+"events/20260928T201800Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:18:00Z",
+"kind": "note",
+"lane": "board",
+"long": "hub chat plan chat test king ship note walk page map robot chat king king king zone page king zone check map answer roof check plan storm test plan walk check chat roo\n\nship build test test storm zone robot storm check map robot hub note walk note walk note chat\n\nboard build plan door ship walk walk wa\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "page roof zone check fix walk robot hub map check board build map zone page test test",
+"to": "you"
+},
+"events/20260928T201913Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:19:13Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"task": "publish-pd-hub",
+"text": "page fix note note door ship hub build storm robot chat test map door check map answer zone ship note note hub hub hub note hub chat king board storm roof king zone answer robot c",
+"to": "you"
+},
+"events/20260928T201933Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:19:33Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T202000Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:20:00Z",
+"kind": "note",
+"lane": "board",
+"long": "roof zone page plan build board buil\n\nchat test plan chat zone door ship page fix walk walk note hub storm king plan note walk robot hub chat test plan hub fix page map page roof king test fix walk page map answer robot map answer king king test fix hub build map check\n\nbuild test plan walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "king zone ship build map zone door zone door check build test board plan chat board plan note answer roof page board storm ro",
+"to": "you"
+},
+"events/20260928T202200Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:22:00Z",
+"kind": "note",
+"lane": "board",
+"long": "chat fix answer robot walk walk walk page test storm test test tes\n\nplan hub fix page map ship note hub fix walk door answer ship door ship answer zone check storm test fix page king zone robot walk robot map page map page fix check board map check build storm ro",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "door zone page fix hub hub note build chat king ship answer zone walk page king board map door ship page board storm zone ship answer ship answer robot map answer ship w",
+"to": "you"
+},
+"events/20260928T202400Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:24:00Z",
+"kind": "note",
+"lane": "board",
+"long": "check c\n\nroof robot walk page roof ship build fix note\nbuild chat roof robot build map answer roof chec\nchat roof zone ship hub storm zone walk check fix answer roof page king roof page map ship door roof check chat king board chat zone walk rob\nstorm king roof king",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "test fix check board plan note build fix answer board hub map robot storm roof robot hub build board",
+"to": "you"
+},
+"events/20260928T203558Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:35:58Z",
+"kind": "done",
+"lane": "code",
+"room": "data",
+"status": "done",
+"task": "publish-hub",
+"text": "storm king zone robot build map page board storm ship build storm zone page fix hub build chat test storm robot chat board plan door check s",
+"to": "you"
+},
+"events/20260928T203630Z-builder": {
+"agent": "builder",
+"at": "2026-09-28T20:36:30Z",
+"kind": "done",
+"lane": "code",
+"room": "dock",
+"status": "done",
+"text": "check fix walk page roof king zone answer"
+},
+"events/20260928T203800Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T20:38:00Z",
+"kind": "note",
+"lane": "board",
+"long": "ship note build\n1. plan build board fix page king board fix answer board plan note walk robot hub note answer robot n\n2. door roof ship note hub map check board hub hub chat test board fix hub note note walk note door answer zone door ship note door roof roof check storm roof roof roof ship note walk walk walk walk wa\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n- walk walk walk walk walk walk walk walk walk walk walk wal\n- walk walk walk walk walk walk walk walk walk wa\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "needs_you",
+"task": "hub",
+"text": "chat king roof page map robot walk robot map robot map robot chat zone answer ship walk door zone answer test test plan build plan storm",
+"to": "you"
+},
+"events/20260928T234944Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T23:49:44Z",
+"kind": "start",
+"lane": "code",
+"room": "engine",
+"status": "working",
+"task": "robot note",
+"text": "hub map answer ship walk robot build map door robot note walk check storm zone page fix"
+},
+"events/20260928T235000Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T23:50:00Z",
+"kind": "note",
+"lane": "board",
+"long": "note hub fix check chat board hub fix answer king board storm test fix page map check map ship hub build fix walk answer test fix walk robot walk answer ship answer king bo\n\nfix door answer test map check build board hub chat plan hub map page map check board fi\n\ncheck build fix answer ship walk walk walk walk walk wal\n\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wa",
+"room": "board",
+"status": "working",
+"task": "path",
+"text": "storm test board build plan note hub hub fix hub map page king board chat zone page test storm roof ship door",
+"to": "you"
+},
+"events/20260928T235302Z-you-k": {
+"agent": "you",
+"at": "2026-09-28T23:53:02Z",
+"chat": true,
+"deliv": "",
+"kind": "handoff",
+"lane": "board",
+"mode": "order",
+"name": "FilthE",
+"order": "ship hub map zone page plan build test map ship build fix page king king test board f",
+"room": "board",
+"status": "done",
+"task": "",
+"text": "test fix walk",
+"to": "code",
+"trig": "trig_TEST3e358dcf18cb6954a9a8",
+"wake": "ok",
+"wakeAt": "2026-09-28T23:53:11Z"
+},
+"events/20260928T235309Z-you-k": {
+"agent": "you",
+"at": "2026-09-28T23:53:09Z",
+"chat": true,
+"kind": "note",
+"lane": "board",
+"mode": "answered",
+"name": "FilthE",
+"room": "board",
+"status": "done",
+"task": "",
+"text": "yes",
+"to": "code"
+},
+"events/20260928T235312Z-king-i": {
+"agent": "king",
+"at": "2026-09-28T23:53:12Z",
+"instant": true,
+"kind": "note",
+"lane": "board",
+"long": "board map ship hub hub chat plan storm check fix hub fix hub chat roof roof roof ship walk walk answer ki\nship note hub build fix check board hub fix check fix ans\n\n1. board fix door check chat plan build test storm check storm roof page fix a\n2. king roof king ship answer board chat fix walk walk walk walk walk walk walk w",
+"name": "SMUIPO",
+"re": "20260928T235302Z-you-k",
+"room": "board",
+"status": "idle",
+"task": "",
+"text": "king king board hub hub hub build board fix check fix door roof page board plan storm check map answer zone ship answer test storm test plan door answer zone answer zone ship build test fix walk answer ship door robot walk door ship door zone door page map zone walk walk walk note build test fix wal",
+"to": "you"
+},
+"events/20260928T235318Z-king-i": {
+"agent": "king",
+"at": "2026-09-28T23:53:18Z",
+"instant": true,
+"kind": "note",
+"lane": "board",
+"long": "chat king roof king roof ship walk walk answer roof zone answer roof roof roof ship page fix walk door roof king ship answer ship walk page board build chat zone check boar\nchat king king roof page plan note hub storm ship walk robot no\n\nwalk note chat fix walk walk robot build board storm robot walk walk walk walk walk walk walk walk walk walk\n\n1. walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w",
+"name": "SMUIPO",
+"re": "20260928T235309Z-you-k",
+"room": "board",
+"status": "idle",
+"task": "",
+"text": "check fix walk walk robot chat zone check plan storm roof king zone walk note hub storm ship note hub note answer robot chat king test map zone walk check build storm roof page king king zone ship note build plan storm robot storm roof check chat test plan hub fix note hub note hub note walk walk wa",
+"to": "you"
+},
+"events/20260928T235500Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T23:55:00Z",
+"kind": "note",
+"lane": "board",
+"long": "map zone check map robot storm king zone check map door roof zone robot storm roof page king king plan build storm ship note door ship note\n\nnote walk walk note note chat king test storm check map page board chat plan storm robot hub chat plan build fix check chat king ship build plan storm ship walk walk walk walk walk walk walk walk walk w\nwalk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk\n1. walk walk walk walk walk walk walk\n2. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"room": "board",
+"status": "needs_you",
+"task": "path",
+"text": "door zone page test board hub map check build fix walk check plan build test fix hub build storm test storm",
+"to": "you"
+},
+"events/20260928T235500Z-designer": {
+"agent": "designer",
+"at": "2026-09-28T23:55:00Z",
+"kind": "start",
+"lane": "code",
+"room": "dock",
+"status": "working",
+"task": "storm ship note not",
+"text": "king plan storm zone walk note door page roof check fix page roof ship hub storm robot note door ship hub map door ship answer king ship answer test king sh"
+},
+"events/20260928T235646Z-code": {
+"agent": "code",
+"at": "2026-09-28T23:56:46Z",
+"kind": "start",
+"lane": "code",
+"room": "board",
+"status": "working",
+"task": "ship walk door answer robot chat king ship door c",
+"text": "chat zone ship hub note door page fix check storm roof king"
+},
+"events/20260928T235735Z-code": {
+"agent": "code",
+"at": "2026-09-28T23:57:35Z",
+"kind": "done",
+"lane": "code",
+"room": "board",
+"status": "done",
+"text": "board storm zone robot chat king king boar"
+},
+"events/20260928T235800Z-code-r": {
+"agent": "code",
+"at": "2026-09-28T23:58:00Z",
+"kind": "note",
+"lane": "board",
+"long": "fix page board chat plan chat test storm\n1. robot hub hub fix walk answer test storm king zone robot hub map answer king plan build chat fix check map zone answer king king ship page fix check map check storm king zone answer roof page fix walk note chat board build board map answer test plan h\n2. fix walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk w\n3. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n4. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk wal\n5. walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk\n\nwalk walk walk walk walk walk walk walk walk",
+"re": "20260928T235302Z-you-k",
+"room": "board",
+"status": "needs_you",
+"task": "path",
+"text": "hub build board fix page test storm king plan storm zone robot walk answer ship note note note build board chat test fix note hub storm roof ship door ship answer test",
+"to": "you"
+},
+"events/20260928T235956Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-28T23:59:56Z",
+"kind": "done",
+"lane": "code",
+"room": "engine",
+"status": "done",
+"task": "robot note",
+"text": "plan chat fix door roof robot chat plan build map robot walk door answer robot map answer board fix page roof robot note hub build test king board hub map p"
+},
+"events/20260929T000030Z-engine-mechanic": {
+"agent": "engine-mechanic",
+"at": "2026-09-29T00:00:30Z",
+"kind": "handoff",
+"lane": "code",
+"room": "tests",
+"status": "done",
+"task": "robot note",
+"text": "hub fix note answer king ship page king test board storm king king king test king board plan hub build board build board chat king plan storm check build chat zone walk answer roof king board map ship answer robot note note hub",
+"to": "qa-tester"
+},
+"events/20260929T000400Z-designer": {
+"agent": "designer",
+"at": "2026-09-29T00:04:00Z",
+"kind": "done",
+"lane": "code",
+"result": {
+"issues": 0,
+"of": 8,
+"passed": 8
+},
+"room": "dock",
+"status": "done",
+"task": "storm ship note not",
+"text": "king test king king zone page king king test plan hub map door page map zone page roof zone door zone door robot walk answer board hub note hub storm check fix hub hub storm roof robot storm test fix n"
+},
+"events/20260929T000401Z-designer": {
+"agent": "designer",
+"at": "2026-09-29T00:04:01Z",
+"kind": "handoff",
+"lane": "code",
+"room": "dock",
+"status": "waiting",
+"task": "storm ship note not",
+"text": "storm zone check build plan storm check plan note answer king zone ship note chat test map answer test board chat board chat king board chat test board storm zon",
+"to": "code"
+},
+"events/20260929T000734Z-qa-tester": {
+"agent": "qa-tester",
+"at": "2026-09-29T00:07:34Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"task": "zone check build chat board hub storm ship note door ro",
+"text": "plan hub hub note build storm king board build fix door ship answ"
+},
+"events/20260929T000915Z-builder": {
+"agent": "builder",
+"at": "2026-09-29T00:09:15Z",
+"kind": "start",
+"lane": "code",
+"room": "tests",
+"status": "working",
+"task": "code-health",
+"text": "answer roof zone walk note answer king board plan hub map ship page plan build map page test board map ship page map check storm ship walk note chat king plan chat king sh"
+},
+"system/hub": {
+"codeImportedThrough": "2026-09-25T17:23:43Z",
+"howTo": "hub build plan note answer board build storm king roof robot map ship note cha",
+"protocol": 1
+},
+"system/king": {
+"at": "2026-09-28T19:43:00Z",
+"by": "SMUIPO (King)",
+"live_session": "session_TEST78c4f97889a4cc5df616",
+"orders": [
+{
+"task": "T199",
+"text": "storm check map check storm ship page king roof page roof ship hub fix check map page te",
+"to": "FilthE"
+},
+{
+"task": "T202",
+"text": "king roof ship build plan storm test test plan storm king king board chat board fix walk check fix page map door robot note ch",
+"to": "FilthE"
+}
+],
+"wake_trigger": "trig_TEST3e358dcf18cb6954a9a8"
+},
+"system/memory": {
+"facts": [
+"storm zone check chat king roof king plan storm test board hub build board plan walk check build map ship note walk robot hub fix note walk robot build storm zone door robot note door check map door zone answer roof roof check chat king roof check board chat zone check chat test map page plan walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk walk",
+"board chat roof king zone walk walk robot chat king plan door robot map door robot note note build storm test king zone walk page roof robot walk answer zone robot build",
+"answer test plan note build map robot build test fix door ship note answer ship note chat board chat zone walk check map door page roof robot storm ship page board plan note walk walk note note door check chat roof robot note walk page",
+"ship note build storm check chat king roof ship page test fix page map page fix page boa",
+"board build chat zone page test king plan build chat zone check plan hub hub storm test fix check build chat board map",
+"king test fix door check fix answer roof robot walk note door ship hub storm robot note build map zone door check fix note note chat test map page king board hub chat boar",
+"walk answer roof ship walk answer board hub hub map zone answer",
+"ship page test test test test fix check fix door robot map robot map answer board plan hub build map zone walk note walk page king king king board chat tes",
+"note walk check map door answer robot map door check plan walk answer king zone answer ship build test",
+"hub hub storm king ship page map door page plan door roof roof check build",
+"king ship door zone check build map robot note note door roof king plan storm zone door robot note answer king board chat fix note walk page board storm ship door c",
+"check plan storm robot map page roof page fix check board build storm king board hub note walk check boar",
+"build fix note hub storm test king roof robot build map ship door ship door zon",
+"check chat roof roof zone robot note answer robot walk note door robot build storm robot map page map zone door page king roof king zone door robot build plan note build storm zone ship answ",
+"king roof king board fix door answer ship hub build plan door check map zone check map door zone door answer zone door page board hub note walk page roof king board hub chat king test king roof ship note ans",
+"walk walk door page test map robot chat plan hub chat roof roof page plan walk check build te",
+"walk door zone walk page board hub hub hub storm test test test storm zone door check fix check storm king board fix door robot map answer king king ship page fix page king zone ship door zone check map ship build plan build map r"
+],
+"updatedAt": "2026-09-27T20:25:05Z",
+"updatedBy": "SMUIPO (King)"
+},
+"system/robots": {
+"at": "2026-09-28T19:50:00Z",
+"by": "SMUIPO (King)",
+"dispatch": {
+"builder": "trig_TEST50d8a30a9722e8056268",
+"designer": "trig_TEST76f9080787349c5327af",
+"engine": "trig_TESTf24cc666a623bbb46223",
+"king": "trig_TEST3e358dcf18cb6954a9a8",
+"qa": "trig_TEST44de8136fec63a3c1487",
+"research": "trig_TEST1ad1de391c3c43afdfbf"
+},
+"note": "answer ship page board fix door answer ship walk walk page map page king plan storm roof robot walk door page board storm roof roof zone check build plan build fix check board plan"
+},
+"system/stale": {
+"at": "2026-09-28T11:56:49Z",
+"by": "FilthE (hub)",
+"tasks": []
+},
+"wakes/20260928T113136Z-8fsvct": {
+"at": "2026-09-28T11:31:36Z",
+"n": 1
+},
+"wakes/20260928T193424Z-8fsvct": {
+"at": "2026-09-28T19:34:24Z",
+"n": 1
+},
+"wakes/20260928T193807Z-8fsvct": {
+"at": "2026-09-28T19:38:07Z",
+"n": 1
+},
+"wakes/20260928T235313Z-8fsvct": {
+"at": "2026-09-28T23:53:13Z",
+"n": 1
+}
+}
+}

@@ -1,7 +1,7 @@
 /* ================= T52 quick estimate (EstimateScreen) =================
    A porch screen for the HMP App: pick the job, the size and the shape, get a low-high range, text it, save it to
    the lead. No math lives here: prices + rules come from the db doc `system/prices` (hh.py estimate --export-rules)
-   and the math from docs/app/estimate.js, pasted as-is inside a wrapper: HMPEstimateMath = {estimate, selfCheck, RULES_VERSION}.
+   and the math from docs/app/estimate.js (window.HMPEstimateMath = {estimate, selfCheck, RULES_VERSION}, its own file).
    If selfCheck(rules) finds any miss, the screen hides the estimate and says "Price rules out of date".
 
    const ctl = EstimateScreen.create({lang, rules, estimate, selfCheck, lead, canSave, save});
@@ -12,17 +12,18 @@
      canSave   true when this viewer may write leads
      save      optional async (est) => 'saved' | 'queued'; default EstimateScreen.saveToLead(db, lead.id, est)
      db        used by the default save
+     onShow    optional (est, button) => void: v21, adds "Show homeowner" under the range (opens the homeowner screen)
    ctl.el is the screen's own element: re-append it after a re-render, it keeps its state.
    ctl.setLang(l) · ctl.setRules(r) · ctl.setLead(l) · ctl.setCanSave(b) · ctl.current() · ctl.destroy()
    EstimateScreen.saveToLead(db, leadId, est) writes lead.estimate = {low, high, job, at, using_reference}.
    Nothing here mentions deductibles or says insurance will pay (Nebraska 44-8604). */
 const EstimateScreen = (() => {
   'use strict';
-  const SUPPORTED_RULES = 1;
+  const SUPPORTED_RULES = 2;
   const STR = {
     en: {
       jobH: 'What job?', jobs: {siding: ['Siding', 'vinyl or James Hardie'], roof: ['Roof', 'shingles, tear-off'], gutters: ['Gutters', 'seamless, per foot'], mixed: ['Mixed', 'siding + roof + gutters']},
-      mat: {vinyl: 'Vinyl', hardie: 'James Hardie'}, matL: 'Siding type',
+      mat: {vinyl: 'Vinyl', insulated_vinyl: 'Insulated vinyl', hardie: 'James Hardie'}, matL: 'Siding type',
       sizeH: 'How big?', modeSq: 'I know the size', modeRough: "I don't know", modeRoughS: 'rough from house size', modeSqS: 'squares / feet',
       siding: ['Siding', 'squares of wall · 100 sq ft each'], roof: ['Roof', 'squares · 100 sq ft each'], gutter: ['Gutters', 'feet along the eaves'],
       foot: ['House footprint', 'ground floor, sq ft · a 40 x 35 house is 1,400'], storiesL: 'Stories',
@@ -52,11 +53,17 @@ const EstimateScreen = (() => {
       saveFail: "Couldn't save. Try again in a moment.", readOnly: "View only: this page can't save to leads.",
       before: (r, d) => `Saved before: ${r}${d ? ' · ' + d : ''}`, lastSaved: (r, d) => `On the lead now: ${r}${d ? ' · ' + d : ''}`,
       peek: 'estimate range', mktShort: 'market prices',
-      jobName: {siding: 'Siding', roof: 'Roof', gutters: 'Gutters', mixed: 'Mixed'}
+      jobName: {siding: 'Siding', roof: 'Roof', gutters: 'Gutters', mixed: 'Mixed'},
+      // rules v2 add-ons: optional, priced only when above 0
+      extrasH: 'Extras', extrasS: 'optional', extrasOn: n => `${n} added`, chimNo: 'None',
+      ex: {windows: ['Windows to wrap', 'count, metal wrap per window'], ice_water_sq: ['Ice & water shield', 'squares, eaves + valleys'], ridge_vent_ft: ['Ridge vent', 'feet along the ridge'],
+           chimney: ['Chimney flashing', 'how many chimneys'], skylight_ft: ['Skylight flashing', 'feet around the skylights'], gutter_guards_ft: ['Gutter guards', 'feet of gutter'], downspouts_ft: ['Downspouts', 'feet, top to bottom']},
+      natNote: items => `National price guide (not Nebraska) for: ${items}. Check with a local supplier.`,
+      show: 'Show homeowner', showS: 'Good / Better / Best, photos and next steps on a light screen.'
     },
     es: {
       jobH: '¿Qué trabajo?', jobs: {siding: ['Siding', 'vinil o James Hardie'], roof: ['Techo', 'teja, quitar y poner'], gutters: ['Canaletas', 'sin costura, por pie'], mixed: ['Mixto', 'siding + techo + canaletas']},
-      mat: {vinyl: 'Vinil', hardie: 'James Hardie'}, matL: 'Tipo de siding',
+      mat: {vinyl: 'Vinil', insulated_vinyl: 'Vinil aislado', hardie: 'James Hardie'}, matL: 'Tipo de siding',
       sizeH: '¿Qué tamaño?', modeSq: 'Sé el tamaño', modeRough: 'No lo sé', modeRoughS: 'aproximado por la casa', modeSqS: 'cuadros / pies',
       siding: ['Siding', 'cuadros de pared · 100 pies² cada uno'], roof: ['Techo', 'cuadros · 100 pies² cada uno'], gutter: ['Canaletas', 'pies a lo largo del alero'],
       foot: ['Tamaño de la casa', 'planta baja, pies² · una casa de 40 x 35 son 1,400'], storiesL: 'Pisos',
@@ -86,27 +93,38 @@ const EstimateScreen = (() => {
       saveFail: 'No se pudo guardar. Intenta otra vez en un momento.', readOnly: 'Solo lectura: esta página no puede guardar en prospectos.',
       before: (r, d) => `Guardado antes: ${r}${d ? ' · ' + d : ''}`, lastSaved: (r, d) => `En el prospecto ahora: ${r}${d ? ' · ' + d : ''}`,
       peek: 'rango estimado', mktShort: 'precios del mercado',
-      jobName: {siding: 'Siding', roof: 'Techo', gutters: 'Canaletas', mixed: 'Mixto'}
+      jobName: {siding: 'Siding', roof: 'Techo', gutters: 'Canaletas', mixed: 'Mixto'},
+      extrasH: 'Extras', extrasS: 'opcional', extrasOn: n => `${n} ${n === 1 ? 'agregado' : 'agregados'}`, chimNo: 'Ninguna',
+      ex: {windows: ['Ventanas para forrar', 'cuántas, forro de metal por ventana'], ice_water_sq: ['Barrera de hielo y agua', 'cuadros, aleros + valles'], ridge_vent_ft: ['Ventila de cumbrera', 'pies a lo largo de la cumbrera'],
+           chimney: ['Tapajuntas de chimenea', 'cuántas chimeneas'], skylight_ft: ['Tapajuntas de tragaluz', 'pies alrededor de los tragaluces'], gutter_guards_ft: ['Protectores de canaleta', 'pies de canaleta'], downspouts_ft: ['Bajantes', 'pies, de arriba a abajo']},
+      natNote: items => `Guía de precios nacional (no de Nebraska) para: ${items}. Confirmen con un proveedor local.`,
+      show: 'Mostrar al cliente', showS: 'Buena / Mejor / Superior, fotos y próximos pasos en una pantalla clara.'
     }
   };
   // The homeowner text. Same voice as the app's other texts (EN from Kenny, ES from Alex, "tú"). It always says
   // estimate range, not a final price. No deductible talk, no promise that insurance pays.
   const MSG = {
-    en: {hi: n => n ? `Hi ${n}, this is Kenny with HMP Siding & Roofing.` : 'Hi, this is Kenny with HMP Siding & Roofing.',
+    en: {hi: n => n ? `Hi ${n}, this is ${SETTINGS.people.en.first} with ${SETTINGS.company.name}.` : `Hi, this is ${SETTINGS.people.en.first} with ${SETTINGS.company.name}.`,
          range: (p, lo, hi, w, typical) => `Here's an estimate range for ${p}${typical ? ', based on typical local prices' : ''}: ${lo} to ${hi} for ${w}.`, home: 'your home', rough: "It's a rough number from the size of the house.",
          notFinal: "It's an estimate range, not a final price. Final price after we measure and inspect.",
          ins: "For insurance jobs, the insurer's approved scope sets the price.", end: 'Any questions, just text me here.',
-         siding: (m, q) => `new ${m === 'hardie' ? 'James Hardie' : 'vinyl'} siding (about ${q} squares)`, roof: q => `a new shingle roof (about ${q} squares)`,
+         siding: (m, q) => `new ${m === 'hardie' ? 'James Hardie' : m === 'insulated_vinyl' ? 'insulated vinyl' : 'vinyl'} siding (about ${q} squares)`, roof: q => `a new shingle roof (about ${q} squares)`,
          gutter: q => `new seamless gutters (about ${q} ft)`, soffit: q => `new soffit and fascia (about ${q} ft)`, and: ' and '},
-    es: {hi: n => n ? `Hola ${n}, soy Alex de HMP Siding & Roofing.` : 'Hola, soy Alex de HMP Siding & Roofing.',
+    es: {hi: n => n ? `Hola ${n}, soy ${SETTINGS.people.es.first} de ${SETTINGS.company.name}.` : `Hola, soy ${SETTINGS.people.es.first} de ${SETTINGS.company.name}.`,
          range: (p, lo, hi, w, typical) => `Este es un rango estimado para ${p}${typical ? ', según precios típicos de la zona' : ''}: ${lo} a ${hi} por ${w}.`, home: 'tu casa', rough: 'Es un número aproximado por el tamaño de la casa.',
          notFinal: 'Es un rango estimado, no un precio final. El precio final se da después de medir e inspeccionar.',
          ins: 'En trabajos de seguro, el alcance aprobado por la aseguradora fija el precio.', end: 'Cualquier pregunta, escríbeme aquí.',
-         siding: (m, q) => `siding nuevo ${m === 'hardie' ? 'James Hardie' : 'de vinil'} (unos ${q} cuadros)`, roof: q => `un techo nuevo de teja (unos ${q} cuadros)`,
+         siding: (m, q) => `siding nuevo ${m === 'hardie' ? 'James Hardie' : m === 'insulated_vinyl' ? 'de vinil aislado' : 'de vinil'} (unos ${q} cuadros)`, roof: q => `un techo nuevo de teja (unos ${q} cuadros)`,
          gutter: q => `canaletas nuevas sin costura (unos ${q} pies)`, soffit: q => `sofito y fascia nuevos (unos ${q} pies)`, and: ' y '}
   };
-  const STEP = {siding: {step: 1, big: 5, max: 250, dec: 1}, roof: {step: 1, big: 5, max: 250, dec: 1}, gutter: {step: 5, big: 20, max: 2000, dec: 0}, foot: {step: 50, big: 200, max: 12000, dec: 0}};
-  const DEFAULTS = {job: 'roof', material: 'vinyl', mode: 'sq', siding: 20, roof: 24, gutter: 140, foot: 1400, stories: 1, pitch: 'std', layers: 1};
+  const STEP = {siding: {step: 1, big: 5, max: 250, dec: 1}, roof: {step: 1, big: 5, max: 250, dec: 1}, gutter: {step: 5, big: 20, max: 2000, dec: 0}, foot: {step: 50, big: 200, max: 12000, dec: 0},
+                windows: {step: 1, big: 5, max: 80, dec: 0}, ice_water_sq: {step: 1, big: 5, max: 80, dec: 1}, ridge_vent_ft: {step: 5, big: 20, max: 400, dec: 0},
+                skylight_ft: {step: 1, big: 4, max: 120, dec: 0}, gutter_guards_ft: {step: 5, big: 20, max: 2000, dec: 0}, downspouts_ft: {step: 5, big: 20, max: 600, dec: 0}};
+  // rules v2 add-ons shown per job (the engine prices any add-on it gets; the screen only offers the ones that fit the job)
+  const EXTRAS = {siding: ['windows'], roof: ['ice_water_sq', 'ridge_vent_ft', 'chimney', 'skylight_ft'], gutters: ['gutter_guards_ft', 'downspouts_ft']};
+  const EXTRA_KEYS = ['windows', 'ice_water_sq', 'ridge_vent_ft', 'chimney', 'skylight_ft', 'gutter_guards_ft', 'downspouts_ft'];
+  const DEFAULTS = {job: 'roof', material: 'vinyl', mode: 'sq', siding: 20, roof: 24, gutter: 140, foot: 1400, stories: 1, pitch: 'std', layers: 1,
+                    windows: 0, ice_water_sq: 0, ridge_vent_ft: 0, chimney: 0, skylight_ft: 0, gutter_guards_ft: 0, downspouts_ft: 0, extrasOpen: false};
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
   const usd = x => '$' + Math.round(Number(x) || 0).toLocaleString('en-US');
@@ -121,8 +139,11 @@ const EstimateScreen = (() => {
     if (!db || typeof db.doc !== 'function') throw Object.assign(new Error('no database'), {code: 'offline'});
     if (!leadId || !est || !Number.isFinite(est.low) || !Number.isFinite(est.high)) throw Object.assign(new Error('nothing to save'), {code: 'invalid_argument'});
     const at = est.at || new Date().toISOString();
+    // day = the LOCAL calendar day it was made (at is UTC): the week counts by it, so a Sunday-evening estimate stays in its week
+    const t = new Date(at), p2 = n => String(n).padStart(2, '0');
+    const day = typeof est.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(est.day) ? est.day : isNaN(t) ? null : `${t.getFullYear()}-${p2(t.getMonth() + 1)}-${p2(t.getDate())}`;
     // every job key is written (null when unused): update() merges nested objects, so an old footprint can't linger
-    const estimate = {low: est.low, high: est.high, job: Object.assign(blankJob(), est.job || {}), at, using_reference: !!est.using_reference};
+    const estimate = {low: est.low, high: est.high, job: Object.assign(blankJob(), est.job || {}), at, day, using_reference: !!est.using_reference};
     return db.doc('leads/' + leadId).update({estimate, updated_at: at, updated_by: by || 'Quick estimate'});
   }
   // the app's outbox as a db handle: EstimateScreen.saveToLead(EstimateScreen.outboxDb(save), id, est)
@@ -150,7 +171,8 @@ const EstimateScreen = (() => {
     }
     return out;
   }
-  function blankJob(){ return {type: null, material: null, siding_squares: null, roof_squares: null, gutter_ft: null, footprint_sqft: null, stories: null, pitch: null, layers: null}; }
+  function blankJob(){ return {type: null, material: null, siding_squares: null, roof_squares: null, gutter_ft: null, footprint_sqft: null, stories: null, pitch: null, layers: null,
+    windows: null, ice_water_sq: null, ridge_vent_ft: null, chimney: null, skylight_ft: null, gutter_guards_ft: null, downspouts_ft: null}; }
 
   /* ---------- the screen ---------- */
   function create(opts){
@@ -176,7 +198,8 @@ const EstimateScreen = (() => {
     function prefill(){   // opened from a lead with an estimate on it: start from that job
       const j = lead && lead.estimate && lead.estimate.job; if (!j || !j.type) return;
       s.job = ['siding', 'roof', 'gutters', 'mixed'].includes(j.type) ? j.type : s.job;
-      if (j.material === 'hardie' || j.material === 'vinyl') s.material = j.material;
+      if (['hardie', 'vinyl', 'insulated_vinyl'].includes(j.material)) s.material = j.material;
+      for (const k of EXTRA_KEYS) { const v = Number(k === 'chimney' && j[k] === true ? 1 : j[k]); if (Number.isFinite(v) && v > 0) { s[k] = v; s.extrasOpen = true; } }
       if (j.footprint_sqft) { s.mode = 'rough'; s.foot = Number(j.footprint_sqft) || s.foot; } else s.mode = 'sq';
       if (j.siding_squares) s.siding = Number(j.siding_squares); if (j.roof_squares) s.roof = Number(j.roof_squares); if (j.gutter_ft) s.gutter = Number(j.gutter_ft);
       if ([1, 2, 3].includes(Number(j.stories))) s.stories = Number(j.stories);
@@ -187,6 +210,7 @@ const EstimateScreen = (() => {
 
     const has = k => ({siding: ['siding', 'mixed'], roof: ['roof', 'mixed'], gutter: ['gutters', 'mixed']}[k].includes(s.job));
     const rough = () => s.mode === 'rough' && s.job !== 'gutters';
+    const extrasFor = () => [...(has('siding') ? EXTRAS.siding : []), ...(has('roof') ? EXTRAS.roof : []), ...(has('gutter') ? EXTRAS.gutters : [])];
     function job(){
       const j = blankJob();
       Object.assign(j, {type: s.job, stories: s.stories, layers: s.layers, pitch: has('roof') || rough() ? s.pitch : 'std',
@@ -194,6 +218,7 @@ const EstimateScreen = (() => {
       if (rough()) j.footprint_sqft = s.foot;
       else { if (has('siding')) j.siding_squares = s.siding; if (has('roof')) j.roof_squares = s.roof; }
       if (has('gutter')) j.gutter_ft = s.gutter;
+      for (const k of extrasFor()) if (Number(s[k]) > 0) j[k] = Number(s[k]);
       return j;
     }
     function compute(){
@@ -228,10 +253,15 @@ const EstimateScreen = (() => {
       if (q.roof_squares) parts.push(L.what.roof(n1(q.roof_squares)));
       if (q.soffit_ft) parts.push(L.what.soffit(fmtNum(q.soffit_ft)));
       if (q.gutter_ft) parts.push(L.what.gutter(fmtNum(q.gutter_ft)));
+      parts.push(...addonWords(q, lang));
       const shape = [L.shape.stories(a.stories || s.stories)];
       if (q.roof_squares) shape.push(L.shape.pitch[a.pitch || s.pitch]);
       if ((a.layers || 1) > 1) shape.push(L.shape.layers(a.layers));
       return parts.join(' + ') + ' · ' + shape.join(', ');
+    }
+    function addonWords(q, l){   // "window wrap (14 windows)" from the price sheet's own words
+      return ((rules && rules.addons) || []).filter(a => Number(q[a.field]) > 0 || q[a.field] === true).map(a => { const n = q[a.field] === true ? 1 : Number(q[a.field]);
+        return (a.words[l] || a.words.en).replace('{q}', n1(n)).replace('{s}', n === 1 ? '' : 's'); });
     }
     function priceName(k){ const p = rules && rules.prices && rules.prices[k]; return p ? (p[lang] || p.en || k) : k; }
     function mathHtml(r){
@@ -270,6 +300,7 @@ const EstimateScreen = (() => {
       if (q.roof_squares) w.push(M.roof(Math.round(q.roof_squares)));
       if (q.soffit_ft) w.push(M.soffit(fmtNum(q.soffit_ft)));
       if (q.gutter_ft) w.push(M.gutter(fmtNum(q.gutter_ft)));
+      w.push(...addonWords(q, ml));
       const name = lead && typeof lead.first_name === 'string' ? lead.first_name.trim() : '';
       const place = lead && typeof lead.address === 'string' && lead.address.trim() ? lead.address.trim() : M.home;
       const parts = [M.hi(name), M.range(place, usd(r.low), usd(r.high), listJoin(w, M.and), !!r.using_reference)];
@@ -278,6 +309,11 @@ const EstimateScreen = (() => {
       if (!lead || lead.type !== 'cash') parts.push(M.ins);   // an everyday (cash) job skips the insurance sentence
       parts.push(M.end);
       return parts.join(' ');
+    }
+    // rules v2: items priced from a national guide get a small note, named the way the price sheet names them
+    function natNote(r){
+      const keys = [...new Set(r.lines.filter(l => l.reference && rules.prices[l.key] && rules.prices[l.key].scope === 'national').map(l => l.key))];
+      return keys.length ? `<p class="est-nat" role="note">${esc(T().natNote(keys.map(priceName).join(', ')))}</p>` : '';
     }
     function calm(h, p){ return `<section class="est-calm" data-res="1" role="status"><h3>${esc(h)}</h3>${p ? `<p>${esc(p)}</p>` : ''}</section>`; }
 
@@ -288,7 +324,7 @@ const EstimateScreen = (() => {
       const parts = [];
       // 1 · job
       parts.push(`<section class="est-sec"><h3 class="est-h">${esc(L.jobH)}</h3><div class="est-jobs" role="group" aria-label="${esc(L.jobH)}">${['siding', 'roof', 'gutters', 'mixed'].map(j => `<button type="button" class="est-job" data-k="job:${j}" data-set="job" data-v="${j}" aria-pressed="${s.job === j}"><b>${esc(L.jobs[j][0])}</b><span>${esc(L.jobs[j][1])}</span></button>`).join('')}</div>
-        ${has('siding') ? `<div class="est-row"><span class="est-lbl">${esc(L.matL)}</span>${seg('material', [['vinyl', L.mat.vinyl], ['hardie', L.mat.hardie]], s.material, L.matL)}</div>` : ''}</section>`);
+        ${has('siding') ? `<div class="est-row"><span class="est-lbl">${esc(L.matL)}</span>${seg('material', [['vinyl', L.mat.vinyl], ['insulated_vinyl', L.mat.insulated_vinyl], ['hardie', L.mat.hardie]], s.material, L.matL)}</div>` : ''}</section>`);
       // 2 · size
       const sz = [];
       if (s.job !== 'gutters') sz.push(seg('mode', [['sq', L.modeSq, L.modeSqS], ['rough', L.modeRough, L.modeRoughS]], s.mode, L.sizeH));
@@ -311,6 +347,15 @@ const EstimateScreen = (() => {
         sh.push(`<div class="est-row"><span class="est-lbl">${esc(L.layersL)}</span>${seg('layers', [[1, '1', L.layer1], [2, '2'], [3, '3']], s.layers, L.layersL)}</div>`);
         parts.push(`<section class="est-sec"><h3 class="est-h">${esc(L.shapeH)}</h3>${sh.join('')}</section>`);
       }
+      // 3b · extras (rules v2): collapsed until opened; the summary says how many are in use
+      const exk = extrasFor();
+      if (exk.length && rules && Array.isArray(rules.addons) && rules.addons.length) {
+        const on = exk.filter(k => Number(s[k]) > 0).length;
+        const rows = exk.map(k => k === 'chimney'
+          ? `<div class="est-row"><span class="est-lbl">${esc(L.ex.chimney[0])}</span>${seg('chimney', [[0, L.chimNo], [1, '1'], [2, '2']], s.chimney, L.ex.chimney[0])}</div>`
+          : stepper(k, L.ex[k][0], L.ex[k][1])).join('');
+        parts.push(`<details class="est-sec est-extras" id="est-extras"${s.extrasOpen ? ' open' : ''}><summary data-k="extras"><span class="est-h">${esc(L.extrasH)}</span><small>${esc(on ? L.extrasOn(on) : L.extrasS)}</small></summary><div class="est-exrows">${rows}</div></details>`);
+      }
       // 4 · result
       if (problem === 'loading') parts.push(calm(L.loadingH, L.loadingP));
       else if (problem === 'missing') parts.push(calm(L.missingH, L.missingP));
@@ -326,8 +371,10 @@ const EstimateScreen = (() => {
           <p class="est-what-line">${esc(whatLine(r))}</p>
           ${r.rough_squares ? `<p class="est-rough-note">${esc(L.roughNote)}</p>` : ''}
           <p class="est-notfinal">${esc(L.notFinal)}</p>
+          ${natNote(r)}
           <p class="est-ins">${esc(ins)}</p>
-          ${mathHtml(r)}</div></section>`);
+          ${mathHtml(r)}
+          ${opts.onShow ? `<div class="est-show"><button type="button" class="est-btn go" data-k="show" data-act="show">${esc(L.show)} →</button><small>${esc(L.showS)}</small></div>` : ''}</div></section>`);
         // 5 · text it
         const ml = s.msgLang || (lead && (lead.lang === 'es' || lead.language === 'es') ? 'es' : lead && lead.lang === 'en' ? 'en' : lang);
         const text = message(r, ml), num = lead && typeof lead.phone === 'string' ? lead.phone.replace(/[^\d+]/g, '') : '';
@@ -372,7 +419,7 @@ const EstimateScreen = (() => {
       const b = ev.target.closest('button'); if (!b || !el.contains(b)) return;
       if (b.dataset.set) {
         const k = b.dataset.set, v = b.dataset.v;
-        s[k] = ['stories', 'layers'].includes(k) ? Number(v) : v;
+        s[k] = ['stories', 'layers', 'chimney'].includes(k) ? Number(v) : v;
         if (k !== 'msgLang') s.save = null;
         render(); return;
       }
@@ -386,10 +433,11 @@ const EstimateScreen = (() => {
         return;
       }
       if (b.dataset.act === 'save') { doSave(); return; }
+      if (b.dataset.act === 'show' && opts.onShow) { const est = current(); if (est) opts.onShow(est, b); return; }   // v21: the homeowner screen
     });
     el.addEventListener('change', ev => { const i = ev.target.closest('input[data-in]'); if (i) setVal(i.dataset.in, i.value); });
     el.addEventListener('keydown', ev => { const i = ev.target.closest('input[data-in]'); if (i && ev.key === 'Enter') { ev.preventDefault(); setVal(i.dataset.in, i.value); } });
-    el.addEventListener('toggle', ev => { if (ev.target.id === 'est-math') s.mathOpen = ev.target.open; }, true);
+    el.addEventListener('toggle', ev => { if (ev.target.id === 'est-math') s.mathOpen = ev.target.open; if (ev.target.id === 'est-extras') s.extrasOpen = ev.target.open; }, true);
 
     function current(){
       if (!result) return null;

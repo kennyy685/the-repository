@@ -15,7 +15,12 @@
      about insurance, no "we handle your claim". Hit counts are counts, never compared to a pass/fail line.
      PRINT: Letter. Per language: a cover page, then the 10 sections. PHONE: web page with an EN/ES switch.
      Fonts: fonts/ (local, free Google Fonts). Logo: <symbol id="hmp-logo"> (same as door-hanger.html).
-     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=inspection-report.pdf file://.../inspection-report.html -->
+     PDF: chrome --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=inspection-report.pdf file://.../inspection-report.html
+     T177: the cover's "Good to know" box quotes the Nebraska DOI's own advice ("After the Storm - The Disaster Claims Process",
+     doi.nebraska.gov, checked 2026-09-27): be present when contractors inspect; toll-free hotline 1-877-564-7323. Same box as
+     hail-report.html. General state advice, not an endorsement of HMP: never word it as one. Fixed text, not data.
+     Section 6 (round 35): each hit is photographed unmarked first, then chalk-circled and photographed again (same order as
+     inspection-checklist.html step 6 and adjuster-meeting.html), so the adjuster sees the hit both ways. -->
 <style>
 @font-face { font-family:"Barlow Semi Condensed"; font-weight:700; src:url(fonts/BarlowSemiCondensed-700.woff) format("woff"); }
 @font-face { font-family:"Barlow Semi Condensed"; font-weight:800; src:url(fonts/BarlowSemiCondensed-800.woff) format("woff"); }
@@ -60,7 +65,7 @@ b, strong { font-weight:700; }
 .top h1 { margin-top:0.07in; font:800 28pt/0.92 "Barlow Semi Condensed"; text-transform:uppercase; color:#fff; }
 .top h1 span { color:var(--orange); }
 
-.cbody { flex:1; padding:0.2in 0.45in 0.18in; display:flex; flex-direction:column; gap:0.17in; }
+.cbody { flex:1; padding:0.18in 0.45in 0.14in; display:flex; flex-direction:column; gap:0.12in; }
 .label { display:flex; align-items:center; gap:0.08in; font:700 7.4pt/1 "Montserrat"; letter-spacing:.15em; text-transform:uppercase; color:var(--char); }
 .label::after { content:""; flex:1; height:0.75pt; background:var(--line); }
 .label em { font-style:normal; color:var(--orange-ink); }
@@ -75,17 +80,17 @@ b, strong { font-weight:700; }
 .prop .v.t { font:600 9pt/1.3 "Montserrat"; }
 
 /* what we documented */
-.doc { background:var(--mist); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.15in 0.2in 0.16in; }
+.doc { background:var(--mist); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.13in 0.2in 0.14in; }
 .doc h2 { font:800 17pt/1 "Barlow Semi Condensed"; text-transform:uppercase; color:var(--char-dk); letter-spacing:.01em; }
-.doc .stats { display:flex; gap:0.3in; margin:0.1in 0 0.08in; padding-bottom:0.08in; border-bottom:0.75pt solid #d6d8dc; }
+.doc .stats { display:flex; gap:0.3in; margin:0.08in 0 0.07in; padding-bottom:0.07in; border-bottom:0.75pt solid #d6d8dc; }
 .doc .stats div { font:600 7.6pt/1.2 "Montserrat"; color:var(--muted); }
 .doc .stats b { display:block; font:800 24pt/1 "Barlow Semi Condensed"; color:var(--char-dk); }
-.doc ul { list-style:none; display:grid; gap:0.055in; }
+.doc ul { list-style:none; display:grid; gap:0.05in; }
 .doc li { position:relative; padding-left:0.2in; font:600 9.4pt/1.4 "Montserrat"; color:var(--ink); }
 .doc li::before { content:""; position:absolute; left:0.02in; top:0.06in; width:0.07in; height:0.07in; background:var(--orange); transform:rotate(45deg); }
 
 /* test squares at a glance */
-.sqrow { display:grid; grid-template-columns:repeat(4, 1fr); gap:0.12in; margin-top:0.08in; }
+.sqrow { display:grid; grid-template-columns:repeat(4, 1fr); gap:0.12in; margin-top:0.06in; }
 .sq { display:flex; align-items:center; gap:0.1in; border:0.75pt solid var(--line); border-radius:5px; padding:0.07in 0.09in; }
 .sq svg { width:0.62in; height:0.62in; flex:none; }
 .sq .n { font:800 22pt/1 "Barlow Semi Condensed"; color:var(--char-dk); }
@@ -96,7 +101,7 @@ b, strong { font-weight:700; }
 
 /* index of sections */
 .idx { display:grid; grid-template-columns:1fr 1fr; column-gap:0.26in; margin-top:0.06in; }
-.idx a { display:flex; align-items:baseline; gap:0.08in; padding:0.045in 0; border-bottom:0.75pt solid var(--line); text-decoration:none; color:var(--ink); font:600 8.3pt/1.25 "Montserrat"; }
+.idx a { display:flex; align-items:baseline; gap:0.08in; padding:0.03in 0; border-bottom:0.75pt solid var(--line); text-decoration:none; color:var(--ink); font:600 8.3pt/1.25 "Montserrat"; }
 .idx a .no { font:800 11pt/1 "Barlow Semi Condensed"; color:var(--orange-ink); width:0.2in; flex:none; }
 .idx a .ti { flex:1; }
 .idx a .c { font:700 7.4pt/1 "Montserrat"; color:var(--muted); white-space:nowrap; }
@@ -105,6 +110,15 @@ b, strong { font-weight:700; }
 .note { display:flex; gap:0.12in; align-items:center; background:var(--mist); border-radius:5px; padding:0.1in 0.15in; }
 .note svg { width:0.26in; height:0.26in; flex:none; }
 .note p { font:700 9.4pt/1.4 "Montserrat"; color:var(--char-dk); }
+
+/* closing row: disclaimer | the state's own advice (T177, NE DOI; same box as the hail report) */
+.close { display:grid; grid-template-columns:1fr 1fr; gap:0.16in; }
+.close .note p { font-size:9pt; }
+.state { border:1pt solid var(--line); border-left:5pt solid var(--orange); border-radius:0 5px 5px 0; padding:0.08in 0.14in 0.09in; }
+.state .k { font:700 6.8pt/1.2 "Montserrat"; letter-spacing:.13em; text-transform:uppercase; color:var(--orange-ink); }
+.state p { margin-top:0.04in; font:500 8.2pt/1.36 "Montserrat"; color:var(--ink); }
+.state b { font-weight:700; color:var(--char-dk); }
+.state .tel { white-space:nowrap; font-weight:800; }
 
 /* contact band */
 .foot { flex:none; background:linear-gradient(180deg,#404145,#2c2d31); color:#fff; padding:0.17in 0.45in 0.15in; position:relative; }
@@ -192,6 +206,8 @@ b, strong { font-weight:700; }
   .idx { grid-template-columns:1fr; }
   .idx a { font-size:14px; padding:10px 0; } .idx a .no { font-size:17px; width:26px; } .idx a .c { font-size:11px; }
   .note p { font-size:14.5px; }
+  .close { grid-template-columns:1fr; gap:12px; } .close .note p { font-size:14.5px; }
+  .state { padding:12px 14px; } .state .k { font-size:10.5px; } .state p { font-size:14px; }
   .foot { padding:22px 16px 16px; }
   .foot .row { flex-wrap:wrap; gap:16px; }
   .foot .cta { flex:1 1 100%; }
@@ -436,21 +452,35 @@ b, strong { font-weight:700; }
     {
      "src": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20300'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='hsl(40,22%25,58%25)'/%3E%3Cstop%20offset='1'%20stop-color='hsl(40,10%25,20%25)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='400'%20height='300'%20fill='url(%23g)'/%3E%3Ccircle%20cx='200'%20cy='132'%20r='26'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Crect%20x='162'%20y='112'%20width='76'%20height='50'%20rx='8'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Ctext%20x='200'%20y='204'%20font-family='Arial,sans-serif'%20font-weight='700'%20font-size='20'%20letter-spacing='3'%20fill='rgba(255,255,255,.75)'%20text-anchor='middle'%3ESAMPLE%206.1%3C/text%3E%3C/svg%3E",
      "caption": {
-      "en": "Chalk circles, north gutter",
-      "es": "Círculos de tiza, canaleta norte"
+      "en": "North gutter hit, unmarked",
+      "es": "Golpe en la canaleta norte, sin marcar"
      }
     },
     {
      "src": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20300'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='hsl(40,22%25,58%25)'/%3E%3Cstop%20offset='1'%20stop-color='hsl(40,10%25,20%25)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='400'%20height='300'%20fill='url(%23g)'/%3E%3Ccircle%20cx='200'%20cy='132'%20r='26'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Crect%20x='162'%20y='112'%20width='76'%20height='50'%20rx='8'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Ctext%20x='200'%20y='204'%20font-family='Arial,sans-serif'%20font-weight='700'%20font-size='20'%20letter-spacing='3'%20fill='rgba(255,255,255,.75)'%20text-anchor='middle'%3ESAMPLE%206.2%3C/text%3E%3C/svg%3E",
      "caption": {
-      "en": "Chalk circles, north siding",
-      "es": "Círculos de tiza, siding norte"
+      "en": "Same hit, chalk-circled",
+      "es": "El mismo golpe, con círculo de tiza"
+     }
+    },
+    {
+     "src": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20300'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='hsl(40,22%25,58%25)'/%3E%3Cstop%20offset='1'%20stop-color='hsl(40,10%25,20%25)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='400'%20height='300'%20fill='url(%23g)'/%3E%3Ccircle%20cx='200'%20cy='132'%20r='26'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Crect%20x='162'%20y='112'%20width='76'%20height='50'%20rx='8'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Ctext%20x='200'%20y='204'%20font-family='Arial,sans-serif'%20font-weight='700'%20font-size='20'%20letter-spacing='3'%20fill='rgba(255,255,255,.75)'%20text-anchor='middle'%3ESAMPLE%206.3%3C/text%3E%3C/svg%3E",
+     "caption": {
+      "en": "North siding hit, unmarked",
+      "es": "Golpe en el siding norte, sin marcar"
+     }
+    },
+    {
+     "src": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20300'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='hsl(40,22%25,58%25)'/%3E%3Cstop%20offset='1'%20stop-color='hsl(40,10%25,20%25)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='400'%20height='300'%20fill='url(%23g)'/%3E%3Ccircle%20cx='200'%20cy='132'%20r='26'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Crect%20x='162'%20y='112'%20width='76'%20height='50'%20rx='8'%20fill='none'%20stroke='rgba(255,255,255,.55)'%20stroke-width='5'/%3E%3Ctext%20x='200'%20y='204'%20font-family='Arial,sans-serif'%20font-weight='700'%20font-size='20'%20letter-spacing='3'%20fill='rgba(255,255,255,.75)'%20text-anchor='middle'%3ESAMPLE%206.4%3C/text%3E%3C/svg%3E",
+     "caption": {
+      "en": "Same hit, chalk-circled",
+      "es": "El mismo golpe, con círculo de tiza"
      }
     }
    ],
    "note": {
-    "en": "Every hit was circled in chalk before its photo.",
-    "es": "Cada golpe se marcó con tiza antes de la foto."
+    "en": "North gutter and north siding: every hit photographed unmarked, then chalk-circled and photographed again.",
+    "es": "Canaleta y siding norte: cada golpe fotografiado sin marcar, luego con círculo de tiza y otra foto."
    }
   },
   {
@@ -638,7 +668,7 @@ b, strong { font-weight:700; }
       ["Soft metals", "Vents, flashing and gutter straps: round dents in thin metal."],
       ["Gutters &amp; downspouts", "Round dings in the gutters; granules collected inside gutters and downspouts."],
       ["Siding", "Storm side first. Vinyl: cracks, chips, round holes. Fiber cement: chipped paint, hairline cracks."],
-      ["Marked hits", "Each hit circled in chalk before it was photographed, so it shows clearly in the photo."],
+      ["Hits, before &amp; after chalk", "Each hit photographed unmarked first, then circled in chalk and photographed again."],
       ["Ladder &amp; roof access", "Ladder on level ground, 3-point contact, extended about 3 ft above the roofline."],
       ["Roof pitch &amp; surface", "Roof pitch and surface checked before walking it (wet, icy, mossy or windy roofs are not walked)."],
       ["Test squares", "One 10&times;10 ft square per roof slope, away from trees. Hits circled and counted."],
@@ -650,7 +680,7 @@ b, strong { font-weight:700; }
       ["Metales blandos", "Ventilas, tapajuntas y sujetadores de canaleta: abolladuras redondas en metal delgado."],
       ["Canaletas y bajantes", "Golpes redondos en las canaletas; gránulos juntados dentro de canaletas y bajantes."],
       ["Siding", "Primero el lado de la tormenta. Vinil: grietas, astillas, hoyos redondos. Fibrocemento: pintura desprendida, grietas finas."],
-      ["Golpes marcados", "Cada golpe se marcó con tiza antes de la foto, para que se vea claro."],
+      ["Golpes, antes y después de la tiza", "Cada golpe se fotografió primero sin marcar; luego se marcó con tiza y se fotografió otra vez."],
       ["Escalera y acceso al techo", "Escalera en suelo parejo, 3 puntos de apoyo, unos 3 pies arriba del techo."],
       ["Inclinación y superficie del techo", "Revisamos la inclinación y la superficie antes de subir (no caminamos techos mojados, con hielo, musgo o viento)."],
       ["Cuadros de prueba", "Un cuadro de 10&times;10 pies por cada pendiente, lejos de árboles. Golpes marcados y contados."],
@@ -667,6 +697,9 @@ b, strong { font-weight:700; }
       idxH: "Inside this report", nPhotos: "{n} photos", nPhoto: "1 photo", skipped: "Not checked", seeP: "Section",
       what: "What we check:", note: "Inspector's note", notChecked: "Not checked:",
       disc: "These are photos and notes, not a verdict or a price. Only your insurance company decides what your policy covers.",
+      stateK: "Good to know &middot; Nebraska Department of Insurance",
+      state1: "<b>You can be there.</b> The state advises homeowners to be present and watch when any contractor inspects their home. You are always welcome to watch ours.",
+      state2: "<b>Questions about insurance?</b> Free consumer hotline: <span class=\"tel\">1-877-564-7323</span>",
       ctaK: "Questions about these photos?", ctaWho: "Call or text {n}", alt: "Hablamos español &middot; Alex Mendez 402-889-3385",
       qrCap: "Scan to text {n}", co: "Registered &amp; insured", reg: "NE contractor registration #",
       foot: "HMP Siding & Roofing LLC  ·  Kenny Cruz 402-936-2709  ·  Español: 402-889-3385", page: "Page "
@@ -680,6 +713,9 @@ b, strong { font-weight:700; }
       idxH: "En este reporte", nPhotos: "{n} fotos", nPhoto: "1 foto", skipped: "No revisado", seeP: "Sección",
       what: "Qué revisamos:", note: "Nota del inspector", notChecked: "No revisado:",
       disc: "Estas son fotos y notas, no un veredicto ni un precio. Solo su compañía de seguros decide lo que cubre su póliza.",
+      stateK: "Bueno saberlo &middot; Departamento de Seguros de Nebraska",
+      state1: "<b>Usted puede estar presente.</b> El estado aconseja que el dueño esté presente y mire cuando cualquier contratista inspecciona su casa. Siempre lo invitamos a ver la nuestra.",
+      state2: "<b>¿Preguntas sobre su seguro?</b> Línea gratuita para consumidores: <span class=\"tel\">1-877-564-7323</span>",
       ctaK: "¿Preguntas sobre estas fotos?", ctaWho: "Llame o mande texto a {n}", alt: "We speak English &middot; Kenny Cruz 402-936-2709",
       qrCap: "Escanee: texto a {n}", co: "Registrados y asegurados", reg: "Registro de contratista NE #",
       foot: "HMP Siding & Roofing LLC  ·  Alex Mendez 402-889-3385  ·  English: 402-936-2709", page: "Página "
@@ -769,7 +805,8 @@ b, strong { font-weight:700; }
           '<ul>' + (D.summary || []).map(function (x) { return '<li>' + esc(tx(x, l)) + '</li>'; }).join("") + '</ul></section>' +
         (allSq.length ? '<section><div class="label">' + t.sqH + ' <em>' + t.sqEm + '</em></div>' + squares(allSq, l, t) + '<p class="sqnote">' + t.sqNote + '</p></section>' : '') +
         '<section><div class="label">' + t.idxH + '</div><nav class="idx">' + idx + '</nav></section>' +
-        '<section class="note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#f5883a"/></svg><p>' + t.disc + '</p></section>' +
+        '<div class="close"><section class="note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#404145"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#f5883a"/></svg><p>' + t.disc + '</p></section>' +
+          '<section class="state"><div class="k">' + t.stateK + '</div><p>' + t.state1 + '</p><p>' + t.state2 + '</p></section></div>' +
       '</main>' +
       '<footer class="foot"><div class="row"><div class="cta"><div class="k">' + t.ctaK + '</div><div class="who">' + esc(f(t.ctaWho, {n: name})) + '</div>' +
         '<a class="ph" href="tel:+1' + esc(phone.replace(/\D/g, "")) + '">' + esc(phone) + '</a><div class="alt">' + t.alt + '</div></div>' +

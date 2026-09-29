@@ -16,11 +16,18 @@
   python3 hh.py status               what's in the database, last runs, errors
   python3 hh.py serve                phone-friendly web app: door lists, commercial targets, pipeline tracking
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
+  python3 hh.py night                night shift: refresh, then the 7 AM brief (new hail, zones up/down, pick + plan)
+  python3 hh.py night-shift [--prev F] [--dry-run]   the nightly cloud job: night + the open map's data/night.js
+                  + one PUBLISH line (docs/orders/night-shift-runbook.md)
   python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
                   [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
   python3 hh.py calltoday [--hud hud.json] [--date D] [--out calls.json] [--csv calls.csv]   today's BUSINESS call list:
                   apartment/commercial buildings with a known business line in fresh 1"+ hail (JSON for calls/today)
+                  [--accounts f]  + "your accounts hit" (accounts_hit, shown first): see `accounts`
+  python3 hh.py accounts [--accounts accounts.json] [--date D] [--days N] [--no-scout] [--out f]   round 54: new
+                  1"+ hail (or 58+ mph wind) in the last N days over YOUR accounts (app leads, claims, Interested/
+                  Booked doors, data/scout_contacts.json businesses), with the hail report attached (JSON)
   python3 hh.py bundle --out F.json  pack the engine into one JSON file, for the cloud copy
   python3 hh.py unbundle --src F.json  unpack an engine JSON bundle here
   python3 hh.py todaywalk --doors 25  O0: ONE walk for today, houses in walking order (JSON for the app's today/walk)
@@ -28,6 +35,9 @@
                   [--evidence-out ev.json]  also the evidence/<address-slug> docs for the walk's houses
   python3 hh.py weekly --doors doors.json --leads leads.json [--week 2026-39] [--hud hud.json] [--out weekly.json]
                   week results from the HMP App's door taps + leads (King's week wrap, T35 learning loop)
+  python3 hh.py scorecard --doors d.json --leads l.json [--claims c.json] [--from D --to D]   T166: the 5 pilot
+                  numbers (doors knocked, contact rate, inspections/100 doors, signed jobs, avg $/signed job) next
+                  to industry ranges; same JSON shape for a future pilot company (--company, default "hmp")
   python3 hh.py rookie --doors doors.json [--date 2026-10-05]   rookie plan progress (app doc stats/rookie)
   python3 hh.py tune --weekly weekly.json [--min-doors 50] [--apply] [--out tune.json]   T35 learning loop: real door
                   results vs heat -> small weight changes (max 15% each, EN/ES why). DRY RUN unless --apply
@@ -42,11 +52,24 @@
                   the app's docs/app/followups.js
   python3 hh.py zones [--near Fremont] [--radius 60] [--top 12] [--doors 25] [--out zones.json] [--walks-out walks.json]
                   hot zones near a town (the app's zones/current) + each zone's walk (walks/<zone id>, today/walk
-                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk
+                  shape, door score v2 + why per house). Reads hud.json; [--results] [--dnk] as for todaywalk.
+                  Each walk gets `route` + a vector `basemap` (streets, lots, labels; state GIS, cached; --no-basemap)
+  python3 hh.py rentals [--near Fremont] [--top 20] [--out rentals.json] [--csv rentals.csv]   rental hot list
+                  (research rounds 34/38): likely-rental single-family + small 2-4 unit properties in the current
+                  hot zones (for pitching landlord associations/property managers by business line, and knocking -
+                  never mailing), grouped by zone with counts. JSON for the app's rentals/current doc.
   python3 hh.py daily --out-dir DIR [--date D] [--results f] [--dnk f] [--leads f] [--near T]   the 7:40 AM app job
-                  in one go: todaywalk+evidence, calltoday, zones+walks, followups (with --leads); one JSON file per
-                  app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
-                  evidence__<slug>.json, followups__today.json) + manifest.json
+                  in one go: todaywalk+evidence, calltoday, zones+walks, rentals, followups (with --leads); one JSON
+                  file per app doc (today__walk.json, calls__today.json, zones__current.json, walks__<id>.json,
+                  evidence__<slug>.json, rentals__current.json, followups__today.json) + manifest.json; walks get
+                  maps as in zones. [--accounts f] (+ --leads, --results, scout contacts): calls/today accounts_hit
+  python3 hh.py season [--year Y] [--out F] [--no-mesh]   Path step 4: this season's REAL hail in eastern Nebraska
+                  (NWS/SPC/NCEI reports, NEXRAD + MRMS radar) ranked into hot zones with Census likely-insured
+                  signals -> data/storms-<year>.json for the open map. Own network step: refresh/hud.json unchanged.
+  python3 hh.py stack-history [--years 2024,2025] [--out F]   storm stacking: past seasons' public hail reports
+                  (NWS LSR + NCEI) -> data/hail-history.json; `season` and today's walk count hail days per house/zone.
+  python3 hh.py learn --knocks F [--out F]   the map learns from your knocks: Knock-screen door outcomes -> counts +
+                  smoothed inspection-yes rate per zone/street/signal band (data/learn.json). Offline, no database.
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -226,14 +249,14 @@ def refresh(conn, fetcher, cfg, log=print, clock=None):
 
 BUNDLE_EXTRA = ("config.json", "data/scout_contacts.json", "data/watch_list.json", "CLAUDE.md",
                 "data/tuned.json", "data/glossary_en_es.json", "data/benchmarks.json",
-                "data/rookie_plan.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
+                "data/rookie_plan.json", "data/association_contacts.json")   # T35 tuned weights, only when `hh.py tune --apply` made one
 
 
 def _bundled(rel):
     """Which files go in the cloud bundle: engine code, the offline tests + their fixtures (so `selftest` runs in
     the cloud too), config/contacts/tuned weights, and the crew notes."""
     rel = rel.replace(os.sep, "/")
-    if "__pycache__" in rel:
+    if "__pycache__" in rel or rel.startswith(".claude/worktrees/"):
         return False
     if rel.endswith(".py") and (rel.startswith(("hailhunter/", "vendor/", "tests/")) or rel == "hh.py"):
         return True
@@ -267,6 +290,200 @@ def unbundle(src_path):
         with open(dest, "w", encoding="utf-8", newline="") as f:
             f.write(txt)
     return b["files"]
+
+
+def _basemap_maker(cfg, offline):
+    """basemap.Maker for zones/daily: caches in the engine database (if there is one), goes online unless --offline
+    or config basemap.enabled is false; one log line to stderr (stdout carries the JSON)."""
+    from hailhunter import basemap
+    from hailhunter.http import Fetcher
+    b = cfg.get("basemap") or {}
+    off = offline or not b.get("enabled", True)
+    session = None if off else Fetcher(cfg["paths"]["cache"]).s
+    return basemap.Maker(cfg, basemap.open_cache(cfg["paths"]["db"]), session, off,
+                         log=lambda m: print(m, file=sys.stderr))
+
+
+def night_cmd(a, cfg, log=print):
+    """`hh.py night`: refresh storms (unless --no-refresh; a failed refresh still writes a brief from the last
+    hud.json, with refresh_error), re-rank zones + walks, then brief.json (+ the old one kept as brief.prev.json for
+    the next night's diff). See hailhunter/night.py for the brief."""
+    import sqlite3
+    from zoneinfo import ZoneInfo
+    from hailhunter import night, todaywalk, zones
+    err = None
+    if not a.no_refresh:
+        conn = db.connect(cfg["paths"]["db"])
+        try:
+            refresh(conn, Fetcher(cfg["paths"]["cache"], offline=a.offline), cfg, log=lambda *x: None)
+        except Exception as e:                  # never lose the morning brief to a download error
+            err = f"{type(e).__name__}: {e}"[:300]
+            print(f"night: refresh failed ({err}); using the last hud.json", file=sys.stderr)
+        finally:
+            conn.close()
+    hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+    day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+    try:
+        hud_doc = todaywalk.load_json(hud_path)
+    except (OSError, ValueError) as e:
+        print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py refresh`.", file=sys.stderr)
+        hud_doc = {}
+    conn = None
+    if os.path.exists(cfg["paths"]["db"]):
+        try:
+            conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+        except sqlite3.Error:
+            conn = None
+    near = zones.resolve_near(a.near, cfg, conn)
+    if near is None:
+        print(f"night: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+        return 2
+    results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
+    dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
+    # rank EVERY walk, then keep storm zones first (King, 2026-09-29): old-house heat must never cut a storm walk
+    top = int(a.top or zones._zcfg(cfg)["top"])
+    zdoc = zones.zones(hud_doc, day, near, a.radius, 10 ** 4, results, dnk, cfg, conn, doors=a.doors)
+    if conn is not None:
+        conn.close()
+    zdoc = night.trim(zdoc, top)
+    w = zones.walks(hud_doc, zdoc, day, a.doors, results, cfg, dnk=dnk)
+    out_dir = a.out_dir or os.path.join(cfg["paths"]["export"], "night")
+    os.makedirs(out_dir, exist_ok=True)
+    cur, old = os.path.join(out_dir, "brief.json"), os.path.join(out_dir, "brief.prev.json")
+    prev = None
+    # the previous brief: --prev (a fresh cloud session reads last night's published night.js), else brief.json here
+    for src in ([a.prev] if a.prev else []) + [cur]:
+        if src and os.path.exists(src):
+            try:
+                with open(src, encoding="utf-8") as f:
+                    prev = night.from_js(f.read())
+            except OSError:
+                prev = None
+            if prev is not None:
+                break
+    season_path = a.season or os.path.join(HERE, "data", f"storms-{day[:4]}.json")
+    try:
+        season_doc = todaywalk.load_json(season_path)
+        areas = night.map_areas(season_doc)
+    except (OSError, ValueError):
+        season_doc, areas = None, []             # no season file: the brief just carries no map area ids
+    doc = night.brief(hud_doc, zdoc, w, day, prev, cfg, areas=areas)
+    if season_doc:                               # the map's shapes for the areas it names (a pick west of the map box)
+        from hailhunter import openmap
+        doc["map"] = openmap.extra(season_doc, night.area_ids(doc), today=day)
+    if not getattr(a, "no_basemap", False):      # the cards' walks on real streets + a street tile where the map has none
+        from hailhunter import mapwalk
+        maker = _basemap_maker(cfg, a.offline)
+        try:
+            mw = mapwalk.extra(doc, w, maker, cfg)
+        except Exception as e:                   # the map's walks are optional: never lose the 7 AM brief to them
+            print(f"night: map walks failed ({type(e).__name__}: {str(e)[:200]}); brief without them", file=sys.stderr)
+            mw = {"walks": {}, "zwalks": {}, "tiles": []}
+        finally:
+            maker.conn.close()
+        if mw["walks"] or mw.get("zwalks") or mw["tiles"]:
+            doc.setdefault("map", {}).update(mw)
+        log(f"Map walks: {len(mw.get('zwalks') or mw['walks'])}, street tiles: {len(mw['tiles'])}")
+    if err:
+        doc["refresh_error"] = err
+    if os.path.exists(cur):
+        os.replace(cur, old)
+    with open(cur + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    os.replace(cur + ".tmp", cur)
+    log(doc["headline"]["en"])
+    if doc.get("pick"):
+        log("Plan: " + doc["pick"]["plan"]["en"])
+    elif doc.get("backup"):
+        log("Backup: " + doc["backup"]["plan"]["en"])
+    log(f"Wrote {cur}")
+    if a.js_out:
+        os.makedirs(os.path.dirname(os.path.abspath(a.js_out)), exist_ok=True)
+        with open(a.js_out + ".tmp", "w", encoding="utf-8") as f:
+            f.write(night.to_js(doc))
+        os.replace(a.js_out + ".tmp", a.js_out)
+        log(f"Wrote {a.js_out} (the open map's copy: streets, no house numbers)")
+    return 0
+
+
+OPEN_MAP_FILES = os.path.join(HERE, "docs", "design", "open-map", "index.files.json")
+NIGHT_JS_MAX = 400_000      # bytes: the brief + its map walks + street tiles (~15-30 KB a tile) stay light on hotel wifi
+
+
+def night_shift_cmd(a, cfg, log=print):
+    """`hh.py night-shift`: the whole nightly job for a fresh cloud session (docs/orders/night-shift-runbook.md):
+    refresh -> night brief -> the open map's data/night.js, checked, then ONE last line `PUBLISH {"url", "files"}` =
+    the Artifact publish that republishes only that file. --prev = last night's published night.js (read from the
+    artifact first; default: the repo's copy). --dry-run: no network, the test fixture, a temp folder, nothing to
+    publish. Exit 0 = publish it, 1 = the brief is broken (don't publish), 2 = setup problem."""
+    import argparse
+    import tempfile
+    from hailhunter import night
+    try:
+        with open(a.files or OPEN_MAP_FILES, encoding="utf-8") as f:
+            man = json.load(f)
+        rel = next(iter(man["nightly"]))
+        repo_js = os.path.join(HERE, man["files"][rel])
+    except (OSError, ValueError, KeyError, StopIteration) as e:
+        print(f"night-shift: can't read the open map's files map ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    n = argparse.Namespace(no_refresh=a.dry_run, offline=a.offline, hud=None, date=None, near=None, radius=None,
+                           top=None, doors=None, results=a.results, dnk=a.dnk, prev=a.prev or repo_js,
+                           js_out=repo_js, season=None, out_dir=None, no_basemap=False)
+    tmp = None
+    if a.dry_run:
+        tmp = tempfile.mkdtemp(prefix="night-shift-dry-")
+        n.hud = os.path.join(HERE, "tests", "fixtures", "today_hud.json")
+        n.date, n.near, n.out_dir = "2026-09-25", "41.43,-96.49", tmp
+        n.offline = True                                # map walks + tiles: cache only, never the network
+        n.prev = a.prev                                 # a dry run never diffs against the real published brief
+        n.js_out = os.path.join(tmp, "night.js")
+    rc = night_cmd(n, cfg, log=log)
+    if rc:
+        return rc
+    try:
+        with open(n.js_out, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = ""
+    doc = night.from_js(text)
+    if doc is None or not text.startswith(night.JS_HEAD) or len(text) > NIGHT_JS_MAX:
+        print(f"night-shift: {n.js_out} is not a good night brief; do NOT publish", file=sys.stderr)
+        return 1
+    if doc.get("refresh_error"):
+        log(f"REFRESH FAILED: {doc['refresh_error']} (the brief uses the last storm data; publish it anyway)")
+    files = {rel: os.path.relpath(n.js_out, HERE) if not a.dry_run else n.js_out}
+    log(("DRY RUN (nothing to publish): " if a.dry_run else "PUBLISH ") +
+        json.dumps({"url": man["url"], "file_path": man.get("page"), "files": files}, ensure_ascii=False))
+    return 0
+
+
+def _ro_conn(cfg):
+    """The engine database read-only (rows by name), or None when there is none (the cloud's app job)."""
+    import sqlite3
+    if not os.path.exists(cfg["paths"]["db"]):
+        return None
+    try:
+        conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except sqlite3.Error:
+        return None
+
+
+def _account_doc(cfg, hud_doc, day, accounts_path=None, days=None, scout=True):
+    """accounts.check() for `accounts` and `calltoday --accounts`: the accounts file + scout contacts; the engine
+    database (if any, read-only) adds radar at the address. Raises OSError/ValueError on an unreadable file."""
+    from hailhunter import accounts
+    from hailhunter.todaywalk import load_json
+    raw = load_json(accounts_path) if accounts_path else None
+    conn = _ro_conn(cfg)
+    try:
+        return accounts.check(hud_doc, accounts.gather(cfg, raw, scout=scout), day, cfg, conn=conn, days=days)
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 def main(argv=None):
@@ -362,11 +579,25 @@ def main(argv=None):
     p = sub.add_parser("weekly", help="week results from the HMP App's door taps + leads (JSON)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--claims", help="T209: JSON of the app's claims/<slug> docs (dict or list) - folds insurance "
+                                    "claims into the embedded scorecard's signed-job/knock-to-signed numbers")
     p.add_argument("--week", help="ISO week YYYY-WW, or 'all' (default: this week, Central time)")
     p.add_argument("--hud", help="hud.json for each list's heat/why (default: data/export/hud.json if present)")
     p.add_argument("--date", help="YYYY-MM-DD for overdue follow-ups (default: today, Central time)")
     p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--rookie-plan", help="rookie plan (default: data/rookie_plan.json; missing = no rookie section)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p = sub.add_parser("scorecard", help="T166: the 5 pilot numbers (doors, contact rate, inspections/100, "
+                                         "signed jobs, avg $/job) next to industry ranges - same shape for a "
+                                         "future pilot company")
+    p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
+    p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
+    p.add_argument("--claims", help="JSON of the app's claims/<slug> docs (dict or list)")
+    p.add_argument("--from", dest="from_", help="YYYY-MM-DD start of the window (default: every door tap)")
+    p.add_argument("--to", help="YYYY-MM-DD end of the window (default: every door tap)")
+    p.add_argument("--date", help="YYYY-MM-DD for `as_of` (default: today, Central time)")
+    p.add_argument("--company", help='company id, for a future pilot company (default: "hmp")')
+    p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
     p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("rookie", help="rookie plan progress: day, block, streak, EN/ES verdict (JSON for stats/rookie)")
     p.add_argument("--doors", required=True, help="JSON of the app's doors/<date>_<pid> docs (dict or list)")
@@ -400,6 +631,18 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
     p.add_argument("--out", help="also write the JSON to this file (the HMP App's calls/today doc)")
     p.add_argument("--csv", help="also write the calls as a CSV to this file")
+    p.add_argument("--accounts", help="round 54: your accounts (a list of {kind, key, address, city, lat?, lon?, "
+                                      "since?}, or the app's {leads, claims, doors} exports) -> accounts_hit first")
+    p = sub.add_parser("accounts", help="round 54: new hail/wind over your own accounts (leads, claims, doors, "
+                                        "business contacts), hail report attached (JSON)")
+    p.add_argument("--accounts", help="accounts JSON: a list of {kind: lead|claim|door|commercial, key, address, city, "
+                                      "lat?, lon?, since?}, or the app's exports {leads, claims, doors}")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--days", type=int, help="window in days (default: config accounts.max_days, else "
+                                            "today_walk.storm_max_days = 60)")
+    p.add_argument("--no-scout", action="store_true", help="leave out the data/scout_contacts.json businesses")
+    p.add_argument("--out", help="also write the JSON to this file")
     p = sub.add_parser("zones", help="hot zones near a town + a walk per zone (JSON for zones/current, walks/<id>)")
     p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
     p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
@@ -411,6 +654,15 @@ def main(argv=None):
     p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
     p.add_argument("--out", help="also write the zones doc to this file")
     p.add_argument("--walks-out", help="also write {walks/<zone id>: walk doc} to this file")
+    p.add_argument("--no-basemap", action="store_true", help="skip the walk map (basemap + route fields)")
+    p = sub.add_parser("rentals", help="rental hot list: likely-rental single-family + 2-4 unit properties in hot "
+                                       "zones (JSON for the app's rentals/current)")
+    p.add_argument("--near", help="town name (needs the database's towns) or 'lat,lon' (default: company home)")
+    p.add_argument("--top", type=int, help="how many zones to scan (default: config rentals.top, 20)")
+    p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--out", help="also write the JSON to this file")
+    p.add_argument("--csv", help="also write the rentals as a CSV to this file")
     p = sub.add_parser("followups", help="follow-ups due for Interested/booked leads (JSON EN/ES: today/tomorrow/later)")
     p.add_argument("--leads", help="JSON of the app's leads/<slug> docs (dict or list)")
     p.add_argument("--date", help="YYYY-MM-DD (default: today, Central time)")
@@ -428,6 +680,50 @@ def main(argv=None):
     p.add_argument("--doors", type=int, help="doors in today's walk (default: config today_walk.goal_doors, 25)")
     p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
     p.add_argument("--benchmarks", help="T84: industry ranges (default: data/benchmarks.json; missing = skipped)")
+    p.add_argument("--no-basemap", action="store_true", help="skip the walk maps (basemap + route fields)")
+    p.add_argument("--accounts", help="round 54: your accounts file (list, or the app's {leads, claims, doors} "
+                                      "exports); with --leads, --results and scout contacts -> calls/today "
+                                      "accounts_hit")
+    p = sub.add_parser("season", help="Path step 4: this season's real hail + likely-insured signals for the open map "
+                                      "(data/storms-<year>.json); never touches hud.json")
+    p.add_argument("--year", type=int, help="season year (default: this year)")
+    p.add_argument("--date", help="YYYY-MM-DD 'today' for days-ago and ranking (default: today, Central time)")
+    p.add_argument("--out", help="output file (default: data/storms-<year>.json)")
+    p.add_argument("--no-mesh", action="store_true", help="skip the MRMS radar grids (faster)")
+    p = sub.add_parser("stack-history", help="storm stacking: past seasons' public hail reports -> "
+                                             "data/hail-history.json; never touches hud.json")
+    p.add_argument("--years", help="comma list (default: the 2 seasons before this one)")
+    p.add_argument("--out", help="output file (default: data/hail-history.json)")
+    p = sub.add_parser("learn", help="the map learns from your knocks: door outcomes -> track record per signal band "
+                                     "(data/learn.json); offline, never touches hud.json")
+    p.add_argument("--knocks", required=True, help="JSON list of Knock-screen knocks (or {\"ev\": [...]})")
+    p.add_argument("--out", help="output file (default: data/learn.json)")
+    p.add_argument("--src", default="REAL", help="label for the data (REAL once FilthE knocks; SAMPLE for mock)")
+    p = sub.add_parser("night", help="night shift: refresh storms, then one morning brief for the 7 AM map (new hail "
+                                      "since last night, zones up/down, Aldaba's pick + today's plan)")
+    p.add_argument("--no-refresh", action="store_true", help="skip the storm refresh (use the hud.json already there)")
+    p.add_argument("--out-dir", help="folder for brief.json + brief.prev.json (default: <export>/night)")
+    p.add_argument("--date", help="YYYY-MM-DD the brief is for (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
+    p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
+    p.add_argument("--top", type=int, help="how many zones to rank (default: config zones.top, 12)")
+    p.add_argument("--doors", type=int, help="doors per walk (default: config zones.doors, 25)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--prev", help="last night's brief (brief.json, or the open map's published night.js) for the diff; "
+                                  "default: <out-dir>/brief.json")
+    p.add_argument("--js-out", help="also write the open map's copy (e.g. docs/design/open-map/data/night.js)")
+    p.add_argument("--season", help="season file for the open map's area ids (default: data/storms-<year>.json)")
+    p.add_argument("--no-basemap", action="store_true", help="skip the open map's walks + street tiles (brief `map`)")
+    p = sub.add_parser("night-shift", help="the nightly job for a fresh cloud session: refresh -> night brief -> the "
+                                            "open map's data/night.js, then one PUBLISH line (runbook: "
+                                            "docs/orders/night-shift-runbook.md)")
+    p.add_argument("--prev", help="last night's published night.js (default: the repo's copy)")
+    p.add_argument("--dry-run", action="store_true", help="no network: the test fixture into a temp folder, no publish")
+    p.add_argument("--results", help="door results so far (the app's doors docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk docs")
+    p.add_argument("--files", help=argparse.SUPPRESS)
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -452,7 +748,7 @@ def main(argv=None):
         raw = todaywalk.load_json(a.results) if a.results else None
         results = todaywalk.load_results(raw) if a.results else {}
         day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
-        taps = todaywalk.today_taps(raw, day)      # T83: first door of the day / "no" streak for the coach card
+        taps = todaywalk.today_taps(raw, day)      # T83: whether today's first door has been knocked yet
         try:
             hud_doc = todaywalk.load_json(hud_path)
         except (OSError, ValueError) as e:            # missing/broken hud.json: still write a doc the app can show
@@ -488,7 +784,8 @@ def main(argv=None):
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
         try:
-            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None for k in ("results", "dnk", "leads")}
+            raw = {k: load_json(getattr(a, k)) if getattr(a, k) else None
+                   for k in ("results", "dnk", "leads", "accounts")}
         except (OSError, ValueError) as e:
             print(f"daily: can't read an input file ({type(e).__name__}: {e})", file=sys.stderr)
             return 2
@@ -501,10 +798,16 @@ def main(argv=None):
         near = zones.resolve_near(a.near, cfg, conn)
         if near is None:
             print(f"daily: can't find the town {a.near!r} (give 'lat,lon'); zones use home base", file=sys.stderr)
+        maker = None if a.no_basemap else _basemap_maker(cfg, a.offline)
+        acct_conn = _ro_conn(cfg)                  # radar at each account's address, when the database is here
         man = daily.run(cfg, a.out_dir, day, hud_doc, raw["results"], raw["dnk"], raw["leads"], a.doors, near, conn,
-                        benchmarks.load(a.benchmarks, cfg))
-        if conn is not None:
-            conn.close()
+                        benchmarks.load(a.benchmarks, cfg), maker=maker, accounts_raw=raw["accounts"],
+                        acct_conn=acct_conn)
+        for c in (conn, acct_conn):
+            if c is not None:
+                c.close()
+        if maker is not None:
+            maker.conn.close()
         for e in man["errors"]:
             print(f"daily: {e['part']} failed: {e['error']}", file=sys.stderr)
         print(json.dumps(man, indent=1, ensure_ascii=False))
@@ -520,7 +823,12 @@ def main(argv=None):
         except (OSError, ValueError) as e:            # still write a doc the app can show
             print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
             hud_doc = {}
-        doc = calltoday.today_doc(hud_doc, day, cfg)
+        try:                                       # round 54: your accounts hit (scout contacts even without a file)
+            acc = _account_doc(cfg, hud_doc, day, a.accounts)
+        except (OSError, ValueError) as e:
+            print(f"calltoday: can't read {a.accounts} ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        doc = calltoday.today_doc(hud_doc, day, cfg, accounts=acc)
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
         if a.csv:
@@ -530,6 +838,74 @@ def main(argv=None):
             with open(a.out, "w", encoding="utf-8") as f:
                 f.write(text + "\n")
         print(text)
+        return 0
+    if a.cmd == "accounts":                        # reads hud.json; the database (if any) adds radar at the address
+        from zoneinfo import ZoneInfo
+        from hailhunter.todaywalk import load_json
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = load_json(hud_path)
+        except (OSError, ValueError) as e:            # still check (exact-address matches need hud.json, though)
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        try:
+            doc = _account_doc(cfg, hud_doc, day, a.accounts, a.days, scout=not a.no_scout)
+        except (OSError, ValueError) as e:
+            print(f"accounts: can't read {a.accounts} ({type(e).__name__}: {e})", file=sys.stderr)
+            return 2
+        print(f"accounts: {len(doc['alerts'])} hit of {doc['checked']} checked ({doc['located']} on the map, "
+              f"radar {'yes' if doc['radar'] else 'no'}), last {doc['days']} days", file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "season":                          # own network step: no database, never touches hud.json
+        from hailhunter import season
+        fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
+        from datetime import date as _date
+        today = _date.fromisoformat(a.date) if a.date else None
+        doc = season.run(fetcher, cfg, year=a.year, today=today, mesh=False if a.no_mesh else None)
+        out = a.out or os.path.join(HERE, "data", f"storms-{doc['season']}.json")
+        size = season.write(doc, out)
+        top = ", ".join(f"{z['name']} {z['date']} ({z['hail_in']:g} in, {z['score']})" for z in doc["zones"][:3])
+        print(f"wrote {out} ({size // 1024} KB): {len(doc['reports'])} reports, {len(doc['storm_days'])} storm days, "
+              f"{len(doc['zones'])} zones, {len(doc['areas'])} towns; top: {top or 'none'}"
+              + (f"; {len(doc['errors'])} source errors" if doc["errors"] else ""))
+        return 0
+    if a.cmd == "learn":                           # offline, no database, never touches hud.json
+        from hailhunter import learning
+        with open(a.knocks, encoding="utf-8") as f:
+            raw = json.load(f)
+        knocks = (raw.get("ev") or raw.get("knocks") or []) if isinstance(raw, dict) else raw
+        doc = learning.doc(knocks, cfg=cfg, src=a.src)
+        out = a.out or os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "learn.json")
+        tmp = out + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(doc, f, separators=(",", ":"), ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp, out)
+        print(f"wrote {out}: {doc['doors']} doors, {doc['yes']} inspection yeses, {len(doc['t'])} groups")
+        return 0
+    if a.cmd == "stack-history":                   # own network step: no database, never touches hud.json
+        from hailhunter import stacking
+        from datetime import date as _date
+        fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
+        y0 = _date.today().year
+        n = int(stacking.scfg(cfg)["seasons"])
+        years = [int(y) for y in a.years.split(",")] if a.years else list(range(y0 - n + 1, y0))
+        pts, errors, counts = stacking.fetch_history(fetcher, cfg, years)
+        out = a.out or stacking.HISTORY
+        doc = stacking.history_doc(pts, years, cfg, errors, counts)
+        tmp = out + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(doc, f, separators=(",", ":"))
+            f.write("\n")
+        os.replace(tmp, out)
+        print(f"wrote {out} ({os.path.getsize(out) // 1024} KB): {len(pts)} hail reports, years {years}"
+              + (f"; {len(errors)} source errors" if errors else ""))
         return 0
     if a.cmd == "zones":                           # reads hud.json; the database (if any) only adds outlines/towns
         import sqlite3
@@ -555,9 +931,17 @@ def main(argv=None):
         raw = todaywalk.load_json(a.results) if a.results else None
         results = todaywalk.load_results(raw) if raw is not None else {}
         dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn)
+        doc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn, doors=a.doors)
         if a.walks_out:
             w = zones.walks(hud_doc, doc, day, a.doors, results, cfg, dnk=dnk, taps=todaywalk.today_taps(raw, day))
+            if not a.no_basemap:                   # optional network step, cached, own time guard
+                maker = _basemap_maker(cfg, a.offline)
+                for wd in w.values():
+                    maker.add(wd)
+                maker.conn.close()
+                st = maker.stats
+                print(f"basemap: {st['walks']} walks, {st['fetched']} downloaded, {st['cached']} cached, "
+                      f"{st['missing']} without a map", file=sys.stderr)
             with open(a.walks_out, "w", encoding="utf-8") as f:
                 json.dump(w, f, indent=1, ensure_ascii=False)
                 f.write("\n")
@@ -565,6 +949,42 @@ def main(argv=None):
             conn.close()
         if doc.get("none_reason"):
             print(doc["none_reason"]["en"], file=sys.stderr)
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
+    if a.cmd == "rentals":                         # reads hud.json; the database (if any) only resolves --near
+        import sqlite3
+        from zoneinfo import ZoneInfo
+        from hailhunter import rentals, todaywalk, zones
+        hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+        day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        try:
+            hud_doc = todaywalk.load_json(hud_path)
+        except (OSError, ValueError) as e:
+            print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py hud` (or refresh).", file=sys.stderr)
+            hud_doc = {}
+        conn = None
+        if os.path.exists(cfg["paths"]["db"]):
+            try:
+                conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+            except sqlite3.Error:
+                conn = None
+        near = zones.resolve_near(a.near, cfg, conn)
+        if near is None:
+            print(f"rentals: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+            return 2
+        doc = rentals.hotlist(hud_doc, day, near, a.top, cfg, conn)
+        if conn is not None:
+            conn.close()
+        for z in doc["zones"]:
+            print(f"  {z['count']} rental(s) in the {z['name']} zone", file=sys.stderr)
+        if doc.get("none_reason"):
+            print(doc["none_reason"]["en"], file=sys.stderr)
+        if a.csv:
+            rentals.write_csv(a.csv, doc["rentals"])
         text = json.dumps(doc, indent=1, ensure_ascii=False)
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
@@ -680,9 +1100,26 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "scorecard":                       # T166: reads the app's exports only, no database needed
+        from zoneinfo import ZoneInfo
+        from hailhunter import benchmarks, scorecard, weekly
+        from hailhunter.todaywalk import load_json
+        today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+        doc = scorecard.report(weekly.load_doors(load_json(a.doors)),
+                               weekly.load_leads(load_json(a.leads)) if a.leads else [],
+                               scorecard.load_claims(load_json(a.claims)) if a.claims else [],
+                               start=a.from_, end=a.to, today=today,
+                               bench=benchmarks.load(a.benchmarks, cfg),   # T84: missing file -> industry null
+                               company=a.company or "hmp")
+        text = json.dumps(doc, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
     if a.cmd == "weekly":                          # reads the app's exports (+ hud.json): no database needed
         from zoneinfo import ZoneInfo
-        from hailhunter import benchmarks, rookie, weekly
+        from hailhunter import benchmarks, rookie, scorecard, weekly
         from hailhunter.todaywalk import load_json
         today = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
         hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
@@ -697,7 +1134,8 @@ def main(argv=None):
                                 weekly.load_leads(load_json(a.leads)) if a.leads else [],
                                 week=a.week, hud=hud_doc, today=today, cfg=cfg,
                                 bench=benchmarks.load(a.benchmarks, cfg),   # T84: missing file -> industry null
-                                rookie_plan=rookie.load_plan(a.rookie_plan, cfg))   # missing plan -> rookie null
+                                rookie_plan=rookie.load_plan(a.rookie_plan, cfg),   # missing plan -> rookie null
+                                claims=scorecard.load_claims(load_json(a.claims)) if a.claims else None)  # T209
         except ValueError as e:
             print(f"weekly: {e}", file=sys.stderr)
             return 2
@@ -707,6 +1145,10 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "night":                           # refresh (network), then the brief from hud.json: no db needed after
+        return night_cmd(a, cfg)
+    if a.cmd == "night-shift":                     # the nightly cloud job: night + the open map's file + PUBLISH line
+        return night_shift_cmd(a, cfg)
     conn = db.connect(cfg["paths"]["db"])
     fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
 

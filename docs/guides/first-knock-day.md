@@ -15,8 +15,9 @@ One screen. Print it or read it before you go.
 ## At the door (say this first, every time - it's the law, 69-1602)
 1. Your name.
 2. "I'm with HMP Siding & Roofing."
-3. What you sell - one line: "We're checking roofs in the area for storm damage" (or "we help
-   homeowners update old siding and roofs" for non-storm doors).
+3. What you sell - one line, said before any storm/damage mention: "We do roofs and siding" (or
+   "we help homeowners update old siding and roofs" for non-storm doors).
+Then, separately, the reason for this street: "We're checking roofs in the area for storm damage."
 Then ask, don't pitch: "Have you noticed any hail damage, or had anyone come look at your roof?"
 
 ## What you're allowed to say / not say
@@ -59,8 +60,9 @@ said about damage, out loud into the app or written down - don't rely on memory 
 mas caliente, solo casas, en orden.
 
 **En la puerta (di esto primero, siempre - es la ley):**
-1. Tu nombre. 2. "Soy de HMP Siding & Roofing." 3. Que vendes, una linea: "Estamos revisando techos
-por danos de granizo en la zona."
+1. Tu nombre. 2. "Soy de HMP Siding & Roofing." 3. Que vendes, una linea, antes de mencionar la
+tormenta: "Hacemos techos y siding." Luego, aparte: "Estamos revisando techos por danos de granizo
+en la zona."
 
 **Nunca digas:** que el seguro va a pagar seguro, que cubres o bajas el deducible, un precio exacto
 sin inspeccion, que tu negocias el reclamo por ellos.

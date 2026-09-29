@@ -1,0 +1,43 @@
+ILLINOIS - UNVERIFIED (primary statute text not reached)
+Compiled 2026-09-28. This environment's network egress blocks ilga.gov, codes.findlaw.com and
+law.justia.com directly (WebFetch and curl both refused with EGRESS_BLOCKED / policy denial).
+Everything below is a search-engine paraphrase of the statute, corroborated across 2+ secondary
+sources (Justia, FindLaw, IL Attorney General, trade sites) but NOT read verbatim from the
+official .gov text. Re-verify by opening ilga.gov directly before this is used in the app or in
+front of a homeowner.
+
+1. Deductible waiver/rebate - 815 ILCS 513/18 (Home Repair and Remodeling Act)
+   Paraphrase: "A contractor offering home repair or remodeling services shall not advertise or
+   promise to pay or rebate all or any portion of any insurance deductible as an inducement to the
+   sale of goods or services." Definition of "promise to pay or rebate" mirrors Nebraska's 44-8604
+   (any allowance, discount, or compensation to the insured or an associated person).
+   Source: ilga.gov 815 ILCS 513/18 (via search summary); FindLaw 815-513-18.
+
+2. Home-solicitation cancel right - 815 ILCS 505/2B (Consumer Fraud Act) + Illinois AG guidance
+   Paraphrase: 3 business days to cancel a door-to-door / home-repair sale of $25+; the 3-day
+   period does not start until the buyer is given a "Notice of Cancellation" with the seller's
+   address. Extended to 15 full business days if the buyer is 65 or older. No storm-specific
+   extension found.
+   Source: Illinois Attorney General "Three-Day Right to Cancel" consumer guide; FindLaw 815-505-2b.
+
+3. Contractor registration/licensing - 225 ILCS 335 (Illinois Roofing Industry Licensing Act)
+   Illinois is one of the minority of states that DOES require a state ROOFING LICENSE (not just
+   registration) from the Dept. of Financial and Professional Regulation (IDFPR), with an exam,
+   liability + workers'-comp insurance, and a bond. Two classes: Residential (Limited) and
+   Residential/Commercial/Industrial (Unlimited). This is stricter than Nebraska's registration-only
+   model - use "licensed" only for Illinois, never carry that word over to Nebraska copy.
+   Source: 225 ILCS 335 (via search summary); ilroofinginstitute.com; trentcotney.com.
+
+4. Public adjuster - not independently checked this round; Illinois licenses public adjusters
+   (215 ILCS 5/Art. XXXI-ish) same general pattern as Nebraska. UNVERIFIED, flag for a follow-up
+   round before any Illinois-specific claims-language is written.
+
+5. Assignment of benefits - not checked this round. UNVERIFIED.
+
+6. Door-to-door permit - no statewide permit statute found; appears to be local/municipal, same
+   pattern as Nebraska (HMP already handles this per-town).
+
+Sources (search-summary only, pages not opened directly - egress blocked):
+- ilga.gov, 815 ILCS 513/18 - https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=081505130K18
+- Illinois Attorney General, Three-Day Right to Cancel - https://ag.state.il.us/consumers/3dayright.html
+- 225 ILCS 335, Illinois Roofing Industry Licensing Act - https://www.ilga.gov/legislation/ilcs/ilcs3.asp?ActID=1346

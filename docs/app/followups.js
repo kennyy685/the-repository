@@ -10,6 +10,8 @@
  * whichever is due first). selfCheck(rules) runs rules.test_cases (real Python results) and returns the failures.
  * Logistics only: no insurance promises, nothing about the deductible (44-8604). No dependencies.
  */
+(function () {   // one closure: the helpers below (num, pyRound, canon, selfCheck...) stay private, so the app
+                 // can load estimate.js, takeoff.js and followups.js side by side without name clashes
 "use strict";
 var FOLLOWUPS_VERSION = 1;
 var MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,12 +21,32 @@ var NOT_HOME = ["not_home", "nothome", "not home", "not-home", "no_home", "no es
 
 function str(v) { return v === null || v === undefined ? "" : String(v); }
 
-function day(v) {                               // "YYYY-MM-DD..." -> "YYYY-MM-DD" when a real date, else null
-  var s = str(v).slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
-  var d = new Date(s + "T00:00:00Z");
-  if (isNaN(d) || d.toISOString().slice(0, 10) !== s) return null;
-  return s;
+var CHICAGO_FMT = (typeof Intl !== "undefined") ? new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit"
+}) : null;
+
+function chicagoDay(d) {                        // a real Date -> its America/Chicago LOCAL calendar date (handles DST)
+  var parts = CHICAGO_FMT.formatToParts(d), map = {};
+  parts.forEach(function (p) { map[p.type] = p.value; });
+  return map.year + "-" + map.month + "-" + map.day;
+}
+
+function day(v) {
+  // Plain "YYYY-MM-DD" stays as-is. A full timestamp ("...T21:00:00Z") converts to its America/Chicago local
+  // calendar date, so a contact after ~7 PM Central doesn't roll to the next day just because it's already
+  // tomorrow in UTC. Anything unparseable falls back to the first 10 characters, then null.
+  var s = str(v), s10 = s.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s10)) return null;
+  if (s.length <= 10 || !/^[T ]/.test(s.slice(10))) {
+    var d0 = new Date(s10 + "T00:00:00Z");
+    if (isNaN(d0) || d0.toISOString().slice(0, 10) !== s10) return null;
+    return s10;
+  }
+  var iso = s.replace(" ", "T");
+  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(iso)) iso += "Z";   // timestamps in this app are stored in UTC
+  var d = new Date(iso);
+  if (isNaN(d)) return null;
+  return CHICAGO_FMT ? chicagoDay(d) : s10;
 }
 
 function addDays(d, n) {
@@ -93,9 +115,9 @@ function touchReason(L, k, due, start, today, rules) {
   } else {
     var cash = L.type === "cash" || L.source === "everyday";
     e = "Interested on " + en(start) + " (" + agoEn + "). " + n + "-day follow-up: stop by, or call if they gave you their " +
-        "number, to set a time for a free " + (cash ? "estimate" : "inspection") + ".";
+        "number, to set a time for " + (cash ? "an estimate" : "a roof check") + ".";
     s = "Interesado el " + es(start) + " (" + agoEs + "). Seguimiento de " + n + " días: pasa, o llama si te dio su número, " +
-        "para agendar " + (cash ? "un estimado gratis" : "una inspección gratis") + ".";
+        "para agendar " + (cash ? "un estimado" : "una revisión del techo") + ".";
   }
   if (last) {
     e += " Last planned touch: if it's still not a yes, mark the lead Lost.";
@@ -173,6 +195,7 @@ function selfCheck(rules) {
   return fails;
 }
 
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {followups: followups, selfCheck: selfCheck, FOLLOWUPS_VERSION: FOLLOWUPS_VERSION};
-}
+var api = {followups: followups, selfCheck: selfCheck, FOLLOWUPS_VERSION: FOLLOWUPS_VERSION};
+if (typeof module !== "undefined" && module.exports) module.exports = api;   // node: tests/js/followups_check.js
+if (typeof window !== "undefined") window.HMPFollowups = api;   // the HMP App: <script src="app/followups.js">
+})();

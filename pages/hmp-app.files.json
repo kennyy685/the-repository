@@ -1,0 +1,27 @@
+{
+  "about": "T169: the HMP App is a multi-file artifact. Publish `page` to `url` with the Artifact tool's `files` = the map below (published path -> repo file, paths relative to the repo root). The page loads each published path with <script src> / <link href>. Add a file here in the same change that adds its tag to the page; node tests/js/app_files_check.js checks both sides.",
+  "url": "https://claude.ai/artifact/9N97Uzv8J9EAueSKhCNSPT",
+  "page": "pages/hmp-app.html",
+  "files": {
+    "app/estimate.js": "docs/app/estimate.js",
+    "app/takeoff.js": "docs/app/takeoff.js",
+    "estimate/estimate-module.css": "pages/estimate/estimate-module.css",
+    "estimate/estimate-module.js": "pages/estimate/estimate-module.js",
+    "app/followups.js": "docs/app/followups.js",
+    "app/jobtrack.js": "docs/app/jobtrack.js",
+    "translate/translate.js": "pages/translate/translate.js",
+    "v25/ds.css": "pages/v25/ds.css",
+    "v25/icons.js": "pages/v25/icons.js",
+    "v25/walkmap.js": "pages/v25/walkmap.js",
+    "v25/practice.js": "pages/v25/practice.js",
+    "v25/practice-houses.js": "pages/v25/practice-houses.js",
+    "v25/calls.js": "pages/v25/calls.js",
+    "v25/aldaba.css": "pages/v25/aldaba.css",
+    "v25/desk.css": "pages/v25/desk.css",
+    "fonts/Geist-400.woff2": "pages/fonts/Geist-400.woff2",
+    "fonts/Geist-500.woff2": "pages/fonts/Geist-500.woff2",
+    "fonts/Geist-600.woff2": "pages/fonts/Geist-600.woff2",
+    "fonts/GeistMono-500.woff2": "pages/fonts/GeistMono-500.woff2",
+    "fonts/BricolageGrotesque-var.woff2": "pages/fonts/BricolageGrotesque-var.woff2"
+  }
+}

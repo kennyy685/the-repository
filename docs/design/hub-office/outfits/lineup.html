@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crew Wardrobe v2</title>
+<style>
+@font-face{font-family:Bricolage;src:url(../../../../pages/fonts/BricolageGrotesque-var.woff2) format('woff2');font-weight:200 800}
+@font-face{font-family:Geist;src:url(../../../../pages/fonts/Geist-400.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Geist;src:url(../../../../pages/fonts/Geist-600.woff2) format('woff2');font-weight:600}
+:root{--bg:#141416;--ink:#f3eee6;--muted:#a59f96;--orange:#f5883a;--brass:#c9a45c;--cream:#efe9df}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;width:1600px;padding:44px 50px 40px}
+h1{font-family:Bricolage;font-weight:700;font-size:44px;letter-spacing:-.02em;line-height:1}
+h1 span{color:var(--orange)}
+.sub{margin-top:10px;color:var(--muted);font-size:15px}
+.rowlab{margin:30px 0 8px;font-family:Geist;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.rowlab i{font-style:normal;color:var(--muted);letter-spacing:.06em;text-transform:none;font-weight:400}
+.row{display:grid;grid-template-columns:repeat(10,150px);border-radius:18px;overflow:hidden}
+.big{background:radial-gradient(120% 90% at 50% 0%,#2a2430 0%,#1b1b1f 70%)}
+.cell{position:relative;text-align:center}
+.cell svg{display:block;margin:0 auto}
+.nm{font-family:Bricolage;font-weight:650;font-size:17px;margin-top:2px}
+.es{font-size:12.5px;color:var(--muted);margin-top:2px}
+.hero{font-size:12px;color:var(--orange);margin:6px 8px 16px;line-height:1.3}
+.small{background:linear-gradient(180deg,#3a2f3d 0%,#2a2530 55%,#6b5a4a 56%,#5a4b3e 100%)}
+.sil{background:var(--cream)}
+.sil *{fill:#18181b !important;opacity:1 !important}
+.sil [stroke]{stroke:#18181b !important}
+.sil [fill="none"]{fill:none !important}
+.sil .glow,.sil .shadow,.sil text{display:none}
+.foot{display:flex;gap:28px;margin-top:22px;color:var(--muted);font-size:13px}
+.foot b{color:var(--ink);font-weight:600}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<h1>Crew wardrobe <span>v2</span></h1>
+<p class="sub">One body, ten collab editions. Each robot: one hero piece that reads across the room, up to two supports, jewelry only up close. &nbsp;·&nbsp; Una sola figura, diez ediciones especiales.</p>
+
+<div class="rowlab">1 · Full size <i>(tilt-shift, Follow, the card)</i></div>
+<div class="row big" id="big"></div>
+<div class="rowlab">2 · Real MacBook size <i>(robot body + head = 40 px, on a dusk floor)</i></div>
+<div class="row small" id="small"></div>
+<div class="rowlab">3 · Silhouette test at 40 px <i>(every robot must be nameable from its black shape alone)</i></div>
+<div class="row sil" id="sil"></div>
+<div class="foot">
+  <span><i class="dot" style="background:var(--orange)"></i><b>Orange light</b> = live (one per robot)</span>
+  <span><i class="dot" style="background:var(--brass)"></i><b>Brass</b> = the hardware thread on every outfit</span>
+  <span><i class="dot" style="background:#e5484d"></i><b>Red</b> stays reserved for “blocked”, never an outfit color</span>
+  <span><b>Never covered:</b> the orange strip, the eyes, the crew pin</span>
+</div>
+
+<script>
+const O = '#f5883a', B = '#c9a45c', INK = '#141416';
+const defs = `<defs>
+<radialGradient id="cer" cx=".38" cy=".7" r=".8"><stop offset="0" stop-color="#fcfaf6"/><stop offset=".55" stop-color="#ece7df"/><stop offset="1" stop-color="#c3bbad"/></radialGradient>
+<radialGradient id="gra" cx=".38" cy=".7" r=".8"><stop offset="0" stop-color="#55565e"/><stop offset=".55" stop-color="#2e2f35"/><stop offset="1" stop-color="#17171b"/></radialGradient>
+<linearGradient id="brassG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ecd296"/><stop offset=".5" stop-color="#c9a45c"/><stop offset="1" stop-color="#8f7038"/></linearGradient>
+<linearGradient id="orangeG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffb57a"/><stop offset=".45" stop-color="#f5883a"/><stop offset="1" stop-color="#d4631c"/></linearGradient>
+<linearGradient id="yellowG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffe17a"/><stop offset=".5" stop-color="#f2c230"/><stop offset="1" stop-color="#c9971a"/></linearGradient>
+<linearGradient id="sandG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9c297"/><stop offset=".6" stop-color="#b99d72"/><stop offset="1" stop-color="#8f7652"/></linearGradient>
+<linearGradient id="feltG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#46414c"/><stop offset="1" stop-color="#1a181e"/></linearGradient>
+<linearGradient id="velG" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#8a2238"/><stop offset="1" stop-color="#4e0f1d"/></linearGradient>
+<linearGradient id="chromeG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8d939b"/><stop offset=".45" stop-color="#f2f4f7"/><stop offset="1" stop-color="#9aa0a8"/></linearGradient>
+<pattern id="hickory" patternUnits="userSpaceOnUse" width=".026" height=".2"><rect width=".026" height=".2" fill="#2e3a57"/><rect x=".004" width=".006" height=".2" fill="#e9e2d0"/><rect x=".016" width=".003" height=".2" fill="#aeb6c6"/></pattern>
+<pattern id="tweed" patternUnits="userSpaceOnUse" width=".028" height=".028"><rect width=".028" height=".028" fill="#b3a48a"/><path d="M0 0 L.014 .028 L.028 0" stroke="#8f7f66" stroke-width=".005" fill="none"/></pattern>
+</defs>`;
+
+/* the robot body: the lathe profile from scene.js, smoothed (Catmull-Rom) and mirrored */
+const PTS = [[0,0],[.085,.005],[.15,.028],[.19,.075],[.208,.15],[.213,.25],[.207,.35],[.19,.44],[.162,.52],[.12,.585],[.065,.628],[0,.64]];
+function bodyPath(){
+  const seg = (p) => { let d = ''; for (let i = 0; i < p.length - 1; i++){ const p0 = p[Math.max(0,i-1)], p1 = p[i], p2 = p[i+1], p3 = p[Math.min(p.length-1,i+2)];
+    const c1 = [p1[0] + (p2[0]-p0[0])/6, p1[1] + (p2[1]-p0[1])/6], c2 = [p2[0] - (p3[0]-p1[0])/6, p2[1] - (p3[1]-p1[1])/6];
+    d += ` C${c1[0].toFixed(4)} ${c1[1].toFixed(4)} ${c2[0].toFixed(4)} ${c2[1].toFixed(4)} ${p2[0].toFixed(4)} ${p2[1].toFixed(4)}`; } return d; };
+  const R = PTS, L = PTS.map(p => [-p[0], p[1]]).reverse();
+  return `M0 0${seg(R)}${seg(L)} Z`;
+}
+const BODY = bodyPath();
+const glow = (x, y, r, c = O, op = .28) => `<circle class="glow" cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${op}"/>`;
+function base(shell, color){
+  const g = shell === 'g' ? 'url(#gra)' : 'url(#cer)';
+  return `<ellipse class="shadow" cx="0" cy="-.2" rx=".19" ry=".03" fill="rgba(0,0,0,.4)"/>
+  <rect class="glow" x="-.235" y=".222" width=".47" height=".056" rx=".028" fill="${O}" opacity=".22"/>
+  <path d="${BODY}" fill="${g}"/>
+  <rect x="-.2145" y=".2405" width=".429" height=".019" rx=".009" fill="${O}"/>
+  <rect x="-.058" y=".62" width=".116" height=".085" fill="#17171a"/>
+  <rect x="-.19" y=".695" width=".38" height=".25" rx=".095" fill="${g}"/>
+  <rect x="-.203" y=".782" width=".018" height=".076" rx=".006" fill="url(#brassG)"/><rect x=".185" y=".782" width=".018" height=".076" rx=".006" fill="url(#brassG)"/>
+  <rect x="-.16" y=".746" width=".32" height=".14" rx=".022" fill="#07070a"/>
+  <ellipse cx="-.066" cy=".818" rx=".038" ry=".0156" fill="#fff2e0"/><ellipse cx=".066" cy=".818" rx=".038" ry=".0156" fill="#fff2e0"/>
+  <circle cx="-.28" cy=".32" r=".044" fill="${g}"/><circle cx=".28" cy=".32" r=".044" fill="${g}"/>
+  <circle cx="-.1" cy=".36" r=".03" fill="${color}"/>`;
+}
+const T = (x, y, s, size, fill, weight = 600, rot = 0) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(1,-1)"><text x="0" y="0" font-size="${size}" font-family="Geist" font-weight="${weight}" text-anchor="middle" dominant-baseline="middle" fill="${fill}">${s}</text></g>`;
+
+const CREW = [
+{ id:'code', en:'Claude Code · King', es:'El Rey', hero:'Velvet-cap crown · gems = today’s board', shell:'c', color:'#4fb8ac',
+  back:`<path d="M-.15 .615 L-.295 .3 Q0 .258 .295 .3 L.15 .615 Z" fill="url(#velG)"/><path d="M-.2 .46 L-.245 .31 M.2 .46 L.245 .31" stroke="#3f0c18" stroke-width=".008"/>`,
+  front:`<ellipse cx="0" cy=".626" rx=".158" ry=".036" fill="#f4efe6"/>
+  ${[-.11,-.055,0,.055,.11].map(x => `<rect x="${x-.004}" y=".607" width=".008" height=".02" rx=".003" fill="${INK}"/>`).join('')}
+  <path d="M-.045 .598 Q0 .575 .045 .598" stroke="${B}" stroke-width=".005" fill="none"/><circle cx="-.045" cy=".6" r=".016" fill="url(#brassG)"/><circle cx=".045" cy=".6" r=".016" fill="url(#brassG)"/>
+  <path d="M-.142 .99 C-.142 1.09 .142 1.09 .142 .99 Z" fill="url(#velG)"/>
+  ${[-.13,0,.13].map(x => `<path d="M${x-.032} .99 L${x} 1.1 L${x+.032} .99 Z" fill="url(#brassG)"/>`).join('')}
+  ${[-.065,.065].map(x => `<path d="M${x-.022} .99 L${x} 1.048 L${x+.022} .99 Z" fill="url(#brassG)"/>`).join('')}
+  <rect x="-.158" y=".935" width=".316" height=".06" rx=".008" fill="url(#brassG)"/>
+  <rect x="-.163" y=".918" width=".326" height=".024" rx=".012" fill="#f4efe6"/>
+  ${[-.12,-.06,0,.06,.12].map(x => `<rect x="${x-.003}" y=".922" width=".006" height=".014" fill="${INK}"/>`).join('')}
+  ${glow(0,.965,.045)}<circle cx="0" cy=".965" r=".02" fill="${O}"/>
+  ${glow(-.13,1.1,.035)}<circle cx="-.13" cy="1.1" r=".018" fill="${O}"/>${glow(0,1.1,.035)}<circle cx="0" cy="1.1" r=".018" fill="${O}"/><circle cx=".13" cy="1.1" r=".018" fill="url(#brassG)"/>` },
+
+{ id:'king', en:'Right Hand', es:'Mano Derecha', hero:'Concierge waistcoat · crossed gold keys · live mic', shell:'c', color:'#9b7be0',
+  back:'',
+  front:`<rect x="-.021" y=".54" width=".042" height=".034" rx=".006" fill="#d6a743"/><path d="M-.02 .545 L.02 .545 L.033 .4 L0 .362 L-.033 .4 Z" fill="#d6a743"/><path d="M0 .54 L.012 .4" stroke="#b58a2e" stroke-width=".004"/>
+  <path d="M-.137 .56 L-.046 .566 L-.006 .4 L-.006 .288 L-.2 .315 L-.208 .35 L-.19 .44 L-.162 .52 Z" fill="#4a2466"/>
+  <path d="M.137 .56 L.046 .566 L.006 .4 L.006 .288 L.2 .315 L.208 .35 L.19 .44 L.162 .52 Z" fill="#4a2466"/>
+  <path d="M-.046 .566 L-.006 .4 M.046 .566 L.006 .4" stroke="#6b3a92" stroke-width=".006"/>
+  ${[.31,.345,.38].map(y => `<circle cx="-.03" cy="${y}" r=".009" fill="url(#brassG)"/>`).join('')}
+  <g transform="translate(-.128 .47)">${[35,-35].map(a => `<g transform="rotate(${a})"><rect x="-.004" y="-.032" width=".008" height=".058" fill="#e6c987"/><circle cx="0" cy=".036" r=".011" fill="none" stroke="#e6c987" stroke-width=".006"/><rect x="0" y="-.032" width=".012" height=".008" fill="#e6c987"/></g>`).join('')}</g>
+  <path d="M-.205 .86 C-.205 1.035 .205 1.035 .205 .86" stroke="#26262b" stroke-width=".034" fill="none"/><path d="M-.19 .9 C-.17 1.015 .17 1.015 .19 .9" stroke="${B}" stroke-width=".005" fill="none"/>
+  <rect x="-.262" y=".74" width=".07" height=".158" rx=".03" fill="#1c1c20"/><rect x=".192" y=".74" width=".07" height=".158" rx=".03" fill="#1c1c20"/>
+  <rect x="-.258" y=".8" width=".062" height=".038" rx=".008" fill="#4a2466"/><rect x=".196" y=".8" width=".062" height=".038" rx=".008" fill="#4a2466"/>
+  <path d="M.23 .78 C.24 .712 .15 .7 .088 .705" stroke="#1c1c20" stroke-width=".012" fill="none"/>${glow(.08,.705,.045)}<circle cx=".08" cy=".705" r=".02" fill="${O}"/>` },
+
+{ id:'builder', en:'Builder', es:'Constructor', hero:'HMP-orange hard hat · release decals · headlamp', shell:'c', color:'#5aa9e6',
+  back:'',
+  front:`<path d="M-.206 .145 L.206 .145 L.209 .19 L-.209 .19 Z" fill="#a0582a"/><path d="M-.2 .152 L.2 .152 M-.2 .183 L.2 .183" stroke="#6b3a1f" stroke-width=".003" stroke-dasharray=".01 .006"/>
+  <rect x="-.028" y=".148" width=".056" height=".04" rx=".006" fill="none" stroke="url(#brassG)" stroke-width=".01"/>
+  <rect x="-.262" y=".13" width=".016" height=".09" fill="#e8c89a" transform="rotate(-10 -.254 .13)"/><rect x="-.305" y=".21" width=".08" height=".026" rx=".004" fill="#2a2b30"/>
+  <rect x="-.288" y=".035" width=".1" height=".13" rx=".018" fill="#6b3a1f"/><path d="M-.288 .165 L-.188 .165 L-.188 .118 Q-.238 .098 -.288 .118 Z" fill="#8e4b2a"/>
+  <rect x=".188" y=".035" width=".1" height=".13" rx=".018" fill="#6b3a1f"/><path d="M.188 .165 L.288 .165 L.288 .118 Q.238 .098 .188 .118 Z" fill="#8e4b2a"/>
+  ${[[-.278,.045],[-.198,.045],[.198,.045],[.278,.045]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r=".006" fill="#b87333"/>`).join('')}
+  <circle cx=".238" cy=".07" r=".026" fill="url(#brassG)"/><circle cx=".238" cy=".07" r=".014" fill="${O}"/>
+  <path d="M-.2 .928 C-.205 1.088 .205 1.088 .2 .928 Z" fill="url(#orangeG)"/>
+  <path d="M-.024 .93 L-.024 1.036 Q0 1.052 .024 1.036 L.024 .93 Z" fill="#e8772a"/>
+  <rect x="-.234" y=".91" width=".468" height=".024" rx=".012" fill="#d4631c"/>
+  <path d="M-.15 .985 Q-.12 1.035 -.045 1.05" stroke="#ffd9b5" stroke-width=".009" fill="none" opacity=".75"/>
+  <circle cx="-.125" cy=".975" r=".02" fill="#f3eee6" stroke="${B}" stroke-width=".004"/><circle cx=".12" cy=".97" r=".02" fill="#2c2d32" stroke="${B}" stroke-width=".004"/><circle cx=".085" cy="1.025" r=".014" fill="url(#brassG)"/>
+  <circle cx="0" cy=".965" r=".026" fill="url(#brassG)"/>${glow(0,.965,.05,'#fff1d6',.35)}<circle cx="0" cy=".965" r=".016" fill="#fff4e2"/>` },
+
+{ id:'designer', en:'Designer', es:'Diseñador', hero:'Tilted felt beret · swatch fan opens to 3', shell:'c', color:'#e07a9a',
+  back:`<g transform="translate(.205 .885) rotate(-38)"><rect x="-.012" y="-.13" width=".024" height=".22" fill="#3b3d42"/><rect x="-.013" y=".09" width=".026" height=".022" fill="url(#brassG)"/><rect x="-.012" y=".112" width=".024" height=".02" rx=".003" fill="#e88a9a"/><path d="M-.012 -.13 L0 -.172 L.012 -.13 Z" fill="#e8c89a"/></g>`,
+  front:`<rect x="-.078" y=".64" width=".156" height=".048" rx=".022" fill="#d9728c"/>
+  <path d="M.012 .65 L-.03 .515 L.018 .508 L.042 .628 Z" fill="#b85a72"/><path d="M.03 .65 L.084 .528 L.118 .545 L.052 .656 Z" fill="#d9728c"/>
+  ${[[-.012,.56],[.086,.56],[.004,.6]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r=".006" fill="${B}"/>`).join('')}
+  <circle cx=".032" cy=".646" r=".031" fill="#e3869d"/>
+  <g transform="translate(.285 .3)">${[[26,O],[0,'#f3eee6'],[-26,'#2c2d32']].map(s => `<rect x="-.017" y="0" width=".034" height=".175" rx=".005" fill="${s[1]}" transform="rotate(${s[0]})"/>`).join('')}<circle cx="0" cy=".012" r=".013" fill="url(#brassG)"/></g>
+  <path d="M-.3 .9 C-.33 .99 -.12 1.055 .02 1.045 C.145 1.035 .222 .992 .205 .952 C.192 .928 .08 .925 -.06 .93 C-.16 .933 -.24 .9 -.268 .912 Z" fill="url(#feltG)"/>
+  <path d="M-.21 .93 C-.1 .93 .1 .93 .195 .948" stroke="#3b2418" stroke-width=".01" fill="none"/>
+  <rect x="-.03" y="1.035" width=".012" height=".032" rx=".005" fill="#1c1a20" transform="rotate(-18 -.024 1.035)"/>` },
+
+{ id:'engine-mechanic', en:'Engine Mechanic', es:'Mecánico del Motor', hero:'Brass cup goggles glow when the engine runs', shell:'c', color:'#d0693e',
+  back:`<path d="M-.16 .955 L-.278 .93 Q-.29 .918 -.272 .91 L-.16 .928 Z" fill="#26304a"/>`,
+  front:`<g transform="translate(.29 .36) rotate(-20)"><rect x="-.016" y="-.1" width=".032" height=".21" rx=".01" fill="url(#chromeG)"/>
+  <path d="M-.016 .1 L-.048 .122 L-.048 .165 L-.02 .19 L-.02 .15 L.02 .15 L.02 .19 L.048 .165 L.048 .122 L.016 .1 Z" fill="url(#chromeG)"/><circle cx="0" cy="-.105" r=".032" fill="url(#chromeG)"/><circle cx="0" cy="-.105" r=".015" fill="#2c2d32"/></g>
+  <circle cx=".1" cy=".46" r=".047" fill="url(#brassG)"/><circle cx=".1" cy=".46" r=".036" fill="#f1ece0"/>
+  <path d="M.074 .44 A.032 .032 0 1 1 .126 .44" stroke="#8a847a" stroke-width=".004" fill="none" stroke-dasharray=".006 .006"/><circle cx=".127" cy=".44" r=".006" fill="${O}"/>
+  <path d="M.1 .46 L.12 .482" stroke="${INK}" stroke-width=".006" stroke-linecap="round"/><circle cx=".1" cy=".46" r=".006" fill="${INK}"/>
+  <path d="M-.197 .928 C-.2 1.055 .2 1.055 .197 .928 Z" fill="url(#hickory)"/><circle cx="0" cy="1.03" r=".013" fill="#2e3a57"/>
+  <rect x="-.2" y=".926" width=".4" height=".024" fill="#1a1718"/>
+  <rect x="-.032" y=".948" width=".064" height=".016" fill="url(#brassG)"/>
+  ${[-.08,.08].map(x => `<circle cx="${x}" cy=".956" r=".056" fill="url(#brassG)"/>${glow(x,.956,.075,O,.25)}<circle cx="${x}" cy=".956" r=".04" fill="#ffa347"/><circle cx="${x-.014}" cy=".97" r=".01" fill="#fff" opacity=".55"/>${[0,1,2,3,4,5].map(i => `<circle cx="${(x + Math.cos(i*Math.PI/3)*.048).toFixed(4)}" cy="${(.956 + Math.sin(i*Math.PI/3)*.048).toFixed(4)}" r=".004" fill="#7a5f2c"/>`).join('')}`).join('')}` },
+
+{ id:'qa-tester', en:'QA Tester', es:'Control de Calidad', hero:'Green eyeshade · brass loupe · tally clipboard', shell:'c', color:'#7cc47a',
+  back:'',
+  front:`<g transform="translate(-.29 .38) rotate(8)"><rect x="-.075" y="-.1" width=".15" height=".2" rx=".01" fill="#8e4b2a"/><rect x="-.06" y="-.085" width=".12" height=".16" fill="#f1ece0"/><rect x="-.03" y=".082" width=".06" height=".03" rx=".006" fill="url(#brassG)"/>
+  ${[.045,.01,-.025,-.06].map((y,i) => `<path d="M-.048 ${y} l.008 -.008 l.014 .018" stroke="#2f7a4a" stroke-width=".007" fill="none"/><rect x="-.018" y="${y-.006}" width="${i === 3 ? .03 : .06}" height=".006" fill="#b8b0a2"/>`).join('')}</g>
+  <path d="M-.128 .83 L-.19 .842 M.128 .83 L.19 .842" stroke="${B}" stroke-width=".008"/>
+  ${[-.07,.07].map(x => `<circle cx="${x}" cy=".818" r=".058" fill="rgba(210,225,240,.12)" stroke="url(#brassG)" stroke-width=".013"/>`).join('')}
+  <path d="M-.013 .832 Q0 .848 .013 .832" stroke="${B}" stroke-width=".008" fill="none"/>
+  <rect x="-.192" y=".888" width=".384" height=".03" fill="#1a1718"/>
+  <path d="M-.25 .925 L.25 .925 L.214 .858 L-.214 .858 Z" fill="#1f8a52" opacity=".86"/><path d="M-.214 .858 L.214 .858" stroke="${B}" stroke-width=".008"/>
+  <g transform="translate(.132 .882) rotate(22)"><rect x="-.018" y="0" width=".036" height=".058" rx=".006" fill="url(#brassG)"/><rect x="-.014" y=".052" width=".028" height=".012" fill="${INK}"/></g>` },
+
+{ id:'hub-keeper', en:'Research Lead', es:'Jefe de Investigación', hero:'Explorer fedora · merit-badge sash (1 per round)', shell:'c', color:'#b39ddb',
+  back:'',
+  front:`<path d="M-.145 .565 L-.085 .6 L.205 .33 L.19 .29 Z" fill="#5d6340"/>
+  ${[.12,.3,.48,.66,.84].map((t,i) => { const x = -.115 + t*.3125, y = .58 - t*.27; return `<circle cx="${x.toFixed(4)}" cy="${y.toFixed(4)}" r=".019" fill="${['#f3eee6',O,'#2c2d32','#d9728c','#ecd296'][i]}" stroke="url(#brassG)" stroke-width=".005"/>`; }).join('')}
+  <g transform="translate(.29 .33) rotate(-15)"><rect x="-.013" y="-.02" width=".026" height=".12" rx=".01" fill="#6b4226"/><rect x="-.015" y=".095" width=".03" height=".02" fill="url(#brassG)"/><circle cx="0" cy=".175" r=".062" fill="rgba(210,230,245,.28)" stroke="url(#brassG)" stroke-width=".016"/><path d="M-.03 .2 Q-.02 .215 0 .218" stroke="#fff" stroke-width=".006" fill="none" opacity=".6"/></g>
+  <path d="M-.155 .94 L-.132 1.095 Q-.07 1.122 -.025 1.09 Q0 1.076 .025 1.09 Q.07 1.122 .132 1.095 L.155 .94 Z" fill="url(#sandG)"/>
+  <path d="M-.154 .952 L-.148 .995 L.148 .995 L.154 .952 Z" fill="#2b1a12"/><circle cx="-.1" cy=".973" r=".014" fill="url(#brassG)"/>
+  <path d="M-.308 .955 C-.2 .95 -.1 .916 0 .914 C.1 .916 .2 .95 .308 .955 C.314 .966 .302 .974 .29 .974 C.2 .968 .1 .942 0 .94 C-.1 .942 -.2 .968 -.29 .974 C-.302 .974 -.314 .966 -.308 .955 Z" fill="#a88d62"/>
+  ${[[-.27,1.07],[.27,1.12],[.19,1.22]].map(p => `${glow(p[0],p[1],.03,O,.3)}<circle class="glow" cx="${p[0]}" cy="${p[1]}" r=".009" fill="#ffd2a8"/>`).join('')}` },
+
+{ id:'cowork', en:'Cowork', es:'Cowork', hero:'Captain’s cap · gold leaves = clean-run streak', shell:'g', color:'#e0a84a',
+  back:'',
+  front:`${[-1,1].map(s => `<g transform="translate(${s*.172} .548) rotate(${s*36})"><rect x="-.062" y="-.018" width=".124" height=".036" rx=".007" fill="#101013" stroke="url(#brassG)" stroke-width=".005"/>${[-.036,-.012,.012,.036].map(x => `<rect x="${x-.0045}" y="-.013" width=".009" height=".026" fill="url(#brassG)"/>`).join('')}</g>`).join('')}
+  ${[.33,.39,.45].map(y => `<circle cx="-.055" cy="${y}" r=".012" fill="url(#brassG)"/><circle cx=".055" cy="${y}" r=".012" fill="url(#brassG)"/>`).join('')}
+  <g transform="translate(-.3 .36) rotate(18)"><rect x="-.025" y="-.11" width=".05" height=".22" rx=".012" fill="#f1ece0"/><rect x="-.026" y="-.01" width=".052" height=".018" fill="${O}"/><ellipse cx="0" cy=".11" rx=".025" ry=".008" fill="#d8d0c0"/></g>
+  <rect x="-.166" y=".925" width=".332" height=".078" fill="#16161a"/>
+  <path d="M-.228 .996 C-.2 1.056 .2 1.056 .228 .996 C.2 .974 -.2 .974 -.228 .996 Z" fill="#f6f3ee"/>
+  <path d="M-.17 .932 C-.1 .884 .1 .884 .17 .932 Z" fill="#0b0b0e"/><path d="M-.12 .915 C-.05 .9 .05 .9 .12 .915" stroke="#3a3a42" stroke-width=".004" fill="none"/>
+  ${[[-.105,.918,-14],[-.052,.906,-6],[0,.903,0],[.052,.906,6],[.105,.918,14]].map(p => `<ellipse cx="${p[0]}" cy="${p[1]}" rx=".02" ry=".0065" fill="url(#brassG)" transform="rotate(${p[2]} ${p[0]} ${p[1]})"/>`).join('')}
+  <path d="M-.16 .937 L.16 .937" stroke="${B}" stroke-width=".007"/><circle cx="-.16" cy=".937" r=".01" fill="url(#brassG)"/><circle cx=".16" cy=".937" r=".01" fill="url(#brassG)"/>
+  <circle cx="0" cy=".966" r=".027" fill="none" stroke="url(#brassG)" stroke-width=".009"/>${glow(0,.966,.04,O,.25)}<circle cx="0" cy=".966" r=".014" fill="${O}"/>` },
+
+{ id:'storm-watch', en:'Storm Watch', es:'Vigía de Tormentas', hero:'Sou’wester · anemometer spins at real wind', shell:'g', color:'#6f9fe0',
+  back:'',
+  front:`<path d="M-.005 .598 L-.168 .598 L-.108 .698 L-.005 .704 Z" fill="url(#yellowG)"/><path d="M.005 .598 L.168 .598 L.108 .698 L.005 .704 Z" fill="url(#yellowG)"/>
+  <circle cx="-.026" cy=".625" r=".008" fill="url(#brassG)"/><circle cx=".026" cy=".625" r=".008" fill="url(#brassG)"/><circle cx="-.026" cy=".665" r=".008" fill="url(#brassG)"/><circle cx=".026" cy=".665" r=".008" fill="url(#brassG)"/>
+  <path d="M-.302 .858 Q-.22 .94 0 .942 Q.22 .94 .302 .858 L.286 .843 Q.2 .916 0 .918 Q-.2 .916 -.286 .843 Z" fill="#dcab1c"/>
+  <path d="M-.172 .928 C-.172 1.076 .172 1.076 .172 .928 Z" fill="url(#yellowG)"/>
+  <path d="M-.125 .95 C-.125 1.04 .125 1.04 .125 .95" stroke="#b98b16" stroke-width=".005" fill="none"/><path d="M-.07 .96 C-.07 1.02 .07 1.02 .07 .96" stroke="#b98b16" stroke-width=".004" fill="none"/>
+  ${[-.1,-.065,-.03].map(x => `<circle cx="${x}" cy=".948" r=".009" fill="#eef3f7" stroke="#9aa6b2" stroke-width=".003"/>`).join('')}
+  <path d="M.07 1.03 L.07 1.262" stroke="${B}" stroke-width=".012"/>
+  <path d="M.018 1.262 L.122 1.262" stroke="${B}" stroke-width=".006"/>
+  <circle cx=".018" cy="1.262" r=".017" fill="url(#brassG)"/><circle cx=".122" cy="1.262" r=".017" fill="url(#brassG)"/><circle cx=".07" cy="1.258" r=".013" fill="#9c7c3e"/><circle cx=".07" cy="1.262" r=".009" fill="${B}"/>
+  ${glow(.07,1.298,.055,O,.3)}<circle cx=".07" cy="1.298" r=".021" fill="${O}"/>` },
+
+{ id:'chat-reader', en:'Chat Reader', es:'Lector de Chats', hero:'Tweed newsboy · PRESS card flips to EXTRA', shell:'g', color:'#c9a45c',
+  back:'',
+  front:`<path d="M-.14 .575 L-.1 .6 L.228 .388 L.192 .366 Z" fill="#5e2f1a"/>
+  <rect x=".18" y=".37" width=".026" height=".072" rx=".011" fill="#f1ece0" transform="rotate(12 .193 .37)"/><rect x=".218" y=".372" width=".026" height=".064" rx=".011" fill="#e4dccb" transform="rotate(-8 .231 .372)"/>
+  <rect x=".165" y=".265" width=".132" height=".112" rx=".014" fill="#8b7a55"/><path d="M.165 .377 L.297 .377 L.297 .33 Q.231 .31 .165 .33 Z" fill="#6f6143"/><rect x=".223" y=".3" width=".016" height=".022" fill="none" stroke="url(#brassG)" stroke-width=".005"/>
+  <g transform="translate(-.3 .37) rotate(-8)"><rect x="-.07" y="-.09" width=".14" height=".18" fill="#f1ece0"/><rect x="-.06" y=".052" width=".12" height=".024" fill="${INK}"/>
+  ${[.03,.015,0,-.015,-.03,-.045,-.06].map(y => `<rect x="-.058" y="${y}" width=".052" height=".006" fill="#b3ab9c"/><rect x=".006" y="${y}" width=".052" height=".006" fill="#b3ab9c"/>`).join('')}</g>
+  <rect x="-.19" y=".912" width=".38" height=".024" fill="#3a3128"/>
+  <path d="M-.206 .93 C-.238 1.048 .19 1.068 .226 .966 C.232 .936 .12 .926 -.206 .93 Z" fill="url(#tweed)"/>
+  <path d="M-.005 1.04 L-.17 .95 M-.005 1.04 L-.06 .93 M-.005 1.04 L.07 .932 M-.005 1.04 L.2 .955" stroke="#4f463b" stroke-width=".004" fill="none"/>
+  <path d="M-.152 .92 C-.07 .872 .09 .872 .166 .923 Z" fill="#8a7a61"/>
+  <circle cx="-.005" cy="1.042" r=".02" fill="#9c8b70"/>
+  <g transform="translate(.15 1.012) rotate(-16)"><rect x="-.044" y="-.03" width=".088" height=".06" rx=".004" fill="#f6f1e6"/>${T(0,.001,'PRESS',.022,INK,600)}</g>` }
+];
+
+function robotSVG(r, S, pad){
+  const W = 150, top = 1.34, bot = -.24, H = Math.round((top - bot)*S) + pad;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${defs}<g transform="translate(${W/2} ${Math.round(top*S) + pad/2}) scale(${S} ${-S})">${r.back}${base(r.shell, r.color)}${r.front}</g></svg>`;
+}
+const big = document.getElementById('big'), small = document.getElementById('small'), sil = document.getElementById('sil');
+for (const r of CREW){
+  big.insertAdjacentHTML('beforeend', `<div class="cell">${robotSVG(r, 190, 16)}<div class="nm">${r.en}</div><div class="es">${r.es}</div><div class="hero">${r.hero}</div></div>`);
+  small.insertAdjacentHTML('beforeend', `<div class="cell">${robotSVG(r, 40/.945, 14)}</div>`);
+  sil.insertAdjacentHTML('beforeend', `<div class="cell">${robotSVG(r, 40/.945, 14)}</div>`);
+}
+</script>
+</body>
+</html>

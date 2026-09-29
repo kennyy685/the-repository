@@ -7,17 +7,25 @@
  *
  * Exit 0 = all pass. The AI coach is the main check; this set is the backup and the regression guard.
  * v6 (2026-09-26, QA): 19 tricky phrasings + 15 compliant look-alikes added (deductible softening, "basically
- * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy). */
+ * guaranteed", acting as the claim contact, initial-in-English, a relative signing, paid referrals, resale/energy).
+ * v10 (2026-09-27): the insurance-rate promise (round 47) and "licencia" said about HMP in Spanish (round 49), each with
+ * compliant look-alikes; the pro lines and the Spanish playbook must equal their data files; taught Spanish keeps "usted".
+ * v12 (2026-09-28): offering to call the insurer or file the claim "for you", free extras for the deductible, a
+ * different storm date, and a reward for a review (each with compliant look-alikes); every line Kenny is taught
+ * (openers, answers, drills, pro lines, playbook) must also pass dedTalk, and every drill's model answers must pass
+ * that drill's own local check. */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "..", "..", "pages", "practice-door.html"), "utf8");
 const a = src.indexOf("const RX = ["), b = src.indexOf("const localFlags");
-const legalScan = new Function(src.slice(a, b) + "\nreturn legalScan;")();
+const { legalScan, tuUsed, dedTalk, startsEarly } = new Function(src.slice(a, b) + "\nreturn { legalScan, tuUsed: typeof tuUsed === 'undefined' ? null : tuUsed, dedTalk, startsEarly };")();
 const e = src.indexOf("const T = {"), f = src.indexOf("const CORE");
 const T = new Function("const MAX=8;\n" + src.slice(e, f) + "\nreturn T;")();
 const c = src.indexOf("const CASH_OBJ"), d = src.indexOf("const objFor");
-const { OBJ, SKILL } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL };")();
+/* v12: the homeowners (for their "open" lines). */
+const P = new Function(src.slice(src.indexOf("const P = {"), src.indexOf("const ORDER")) + "\nreturn P;")();
+const { OBJ, SKILL, PRO, PRO_ON_HOLD, PLAY, TOP15 } = new Function(src.slice(c, d) + "\nreturn { OBJ, SKILL, PRO: typeof PRO === 'undefined' ? null : PRO, PRO_ON_HOLD: typeof PRO_ON_HOLD === 'undefined' ? null : PRO_ON_HOLD, PLAY: typeof PLAY === 'undefined' ? null : PLAY, TOP15: typeof TOP15 === 'undefined' ? null : TOP15 };")();
 
 /* [line, expected first flag type or null, optional legalScan context] */
 const HOA = { hoa: true }, PHONE = { phone: true };
@@ -318,6 +326,113 @@ const CASES = [
   ["Free roof look?", null],
   ["Mind if I do a free roof inspection?", null],
   ["You get a free roof out of this.", 'deductible'],
+  /* v10 (2026-09-27, round 47): the insurance-rate promise. Never say their rate won't go up, that they can't be
+     dropped, or that a hail / "act of God" claim won't count against them. The only approved answer is T.f_rate. */
+  ["Your rates won't go up.", 'rate'],
+  ["Your insurance rate can't go up for a hail claim.", 'rate'],
+  ["Filing won't raise your premium.", 'rate'],
+  ["Don't worry, your insurance won't go up.", 'rate'],
+  ["A claim won't affect your rates.", 'rate'],
+  ["It's an act of God, so they can't raise your rates.", 'rate'],
+  ["They can't drop you or raise your rates for a storm claim.", 'rate'],
+  ["By law they can't raise your premium for hail.", 'rate'],
+  ["Insurance companies can't raise rates on acts of God.", 'rate'],
+  ["Hail claims don't count against you.", 'rate'],
+  ["There's no rate increase for weather claims.", 'rate'],
+  ["Don't worry about your rates going up.", 'rate'],
+  ["Your policy won't be cancelled over this.", 'rate'],
+  ["No le va a subir el seguro.", 'rate'],
+  ["El seguro no le puede subir la cuota por granizo.", 'rate'],
+  ["No le suben la prima por un reclamo de granizo.", 'rate'],
+  ["Por ley no le pueden subir el seguro.", 'rate'],
+  ["No le van a cancelar la póliza por esto.", 'rate'],
+  ["Su seguro no va a subir.", 'rate'],
+  ["Es un acto de Dios, no le pueden subir.", 'rate'],
+  ["Un reclamo por granizo no le afecta el seguro.", 'rate'],
+  ["La aseguradora no lo puede dar de baja por esto.", 'rate'],
+  ["No se preocupe de que le suban el seguro.", 'rate'],
+  /* v10: compliant look-alikes that must stay clean */
+  ["I can't promise your rate won't go up; that's between you and your insurer.", null],
+  ["Whether your rate goes up is between you and your insurance company.", null],
+  ["Some folks worry their rates will go up. That's a fair question for your agent.", null],
+  ["Nobody can promise your premium won't change.", null],
+  ["I won't tell you your rates won't go up. Ask your agent.", null],
+  ["Documenting the damage doesn't mean you have to file anything.", null],
+  ["A free look doesn't change your coverage, it's just photos.", null],
+  ["They won't touch your roof without your OK.", null],
+  ["No le puedo prometer que no le suba el seguro.", null],
+  ["No sé si le sube el seguro; eso pregúntelo a su agente.", null],
+  ["Eso es entre usted y su aseguradora, no le puedo decir si sube.", null],
+  ["No le quito mucho tiempo, son 10 minutos.", null],
+  ["No le va a subir el precio del trabajo.", null],
+  /* v10 (round 49): "licencia" said about HMP in Spanish is the same hard flag as "licensed". Answer: "registrados". */
+  ["HMP tiene licencia del estado.", 'license'],
+  ["Somos una compañía con licencia.", 'license'],
+  ["Estamos licenciados en Nebraska.", 'license'],
+  ["Somos contratistas con licencia y seguro.", 'license'],
+  ["Contamos con licencia para techos.", 'license'],
+  ["Sí, tenemos todas las licencias.", 'license'],
+  ["HMP es una empresa licenciada.", 'license'],
+  ["Nuestra compañía está licenciada y asegurada.", 'license'],
+  ["Sí, con licencia y todo.", 'license'],
+  ["Soy contratista licenciado.", 'license'],
+  ["Nuestra licencia de contratista es del estado.", 'license'],
+  /* v10: compliant look-alikes (a driver's license, the title "licenciado", correcting the term) stay clean */
+  ["El seguro exige una licencia de manejo.", null],
+  ["¿Me enseña su licencia de manejo?", null],
+  ["Mi hijo sacó su licencia de manejo.", null],
+  ["Hablé con el licenciado Pérez, el abogado de la asociación.", null],
+  ["No somos licenciados, somos registrados; así funciona en Nebraska.", null],
+  ["Nebraska no da licencias de contratista para este tipo de trabajo, da registro.", null],
+  ["En Texas piden licencia; aquí en Nebraska es registro.", null],
+  ["Asegúrese de que el contratista esté registrado, no importa si dice que tiene licencia.", null],
+  ["Nunca decimos que tenemos licencia: estamos registrados.", null],
+  ["Somos contratistas registrados en Nebraska.", null],
+  /* v12 (2026-09-28): calling the insurer or filing the claim FOR the homeowner (it is their claim and their call) */
+  ["I can call your insurance and file it for you.", 'negotiate'],
+  ["I'll call your insurance company for you.", 'negotiate'],
+  ["No stress, we can file the claim for you.", 'negotiate'],
+  ["Yo le llamo a su aseguradora y lo presento por usted.", 'negotiate'],
+  ["It's your claim and your call: if you file, you call them, and I can meet the adjuster.", null],
+  ["I can't file it for you; it's your claim.", null],
+  ["You call your insurance company, and I'll meet the adjuster and show the damage.", null],
+  ["Call your insurance company when you're ready; the decision is yours.", null],
+  ["El reclamo es suyo y usted decide: si lo presenta, usted les llama.", null],
+  /* v12: free extras or any allowance to make up for the deductible (44-8604) */
+  ["I'll throw in free gutters to make up for the deductible.", 'deductible'],
+  ["Instead of the deductible, we'll throw in the gutters for free.", 'deductible'],
+  ["Le regalo las canaletas por lo del deducible.", 'deductible'],
+  ["I can't throw in free gutters for the deductible.", null],
+  ["The deductible is always your part, so I can't throw in anything free.", null],
+  ["El deducible siempre es su parte; no le regalamos nada para cubrirlo.", null],
+  /* v12: a different storm date on the report (date-of-loss fraud) */
+  ["We'll say it happened in the newer storm.", 'fraud'],
+  ["Let's just say the damage was from the recent storm.", 'fraud'],
+  ["Decimos que fue en la tormenta más reciente.", 'fraud'],
+  ["My report only uses the real storm date.", null],
+  ["I can't say it was from the newer storm; the report uses the real date.", null],
+  ["The hail report shows which storms hit this address.", null],
+  ["Some policy limits are short, so check yours or call your insurer this week.", null],
+  /* v12: a reward for a review (FTC 16 CFR 465.4; to an insured also 44-8604) */
+  ["Leave us five stars and we'll knock $200 off.", 'referral'],
+  ["We give a $50 gift card for every 5-star review.", 'referral'],
+  ["Post a 5-star review and I'll take 10% off your bill.", 'referral'],
+  ["Le damos $100 de descuento por una reseña de 5 estrellas.", 'referral'],
+  ["Just a big thank-you. An honest review, whatever you think, helps families like yours find us.", null],
+  ["No gifts or discounts for reviews, just an honest one if you want.", null],
+  ["Could you leave us an honest review? It really helps.", null],
+  ["Please leave a 5-star review if you're happy.", null],
+  ["Solo un gran agradecimiento; una reseña honesta nos ayuda mucho.", null],
+  /* v12 QA fixes (2026-09-28): more ways to say "I'll call your insurer for you", a free-work reward for a review, and any storm month */
+  ["Let me call your insurance company for you.", 'negotiate'],
+  ["I'll call them for you.", 'negotiate'],
+  ["Yo le hablo a su aseguranza.", 'negotiate'],
+  ["Yo me encargo de llamar a su aseguradora.", 'negotiate'],
+  ["Leave us 5 stars and we'll clean your gutters free.", 'referral'],
+  ["Déjenos una reseña y le limpiamos las canaletas gratis.", 'referral'],
+  ["Let's say it was from the June storm.", 'fraud'],
+  ["Decimos que fue de la granizada de junio.", 'fraud'],
+  ["It's your claim and your call. If you file, you call your insurer, and I can meet the adjuster and show the damage.", null],
 ];
 
 let fails = 0;
@@ -332,13 +447,122 @@ OBJ.forEach(o => o[1].forEach((x, i) => lines.push(["OBJ " + o[0][0] + (i ? " ES
 for (const k of Object.keys(T)) if (/^(fh_|f_|h_)/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => lines.push([k + (i ? " ES" : " EN"), x]));
 T.canList.forEach((l, i) => l.forEach(x => lines.push(["can" + i, x])));
 /* v7 (T131): the 10 skill drills' model answers and "to pass" lines, plus the first-3-seconds line. */
-if (!Array.isArray(SKILL) || SKILL.length !== 12) { console.log("FAIL expected 12 skill drills, got", SKILL && SKILL.length); process.exit(1); }
+if (!Array.isArray(SKILL) || SKILL.length !== 16) { console.log("FAIL expected 16 skill drills (v12: 12 + 4 new; the probe drill merged into top-15 card 4), got", SKILL && SKILL.length); process.exit(1); }
 SKILL.forEach(k => { k.a.forEach((x, i) => lines.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])); k.g.forEach((x, i) => lines.push(["SKILL goal " + k.id + (i ? " ES" : " EN"), x])); });
 T.first3.forEach((x, i) => lines.push(["first3" + (i ? " ES" : " EN"), x]));
 /* v9: HOA and phone-quote answers must also stay clean under their scenario's extra rules. */
 OBJ.forEach(o => { const who = [].concat(o[2] || []); if (who.includes('hoa')) o[1].forEach((x, i) => lines.push(["OBJ(hoa) " + o[0][0] + (i ? " ES" : " EN"), x, HOA])); if (who.includes('phonequote')) o[1].forEach((x, i) => lines.push(["OBJ(phone) " + o[0][0] + (i ? " ES" : " EN"), x, PHONE])); });
 lines.push(["f_hoa_claim EN (HOA)", T.f_hoa_claim[0], HOA], ["f_hoa_claim ES (HOA)", T.f_hoa_claim[1], HOA], ["h_hoa EN (HOA)", T.h_hoa[0], HOA], ["h_hoa ES (HOA)", T.h_hoa[1], HOA]);
+/* v10 (round 47): the pro-line library must equal data/door_lines_pro.json word for word ({name} = Kenny), and every
+   line, the first-3-seconds tips and the approved rate answer must stay clean. */
+const DATA = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "door_lines_pro.json"), "utf8"));
+let pf = 0;
+if (!Array.isArray(PRO) || PRO.length !== DATA.length) { pf++; console.log("FAIL PRO has", PRO && PRO.length, "lines, data file has", DATA.length); }
+for (const x of DATA) {
+  const p = (PRO || []).find(y => y.id === x.id);
+  if (!p) { pf++; console.log("FAIL PRO is missing", x.id); continue; }
+  if (p.a[0] !== x.en.replace(/\{name\}/g, "Kenny") || p.a[1] !== x.es.replace(/\{name\}/g, "Kenny")) { pf++; console.log("FAIL PRO text differs from the data file:", x.id); }
+  if (!p.l || !p.l[0] || !p.l[1]) { pf++; console.log("FAIL PRO label missing:", x.id); }
+}
+for (const id of (PRO_ON_HOLD || [])) if (!DATA.some(x => x.id === id)) { pf++; console.log("FAIL PRO_ON_HOLD names an unknown line:", id); }
+const ok47 = DATA.find(x => x.id === "objection-insurance-claim-hesitation");
+if (T.f_rate[0] !== `“${ok47.en}”` || T.f_rate[1] !== `“${ok47.es}”`) { pf++; console.log("FAIL f_rate is not the approved rate answer, word for word"); }
+(PRO || []).forEach(p => p.a.forEach((x, i) => lines.push(["PRO " + p.id + (i ? " ES" : " EN"), x])));
+T.first3tips.forEach((l, i) => l.forEach(x => lines.push(["first3tips" + (i ? " ES" : " EN"), x])));
+console.log(`${DATA.length} pro lines match the data file${pf ? ` - ${pf} problem(s)` : ""}`);
+/* v10 (round 49): the Spanish sale playbook must equal data/spanish_sale_playbook.json word for word ({name} = Kenny)
+   and stay clean; every Spanish line the page teaches keeps "usted"; the "tú" check itself works both ways. */
+const PB = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "spanish_sale_playbook.json"), "utf8"));
+if (!Array.isArray(PLAY) || PLAY.length !== PB.length) { pf++; console.log("FAIL PLAY has", PLAY && PLAY.length, "lines, data file has", PB.length); }
+PB.forEach((x, i) => { const p = (PLAY || [])[i]; if (!p || p.es !== x.es.replace(/\{name\}/g, "Kenny") || !p.l || !p.l[0] || !p.l[1]) { pf++; console.log("FAIL PLAY entry differs from the data file:", i, x.moment); } });
+(PLAY || []).forEach((p, i) => lines.push(["PLAY " + i, p.es]));
+if (typeof tuUsed !== "function") { pf++; console.log("FAIL tuUsed is missing"); } else {
+  const U = x => ({ role: "user", content: x }), H = x => ({ role: "assistant", content: x });
+  const TU = [
+    [[U("Hola, soy Kenny de HMP Siding & Roofing. ¿Le puedo quitar un minuto?")], false],
+    [[U("¿Te parece el sábado a las 10?")], true],
+    [[U("¿Tienes tiempo ahorita?")], true],
+    [[U("Mira, tu techo tiene golpes.")], true],
+    [[U("Oye, ¿quieres que revise?")], true],
+    [[U("Estás en buenas manos.")], true],
+    [[U("Buenas tardes. ¿Vos sabés si granizó aquí?")], true],
+    [[U("It won't cost you a dime to look.")], false],
+    [[U("Buenas tardes, disculpe la molestia. Soy Kenny, de HMP."), H("Háblame de tú, mijo."), U("Claro, ¿te parece si reviso tu techo?")], false],
+    [[U("¿Prefiere que le hable de tú o de usted?")], false],
+    [[U("Venga conmigo a ver el techo, así lo ve usted mismo.")], false],
+    [[U("Fue un gusto conocerlo. Muchas gracias por su tiempo.")], false],
+  ];
+  for (const [turns, want] of TU) if (tuUsed(turns) !== want) { pf++; console.log("FAIL tú check", want ? "missed" : "false hit", JSON.stringify(turns.map(x => x.content))); }
+  const taught = [];
+  OBJ.forEach(o => taught.push(["OBJ " + o[0][0], o[1][1]]));
+  for (const k of Object.keys(T)) if (/^f_/.test(k) && Array.isArray(T[k])) taught.push([k, T[k][1]]);
+  SKILL.forEach(k => taught.push(["SKILL " + k.id, k.a[1]]));
+  (PRO || []).forEach(p => taught.push(["PRO " + p.id, p.a[1]]));
+  (PLAY || []).forEach((p, i) => taught.push(["PLAY " + i, p.es]));
+  (TOP15 || []).forEach(o => taught.push(["TOP15 " + o.id, o.a[1]]));
+  for (const [where, x] of taught) if (tuUsed([U(x)])) { pf++; console.log("FAIL taught Spanish line uses tú:", where); }
+  console.log(`${PB.length} playbook lines match the data file; ${taught.length} taught Spanish lines keep "usted"`);
+}
+/* v11 (2026-09-28): the top 15 objections must equal docs/orders/sales-path.md word for word (its "[day]" placeholder
+   reads "Saturday" / "sábado" on the page) and stay clean (the HOA and phone answers under their scenario's rules). */
+const SP = fs.readFileSync(path.join(__dirname, "..", "..", "docs", "orders", "sales-path.md"), "utf8");
+const spSec = SP.slice(SP.indexOf("## Top 15 objections"), SP.indexOf("## Ready-to-knock checklist"));
+const spQ = lang => [...spSec.matchAll(new RegExp(lang + ': \\*"([\\s\\S]*?)"\\*', "g"))].map(m => m[1].replace(/\s+/g, " ").trim());
+const spEn = spQ("EN"), spEs = spQ("ES");
+if (!Array.isArray(TOP15) || TOP15.length !== 15 || spEn.length !== 15 || spEs.length !== 15) { pf++; console.log("FAIL TOP15 has", TOP15 && TOP15.length, "items; sales-path.md has", spEn.length, "EN /", spEs.length, "ES"); }
+else TOP15.forEach((o, i) => {
+  const en = spEn[i].replace("[day]", "Saturday"), es = spEs[i].replace("[día]", "sábado");
+  if (o.a[0] !== en || o.a[1] !== es) { pf++; console.log("FAIL TOP15 differs from sales-path.md:", i + 1, o.id); }
+  if (!o.q || !o.q[0] || !o.q[1]) { pf++; console.log("FAIL TOP15 question missing:", o.id); }
+  o.a.forEach((x, j) => lines.push(["TOP15 " + o.id + (j ? " ES" : " EN"), x, o.hoa ? HOA : o.phone ? PHONE : undefined]));
+});
+console.log(`${(TOP15 || []).length} top-15 answers match docs/orders/sales-path.md`);
+/* v12: the homeowners' opener lines (shown as "Opener" on the cheat sheet) stay clean too. */
+for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => lines.push(["open " + k + (i ? " ES" : " EN"), x, { hoa: !!P[k].hoa, phone: !!P[k].phone }]));
+/* v12: every line Kenny is taught must also pass dedTalk (the scorecard's "deductible talk" backup), or the page would
+   fail him for saying it; and every drill's model answers must pass that drill's own local check (skillLocal). */
+{
+  const DT = [["The deductible is always the owner's part.", false], ["El deducible siempre es la parte del dueño.", false], ["The deductible is always your part.", false],
+    ["El deducible siempre es su parte.", false], ["We'll work something out on the deductible.", true], ["Del deducible nos arreglamos después.", true],
+    /* v12: the HOA card (v11 top 15) says the deductible is the board's call; "the board will cover it" is still deductible talk */
+    ["The deductible or a special assessment is a board decision with their insurer.", false], ["El deducible es decisión de la junta.", false],
+    ["The board will take care of your deductible.", true],
+    /* v12 QA: the safe phrases only count after a "to be" verb, so a promise to cover "your part" is still caught */
+    ["Nosotros cubrimos la parte del dueño del deducible.", true], ["Nosotros pagamos la parte del dueño del deducible.", true],
+    ["We'll cover your part of the deductible.", true]];
+  /* v12 QA: the "no work inside the 3 business days" backup (69-1606(5)) */
+  const SE = [["No problem, we can start tomorrow.", true], ["No hay problema, empezamos mañana.", true],
+    ["Sure, we'll start tomorrow right after breakfast.", true],
+    ["We can't start tomorrow; nothing starts until your 3 business days are over.", false],
+    ["Nada empieza hasta que terminen sus 3 días hábiles.", false]];
+  for (const [x, want] of SE) if (startsEarly(x) !== want) { pf++; console.log("FAIL startsEarly", want ? "missed" : "false hit", JSON.stringify(x)); }
+  for (const [x, want] of DT) if (dedTalk(x) !== want) { pf++; console.log("FAIL dedTalk", want ? "missed" : "false hit", JSON.stringify(x)); }
+  const taughtDed = [];
+  OBJ.forEach(o => o[1].forEach((x, i) => taughtDed.push(["OBJ " + o[0][0] + (i ? " ES" : " EN"), x])));
+  SKILL.forEach(k => k.a.forEach((x, i) => taughtDed.push(["SKILL " + k.id + (i ? " ES" : " EN"), x])));
+  (PRO || []).forEach(p => p.a.forEach((x, i) => taughtDed.push(["PRO " + p.id + (i ? " ES" : " EN"), x])));
+  (PLAY || []).forEach((p, i) => { if (p.es.split(/\s+/).length > 1) taughtDed.push(["PLAY " + i, p.es]); });
+  (TOP15 || []).forEach(o => o.a.forEach((x, i) => taughtDed.push(["TOP15 " + o.id + (i ? " ES" : " EN"), x])));
+  for (const k of Object.keys(P)) if (P[k].open) P[k].open.forEach((x, i) => taughtDed.push(["open " + k + (i ? " ES" : " EN"), x]));
+  for (const k of Object.keys(T)) if (/^f_/.test(k) && Array.isArray(T[k])) T[k].forEach((x, i) => taughtDed.push([k + (i ? " ES" : " EN"), x]));
+  for (const [where, x] of taughtDed) if (dedTalk(x)) { pf++; console.log("FAIL taught line fails dedTalk:", where); }
+  const g = src.indexOf("const PUSH_RX"), h = src.indexOf("async function skillCheck");
+  const skillLocal = new Function("T", src.slice(a, b) + "\nconst Li = () => 0;\n" + src.slice(g, h) + "\nreturn skillLocal;")(T);
+  SKILL.forEach(k => k.a.forEach((x, i) => { const r = skillLocal(k, x); if (r) { pf++; console.log("FAIL drill model answer fails its own check:", k.id, i ? "ES" : "EN", r[0]); } }));
+  console.log(`${taughtDed.length} taught lines pass dedTalk; ${SKILL.length} drills' model answers pass their own checks`);
+}
+/* v12 QA: rookie quick hints in the after-the-knock scenes use the scene's own hint, never the door "estimate range"
+   or "offer the cancel form" hints (which are the traps those scenes grade). */
+{
+  const hs = src.indexOf("const HINT_RX = ["), he = src.indexOf("function hintPrompt");
+  const S = { actual: "", kenny: 1, sessionLang: "en", turns: [] };
+  const localHint = new Function("P", "S", "spanishCount", "kindOf", src.slice(hs, he) + "\nreturn localHint;")(P, S, () => 9, k => (P[k] && P[k].kind) || "storm");
+  const HC = [["founddmg", "How much am I going to get?", "h_found"], ["deductShock", "Can you just knock the $4,500 off your price?", "h_dedshock"],
+    ["coldfeet", "Honestly, could your crew just start tomorrow?", "h_doubt"], ["losdos", "How much is this going to cost us?", null]];
+  for (const [who, line, want] of HC) { S.actual = who; const got = localHint(line); if (got !== want) { pf++; console.log("FAIL rookie hint", who, JSON.stringify(line), "gave", got, "want", want); } }
+  console.log(`${HC.length} after-the-knock hint cases checked`);
+}
 let lf = 0;
 for (const [where, x, ctx] of lines) { const fl = legalScan(x, ctx); if (fl.length) { lf++; console.log("FLAG", where, JSON.stringify(fl)); } }
 console.log(`${lines.length - lf} / ${lines.length} coaching lines clean`);
-process.exit(fails || lf ? 1 : 0);
+process.exit(fails || lf || pf ? 1 : 0);

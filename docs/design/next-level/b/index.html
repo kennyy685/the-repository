@@ -1,0 +1,727 @@
+<!doctype html>
+<!--
+  Direction B, "The Brief": Aldaba writes your morning; the hail field is drawn as generative topography.
+  Borrowed from (and where):
+  - Apple keynote / Apple ad title cards: one oversized word, then one line of fact (apple.com/apple-events).
+  - Linear, "A calmer interface for a product in motion" (2026-03): warm graphite neutrals, one accent,
+    120-180 ms eased UI feedback. https://linear.app/now/behind-the-latest-design-refresh
+  - Vercel / Rauno Web Interface Guidelines: animate transform/opacity, motion explains cause and effect,
+    interruptible. https://vercel.com/design/guidelines
+  - Inigo Quilez, iso-lines from a scalar field with screen-space derivatives (fwidth) for constant-width
+    anti-aliased contours. https://iquilezles.org/articles/distance/
+  - Swisstopo / National Geographic atlas conventions: index contours every 5th line, detail loupe with a
+    leader line, locator inset, quiet italic water labels. https://www.swisstopo.admin.ch/en/maps
+  - Apple Liquid Glass (WWDC25 "Meet Liquid Glass"): glass only on controls, text on solid.
+    https://developer.apple.com/videos/play/wwdc2025/219/
+  - Apple Weather: layout reshapes around what matters now.
+  Data: ../shared/data.js (window.NL): NOAA SPC + MRMS swaths (engine hh.py), Nebraska GIS streets/rivers,
+  Census ACS. Homes are FAKE samples. No owner names. No network needed.
+-->
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba Morning Brief</title>
+<style>
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(../shared/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(../shared/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+:root{
+  --page:#07080a;--page-2:#0c0d10;--text:#f1f2f4;--text-2:#b8bbc2;--muted:#80838b;--faint:#5a5d64;
+  --rule:#1f2125;--rule-2:#2c2e33;--chip:#18191d;--glass:rgba(22,23,27,.62);
+  --acc:#f5883a;--acc-ink:#ffa766;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.13);
+  --h1:#f2c14e;--h15:#f5883a;--h2:#ff4f5a;
+  --display:"Bricolage Grotesque","Bricolage L",system-ui,sans-serif;
+  --ui:"Geist","Geist L",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono","Geist Mono L",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --page:#eef0ee;--page-2:#e6e8e4;--text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--faint:#9a9ca1;
+  --rule:#d9dbd6;--rule-2:#c9cbc5;--chip:#e2e4df;--glass:rgba(244,245,242,.7);
+  --acc:#f5883a;--acc-ink:#a4520f;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.14);
+  --h1:#c9960e;--h15:#d8661a;--h2:#d9303c;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--page);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden;transition:background-color .18s var(--ease),color .18s var(--ease)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ---------- top line ---------- */
+.top{position:absolute;inset:0 0 auto 0;height:64px;display:flex;align-items:center;gap:18px;padding:0 28px 0 min(64px,4.4vw);z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font:650 17px/1 var(--display);letter-spacing:-.02em}
+.brand svg{width:26px;height:26px;display:block}
+.brand .ink{stroke:var(--text)}.brand .dot{fill:var(--text)}
+.when{font:500 12.5px/1 var(--mono);color:var(--muted);letter-spacing:.02em;padding-left:18px;border-left:1px solid var(--rule-2)}
+.when b{color:var(--text-2);font-weight:500}
+.tools{margin-left:auto;display:flex;gap:8px;align-items:center}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--glass);border:1px solid var(--rule-2);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.seg button{height:26px;min-width:34px;padding:0 9px;border-radius:7px;font:500 11.5px/1 var(--mono);color:var(--muted);transition:background-color .14s var(--ease),color .14s var(--ease)}
+.seg button[aria-pressed="true"]{background:var(--chip);color:var(--text)}
+.seg button:hover{color:var(--text)}
+.seg svg{width:14px;height:14px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+
+/* ---------- left: the brief ---------- */
+.left{position:absolute;left:0;top:0;bottom:0;width:44vw;padding:calc(56px + 2.4vh) 0 3.2vh min(64px,4.4vw);display:flex;flex-direction:column;z-index:3;
+  background:linear-gradient(90deg,var(--page) 0%,var(--page) 82%,transparent 100%)}
+.eyebrow{display:flex;align-items:center;gap:10px;font:500 11.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px var(--acc-bg)}
+.eyebrow b{color:var(--acc-ink);font-weight:500}
+h1{margin:1.3vh 0 0;font:720 min(12.4vh,7.7vw)/.9 var(--display);letter-spacing:-.045em;font-variation-settings:"opsz" 96;color:var(--text)}
+h2{margin:.9vh 0 0;font:650 min(5.4vh,3.3vw)/1.02 var(--display);letter-spacing:-.03em;font-variation-settings:"opsz" 96;color:var(--text);white-space:nowrap}
+h2 .dim{color:var(--muted)}
+.w{display:inline-block;will-change:transform,opacity}
+.why{margin:1.5vh 0 0;max-width:31em;font-size:min(1.85vh,16px);line-height:1.5;color:var(--text-2)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,auto));justify-content:start;gap:0;margin-top:1.8vh;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.stat{padding:.9vh 18px .9vh 0;margin-right:16px;position:relative}
+.stat+.stat{padding-left:18px;border-left:1px solid var(--rule)}
+.stat .k{font:500 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat .v{margin-top:6px;font:500 min(2.5vh,20px)/1 var(--mono);color:var(--text);white-space:nowrap}
+.stat .v small{font-size:.62em;color:var(--muted);margin-left:3px}
+.stat .v.hail{color:var(--h15)}
+.shead{margin-top:2.1vh;display:flex;align-items:baseline;gap:10px;font:500 11px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.shead::after{content:"";flex:1;height:1px;background:var(--rule);transform:translateY(-3px)}
+ol.brief{list-style:none;margin:1.1vh 0 0;padding:0;display:grid;gap:.6vh;max-width:33em}
+ol.brief li{display:grid;grid-template-columns:26px minmax(0,1fr);font-size:min(1.66vh,13.6px);line-height:1.38;color:var(--text-2)}
+ol.brief li .n{font:500 11px/1.9 var(--mono);color:var(--faint)}
+ol.brief li b{color:var(--text);font-weight:600}
+.tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;font:500 9.5px/1.5 var(--mono);letter-spacing:.03em;color:var(--muted);background:var(--chip);vertical-align:1px;white-space:nowrap}
+ol.time{list-style:none;margin:.8vh 0 0;padding:0;position:relative;max-width:36em}
+ol.time::before{content:"";position:absolute;left:107px;top:8px;bottom:8px;width:1px;background:var(--rule-2)}
+ol.time li{display:grid;grid-template-columns:90px 11px minmax(0,1fr);column-gap:12px;align-items:center;min-height:min(3.2vh,28px);font-size:min(1.66vh,13.6px);color:var(--text-2)}
+ol.time .t{font:500 11.5px/1 var(--mono);color:var(--muted);text-align:right;white-space:nowrap}
+ol.time .d{width:9px;height:9px;border-radius:50%;background:var(--page);border:1.5px solid var(--faint);justify-self:center;position:relative;z-index:1}
+ol.time li.now .d{background:var(--text);border-color:var(--text);box-shadow:0 0 0 4px var(--rule-2)}
+ol.time li.now .t{color:var(--text)}
+ol.time li.go{min-height:min(4.2vh,36px)}
+ol.time li.go .d{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-bg)}
+ol.time li.go .t{color:var(--acc-ink)}
+ol.time li.go .x{padding:6px 10px;border-radius:9px;background:var(--acc-bg);margin-left:-10px}
+ol.time b{color:var(--text);font-weight:600;margin-right:8px}
+.ctas{margin-top:auto;padding-top:1.6vh;display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;height:min(5.8vh,50px);padding:0 22px;border-radius:12px;font-weight:600;font-size:15px;white-space:nowrap;transition:transform .14s var(--ease),background-color .14s var(--ease),border-color .14s var(--ease)}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--acc);color:var(--on-acc);box-shadow:0 10px 30px -12px rgba(245,136,58,.55)}
+.btn.pri:hover{background:#ff9548}
+.btn.sec{border:1px solid var(--rule-2);color:var(--text)}
+.btn.sec:hover{border-color:var(--faint)}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kbd{font:500 11px/1 var(--mono);color:var(--muted);margin-left:6px}
+
+/* source hover */
+[data-src]{cursor:help}
+[data-src]:hover::after{content:attr(data-src);position:absolute;left:0;top:calc(100% + 6px);z-index:9;width:max-content;max-width:300px;white-space:normal;padding:7px 9px;border-radius:8px;background:var(--chip);border:1px solid var(--rule-2);font:500 11px/1.4 var(--mono);color:var(--text-2);text-transform:none;letter-spacing:0;pointer-events:none}
+
+/* ---------- right: generative atlas ---------- */
+.map{position:absolute;top:0;right:0;bottom:0;left:36vw;z-index:1;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%);mask-image:linear-gradient(90deg,transparent 0,#000 14%)}
+.map canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cap{position:absolute;z-index:4;pointer-events:none;font:500 10.5px/1.45 var(--mono);color:var(--muted);letter-spacing:.02em}
+.cap b{color:var(--text-2);font-weight:500}
+.cap.title{top:78px;left:calc(44vw + 28px)}
+.cap.title .big{font:italic 500 13px/1.3 var(--ui);color:var(--text-2);letter-spacing:0;display:block;margin-bottom:3px}
+.legend{position:absolute;z-index:4;left:calc(44vw + 28px);bottom:44px;font:500 10.5px/1 var(--mono);color:var(--muted)}
+.legend .bar{width:190px;height:6px;border-radius:3px;margin:8px 0 5px;background:linear-gradient(90deg,var(--faint) 0%,var(--faint) 20%,var(--h1) 40%,var(--h15) 70%,var(--h2) 100%)}
+.legend .ticks{display:flex;justify-content:space-between;width:190px}
+.attr{position:absolute;z-index:4;right:24px;bottom:14px;font:500 9.5px/1.3 var(--mono);color:var(--faint);text-align:right;max-width:58vw}
+.loupecap{position:absolute;z-index:4;pointer-events:none;text-align:center;font:500 10.5px/1.45 var(--mono);color:var(--muted);opacity:0;transition:opacity .4s var(--ease)}
+.loupecap b{display:block;font:600 13px/1.3 var(--ui);color:var(--text);letter-spacing:-.01em}
+.loupecap.on{opacity:1}
+.hide{opacity:0;transform:translateY(6px)}
+.reveal{transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+ol.time .x{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.stat .k{white-space:nowrap}
+@media (max-height:840px){
+  h1{font-size:min(11vh,7.2vw)}
+  h2{font-size:min(4.8vh,3.1vw)}
+  .why{margin-top:1.1vh;font-size:14.5px}
+  .stats{margin-top:1.4vh}
+  .shead{margin-top:1.7vh}
+  ol.brief{gap:.4vh}
+  ol.brief li,ol.time li{font-size:13px}
+  ol.time li{min-height:26px}
+  ol.time li.go{min-height:32px}
+  .ctas{padding-top:1.2vh}
+}
+@media (prefers-reduced-motion:reduce){.reveal,.w{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="map" id="map">
+  <canvas id="under"></canvas>
+  <canvas id="gl"></canvas>
+  <canvas id="over"></canvas>
+</div>
+
+<header class="top">
+  <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="ink" d="M9 19 24 8 39 19" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="24" cy="17" r="3"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>Aldaba</div>
+  <div class="when" id="when"></div>
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Language"><button data-l="en">EN</button><button data-l="es">ES</button></div>
+    <div class="seg" role="group" aria-label="Theme">
+      <button data-t="dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3 5.5 5.5 0 1 0 13 9.5z"/></svg></button>
+      <button data-t="light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="left" id="left">
+  <div class="eyebrow reveal hide" id="eyebrow"></div>
+  <h1 id="h1"></h1>
+  <h2 id="h2"></h2>
+  <p class="why reveal hide" id="why"></p>
+  <div class="stats reveal hide" id="stats"></div>
+  <div class="shead reveal hide" id="secBrief"></div>
+  <ol class="brief" id="brief"></ol>
+  <div class="shead reveal hide" id="secToday"></div>
+  <ol class="time" id="time"></ol>
+  <div class="ctas reveal hide" id="ctas">
+    <button class="btn pri" id="go"><svg viewBox="0 0 16 16"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg><span></span></button>
+    <button class="btn sec" id="all"><span></span></button>
+  </div>
+</main>
+
+<div class="cap title reveal hide" id="mapcap"></div>
+<div class="legend reveal hide" id="legend"></div>
+<div class="loupecap" id="loupecap"></div>
+<div class="attr" id="attr"></div>
+
+<script src="../shared/data.js"></script>
+<script>
+(() => {
+'use strict';
+const N = window.NL;
+const Q = new URLSearchParams(location.search);
+const root = document.documentElement;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let STILL = Q.get('still') === '1' || reduce;
+let SLOW = false;   // software WebGL (SwiftShader/llvmpipe): skip the intro, draw the field rarely
+let theme = Q.get('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+let lang = Q.get('lang') === 'es' ? 'es' : 'en';
+try { if (!Q.get('theme')) theme = localStorage.getItem('nlb.theme') || theme; if (!Q.get('lang')) lang = localStorage.getItem('nlb.lang') || lang; } catch (e) {}
+
+/* ---------- words (EN + natural Latin American Spanish) ---------- */
+const P = N.pick, B = N.backup, S = N.src;
+const zones = N.zones, storms = N.storms;
+const pickStorm = storms.find(s => s.date === P.storm_day);
+const inSwath = zones.filter(z => z.kind === 'storm' && z.id.startsWith(P.storm_day)).length;
+const latest = storms[0];
+const latestArea = N.areas.find(a => a.st === latest.id);
+const area = N.areas.find(a => a.id === P.area_id);
+const driveMin = Math.round(P.dist_mi / 50 * 60 / 5) * 5;           // est. at 50 mph average
+const fmtT = (hm, l) => { const [h, m] = hm.split(':').map(Number); const h12 = ((h + 11) % 12) + 1; return h12 + ':' + String(m).padStart(2, '0') + (l === 'es' ? (h < 12 ? ' a. m.' : ' p. m.') : (h < 12 ? ' AM' : ' PM')); };
+const [kh, kmin] = P.best_time.start.split(':').map(Number);
+const leaveMin = kh * 60 + kmin - driveMin - 10;
+const leave = String(Math.floor(leaveMin / 60)).padStart(2, '0') + ':' + String(leaveMin % 60).padStart(2, '0');
+const bt = l => { const e = fmtT(P.best_time.end, l); const s0 = fmtT(P.best_time.start, l).replace(/ ?(AM|PM|a\. m\.|p\. m\.)$/, '').replace(':00', ''); return s0 + '–' + e; };
+const short = n => n.replace(/^.*?:\s*/, '');
+const T = {
+  en: {
+    when: '<b>Tuesday, September 29</b> · 7:02 AM',
+    eyebrow: `<i></i>Aldaba’s pick <b>· rank 1 of ${zones.length}</b>`,
+    h1: 'Columbus.',
+    h2: [`${P.doors} doors.`, `<span class="dim">${bt('en')}</span>`],
+    why: P.why.en,
+    stats: [['Hail', P.hail_in.toFixed(2), 'in', 'hail', `${S.storms} · ${pickStorm.long.en}`], ['Storm', pickStorm.d.en, '', '', S.storms], ['Drive', P.dist_mi.toFixed(1), 'mi', '', `Distance: engine (hh.py), from Fremont HQ. About ${driveMin} min at 50 mph (estimate).`], ['Area', area ? area.insured.en.replace('Likely insured: ', '') : '—', '', '', `Likely insured (area estimate, never one home): ${S.census}. ${area ? area.owner + '% owner-lived' : ''}`]],
+    statArea: 'Likely insured',
+    secBrief: 'Morning brief · written 7:02 AM', secToday: 'Today',
+    brief: [
+      [`<b>Overnight.</b> ${N.headline.en}`, 'SPC · MRMS', S.storms],
+      [`<b>Pick.</b> ${short(P.name)}, Columbus: ${P.hail_in} in on ${pickStorm.d.en}, older roofs, mostly owner-lived. Score ${P.score}.`, 'engine', 'Engine score (hh.py): hail size, roof age, owner-lived share, distance.'],
+      [`<b>Backup.</b> Omaha, ${short(B.name)}: ${B.dist_mi} mi, pre-1980 homes, owner-lived. Everyday zone, no recent hail.`, 'Census ACS', S.census],
+      [`<b>Changed.</b> Nothing new. ${inSwath} of ${zones.length} zones sit in the ${pickStorm.d.en} swath; latest hail nearby was ${latest.d.en} (${latestArea ? latestArea.name.en : ''}, ${latest.max} in).`, 'zones/current', 'Engine zones/current + ' + S.storms]
+    ],
+    time: [
+      ['07:02', 'Brief ready', `${storms.length} storm days checked`, 'now'],
+      ['09:00', 'Follow-ups', 'callbacks and notes', ''],
+      ['13:00', 'Prep', `${P.doors} door cards, 3-day cancel forms EN + ES`, ''],
+      [leave, 'Drive', `Fremont → Columbus · ${P.dist_mi} mi · ~${driveMin} min`, ''],
+      ['go', 'Knock', `${P.doors} doors · park at ${N.walk.pn[0]} & ${N.walk.pn[1]}`, 'go']
+    ],
+    go: 'Start the walk', all: `Show all ${zones.length} zones`, back: 'Back to the pick',
+    mapcap: `<span class="big">Hail field, ${pickStorm.long.en}</span>Contours every 0.1 in · index line every 0.5 in<br>modeled from ${storms.length} storm swaths + zone peaks`,
+    legend: 'Hail size, inches',
+    loupe: [`The walk · ${short(P.name)}`, `${P.doors} sample homes · park at ${N.walk.pn[0]}`],
+    attr: 'Streets + rivers: Nebraska GIS / USGS NHD · Hail: NOAA SPC + MRMS (engine) · Area: US Census ACS 2024 · Homes: SAMPLE, no owner names',
+    locator: `Fremont → Columbus ${P.dist_mi} mi`, sample: 'sample', park: 'P'
+  },
+  es: {
+    when: '<b>martes, 29 de septiembre</b> · 7:02 a. m.',
+    eyebrow: `<i></i>La elección de Aldaba <b>· 1 de ${zones.length}</b>`,
+    h1: 'Columbus.',
+    h2: [`${P.doors} puertas.`, `<span class="dim">${bt('es')}</span>`],
+    why: P.why.es,
+    stats: [['Granizo', P.hail_in.toFixed(2), 'pulg.', 'hail', `${S.storms} · ${pickStorm.long.es}`], ['Tormenta', pickStorm.d.es, '', '', S.storms], ['Manejo', P.dist_mi.toFixed(1), 'mi', '', `Distancia: motor (hh.py), desde la oficina en Fremont. Unos ${driveMin} min a 50 mph (estimado).`], ['Zona', area ? area.insured.es.replace('Probablemente asegurado: ', '') : '—', '', '', `Probablemente asegurado (estimado de la zona, nunca de una casa): ${S.census}. ${area ? area.owner + '% viven sus dueños' : ''}`]],
+    secBrief: 'Resumen de la mañana · 7:02 a. m.', secToday: 'Hoy',
+    brief: [
+      [`<b>Anoche.</b> ${N.headline.es}`, 'SPC · MRMS', S.storms],
+      [`<b>Elección.</b> ${short(P.name)}, Columbus: ${P.hail_in} pulg. el ${pickStorm.d.es}, techos con años, casi todas con dueño viviendo. Puntaje ${P.score}.`, 'motor', 'Puntaje del motor (hh.py): tamaño del granizo, edad del techo, casas con dueño, distancia.'],
+      [`<b>Respaldo.</b> Omaha, ${short(B.name)}: ${B.dist_mi} mi, casas de antes de 1980 con dueño. Zona de todos los días, sin granizo reciente.`, 'Censo ACS', S.census],
+      [`<b>Cambios.</b> Nada nuevo. ${inSwath} de ${zones.length} zonas están en la franja del ${pickStorm.d.es}; el granizo más reciente cerca fue el ${latest.d.es} (${latestArea ? latestArea.name.es : ''}, ${latest.max} pulg.).`, 'zones/current', 'Motor zones/current + ' + S.storms]
+    ],
+    time: [
+      ['07:02', 'Resumen listo', `${storms.length} días de tormenta revisados`, 'now'],
+      ['09:00', 'Seguimientos', 'llamadas y notas', ''],
+      ['13:00', 'Preparar', `${P.doors} fichas, cancelación de 3 días EN + ES`, ''],
+      [leave, 'Manejar', `Fremont → Columbus · ${P.dist_mi} mi · ~${driveMin} min`, ''],
+      ['go', 'Tocar puertas', `${P.doors} puertas · estaciona en ${N.walk.pn[0]} y ${N.walk.pn[1]}`, 'go']
+    ],
+    go: 'Empezar la ruta', all: `Ver las ${zones.length} zonas`, back: 'Volver a la elección',
+    mapcap: `<span class="big">Campo de granizo, ${pickStorm.long.es}</span>Curvas cada 0.1 pulg. · línea maestra cada 0.5 pulg.<br>modelado con ${storms.length} franjas de tormenta + picos por zona`,
+    legend: 'Tamaño del granizo, pulgadas',
+    loupe: [`La ruta · ${short(P.name)}`, `${P.doors} casas de muestra · estaciona en ${N.walk.pn[0]}`],
+    attr: 'Calles y ríos: Nebraska GIS / USGS NHD · Granizo: NOAA SPC + MRMS (motor) · Zona: Censo ACS 2024 · Casas: MUESTRA, sin nombres de dueños',
+    locator: `Fremont → Columbus ${P.dist_mi} mi`, sample: 'muestra', park: 'E'
+  }
+};
+
+/* ---------- text render ---------- */
+const $ = id => document.getElementById(id);
+function words(el, parts) {
+  el.innerHTML = parts.map(p => `<span class="w">${p}</span>`).join(' ');
+}
+function renderText() {
+  const t = T[lang];
+  root.lang = lang; root.dataset.lang = lang;
+  $('when').innerHTML = t.when;
+  $('eyebrow').innerHTML = t.eyebrow;
+  words($('h1'), [t.h1]);
+  words($('h2'), t.h2);
+  $('why').textContent = t.why;
+  $('stats').innerHTML = t.stats.map(([k, v, u, cls, src], i) =>
+    `<div class="stat" data-src="${src}"><div class="k">${i === 3 ? (lang === 'es' ? 'Prob. asegurado' : 'Likely insured') : k}</div><div class="v ${cls}"><span class="num" data-v="${v}">${v}</span>${u ? `<small>${u}</small>` : ''}</div></div>`).join('');
+  $('secBrief').textContent = t.secBrief; $('secToday').textContent = t.secToday;
+  $('brief').innerHTML = t.brief.map(([h, tag, src], i) =>
+    `<li class="reveal hide"><span class="n">0${i + 1}</span><span>${h}<span class="tag" style="position:relative" data-src="${src}">${tag}</span></span></li>`).join('');
+  $('time').innerHTML = t.time.map(([hm, a, b, cls]) =>
+    `<li class="reveal hide ${cls}"><span class="t">${hm === 'go' ? bt(lang) : fmtT(hm, lang)}</span><span class="d"></span><span class="x"><b>${a}</b>${b}</span></li>`).join('');
+  $('go').querySelector('span').textContent = t.go;
+  $('all').querySelector('span').textContent = view === 'all' ? t.back : t.all;
+  $('mapcap').innerHTML = t.mapcap;
+  $('legend').innerHTML = `${t.legend}<div class="bar"></div><div class="ticks"><span>0.5</span><span>1.0</span><span>1.5</span><span>2.0+</span></div>`;
+  $('loupecap').innerHTML = `<b>${t.loupe[0]}</b>${t.loupe[1]}`;
+  $('attr').textContent = t.attr;
+  document.querySelectorAll('[data-l]').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === lang));
+}
+function applyTheme() {
+  root.dataset.theme = theme;
+  document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === theme));
+}
+
+/* ---------- geometry: local km plane ---------- */
+const LON0 = -96.7, LAT0 = 41.3, KX = 111.32 * Math.cos(LAT0 * Math.PI / 180), KY = 110.95;
+const km = ([lon, lat]) => [(lon - LON0) * KX, (lat - LAT0) * KY];
+const kmLine = p => p.map(km);
+function bbox(pts) { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; for (const [x, y] of pts) { if (x < a) a = x; if (x > b) b = x; if (y < c) c = y; if (y > d) d = y; } return [a, c, b, d]; }
+const base = N.base.map(b => { const p = kmLine(b.p); return { k: b.k, n: b.n, poly: b.poly, p, bb: bbox(p), big: /Platte|Elkhorn|Missouri/.test(b.n) }; });
+const colS = N.columbus.map(l => { const p = kmLine(l.p); return { c: l.c, n: l.n, p, bb: bbox(p) }; });
+const freS = N.fremont.map(l => { const p = kmLine(l.p); return { c: l.c, p, bb: bbox(p) }; });
+const arts = N.arts.map(l => { const p = kmLine(l.p); return { c: l.c, p, bb: bbox(p) }; });
+const segs = []; storms.forEach(s => { const p = kmLine(s.path); if (p.length === 1) p.push(p[0]); for (let i = 0; i < p.length - 1; i++) segs.push({ a: p[i], b: p[i + 1], amp: s.max, date: s.date }); });
+const places = Object.entries(N.places).map(([n, c]) => ({ n, p: km(c) }));
+const hq = km(N.hq);
+const core = km([P.center.lon, P.center.lat]);
+const zk = zones.map(z => ({ ...z, p: km(z.c) }));
+// the walk as one loop: 22 St east, over to 21 St, west, down 40 Ave, back up to the car
+const W = N.walk;
+const route = [...W.s[0].p, ...(W.c[1] || []), ...W.s[1].p, ...(W.c[2] || []), ...W.s[2].p].map(km);
+const routeLen = []; { let L = 0; route.forEach((q, i) => { if (i) L += Math.hypot(q[0] - route[i - 1][0], q[1] - route[i - 1][1]); routeLen.push(L); }); }
+const RL = routeLen[routeLen.length - 1];
+const homes = N.homes.map(h => { const p = km(h.p); let best = 1e9, at = 0; for (let i = 0; i < route.length - 1; i++) { const [a, b] = [route[i], route[i + 1]]; const dx = b[0] - a[0], dy = b[1] - a[1]; const L2 = dx * dx + dy * dy || 1e-9; let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2; t = Math.max(0, Math.min(1, t)); const d = Math.hypot(a[0] + t * dx - p[0], a[1] + t * dy - p[1]); if (d < best) { best = d; at = routeLen[i] + t * Math.sqrt(L2); } } return { ...h, p, at: at / RL }; });
+const wbb = bbox(route); const wc = [(wbb[0] + wbb[2]) / 2, (wbb[1] + wbb[3]) / 2];
+const park = km(W.park);
+
+/* ---------- cameras ---------- */
+let MW = 0, MH = 0, DPR = 1, MX = 0;   // map canvas size (CSS px), and its left offset in the window
+const cams = {};
+function layoutCams() {
+  const vis0 = innerWidth * 0.44 - MX + 10;            // first visible x inside the map canvas
+  const vw = MW - vis0;
+  cams.region = { x: -8, y: 6, s: vw / 150, fx: vis0 + vw * 0.5, fy: MH * 0.52 };
+  const s = Math.max(22, vw / 27);
+  cams.pick = { x: core[0] + 5.2, y: core[1] - 3.2, s, fx: vis0 + vw * 0.47, fy: MH * 0.5 };
+  cams.walk = { x: wc[0], y: wc[1], s: Math.min(MW, MH) * 2.4, fx: vis0 + vw * 0.47, fy: MH * 0.5 };
+  const zb = bbox(zk.map(z => z.p));
+  cams.all = { x: (zb[0] + zb[2]) / 2, y: (zb[1] + zb[3]) / 2, s: vw / ((zb[2] - zb[0]) * 1.35), fx: vis0 + vw * 0.5, fy: MH * 0.52 };
+  const r = Math.round(Math.min(150, MH * 0.16));
+  loupe.r = r; loupe.fx = MW - r - 34; loupe.fy = MH - r - 96;
+  loupe.s = r * 2 / ((wbb[2] - wbb[0]) * 2.15);
+  const lc = $('loupecap'); lc.style.left = (MX + loupe.fx - 150) + 'px'; lc.style.width = '300px'; lc.style.top = (loupe.fy + r + 12) + 'px';
+}
+const loupe = { r: 140, fx: 0, fy: 0, s: 600, a: 0 };
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const eOut = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 - Math.pow(1 - t, 3);
+function mixCam(a, b, t) { return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), s: Math.exp(lerp(Math.log(a.s), Math.log(b.s), t)), fx: lerp(a.fx, b.fx, t), fy: lerp(a.fy, b.fy, t) }; }
+const pr = (c, q) => [c.fx + (q[0] - c.x) * c.s, c.fy - (q[1] - c.y) * c.s];
+function viewBB(c, w = MW, h = MH) { return [c.x - c.fx / c.s, c.y - (h - c.fy) / c.s, c.x + (w - c.fx) / c.s, c.y + c.fy / c.s]; }
+const hit = (bb, v, m = 0) => !(bb[2] < v[0] - m || bb[0] > v[2] + m || bb[3] < v[1] - m || bb[1] > v[3] + m);
+
+/* ---------- palette per theme ---------- */
+function pal() {
+  const d = theme === 'dark';
+  return d ? {
+    page: '#07080a', water: 'rgba(120,150,178,.10)', waterLine: 'rgba(150,175,200,.55)', river: 'rgba(150,175,200,.62)', stream: 'rgba(130,150,170,.22)',
+    county: 'rgba(255,255,255,.07)', hwy: 'rgba(210,212,218,.20)', rail: 'rgba(210,212,218,.12)', st1: 'rgba(220,222,228,.26)', st3: 'rgba(220,222,228,.12)',
+    lst1: 'rgba(230,232,238,.42)', lst3: 'rgba(230,232,238,.26)', text: '#f1f2f4', text2: '#b8bbc2', muted: '#80838b', faint: '#5a5d64', label: 'rgba(241,242,244,.86)',
+    acc: '#f5883a', accInk: '#ffa766', h1: [242, 193, 78], h15: [245, 136, 58], h2: [255, 79, 90], line: [138, 142, 152], rule: '#2c2e33', loupeBg: '#0b0c0f', halo: 'rgba(7,8,10,.85)'
+  } : {
+    page: '#eef0ee', water: 'rgba(70,110,140,.10)', waterLine: 'rgba(60,95,125,.55)', river: 'rgba(60,95,125,.62)', stream: 'rgba(60,95,125,.25)',
+    county: 'rgba(24,25,28,.10)', hwy: 'rgba(24,25,28,.22)', rail: 'rgba(24,25,28,.14)', st1: 'rgba(24,25,28,.24)', st3: 'rgba(24,25,28,.10)',
+    lst1: 'rgba(24,25,28,.42)', lst3: 'rgba(24,25,28,.26)', text: '#18191c', text2: '#3d3f45', muted: '#6c6f77', faint: '#9a9ca1', label: 'rgba(24,25,28,.86)',
+    acc: '#f5883a', accInk: '#a4520f', h1: [201, 150, 14], h15: [216, 102, 26], h2: [217, 48, 60], line: [61, 63, 69], rule: '#c9cbc5', loupeBg: '#f6f7f4', halo: 'rgba(238,240,238,.9)'
+  };
+}
+const hailRGB = (v, C) => { const m = (a, b, t) => a.map((x, i) => Math.round(x + (b[i] - x) * t)); if (v <= 1) return m(C.h1, C.h1, 0); if (v <= 1.5) return m(C.h1, C.h15, (v - 1) / .5); return m(C.h15, C.h2, Math.min(1, (v - 1.5) / .5)); };
+const rgb = a => `rgb(${a[0]},${a[1]},${a[2]})`;
+
+/* ---------- WebGL contour field ---------- */
+const glc = $('gl'), ucv = $('under'), ocv = $('over');
+const gl = glc.getContext('webgl', { premultipliedAlpha: true, antialias: false, alpha: true }) || null;
+const MAXS = 80;
+let prog, U = {};
+if (gl) {
+  gl.getExtension('OES_standard_derivatives');
+  try { const di = gl.getExtension('WEBGL_debug_renderer_info'); const rn = di ? gl.getParameter(di.UNMASKED_RENDERER_WEBGL) : ''; if (/swiftshader|llvmpipe|software/i.test(rn)) { SLOW = true; if (Q.get('intro') !== '1') STILL = true; } } catch (e) {}
+  const vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  const fs = `#extension GL_OES_standard_derivatives : enable
+precision highp float;
+uniform vec2 uC; uniform float uS; uniform vec2 uF;
+uniform vec4 uSeg[${MAXS}]; uniform float uA[${MAXS}]; uniform int uN;
+uniform vec3 uCore; uniform float uT; uniform float uR; uniform vec2 uO;
+uniform vec3 uHole; uniform vec3 uClip; uniform float uDpr;
+uniform vec3 cL, c1, c15, c2; uniform float uLa, uHa, uFill;
+float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+ return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p=p*2.03+vec2(17.1,9.2);a*=.5;}return s;}
+float sdSeg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/max(dot(ba,ba),1e-6),0.,1.);return length(pa-ba*h);}
+vec3 hc(float v){ if(v<.72) return cL; vec3 c=mix(cL,c1,smoothstep(.72,1.,v)); c=mix(c,c15,smoothstep(1.,1.5,v)); return mix(c,c2,smoothstep(1.5,2.,v)); }
+void main(){
+  vec2 fc=gl_FragCoord.xy;
+  if(uHole.z>0.&&distance(fc,uHole.xy)<uHole.z) discard;
+  if(uClip.z>0.&&distance(fc,uClip.xy)>uClip.z) discard;
+  vec2 p=uC+(fc-uF)/uS;
+  vec2 dr=vec2(uT*.018,-uT*.011);
+  float h=0.;
+  for(int i=0;i<${MAXS};i++){ if(i>=uN) break; vec4 s=uSeg[i]; float d=sdSeg(p,s.xy,s.zw); h=max(h,uA[i]*exp(-d*d/(2.*4.6*4.6))); }
+  float n2=fbm(p/2.3-dr*1.6); float dc=distance(p,uCore.xy+vec2(n2-.5)*1.6); h=max(h,uCore.z*exp(-dc*dc/(2.*3.2*3.2)));
+  float n=fbm(p/9.+dr);
+  float f=h*(.86+.28*n2)+.52*n*(1.-smoothstep(.25,1.,h));
+  float v=f/.1; float fw=max(fwidth(v),1e-4);
+  float k=floor(v+.5); float lv=k*.1;
+  bool idx=mod(k,5.)<.5;
+  float w=(idx?1.55:.85)*max(uDpr,1.);
+  float g=abs(v-k)/fw;
+  float line=clamp(w*.5+.5-g,0.,1.);
+  float hot=smoothstep(.62,.95,lv);
+  float a=line*mix(uLa*(idx?1.55:1.),uHa*(idx?1.:.82),hot);
+  vec3 col=hc(lv);
+  // growth front: contours appear as a ripple leaves the Aug 8 core
+  float dist=distance(p,uO);
+  float px=(uR-dist)*uS/uDpr;
+  float m=clamp(px/60.,0.,1.);
+  float ring=exp(-pow((dist-uR)*uS/uDpr/10.,2.));
+  a=a*m+line*ring*.9*step(.01,uR);
+  col=mix(col,c1,ring*.5*(1.-hot));
+  float fill=smoothstep(.85,1.75,f)*uFill*m;
+  vec3 fc2=hc(f);
+  float A=clamp(a+fill,0.,1.);
+  vec3 C=(col*a+fc2*fill)/max(A,1e-4);
+  gl_FragColor=vec4(C*A,A);
+}`;
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(o)); return null; } return o; };
+  const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
+  if (v && f) {
+    prog = gl.createProgram(); gl.attachShader(prog, v); gl.attachShader(prog, f); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(prog)); prog = null; }
+  }
+  if (prog) {
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    ['uC', 'uS', 'uF', 'uSeg', 'uA', 'uN', 'uCore', 'uT', 'uR', 'uO', 'uHole', 'uClip', 'uDpr', 'cL', 'c1', 'c15', 'c2', 'uLa', 'uHa', 'uFill'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+  }
+}
+function glPass(cam, W2, H2, R, time, hole, clip) {
+  const GD = DPR * glQ;
+  const vb = viewBB(cam, W2, H2); const m = 16;
+  const list = segs.filter(s => hit([Math.min(s.a[0], s.b[0]), Math.min(s.a[1], s.b[1]), Math.max(s.a[0], s.b[0]), Math.max(s.a[1], s.b[1])], vb, m)).slice(0, MAXS);
+  const sa = new Float32Array(MAXS * 4), aa = new Float32Array(MAXS);
+  list.forEach((s, i) => { sa.set([s.a[0], s.a[1], s.b[0], s.b[1]], i * 4); aa[i] = s.amp; });
+  gl.uniform4fv(U.uSeg, sa); gl.uniform1fv(U.uA, aa); gl.uniform1i(U.uN, list.length);
+  gl.uniform2f(U.uC, cam.x, cam.y); gl.uniform1f(U.uS, cam.s * GD);
+  gl.uniform2f(U.uF, cam.fx * GD, (MH - cam.fy) * GD);
+  gl.uniform3f(U.uCore, core[0], core[1], P.hail_in);
+  gl.uniform1f(U.uT, time); gl.uniform1f(U.uR, R); gl.uniform2f(U.uO, core[0], core[1]);
+  gl.uniform3f(U.uHole, hole ? hole[0] * GD : 0, hole ? (MH - hole[1]) * GD : 0, hole ? hole[2] * GD : 0);
+  gl.uniform3f(U.uClip, clip ? clip[0] * GD : 0, clip ? (MH - clip[1]) * GD : 0, clip ? clip[2] * GD : 0);
+  gl.uniform1f(U.uDpr, GD);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+let glQ = 1;
+function setGLQ(q) { if (q === glQ) return; glQ = q; glc.width = Math.round(MW * DPR * q); glc.height = Math.round(MH * DPR * q); }
+function drawGL(cam, st) {
+  if (!prog) return;
+  const C = pal(); const f = x => x.map(v => v / 255);
+  gl.viewport(0, 0, glc.width, glc.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform3fv(U.cL, f(C.line)); gl.uniform3fv(U.c1, f(C.h1)); gl.uniform3fv(U.c15, f(C.h15)); gl.uniform3fv(U.c2, f(C.h2));
+  const dark = theme === 'dark';
+  gl.uniform1f(U.uLa, dark ? .30 : .30); gl.uniform1f(U.uHa, dark ? .95 : .9); gl.uniform1f(U.uFill, dark ? .10 : .09);
+  const hole = st.la > .01 ? [loupe.fx, loupe.fy, loupe.r * st.la] : null;
+  glPass(cam, MW, MH, st.R, st.time, hole, null);
+  if (hole) glPass(loupeCam(), MW, MH, 1e4, st.time, null, hole);
+}
+const loupeCam = () => ({ x: wc[0], y: wc[1], s: loupe.s, fx: loupe.fx, fy: loupe.fy });
+
+/* ---------- Canvas2D layers ---------- */
+const uc = ucv.getContext('2d'), oc = ocv.getContext('2d');
+function path(ctx, cam, pts) { for (let i = 0; i < pts.length; i++) { const [x, y] = pr(cam, pts[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } }
+function drawUnder(cam, st) {
+  const C = pal(), ctx = uc; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, MW, MH);
+  const vb = viewBB(cam); const s = cam.s;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // counties
+  ctx.strokeStyle = C.county; ctx.lineWidth = 1; ctx.setLineDash([5, 4]); ctx.beginPath();
+  base.forEach(b => { if (b.k === 'county' && hit(b.bb, vb)) path(ctx, cam, b.p); }); ctx.stroke(); ctx.setLineDash([]);
+  // water: area polygons + major streams
+  ctx.fillStyle = C.water; ctx.strokeStyle = C.waterLine; ctx.lineWidth = .8;
+  base.forEach(b => { if (b.k === 'water' && hit(b.bb, vb)) { ctx.beginPath(); path(ctx, cam, b.p); ctx.closePath(); ctx.fill(); ctx.stroke(); } });
+  base.forEach(b => { if (b.k === 'stream' && hit(b.bb, vb)) { ctx.strokeStyle = b.big ? C.river : C.stream; ctx.lineWidth = b.big ? 1.3 : .7; ctx.beginPath(); path(ctx, cam, b.p); ctx.stroke(); } });
+  // roads
+  ctx.strokeStyle = C.rail; ctx.lineWidth = .8; ctx.setLineDash([2, 3]); ctx.beginPath();
+  base.forEach(b => { if (b.k === 'rail' && hit(b.bb, vb)) path(ctx, cam, b.p); }); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = C.hwy; ctx.lineWidth = 1.1; ctx.beginPath();
+  base.forEach(b => { if (b.k === 'hwy' && hit(b.bb, vb)) path(ctx, cam, b.p); }); ctx.stroke();
+  // town boundaries
+  ctx.strokeStyle = C.county; ctx.lineWidth = .8; ctx.beginPath();
+  base.forEach(b => { if (b.k === 'town' && hit(b.bb, vb)) path(ctx, cam, b.p); }); ctx.stroke();
+  // street grids: fade in with scale (they are the ground truth under the field)
+  const sa = Math.max(0, Math.min(1, (s - 6) / 12));
+  if (sa > 0) {
+    ctx.globalAlpha = sa;
+    [[colS, 1, C.st1, 1], [colS, 3, C.st3, .7], [freS, 1, C.st1, 1], [freS, 3, C.st3, .7], [arts, -1, C.st1, .8]].forEach(([arr, cls, col, lw]) => {
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath();
+      arr.forEach(l => { if ((cls < 0 || l.c === cls) && hit(l.bb, vb)) path(ctx, cam, l.p); }); ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+  }
+  // loupe ground
+  if (st.la > .01) {
+    const lc = loupeCam(), r = loupe.r * st.la; const lv = viewBB(lc);
+    ctx.save(); ctx.beginPath(); ctx.arc(loupe.fx, loupe.fy, r, 0, 7); ctx.fillStyle = C.loupeBg; ctx.fill(); ctx.clip();
+    ctx.fillStyle = C.water; base.forEach(b => { if (b.k === 'water' && hit(b.bb, lv)) { ctx.beginPath(); path(ctx, lc, b.p); ctx.fill(); } });
+    [[3, C.lst3, 5], [1, C.lst1, 7]].forEach(([cls, col, lw]) => {
+      ctx.strokeStyle = col; ctx.lineWidth = lw * .5; ctx.beginPath(); colS.forEach(l => { if (l.c === cls && hit(l.bb, lv)) path(ctx, lc, l.p); }); ctx.stroke();
+    });
+    ctx.restore();
+  }
+}
+function label(ctx, txt, x, y, font, fill, halo, align = 'left', ls = 0) {
+  ctx.font = font; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = ls + 'px';
+  ctx.lineWidth = 4; ctx.strokeStyle = halo; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y);
+  ctx.fillStyle = fill; ctx.fillText(txt, x, y);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+}
+const MONO = '500 10px "Geist Mono","Geist Mono L",ui-monospace,monospace';
+const UI = (w, s) => `${w} ${s}px "Geist","Geist L",system-ui,sans-serif`;
+function drawOver(cam, st) {
+  const C = pal(), ctx = oc; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, MW, MH);
+  const vb = viewBB(cam), t = T[lang];
+  // swath labels: date + peak, along each storm centerline
+  if (st.R > 20) {
+    const seen = {};
+    storms.forEach(s => {
+      if (seen[s.date]) return; const q = kmLine(s.path); const m = q[q.length - 1];
+      const [x, y] = pr(cam, m); if (x < 60 || x > MW - 40 || y < 110 || y > MH - 80) return;
+      if (Math.hypot(m[0] - core[0], m[1] - core[1]) > st.R) return;
+      seen[s.date] = 1;
+      label(ctx, `${s.d[lang]} · ${s.max} ${lang === 'es' ? 'pulg. máx.' : 'in max'}`, x + 8, y - 10, MONO, rgb(hailRGB(s.max, C)), C.halo);
+    });
+  }
+  // water labels (atlas italic)
+  const wl = [['Platte R.', [-97.215, 41.402]], ['Loup R.', [-97.47, 41.452]], ['Platte R.', [-96.62, 41.345]], ['Elkhorn R.', [-96.3, 41.29]]];
+  wl.forEach(([n, ll]) => { const [x, y] = pr(cam, km(ll)); if (x > 70 && x < MW - 60 && y > 100 && y < MH - 60) label(ctx, n, x, y, `italic ${UI(500, 11)}`, C.waterLine, C.halo); });
+  // towns
+  const big = { Columbus: 1, Fremont: 1, Omaha: 1 };
+  places.forEach(pl => {
+    const [x, y] = pr(cam, pl.p); if (x < 40 || x > MW - 20 || y < 90 || y > MH - 40) return;
+    if (pl.n === 'Columbus' && cam.s > 14) return;   // Columbus gets a big atlas label instead
+    ctx.fillStyle = C.text2; ctx.beginPath(); ctx.arc(x, y, big[pl.n] ? 3 : 2.2, 0, 7); ctx.fill();
+    label(ctx, pl.n.toUpperCase(), x + 8, y, UI(600, big[pl.n] ? 11.5 : 10), big[pl.n] ? C.label : C.muted, C.halo, 'left', 1.6);
+  });
+  if (cam.s > 14) {
+    const [x, y] = pr(cam, km([-97.405, 41.458]));
+    label(ctx, 'COLUMBUS', x, y, UI(600, 15), C.label, C.halo, 'center', 5);
+    const [a, b] = pr(cam, km([-97.405, 41.4535])); label(ctx, lang === 'es' ? 'Condado de Platte' : 'Platte County', a, b + 10, `italic ${UI(400, 11)}`, C.muted, C.halo, 'center');
+  }
+  // HQ
+  { const [x, y] = pr(cam, hq); if (x > 40 && x < MW - 20 && y > 90 && y < MH - 40) { ctx.strokeStyle = C.text; ctx.lineWidth = 1.5; ctx.strokeRect(x - 3.5, y - 3.5, 7, 7); } }
+  // ranked zones (skip collisions, rank order)
+  if (st.za > 0) {
+    ctx.globalAlpha = st.za; const drawn = [];
+    zk.forEach(z => {
+      const [x, y] = pr(cam, z.p); if (x < 30 || x > MW - 20 || y < 90 || y > MH - 40) return;
+      if (z.rank > 1 && drawn.some(([a, b]) => Math.hypot(a - x, b - y) < 20)) return; drawn.push([x, y]);
+      const one = z.rank === 1;
+      ctx.beginPath(); ctx.arc(x, y, one ? 10 : 8, 0, 7); ctx.fillStyle = one ? C.acc : C.halo; ctx.fill();
+      ctx.lineWidth = 1.2; ctx.strokeStyle = one ? C.acc : C.text2; ctx.stroke();
+      ctx.font = `500 ${one ? 10.5 : 9.5}px "Geist Mono","Geist Mono L",monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = one ? '#1b1206' : C.text; ctx.fillText(String(z.rank), x, y + .5);
+    });
+    ctx.globalAlpha = 1;
+  }
+  // pick target + leader to the loupe
+  if (st.la > .01) {
+    const [x, y] = pr(cam, wc); const r = loupe.r * st.la;
+    const ang = Math.atan2(loupe.fy - y, loupe.fx - x);
+    ctx.strokeStyle = C.acc; ctx.lineWidth = 1; ctx.globalAlpha = .75 * st.la;
+    ctx.beginPath(); ctx.arc(x, y, 15, 0, 7); ctx.stroke();
+    ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(x + Math.cos(ang) * 15, y + Math.sin(ang) * 15); ctx.lineTo(loupe.fx - Math.cos(ang) * r, loupe.fy - Math.sin(ang) * r); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    drawLoupe(ctx, C, st);
+  }
+  drawLocator(ctx, C, cam);
+  // scale bar
+  { const mi = 1.609, want = cam.s > 60 ? .5 : cam.s > 14 ? 2 : 10; const L = want * mi * cam.s; const x0 = innerWidth * 0.44 - MX + 260, y0 = MH - 50;
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0 - 4); ctx.lineTo(x0, y0); ctx.lineTo(x0 + L, y0); ctx.lineTo(x0 + L, y0 - 4); ctx.stroke();
+    label(ctx, `${want} mi`, x0 + L / 2, y0 - 10, MONO, C.muted, C.halo, 'center'); }
+}
+function drawLoupe(ctx, C, st) {
+  const lc = loupeCam(), r = loupe.r * st.la, t = T[lang];
+  ctx.save(); ctx.beginPath(); ctx.arc(loupe.fx, loupe.fy, r, 0, 7); ctx.clip();
+  // street names of the walk
+  const names = [[W.s[0].n, W.s[0].p], [W.s[1].n, W.s[1].p]];
+  names.forEach(([n, p]) => { const q = kmLine(p); const [x, y] = pr(lc, [(q[0][0] + q[q.length - 1][0]) / 2, (q[0][1] + q[q.length - 1][1]) / 2]); label(ctx, n, x, y + (n === W.s[0].n ? -21 : 21), UI(600, 10.5), C.text2, C.loupeBg, 'center', .5); });
+  { const q = kmLine(W.s[2].p); const [x, y] = pr(lc, q[0]); ctx.save(); ctx.translate(x - 14, y + 4); ctx.rotate(-Math.PI / 2); label(ctx, W.s[2].n, 0, 0, UI(600, 10.5), C.text2, C.loupeBg, 'left', .5); ctx.restore(); }
+  // walk path draws itself door to door
+  const wp = st.wp;
+  if (wp > 0) {
+    const L = wp * RL; ctx.beginPath(); let started = false;
+    for (let i = 0; i < route.length; i++) {
+      if (routeLen[i] > L) { const a = route[i - 1], b = route[i]; const f = (L - routeLen[i - 1]) / (routeLen[i] - routeLen[i - 1] || 1); const [x, y] = pr(lc, [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]); ctx.lineTo(x, y); break; }
+      const [x, y] = pr(lc, route[i]); started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true;
+    }
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(245,136,58,.22)'; ctx.lineWidth = 11; ctx.stroke();
+    ctx.strokeStyle = C.acc; ctx.lineWidth = 3; ctx.stroke();
+  }
+  // sample homes, lit by hail size, popping as the path reaches them
+  homes.forEach(h => {
+    const k = Math.max(0, Math.min(1, (wp - h.at) * 8 + (wp >= 1 ? 1 : 0))); if (k <= 0) return;
+    const [x, y] = pr(lc, h.p); const rr = (3 + (h.score - 50) / 14) * eOut(k);
+    ctx.beginPath(); ctx.arc(x, y, rr + 2, 0, 7); ctx.fillStyle = C.loupeBg; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, rr, 0, 7); ctx.fillStyle = rgb(hailRGB(h.hail, C)); ctx.fill();
+    if (h.rank === 1 && k >= 1) { ctx.beginPath(); ctx.arc(x, y, rr + 4, 0, 7); ctx.strokeStyle = C.text; ctx.lineWidth = 1.2; ctx.stroke(); }
+  });
+  // park
+  { const [x, y] = pr(lc, park); ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = C.text; ctx.fill(); ctx.font = UI(700, 10.5); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.loupeBg; ctx.fillText(t.park, x, y + .5); }
+  ctx.restore();
+  // ring + quiet "sample" tag
+  ctx.beginPath(); ctx.arc(loupe.fx, loupe.fy, r, 0, 7); ctx.strokeStyle = C.rule; ctx.lineWidth = 1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(loupe.fx, loupe.fy, r + 5, -Math.PI * .9, -Math.PI * .1); ctx.strokeStyle = C.acc; ctx.globalAlpha = .6 * st.la; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+  if (st.la > .9) label(ctx, `${t.sample} · ${homes.length}`, loupe.fx, loupe.fy - r + 16, MONO, C.muted, C.loupeBg, 'center', .5);
+}
+function drawLocator(ctx, C, cam) {
+  const w = 196, h = 104, x0 = MW - w - 24, y0 = 102;
+  const box = [-65, -38, 72, 40]; const s = Math.min(w / (box[2] - box[0]), h / (box[3] - box[1]));
+  const lc = { x: (box[0] + box[2]) / 2, y: (box[1] + box[3]) / 2, s, fx: x0 + w / 2, fy: y0 + h / 2 };
+  ctx.save();
+  ctx.fillStyle = C.halo; ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y0, w, h, 10) : ctx.rect(x0, y0, w, h); ctx.fill(); ctx.stroke(); ctx.clip();
+  ctx.lineCap = 'round';
+  base.forEach(b => { if (b.k === 'stream' && b.big) { ctx.strokeStyle = C.river; ctx.lineWidth = .8; ctx.beginPath(); path(ctx, lc, b.p); ctx.stroke(); } });
+  base.forEach(b => { if (b.k === 'water' && b.p.length > 200) { ctx.strokeStyle = C.river; ctx.lineWidth = .6; ctx.beginPath(); path(ctx, lc, b.p); ctx.stroke(); } });
+  segs.forEach(sg => { ctx.strokeStyle = rgb(hailRGB(sg.amp, C)); ctx.globalAlpha = .55; ctx.lineWidth = 3; ctx.beginPath(); path(ctx, lc, [sg.a, sg.b]); ctx.stroke(); });
+  ctx.globalAlpha = 1;
+  const [hx, hy] = pr(lc, hq), [px, py] = pr(lc, core);
+  ctx.strokeStyle = C.text2; ctx.setLineDash([2, 3]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([]);
+  // current view rectangle
+  const v = viewBB(cam); const a = pr(lc, [v[0], v[3]]), b = pr(lc, [v[2], v[1]]);
+  ctx.strokeStyle = C.accInk; ctx.lineWidth = 1; ctx.strokeRect(Math.max(a[0], x0 + 1), a[1], Math.max(3, b[0] - Math.max(a[0], x0 + 1)), Math.max(3, b[1] - a[1]));
+  ['Columbus', 'Fremont', 'Omaha'].forEach(n => { const [x, y] = pr(lc, km(N.places[n])); ctx.fillStyle = C.text2; ctx.beginPath(); ctx.arc(x, y, 2, 0, 7); ctx.fill(); label(ctx, n, x + (n === 'Omaha' ? -5 : 5), y - 8, UI(500, 9.5), C.muted, C.halo, n === 'Omaha' ? 'right' : 'left'); });
+  ctx.fillStyle = C.acc; ctx.beginPath(); ctx.arc(px, py, 3.2, 0, 7); ctx.fill();
+  label(ctx, T[lang].locator, x0 + 9, y0 + h - 11, MONO, C.muted, C.halo);
+  ctx.restore();
+}
+
+/* ---------- sizing ---------- */
+function size() {
+  const r = $('map').getBoundingClientRect(); MX = r.left; MW = r.width; MH = r.height; DPR = Math.min(2, devicePixelRatio || 1);
+  glQ = 1; [glc, ucv, ocv].forEach(c => { c.width = Math.round(MW * DPR); c.height = Math.round(MH * DPR); });
+  layoutCams();
+  const tl = document.querySelector('.cap.title'); if (tl) tl.style.left = (innerWidth * 0.44 + 28) + 'px';
+}
+
+/* ---------- the open: headline writes itself, field ripples out, push in, walk draws ---------- */
+let t0 = performance.now(), view = 'pick', fly = null, lastStatic = null, dirty = true;
+const INTRO = 4.2;
+function state(now) {
+  const t = STILL ? 99 : (now - t0) / 1000;
+  const st = { t, time: STILL ? 40 : now / 1000, R: STILL ? 1e4 : Math.max(.01, 175 * eOut(t / 2.3)), la: STILL ? 1 : eOut((t - 2.5) / .6), wp: STILL ? 1 : ease((t - 2.85) / 1.25), za: STILL ? 1 : eOut((t - 2.2) / .5) };
+  let cam = STILL ? cams.pick : mixCam(cams.region, cams.pick, ease((t - 1.15) / 1.9));
+  if (fly) { const k = ease((now - fly.t) / fly.ms); cam = mixCam(fly.from, cams[fly.to], k); if (k >= 1) { fly = null; } }
+  else if (view !== 'pick') cam = cams[view];
+  if (view === 'all') st.la = fly ? st.la * (1 - ease((now - (fly?.t || now)) / 400)) : 0;
+  st.cam = cam; return st;
+}
+function textIntro() {
+  const at = (el, d) => { if (STILL) { el.classList.add('in'); return; } setTimeout(() => el.classList.add('in'), d * 1000); };
+  const wordsIn = (el, d0) => el.querySelectorAll('.w').forEach((w, i) => {
+    if (STILL) return;
+    w.animate([{ opacity: 0, letterSpacing: '0.14em', transform: 'translateY(.18em)', filter: 'blur(10px)' }, { opacity: 1, letterSpacing: getComputedStyle(w).letterSpacing, transform: 'none', filter: 'blur(0)' }],
+      { duration: 900, delay: (d0 + i * .22) * 1000, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+  });
+  at($('eyebrow'), .05); wordsIn($('h1'), .12); wordsIn($('h2'), .55);
+  at($('why'), 1.05); at($('stats'), 1.25);
+  at($('secBrief'), 1.6); document.querySelectorAll('#brief li').forEach((li, i) => at(li, 1.7 + i * .14));
+  at($('secToday'), 2.2); document.querySelectorAll('#time li').forEach((li, i) => at(li, 2.3 + i * .1));
+  at($('ctas'), 2.9); at($('mapcap'), 1.4); at($('legend'), 2.0);
+  setTimeout(() => $('loupecap').classList.add('on'), STILL ? 0 : 3100);
+  // numbers tick
+  document.querySelectorAll('.num').forEach(n => {
+    const v = n.dataset.v; const f = parseFloat(v); if (isNaN(f) || STILL || !/^[\d.]+$/.test(v)) return;
+    const dec = (v.split('.')[1] || '').length; const d0 = performance.now() + 1250;
+    const tick = now => { const k = eOut((now - d0) / 900); n.textContent = (f * Math.max(0, k)).toFixed(dec); if (k < 1) requestAnimationFrame(tick); else n.textContent = v; };
+    requestAnimationFrame(tick);
+  });
+}
+let lastAmb = 0;
+function frame(now) {
+  const st = state(now);
+  const moving = st.t < INTRO + .2 || fly;
+  if (moving || dirty) { drawUnder(st.cam, st); drawOver(st.cam, st); dirty = false; }
+  setGLQ(moving ? .5 : 1);
+  if (moving || dirty || (!reduce && now - lastAmb > (SLOW ? 4000 : 90))) { drawGL(st.cam, st); lastAmb = now; }
+  requestAnimationFrame(frame);
+}
+function flyTo(to) {
+  const now = performance.now(); const from = state(now).cam; fly = { from, to, t: now, ms: 900 }; view = to;
+  if (to !== 'pick') $('loupecap').classList.remove('on'); else setTimeout(() => $('loupecap').classList.add('on'), 700);
+  $('all').querySelector('span').textContent = to === 'all' ? T[lang].back : T[lang].all;
+}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { lang = b.dataset.l; try { localStorage.setItem('nlb.lang', lang); } catch (e) {} renderText(); document.querySelectorAll('.reveal').forEach(e => e.classList.add('in')); $('loupecap').classList.toggle('on', view === 'pick'); dirty = true; });
+document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { theme = b.dataset.t; try { localStorage.setItem('nlb.theme', theme); } catch (e) {} applyTheme(); dirty = true; });
+$('all').onclick = () => flyTo(view === 'all' ? 'pick' : 'all');
+$('go').onclick = () => flyTo(view === 'walk' ? 'pick' : 'walk');
+addEventListener('keydown', e => { if (e.key === 'Enter' && document.activeElement === document.body) flyTo('walk'); if (e.key === 'Escape') flyTo('pick'); });
+addEventListener('resize', () => { size(); dirty = true; });
+
+applyTheme(); renderText(); size();
+const start = () => { t0 = performance.now(); textIntro(); requestAnimationFrame(frame); };
+(document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve()).then(start);
+})();
+</script>
+</body>
+</html>

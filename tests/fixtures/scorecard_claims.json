@@ -1,0 +1,16 @@
+{
+ "claims/102-elm-st": {"address": "102 Elm St", "city": "Fremont", "insurer": "State Farm",
+                      "stage": "inspected", "created_at": "2026-09-24T22:00:00Z"},
+ "claims/103-elm-st": {"address": "103 Elm St", "city": "Fremont", "insurer": "Farmers",
+                      "stage": "scope_in", "contract_price": 30000, "created_at": "2026-09-24T22:00:00Z"},
+ "claims/202-ash-st": {"address": "202 Ash St", "city": "Fremont", "insurer": "Allstate",
+                      "stage": "signed", "contract_price": 19040, "deductible": 1000,
+                      "created_at": "2026-09-25T22:00:00Z", "job": {"contract_signed": "2026-09-28"}},
+ "claims/1418-irving-st": {"address": "1418 Irving St", "city": "Fremont", "insurer": "State Farm",
+                          "stage": "paid", "contract_price": 9800, "created_at": "2026-08-01T15:00:00Z",
+                          "job": {"contract_signed": "2026-08-10"}},
+ "claims/9-oak-ave": {"address": "9 Oak Ave", "city": "Fremont", "insurer": "Farmers",
+                     "stage": "materials_ordered", "created_at": "2026-09-15T15:00:00Z"},
+ "claims/5-cedar-ct": {"address": "5 Cedar Ct", "city": "Fremont", "insurer": "Progressive",
+                      "stage": "lost", "contract_price": 88888, "created_at": "2026-09-05T15:00:00Z"}
+}

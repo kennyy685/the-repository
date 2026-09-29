@@ -3,7 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HMP Wind Playbook</title>
 <!-- T119: one-page wind + fallen-tree inspection and sales playbook. US Letter: page 1 English, page 2 Spanish
-     (print double-sided). Source: docs/research/2026-09-26-round-23.md item 3. HMP brand, pocket card B look
+     (print double-sided). T183 (2026-09-27): sheet 2 = ice dams + winter storms, page 3 English, page 4 Spanish:
+     what MAY be covered vs. usually not (NE Dept. of Insurance consumer alerts, docs/research/2026-09-27-round-52.md),
+     same "never cross these" box as sheet 1. "May be covered, depends on the policy" - never "insurance pays". Source: docs/research/2026-09-26-round-23.md item 3. HMP brand, pocket card B look
      (charcoal, orange #f5883a, Barlow Semi Condensed + Montserrat; local fonts in fonts/).
      Rules: never promise insurance pays, never negotiate the claim, no deductible talk (NE 44-8604),
      say "registered". Registration # = blank line until the boss gives it.
@@ -95,6 +97,39 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
 .q .l { font:800 8pt/1.2 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
 .pair { display:grid; grid-template-columns:1fr 1fr; column-gap:14pt; }
 .warn { margin-top:4pt; font-size:7.8pt; color:var(--muted); }
+
+/* ---------- sheet 2 (T183): ice dams + winter storms, a little roomier ---------- */
+.p2 { font-size:8.5pt; line-height:1.36; }
+.nw { white-space:nowrap; }
+.p2 .body { padding:0.19in 0.5in 0.15in; gap:0.13in; }
+.p2 .h { margin-bottom:6pt; }
+.p2 ol.nums li { margin-bottom:3pt; }
+.p2 ol.nums li::before { font-size:11pt; }
+.p2 ul.boxes li { margin-bottom:4pt; padding-left:16pt; }
+.p2 ul.boxes li::before { top:1.5pt; width:9pt; height:9pt; }
+.p2 .warn { font-size:8pt; }
+.p2 .hard { font-size:8.1pt; padding-bottom:4pt; }
+.p2 .hard li { margin-bottom:3pt; }
+.p2 .q .l { display:inline; margin-right:4pt; color:var(--orange-ink); }
+.p2 .q { margin-bottom:4pt; }
+.dia svg { width:100%; height:auto; display:block; margin:0 0 6pt; }
+.safe { margin-top:8pt; border-left:4pt solid var(--orange); background:var(--tint); padding:5pt 9pt 6pt; }
+.safe b { color:var(--orange-ink); }
+.cov { display:grid; grid-template-columns:1fr 1fr; border:1pt solid var(--line); border-radius:5pt; overflow:hidden; }
+.cov > div { padding:6pt 11pt 5pt; }
+.cov > .hd { padding:4pt 11pt; font:800 10.5pt/1.2 "Barlow Semi Condensed"; letter-spacing:0.08em; text-transform:uppercase; background:#f3f3f5; color:var(--char-dk); }
+.cov > .hd.w { background:var(--orange); color:#fff; }
+.cov > .hd span { font:600 7.4pt/1.2 "Montserrat"; letter-spacing:0.02em; text-transform:none; }
+.cov > .yes { background:var(--tint); }
+.cov ul { list-style:none; }
+.cov li { position:relative; padding-left:13pt; margin-bottom:4pt; }
+.cov .yes li::before { content:""; position:absolute; left:1pt; top:4.5pt; width:5pt; height:5pt; background:var(--orange); transform:rotate(45deg); }
+.cov .no li::before { content:"\2013"; position:absolute; left:0.5pt; top:0; font-weight:700; color:var(--muted); }
+.cov > .say { grid-column:1 / -1; border-top:1pt solid var(--line); background:#fff; padding:6pt 11pt 7pt; }
+.cov > .say .l { font:800 8.6pt/1.2 "Barlow Semi Condensed"; text-transform:uppercase; letter-spacing:0.08em; color:var(--orange-ink); margin-right:3pt; }
+.prev { display:grid; grid-template-columns:1fr 1fr; column-gap:0.3in; }
+.prev p { position:relative; padding-left:13pt; }
+.prev p::before { content:""; position:absolute; left:1pt; top:4.5pt; width:5pt; height:5pt; background:var(--orange); transform:rotate(45deg); }
 </style>
 </head>
 <body>
@@ -105,6 +140,29 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <rect x="20.4" width="0.7" height="10" fill="#36373b"/>
     </pattern>
   </defs>
+  <symbol id="ice-dia" viewBox="0 0 300 116">
+    <defs>
+      <marker id="arh" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f5883a"/></marker>
+      <marker id="arw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3f86c4"/></marker>
+    </defs>
+    <polygon points="112,57.8 300,11.5 300,100 112,100" fill="#fdf1e7"/>
+    <g stroke="#f5883a" stroke-width="2.6" fill="none" marker-end="url(#arh)"><path d="M180 94V62"/><path d="M214 94V54"/><path d="M282 94V38"/></g>
+    <polygon points="150,45.5 300,8.5 300,0 150,36.5" fill="#eef1f5" stroke="#b9bcc2" stroke-width="1.2" stroke-linejoin="round"/>
+    <polygon points="113,54.6 152,45 152,39.5 114,45.5" fill="#3f86c4"/>
+    <polygon points="18,78 21,67 42,57 72,48 98,40.5 111,40 117,45 117,53.6 60,67.6" fill="#d7e7f3" stroke="#6f9cc0" stroke-width="1.4" stroke-linejoin="round"/>
+    <line x1="14" y1="82" x2="300" y2="11.5" stroke="#404145" stroke-width="6"/>
+    <line x1="15.5" y1="80" x2="15.5" y2="91" stroke="#404145" stroke-width="3"/>
+    <path d="M11 91L18 91L14.5 107Z M19 88L25 86.5L22 100Z M26 86L32 84.5L29 96Z" fill="#d7e7f3" stroke="#6f9cc0" stroke-width="1" stroke-linejoin="round"/>
+    <line x1="112" y1="59" x2="112" y2="116" stroke="#404145" stroke-width="3"/>
+    <line x1="112" y1="100" x2="300" y2="100" stroke="#404145" stroke-width="2"/>
+    <path d="M128 51C131 61 135 74 137 93" stroke="#3f86c4" stroke-width="2.2" stroke-dasharray="3.5 2.5" fill="none" marker-end="url(#arw)"/>
+    <path d="M138 104c-2.4 3.4-3.4 5-3.4 6.4a3.4 3.4 0 0 0 6.8 0c0-1.4-1-3-3.4-6.4z" fill="#3f86c4"/>
+    <g font-family="Barlow Semi Condensed" font-weight="800" font-size="12.5" text-anchor="middle" fill="#fff">
+      <circle cx="248" cy="74" r="8.5" fill="#f5883a"/><text x="248" y="78.4">1</text>
+      <circle cx="50" cy="38" r="8.5" fill="#f5883a"/><text x="50" y="42.4">2</text>
+      <circle cx="156" cy="80" r="8.5" fill="#f5883a"/><text x="156" y="84.4">3</text>
+    </g>
+  </symbol>
   <symbol id="hmp-logo" viewBox="-72.6 -92.0 493.6 243.0">
   <defs>
     <linearGradient id="hmp-rim" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#b4b8be"/><stop offset="1" stop-color="#7f838a"/></linearGradient>
@@ -126,7 +184,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
     <svg class="rib" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
     <div class="in">
       <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
-      <div class="ttl"><h1>Wind &amp; fallen-tree playbook</h1><div class="sub">Inspect · photograph · same claim steps as hail · <b>Español al reverso</b></div></div>
+      <div class="ttl"><h1>Wind &amp; fallen-tree playbook</h1><div class="sub">Inspect · photograph · ice dams on sheet 2 · <b>Español al reverso</b></div></div>
     </div>
   </header>
 
@@ -209,7 +267,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
     <section>
       <div class="h"><span class="n">5</span><span class="t">Then the same claim steps as hail</span><span class="note">Shaded = HMP’s part</span></div>
       <div class="strip">
-        <div class="us"><i>1</i><b>Inspect</b>Free look, show every photo</div>
+        <div class="us"><i>1</i><b>Inspect</b>Roof check, show every photo</div>
         <div><i>2</i><b>Files</b>Their claim, their call</div>
         <div><i>3</i><b>Adjuster</b>Calls the homeowner</div>
         <div class="us"><i>4</i><b>We meet</b>Show the adjuster the wind slope</div>
@@ -224,7 +282,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
       <section>
         <div class="h"><span class="n">6</span><span class="t">At the door</span><span class="note">Say this first · NE 69-1602</span></div>
         <div class="open">“Hi, I’m <b>Kenny Cruz</b> with <b>HMP Siding &amp; Roofing</b>. We do <b>roofs and siding</b>. We’re a registered Fremont company.”</div>
-        <div class="q"><div class="l">Wind</div>“The wind on ________ hit this street. Wind hurts one side of a roof, so I check that side first. Free, 20 minutes, and I show you every photo.”</div>
+        <div class="q"><div class="l">Wind</div>“The wind on ________ hit this street. Wind hurts one side of a roof, so I check that side first. 20 minutes, and I show you every photo.”</div>
         <div class="q"><div class="l">Tree</div>“I saw the tree came down. Is everyone OK? Want me to photograph it before anything gets moved? The photos are yours.”</div>
       </section>
 
@@ -253,7 +311,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
     <svg class="rib" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
     <div class="in">
       <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
-      <div class="ttl"><h1>Viento y árboles caídos</h1><div class="sub">Revisar · fotografiar · mismos pasos que el granizo · <b>English on the back</b></div></div>
+      <div class="ttl"><h1>Viento y árboles caídos</h1><div class="sub">Revisar · fotografiar · hielo en la hoja 2 · <b>English on the back</b></div></div>
     </div>
   </header>
 
@@ -335,7 +393,7 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
     <section>
       <div class="h"><span class="n">5</span><span class="t">Luego, los mismos pasos que el granizo</span><span class="note">Sombreado = lo que hace HMP</span></div>
       <div class="strip">
-        <div class="us"><i>1</i><b>Revisar</b>Gratis, enseñar cada foto</div>
+        <div class="us"><i>1</i><b>Revisar</b>Revisar el techo, enseñar cada foto</div>
         <div><i>2</i><b>Reclama</b>Su reclamo, su decisión</div>
         <div><i>3</i><b>Ajustador</b>Llama al dueño</div>
         <div class="us"><i>4</i><b>La cita</b>Señalar el agua del viento</div>
@@ -349,8 +407,8 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
     <div class="cols">
       <section>
         <div class="h"><span class="n">6</span><span class="t">En la puerta</span><span class="note">Diga esto primero · NE 69-1602</span></div>
-        <div class="open">“Hola, soy <b>Alex Mendez</b> de <b>HMP Siding &amp; Roofing</b>. Hacemos <b>techos y siding</b>. Somos una empresa registrada de Fremont.”</div>
-        <div class="q"><div class="l">Viento</div>“El viento del ________ le pegó a esta calle. El viento daña un solo lado del techo, así que reviso ese lado primero. Gratis, 20 minutos, y le enseño todas las fotos.”</div>
+        <div class="open">“Hola, soy <b>Kenny Cruz</b> de <b>HMP Siding &amp; Roofing</b>. Hacemos <b>techos y siding</b>. Somos una empresa registrada de Fremont.”</div>
+        <div class="q"><div class="l">Viento</div>“El viento del ________ le pegó a esta calle. El viento daña un solo lado del techo, así que reviso ese lado primero. 20 minutos, y le enseño todas las fotos.”</div>
         <div class="q"><div class="l">Árbol</div>“Vi que se cayó el árbol. ¿Están todos bien? ¿Quiere que le tome fotos antes de que muevan algo? Las fotos son suyas.”</div>
       </section>
 
@@ -362,6 +420,184 @@ ul.boxes li::before { content:""; position:absolute; left:0; top:1pt; width:8.5p
           <li><b>No hable del deducible.</b> Siempre lo paga el dueño. (NE 44-8604)</li>
           <li><b>Diga “registrado”</b> (Nebraska registra a los contratistas).</li>
           <li><b>Si firman algo:</b> contrato escrito + aviso de cancelación de 3 días, en inglés <u>y</u> español. (NE 69-1601)</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div><div class="who">Alex Mendez · llame o mande texto</div><div class="ph">402-889-3385</div><div class="oth">We speak English · Kenny Cruz 402-936-2709</div></div>
+    <div class="reg"><i></i>Registro de contratista NE #</div>
+  </footer>
+</section>
+
+<!-- ======================= SHEET 2 · ENGLISH (T183) ======================= -->
+<section class="page p2" lang="en">
+  <header class="band">
+    <svg class="rib" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
+    <div class="in">
+      <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
+      <div class="ttl"><h1>Ice dams &amp; winter storms</h1><div class="sub">Playbook sheet 2 · winter · <b>Español al reverso</b></div></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <div class="cols">
+      <section class="dia">
+        <div class="h"><span class="n">1</span><span class="t">How an ice dam forms</span><span class="note">After heavy snow</span></div>
+        <svg viewBox="0 0 300 116" role="img" aria-label="Roof edge cut open: a warm attic melts the snow, it freezes again at the cold eave into an ice ridge, and melt water backs up under the shingles and leaks inside"><use href="#ice-dia"/></svg>
+        <ol class="nums">
+          <li data-n="1">Heat from a <b>warm attic</b> melts the snow on the roof.</li>
+          <li data-n="2">The water runs down and <b>freezes again at the cold eave</b>: an ice ridge.</li>
+          <li data-n="3">More melt water backs up behind the ice, <b>under the shingles</b>, and leaks inside.</li>
+        </ol>
+      </section>
+
+      <section>
+        <div class="h"><span class="n">2</span><span class="t">Check and photograph</span><span class="note">Date stamp on</span></div>
+        <ul class="boxes">
+          <li>Ice ridge and icicles along the eaves, wide and close</li>
+          <li>Gutters and downspouts packed with ice</li>
+          <li>Inside: stains on ceilings and walls near outside walls</li>
+          <li>Attic, with the homeowner: wet insulation, frost, drips</li>
+          <li>Anything that fell: the limb, where it hit, the hole it made</li>
+          <li><b>Before</b> anything is cleaned up or thrown out</li>
+        </ul>
+        <div class="safe"><b>Never walk an icy or snowy roof, and never chip the ice</b> (it tears the shingles). Check from the ground and the attic; the roof waits until it’s clear and dry.</div>
+      </section>
+    </div>
+
+    <section>
+      <div class="h"><span class="n">3</span><span class="t">What may be covered</span><span class="note">The insurer decides, never us</span></div>
+      <div class="cov">
+        <div class="hd w">May be covered <span>· depends on the policy</span></div><div class="hd">Usually not covered</div>
+        <div class="yes"><ul>
+          <li>Roof collapse from the <b>weight of snow or ice</b></li>
+          <li>Water that gets in through an <b>opening a covered event made</b> (wind, a falling limb)</li>
+          <li>Water damage inside from an ice-dam leak</li>
+        </ul></div>
+        <div class="no"><ul>
+          <li>The <b>tree or shrub itself</b>, lost to wind, ice or snow</li>
+          <li>Cleaning up limbs and debris that <b>didn’t hit</b> the house or another covered building</li>
+          <li>Upkeep that stops ice dams: gutters, attic insulation, venting</li>
+        </ul></div>
+        <div class="say"><span class="l">Say</span>“It may be covered; it depends on your policy. <b>Your insurance company decides.</b>” Homeowner questions: Nebraska Department of Insurance, free, <b>1-877-564-7323</b>. Then the same claim steps as hail (sheet 1, step 5).</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="h"><span class="n">4</span><span class="t">Prevention is a regular sale</span><span class="note">Not a claim pitch</span></div>
+      <div class="prev">
+        <p><b>Clean gutters</b> and good <b>attic insulation and venting</b> cut the melt-and-freeze that makes ice dams. Tell the homeowner, even when there’s no claim.</p>
+        <p><b>Worn roof or siding?</b> Written estimate, then the contract + 3-day cancel form, English and Spanish. <b>No work until the 3 days are over.</b> <span class="nw">(NE 69-1606)</span></p>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section>
+        <div class="h"><span class="n">5</span><span class="t">At the door</span><span class="note">Say this first · NE 69-1602</span></div>
+        <div class="open">“Hi, I’m <b>Kenny Cruz</b> with <b>HMP Siding &amp; Roofing</b>. We do <b>roofs and siding</b>. We’re a registered Fremont company.”</div>
+        <div class="q"><div class="l">Ice</div>“I see ice building up on your roof edge. That can push water under the shingles. Want me to check your ceilings and attic? I show you every photo.”</div>
+        <div class="q"><div class="l">“Is it covered?”</div>“It may be; it depends on your policy. Your insurance company decides. I’ll show you everything I find.”</div>
+      </section>
+
+      <section class="hard">
+        <div class="h"><span class="n">!</span><span class="t">Never cross these</span></div>
+        <ul>
+          <li><b>Never promise insurance pays.</b> Say: “Your insurance company decides.”</li>
+          <li><b>Never negotiate the claim.</b> We show the damage; the homeowner and adjuster settle it.</li>
+          <li><b>No deductible talk.</b> It is always the homeowner’s. <span class="nw">(NE 44-8604)</span></li>
+          <li><b>Say “registered”</b> (Nebraska registers contractors).</li>
+          <li><b>Anything signed:</b> written contract + the 3-day cancel form, in English <u>and</u> Spanish. <span class="nw">(NE 69-1601)</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div><div class="who">Kenny Cruz · call or text</div><div class="ph">402-936-2709</div><div class="oth">Hablamos español · Alex Mendez 402-889-3385</div></div>
+    <div class="reg"><i></i>NE contractor registration #</div>
+  </footer>
+</section>
+
+<!-- ======================= HOJA 2 · ESPAÑOL (T183) ======================= -->
+<section class="page p2" lang="es">
+  <header class="band">
+    <svg class="rib" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="url(#rib)"/></svg>
+    <div class="in">
+      <svg class="logo" role="img" aria-label="H.M.P Siding &amp; Roofing LLC"><use href="#hmp-logo"/></svg>
+      <div class="ttl"><h1>Represas de hielo</h1><div class="sub">Hoja 2 del manual · invierno · <b>English on the back</b></div></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <div class="cols">
+      <section class="dia">
+        <div class="h"><span class="n">1</span><span class="t">Cómo se forma</span><span class="note">Después de nevar mucho</span></div>
+        <svg viewBox="0 0 300 116" role="img" aria-label="La orilla del techo por dentro: el ático tibio derrite la nieve, el agua se vuelve a congelar en el alero frío y se regresa debajo de las tejas y gotea adentro"><use href="#ice-dia"/></svg>
+        <ol class="nums">
+          <li data-n="1">El calor de un <b>ático tibio</b> derrite la nieve del techo.</li>
+          <li data-n="2">El agua baja y <b>se vuelve a congelar en el alero frío</b>: una barrera de hielo.</li>
+          <li data-n="3">Más agua se queda detrás del hielo, se mete <b>debajo de las tejas</b> y gotea adentro.</li>
+        </ol>
+      </section>
+
+      <section>
+        <div class="h"><span class="n">2</span><span class="t">Revise y fotografíe</span><span class="note">Con fecha</span></div>
+        <ul class="boxes">
+          <li>Aleros: barrera de hielo y hielo colgando, de lejos y de cerca</li>
+          <li>Canaletas y bajantes llenas de hielo</li>
+          <li>Adentro: manchas en techos y paredes exteriores</li>
+          <li>Ático, con el dueño: aislamiento mojado, escarcha, goteras</li>
+          <li>Lo que cayó: la rama, dónde pegó, el hueco que hizo</li>
+          <li><b>Antes</b> de que limpien o tiren algo</li>
+        </ul>
+        <div class="safe"><b>Nunca camine en un techo con hielo o nieve, y nunca rompa el hielo</b> (rompe las tejas). Revise desde el suelo y el ático; el techo espera hasta que esté limpio y seco.</div>
+      </section>
+    </div>
+
+    <section>
+      <div class="h"><span class="n">3</span><span class="t">Qué puede estar cubierto</span><span class="note">Lo decide la aseguradora, nunca nosotros</span></div>
+      <div class="cov">
+        <div class="hd w">Puede estar cubierto <span>· depende de la póliza</span></div><div class="hd">Por lo general no está cubierto</div>
+        <div class="yes"><ul>
+          <li>Techo que se cae por el <b>peso de la nieve o el hielo</b></li>
+          <li>Agua que entra por un <b>hueco que hizo algo cubierto</b> (viento, una rama que cayó)</li>
+          <li>Daño de agua adentro por una represa de hielo</li>
+        </ul></div>
+        <div class="no"><ul>
+          <li>El <b>árbol o arbusto en sí</b> (viento, hielo o nieve)</li>
+          <li>Limpiar ramas y escombros que <b>no le pegaron</b> a la casa ni a otra construcción cubierta</li>
+          <li>Mantenimiento que evita las represas: canaletas, aislamiento, ventilación del ático</li>
+        </ul></div>
+        <div class="say"><span class="l">Diga</span>“Puede estar cubierto; depende de su póliza. <b>Eso lo decide su aseguradora.</b>” ¿Preguntas del dueño? Departamento de Seguros de Nebraska, gratis, <b>1-877-564-7323</b>. Luego, los mismos pasos que el granizo (hoja 1, paso 5).</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="h"><span class="n">4</span><span class="t">Prevenir es una venta normal</span><span class="note">No es un reclamo</span></div>
+      <div class="prev">
+        <p><b>Canaletas limpias</b> y buen <b>aislamiento y ventilación en el ático</b> reducen el derretir y congelar que forma las represas. Dígaselo al dueño, aunque no haya reclamo.</p>
+        <p><b>¿Techo o siding gastado?</b> Presupuesto escrito, contrato + aviso de cancelación de 3 días en inglés y español. <b>Ningún trabajo hasta que pasen los 3 días.</b> <span class="nw">(NE 69-1606)</span></p>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section>
+        <div class="h"><span class="n">5</span><span class="t">En la puerta</span><span class="note">Diga esto primero · NE 69-1602</span></div>
+        <div class="open">“Hola, soy <b>Kenny Cruz</b> de <b>HMP Siding &amp; Roofing</b>. Hacemos <b>techos y siding</b>. Somos una empresa registrada de Fremont.”</div>
+        <div class="q"><div class="l">Hielo</div>“Veo hielo en la orilla de su techo. Eso puede meter agua debajo de las tejas. ¿Quiere que le revise el ático y el techo por dentro? Le enseño todas las fotos.”</div>
+        <div class="q"><div class="l">“¿Lo cubre el seguro?”</div>“Puede ser; depende de su póliza. Eso lo decide su aseguradora. Le enseño todo lo que encuentre.”</div>
+      </section>
+
+      <section class="hard">
+        <div class="h"><span class="n">!</span><span class="t">Nunca cruce estas líneas</span></div>
+        <ul>
+          <li><b>Nunca prometa que el seguro paga.</b> Diga: “Eso lo decide su aseguradora.”</li>
+          <li><b>Nunca negocie el reclamo.</b> Mostramos el daño; el dueño y el ajustador lo arreglan.</li>
+          <li><b>No hable del deducible.</b> Siempre lo paga el dueño. <span class="nw">(NE 44-8604)</span></li>
+          <li><b>Diga “registrado”</b> (Nebraska registra a los contratistas).</li>
+          <li><b>Si firman algo:</b> contrato escrito + aviso de cancelación de 3 días, en inglés <u>y</u> español. <span class="nw">(NE 69-1601)</span></li>
         </ul>
       </section>
     </div>

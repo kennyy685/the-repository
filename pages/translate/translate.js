@@ -92,7 +92,7 @@
                 es: "Lo del deducible nunca se traduce en vivo. Lea el aviso fijo del deducible." } },
     { id: "insurance_promise", legal: null, block: false,
       re: /\b(insurance|insurer|seguro|aseguradora)\b[^.?!]{0,40}\b(will|is going to|gonna|va a|van a|pagar[áa]n?)\b[^.?!]{0,20}\b(pay|cover|approve|pagar|cubrir|aprobar)/i,
-      reason: { en: "Sounds like a promise that insurance will pay. Say 'the adjuster decides'.",
+      reason: { en: "Sounds like a promise that insurance will pay: never promise that. Say 'the adjuster decides'.",
                 es: "Suena a promesa de que el seguro pagará. Diga 'el ajustador decide'." } },
     { id: "cancel_terms", legal: "cancel_notice", block: true,
       re: /\b(right to cancel|cancel (?:this|the) (?:contract|transaction)|three business days|3 business days|derecho a cancelar|cancelar (?:el|este) contrato|tres días hábiles|3 días hábiles)\b/i,
@@ -161,10 +161,16 @@
 
   // ---------- Claude (page `sample` capability) ----------
   let samplePromise = null;
+  const USE_MS = 12000, ASK_MS = 45000;
+  function within(p, ms) {
+    let t;
+    const to = new Promise(function (_, rej) { t = setTimeout(function () { rej({ code: "timeout" }); }, ms); });
+    return Promise.race([Promise.resolve(p), to]).finally(function () { clearTimeout(t); });
+  }
   function getSample() {
     if (!samplePromise) {
       const c = typeof window !== "undefined" ? window.claude : null;
-      samplePromise = c && typeof c.use === "function" ? c.use("sample").catch(function () { return null; }) : Promise.resolve(null);
+      samplePromise = c && typeof c.use === "function" ? within(c.use("sample"), USE_MS).catch(function () { samplePromise = null; return null; }) : Promise.resolve(null);
     }
     return samplePromise;
   }
@@ -181,7 +187,14 @@
   async function ask(prompt, signal) {
     const sample = await getSample();
     if (!sample) throw { code: "unavailable" };
-    const out = await sample.json(prompt, { modelTier: "quick", signal: signal, cache: false });
+    // a hard stop even when the caller passes no signal or the runtime ignores it: "Help me say it" never spins forever
+    const ctl = typeof AbortController === "function" ? new AbortController() : null;
+    const stop = function () { if (ctl) ctl.abort(); };
+    if (signal) { if (signal.aborted) stop(); else signal.addEventListener("abort", stop, { once: true }); }
+    let out;
+    try { out = await within(sample.json(prompt, { modelTier: "quick", signal: ctl ? ctl.signal : signal, cache: false }), ASK_MS); }
+    catch (e) { if (e && e.code === "timeout") stop(); throw e; }
+    finally { if (signal) signal.removeEventListener("abort", stop); }
     const t = out && typeof out.text === "string" ? out.text.trim() : "";
     if (!t) throw { code: "empty_completion" };
     return t;

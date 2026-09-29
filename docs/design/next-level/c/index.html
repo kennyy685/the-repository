@@ -1,0 +1,809 @@
+<!doctype html>
+<!--
+  Direction C "Deck" - the 7 AM open as a 3D instrument deck (HMP App / Aldaba). Mockup, not the live app.
+  Borrowed (and where from):
+  - Extruded data columns + hex-prism aggregates: deck.gl ColumnLayer / HexagonLayer
+      https://deck.gl/docs/api-reference/layers/column-layer
+      https://deck.gl/docs/api-reference/aggregation-layers/hexagon-layer
+  - Focus + context "lens" (the walk is magnified 3x, the rest of town compresses around it): Furnas,
+      "Generalized Fisheye Views" (CHI 1986) https://dl.acm.org/doi/10.1145/22627.22342
+  - Dense telemetry panels, thin rules, mono readouts, time scrubber: NASA Open MCT https://nasa.github.io/openmct/
+  - Glass only on floating controls, text on solid, specular top edge: Apple "Meet Liquid Glass" (WWDC25)
+      https://developer.apple.com/videos/play/wwdc2025/219/
+  - 150 ms panel stagger, 120-180 ms eased feedback: Linear design refresh https://linear.app/now/behind-the-latest-design-refresh
+  - Animate only transform/opacity, interruptible motion: Vercel Web Interface Guidelines https://vercel.com/design/guidelines
+  Data: ../shared/data.js (Nebraska GIS streets, NOAA SPC + MRMS storms, Census ACS, engine pick). Homes are FAKE samples.
+  Raw WebGL2, no libraries, no network.
+-->
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba Deck</title>
+<style>
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(../shared/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(../shared/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+:root{
+  --page:#07080a;--panel:#0d0f12;--panel-2:#121418;--rule:#1f2228;--rule-2:#2a2e35;
+  --text:#f1f2f4;--text-2:#b8bbc2;--muted:#80838b;--faint:#555960;
+  --acc:#f5883a;--acc-ink:#ffa766;--acc-soft:rgba(245,136,58,.14);
+  --h1:#f2c14e;--h15:#f5883a;--h2:#ff4f5a;--ok:#5fd39a;
+  --glass:rgba(22,24,28,.46);--glass-edge:rgba(255,255,255,.16);--glass-hi:rgba(255,255,255,.30);
+  --sans:"Geist","Geist L",ui-sans-serif,system-ui,sans-serif;
+  --mono:"Geist Mono","Geist Mono L",ui-monospace,Menlo,monospace;
+  --disp:"Bricolage Grotesque","Bricolage L","Geist L",sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+:root[data-theme="light"]{
+  --ok:#1f9d62;--page:#eef0ee;--panel:#f7f8f6;--panel-2:#ffffff;--rule:#dcdfdb;--rule-2:#cdd1cc;
+  --text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--faint:#9a9da3;
+  --acc:#f5883a;--acc-ink:#a4520f;--acc-soft:rgba(245,136,58,.13);
+  --glass:rgba(255,255,255,.55);--glass-edge:rgba(20,22,26,.12);--glass-hi:rgba(255,255,255,.9);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--page);color:var(--text);font:13px/1.4 var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1;letter-spacing:-.01em}
+.app{display:grid;height:100vh;grid-template-columns:clamp(292px,23.5vw,344px) minmax(0,1fr) clamp(272px,22vw,322px);
+  grid-template-rows:52px minmax(0,1fr) clamp(104px,13.5vh,124px);grid-template-areas:"top top top" "left stage right" "tl tl tl"}
+/* top bar */
+.top{grid-area:top;display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid var(--rule);background:var(--page);position:relative;z-index:3}
+.brand{display:flex;align-items:center;gap:8px;font:650 17px/1 var(--disp);letter-spacing:-.03em}
+.brand svg{width:24px;height:24px}
+.brand svg .k{stroke:var(--text)} .brand svg .kd{fill:var(--text)}
+.vr{width:1px;height:22px;background:var(--rule-2)}
+.clock{font:500 12.5px var(--mono);color:var(--text-2);white-space:nowrap}
+.clock b{color:var(--text);font-weight:500}
+.ovl{flex:1;min-width:0;display:flex;align-items:center;gap:8px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ovl .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(95,211,154,.15);flex:none}
+.ovl span.t{overflow:hidden;text-overflow:ellipsis}
+/* Liquid Glass: controls layer only */
+.glass{position:relative;display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(16px) saturate(1.7);backdrop-filter:blur(16px) saturate(1.7);border:1px solid var(--glass-edge);
+  box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 -1px 0 rgba(0,0,0,.18),0 6px 22px rgba(0,0,0,.28)}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 46%)}
+.glass button{border:0;background:transparent;padding:5px 11px;border-radius:999px;font:500 11.5px var(--sans);color:var(--text-2);transition:background .15s var(--ease),color .15s var(--ease)}
+.glass button[aria-pressed="true"]{background:var(--text);color:var(--page)}
+.glass button:hover{color:var(--text)} .glass button[aria-pressed="true"]:hover{color:var(--page)}
+/* panels (solid) */
+.col{min-height:0;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;background:var(--panel)}
+.left{grid-area:left;border-right:1px solid var(--rule)} .right{grid-area:right;border-left:1px solid var(--rule)}
+.sec{padding:14px 16px;border-bottom:1px solid var(--rule)}
+.sec.grow{flex:1;min-height:0;display:flex;flex-direction:column}
+.eyebrow{display:flex;align-items:center;justify-content:space-between;gap:8px;font:600 10.5px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.eyebrow .acc{color:var(--acc-ink)}
+.slide{opacity:0;transform:translateY(8px)}
+.ready .slide{opacity:1;transform:none;transition:opacity .42s var(--ease),transform .42s var(--ease);transition-delay:var(--d,0ms)}
+.still .slide{transition:none!important}
+/* pick card */
+.pick h1{margin:0;font:700 42px/.92 var(--disp);letter-spacing:-.035em;font-variation-settings:"opsz" 96}
+.pick .sub{font:600 17px/1.2 var(--disp);letter-spacing:-.02em;color:var(--text-2);margin:5px 0 12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+.stat{padding:7px 8px 7px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.stat .v{font:500 17px/1.05 var(--mono);letter-spacing:-.03em;white-space:nowrap}
+.stat .v small{font-size:11px;color:var(--muted);margin-left:2px;letter-spacing:0}
+.stat .l{font:500 10.5px/1.2 var(--sans);color:var(--muted);margin-top:3px;display:flex;justify-content:space-between;gap:4px;white-space:nowrap}
+.stat.hot .v{color:var(--acc-ink)}
+.why{color:var(--text-2);margin:11px 0 12px;font-size:12.5px;line-height:1.45}
+.go{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;border-radius:10px;padding:12px 14px;background:var(--acc);color:#1a0d02;
+  font:650 15px/1 var(--sans);letter-spacing:-.01em;box-shadow:0 8px 26px rgba(245,136,58,.28),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s var(--ease),filter .15s}
+.go:hover{filter:brightness(1.06)} .go:active{transform:scale(.985)}
+.go .ar{font:500 13px var(--mono)}
+.park{display:flex;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:11.5px}
+.backup{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-top:11px;padding-top:10px;border-top:1px dashed var(--rule-2);font-size:12px}
+.backup .k{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.backup .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+/* zone list */
+.zl{list-style:none;margin:0;padding:0;overflow:auto;min-height:0;scrollbar-width:none}
+.zl li{display:grid;grid-template-columns:20px minmax(0,1fr) 62px 34px;gap:8px;align-items:center;padding:2.5px 4px;border-radius:6px;cursor:default;transition:background .15s}
+.zl li:hover,.zl li.on{background:var(--acc-soft)}
+.zl .r{font:500 11px var(--mono);color:var(--muted)}
+.zl .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.zl .n em{font-style:normal;color:var(--muted);font-size:11px;margin-left:4px}
+.zl li:first-child .n{color:var(--acc-ink);font-weight:600}
+.bar{height:4px;border-radius:2px;background:var(--rule);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:2px;background:linear-gradient(90deg,var(--h1),var(--h15))}
+.bar.ev i{background:var(--muted)}
+.zl .sc{font:500 11.5px var(--mono);text-align:right;color:var(--text-2)}
+/* right: plan */
+.plan{list-style:none;margin:0;padding:0;position:relative}
+.plan::before{content:"";position:absolute;left:76px;top:6px;bottom:6px;width:1px;background:var(--rule-2)}
+.plan li{display:grid;grid-template-columns:68px 16px minmax(0,1fr);gap:0;align-items:start;padding:4px 0;position:relative}
+.plan .tm{font:500 11px/1.5 var(--mono);color:var(--muted);text-align:right;padding-right:6px;white-space:nowrap}.plan .tm span{font-size:9.5px}
+.plan .dt{width:9px;height:9px;border-radius:50%;margin:3px 0 0 4px;background:var(--panel);border:1.5px solid var(--faint);position:relative;z-index:1}
+.plan .tx{font-size:12.5px;line-height:1.35;color:var(--text-2);padding-left:8px}
+.plan .tx b{color:var(--text);font-weight:600}
+.plan .tx small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.plan li.done .dt{background:var(--ok);border-color:var(--ok)} .plan li.done .tx{color:var(--muted)}
+.plan li.now .tm{color:var(--ok)}
+.plan li.key{margin:3px 0;padding:7px 0;background:var(--acc-soft);border-radius:8px}
+.plan li.key .dt{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 4px rgba(245,136,58,.2)}
+.plan li.key .tm{color:var(--acc-ink)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;font-size:12px;margin-top:10px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font:500 12px var(--mono);text-align:right;color:var(--text)}
+.kv dd.z{color:var(--muted)}
+.head{font:600 15.5px/1.3 var(--disp);letter-spacing:-.015em;margin:0}
+.chip{display:inline-block;font:600 10.5px var(--mono);padding:2px 6px;border-radius:5px;background:var(--acc-soft);color:var(--acc-ink);letter-spacing:.02em}
+/* source tags */
+.s{font:600 8.5px/1 var(--mono);letter-spacing:.06em;color:var(--faint);border:1px solid var(--rule-2);border-radius:3px;padding:1px 3px 1.5px;text-transform:uppercase;cursor:help;vertical-align:1px;white-space:nowrap;font-style:normal}
+.s:hover{color:var(--acc-ink);border-color:var(--acc)}
+/* stage */
+.stage{grid-area:stage;position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--page)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform;font:500 10.5px var(--mono);color:var(--text-2)}
+.lb.z{padding:2px 6px;border-radius:4px;background:rgba(7,8,10,.72);border:1px solid var(--rule-2);transform-origin:0 0}
+:root[data-theme="light"] .lb.z{background:rgba(255,255,255,.82)}
+.lb.z b{color:var(--acc-ink);font-weight:500;margin-right:4px}
+.lb.st{font:600 11px var(--sans);color:var(--acc-ink);text-shadow:0 1px 6px var(--page)}
+.lb.pk{padding:4px 8px;border-radius:6px;background:var(--acc);color:#1a0d02;font:650 11.5px var(--sans);box-shadow:0 6px 18px rgba(245,136,58,.35)}
+.lb.pk::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:var(--acc)}
+.lb.pn{width:18px;height:18px;border-radius:5px;background:var(--text);color:var(--page);font:700 11px/18px var(--sans);text-align:center}
+.lb.sw{font:500 10.5px var(--mono);color:var(--h15);letter-spacing:.04em;text-transform:uppercase}
+.lb.town{font:700 26px var(--disp);letter-spacing:-.03em;color:var(--text);opacity:.2}
+.hud{position:absolute;font:500 10.5px var(--mono);color:var(--muted);letter-spacing:.03em;pointer-events:none}
+.hud.tl{left:12px;top:12px;display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--rule)} .hud.tl b{color:var(--text);font:650 13px var(--sans);letter-spacing:-.01em;margin-bottom:2px}
+.hud.tr{right:12px;top:12px;text-align:right;pointer-events:auto;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--rule)}
+.legend{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.legend .grad{width:110px;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--h1),var(--h15) 50%,var(--h2))}
+.legend-t{display:flex;justify-content:space-between;width:110px;margin-left:auto;margin-top:3px;font-size:9.5px}
+.hud.bl{left:12px;bottom:12px;padding:6px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--rule);display:flex;align-items:center;gap:10px}.cmp{position:relative;width:28px;height:28px;color:var(--text-2)}.cmp svg{width:28px;height:28px;display:block}.cmp span{position:absolute;left:34px;top:8px;font-size:9px;color:var(--acc-ink)}.cmp{margin-right:12px}
+.ctrl{position:absolute;right:12px;bottom:12px}
+.tip{position:fixed;z-index:20;pointer-events:none;min-width:170px;padding:9px 11px;border-radius:9px;background:var(--panel-2);border:1px solid var(--rule-2);
+  box-shadow:0 12px 34px rgba(0,0,0,.35);font-size:12px;display:none}
+.tip.on{display:block}
+.tip .k{font:600 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tip .a{font:650 15px var(--disp);letter-spacing:-.02em;margin:2px 0 6px}
+.tip .g{display:grid;grid-template-columns:auto auto;gap:2px 14px} .tip .g span:nth-child(odd){color:var(--muted)} .tip .g span:nth-child(even){font-family:var(--mono);text-align:right}
+.tip .srcl{margin-top:6px;color:var(--faint);font-size:10.5px;max-width:260px}
+/* timeline */
+.tl{grid-area:tl;display:grid;grid-template-columns:clamp(292px,23.5vw,344px) minmax(0,1fr) auto;border-top:1px solid var(--rule);background:var(--panel)}
+.tl .ro{padding:12px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
+.tl .ro .d{font:650 20px/1 var(--disp);letter-spacing:-.03em}
+.tl .ro .m{color:var(--text-2);font-size:12px}
+.tl .ro .m b{font:500 12px var(--mono);color:var(--acc-ink)}
+.tl .ro button{align-self:flex-start;margin-top:4px;border:1px solid var(--rule-2);background:transparent;border-radius:6px;padding:3px 8px;font:500 11px var(--sans);color:var(--text-2)}
+.tl .ro button:hover{border-color:var(--acc);color:var(--acc-ink)}
+.tlw{position:relative;min-width:0}
+#tls{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tl .rg{padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:6px;border-left:1px solid var(--rule)}
+.tl .rg .seg{display:flex;border:1px solid var(--rule-2);border-radius:7px;overflow:hidden}
+.tl .rg .seg button{border:0;background:transparent;padding:4px 9px;font:500 11px var(--sans);color:var(--muted)}
+.tl .rg .seg button[aria-pressed="true"]{background:var(--text);color:var(--page)}
+.tl .rg .lg{font:500 10px var(--mono);color:var(--muted);line-height:1.5}
+svg text{font-family:var(--mono)}
+.tk{transition:transform .2s var(--ease)} .tk.flash{transform:scaleY(1.18)}
+@media (prefers-reduced-motion:reduce){.slide,.ready .slide{transition:none!important;opacity:1;transform:none}}
+@media (max-height:840px){.pick h1{font-size:38px}.sec{padding:11px 14px}.stat .v{font-size:16px}.plan li{padding:2.5px 0}.why{margin:8px 0 10px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="k" d="M9 19 24 8 39 19" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle class="kd" cx="24" cy="17" r="3"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>Aldaba</div>
+    <div class="vr"></div>
+    <div class="clock" id="clock"></div>
+    <div class="vr"></div>
+    <div class="ovl"><i class="dot"></i><span class="t" id="ovl"></span></div>
+    <div class="glass" role="group" aria-label="Theme"><button data-theme-set="dark" data-t="dark"></button><button data-theme-set="light" data-t="light"></button></div>
+    <div class="glass" role="group" aria-label="Language"><button data-lang-set="en">EN</button><button data-lang-set="es">ES</button></div>
+  </header>
+
+  <aside class="col left" id="left"></aside>
+
+  <section class="stage" id="stage">
+    <canvas id="gl"></canvas>
+    <div class="labels" id="labels"></div>
+    <div class="hud tl slide" style="--d:300ms"><b id="hudTown"></b><span id="hudCoord"></span></div>
+    <div class="hud tr slide" style="--d:450ms"><div class="legend"><span data-t="hailIn"></span><span class="grad"></span></div><div class="legend-t"><span>1.0</span><span>1.5</span><span>2.0+</span></div></div>
+    <div class="hud bl slide" style="--d:600ms"><div class="cmp"><svg viewBox="0 0 28 28" id="compass"><circle cx="14" cy="14" r="12.5" fill="none" stroke="currentColor" opacity=".35"/><path d="M14 4 17.5 14 14 12.5 10.5 14Z" fill="var(--acc)"/><path d="M14 24 17.5 14 14 15.5 10.5 14Z" fill="currentColor" opacity=".45"/></svg><span>N</span></div><span id="hudLens"></span></div>
+    <div class="ctrl glass slide" style="--d:600ms"><button id="bOrbit" aria-pressed="true" data-t="orbit"></button><button id="bWalk" aria-pressed="false" data-t="walkView"></button></div>
+  </section>
+
+  <aside class="col right" id="right"></aside>
+
+  <footer class="tl" id="tlbar">
+    <div class="ro" id="ro"></div>
+    <div class="tlw" id="tlw"><svg id="tls"></svg></div>
+    <div class="rg"><div class="seg"><button data-range="90" aria-pressed="true" data-t="r90"></button><button data-range="210" aria-pressed="false" data-t="rAll"></button></div><div class="lg" id="tlLg"></div></div>
+  </footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="../shared/data.js"></script>
+<script>
+(() => {
+'use strict';
+const NL = window.NL, Q = new URLSearchParams(location.search);
+const root = document.documentElement, app = document.getElementById('app');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const STILL = Q.get('still') === '1' || reduce;
+let lang = Q.get('lang') === 'es' ? 'es' : 'en';
+let theme = Q.get('theme') === 'light' ? 'light' : 'dark';
+root.dataset.theme = theme; root.dataset.lang = lang; root.lang = lang;
+if (STILL) document.body.classList.add('still');
+
+/* ---------- strings (EN + natural Latin American Spanish) ---------- */
+const S = {
+  dark:{en:'Dark',es:'Oscuro'}, light:{en:'Light',es:'Claro'},
+  clock:{en:'<b>Tue, Sep 29</b> · 7:02 AM',es:'<b>mar 29 sep</b> · 7:02 a. m.'},
+  pick:{en:"Aldaba's pick",es:'La elección de Aldaba'}, of12:{en:'#1 of 12',es:'#1 de 12'},
+  doors:{en:'doors',es:'puertas'}, hail:{en:'hail',es:'granizo'}, storm:{en:'storm',es:'tormenta'},
+  drive:{en:'drive',es:'manejo'}, best:{en:'best time',es:'mejor hora'}, score:{en:'score',es:'puntaje'},
+  bestV:{en:'4–7:30',es:'4–7:30'}, pm:{en:'PM',es:'p.m.'}, unit:{en:'in',es:'pulg'},
+  go:{en:'Start the walk',es:'Empezar la ruta'},
+  park:{en:'Park at 22 St & 40th Ave',es:'Estaciónate en 22 St y 40th Ave'},
+  parkShort:{en:'Park',es:'Estaciona'},
+  backup:{en:'Plan B',es:'Plan B'}, everyday:{en:'everyday',es:'diaria'}, offmap:{en:'off map',es:'fuera del mapa'},
+  zones:{en:'Top zones',es:'Mejores zonas'}, ranked:{en:'12 ranked · engine',es:'12 en orden · motor'},
+  today:{en:'Today',es:'Hoy'}, now:{en:'now',es:'ahora'},
+  overnight:{en:'Overnight',es:'Durante la noche'},
+  newHail:{en:'New hail',es:'Granizo nuevo'}, none:{en:'none',es:'ninguno'},
+  newZones:{en:'New zones',es:'Zonas nuevas'}, goneZones:{en:'Zones gone',es:'Zonas retiradas'},
+  pickCh:{en:'Pick',es:'Elección'}, unchanged:{en:'unchanged',es:'sin cambios'},
+  lastStorm:{en:'Last storm',es:'Última tormenta'},
+  area:{en:'Columbus area',es:'Zona de Columbus'},
+  homesC:{en:'Homes',es:'Casas'}, owner:{en:'Owner-lived',es:'Viven sus dueños'},
+  insured:{en:'Likely insured (area estimate)',es:'Probablemente asegurado (zona)'},
+  high:{en:'high',es:'alto'},
+  hailIn:{en:'hail, in',es:'granizo, pulg.'},
+  orbit:{en:'Orbit',es:'Girar'}, walkView:{en:'Walk view',es:'Ver ruta'},
+  lens:{en:'Focus lens 3× on the walk · rest of town compressed',es:'Lente de enfoque 3× en la ruta · el resto del pueblo comprimido'},
+  coord:{en:'41.437° N · 97.376° W · Platte County',es:'41.437° N · 97.376° O · condado de Platte'},
+  town:{en:'Columbus, NE',es:'Columbus, NE'},
+  sample:{en:'Sample home',es:'Casa de muestra'}, built:{en:'Built',es:'Construida'}, roof:{en:'Roof age',es:'Edad del techo'},
+  yrs:{en:'yrs',es:'años'}, ownerLived:{en:'Owner-lived',es:'Viven sus dueños'}, yes:{en:'yes',es:'sí'}, no:{en:'no',es:'no'},
+  swath:{en:'Aug 8 hail swath',es:'Franja de granizo 8 ago'},
+  pickLb:{en:'#1 · 25 doors',es:'#1 · 25 puertas'},
+  r90:{en:'90 days',es:'90 días'}, rAll:{en:'Since Mar',es:'Desde mar'},
+  tlLg:{en:'Storm days · bar = max hail (in)',es:'Días de tormenta · barra = granizo máx. (pulg.)'},
+  replay:{en:'Replay storm',es:'Repetir tormenta'},
+  ago:{en:'d ago',es:'días'}, agoPre:{en:'',es:'hace '}, maxRep:{en:'max hail',es:'granizo máx.'},
+  todayT:{en:'Today',es:'Hoy'},
+  pickStorm:{en:"the pick's storm",es:'la tormenta de la elección'},
+  daysAgo:{en:n=>`${n} days ago`,es:n=>`hace ${n} días`},
+  est:{en:'~55 min',es:'~55 min'},
+};
+const t = k => (S[k] ? S[k][lang] : k);
+const SRC = Object.assign({}, NL.src, {
+  engine:'Aldaba engine (hh.py): ranked zones + walk, run Sep 29, 2026',
+  est:'Estimate: 45.5 mi at ~50 mph average',
+  plan:'Plan built from the engine pick: best time 4-7:30 PM, 45.5 mi drive'
+});
+const TAG = {storms:'SPC·MRMS',streets:'GIS',census:'ACS',homes:'SAMPLE',engine:'ENGINE',est:'EST',base:'GIS',plan:'ENGINE'};
+const tag = k => `<i class="s" data-src="${k}">${TAG[k]}</i>`;
+const fmt = (n,d=1) => Number(n).toLocaleString(lang==='es'?'es-MX':'en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+/* ---------- panels ---------- */
+const pick = NL.pick, back = NL.backup;
+const area = NL.areas.find(a => a.id === pick.area_id);
+const stormAug = NL.storms.find(s => s.date === pick.storm_day);
+const lastStorm = NL.storms[0];
+function renderLeft(){
+  const zs = NL.zones.map(z => {
+    const ev = z.kind !== 'storm';
+    const nm = z.name.replace(/^[^:]+:\s*/,'');
+    const town = z.name.split(':')[0];
+    return `<li data-zone="${z.rank}"><span class="r">${String(z.rank).padStart(2,'0')}</span>
+      <span class="n">${nm}<em>${town}${ev?' · '+t('everyday'):''}</em></span>
+      <span class="bar ${ev?'ev':''}"><i style="width:${z.score}%"></i></span><span class="sc">${fmt(z.score)}</span></li>`;
+  }).join('');
+  document.getElementById('left').innerHTML = `
+  <section class="sec pick slide" style="--d:0ms">
+    <div class="eyebrow"><span class="acc">${t('pick')}</span><span>${t('of12')} ${tag('engine')}</span></div>
+    <h1>Columbus</h1>
+    <div class="sub">22 St &amp; 21 St</div>
+    <div class="stats">
+      <div class="stat hot"><div class="v">25</div><div class="l">${t('doors')} ${tag('engine')}</div></div>
+      <div class="stat"><div class="v">${fmt(pick.hail_in,2)}<small>${t('unit')}</small></div><div class="l">${t('hail')} ${tag('storms')}</div></div>
+      <div class="stat"><div class="v">${lang==='es'?'8 ago':'Aug 8'}</div><div class="l">${t('storm')} ${tag('storms')}</div></div>
+      <div class="stat"><div class="v">${fmt(pick.dist_mi)}<small>mi</small></div><div class="l">${t('drive')} ${tag('engine')}</div></div>
+      <div class="stat hot"><div class="v">4–7:30<small>${t('pm')}</small></div><div class="l">${t('best')} ${tag('engine')}</div></div>
+      <div class="stat"><div class="v">${fmt(pick.score)}</div><div class="l">${t('score')} ${tag('engine')}</div></div>
+    </div>
+    <p class="why">${pick.why[lang]} ${tag('census')}</p>
+    <button class="go" id="go"><span>${t('go')}</span><span class="ar">25 →</span></button>
+    <div class="park"><span>${t('park')}</span><span class="mono">~55 min ${tag('est')}</span></div>
+    <div class="backup"><span class="k">${t('backup')}</span><span class="n">${back.name} · ${t('everyday')}</span><span class="mono">${fmt(back.dist_mi)} mi · 25</span></div>
+  </section>
+  <section class="sec grow slide" style="--d:150ms">
+    <div class="eyebrow"><span>${t('zones')}</span><span>${t('ranked')} ${tag('engine')}</span></div>
+    <ul class="zl" id="zl">${zs}</ul>
+  </section>`;
+  document.getElementById('go').onclick = () => setWalkView(true);
+  document.querySelectorAll('#zl li').forEach(li => {
+    li.onmouseenter = () => { hiZone = +li.dataset.zone; };
+    li.onmouseleave = () => { hiZone = 0; };
+  });
+}
+function renderRight(){
+  const P = lang === 'es' ? [
+    ['7:02','done now','Abrir el tablero','sin granizo nuevo anoche'],
+    ['8:30','', 'Seguimientos y papeleo','oficina, hasta 11:30 a. m.'],
+    ['12:30','', 'Empacar','formularios de cancelación de 3 días (EN + ES), escalera, cámara'],
+    ['2:55','', 'Salir de Fremont → Columbus','45.5 mi · ~55 min'],
+    ['3:50','', 'Estacionarte','22 St y 40th Ave'],
+    ['4:00','key','Horario para tocar · 25 puertas','hasta 7:30 p. m. · 22 → 21 → 40 Ave'],
+    ['7:30','', 'Registrar cada puerta','y regresar a casa'],
+  ] : [
+    ['7:02','done now','Open the deck','no new hail overnight'],
+    ['8:30','', 'Follow-ups & paperwork','office, until 11:30 AM'],
+    ['12:30','', 'Pack','3-day cancel forms (EN + ES), ladder, camera'],
+    ['2:55','', 'Leave Fremont → Columbus','45.5 mi · ~55 min'],
+    ['3:50','', 'Park','22 St & 40th Ave'],
+    ['4:00','key','Knock window · 25 doors','until 7:30 PM · 22 → 21 → 40 Ave'],
+    ['7:30','', 'Log every door','then drive home'],
+  ];
+  const ap = ['a','a','p','p','p','p','p']; const AMPM = lang==='es' ? {a:'a.m.',p:'p.m.'} : {a:'AM',p:'PM'};
+  const plan = P.map((r,i) => `<li class="${r[1]}"><span class="tm">${r[0]}<span style="opacity:.6"> ${AMPM[ap[i]]}</span></span><span class="dt"></span><span class="tx"><b>${r[2]}</b><small>${r[3]}</small></span></li>`).join('');
+  const days = lastStorm.days;
+  document.getElementById('right').innerHTML = `
+  <section class="sec slide" style="--d:75ms">
+    <div class="eyebrow"><span>${t('today')}</span><span><span class="mono" style="color:var(--ok)">● ${t('now')} 7:02</span> ${tag('plan')}</span></div>
+    <ul class="plan">${plan}</ul>
+  </section>
+  <section class="sec slide" style="--d:225ms">
+    <div class="eyebrow"><span>${t('overnight')}</span>${tag('engine')}</div>
+    <p class="head">${NL.headline[lang]}</p>
+    <dl class="kv">
+      <dt>${t('newHail')}</dt><dd class="z">${t('none')}</dd>
+      <dt>${t('newZones')}</dt><dd class="z">0</dd>
+      <dt>${t('goneZones')}</dt><dd class="z">0</dd>
+      <dt>${t('pickCh')}</dt><dd>${t('unchanged')}</dd>
+      <dt>${t('lastStorm')} · ${S.daysAgo[lang](days)} ${tag('storms')}</dt><dd>${lastStorm.d[lang]} · ${fmt(lastStorm.max,2)} ${t('unit')}</dd>
+    </dl>
+  </section>
+  <section class="sec slide" style="--d:375ms;border-bottom:0">
+    <div class="eyebrow"><span>${t('area')}</span>${tag('census')}</div>
+    <dl class="kv" style="margin-top:0">
+      <dt>${t('homesC')}</dt><dd>${area.homes.toLocaleString('en-US')}</dd>
+      <dt>${t('owner')}</dt><dd>${area.owner}%</dd>
+      <dt>${t('insured')}</dt><dd><span class="chip">${t('high')}</span></dd>
+    </dl>
+  </section>`;
+}
+function renderStatic(){
+  document.getElementById('clock').innerHTML = t('clock');
+  document.getElementById('ovl').textContent = NL.headline[lang];
+  document.getElementById('hudTown').textContent = t('town');
+  document.getElementById('hudCoord').innerHTML = t('coord') + ' ' + tag('streets');
+  document.getElementById('hudLens').textContent = t('lens');
+  document.getElementById('tlLg').innerHTML = t('tlLg') + '<br>' + tag('storms');
+  document.querySelectorAll('[data-t]').forEach(e => e.textContent = t(e.dataset.t));
+  document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeSet === theme));
+  document.querySelectorAll('[data-lang-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.langSet === lang));
+}
+function renderAll(){ renderStatic(); renderLeft(); renderRight(); renderReadout(selStorm); buildLabels(); drawTimeline(); }
+
+/* ---------- tooltip (sources + sample homes) ---------- */
+const tip = document.getElementById('tip');
+let tipHtml = '';
+function showTip(html, x, y){ if (html !== tipHtml){ tip.innerHTML = html; tipHtml = html; } tip.classList.add('on');
+  const r = tip.getBoundingClientRect(); let L = x + 14, T = y + 14;
+  if (L + r.width > innerWidth - 8) L = x - r.width - 14; if (T + r.height > innerHeight - 8) T = y - r.height - 14;
+  tip.style.left = L + 'px'; tip.style.top = T + 'px'; }
+function hideTip(){ tip.classList.remove('on'); tipHtml = ''; }
+document.addEventListener('mouseover', e => { const s = e.target.closest && e.target.closest('.s');
+  if (s) showTip(`<div class="k">${lang==='es'?'Fuente':'Source'}</div><div style="margin-top:3px;max-width:260px">${SRC[s.dataset.src]||''}</div>`, e.clientX, e.clientY); });
+document.addEventListener('mouseout', e => { if (e.target.closest && e.target.closest('.s')) hideTip(); });
+
+/* ---------- geometry: real meters -> focus lens (warped) ---------- */
+const LON0 = -97.3761, LAT0 = 41.4371, KX = Math.cos(LAT0*Math.PI/180)*111320, KZ = 110540;
+const LK = 3, LR = 220, LS = 125;           // lens: 3x inside 220 m, log compression outside
+const toM = (lon,lat) => [(lon-LON0)*KX, -(lat-LAT0)*KZ];
+function warpR(r){ return r < LR ? r*LK : LK*LR + LK*LS*Math.log(1 + (r-LR)/LS); }
+function warp(x,z){ const r = Math.hypot(x,z); if (r < 1e-6) return [0,0]; const k = warpR(r)/r; return [x*k, z*k]; }
+const W = (lon,lat) => { const m = toM(lon,lat); return warp(m[0], m[1]); };
+function subdiv(pts, maxLen){ // pts in meters, returns warped
+  const out = []; for (let i = 0; i < pts.length; i++){
+    if (i){ const a = pts[i-1], b = pts[i], L = Math.hypot(b[0]-a[0], b[1]-a[1]), n = Math.max(1, Math.ceil(L/maxLen));
+      for (let j = 1; j <= n; j++){ const f = j/n; out.push(warp(a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f)); } }
+    else out.push(warp(pts[0][0], pts[0][1])); }
+  return out; }
+
+/* ---------- WebGL2 ---------- */
+const cv = document.getElementById('gl'), stage = document.getElementById('stage');
+const gl = cv.getContext('webgl2', {antialias:true, premultipliedAlpha:false, alpha:false});
+if (!gl){ stage.insertAdjacentHTML('beforeend','<div class="hud tl" style="top:60px">WebGL2 not available</div>'); }
+const COMMON = `
+precision highp float;
+uniform float uDark, uTime, uSweep, uEdge, uScan;
+uniform vec2 uP0, uP1, uP2;
+const float LK=${LK}.0, LR=${LR}.0, LS=${LS}.0, HW=3300.0;
+vec2 unwarp(vec2 w){ float rp=length(w); if(rp<1e-3) return w; float r = rp<LK*LR ? rp/LK : LR + LS*(exp((rp-LK*LR)/(LK*LS))-1.0); return w*(r/rp); }
+// distance to the swath centerline (real meters) + normalized position along it
+vec2 swath(vec2 m){
+  vec2 a=uP1-uP0, b=uP2-uP1; float la=length(a), lb=length(b), L=la+lb;
+  float ta=clamp(dot(m-uP0,a)/(la*la),0.,1.), tb=clamp(dot(m-uP1,b)/(lb*lb),0.,1.);
+  float da=length(m-uP0-a*ta), db=length(m-uP1-b*tb);
+  return da<db ? vec2(da, ta*la/L) : vec2(db, (la+tb*lb)/L);
+}
+vec3 hailCol(float h){ vec3 c1=vec3(.949,.757,.306), c2=vec3(.961,.533,.227), c3=vec3(1.,.31,.353);
+  return h<1.5 ? mix(c1,c2,clamp((h-1.)/.5,0.,1.)) : mix(c2,c3,clamp((h-1.5)/.5,0.,1.)); }
+float sdn(float a,float b,float x){ return 1.-smoothstep(b,a,x); }
+float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+float bandAt(vec2 w, out float tt){ vec2 sw=swath(unwarp(w)); tt=sw.y;
+  float core=sdn(HW, HW*0.25, sw.x);
+  float rev=sdn(uSweep+0.015, uSweep-0.05, tt);
+  return core*rev; }
+`;
+function sh(type, src){ const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(s), src.split('\n').map((l,i)=>(i+1)+': '+l).join('\n')); throw new Error('shader'); } return s; }
+function prog(vs, fs){ const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, '#version 300 es\n'+COMMON+vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, '#version 300 es\n'+COMMON+fs));
+  gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(p)); throw new Error('link'); }
+  const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++){ const inf = gl.getActiveUniform(p, i); u[inf.name.replace('[0]','')] = gl.getUniformLocation(p, inf.name); }
+  return {p, u}; }
+function buf(data, target = gl.ARRAY_BUFFER){ const b = gl.createBuffer(); gl.bindBuffer(target, b); gl.bufferData(target, data, gl.STATIC_DRAW); return b; }
+function vao(attrs, idx){ const v = gl.createVertexArray(); gl.bindVertexArray(v);
+  attrs.forEach(([b, loc, size, stride=0, off=0, div=0]) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride*4, off*4); if (div) gl.vertexAttribDivisor(loc, div); });
+  if (idx) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idx); gl.bindVertexArray(null); return v; }
+
+/* programs */
+const VS_MVP = `uniform mat4 uVP;`;
+const P_GROUND = prog(VS_MVP + `
+layout(location=0) in vec2 aP; uniform float uY; out vec2 vW;
+void main(){ vW=aP; gl_Position=uVP*vec4(aP.x,uY,aP.y,1.); }`,
+`in vec2 vW; out vec4 o; uniform float uMode, uSlice; uniform vec4 uHomes[25];
+void main(){
+  float tt; float b=bandAt(vW,tt); float R=length(vW);
+  float sq=(tt-uScan)*60.; float scan=exp(-sq*sq)*b;
+  float eq=(tt-uSweep)*28.; float edge=exp(-eq*eq)*uEdge*sdn(HW,HW*.3,swath(unwarp(vW)).x);
+  float n=noise(vW*.0016+vec2(uTime*.03,uTime*.017)+uSlice*3.1);
+  if(uMode>.5){ // volumetric slice of the hail swath
+    float f=1.-uSlice; float a=(b*(.30+.9*n)*.075*f*f + scan*.10*f + edge*.12*f)*sdn(4600.,2000.,R);
+    vec3 c=mix(hailCol(1.4),hailCol(2.),scan);
+    if(uDark<.5){ c=mix(vec3(.96,.62,.30),vec3(.93,.38,.25),scan); a*=.75; }
+    o=vec4(c,a); return; }
+  vec2 g=abs(fract(vW/180.)-.5)/fwidth(vW/180.); float grid=1.-clamp(min(g.x,g.y),0.,1.);
+  float heat=0.; vec3 hc=vec3(0);
+  for(int i=0;i<25;i++){ vec4 h=uHomes[i]; float d=length(vW-h.xy); float k=exp(-d*d/(70.*70.))*h.w; heat+=k; hc+=hailCol(h.z)*k; }
+  hc/=max(heat,1e-3); heat=min(heat,1.4);
+  float d=swath(unwarp(vW)).x; float iso=(1.-smoothstep(0.,1.6,abs(d-HW*.62)/fwidth(d)))*.6+(1.-smoothstep(0.,1.6,abs(d-HW*.3)/fwidth(d)))*.8;
+  float fade=sdn(5200.,1800.,R);
+  vec3 c;
+  if(uDark>.5){
+    c=vec3(.028,.031,.038)+grid*.022*fade;
+    c+=mix(hailCol(1.),hailCol(1.5),b)*b*.16*(.6+.6*n);
+    c+=hailCol(1.6)*iso*.18*step(.001,b)*sdn(uSweep-.05,uSweep-.2,tt);
+    c+=hailCol(1.9)*scan*.20 + vec3(1.,.8,.6)*edge*.35;
+    c+=hc*heat*.55;
+    c=mix(vec3(.027,.031,.039),c,fade);
+  } else {
+    c=vec3(.905,.915,.895)-grid*.035*fade;
+    c=mix(c,vec3(.98,.85,.68),b*.30*(.7+.5*n));
+    c=mix(c,vec3(.86,.47,.20),iso*.35*step(.001,b)*sdn(uSweep-.05,uSweep-.2,tt));
+    c=mix(c,vec3(.95,.55,.28),scan*.22+edge*.3);
+    c=mix(c,hc,min(heat*.35,.5));
+    c=mix(vec3(.933,.941,.933),c,fade);
+  }
+  o=vec4(c,1.);
+}`);
+const P_LINE = prog(VS_MVP + `
+layout(location=0) in vec3 aP; layout(location=1) in float aK; out float vK; out float vB; out float vR; out float vS;
+void main(){ vK=aK; float tt; vB=bandAt(aP.xz,tt); float sq=(tt-uScan)*60.; vS=exp(-sq*sq)*vB; vR=length(aP.xz); gl_Position=uVP*vec4(aP,1.); }`,
+`in float vK; in float vB; in float vR; in float vS; out vec4 o; uniform vec3 uCol; uniform float uA;
+void main(){ float f=sdn(4800.,900.,vR); vec3 c=uCol;
+  if(uDark>.5){ c=mix(c, hailCol(1.5)*1.1, vB*.45); c+=hailCol(1.9)*vS*.6; }
+  else { c=mix(c, vec3(.72,.40,.18), vB*.30); }
+  o=vec4(c, uA*f*(vK>.5?1.:.72)*(1.+vS)); }`);
+const P_COL = prog(VS_MVP + `
+layout(location=0) in vec3 aP; layout(location=1) in vec3 aN; layout(location=2) in vec4 iA; layout(location=3) in vec4 iB;
+uniform float uRiseT; out vec3 vN; out float vY; out vec3 vC; out vec3 vWp; out float vSel; out float vH;
+float easeBack(float x){ float c=1.4; x=clamp(x,0.,1.); float y=x-1.; return 1.+(c+1.)*y*y*y+c*y*y; }
+void main(){ float r=easeBack((uRiseT-iB.x)/.75); float h=iA.z*r; vec3 p=vec3(iA.x+aP.x*iB.y, aP.y*h, iA.y+aP.z*iB.y);
+  vN=aN; vY=aP.y; vC=hailCol(iA.w); vWp=p; vSel=iB.w; vH=h; gl_Position=uVP*vec4(p,1.); }`,
+`in vec3 vN; in float vY; in vec3 vC; in vec3 vWp; in float vSel; in float vH; out vec4 o; uniform vec3 uEye;
+void main(){ vec3 N=normalize(vN), V=normalize(uEye-vWp); float top=step(.5,N.y);
+  vec3 c;
+  if(uDark>.5){
+    float rim=pow(1.-abs(dot(N,V)),2.2);
+    float led=.86+.14*step(.5,fract(vWp.y/14.));
+    c=vC*(.16+.78*pow(vY,1.35))*led + vC*rim*.55;
+    c=mix(c, vC*1.25+.18, top);
+  } else {
+    vec3 L=normalize(vec3(-.55,.8,.35)); float d=max(dot(N,L),0.);
+    c=vC*(.58+.46*d)*(.82+.18*vY); c=mix(c, vC*1.08+.06, top);
+  }
+  c=mix(c, vec3(1.), vSel*.45);
+  o=vec4(c,1.); }`);
+const P_HEX = prog(VS_MVP + `
+layout(location=0) in vec3 aP; layout(location=1) in vec3 aN; layout(location=2) in vec4 iA; layout(location=3) in vec4 iB;
+uniform float uRiseT, uHi; out float vY; out float vTop; out float vA; out float vHi;
+void main(){ float r=smoothstep(0.,1.,(uRiseT-iB.z)/.9); vec3 p=vec3(iA.x+aP.x*iA.w, aP.y*iA.z*r, iA.y+aP.z*iA.w);
+  vY=aP.y; vTop=step(.5,aN.y); vA=iB.x; vHi=step(abs(uHi-iB.y),.1); gl_Position=uVP*vec4(p,1.); }`,
+`in float vY; in float vTop; in float vA; in float vHi; out vec4 o;
+void main(){ float lip=smoothstep(.93,1.,vY)*(1.-vTop);
+  float a=mix(.05,.30,vY*vY)*(1.-vTop)+vTop*.34+lip*.5; a*=vA*(1.+vHi*1.4);
+  vec3 c = uDark>.5 ? mix(vec3(1.,.78,.55), vec3(1.,.55,.25), vHi) : mix(vec3(.42,.44,.48), vec3(.85,.42,.12), vHi);
+  if(uDark<.5) a*=1.15;
+  o=vec4(c,a); }`);
+const P_SHADOW = prog(VS_MVP + `
+layout(location=0) in vec2 aQ; layout(location=2) in vec4 iA; layout(location=3) in vec4 iB; uniform float uRiseT; uniform vec2 uSun; out vec2 vQ;
+void main(){ float r=clamp((uRiseT-iB.x)/.75,0.,1.); float L=iA.z*r*.62+iB.y; vec2 dir=normalize(uSun), pp=vec2(-dir.y,dir.x);
+  float w=iB.y*(1.1+aQ.x*.9); vec2 p=iA.xy + dir*(aQ.x*L) + pp*aQ.y*w; vQ=aQ; gl_Position=uVP*vec4(p.x,.6,p.y,1.); }`,
+`in vec2 vQ; out vec4 o; uniform float uSA; void main(){ float a=pow(1.-vQ.x,1.3)*(1.-vQ.y*vQ.y)*uSA; o=vec4(.18,.19,.2,a); }`);
+const P_RIB = prog(VS_MVP + `
+layout(location=0) in vec3 aP; layout(location=1) in vec2 aD; out vec2 vD;
+void main(){ vD=aD; gl_Position=uVP*vec4(aP,1.); }`,
+`in vec2 vD; out vec4 o; uniform float uWalkLen;
+void main(){ if(vD.x>uWalkLen) discard;
+  float f=fract(vD.x/70.-uTime*.55); float ch=smoothstep(0.,.08,f)*sdn(.45,.3,f);
+  float e=1.-smoothstep(.55,1.,abs(vD.y));
+  vec3 c = uDark>.5 ? mix(vec3(.96,.53,.23), vec3(1.,.8,.6), ch*.55) : mix(vec3(.90,.45,.13), vec3(.64,.30,.05), ch*.6);
+  float hq=(uWalkLen-vD.x)/40.; float head=exp(-hq*hq)*step(uWalkLen,2400.);
+  o=vec4(c+head*.5, e*(uDark>.5?.95:.9)); }`);
+
+/* ground quad */
+const G = 7400; const gQuad = buf(new Float32Array([-G,-G, G,-G, -G,G, G,G]));
+const vGround = vao([[gQuad,0,2]]);
+
+/* streets: Columbus grid (+ river/stream/rail/hwy lines near town) */
+function buildLines(){
+  const v = []; const pushLine = (ptsM, k, y) => { const w = subdiv(ptsM, 60);
+    for (let i = 1; i < w.length; i++){ v.push(w[i-1][0], y, w[i-1][1], k, w[i][0], y, w[i][1], k); } };
+  NL.columbus.forEach(s => pushLine(s.p.map(p => toM(p[0],p[1])), s.c === 1 ? 1 : 0, 0.8));
+  const streets = new Float32Array(v); v.length = 0;
+  NL.base.forEach(f => { if (!['water','stream','rail','hwy','town'].includes(f.k)) return;
+    const pts = f.p.filter(p => p[0] > -97.60 && p[0] < -97.10 && p[1] > 41.30 && p[1] < 41.58);
+    if (pts.length < 2) return; pushLine(pts.map(p => toM(p[0],p[1])), f.k === 'hwy' ? 1 : 0, 0.5); });
+  const ctx = new Float32Array(v);
+  return {streets, ctx}; }
+const L = buildLines();
+const bStreets = buf(L.streets), bCtx = buf(L.ctx);
+const vStreets = vao([[bStreets,0,3,4,0],[bStreets,1,1,4,3]]), vCtx = vao([[bCtx,0,3,4,0],[bCtx,1,1,4,3]]);
+const nStreets = L.streets.length/4, nCtx = L.ctx.length/4;
+
+/* prism geometry (n sides + top cap) */
+function prism(n, rot=0){ const v = []; for (let i = 0; i < n; i++){ const a0 = rot + i/n*Math.PI*2, a1 = rot + (i+1)/n*Math.PI*2, am = (a0+a1)/2;
+    const x0 = Math.cos(a0), z0 = Math.sin(a0), x1 = Math.cos(a1), z1 = Math.sin(a1), nx = Math.cos(am), nz = Math.sin(am);
+    v.push(x0,0,z0,nx,0,nz, x1,0,z1,nx,0,nz, x1,1,z1,nx,0,nz,  x0,0,z0,nx,0,nz, x1,1,z1,nx,0,nz, x0,1,z0,nx,0,nz);
+    v.push(0,1,0,0,1,0, x1,1,z1,0,1,0, x0,1,z0,0,1,0); }
+  return new Float32Array(v); }
+const gCyl = prism(14), gHex = prism(6, Math.PI/6);
+const bCyl = buf(gCyl), bHex = buf(gHex);
+
+/* walk + homes (walk order) */
+const walkS = NL.walk.s;
+function projAlong(pts, p){ let best = 1e9, acc = 0, at = 0; for (let i = 1; i < pts.length; i++){ const a = pts[i-1], b = pts[i];
+  const dx = b[0]-a[0], dz = b[1]-a[1], L2 = dx*dx+dz*dz || 1, tt = Math.max(0, Math.min(1, ((p[0]-a[0])*dx+(p[1]-a[1])*dz)/L2));
+  const d = Math.hypot(a[0]+dx*tt-p[0], a[1]+dz*tt-p[1]); if (d < best){ best = d; at = acc + Math.sqrt(L2)*tt; } acc += Math.sqrt(L2); } return at; }
+const streetNorm = n => n.replace(/\s+/g,' ').replace(/(\d+)(st|th|nd|rd)?\s+(Ave|St)/i,'$1 $3').trim();
+const homes = NL.homes.map(h => { const si = Math.max(0, walkS.findIndex(s => streetNorm(s.n) === streetNorm(h.st)));
+  const m = toM(h.p[0], h.p[1]); const along = projAlong(walkS[si].p.map(p => toM(p[0],p[1])), m);
+  const w = warp(m[0], m[1]); return Object.assign({}, h, {si, along, w, H: 70 + (h.score-50)*6.5}); });
+homes.sort((a,b) => a.si - b.si || a.along - b.along);
+homes.forEach((h,i) => { h.order = i; h.delay = i*0.075; });
+const iCol = new Float32Array(homes.length*8);
+function fillCols(sel){ homes.forEach((h,i) => { iCol.set([h.w[0], h.w[1], h.H, h.hail, h.delay, 19, h.rank, sel === i ? 1 : 0], i*8); }); }
+fillCols(-1);
+const bICol = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bICol); gl.bufferData(gl.ARRAY_BUFFER, iCol, gl.DYNAMIC_DRAW);
+const vCol = vao([[bCyl,0,3,6,0],[bCyl,1,3,6,3],[bICol,2,4,8,0,1],[bICol,3,4,8,4,1]]);
+const quadS = buf(new Float32Array([0,-1, 1,-1, 0,1, 1,1]));
+const vShadow = vao([[quadS,0,2],[bICol,2,4,8,0,1],[bICol,3,4,8,4,1]]);
+
+/* zone hex clusters (Columbus zones ranked 2-11) */
+const zoneC = NL.zones.filter(z => z.kind === 'storm' && z.rank > 1);
+const hx = [];
+zoneC.forEach((z,zi) => { const c = W(z.c[0], z.c[1]); const R = 52, D = R*Math.sqrt(3)*1.04;
+  const offs = [[0,0]]; for (let k = 0; k < 6; k++){ const a = k*Math.PI/3; offs.push([Math.cos(a)*D, Math.sin(a)*D]); }
+  offs.forEach((o,k) => { const rnd = (Math.sin((zi+1)*91.7 + k*13.3)*43758.5453) % 1; const f = 0.5 + 0.5*Math.abs(rnd);
+    hx.push(c[0]+o[0], c[1]+o[1], (30 + (z.score-44)*8.5)*(k === 0 ? 1 : f), R*0.93, 1 - (z.rank-2)*0.055, z.rank, 0.4 + (z.rank-2)*0.07 + k*0.02, 0); }); });
+const bIHex = buf(new Float32Array(hx)); const nHex = hx.length/8;
+const vHex = vao([[bHex,0,3,6,0],[bHex,1,3,6,3],[bIHex,2,4,8,0,1],[bIHex,3,4,8,4,1]]);
+
+/* walk ribbon */
+function buildRibbon(){ const v = []; let acc = 0; const half = 11;
+  walkS.forEach(s => { const w = subdiv(s.p.map(p => toM(p[0],p[1])), 10);
+    for (let i = 0; i < w.length - 1; i++){ const a = w[i], b = w[i+1], dx = b[0]-a[0], dz = b[1]-a[1], L = Math.hypot(dx,dz) || 1, nx = -dz/L*half, nz = dx/L*half;
+      const d0 = acc, d1 = acc + L; acc = d1;
+      v.push(a[0]+nx,2,a[1]+nz,d0,1, a[0]-nx,2,a[1]-nz,d0,-1, b[0]+nx,2,b[1]+nz,d1,1,  a[0]-nx,2,a[1]-nz,d0,-1, b[0]-nx,2,b[1]-nz,d1,-1, b[0]+nx,2,b[1]+nz,d1,1); } });
+  return {data: new Float32Array(v), len: acc}; }
+const RB = buildRibbon(); const bRib = buf(RB.data); const vRib = vao([[bRib,0,3,5,0],[bRib,1,2,5,3]]); const nRib = RB.data.length/5;
+
+/* swath path (real meters) */
+const swP = stormAug.path.map(p => toM(p[0],p[1]));
+
+/* ---------- camera ---------- */
+const M4 = {
+  persp(f,a,n,fa){ const t = 1/Math.tan(f/2); return new Float32Array([t/a,0,0,0, 0,t,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0]); },
+  look(e,c){ let z = [e[0]-c[0],e[1]-c[1],e[2]-c[2]]; let l = Math.hypot(...z); z = z.map(v => v/l);
+    let x = [z[2],0,-z[0]]; l = Math.hypot(...x); x = x.map(v => v/l); const y = [z[1]*x[2]-z[2]*x[1], z[2]*x[0]-z[0]*x[2], z[0]*x[1]-z[1]*x[0]];
+    return new Float32Array([x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0, -(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]), -(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]), -(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]), 1]); },
+  mul(a,b){ const o = new Float32Array(16); for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++){ let s = 0; for (let k = 0; k < 4; k++) s += a[k*4+r]*b[c*4+k]; o[c*4+r] = s; } return o; } };
+let VP = new Float32Array(16), eye = [0,0,0], cw = 1, ch = 1;
+const cam = {yaw: STILL ? 206 : 214, pitch: 53, dist: 4200, lead: 620};
+let orbit = true, walkView = false, camBlend = 0;
+function project(x,y,z){ const m = VP; const X = m[0]*x+m[4]*y+m[8]*z+m[12], Y = m[1]*x+m[5]*y+m[9]*z+m[13], Wc = m[3]*x+m[7]*y+m[11]*z+m[15];
+  if (Wc <= 0) return null; return [(X/Wc*0.5+0.5)*cw, (1-(Y/Wc*0.5+0.5))*ch, Wc]; }
+
+/* ---------- labels ---------- */
+const lbl = document.getElementById('labels'); let labels = [];
+function buildLabels(){ lbl.innerHTML = ''; labels = [];
+  const add = (cls, html, x, y, z, ax = -0.5, ay = -1) => { const e = document.createElement('div'); e.className = 'lb ' + cls; e.innerHTML = html; lbl.appendChild(e); labels.push({e, x, y, z, ax, ay, w:0, h:0}); };
+  zoneC.forEach(z => { const c = W(z.c[0], z.c[1]); add('z', `<b>#${z.rank}</b>${fmt(z.score)}`, c[0], (30 + (z.score-44)*8.5) + 30, c[1]); });
+  walkS.forEach(s => { const p = s.p[Math.floor(s.p.length/2)], q = s.p[0]; const mid = s.p.length > 2 ? p : [(s.p[0][0]+s.p[1][0])/2, (s.p[0][1]+s.p[1][1])/2];
+    const w = W(mid[0], mid[1]); add('st', streetNorm(s.n), w[0], 4, w[1], -0.5, 0.6); });
+  const pk = W(NL.walk.park[0], NL.walk.park[1]); add('pn', 'P', pk[0], 3, pk[1], -0.5, -0.5);
+  const top = Math.max(...homes.map(h => h.H)); add('pk', t('pickLb'), 0, top + 230, -120);
+  // swath label: point on centerline nearest the pick
+  const a = swP[0], b = swP[1]; const dx = b[0]-a[0], dz = b[1]-a[1]; const tt = Math.max(0, Math.min(1, (-a[0]*dx - a[1]*dz)/(dx*dx+dz*dz)));
+  const sp = warp(a[0]+dx*(tt-0.12), a[1]+dz*(tt-0.12)); add('sw', t('swath') + ' ·&nbsp;' + fmt(stormAug.max,2) + ' ' + t('unit') + ' ' + (lang==='es'?'máx.':'max'), sp[0], 20, sp[1]);
+  requestAnimationFrame(() => labels.forEach(l => { l.w = l.e.offsetWidth; l.h = l.e.offsetHeight; }));
+}
+function placeLabels(){ labels.forEach(l => { const p = project(l.x, l.y, l.z);
+  if (!p || p[0] < 8 || p[0] > cw - 8 || p[1] < 112 || p[1] > ch - 60){ l.e.style.opacity = 0; return; }
+  l.e.style.opacity = ''; l.e.style.transform = `translate3d(${(p[0] + l.w*l.ax).toFixed(1)}px,${(p[1] + l.h*l.ay - (l.ay === -1 ? 6 : 0)).toFixed(1)}px,0)`; }); }
+
+/* ---------- timeline ---------- */
+const DAY = 864e5, TODAY = new Date('2026-09-29T12:00:00Z').getTime();
+let range = 90, selStorm = stormAug, playDay = STILL ? 0 : -90;
+const compass = document.getElementById('compass'), tls = document.getElementById('tls'), tlw = document.getElementById('tlw');
+let tlGeom = null;
+function drawTimeline(){
+  const W0 = tlw.clientWidth, H0 = tlw.clientHeight; if (!W0) return;
+  const pl = 22, pr = 34, base = H0 - 30, top = 16, x = d => pl + (1 + d/range)*(W0 - pl - pr);
+  tlGeom = {x, base, W0, H0, pl, pr};
+  let s = `<line x1="${pl}" x2="${W0-pr}" y1="${base}" y2="${base}" stroke="var(--rule-2)"/>`;
+  for (let d = -range; d <= 0; d++){ const X = x(d).toFixed(1), dt = new Date(TODAY + d*DAY), dom = dt.getUTCDate();
+    const wk = dt.getUTCDay() === 0; s += `<line x1="${X}" x2="${X}" y1="${base}" y2="${base + (dom === 1 ? 10 : wk ? 5 : 3)}" stroke="var(--${dom === 1 ? 'muted' : 'rule-2'})"/>`;
+    if ((dom === 1 || d === -range) && (range > 90 || !NL.storms.some(st => Math.abs(-st.days - d) < 5))){ const mo = dt.toLocaleString(lang === 'es' ? 'es-MX' : 'en-US', {month:'short', timeZone:'UTC'});
+      s += `<text x="${+X+4}" y="${base+19}" font-size="10" fill="var(--muted)">${mo.replace('.','').toUpperCase()}</text>`; } }
+  // 1.0 / 2.0 in guide lines
+  [1,2].forEach(v => { const Y = base - v/2.5*(base-top); s += `<line x1="${pl}" x2="${W0-pr}" y1="${Y}" y2="${Y}" stroke="var(--rule)" stroke-dasharray="2 4"/><text x="${W0-pr+5}" y="${Y+3}" font-size="9" fill="var(--faint)">${v}.0</text>`; });
+  let lastX = -1e9, lift = 0;
+  NL.storms.slice().reverse().forEach(st => { const d = -st.days; if (d < -range) return; const X = x(d), h = st.max/2.5*(base-top);
+    lift = (X - lastX < 26) ? (lift ? 0 : 12) : 0; lastX = X;
+    const col = st.max >= 2 ? 'var(--h2)' : st.max >= 1.5 ? 'var(--h15)' : st.max >= 1 ? 'var(--h1)' : 'var(--muted)';
+    const sel = st === selStorm;
+    s += `<g class="tk" data-date="${st.date}" style="transform-origin:${X}px ${base}px;cursor:pointer">
+      <rect x="${X-9}" y="${top-6}" width="18" height="${base-top+6}" fill="transparent"/>
+      ${sel ? `<rect x="${X-8}" y="${base-h-4}" width="16" height="${h+4}" rx="3" fill="var(--acc-soft)"/>` : ''}
+      <rect x="${X-2}" y="${base-h}" width="4" height="${h}" rx="1.5" fill="${col}"/>
+      <circle cx="${X}" cy="${base-h}" r="3.2" fill="${col}"/>
+      ${range <= 90 && !lift ? `<text x="${X}" y="${base+19}" font-size="10" text-anchor="middle" fill="var(--${sel ? 'acc-ink' : 'text-2'})">${st.d[lang]}</text>` : ''}
+      ${range <= 90 || st.max >= 1.5 ? `<text x="${X}" y="${base-h-8}" font-size="10" text-anchor="middle" fill="var(--${sel ? 'text' : 'text-2'})" dy="${-lift}">${fmt(st.max,2)}</text>` : ''}
+    </g>`; });
+  s += `<text x="${x(0)}" y="${base+19}" font-size="10" text-anchor="end" fill="var(--ok)">${t('todayT').toUpperCase()}</text>`;
+  s += `<g id="ph"><line x1="0" x2="0" y1="${top-10}" y2="${base+4}" stroke="var(--acc)" stroke-width="1.5"/><path d="M-5 ${top-14} h10 l-5 6z" fill="var(--acc)"/><text id="phT" x="7" y="${top-5}" font-size="10" fill="var(--acc-ink)"></text></g>`;
+  tls.innerHTML = s; placePlayhead();
+  tls.querySelectorAll('.tk').forEach(g => g.onclick = () => { selStorm = NL.storms.find(x => x.date === g.dataset.date); renderReadout(selStorm); drawTimeline();
+    if (selStorm === stormAug) replay(); });
+}
+function placePlayhead(){ if (!tlGeom) return; const ph = document.getElementById('ph'); if (!ph) return;
+  const d = Math.max(-range, playDay); ph.setAttribute('transform', `translate(${tlGeom.x(d).toFixed(1)},0)`);
+  const dt = new Date(TODAY + Math.round(d)*DAY); document.getElementById('phT').textContent = Math.round(d) >= 0 ? '' : dt.toLocaleString(lang==='es'?'es-MX':'en-US',{month:'short',day:'numeric',timeZone:'UTC'}); }
+function renderReadout(st){ const isP = st === stormAug;
+  document.getElementById('ro').innerHTML = `<div class="d">${st.long[lang]}</div>
+    <div class="m"><b>${fmt(st.max,2)} ${t('unit')}</b> ${t('maxRep')} · ${S.daysAgo[lang](st.days)}${isP ? ' · ' + t('pickStorm') : ''} ${tag('storms')}</div>
+    <button id="rp">↻ ${t('replay')}</button>`;
+  document.getElementById('rp').onclick = () => { selStorm = stormAug; renderReadout(stormAug); drawTimeline(); replay(); }; }
+document.querySelectorAll('[data-range]').forEach(b => b.onclick = () => { range = +b.dataset.range;
+  document.querySelectorAll('[data-range]').forEach(x => x.setAttribute('aria-pressed', x === b)); drawTimeline(); });
+
+/* ---------- controls ---------- */
+document.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { theme = b.dataset.themeSet; root.dataset.theme = theme; renderStatic(); });
+document.querySelectorAll('[data-lang-set]').forEach(b => b.onclick = () => { lang = b.dataset.langSet; root.dataset.lang = lang; root.lang = lang; renderAll(); });
+document.getElementById('bOrbit').onclick = e => { orbit = !orbit; e.currentTarget.setAttribute('aria-pressed', orbit); };
+function setWalkView(on){ walkView = on; document.getElementById('bWalk').setAttribute('aria-pressed', on); }
+document.getElementById('bWalk').onclick = () => setWalkView(!walkView);
+
+/* hover: sample homes */
+let hover = -1, hiZone = 0, mouse = null;
+stage.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); mouse = [e.clientX - r.left, e.clientY - r.top, e.clientX, e.clientY]; });
+stage.addEventListener('mouseleave', () => { mouse = null; });
+function pickHover(){
+  let best = -1, bd = 1e9;
+  if (mouse) homes.forEach((h,i) => { const a = project(h.w[0], 0, h.w[1]), b = project(h.w[0], h.H*riseOf(i), h.w[1]); if (!a || !b) return;
+    const dx = b[0]-a[0], dy = b[1]-a[1], L2 = dx*dx+dy*dy || 1, tt = Math.max(0, Math.min(1, ((mouse[0]-a[0])*dx+(mouse[1]-a[1])*dy)/L2));
+    const d = Math.hypot(a[0]+dx*tt-mouse[0], a[1]+dy*tt-mouse[1]); const z = a[2]; if (d < 9 && d + z*0.001 < bd){ bd = d + z*0.001; best = i; } });
+  if (best !== hover){ hover = best; fillCols(hover); gl.bindBuffer(gl.ARRAY_BUFFER, bICol); gl.bufferSubData(gl.ARRAY_BUFFER, 0, iCol); }
+  if (hover >= 0){ const h = homes[hover];
+    showTip(`<div class="k">${t('sample')} · #${h.order+1} ${lang==='es'?'en la ruta':'on the walk'} ${tag('homes')}</div><div class="a">${h.addr}</div>
+      <div class="g"><span>${t('built')}</span><span>${h.built}</span><span>${t('roof')}</span><span>${h.roof} ${t('yrs')}</span>
+      <span>${lang==='es'?'Granizo · 8 ago':'Hail · Aug 8'}</span><span style="color:${h.hail>=1.5?'var(--h15)':'var(--h1)'}">${fmt(h.hail,2)} ${t('unit')}</span>
+      <span>${t('ownerLived')}</span><span>${h.own ? t('yes') : t('no')}</span><span>${lang==='es'?'Puntaje':'Score'}</span><span>${h.score}</span></div>
+      <div class="srcl">${SRC.homes}</div>`, mouse[2], mouse[3]);
+    stage.style.cursor = 'pointer'; }
+  else if (stage.style.cursor === 'pointer'){ hideTip(); stage.style.cursor = ''; }
+}
+
+/* ---------- timing: the open ---------- */
+// 0-3.0 s playhead sweeps 90 days -> today; crossing Aug 8 (t~1.3 s) sweeps the swath, draws the walk, raises columns in walk order.
+const SWEEP = 3.0, tCross = (1 - stormAug.days/90)*SWEEP;
+let t0 = performance.now()/1000 - (STILL ? 60 : 0);
+function replay(){ t0 = performance.now()/1000; flashed.clear(); }
+const flashed = new Set();
+const ease = x => { x = Math.max(0, Math.min(1, x)); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2; };
+const riseT = () => performance.now()/1000 - t0 - (tCross + 0.75);
+function riseOf(i){ const x = (riseT() - homes[i].delay)/0.75; return Math.max(0, Math.min(1, x)); }
+
+/* ---------- resize + frame ---------- */
+function resize(){ const dpr = Math.min(devicePixelRatio || 1, 2); cw = stage.clientWidth; ch = stage.clientHeight;
+  cv.width = Math.round(cw*dpr); cv.height = Math.round(ch*dpr); drawTimeline(); }
+new ResizeObserver(resize).observe(stage); resize();
+const homeU = new Float32Array(100);
+let lastT = performance.now()/1000;
+function frame(){
+  const now = performance.now()/1000, dt = Math.min(0.1, now - lastT); lastT = now;
+  const T = now - t0;
+  // playhead + swath
+  playDay = STILL ? 0 : -90 + 90*ease(Math.min(1, T/SWEEP)) ;
+  if (!STILL && T <= SWEEP + 0.1) placePlayhead(); else if (playDay === 0) placePlayhead();
+  NL.storms.forEach(st => { if (!flashed.has(st.date) && -st.days <= playDay && -st.days >= -range){ flashed.add(st.date);
+    const g = tls.querySelector(`.tk[data-date="${st.date}"]`); if (g && !STILL){ g.classList.add('flash'); setTimeout(() => g.classList.remove('flash'), 260); } } });
+  const sweep = STILL ? 1.2 : Math.max(0, Math.min(1.2, (T - tCross + 0.15)/0.95*1.2));
+  const edge = STILL ? 0 : Math.max(0, 1 - Math.max(0, T - tCross - 0.9)/0.6) * (T > tCross - 0.2 ? 1 : 0);
+  const scan = ((now*0.07) % 1.4) - 0.2;
+  const walkLen = STILL ? 1e6 : Math.max(0, (T - tCross - 0.2)/0.9) * RB.len;
+  const rT = STILL ? 100 : riseT();
+  // camera
+  const ci = STILL ? 1 : ease((T - 0.2)/4.2);
+  if (!STILL && T > 4.4 && orbit) cam.yaw += 0.5*dt;
+  camBlend += ((walkView ? 1 : 0) - camBlend)*Math.min(1, dt*3.2);
+  const pitch = (72 + (cam.pitch - 72)*ci) - camBlend*9, dist = (cam.dist*(1 + 0.35*(1-ci)))*(1 - camBlend*0.55);
+  const yaw = (cam.yaw - 30*(1-ci)) * Math.PI/180;
+  const lead = cam.lead*(1-camBlend), tx = -Math.sin(yaw)*lead, tz = -Math.cos(yaw)*lead, pr = pitch*Math.PI/180;
+  eye = [tx + dist*Math.cos(pr)*Math.sin(yaw), dist*Math.sin(pr), tz + dist*Math.cos(pr)*Math.cos(yaw)];
+  VP = M4.mul(M4.persp(37*Math.PI/180, cw/ch, 20, 40000), M4.look(eye, [tx, 0, tz]));
+  compass.style.transform = `rotate(${(-yaw*180/Math.PI + 180).toFixed(1)}deg)`;
+  if (gl) draw(now, sweep, edge, scan, walkLen, rT);
+  placeLabels(); pickHover();
+  requestAnimationFrame(frame);
+}
+function common(P, now, sweep, edge, scan){ gl.useProgram(P.p); const u = P.u;
+  if (u.uVP) gl.uniformMatrix4fv(u.uVP, false, VP); if (u.uDark) gl.uniform1f(u.uDark, theme === 'dark' ? 1 : 0);
+  if (u.uTime) gl.uniform1f(u.uTime, now % 1000); if (u.uSweep) gl.uniform1f(u.uSweep, sweep); if (u.uEdge) gl.uniform1f(u.uEdge, edge);
+  if (u.uScan) gl.uniform1f(u.uScan, scan); if (u.uP0){ gl.uniform2fv(u.uP0, swP[0]); gl.uniform2fv(u.uP1, swP[1]); gl.uniform2fv(u.uP2, swP[2]); } return u; }
+function draw(now, sweep, edge, scan, walkLen, rT){
+  const dark = theme === 'dark';
+  gl.viewport(0, 0, cv.width, cv.height);
+  const bg = dark ? [.027,.031,.039] : [.933,.941,.933];
+  gl.clearColor(bg[0], bg[1], bg[2], 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.disable(gl.BLEND); gl.depthMask(true); gl.disable(gl.CULL_FACE);
+  homes.forEach((h,i) => { homeU.set([h.w[0], h.w[1], h.hail, Math.max(0, Math.min(1, (rT - h.delay)/0.75))], i*4); });
+  // ground
+  let u = common(P_GROUND, now, sweep, edge, scan); gl.uniform1f(u.uMode, 0); gl.uniform1f(u.uY, 0); gl.uniform1f(u.uSlice, 0); gl.uniform4fv(u.uHomes, homeU);
+  gl.bindVertexArray(vGround); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  // lines
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
+  u = common(P_LINE, now, sweep, edge, scan);
+  gl.uniform3fv(u.uCol, dark ? [.72,.77,.87] : [.46,.48,.52]); gl.uniform1f(u.uA, dark ? .78 : .7);
+  gl.bindVertexArray(vStreets); gl.drawArrays(gl.LINES, 0, nStreets);
+  gl.uniform3fv(u.uCol, dark ? [.35,.55,.75] : [.45,.6,.72]); gl.uniform1f(u.uA, dark ? .5 : .55);
+  gl.bindVertexArray(vCtx); gl.drawArrays(gl.LINES, 0, nCtx);
+  // shadows (daylight model) / faint contact shadow in dark
+  u = common(P_SHADOW, now, sweep, edge, scan); gl.uniform1f(u.uRiseT, rT); gl.uniform2fv(u.uSun, [0.55, -0.35]); gl.uniform1f(u.uSA, dark ? 0 : .42);
+  if (!dark){ gl.bindVertexArray(vShadow); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, homes.length); }
+  // walk ribbon
+  u = common(P_RIB, now, sweep, edge, scan); gl.uniform1f(u.uWalkLen, walkLen);
+  gl.bindVertexArray(vRib); gl.drawArrays(gl.TRIANGLES, 0, nRib);
+  // columns (opaque)
+  gl.disable(gl.BLEND); gl.depthMask(true);
+  u = common(P_COL, now, sweep, edge, scan); gl.uniform1f(u.uRiseT, rT); gl.uniform3fv(u.uEye, eye);
+  gl.bindVertexArray(vCol); gl.drawArraysInstanced(gl.TRIANGLES, 0, gCyl.length/6, homes.length);
+  // zone hex prisms (translucent)
+  gl.enable(gl.BLEND); gl.depthMask(false);
+  if (dark) gl.blendFunc(gl.SRC_ALPHA, gl.ONE); else gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  u = common(P_HEX, now, sweep, edge, scan); gl.uniform1f(u.uRiseT, STILL ? 100 : (now - t0) - tCross - 0.4); gl.uniform1f(u.uHi, hiZone);
+  gl.bindVertexArray(vHex); gl.drawArraysInstanced(gl.TRIANGLES, 0, gHex.length/6, nHex);
+  // volumetric hail swath: stacked translucent slices
+  u = common(P_GROUND, now, sweep, edge, scan); gl.uniform1f(u.uMode, 1); gl.uniform4fv(u.uHomes, homeU);
+  gl.bindVertexArray(vGround);
+  for (let i = 1; i <= 9; i++){ gl.uniform1f(u.uY, i*32); gl.uniform1f(u.uSlice, i/10); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+  gl.bindVertexArray(null); gl.depthMask(true);
+}
+
+renderAll();
+requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('ready')));
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
