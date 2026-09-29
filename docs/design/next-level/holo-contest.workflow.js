@@ -66,7 +66,7 @@ const DIRECTIONS = [
 phase('Concepts')
 log('5 designers are building their hologram walk concepts in parallel')
 const concepts = (await parallel(DIRECTIONS.map(d => () =>
-  agent(`You are a world-class creative technologist and 3D designer. Direction: "${d.name}" - ${d.brief}\n${SPEC.split('<DIR>').join(d.dir)}\nReturn dir="${d.dir}".`,
+  agent(`You are a world-class creative technologist and 3D designer. Direction: "${d.name}" - ${d.brief}\n${SPEC.split('<DIR>').join(d.dir)}\nIf docs/design/next-level/${d.dir}/ already has files from an interrupted earlier run (container restart), read them first and continue/finish that work instead of starting over, unless it is clearly broken.\nReturn dir="${d.dir}".`,
     { label: `concept:${d.dir}`, phase: 'Concepts', schema: CONCEPT })
 ))).filter(Boolean)
 log(`${concepts.length}/5 concepts built: ${concepts.map(c => c.dir + (c.shoot_ok ? '' : ' (errors)')).join(', ')}`)
