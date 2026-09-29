@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## AI hub v28.2 "Never frozen" - 2026-09-29
+## AI hub v28.2 "Never frozen" - 2026-09-29 (live: hub Version 31, 2026-09-29)
 - Fixed the freeze: a 3D room the computer can't draw fast enough (or software graphics) now switches to the still picture by itself instead of making every click and key wait. Make it yours has a new "3D room on/off" switch.
 - Every call to Claude, the database and Claude Code now has a time limit, and nothing asks for a Claude Code permission unless you clicked. A held wake waits behind a "Wake now" button, and Fresh King always comes back with an answer.
 - Lighter and steadier: the board keeps your half-typed answer, the chat and board only redraw when something changed, one live connection instead of reconnecting on every click, gentler log cleanup. New release check: the hub on real data with a runtime that fails or hangs.
