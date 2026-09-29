@@ -901,12 +901,12 @@ async function scenarioCvWake(browser, url) {   // #1 one wake per sitting: quic
   const wk = await keysOf(p, "wakes/"), txt = wk.length ? String((await docOf(p, wk[0])).text) : "";
   ok(await fires(p) === 1 && wk.length === 1 && /D60/.test(txt) && /D61/.test(txt), `${L}: two quick answers should ride one wake (${await fires(p)} fires, ${wk.length} wake docs: ${txt.slice(0, 120)})`);
   await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "working" }), { at: 0 }); await tick(500);
-  await answerCard(p, tick, "q:D62", "Yes"); await tick(12000);
+  await answerCard(p, tick, "q:D62", "Yes"); await p.clock.fastForward(12000); await tick(300);   // fastForward: due timers fire once, no 60 fps frames (keeps the suite under 15 min)
   ok(await fires(p) === 1, `${L}: woke a King that is working`);
   ok(/busy/.test(await p.textContent("#wakeLine")), `${L}: no "King is busy" line while held ("${(await p.textContent("#wakeLine")).trim()}")`);
   await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 0 });
   await put(p, "system/king", Object.assign({}, d["system/king"]), { answersReadAt: 0 });
-  await tick(31000);
+  await p.clock.fastForward(31000); await tick(300);
   ok(await fires(p) === 1 && await p.isHidden("#wakeLine"), `${L}: the King read the answers on check-out, but a wake still fired (${await fires(p)}) or the line stayed`);
   await answerCard(p, tick, "q:D63", "Yes");
   await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 1000 });   // two devices: the King checked in after the hold started
