@@ -2835,8 +2835,8 @@ $('#money').addEventListener('click', ev => { if (ev.target.closest('#mPaid')) {
 const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how', 'zones', 'due', 'walk'];   // v24 sheets that start fresh (no Back to the sheet under them)
 function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; clearTimeout(shutT); $('#sheetWrap').classList.remove('closing'); $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); markOpenRow(); }
 function markOpenRow(){   // v26 desk: the row whose lead or job is open in the side pane stays lit in its list (v25/desk.css)
-  for (const e of document.querySelectorAll('.app [data-open].is-open')) e.classList.remove('is-open');
-  if (openRef) for (const e of document.querySelectorAll('.app [data-open]')) if (e.dataset.open === openRef) e.classList.add('is-open'); }
+  for (const e of document.querySelectorAll('.app .is-open')) e.classList.remove('is-open');
+  if (openRef) for (const e of document.querySelectorAll('#lCards [data-open], #money [data-open], #tDue [data-open]')) if (e.dataset.open === openRef) e.classList.add('is-open'); }   // only the lists (QA low 1)
 const FIT_SHEETS = ['plus', 'more', 'drive', 'rules', 'walk', 'dnk'];   // v25: short sheets hug their content; the rest open tall
 let shutT = 0;   // v25.1: the sheet slides away in 180 ms (v25/aldaba.css); state is closed at once, only the picture lingers
 function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; const w = $('#sheetWrap'); clearTimeout(shutT); markOpenRow();
