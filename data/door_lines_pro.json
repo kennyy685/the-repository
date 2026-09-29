@@ -2,8 +2,8 @@
   {
     "id": "opener-compliant-general",
     "situation": "Standard door opener, any neighborhood, any reason for knocking - the required legal shape (69-1602: name, HMP, what we sell, first thing) built around a real trainer's 'short, one reason, one open question' structure.",
-    "en": "Hi, I'm {name} with HMP Siding & Roofing — we do siding and roof repair and replacement. I'm in the neighborhood checking roofs, no cost, no obligation. Mind if I take a quick look at yours?",
-    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos reparación e instalación de techos y siding. Ando por el vecindario revisando techos, sin costo y sin compromiso. ¿Le importa si le echo un vistazo rápido?",
+    "en": "Hi, I'm {name} with HMP Siding & Roofing — we do siding and roof repair and replacement. I'm in the neighborhood checking roofs, no obligation. Mind if I take a quick look at yours?",
+    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos reparación e instalación de techos y siding. Ando por el vecindario revisando techos, sin compromiso. ¿Le importa si le echo un vistazo rápido?",
     "source_style": "Restructured from Roofr's door-opener example (name+company+hook+free-inspection offer) to put the 69-1602 legal order first.",
     "legal_ok": true
   },
@@ -66,8 +66,8 @@
   {
     "id": "objection-not-interested-recent-work",
     "situation": "Top objection #4: 'Not interested' or 'we just had that done.'",
-    "en": "No problem at all. If anything comes up down the road, or after the next storm, here's my card — call anytime, no charge to look.",
-    "es": "No hay problema. Si algo surge más adelante, o después de la próxima tormenta, aquí tiene mi tarjeta — llame cuando quiera, revisar no cuesta nada.",
+    "en": "No problem at all. If anything comes up down the road, or after the next storm, here's my card — call anytime for a roof check.",
+    "es": "No hay problema. Si algo surge más adelante, o después de la próxima tormenta, aquí tiene mi tarjeta — llame cuando quiera para una revisión del techo.",
     "source_style": "Adapted close to verbatim from Roofr: \"No problem at all — if you need roofing work down the road, call us anytime for a free estimate. Here's my card.\"",
     "legal_ok": true
   },

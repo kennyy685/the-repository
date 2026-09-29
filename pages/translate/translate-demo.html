@@ -260,8 +260,8 @@ button,input{font:inherit;color:inherit}
   $("flip").addEventListener("change", () => $("half-es").classList.toggle("flip", $("flip").checked));
 
   // Opening state: an example door opener (69-1602: name, HMP, what we sell, first thing), marked Example.
-  const ex = { from: "en", to: "es", source: "Hi, I'm Kenny with HMP Siding & Roofing. We do roofing and siding. Can I take a look at your roof for hail damage? It's a free inspection.",
-    text: "Hola, soy Kenny de HMP Siding & Roofing. Hacemos techos y siding. ¿Puedo revisar su techo por daño por granizo? Es una inspección gratis." };
+  const ex = { from: "en", to: "es", source: "Hi, I'm Kenny with HMP Siding & Roofing. We do roofing and siding. Can I take a look at your roof for hail damage? It only takes a few minutes.",
+    text: "Hola, soy Kenny de HMP Siding & Roofing. Hacemos techos y siding. ¿Puedo revisar su techo por daño por granizo? Solo toma unos minutos." };
   last = ex;
   $("say-es").innerHTML = '<p class="small">' + UI.es.heard + '</p><p class="big">' + esc(ex.text) + '</p>';
   $("say-en").innerHTML = '<p class="small">' + UI.en.youSaid + '</p><p class="big" style="font-size:20px">' + esc(ex.source) + '</p>' + actions();

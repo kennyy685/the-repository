@@ -847,8 +847,8 @@
 "kind": "touch",
 "overdue": true,
 "reason": {
-"en": "2 days late. Interested on Sep 24 (7 days ago). 5-day follow-up: stop by, or call if they gave you their number, to set a time for a free estimate.",
-"es": "2 d\u00edas de atraso. Interesado el 24 de sep (hace 7 d\u00edas). Seguimiento de 5 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar un estimado gratis."
+"en": "2 days late. Interested on Sep 24 (7 days ago). 5-day follow-up: stop by, or call if they gave you their number, to set a time for an estimate.",
+"es": "2 d\u00edas de atraso. Interesado el 24 de sep (hace 7 d\u00edas). Seguimiento de 5 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar un estimado."
 },
 "stage": "contacted",
 "touch": 2
