@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## Night shift "Since last night" - 2026-09-29 (not live yet: waiting on QA)
+- While you sleep, Aldaba gets your morning ready: the open map's 7 AM home now opens with "Since last night": new hail by town and size, zones that moved up or down, walks that changed (doors knocked), and a plain line like "No new hail since last night; best zone is still Malcolm." Tap any chip to fly there. Your top 3 show "↑ from #5" when a zone climbed overnight.
+- Engine `hailhunter/night.py` + `hh.py night`: refresh, re-rank, then one small brief (Aldaba's pick + where to start the walk + door count + why + a backup zone), keeping last night's for the diff. The page runs on SAMPLE briefs (a quiet night, and a replay of the real Sep 13 storm night; switch under Preview). hud.json and Storm Watch untouched; nothing is scheduled yet (the King decides).
+
 ## AI hub v28.4 "King wake that lands" - 2026-09-29 (not live yet: waiting on QA)
 - Your hub messages now reach the King's own chat: the page books the King for the next whole minute (a timed wake) instead of the old instant poke, which opened a stand-in chat the King never saw. The hub says "The King gets it in about a minute". The first time, claude.ai asks you to Allow the new permission once.
 

@@ -10,8 +10,9 @@ Brief (v1), every sentence EN + ES, never an owner name, never an insurance prom
  null), first_run (no previous brief), quiet (no new hail since the previous brief), headline {en, es},
  new_hail: [{town, state, day, hail_in, dist_mi, zone_id}]  one row per town + day (its biggest report), biggest
    first, at most `night.max_new` (8); zone_id = the walk zone for that storm day in that town, else null,
- zones_up / zones_down: [{id, name, rank, was, score}]  zones still in the top whose rank changed, biggest move first,
-   at most `night.max_moves` (5) each,
+ zones_up / zones_down: [{id, name, rank, was, score}]  zones still in the top whose rank moved `night.min_move` (2)
+   or more places (a one-place shuffle when a new zone slots in is noise), biggest move first, at most
+   `night.max_moves` (5) each,
  zones_new: [{id, name, rank, score}], zones_gone: [{id, name, was}]  (same cap),
  walks_changed: [{id, name, homes, was}]  zones in both briefs whose houses-left count changed (doors knocked,
    do-not-knock, or a rebuilt list),
@@ -26,11 +27,8 @@ from datetime import datetime, timezone
 
 from .config import DEFAULTS
 
-NIGHT_DEFAULTS = {"min_hail": 0.75, "max_mi": 150, "max_new": 8, "max_moves": 5}
-
-
 def _ncfg(cfg):
-    return {**NIGHT_DEFAULTS, **(DEFAULTS.get("night") or {}), **((cfg or {}).get("night") or {})}
+    return {**DEFAULTS["night"], **((cfg or {}).get("night") or {})}
 
 
 def _key(s):
@@ -100,9 +98,9 @@ def moves(now, prev, nc):
             out["zones_new"].append({"id": z["id"], "name": z["name"], "rank": z["rank"], "score": z["score"]})
             continue
         row = {"id": z["id"], "name": z["name"], "rank": z["rank"], "was": p.get("rank"), "score": z["score"]}
-        if p.get("rank") and z["rank"] < p["rank"]:
+        if p.get("rank") and z["rank"] <= p["rank"] - nc["min_move"]:
             out["zones_up"].append(row)
-        elif p.get("rank") and z["rank"] > p["rank"]:
+        elif p.get("rank") and z["rank"] >= p["rank"] + nc["min_move"]:
             out["zones_down"].append(row)
         if p.get("homes") is not None and z["homes"] is not None and p["homes"] != z["homes"]:
             out["walks_changed"].append({"id": z["id"], "name": z["name"], "homes": z["homes"], "was": p["homes"]})

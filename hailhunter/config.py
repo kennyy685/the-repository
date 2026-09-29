@@ -205,6 +205,9 @@ DEFAULTS = {
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
     # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
     # `polygon` covers every house left, the walk only the best `doors`).
+    # Night shift (`hh.py night`, night.py): which storms count as "new hail since last night" (min_hail inches, within
+    # max_mi), how many rows the brief keeps, and how many places a zone must move to count as up/down.
+    "night": {"min_hail": 0.75, "max_mi": 150, "max_new": 8, "max_moves": 5, "min_move": 2},
     "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8, "walk_buffer_m": 25},
     # Path step 4 (`hh.py season`, season.py): this season's REAL hail in eastern Nebraska for the open map
     # (data/storms-<year>.json). Its own network step: never part of `refresh`, so Storm Watch and hud.json don't change.
