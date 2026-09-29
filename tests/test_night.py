@@ -318,6 +318,7 @@ class NightShiftCommand(unittest.TestCase):
         pub = json.loads(last.split(": ", 1)[1])
         self.assertEqual(pub["url"], "https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV")
         self.assertEqual(list(pub["files"]), ["data/night.js"])
+        self.assertEqual(pub["file_path"], "docs/design/open-map/index.html")   # the Artifact tool needs the page too
         with open(pub["files"]["data/night.js"], encoding="utf-8") as f:
             d = night.from_js(f.read())
         self.assertEqual(d["kind"], "night_brief")

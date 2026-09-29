@@ -30,9 +30,10 @@ start **street** (no house number, spots rounded to ~100 m); never an owner name
    wait): `python3 hh.py night-shift --prev PREV > night.log 2>&1` with `run_in_background: true`
    (no PREV: drop `--prev PREV`). Wait for the "completed" notice; don't poll with sleep.
 4. Read the last lines of `night.log`:
-   - exit 0 and a last line `PUBLISH {"url": ..., "files": {"data/night.js": "docs/design/open-map/data/night.js"}}`:
-     `Artifact` publish with that `url` and that `files` map, nothing else (no `file_path`, no `icon`). If the tool
-     insists on a page, add `file_path: docs/design/open-map/index.html` (the page is unchanged; files left out are kept).
+   - exit 0 and a last line `PUBLISH {"url": ..., "file_path": "docs/design/open-map/index.html", "files": {"data/night.js": ...}}`:
+     `Artifact` publish with that `url`, that `files` map, and `file_path: docs/design/open-map/index.html` (the
+     tool refuses files without the page; tested 2026-09-29. The page is unchanged; other files left out are kept).
+     No `icon`, no `capabilities`.
    - a `REFRESH FAILED: ...` line: publish anyway (the brief says on the map that it uses the day before's storm data),
      and say so in step 5.
    - exit 1 ("do NOT publish") or 2: don't publish. Go to step 5 as a failure.
