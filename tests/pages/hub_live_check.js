@@ -9,6 +9,7 @@
  *   mcp-hang    MCP never answers: the chat still sends, Fresh King gives up and comes back, the page stays usable
  *   sample-hang the instant answer never comes: it gives up at 2 min and the King still gets the message
  *   write-hang  db writes never answer: the chat send gives the text back with "failed" within ~10 s
+ *   send-fail   a board answer / a King retry that fails gives its buttons back
  *   db-fail / no-db / user-hang: the page loads, says what's wrong, tabs still work
  *   phone       the live scenario's clicks at 390 px
  *   3d-slow     a 3D room that renders ~3 fps switches to the still view by itself (real clock)
@@ -175,6 +176,30 @@ async function scenarioWriteHang(browser, url) {
   await ctx.close();
 }
 
+async function scenarioSendFail(browser, url) {   // QA 2026-09-29: a failed send must give the buttons back
+  const L = "send-fail";
+  let r = await open(browser, url, { modes: { dbw: "fail" } });
+  await r.p.click("#tab-board", { timeout: 2000 }); await r.tick(300);
+  const ans = await r.p.$("#boardBody .ans [data-a]");
+  if (ok(ans, `${L}: (setup) no open board question in the fixture`)) {
+    const q = await ans.evaluate(b => b.closest(".ans").dataset.q);
+    await ans.click({ timeout: 2000 }); await r.tick(3000);
+    const dis = await r.p.$$eval("#boardBody .ans", (rows, q) => rows.filter(x => x.dataset.q === q).flatMap(x => [...x.querySelectorAll("button")]).some(b => b.disabled), q);
+    ok(!dis, `${L}: a failed answer left its buttons disabled`);
+  }
+  ok(!r.errs.length, `${L}: page errors: ${r.errs.slice(0, 4).join(" | ")}`);
+  await r.ctx.close();
+  r = await open(browser, url, { modes: { mcp: "fail" } });
+  await sendChat(r.p, r.tick, "retry test"); await r.tick(4000);
+  const retry = await r.p.$("#ktLog [data-kt]");
+  if (ok(retry, `${L}: a message the King didn't get has no Retry button`)) {
+    await retry.click({ timeout: 2000 }); await r.tick(3000);
+    ok(await r.p.$eval("#ktLog [data-kt]", b => !b.disabled).catch(() => false), `${L}: Retry stayed disabled after a retry that failed again`);
+  }
+  ok(!r.errs.length, `${L}: page errors: ${r.errs.slice(0, 4).join(" | ")}`);
+  await r.ctx.close();
+}
+
 async function scenarioDegraded(browser, url, modes, label, expect) {
   const { ctx, p, errs, tick } = await open(browser, url, { modes, settle: 30000 });
   ok(await probe(p) < 500, `${label}: main thread busy`);
@@ -217,6 +242,7 @@ async function scenarioSlow3d(browser, url) {
     await run("mcp-hang", () => scenarioMcpHang(browser, url));
     await run("sample-hang", () => scenarioSampleHang(browser, url));
     await run("write-hang", () => scenarioWriteHang(browser, url));
+    await run("send-fail", () => scenarioSendFail(browser, url));
     await run("db-fail", () => scenarioDegraded(browser, url, { db: "fail" }, "db-fail", /reconnect/i));
     await run("no-db", () => scenarioDegraded(browser, url, { use_db: "null" }, "no-db", /isn.t available|not available/i));
     await run("user-hang", () => scenarioDegraded(browser, url, { use_user: "hang", use_sample: "hang", use_mcp: "hang" }, "user-hang"));
@@ -225,5 +251,5 @@ async function scenarioSlow3d(browser, url) {
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (10 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (11 scenarios)");
 })();

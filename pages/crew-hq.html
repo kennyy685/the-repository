@@ -1822,7 +1822,7 @@ async function sendAnswer(id, answer, note, q, to, opts){
     HUB.cues.push({kind:'answered', id:byId[to] ? to : 'code', qid:id}); fwoop();   // Special Delivery + the asker's thank-you
     appToast('✓ ' + (wakeOff() ? T.receiptRide(nextRun().label) : T.receipt + (held ? ' · ' + T.heldShort : '')) + (opts.ovMsg ? ' ' + opts.ovMsg : ''), opts.ovMsg ? 6000 : 3800);
     if (SAMPLE && CAN_EDIT && !who && answer === 'Reply') askKing(`I answered ${id} ("${q.slice(0, 200)}"): ${note}`, true);   // only typed replies get a Right Hand follow-up (#1.7)
-  } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); refreshAll(); renderCard(true); }
+  } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); refreshAll(); renderCard(true); renderBoard.sig = ''; renderBoard(); }   // the row comes back with live buttons
 }
 $('#boardBody').addEventListener('focusout', () => setTimeout(() => { if (renderBoard.later) { renderBoard.later = false; renderBoard(); } }, 0));   // what waited while he typed
 function wireAnswers(root){
@@ -3193,8 +3193,9 @@ function scene3d(force){
   if (!force && !gpuOk() && !/3d/.test(location.hash)) { HUB.fallback('soft'); return; }   // #3d: tests try the room anyway
   document.getElementById('app').classList.remove('no-gl'); fps.since = 0;
   if (window.SCENE) { sceneOff = false; window.SCENE.ready = true; layout(); return; }   // it was built earlier on this load
-  sceneOff = false; if (sceneLoad) return;
-  sceneLoad = import('./hub/scene.js').catch(() => HUB.fallback('load'));
+  sceneOff = false; const h = $('#hint'); h.style.opacity = ''; applyStatic();
+  if (sceneLoad) return;
+  sceneLoad = import('./hub/scene.js').then(() => { sceneLoad = null; if (!window.SCENE) HUB.fallback('load'); }).catch(() => { sceneLoad = null; HUB.fallback('load'); if (force) appToast(L().still); });
   setTimeout(() => { if (!(window.SCENE && window.SCENE.ready) && !sceneOff) HUB.fallback('late'); }, 8000);
 }
 function layout(){
@@ -3234,7 +3235,8 @@ function wake(text, urgent){
   return true;
 }
 /* one fire of the King's CURRENT wake trigger (read fresh from system/king every time). No auto-retry: it is a write. */
-async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 12000) : null; } catch (e) { MCP = null; } return MCP; }
+let mcpGone = false;   // use('mcp') said null: this view has no MCP (a slow answer is not that)
+async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 12000) : null; if (!MCP) mcpGone = true; } catch (e) { MCP = null; } return MCP; }
 /* 2026-09-29 freeze fix: one door for every Claude Code Remote call. The first call on a load asks FilthE's consent (a
    claude.ai prompt over the page) and a call can sit unanswered ~130 s. So: a call that isn't his own click (bg: timers,
    snapshots, opening a window) never runs until one of his calls went through on this load, a refusal stops them all
@@ -3244,7 +3246,7 @@ const MCP_DEAD = ['not_granted', 'capability_disabled', 'capability_removed', 'c
 async function mcpCall(tool, input, o){
   o = o || {};
   if (mcpNo || (o.bg && !mcpOk)) throw Object.assign(new Error('deferred'), {code:'deferred'});
-  const m = await getMcp(); if (!m) { mcpNo = true; throw Object.assign(new Error('no mcp'), {code:'not_granted'}); }
+  const m = await getMcp(); if (!m) { if (mcpGone) mcpNo = true; throw Object.assign(new Error('no mcp'), {code:mcpGone ? 'not_granted' : 'timeout'}); }
   const ms = o.bg ? 20000 : 90000, opts = o.read ? {cache:false} : null;
   if (opts && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(ms);
   try { const r = await within(opts ? m.callTool('Claude Code Remote', tool, input, opts) : m.callTool('Claude Code Remote', tool, input), ms + 1000); mcpOk = true; return r; }
@@ -3261,7 +3263,7 @@ async function fireNow(text, n, bg){
 async function fireWake(quiet, bg){
   clearTimeout(wakeTimer); wakeTimer = 0; if (!wakeQ.length || wakeBusy) return;
   if (!kingLoaded) { wakeTimer = setTimeout(() => releaseHold(bg), 5000); return; }   // system/king not read yet: ask again in a moment
-  if (bg && !mcpOk) { if (!holdSince) holdSince = Date.now(); wakeMode = 'held'; renderWakeLine(); return; }   // not his click and no call went through yet: stay held behind the "Wake now" button (never a surprise consent prompt)
+  if (bg && !mcpOk && wakeTrigger()) { if (!holdSince) holdSince = Date.now(); wakeMode = 'held'; renderWakeLine(); return; }   // not his click and no call went through yet: stay held behind the "Wake now" button (never a surprise consent prompt)
   if (!wakeTrigger()) { clearHeld(); renderWakeLine(); if (!quiet) appToast(L().wakeOffT(nextRun().label)); return; }
   const items = wakeQ.splice(0); keepHeld(); wakeLastAt = Date.now(); wakeBusy = true;
   const text = ('AI hub, instant wake. FilthE just acted: ' + items.join(' | ') + '. Read the docs named here and act on them.').slice(0, 1800);
@@ -3633,7 +3635,7 @@ async function orderKing(id, text, order, again, bg){
   const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
   try { await withTimeout(DB.doc('events/' + id).update(upd)); } catch (e) { /* status shows from the next snapshot or not at all */ }
-  renderThread();
+  renderThread.sig = ''; renderThread();   // repaint even when the status reads the same: the Retry button comes back enabled
 }
 const ktTries = {};
 async function checkDelivery(id, trig, t0, n){
