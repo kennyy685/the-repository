@@ -5,3 +5,4 @@
 - 2026-09-28 Hub v28 lived on claude/amazing-wright-lds9q5 while this branch had an older copy. Rule: find the newest copy of a page before editing.
 - 2026-09-28 Two Builders in pages/crew-hq.html at once. Rule: check crew/sessions + events, post which blocks you own.
 - 2026-09-27 App publish blocked by the safety guard until FilthE's own words. Rule: never publish; report "ready, waiting on your word".
+- 2026-09-29 release_checks.sh --quick needs ~10 min (hub_live_check alone ~5 min on fake clock), so a 300 s cap looks like a hang. Rule: run checks with timeout 600+ in background, or per check; publish of a big page needs a full Read of the live file (330k tokens): read live first only when about to publish.
