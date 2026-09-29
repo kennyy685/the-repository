@@ -75,6 +75,7 @@ body[data-view="road"] #map{opacity:0}
 #pins,#hl{position:fixed;inset:0;pointer-events:none;transition:opacity .4s var(--ease)}
 body[data-view="road"] #pins{opacity:0}
 body:not([data-view="road"]) #hl{opacity:0}
+body[data-view="road"] #pins *{pointer-events:none!important}
 .vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 55% 45%,transparent 55%,rgba(0,0,0,.5) 100%)}
 [data-theme="light"] .vig{background:radial-gradient(120% 90% at 55% 45%,transparent 62%,rgba(120,110,90,.14) 100%)}
 

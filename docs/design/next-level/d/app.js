@@ -398,7 +398,7 @@ const svgNS='http://www.w3.org/2000/svg';
 const wsvg=document.createElementNS(svgNS,'svg');wsvg.setAttribute('width','100%');wsvg.setAttribute('height','100%');wsvg.style.cssText='position:absolute;inset:0;overflow:visible';
 const wpathG=document.createElementNS(svgNS,'path'),wpath=document.createElementNS(svgNS,'path');
 wpathG.setAttribute('fill','none');wpath.setAttribute('fill','none');wsvg.append(wpathG,wpath);pins.appendChild(wsvg);
-const mk=(cls,html,parent=pins)=>{const at=document.createElement('div');at.className='at';at.style.cssText='position:absolute;left:0;top:0;will-change:transform';at.innerHTML=html;const el=at.firstElementChild;el.classList.add(...cls.split(' '));parent.appendChild(at);return at};
+const mk=(cls,html,parent=pins)=>{const at=document.createElement('div');at.className='at';at.style.cssText='position:absolute;left:0;top:0;will-change:transform;visibility:hidden;opacity:0';at.innerHTML=html;const el=at.firstElementChild;el.classList.add(...cls.split(' '));parent.appendChild(at);return at};
 const zPins=ZONES.map((z,i)=>{const at=mk('pin'+(i===0?' pk':''),`<button aria-label="${esc(z.name)}"><span class="b">${z.rank}</span><span class="lb"></span></button>`);
   const b=at.firstElementChild;b.onclick=()=>zoneClick(z);b.onmouseenter=()=>hiZone(i,true);b.onmouseleave=()=>hiZone(i,false);return {at,z,lb:b.querySelector('.lb')}});
 const hqPin=mk('plc hq',`<div></div>`);
@@ -409,7 +409,7 @@ let walkEls=[],stEls=[],parkEl=null;
 function buildWalkOverlay(w){
   walkEls.forEach(e=>e.at.remove());stEls.forEach(e=>e.at.remove());parkEl&&parkEl.remove();
   walkEls=w.homes.map((h,k)=>{const at=mk('door',`<button style="--dc:${h.col}" aria-label="${esc(h.addr)}">${k+1}</button>`);const b=at.firstElementChild;
-    b.onclick=()=>selectDoor(k,true);b.onmouseenter=e=>{showTipDoor(k,e.clientX,e.clientY);hlRow(k,true)};b.onmouseleave=()=>{hideTip();hlRow(k,false)};return {at,b,h}});
+    b.onclick=()=>selectDoor(k,true);b.onmouseenter=e=>{if(S.view!=='walk')return;showTipDoor(k,e.clientX,e.clientY);hlRow(k,true)};b.onmouseleave=()=>{hideTip();hlRow(k,false)};return {at,b,h}});
   // street names: walk streets + the named streets that cross the walk (real Nebraska GIS)
   const c=w.center,seen=new Set(w.streets.map(s=>skey(s.n)));const lab=[];
   // walk streets: label just past the far end, off the line; cross streets: a vertex 90-220 m out, away from the doors
