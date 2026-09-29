@@ -8,11 +8,10 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 1. Your own hub wake trigger (create_trigger, no cron, bound to you) with the SAME prompt as trig_01RsYqTCZfeEnStkGS8LYinX.
    Write its id to hub doc system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md;
    disable (never delete) trig_01RsYq. 2) Archive session_014eg28DpMQ1EZLj9hVosB8g. 3) Post one hub hi (to:"you").
-4) Test the wake YOURSELF, never ask FilthE ("i shouldnt have to chat for you to check", 2026-09-29): fire_trigger your
-   wake trigger with a "SELF-TEST" text and confirm the doorbell republish wakes your chat. fire_trigger always opens a
-   stand-in chat (never yours), so the wake prompt makes it ring the King Doorbell page
-   (https://claude.ai/artifact/ST8HwE23jUyazTpvHedqPx): republish it once from your chat so you watch it, and put your
-   own session id in the wake prompt (copy trig_01RB7wJoBmgynC5qG7JzRpSY's prompt). FilthE: talk only on the hub.
+4) Test the wake YOURSELF, never ask FilthE ("i shouldnt have to chat for you to check", 2026-09-29): fire_trigger
+   always opens a stand-in chat, never yours, and a watched-page republish does not wake you either (tested). Only timed
+   wakes reach you: keep a 10-min self check-in while FilthE is up until the hub sets timed wakes (Builder job after v28.1).
+   FilthE: talk only on the hub.
 
 ## 2026-09-29 03:26 UTC: new King took over (session_01JozofC8iSNPPy6vmgD4Muc, branch claude/stoic-darwin-ikqmrj)
 - Done: wake trigger trig_01RB7wJoBmgynC5qG7JzRpSY (hub system/king + robots.dispatch.king point to it); old
