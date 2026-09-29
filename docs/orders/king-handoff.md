@@ -4,6 +4,12 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
+## 2026-09-29 11:20 UTC: new King took over (session_01PJvb5QyxFcFZV1S5sftKNQ, branch claude/stoic-darwin-ikqmrj)
+- Wake trigger trig_01PDsG5Y1TBi9XpzefRn74uH (hub system/king + robots.dispatch.king point to it); trig_01RB7w disabled;
+  session_01JozofC archived; its safety check trig_01AknBnn + permit reminder trig_01DqmD72 disabled; permit reminder
+  re-made via send_later trig_01GRQqBn5ufKuocKK1RBKEFs (13:02Z). Designer session_01HNcP3i done (HMP App v14 desk
+  layout live), archived.
+
 ## FIRST, as the new King (written 2026-09-29 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc)
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
 1. Get your own session id (get_session, no id). Create your wake trigger: create_trigger, NO cron, bound to you, prompt =
