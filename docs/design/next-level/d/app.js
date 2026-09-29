@@ -51,7 +51,7 @@ const T={
   sample:'sample homes',everyday:'everyday',noTime:'time not reported',homesIn:n=>`${n} homes`,zonesN:n=>`${n} zone${n===1?'':'s'}`,near:p=>`near ${p}`,
   ago:n=>`${n}d`,max:'max',pickStorm:'pick',
   sum:{all:n=>`${n} days in 2026`,d90:n=>`${n} in 90 d`,big:(v,d)=>`max ${v}″ ${d}`},
-  legend:(d,m)=>`<b>Hail · ${d}</b> · a line every 0.1 in · peak ${m}″`,legendAll:'faint lines = all 18 storm days',showPick:'Back to the pick',
+  legend:(d,m)=>`<b>Hail · ${d}</b> · a line every 0.1 in · display-model peak ${m}″`,legendAll:'faint lines = all 18 storm days',showPick:'Back to the pick',
   area:a=>`<b>Area:</b> ${a.homes.toLocaleString('en-US')} homes · ${a.owner}% owner-lived · <b>likely insured: ${insWord(a)}</b> (area estimate, not a fact about one home)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Everyday zone:</b> no recent hail; older homes, mostly owner-lived.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Columbus pick',bkLabel:'Back to',
@@ -65,12 +65,12 @@ const T={
   score:'score',bigHail:'Hail here',bigRoof:'Roof age (est.)',whyH:'Why:',
   whyLong:h=>`${h.hail>=1.5?'big hail':h.hail>=1?'1-inch-plus hail':'smaller hail'} on a roof ~${h.roof} years old${h.own?', owner-lived (sample record)':''}, built ${h.built}.`,
   prev:'← Prev door',next:'Next door →',
-  legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-day cancel form, EN + ES.',
+  legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-business-day cancel form, EN + ES.',
   fine:'Sample home (fake) until knocking starts. No owner names.',
-  road:{doors:'Doors',hail:'Hail',walk:'Walk',start:'Start'},roadP:(n,k)=>`${n} streets · ${k} doors · sample homes`,
+  road:{doors:'Doors',hail:'Top door hail',walk:'Walk',start:'Start'},roadP:(n,k)=>`${n} streets · ${k} doors · sample homes`,
   hint:'<b>Drag</b> to orbit · <b>scroll</b> to zoom · <b>click</b> a house · <b>Esc</b> back',
   back:{morning:'Morning',walk:'Walk'},
-  toastOmaha:'Omaha is the everyday backup: street-level 3D loads in the live app (this mockup has Columbus streets).',
+  toastOmaha:'Omaha is the everyday backup: street-level 3D loads in the live app (this mockup has Fremont and Columbus streets).',
   toastNoGL:'3D needs WebGL2; showing the walk list instead.',
   hq:'HMP HQ',ind:{col:(n,mi)=>`← Columbus · ${n} zones · ${mi} mi`,bk:mi=>`Omaha backup · ${mi} mi →`},
   srcs:'<b>Sources</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> Aldaba engine (hh.py) · <sup>3</sup> Census ACS 2024 · <sup>4</sup> Nebraska GIS streets · homes: sample · contours: display model',
@@ -84,7 +84,7 @@ const T={
   sample:'casas de muestra',everyday:'diario',noTime:'hora no reportada',homesIn:n=>`${n} casas`,zonesN:n=>`${n} zona${n===1?'':'s'}`,near:p=>`cerca de ${p}`,
   ago:n=>`${n} d`,max:'máx',pickStorm:'elección',
   sum:{all:n=>`${n} días en 2026`,d90:n=>`${n} en 90 d`,big:(v,d)=>`máx ${v}″ ${d}`},
-  legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
+  legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico del modelo ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
   area:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: ${insWord(a)}</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Zona diaria:</b> sin granizo reciente; casas antiguas, en su mayoría viven sus dueños.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Elección Columbus',bkLabel:'Volver a',
@@ -98,21 +98,21 @@ const T={
   score:'puntaje',bigHail:'Granizo aquí',bigRoof:'Edad del techo (est.)',whyH:'Por qué:',
   whyLong:h=>`${h.hail>=1.5?'granizo grande':h.hail>=1?'granizo de más de 1 pulgada':'granizo menor'} en un techo de ~${h.roof} años${h.own?', vive el dueño (registro de muestra)':''}, construida en ${h.built}.`,
   prev:'← Puerta anterior',next:'Siguiente →',
-  legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días, EN + ES.',
+  legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días hábiles, EN + ES.',
   fine:'Casa de muestra (ficticia) hasta empezar a tocar. Sin nombres de dueños.',
-  road:{doors:'Puertas',hail:'Granizo',walk:'A pie',start:'Inicio'},roadP:(n,k)=>`${n} calles · ${k} puertas · casas de muestra`,
+  road:{doors:'Puertas',hail:'Granizo máx. puerta',walk:'A pie',start:'Inicio'},roadP:(n,k)=>`${n} calles · ${k} puertas · casas de muestra`,
   hint:'<b>Arrastra</b> para girar · <b>rueda</b> para acercar · <b>clic</b> en una casa · <b>Esc</b> regresa',
   back:{morning:'Mañana',walk:'Ruta'},
-  toastOmaha:'Omaha es el respaldo diario: el 3D a nivel de calle se carga en la app en vivo (esta maqueta tiene calles de Columbus).',
+  toastOmaha:'Omaha es el respaldo diario: el 3D a nivel de calle se carga en la app en vivo (esta maqueta tiene calles de Fremont y Columbus).',
   toastNoGL:'El 3D necesita WebGL2; se muestra la lista de la ruta.',
   hq:'Base HMP',ind:{col:(n,mi)=>`← Columbus · ${n} zonas · ${mi} mi`,bk:mi=>`Respaldo Omaha · ${mi} mi →`},
   srcs:'<b>Fuentes</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> motor Aldaba (hh.py) · <sup>3</sup> Censo ACS 2024 · <sup>4</sup> calles Nebraska GIS · casas: muestra · curvas: modelo visual',
  }};
 const t=k=>T[lang][k];
 const SRC={en:{storms:NL.src.storms,engine:'Aldaba engine (hh.py): ranks zones from NOAA/MRMS hail + Census ACS 2024; doors = its walk',
-  drive:'Engine distance from HMP HQ (2600 N Laverna St, Fremont); time estimated',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
+  drive:'Engine distance from HMP HQ (2600 Laverna St, Fremont); time estimated',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
  es:{storms:'Reportes de tormenta NOAA SPC + estimados de granizo por radar MRMS (motor hh.py)',engine:'Motor Aldaba (hh.py): ordena zonas con granizo NOAA/MRMS + Censo ACS 2024; puertas = su ruta',
-  drive:'Distancia del motor desde la base HMP (2600 N Laverna St, Fremont); tiempo estimado',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
+  drive:'Distancia del motor desde la base HMP (2600 Laverna St, Fremont); tiempo estimado',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
 
 /* ================= projection + palette ================= */
 const K=Math.cos(41.3*Math.PI/180), X=lon=>(lon+97)*K, Y=lat=>lat-41.3, KMX=111.32, KMY=110.54;
@@ -498,7 +498,7 @@ function renderPlan(){
   const rows=[
    {tm:7*60+2,c:'now',en:['Pick ready',`${town} · ${sts}`],es:['Elección lista',`${town} · ${sts}`],kv:{en:`${P.doors} doors`,es:`${P.doors} puertas`}},
    {tm:9*60,en:['Prep',`${P.doors} door cards · cancel forms EN + ES`],es:['Preparar',`${P.doors} fichas · formularios de cancelación EN + ES`],kv:{en:'~30 min',es:'~30 min'}},
-   {tm:lv,en:['Leave HQ',`2600 N Laverna St → ${park}`],es:['Salir de la base',`2600 N Laverna St → ${park}`],kv:{en:`${P.dist_mi} mi · ${dm} min`,es:`${P.dist_mi} mi · ${dm} min`}},
+   {tm:lv,en:['Leave HQ',`2600 Laverna St → ${park}`],es:['Salir de la base',`2600 Laverna St → ${park}`],kv:{en:`${P.dist_mi} mi · ${dm} min`,es:`${P.dist_mi} mi · ${dm} min`}},
    {tm:KN0-15,en:['Park',`${park} · door 1: ${first.addr}`],es:['Estacionarse',`${park} · puerta 1: ${first.addr}`],kv:{en:'15 min early',es:'15 min antes'}},
    {tm:KN0,c:'win',en:['Knock · 4:00–7:30',seq],es:['Tocar · 4:00–7:30',seq],kv:{en:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min ea`,es:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min c/u`}},
    {tm:SUNSET,c:'warn',en:['Sunset',`civil dusk ${dkT} · ${nd} door${nd===1?'':'s'} after sunset`],es:['Puesta de sol',`crepúsculo ${dkT} · ${nd} puerta${nd===1?'':'s'} después`],kv:{en:`☼ ${ssT}`,es:`☼ ${ssT}`}},
@@ -517,7 +517,7 @@ const STORMS=NL.storms.map(s=>{const ar=NL.areas.filter(a=>a.st===s.id);const zn
   const names=[...new Set(ar.sort((a,b)=>b.homes-a.homes).map(a=>a.name.en))];
   return {s,ar,zn,homes:ar.reduce((t,a)=>t+(a.homes||0),0),names,near,n:dayN(s.date)}});
 function renderHail(){
-  const L=T[lang],all=STORMS.length,d90=STORMS.filter(x=>x.n<=90).length,big=Math.max(...STORMS.map(x=>x.s.max)),bigD=STORMS.filter(x=>x.s.max===big).map(x=>x.s.d[lang]).join(' & '),last=STORMS[0];
+  const L=T[lang],all=STORMS.length,d90=STORMS.filter(x=>x.n<=90).length,big=Math.max(...STORMS.map(x=>x.s.max)),bigD=STORMS.filter(x=>x.s.max===big).map(x=>x.s.d[lang]).join(lang==='es'?' y ':' & '),last=STORMS[0];
   $('#hsum').innerHTML=[L.sum.all(all),L.sum.d90(d90),L.sum.big(big,bigD)].map(s=>`<span class="chip">${esc(s)}</span>`).join('');
   $('#hlist').innerHTML=STORMS.map(x=>{const s=x.s,pk=s.id===S8.id,wd=WD[lang][wday(s.date)];
     const where=x.names.length?x.names.slice(0,2).join(', ')+(x.names.length>2?` +${x.names.length-2}`:''):L.near(x.near);
@@ -563,7 +563,7 @@ function renderDoor(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.leng
      <div><span class="k">${L.bigRoof}</span><span class="v">~${h.roof}<small>${L.f.yrs}</small></span></div></div>
    <p class="whyd"><b>${L.whyH}</b> ${esc(L.whyLong(h))}</p>
    <dl class="facts">
-     <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} in<sup class="s" data-src="storms">1</sup></dd></div>
+     <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} ${lang==='es'?'pulg':'in'}<sup class="s" data-src="storms">1</sup></dd></div>
      <div><dt>${L.score}</dt><dd>${h.score}<sup class="s" data-src="engine">2</sup></dd></div>
      <div><dt>${L.f.built}</dt><dd>${h.built}</dd></div>
      <div><dt>${L.f.own}</dt><dd class="${h.own?'y':''}">${h.own?L.f.yes:L.f.no}</dd></div>
