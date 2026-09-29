@@ -82,7 +82,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - Law lines in the app (e.g. 3-day cancel, no deductible help) come from docs/legal/ statute text; want the boss or a
   lawyer to OK the wording before you knock? King's pick: yes, one look before the first real sale.
 
-- Contract at the door: signed on printed paper, or on the screen with a finger? Default now: both work (print + on-screen). King's pick: screen, paper as backup.
+- Contract at the door: signed on printed paper, or on the screen with a finger? Nothing changed yet; the app stays as it is until you pick. King's pick: screen, paper as backup.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - What wording HMP puts on a damage report that goes to a carrier: photos + counts only, or notes too? (claim checklist, 2026-09-28)
