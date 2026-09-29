@@ -9,6 +9,9 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
   session_01JozofC archived; its safety check trig_01AknBnn + permit reminder trig_01DqmD72 disabled; permit reminder
   re-made via send_later trig_01GRQqBn5ufKuocKK1RBKEFs (13:02Z). Designer session_01HNcP3i done (HMP App v14 desk
   layout live), archived.
+- 12:02: RUNNING session_01Ck7V69BXGkVHVim6SzdqNy Engine (drawn walks for top-3 + backup, handoff NEXT 1) and
+  session_012136rntxeMkoRn5S6AezDk Builder ("free" sweep + PDF re-render, NEXT 2+3). Check-in via send_later ~12:47Z.
+  Test wake at 11:22 and 7 AM wake at 12:00 both landed in this chat.
 
 ## FIRST, as the new King (written 2026-09-29 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc)
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
