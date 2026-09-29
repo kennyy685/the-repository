@@ -4,6 +4,33 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
+## FIRST, as the new King (written 2026-09-29 14:00 UTC by King session_01PJvb5QyxFcFZV1S5sftKNQ)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
+1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_01PDsG5Y1TBi9XpzefRn74uH's prompt
+   with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session; environment_id is
+   env_01LmzHGU2VBGPgpjWbyp9Afy) and system/robots.dispatch.king; update CLAUDE.md's trigger line. Disable (never delete)
+   trig_01PDsG5Y1TBi9XpzefRn74uH, then archive session_01PJvb5QyxFcFZV1S5sftKNQ. Also disable its leftover check-in
+   trig_016ExD5QWvdsaKz3GnM2hhVw (14:13) after you re-arm your own.
+2. Self-test the timed wake (update_trigger run_once_at ~1 min out on your trigger). Proven 13:44: a real hub order woke
+   the old King in 2 min.
+3. Refresh hub crew/sessions (list_sessions) + board/current + system/king on every robot finish / check-in: FilthE
+   (13:50) "everything should be live". Those docs were 12-14 h stale this morning and the hub's instant answers told him
+   to press Fresh King. He does NOT need one; the button's error is being fixed by the code-health Builder.
+4. 4 robots at once, all ultracode (FilthE 13:45 "iron age"). RUNNING (check-in every ~25 min with send_later):
+   - session_012136rntxeMkoRn5S6AezDk Builder: last "free" lines + PDFs, waiting on QA (QA event re builder-no-free-sweep-982ebe2), then publishes app + Practice Door.
+   - session_019aik3ZgNmJCAEueHiCdj4v Engine: open map QA lows (days-ago off by one, ES design gate, install note).
+   - session_01RRaZWWf6iNmTYc7ycLVdb7 Builder ultracode: code-health sweep all pages + fresh-King real error + save stuck QA reports.
+   - session_01Us5UbjDH7t2GnhrnFxf9f3 Designer ultracode: 3 next-level 7 AM looks, compare artifact, FilthE picks.
+   NEXT when a slot frees: Builder ultracode "live board" (hub board + instant answers built from real events/sessions by
+   themselves, no hand-writing). Then: add "ultracode" to the hub dispatch trigger prompts (builder/designer/engine/
+   research; FilthE's pick pending, King's pick yes).
+5. OPEN with FilthE: (a) a "red -380 number": he asked if it's broken code; the King couldn't find it in hub code and asked
+   him WHERE it shows. Get his answer from the hub and hand it to the code-health Builder (or a fresh robot). (b) "score
+   every call" yes/no (King's pick yes). (c) raise to 3-4 robots: answered, 4.
+6. QA trigger trig_01PVGRev9d4pF9PABSNcG9XH now calls add_repo push first (FilthE's order 13:44). Check the next QA report
+   actually pushed.
+7. Report card (crew/report_card) current through 12:50. Robots' guessed timestamps: lesson added to engine + QA memory.
+
 ## 2026-09-29 11:20 UTC: new King took over (session_01PJvb5QyxFcFZV1S5sftKNQ, branch claude/stoic-darwin-ikqmrj)
 - Wake trigger trig_01PDsG5Y1TBi9XpzefRn74uH (hub system/king + robots.dispatch.king point to it); trig_01RB7w disabled;
   session_01JozofC archived; its safety check trig_01AknBnn + permit reminder trig_01DqmD72 disabled; permit reminder
@@ -19,7 +46,7 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
   told FilthE to press Fresh King; he doesn't need one). NEXT when a slot frees: hub "live board" (board/answers built
   from real events + sessions by themselves, ultracode).
 
-## FIRST, as the new King (written 2026-09-29 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc)
+## (older) FIRST steps written 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
 1. Get your own session id (get_session, no id). Create your wake trigger: create_trigger, NO cron, bound to you, prompt =
    the prompt of trig_01RB7wJoBmgynC5qG7JzRpSY with your session id swapped in (get_trigger it). Write its id to hub doc
