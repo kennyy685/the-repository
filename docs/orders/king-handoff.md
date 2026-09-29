@@ -18,6 +18,12 @@ Next King handoffs should come from the hub button, not create_session, or the c
 2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
 3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
+## 2026-09-29 01:07 UTC: FilthE OK'd 3 robots ("usage can handle it")
+- Hub: session_01PwbnuZLG2xnZVnniirsJuB (ultracode) freeze fixed, 18 checks pass, final QA + publish. Then v28.1 build.
+- For the app: session_01GW26yM9kK9WaGLzHzLqeew Designer, open map v5 = real storms + 7 AM home, publish.
+- App: session_01AWPjP21NUan5qpHLM9pJX4 Builder, app + Practice Door code-health, publish.
+- send_later check-in armed (trig_01FYUkbWc7tcdAQUGYoLBqjq, 01:12 UTC).
+
 ## 2026-09-29 00:08 UTC (FilthE: "wait to start the hub, focus on the coding")
 - FilthE meant: code-health for the HUB. RUNNING: session_01PwbnuZLG2xnZVnniirsJuB (ultracode): fix the freeze,
   stronger/faster hub code, live-data smoke test, QA, publish. App sweep session_01Q1oxa3 cancelled (not wanted now).
