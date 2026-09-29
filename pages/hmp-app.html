@@ -5511,7 +5511,7 @@ function paperLegalBlock(l, kind){
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-paperlegal]'); if (!b) return; paperLegal = paperLegal === b.dataset.paperlegal ? null : b.dataset.paperlegal; renderSheet(); });
 function legalHtml(id, deadline){
   const T = window.HMPTranslate; if (!T || !id) return '';
-  const two = ['en', 'es'].map(l => { const d = T.readLegal(id, l, {deadline}); return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
+  const two = (lang === 'es' ? ['es', 'en'] : ['en', 'es']).map(l => { const d = T.readLegal(id, l, {deadline});   // the screen's language first return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
   return `<details class="fold" open><summary>${esc(NW().sayFixedDoc)}</summary>${two}</details>`;
 }
 function renderSay(){
