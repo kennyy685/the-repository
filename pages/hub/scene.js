@@ -297,7 +297,7 @@ const FL = {down:{ox:0, oy:0, oz:0, wall:2.8}, up:{ox:-4.2, oy:3.1, oz:-4.6, wal
 const gDown = new THREE.Group(), gUp = new THREE.Group(); gUp.position.set(FL.up.ox, FL.up.oy, FL.up.oz); scene.add(gDown, gUp);
 const GRP = {down:gDown, up:gUp};
 const SLIDE = {cx:1.15, cz:-2.3, R:.75, top:3.1, bot:.03, th0:Math.PI, turns:1.25, tr:.3};
-const TUBE = {x:-3.9, z:-.7, r:.46, top:4.85};
+const TUBE = {x:-3.9, z:-.7, r:.46, top:4.45};   // v28.1: .6 m above the Observatory (was 4.85), so the table reads from above
 /* v28.1 the Observatory (blueprint 5.3): a ring table threaded on the tube, upper-floor local coords; its back half on the travertine,
  * its front half out over the half-disc glass cantilever (radius CR from the upper floor's front edge) */
 const OBS = {x:TUBE.x - FL.up.ox, z:TUBE.z - FL.up.oz, y:.745, r0:.74, r1:1.35, gap:.6, CR:2.05};
@@ -791,7 +791,7 @@ const tube = {};
   // highlight streak on the glass
   const hl = new THREE.Mesh(new THREE.PlaneGeometry(.06, top - .4), new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:.12, depthWrite:false, toneMapped:false})); hl.position.set(x + r*.7, top/2, z + r*.7); hl.rotation.y = Math.PI/4; hl.renderOrder = 6; scene.add(dyn(hl));
   cyl(r + .08, r + .1, .06, MAT.steel, x, .03, z, 40); for (const y of [.07, 3.1, top]){ const t = new THREE.Mesh(new THREE.TorusGeometry(r + .01, .025, 8, 48), MAT.brass); t.rotation.x = Math.PI/2; t.position.set(x, y, z); scene.add(t); }
-  const cap = cyl(r + .06, r + .02, .14, MAT.brassSoft, x, top + .07, z, 40); cap.castShadow = false;   // v28.1: a brass finial on the spindle
+  { const cap = new THREE.Mesh(new THREE.TorusGeometry(r + .03, .045, 10, 48), MAT.brassSoft); cap.rotation.x = Math.PI/2; cap.position.set(x, top + .02, z); scene.add(cap); }   // v28.1: an open brass collar: you see down the spindle
   tube.capMat = new THREE.MeshBasicMaterial({color:0x8a6f4a, toneMapped:false}); const capRing = new THREE.Mesh(new THREE.TorusGeometry(r + .03, .014, 6, 48), tube.capMat); capRing.rotation.x = Math.PI/2; capRing.position.set(x, top - .02, z); scene.add(dyn(capRing));
   tube.ring = new THREE.Mesh(new THREE.TorusGeometry(r - .03, .03, 8, 48), new THREE.MeshBasicMaterial({color:0xf1c48a, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
   tube.ring.rotation.x = Math.PI/2; tube.ring.position.set(x, .2, z); tube.ring.visible = false; scene.add(tube.ring);
@@ -2301,6 +2301,7 @@ function catNeedsScan(){
 }
 function catPlayStart(id){
   const a = HUB.byId && HUB.byId[id], sim = sims[id];
+  if (a && sim && sim.ride && a.st === 'waiting'){ if (!CAT.pend.includes(id)) CAT.pend.push(id); return false; }   // mid-ride: after it lands
   if (!a || !sim || sim.hidden || sim.ride || sim.playing || a.st !== 'waiting') return false;
   if (sim.flowRole) flowAbort(sim);
   const f = CAT.floor, cx = CAT.perch ? CAT.perch.spot.x : CAT.x, cz = CAT.perch ? CAT.perch.spot.z : CAT.z;
@@ -2714,7 +2715,7 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
   for (let i = 0; i < 10 && (sim.moving || sim.queue.length); i++){ if (sim.moving){ place(sim, sim.target); if (sim.pending){ sim.pending = false; applyState(sim, a, false); } } stepQueue(sim, a); if (sim.queue[0] && sim.queue[0].dur){ sim.poseT = sim.queue[0].dur*.4; break; } } } }
 
 /* test helper (not part of the contract): the cat's and the handoffs' state */
-function debug(){ return {cat:{x:CAT.x, z:CAT.z, floor:CAT.floor, alt:CAT.alt, state:catInfo.state, act:CAT.act, pose:CAT.pose, q:CAT.q.length, moving:CAT.moving, with:CAT.with, armed:CAT.armed},
+function debug(){ return {cat:{x:CAT.x, z:CAT.z, floor:CAT.floor, alt:CAT.alt, state:catInfo.state, act:CAT.act, pose:CAT.pose, q:CAT.q.length, moving:CAT.moving, with:CAT.with, withPose:CAT.with && sims[CAT.with] ? sims[CAT.with].pose : null, armed:CAT.armed},
   flows:FLOW.list.map(f => ({dir:f.dir, launched:f.launched, arrived:f.arrived, sW:f.sW, rW:f.rW, taken:f.taken, p:[+f.p.x.toFixed(2), +f.p.y.toFixed(2), +f.p.z.toFixed(2)]})), walk:FLOW.walk, watching:!!HUB.watching, lift:LIFT}; }
 window.SCENE = {ready:true, anchors, frame, resize, pick, settle, debug, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
   get views(){ return builtViews(); }, get cat(){ return catOn() ? catInfo : null; }, get tweening(){ return tw.t < 1; }, get pipDrawn(){ return !!(pipSt.drawn && HUB.pip && HUB.pip.id === pipSt.id); }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
