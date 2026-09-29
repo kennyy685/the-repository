@@ -1,0 +1,709 @@
+<!doctype html>
+<!--
+  Direction A "Storm Room" - the 7 AM open as a cinematic weather theatre. Mockup only (not published).
+  Data: ../shared/data.js (window.NL) - real Nebraska GIS lines, real NOAA/MRMS storm days, real engine pick.
+  Sample homes are FAKE (build.py) and labeled "sample".
+
+  Borrowed (with sources):
+  - Particle flow with fade trails over a vector field (earth.nullschool / Windy technique; Canvas2D
+    "destination-in" trail fade, particles re-spawned with an age): Vladimir Agafonkin, "How I built a wind map
+    with WebGL" https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f and
+    https://earth.nullschool.net (Cameron Beccario).
+  - Liquid Glass: glass only for the navigation/control layer, specular top edge, text on a solid inner panel.
+    Apple WWDC25 "Meet Liquid Glass" https://developer.apple.com/videos/play/wwdc2025/219/
+  - Calm neutrals, one tuned accent, 120-180 ms eased feedback: Linear, "A calmer interface for a product in
+    motion" https://linear.app/now/behind-the-latest-design-refresh
+  - Animate only transform/opacity, motion shows cause and effect, interruptible: Vercel Web Interface
+    Guidelines https://vercel.com/design/guidelines
+  - Layout reshapes around what matters now (the storm, then the pick): Apple Weather.
+  - Screen-space extruded, anti-aliased WebGL lines (instanced quads, one draw call per layer): common WebGL
+    technique, e.g. Matt DesLauriers "Drawing Lines is Hard" https://mattdesl.svbtle.com/drawing-lines-is-hard
+-->
+<html lang="en" data-lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba · Storm Room</title>
+<style>
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(../shared/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(../shared/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+
+:root{
+  --page:#07080a;--text:#f1f2f4;--text-2:#b8bbc2;--muted:#80838b;--rule:rgba(255,255,255,.08);--rule-2:rgba(255,255,255,.14);
+  --solid:#0d0e11;--solid-2:#14161a;--chip:#1c1e23;
+  --acc:#f5883a;--acc-ink:#ffa766;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.14);
+  --h1:#f2c14e;--h15:#f5883a;--h2:#ff4f5a;
+  --glass:rgba(22,24,29,.46);--glass-edge:rgba(255,255,255,.26);--glass-rim:rgba(255,255,255,.07);
+  --shadow:0 30px 80px -30px rgba(0,0,0,.8),0 10px 30px -12px rgba(0,0,0,.6);
+  --display:"Bricolage Grotesque","Bricolage L",system-ui,sans-serif;
+  --ui:"Geist","Geist L",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono","Geist Mono L",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+[data-theme="light"]{
+  --page:#eef0ee;--text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--rule:rgba(24,25,28,.10);--rule-2:rgba(24,25,28,.18);
+  --solid:#f8f9f7;--solid-2:#f0f1ee;--chip:#e4e6e2;
+  --acc:#f5883a;--acc-ink:#a4520f;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.16);
+  --h1:#b98a10;--h15:#cf5f12;--h2:#c92d3b;
+  --glass:rgba(250,250,247,.52);--glass-edge:rgba(255,255,255,.95);--glass-rim:rgba(24,25,28,.10);
+  --shadow:0 24px 60px -28px rgba(40,36,30,.35),0 8px 20px -10px rgba(40,36,30,.2);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--page);color:var(--text);font:400 14px/1.45 var(--ui);-webkit-font-smoothing:antialiased;transition:background .18s}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:8px}
+.mono{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+sup.s{font:500 8.5px var(--mono);color:var(--muted);margin-left:2px;vertical-align:super;cursor:help;letter-spacing:0}
+
+/* ---------- stage ---------- */
+#gl,#pt,#ov{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#pt,#ov{pointer-events:none}
+.vig{position:fixed;inset:0;pointer-events:none;background:
+  radial-gradient(120% 90% at 55% 45%,transparent 55%,rgba(0,0,0,.55) 100%)}
+[data-theme="light"] .vig{background:radial-gradient(120% 90% at 55% 45%,transparent 60%,rgba(120,110,90,.16) 100%)}
+.grain{position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- Liquid Glass (nav/control layer only); text sits on solid ---------- */
+.glass{position:fixed;background:var(--glass);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);
+  border-radius:22px;box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 0 0 1px var(--glass-rim),var(--shadow)}
+.glass::before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--glass-edge) 30%,var(--glass-edge) 70%,transparent);opacity:.9}
+.solid{background:var(--solid);border-radius:16px;box-shadow:inset 0 0 0 1px var(--rule)}
+
+/* assemble: opacity + transform only */
+.asm{opacity:0;transform:translateY(10px) scale(.985);transition:opacity .5s var(--ease),transform .6s var(--ease)}
+.on .asm,.asm.in{opacity:1;transform:none}
+
+/* ---------- top bar ---------- */
+.top{left:14px;right:14px;top:12px;height:52px;border-radius:16px;display:flex;align-items:center;gap:16px;padding:0 10px 0 14px;z-index:5}
+.brand{display:flex;align-items:center;gap:9px;flex:none}
+.brand svg{width:26px;height:26px;display:block}
+.brand b{font:700 18px/1 var(--display);letter-spacing:-.03em}
+.when{display:flex;gap:10px;align-items:baseline;flex:none;padding-left:14px;border-left:1px solid var(--rule-2)}
+.when .d{font-weight:500;color:var(--text-2)}
+.when .t{font:500 13px var(--mono);color:var(--text)}
+.night{flex:1;min-width:0;display:flex;align-items:center;gap:10px;justify-content:center;color:var(--text-2);font-size:13.5px}
+.night span.txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{width:7px;height:7px;border-radius:50%;background:#62c48a;box-shadow:0 0 0 3px rgba(98,196,138,.18);flex:none}
+.tag{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);flex:none}
+.ctl{display:flex;align-items:center;gap:8px;flex:none}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--solid);box-shadow:inset 0 0 0 1px var(--rule)}
+.seg button{height:26px;padding:0 10px;border-radius:7px;font:500 11.5px var(--mono);color:var(--muted);transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--chip);color:var(--text)}
+.ghost{height:32px;padding:0 12px;border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-weight:500;font-size:12.5px;color:var(--text-2);background:var(--solid);box-shadow:inset 0 0 0 1px var(--rule);transition:color .15s}
+.ghost:hover{color:var(--text)}
+.ghost svg{width:14px;height:14px}
+
+/* ---------- pick card ---------- */
+.pick{left:14px;top:78px;width:452px;padding:7px;z-index:4}
+.pick .solid{padding:22px 24px 20px}
+.eyebrow{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.eyebrow .n{color:var(--muted)}
+h1{margin:12px 0 0;font:700 44px/1.0 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.035em;text-wrap:balance}
+h1 .sep{color:var(--acc)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin:20px 0 0;background:var(--rule);border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--rule)}
+.st{background:var(--solid-2);padding:12px 14px 11px}
+.st .k{font:500 10.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.st .v{font:500 30px/1.1 var(--mono);letter-spacing:-.04em;margin-top:5px;white-space:nowrap}
+.st .v small{font-size:13px;letter-spacing:0;color:var(--text-2);margin-left:4px}
+.st .u{font-size:12px;color:var(--text-2);margin-top:1px;white-space:nowrap}
+.st.hot .v{color:var(--h15)}
+.why{margin:16px 0 0;font-size:15px;line-height:1.5;color:var(--text)}
+.area{margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.area b{color:var(--text-2);font-weight:500}
+.acts{display:flex;gap:10px;margin-top:18px;align-items:stretch}
+.go{flex:1;height:50px;border-radius:13px;background:var(--acc);color:var(--on-acc);font-weight:600;font-size:15.5px;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 10px 30px -10px rgba(245,136,58,.7),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s var(--ease)}
+.go:hover{transform:translateY(-1px)}
+.go:active{transform:scale(.98)}
+.go svg{width:17px;height:17px}
+.bk{max-width:170px;padding:0 12px;border-radius:13px;background:var(--solid-2);box-shadow:inset 0 0 0 1px var(--rule-2);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.bk .k{font:500 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bk .v{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- right rail ---------- */
+.rail{right:14px;top:78px;bottom:118px;width:318px;padding:7px;z-index:4;display:flex}
+.rail .solid{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 0 10px}
+.hd{display:flex;align-items:baseline;justify-content:space-between;padding:0 16px;margin-bottom:8px}
+.hd h2{margin:0;font:650 17px/1.2 var(--display);letter-spacing:-.02em}
+.hd span{font:500 10.5px var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.plan{list-style:none;margin:0;padding:0 16px 12px;position:relative}
+.plan li{display:grid;grid-template-columns:62px 14px minmax(0,1fr);gap:0 8px;padding:5px 0;position:relative}
+.plan .tm{font:500 11.5px var(--mono);color:var(--muted);padding-top:1px;white-space:nowrap}
+.plan .nd{position:relative}
+.plan .nd::before{content:"";position:absolute;left:4px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--solid);box-shadow:inset 0 0 0 1.5px var(--muted)}
+.plan .nd::after{content:"";position:absolute;left:7px;top:15px;bottom:-12px;width:1px;background:var(--rule-2)}
+.plan li:last-child .nd::after{display:none}
+.plan li.now .nd::before{background:#62c48a;box-shadow:0 0 0 3px rgba(98,196,138,.2)}
+.plan li.win .nd::before{background:var(--acc);box-shadow:0 0 0 3px var(--acc-bg)}
+.plan li.win .tm{color:var(--acc-ink)}
+.plan .tx{font-size:13px;line-height:1.35;color:var(--text)}
+.plan .tx em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:1px}
+.zl{border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;min-height:0;flex:1}
+.zones{list-style:none;margin:0;padding:0 8px;overflow:auto;flex:1;scrollbar-width:thin}
+.zones li button{width:100%;display:grid;grid-template-columns:22px minmax(0,1fr) 64px 34px;gap:8px;align-items:center;padding:5px 8px;border-radius:8px;text-align:left;transition:background .15s}
+.zones li button:hover,.zones li button.sel{background:var(--chip)}
+.zones .r{font:500 11px var(--mono);color:var(--muted)}
+.zones .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zones .bar{height:4px;border-radius:2px;background:var(--rule-2);position:relative;overflow:hidden}
+.zones .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+.zones .sc{font:500 11.5px var(--mono);text-align:right;color:var(--text-2)}
+.zones li.first .nm{font-weight:600}
+.zones li.first .r{color:var(--acc-ink)}
+.zones li.ev .nm::after{content:attr(data-ev);margin-left:6px;font:500 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.srcs{padding:10px 16px 0;border-top:1px solid var(--rule);margin-top:8px;font-size:10.5px;line-height:1.45;color:var(--muted)}
+.srcs b{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);font-weight:500}
+
+/* ---------- timeline ---------- */
+.tl{left:14px;right:14px;bottom:12px;height:96px;padding:7px;z-index:4;display:flex}
+.tl .solid{flex:1;display:grid;grid-template-columns:196px minmax(0,1fr);gap:18px;padding:12px 18px 10px 16px;background:color-mix(in srgb,var(--solid) 88%,transparent)}
+.tl .lab h3{margin:0;font:650 15px/1.2 var(--display);letter-spacing:-.02em}
+.tl .lab p{margin:3px 0 7px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg{display:flex;gap:10px;font:500 10.5px var(--mono);color:var(--text-2)}
+.lg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:-0px}
+#ticks{position:relative;height:100%;min-width:0}
+#ticks svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tip{position:fixed;z-index:9;pointer-events:none;min-width:210px;padding:10px 12px;border-radius:12px;background:var(--solid);box-shadow:inset 0 0 0 1px var(--rule-2),var(--shadow);font-size:12px;opacity:0;transform:translateY(4px);transition:opacity .14s,transform .14s}
+.tip.show{opacity:1;transform:none}
+.tip b{display:block;font:650 14px var(--display);letter-spacing:-.01em;margin-bottom:3px}
+.tip .m{font:500 11.5px var(--mono);color:var(--text-2)}
+.tip .a{margin-top:5px;color:var(--muted);font-size:11.5px}
+
+/* ---------- map extras ---------- */
+.cap{position:fixed;left:50%;bottom:132px;transform:translateX(-50%);z-index:3;padding:9px 16px;border-radius:999px;font:500 12.5px var(--mono);letter-spacing:.02em;color:var(--text);
+  background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 0 0 1px var(--glass-rim);transition:opacity .5s var(--ease);white-space:nowrap}
+.cap i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--h15);margin-right:8px;box-shadow:0 0 10px var(--h15)}
+.recenter{position:fixed;z-index:3;top:80px;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none;transition:opacity .18s}
+.recenter.show{opacity:1;pointer-events:auto}
+.toast{position:fixed;z-index:6;left:50%;top:84px;transform:translate(-50%,-6px);opacity:0;transition:opacity .18s,transform .18s;padding:9px 14px;border-radius:12px;background:var(--solid);box-shadow:inset 0 0 0 1px var(--rule-2),var(--shadow);font-size:12.5px;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1360px){
+  .pick{width:404px}.rail{width:290px}
+  h1{font-size:38px}.st .v{font-size:26px}.why{font-size:14px}
+  .tl .solid{grid-template-columns:170px minmax(0,1fr)}
+}
+@media (max-height:820px){
+  .pick .solid{padding:18px 20px 16px}.stats{margin-top:14px}.st{padding:9px 12px 8px}.why{margin-top:12px}.acts{margin-top:14px}
+  .tl{height:88px}.rail{bottom:108px}.cap{bottom:120px}
+  .plan li{padding:3px 0}
+  .plan li:not(.win) .tx em{display:none}
+}
+@media (prefers-reduced-motion:reduce){.asm{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas><canvas id="pt"></canvas><canvas id="ov"></canvas>
+<div class="vig"></div><div class="grain"></div>
+
+<!-- top bar -->
+<header class="glass top">
+  <div class="brand">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="currentColor"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>
+    <b>Aldaba</b>
+  </div>
+  <div class="when"><span class="d" data-t="date"></span><span class="t" data-t="clock"></span></div>
+  <div class="night"><span class="tag" data-t="overnight"></span><i class="dot"></i><span class="txt" id="headline"></span><sup class="s" data-src="storms">1</sup></div>
+  <div class="ctl">
+    <button class="ghost" id="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span data-t="replay"></span></button>
+    <div class="seg" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="es">ES</button></div>
+    <div class="seg" role="group" aria-label="Theme"><button data-theme="dark" data-t="dark"></button><button data-theme="light" data-t="light"></button></div>
+  </div>
+</header>
+
+<!-- pick card -->
+<section class="glass pick asm" id="pick" aria-labelledby="pk-h">
+  <div class="solid">
+    <div class="eyebrow"><i></i><span data-t="pickEye"></span><span class="n" data-t="pickOf"></span><sup class="s" data-src="engine">2</sup></div>
+    <h1 id="pk-h">Columbus <span class="sep">·</span> 22 St &amp; 21 St</h1>
+    <div class="stats">
+      <div class="st"><div class="k" data-t="doors"></div><div class="v"><span data-count="25" data-dec="0">25</span><sup class="s" data-src="engine">2</sup></div><div class="u" data-t="doorsU"></div></div>
+      <div class="st hot"><div class="k" data-t="hail"></div><div class="v"><span data-count="1.64" data-dec="2">1.64</span><small data-t="in"></small><sup class="s" data-src="storms">1</sup></div><div class="u" data-t="hailU"></div></div>
+      <div class="st"><div class="k" data-t="drive"></div><div class="v"><span data-count="45.5" data-dec="1">45.5</span><small>mi</small><sup class="s" data-src="drive">2</sup></div><div class="u" data-t="driveU"></div></div>
+      <div class="st"><div class="k" data-t="best"></div><div class="v" data-t="bestV"></div><div class="u" data-t="bestU"></div></div>
+    </div>
+    <p class="why" id="why"></p>
+    <p class="area" id="area"></p>
+    <div class="acts">
+      <button class="go" id="go"><span data-t="start"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <button class="bk" id="bk"><span class="k" data-t="backup"></span><span class="v">Omaha · Pierce St &amp; S 137 Av</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- right rail -->
+<aside class="glass rail asm" id="rail">
+  <div class="solid">
+    <div class="hd"><h2 data-t="plan"></h2><span data-t="planSub"></span></div>
+    <ol class="plan" id="plan"></ol>
+    <div class="zl">
+      <div class="hd"><h2 data-t="zones"></h2><span data-t="score"></span></div>
+      <ul class="zones" id="zones"></ul>
+      <div class="srcs" id="srcs"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- timeline -->
+<footer class="glass tl asm" id="tl">
+  <div class="solid">
+    <div class="lab">
+      <h3 data-t="tlH"></h3>
+      <p data-t="tlP"></p>
+      <div class="lg"><span><i style="background:var(--h1)"></i>1"</span><span><i style="background:var(--h15)"></i>1.5"</span><span><i style="background:var(--h2)"></i>2"+</span><sup class="s" data-src="storms">1</sup></div>
+    </div>
+    <div id="ticks"></div>
+  </div>
+</footer>
+
+<div class="cap" id="cap"><i></i><span data-t="cap"></span></div>
+<button class="ghost recenter" id="recenter"><span data-t="recenter"></span></button>
+<div class="toast" id="toast"></div>
+<div class="tip" id="tip"></div>
+
+<script src="../shared/data.js"></script>
+<script>
+(()=>{
+'use strict';
+const NL=window.NL, Q=new URLSearchParams(location.search), $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let STILL=Q.get('still')==='1'||RM;
+let theme=Q.get('theme')==='light'?'light':'dark', lang=Q.get('lang')==='es'?'es':'en';
+try{ if(!Q.get('theme')){const t=localStorage.getItem('sr-theme'); if(t==='light'||t==='dark') theme=t;} if(!Q.get('lang')){const l=localStorage.getItem('sr-lang'); if(l==='en'||l==='es') lang=l;} }catch(e){}
+
+/* ---------------- strings (EN + natural Latin American Spanish) ---------------- */
+const P=NL.pick, B=NL.backup, S8=NL.storms.find(s=>s.date===P.storm_day), AREA=NL.areas.find(a=>a.id===P.area_id);
+const walkH=NL.walk.s.map(s=>s.n+' '+s.h).join(' · ');
+const T={
+ en:{date:'Tue, Sep 29',clock:'7:02 AM',overnight:'Overnight',replay:'Replay',dark:'Dark',light:'Light',
+  pickEye:"Aldaba's pick",pickOf:'#1 of 12 zones',doors:'Doors',doorsU:'on the walk · 3 streets',hail:'Hail',in:'in',hailU:'Aug 8 · radar estimate',
+  drive:'Drive',driveU:'from Fremont · ~50 min',best:'Best time',bestV:'4–7:30',bestU:'PM today · people home',
+  start:'Start the walk',backup:'Backup',plan:"Today's plan",planSub:'Tue',zones:'Ranked zones',score:'score',
+  tlH:'Hail days',tlP:'2026 season · last 90 days lit',cap:'Replaying Aug 8 · the storm behind today’s pick · Columbus',
+  recenter:'Back to the pick',everyday:'everyday',sample:'25 sample homes (fake)',toast:'Walk opens at 22 St & 40th Ave · 25 doors (mockup)',
+  srcH:'Sources',max:'max',areas:'areas hit',homes:'homes',noTime:'time not reported',today:'today',d90:'90 days',
+  park:'Park · 22 St & 40th Ave',hq:'Fremont · HQ',east:'Fremont 45.5 mi →',pickLbl:'#1 · 22 St & 21 St',mi:'mi',
+  areaTxt:a=>`<b>Area:</b> ${a.homes.toLocaleString('en-US')} homes · ${a.owner}% owner-lived · <b>likely insured: high</b> (area estimate, not a fact about one home)<sup class="s" data-src="census">3</sup>`},
+ es:{date:'mar 29 sep',clock:'7:02 a. m.',overnight:'Anoche',replay:'Repetir',dark:'Oscuro',light:'Claro',
+  pickEye:'La elección de Aldaba',pickOf:'#1 de 12 zonas',doors:'Puertas',doorsU:'en la ruta · 3 calles',hail:'Granizo',in:'pulg',hailU:'8 ago · estimado por radar',
+  drive:'Manejo',driveU:'desde Fremont · ~50 min',best:'Mejor hora',bestV:'4–7:30',bestU:'p. m. hoy · gente en casa',
+  start:'Empezar la ruta',backup:'Respaldo',plan:'Plan de hoy',planSub:'mar',zones:'Zonas en orden',score:'puntaje',
+  tlH:'Días de granizo',tlP:'2026 · últimos 90 días resaltados',cap:'Repitiendo el 8 ago · la tormenta detrás de la elección de hoy · Columbus',
+  recenter:'Volver a la elección',everyday:'diario',sample:'25 casas de muestra (ficticias)',toast:'La ruta empieza en 22 St y 40th Ave · 25 puertas (maqueta)',
+  srcH:'Fuentes',max:'máx',areas:'zonas con granizo',homes:'casas',noTime:'hora no reportada',today:'hoy',d90:'90 días',
+  park:'Estaciónate · 22 St y 40th Ave',hq:'Fremont · base',east:'Fremont 45.5 mi →',pickLbl:'#1 · 22 St y 21 St',mi:'mi',
+  areaTxt:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: alto</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`}
+};
+const PLAN=[
+ {tm:'7:02 AM',tmes:'7:02 a. m.',c:'now',en:['Pick ready: Columbus, 25 doors','Engine ran on overnight data'],es:['Elección lista: Columbus, 25 puertas','El motor corrió con los datos de anoche']},
+ {tm:'9:00 AM',tmes:'9:00 a. m.',en:['Back office','Follow-ups and open estimates'],es:['Oficina','Seguimientos y presupuestos abiertos']},
+ {tm:'2:45 PM',tmes:'2:45 p. m.',en:['Leave Fremont','US-30 west · 45.5 mi · ~50 min'],es:['Sal de Fremont','US-30 al oeste · 45.5 mi · ~50 min']},
+ {tm:'3:40 PM',tmes:'3:40 p. m.',en:['Park at 22 St & 40th Ave','Walk list opens'],es:['Estaciónate en 22 St y 40th Ave','Se abre la lista de la ruta']},
+ {tm:'4:00 PM',tmes:'4:00 p. m.',c:'win',en:['Knock window to 7:30 PM',walkH],es:['Horario para tocar hasta 7:30 p. m.',walkH]},
+ {tm:'8:30 PM',tmes:'8:30 p. m.',en:['Back in Fremont','Results sync to the app'],es:['De vuelta en Fremont','Los resultados se guardan en la app']}
+];
+const SRC={storms:NL.src.storms,engine:'Aldaba engine (hh.py): ranks zones from NOAA/MRMS hail + Census ACS 2024; doors = its walk',
+  drive:'Engine distance from Fremont HQ; time estimated at ~55 mph average',census:NL.src.census+' (area estimate)',streets:NL.src.streets,base:NL.src.base,homes:NL.src.homes};
+const SRC_ES={storms:'Reportes de tormenta NOAA SPC + estimados de granizo por radar MRMS (motor hh.py)',engine:'Motor Aldaba (hh.py): ordena zonas con granizo NOAA/MRMS + Censo ACS 2024; puertas = su ruta',
+  drive:'Distancia del motor desde la base en Fremont; tiempo estimado a ~55 mph',census:'Censo de EE. UU. ACS 2024 (estimado de la zona)',streets:NL.src.streets,base:NL.src.base,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'};
+
+/* ---------------- palette per theme ---------------- */
+const hex=h=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
+const PAL={
+ dark:{bg:hex('#07080a'),ink:hex('#dfe4ee'),warm:hex('#d9cdbb'),water:hex('#6f9fd0'),route:hex('#f5883a'),h1:hex('#f2c14e'),h15:hex('#f5883a'),h2:hex('#ff4f5a'),walk:hex('#ffa766'),ev:hex('#8fa6ff'),add:true,
+   a:{county:.10,town:.30,townF:.035,water:.34,waterF:.10,stream:.20,hwy:.36,rail:.14,arts:.17,st0:.62,st1:.42,st3:.26,grat:.045,glow:.08}},
+ light:{bg:hex('#eef0ee'),ink:hex('#1d2026'),warm:hex('#6a5a44'),water:hex('#2d6a9f'),route:hex('#c8640f'),h1:hex('#b98a10'),h15:hex('#cf5f12'),h2:hex('#c92d3b'),walk:hex('#b4540c'),ev:hex('#3b55c9'),add:false,
+   a:{county:.16,town:.42,townF:.05,water:.70,waterF:.16,stream:.40,hwy:.46,rail:.22,arts:.22,st0:.66,st1:.50,st3:.34,grat:.07,glow:.0}}
+};
+function hailCol(h,pal){const c=pal||PAL[theme]; if(h<=1) return c.h1; if(h<1.5) return mixc(c.h1,c.h15,(h-1)/.5); if(h<2) return mixc(c.h15,c.h2,(h-1.5)/.5); return c.h2;}
+function mixc(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
+const css=c=>`rgb(${c.map(v=>Math.round(v*255)).join(',')})`, cssa=(c,a)=>`rgba(${c.map(v=>Math.round(v*255)).join(',')},${a})`;
+
+/* ---------------- projection: equirectangular, cos(lat) squeeze ---------------- */
+const K=Math.cos(41.3*Math.PI/180), X=lon=>(lon+97)*K, Y=lat=>lat-41.3;
+const W=()=>innerWidth, H=()=>innerHeight;
+
+/* ---------------- geometry build ---------------- */
+function segs(lines,filter){const o=[];for(const L of lines){if(filter&&!filter(L))continue;const p=L.p;for(let i=1;i<p.length;i++)o.push(X(p[i-1][0]),Y(p[i-1][1]),X(p[i][0]),Y(p[i][1]));}return new Float32Array(o)}
+function fan(ring){ // ear-clipping triangulation (concave rivers/towns need it; a centroid fan leaks)
+  let pts=ring.map(q=>[X(q[0]),Y(q[1])]);if(pts.length>3){const a=pts[0],b=pts[pts.length-1];if(a[0]===b[0]&&a[1]===b[1])pts.pop()}
+  let n=pts.length;if(n<3)return [];let area=0;for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n];area+=a[0]*b[1]-b[0]*a[1]}if(area<0)pts.reverse();
+  const idx=pts.map((_,i)=>i),o=[];const cr=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const inT=(p,a,b,c)=>cr(a,b,p)>=0&&cr(b,c,p)>=0&&cr(c,a,p)>=0;let guard=0,i=0;
+  while(idx.length>3&&guard<idx.length*3){const m=idx.length,ia=idx[(i+m-1)%m],ib=idx[i%m],ic=idx[(i+1)%m],A=pts[ia],Bq=pts[ib],C=pts[ic];let ear=cr(A,Bq,C)>0;
+    if(ear){for(let j=0;j<m;j++){const k=idx[j];if(k===ia||k===ib||k===ic)continue;const P=pts[k];if(inT(P,A,Bq,C)&&!(P[0]===A[0]&&P[1]===A[1])&&!(P[0]===C[0]&&P[1]===C[1])){ear=false;break}}}
+    if(ear){o.push(...A,...Bq,...C);idx.splice(i%m,1);guard=0}else{i++;guard++} if(i>=idx.length)i=0;}
+  if(idx.length===3)o.push(...pts[idx[0]],...pts[idx[1]],...pts[idx[2]]);return o}
+const base=NL.base;
+const G={
+ county:segs(base,l=>l.k==='county'), town:segs(base,l=>l.k==='town'), water:segs(base,l=>l.k==='water'),
+ stream:segs(base,l=>l.k==='stream'), hwy:segs(base,l=>l.k==='hwy'), rail:segs(base,l=>l.k==='rail'),
+ arts:segs(NL.arts), fr0:segs(NL.fremont,l=>l.c<=1), fr3:segs(NL.fremont,l=>l.c>=2),
+ co1:segs(NL.columbus,l=>l.c<=1), co3:segs(NL.columbus,l=>l.c>=2),
+ walk:segs(NL.walk.s)
+};
+{ // US-30 west of Fremont = today's drive (real NDOT highway line)
+  const o=[];for(const L of base){if(!(L.k==='hwy'&&L.n==='US-30'))continue;const p=L.p;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i];
+    if(a[0]<-96.47&&b[0]<-96.47&&a[0]>-97.40&&b[0]>-97.40)o.push(X(a[0]),Y(a[1]),X(b[0]),Y(b[1]))}}G.route=new Float32Array(o);}
+{ // graticule every 0.05 deg
+  const o=[];for(let lon=-98;lon<=-95.5;lon+=.05)o.push(X(lon),Y(40.6),X(lon),Y(42.1));for(let lat=40.6;lat<=42.1;lat+=.05)o.push(X(-98),Y(lat),X(-95.5),Y(lat));G.grat=new Float32Array(o);}
+const fills={town:[],water:[]};base.forEach(l=>{if(l.poly&&(l.k==='town'||l.k==='water')&&l.p.length>2)fills[l.k].push(...fan(l.p))});
+G.townF=new Float32Array(fills.town);G.waterF=new Float32Array(fills.water);
+// storms: centerline ribbons + swath polygons (NL.areas rings), faded by age
+const STORMS=NL.storms.map(s=>{
+  const p=s.path, a0=p[0], a1=p[p.length-1], ox=X(a0[0]),oy=Y(a0[1]); let dx=X(a1[0])-ox,dy=Y(a1[1])-oy; const L=Math.hypot(dx,dy)||1e-6;
+  const polys=[];NL.areas.filter(a=>a.st===s.id).forEach(a=>polys.push(...fan(a.ring)));
+  let bb=[1e9,1e9,-1e9,-1e9];const grow=q=>{bb[0]=Math.min(bb[0],X(q[0]));bb[1]=Math.min(bb[1],Y(q[1]));bb[2]=Math.max(bb[2],X(q[0]));bb[3]=Math.max(bb[3],Y(q[1]))};
+  p.forEach(grow);NL.areas.filter(a=>a.st===s.id).forEach(a=>a.ring.forEach(grow));
+  return {s,seg:segs([{p}]),poly:new Float32Array(polys),o:[ox,oy],d:[dx/L/L,dy/L/L],u:[dx/L,dy/L],L,bb,
+    age:Math.max(0,Math.min(1,1-s.days/220)),feat:s.id===S8.id,areas:NL.areas.filter(a=>a.st===s.id)};
+});
+const FEAT=STORMS.find(x=>x.feat);
+// zones
+const smin=Math.min(...NL.zones.filter(z=>z.kind==='storm').map(z=>z.score)), smax=Math.max(...NL.zones.filter(z=>z.kind==='storm').map(z=>z.score));
+const zoneHeat=z=>z.kind==='storm'?1+(z.score-smin)/(smax-smin):null; // map score to the hail-like 1..2 ramp
+
+/* ---------------- camera ---------------- */
+const cam={x:0,y:0,s:1000};
+function gapRect(){ // visible map area between the glass panels
+  const pk=$('#pick').getBoundingClientRect(), rl=$('#rail').getBoundingClientRect(), tl=$('#tl').getBoundingClientRect();
+  return {l:pk.right+14,r:rl.left-14,t:84,b:tl.top-10};
+}
+function fit(bb,g,pad){ // bb world [x0,y0,x1,y1] -> camera so bb sits inside screen rect g
+  const w=Math.max(1e-6,bb[2]-bb[0]),h=Math.max(1e-6,bb[3]-bb[1]); const s=Math.min((g.r-g.l-2*pad)/w,(g.b-g.t-2*pad)/h);
+  const mx=(bb[0]+bb[2])/2,my=(bb[1]+bb[3])/2, gx=(g.l+g.r)/2-W()/2, gy=(g.t+g.b)/2-H()/2;
+  return {x:mx-gx/s,y:my+gy/s,s};
+}
+const zb=(zs)=>{let b=[1e9,1e9,-1e9,-1e9];zs.forEach(z=>{b[0]=Math.min(b[0],X(z.c[0]));b[1]=Math.min(b[1],Y(z.c[1]));b[2]=Math.max(b[2],X(z.c[0]));b[3]=Math.max(b[3],Y(z.c[1]))});return b};
+const REGION=[X(-97.52),Y(40.98),X(-95.86),Y(41.72)];
+const camRegion=()=>fit(REGION,{l:20,r:W()-20,t:80,b:H()-120},10);
+const camPick=()=>{const b=zb(NL.zones.filter(z=>z.kind==='storm'));return fit([b[0]-.006,b[1]-.006,b[2]+.006,b[3]+.006],gapRect(),24)};
+const toScreen=(x,y)=>[(x-cam.x)*cam.s+W()/2,H()/2-(y-cam.y)*cam.s];
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; // easeInOutCubic
+let fly=null;
+function flyTo(to,ms=1600){fly={from:{...cam},to,t0:performance.now(),ms};}
+function stepFly(now){if(!fly)return false;let t=Math.min(1,(now-fly.t0)/fly.ms);const e=ease(t);
+  const ls=Math.log(fly.from.s)+(Math.log(fly.to.s)-Math.log(fly.from.s))*e; cam.s=Math.exp(ls);
+  // keep the zoom path feeling like one move: center moves with a slight lead
+  const ec=ease(Math.min(1,t*1.08)); cam.x=fly.from.x+(fly.to.x-fly.from.x)*ec; cam.y=fly.from.y+(fly.to.y-fly.from.y)*ec;
+  if(t>=1){Object.assign(cam,fly.to);fly=null;}return true;}
+
+/* ---------------- WebGL2 renderer ---------------- */
+const cv=$('#gl'); let gl=null;
+try{gl=cv.getContext('webgl2',{antialias:true,premultipliedAlpha:true,alpha:true});}catch(e){gl=null}
+const DPR=()=>Math.min(2,devicePixelRatio||1);
+let R=null;
+if(gl){
+  const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
+  const prog=(v,f)=>{const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,v));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));const u={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);
+    for(let i=0;i<n;i++){const nm=gl.getActiveUniform(p,i).name;u[nm]=gl.getUniformLocation(p,nm)}return {p,u}};
+  const HEAD=`#version 300 es
+  precision highp float; uniform vec2 uCam; uniform float uSc; uniform vec2 uVp;`;
+  // instanced screen-space extruded lines, with optional along-path reveal
+  const LV=HEAD+`
+  layout(location=0) in vec2 q; layout(location=1) in vec4 ab;
+  uniform float uW; out float vS; out vec2 vP;
+  void main(){ vec2 a=ab.xy,b=ab.zw; vec2 pa=(a-uCam)*uSc, pb=(b-uCam)*uSc; vec2 d=pb-pa; float L=length(d);
+    vec2 dir=L>1e-4?d/L:vec2(1.,0.); vec2 n=vec2(-dir.y,dir.x);
+    vec2 p=mix(pa,pb,q.x)+dir*(q.x*2.-1.)*uW+n*q.y*uW; vS=q.y*uW; vP=uCam+p/uSc; gl_Position=vec4(p/(uVp*.5),0.,1.);}`;
+  const LF=`#version 300 es
+  precision highp float; in float vS; in vec2 vP; uniform float uW,uCore,uProg,uHead; uniform vec4 uCol; uniform vec2 uRevO,uRevD; out vec4 o;
+  void main(){ float d=abs(vS); float g=d<=uCore?1.:pow(clamp(1.-(d-uCore)/max(uW-uCore,.001),0.,1.),2.);
+    float t=dot(vP-uRevO,uRevD); if(t>uProg) discard; float hd=uProg<1.?smoothstep(uProg-.12,uProg,t)*uHead:0.;
+    float a=clamp(uCol.a*g*(1.+hd*2.5),0.,1.); o=vec4(uCol.rgb*a,a);}`;
+  const FV=HEAD+`layout(location=0) in vec2 pos; out vec2 vP; void main(){vP=pos; gl_Position=vec4((pos-uCam)*uSc/(uVp*.5),0.,1.);}`;
+  const FF=`#version 300 es
+  precision highp float; in vec2 vP; uniform vec4 uCol; uniform vec2 uRevO,uRevD,uU; uniform float uProg,uSig,uCoreA; out vec4 o;
+  void main(){ float t=dot(vP-uRevO,uRevD); if(t>uProg) discard; vec2 r=vP-uRevO; float perp=abs(r.x*uU.y-r.y*uU.x);
+    float k=uSig>0.?exp(-(perp*perp)/(uSig*uSig)):0.; float a=clamp(uCol.a*(1.-uCoreA+uCoreA*k),0.,1.); o=vec4(uCol.rgb*a,a);}`;
+  const HV=HEAD+`layout(location=0) in vec2 q; layout(location=1) in vec4 z; layout(location=2) in vec4 c; uniform float uT,uA;
+  out vec2 vQ; out vec4 vC; void main(){ float br=1.+.07*sin(uT*1.6+z.w*1.7); vec2 w=z.xy+q*z.z*1.9*br; vQ=q; vC=vec4(c.rgb,c.a*uA);
+    gl_Position=vec4((w-uCam)*uSc/(uVp*.5),0.,1.);}`;
+  const HF=`#version 300 es
+  precision highp float; in vec2 vQ; in vec4 vC; out vec4 o; void main(){ float r2=dot(vQ,vQ); if(r2>1.) discard; float a=vC.a*exp(-r2*5.5); o=vec4(vC.rgb*a,a);}`;
+  const L=prog(LV,LF), F=prog(FV,FF), Hp=prog(HV,HF);
+  const quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,-1,1,-1,0,1,1,1]),gl.STATIC_DRAW);
+  const hq=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,hq);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const lineVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+    const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0);gl.vertexAttribDivisor(1,1);
+    gl.bindVertexArray(null);return {v,n:arr.length/4}};
+  const fillVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.bindVertexArray(null);return {v,n:arr.length/2}};
+  const V={};for(const k of ['county','town','water','stream','hwy','rail','route','arts','fr0','fr3','co1','co3','walk','grat'])V[k]=lineVao(G[k]);
+  V.townF=fillVao(G.townF);V.waterF=fillVao(G.waterF);
+  STORMS.forEach(s=>{s.lv=lineVao(s.seg);s.rv=lineVao(segs(s.areas.map(a=>({p:[...a.ring,a.ring[0]]}))));s.fv=s.poly.length?fillVao(s.poly):null});
+  // heat instances: zones + home dots
+  const hv=gl.createVertexArray();gl.bindVertexArray(hv);gl.bindBuffer(gl.ARRAY_BUFFER,hq);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+  const hz=gl.createBuffer(),hc=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,hz);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0);gl.vertexAttribDivisor(1,1);
+  gl.bindBuffer(gl.ARRAY_BUFFER,hc);gl.enableVertexAttribArray(2);gl.vertexAttribPointer(2,4,gl.FLOAT,false,0,0);gl.vertexAttribDivisor(2,1);gl.bindVertexArray(null);
+  let heatN=0;
+  const setHeat=(zA)=>{ // zA[i] = 0..1 light-up per zone
+    const z=[],c=[],pal=PAL[theme];NL.zones.forEach((q,i)=>{const r=Math.sqrt(q.homes)*.00095;const col=q.kind==='storm'?hailCol(zoneHeat(q)):pal.ev;
+      z.push(X(q.c[0]),Y(q.c[1]),r,i);c.push(...col,(pal.add?.5:.4)*zA[i])});
+    heatN=NL.zones.length;gl.bindBuffer(gl.ARRAY_BUFFER,hz);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(z),gl.DYNAMIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,hc);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(c),gl.DYNAMIC_DRAW);};
+  const common=(p)=>{gl.useProgram(p.p);gl.uniform2f(p.u.uCam,cam.x,cam.y);gl.uniform1f(p.u.uSc,cam.s);gl.uniform2f(p.u.uVp,W(),H());};
+  const line=(o,col,a,wHalf,core,rev)=>{if(!o.n||a<=.002)return;gl.bindVertexArray(o.v);gl.uniform4f(L.u.uCol,col[0],col[1],col[2],a);gl.uniform1f(L.u.uW,wHalf);gl.uniform1f(L.u.uCore,core);
+    if(rev){gl.uniform2f(L.u.uRevO,rev.o[0],rev.o[1]);gl.uniform2f(L.u.uRevD,rev.d[0],rev.d[1]);gl.uniform1f(L.u.uProg,rev.p);gl.uniform1f(L.u.uHead,rev.h||0)}
+    else{gl.uniform2f(L.u.uRevO,0,0);gl.uniform2f(L.u.uRevD,0,0);gl.uniform1f(L.u.uProg,2);gl.uniform1f(L.u.uHead,0)}
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,o.n)};
+  const fill=(o,col,a,rev)=>{if(!o||!o.n||a<=.002)return;gl.bindVertexArray(o.v);gl.uniform4f(F.u.uCol,col[0],col[1],col[2],a);
+    if(rev){gl.uniform2f(F.u.uRevO,rev.o[0],rev.o[1]);gl.uniform2f(F.u.uRevD,rev.d[0],rev.d[1]);gl.uniform2f(F.u.uU,rev.u[0],rev.u[1]);gl.uniform1f(F.u.uProg,rev.p);gl.uniform1f(F.u.uSig,rev.sig);gl.uniform1f(F.u.uCoreA,rev.ca)}
+    else{gl.uniform2f(F.u.uRevO,0,0);gl.uniform2f(F.u.uRevD,0,0);gl.uniform2f(F.u.uU,1,0);gl.uniform1f(F.u.uProg,2);gl.uniform1f(F.u.uSig,0);gl.uniform1f(F.u.uCoreA,0)}
+    gl.drawArrays(gl.TRIANGLES,0,o.n)};
+  const blend=m=>{gl.enable(gl.BLEND);if(m==='add'){gl.blendEquation(gl.FUNC_ADD);gl.blendFunc(gl.ONE,gl.ONE)}else if(m==='max'){gl.blendEquation(gl.MAX);gl.blendFunc(gl.ONE,gl.ONE)}else{gl.blendEquation(gl.FUNC_ADD);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA)}};
+  R={setHeat,resize(){const d=DPR();cv.width=Math.round(W()*d);cv.height=Math.round(H()*d);gl.viewport(0,0,cv.width,cv.height)},
+   draw(st){const pal=PAL[theme],A=pal.a,add=pal.add?'add':'over';
+    gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+    const s=cam.s, near=Math.min(1,Math.max(0,(Math.log(s)-Math.log(1500))/(Math.log(7000)-Math.log(1500)))); // 0 region .. 1 street level
+    const b=st.base;
+    common(F);blend('over');fill(V.waterF,pal.water,A.waterF*b);fill(V.townF,pal.warm,A.townF*b*(1-.6*near));
+    // storm swaths: older ones faint by age, featured one paints in
+    blend(pal.add?'max':'over');
+    STORMS.forEach(S=>{const hc=hailCol(S.s.max),hov=st.hover===S.s.id;
+      const a=S.feat?1:(st.older*(.18+.5*S.age)*(hov?2.4:1)); if(!S.fv)return;
+      const rev=S.feat?{o:S.o,d:S.d,u:S.u,p:st.prog*1.25-.12,sig:.012+S.s.max*.006,ca:.75}:{o:S.o,d:S.d,u:S.u,p:2,sig:.012+S.s.max*.006,ca:.7};
+      fill(S.fv,hc,(pal.add?.16:.16)*a*(S.feat?st.swA:1),rev);});
+    common(L);blend(add);
+    line(V.grat,pal.ink,A.grat*b,.6,.5);
+    line(V.county,pal.ink,A.county*b,.7,.5);
+    if(A.glow)line(V.water,pal.water,A.glow*b*.6,3,.4);
+    line(V.water,pal.water,A.water*b,.9,.5);line(V.stream,pal.water,A.stream*b,.8,.4);
+    line(V.town,pal.warm,A.town*b*(1-.5*near),1,.5);
+    line(V.rail,pal.ink,A.rail*b,.7,.4);line(V.arts,pal.ink,A.arts*b*(1-.3*near),.7,.4);
+    if(A.glow)line(V.hwy,pal.ink,A.glow*.7*b,3.5,.3);
+    line(V.hwy,pal.ink,A.hwy*b,1.1,.6);
+    // street grids: faint texture far out, luminous up close
+    const sg=b*(.28+.72*near);
+    if(A.glow){line(V.co1,pal.ink,A.glow*sg,3.2,.3);line(V.fr0,pal.ink,A.glow*sg*.8,3,.3)}
+    line(V.co1,pal.ink,A.st0*sg,1+.3*near,.6);line(V.co3,pal.ink,A.st3*sg,.75+.25*near,.45);
+    line(V.fr0,pal.ink,A.st0*sg,1+.3*near,.6);line(V.fr3,pal.ink,A.st3*sg,.75+.25*near,.45);
+    // today's drive: US-30 west of Fremont
+    line(V.route,pal.route,.55*st.route,4.5,.5);line(V.route,pal.route,.9*st.route,1.2,.8);
+    // storm centerline ribbons: width ~ hail size (world units -> px)
+    blend(pal.add?'max':'over');
+    STORMS.forEach(S=>{const hc=hailCol(S.s.max),hov=st.hover===S.s.id,wWorld=(.0035+S.s.max*.0045)*s;
+      if(S.feat){const rev={o:S.o,d:S.d,p:st.prog,h:1};const gw=Math.min(34,Math.max(4,wWorld*1.6)),cw=Math.min(2.2,Math.max(1.2,wWorld*.25));
+        line(S.lv,hc,.22*st.swA,gw,cw,rev);line(S.lv,hc,(st.settled?.6:.95)*st.swA,cw+.8,cw*.6,rev);}
+      else{const a=st.older*(.2+.6*S.age)*(hov?2.4:1);line(S.lv,hc,.13*a,Math.max(4,wWorld*1.6),Math.max(1,wWorld*.5),null);line(S.lv,hc,.28*a,.9,.5,null);}});
+    // featured swath edge (hail footprint from the engine's area ring)
+    blend(add);line(FEAT.rv,hailCol(FEAT.s.max),.5*st.swA*ease(clamp((st.prog-.6)/.4)),1,.6);
+    // walk streets (the pick's real walk)
+    blend(add);line(V.walk,pal.walk,.9*st.walk,Math.max(2,.00012*s),.6);line(V.walk,pal.walk,.3*st.walk,Math.max(6,.0004*s),.5);
+    // zone heat
+    common(Hp);gl.bindVertexArray(hv);gl.uniform1f(Hp.u.uT,st.t);gl.uniform1f(Hp.u.uA,1);blend(pal.add?'add':'over');
+    if(st.zonesOn)gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,heatN);
+    gl.bindVertexArray(null);
+   }};
+}else{
+  /* Canvas2D fallback: same layers, plain strokes */
+  const c2=cv.getContext('2d');
+  const strokeSegs=(arr,col,a,w)=>{if(a<=.002)return;c2.strokeStyle=cssa(col,a);c2.lineWidth=w;c2.beginPath();for(let i=0;i<arr.length;i+=4){const p=toScreen(arr[i],arr[i+1]),q=toScreen(arr[i+2],arr[i+3]);c2.moveTo(p[0],p[1]);c2.lineTo(q[0],q[1])}c2.stroke()};
+  R={setHeat(){},resize(){const d=DPR();cv.width=W()*d;cv.height=H()*d;c2.setTransform(d,0,0,d,0,0)},
+   draw(st){const pal=PAL[theme],A=pal.a;c2.clearRect(0,0,W(),H());const b=st.base;
+    [['county',pal.ink,A.county],['water',pal.water,A.water],['stream',pal.water,A.stream],['town',pal.warm,A.town],['arts',pal.ink,A.arts],['hwy',pal.ink,A.hwy],['co1',pal.ink,A.st0],['co3',pal.ink,A.st3],['fr0',pal.ink,A.st0],['fr3',pal.ink,A.st3]].forEach(([k,c,a])=>strokeSegs(G[k],c,a*b,1));
+    strokeSegs(G.route,pal.route,.8*st.route,1.5);
+    STORMS.forEach(S=>strokeSegs(S.seg,hailCol(S.s.max),S.feat?st.swA*.9:st.older*.4,Math.max(2,(.0035+S.s.max*.0045)*cam.s*.5)));
+    if(st.zonesOn)NL.zones.forEach(z=>{const p=toScreen(X(z.c[0]),Y(z.c[1])),r=Math.sqrt(z.homes)*.00095*cam.s*2;const g=c2.createRadialGradient(p[0],p[1],0,p[0],p[1],r);
+      const col=z.kind==='storm'?hailCol(zoneHeat(z)):pal.ev;g.addColorStop(0,cssa(col,.55));g.addColorStop(1,cssa(col,0));c2.fillStyle=g;c2.fillRect(p[0]-r,p[1]-r,2*r,2*r)});}};
+}
+
+/* ---------------- particles: fade-trail flow along the storm (earth.nullschool / Windy technique) ---------------- */
+const pc=$('#pt'), px=pc.getContext('2d');
+const PN_INTRO=2400, PN_IDLE=1200;
+let parts=[];
+const sw=FEAT, swSig=(FEAT.bb[3]-FEAT.bb[1])*.3;
+function spawn(p,prog,tight){const u=tight?-.15+Math.random()*1.3:-.9+Math.random()*2.8*Math.max(.05,Math.min(1,prog)); const off=(Math.random()+Math.random()+Math.random()-1.5)*swSig*(tight?1:1.25);
+  p.x=sw.o[0]+sw.u[0]*sw.L*u - sw.u[1]*off; p.y=sw.o[1]+sw.u[1]*sw.L*u + sw.u[0]*off; p.age=0; p.life=40+Math.random()*90; p.k=Math.exp(-(off*off)/(swSig*swSig*.8));}
+function field(x,y,t){ // storm direction + slow curl-ish swirl (analytic, cheap)
+  const a=Math.atan2(sw.u[1],sw.u[0])+.55*Math.sin(x*140+t*.25)*Math.cos(y*120-t*.2)+.25*Math.sin((x+y)*300+t*.4);
+  return [Math.cos(a),Math.sin(a)];}
+function initParts(n){parts=[];for(let i=0;i<n;i++){const p={};spawn(p,1);p.age=Math.random()*p.life;parts.push(p)}}
+let lastCam={x:0,y:0,s:0}, pBudget=1, ftAvg=16;
+let wasMoving=true;
+function drawParticles(st,dtf){
+  const mv=Math.abs(lastCam.s-cam.s)/cam.s>.002||Math.hypot(lastCam.x-cam.x,lastCam.y-cam.y)*cam.s>.5;
+  // camera just came to rest: pre-warm the trails so the flow reads at once (even on a slow machine)
+  if(st.settled&&wasMoving&&!mv&&st.pA>0){wasMoving=false;parts.forEach(p=>{spawn(p,1,true);p.age=Math.random()*p.life});px.clearRect(0,0,W(),H());for(let i=0;i<34;i++)stepParticles(st,1,true);return}
+  if(mv)wasMoving=true;stepParticles(st,dtf,false);}
+function stepParticles(st,dtf,warm){
+  const w=W(),h=H(); const moved=!warm&&(Math.abs(lastCam.s-cam.s)/cam.s>.002||Math.hypot(lastCam.x-cam.x,lastCam.y-cam.y)*cam.s>.5); lastCam={...cam};
+  if(moved)px.clearRect(0,0,w,h);else{px.globalCompositeOperation='destination-in';px.fillStyle=`rgba(0,0,0,${st.settled?.955:.91})`;px.fillRect(0,0,w,h);px.globalCompositeOperation='source-over';}
+  if(st.pA<=0)return;
+  const want=Math.round((st.settled?PN_IDLE:PN_INTRO)*(st.settled?Math.max(.8,pBudget):pBudget)); if(parts.length>want)parts.length=want; while(parts.length<want){const p={};spawn(p,st.prog,st.settled);parts.push(p)}
+  const speed=(st.settled?1.2:1.7)*dtf/cam.s; const pal=PAL[theme];
+  const buckets=[[],[],[]];
+  for(const p of parts){ if(p.age++>p.life){spawn(p,st.prog,st.settled)} const v=field(p.x,p.y,st.t); const sp=speed*(.6+.9*p.k);
+    const ox=p.x,oy=p.y; p.x+=v[0]*sp; p.y+=v[1]*sp;
+    // stay inside the painted part of the swath during the replay
+    if(!st.settled&&(((p.x-sw.o[0])*sw.d[0]+(p.y-sw.o[1])*sw.d[1])>st.prog*1.2+.05)){spawn(p,st.prog);continue}
+    const a=toScreen(ox,oy),b=toScreen(p.x,p.y); if(b[0]<-20||b[0]>w+20||b[1]<-20||b[1]>h+20)continue;
+    buckets[p.k>.66?2:p.k>.33?1:0].push(a[0],a[1],b[0],b[1]);}
+  const cols=[pal.h1,pal.h15,pal.h2], al=pal.add?[.6,.8,.95]:[.65,.75,.85];
+  px.lineWidth=st.settled?1:1.3;const am=st.settled?(pal.add?.42:.5):1;px.lineCap='round';
+  buckets.forEach((bk,i)=>{if(!bk.length)return;px.strokeStyle=cssa(cols[i],al[i]*st.pA*am);px.beginPath();for(let j=0;j<bk.length;j+=4){px.moveTo(bk[j],bk[j+1]);px.lineTo(bk[j+2],bk[j+3])}px.stroke()});
+}
+
+/* ---------------- overlay: labels, rank badges, #1 ring, pins, scale ---------------- */
+const oc=$('#ov'), ox=oc.getContext('2d');
+const STREETLBL=(()=>{const m=new Map();NL.columbus.filter(s=>s.c<=1&&s.n&&!/TURNAROUND|INTERSECTION/.test(s.n)).forEach(s=>{
+  let best=null,bl=0;for(let i=1;i<s.p.length;i++){const l=Math.hypot((s.p[i][0]-s.p[i-1][0])*K,s.p[i][1]-s.p[i-1][1]);if(l>bl){bl=l;best=[s.p[i-1],s.p[i]]}}
+  const nm=s.n.replace(/\b(\d+)(ST|ND|RD|TH)\b/gi,(a,d,x)=>d+x.toLowerCase()).toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).replace(/Us Highway/,'US');
+  const cur=m.get(nm);if(!cur||bl>cur.l)m.set(nm,{l:bl,a:best,nm})});return [...m.values()].sort((a,b)=>b.l-a.l).slice(0,14)})();
+function niceMi(px1){const opts=[.1,.25,.5,1,2,5,10,20];const perMi=cam.s/69;for(const o of opts)if(o*perMi>=70)return [o,o*perMi];return [20,20*perMi]}
+function drawOverlay(st){
+  const w=W(),h=H(),pal=PAL[theme],dk=pal.add; ox.clearRect(0,0,w,h);
+  const txt=dk?'rgba(241,242,244,':'rgba(24,25,28,', mut=dk?'rgba(184,187,194,':'rgba(61,63,69,';
+  const near=Math.min(1,Math.max(0,(Math.log(cam.s)-Math.log(1500))/(Math.log(7000)-Math.log(1500))));
+  // town labels (region scale)
+  ox.textAlign='center';ox.textBaseline='middle';
+  if(st.base>0){for(const [n,c] of Object.entries(NL.places)){const p=toScreen(X(c[0]),Y(c[1]));const big=n==='Omaha'||n==='Fremont'||n==='Columbus';
+    let a=(1-near*(n==='Columbus'?.2:1))*st.base; if(n==='Columbus'&&near>.5){a=.0} if(a<.02)continue;
+    ox.font=`600 ${big?12:10.5}px "Geist","Geist L",sans-serif`;ox.letterSpacing=big?'3px':'2px';ox.fillStyle=txt+(a*(big?.8:.55))+')';ox.fillText(n.toUpperCase(),p[0],p[1]-(big?16:12));}
+    ox.letterSpacing='0px';}
+  // Columbus big name + street labels when close
+  if(near>.5){const p=toScreen(X(-97.345),Y(41.462));ox.font='700 64px "Bricolage Grotesque","Bricolage L",sans-serif';ox.letterSpacing='-1px';ox.fillStyle=txt+(.06*near)+')';ox.textAlign='left';ox.fillText('Columbus',p[0],p[1]);ox.letterSpacing='0px';
+    ox.font='500 10px "Geist Mono","Geist Mono L",monospace';ox.fillStyle=mut+(.55*(near-.5)*2*st.base)+')';
+    for(const L of STREETLBL){const a=toScreen(X(L.a[0][0]),Y(L.a[0][1])),b=toScreen(X(L.a[1][0]),Y(L.a[1][1]));const len=Math.hypot(b[0]-a[0],b[1]-a[1]);if(len<90)continue;
+      const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;if(mx<0||mx>w||my<0||my>h)continue;let ang=Math.atan2(b[1]-a[1],b[0]-a[0]);if(ang>Math.PI/2)ang-=Math.PI;if(ang<-Math.PI/2)ang+=Math.PI;
+      ox.save();ox.translate(mx,my);ox.rotate(ang);ox.textAlign='center';ox.fillText(L.nm,0,-5);ox.restore();}}
+  // Fremont HQ pin
+  {const p=toScreen(X(NL.hq[0]),Y(NL.hq[1]));if(p[0]>-40&&p[0]<w+40&&st.base>0){ox.fillStyle=css(pal.route);ox.beginPath();ox.arc(p[0],p[1],3.5,0,7);ox.fill();
+    ox.strokeStyle=cssa(pal.route,.5);ox.lineWidth=1;ox.beginPath();ox.arc(p[0],p[1],8,0,7);ox.stroke();
+    ox.font='500 10.5px "Geist Mono","Geist Mono L",monospace';ox.textAlign='left';ox.fillStyle=txt+'.85)';ox.fillText(T[lang].hq,p[0]+12,p[1]+1);}}
+  // zones: rank badges + #1 ring
+  if(st.zonesOn){const placed=[];NL.zones.forEach((z,i)=>{const a=st.zA[i];if(a<=0)return;const p=toScreen(X(z.c[0]),Y(z.c[1]));if(p[0]<-30||p[0]>w+30||p[1]<-30||p[1]>h+30)return;
+      for(let k=0;k<4;k++){if(placed.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<20)){p[0]+=14;p[1]+=10}}placed.push(p);
+      if(z.rank===1)return;const col=z.kind==='storm'?hailCol(zoneHeat(z)):pal.ev;
+      ox.globalAlpha=a;ox.fillStyle=dk?'rgba(10,11,13,.82)':'rgba(248,249,247,.9)';ox.beginPath();ox.arc(p[0],p[1],9,0,7);ox.fill();
+      ox.strokeStyle=css(col);ox.lineWidth=1.4;ox.stroke();ox.fillStyle=txt+'.95)';ox.font='600 10px "Geist Mono","Geist Mono L",monospace';ox.textAlign='center';ox.fillText(z.rank,p[0],p[1]+.5);ox.globalAlpha=1;});
+    const z=NL.zones[0],a=st.zA[0];if(a>0){const p=toScreen(X(z.c[0]),Y(z.c[1]));const r=Math.max(16,Math.sqrt(z.homes)*.00095*cam.s*1.25);
+      const pulse=(st.t*.6)%1;ox.globalAlpha=a;ox.strokeStyle='#f5883a';ox.lineWidth=1.5;ox.beginPath();ox.arc(p[0],p[1],r,0,7);ox.stroke();
+      ox.globalAlpha=a*(1-pulse)*.6;ox.lineWidth=1;ox.beginPath();ox.arc(p[0],p[1],r+pulse*22,0,7);ox.stroke();ox.globalAlpha=a;
+      // label chip
+      ox.font='600 12px "Geist","Geist L",sans-serif';const lb=T[lang].pickLbl,tw=ox.measureText(lb).width;const lx=p[0]+r+10,ly=p[1]-r-6;
+      ox.fillStyle='#f5883a';ox.beginPath();ox.roundRect(lx,ly-11,tw+18,22,11);ox.fill();ox.fillStyle='#1b1206';ox.textAlign='left';ox.fillText(lb,lx+9,ly+.5);
+      ox.strokeStyle='rgba(245,136,58,.7)';ox.beginPath();ox.moveTo(p[0]+r*.72,p[1]-r*.72);ox.lineTo(lx,ly);ox.stroke();ox.globalAlpha=1;}}
+  // park pin + sample homes when very close
+  if(st.walk>0&&cam.s>30000){const pk=toScreen(X(NL.walk.park[0]),Y(NL.walk.park[1]));ox.fillStyle='#f5883a';ox.beginPath();ox.arc(pk[0],pk[1],6,0,7);ox.fill();ox.fillStyle='#1b1206';ox.font='700 8px "Geist Mono",monospace';ox.textAlign='center';ox.fillText('P',pk[0],pk[1]+.5);
+    ox.font='500 11px "Geist","Geist L",sans-serif';ox.textAlign='left';ox.fillStyle=txt+'.9)';ox.fillText(T[lang].park,pk[0]+10,pk[1]-10);
+    NL.homes.forEach(hm=>{const q=toScreen(X(hm.p[0]),Y(hm.p[1]));ox.fillStyle=css(hailCol(hm.hail));ox.globalAlpha=.9;ox.beginPath();ox.arc(q[0],q[1],3.2,0,7);ox.fill();ox.globalAlpha=1;});
+    ox.font='500 10px "Geist Mono","Geist Mono L",monospace';ox.fillStyle=mut+'.8)';ox.fillText(T[lang].sample,pk[0]+10,pk[1]+6);}
+  // off-screen pointer to Fremont
+  if(st.settled){const g=gapRect();const p=toScreen(X(NL.hq[0]),Y(NL.hq[1]));if(p[0]>g.r){const y=Math.max(g.t+20,Math.min(g.b-40,p[1]));
+    ox.font='500 11px "Geist Mono","Geist Mono L",monospace';const s=T[lang].east,tw=ox.measureText(s).width;ox.fillStyle=dk?'rgba(13,14,17,.8)':'rgba(248,249,247,.9)';
+    ox.beginPath();ox.roundRect(g.r-tw-20,y-12,tw+18,24,12);ox.fill();ox.strokeStyle=cssa(pal.route,.6);ox.lineWidth=1;ox.stroke();ox.fillStyle=css(pal.route);ox.textAlign='left';ox.fillText(s,g.r-tw-11,y+.5);}}
+  // scale bar + coordinates (bottom-left of the map gap)
+  if(st.settled){const g=gapRect();const [mi,len]=niceMi();const x0=g.l+6,y0=g.b-14;ox.strokeStyle=txt+'.6)';ox.lineWidth=1;ox.beginPath();ox.moveTo(x0,y0-4);ox.lineTo(x0,y0);ox.lineTo(x0+len,y0);ox.lineTo(x0+len,y0-4);ox.stroke();
+    ox.font='500 10px "Geist Mono","Geist Mono L",monospace';ox.fillStyle=txt+'.7)';ox.textAlign='left';ox.fillText(`${mi} mi`,x0+len+6,y0-2);
+    const lat=cam.y+41.3,lon=cam.x/K-97;ox.fillStyle=mut+'.7)';ox.fillText(`${lat.toFixed(3)}° N  ${(-lon).toFixed(3)}° W`,x0,y0-16);
+    ox.fillText(`z ${Math.round(cam.s).toLocaleString('en-US')} px/°`,x0+150,y0-16);}
+}
+
+/* ---------------- UI text ---------------- */
+function tr(){const t=T[lang];document.documentElement.lang=lang;document.documentElement.dataset.lang=lang;
+  $$('[data-t]').forEach(e=>{const v=t[e.dataset.t];if(typeof v==='string')e.textContent=v});
+  $('#headline').textContent=NL.headline[lang];$('#why').textContent=P.why[lang];$('#area').innerHTML=t.areaTxt(AREA);
+  $$('button[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===lang));
+  $('#plan').innerHTML=PLAN.map(p=>`<li class="${p.c||''}"><span class="tm">${lang==='es'?p.tmes:p.tm}</span><span class="nd"></span><span class="tx">${p[lang][0]}<em>${p[lang][1]}</em></span></li>`).join('');
+  $('#zones').innerHTML=NL.zones.map((z,i)=>{const col=z.kind==='storm'?css(hailCol(zoneHeat(z))):css(PAL[theme].ev);const town=z.name.split(':')[0],nm=z.name.replace(/^[^:]+:\s*/,'');
+    return `<li class="${i===0?'first':''} ${z.kind!=='storm'?'ev':''}"><button data-z="${i}" title="${z.homes} ${t.homes} · ${SRC_L().engine}"><span class="r">${z.rank}</span><span class="nm" data-ev="${town}">${nm}</span><span class="bar"><i style="width:${Math.round(z.score)}%;background:${col}"></i></span><span class="sc">${z.score.toFixed(1)}</span></button></li>`}).join('');
+  $('#srcs').innerHTML=`<b>${t.srcH}</b> · <sup class="s">1</sup> NOAA SPC + MRMS · <sup class="s">2</sup> Aldaba engine (hh.py) · <sup class="s">3</sup> ${lang==='es'?'Censo':'Census'} ACS 2024 · <sup class="s">4</sup> Nebraska GIS · ${lang==='es'?'casas del mapa: muestra':'map homes: sample'}`;
+  $$('sup.s[data-src]').forEach(e=>e.title=SRC_L()[e.dataset.src]);
+  $$('button[data-z]').forEach(b=>b.onclick=()=>{const z=NL.zones[+b.dataset.z];$$('button[data-z]').forEach(x=>x.classList.toggle('sel',x===b));
+    const zz=[X(z.c[0])-.004,Y(z.c[1])-.004,X(z.c[0])+.004,Y(z.c[1])+.004];flyTo(fit(zz,gapRect(),30),1200);});
+  buildTicks();}
+const SRC_L=()=>lang==='es'?SRC_ES:SRC;
+function setTheme(t){theme=t;document.documentElement.dataset.theme=t;$$('[data-theme]').forEach(b=>b.tagName==='BUTTON'&&b.setAttribute('aria-pressed',b.dataset.theme===t));
+  try{localStorage.setItem('sr-theme',t)}catch(e){} if(R&&R.setHeat)R.setHeat(zA); tr();}
+$$('button[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;try{localStorage.setItem('sr-lang',lang)}catch(e){}tr()});
+$$('button[data-theme]').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
+
+/* ---------------- timeline (season; last 90 days lit; tick height = max hail) ---------------- */
+const day=d=>Math.round((Date.parse(d+'T12:00:00Z')-Date.parse('2026-01-01T12:00:00Z'))/864e5);
+const D0=day('2026-03-01'),D1=day(NL.today),D90=D1-90;
+let hoverStorm=null;
+function buildTicks(){const el=$('#ticks'),r=el.getBoundingClientRect(),w=Math.max(200,r.width),h=Math.max(40,r.height),t=T[lang];
+  const xs=d=>((d-D0)/(D1-D0))*(w-8)+4, base=h-16, pal=PAL[theme];
+  const months=lang==='es'?['mar','abr','may','jun','jul','ago','sep']:['Mar','Apr','May','Jun','Jul','Aug','Sep'];
+  let s=`<svg viewBox="0 0 ${w} ${h}" aria-label="${t.tlH}">`;
+  s+=`<rect x="${xs(D90)}" y="0" width="${xs(D1)-xs(D90)}" height="${base+1}" rx="6" fill="var(--acc-bg)" opacity=".55"/>`;
+  s+=`<text x="${xs(D90)+6}" y="10" font-family="Geist Mono, Geist Mono L, monospace" font-size="9.5" fill="var(--acc-ink)" letter-spacing=".6">${t.d90.toUpperCase()}</text>`;
+  s+=`<line x1="0" x2="${w}" y1="${base}" y2="${base}" stroke="var(--rule-2)"/>`;
+  months.forEach((m,i)=>{const d=day(`2026-${String(i+3).padStart(2,'0')}-01`);s+=`<line x1="${xs(d)}" x2="${xs(d)}" y1="${base}" y2="${base+4}" stroke="var(--muted)"/><text x="${xs(d)+3}" y="${h-3}" font-family="Geist Mono, Geist Mono L, monospace" font-size="10" fill="var(--muted)">${m}</text>`});
+  // faint day grid for density
+  for(let d=D0;d<=D1;d+=7)s+=`<line x1="${xs(d)}" x2="${xs(d)}" y1="${base-2}" y2="${base}" stroke="var(--rule-2)"/>`;
+  NL.storms.forEach(st=>{const d=day(st.date),x=xs(d),hh=Math.max(6,(st.max/2.6)*(base-14)),col=css(hailCol(st.max,pal)),feat=st.id===S8.id,lit=d>=D90;
+    s+=`<g class="tk" data-id="${st.id}" style="cursor:pointer"><rect x="${x-7}" y="0" width="14" height="${base}" fill="transparent"/>`;
+    s+=`<rect x="${x-2}" y="${base-hh}" width="4" height="${hh}" rx="2" fill="${col}" opacity="${lit?1:.5}"/>`;
+    if(feat)s+=`<circle cx="${x}" cy="${base-hh-7}" r="3.5" fill="none" stroke="#f5883a" stroke-width="1.5"/><text x="${x+8}" y="${base-hh-4}" font-family="Geist Mono, Geist Mono L, monospace" font-size="10" fill="var(--acc-ink)">${st.d[lang]} · ${st.max}"</text>`;
+    s+=`</g>`});
+  s+=`<line x1="${xs(D1)}" x2="${xs(D1)}" y1="0" y2="${base+4}" stroke="var(--text)" stroke-dasharray="2 3" opacity=".6"/><text x="${xs(D1)-4}" y="${h-3}" text-anchor="end" font-family="Geist Mono, Geist Mono L, monospace" font-size="10" fill="var(--text)">${t.today}</text>`;
+  s+='</svg>';el.innerHTML=s;
+  el.querySelectorAll('.tk').forEach(g=>{const st=NL.storms.find(x=>x.id===g.dataset.id);
+    g.onmouseenter=e=>{hoverStorm=st.id;const tip=$('#tip'),ar=NL.areas.filter(a=>a.st===st.id),homes=ar.reduce((n,a)=>n+(a.homes||0),0);
+      tip.innerHTML=`<b>${st.long[lang]}</b><div class="m">${t.max} ${st.max} ${t.in} · ${st.time||t.noTime}</div><div class="a">${ar.length} ${t.areas}${ar.length?': '+ar.map(a=>a.name[lang]).slice(0,4).join(', '):''}${homes?` · ${homes.toLocaleString('en-US')} ${t.homes}`:''}</div><div class="a">¹ ${SRC_L().storms}</div>`;
+      const rb=g.getBoundingClientRect();tip.style.left=Math.min(innerWidth-240,Math.max(10,rb.left-100))+'px';tip.style.top=(rb.top-110)+'px';tip.classList.add('show')};
+    g.onmouseleave=()=>{hoverStorm=null;$('#tip').classList.remove('show')};
+    g.onclick=()=>{const S=STORMS.find(x=>x.s.id===st.id);const b=S.bb;flyTo(fit([b[0]-.02,b[1]-.02,b[2]+.02,b[3]+.02],gapRect(),20),1400)};});
+}
+
+/* ---------------- intro timeline ---------------- */
+const TL={base:[0,.5],paint:[.2,1.95],fly:[1.9,3.5],zones:[3.05,3.9],card:3.2,settle:4.3};
+let t0=performance.now(), zA=NL.zones.map(()=>0), settledDone=false, counted=false;
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)), lerpT=(t,[a,b])=>clamp((t-a)/(b-a));
+let cardTimer=0;
+function startIntro(){t0=performance.now()-(STILL?9e3:0);clearTimeout(cardTimer);if(!STILL)cardTimer=setTimeout(()=>{document.body.classList.add('on');$('#cap').style.opacity=0;setTimeout(countUp,120)},TL.card*1000);settledDone=false;counted=false;fly=null;document.body.classList.remove('on');
+  Object.assign(cam,camRegion());if(!STILL)$('#cap').style.opacity=1;parts.forEach(p=>spawn(p,0));px.clearRect(0,0,W(),H());}
+function countUp(){if(counted)return;counted=true;$$('[data-count]').forEach(e=>{const to=+e.dataset.count,dec=+e.dataset.dec;if(STILL){e.textContent=to.toFixed(dec);return}
+  const s=performance.now();const f=n=>{const k=Math.min(1,(n-s)/900),v=to*(1-Math.pow(1-k,3));e.textContent=v.toFixed(dec);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)});}
+
+/* ---------------- loop ---------------- */
+let prev=performance.now();
+function frame(now){
+  const ft=now-prev,dtf=Math.min(3,ft/16.7);prev=now;ftAvg=ftAvg*.9+ft*.1;pBudget=ftAvg>40?.5:ftAvg<22?1:pBudget;const t=(now-t0)/1000;
+  const st={t,base:ease(lerpT(t,TL.base)),prog:ease(lerpT(t,TL.paint)),swA:1,older:ease(lerpT(t,[.4,1.8])),route:ease(lerpT(t,[.9,1.9])),
+    zonesOn:t>TL.zones[0],walk:ease(lerpT(t,[3.4,4.2])),hover:hoverStorm,zA,settled:t>TL.settle,pA:clamp(lerpT(t,[.25,.8]))};
+  // camera: region -> Columbus (one fly, easeInOutCubic)
+  if(t>=TL.fly[0]&&!settledDone&&!fly&&t<TL.fly[1]){flyTo(camPick(),(TL.fly[1]-TL.fly[0])*1000)}
+  if(t>=TL.fly[1]&&!settledDone&&!fly){Object.assign(cam,camPick())}
+  stepFly(now);
+  NL.zones.forEach((z,i)=>{zA[i]=ease(lerpT(t,[TL.zones[0]+i*.07,TL.zones[0]+i*.07+.5]))});
+  if(R.setHeat&&(!st.settled||!settledDone))R.setHeat(zA);
+  if(st.settled&&!settledDone){settledDone=true;$('#cap').style.opacity=0;}
+  R.draw(st);drawParticles(st,dtf);drawOverlay(st);
+  // recenter pill when the camera wandered off the pick
+  if(settledDone){const cp=camPick();$('#recenter').classList.toggle('show',Math.abs(Math.log(cam.s/cp.s))>.15||Math.hypot(cam.x-cp.x,cam.y-cp.y)*cam.s>60)}
+  requestAnimationFrame(frame);
+}
+function resize(){const d=DPR();[pc,oc].forEach(c=>{c.width=Math.round(W()*d);c.height=Math.round(H()*d)});px.setTransform(d,0,0,d,0,0);ox.setTransform(d,0,0,d,0,0);R.resize();
+  if(settledDone&&!fly)Object.assign(cam,camPick());buildTicks();}
+addEventListener('resize',resize);
+$('#replay').onclick=()=>{STILL=RM;startIntro()};
+$('#recenter').onclick=()=>{$$('button[data-z]').forEach(x=>x.classList.remove('sel'));flyTo(camPick(),1100)};
+$('#bk').onclick=()=>{const z=NL.zones.find(q=>q.kind!=='storm');flyTo(fit([X(z.c[0])-.03,Y(z.c[1])-.03,X(z.c[0])+.03,Y(z.c[1])+.03],gapRect(),20),1600)};
+$('#go').onclick=()=>{const w=NL.walk.park;flyTo(fit([X(w[0])-.0022,Y(w[1])-.0022,X(w[0])+.0022,Y(w[1])+.0022],gapRect(),10),1400);
+  const to=$('#toast');to.textContent=T[lang].toast;to.classList.add('show');setTimeout(()=>to.classList.remove('show'),2600)};
+addEventListener('keydown',e=>{if(e.key==='Escape')flyTo(camPick(),1000)});
+// wheel zoom around the cursor (the map stays a real map)
+cv.addEventListener('wheel',e=>{e.preventDefault();fly=null;const k=Math.exp(-e.deltaY*.0015);const mx=(e.clientX-W()/2)/cam.s+cam.x,my=cam.y-(e.clientY-H()/2)/cam.s;
+  cam.s=Math.max(500,Math.min(200000,cam.s*k));cam.x=mx-(e.clientX-W()/2)/cam.s;cam.y=my+(e.clientY-H()/2)/cam.s;},{passive:false});
+let drag=null;cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];fly=null});addEventListener('pointerup',()=>drag=null);
+addEventListener('pointermove',e=>{if(!drag)return;cam.x-=(e.clientX-drag[0])/cam.s;cam.y+=(e.clientY-drag[1])/cam.s;drag=[e.clientX,e.clientY]});
+
+/* ---------------- boot ---------------- */
+document.documentElement.dataset.theme=theme;
+$$('[data-theme]').forEach(b=>b.tagName==='BUTTON'&&b.setAttribute('aria-pressed',b.dataset.theme===theme));
+tr();resize();initParts(PN_INTRO);startIntro();
+if(STILL){document.body.classList.add('on');countUp();}
+(document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>buildTicks());
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
