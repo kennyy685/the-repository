@@ -127,3 +127,4 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   A's zoom-in (glitchy, over-highlighted); B's zoom into the walk shows no information / no design; B's "show all zones"
   and back flow.
 - Still open: contract screen vs paper, boss/lawyer look at legal wording, policy filing-limit line.
+- 22:45 UTC: hologram card = hail size + roof age BIG, then why ("yes exactly"). "No color limit or limit to anything", "impress me". Start with FREMONT, not Columbus ("we're a local Fremont company").
