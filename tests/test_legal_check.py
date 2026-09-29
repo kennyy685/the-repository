@@ -47,6 +47,24 @@ class TestLegalCheck(unittest.TestCase):
             legal_check._read = real
         self.assertEqual(len(failures), 2, "\n".join(failures))
 
+    def test_no_free(self):
+        """No "free" / "costs you nothing" offer until the boss okays it (King, 2026-09-29)."""
+        failures = legal_check.check_no_free()
+        self.assertEqual(failures, [], "\n".join(failures))
+
+    def test_no_free_catches_offers_and_allows_rules(self):
+        bad = ("<p>Signing costs you nothing. HMP charges nothing for the inspection.</p>\n"
+               "<p>Firmar no le cuesta nada. HMP no cobra nada. Call for a free roof check.</p>\n"
+               "<p>Never call the roof check free. NDOI consumer line is free: 1-877-564-7323.</p>\n")
+        real_read, real_iter = legal_check._read, legal_check._iter_no_free_files
+        legal_check._read = lambda path: bad
+        legal_check._iter_no_free_files = lambda: iter(["docs/print/sample.html"])
+        try:
+            failures = legal_check.check_no_free()
+        finally:
+            legal_check._read, legal_check._iter_no_free_files = real_read, real_iter
+        self.assertEqual(len(failures), 5, "\n".join(failures))
+
     def test_banned_phrases(self):
         failures = legal_check.check_banned_phrases()
         if failures:
