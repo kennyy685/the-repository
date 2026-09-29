@@ -1699,8 +1699,11 @@ const OB_KEY = 'hmp-app-outbox';
 let outbox = [], obStored = true, flushing = false, flushT = 0, flushAt = 0, flushAgain = false, backoff = 4000, syncOkT = 0;
 try { const s = JSON.parse(localStorage.getItem(OB_KEY) || '[]'); if (Array.isArray(s)) outbox = s.filter(o => o && o.op && o.path); } catch (e) { outbox = []; }
 function obSave(){ try { localStorage.setItem(OB_KEY, JSON.stringify(outbox)); obStored = true; } catch (e) { obStored = false; } renderSync(); }
-const WRITE_MS = 10000;
-const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code: 'timeout'})), WRITE_MS))]);
+const WRITE_MS = 10000, USE_MS = 12000, SAMPLE_MS = 120000, UPLOAD_MS = 90000;
+// every runtime call gets a deadline, so a runtime that never answers can't hold a button, a box or a load forever
+function within(p, ms){ let t; const to = new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error('timeout'), {code: 'timeout'})), ms); });
+  return Promise.race([Promise.resolve(p), to]).finally(() => clearTimeout(t)); }
+const withTimeout = p => within(p, WRITE_MS);
 // the leads as this phone sees them, plus the estimate this stat write was made for (o.lead {id, estimate}): the lead's own
 // write may not have echoed back yet. The newer estimate (by at) wins, so an older queued one never hides a newer save.
 function leadsWith(x){
@@ -2924,13 +2927,13 @@ async function addPhotos(id, slot, files){
     phMsg = {text: V().phUp(i + 1, list.length)}; renderSheet();
     try { const blob = await shrink(f); const type = /^image\/(jpeg|png|webp|gif)$/.test(blob.type) ? blob.type : 'image/jpeg';
       if (prOn()) { const pid = HMPPractice.photoId(); blobUrls.set(pid, URL.createObjectURL(blob)); added.push({id: pid, slot, at: nowIso(), by: 'FilthE'}); continue; }   // T201: shown, never uploaded
-      const r = await ASSETS.upload(blob, {type}); blobUrls.set(r.id, r.url); real.set(r.id, blob); added.push({id: r.id, slot, at: nowIso(), by: 'FilthE'}); }
-    catch (e) { err = e; if (e && e.code === 'store_unavailable' && !f._retried) { f._retried = true; await new Promise(r => setTimeout(r, 1500)); try { const b2 = await shrink(f), r2 = await ASSETS.upload(b2, {type: 'image/jpeg'}); blobUrls.set(r2.id, r2.url); real.set(r2.id, b2); added.push({id: r2.id, slot, at: nowIso(), by: 'FilthE'}); err = null; continue; } catch (e2) { err = e2; } } break; }
+      const r = await within(ASSETS.upload(blob, {type}), UPLOAD_MS); blobUrls.set(r.id, r.url); real.set(r.id, blob); added.push({id: r.id, slot, at: nowIso(), by: 'FilthE'}); }
+    catch (e) { err = e; if (e && e.code === 'store_unavailable' && !f._retried) { f._retried = true; await new Promise(r => setTimeout(r, 1500)); try { const b2 = await shrink(f), r2 = await within(ASSETS.upload(b2, {type: 'image/jpeg'}), UPLOAD_MS); blobUrls.set(r2.id, r2.url); real.set(r2.id, b2); added.push({id: r2.id, slot, at: nowIso(), by: 'FilthE'}); err = null; continue; } catch (e2) { err = e2; } } break; }
   }
   phBusy = null;
   if (real.size && prOn()) for (const a of added) {   // T201: Practice turned on mid-upload: the save below stays in memory, so the real files would be orphans
     const b = real.get(a.id); if (!b) continue;
-    try { await ASSETS.delete(a.id); } catch (e) { /* storage cleanup can wait */ }
+    try { await within(ASSETS.delete(a.id), WRITE_MS); } catch (e) { /* storage cleanup can wait */ }
     a.id = HMPPractice.photoId(); blobUrls.set(a.id, URL.createObjectURL(b));
   }
   if (added.length) {
@@ -2953,7 +2956,7 @@ async function removePhoto(id, pid){
   phOpen = null; phArm = null;
   try {
     await save({op: 'update', path: 'leads/' + id, body: {photos: photosOf(l).filter(p => p.id !== pid), updated_at: nowIso(), updated_by: 'Photos'}});
-    try { if (ASSETS && !prOn() && !(window.HMPPractice && HMPPractice.isPhoto(pid))) await ASSETS.delete(pid); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }   // T201: in Practice the real file stays (only the practice copy of the row changed)
+    try { if (ASSETS && !prOn() && !(window.HMPPractice && HMPPractice.isPhoto(pid))) await within(ASSETS.delete(pid), WRITE_MS); } catch (e) { /* the row no longer points at it; storage cleanup can wait */ }   // T201: in Practice the real file stays (only the practice copy of the row changed)
     appToast(V().phRemoved);
   } catch (e) { appToast(refused(e) ? K().readOnly : K().saveFail); }
   renderSheet();
@@ -6052,10 +6055,11 @@ async function askKing(message, quick, retry){
   kcBusy = true; kcAdd('you', message);
   kcTurns.push({role: 'user', content: retry ? `${message}\n\n(FilthE wrote this at ${new Date(retry.queuedAt).toLocaleString('en-US', {timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit'})} Central; it was sent late because of a bad signal. Use that time for "today" and "tomorrow".)` : message});
   const li = kcAdd('king', L().kcThinking); const p = li.querySelector('p');
-  kcCtl = new AbortController(); kcSet(true, L().kcBusy);
+  const ctl = kcCtl = new AbortController(); kcSet(true, L().kcBusy);
   try {
-    const out = await SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
-      {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false});
+    const out = await within(SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
+      {signal: ctl.signal, modelTier: quick ? 'quick' : 'default', cache: false}), SAMPLE_MS)   // a hard stop even if the runtime ignores the signal
+      .catch(e => { if (e && e.code === 'timeout') ctl.abort(); throw e; });
     let reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
     if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
     p.textContent = reply;
@@ -6089,15 +6093,17 @@ $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 async function connect(){
   const cl = window.claude;
   if (!cl || typeof cl.use !== 'function') { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
-  let db = null; try { db = await cl.use('db'); } catch (e) { db = null; }
+  let db = null; try { db = await within(cl.use('db'), USE_MS); } catch (e) { db = null; }
   if (!db) { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
   setLive('wait', L().live.loading); DB = db;
   try {
     subscribeApp(db);
   } catch (e) { dbState = 'off'; appState = 'err'; setLive('off', L().live.na); renderApp(); return; }
-  try { const u = await cl.use('user'); CAN_EDIT = u ? await u.canEdit() : false; } catch (e) { CAN_EDIT = false; }
-  try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
-  try { ASSETS = CAN_EDIT ? await cl.use('assets') : null; } catch (e) { ASSETS = null; }
+  // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest
+  const [u, sm] = await Promise.all([within(cl.use('user'), USE_MS).catch(() => null), within(cl.use('sample'), USE_MS).catch(() => null)]);
+  try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; }
+  SAMPLE = sm || null;
+  try { ASSETS = CAN_EDIT ? await within(cl.use('assets'), USE_MS) : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
   renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
