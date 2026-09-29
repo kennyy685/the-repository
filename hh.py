@@ -436,7 +436,7 @@ def night_shift_cmd(a, cfg, log=print):
         log(f"REFRESH FAILED: {doc['refresh_error']} (the brief uses the last storm data; publish it anyway)")
     files = {rel: os.path.relpath(n.js_out, HERE) if not a.dry_run else n.js_out}
     log(("DRY RUN (nothing to publish): " if a.dry_run else "PUBLISH ") +
-        json.dumps({"url": man["url"], "files": files}, ensure_ascii=False))
+        json.dumps({"url": man["url"], "file_path": man.get("page"), "files": files}, ensure_ascii=False))
     return 0
 
 

@@ -245,6 +245,16 @@ class NightBrief(unittest.TestCase):
         self.assertIsNone(night.from_js("window.NIGHT_REAL={\"kind\":\"other\"};"))
         self.assertIsNone(night.from_js("not js"))
 
+    def test_street_only_keeps_numbered_streets_and_drops_units(self):
+        for a, want in (("1306 S 137 Av", "S 137 Av"), ("3920 22 St", "22 St"), ("22 St", "22 St"),
+                        ("12 Oak St Apt 4", "Oak St"), ("12 Oak St #4", "Oak St"), ("507-509 N Main St", "N Main St"),
+                        ("", None), (None, None)):
+            self.assertEqual(night._street(a), want, a)
+        d = self.run_brief(self.hud)
+        d["pick"]["name"] = "Fremont: " + d["pick"]["start"]["address"]      # a zone named after the start house
+        back = night.from_js(night.to_js(d))
+        self.assertIn(d["pick"]["name"], back["pick"]["plan"]["en"])          # the zone name is left alone
+
 
 class NightCli(unittest.TestCase):
     def test_cli_writes_brief_and_keeps_the_previous(self):
@@ -308,6 +318,7 @@ class NightShiftCommand(unittest.TestCase):
         pub = json.loads(last.split(": ", 1)[1])
         self.assertEqual(pub["url"], "https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV")
         self.assertEqual(list(pub["files"]), ["data/night.js"])
+        self.assertEqual(pub["file_path"], "docs/design/open-map/index.html")   # the Artifact tool needs the page too
         with open(pub["files"]["data/night.js"], encoding="utf-8") as f:
             d = night.from_js(f.read())
         self.assertEqual(d["kind"], "night_brief")

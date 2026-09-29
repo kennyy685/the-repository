@@ -19,7 +19,10 @@ start **street** (no house number, spots rounded to ~100 m); never an owner name
 > docs/orders/night-shift-runbook.md "Steps" exactly, then stop. Don't edit or commit code, don't create triggers.
 
 ## Steps (a fresh cloud session, empty folder)
-1. `cd` to the repo. `git pull origin claude/amazing-gauss-yzfpq0` (so tonight runs the latest engine).
+1. `cd` to the repo (empty folder: `git clone https://github.com/kennyy685/the-repository` and `git checkout
+   claude/amazing-gauss-yzfpq0`; no access = add_repo owner kennyy685, repo the-repository). `git pull origin
+   claude/amazing-gauss-yzfpq0` (tonight runs the latest engine), then `pip install -q -r requirements.txt` (a fresh
+   container has no numpy/pandas; without it the command fails at import).
 2. Read last night's published brief (this also counts as "read before publish" for the Artifact tool):
    `Artifact` `action: "read"`, `url: https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV`, `path: "data/night.js"`.
    Note where it saved the file (= PREV). If the read fails, go on without PREV (the repo's copy is used).
@@ -27,9 +30,10 @@ start **street** (no house number, spots rounded to ~100 m); never an owner name
    wait): `python3 hh.py night-shift --prev PREV > night.log 2>&1` with `run_in_background: true`
    (no PREV: drop `--prev PREV`). Wait for the "completed" notice; don't poll with sleep.
 4. Read the last lines of `night.log`:
-   - exit 0 and a last line `PUBLISH {"url": ..., "files": {"data/night.js": "docs/design/open-map/data/night.js"}}`:
-     `Artifact` publish with that `url` and that `files` map, nothing else (no `file_path`, no `icon`). If the tool
-     insists on a page, add `file_path: docs/design/open-map/index.html` (the page is unchanged; files left out are kept).
+   - exit 0 and a last line `PUBLISH {"url": ..., "file_path": "docs/design/open-map/index.html", "files": {"data/night.js": ...}}`:
+     `Artifact` publish with that `url`, that `files` map, and `file_path: docs/design/open-map/index.html` (the
+     tool refuses files without the page; tested 2026-09-29. The page is unchanged; other files left out are kept).
+     No `icon`, no `capabilities`.
    - a `REFRESH FAILED: ...` line: publish anyway (the brief says on the map that it uses the day before's storm data),
      and say so in step 5.
    - exit 1 ("do NOT publish") or 2: don't publish. Go to step 5 as a failure.
