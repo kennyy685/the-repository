@@ -107,8 +107,8 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   run_once_at on the King's trigger fired into the King chat. After a one-shot fires, enabled:true alone is refused:
   always send a new run_once_at. Builder session_017r7vUf9nN2xMnMtgHVAizD is building it (started 04:17). Never ask FilthE to test a wake: fire it yourself.
   The hub fires the trigger named in hub doc
-  `system/king.wake_trigger` (now `trig_01PDsG5Y1TBi9XpzefRn74uH`, King session_01PJvb5QyxFcFZV1S5sftKNQ since 2026-09-29 11:18 UTC, branch
-  `claude/stoic-darwin-ikqmrj` (merges in amazing-gauss); older `trig_01RB7wJoBmgynC5qG7JzRpSY` (session_01JozofC, archived), `trig_01RsYqTCZfeEnStkGS8LYinX` (session_014eg28D, archived), `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
+  `system/king.wake_trigger` (now `trig_015MsCgjUpiUb5rpRETuAnYx`, King session_01SyVaPZRupKUKN5ySYz7rGo since 2026-09-29 13:50 UTC, branch
+  `claude/stoic-darwin-ikqmrj` (merges in amazing-gauss); older `trig_01PDsG5Y1TBi9XpzefRn74uH`, `trig_01RB7wJoBmgynC5qG7JzRpSY`, `trig_01RsYqTCZfeEnStkGS8LYinX`, `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
   trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. **FilthE (2026-09-28): "king shouldnt answer just a
   certain amount of times, he should answer the second i type ... hes litteraly the boss."** Every hub message gets a hub
   reply (never only in the Claude chat), even if it lands mid-job; keep big jobs in robots so the King stays free. The old 3x-daily King trigger

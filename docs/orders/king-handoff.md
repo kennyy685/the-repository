@@ -31,6 +31,12 @@ Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude
    actually pushed.
 7. Report card (crew/report_card) current through 12:50. Robots' guessed timestamps: lesson added to engine + QA memory.
 
+## 2026-09-29 13:50 UTC: new King took over (session_01SyVaPZRupKUKN5ySYz7rGo, branch claude/stoic-darwin-ikqmrj)
+- Wake trigger trig_015MsCgjUpiUb5rpRETuAnYx (hub system/king + robots.dispatch.king point to it); trig_01PDsG5Y and
+  check-in trig_016ExD5Q disabled; session_01PJvb5Q archived. Self-test timed wake set for 13:55Z. Robot check-in
+  send_later trig_01NqRQ34ix39fUf1NkKpKz8y (14:16Z). Merged amazing-gauss in (clears the app's -380 line counter).
+- Told FilthE on the hub (event 20260929T135300Z-code-r). Same 4 robots running; NEXT unchanged (live board).
+
 ## 2026-09-29 11:20 UTC: new King took over (session_01PJvb5QyxFcFZV1S5sftKNQ, branch claude/stoic-darwin-ikqmrj)
 - Wake trigger trig_01PDsG5Y1TBi9XpzefRn74uH (hub system/king + robots.dispatch.king point to it); trig_01RB7w disabled;
   session_01JozofC archived; its safety check trig_01AknBnn + permit reminder trig_01DqmD72 disabled; permit reminder
