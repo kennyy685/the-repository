@@ -115,9 +115,9 @@ function touchReason(L, k, due, start, today, rules) {
   } else {
     var cash = L.type === "cash" || L.source === "everyday";
     e = "Interested on " + en(start) + " (" + agoEn + "). " + n + "-day follow-up: stop by, or call if they gave you their " +
-        "number, to set a time for a free " + (cash ? "estimate" : "inspection") + ".";
+        "number, to set a time for " + (cash ? "a free estimate" : "a roof check") + ".";
     s = "Interesado el " + es(start) + " (" + agoEs + "). Seguimiento de " + n + " días: pasa, o llama si te dio su número, " +
-        "para agendar " + (cash ? "un estimado gratis" : "una inspección gratis") + ".";
+        "para agendar " + (cash ? "un estimado gratis" : "una revisión del techo") + ".";
   }
   if (last) {
     e += " Last planned touch: if it's still not a yes, mark the lead Lost.";

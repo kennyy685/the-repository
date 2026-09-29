@@ -1,7 +1,39 @@
 # HMP App changelog (newest first)
 
-## AI hub v28.4 "King wake that lands" - 2026-09-29 (not live yet: waiting on QA)
+## HMP App "Desk" - 2026-09-29 (MacBook layout; QA PASS, live: HMP App)
+- On the MacBook the app fills the screen now: tabs in a left rail; Now = the hot-zone map large with Aldaba's pick under it and today's plan + calls beside it; Knock = the next 9 doors | the current door, big, with 4 big taps | the whole walk on a full-height map. One tap per door is still one tap.
+- Leads and Money open a lead or job as a pane on the right: the list stays live (click another lead to swap), the open row stays lit; Money shows what's owed + to chase beside the open jobs. Short menus (Add, More) open as a centered card.
+- The toast never covers the door card, the pane or a legal notice (on a phone the sheet now scrolls its last line clear of it). Phones keep the old layout exactly. New check `tests/pages/desk_check.js`; the design gate now runs the app at 1440 and 390 too. Options + why A: docs/design/app-desk/.
+
+## Open map: every pick draws its walk - 2026-09-29 (map-west; QA pending, then republished)
+- Tap Aldaba's pick anywhere (Columbus, Schuyler, David City, Fremont, Blair, Wahoo, Omaha-Lincoln) and the map draws that pick's own walk: the Knock app's order, starting on the start street (tonight: 22 St, then 21 St), on real streets. Street by street, corner to corner: no house numbers, no door points, no owner names.
+- Outside the old Omaha-Lincoln street box the night shift adds a small street tile around the walk (~15-30 KB, gis.ne.gov, same source as the rest of the map), so the page stays light on hotel wifi. It all rides in `data/night.js`; the night routine is unchanged.
+## Open map: top 3 agrees with Aldaba's pick - 2026-09-29 (open map republished; QA PASS, its 3 notes fixed)
+- "Aldaba's top 3" now follows the night brief: #1 = Aldaba's pick, #2 = the backup, then the next storm walk (tonight: Columbus 22 St & 21 St, Omaha older homes, Columbus 36 Ave & 18 St). No more Malcolm on the list while the pick says Columbus.
+- A pick outside the old map box (Columbus) now opens as a real area, and the home view widens to show the pick + backup. The brief carries it (`top` + `map` in `data/night.js`), so it stays right every night with no extra step.
+## Roof-check wording - 2026-09-29 (live: Practice Door Version 15; QA PASS)
+- Practice Door, print sheets and the door lines now say "roof check" / "revisión del techo", never "free inspection" / "gratis" (King's call until the boss okays promising free).
+- The scorecard neither rewards "free" nor penalizes "roof check"; "free estimate" is still used and flagged for the boss.
+- PDFs in docs/print not re-rendered (no script): re-print from the HTML before handing out.
+
+## Night shift real - 2026-09-29 (open map: QA pending, then republished)
+- "Since last night" now shows the REAL brief: last night's real storm reports, the engine's real walks, real streets. Aldaba's pick is always a storm walk (tonight: Columbus, 1.6" hail Aug 8, 25 doors); an older-homes area is only ever the backup, and when no storm walk has doors left it says so and names the backup. The map names the start street, never a house number.
+- One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
+- SAMPLE tag only on the samples, which moved under Preview (Last night / Quiet night / Storm night). A failed storm update says so on the strip. The open map is now in the design gate (night strip, 1440 dark + light) and has its own page check.
+
+## HMP App "Proven day" - 2026-09-29 (live: HMP App Version 13; QA PASS)
+- A full real work day now runs as one automatic test (7 AM map -> knock -> lead -> inspection -> claim -> price -> contract -> follow-ups -> day numbers), in English, Spanish and on a slow signal: `tests/pages/e2e_day_check.js`, part of the release checks.
+- A bad signal never loses a tap now, even if the app closes mid-save, and every Done shows at once instead of waiting. "Done for today" opens the review right away.
+- The contract step shows the fixed cancel notice (EN + ES, with the cancel date) and the deductible notice word for word, one tap each. Report: docs/research/2026-09-29-app-e2e.md.
+- Safer by default (King's calls on QA's notes): the 3-day cancel date now skips Saturdays too until the boss confirms (a later date is always safe; dates already written stay), and the app says "roof check" / "revisión del techo" instead of "free inspection".
+
+## Night shift "Since last night" - 2026-09-29 (live: open map Version 8; QA PASS)
+- While you sleep, Aldaba gets your morning ready: the open map's 7 AM home now opens with "Since last night": new hail by town and size, zones that moved up or down, walks that changed (doors knocked), and a plain line like "No new hail since last night; best zone is still Malcolm." Tap any chip to fly there. Your top 3 show "↑ from #5" when a zone climbed overnight.
+- Engine `hailhunter/night.py` + `hh.py night`: refresh, re-rank, then one small brief (Aldaba's pick + where to start the walk + door count + why + a backup zone), keeping last night's for the diff. The page runs on SAMPLE briefs (a quiet night, and a replay of the real Sep 13 storm night; switch under Preview). hud.json and Storm Watch untouched; nothing is scheduled yet (the King decides).
+
+## AI hub v28.4 "King wake that lands" - 2026-09-29 (live: hub Version 34)
 - Your hub messages now reach the King's own chat: the page books the King for the next whole minute (a timed wake) instead of the old instant poke, which opened a stand-in chat the King never saw. The hub says "The King gets it in about a minute". The first time, claude.ai asks you to Allow the new permission once.
+- QA fixes before going live: the page now has permission to book that timed wake, and the "did it arrive?" re-check runs (it used to crash quietly), so a wake that never went shows "Didn't reach the King" with a Retry button.
 
 ## AI hub v28.3 "One building" - 2026-09-29 (live: hub Version 33)
 - One building: a bronze frame runs through both floors around the glass tube, with a stair landing and a planted terrace. The Observatory sits on the tube top: a ring table showing research / build / QA lanes, what needs you, Flow, Friction and Shipped (key O, plus an Observatory card in the Crew tab).

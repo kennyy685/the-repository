@@ -205,6 +205,9 @@ DEFAULTS = {
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
     # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
     # `polygon` covers every house left, the walk only the best `doors`).
+    # Night shift (`hh.py night`, night.py): which storms count as "new hail since last night" (min_hail inches, within
+    # max_mi), how many rows the brief keeps, and how many places a zone must move to count as up/down.
+    "night": {"min_hail": 0.75, "max_mi": 150, "max_new": 8, "max_moves": 5, "min_move": 2, "link_km": 15},
     "zones": {"radius_mi": 60, "top": 12, "doors": 25, "polygon_max_points": 40, "wind_top": 8, "walk_buffer_m": 25},
     # Path step 4 (`hh.py season`, season.py): this season's REAL hail in eastern Nebraska for the open map
     # (data/storms-<year>.json). Its own network step: never part of `refresh`, so Storm Watch and hud.json don't change.
@@ -233,6 +236,13 @@ DEFAULTS = {
     # to its own street (the address) within `snap_max_m`, else any street within `snap_any_m`; alleys/drives cost
     # `route_service_factor` x their length; a hop that needs more than `route_max_detour_m` beyond the straight line
     # (or finds no street path) is drawn straight and marked gap.
+    # The open map's walk + street tile for every pick (hailhunter/mapwalk.py, `hh.py night`): streets_box = the box
+    # data/streets.json holds (a walk outside it gets its own tile); tiles = walk box + tile_margin_m, at least
+    # tile_half_m from the middle; tile_max_kb caps one tile (over it, local streets drop); ext_max_m = how far a
+    # street run is pushed out to its corner (no door points on the map).
+    "openmap": {"streets_box": [-96.95, 40.72, -95.80, 41.70], "tile_half_m": 1500, "tile_margin_m": 500,
+                "tile_simplify_m": 3, "tile_scale": 50000, "tile_max_kb": 70, "ext_max_m": 250, "decimals": 5,
+                "max_tiles": 3},
     "basemap": {"enabled": True, "margin_m": 60, "min_span_m": 300, "simplify_m": 1.5, "decimals": 5,
                 "max_kb": 60, "max_age_days": 120, "budget_s": 90, "timeout_s": 20, "max_pages": 4,
                 "label_min_m": 60, "street_margin_m": 200, "snap_max_m": 150, "snap_any_m": 60,

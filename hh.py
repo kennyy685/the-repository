@@ -16,6 +16,9 @@
   python3 hh.py status               what's in the database, last runs, errors
   python3 hh.py serve                phone-friendly web app: door lists, commercial targets, pipeline tracking
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
+  python3 hh.py night                night shift: refresh, then the 7 AM brief (new hail, zones up/down, pick + plan)
+  python3 hh.py night-shift [--prev F] [--dry-run]   the nightly cloud job: night + the open map's data/night.js
+                  + one PUBLISH line (docs/orders/night-shift-runbook.md)
   python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
                   [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
@@ -301,6 +304,161 @@ def _basemap_maker(cfg, offline):
                          log=lambda m: print(m, file=sys.stderr))
 
 
+def night_cmd(a, cfg, log=print):
+    """`hh.py night`: refresh storms (unless --no-refresh; a failed refresh still writes a brief from the last
+    hud.json, with refresh_error), re-rank zones + walks, then brief.json (+ the old one kept as brief.prev.json for
+    the next night's diff). See hailhunter/night.py for the brief."""
+    import sqlite3
+    from zoneinfo import ZoneInfo
+    from hailhunter import night, todaywalk, zones
+    err = None
+    if not a.no_refresh:
+        conn = db.connect(cfg["paths"]["db"])
+        try:
+            refresh(conn, Fetcher(cfg["paths"]["cache"], offline=a.offline), cfg, log=lambda *x: None)
+        except Exception as e:                  # never lose the morning brief to a download error
+            err = f"{type(e).__name__}: {e}"[:300]
+            print(f"night: refresh failed ({err}); using the last hud.json", file=sys.stderr)
+        finally:
+            conn.close()
+    hud_path = a.hud or os.path.join(cfg["paths"]["export"], "hud.json")
+    day = a.date or datetime.now(ZoneInfo(cfg["timezone"])).date().isoformat()
+    try:
+        hud_doc = todaywalk.load_json(hud_path)
+    except (OSError, ValueError) as e:
+        print(f"Can't read {hud_path} ({type(e).__name__}). Run `python3 hh.py refresh`.", file=sys.stderr)
+        hud_doc = {}
+    conn = None
+    if os.path.exists(cfg["paths"]["db"]):
+        try:
+            conn = sqlite3.connect(f"file:{cfg['paths']['db']}?mode=ro", uri=True)
+        except sqlite3.Error:
+            conn = None
+    near = zones.resolve_near(a.near, cfg, conn)
+    if near is None:
+        print(f"night: can't find the town {a.near!r} (give 'lat,lon', or run init for the town list)", file=sys.stderr)
+        return 2
+    results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
+    dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
+    # rank EVERY walk, then keep storm zones first (King, 2026-09-29): old-house heat must never cut a storm walk
+    top = int(a.top or zones._zcfg(cfg)["top"])
+    zdoc = zones.zones(hud_doc, day, near, a.radius, 10 ** 4, results, dnk, cfg, conn, doors=a.doors)
+    if conn is not None:
+        conn.close()
+    zdoc = night.trim(zdoc, top)
+    w = zones.walks(hud_doc, zdoc, day, a.doors, results, cfg, dnk=dnk)
+    out_dir = a.out_dir or os.path.join(cfg["paths"]["export"], "night")
+    os.makedirs(out_dir, exist_ok=True)
+    cur, old = os.path.join(out_dir, "brief.json"), os.path.join(out_dir, "brief.prev.json")
+    prev = None
+    # the previous brief: --prev (a fresh cloud session reads last night's published night.js), else brief.json here
+    for src in ([a.prev] if a.prev else []) + [cur]:
+        if src and os.path.exists(src):
+            try:
+                with open(src, encoding="utf-8") as f:
+                    prev = night.from_js(f.read())
+            except OSError:
+                prev = None
+            if prev is not None:
+                break
+    season_path = a.season or os.path.join(HERE, "data", f"storms-{day[:4]}.json")
+    try:
+        season_doc = todaywalk.load_json(season_path)
+        areas = night.map_areas(season_doc)
+    except (OSError, ValueError):
+        season_doc, areas = None, []             # no season file: the brief just carries no map area ids
+    doc = night.brief(hud_doc, zdoc, w, day, prev, cfg, areas=areas)
+    if season_doc:                               # the map's shapes for the areas it names (a pick west of the map box)
+        from hailhunter import openmap
+        doc["map"] = openmap.extra(season_doc, night.area_ids(doc))
+    if not getattr(a, "no_basemap", False):      # the cards' walks on real streets + a street tile where the map has none
+        from hailhunter import mapwalk
+        maker = _basemap_maker(cfg, a.offline)
+        try:
+            mw = mapwalk.extra(doc, w, maker, cfg)
+        except Exception as e:                   # the map's walks are optional: never lose the 7 AM brief to them
+            print(f"night: map walks failed ({type(e).__name__}: {str(e)[:200]}); brief without them", file=sys.stderr)
+            mw = {"walks": {}, "tiles": []}
+        finally:
+            maker.conn.close()
+        if mw["walks"] or mw["tiles"]:
+            doc.setdefault("map", {}).update(mw)
+        log(f"Map walks: {len(mw['walks'])}, street tiles: {len(mw['tiles'])}")
+    if err:
+        doc["refresh_error"] = err
+    if os.path.exists(cur):
+        os.replace(cur, old)
+    with open(cur + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=1, ensure_ascii=False)
+        f.write("\n")
+    os.replace(cur + ".tmp", cur)
+    log(doc["headline"]["en"])
+    if doc.get("pick"):
+        log("Plan: " + doc["pick"]["plan"]["en"])
+    elif doc.get("backup"):
+        log("Backup: " + doc["backup"]["plan"]["en"])
+    log(f"Wrote {cur}")
+    if a.js_out:
+        os.makedirs(os.path.dirname(os.path.abspath(a.js_out)), exist_ok=True)
+        with open(a.js_out + ".tmp", "w", encoding="utf-8") as f:
+            f.write(night.to_js(doc))
+        os.replace(a.js_out + ".tmp", a.js_out)
+        log(f"Wrote {a.js_out} (the open map's copy: streets, no house numbers)")
+    return 0
+
+
+OPEN_MAP_FILES = os.path.join(HERE, "docs", "design", "open-map", "index.files.json")
+NIGHT_JS_MAX = 400_000      # bytes: the brief + its map walks + street tiles (~15-30 KB a tile) stay light on hotel wifi
+
+
+def night_shift_cmd(a, cfg, log=print):
+    """`hh.py night-shift`: the whole nightly job for a fresh cloud session (docs/orders/night-shift-runbook.md):
+    refresh -> night brief -> the open map's data/night.js, checked, then ONE last line `PUBLISH {"url", "files"}` =
+    the Artifact publish that republishes only that file. --prev = last night's published night.js (read from the
+    artifact first; default: the repo's copy). --dry-run: no network, the test fixture, a temp folder, nothing to
+    publish. Exit 0 = publish it, 1 = the brief is broken (don't publish), 2 = setup problem."""
+    import argparse
+    import tempfile
+    from hailhunter import night
+    try:
+        with open(a.files or OPEN_MAP_FILES, encoding="utf-8") as f:
+            man = json.load(f)
+        rel = next(iter(man["nightly"]))
+        repo_js = os.path.join(HERE, man["files"][rel])
+    except (OSError, ValueError, KeyError, StopIteration) as e:
+        print(f"night-shift: can't read the open map's files map ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    n = argparse.Namespace(no_refresh=a.dry_run, offline=a.offline, hud=None, date=None, near=None, radius=None,
+                           top=None, doors=None, results=a.results, dnk=a.dnk, prev=a.prev or repo_js,
+                           js_out=repo_js, season=None, out_dir=None, no_basemap=False)
+    tmp = None
+    if a.dry_run:
+        tmp = tempfile.mkdtemp(prefix="night-shift-dry-")
+        n.hud = os.path.join(HERE, "tests", "fixtures", "today_hud.json")
+        n.date, n.near, n.out_dir = "2026-09-25", "41.43,-96.49", tmp
+        n.offline = True                                # map walks + tiles: cache only, never the network
+        n.prev = a.prev                                 # a dry run never diffs against the real published brief
+        n.js_out = os.path.join(tmp, "night.js")
+    rc = night_cmd(n, cfg, log=log)
+    if rc:
+        return rc
+    try:
+        with open(n.js_out, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = ""
+    doc = night.from_js(text)
+    if doc is None or not text.startswith(night.JS_HEAD) or len(text) > NIGHT_JS_MAX:
+        print(f"night-shift: {n.js_out} is not a good night brief; do NOT publish", file=sys.stderr)
+        return 1
+    if doc.get("refresh_error"):
+        log(f"REFRESH FAILED: {doc['refresh_error']} (the brief uses the last storm data; publish it anyway)")
+    files = {rel: os.path.relpath(n.js_out, HERE) if not a.dry_run else n.js_out}
+    log(("DRY RUN (nothing to publish): " if a.dry_run else "PUBLISH ") +
+        json.dumps({"url": man["url"], "file_path": man.get("page"), "files": files}, ensure_ascii=False))
+    return 0
+
+
 def _ro_conn(cfg):
     """The engine database read-only (rows by name), or None when there is none (the cloud's app job)."""
     import sqlite3
@@ -541,6 +699,31 @@ def main(argv=None):
     p.add_argument("--knocks", required=True, help="JSON list of Knock-screen knocks (or {\"ev\": [...]})")
     p.add_argument("--out", help="output file (default: data/learn.json)")
     p.add_argument("--src", default="REAL", help="label for the data (REAL once FilthE knocks; SAMPLE for mock)")
+    p = sub.add_parser("night", help="night shift: refresh storms, then one morning brief for the 7 AM map (new hail "
+                                      "since last night, zones up/down, Aldaba's pick + today's plan)")
+    p.add_argument("--no-refresh", action="store_true", help="skip the storm refresh (use the hud.json already there)")
+    p.add_argument("--out-dir", help="folder for brief.json + brief.prev.json (default: <export>/night)")
+    p.add_argument("--date", help="YYYY-MM-DD the brief is for (default: today, Central time)")
+    p.add_argument("--hud", help="hud.json to read (default: data/export/hud.json)")
+    p.add_argument("--near", help="zones around this town or 'lat,lon' (default: company home)")
+    p.add_argument("--radius", type=float, help="miles around --near (default: config zones.radius_mi, 60)")
+    p.add_argument("--top", type=int, help="how many zones to rank (default: config zones.top, 12)")
+    p.add_argument("--doors", type=int, help="doors per walk (default: config zones.doors, 25)")
+    p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--prev", help="last night's brief (brief.json, or the open map's published night.js) for the diff; "
+                                  "default: <out-dir>/brief.json")
+    p.add_argument("--js-out", help="also write the open map's copy (e.g. docs/design/open-map/data/night.js)")
+    p.add_argument("--season", help="season file for the open map's area ids (default: data/storms-<year>.json)")
+    p.add_argument("--no-basemap", action="store_true", help="skip the open map's walks + street tiles (brief `map`)")
+    p = sub.add_parser("night-shift", help="the nightly job for a fresh cloud session: refresh -> night brief -> the "
+                                            "open map's data/night.js, then one PUBLISH line (runbook: "
+                                            "docs/orders/night-shift-runbook.md)")
+    p.add_argument("--prev", help="last night's published night.js (default: the repo's copy)")
+    p.add_argument("--dry-run", action="store_true", help="no network: the test fixture into a temp folder, no publish")
+    p.add_argument("--results", help="door results so far (the app's doors docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk docs")
+    p.add_argument("--files", help=argparse.SUPPRESS)
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -962,6 +1145,10 @@ def main(argv=None):
                 f.write(text + "\n")
         print(text)
         return 0
+    if a.cmd == "night":                           # refresh (network), then the brief from hud.json: no db needed after
+        return night_cmd(a, cfg)
+    if a.cmd == "night-shift":                     # the nightly cloud job: night + the open map's file + PUBLISH line
+        return night_shift_cmd(a, cfg)
     conn = db.connect(cfg["paths"]["db"])
     fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
 

@@ -21,9 +21,9 @@ KIND_EN = {"Apartments / multi-family": "apartments", "Commercial": "commercial 
 NOT_BUSINESS = {"cell", "mobile", "personal", "home"}      # a contact's phone_type that is never called
 MONTHS_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
              "noviembre", "diciembre"]
-RULES = {"en": "Business lines only. Offer the free inspection; never promise insurance will pay, never talk "
+RULES = {"en": "Business lines only. Offer a roof check; never promise insurance will pay, never talk "
                "deductibles, never negotiate a claim.",
-         "es": "Solo líneas de negocio. Ofrezcan la inspección gratis; nunca prometan que el seguro va a pagar, nunca "
+         "es": "Solo líneas de negocio. Ofrezcan una revisión del techo; nunca prometan que el seguro va a pagar, nunca "
                "hablen de deducibles, nunca negocien un reclamo."}
 CSV_COLS = ["rank", "kind", "name", "phone", "ask_for", "ask_for_es", "address", "city", "hail_in", "day", "days_ago",
             "confidence", "why_en", "why_es", "opener_en", "opener_es"]
@@ -65,9 +65,9 @@ def opener(prop, day, cfg, peril="hail"):
     en_storm = f"{_short_day(day, 'en')} wind storm" if peril == "wind" else f"{_short_day(day, 'en')} hail"
     es_storm = (f"de la tormenta de viento del {_short_day(day, 'es')}" if peril == "wind"
                 else f"del granizo del {_short_day(day, 'es')}")
-    return {"en": f"Hi, {en_me}{en_town}: we're offering a free roof and siding inspection for {prop} after the "
+    return {"en": f"Hi, {en_me}{en_town}: we're offering a roof and siding check for {prop} after the "
                   f"{en_storm}, so who would be the right person to set that up with?",
-            "es": f"Hola, {es_me}{es_town}: ofrecemos una inspección gratis del techo y el revestimiento (siding) de "
+            "es": f"Hola, {es_me}{es_town}: ofrecemos una revisión del techo y el revestimiento (siding) de "
                   f"{prop} después {es_storm}; ¿con quién la puedo coordinar?"}
 
 
@@ -244,9 +244,9 @@ def account_opener(al, cfg=None):
     en_what = "strong wind" if al["peril"] == "wind" else "hail"
     es_what = "hubo vientos fuertes" if al["peril"] == "wind" else "cayó granizo"
     return {"en": f"Hi, {en_me}: {en_what} hit your area on {_short_day(day, 'en')}, so can I come by this week "
-                  f"for a free roof and siding check?",
+                  f"for a roof and siding check?",
             "es": f"Hola, {es_me}: el {_short_day(day, 'es')} {es_what} en su zona; ¿puedo pasar esta semana a "
-                  f"revisar gratis su techo y revestimiento (siding)?"}
+                  f"revisar su techo y revestimiento (siding)?"}
 
 
 def account_rows(check_doc, today, cfg=None, calls=None):

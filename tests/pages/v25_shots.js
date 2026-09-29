@@ -71,13 +71,13 @@ function data(opts = {}) {
     D["system/prices"] = JSON.parse(fs.readFileSync(path.join(__dirname, "v25_prices.json"), "utf8"));
   }
   if (opts.noMoney) { C.claims = {}; for (const k of Object.keys(C.leads)) if (C.leads[k].type === "cash") delete C.leads[k]; }
-  // v25.2 (T199): a claim mid-way through the Job tracker, on Sunday Sep 27: contract signed Fri Sep 25 (3-day cancel ends
+  // v25.2 (T199): a claim mid-way through the Job tracker, on Sunday Sep 27: contract signed Thu Sep 24 (3-day cancel ends
   // midnight Tue Sep 29), itemized description sent to the homeowner but not yet to the insurer, the ACV check in today with
   // US Bank on it, permit pulled, crew set for Wed Sep 30 -> step 5 is current; materials and tear-off are locked.
   if (opts.jobDemo) C.claims["1418-irving-st"] = { address: "1418 Irving St", city: "Fremont", homeowner_first_name: "Maria", stage: "signed", insurer: "State Farm", claim_no: "45-902",
     date_of_loss: "2026-08-08", adjuster_date: "2026-09-02", scope_date: "2026-09-16", rcv: 21800, acv: { amount: 14650, received: "2026-09-27" }, depreciation_held: 5150,
     mortgage: { company: "US Bank" }, contract_price: 21800, deductible: 2000,
-    job: { contingency_signed: "2026-08-26", adjuster_met: "2026-09-02", contract_signed: "2026-09-25", cancel_by: "2026-09-29", itemized_sent: { homeowner: "2026-09-26" },
+    job: { contingency_signed: "2026-08-26", adjuster_met: "2026-09-02", contract_signed: "2026-09-24", cancel_by: "2026-09-29", itemized_sent: { homeowner: "2026-09-26" },
       permit: { pulled: "2026-09-26", number: "B-26-1187", city: "Fremont" }, crew: { name: "Crew 2", scheduled: "2026-09-26", start: "2026-09-30" } },
     next_step: { en: "Send the itemized description to State Farm", es: "Mandar la descripción detallada a State Farm", due: "2026-09-28" },
     updated_at: "2026-09-27T14:10:00Z", updated_by: "Job tracker" };

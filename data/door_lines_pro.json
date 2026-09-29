@@ -18,8 +18,8 @@
   {
     "id": "opener-everyday-age",
     "situation": "Non-storm, everyday pitch for an older house (age-based lead, not hail-based).",
-    "en": "Hi, I'm {name} with HMP Siding & Roofing — siding and roof work. A lot of homes on this street are around the same age, and roofs and siding start wearing out about now. I'm doing free checks in the area — want me to take a look at yours?",
-    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos techos y siding. Muchas casas en esta calle tienen más o menos la misma edad, y por estos años el techo y el siding empiezan a desgastarse. Estoy haciendo revisiones gratis por aquí — ¿quiere que revise el suyo?",
+    "en": "Hi, I'm {name} with HMP Siding & Roofing — siding and roof work. A lot of homes on this street are around the same age, and roofs and siding start wearing out about now. I'm doing roof checks in the area — want me to take a look at yours?",
+    "es": "Hola, soy {name} de HMP Siding & Roofing — hacemos techos y siding. Muchas casas en esta calle tienen más o menos la misma edad, y por estos años el techo y el siding empiezan a desgastarse. Estoy haciendo revisiones del techo por aquí — ¿quiere que revise el suyo?",
     "source_style": "Adapted from Roofr's everyday (non-storm) pitch example ('A bunch of these homes were built around the same time...').",
     "legal_ok": true
   },
@@ -154,8 +154,8 @@
   {
     "id": "spanish-referral-ask",
     "situation": "Right after a good visit in a tight-knit or Spanish-speaking neighborhood, where word of mouth travels fast.",
-    "en": "If you know a neighbor or family member who could use the same free check, I'd really appreciate the introduction.",
-    "es": "Si conoce a un vecino o familiar que también quiera una revisión gratis, le agradecería mucho la presentación.",
+    "en": "If you know a neighbor or family member who could use the same roof check, I'd really appreciate the introduction.",
+    "es": "Si conoce a un vecino o familiar que también quiera una revisión del techo, le agradecería mucho la presentación.",
     "source_style": "Sourced from Roofing Contractor/IKO's 'one good job can lead to several more in the same neighborhood' finding on Latino-community word of mouth; pairs with CLAUDE.md's existing handwritten-thank-you referral rule (D17).",
     "legal_ok": true
   },

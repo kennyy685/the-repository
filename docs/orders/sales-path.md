@@ -143,10 +143,10 @@ Practice these out loud, don't just read them.
 
 11. **"The adjuster already said no damage."**
     EN: *"That's frustrating, I get it. I can't promise a check or argue with your insurer — but I
-    can take a free look with photos, and if I find something, you can ask your insurer for a
+    can take a look with photos, and if I find something, you can ask your insurer for a
     re-inspection and show them what I found. Your call either way."*
     ES: *"Qué frustrante, lo entiendo. No puedo prometerle un cheque ni discutir con su aseguradora —
-    pero sí puedo revisar gratis con fotos, y si encuentro algo, usted puede pedir una re-inspección
+    pero sí puedo revisar el techo con fotos, y si encuentro algo, usted puede pedir una re-inspección
     y mostrarles lo que hallé. Su decisión."*
 
 12. **HOA / condo: "Who pays the deductible? Can you help with my claim?"**
@@ -170,9 +170,9 @@ Practice these out loud, don't just read them.
 
 14. **"Just give me a number over the phone, no need to come out."**
     EN: *"I could give a rough range, but I'd rather not — the real number depends on things I can
-    only see up close. The inspection's free, takes 20-30 minutes — can I come by [day]?"*
+    only see up close. The roof check takes 20-30 minutes — can I come by [day]?"*
     ES: *"Le podría dar un rango, pero prefiero no — el número real depende de cosas que solo se ven
-    de cerca. La inspección es gratis, toma 20-30 minutos — ¿puedo pasar el [día]?"*
+    de cerca. La revisión del techo toma 20-30 minutos — ¿puedo pasar el [día]?"*
 
 15. **"Are you registered? Are you even insured? You're not one of those storm chasers?"**
     EN: *"Good question, glad you asked. We're local, based right here in Fremont, registered with the
@@ -330,7 +330,7 @@ on every other stop (kept, not removed, per the hud.json/today-walk contract). M
 measure and build steps, October-March): "Cold months: inspect now, no need to wait for spring (a claim is the
 homeowner's call, filed when they choose). Build on the next stretch of days above the material's temperature
 floor (shingles and vinyl about 40°F, Hardie paint and caulk 30°F)." For lessons, the door version from round 53:
-"We can start your free inspection and get your claim moving today - and do the work as soon as the weather
+"We can start your roof check and get your claim moving today - and do the work as soon as the weather
 allows, no need to wait for spring."
 
 **Left in the app, worth a look (unsure):** the "Done for today" review still asks "One thing that worked?" /

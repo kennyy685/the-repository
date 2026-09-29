@@ -50,6 +50,10 @@ def main():
         man = json.load(open(os.path.join(out, "manifest.json"), encoding="utf-8"))
         for p, f in man["files"].items():
             docs[p] = scrub(json.load(open(os.path.join(out, f), encoding="utf-8")))
+    # the price sheet and follow-up rules the King writes from the engine (hh.py ... --export-rules), as on the live db
+    for path, cmd in (("system/prices", ["estimate", "--export-rules"]), ("system/followups", ["followups", "--export-rules"])):
+        r = subprocess.run([sys.executable, os.path.join(ROOT, "hh.py")] + cmd, cwd=ROOT, check=True, capture_output=True, text=True)
+        docs[path] = json.loads(r.stdout)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump({"_comment": "Built by tests/pages/app_live_fixture.py (mock homes, no names). Do not hand-edit.",
                    "day": DAY, "docs": docs}, f, indent=0, sort_keys=True)

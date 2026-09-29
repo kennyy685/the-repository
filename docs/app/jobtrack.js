@@ -6,7 +6,7 @@
  *   HMPJobTrack.checkWrite(old, next, opts) -> null | {en, es}   (the Right Hand chat's update_claim runs this)
  *   HMPJobTrack.gates(claim, opts)      -> {work: {ok, missing[], cancelEnd, startOn}, materials: {ok, missing[]}}
  *   HMPJobTrack.reminders(claim, opts)  -> [{key, step, due, level: "due" (amber) | "late" (red), text{en, es}}]
- *   HMPJobTrack.cancelEnd(day)          -> the last day of the 3-business-day cancel window (Sundays and federal holidays
+ *   HMPJobTrack.cancelEnd(day)          -> the last day of the 3-business-day cancel window (Saturdays, Sundays and federal holidays
  *                                          don't count: the same rule as the app's cancelByDay)
  * opts = {today: "YYYY-MM-DD", leadSigned: lead.signed_on (the contingency, from the Sale Guide), reviewSent: the day the
  * lead's review text went out, fmt(day, "en"|"es") -> a short date}. Every string is {en, es}; the page picks one.
@@ -51,7 +51,7 @@ var MON_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oc
 function fmtDefault(d, lg) { return lg === "es" ? (+d.slice(8, 10)) + " " + MON_ES[+d.slice(5, 7) - 1] : MON_EN[+d.slice(5, 7) - 1] + " " + (+d.slice(8, 10)); }
 function both(f) { return { en: f("en"), es: f("es") }; }
 
-/* ---------- the 3-day cancel: 3 business days after signing; Sundays and federal holidays (and their observed days) don't count ---------- */
+/* ---------- the 3-day cancel: 3 business days after signing; Saturdays (until the boss confirms), Sundays and federal holidays (and their observed days) don't count ---------- */
 var HOLI = {};
 function fedHolidays(y) {
   if (HOLI[y]) return HOLI[y];
@@ -72,7 +72,7 @@ function fedHolidays(y) {
 function cancelEnd(signed) {
   var d = day(signed); if (!d) return null;
   var n = 0;
-  while (n < 3) { d = addDays(d, 1); if (new Date(d + "T00:00:00Z").getUTCDay() !== 0 && !fedHolidays(+d.slice(0, 4))[d]) n++; }
+  while (n < 3) { d = addDays(d, 1); if (new Date(d + "T00:00:00Z").getUTCDay() % 6 !== 0 && !fedHolidays(+d.slice(0, 4))[d]) n++; }
   return d;
 }
 
@@ -138,7 +138,7 @@ var STEPS = [
   { id: "contingency", n: 1, legal: true,
     title: { en: "Contingency agreement signed", es: "Acuerdo contingente firmado" },
     short: { en: "Contingency", es: "Acuerdo contingente" },
-    who: { en: "You + the homeowner, after the free inspection", es: "Usted + el dueño, después de la inspección gratis" },
+    who: { en: "You + the homeowner, after the roof check", es: "Usted + el dueño, después de la revisión del techo" },
     papers: [P.contingency, P.cancel],
     when: { en: "Day 0, the same visit as the inspection", es: "Día 0, en la misma visita de la inspección" },
     law: { en: "3-day cancel form in English and Spanish (69-1601, 69-1604). Deductible notice (44-8607). Nothing charged before the cancel window ends (69-1606(5)). A written claim denial opens another 3-business-day cancel right (44-8603). No assignment of benefits (44-8605).",
@@ -422,10 +422,10 @@ function checkWrite(old, next, o) {
 function selfCheck() {
   var bad = [];
   var eq = function (name, a, b) { if (JSON.stringify(a) !== JSON.stringify(b)) bad.push(name + ": got " + JSON.stringify(a) + ", want " + JSON.stringify(b)); };
-  eq("cancel Fri", cancelEnd("2026-09-25"), "2026-09-29");
-  eq("cancel over Columbus Day", cancelEnd("2026-10-09"), "2026-10-14");
+  eq("cancel Fri (Sat + Sun skipped)", cancelEnd("2026-09-25"), "2026-09-30");
+  eq("cancel over Columbus Day", cancelEnd("2026-10-09"), "2026-10-15");
   eq("14 steps", STEPS.length, 14);
-  var c = { stage: "signed", job: { contract_signed: "2026-09-25", itemized_sent: { homeowner: "2026-09-26" } } };
+  var c = { stage: "signed", job: { contract_signed: "2026-09-24", itemized_sent: { homeowner: "2026-09-26" } } };
   eq("work locked", gates(c, { today: "2026-09-30" }).work.ok, false);
   c.job.itemized_sent.insurer = "2026-09-27";
   eq("work open", gates(c, { today: "2026-09-30" }).work.ok, true);

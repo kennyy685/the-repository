@@ -24,7 +24,7 @@
       wind: function (x) { return x ? x + " mph wind" : "wind damage"; },
       ago: function (n) { return n === 0 ? "today" : n === 1 ? "yesterday" : n + " days ago"; },
       callLbl: "Business call", askFor: function (x) { return "ask for " + x; }, callAria: function (x) { return "Call " + x; },
-      rules: "Business lines only. Offer the free inspection and nothing else.",
+      rules: "Business lines only. Offer a roof check and nothing else.",
       say: "Say", why: "Why", phone: "Business line", also: "Also hit", hint: "Hail report", openLead: "Open the lead", openClaim: "Open the claim",
       practice: "Practice: made-up homes and businesses",
       stormAge: function (n) { return "Storm is " + n + " days old: check your policy's time limit"; }
@@ -34,7 +34,7 @@
       wind: function (x) { return x ? "viento de " + x + " mph" : "daños por viento"; },
       ago: function (n) { return n === 0 ? "hoy" : n === 1 ? "ayer" : "hace " + n + " " + pl(n, "día", "días"); },
       callLbl: "Llamada de negocio", askFor: function (x) { return "pregunte por " + x; }, callAria: function (x) { return "Llamar a " + x; },
-      rules: "Solo líneas de negocio. Ofrezca la inspección gratis y nada más.",
+      rules: "Solo líneas de negocio. Ofrezca una revisión del techo y nada más.",
       say: "Diga", why: "Por qué", phone: "Línea de negocio", also: "También afectados", hint: "Reporte de granizo", openLead: "Abrir el prospecto", openClaim: "Abrir el reclamo",
       practice: "Práctica: casas y negocios inventados",
       stormAge: function (n) { return "La tormenta tiene " + n + " días: revise el límite de tiempo de su póliza"; }
@@ -111,8 +111,8 @@
         max_hail_in: h, hail_in: h, event_date: day, day: day, days_ago: n, match: "at", name: s.address, phone: "", ask_for: "", also: [],
         why: {en: (kind === "claim" ? "Your customer" : "Your lead") + ": " + h.toFixed(2) + "\" hail at the address on " + shortDay(day, "en") + ".",
               es: (kind === "claim" ? "Su cliente" : "Su prospecto") + ": granizo de " + h.toFixed(2) + "\" en la dirección el " + shortDay(day, "es") + "."},
-        opener: {en: "Hi, this is HMP Siding & Roofing: hail hit your area on " + shortDay(day, "en") + ". Can I come by this week for a free inspection?",
-                 es: "Hola, le llamamos de HMP Siding & Roofing: el " + shortDay(day, "es") + " cayó granizo en su zona. ¿Puedo pasar esta semana a hacerle una inspección gratis?"},
+        opener: {en: "Hi, this is HMP Siding & Roofing: hail hit your area on " + shortDay(day, "en") + ". Can I come by this week for a roof check?",
+                 es: "Hola, le llamamos de HMP Siding & Roofing: el " + shortDay(day, "es") + " cayó granizo en su zona. ¿Puedo pasar esta semana a hacerle una revisión del techo?"},
         hail_report_hint: {en: "Hail report ready for " + s.address + ".", es: "Reporte de granizo listo para " + s.address + "."}};
     };
     var biz = function (s, i) {
@@ -121,8 +121,8 @@
         address: s.address, city: s.city || "Fremont", hail_in: h, day: day, days_ago: n, also: [], key: "practice|" + slug(s),
         why: {en: h.toFixed(2) + "\" hail at the building on " + shortDay(day, "en") + " (" + TX.en.ago(n) + "). Made-up practice business.",
               es: "Granizo de " + h.toFixed(2) + "\" en el edificio el " + shortDay(day, "es") + " (" + TX.es.ago(n) + "). Negocio inventado de práctica."},
-        opener: {en: "Hi, this is HMP Siding & Roofing: we're offering a free inspection for " + nm.replace(/^Practice: /, "the ") + " after the " + shortDay(day, "en") + " hail. Who handles the building's exterior?",
-                 es: "Hola, le llamamos de HMP Siding & Roofing: ofrecemos una inspección gratis para los apartamentos en " + street(s.address) + " después del granizo del " + shortDay(day, "es") + ". ¿Quién ve el exterior del edificio?"}};
+        opener: {en: "Hi, this is HMP Siding & Roofing: we're offering a roof check for " + nm.replace(/^Practice: /, "the ") + " after the " + shortDay(day, "en") + " hail. Who handles the building's exterior?",
+                 es: "Hola, le llamamos de HMP Siding & Roofing: ofrecemos una revisión del techo para los apartamentos en " + street(s.address) + " después del granizo del " + shortDay(day, "es") + ". ¿Quién ve el exterior del edificio?"}};
     };
     var w = function (i) { return walks[Math.min(i, walks.length - 1)].stops; };
     var strong = function (i, k) { var st = w(i).filter(function (s) { return hailAt(s) >= 1; }); st = st.length ? st : w(i); return st[Math.min(k, st.length - 1)]; };   // business calls: 1"+ hail only, like hh.py calltoday

@@ -618,6 +618,44 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .today .sec .you{margin-left:auto;order:2;font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--acc-ink)}
 .today .sec::after{order:1}
 .picks{display:flex;flex-direction:column;gap:6px}
+/* since last night (night shift brief: `hh.py night --js-out` -> data/night.js, REAL; samples in data/night-sample.js) */
+.night{position:relative;margin-top:16px;padding:12px 12px 11px;border-radius:14px;border:1px solid var(--rule);
+  background:radial-gradient(130% 120% at 100% 0%,rgba(122,140,255,.10),transparent 60%),rgba(255,255,255,.025)}
+.night .nh{display:flex;align-items:center;gap:7px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.night .nh .i{width:13px;height:13px;color:#a9b4ff}
+.night{--muted:#a3a6ae}   /* AA on the strip's own glass (design gate, 2026-09-29) */
+.night .nb{flex-wrap:wrap}.night .seg{flex-wrap:wrap}
+.night .np{margin-top:9px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:5px 8px}
+.night .np .k{font:500 10.5px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.night .np .nc{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.night .np .pl{grid-column:1/-1;margin:0;font-size:12px;line-height:1.35;color:var(--text-2);text-wrap:pretty}
+.night .nh .at{letter-spacing:.04em;text-transform:none}
+.night .nh>span{white-space:nowrap}.night .nh .smp{margin-left:auto}
+.night .nb{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--rule);font:500 10px/1 var(--mono);letter-spacing:.06em;color:var(--muted)}
+.night .seg{margin-left:auto;display:flex;gap:2px;padding:2px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid var(--rule)}
+.night .seg button{font:500 10px/1 var(--mono);letter-spacing:.04em;padding:4px 6px;border-radius:5px;color:var(--muted)}
+.night .seg button[aria-pressed="true"]{background:var(--glass-2);color:var(--text)}
+.night .hl{margin:9px 0 0;font:600 14px/1.35 var(--sans);letter-spacing:-.005em;color:var(--text);text-wrap:pretty}
+.night .hl.calm{color:var(--text-2);font-weight:500}
+.night .nr{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.night .nc{display:inline-flex;align-items:center;gap:5px;height:25px;padding:0 7px;border-radius:7px;font:500 11.5px/1 var(--sans);color:var(--text-2);
+  background:rgba(255,255,255,.04);border:1px solid var(--rule);white-space:nowrap;transition:background .2s,border-color .2s,transform .2s}
+.night button.nc:hover{background:rgba(255,255,255,.08);border-color:var(--rule-2);transform:translateY(-1px)}
+.night .nc b{font:650 11.5px/1 var(--mono);color:var(--text)}
+.night .nc .dt{font:500 10.5px/1 var(--mono);color:var(--muted)}
+.night .nc .dot{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent)}
+.night .nc .up{color:var(--good);font-weight:700}.night .nc .dn{color:var(--muted);font-weight:700}
+.night .nc.new{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.night .nc .nw{font:600 9px/1 var(--mono);letter-spacing:.08em;color:var(--on-acc);background:var(--acc);padding:3px 4px;border-radius:4px}
+.night .nl{margin-top:9px;font:500 10.5px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.night .nf{margin:9px 0 0;font-size:11px;line-height:1.35;color:var(--muted)}
+.pick .mv{font:600 10px/1 var(--mono);letter-spacing:.02em;color:var(--good);white-space:nowrap}
+.pick .mv.nw{color:var(--acc-ink)}
+[data-theme="light"] .night{background:radial-gradient(130% 120% at 100% 0%,rgba(90,105,230,.10),transparent 60%),rgba(255,255,255,.6)}
+[data-theme="light"] .night .nh .i{color:#4b58c8}
+[data-theme="light"] .night{--muted:#50535a}[data-theme="light"] .night .smp{color:#8a4308}
+[data-theme="light"] .night .nc{background:rgba(255,255,255,.7)}
+[data-theme="light"] .night .seg{background:rgba(24,25,28,.05)}
 .pick{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:11px;align-items:start;text-align:left;width:100%;padding:11px 11px 11px 10px;border-radius:14px;
   border:1px solid var(--rule);background:rgba(255,255,255,.02);transition:background .2s,border-color .2s,transform .25s var(--ease);animation:rowin .5s var(--ease) both}
 .pick:hover{background:rgba(255,255,255,.05);border-color:var(--rule-2);transform:translateY(-1px)}
@@ -625,6 +663,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .pick .bd{min-width:0;display:flex;flex-direction:column;gap:4px}
 .pick .nm{display:flex;align-items:center;gap:8px;font:650 15px/1.15 var(--sans);letter-spacing:-.01em}
 .pick .nm em{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:var(--on-acc);background:var(--acc);padding:3px 5px;border-radius:4px}
+.pick .nm em.bk{color:var(--text-2);background:transparent;border:1px solid var(--rule-2)}
 .pick .why{font-size:12.5px;line-height:1.4;color:var(--text-2)}
 /* track record (the map learns from your knocks): SAMPLE knocks until knocking starts */
 .trk{display:flex;align-items:flex-start;gap:6px;font-size:12px;line-height:1.35;color:var(--text)}
@@ -857,6 +896,8 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="data/real.js"></script>
 <script src="data/learn.js"></script>
+<script src="data/night-sample.js"></script>
+<script src="data/night.js"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -870,6 +911,33 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
    ===================================================================== */
 /* REAL = data/real.js (built by data/build/real.py from the engine's data/storms-2026.json). Without it the page runs on the samples below. */
 const REAL = window.REAL || null;
+/* the night brief's own areas (`map`, hailhunter/openmap.py, real.js shapes): the pick + backup + top walks the map box
+   doesn't hold (e.g. Columbus, west of it) still open as areas. Ids already in real.js win. */
+if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT_REAL.map)(()=>{
+  // every string escaped (the page puts these names straight into HTML; only real.js's <b> tags survive)
+  const cl=(v)=>typeof v==="string"?v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])).replace(/&lt;(\/?)b&gt;/g,"<$1b>")
+    :Array.isArray(v)?v.map(cl):v&&typeof v==="object"?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,cl(x)])):v;
+  const X=cl(window.NIGHT_REAL.map),have=new Set(REAL.AREAS.map(a=>a.id)),
+  ago=(d)=>Math.round((new Date(REAL.today+"T12:00:00Z")-new Date(d+"T12:00:00Z"))/864e5);
+  Object.entries(X.storms||{}).forEach(([k,s])=>{if(REAL.STORMS[k])return;REAL.STORMS[k]={...s,days:ago(s.date)};
+    const e=REAL.DAILY.find(x=>x.d===REAL.STORMS[k].days);if(e&&!e.storm){e.storm=k;e.v=Math.max(e.v,s.max)}});
+  (X.areas||[]).forEach(a=>{if(have.has(a.id)||!REAL.STORMS[a.st])return;REAL.AREAS.push(a);have.add(a.id);
+    const tk=String(a.town||a.name.en).toLowerCase().replace(/ /g,"-");REAL.TOWN_OF[a.id]=tk;if(!REAL.TOWNS[tk])REAL.TOWNS[tk]=a.town||a.name.en})})();
+/* the night brief's walks + street tiles (`map.walks`, `map.tiles`, hailhunter/mapwalk.py): each card's own walk (the
+   Knock app's order, street by street, corner to corner: no door points) and real street lines where data/streets.json
+   has none (Columbus, Schuyler, David City...). Names escaped, numbers checked; anything malformed is dropped. */
+const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
+  const esc=(v)=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
+    num=(v)=>typeof v==="number"&&isFinite(v),pt=(p)=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1]),
+    line=(a)=>Array.isArray(a)&&a.every(pt),ints=(a)=>Array.isArray(a)&&a.length>=4&&a.every(num);
+  const W0=b.map.walks&&typeof b.map.walks==="object"&&!Array.isArray(b.map.walks)?b.map.walks:{};
+  Object.entries(W0).slice(0,12).forEach(([id,w])=>{try{
+    const s=(Array.isArray(w.s)?w.s.slice(0,40):[]).filter(x=>x&&line(x.p)&&x.p.length>=2).map(x=>({n:esc(x.n),b:num(x.b)?x.b:0,h:num(x.h)?Math.max(0,Math.min(500,Math.round(x.h))):0,
+      m:num(x.m)?x.m:0,f:esc(x.f),t:esc(x.t),p:x.p}));
+    if(!s.length||!pt(w.park)||!Array.isArray(w.c)||!Array.isArray(w.r)||w.r.length!==s.length||w.c.length!==s.length||!w.c.every(c=>line(c))||!w.r.every(r=>line(r)&&r.length))return;
+    out.walks[String(id)]={park:w.park,pn:[esc((w.pn||[])[0]),esc((w.pn||[])[1])],s,c:w.c,r:w.r}}catch(e){}});
+  (Array.isArray(b.map.tiles)?b.map.tiles.slice(0,6):[]).forEach(t=>{if(t&&pt(t.o)&&num(t.s)&&t.s>0&&Array.isArray(t.t)&&t.t.length===4&&t.t.every(c=>Array.isArray(c)&&c.every(ints)))out.tiles.push(t)});
+  return out})();
 const TODAY = REAL ? REAL.today : "2026-09-28";
 const KNOCK_URL = "https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU"; // the Knock page: one tap per door
 const nv = (x, suf = "") => x == null ? "–" : x + suf;
@@ -1249,6 +1317,16 @@ let map=null, useGL=false, mapReady=false;const whenReady=[];
 const BOUNDS=[[-96.86,40.78],[-95.84,41.64]];
 const PAD={top:96,bottom:150,left:400,right:280};window.PADX=PAD;
 const CAM={center:[-96.34,41.215],zoom:9.3,pitch:50,bearing:-9};
+/* home view: the map box, widened (same framing) to take in the real brief's pick + backup when one sits outside it
+   (Columbus), so Aldaba's pick is always on screen and tappable */
+function homeFit(){const b=window.NIGHT_REAL;if(!b||b.kind!=="night_brief")return;
+  const pts=[b.pick,b.backup].filter(c=>c&&c.center&&c.center.lon!=null).map(c=>[+c.center.lon,+c.center.lat]),m=.08;
+  const out=pts.filter(([x,y])=>x<BOUNDS[0][0]||x>BOUNDS[1][0]||y<BOUNDS[0][1]||y>BOUNDS[1][1]);if(!out.length)return;
+  const bx=()=>[BOUNDS[0][0],BOUNDS[0][1],BOUNDS[1][0],BOUNDS[1][1]],c0=fitCam(bx(),PAD,{});
+  BOUNDS[0]=[Math.min(BOUNDS[0][0],...out.map(p=>p[0]-m)),Math.min(BOUNDS[0][1],...out.map(p=>p[1]-m))];
+  BOUNDS[1]=[Math.max(BOUNDS[1][0],...out.map(p=>p[0]+m)),Math.max(BOUNDS[1][1],...out.map(p=>p[1]+m))];
+  const c1=fitCam(bx(),PAD,{});CAM.zoom+=c1.zoom-c0.zoom;CAM.center=[CAM.center[0]+c1.center[0]-c0.center[0],CAM.center[1]+c1.center[1]-c0.center[1]]}
+homeFit();
 const dayF=()=>["<=",["get","days"],st.days];
 const FILT={ // layers filtered by storm date
   "hail-1":()=>["all",["==",["get","band"],1],dayF()],"hail-15":()=>["all",["==",["get","band"],1.5],dayF()],"hail-2":()=>["all",["==",["get","band"],2],dayF()],
@@ -1576,6 +1654,12 @@ const T={
   lastSeen:{en:(d)=>`last ${d}`,es:(d)=>`última ${d}`},onWay:{en:"on your walk",es:"en tu ruta"},
   insp:{en:"Inspection",es:"Inspección"},adj:{en:"Adjuster",es:"Ajustador"},
   adjLegal:{en:"You document and meet. Never negotiate the claim or talk deductible.",es:"Documentas y te reúnes. Nunca negocies el reclamo ni hables del deducible."},
+  nightT:{en:"Since last night",es:"Desde anoche"},nightAt:{en:(c)=>`ran ${c}`,es:(c)=>`corrió ${c}`},
+  nNew:{en:"New hail",es:"Granizo nuevo"},nReal:{en:"Last night",es:"Anoche"},nPick:{en:"Aldaba's pick",es:"Recomendada"},nBackup:{en:"Backup",es:"Respaldo"},oldH:{en:"older homes",es:"casas viejas"},
+  nRefErr:{en:"Last night's storm update failed; this uses the day before's storm data.",es:"La actualización de tormentas de anoche falló; esto usa los datos del día anterior."},nMoved:{en:"Moved",es:"Cambió de puesto"},nWalks:{en:"Walks",es:"Rutas"},
+  nKnocked:{en:(n)=>`${n} doors knocked`,es:(n)=>`${n} puertas tocadas`},nAdded:{en:(n)=>`${n} doors added`,es:(n)=>`${n} puertas nuevas`},
+  nWas:{en:(r,w)=>`#${r} (was #${w})`,es:(r,w)=>`#${r} (antes #${w})`},nNewZ:{en:"new",es:"nueva"},nGone:{en:(n)=>`off the top 12: ${n}`,es:(n)=>`fuera del top 12: ${n}`},nPrev:{en:"Preview",es:"Vista previa"},
+  nUpFrom:{en:(w)=>`↑ from #${w}`,es:(w)=>`↑ desde #${w}`},nNewPick:{en:"new tonight",es:"nueva hoy"},
   homeFoot:{en:"Tap a pick to fly in. Aldaba suggests; you decide. Times, doors and appointments are sample data.",es:"Toca una opción para entrar. Aldaba sugiere; tú decides. Horas, puertas y citas son datos de muestra."},
   months:{en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],es:["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]},
   rivers:{en:(n)=>n+" River",es:(n)=>"Río "+n},
@@ -1829,6 +1913,7 @@ let AREAX=null;
 function applyAreas(d){AREAX={};const k=1/d.o;
   Object.entries(d.areas).forEach(([id,a])=>{const dec=(arr)=>{let x=a.o[0],y=a.o[1];const o=[];for(let i=0;i<arr.length;i+=2){x+=arr[i];y+=arr[i+1];o.push([x*k,y*k])}return o};
     AREAX[id]={park:dec(a.park)[0],pn:a.pn,s:a.s.map(s=>({n:s.n,b:s.b,h:s.h,m:s.m,f:s.f,t:s.t,p:dec(s.p)})),c:a.c.map(dec),r:a.r.map(dec)}});
+  Object.assign(AREAX,NIGHT_X.walks); // the brief's pick/backup/top walks win: the map draws the Knock app's walk
   renderHome();
   if(st.sel){const a=areaOf(st.sel);renderPlan();focusArea(a,true);if(st.pendWalk){st.pendWalk=0;planWalk(false)}}}
 const hailFor=(b,a)=>REAL?(b>0?a.hail:.75):b>=2?a.hail:Math.min(a.hail,b>=1.5?1.75:b>=1?1.25:.75);
@@ -2163,13 +2248,20 @@ function pickWhy(p,newest){const a=p.a,c=[];
   c.sort((x,y)=>y[0]-x[0]);
   return cap([p.wind?t("wWind",a.wind):t("wHail",fmtIn(a.hail)),...c.slice(0,2).map(x=>x[1])].join(", "))}
 let PICKS=[],SKIP=null;
-function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),all=visA.map(pickScore).sort((x,y)=>y.sc-x.sc);
+/* with the real night brief the top 3 IS the brief's `top` (hailhunter/night.py top_cards: pick, backup, then the next
+   storm walks), so the list always agrees with Aldaba's pick; the page's own ranking is for the samples / no brief */
+function briefTop(){if(typeof NIGHT_REAL==="undefined"||!NIGHT_REAL||nightKey()!=="real")return null;const b=NIGHT_REAL;
+  const top=(b.top&&b.top.length?b.top:[b.pick,b.backup]).filter(Boolean);return top.length?top:null}
+function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),bt=briefTop();
+  if(bt){SKIP=null;PICKS=bt.map(c=>{const id=nzId(c),a=id?areaOf(id):null,p=a?pickScore(a):{a:null};
+      p.card=c;p.bk=!!(NIGHT_REAL.backup&&c.zone_id===NIGHT_REAL.backup.zone_id);p.why=escN(L(c.why))||(a?pickWhy(p,STORMS[a.st].days):"");return p})}
+  else{const all=visA.map(pickScore).sort((x,y)=>y.sc-x.sc);
   PICKS=all.filter(p=>!p.block).slice(0,3);SKIP=all.find(p=>p.block&&p.sc>(PICKS[2]?PICKS[2].sc:0))||null;
-  const newest=Math.min(...visA.map(a=>STORMS[a.st].days));PICKS.forEach(p=>p.why=pickWhy(p,newest));
-  PK={};PICKS.forEach((p,i)=>PK[p.a.id]=i+1);
+  const newest=Math.min(...visA.map(a=>STORMS[a.st].days));PICKS.forEach(p=>p.why=pickWhy(p,newest))}
+  PK={};PICKS.forEach((p,i)=>{if(p.a&&!PK[p.a.id])PK[p.a.id]=i+1});
   Object.values(marks).forEach(m=>{const r=PK[m.a.id];m.e.classList.toggle("rank",!!r);m.e.classList.toggle("rank1",r===1);m.e.querySelector(".rk").textContent=r||""})}
 /* the #1 pick's afternoon: follow-ups on the way, then the walk; warn if it runs past sunset */
-function knockPlan(){const p=PICKS[0];if(!p)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
+function knockPlan(){const p=PICKS[0];if(!p||!p.a)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
   const dep=Math.max(NOWM,bestStart(TODAY)-tr.drive-early),arr=dep+tr.drive,door0=Math.max(arr,bestStart(TODAY)-early);
   const fu=DAY_PLAN.fu.filter(f=>f.area===a.id),fuMin=fu.length*FU_MIN;
   if(!AREAX||!AREAX[a.id])return{a,tr,dep,arr,door0,sun,fu,fuMin,W:null};
@@ -2188,14 +2280,68 @@ function dayStrip(K){const x0=420,x1=1230,W=316,X=(m)=>((Math.max(x0,Math.min(x1
   [480,720,960,1200].forEach(m=>{s+=`<text x="${X(m)}" y="43" text-anchor="middle">${m===720?t("noon"):fmtHr(m)}</text>`});
   return s+"</svg>"}
 const addr=(x)=>`${x.no} ${x.st}`;
+/* since last night: the night shift's brief. REAL = data/night.js (window.NIGHT_REAL, rewritten + republished every
+   night by `hh.py night --js-out`, docs/orders/night-shift-runbook.md). Preview keeps the two SAMPLE nights
+   (data/night-sample.js: a quiet night, a replay of the real Sep 13 storm night; rank moves, doors and house numbers
+   made up). The SAMPLE tag shows only on a sample. A brief's zones link to the map's areas by area_id (storm zones
+   inside the map); anything else is plain text. */
+const NIGHT_REAL=(window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief")?window.NIGHT_REAL:null;
+const NIGHT_S=window.NIGHT||null;
+const NIGHT=NIGHT_REAL||NIGHT_S?{real:NIGHT_REAL,...(NIGHT_S||{})}:null;
+const escN=(x)=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nightKey=()=>st.night&&NIGHT[st.night]?st.night:(NIGHT.real?"real":"quiet");
+const nightB=()=>NIGHT?NIGHT[nightKey()]||null:null;
+const nzId=(z)=>z.area_id&&areaOf(z.area_id)?z.area_id:areaOf(z.id)?z.id:null;
+function ctClock(iso){try{const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",hour:"numeric",minute:"numeric",hourCycle:"h23"}).formatToParts(new Date(iso));
+  const g=(k)=>+p.find(x=>x.type===k).value;return fmtClock(g("hour")*60+g("minute"))}catch(e){return""}}
+function nzLab(id,fb){const a=id&&areaOf(id);return a?`${L(a.name)} <span class="dt">${L(STORMS[a.st].d)}</span>`:escN(fb)}
+function nightMove(id){const b=nightB();if(!b)return null;const u=b.zones_up.find(z=>nzId(z)===id);if(u)return{k:"up",was:u.was};
+  return b.zones_new.some(z=>nzId(z)===id)?{k:"new"}:null}
+/* one zone chip: a button that flies to its map area when the map has it, else plain text */
+const nzChip=(z,cls,inner)=>{const id=nzId(z);return id?`<button class="nc${cls}" data-nz="${id}">${inner(id)}</button>`:`<span class="nc${cls}">${inner(null)}</span>`};
+function nightCard(c,lab){if(!c)return"";const hail=c.hail_in?` <b>${fmtIn(c.hail_in)}″</b>`:"";
+  return `<div class="np"><span class="k">${lab}</span>${nzChip({id:c.zone_id,area_id:c.area_id},"",()=>`${escN(c.name)}${hail}`)}
+    <p class="pl">${escN(L(c.plan))}</p></div>`}
+function nightHTML(){const b=nightB();if(!b)return"";
+  const hail=b.new_hail.map(r=>{const id=nzId({area_id:r.area_id,id:r.zone_id});const a=id?areaOf(id):AREAS.find(x=>x.name.en===r.town&&STORMS[x.st].date===r.day);
+    const lab=`<span class="dot" style="--c:${bandColor(r.hail_in)}"></span>${escN(r.town)} <b>${fmtIn(r.hail_in)}″</b><span class="dt">${fmtDate(r.day)}</span>`;
+    return a?`<button class="nc" data-nz="${a.id}" aria-label="${t("flyTo",escN(r.town))}">${lab}</button>`:`<span class="nc">${lab}</span>`}).join("");
+  const gone=b.zones_gone.map(z=>nzId(z)?L(areaOf(nzId(z)).name):escN(z.name));
+  const mv=[...b.zones_up.map(z=>nzChip(z,"",(id)=>`<span class="up">↑</span>${nzLab(id,z.name)} <b>${t("nWas",z.rank,z.was)}</b>`)),
+    ...b.zones_new.map(z=>nzChip(z," new",(id)=>`<span class="nw">${t("nNewZ")}</span>${nzLab(id,z.name)} <b>#${z.rank}</b>`)),
+    ...b.zones_down.map(z=>nzChip(z,"",(id)=>`<span class="dn">↓</span>${nzLab(id,z.name)} <b>${t("nWas",z.rank,z.was)}</b>`)),
+    ].slice(0,4).join("")+(gone.length?`<span class="nc"><span class="dt">${t("nGone",gone.join(", "))}</span></span>`:"");
+  const wk=b.walks_changed.map(z=>{const d=z.was-z.homes;return nzChip(z,"",(id)=>`${nzLab(id,z.name)} <b>${d>0?t("nKnocked",d):t("nAdded",-d)}</b>`)}).join("");
+  const plan=b.sample?"":nightCard(b.pick,t("nPick"))+nightCard(b.backup,t("nBackup"));
+  const keys=["real","quiet","storm"].filter(k=>NIGHT[k]),cur=nightKey();
+  const seg=keys.length>1?`<span class="seg" role="group">${keys.map(k=>`<button data-night="${k}" aria-pressed="${cur===k}">${k==="real"?t("nReal"):L(NIGHT[k].sample.label)}</button>`).join("")}</span>`:"";
+  return `<section class="night" aria-label="${t("nightT")}">
+    <div class="nh">${ic("moon")}<span>${t("nightT")}</span><span class="at">· ${t("nightAt",ctClock(b.made_at))}</span>${b.sample?` <span class="smp">${t("sampleW")}</span>`:""}</div>
+    <p class="hl${b.quiet?" calm":""}">${escN(L(b.headline))}</p>
+    ${plan}
+    ${b.refresh_error?`<p class="nf">${t("nRefErr")}</p>`:""}
+    ${hail?`<div class="nl">${t("nNew")}</div><div class="nr">${hail}</div>`:""}
+    ${mv?`<div class="nl">${t("nMoved")}</div><div class="nr">${mv}</div>`:""}
+    ${wk?`<div class="nl">${t("nWalks")}</div><div class="nr">${wk}</div>`:""}
+    ${b.sample?`<p class="nf">${escN(L(b.sample))}</p>`:""}
+    ${seg?`<div class="nb"><span>${t("nPrev")}</span>${seg}</div>`:""}</section>`}
+/* a brief card the map has no area for (an old-house backup, a storm newer than the season file): taps fly to its middle */
+function cardPick(p,i){const c=p.card,hin=isFinite(+c.hail_in)&&c.hail_in!=null?+c.hail_in:null,ev=c.kind!=="storm"||hin==null,ctr=c.center&&c.center.lon!=null?`${+c.center.lon},${+c.center.lat}`:"";
+  const facts=`${c.dist_mi!=null?`<span>${ic("car")}${Math.round(c.dist_mi)} mi</span>`:""}<span>${ic("door")}${+c.doors||0} ${t("doors")}</span>`;
+  return `<button class="pick${i?"":" lit"}"${ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(hin)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
+    <span class="rk">${i+1}</span>
+    <span class="bd"><span class="nm">${escN(c.name)}${c.storm_day?`<span class="dt">${fmtDate(c.storm_day)}</span>`:""}${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
+    <span class="vv"><span class="v">${ev?`<small>${c.kind!=="storm"?t("oldH"):""}</small>`:fmtIn(hin)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}
+function flyPt(v){const[x,y]=String(v).split(",").map(Number);if(!isFinite(x)||!isFinite(y))return;
+  if(useGL&&mapReady)map.flyTo({center:[x,y],zoom:12.6,pitch:st.layers.tilt?48:0,padding:PAD,duration:1300,essential:true})}
 function renderHome(){const box=$("today");if(!box)return;computePicks();
   const allN=AREAS.filter(a=>STORMS[a.st].days<=st.days).length;$("allN").textContent=allN;
   const d=new Date(TODAY+"T12:00:00"),dn=T.dows[lang][d.getDay()],K=knockPlan(),fr=TOWNS.fremont,fp=permit(fr,TODAY);
-  const P=PICKS.map((p,i)=>{const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
+  const P=PICKS.map((p,i)=>{if(!p.a)return cardPick(p,i);const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
     const facts=`<span>${ic("car")}${tr.drive} min</span><span>${ic("clock")}${fmtClock(tr.from)}–${fmtClock(tr.end)}</span>${p.pm.k==="ok"?`<span class="ok">${ic("id")}${t("pOk")}</span>`:`<span class="warn">${ic("id")}${t("pTbd")}</span>`}`;
     return `<button class="pick${i?"":" lit"}" data-pick="${a.id}" style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
       <span class="rk">${i+1}</span>
-      <span class="bd"><span class="nm">${L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
+      <span class="bd"><span class="nm">${p.card?escN(p.card.name):L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}${(m=>m?`<span class="mv${m.k==="new"?" nw":""}">${m.k==="up"?t("nUpFrom",m.was):t("nNewPick")}</span>`:"")(nightMove(a.id))}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
       <span class="vv"><span class="v">${p.wind?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}).join("");
   const skip=SKIP?`<p class="skip">${ic("sign")}<span>${t("skipped",L(SKIP.a.name),SKIP.wind?SKIP.a.wind+" mph":fmtIn(SKIP.a.hail)+"″",SKIP.tr.tw.n,fmtDate(SKIP.block.on))} ${chip("perm",fmtDate(SKIP.block.on),SKIP.a.st,1)}</span></p>`:"";
   let kn="";
@@ -2219,9 +2365,10 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
     <header class="hh">
       <p class="eyebrow">${dn} · ${fmtDate(TODAY)} · ${fmtClock(NOWM)} <span class="smp">${t("sampleW")}</span></p>
       <h1>${t("gm")}<br>${t("found",PICKS.length)}</h1>
-      <div class="brief"><span class="ok"><i></i>${t("swRan")}</span><span>${t("quiet")}</span><span>${t("swChecked",allN)}</span>${fp.k==="ok"?`<span class="${fp.left<=7?"warn":""}">${t("permClock",fp.left)} ${chip("perm",fmtDate(fp.until),"s1",1)}</span>`:""}</div>
+      <div class="brief"><span class="ok"><i></i>${t("swRan")}</span>${NIGHT?"":`<span>${t("quiet")}</span>`}<span>${t("swChecked",allN)}</span>${fp.k==="ok"?`<span class="${fp.left<=7?"warn":""}">${t("permClock",fp.left)} ${chip("perm",fmtDate(fp.until),"s1",1)}</span>`:""}</div>
     </header>
-    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]?PICKS[0].a.st:"s1",1)}${LEARN?chip("lrn","",PICKS[0]?PICKS[0].a.st:"s1",1):""}<span class="r you">${t("youChoose")}</span></div>
+    ${nightHTML()}
+    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]&&PICKS[0].a?PICKS[0].a.st:"s1",1)}${LEARN?chip("lrn","",PICKS[0]&&PICKS[0].a?PICKS[0].a.st:"s1",1):""}<span class="r you">${t("youChoose")}</span></div>
     <div class="picks">${P||`<div class="empty">${t("noPicks")}</div>`}</div>${skip}
     <div class="sec">${t("todayPlan")}</div>
     ${dayStrip(K)}
@@ -2236,7 +2383,10 @@ function setTab(tb){st.tab=tb;document.body.classList.toggle("tab-all",tb==="all
   document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===tb)));place()}
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
 $("today").addEventListener("click",e=>{if(e.target.closest(".chip"))return;
+  const ng=e.target.closest("[data-night]");if(ng){st.night=ng.dataset.night;renderHome();return}
+  const nz=e.target.closest("[data-nz]");if(nz){enterArea(nz.dataset.nz);return}
   const pk=e.target.closest("[data-pick]");if(pk){enterArea(pk.dataset.pick);return}
+  const fl=e.target.closest("[data-fly]");if(fl){flyPt(fl.dataset.fly);return}
   const wk=e.target.closest("[data-walk]");if(wk){if(st.sel===wk.dataset.walk)planWalk(true);else{st.pendWalk=1;enterArea(wk.dataset.walk)}return}
   const fx=e.target.closest("#fixEarly");if(fx){st.early=(st.early||0)+ +fx.dataset.early;renderHome();toast(t("fixed"));return}
   if(e.target.closest("#fixUndo")){st.early=0;renderHome()}});
@@ -2289,7 +2439,7 @@ $("planBody").addEventListener("click",e=>{if(e.target.closest("#seeProof")){con
 $("planBody").addEventListener("mouseover",e=>{const r=e.target.closest(".bs");hoverStreet(r?+r.dataset.i:null)});
 $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
-  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>s.n).join(", ")))}});
+  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
 $("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
   if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});
@@ -2344,6 +2494,7 @@ document.querySelectorAll("button[data-lang]").forEach(b=>b.addEventListener("cl
 function fitTop(){const p=document.querySelector(".pulse"),b=document.body,over=()=>p.scrollWidth>p.clientWidth+1||[...p.children].some(c=>c.scrollWidth>c.clientWidth+1);
   b.classList.remove("tight1","tight2");if(over())b.classList.add("tight1");if(over())b.classList.add("tight2")}
 addEventListener("resize",fitTop);
+const unesc=(v)=>String(v).replace(/&(amp|lt|gt|quot|#39);/g,(m,k)=>({amp:"&",lt:"<",gt:">",quot:'"',"#39":"'"}[k])); // toast = textContent
 let tt;function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("on"),3200)}
 
 /* ---------- real data: load, decode, apply ---------- */
@@ -2366,10 +2517,12 @@ function applyBase(b){BASE=b;
   Object.keys(THUMB).forEach(k=>delete THUMB[k]);renderList();
   if(!useGL)fbDraw();place();
 }
-function applyStreets(s){const [ox,oy]=s.o,k=1/s.s;STR_LL=[];const feats=[];
-  s.t.forEach((lines,c)=>{const arr=[];let chunk=[];lines.forEach(a=>{let x=a[0],y=a[1];const pts=[[ox+x*k,oy+y*k]];for(let i=2;i<a.length;i+=2){x+=a[i];y+=a[i+1];pts.push([ox+x*k,oy+y*k])}
+function applyStreets(s0){STR_LL=[[],[],[],[]];const feats=[];
+  // data/streets.json (the map box) + the night brief's tiles around walks outside it: same encoding, same layers
+  [s0,...NIGHT_X.tiles].filter(Boolean).forEach(s=>{const [ox,oy]=s.o,k=1/s.s;
+  s.t.forEach((lines,c)=>{const arr=STR_LL[c];let chunk=[];lines.forEach(a=>{let x=a[0],y=a[1];const pts=[[ox+x*k,oy+y*k]];for(let i=2;i<a.length;i+=2){x+=a[i];y+=a[i+1];pts.push([ox+x*k,oy+y*k])}
       arr.push({p:pts,b:bbox(pts)});chunk.push(pts);if(chunk.length>=400){feats.push(F({type:"MultiLineString",coordinates:chunk},{c}));chunk=[]}});
-    if(chunk.length)feats.push(F({type:"MultiLineString",coordinates:chunk},{c}));STR_LL[c]=arr});
+    if(chunk.length)feats.push(F({type:"MultiLineString",coordinates:chunk},{c}))})});
   onGL(()=>map.getSource("streets").setData(FC(feats)));
   if(st.sel)focusArea(AREAS.find(a=>a.id===st.sel),true);
   idle(()=>AREAS.forEach((a,i)=>idle(()=>focusFC(i))));
@@ -2393,9 +2546,9 @@ const getJSON=(n)=>fetch("data/"+n+".json").then(r=>{if(!r.ok)throw new Error(n+
 function loadData(){
   getJSON("base").then(applyBase).catch(e=>{console.warn("basemap data not loaded, using drawn fallback",e);
     onGL(()=>["fb-city","fb-grid","fb-river","fb-road","fb-street"].forEach(id=>map.setLayoutProperty(id,"visibility","visible")))});
-  getJSON("streets").then(applyStreets).catch(e=>console.warn("streets not loaded",e));
+  getJSON("streets").then(applyStreets).catch(e=>{console.warn("streets not loaded",e);if(NIGHT_X.tiles.length)applyStreets(null)});
   getJSON("homes").then(applyHomes).catch(e=>console.warn("homes not loaded",e));
-  getJSON("areas").then(applyAreas).catch(e=>console.warn("area streets not loaded",e));
+  getJSON("areas").then(applyAreas).catch(e=>{console.warn("area streets not loaded",e);applyAreas({o:1,areas:{}})});
 }
 
 /* ---------- relief shading (decorative): noise hills + real river valleys ---------- */
