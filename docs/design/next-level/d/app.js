@@ -18,14 +18,24 @@ const W=()=>innerWidth, H=()=>innerHeight;
 /* ================= data ================= */
 const P=NL.pick, BK=NL.backup, TODAY=Date.UTC(2026,8,29);
 const S8=NL.storms.find(s=>s.date===P.storm_day), AREA=NL.areas.find(a=>a.id===P.area_id);
+// FilthE 2026-09-29: "start with Fremont" -> the pick is Fremont (data-fremont.js); Columbus zones stay in the ranking.
+const COL_ST=window.NL_COLUMBUS||NL.columbus, FRE_ST=NL.streets||NL.columbus;
+const streetsAt=lon=>lon<-97?COL_ST:FRE_ST;
+const PZ={id:P.zone_id,name:P.name,rank:1,score:P.score,homes:(AREA&&AREA.homes)||0,kind:P.kind,area_id:P.area_id,c:[P.center.lon,P.center.lat]};
+const ZONES=(NL.zones.some(z=>z.id===P.zone_id)?NL.zones.slice():[PZ,...NL.zones]).sort((a,b)=>(a.kind==='storm'?0:1)-(b.kind==='storm'?0:1)||b.score-a.score).map((z,i)=>({...z,rank:i+1}));
+const PICKZ=ZONES.find(z=>z.id===P.zone_id);
+const SUN=lon=>lon<-97?{ss:19*60+17,dk:19*60+44}:{ss:19*60+13,dk:19*60+41}; // NOAA solar equations for 2026-09-29, CDT (Columbus / Fremont)
+const driveMin=mi=>Math.max(5,Math.round(mi/(mi<10?20:50)*60));
+const insWord=a=>{const l=a&&a.insured&&a.insured[lang];return l?l.split(': ').pop():'—'};
 const dayN=d=>Math.round((TODAY-Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)))/864e5);
 const WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],es:['dom','lun','mar','mié','jue','vie','sáb']};
 const wday=d=>new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))).getUTCDay();
-const pretty=n=>String(n||'').replace(/\b(\d+)(ST|ND|RD|TH)\b/i,'$1').replace(/\bStreet\b/i,'St').replace(/\bAvenue\b/i,'Ave').replace(/\bDRIVE\b/i,'Dr')
+const pretty=n=>String(n||'').replace(/^North /i,'N ').replace(/^South /i,'S ').replace(/^East /i,'E ').replace(/^West /i,'W ').replace(/\b(\d+)(ST|ND|RD|TH)\b/i,(m,a,b)=>a+b.toLowerCase()).replace(/\bStreet\b/i,'St').replace(/\bAvenue\b/i,'Ave').replace(/\bDRIVE\b/i,'Dr')
   .replace(/\bBOULEVARD\b/i,'Blvd').replace(/\bRoad\b/i,'Rd').replace(/\bLane\b/i,'Ln').replace(/\b([A-Z])([A-Z]+)\b/g,(m,a,b)=>a+b.toLowerCase()).trim();
+const skey=n=>pretty(n).toLowerCase().replace(/\b(\d+)(st|nd|rd|th)\b/,'$1').replace(/\./g,'');
 const fmtT=(min,l=lang)=>{let h=Math.floor(min/60),m=Math.round(min%60);if(m===60){h++;m=0}const pm=h>=12,h12=((h+11)%12)+1;
   return l==='es'?`${h12}:${String(m).padStart(2,'0')} ${pm?'p. m.':'a. m.'}`:`${h12}:${String(m).padStart(2,'0')} ${pm?'PM':'AM'}`};
-const SUNSET=19*60+17, DUSK=19*60+44, KN0=16*60, KN1=19*60+30; // NOAA solar equations, Columbus NE, 2026-09-29 (CDT)
+const PSUN=SUN(P.center.lon), SUNSET=PSUN.ss, DUSK=PSUN.dk, KN0=16*60, KN1=19*60+30;
 const hailHex=h=>{const c=theme==='light'?['#b98a10','#cf5f12','#c92d3b']:['#f2c14e','#f5883a','#ff4f5a'];
   const m=(a,b,t)=>{const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
   if(h==null)return theme==='light'?'#3b55c9':'#8fa6ff'; if(h<=1)return c[0]; if(h<1.5)return m(c[0],c[1],(h-1)/.5); if(h<2)return m(c[1],c[2],(h-1.5)/.5); return c[2]};
@@ -33,25 +43,25 @@ const hailHex=h=>{const c=theme==='light'?['#b98a10','#cf5f12','#c92d3b']:['#f2c
 /* ================= strings ================= */
 const T={
  en:{cMorning:'Morning',cWalk:'Walk',cRoad:'Road 3D',overnight:'Overnight',date:'Tue, Sep 29',clock:'7:02 AM',dark:'Dark',light:'Light',
-  pickEye:"Aldaba's pick",pickOf:'#1 of 12 zones',doors:'Doors',doorsU:'on the walk · 3 streets',hail:'Hail',in:'in',hailU:'Aug 8 · radar estimate',
-  drive:'Drive',driveU:'from Fremont · ~55 min',best:'Best time',bestV:'4–7:30',bestU:'PM today · sunset 7:17',start:'Start the walk',
-  backup:'Backup',bkM:'23.1 mi · 25 doors · 90.8',zones:'Ranked zones',zonesSub:'click one → 3D road',plan:"Today's plan",planSub:'Tue Sep 29',
+  pickEye:"Aldaba's pick",pickOf:n=>`#1 of ${n} zones`,doors:'Doors',doorsU:n=>`on the walk · ${n} streets`,hail:'Hail',in:'in',hailU:d=>`${d} · ground + radar`,
+  drive:'Drive',driveU:m=>`from HMP HQ · ~${m} min`,best:'Best time',bestV:'4–7:30',bestU:t=>`PM today · sunset ${t}`,start:'Start the walk',
+  backup:'Backup',bkM:(mi,d,sc)=>`${mi} mi · ${d} doors · ${sc}`,zones:'Ranked zones',zonesSub:'click one → 3D road',plan:"Today's plan",planSub:'Tue Sep 29',
   hdays:'Hail days',hdaysSub:'click → map',backMorning:'Morning',walkEye:'The walk · in order',colDoor:'Door · why',colHail:'Hail',colRoof:'Roof',colScore:'Score',
   viewRoad:'View the road in 3D',roadEye:'Road view · hologram',tour:'Tour',orbit:'Orbit',top:'Top',walkOrder:'Walk order',
-  sample:'sample homes',everyday:'everyday',noTime:'time not reported',homesIn:n=>`${n} homes`,zonesN:n=>`${n} zones`,near:p=>`near ${p}`,
+  sample:'sample homes',everyday:'everyday',noTime:'time not reported',homesIn:n=>`${n} homes`,zonesN:n=>`${n} zone${n===1?'':'s'}`,near:p=>`near ${p}`,
   ago:n=>`${n}d`,max:'max',pickStorm:'pick',
   sum:{all:n=>`${n} days in 2026`,d90:n=>`${n} in 90 d`,big:(v,d)=>`max ${v}″ ${d}`},
   legend:(d,m)=>`<b>Hail · ${d}</b> · a line every 0.1 in · peak ${m}″`,legendAll:'faint lines = all 18 storm days',showPick:'Back to the pick',
-  area:a=>`<b>Area:</b> ${a.homes.toLocaleString('en-US')} homes · ${a.owner}% owner-lived · <b>likely insured: high</b> (area estimate, not a fact about one home)<sup class="s" data-src="census">3</sup>`,
+  area:a=>`<b>Area:</b> ${a.homes.toLocaleString('en-US')} homes · ${a.owner}% owner-lived · <b>likely insured: ${insWord(a)}</b> (area estimate, not a fact about one home)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Everyday zone:</b> no recent hail; older homes, mostly owner-lived.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Columbus pick',bkLabel:'Back to',
   walkP:(park,n,first)=>`Park at ${park} · ${n} streets · door 1 is ${first}`,
   ws:{doors:'Doors left',left:n=>`${n} left`,start:'Start',walking:'Walking',ends:'Ends'},
   stp:(n,c,dir)=>`<b>${n}</b> · ${c} doors · ${dir}`,dirs:{E:'east →',W:'← west',N:'north ↑',S:'south ↓'},
-  sunsetRow:'Sunset 7:17 PM · last doors in dusk (civil dusk 7:44)',
+  sunsetRow:(a,b)=>`Sunset ${a} · last doors in dusk (civil dusk ${b})`,
   why:h=>[h.roof>=20?`roof ~${h.roof} yrs`:`roof ~${h.roof} yrs`,h.own?'owner-lived':'not owner-lived',`built ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Door ${k} of ${n}`,after:n=>n?`${n} after this`:'last door',eta:t=>`ETA ~${t}`,
-  f:{hail:'Hail here (radar est., Aug 8)',roof:'Roof age (estimate)',built:'Built',own:'Owner-lived (sample record)',type:'Home type',typeV:'Residential',areaIns:'Area likely insured (Census est.)',high:'high',yes:'yes',no:'no',yrs:'yrs'},
+  f:{hail:d=>`Hail here (est., ${d})`,roof:'Roof age (estimate)',built:'Built',own:'Owner-lived (sample record)',type:'Home type',typeV:'Residential',areaIns:'Area likely insured (Census est.)',high:'high',yes:'yes',no:'no',yrs:'yrs'},
   score:'score',prev:'← Prev door',next:'Next door →',
   legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-day cancel form, EN + ES.',
   fine:'Sample home (fake) until knocking starts. No owner names.',
@@ -60,29 +70,29 @@ const T={
   back:{morning:'Morning',walk:'Walk'},
   toastOmaha:'Omaha is the everyday backup: street-level 3D loads in the live app (this mockup has Columbus streets).',
   toastNoGL:'3D needs WebGL2; showing the walk list instead.',
-  hq:'Fremont HQ',hqMi:'45.5 mi',maplab:'Columbus, NE · Platte County',
+  hq:'HMP HQ',ind:{col:(n,mi)=>`← Columbus · ${n} zones · ${mi} mi`,bk:mi=>`Omaha backup · ${mi} mi →`},
   srcs:'<b>Sources</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> Aldaba engine (hh.py) · <sup>3</sup> Census ACS 2024 · <sup>4</sup> Nebraska GIS streets · homes: sample · contours: display model',
  },
  es:{cMorning:'Mañana',cWalk:'Ruta',cRoad:'Calle 3D',overnight:'Anoche',date:'mar 29 sep',clock:'7:02 a. m.',dark:'Oscuro',light:'Claro',
-  pickEye:'La elección de Aldaba',pickOf:'#1 de 12 zonas',doors:'Puertas',doorsU:'en la ruta · 3 calles',hail:'Granizo',in:'pulg',hailU:'8 ago · estimado por radar',
-  drive:'Manejo',driveU:'desde Fremont · ~55 min',best:'Mejor hora',bestV:'4–7:30',bestU:'p. m. hoy · puesta de sol 7:17',start:'Empezar la ruta',
-  backup:'Respaldo',bkM:'23.1 mi · 25 puertas · 90.8',zones:'Zonas en orden',zonesSub:'clic → calle en 3D',plan:'Plan de hoy',planSub:'mar 29 sep',
+  pickEye:'La elección de Aldaba',pickOf:n=>`#1 de ${n} zonas`,doors:'Puertas',doorsU:n=>`en la ruta · ${n} calles`,hail:'Granizo',in:'pulg',hailU:d=>`${d} · reportes + radar`,
+  drive:'Manejo',driveU:m=>`desde la base HMP · ~${m} min`,best:'Mejor hora',bestV:'4–7:30',bestU:t=>`p. m. hoy · puesta de sol ${t}`,start:'Empezar la ruta',
+  backup:'Respaldo',bkM:(mi,d,sc)=>`${mi} mi · ${d} puertas · ${sc}`,zones:'Zonas en orden',zonesSub:'clic → calle en 3D',plan:'Plan de hoy',planSub:'mar 29 sep',
   hdays:'Días de granizo',hdaysSub:'clic → mapa',backMorning:'Mañana',walkEye:'La ruta · en orden',colDoor:'Puerta · por qué',colHail:'Granizo',colRoof:'Techo',colScore:'Puntaje',
   viewRoad:'Ver la calle en 3D',roadEye:'Vista de calle · holograma',tour:'Recorrido',orbit:'Girar',top:'Arriba',walkOrder:'Orden de la ruta',
-  sample:'casas de muestra',everyday:'diario',noTime:'hora no reportada',homesIn:n=>`${n} casas`,zonesN:n=>`${n} zonas`,near:p=>`cerca de ${p}`,
+  sample:'casas de muestra',everyday:'diario',noTime:'hora no reportada',homesIn:n=>`${n} casas`,zonesN:n=>`${n} zona${n===1?'':'s'}`,near:p=>`cerca de ${p}`,
   ago:n=>`hace ${n} d`,max:'máx',pickStorm:'elección',
   sum:{all:n=>`${n} días en 2026`,d90:n=>`${n} en 90 d`,big:(v,d)=>`máx ${v}″ ${d}`},
   legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
-  area:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: alto</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`,
+  area:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: ${insWord(a)}</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Zona diaria:</b> sin granizo reciente; casas antiguas, en su mayoría viven sus dueños.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Elección Columbus',bkLabel:'Volver a',
   walkP:(park,n,first)=>`Estaciónate en ${park} · ${n} calles · la puerta 1 es ${first}`,
   ws:{doors:'Quedan',left:n=>`${n} puertas`,start:'Inicio',walking:'A pie',ends:'Termina'},
   stp:(n,c,dir)=>`<b>${n}</b> · ${c} puertas · ${dir}`,dirs:{E:'este →',W:'← oeste',N:'norte ↑',S:'sur ↓'},
-  sunsetRow:'Puesta de sol 7:17 p. m. · últimas puertas al anochecer (crepúsculo 7:44)',
+  sunsetRow:(a,b)=>`Puesta de sol ${a} · últimas puertas al anochecer (crepúsculo ${b})`,
   why:h=>[`techo ~${h.roof} años`,h.own?'vive el dueño':'no vive el dueño',`construida en ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Puerta ${k} de ${n}`,after:n=>n?`quedan ${n} después`:'última puerta',eta:t=>`llegada ~${t}`,
-  f:{hail:'Granizo aquí (est. radar, 8 ago)',roof:'Edad del techo (estimado)',built:'Construida',own:'Vive el dueño (registro de muestra)',type:'Tipo',typeV:'Residencial',areaIns:'Zona prob. asegurada (est. Censo)',high:'alto',yes:'sí',no:'no',yrs:'años'},
+  f:{hail:d=>`Granizo aquí (est., ${d})`,roof:'Edad del techo (estimado)',built:'Construida',own:'Vive el dueño (registro de muestra)',type:'Tipo',typeV:'Residencial',areaIns:'Zona prob. asegurada (est. Censo)',high:'alto',yes:'sí',no:'no',yrs:'años'},
   score:'puntaje',prev:'← Puerta anterior',next:'Siguiente →',
   legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días, EN + ES.',
   fine:'Casa de muestra (ficticia) hasta empezar a tocar. Sin nombres de dueños.',
@@ -91,21 +101,21 @@ const T={
   back:{morning:'Mañana',walk:'Ruta'},
   toastOmaha:'Omaha es el respaldo diario: el 3D a nivel de calle se carga en la app en vivo (esta maqueta tiene calles de Columbus).',
   toastNoGL:'El 3D necesita WebGL2; se muestra la lista de la ruta.',
-  hq:'Base Fremont',hqMi:'45.5 mi',maplab:'Columbus, NE · Condado Platte',
+  hq:'Base HMP',ind:{col:(n,mi)=>`← Columbus · ${n} zonas · ${mi} mi`,bk:mi=>`Respaldo Omaha · ${mi} mi →`},
   srcs:'<b>Fuentes</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> motor Aldaba (hh.py) · <sup>3</sup> Censo ACS 2024 · <sup>4</sup> calles Nebraska GIS · casas: muestra · curvas: modelo visual',
  }};
 const t=k=>T[lang][k];
 const SRC={en:{storms:NL.src.storms,engine:'Aldaba engine (hh.py): ranks zones from NOAA/MRMS hail + Census ACS 2024; doors = its walk',
-  drive:'Engine distance from Fremont HQ; time at ~50 mph average',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
+  drive:'Engine distance from HMP HQ (2600 N Laverna St, Fremont); time estimated',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
  es:{storms:'Reportes de tormenta NOAA SPC + estimados de granizo por radar MRMS (motor hh.py)',engine:'Motor Aldaba (hh.py): ordena zonas con granizo NOAA/MRMS + Censo ACS 2024; puertas = su ruta',
-  drive:'Distancia del motor desde la base en Fremont; tiempo a ~50 mph',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
+  drive:'Distancia del motor desde la base HMP (2600 N Laverna St, Fremont); tiempo estimado',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
 
 /* ================= projection + palette ================= */
 const K=Math.cos(41.3*Math.PI/180), X=lon=>(lon+97)*K, Y=lat=>lat-41.3, KMX=111.32, KMY=110.54;
 const hex=h=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
 const PAL={
  dark:{ink:hex('#dfe4ee'),warm:hex('#d9cdbb'),water:hex('#6f9fd0'),route:hex('#f5883a'),h1:hex('#f2c14e'),h15:hex('#f5883a'),h2:hex('#ff4f5a'),walk:hex('#ffa766'),add:true,
-   a:{county:.10,town:.26,townF:.03,water:.34,waterF:.10,stream:.18,hwy:.34,rail:.14,arts:.16,st0:.5,st3:.2,glow:.06},c:{all:.16,feat:.78,fill:.075}},
+   a:{county:.10,town:.16,townF:.03,water:.34,waterF:.10,stream:.18,hwy:.34,rail:.14,arts:.16,st0:.5,st3:.2,glow:.06},c:{all:.14,feat:.62,fill:.06}},
  light:{ink:hex('#1d2026'),warm:hex('#6a5a44'),water:hex('#2d6a9f'),route:hex('#c8640f'),h1:hex('#b98a10'),h15:hex('#cf5f12'),h2:hex('#c92d3b'),walk:hex('#b4540c'),add:false,
    a:{county:.16,town:.4,townF:.05,water:.6,waterF:.14,stream:.36,hwy:.44,rail:.2,arts:.2,st0:.56,st3:.28,glow:0},c:{all:.22,feat:.85,fill:.09}}
 };
@@ -124,7 +134,7 @@ function fan(ring){ // ear clipping (concave town/river outlines)
 const base=NL.base;
 const G={county:segs(base,l=>l.k==='county'),town:segs(base,l=>l.k==='town'),water:segs(base,l=>l.k==='water'),stream:segs(base,l=>l.k==='stream'),
  hwy:segs(base,l=>l.k==='hwy'),rail:segs(base,l=>l.k==='rail'),arts:segs(NL.arts),fr0:segs(NL.fremont,l=>l.c<=1),fr3:segs(NL.fremont,l=>l.c>=2),
- co1:segs(NL.columbus,l=>l.c<=1),co3:segs(NL.columbus,l=>l.c>=2)};
+ co1:segs(COL_ST,l=>l.c<=1),co3:segs(COL_ST,l=>l.c>=2)};
 {const o=[];for(const L of base){if(!(L.k==='hwy'&&L.n==='US-30'))continue;const p=L.p;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i];
   if(a[0]<-96.47&&b[0]<-96.47&&a[0]>-97.40&&b[0]>-97.40)o.push(X(a[0]),Y(a[1]),X(b[0]),Y(b[1]))}}G.route=new Float32Array(o);}
 const fills={town:[],water:[]};base.forEach(l=>{if(l.poly&&(l.k==='town'||l.k==='water')&&l.p.length>2)fills[l.k].push(...fan(l.p))});
@@ -139,10 +149,12 @@ const SF=NL.storms.map(s=>{const p=s.path.map(q=>[X(q[0])*KMX,Y(q[1])*KMY]);cons
   const r=sig*3.4;bb=[bb[0]-r,bb[1]-r,bb[2]+r,bb[3]+r];
   const areas=NL.areas.filter(a=>a.st===s.id).map(a=>{let b=[1e9,1e9,-1e9,-1e9];a.ring.forEach(q=>{const x=X(q[0])*KMX,y=Y(q[1])*KMY;b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x);b[3]=Math.max(b[3],y)});
     return {x:X(a.c[0])*KMX,y:Y(a.c[1])*KMY,r:Math.max(1.6,((b[2]-b[0])+(b[3]-b[1]))*.3),amp:a.hail||1}});
-  const zones=NL.zones.filter(z=>z.kind==='storm'&&z.id.startsWith(s.date));
+  const zones=ZONES.filter(z=>z.kind==='storm'&&z.id.startsWith(s.date));
   return {s,p,sig,bb,amp:s.max*.9,areas,zones}});
-const zsc=NL.zones.filter(z=>z.kind==='storm').map(z=>z.score), zmin=Math.min(...zsc), zmax=Math.max(...zsc);
-SF.forEach(F=>F.zones=F.zones.map(z=>({x:X(z.c[0])*KMX,y:Y(z.c[1])*KMY,amp:1.2+.44*(z.score-zmin)/(zmax-zmin||1)})));
+const zsc=ZONES.filter(z=>z.kind==='storm').map(z=>z.score), zmin=Math.min(...zsc), zmax=Math.max(...zsc);
+const PEAK=Math.max(...NL.homes.map(h=>h.hail)); // the pick's own sample doors
+SF.forEach(F=>{const sc=F.zones.filter(z=>z.id!==P.zone_id).map(z=>z.score),a=Math.min(...sc),b=Math.max(...sc);
+  F.zones=F.zones.map(z=>({x:X(z.c[0])*KMX,y:Y(z.c[1])*KMY,amp:z.id===P.zone_id?PEAK:1.2+.44*(z.score-a)/((b-a)||1)}))});
 const warp=(x,y)=>[vnoise(x/9,y/9),x+2.2*vnoise(y/14+7,x/14),y+2.2*vnoise(x/14+3,y/14+1),vnoise(x/2.6+3,y/2.6+8),vnoise(x/1.1+9,y/1.1+4)];
 const smax=(a,b,k=14)=>Math.max(a,b)+Math.log1p(Math.exp(-k*Math.abs(a-b)))/k;
 function stormVal(F,x,y,w){ // x,y in km; w = warp(x,y) (computed once per texel). Display model, not a measurement.
@@ -183,12 +195,12 @@ function pickWalk(){
   const S=NL.walk.s, homes=NL.homes.map(h=>({...h}));
   homes.forEach(h=>{const si=Math.max(0,S.findIndex(s=>s.n===h.st));const pr=projOn(h.p,S[si].p);h.si=si;h.t=pr.t;h.curb=pr.q});
   homes.sort((a,b)=>a.si-b.si||a.t-b.t);
-  return finishWalk({zone:NL.zones[0],name:P.name,park:NL.walk.park,parkName:'22 St & 40th Ave',streets:S.map(s=>({n:s.n,p:s.p,dir:dirOf(s.p),h:homes.filter(h=>h.st===s.n).length})),homes,sample:true,real:true})}
+  return finishWalk({zone:PICKZ,name:P.name,park:NL.walk.park,parkName:(NL.walk.pn||[]).join(' & '),streets:S.map(s=>({n:s.n,p:s.p,dir:dirOf(s.p),h:homes.filter(h=>h.st===s.n).length})),homes,sample:true,real:true})}
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function genWalk(z){
   const rnd=mulberry([...z.id].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7)), c=z.c, R=240;
   const dm=q=>Math.hypot((q[0]-c[0])*M_LON,(q[1]-c[1])*M_LAT);
-  const byName={};NL.columbus.forEach(l=>{if(l.c<2||!l.n||/INTERSECTION|SERVICE|FRONTAGE|Road/i.test(l.n))return;if(!l.p.some(q=>dm(q)<R))return;(byName[l.n]=byName[l.n]||[]).push(l)});
+  const byName={};streetsAt(c[0]).forEach(l=>{if(l.c<2||!l.n||/INTERSECTION|SERVICE|FRONTAGE|Road/i.test(l.n))return;if(!l.p.some(q=>dm(q)<R))return;(byName[l.n]=byName[l.n]||[]).push(l)});
   const cands=Object.entries(byName).map(([n,ls])=>{ // chain the pieces of one street along its main axis
     const pts=[];ls.forEach(l=>l.p.forEach(q=>{if(dm(q)<R*1.25)pts.push(q)}));const ex=Math.max(...pts.map(q=>q[0]))-Math.min(...pts.map(q=>q[0])),ey=Math.max(...pts.map(q=>q[1]))-Math.min(...pts.map(q=>q[1]));
     const ew=ex*M_LON>ey*M_LAT;pts.sort((a,b)=>ew?a[0]-b[0]:a[1]-b[1]);const u=[];pts.forEach(q=>{if(!u.length||Math.hypot((q[0]-u[u.length-1][0])*M_LON,(q[1]-u[u.length-1][1])*M_LAT)>4)u.push(q)});
@@ -209,7 +221,7 @@ function genWalk(z){
   homes.sort((a,b)=>a.si-b.si||a.t-b.t);
   const park=chosen.length?chosen[0].p[0]:c;
   return finishWalk({zone:z,name:z.name,park,parkName:chosen.length?chosen[0].n:'',streets:chosen.map(s=>({n:s.n,p:s.p,dir:dirOf(s.p),h:homes.filter(h=>h.st===s.n).length})),homes,sample:true,real:false})}
-const WALKS={};const walkFor=z=>WALKS[z.id]||(WALKS[z.id]=z.id===P.zone_id?pickWalk():genWalk(z));
+const WALKS={};const walkFor=z=>{const w=WALKS[z.id]||(WALKS[z.id]=z.id===P.zone_id?pickWalk():genWalk(z));w.sun=SUN(w.center[0]);w.area=(z.id===P.zone_id?AREA:NL.areas.find(a=>a.st===(NL.storms.find(s=>z.id.startsWith(s.date))||{}).id&&Math.abs(a.c[0]-z.c[0])<.3));return w};
 
 /* ================= camera (van Wijk & Nuij smooth zoom) ================= */
 const cam={x:0,y:0,s:1000};
@@ -218,8 +230,7 @@ function gap(view){const l=view==='walk'?14+LPX()+20+14:14+LPX()+14;return {l:l+
 function fit(bb,g,pad){const w=Math.max(1e-7,bb[2]-bb[0]),h=Math.max(1e-7,bb[3]-bb[1]);const s=Math.min((g.r-g.l-2*pad)/w,(g.b-g.t-2*pad)/h);
   const mx=(bb[0]+bb[2])/2,my=(bb[1]+bb[3])/2,gx=(g.l+g.r)/2-W()/2,gy=(g.t+g.b)/2-H()/2;return {x:mx-gx/s,y:my+gy/s,s}}
 const llbb=(b,m=0)=>[X(b[0])-m,Y(b[1])-m,X(b[2])+m,Y(b[3])+m];
-const camMorning=()=>{const zs=NL.zones.filter(z=>z.kind==='storm');const b=[Math.min(...zs.map(z=>z.c[0])),Math.min(...zs.map(z=>z.c[1])),Math.max(...zs.map(z=>z.c[0])),Math.max(...zs.map(z=>z.c[1]))];
-  return fit(llbb(b,.007),gap('morning'),20)};
+const camMorning=()=>{const c=PICKZ.c;return fit([X(c[0]-.042),Y(c[1]-.028),X(c[0]+.042),Y(c[1]+.03)],gap('morning'),10)};
 const camWalk=w=>fit(llbb(w.bb,.00022),gap('walk'),60);
 const camStorm=F=>{const k=F.s.path;let b=[1e9,1e9,-1e9,-1e9];k.forEach(q=>{b[0]=Math.min(b[0],q[0]);b[1]=Math.min(b[1],q[1]);b[2]=Math.max(b[2],q[0]);b[3]=Math.max(b[3],q[1])});
   NL.areas.filter(a=>a.st===F.s.id).forEach(a=>a.ring.forEach(q=>{b[0]=Math.min(b[0],q[0]);b[1]=Math.min(b[1],q[1]);b[2]=Math.max(b[2],q[0]);b[3]=Math.max(b[3],q[1])}));
@@ -278,7 +289,7 @@ void main(){
   float dA=dist(a,.25), dV=dist(v,.1), dI=dist(v,.5);
   float lA=(1.-smoothstep(.45,1.2,dA))*smoothstep(.55,.85,a)*uAllA;
   float rv=smoothstep(uThr-.04,uThr+.04,v); float on=smoothstep(.55,.8,v)*rv;
-  float lV=(1.-smoothstep(.4,1.1,dV))*.5+(1.-smoothstep(.5,1.45,dI))*.5;
+  float lV=(1.-smoothstep(.35,1.05,dV))*.62+(1.-smoothstep(.4,1.15,dI))*.3;
   float glow=exp(-dI*dI/30.)*uGlow;
   float fill=uFillA*smoothstep(.75,1.7,v);
   float av=(lV*uFeatA+glow+fill)*on;
@@ -317,7 +328,7 @@ void main(){
     gl.useProgram(C.p);const u=C.u;gl.uniform2f(u.uCamD,cam.x,cam.y);gl.uniform1f(u.uScD,cam.s*d);gl.uniform2f(u.uVpD,cv.width,cv.height);gl.uniform1f(u.uDpr,d);
     gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tR);gl.uniform1i(u.uR,0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tL);gl.uniform1i(u.uL,1);
     gl.uniform4f(u.uRB,...RB);gl.uniform4f(u.uLB,...LB);gl.uniform3fv(u.c1,pal.h1);gl.uniform3fv(u.c15,pal.h15);gl.uniform3fv(u.c2,pal.h2);
-    gl.uniform1f(u.uThr,st.thr);gl.uniform1f(u.uAllA,pal.c.all*(1-.7*near)*dim);gl.uniform1f(u.uFeatA,pal.c.feat*(1-.55*near)*dim);gl.uniform1f(u.uFillA,pal.c.fill*(1-.4*near)*dim);gl.uniform1f(u.uGlow,(pal.add?.16:.05)*dim);
+    gl.uniform1f(u.uThr,st.thr);gl.uniform1f(u.uAllA,pal.c.all*(1-.7*near)*dim);gl.uniform1f(u.uFeatA,pal.c.feat*(1-.55*near)*dim);gl.uniform1f(u.uFillA,pal.c.fill*(1-.4*near)*dim);gl.uniform1f(u.uGlow,(pal.add?.07:.03)*dim);
     blend(add==='add'?'add':'over');gl.bindVertexArray(triV);gl.drawArrays(gl.TRIANGLES,0,3);
     common(L);blend(add);
     line(V.county,pal.ink,A.county,.7,.5);
@@ -330,7 +341,6 @@ void main(){
     if(A.glow){line(V.co1,pal.ink,A.glow*sg,3,.3);line(V.fr0,pal.ink,A.glow*sg*.8,3,.3)}
     line(V.co1,pal.ink,A.st0*sg,1+.5*near,.6);line(V.co3,pal.ink,A.st3*sg*(1+.6*near),.75+.5*near,.45);
     line(V.fr0,pal.ink,A.st0*sg,1,.6);line(V.fr3,pal.ink,A.st3*sg,.75,.45);
-    line(V.route,pal.route,.35*st.route,4,.5);line(V.route,pal.route,.8*st.route,1.1,.8);
     // selected storm: thin centerline only (direction + extent), never particles
     line(V.storm,pal.h15,.5*st.storm,1.1,.7);
     // walk streets (walk view)
@@ -351,7 +361,7 @@ if(!R){ // Canvas2D fallback (no WebGL2): base lines only
 }
 
 /* ================= state ================= */
-const S={view:'morning',zone:NL.zones[0],walk:null,door:null,storm:S8.id,alt:false,hist:[]};
+const S={view:'morning',zone:PICKZ,walk:null,door:null,storm:S8.id,alt:false,hist:[]};
 let dirty=true, thr=STILL?0:1.75, thrT0=0, routeA=1, walkA=0, stormA=0;
 const featSet=id=>{const F=SF.find(f=>f.s.id===id);for(let i=0;i<RW*RH;i++)fieldR[i*2+1]=0;for(let i=0;i<LW*LH;i++)fieldL[i*2+1]=0;
   bakeField(RB,RW,RH,fieldR,1,[F]);bakeField(LB,LW,LH,fieldL,1,[F]);R.upField();
@@ -365,25 +375,28 @@ const wsvg=document.createElementNS(svgNS,'svg');wsvg.setAttribute('width','100%
 const wpathG=document.createElementNS(svgNS,'path'),wpath=document.createElementNS(svgNS,'path');
 wpathG.setAttribute('fill','none');wpath.setAttribute('fill','none');wsvg.append(wpathG,wpath);pins.appendChild(wsvg);
 const mk=(cls,html,parent=pins)=>{const at=document.createElement('div');at.className='at';at.style.cssText='position:absolute;left:0;top:0;will-change:transform';at.innerHTML=html;const el=at.firstElementChild;el.classList.add(...cls.split(' '));parent.appendChild(at);return at};
-const zPins=NL.zones.map((z,i)=>{const at=mk('pin'+(i===0?' pk':''),`<button aria-label="${esc(z.name)}"><span class="b">${z.rank}</span><span class="lb"></span></button>`);
+const zPins=ZONES.map((z,i)=>{const at=mk('pin'+(i===0?' pk':''),`<button aria-label="${esc(z.name)}"><span class="b">${z.rank}</span><span class="lb"></span></button>`);
   const b=at.firstElementChild;b.onclick=()=>zoneClick(z);b.onmouseenter=()=>hiZone(i,true);b.onmouseleave=()=>hiZone(i,false);return {at,z,lb:b.querySelector('.lb')}});
 const hqPin=mk('plc hq',`<div></div>`);
+const colZ=ZONES.filter(z=>z.c[0]<-97), colC=[colZ.reduce((a,z)=>a+z.c[0],0)/colZ.length,colZ.reduce((a,z)=>a+z.c[1],0)/colZ.length];
+const IND=[{k:'col',c:colC,mi:45.5,n:colZ.length},{k:'bk',c:[BK.center.lon,BK.center.lat],mi:BK.dist_mi}].map(o=>{const at=mk('chip ind',`<button></button>`);
+  at.firstElementChild.onclick=()=>{if(o.k==='bk'){$('#bk').click()}else flyTo(fit(llbb([Math.min(...colZ.map(z=>z.c[0])),Math.min(...colZ.map(z=>z.c[1])),Math.max(...colZ.map(z=>z.c[0])),Math.max(...colZ.map(z=>z.c[1]))],.008),gap('morning'),20))};return {...o,at}});
 let walkEls=[],stEls=[],parkEl=null;
 function buildWalkOverlay(w){
   walkEls.forEach(e=>e.at.remove());stEls.forEach(e=>e.at.remove());parkEl&&parkEl.remove();
   walkEls=w.homes.map((h,k)=>{const at=mk('door',`<button style="--dc:${h.col}" aria-label="${esc(h.addr)}">${k+1}</button>`);const b=at.firstElementChild;
     b.onclick=()=>selectDoor(k,true);b.onmouseenter=e=>{showTipDoor(k,e.clientX,e.clientY);hlRow(k,true)};b.onmouseleave=()=>{hideTip();hlRow(k,false)};return {at,b,h}});
   // street names: walk streets + the named streets that cross the walk (real Nebraska GIS)
-  const c=w.center,seen=new Set(w.streets.map(s=>s.n));const lab=[];
+  const c=w.center,seen=new Set(w.streets.map(s=>skey(s.n)));const lab=[];
   // walk streets: label just past the far end, off the line; cross streets: a vertex 90-220 m out, away from the doors
   w.streets.forEach(s=>{const a=s.p[0],b=s.p[s.p.length-1],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx*M_LON,dy*M_LAT)||1;
     lab.push({n:s.n,p:[b[0]+dx*M_LON/L*26/M_LON,b[1]+dy*M_LAT/L*26/M_LAT],w:true,ew:Math.abs(dx*M_LON)>Math.abs(dy*M_LAT)})});
   const far=q=>Math.min(...w.homes.map(h=>Math.hypot((q[0]-h.p[0])*M_LON,(q[1]-h.p[1])*M_LAT)));
-  NL.columbus.forEach(l=>{const n=pretty(l.n);if(!n||seen.has(n)||/Intersection|Service|Frontage/i.test(n))return;
+  streetsAt(c[0]).forEach(l=>{const n=pretty(l.n);if(!n||seen.has(skey(n))||/Intersection|Service|Frontage/i.test(n))return;
     let best=null;l.p.forEach(p=>{const d=Math.hypot((p[0]-c[0])*M_LON,(p[1]-c[1])*M_LAT),f=far(p);if(d>90&&d<230&&f>38&&(!best||f>best.f))best={p,f}});
-    if(best){seen.add(n);lab.push({n,p:best.p,w:false})}});
-  stEls=lab.slice(0,9).map(l=>{const at=mk('stl',`<div>${esc(l.n)}</div>`);if(l.w)at.firstElementChild.style.color='var(--acc-ink)';return {at,p:l.p}});
-  parkEl=mk('park',`<div style="transform:translate(-100%,-50%)"><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-20)}</span><b>P</b></div>`);
+    if(best){seen.add(skey(n));lab.push({n,p:best.p,w:false})}});
+  stEls=lab.slice(0,10).map(l=>{const at=mk('stl',`<div>${esc(l.n)}</div>`);if(l.w)at.firstElementChild.style.color='var(--acc-ink)';return {at,p:l.p,wd:l.n.length*6.4+10}});
+  parkEl=mk('park',`<div style="flex-direction:column;gap:3px;transform:translate(-50%,-11px)"><b>P</b><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-15)}</span></div>`);
   const a=[];w.streets.forEach(s=>{for(let i=1;i<s.p.length;i++)a.push(X(s.p[i-1][0]),Y(s.p[i-1][1]),X(s.p[i][0]),Y(s.p[i][1]))});R.setLines('walk',new Float32Array(a));
   dirty=true}
 const place=(at,x,y,show)=>{at.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;at.style.opacity=show?'':'0';at.style.visibility=show?'':'hidden'};
@@ -393,14 +406,17 @@ function layoutOverlay(now){
   const mv=S.view==='morning';
   zPins.forEach((p,i)=>{const [x,y]=toScreen(p.z.c[0],p.z.c[1]);place(p.at,x,y,mv&&inG(x,y,6))});
   // HQ edge chip: Fremont is off to the east; clamp to the gap edge with the distance
-  {const [x,y]=toScreen(NL.hq[0],NL.hq[1]);const inside=inG(x,y);const cx=clamp(x,g.l+60,g.r-70),cy=clamp(y,g.t+30,g.b-30);
-    hqPin.firstElementChild.textContent=inside?`◆ ${t('hq')}`:`${t('hq')} · ${t('hqMi')} →`;place(hqPin,cx,cy,mv&&!S.alt)}
+  {const [x,y]=toScreen(NL.hq[0],NL.hq[1]);hqPin.firstElementChild.textContent=`◆ ${t('hq')}`;place(hqPin,x,y,mv&&inG(x,y))}
+  IND.forEach(o=>{const [x,y]=toScreen(o.c[0],o.c[1]),inside=inG(x,y,-40);const b=o.at.firstElementChild;b.textContent=o.k==='col'?t('ind').col(o.n,o.mi):t('ind').bk(o.mi);
+    const cx=clamp(x,g.l+8,g.r-8),cy=clamp(y,g.t+60,g.b-40);place(o.at,cx,cy,mv&&!inside);b.style.transform=x<g.l?'translate(0,-50%)':x>g.r?'translate(-100%,-50%)':'translate(-50%,-50%)'});
   const wv=S.view==='walk'&&S.walk, w=S.walk;
   if(w){
     const k=STILL?1e3:Math.floor((now-doorsT0)/45);
     walkEls.forEach((e,i)=>{const [x,y]=toScreen(e.h.p[0],e.h.p[1]);place(e.at,x,y,wv);e.b.classList.toggle('in',wv&&i<k);e.b.classList.toggle('sel',S.door===i)});
-    stEls.forEach(e=>{const [x,y]=toScreen(e.p[0],e.p[1]);place(e.at,x,y,wv&&inG(x,y,-10))});
-    {const [x,y]=toScreen(w.park[0],w.park[1]);place(parkEl,x-16,y,wv)}
+    const taken=walkEls.map(e=>{const [x,y]=toScreen(e.h.p[0],e.h.p[1]);return [x-12,y-12,x+12,y+12]});
+    stEls.forEach(e=>{const [x,y]=toScreen(e.p[0],e.p[1]);const bx=[x-e.wd/2,y-8,x+e.wd/2,y+8];
+      const hit=taken.some(b=>bx[0]<b[2]&&bx[2]>b[0]&&bx[1]<b[3]&&bx[3]>b[1]);if(!hit)taken.push(bx);place(e.at,x,y,wv&&!hit&&inG(x,y,-10))});
+    {const [x,y]=toScreen(w.park[0],w.park[1]);place(parkEl,x,y,wv)}
     if(wv){let d='';w.path.forEach((q,i)=>{const [x,y]=toScreen(q[0],q[1]);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)});
       const col=theme==='light'?'#b4540c':'#ffa766';wpath.setAttribute('d',d);wpathG.setAttribute('d',d);
       wpath.setAttribute('stroke',col);wpath.setAttribute('stroke-width','1.6');wpath.setAttribute('stroke-dasharray','2 5');wpath.setAttribute('stroke-linecap','round');
@@ -422,26 +438,29 @@ function renderStatic(){
   root.lang=lang;root.dataset.lang=lang;
 }
 function renderPick(){
-  const alt=S.alt,z=alt?BK:P;
-  $('#pk-h').innerHTML=alt?'Omaha <span class="sep">·</span> Pierce St &amp; S 137 Av':'Columbus <span class="sep">·</span> 22 St &amp; 21 St';
+  const alt=S.alt,z=alt?BK:P,L=T[lang],[town,sts]=z.name.split(': '),w=walkFor(PICKZ);
+  $('#pk-h').innerHTML=`${esc(town)}<span class="sep">.</span><span class="sts">${esc(sts||'')}</span>`;
   $('.pick .eyebrow span[data-t]').textContent=alt?t('backup'):t('pickEye');
-  $('.pick .eyebrow .n').textContent=alt?(lang==='es'?'#12 · zona diaria':'#12 · everyday zone'):t('pickOf');
+  $('.pick .eyebrow .n').textContent=alt?(lang==='es'?`#${ZONES.length} · zona diaria`:`#${ZONES.length} · everyday zone`):L.pickOf(ZONES.length);
   const st=$$('.pick .st');
+  st[0].querySelector('.v').innerHTML=`${z.doors}<sup class="s" data-src="engine">2</sup>`;
+  st[0].querySelector('.u').textContent=alt?(lang==='es'?'en la ruta':'on the walk'):L.doorsU(w.streets.length);
   st[1].classList.toggle('hot',!alt);
-  st[1].querySelector('.v').innerHTML=alt?`—<small>${lang==='es'?'sin granizo':'no hail'}</small>`:`1.64<small>${t('in')}</small><sup class="s" data-src="storms">1</sup>`;
-  st[1].querySelector('.u').textContent=alt?(lang==='es'?'zona diaria · casas antiguas':'everyday zone · older homes'):t('hailU');
-  st[2].querySelector('.v').innerHTML=`${alt?'23.1':'45.5'}<small>mi</small><sup class="s" data-src="drive">2</sup>`;
-  st[2].querySelector('.u').textContent=alt?(lang==='es'?'desde Fremont · ~30 min':'from Fremont · ~30 min'):t('driveU');
+  st[1].querySelector('.v').innerHTML=alt?`—<small>${lang==='es'?'sin granizo':'no hail'}</small>`:`${P.hail_in.toFixed(2)}<small>${t('in')}</small><sup class="s" data-src="storms">1</sup>`;
+  st[1].querySelector('.u').textContent=alt?(lang==='es'?'zona diaria · casas antiguas':'everyday zone · older homes'):L.hailU(S8.d[lang]);
+  st[2].querySelector('.v').innerHTML=`${z.dist_mi}<small>mi</small><sup class="s" data-src="drive">2</sup>`;
+  st[2].querySelector('.u').textContent=L.driveU(driveMin(z.dist_mi));
+  st[3].querySelector('.u').textContent=L.bestU(fmtT(SUN(z.center.lon).ss));
   $('#why').textContent=z.why[lang];
   $('#area').innerHTML=alt?t('bkArea'):t('area')(AREA);
-  const bk=$('#bk');bk.querySelector('.k').textContent=alt?t('bkLabel'):t('backup');
-  bk.querySelector('.v').textContent=alt?t('showPickBtn')+' · 22 St & 21 St':'Omaha · Pierce St & S 137 Av';
-  bk.querySelector('.m').textContent=alt?(lang==='es'?'45.5 mi · 25 puertas · 1.64″':'45.5 mi · 25 doors · 1.64″'):t('bkM');
+  const bk=$('#bk'),[pt,ps]=P.name.split(': ');bk.querySelector('.k').textContent=alt?t('bkLabel'):t('backup');
+  bk.querySelector('.v').textContent=alt?`${pt} · ${ps}`:BK.name.replace(': ',' · ');
+  bk.querySelector('.m').textContent=alt?L.bkM(P.dist_mi,P.doors,P.hail_in.toFixed(2)+'″'):L.bkM(BK.dist_mi,BK.doors,BK.score);
   $('#go').innerHTML=`<span>${t('start')}</span>${icoArrow}`;
 }
 function renderZones(){
   const ul=$('#zones');ul.innerHTML='';
-  NL.zones.forEach((z,i)=>{const li=document.createElement('li');if(i===0)li.className='first';
+  ZONES.forEach((z,i)=>{const li=document.createElement('li');if(i===0)li.className='first';
     const [town,nm]=z.name.split(': ');const col=hailHex(z.kind==='storm'?1+(z.score-zmin)/(zmax-zmin||1):null);
     li.innerHTML=`<button data-z="${i}"><span class="r">${String(z.rank).padStart(2,'0')}</span><span class="nm">${esc(nm||z.name)}<em>${esc(town)}${z.kind!=='storm'?' · '+t('everyday'):''}</em></span>
       <span class="bar"><i style="width:${Math.round(z.score)}%;background:${col}"></i></span><span class="sc">${z.score.toFixed(1)}</span><span class="ar">→</span></button>`;
@@ -450,25 +469,26 @@ function renderZones(){
 function hiZone(i,on){const p=zPins[i];p&&p.at.firstElementChild.classList.toggle('hov',on);const b=$(`#zones [data-z="${i}"]`);b&&b.classList.toggle('sel',on);
   if(p){const z=p.z,[town,nm]=z.name.split(': ');p.lb.textContent=i===0&&!on?`#1 · ${nm} · ${z.score}`:`#${z.rank} · ${nm||z.name} · ${z.score}${z.kind==='storm'?' · 3D →':''}`}}
 function renderPlan(){
-  const w=walkFor(NL.zones[0]);const first=w.homes[0],nd=w.homes.filter(h=>h.eta>=SUNSET).length;
+  const w=walkFor(PICKZ),first=w.homes[0],nd=w.homes.filter(h=>h.eta>=SUNSET).length,dm=driveMin(P.dist_mi),lv=KN0-15-dm,[town,sts]=P.name.split(': ');
+  const seq=w.streets.map(s=>`${s.n} ${s.h}`).join(' → '), park=w.parkName, ssT=fmtT(SUNSET).replace(/ ?(PM|AM|p\. m\.|a\. m\.)/,''), dkT=fmtT(DUSK).replace(/ ?(PM|AM|p\. m\.|a\. m\.)/,'');
   const rows=[
-   {tm:7*60+2,c:'now',en:['Pick ready','Columbus · 22 St & 21 St'],es:['Elección lista','Columbus · 22 St y 21 St'],kv:{en:'25 doors',es:'25 puertas'}},
-   {tm:9*60,en:['Prep','25 door cards · cancel forms EN + ES'],es:['Preparar','25 fichas · formularios de cancelación EN + ES'],kv:{en:'~30 min',es:'~30 min'}},
-   {tm:14*60+45,en:['Leave Fremont','US-30 west to Columbus'],es:['Salir de Fremont','US-30 al oeste a Columbus'],kv:{en:'45.5 mi · 55 min',es:'45.5 mi · 55 min'}},
-   {tm:15*60+40,en:['Park',`22 St & 40th Ave · door 1: ${first.addr}`],es:['Estacionarse',`22 St y 40th Ave · puerta 1: ${first.addr}`],kv:{en:'20 min early',es:'20 min antes'}},
-   {tm:KN0,c:'win',en:['Knock · 4:00–7:30',`22 St ${w.streets[0].h} → 21 St ${w.streets[1].h} → 40 Ave ${w.streets[2].h}`],es:['Tocar · 4:00–7:30',`22 St ${w.streets[0].h} → 21 St ${w.streets[1].h} → 40 Ave ${w.streets[2].h}`],kv:{en:'25 · ~8 min ea',es:'25 · ~8 min c/u'}},
-   {tm:SUNSET,c:'warn',en:['Sunset',`civil dusk 7:44 · ${nd} door${nd===1?'':'s'} after sunset`],es:['Puesta de sol',`crepúsculo 7:44 · ${nd} puerta${nd===1?'':'s'} después`],kv:{en:'☼ 7:17',es:'☼ 7:17'}},
-   {tm:KN1,en:['Head home','back in Fremont ~8:25 PM'],es:['Regresar','de vuelta en Fremont ~8:25 p. m.'],kv:{en:'45.5 mi',es:'45.5 mi'}}];
+   {tm:7*60+2,c:'now',en:['Pick ready',`${town} · ${sts}`],es:['Elección lista',`${town} · ${sts}`],kv:{en:`${P.doors} doors`,es:`${P.doors} puertas`}},
+   {tm:9*60,en:['Prep',`${P.doors} door cards · cancel forms EN + ES`],es:['Preparar',`${P.doors} fichas · formularios de cancelación EN + ES`],kv:{en:'~30 min',es:'~30 min'}},
+   {tm:lv,en:['Leave HQ',`2600 N Laverna St → ${park}`],es:['Salir de la base',`2600 N Laverna St → ${park}`],kv:{en:`${P.dist_mi} mi · ${dm} min`,es:`${P.dist_mi} mi · ${dm} min`}},
+   {tm:KN0-15,en:['Park',`${park} · door 1: ${first.addr}`],es:['Estacionarse',`${park} · puerta 1: ${first.addr}`],kv:{en:'15 min early',es:'15 min antes'}},
+   {tm:KN0,c:'win',en:['Knock · 4:00–7:30',seq],es:['Tocar · 4:00–7:30',seq],kv:{en:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min ea`,es:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min c/u`}},
+   {tm:SUNSET,c:'warn',en:['Sunset',`civil dusk ${dkT} · ${nd} door${nd===1?'':'s'} after sunset`],es:['Puesta de sol',`crepúsculo ${dkT} · ${nd} puerta${nd===1?'':'s'} después`],kv:{en:`☼ ${ssT}`,es:`☼ ${ssT}`}},
+   {tm:KN1,en:['Wrap up',`log doors · back at HQ ~${fmtT(KN1+10+dm)}`],es:['Cerrar',`registrar puertas · en la base ~${fmtT(KN1+10+dm)}`],kv:{en:`${P.dist_mi} mi`,es:`${P.dist_mi} mi`}}];
   $('#plan').innerHTML=rows.map(r=>`<li class="${r.c||''}"><span class="tm">${fmtT(r.tm)}</span><span class="tx">${esc(r[lang][0])}<em>${esc(r[lang][1])}</em></span><span class="kv">${esc(r.kv[lang])}</span></li>`).join('');
   // day bar 7 AM - 9 PM
   const a=7*60,b=21*60,pc=m=>((m-a)/(b-a)*100).toFixed(2)+'%',wd=(m0,m1)=>((m1-m0)/(b-a)*100).toFixed(2)+'%';
   const ax=[[7*60,'7a'],[10*60,'10a'],[13*60,'1p'],[16*60,'4p'],[19*60,'7p'],[21*60,'9p']];
-  $('#day').innerHTML=`<div class="trk"><i class="sg off" style="left:${pc(9*60)};width:${wd(9*60,9*60+30)}"></i><i class="sg drv" style="left:${pc(14*60+45)};width:${wd(14*60+45,15*60+40)}"></i>
-    <i class="sg kn" style="left:${pc(KN0)};width:${wd(KN0,KN1)}"></i><i class="sg drv" style="left:${pc(KN1)};width:${wd(KN1,20*60+25)}"></i><i class="sg dusk" style="left:${pc(SUNSET)};width:${wd(SUNSET,DUSK)}"></i></div>
+  $('#day').innerHTML=`<div class="trk"><i class="sg off" style="left:${pc(9*60)};width:${wd(9*60,9*60+30)}"></i><i class="sg drv" style="left:${pc(lv)};width:${wd(lv,KN0)}"></i>
+    <i class="sg kn" style="left:${pc(KN0)};width:${wd(KN0,KN1)}"></i><i class="sg drv" style="left:${pc(KN1)};width:${wd(KN1,KN1+10+dm)}"></i><i class="sg dusk" style="left:${pc(SUNSET)};width:${wd(SUNSET,DUSK)}"></i></div>
     <i class="now" style="left:${pc(7*60+2)}" title="now"></i><i class="sun" style="left:${pc(SUNSET)}"></i>
     <div class="ax">${ax.map(([m,l])=>`<span style="left:${pc(m)}">${l}</span>`).join('')}<span class="sn" style="left:calc(${pc(SUNSET)} + 14px)">☼</span></div>`;
 }
-const STORMS=NL.storms.map(s=>{const ar=NL.areas.filter(a=>a.st===s.id);const zn=NL.zones.filter(z=>z.id.startsWith(s.date)).length;
+const STORMS=NL.storms.map(s=>{const ar=NL.areas.filter(a=>a.st===s.id);const zn=ZONES.filter(z=>z.id.startsWith(s.date)).length;
   const mid=s.path[Math.floor(s.path.length/2)];const near=Object.entries(NL.places).reduce((b,[n,p])=>{const d=Math.hypot(p[0]-mid[0],p[1]-mid[1]);return d<b.d?{d,n}:b},{d:1e9,n:''}).n;
   const names=[...new Set(ar.sort((a,b)=>b.homes-a.homes).map(a=>a.name.en))];
   return {s,ar,zn,homes:ar.reduce((t,a)=>t+(a.homes||0),0),names,near,n:dayN(s.date)}});
@@ -495,8 +515,8 @@ function renderLegend(){const x=STORMS.find(q=>q.s.id===S.storm),F=SF.find(f=>f.
 
 /* ---------- walk view ---------- */
 function renderWalk(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.length;
-  $('#wk-h').textContent=w.name.replace(': ',' · ');
-  $('#wkP').textContent=L.walkP(w.parkName,w.streets.length,w.homes[0].addr);
+  const [wt,ws]=w.name.split(': ');$('#wk-h').textContent=ws||wt;
+  $('#wkP').textContent=`${wt} · `+L.walkP(w.parkName,w.streets.length,w.homes[0].addr);
   $('#wkChip').textContent=t('sample');
   const left=S.door==null?n:n-S.door;
   $('#wsum').innerHTML=[[L.ws.doors,`${left}<small>/ ${n}</small>`],[L.ws.start,fmtT(KN0).replace(/ (PM|AM|p\. m\.|a\. m\.)/,'<small>$1</small>')],
@@ -504,7 +524,7 @@ function renderWalk(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.leng
   let html='',cur=-1,sun=false;
   w.homes.forEach((h,k)=>{
     if(h.si!==cur){cur=h.si;const s=w.streets[h.si];html+=`<li class="stp">${L.stp(esc(s.n),s.h,L.dirs[s.dir])}</li>`}
-    if(!sun&&h.eta>=SUNSET){sun=true;html+=`<li class="stp" style="color:var(--cool)">☼ ${esc(L.sunsetRow)}</li>`}
+    if(!sun&&h.eta>=w.sun.ss){sun=true;html+=`<li class="stp" style="color:var(--cool)">☼ ${esc(L.sunsetRow(fmtT(w.sun.ss),fmtT(w.sun.dk)))}</li>`}
     html+=`<li><button data-k="${k}" class="${S.door===k?'sel':''}" style="--dc:${h.col}"><span class="o">${k+1}</span><span class="ad">${esc(h.addr)} <span style="color:var(--muted);font:500 10.5px var(--mono)">${fmtT(h.eta)}</span></span>
       <span class="n">${h.hail.toFixed(2)}″</span><span class="n">~${h.roof}${lang==='es'?'a':'y'}</span><span class="n sc">${h.score}</span><span class="wy">${esc(L.why(h))}</span></button></li>`});
   const dl=$('#dl');dl.innerHTML=html;
@@ -518,12 +538,12 @@ function renderDoor(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.leng
    <div class="big"><span class="scv" style="color:${h.col}">${h.score}</span><span class="scl">${L.score}<sup class="s" data-src="engine">2</sup></span>
      <span style="flex:1"></span><span class="hz" style="font-size:14px;padding-bottom:6px"><i style="background:${h.col}"></i>${h.hail.toFixed(2)}″</span></div>
    <dl class="facts">
-     <div><dt>${L.f.hail}</dt><dd>${h.hail.toFixed(2)} in<sup class="s" data-src="storms">1</sup></dd></div>
+     <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} in<sup class="s" data-src="storms">1</sup></dd></div>
      <div><dt>${L.f.roof}</dt><dd>~${h.roof} ${L.f.yrs}</dd></div>
      <div><dt>${L.f.built}</dt><dd>${h.built}</dd></div>
      <div><dt>${L.f.own}</dt><dd class="${h.own?'y':''}">${h.own?L.f.yes:L.f.no}</dd></div>
      <div><dt>${L.f.type}</dt><dd class="y">${L.f.typeV}</dd></div>
-     <div><dt>${L.f.areaIns}</dt><dd>${L.f.high}<sup class="s" data-src="census">3</sup></dd></div>
+     <div><dt>${L.f.areaIns}</dt><dd>${insWord(w.area)}<sup class="s" data-src="census">3</sup></dd></div>
    </dl>
    <div class="nav2"><button id="pv" ${k===0?'disabled style="opacity:.4"':''}>${L.prev}</button><button id="nx" ${k===n-1?'disabled style="opacity:.4"':''}>${L.next}</button></div>
    <div class="legal" style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg><span>${esc(L.legal)}</span></div>
@@ -538,8 +558,8 @@ function renderWalkSum(){const w=S.walk;if(!w)return;const v=$('#wsum .v');if(v)
 
 /* ---------- road view ---------- */
 function renderRoadPanel(){const w=S.walk;if(!w)return;const L=T[lang];
-  $('#rdH').textContent=w.name.replace(': ',' · ');
-  $('#rdP').textContent=L.roadP(w.streets.length,w.homes.length);
+  {const [rt,rs]=w.name.split(': ');$('#rdH').textContent=rs||rt}
+  $('#rdP').textContent=`${w.name.split(': ')[0]} · `+L.roadP(w.streets.length,w.homes.length);
   const hmax=Math.max(...w.homes.map(h=>h.hail));
   $('#rstats').innerHTML=[[L.road.doors,w.homes.length],[L.road.hail,hmax.toFixed(2)+'″'],[L.road.walk,(w.len/1609).toFixed(1)+' mi'],[L.road.start,fmtT(KN0)]].map(([k,v])=>`<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
   let html='',cur=-1;w.homes.forEach((h,k)=>{if(h.si!==cur&&cur!==-1)html+='<i class="gap"></i>';cur=h.si;html+=`<button data-k="${k}" style="--dc:${h.col}" class="${S.door===k?'sel':''}" aria-label="${esc(h.addr)}">${k+1}</button>`});
@@ -549,7 +569,7 @@ function renderRoadPanel(){const w=S.walk;if(!w)return;const L=T[lang];
   const prev=S.hist[S.hist.length-1];$('#rdBackT').textContent=prev&&prev.view==='walk'?L.back.walk:L.back.morning}
 function sceneFor(w){
   const c=w.center,dm=q=>Math.hypot((q[0]-c[0])*M_LON,(q[1]-c[1])*M_LAT);
-  const streets=NL.columbus.filter(l=>l.p.some(q=>dm(q)<520)).map(l=>({n:pretty(l.n),p:l.p,walk:false,c:l.c}));
+  const streets=streetsAt(c[0]).filter(l=>l.p.some(q=>dm(q)<520)).map(l=>({n:pretty(l.n),p:l.p,walk:false,c:l.c}));
   w.streets.forEach(s=>streets.push({n:s.n,p:s.p,walk:true,c:3}));
   return {center:c,streets,homes:w.homes.map(h=>({addr:h.addr,p:h.p,hail:h.hail,score:h.score,own:h.own,built:h.built,roof:h.roof,order:h.order,col:h.col})),
     path:w.path,park:w.park,walkStreets:w.streets.map(s=>s.n)}}
@@ -598,9 +618,9 @@ $$('[data-back]').forEach(b=>b.onclick=back);
 $('#rdHome').onclick=()=>go('morning');
 $$('.crumbs button').forEach(b=>b.onclick=()=>{if(b.dataset.go!==S.view)go(b.dataset.go,{zone:S.zone})});
 addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();back()}});
-$('#go').onclick=()=>{if(S.alt){toast(t('toastOmaha'));return}go('walk',{zone:NL.zones[0]})};
+$('#go').onclick=()=>{if(S.alt){toast(t('toastOmaha'));return}go('walk',{zone:PICKZ})};
 $('#toRoad').onclick=()=>go('road');
-$('#bk').onclick=()=>{S.alt=!S.alt;renderPick();const z=NL.zones.find(q=>q.kind!=='storm');
+$('#bk').onclick=()=>{S.alt=!S.alt;renderPick();const z=ZONES.find(q=>q.kind!=='storm');
   flyTo(S.alt?fit([X(z.c[0])-.05,Y(z.c[1])-.035,X(z.c[0])+.05,Y(z.c[1])+.035],gap('morning'),20):camMorning())};
 function zoneClick(z){if(!canWalk(z)){toast(t('toastOmaha'));const zz=z;flyTo(fit([X(zz.c[0])-.05,Y(zz.c[1])-.035,X(zz.c[0])+.05,Y(zz.c[1])+.035],gap('morning'),20));return}
   go('road',{zone:z})}
@@ -635,7 +655,7 @@ renderAll();
 R.resize();
 const qv=Q.get('view'), qz=+(Q.get('zone')||1)-1, qd=Q.get('door');
 if(qv==='walk'||qv==='road'){Object.assign(cam,camMorning());document.body.classList.remove('intro');
-  go(qv==='road'?'walk':qv,{zone:NL.zones[qz]||NL.zones[0],door:qd!=null?+qd-1:null,noHist:qv==='walk'});
+  go(qv==='road'?'walk':qv,{zone:ZONES[qz]||PICKZ,door:qd!=null?+qd-1:null,noHist:qv==='walk'});
   if(qv==='road'){fly&&(Object.assign(cam,fly.to),fly=null);doorsT0=0;go('road',{zone:S.zone})}
   if(qd!=null)selectDoor(+qd-1,true)}
 else{
