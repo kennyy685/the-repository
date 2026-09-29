@@ -21,6 +21,14 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 - FilthE saw "Couldn't start a fresh King ... needs its Claude Code Remote permission" on the hub button: not needed
   (he started this King from the app); the grant is his call (he never OK'd create_session).
 
+## 2026-09-29 06:05 UTC (King session_01JozofC)
+- LIVE: hub Version 33 (One building, Observatory, cat Miso, report card).
+- RUNNING: session_01VQR2UaWsBPRWd6QRKLsUMX Builder: hub v28.4 QA fixes + publish (timed King wake via update_trigger;
+  QA FAIL 05:08 = missing update_trigger grant + checkDelivery `t` scope bug). Earlier builder session_017r7vUf archived.
+- LESSON: QA "sends back" by firing the sender's trigger; builders made with create_session have none, so QA's FAIL
+  sat unread. The King must read QA done events and re-dispatch (fresh session) itself.
+- King wakes: own trigger trig_01RB7w run_once_at 12:00Z (7 AM CT); 8 AM permit reminder trig_01DqmD72.
+
 ## LIVE (2026-09-29)
 - AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
   open map v6 (real 2026 storms, 7 AM home, storm stacking, roof-age sweet spot), Knock preview v2
