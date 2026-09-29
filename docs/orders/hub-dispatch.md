@@ -12,3 +12,6 @@
 - Robot ids on the hub differ from dispatch keys: engine = `engine-mechanic`, research = `hub-keeper`, qa = `qa-tester`.
 - QA loop: Builder/Designer/Engine fire QA with "send back to <their trigger>"; QA sends a FAIL back once, a second
   FAIL goes to the King. QA + Research triggers should run on sonnet (King sets it). Current prompts + why: `docs/research/2026-09-28-robot-upgrades.md`.
+
+## QA reports -> GitHub (2026-09-29)
+Hub-fired robot sessions (fire_trigger) start with no repo attached and no add_repo tool, so their push gets a proxy 403. QA puts its full report in the done event `long` field; the robot that asked commits it (see .claude/agents/*.md). Robots the King starts with create_session + source_url push normally.

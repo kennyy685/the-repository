@@ -54,3 +54,5 @@ Hard rules: nothing about covering, waiving or rebating a deductible (44-8604); 
 Lessons notebook: `.claude/agent-memory/designer/MEMORY.md` (auto-loaded). Read it first; after any redo, QA
 finding or FilthE correction, add one line: date, what went wrong, the rule that prevents it. Keep it under 60 lines.
 Heavy-chat rule: past ~200k tokens, commit, put a short handoff (done / running / next) in your report, and stop.
+
+**QA reports must reach GitHub (King, 2026-09-29):** hub-fired QA runs have no repo push access, so a QA done event that says "push blocked" carries the report in its `long` field. Whoever asked for the QA saves that `long` as `docs/research/<date>-<task>-QA.md`, commits it with its own work and pushes. Never leave a QA report only in the hub.
