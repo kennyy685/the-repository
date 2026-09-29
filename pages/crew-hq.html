@@ -2567,8 +2567,8 @@ function computeObservatory(){
     const doneIds = new Set(rows.filter(x => x && statusKey(x.status) === 'done' && Date.parse(x.at || '') >= ws).map(x => String(x.id)));
     for (const e of events) if (e.kind === 'done' && e.task && e.atMs >= ws && e.agent !== 'you' && !e.approx) doneIds.add(e.task);
     let fr = 0; for (const a of stuck) if (a.atMs) fr += (now - a.atMs)/3600e3; for (const i of items) if (i.at) fr += (now - i.at)/3600e3;
-    const shipped = events.filter(e => !e.approx && e.atMs >= ws && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text) && !NOT_SHIP_RX.test(e.text)).length;
-    { const sl = events.filter(e => !e.approx && e.atMs >= ws && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text) && !NOT_SHIP_RX.test(e.text)).sort((p, q) => q.atMs - p.atMs).slice(0, 8).map(e => ({id:e.id, text:(nameOf(e.agent) + ' · ' + e.text).slice(0, 90), at:e.atMs})), sg = sl.map(s => s.id).join('|'); if (sg !== computeObservatory.ship) { computeObservatory.ship = sg; HUB.shipped = {v:((HUB.shipped && HUB.shipped.v) || 0) + 1, list:sl}; } }   // v28.2 the Shipped shelf (CONTRACT HUB.shipped)
+    const wkShips = weekShips(), shipped = wkShips.length;   // the whole week (a week-wide read + the live list), not just the newest 120 events
+    { const sl = wkShips.slice(0, 8).map(e => ({id:e.id, text:(nameOf(e.agent) + ' · ' + e.text).slice(0, 90), at:e.atMs})), sg = sl.map(s => s.id).join('|') + '#' + shipped; if (sg !== computeObservatory.ship) { computeObservatory.ship = sg; HUB.shipped = {v:((HUB.shipped && HUB.shipped.v) || 0) + 1, list:sl, count:shipped}; } }   // v28.2 the Shipped shelf (CONTRACT HUB.shipped; count = the true week total, boxes cap at 8)
     const le = events.find(e => !e.approx && e.text && !e.chat && !e.instant);
     const o = {seats:bots.map(a => ({id:a.id, st7:a.st7 || 'idle'})), lanes, needs:items.length, health:{ok, top}, flow:doneIds.size, friction:Math.round(fr*10)/10, shipped,
       last:le ? {text:(nameOf(le.agent) + ': ' + le.text).slice(0, 120), at:le.atMs} : {text:'All quiet', at:0}};
@@ -2826,7 +2826,7 @@ function dollyHint(){
 /* ================= P4: what the scene reads for its fun (CONTRACT v2): gear, silence, Storm Watch, the flap sign, bugs ================= */
 const DAY = 864e5;
 const dayOf = ms => dFmt.format(ms), todayK = () => dayOf(Date.now());
-function weekStart(){ const w = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()); const dow = Math.max(0, ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(w)); return Date.now() - dow*DAY - centralMinute()*60000; }   // Monday 00:00 Central
+function weekStart(){ try { return wkStartOf(Date.now()); } catch (e) { /* before the D block has loaded */ } const w = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()); const dow = Math.max(0, ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(w)); return Date.now() - dow*DAY - centralMinute()*60000; }   // Monday 00:00 Central
 const TOWNS = {fremont:[41.43, -96.50], omaha:[41.26, -95.93], lincoln:[40.81, -96.70], blair:[41.54, -96.13], wahoo:[41.21, -96.62], columbus:[41.43, -97.37], norfolk:[42.03, -97.42], schuyler:[41.45, -97.06],
   'west point':[41.84, -96.71], 'grand island':[40.92, -98.34], kearney:[40.70, -99.08], 'north bend':[41.46, -96.78], hooper:[41.61, -96.55], arlington:[41.45, -96.35], valley:[41.31, -96.35], elkhorn:[41.29, -96.24], 'council bluffs':[41.26, -95.86], papillion:[41.15, -96.04], bellevue:[41.14, -95.91], york:[40.87, -97.59], seward:[40.91, -97.10], 'david city':[41.25, -97.13]};
 function bearing(town){ const t = TOWNS[String(town || '').toLowerCase()]; if (!t) return null; const [a1, o1] = TOWNS.fremont.map(v => v*Math.PI/180), [a2, o2] = t.map(v => v*Math.PI/180);
@@ -2863,7 +2863,7 @@ function sceneData(){
   // the coffee-bar flap sign
   const lastBlock = events.find(e => e.kind === 'blocked' && !e.approx), blockDays = lastBlock ? Math.floor((now - lastBlock.atMs)/DAY) : null;
   let best = +store.get('hub-best-block') || 0; if (blockDays != null && blockDays > best) { best = blockDays; store.set('hub-best-block', String(best)); }
-  const flap = {blockDays, bestBlockDays:best, shipped:events.filter(e => e.kind === 'done' && e.atMs >= ws && e.agent !== 'you').length, waiting:needItems().length};
+  const flap = {blockDays, bestBlockDays:best, shipped:weekShips().length, waiting:needItems().length};
   const fs2 = JSON.stringify(flap); if (fs2 !== sceneData.flap) { sceneData.flap = fs2; HUB.flap = Object.assign({v:((HUB.flap && HUB.flap.v) || 0) + 1}, flap); }
   // QA's bug jar
   const done = new Set(rows.filter(x => statusKey(x.status) === 'done').map(x => x.id));
@@ -3213,7 +3213,7 @@ const money = n => { n = +n || 0; return n >= 100 ? Math.round(n).toLocaleString
 const minsLabel = m => m < 90 ? Math.max(1, Math.round(m)) + ' min' : (m/60).toFixed(1).replace(/\.0$/, '') + ' h';
 const whenFull = ms => dayOf(ms) === todayK() ? tFmt.format(ms) : dFmt.format(ms) + ', ' + tFmt.format(ms);
 const dateOnly = v => { const s = String(v || ''); return Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T12:00:00Z' : s) || 0; };
-function weekStartMs(){ const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()));
+function weekStartMs(){ try { return wkStartOf(Date.now()); } catch (e) { /* before the D block has loaded */ } const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', weekday:'short'}).format(new Date()));
   return Date.now() - centralMinute()*60000 - ((Math.max(0, dow) + 6) % 7)*DAY; }
 /* spend: the King may send spend:{today_usd, week_usd} or per-chat cost_today_usd; otherwise a chat counts today if it
    reported today (so "about": a chat that ran yesterday and today counts whole) */
@@ -3602,6 +3602,7 @@ function whyOf(a){
    conflicts, head} answered by the same tap (his tap IS the OK, one item per tap, never batched); Ask the King = a
    fix-merge handoff; Hide / Not yet = this device only (hub-git-hidden), until the branch gets new commits. ================= */
 let gitDoc = null;
+const HOLDER = 'hub-' + Math.random().toString(36).slice(2, 10);   // one lease holder per page load: its own leases renew instead of saying busy
 const GIT_OLD = 200, GIT_WORK = 'claude/amazing-gauss-yzfpq0';
 let gitHidden = {}; try { gitHidden = JSON.parse(store.get('hub-git-hidden') || '{}') || {}; } catch (e) { gitHidden = {}; }
 const gitShort = n => String(n || '').replace(/^(origin\/)?claude\//, '').slice(0, 60);
@@ -3620,7 +3621,7 @@ function gitBranches(){
     return {name:x.name, short:gitShort(x.name), ahead, last:Date.parse(x.last_at || '') || 0, subject:ctxSafe(txv(x.subject), 80), conflicts:c, head:gitSha(x.head), st}; });
 }
 const gitMain = () => gitDoc && gitDoc.main && typeof gitDoc.main === 'object' ? gitDoc.main : {};
-const gitMainBehind = () => gitInt(gitMain().behind) || 0;
+const gitMainBehind = () => gitInt(gitMain().behind);   // null = not checked (never read as 0)
 const gitIsHidden = b => Object.prototype.hasOwnProperty.call(gitHidden, b.name) && gitHidden[b.name] === b.ahead;
 /* one merge item per (branch, count, tip): the head sha, else the report's time, so a later report of the same branch is a new item */
 const gitMergeId = (branch, into, n, head) => 'M-' + (into === 'main' ? 'main' : gitSlug(branch)) + '-' + n + '-' + (head || String(gitDoc && gitDoc.at || '').replace(/\D/g, '').slice(2, 12) || 'x');
@@ -3668,7 +3669,7 @@ function gitCardHtml(){
    if a concurrent write (the King's) dropped it, once more */
 async function gitAddItem(item){
   const ref = DB.doc('board/current');
-  if (typeof ref.acquire === 'function') { const r = await withTimeout(ref.acquire({holder:'hub-' + Math.random().toString(36).slice(2, 10), ttlMs:10000})); if (!r || !r.acquired) throw Object.assign(new Error('busy'), {code:'busy'}); }
+  if (typeof ref.acquire === 'function') { const r = await withTimeout(ref.acquire({holder:HOLDER, ttlMs:10000})); if (!r || !r.acquired) throw Object.assign(new Error('busy'), {code:'busy'}); }
   for (let i = 0; i < 2; i++) {
     const snap = await withTimeout(ref.get()), b = snap.exists ? (snap.data() || {}) : {};
     b.waiting = Array.isArray(b.waiting) ? b.waiting : [];
@@ -3712,8 +3713,8 @@ function gitOpsLine(){
   if (!gitDoc) return '<p class="empty">Branch watch starts on the King\'s next wake.</p>';
   if (gitBad()) return '<p class="empty">Branch watch: couldn\'t read the King\'s report.</p>';
   const all = gitBranches(), hid = all.filter(b => b.ahead !== 0 && gitIsHidden(b)).length, n = all.filter(b => b.ahead !== 0 && !gitIsHidden(b)).length, behind = gitMainBehind(), at = gitAt();
-  const bits = [n ? plural(n, 'branch') + ' with unmerged work' : '', behind ? 'main ' + behind + ' behind' : '', hid ? hid + ' hidden' : ''].filter(Boolean);
-  const s = (bits.length ? bits.join(' · ') + (n || behind ? ' · see the Board' : '') : 'All branches merged ✓') + (at ? ' · ' + gitAsOf(at) : '');
+  const bits = [n ? plural(n, 'branch') + ' with unmerged work' : '', behind ? 'main ' + behind + ' behind' : behind == null ? 'main not checked yet' : '', hid ? hid + ' hidden' : ''].filter(Boolean);
+  const s = (bits.length ? bits.join(' · ') + (n || behind ? ' · see the Board' : '') : 'All branches merged ✓') + (at ? ' · ' + gitAsOf(at) : '');   // "merged ✓" only with main checked too
   return '<p class="src">' + esc(s) + '</p>';
 }
 function onGit(snap){ got(); try { gitDoc = snap.exists ? snap.data() : null; if (!gitDoc || typeof gitDoc !== 'object' || Array.isArray(gitDoc)) gitDoc = null; } catch (e) { gitDoc = null; } renderBoard.sig = ''; renderBoard(); renderOps(); }
@@ -3749,11 +3750,30 @@ function wkWindow(now){   // show = Sunday 18:00 .. Monday 12:00 Central; ws = t
   if (i.dow === 0 && i.min < 12*60) return {show:true, ws:wkPrevStart(cur)};
   return {show:false, ws:wkPrevStart(cur)};
 }
-const WK_LOG_WEEKS = 4;
+const WK_LOG_WEEKS = 4, WK_LOG_MAX = 3;   // read 4 weeks back (the oldest only for arrows); the Log shows 3 reports
 const WK = {ws:0, path:'', doc:null, prev:null, past:[], loaded:false, evs:null, cover:false, busy:false, tried:false, show:false};
 let sessSeen = false, rcSeen = false, wkTimer = 0;
 function wkSoon(){ clearTimeout(wkTimer); wkTimer = setTimeout(wkTick, 400); }
 const r1 = n => Math.round(n*10)/10;
+/* the week's ships (Observatory "Shipped", HUB.shipped + the shelf, the flap sign): the loaded events are only the newest 120,
+   so the page reads the whole week once (and again when a new ship lands or the week turns) and unions it with the live list */
+const SHIPWK = {ws:0, evs:[], busy:false, at:0};
+async function shipWkFetch(){
+  if (!DB || SHIPWK.busy) return; const ws = wkStartOf(Date.now()); SHIPWK.busy = true;
+  try { const s = await withTimeout(DB.collection('events').where('at', '>=', wkIso(ws)).limit(1000).get(), 15000);
+    SHIPWK.ws = ws; SHIPWK.evs = s.docs.map(d => wkNormEv(d.id, d.data())).filter(e => !e.approx && isShipEv(e)); SHIPWK.at = Date.now(); }
+  catch (e) { /* the live list is the fallback */ }
+  finally { SHIPWK.busy = false; computeObservatory(); try { sceneData(); } catch (e) { /* the flap sign waits for the next pass */ } }
+}
+function weekShips(ws){
+  ws = ws || wkStartOf(Date.now()); const we = wkNextStart(ws), seen = new Set(), out = [];
+  for (const e of [...events, ...(SHIPWK.ws === ws ? SHIPWK.evs : [])]) if (e && !e.approx && e.atMs >= ws && e.atMs < we && !seen.has(e.id) && isShipEv(e)) { seen.add(e.id); out.push(e); }
+  return out.sort((p, q) => q.atMs - p.atMs);
+}
+function shipWkCheck(){   // a new ship in the live list, or a new week: read the week again
+  const ws = wkStartOf(Date.now());
+  if (SHIPWK.ws !== ws || events.some(e => e._fresh && isShipEv(e) && e.atMs >= ws)) shipWkFetch();
+}
 const isShipEv = e => e && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text || '') && !NOT_SHIP_RX.test(e.text || '');   // the Observatory's "Shipped" rule
 function wkNormEv(id, d){ d = d || {}; return {id, agent:canon(String(d.agent || '')), kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, approx:!!d.approx, atMs:Date.parse(d.at || '') || 0}; }
 function wkQStart(id, a, ansMs){   // when the question was asked; unknown = not counted (never guessed)
@@ -3772,7 +3792,7 @@ function wkSpend(ws, now){
   return Math.round(+sp*100)/100;
 }
 function wkCompute(ws){
-  const we = wkNextStart(ws), now = Date.now(), end = Math.min(now, we), evs = (WK.evs || events).filter(e => !e.approx && e.atMs >= ws && e.atMs < we), cover = !!WK.cover;
+  const we = wkNextStart(ws), now = Date.now(), end = Math.min(now, we), cover = !!WK.cover, seen = new Set(), evs = [...(WK.evs || []), ...events].filter(e => !e.approx && e.atMs >= ws && e.atMs < we && !seen.has(e.id) && seen.add(e.id));
   const shipsE = evs.filter(isShipEv).sort((p, q) => p.atMs - q.atMs), spent = wkSpend(ws, now);
   let wait = 0, longest = null; const add = (id, a, b) => { const s = Math.max(a, ws), t = Math.min(b, end); if (t > s) { wait += t - s; if (!longest || t - s > longest.ms) longest = {id, ms:t - s}; } };
   for (const [id, a] of Object.entries(answers)) { if (!a || a.by === 'King' || a.answer === 'Not now') continue; const am = Date.parse(a.at || '') || 0; if (am < ws || am >= we) continue;
@@ -3835,7 +3855,7 @@ async function wkMaybeWrite(){   // only while the card shows, only once, only a
   WK.busy = true; WK.tried = true; const path = WK.path, ref = DB.doc(path), body = wkCompute(WK.ws);
   if (!body.complete) { WK.busy = false; return; }
   try {
-    if (typeof ref.acquire === 'function') { const r = await withTimeout(ref.acquire({holder:'hub-' + Math.random().toString(36).slice(2, 10), ttlMs:15000})); if (!r || !r.acquired) { WK.tried = false; return; } }
+    if (typeof ref.acquire === 'function') { const r = await withTimeout(ref.acquire({holder:HOLDER, ttlMs:15000})); if (!r || !r.acquired) { WK.tried = false; return; } }
     const s = await withTimeout(ref.get()), d = s.exists ? s.data() : null;
     if (d && d.week) WK.doc = d; else { await withTimeout(ref.set(body)); WK.doc = body; }
   } catch (e) { WK.tried = false; }   // a later tick tries again
@@ -3858,11 +3878,11 @@ function wkRender(){
 function wkLogItems(){   // the saved reports stay in the Log (newest first), each at Sunday 6 PM of its week; the one still on the Crew tab isn't repeated
   if (logFilter !== 'all' || !WK.loaded) return [];
   const list = (WK.show ? [] : [{ws:WK.ws, doc:WK.doc, prev:WK.prev}]).concat(WK.past).filter(x => x.doc);
-  return list.map(x => { const at = wkClose(x.ws);
+  return list.slice(0, WK_LOG_MAX).map(x => { const at = wkClose(x.ws);
     return {atMs:at, html:'<li class="ev wklog"><time>' + esc(whenLabel(at)) + '</time><span class="k" style="--c:var(--brass-hi)" aria-hidden="true">▤</span><div><span class="who">Sunday report</span>' + wkHtml(x.doc, x.prev, true) + '</div></li>'}; })
     .sort((p, q) => q.atMs - p.atMs);
 }
-setInterval(() => { if (!document.hidden) wkTick(); }, 60000);
+setInterval(() => { if (!document.hidden) { wkTick(); if (SHIPWK.ws !== wkStartOf(Date.now())) shipWkFetch(); } }, 60000);
 /* the snapshot the instant chat answers from: the same live truth the page shows */
 const ctxSafe = (v, n) => String(v == null ? '' : v).replace(/[`=]{2,}|[\r\n]+/g, ' ').slice(0, n);   // robot-written text can't fake a section marker
 function liveContext(){
@@ -4662,7 +4682,7 @@ function onEvents(snap){
   events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', session:d.session ? String(d.session).slice(0, 80) : '', step:d.step ? String(d.step).slice(0, 12) : '', newSession:d.new_session ? String(d.new_session).slice(0, 80) : '', newTitle:d.new_title ? String(d.new_title).slice(0, 80) : '', notePath:d.note_path ? String(d.note_path).slice(0, 120) : '', fixId:d.fix_id ? String(d.fix_id).slice(0, 80) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
   if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) { pushHandoff(e.agent, e.to); pushFlow(e); } if (!replay) tannoyEvent(e); }
-  gotEvents = true; got(); renderThread(true); sweepThread();
+  gotEvents = true; got(); renderThread(true); sweepThread(); shipWkCheck();
   sync(false); renderFeeds(); renderCard(); renderBoard(); renderRoster(); refreshLive(); maybeRecap(); renderBrief();
 }
 let gotBoard = false, gotAnswers = false;
@@ -4746,12 +4766,16 @@ async function connect(){
 async function tidy(db, cl){   // the owner's view keeps the log small: newest 300 events stay
   try {
     const user = await within(cl.use('user'), 12000); if (!user || !(await within(user.isOwner(), 8000))) return;
-    const all = await withTimeout(db.collection('events').orderBy('at', 'desc').limit(1000).get(), 20000);
+    // the newest 300 always stay: the 300th newest line is the floor nothing at or above is trimmed
+    const top = await withTimeout(db.collection('events').orderBy('at', 'desc').limit(300).get(), 20000);
+    if (top.size < 300) return;
+    const floor = Date.parse((top.docs[top.docs.length - 1].data() || {}).at || '') || 0; if (!floor) return;
+    /* D: never trim the week being reported on or the one before it (the Sunday report needs whole weeks), nor a ship event of the last 14 days.
+       The oldest lines are read first (any size of log: the newest-1000 read never reached the tail) */
+    const keepFrom = Math.min(floor, wkPrevStart(wkStartOf(Date.now()))), shipFrom = Date.now() - 14*DAY;
+    const old = await withTimeout(db.collection('events').where('at', '<', wkIso(keepFrom)).orderBy('at', 'asc').limit(200).get(), 20000);
     // at most 40 deletes a load, one every 1.5 s, each bounded: pruning never eats the call budget his sends need
-    if (all.size <= 400) return;
-    /* D: never trim the week being reported on or the one before it (the Sunday report needs whole weeks), nor a ship event of the last 14 days */
-    const keepFrom = wkPrevStart(wkStartOf(Date.now())), shipFrom = Date.now() - 14*DAY;
-    const cut = all.docs.slice(300).filter(d => { const v = d.data() || {}, at = Date.parse(v.at || '') || 0; return at && at < keepFrom && !(at >= shipFrom && isShipEv({agent:canon(String(v.agent || '')), kind:String(v.kind || ''), text:String(v.text || '')})); }).reverse().slice(0, 40);
+    const cut = old.docs.filter(d => { const v = d.data() || {}, at = Date.parse(v.at || '') || 0; return at && at < keepFrom && !(at >= shipFrom && isShipEv({agent:canon(String(v.agent || '')), kind:String(v.kind || ''), text:String(v.text || '')})); }).slice(0, 40);
     if (!cut.length) return;
     // how far the log has been trimmed: the Sunday report counts a week only when nothing inside it was trimmed
     const newest = cut.reduce((m, d) => Math.max(m, Date.parse((d.data() || {}).at || '') || 0), 0);
@@ -4767,7 +4791,7 @@ applyTheme(false); applyCat(false); applyStatic(); setTab(tab, 'init'); setCam(c
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); renderReport(); computeObservatory(); armSeen();
 connect(); fetchWeather(); renderBrief(); setTimeout(() => pollLive(false), 1500);   // v33: live by itself only when already allowed; else the top card's Go live
 scene3d(false);
-if (window.__MOCK) window.__hubT = {needItems, select, computeWatch, alerts: () => alerts, fixClick, alertChip, byId, answers: () => answers, git: () => ({doc:gitDoc, view:gitView()}), gitClick, wk: () => ({ws:WK.ws, path:WK.path, show:WK.show, loaded:WK.loaded, doc:WK.doc, prev:WK.prev, cover:WK.cover, past:WK.past.length}), wkCompute, wkId, wkWindow, wkStartOf, whyWith: (a, evs) => { const e0 = events; events = evs; try { return whyOf(a); } finally { events = e0; } }};   // the smoke tests' mock runtime only (tests/pages/hub_runtime_mock.js sets __MOCK)
+if (window.__MOCK) window.__hubT = {needItems, select, computeWatch, alerts: () => alerts, fixClick, alertChip, byId, answers: () => answers, git: () => ({doc:gitDoc, view:gitView()}), gitClick, wk: () => ({ws:WK.ws, path:WK.path, show:WK.show, loaded:WK.loaded, doc:WK.doc, prev:WK.prev, cover:WK.cover, past:WK.past.length}), wkCompute, wkId, wkWindow, wkStartOf, weekStart, whyWith: (a, evs) => { const e0 = events; events = evs; try { return whyOf(a); } finally { events = e0; } }};   // the smoke tests' mock runtime only (tests/pages/hub_runtime_mock.js sets __MOCK)
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
