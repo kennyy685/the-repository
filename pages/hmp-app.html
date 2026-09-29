@@ -2624,7 +2624,7 @@ function lastContactMs(l){   // a talk at the door, a call or a text; a "not hom
   for (const x of arr(l.doors_visits)) if (x.result !== 'not_home') best = Math.max(best, tsOf(x.at) || tsOf(x.date));
   return best;
 }
-let lateMemo = null, followMemo = null;   // v23: one answer per data version and minute (a redraw asked 10-20 times)
+let lateMemo = null;   // v23: one answer per data version and minute (a redraw asked 10-20 times)
 function lateLeads(){   // the first to respond wins most jobs: a new lead with no contact in 24 hours goes red
   const mk = Math.floor(Date.now() / 60000); if (lateMemo && lateMemo.leads === leads && lateMemo.mk === mk) return lateMemo.out;
   const out = lateLeadsNow(); lateMemo = {leads, mk, out}; return out;
@@ -2643,26 +2643,6 @@ function lateLeadsNow(){
   }
   return out.sort((a, b) => a.ref - b.ref);
 }
-const whoOf = l => [strv(l.first_name), shortAddr(strv(l.address) || l.id)].filter(Boolean).join(', ');
-function followItems(){
-  const mk = Math.floor(Date.now() / 60000);
-  if (followMemo && followMemo.leads === leads && followMemo.claims === claims && followMemo.lang === lang && followMemo.mk === mk) return followMemo.out;
-  const out = followItemsNow(); followMemo = {leads, claims, lang, mk, out}; return out;
-}
-function followItemsNow(){
-  const out = [];
-  for (const l of leads) { if (['done', 'lost'].includes(l.stage)) continue; const ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'lead', id: l.id, address: strv(l.address) || l.id, text: txl(ns), due: d}); }
-  for (const c of claims) { if (['paid', 'lost'].includes(c.stage)) continue; const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(ns), due: d}); }
-  return out.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : a.address.localeCompare(b.address)));
-}
-const callbackCount = () => dueTodayN();   // v24: the Due list's Today group (one source for the badge, the tally and Now)
-function dueChip(due){
-  const n = daysFromToday(due), c = L().ct;
-  if (n < 0) return `<span class="a-chip crit">! ${esc(c.overdue(-n, fmtDay(due)))}</span>`;
-  if (n === 0) return `<span class="a-chip warn">${esc(c.dueToday)}</span>`;
-  if (n === 1) return `<span class="a-chip warn">${esc(c.dueTomorrow)}</span>`;
-  return `<span class="a-chip plain">${esc(c.due(fmtDay(due, true)))}</span>`;
-}
 function weekNums(t0){   // v24: one number source. This week's stored numbers, with TODAY taken from today's live door taps (so the
   // week box, the big counter and the review never disagree before "Done for today" is tapped). Same per-day max rule as applyStat.
   const wd = weekDoc || {}, ob = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {}), walks = ob(wd.walks), king = ob(wd.king);
@@ -2675,7 +2655,6 @@ function weekNums(t0){   // v24: one number source. This week's stored numbers, 
 function renderKnockTab(){ renderKnock(); }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
-const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
 function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
 /* v25 Leads: one segmented control per filter, then list rows: address / the next action / a late chip (source and type live in the lead) */
 function leadRow(l){
@@ -4071,10 +4050,6 @@ function orderLine(l){
   const gs = ORD_SECS.filter(g => ls.some(x => x.group === g)).map(g => X.g[g]).join(', ');
   return X.savedLine(fmtWhen(l.order.at) || '', ls.length, gs);
 }
-function orderBox(l){
-  if (!hasOrder(l)) return ''; const X = OT();
-  return `<section class="box" id="ordBox"><h3>${esc(X.boxH)}</h3><p class="est-saved">${esc(orderLine(l))}</p><div class="sheet-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(X.openList)}</button></div></section>`;
-}
 function makeORD(){   // v23: built the first time an order list opens
   const el = document.createElement('div'); el.className = 'ord';
   let st = null, forId = null, sig = '', lastAt = null, checked, fails = [], copyT = 0;
@@ -4282,7 +4257,6 @@ function renderAdj(id){
    of the width) and lead.proposal = {scope, tiers: [{key, name, low, high}], recommended, chosen, at, using_reference}.
    Hard rules: no deductible talk (NE 44-8604), never "insurance will pay", no financing, no reviews; "registered", never
    "licensed"; the registration number stays a blank line until the boss gives it. */
-const HO_PHONE = {kenny: SETTINGS.people.en, alex: SETTINGS.people.es};   // T77: from SETTINGS
 const HO_TIERS = {
   siding: [
     {key: 'good', what: {en: 'Vinyl siding', es: 'Revestimiento de vinil'}, txt: {en: 'vinyl siding', es: 'siding de vinil'}},
@@ -5154,8 +5128,6 @@ function selectZone(id, go){
   refreshWalk(); dataVer++;
   if (go) setTab('knock'); else renderApp(true);
 }
-const zoneLine = z => { const W = NW(), bits = []; if (z.hail != null) bits.push(W.hail(fmtIn(z.hail))); if (z.homes) bits.push(W.homes(Math.round(z.homes))); return bits.join(' · '); };
-const heatCls = h => 'h' + clamp(Math.ceil(h * 5), 1, 5);
 const driveUrl = z => `https://www.google.com/maps/dir/?api=1&destination=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&travelmode=driving`;
 const appleUrl = z => `https://maps.apple.com/?daddr=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&dirflg=d`;
 
@@ -5294,7 +5266,6 @@ function dueItems(){
   const g = {today: out.filter(r => r.due <= t0), tomorrow: out.filter(r => r.due === addDays(t0, 1)), later: out.filter(r => r.due > addDays(t0, 1))};
   dueMemo = {leads, claims, lang, mk, r: fuRules, out: g}; return g;
 }
-const dueTodayN = () => dueItems().today.length;
 /* ---------- v25 Today (Now): one row per appointment today (time tile, who, call), then what is due as list rows
    (address / one action line / a late chip with a flag). Show 3 + "See all". Scripts live on the lead, not here. ---------- */
 const dueLate = r => r.late || r.overdue > 0 || r.due < todayStr();
@@ -5737,18 +5708,6 @@ function cityRule(city){
 }
 const CRX = {en: {outShort: (a, b) => `Outside knock hours (${a}–${b} here)`, details: 'details', hours: (c, a, b) => `Knock hours in ${c}: ${a}–${b}.`, none: c => `Knock hours in ${c} are not confirmed: stay in daylight.`, check: ' Check with the city.', out: 'Outside knock hours right now: stop, or only go back to houses that asked you to.', sign: 'Skip any house with a “No Soliciting” or “No Peddlers” sign. Your permit can be taken for it.'},
   es: {outShort: (a, b) => `Fuera del horario para tocar (${a}–${b} aquí)`, details: 'detalles', hours: (c, a, b) => `Horario para tocar en ${c}: ${a}–${b}.`, none: c => `El horario para tocar en ${c} no está confirmado: solo con luz de día.`, check: ' Confírmalo con la ciudad.', out: 'Ahora estás fuera del horario para tocar: para, o solo regresa a casas que te lo pidieron.', sign: 'No toques en casas con letrero de “No Soliciting” o “No Peddlers”. Te pueden quitar el permiso por eso.'}};
-function knockRules(m){
-  const cc = {}; for (const s of m.stops) if (s.city) cc[s.city] = (cc[s.city] || 0) + 1;
-  const city = Object.keys(cc).sort((a, b) => cc[b] - cc[a])[0] || SETTINGS.company.city, r = cityRule(city), X = CRX[lang];
-  let line = X.sign, warn = false;
-  if (r && r.hours) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
-    line = X.hours(city, clk(r.hours[0]), clk(r.hours[1])) + (r.verified ? '' : X.check) + ' ' + X.sign;
-    const n = new Date(), hm = pad2(n.getHours()) + ':' + pad2(n.getMinutes()); warn = hm < r.hours[0] || hm >= r.hours[1]; }
-  else line = X.sign;   // v24.1: no known hours for this city: no hours line at all, only the sign rule
-  if (warn) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };   // v24.1: one short amber line; the rest on tap
-    return `<details class="k-rules warn" id="kRules" role="note"><summary><span class="kr-dot" aria-hidden="true"></span><b>${esc(X.outShort(clk(r.hours[0]), clk(r.hours[1])))}</b><span class="kr-more">${esc(X.details)}</span></summary><p><b>${esc(X.out)}</b> ${esc(line)}</p></details>`; }
-  return `<p class="k-rules" id="kRules" role="note">${esc(line)}</p>`;
-}
 
 /* ---------- whole app ---------- */
 function renderBadges(){   // v25: one red badge, on Now, for late items only (nothing else in the tab bar counts)
@@ -5983,7 +5942,6 @@ CLAIMS: ${JSON.stringify(cs).slice(0, 4000)}`;
 let SAMPLE = null, CAN_EDIT = false, kcBusy = false, kcCtl = null, ASSETS = null;
 const kcTurns = [];
 const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, 'Z');
-const stampOf = (iso) => iso.replace(/[-:]/g, '');
 const KING_RULES = `You are the Right Hand: FilthE's live assistant inside the HMP App for ${SETTINGS.company.legal} (${SETTINGS.company.city}, ${SETTINGS.company.stateName}). The app is his sales tool (Now / Knock / Leads / Money). FilthE (19, bilingual) is the boss's right-hand man; he does the sales. Right now you log what FilthE tells you (doors, leads, claims, money), answer him, and pass anything meant for the crew on with a handoff.
 
 Your powers here, applied through "actions":
