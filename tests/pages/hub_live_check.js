@@ -17,8 +17,11 @@
  *               robot card's last 3 + hit rate, junk rows never throw
  *   flows       v28.1 HUB.flows: none from old handoffs on load; a NEW handoff = one flow (dir/kind), "Handing to" 20 s, a tannoy line
  *   obs-empty   v28.1 HUB.observatory with an empty board: card renders, v bumps only on change, key O works with no scene
- *   merge-watch / merge-missing   C system/git: button sets, ahead>200, one merge item per tap, main apart, Hide local, no doc
- *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, spend/0-ship edges
+ *   merge-watch / merge-missing / merge-edges   C system/git: button sets, ahead>200, one merge item per tap (lease, read-back,
+ *               retry), main apart, Hide local, no doc / junk / hidden / old, bad counts, stale answer re-tap, failed answer write
+ *   tidy-keeps  tidy() keeps the report weeks + 14 days of ship events and writes system/tidy.deleted_through
+ *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, past weeks in the Log,
+ *               spend missing/stale, 0 ships, trimmed week = not tracked + no write, DST weeks
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
@@ -568,32 +571,40 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
 const shot = (p, name) => p.screenshot({ path: path.join(OUT, name + ".png") });
 /* C: the unfinished-merge watch (system/git). QUEUE-SPECS C acceptance: 3 branches (clean, conflicted, done) show their
    three button sets; ahead 250 = no Merge it; Merge it = exactly one waiting item with merge.branch (a second tap: none);
-   main.behind 0 hides the main line; a missing doc = no card, the Ops line, no error; a day-old doc says "as of yesterday". */
-const GIT_DOC = { at: "2026-09-28T23:40:00Z", work: "claude/amazing-gauss-yzfpq0", main: { behind: 190 }, branches: [
-  { name: "claude/eager-bardeen-lj7lfc", ahead: 12, behind: 3, last_at: "2026-09-28T22:30:00Z", subject: "Open map: area days-ago counts", files: 4, conflicts: 0, done: false },
-  { name: "claude/stoic-darwin-ikqmrj", ahead: 4, behind: 9, last_at: "2026-09-28T21:00:00Z", subject: "hub queue + specs", files: 3, conflicts: 1, done: false },
-  { name: "claude/trusting-dijkstra-luw0nu", ahead: 0, behind: 40, last_at: "2026-09-27T21:00:00Z", subject: "Round 57 calls", files: 0, conflicts: 0, done: true },
-  { name: "claude/amazing-wright-lds9q5", ahead: 250, behind: 300, last_at: "2026-09-26T21:00:00Z", subject: "Hub v28.0", files: 90, conflicts: 0, done: false } ] };
+   main.behind 0 hides the main line; a missing doc = no card, the Ops line, no error; a day-old doc says "as of yesterday".
+   QA round 2: the board write takes the lease, keeps the rest of the board and survives a concurrent write; missing or
+   negative counts are "not checked", never "no conflicts" / "looks done"; a stale answer can be tapped again; a failed
+   answer write shows no receipt; the Ops line says junk / hidden / real age. */
+const GIT_DOC = { at: "2026-09-28T23:40:00Z", work: "claude/amazing-gauss-yzfpq0", main: { behind: 190, head: "0123456789abcdef" }, branches: [
+  { name: "claude/eager-bardeen-lj7lfc", ahead: 12, behind: 3, last_at: "2026-09-28T22:30:00Z", subject: "Open map: area days-ago counts", files: 4, conflicts: 0, done: false, head: "a1b2c3d4e5f6a7b8" },
+  { name: "claude/stoic-darwin-ikqmrj", ahead: 4, behind: 9, last_at: "2026-09-28T21:00:00Z", subject: "hub queue + specs", files: 3, conflicts: 1, done: false, head: "b1b2c3d4e5f6" },
+  { name: "claude/trusting-dijkstra-luw0nu", ahead: 0, behind: 40, last_at: "2026-09-27T21:00:00Z", subject: "Round 57 calls", files: 0, conflicts: 0, done: true, head: "c1b2c3d4e5f6" },
+  { name: "claude/amazing-wright-lds9q5", ahead: 250, behind: 300, last_at: "2026-09-26T21:00:00Z", subject: "Hub v28.0", files: 90, conflicts: 0, done: false, head: "d1b2c3d4e5f6" } ] };
+const EAGER_ID = "M-eager-bardeen-lj7lfc-12-a1b2c3d4e5f6";
 const gitRows = p => p.$$eval("#boardBody .gitw li.gb", ls => ls.map(l => ({ cls: l.className, text: l.textContent, btns: [...l.querySelectorAll("[data-git]")].map(b => b.dataset.git) })));
+const rowOf = (rows, k) => rows.find(r => r.text.includes(k)) || { btns: [], text: "" };
+const clickMerge = p => p.click('#boardBody [data-git="merge"][data-b="claude/eager-bardeen-lj7lfc"]', { timeout: 2000 }).catch(() => {});
 async function scenarioMergeWatch(browser, url) {
   const L = "merge-watch";
-  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }) });
+  const d0 = hoDocs({ "system/git": GIT_DOC }); d0["board/current"].someKingField = "keep me";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d0 });
   await p.click("#tab-board", { timeout: 2000 }); await tick(400);
   let rows = await gitRows(p);
-  const row = k => rows.find(r => r.text.includes(k)) || { btns: [], text: "" };
+  const row = k => rowOf(rows, k);
   ok(/Unfinished work/.test(await p.textContent("#boardBody")), `${L}: no Unfinished work card`);
   ok(JSON.stringify(row("eager-bardeen").btns) === '["merge","later"]' && /12 finished commits/.test(row("eager-bardeen").text) && /no conflicts/.test(row("eager-bardeen").text), `${L}: clean row wrong ${JSON.stringify(row("eager-bardeen"))}`);
   ok(JSON.stringify(row("stoic-darwin").btns) === '["ask"]' && /conflicts in 1 file/.test(row("stoic-darwin").text), `${L}: conflicted row wrong ${JSON.stringify(row("stoic-darwin"))}`);
   ok(JSON.stringify(row("trusting-dijkstra").btns) === '["hide"]' && /looks done/.test(row("trusting-dijkstra").text), `${L}: done row wrong ${JSON.stringify(row("trusting-dijkstra"))}`);
   ok(!row("amazing-wright").btns.includes("merge") && /old branch · 250 commits, check first/.test(row("amazing-wright").text), `${L}: ahead 250 row wrong ${JSON.stringify(row("amazing-wright"))}`);
   ok(JSON.stringify(row("behind the work branch").btns) === '["main"]' && /main is 190 commits behind/.test(row("behind the work branch").text), `${L}: main line wrong`);
-  // Merge it: one tap = one waiting item (merge.branch) + his answer + a wake; a second tap writes nothing
-  const merge = () => p.click('#boardBody [data-git="merge"][data-b="claude/eager-bardeen-lj7lfc"]', { timeout: 2000 }).catch(() => {});
-  await merge(); await tick(1500); await merge(); await tick(1500);
+  // Merge it: one tap = one waiting item (merge.branch + head) + his answer + a wake; a second tap writes nothing; the board keeps its other fields
+  await clickMerge(p); await tick(1500); await clickMerge(p); await tick(1500);
   const board = await p.evaluate(() => window.__mockDb.store.get("board/current"));
   const items = ((board && board.waiting) || []).filter(w => w.merge);
-  ok(items.length === 1 && items[0].merge.branch === "claude/eager-bardeen-lj7lfc" && items[0].merge.into === "claude/amazing-gauss-yzfpq0" && items[0].merge.ahead === 12, `${L}: Merge it made ${items.length} merge items ${JSON.stringify(items)}`);
-  const ans = await p.evaluate(id => window.__mockDb.store.get("answers/" + id), items[0] ? items[0].id : "x");
+  ok(items.length === 1 && items[0].id === EAGER_ID && items[0].merge.branch === "claude/eager-bardeen-lj7lfc" && items[0].merge.into === "claude/amazing-gauss-yzfpq0" && items[0].merge.ahead === 12 && items[0].merge.head === "a1b2c3d4e5f6", `${L}: Merge it made ${items.length} merge items ${JSON.stringify(items)}`);
+  ok(board && board.someKingField === "keep me" && (board.now || []).length === (d0["board/current"].now || []).length && (board.waiting || []).length === (d0["board/current"].waiting || []).length + 1, `${L}: the merge write lost other board content`);
+  ok((await log(p)).some(x => x[0] === "acquire" && x[1] === "board/current"), `${L}: board written without the lease`);
+  const ans = await p.evaluate(id => window.__mockDb.store.get("answers/" + id), EAGER_ID);
   ok(ans && ans.answer === "Merge it", `${L}: the tap isn't the answer (${JSON.stringify(ans)})`);
   ok((await writes(p)).filter(x => x === "board/current").length === 1, `${L}: board written ${(await writes(p)).filter(x => x === "board/current").length} times (want 1)`);
   ok((await mcpCalls(p)).includes("update_trigger"), `${L}: Merge it didn't wake the King`);
@@ -611,7 +622,7 @@ async function scenarioMergeWatch(browser, url) {
   await p.click('#boardBody [data-git="main"]', { timeout: 2000 }).catch(e => fails.push(`${L}: Merge to main not clickable`)); await tick(2000);
   const b2 = await p.evaluate(() => window.__mockDb.store.get("board/current"));
   const mains = ((b2 && b2.waiting) || []).filter(w => w.merge && w.merge.into === "main");
-  ok(mains.length === 1 && mains[0].merge.ahead === 190 && mains[0].merge.branch === "claude/amazing-gauss-yzfpq0", `${L}: Merge to main made ${mains.length} items`);
+  ok(mains.length === 1 && mains[0].merge.ahead === 190 && mains[0].merge.branch === "claude/amazing-gauss-yzfpq0" && mains[0].merge.head === "0123456789ab", `${L}: Merge to main made ${mains.length} items ${JSON.stringify(mains)}`);
   // Hide: this device only
   const n0 = (await writes(p)).length;
   await p.click('#boardBody [data-git="hide"][data-b="claude/trusting-dijkstra-luw0nu"]', { timeout: 2000 }).catch(() => {}); await tick(400);
@@ -620,7 +631,7 @@ async function scenarioMergeWatch(browser, url) {
   await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
   ok(/unmerged work/.test(await p.textContent("#opsBody")), `${L}: Ops branch line missing`);
   await p.click("#tab-board", { timeout: 2000 }); await tick(300);
-  await shot(p, "merge-watch"); await p.locator("#boardBody .gitw").screenshot({ path: path.join(OUT, "merge-watch-card.png") }).catch(() => {});
+  await shot(p, "merge-watch");
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();
   // main.behind 0 = no main line; a doc from yesterday says so; all done + main even = no card
@@ -637,6 +648,47 @@ async function scenarioMergeWatch(browser, url) {
   ok(!(await c.p.$("#boardBody .gitw")), `${L}: nothing unmerged still shows a card`);
   await c.ctx.close();
 }
+async function scenarioMergeEdges(browser, url) {
+  const L = "merge-edges";
+  // a concurrent (King) write drops our item once: read back, write again, one item, nothing else lost
+  const a = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }), modes: { clobber_board: 1 } });
+  await a.p.click("#tab-board", { timeout: 2000 }); await a.tick(400);
+  await clickMerge(a.p); await a.tick(2500);
+  const bd = await a.p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const its = ((bd && bd.waiting) || []).filter(w => w.merge);
+  ok(its.length === 1 && (await log(a.p)).some(x => x[0] === "clobber"), `${L}: after a concurrent write the item count is ${its.length}`);
+  ok((await writes(a.p)).filter(x => x === "board/current").length === 2, `${L}: no retry after a lost write`);
+  ok(!a.errs.length, `${L}: page errors (clobber): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // the answer write fails: no receipt, the button comes back
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }), modes: { fail_set: "answers/" } });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  await clickMerge(b.p); await b.tick(3000);
+  const rb = rowOf(await gitRows(b.p), "eager-bardeen");
+  ok(!/Sent · the King/.test(rb.text) && rb.btns.includes("merge"), `${L}: a failed answer write shows a receipt (${rb.text.slice(0, 120)})`);
+  await b.ctx.close();
+  // an answer 20 min old with its item still waiting: tappable again, and the re-tap answers again (no second item)
+  const old = "2026-09-29T00:10:00Z";
+  const d = hoDocs({ "system/git": GIT_DOC, ["answers/" + EAGER_ID]: { id: EAGER_ID, q: "Merge eager", answer: "Merge it", note: "", at: old, by: "FilthE", to: "code" } });
+  d["board/current"].waiting.push({ id: EAGER_ID, q: "Merge eager", at: old, merge: { branch: "claude/eager-bardeen-lj7lfc", into: "claude/amazing-gauss-yzfpq0", ahead: 12, conflicts: 0, head: "a1b2c3d4e5f6" } });
+  const c = await open(browser, url, { docs: d });
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(400);
+  ok(rowOf(await gitRows(c.p), "eager-bardeen").btns.includes("merge"), `${L}: a 20 min old answer still blocks Merge it`);
+  await clickMerge(c.p); await c.tick(2000);
+  const ans = await c.p.evaluate(id => window.__mockDb.store.get("answers/" + id), EAGER_ID);
+  const bc = await c.p.evaluate(() => window.__mockDb.store.get("board/current"));
+  ok(ans && ans.at !== old && ((bc.waiting || []).filter(w => w.id === EAGER_ID)).length === 1, `${L}: re-tap didn't re-answer once (${JSON.stringify(ans)})`);
+  await c.ctx.close();
+  // missing / negative counts: "not checked", Ask the King, never "no conflicts" or "looks done"
+  const g = { at: "2026-09-29T00:00:00Z", main: { behind: -3 }, branches: [{ name: "claude/neg-conf", ahead: 5, conflicts: -1 }, { name: "claude/no-ahead", conflicts: 0 }, { name: "claude/neg-ahead", ahead: -2, conflicts: 0 }] };
+  const e = await open(browser, url, { docs: hoDocs({ "system/git": g }) });
+  await e.p.click("#tab-board", { timeout: 2000 }); await e.tick(400);
+  const rs = await gitRows(e.p);
+  ok(rs.length === 3 && rs.every(r => JSON.stringify(r.btns) === '["ask"]' && /not checked yet/.test(r.text) && !/no conflicts|looks done/.test(r.text)), `${L}: bad counts rendered as facts ${JSON.stringify(rs)}`);
+  ok(!rs.some(r => /behind the work branch/.test(r.text)), `${L}: a negative main.behind shows a main line`);
+  ok(!e.errs.length, `${L}: page errors (bad counts): ${e.errs.slice(0, 4).join(" | ")}`);
+  await e.ctx.close();
+}
 async function scenarioMergeMissing(browser, url) {
   const L = "merge-missing";
   const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
@@ -651,16 +703,34 @@ async function scenarioMergeMissing(browser, url) {
   ok(r.length === 1 && /ok-branch/.test(r[0].text), `${L}: junk git doc rendered ${r.length} rows`);
   ok(!errs.length && !b.errs.length, `${L}: page errors: ${errs.concat(b.errs).slice(0, 4).join(" | ")}`);
   await ctx.close(); await b.ctx.close();
+  // all junk: no card, Ops says it couldn't read it
+  const c = await open(browser, url, { docs: hoDocs({ "system/git": { at: "2026-09-29T00:00:00Z", branches: "nope" } }) });
+  await c.p.click("#tab-ops", { timeout: 2000 }); await c.tick(300);
+  ok(/couldn.t read the King.s report/.test(await c.p.textContent("#opsBody")), `${L}: unreadable doc not reported in Ops`);
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(300);
+  ok(!(await c.p.$("#boardBody .gitw")) && !c.errs.length, `${L}: unreadable doc drew a card or threw`);
+  await c.ctx.close();
+  // everything hidden on this device + a 10 day old doc: "N hidden", "as of 10 days ago"
+  const g = JSON.parse(JSON.stringify(GIT_DOC)); g.at = "2026-09-19T00:00:00Z"; g.main.behind = 0; g.branches = g.branches.slice(0, 2);
+  const e = await open(browser, url, { docs: hoDocs({ "system/git": g }), ls: { "hub-git-hidden": JSON.stringify({ "claude/eager-bardeen-lj7lfc": 12, "claude/stoic-darwin-ikqmrj": 4 }) } });
+  await e.p.click("#tab-board", { timeout: 2000 }); await e.tick(300);
+  ok(!(await e.p.$("#boardBody .gitw")), `${L}: all hidden still shows a card`);
+  await e.p.click("#tab-ops", { timeout: 2000 }); await e.tick(300);
+  const t = await e.p.textContent("#opsBody");
+  ok(/2 hidden/.test(t) && /as of 10 days ago/.test(t), `${L}: Ops line wrong for hidden/old (${(t.match(/[^.]*hidden[^.]*/) || [""])[0]})`);
+  await e.ctx.close();
 }
 
 /* D: the Sunday report card. Fixed clocks: Sun 18:05 CT shows it (and writes crew/weeks-<id> once), Mon 12:01 it's gone
-   from Crew but in the Log, Wed nothing; a second open doesn't rewrite; spend missing = "not tracked yet" and no $/ship;
-   0 ships = "$ per ship: nothing shipped"; no last-week doc = no arrows. */
+   from Crew but in the Log, Wed nothing; a second open doesn't rewrite; spend missing or stale = "not tracked yet" and no
+   $/ship; 0 ships = "$ per ship: nothing shipped"; no last-week doc = no arrows; a week the log was trimmed inside =
+   "not tracked yet" and no write; DST weeks; tidy() keeps the report weeks + ship events. */
 const SUN = new Date("2026-10-04T23:05:00Z"), MON = new Date("2026-10-05T17:01:00Z"), WED = new Date("2026-10-07T17:00:00Z");
-const W40 = "crew/weeks-2026-W40", W39 = "crew/weeks-2026-W39";
+const W40 = "crew/weeks-2026-W40", W39 = "crew/weeks-2026-W39", W38 = "crew/weeks-2026-W38";
 function wkDocs(o) {
   o = o || {};
   const d = hoDocs();
+  d["crew/sessions"].updatedAt = o.spendAt || "2026-10-04T22:00:00Z";
   if (o.spend !== false) d["crew/sessions"].spend = { today_usd: 20, week_usd: 312 };
   if (o.ships !== false) {
     d["events/20260930T150000Z-builder"] = { agent: "builder", kind: "done", lane: "code", room: "dock", status: "done", task: "T300", at: "2026-09-30T15:00:00Z", text: "Published App v25.3 to the live link" };
@@ -669,7 +739,8 @@ function wkDocs(o) {
   }
   d["events/20261001T100000Z-builder"] = { agent: "builder", kind: "blocked", lane: "code", room: "tests", status: "blocked", at: "2026-10-01T10:00:00Z", text: "stuck on a test" };
   d["events/20261001T130000Z-builder"] = { agent: "builder", kind: "progress", lane: "code", room: "tests", status: "working", at: "2026-10-01T13:00:00Z", text: "unstuck" };
-  if (o.last !== false) d[W39] = { v: 1, week: "2026-W39", shipped: 1, spent_usd: 402, per_ship_usd: 402, waited_h: 1, stuck_h: 7, at: "2026-09-27T23:10:00Z", by: "hub" };
+  if (o.whole !== false) d["events/20260927T120000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-09-27T12:00:00Z", text: "last week's last line" };   // the log reaches back past the week's start
+  if (o.last !== false) d[W39] = { v: 1, week: "2026-W39", label: "Week of Sep 21 – 27", shipped: 1, spent_usd: 402, per_ship_usd: 402, waited_h: 1, stuck_h: 7, at: "2026-09-27T23:10:00Z", by: "hub" };
   return Object.assign(d, o.extra || {});
 }
 const wkWrites = async p => (await writes(p)).filter(x => /^crew\/weeks/.test(x));
@@ -693,8 +764,8 @@ async function scenarioWeekly(browser, url) {
   ok(w1.length === 1 && w1[0] === W40, `${L}: crew/weeks writes ${JSON.stringify(w1)} (want one ${W40})`);
   ok((await log(a.p)).some(x => x[0] === "acquire" && x[1] === W40), `${L}: wrote without taking the lease`);
   const doc = await a.p.evaluate(k => window.__mockDb.store.get(k), W40);
-  ok(doc && doc.week === "2026-W40" && doc.shipped === 2 && doc.spent_usd === 312, `${L}: week doc wrong ${JSON.stringify(doc).slice(0, 200)}`);
-  await shot(a.p, "sunday-report"); await a.p.locator("#wkBlock").screenshot({ path: path.join(OUT, "sunday-report-card.png") }).catch(() => {});
+  ok(doc && doc.week === "2026-W40" && doc.shipped === 2 && doc.spent_usd === 312 && doc.complete === true, `${L}: week doc wrong ${JSON.stringify(doc).slice(0, 200)}`);
+  await shot(a.p, "sunday-report");
   ok(!a.errs.length, `${L}: page errors (Sunday): ${a.errs.slice(0, 4).join(" | ")}`);
   await a.ctx.close();
   // a second open (the doc's there now): no rewrite, same card
@@ -703,16 +774,19 @@ async function scenarioWeekly(browser, url) {
   ok(!(await wkWrites(b.p)).length, `${L}: a second open rewrote the week doc`);
   ok(await b.p.isVisible("#wkBlock") && /Shipped\s*2/.test(await b.p.textContent("#wkBlock")), `${L}: second open lost the card`);
   await b.ctx.close();
-  // Monday 12:01: gone from Crew, in the Log
-  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc } }), now: MON });
+  // Monday 12:01: gone from Crew, in the Log with the weeks before it
+  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc, [W38]: { week: "2026-W38", label: "Week of Sep 14 – 20", shipped: 3, spent_usd: null, waited_h: 2, stuck_h: 1 } } }), now: MON });
   await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(1500);
   ok(!(await c.p.isVisible("#wkBlock")), `${L}: Monday 12:01 still shows the card in Crew`);
   await c.p.click("#tab-log", { timeout: 2000 }); await c.tick(600);
-  ok(/Sunday report/.test(await c.p.textContent("#feed")) && (await c.p.$$("#feed .wklog")).length === 1, `${L}: Monday 12:01 the report isn't in the Log`);
+  ok((await c.p.$$("#feed .wklog")).length >= 1, `${L}: Monday 12:01 the newest report isn't on the Log's first page`);
+  for (let i = 0; i < 6 && await c.p.isVisible("#olderBtn"); i++) { await c.p.click("#olderBtn", { timeout: 2000 }); await c.tick(300); }   // older reports sit at their own time
+  const logs = await c.p.$$eval("#feed .wklog", ls => ls.map(l => l.textContent));
+  ok(logs.length === 3 && /Sep 28 – Oct 4/.test(logs[0]) && /Sep 21 – 27/.test(logs[1]) && /Sep 14 – 20/.test(logs[2]), `${L}: the Log doesn't keep the past reports (${logs.map(x => x.slice(0, 40)).join(" | ")})`);
   ok(!(await wkWrites(c.p)).length, `${L}: Monday wrote a week doc`);
   ok(!c.errs.length, `${L}: page errors (Monday): ${c.errs.slice(0, 4).join(" | ")}`);
   await c.ctx.close();
-  // Wednesday: nothing
+  // Wednesday: nothing in Crew, nothing written
   const d = await open(browser, url, { docs: wkDocs(), now: WED });
   await d.p.click("#tab-crew", { timeout: 2000 }); await d.tick(1500);
   ok(!(await d.p.isVisible("#wkBlock")) && !(await wkWrites(d.p)).length, `${L}: Wednesday shows or writes a report`);
@@ -728,6 +802,12 @@ async function scenarioWeeklyEdges(browser, url) {
   ok(!/[▲▼]/.test(t1) && /no last week to compare yet/.test(t1), `${L}: arrows with no last-week doc (${t1})`);
   ok(!a.errs.length, `${L}: page errors: ${a.errs.slice(0, 4).join(" | ")}`);
   await a.ctx.close();
+  // spend written 7 h ago: stale, "not tracked yet"
+  const s = await open(browser, url, { docs: wkDocs({ spendAt: "2026-10-04T16:00:00Z" }), now: SUN });
+  await s.p.click("#tab-crew", { timeout: 2000 }); await s.tick(2000);
+  const ts = await s.p.textContent("#wkBlock");
+  ok(/Spent\s*not tracked yet/.test(ts) && !/\$312/.test(ts), `${L}: 7 h old spend was trusted (${ts.slice(0, 200)})`);
+  await s.ctx.close();
   // 0 ships with spend: "$ per ship: nothing shipped", no divide by zero
   const b = await open(browser, url, { docs: wkDocs({ ships: false }), now: SUN });
   await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(2000);
@@ -737,12 +817,47 @@ async function scenarioWeeklyEdges(browser, url) {
   ok(!w || (w.shipped === 0 && w.per_ship_usd === null), `${L}: 0-ship doc wrong ${JSON.stringify(w).slice(0, 160)}`);
   ok(!b.errs.length, `${L}: page errors: ${b.errs.slice(0, 4).join(" | ")}`);
   await b.ctx.close();
-  // the ISO week id and the window, straight
+  // the log was trimmed inside the week (no event before it / system/tidy says so): Shipped + Stuck "not tracked yet", no $/ship, no write
+  for (const [k, docs] of [["no older event", wkDocs({ whole: false })], ["tidy inside the week", wkDocs({ extra: { "system/tidy": { deleted_through: "2026-09-29T12:00:00Z", at: "2026-10-01T00:00:00Z" } } })]]) {
+    const c = await open(browser, url, { docs, now: SUN });
+    await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(125000);
+    const t = await c.p.textContent("#wkBlock");
+    ok(/Shipped\s*not tracked yet/.test(t) && /Stuck\s*not tracked yet/.test(t) && !/\$ per ship/.test(t), `${L}: ${k}: a partial week shows numbers (${t.slice(0, 200)})`);
+    ok(!(await wkWrites(c.p)).length, `${L}: ${k}: a partial week was written`);
+    ok(!c.errs.length, `${L}: ${k}: page errors: ${c.errs.slice(0, 4).join(" | ")}`);
+    await c.ctx.close();
+  }
+  // the ISO week id, the window, and DST weeks (2026-03-08 and 2026-11-01), straight
   const c = await open(browser, url, { docs: wkDocs(), now: SUN });
-  const r = await c.p.evaluate(() => { const t = window.__hubT; return { sun: t.wkWindow(Date.parse("2026-10-04T23:05:00Z")), s1759: t.wkWindow(Date.parse("2026-10-04T22:59:00Z")), mon: t.wkWindow(Date.parse("2026-10-05T16:59:00Z")), id: t.wkId(t.wkWindow(Date.parse("2026-10-04T23:05:00Z")).ws), jan: t.wkId(Date.parse("2026-12-28T06:00:00Z")) }; });
+  const r = await c.p.evaluate(() => { const t = window.__hubT, P = Date.parse, iso = ms => new Date(ms).toISOString(); return {
+    sun: t.wkWindow(P("2026-10-04T23:05:00Z")), s1759: t.wkWindow(P("2026-10-04T22:59:00Z")), mon: t.wkWindow(P("2026-10-05T16:59:00Z")),
+    id: t.wkId(t.wkWindow(P("2026-10-04T23:05:00Z")).ws), jan: t.wkId(P("2026-12-28T06:00:00Z")),
+    mar8: iso(t.wkStartOf(P("2026-03-09T04:30:00Z"))), mar9: iso(t.wkStartOf(P("2026-03-09T12:00:00Z"))), mar8show: t.wkWindow(P("2026-03-08T23:05:00Z")).show,
+    nov1: iso(t.wkStartOf(P("2026-11-01T12:00:00Z"))), nov2: iso(t.wkStartOf(P("2026-11-02T12:00:00Z"))), nov1show: t.wkWindow(P("2026-11-02T00:05:00Z")).show }; });
   ok(r.sun.show && !r.s1759.show && r.mon.show && r.sun.ws === r.mon.ws, `${L}: window wrong ${JSON.stringify(r)}`);
   ok(r.id === "2026-W40" && r.jan === "2026-W53", `${L}: week id wrong ${r.id} ${r.jan}`);
+  ok(r.mar8 === "2026-03-02T06:00:00.000Z" && r.mar9 === "2026-03-09T05:00:00.000Z" && r.mar8show, `${L}: spring DST week wrong ${r.mar8} ${r.mar9} ${r.mar8show}`);
+  ok(r.nov1 === "2026-10-26T05:00:00.000Z" && r.nov2 === "2026-11-02T06:00:00.000Z" && r.nov1show, `${L}: fall DST week wrong ${r.nov1} ${r.nov2} ${r.nov1show}`);
   await c.ctx.close();
+}
+async function scenarioTidyKeeps(browser, url) {   // tidy() trims old lines but keeps the report weeks and ship events of 14 days, and says how far it trimmed
+  const L = "tidy-keeps";
+  const d = hoDocs(), pad = n => String(n).padStart(2, "0");
+  for (let i = 0; i < 300; i++) d[`events/20260928T${pad(10 + Math.floor(i / 60))}${pad(i % 60)}00Z-builder`] = { agent: "builder", kind: "progress", at: `2026-09-28T${pad(10 + Math.floor(i / 60))}:${pad(i % 60)}:00Z`, text: "working " + i };
+  for (let i = 0; i < 60; i++) d[`events/202609${pad(10 + Math.floor(i / 20))}T${pad(i % 20)}0000Z-code`] = { agent: "code", kind: "note", at: `2026-09-${pad(10 + Math.floor(i / 20))}T${pad(i % 20)}:00:00Z`, text: "old line " + i };
+  for (let i = 0; i < 5; i++) d[`events/202609${16 + i}T120000Z-code`] = { agent: "code", kind: "done", at: `2026-09-${16 + i}T12:00:00Z`, text: `Published thing ${i}` };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const week0 = await p.evaluate(() => { const s = window.__mockDb.store; return [...s.keys()].filter(x => x.startsWith("events/") && (s.get(x) || {}).at >= "2026-09-21T05:00:00Z").length; });
+  await tick(130000);
+  const st = await p.evaluate(() => { const s = window.__mockDb.store, k = [...s.keys()].filter(x => x.startsWith("events/")); return {
+    ships: k.filter(x => /Published thing/.test((s.get(x) || {}).text || "")).length, week: k.filter(x => (s.get(x) || {}).at >= "2026-09-21T05:00:00Z").length,
+    old: k.filter(x => /old line/.test((s.get(x) || {}).text || "")).length, tidy: s.get("system/tidy") }; });
+  ok(st.ships === 5, `${L}: tidy deleted ship events (${st.ships} of 5 left)`);
+  ok(st.old === 20, `${L}: tidy should delete 40 of 60 old lines (left ${st.old})`);
+  ok(st.week === week0 && week0 >= 300, `${L}: tidy deleted inside the report weeks (${st.week} of ${week0} left)`);
+  ok(st.tidy && st.tidy.deleted_through && st.tidy.deleted_through < "2026-09-21T05:00:00Z", `${L}: system/tidy wrong ${JSON.stringify(st.tidy)}`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
 }
 
 (async () => {
@@ -785,11 +900,13 @@ async function scenarioWeeklyEdges(browser, url) {
     await run("live-stale", () => scenarioLiveStale(browser, url));
     await run("merge-watch", () => scenarioMergeWatch(browser, url));
     await run("merge-missing", () => scenarioMergeMissing(browser, url));
+    await run("merge-edges", () => scenarioMergeEdges(browser, url));
+    await run("tidy-keeps", () => scenarioTidyKeeps(browser, url));
     await run("sunday-report", () => scenarioWeekly(browser, url));
     await run("sunday-report-edges", () => scenarioWeeklyEdges(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (35 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (37 scenarios)");
 })();

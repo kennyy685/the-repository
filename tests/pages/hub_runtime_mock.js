@@ -22,6 +22,7 @@
     return later(fn);
   }
   const frz = o => JSON.parse(JSON.stringify(o));
+  const once = {};   // one-shot modes (first_use_mcp, first_call_mcp, clobber_board)
   function snapDoc(path){ const id = path.split('/').pop(), b = store.get(path); return {id, exists: !!b, data: () => b ? frz(b) : undefined, metadata:{fromCache:false, hasPendingWrites:false}}; }
   function collDocs(coll){ const out = []; for (const k of store.keys()) { const i = k.lastIndexOf('/'); if (k.slice(0, i) === coll) out.push(snapDoc(k)); } return out; }
   function runQuery(q){
@@ -44,7 +45,11 @@
   function docRef(path){
     return {id: path.split('/').pop(), path,
       get: () => gate('db', () => snapDoc(path)),
-      set: (data) => gate('dbw', () => { store.set(path, frz(data)); log.push(['set', path]); notify(); }),
+      set: (data) => gate('dbw', () => {
+        if (M.fail_set && path.startsWith(M.fail_set)) throw err('unavailable');   // modes.fail_set = '<path prefix>': only those writes fail
+        const before = store.get(path); store.set(path, frz(data)); log.push(['set', path]);
+        if (M.clobber_board && path === 'board/current' && !once.clob) { once.clob = 1; if (before) store.set(path, before); log.push(['clobber', path]); }   // modes.clobber_board: the King's write lands right after ours once
+        notify(); }),
       update: (data) => gate('dbw', () => { if (!store.has(path)) throw err('invalid_argument'); store.set(path, Object.assign(store.get(path), frz(data))); log.push(['update', path]); notify(); }),
       delete: () => gate('dbw', () => { store.delete(path); log.push(['delete', path]); notify(); }),
       acquire: (o) => gate('dbw', () => { log.push(['acquire', path, o && o.holder]); return {acquired:true, version:1, expiresAt:new Date(Date.now() + ((o && o.ttlMs) || 30000)).toISOString(), holder:o && o.holder}; }),   // db.d.ts lease (one writer at a time)
@@ -62,7 +67,7 @@
   const withSignal = (pr, opts) => opts && opts.signal ? Promise.race([pr, new Promise((_, rej) => { const f = () => rej(err('cancelled')); if (opts.signal.aborted) f(); else opts.signal.addEventListener('abort', f); })]) : pr;   // abort rejects promptly (sample.d.ts)
   const sample = Object.assign((input, opts) => withSignal(gate('sample', () => { window.__sampleIn = typeof input === 'string' ? input : JSON.stringify(input); const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }), opts),
     {json: (input, opts) => withSignal(gate('sample', () => (window.__sampleIn = JSON.stringify(input), window.__sampleJson || {reply:'Mock answer', actions:[]})), opts), limits: async () => ({images:false})});
-  const once = {};   // modes.first_use_mcp = 'null' (use('mcp') resolves null the first time) / modes.first_call_mcp = 'consent_required' (the first callTool throws that code)
+  // once (above): modes.first_use_mcp = 'null' (use('mcp') resolves null the first time) / modes.first_call_mcp = 'consent_required' (the first callTool throws that code)
   /* v33 live truth: list_sessions answers with window.__MOCK.sessions (the real {ccr:{data}} shape); modes.list: ok|fail|hang|<error code>;
      modes.listText = 1 returns it as a text block only (no payload); modes.perm = the permissions state for the connector (default prompt) */
   const listSessions = () => { const lm = M.list || 'ok'; if (lm === 'hang') return hang(); if (lm !== 'ok') return later(() => { throw err(lm === 'fail' ? 'server_unavailable' : lm); });
