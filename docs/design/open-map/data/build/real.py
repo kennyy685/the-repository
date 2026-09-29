@@ -78,7 +78,7 @@ def main():
             by = r.get('by') or ''
             rep.append([src, {'en': f"<b>{fin(r['size_in'])} in</b>, {r['location']}" + (f", {by.lower()}" if by else ''),
                               'es': f"<b>{fin(r['size_in'])} pulg.</b>, {r['location']}" + (f", {by.lower()}" if by else '')},
-                        r['time_local']])
+                        r['time_local'], [r['lon'], r['lat']]])
         if 'mrms' in z['sources'] or 'radar' in z['sources']:
             m = z.get('mesh_in') or z.get('radar_max_in')
             if m:
