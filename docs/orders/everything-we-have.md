@@ -55,5 +55,5 @@ the CHANGELOG (`docs/CHANGELOG.md`, QA PASS lines) + the live Artifact read. Leg
 - CruzEterna x3 artifacts: unrelated to HMP.
 - Hub extras: cat, Observatory, outfits (`pages/hub/`; crew-hq.html is 4,138 lines): fun, but zero leads. Freeze further hub work.
 - King Doorbell + three 5-min polls: a workaround plus usage burners; drop the polls once the wake is proven.
-- 8 stale remote branches (start-of-session hook list): merge or delete.
+- Old remote branches: the 09-29 branch sync (9d39a8f) merged or superseded most; delete the leftovers once the King confirms.
 - Voicelog demo (`pages/voicelog`): not in `pages/hmp-app.files.json`, so not in the app.
