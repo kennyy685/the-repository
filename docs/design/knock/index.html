@@ -700,12 +700,12 @@ function renderMap(){proj();const f=PJ.f,svg=$("mini");const path=(pts)=>"M"+pts
 /* ---------- the map learns: twin of hailhunter/learning.py like(); table = D.learn.t (sample past knocks) + your taps ---------- */
 const OUTC=["na","no","back","roofer","yes"];
 const hBand=(x)=>"h"+D.learn.cuts.filter(c=>+x>=c).length;
-const iBand=(g)=>{const n=(g.own?1:0)+(g.mort?1:0)+(g.sale&&+String(g.sale).slice(0,4)>=+D.clock.today.slice(0,4)-10?1:0);return n>=3?"i3":n===2?"i2":"i1"};
+const iBand=(g,yr)=>{const n=(g.own?1:0)+(g.mort?1:0)+(g.sale&&+String(g.sale).slice(0,4)>=+(yr||D.clock.today.slice(0,4))-10?1:0);return n>=3?"i3":n===2?"i2":"i1"};
 const sBand=(n)=>n>=3?"s3":n===2?"s2":"s1";
-function doorKeys(g){if(g.hail==null)return[];const h=hBand(g.hail),i=iBand(g),r=["young","prime","check"].includes(g.rb)?g.rb:null;return[...(r?[`h:${h}|i:${i}|r:${r}`]:[]),`h:${h}|i:${i}`,`h:${h}`]}
+function doorKeys(g,yr){if(g.hail==null||isNaN(+g.hail))return[];const h=hBand(g.hail),i=iBand(g,yr),r=["young","prime","check"].includes(g.rb)?g.rb:null;return[...(r?[`h:${h}|i:${i}|r:${r}`]:[]),`h:${h}|i:${i}`,`h:${h}`]}
 function learnTable(){const T2={};for(const k in D.learn.t)T2[k]=[...D.learn.t[k]];const add=(k,y)=>{const c=T2[k]||(T2[k]=[0,0]);c[0]++;c[1]+=y?1:0};
   const by={};EV.forEach(e=>{if(!OUTC.includes(e.o))return;const p=by[e.door];by[e.door]={e,yes:e.o==="yes"||!!(p&&p.yes)}});
-  Object.values(by).forEach(({e,yes})=>{const g=e.sig||{};add("all",yes);if(e.zone)add("z:"+e.zone,yes);if(e.st)add("st:"+e.st,yes);doorKeys(g).forEach(k=>add(k,yes));if(g.hail!=null&&g.stack!=null)add(`h:${hBand(g.hail)}|s:${sBand(g.stack)}`,yes)});
+  Object.values(by).forEach(({e,yes})=>{const g=e.sig||{};add("all",yes);if(e.zone)add("z:"+e.zone,yes);if(e.st)add("st:"+e.st,yes);doorKeys(g,String(e.at||"").slice(0,4)).forEach(k=>add(k,yes));if(g.hail!=null&&!isNaN(+g.hail)&&g.stack!=null)add(`h:${hBand(g.hail)}|s:${sBand(g.stack)}`,yes)});
   return T2}
 function like(T2,keys,kind){const Ld=D.learn,need=Ld.min,k=Ld.k,[d0,y0]=T2.all||[0,0],p=(y0+k*Ld.prior_rate)/(d0+k),lab=(key)=>key==="all"?"all":key.startsWith("z:")?"z":key.startsWith("st:")?"st":kind;
   for(const key of [...keys,"all"]){const[d,y]=T2[key]||[0,0];if(d>=need)return{key,d,y,enough:true,pct:Math.round((y+k*p)/(d+k)*100),lab:lab(key)}}

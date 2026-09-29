@@ -41,9 +41,12 @@ class Doors(unittest.TestCase):
     def test_one_door_per_house_yes_wins_sign_skipped_bad_rows_ignored(self):
         ks = [knock("a", "na", at="2026-09-27T21:00:00Z"), knock("a", "yes", at="2026-09-28T21:00:00Z"),
               knock("b", "yes", at="2026-09-27T21:00:00Z"), knock("b", "back", at="2026-09-28T21:00:00Z"),
-              knock("c", "sign"), {"o": "yes"}, "junk", None, knock("d", "bogus")]
+              knock("c", "sign"), {"o": "yes"}, "junk", None, knock("d", "bogus"),
+              {"door": "e", "o": "no", "sig": "bad", "m": "5"}, {"door": "f", "o": "na", "sig": [1], "m": 3}]
         rows = {r["door"]: r for r in learning.doors(ks)}
-        self.assertEqual(sorted(rows), ["a", "b"])
+        self.assertEqual(sorted(rows), ["a", "b", "e", "f"])
+        self.assertEqual(rows["e"]["sig"], {})
+        self.assertEqual(learning.table(ks)["all"], [4, 2])
         self.assertTrue(rows["a"]["yes"] and rows["b"]["yes"])
         self.assertEqual(rows["b"]["o"], "back")
 

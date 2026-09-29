@@ -2,7 +2,7 @@
 
 ## The map learns from your knocks - 2026-09-29 (live: open map + Knock preview, 2026-09-29)
 - Every door you log now builds a track record. The Knock door card says "Doors like this: 2 inspection yeses from 34 doors (~6%)" (same hail size, likely-insured signals, roof age); each of the map's top 3 says "This zone" or "Zones like this" the same way.
-- Honest by design: under 20 doors it says "not enough doors yet (7 of 20)", never a %; the % leans toward a typical 5% while doors are few; a good record moves a pick up at most 15%.
+- Honest by design: under 20 doors it says "not enough doors yet (7 of 20)", never a %; the % leans toward a typical 5% while doors are few; once knocks are real, a good record moves a pick up at most 15% (sample knocks never reorder the picks).
 - Engine `hailhunter/learning.py` + `hh.py learn`; the pages run on made-up SAMPLE knocks (fake homes, tagged SAMPLE) until real knocking starts. hud.json and Storm Watch untouched.
 
 ## Storm stacking + roof-age band - 2026-09-29 (live: open map + Knock preview, 2026-09-29)

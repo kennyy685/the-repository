@@ -58,7 +58,7 @@ per zone, street and signal band (hail size, repeat hail, likely-insured signals
 (yes + 20 x prior) / (doors + 20), prior = all doors shrunk toward 5%. Uses the most specific group with 20+ doors;
 below that it says "not enough doors yet (n of 20)". The door card shows one line under "Why this house" ("Doors like
 this: 2 inspection yeses from 34 doors (~6%)"), live with your taps (JS twin of `like`); the "Map learns" tab adds yeses
-by hail size. The open map shows the same per pick ("This zone" / "Zones like this") and nudges picks x0.85-1.15.
+by hail size. The open map shows the same per pick ("This zone" / "Zones like this"); real knocks (not SAMPLE) nudge picks x0.85-1.15.
 Data: `data/build/learn.py` makes SAMPLE past knocks (fake homes in real hot zones, made-up outcomes) ->
 `data/knocks-sample.json`, `walk.json` `learn`, `../open-map/data/learn.js`. Real db stays empty until knocking starts.
 

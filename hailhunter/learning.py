@@ -91,7 +91,11 @@ def zone_keys(hail_in, stack_n, zone=None, cuts=(1.0, 1.5, 2.0)):
 
 # ------------------------------------------------------------------ doors + table
 def _order(k):
-    return (str(k.get("at") or ""), k.get("m") or 0)
+    try:
+        m = float(k.get("m") or 0)
+    except (TypeError, ValueError):
+        m = 0.0
+    return (str(k.get("at") or ""), m)
 
 
 def doors(knocks):
@@ -106,7 +110,7 @@ def doors(knocks):
             continue
         row = by.get(d)
         yes = o == "yes" or bool(row and row["yes"])
-        by[d] = {"door": d, "zone": k.get("zone"), "st": k.get("st"), "sig": k.get("sig") or {}, "o": o, "yes": yes,
+        by[d] = {"door": d, "zone": k.get("zone"), "st": k.get("st"), "sig": k["sig"] if isinstance(k.get("sig"), dict) else {}, "o": o, "yes": yes,
                  "year": str(k.get("at") or "")[:4]}
     return list(by.values())
 
