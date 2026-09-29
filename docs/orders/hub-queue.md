@@ -9,14 +9,14 @@ claude/amazing-gauss-yzfpq0, prompt = this file's chunk + the same done-rules + 
 here with the session id, pushes, then archives itself. The King polls every 5 min as a backup. Specs: docs/design/hub-office/.
 
 1. DONE     Live hub v33: robots + board + instant answers built from real sessions (list_sessions every 60 s; published 2026-09-29, finished by session_01CsyPqrNV48JSKXdYQXqqXz)
-2. RUNNING  Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
-3. RUNNING  "Why" line on each robot (#8)
-4. RUNNING  One-tap fresh chat / Hand off button (#3)
-5. QUEUED   Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
-6. QUEUED   Sunday report card (#9)
+2. DONE     Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
+3. DONE     "Why" line on each robot (#8)
+4. DONE     One-tap fresh chat / Hand off button (#3)
+5. RUNNING  Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
+6. RUNNING  Sunday report card (#9)
 7. QUEUED   v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
 8. QUEUED   Top 12 conveniences (CONVENIENCES.md)
-Chunks 2-4 BUILT as v34 (QUEUE-SPECS A+B+E, QA fixed, not yet published; see docs/orders/hub-builder-handoff.md) -> RUNNING in session_01JH3N6TYXtFVNW4aiw3zVCp, then 5-6, 7-8 in the same chain. Chunks 2-4 may go to one Builder together; 5-6 together; 7-8 together (3 Builders total after the live hub).
+Chunks 2-4 = v34 LIVE (AI hub Version 36, 2026-09-29, session_01JH3N6TYXtFVNW4aiw3zVCp). 5-6 building in the same session, then 7-8.
 
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for

@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## AI hub v34: hand off, fix buttons, "why" - 2026-09-29 (live: AI hub Version 36; checks green: 31 live scenarios, chat, design gate, release --fast)
+- Every working chat has a Hand off button; after the tap a 4-step receipt fills in (asked, note saved, fresh chat, old one closed), amber "Ask again" after 30 min. The King's own row uses the Fresh King flow.
+- Every warning ends with the one button that fixes it (Hand it off, Run it again, Reconnect, Check on it, How to fix); tapping twice within 10 min never sends twice, even across devices.
+- Each robot says why it's doing what it's doing (your answer, the board order, or who handed it over); no line when there's no real reason.
+
 ## Code-health sweep live - 2026-09-29 (QA PASS; live: HMP HQ Version 3)
 - HMP HQ never sits on "Loading" forever: the live data gets 12 s to connect and 15 s more for the first summary, then it says "Couldn't load the summary" (EN + ES). Late data still fills in. If the feed drops later, the last summary stays with "Couldn't refresh just now".
 - Open map (Version 15) already had the sweep's fixes. The hub's sweep fixes (Fresh King real error, zoom timer) ride the hub Builder's v33 publish.
