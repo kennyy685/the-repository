@@ -75,12 +75,12 @@ const T={
  },
  es:{cMorning:'Mañana',cWalk:'Ruta',cRoad:'Calle 3D',overnight:'Anoche',date:'mar 29 sep',clock:'7:02 a. m.',dark:'Oscuro',light:'Claro',
   pickEye:'La elección de Aldaba',pickOf:n=>`#1 de ${n} zonas`,doors:'Puertas',doorsU:n=>`en la ruta · ${n} calles`,hail:'Granizo',in:'pulg',hailU:d=>`${d} · reportes + radar`,
-  drive:'Manejo',driveU:m=>`desde la base HMP · ~${m} min`,best:'Mejor hora',bestV:'4–7:30',bestU:t=>`p. m. hoy · puesta de sol ${t}`,start:'Empezar la ruta',
+  drive:'Manejo',driveU:m=>`desde la base HMP · ~${m} min`,best:'Mejor hora',bestV:'4–7:30',bestU:t=>`p. m. hoy · ocaso ${t.replace(' p. m.','')}`,start:'Empezar la ruta',
   backup:'Respaldo',bkM:(mi,d,sc)=>`${mi} mi · ${d} puertas · ${sc}`,zones:'Zonas en orden',zonesSub:'clic → calle en 3D',plan:'Plan de hoy',planSub:'mar 29 sep',
   hdays:'Días de granizo',hdaysSub:'clic → mapa',backMorning:'Mañana',walkEye:'La ruta · en orden',colDoor:'Puerta · por qué',colHail:'Granizo',colRoof:'Techo',colScore:'Puntaje',
   viewRoad:'Ver la calle en 3D',roadEye:'Vista de calle · holograma',tour:'Recorrido',orbit:'Girar',top:'Arriba',walkOrder:'Orden de la ruta',
   sample:'casas de muestra',everyday:'diario',noTime:'hora no reportada',homesIn:n=>`${n} casas`,zonesN:n=>`${n} zona${n===1?'':'s'}`,near:p=>`cerca de ${p}`,
-  ago:n=>`hace ${n} d`,max:'máx',pickStorm:'elección',
+  ago:n=>`${n} d`,max:'máx',pickStorm:'elección',
   sum:{all:n=>`${n} días en 2026`,d90:n=>`${n} en 90 d`,big:(v,d)=>`máx ${v}″ ${d}`},
   legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
   area:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: ${insWord(a)}</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`,
@@ -121,7 +121,10 @@ const PAL={
 };
 
 /* ================= geometry ================= */
-function segs(lines,filter){const o=[];for(const L of lines){if(filter&&!filter(L))continue;const p=L.p;for(let i=1;i<p.length;i++)o.push(X(p[i-1][0]),Y(p[i-1][1]),X(p[i][0]),Y(p[i][1]));}return new Float32Array(o)}
+const MAXL=.009; // split long segments (~1 km) so each fits a cull tile
+function segs(lines,filter){const o=[];for(const L of lines){if(filter&&!filter(L))continue;const p=L.p;
+  for(let i=1;i<p.length;i++){const ax=X(p[i-1][0]),ay=Y(p[i-1][1]),bx=X(p[i][0]),by=Y(p[i][1]),n=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)/MAXL));
+    for(let k=0;k<n;k++)o.push(ax+(bx-ax)*k/n,ay+(by-ay)*k/n,ax+(bx-ax)*(k+1)/n,ay+(by-ay)*(k+1)/n)}}return new Float32Array(o)}
 function fan(ring){ // ear clipping (concave town/river outlines)
   let pts=ring.map(q=>[X(q[0]),Y(q[1])]);if(pts.length>3){const a=pts[0],b=pts[pts.length-1];if(a[0]===b[0]&&a[1]===b[1])pts.pop()}
   let n=pts.length;if(n<3)return [];let area=0;for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n];area+=a[0]*b[1]-b[0]*a[1]}if(area<0)pts.reverse();
@@ -169,12 +172,15 @@ function stormVal(F,x,y,w){ // x,y in km; w = warp(x,y) (computed once per texel
   return Math.max(0,v)}
 const hailAt=(lon,lat,F=SF.find(f=>f.s.id===S8.id))=>{const x=X(lon)*KMX,y=Y(lat)*KMY;return stormVal(F,x,y,warp(x,y))};
 const RB=[X(-97.62),Y(40.98),X(-95.84),Y(41.74)], LB=[X(-97.47),Y(41.385),X(-97.28),Y(41.49)];
-const RW=640,RH=Math.round(RW*(RB[3]-RB[1])/(RB[2]-RB[0])), LW=400,LH=Math.round(LW*(LB[3]-LB[1])/(LB[2]-LB[0]));
+const RW=560,RH=Math.round(RW*(RB[3]-RB[1])/(RB[2]-RB[0])), LW=400,LH=Math.round(LW*(LB[3]-LB[1])/(LB[2]-LB[0]));
+const WC=new Map(); // per-texture warp cache (5 floats / texel): the noise is the costly part, storms are cheap
 function bakeField(bb,w,h,out,channel,list){ // channel 0 = all storms (max), 1 = one storm
+  let wc=WC.get(bb);if(!wc){wc=new Float32Array(w*h*5);for(let j=0;j<h;j++){const y=(bb[1]+(j+.5)/h*(bb[3]-bb[1]))*KMY;for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX;wc.set(warp(x,y),(j*w+i)*5)}}WC.set(bb,wc)}
+  const wp=[0,0,0,0,0];
   for(let j=0;j<h;j++){const y=(bb[1]+(j+.5)/h*(bb[3]-bb[1]))*KMY;
-    for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX,wp=warp(x,y);let v=0;for(const F of list){const q=stormVal(F,x,y,wp);if(q>v)v=q}out[(j*w+i)*2+channel]=v}}}
+    for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX,k=(j*w+i)*5;wp[0]=wc[k];wp[1]=wc[k+1];wp[2]=wc[k+2];wp[3]=wc[k+3];wp[4]=wc[k+4];
+      let v=0;for(const F of list){const q=stormVal(F,x,y,wp);if(q>v)v=q}out[(j*w+i)*2+channel]=v}}}
 const fieldR=new Float32Array(RW*RH*2), fieldL=new Float32Array(LW*LH*2);
-bakeField(RB,RW,RH,fieldR,0,SF);bakeField(LB,LW,LH,fieldL,0,SF);
 
 /* ================= walks: the pick's real walk + generated sample walks for other Columbus zones ================= */
 const M_LON=111320*Math.cos(41.43*Math.PI/180), M_LAT=110540;
@@ -300,12 +306,19 @@ void main(){
   const quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,-1,1,-1,0,1,1,1]),gl.STATIC_DRAW);
   const tri=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tri);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const triV=gl.createVertexArray();gl.bindVertexArray(triV);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.bindVertexArray(null);
-  const lineVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+  // segments binned into ~1 km tiles (row-major) so a zoomed-in view draws only the tiles it can see
+  const TS=.01,GX0=RB[0]-.1,GY0=RB[1]-.1,GX=Math.ceil((RB[2]-RB[0]+.2)/TS),GY=Math.ceil((RB[3]-RB[1]+.2)/TS);
+  const tileOf=(x,y)=>clamp(Math.floor((y-GY0)/TS),0,GY-1)*GX+clamp(Math.floor((x-GX0)/TS),0,GX-1);
+  const binned=arr=>{const n=arr.length/4,key=new Int32Array(n),ord=new Uint32Array(n);for(let i=0;i<n;i++){key[i]=tileOf((arr[i*4]+arr[i*4+2])/2,(arr[i*4+1]+arr[i*4+3])/2);ord[i]=i}
+    ord.sort((a,b)=>key[a]-key[b]);const out=new Float32Array(arr.length),starts=new Int32Array(GX*GY+1);
+    for(let j=0;j<n;j++){out.set(arr.subarray(ord[j]*4,ord[j]*4+4),j*4);starts[key[ord[j]]+1]++}for(let t=0;t<GX*GY;t++)starts[t+1]+=starts[t];return {out,starts}};
+  const lineVao=(arr,tiled)=>{const v=gl.createVertexArray();gl.bindVertexArray(v);gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+    let starts=null;if(tiled){const bz=binned(arr);arr=bz.out;starts=bz.starts}
     const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0);gl.vertexAttribDivisor(1,1);
-    gl.bindVertexArray(null);return {v,b,n:arr.length/4}};
+    gl.bindVertexArray(null);return {v,b,n:arr.length/4,starts}};
   const fillVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.bindVertexArray(null);return {v,n:arr.length/2}};
-  const V={};for(const k of ['county','town','water','stream','hwy','rail','route','arts','fr0','fr3','co1','co3'])V[k]=lineVao(G[k]);
+  const V={};for(const k of ['county','town','water','stream','hwy','rail','arts','fr0','fr3','co1','co3'])V[k]=lineVao(G[k],true);
   V.townF=fillVao(G.townF);V.waterF=fillVao(G.waterF);V.walk=lineVao(new Float32Array(4));V.storm=lineVao(new Float32Array(4));
   const setLines=(o,arr)=>{gl.bindBuffer(gl.ARRAY_BUFFER,o.b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);o.n=arr.length/4};
   const tex=(w,h,d)=>{const x=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,x);gl.texImage2D(gl.TEXTURE_2D,0,gl.RG16F,w,h,0,gl.RG,gl.FLOAT,d);
@@ -314,12 +327,18 @@ void main(){
   let tR=null,tL=null;
   const upField=()=>{if(tR){gl.deleteTexture(tR);gl.deleteTexture(tL)}tR=tex(RW,RH,fieldR);tL=tex(LW,LH,fieldL)};
   const common=p=>{gl.useProgram(p.p);gl.uniform2f(p.u.uCam,cam.x,cam.y);gl.uniform1f(p.u.uSc,cam.s);gl.uniform2f(p.u.uVp,W(),H())};
-  const line=(o,col,a,w,core)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(L.u.uCol,col[0],col[1],col[2],a);gl.uniform1f(L.u.uW,w);gl.uniform1f(L.u.uCore,core);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,o.n)};
+  let VB=null; // view bbox in tiles, set per frame
+  const line=(o,col,a,w,core)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(L.u.uCol,col[0],col[1],col[2],a);gl.uniform1f(L.u.uW,w);gl.uniform1f(L.u.uCore,core);
+    if(!o.starts||!VB||(VB[2]-VB[0]+1)*(VB[3]-VB[1]+1)>900){if(o.starts){gl.bindBuffer(gl.ARRAY_BUFFER,o.b);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0)}gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,o.n);return}
+    gl.bindBuffer(gl.ARRAY_BUFFER,o.b);
+    for(let ty=VB[1];ty<=VB[3];ty++){const f=o.starts[ty*GX+VB[0]],l=o.starts[ty*GX+VB[2]+1];if(l>f){gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,f*16);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,l-f)}}
+    gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0)};
   const fill=(o,col,a)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(F.u.uCol,col[0],col[1],col[2],a);gl.drawArrays(gl.TRIANGLES,0,o.n)};
   const blend=m=>{gl.enable(gl.BLEND);gl.blendEquation(gl.FUNC_ADD);if(m==='add')gl.blendFunc(gl.ONE,gl.ONE);else gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA)};
   R={upField,setLines:(k,arr)=>setLines(V[k],arr),
    resize(){const d=DPR();cv.width=Math.round(W()*d);cv.height=Math.round(H()*d);gl.viewport(0,0,cv.width,cv.height)},
    draw(st){const pal=PAL[theme],A=pal.a,add=pal.add?'add':'over',d=DPR();
+    {const hw=W()/2/cam.s+TS,hh=H()/2/cam.s+TS,cx=c=>clamp(Math.floor((c-GX0)/TS),0,GX-1),cy=c=>clamp(Math.floor((c-GY0)/TS),0,GY-1);VB=[cx(cam.x-hw),cy(cam.y-hh),cx(cam.x+hw),cy(cam.y+hh)]}
     gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
     const near=clamp((Math.log(cam.s)-Math.log(9000))/(Math.log(90000)-Math.log(9000)));
     const dim=1-.45*st.walk;
@@ -362,11 +381,10 @@ if(!R){ // Canvas2D fallback (no WebGL2): base lines only
 
 /* ================= state ================= */
 const S={view:'morning',zone:PICKZ,walk:null,door:null,storm:S8.id,alt:false,hist:[]};
-let dirty=true, thr=STILL?0:1.75, thrT0=0, routeA=1, walkA=0, stormA=0;
+let dirty=true, thr=STILL?0:1.75, thrT0=0, walkA=0, stormA=0;
 const featSet=id=>{const F=SF.find(f=>f.s.id===id);for(let i=0;i<RW*RH;i++)fieldR[i*2+1]=0;for(let i=0;i<LW*LH;i++)fieldL[i*2+1]=0;
   bakeField(RB,RW,RH,fieldR,1,[F]);bakeField(LB,LW,LH,fieldL,1,[F]);R.upField();
   const a=[];const p=F.s.path;for(let i=1;i<p.length;i++)a.push(X(p[i-1][0]),Y(p[i-1][1]),X(p[i][0]),Y(p[i][1]));R.setLines('storm',new Float32Array(a))};
-featSet(S8.id);
 
 /* ================= overlay: pins, labels, walk path (HTML/SVG over GL) ================= */
 const pins=$('#pins');
@@ -643,10 +661,9 @@ addEventListener('resize',resize);
 function frame(now){
   stepFly(now);
   if(thr>0){thr=STILL?0:Math.max(0,(thrT0?1.2:1.75)-(now-thrT0)/1000*(thrT0?1.1:1.0));dirty=true}
-  const wt=S.view==='walk'||S.view==='road'?1:0;if(Math.abs(walkA-wt)>.001&&!STILL){walkA+=(wt-walkA)*.12;dirty=true}else walkA=wt;
-  const st=S.storm!==S8.id?1:0;if(Math.abs(stormA-st)>.001){stormA+=(st-stormA)*.15;dirty=true}else stormA=st;
-  const rt=S.view==='morning'&&!S.alt?1:.25;if(Math.abs(routeA-rt)>.001){routeA+=(rt-routeA)*.12;dirty=true}
-  if(dirty&&S.view!=='road'||dirty&&fly){R.draw({thr,walk:walkA,route:routeA,storm:stormA});layoutOverlay(now);dirty=false}
+  const wt=S.view==='walk'||S.view==='road'?1:0;if(Math.abs(walkA-wt)>.01&&!STILL){walkA+=(wt-walkA)*.12;dirty=true}else walkA=wt;
+  const st=S.storm!==S8.id?1:0;if(Math.abs(stormA-st)>.01&&!STILL){stormA+=(st-stormA)*.15;dirty=true}else stormA=st;
+  if(dirty&&S.view!=="road"||dirty&&fly){R.draw({thr,walk:walkA,storm:stormA});layoutOverlay(now);dirty=false}
   requestAnimationFrame(frame)}
 
 /* ================= boot ================= */
@@ -666,5 +683,7 @@ else{
 }
 layoutZl();(document.fonts&&document.fonts.ready||Promise.resolve()).then(layoutZl);
 setTimeout(()=>document.body.classList.remove('intro'),50);
+// bake the hail field after the first paint; contours then ripple out from the core
+setTimeout(()=>{bakeField(RB,RW,RH,fieldR,0,SF);bakeField(LB,LW,LH,fieldL,0,SF);featSet(S.storm);thr=STILL?0:1.2;thrT0=performance.now();dirty=true},30);
 requestAnimationFrame(frame);
 })();
