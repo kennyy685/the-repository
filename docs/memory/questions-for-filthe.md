@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-29 13:57 UTC: "the hub isnt being useful ... you dont even use the robots". Picked (1): the hub reads the real robot chats by itself every minute (no hand-writing, never stale). Builder session_013wezScDeoduPTP4moTMHqb building it (ultracode). Pausing the Designer: not asked (a slot freed instead).
 - 2026-09-29: a normal Tuesday a year out = "success with more than 100 thousand in the bank". Deep ideas offered: score every call, trust dial, night shift, Fremont's memory, Aldaba sales story (King's pick 1 + 3). FilthE: "yes good ideas" -> build 1 (score every call) + 3 (night shift) after the hub; 2, 4, 5 later.
 - 2026-09-28 23:53: keep the hub's permission to start chats (Fresh King / Hand it off) = keep.
 - 2026-09-28: Knock screen at the door in 2 s = house number, why this house, what to collect (yes); EN with a Spanish switch.
@@ -103,3 +104,4 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   - Warranty: what does HMP promise? Practice Door (live, from v11) says "we're still here for the warranty next year" and
     "companies that show up after a storm and then disappear": soften both until the boss answers (flagged 2026-09-28).
   - Does HMP offer payment plans / financing? Until yes, the Practice Door never mentions it (v12 "let me think" card).
+- 2026-09-29 (open, ask in the morning): "score every call" = (a) after a real door or phone talk, you say what happened and Aldaba scores it like the Practice Door (steps hit, legal lines, one tip), or (b) every lead on the call list gets a score for how likely it is to become a job? King's pick: (a).
