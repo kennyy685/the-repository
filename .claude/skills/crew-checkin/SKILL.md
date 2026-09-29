@@ -55,7 +55,8 @@ for the King's own status, reviews, handoffs and the board.
 ## Handoffs (messages)
 An event with `kind: "handoff"` and `to: "<agent id>"`. The page shows "picked up" once that agent
 checks in after it. Handoffs to the King are read by the King's scheduled runs (`trig_01MNxMWzvD3ZgRqWxfjtJLEU`,
-7:52 AM, 12:52 PM, 5:52 PM Central), or instantly when the hub (or the HMP App) fires a wake (`fire_trigger`).
+7:52 AM, 12:52 PM, 5:52 PM Central), or when the hub (or the HMP App) wakes it: the hub books a timed fire (`update_trigger` run_once_at = next whole
+minute, hub v28.4), so it lands in the King's chat in about a minute; the wake's text is in hub `wakes/` docs.
 
 ## The task board (source of truth)
 - Doc `board/current`: `{now:[{id, owner, status, task}], next:[...], waiting:[{id, q}], updatedAt,
