@@ -236,6 +236,9 @@ async function day(browser, url, name, o) {
       ok(!(await vis("#nsCard [data-nsdone]").isEnabled()), "HARD STOP: paper Done is enabled before the must-ticks");
       const cancel = norm(await text("#shBody .ns-cancel"));
       ok(/Oct 2|2 de oct/i.test(cancel), "the 3-day cancel date (signed today Tue -> Fri Oct 2) is wrong: " + cancel);
+      ok(/Saturdays, Sundays|sábados, domingos/.test(cancel), "the cancel line doesn't say Saturdays and Sundays don't count: " + cancel);
+      // a Thursday signing: Fri, (Sat, Sun skipped), Mon, Tue -> Tue Oct 6 (Saturday skipped until the boss confirms, King 2026-09-29)
+      ok(await p.evaluate(() => cancelByDay("2026-10-01")) === "2026-10-06", "a Thursday signing's cancel date is not Tue Oct 6 (Saturday must not count)");
       // the fixed legal text, read from the paper step itself: the cancel notice EN + ES and the 44-8607 notice word for word
       const legal = p.locator('#shBody [data-paperlegal]');
       ok(await legal.count() >= 2, "the paper step has no way to show the cancel notice and the deductible notice");

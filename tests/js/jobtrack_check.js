@@ -43,19 +43,20 @@ for (const f of J.selfCheck()) fails.push("selfCheck " + f);
     n++;
     const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() + 1); d = x.toISOString().slice(0, 10);
   }
-  eq(J.cancelEnd("2026-11-25"), "2026-11-30", "cancel end skips Thanksgiving and Sunday");
-  eq(J.cancelEnd("2026-12-24"), "2026-12-29", "cancel end skips Christmas and Sunday");
+  eq(J.cancelEnd("2026-11-25"), "2026-12-01", "cancel end skips Thanksgiving, Saturday and Sunday");
+  eq(J.cancelEnd("2026-12-24"), "2026-12-30", "cancel end skips Christmas, Saturday and Sunday");
+  eq(J.cancelEnd("2026-10-01"), "2026-10-06", "cancel end skips Saturday (King, 2026-09-29: until the boss confirms)");
 }
 
 // 2. the hard stops
 const base = () => ({ address: "1418 Irving St", stage: "signed", acv: { amount: 14650, received: "2026-09-27" }, mortgage: { company: "US Bank" },
-  job: { contract_signed: "2026-09-25", itemized_sent: { homeowner: "2026-09-26" } } });
+  job: { contract_signed: "2026-09-24", itemized_sent: { homeowner: "2026-09-26" } } });
 {
   let c = base(), g = J.gates(c, O("2026-09-30"));
   ok(!g.work.ok, "work must be locked with only the homeowner's itemized copy logged");
   eq(g.work.missing.map(m => m.en), ["Itemized description sent to the insurer"], "work gate names the missing insurer send");
   c.job.itemized_sent.insurer = "2026-09-27";
-  ok(!J.gates(c, O("2026-09-28")).work.ok, "work must be locked inside the 3-day cancel window (signed Fri 9/25, ends Tue 9/29)");
+  ok(!J.gates(c, O("2026-09-28")).work.ok, "work must be locked inside the 3-day cancel window (signed Thu 9/24, ends Tue 9/29: Fri, Mon, Tue)");
   ok(!J.gates(c, O("2026-09-29")).work.ok, "work must be locked on the last cancel day");
   ok(J.gates(c, O("2026-09-30")).work.ok, "work opens the day after the cancel window");
   eq(J.gates(c, O("2026-09-30")).work.startOn, "2026-09-30", "work start day");
@@ -95,7 +96,7 @@ const base = () => ({ address: "1418 Irving St", stage: "signed", acv: { amount:
   r = J.tapPatch(c, "acv_in", O("2026-09-27")); eq(r.patch.acv, { amount: 14650, received: "2026-09-27" }, "ACV tap keeps the amount");
   r = J.tapPatch(Object.assign(base(), { stage: "materials_ordered" }), "contract", O("2026-09-25"));
   ok(!("stage" in r.patch), "a tap never moves the stage back");
-  eq(r.patch.job.cancel_by, "2026-09-29", "contract tap stores the cancel end");
+  eq(r.patch.job.cancel_by, "2026-09-30", "contract tap stores the cancel end (Fri 9/25: Mon, Tue, Wed)");
   eq(r.patch.job.itemized_sent, { homeowner: "2026-09-26" }, "contract tap keeps the job's other fields");
   ok(!("stage" in J.tapPatch(Object.assign(base(), { stage: "lost" }), "contract", O("2026-09-25")).patch), "a lost claim keeps its stage");
   r = J.tapPatch(Object.assign(base(), { stage: "scope_in" }), "contract", O("2026-09-25")); eq(r.patch.stage, "signed", "contract tap moves scope_in -> signed");

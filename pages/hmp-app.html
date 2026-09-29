@@ -2951,7 +2951,7 @@ async function removePhoto(id, pid){
 
 /* ---------- one-tap follow-up texts (templates A-H; EN signed Kenny, ES signed Alex; the viewer presses send) ---------- */
 const TXT = {
-  A: {en: 'Hi {first_name}, this is ' + SETTINGS.people.en.first + ' with ' + SETTINGS.company.name + '. Good talking today at {address}. Want to lock in a free inspection this week? Reply with a day that works.', es: 'Hola {first_name}, soy ' + SETTINGS.people.es.first + ' de ' + SETTINGS.company.name + '. Un gusto hablar hoy en {address}. ¿Agendamos una inspección gratis esta semana? Dime qué día te queda bien.'},
+  A: {en: 'Hi {first_name}, this is ' + SETTINGS.people.en.first + ' with ' + SETTINGS.company.name + '. Good talking today at {address}. Want to set up a roof check this week? Reply with a day that works.', es: 'Hola {first_name}, soy ' + SETTINGS.people.es.first + ' de ' + SETTINGS.company.name + '. Un gusto hablar hoy en {address}. ¿Agendamos una revisión del techo esta semana? Dime qué día te queda bien.'},
   B: {en: "You're set, {first_name}! Inspection at {address} on {time}. We'll check the roof/siding and show you photos after. Text here with any questions.", es: '¡Listo, {first_name}! Inspección en {address} el {time}. Revisamos techo y siding y te mostramos fotos al final. Escríbeme si tienes preguntas.'},
   C: {en: 'Reminder: HMP inspection tomorrow at {time}, {address}. Takes about 20-30 min. See you then!', es: 'Recordatorio: inspección de HMP mañana a las {time} en {address}. Dura unos 20-30 min. ¡Nos vemos!'},
   D: {en: 'On our way, {first_name} - see you at {address} around {time}.', es: 'Vamos en camino, {first_name} - llegamos a {address} cerca de {time}.'},
@@ -3027,7 +3027,7 @@ const NSX = {
            claim: 'Claim', measure: 'Measure + order', build: 'Build', paid: 'Get paid + review'},
     packetDue: d => `due ${d}`, finishedH: 'All 8 steps done', finishedP: 'Paid and the review is asked for.',
     said: {
-      doorIns: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing free inspections for the neighbors — can I take a quick look at your roof and siding?`,   // T174: name, HMP, what we sell first (NE 69-1602)
+      doorIns: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are checking homes on this street after the recent storms.'} We're doing roof checks for the neighbors — can I take a quick look at your roof and siding?`,   // T174: name, HMP, what we sell first (NE 69-1602)
       doorCash: r => `Hi, I'm ${SETTINGS.people.en.first} with ${SETTINGS.company.name} — we do siding and roof repair and replacement, a registered contractor from ${SETTINGS.company.city}. ${r || 'We are working on older homes in this neighborhood.'} Can I give you a free estimate for new siding or a roof?`,
       stormR: (h, d) => (h ? `The ${d} storm dropped about ${h}-inch hail on this street.` : `The ${d} storm came through this street.`),
       yearR: y => `A lot of homes built around ${y} are due for new siding or a roof.`,
@@ -3065,7 +3065,7 @@ const NSX = {
     noImm: 'We never ask about immigration status. We only need the name of the person who signs.',
     winter: 'Cold months: inspect now, no need to wait for spring (a claim is the homeowner’s call, filed when they choose). Build on the next stretch of days above the material’s temperature floor (shingles and vinyl about 40°F, Hardie paint and caulk 30°F).',
     whoFirst: 'Nebraska law (69-1601): the 3-day right to cancel applies even when the homeowner called you first. Give the cancel form, in English and Spanish, every time.',
-    cancelBy: d => `3-day cancel ends at midnight ${d}. Write it on both copies. Sundays and federal holidays don't count.`,
+    cancelBy: d => `3-day cancel ends at midnight ${d}. Write it on both copies. Saturdays, Sundays and federal holidays don't count.`,
     items: {
       name: 'First name', phone: 'Phone (asked, never bought)', when: 'Day and time', who: 'Asked who else decides', rem1: 'Reminder 1 sent (right away)', rem2: 'Reminder 2 sent (day before)',
       all: 'Everyone who decides will be there', photos: (d, t) => `Photo checklist: ${d} of ${t}`, squares: 'Test squares (wide, mid, close)', mismatch: 'Siding profile photo (for matching)',
@@ -3105,7 +3105,7 @@ const NSX = {
            claim: 'Reclamo', measure: 'Medir + pedir', build: 'Obra', paid: 'Cobrar + reseña'},
     packetDue: d => `para el ${d}`, finishedH: 'Los 8 pasos listos', finishedP: 'Cobrado y la reseña pedida.',
     said: {
-      doorIns: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo inspecciones gratis a los vecinos — ¿puedo revisar rápido su techo y su siding?`,   // T174/T-legal: dice el nombre real de quien toca la puerta (hoy Kenny, bilingüe), nunca el contacto de español (NE 69-1602)
+      doorIns: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos revisando casas en esta calle después de las tormentas recientes.'} Estamos haciendo revisiones del techo a los vecinos — ¿puedo revisar rápido su techo y su siding?`,   // T174/T-legal: dice el nombre real de quien toca la puerta (hoy Kenny, bilingüe), nunca el contacto de español (NE 69-1602)
       doorCash: r => `Hola, soy ${SETTINGS.people.en.first} de ${SETTINGS.company.name} — hacemos reparación e instalación de techos y siding, contratista registrado de ${SETTINGS.company.city}. ${r || 'Estamos trabajando en casas antiguas de este barrio.'} ¿Le puedo dar un presupuesto gratis para siding o techo nuevo?`,
       stormR: (h, d) => (h ? `La tormenta del ${d} tiró granizo de unas ${h} pulgadas en esta calle.` : `La tormenta del ${d} pasó por esta calle.`),
       yearR: y => `Muchas casas construidas por ${y} ya necesitan siding o techo nuevo.`,
@@ -3143,7 +3143,7 @@ const NSX = {
     noImm: 'Nunca preguntamos por el estatus migratorio. Solo necesitamos el nombre de la persona que firma.',
     winter: 'Meses fríos: se inspecciona ya, no hay que esperar a la primavera (el reclamo lo decide el dueño y lo presenta cuando quiera). La obra va en los siguientes días arriba de la temperatura mínima del material (tejas y vinil unos 40°F, pintura y sellador de Hardie 30°F).',
     whoFirst: 'Ley de Nebraska (69-1601): el derecho de cancelar en 3 días aplica aunque el cliente te haya llamado primero. Entrega el formulario de cancelación, en inglés y en español, siempre.',
-    cancelBy: d => `Los 3 días para cancelar terminan a la medianoche del ${d}. Escríbelo en las dos copias. Los domingos y días feriados federales no cuentan.`,
+    cancelBy: d => `Los 3 días para cancelar terminan a la medianoche del ${d}. Escríbelo en las dos copias. Los sábados, domingos y días feriados federales no cuentan.`,
     items: {
       name: 'Nombre', phone: 'Teléfono (preguntado, nunca comprado)', when: 'Día y hora', who: 'Pregunté quién más decide', rem1: 'Recordatorio 1 enviado (enseguida)', rem2: 'Recordatorio 2 enviado (un día antes)',
       all: 'Van a estar todos los que deciden', photos: (d, t) => `Lista de fotos: ${d} de ${t}`, squares: 'Cuadros de prueba (lejos, medio, cerca)', mismatch: 'Foto del perfil del siding (para igualar)',
@@ -3202,7 +3202,8 @@ function whyHouse(s, kind){
 }
 function leadStop(l){ const m = walkModel(); return m ? m.stops.find(s => slugOf(s.address) === l.id) || null : null; }
 
-/* ---------- the 3-day cancel: business days skip Sundays and federal holidays (and their observed days) ---------- */
+/* ---------- the 3-day cancel: business days skip Saturdays, Sundays and federal holidays (and their observed days). Saturday is
+   skipped too until the boss confirms (King, 2026-09-29): a later date is always safe. Stored cancel_by dates stay as written. ---------- */
 function fedHolidays(y){
   const nth = (m, dow, n) => { const d = new Date(y, m, 1, 12); let c = 0; for (;;) { if (d.getDay() === dow && ++c === n) return ymd(d); d.setDate(d.getDate() + 1); } };
   const last = (m, dow) => { const d = new Date(y, m + 1, 0, 12); while (d.getDay() !== dow) d.setDate(d.getDate() - 1); return ymd(d); };
@@ -3211,7 +3212,7 @@ function fedHolidays(y){
   if (new Date(y + 1, 0, 1, 12).getDay() === 6) obs.push(`${y}-12-31`);
   return new Set([...fixed, ...obs, nth(0, 1, 3), nth(1, 1, 3), last(4, 1), nth(8, 1, 1), nth(9, 1, 2), nth(10, 4, 4)]);
 }
-function cancelByDay(d0){ let d = d0, n = 0; while (n < 3) { d = addDays(d, 1); if (toDate(d).getDay() !== 0 && !fedHolidays(+d.slice(0, 4)).has(d)) n++; } return d; }
+function cancelByDay(d0){ let d = d0, n = 0; while (n < 3) { d = addDays(d, 1); if (toDate(d).getDay() % 6 !== 0 && !fedHolidays(+d.slice(0, 4)).has(d)) n++; } return d; }
 
 /* ---------- what each step collects: auto = read from the lead; tick = FilthE may tick it; tell = ask the homeowner, then tell the Right Hand ---------- */
 function nsItems(l, sid, kind){
@@ -4863,7 +4864,7 @@ const NWX = {
     phrasesH: 'Ready phrases', sayDirL: 'Translate from', sayFixedDoc: 'Fixed text (read it, never translate it live)', legalBtn: {cancel: 'Cancel notice (fixed)', ded: 'Deductible notice (fixed)'},
     nlEb: 'New', nlH: 'New lead', nlAddr: 'Address (house number + street)', nlName: 'First name (optional)', nlCity: 'City', nlSrc: 'Where from?', nlType: 'Type',
     nlSave: 'Save + open the Sale Guide', nlBad: 'Add the house number and street, like “1418 N Irving St”.', nlHave: 'That house is already a lead: opened it.',
-    nlNext: {en: 'First contact: introduce HMP and set a free inspection', es: 'Primer contacto: presentar HMP y agendar una inspección gratis'},
+    nlNext: {en: 'First contact: introduce HMP and set a roof check', es: 'Primer contacto: presentar HMP y agendar una revisión del techo'},
     nlOr: 'Or tell the Right Hand: “new lead at 2210 Clarkson, Rosa, referral”.', nlRo: 'Only editors can add leads here.',
     cluEb: 'Claims', cluH: 'Log a claim update', cluP: 'Tap a claim for its quick taps, or say the update to the Right Hand.', cluEx: '1418 Irving, adjuster Tuesday, State Farm, claim 45-889',
     cluTell: 'Say it to the Right Hand', cluNone: 'No open claims yet.',
@@ -4907,7 +4908,7 @@ const NWX = {
     phrasesH: 'Frases listas', sayDirL: 'Traducir de', sayFixedDoc: 'Texto fijo (léelo, nunca se traduce en vivo)', legalBtn: {cancel: 'Aviso de cancelación (fijo)', ded: 'Aviso del deducible (fijo)'},
     nlEb: 'Nuevo', nlH: 'Nuevo prospecto', nlAddr: 'Dirección (número + calle)', nlName: 'Primer nombre (opcional)', nlCity: 'Ciudad', nlSrc: '¿De dónde vino?', nlType: 'Tipo',
     nlSave: 'Guardar + abrir la guía', nlBad: 'Agrega el número y la calle, como “1418 N Irving St”.', nlHave: 'Esa casa ya es prospecto: se abrió.',
-    nlNext: {en: 'First contact: introduce HMP and set a free inspection', es: 'Primer contacto: presentar HMP y agendar una inspección gratis'},
+    nlNext: {en: 'First contact: introduce HMP and set a roof check', es: 'Primer contacto: presentar HMP y agendar una revisión del techo'},
     nlOr: 'O dile a la Mano Derecha: “nuevo prospecto en 2210 Clarkson, Rosa, referido”.', nlRo: 'Solo los editores pueden agregar prospectos aquí.',
     cluEb: 'Reclamos', cluH: 'Anotar un reclamo', cluP: 'Toca un reclamo para sus toques rápidos, o dile la novedad a la Mano Derecha.', cluEx: '1418 Irving, ajustador el martes, State Farm, reclamo 45-889',
     cluTell: 'Decírselo a la Mano Derecha', cluNone: 'Todavía no hay reclamos abiertos.',

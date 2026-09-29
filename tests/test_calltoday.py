@@ -69,9 +69,9 @@ class CallToday(unittest.TestCase):
     def test_opener_offers_free_inspection_and_never_insurance(self):
         doc = calltoday.today_doc(HUD, TODAY, self.cfg)
         op = doc["calls"][0]["opener"]
-        self.assertIn("free roof and siding inspection for Springhill Ridge Apartments after the September 12 hail",
+        self.assertIn("roof and siding check for Springhill Ridge Apartments after the September 12 hail",
                       op["en"])
-        self.assertIn("inspección gratis", op["es"])
+        self.assertIn("revisión del techo", op["es"])
         self.assertIn("12 de septiembre", op["es"])
         self.assertIn("HMP Siding & Roofing", op["en"])
         for c in doc["calls"]:

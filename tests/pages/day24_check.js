@@ -51,16 +51,16 @@ const SEED = {
       "1753-n-clarkson-st": { address: "1753 N Clarkson St", city: "Fremont", lat: 41.44604, lon: -96.49039, source: "storm", type: "insurance",
         stage: "contacted", next_step: { en: "Call back about the inspection", es: "Llamar sobre la inspección", due: "2026-09-28" },
         created_at: "2026-09-25T20:00:00Z", updated_at: "2026-09-25T20:00:00Z", last_contact: "2026-09-25T20:00:00Z" },
-      // signed Fri Sep 25: the 3-day cancel window ends midnight Tue Sep 29 (Sat, Mon, Tue; Sunday doesn't count)
+      // signed Thu Sep 24: the 3-day cancel window ends midnight Tue Sep 29 (Fri, Mon, Tue; Saturday and Sunday don't count)
       "1418-n-irving-st": { address: "1418 N Irving St", city: "Fremont", source: "storm", type: "insurance", stage: "approved",
-        signed_on: "2026-09-25", cancel_by: "2026-09-29", next_step: { en: "Pick the build day", es: "Escoger el día de la obra", due: "2026-09-29" },
+        signed_on: "2026-09-24", cancel_by: "2026-09-29", next_step: { en: "Pick the build day", es: "Escoger el día de la obra", due: "2026-09-29" },
         created_at: "2026-09-10T15:00:00Z", updated_at: "2026-09-26T15:00:00Z" },
     },
     claims: {
       "1418-n-irving-st": { address: "1418 N Irving St", city: "Fremont", stage: "signed", insurer: "State Farm", claim_no: "45-902", date_of_loss: "2026-08-08",
         adjuster_date: "2026-09-18", scope_date: "2026-09-22", rcv: 21800, acv: { amount: 14650, received: "2026-09-24", deposited: "2026-09-24" }, contract_price: 21800,
         materials: { ordered: "2026-09-26" },
-        job: { contingency_signed: "2026-09-10", adjuster_met: "2026-09-18", contract_signed: "2026-09-25", cancel_by: "2026-09-29",
+        job: { contingency_signed: "2026-09-10", adjuster_met: "2026-09-18", contract_signed: "2026-09-24", cancel_by: "2026-09-29",
           itemized_sent: { homeowner: "2026-09-26", insurer: "2026-09-26" }, permit: { pulled: "2026-09-26", number: "B-26-1187", city: "Fremont" },
           crew: { name: "Crew 2", scheduled: "2026-09-26", start: "2026-09-30" } },
         updated_at: "2026-09-26T15:00:00Z", updated_by: "Job tracker" },
@@ -183,7 +183,7 @@ async function run(browser, url, W, H) {
       ok(!(await p.locator("#callsS").isVisible()), "6:30: Calls today shows with no calls/today doc");
       await shot("0630-leads-due");
       const j = await jtLocked();
-      ok(j.locked && /cancel/i.test(j.stop), "6:30 Tue: the claim signed Fri is not locked by the cancel window (ends midnight Tue): " + j.stop);
+      ok(j.locked && /cancel/i.test(j.stop), "6:30 Tue: the claim signed Thu is not locked by the cancel window (ends midnight Tue): " + j.stop);
       ok(j.age === 0, "6:30 Tue: the claim's storm (Aug 8) is 52 days old but the storm-age line shows (starts at 60)");
       await shot("0630-claim-locked");
       await tab("now");

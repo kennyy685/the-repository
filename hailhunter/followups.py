@@ -148,9 +148,9 @@ def _touch_reason(lead, k, due, start, today, rules):
     else:
         cash = lead.get("type") == "cash" or lead.get("source") == "everyday"
         en = (f"Interested on {_en(start)} ({ago_en}). {n}-day follow-up: stop by, or call if they gave you their "
-              f"number, to set a time for a free {'estimate' if cash else 'inspection'}.")
+              f"number, to set a time for {'a free estimate' if cash else 'a roof check'}.")
         es = (f"Interesado el {_es(start)} ({ago_es}). Seguimiento de {n} días: pasa, o llama si te dio su número, "
-              f"para agendar {'un estimado gratis' if cash else 'una inspección gratis'}.")
+              f"para agendar {'un estimado gratis' if cash else 'una revisión del techo'}.")
     if last:
         en += " Last planned touch: if it's still not a yes, mark the lead Lost."
         es += " Último seguimiento planeado: si todavía no es un sí, marca el cliente como Perdido."
