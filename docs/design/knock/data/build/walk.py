@@ -107,8 +107,7 @@ for h in walk:
     log.append(e); t += 1
 
 bb = [min(h["ll"][0] for h in homes), min(h["ll"][1] for h in homes), max(h["ll"][0] for h in homes), max(h["ll"][1] for h in homes)]
-pad = 0.0045
-box = [bb[0] - pad, bb[1] - pad * 0.75, bb[2] + pad, bb[3] + pad * 0.75]
+box = [bb[0] - 0.0042, bb[1] - 0.0012, bb[2] + 0.0042, bb[3] + 0.0012]
 
 # background streets from the open map's statewide file, clipped to the box
 S = json.load(open(os.path.join(OM, "streets.json")))
@@ -131,7 +130,7 @@ out = dict(
               rep=[["nws", 1.75, "2 mi N of Fremont, trained spotter", "2 mi al N de Fremont, observador entrenado", "6:12 PM"],
                    ["mping", 1.5, "near Morningside Rd & Clarkson St", "cerca de Morningside Rd y Clarkson St", "6:15 PM"],
                    ["mrms", 2.1, "radar estimate, 1 km cell", "estimado de radar, cuadro de 1 km", "6:14 PM"]]),
-    clock=dict(today="2026-09-28", now=16 * 60 + 47, start=T0, sunset=19 * 60 + 11),
+    clock=dict(today="2026-09-28", now=t + 2, start=T0, sunset=19 * 60 + 11),
     streets=[dict(n=s["n"], f=s["f"], t=s["t"], p=[[round(p[0], 6), round(p[1], 6)] for p in s["p"]]) for s in streets],
     ctx=[dict(n=x["n"], p=[[round(p[0], 6), round(p[1], 6)] for p in dec(A, x["p"])]) for x in A["s"][2:]],
     link=[[round(p[0], 6), round(p[1], 6)] for p in link],
