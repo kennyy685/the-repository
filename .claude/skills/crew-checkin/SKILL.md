@@ -145,6 +145,33 @@ Engine Mechanic, Chat Reader, Cowork.
   line). It gets its own card on the Board with Ship it / Not yet and a Preview link. Anything waiting on his
   "publish" or "merge" goes here, not in orders text.
 
+## Hub v28.5: branch watch + Sunday report (queue chunks C, D)
+- `system/git` (the King, every wake and after any merge; the page only reads): `{at, work:"claude/amazing-gauss-yzfpq0",
+  main:{behind:<n>}, branches:[{name, ahead, behind, last_at, subject, files, conflicts, done}]}`. `name` = the full branch
+  (`claude/...`), `ahead` = commits on it not on work, `subject` = newest non-merge subject (80 chars), `files` = files it
+  changes, `conflicts` = conflicted file count or `null` (not checked), `done` = `ahead === 0`. **How:** `git fetch origin
+  --deepen=1000` (or `--unshallow`) FIRST: a shallow clone gives nonsense counts. `ahead` = `git rev-list --count
+  work..origin/<b>`; `behind` = `git rev-list --count origin/<b>..work`; `main.behind` = `git rev-list --count
+  origin/main..work`; `conflicts` = the conflicted paths in `git merge-tree --write-tree work origin/<b>` (exit 1 =
+  conflicts; nothing checked out, nothing touched). Never rebase, never force-push, never delete a branch from here.
+  The Board shows one "Unfinished work" card only when some branch has `ahead > 0` or `main.behind > 0`; `ahead > 200` =
+  "old branch, check first" (no Merge it button). No doc = no card + an Ops line "Branch watch starts on the King's next wake".
+- Merge taps (the page writes them; his tap IS the OK for that one merge): a `board.waiting` item `{id:"M-<branch
+  slug>-<ahead>" | "M-main-<behind>", q, at, merge:{branch, into, ahead, conflicts}}` plus `answers/<id>` = `{answer:"Merge
+  it", ...}` and a wake ("answered M-... = Merge it; merge it: ..."). It rides the Ready-to-ship card. **King:** `git merge
+  --no-ff origin/<branch>` into `into` (a merge commit), `bash tests/release_checks.sh --fast`, push, post `done` with
+  `re:"<id>"`, take the item off `board.waiting`, rewrite `system/git`. `into:"main"` is only-a-person: only ever from his
+  own `M-main-*` tap, never batched with another merge. A conflict on merge = stop, `git merge --abort`, post it.
+- `task:"fix-merge"` handoff (Ask the King, on a conflicted / unchecked / old branch): `{agent:"you", kind:"handoff",
+  to:"code", task:"fix-merge", fix_id:"merge-<slug>", branch, into, ahead, conflicts}` + a wake. Look at it; merge it (as
+  above) if it's finished work, else post why not (stale line, superseded). Post `done` with `re` = the tap's event id.
+- `crew/weeks-<YYYY-Www>` (the page writes it once, the first open between Sunday 6 PM and Monday noon Central; a doc
+  already there is never rewritten): `{v:1, week:"2026-W40", from, label:"Week of Sep 28 – Oct 4", shipped, ships:[<=3
+  texts], spent_usd|null, per_ship_usd|null, waited_h, longest:{id, h}|null, stuck_h, best:{id, good, of}|null, at,
+  by:"hub"}`. (A flat doc: `crew/weeks/<id>` would be a collection path.) `spent_usd` comes from `crew/sessions.spend.week_usd`,
+  so keep that field current on Sundays; missing = "not tracked yet". Shipped counts `done`/`note` events whose text says
+  published / went live / shipped / merged (and not "not yet published"): write ship events in those words.
+
 ## Report card (hub v28.1; the King writes it, the page only reads)
 The King writes **one row per finished helper job** (King rule 3: log good/redo + why after every robot result) into
 doc `crew/report_card`, newest first, trimmed to 60 rows:

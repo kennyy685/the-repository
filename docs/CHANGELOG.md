@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## AI hub: branch watch + Sunday report - 2026-09-29 (queue chunks C + D; built, not published yet)
+- Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK; Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
+- Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then it stays in the Log. The page saves each week once as `crew/weeks-<YYYY-Www>`.
+
 ## Code-health sweep live - 2026-09-29 (QA PASS; live: HMP HQ Version 3)
 - HMP HQ never sits on "Loading" forever: the live data gets 12 s to connect and 15 s more for the first summary, then it says "Couldn't load the summary" (EN + ES). Late data still fills in. If the feed drops later, the last summary stays with "Couldn't refresh just now".
 - Open map (Version 15) already had the sweep's fixes. The hub's sweep fixes (Fresh King real error, zoom timer) ride the hub Builder's v33 publish.

@@ -16,3 +16,16 @@ Into `claude/amazing-gauss-yzfpq0`. Note: the session clone was shallow, so the 
 
 Checks after sync: `tests/release_checks.sh --fast` all PASS, `pytest` 521 passed.
 Superseded/merged branches can be deleted on GitHub whenever FilthE okays it (not done: deleting needs his OK).
+
+## Branch watch protocol (hub v28.5, chunk C) - the King, every wake and after any merge
+1. `git fetch origin --deepen=1000` (or `--unshallow` once). Shallow counts are nonsense (see the note above).
+2. For each `origin/claude/*` branch except the work branch: `ahead` = `git rev-list --count work..origin/<b>`, `behind` =
+   `git rev-list --count origin/<b>..work`, `subject` = `git log -1 --no-merges --format=%s origin/<b>` (80 chars),
+   `files` = `git diff --name-only work...origin/<b> | wc -l`, `conflicts` = conflicted paths from
+   `git merge-tree --write-tree --name-only work origin/<b>` (exit 1 = conflicts, 0 = clean; nothing is checked out).
+3. `main.behind` = `git rev-list --count origin/main..work`. Write hub doc `system/git` (shape in the crew-checkin skill,
+   "Hub v28.5").
+4. A "Merge it" answer (`board.waiting` item with `merge:{branch, into}`): `git merge --no-ff` (a merge commit; never
+   rebase, never force, never delete the branch), `bash tests/release_checks.sh --fast`, push, post `done` with `re`, take the
+   item off `board.waiting`, rewrite `system/git`. A conflict = `git merge --abort` and post it. `into:"main"` only from his
+   own `M-main-*` tap.
