@@ -66,7 +66,7 @@
 ],
 "count": 2,
 "date": "2026-09-29",
-"generated_utc": "2026-09-29T01:13:08Z",
+"generated_utc": "2026-09-29T07:07:14Z",
 "hud_generated_utc": "2026-09-29T11:54:00Z",
 "none_reason": {
 "en": "No apartment or commercial building with a known business line is in recent 1\"+ hail. Knock today's walk instead.",
@@ -703,7 +703,7 @@
 "rentals/current": {
 "count": 0,
 "date": "2026-09-29",
-"generated_utc": "2026-09-29T01:13:08Z",
+"generated_utc": "2026-09-29T07:07:14Z",
 "hud_generated_utc": "2026-09-29T11:54:00Z",
 "near": {
 "lat": 41.4333,
@@ -740,6 +740,1434 @@
 "signed": 1,
 "week": "2026-39"
 },
+"system/followups": {
+"booked_stages": [
+"inspection_set"
+],
+"closed": [
+"done",
+"lost"
+],
+"created_stages": [
+"contacted",
+"inspection_set"
+],
+"early_ok_days": 1,
+"test_cases": [
+{
+"leads": [
+{
+"address": "105 E 4th St",
+"city": "Fremont",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "interested"
+}
+],
+"id": "a",
+"stage": "contacted",
+"type": "insurance"
+}
+],
+"name": "interested_48h_due_today",
+"result": {
+"as_of": "2026-09-26",
+"counts": {
+"later": 0,
+"overdue": 0,
+"today": 1,
+"tomorrow": 0
+},
+"later": [],
+"summary": {
+"en": "1 follow-up today, 0 tomorrow.",
+"es": "1 seguimiento hoy, 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "105 E 4th St",
+"city": "Fremont",
+"days_late": 0,
+"due": "2026-09-26",
+"id": "a",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Sep 24 (2 days ago). 2-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 24 de sep (hace 2 d\u00edas). Seguimiento de 2 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 1
+}
+],
+"tomorrow": []
+},
+"today": "2026-09-26"
+},
+{
+"leads": [
+{
+"address": "300 Pine St",
+"city": "Fremont",
+"doors_visits": [
+{
+"at": "x",
+"date": "2026-09-24",
+"result": "interested"
+}
+],
+"id": "b",
+"source": "everyday",
+"stage": "contacted",
+"type": "cash"
+}
+],
+"name": "interested_5d_late_collapses",
+"result": {
+"as_of": "2026-10-01",
+"counts": {
+"later": 0,
+"overdue": 1,
+"today": 1,
+"tomorrow": 0
+},
+"later": [],
+"summary": {
+"en": "1 follow-up today (1 late), 0 tomorrow.",
+"es": "1 seguimiento hoy (1 atrasado), 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "300 Pine St",
+"city": "Fremont",
+"days_late": 2,
+"due": "2026-09-29",
+"id": "b",
+"kind": "touch",
+"overdue": true,
+"reason": {
+"en": "2 days late. Interested on Sep 24 (7 days ago). 5-day follow-up: stop by, or call if they gave you their number, to set a time for a free estimate.",
+"es": "2 d\u00edas de atraso. Interesado el 24 de sep (hace 7 d\u00edas). Seguimiento de 5 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar un estimado gratis."
+},
+"stage": "contacted",
+"touch": 2
+}
+],
+"tomorrow": []
+},
+"today": "2026-10-01"
+},
+{
+"leads": [
+{
+"address": "12 Oak St",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "interested"
+}
+],
+"id": "c",
+"last_contact": "2026-09-26T15:00:00Z",
+"stage": "contacted"
+}
+],
+"name": "touch_done_by_contact",
+"result": {
+"as_of": "2026-09-27",
+"counts": {
+"later": 1,
+"overdue": 0,
+"today": 0,
+"tomorrow": 0
+},
+"later": [
+{
+"address": "12 Oak St",
+"city": "",
+"days_late": 0,
+"due": "2026-09-29",
+"id": "c",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Sep 24 (3 days ago). 5-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 24 de sep (hace 3 d\u00edas). Seguimiento de 5 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 2
+}
+],
+"summary": {
+"en": "0 follow-ups today, 0 tomorrow.",
+"es": "0 seguimientos hoy, 0 ma\u00f1ana."
+},
+"today": [],
+"tomorrow": []
+},
+"today": "2026-09-27"
+},
+{
+"leads": [
+{
+"address": "9 Elm St",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "interested"
+}
+],
+"id": "d",
+"last_contact": "2026-09-29",
+"stage": "contacted"
+},
+{
+"address": "7 Elm St",
+"id": "e",
+"interested_at": "2026-10-02T20:00:00Z",
+"stage": "contacted"
+}
+],
+"name": "last_touch_and_tomorrow",
+"result": {
+"as_of": "2026-10-03",
+"counts": {
+"later": 0,
+"overdue": 0,
+"today": 0,
+"tomorrow": 2
+},
+"later": [],
+"summary": {
+"en": "0 follow-ups today, 2 tomorrow.",
+"es": "0 seguimientos hoy, 2 ma\u00f1ana."
+},
+"today": [],
+"tomorrow": [
+{
+"address": "7 Elm St",
+"city": "",
+"days_late": 0,
+"due": "2026-10-04",
+"id": "e",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Oct 2 (1 day ago). 2-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 2 de oct (hace 1 d\u00eda). Seguimiento de 2 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 1
+},
+{
+"address": "9 Elm St",
+"city": "",
+"days_late": 0,
+"due": "2026-10-04",
+"id": "d",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Sep 24 (9 days ago). 10-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection. Last planned touch: if it's still not a yes, mark the lead Lost.",
+"es": "Interesado el 24 de sep (hace 9 d\u00edas). Seguimiento de 10 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis. \u00daltimo seguimiento planeado: si todav\u00eda no es un s\u00ed, marca el cliente como Perdido."
+},
+"stage": "contacted",
+"touch": 3
+}
+]
+},
+"today": "2026-10-03"
+},
+{
+"leads": [
+{
+"address": "400 Pine St",
+"id": "f",
+"next_step": {
+"due": "2026-09-25",
+"en": "Call the adjuster's office",
+"es": "Llamar a la oficina del ajustador"
+},
+"stage": "claim_filed"
+},
+{
+"address": "401 Pine St",
+"id": "g",
+"next_step": {
+"due": "2026-10-09",
+"en": "Order siding"
+},
+"stage": "approved"
+},
+{
+"address": "402 Pine St",
+"id": "h",
+"next_step": {
+"due": "2026-09-01",
+"en": "x"
+},
+"stage": "done"
+},
+{
+"address": "403 Pine St",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "interested"
+}
+],
+"id": "i",
+"stage": "lost"
+}
+],
+"name": "next_step_overdue_and_later",
+"result": {
+"as_of": "2026-09-28",
+"counts": {
+"later": 1,
+"overdue": 1,
+"today": 1,
+"tomorrow": 0
+},
+"later": [
+{
+"address": "401 Pine St",
+"city": "",
+"days_late": 0,
+"due": "2026-10-09",
+"id": "g",
+"kind": "next_step",
+"overdue": false,
+"reason": {
+"en": "Order siding (due Oct 9)",
+"es": "Order siding (vence el 9 de oct)"
+},
+"stage": "approved",
+"touch": null
+}
+],
+"summary": {
+"en": "1 follow-up today (1 late), 0 tomorrow.",
+"es": "1 seguimiento hoy (1 atrasado), 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "400 Pine St",
+"city": "",
+"days_late": 3,
+"due": "2026-09-25",
+"id": "f",
+"kind": "next_step",
+"overdue": true,
+"reason": {
+"en": "Call the adjuster's office (due Sep 25, 3 days late)",
+"es": "Llamar a la oficina del ajustador (venc\u00eda el 25 de sep, 3 d\u00edas de atraso)"
+},
+"stage": "claim_filed",
+"touch": null
+}
+],
+"tomorrow": []
+},
+"today": "2026-09-28"
+},
+{
+"leads": [
+{
+"address": "105 E 4th St",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "booked"
+}
+],
+"id": "j",
+"next_step": {
+"due": "2026-09-29",
+"en": "Inspection Tue Sep 29, 4 PM",
+"es": "Inspecci\u00f3n mar 29 sep, 4 PM"
+},
+"stage": "inspection_set"
+},
+{
+"address": "106 E 4th St",
+"doors_visits": [
+{
+"date": "2026-09-24",
+"result": "booked"
+}
+],
+"id": "k",
+"next_step": {
+"due": "2026-09-25",
+"en": "Inspection"
+},
+"stage": "inspection_set"
+}
+],
+"name": "booked_touch_stops_at_visit",
+"result": {
+"as_of": "2026-09-26",
+"counts": {
+"later": 0,
+"overdue": 1,
+"today": 2,
+"tomorrow": 0
+},
+"later": [],
+"summary": {
+"en": "2 follow-ups today (1 late), 0 tomorrow.",
+"es": "2 seguimientos hoy (1 atrasado), 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "106 E 4th St",
+"city": "",
+"days_late": 1,
+"due": "2026-09-25",
+"id": "k",
+"kind": "next_step",
+"overdue": true,
+"reason": {
+"en": "Inspection (due Sep 25, 1 day late)",
+"es": "Inspection (venc\u00eda el 25 de sep, 1 d\u00eda de atraso)"
+},
+"stage": "inspection_set",
+"touch": null
+},
+{
+"address": "105 E 4th St",
+"city": "",
+"days_late": 0,
+"due": "2026-09-26",
+"id": "j",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Booked on Sep 24 (2 days ago). 2-day check-in: make sure the visit is still on.",
+"es": "Agendado el 24 de sep (hace 2 d\u00edas). Seguimiento de 2 d\u00edas: confirma que la cita sigue en pie."
+},
+"stage": "inspection_set",
+"touch": 1
+}
+],
+"tomorrow": []
+},
+"today": "2026-09-26"
+},
+{
+"leads": [
+{
+"address": "1 A St",
+"created_at": "2026-09-25T22:00:00Z",
+"id": "l",
+"stage": "contacted"
+},
+{
+"address": "2 A St",
+"created_at": "garbage",
+"id": "m",
+"next_step": {
+"due": "2026-02-30",
+"en": "Call back"
+},
+"stage": "contacted"
+},
+{
+"address": "3 A St",
+"doors_visits": [
+{
+"date": "2026-09-20",
+"result": "not_home"
+},
+{
+"at": "2026-09-21T10:00:00Z",
+"result": "Interested"
+}
+],
+"id": "n"
+}
+],
+"name": "created_fallback_and_bad_dates",
+"result": {
+"as_of": "2026-09-27",
+"counts": {
+"later": 0,
+"overdue": 1,
+"today": 2,
+"tomorrow": 0
+},
+"later": [],
+"summary": {
+"en": "2 follow-ups today (1 late), 0 tomorrow.",
+"es": "2 seguimientos hoy (1 atrasado), 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "3 A St",
+"city": "",
+"days_late": 1,
+"due": "2026-09-26",
+"id": "n",
+"kind": "touch",
+"overdue": true,
+"reason": {
+"en": "1 day late. Interested on Sep 21 (6 days ago). 5-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "1 d\u00eda de atraso. Interesado el 21 de sep (hace 6 d\u00edas). Seguimiento de 5 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": null,
+"touch": 2
+},
+{
+"address": "1 A St",
+"city": "",
+"days_late": 0,
+"due": "2026-09-27",
+"id": "l",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Sep 25 (2 days ago). 2-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 25 de sep (hace 2 d\u00edas). Seguimiento de 2 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 1
+}
+],
+"tomorrow": []
+},
+"today": "2026-09-27"
+},
+{
+"leads": [
+{
+"address": "500 Pine St",
+"doors_visits": [
+{
+"at": "2026-09-27T00:01:00Z",
+"result": "interested"
+}
+],
+"id": "o",
+"stage": "contacted"
+}
+],
+"name": "evening_contact_local_day",
+"result": {
+"as_of": "2026-09-28",
+"counts": {
+"later": 0,
+"overdue": 0,
+"today": 1,
+"tomorrow": 0
+},
+"later": [],
+"summary": {
+"en": "1 follow-up today, 0 tomorrow.",
+"es": "1 seguimiento hoy, 0 ma\u00f1ana."
+},
+"today": [
+{
+"address": "500 Pine St",
+"city": "",
+"days_late": 0,
+"due": "2026-09-28",
+"id": "o",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Sep 26 (2 days ago). 2-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 26 de sep (hace 2 d\u00edas). Seguimiento de 2 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 1
+}
+],
+"tomorrow": []
+},
+"today": "2026-09-28"
+},
+{
+"leads": [
+{
+"address": "600 Pine St",
+"doors_visits": [
+{
+"at": "2026-11-01T05:30:00Z",
+"result": "interested"
+}
+],
+"id": "p",
+"stage": "contacted"
+}
+],
+"name": "dst_fallback_local_day",
+"result": {
+"as_of": "2026-11-01",
+"counts": {
+"later": 1,
+"overdue": 0,
+"today": 0,
+"tomorrow": 0
+},
+"later": [
+{
+"address": "600 Pine St",
+"city": "",
+"days_late": 0,
+"due": "2026-11-03",
+"id": "p",
+"kind": "touch",
+"overdue": false,
+"reason": {
+"en": "Interested on Nov 1 (today). 2-day follow-up: stop by, or call if they gave you their number, to set a time for a free inspection.",
+"es": "Interesado el 1 de nov (hoy). Seguimiento de 2 d\u00edas: pasa, o llama si te dio su n\u00famero, para agendar una inspecci\u00f3n gratis."
+},
+"stage": "contacted",
+"touch": 1
+}
+],
+"summary": {
+"en": "0 follow-ups today, 0 tomorrow.",
+"es": "0 seguimientos hoy, 0 ma\u00f1ana."
+},
+"today": [],
+"tomorrow": []
+},
+"today": "2026-11-01"
+}
+],
+"touch_days": [
+2,
+5,
+10
+],
+"touch_stages": [
+"not_contacted",
+"contacted",
+"inspection_set"
+],
+"version": 1
+},
+"system/prices": {
+"adders": {
+"extra_layers": {
+"item": "extra_layer_sq",
+"per": "square per old layer beyond the first; roof if any, else walls; roof layers also get the pitch adder"
+},
+"house_wrap": {
+"default": true,
+"item": "house_wrap_sq",
+"per": "square of siding"
+},
+"min_job": {
+"high": 400.0,
+"low": 300.0,
+"source": "market"
+},
+"min_job_roof": {
+"high": 3000.0,
+"low": 2500.0,
+"source": "market"
+},
+"min_rule": "roof jobs use min_job_roof unless it is market and min_job is HMP's; the minimum applies when the low or the high total is under it",
+"permit": {
+"default": true,
+"item": "permit",
+"story_adder": false
+},
+"round_to": 50,
+"steep_pitch": {
+"applies_to": "roof items (shingle roof, roof layer tear-off, ice & water, ridge vent, chimney + skylight flashing)",
+"low_under": 4,
+"pitch_adders": {
+"low": {
+"high": 0.0,
+"low": 0.0
+},
+"std": {
+"high": 0.0,
+"low": 0.0
+},
+"steep": {
+"high": 0.25,
+"low": 0.15
+}
+},
+"steep_over": 6
+},
+"stories": {
+"applies_to": "every installed item except the permit",
+"story_adders": {
+"1": {
+"high": 0.0,
+"low": 0.0
+},
+"2": {
+"high": 0.15,
+"low": 0.15
+},
+"3": {
+"high": 0.35,
+"low": 0.35
+}
+}
+}
+},
+"addons": [
+{
+"after": "siding",
+"field": "windows",
+"item": "window_wrap_ea",
+"roof_item": false,
+"unit": "ea",
+"words": {
+"en": "window wrap ({q} window{s})",
+"es": "forro de ventanas ({q} ventana{s})"
+}
+},
+{
+"after": "roof",
+"field": "ice_water_sq",
+"item": "ice_water_sq",
+"roof_item": true,
+"unit": "sq",
+"words": {
+"en": "ice & water shield ({q} squares)",
+"es": "barrera de hielo y agua ({q} cuadros)"
+}
+},
+{
+"after": "roof",
+"field": "ridge_vent_ft",
+"item": "ridge_vent_ft",
+"roof_item": true,
+"unit": "ft",
+"words": {
+"en": "ridge vent ({q} ft)",
+"es": "ventila de cumbrera ({q} pies)"
+}
+},
+{
+"after": "roof",
+"field": "chimney",
+"item": "chimney_flashing_job",
+"roof_item": true,
+"unit": "job",
+"words": {
+"en": "chimney flashing ({q} chimney{s})",
+"es": "tapajuntas de chimenea ({q} chimenea{s})"
+}
+},
+{
+"after": "roof",
+"field": "skylight_ft",
+"item": "skylight_flashing_ft",
+"roof_item": true,
+"unit": "ft",
+"words": {
+"en": "skylight flashing ({q} ft)",
+"es": "tapajuntas de tragaluz ({q} pies)"
+}
+},
+{
+"after": "gutters",
+"field": "gutter_guards_ft",
+"item": "gutter_guards_ft",
+"roof_item": false,
+"unit": "ft",
+"words": {
+"en": "gutter guards ({q} ft)",
+"es": "protectores de canaleta ({q} pies)"
+}
+},
+{
+"after": "gutters",
+"field": "downspouts_ft",
+"item": "downspouts_ft",
+"roof_item": false,
+"unit": "ft",
+"words": {
+"en": "downspouts ({q} ft)",
+"es": "bajantes ({q} pies)"
+}
+}
+],
+"currency": "USD",
+"insurance_note": {
+"en": "For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"materials": {
+"hardie": {
+"en": "James Hardie siding",
+"es": "Siding James Hardie",
+"item": "hardie_siding_sq",
+"words": {
+"en": "James Hardie",
+"es": "James Hardie"
+}
+},
+"insulated_vinyl": {
+"en": "Insulated vinyl siding",
+"es": "Siding de vinil aislado",
+"item": "insulated_vinyl_siding_sq",
+"words": {
+"en": "insulated vinyl",
+"es": "de vinil aislado"
+}
+},
+"vinyl": {
+"en": "Vinyl siding",
+"es": "Siding de vinil",
+"item": "vinyl_siding_sq",
+"words": {
+"en": "vinyl",
+"es": "de vinil"
+}
+}
+},
+"national_warning_template": {
+"en": "National price guide (not Nebraska) for: {items}. Check with a local supplier.",
+"es": "Gu\u00eda de precios nacional (no de Nebraska) para: {items}. Confirmen con un proveedor local."
+},
+"prices": {
+"chimney_flashing_job": {
+"en": "Chimney flashing (per chimney)",
+"es": "Tapajuntas de chimenea (por chimenea)",
+"high": 1500.0,
+"low": 450.0,
+"scope": "national",
+"source": "market",
+"unit": "job"
+},
+"downspouts_ft": {
+"en": "Downspouts",
+"es": "Bajantes",
+"high": 15.0,
+"low": 8.0,
+"scope": "national",
+"source": "market",
+"unit": "ft"
+},
+"extra_layer_sq": {
+"en": "Extra old layer tear-off",
+"es": "Quitar capa vieja extra",
+"high": 150.0,
+"low": 100.0,
+"source": "market",
+"unit": "sq"
+},
+"gutter_guards_ft": {
+"en": "Gutter guards",
+"es": "Protectores de canaleta",
+"high": 13.0,
+"low": 6.0,
+"scope": "national",
+"source": "market",
+"unit": "ft"
+},
+"gutters_ft": {
+"en": "Seamless gutters",
+"es": "Canaletas sin costura",
+"high": 16.0,
+"low": 12.0,
+"source": "market",
+"unit": "ft"
+},
+"hardie_siding_sq": {
+"en": "James Hardie siding",
+"es": "Siding James Hardie",
+"high": 1500.0,
+"low": 1000.0,
+"source": "market",
+"unit": "sq"
+},
+"house_wrap_sq": {
+"en": "House wrap",
+"es": "Envoltura de casa (house wrap)",
+"high": 150.0,
+"low": 100.0,
+"source": "market",
+"unit": "sq"
+},
+"ice_water_sq": {
+"en": "Ice & water shield",
+"es": "Barrera de hielo y agua (ice & water)",
+"high": 125.0,
+"low": 100.0,
+"scope": "national",
+"source": "market",
+"unit": "sq"
+},
+"insulated_vinyl_siding_sq": {
+"en": "Insulated vinyl siding",
+"es": "Siding de vinil aislado",
+"high": 1200.0,
+"low": 800.0,
+"scope": "national",
+"source": "market",
+"unit": "sq"
+},
+"min_job": {
+"en": "Minimum job",
+"es": "Trabajo m\u00ednimo",
+"high": 400.0,
+"low": 300.0,
+"source": "market",
+"unit": "job"
+},
+"min_job_roof": {
+"en": "Minimum roof job",
+"es": "Trabajo m\u00ednimo de techo",
+"high": 3000.0,
+"low": 2500.0,
+"source": "market",
+"unit": "job"
+},
+"permit": {
+"en": "Permit",
+"es": "Permiso",
+"high": 350.0,
+"low": 150.0,
+"source": "market",
+"unit": "job"
+},
+"ridge_vent_ft": {
+"en": "Ridge vent",
+"es": "Ventila de cumbrera",
+"high": 15.0,
+"low": 7.0,
+"scope": "national",
+"source": "market",
+"unit": "ft"
+},
+"shingle_roof_sq": {
+"en": "Architectural shingle roof (1-layer tear-off)",
+"es": "Techo de teja arquitect\u00f3nica (quitar 1 capa)",
+"high": 550.0,
+"low": 450.0,
+"source": "market",
+"unit": "sq"
+},
+"skylight_flashing_ft": {
+"en": "Skylight flashing",
+"es": "Tapajuntas de tragaluz",
+"high": 12.0,
+"low": 5.0,
+"scope": "national",
+"source": "market",
+"unit": "ft"
+},
+"soffit_fascia_ft": {
+"en": "Soffit + fascia",
+"es": "Sofito + fascia",
+"high": 17.0,
+"low": 14.0,
+"source": "market",
+"unit": "ft"
+},
+"vinyl_siding_sq": {
+"en": "Vinyl siding",
+"es": "Siding de vinil",
+"high": 900.0,
+"low": 700.0,
+"source": "market",
+"unit": "sq"
+},
+"window_wrap_ea": {
+"en": "Window wrap (aluminum)",
+"es": "Forro de ventana (aluminio)",
+"high": 180.0,
+"low": 100.0,
+"scope": "national",
+"source": "market",
+"unit": "ea"
+}
+},
+"reference_for_items": {
+"en": " for: {items}",
+"es": " para: {items}"
+},
+"reference_items": [
+"chimney_flashing_job",
+"downspouts_ft",
+"extra_layer_sq",
+"gutter_guards_ft",
+"gutters_ft",
+"hardie_siding_sq",
+"house_wrap_sq",
+"ice_water_sq",
+"insulated_vinyl_siding_sq",
+"min_job",
+"min_job_roof",
+"permit",
+"ridge_vent_ft",
+"shingle_roof_sq",
+"skylight_flashing_ft",
+"soffit_fascia_ft",
+"vinyl_siding_sq",
+"window_wrap_ea"
+],
+"reference_label": "market reference, not HMP (docs/research/2026-09-26-market-prices.md, typical range)",
+"reference_warning": {
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+"reference_warning_template": {
+"en": "Using MARKET REFERENCE prices, not HMP's prices{for_items}. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP{for_items}. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+"rough_helper": {
+"formula": "perimeter = 4 x sqrt(footprint) x perimeter_factor; siding squares = perimeter x story_height_ft x stories x (1 - openings) / 100 (1 decimal); roof squares = footprint x pitch_factor[pitch] / 100 (1 decimal)",
+"openings": 0.15,
+"perimeter_factor": 1.1,
+"pitch_factor": {
+"low": 1.05,
+"std": 1.12,
+"steep": 1.25
+},
+"story_height_ft": 9
+},
+"rough_note": {
+"en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
+"es": "Cuadros APROXIMADOS por el tama\u00f1o de la casa y los pisos. Midan la casa antes de dar precio."
+},
+"test_cases": [
+{
+"expect": {
+"high": 23450,
+"line_keys": [
+"vinyl_siding_sq",
+"house_wrap_sq",
+"permit"
+],
+"low": 17750,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $17,750 - $23,450 for vinyl siding (22 squares); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $17,750 - $23,450 por siding de vinil (22 cuadros); 1 piso. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"material": "vinyl",
+"siding_squares": 22,
+"type": "siding"
+},
+"name": "siding vinyl"
+},
+{
+"expect": {
+"high": 54900,
+"line_keys": [
+"hardie_siding_sq",
+"house_wrap_sq",
+"extra_layer_sq",
+"soffit_fascia_ft",
+"permit"
+],
+"low": 36750,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $36,750 - $54,900 for James Hardie siding (25.5 squares), soffit + fascia (90 ft); 2 stories, 2 old layers. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $36,750 - $54,900 por siding James Hardie (25.5 cuadros), sofito + fascia (90 pies); 2 pisos, 2 capas viejas. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"layers": 2,
+"material": "hardie",
+"siding_squares": 25.5,
+"soffit_ft": 90,
+"stories": 2,
+"type": "siding"
+},
+"name": "siding hardie"
+},
+{
+"expect": {
+"high": 13550,
+"line_keys": [
+"shingle_roof_sq",
+"permit"
+],
+"low": 10950,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $10,950 - $13,550 for shingle roof (24 squares); 1 story, standard pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $10,950 - $13,550 por techo de teja (24 cuadros); 1 piso, pendiente normal. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"pitch": "5/12",
+"roof_squares": 24,
+"type": "roof"
+},
+"name": "roof std"
+},
+{
+"expect": {
+"high": 31050,
+"line_keys": [
+"shingle_roof_sq",
+"extra_layer_sq",
+"permit"
+],
+"low": 22500,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $22,500 - $31,050 for shingle roof (31.3 squares); 2 stories, steep pitch, 2 old layers. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $22,500 - $31,050 por techo de teja (31.3 cuadros); 2 pisos, pendiente alta, 2 capas viejas. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"layers": 2,
+"pitch": "8/12",
+"roof_squares": 31.3,
+"stories": 2,
+"type": "roof"
+},
+"name": "roof steep 2-story"
+},
+{
+"expect": {
+"high": 2250,
+"line_keys": [
+"gutters_ft"
+],
+"low": 1650,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $1,650 - $2,250 for gutters (140 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $1,650 - $2,250 por canaletas (140 pies); 1 piso. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"gutter_ft": 140,
+"permit": false,
+"type": "gutters"
+},
+"name": "gutters only"
+},
+{
+"expect": {
+"high": 64100,
+"line_keys": [
+"hardie_siding_sq",
+"house_wrap_sq",
+"shingle_roof_sq",
+"soffit_fascia_ft",
+"gutters_ft",
+"permit"
+],
+"low": 45150,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $45,150 - $64,100 for James Hardie siding (18 squares), shingle roof (20 squares), soffit + fascia (150 ft), gutters (120 ft); 3 stories, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $45,150 - $64,100 por siding James Hardie (18 cuadros), techo de teja (20 cuadros), sofito + fascia (150 pies), canaletas (120 pies); 3 pisos, pendiente alta. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"gutter_ft": 120,
+"material": "hardie",
+"pitch": "steep",
+"roof_squares": 20,
+"siding_squares": 18,
+"soffit_ft": 150,
+"stories": 3,
+"type": "mixed"
+},
+"name": "mixed"
+},
+{
+"expect": {
+"high": 400,
+"line_keys": [
+"gutters_ft"
+],
+"low": 300,
+"minimum": "min_job",
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $300 - $400 for gutters (12 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price. (Minimum job $300 - $400 applied.)",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $300 - $400 por canaletas (12 pies); 1 piso. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio. (Se aplic\u00f3 el trabajo m\u00ednimo $300 - $400.)"
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+}
+]
+},
+"job": {
+"gutter_ft": 12,
+"permit": false,
+"type": "gutters"
+},
+"name": "below minimum"
+},
+{
+"expect": {
+"high": 45200,
+"line_keys": [
+"vinyl_siding_sq",
+"house_wrap_sq",
+"shingle_roof_sq",
+"permit"
+],
+"low": 34250,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $34,250 - $45,200 for vinyl siding (25.6 squares), shingle roof (18.1 squares); 2 stories, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $34,250 - $45,200 por siding de vinil (25.6 cuadros), techo de teja (18.1 cuadros); 2 pisos, pendiente alta. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+{
+"en": "ROUGH squares from the footprint and stories. Measure the house before quoting.",
+"es": "Cuadros APROXIMADOS por el tama\u00f1o de la casa y los pisos. Midan la casa antes de dar precio."
+}
+]
+},
+"job": {
+"footprint_sqft": 1450,
+"pitch": "7/12",
+"stories": 2,
+"type": "mixed"
+},
+"name": "footprint only (rough)"
+},
+{
+"expect": {
+"high": 34300,
+"line_keys": [
+"insulated_vinyl_siding_sq",
+"house_wrap_sq",
+"window_wrap_ea",
+"permit"
+],
+"low": 22450,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $22,450 - $34,300 for insulated vinyl siding (20 squares), window wrap (14 windows); 2 stories. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $22,450 - $34,300 por siding de vinil aislado (20 cuadros), forro de ventanas (14 ventanas); 2 pisos. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+{
+"en": "National price guide (not Nebraska) for: insulated_vinyl_siding_sq, window_wrap_ea. Check with a local supplier.",
+"es": "Gu\u00eda de precios nacional (no de Nebraska) para: insulated_vinyl_siding_sq, window_wrap_ea. Confirmen con un proveedor local."
+}
+]
+},
+"job": {
+"material": "insulated_vinyl",
+"siding_squares": 20,
+"stories": 2,
+"type": "siding",
+"windows": 14
+},
+"name": "insulated vinyl + windows"
+},
+{
+"expect": {
+"high": 23250,
+"line_keys": [
+"shingle_roof_sq",
+"ice_water_sq",
+"ridge_vent_ft",
+"chimney_flashing_job",
+"skylight_flashing_ft",
+"permit"
+],
+"low": 16100,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $16,100 - $23,250 for shingle roof (28 squares), ice & water shield (4.5 squares), ridge vent (42 ft), chimney flashing (1 chimney), skylight flashing (16 ft); 1 story, steep pitch. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $16,100 - $23,250 por techo de teja (28 cuadros), barrera de hielo y agua (4.5 cuadros), ventila de cumbrera (42 pies), tapajuntas de chimenea (1 chimenea), tapajuntas de tragaluz (16 pies); 1 piso, pendiente alta. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+{
+"en": "National price guide (not Nebraska) for: chimney_flashing_job, ice_water_sq, ridge_vent_ft, skylight_flashing_ft. Check with a local supplier.",
+"es": "Gu\u00eda de precios nacional (no de Nebraska) para: chimney_flashing_job, ice_water_sq, ridge_vent_ft, skylight_flashing_ft. Confirmen con un proveedor local."
+}
+]
+},
+"job": {
+"chimney": true,
+"ice_water_sq": 4.5,
+"pitch": "9/12",
+"ridge_vent_ft": 42,
+"roof_squares": 28,
+"skylight_ft": 16,
+"type": "roof"
+},
+"name": "roof add-ons steep"
+},
+{
+"expect": {
+"high": 5250,
+"line_keys": [
+"gutters_ft",
+"gutter_guards_ft",
+"downspouts_ft"
+],
+"low": 3150,
+"minimum": null,
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $3,150 - $5,250 for gutters (150 ft), gutter guards (150 ft), downspouts (60 ft); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price.",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $3,150 - $5,250 por canaletas (150 pies), protectores de canaleta (150 pies), bajantes (60 pies); 1 piso. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio."
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+{
+"en": "National price guide (not Nebraska) for: downspouts_ft, gutter_guards_ft. Check with a local supplier.",
+"es": "Gu\u00eda de precios nacional (no de Nebraska) para: downspouts_ft, gutter_guards_ft. Confirmen con un proveedor local."
+}
+]
+},
+"job": {
+"downspouts_ft": 60,
+"gutter_ft": 150,
+"gutter_guards_ft": 150,
+"permit": false,
+"type": "gutters"
+},
+"name": "gutters + guards + downspouts"
+},
+{
+"expect": {
+"high": 400,
+"line_keys": [
+"window_wrap_ea"
+],
+"low": 300,
+"minimum": "min_job",
+"summary": {
+"en": "Rough estimate with MARKET REFERENCE prices (not HMP's): $300 - $400 for window wrap (1 window); 1 story. Final price after we measure and inspect. For insurance jobs: the insurer's approved scope sets the price. (Minimum job $300 - $400 applied.)",
+"es": "Estimado aproximado con precios de REFERENCIA del mercado (no de HMP): $300 - $400 por forro de ventanas (1 ventana); 1 piso. El precio final despu\u00e9s de medir e inspeccionar. Para trabajos de seguro: el alcance aprobado por la aseguradora fija el precio. (Se aplic\u00f3 el trabajo m\u00ednimo $300 - $400.)"
+},
+"using_reference": true,
+"warnings": [
+{
+"en": "Using MARKET REFERENCE prices, not HMP's prices. The boss hasn't set HMP's price sheet yet (T51). OK to share as an estimate range, never as a final price.",
+"es": "Usando precios de REFERENCIA del mercado, no los precios de HMP. El jefe todav\u00eda no pone la lista de precios de HMP (T51). Se puede dar como rango estimado, nunca como precio final."
+},
+{
+"en": "National price guide (not Nebraska) for: window_wrap_ea. Check with a local supplier.",
+"es": "Gu\u00eda de precios nacional (no de Nebraska) para: window_wrap_ea. Confirmen con un proveedor local."
+}
+]
+},
+"job": {
+"permit": false,
+"type": "mixed",
+"windows": 1
+},
+"name": "add-ons only (below minimum)"
+}
+],
+"type_notes": {
+"gutters": {
+"en": "Gutter job: siding and roof left out (use type mixed).",
+"es": "Trabajo de canaletas: no se cont\u00f3 siding ni techo (usen tipo mixed)."
+},
+"roof": {
+"en": "Roof job: siding squares left out (use type mixed for both).",
+"es": "Trabajo de techo: no se cont\u00f3 el siding (usen tipo mixed para los dos)."
+},
+"siding": {
+"en": "Siding job: roof squares left out (use type mixed for both).",
+"es": "Trabajo de siding: no se cont\u00f3 el techo (usen tipo mixed para los dos)."
+}
+},
+"types": [
+"siding",
+"roof",
+"gutters",
+"mixed"
+],
+"units": {
+"ea": {
+"en": "each",
+"es": "c/u"
+},
+"ft": {
+"en": "ft",
+"es": "pies"
+},
+"job": {
+"en": "job",
+"es": "trabajo"
+},
+"sq": {
+"en": "squares",
+"es": "cuadros"
+}
+},
+"updated_at": "2026-09-29T07:07:15Z",
+"using_reference": true,
+"version": 2
+},
 "today/walk": {
 "area": "Fremont: N Clarkson St & E 17th St",
 "best_time": {
@@ -748,7 +2176,7 @@
 "es": "Mejor hora para tocar puertas hoy: de 4 a 7:30 p. m.",
 "start": "16:00"
 },
-"data_age_hours": -10.7,
+"data_age_hours": -4.8,
 "date": "2026-09-29",
 "drive_from_home_mi": 1.0,
 "est_minutes": 70,
@@ -801,10 +2229,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1991",
@@ -814,9 +2246,26 @@
 "lon": -96.490397,
 "pass": 1,
 "pid": "MOCK-587-e-18th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1991",
-"es": "Granizo de 1.5 pulg., construida en 1991"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -833,10 +2282,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1948",
@@ -846,9 +2299,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1753-n-clarkson-st",
+"roof_band": {
+"age": 78,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1948: roof age unknown, check the policy first",
+"es": "Construida en 1948: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1948",
-"es": "Granizo de 1.2 pulg., construida en 1948"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1948",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1948"
 },
 "year_built": 1948
 },
@@ -865,10 +2335,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1977",
@@ -878,9 +2352,26 @@
 "lon": -96.489775,
 "pass": 1,
 "pid": "MOCK-1736-n-clarkson-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1977",
-"es": "Granizo de 1.2 pulg., construida en 1977"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -897,10 +2388,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1924",
@@ -910,9 +2405,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1735-n-clarkson-st",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1924",
-"es": "Granizo de 1.2 pulg., construida en 1924"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -929,10 +2441,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1912",
@@ -942,9 +2458,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1713-n-clarkson-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1912",
-"es": "Granizo de 1.2 pulg., construida en 1912"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -961,10 +2494,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1948",
@@ -974,9 +2511,26 @@
 "lon": -96.489775,
 "pass": 1,
 "pid": "MOCK-1712-n-clarkson-st",
+"roof_band": {
+"age": 78,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1948: roof age unknown, check the policy first",
+"es": "Construida en 1948: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1948",
-"es": "Granizo de 1.2 pulg., construida en 1948"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1948",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1948"
 },
 "year_built": 1948
 },
@@ -993,10 +2547,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1912",
@@ -1006,9 +2564,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1681-n-clarkson-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1912",
-"es": "Granizo de 1.5 pulg., construida en 1912"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -1025,10 +2600,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -1038,9 +2617,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1665-n-clarkson-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 },
@@ -1057,10 +2653,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1938",
@@ -1070,9 +2670,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1649-n-clarkson-st",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1938",
-"es": "Granizo de 1.2 pulg., construida en 1938"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -1089,10 +2706,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1983",
@@ -1102,9 +2723,26 @@
 "lon": -96.490937,
 "pass": 1,
 "pid": "MOCK-1664-n-union-st",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1983",
-"es": "Granizo de 1.2 pulg., construida en 1983"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -1121,10 +2759,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1964",
@@ -1134,9 +2776,26 @@
 "lon": -96.490938,
 "pass": 1,
 "pid": "MOCK-1680-n-union-st",
+"roof_band": {
+"age": 62,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1964: roof age unknown, check the policy first",
+"es": "Construida en 1964: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1964",
-"es": "Granizo de 1.5 pulg., construida en 1964"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1964",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1964"
 },
 "year_built": 1964
 },
@@ -1153,10 +2812,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1972",
@@ -1166,9 +2829,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1714-n-union-st",
+"roof_band": {
+"age": 54,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1972: roof age unknown, check the policy first",
+"es": "Construida en 1972: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1972",
-"es": "Granizo de 1.2 pulg., construida en 1972"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1972",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1972"
 },
 "year_built": 1972
 },
@@ -1185,10 +2865,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1952",
@@ -1198,9 +2882,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1738-n-union-st",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1952",
-"es": "Granizo de 1.2 pulg., construida en 1952"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -1217,10 +2918,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1977",
@@ -1230,9 +2935,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1764-n-union-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1977",
-"es": "Granizo de 1.5 pulg., construida en 1977"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -1249,10 +2971,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -1262,9 +2988,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-514-e-17th-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 },
@@ -1281,10 +3024,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1991",
@@ -1294,9 +3041,26 @@
 "lon": -96.490938,
 "pass": 1,
 "pid": "MOCK-515-e-17th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1991",
-"es": "Granizo de 1.2 pulg., construida en 1991"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -1313,10 +3077,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1977",
@@ -1326,9 +3094,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-562-e-17th-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1977",
-"es": "Granizo de 1.2 pulg., construida en 1977"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -1345,10 +3130,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1991",
@@ -1358,9 +3147,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-563-e-17th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1991",
-"es": "Granizo de 1.2 pulg., construida en 1991"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -1377,10 +3183,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1924",
@@ -1390,9 +3200,26 @@
 "lon": -96.489652,
 "pass": 1,
 "pid": "MOCK-615-e-17th-st",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1924",
-"es": "Granizo de 1.2 pulg., construida en 1924"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -1409,10 +3236,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -1422,9 +3253,26 @@
 "lon": -96.489652,
 "pass": 1,
 "pid": "MOCK-639-e-17th-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 }
@@ -1444,7 +3292,7 @@
 "es": "Mejor hora para tocar puertas hoy: de 4 a 7:30 p. m.",
 "start": "16:00"
 },
-"data_age_hours": -10.7,
+"data_age_hours": -4.8,
 "date": "2026-09-29",
 "drive_from_home_mi": 1.0,
 "est_minutes": 70,
@@ -1483,10 +3331,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1991",
@@ -1496,9 +3348,26 @@
 "lon": -96.490397,
 "pass": 1,
 "pid": "MOCK-587-e-18th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1991",
-"es": "Granizo de 1.5 pulg., construida en 1991"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -1515,10 +3384,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1948",
@@ -1528,9 +3401,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1753-n-clarkson-st",
+"roof_band": {
+"age": 78,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1948: roof age unknown, check the policy first",
+"es": "Construida en 1948: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1948",
-"es": "Granizo de 1.2 pulg., construida en 1948"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1948",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1948"
 },
 "year_built": 1948
 },
@@ -1547,10 +3437,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1977",
@@ -1560,9 +3454,26 @@
 "lon": -96.489775,
 "pass": 1,
 "pid": "MOCK-1736-n-clarkson-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1977",
-"es": "Granizo de 1.2 pulg., construida en 1977"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -1579,10 +3490,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1924",
@@ -1592,9 +3507,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1735-n-clarkson-st",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1924",
-"es": "Granizo de 1.2 pulg., construida en 1924"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -1611,10 +3543,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1912",
@@ -1624,9 +3560,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-1713-n-clarkson-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1912",
-"es": "Granizo de 1.2 pulg., construida en 1912"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -1643,10 +3596,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1948",
@@ -1656,9 +3613,26 @@
 "lon": -96.489775,
 "pass": 1,
 "pid": "MOCK-1712-n-clarkson-st",
+"roof_band": {
+"age": 78,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1948: roof age unknown, check the policy first",
+"es": "Construida en 1948: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1948",
-"es": "Granizo de 1.2 pulg., construida en 1948"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1948",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1948"
 },
 "year_built": 1948
 },
@@ -1675,10 +3649,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1912",
@@ -1688,9 +3666,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1681-n-clarkson-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1912",
-"es": "Granizo de 1.5 pulg., construida en 1912"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -1707,10 +3702,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -1720,9 +3719,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1665-n-clarkson-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 },
@@ -1739,10 +3755,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1938",
@@ -1752,9 +3772,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-1649-n-clarkson-st",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1938",
-"es": "Granizo de 1.2 pulg., construida en 1938"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -1771,10 +3808,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1983",
@@ -1784,9 +3825,26 @@
 "lon": -96.490937,
 "pass": 1,
 "pid": "MOCK-1664-n-union-st",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1983",
-"es": "Granizo de 1.2 pulg., construida en 1983"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -1803,10 +3861,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1964",
@@ -1816,9 +3878,26 @@
 "lon": -96.490938,
 "pass": 1,
 "pid": "MOCK-1680-n-union-st",
+"roof_band": {
+"age": 62,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1964: roof age unknown, check the policy first",
+"es": "Construida en 1964: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1964",
-"es": "Granizo de 1.5 pulg., construida en 1964"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1964",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1964"
 },
 "year_built": 1964
 },
@@ -1835,10 +3914,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1972",
@@ -1848,9 +3931,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1714-n-union-st",
+"roof_band": {
+"age": 54,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1972: roof age unknown, check the policy first",
+"es": "Construida en 1972: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1972",
-"es": "Granizo de 1.2 pulg., construida en 1972"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1972",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1972"
 },
 "year_built": 1972
 },
@@ -1867,10 +3967,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1952",
@@ -1880,9 +3984,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1738-n-union-st",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1952",
-"es": "Granizo de 1.2 pulg., construida en 1952"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -1899,10 +4020,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1977",
@@ -1912,9 +4037,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-1764-n-union-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1977",
-"es": "Granizo de 1.5 pulg., construida en 1977"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -1931,10 +4073,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -1944,9 +4090,26 @@
 "lon": -96.490939,
 "pass": 1,
 "pid": "MOCK-514-e-17th-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 },
@@ -1963,10 +4126,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1991",
@@ -1976,9 +4143,26 @@
 "lon": -96.490938,
 "pass": 1,
 "pid": "MOCK-515-e-17th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1991",
-"es": "Granizo de 1.2 pulg., construida en 1991"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -1995,10 +4179,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1977",
@@ -2008,9 +4196,26 @@
 "lon": -96.490396,
 "pass": 1,
 "pid": "MOCK-562-e-17th-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1977",
-"es": "Granizo de 1.2 pulg., construida en 1977"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -2027,10 +4232,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1991",
@@ -2040,9 +4249,26 @@
 "lon": -96.490395,
 "pass": 1,
 "pid": "MOCK-563-e-17th-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1991",
-"es": "Granizo de 1.2 pulg., construida en 1991"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -2059,10 +4285,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1924",
@@ -2072,9 +4302,26 @@
 "lon": -96.489652,
 "pass": 1,
 "pid": "MOCK-615-e-17th-st",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1924",
-"es": "Granizo de 1.2 pulg., construida en 1924"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -2091,10 +4338,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1961",
@@ -2104,9 +4355,26 @@
 "lon": -96.489652,
 "pass": 1,
 "pid": "MOCK-639-e-17th-st",
+"roof_band": {
+"age": 65,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1961: roof age unknown, check the policy first",
+"es": "Construida en 1961: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1961",
-"es": "Granizo de 1.2 pulg., construida en 1961"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1961",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1961"
 },
 "year_built": 1961
 }
@@ -2127,7 +4395,7 @@
 "es": "Mejor hora para tocar puertas hoy: de 4 a 7:30 p. m.",
 "start": "16:00"
 },
-"data_age_hours": -10.7,
+"data_age_hours": -4.8,
 "date": "2026-09-29",
 "drive_from_home_mi": 1.1,
 "est_minutes": 68,
@@ -2166,10 +4434,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1924",
@@ -2179,9 +4451,26 @@
 "lon": -96.480914,
 "pass": 1,
 "pid": "MOCK-1342-mayfair-ave",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1924",
-"es": "Granizo de 1.2 pulg., construida en 1924"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -2198,10 +4487,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1952",
@@ -2211,9 +4504,26 @@
 "lon": -96.480913,
 "pass": 1,
 "pid": "MOCK-1314-mayfair-ave",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1952",
-"es": "Granizo de 1.0 pulg., construida en 1952"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -2230,10 +4540,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1983",
@@ -2243,9 +4557,26 @@
 "lon": -96.481709,
 "pass": 1,
 "pid": "MOCK-1214-e-linden-ave",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1983",
-"es": "Granizo de 1.0 pulg., construida en 1983"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -2262,10 +4593,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1964",
@@ -2275,9 +4610,26 @@
 "lon": -96.481464,
 "pass": 1,
 "pid": "MOCK-1236-e-linden-ave",
+"roof_band": {
+"age": 62,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1964: roof age unknown, check the policy first",
+"es": "Construida en 1964: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1964",
-"es": "Granizo de 1.0 pulg., construida en 1964"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1964",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1964"
 },
 "year_built": 1964
 },
@@ -2294,10 +4646,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1964",
@@ -2307,9 +4663,26 @@
 "lon": -96.481182,
 "pass": 1,
 "pid": "MOCK-1239-e-linden-ave",
+"roof_band": {
+"age": 62,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1964: roof age unknown, check the policy first",
+"es": "Construida en 1964: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1964",
-"es": "Granizo de 1.2 pulg., construida en 1964"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1964",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1964"
 },
 "year_built": 1964
 },
@@ -2326,10 +4699,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1983",
@@ -2339,9 +4716,26 @@
 "lon": -96.48107,
 "pass": 1,
 "pid": "MOCK-1257-e-linden-ave",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1983",
-"es": "Granizo de 1.0 pulg., construida en 1983"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -2358,10 +4752,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1952",
@@ -2371,9 +4769,26 @@
 "lon": -96.480941,
 "pass": 1,
 "pid": "MOCK-1264-e-linden-ave",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1952",
-"es": "Granizo de 1.0 pulg., construida en 1952"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -2390,10 +4805,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1952",
@@ -2403,9 +4822,26 @@
 "lon": -96.480885,
 "pass": 1,
 "pid": "MOCK-1269-e-linden-ave",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1952",
-"es": "Granizo de 1.0 pulg., construida en 1952"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -2422,10 +4858,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1991",
@@ -2435,9 +4875,26 @@
 "lon": -96.480254,
 "pass": 1,
 "pid": "MOCK-1236-n-hancock-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1991",
-"es": "Granizo de 1.0 pulg., construida en 1991"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -2454,10 +4911,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1912",
@@ -2467,9 +4928,26 @@
 "lon": -96.480418,
 "pass": 1,
 "pid": "MOCK-1262-n-hancock-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1912",
-"es": "Granizo de 1.2 pulg., construida en 1912"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -2486,10 +4964,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1956",
@@ -2499,9 +4981,26 @@
 "lon": -96.480144,
 "pass": 1,
 "pid": "MOCK-1284-n-hancock-st",
+"roof_band": {
+"age": 70,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1956: roof age unknown, check the policy first",
+"es": "Construida en 1956: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1956",
-"es": "Granizo de 1.0 pulg., construida en 1956"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1956",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1956"
 },
 "year_built": 1956
 },
@@ -2518,10 +5017,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1924",
@@ -2531,9 +5034,26 @@
 "lon": -96.480299,
 "pass": 1,
 "pid": "MOCK-1334-e-12th-st",
+"roof_band": {
+"age": 102,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1924: roof age unknown, check the policy first",
+"es": "Construida en 1924: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1924",
-"es": "Granizo de 1.0 pulg., construida en 1924"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1924",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1924"
 },
 "year_built": 1924
 },
@@ -2550,10 +5070,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1964",
@@ -2563,9 +5087,26 @@
 "lon": -96.480473,
 "pass": 1,
 "pid": "MOCK-1314-e-12th-st",
+"roof_band": {
+"age": 62,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1964: roof age unknown, check the policy first",
+"es": "Construida en 1964: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1964",
-"es": "Granizo de 1.0 pulg., construida en 1964"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1964",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1964"
 },
 "year_built": 1964
 },
@@ -2582,10 +5123,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1977",
@@ -2595,9 +5140,26 @@
 "lon": -96.480973,
 "pass": 1,
 "pid": "MOCK-1288-e-12th-st",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1977",
-"es": "Granizo de 1.0 pulg., construida en 1977"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -2614,10 +5176,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1952",
@@ -2627,9 +5193,26 @@
 "lon": -96.480973,
 "pass": 1,
 "pid": "MOCK-1264-e-12th-st",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1952",
-"es": "Granizo de 1.0 pulg., construida en 1952"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -2646,10 +5229,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 29.5
+"score": 38.3
 },
 "house_line": {
 "en": "Built 1968",
@@ -2659,9 +5246,26 @@
 "lon": -96.481446,
 "pass": 1,
 "pid": "MOCK-1214-e-12th-st",
+"roof_band": {
+"age": 58,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1968: roof age unknown, check the policy first",
+"es": "Construida en 1968: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.2\" hail, built 1968",
-"es": "Granizo de 1.2 pulg., construida en 1968"
+"en": "1.2\" hail, hail here 7 times since 2024, built 1968",
+"es": "Granizo de 1.2 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1968"
 },
 "year_built": 1968
 },
@@ -2678,10 +5282,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1956",
@@ -2691,9 +5299,26 @@
 "lon": -96.481705,
 "pass": 1,
 "pid": "MOCK-1214-n-grant-st",
+"roof_band": {
+"age": 70,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1956: roof age unknown, check the policy first",
+"es": "Construida en 1956: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1956",
-"es": "Granizo de 1.0 pulg., construida en 1956"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1956",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1956"
 },
 "year_built": 1956
 },
@@ -2710,10 +5335,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1991",
@@ -2723,9 +5352,26 @@
 "lon": -96.481549,
 "pass": 1,
 "pid": "MOCK-1238-n-grant-st",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1991",
-"es": "Granizo de 1.0 pulg., construida en 1991"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -2742,10 +5388,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1912",
@@ -2755,9 +5405,26 @@
 "lon": -96.481549,
 "pass": 1,
 "pid": "MOCK-1262-n-grant-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1912",
-"es": "Granizo de 1.0 pulg., construida en 1912"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -2774,10 +5441,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 21.4
+"score": 27.8
 },
 "house_line": {
 "en": "Built 1938",
@@ -2787,9 +5458,26 @@
 "lon": -96.481549,
 "pass": 1,
 "pid": "MOCK-1284-n-grant-st",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.0\" hail, built 1938",
-"es": "Granizo de 1.0 pulg., construida en 1938"
+"en": "1.0\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.0 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 }
@@ -2810,7 +5498,7 @@
 "es": "Mejor hora para tocar puertas hoy: de 4 a 7:30 p. m.",
 "start": "16:00"
 },
-"data_age_hours": -10.7,
+"data_age_hours": -4.8,
 "date": "2026-09-29",
 "drive_from_home_mi": 1.2,
 "est_minutes": 72,
@@ -2849,10 +5537,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1972",
@@ -2862,9 +5554,26 @@
 "lon": -96.502444,
 "pass": 1,
 "pid": "MOCK-2117-nye-dr",
+"roof_band": {
+"age": 54,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1972: roof age unknown, check the policy first",
+"es": "Construida en 1972: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1972",
-"es": "Granizo de 1.5 pulg., construida en 1972"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1972",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1972"
 },
 "year_built": 1972
 },
@@ -2881,10 +5590,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1952",
@@ -2894,9 +5607,26 @@
 "lon": -96.502788,
 "pass": 1,
 "pid": "MOCK-2129-nye-dr",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1952",
-"es": "Granizo de 1.5 pulg., construida en 1952"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -2913,10 +5643,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1977",
@@ -2926,9 +5660,26 @@
 "lon": -96.502992,
 "pass": 1,
 "pid": "MOCK-2139-nye-dr",
+"roof_band": {
+"age": 49,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1977: roof age unknown, check the policy first",
+"es": "Construida en 1977: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1977",
-"es": "Granizo de 1.5 pulg., construida en 1977"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1977",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1977"
 },
 "year_built": 1977
 },
@@ -2945,10 +5696,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 45.5
+"score": 59.2
 },
 "house_line": {
 "en": "Built 1938",
@@ -2958,9 +5713,26 @@
 "lon": -96.503126,
 "pass": 1,
 "pid": "MOCK-2140-nye-dr",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.8\" hail, built 1938",
-"es": "Granizo de 1.8 pulg., construida en 1938"
+"en": "1.8\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.8 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -2977,10 +5749,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1938",
@@ -2990,9 +5766,26 @@
 "lon": -96.503558,
 "pass": 1,
 "pid": "MOCK-2150-nye-dr",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1938",
-"es": "Granizo de 1.5 pulg., construida en 1938"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -3009,10 +5802,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1968",
@@ -3022,9 +5819,26 @@
 "lon": -96.503193,
 "pass": 1,
 "pid": "MOCK-2151-nye-dr",
+"roof_band": {
+"age": 58,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1968: roof age unknown, check the policy first",
+"es": "Construida en 1968: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1968",
-"es": "Granizo de 1.5 pulg., construida en 1968"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1968",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1968"
 },
 "year_built": 1968
 },
@@ -3041,10 +5855,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 45.5
+"score": 59.2
 },
 "house_line": {
 "en": "Built 1938",
@@ -3054,9 +5872,26 @@
 "lon": -96.503319,
 "pass": 1,
 "pid": "MOCK-2161-nye-dr",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.8\" hail, built 1938",
-"es": "Granizo de 1.8 pulg., construida en 1938"
+"en": "1.8\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.8 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -3073,10 +5908,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1972",
@@ -3086,9 +5925,26 @@
 "lon": -96.50374,
 "pass": 1,
 "pid": "MOCK-2162-nye-dr",
+"roof_band": {
+"age": 54,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1972: roof age unknown, check the policy first",
+"es": "Construida en 1972: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1972",
-"es": "Granizo de 1.5 pulg., construida en 1972"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1972",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1972"
 },
 "year_built": 1972
 },
@@ -3105,10 +5961,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1956",
@@ -3118,9 +5978,26 @@
 "lon": -96.503417,
 "pass": 1,
 "pid": "MOCK-2171-nye-dr",
+"roof_band": {
+"age": 70,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1956: roof age unknown, check the policy first",
+"es": "Construida en 1956: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1956",
-"es": "Granizo de 1.5 pulg., construida en 1956"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1956",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1956"
 },
 "year_built": 1956
 },
@@ -3137,10 +6014,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1983",
@@ -3150,9 +6031,26 @@
 "lon": -96.503985,
 "pass": 1,
 "pid": "MOCK-2172-nye-dr",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1983",
-"es": "Granizo de 1.5 pulg., construida en 1983"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -3169,10 +6067,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1991",
@@ -3182,9 +6084,26 @@
 "lon": -96.504135,
 "pass": 1,
 "pid": "MOCK-2180-nye-dr",
+"roof_band": {
+"age": 35,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1991: roof age unknown, check the policy first",
+"es": "Construida en 1991: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1991",
-"es": "Granizo de 1.5 pulg., construida en 1991"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1991",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1991"
 },
 "year_built": 1991
 },
@@ -3201,10 +6120,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1983",
@@ -3214,9 +6137,26 @@
 "lon": -96.503483,
 "pass": 1,
 "pid": "MOCK-2183-nye-dr",
+"roof_band": {
+"age": 43,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1983: roof age unknown, check the policy first",
+"es": "Construida en 1983: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1983",
-"es": "Granizo de 1.5 pulg., construida en 1983"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1983",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1983"
 },
 "year_built": 1983
 },
@@ -3233,10 +6173,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1938",
@@ -3246,9 +6190,26 @@
 "lon": -96.503585,
 "pass": 1,
 "pid": "MOCK-2193-nye-dr",
+"roof_band": {
+"age": 88,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1938: roof age unknown, check the policy first",
+"es": "Construida en 1938: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1938",
-"es": "Granizo de 1.5 pulg., construida en 1938"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1938",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1938"
 },
 "year_built": 1938
 },
@@ -3265,10 +6226,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 45.5
+"score": 59.2
 },
 "house_line": {
 "en": "Built 1956",
@@ -3278,9 +6243,26 @@
 "lon": -96.504166,
 "pass": 1,
 "pid": "MOCK-634-w-21st-st",
+"roof_band": {
+"age": 70,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1956: roof age unknown, check the policy first",
+"es": "Construida en 1956: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.8\" hail, built 1956",
-"es": "Granizo de 1.8 pulg., construida en 1956"
+"en": "1.8\" hail, hail here 7 times since 2024, built 1956",
+"es": "Granizo de 1.8 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1956"
 },
 "year_built": 1956
 },
@@ -3297,10 +6279,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1912",
@@ -3310,9 +6296,26 @@
 "lon": -96.504231,
 "pass": 1,
 "pid": "MOCK-612-w-21st-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1912",
-"es": "Granizo de 1.5 pulg., construida en 1912"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -3329,10 +6332,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1912",
@@ -3342,9 +6349,26 @@
 "lon": -96.503196,
 "pass": 1,
 "pid": "MOCK-558-w-21st-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1912",
-"es": "Granizo de 1.5 pulg., construida en 1912"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -3361,10 +6385,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1968",
@@ -3374,9 +6402,26 @@
 "lon": -96.503057,
 "pass": 1,
 "pid": "MOCK-541-w-21st-st",
+"roof_band": {
+"age": 58,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1968: roof age unknown, check the policy first",
+"es": "Construida en 1968: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1968",
-"es": "Granizo de 1.5 pulg., construida en 1968"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1968",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1968"
 },
 "year_built": 1968
 },
@@ -3393,10 +6438,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1912",
@@ -3406,9 +6455,26 @@
 "lon": -96.502783,
 "pass": 1,
 "pid": "MOCK-540-w-21st-st",
+"roof_band": {
+"age": 114,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1912: roof age unknown, check the policy first",
+"es": "Construida en 1912: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1912",
-"es": "Granizo de 1.5 pulg., construida en 1912"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1912",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1912"
 },
 "year_built": 1912
 },
@@ -3425,10 +6491,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 45.5
+"score": 59.2
 },
 "house_line": {
 "en": "Built 1952",
@@ -3438,9 +6508,26 @@
 "lon": -96.502576,
 "pass": 1,
 "pid": "MOCK-524-w-21st-st",
+"roof_band": {
+"age": 74,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1952: roof age unknown, check the policy first",
+"es": "Construida en 1952: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.8\" hail, built 1952",
-"es": "Granizo de 1.8 pulg., construida en 1952"
+"en": "1.8\" hail, hail here 7 times since 2024, built 1952",
+"es": "Granizo de 1.8 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1952"
 },
 "year_built": 1952
 },
@@ -3457,10 +6544,14 @@
 "owner_fit": 0.595,
 "recent_sale": false,
 "roof_age": 1.0,
+"roof_band": "check",
 "sold_after_storm": 1.0,
+"stack": 1.3,
+"stack_count": 7,
+"stack_since": 2024,
 "value": 0.9
 },
-"score": 37.5
+"score": 48.7
 },
 "house_line": {
 "en": "Built 1956",
@@ -3470,9 +6561,26 @@
 "lon": -96.50353,
 "pass": 1,
 "pid": "MOCK-2044-n-colson-ave",
+"roof_band": {
+"age": 70,
+"band": "check",
+"estimate": true,
+"line": {
+"en": "Built 1956: roof age unknown, check the policy first",
+"es": "Construida en 1956: edad del techo desconocida, revisar la p\u00f3liza primero"
+}
+},
+"stack": {
+"count": 7,
+"line": {
+"en": "Hail here 7 times since 2024",
+"es": "Granizo aqu\u00ed 7 veces desde 2024"
+},
+"since": 2024
+},
 "why": {
-"en": "1.5\" hail, built 1956",
-"es": "Granizo de 1.5 pulg., construida en 1956"
+"en": "1.5\" hail, hail here 7 times since 2024, built 1956",
+"es": "Granizo de 1.5 pulg., granizo aqu\u00ed 7 veces desde 2024, construida en 1956"
 },
 "year_built": 1956
 }

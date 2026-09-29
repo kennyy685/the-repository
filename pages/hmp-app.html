@@ -3353,6 +3353,7 @@ function nsCard(l){
   if (sid === 'claim') extra.push(`<div class="ns-acts"><button type="button" class="btn" data-open="adj:${esc(l.id)}">${esc(AT().btn)}</button></div>`);   // v22
   if (sid === 'paper' && kind === 'cash') extra.push(flipBlock('ns-say', X.say, `<q>${esc(X.noWork)}</q>`, `<q>${esc(NSX[otherLang()].noWork)}</q>`) + `<p class="ns-info" id="nsNoWork"><b>${esc(X.info)}</b>${esc(X.noWorkWhy)}</p>`);   // v24 · T155
   if (nsWinter(sid)) extra.push(`<p class="ns-info" id="nsWinter"><b>${esc(X.info)}</b>${esc(nsWinter(sid))}</p>`);
+  if (sid === 'paper') extra.push(paperLegalBlock(l, kind));
   if (sid === 'paper') extra.push(`<p class="ns-info" id="nsNoImm"><b>${esc(X.info)}</b>${esc(X.noImm)}</p>`, `<p class="ns-info"><b>${esc(X.info)}</b>${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
   const musts = items.filter(x => x.must), mustOn = musts.filter(x => itemOn(l, x)).length;
   const ready = pickReady(act && act.pick, l.id) && (!act || !act.must || mustOn === musts.length);
@@ -3567,6 +3568,7 @@ function leadGuide(l, sid, kind){
   const extra = [];
   if (sid === 'paper' && kind === 'cash') extra.push(`<p class="mustl">${ic('lock')}<span><b>${esc(X.info)}:</b> ${esc(X.noWork)} ${esc(X.noWorkWhy)}</span></p>`);
   { const wl = withLang(gl, () => nsWinter(sid)); if (wl) extra.push(`<p><b>${esc(X.info)}:</b> ${esc(wl)}</p>`); }
+  if (sid === 'paper') extra.push(paperLegalBlock(l, kind));
   if (sid === 'paper') extra.push(`<p><b>${esc(X.info)}:</b> ${esc(X.noImm)}</p>`, `<p><b>${esc(X.info)}:</b> ${esc(X.whoFirst)}</p>`, `<p class="ns-info ns-cancel" style="margin:0">${esc(X.cancelBy(fmtDay(dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr()), true)))}</p>`);
   const btns = [];
   if (can && ((sid === 'table' && kind === 'cash') || (sid === 'inspect' && kind === 'cash') || sid === 'measure')) btns.push(`<button type="button" class="btn sec" data-open="est:${esc(l.id)}">${ic('ruler')}<span>${esc(X.estBtn(l.estimate && numv(l.estimate.low) != null))}</span></button>`);
@@ -5486,9 +5488,21 @@ async function sayHelp(text){
   } catch (e) { sayMsg = {bad: true, text: W.sayErr}; }
   finally { sayBusy = false; renderSheet(); }
 }
-function legalHtml(id){
+/* E2E 2026-09-29: the paper step shows the FIXED notices it asks him to get signed (cancel notice EN + ES with HMP's address
+   and the cancel date filled in; the 44-8607 deductible notice word for word), one tap each, so the homeowner can read them
+   right there. Same fixed text as Help me say it (HMPTranslate.readLegal): never generated, never live-translated. */
+let paperLegal = null;
+function paperLegalBlock(l, kind){
+  if (!window.HMPTranslate) return '';
+  const W = NW(), ids = kind === 'cash' ? ['cancel_notice'] : ['cancel_notice', 'deductible_notice'];
+  const dl = dayOf(l.cancel_by) || cancelByDay(dayOf(l.signed_on) || todayStr());
+  const btn = id => `<button type="button" class="btn" data-paperlegal="${id}" aria-pressed="${paperLegal === id}">${esc(id === 'cancel_notice' ? W.legalBtn.cancel : W.legalBtn.ded)}</button>`;
+  return `<div class="ns-acts ns-legal">${ids.map(btn).join('')}</div>${ids.includes(paperLegal) ? legalHtml(paperLegal, paperLegal === 'cancel_notice' ? dl : null) : ''}`;
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-paperlegal]'); if (!b) return; paperLegal = paperLegal === b.dataset.paperlegal ? null : b.dataset.paperlegal; renderSheet(); });
+function legalHtml(id, deadline){
   const T = window.HMPTranslate; if (!T || !id) return '';
-  const two = ['en', 'es'].map(l => { const d = T.readLegal(id, l, {}); return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
+  const two = ['en', 'es'].map(l => { const d = T.readLegal(id, l, {deadline}); return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
   return `<details class="fold" open><summary>${esc(NW().sayFixedDoc)}</summary>${two}</details>`;
 }
 function renderSay(){
