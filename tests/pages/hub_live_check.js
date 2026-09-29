@@ -389,6 +389,120 @@ async function scenarioLivePrompt(browser, url) {   // not allowed yet: no call 
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();
 }
+/* v34 (QUEUE-SPECS A + B + E): hand off end to end, a fix button on every alert, a why on every working robot */
+const HO_SID = "session_01HOTESTaaaaaaaaaaaaaaaa";
+function hoDocs(extra) {   // the fixture + one working helper chat (crew/sessions route, live off) + whatever the scenario adds
+  const d = JSON.parse(JSON.stringify(FIX));
+  d["crew/sessions"].sessions.push({ id: HO_SID, title: "Designer (ultracode): hub specs", state: "working", doing: "writing specs", cost_usd: 3, updated: "2026-09-29T00:25:00Z", created: "2026-09-29T00:05:00Z" });
+  d["crew/sessions"].sessions.push({ id: "session_01HODONEaaaaaaaaaaaaaaaa", title: "Builder: done job", state: "done", cost_usd: 2, updated: "2026-09-29T00:20:00Z" });
+  d["crew/sessions"].updatedAt = "2026-09-29T00:28:00Z";
+  return Object.assign(d, extra || {});
+}
+const evWrites = async p => (await log(p)).filter(x => x[0] === "set" && /^events\//.test(x[1])).map(x => x[1]);
+async function openChat(p, tick, sid) {
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  await p.click(`#opsBody [data-sel="s:${sid}"]`, { timeout: 3000 }); await tick(300);
+}
+async function scenarioHandoff(browser, url) {
+  const L = "handoff";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await openChat(p, tick, HO_SID);
+  ok(await p.isVisible(`#card [data-handoff="${HO_SID}"]`), `${L}: a working chat ($3) has no Hand off button`);
+  await p.click(`#card [data-handoff="${HO_SID}"]`, { timeout: 2000 }); await tick(1500);
+  const w1 = (await evWrites(p)).length;
+  ok(w1 === 1, `${L}: a tap wrote ${w1} events, want 1`);
+  const again = await p.$(`#card [data-handoff="${HO_SID}"]`);
+  if (again) { await again.click().catch(() => {}); await tick(1500); }
+  ok((await evWrites(p)).length === 1, `${L}: a second tap wrote another event`);
+  ok(/Asked/.test(await p.textContent("#card")), `${L}: no receipt on the chat card`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  await p.click(`#opsBody [data-sel="s:session_01HODONEaaaaaaaaaaaaaaaa"]`, { timeout: 3000 }); await tick(300);
+  ok(!(await p.$("#card [data-handoff]")), `${L}: a done chat shows Hand off`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioHandoffSteps(browser, url) {   // the King's steps fill the receipt; archived drops the row; no note after 30 min = Ask again
+  const L = "handoff-steps", tap = "20260929T000000Z-you";
+  const base = { [`events/${tap}`]: { agent: "you", name: "FilthE", kind: "handoff", to: "code", task: "fresh-chat", session: HO_SID, status: "done", at: "2026-09-29T00:00:00Z", text: "Hand off" } };
+  const step = (st, min, x) => ({ [`events/20260929T00${String(min).padStart(2, "0")}00Z-code-${st}`]: Object.assign({ agent: "code", kind: "note", task: "fresh-chat", re: tap, session: HO_SID, step: st, at: `2026-09-29T00:${String(min).padStart(2, "0")}:00Z`, text: "step " + st }, x || {}) });
+  let o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2), step("noted", 5, { note_path: "docs/orders/x-handoff.md" }))) });
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  const row = await o.p.textContent("#opsBody");
+  ok(/✓ Asked/.test(row) && /✓ Note saved/.test(row) && /● Fresh chat starting/.test(row), `${L}: asked+noted receipt wrong (${row.slice(0, 200)})`);
+  await o.ctx.close();
+  o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2), step("noted", 5), step("started", 8, { new_session: "session_01NEWaaaaaaaaaaaaaaaaaaa", new_title: "Designer (ultracode): hub specs" }), step("archived", 12))) });
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  ok(!(await o.p.$(`#opsBody [data-sel="s:${HO_SID}"]`)), `${L}: an archived hand-off still lists the old chat`);
+  await o.ctx.close();
+  o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2))) });   // NOW = 00:30, tap at 00:00, no note: late
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  ok(/No note yet/.test(await o.p.textContent("#opsBody")), `${L}: 30 min with no note isn't amber`);
+  await o.p.click(`#opsBody [data-hoagain="${HO_SID}"]`, { timeout: 2000 }); await o.tick(1500);
+  ok((await evWrites(o.p)).length === 1, `${L}: Ask again didn't write one new hand-off`);
+  ok(!o.errs.length, `${L}: page errors: ${o.errs.slice(0, 4).join(" | ")}`);
+  await o.ctx.close();
+}
+async function scenarioHandoffKing(browser, url) {   // the King's own chat: the Fresh King path (create_session), no helper hand-off event
+  const L = "handoff-king";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await openChat(p, tick, "session_TEST78c4f97889a4cc5df616");
+  const b = await p.$('#card [data-handoff="session_TEST78c4f97889a4cc5df616"]');
+  ok(!!b, `${L}: the King's chat has no Hand off`);
+  if (b) { await b.click(); await tick(4000); }
+  const cs = (await log(p)).filter(x => x[0] === "mcp" && x[1] === "create_session");
+  ok(cs.length === 1 && /king-handoff\.md/.test(JSON.stringify(cs[0][2] || {})), `${L}: didn't start a Fresh King that reads king-handoff.md (${cs.length})`);
+  ok(!(await evWrites(p)).some(id => /-you$/.test(id)), `${L}: wrote a helper hand-off for the King`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function alertsOf(p) { return p.evaluate(() => [...document.querySelectorAll("#nlist .need.alert, #nplate .need.alert")].map(b => ({ a: b.dataset.alert || "", t: b.textContent }))); }
+async function scenarioFixButtons(browser, url) {
+  const L = "fix-buttons";
+  const sched = { at: "2026-09-29T00:10:00Z", jobs: [
+    { id: "trig_01BROKEaaaaaaaaaaaaaaaaa", name: "Morning data", enabled: true, last: { status: "FAILED", at: "2026-09-28T12:00:00Z" } },
+    { id: "trig_01PAUSEDaaaaaaaaaaaaaaaa", name: "Old King 3x", enabled: false, ended_reason: "user_paused", why: "King is live now" } ] };
+  const d = hoDocs({ "system/schedule": sched });
+  delete d["system/king"].wake_trigger;
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const al = await p.evaluate(() => { const t = window.__hubT; t.computeWatch(); return t.alerts().map(a => ({ k: a.k, btn: a.btn || "", lbl: a.lbl || "", text: a.text })); });
+  const by = k => al.filter(a => a.k === k);
+  ok(by("sched").length === 1 && by("sched")[0].lbl === "Run it again", `${L}: broke job alert wrong (${JSON.stringify(by("sched"))})`);
+  ok(by("wake").length === 1 && by("wake")[0].lbl === "Reconnect", `${L}: wake-off alert wrong (${JSON.stringify(by("wake"))})`);
+  ok(!al.some(a => /Old King/.test(JSON.stringify(a))), `${L}: a paused-with-a-reason job raised an alert`);
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "fixsched", id: "trig_01BROKEaaaaaaaaaaaaaaaaa" })); await tick(1500);
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "fixsched", id: "trig_01BROKEaaaaaaaaaaaaaaaaa" })); await tick(1500);
+  const ev = (await log(p)).filter(x => x[0] === "set" && /^events\//.test(x[1]));
+  const body = ev.length ? await p.evaluate(k => JSON.stringify(window.__mockDb.store.get(k)), ev[0][1]) : "";
+  ok(ev.length === 1 && /"task":"fix-sched"/.test(body) && /trig_01BROKE/.test(body), `${L}: Run it again wrote ${ev.length} events (want 1 fix-sched): ${body.slice(0, 160)}`);
+  const sent = await p.evaluate(() => { const t = window.__hubT; t.computeWatch(); return t.alerts().filter(a => a.k === "sched").map(a => t.alertChip(a)).join(""); });
+  ok(/Sent · the King/.test(sent), `${L}: the tapped fix isn't a receipt`);
+  const n0 = (await log(p)).filter(x => x[0] === "set").length;
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "howfix" })); await tick(500);
+  ok((await log(p)).filter(x => x[0] === "set").length === n0, `${L}: How to fix wrote to the db`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioWhy(browser, url) {
+  const L = "why";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  const r = await p.evaluate(() => {
+    const t = window.__hubT, a = t.byId.designer, keep = {st:a.st, why:a.why, task:a.task}, out = {}, now = Date.now();
+    a.st = 'working'; a.why = ''; a.task = '';
+    out.none = t.whyWith(a, []);
+    a.why = 'posted reason'; out.posted = t.whyWith(a, []); a.why = '';
+    t.answers()['D99'] = {answer:'Yes', to:'designer'};
+    out.answer = t.whyWith(a, [{id:'x1', agent:'designer', kind:'start', re:'D99', atMs:now - 60000}]);
+    out.handoff = t.whyWith(a, [{id:'x2', agent:'code', kind:'handoff', to:'designer', atMs:now - 60000}]);
+    delete t.answers()['D99']; Object.assign(a, keep);
+    return out; });
+  ok(r.none === "", `${L}: no reason still printed "${r.none}"`);
+  ok(r.posted === "posted reason", `${L}: posted why lost`);
+  ok(/You answered D99: Yes/.test(r.answer), `${L}: answer rule wrong (${r.answer})`);
+  ok(/handed it over/.test(r.handoff), `${L}: handoff rule wrong (${r.handoff})`);
+  ok([r.answer, r.handoff].every(x => x.length <= 90), `${L}: a why over 90 chars`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
 async function scenarioLiveSlowConsent(browser, url) {   // QA 2026-09-29: he reads the consent prompt for 40 s; the read still lands, and a "no" stops quietly
   const L = "live-slow-consent";
   const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "prompt", reqMs: 40000 } });
@@ -479,6 +593,11 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
     await run("live-prompt", () => scenarioLivePrompt(browser, url));
     await run("live-slow-consent", () => scenarioLiveSlowConsent(browser, url));
     await run("live-refused", () => scenarioLiveRefused(browser, url));
+    await run("handoff", () => scenarioHandoff(browser, url));
+    await run("handoff-steps", () => scenarioHandoffSteps(browser, url));
+    await run("handoff-king", () => scenarioHandoffKing(browser, url));
+    await run("fix-buttons", () => scenarioFixButtons(browser, url));
+    await run("why", () => scenarioWhy(browser, url));
     await run("live-hang", () => scenarioLiveHang(browser, url));
     await run("live-text", () => scenarioLiveText(browser, url));
     await run("live-stale", () => scenarioLiveStale(browser, url));
@@ -486,5 +605,5 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (26 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (31 scenarios)");
 })();

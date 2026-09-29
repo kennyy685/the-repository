@@ -325,6 +325,14 @@ h1,h2,h3,p{margin:0}
 .spend .src{margin:0}
 .flag{display:grid;gap:2px;margin-top:6px;padding:8px 10px 4px 12px;border-left:2px solid var(--st-stuck);background:rgba(217,72,59,.10);border-radius:0 var(--r-sm) var(--r-sm) 0;font:500 14px/1.4 var(--f);color:var(--ink)}
 .flag > span:last-child{display:flex;flex-wrap:wrap;gap:0 4px;margin-left:-10px}
+/* v34 hand-off receipt (QUEUE-SPECS A) + a why line on hover in RIGHT NOW (E) */
+.ho{display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;margin:4px 0 6px;padding:6px 10px;border-left:2px solid var(--brass);border-radius:0 var(--r-sm) var(--r-sm) 0;font:500 12px/1.5 var(--mono);color:var(--muted)}
+.ho .ho-s.ok{color:var(--ink-2)} .ho .ho-s.cur{color:var(--ink)}
+.ho.late{border-left-color:var(--need)} .ho .ho-l{color:var(--need-ink)}
+.ho .ho-a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.nrow .wy{display:none}
+.nrow:hover .wy,.nrow:focus-visible .wy{display:block;position:absolute;left:128px;right:4px;top:100%;z-index:4;padding:2px 8px;border-radius:4px;background:var(--card-solid);color:var(--ink-2);font:400 12px/20px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.need.alert.sent{opacity:.85}
 .slist{list-style:none;margin:0;padding:0;display:grid}
 .srow{width:100%;min-height:52px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 4px;text-align:left;border-radius:var(--r-sm);border-bottom:1px solid var(--rule)}
 .srow:hover{background:rgba(241,242,244,.04)}
@@ -1473,8 +1481,8 @@ function sinceText(ms){ const T = L(); if (!ms) return ''; const m = Math.max(0,
 /* ================= Needs you: robots waiting on him (stopped work first), then board questions, oldest first ================= */
 let needsAll = false, plateOpen = false, lastNeedIds = null;
 let chipKeys = new Set();
-const alertChip = x => '<li>' + (x.btn ? '<button type="button" class="need alert" data-alert="' + x.btn + '" data-id="' + esc(x.data || '') + '" title="' + esc(x.text) + '">' : '<div class="need alert" title="' + esc(x.text) + '">') +
-  '<b>' + esc(x.text) + '</b>' + (x.btn ? '<span class="nq">' + esc(x.btn === 'run' ? L().runNow : x.btn === 'replan' ? L().replan : x.btn === 'chat' || x.btn === 'ops' ? L().ops.look : L().resend) + '</span></button>' : '</div>') + '</li>';
+const alertChip = x => x.fix && fixRecent(x.fix) ? '<li><div class="need alert sent" title="' + esc(x.text) + '"><b>' + esc(x.text) + '</b><span class="nq">' + esc(FIX_SENT) + '</span></div></li>' : '<li>' + (x.btn ? '<button type="button" class="need alert" data-alert="' + x.btn + '" data-id="' + esc(x.data || '') + '" title="' + esc(x.text) + '">' : '<div class="need alert" title="' + esc(x.text) + '">') +
+  '<b>' + esc(x.text) + '</b>' + (x.btn ? '<span class="nq">' + esc(x.lbl ? x.lbl : x.btn === 'run' ? L().runNow : x.btn === 'replan' ? L().replan : x.btn === 'chat' || x.btn === 'ops' ? L().ops.look : L().resend) + '</span></button>' : '</div>') + '</li>';
 const chip = (i, cls) => '<li><button type="button" class="need' + (cls ? ' ' + cls : '') + (chipKeys.has(i.key) ? '' : ' in') + '" data-sel="' + esc(i.key) + '" aria-pressed="' + (selected === i.key) + '" title="' + esc(i.text + (holdLine(i) ? ' · ' + holdLine(i) : '')) + '" aria-label="' + esc(i.who + ': ' + i.text) + '">' +
   '<b>' + esc(i.who) + '</b><span class="nq">' + esc(i.text) + '</span>' + (i.at ? '<time>' + esc(sinceText(i.at).replace('+', '')) + '</time>' : '') + '</button></li>';
 function renderNeeds(){
@@ -1712,10 +1720,10 @@ function renderNow(){
   if (items.length) { const oldest = Math.min(...items.map(i => i.at || Date.now()));
     html += '<li><button type="button" class="nrow you" data-now="you" style="--c:var(--st-needs)" title="' + esc(items[0].who + ': ' + items[0].text) + '">' + glyph('needs') + '<span class="nm">You</span><span class="vb">' + esc(items.length + ' to answer · oldest ' + ageShort(oldest)) + '</span><span class="mt"></span><span class="ag"></span></button></li>'; }
   for (const r of rows) { const a = byId[r.id], d = nowDetail[r.id] || '';
-    const tip = tx(a.def.name) + ': ' + r.verb + (d ? ' · ' + d : '') + (r.metric ? ' · ' + r.metric : '') + (a.why ? '\nWhy: ' + a.why : '');
+    const tip = tx(a.def.name) + ': ' + r.verb + (d ? ' · ' + d : '') + (r.metric ? ' · ' + r.metric : '') + (whyOf(a) ? '\nWhy: ' + whyOf(a) : ''), wy = whyOf(a);
     html += '<li><button type="button" class="nrow s7-' + r.st7 + '" data-now="' + r.id + '" aria-pressed="' + (selected === r.id) + '" style="--c:' + st7c(r.st7) + ';--ci:var(--in-' + r.st7 + ')" title="' + esc(tip) + '">' +
       glyph(r.st7) + '<span class="nm">' + esc(tx(a.def.name)) + '</span><span class="vb"><b>' + esc(r.verb) + '</b>' + (d ? ' · ' + esc(d) : '') + '</span>' +
-      '<span class="mt">' + esc(r.metric) + '</span><span class="ag">' + esc(ageShort(r.since)) + '</span></button></li>'; }
+      '<span class="mt">' + esc(r.metric) + '</span><span class="ag">' + esc(ageShort(r.since)) + '</span>' + (wy ? '<span class="wy">Why: ' + esc(wy) + '</span>' : '') + '</button></li>'; }
   if (html === nowDomSig) return; nowDomSig = html;
   const focusId = document.activeElement && list.contains(document.activeElement) ? document.activeElement.dataset.now : null;
   list.innerHTML = html; nowHl = null;
@@ -1817,7 +1825,7 @@ function cardBot(a){
     (qi ? '<dt>' + esc(T.f.queued) + '</dt><dd class="now">' + esc(nowDetail[a.id] || '') + (qi.task ? taskChip(qi.task) : '') + '</dd>' : '') +
     (!asked && st !== 'blocked' && !qi && !quietNow ? '<dt>' + esc(T.f.now) + '</dt><dd class="now">' + esc(doing) + (a.task ? taskChip(a.task) : '') + '</dd>' : '') +
     (!asked && st !== 'blocked' && !qi && quietNow && a.doing ? '<dt>' + esc(T.f.lastTask) + '</dt><dd>' + esc(a.doing) + (a.task ? taskChip(a.task) : '') + ' · <span class="stale">' + esc(d.orphan ? T.orphan(tFmt.format(d.orphan)) : T.noCheckoutAt(tFmt.format(a.atMs))) + '</span></dd>' : '') +
-    (a.why ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(a.why) + '</dd>' : '') +
+    (whyOf(a) ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(whyOf(a)) + '</dd>' : '') +
     (a.result ? '<dt>' + esc(T.f.result) + '</dt><dd><span class="num">' + esc(a.result.passed + ' of ' + a.result.of + ' passed') + '</span>' + (a.result.issues ? ' · ' + esc(a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues')) : '') + '</dd>' : '') +
     rcCard(a) +
     (prog && st === 'working' && !a.silent ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
@@ -2304,7 +2312,7 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#viewMenu,#camMore')) closeViewMenu();
   if (!e.target.closest('#optMenu,#optBtn')) closeOptMenu();
   const c = e.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c.classList.contains('cp') ? c : null); return; }
-  const cv = e.target.closest('[data-same],[data-notsame],[data-unpark],[data-undo],[data-wakenow],[data-alert],[data-dec],[data-handoff],[data-keep]');
+  const cv = e.target.closest('[data-same],[data-notsame],[data-unpark],[data-undo],[data-wakenow],[data-alert],[data-dec],[data-handoff],[data-keep],[data-hoagain]');
   if (cv) { convClick(cv); return; }
   const ey = e.target.closest('[data-eyes]'); if (ey) { setCam('eyes'); return; }
   const ty = e.target.closest('[data-type]'); if (ty) { closeQPlate(); select(ty.dataset.type, {keep:true}); const i = $('#card input'); if (i) i.focus(); return; }
@@ -2325,6 +2333,8 @@ function convClick(b){
   if (d.unpark) { unparked.add(d.unpark); renderCard(true); renderBoard(); return; }
   if (d.undo) { undoAnswer(d.undo); return; }
   if (b.hasAttribute('data-wakenow')) { if (wakeQ.length) { fireWake(); appToast(T.woke, 2000); } return; }
+  if (d.hoagain) { askHandoff(d.hoagain, true); return; }
+  if (fixClick(d)) return;
   if (d.alert === 'chat') { if (d.id) select('s:' + d.id, {keep:true}); return; }
   if (d.alert === 'ops') { setTab('ops'); return; }
   if (d.handoff) { askHandoff(d.handoff); return; }
@@ -3195,14 +3205,19 @@ function hotOf(s){
   if (s.cost >= HOT_TOTAL) return {text:O.hotTotal(s.title, money(s.cost))};
   return null;
 }
-async function askHandoff(id){
-  const s = sessions().find(x => x.id === id), T = L(); if (!s || !DB) return; const at = nowIso(), stamp = stampOf(at);
+const hoBusy = new Set();
+async function askHandoff(id, again){
+  const s = sessions().find(x => x.id === id), T = L(); if (!s || !DB || hoBusy.has(id)) return;
+  if (isKingSess(s)) { startFreshKing(); return; }   // the King's own chat: the Fresh King flow (pending_king + wake trigger), not the helper protocol
+  const h = handoffOf(id); if (h && (h.open || h.step >= 3) && !(again && h.late)) { appToast('Already asked · the King’s on it', 2500); return; }
+  const at = nowIso(), stamp = stampOf(at); hoBusy.add(id);
   try {
     await withTimeout(DB.doc('events/' + stamp + '-you').set({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task:'fresh-chat', session:s.id, status:'done', room:'board', at,
       text:`Hand off "${s.title}" (about $${money(s.cost)}): write + commit its handoff note, start a fresh chat from it, archive this one after the new one checks in.`.slice(0, 300)}));
     wake(`hand off chat "${s.title.slice(0, 60)}" (${s.id}): FilthE tapped Hand it off [events/${stamp}-you]`, true);
     keepGoing(id, true); appToast(T.ops.handed, 4500);
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); }
+  finally { setTimeout(() => hoBusy.delete(id), 5000); }   // the event lands through the snapshot; until then a double tap does nothing
 }
 function keepGoing(id, quiet){
   const s = sessions().find(x => x.id === id); if (!s) return;
@@ -3218,7 +3233,7 @@ const jobName = j => String(j.name || j.id).slice(0, 60);
 const jobFailed = j => /fail|error|timeout|crash/i.test(String((j.last && j.last.status) || ''));
 function jobState(j){
   const why = String(j.ended_reason || '');
-  if (j.enabled === false) return /run_once_fired/i.test(why) ? 'done' : why ? 'broke' : 'paused';
+  if (j.enabled === false) return /run_once_fired/i.test(why) ? 'done' : why && !j.why ? 'broke' : 'paused';   // paused with a reason stays paused: no alert, no button
   return jobFailed(j) ? 'broke' : 'on';
 }
 function cronLabel(j){
@@ -3263,12 +3278,12 @@ function cardSession(id){
   return railHtml() + '<div class="card-h"><span class="no">' + esc(O.chatWord) + '</span><h2>' + esc(s.title) + '</h2><span class="wear">Claude Code</span><span class="stl">' + stWord(SESS_S7[s.st], O.st[s.st]) +
       (s.atMs ? ' <span class="src">' + esc(sinceText(s.atMs).replace('+', '')) + '</span>' : '') + '</span>' + closeBtn() + '</div>' +
     (asked ? '<div class="ask"><div class="lbl">' + esc(O.needsYou) + '</div><div class="v">' + esc(s.needs_you) + '</div>' + answerBlock(qid, s.needs_you, 'code', findItem(qid) || {sess:s.id, m:{}}) + '</div>' : '') +
-    (h ? flagHtml(s, h) : '') +
+    (h && !(handoffOf(s.id) || {}).open ? flagHtml(s, h) : '') + hoReceipt(s) +
     '<dl class="facts">' + (s.doing ? '<dt>' + esc(O.doing) + '</dt><dd class="now">' + esc(s.doing) + '</dd>' : '') +
     '<dt>' + esc(O.cost) + '</dt><dd><span class="num">about $' + esc(money(s.cost)) + '</span></dd>' +
     (s.startMs ? '<dt>' + esc(O.started) + '</dt><dd>' + esc(whenFull(s.startMs)) + '</dd>' : '') +
     '<dt>' + esc(O.updated) + '</dt><dd>' + (s.atMs ? esc(ago(s.atMs)) + ' · <time>' + esc(whenFull(s.atMs)) + '</time>' : '—') + '</dd></dl>' +
-    '<p class="pv"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(O.open) + ' ↗</a></p>';
+    '<p class="pv"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(O.open) + ' ↗</a>' + hoButton(s) + '</p>';
 }
 /* the Chats tab: spend on top, then your chats (needs you first), then the schedule strip */
 function renderOps(){
@@ -3279,12 +3294,12 @@ function renderOps(){
     (SD ? '<div class="big"><span><small>' + esc(O.today) + '</small>$' + esc(money(sp.today)) + '</span><span><small>' + esc(O.week) + '</small>$' + esc(money(sp.week)) + '</span></div>' +
       (sp.total && sp.since ? '<p class="src">' + esc(O.total(money(sp.total), sp.closed, sp.since)) + '</p>' : '') : '<p class="empty">' + esc(O.noSpend) + '</p>') +
     hots.map(p => flagHtml(p[0], p[1])).join('') + '</section>';
-  const order = {needs:0, working:1, failed:2, done:3}, list = ss.slice().sort((a, b) => (order[a.st] - order[b.st]) || (b.atMs - a.atMs));
+  const order = {needs:0, working:1, failed:2, done:3}, list = ss.filter(s => !handedOff(s.id)).sort((a, b) => (order[a.st] - order[b.st]) || (b.atMs - a.atMs));
   const openN = ss.filter(s => s.st !== 'done').length;
   html += '<section aria-labelledby="chH"><div class="subh"><h2 class="lbl" id="chH">' + esc(O.chatsH) + (SD ? ' · ' + esc(O.chatsN(openN)) : '') + '</h2>' + (SD && SD.live ? '<span class="src">' + esc(liveAgo()) + '</span>' : asOf(SD ? Date.parse(SD.updatedAt || '') || 0 : 0)) + '</div>' +
     (list.length ? '<ul class="slist">' + list.map(s => { const ans = s.st === 'needs' && answers[sessQid(s)], line = s.st === 'needs' ? (ans ? O.answered : s.needs_you) : s.doing || O.st[s.st];
       return '<li><button type="button" class="srow ' + s.st + (hotOf(s) ? ' hot' : '') + '" data-sel="s:' + esc(s.id) + '" aria-pressed="' + (selected === 's:' + s.id) + '" style="--c:' + st7c(SESS_S7[s.st]) + '" aria-label="' + esc(s.title + ', ' + O.st[s.st] + ': ' + line + ', about $' + money(s.cost)) + '">' +
-        '<i class="sd" aria-hidden="true"></i><span class="t"><span class="nm">' + esc(s.title) + '</span><span class="d">' + esc(line) + '</span></span><span class="rt"><b>$' + esc(money(s.cost)) + '</b><span>' + esc(s.atMs ? sinceText(s.atMs).replace('+', '') : '') + '</span></span></button></li>'; }).join('') + '</ul>'
+        '<i class="sd" aria-hidden="true"></i><span class="t"><span class="nm">' + esc(s.title) + '</span><span class="d">' + esc(line) + '</span></span><span class="rt"><b>$' + esc(money(s.cost)) + '</b><span>' + esc(s.atMs ? sinceText(s.atMs).replace('+', '') : '') + '</span></span></button>' + hoReceipt(s) + '</li>'; }).join('') + '</ul>'
       : '<p class="empty">' + esc(O.none) + '</p>') + '</section>';
   const js = jobs(), sc = {on:0, paused:0, broke:0, done:0}; for (const j of js) sc[jobState(j)]++;
   const rank = {broke:0, on:1, paused:2, done:3};
@@ -3390,7 +3405,7 @@ function applyLive(){   // the real chats drive the Code lab's robots; hand-writ
     a.status = LIVE_STATUS[x.state] || 'working';
     a.doing = (x.state === 'needs_you' ? x.needs_you : x.state === 'working' ? jobOf(x.title) : x.last || jobOf(x.title)).slice(0, 240);
     a.ask = x.state === 'needs_you' ? x.needs_you : ''; a.atMs = Date.parse(x.updated) || a.atMs || 0;
-    a.task = ''; a.progress = null; a.result = null; a.step = ''; a.metrics = null; a.why = list.length > 1 ? (list.length + ' chats open').slice(0, 90) : '';
+    a.task = ''; a.progress = null; a.result = null; a.step = ''; a.metrics = null; a.why = '';   // the chat count shows under Chats; a why is a reason, never a count
   }
 }
 const lvQid = a => a.lv && a.lv.needs_you ? sessQid(normSess(a.lv)) : '';
@@ -3468,6 +3483,70 @@ function liveBoardGroup(){
       (x.needs_you ? '<span class="nx">' + esc(x.needs_you.slice(0, 90)) + '</span>' : x.state === 'working' && x.step ? '<span>' + esc(x.step.slice(0, 70)) + '</span>' : '') + '<span class="num">' + esc(ageShort(n.atMs)) + '</span></span></button></li>'; }).join('');
   return '<section class="bgroup"><h3 class="lbl"><span>Live from the chats · ' + esc(liveAgo().replace(/^Live · /, '')) + '</span><span class="num">' + list.length + '</span></h3>' + (rows ? '<ul class="tasks">' + rows + '</ul>' : '<p class="empty">No open chats.</p>') + '</section>';
 }
+/* ================= v34 (QUEUE-SPECS A + B + E): Hand off end to end, a fix button on every alert, a "why" on every working robot =================
+   A: every open chat's card has Hand off; the tap writes one handoff event and the King posts steps back with re:<tap id>
+      (asked -> noted -> started -> archived); the chat's row shows the receipt and drops out when archived. The King's own
+      chat uses the Fresh King flow instead. B: each alert carries the one button that fixes it; a fix tap writes one handoff
+      event for the King + a wake, then turns into "Sent · the King's on it" (10 min, per fix id). E: whyOf(a). */
+const HO_STEPS = ['asked', 'noted', 'started', 'archived'], HO_WORD = {asked:'Asked', noted:'Note saved', started:'Fresh chat starting', archived:'Old one closed'};
+const HO_OPEN_MS = 2*3600e3, HO_SHOW_MS = 12*3600e3, HO_LATE_MS = 30*60e3;
+const isKingSess = s => !!s && (s.bot === 'code' || /^\s*smuipo\b|\(king\)/i.test(s.title || '') || !!(kingDoc && kingDoc.live_session && kingDoc.live_session === s.id));
+const canHandOff = s => !!s && (s.st === 'working' || s.st === 'needs');
+function handoffOf(id){   // the newest hand-off tap for this chat and how far the King got (events are newest first)
+  const now = Date.now(), tap = events.find(e => e.agent === 'you' && e.kind === 'handoff' && e.task === 'fresh-chat' && e.session === id && now - e.atMs < HO_SHOW_MS);
+  if (!tap) return null;
+  const r = {tap, step:-1, at:tap.atMs, newSession:'', newTitle:'', notePath:''};
+  for (const e of events) { if (e.agent !== 'code' || e.re !== tap.id) continue; const i = HO_STEPS.indexOf(e.step);
+    if (i > r.step) { r.step = i; r.at = e.atMs; } if (e.newSession && !r.newSession) r.newSession = e.newSession; if (e.newTitle && !r.newTitle) r.newTitle = e.newTitle; if (e.notePath && !r.notePath) r.notePath = e.notePath; }
+  r.late = r.step < 1 && now - tap.atMs > HO_LATE_MS; r.open = !r.late && r.step < 3 && now - tap.atMs < HO_OPEN_MS;
+  return r;
+}
+const handedOff = id => { const h = handoffOf(id); return !!(h && h.step >= 3); };
+function hoReceipt(s){
+  const h = handoffOf(s.id); if (!h || h.step >= 3) return '';
+  const steps = HO_STEPS.slice(0, 4).map((k, i) => { const on = i <= h.step, cur = i === h.step + 1 && !h.late;
+    return '<span class="ho-s' + (on ? ' ok' : cur ? ' cur' : '') + '">' + (on ? '✓' : cur ? '●' : '○') + ' ' + esc(HO_WORD[k]) + (k === 'noted' && on && h.notePath ? ' <span class="src">' + esc(h.notePath.slice(0, 60)) + '</span>' : '') + '</span>'; }).join('');
+  const fresh = /^session_[A-Za-z0-9_-]{4,80}$/.test(h.newSession) ? '<a class="ho-a" href="https://claude.ai/code/' + esc(h.newSession) + '" target="_blank" rel="noopener">Fresh chat: ' + esc((h.newTitle || s.title).slice(0, 60)) + ' · open ↗</a>' : '';
+  return '<div class="ho' + (h.late ? ' late' : '') + '" role="status">' + steps + (h.late ? '<span class="ho-l">No note yet</span><button type="button" class="tb" data-hoagain="' + esc(s.id) + '">Ask again</button>' : '') + fresh +
+    '<span class="src">as of ' + esc(ago(h.at)) + '</span></div>';
+}
+const hoButton = s => canHandOff(s) && DB && !(handoffOf(s.id) || {}).open ? '<button type="button" class="tb" data-handoff="' + esc(s.id) + '">' + (isKingSess(s) ? 'Hand off (Fresh King)' : 'Hand off') + '</button>' : '';
+/* B: fix buttons */
+const FIX_MS = 10*60e3, FIX_SENT = 'Sent · the King’s on it';
+const fixRecent = id => { const t = +(store.get('hub-fix-' + id) || 0); return Date.now() - t < FIX_MS; };
+const STORM_FIX = 'Open Cowork on the Mac; Storm Watch runs on the next open.';
+async function fixIt(id, task, extra, text, wakeText){
+  if (fixRecent(id)) { appToast(FIX_SENT, 2500); return; }
+  if (!DB) { appToast(L().sendFail); return; }
+  store.set('hub-fix-' + id, String(Date.now())); computeWatch(); renderNeeds();
+  const at = nowIso(), sid = stampOf(at) + '-you';
+  try { await withTimeout(DB.doc('events/' + sid).set(Object.assign({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task, status:'done', room:'board', at, text:String(text).slice(0, 300)}, extra || {})));
+    wake((wakeText + ' [events/' + sid + ']').slice(0, 400), true); appToast(FIX_SENT, 2500);
+  } catch (e) { store.set('hub-fix-' + id, '0'); appToast(e && e.code === 'invalid_argument' ? L().ownerOnly : L().sendFail); }
+  computeWatch(); renderNeeds();
+}
+function fixClick(d){
+  if (d.alert === 'handoff') { askHandoff(d.id); return true; }
+  if (d.alert === 'howfix') { copyText(STORM_FIX, null); appToast(STORM_FIX + ' (copied)', 6000); return true; }
+  if (d.alert === 'fixsched') { const j = jobs().find(x => String(x.id || x.name) === d.id); const nm = j ? jobName(j) : d.id;
+    fixIt('sched-' + d.id, 'fix-sched', {trigger:d.id}, `Run it again: ${nm}. fire_trigger if it's ours and on; update_trigger enabled:true only if it was switched off with no reason.`, `fix-sched: FilthE tapped Run it again on "${nm}" (${d.id})`); return true; }
+  if (d.alert === 'fixwake') { fixIt('wake', 'fix-wake', {}, 'Reconnect instant wake: make a poke-only trigger bound to the live King chat and write its id to system/king.wake_trigger.', 'fix-wake: FilthE tapped Reconnect (instant wake is off)'); return true; }
+  if (d.alert === 'fixsilent') { const nm = nameOf(d.id);
+    fixIt('silent-' + d.id, 'fix-silent', {agent_id:d.id}, `Check on ${nm}: it's been quiet 30+ min. get_session / list_events, then mark it idle with the reason or re-run the job.`, `fix-silent: FilthE tapped Check on it for ${nm}`); return true; }
+  return false;
+}
+/* E: why is this robot doing that? first hit wins; nothing matches = no line (never "Why: working") */
+function whyOf(a){
+  if (!a) return '';
+  if (a.why) return a.why.slice(0, 90);
+  if (a.st !== 'working') return '';
+  const now = Date.now(), H = 12*3600e3;
+  for (const e of events) { if (now - e.atMs > H) break; if (e.agent === a.id && e.re && answers[e.re] && answers[e.re].answer) return ('You answered ' + e.re + ': ' + txv(answers[e.re].answer)).slice(0, 90); }
+  if (board && a.task) { const x = [...(board.now || []), ...(board.next || [])].find(t => t && t.id === a.task); if (x && x.after) return ('Next on the board after ' + String(x.after)).slice(0, 90); }
+  for (const e of events) { if (now - e.atMs > H) break; if (e.kind === 'handoff' && e.to === a.id && e.agent !== a.id) return (nameOf(e.agent) + ' handed it over').slice(0, 90); }
+  return '';
+}
+
 /* the snapshot the instant chat answers from: the same live truth the page shows */
 const ctxSafe = (v, n) => String(v == null ? '' : v).replace(/[`=]{2,}|[\r\n]+/g, ' ').slice(0, n);   // robot-written text can't fake a section marker
 function liveContext(){
@@ -3529,15 +3608,17 @@ function computeWatch(){
   }
   const sw = byId['storm-watch'], m = centralMinute();
   if (sw.atMs && m > 6*60 + 54 + 30 && !events.some(e => e.agent === 'storm-watch' && dayOf(e.atMs) === todayK()) && dayOf(sw.atMs) !== todayK())
-    out.push({k:'storm', text:T.swMiss + (kfetStorm ? ' · ' + T.kfet : '')});
+    out.push({k:'storm', text:T.swMiss + (kfetStorm ? ' · ' + T.kfet : ''), btn:'howfix', lbl:'How to fix'});
   for (const st of stuckRuns()) out.push({k:'stuck', text:T.stuckRuns(nameOf(st.agent), st.task, st.n), btn:'replan', data:st.agent + '|' + st.task});
   for (const [id, a] of Object.entries(answers)) { if (!a || !a.to || a.to === 'code' || a.answer === 'Not now' || !byId[a.to]) continue;
     const ms = Date.parse(a.at || ''); if (!ms || Date.now() - ms > 2*DAY) continue;
     const ran = events.some(e => e.agent === 'code' && e.kind === 'start' && e.atMs > ms) && byId.code.atMs > ms && !kingRunning();
     const passed = events.some(e => e.agent === 'code' && e.kind === 'handoff' && e.to === a.to && e.atMs > ms) || events.some(e => e.re === id);
     if (ran && !passed) out.push({k:'dropped', text:T.dropped(id, nameOf(a.to)), btn:'resend', data:id}); }
-  for (const s of sessions()) { const h = hotOf(s); if (h) out.push({k:'spend', text:h.text, btn:'chat', data:s.id}); }
-  for (const j of jobs()) { const st = jobState(j); if (st === 'broke') out.push({k:'sched', text:(j.enabled === false ? T.ops.stoppedAlert : T.ops.brokeAlert)(jobName(j)), btn:'ops'}); }
+  for (const s of sessions()) { const h = hotOf(s); if (h && !(handoffOf(s.id) || {}).open && !handedOff(s.id)) out.push({k:'spend', text:h.text, btn:'handoff', lbl:'Hand it off', data:s.id}); }
+  for (const j of jobs()) { const st = jobState(j), jid = String(j.id || j.name); if (st === 'broke') out.push({k:'sched', text:(j.enabled === false ? T.ops.stoppedAlert : T.ops.brokeAlert)(jobName(j)), btn:'fixsched', lbl:'Run it again', data:jid, fix:'sched-' + jid}); }
+  if (wakeOff()) out.push({k:'wake', text:'Instant wake is off · answers ride the next run', btn:'fixwake', lbl:'Reconnect', fix:'wake'});
+  for (const a of bots) if (a.silent && a.id !== 'code' && a.def.kind !== 'scheduled' && !replay) out.push({k:'silent', text:tx(a.def.name) + ' quiet ' + ageShort(a.atMs), btn:'fixsilent', lbl:'Check on it', data:a.id, fix:'silent-' + a.id});
   alerts = out;
   const working = bots.filter(a => a.st === 'working').length;
   healthText = (working ? T.allNormal(working, nr.label) : T.quietDesign(nr.label)) + (wakeOff() ? ' · ' + T.wakeOffL(nr.label) : '');
@@ -4262,7 +4343,7 @@ function onAgents(snap){
 }
 function onEvents(snap){
   const seen = new Set(events.map(e => e.id));
-  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
+  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', session:d.session ? String(d.session).slice(0, 80) : '', step:d.step ? String(d.step).slice(0, 12) : '', newSession:d.new_session ? String(d.new_session).slice(0, 80) : '', newTitle:d.new_title ? String(d.new_title).slice(0, 80) : '', notePath:d.note_path ? String(d.note_path).slice(0, 120) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
   if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) { pushHandoff(e.agent, e.to); pushFlow(e); } if (!replay) tannoyEvent(e); }
   gotEvents = true; got(); renderThread(true); sweepThread();
@@ -4360,7 +4441,7 @@ applyTheme(false); applyCat(false); applyStatic(); setTab(tab, 'init'); setCam(c
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); renderReport(); computeObservatory(); armSeen();
 connect(); fetchWeather(); renderBrief(); setTimeout(() => pollLive(false), 1500);   // v33: live by itself only when already allowed; else the top card's Go live
 scene3d(false);
-if (window.__MOCK) window.__hubT = {needItems, select};   // the smoke tests' mock runtime only (tests/pages/hub_runtime_mock.js sets __MOCK)
+if (window.__MOCK) window.__hubT = {needItems, select, computeWatch, alerts: () => alerts, fixClick, alertChip, byId, answers: () => answers, whyWith: (a, evs) => { const e0 = events; events = evs; try { return whyOf(a); } finally { events = e0; } }};   // the smoke tests' mock runtime only (tests/pages/hub_runtime_mock.js sets __MOCK)
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
