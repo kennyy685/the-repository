@@ -1,7 +1,7 @@
 /* v28.1 hub chat check: a mocked runtime (db + user + sample + mcp) drives the King chat end to end.
  *   node tests/pages/hub_chat_check.js   -> screenshots in tests/pages/out/hub-chat-*.png, exit 1 on a failed check
  * Checks: a question gets an instant SMUIPO answer (no wake), an order streams "Got it, sending to the King", fires the
- * CURRENT system/king.wake_trigger at once, and the status walks sent -> King got it -> on it -> done. */
+ * CURRENT system/king.wake_trigger as a timed wake (update_trigger, next whole minute), and the status walks sent -> King got it -> on it -> done. */
 "use strict";
 const { chromium } = require("playwright");
 const path = require("path");
@@ -43,7 +43,7 @@ const MOCK = () => {
   };
   sample.json = async () => ({ reply: "ok", actions: [] });
   const mcp = { callTool: async (server, tool, input) => { calls.push({ tool, input });
-    if (tool === "fire_trigger") { window.__mock.lastRun = { status: "SUCCEEDED", fired_at: new Date().toISOString() }; return { payload: {} }; }
+    if (tool === "update_trigger") { window.__mock.lastRun = { status: "SUCCEEDED", fired_at: input.run_once_at }; return { payload: {} }; }   // a timed wake: it fires at run_once_at
     if (tool === "get_session") return { payload: { ccr: { id: input.session_id, external_metadata: { context_usage: { used_tokens: 236000 } }, session_context: { model: "m-test" } } } };
     if (tool === "list_environments") return { payload: { environments: [{ environment_id: "env_TEST", kind: "anthropic_cloud", state: "active" }] } };
     if (tool === "create_session") return { payload: { session_id: "session_NEWKING01" } };
@@ -61,6 +61,7 @@ const MOCK = () => {
     page.on("pageerror", (e) => errs.push(String(e)));
     await page.addInitScript(MOCK);
     if (look === "ledger") await page.addInitScript(() => { try { localStorage.setItem("hub-theme", JSON.stringify({ look: "ledger" })); } catch (e) {} });
+    await page.clock.install();   // the delivery look waits for the timed wake (~1.5 min): fast-forwarded below
     await page.goto(await pageUrl("pages/crew-hq.html"));
     await page.waitForTimeout(2500);
     await page.keyboard.press("k").catch(() => {});
@@ -69,7 +70,7 @@ const MOCK = () => {
     // 1) a question: instant answer, no wake
     await page.fill("#kcInput", "TEST: what are you working on?"); await page.press("#kcInput", "Enter");
     await page.waitForTimeout(2500);
-    let st = await page.evaluate(() => ({ fires: window.__mock.calls.filter((c) => c.tool === "fire_trigger").length,
+    let st = await page.evaluate(() => ({ fires: window.__mock.calls.filter((c) => c.tool === "update_trigger").length,
       inst: [...window.__mock.docs.entries()].filter(([k, v]) => /-king-i$/.test(k) && v.instant).length,
       mode: [...window.__mock.docs.entries()].filter(([k]) => /-you-k$/.test(k)).map(([, v]) => v.mode) }));
     if (st.fires !== 0) fails.push(look + ": a question woke the King");
@@ -80,13 +81,15 @@ const MOCK = () => {
     await page.waitForTimeout(1100);   // new second = new event id
     await page.fill("#kcInput", "TEST: build the test thing please"); await page.press("#kcInput", "Enter");
     await page.waitForTimeout(2500);
-    st = await page.evaluate(() => ({ fires: window.__mock.calls.filter((c) => c.tool === "fire_trigger"), ev: [...window.__mock.docs.entries()].filter(([k]) => /-you-k$/.test(k)).map(([k, v]) => [k, v]) }));
-    if (st.fires.length !== 1 || st.fires[0].input.trigger_id !== "trig_TESTwake01") fails.push(look + ": order did not fire the current trigger once");
+    st = await page.evaluate(() => ({ t0: Date.now(), fires: window.__mock.calls.filter((c) => c.tool === "update_trigger"), ev: [...window.__mock.docs.entries()].filter(([k]) => /-you-k$/.test(k)).map(([k, v]) => [k, v]) }));
+    if (st.fires.length !== 1 || st.fires[0].input.trigger_id !== "trig_TESTwake01") fails.push(look + ": order did not wake the current trigger once");
+    else { const w = st.fires[0].input, lead = (Date.parse(w.run_once_at) - st.t0) / 1000;
+      if (w.enabled !== true || !/T\d\d:\d\d:00Z$/.test(w.run_once_at || "") || !(lead >= 15 && lead <= 81) || "text" in w) fails.push(look + ": timed wake args wrong " + JSON.stringify(w) + " lead " + lead); }
     const ord = st.ev[st.ev.length - 1];
     if (!ord || ord[1].mode !== "order" || ord[1].wake !== "ok") fails.push(look + ": order event not stamped (" + JSON.stringify(ord && ord[1]) + ")");
     await page.screenshot({ path: path.join(OUT, `hub-chat-${look}-sent.png`) });
-    // delivery check (12 s) -> "King got it"; then the King acks and replies
-    await page.waitForTimeout(13000);
+    // delivery look (after the timed wake lands, ~95 s) -> "King got it"; then the King acks and replies
+    await page.clock.fastForward(100000); await page.waitForTimeout(800);
     const got = await page.evaluate(() => [...document.querySelectorAll("#ktLog .kt-st span")].map((s) => s.textContent));
     if (!got.some((t) => /King got it/.test(t))) fails.push(look + ": no 'King got it' after last_run (" + got + ")");
     await page.evaluate((id) => { const at = new Date().toISOString().replace(/\.\d+Z$/, "Z"), s = at.replace(/[-:]/g, "");
@@ -112,10 +115,11 @@ const MOCK = () => {
       await page.screenshot({ path: path.join(OUT, "hub-chat-fresh-ask.png") });
       await page.click('#kFresh [data-fk="yes"]'); await page.waitForTimeout(1500);
       const r = await page.evaluate(() => ({ cs: window.__mock.calls.filter((c) => c.tool === "create_session").map((c) => c.input), k: window.__mock.docs.get("system/king"),
-        lastFire: window.__mock.calls.filter((c) => c.tool === "fire_trigger").pop() }));
+        lastFire: window.__mock.calls.filter((c) => c.tool === "update_trigger").pop() }));
       if (r.cs.length !== 1 || r.cs[0].environment_id !== "env_TEST" || r.cs[0].source_revision !== "claude/amazing-gauss-yzfpq0" || r.cs[0].model !== "m-test") fails.push("fresh: create_session args " + JSON.stringify(r.cs));
       if (!r.k.pending_king || r.k.pending_king.session !== "session_NEWKING01") fails.push("fresh: pending_king not written");
-      if (!r.lastFire || !/fresh King/.test(r.lastFire.input.text)) fails.push("fresh: old King not told");
+      const told = await page.evaluate(() => [...window.__mock.docs.entries()].some(([k, v]) => /^wakes\//.test(k) && /fresh King/.test(v.text || "")));
+      if (!r.lastFire || r.lastFire.input.trigger_id !== "trig_TESTwake01" || !told) fails.push("fresh: old King not woken / no wakes/ note");
       const t2 = await page.textContent("#kFreshT"); if (!/New King starting/.test(t2)) fails.push("fresh: no starting line (" + t2 + ")");
       await page.evaluate(() => { const k = window.__mock.docs.get("system/king"); window.__mock.docs.set("system/king", Object.assign({}, k, { live_session: "session_NEWKING01", wake_trigger: "trig_NEWwake02" })); window.__mock.fire(); });
       await page.waitForTimeout(400);

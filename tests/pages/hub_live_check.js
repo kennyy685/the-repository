@@ -102,7 +102,7 @@ async function scenarioLive(browser, url, vp, label) {
   const w = await writes(p);
   ok(w.some(x => /^events\/\d{8}T\d{6}Z-you-k$/.test(x)), `${label}: chat message not saved (writes: ${w.slice(-5)})`);
   ok(w.some(x => /-king-i$/.test(x)), `${label}: no instant answer saved`);
-  ok((await mcpCalls(p)).includes("fire_trigger"), `${label}: the King wasn't woken`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${label}: the King wasn't woken`);
   ok(await p.inputValue("#kcInput") === "", `${label}: chat box not cleared after send`);
   ok(/Mock King answer/.test(await p.textContent("#ktLog")), `${label}: instant answer not shown`);
   ok(w.filter(x => x === "system/stale").length <= 1, `${label}: system/stale written ${w.filter(x => x === "system/stale").length}x on one load`);
@@ -136,7 +136,7 @@ async function scenarioQuiet(browser, url) {
   ok(m.length === 0, `${L}: MCP called with no click from him (${m}): that opens a consent prompt over the page`);
   ok(await p.isVisible("#wakeLine [data-wakenow]"), `${L}: a held wake has no "Wake now" button`);
   await p.click("#wakeLine [data-wakenow]", { timeout: 2000 }).catch(e => fails.push(`${L}: Wake now: ${e.message.split("\n")[0]}`)); await tick(2000);
-  ok((await mcpCalls(p)).includes("fire_trigger"), `${L}: Wake now didn't wake the King`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: Wake now didn't wake the King`);
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();
 }
@@ -169,7 +169,7 @@ async function scenarioWakeRetry(browser, url, modes, L) {   // 2026-09-29: one 
   await sendChat(p, tick, "second order " + L); await tick(4000);
   w = (await wakeOf()).filter(x => x[1]);
   ok(w.length >= 2 && w[w.length - 1][1] === "ok", `${L}: the second order didn't wake the King (${JSON.stringify(w)})`);
-  ok((await mcpCalls(p)).includes("fire_trigger"), `${L}: fire_trigger never went through`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: the timed wake (update_trigger) never went through`);
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();
 }
@@ -177,9 +177,9 @@ async function scenarioSampleHang(browser, url) {
   const L = "sample-hang";
   const { ctx, p, errs, tick } = await open(browser, url, { modes: { sample: "hang" } });
   await sendChat(p, tick, "sample hang test"); await tick(3000);
-  ok(!(await mcpCalls(p)).includes("fire_trigger"), `${L}: (setup) King woken before the instant answer gave up`);
+  ok(!(await mcpCalls(p)).includes("update_trigger"), `${L}: (setup) King woken before the instant answer gave up`);
   await tick(125000);
-  ok((await mcpCalls(p)).includes("fire_trigger"), `${L}: the King never got the message after the instant answer hung`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: the King never got the message after the instant answer hung`);
   ok(!/Thinking/.test(await p.textContent("#ktLog")), `${L}: "Thinking" forever`);
   ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
   await ctx.close();

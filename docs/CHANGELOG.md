@@ -1,5 +1,8 @@
 # HMP App changelog (newest first)
 
+## AI hub v28.4 "King wake that lands" - 2026-09-29 (not live yet: waiting on QA)
+- Your hub messages now reach the King's own chat: the page books the King for the next whole minute (a timed wake) instead of the old instant poke, which opened a stand-in chat the King never saw. The hub says "The King gets it in about a minute". The first time, claude.ai asks you to Allow the new permission once.
+
 ## AI hub v28.3 "One building" - 2026-09-29 (live: hub Version 33)
 - One building: a bronze frame runs through both floors around the glass tube, with a stair landing and a planted terrace. The Observatory sits on the tube top: a ring table showing research / build / QA lanes, what needs you, Flow, Friction and Shipped (key O, plus an Observatory card in the Crew tab).
 - Work rides the tube: when a robot hands off, a capsule travels to the next robot with a fading thread, and RIGHT NOW says "Handing to QA Tester". One dry line under the top band says what just happened.
