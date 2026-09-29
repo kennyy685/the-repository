@@ -12,7 +12,7 @@
  *   db-fail / no-db / user-hang: the page loads, says what's wrong, tabs still work
  *   phone       the live scenario's clicks at 390 px
  *   3d-slow     a 3D room that renders ~3 fps switches to the still view by itself (real clock)
- *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [--headed]
+ *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
 const fs = require("fs");
@@ -208,7 +208,8 @@ async function scenarioSlow3d(browser, url) {
   const exe = ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(x => fs.existsSync(x));
   const browser = await chromium.launch({ executablePath: exe, headless: !HEADED, args: ["--no-sandbox"] });
   const url = await pageUrl("pages/crew-hq.html");
-  const run = async (name, fn) => { const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n")[0]}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
+  const ONLY = process.argv.slice(2).filter(a => !a.startsWith("--"));   // e.g. node hub_live_check.js mcp-hang live
+  const run = async (name, fn) => { if (ONLY.length && !ONLY.includes(name)) return; const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n")[0]}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
   try {
     await run("live", () => scenarioLive(browser, url, null, "live"));
     await run("phone", () => scenarioLive(browser, url, { width: 390, height: 844 }, "phone"));

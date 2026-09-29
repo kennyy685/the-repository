@@ -58,8 +58,9 @@
   function collRef(coll){ const q = query(coll, [], null, 0); return Object.assign(q, {path: coll, doc: (id) => docRef(coll + '/' + (id || Math.random().toString(36).slice(2, 12))), add: async (d) => { const r = docRef(coll + '/' + Math.random().toString(36).slice(2, 12)); await r.set(d); return r; }}); }
   const db = {doc: docRef, collection: collRef};
   window.__mockDb = {store, notify, db};
-  const sample = Object.assign((input, opts) => gate('sample', () => { const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }),
-    {json: (input, opts) => gate('sample', () => (window.__sampleJson || {reply:'Mock answer', actions:[]})), limits: async () => ({images:false})});
+  const withSignal = (pr, opts) => opts && opts.signal ? Promise.race([pr, new Promise((_, rej) => { const f = () => rej(err('cancelled')); if (opts.signal.aborted) f(); else opts.signal.addEventListener('abort', f); })]) : pr;   // abort rejects promptly (sample.d.ts)
+  const sample = Object.assign((input, opts) => withSignal(gate('sample', () => { const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }), opts),
+    {json: (input, opts) => withSignal(gate('sample', () => (window.__sampleJson || {reply:'Mock answer', actions:[]})), opts), limits: async () => ({images:false})});
   const mcp = {callTool: (server, tool, input) => { log.push(['mcp', tool, input]); return gate('mcp', () => { return {payload: tool === 'get_session' ? {id:'s', status:'idle', title:'SMUIPO (King)'} : tool === 'create_session' ? {id:'session_new'} : tool === 'list_environments' ? {environments:[{environment_id:'env_test', kind:'anthropic_cloud', state:'active'}]} : {ok:true}, content:[{type:'text', text:'{}'}]}; }); },
     watchTool: () => () => {}, server: async () => ({})};
   const user = {isOwner: () => gate('user', () => true), canEdit: () => gate('user', () => true), can: () => gate('user', () => true), id: () => gate('user', () => 'u_owner'), me: () => gate('user', () => ({id:'u_owner', name:'FilthE'})), profiles: async () => ({})};
