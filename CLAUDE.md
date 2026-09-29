@@ -50,6 +50,8 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
 - **Be serious, work on what matters (FilthE, 2026-09-29 06:55):** priority = money: the app proven end to end, real
   lead data, night shift. No more hub features (cat, looks, extras) after the v28.4 wake fix unless he asks.
+  Same night: "I want to be wowed when I come back" / "I want to say we're out of the copper age" = the bar is a
+  leap, not polish. Ultracode is the King's call now ("use it when you feel like it").
 - **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
   system down and to my satisfaction." Build and polish the system on the MacBook; don't plan phone-first work.
 - **The King's 5 rules (FilthE, 2026-09-28: "focus on the hard work, make your workers better"; research:

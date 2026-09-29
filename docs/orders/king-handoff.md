@@ -31,6 +31,9 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 - 06:51: FilthE "stay working while i sleep". RUNNING too: session_01HKC68ebVCsZSjHwxwYAnXD Engine: night shift
   (hh.py night + "Since last night" strip on open map). Ask him in the morning: score every call = (a) or (b)
   (questions-for-filthe.md). Queued: county assessor email draft (Around it). Nightly schedule for night shift = King's call after QA.
+- 06:57: big push ("wow me", "out of the copper age", ultracode OK). ALSO RUNNING: session_01GER2WgJcay2qjVvKG2W4hD
+  Builder ultracode: HMP App proven end to end; session_01FV41BBpetuNZMhK5SsYv2k Research Lead: assessor email.
+  Overnight check = trig_01GiUdj3 chain; morning post before 12:00Z.
 
 ## LIVE (2026-09-29)
 - AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
