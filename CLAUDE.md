@@ -149,6 +149,10 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - **Done = publish + tell him (FilthE, 2026-09-28):** "if stuff gets done, then publish it and tell me what got done so we
   don't accidentally keep forgetting." Finished + QA-passed work gets published (release checklist), then one hub
   post: what went live, link, what changed. Merges to main still need his OK.
+- **Stronger code (FilthE, 2026-09-29: "better our code, stronger, more efficient, smarter, fix broken code"):** the
+  hub froze live while every check passed, because checks only ran offline. Now: every publish also runs a live-data
+  smoke test (page seeded with the real db docs + mocked runtime, click every button, send a chat); a runtime call
+  (mcp, sample, db) must never freeze a page (timeout + try/catch, page stays usable). Code-health sweep = next job.
 - Every page publish follows `docs/release-checklist.md` (checks green, light/dark screenshots vs
   `docs/design/v25-polish/`, legal boxes, CHANGELOG line).
 - The HMP App is a page plus module files (T169): `pages/hmp-app.files.json` maps published path -> repo file. Edit a
