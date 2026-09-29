@@ -263,6 +263,13 @@ body.tight2 .stats>div{padding:0 10px}
 .stack{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;background:var(--chip-2)}
 .stack i{background:var(--oc)}
 .lnote{font-size:11.5px;color:var(--muted);line-height:1.4;margin:4px 0 0}
+/* track record line (the map learns from your knocks) */
+.trk{display:flex;align-items:center;gap:9px;margin:10px 0 0;padding:8px 12px;border-radius:12px;background:var(--acc-bg);border:1px solid rgba(245,136,58,.3);font-size:13px;color:var(--text);min-width:0}
+.trk>.i{width:14px;height:14px;color:var(--acc);flex:none}
+.trk>span{min-width:0}.trk small{color:var(--muted);font-size:11.5px;margin-left:6px}
+.trk .chip{margin-left:auto;flex:none}
+.trk.few{background:var(--chip);border-color:var(--rule);color:var(--text-2)}.trk.few>.i{color:var(--muted)}
+.lsec{font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:4px 0 0}
 .fu{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:9px 2px;border-bottom:1px solid var(--rule);font-size:12.5px}
 .fu b{font:600 12px var(--mono)}
 .fu span{color:var(--text-2)}
@@ -474,7 +481,15 @@ const T={
   logE:{en:"No knocks yet.",es:"Aún no hay toques."},
   backE:{en:"Nobody asked you to come back yet.",es:"Nadie te ha pedido regresar todavía."},
   w_tonight:{en:"tonight",es:"hoy en la noche"},w_tomorrow:{en:"tomorrow 4 PM",es:"mañana 4 p. m."},w_sat:{en:"Sat 10 AM",es:"sáb 10 a. m."},
-  learnT:{en:"Every knock is saved with its street, time and signals. After real storms the map uses these to rank streets: where people open, where they say yes.",es:"Cada toque se guarda con su calle, hora y señales. Después de tormentas reales el mapa los usa para ordenar calles: dónde abren y dónde dicen que sí."},
+  learnT:{en:"Every knock is saved with its street, time and signals. It feeds the track record on each door card and on the map's picks: under 20 doors it says so instead of guessing. A yes = an inspection agreed, never a verdict on coverage.",es:"Cada toque se guarda con su calle, hora y señales. Alimenta el historial de cada tarjeta y de las opciones del mapa: con menos de 20 puertas lo dice en vez de adivinar. Un sí = una inspección aceptada, nunca un juicio sobre la cobertura."},
+  trkL:{en:{door:"Doors like this",z:"This zone",st:"This street",all:"All doors so far"},es:{door:"Puertas como esta",z:"Esta zona",st:"Esta calle",all:"Todas las puertas hasta ahora"}},
+  trkY:{en:(y,d,p)=>`${y} inspection ${y===1?"yes":"yeses"} from ${d} doors${p!=null?` (~${p}%)`:""}`,es:(y,d,p)=>`${y} sí a inspección de ${d} puertas${p!=null?` (~${p}%)`:""}`},
+  trkS:{en:(y,d,p)=>`${y} / ${d} doors · ~${p}%`,es:(y,d,p)=>`${y} / ${d} puertas · ~${p}%`},trkSF:{en:(d,n)=>`${d} of ${n} doors: not enough yet`,es:(d,n)=>`${d} de ${n} puertas: aún no alcanza`},
+  trkFew:{en:(d,n)=>`not enough doors yet (${d} of ${n})`,es:(d,n)=>`aún no hay suficientes puertas (${d} de ${n})`},
+  hB:{en:{h0:"under 1″ hail",h1:"1–1.5″ hail",h2:"1.5–2″ hail",h3:"2″+ hail"},es:{h0:"granizo de menos de 1″",h1:"granizo de 1–1.5″",h2:"granizo de 1.5–2″",h3:"granizo de 2″ o más"}},
+  iB:{en:{i1:"0–1 of 3 signals",i2:"2 of 3 signals",i3:"3 of 3 signals"},es:{i1:"0–1 de 3 señales",i2:"2 de 3 señales",i3:"3 de 3 señales"}},
+  rB:{en:{young:"young roof",prime:"prime roof age",check:"roof 15+ yrs"},es:{young:"techo joven",prime:"edad ideal del techo",check:"techo de 15+ años"}},
+  lsecB:{en:"Yeses by hail size (all doors)",es:"Síes por tamaño de granizo (todas las puertas)"},lsecS:{en:"By street (today)",es:"Por calle (hoy)"},
   opened2:{en:(a,b)=>`${a} of ${b} opened`,es:(a,b)=>`${a} de ${b} abrieron`},
   nearYes:{en:"next to a yes",es:"junto a un sí"},
   /* YES */
@@ -516,6 +531,7 @@ const SRC={
   prm:{c:"#b69cff",k:"sample",n:{en:"Fremont building permits",es:"Permisos de construcción de Fremont"},w:{en:"Last roof permit on file. None since a year means the roof is at least that old.",es:"Último permiso de techo registrado. Si no hay desde un año, el techo tiene al menos esa edad."}},
   stk:{c:"#ff9f6b",k:"real",n:{en:"Repeat hail (public reports since 2024)",es:"Granizo repetido (reportes públicos desde 2024)"},w:{en:"Days with a public hail report of 0.75 in or more within 5 km of this house since 2024 (NWS, SPC, NOAA), plus this storm. A signal for the list, not proof of damage at this address.",es:"Días con un reporte público de granizo de 0.75 pulg. o más a 5 km de esta casa desde 2024 (NWS, SPC, NOAA), más esta tormenta. Una señal para la lista, no prueba de daño en esta dirección."}},
   rb:{c:"#b69cff",k:"est",n:{en:"Roof age band",es:"Rango de edad del techo"},w:{en:"From the roof age above, an estimate: under 8 yrs young, 8-14 yrs prime, 15+ check the policy first (older roofs can have different policy terms).",es:"De la edad del techo, un estimado: menos de 8 años joven, 8-14 años ideal, 15+ revisar la póliza primero (los techos viejos pueden tener otros términos en la póliza)."}},
+  lrn:{c:"#f5883a",k:"sample",n:{en:"Your track record",es:"Tu historial"},w:{en:"Every door you log, grouped by what the door card showed: hail size, repeat hail, likely-insured signals, roof-age band. It uses the closest group with 20+ doors; under 20 it says so instead of guessing. The % leans toward a typical 5% while doors are few. A yes = they agreed to an inspection, never a verdict on coverage. In this mockup: made-up past knocks + your taps today.",es:"Cada puerta que anotas, agrupada por lo que mostró la tarjeta: tamaño del granizo, granizo repetido, señales de probablemente asegurada, edad del techo. Usa el grupo más parecido con 20+ puertas; con menos de 20 lo dice en vez de adivinar. El % se inclina hacia un 5% típico mientras hay pocas puertas. Un sí = aceptaron una inspección, nunca un juicio sobre la cobertura. En esta maqueta: toques pasados inventados + tus toques de hoy."}},
   law:{c:"#e0c3a0",k:"rule",n:{en:"Nebraska law 69-1602",es:"Ley de Nebraska 69-1602"},w:{en:"In a home sale, say at the start, clearly: your name, the business, and what you sell.",es:"En una venta a domicilio, di desde el principio y claro: tu nombre, la empresa y lo que vendes."}},
   pick:{c:"#f5883a",k:"est",n:{en:"How Aldaba ranks a door",es:"Cómo Aldaba califica una puerta"},w:{en:"Open score out of 100: hail size 35, owner lives here 20, mortgage 15, roof age 10, recent sale 10, repeat hail 10 (2 days 5, 3+ days 10).",es:"Puntaje abierto de 100: tamaño del granizo 35, el dueño vive aquí 20, hipoteca 15, edad del techo 10, venta reciente 10, granizo repetido 10 (2 días 5, 3+ días 10)."}},
   chk:{c:"#3ddc97",k:"est",n:{en:"Claim-ready checklist",es:"Lista lista-para-reclamo"},w:{en:"From our 2026-09-28 research: what adjusters look for (storm date, collateral damage, fresh vs. old marks, filed on time).",es:"De nuestra investigación del 28-09-2026: lo que buscan los ajustadores (fecha, daño colateral, marcas nuevas vs. viejas, a tiempo)."}},
@@ -636,7 +652,7 @@ function renderDoor(S){const h=D.homes[cur],e=lastOf(h.id),sk=!knockable(h),kLis
     <div class="tile"><div class="k">${t("roofK")}</div><div class="v">~${h.roof}<small>${t("yrs")}</small></div>
       <div class="meter">${[5,10,15,20,25].map(y=>`<i class="${h.roof>=y?"on":""}"></i>`).join("")}</div>
       <div class="d">${t("roofD",L(T.roofMat)[h.mat],noPermit)}</div>${h.rb?`<div class="d rb rb-${h.rb.band}"><b>${L(T.rbL)[h.rb.band]}</b></div>`:""}<div class="src">${chip("prm","PERMITS")}${h.rb?chip("rb","EST."):""}</div></div>
-  </div>
+  </div>${trackLine(h)}
   <div class="lbl">${t("seenL")}</div>
   <div class="seen" id="seen">${["gutters","screens","ac","vents","siding"].map(k=>`<button data-k="${k}" aria-pressed="${seen.includes(k)}">${ic({gutters:"gut",screens:"grid",ac:"fan",vents:"wind",siding:"wall"}[k])}${t("d_"+k)}</button>`).join("")}
     <button class="none" data-k="none" aria-pressed="${seen.includes("none")}">${t("d_none")}</button></div>
@@ -681,6 +697,23 @@ function renderMap(){proj();const f=PJ.f,svg=$("mini");const path=(pts)=>"M"+pts
   svg.setAttribute("viewBox",`0 0 ${PJ.W} ${PJ.H}`);svg.innerHTML=s;
   $("legend").innerHTML=["na","no","back","roofer","yes"].map(o=>`<span style="--oc:${oc(o)}"><i></i>${t("o_"+o)}</span>`).join("")}
 
+/* ---------- the map learns: twin of hailhunter/learning.py like(); table = D.learn.t (sample past knocks) + your taps ---------- */
+const OUTC=["na","no","back","roofer","yes"];
+const hBand=(x)=>"h"+D.learn.cuts.filter(c=>+x>=c).length;
+const iBand=(g)=>{const n=(g.own?1:0)+(g.mort?1:0)+(g.sale&&+String(g.sale).slice(0,4)>=+D.clock.today.slice(0,4)-10?1:0);return n>=3?"i3":n===2?"i2":"i1"};
+const sBand=(n)=>n>=3?"s3":n===2?"s2":"s1";
+function doorKeys(g){if(g.hail==null)return[];const h=hBand(g.hail),i=iBand(g),r=["young","prime","check"].includes(g.rb)?g.rb:null;return[...(r?[`h:${h}|i:${i}|r:${r}`]:[]),`h:${h}|i:${i}`,`h:${h}`]}
+function learnTable(){const T2={};for(const k in D.learn.t)T2[k]=[...D.learn.t[k]];const add=(k,y)=>{const c=T2[k]||(T2[k]=[0,0]);c[0]++;c[1]+=y?1:0};
+  const by={};EV.forEach(e=>{if(!OUTC.includes(e.o))return;const p=by[e.door];by[e.door]={e,yes:e.o==="yes"||!!(p&&p.yes)}});
+  Object.values(by).forEach(({e,yes})=>{const g=e.sig||{};add("all",yes);if(e.zone)add("z:"+e.zone,yes);if(e.st)add("st:"+e.st,yes);doorKeys(g).forEach(k=>add(k,yes));if(g.hail!=null&&g.stack!=null)add(`h:${hBand(g.hail)}|s:${sBand(g.stack)}`,yes)});
+  return T2}
+function like(T2,keys,kind){const Ld=D.learn,need=Ld.min,k=Ld.k,[d0,y0]=T2.all||[0,0],p=(y0+k*Ld.prior_rate)/(d0+k),lab=(key)=>key==="all"?"all":key.startsWith("z:")?"z":key.startsWith("st:")?"st":kind;
+  for(const key of [...keys,"all"]){const[d,y]=T2[key]||[0,0];if(d>=need)return{key,d,y,enough:true,pct:Math.round((y+k*p)/(d+k)*100),lab:lab(key)}}
+  const first=keys.find(x=>T2[x])||keys[0]||"all",[d,y]=T2[first]||[0,0];return{key:first,d,y,enough:false,lab:lab(first)}}
+function trackLine(h){if(!D.learn)return"";const r=like(learnTable(),doorKeys({hail:h.hail,own:h.own,mort:h.mort,sale:h.sale,rb:h.rb?.band}),"door");
+  const m=r.key.startsWith("h:")?r.key.split("|").map(p=>{const[a,b]=p.split(":");return L(T[{h:"hB",i:"iB",r:"rB"}[a]])[b]}).join(", "):"";
+  return `<div class="trk${r.enough?"":" few"}">${ic("star")}<span><b>${L(T.trkL)[r.lab]}:</b> ${r.enough?t("trkY",r.y,r.d,r.pct):t("trkFew",r.d,D.learn.min)}${m?`<small>${m}</small>`:""}</span>${chip("lrn",lang==="es"?"MUESTRA":"SAMPLE")}</div>`}
+
 /* ---------- render: log / come back / learns ---------- */
 function renderLog(){const b=$("logB");document.querySelectorAll(".logc .tabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===tab));
   if(tab==="log"){const L2=[...EV].reverse();b.innerHTML=L2.length?L2.map((e,i)=>`<div class="ev${i===0&&!e.seed&&fresh?" new":""}" style="--oc:${oc(e.o)}"><span class="t">${fmtClock(e.m).replace(/ (PM|AM|p\. m\.|a\. m\.)$/,"")}</span><i></i><span><b>${e.no}</b> ${e.st.replace(/^N /,"")} · ${t("o_"+e.o)}${e.when?` · ${t("w_"+e.when)}`:""}${e.dnk?` · ${t("n_dnk")}`:""}</span></div>`).join(""):`<p class="empty">${t("logE")}</p>`}
@@ -689,7 +722,9 @@ function renderLog(){const b=$("logB");document.querySelectorAll(".logc .tabs bu
   else{const rows=D.streets.map((s,i)=>{const E=EV.filter(e=>e.st===s.n&&e.o!=="sign"),n=E.length||1,c=(o)=>E.filter(e=>e.o===o).length;
       const seg=["yes","back","roofer","no","na"].map(o=>`<i style="--oc:${oc(o)};width:${c(o)/n*100}%"></i>`).join("");
       return `<div class="lrow"><div class="top2"><b>${s.n}</b><span>${t("opened2",E.length-c("na"),E.length)} · ${c("yes")} ${ic("star").replace('class="i"','class="i" style="width:12px;height:12px;vertical-align:-2px"')}</span></div><div class="stack">${seg}</div></div>`}).join("");
-    b.innerHTML=`<div class="learn">${rows}<p class="lnote">${t("learnT")}</p></div>`}
+    const T2=D.learn?learnTable():null,hb=T2?["h3","h2","h1","h0"].map(x=>{const[d,y]=T2["h:"+x]||[0,0],r=like(T2,["h:"+x],"door"),en=r.enough&&r.key==="h:"+x;
+      return `<div class="lrow"><div class="top2"><b>${L(T.hB)[x]}</b><span>${en?t("trkS",y,d,r.pct):t("trkSF",d,D.learn.min)}</span></div><div class="stack"><i style="--oc:${oc("yes")};width:${en?Math.min(100,r.pct*4):0}%"></i></div></div>`}).join(""):"";
+    b.innerHTML=`<div class="learn">${T2?`<p class="lsec">${t("lsecB")} ${chip("lrn",lang==="es"?"MUESTRA":"SAMPLE")}</p>${hb}<p class="lsec">${t("lsecS")}</p>`:""}${rows}<p class="lnote">${t("learnT")}</p></div>`}
   fresh=false}
 let fresh=false;
 
