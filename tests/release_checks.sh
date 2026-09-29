@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Release checklist step 2 in one command (docs/release-checklist.md): every automatic check, one PASS/FAIL table.
-#   tests/release_checks.sh            all checks (legal, module checks, engine selftest, page shots, practice + fake day + 24 h + hub, app + Practice Door live + bad signal, design gate)
+#   tests/release_checks.sh            all checks (legal, module checks, engine selftest, page shots, practice + fake day + 24 h + hub, app + Practice Door live + real E2E day + bad signal, design gate)
 #   tests/release_checks.sh --quick    same, but the design gate runs --quick (360 px, EN) while building
 #   tests/release_checks.sh --fast     skip the two browser checks (seconds instead of minutes)
 # Exit 0 = everything passed. Logs: tests/pages/out/release_checks/<check>.log
@@ -29,6 +29,7 @@ if [ "$mode" != "--fast" ]; then
   run day24_check node tests/pages/day24_check.js   # 24 h on a fake clock: King docs while open, 12:52 refresh mid-tap, overnight, midnight Central
   run hub_live_check node tests/pages/hub_live_check.js   # AI hub on the real db shapes + a runtime that fails or hangs (2026-09-29 freeze)
   run app_live_check node tests/pages/app_live_check.js   # HMP App + Practice Door on a realistic db + a runtime that fails or hangs (every button, every freeze)
+  run e2e_day_check node tests/pages/e2e_day_check.js   # one full REAL working day (EN, ES, slow signal): map -> knock -> lead -> inspection -> claim -> price -> paper -> follow-ups -> day numbers, reload mid-flow
   run badsignal_check node tests/pages/badsignal_check.js   # T163 bad signal: offline / flaky burst / drop mid-save / reload; the outbox always drains by itself
   if [ "$mode" = "--quick" ]; then run design_gate node tests/pages/design_gate.js --quick
   else run design_gate node tests/pages/design_gate.js; fi
