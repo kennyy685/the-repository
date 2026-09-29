@@ -17,6 +17,8 @@
  *               robot card's last 3 + hit rate, junk rows never throw
  *   flows       v28.1 HUB.flows: none from old handoffs on load; a NEW handoff = one flow (dir/kind), "Handing to" 20 s, a tannoy line
  *   obs-empty   v28.1 HUB.observatory with an empty board: card renders, v bumps only on change, key O works with no scene
+ *   merge-watch / merge-missing   C system/git: button sets, ahead>200, one merge item per tap, main apart, Hide local, no doc
+ *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, spend/0-ship edges
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
@@ -51,7 +53,7 @@ async function open(browser, url, o) {
     try { localStorage.clear(); for (const [k, v] of Object.entries(ls || {})) localStorage.setItem(k, v); } catch (e) { /* none */ }
   }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {}, sessions: o.sessions || SESS });
   await p.addInitScript({ path: MOCK });
-  if (!o.realClock) await ctx.clock.install({ time: NOW });
+  if (!o.realClock) await ctx.clock.install({ time: o.now || NOW });
   await p.goto(url + (o.hash || ""), { waitUntil: "load" });
   const tick = ms => o.realClock ? p.waitForTimeout(ms) : p.clock.runFor(ms);
   await tick(o.settle || 3000);
@@ -563,6 +565,186 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
   await ctx.close();
 }
 
+const shot = (p, name) => p.screenshot({ path: path.join(OUT, name + ".png") });
+/* C: the unfinished-merge watch (system/git). QUEUE-SPECS C acceptance: 3 branches (clean, conflicted, done) show their
+   three button sets; ahead 250 = no Merge it; Merge it = exactly one waiting item with merge.branch (a second tap: none);
+   main.behind 0 hides the main line; a missing doc = no card, the Ops line, no error; a day-old doc says "as of yesterday". */
+const GIT_DOC = { at: "2026-09-28T23:40:00Z", work: "claude/amazing-gauss-yzfpq0", main: { behind: 190 }, branches: [
+  { name: "claude/eager-bardeen-lj7lfc", ahead: 12, behind: 3, last_at: "2026-09-28T22:30:00Z", subject: "Open map: area days-ago counts", files: 4, conflicts: 0, done: false },
+  { name: "claude/stoic-darwin-ikqmrj", ahead: 4, behind: 9, last_at: "2026-09-28T21:00:00Z", subject: "hub queue + specs", files: 3, conflicts: 1, done: false },
+  { name: "claude/trusting-dijkstra-luw0nu", ahead: 0, behind: 40, last_at: "2026-09-27T21:00:00Z", subject: "Round 57 calls", files: 0, conflicts: 0, done: true },
+  { name: "claude/amazing-wright-lds9q5", ahead: 250, behind: 300, last_at: "2026-09-26T21:00:00Z", subject: "Hub v28.0", files: 90, conflicts: 0, done: false } ] };
+const gitRows = p => p.$$eval("#boardBody .gitw li.gb", ls => ls.map(l => ({ cls: l.className, text: l.textContent, btns: [...l.querySelectorAll("[data-git]")].map(b => b.dataset.git) })));
+async function scenarioMergeWatch(browser, url) {
+  const L = "merge-watch";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }) });
+  await p.click("#tab-board", { timeout: 2000 }); await tick(400);
+  let rows = await gitRows(p);
+  const row = k => rows.find(r => r.text.includes(k)) || { btns: [], text: "" };
+  ok(/Unfinished work/.test(await p.textContent("#boardBody")), `${L}: no Unfinished work card`);
+  ok(JSON.stringify(row("eager-bardeen").btns) === '["merge","later"]' && /12 finished commits/.test(row("eager-bardeen").text) && /no conflicts/.test(row("eager-bardeen").text), `${L}: clean row wrong ${JSON.stringify(row("eager-bardeen"))}`);
+  ok(JSON.stringify(row("stoic-darwin").btns) === '["ask"]' && /conflicts in 1 file/.test(row("stoic-darwin").text), `${L}: conflicted row wrong ${JSON.stringify(row("stoic-darwin"))}`);
+  ok(JSON.stringify(row("trusting-dijkstra").btns) === '["hide"]' && /looks done/.test(row("trusting-dijkstra").text), `${L}: done row wrong ${JSON.stringify(row("trusting-dijkstra"))}`);
+  ok(!row("amazing-wright").btns.includes("merge") && /old branch · 250 commits, check first/.test(row("amazing-wright").text), `${L}: ahead 250 row wrong ${JSON.stringify(row("amazing-wright"))}`);
+  ok(JSON.stringify(row("behind the work branch").btns) === '["main"]' && /main is 190 commits behind/.test(row("behind the work branch").text), `${L}: main line wrong`);
+  // Merge it: one tap = one waiting item (merge.branch) + his answer + a wake; a second tap writes nothing
+  const merge = () => p.click('#boardBody [data-git="merge"][data-b="claude/eager-bardeen-lj7lfc"]', { timeout: 2000 }).catch(() => {});
+  await merge(); await tick(1500); await merge(); await tick(1500);
+  const board = await p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const items = ((board && board.waiting) || []).filter(w => w.merge);
+  ok(items.length === 1 && items[0].merge.branch === "claude/eager-bardeen-lj7lfc" && items[0].merge.into === "claude/amazing-gauss-yzfpq0" && items[0].merge.ahead === 12, `${L}: Merge it made ${items.length} merge items ${JSON.stringify(items)}`);
+  const ans = await p.evaluate(id => window.__mockDb.store.get("answers/" + id), items[0] ? items[0].id : "x");
+  ok(ans && ans.answer === "Merge it", `${L}: the tap isn't the answer (${JSON.stringify(ans)})`);
+  ok((await writes(p)).filter(x => x === "board/current").length === 1, `${L}: board written ${(await writes(p)).filter(x => x === "board/current").length} times (want 1)`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: Merge it didn't wake the King`);
+  rows = await gitRows(p);
+  ok(/Sent · the King/.test(row("eager-bardeen").text) && !row("eager-bardeen").btns.length, `${L}: tapped Merge it isn't a receipt`);
+  ok(/Merge eager-bardeen-lj7lfc into the work branch/.test(await p.textContent("#boardBody")), `${L}: the merge item doesn't ride the ship card`);
+  ok(!items.some(w => w.merge.into === "main"), `${L}: Merge it batched a merge to main`);
+  // Ask the King (conflicts): one fix-merge handoff, twice = once
+  await p.click('#boardBody [data-git="ask"][data-b="claude/stoic-darwin-ikqmrj"]', { timeout: 2000 }).catch(e => fails.push(`${L}: Ask the King not clickable`)); await tick(1500);
+  await p.evaluate(() => window.__hubT.gitClick({ git: "ask", b: "claude/stoic-darwin-ikqmrj" })); await tick(1500);
+  const fx = [];
+  for (const k of await evWrites(p)) { const b = await p.evaluate(x => window.__mockDb.store.get(x), k); if (b && b.task === "fix-merge") fx.push(b); }
+  ok(fx.length === 1 && fx[0].branch === "claude/stoic-darwin-ikqmrj" && fx[0].to === "code" && fx[0].kind === "handoff", `${L}: Ask the King wrote ${fx.length} fix-merge events`);
+  // Merge to main: its own tap, its own item
+  await p.click('#boardBody [data-git="main"]', { timeout: 2000 }).catch(e => fails.push(`${L}: Merge to main not clickable`)); await tick(2000);
+  const b2 = await p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const mains = ((b2 && b2.waiting) || []).filter(w => w.merge && w.merge.into === "main");
+  ok(mains.length === 1 && mains[0].merge.ahead === 190 && mains[0].merge.branch === "claude/amazing-gauss-yzfpq0", `${L}: Merge to main made ${mains.length} items`);
+  // Hide: this device only
+  const n0 = (await writes(p)).length;
+  await p.click('#boardBody [data-git="hide"][data-b="claude/trusting-dijkstra-luw0nu"]', { timeout: 2000 }).catch(() => {}); await tick(400);
+  ok(!(await gitRows(p)).some(r => r.text.includes("trusting-dijkstra")), `${L}: Hide didn't hide`);
+  ok((await writes(p)).length === n0 && /trusting-dijkstra/.test(await p.evaluate(() => localStorage.getItem("hub-git-hidden") || "")), `${L}: Hide wrote to the db or wasn't kept`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  ok(/unmerged work/.test(await p.textContent("#opsBody")), `${L}: Ops branch line missing`);
+  await p.click("#tab-board", { timeout: 2000 }); await tick(300);
+  await shot(p, "merge-watch"); await p.locator("#boardBody .gitw").screenshot({ path: path.join(OUT, "merge-watch-card.png") }).catch(() => {});
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+  // main.behind 0 = no main line; a doc from yesterday says so; all done + main even = no card
+  const g2 = JSON.parse(JSON.stringify(GIT_DOC)); g2.main.behind = 0; g2.at = "2026-09-27T20:00:00Z";
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": g2 }) });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  ok(!(await gitRows(b.p)).some(r => /behind the work branch/.test(r.text)), `${L}: main.behind 0 still shows the main line`);
+  ok(/as of yesterday/.test(await b.p.textContent("#boardBody .gitw")), `${L}: a 28 h old doc doesn't say "as of yesterday"`);
+  ok(!b.errs.length, `${L}: page errors (behind 0): ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+  const g3 = { at: "2026-09-29T00:00:00Z", main: { behind: 0 }, branches: [GIT_DOC.branches[2]] };
+  const c = await open(browser, url, { docs: hoDocs({ "system/git": g3 }) });
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(400);
+  ok(!(await c.p.$("#boardBody .gitw")), `${L}: nothing unmerged still shows a card`);
+  await c.ctx.close();
+}
+async function scenarioMergeMissing(browser, url) {
+  const L = "merge-missing";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await p.click("#tab-board", { timeout: 2000 }); await tick(400);
+  ok(!(await p.$("#boardBody .gitw")), `${L}: a card with no system/git doc`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  ok(/Branch watch starts on the King.s next wake/.test(await p.textContent("#opsBody")), `${L}: Ops line missing`);
+  const junk = hoDocs({ "system/git": { at: "x", main: "nope", branches: [null, 3, { name: "bad name; rm" }, { name: "claude/ok-branch", ahead: "7", conflicts: "0" }] } });
+  const b = await open(browser, url, { docs: junk });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  const r = await gitRows(b.p);
+  ok(r.length === 1 && /ok-branch/.test(r[0].text), `${L}: junk git doc rendered ${r.length} rows`);
+  ok(!errs.length && !b.errs.length, `${L}: page errors: ${errs.concat(b.errs).slice(0, 4).join(" | ")}`);
+  await ctx.close(); await b.ctx.close();
+}
+
+/* D: the Sunday report card. Fixed clocks: Sun 18:05 CT shows it (and writes crew/weeks-<id> once), Mon 12:01 it's gone
+   from Crew but in the Log, Wed nothing; a second open doesn't rewrite; spend missing = "not tracked yet" and no $/ship;
+   0 ships = "$ per ship: nothing shipped"; no last-week doc = no arrows. */
+const SUN = new Date("2026-10-04T23:05:00Z"), MON = new Date("2026-10-05T17:01:00Z"), WED = new Date("2026-10-07T17:00:00Z");
+const W40 = "crew/weeks-2026-W40", W39 = "crew/weeks-2026-W39";
+function wkDocs(o) {
+  o = o || {};
+  const d = hoDocs();
+  if (o.spend !== false) d["crew/sessions"].spend = { today_usd: 20, week_usd: 312 };
+  if (o.ships !== false) {
+    d["events/20260930T150000Z-builder"] = { agent: "builder", kind: "done", lane: "code", room: "dock", status: "done", task: "T300", at: "2026-09-30T15:00:00Z", text: "Published App v25.3 to the live link" };
+    d["events/20261002T150000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-10-02T15:00:00Z", text: "Practice Door v11 went live" };
+    d["events/20261003T150000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-10-03T15:00:00Z", text: "Not published yet: waiting on QA" };
+  }
+  d["events/20261001T100000Z-builder"] = { agent: "builder", kind: "blocked", lane: "code", room: "tests", status: "blocked", at: "2026-10-01T10:00:00Z", text: "stuck on a test" };
+  d["events/20261001T130000Z-builder"] = { agent: "builder", kind: "progress", lane: "code", room: "tests", status: "working", at: "2026-10-01T13:00:00Z", text: "unstuck" };
+  if (o.last !== false) d[W39] = { v: 1, week: "2026-W39", shipped: 1, spent_usd: 402, per_ship_usd: 402, waited_h: 1, stuck_h: 7, at: "2026-09-27T23:10:00Z", by: "hub" };
+  return Object.assign(d, o.extra || {});
+}
+const wkWrites = async p => (await writes(p)).filter(x => /^crew\/weeks/.test(x));
+async function scenarioWeekly(browser, url) {
+  const L = "sunday-report";
+  // Sunday 18:05 CT: the card tops the Crew tab and crew/weeks-2026-W40 is written once
+  const a = await open(browser, url, { docs: wkDocs(), now: SUN, hash: "" });
+  await a.p.click("#tab-crew", { timeout: 2000 }); await a.tick(2000);
+  const txt = await a.p.textContent("#wkBlock");
+  ok(await a.p.isVisible("#wkBlock"), `${L}: Sunday 18:05 shows no card`);
+  ok(/Week of Sep 28 – Oct 4/.test(txt), `${L}: week label wrong (${txt.slice(0, 80)})`);
+  ok(/Shipped\s*2/.test(txt) && /App v25\.3/.test(txt), `${L}: shipped count/list wrong (${txt.slice(0, 160)})`);
+  ok(/\$312/.test(txt) && /\$ per ship\s*\$156/.test(txt), `${L}: spend / $ per ship wrong (${txt})`);
+  ok(/Stuck\s*3 h/.test(txt), `${L}: stuck span wrong (${txt})`);
+  ok(/vs last week/.test(txt) && /▲ 1/.test(txt) && /▼ \$246/.test(txt), `${L}: arrows wrong (${txt})`);
+  ok(/Best helper/.test(txt), `${L}: no best helper row`);
+  const order = await a.p.$$eval("#tp-crew > .xblock, #tp-crew > div", els => els.filter(e => !e.hidden).map(e => e.id || e.className));
+  ok(order[0] === "wkBlock", `${L}: the card isn't at the top of Crew (${order.join(",")})`);
+  await a.tick(125000);
+  const w1 = await wkWrites(a.p);
+  ok(w1.length === 1 && w1[0] === W40, `${L}: crew/weeks writes ${JSON.stringify(w1)} (want one ${W40})`);
+  ok((await log(a.p)).some(x => x[0] === "acquire" && x[1] === W40), `${L}: wrote without taking the lease`);
+  const doc = await a.p.evaluate(k => window.__mockDb.store.get(k), W40);
+  ok(doc && doc.week === "2026-W40" && doc.shipped === 2 && doc.spent_usd === 312, `${L}: week doc wrong ${JSON.stringify(doc).slice(0, 200)}`);
+  await shot(a.p, "sunday-report"); await a.p.locator("#wkBlock").screenshot({ path: path.join(OUT, "sunday-report-card.png") }).catch(() => {});
+  ok(!a.errs.length, `${L}: page errors (Sunday): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // a second open (the doc's there now): no rewrite, same card
+  const b = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc } }), now: new Date(SUN.getTime() + 40 * 60000) });
+  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(125000);
+  ok(!(await wkWrites(b.p)).length, `${L}: a second open rewrote the week doc`);
+  ok(await b.p.isVisible("#wkBlock") && /Shipped\s*2/.test(await b.p.textContent("#wkBlock")), `${L}: second open lost the card`);
+  await b.ctx.close();
+  // Monday 12:01: gone from Crew, in the Log
+  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc } }), now: MON });
+  await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(1500);
+  ok(!(await c.p.isVisible("#wkBlock")), `${L}: Monday 12:01 still shows the card in Crew`);
+  await c.p.click("#tab-log", { timeout: 2000 }); await c.tick(600);
+  ok(/Sunday report/.test(await c.p.textContent("#feed")) && (await c.p.$$("#feed .wklog")).length === 1, `${L}: Monday 12:01 the report isn't in the Log`);
+  ok(!(await wkWrites(c.p)).length, `${L}: Monday wrote a week doc`);
+  ok(!c.errs.length, `${L}: page errors (Monday): ${c.errs.slice(0, 4).join(" | ")}`);
+  await c.ctx.close();
+  // Wednesday: nothing
+  const d = await open(browser, url, { docs: wkDocs(), now: WED });
+  await d.p.click("#tab-crew", { timeout: 2000 }); await d.tick(1500);
+  ok(!(await d.p.isVisible("#wkBlock")) && !(await wkWrites(d.p)).length, `${L}: Wednesday shows or writes a report`);
+  await d.ctx.close();
+}
+async function scenarioWeeklyEdges(browser, url) {
+  const L = "sunday-report-edges";
+  // spend missing: "not tracked yet", no $ per ship row; no last week = no arrows
+  const a = await open(browser, url, { docs: wkDocs({ spend: false, last: false }), now: SUN });
+  await a.p.click("#tab-crew", { timeout: 2000 }); await a.tick(2000);
+  const t1 = await a.p.textContent("#wkBlock");
+  ok(/Spent\s*not tracked yet/.test(t1) && !/\$ per ship/.test(t1), `${L}: missing spend wrong (${t1})`);
+  ok(!/[▲▼]/.test(t1) && /no last week to compare yet/.test(t1), `${L}: arrows with no last-week doc (${t1})`);
+  ok(!a.errs.length, `${L}: page errors: ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // 0 ships with spend: "$ per ship: nothing shipped", no divide by zero
+  const b = await open(browser, url, { docs: wkDocs({ ships: false }), now: SUN });
+  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(2000);
+  const t2 = await b.p.textContent("#wkBlock");
+  ok(/\$ per ship\s*nothing shipped/.test(t2) && !/Infinity|NaN/.test(t2), `${L}: 0 ships wrong (${t2})`);
+  const w = await b.p.evaluate(k => window.__mockDb.store.get(k), W40);
+  ok(!w || (w.shipped === 0 && w.per_ship_usd === null), `${L}: 0-ship doc wrong ${JSON.stringify(w).slice(0, 160)}`);
+  ok(!b.errs.length, `${L}: page errors: ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+  // the ISO week id and the window, straight
+  const c = await open(browser, url, { docs: wkDocs(), now: SUN });
+  const r = await c.p.evaluate(() => { const t = window.__hubT; return { sun: t.wkWindow(Date.parse("2026-10-04T23:05:00Z")), s1759: t.wkWindow(Date.parse("2026-10-04T22:59:00Z")), mon: t.wkWindow(Date.parse("2026-10-05T16:59:00Z")), id: t.wkId(t.wkWindow(Date.parse("2026-10-04T23:05:00Z")).ws), jan: t.wkId(Date.parse("2026-12-28T06:00:00Z")) }; });
+  ok(r.sun.show && !r.s1759.show && r.mon.show && r.sun.ws === r.mon.ws, `${L}: window wrong ${JSON.stringify(r)}`);
+  ok(r.id === "2026-W40" && r.jan === "2026-W53", `${L}: week id wrong ${r.id} ${r.jan}`);
+  await c.ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -601,9 +783,13 @@ async function scenarioLiveStale(browser, url) {   // good read, then failures: 
     await run("live-hang", () => scenarioLiveHang(browser, url));
     await run("live-text", () => scenarioLiveText(browser, url));
     await run("live-stale", () => scenarioLiveStale(browser, url));
+    await run("merge-watch", () => scenarioMergeWatch(browser, url));
+    await run("merge-missing", () => scenarioMergeMissing(browser, url));
+    await run("sunday-report", () => scenarioWeekly(browser, url));
+    await run("sunday-report-edges", () => scenarioWeeklyEdges(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (31 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (35 scenarios)");
 })();

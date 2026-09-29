@@ -47,6 +47,7 @@
       set: (data) => gate('dbw', () => { store.set(path, frz(data)); log.push(['set', path]); notify(); }),
       update: (data) => gate('dbw', () => { if (!store.has(path)) throw err('invalid_argument'); store.set(path, Object.assign(store.get(path), frz(data))); log.push(['update', path]); notify(); }),
       delete: () => gate('dbw', () => { store.delete(path); log.push(['delete', path]); notify(); }),
+      acquire: (o) => gate('dbw', () => { log.push(['acquire', path, o && o.holder]); return {acquired:true, version:1, expiresAt:new Date(Date.now() + ((o && o.ttlMs) || 30000)).toISOString(), holder:o && o.holder}; }),   // db.d.ts lease (one writer at a time)
       onSnapshot: (n, e) => onSnap(() => snapDoc(path), n, e),
       collection: (p) => collRef(path + '/' + p)};
   }

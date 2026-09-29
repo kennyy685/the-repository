@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## AI hub: branch watch + Sunday report - 2026-09-29 (queue chunks C + D; built, not published yet)
+- Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK; Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
+- Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then it stays in the Log. The page saves each week once as `crew/weeks-<YYYY-Www>`.
+
 ## AI hub v34: hand off, fix buttons, "why" - 2026-09-29 (live: AI hub Version 36; checks green: 31 live scenarios, chat, design gate, release --fast)
 - Every working chat has a Hand off button; after the tap a 4-step receipt fills in (asked, note saved, fresh chat, old one closed), amber "Ask again" after 30 min. The King's own row uses the Fresh King flow.
 - Every warning ends with the one button that fixes it (Hand it off, Run it again, Reconnect, Check on it, How to fix); tapping twice within 10 min never sends twice, even across devices.
