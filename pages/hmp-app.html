@@ -1100,6 +1100,7 @@ ol.strip span{font-size:var(--t-cap);color:var(--muted);line-height:1.35}
 <!-- v25.1 "Aldaba Graphite": the brand layer over v25 (type, depth, the orange CTA, motion). Loaded after the page's own
      styles so it wins at equal specificity; layouts stay the page's. Its own file (T169). -->
 <link rel="stylesheet" href="v25/aldaba.css">
+<link rel="stylesheet" href="v25/desk.css"><!-- v26: the MacBook desk layout (1100 px and up); phones keep the v25 column (pages/v25/desk.css) -->
 
 <div class="app" id="app">
   <header class="top" id="bar">
@@ -1943,6 +1944,7 @@ const whenShort = iso => { const d = new Date(iso); if (isNaN(d)) return ''; con
    the walk map (v25/walkmap.js: route along the streets, numbered stops), the next door as an offer card with four
    answer tiles (Booked is the only orange), then the next doors. ---------- */
 let kBig = false, kAll = false, kOpenPid = null;
+const DESK = matchMedia('(min-width:1100px)');   // v26: the MacBook desk layout (v25/desk.css uses the same width)
 const kSkip = new Set();   // "skip for now" (this visit only): the door goes to the back of the line, nothing is written
 function kNextIdx(m){   // the next door: this round's first untapped door, skipped ones last
   const pend = m.st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.x.attempt === m.pass);
@@ -1969,13 +1971,13 @@ function walkStatus(m, nextI){   // per RAW walk stop (the engine's order, so ro
 }
 function drawWalkMap(m, nextI){
   const svg = $('#wmSvg'); if (!svg || !window.HMPMap) return;
-  const W = Math.round(svg.getBoundingClientRect().width) || 358, H = kBig ? 440 : 118;
+  const desk = DESK.matches, W = Math.round(svg.getBoundingClientRect().width) || 358, H = desk ? Math.round(svg.getBoundingClientRect().height) || 600 : kBig ? 440 : 118;   // v26 desk: the map is a full-height column
   const status = walkStatus(m, nextI), cur = status.indexOf('current'), raw = cur >= 0 ? m.w.stops[cur] : null;
   const pts = m.w.stops.filter(s => s && numv(s.lat) != null && numv(s.lon) != null); if (pts.length < 1) { svg.closest('.walkmap').hidden = true; return; }
   const wmap = Object.assign({}, m.w, {stops: m.w.stops.map(s => Object.assign({}, s, {lat: numv(s.lat), lon: numv(s.lon)}))});
   try {
     const plain = !(m.w.basemap && Array.isArray(m.w.basemap.streets));   // no basemap: show the whole walk (a 250 m window would be empty)
-    HMPMap.renderWalkMap(svg, wmap, kBig || !raw || plain ? {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, pad: kBig ? 16 : 12, r: kBig ? 8.5 : 7}
+    HMPMap.renderWalkMap(svg, wmap, kBig || desk || !raw || plain ? {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, pad: kBig || desk ? 16 : 12, r: kBig || desk ? 8.5 : 7}
       : {width: W, height: H, status, you: cur > 0 ? {atStop: cur} : null, center: {lat: numv(raw.lat) - .0002, lon: numv(raw.lon) - .00045}, metersAcross: 250, r: 8});
   } catch (e) { svg.closest('.walkmap').hidden = true; }
 }
@@ -2072,24 +2074,24 @@ function renderKnock(){
       ${doorAction(s, 'now', canTap, kind)}</section>`;
   } else offer = `<div class="kdone">${ic('check2')}<span>${esc(Zs.allDone)}</span></div>${DB && CAN_EDIT ? `<button type="button" class="btn pri block" data-done="1" style="margin-top:var(--s3)">${esc(Zs.doneToday)}</button>` : ''}`;
   // then: the next doors (or all of them)
-  const order = st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.i !== nextI).sort((p, q) => (p.x.attempt - q.x.attempt) || (kSkip.has(stops[p.i].pid) - kSkip.has(stops[q.i].pid)) || (p.i - q.i)).slice(0, 2);
+  const order = st.map((x, i) => ({x, i})).filter(o => !o.x.done && o.i !== nextI).sort((p, q) => (p.x.attempt - q.x.attempt) || (kSkip.has(stops[p.i].pid) - kSkip.has(stops[q.i].pid)) || (p.i - q.i)).slice(0, DESK.matches ? 9 : 2);   // the desk (v26, v25/desk.css) has room for the walk ahead
   const then = kAll ? `<ul class="rows klist">${stops.map((s, i) => kRow(m, i, canTap, kind)).join('')}</ul>`
     : order.length ? `<ul class="rows">${order.map(({i}) => { const s = stops[i], a = splitAddr(s.address), y = numv(s.year_built);
         return `<li><div class="row"><span class="n">${i + 1}</span><span class="t"><b>${esc(`${a.no} ${a.street}`.trim())}</b><span>${esc(y ? Zs.builtFact(y) : whyHouse(s, kind).text || txl(s.house_line))}</span></span></div></li>`; }).join('')}</ul>` : '';
   const foot = !canTap && DB ? esc(k.readOnly) : m.hidden ? `${esc(V0.dnkFoot(m.hidden))}${lastDnk && canTap ? ` <button type="button" class="linkbtn" data-dnk-undo="1">${esc(V0.dnkUndo)}</button>` : ''}` : '';
   const ae = document.activeElement, keep = ae && box.contains(ae) ? (ae.dataset.r ? (ae.closest('#kNow') ? `#kNow [data-r="${ae.dataset.r}"]` : `.klist [data-pid="${ae.dataset.pid}"] [data-r="${ae.dataset.r}"]`) : ae.id ? '#' + ae.id : null) : null;
-  soft(box).html = `<div class="area"><h2>${esc(title)}<span class="sub">${esc(Zs.walkSub(city, stops.length, numv(w.walk_mi) ? fmtIn(numv(w.walk_mi)) : ''))}</span></h2>
+  soft(box).html = `<div class="khead"><div class="area"><h2>${esc(title)}<span class="sub">${esc(Zs.walkSub(city, stops.length, numv(w.walk_mi) ? fmtIn(numv(w.walk_mi)) : ''))}</span></h2>
       <button type="button" class="iconbtn hit" data-open="walk:" aria-label="${esc(Zs.walkMenu)}">${ic('more')}</button></div>
     <div class="kchips">${chips.join('')}</div>
     ${zoneMissing ? `<p class="k-stale" style="margin-top:var(--s2)">${esc(NW().zoneMiss(zoneMissing))}</p>` : ''}
     ${kBig ? '' : `<div class="count"><div class="big"><div><b>${tt.doors}</b><span>/ ${Math.round(numv(w.goal_doors) || stops.length)}</span><small>${esc(Zs.knocksToday)}</small></div></div>
       <div class="mini"><div><b>${tt.talked}</b><span>${esc(Zs.talked)}</span></div><div><b>${tt.interested}</b><span>${esc(Zs.interested)}</span></div><div><b>${tt.booked}</b><span>${esc(Zs.booked)}</span></div></div></div>
-    <div class="kbar" aria-hidden="true">${cells}</div>`}
+    <div class="kbar" aria-hidden="true">${cells}</div>`}</div>
     <div class="walkmap${kBig ? ' big' : ''}" role="img" aria-label="${esc(Zs.walkAria(stops.length, nextI >= 0 ? nextI + 1 : 0))}"><svg id="wmSvg"></svg>
       <button type="button" class="expand" id="kMapBtn" aria-label="${esc(kBig ? Zs.mapClose : Zs.mapOpen)}" aria-pressed="${kBig}">${ic(kBig ? 'x' : 'map')}</button></div>
-    ${cb}${offer}
-    ${then ? `<div class="shead"><h2>${esc(Zs.then)}</h2><button type="button" id="kAllBtn" class="hit" aria-pressed="${kAll}">${esc(kAll ? Zs.back3 : Zs.all(stops.length))}</button></div>${then}` : ''}
-    ${foot ? `<div class="kfoot">${foot}</div>` : ''}`;
+    <div class="kdoor">${cb}${offer}</div>
+    <div class="kside">${then ? `<div class="shead"><h2>${esc(Zs.then)}</h2><button type="button" id="kAllBtn" class="hit" aria-pressed="${kAll}">${esc(kAll ? Zs.back3 : Zs.all(stops.length))}</button></div>${then}` : ''}
+    ${foot ? `<div class="kfoot">${foot}</div>` : ''}</div>`;
   drawWalkMap(m, nextI);
   if (keep) { const f = box.querySelector(keep); if (f) f.focus({preventScroll: true}); }
 }
@@ -2661,6 +2663,8 @@ function weekNums(t0){   // v24: one number source. This week's stored numbers, 
   return out;
 }
 function renderKnockTab(){ renderKnock(); }
+let deskRsz = 0; window.addEventListener('resize', () => { if (!DESK.matches || tab !== 'knock') return; clearTimeout(deskRsz); deskRsz = setTimeout(() => { const m = walkModel(); if (m) drawWalkMap(m, kNextIdx(m)); }, 150); });   // v26 desk: the full-height walk map follows the window
+try { DESK.addEventListener('change', () => renderKnock()); } catch (e) { /* old Safari: the layout still switches, the list length on the next render */ }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
 function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
@@ -2818,21 +2822,24 @@ function renderMoney(){
     return `<li><button type="button" class="row" data-open="${isC ? 'claim' : 'lead'}:${esc(d.id)}"><span class="lead">${ic(isMort ? 'bank' : isSupp ? 'file' : 'money')}</span><span class="t"><b>${esc(title)}</b><span>${esc([strv(d.address), strv(d.homeowner_first_name || d.first_name), strv(d.insurer)].filter(Boolean).join(' · '))}</span></span><span class="end">${chip}</span></button></li>`; };
   const open = [...openC.map(c => ({c})), ...cashOpen.map(l => ({l}))], fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
   const g = txl(guideDoc);
-  soft(box).html = hero
+  soft(box).html = `<div class="mcol">` + hero   // v26 desk: two columns (what's owed + to chase | the jobs); a phone reads them in one (v25/desk.css)
     + (chase.length ? `<div class="shead"><h2>${esc(Zs.chase)}</h2></div><ul class="rows">${chase.slice(0, 5).map(chaseRow).join('')}</ul>` : '')
-    + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
+    + `</div><div class="mcol">` + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
     + `<div class="claims">${(mPaidOpen ? fin : open).map(jobCard).join('') || `<p class="quiet">${esc(C.nothingWaiting)}</p>`}</div>`
     + (g ? `<p class="tipl" style="margin-top:var(--s4)">${ic('info')}<span>${esc(g)}</span></p>` : '')
-    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p><p class="rules">${esc(C.rules)}</p></details>`;
+    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p><p class="rules">${esc(C.rules)}</p></details></div>`;
 }
 $('#money').addEventListener('click', ev => { if (ev.target.closest('#mPaid')) { mPaidOpen = !mPaidOpen; renderMoney(); } });
 
 /* ---------- detail sheet (lead or claim) ---------- */
 const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how', 'zones', 'due', 'walk'];   // v24 sheets that start fresh (no Back to the sheet under them)
-function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; clearTimeout(shutT); $('#sheetWrap').classList.remove('closing'); $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); }
+function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; clearTimeout(shutT); $('#sheetWrap').classList.remove('closing'); $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); markOpenRow(); }
+function markOpenRow(){   // v26 desk: the row whose lead or job is open in the side pane stays lit in its list (v25/desk.css)
+  for (const e of document.querySelectorAll('.app [data-open].is-open')) e.classList.remove('is-open');
+  if (openRef) for (const e of document.querySelectorAll('.app [data-open]')) if (e.dataset.open === openRef) e.classList.add('is-open'); }
 const FIT_SHEETS = ['plus', 'more', 'drive', 'rules', 'walk', 'dnk'];   // v25: short sheets hug their content; the rest open tall
 let shutT = 0;   // v25.1: the sheet slides away in 180 ms (v25/aldaba.css); state is closed at once, only the picture lingers
-function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; const w = $('#sheetWrap'); clearTimeout(shutT);
+function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; const w = $('#sheetWrap'); clearTimeout(shutT); markOpenRow();
   if (RM || w.hidden) { w.hidden = true; w.classList.remove('closing'); } else { w.classList.add('closing'); shutT = setTimeout(() => { w.hidden = true; w.classList.remove('closing'); }, 180); } document.body.style.overflow = ''; if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus(); }
 const factsHtml = pairs => `<dl class="facts">${pairs.map(([k, v]) => `<dt>${esc(k)}</dt>${v ? `<dd>${v}</dd>` : `<dd class="none">${esc(L().ct.none)}</dd>`}`).join('')}</dl>`;
 const fmtFact = v => (dayOf(v) ? esc(fmtDay(dayOf(v), true)) : yesv(v) ? esc(L().ct.yes) : '');
@@ -5186,8 +5193,8 @@ function renderZones(){
   const w = zoneWalk(show) || (show.walkId === 'today' ? todayWalkDoc : null);
   const active = walk && w === walk, km = active ? walkModel() : null, far = me.real ? Zs.you : SETTINGS.home.label;
   // the map (drawn again only when the zones, the pick or the size change: redraws from live data leave it alone)
-  const W0 = Math.round(box.getBoundingClientRect().width) || Math.min(innerWidth, 600), H0 = 292;
-  const key = [dataVer, show.id, W0, lang].join('|');
+  const W0 = Math.round(box.getBoundingClientRect().width) || Math.min(innerWidth, 600), H0 = DESK.matches ? Math.max(420, innerHeight - 64 - 300) : 292;   // v26 desk: the map fills its column (v25/desk.css, same sum)
+  const key = [dataVer, show.id, W0, H0, lang].join('|');
   if (key !== zmapKey || !box.querySelector('svg.m')) {
     zmapKey = key;
     const youFar = show.mi != null && show.mi > 3;
@@ -5229,7 +5236,7 @@ $('#zones').addEventListener('click', ev => {
   if (ev.target.closest('#zOld')) { if (SAMPLE && CAN_EDIT) openRH(Z().oldAsk, true); else setTab('knock'); return; }
 });
 let zmapW = 0;
-window.addEventListener('resize', () => { const w = Math.round(($('#zMap') || {getBoundingClientRect: () => ({width: 0})}).getBoundingClientRect().width); if (w && w !== zmapW) { zmapW = w; if (tab === 'now' && !bossOn) renderZones(); } });
+window.addEventListener('resize', () => { const w = Math.round(($('#zMap') || {getBoundingClientRect: () => ({width: 0})}).getBoundingClientRect().width) + (DESK.matches ? 'x' + innerHeight : ''); if (w && w !== zmapW) { zmapW = w; if (tab === 'now' && !bossOn) renderZones(); } });
 
 /* the sheets Now opens: every hot zone (pick one), and Drive (Google or Apple Maps) */
 function renderZonesSheet(){

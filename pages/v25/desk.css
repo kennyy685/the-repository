@@ -1,0 +1,104 @@
+/* HMP App v26 "Desk": the MacBook layout (FilthE, 2026-09-27: "design for a MacBook Air screen first"; published as
+   v25/desk.css, T169). Loaded after v25/aldaba.css. Everything here sits inside one width query, so a phone (and any
+   window under 1100 px) keeps the v25 one-column layout exactly. Options + the pick: docs/design/app-desk/.
+   The shape at 1280-1512 px:
+     rail (left)   : the tabs as a sidebar, the Right Hand's box at its foot
+     Now           : the hot-zone map large on the left, Aldaba's pick under it, today's plan in its own column
+     Knock         : the walk (count + the doors ahead) | the current door, big, 4 big taps | the walk map, full height
+     Leads / Money : the list stays, the open lead or job docks on the right as a pane (no dimming, the list stays live)
+     menus         : short sheets (Add, More, the walk menu) open as a centered card
+     toast         : bottom of the list column, never over the door, the pane or a legal notice
+   Tokens only (v25/ds.css), both themes. */
+
+/* phone: the Knock groups are layout-only wrappers, invisible to the one-column flow */
+.khead,.kdoor,.kside,.mcol{display:contents}
+/* a toast never hides the end of a sheet (a legal notice included): the sheet scrolls clear of it (QA, 2026-09-29) */
+.sheet-body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + var(--s8) + var(--toast-h,0px))}
+
+@media (min-width:1100px){
+  :root{--rail:88px;--gut:28px;--pane:min(520px,40vw);--top-h:64px}
+  body{--dock-h:0px}
+  body[data-tab="knock"]{--dock-h:0px}
+
+  /* ---------- the rail ---------- */
+  .dock{top:0;bottom:0;left:0;right:auto;width:var(--rail);max-width:none;margin:0;display:flex;flex-direction:column;
+    border-radius:0;border:0;border-right:1px solid var(--hair);background:var(--bar);box-shadow:none;overflow:visible;z-index:35}
+  .nav{order:1;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:calc(var(--top-h) + 12px) 10px 12px;border:0;background:none;
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .nav button{height:62px;justify-content:center;border-radius:var(--r-md);font-size:11.5px;gap:5px}
+  .nav button:hover{background:var(--soft)}
+  .nav [aria-selected="true"]{background:var(--soft);box-shadow:inset 0 0 0 1px var(--hair)}
+  .nav [aria-selected="true"]::before{content:"";position:absolute;left:-10px;top:16px;bottom:16px;width:3px;border-radius:0 3px 3px 0;background:var(--hmp)}
+  .nav .plus{order:9;margin-top:10px}
+  .nav .plus i{width:44px;height:36px}
+  .nav .dot{top:6px;left:calc(50% + 4px)}
+  body[data-tab="knock"] .composer,.composer{order:2;display:flex;margin-top:auto;padding:12px 10px 18px;border:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .composer .field{height:56px;width:100%;padding:0;justify-content:center;border-radius:var(--r-md);background:var(--soft)}
+  .composer .field > .i,.composer .field .phl{display:none}
+  .composer .mic{width:40px;height:40px}
+
+  /* ---------- the page beside the rail ---------- */
+  .app{max-width:none;margin:0 0 0 var(--rail);padding:0 var(--gut) var(--s8);transition:margin-right .22s var(--ease)}
+  .app > .top{margin:0 calc(var(--gut) * -1);padding-inline:var(--gut);height:var(--top-h)}
+  .app > .top h1{font-size:28px}
+  .banner,.practice-bar{max-width:1180px}
+
+  /* ---------- Now: the map beside today's plan ---------- */
+  #tab-now:not([hidden]){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(340px,1fr);grid-auto-rows:min-content;column-gap:var(--gut);align-items:start;padding-top:var(--s2)}
+  #zones{grid-column:1;grid-row:1 / span 6;min-width:0}
+  #dueS,#callsS{grid-column:2;min-width:0}
+  #dueS .shead{margin-top:var(--s2)}
+  .zmapw{margin:0;height:max(420px,calc(100vh - var(--top-h) - 300px));border-radius:var(--r-xl);box-shadow:var(--e1),inset 0 0 0 1px var(--hair)}
+  .zmapw::after{display:none}
+  .zone{margin:-64px var(--s6) 0;padding:var(--s5) var(--s6)}
+  .zone h2{font-size:30px}
+
+  /* ---------- Knock: the walk | the door | the map ---------- */
+  #knock{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(400px,1.1fr) minmax(320px,1fr);grid-template-rows:auto 1fr;
+    grid-template-areas:"head door map" "side door map";column-gap:var(--gut);align-items:start;padding-top:var(--s2)}
+  #knock > .khead{display:block;grid-area:head;min-width:0}
+  #knock > .kdoor{display:block;grid-area:door;min-width:0}
+  #knock > .kside{display:block;grid-area:side;min-width:0}
+  #knock > .walkmap{grid-area:map;position:sticky;top:calc(var(--top-h) + var(--s3));height:calc(100vh - var(--top-h) - var(--s8));min-height:480px;margin:0;border-radius:var(--r-xl)}
+  #knock > .walkmap.big{height:calc(100vh - var(--top-h) - var(--s8))}
+  #knock > .kempty{grid-column:1 / -1}
+  #knock .kdoor > .kpanel:first-child{margin-top:0!important;margin-bottom:var(--s3)}
+  #knock .offer{margin-top:0;padding:var(--s5) var(--s6) var(--s6);gap:14px;box-shadow:var(--e2)}
+  #knock .offer .addr{font-size:clamp(34px,3.1vw,46px);line-height:1.02;text-wrap:balance}
+  #knock .offer .answers{gap:10px;margin-top:4px}
+  #knock .offer .ans{height:84px;padding:0 var(--s4) 0 18px;gap:14px}
+  #knock .offer .ans .i{width:26px;height:26px}
+  #knock .offer .ans b{font-size:19px}
+  #knock .offer .ans small{font-size:13px}
+  #knock .kside > .shead:first-child{margin-top:var(--s5)}
+  #knock .kdone{margin-top:0}
+  #knock > .walkmap .expand{display:none}   /* the map is already big here */
+  #zMap .mscale{bottom:84px}
+
+  /* ---------- sheets: a right pane for details, a centered card for short menus ---------- */
+  .sheet-wrap:not(.fit){left:auto;width:var(--pane);top:0}
+  .sheet-wrap:not(.fit) .scrim{display:none}
+  .sheet-wrap:not(.fit) .sheet{top:0;left:0;right:0;max-width:none;border-radius:0;border-left:1px solid var(--hair);box-shadow:var(--e2)}
+  .sheet-wrap:not(.fit) .grab{display:none}
+  .sheet-wrap:not(.fit) .sh{padding-top:14px}
+  body:has(#sheetWrap:not([hidden]):not(.fit):not(.closing)){overflow:auto!important}
+  body:has(#sheetWrap:not([hidden]):not(.fit):not(.closing)) .app{margin-right:var(--pane)}
+  .sheet-wrap.fit .sheet{top:50%;bottom:auto;left:0;right:0;transform:translateY(-50%);max-width:560px;max-height:min(760px,calc(100% - 96px));border-radius:var(--r-xl);animation:al-fade .2s var(--ease)}
+  .sheet-wrap.fit .grab{display:none}
+  .sheet-wrap.fit.closing .sheet{animation:al-fade-out .18s var(--ease) forwards}
+
+  /* ---------- Leads + Money: the list as a column, room for the pane ---------- */
+  #tab-leads:not([hidden]){max-width:860px;padding-top:var(--s2)}
+  .lrows .row{min-height:68px}
+  .app .is-open{background:var(--soft);box-shadow:inset 3px 0 0 var(--hmp)}   /* the lead or job open in the pane */
+  #money{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);column-gap:calc(var(--gut) * 1.5);align-items:start;max-width:1320px;padding-top:var(--s2)}
+  #money > .mcol{display:block;min-width:0}
+  #money > .mcol:last-child > .shead:first-child{margin-top:var(--s2)}
+  #money > .ehero,#money > [aria-hidden]{grid-column:1 / -1}
+  body:has(#sheetWrap:not([hidden]):not(.fit):not(.closing)) #money{grid-template-columns:minmax(0,1fr);max-width:860px}
+  body:has(#sheetWrap:not([hidden]):not(.fit):not(.closing)) #money > .mcol:last-child > .shead:first-child{margin-top:var(--s6)}
+
+  /* ---------- the toast: bottom-left, over the list column only ---------- */
+  .app-toast{left:calc(var(--rail) + var(--gut));right:auto;margin:0;width:min(400px,calc(100vw - var(--rail) - var(--pane) - 2 * var(--gut)));bottom:var(--s6)}
+  body:has(#sheetWrap.fit:not([hidden])) .app-toast{width:max(200px,calc(50vw - 280px - var(--rail) - var(--gut) - 12px))}   /* beside a centered menu card, not on it */
+}
