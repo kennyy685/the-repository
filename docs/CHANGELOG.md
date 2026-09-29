@@ -5,7 +5,7 @@
 - One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
 - SAMPLE tag only on the samples, which moved under Preview (Last night / Quiet night / Storm night). A failed storm update says so on the strip. The open map is now in the design gate (night strip, 1440 dark + light) and has its own page check.
 
-## HMP App "Proven day" - 2026-09-29 (QA PASS)
+## HMP App "Proven day" - 2026-09-29 (live: HMP App Version 13; QA PASS)
 - A full real work day now runs as one automatic test (7 AM map -> knock -> lead -> inspection -> claim -> price -> contract -> follow-ups -> day numbers), in English, Spanish and on a slow signal: `tests/pages/e2e_day_check.js`, part of the release checks.
 - A bad signal never loses a tap now, even if the app closes mid-save, and every Done shows at once instead of waiting. "Done for today" opens the review right away.
 - The contract step shows the fixed cancel notice (EN + ES, with the cancel date) and the deductible notice word for word, one tap each. Report: docs/research/2026-09-29-app-e2e.md.
