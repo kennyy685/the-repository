@@ -3437,8 +3437,8 @@ async function askKing(message, quick, retry){
   const ctl = kcCtl = new AbortController(); kcSet(true, L().kcBusy);
   const dl = setTimeout(() => { ctl.slow = true; ctl.abort(); }, SAMPLE_MS);   // never an endless "thinking": the box frees itself
   try {
-    const out = await SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
-      {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false});
+    const out = await within(SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
+      {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false}), SAMPLE_MS + 2000).catch(e => { if (e && e.code === 'timeout') { ctl.slow = true; throw Object.assign(new Error('cancelled'), {code:'cancelled'}); } throw e; });
     let reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
     if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
     p.textContent = reply; kingUnread();
@@ -3603,7 +3603,7 @@ async function instantAnswer(id, text){
   const onTag = p => { if (p.tag && !tag) { tag = p.tag; order = p.order; if (tag !== 'ANSWER') orderKing(id, text, order); } };   // an order goes out the moment the first line lands
   try {
     const ctl = new AbortController(), dl = setTimeout(() => ctl.abort(), SAMPLE_MS);   // the instant answer gives up after 2 min: the King still gets it
-    const out = await SAMPLE(smuipoInput(text, id, sessions), {cache:false, modelTier:'default', signal:ctl.signal, onText: ({text:full}) => { const p = parseSm(full); onTag(p); if (p.tag) { ktLive[id].text = p.body; paintLive(id); } }});
+    const out = await within(SAMPLE(smuipoInput(text, id, sessions), {cache:false, modelTier:'default', signal:ctl.signal, onText: ({text:full}) => { const p = parseSm(full); onTag(p); if (p.tag) { ktLive[id].text = p.body; paintLive(id); } }}), SAMPLE_MS + 2000);   // the signal, and a hard stop if the runtime ignores it
     clearTimeout(dl);
     const p = parseSm(out && out.text, true); onTag(p.tag ? p : {tag:'?', order:''});
     let reply = String(p.body || '').trim().slice(0, 4000);
