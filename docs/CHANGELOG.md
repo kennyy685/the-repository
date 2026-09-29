@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## The map learns from your knocks - 2026-09-29 (live: open map + Knock preview, 2026-09-29)
+- Every door you log now builds a track record. The Knock door card says "Doors like this: 2 inspection yeses from 34 doors (~6%)" (same hail size, likely-insured signals, roof age); each of the map's top 3 says "This zone" or "Zones like this" the same way.
+- Honest by design: under 20 doors it says "not enough doors yet (7 of 20)", never a %; the % leans toward a typical 5% while doors are few; a good record moves a pick up at most 15%.
+- Engine `hailhunter/learning.py` + `hh.py learn`; the pages run on made-up SAMPLE knocks (fake homes, tagged SAMPLE) until real knocking starts. hud.json and Storm Watch untouched.
+
 ## Storm stacking + roof-age band - 2026-09-29 (live: open map + Knock preview, 2026-09-29)
 - A zone or house hit by hail again and again now ranks a bit higher (x1.15 for 2 hail days since 2024, x1.3 for 3+, capped) and says so in one line: "Hail here 4 times since 2024". Real public reports (NWS, SPC, NOAA) within 5 km; 2024-2025 history pulled by the new `hh.py stack-history`.
 - Knock screen: the roof tile now flags the roof age: young, prime (8-14 yrs) or "check the policy first" (15+), always marked an estimate; old houses say "roof age unknown". Each knock saves the repeat-hail count and roof band so Aldaba can learn which ones lead to a yes.

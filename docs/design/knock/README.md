@@ -52,6 +52,16 @@ form EN + ES at any sale (69-1604), itemized description to homeowner and insure
 So the map can learn per street and per signal: answer rate, yes rate, best hours, which signals predicted a yes
 ("Map learns" tab shows the per-street version). Nothing here is a verdict on coverage.
 
+## The map learns (track record)
+Engine `hailhunter/learning.py` (`hh.py learn --knocks F` -> data/learn.json): one door per house (a yes wins), counts
+per zone, street and signal band (hail size, repeat hail, likely-insured signals 0-3, roof-age band), smoothed yes rate
+(yes + 20 x prior) / (doors + 20), prior = all doors shrunk toward 5%. Uses the most specific group with 20+ doors;
+below that it says "not enough doors yet (n of 20)". The door card shows one line under "Why this house" ("Doors like
+this: 2 inspection yeses from 34 doors (~6%)"), live with your taps (JS twin of `like`); the "Map learns" tab adds yeses
+by hail size. The open map shows the same per pick ("This zone" / "Zones like this") and nudges picks x0.85-1.15.
+Data: `data/build/learn.py` makes SAMPLE past knocks (fake homes in real hot zones, made-up outcomes) ->
+`data/knocks-sample.json`, `walk.json` `learn`, `../open-map/data/learn.js`. Real db stays empty until knocking starts.
+
 ## Screens (shots/)
 door dark/light EN 1440×810, dark ES 1470×866, light ES 1280×800, come-back toast, revisited done door, YES dark EN
 and light ES. 810/866 tall = a MacBook Air browser window (screen minus browser chrome).
