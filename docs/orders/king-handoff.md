@@ -21,6 +21,9 @@ Next King handoffs should come from the hub button, not create_session, or the c
 ## 2026-09-29 00:08 UTC (FilthE: "wait to start the hub, focus on the coding")
 - FilthE meant: code-health for the HUB. RUNNING: session_01PwbnuZLG2xnZVnniirsJuB (ultracode): fix the freeze,
   stronger/faster hub code, live-data smoke test, QA, publish. App sweep session_01Q1oxa3 cancelled (not wanted now).
+- QUEUED right after the hub fix (same page, so not in parallel), FilthE said "you do that": build the rest of the hub
+  with ultracode, one chunk at a time, publish each: v28.1 One building (tube, Observatory, cat, workflow), v28.2
+  Dressed with data, functions 3/5/7/8/9, CONVENIENCES top 12, report card. Plus the wow ideas once he picks.
 - RUNNING: QA of storms data + Knock screen (in-chat helper).
 - Done: Engine storms (447 tests) + Knock screen (docs/design/knock/): publish after QA passes.
 
