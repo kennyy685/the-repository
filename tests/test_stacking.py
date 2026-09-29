@@ -111,6 +111,14 @@ class Walk(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(stacking.load_points(tmp), [])
 
+    def test_bad_files_and_rows_are_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            json.dump([1, 2, 3], open(os.path.join(tmp, "hail-history.json"), "w"))
+            self.assertEqual(stacking.load_points(tmp), [])
+            json.dump({"pts": [["2025-05-01", 41.4], None, ["2025-05-02", 41.45, -96.49, 1.0]]},
+                      open(os.path.join(tmp, "hail-history.json"), "w"))
+            self.assertEqual(stacking.load_points(tmp), [["2025-05-02", 41.45, -96.49, 1.0]])
+
 
 class Season(unittest.TestCase):
     def test_zone_stack_and_roof_band(self):

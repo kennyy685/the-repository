@@ -626,6 +626,11 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .pick .nm{display:flex;align-items:center;gap:8px;font:650 15px/1.15 var(--sans);letter-spacing:-.01em}
 .pick .nm em{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:var(--on-acc);background:var(--acc);padding:3px 5px;border-radius:4px}
 .pick .why{font-size:12.5px;line-height:1.4;color:var(--text-2)}
+/* track record (the map learns from your knocks): SAMPLE knocks until knocking starts */
+.trk{display:flex;align-items:flex-start;gap:6px;font-size:12px;line-height:1.35;color:var(--text)}
+.trk .i{width:12px;height:12px;flex:none;margin-top:2px;color:var(--acc)}
+.trk.few{color:var(--muted)}.trk.few .i{color:var(--muted)}
+.card .trk{margin:6px 0 0;font-size:13px}.card .trk .i{width:13px;height:13px}
 .pick .fx{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:2px;font:500 11px/1.2 var(--mono);color:var(--muted)}
 .pick .fx span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .pick .fx .i{width:12px;height:12px}
@@ -851,6 +856,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="data/real.js"></script>
+<script src="data/learn.js"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -942,8 +948,11 @@ const SRC = {
     what:{en:"Nebraska's Department of Insurance: the adjuster works out Actual Cash Value first; the gap up to full replacement is paid only if the policy has that coverage. Independent agents report more carriers paying only depreciated value once a roof passes about 10–15 years. A general pattern, never a prediction for one policy.",es:"El Departamento de Seguros de Nebraska: el ajustador calcula primero el Valor Real en Efectivo; la diferencia hasta el reemplazo completo solo se paga si la póliza tiene esa cobertura. Agentes independientes dicen que más aseguradoras pagan solo el valor depreciado cuando el techo pasa de unos 10–15 años. Es un patrón general, nunca una predicción para una póliza."},
     site:"doi.nebraska.gov",by:{en:"Research round 62",es:"Investigación, ronda 62"}},
   pick:{code:"PICK",c:"#f5883a",kind:"est",pulled:{en:"Storm Watch run, 6:54 AM",es:"Corrida de Storm Watch, 6:54 a. m."},name:{en:"How Aldaba ranks today's areas",es:"Cómo Aldaba ordena las áreas de hoy"},
-    what:{en:"A simple, open score: hail size 30%, owner-lived homes 20%, how new the storm is 15%, how few other crews (roof permits) 15%, roof age 10%, how well the reports agree 10%. Areas where your permit has expired are skipped. It only suggests: you pick.",es:"Una puntuación sencilla y abierta: tamaño del granizo 30%, casas donde vive el dueño 20%, qué tan nueva es la tormenta 15%, pocas cuadrillas (permisos de techo) 15%, edad del techo 10%, qué tanto coinciden los reportes 10%. Se saltan las áreas donde tu permiso venció. Solo sugiere: tú escoges."},
+    what:{en:"A simple, open score: hail size 30%, owner-lived homes 20%, how new the storm is 15%, how few other crews (roof permits) 15%, roof age 10%, how well the reports agree 10%. Areas where your permit has expired are skipped. After 20+ doors, your track record in zones like it nudges the score (at most ±15%). It only suggests: you pick.",es:"Una puntuación sencilla y abierta: tamaño del granizo 30%, casas donde vive el dueño 20%, qué tan nueva es la tormenta 15%, pocas cuadrillas (permisos de techo) 15%, edad del techo 10%, qué tanto coinciden los reportes 10%. Se saltan las áreas donde tu permiso venció. Con 20+ puertas, tu historial en zonas parecidas ajusta la puntuación (máximo ±15%). Solo sugiere: tú escoges."},
     site:"Aldaba",by:{en:"Aldaba estimate",es:"Estimado de Aldaba"}},
+  lrn:{code:"SAMPLE",c:"#f5883a",pulled:{en:"Made-up knocks, 2026-09-28",es:"Toques inventados, 2026-09-28"},name:{en:"Your track record",es:"Tu historial"},
+    what:{en:"Every door logged on the Knock screen, grouped by this zone, then zones like it (hail size + repeat hail), then hail size alone: it uses the closest group with 20+ doors, and under 20 says so instead of guessing. The % leans toward a typical 5% while doors are few. Once the knocks are real, a good record moves a pick up a little (at most 15%), a poor one down; sample knocks never move the picks. A yes = the homeowner agreed to an inspection, never a verdict on coverage. Here: made-up knocks on fake homes; the real record starts when knocking starts.",es:"Cada puerta anotada en la pantalla Tocar, agrupada por esta zona, luego zonas parecidas (tamaño del granizo + granizo repetido), luego solo el tamaño: usa el grupo más parecido con 20+ puertas, y con menos de 20 lo dice en vez de adivinar. El % se inclina hacia un 5% típico mientras hay pocas puertas. Cuando los toques sean reales, un buen historial sube un poco la opción (máximo 15%), uno malo la baja; los toques de muestra nunca mueven las opciones. Un sí = el dueño aceptó una inspección, nunca un juicio sobre la cobertura. Aquí: toques inventados en casas falsas; el historial real empieza al empezar a tocar."},
+    site:"docs/design/knock/data/build/learn.py",by:{en:"Your knocks (sample)",es:"Tus toques (muestra)"}},
   win:{code:"WINDOW",c:"#ffd27a",kind:"est",pulled:"2026-09-28",name:{en:"Best time to find people home",es:"Mejor hora para encontrar a la gente en casa"},
     what:{en:"Door-to-door norm: weekdays after about 4 PM when people are back from work, Saturday from about 10 AM, Sunday after about 1 PM. The day ends at sunset or the town's legal hours, whichever is first. Your own logged answer rates replace this once you knock.",es:"Norma de puerta en puerta: entre semana después de las 4 p. m., cuando la gente regresa del trabajo; sábado desde las 10 a. m.; domingo después de la 1 p. m. El día termina al atardecer o con el horario legal del pueblo, lo que llegue primero. Tus propios datos lo reemplazan cuando empieces a tocar."},
     site:{en:"door-to-door sales norms (outside view)",es:"normas de ventas de puerta en puerta (vista de afuera)"},by:{en:"Aldaba estimate",es:"Estimado de Aldaba"}},
@@ -1539,6 +1548,9 @@ const T={
   quiet:{en:"no new hail overnight",es:"sin granizo nuevo anoche"},
   swRan:{en:"Storm Watch ran 6:54 AM",es:"Storm Watch corrió 6:54 a. m."},swChecked:{en:(n)=>`${n} areas checked`,es:(n)=>`${n} áreas revisadas`},
   permClock:{en:(n)=>`Fremont permit: ${n} days left`,es:(n)=>`Permiso de Fremont: quedan ${n} días`},
+  trkL:{en:{zone:"Zones like this",z:"This zone",all:"All doors so far"},es:{zone:"Zonas como esta",z:"Esta zona",all:"Todas las puertas hasta ahora"}},
+  trkY:{en:(y,d,p)=>`${y} inspection ${y===1?"yes":"yeses"} from ${d} doors${p!=null?` (~${p}%)`:""}`,es:(y,d,p)=>`${y} sí a inspección de ${d} puertas${p!=null?` (~${p}%)`:""}`},
+  trkFew:{en:(d,n)=>`not enough doors yet (${d} of ${n})`,es:(d,n)=>`aún no hay suficientes puertas (${d} de ${n})`},
   aldTop:{en:"Aldaba's top 3",es:"Top 3 de Aldaba"},youChoose:{en:"you choose",es:"tú decides"},aldPick:{en:"Aldaba's pick",es:"Recomendada"},
   noPicks:{en:"No area with hail in this date range.",es:"Ninguna área con granizo en estas fechas."},
   wHail:{en:(v)=>`${v}″ hail`,es:(v)=>`granizo de ${v}″`},wWind:{en:(v)=>`${v} mph wind`,es:(v)=>`viento de ${v} mph`},
@@ -1767,7 +1779,7 @@ const idle=(fn)=>(window.requestIdleCallback||((f)=>setTimeout(f,60)))(fn);
 const areaOf=(id)=>AREAS.find(x=>x.id===id);
 const lenM=(p)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot((p[i][0]-p[i-1][0])*KX,(p[i][1]-p[i-1][1])*KY);return s*1000};
 const hsh=(s)=>{let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
-const SVG={chev:'<path d="M9 6l6 6-6 6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+const SVG={chev:'<path d="M9 6l6 6-6 6"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
   car:'<path d="M5 16h14M6.5 16l1.3-4.6A2 2 0 0 1 9.7 10h4.6a2 2 0 0 1 1.9 1.4L17.5 16"/><path d="M4 16v2.5h2.5V17M20 16v2.5h-2.5V17"/><circle cx="8" cy="16" r=".4"/><circle cx="16" cy="16" r=".4"/>',
   clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   id:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 15.5c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/>',
@@ -1910,6 +1922,7 @@ function renderCard(){
     <h2>${L(a.name)}</h2>
     <p class="where">${L(a.sub)}${a.county?` · ${a.county} Co.`:""}</p>
     ${a.stack&&a.stack.n>=2?`<p class="stackln" title="${a.stack.days.join(", ")}"><i></i><b>${t("stackL",a.stack.n,a.stack.since)}</b><small>${t("stackS",a.stack.km)}</small></p>`:""}
+    ${LEARN?((r)=>`<p class="trk${r.enough?"":" few"}">${ic("star")}<span><b>${L(T.trkL)[r.lab]}:</b> ${r.enough?t("trkY",r.y,r.d,r.pct):t("trkFew",r.d,LEARN.min)} ${chip("lrn","",a.st,1)}</span></p>`)(learnFor(a)):""}
     <div class="team" title="${t("teamSub")}"><span class="av">K</span><span><b>${t("team")}</b><small>${t("teamSub")}</small></span><span class="off">${t("off")}</span></div>
     <div id="gtBox"></div>
     <div class="sec">${t("claimQ")}<span class="eyes">${ic("lock")}${t("eyes")}</span></div>
@@ -2124,11 +2137,21 @@ const DAY_PLAN={ // SAMPLE: made-up house numbers on real streets from data/area
       {k:"adj",at:810,dur:60,area:"east-fremont",st:"Parkview Dr",no:1542,n:{en:"Adjuster meeting. You show the damage you documented; the claim is the homeowner's.",es:"Cita con el ajustador. Muestras el daño que documentaste; el reclamo es del dueño."}}]};
 if(REAL){const M={"north-fremont":"z0701-fremont","east-fremont":"z0613-fremont-2"};[...DAY_PLAN.fu,...DAY_PLAN.ap].forEach(x=>{x.area=M[x.area]||x.area})}
 const FU_MIN=12; // minutes per follow-up stop on the way (talk + a short walk)
+/* the map learns from your knocks: twin of hailhunter/learning.py like() over data/learn.js (SAMPLE knocks until knocking starts) */
+const LEARN=window.LEARN||null;
+function learnFor(a){if(!LEARN)return null;const Ld=LEARN,T2=Ld.t,need=Ld.min,k=Ld.k,[d0,y0]=T2.all||[0,0],p=(y0+k*Ld.prior_rate)/(d0+k);
+  const hv=a.hail==null||isNaN(+a.hail)?null:"h"+Ld.cuts.filter(c=>+a.hail>=c).length,n=a.stack?a.stack.n:null,sb=n==null?null:n>=3?"s3":n===2?"s2":"s1";
+  const keys=[`z:${a.id}`,...(hv&&sb?[`h:${hv}|s:${sb}`]:[]),...(hv?[`h:${hv}`]:[])],lab=(key)=>key==="all"?"all":key.startsWith("z:")?"z":"zone";
+  for(const key of [...keys,"all"]){const[d,y]=T2[key]||[0,0];if(d>=need){const r=(y+k*p)/(d+k);
+    return{key,d,y,enough:true,pct:Math.round(r*100),f:key==="all"?1:Math.max(Ld.cap[0],Math.min(Ld.cap[1],r/p)),lab:lab(key)}}}
+  const first=keys.find(x=>T2[x])||keys[0],[d,y]=T2[first]||[0,0];return{key:first,d,y,enough:false,f:1,lab:lab(first)}}
+function trkHTML(a){const r=learnFor(a);if(!r)return"";
+  return `<span class="trk${r.enough?"":" few"}">${ic("star")}<span><b>${L(T.trkL)[r.lab]}:</b> ${r.enough?t("trkY",r.y,r.d,r.pct):t("trkFew",r.d,LEARN.min)}</span></span>`}
 function pickScore(a){const i=AREAS.indexOf(a),s=STORMS[a.st],wind=!!(a.wind&&a.hail<1.25),oh=Math.round(a.homes*(a.owner??0)/1000)*10,
   tr=trip(a),pm=permit(tr.tw,TODAY),comp=a.permits==null?0:a.permits/a.homes*100,cl=(x)=>Math.max(0,Math.min(1,x));
   const f={hail:wind?cl((a.wind-50)/30)*.7:cl((a.hail-.75)/1.25),fresh:Math.exp(-s.days/25),homes:cl(oh/2500),room:1-cl(comp/2),roof:cl(((a.roof??10)-10)/15),conf:a.conf/100};
-  const sc=.3*f.hail+.15*f.fresh+.2*f.homes+.15*f.room+.1*f.roof+.1*f.conf-(tr.tw.src?0:.03)-(tr.drive>45?.05:0);
-  return{a,sc,f,oh,ours:OURS[i],tr,pm,comp,wind,block:pm.k==="exp"?pm:null}}
+  const lr=learnFor(a),sc=(.3*f.hail+.15*f.fresh+.2*f.homes+.15*f.room+.1*f.roof+.1*f.conf-(tr.tw.src?0:.03)-(tr.drive>45?.05:0))*(lr&&LEARN.src!=="SAMPLE"?lr.f:1);
+  return{a,sc,f,lr,oh,ours:OURS[i],tr,pm,comp,wind,block:pm.k==="exp"?pm:null}}
 const cap=(x)=>x.charAt(0).toUpperCase()+x.slice(1);
 function pickWhy(p,newest){const a=p.a,c=[];
   if(STORMS[a.st].days===newest)c.push([1.2,t("wNew")]);
@@ -2172,7 +2195,7 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
     const facts=`<span>${ic("car")}${tr.drive} min</span><span>${ic("clock")}${fmtClock(tr.from)}–${fmtClock(tr.end)}</span>${p.pm.k==="ok"?`<span class="ok">${ic("id")}${t("pOk")}</span>`:`<span class="warn">${ic("id")}${t("pTbd")}</span>`}`;
     return `<button class="pick${i?"":" lit"}" data-pick="${a.id}" style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
       <span class="rk">${i+1}</span>
-      <span class="bd"><span class="nm">${L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
+      <span class="bd"><span class="nm">${L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
       <span class="vv"><span class="v">${p.wind?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}).join("");
   const skip=SKIP?`<p class="skip">${ic("sign")}<span>${t("skipped",L(SKIP.a.name),SKIP.wind?SKIP.a.wind+" mph":fmtIn(SKIP.a.hail)+"″",SKIP.tr.tw.n,fmtDate(SKIP.block.on))} ${chip("perm",fmtDate(SKIP.block.on),SKIP.a.st,1)}</span></p>`:"";
   let kn="";
@@ -2198,7 +2221,7 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
       <h1>${t("gm")}<br>${t("found",PICKS.length)}</h1>
       <div class="brief"><span class="ok"><i></i>${t("swRan")}</span><span>${t("quiet")}</span><span>${t("swChecked",allN)}</span>${fp.k==="ok"?`<span class="${fp.left<=7?"warn":""}">${t("permClock",fp.left)} ${chip("perm",fmtDate(fp.until),"s1",1)}</span>`:""}</div>
     </header>
-    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]?PICKS[0].a.st:"s1",1)}<span class="r you">${t("youChoose")}</span></div>
+    <div class="sec">${t("aldTop")} ${chip("pick","",PICKS[0]?PICKS[0].a.st:"s1",1)}${LEARN?chip("lrn","",PICKS[0]?PICKS[0].a.st:"s1",1):""}<span class="r you">${t("youChoose")}</span></div>
     <div class="picks">${P||`<div class="empty">${t("noPicks")}</div>`}</div>${skip}
     <div class="sec">${t("todayPlan")}</div>
     ${dayStrip(K)}

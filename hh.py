@@ -65,6 +65,8 @@
                   signals -> data/storms-<year>.json for the open map. Own network step: refresh/hud.json unchanged.
   python3 hh.py stack-history [--years 2024,2025] [--out F]   storm stacking: past seasons' public hail reports
                   (NWS LSR + NCEI) -> data/hail-history.json; `season` and today's walk count hail days per house/zone.
+  python3 hh.py learn --knocks F [--out F]   the map learns from your knocks: Knock-screen door outcomes -> counts +
+                  smoothed inspection-yes rate per zone/street/signal band (data/learn.json). Offline, no database.
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -534,6 +536,11 @@ def main(argv=None):
                                              "data/hail-history.json; never touches hud.json")
     p.add_argument("--years", help="comma list (default: the 2 seasons before this one)")
     p.add_argument("--out", help="output file (default: data/hail-history.json)")
+    p = sub.add_parser("learn", help="the map learns from your knocks: door outcomes -> track record per signal band "
+                                     "(data/learn.json); offline, never touches hud.json")
+    p.add_argument("--knocks", required=True, help="JSON list of Knock-screen knocks (or {\"ev\": [...]})")
+    p.add_argument("--out", help="output file (default: data/learn.json)")
+    p.add_argument("--src", default="REAL", help="label for the data (REAL once FilthE knocks; SAMPLE for mock)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -684,6 +691,20 @@ def main(argv=None):
         print(f"wrote {out} ({size // 1024} KB): {len(doc['reports'])} reports, {len(doc['storm_days'])} storm days, "
               f"{len(doc['zones'])} zones, {len(doc['areas'])} towns; top: {top or 'none'}"
               + (f"; {len(doc['errors'])} source errors" if doc["errors"] else ""))
+        return 0
+    if a.cmd == "learn":                           # offline, no database, never touches hud.json
+        from hailhunter import learning
+        with open(a.knocks, encoding="utf-8") as f:
+            raw = json.load(f)
+        knocks = (raw.get("ev") or raw.get("knocks") or []) if isinstance(raw, dict) else raw
+        doc = learning.doc(knocks, cfg=cfg, src=a.src)
+        out = a.out or os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "learn.json")
+        tmp = out + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(doc, f, separators=(",", ":"), ensure_ascii=False)
+            f.write("\n")
+        os.replace(tmp, out)
+        print(f"wrote {out}: {doc['doors']} doors, {doc['yes']} inspection yeses, {len(doc['t'])} groups")
         return 0
     if a.cmd == "stack-history":                   # own network step: no database, never touches hud.json
         from hailhunter import stacking

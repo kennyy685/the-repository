@@ -141,12 +141,19 @@ def load_points(data_dir=DATA, year=None):
                 doc = json.load(fh)
         except (OSError, ValueError):
             continue
-        rows = doc.get("pts") or points_from_reports(doc.get("reports"))
+        try:
+            rows = doc.get("pts") or points_from_reports(doc.get("reports"))
+        except (AttributeError, KeyError, TypeError, ValueError):
+            continue                               # not a history/season doc: skip the file, never break a walk
         for p in rows:
-            k = (p[0], round(p[1], 3), round(p[2], 3))
+            try:
+                row = [str(p[0])[:10], float(p[1]), float(p[2]), float(p[3])]
+            except (IndexError, KeyError, TypeError, ValueError):
+                continue                           # one bad row never breaks a walk
+            k = (row[0], round(row[1], 3), round(row[2], 3))
             if k not in seen:
                 seen.add(k)
-                pts.append([p[0], float(p[1]), float(p[2]), float(p[3])])
+                pts.append(row)
     return pts
 
 

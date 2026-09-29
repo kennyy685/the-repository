@@ -1,22 +1,30 @@
 # King handoff (read this first, fresh King)
 
-Written by SMUIPO, 2026-09-28 ~23:50 UTC, session `session_014eg28DpMQ1EZLj9hVosB8g` (~235k, handing off).
-Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (new today: King's 6 rules, hub dispatch, done = publish +
-tell him, fewer bigger questions, every robot job = own session, max 2), then `docs/memory/questions-for-filthe.md`.
-
-## SNAG (King session_01HnpGXN, 2026-09-28 23:55 UTC)
-This King chat is at lineage depth 8 (the cap): create_trigger and create_session fail. So it could NOT make its own
-wake trigger or start robot sessions. Old wake `trig_01RsYqTCZfeEnStkGS8LYinX` stays enabled and bound to the old King
-`session_014eg28D`, which is kept OPEN (not archived) so Hub Chat still wakes someone. Fix: FilthE taps Fresh King on
-the hub (starts from his account, depth 0); that King does the FIRST steps below, then archives 014eg28D + 01HnpGXN.
-Next King handoffs should come from the hub button, not create_session, or the chain stays at the cap.
+Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very long chat; FilthE is tapping Fresh King).
+Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
+one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
 ## FIRST, as the new King
-1. Make your own hub wake trigger (create_trigger, no cron, binds to you) with the SAME prompt as
-   `trig_01RsYqTCZfeEnStkGS8LYinX` (get_trigger it). Write its id to hub doc `system/king` (`wake_trigger`,
-   `live_session`) and `system/robots.dispatch.king`, update CLAUDE.md's id line, disable (never delete) the old one.
-2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
-3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
+1. Your own hub wake trigger (create_trigger, no cron, bound to you) with the SAME prompt as trig_01RsYqTCZfeEnStkGS8LYinX.
+   Write its id to hub doc system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md;
+   disable (never delete) trig_01RsYq. 2) Archive session_014eg28DpMQ1EZLj9hVosB8g. 3) Post one hub hi (to:"you").
+4) Real test: ask FilthE to send "King: test" on the hub; confirm the wake turn ARRIVES in your chat (last King saw
+   wake:"ok" on events but never got the turns: verify this works for you). FilthE: talk only on the hub from now.
+
+## LIVE (2026-09-29)
+- AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
+  open map v6 (real 2026 storms, 7 AM home, storm stacking, roof-age sweet spot), Knock preview v2
+  https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU.
+## RUNNING
+- session_016ezDyTJ7bpC4c8kzD8WMCJ hub v28.1 One building (ultracode, ~$32+).
+- session_017rLPE1DSw1vubyGUNKMB8N map learns from knocks (built + QA'd 03:12, publish next).
+- send_later 8 AM CT permit-call reminder fires into the OLD King session (trig_01SutpBHFRzzTSCgtD2zVcLM): re-create it
+  for yourself and delete that one. Old 5-min robot check (trig_01PfHFzh37foqKhgsZomQVLs): delete; make your own.
+## NEXT
+Hub: v28.2 + functions 3/5/7/8/9 (ultracode). For the app: 7 AM "what's new since yesterday" if he wants; score every
+call + night shift (his approved deep ideas). Release checks take ~10 min: run each with its own timeout.
+Stash stash@{0} in the old container is redundant (drop blocked by classifier; ignore).
+Open for FilthE: email the 3 county assessors for a data export (King's pick yes, draft it for him to send).
 
 ## 2026-09-29 01:46 UTC (latest)
 - LIVE: AI hub Version 31 (freeze fixed, 18-scenario live check), Knock preview https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU.

@@ -196,6 +196,12 @@ DEFAULTS = {
     # use_history: today's walk + zone walks read data/hail-history.json + storms-<year>.json (no files = no change).
     "stacking": {"min_in": 0.75, "seasons": 3, "hit_km": 5, "factor": [1.0, 1.0, 1.15, 1.3], "use_history": True,
                  "roof_band": {"prime": [8, 14], "built_max": 25}},
+    # The map learns from your knocks (learning.py): smoothed inspection-yes rate per signal band, shrunk toward
+    # prior_rate (5%: industry 1-5% of knocked doors book an inspection, 8-15% in fresh storm zones) with the weight
+    # of prior_doors doors; nothing is shown as a rate under min_doors doors. factor_cap = how far a track record may
+    # nudge a map pick (x0.85 to x1.15). hail_cuts = hail bands in inches (<1, 1-1.5, 1.5-2, 2+).
+    "learning": {"prior_rate": 0.05, "prior_doors": 20, "min_doors": 20, "factor_cap": [0.85, 1.15],
+                 "hail_cuts": [1.0, 1.5, 2.0]},
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
     # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
     # `polygon` covers every house left, the walk only the best `doors`).
