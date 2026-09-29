@@ -7,6 +7,8 @@ public data, so the page swaps in one line: `const STORMS = REAL ? REAL.STORMS :
   AREAS   the zones whose centre sits inside the basemap box (DATA_BBOX). ring = the engine's outline
           (ground zones) or a circle of radius_km (radar zones). No roof age or permit data exists:
           roof = typical home age (Census median year built), permits = null ("not checked yet").
+          stack = storm stacking {n, since, days, km}: hail days with a public report within km of the zone's middle
+          since `since` (engine stacking.py; its why line is in `why`).
   DAILY   biggest hail each day inside the map, Mar 1 -> today.
 Also writes build/real_areas.json (id, centre, ring, band) for areas.py (best streets + walks).
 Zones the engine has no Census block groups for (small villages) get homes from 2020 Census blocks inside the ring
@@ -106,7 +108,9 @@ def main():
              'county': cnt.most_common(1)[0][0] if cnt else None, 'town': z.get('near_town') or z.get('nearest_town') or z['name'],
              'mort': None if sig.get('mortgage_share') is None else
                      [round(sig['mortgage_share'] * 100, 1), round(sig['owner_homes'] * sig['mortgage_share']), sig['owner_homes']],
-             'insured': sig['likely_insured'], 'rank': z.get('rank'), 'score': z['score'], 'rep': rep, 'why': z['why']}
+             'insured': sig['likely_insured'], 'rank': z.get('rank'), 'score': z['score'], 'rep': rep, 'why': z['why'],
+             'stack': {'n': z['stack']['count'], 'since': z['stack']['since'], 'days': z['stack']['days'], 'km': z['stack']['km']}
+                      if z.get('stack') else None}
         areas.append(a); kept.append(z)
         raw.append({'id': a['id'], 'c': a['c'], 'ring': ring, 'band': band(a['hail'])})
 

@@ -195,7 +195,7 @@ DEFAULTS = {
     # roof_band: age < prime[0] young, prime[0]-prime[1] prime, above = "check the policy first" (a flag, no score change).
     # use_history: today's walk + zone walks read data/hail-history.json + storms-<year>.json (no files = no change).
     "stacking": {"min_in": 0.75, "seasons": 3, "hit_km": 5, "factor": [1.0, 1.0, 1.15, 1.3], "use_history": True,
-                 "roof_band": {"prime": [8, 14]}},
+                 "roof_band": {"prime": [8, 14], "built_max": 25}},
     # Hot zones map (`hh.py zones`): the top walks near a town, for the HMP App's zones/current + walks/<zone id>
     # walk_buffer_m: `walk_polygon` = the outline around the zone walk's own stops, widened this much (the turf's
     # `polygon` covers every house left, the walk only the best `doors`).

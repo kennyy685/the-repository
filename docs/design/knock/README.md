@@ -9,14 +9,19 @@ YES moment), `?seen=gutters,screens`.
 - **Real:** street names + lines (Nebraska GIS centerlines) and homes per street (2020 Census blocks), both from
   `docs/design/open-map/data/`; the storm reports are the open map's sample storm s1.
 - **Fake:** every home (house number on Fremont's block grid, year built, roof age, owner/mortgage/sale signals) and
-  the 14 knocks already logged this afternoon. Never owner names. Built by `data/build/walk.py` -> `data/walk.json`.
+  the 14 knocks already logged this afternoon. Never owner names. Built by `data/build/walk.py` -> `data/walk.json`,
+  then `data/build/stack.py` adds `stack` (REAL repeat-hail days near each fake home), `rb` (roof-age band, estimate)
+  and the open score with "repeat hail 10" (`score0` = the old score). walk.py no longer reruns as is (the open map's
+  areas.json moved to real zones), so stack.py edits walk.json in place and can run again safely.
 
 ## At the door, in 2 seconds
 House number (huge), street, door N of 103 · **Why this house**: hail that hit it (size, date, the 3 reports behind
 it, nearest distance), likely insured (3 signals: owner lives here, mortgage on record, recent sale; never "insured"),
 roof age (no roof permit since year) · Aldaba score (open formula, hover) · **If they say yes, collect** (time, what
 to inspect, their phone, date + insurer, 26 photos) · 69-1602 line: your name, HMP Siding & Roofing, what we sell.
-Every number carries a source tag (hover = who said it, real / sample / rule / estimate).
+**Repeat hail** under the hail tile ("Hail here 7 times since 2024": real public reports within 5 km since 2024 plus
+this storm) and a **roof-age band** under the roof tile (young / prime 8-14 yrs / check the policy first 15+, an
+estimate); both from `data/build/stack.py` (engine `hailhunter/stacking.py`). Every number carries a source tag (hover = who said it, real / sample / rule / estimate).
 
 ## One tap per door
 Keys 1-5 or click: No answer · Not interested · Come back · Has a roofer · **Inspection YES**. S = No soliciting sign
@@ -38,7 +43,7 @@ form EN + ES at any sale (69-1604), itemized description to homeowner and insure
 { id, at (ISO UTC), m (minutes after midnight, local), door, st, no, ll:[lon,lat], zone, storm,
   o: "na"|"no"|"back"|"roofer"|"yes"|"sign",
   seen: ["gutters","screens","ac","vents","siding"|"none"],   // damage seen from the street
-  sig: { hail, own, mort, sale, roof, score },                // the signals shown at the door, frozen at knock time
+  sig: { hail, own, mort, sale, roof, score, stack, rb },    // the signals shown at the door, frozen at knock time
   when?: "tonight"|"tomorrow"|"sat"   (come back)   roofer?: "signed"|"quotes"|"came"
   dnk?: true (asked not to be knocked again)        hanger?: true (door hanger left)
   sec (seconds at the door), by, src:"mockup",

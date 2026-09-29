@@ -46,6 +46,10 @@ class RoofBand(unittest.TestCase):
         self.assertEqual((prime["age"], prime["band"], prime["estimate"]), (12, "prime", True))
         self.assertIn("estimate", prime["line"]["en"])
         self.assertIn("estimado", prime["line"]["es"])
+        old = stacking.roof_band(1964, None, t)
+        self.assertEqual(old["band"], "check")
+        self.assertIn("roof age unknown", old["line"]["en"])
+        self.assertIn("desconocida", old["line"]["es"])
         check = stacking.roof_band(1970, 2008, t)
         self.assertEqual((check["age"], check["band"], check["basis"], check["estimate"]), (18, "check", "roof", False))
         self.assertIn("check the policy first", check["line"]["en"])
@@ -120,7 +124,7 @@ class Season(unittest.TestCase):
         self.assertEqual((z["stack"]["count"], z["stack"]["since"]), (3, 2024))
         self.assertEqual(z["score_parts"]["stack"], 1.3)
         self.assertEqual(z["score"], 91)
-        self.assertEqual(z["roof_band"]["band"], "prime")
+        self.assertNotIn("roof_band", z)
         self.assertTrue(any("3 times since 2024" in w[1]["en"] for w in z["why"]))
 
 

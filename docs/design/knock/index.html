@@ -163,6 +163,8 @@ body.tight2 .stats>div{padding:0 10px}
 .tile .v{margin-top:9px;font:700 34px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .tile .v small{font:600 14px var(--display);margin-left:3px;color:var(--text-2)}
 .tile .d{margin-top:6px;font-size:12.5px;color:var(--text-2);line-height:1.35}
+.tile .d.stk{display:flex;align-items:center;gap:6px;color:var(--text)}.tile .d.stk .i{width:13px;height:13px;flex:none;color:var(--hc)}
+.tile .d.rb b{font-weight:600}.tile .d.rb-prime b{color:var(--good)}.tile .d.rb-check b{color:var(--o-sign)}
 .tile .src{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 6px;border-radius:5px;font:500 9.5px/1 var(--mono);letter-spacing:.05em;border:1px solid var(--rule-2);color:var(--muted);white-space:nowrap;cursor:help}
 .chip i{width:6px;height:6px;border-radius:50%;background:var(--c,var(--muted))}
@@ -445,6 +447,8 @@ const T={
   sayFirst:{en:"At the door, first:",es:"En la puerta, primero:"},
   sayName:{en:"your name",es:"tu nombre"},saySell:{en:"roofing, siding, gutters",es:"techos, siding, canaletas"},
   why:{en:"Why this house",es:"Por qué esta casa"},
+  stackL:{en:(n,y)=>n>=2?`Hail here ${n} times since ${y}`:`First hail here since ${y}`,es:(n,y)=>n>=2?`Granizo aquí ${n} veces desde ${y}`:`Primer granizo aquí desde ${y}`},
+  rbL:{en:{young:"Young roof (estimate)",prime:"Prime roof age (estimate)",check:"Check the policy first (estimate)"},es:{young:"Techo joven (estimado)",prime:"Edad ideal del techo (estimado)",check:"Revisar la póliza primero (estimado)"}},
   hailK:{en:"Hail near it",es:"Granizo cerca"},hailD:{en:(d,n)=>`${d} · ${n} days ago`,es:(d,n)=>`${d} · hace ${n} días`},
   nearest:{en:(s,mi)=>`Nearest report: ${s}, ${mi} mi`,es:(s,mi)=>`Reporte más cercano: ${s}, ${mi} mi`},
   insK:{en:"Likely insured",es:"Probablemente asegurada"},insOf:{en:"signals",es:"señales"},
@@ -510,8 +514,10 @@ const SRC={
   asr:{c:"#a9b8d6",k:"sample",n:{en:"Dodge County Assessor",es:"Asesor del Condado de Dodge"},w:{en:"Year built, roof material, and whether the tax bill mails to this house (the owner lives here). Public record, no owner names used.",es:"Año de construcción, material del techo y si el recibo de impuestos llega a esta casa (el dueño vive aquí). Registro público, sin nombres."}},
   rod:{c:"#a9b8d6",k:"sample",n:{en:"Register of Deeds",es:"Registro de Escrituras"},w:{en:"A recorded mortgage (deed of trust) means a lender, and lenders require home insurance. A signal, not proof.",es:"Una hipoteca registrada significa un banco, y los bancos exigen seguro de casa. Una señal, no una prueba."}},
   prm:{c:"#b69cff",k:"sample",n:{en:"Fremont building permits",es:"Permisos de construcción de Fremont"},w:{en:"Last roof permit on file. None since a year means the roof is at least that old.",es:"Último permiso de techo registrado. Si no hay desde un año, el techo tiene al menos esa edad."}},
+  stk:{c:"#ff9f6b",k:"real",n:{en:"Repeat hail (public reports since 2024)",es:"Granizo repetido (reportes públicos desde 2024)"},w:{en:"Days with a public hail report of 0.75 in or more within 5 km of this house since 2024 (NWS, SPC, NOAA), plus this storm. A signal for the list, not proof of damage at this address.",es:"Días con un reporte público de granizo de 0.75 pulg. o más a 5 km de esta casa desde 2024 (NWS, SPC, NOAA), más esta tormenta. Una señal para la lista, no prueba de daño en esta dirección."}},
+  rb:{c:"#b69cff",k:"est",n:{en:"Roof age band",es:"Rango de edad del techo"},w:{en:"From the roof age above, an estimate: under 8 yrs young, 8-14 yrs prime, 15+ check the policy first (older roofs can have different policy terms).",es:"De la edad del techo, un estimado: menos de 8 años joven, 8-14 años ideal, 15+ revisar la póliza primero (los techos viejos pueden tener otros términos en la póliza)."}},
   law:{c:"#e0c3a0",k:"rule",n:{en:"Nebraska law 69-1602",es:"Ley de Nebraska 69-1602"},w:{en:"In a home sale, say at the start, clearly: your name, the business, and what you sell.",es:"En una venta a domicilio, di desde el principio y claro: tu nombre, la empresa y lo que vendes."}},
-  pick:{c:"#f5883a",k:"est",n:{en:"How Aldaba ranks a door",es:"Cómo Aldaba califica una puerta"},w:{en:"Open score out of 100: hail size 40, owner lives here 20, mortgage 15, roof age 15, recent sale 10.",es:"Puntaje abierto de 100: tamaño del granizo 40, el dueño vive aquí 20, hipoteca 15, edad del techo 15, venta reciente 10."}},
+  pick:{c:"#f5883a",k:"est",n:{en:"How Aldaba ranks a door",es:"Cómo Aldaba califica una puerta"},w:{en:"Open score out of 100: hail size 35, owner lives here 20, mortgage 15, roof age 10, recent sale 10, repeat hail 10 (2 days 5, 3+ days 10).",es:"Puntaje abierto de 100: tamaño del granizo 35, el dueño vive aquí 20, hipoteca 15, edad del techo 10, venta reciente 10, granizo repetido 10 (2 días 5, 3+ días 10)."}},
   chk:{c:"#3ddc97",k:"est",n:{en:"Claim-ready checklist",es:"Lista lista-para-reclamo"},w:{en:"From our 2026-09-28 research: what adjusters look for (storm date, collateral damage, fresh vs. old marks, filed on time).",es:"De nuestra investigación del 28-09-2026: lo que buscan los ajustadores (fecha, daño colateral, marcas nuevas vs. viejas, a tiempo)."}},
 };
 const TAG={real:{en:"REAL PUBLIC DATA",es:"DATOS PÚBLICOS REALES"},sample:{en:"SAMPLE IN THIS MOCKUP",es:"MUESTRA EN ESTA MAQUETA"},rule:{en:"PUBLIC RULE",es:"REGLA PÚBLICA"},est:{en:"ALDABA ESTIMATE",es:"ESTIMADO DE ALDABA"}};
@@ -551,7 +557,7 @@ function saveLog(){store.set(KEY,{v:1,ev:EV})}
 let byId={};
 function stamp(h,o,m){const iso=`${D.clock.today}T${String(Math.floor((m+300)/60)%24).padStart(2,"0")}:${String(Math.round(m)%60).padStart(2,"0")}:00Z`; // CDT = UTC-5
   return{id:`k-${h.id}-${Math.round(m)}`,at:iso,m:Math.round(m),door:h.id,st:h.st,no:h.no,ll:h.ll,zone:D.zone.id,storm:D.zone.storm,o,
-    sig:{hail:h.hail,own:h.own,mort:h.mort,sale:h.sale,roof:h.roof,score:h.score},by:"filthe",src:"mockup"}}
+    sig:{hail:h.hail,own:h.own,mort:h.mort,sale:h.sale,roof:h.roof,score:h.score,stack:h.stack?.n??null,rb:h.rb?.band??null},by:"filthe",src:"mockup"}}
 const lastOf=(id)=>{for(let i=EV.length-1;i>=0;i--)if(EV[i].door===id)return EV[i];return null};
 const knockable=(h)=>h.kind==="res"||h.force;
 let NOW=0;
@@ -622,13 +628,14 @@ function renderDoor(S){const h=D.homes[cur],e=lastOf(h.id),sk=!knockable(h),kLis
     <div class="tile hail">${hailSvg(h.hail)}<div class="k">${t("hailK")}</div><div class="v">${h.hail.toFixed(2)}<small>in</small></div>
       <div class="d">${t("hailD",dLbl,days)}</div>
       <ul class="reps">${D.zone.rep.map(r=>`<li><b>${r[1].toFixed(2)}″</b><span>${{nws:"NWS",mping:"mPING",mrms:"Radar"}[r[0]]} · ${lang==="es"?r[3]:r[2]}</span></li>`).join("")}</ul>
-      <div class="src">${chip("nws",`${t("nearestS")} ${h.mi} mi`)}</div></div>
+      ${h.stack?`<div class="d stk">${ic("drop")}<b>${t("stackL",h.stack.n,h.stack.since)}</b></div>`:""}
+      <div class="src">${chip("nws",`${t("nearestS")} ${h.mi} mi`)}${h.stack?chip("stk",`${h.stack.n}× ${lang==="es"?"DESDE":"SINCE"} ${h.stack.since}`):""}</div></div>
     <div class="tile"><div class="k">${t("insK")}</div><div class="v ins">${nSig}<small>/ 3 ${t("insOf")}</small></div>
       <ul class="sig">${sigs.map(s=>`<li class="${s[0]?"y":"n"}">${ic(s[0]?"check":"dash")}${s[1]}</li>`).join("")}</ul>
       <div class="src">${chip("asr","ASSESSOR")}${chip("rod","DEEDS")}</div></div>
     <div class="tile"><div class="k">${t("roofK")}</div><div class="v">~${h.roof}<small>${t("yrs")}</small></div>
       <div class="meter">${[5,10,15,20,25].map(y=>`<i class="${h.roof>=y?"on":""}"></i>`).join("")}</div>
-      <div class="d">${t("roofD",L(T.roofMat)[h.mat],noPermit)}</div><div class="src">${chip("prm","PERMITS")}</div></div>
+      <div class="d">${t("roofD",L(T.roofMat)[h.mat],noPermit)}</div>${h.rb?`<div class="d rb rb-${h.rb.band}"><b>${L(T.rbL)[h.rb.band]}</b></div>`:""}<div class="src">${chip("prm","PERMITS")}${h.rb?chip("rb","EST."):""}</div></div>
   </div>
   <div class="lbl">${t("seenL")}</div>
   <div class="seen" id="seen">${["gutters","screens","ac","vents","siding"].map(k=>`<button data-k="${k}" aria-pressed="${seen.includes(k)}">${ic({gutters:"gut",screens:"grid",ac:"fan",vents:"wind",siding:"wall"}[k])}${t("d_"+k)}</button>`).join("")}

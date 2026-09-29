@@ -381,8 +381,8 @@ def _km_np(lat, lon, lats, lons):
 def add_stack(zones, pts, today, sc, cfg):
     """Storm stacking + roof-age sweet spot per zone (stacking.py): `stack` {count, days, since, km, line} = distinct
     hail days with a public report within stacking.hit_km of the zone's middle over the last 3 seasons (its own day
-    always counted); score x the capped factor (1.0 / 1.15 / 1.3, max 100, `score_parts.stack`); `roof_band` from
-    the Census typical home age (an estimate). Each adds one plain `why` line when it helps."""
+    always counted); score x the capped factor (1.0 / 1.15 / 1.3, max 100, `score_parts.stack`), plus one plain `why`
+    line when hit 2+ times. No roof band per zone: the Census typical home age is not a roof age."""
     for z in zones:
         st = stacking.stack(z["center"]["lat"], z["center"]["lon"], pts, today, cfg, include=[z["date"]])
         z["stack"] = {k: st[k] for k in ("count", "days", "since", "km", "line")}
@@ -391,12 +391,6 @@ def add_stack(zones, pts, today, sc, cfg):
         if st["count"] >= 2:
             z["why"].append([1, {"en": f"{st['line']['en']} (public reports within {st['km']:g} km).",
                                  "es": f"{st['line']['es']} (reportes públicos a {st['km']:g} km)."}])
-        my = (z.get("signals") or {}).get("median_year_built")
-        rb = stacking.roof_band(age=max(0, today.year - my), basis="area", cfg=cfg) if my else None
-        z["roof_band"] = {k: rb[k] for k in ("age", "band", "estimate", "line")} if rb else None
-        if rb:
-            z["why"].append([1 if rb["band"] == "prime" else -1,
-                             {"en": rb["line"]["en"] + " (Census).", "es": rb["line"]["es"] + " (Censo)."}])
 
 
 def build_zones(reports, radar, meshes, census, today, sc, places=None, history=None, cfg=None):

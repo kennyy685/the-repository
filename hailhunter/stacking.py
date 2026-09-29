@@ -7,9 +7,10 @@ count into a small, capped multiplier: 1 day = 1.0, 2 = 1.15, 3+ = 1.3 (config `
 stay the big parts of every score. One plain line for the screens: "Hail here 3 times since 2024".
 
 Roof-age sweet spot: roof age from the re-roof year when known, else year built (a proxy, so always labeled an
-estimate): < prime[0] yrs = "young", prime[0]-prime[1] = "prime", >= check_from = "check" (check the policy first:
+estimate): < prime[0] yrs = "young", prime[0]-prime[1] = "prime", older = "check" (check the policy first:
 Nebraska carriers increasingly pay older roofs on depreciated or scheduled terms). A flag only, no score change: the
-door score's age curve already weighs roof age.
+door score's age curve already weighs roof age. A house built more than `built_max` years ago has had new roofs
+since, so its line says "roof age unknown" (still "check"). Area home age (Census) is not a roof age: not banded.
 
 Past seasons come from `hh.py stack-history` -> data/hail-history.json (NWS Local Storm Reports via IEM + NOAA NCEI
 Storm Events, eastern Nebraska box, no owner names, no report text). This season comes from data/storms-<year>.json.
@@ -110,6 +111,10 @@ def roof_band(year_built=None, roof_year=None, today=None, cfg=None, age=None, b
     en_age = f"~{age} yrs" + (" (estimate)" if est else "")
     es_age = f"~{age} años" + (" (estimado)" if est else "")
     who_en, who_es = ("Typical home", "Casa típica") if basis == "area" else ("Roof", "Techo")
+    if basis == "built" and age > rb["built_max"]:   # an old house has had new roofs since: its roof age is unknown
+        return {"age": age, "band": "check", "basis": basis, "estimate": True,
+                "line": {"en": f"Built {today.year - age}: roof age unknown, check the policy first",
+                         "es": f"Construida en {today.year - age}: edad del techo desconocida, revisar la póliza primero"}}
     line = {"young": ({"en": f"{who_en} {en_age}: young roof", "es": f"{who_es} {es_age}: techo joven"}),
             "prime": ({"en": f"{who_en} {en_age}: prime roof age", "es": f"{who_es} {es_age}: edad ideal del techo"}),
             "check": ({"en": f"{who_en} {en_age}: check the policy first",
