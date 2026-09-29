@@ -21,3 +21,11 @@ Chunks 2-4 may go to one Builder together; 5-6 together; 7-8 together (3 Builder
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for
 FilthE's next ask, with a brief "everything we have" summary ready (docs/orders/everything-we-have.md + hub post).
+
+## 14:04 UTC: FilthE "ping me once everything is done ... use up usage in the next 37 min" -> 8 robots running
+Live hub session_013wezScDeoduPTP4moTMHqb | code health session_01RRaZWWf6iNmTYc7ycLVdb7 | engine session_019aik3ZgNmJCAEueHiCdj4v |
+Designer looks session_01Us5UbjDH7t2GnhrnFxf9f3 | branch sync session_01QWjHv7ABHZ7BT5c6YnVBnx | no-free QA+publish
+session_0198WMMBLyNhuDqjngDSS7RZ | hub chunk specs session_011x69CLsekQqvCCEPFoa6Aj (Builders for chunks 2-8 read
+docs/design/hub-office/QUEUE-SPECS.md) | everything-we-have summary session_01Hrxq1jY88e4GX15hnXtXf2.
+PING = one hub post to "you" when ALL are done (+ docs/orders/everything-we-have.md). No phone push (CLAUDE.md).
+After the usage reset: back to max 4 at once.
