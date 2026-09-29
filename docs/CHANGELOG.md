@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## HMP App "Desk" - 2026-09-29 (MacBook layout; QA pending, then republished)
+- On the MacBook the app fills the screen now: tabs in a left rail; Now = the hot-zone map large with Aldaba's pick under it and today's plan + calls beside it; Knock = the next 9 doors | the current door, big, with 4 big taps | the whole walk on a full-height map. One tap per door is still one tap.
+- Leads and Money open a lead or job as a pane on the right: the list stays live (click another lead to swap), the open row stays lit; Money shows what's owed + to chase beside the open jobs. Short menus (Add, More) open as a centered card.
+- The toast never covers the door card, the pane or a legal notice (on a phone the sheet now scrolls its last line clear of it). Phones keep the old layout exactly. New check `tests/pages/desk_check.js`; the design gate now runs the app at 1440 and 390 too. Options + why A: docs/design/app-desk/.
+
 ## Open map: every pick draws its walk - 2026-09-29 (map-west; QA pending, then republished)
 - Tap Aldaba's pick anywhere (Columbus, Schuyler, David City, Fremont, Blair, Wahoo, Omaha-Lincoln) and the map draws that pick's own walk: the Knock app's order, starting on the start street (tonight: 22 St, then 21 St), on real streets. Street by street, corner to corner: no house numbers, no door points, no owner names.
 - Outside the old Omaha-Lincoln street box the night shift adds a small street tile around the walk (~15-30 KB, gis.ne.gov, same source as the rest of the map), so the page stays light on hotel wifi. It all rides in `data/night.js`; the night routine is unchanged.
