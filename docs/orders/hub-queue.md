@@ -12,11 +12,11 @@ here with the session id, pushes, then archives itself. The King polls every 5 m
 2. DONE     Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
 3. DONE     "Why" line on each robot (#8)
 4. DONE     One-tap fresh chat / Hand off button (#3)
-5. RUNNING  Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
-6. RUNNING  Sunday report card (#9)
-7. QUEUED   v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
-8. QUEUED   Top 12 conveniences (CONVENIENCES.md)
-Chunks 2-4 = v34 LIVE (AI hub Version 36, 2026-09-29, session_01JH3N6TYXtFVNW4aiw3zVCp). 5-6 building in the same session, then 7-8.
+5. DONE     Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
+6. DONE     Sunday report card (#9)
+7. DONE     v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
+8. DONE     Top 12 conveniences (CONVENIENCES.md)
+Chunks 2-4 = v34 LIVE (AI hub Version 36). Chunks 5-8 = v35 (QUEUE-SPECS C, D, F Shipped shelf only, G verify), 2026-09-29, session_01JH3N6TYXtFVNW4aiw3zVCp.
 
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for

@@ -3757,13 +3757,13 @@ function wkSoon(){ clearTimeout(wkTimer); wkTimer = setTimeout(wkTick, 400); }
 const r1 = n => Math.round(n*10)/10;
 /* the week's ships (Observatory "Shipped", HUB.shipped + the shelf, the flap sign): the loaded events are only the newest 120,
    so the page reads the whole week once (and again when a new ship lands or the week turns) and unions it with the live list */
-const SHIPWK = {ws:0, evs:[], busy:false, at:0};
+const SHIPWK = {ws:0, evs:[], busy:false, at:0, retryAt:0, again:false};
 async function shipWkFetch(){
-  if (!DB || SHIPWK.busy) return; const ws = wkStartOf(Date.now()); SHIPWK.busy = true;
-  try { const s = await withTimeout(DB.collection('events').where('at', '>=', wkIso(ws)).limit(1000).get(), 15000);
+  if (!DB) return; if (SHIPWK.busy) { SHIPWK.again = true; return; } if (Date.now() < SHIPWK.retryAt) return; const ws = wkStartOf(Date.now()); SHIPWK.busy = true; SHIPWK.again = false;
+  try { const s = await withTimeout(DB.collection('events').where('at', '>=', wkIso(ws)).orderBy('at', 'desc').limit(1000).get(), 15000);
     SHIPWK.ws = ws; SHIPWK.evs = s.docs.map(d => wkNormEv(d.id, d.data())).filter(e => !e.approx && isShipEv(e)); SHIPWK.at = Date.now(); }
-  catch (e) { /* the live list is the fallback */ }
-  finally { SHIPWK.busy = false; computeObservatory(); try { sceneData(); } catch (e) { /* the flap sign waits for the next pass */ } }
+  catch (e) { SHIPWK.retryAt = Date.now() + 60000; /* the live list is the fallback; no re-read for a minute */ }
+  finally { SHIPWK.busy = false; if (SHIPWK.again && Date.now() >= SHIPWK.retryAt) setTimeout(shipWkFetch, 0); computeObservatory(); try { sceneData(); } catch (e) { /* the flap sign waits for the next pass */ } }
 }
 function weekShips(ws){
   ws = ws || wkStartOf(Date.now()); const we = wkNextStart(ws), seen = new Set(), out = [];
