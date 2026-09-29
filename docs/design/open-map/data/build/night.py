@@ -6,7 +6,7 @@ Two nights, both on the page's real public storms + real streets, fake house num
          knocked (the moves and door counts are SAMPLE).
   storm  replay of the real Sep 13 storm night (Colon + Prague radar hail): Sep 12 -> Sep 14 brief.
 Tonight's ranking = the page's own pick order (pickScore, captured from the page on 2026-09-28), so the strip and
-"Aldaba's top 3" agree. Run from this folder: python3 night.py   (writes ../night.js)"""
+"Aldaba's top 3" agree. Run from this folder: python3 night.py   (writes ../night-sample.js)"""
 import json, math, os, sys
 from datetime import datetime, timezone
 
@@ -52,7 +52,7 @@ def main():
     def zone(zid, score, homes_off=0):
         a = A[zid]
         good = [w[1] for w in a.get('why') or [] if w[0] > 0][:2]
-        return {'id': zid, 'list_id': zid, 'kind': 'storm', 'name': a['name']['en'], 'score': score,
+        return {'id': zid, 'list_id': zid, 'area_id': zid, 'kind': 'storm', 'name': a['name']['en'], 'score': score,
                 'hail_in': a['hail'], 'storm_day': day(a), 'homes': (a.get('homes') or 0) - homes_off,
                 'dist_mi': round(miles(HOME[0], HOME[1], a['c'][1], a['c'][0]), 1),
                 'why': {'en': ' '.join(w['en'] for w in good), 'es': ' '.join(w['es'] for w in good)}}
@@ -94,7 +94,7 @@ def main():
                        'es': 'Repetición de la noche real de la tormenta del 13 sep. Los cambios de puesto y números '
                              'de casa son inventados.', 'label': {'en': 'Storm night', 'es': 'Noche de tormenta'}}
     body = json.dumps({'quiet': quiet, 'storm': storm}, ensure_ascii=False, separators=(',', ':'))
-    with open(os.path.join(HERE, '..', 'night.js'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(HERE, '..', 'night-sample.js'), 'w', encoding='utf-8') as f:
         f.write('/* SAMPLE night briefs for the "Since last night" strip, made by hailhunter/night.py brief() '
                 '(data/build/night.py). Do not edit. */\nwindow.NIGHT=' + body + ';\n')
     print(quiet['headline']['en'])

@@ -17,13 +17,14 @@ from hailhunter import night, zones
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
-SAMPLE = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "night.js")
+SAMPLE = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "night-sample.js")
+REAL_JS = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "night.js")
 DAY = "2026-09-25"
 NOW = datetime(2026, 9, 25, 10, 0, tzinfo=timezone.utc)
 KEYS = {"v", "kind", "date", "made_at", "since", "first_run", "quiet", "headline", "new_hail", "zones_up", "zones_down",
         "zones_new", "zones_gone", "walks_changed", "pick", "backup", "zones", "storm_keys"}
 CARD = {"zone_id", "name", "kind", "score", "hail_in", "storm_day", "dist_mi", "doors", "start", "best_time", "why",
-        "plan"}
+        "plan", "center", "area_id"}
 NEVER = re.compile(r"insur|asegur|seguro|deduct|deduc|guarant|owner name", re.I)
 
 
@@ -64,16 +65,19 @@ class NightBrief(unittest.TestCase):
     def test_ranking_pick_and_backup(self):
         d = self.run_brief(self.hud)
         self.assertEqual([z["rank"] for z in d["zones"]], list(range(1, len(d["zones"]) + 1)))
-        scores = [z["score"] for z in d["zones"]]
-        self.assertEqual(scores, sorted(scores, reverse=True))
+        kinds = [z["kind"] for z in d["zones"]]
+        self.assertEqual(kinds, sorted(kinds, key=lambda k: k != "storm"))     # storm zones first (King, 2026-09-29)
+        for k in set(kinds):
+            scores = [z["score"] for z in d["zones"] if z["kind"] == k]
+            self.assertEqual(scores, sorted(scores, reverse=True))
         p, b = d["pick"], d["backup"]
         self.assertEqual(set(p), CARD)
         self.assertEqual(p["zone_id"], d["zones"][0]["id"])     # Aldaba's #1 = the top-ranked zone
-        self.assertEqual(p["doors"], 25)
+        self.assertTrue(0 < p["doors"] <= 25)
         self.assertTrue(p["start"]["address"])
         self.assertIn(p["start"]["address"], p["plan"]["en"])
-        self.assertIn("25 doors", p["plan"]["en"])
-        self.assertIn("25 puertas", p["plan"]["es"])
+        self.assertIn(f"{p['doors']} doors", p["plan"]["en"])
+        self.assertIn(f"{p['doors']} puertas", p["plan"]["es"])
         self.assertTrue(p["why"]["en"] and p["why"]["es"])
         # backup comes from a different list (another storm/area), not the #1's sister turf
         top_list = next(z for z in zones.zones(self.hud, DAY, cfg=self.cfg)["zones"] if z["id"] == p["zone_id"])["list_id"]
@@ -111,7 +115,7 @@ class NightBrief(unittest.TestCase):
         d = self.run_brief(hud, prev)
         self.assertFalse(d["quiet"])
         self.assertEqual([(r["town"], r["hail_in"]) for r in d["new_hail"]], [("Blair", 1.75), ("Fremont", 1.25)])
-        self.assertEqual(set(d["new_hail"][0]), {"town", "state", "day", "hail_in", "dist_mi", "zone_id"})
+        self.assertEqual(set(d["new_hail"][0]), {"town", "state", "day", "hail_in", "dist_mi", "zone_id", "area_id"})
         self.assertIsNone(d["new_hail"][0]["zone_id"])       # no walk for that storm yet
         self.assertTrue(d["headline"]["en"].startswith("New hail since last night: 1.75″ in Blair, 1.25″ in Fremont."))
         self.assertIn("en Blair", d["headline"]["es"])
@@ -170,6 +174,73 @@ class NightBrief(unittest.TestCase):
         self.assertLess(len(json.dumps(self.run_brief(self.hud))), 20000)
 
 
+    # ---- King, 2026-09-29: Aldaba's pick is a storm zone only; old-house (everyday) zones are only the backup ----
+    def test_pick_is_a_storm_zone_even_when_an_old_house_zone_scores_higher(self):
+        zd = zones.zones(self.hud, DAY, cfg=self.cfg)
+        top = max((z for z in zd["zones"] if z["kind"] != "wind"), key=lambda z: z["score"])
+        self.assertEqual(top["kind"], "everyday")               # the fixture's highest heat is an old-house zone...
+        d = self.run_brief(self.hud)
+        self.assertEqual(d["pick"]["kind"], "storm")            # ...but the pick is the best storm walk
+        self.assertEqual(d["backup"]["kind"], "everyday")       # one storm list only: the backup is the old-house zone
+        self.assertEqual(d["zones"][0]["id"], d["pick"]["zone_id"])
+
+    def test_no_storm_walk_means_no_pick_and_an_everyday_backup(self):
+        hud = copy.deepcopy(self.hud)
+        hud["lists"] = []
+        d = self.run_brief(hud)
+        self.assertIsNone(d["pick"])
+        self.assertEqual(d["backup"]["kind"], "everyday")
+        self.assertIn("No storm walk with doors left nearby; backup: " + d["backup"]["name"], d["headline"]["en"])
+        self.assertIn("respaldo: " + d["backup"]["name"], d["headline"]["es"])
+        self.assertIn("older-homes", d["none_reason"]["en"])
+        self.check_text(d)
+
+    def test_trim_never_cuts_a_storm_walk_for_old_house_heat(self):
+        zd = {"zones": [{"id": f"E~t{i}", "list_id": "E", "kind": "everyday", "score": 90 - i} for i in range(5)] +
+                       [{"id": "S~t1", "list_id": "S", "kind": "storm", "score": 20},
+                        {"id": "wind~x", "kind": "wind", "score": 0}]}
+        kept = night.trim(zd, 2)["zones"]
+        self.assertEqual([z["id"] for z in kept], ["E~t0", "S~t1", "wind~x"])   # storm + best everyday; wind layer stays
+        self.assertEqual([z["id"] for z in night.ranked(night.trim(zd, 2))], ["S~t1", "E~t0"])
+
+    def test_storm_zones_link_to_the_open_maps_areas(self):
+        areas = night.map_areas({"zones": [
+            {"id": "2026-09-10~fremont", "center": {"lat": 41.44, "lon": -96.49}},
+            {"id": "2026-09-10~far-away", "center": {"lat": 42.9, "lon": -96.49}},
+            {"id": "2026-06-13~fremont", "center": {"lat": 41.44, "lon": -96.49}}, {"id": "junk"}]})
+        self.assertEqual([a["id"] for a in areas], ["z0910-fremont", "z0910-far-away", "z0613-fremont"])
+        self.assertEqual(night.link_area("2026-09-10", 41.43, -96.5, areas, 15), "z0910-fremont")
+        self.assertIsNone(night.link_area("2026-09-11", 41.43, -96.5, areas, 15))     # another storm day
+        self.assertIsNone(night.link_area("2026-09-10", 40.0, -96.5, areas, 15))      # too far from any area
+        storm_day = next(z["storm_day"] for z in zones.zones(self.hud, DAY, cfg=self.cfg)["zones"] if z["kind"] == "storm")
+        near = [{"id": "zX-fremont", "date": storm_day, "lat": 41.43, "lon": -96.49}]
+        prev = self.run_brief({**self.hud, "storms": []})      # last night: no hail reports yet
+        hud = copy.deepcopy(self.hud)
+        hud["storms"] = [storm(storm_day, "Fremont", 1.5)]
+        zd = zones.zones(hud, DAY, cfg=self.cfg)
+        d = night.brief(hud, zd, zones.walks(hud, zd, DAY, cfg=self.cfg), DAY, prev, self.cfg, now=NOW, areas=near)
+        self.assertEqual(d["pick"]["area_id"], "zX-fremont")
+        self.assertEqual(d["zones"][0]["area_id"], "zX-fremont")
+        self.assertEqual(d["new_hail"][0]["area_id"], "zX-fremont")
+        self.assertIsNone(d["backup"]["area_id"])               # old-house zones have no storm area
+
+    def test_page_copy_names_the_street_never_the_house(self):
+        d = self.run_brief(self.hud)
+        full = d["pick"]["start"]["address"]
+        self.assertRegex(full, r"^\d")
+        js = night.to_js(d)
+        self.assertTrue(js.startswith(night.JS_HEAD))
+        back = night.from_js(js)
+        st = back["pick"]["start"]["address"]
+        self.assertEqual(st, re.sub(r"^\d+\s+", "", full))
+        self.assertNotIn(full, js)
+        self.assertIn(st, back["pick"]["plan"]["en"])
+        self.assertEqual(back["storm_keys"], d["storm_keys"])   # the next night diffs against the published copy
+        self.assertEqual(d["pick"]["start"]["address"], full)   # the brief itself is untouched
+        self.assertIsNone(night.from_js("window.NIGHT_REAL={\"kind\":\"other\"};"))
+        self.assertIsNone(night.from_js("not js"))
+
+
 class NightCli(unittest.TestCase):
     def test_cli_writes_brief_and_keeps_the_previous(self):
         with tempfile.TemporaryDirectory() as t:
@@ -198,6 +269,25 @@ class NightCli(unittest.TestCase):
                 self.assertIsNone(json.load(f)["pick"])
 
 
+    def test_cli_fresh_session_diffs_against_the_published_copy(self):
+        """The nightly cloud run (docs/orders/night-shift-runbook.md) starts with an empty folder: --prev = last
+        night's published night.js, --js-out = the file it republishes."""
+        with tempfile.TemporaryDirectory() as t:
+            js = os.path.join(t, "page", "night.js")
+            base = ["night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49"]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(hh.main(base + ["--out-dir", os.path.join(t, "a"), "--js-out", js]), 0)
+            first = night.from_js(open(js, encoding="utf-8").read())
+            self.assertTrue(first["first_run"])
+            with contextlib.redirect_stdout(io.StringIO()) as out:   # a new, empty folder: only the published copy
+                self.assertEqual(hh.main(base + ["--out-dir", os.path.join(t, "b"), "--prev", js, "--js-out", js]), 0)
+            second = night.from_js(open(js, encoding="utf-8").read())
+            self.assertFalse(second["first_run"])
+            self.assertEqual(second["since"], first["made_at"])
+            self.assertIn("best zone is still", out.getvalue())
+            self.assertIsNone(re.search(r"\b\d+ [NSEW]? ?\w", second["pick"]["start"]["address"] or ""))
+
+
 class OpenMapSample(unittest.TestCase):
     """docs/design/open-map/data/night.js: the sample briefs the open map shows, in the engine's exact shape."""
     @unittest.skipUnless(os.path.exists(SAMPLE), "design files are not in the cloud bundle")
@@ -212,6 +302,22 @@ class OpenMapSample(unittest.TestCase):
             self.assertIsNone(NEVER.search(json.dumps(d, ensure_ascii=False)))
         self.assertTrue(body["quiet"]["quiet"])
         self.assertTrue(body["storm"]["new_hail"])
+
+    @unittest.skipUnless(os.path.exists(REAL_JS), "design files are not in the cloud bundle")
+    def test_published_real_brief_is_a_real_night_brief(self):
+        with open(REAL_JS, encoding="utf-8") as f:
+            text = f.read()
+        self.assertTrue(text.startswith(night.JS_HEAD))
+        d = night.from_js(text)
+        self.assertEqual(set(d) - {"refresh_error", "none_reason"}, KEYS)
+        self.assertNotIn("sample", d)                            # the real brief never carries the SAMPLE note
+        for k in ("pick", "backup"):
+            if d[k]:
+                self.assertEqual(set(d[k]), CARD)
+                self.assertFalse(re.match(r"\d", d[k]["start"]["address"] or ""))   # street, never a house
+        if d["pick"]:
+            self.assertEqual(d["pick"]["kind"], "storm")
+        self.assertIsNone(NEVER.search(json.dumps({k: v for k, v in d.items() if k != "storm_keys"}, ensure_ascii=False)))
 
 
 if __name__ == "__main__":

@@ -338,23 +338,36 @@ def night_cmd(a, cfg, log=print):
         return 2
     results = todaywalk.load_results(todaywalk.load_json(a.results)) if a.results else {}
     dnk = todaywalk.load_dnk(todaywalk.load_json(a.dnk)) if a.dnk else set()
-    zdoc = zones.zones(hud_doc, day, near, a.radius, a.top, results, dnk, cfg, conn, doors=a.doors)
+    # rank EVERY walk, then keep storm zones first (King, 2026-09-29): old-house heat must never cut a storm walk
+    top = int(a.top or zones._zcfg(cfg)["top"])
+    zdoc = zones.zones(hud_doc, day, near, a.radius, 10 ** 4, results, dnk, cfg, conn, doors=a.doors)
     if conn is not None:
         conn.close()
+    zdoc = night.trim(zdoc, top)
     w = zones.walks(hud_doc, zdoc, day, a.doors, results, cfg, dnk=dnk)
     out_dir = a.out_dir or os.path.join(cfg["paths"]["export"], "night")
     os.makedirs(out_dir, exist_ok=True)
     cur, old = os.path.join(out_dir, "brief.json"), os.path.join(out_dir, "brief.prev.json")
     prev = None
-    if os.path.exists(cur):
-        try:
-            prev = todaywalk.load_json(cur)
-        except (OSError, ValueError):
-            prev = None
-    doc = night.brief(hud_doc, zdoc, w, day, prev, cfg)
+    # the previous brief: --prev (a fresh cloud session reads last night's published night.js), else brief.json here
+    for src in ([a.prev] if a.prev else []) + [cur]:
+        if src and os.path.exists(src):
+            try:
+                with open(src, encoding="utf-8") as f:
+                    prev = night.from_js(f.read())
+            except OSError:
+                prev = None
+            if prev is not None:
+                break
+    season_path = a.season or os.path.join(HERE, "data", f"storms-{day[:4]}.json")
+    try:
+        areas = night.map_areas(todaywalk.load_json(season_path))
+    except (OSError, ValueError):
+        areas = []                               # no season file: the brief just carries no map area ids
+    doc = night.brief(hud_doc, zdoc, w, day, prev, cfg, areas=areas)
     if err:
         doc["refresh_error"] = err
-    if prev is not None:
+    if os.path.exists(cur):
         os.replace(cur, old)
     with open(cur + ".tmp", "w", encoding="utf-8") as f:
         json.dump(doc, f, indent=1, ensure_ascii=False)
@@ -363,7 +376,15 @@ def night_cmd(a, cfg, log=print):
     log(doc["headline"]["en"])
     if doc.get("pick"):
         log("Plan: " + doc["pick"]["plan"]["en"])
+    elif doc.get("backup"):
+        log("Backup: " + doc["backup"]["plan"]["en"])
     log(f"Wrote {cur}")
+    if a.js_out:
+        os.makedirs(os.path.dirname(os.path.abspath(a.js_out)), exist_ok=True)
+        with open(a.js_out + ".tmp", "w", encoding="utf-8") as f:
+            f.write(night.to_js(doc))
+        os.replace(a.js_out + ".tmp", a.js_out)
+        log(f"Wrote {a.js_out} (the open map's copy: streets, no house numbers)")
     return 0
 
 
@@ -619,6 +640,10 @@ def main(argv=None):
     p.add_argument("--doors", type=int, help="doors per walk (default: config zones.doors, 25)")
     p.add_argument("--results", help="door results so far (the app's doors/<date>_<pid> docs)")
     p.add_argument("--dnk", help="do-not-knock: the app's dnk/<slug> docs")
+    p.add_argument("--prev", help="last night's brief (brief.json, or the open map's published night.js) for the diff; "
+                                  "default: <out-dir>/brief.json")
+    p.add_argument("--js-out", help="also write the open map's copy (e.g. docs/design/open-map/data/night.js)")
+    p.add_argument("--season", help="season file for the open map's area ids (default: data/storms-<year>.json)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 

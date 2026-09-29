@@ -17,15 +17,23 @@ Brief (v1), every sentence EN + ES, never an owner name, never an insurance prom
  walks_changed: [{id, name, homes, was}]  zones in both briefs whose houses-left count changed (doors knocked,
    do-not-knock, or a rebuilt list),
  pick: {zone_id, name, kind, score, hail_in, storm_day, dist_mi, doors, start {address, lat, lon} | null,
-   best_time {en, es} | null, why {en, es}, plan {en, es}} | null,
- backup: same shape as pick | null  (the next zone from a different list, else the next zone),
+   best_time {en, es} | null, why {en, es}, plan {en, es}, center {lat, lon} | null, area_id} | null
+   Aldaba's pick is a STORM zone only (King, 2026-09-29): no storm walk with doors left = no pick,
+ backup: same shape as pick | null  (the next storm zone from a different list, else the best old-house (everyday)
+   zone, else the pick's sister turf; with no pick it is the best everyday zone),
  none_reason {en, es} (only when there is no pick),
- zones: [{id, name, rank, score, homes}]  the ranked walk zones (for the next night's diff),
+ zones: [{id, name, rank, score, homes, kind, area_id}]  the ranked walk zones, storm zones first (for the next
+   night's diff),
+ area_id (zones, pick, backup, new_hail): the open map's area for that storm (its id "z<MMDD>-<slug>", from the
+   engine's data/storms-<year>.json zones: same storm day, middle within `night.link_km`), else null,
  storm_keys: ["day|place|state", ...]  the hud.json storms already seen (for the next night's diff)}
 """
+import json
+import re
 from datetime import datetime, timezone
 
 from .config import DEFAULTS
+from .geo import haversine_mi
 
 def _ncfg(cfg):
     return {**DEFAULTS["night"], **((cfg or {}).get("night") or {})}
@@ -78,11 +86,62 @@ def new_hail(hud, prev, zdoc, nc):
     return rows[:nc["max_new"]]
 
 
-def ranked(zdoc):
-    """The walk zones (no wind layer) as [{id, name, rank, score, homes}], best first (zones() already sorted them)."""
+def _walk_zones(zdoc):
+    """The walk zones (no wind layer), storm zones first, each group in zones()' order (best first)."""
     walk = [z for z in zdoc.get("zones") or [] if z.get("kind") != "wind"]
-    return [{"id": z["id"], "name": z.get("name"), "rank": i, "score": z.get("score"), "homes": z.get("homes")}
-            for i, z in enumerate(walk, 1)]
+    return [z for z in walk if z.get("kind") == "storm"] + [z for z in walk if z.get("kind") != "storm"]
+
+
+def ranked(zdoc, top=None):
+    """The walk zones as [{id, name, rank, score, homes, kind, area_id}], storm zones first, at most `top`."""
+    walk = _walk_zones(zdoc)[:top] if top else _walk_zones(zdoc)
+    return [{"id": z["id"], "name": z.get("name"), "rank": i, "score": z.get("score"), "homes": z.get("homes"),
+             "kind": z.get("kind"), "area_id": z.get("area_id")} for i, z in enumerate(walk, 1)]
+
+
+def trim(zdoc, top):
+    """zones() run wide (every walk), cut to what the brief ranks: storm zones first, then everyday, `top` in all
+    (wind zones kept: they are a map layer). The night shift ranks wide so a storm walk is never cut by old-house heat."""
+    keep = {z["id"] for z in _walk_zones(zdoc)[:top]}
+    return {**zdoc, "zones": [z for z in zdoc.get("zones") or [] if z.get("kind") == "wind" or z["id"] in keep]}
+
+
+def map_areas(season_doc):
+    """The open map's areas from the engine's data/storms-<year>.json: [{id, date, lat, lon}], id "z<MMDD>-<slug>"
+    (the page's id for "<YYYY-MM-DD>~<slug>", docs/design/open-map/data/build/real.py zid)."""
+    out = []
+    for z in (season_doc or {}).get("zones") or []:
+        try:
+            d, slug = z["id"].split("~")
+            c = z["center"]
+            out.append({"id": "z" + d[5:7] + d[8:10] + "-" + slug, "date": d, "lat": float(c["lat"]),
+                        "lon": float(c["lon"])})
+        except (KeyError, TypeError, ValueError, AttributeError):
+            continue
+    return out
+
+
+def link_area(day, lat, lon, areas, km):
+    """The open-map area of the same storm day whose middle is nearest (within km), else None."""
+    if not day or lat is None or lon is None or not areas:
+        return None
+    best, bd = None, None
+    for a in areas:
+        if a["date"] != day:
+            continue
+        d = haversine_mi(float(lat), float(lon), a["lat"], a["lon"]) * 1.609344
+        if d <= km and (bd is None or d < bd):
+            best, bd = a["id"], d
+    return best
+
+
+def link_zones(zdoc, areas, km):
+    """Stamp area_id on every storm zone of a zones() doc (in place; returns it)."""
+    for z in zdoc.get("zones") or []:
+        c = z.get("walk_center") or z.get("center") or {}
+        z["area_id"] = link_area(z.get("storm_day"), c.get("lat"), c.get("lon"), areas, km) \
+            if z.get("kind") == "storm" else None
+    return zdoc
 
 
 def moves(now, prev, nc):
@@ -124,24 +183,31 @@ def _plan_card(z, walk):
                 "es": f"Maneja a {name}, empieza en {start['address']}, {doors} puertas."}
     else:
         plan = {"en": f"Drive to {name}, {doors} doors.", "es": f"Maneja a {name}, {doors} puertas."}
+    c = z.get("walk_center") or z.get("center")
     return {"zone_id": z["id"], "name": name, "kind": z.get("kind"), "score": z.get("score"),
             "hail_in": z.get("hail_in"), "storm_day": z.get("storm_day"), "dist_mi": z.get("dist_mi"),
             "doors": doors, "start": start, "best_time": (walk or {}).get("best_time"),
-            "why": z.get("why") or {"en": "", "es": ""}, "plan": plan}
+            "why": z.get("why") or {"en": "", "es": ""}, "plan": plan,
+            "center": {"lat": c.get("lat"), "lon": c.get("lon")} if c else None, "area_id": z.get("area_id")}
 
 
 def choose(zdoc, walks):
-    """(pick, backup): the top walk zone, and the next one from a different list (another storm or area), else the
-    next zone. Zones whose walk has no doors left are skipped."""
-    walk = [z for z in zdoc.get("zones") or [] if z.get("kind") != "wind"]
+    """(pick, backup). Aldaba's pick = the top STORM zone (King, 2026-09-29: old-house zones are only ever the
+    backup). Backup = the next storm zone from a different list (another storm), else the best everyday zone, else the
+    pick's sister turf; with no storm zone there is no pick and the backup is the best everyday zone. Zones whose walk
+    has no doors left are skipped."""
     docs = walks or {}
-    ok = [z for z in walk if (docs.get(f"walks/{z['id']}") or {}).get("stops") or (not docs and z.get("homes"))]
-    if not ok:
-        return None, None
-    top = ok[0]
-    other = next((z for z in ok[1:] if z.get("list_id") != top.get("list_id")), None) or (ok[1] if len(ok) > 1 else None)
-    card = lambda z: _plan_card(z, docs.get(f"walks/{z['id']}"))   # noqa: E731
-    return card(top), (card(other) if other else None)
+    ok = [z for z in _walk_zones(zdoc)
+          if (docs.get(f"walks/{z['id']}") or {}).get("stops") or (not docs and z.get("homes"))]
+    storm = [z for z in ok if z.get("kind") == "storm"]
+    every = [z for z in ok if z.get("kind") != "storm"]
+    card = lambda z: _plan_card(z, docs.get(f"walks/{z['id']}")) if z else None   # noqa: E731
+    if not storm:
+        return None, card(every[0] if every else None)
+    top = storm[0]
+    other = (next((z for z in storm[1:] if z.get("list_id") != top.get("list_id")), None)
+             or (every[0] if every else None) or (storm[1] if len(storm) > 1 else None))
+    return card(top), card(other)
 
 
 def _hail_list(rows, lang):
@@ -154,9 +220,18 @@ def _hail_list(rows, lang):
     return ", ".join(parts)
 
 
-def headline(first_run, hail, pick, prev_pick_id, prev_pick_name):
+def headline(first_run, hail, pick, prev_pick_id, prev_pick_name, backup=None):
     """One plain sentence (EN/ES) for the top of the 7 AM home."""
     if pick is None:
+        if backup is not None:                        # no storm walk: say so, and name the old-house backup
+            b = backup["name"]
+            lead = ({"en": f"New hail since last night: {_hail_list(hail, 'en')}. ",
+                     "es": f"Granizo nuevo desde anoche: {_hail_list(hail, 'es')}. "} if hail else
+                    {"en": "First night brief. " if first_run else "No new hail since last night. ",
+                     "es": "Primer resumen de la noche. " if first_run else "Sin granizo nuevo desde anoche. "})
+            return {"en": lead["en"] + f"No storm walk with doors left nearby; backup: {b} (older homes).",
+                    "es": lead["es"] + f"No hay ruta de tormenta con puertas pendientes cerca; respaldo: {b} "
+                                       f"(casas más viejas)."}
         if first_run:
             return {"en": "First night brief: no walks with doors left nearby yet.",
                     "es": "Primer resumen de la noche: todavía no hay rutas con puertas pendientes cerca."}
@@ -181,27 +256,85 @@ def headline(first_run, hail, pick, prev_pick_id, prev_pick_name):
     return {"en": f"No new hail since last night; {best_en}.", "es": f"Sin granizo nuevo desde anoche; {best_es}."}
 
 
-def brief(hud, zdoc, walks, today, prev=None, cfg=None, now=None):
+def brief(hud, zdoc, walks, today, prev=None, cfg=None, now=None, areas=None):
     """The night brief (module doc). hud = hud.json, zdoc/walks = zones.zones()/zones.walks() output, prev = the
-    previous brief or None (first run)."""
+    previous brief or None (first run), areas = map_areas(storms-<year>.json) for the open map's area ids."""
     nc = _ncfg(cfg)
     now = now or datetime.now(timezone.utc)
     if prev is not None and prev.get("kind") != "night_brief":
         prev = None                                   # a broken/foreign file counts as no previous brief
     first = prev is None
+    if areas:
+        link_zones(zdoc, areas, nc["link_km"])
     hail = new_hail(hud, prev, zdoc, nc)
+    for r in hail:
+        z = next((z for z in zdoc.get("zones") or [] if z.get("id") == r["zone_id"]), None)
+        r["area_id"] = (z or {}).get("area_id") or next(
+            (a["id"] for a in areas or [] if a["date"] == r["day"] and a["id"].endswith("-" + _slug(r["town"]))), None)
     zs = ranked(zdoc)
     mv = moves(zs, prev, nc)
     pick, backup = choose(zdoc, walks)
     pp = (prev or {}).get("pick") or {}
     doc = {"v": 1, "kind": "night_brief", "date": str(today), "made_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
            "since": (prev or {}).get("made_at"), "first_run": first, "quiet": not first and not hail,
-           "headline": headline(first, hail, pick, pp.get("zone_id"), pp.get("name")),
+           "headline": headline(first, hail, pick, pp.get("zone_id"), pp.get("name"), backup),
            "new_hail": hail, **mv, "pick": pick, "backup": backup, "zones": zs,
            "storm_keys": sorted({_key(s) for s in _storms(hud, nc)})}
     if pick is None:
-        doc["none_reason"] = (zdoc.get("none_reason") or
+        storm_none = {"en": "No storm walk with doors left nearby. New storm walks come with the next storm update; "
+                            "the backup is an older-homes area.",
+                      "es": "No hay ruta de tormenta con puertas pendientes cerca. Llegan rutas nuevas con la próxima "
+                            "actualización de tormentas; el respaldo es una zona de casas más viejas."}
+        doc["none_reason"] = storm_none if backup else (zdoc.get("none_reason") or
                               {"en": "No walks with doors left nearby. New lists come with the next storm update.",
                                "es": "No hay rutas con puertas pendientes cerca. Llegan listas nuevas con la próxima "
                                      "actualización de tormentas."})
     return doc
+
+
+def _slug(s):
+    return re.sub(r"[^a-z0-9]+", "-", str(s or "").lower()).strip("-")
+
+
+# ---- the open map's copy of the brief (docs/design/open-map/data/night.js), republished every night ----
+JS_HEAD = ("/* The night shift's REAL brief for the open map's \"Since last night\" strip. Written by `hh.py night "
+           "--js-out` (hailhunter/night.py page_brief); do not edit. */\nwindow.NIGHT_REAL=")
+
+
+def _street(address):
+    """"1306 S 137 Av" -> "S 137 Av": the published page names the street, never a house (no knocking yet)."""
+    return re.sub(r"^\s*\d+[A-Za-z]?(-\d+)?\s+", "", str(address or "")).strip() or None
+
+
+def page_brief(doc):
+    """The brief as the open map publishes it: the same shape, but every start point is a street (no house number)
+    at ~100 m (3 decimals), the plan line names the street, and storm_keys stay (the next night's diff reads them
+    back from the published file)."""
+    out = json.loads(json.dumps(doc))
+    for k in ("pick", "backup"):
+        c = out.get(k)
+        if not c or not c.get("start"):
+            continue
+        s = c["start"]
+        full, st = s.get("address"), _street(s.get("address"))
+        s["address"] = st
+        for f in ("lat", "lon"):
+            if s.get(f) is not None:
+                s[f] = round(float(s[f]), 3)
+        if full:
+            for lang in ("en", "es"):
+                c["plan"][lang] = c["plan"][lang].replace(full, st or "")
+    return out
+
+
+def to_js(doc):
+    return JS_HEAD + json.dumps(page_brief(doc), ensure_ascii=False, separators=(",", ":")) + ";\n"
+
+
+def from_js(text):
+    """A brief back out of a night.js (or a plain brief.json); None when it holds no night brief."""
+    try:
+        d = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    except ValueError:
+        return None
+    return d if isinstance(d, dict) and d.get("kind") == "night_brief" else None
