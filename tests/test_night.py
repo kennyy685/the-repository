@@ -202,6 +202,11 @@ class NightBrief(unittest.TestCase):
         kept = night.trim(zd, 2)["zones"]
         self.assertEqual([z["id"] for z in kept], ["E~t0", "S~t1", "wind~x"])   # storm + best everyday; wind layer stays
         self.assertEqual([z["id"] for z in night.ranked(night.trim(zd, 2))], ["S~t1", "E~t0"])
+        many = {"zones": [{"id": f"S~t{i}", "list_id": "S", "kind": "storm", "score": 60 - i, "homes": 9}
+                          for i in range(4)] + [{"id": "E~t0", "list_id": "E", "kind": "everyday", "score": 90, "homes": 9}]}
+        t = night.trim(many, 3)                                   # one storm fills the top: the old-house zone stays in
+        self.assertEqual([z["id"] for z in night.ranked(t)], ["S~t0", "S~t1", "E~t0"])
+        self.assertEqual(night.choose(t, {})[1]["zone_id"], "E~t0")
 
     def test_storm_zones_link_to_the_open_maps_areas(self):
         areas = night.map_areas({"zones": [
@@ -314,7 +319,9 @@ class OpenMapSample(unittest.TestCase):
         for k in ("pick", "backup"):
             if d[k]:
                 self.assertEqual(set(d[k]), CARD)
-                self.assertFalse(re.match(r"\d", d[k]["start"]["address"] or ""))   # street, never a house
+                st = d[k]["start"] or {}
+                for f in ("lat", "lon"):                       # ~100 m, never a house's spot
+                    self.assertEqual(st.get(f), round(st.get(f), 3) if st.get(f) is not None else None)
         if d["pick"]:
             self.assertEqual(d["pick"]["kind"], "storm")
         self.assertIsNone(NEVER.search(json.dumps({k: v for k, v in d.items() if k != "storm_keys"}, ensure_ascii=False)))

@@ -8,7 +8,9 @@
  *   node tests/pages/design_gate.js --page hmp-app   only pages whose path contains "hmp-app" (repeatable)
  *   node tests/pages/design_gate.js --shots          also save a screenshot of every view, not just failing ones
  *   node tests/pages/design_gate.js --self-test      prove every check fires on a page built to break them all
- *   a page may add its own sizes (the hub: 1440x900, its MacBook layout); they run by default, or with --size 1440
+ *   node tests/pages/design_gate.js --whole-page     ignore every `root` (a page or view limited to one element)
+ *   a page may add its own sizes (the hub: 1440x900, its MacBook layout); they run by default, or with --size 1440;
+ *   a page may also keep to its own sizes, languages and themes (`onlySizes`, `langs`, `themes`: the open map)
  *   narrower runs: --size 360|420, --theme light,dark,data-theme=dark,data-theme=light,pick=light,pick=auto, --lang en|es, --verbose
  *
  * What fails the gate (every rule is checked on every view: each tab, plus the sheets listed in PAGES):
@@ -96,6 +98,27 @@ const PAGES = [
     tabs: null,
     // v11: the Plan (4-week path + ready-to-knock) and the top 15 objections, each its own tab
     views: [{ name: "cheat sheet", steps: ["#cheatBtn1"] }, { name: "plan", steps: ["#tabPlan"] }, { name: "objections", steps: ["#tabObj"] }],
+  },
+  {
+    // the open map (Aldaba's 7 AM home, QA note 2026-09-29): a MacBook page only (`onlySizes`), dark by default with its
+    // own Light pick (localStorage "aldaba-theme"), English at load (Spanish = its EN/ES switch, checked as a view).
+    // Offline here, so MapLibre never loads and the page draws its fallback map; the panels are what this checks.
+    // The night strip runs on the REAL brief (data/night.js) and on each Preview sample. `root` keeps the check to the
+    // night strip (JS errors and unpublished files still count page-wide): the rest of the page carried ~196 older
+    // findings on 2026-09-29 (tiny source chips, map labels), the Designer's follow-up; --whole-page shows them all.
+    rel: "docs/design/open-map/index.html",
+    root: "section.night",
+    onlySizes: true,
+    sizes: [{ width: 1440, height: 900 }],
+    langs: ["en"],
+    themes: ["dark", "pick=light"],
+    pickKey: "aldaba-theme",
+    tabs: null,
+    views: [
+      { name: "night storm sample", steps: ['[data-night="storm"]'], root: "section.night" },
+      { name: "night quiet sample", steps: ['[data-night="quiet"]'], root: "section.night" },
+      { name: "espanol", steps: ['button[data-lang="es"]'], root: "section.night" },
+    ],
   },
 ];
 
@@ -842,7 +865,11 @@ async function runCombo(browser, page, combo, opts, shared, data) {
   try {
     await load();
     const tabs = page.tabs ? await p.$$eval(page.tabs, (els) => els.filter((e) => e.getClientRects().length).map((e) => e.id || e.dataset.tab || e.getAttribute("aria-controls"))) : [];
-    if (!tabs.length) add(await auditView(p, ctx, "main"));
+    if (!tabs.length) {
+      await p.evaluate((r) => { window.__dgRoot = r || null; }, opts.wholePage ? null : page.root || null);
+      add(await auditView(p, ctx, "main"));
+      await p.evaluate(() => { window.__dgRoot = null; });
+    }
     for (const t of tabs) {
       try {
         await clickStep(p, `${page.tabs}#${t}, ${page.tabs}[data-tab="${t}"], ${page.tabs}[aria-controls="${t}"]`);
@@ -854,7 +881,7 @@ async function runCombo(browser, page, combo, opts, shared, data) {
       try {
         await load();
         for (const sel of v.steps) { await clickStep(p, sel); await frames(p, 400); }
-        await p.evaluate((r) => { window.__dgRoot = r || null; }, v.root || null);
+        await p.evaluate((r) => { window.__dgRoot = r || null; }, opts.wholePage ? null : v.root || null);
         add(await auditView(p, ctx, v.name));
         await p.evaluate(() => { window.__dgRoot = null; });
       } catch (e) { findings.push({ view: v.name, rule: "gate-error", where: "(page)", label: "", detail: `could not open this view: ${e.message.split("\n")[0]}` }); }
@@ -873,7 +900,8 @@ function combosFor(opts, page) {
   for (const lang of opts.langs) {
     for (const t of THEMES) {
       if (!LANG_THEMES[lang].includes(t.id) || !opts.themes.includes(t.id) || (t.pick && !(page && page.pickKey))) continue;
-      for (const s of [...SIZES, ...((page && page.sizes) || [])]) if (opts.widths.includes(s.width) || (!opts.sizeGiven && !SIZES.some((x) => x.width === s.width))) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, pick: t.pick || null, width: s.width, height: s.height });
+      if (page && ((page.langs && !page.langs.includes(lang)) || (page.themes && !page.themes.includes(t.id)))) continue;
+      for (const s of [...(page && page.onlySizes ? [] : SIZES), ...((page && page.sizes) || [])]) if (opts.widths.includes(s.width) || (!opts.sizeGiven && !SIZES.some((x) => x.width === s.width))) out.push({ lang, theme: t.id, scheme: t.scheme, attr: t.attr, pick: t.pick || null, width: s.width, height: s.height });
     }
   }
   return out;
@@ -938,6 +966,7 @@ function parseArgs(argv) {
     else if (a === "--lang") o.langs = String(next()).split(",");
     else if (a === "--quick") { o.widths = [360]; o.sizeGiven = true; o.themes = ["light", "dark", "pick=light"]; o.langs = ["en"]; }
     else if (a === "--shots") o.shots = true;
+    else if (a === "--whole-page") o.wholePage = true;
     else if (a === "--verbose" || a === "-v") o.verbose = true;
     else if (a === "--self-test") o.selfTest = true;
     else if (a === "--help" || a === "-h") { const src = fs.readFileSync(__filename, "utf8").split("\n"); console.log(src.slice(1, src.findIndex((l) => l.startsWith('"use strict"'))).join("\n")); process.exit(0); }

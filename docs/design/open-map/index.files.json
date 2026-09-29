@@ -1,0 +1,23 @@
+{
+  "about": "The open map (Aldaba 7 AM home) is a multi-file artifact. Publish `page` to `url` with the Artifact tool's `files` = the map below (published path -> repo file, relative to the repo root). The night shift republishes ONLY `data/night.js` every night (docs/orders/night-shift-runbook.md). tests/pages/serve.js serves the page from this map for the design gate.",
+  "url": "https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV",
+  "page": "docs/design/open-map/index.html",
+  "nightly": [
+    "data/night.js"
+  ],
+  "files": {
+    "data/real.js": "docs/design/open-map/data/real.js",
+    "data/learn.js": "docs/design/open-map/data/learn.js",
+    "data/night-sample.js": "docs/design/open-map/data/night-sample.js",
+    "data/night.js": "docs/design/open-map/data/night.js",
+    "data/base.json": "docs/design/open-map/data/base.json",
+    "data/streets.json": "docs/design/open-map/data/streets.json",
+    "data/homes.json": "docs/design/open-map/data/homes.json",
+    "data/areas.json": "docs/design/open-map/data/areas.json",
+    "fonts/BricolageGrotesque-var.woff2": "docs/design/open-map/fonts/BricolageGrotesque-var.woff2",
+    "fonts/Geist-400.woff2": "docs/design/open-map/fonts/Geist-400.woff2",
+    "fonts/Geist-500.woff2": "docs/design/open-map/fonts/Geist-500.woff2",
+    "fonts/Geist-600.woff2": "docs/design/open-map/fonts/Geist-600.woff2",
+    "fonts/GeistMono-500.woff2": "docs/design/open-map/fonts/GeistMono-500.woff2"
+  }
+}

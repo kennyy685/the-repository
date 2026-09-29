@@ -618,12 +618,18 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .today .sec .you{margin-left:auto;order:2;font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--acc-ink)}
 .today .sec::after{order:1}
 .picks{display:flex;flex-direction:column;gap:6px}
-/* since last night (night shift brief: hailhunter/night.py -> data/night.js, SAMPLE) */
+/* since last night (night shift brief: `hh.py night --js-out` -> data/night.js, REAL; samples in data/night-sample.js) */
 .night{position:relative;margin-top:16px;padding:12px 12px 11px;border-radius:14px;border:1px solid var(--rule);
   background:radial-gradient(130% 120% at 100% 0%,rgba(122,140,255,.10),transparent 60%),rgba(255,255,255,.025)}
 .night .nh{display:flex;align-items:center;gap:7px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .night .nh .i{width:13px;height:13px;color:#a9b4ff}
-.night .nh .at{letter-spacing:.04em;text-transform:none;opacity:.85}
+.night{--muted:#a3a6ae}   /* AA on the strip's own glass (design gate, 2026-09-29) */
+.night .nb{flex-wrap:wrap}.night .seg{flex-wrap:wrap}
+.night .np{margin-top:9px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:5px 8px}
+.night .np .k{font:500 10.5px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.night .np .nc{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.night .np .pl{grid-column:1/-1;margin:0;font-size:12px;line-height:1.35;color:var(--text-2);text-wrap:pretty}
+.night .nh .at{letter-spacing:.04em;text-transform:none}
 .night .nh>span{white-space:nowrap}.night .nh .smp{margin-left:auto}
 .night .nb{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--rule);font:500 10px/1 var(--mono);letter-spacing:.06em;color:var(--muted)}
 .night .seg{margin-left:auto;display:flex;gap:2px;padding:2px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid var(--rule)}
@@ -647,6 +653,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .pick .mv.nw{color:var(--acc-ink)}
 [data-theme="light"] .night{background:radial-gradient(130% 120% at 100% 0%,rgba(90,105,230,.10),transparent 60%),rgba(255,255,255,.6)}
 [data-theme="light"] .night .nh .i{color:#4b58c8}
+[data-theme="light"] .night{--muted:#50535a}[data-theme="light"] .night .smp{color:#8a4308}
 [data-theme="light"] .night .nc{background:rgba(255,255,255,.7)}
 [data-theme="light"] .night .seg{background:rgba(24,25,28,.05)}
 .pick{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:11px;align-items:start;text-align:left;width:100%;padding:11px 11px 11px 10px;border-radius:14px;
@@ -888,6 +895,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="data/real.js"></script>
 <script src="data/learn.js"></script>
+<script src="data/night-sample.js"></script>
 <script src="data/night.js"></script>
 <script>
 "use strict";
@@ -1609,7 +1617,8 @@ const T={
   insp:{en:"Inspection",es:"Inspección"},adj:{en:"Adjuster",es:"Ajustador"},
   adjLegal:{en:"You document and meet. Never negotiate the claim or talk deductible.",es:"Documentas y te reúnes. Nunca negocies el reclamo ni hables del deducible."},
   nightT:{en:"Since last night",es:"Desde anoche"},nightAt:{en:(c)=>`ran ${c}`,es:(c)=>`corrió ${c}`},
-  nNew:{en:"New hail",es:"Granizo nuevo"},nMoved:{en:"Moved",es:"Cambió de puesto"},nWalks:{en:"Walks",es:"Rutas"},
+  nNew:{en:"New hail",es:"Granizo nuevo"},nReal:{en:"Last night",es:"Anoche"},nPick:{en:"Aldaba's pick",es:"Recomendada"},nBackup:{en:"Backup",es:"Respaldo"},
+  nRefErr:{en:"Last night's storm update failed; this uses the day before's storm data.",es:"La actualización de tormentas de anoche falló; esto usa los datos del día anterior."},nMoved:{en:"Moved",es:"Cambió de puesto"},nWalks:{en:"Walks",es:"Rutas"},
   nKnocked:{en:(n)=>`${n} doors knocked`,es:(n)=>`${n} puertas tocadas`},nAdded:{en:(n)=>`${n} doors added`,es:(n)=>`${n} puertas nuevas`},
   nWas:{en:(r,w)=>`#${r} (was #${w})`,es:(r,w)=>`#${r} (antes #${w})`},nNewZ:{en:"new",es:"nueva"},nGone:{en:(n)=>`off the top 12: ${n}`,es:(n)=>`fuera del top 12: ${n}`},nPrev:{en:"Preview",es:"Vista previa"},
   nUpFrom:{en:(w)=>`↑ from #${w}`,es:(w)=>`↑ desde #${w}`},nNewPick:{en:"new tonight",es:"nueva hoy"},
@@ -2225,30 +2234,46 @@ function dayStrip(K){const x0=420,x1=1230,W=316,X=(m)=>((Math.max(x0,Math.min(x1
   [480,720,960,1200].forEach(m=>{s+=`<text x="${X(m)}" y="43" text-anchor="middle">${m===720?t("noon"):fmtHr(m)}</text>`});
   return s+"</svg>"}
 const addr=(x)=>`${x.no} ${x.st}`;
-/* since last night: the night shift's brief (hailhunter/night.py -> data/night.js). SAMPLE: a quiet night, or a replay
-   of the real Sep 13 storm night; rank moves, doors knocked and house numbers are made up. */
-const NIGHT=window.NIGHT||null;
+/* since last night: the night shift's brief. REAL = data/night.js (window.NIGHT_REAL, rewritten + republished every
+   night by `hh.py night --js-out`, docs/orders/night-shift-runbook.md). Preview keeps the two SAMPLE nights
+   (data/night-sample.js: a quiet night, a replay of the real Sep 13 storm night; rank moves, doors and house numbers
+   made up). The SAMPLE tag shows only on a sample. A brief's zones link to the map's areas by area_id (storm zones
+   inside the map); anything else is plain text. */
+const NIGHT_REAL=(window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief")?window.NIGHT_REAL:null;
+const NIGHT_S=window.NIGHT||null;
+const NIGHT=NIGHT_REAL||NIGHT_S?{real:NIGHT_REAL,...(NIGHT_S||{})}:null;
 const escN=(x)=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const nightB=()=>NIGHT?(NIGHT[st.night]||NIGHT.quiet):null;
+const nightKey=()=>st.night&&NIGHT[st.night]?st.night:(NIGHT.real?"real":"quiet");
+const nightB=()=>NIGHT?NIGHT[nightKey()]||null:null;
+const nzId=(z)=>z.area_id&&areaOf(z.area_id)?z.area_id:areaOf(z.id)?z.id:null;
 function ctClock(iso){try{const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",hour:"numeric",minute:"numeric",hourCycle:"h23"}).formatToParts(new Date(iso));
   const g=(k)=>+p.find(x=>x.type===k).value;return fmtClock(g("hour")*60+g("minute"))}catch(e){return""}}
-function nzLab(id,fb){const a=areaOf(id);return a?`${L(a.name)} <span class="dt">${L(STORMS[a.st].d)}</span>`:escN(fb)}
-function nightMove(id){const b=nightB();if(!b)return null;const u=b.zones_up.find(z=>z.id===id);if(u)return{k:"up",was:u.was};
-  return b.zones_new.some(z=>z.id===id)?{k:"new"}:null}
+function nzLab(id,fb){const a=id&&areaOf(id);return a?`${L(a.name)} <span class="dt">${L(STORMS[a.st].d)}</span>`:escN(fb)}
+function nightMove(id){const b=nightB();if(!b)return null;const u=b.zones_up.find(z=>nzId(z)===id);if(u)return{k:"up",was:u.was};
+  return b.zones_new.some(z=>nzId(z)===id)?{k:"new"}:null}
+/* one zone chip: a button that flies to its map area when the map has it, else plain text */
+const nzChip=(z,cls,inner)=>{const id=nzId(z);return id?`<button class="nc${cls}" data-nz="${id}">${inner(id)}</button>`:`<span class="nc${cls}">${inner(null)}</span>`};
+function nightCard(c,lab){if(!c)return"";const hail=c.hail_in?` <b>${fmtIn(c.hail_in)}″</b>`:"";
+  return `<div class="np"><span class="k">${lab}</span>${nzChip({id:c.zone_id,area_id:c.area_id},"",()=>`${escN(c.name)}${hail}`)}
+    <p class="pl">${escN(L(c.plan))}</p></div>`}
 function nightHTML(){const b=nightB();if(!b)return"";
-  const hail=b.new_hail.map(r=>{const a=r.zone_id&&areaOf(r.zone_id)?areaOf(r.zone_id):AREAS.find(x=>x.name.en===r.town&&STORMS[x.st].date===r.day);
+  const hail=b.new_hail.map(r=>{const id=nzId({area_id:r.area_id,id:r.zone_id});const a=id?areaOf(id):AREAS.find(x=>x.name.en===r.town&&STORMS[x.st].date===r.day);
     const lab=`<span class="dot" style="--c:${bandColor(r.hail_in)}"></span>${escN(r.town)} <b>${fmtIn(r.hail_in)}″</b><span class="dt">${fmtDate(r.day)}</span>`;
     return a?`<button class="nc" data-nz="${a.id}" aria-label="${t("flyTo",escN(r.town))}">${lab}</button>`:`<span class="nc">${lab}</span>`}).join("");
-  const gone=b.zones_gone.map(z=>areaOf(z.id)?L(areaOf(z.id).name):escN(z.name));
-  const mv=[...b.zones_up.map(z=>`<button class="nc" data-nz="${z.id}"><span class="up">↑</span>${nzLab(z.id,z.name)} <b>${t("nWas",z.rank,z.was)}</b></button>`),
-    ...b.zones_new.map(z=>`<button class="nc new" data-nz="${z.id}"><span class="nw">${t("nNewZ")}</span>${nzLab(z.id,z.name)} <b>#${z.rank}</b></button>`),
-    ...b.zones_down.map(z=>`<button class="nc" data-nz="${z.id}"><span class="dn">↓</span>${nzLab(z.id,z.name)} <b>${t("nWas",z.rank,z.was)}</b></button>`),
+  const gone=b.zones_gone.map(z=>nzId(z)?L(areaOf(nzId(z)).name):escN(z.name));
+  const mv=[...b.zones_up.map(z=>nzChip(z,"",(id)=>`<span class="up">↑</span>${nzLab(id,z.name)} <b>${t("nWas",z.rank,z.was)}</b>`)),
+    ...b.zones_new.map(z=>nzChip(z," new",(id)=>`<span class="nw">${t("nNewZ")}</span>${nzLab(id,z.name)} <b>#${z.rank}</b>`)),
+    ...b.zones_down.map(z=>nzChip(z,"",(id)=>`<span class="dn">↓</span>${nzLab(id,z.name)} <b>${t("nWas",z.rank,z.was)}</b>`)),
     ].slice(0,4).join("")+(gone.length?`<span class="nc"><span class="dt">${t("nGone",gone.join(", "))}</span></span>`:"");
-  const wk=b.walks_changed.map(z=>{const d=z.was-z.homes;return `<button class="nc" data-nz="${z.id}">${nzLab(z.id,z.name)} <b>${d>0?t("nKnocked",d):t("nAdded",-d)}</b></button>`}).join("");
-  const seg=NIGHT.storm?`<span class="seg" role="group">${["quiet","storm"].map(k=>NIGHT[k]?`<button data-night="${k}" aria-pressed="${(st.night||"quiet")===k}">${L(NIGHT[k].sample.label)}</button>`:"").join("")}</span>`:"";
+  const wk=b.walks_changed.map(z=>{const d=z.was-z.homes;return nzChip(z,"",(id)=>`${nzLab(id,z.name)} <b>${d>0?t("nKnocked",d):t("nAdded",-d)}</b>`)}).join("");
+  const plan=b.sample?"":nightCard(b.pick,t("nPick"))+nightCard(b.backup,t("nBackup"));
+  const keys=["real","quiet","storm"].filter(k=>NIGHT[k]),cur=nightKey();
+  const seg=keys.length>1?`<span class="seg" role="group">${keys.map(k=>`<button data-night="${k}" aria-pressed="${cur===k}">${k==="real"?t("nReal"):L(NIGHT[k].sample.label)}</button>`).join("")}</span>`:"";
   return `<section class="night" aria-label="${t("nightT")}">
-    <div class="nh">${ic("moon")}<span>${t("nightT")}</span><span class="at">· ${t("nightAt",ctClock(b.made_at))}</span> <span class="smp">${t("sampleW")}</span></div>
+    <div class="nh">${ic("moon")}<span>${t("nightT")}</span><span class="at">· ${t("nightAt",ctClock(b.made_at))}</span>${b.sample?` <span class="smp">${t("sampleW")}</span>`:""}</div>
     <p class="hl${b.quiet?" calm":""}">${escN(L(b.headline))}</p>
+    ${plan}
+    ${b.refresh_error?`<p class="nf">${t("nRefErr")}</p>`:""}
     ${hail?`<div class="nl">${t("nNew")}</div><div class="nr">${hail}</div>`:""}
     ${mv?`<div class="nl">${t("nMoved")}</div><div class="nr">${mv}</div>`:""}
     ${wk?`<div class="nl">${t("nWalks")}</div><div class="nr">${wk}</div>`:""}

@@ -101,8 +101,14 @@ def ranked(zdoc, top=None):
 
 def trim(zdoc, top):
     """zones() run wide (every walk), cut to what the brief ranks: storm zones first, then everyday, `top` in all
-    (wind zones kept: they are a map layer). The night shift ranks wide so a storm walk is never cut by old-house heat."""
-    keep = {z["id"] for z in _walk_zones(zdoc)[:top]}
+    (wind zones kept: they are a map layer), and always the best everyday zone (the backup when one storm fills the
+    top). The night shift ranks wide so a storm walk is never cut by old-house heat."""
+    walk = _walk_zones(zdoc)
+    keep = {z["id"] for z in walk[:top]}
+    every = next((z for z in walk if z.get("kind") != "storm"), None)
+    if every is not None and every["id"] not in keep and top:   # the backup's everyday zone always makes the cut
+        keep.discard(next(z["id"] for z in reversed(walk[:top])))
+        keep.add(every["id"])
     return {**zdoc, "zones": [z for z in zdoc.get("zones") or [] if z.get("kind") == "wind" or z["id"] in keep]}
 
 
