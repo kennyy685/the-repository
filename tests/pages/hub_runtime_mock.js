@@ -59,13 +59,18 @@
   const db = {doc: docRef, collection: collRef};
   window.__mockDb = {store, notify, db};
   const withSignal = (pr, opts) => opts && opts.signal ? Promise.race([pr, new Promise((_, rej) => { const f = () => rej(err('cancelled')); if (opts.signal.aborted) f(); else opts.signal.addEventListener('abort', f); })]) : pr;   // abort rejects promptly (sample.d.ts)
-  const sample = Object.assign((input, opts) => withSignal(gate('sample', () => { const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }), opts),
-    {json: (input, opts) => withSignal(gate('sample', () => (window.__sampleJson || {reply:'Mock answer', actions:[]})), opts), limits: async () => ({images:false})});
+  const sample = Object.assign((input, opts) => withSignal(gate('sample', () => { window.__sampleIn = typeof input === 'string' ? input : JSON.stringify(input); const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }), opts),
+    {json: (input, opts) => withSignal(gate('sample', () => (window.__sampleIn = JSON.stringify(input), window.__sampleJson || {reply:'Mock answer', actions:[]})), opts), limits: async () => ({images:false})});
   const once = {};   // modes.first_use_mcp = 'null' (use('mcp') resolves null the first time) / modes.first_call_mcp = 'consent_required' (the first callTool throws that code)
-  const mcp = {callTool: (server, tool, input) => { log.push(['mcp', tool, input]); if (M.first_call_mcp && !once.call) { once.call = 1; return later(() => { throw err(M.first_call_mcp); }); } return gate('mcp', () => { return {payload: tool === 'get_session' ? {id:'s', status:'idle', title:'SMUIPO (King)'} : tool === 'create_session' ? {id:'session_new'} : tool === 'list_environments' ? {environments:[{environment_id:'env_test', kind:'anthropic_cloud', state:'active'}]} : {ok:true}, content:[{type:'text', text:'{}'}]}; }); },
+  /* v33 live truth: list_sessions answers with window.__MOCK.sessions (the real {ccr:{data}} shape); modes.list: ok|fail|hang|<error code>;
+     modes.listText = 1 returns it as a text block only (no payload); modes.perm = the permissions state for the connector (default prompt) */
+  const listSessions = () => { const lm = M.list || 'ok'; if (lm === 'hang') return hang(); if (lm !== 'ok') return later(() => { throw err(lm === 'fail' ? 'server_unavailable' : lm); });
+    return later(() => { const body = window.__MOCK.sessions || {ccr:{data:[]}}; return M.listText ? {content:[{type:'text', text:JSON.stringify(body)}]} : {payload:frz(body), content:[{type:'text', text:JSON.stringify(body)}]}; }); };
+  const mcp = {callTool: (server, tool, input) => { log.push(['mcp', tool, input]); if (M.first_call_mcp && !once.call) { once.call = 1; return later(() => { throw err(M.first_call_mcp); }); } if (tool === 'list_sessions') return listSessions(); return gate('mcp', () => { return {payload: tool === 'get_session' ? {id:'s', status:'idle', title:'SMUIPO (King)'} : tool === 'create_session' ? {id:'session_new'} : tool === 'list_environments' ? {environments:[{environment_id:'env_test', kind:'anthropic_cloud', state:'active'}]} : {ok:true}, content:[{type:'text', text:'{}'}]}; }); },
     watchTool: () => () => {}, server: async () => ({})};
   const user = {isOwner: () => gate('user', () => true), canEdit: () => gate('user', () => true), can: () => gate('user', () => true), id: () => gate('user', () => 'u_owner'), me: () => gate('user', () => ({id:'u_owner', name:'FilthE'})), profiles: async () => ({})};
-  const caps = {db, sample, mcp, user, assets: null};
+  const permissions = {state: async (n) => { log.push(['perm', n]); return n ? (M.perm || 'prompt') : {}; }, request: async (names) => { log.push(['permreq', names]); return {}; }};
+  const caps = {db, sample, mcp, user, permissions, assets: null};
   window.claude = {use: (n) => {
     const m = mode('use_' + n);
     if (n === 'mcp' && M.first_use_mcp === 'null' && !once.use) { once.use = 1; return later(() => null, 20); }

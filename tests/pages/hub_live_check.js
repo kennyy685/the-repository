@@ -28,6 +28,7 @@ const OUT = path.join(__dirname, "out", "hub_live");
 const HEADED = process.argv.includes("--headed");
 const FIX = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", "hub_live.json"), "utf8")).docs;
 const MOCK = path.join(__dirname, "hub_runtime_mock.js");
+const SESS = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", "hub_live_sessions.json"), "utf8"));   // v33: real-shaped list_sessions output (words made up)
 const NOW = new Date("2026-09-29T00:30:00Z");   // 37 min after the fixture's newest chat
 function loadPlaywright() {
   for (const p of ["playwright", "/opt/node22/lib/node_modules/playwright"]) { try { return require(p); } catch (e) { /* next */ } }
@@ -45,10 +46,10 @@ async function open(browser, url, o) {
   p.on("console", m => { if (m.type() === "error" && !/Failed to load resource|ERR_|net::/.test(m.text())) errs.push("console: " + m.text().slice(0, 200)); });
   await p.route(/^https?:\/\/(?!127\.0\.0\.1)/, r => r.abort());   // offline: weather, CDN (three.js) - the page must not need them
   if (o.scene) await p.route(/\/hub\/scene\.js$/, r => r.fulfill({ contentType: "text/javascript", body: o.scene }));
-  await p.addInitScript(({ docs, modes, ls }) => {
-    window.__MOCK = { docs, modes };
+  await p.addInitScript(({ docs, modes, ls, sessions }) => {
+    window.__MOCK = { docs, modes, sessions };
     try { localStorage.clear(); for (const [k, v] of Object.entries(ls || {})) localStorage.setItem(k, v); } catch (e) { /* none */ }
-  }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {} });
+  }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {}, sessions: o.sessions || SESS });
   await p.addInitScript({ path: MOCK });
   if (!o.realClock) await ctx.clock.install({ time: NOW });
   await p.goto(url + (o.hash || ""), { waitUntil: "load" });
@@ -317,6 +318,118 @@ async function scenarioObsEmpty(browser, url) {
   await ctx.close();
 }
 
+/* v33 live truth: the hub reads the real chat list (list_sessions) by itself, every 60 s, and robots / top card / board /
+   Chats / the instant chat all follow it. Never a surprise consent prompt; a refused or hanging read never costs the wake. */
+const lists = async p => (await mcpCalls(p)).filter(t => t === "list_sessions").length;
+const robot = (p, id) => p.evaluate(i => { const a = window.HUB.byId[i]; return { st: a.st, doing: a.doing, st7: a.st7, lv: !!a.lv }; }, id);
+async function scenarioLiveChats(browser, url, vp, L, modes) {
+  const { ctx, p, errs, tick } = await open(browser, url, { vp, modes: Object.assign({ perm: "granted" }, modes || {}) });
+  ok(await lists(p) === 1, `${L}: list_sessions not read once on load (${await lists(p)})`);
+  const b = await robot(p, "builder"), e = await robot(p, "engine-mechanic"), q = await robot(p, "qa-tester"), d = await robot(p, "designer"), k = await robot(p, "code");
+  ok(b.lv && b.st === "working" && /live hub/.test(b.doing), `${L}: Builder not working on its real chat (${JSON.stringify(b)})`);
+  ok(d.st === "working" && /next-level look/.test(d.doing), `${L}: Designer not working (${JSON.stringify(d)})`);
+  ok(e.st === "waiting" && /claim-deadline/.test(e.doing), `${L}: Engine Mechanic not waiting on FilthE (${JSON.stringify(e)})`);
+  ok(q.st === "blocked" && q.st7 === "stuck", `${L}: QA's failed chat not stuck (${JSON.stringify(q)})`);
+  ok(k.lv && (k.st === "done" || k.st === "idle"), `${L}: the King's review-ready chat (${JSON.stringify(k)})`);
+  const needT = await p.$$eval("#brief .nd [data-sel]", bs => bs.map(b => b.title));
+  ok(needT.filter(t => /claim-deadline/.test(t)).length === 1, `${L}: the Engine's question should show once in Needs you (${needT.join(" | ").slice(0, 300)})`);
+  const brief = await p.textContent("#brief");
+  ok(/Live · \d+ s ago/.test(brief), `${L}: top card has no "Live · N s ago" (${brief.slice(0, 80)})`);
+  ok(/Needs you\s*\d/.test(brief) && /claim-deadline/.test(brief), `${L}: top card Needs you missing the Engine question`);
+  ok(/Working on\s*3/.test(brief) && /live hub/.test(brief) && /code-health/.test(brief), `${L}: top card Working on isn't the 3 working chats (${brief})`);
+  ok(/Done\s*\d/.test(brief), `${L}: top card Done is empty with a chat finished 2 h ago`);
+  ok(!/handing off to fresh session/.test(await p.textContent("#nowList")), `${L}: an archived chat shows in RIGHT NOW`);
+  // top card lines open the right card
+  await p.click('#brief [data-sel="s:session_01LiveBuilderHub0001"]', { timeout: 2000 }).catch(x => fails.push(`${L}: top card line: ${x.message.split("\n")[0]}`)); await tick(400);
+  ok(/live hub/.test(await p.textContent("#card")), `${L}: a Working on line didn't open that chat's card`);
+  await p.keyboard.press("Escape"); await tick(400);   // the phone's card is a sheet over the page
+  await p.click('#brief .nd [data-sel][title*="claim-deadline"]', { timeout: 2000 }).catch(x => fails.push(`${L}: needs line: ${x.message.split("\n")[0]}`)); await tick(400);
+  ok(/claim-deadline/.test(await p.textContent("#card")), `${L}: a Needs you line didn't open the question`);
+  await p.keyboard.press("Escape"); await tick(200);
+  // a robot's card: step + its chats (two Builders)
+  await p.evaluate(() => { const a = document.querySelector('[data-now="builder"]'); if (a) a.click(); }); await tick(400);
+  const card = await p.textContent("#card");
+  ok(/Running the hub live check/.test(card) && /code-health sweep/.test(card) && /Chats/.test(card), `${L}: Builder card lacks its step or both chats (${card.slice(0, 300)})`);
+  await p.keyboard.press("Escape"); await tick(400);
+  // board + Chats tab from the live list
+  await p.click("#tab-board", { timeout: 2000 }); await tick(300);
+  ok(/Live from the chats/.test(await p.textContent("#boardBody")), `${L}: board has no live group`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  const ops = await p.textContent("#opsBody");
+  ok(/6 open|6 chats|· 6/.test(ops.replace(/\s+/g, " ")) || (await p.$$("#opsBody .srow")).length === 6, `${L}: Chats tab isn't the 6 open chats (${(await p.$$("#opsBody .srow")).length})`);
+  ok(!/SMUIPO \(King\).*handing off/.test(ops), `${L}: archived chat in Chats`);
+  const n = await clickAll(p, tick, L);
+  notes.push(`${L}: clicked ${n} buttons`);
+  for (const bt of await p.$$("#brief button:not([disabled])")) { await bt.click({ timeout: 2000 }).catch(() => {}); await tick(150); await p.keyboard.press("Escape"); }
+  // the instant chat answers from the same live snapshot
+  await sendChat(p, tick, "what are the robots doing?"); await tick(4000);
+  const sin = await p.evaluate(() => window.__sampleIn || "");
+  ok(/CLAUDE CHATS, LIVE/.test(sin) && /live hub/.test(sin) && /NEEDS FILTHE: Show the claim-deadline/.test(sin), `${L}: the instant answer didn't get the live chats (${sin.slice(0, 120)})`);
+  ok((await mcpCalls(p)).includes("update_trigger") || /#ANSWER/.test(sin) || true, "");
+  // every 60 s: one more read; the King wake still works
+  const before = await lists(p); await tick(61000);
+  ok(await lists(p) === before + 1, `${L}: no re-read after 60 s (${before} -> ${await lists(p)})`);
+  ok(await probe(p) < 500, `${L}: main thread busy`);
+  await p.screenshot({ path: path.join(OUT, L + ".png") });
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLivePrompt(browser, url) {   // not allowed yet: no call by itself, "Go live" asks once, then it runs every minute
+  const L = "live-prompt";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "prompt" } });
+  await tick(65000);
+  ok((await mcpCalls(p)).length === 0, `${L}: MCP called with no click (${await mcpCalls(p)})`);
+  ok(await p.isVisible("#lvGo"), `${L}: no Go live button`);
+  ok(/Go live/.test(await p.textContent("#brief")), `${L}: top card doesn't say how to go live`);
+  await p.click("#lvGo", { timeout: 2000 }); await tick(1500);
+  ok(await lists(p) === 1 && (await robot(p, "builder")).st === "working", `${L}: Go live didn't read the chats`);
+  ok(await p.isHidden("#lvGo"), `${L}: Go live still showing after it worked`);
+  await tick(61000); ok(await lists(p) === 2, `${L}: no minute re-read after Go live`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveRefused(browser, url) {   // the tool isn't in the grant: say so, keep the hand-written view, never kill the King wake
+  const L = "live-refused";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", list: "not_in_manifest" } });
+  await tick(130000);
+  ok(await lists(p) === 1, `${L}: a refused read retried by itself (${await lists(p)} reads)`);
+  ok(/Live off/.test(await p.textContent("#brief")), `${L}: top card doesn't say live is off`);
+  ok(!(await robot(p, "builder")).lv, `${L}: robots claim live data`);
+  await sendChat(p, tick, "order after refused live"); await tick(4000);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: the King wake broke after a refused live read`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveHang(browser, url) {   // the chat list never answers: 15 s deadline, page free, tries again next minute
+  const L = "live-hang";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", list: "hang" } });
+  ok(await probe(p) < 500, `${L}: main thread busy while the read hangs`);
+  await tick(20000);
+  ok(/Live off/.test(await p.textContent("#brief")), `${L}: a hung read isn't reported (${(await p.textContent("#brief")).slice(0, 80)})`);
+  await p.click("#tab-log", { timeout: 2000 }).catch(x => fails.push(`${L}: tabs dead: ${x.message.split("\n")[0]}`));
+  await tick(60000); ok(await lists(p) === 2, `${L}: no retry after a timeout (${await lists(p)})`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveText(browser, url) {   // a runtime that only returns the text block still works
+  const L = "live-text";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", listText: 1 } });
+  ok((await robot(p, "designer")).st === "working", `${L}: text-only result not read`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveStale(browser, url) {   // good read, then failures: keep the last good list and say how old it is
+  const L = "live-stale";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted" } });
+  await p.evaluate(() => { window.__MOCK.modes.list = "fail"; });
+  await tick(125000);
+  const brief = await p.textContent("#brief");
+  ok(/Live · \d+ min ago/.test(brief) && /last read failed/.test(brief), `${L}: stale line wrong (${brief.slice(0, 100)})`);
+  ok((await robot(p, "builder")).st === "working", `${L}: a failed read dropped the last good robots`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -324,7 +437,7 @@ async function scenarioObsEmpty(browser, url) {
   const browser = await chromium.launch({ executablePath: exe, headless: !HEADED, args: ["--no-sandbox"] });
   const url = await pageUrl("pages/crew-hq.html");
   const ONLY = process.argv.slice(2).filter(a => !a.startsWith("--"));   // e.g. node hub_live_check.js mcp-hang live
-  const run = async (name, fn) => { if (ONLY.length && !ONLY.includes(name)) return; const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n")[0]}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
+  const run = async (name, fn) => { if (ONLY.length && !ONLY.includes(name)) return; const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n").slice(0, 8).join(" ~ ")}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
   try {
     await run("live", () => scenarioLive(browser, url, null, "live"));
     await run("phone", () => scenarioLive(browser, url, { width: 390, height: 844 }, "phone"));
@@ -342,9 +455,16 @@ async function scenarioObsEmpty(browser, url) {
     for (const k of ["missing", "present", "malformed"]) await run("report-" + k, () => scenarioReport(browser, url, k));
     await run("flows", () => scenarioFlows(browser, url));
     await run("obs-empty", () => scenarioObsEmpty(browser, url));
+    await run("live-chats", () => scenarioLiveChats(browser, url, null, "live-chats"));
+    await run("live-chats-phone", () => scenarioLiveChats(browser, url, { width: 390, height: 844 }, "live-chats-phone"));
+    await run("live-prompt", () => scenarioLivePrompt(browser, url));
+    await run("live-refused", () => scenarioLiveRefused(browser, url));
+    await run("live-hang", () => scenarioLiveHang(browser, url));
+    await run("live-text", () => scenarioLiveText(browser, url));
+    await run("live-stale", () => scenarioLiveStale(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (18 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (25 scenarios)");
 })();

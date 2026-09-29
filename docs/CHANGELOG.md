@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## AI hub reads the real robot chats by itself - 2026-09-29 (live hub, v33)
+- Every minute while the hub is open it reads your real Claude chats (Claude Code Remote `list_sessions`) and puts each on its robot by tag (`robot:builder`, `king`, ...) or title: working / needs you / done / stuck, what it's doing this minute, how long ago, cost. Archived chats are gone. No more hand-written status going 12 h stale.
+- New top card: Needs you / Working on / Done (3 lines each) with "Live · 20 s ago"; the Board opens with "Live from the chats"; Chats, spend and the instant chat answers all use the same live list (the hand-written docs are only the fallback, and the chat is told how old they are).
+- Never freezes or surprises: one read at a time, 15 s deadline, a failed read keeps the last good list and says how old; it only reads by itself once claude.ai allows the connector, else one "Go live" tap. The King's timed wake is untouched. Check: `tests/pages/hub_live_check.js` live-* scenarios.
+
 ## Open map: every card draws its own walk - 2026-09-29 (every-card-walk; QA PASS, live: open map Version 13)
 - Each of Aldaba's top 3 and the backup now has its own walk on real streets, not just #1. Tap #3 (another Columbus turf) and the map swaps to that turf's walk; tap the Omaha older-homes backup and its walk is drawn in Omaha. Today's plan stays on the pick's walk.
 - The night shift makes them all every night (`map.zwalks` in `data/night.js`); nothing new to run. Streets only: no house numbers, no door points, no owner names.
