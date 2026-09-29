@@ -190,3 +190,25 @@ Unknown ids fall back to the v27 work pose. New anchor poses: `stamp`, `pin`, `s
 | `#now` | RIGHT NOW, the top of `#panel` above the tabs. Drag-to-turn never starts on it. |
 | `#panelTab` | the slim right-edge tab shown when the panel is closed (needs count). `[data-nodrag]`. |
 | `#kingBubble`, `#kingWin` | the floating King chat button and its window (note 3). `[data-nodrag]`. |
+
+## v28.1 additions ("One building", 2026-09-29)
+Every field optional; a v28.0 scene ignores them, the page works with no scene.
+
+| field | owner | meaning |
+|---|---|---|
+| `HUB.flows` | page writes, scene shifts | as in v3. The page pushes one item per NEW `handoff` event (never on first load for old events), `dir` from both robots' `def.floor`, `kind` from the sender (`builder`/`designer`/`engine-mechanic` → `build`, `qa-tester` → `verdict`, `hub-keeper`/`storm-watch`/`chat-reader` → `finding`, else `note`). Max 6 queued (older dropped). The scene runs at most 2 walkers at once; the rest ride the tube as capsules only. A scene that reads `flows` stops reading `handoffs`. |
+| `HUB.observatory` | page | as in v3. `lanes` = board tasks by owner kind (`research`: hub-keeper/storm-watch/chat-reader, `build`: builder/designer/engine-mechanic/code/king/cowork, `qa`: qa-tester), each item `{id, t (≤40 chars), st:'todo'\|'doing'\|'blocked'\|'done'}`, max 5 per lane. `health.ok` = no stuck and no needs older than 2 h; `health.top` = the one line to show. `flow` = tasks done this week, `friction` = hours stuck + hours waiting on you (1 decimal), `shipped` = publishes this week. |
+| `HUB.cat` | page | `{v, name, coat:'#hex', on:true}` (Make it yours: name, coat, on/off). `on:false` = no cat anywhere. |
+| cue `{kind:'cat', what:'pet'\|'treat'\|'find'}` | page → scene | pet = purr + slow blink; treat = runs to the treat spot; find = sits up and looks at the camera. |
+| `SCENE.cat` | scene getter | `{state, with, floor}`: `state` ∈ `nap`, `roam`, `sunbeam`, `keyboard`, `pencil`, `tube`, `slide`, `play`, `spot`, `treat`; `with` = the robot id it is playing with (needs you) or `null`. The page's tannoy may read it ("Builder is playing with Miso: it needs you"). |
+| `SCENE.points.cat` | scene | `{x, y, visible}` stage px of the cat's head, every frame (page name tag on hover / key Y). |
+| `SCENE.views` | scene | v28.1 appends `'observatory'` (key O) and `'cat'` (key Y) once built. |
+| `HUB.now.rows[].verb` | page | "Handing to <name>" while that robot's newest flow is under 20 s old (RIGHT NOW step `handing`). |
+
+**The cat's no-nag rule (RESEARCH-v28.1 topic 2):** the scene reacts only to a NEW id in `HUB.needs.ids` (keeps a
+seen set); a robot plays with the cat at most once per need, max 25 s, then goes back to its desk; an id that left
+`needs` never re-triggers for the same question. Hidden tab / reduced motion = final poses, no roaming.
+
+### Hub db doc `crew/report_card` (page reads; the King writes)
+`{v:1, rows:[{at:ISO, id:'<agent id>', job:'<≤60 chars>', verdict:'good'\|'redo', why:'<≤90 chars>', cost:<USD number or null>}]}`,
+newest first, max 60 rows (the writer trims). Missing doc = the page shows "No reviews yet" and never errors.
