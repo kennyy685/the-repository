@@ -6061,18 +6061,20 @@ async function connect(late){
   // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest; a slow
   // one that answers later still turns on (the Right Hand shows up then)
   const uP = Promise.resolve(cl.use('user')), smP = Promise.resolve(cl.use('sample'));
-  await caps(uP, smP, true);
+  const slowCaps = await caps(uP, smP, true);
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
-  if (!(SAMPLE && CAN_EDIT)) Promise.all([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); }, () => {});
+  if (slowCaps) Promise.all([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); }, () => {});   // only when one was slow, not refused
 }
 async function caps(uP, smP, first){
   const cl = window.claude;
-  const [u, sm] = await Promise.all([within(uP, USE_MS).catch(() => null), within(smP, USE_MS).catch(() => null)]);
+  let late = false; const slow = e => { if (e && e.code === 'timeout') late = true; return null; };
+  const [u, sm] = await Promise.all([within(uP, USE_MS).catch(slow), within(smP, USE_MS).catch(slow)]);
   try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; }
   SAMPLE = sm || null;
   try { ASSETS = CAN_EDIT ? await within(cl.use('assets'), USE_MS) : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
   if (first || (SAMPLE && CAN_EDIT)) renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
+  return late;
 }
 let subDay = null, rollDay = () => {};   // 24h check: the calendar day the day-keyed listeners are on; rollDay() moves them at midnight
 function subscribeApp(db){

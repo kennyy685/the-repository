@@ -262,10 +262,10 @@ async function appScenarios(browser) {
     await p.click("#kcSend", { timeout: 2000 }).catch(() => {});
     await tick(waitMs);
     ok(!(await p.isDisabled("#kcInput")), `chat box still locked ${waitMs / 1000} s after sending`);
-    ok(expect.test(await p.textContent("#kcLog")), "no message in the chat after the failure");
+    const log = await p.textContent("#kcLog"); ok(expect.test(log), "no clear message in the chat after the failure: " + log.slice(-120));
     await closeSheets(p, tick);
   }));
-  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /./);
+  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /saved on this phone/);
   await run("app-say-hang", () => appDegraded(browser, url, "app-say-hang", { sample: "hang" }, async ({ p, tick }) => {   // Help me say it never answers
     await tick(2000);
     await p.click("#plusBtn", { timeout: 3000 }).catch(() => {}); await tick(300);
@@ -278,7 +278,7 @@ async function appScenarios(browser) {
     ok(!/Translating/.test(t) && /Could not translate|Translation failed/.test(t), "Help me say it still says Translating… 50 s later: " + t.slice(0, 120));
     await closeSheets(p, tick);
   }));
-  await kingHang("app-sample-fail", { sample: "fail" }, 2000, /./);
+  await kingHang("app-sample-fail", { sample: "fail" }, 2000, /saved on this phone|can’t use Claude|could not be reached/);
 }
 
 /* ---------- Practice Door ---------- */
@@ -321,8 +321,9 @@ async function doorScenarios(browser) {
     const { p, tick } = o;
     await start(p, tick);
     const said = await say(p, tick, "Hi, I'm Kenny with HMP Siding and Roofing.");
-    if (said) { await tick(wait); ok(!(await p.isDisabled("#sendBtn").catch(() => false)), `Send is still locked ("waiting for them") ${wait / 1000} s later`); }
-    else notes.push(`${name}: no chat box to type in (start screen differs)`);
+    if (said) { await tick(wait); ok(!(await p.isDisabled("#sendBtn").catch(() => false)), `Send is still locked ("waiting for them") ${wait / 1000} s later`);
+      ok(await p.isVisible("#chatErr").catch(() => false), "no error message in the chat after the homeowner failed to answer"); }
+    else ok(false, "no chat box to type in after Knock");
     await finish(o, name);
   });
   await run("door-use-hang", async () => {
