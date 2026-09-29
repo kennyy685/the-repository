@@ -18,6 +18,11 @@ Next King handoffs should come from the hub button, not create_session, or the c
 2. Archive `session_014eg28DpMQ1EZLj9hVosB8g` (me) if I haven't.
 3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
+## 2026-09-29 00:08 UTC (FilthE: "wait to start the hub, focus on the coding")
+- PAUSED: hub freeze fix (ultracode) session_01E2XhytKVCFyvYzBw7ae924, interrupted a few min in. Hub is still frozen live.
+- RUNNING: code-health sweep session_01Q1oxa3 (all but the hub); QA of storms data + Knock screen (in-chat helper).
+- Done: Engine storms (447 tests) + Knock screen (docs/design/knock/): publish after QA passes.
+
 ## KNOWN PROBLEMS (2026-09-28 23:58)
 - King chain depth cap (8): a King made by a King can't create triggers/sessions. FilthE must tap Fresh King on the hub
   (starts from his account, resets the chain). session_01HnpGXN (capped King) archived; session_014eg28D stays King.
