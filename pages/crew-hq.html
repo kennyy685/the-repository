@@ -2712,7 +2712,7 @@ function setDolly(d){
   if (d === 0) { if (dollySel && byId[selected]) select(null); dollySel = false; setCam('all', true); }
   else if (d === 1) { if (dollySel && byId[selected]) select(null); dollySel = false; setCam(byId[f].def.floor, true); }
   else { if (selected !== f) { select(f, {keep:true}); dollySel = true; } setCam('follow', true); }
-  dollyIn.stepAt = performance.now(); dollyIn.lock = true; hideHint();
+  dollyIn.stepAt = performance.now(); dollyIn.lock = true; hideHint(); dollyWatch();
 }
 stageEl.addEventListener('wheel', e => {
   if (!isWide || !matchMedia('(pointer:fine)').matches) return;
@@ -2728,7 +2728,11 @@ stageEl.addEventListener('wheel', e => {
   dollyIn.acc += dy;
   if (Math.abs(dollyIn.acc) >= 90) { const dir = Math.sign(dollyIn.acc); dollyIn.acc = 0; setDolly(dolly + dir); }
 }, {passive:false});
-setInterval(() => { if (dollyIn.lock) { const S = window.SCENE, now = performance.now(), tw = S && typeof S.tweening === 'boolean' ? S.tweening : now - dollyIn.stepAt < 750; if (!tw && now - dollyIn.lastWheel > 180 && now - dollyIn.stepAt > 180) { dollyIn.lock = false; dollyIn.acc = 0; } } }, 60);
+function dollyWatch(){   // unlocks the scroll-zoom once the glide ends; polls only while locked (was a 60 ms timer running all day)
+  if (dollyWatch.t) return;
+  dollyWatch.t = setInterval(() => { if (dollyIn.lock) { const S = window.SCENE, now = performance.now(), tw = S && typeof S.tweening === 'boolean' ? S.tweening : now - dollyIn.stepAt < 750; if (!tw && now - dollyIn.lastWheel > 180 && now - dollyIn.stepAt > 180) { dollyIn.lock = false; dollyIn.acc = 0; } }
+    if (!dollyIn.lock) { clearInterval(dollyWatch.t); dollyWatch.t = 0; } }, 60);
+}
 function dollyHint(){
   if (!isWide || !matchMedia('(pointer:fine)').matches || store.get('hub-hint-dolly') || document.getElementById('app').classList.contains('no-gl')) return;
   store.set('hub-hint-dolly', '1'); const h = $('#hint'); h.textContent = L().dollyHint; h.style.opacity = 1; setTimeout(() => { if (h.textContent === L().dollyHint) h.style.opacity = 0; }, 6000);
