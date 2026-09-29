@@ -422,6 +422,24 @@ class MapTopFollowsPick(unittest.TestCase):
         self.assertIn("d20260808", ex["storms"])
         self.assertGreaterEqual(len(a["ring"]), 4)
 
+    def test_days_ago_counts_the_storms_nebraska_date(self):
+        """QA 2026-09-29: the Aug 8 storm read "51 days ago" on the Sep 29 brief. 11 PM Aug 8 CT is Aug 9 in UTC;
+        the count uses the Nebraska date and the brief's own morning: 52."""
+        from hailhunter import season as S
+        self.assertEqual(S.days_ago("2026-08-09T04:00:00Z", "2026-09-29"), 52)       # 2026-08-08 23:00 CDT
+        self.assertEqual(S.days_ago("2026-08-08T23:00:00-05:00", "2026-09-29"), 52)
+        self.assertEqual(S.days_ago("2026-08-08", "2026-09-29"), 52)
+
+    def test_map_area_age_uses_the_brief_date(self):
+        """The season file is built the evening before; the brief's map areas re-date "N days ago" to the brief."""
+        from hailhunter import openmap
+        z = {"date": "2026-08-08", "why": [[1, {"en": "Biggest report: 1.5 in.", "es": "x"}],
+                                           [1, {"en": "51 days ago.", "es": "Hace 51 días."}]]}
+        got = openmap._why(z, "2026-09-29")
+        self.assertEqual(got[1], [1, {"en": "52 days ago.", "es": "Hace 52 días."}])
+        self.assertEqual(got[0], z["why"][0])
+        self.assertIs(openmap._why(z, None), z["why"])                   # no brief date: the season file's own line
+
     @unittest.skipUnless(os.path.exists(SEASON) and os.path.exists(MAP_JS), "design files are not in the cloud bundle")
     def test_openmap_is_a_twin_of_real_py(self):
         """hailhunter/openmap.py builds the same AREAS/STORMS entries data/build/real.py wrote into real.js."""

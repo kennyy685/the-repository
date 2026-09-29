@@ -7,6 +7,11 @@ real.py's per-zone code: tests/test_night.py checks it builds the same entries r
 import collections
 import datetime as dt
 import math
+import re
+
+from .season import age_line, days_ago
+
+AGE_EN = re.compile(r'^\d+ days ago\.$')
 
 KX, KY = 111.32 * math.cos(41.2 * math.pi / 180), 110.57
 MON = {'en': 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(), 'es': 'ene feb mar abr may jun jul ago sep oct nov dic'.split()}
@@ -33,8 +38,17 @@ def zid(z):
     return 'z' + d[5:7] + d[8:10] + '-' + slug
 
 
-def area(z, season):
-    """One real.js AREAS entry for season zone z, or None (no Census homes: real.py needs block files for those)."""
+def _why(z, today):
+    """z's why lines with the age line re-dated to `today` (the season file may be a day older than the brief)."""
+    if not today:
+        return z['why']
+    return [age_line(days_ago(z['date'], today)) if isinstance(w, list) and len(w) > 1 and AGE_EN.match(str((w[1] or {}).get('en', '')))
+            else w for w in z['why']]
+
+
+def area(z, season, today=None):
+    """One real.js AREAS entry for season zone z, or None (no Census homes: real.py needs block files for those).
+    `today` (the brief's date) re-dates the "N days ago" line; None keeps the season file's own."""
     reps = {r['id']: r for r in season.get('reports') or []}
     c = [z['center']['lon'], z['center']['lat']]
     ring = z.get('outline') or circle(c, z['radius_km'])
@@ -73,7 +87,7 @@ def area(z, season):
             'county': cnt.most_common(1)[0][0] if cnt else None, 'town': z.get('near_town') or z.get('nearest_town') or z['name'],
             'mort': None if sig.get('mortgage_share') is None else
                     [round(sig['mortgage_share'] * 100, 1), round(sig['owner_homes'] * sig['mortgage_share']), sig['owner_homes']],
-            'insured': sig['likely_insured'], 'rank': z.get('rank'), 'score': z['score'], 'rep': rep, 'why': z['why'],
+            'insured': sig['likely_insured'], 'rank': z.get('rank'), 'score': z['score'], 'rep': rep, 'why': _why(z, today),
             'stack': {'n': z['stack']['count'], 'since': z['stack']['since'], 'days': z['stack']['days'], 'km': z['stack']['km']}
                      if z.get('stack') else None}
 
@@ -103,12 +117,12 @@ def storm(day, zones, season):
             'path': [[round(x, 4), round(y, 4)] for x, y in path], 'deco': deco, 'max': max(z['hail_in'] for z in dz)}
 
 
-def extra(season, ids):
+def extra(season, ids, today=None):
     """{areas, storms} for the area ids the brief names (real.js shapes; the page skips ids it already holds).
     A storm day's path uses only the zones sent, like real.py uses only the zones on the map."""
     want = set(i for i in ids if i)
     zs = [z for z in (season or {}).get('zones') or [] if '~' in str(z.get('id')) and zid(z) in want]
-    areas = [a for a in (area(z, season) for z in zs) if a]
+    areas = [a for a in (area(z, season, today) for z in zs) if a]
     kept = [z for z in zs if zid(z) in {a['id'] for a in areas}]
     storms = {'d' + d.replace('-', ''): storm(d, kept, season) for d in sorted({z['date'] for z in kept})}
     return {'today': season.get('today'), 'areas': areas, 'storms': storms}
