@@ -36,6 +36,9 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
   ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
   paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
+- **Updates grouped by area (FilthE, 2026-09-29):** tell him what the AI is working on sorted by where it lands:
+  **Hub** / **App** / **For the app** (map, storms, engine, screens not live yet) / **Around it** (Practice Door, print,
+  crew setup). One plain line per job.
 - **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
   one item per line, nothing extra, so he never edits it.
 - **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
