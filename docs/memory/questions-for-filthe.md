@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-29 ~14:12 UTC: merge work branch into main after the branch sync + green checks: **yes** (one-time OK for this merge).
 - 2026-09-29 13:57 UTC: "the hub isnt being useful ... you dont even use the robots". Picked (1): the hub reads the real robot chats by itself every minute (no hand-writing, never stale). Builder session_013wezScDeoduPTP4moTMHqb building it (ultracode). Pausing the Designer: not asked (a slot freed instead).
 - 2026-09-29: a normal Tuesday a year out = "success with more than 100 thousand in the bank". Deep ideas offered: score every call, trust dial, night shift, Fremont's memory, Aldaba sales story (King's pick 1 + 3). FilthE: "yes good ideas" -> build 1 (score every call) + 3 (night shift) after the hub; 2, 4, 5 later.
 - 2026-09-28 23:53: keep the hub's permission to start chats (Fresh King / Hand it off) = keep.
@@ -77,6 +78,16 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - A 7 AM "while you slept" brief on the hub every morning (one small run a day)?
 - Quick picks still open: map speed on the MacBook, "quiet storms" filter, fade walked areas, roof-age "full roof
   likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
+
+## Open for the final ping (King, 2026-09-29 15:28 UTC; safe defaults already in use)
+- 7 AM look: which feels right when you open the laptop: A Storm Room (the rush), B The Brief (calm and sure), C Deck
+  (in control)? Compare: https://claude.ai/artifact/WSJ7sbTfAuB8buTtNLz1gv. King's pick: B.
+- Open map: add a one-tap "check your policy's filing time limit" line for the salesman? Default now: the card says time
+  limits are in the customer's policy; no deadline claims. King's pick: yes.
+- Law lines in the app (e.g. 3-day cancel, no deductible help) come from docs/legal/ statute text; want the boss or a
+  lawyer to OK the wording before you knock? King's pick: yes, one look before the first real sale.
+
+- Contract at the door: signed on printed paper, or on the screen with a finger? Nothing changed yet; the app stays as it is until you pick. King's pick: screen, paper as backup.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /

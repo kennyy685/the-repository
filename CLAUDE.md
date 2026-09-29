@@ -61,6 +61,7 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   5) right model per job, repeat mistakes become hooks/skills.
   6) never settle (FilthE, 2026-09-28): always research how to do it better; weekly improvement round every Sunday
   8:47 AM CT (trig_01Mg1PNnUNegxcYxmDjG3B5b) posts top 3 upgrades to the King, who decides and applies.
+- **Never pause, never wait on him (FilthE, 2026-09-29 14:15):** "stop pausing on your own, figure out a problem or if you have question save them for when youre done." King and robots solve blockers themselves (research, pick the safe default, keep going); questions go in a list (`docs/memory/questions-for-filthe.md` "Open") and reach him only in the final done ping. Only the hard stops (money, signing, deleting data, legal promises, merge to main) wait, and even then the rest of the work keeps going.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
@@ -107,7 +108,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   run_once_at on the King's trigger fired into the King chat. After a one-shot fires, enabled:true alone is refused:
   always send a new run_once_at. Builder session_017r7vUf9nN2xMnMtgHVAizD is building it (started 04:17). Never ask FilthE to test a wake: fire it yourself.
   The hub fires the trigger named in hub doc
-  `system/king.wake_trigger` (now `trig_015MsCgjUpiUb5rpRETuAnYx`, King session_01SyVaPZRupKUKN5ySYz7rGo since 2026-09-29 13:50 UTC, branch
+  `system/king.wake_trigger` (now `trig_014pzRWxgovShuQovAfRwQ8j`, King session_01BRhiPYparx9TSui1Tu7oSB since 2026-09-29 16:36 UTC; `trig_01CyKokDYaTgp65aKvHDMVxa`, `trig_015MsCgjUpiUb5rpRETuAnYx` disabled, branch
   `claude/stoic-darwin-ikqmrj` (merges in amazing-gauss); older `trig_01PDsG5Y1TBi9XpzefRn74uH`, `trig_01RB7wJoBmgynC5qG7JzRpSY`, `trig_01RsYqTCZfeEnStkGS8LYinX`, `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
   trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. **FilthE (2026-09-28): "king shouldnt answer just a
   certain amount of times, he should answer the second i type ... hes litteraly the boss."** Every hub message gets a hub

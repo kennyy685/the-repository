@@ -41,3 +41,5 @@ Any check that can't run here (no Playwright/Chromium): say so; never skip it si
 Lessons notebook: `.claude/agent-memory/qa-tester/MEMORY.md` (auto-loaded). Read it first; after any redo, QA
 finding or FilthE correction, add one line: date, what went wrong, the rule that prevents it. Keep it under 60 lines.
 Heavy-chat rule: past ~200k tokens, save the report so far, put a short handoff in your reply, and stop.
+
+**Never pause (FilthE, 2026-09-29):** don't stop to ask or wait. Solve blockers yourself (research, safe default, keep going). Save questions for your final report (and `docs/memory/questions-for-filthe.md` "Open"). Only money, signing, deleting data, legal promises and merges to main wait; everything else keeps moving.
