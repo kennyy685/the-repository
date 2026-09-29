@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Code-health sweep live - 2026-09-29 (QA PASS; live: HMP HQ Version 3)
+- HMP HQ never sits on "Loading" forever: the live data gets 12 s to connect and 15 s more for the first summary, then it says "Couldn't load the summary" (EN + ES). Late data still fills in. If the feed drops later, the last summary stays with "Couldn't refresh just now".
+- Open map (Version 15) already had the sweep's fixes. The hub's sweep fixes (Fresh King real error, zoom timer) ride the hub Builder's v33 publish.
+- New checks in the release run: EN/ES parity (38 string tables) and HMP HQ on a db that hangs, fails or drops.
+
 ## No "free" anywhere until the boss okays it - 2026-09-29 (live: HMP App Version 15 + Practice Door Version 16; QA PASS)
 - App, Practice Door, door lines and print sheets say "estimate / estimado" (cash) and "roof check / revisión del techo" (insurance), never "free" or "gratis". The state's free insurance hotline stays.
 - Contingency agreement EN/ES: "No payment is due at signing. What HMP will charge for is set out in the written estimate/contract." (no more "costs you nothing" / "no cobra nada"); both PDFs re-rendered.
