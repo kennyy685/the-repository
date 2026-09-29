@@ -1045,7 +1045,7 @@ const TX = {
       kcNone: 'The Right Hand talks here when you open the hub signed in as its editor.',
       kcLabel: 'Message to the Right Hand', kcPh: 'Tell the Right Hand…', send: 'Send',
       logUp: 'Upstairs log', logUpS: 'Claude Code and its helpers', logDown: 'Downstairs log', logDownS: 'Cowork, Storm Watch and the Chat Reader',
-      foot: '<b>How it stays live:</b> a robot moves when its AI checks in; every AI posts here directly. Answer anything that needs you right in its card: Claude Code is woken a few seconds after your answer (quick taps ride one wake). A message shows <span class="rcpt">✓ picked up</span> once the AI it went to checks in after it. <span class="stale">No check-out</span> means its last run ended without saying so.'},
+      foot: '<b>How it stays live:</b> a robot moves when its AI checks in; every AI posts here directly. Answer anything that needs you right in its card: the King gets your answer in about a minute (quick taps ride one wake). A message shows <span class="rcpt">✓ picked up</span> once the AI it went to checks in after it. <span class="stale">No check-out</span> means its last run ended without saying so.'},
     status: {working: 'working', idle: 'idle', sleeping: 'asleep', waiting: 'needs you', blocked: 'stuck', done: 'done'},
     st7: {needs: 'needs you', stuck: 'stuck', silent: 'quiet', done: 'done', working: 'working', queued: 'queued', idle: 'idle', asleep: 'asleep'},
     stSince: (w, t) => `${w} since ${t}`, crewN: n => `Crew · ${n}`, since: {m: n => `+${n}m`, h: n => `+${n}h`, d: n => `+${n}d`}, wakes: t => `wakes ${t}`,
@@ -1054,7 +1054,7 @@ const TX = {
     deskOf: (fl, n) => `${fl}, desk ${n}`, orphan: t => `its run ended at ${t} without a check-out`,
     updated: w => `Updated ${w}`, reconnecting: 'Reconnecting…', refresh: 'Refresh now (R)', refreshed: 'Refreshed.',
     needsNone: 'Nothing needs you', parked: t => `Not now · back at ${t}`, memFull: 'Memory is full (20 facts). Merge some first; nothing was saved.',
-    held: 'Saved. Claude Code gets it in a few seconds.', parkedT: t => `Not now. It comes back at ${t}.`, ownersH: {filthe: 'FilthE', boss: 'The boss'},
+    held: 'Saved. The King gets it in about a minute.', parkedT: t => `Not now. It comes back at ${t}.`, ownersH: {filthe: 'FilthE', boss: 'The boss'},
     groups: {needs: 'Needs you', blocked: 'Stuck', doing: 'Doing', review: 'Review', todo: 'To do', parked: 'Parked', done: 'Done'},
     skyT: m => `Sky ${m}`, soundT: on => `Sound ${on ? 'on' : 'off'}`,
     today: 'Today', yesterday: 'Yesterday', noHits: q => `Nothing here matches “${q}”.`, copy: 'Copy', copiedS: 'Copied', copyCowork: 'Copy for Cowork',
@@ -1066,7 +1066,7 @@ const TX = {
     swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'},
     dollyHint: 'Scroll to move in · N for every name · V for status',
     run: t => `the ${t} run`, rides: (t, m) => `Rides the ${t} run · in ${m} min`, ridesNight: t => `Saved. Rides the ${t} run. Nothing runs while you sleep.`, wakeNow: 'Wake now', woke: 'Waking Claude Code now.',
-    heldWake: 'Your answers are saved. Tap Wake now to tell the King.', midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
+    heldWake: 'Your answers are saved. Tap Wake now to tell the King.', midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · wakes resume after the next successful call',
     allNormal: (n, t) => `All normal · ${n} working · next run ${t}`, quietDesign: t => `Quiet by design · next run ${t}`,
     missed: m => `No reply from the King in ${m} min · it is live, this should take about a minute`, runNow: 'Check now',
     swMiss: 'Storm Watch didn’t run at 6:54 AM · the Mac was probably asleep or Cowork was closed', kfet: 'storms at Fremont airport overnight',
@@ -1085,8 +1085,8 @@ const TX = {
     nextShort: t => `next run ${t}`, allNormalS: 'All normal', quietS: 'Quiet by design', usageLine: (r, w, h) => `Today: ${r} ${r === 1 ? 'run' : 'runs'} · ${w} ${w === 1 ? 'wake' : 'wakes'} · ${h} Right Hand ${h === 1 ? 'reply' : 'replies'}`, usageH: 'Usage',
     nextIn: (t, m) => `${t} run in ${m} min`,
     greet: h => h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening', sinceLeft: n => n ? `${n} ${n === 1 ? 'update' : 'updates'} since you left.` : 'Nothing new since you left.',
-    receipt: 'Saved · the King has it', receiptRide: t => `Saved · rides the ${t} run`, wakeOffT: t => `Saved. Instant wake is off, so Claude Code reads it at the ${t} run.`,
-    wakeOffS: 'Instant wake off', wakeOffL: t => `Instant wake off: answers ride the ${t} run until the King posts its wake trigger.`, heldShort: 'goes out in a few seconds', fold: 'Fold', unfold: n => `${n} asks you`, nextCall: n => `+${n}`,
+    receipt: 'Saved · the King has it', receiptRide: t => `Saved · rides the ${t} run`, wakeOffT: t => `Saved. The King’s wake is off, so Claude Code reads it at the ${t} run.`,
+    wakeOffS: 'King wake off', wakeOffL: t => `King wake off: answers ride the ${t} run until the King posts its wake trigger.`, heldShort: 'lands in about a minute', fold: 'Fold', unfold: n => `${n} asks you`, nextCall: n => `+${n}`,
     eyesB: 'Eyes', coffeeThanks: 'Thanks for the coffee!', coffeeHow: 'Drag the cup onto a robot.',
     gear: {code: n => `${n} board ${n === 1 ? 'item' : 'items'} done today`, king: n => `${n} ${n === 1 ? 'message' : 'messages'} passed to the King today`, builder: n => `${n} ${n === 1 ? 'decal' : 'decals'} this week`,
       'hub-keeper': n => `${n} research ${n === 1 ? 'round' : 'rounds'} finished`, cowork: n => `${n} clean storm ${n === 1 ? 'day' : 'days'} in a row`, 'storm-watch': n => `${n} hail ${n === 1 ? 'alert' : 'alerts'} this month`,
@@ -1142,12 +1142,12 @@ const TX = {
         sentLate: m => `Sent to the King · ${m} min, no word yet`, gotLate: m => `King got it · ${m} min, no word yet`, retry: 'Nudge again',
         noInstant: 'Couldn’t answer here, so it went to the King. The answer lands right here.', rate: 'Claude usage limit hit, so it went to the King instead.', passed: 'Got it, sending this to the King. The answer lands right here.'}, rhTitle: 'Right Hand', rhSub: 'Instant answers and board changes · uses your Claude usage',
       ph: 'Message the King…', rhPh: 'Tell the Right Hand…', label: 'Message to the King', rhLabel: 'Message to the Right Hand', king: 'King', you: 'You',
-      sent: 'Sent', waking: 'Waking the King…', waiting: m => m < 1 ? 'The King has it. Reply in a minute or two.' : `Waiting on the King · ${m} min`, late: m => `No reply in ${m} min. The King may be busy on a long job; your message is saved.`,
-      off: t => `Saved. Instant wake is off, so the King reads it at the ${t} run.`, fail: 'Not sent. Check your signal and try again.', replied: 'The King replied.', none: 'Messages to the King work when you open the hub signed in as its editor.'},
+      sent: 'Sent', waking: 'Waking the King…', waiting: m => m < 1 ? 'Sent. The King gets it in about a minute.' : `Waiting on the King · ${m} min`, late: m => `No reply in ${m} min. The King may be busy on a long job; your message is saved.`,
+      off: t => `Saved. The King’s wake is off, so the King reads it at the ${t} run.`, fail: 'Not sent. Check your signal and try again.', replied: 'The King replied.', none: 'Messages to the King work when you open the hub signed in as its editor.'},
     copied: 'Copied.', kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.', kcSlow: 'No answer after 2 minutes. Send it again.',
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). It works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
     rc: {fail: a => `Not saved: ${a}. Only editors can save here.`, dedReply: 'The reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'},
-    useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.', wakeOk: 'Claude Code is on it now.', wakeLater: 'Saved. Claude Code picks it up at its next run.'
+    useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.', wakeOk: 'Sent. The King gets it in about a minute.', wakeLater: 'Saved. Claude Code picks it up at its next run.'
   }
 };
 const L = () => TX.en;
@@ -1167,7 +1167,7 @@ const CREW = [   /* v28 floors = kinds of work (CONTRACT v3): upstairs Intellige
   {id:'storm-watch', name:D('Storm Watch','Vigía de Tormentas'), color:'#f2c230', graphite:true, outfit:'rainhat', floor:'up', lane:'chat', kind:'scheduled', boss:'cowork',
    role:D('Sleeps at night. Wakes at 6:54 AM, scans for new hail and sends the alert.','Duerme de noche. Despierta a las 6:54 AM, busca granizo nuevo y manda la alerta.'), home:D('A scheduled task in Cowork.','Una tarea programada en Cowork.'), reach:D('Runs by itself daily. Ask Claude Code to change it.','Corre sola cada día. Pide a Claude Code que la cambie.')},
   {id:'code', name:D('Claude Code','Claude Code'), title:D('The King','El Rey'), color:'#4fb8ac', outfit:'crown', floor:'down', lane:'code', kind:'leader',
-   role:D('The King. Sets the board, gives the orders and runs the helpers from the dispatch table. You talk to it in Claude Code; it is woken in seconds when you answer here.'),
+   role:D('The King. Sets the board, gives the orders and runs the helpers from the dispatch table. You talk to it in Claude Code; it gets your answers from here in about a minute.'),
    home:D('Claude Code in the cloud (claude.ai/code), plus your Mac.','Claude Code en la nube (claude.ai/code), y tu Mac.'), reach:D('Talk to it in Claude Code, or answer a question here.','Háblale en Claude Code, o contesta una pregunta aquí.')},
   {id:'king', name:D('Right Hand','Mano Derecha'), color:'#9b7be0', outfit:'headset', floor:'down', lane:'board', kind:'main',
    role:D('Answers you live in this hub’s chat bubble and in the app chat, and passes your words to Claude Code.'),
@@ -1212,7 +1212,7 @@ const panelOpen = () => !isWide || panelState === 'open';
 const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*performance.now()/5000));   // the shared 5 s "needs you" breath
 let sceneOff = false;   // the 3D room is off for this load (still view): why, or false
 const HUB = window.HUB = {
-  RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
+  loaded: false, RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
   sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [], flows: [], observatory: null, cat: null,
   get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return 'en'; },
   get breath(){ return breath(); },
@@ -2443,7 +2443,7 @@ $('#mine').addEventListener('click', e => {
   if (e.target.closest('#mSound')) { $('#dingBtn').click(); renderMine(); return; }
   if (e.target.closest('#mLow')) { mine.low = !mine.low; applyTheme(true); renderMine(); return; }
   if (e.target.closest('#m3d')) { if (sceneOff) { store.set('hub-3d', ''); store.set('hub-3d-slow', ''); scene3d(true); } else { store.set('hub-3d', 'off'); HUB.fallback('off'); } renderMine(); return; }
-  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); }
+  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); catPref = Object.assign({}, CAT_DEF); applyCat(true); renderCatMine(); if (cam === 'cat' && !builtViews().includes('cat')) setCam('all'); }
 });
 $('#mine').addEventListener('input', e => {
   const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; mine.work = v; applyTheme(true); return; }
@@ -2466,7 +2466,7 @@ function laneOf(owner){
   const byName = bots.find(a => tx(a.def.name).toLowerCase() === s); if (byName) return LANE_OF[byName.id];
   const k = ownerKey(s); return k === 'code' || k === 'king' || k === 'cowork' ? 'build' : null;
 }
-const SHIP_RX = /\b(publish(ed)?|went live|is live|now live|shipped|merged)\b/i, NOT_SHIP_RX = /\b(not|never|before|until|waiting)\b[^.]{0,20}\b(publish|ship|live|merge)/i;
+const SHIP_RX = /\b(published|went live|is now live|now live|shipped|merged)\b/i, NOT_SHIP_RX = /\b(not|never|no|nothing|before|until|waiting|awaiting|ready to|will|to be|held|hold|pending)\b[^.]{0,24}\b(publish|ship|live|merge)/i;
 function computeObservatory(){
   try {
     const now = Date.now(), ws = weekStart(), rows = [...((board && Array.isArray(board.now) && board.now) || []), ...((board && Array.isArray(board.next) && board.next) || [])];
@@ -2479,7 +2479,7 @@ function computeObservatory(){
     const items = gotAgents ? needItems() : [], stuck = bots.filter(a => a.st7 === 'stuck'), old = items.filter(i => i.at && now - i.at > 2*3600e3);
     const ok = !stuck.length && !old.length;
     const top = stuck.length ? stuck.length + ' stuck · ' + stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ')
-      : old.length ? 'Waiting on you ' + ageShort(Math.min(...old.map(i => i.at))) + ' · ' + old[0].who : 'System healthy ✓';
+      : old.length ? (o1 => 'Waiting on you ' + ageShort(o1.at) + ' · ' + o1.who)(old.reduce((p, q) => q.at < p.at ? q : p)) : 'System healthy ✓';
     const doneIds = new Set(rows.filter(x => x && statusKey(x.status) === 'done' && Date.parse(x.at || '') >= ws).map(x => String(x.id)));
     for (const e of events) if (e.kind === 'done' && e.task && e.atMs >= ws && e.agent !== 'you' && !e.approx) doneIds.add(e.task);
     let fr = 0; for (const a of stuck) if (a.atMs) fr += (now - a.atMs)/3600e3; for (const i of items) if (i.at) fr += (now - i.at)/3600e3;
@@ -2570,7 +2570,7 @@ $('#swCoat').addEventListener('click', e => { const sw = e.target.closest('[data
 $('#swCoat').addEventListener('input', e => { const c = e.target.closest('[data-swc]'); if (!c) return; e.stopPropagation(); const v = hx(c.value); if (v) { catPref.coat = v; applyCat(true); } });
 $('#swCoat').addEventListener('change', e => { e.stopPropagation(); renderCatMine(); });
 $('#mCatName').addEventListener('input', e => { e.stopPropagation(); catPref.name = e.target.value.slice(0, 16); applyCat(true); });
-$('#mCatOn').addEventListener('click', e => { e.stopPropagation(); catPref.on = !catPref.on; applyCat(true); renderCatMine(); });
+$('#mCatOn').addEventListener('click', e => { e.stopPropagation(); catPref.on = !catPref.on; applyCat(true); renderCatMine(); if (!catPref.on && cam === 'cat') setCam(catPrevCam || 'all'); });
 function catCue(what){
   if (!catPref.on) { appToast('The cat is off. Turn it on in Make it yours.', 3000); return; }
   HUB.cues.push({kind:'cat', what}); catTagUntil = performance.now() + 5000;
@@ -3489,7 +3489,7 @@ async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeo
 /* 2026-09-29 freeze fix: one door for every Claude Code Remote call. The first call on a load asks FilthE's consent (a
    claude.ai prompt over the page) and a call can sit unanswered ~130 s. So: a call that isn't his own click (bg: timers,
    snapshots, opening a window) never runs until one of his calls went through on this load, a refusal stops them all
-   for the load, reads carry an abort deadline, and writes (fire_trigger, create_session) stop being waited on. */
+   for the load, reads carry an abort deadline, and writes (update_trigger, create_session) stop being waited on. */
 let mcpOk = false, mcpNo = false;
 const MCP_DEAD = ['not_in_manifest'];   // only this is permanent; consent_required / needs_reauth / not_granted retry on his next click
 async function mcpCall(tool, input, o){
@@ -3501,11 +3501,15 @@ async function mcpCall(tool, input, o){
   try { const r = await within(opts ? m.callTool('Claude Code Remote', tool, input, opts) : m.callTool('Claude Code Remote', tool, input), ms + 1000); mcpOk = true; return r; }
   catch (e) { if (MCP_DEAD.includes(e && e.code)) mcpNo = true; throw e; }
 }
+/* 2026-09-29 (King-tested): fire_trigger never lands in the King's chat (it opens a throwaway stand-in chat); a TIMED fire
+   does. So a wake re-arms the King's trigger for the next whole minute at least 20 s out (enabled:true every time: a timed
+   fire switches the trigger off after it runs). The King gets it in about a minute; it reads the docs the wake names. */
+function wakeAt(){ return new Date(Math.ceil((Date.now() + 20000)/60000)*60000).toISOString().replace(/\.\d{3}Z$/, 'Z'); }
 async function fireNow(text, n, bg){
   const trig = wakeTrigger(); let ok = false, limited = false;
-  try { if (trig) { await mcpCall('fire_trigger', {trigger_id:trig, text:String(text).slice(0, 1800)}, {bg}); ok = true; } }
+  try { if (trig) { await mcpCall('update_trigger', {trigger_id:trig, run_once_at:wakeAt(), enabled:true}, {bg}); ok = true; } }
   catch (e) { lastWakeErr = String(e && e.code || e && e.message || '?').slice(0, 60); limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
-  if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:n || 1}).catch(() => {}); }
+  if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:n || 1, text:String(text).slice(0, 1800)}).catch(() => {}); }
   else if (limited) store.set('hub-saving', '1');
   return {ok, limited, trig};
 }
@@ -3889,16 +3893,16 @@ async function orderKing(id, text, order, again, bg){
 const ktTries = {};
 async function checkDelivery(id, trig, t0, n){
   setTimeout(async () => {
-    let st = '';
+    let st = '', t = null;
     try { const r = await mcpCall('get_trigger', {trigger_id:trig}, {bg:true, read:true});
-      const t = r && r.payload && (r.payload.trigger || r.payload), lr = t && t.last_run;
-      if (t && t.enabled === false) st = 'fail';
-      else if (lr && Date.parse(lr.fired_at || '') >= t0 - 5000) st = /SUCCEEDED|SUCCESS|OK|DELIVERED/i.test(String(lr.status || '')) ? 'ok' : /FAIL|ERROR/i.test(String(lr.status || '')) ? 'fail' : '';
+      t = r && r.payload && (r.payload.trigger || r.payload); const lr = t && t.last_run;
+      if (lr && Date.parse(lr.fired_at || '') >= t0 - 5000) st = /SUCCEEDED|SUCCESS|OK|DELIVERED/i.test(String(lr.status || '')) ? 'ok' : /FAIL|ERROR/i.test(String(lr.status || '')) ? 'fail' : '';
     } catch (e) { return; }   // get_trigger not allowed on this page: the King's ack and reply still show
+    if (!st && t && t.enabled === false && n) st = 'fail';   // a timed wake switches the trigger off only after it fires: off with no fresh run = it never went
     if (!st) { if (!n) checkDelivery(id, trig, t0, 1); return; }
     ktDeliv[id] = st; renderThread();
     try { await withTimeout(DB.doc('events/' + id).update({deliv:st})); } catch (e) { /* this device still shows it */ }
-  }, n ? 30000 : 12000);
+  }, n ? 45000 : 95000);   // a timed wake lands at the next whole minute (20-80 s out): look after it
 }
 async function sendToKing(text){
   if (!DB || !CAN_EDIT) return; const at = nowIso(), id = stampOf(at) + '-you-k', T = L().kt; ktFail = '';
@@ -4012,7 +4016,7 @@ function parseAgent(id, d){
 const METRIC_KEYS = ['sources', 'findings', 'tests', 'passed', 'failed', 'issues', 'files', 'checks', 'chats', 'scans'];
 function onAgents(snap){
   for (const doc of snap.docs) { const d = doc.data(); if (d && !MERGED[doc.id] && d.kind !== 'merged') parseAgent(doc.id, d); }
-  const first = !gotAgents; gotAgents = true; got();
+  const first = !gotAgents; gotAgents = true; got(); HUB.loaded = gotAgents && gotAnswers;
   sync(first); renderNeeds(); renderRoster(); renderCard(); refreshLive(); maybeRecap();
 }
 function onEvents(snap){
@@ -4025,7 +4029,7 @@ function onEvents(snap){
 }
 let gotBoard = false, gotAnswers = false;
 function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); computeObservatory(); }
-function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
+function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; HUB.loaded = gotAgents && gotAnswers; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 function onSessions(snap){ got(); sessDoc = snap.exists ? snap.data() : null; trackSpend(); computeWatch(); refreshAll(); renderOps(); }
 function onSchedule(snap){ got(); schedDoc = snap.exists ? snap.data() : null; computeWatch(); renderNeeds(); renderOps(); }

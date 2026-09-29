@@ -201,3 +201,12 @@ robot at 1440 (pre-existing), canvas rain ignores low-fx.
    The AI hub lives in my computer; it's strictly mine. It can be in English." -> English only (no ES work needed;
    keep existing ES strings only where free), no "HMP" in its name or UI; its name is his to pick (Make it yours;
    default "AI Hub").
+
+## v28.3 "One building" live (2026-09-29)
+Published as hub Version 33 (label "v28.3 one building"; BUILD-v28.md chunk v28.1): one building (bronze frame, core,
+landing, terrace), the Observatory on the tube top (key O + Crew-tab card), HUB.flows riding the tube (max 2 walkers,
+"Handing to X"), the tannoy line, FilthE's cat (Make it yours name/coat/on, key Y, Pet/Treat, no-nag once per question),
+Report card from `crew/report_card` (doc created with the first 4 rows). QA: docs/research/2026-09-29-hub-v28.1-QA.md
+(4 blockers fixed in ff552ce). Shots: shots/v28.1/. Left: keys sheet shows 0 and O alike; camera bar still says "4-7 More";
+pencil tip material; a 3D no-nag test outside release_checks (tests/pages/manual/hub_scene_qa.js needs a local three.js).
+Next: v28.2 "Dressed with data" (research wall, pin wall + Shipped shelf, QA screens).

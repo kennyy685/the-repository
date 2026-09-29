@@ -2292,12 +2292,12 @@ function catPick(watching){
     catDo([{go:nodeSpot(k[Math.floor(Math.random()*k.length)]), pose:Math.random() < .5 ? 'sit' : 'loaf', state:'roam', dur:rr(5, 11)}], 'roam'); }
 }
 function nodeSpot(key){ const N = NODES[key], F = FL[N.f]; return cspot(N.f, N.x - F.ox, N.z - F.oz, Math.random()*Math.PI*2); }
-/* the no-nag rule: a key per need (robot id + when its wait began), seen once; nothing on first load; one play at a time */
+/* the no-nag rule: a key per need (robot id + its question text, so a re-post of the same ask never replays), seen once; nothing on first load; one play at a time */
 function catNeedsScan(){
   const H = HUB, ids = H.needs && Array.isArray(H.needs.ids) ? H.needs.ids : (H.agents || []).filter(a => a.st === 'waiting').map(a => a.id);
-  for (const id of ids){ const a = H.byId && H.byId[id]; if (!a) continue; const key = id + '|' + (a.since || a.seq || 0);
+  for (const id of ids){ const a = H.byId && H.byId[id]; if (!a) continue; const key = id + '|' + String(a.ask || a.doing || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 160);
     if (CAT.seen.has(key)) continue; CAT.seen.add(key); if (CAT.armed && CAT.pend.length < 3 && !CAT.pend.includes(id)) CAT.pend.push(id); }
-  CAT.armT += .5; if (CAT.armT >= 4) CAT.armed = true;
+  if (H.loaded === false) CAT.armT = 0; else { CAT.armT += .5; if (CAT.armT >= (H.loaded ? 1.5 : 4)) CAT.armed = true; }   // arm only after the page's first data (needs already waiting never play)
 }
 function catPlayStart(id){
   const a = HUB.byId && HUB.byId[id], sim = sims[id];
@@ -2330,8 +2330,8 @@ function catThink(dt){
   }
   if (CAT.ride || CAT.hop) return;
   if (CAT.with){ const id = CAT.with, sim = sims[id], a = HUB.byId && HUB.byId[id];
-    if (!sim || !a || !sim.playing || sim.hidden || a.st !== 'waiting' || now - CAT.playFrom > 40e3 || (CAT.playEnd && now > CAT.playEnd)){ catPlayEnd(); return; }
-    if (!CAT.playEnd && !sim.moving && sim.pose === 'play'){ CAT.playEnd = now + 12000 + Math.random()*5000; }
+    if (!sim || !a || !sim.playing || sim.hidden || a.st !== 'waiting' || now - CAT.playFrom > 25e3 || (CAT.playEnd && now > CAT.playEnd)){ catPlayEnd(); return; }
+    if (!CAT.playEnd && !sim.moving && sim.pose === 'play'){ CAT.playEnd = Math.min(now + 12000 + Math.random()*5000, CAT.playFrom + 25e3); }
     if (!CAT.perch && !CAT.hop){ CAT.yaw = Math.atan2(sim.x - CAT.x, sim.z - CAT.z); CAT.pose = CAT.playEnd ? 'play' : 'sit'; }
     return; }
   if (CAT.pend.length){ const id = CAT.pend.shift(); if (catPlayStart(id)) return; }
