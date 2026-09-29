@@ -32,3 +32,5 @@ After the usage reset: back to max 4 at once.
 
 ## Merge to main: APPROVED by FilthE (2026-09-29 ~14:12 UTC, "yes")
 When the sync robot (session_01QWjHv7ABHZ7BT5c6YnVBnx) is done AND release_checks + pytest are green on claude/amazing-gauss-yzfpq0: the King opens a PR claude/amazing-gauss-yzfpq0 -> main and puts the link in the ping; FilthE clicks Merge (the King's auto-mode blocks it merging to main unattended).
+
+NEVER PAUSE (FilthE 14:15): every robot prompt includes "never pause: solve blockers yourself, save questions for your final report". The King does the same: questions only in the final ping.

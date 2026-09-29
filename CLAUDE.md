@@ -61,6 +61,7 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   5) right model per job, repeat mistakes become hooks/skills.
   6) never settle (FilthE, 2026-09-28): always research how to do it better; weekly improvement round every Sunday
   8:47 AM CT (trig_01Mg1PNnUNegxcYxmDjG3B5b) posts top 3 upgrades to the King, who decides and applies.
+- **Never pause, never wait on him (FilthE, 2026-09-29 14:15):** "stop pausing on your own, figure out a problem or if you have question save them for when youre done." King and robots solve blockers themselves (research, pick the safe default, keep going); questions go in a list (`docs/memory/questions-for-filthe.md` "Open") and reach him only in the final done ping. Only the hard stops (money, signing, deleting data, legal promises, merge to main) wait, and even then the rest of the work keeps going.
 - **Crew's own setup (hooks, one-command checks, AI docs, plugins):** `docs/orders/crew-setup.md`. Improve it like the app.
 - **Decide with `docs/orders/decision-method.md`:** outside-view numbers, every seat at the table, pre-mortem, now vs.
   later, one-way vs. two-way door. FilthE gets the decision + one reason, not the homework.
