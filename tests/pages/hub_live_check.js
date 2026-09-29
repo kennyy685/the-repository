@@ -17,6 +17,17 @@
  *               robot card's last 3 + hit rate, junk rows never throw
  *   flows       v28.1 HUB.flows: none from old handoffs on load; a NEW handoff = one flow (dir/kind), "Handing to" 20 s, a tannoy line
  *   obs-empty   v28.1 HUB.observatory with an empty board: card renders, v bumps only on change, key O works with no scene
+ *   merge-watch / merge-missing / merge-edges   C system/git: button sets, ahead>200, one merge item per tap (lease, read-back,
+ *               retry), main apart, Hide local, no doc / junk / hidden / old, bad counts, stale answer re-tap, failed answer write
+ *   tidy-keeps  tidy() keeps the report weeks + 14 days of ship events and writes system/tidy.deleted_through
+ *   tidy-big    1,300+ lines: tidy reaches the oldest 40 (reads the tail first)
+ *   round3      two quick merges (one lease holder), junk main.behind, the week's ships beyond the newest 120 (Observatory, HUB.shipped.count, live update)
+ *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, past weeks in the Log,
+ *               spend missing/stale, 0 ships, trimmed week = not tracked + no write, DST weeks
+ *   cv-wake cv-watchdog cv-notnow cv-same cv-suggests cv-resub cv-decided cv-proof cv-blocker cv-stale cv-morning
+ *               G: one per live convenience (CONVENIENCES.md #1-9, 11, 12; #10 cut): one wake per sitting, watchdog + health
+ *               line, Not now parks, Same answer, crew pick + defaults, resubscribe, decided without him, proof words,
+ *               real blocker on top, forgotten tasks, morning note
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
@@ -28,6 +39,7 @@ const OUT = path.join(__dirname, "out", "hub_live");
 const HEADED = process.argv.includes("--headed");
 const FIX = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", "hub_live.json"), "utf8")).docs;
 const MOCK = path.join(__dirname, "hub_runtime_mock.js");
+const SESS = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", "hub_live_sessions.json"), "utf8"));   // v33: real-shaped list_sessions output (words made up)
 const NOW = new Date("2026-09-29T00:30:00Z");   // 37 min after the fixture's newest chat
 function loadPlaywright() {
   for (const p of ["playwright", "/opt/node22/lib/node_modules/playwright"]) { try { return require(p); } catch (e) { /* next */ } }
@@ -45,12 +57,12 @@ async function open(browser, url, o) {
   p.on("console", m => { if (m.type() === "error" && !/Failed to load resource|ERR_|net::/.test(m.text())) errs.push("console: " + m.text().slice(0, 200)); });
   await p.route(/^https?:\/\/(?!127\.0\.0\.1)/, r => r.abort());   // offline: weather, CDN (three.js) - the page must not need them
   if (o.scene) await p.route(/\/hub\/scene\.js$/, r => r.fulfill({ contentType: "text/javascript", body: o.scene }));
-  await p.addInitScript(({ docs, modes, ls }) => {
-    window.__MOCK = { docs, modes };
+  await p.addInitScript(({ docs, modes, ls, sessions }) => {
+    window.__MOCK = { docs, modes, sessions };
     try { localStorage.clear(); for (const [k, v] of Object.entries(ls || {})) localStorage.setItem(k, v); } catch (e) { /* none */ }
-  }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {} });
+  }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {}, sessions: o.sessions || SESS });
   await p.addInitScript({ path: MOCK });
-  if (!o.realClock) await ctx.clock.install({ time: NOW });
+  if (!o.realClock) await ctx.clock.install({ time: o.now || NOW });
   await p.goto(url + (o.hash || ""), { waitUntil: "load" });
   const tick = ms => o.realClock ? p.waitForTimeout(ms) : p.clock.runFor(ms);
   await tick(o.settle || 3000);
@@ -317,6 +329,847 @@ async function scenarioObsEmpty(browser, url) {
   await ctx.close();
 }
 
+/* v33 live truth: the hub reads the real chat list (list_sessions) by itself, every 60 s, and robots / top card / board /
+   Chats / the instant chat all follow it. Never a surprise consent prompt; a refused or hanging read never costs the wake. */
+const lists = async p => (await mcpCalls(p)).filter(t => t === "list_sessions").length;
+const robot = (p, id) => p.evaluate(i => { const a = window.HUB.byId[i]; return { st: a.st, doing: a.doing, st7: a.st7, lv: !!a.lv }; }, id);
+async function scenarioLiveChats(browser, url, vp, L, modes) {
+  const { ctx, p, errs, tick } = await open(browser, url, { vp, modes: Object.assign({ perm: "granted" }, modes || {}) });
+  ok(await lists(p) === 1, `${L}: list_sessions not read once on load (${await lists(p)})`);
+  const b = await robot(p, "builder"), e = await robot(p, "engine-mechanic"), q = await robot(p, "qa-tester"), d = await robot(p, "designer"), k = await robot(p, "code");
+  ok(b.lv && b.st === "working" && /live hub/.test(b.doing), `${L}: Builder not working on its real chat (${JSON.stringify(b)})`);
+  ok(d.st === "working" && /next-level look/.test(d.doing), `${L}: Designer not working (${JSON.stringify(d)})`);
+  ok(e.st === "waiting" && /claim-deadline/.test(e.doing), `${L}: Engine Mechanic not waiting on FilthE (${JSON.stringify(e)})`);
+  ok(q.st === "blocked" && q.st7 === "stuck", `${L}: QA's failed chat not stuck (${JSON.stringify(q)})`);
+  ok(k.lv && (k.st === "done" || k.st === "idle"), `${L}: the King's review-ready chat (${JSON.stringify(k)})`);
+  const needT = await p.evaluate(() => window.__hubT.needItems().map(i => i.text));   // v33 QA: the top card sums Needs up in one line; the strip holds the buttons
+  ok(needT.filter(t => /claim-deadline/.test(t)).length === 1, `${L}: the Engine's question should show once in Needs you (${needT.join(" | ").slice(0, 300)})`);
+  ok(!(await p.$("#brief .nd button")), `${L}: the top card repeats the Needs strip's buttons`);
+  const brief = await p.textContent("#brief");
+  ok(/Live · \d+ s ago/.test(brief), `${L}: top card has no "Live · N s ago" (${brief.slice(0, 80)})`);
+  ok(/Needs you\s*\d/.test(brief) && /answer in Needs you/.test(brief), `${L}: top card Needs you line missing`);
+  ok(/Working on\s*3/.test(brief) && /live hub/.test(brief) && /code-health/.test(brief), `${L}: top card Working on isn't the 3 working chats (${brief})`);
+  ok(/Done\s*\d/.test(brief), `${L}: top card Done is empty with a chat finished 2 h ago`);
+  ok(!/handing off to fresh session/.test(await p.textContent("#nowList")), `${L}: an archived chat shows in RIGHT NOW`);
+  // top card lines open the right card
+  await p.click('#brief [data-sel="s:session_01LiveBuilderHub0001"]', { timeout: 2000 }).catch(x => fails.push(`${L}: top card line: ${x.message.split("\n")[0]}`)); await tick(400);
+  ok(/live hub/.test(await p.textContent("#card")), `${L}: a Working on line didn't open that chat's card`);
+  await p.keyboard.press("Escape"); await tick(400);   // the phone's card is a sheet over the page
+  await p.evaluate(() => { const i = window.__hubT.needItems().find(x => /claim-deadline/.test(x.text)); if (i) window.__hubT.select(i.key); }); await tick(400);
+  ok(/claim-deadline/.test(await p.textContent("#card")), `${L}: a Needs you line didn't open the question`);
+  await p.keyboard.press("Escape"); await tick(200);
+  // a robot's card: step + its chats (two Builders)
+  await p.evaluate(() => { const a = document.querySelector('[data-now="builder"]'); if (a) a.click(); }); await tick(400);
+  const card = await p.textContent("#card");
+  ok(/Running the hub live check/.test(card) && /code-health sweep/.test(card) && /Chats/.test(card), `${L}: Builder card lacks its step or both chats (${card.slice(0, 300)})`);
+  await p.keyboard.press("Escape"); await tick(400);
+  // board + Chats tab from the live list
+  await p.click("#tab-board", { timeout: 2000 }); await tick(300);
+  ok(/Live from the chats/.test(await p.textContent("#boardBody")), `${L}: board has no live group`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  const ops = await p.textContent("#opsBody");
+  ok(/6 open|6 chats|· 6/.test(ops.replace(/\s+/g, " ")) || (await p.$$("#opsBody .srow")).length === 6, `${L}: Chats tab isn't the 6 open chats (${(await p.$$("#opsBody .srow")).length})`);
+  ok(!/SMUIPO \(King\).*handing off/.test(ops), `${L}: archived chat in Chats`);
+  const n = await clickAll(p, tick, L);
+  notes.push(`${L}: clicked ${n} buttons`);
+  for (const bt of await p.$$("#brief button:not([disabled])")) { await bt.click({ timeout: 2000 }).catch(() => {}); await tick(150); await p.keyboard.press("Escape"); }
+  // the instant chat answers from the same live snapshot
+  await sendChat(p, tick, "what are the robots doing?"); await tick(4000);
+  const sin = await p.evaluate(() => window.__sampleIn || "");
+  ok(/CLAUDE CHATS, LIVE/.test(sin) && /live hub/.test(sin) && /NEEDS FILTHE: Show the claim-deadline/.test(sin), `${L}: the instant answer didn't get the live chats (${sin.slice(0, 120)})`);
+  ok((await mcpCalls(p)).includes("update_trigger") || /#ANSWER/.test(sin) || true, "");
+  // every 60 s: one more read; the King wake still works
+  const before = await lists(p); await tick(61000);
+  ok(await lists(p) === before + 1, `${L}: no re-read after 60 s (${before} -> ${await lists(p)})`);
+  ok(await probe(p) < 500, `${L}: main thread busy`);
+  await p.screenshot({ path: path.join(OUT, L + ".png") });
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLivePrompt(browser, url) {   // not allowed yet: no call by itself, "Go live" asks once, then it runs every minute
+  const L = "live-prompt";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "prompt" } });
+  await tick(65000);
+  ok((await mcpCalls(p)).length === 0, `${L}: MCP called with no click (${await mcpCalls(p)})`);
+  ok(await p.isVisible("#lvGo"), `${L}: no Go live button`);
+  ok(/Go live/.test(await p.textContent("#brief")), `${L}: top card doesn't say how to go live`);
+  await p.click("#lvGo", { timeout: 2000 }); await tick(1500);
+  ok(await lists(p) === 1 && (await robot(p, "builder")).st === "working", `${L}: Go live didn't read the chats`);
+  ok(await p.isHidden("#lvGo"), `${L}: Go live still showing after it worked`);
+  await tick(61000); ok(await lists(p) === 2, `${L}: no minute re-read after Go live`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+/* v34 (QUEUE-SPECS A + B + E): hand off end to end, a fix button on every alert, a why on every working robot */
+const HO_SID = "session_01HOTESTaaaaaaaaaaaaaaaa";
+function hoDocs(extra) {   // the fixture + one working helper chat (crew/sessions route, live off) + whatever the scenario adds
+  const d = JSON.parse(JSON.stringify(FIX));
+  d["crew/sessions"].sessions.push({ id: HO_SID, title: "Designer (ultracode): hub specs", state: "working", doing: "writing specs", cost_usd: 3, updated: "2026-09-29T00:25:00Z", created: "2026-09-29T00:05:00Z" });
+  d["crew/sessions"].sessions.push({ id: "session_01HODONEaaaaaaaaaaaaaaaa", title: "Builder: done job", state: "done", cost_usd: 2, updated: "2026-09-29T00:20:00Z" });
+  d["crew/sessions"].updatedAt = "2026-09-29T00:28:00Z";
+  return Object.assign(d, extra || {});
+}
+const evWrites = async p => (await log(p)).filter(x => x[0] === "set" && /^events\//.test(x[1])).map(x => x[1]);
+async function openChat(p, tick, sid) {
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  await p.click(`#opsBody [data-sel="s:${sid}"]`, { timeout: 3000 }); await tick(300);
+}
+async function scenarioHandoff(browser, url) {
+  const L = "handoff";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await openChat(p, tick, HO_SID);
+  ok(await p.isVisible(`#card [data-handoff="${HO_SID}"]`), `${L}: a working chat ($3) has no Hand off button`);
+  await p.click(`#card [data-handoff="${HO_SID}"]`, { timeout: 2000 }); await tick(1500);
+  const w1 = (await evWrites(p)).length;
+  ok(w1 === 1, `${L}: a tap wrote ${w1} events, want 1`);
+  const again = await p.$(`#card [data-handoff="${HO_SID}"]`);
+  if (again) { await again.click().catch(() => {}); await tick(1500); }
+  ok((await evWrites(p)).length === 1, `${L}: a second tap wrote another event`);
+  ok(/Asked/.test(await p.textContent("#card")), `${L}: no receipt on the chat card`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  await p.click(`#opsBody [data-sel="s:session_01HODONEaaaaaaaaaaaaaaaa"]`, { timeout: 3000 }); await tick(300);
+  ok(!(await p.$("#card [data-handoff]")), `${L}: a done chat shows Hand off`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioHandoffSteps(browser, url) {   // the King's steps fill the receipt; archived drops the row; no note after 30 min = Ask again
+  const L = "handoff-steps", tap = "20260929T000000Z-you";
+  const base = { [`events/${tap}`]: { agent: "you", name: "FilthE", kind: "handoff", to: "code", task: "fresh-chat", session: HO_SID, status: "done", at: "2026-09-29T00:00:00Z", text: "Hand off" } };
+  const step = (st, min, x) => ({ [`events/20260929T00${String(min).padStart(2, "0")}00Z-code-${st}`]: Object.assign({ agent: "code", kind: "note", task: "fresh-chat", re: tap, session: HO_SID, step: st, at: `2026-09-29T00:${String(min).padStart(2, "0")}:00Z`, text: "step " + st }, x || {}) });
+  let o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2), step("noted", 5, { note_path: "docs/orders/x-handoff.md" }))) });
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  const row = await o.p.textContent("#opsBody");
+  ok(/✓ Asked/.test(row) && /✓ Note saved/.test(row) && /● Fresh chat starting/.test(row), `${L}: asked+noted receipt wrong (${row.slice(0, 200)})`);
+  await o.ctx.close();
+  o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2), step("noted", 5), step("started", 8, { new_session: "session_01NEWaaaaaaaaaaaaaaaaaaa", new_title: "Designer (ultracode): hub specs" }), step("archived", 12))) });
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  ok(!(await o.p.$(`#opsBody [data-sel="s:${HO_SID}"]`)), `${L}: an archived hand-off still lists the old chat`);
+  await o.ctx.close();
+  o = await open(browser, url, { docs: hoDocs(Object.assign({}, base, step("asked", 2))) });   // NOW = 00:30, tap at 00:00, no note: late
+  await o.p.click("#tab-ops", { timeout: 2000 }); await o.tick(300);
+  ok(/No note yet/.test(await o.p.textContent("#opsBody")), `${L}: 30 min with no note isn't amber`);
+  await o.p.click(`#opsBody [data-hoagain="${HO_SID}"]`, { timeout: 2000 }); await o.tick(1500);
+  ok((await evWrites(o.p)).length === 1, `${L}: Ask again didn't write one new hand-off`);
+  ok(!o.errs.length, `${L}: page errors: ${o.errs.slice(0, 4).join(" | ")}`);
+  await o.ctx.close();
+}
+async function scenarioHandoffKing(browser, url) {   // the King's own chat: the Fresh King path (create_session), no helper hand-off event
+  const L = "handoff-king";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await openChat(p, tick, "session_TEST78c4f97889a4cc5df616");
+  const b = await p.$('#card [data-handoff="session_TEST78c4f97889a4cc5df616"]');
+  ok(!!b, `${L}: the King's chat has no Hand off`);
+  if (b) { await b.click(); await tick(4000); }
+  const cs = (await log(p)).filter(x => x[0] === "mcp" && x[1] === "create_session");
+  ok(cs.length === 1 && /king-handoff\.md/.test(JSON.stringify(cs[0][2] || {})), `${L}: didn't start a Fresh King that reads king-handoff.md (${cs.length})`);
+  ok(!(await evWrites(p)).some(id => /-you$/.test(id)), `${L}: wrote a helper hand-off for the King`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function alertsOf(p) { return p.evaluate(() => [...document.querySelectorAll("#nlist .need.alert, #nplate .need.alert")].map(b => ({ a: b.dataset.alert || "", t: b.textContent }))); }
+async function scenarioFixButtons(browser, url) {
+  const L = "fix-buttons";
+  const sched = { at: "2026-09-29T00:10:00Z", jobs: [
+    { id: "trig_01BROKEaaaaaaaaaaaaaaaaa", name: "Morning data", enabled: true, last: { status: "FAILED", at: "2026-09-28T12:00:00Z" } },
+    { id: "trig_01PAUSEDaaaaaaaaaaaaaaaa", name: "Old King 3x", enabled: false, ended_reason: "user_paused", why: "King is live now" } ] };
+  const d = hoDocs({ "system/schedule": sched });
+  delete d["system/king"].wake_trigger;
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const al = await p.evaluate(() => { const t = window.__hubT; t.computeWatch(); return t.alerts().map(a => ({ k: a.k, btn: a.btn || "", lbl: a.lbl || "", text: a.text })); });
+  const by = k => al.filter(a => a.k === k);
+  ok(by("sched").length === 1 && by("sched")[0].lbl === "Run it again", `${L}: broke job alert wrong (${JSON.stringify(by("sched"))})`);
+  ok(by("wake").length === 1 && by("wake")[0].lbl === "Reconnect", `${L}: wake-off alert wrong (${JSON.stringify(by("wake"))})`);
+  ok(!al.some(a => /Old King/.test(JSON.stringify(a))), `${L}: a paused-with-a-reason job raised an alert`);
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "fixsched", id: "trig_01BROKEaaaaaaaaaaaaaaaaa" })); await tick(1500);
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "fixsched", id: "trig_01BROKEaaaaaaaaaaaaaaaaa" })); await tick(1500);
+  const ev = (await log(p)).filter(x => x[0] === "set" && /^events\//.test(x[1]));
+  const body = ev.length ? await p.evaluate(k => JSON.stringify(window.__mockDb.store.get(k)), ev[0][1]) : "";
+  ok(ev.length === 1 && /"task":"fix-sched"/.test(body) && /trig_01BROKE/.test(body), `${L}: Run it again wrote ${ev.length} events (want 1 fix-sched): ${body.slice(0, 160)}`);
+  const sent = await p.evaluate(() => { const t = window.__hubT; t.computeWatch(); return t.alerts().filter(a => a.k === "sched").map(a => t.alertChip(a)).join(""); });
+  ok(/Sent · the King/.test(sent), `${L}: the tapped fix isn't a receipt`);
+  const n0 = (await log(p)).filter(x => x[0] === "set").length;
+  await p.evaluate(() => window.__hubT.fixClick({ alert: "howfix" })); await tick(500);
+  ok((await log(p)).filter(x => x[0] === "set").length === n0, `${L}: How to fix wrote to the db`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioWhy(browser, url) {
+  const L = "why";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  const r = await p.evaluate(() => {
+    const t = window.__hubT, a = t.byId.designer, keep = {st:a.st, why:a.why, task:a.task}, out = {}, now = Date.now();
+    a.st = 'working'; a.why = ''; a.task = '';
+    out.none = t.whyWith(a, []);
+    a.why = 'posted reason'; out.posted = t.whyWith(a, []); a.why = '';
+    t.answers()['D99'] = {answer:'Yes', to:'designer'};
+    out.answer = t.whyWith(a, [{id:'x1', agent:'designer', kind:'start', re:'D99', atMs:now - 60000}]);
+    out.handoff = t.whyWith(a, [{id:'x2', agent:'code', kind:'handoff', to:'designer', atMs:now - 60000}]);
+    delete t.answers()['D99']; Object.assign(a, keep);
+    return out; });
+  ok(r.none === "", `${L}: no reason still printed "${r.none}"`);
+  ok(r.posted === "posted reason", `${L}: posted why lost`);
+  ok(/You answered D99: Yes/.test(r.answer), `${L}: answer rule wrong (${r.answer})`);
+  ok(/handed it over/.test(r.handoff), `${L}: handoff rule wrong (${r.handoff})`);
+  ok([r.answer, r.handoff].every(x => x.length <= 90), `${L}: a why over 90 chars`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveSlowConsent(browser, url) {   // QA 2026-09-29: he reads the consent prompt for 40 s; the read still lands, and a "no" stops quietly
+  const L = "live-slow-consent";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "prompt", reqMs: 40000 } });
+  await p.click("#lvGo", { timeout: 2000 }); await tick(20000);
+  ok(await lists(p) === 0, `${L}: read sent before he answered the prompt`);
+  ok(await probe(p) < 500, `${L}: main thread busy while the prompt is open`);
+  await tick(22000);
+  ok(await lists(p) === 1 && (await robot(p, "builder")).st === "working", `${L}: slow consent lost the read (${await lists(p)})`);
+  await tick(61000); ok(await lists(p) === 2, `${L}: no minute re-read after a slow consent`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+  const b = await open(browser, url, { modes: { perm: "prompt", reqMs: 3000, reqAnswer: "denied" } });
+  await b.p.click("#lvGo", { timeout: 2000 }); await b.tick(70000);
+  ok(await lists(b.p) === 0, `${L}: read sent after he said no`);
+  ok(/Live off/.test(await b.p.textContent("#brief")), `${L}: a "no" isn't reported`);
+  ok(!b.errs.length, `${L}: page errors after no: ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+}
+async function scenarioLiveRefused(browser, url) {   // the tool isn't in the grant: say so, keep the hand-written view, never kill the King wake
+  const L = "live-refused";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", list: "not_in_manifest" } });
+  await tick(130000);
+  ok(await lists(p) === 1, `${L}: a refused read retried by itself (${await lists(p)} reads)`);
+  ok(/Live off/.test(await p.textContent("#brief")), `${L}: top card doesn't say live is off`);
+  ok(!(await robot(p, "builder")).lv, `${L}: robots claim live data`);
+  await sendChat(p, tick, "order after refused live"); await tick(4000);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: the King wake broke after a refused live read`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveHang(browser, url) {   // the chat list never answers: 15 s deadline, page free, tries again next minute
+  const L = "live-hang";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", list: "hang" } });
+  ok(await probe(p) < 500, `${L}: main thread busy while the read hangs`);
+  await tick(20000);
+  ok(/Live off/.test(await p.textContent("#brief")), `${L}: a hung read isn't reported (${(await p.textContent("#brief")).slice(0, 80)})`);
+  await p.click("#tab-log", { timeout: 2000 }).catch(x => fails.push(`${L}: tabs dead: ${x.message.split("\n")[0]}`));
+  await tick(60000); ok(await lists(p) === 2, `${L}: no retry after a timeout (${await lists(p)})`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveText(browser, url) {   // a runtime that only returns the text block still works
+  const L = "live-text";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted", listText: 1 } });
+  ok((await robot(p, "designer")).st === "working", `${L}: text-only result not read`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioLiveStale(browser, url) {   // good read, then failures: keep the last good list and say how old it is
+  const L = "live-stale";
+  const { ctx, p, errs, tick } = await open(browser, url, { modes: { perm: "granted" } });
+  await p.evaluate(() => { window.__MOCK.modes.list = "fail"; });
+  await tick(125000);
+  const brief = await p.textContent("#brief");
+  ok(/Live · \d+ min ago/.test(brief) && /last read failed/.test(brief), `${L}: stale line wrong (${brief.slice(0, 100)})`);
+  ok((await robot(p, "builder")).st === "working", `${L}: a failed read dropped the last good robots`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
+const shot = (p, name) => p.screenshot({ path: path.join(OUT, name + ".png") });
+/* C: the unfinished-merge watch (system/git). QUEUE-SPECS C acceptance: 3 branches (clean, conflicted, done) show their
+   three button sets; ahead 250 = no Merge it; Merge it = exactly one waiting item with merge.branch (a second tap: none);
+   main.behind 0 hides the main line; a missing doc = no card, the Ops line, no error; a day-old doc says "as of yesterday".
+   QA round 2: the board write takes the lease, keeps the rest of the board and survives a concurrent write; missing or
+   negative counts are "not checked", never "no conflicts" / "looks done"; a stale answer can be tapped again; a failed
+   answer write shows no receipt; the Ops line says junk / hidden / real age. */
+const GIT_DOC = { at: "2026-09-28T23:40:00Z", work: "claude/amazing-gauss-yzfpq0", main: { behind: 190, head: "0123456789abcdef" }, branches: [
+  { name: "claude/eager-bardeen-lj7lfc", ahead: 12, behind: 3, last_at: "2026-09-28T22:30:00Z", subject: "Open map: area days-ago counts", files: 4, conflicts: 0, done: false, head: "a1b2c3d4e5f6a7b8" },
+  { name: "claude/stoic-darwin-ikqmrj", ahead: 4, behind: 9, last_at: "2026-09-28T21:00:00Z", subject: "hub queue + specs", files: 3, conflicts: 1, done: false, head: "b1b2c3d4e5f6" },
+  { name: "claude/trusting-dijkstra-luw0nu", ahead: 0, behind: 40, last_at: "2026-09-27T21:00:00Z", subject: "Round 57 calls", files: 0, conflicts: 0, done: true, head: "c1b2c3d4e5f6" },
+  { name: "claude/amazing-wright-lds9q5", ahead: 250, behind: 300, last_at: "2026-09-26T21:00:00Z", subject: "Hub v28.0", files: 90, conflicts: 0, done: false, head: "d1b2c3d4e5f6" } ] };
+const EAGER_ID = "M-eager-bardeen-lj7lfc-12-a1b2c3d4e5f6";
+const gitRows = p => p.$$eval("#boardBody .gitw li.gb", ls => ls.map(l => ({ cls: l.className, text: l.textContent, btns: [...l.querySelectorAll("[data-git]")].map(b => b.dataset.git) })));
+const rowOf = (rows, k) => rows.find(r => r.text.includes(k)) || { btns: [], text: "" };
+const clickMerge = p => p.click('#boardBody [data-git="merge"][data-b="claude/eager-bardeen-lj7lfc"]', { timeout: 2000 }).catch(() => {});
+async function scenarioMergeWatch(browser, url) {
+  const L = "merge-watch";
+  const d0 = hoDocs({ "system/git": GIT_DOC }); d0["board/current"].someKingField = "keep me";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d0 });
+  await p.click("#tab-board", { timeout: 2000 }); await tick(400);
+  let rows = await gitRows(p);
+  const row = k => rowOf(rows, k);
+  ok(/Unfinished work/.test(await p.textContent("#boardBody")), `${L}: no Unfinished work card`);
+  ok(JSON.stringify(row("eager-bardeen").btns) === '["merge","later"]' && /12 finished commits/.test(row("eager-bardeen").text) && /no conflicts/.test(row("eager-bardeen").text), `${L}: clean row wrong ${JSON.stringify(row("eager-bardeen"))}`);
+  ok(JSON.stringify(row("stoic-darwin").btns) === '["ask"]' && /conflicts in 1 file/.test(row("stoic-darwin").text), `${L}: conflicted row wrong ${JSON.stringify(row("stoic-darwin"))}`);
+  ok(JSON.stringify(row("trusting-dijkstra").btns) === '["hide"]' && /looks done/.test(row("trusting-dijkstra").text), `${L}: done row wrong ${JSON.stringify(row("trusting-dijkstra"))}`);
+  ok(!row("amazing-wright").btns.includes("merge") && /old branch · 250 commits, check first/.test(row("amazing-wright").text), `${L}: ahead 250 row wrong ${JSON.stringify(row("amazing-wright"))}`);
+  ok(JSON.stringify(row("behind the work branch").btns) === '["main"]' && /main is 190 commits behind/.test(row("behind the work branch").text), `${L}: main line wrong`);
+  // Merge it: one tap = one waiting item (merge.branch + head) + his answer + a wake; a second tap writes nothing; the board keeps its other fields
+  await clickMerge(p); await tick(1500); await clickMerge(p); await tick(1500);
+  const board = await p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const items = ((board && board.waiting) || []).filter(w => w.merge);
+  ok(items.length === 1 && items[0].id === EAGER_ID && items[0].merge.branch === "claude/eager-bardeen-lj7lfc" && items[0].merge.into === "claude/amazing-gauss-yzfpq0" && items[0].merge.ahead === 12 && items[0].merge.head === "a1b2c3d4e5f6", `${L}: Merge it made ${items.length} merge items ${JSON.stringify(items)}`);
+  ok(board && board.someKingField === "keep me" && (board.now || []).length === (d0["board/current"].now || []).length && (board.waiting || []).length === (d0["board/current"].waiting || []).length + 1, `${L}: the merge write lost other board content`);
+  ok((await log(p)).some(x => x[0] === "acquire" && x[1] === "board/current"), `${L}: board written without the lease`);
+  const ans = await p.evaluate(id => window.__mockDb.store.get("answers/" + id), EAGER_ID);
+  ok(ans && ans.answer === "Merge it", `${L}: the tap isn't the answer (${JSON.stringify(ans)})`);
+  ok((await writes(p)).filter(x => x === "board/current").length === 1, `${L}: board written ${(await writes(p)).filter(x => x === "board/current").length} times (want 1)`);
+  ok((await mcpCalls(p)).includes("update_trigger"), `${L}: Merge it didn't wake the King`);
+  rows = await gitRows(p);
+  ok(/Sent · the King/.test(row("eager-bardeen").text) && !row("eager-bardeen").btns.length, `${L}: tapped Merge it isn't a receipt`);
+  ok(/Merge eager-bardeen-lj7lfc into the work branch/.test(await p.textContent("#boardBody")), `${L}: the merge item doesn't ride the ship card`);
+  ok(!items.some(w => w.merge.into === "main"), `${L}: Merge it batched a merge to main`);
+  // Ask the King (conflicts): one fix-merge handoff, twice = once
+  await p.click('#boardBody [data-git="ask"][data-b="claude/stoic-darwin-ikqmrj"]', { timeout: 2000 }).catch(e => fails.push(`${L}: Ask the King not clickable`)); await tick(1500);
+  await p.evaluate(() => window.__hubT.gitClick({ git: "ask", b: "claude/stoic-darwin-ikqmrj" })); await tick(1500);
+  const fx = [];
+  for (const k of await evWrites(p)) { const b = await p.evaluate(x => window.__mockDb.store.get(x), k); if (b && b.task === "fix-merge") fx.push(b); }
+  ok(fx.length === 1 && fx[0].branch === "claude/stoic-darwin-ikqmrj" && fx[0].to === "code" && fx[0].kind === "handoff", `${L}: Ask the King wrote ${fx.length} fix-merge events`);
+  // Merge to main: its own tap, its own item
+  await p.click('#boardBody [data-git="main"]', { timeout: 2000 }).catch(e => fails.push(`${L}: Merge to main not clickable`)); await tick(2000);
+  const b2 = await p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const mains = ((b2 && b2.waiting) || []).filter(w => w.merge && w.merge.into === "main");
+  ok(mains.length === 1 && mains[0].merge.ahead === 190 && mains[0].merge.branch === "claude/amazing-gauss-yzfpq0" && mains[0].merge.head === "0123456789ab", `${L}: Merge to main made ${mains.length} items ${JSON.stringify(mains)}`);
+  // Hide: this device only
+  const n0 = (await writes(p)).length;
+  await p.click('#boardBody [data-git="hide"][data-b="claude/trusting-dijkstra-luw0nu"]', { timeout: 2000 }).catch(() => {}); await tick(400);
+  ok(!(await gitRows(p)).some(r => r.text.includes("trusting-dijkstra")), `${L}: Hide didn't hide`);
+  ok((await writes(p)).length === n0 && /trusting-dijkstra/.test(await p.evaluate(() => localStorage.getItem("hub-git-hidden") || "")), `${L}: Hide wrote to the db or wasn't kept`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  ok(/unmerged work/.test(await p.textContent("#opsBody")), `${L}: Ops branch line missing`);
+  await p.click("#tab-board", { timeout: 2000 }); await tick(300);
+  await shot(p, "merge-watch");
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+  // main.behind 0 = no main line; a doc from yesterday says so; all done + main even = no card
+  const g2 = JSON.parse(JSON.stringify(GIT_DOC)); g2.main.behind = 0; g2.at = "2026-09-27T20:00:00Z";
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": g2 }) });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  ok(!(await gitRows(b.p)).some(r => /behind the work branch/.test(r.text)), `${L}: main.behind 0 still shows the main line`);
+  ok(/as of yesterday/.test(await b.p.textContent("#boardBody .gitw")), `${L}: a 28 h old doc doesn't say "as of yesterday"`);
+  ok(!b.errs.length, `${L}: page errors (behind 0): ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+  const g3 = { at: "2026-09-29T00:00:00Z", main: { behind: 0 }, branches: [GIT_DOC.branches[2]] };
+  const c = await open(browser, url, { docs: hoDocs({ "system/git": g3 }) });
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(400);
+  ok(!(await c.p.$("#boardBody .gitw")), `${L}: nothing unmerged still shows a card`);
+  await c.ctx.close();
+}
+async function scenarioMergeEdges(browser, url) {
+  const L = "merge-edges";
+  // a concurrent (King) write drops our item once: read back, write again, one item, nothing else lost
+  const a = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }), modes: { clobber_board: 1 } });
+  await a.p.click("#tab-board", { timeout: 2000 }); await a.tick(400);
+  await clickMerge(a.p); await a.tick(2500);
+  const bd = await a.p.evaluate(() => window.__mockDb.store.get("board/current"));
+  const its = ((bd && bd.waiting) || []).filter(w => w.merge);
+  ok(its.length === 1 && (await log(a.p)).some(x => x[0] === "clobber"), `${L}: after a concurrent write the item count is ${its.length}`);
+  ok((await writes(a.p)).filter(x => x === "board/current").length === 2, `${L}: no retry after a lost write`);
+  ok(!a.errs.length, `${L}: page errors (clobber): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // the answer write fails: no receipt, the button comes back
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": GIT_DOC }), modes: { fail_set: "answers/" } });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  await clickMerge(b.p); await b.tick(3000);
+  const rb = rowOf(await gitRows(b.p), "eager-bardeen");
+  ok(!/Sent · the King/.test(rb.text) && rb.btns.includes("merge"), `${L}: a failed answer write shows a receipt (${rb.text.slice(0, 120)})`);
+  await b.ctx.close();
+  // an answer 20 min old with its item still waiting: tappable again, and the re-tap answers again (no second item)
+  const old = "2026-09-29T00:10:00Z";
+  const d = hoDocs({ "system/git": GIT_DOC, ["answers/" + EAGER_ID]: { id: EAGER_ID, q: "Merge eager", answer: "Merge it", note: "", at: old, by: "FilthE", to: "code" } });
+  d["board/current"].waiting.push({ id: EAGER_ID, q: "Merge eager", at: old, merge: { branch: "claude/eager-bardeen-lj7lfc", into: "claude/amazing-gauss-yzfpq0", ahead: 12, conflicts: 0, head: "a1b2c3d4e5f6" } });
+  const c = await open(browser, url, { docs: d });
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(400);
+  ok(rowOf(await gitRows(c.p), "eager-bardeen").btns.includes("merge"), `${L}: a 20 min old answer still blocks Merge it`);
+  await clickMerge(c.p); await c.tick(2000);
+  const ans = await c.p.evaluate(id => window.__mockDb.store.get("answers/" + id), EAGER_ID);
+  const bc = await c.p.evaluate(() => window.__mockDb.store.get("board/current"));
+  ok(ans && ans.at !== old && ((bc.waiting || []).filter(w => w.id === EAGER_ID)).length === 1, `${L}: re-tap didn't re-answer once (${JSON.stringify(ans)})`);
+  await c.ctx.close();
+  // missing / negative counts: "not checked", Ask the King, never "no conflicts" or "looks done"
+  const g = { at: "2026-09-29T00:00:00Z", main: { behind: -3 }, branches: [{ name: "claude/neg-conf", ahead: 5, conflicts: -1 }, { name: "claude/no-ahead", conflicts: 0 }, { name: "claude/neg-ahead", ahead: -2, conflicts: 0 }] };
+  const e = await open(browser, url, { docs: hoDocs({ "system/git": g }) });
+  await e.p.click("#tab-board", { timeout: 2000 }); await e.tick(400);
+  const rs = await gitRows(e.p);
+  ok(rs.length === 3 && rs.every(r => JSON.stringify(r.btns) === '["ask"]' && /not checked yet/.test(r.text) && !/no conflicts|looks done/.test(r.text)), `${L}: bad counts rendered as facts ${JSON.stringify(rs)}`);
+  ok(!rs.some(r => /behind the work branch/.test(r.text)), `${L}: a negative main.behind shows a main line`);
+  ok(!e.errs.length, `${L}: page errors (bad counts): ${e.errs.slice(0, 4).join(" | ")}`);
+  await e.ctx.close();
+}
+async function scenarioMergeMissing(browser, url) {
+  const L = "merge-missing";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: hoDocs() });
+  await p.click("#tab-board", { timeout: 2000 }); await tick(400);
+  ok(!(await p.$("#boardBody .gitw")), `${L}: a card with no system/git doc`);
+  await p.click("#tab-ops", { timeout: 2000 }); await tick(300);
+  ok(/Branch watch starts on the King.s next wake/.test(await p.textContent("#opsBody")), `${L}: Ops line missing`);
+  const junk = hoDocs({ "system/git": { at: "x", main: "nope", branches: [null, 3, { name: "bad name; rm" }, { name: "claude/ok-branch", ahead: "7", conflicts: "0" }] } });
+  const b = await open(browser, url, { docs: junk });
+  await b.p.click("#tab-board", { timeout: 2000 }); await b.tick(400);
+  const r = await gitRows(b.p);
+  ok(r.length === 1 && /ok-branch/.test(r[0].text), `${L}: junk git doc rendered ${r.length} rows`);
+  ok(!errs.length && !b.errs.length, `${L}: page errors: ${errs.concat(b.errs).slice(0, 4).join(" | ")}`);
+  await ctx.close(); await b.ctx.close();
+  // all junk: no card, Ops says it couldn't read it
+  const c = await open(browser, url, { docs: hoDocs({ "system/git": { at: "2026-09-29T00:00:00Z", branches: "nope" } }) });
+  await c.p.click("#tab-ops", { timeout: 2000 }); await c.tick(300);
+  ok(/couldn.t read the King.s report/.test(await c.p.textContent("#opsBody")), `${L}: unreadable doc not reported in Ops`);
+  await c.p.click("#tab-board", { timeout: 2000 }); await c.tick(300);
+  ok(!(await c.p.$("#boardBody .gitw")) && !c.errs.length, `${L}: unreadable doc drew a card or threw`);
+  await c.ctx.close();
+  // everything hidden on this device + a 10 day old doc: "N hidden", "as of 10 days ago"
+  const g = JSON.parse(JSON.stringify(GIT_DOC)); g.at = "2026-09-19T00:00:00Z"; g.main.behind = 0; g.branches = g.branches.slice(0, 2);
+  const e = await open(browser, url, { docs: hoDocs({ "system/git": g }), ls: { "hub-git-hidden": JSON.stringify({ "claude/eager-bardeen-lj7lfc": 12, "claude/stoic-darwin-ikqmrj": 4 }) } });
+  await e.p.click("#tab-board", { timeout: 2000 }); await e.tick(300);
+  ok(!(await e.p.$("#boardBody .gitw")), `${L}: all hidden still shows a card`);
+  await e.p.click("#tab-ops", { timeout: 2000 }); await e.tick(300);
+  const t = await e.p.textContent("#opsBody");
+  ok(/2 hidden/.test(t) && /as of 10 days ago/.test(t), `${L}: Ops line wrong for hidden/old (${(t.match(/[^.]*hidden[^.]*/) || [""])[0]})`);
+  await e.ctx.close();
+}
+
+/* D: the Sunday report card. Fixed clocks: Sun 18:05 CT shows it (and writes crew/weeks-<id> once), Mon 12:01 it's gone
+   from Crew but in the Log, Wed nothing; a second open doesn't rewrite; spend missing or stale = "not tracked yet" and no
+   $/ship; 0 ships = "$ per ship: nothing shipped"; no last-week doc = no arrows; a week the log was trimmed inside =
+   "not tracked yet" and no write; DST weeks; tidy() keeps the report weeks + ship events. */
+const SUN = new Date("2026-10-04T23:05:00Z"), MON = new Date("2026-10-05T17:01:00Z"), WED = new Date("2026-10-07T17:00:00Z");
+const W40 = "crew/weeks-2026-W40", W39 = "crew/weeks-2026-W39", W38 = "crew/weeks-2026-W38";
+function wkDocs(o) {
+  o = o || {};
+  const d = hoDocs();
+  d["crew/sessions"].updatedAt = o.spendAt || "2026-10-04T22:00:00Z";
+  if (o.spend !== false) d["crew/sessions"].spend = { today_usd: 20, week_usd: 312 };
+  if (o.ships !== false) {
+    d["events/20260930T150000Z-builder"] = { agent: "builder", kind: "done", lane: "code", room: "dock", status: "done", task: "T300", at: "2026-09-30T15:00:00Z", text: "Published App v25.3 to the live link" };
+    d["events/20261002T150000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-10-02T15:00:00Z", text: "Practice Door v11 went live" };
+    d["events/20261003T150000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-10-03T15:00:00Z", text: "Not published yet: waiting on QA" };
+  }
+  d["events/20261001T100000Z-builder"] = { agent: "builder", kind: "blocked", lane: "code", room: "tests", status: "blocked", at: "2026-10-01T10:00:00Z", text: "stuck on a test" };
+  d["events/20261001T130000Z-builder"] = { agent: "builder", kind: "progress", lane: "code", room: "tests", status: "working", at: "2026-10-01T13:00:00Z", text: "unstuck" };
+  if (o.whole !== false) d["events/20260927T120000Z-code"] = { agent: "code", kind: "note", lane: "board", room: "board", status: "done", at: "2026-09-27T12:00:00Z", text: "last week's last line" };   // the log reaches back past the week's start
+  if (o.last !== false) d[W39] = { v: 1, week: "2026-W39", label: "Week of Sep 21 – 27", shipped: 1, spent_usd: 402, per_ship_usd: 402, waited_h: 1, stuck_h: 7, at: "2026-09-27T23:10:00Z", by: "hub" };
+  return Object.assign(d, o.extra || {});
+}
+const wkWrites = async p => (await writes(p)).filter(x => /^crew\/weeks/.test(x));
+async function scenarioWeekly(browser, url) {
+  const L = "sunday-report";
+  // Sunday 18:05 CT: the card tops the Crew tab and crew/weeks-2026-W40 is written once
+  const a = await open(browser, url, { docs: wkDocs(), now: SUN, hash: "" });
+  await a.p.click("#tab-crew", { timeout: 2000 }); await a.tick(2000);
+  const txt = await a.p.textContent("#wkBlock");
+  ok(await a.p.isVisible("#wkBlock"), `${L}: Sunday 18:05 shows no card`);
+  ok(/Week of Sep 28 – Oct 4/.test(txt), `${L}: week label wrong (${txt.slice(0, 80)})`);
+  ok(/Shipped\s*2/.test(txt) && /App v25\.3/.test(txt), `${L}: shipped count/list wrong (${txt.slice(0, 160)})`);
+  ok(/\$312/.test(txt) && /\$ per ship\s*\$156/.test(txt), `${L}: spend / $ per ship wrong (${txt})`);
+  ok(/Stuck\s*3 h/.test(txt), `${L}: stuck span wrong (${txt})`);
+  ok(/vs last week/.test(txt) && /▲ 1/.test(txt) && /▼ \$246/.test(txt), `${L}: arrows wrong (${txt})`);
+  ok(/Best helper/.test(txt), `${L}: no best helper row`);
+  const order = await a.p.$$eval("#tp-crew > .xblock, #tp-crew > div", els => els.filter(e => !e.hidden).map(e => e.id || e.className));
+  ok(order[0] === "wkBlock", `${L}: the card isn't at the top of Crew (${order.join(",")})`);
+  await a.tick(65000);
+  const w1 = await wkWrites(a.p);
+  ok(w1.length === 1 && w1[0] === W40, `${L}: crew/weeks writes ${JSON.stringify(w1)} (want one ${W40})`);
+  ok((await log(a.p)).some(x => x[0] === "acquire" && x[1] === W40), `${L}: wrote without taking the lease`);
+  const doc = await a.p.evaluate(k => window.__mockDb.store.get(k), W40);
+  ok(doc && doc.week === "2026-W40" && doc.shipped === 2 && doc.spent_usd === 312 && doc.complete === true, `${L}: week doc wrong ${JSON.stringify(doc).slice(0, 200)}`);
+  await shot(a.p, "sunday-report");
+  ok(!a.errs.length, `${L}: page errors (Sunday): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // a second open (the doc's there now): no rewrite, same card
+  const b = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc } }), now: new Date(SUN.getTime() + 40 * 60000) });
+  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(65000);
+  ok(!(await wkWrites(b.p)).length, `${L}: a second open rewrote the week doc`);
+  ok(await b.p.isVisible("#wkBlock") && /Shipped\s*2/.test(await b.p.textContent("#wkBlock")), `${L}: second open lost the card`);
+  await b.ctx.close();
+  // Monday 12:01: gone from Crew, in the Log with the weeks before it
+  const c = await open(browser, url, { docs: wkDocs({ extra: { [W40]: doc, [W38]: { week: "2026-W38", label: "Week of Sep 14 – 20", shipped: 3, spent_usd: null, waited_h: 2, stuck_h: 1 }, "crew/weeks-2026-W37": { week: "2026-W37", label: "Week of Sep 7 – 13", shipped: 4, waited_h: 1, stuck_h: 0 } } }), now: MON });
+  await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(1500);
+  ok(!(await c.p.isVisible("#wkBlock")), `${L}: Monday 12:01 still shows the card in Crew`);
+  await c.p.click("#tab-log", { timeout: 2000 }); await c.tick(600);
+  ok((await c.p.$$("#feed .wklog")).length >= 1, `${L}: Monday 12:01 the newest report isn't on the Log's first page`);
+  for (let i = 0; i < 6 && await c.p.isVisible("#olderBtn"); i++) { await c.p.click("#olderBtn", { timeout: 2000 }); await c.tick(300); }   // older reports sit at their own time
+  const logs = await c.p.$$eval("#feed .wklog", ls => ls.map(l => l.textContent));
+  ok(logs.length === 3 && /Sep 28 – Oct 4/.test(logs[0]) && /Sep 21 – 27/.test(logs[1]) && /Sep 14 – 20/.test(logs[2]), `${L}: the Log doesn't keep the past reports (${logs.map(x => x.slice(0, 40)).join(" | ")})`);
+  ok(!(await wkWrites(c.p)).length, `${L}: Monday wrote a week doc`);
+  ok(!c.errs.length, `${L}: page errors (Monday): ${c.errs.slice(0, 4).join(" | ")}`);
+  await c.ctx.close();
+  // Wednesday: nothing in Crew, nothing written
+  const d = await open(browser, url, { docs: wkDocs(), now: WED });
+  await d.p.click("#tab-crew", { timeout: 2000 }); await d.tick(1500);
+  ok(!(await d.p.isVisible("#wkBlock")) && !(await wkWrites(d.p)).length, `${L}: Wednesday shows or writes a report`);
+  await d.ctx.close();
+}
+async function scenarioWeeklyEdges(browser, url) {
+  const L = "sunday-report-edges";
+  // spend missing: "not tracked yet", no $ per ship row; no last week = no arrows
+  const a = await open(browser, url, { docs: wkDocs({ spend: false, last: false }), now: SUN });
+  await a.p.click("#tab-crew", { timeout: 2000 }); await a.tick(2000);
+  const t1 = await a.p.textContent("#wkBlock");
+  ok(/Spent\s*not tracked yet/.test(t1) && !/\$ per ship/.test(t1), `${L}: missing spend wrong (${t1})`);
+  ok(!/[▲▼]/.test(t1) && /no last week to compare yet/.test(t1), `${L}: arrows with no last-week doc (${t1})`);
+  ok(!a.errs.length, `${L}: page errors: ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // spend written 7 h ago: stale, "not tracked yet"
+  const s = await open(browser, url, { docs: wkDocs({ spendAt: "2026-10-04T16:00:00Z" }), now: SUN });
+  await s.p.click("#tab-crew", { timeout: 2000 }); await s.tick(2000);
+  const ts = await s.p.textContent("#wkBlock");
+  ok(/Spent\s*not tracked yet/.test(ts) && !/\$312/.test(ts), `${L}: 7 h old spend was trusted (${ts.slice(0, 200)})`);
+  await s.ctx.close();
+  // 0 ships with spend: "$ per ship: nothing shipped", no divide by zero
+  const b = await open(browser, url, { docs: wkDocs({ ships: false }), now: SUN });
+  await b.p.click("#tab-crew", { timeout: 2000 }); await b.tick(2000);
+  const t2 = await b.p.textContent("#wkBlock");
+  ok(/\$ per ship\s*nothing shipped/.test(t2) && !/Infinity|NaN/.test(t2), `${L}: 0 ships wrong (${t2})`);
+  const w = await b.p.evaluate(k => window.__mockDb.store.get(k), W40);
+  ok(!w || (w.shipped === 0 && w.per_ship_usd === null), `${L}: 0-ship doc wrong ${JSON.stringify(w).slice(0, 160)}`);
+  ok(!b.errs.length, `${L}: page errors: ${b.errs.slice(0, 4).join(" | ")}`);
+  await b.ctx.close();
+  // the log was trimmed inside the week (no event before it / system/tidy says so): Shipped + Stuck "not tracked yet", no $/ship, no write
+  for (const [k, docs] of [["no older event", wkDocs({ whole: false })], ["tidy inside the week", wkDocs({ extra: { "system/tidy": { deleted_through: "2026-09-29T12:00:00Z", at: "2026-10-01T00:00:00Z" } } })]]) {
+    const c = await open(browser, url, { docs, now: SUN });
+    await c.p.click("#tab-crew", { timeout: 2000 }); await c.tick(8000);
+    const t = await c.p.textContent("#wkBlock");
+    ok(/Shipped\s*not tracked yet/.test(t) && /Stuck\s*not tracked yet/.test(t) && !/\$ per ship/.test(t), `${L}: ${k}: a partial week shows numbers (${t.slice(0, 200)})`);
+    ok(!(await wkWrites(c.p)).length, `${L}: ${k}: a partial week was written`);
+    ok(!c.errs.length, `${L}: ${k}: page errors: ${c.errs.slice(0, 4).join(" | ")}`);
+    await c.ctx.close();
+  }
+  // the ISO week id, the window, and DST weeks (2026-03-08 and 2026-11-01), straight
+  const c = await open(browser, url, { docs: wkDocs(), now: SUN });
+  const r = await c.p.evaluate(() => { const t = window.__hubT, P = Date.parse, iso = ms => new Date(ms).toISOString(); return {
+    sun: t.wkWindow(P("2026-10-04T23:05:00Z")), s1759: t.wkWindow(P("2026-10-04T22:59:00Z")), mon: t.wkWindow(P("2026-10-05T16:59:00Z")),
+    id: t.wkId(t.wkWindow(P("2026-10-04T23:05:00Z")).ws), jan: t.wkId(P("2026-12-28T06:00:00Z")),
+    mar8: iso(t.wkStartOf(P("2026-03-09T04:30:00Z"))), mar9: iso(t.wkStartOf(P("2026-03-09T12:00:00Z"))), mar8show: t.wkWindow(P("2026-03-08T23:05:00Z")).show,
+    nov1: iso(t.wkStartOf(P("2026-11-01T12:00:00Z"))), nov2: iso(t.wkStartOf(P("2026-11-02T12:00:00Z"))), nov1show: t.wkWindow(P("2026-11-02T00:05:00Z")).show }; });
+  ok(r.sun.show && !r.s1759.show && r.mon.show && r.sun.ws === r.mon.ws, `${L}: window wrong ${JSON.stringify(r)}`);
+  ok(r.id === "2026-W40" && r.jan === "2026-W53", `${L}: week id wrong ${r.id} ${r.jan}`);
+  ok(r.mar8 === "2026-03-02T06:00:00.000Z" && r.mar9 === "2026-03-09T05:00:00.000Z" && r.mar8show, `${L}: spring DST week wrong ${r.mar8} ${r.mar9} ${r.mar8show}`);
+  ok(r.nov1 === "2026-10-26T05:00:00.000Z" && r.nov2 === "2026-11-02T06:00:00.000Z" && r.nov1show, `${L}: fall DST week wrong ${r.nov1} ${r.nov2} ${r.nov1show}`);
+  await c.ctx.close();
+}
+async function scenarioTidyKeeps(browser, url) {   // tidy() trims old lines but keeps the report weeks and ship events of 14 days, and says how far it trimmed
+  const L = "tidy-keeps";
+  const d = hoDocs(), pad = n => String(n).padStart(2, "0");
+  for (let i = 0; i < 300; i++) d[`events/20260928T${pad(10 + Math.floor(i / 60))}${pad(i % 60)}00Z-builder`] = { agent: "builder", kind: "progress", at: `2026-09-28T${pad(10 + Math.floor(i / 60))}:${pad(i % 60)}:00Z`, text: "working " + i };
+  for (let i = 0; i < 60; i++) d[`events/202609${pad(10 + Math.floor(i / 20))}T${pad(i % 20)}0000Z-code`] = { agent: "code", kind: "note", at: `2026-09-${pad(10 + Math.floor(i / 20))}T${pad(i % 20)}:00:00Z`, text: "old line " + i };
+  for (let i = 0; i < 5; i++) d[`events/202609${16 + i}T120000Z-code`] = { agent: "code", kind: "done", at: `2026-09-${16 + i}T12:00:00Z`, text: `Published thing ${i}` };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const week0 = await p.evaluate(() => { const s = window.__mockDb.store; return [...s.keys()].filter(x => x.startsWith("events/") && (s.get(x) || {}).at >= "2026-09-21T05:00:00Z").length; });
+  await tick(130000);
+  const st = await p.evaluate(() => { const s = window.__mockDb.store, k = [...s.keys()].filter(x => x.startsWith("events/")); return {
+    ships: k.filter(x => /Published thing/.test((s.get(x) || {}).text || "")).length, week: k.filter(x => (s.get(x) || {}).at >= "2026-09-21T05:00:00Z").length,
+    old: k.filter(x => /old line/.test((s.get(x) || {}).text || "")).length, tidy: s.get("system/tidy") }; });
+  ok(st.ships === 5, `${L}: tidy deleted ship events (${st.ships} of 5 left)`);
+  ok(st.old === 20, `${L}: tidy should delete 40 of 60 old lines (left ${st.old})`);
+  ok(st.week === week0 && week0 >= 300, `${L}: tidy deleted inside the report weeks (${st.week} of ${week0} left)`);
+  ok(st.tidy && st.tidy.deleted_through && st.tidy.deleted_through < "2026-09-21T05:00:00Z", `${L}: system/tidy wrong ${JSON.stringify(st.tidy)}`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
+/* ================= G: the live conveniences (docs/design/hub-office/CONVENIENCES.md #1-#12; #10 is cut), one small scenario each.
+   Each starts from cvDocs() (no open asks, no answers, no wakes, nothing from the last 2.5 h) and adds only what it proves. ================= */
+const isoAt = min => new Date(NOW.getTime() + min * 60000).toISOString().replace(/\.\d+Z$/, "Z");
+const stampAt = min => isoAt(min).replace(/[-:]/g, "");
+function cvDocs(extra) {
+  const d = JSON.parse(JSON.stringify(FIX));
+  for (const k of Object.keys(d)) if (k.startsWith("answers/") || k.startsWith("wakes/") || (k.startsWith("events/") && (d[k].at || "") >= "2026-09-28T22:00:00Z")) delete d[k];
+  d["board/current"].waiting = [];
+  for (const s of d["crew/sessions"].sessions) s.needs_you = "";
+  for (const k of Object.keys(d)) if (k.startsWith("agents/") && d[k].status === "working") d[k].status = "idle";
+  return Object.assign(d, extra || {});
+}
+const wq = (id, q, min, more) => Object.assign({ id, q, at: isoAt(min == null ? -30 : min) }, more || {});
+async function put(p, k, v, nf) {   // the crew writes a doc mid-test; nf = {field: ms from the page's clock}; "$S" in the key = that time's stamp
+  await p.evaluate(({ k, v, nf }) => { let st = ""; for (const [f, off] of Object.entries(nf || {})) { v[f] = new Date(Date.now() + off).toISOString().replace(/\.\d+Z$/, "Z"); st = v[f].replace(/[-:]/g, ""); }
+    window.__mockDb.store.set(k.replace("$S", st), v); window.__mockDb.notify(); }, { k, v, nf: nf || {} });
+}
+const docOf = (p, k) => p.evaluate(k => window.__mockDb.store.get(k) || null, k);
+const keysOf = (p, pre) => p.evaluate(pre => [...window.__mockDb.store.keys()].filter(k => k.startsWith(pre)).sort(), pre);
+const needKeys = p => p.evaluate(() => window.__hubT.needItems().map(i => i.key));
+async function cardOf(p, tick, key) { await p.evaluate(k => window.__hubT.select(k, { keep: true }), key); await tick(300); return (await p.textContent("#card")) || ""; }
+async function tap(p, tick, sel) { const hit = await p.evaluate(s => { const b = document.querySelector(s); if (b) b.click(); return !!b; }, sel); await tick(400); return hit; }   // a DOM click: "live" already proves a real pointer reaches these
+async function answerCard(p, tick, key, a) { await cardOf(p, tick, key); return tap(p, tick, `#card .ans [data-a="${a}"]`); }
+const fires = async p => (await mcpCalls(p)).filter(x => x === "update_trigger").length;
+const moreTitle = p => p.evaluate(() => { const b = document.querySelector("#nlist [data-more]"); return b ? b.title : ""; });
+const noErr = (L, errs) => ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+
+async function scenarioCvWake(browser, url) {   // #1 one wake per sitting: quick answers ride one wake, a busy King holds it, a King that already checked in skips it
+  const L = "cv-wake", d = cvDocs();
+  d["board/current"].waiting = ["D60", "D61", "D62", "D63", "D64"].map(id => wq(id, `Wake test ${id}: hub header`));
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  ok(await answerCard(p, tick, "q:D60", "Yes") && await answerCard(p, tick, "q:D61", "No"), `${L}: answer buttons missing`);
+  ok(await fires(p) === 0, `${L}: woke before the hold ended`);
+  await tick(5000);
+  const wk = await keysOf(p, "wakes/"), txt = wk.length ? String((await docOf(p, wk[0])).text) : "";
+  ok(await fires(p) === 1 && wk.length === 1 && /D60/.test(txt) && /D61/.test(txt), `${L}: two quick answers should ride one wake (${await fires(p)} fires, ${wk.length} wake docs: ${txt.slice(0, 120)})`);
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "working" }), { at: 0 }); await tick(500);
+  await answerCard(p, tick, "q:D62", "Yes"); await p.clock.fastForward(12000); await tick(300);   // fastForward: due timers fire once, no 60 fps frames (keeps the suite under 15 min)
+  ok(await fires(p) === 1, `${L}: woke a King that is working`);
+  ok(/busy/.test(await p.textContent("#wakeLine")), `${L}: no "King is busy" line while held ("${(await p.textContent("#wakeLine")).trim()}")`);
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 0 });
+  await put(p, "system/king", Object.assign({}, d["system/king"]), { answersReadAt: 0 });
+  await p.clock.fastForward(31000); await tick(300);
+  ok(await fires(p) === 1 && await p.isHidden("#wakeLine"), `${L}: the King read the answers on check-out, but a wake still fired (${await fires(p)}) or the line stayed`);
+  await answerCard(p, tick, "q:D63", "Yes");
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 1000 });   // two devices: the King checked in after the hold started
+  await tick(6000);
+  ok(await fires(p) === 1, `${L}: a wake fired after the King already checked in`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvWatch(browser, url) {   // #2 the watchdog names a missed wake and a silent helper, tidies an orphan, keeps one health line, clears on check-in
+  const L = "cv-watchdog", d = cvDocs({ [`wakes/${stampAt(-20)}-dev1`]: { at: isoAt(-20), n: 1, text: "AI hub, instant wake." } });
+  d["agents/code"] = Object.assign({}, d["agents/code"], { status: "idle", at: isoAt(-60) });
+  d["agents/engine-mechanic"] = Object.assign({}, d["agents/engine-mechanic"], { status: "working", at: isoAt(-40), doing: "engine check" });
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "working", at: isoAt(-90), doing: "specs" });   // its King checked out after it
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const al = () => p.evaluate(() => { window.__hubT.computeWatch(); return window.__hubT.alerts().map(a => ({ k: a.k, btn: a.btn || "", data: a.data || "", text: a.text })); });
+  let a = await al();
+  ok(a.some(x => x.k === "missed" && x.btn === "run" && /20 min/.test(x.text)), `${L}: no "no reply from the King" alert (${JSON.stringify(a)})`);
+  ok(a.some(x => x.k === "silent" && x.data === "engine-mechanic"), `${L}: a helper silent 40 min raised nothing`);
+  ok(!a.some(x => x.k === "silent" && x.data === "designer") && await p.evaluate(() => window.__hubT.byId.designer.st) === "idle", `${L}: the orphan (its King checked out) still reads working`);
+  const live = await p.textContent("#liveText");
+  ok(/^(All normal|Quiet by design) · next run \d/.test(live), `${L}: no one health line in the pill ("${live}")`);
+  await put(p, "events/$S-code", { agent: "code", kind: "start", lane: "board", room: "board", status: "working", text: "King checking in" }, { at: 0 });
+  await put(p, "agents/engine-mechanic", Object.assign({}, d["agents/engine-mechanic"]), { at: 0 });
+  await tick(1000); a = await al();
+  ok(!a.some(x => x.k === "missed" || x.k === "silent"), `${L}: alerts didn't clear on the next check-in (${JSON.stringify(a)})`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvNotNow(browser, url) {   // #3 Not now parks (no wake, no log line), comes back after 2 h, second return offers "Let the King decide", a gone question is dropped
+  const L = "cv-notnow", d = cvDocs();
+  d["board/current"].waiting = [wq("D70", "Park test: hub print header?", -60), wq("D71", "Back test: brass on the hub?", -300), wq("D73", "Another open hub question", -20)];
+  d["answers/D71"] = { id: "D71", q: "Back test: brass on the hub?", answer: "Not now", note: "", at: isoAt(-240), by: "FilthE", to: "code", back: { after: isoAt(-5), snap: null }, snoozes: 2 };
+  d["answers/D72"] = { id: "D72", q: "Gone from the board", answer: "Not now", note: "", at: isoAt(-60), by: "FilthE", to: "code", back: { after: isoAt(60), snap: null }, snoozes: 1 };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  ok((await needKeys(p)).includes("q:D71"), `${L}: a parked question past its time didn't come back`);
+  const c71 = await cardOf(p, tick, "q:D71");
+  ok(/parked/.test(c71) && await p.$('#card .ans [data-a="Let the King decide"]') && !await p.$('#card .ans [data-a="Not now"]'), `${L}: second return lacks the parked tag / "Let the King decide" (${c71.slice(0, 200)})`);
+  const ev0 = (await evWrites(p)).length;
+  ok(await answerCard(p, tick, "q:D70", "Not now"), `${L}: no Not now button`);
+  await tick(6000);
+  const a70 = await docOf(p, "answers/D70") || {};
+  ok(a70.answer === "Not now" && a70.snoozes === 1 && a70.back && Math.abs(Date.parse(a70.back.after) - Date.parse(a70.at) - 2 * 3600e3) < 60e3, `${L}: Not now saved wrong ${JSON.stringify(a70).slice(0, 200)}`);
+  ok(await fires(p) === 0 && (await evWrites(p)).length === ev0, `${L}: Not now woke the King or wrote a log line`);
+  ok(!(await needKeys(p)).includes("q:D70"), `${L}: the parked question still asks`);
+  ok(/Parked · 1\b/.test(await moreTitle(p)), `${L}: no "Parked · 1" (the gone D72 must not count) ("${await moreTitle(p)}")`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvSame(browser, url) {   // #4 a near re-ask shows his old answer + "Same answer" (the wake says save it to memory); an exact re-post keeps its answer; "Not the same" hides it
+  const L = "cv-same", d = cvDocs();
+  d["answers/D80"] = { id: "D80", q: "Should the hub print header use brass for T300?", answer: "Yes", note: "", at: isoAt(-2 * 1440), by: "FilthE", to: "code" };
+  d["board/current"].waiting = [wq("D81", "Hub print header in brass for T300, yes or no?"), wq("D83", "T300 on the hub: brass header again?", -10)];
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "waiting", ask: "Brass or orange for the print header?", at: isoAt(-60) });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const c = await cardOf(p, tick, "q:D81");
+  ok(/You answered this .*\(D80\)/.test(c) && await p.$('#card [data-same="D80"]'), `${L}: no "You answered this (D80) · Same answer" (${c.slice(0, 240)})`);
+  await tap(p, tick, '#card [data-same="D80"]'); await tick(6000);
+  const a81 = await docOf(p, "answers/D81") || {}, wk = await keysOf(p, "wakes/"), txt = wk.length ? String((await docOf(p, wk[wk.length - 1])).text) : "";
+  ok(a81.answer === "Yes" && /same as D80/.test(a81.note), `${L}: Same answer saved ${JSON.stringify(a81).slice(0, 160)}`);
+  ok(/re-ask of D80/.test(txt), `${L}: the wake doesn't tell the King to save it (${txt.slice(0, 160)})`);
+  await cardOf(p, tick, "q:D83");
+  ok(await tap(p, tick, "#card [data-notsame]"), `${L}: no "Not the same" on D83`);
+  ok(!await p.$("#card [data-same]"), `${L}: "Not the same" didn't hide the match`);
+  ok(await answerCard(p, tick, "designer", "Yes"), `${L}: no answer buttons on the Designer's ask`);
+  ok(!(await needKeys(p)).includes("designer"), `${L}: the Designer still asks after his answer`);
+  await put(p, "agents/designer", Object.assign({}, d["agents/designer"]), { at: 0 }); await tick(1000);
+  ok(!(await needKeys(p)).includes("designer"), `${L}: an exact re-post (new at) lost his answer`);
+  await put(p, "agents/designer", Object.assign({}, d["agents/designer"], { ask: "A new question: which font weight?" }), { at: 0 }); await tick(1000);
+  ok((await needKeys(p)).includes("designer"), `${L}: a new ask didn't come up`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvSuggests(browser, url) {   // #5 the crew's pick + default: two-way doors wait quietly, "Your call" asks, the King's default reads as decided, options become the buttons
+  const L = "cv-suggests", d = cvDocs();
+  d["board/current"].waiting = [
+    wq("D90", "Keep the brass hub header?", -30, { rec: "Yes", why: "it is already built", default: "Yes", by: isoAt(180) }),
+    wq("D91", "Spend $20 on hub fonts?", -30, { rec: "No", why: "free fonts work", default: null }),
+    wq("D92", "Hub orange stays?", -300),
+    wq("D93", "Which hub header?", -30, { options: ["Brass", "Orange"], holds: ["designer"] }),
+    wq("D94", "Hub dark by default?", -600, { rec: "Yes", default: "Yes", by: isoAt(-5) })];
+  d["answers/D92"] = { id: "D92", q: "Hub orange stays?", answer: "Yes", note: "default", at: isoAt(-10), by: "King", to: "code" };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const nk = await needKeys(p);
+  ok(nk.includes("q:D91") && nk.includes("q:D93") && !nk.includes("q:D90") && !nk.includes("q:D92") && !nk.includes("q:D94"), `${L}: Needs wrong ${nk}`);
+  ok(/Can wait · 2\b/.test(await moreTitle(p)), `${L}: two-way doors aren't folded into "Can wait · 2" ("${await moreTitle(p)}")`);
+  const c90 = await cardOf(p, tick, "q:D90");
+  ok(/Crew suggests: Yes · it is already built/.test(c90) && /Going with Yes at .* unless you change it/.test(c90), `${L}: D90 card lacks the pick / default line (${c90.slice(0, 240)})`);
+  ok(/Crew is going with: Yes/.test(await cardOf(p, tick, "q:D94")), `${L}: a passed deadline doesn't say "Crew is going with"`);
+  const c91 = await cardOf(p, tick, "q:D91");
+  ok(/Your call/.test(c91) && /Crew suggests: No/.test(c91), `${L}: D91 lacks "Your call" (${c91.slice(0, 200)})`);
+  await cardOf(p, tick, "q:D93");
+  ok(await p.$('#card .ans [data-a="Brass"]') && await p.$('#card .ans [data-a="Orange"]') && !await p.$('#card .ans [data-a="Yes"]'), `${L}: either-or options aren't the buttons`);
+  const c92 = await cardOf(p, tick, "q:D92");
+  ok(/Crew is going with/.test(c92) && !await p.$("#card [data-undo]"), `${L}: the King's default reads wrong or can be undone as his (${c92.slice(0, 200)})`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvResub(browser, url) {   // #6 a dead connection resubscribes (backoff, no double listeners); a long sleep resubscribes on return; a short one doesn't
+  const L = "cv-resub";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: cvDocs() });
+  const subs = () => p.evaluate(() => [window.__subs, window.__subsMade]);
+  const [n0, m0] = await subs();
+  await p.evaluate(() => window.__mockDb.drop()); await tick(3000);
+  const [n1, m1] = await subs();
+  ok(n1 === n0 && m1 > m0, `${L}: after the connection died: ${n1} listeners (want ${n0}), ${m1 - m0} new subscriptions`);
+  await tick(3000);
+  ok(!/Reconnecting/i.test(await p.textContent("#liveText")), `${L}: still "Reconnecting" after the data came back`);
+  const away = async ms => {
+    await p.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => true }); document.dispatchEvent(new Event("visibilitychange")); });
+    await p.clock.fastForward(ms);
+    await p.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => false }); document.dispatchEvent(new Event("visibilitychange")); });
+    await tick(2000); };
+  await away(2 * 60000);
+  const [n2, m2] = await subs();
+  ok(m2 === m1 && n2 === n0, `${L}: a 2-minute away resubscribed (${m2 - m1} new)`);
+  await away(21 * 60000);
+  const [n3, m3] = await subs();
+  ok(m3 > m2 && n3 === n0, `${L}: 21 min asleep: ${m3 - m2} new subscriptions, ${n3} listeners (want >0 new, ${n0} open)`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvDecided(browser, url) {   // #7 back after hours: what the crew decided without him comes first, each with its undo; his own decisions are left out
+  const L = "cv-decided", d = cvDocs();
+  d[`events/${stampAt(-60)}-code`] = { agent: "code", kind: "decided", task: "D95", q: "Old hub question?", at: isoAt(-60), lane: "board", room: "board", status: "idle", text: "Closed D95: no longer needed" };
+  d[`events/${stampAt(-50)}-code`] = { agent: "code", kind: "decided", task: "", fact: "Hub stays MacBook-first", at: isoAt(-50), lane: "board", room: "board", status: "idle", text: "Remembered: Hub stays MacBook-first" };
+  d[`events/${stampAt(-45)}-you`] = { agent: "you", kind: "decided", task: "D97", at: isoAt(-45), lane: "board", room: "board", status: "done", text: "Closed D97: his own" };
+  d["answers/D96"] = { id: "D96", q: "Hub header color?", answer: "Default", note: "Brass", at: isoAt(-40), by: "King", to: "code" };
+  d["system/memory"] = Object.assign({}, d["system/memory"], { facts: ["Hub stays MacBook-first", "Another fact"] });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d, ls: { "hub-seen": String(NOW.getTime() - 5 * 3600e3) } });
+  ok(await p.isVisible("#recap"), `${L}: no note after 5 h away`);
+  const t = (await p.textContent("#recapT")) || "";
+  ok(/Closed without your answer: D95 · no longer needed/.test(t) && /Remembered: .Hub stays MacBook-first/.test(t) && /Went with the default on D96: Brass/.test(t), `${L}: decisions missing (${t.slice(0, 300)})`);
+  ok(!/his own/.test(t), `${L}: his own decision shows`);
+  ok(await tap(p, tick, '#recapT [data-dec="undo-mem"]'), `${L}: no Undo on the memory fact`); await tick(1000);
+  const mem = await docOf(p, "system/memory") || {}, uk = (await keysOf(p, "events/")).filter(k => /-you-u$/.test(k));
+  ok(!(mem.facts || []).includes("Hub stays MacBook-first") && (mem.facts || []).includes("Another fact"), `${L}: Undo didn't remove just that fact ${JSON.stringify(mem.facts)}`);
+  const ue = uk.length ? await docOf(p, uk[0]) : {};
+  ok(uk.length === 1 && ue.undo === true && ue.fact === "Hub stays MacBook-first", `${L}: Undo left no event that keeps the fact`);
+  ok(await tap(p, tick, '#recapT [data-dec="reopen"]'), `${L}: no Reopen on the closed question`); await tick(1000);
+  const bw = ((await docOf(p, "board/current")) || {}).waiting || [];
+  ok(bw.some(w => w.id === "D95"), `${L}: Reopen didn't put D95 back on the board`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvProof(browser, url) {   // #8 one word that only moves on proof: Saved -> With the King -> Read -> Done; change it until it's read; the Right Hand doesn't count
+  const L = "cv-proof", d = cvDocs();
+  d["board/current"].waiting = [wq("D100", "Proof test: hub header?"), wq("D101", "Undo test: hub font?"), wq("D102", "Keeps the hold open")];
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const word = async () => { await cardOf(p, tick, "q:D100"); return p.evaluate(() => { const e = document.querySelector("#card .ans-done .proof"); return e ? e.textContent : ""; }); };
+  await answerCard(p, tick, "q:D100", "Yes");
+  const w0 = await word();
+  ok(w0 === "Saved", `${L}: during the hold the word is "${w0}", want Saved`);
+  await tick(5000);
+  const w1 = await word();
+  ok(w1 === "With the King" && await p.$("#card [data-undo]"), `${L}: after the wake: "${w1}", Change button ${!!await p.$("#card [data-undo]")}`);
+  await put(p, "events/$S-king", { agent: "king", kind: "note", re: "D100", lane: "board", room: "board", status: "idle", text: "Right Hand relay" }, { at: 0 }); await tick(500);
+  const w2 = await word();
+  ok(w2 === "With the King", `${L}: the Right Hand's event made it "${w2}" (only the King and its helpers count)`);
+  await put(p, "events/$S-code", { agent: "code", kind: "note", re: "D100", lane: "board", room: "board", status: "working", text: "Read D100" }, { at: 1000 }); await tick(500);
+  const w3 = await word();
+  ok(w3 === "Read" && !await p.$("#card [data-undo]"), `${L}: after the King's read: "${w3}" (Change must go)`);
+  await put(p, "events/$S-code", { agent: "code", kind: "handoff", to: "designer", re: "D100", lane: "board", room: "board", status: "working", text: "Passed to Designer" }, { at: 2000 }); await tick(500);
+  const w4 = await word();
+  ok(/^Done \d/.test(w4), `${L}: after the handoff: "${w4}", want Done <time>`);
+  await answerCard(p, tick, "q:D101", "No"); await tick(5000);
+  ok(await tap(p, tick, "#card [data-undo]"), `${L}: no Change on an unread answer`); await tick(1000);
+  ok(!await docOf(p, "answers/D101") && (await needKeys(p)).includes("q:D101"), `${L}: Change didn't take the answer back`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvBlocker(browser, url) {   // #9 the real blocker on top: robots held, then stopped robots, then age; what holds nobody folds away
+  const L = "cv-blocker", d = cvDocs();
+  d["board/current"].waiting = [wq("D110", "Oldest hub question", -180), wq("D111", "Blocks two robots", -60, { holds: ["builder", "qa-tester"] }), wq("D112", "Holds nobody", -240, { holds: [] })];
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "waiting", ask: "Brass or orange for the print header?", at: isoAt(-30) });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const nk = await needKeys(p);
+  ok(nk.join() === "q:D111,designer,q:D110", `${L}: order ${nk} (want D111, designer, D110; D112 folded)`);
+  const first = await p.evaluate(() => { const b = document.querySelector("#nlist button.need[data-sel]"); return b ? b.dataset.sel : ""; });
+  ok(first === "q:D111", `${L}: the first chip in the strip is ${first}`);
+  ok(/Can wait · 1\b/.test(await moreTitle(p)), `${L}: no "Can wait · 1" ("${await moreTitle(p)}")`);
+  ok(/Holding up Builder \+ /.test(await cardOf(p, tick, "q:D111")), `${L}: no "Holding up" line`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvStale(browser, url) {   // #11 forgotten tasks: an age on each row, "quiet N days" floats up, system/stale once
+  const L = "cv-stale", d = cvDocs();
+  d["board/current"].now = [
+    { id: "T502", owner: "builder", status: "DOING", task: "Fresh task", at: isoAt(-60) },
+    { id: "T500", owner: "builder", status: "DOING", task: "Forgotten task", at: isoAt(-5 * 1440) },
+    { id: "T503", owner: "designer", status: "BLOCKED", task: "Blocked a day", at: isoAt(-1440) },
+    { id: "T501", owner: "designer", status: "BLOCKED", task: "Blocked for days", at: isoAt(-3 * 1440) }];
+  d["board/current"].next = [];
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  await p.click("#tab-board", { timeout: 2000 }).catch(() => {}); await tick(500);
+  const rows = await p.$$eval("#boardBody [data-sel^='t:T50']", bs => bs.map(b => ({ id: b.dataset.sel.slice(2), q: (b.querySelector(".qdays") || {}).textContent || "", age: (b.querySelector(".num") || {}).textContent || "" })));
+  const r = id => rows.find(x => x.id === id) || {};
+  ok(r("T500").q === "quiet 5 days" && r("T501").q === "quiet 3 days" && !r("T502").q && !r("T503").q, `${L}: quiet flags wrong ${JSON.stringify(rows)}`);
+  ok(rows.length === 4 && rows.every(x => x.age), `${L}: a row has no age ${JSON.stringify(rows)}`);
+  const ids = rows.map(x => x.id);
+  ok(ids.indexOf("T500") < ids.indexOf("T502") && ids.indexOf("T501") < ids.indexOf("T503"), `${L}: quiet tasks don't float up (${ids})`);
+  const st = await docOf(p, "system/stale") || {};
+  ok((st.tasks || []).map(x => x.id).sort().join() === "T500,T501" && (await writes(p)).filter(x => x === "system/stale").length === 1, `${L}: system/stale ${JSON.stringify(st).slice(0, 200)}`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvMorning(browser, url) {   // #12 the first open of the morning: overnight, Storm Watch, the King's plan, "All clear"; not again the same morning
+  const L = "cv-morning", now = new Date("2026-09-29T13:10:00Z");   // 8:10 AM Central
+  const d = cvDocs();
+  d["events/20260929T090000Z-builder"] = { agent: "builder", kind: "done", at: "2026-09-29T09:00:00Z", lane: "code", room: "tests", status: "done", text: "Finished the hub checks" };
+  d["events/20260929T115500Z-storm-watch"] = { agent: "storm-watch", kind: "done", at: "2026-09-29T11:55:00Z", lane: "chat", room: "storm", status: "done", text: "No new hail within 250 miles" };
+  d["system/king"] = Object.assign({}, d["system/king"], { summary: "Ship the hub queue, then app checks", at: "2026-09-29T12:30:00Z" });
+  let c = await open(browser, url, { docs: d, now, ls: { "hub-seen": String(Date.parse("2026-09-29T03:00:00Z")) } });
+  ok(await c.p.isVisible("#recap"), `${L}: no morning note`);
+  const h = (await c.p.textContent("#recapH")) || "", t = (await c.p.textContent("#recapT")) || "";
+  ok(/Good morning/.test(h) && /Overnight: 2 done · 0 stuck/.test(t) && /No new hail within 250 miles/.test(t) && /The King.s plan: Ship the hub queue/.test(t), `${L}: note wrong: ${h} | ${t.slice(0, 300)}`);
+  ok(/All clear\. Next run 12:52 PM\. You can close the lid\./.test(t), `${L}: no "All clear ... close the lid" (${t.slice(0, 300)})`);
+  const kept = await c.p.evaluate(() => Object.assign({}, localStorage));
+  noErr(L, c.errs); await c.ctx.close();
+  kept["hub-seen"] = String(now.getTime() + 60000);
+  c = await open(browser, url, { docs: d, now: new Date(now.getTime() + 20 * 60000), ls: kept });
+  ok(await c.p.isHidden("#recap"), `${L}: the note came back on the second open of the same morning`);
+  noErr(L, c.errs); await c.ctx.close();
+}
+
+async function scenarioRound3(browser, url) {   // QA round 3: two quick merges on different branches, junk main.behind, the week's ships beyond the newest 120, tidy on a big log
+  const L = "round3";
+  // two Merge it taps on two clean branches, back to back: both land (one lease holder per page load), no "busy"
+  const g = JSON.parse(JSON.stringify(GIT_DOC)); g.branches[1].conflicts = 0;
+  const a = await open(browser, url, { docs: hoDocs({ "system/git": g }) });
+  await a.p.click("#tab-board", { timeout: 2000 }); await a.tick(400);
+  await clickMerge(a.p); await a.tick(300);
+  await a.p.click('#boardBody [data-git="merge"][data-b="claude/stoic-darwin-ikqmrj"]', { timeout: 2000 }).catch(e => fails.push(`${L}: second Merge it not clickable`)); await a.tick(2500);
+  const bw = ((await a.p.evaluate(() => window.__mockDb.store.get("board/current"))).waiting || []).filter(w => w.merge).map(w => w.merge.branch);
+  ok(bw.length === 2 && bw.includes("claude/stoic-darwin-ikqmrj") && !(await log(a.p)).some(x => x[0] === "acquire-busy"), `${L}: two quick merges: ${JSON.stringify(bw)}`);
+  ok(!a.errs.length, `${L}: page errors (two merges): ${a.errs.slice(0, 4).join(" | ")}`);
+  await a.ctx.close();
+  // main.behind missing: "main not checked yet", never "All branches merged ✓"
+  const b = await open(browser, url, { docs: hoDocs({ "system/git": { at: "2026-09-29T00:00:00Z", main: { behind: "?" }, branches: [GIT_DOC.branches[2]] } }) });
+  await b.p.click("#tab-ops", { timeout: 2000 }); await b.tick(300);
+  const tb = await b.p.textContent("#opsBody");
+  ok(/main not checked yet/.test(tb) && !/All branches merged/.test(tb), `${L}: junk main.behind read as merged`);
+  await b.ctx.close();
+  // 10 ships early in the week (older than the newest 120 lines): Observatory 10, shelf 8 boxes + count 10; a new ship live = 11
+  const d = hoDocs();
+  for (let i = 0; i < 10; i++) d[`events/20260928T060${i}00Z-code`] = { agent: "code", kind: "done", at: `2026-09-28T06:0${i}:00Z`, text: `Published page v${i}` };
+  const c = await open(browser, url, { docs: d });
+  await c.tick(2000);
+  const r1 = await c.p.evaluate(() => ({ obs: window.HUB.observatory && window.HUB.observatory.shipped, n: window.HUB.shipped && window.HUB.shipped.list.length, count: window.HUB.shipped && window.HUB.shipped.count, loaded: window.__hubT.byId ? 1 : 0 }));
+  ok(r1.obs === 10 && r1.n === 8 && r1.count === 10, `${L}: week ships beyond the loaded lines: ${JSON.stringify(r1)}`);
+  await c.p.evaluate(() => { window.__mockDb.store.set("events/20260929T002900Z-builder", { agent: "builder", kind: "done", at: "2026-09-29T00:29:00Z", text: "Published App v99 to the live link" }); window.__mockDb.notify(); });
+  await c.tick(3000);
+  const r2 = await c.p.evaluate(() => ({ obs: window.HUB.observatory.shipped, count: window.HUB.shipped.count, first: window.HUB.shipped.list[0].text }));
+  ok(r2.obs === 11 && r2.count === 11 && /v99/.test(r2.first), `${L}: a live ship didn't update the week count: ${JSON.stringify(r2)}`);
+  ok(await c.p.evaluate(() => window.__hubT.weekStart() === window.__hubT.wkStartOf(Date.now())), `${L}: weekStart() isn't the DST-correct week start`);
+  ok(!c.errs.length, `${L}: page errors (week ships): ${c.errs.slice(0, 4).join(" | ")}`);
+  await c.ctx.close();
+}
+async function scenarioTidyBig(browser, url) {   // 1,300+ lines: tidy reaches the oldest (the newest-1000 read never did)
+  const L = "tidy-big";
+  const d = hoDocs(), pad = n => String(n).padStart(2, "0");
+  for (let i = 0; i < 1150; i++) { const day = 1 + Math.floor(i / 100), m = i % 100; d[`events/202609${pad(day)}T${pad(Math.floor(m / 60))}${pad(m % 60)}00Z-code`] = { agent: "code", kind: "note", at: `2026-09-${pad(day)}T${pad(Math.floor(m / 60))}:${pad(m % 60)}:00Z`, text: "old line " + i }; }
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const n0 = await p.evaluate(() => [...window.__mockDb.store.keys()].filter(k => k.startsWith("events/")).length);
+  await tick(130000);
+  const r = await p.evaluate(() => { const s = window.__mockDb.store, k = [...s.keys()].filter(x => x.startsWith("events/")); return { n: k.length, first: s.has("events/20260901T000000Z-code"), fortieth: s.has("events/20260901T003900Z-code"), fortyfirst: s.has("events/20260901T004000Z-code"), tidy: s.get("system/tidy") }; });
+  ok(n0 > 1300 && r.n === n0 - 40 && !r.first && !r.fortieth && r.fortyfirst, `${L}: tidy didn't trim the 40 oldest of ${n0} (${JSON.stringify(r)})`);
+  ok(r.tidy && r.tidy.deleted_through === "2026-09-01T00:39:00Z", `${L}: system/tidy wrong ${JSON.stringify(r.tidy)}`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -324,7 +1177,7 @@ async function scenarioObsEmpty(browser, url) {
   const browser = await chromium.launch({ executablePath: exe, headless: !HEADED, args: ["--no-sandbox"] });
   const url = await pageUrl("pages/crew-hq.html");
   const ONLY = process.argv.slice(2).filter(a => !a.startsWith("--"));   // e.g. node hub_live_check.js mcp-hang live
-  const run = async (name, fn) => { if (ONLY.length && !ONLY.includes(name)) return; const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n")[0]}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
+  const run = async (name, fn) => { if (ONLY.length && !ONLY.includes(name)) return; const t = Date.now(); try { await fn(); } catch (e) { fails.push(`${name}: crashed: ${e.message.split("\n").slice(0, 8).join(" ~ ")}`); } notes.push(`${name}: ${((Date.now() - t) / 1000).toFixed(1)} s`); };
   try {
     await run("live", () => scenarioLive(browser, url, null, "live"));
     await run("phone", () => scenarioLive(browser, url, { width: 390, height: 844 }, "phone"));
@@ -342,9 +1195,41 @@ async function scenarioObsEmpty(browser, url) {
     for (const k of ["missing", "present", "malformed"]) await run("report-" + k, () => scenarioReport(browser, url, k));
     await run("flows", () => scenarioFlows(browser, url));
     await run("obs-empty", () => scenarioObsEmpty(browser, url));
+    await run("live-chats", () => scenarioLiveChats(browser, url, null, "live-chats"));
+    await run("live-chats-phone", () => scenarioLiveChats(browser, url, { width: 390, height: 844 }, "live-chats-phone"));
+    await run("live-prompt", () => scenarioLivePrompt(browser, url));
+    await run("live-slow-consent", () => scenarioLiveSlowConsent(browser, url));
+    await run("live-refused", () => scenarioLiveRefused(browser, url));
+    await run("handoff", () => scenarioHandoff(browser, url));
+    await run("handoff-steps", () => scenarioHandoffSteps(browser, url));
+    await run("handoff-king", () => scenarioHandoffKing(browser, url));
+    await run("fix-buttons", () => scenarioFixButtons(browser, url));
+    await run("why", () => scenarioWhy(browser, url));
+    await run("live-hang", () => scenarioLiveHang(browser, url));
+    await run("live-text", () => scenarioLiveText(browser, url));
+    await run("live-stale", () => scenarioLiveStale(browser, url));
+    await run("merge-watch", () => scenarioMergeWatch(browser, url));
+    await run("merge-missing", () => scenarioMergeMissing(browser, url));
+    await run("merge-edges", () => scenarioMergeEdges(browser, url));
+    await run("tidy-keeps", () => scenarioTidyKeeps(browser, url));
+    await run("tidy-big", () => scenarioTidyBig(browser, url));
+    await run("round3", () => scenarioRound3(browser, url));
+    await run("sunday-report", () => scenarioWeekly(browser, url));
+    await run("sunday-report-edges", () => scenarioWeeklyEdges(browser, url));
+    await run("cv-wake", () => scenarioCvWake(browser, url));
+    await run("cv-watchdog", () => scenarioCvWatch(browser, url));
+    await run("cv-notnow", () => scenarioCvNotNow(browser, url));
+    await run("cv-same", () => scenarioCvSame(browser, url));
+    await run("cv-suggests", () => scenarioCvSuggests(browser, url));
+    await run("cv-resub", () => scenarioCvResub(browser, url));
+    await run("cv-decided", () => scenarioCvDecided(browser, url));
+    await run("cv-proof", () => scenarioCvProof(browser, url));
+    await run("cv-blocker", () => scenarioCvBlocker(browser, url));
+    await run("cv-stale", () => scenarioCvStale(browser, url));
+    await run("cv-morning", () => scenarioCvMorning(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (18 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (50 scenarios)");
 })();

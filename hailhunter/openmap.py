@@ -11,7 +11,7 @@ import re
 
 from .season import age_line, days_ago
 
-AGE_EN = re.compile(r'^\d+ days ago\.$')
+AGE_EN = re.compile(r'^\d+ days ago\.')
 
 KX, KY = 111.32 * math.cos(41.2 * math.pi / 180), 110.57
 MON = {'en': 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(), 'es': 'ene feb mar abr may jun jul ago sep oct nov dic'.split()}
@@ -39,10 +39,12 @@ def zid(z):
 
 
 def _why(z, today):
-    """z's why lines with the age line re-dated to `today` (the season file may be a day older than the brief)."""
+    """z's why lines with the age line re-dated to `today` (the season file may be a day older than the brief). A storm
+    dated after `today` keeps the season file's own line (twin of the page's ageWhy)."""
     if not today:
         return z['why']
-    return [age_line(days_ago(z['date'], today)) if isinstance(w, list) and len(w) > 1 and AGE_EN.match(str((w[1] or {}).get('en', '')))
+    n = days_ago(z['date'], today)
+    return [age_line(n) if n >= 0 and isinstance(w, list) and len(w) > 1 and AGE_EN.match(str((w[1] or {}).get('en', '')))
             else w for w in z['why']]
 
 

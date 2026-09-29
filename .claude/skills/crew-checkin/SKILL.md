@@ -120,8 +120,23 @@ Engine Mechanic, Chat Reader, Cowork.
   updatedAt, updatedBy}`. `state`: working, needs_you, done, failed. `needs_you` = what the chat needs from FilthE in
   plain words ("" when nothing); a non-empty one joins his Needs strip. `created` lets the hub measure $/h. `options`
   = 2-3 answer buttons (default Done / Tell me more). The hub flags a chat at $25+ or $10+/h with "Hand it off?".
-- "Hand it off" = event `{agent:"you", kind:"handoff", to:"code", task:"fresh-chat", session}` + a wake: have that
-  chat write + commit its handoff note, `create_session` from it, archive the old one after the new one checks in.
+- "Hand it off" = event `{agent:"you", kind:"handoff", to:"code", task:"fresh-chat", session}` + a wake (hub v34:
+  every working chat's card has Hand off, not just hot ones). **King protocol, one event per step** so the chat's
+  receipt fills in: `{agent:"code", kind:"note", task:"fresh-chat", re:"<the tap's event doc id, e.g.
+  20260929T150405.123Z-you>", session:<old id>, step, at, text}` with `step` = `asked` (board note or SendMessage:
+  "write your handoff note, commit + push, then stop") -> `noted` (+`note_path`, after `git fetch` shows the file on
+  the work branch) -> `started` (`create_session`, title = old title, prompt = "read <note_path> and resume";
+  +`new_session`, `new_title`) -> `archived` (`archive_session(old)` ONLY after the new one shows working in
+  `list_sessions`; never archive a chat whose note never landed). Make the `archived` event's text the Log line:
+  "Handed off <title> ($41) -> <new title>". Old chat already done: skip to `archived`. Failed: write the note
+  yourself from `list_events`. No `noted` 30 min after the tap: the receipt turns amber with "Ask again" (a new tap
+  event; answer the newest). The King's own chat never uses this: its button runs Fresh King.
+- Fix-it taps (hub v34): event `{agent:"you", kind:"handoff", to:"code", task, ...}` + a wake. `task:"fix-sched",
+  trigger:<id>`: `fire_trigger` if it's ours and enabled; `update_trigger enabled:true` only if it was switched off
+  with no `why` (a pause with a reason is never touched). `task:"fix-wake"`: make your poke-only trigger bound to
+  your chat and write its id to `system/king.wake_trigger`. `task:"fix-silent", agent_id`: `get_session` /
+  `list_events` for that robot, then post it idle with the reason or re-run its job. Post `done` with `re` = the tap's
+  event id. The page sends each fix once per 10 min.
 - `system/schedule` (every wake, from `list_triggers`): `{jobs:[{id, name, enabled, cron, next_run_at, run_once_at?,
   ended_reason?, why?, when?, last:{status, at}}], at, by}`. `why` = why it's paused ("paused while the King is
   live"); `when` = a plain schedule line if the cron is odd. Paused (no `ended_reason`) shows grey; enabled + last
@@ -129,6 +144,44 @@ Engine Mechanic, Chat Reader, Cowork.
 - Ready to ship: a `board.waiting` item with `ship:{what, preview_url, qa, changes}` (`qa` = `{passed, of}` or a
   line). It gets its own card on the Board with Ship it / Not yet and a Preview link. Anything waiting on his
   "publish" or "merge" goes here, not in orders text.
+
+## Hub v28.5: branch watch + Sunday report (queue chunks C, D)
+
+**Ship words (Shipped shelf + Sunday report):** a `done`/`note` event only counts as a ship when its text says "published", "went live", "is now live", "shipped" or "merged" (and not "not/before/waiting ... publish"). Write "Hub v35 published", never just "pushed v35" or "deployed".
+- `system/git` (the King, every wake and after any merge; the page only reads): `{at, work:"claude/amazing-gauss-yzfpq0",
+  main:{behind:<n>, head:<work tip sha>}, branches:[{name, head, ahead, behind, last_at, subject, files, conflicts, done}]}`.
+  `name` = the full branch (`claude/...`), `head` = its tip sha (`git rev-parse origin/<b>`), `ahead` = commits on it not on work, `subject` = newest non-merge subject (80 chars), `files` = files it
+  changes, `conflicts` = conflicted file count or `null` (not checked), `done` = `ahead === 0`. Counts are whole numbers
+  >= 0; anything else (missing, negative, text) reads as "not checked yet" on the page, never "no conflicts" / "looks done". **How:** `git fetch origin
+  --deepen=1000` (or `--unshallow`) FIRST: a shallow clone gives nonsense counts. `ahead` = `git rev-list --count
+  work..origin/<b>`; `behind` = `git rev-list --count origin/<b>..work`; `main.behind` = `git rev-list --count
+  origin/main..work`; `conflicts` = the conflicted paths in `git merge-tree --write-tree work origin/<b>` (exit 1 =
+  conflicts; nothing checked out, nothing touched). Never rebase, never force-push, never delete a branch from here.
+  The Board shows one "Unfinished work" card only when some branch has `ahead > 0` or `main.behind > 0`; `ahead > 200` =
+  "old branch, check first" (no Merge it button). No doc = no card + an Ops line "Branch watch starts on the King's next wake".
+- Merge taps (the page writes them; his tap IS the OK for that one merge): a `board.waiting` item `{id:"M-<branch
+  slug>-<ahead>-<head 12>" | "M-main-<behind>-<head 12>", q, at, merge:{branch, into, ahead, conflicts, head, report_at}}`
+  (added under the board's lease, read back, re-added once if a concurrent write dropped it) plus `answers/<id>` =
+  `{answer:"Merge it", ...}` and a wake ("answered M-... = Merge it; merge it: ..."). It rides the Ready-to-ship card. An
+  answer older than 10 min whose item still waits can be tapped again (same id, a fresh answer + wake). **King, before
+  merging:** fetch, re-check `git rev-parse origin/<branch>` == `merge.head`, `ahead` and `conflicts` still match; if any
+  changed, don't merge: rewrite `system/git` and post a `note` with `re:"<id>"` ("it changed: tap Merge it again"), and take
+  the stale item off `board.waiting`. Else `git merge --no-ff origin/<branch>` into `into` (a merge commit),
+  `bash tests/release_checks.sh --fast`, push, post `done` with `re:"<id>"`, take the item off `board.waiting`, rewrite
+  `system/git`. `into:"main"` is only-a-person: only ever from his
+  own `M-main-*` tap, never batched with another merge. A conflict on merge = stop, `git merge --abort`, post it.
+- `task:"fix-merge"` handoff (Ask the King, on a conflicted / unchecked / old branch): `{agent:"you", kind:"handoff",
+  to:"code", task:"fix-merge", fix_id:"merge-<slug>", branch, into, ahead, conflicts}` + a wake. Look at it; merge it (as
+  above) if it's finished work, else post why not (stale line, superseded). Post `done` with `re` = the tap's event id.
+- `crew/weeks-<YYYY-Www>` (the page writes it once, the first open between Sunday 6 PM and Monday noon Central; a doc
+  already there is never rewritten): `{v:1, week:"2026-W40", from, label:"Week of Sep 28 – Oct 4", shipped, ships:[<=3
+  texts], spent_usd|null, per_ship_usd|null, waited_h, longest:{id, h}|null, stuck_h, best:{id, good, of}|null, at,
+  by:"hub"}`. (A flat doc: `crew/weeks/<id>` would be a collection path.) `spent_usd` comes from `crew/sessions.spend.week_usd`,
+  so keep that field (and `crew/sessions.updatedAt`) current on Sundays: spend older than 6 h, or missing, = "not tracked yet".
+  The page writes the doc only for a week it can see whole (`complete:true`): hub doc `system/tidy` `{deleted_through, at}` is
+  how far the page's log trim has reached; tidy never trims the report week, the week before, or ship events of the last
+  14 days. A week the trim reached into shows Shipped / Stuck "not tracked yet" and is never saved. Shipped counts `done`/`note` events whose text says
+  published / went live / shipped / merged (and not "not yet published"): write ship events in those words.
 
 ## Report card (hub v28.1; the King writes it, the page only reads)
 The King writes **one row per finished helper job** (King rule 3: log good/redo + why after every robot result) into

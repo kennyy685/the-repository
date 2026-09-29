@@ -46,7 +46,7 @@ const MOCK = () => {
     if (tool === "update_trigger") { window.__mock.lastRun = { status: "SUCCEEDED", fired_at: input.run_once_at }; return { payload: {} }; }   // a timed wake: it fires at run_once_at
     if (tool === "get_session") return { payload: { ccr: { id: input.session_id, external_metadata: { context_usage: { used_tokens: 236000 } }, session_context: { model: "m-test" } } } };
     if (tool === "list_environments") return { payload: { environments: [{ environment_id: "env_TEST", kind: "anthropic_cloud", state: "active" }] } };
-    if (tool === "create_session") return { payload: { session_id: "session_NEWKING01" } };
+    if (tool === "create_session") { if (window.__mock.csErr) throw Object.assign(new Error(window.__mock.csErr.message), window.__mock.csErr); return { payload: { session_id: "session_NEWKING01" } }; }
     if (tool === "get_trigger") return { payload: { trigger: window.__mock.dead ? { id: input.trigger_id, enabled: false } : { id: input.trigger_id, enabled: true, last_run: window.__mock.lastRun } } };   // dead: switched off, never ran
     return { payload: {} }; } };
   const user = { canEdit: async () => true, isOwner: async () => false };
@@ -124,6 +124,20 @@ const MOCK = () => {
       await page.waitForTimeout(800);
       const t = await page.textContent("#kFreshT");
       if (!/236k/.test(t) || !/heavy/.test(t)) fails.push("fresh: memory line wrong (" + t + ")");
+      // 3a) a refused create_session shows its real code (was always the same "permission" line) and logs a blocked event
+      await page.evaluate(() => { window.__mock.csErr = { code: "session_limit", message: "too many sessions", retryable: false }; });
+      await page.click("#kFreshBtn"); await page.waitForTimeout(200);
+      await page.click('#kFresh [data-fk="yes"]'); await page.waitForTimeout(1500);
+      const ft = await page.textContent("#appToast"), fe = await page.evaluate(() => [...window.__mock.docs.entries()].filter(([k]) => /-you-fkfail$/.test(k)).map(([, v]) => v));
+      if (!/session_limit/.test(ft) || /permission/i.test(ft)) fails.push("fresh: failure toast hides the real error (" + ft + ")");
+      if (fe.length !== 1 || fe[0].kind !== "blocked" || !/create: session_limit: too many sessions/.test(fe[0].text)) fails.push("fresh: no blocked event with the error " + JSON.stringify(fe));
+      if (!(await page.isVisible("#kFreshBtn"))) fails.push("fresh: button not back after a failure");
+      await page.evaluate(() => { window.__mock.csErr = { code: "not_granted", message: "Claude Code Remote not granted" }; });
+      await page.click("#kFreshBtn"); await page.waitForTimeout(200);
+      await page.click('#kFresh [data-fk="yes"]'); await page.waitForTimeout(1500);
+      const ft2 = await page.textContent("#appToast"); if (!/not_granted/.test(ft2) || !/permission/i.test(ft2)) fails.push("fresh: not_granted toast (" + ft2 + ")");
+      await page.evaluate(() => { window.__mock.csErr = null; window.__mock.calls.length = 0; });
+      await page.waitForTimeout(1100);
       await page.click("#kFreshBtn"); await page.waitForTimeout(200);
       await page.screenshot({ path: path.join(OUT, "hub-chat-fresh-ask.png") });
       await page.click('#kFresh [data-fk="yes"]'); await page.waitForTimeout(1500);

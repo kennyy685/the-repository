@@ -1,5 +1,36 @@
 # HMP App changelog (newest first)
 
+## AI hub v35: branch watch, Sunday report, Shipped shelf - 2026-09-29 (live: AI hub Version 37; queue chunks C, D, F, G; 3 QA rounds; checks green: 50 live scenarios, chat, shelf, design gate, release --fast)
+- Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK (the King re-checks the branch before merging); Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
+- Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then the last 3 stay in the Log. Numbers the page can't fully see say "not tracked yet", never a guess.
+- The 3D studio has a Shipped shelf: one box per thing shipped this week (max 8, hover for its name), counted from the whole week. 11 new tests prove the live conveniences; one fix: "Read" proof now counts only the King and its helpers.
+
+## AI hub v34: hand off, fix buttons, "why" - 2026-09-29 (live: AI hub Version 36; checks green: 31 live scenarios, chat, design gate, release --fast)
+- Every working chat has a Hand off button; after the tap a 4-step receipt fills in (asked, note saved, fresh chat, old one closed), amber "Ask again" after 30 min. The King's own row uses the Fresh King flow.
+- Every warning ends with the one button that fixes it (Hand it off, Run it again, Reconnect, Check on it, How to fix); tapping twice within 10 min never sends twice, even across devices.
+- Each robot says why it's doing what it's doing (your answer, the board order, or who handed it over); no line when there's no real reason.
+
+## Code-health sweep live - 2026-09-29 (QA PASS; live: HMP HQ Version 3)
+- HMP HQ never sits on "Loading" forever: the live data gets 12 s to connect and 15 s more for the first summary, then it says "Couldn't load the summary" (EN + ES). Late data still fills in. If the feed drops later, the last summary stays with "Couldn't refresh just now".
+- Open map (Version 15) already had the sweep's fixes. The hub's sweep fixes (Fresh King real error, zoom timer) ride the hub Builder's v33 publish.
+- New checks in the release run: EN/ES parity (38 string tables) and HMP HQ on a db that hangs, fails or drops.
+
+## No "free" anywhere until the boss okays it - 2026-09-29 (live: HMP App Version 15 + Practice Door Version 16; QA PASS)
+- App, Practice Door, door lines and print sheets say "estimate / estimado" (cash) and "roof check / revisión del techo" (insurance), never "free" or "gratis". The state's free insurance hotline stays.
+- Contingency agreement EN/ES: "No payment is due at signing. What HMP will charge for is set out in the written estimate/contract." (no more "costs you nothing" / "no cobra nada"); both PDFs re-rendered.
+- New legal check: `tests/legal_check.py` fails the build on any "free" / "costs nothing" / "gratis" offer in docs/print, docs/app or pages (allows the NDOI hotline and "never say free" rules).
+
+## Open map: the "days ago" line points to the customer's policy - 2026-09-29 (age line; QA PASS, live: open map Version 15, with the code-health FX fix)
+- Each area's age line now counts to today's Nebraska date and reads: "52 days ago. Time limits to file are in the customer's policy; ask them to check it." / "Hace 52 días. Los plazos para reportar están en la póliza del cliente; que la revise." It makes no legal claim and shows no countdown or "Deadline" badge at any age. The same words go on the engine's zone reasons and on the old-storm PNG map note.
+- Tests stop bad wording from coming back (expires, running out, last day, hurry, "only N days left", no cutoff/deadline, in EN and ES). They also cover a storm dated after today (never shows "-1 days ago") and 11:30 PM in Chicago, when UTC is already the next day.
+- QA lows fixed: tapping the open area's marker or using prev/next keeps the card's own walk; the night shift's fallback has `zwalks`; the walk maps can't be tricked by an id like "constructor".
+
+## AI hub reads the real robot chats by itself - 2026-09-29 (live hub, v33; QA PASS, published)
+- Every minute while the hub is open it reads your real Claude chats (Claude Code Remote `list_sessions`) and puts each on its robot by tag (`robot:builder`, `king`, ...) or title: working / needs you / done / stuck, what it's doing this minute, how long ago, cost. Archived chats are gone. No more hand-written status going 12 h stale.
+- New top card: Needs you / Working on / Done (3 lines each) with "Live · 20 s ago"; the Board opens with "Live from the chats"; Chats, spend and the instant chat answers all use the same live list (the hand-written docs are only the fallback, and the chat is told how old they are).
+- Never freezes or surprises: one read at a time, 15 s deadline, a failed read keeps the last good list and says how old; it only reads by itself once claude.ai allows the connector, else one "Go live" tap. The King's timed wake is untouched. Check: `tests/pages/hub_live_check.js` live-* scenarios.
+- QA pass before publish (5 fixes): Go live asks through claude.ai's permission prompt first, so reading the prompt slowly no longer cancels live; a slow read is retried next minute instead of stopping; robot-written chat text can't pose as orders in the instant chat; the top card's Needs line points at the Needs strip instead of repeating its buttons; the page grant adds `list_sessions` (one new consent on first Go live).
+
 ## Open map: every card draws its own walk - 2026-09-29 (every-card-walk; QA PASS, live: open map Version 13)
 - Each of Aldaba's top 3 and the backup now has its own walk on real streets, not just #1. Tap #3 (another Columbus turf) and the map swaps to that turf's walk; tap the Omaha older-homes backup and its walk is drawn in Omaha. Today's plan stays on the pick's walk.
 - The night shift makes them all every night (`map.zwalks` in `data/night.js`); nothing new to run. Streets only: no house numbers, no door points, no owner names.

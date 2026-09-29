@@ -90,6 +90,28 @@ async function main() {
     await t.p.click('[data-night="real"]');
     s = await t.strip();
     ok(!s.sample && s.head === REAL.headline.es, "back to the real brief failed");
+    // an area's "N days ago" reason counts to TODAY's Nebraska date (not the day the data file was built) and carries
+    // the claim-deadline rule (FilthE 2026-09-29); other reasons pass through untouched
+    const ct = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago" }).format(new Date());
+    const want = Math.round((new Date(ct + "T12:00:00Z") - new Date("2026-08-08T12:00:00Z")) / 864e5);
+    const ag = await t.p.evaluate(() => [ageWhy({ st: "d20260808" }, [1, { en: "51 days ago.", es: "Hace 51 días." }]),
+      ageWhy({ st: "d20260808" }, [1, { en: "Biggest report: 1.5 in.", es: "x" }])]);
+    ok(ag[0][1].en === `${want} days ago. Time limits to file are in the customer's policy; ask them to check it.`, `age line: ${JSON.stringify(ag[0])} (want ${want})`);
+    ok(ag[0][1].es === `Hace ${want} días. Los plazos para reportar están en la póliza del cliente; que la revise.`, `age line ES: ${ag[0][1].es}`);
+    ok(ag[1][1].en === "Biggest report: 1.5 in.", "age line: a non-age reason was rewritten");
+    // King + QA 2026-09-29: no countdown, no "Deadline" badge, no legal claim at any age, EN or ES; a future storm date
+    // (n<0) keeps the file's line; 23:30 in Chicago is still that day even though UTC has rolled over
+    const ag2 = await t.p.evaluate(() => ({
+      lines: [0, 1, 30, 60, 61, 150, 151, 400, 2000].map((n) => ageLine(n)[1]),
+      future: ageWhy({ st: "d20261001" }, [1, { en: "3 days ago.", es: "Hace 3 días." }], "2026-09-29"),
+      late: ctToday(new Date("2026-09-29T04:30:00Z")), early: ctToday(new Date("2026-09-29T05:30:00Z")),
+      lateN: ageWhy({ st: "d20260928" }, [1, { en: "0 days ago.", es: "Hace 0 días." }], ctToday(new Date("2026-09-29T04:30:00Z"))),
+    }));
+    const BAD = /expires?|running out|last day|hurry|only \d+ days left|no (cutoff|deadline)|deadline|nebraska|prompt notice|aviso pronto|corte en días|vence|último día/i;
+    for (const tx of ag2.lines) ok(!BAD.test(tx.en) && !BAD.test(tx.es), `age line bad phrase: ${tx.en} | ${tx.es}`);
+    ok(ag2.future[1].en === "3 days ago.", `age line: a future storm date was rewritten: ${ag2.future[1].en}`);
+    ok(ag2.late === "2026-09-28" && ag2.early === "2026-09-29", `ctToday Chicago date: ${ag2.late} / ${ag2.early}`);
+    ok(ag2.lateN[1].en.startsWith("0 days ago."), `age line at 23:30 CT: ${ag2.lateN[1].en}`);
     ok(!t.errors.length, "real: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
 

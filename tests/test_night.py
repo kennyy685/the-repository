@@ -436,9 +436,43 @@ class MapTopFollowsPick(unittest.TestCase):
         z = {"date": "2026-08-08", "why": [[1, {"en": "Biggest report: 1.5 in.", "es": "x"}],
                                            [1, {"en": "51 days ago.", "es": "Hace 51 días."}]]}
         got = openmap._why(z, "2026-09-29")
-        self.assertEqual(got[1], [1, {"en": "52 days ago.", "es": "Hace 52 días."}])
+        self.assertTrue(got[1][1]["en"].startswith("52 days ago. Time limits to file are in the customer's policy"), got[1])
+        self.assertTrue(got[1][1]["es"].startswith("Hace 52 días. Los plazos para reportar están en la póliza"), got[1])
+        self.assertEqual(openmap._why({"date": "2026-08-08", "why": [got[1]]}, "2026-09-30")[0][1]["en"][:12], "53 days ago.")
         self.assertEqual(got[0], z["why"][0])
         self.assertIs(openmap._why(z, None), z["why"])                   # no brief date: the season file's own line
+
+    BAD_AGE = re.compile(r"(?i)expires?|running out|last day|hurry|only \d+ days left|no (cutoff|deadline)|deadline|"
+                         r"nebraska|prompt notice|aviso pronto|corte en días|vence|último día|apúrese|solo quedan")
+
+    def test_age_line_makes_no_legal_claim(self):
+        """King + QA 2026-09-29: the age line points to the customer's policy; no countdown, no "Deadline" badge, no
+        claim about what Nebraska law allows, at any age, in EN or ES."""
+        from hailhunter import season as S
+        for n in (0, 1, 7, 30, 60, 61, 150, 151, 365, 400, 2000):
+            sg, tx = S.age_line(n)
+            self.assertEqual(tx["en"], f"{n} days ago. Time limits to file are in the customer's policy; ask them to check it.")
+            self.assertEqual(tx["es"], f"Hace {n} días. Los plazos para reportar están en la póliza del cliente; que la revise.")
+            for lang in ("en", "es"):
+                self.assertIsNone(self.BAD_AGE.search(tx[lang]), (n, lang, tx[lang]))
+            self.assertEqual(sg, 1 if n <= 60 else (0 if n <= 150 else -1))
+
+    def test_age_line_future_storm_date(self):
+        """A storm dated after "today" (n < 0) never reads "-1 days ago"; the brief's map areas keep the season line."""
+        from hailhunter import openmap, season as S
+        self.assertEqual(S.days_ago("2026-10-01", "2026-09-29"), -2)
+        self.assertTrue(S.age_line(-2)[1]["en"].startswith("0 days ago."))
+        self.assertTrue(S.age_line(-2)[1]["es"].startswith("Hace 0 días."))
+        z = {"date": "2026-10-01", "why": [[1, {"en": "3 days ago.", "es": "Hace 3 días."}]]}
+        self.assertEqual(openmap._why(z, "2026-09-29"), z["why"])
+
+    def test_age_line_chicago_evening_vs_utc_next_day(self):
+        """23:30 in Chicago is already the next day in UTC: the count uses the Nebraska date on both ends."""
+        from hailhunter import season as S
+        self.assertEqual(S.days_ago("2026-09-29T04:30:00Z", "2026-09-29"), 1)          # 2026-09-28 23:30 CDT
+        self.assertEqual(S.days_ago("2026-09-28T23:30:00-05:00", "2026-09-29"), 1)
+        self.assertEqual(S.days_ago("2026-09-29T05:30:00Z", "2026-09-29"), 0)          # 00:30 CDT on the 29th
+        self.assertEqual(S.days_ago("2026-12-02T05:30:00Z", "2026-12-02"), 1)          # CST: 23:30 on Dec 1
 
     @unittest.skipUnless(os.path.exists(SEASON) and os.path.exists(MAP_JS), "design files are not in the cloud bundle")
     def test_openmap_is_a_twin_of_real_py(self):

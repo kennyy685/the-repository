@@ -6,7 +6,7 @@ Runnable standalone:
 
 Also wired into `hh.py selftest` via tests/test_legal_check.py.
 
-Five checks, each printing every failure it finds (file + line), not just the first:
+Seven checks, each printing every failure it finds (file + line), not just the first:
 
 1. STATUTE MATCH - the Nebraska 44-8607 deductible notice printed in
    docs/print/contract-draft.html, docs/print/contingency-agreement.html and the English
@@ -37,6 +37,9 @@ Five checks, each printing every failure it finds (file + line), not just the fi
    drafts, cancel-notice.html and the contingency agreements must render at >= 10pt bold
    (statement in capital and lowercase), no copy clipped off its page. Measured in headless
    Chromium by tests/print_type_check.js; skipped (not failed) where no browser exists.
+7. NO "FREE" (King, 2026-09-29) - docs/print/, docs/app/ and pages/ must not offer anything free or at no
+   cost ("free inspection", "costs you nothing", "no cobra nada", "gratis"...) until the boss okays it. Allowed:
+   the NDOI consumer hotline, "never say free" rules / red-flag traps, and the tiny NO_FREE_ALLOW list.
 
 Exit code 0 = everything passed. Exit code 1 = at least one real failure below.
 """
@@ -487,6 +490,106 @@ def check_door_openers():
     return failures
 
 
+# Check 7 (King, 2026-09-29): no "free" / "costs nothing" offer until the boss okays it. Insurance = "roof check /
+# revisión del techo", cash = "estimate / estimado". Scans the print pieces, the pages and the app's JS twins.
+NO_FREE_RX = re.compile(r"""
+    \bfree[\s!-]+(?:roof[\s-]+|second[\s-]+|photo[\s-]+|damage[\s-]+|storm[\s-]+)?
+        (?:inspections?|estimates?|checks?|looks?|reports?|quotes?|documentation|consultations?|roofs?|assessments?)\b
+  | \b(?:inspection|estimate|check|look|report|quote)(?:'s|’s|\s+is|\s+are)\s+(?:\w+\s+){0,2}free\b
+  | \bfree\s+of\s+charge\b | \bat\s+no\s+(?:cost|charge)\b | \bno[\s-]+cost\b | \bno\s+charge\b | \bfor\s+free\b
+  | \bcharges?\s+nothing\b | \bcosts?\s+(?:you\s+)?nothing\b | \bpays?\s+nothing\b
+  | \bgratis\b | \bgratuit[oa]s?\b | \bsin\s+(?:costo|cargo)\b | \bno\s+(?:le\s+)?cobra(?:mos|n)?\s+nada\b
+  | \bcuesta\s+nada\b | \bno\s+(?:le\s+)?paga(?:mos|n)?\s+nada\b | \bnada\s+que\s+pagar\b | \bcomplimentary\b
+""", re.I | re.X)
+# A shouted FREE anywhere (a stamp, a badge), case-sensitive so the hub's "Free" robot status isn't caught.
+NO_FREE_CAPS_RX = re.compile(r"\bFREE\b")
+NO_FREE_DIRS = ("docs/print", "docs/app")
+# The Nebraska Department of Insurance consumer hotline really is free (the state says so), and may be called that.
+NDOI_HOTLINE = "564-7323"
+# Words right before a hit that make it a rule/red flag ("never call it free", "FAIL if he lets 'we pay nothing'
+# stand"), not an offer. Stricter than NEGATION_WORDS on purpose: a bare "no "/"nothing" doesn't count here.
+# Only the same sentence counts (QA 2026-09-29: a 200-char window let "Never X. We offer a free roof check." through).
+NO_FREE_RULE_WORDS = (
+    "never", "nunca", "no diga", "don't say", "don't call", "don't promise", "do not say", "do not call", "fail if",
+    "loose", "correct", "if he lets", "instead of", "banned", "hint", "whether it really", "throw in",
+)
+# A homeowner's own line the salesman must correct ("So we pay nothing, right?"): the quote ends in a question.
+NO_FREE_CUSTOMER_END = re.compile(r"^[^.!?”\"]{0,12}(?:right\?|¿verdad\?)")
+# Known, reviewed exceptions: (file, text right around the hit, why). Keep this list tiny.
+NO_FREE_ALLOW = (
+    ("pages/hmp-app.html", "James Hardie Designer (gratis", "a third-party color tool that is free, not an HMP offer"),
+    ("pages/translate/translate.js", '"free inspection"', "glossary entry; open question for FilthE (translator word list)"),
+    ("pages/translate/translate.js", '"inspección gratis"', "same glossary entry, Spanish side"),
+    ("pages/practice-door.html", 'id: "transition-free-inspection-value"', "a stored line id (saved progress keys on it), never shown"),
+)
+NO_FREE_RULE_WINDOW = 200
+
+
+def _iter_no_free_files():
+    for base in NO_FREE_DIRS:
+        for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, base)):
+            for fn in sorted(filenames):
+                if os.path.splitext(fn)[1].lower() in (".html", ".js", ".css", ".md", ".txt", ".json", ".py"):
+                    yield os.path.relpath(os.path.join(dirpath, fn), ROOT)
+    pages_dir = os.path.join(ROOT, "pages")
+    for dirpath, _dirnames, filenames in os.walk(pages_dir):
+        for fn in sorted(filenames):
+            if fn.endswith((".html", ".js")):
+                yield os.path.relpath(os.path.join(dirpath, fn), ROOT)
+
+
+def _in_regex_source(rel_path, text, start, end):
+    """The hit sits inside a page's detection regex literal (the grader's own "free" traps), not a sentence."""
+    if not rel_path.startswith("pages/"):
+        return False
+    line_start = text.rfind("\n", 0, start) + 1
+    line_end = text.find("\n", end)
+    line = text[line_start:line_end if line_end != -1 else len(text)]
+    if "\\b" not in line and "(?:" not in line and "[^" not in line:
+        return False  # not a line holding a regex
+    if text[start - 1:start] == "|" or text[end:end + 1] == "|":
+        return True  # one word in a (a|b|c) alternation
+    if not re.search(r"/[gimsuy]*[,)\];]", line):
+        return False  # not a /.../i literal
+    near = text[max(0, start - 12):end + 12]
+    return "|" in near or "(?:" in near or "\\b" in near or "\\s" in near
+
+
+def check_no_free():
+    """Check 7: no "free" / "costs you nothing" offer anywhere a homeowner or salesman reads it (King, 2026-09-29)."""
+    failures = []
+    for rel_path in _iter_no_free_files():
+        try:
+            text = _read(rel_path)
+        except (UnicodeDecodeError, OSError):
+            continue
+        text = text.replace("\\'", "' ").replace('\\"', '" ')
+        hits = list(NO_FREE_RX.finditer(text)) + list(NO_FREE_CAPS_RX.finditer(text))
+        seen = set()
+        for m in sorted(hits, key=lambda h: h.start()):
+            start, end = m.span()
+            if any(a <= start < b for a, b in seen):
+                continue  # "FREE look" is one offer, not two
+            seen.add((start, end))
+            if NDOI_HOTLINE in text[max(0, start - 60):end + 80]:
+                continue  # the state's free consumer hotline
+            if _in_regex_source(rel_path, text, start, end):
+                continue
+            near = text[max(0, start - 60):end + 60]
+            if any(rel_path == f and allow in near for f, allow, _why in NO_FREE_ALLOW):
+                continue
+            before = text[max(0, start - NO_FREE_RULE_WINDOW):start]
+            before = re.split(r"[.!?;\n]\s", before)[-1].lower()  # same sentence only
+            if any(w in before for w in NO_FREE_RULE_WORDS):
+                continue  # a "never say free" rule or a red-flag trap in the same sentence
+            if NO_FREE_CUSTOMER_END.match(text[end:end + 30]):
+                continue  # the homeowner's own "we pay nothing, right?" that the drill makes him correct
+            line_no = text.count("\n", 0, start) + 1
+            snippet = re.sub(r"\s+", " ", text[max(0, start - 40):end + 40]).strip()
+            failures.append(f'{rel_path}:{line_no}: "free"/no-cost offer "{m.group(0)}" - ...{snippet}...')
+    return failures
+
+
 def run(verbose=True):
     all_failures = []
     for name, check in (
@@ -496,6 +599,7 @@ def run(verbose=True):
         ("banned phrases", check_banned_phrases),
         ("cooling-off type: 10pt bold statement + cancel forms (16 CFR 429.1, 69-1604)", check_print_type),
         ("app door openers: name, HMP, what we sell before the hook (69-1602)", check_door_openers),
+        ("no 'free' / costs-nothing offers until the boss okays it", check_no_free),
     ):
         try:
             failures = check()

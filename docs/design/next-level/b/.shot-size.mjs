@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+import { readFileSync, existsSync } from 'fs';
+import { join, resolve, extname } from 'path';
+const root = resolve(new URL('..', import.meta.url).pathname);
+const [w, h, q, out] = process.argv.slice(2);
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const ctx = await b.newContext({ viewport: { width: +w, height: +h } });
+await ctx.route('**/*', async r => { const u = new URL(r.request().url()); if (u.hostname !== 'app.test') return r.abort(); const f = join(root, decodeURIComponent(u.pathname)); if (!existsSync(f)) return r.fulfill({ status: 404, body: '' }); r.fulfill({ status: 200, body: readFileSync(f), contentType: types[extname(f)] || 'application/octet-stream' }); });
+const p = await ctx.newPage(); const errs = [];
+p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
+await p.goto(`http://app.test/b/index.html?${q}`); await p.waitForTimeout(6000);
+await p.screenshot({ path: out }); console.log(errs.join(' | ') || 'ok'); await b.close();

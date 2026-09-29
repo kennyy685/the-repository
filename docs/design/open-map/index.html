@@ -927,7 +927,7 @@ if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT
 /* the night brief's walks + street tiles (`map.walks`, `map.tiles`, hailhunter/mapwalk.py): each card's own walk (the
    Knock app's order, street by street, corner to corner: no door points) and real street lines where data/streets.json
    has none (Columbus, Schuyler, David City...). Names escaped, numbers checked; anything malformed is dropped. */
-const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},zwalks:{},tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
+const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:Object.create(null),zwalks:Object.create(null),tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
   const esc=(v)=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
     num=(v)=>typeof v==="number"&&isFinite(v),pt=(p)=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1]),
     line=(a)=>Array.isArray(a)&&a.every(pt),ints=(a)=>Array.isArray(a)&&a.length>=4&&a.every(num);
@@ -1593,7 +1593,7 @@ function drawFx(t,dt){const li=THEME==="light";FXW=li?"24,25,28":"255,255,255";F
 const cyc01=(t)=>((t-T0)%CYC)/CYC;
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function loop(t){if(T0===null){T0=t-((STORMS.s1&&(st.days-14)/st.days)||0)*CYC+900}const dt=Math.min(100,t-(lastT||t));lastT=t;
-  const moving=useGL&&map.isMoving();if(moving||t-lastDraw>30){lastDraw=t;drawFx(t,dt)}
+  const moving=useGL&&map.isMoving(),gap=st.sel?66:30;if(moving||t-lastDraw>gap){lastDraw=t;drawFx(t,dt)}   // 33 fps; 15 behind an open card (no focus rule: an artifact iframe is unfocused until the first click)
   if(!reduce)requestAnimationFrame(loop)}
 
 /* ---------- UI: text ---------- */
@@ -1862,7 +1862,7 @@ function renderTimeline(){
    left = plan (getting there, best streets, walk)  ·  right = proof
    ===================================================================== */
 const $=(id)=>document.getElementById(id);
-const idle=(fn)=>(window.requestIdleCallback||((f)=>setTimeout(f,60)))(fn);
+const idle=(fn)=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:2000}):setTimeout(fn,60);   // timeout: the FX loop keeps the thread busy, so idle work must still run
 const areaOf=(id)=>AREAS.find(x=>x.id===id);
 const lenM=(p)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot((p[i][0]-p[i-1][0])*KX,(p[i][1]-p[i-1][1])*KY);return s*1000};
 const hsh=(s)=>{let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
@@ -1890,6 +1890,16 @@ const esTime=(s)=>lang==="es"?s.replace(/\s?AM$/," a. m.").replace(/\s?PM$/," p.
 const clockMin=(s)=>{const m=s.match(/(\d+):(\d+)\s*(AM|PM)/);return(+m[1]%12+(m[3]==="PM"?12:0))*60+ +m[2]};
 const fmtDate=(iso)=>{const d=new Date(iso+"T12:00:00"),m=T.months[lang][d.getMonth()];return lang==="es"?`${d.getDate()} ${m}`:`${m} ${d.getDate()}`};
 const daysBetween=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+/* an area's "N days ago" reason, counted to TODAY's Nebraska date when the page is opened (FilthE 2026-09-29: the data
+   files are built the night before), plus where the time limit lives: the customer's policy (King 2026-09-29, QA: no
+   legal claim, no countdown, no "Deadline" badge at any age). Code-only fact, never on screen: a policy can't cut the
+   time to sue below 5 years (Neb. 44-357 + 25-205); notice limits are the policy's own. Same text as
+   hailhunter/season.py age_line. */
+const ctToday=(d=new Date())=>{try{return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Chicago"}).format(d)}catch(e){return TODAY}};
+function ageLine(n){return [n<=60?1:n<=150?0:-1,{en:`${n} days ago. Time limits to file are in the customer's policy; ask them to check it.`,
+  es:`Hace ${n} días. Los plazos para reportar están en la póliza del cliente; que la revise.`}]}
+function ageWhy(a,w,today){const tx=w&&w[1];if(!tx||!/^\d+ days ago\./.test(tx.en||"")||!/^d\d{8}$/.test(a.st||""))return w;
+  const n=daysBetween(a.st.slice(1,5)+"-"+a.st.slice(5,7)+"-"+a.st.slice(7,9),today||ctToday());return n>=0?ageLine(n):w}
 const addDays=(iso,n)=>{const d=new Date(iso+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
 /* sunset, minutes after local midnight (CDT, UTC-5; good until Nov 1) - NOAA / Wikipedia sunrise equation */
 function sunsetMin(ll,iso){const rad=Math.PI/180,D0=Date.parse(iso+"T00:00:00Z"),n=Math.ceil(D0/864e5+2440587.5-2451545+.0008),Js=n-ll[0]/360,
@@ -2046,7 +2056,7 @@ function renderCard(){
     <ul class="said">${a.rep.map(([src,txt,tm])=>`<li>${chip(src,L(txt).replace(/<[^>]+>/g,""),a.st)}<span>${L(txt)}</span><span class="tm">${tm?esTime(tm):""}</span></li>`).join("")}</ul>
     <div class="sec">${t("why")}</div>
     <div class="conf"><div class="meter"><i id="mt"></i><span class="tick" style="left:55%"></span><span class="tick" style="left:75%"></span></div>
-      <ul class="why">${a.why.map(([sg,txt])=>`<li><span class="s ${sg>0?"p":"m"}">${sg>0?"+":"−"}</span><span>${L(txt)}</span></li>`).join("")}</ul></div>
+      <ul class="why">${a.why.map(w=>ageWhy(a,w)).map(([sg,txt])=>`<li><span class="s ${sg>0?"p":"m"}">${sg>0?"+":"−"}</span><span>${L(txt)}</span></li>`).join("")}</ul></div>
     <div class="sec">${t("homesHere")}</div>
     <div class="stats">
       <div class="stat"><div class="k">${t("homesK")} ${chip(REAL?(a.hb?"cens":"acs"):"assr",fmt(a.homes)+" "+t("homes"),a.st)}</div><div class="v">${fmt(a.homes)}</div></div>
@@ -2201,7 +2211,7 @@ function setSel(id,fly=true){if(id)enterArea(id,{fly,push:fly});else exitArea()}
 function enterArea(id,{fly=true,push=true,cw=null}={}){const a=areaOf(id);if(!a)return;const first=!st.sel;clearPreview();
   if(cw&&!NIGHT_X.zwalks[cw])cw=null;
   if(first&&useGL&&mapReady)st.back={center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing(),padding:map.getPadding()};
-  if(!first&&st.sel===id){if(cw!==st.cw)switchCard(a,cw);return}
+  if(!first&&st.sel===id){if(cw&&cw!==st.cw)switchCard(a,cw);return}  // QA: a marker tap / stepArea (cw=null) keeps the open card's walk
   if(st.walk)clearWalk();st.hs=null;st.cw=cw;
   setFS(st.sel,"sel",false);st.sel=id;setFS(id,"sel",true);document.body.classList.add("area");
   Object.values(marks).forEach(m=>m.e.classList.toggle("sel",m.a.id===id));document.querySelectorAll(".row").forEach(r=>r.classList.toggle("sel",r.dataset.id===id));
@@ -2386,7 +2396,6 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
       ${K.W?`<div class="kwalk"><div><b>${K.W.doors}</b><small>${t("doors")}</small></div><div><b>${t("streetsN",K.k)}</b><small>${t("from")} ${K.st0}</small></div><div><b>${K.fu.length}</b><small>${t("fuOnWay")}</small></div></div>`:""}
       ${warn}
       <div class="kbtns"><button class="btn sm" data-walk="${K.a.id}"${K.z?` data-z="${escN(K.z)}"`:""}>${ic("route")}${t("openWalk")}</button><a class="btn sm go" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startK")}</a></div></div>`}
-  const walkSt=K&&K.W?K.X.s.slice(0,K.k).map(x=>x.n):[];
   const fus=DAY_PLAN.fu.map(f=>{const on=K&&f.area===K.a.id;return `<div class="fu"><span class="ad">${addr(f)} <span class="smp">${t("sampleW")}</span></span>
       <span class="ar">${L(areaOf(f.area).name)} · ${t("lastSeen",fmtDate(f.last))}${on?` · <em>${t("onWay")}</em>`:""}</span><span class="nt">${L(f.n)}</span></div>`}).join("");
   const aps=DAY_PLAN.ap.map(ap=>`<div class="ap ${ap.k}"><span class="at">${fmtClock(ap.at)}</span><span><span class="ad">${t(ap.k)} · ${addr(ap)} <span class="smp">${t("sampleW")}</span></span>
@@ -2472,7 +2481,7 @@ $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
   else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AX(a.id);toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
 $("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
-  if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
+  if(e.target.closest("#rpPlay")){RP.play=!RP.play;cancelAnimationFrame(RP.raf);if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});
 addEventListener("keydown",e=>{if(e.key==="Escape"){if(pop.classList.contains("on"))closePop();else if(!$("cmpw").hidden)closeCmp();else if(st.sel)goBack()}
   else if(st.sel&&(e.key==="ArrowLeft"||e.key==="ArrowRight")&&$("cmpw").hidden&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();stepArea(e.key==="ArrowLeft"?-1:1)}});
@@ -2530,7 +2539,7 @@ let tt;function toast(msg){const e=document.getElementById("toast");e.textConten
 
 /* ---------- real data: load, decode, apply ---------- */
 function applyBase(b){BASE=b;
-  onGL(()=>{map.getSource("base").setData(b);makeRelief()});
+  onGL(()=>{map.getSource("base").setData(b);idle(makeRelief)});   // relief is decorative and heavy: after first paint
   // snap highway shields onto the real highway lines
   const hw=b.features.filter(f=>f.properties.k==="hwy");
   roadLabels.forEach(l=>{let best=null,bd=1e9;hw.filter(f=>f.properties.n===l.name).forEach(f=>f.geometry.coordinates.forEach(p=>{const d=(p[0]-l.ll[0])**2+(p[1]-l.ll[1])**2;if(d<bd){bd=d;best=p}}));if(best)l.ll=best});
@@ -2573,7 +2582,7 @@ function applyHomes(h){const S=h.r,kx=h.kx,ky=h.ky,g=.8*S,R3=Math.sqrt(3);
       const k=reduce?1:Math.min(1,(now-t0)/1500),e=1-Math.pow(1-k,3);hexK=to*e;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());if(k<1)requestAnimationFrame(up)};
     setTimeout(()=>requestAnimationFrame(up),250)});
   renderToggles();renderStrip()}
-const getJSON=(n)=>fetch("data/"+n+".json").then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.json()});
+const getJSON=(n)=>fetch("data/"+n+".json",window.AbortSignal&&AbortSignal.timeout?{signal:AbortSignal.timeout(20000)}:undefined).then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.json()});   // a stalled file falls back (each caller's catch) instead of waiting forever
 function loadData(){
   getJSON("base").then(applyBase).catch(e=>{console.warn("basemap data not loaded, using drawn fallback",e);
     onGL(()=>["fb-city","fb-grid","fb-river","fb-road","fb-street"].forEach(id=>map.setLayoutProperty(id,"visibility","visible")))});

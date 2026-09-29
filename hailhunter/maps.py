@@ -166,7 +166,7 @@ def draw(conn, cfg, day, near=None, radius_mi=None, out=None):
     side.text(1.0, 0.965, "score", fontsize=7.5, color=MUTED, va="top", ha="right")
     days_ago = json.loads(hoods[0]["score_parts"])["days_ago"] if hoods else None
     if days_ago is not None and days_ago > 300:
-        side.text(0, yy - 0.01, f"Note: this storm was {days_ago} days ago. Claim deadlines depend on each\n"
+        side.text(0, yy - 0.01, f"Note: this storm was {days_ago} days ago. Time limits to file are in each\n"
                   "homeowner's policy; older storms score lower.", fontsize=7.5, color=INK2, va="top")
 
     out = out or os.path.join(cfg["paths"]["export"], "maps",

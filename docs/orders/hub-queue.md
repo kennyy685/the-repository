@@ -8,15 +8,15 @@ round trip, starts the next QUEUED chunk itself (create_session, title "Builder 
 claude/amazing-gauss-yzfpq0, prompt = this file's chunk + the same done-rules + this no-gaps rule), marks it RUNNING
 here with the session id, pushes, then archives itself. The King polls every 5 min as a backup. Specs: docs/design/hub-office/.
 
-1. RUNNING  Live hub: robots + board + instant answers built from real sessions/events (session_013wezScDeoduPTP4moTMHqb)
-2. QUEUED   Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
-3. QUEUED   "Why" line on each robot (#8)
-4. QUEUED   One-tap fresh chat / Hand off button (#3)
-5. QUEUED   Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
-6. QUEUED   Sunday report card (#9)
-7. QUEUED   v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
-8. QUEUED   Top 12 conveniences (CONVENIENCES.md)
-Chunks 2-4 may go to one Builder together; 5-6 together; 7-8 together (3 Builders total after the live hub).
+1. DONE     Live hub v33: robots + board + instant answers built from real sessions (list_sessions every 60 s; published 2026-09-29, finished by session_01CsyPqrNV48JSKXdYQXqqXz)
+2. DONE     Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
+3. DONE     "Why" line on each robot (#8)
+4. DONE     One-tap fresh chat / Hand off button (#3)
+5. DONE     Unfinished-merge watch + one Merge button (King merges after his Yes) (#5)
+6. DONE     Sunday report card (#9)
+7. DONE     v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
+8. DONE     Top 12 conveniences (CONVENIENCES.md)
+Chunks 2-4 = v34 LIVE (Version 36). Chunks 5-8 = v35 LIVE (Version 37), 2026-09-29. AFTER ALL sync RUNNING in session_01MrJx1CPcGLuhKFmLYsqJDG.
 
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for

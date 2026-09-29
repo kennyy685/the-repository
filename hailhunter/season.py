@@ -272,8 +272,14 @@ def days_ago(storm, today, tz="America/Chicago"):
 
 
 def age_line(age):
-    """The zone why-line for the storm's age (the same line in season zones and the night brief's map areas)."""
-    return [1 if age <= 60 else (0 if age <= 150 else -1), {"en": f"{age} days ago.", "es": f"Hace {age} días."}]
+    """The zone why-line for the storm's age + where the time limit lives: the customer's policy (FilthE 2026-09-29; King
+    + QA: no legal claim, no countdown, no "Deadline" badge at any age). Code-only fact, never on screen: a policy can't
+    cut the time to sue below 5 years (Neb. 44-357 + 25-205); notice limits are the policy's own. The open map
+    (docs/design/open-map/index.html ageLine) writes the same text, re-dated to the day it is opened."""
+    age = max(0, age)   # a storm dated after "today" (clock skew, a late-night CT report) never reads "-1 days ago"
+    return [1 if age <= 60 else (0 if age <= 150 else -1),
+            {"en": f"{age} days ago. Time limits to file are in the customer's policy; ask them to check it.",
+             "es": f"Hace {age} días. Los plazos para reportar están en la póliza del cliente; que la revise."}]
 
 
 def _why(z, sig, age, sc):

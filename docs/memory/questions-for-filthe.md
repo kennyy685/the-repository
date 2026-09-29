@@ -67,6 +67,11 @@ screen making an idea come to reality." So: don't ask him HMP operations questio
 the boss's plans). Those go on the list below for the boss, asked only when a decision truly needs them, or we learn
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
+- **Open map "days ago" (2026-09-29):** (1) cards count from today, not the day the data was built: **yes**. (2) What the
+  age line should tell him at the door: **the claim deadline**. Built as (King + QA, 2026-09-29, no legal claim on screen): "52 days ago. Time limits to file are in the
+  customer's policy; ask them to check it." / "Hace 52 días. Los plazos para reportar están en la póliza del cliente;
+  que la revise." No countdown or "Deadline" badge at any age (the 5-year suit floor stays a code comment only).
+
 ## Open, for FilthE (asked 2026-09-28)
 - Say "publish Practice Door" (v12 = v11's 20-day plan and 15 objections EN/ES, plus the rest of the sale: 10 new
   homeowners after the knock, Fremont houses, tighter legal checks)?
@@ -85,6 +90,8 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - Contract at the door: signed on printed paper, or on the screen with a finger? Nothing changed yet; the app stays as it is until you pick. King's pick: screen, paper as backup.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
+- May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /
+  "estimate" (King, 2026-09-29). Also decides the translator word list's "free inspection" entry (still there, allow-listed). Added 2026-09-29.
 - What wording HMP puts on a damage report that goes to a carrier: photos + counts only, or notes too? (claim checklist, 2026-09-28)
 - FilthE's commission % per job: the biggest lever in his $100k plan (10% = ~83 jobs, 30% = ~28). Added 2026-09-28.
 - Hours a week he can give to knocking/selling, and what pulls him away.

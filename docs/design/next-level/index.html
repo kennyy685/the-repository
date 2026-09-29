@@ -1,0 +1,138 @@
+<meta charset="utf-8">
+<title>Aldaba Next Level</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&display=swap">
+<style>
+@font-face{font-family:"Bricolage L";src:url(shared/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Geist L";src:url(shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(shared/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(shared/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+/* Layout: one column of three wide "screens"; each is a MacBook-sized still with its own switches, pick first in the reading order. */
+:root{
+  color-scheme:dark;
+  --page:#07080a;--panel:#111214;--rule:rgba(255,255,255,.08);--rule-2:rgba(255,255,255,.16);
+  --text:#f1f2f4;--text-2:#b8bbc2;--muted:#80838b;--chip:#1c1d21;
+  --acc:#f5883a;--on-acc:#1b1206;--acc-bg:rgba(245,136,58,.14);--acc-ink:#ffa766;
+  --display:"Bricolage Grotesque","Bricolage L",system-ui,sans-serif;
+  --ui:"Geist","Geist L",system-ui,-apple-system,sans-serif;
+  --mono:"Geist Mono","Geist Mono L",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;
+  --page:#eef0ee;--panel:#ffffff;--rule:rgba(24,25,28,.09);--rule-2:rgba(24,25,28,.18);
+  --text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--chip:#e6e8e6;--acc-bg:#fdf1e7;--acc-ink:#a4520f}}
+:root[data-theme="light"]{color-scheme:light;
+  --page:#eef0ee;--panel:#ffffff;--rule:rgba(24,25,28,.09);--rule-2:rgba(24,25,28,.18);
+  --text:#18191c;--text-2:#3d3f45;--muted:#6c6f77;--chip:#e6e8e6;--acc-bg:#fdf1e7;--acc-ink:#a4520f}
+*{box-sizing:border-box}
+html,body{background:var(--page);color:var(--text)}
+body{font:15px/1.55 var(--ui);padding-inline:clamp(16px,4vw,56px);padding-block:28px 64px}
+:root:not([data-lang="es"]) .es,:root[data-lang="es"] .en{display:none!important}
+.wrap{max-width:1240px;margin:0 auto;display:grid;gap:40px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:650 17px/1 var(--display);letter-spacing:-.01em}
+.brand svg{width:26px;height:26px;color:var(--acc)}
+.sw{display:flex;gap:6px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:999px;padding:3px;background:var(--panel)}
+.seg button{font:500 13px/1 var(--ui);color:var(--text-2);background:none;border:0;border-radius:999px;padding:7px 12px;cursor:pointer;transition:background-color .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--page)}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.hero{display:grid;gap:14px;max-width:62rem}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+h1{margin:0;font:700 clamp(40px,6.4vw,84px)/.98 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.035em;text-wrap:balance}
+.lede{margin:0;font-size:18px;color:var(--text-2);max-width:40em}
+.dir{display:grid;gap:16px;padding-top:28px;border-top:1px solid var(--rule)}
+.dh{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.dh h2{margin:0;font:680 clamp(28px,3.4vw,40px)/1.05 var(--display);letter-spacing:-.025em;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.dh h2 .l{font:500 14px/1 var(--mono);color:var(--muted)}
+.pick{font:600 12px/1 var(--ui);letter-spacing:.04em;text-transform:uppercase;color:var(--on-acc);background:var(--acc);padding:6px 10px;border-radius:999px}
+.meta{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px}
+.meta p{margin:0;color:var(--text-2);max-width:62ch}
+.meta b{color:var(--text);font-weight:600}
+.small{font-size:13px;color:var(--muted)}
+.shot{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--rule-2);background:#000;aspect-ratio:1440/900;max-width:100%;box-shadow:0 40px 80px -40px rgba(0,0,0,.7)}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--ui);text-decoration:none;color:var(--on-acc);background:var(--acc);padding:11px 16px;border-radius:10px;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2)}
+footer{border-top:1px solid var(--rule);padding-top:20px;font-size:13px;color:var(--muted);display:grid;gap:6px}
+footer a{color:var(--text-2)}
+@media (max-width:760px){.meta{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="var(--text)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="var(--text)"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="var(--acc)" stroke-width="5"/></svg>Aldaba</div>
+    <div class="sw">
+      <div class="seg" role="group" aria-label="Language"><button id="l-en" aria-pressed="true">EN</button><button id="l-es" aria-pressed="false">ES</button></div>
+      <div class="seg" role="group" aria-label="Screenshots"><button id="t-dark" aria-pressed="true"><span class="en">Dark</span><span class="es">Oscuro</span></button><button id="t-light" aria-pressed="false"><span class="en">Light</span><span class="es">Claro</span></button></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="en">Next level · the 7 AM open · pick one</span><span class="es">Siguiente nivel · la apertura de las 7 AM · escoge una</span></div>
+    <h1><span class="en">Three ways to open your day.</span><span class="es">Tres maneras de abrir tu día.</span></h1>
+    <p class="lede"><span class="en">Same real data in all three: Aldaba's pick (Columbus, 22 St &amp; 21 St, 1.64 in hail on Aug 8, 25 doors), 12 ranked zones, 18 real storm days, real Nebraska streets. Homes are samples. Open each one live to see its opening moment.</span><span class="es">Los mismos datos reales en las tres: la elección de Aldaba (Columbus, 22 St y 21 St, granizo de 1.64 pulg. el 8 de agosto, 25 puertas), 12 zonas en orden, 18 días de tormenta reales y calles reales de Nebraska. Las casas son de muestra. Abre cada una en vivo para ver su momento de apertura.</span></p>
+  </section>
+
+  <section class="dir" id="dir-b">
+    <div class="dh"><h2><span class="l">B</span><span class="en">The Brief</span><span class="es">El Resumen</span></h2><span class="pick"><span class="en">Our pick</span><span class="es">Nuestra elección</span></span></div>
+    <div class="shot"><img data-d="b" src="b/shots/dark-en.png" alt="The Brief at 1440 by 900" loading="lazy"></div>
+    <div class="meta">
+      <p><span class="en">Aldaba writes your morning like an Apple keynote title card: <b>"Columbus. 25 doors. 4–7:30 PM."</b> On the right, hail from 18 real storms becomes glowing contour lines, with a close-up of the walk.</span><span class="es">Aldaba escribe tu mañana como una portada de keynote de Apple: <b>"Columbus. 25 puertas. 4–7:30 p. m."</b> A la derecha, el granizo de 18 tormentas reales se vuelve curvas de nivel que brillan, con un acercamiento de la ruta.</span></p>
+      <div style="display:grid;gap:10px;align-content:start">
+        <p class="small"><span class="en">Wow: the headline writes itself while hail contours ripple out from the Aug 8 core, then the walk draws itself door to door.</span><span class="es">Wow: el título se escribe solo mientras las curvas de granizo se expanden desde el centro del 8 de agosto; luego la ruta se dibuja puerta por puerta.</span></p>
+        <p class="small"><span class="en">Inspired by:</span><span class="es">Inspirado en:</span> Apple keynote title cards · Linear 2026 calm refresh · Swisstopo atlas contours · Inigo Quilez contour shaders</p>
+        <div class="row"><a class="btn" data-live="b" href="b/index.html"><span class="en">Open live</span><span class="es">Abrir en vivo</span> →</a></div>
+      </div>
+    </div>
+  </section>
+  <section class="dir" id="dir-a">
+    <div class="dh"><h2><span class="l">A</span><span class="en">Storm Room</span><span class="es">Cuarto de Tormenta</span></h2></div>
+    <div class="shot"><img data-d="a" src="a/shots/dark-en.png" alt="Storm Room at 1440 by 900" loading="lazy"></div>
+    <div class="meta">
+      <p><span class="en">The whole screen is a live night map. The Aug 8 storm paints itself with Windy-style flow particles, the camera flies from the region down into the Columbus streets, and the pick card assembles on glass.</span><span class="es">Toda la pantalla es un mapa nocturno en vivo. La tormenta del 8 de agosto se pinta sola con partículas de flujo estilo Windy, la cámara baja de la región a las calles de Columbus y la tarjeta de la elección se arma sobre vidrio.</span></p>
+      <div style="display:grid;gap:10px;align-content:start">
+        <p class="small"><span class="en">Wow: overnight replay: swath paints, particles stream, one smooth fly into town, zones light up as heat.</span><span class="es">Wow: repetición de la noche: la franja se pinta, las partículas fluyen, un solo vuelo suave al pueblo y las zonas se encienden como calor.</span></p>
+        <p class="small"><span class="en">Inspired by:</span><span class="es">Inspirado en:</span> earth.nullschool / Windy (Agafonkin wind map) · Apple Liquid Glass · Apple Weather · Linear</p>
+        <div class="row"><a class="btn" data-live="a" href="a/index.html"><span class="en">Open live</span><span class="es">Abrir en vivo</span> →</a></div>
+      </div>
+    </div>
+  </section>
+  <section class="dir" id="dir-c">
+    <div class="dh"><h2><span class="l">C</span><span class="en">Deck</span><span class="es">Consola</span></h2></div>
+    <div class="shot"><img data-d="c" src="c/shots/dark-en.png" alt="Deck at 1440 by 900" loading="lazy"></div>
+    <div class="meta">
+      <p><span class="en">A 3D instrument deck. Columbus as a tilted model with its real streets, the 25 homes as glowing columns lit by hail, the other zones as hex clusters. Pick, top 12, plan, overnight and a 90-day timeline sit around it, all on one screen.</span><span class="es">Una consola de instrumentos en 3D. Columbus como maqueta inclinada con sus calles reales, las 25 casas como columnas que brillan según el granizo y las demás zonas como grupos de hexágonos. La elección, las 12 mejores, el plan, lo de anoche y una línea de 90 días alrededor, todo en una pantalla.</span></p>
+      <div style="display:grid;gap:10px;align-content:start">
+        <p class="small"><span class="en">Wow: the timeline sweeps 90 days; at Aug 8 the swath crosses town and the home columns rise one by one in walk order.</span><span class="es">Wow: la línea de tiempo recorre 90 días; al llegar al 8 de agosto la franja cruza el pueblo y las columnas de casas suben una por una en el orden de la ruta.</span></p>
+        <p class="small"><span class="en">Inspired by:</span><span class="es">Inspirado en:</span> deck.gl column/hexagon layers · Furnas fisheye focus+context · NASA Open MCT · Apple Liquid Glass</p>
+        <div class="row"><a class="btn" data-live="c" href="c/index.html"><span class="en">Open live</span><span class="es">Abrir en vivo</span> →</a></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div><span class="en">Screens at 1440×900 (MacBook Air). Mockups only: the live app is untouched. The Builder builds the one you pick.</span><span class="es">Pantallas a 1440×900 (MacBook Air). Solo maquetas: la app en vivo no se tocó. El Builder construye la que escojas.</span></div>
+    <div><span class="en">Research borrowed from:</span><span class="es">Ideas tomadas de:</span> <a href="https://developer.apple.com/videos/play/wwdc2025/219/">Apple Liquid Glass (WWDC25)</a> · <a href="https://linear.app/now/behind-the-latest-design-refresh">Linear 2026 refresh</a> · <a href="https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f">Agafonkin wind map (Windy-style particles)</a> · <a href="https://vercel.com/design/guidelines">Vercel interface guidelines</a> · <a href="https://www.stan.vision/journal/ux-ui-trends-shaping-digital-products">2026 UI trends</a></div>
+    <div><span class="en">Data: Nebraska GIS streets, NOAA/MRMS storm reports via the HailHunter engine, US Census ACS.</span><span class="es">Datos: calles de Nebraska GIS, reportes de tormenta NOAA/MRMS vía el motor HailHunter, Censo ACS.</span></div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,lang='en',theme='dark';
+  function paint(){
+    root.setAttribute('data-lang',lang);root.setAttribute('data-theme',theme);
+    document.getElementById('l-en').setAttribute('aria-pressed',lang==='en');document.getElementById('l-es').setAttribute('aria-pressed',lang==='es');
+    document.getElementById('t-dark').setAttribute('aria-pressed',theme==='dark');document.getElementById('t-light').setAttribute('aria-pressed',theme==='light');
+    document.querySelectorAll('img[data-d]').forEach(function(im){im.src=im.dataset.d+'/shots/'+theme+'-'+lang+'.png'});
+    document.querySelectorAll('a[data-live]').forEach(function(a){a.href=a.dataset.live+'/index.html?theme='+theme+'&lang='+lang});
+    try{localStorage.setItem('nl',JSON.stringify({lang:lang,theme:theme}))}catch(e){}
+  }
+  try{var s=JSON.parse(localStorage.getItem('nl')||'null');if(s){lang=s.lang||lang;theme=s.theme||theme}}catch(e){}
+  document.getElementById('l-en').onclick=function(){lang='en';paint()};document.getElementById('l-es').onclick=function(){lang='es';paint()};
+  document.getElementById('t-dark').onclick=function(){theme='dark';paint()};document.getElementById('t-light').onclick=function(){theme='light';paint()};
+  paint();
+})();
+</script>
