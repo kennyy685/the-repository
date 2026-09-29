@@ -4,6 +4,29 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
+## FIRST, as the new King (written 2026-09-29 16:36 UTC by King session_012p3ZTer2rTFHRkMNcY2sK3)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
+1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_01CyKokDYaTgp65aKvHDMVxa's prompt
+   with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session) and
+   system/robots.dispatch.king; update CLAUDE.md's trigger line. Disable (never delete) trig_01CyKokDYaTgp65aKvHDMVxa,
+   then archive session_012p3ZTer2rTFHRkMNcY2sK3. Self-test the timed wake (update_trigger run_once_at ~1 min out).
+   Also disable my pending check-in if it hasn't fired (send_later trigger ids from 16:12: trig_018xwS6C fired; none pending).
+2. ONE robot left: session_01JH3N6TYXtFVNW4aiw3zVCp "Builder (ultracode): hub list continued" = publish hub v34
+   (fix-it buttons, why line, Hand off; built + QA-fixed in bcb386b) then chunks 5-6 and 7-8 of docs/orders/hub-queue.md,
+   chaining fresh Builders itself. Check every ~20 min (send_later); replace it if idle >15 min. After each hub publish:
+   REAL round trip (a real FilthE order's event shows wake:"ok" and your chat wakes); v33 not yet round-tripped (no FilthE
+   hub message since 15:00Z).
+3. WHEN THE HUB LIST IS DONE: sync check (release checks + pytest on claude/amazing-gauss-yzfpq0), PR #7 status
+   (https://github.com/kennyy685/the-repository/pull/7, FilthE clicks Merge), refresh docs/orders/everything-we-have.md,
+   then ONE hub ping to "you" (3 blocks, grouped by area) with: the summary, the looks compare link
+   https://claude.ai/artifact/WSJ7sbTfAuB8buTtNLz1gv, the PR link, and the questions in docs/memory/questions-for-filthe.md
+   "Open for the final ping" (5 items). Then stop starting new work and wait for his next ask.
+4. DONE today since 15:05 (all archived): open map v15 ('days ago' line, 15:13), HMP App v15 + Practice Door v16 (no-free,
+   contract 'charges nothing', 15:51), hub v33 live board (16:05), HMP HQ v3 code-health (16:12), 3 looks (Designer).
+   FilthE asked in the King chat at ~15:57 "still working or done?" -> told him: still working, one ping when done; he said OK.
+5. Report card note: robots still end turns "waiting on QA at HH:MM" (code-health 01RRaZWW sat 19 min). Put "never wait on
+   a timer; QA inline with a subagent" in every robot prompt.
+
 ## 2026-09-29 15:05 UTC: King session_012p3ZTer2rTFHRkMNcY2sK3 took over
 - Wake trigger trig_01CyKokDYaTgp65aKvHDMVxa (hub system/king + robots.dispatch.king); trig_015MsCgj disabled;
   session_01SyVaPZ archived. Designer session_01Us5Ubj done (compare page WSJ7sbTf; its question = FilthE's pick, in final ping).
