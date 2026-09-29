@@ -940,10 +940,11 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <div class="mrow"><h3 class="lbl" id="mSoundL" data-t="mSoundH">Sound</h3>
     <div class="sndrow"><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><input type="range" id="mVol" min="0" max="100" step="5" aria-labelledby="mSoundL" aria-label="Volume"><button type="button" class="tb" id="mCheck" data-t="mCheck">Sound check</button></div>
     <p class="src" data-t="mSoundS">Off until you turn it on. Quiet from 10 PM to 7 AM, except hail.</p></div>
-  <div class="mrow two"><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button></div>
+  <div class="mrow two"><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button><button type="button" class="tb" id="m3d" aria-pressed="true">3D room on</button></div>
   <div class="mrow foot2"><button type="button" class="btn" id="mReset" data-t="mReset">Reset</button></div>
 </section>
 <div class="keys" id="keys" hidden role="dialog" aria-modal="false" aria-labelledby="keysH"><div class="keys-in"><div class="keys-h"><h2 id="keysH" data-t="keysH">Keys</h2><button type="button" class="ibtn" id="keysX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><dl id="keysList"></dl><button type="button" class="tb" id="keysMine"><span class="k" aria-hidden="true">◇</span><span data-t="mineH">Make it yours</span></button></div></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <script>
 (() => {
 'use strict';
@@ -998,11 +999,11 @@ const TX = {
     typeIt: 'Type…', titleNeeds: (n, who) => `(${n}) ${who} needs you — ${hubName()}`,
     task: {h: 'Task', owner: 'Owner', status: 'Status', age: 'Age', log: 'Log', ans: 'Answers', none: 'This task isn’t on the board any more.', nolog: 'Nothing in the log names it yet.'},
     namesOff: 'Names show on hover. N shows them all.', namesOn: 'Every name shown. N hides them again.',
-    mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, custom: 'Your own color',
+    mine: 'Make it yours', lowT: on => `Reduced effects ${on ? 'on' : 'off'}`, t3d: on => `3D room ${on ? 'on' : 'off'}`, custom: 'Your own color',
     swW: {champagne: 'Champagne', pearl: 'Pearl', sage: 'Sage', glacier: 'Glacier', rose: 'Rose gold', brass: 'Brass'},
     dollyHint: 'Scroll to move in · N for every name · V for status',
     run: t => `the ${t} run`, rides: (t, m) => `Rides the ${t} run · in ${m} min`, ridesNight: t => `Saved. Rides the ${t} run. Nothing runs while you sleep.`, wakeNow: 'Wake now', woke: 'Waking Claude Code now.',
-    midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
+    heldWake: 'Your answers are saved. Tap Wake now to tell the King.', midRun: 'The King is live and busy with something else; it gets this the moment it is free.', saving: 'Saving mode · instant wakes resume after the next successful call',
     allNormal: (n, t) => `All normal · ${n} working · next run ${t}`, quietDesign: t => `Quiet by design · next run ${t}`,
     missed: m => `No reply from the King in ${m} min · it is live, this should take about a minute`, runNow: 'Check now',
     swMiss: 'Storm Watch didn’t run at 6:54 AM · the Mac was probably asleep or Cowork was closed', kfet: 'storms at Fremont airport overnight',
@@ -1070,7 +1071,7 @@ const TX = {
     awayH: h => `While you were away · ${h} h`, awayT: (d, s, n) => [`${d} done`, `${s} stuck`, `${n} ${pl(n, 'needs', 'need')} you`].join(' · '),
     kcWhy: {preview: 'Live chat works on the published hub.', nodb: 'Live data isn’t available here, so the Right Hand can’t read the crew.', editor: 'The Right Hand talks here when you open the hub signed in as its editor.', grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', wait: 'Connecting…'},
     fk: {btn: 'Fresh King', ask: 'Start a fresh King? The old one writes its notes, then hands off.', mem: k => `King memory ${k}k`, full: k => `King memory ${k}k · getting heavy, start a fresh one`,
-      starting: m => `New King starting · ${m} min`, started: 'Starting a fresh King. It says hello here in a few minutes.', live: 'The new King is live.',
+      starting: m => `New King starting · ${m} min`, started: 'Starting a fresh King. It says hello here in a few minutes.', unsure: 'No answer yet. A King may still be starting: check Chats before you tap again.', live: 'The new King is live.',
       fail: 'Couldn’t start a fresh King. The hub needs its Claude Code Remote permission; reload, allow it, and try again.'},
     kt: {title: 'King', sub: 'SMUIPO · answers in seconds · orders go straight to the live King', instant: 'instant',
       st: {sending: 'Sending…', thinking: 'Thinking…', answered: 'Answered here', also: 'Send to the King too', toKing: 'Sent to the King', gotIt: 'King got it',
@@ -1080,7 +1081,7 @@ const TX = {
       ph: 'Message the King…', rhPh: 'Tell the Right Hand…', label: 'Message to the King', rhLabel: 'Message to the Right Hand', king: 'King', you: 'You',
       sent: 'Sent', waking: 'Waking the King…', waiting: m => m < 1 ? 'The King has it. Reply in a minute or two.' : `Waiting on the King · ${m} min`, late: m => `No reply in ${m} min. The King may be busy on a long job; your message is saved.`,
       off: t => `Saved. Instant wake is off, so the King reads it at the ${t} run.`, fail: 'Not sent. Check your signal and try again.', replied: 'The King replied.', none: 'Messages to the King work when you open the hub signed in as its editor.'},
-    copied: 'Copied.', kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
+    copied: 'Copied.', kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.', kcSlow: 'No answer after 2 minutes. Send it again.',
     kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). It works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
     rc: {fail: a => `Not saved: ${a}. Only editors can save here.`, dedReply: 'The reply was held back: it talked about covering a deductible, which is illegal in Nebraska (44-8604).'},
     useApp: 'Not logged here. Doors, leads, claims and money go in the HMP App chat.', wakeOk: 'Claude Code is on it now.', wakeLater: 'Saved. Claude Code picks it up at its next run.'
@@ -1146,6 +1147,7 @@ const THEME0 = {work:'#f1c48a', idle:'#cdb896', need:'#f5883a', stuck:'#d9483b',
 let panelState = store.get('hub-panel') === 'closed' ? 'closed' : 'open';
 const panelOpen = () => !isWide || panelState === 'open';
 const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*performance.now()/5000));   // the shared 5 s "needs you" breath
+let sceneOff = false;   // the 3D room is off for this load (still view): why, or false
 const HUB = window.HUB = {
   RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
   sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [],
@@ -1154,7 +1156,9 @@ const HUB = window.HUB = {
   get area(){ const W = stageEl.clientWidth, H = stageEl.clientHeight;   // the rect the camera frames the room in (stage px)
     return isWide ? {x0:40, y0:88, x1:panelOpen() ? W - 420 : W - 40, y1:H - 64} : {x0:-12, y0:46, x1:W + 12, y1:H - 50}; },
   get panel(){ return panelOpen() ? 'open' : 'closed'; },   // CONTRACT v3
-  fallback(){ document.getElementById('app').classList.add('no-gl'); const h = $('#hint'); h.textContent = L().still; h.style.opacity = 1; },
+  fallback(why){ sceneOff = why || 'still'; if (window.SCENE) window.SCENE.ready = false;   // the still view, and the render loop stops (it used to keep drawing behind it)
+    document.getElementById('app').classList.add('no-gl'); const h = $('#hint'); h.textContent = L().still; h.style.opacity = 1;
+    if (why === 'slow') store.set('hub-3d-slow', String(Date.now())); },
   layout(){ layout(); }
 };
 
@@ -1266,7 +1270,8 @@ function skyAt(min){
   for (const key of ['alt','stars','lights']) o[key] = k0[key] + (k1[key] - k0[key])*t;
   return o;
 }
-function centralMinute(){ try { const p = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', hour:'numeric', minute:'numeric', hour12:false}).formatToParts(new Date());
+const cmFmt = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', hour:'numeric', minute:'numeric', hour12:false});   // built once: centralMinute runs every frame
+function centralMinute(){ try { const p = cmFmt.formatToParts(new Date());
   const h = +p.find(x => x.type === 'hour').value % 24, m = +p.find(x => x.type === 'minute').value; return h*60 + m; } catch (e) { const d = new Date(); return d.getHours()*60 + d.getMinutes(); } }
 const skyEl = document.getElementById('sky');
 function updateSky(dt){
@@ -1365,7 +1370,6 @@ const IC = {
   chev:'<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>',
   x:'<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>'
 };
-const stColor = st => st7c(ST7_OF[st] || st);
 /* one status word for rows, cards and the rail: takes a 7-state id or an old status */
 const stWord = (st, word) => { const s = ST7_OF[st] || st; return '<span class="stw" style="--c:' + st7c(s) + ';--ci:var(--in-' + s + ')">' + glyph(s) + esc(word || L().st7[s] || s) + '</span>'; };
 const s7Of = a => a.st7 || ST7_OF[shownSt(a)] || 'idle';
@@ -1820,6 +1824,7 @@ async function sendAnswer(id, answer, note, q, to, opts){
     if (SAMPLE && CAN_EDIT && !who && answer === 'Reply') askKing(`I answered ${id} ("${q.slice(0, 200)}"): ${note}`, true);   // only typed replies get a Right Hand follow-up (#1.7)
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); refreshAll(); renderCard(true); }
 }
+$('#boardBody').addEventListener('focusout', () => setTimeout(() => { if (renderBoard.later) { renderBoard.later = false; renderBoard(); } }, 0));   // what waited while he typed
 function wireAnswers(root){
   for (const row of root.querySelectorAll('.ans')) {
     for (const b of row.querySelectorAll('button[data-a]')) b.dataset.q = row.dataset.q;   // each answer button names its question
@@ -1854,9 +1859,9 @@ function kingHtml(){
 const doneOpen = new Set();
 const GROUP_ORDER = ['blocked', 'doing', 'review', 'todo', 'parked'];
 function renderBoard(){
-  const box = $('#boardBody'), T = L();
-  $('#ordersBox').innerHTML = kingHtml();
-  if (!board) { box.innerHTML = '<p class="empty">' + esc(T.bEmpty) + '</p>'; $('#boardSrc').textContent = ''; return; }
+  const box = $('#boardBody'), T = L(), kh = kingHtml();
+  if (kh !== renderBoard.kh) { renderBoard.kh = kh; $('#ordersBox').innerHTML = kh; }
+  if (!board) { box.innerHTML = '<p class="empty">' + esc(T.bEmpty) + '</p>'; renderBoard.sig = ''; $('#boardSrc').textContent = ''; return; }
   const row = x => { const k = statusKey(x.status), ta = taskAge(x), qd = quietDays(x);
     return '<li><button type="button" class="trow s-' + k + '" data-sel="t:' + esc(x.id) + '" aria-pressed="' + (selected === 't:' + x.id) + '">' + (isNewTask(x) ? '<i class="new-dot" aria-hidden="true"></i>' : '') + '<span class="tid">' + esc(x.id) + '</span><span class="tt">' + esc(x.task) + '</span><span class="tmeta"><span class="own' + (isHuman(x.owner) ? ' human' : '') + '">' + esc(ownerLabel(x.owner)) + '</span>' +
       (x._next ? '<span class="nx">' + esc(T.nextTag) + '</span>' : '') + (ta ? '<span class="num">' + esc(sinceText(ta).replace('+', '')) + '</span>' : '') + (qd ? '<span class="qdays">' + esc(T.quietD(qd)) + '</span>' : '') + '</span></button></li>'; };
@@ -1871,9 +1876,14 @@ function renderBoard(){
   if (done.length) html += '<details class="fold" data-g="done"' + (doneOpen.has('done') ? ' open' : '') + '><summary class="lbl">' + esc(T.groups.done) + ' · ' + done.length + '</summary><ul class="tasks">' + done.map(row).join('') + '</ul></details>';
   if (answered.length) html += '<details class="fold" data-g="answered"' + (doneOpen.has('answered') ? ' open' : '') + '><summary class="lbl">' + esc(T.answeredH) + ' · ' + answered.length + '</summary><div>' +
     answered.map(x => '<div class="qrow"><span class="qid">' + esc(x.id) + '</span>' + esc(x.q) + answerBlock(x.id, x.q) + '</div>').join('') + '</div></details>';
-  box.innerHTML = html || '<p class="empty">' + esc(T.noneOpen) + '</p>';
-  wireAnswers(box);
-  for (const d of box.querySelectorAll('details[data-g]')) d.addEventListener('toggle', () => { if (d.open) doneOpen.add(d.dataset.g); else doneOpen.delete(d.dataset.g); });
+  html = html || '<p class="empty">' + esc(T.noneOpen) + '</p>';
+  // rebuild only when it changed, and never under his hands: a half-typed answer or a button mid-press stays put
+  const busy = [...box.querySelectorAll('.ans input')].some(i => (i === document.activeElement || i.value.trim()) && !i.closest('.ans').querySelector('button:disabled'));   // a row mid-send doesn't count
+  if (html !== renderBoard.sig && !busy) {
+    renderBoard.sig = html; box.innerHTML = html;
+    wireAnswers(box);
+    for (const d of box.querySelectorAll('details[data-g]')) d.addEventListener('toggle', () => { if (d.open) doneOpen.add(d.dataset.g); else doneOpen.delete(d.dataset.g); });
+  } else if (busy && html !== renderBoard.sig) renderBoard.later = true;
   const ms = Date.parse(board.updatedAt || board.syncedAt || '');
   $('#boardSrc').textContent = ms ? T.bUpdated(ago(ms), board.updatedBy || '') : '';
   writeStale();
@@ -2348,6 +2358,7 @@ function renderMine(){
   $('#mSound').textContent = T.soundT(dingOn); $('#mSound').setAttribute('aria-pressed', String(dingOn));
   const mv = $('#mVol'); if (document.activeElement !== mv) mv.value = String(Math.round(vol*100)); mv.setAttribute('aria-valuetext', Math.round(vol*100) + '%');
   $('#mLow').textContent = T.lowT(!!mine.low); $('#mLow').setAttribute('aria-pressed', String(!!mine.low));
+  $('#m3d').textContent = T.t3d(!sceneOff); $('#m3d').setAttribute('aria-pressed', String(!sceneOff));
   $('#mineBtn').setAttribute('aria-label', T.mine); $('#mineBtn').title = T.mine;
 }
 function openMine(){ closeKeys(); renderMine(); $('#mine').hidden = false; $('#mineBtn').setAttribute('aria-expanded', 'true'); $('#mineX').focus(); }
@@ -2361,6 +2372,7 @@ $('#mine').addEventListener('click', e => {
   const st = e.target.closest('[data-strip]'); if (st) { mine.strip = st.dataset.strip; applyTheme(true); renderMine(); return; }
   if (e.target.closest('#mSound')) { $('#dingBtn').click(); renderMine(); return; }
   if (e.target.closest('#mLow')) { mine.low = !mine.low; applyTheme(true); renderMine(); return; }
+  if (e.target.closest('#m3d')) { if (sceneOff) { store.set('hub-3d', ''); store.set('hub-3d-slow', ''); scene3d(true); } else { store.set('hub-3d', 'off'); HUB.fallback('off'); } renderMine(); return; }
   if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); }
 });
 $('#mine').addEventListener('input', e => {
@@ -2542,7 +2554,8 @@ $('#roster').addEventListener('pointerover', e => { const r = e.target.closest('
 $('#roster').addEventListener('pointerleave', () => { pres.rowHover = null; });
 let spotSig = '';
 /* the part of the stage he can actually see (the top band and the open panel cover the rest) */
-function seenRect(){ const W = stageEl.clientWidth, H = stageEl.clientHeight; return isWide ? {x0:8, y0:76, x1:(panelOpen() ? W - 340 - 56 : W - 8), y1:H - 8} : {x0:0, y0:0, x1:W, y1:H}; }
+const stageSize = {w:0, h:0, at:0};   // read once a second, not every frame (each read forced a layout)
+function seenRect(){ const now = performance.now(); if (now - stageSize.at > 1000) { stageSize.w = stageEl.clientWidth; stageSize.h = stageEl.clientHeight; stageSize.at = now; } const W = stageSize.w, H = stageSize.h; return isWide ? {x0:8, y0:76, x1:(panelOpen() ? W - 340 - 56 : W - 8), y1:H - 8} : {x0:0, y0:0, x1:W, y1:H}; }
 function placeSpot(){
   const el = $('#spot'), S = window.SCENE, id = HUB.hover || (byId[selected] ? selected : null), an = id && isWide && S && S.ready && S.anchors[id];
   const R = seenRect(), x = an ? an.x : 0, y = an ? (an.y + an.fy)/2 : 0, inside = !!an && x >= R.x0 && x <= R.x1 && y >= R.y0 && y <= R.y1;
@@ -2993,22 +3006,22 @@ setInterval(() => { if (!document.hidden && tab === 'ops') renderOps(); }, 60000
 const URGENT_RX = /\b(urgent|asap|right now|emergency|urgente|ya mismo|ahorita|emergencia)\b/i;
 let holdSince = +store.get('hub-wake-since') || 0, wakeMode = '', ride = {label:'', ms:0};
 function clearHeld(){ wakeQ = []; keepHeld(); holdSince = 0; store.set('hub-wake-since', ''); wakeMode = ''; renderWakeLine(); }
-function releaseHold(){
-  clearTimeout(wakeTimer); wakeTimer = 0; if (!wakeQ.length) { clearHeld(); return; }
+function releaseHold(bg){
+  bg = bg === true; clearTimeout(wakeTimer); wakeTimer = 0; if (!wakeQ.length) { clearHeld(); return; }
   if (!kingRunning() && byId.code.atMs > holdSince && holdSince) { clearHeld(); return; }   // a King (maybe woken from his phone) already checked in: it reads them
   if (kingRunning()) { wakeMode = 'mid'; renderWakeLine(); return; }
   const nr = nextRun();
   if (saving()) { wakeMode = 'ride'; ride = {label:nr.label, ms:nr.ms}; renderWakeLine(); return; }   // live King (2026-09-28): no scheduled runs to ride; only a usage limit holds a wake
-  fireWake();
+  fireWake(bg, bg);
 }
 function watchHold(){
   if (!wakeQ.length) return;
   if (wakeMode === 'mid' && !kingRunning()) {
     const newest = Math.max(0, ...Object.values(answers).map(a => Date.parse((a && a.at) || '') || 0));
-    if (kingDoc && Date.parse(kingDoc.answersReadAt || '') >= newest) clearHeld(); else fireWake();
+    if (kingDoc && Date.parse(kingDoc.answersReadAt || '') >= newest) clearHeld(); else fireWake(true, true);
   } else if (wakeMode === 'ride') {
     if (codeCheckins().some(t => t >= ride.ms - 5*60e3)) clearHeld();              // the run came and read them
-    else if (Date.now() > ride.ms + 15*60e3 && !saving()) fireWake();              // safety net: the run never showed
+    else if (Date.now() > ride.ms + 15*60e3 && !saving()) fireWake(true, true);              // safety net: the run never showed
   }
   renderWakeLine();
 }
@@ -3017,7 +3030,7 @@ function renderWakeLine(){
   const el = $('#wakeLine'); if (!el) return; const T = L();
   const show = wakeQ.length && holdSince && Date.now() - holdSince > 10000 && wakeMode;
   if (!show) { el.hidden = true; el.innerHTML = ''; return; }
-  const nr = nextRun(), txt = wakeMode === 'mid' ? T.midRun : saving() ? T.saving : quietHours() ? T.ridesNight(ride.label || nr.label) : wakeMode === 'ride' ? T.rides(ride.label, Math.max(0, Math.round((ride.ms - Date.now())/60000))) : '';
+  const nr = nextRun(), txt = wakeMode === 'held' ? T.heldWake : wakeMode === 'mid' ? T.midRun : saving() ? T.saving : quietHours() ? T.ridesNight(ride.label || nr.label) : wakeMode === 'ride' ? T.rides(ride.label, Math.max(0, Math.round((ride.ms - Date.now())/60000))) : '';
   if (!txt) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = '<span>' + esc(txt) + '</span>' + (wakeMode !== 'mid' ? ' <button type="button" class="tb" data-wakenow>' + esc(T.wakeNow) + '</button>' : '');
 }
@@ -3071,9 +3084,10 @@ async function handoffToCode(text, task){   // rides the next run: no wake
 function taskAge(x){ const rx = taskRx(x.id); let t = Date.parse(x.at || '') || 0; for (const e of events) if ((e.task === x.id || rx.test(e.text)) && e.atMs > t) { t = e.atMs; break; } return t; }
 function quietDays(x){ const k = statusKey(x.status), t = taskAge(x); if (!t) return 0; const d = Math.floor((Date.now() - t)/DAY); return (k === 'blocked' && d >= 2) || ((k === 'doing' || k === 'review') && d >= 3) ? d : 0; }
 async function writeStale(){
-  if (!DB || !CAN_EDIT || !board || store.get('hub-stale-day') === todayK()) return;
+  if (!DB || !CAN_EDIT || !board || writeStale.busy || store.get('hub-stale-day') === todayK()) return; writeStale.busy = true;   // once a day, one write in flight (renderBoard runs often)
   const rows = [...(board.now || []), ...(board.next || [])].map(x => ({id:x.id, status:x.status, owner:x.owner || '', quietDays:quietDays(x)})).filter(x => x.quietDays);
   try { await withTimeout(DB.doc('system/stale').set({tasks:rows, at:nowIso(), by:'FilthE (hub)'})); store.set('hub-stale-day', todayK()); } catch (e) { /* next open tries again */ }
+  writeStale.busy = false;
 }
 
 /* ================= decided without him (#7) ================= */
@@ -3146,17 +3160,48 @@ function frame(now){
   frame.last = now;
   const dt = Math.max(0, Math.min(TEST ? .35 : .08, (now - prevNow)/1000)); prevNow = now;
   updateSky(dt);
-  const S = window.SCENE; if (S && S.ready) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } }   // a scene error never stops the page's loop
+  const S = window.SCENE; if (sceneOff && S && S.ready) S.ready = false;   // built after we gave up on it: stays off
+  if (S && S.ready && !sceneOff) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } watchFps(now); }   // a scene error never stops the page's loop
   placeOverlay(); mind.tick(now); rain.tick(now); placeSpot(); placeSays(now);
   if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); soundTick(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
+/* 2026-09-29 freeze fix: a 3D room that can't keep up (software graphics, a busy GPU) made every click and key wait
+   0.6-0.8 s a frame. Frames slower than ~7 fps for 4 s (after a 6 s warm-up) switch to the still view; the next 3 days
+   start there too (Make it yours -> 3D room turns it back on). */
+const fps = {since:0, t0:0, n:0};
+function watchFps(now){
+  if (document.hidden || HUB.power === 'paused') { fps.since = 0; return; }
+  if (!fps.since) { fps.since = now; fps.t0 = 0; return; }
+  if (now - fps.since < 6000) return;
+  if (!fps.t0) { fps.t0 = now; fps.n = 0; return; }
+  fps.n++; const span = now - fps.t0;
+  if (span >= 4000) { if (span / fps.n > 150) HUB.fallback('slow'); fps.t0 = now; fps.n = 0; }
+}
+document.addEventListener('visibilitychange', () => { fps.since = 0; });
+document.addEventListener('webglcontextlost', e => { if (e.target && e.target.id === 'gl') HUB.fallback('lost'); }, true);   // the GPU reset: show the still, never a dead canvas
+function gpuOk(){   // a real GPU? software WebGL (SwiftShader, llvmpipe) is what froze clicks; skip 3D there
+  try { const c = document.createElement('canvas'), o = {failIfMajorPerformanceCaveat:true}, g = c.getContext('webgl2', o) || c.getContext('webgl', o); if (!g) return false;
+    const i = g.getExtension('WEBGL_debug_renderer_info'), r = i ? String(g.getParameter(i.UNMASKED_RENDERER_WEBGL) || '') : '';
+    const lose = g.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(r); } catch (e) { return false; } }
+let sceneLoad = null;
+function scene3d(force){
+  if (!force && store.get('hub-3d') === 'off') { HUB.fallback('off'); return; }
+  const slow = +store.get('hub-3d-slow') || 0; if (!force && slow && Date.now() - slow < 3*DAY) { HUB.fallback('slow'); return; }
+  if (!force && !gpuOk() && !/3d/.test(location.hash)) { HUB.fallback('soft'); return; }   // #3d: tests try the room anyway
+  document.getElementById('app').classList.remove('no-gl'); fps.since = 0;
+  if (window.SCENE) { sceneOff = false; window.SCENE.ready = true; layout(); return; }   // it was built earlier on this load
+  sceneOff = false; if (sceneLoad) return;
+  sceneLoad = import('./hub/scene.js').catch(() => HUB.fallback('load'));
+  setTimeout(() => { if (!(window.SCENE && window.SCENE.ready) && !sceneOff) HUB.fallback('late'); }, 8000);
+}
 function layout(){
   const was = isWide; isWide = window.innerWidth >= 900 && window.innerHeight >= 600;
   if (was !== isWide || !layout.done) { layout.done = true; applyPanel(false); syncSheet(); if (isWide && tab === 'crew') setTab('board', 'init'); }
   if (window.SCENE && window.SCENE.ready) { window.SCENE.resize(); applyViews(); }
-  for (const o of overlays.values()) { o.sig = ''; o.w = 0; }
+  stageSize.at = 0; for (const o of overlays.values()) { o.sig = ''; o.w = 0; }
   if (was !== isWide) renderNeeds();
 }
 window.addEventListener('resize', layout);
@@ -3189,32 +3234,51 @@ function wake(text, urgent){
   return true;
 }
 /* one fire of the King's CURRENT wake trigger (read fresh from system/king every time). No auto-retry: it is a write. */
-async function getMcp(){ try { return MCP || (window.claude && typeof window.claude.use === 'function' ? (MCP = await window.claude.use('mcp')) : null); } catch (e) { return null; } }
-async function fireNow(text, n){
+async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 12000) : null; } catch (e) { MCP = null; } return MCP; }
+/* 2026-09-29 freeze fix: one door for every Claude Code Remote call. The first call on a load asks FilthE's consent (a
+   claude.ai prompt over the page) and a call can sit unanswered ~130 s. So: a call that isn't his own click (bg: timers,
+   snapshots, opening a window) never runs until one of his calls went through on this load, a refusal stops them all
+   for the load, reads carry an abort deadline, and writes (fire_trigger, create_session) stop being waited on. */
+let mcpOk = false, mcpNo = false;
+const MCP_DEAD = ['not_granted', 'capability_disabled', 'capability_removed', 'consent_required', 'not_in_manifest', 'blocked_by_policy', 'server_not_connected', 'server_not_found', 'needs_reauth'];
+async function mcpCall(tool, input, o){
+  o = o || {};
+  if (mcpNo || (o.bg && !mcpOk)) throw Object.assign(new Error('deferred'), {code:'deferred'});
+  const m = await getMcp(); if (!m) { mcpNo = true; throw Object.assign(new Error('no mcp'), {code:'not_granted'}); }
+  const ms = o.bg ? 20000 : 90000, opts = o.read ? {cache:false} : null;
+  if (opts && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(ms);
+  try { const r = await within(opts ? m.callTool('Claude Code Remote', tool, input, opts) : m.callTool('Claude Code Remote', tool, input), ms + 1000); mcpOk = true; return r; }
+  catch (e) { if (MCP_DEAD.includes(e && e.code)) mcpNo = true; throw e; }
+}
+async function fireNow(text, n, bg){
   const trig = wakeTrigger(); let ok = false, limited = false;
-  try { const m = await getMcp(); if (m && trig) { await m.callTool('Claude Code Remote', 'fire_trigger', {trigger_id:trig, text:String(text).slice(0, 1800)}); ok = true; } }
+  try { if (trig) { await mcpCall('fire_trigger', {trigger_id:trig, text:String(text).slice(0, 1800)}, {bg}); ok = true; } }
   catch (e) { limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
   if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:n || 1}).catch(() => {}); }
   else if (limited) store.set('hub-saving', '1');
   return {ok, limited, trig};
 }
-async function fireWake(quiet){
+async function fireWake(quiet, bg){
   clearTimeout(wakeTimer); wakeTimer = 0; if (!wakeQ.length || wakeBusy) return;
-  if (!kingLoaded) { wakeTimer = setTimeout(releaseHold, 5000); return; }   // system/king not read yet: ask again in a moment
+  if (!kingLoaded) { wakeTimer = setTimeout(() => releaseHold(bg), 5000); return; }   // system/king not read yet: ask again in a moment
+  if (bg && !mcpOk) { if (!holdSince) holdSince = Date.now(); wakeMode = 'held'; renderWakeLine(); return; }   // not his click and no call went through yet: stay held behind the "Wake now" button (never a surprise consent prompt)
   if (!wakeTrigger()) { clearHeld(); renderWakeLine(); if (!quiet) appToast(L().wakeOffT(nextRun().label)); return; }
   const items = wakeQ.splice(0); keepHeld(); wakeLastAt = Date.now(); wakeBusy = true;
   const text = ('AI hub, instant wake. FilthE just acted: ' + items.join(' | ') + '. Read the docs named here and act on them.').slice(0, 1800);
-  const {ok} = await fireNow(text, items.length);
+  const {ok} = await fireNow(text, items.length, bg);
   wakeBusy = false; holdSince = 0; store.set('hub-wake-since', ''); wakeMode = '';
   renderWakeLine(); if (!quiet) appToast(ok ? L().wakeOk : L().wakeLater);
   if (wakeQ.length) wakeTimer = setTimeout(releaseHold, WAKE_HOLD);
 }
 const DEVICE = (() => { let d = store.get('hub-device'); if (!d) { d = Math.random().toString(36).slice(2, 8); store.set('hub-device', d); } return d; })();
-document.addEventListener('visibilitychange', () => { if (document.hidden && wakeQ.length && wakeMode === 'hold') releaseHold(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && wakeQ.length && wakeMode === 'hold') releaseHold(true); });
 function appToast(msg, ms){ const n = $('#appToast'); n.textContent = msg; n.hidden = false; clearTimeout(appToast.t); appToast.t = setTimeout(() => (n.hidden = true), ms || 3800); }
 $('#appToast').addEventListener('click', () => { clearTimeout(appToast.t); $('#appToast').hidden = true; });
 const WRITE_MS = 10000;
-const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'timeout'})), WRITE_MS))]);
+/* every runtime call (use, db, user, sample, mcp) is bounded: a call that never answers can't hold a button or the page */
+function within(p, ms){ let t; const to = new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'timeout'})), ms); });
+  return Promise.race([Promise.resolve(p), to]).finally(() => clearTimeout(t)); }
+const withTimeout = (p, ms) => within(p, ms || WRITE_MS);
 async function save(o){ if (!DB) throw Object.assign(new Error('offline'), {code:'offline'}); await withTimeout(DB.doc(o.path).set(o.body)); return 'saved'; }
 
 /* ================= static words ================= */
@@ -3236,6 +3300,7 @@ function applyStatic(){
 const DED_RX = /(cover|waive|pay(ing)? (for|off)?|eat|absorb|rebate|discount|skip|free|cubr|perdon|pag(ar|amos)|descont|regal)[^.]{0,40}(deductible|deducible)|(deductible|deducible)[^.]{0,30}(covered|waived|free|gratis|cubierto|perdonado|no pagas|we pay|pagamos)/i;
 /* ================= the King, live on this page ================= */
 let SAMPLE = null, CAN_EDIT = false, kcBusy = false, kcCtl = null;
+const SAMPLE_MS = 120000;
 const kcTurns = [], kcPending = [];
 const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 const stampOf = (iso) => iso.replace(/[-:]/g, '');
@@ -3369,10 +3434,11 @@ async function askKing(message, quick, retry){
   kcBusy = true; kcAdd('you', message);
   kcTurns.push({role: 'user', content: retry ? `${message}\n\n(FilthE wrote this at ${new Date(retry.queuedAt).toLocaleString('en-US', {timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit'})} Central; it was sent late because of a bad signal. Use that time for "today" and "tomorrow".)` : message});
   const li = kcAdd('king', L().kcThinking); const p = li.querySelector('p');
-  kcCtl = new AbortController(); kcSet(true, L().kcBusy);
+  const ctl = kcCtl = new AbortController(); kcSet(true, L().kcBusy);
+  const dl = setTimeout(() => { ctl.slow = true; ctl.abort(); }, SAMPLE_MS);   // never an endless "thinking": the box frees itself
   try {
-    const out = await SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
-      {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false});
+    const out = await within(SAMPLE.json([{role: 'user', content: KING_RULES + '\n\n' + kingContext()}, ...kcTurns.slice(-8)],
+      {signal: kcCtl.signal, modelTier: quick ? 'quick' : 'default', cache: false}), SAMPLE_MS + 2000).catch(e => { if (e && e.code === 'timeout') { ctl.slow = true; throw Object.assign(new Error('cancelled'), {code:'cancelled'}); } throw e; });
     let reply = String((out && out.reply) || '').trim().slice(0, 1200) || 'Done.';
     if (DED_RX.test(reply)) reply = L().rc.dedReply;   // Nebraska 44-8604: never let that reach the page
     p.textContent = reply; kingUnread();
@@ -3392,11 +3458,11 @@ async function askKing(message, quick, retry){
     if (!KING_SOFT.includes(code) && !(e && e.text)) {   // no signal: keep the message on this phone and resend it later
       p.textContent = L().kErr.net; $('#kcInput').value = message;   // no signal: the message goes back in the box to send again
     } else {
-      const why = code === 'cancelled' ? L().kcStopped : kingErr(e);
+      const why = code === 'cancelled' ? (ctl.slow ? L().kcSlow : L().kcStopped) : kingErr(e);
       p.textContent = (e && e.text) ? e.text + ' (' + why + ')' : why;
     }
     kcSet(false, '');
-  } finally { kcBusy = false; if (kcPending.length) { const m = kcPending.splice(0).join('\n'); setTimeout(() => askKing(m, true), 0); } }
+  } finally { clearTimeout(dl); kcBusy = false; if (kcPending.length) { const m = kcPending.splice(0).join('\n'); setTimeout(() => askKing(m, true), 0); } }
 }
 /* the chat bubble (note 3): K or a click opens it; it explains in one line when the page can't talk */
 let kcWhy = 'wait';
@@ -3477,16 +3543,17 @@ function renderThread(fromData){
   const log = $('#ktLog'), items = threadItems(), T = L().kt, bd = $('#kingBody');
   const atEnd = bd.scrollHeight - bd.scrollTop - bd.clientHeight < 40;
   const liveHtml = id => '<li class="king inst" data-live="' + esc(id) + '"><span class="who">' + esc(T.king) + '<b class="kt-tag">' + esc(T.instant) + '</b></span><div class="msg">' + (ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(T.st.thinking) + '</p>') + '</div></li>';
-  log.innerHTML = items.map(e => { const me = e.agent === 'you', inst = isInstant(e);
+  const html = items.map(e => { const me = e.agent === 'you', inst = isInstant(e);
     let h = '<li class="' + (me ? 'you' : 'king') + (inst ? ' inst' : '') + '" data-ev="' + esc(e.id) + '"><span class="who">' + esc(me ? T.you : T.king) + (inst ? '<b class="kt-tag">' + esc(T.instant) + '</b>' : '') + '<time>' + esc(tShort(e.atMs)) + '</time></span><div class="msg">' + fmtMsg(e.long || e.text) + '</div>' + (me ? stHtml(e) : '') + '</li>';
     if (me && ktLive[e.id] && !items.some(x => isInstant(x) && x.re === e.id)) h += liveHtml(e.id);
     return h; }).join('');
+  if (html !== renderThread.sig) { renderThread.sig = html; log.innerHTML = html; }   // unchanged thread: leave the nodes (and a click mid-press) alone
   if (fromData) { const last = items.filter(x => isKingReply(x) || isInstant(x)).pop();
     if (last && last.atMs > ktSeenAt) { if ($('#kingWin').hidden || kMode !== 'king') { $('#kingDot').hidden = false; if (last._fresh && isKingReply(last)) { appToast(T.replied); dingKing(); } } else markThreadRead(); } }
   renderKingWhy(); if (atEnd || fromData === 'send') bd.scrollTop = bd.scrollHeight;
 }
 function paintLive(id){ const li = $('#ktLog').querySelector('[data-live="' + CSS.escape(id) + '"] .msg'); if (!li) { renderThread(); return; }
-  li.innerHTML = ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(L().kt.st.thinking) + '</p>'; const bd = $('#kingBody'); bd.scrollTop = bd.scrollHeight; }
+  li.innerHTML = ktLive[id].text ? fmtMsg(ktLive[id].text) : '<p class="thinking">' + esc(L().kt.st.thinking) + '</p>'; renderThread.sig = ''; const bd = $('#kingBody'); bd.scrollTop = bd.scrollHeight; }
 function dingKing(){ try { if (typeof ding === 'function') ding('done'); } catch (e) { /* sound is optional */ } }
 function markThreadRead(){ const last = threadItems().filter(x => isKingReply(x) || isInstant(x)).pop(); if (last && last.atMs > ktSeenAt) { ktSeenAt = last.atMs; store.set('hub-kt-seen', String(ktSeenAt)); } }
 function renderWait(){   // per-message status lines carry the state now; this line only says a send failed
@@ -3531,11 +3598,13 @@ function parseSm(full, fin){
 }
 async function instantAnswer(id, text){
   const T = L().kt; ktLive[id] = {text:''}; renderThread('send');
-  let sessions = null; try { const s = await withTimeout(DB.doc('crew/sessions').get()); sessions = s.exists ? s.data() : null; } catch (e) { sessions = null; }
+  const sessions = sessDoc;   // already live from the crew/sessions subscription: no extra read before he gets an answer
   let tag = '', order = '';
   const onTag = p => { if (p.tag && !tag) { tag = p.tag; order = p.order; if (tag !== 'ANSWER') orderKing(id, text, order); } };   // an order goes out the moment the first line lands
   try {
-    const out = await SAMPLE(smuipoInput(text, id, sessions), {cache:false, modelTier:'default', onText: ({text:full}) => { const p = parseSm(full); onTag(p); if (p.tag) { ktLive[id].text = p.body; paintLive(id); } }});
+    const ctl = new AbortController(), dl = setTimeout(() => ctl.abort(), SAMPLE_MS);   // the instant answer gives up after 2 min: the King still gets it
+    const out = await within(SAMPLE(smuipoInput(text, id, sessions), {cache:false, modelTier:'default', signal:ctl.signal, onText: ({text:full}) => { const p = parseSm(full); onTag(p); if (p.tag) { ktLive[id].text = p.body; paintLive(id); } }}), SAMPLE_MS + 2000);   // the signal, and a hard stop if the runtime ignores it
+    clearTimeout(dl);
     const p = parseSm(out && out.text, true); onTag(p.tag ? p : {tag:'?', order:''});
     let reply = String(p.body || '').trim().slice(0, 4000);
     if (!reply) reply = tag === 'ANSWER' ? '…' : T.st.passed;
@@ -3554,11 +3623,12 @@ async function instantAnswer(id, text){
   renderThread();
 }
 /* hand a message to the real King: fire its CURRENT trigger, stamp the event, then read the trigger's last_run */
-async function orderKing(id, text, order, again){
+async function orderKing(id, text, order, again, bg){
   if (ktOrdering.has(id) && !again) return; ktOrdering.add(id);
   const trig = wakeTrigger(), at = nowIso();
   let wakeSt = 'off';
-  if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".');
+  if (trig && bg && !mcpOk) wakeSt = 'fail';   // not his click: no surprise consent prompt; the message shows Retry instead
+  else if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".', 1, bg);
     wakeSt = r.ok ? 'ok' : 'fail'; if (r.ok) checkDelivery(id, trig, Date.now()); }
   const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
@@ -3569,7 +3639,7 @@ const ktTries = {};
 async function checkDelivery(id, trig, t0, n){
   setTimeout(async () => {
     let st = '';
-    try { const m = await getMcp(); const r = m ? await m.callTool('Claude Code Remote', 'get_trigger', {trigger_id:trig}, {cache:false}) : null;
+    try { const r = await mcpCall('get_trigger', {trigger_id:trig}, {bg:true, read:true});
       const t = r && r.payload && (r.payload.trigger || r.payload), lr = t && t.last_run;
       if (t && t.enabled === false) st = 'fail';
       else if (lr && Date.parse(lr.fired_at || '') >= t0 - 5000) st = /SUCCEEDED|SUCCESS|OK|DELIVERED/i.test(String(lr.status || '')) ? 'ok' : /FAIL|ERROR/i.test(String(lr.status || '')) ? 'fail' : '';
@@ -3596,8 +3666,8 @@ function sweepThread(){
   if (!CAN_EDIT || !DB || !kingLoaded) return; const now = Date.now();
   for (const e of events) { if (!isMyChat(e) || ktSwept.has(e.id) || now - e.atMs > 2*3600e3) continue;
     if (events.some(x => (isKingReply(x) || isKingAck(x)) && x.re === e.id)) continue;
-    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id)) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, ''); }
-    else if (e.mode === 'order' && (e.wake === 'off' || e.wake === 'fail' || e.deliv === 'fail') && wakeTrigger() && e.trig !== wakeTrigger()) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, e.order || '', true); }
+    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id)) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, '', false, true); }
+    else if (e.mode === 'order' && (e.wake === 'off' || e.wake === 'fail' || e.deliv === 'fail') && wakeTrigger() && e.trig !== wakeTrigger() && mcpOk) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, e.order || '', true, true); }
   }
 }
 $('#ktLog').addEventListener('click', ev => { const b = ev.target.closest('[data-kt]'); if (!b || !CAN_EDIT) return; const e = events.find(x => x.id === b.dataset.id); if (!e) return;
@@ -3619,10 +3689,10 @@ const REPO_URL = 'https://github.com/kennyy685/the-repository', WORK_BRANCH = 'c
 let kingCtx = null, kingCtxAt = 0, fkBusy = false;
 async function readKingCtx(){
   const sid = kingDoc && kingDoc.live_session; if (!sid || !CAN_EDIT || Date.now() - kingCtxAt < 60000) return; kingCtxAt = Date.now();
-  try { const m = await getMcp(); const r = m ? await m.callTool('Claude Code Remote', 'get_session', {session_id:String(sid)}, {cache:false}) : null;
+  try { const r = await mcpCall('get_session', {session_id:String(sid)}, {bg:true, read:true});
     const p = r && r.payload, x = p && typeof p === 'object' ? (p.ccr || p) : null, meta = (x && x.external_metadata) || {};
     kingCtx = x ? {session:String(sid), used:+((meta.context_usage || {}).used_tokens) || 0, model:(x.session_context && x.session_context.model) || ''} : null;
-  } catch (e) { kingCtx = null; }   // get_session not allowed: the button still works, without the memory line
+  } catch (e) { if (e && e.code === 'deferred') kingCtxAt = 0; kingCtx = null; }   // not yet / not allowed: the button still works, without the memory line
   renderFresh();
 }
 function renderFresh(){
@@ -3647,17 +3717,16 @@ Old King: ${old || '(none recorded)'}; its wake trigger: ${oldTrig || '(none)'}.
 async function startFreshKing(){
   if (fkBusy || !CAN_EDIT || !DB) return; fkBusy = true; $('#kFreshAsk').hidden = true; renderFresh();
   const T = L().fk, old = String((kingDoc && kingDoc.live_session) || ''), oldTrig = wakeTrigger() || '';
-  let ok = false;
+  let ok = false, unsure = false;
   try {
-    const m = await getMcp(); if (!m) throw new Error('no mcp');
     let env = kingDoc && typeof kingDoc.environment_id === 'string' && /^env_/.test(kingDoc.environment_id) ? kingDoc.environment_id : '';
-    if (!env) { const r = await m.callTool('Claude Code Remote', 'list_environments', {}, {cache:false}); const l = ((r && r.payload && r.payload.environments) || []);
+    if (!env) { const r = await mcpCall('list_environments', {}, {read:true}); const l = ((r && r.payload && r.payload.environments) || []);
       const e = l.find(x => x.kind === 'anthropic_cloud' && x.state === 'active') || l.find(x => x.state === 'active'); env = e ? e.environment_id : ''; }
     if (!env) throw new Error('no environment');
     const args = {environment_id:env, title:'SMUIPO (King)', source_url:REPO_URL, source_revision:WORK_BRANCH, outcome_branch:WORK_BRANCH, tags:['king'], prompt:freshPrompt(old, oldTrig)};
     if (kingCtx && kingCtx.model) args.model = kingCtx.model;   // the same model the King runs on now
-    let r; try { r = await m.callTool('Claude Code Remote', 'create_session', Object.assign({permission_mode:'auto'}, args)); }
-    catch (e) { if (e && e.retryable === false && /permission/i.test(String(e.message || ''))) r = await m.callTool('Claude Code Remote', 'create_session', args); else throw e; }
+    let r; try { r = await mcpCall('create_session', Object.assign({permission_mode:'auto'}, args)); }
+    catch (e) { if (e && e.retryable === false && /permission/i.test(String(e.message || ''))) r = await mcpCall('create_session', args); else { if (e && ['timeout', 'upstream_error', 'server_unavailable'].includes(e.code)) unsure = true; throw e; } }   // only a refused permission_mode is safe to re-send; a timeout may still start a King
     const p = (r && r.payload) || {}, sid = String(p.session_id || p.id || (p.session && p.session.id) || (p.ccr && p.ccr.id) || '');
     if (!/^session_/.test(sid)) throw new Error('no session id');
     const at = nowIso(); ok = true;
@@ -3665,7 +3734,7 @@ async function startFreshKing(){
     try { await save({path:'events/' + stampOf(at) + '-you-fk', body:{agent:'you', name:'FilthE', at, kind:'handoff', to:'code', lane:'board', room:'board', status:'done', task:'', text:('Started a fresh King from the hub: ' + sid + '. Old King: ' + (old || 'none') + '.').slice(0, 300)}}); } catch (e) { /* log line only */ }
     if (oldTrig) fireNow('FilthE started a fresh King from the hub: ' + sid + '. Finish your current step, update docs/orders/king-handoff.md (what is live, what is running, what is next), commit and push, then stop. The new King makes its own wake trigger, disables yours and archives you.');
   } catch (e) { ok = false; }
-  fkBusy = false; renderFresh(); appToast(ok ? T.started : T.fail, ok ? 5000 : 7000);
+  fkBusy = false; renderFresh(); appToast(ok ? T.started : unsure ? T.unsure : T.fail, ok ? 5000 : 9000);
 }
 $('#kFreshBtn').addEventListener('click', () => { $('#kFreshAsk').hidden = false; renderFresh(); const y = $('#kFresh [data-fk="yes"]'); if (y) y.focus(); });
 $('#kFresh').addEventListener('click', e => { const b = e.target.closest('[data-fk]'); if (!b) return; if (b.dataset.fk === 'yes') startFreshKing(); else { $('#kFreshAsk').hidden = true; renderFresh(); $('#kFreshBtn').focus(); } });
@@ -3731,7 +3800,8 @@ function subscribe(db){
     db.collection('answers').onSnapshot(onAnswers, onErr),
     db.doc('system/memory').onSnapshot(onMemory, onErr),
     db.doc('crew/sessions').onSnapshot(onSessions, onErr),
-    db.doc('system/schedule').onSnapshot(onSchedule, onErr)
+    db.doc('system/schedule').onSnapshot(onSchedule, onErr),
+    db.collection('wakes').orderBy('at', 'desc').limit(40).onSnapshot(sn => { wakesToday = sn.docs.map(d => Date.parse((d.data() || {}).at || '') || 0); }, () => {})   // with the rest, so a resubscribe keeps it
   ];
 }
 function reconnect(){
@@ -3748,7 +3818,9 @@ function scheduleReconnect(){
   setTimeout(() => { if (dbState !== 'on') { recon.showing = true; setLive('wait', L().reconnecting); } }, 4000);
   recon.timer = setTimeout(() => { recon.timer = 0; reconnect(); }, d);
 }
-function freshen(){ if (document.hidden || !DB || recon.dead) return; if (dbState !== 'on' || Date.now() - lastDataAt > 120000) reconnect(); }
+// quiet docs send nothing, so quiet is not down: subscribe once (db.d.ts); resubscribe only after an error or a long time away (laptop asleep)
+let awayAt = 0; document.addEventListener('visibilitychange', () => { if (document.hidden) awayAt = Date.now(); });
+function freshen(){ if (document.hidden || !DB || recon.dead) return; const long = awayAt && Date.now() - awayAt > 20*60000; awayAt = 0; if (dbState !== 'on' || long) reconnect(); }
 function refreshNow(){
   if (DB && !recon.dead) reconnect();
   refreshAll(); renderBoard(); if (Date.now() - weather.at > 15*60000) fetchWeather(); renderClock(); appToast(L().refreshed);
@@ -3761,24 +3833,27 @@ window.addEventListener('online', () => { recon.n = 0; freshen(); });
 async function connect(){
   const cl = window.claude;
   if (!cl || typeof cl.use !== 'function') { dbState = 'off'; setLive('off', L().live.preview); kcWhy = 'preview'; renderKingWhy(); return; }
-  let db = null; try { db = await cl.use('db'); } catch (e) { db = null; }
+  let db = null; try { db = await within(cl.use('db'), 15000); } catch (e) { db = null; }
   if (!db) { dbState = 'off'; setLive('off', L().live.na); kcWhy = 'nodb'; renderKingWhy(); return; }
   setLive('wait', L().live.loading); DB = db;
   try { subscribe(db); } catch (e) { dbState = 'off'; setLive('off', L().live.na); return; }
-  setTimeout(() => tidy(db, cl), 8000);
-  try { const u = await cl.use('user'); CAN_EDIT = u ? await u.canEdit() : false; } catch (e) { CAN_EDIT = false; }
-  try { SAMPLE = await cl.use('sample'); } catch (e) { SAMPLE = null; }
+  setTimeout(() => tidy(db, cl), 60000);
+  // user + sample in parallel, each bounded: a namespace that never answers can't hold the chat, the board or the wake
+  const [ce, sm] = await Promise.all([
+    within(cl.use('user'), 12000).then(u => u ? within(u.canEdit(), 8000) : false).catch(e => !!(e && e.code === 'timeout')),   // no answer = unknown: keep his inputs; the db rules still refuse a non-editor's write (db.d.ts)
+    within(cl.use('sample'), 12000).catch(() => null)]);
+  CAN_EDIT = ce === true; SAMPLE = typeof sm === 'function' ? sm : null;
   kcWhy = !CAN_EDIT ? 'editor' : !SAMPLE ? 'grant' : ''; renderKingWhy();
   renderBoard(); renderCard(true);
-  if (wakeQ.length) setTimeout(releaseHold, 4000);   // a wake held from the last visit: ride / wait / send per the rules
-  try { subs.push(db.collection('wakes').orderBy('at', 'desc').limit(40).onSnapshot(sn => { wakesToday = sn.docs.map(d => Date.parse((d.data() || {}).at || '') || 0); }, () => {})); } catch (e) { /* usage line shows 0 wakes */ }
+  if (wakeQ.length) setTimeout(() => releaseHold(true), 4000);   // a wake held from the last visit: ride / wait / send per the rules
   restoreChat();
 }
 async function tidy(db, cl){   // the owner's view keeps the log small: newest 300 events stay
   try {
-    const user = await cl.use('user'); if (!user || !(await user.isOwner())) return;
-    const all = await db.collection('events').orderBy('at', 'desc').limit(1000).get();
-    if (all.size > 400) for (const d of all.docs.slice(300)) await db.collection('events').doc(d.id).delete();
+    const user = await within(cl.use('user'), 12000); if (!user || !(await within(user.isOwner(), 8000))) return;
+    const all = await withTimeout(db.collection('events').orderBy('at', 'desc').limit(1000).get(), 20000);
+    // at most 40 deletes a load, one every 1.5 s, each bounded: pruning never eats the call budget his sends need
+    if (all.size > 400) for (const d of all.docs.slice(300).reverse().slice(0, 40)) { if (document.hidden) return; await withTimeout(db.collection('events').doc(d.id).delete()); await new Promise(r => setTimeout(r, 1500)); }
   } catch (e) { /* housekeeping only */ }
 }
 
@@ -3787,11 +3862,10 @@ $('#todayBtn').hidden = !noteToday;
 applyTheme(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); armSeen();
 connect(); fetchWeather();
-setTimeout(() => { if (!(window.SCENE && window.SCENE.ready)) HUB.fallback(); }, 8000);
+scene3d(false);
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
 </script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
-<script type="module" src="hub/scene.js" onerror="window.HUB && window.HUB.fallback()"></script>
+
 
