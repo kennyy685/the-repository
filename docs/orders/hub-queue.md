@@ -16,7 +16,7 @@ here with the session id, pushes, then archives itself. The King polls every 5 m
 6. QUEUED   Sunday report card (#9)
 7. QUEUED   v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
 8. QUEUED   Top 12 conveniences (CONVENIENCES.md)
-Chunks 2-4 BUILT as v34 (QUEUE-SPECS A+B+E, QA fixed, not yet published; see docs/orders/hub-builder-handoff.md), then 5-6, 7-8 in the same chain. Chunks 2-4 may go to one Builder together; 5-6 together; 7-8 together (3 Builders total after the live hub).
+Chunks 2-4 BUILT as v34 (QUEUE-SPECS A+B+E, QA fixed, not yet published; see docs/orders/hub-builder-handoff.md) -> RUNNING in session_01JH3N6TYXtFVNW4aiw3zVCp, then 5-6, 7-8 in the same chain. Chunks 2-4 may go to one Builder together; 5-6 together; 7-8 together (3 Builders total after the live hub).
 
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for
