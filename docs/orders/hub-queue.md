@@ -16,7 +16,7 @@ here with the session id, pushes, then archives itself. The King polls every 5 m
 6. DONE     Sunday report card (#9)
 7. DONE     v28.2 "Dressed with data" (BUILD-v28.md) - research wall, Shipped shelf, QA screens, card additions
 8. DONE     Top 12 conveniences (CONVENIENCES.md)
-Chunks 2-4 = v34 LIVE (AI hub Version 36). Chunks 5-8 = v35 (QUEUE-SPECS C, D, F Shipped shelf only, G verify), 2026-09-29, session_01JH3N6TYXtFVNW4aiw3zVCp.
+Chunks 2-4 = v34 LIVE (Version 36). Chunks 5-8 = v35 LIVE (Version 37), 2026-09-29. AFTER ALL sync RUNNING in session_01MrJx1CPcGLuhKFmLYsqJDG.
 
 AFTER ALL: sync = every robot's work merged into claude/amazing-gauss-yzfpq0 and the King branch, all pages
 re-checked (release_checks + live smoke), hub docs current. Then the King STOPS starting new work and waits for
