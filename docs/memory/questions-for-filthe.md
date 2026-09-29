@@ -5,6 +5,7 @@ at a time, never something the web can answer (CLAUDE.md). When he answers, writ
 and in `full-context.md` if it changes the plan, then drop it from "Open".
 
 ## Answered
+- 2026-09-29 13:57 UTC: "the hub isnt being useful ... you dont even use the robots". Picked (1): the hub reads the real robot chats by itself every minute (no hand-writing, never stale). Builder session_013wezScDeoduPTP4moTMHqb building it (ultracode). Pausing the Designer: not asked (a slot freed instead).
 - 2026-09-29: a normal Tuesday a year out = "success with more than 100 thousand in the bank". Deep ideas offered: score every call, trust dial, night shift, Fremont's memory, Aldaba sales story (King's pick 1 + 3). FilthE: "yes good ideas" -> build 1 (score every call) + 3 (night shift) after the hub; 2, 4, 5 later.
 - 2026-09-28 23:53: keep the hub's permission to start chats (Fresh King / Hand it off) = keep.
 - 2026-09-28: Knock screen at the door in 2 s = house number, why this house, what to collect (yes); EN with a Spanish switch.
