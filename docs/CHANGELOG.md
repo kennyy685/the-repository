@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Open map v5 "Real storms" - 2026-09-29 (live: open map Version 5, 2026-09-29)
+- The map now shows the real 2026 hail season: 57 zones from 17 storm days around Fremont, Omaha and Lincoln (plus 141 more in Eastern Nebraska, off this map). Default view is the whole season since Mar 1.
+- The 7 AM home picks Aldaba's top 3 from real storms (Malcolm #1 today), each with its storm date and one-line reason; "Start knocking" opens the Knock page.
+- Nothing made up on real zones: home age comes from the Census, permits say "not checked yet", radar-only zones say so and ask you to see damage first. Houses, doors and visits are still samples.
+
 ## HMP App + Practice Door "Never stuck" - 2026-09-29 (live: HMP App Version 12, Practice Door Version 14, 2026-09-29)
 - The App can't hang anymore: loading, the Right Hand chat, photo uploads and Help me say it all have time limits, and a slow connection still goes live when it finally answers.
 - Practice Door always gives you the text box back, even if the homeowner or the hint never answers.

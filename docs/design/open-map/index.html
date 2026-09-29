@@ -10,6 +10,7 @@
 .pick .nm .dt{color:var(--muted);font-weight:500;font-size:.72em;margin-left:7px;letter-spacing:0}
 .kbtns{display:flex;gap:8px;flex-wrap:wrap}.kbtns .btn{flex:1 1 0;min-width:0}
 a.btn{text-decoration:none}
+.warnr{color:var(--acc-ink);margin:0 0 8px}
 </style>
 <style>
 @font-face{font-family:"Geist L";src:url(fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
@@ -1626,6 +1627,7 @@ const T={
 Object.assign(T,{radarOnly:{en:"radar only",es:"solo radar"},noCensus:{en:"No Census numbers for this spot yet.",es:"Aún no hay números del Censo para este lugar."},
   zoneN:{en:"this zone, Census 2020–24",es:"esta zona, Censo 2020–24"},notChecked:{en:"not checked yet",es:"sin revisar"},v_nd:{en:"No data",es:"Sin datos"},
   wRadar:{en:"radar estimate only",es:"solo estimado de radar"},
+  radarFirst:{en:"Radar only, nobody reported it on the ground. Drive by and see damage before you plan doors.",es:"Solo radar, nadie lo reportó en tierra. Pasa a ver el daño antes de planear puertas."},
   moreOff:{en:(n)=>`+${n} more zones in Eastern Nebraska, off this map`,es:(n)=>`+${n} zonas más en el este de Nebraska, fuera de este mapa`}});
 T.startK={en:"Start knocking",es:"Empezar a tocar"};
 if(REAL){Object.assign(T,{roofK:{en:"Typical home age",es:"Edad típica de las casas"},colRoof:{en:"Age",es:"Edad"},s_roof:{en:"Home age",es:"Edad"},
@@ -1994,13 +1996,14 @@ function renderPlan(){const a=areaOf(st.sel);if(!a)return;const tr=trip(a),R=str
   renderPlanFoot(a,tr);renderGT(a);
 }
 function renderPlanFoot(a,tr){const W=st.walk&&st.walk.id===a.id?st.walk:null,X=AREAX&&AREAX[a.id],f=$("planFoot");
-  if(!W){f.innerHTML=`<button class="btn" id="planGo"${X?"":" disabled"}>${ic("route")}${t("planBtn")}</button><p class="note">${t("planNote")}</p>`;return}
+  const rw=a.radar?`<p class="note warnr">${ic("sign")} ${t("radarFirst")}</p>`:"";
+  if(!W){f.innerHTML=`${rw}<button class="btn" id="planGo"${X?"":" disabled"}>${ic("route")}${t("planBtn")}</button><p class="note">${t("planNote")}</p>`;return}
   const n=X.s.length,over=Math.round(W.min-tr.left),rest=X.s.slice(W.k).reduce((q,x)=>q+x.h,0);
   f.innerHTML=`<div class="wsum"><div class="hd">${t("walkTitle")} ${chip("pace",PACE+" / h",a.st,1)}<span class="stp"><button id="wkLess"${W.k<=1?" disabled":""} aria-label="One street less">−</button><span>${t("streetsN",W.k)}</span><button id="wkMore"${W.k>=n?" disabled":""} aria-label="One street more">+</button></span></div>
     <div class="big"><div><b>${W.doors}</b><small>${t("doors")}</small></div><div><b>${fmtDur(W.min)}</b></div><div><b>${(W.m/1609.34).toFixed(1)}</b><small>mi</small></div></div>
     <div class="ln">${t("parkAt",X.pn[0],X.pn[1])} · ${t("backBy",fmtClock(tr.from+W.min))}<br>
       <span class="fit ${over<=0?"ok":"bad"}">${over<=0?"✓ "+t("fits"):t("over",fmtDur(over))}</span> · ${t("paceLn",fmtDur(W.lo),fmtDur(W.hi))}${rest?`<br><span style="color:var(--muted)">${t("moreSt",n-W.k,fmtDur(rest/PACE*60))}</span>`:""}</div></div>
-    <a class="btn" id="knockGo" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startBtn",W.doors)}</a>`;
+    ${rw}<a class="btn" id="knockGo" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startBtn",W.doors)}</a>`;
 }
 function renderANav(){const a=areaOf(st.sel);if(!a)return;const s=STORMS[a.st],i=st.order.indexOf(a.id),wind=a.wind&&a.hail<1.25;
   $("here").innerHTML=`<i style="--c:${bandColor(a.hail)}"></i><b>${L(a.name)}</b><span>${L(s.d)} · ${wind?a.wind+" mph":fmtIn(a.hail)+"″"}</span>`;
