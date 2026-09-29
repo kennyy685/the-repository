@@ -2822,21 +2822,24 @@ function renderMoney(){
     return `<li><button type="button" class="row" data-open="${isC ? 'claim' : 'lead'}:${esc(d.id)}"><span class="lead">${ic(isMort ? 'bank' : isSupp ? 'file' : 'money')}</span><span class="t"><b>${esc(title)}</b><span>${esc([strv(d.address), strv(d.homeowner_first_name || d.first_name), strv(d.insurer)].filter(Boolean).join(' · '))}</span></span><span class="end">${chip}</span></button></li>`; };
   const open = [...openC.map(c => ({c})), ...cashOpen.map(l => ({l}))], fin = [...doneC.map(c => ({c})), ...cashDone.map(l => ({l}))];
   const g = txl(guideDoc);
-  soft(box).html = hero
+  soft(box).html = `<div class="mcol">` + hero   // v26 desk: two columns (what's owed + to chase | the jobs); a phone reads them in one (v25/desk.css)
     + (chase.length ? `<div class="shead"><h2>${esc(Zs.chase)}</h2></div><ul class="rows">${chase.slice(0, 5).map(chaseRow).join('')}</ul>` : '')
-    + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
+    + `</div><div class="mcol">` + `<div class="shead"><h2>${esc(mPaidOpen ? T.mDone : Zs.openJobs)}</h2>${fin.length ? `<button type="button" id="mPaid" class="hit" aria-pressed="${mPaidOpen}">${esc(mPaidOpen ? Zs.openN : Zs.paidN(fin.length))}</button>` : ''}</div>`
     + `<div class="claims">${(mPaidOpen ? fin : open).map(jobCard).join('') || `<p class="quiet">${esc(C.nothingWaiting)}</p>`}</div>`
     + (g ? `<p class="tipl" style="margin-top:var(--s4)">${ic('info')}<span>${esc(g)}</span></p>` : '')
-    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p><p class="rules">${esc(C.rules)}</p></details>`;
+    + `<details class="fold" style="margin-top:var(--s5)" id="mHow"><summary>${esc(C.howMore)}</summary>${howHtml(false)}<p class="gloss" id="mGloss" style="margin-top:var(--s3)">${V0.gloss.map(([k, v]) => `<span><b>${esc(k)}</b>: ${esc(v)}</span>`).join('')}</p><p class="rules">${esc(C.rules)}</p></details></div>`;
 }
 $('#money').addEventListener('click', ev => { if (ev.target.closest('#mPaid')) { mPaidOpen = !mPaidOpen; renderMoney(); } });
 
 /* ---------- detail sheet (lead or claim) ---------- */
 const MENU_REFS = ['plus', 'more', 'rh', 'say', 'nl', 'clu', 'rev', 'prices', 'how', 'zones', 'due', 'walk'];   // v24 sheets that start fresh (no Back to the sheet under them)
-function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; clearTimeout(shutT); $('#sheetWrap').classList.remove('closing'); $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); }
+function openSheet(ref, from){ const k = ref.slice(0, ref.indexOf(':')), inside = openRef && from && from.closest && from.closest('#sheet') && !['plus', 'more'].includes(openRef.slice(0, openRef.indexOf(':'))) && !MENU_REFS.includes(k); sheetBack = inside ? openRef : null; if (!openRef || !(from && from.closest && from.closest('#sheet'))) lastFocus = from || document.activeElement; if (ref !== openRef) { phOpen = null; phArm = null; } openRef = ref; clearTimeout(shutT); $('#sheetWrap').classList.remove('closing'); $('#sheetWrap').hidden = false; $('#sheetWrap').dataset.k = k; $('#sheetWrap').classList.toggle('fit', FIT_SHEETS.includes(k)); document.body.style.overflow = 'hidden'; renderSheet(); $('#shBody').scrollTop = 0; $('#shClose').focus(); markOpenRow(); }
+function markOpenRow(){   // v26 desk: the row whose lead or job is open in the side pane stays lit in its list (v25/desk.css)
+  for (const e of document.querySelectorAll('.app [data-open].is-open')) e.classList.remove('is-open');
+  if (openRef) for (const e of document.querySelectorAll('.app [data-open]')) if (e.dataset.open === openRef) e.classList.add('is-open'); }
 const FIT_SHEETS = ['plus', 'more', 'drive', 'rules', 'walk', 'dnk'];   // v25: short sheets hug their content; the rest open tall
 let shutT = 0;   // v25.1: the sheet slides away in 180 ms (v25/aldaba.css); state is closed at once, only the picture lingers
-function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; const w = $('#sheetWrap'); clearTimeout(shutT);
+function closeSheet(){ kcBack(); openRef = null; sheetBack = null; phOpen = null; phArm = null; const w = $('#sheetWrap'); clearTimeout(shutT); markOpenRow();
   if (RM || w.hidden) { w.hidden = true; w.classList.remove('closing'); } else { w.classList.add('closing'); shutT = setTimeout(() => { w.hidden = true; w.classList.remove('closing'); }, 180); } document.body.style.overflow = ''; if (lastFocus && lastFocus.isConnected && lastFocus.focus) lastFocus.focus(); }
 const factsHtml = pairs => `<dl class="facts">${pairs.map(([k, v]) => `<dt>${esc(k)}</dt>${v ? `<dd>${v}</dd>` : `<dd class="none">${esc(L().ct.none)}</dd>`}`).join('')}</dl>`;
 const fmtFact = v => (dayOf(v) ? esc(fmtDay(dayOf(v), true)) : yesv(v) ? esc(L().ct.yes) : '');

@@ -64,6 +64,8 @@ const PAGES = [
     rel: "pages/hmp-app.html",
     storage: { en: { "hmp-app-lang": "en" }, es: { "hmp-app-lang": "es" } },
     pickKey: "hmp-app-look",   // v25.1: More > Theme (default dark "Aldaba Graphite"; Light; Auto), per device
+    // v26: a MacBook page first (the desk layout, pages/v25/desk.css), plus the phone FilthE will carry
+    sizes: [{ width: 1440, height: 900 }, { width: 390, height: 844 }],
     tabs: '#tabs [role="tab"]',
     views: [
       { name: "add sheet", steps: ["#plusBtn"] },

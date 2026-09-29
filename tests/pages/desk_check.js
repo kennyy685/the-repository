@@ -102,11 +102,16 @@ async function run(browser, url, o) {
       if (rows[1]) { await p.click(`#lCards [data-open="${rows[1]}"]`); await p.waitForTimeout(700);
         ok(await p.evaluate(() => !document.querySelector("#sheetWrap").hidden), "Leads: clicking a second lead closed the detail instead of swapping it"); }
     } else ok(sh && sh.w >= o.w - 2, "phone: the lead sheet is not full width");
-    // legal text never under a toast
-    const legal = await p.$$eval("#shBody .mustl, #shBody .ns-must, #shBody .legal, #shBody [data-legal]", es => es.length);
+    // a legal notice is never under a toast (QA 2026-09-29): on the desk the toast stays off the pane; on a phone the
+    // sheet gets the toast's height as extra room at its foot, so its last line (often the legal one) scrolls clear
+    await p.evaluate(() => { const n = document.querySelector("#appToast"); n.textContent = "Saved"; n.hidden = false; document.body.style.setProperty("--toast-h", (n.offsetHeight + 12) + "px"); });   // the page's appToast() shape
+    await p.waitForTimeout(200);
+    const tb = await box("#appToast"), sb = await box("#sheet");
+    if (DESK) ok(tb && sb && (tb.r <= sb.x || tb.b <= sb.y), "Leads: the toast sits on the open lead's pane");
+    else ok(await p.evaluate(() => { const b = document.querySelector("#shBody"); const pb = parseFloat(getComputedStyle(b).paddingBottom); return pb >= document.querySelector("#appToast").offsetHeight; }), "phone: the sheet has no room to scroll its last line out from under the toast");
     await noSideScroll("Leads"); await shot("3-leads");
-    if (legal) { await p.evaluate(() => window.toast && window.toast("Saved")); }
-    await p.keyboard.press("Escape"); await p.waitForTimeout(400);
+    await p.evaluate(() => { document.querySelector("#appToast").hidden = true; document.body.style.setProperty("--toast-h", "0px"); });
+    await p.click("#shClose"); await p.waitForTimeout(400);
   }
   // Money
   await tab("money");
