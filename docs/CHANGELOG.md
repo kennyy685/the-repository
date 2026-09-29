@@ -5,6 +5,17 @@
 - Leads and Money open a lead or job as a pane on the right: the list stays live (click another lead to swap), the open row stays lit; Money shows what's owed + to chase beside the open jobs. Short menus (Add, More) open as a centered card.
 - The toast never covers the door card, the pane or a legal notice (on a phone the sheet now scrolls its last line clear of it). Phones keep the old layout exactly. New check `tests/pages/desk_check.js`; the design gate now runs the app at 1440 and 390 too. Options + why A: docs/design/app-desk/.
 
+## Open map: every pick draws its walk - 2026-09-29 (map-west; QA pending, then republished)
+- Tap Aldaba's pick anywhere (Columbus, Schuyler, David City, Fremont, Blair, Wahoo, Omaha-Lincoln) and the map draws that pick's own walk: the Knock app's order, starting on the start street (tonight: 22 St, then 21 St), on real streets. Street by street, corner to corner: no house numbers, no door points, no owner names.
+- Outside the old Omaha-Lincoln street box the night shift adds a small street tile around the walk (~15-30 KB, gis.ne.gov, same source as the rest of the map), so the page stays light on hotel wifi. It all rides in `data/night.js`; the night routine is unchanged.
+## Open map: top 3 agrees with Aldaba's pick - 2026-09-29 (open map republished; QA PASS, its 3 notes fixed)
+- "Aldaba's top 3" now follows the night brief: #1 = Aldaba's pick, #2 = the backup, then the next storm walk (tonight: Columbus 22 St & 21 St, Omaha older homes, Columbus 36 Ave & 18 St). No more Malcolm on the list while the pick says Columbus.
+- A pick outside the old map box (Columbus) now opens as a real area, and the home view widens to show the pick + backup. The brief carries it (`top` + `map` in `data/night.js`), so it stays right every night with no extra step.
+## Roof-check wording - 2026-09-29 (live: Practice Door Version 15; QA PASS)
+- Practice Door, print sheets and the door lines now say "roof check" / "revisión del techo", never "free inspection" / "gratis" (King's call until the boss okays promising free).
+- The scorecard neither rewards "free" nor penalizes "roof check"; "free estimate" is still used and flagged for the boss.
+- PDFs in docs/print not re-rendered (no script): re-print from the HTML before handing out.
+
 ## Night shift real - 2026-09-29 (open map: QA pending, then republished)
 - "Since last night" now shows the REAL brief: last night's real storm reports, the engine's real walks, real streets. Aldaba's pick is always a storm walk (tonight: Columbus, 1.6" hail Aug 8, 25 doors); an older-homes area is only ever the backup, and when no storm walk has doors left it says so and names the backup. The map names the start street, never a house number.
 - One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).

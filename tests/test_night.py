@@ -271,7 +271,7 @@ class NightBrief(unittest.TestCase):
 class NightCli(unittest.TestCase):
     def test_cli_writes_brief_and_keeps_the_previous(self):
         with tempfile.TemporaryDirectory() as t:
-            args = ["night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49", "--out-dir", t]
+            args = ["--offline", "night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49", "--out-dir", t]
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 self.assertEqual(hh.main(args), 0)
             self.assertIn("First night brief", out.getvalue())
@@ -289,7 +289,7 @@ class NightCli(unittest.TestCase):
     def test_cli_missing_hud_still_writes_a_brief(self):
         with tempfile.TemporaryDirectory() as t:
             with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-                rc = hh.main(["night", "--no-refresh", "--hud", os.path.join(t, "nope.json"), "--date", DAY,
+                rc = hh.main(["--offline", "night", "--no-refresh", "--hud", os.path.join(t, "nope.json"), "--date", DAY,
                               "--out-dir", t])
             self.assertEqual(rc, 0)
             with open(os.path.join(t, "brief.json"), encoding="utf-8") as f:
@@ -301,7 +301,7 @@ class NightCli(unittest.TestCase):
         night's published night.js, --js-out = the file it republishes."""
         with tempfile.TemporaryDirectory() as t:
             js = os.path.join(t, "page", "night.js")
-            base = ["night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49"]
+            base = ["--offline", "night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49"]
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(hh.main(base + ["--out-dir", os.path.join(t, "a"), "--js-out", js]), 0)
             first = night.from_js(open(js, encoding="utf-8").read())
@@ -351,7 +351,7 @@ class NightShiftCommand(unittest.TestCase):
             with mock.patch.object(hh, "refresh", boom), \
                     mock.patch.object(hh.db, "connect", lambda p: sqlite3.connect(":memory:")), \
                     mock.patch.object(hh.config, "load", lambda *a, **k: cfg):
-                rc, out, err = self.run_cmd(["night-shift", "--files", man])
+                rc, out, err = self.run_cmd(["--offline", "night-shift", "--files", man])
             self.assertEqual(rc, 0)
             self.assertTrue(boom.called)
             self.assertIn("REFRESH FAILED: OSError: network down", out)
@@ -391,6 +391,9 @@ class MapTopFollowsPick(unittest.TestCase):
         # the published copy scrubs every card's start to a street
         pub = night.page_brief(d)
         for c in pub["top"]:
+            for f in ("lat", "lon"):                                     # the walk's middle is ~100 m too (QA)
+                if c["center"] and c["center"][f] is not None:
+                    self.assertEqual(c["center"][f], round(c["center"][f], 3))
             if c["start"]:
                 self.assertIsNone(re.match(r"\d", c["start"]["address"] or ""))
 
@@ -450,7 +453,7 @@ class MapTopFollowsPick(unittest.TestCase):
                 json.dump(sdoc, f)
             with mock.patch.object(night, "area_ids", lambda doc: ["z0808-columbus"]), \
                     contextlib.redirect_stdout(io.StringIO()):
-                rc = hh.main(["night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49",
+                rc = hh.main(["--offline", "night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49",
                               "--out-dir", t, "--season", season])
             self.assertEqual(rc, 0)
             with open(os.path.join(t, "brief.json"), encoding="utf-8") as f:
