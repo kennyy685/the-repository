@@ -2176,7 +2176,8 @@ const samplePromise = (async () => {
   try {
     const c = window.claude;
     if (!c || typeof c.use !== 'function') return null;
-    return (await c.use('sample')) || null;
+    let id; const limit = new Promise(res => { id = setTimeout(() => res(null), 12000); });   // a runtime that never answers = no Claude, not a dead page
+    try { return (await Promise.race([c.use('sample'), limit])) || null; } finally { clearTimeout(id); }
   } catch (e) { return null; }
 })();
 samplePromise.then(s => { if (!s) goOff(); });
@@ -3149,7 +3150,7 @@ async function askHomeowner() {
   const ctl = new AbortController(); S.ctl = ctl;
   const input = [{ role: 'user', content: rulesText() }, ...S.turns];
   try {
-    const res = await sample(input, {
+    const res = await timed(sample(input, {
       cache: false, modelTier: 'quick', signal: ctl.signal,
       onText: ({ text }) => {
         if (sid !== S.sid) return;
@@ -3157,7 +3158,7 @@ async function askHomeowner() {
         const shown = stripTags(text); if (shown) setHomeText(bubble, shown);
         scrollEnd();
       }
-    });
+    }), ctl, GRADE_MS);   // the homeowner always answers or gives the box back
     if (sid !== S.sid) return;
     const m = TAG_RX.exec(res.text);
     const clean = stripTags(res.text) || '…';
@@ -3269,7 +3270,7 @@ async function showHint(bubble, reply, sid, sample) {
   const ctl = new AbortController(); S.hintCtl = ctl;
   let hint = '';
   try {
-    const data = await sample.json(hintPrompt(), { cache: false, modelTier: 'quick', signal: ctl.signal });
+    const data = await timed(sample.json(hintPrompt(), { cache: false, modelTier: 'quick', signal: ctl.signal }), ctl, QUICK_MS);
     const v = data && typeof data.hint === 'string' ? data.hint.trim().replace(/\s+/g, ' ') : '';
     if (v && v.length <= 160 && !legalScan(v, scanOpt(S.actual)).length) hint = v;
   } catch (e) { /* fall back below */ }
