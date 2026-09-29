@@ -68,3 +68,16 @@ is 26 KB (limit 70 KB). CLEAN.
 
 For FilthE: the map now shows only one walk per area, so the sister Columbus turf and the Omaha old-house backup still have
 no street walk of their own on the map; if you want "every card", say so and the engine can key walks by zone id instead.
+
+## Re-check (commit 8953eef) - PASS
+- Finding 1 (house number on one-word streets): rebuilt the repro (every Columbus address rewritten to "<num> Broadway",
+  "<num> Main", "<num> Oak"): every `s[].n`, `pn`, `f`, `t` is now a real street name from the map data (21st St, 22nd St...),
+  no digits-plus-word leak. FIXED. (Left over, low: "1200 1/2 Oak St" still gives "1/2 Oak St" via night._street; a fractional
+  house number, rare.)
+- Finding 2 (map-walk error loses the brief): `mapwalk.extra` patched to raise ValueError -> `hh.py night` rc 0, brief.json
+  written, error logged to stderr. FIXED.
+- Finding 3 (tiles not an array blanks the page): `map.tiles` as object and as string -> page renders, pick opens, walk drawn,
+  0 JS errors. FIXED. Also re-tried: `walks` as array (quiet, no walk, 0 errors), `h: 1e308` (clamped, 500 doors, no freeze;
+  was a hang), apostrophe/ampersand name (Knock toast now reads "O'Neill & Sons St", was `O&#39;Neill &amp;`). Lows 4, 5 FIXED.
+- Reruns: test_mapwalk + test_night 44 OK; open_map_night_check PASS (incl. new 7c). Not rerun: design_gate (index.html
+  changed only in the NIGHT_X block and toast; no layout change), MapLibre/WebGL path (offline).
