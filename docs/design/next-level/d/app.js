@@ -62,7 +62,9 @@ const T={
   why:h=>[h.roof>=20?`roof ~${h.roof} yrs`:`roof ~${h.roof} yrs`,h.own?'owner-lived':'not owner-lived',`built ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Door ${k} of ${n}`,after:n=>n?`${n} after this`:'last door',eta:t=>`ETA ~${t}`,
   f:{hail:d=>`Hail here (est., ${d})`,roof:'Roof age (estimate)',built:'Built',own:'Owner-lived (sample record)',type:'Home type',typeV:'Residential',areaIns:'Area likely insured (Census est.)',high:'high',yes:'yes',no:'no',yrs:'yrs'},
-  score:'score',prev:'← Prev door',next:'Next door →',
+  score:'score',bigHail:'Hail here',bigRoof:'Roof age (est.)',whyH:'Why:',
+  whyLong:h=>`${h.hail>=1.5?'big hail':h.hail>=1?'1-inch-plus hail':'smaller hail'} on a roof ~${h.roof} years old${h.own?', owner-lived (sample record)':''}, built ${h.built}.`,
+  prev:'← Prev door',next:'Next door →',
   legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-day cancel form, EN + ES.',
   fine:'Sample home (fake) until knocking starts. No owner names.',
   road:{doors:'Doors',hail:'Hail',walk:'Walk',start:'Start'},roadP:(n,k)=>`${n} streets · ${k} doors · sample homes`,
@@ -93,7 +95,9 @@ const T={
   why:h=>[`techo ~${h.roof} años`,h.own?'vive el dueño':'no vive el dueño',`construida en ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Puerta ${k} de ${n}`,after:n=>n?`quedan ${n} después`:'última puerta',eta:t=>`llegada ~${t}`,
   f:{hail:d=>`Granizo aquí (est., ${d})`,roof:'Edad del techo (estimado)',built:'Construida',own:'Vive el dueño (registro de muestra)',type:'Tipo',typeV:'Residencial',areaIns:'Zona prob. asegurada (est. Censo)',high:'alto',yes:'sí',no:'no',yrs:'años'},
-  score:'puntaje',prev:'← Puerta anterior',next:'Siguiente →',
+  score:'puntaje',bigHail:'Granizo aquí',bigRoof:'Edad del techo (est.)',whyH:'Por qué:',
+  whyLong:h=>`${h.hail>=1.5?'granizo grande':h.hail>=1?'granizo de más de 1 pulgada':'granizo menor'} en un techo de ~${h.roof} años${h.own?', vive el dueño (registro de muestra)':''}, construida en ${h.built}.`,
+  prev:'← Puerta anterior',next:'Siguiente →',
   legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días, EN + ES.',
   fine:'Casa de muestra (ficticia) hasta empezar a tocar. Sin nombres de dueños.',
   road:{doors:'Puertas',hail:'Granizo',walk:'A pie',start:'Inicio'},roadP:(n,k)=>`${n} calles · ${k} puertas · casas de muestra`,
@@ -414,7 +418,7 @@ function buildWalkOverlay(w){
     let best=null;l.p.forEach(p=>{const d=Math.hypot((p[0]-c[0])*M_LON,(p[1]-c[1])*M_LAT),f=far(p);if(d>90&&d<230&&f>38&&(!best||f>best.f))best={p,f}});
     if(best){seen.add(skey(n));lab.push({n,p:best.p,w:false})}});
   stEls=lab.slice(0,10).map(l=>{const at=mk('stl',`<div>${esc(l.n)}</div>`);if(l.w)at.firstElementChild.style.color='var(--acc-ink)';return {at,p:l.p,wd:l.n.length*6.4+10}});
-  parkEl=mk('park',`<div style="flex-direction:column;gap:3px;transform:translate(-50%,-11px)"><b>P</b><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-15)}</span></div>`);
+  parkEl=mk('park',`<div style="flex-direction:row-reverse;transform:translate(calc(-100% + 11px),-50%)"><b>P</b><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-15)}</span></div>`);
   const a=[];w.streets.forEach(s=>{for(let i=1;i<s.p.length;i++)a.push(X(s.p[i-1][0]),Y(s.p[i-1][1]),X(s.p[i][0]),Y(s.p[i][1]))});R.setLines('walk',new Float32Array(a));
   dirty=true}
 const place=(at,x,y,show)=>{at.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;at.style.opacity=show?'':'0';at.style.visibility=show?'':'hidden'};
@@ -553,11 +557,12 @@ function hlRow(k,on){const b=$(`#dl [data-k="${k}"]`);b&&b.classList.toggle('sel
 function renderDoor(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.length,k=S.door==null?0:S.door,h=w.homes[k];
   $('#dcardIn').innerHTML=`<div class="top2"><span class="chip hot">${esc(L.doorOf(k+1,n))}</span><span class="chip">${esc(t('sample'))}</span></div>
    <h3>${esc(h.addr)}</h3><p class="sub">${esc(h.st)} · ${esc(L.eta(fmtT(h.eta)))} · ${esc(L.after(n-k-1))}</p>
-   <div class="big"><span class="scv" style="color:${h.col}">${h.score}</span><span class="scl">${L.score}<sup class="s" data-src="engine">2</sup></span>
-     <span style="flex:1"></span><span class="hz" style="font-size:14px;padding-bottom:6px"><i style="background:${h.col}"></i>${h.hail.toFixed(2)}″</span></div>
+   <div class="big2"><div><span class="k">${L.bigHail}</span><span class="v" style="color:${h.col}">${h.hail.toFixed(2)}<small>″</small></span></div>
+     <div><span class="k">${L.bigRoof}</span><span class="v">~${h.roof}<small>${L.f.yrs}</small></span></div></div>
+   <p class="whyd"><b>${L.whyH}</b> ${esc(L.whyLong(h))}</p>
    <dl class="facts">
      <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} in<sup class="s" data-src="storms">1</sup></dd></div>
-     <div><dt>${L.f.roof}</dt><dd>~${h.roof} ${L.f.yrs}</dd></div>
+     <div><dt>${L.score}</dt><dd>${h.score}<sup class="s" data-src="engine">2</sup></dd></div>
      <div><dt>${L.f.built}</dt><dd>${h.built}</dd></div>
      <div><dt>${L.f.own}</dt><dd class="${h.own?'y':''}">${h.own?L.f.yes:L.f.no}</dd></div>
      <div><dt>${L.f.type}</dt><dd class="y">${L.f.typeV}</dd></div>
@@ -597,15 +602,16 @@ const tip=$('#tip');
 function showTip(html,x,y){tip.innerHTML=html;tip.classList.add('show');const r=tip.getBoundingClientRect();tip.style.left=clamp(x+14,8,W()-r.width-8)+'px';tip.style.top=clamp(y+14,8,H()-r.height-8)+'px'}
 const hideTip=()=>tip.classList.remove('show');
 function showTipDoor(k,x,y){const h=S.walk&&S.walk.homes[k];if(!h)return;const L=T[lang];
-  showTip(`<b>${k+1} · ${esc(h.addr)}</b><div class="m">${L.score} ${h.score} · ${h.hail.toFixed(2)}″ · ${lang==='es'?'techo':'roof'} ~${h.roof} · ${fmtT(h.eta)}</div><div class="m" style="color:var(--muted)">${esc(L.why(h))}</div>`,x,y)}
+  showTip(`<b>${k+1} · ${esc(h.addr)}</b><div class="tb"><span style="color:${h.col}">${h.hail.toFixed(2)}″</span><span>~${h.roof} ${L.f.yrs}</span></div><div class="m">${L.score} ${h.score} · ${fmtT(h.eta)}</div><div class="m" style="color:var(--muted)">${esc(L.why(h))}</div>`,x,y)}
 document.addEventListener('mouseover',e=>{const s=e.target.closest&&e.target.closest('sup.s');if(!s)return;const txt=SRC[lang][s.dataset.src];if(txt){const r=s.getBoundingClientRect();showTip(`<div class="m" style="color:var(--text-2)">${esc(txt)}</div>`,r.left,r.bottom)}});
 document.addEventListener('mouseout',e=>{if(e.target.closest&&e.target.closest('sup.s'))hideTip()});
 let toastT=0;function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3600)}
 
 /* ================= navigation ================= */
-const holoCv=$('#holo');
+const holoCv=$('#holo');let holoPtr=false; // only show hover cards after a real pointer move over the 3D view
+holoCv.addEventListener('pointermove',()=>holoPtr=true);holoCv.addEventListener('pointerleave',()=>{holoPtr=false;hideTip()});
 const holo=window.createHolo?(()=>{try{return window.createHolo(holoCv,$('#hl'),{
-  onHover:(i,x,y)=>{if(i==null){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false)})}catch(e){console.warn(e);return null}})():null;
+  onHover:(i,x,y)=>{if(i==null||!holoPtr){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false)})}catch(e){console.warn(e);return null}})():null;
 const holoOK=!!(holo&&holo.ok!==false);
 if(holo){try{holo.setTheme(theme);holo.setReduced(STILL)}catch(e){}}
 function setView(v){S.view=v;document.body.dataset.view=v;
@@ -663,7 +669,7 @@ function frame(now){
   if(thr>0){thr=STILL?0:Math.max(0,(thrT0?1.2:1.75)-(now-thrT0)/1000*(thrT0?1.1:1.0));dirty=true}
   const wt=S.view==='walk'||S.view==='road'?1:0;if(Math.abs(walkA-wt)>.01&&!STILL){walkA+=(wt-walkA)*.12;dirty=true}else walkA=wt;
   const st=S.storm!==S8.id?1:0;if(Math.abs(stormA-st)>.01&&!STILL){stormA+=(st-stormA)*.15;dirty=true}else stormA=st;
-  if(dirty&&S.view!=="road"||dirty&&fly){R.draw({thr,walk:walkA,storm:stormA});layoutOverlay(now);dirty=false}
+  if(dirty&&S.view!=="road"||dirty&&fly){dirty=false;R.draw({thr,walk:walkA,storm:stormA});layoutOverlay(now)}
   requestAnimationFrame(frame)}
 
 /* ================= boot ================= */
