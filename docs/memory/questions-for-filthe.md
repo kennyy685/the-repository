@@ -118,3 +118,12 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
     "companies that show up after a storm and then disappear": soften both until the boss answers (flagged 2026-09-28).
   - Does HMP offer payment plans / financing? Until yes, the Practice Door never mentions it (v12 "let me think" card).
 - 2026-09-29 (open, ask in the morning): "score every call" = (a) after a real door or phone talk, you say what happened and Aldaba scores it like the Practice Door (steps hit, legal lines, one tip), or (b) every lead on the call list gets a score for how likely it is to become a job? King's pick: (a).
+
+## Answered 2026-09-29 ~22:30 UTC: 7 AM look (FilthE reviewed A/B/C live)
+- Pick = a MIX, not one: Storm Room (A) map LAYOUT ("I really like the map layout") + its backup card; The Brief (B)
+  zoom-in; Deck (C) HOLOGRAM effect: when he selects a zone to view the road/walk, the walk and the houses become
+  holograms ("have a really fun time designing that"). Pick zone Columbus.
+- Dislikes: A's storm look (particles "look like worms"), A's hail-days list + today's plan panel (not informational),
+  A's zoom-in (glitchy, over-highlighted); B's zoom into the walk shows no information / no design; B's "show all zones"
+  and back flow.
+- Still open: contract screen vs paper, boss/lawyer look at legal wording, policy filing-limit line.
