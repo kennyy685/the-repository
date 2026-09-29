@@ -1593,7 +1593,7 @@ function drawFx(t,dt){const li=THEME==="light";FXW=li?"24,25,28":"255,255,255";F
 const cyc01=(t)=>((t-T0)%CYC)/CYC;
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function loop(t){if(T0===null){T0=t-((STORMS.s1&&(st.days-14)/st.days)||0)*CYC+900}const dt=Math.min(100,t-(lastT||t));lastT=t;
-  const moving=useGL&&map.isMoving();if(moving||t-lastDraw>30){lastDraw=t;drawFx(t,dt)}
+  const moving=useGL&&map.isMoving(),gap=st.sel?66:document.hasFocus()?30:200;if(moving||t-lastDraw>gap){lastDraw=t;drawFx(t,dt)}   // 33 fps; 15 behind an open card; 5 when the window isn't focused
   if(!reduce)requestAnimationFrame(loop)}
 
 /* ---------- UI: text ---------- */
@@ -1862,7 +1862,7 @@ function renderTimeline(){
    left = plan (getting there, best streets, walk)  ·  right = proof
    ===================================================================== */
 const $=(id)=>document.getElementById(id);
-const idle=(fn)=>(window.requestIdleCallback||((f)=>setTimeout(f,60)))(fn);
+const idle=(fn)=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:2000}):setTimeout(fn,60);   // timeout: the FX loop keeps the thread busy, so idle work must still run
 const areaOf=(id)=>AREAS.find(x=>x.id===id);
 const lenM=(p)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot((p[i][0]-p[i-1][0])*KX,(p[i][1]-p[i-1][1])*KY);return s*1000};
 const hsh=(s)=>{let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
@@ -2395,7 +2395,6 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
       ${K.W?`<div class="kwalk"><div><b>${K.W.doors}</b><small>${t("doors")}</small></div><div><b>${t("streetsN",K.k)}</b><small>${t("from")} ${K.st0}</small></div><div><b>${K.fu.length}</b><small>${t("fuOnWay")}</small></div></div>`:""}
       ${warn}
       <div class="kbtns"><button class="btn sm" data-walk="${K.a.id}"${K.z?` data-z="${escN(K.z)}"`:""}>${ic("route")}${t("openWalk")}</button><a class="btn sm go" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startK")}</a></div></div>`}
-  const walkSt=K&&K.W?K.X.s.slice(0,K.k).map(x=>x.n):[];
   const fus=DAY_PLAN.fu.map(f=>{const on=K&&f.area===K.a.id;return `<div class="fu"><span class="ad">${addr(f)} <span class="smp">${t("sampleW")}</span></span>
       <span class="ar">${L(areaOf(f.area).name)} · ${t("lastSeen",fmtDate(f.last))}${on?` · <em>${t("onWay")}</em>`:""}</span><span class="nt">${L(f.n)}</span></div>`}).join("");
   const aps=DAY_PLAN.ap.map(ap=>`<div class="ap ${ap.k}"><span class="at">${fmtClock(ap.at)}</span><span><span class="ad">${t(ap.k)} · ${addr(ap)} <span class="smp">${t("sampleW")}</span></span>
@@ -2481,7 +2480,7 @@ $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
   else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AX(a.id);toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
 $("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
-  if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
+  if(e.target.closest("#rpPlay")){RP.play=!RP.play;cancelAnimationFrame(RP.raf);if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});
 addEventListener("keydown",e=>{if(e.key==="Escape"){if(pop.classList.contains("on"))closePop();else if(!$("cmpw").hidden)closeCmp();else if(st.sel)goBack()}
   else if(st.sel&&(e.key==="ArrowLeft"||e.key==="ArrowRight")&&$("cmpw").hidden&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();stepArea(e.key==="ArrowLeft"?-1:1)}});
@@ -2539,7 +2538,7 @@ let tt;function toast(msg){const e=document.getElementById("toast");e.textConten
 
 /* ---------- real data: load, decode, apply ---------- */
 function applyBase(b){BASE=b;
-  onGL(()=>{map.getSource("base").setData(b);makeRelief()});
+  onGL(()=>{map.getSource("base").setData(b);idle(makeRelief)});   // relief is decorative and heavy: after first paint
   // snap highway shields onto the real highway lines
   const hw=b.features.filter(f=>f.properties.k==="hwy");
   roadLabels.forEach(l=>{let best=null,bd=1e9;hw.filter(f=>f.properties.n===l.name).forEach(f=>f.geometry.coordinates.forEach(p=>{const d=(p[0]-l.ll[0])**2+(p[1]-l.ll[1])**2;if(d<bd){bd=d;best=p}}));if(best)l.ll=best});
@@ -2582,7 +2581,7 @@ function applyHomes(h){const S=h.r,kx=h.kx,ky=h.ky,g=.8*S,R3=Math.sqrt(3);
       const k=reduce?1:Math.min(1,(now-t0)/1500),e=1-Math.pow(1-k,3);hexK=to*e;map.setPaintProperty("homes-3d","fill-extrusion-height",hexH());if(k<1)requestAnimationFrame(up)};
     setTimeout(()=>requestAnimationFrame(up),250)});
   renderToggles();renderStrip()}
-const getJSON=(n)=>fetch("data/"+n+".json").then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.json()});
+const getJSON=(n)=>fetch("data/"+n+".json",window.AbortSignal&&AbortSignal.timeout?{signal:AbortSignal.timeout(20000)}:undefined).then(r=>{if(!r.ok)throw new Error(n+" "+r.status);return r.json()});   // a stalled file falls back (each caller's catch) instead of waiting forever
 function loadData(){
   getJSON("base").then(applyBase).catch(e=>{console.warn("basemap data not loaded, using drawn fallback",e);
     onGL(()=>["fb-city","fb-grid","fb-river","fb-road","fb-street"].forEach(id=>map.setLayoutProperty(id,"visibility","visible")))});
