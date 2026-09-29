@@ -187,6 +187,16 @@ async function main() {
     ok(!jk.x && !jk.img && jk.tiles === 1 && !jk.walk, `map-west junk: ${JSON.stringify(jk)}`);
     ok(!t.errors.length, "map-west junk: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
+    // 7c. tiles/walks of the wrong type, absurd door counts: the page still renders (QA 2026-09-29)
+    const odd = JSON.parse(JSON.stringify(BW));
+    odd.map.tiles = { nope: 1 };
+    odd.map.walks["z0808-columbus"].s[0].h = 1e308;
+    t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify(odd) + ";");
+    const od = await t.p.evaluate(() => ({ picks: document.querySelectorAll(".picks .pick").length, tiles: NIGHT_X.tiles.length,
+      h: NIGHT_X.walks["z0808-columbus"] ? NIGHT_X.walks["z0808-columbus"].s[0].h : null }));
+    ok(od.picks === 3 && od.tiles === 0 && od.h === 500, `map-west odd types: ${JSON.stringify(od)}`);
+    ok(!t.errors.length, "map-west junk: JS errors: " + t.errors.join(" | "));
+    await t.ctx.close();
 
     // 6. an older brief (no top, no map): the list is still pick + backup; an in-box pick keeps the designed view
     t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify({ ...BR, top: undefined, map: undefined,

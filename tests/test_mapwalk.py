@@ -99,6 +99,19 @@ class PageWalk(unittest.TestCase):
         for s in d["stops"]:
             self.assertNotIn(s["address"].split()[0] + " ", text.replace('"', " "))   # no house numbers
 
+    def test_one_word_street_never_keeps_the_house_number(self):
+        # QA 2026-09-29: "3601 Broadway" came out with its house number; now the map's own street name is used
+        _, w = columbus()
+        for st in w["stops"][:13]:
+            st["address"] = st["address"].split()[0] + " Broadway"
+        pw = mapwalk.page_walk(w, 1.64)
+        text = json.dumps(pw)
+        self.assertNotRegex(text, r'"\d{3,5} ')
+        mapped = {st["name"] for st in w["basemap"]["streets"]}
+        self.assertIn(pw["s"][0]["n"], mapped)                 # a real street name from the map, not "3601 Broadway"
+        self.assertIsNone(mapwalk._addr_name("3601 Broadway"))
+        self.assertEqual(mapwalk._addr_name("3920 22 St"), "22 St")
+
     def test_no_basemap_no_walk(self):
         _, w = columbus()
         self.assertIsNone(mapwalk.page_walk({**w, "basemap": None}))
@@ -172,6 +185,31 @@ class BriefCarriesWalks(unittest.TestCase):
         mk = basemap.Maker({}, None, None, offline=True, log=lambda m: None)
         out = mapwalk.extra(self.brief(), {"walks/2026-08-08_Schuyler~t1": self.schuyler_walk()}, mk)
         self.assertEqual(out, {"walks": {}, "tiles": []})
+
+    def test_a_map_walk_error_never_costs_the_brief(self):
+        # QA 2026-09-29: mapwalk.extra raising lost the whole 7 AM brief
+        with tempfile.TemporaryDirectory() as t, \
+                mock.patch.object(mapwalk, "extra", mock.Mock(side_effect=ValueError("boom"))), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()) as err:
+            rc = hh.main(["--offline", "night", "--no-refresh", "--hud", HUD, "--date", "2026-09-25", "--near",
+                          "41.43,-96.49", "--out-dir", t])
+            self.assertEqual(rc, 0)
+            self.assertTrue(os.path.exists(os.path.join(t, "brief.json")))
+        self.assertIn("map walks failed (ValueError: boom)", err.getvalue())
+
+    def test_tiles_are_capped(self):
+        mk, _ = self.maker(None)                               # the street grid follows each query box
+        cards, walks = [], {}
+        for i, (x, y) in enumerate([(-97.059, 41.447), (-97.130, 41.253), (-97.368, 41.43), (-97.60, 41.10),
+                                    (-97.80, 41.90)]):
+            w = self.schuyler_walk()
+            dx, dy = x - (-97.059), y - 41.447
+            w["stops"] = [{**s, "lon": s["lon"] + dx, "lat": s["lat"] + dy} for s in w["stops"]]
+            w["zone_id"] = f"z~t{i}"
+            walks[f"walks/z~t{i}"] = w
+            cards.append({"zone_id": f"z~t{i}", "area_id": f"a{i}", "hail_in": 1.0})
+        out = mapwalk.extra({"pick": cards[0], "top": cards}, walks, mk)
+        self.assertEqual(len(out["tiles"]), C.DEFAULTS["openmap"]["max_tiles"])
 
     def test_every_pick_town_is_in_range(self):
         # FilthE's towns: every one gets a tile when outside the old box, and the rest are inside it

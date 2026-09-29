@@ -930,12 +930,13 @@ const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},tiles:[]};if(!b||b.k
   const esc=(v)=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
     num=(v)=>typeof v==="number"&&isFinite(v),pt=(p)=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1]),
     line=(a)=>Array.isArray(a)&&a.every(pt),ints=(a)=>Array.isArray(a)&&a.length>=4&&a.every(num);
-  Object.entries(b.map.walks||{}).forEach(([id,w])=>{try{
-    const s=(w.s||[]).filter(x=>x&&line(x.p)&&x.p.length>=2).map(x=>({n:esc(x.n),b:num(x.b)?x.b:0,h:num(x.h)?Math.max(0,Math.round(x.h)):0,
+  const W0=b.map.walks&&typeof b.map.walks==="object"&&!Array.isArray(b.map.walks)?b.map.walks:{};
+  Object.entries(W0).slice(0,12).forEach(([id,w])=>{try{
+    const s=(Array.isArray(w.s)?w.s.slice(0,40):[]).filter(x=>x&&line(x.p)&&x.p.length>=2).map(x=>({n:esc(x.n),b:num(x.b)?x.b:0,h:num(x.h)?Math.max(0,Math.min(500,Math.round(x.h))):0,
       m:num(x.m)?x.m:0,f:esc(x.f),t:esc(x.t),p:x.p}));
     if(!s.length||!pt(w.park)||!Array.isArray(w.c)||!Array.isArray(w.r)||w.r.length!==s.length||w.c.length!==s.length||!w.c.every(c=>line(c))||!w.r.every(r=>line(r)&&r.length))return;
     out.walks[String(id)]={park:w.park,pn:[esc((w.pn||[])[0]),esc((w.pn||[])[1])],s,c:w.c,r:w.r}}catch(e){}});
-  (b.map.tiles||[]).forEach(t=>{if(t&&pt(t.o)&&num(t.s)&&t.s>0&&Array.isArray(t.t)&&t.t.length===4&&t.t.every(c=>Array.isArray(c)&&c.every(ints)))out.tiles.push(t)});
+  (Array.isArray(b.map.tiles)?b.map.tiles.slice(0,6):[]).forEach(t=>{if(t&&pt(t.o)&&num(t.s)&&t.s>0&&Array.isArray(t.t)&&t.t.length===4&&t.t.every(c=>Array.isArray(c)&&c.every(ints)))out.tiles.push(t)});
   return out})();
 const TODAY = REAL ? REAL.today : "2026-09-28";
 const KNOCK_URL = "https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU"; // the Knock page: one tap per door
@@ -2438,7 +2439,7 @@ $("planBody").addEventListener("click",e=>{if(e.target.closest("#seeProof")){con
 $("planBody").addEventListener("mouseover",e=>{const r=e.target.closest(".bs");hoverStreet(r?+r.dataset.i:null)});
 $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
-  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>s.n).join(", ")))}});
+  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
 $("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
   if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});
@@ -2493,6 +2494,7 @@ document.querySelectorAll("button[data-lang]").forEach(b=>b.addEventListener("cl
 function fitTop(){const p=document.querySelector(".pulse"),b=document.body,over=()=>p.scrollWidth>p.clientWidth+1||[...p.children].some(c=>c.scrollWidth>c.clientWidth+1);
   b.classList.remove("tight1","tight2");if(over())b.classList.add("tight1");if(over())b.classList.add("tight2")}
 addEventListener("resize",fitTop);
+const unesc=(v)=>String(v).replace(/&(amp|lt|gt|quot|#39);/g,(m,k)=>({amp:"&",lt:"<",gt:">",quot:'"',"#39":"'"}[k])); // toast = textContent
 let tt;function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("on"),3200)}
 
 /* ---------- real data: load, decode, apply ---------- */

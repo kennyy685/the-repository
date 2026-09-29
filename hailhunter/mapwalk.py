@@ -17,6 +17,7 @@ along its street to the next cross street, at most `ext_max_m`), connectors and 
 the names are street names only (the stop's address street with the house number cut off).
 """
 import heapq
+import re
 import json
 import math
 import sqlite3
@@ -42,7 +43,11 @@ def band(hail):
 def _addr_name(address):
     """"3920 22 St" -> "22 St" (the Knock app's street name, no house number); None without a street."""
     from .night import _street
-    return _street(address)
+    s = _street(address)
+    m = re.match(r"^\d+[A-Za-z]?\s+(\S+)$", s or "")
+    if m and m.group(1).upper().strip(".") not in basemap._TYPE_WORDS:   # "3601 Broadway" (not "22 St"): the map's
+        return None                                                      # own street name instead, never the number
+    return s
 
 
 # ---------- the walk ----------
@@ -304,7 +309,7 @@ def extra(doc, walks, maker, cfg=None):
     out = {"walks": {}, "tiles": []}
     if maker is None:
         return out
-    boxes = []
+    boxes, oc = [], _ocfg(cfg)
     for c in [doc.get("pick"), doc.get("backup"), *(doc.get("top") or [])]:
         aid = (c or {}).get("area_id")
         if not aid or aid in out["walks"]:
@@ -321,7 +326,7 @@ def extra(doc, walks, maker, cfg=None):
         if pw:
             out["walks"][aid] = pw
         box = tile_box(w, cfg)
-        if box and outside(box, cfg) and not any(b[0] <= box[0] and b[1] <= box[1] and b[2] >= box[2] and
+        if box and outside(box, cfg) and len(out["tiles"]) < oc["max_tiles"] and not any(b[0] <= box[0] and b[1] <= box[1] and b[2] >= box[2] and
                                                   b[3] >= box[3] for b in boxes):
             t = get_tile(maker, box, cfg)
             if t:
