@@ -263,9 +263,10 @@ async function appScenarios(browser) {
     await tick(waitMs);
     ok(!(await p.isDisabled("#kcInput")), `chat box still locked ${waitMs / 1000} s after sending`);
     const log = await p.textContent("#kcLog"); ok(expect.test(log), "no clear message in the chat after the failure: " + log.slice(-120));
+    if (name === "app-sample-hang") { ok((await p.inputValue("#kcInput")) === "12 doors today", "timed-out message not put back in the box"); ok(await p.evaluate(() => !JSON.parse(localStorage.getItem("hmp-app-outbox") || "[]").some(x => x.op === "king")), "timed-out message was queued to resend"); }
     await closeSheets(p, tick);
   }));
-  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /saved on this phone/);
+  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /took too long/);   // a timeout may have done the work: never auto-resent (no double-logged doors)
   await run("app-say-hang", () => appDegraded(browser, url, "app-say-hang", { sample: "hang" }, async ({ p, tick }) => {   // Help me say it never answers
     await tick(2000);
     await p.click("#plusBtn", { timeout: 3000 }).catch(() => {}); await tick(300);

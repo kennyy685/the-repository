@@ -1293,7 +1293,7 @@ const TX = {
     never: 'never', justNow: 'just now', mAgo: n => n + 'm ago', hAgo: n => n + 'h ago',
     live: {preview: 'Preview only: live data loads on the published page', na: 'Live data is not available in this view', loading: 'Loading…', lost: 'Lost the live connection. Reload the page.', wait: 'Connecting…', on: 'Live'},
     kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
-    kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
+    kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.', slow: 'The Right Hand took too long, so it stopped. Your message is back in the box: make sure it wasn’t already saved before sending it again.'},
     appOff: 'Preview only: live leads, claims and numbers load on the published page.', appErr: 'Leads and claims could not load. Reload the page.', appWait: 'Loading leads and claims…', modMiss: 'Part of the app didn\'t load (weak signal?).', reload: 'Reload',
     // today
     sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumClear: 'Nothing due. Go knock.',
@@ -1371,7 +1371,7 @@ const TX = {
     never: 'nunca', justNow: 'ahora mismo', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
     live: {preview: 'Solo vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga la página.', wait: 'Conectando…', on: 'En vivo'},
     kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
-    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
+    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.', slow: 'La Mano Derecha tardó demasiado y se detuvo. Tu mensaje está otra vez en la caja: fíjate que no se haya guardado ya antes de mandarlo otra vez.'},
     appOff: 'Solo vista previa: los prospectos, reclamos y números en vivo cargan en la página publicada.', appErr: 'No se pudieron cargar los prospectos y reclamos. Recarga la página.', appWait: 'Cargando prospectos y reclamos…', modMiss: 'Parte de la app no cargó (¿poca señal?).', reload: 'Recargar',
     sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumClear: 'Nada pendiente. A tocar puertas.',
     followH: 'Seguimientos para hoy', followNone: 'Nada pendiente para hoy.', followLater: 'Próximos', kLead: 'Prospecto', kClaim: 'Reclamo',
@@ -5981,6 +5981,7 @@ function kingErr(e){
   if (c === 'session_expired') return E.session;
   if (c === 'invalid_json') return E.json;
   if (c === 'refused') return E.refused;
+  if (c === 'timeout') return E.slow;
   return E.net;
 }
 let receipts = [];
@@ -6005,7 +6006,7 @@ async function applyActions(actions){
   }
   return done;
 }
-const KING_SOFT = ['cancelled', 'not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'rate_limited', 'session_expired', 'invalid_json', 'refused'];
+const KING_SOFT = ['cancelled', 'not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'rate_limited', 'session_expired', 'invalid_json', 'refused', 'timeout'];   // timeout: it may have done the work already, so never auto-resend (no double-logged doors)
 let kingNextAt = 0;
 function rcLine(cls, text){ const b = document.createElement('button'); b.type = 'button'; b.className = 'rc' + (cls ? ' ' + cls : ''); b.setAttribute('aria-expanded', 'false'); b.textContent = text; b.addEventListener('click', () => b.setAttribute('aria-expanded', String(b.getAttribute('aria-expanded') !== 'true'))); return b; }
 async function askKing(message, quick, retry){
@@ -6040,6 +6041,7 @@ async function askKing(message, quick, retry){
     } else {
       const why = code === 'cancelled' ? L().kcStopped : kingErr(e);
       p.textContent = (e && e.text) ? e.text + ' (' + why + ')' : why;
+      if (code === 'timeout' && !$('#kcInput').value) $('#kcInput').value = message;
     }
     kcSet(false, '');
   } finally { kcBusy = false; }
@@ -6063,13 +6065,13 @@ async function connect(late){
   const uP = Promise.resolve(cl.use('user')), smP = Promise.resolve(cl.use('sample'));
   const slowCaps = await caps(uP, smP, true);
   if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
-  if (slowCaps) Promise.all([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); }, () => {});   // only when one was slow, not refused
+  if (slowCaps) Promise.allSettled([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); });   // only when one was slow (a refused one stays off)
 }
 async function caps(uP, smP, first){
   const cl = window.claude;
   let late = false; const slow = e => { if (e && e.code === 'timeout') late = true; return null; };
   const [u, sm] = await Promise.all([within(uP, USE_MS).catch(slow), within(smP, USE_MS).catch(slow)]);
-  try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; }
+  try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; slow(e); }
   SAMPLE = sm || null;
   try { ASSETS = CAN_EDIT ? await within(cl.use('assets'), USE_MS) : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
