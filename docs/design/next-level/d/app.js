@@ -51,7 +51,7 @@ const T={
   sample:'sample homes',everyday:'everyday',noTime:'time not reported',homesIn:n=>`${n} homes`,zonesN:n=>`${n} zone${n===1?'':'s'}`,near:p=>`near ${p}`,
   ago:n=>`${n}d`,max:'max',pickStorm:'pick',
   sum:{all:n=>`${n} days in 2026`,d90:n=>`${n} in 90 d`,big:(v,d)=>`max ${v}″ ${d}`},
-  legend:(d,m)=>`<b>Hail · ${d}</b> · a line every 0.1 in · peak ${m}″`,legendAll:'faint lines = all 18 storm days',showPick:'Back to the pick',
+  legend:(d,m)=>`<b>Hail · ${d}</b> · a line every 0.1 in · display-model peak ${m}″`,legendAll:'faint lines = all 18 storm days',showPick:'Back to the pick',
   area:a=>`<b>Area:</b> ${a.homes.toLocaleString('en-US')} homes · ${a.owner}% owner-lived · <b>likely insured: ${insWord(a)}</b> (area estimate, not a fact about one home)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Everyday zone:</b> no recent hail; older homes, mostly owner-lived.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Columbus pick',bkLabel:'Back to',
@@ -62,27 +62,29 @@ const T={
   why:h=>[h.roof>=20?`roof ~${h.roof} yrs`:`roof ~${h.roof} yrs`,h.own?'owner-lived':'not owner-lived',`built ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Door ${k} of ${n}`,after:n=>n?`${n} after this`:'last door',eta:t=>`ETA ~${t}`,
   f:{hail:d=>`Hail here (est., ${d})`,roof:'Roof age (estimate)',built:'Built',own:'Owner-lived (sample record)',type:'Home type',typeV:'Residential',areaIns:'Area likely insured (Census est.)',high:'high',yes:'yes',no:'no',yrs:'yrs'},
-  score:'score',prev:'← Prev door',next:'Next door →',
-  legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-day cancel form, EN + ES.',
+  score:'score',bigHail:'Hail here',bigRoof:'Roof age (est.)',whyH:'Why:',
+  whyLong:h=>`${h.hail>=1.5?'big hail':h.hail>=1?'1-inch-plus hail':'smaller hail'} on a roof ~${h.roof} years old${h.own?', owner-lived (sample record)':''}, built ${h.built}.`,
+  prev:'← Prev door',next:'Next door →',
+  legal:'At the door, first: your name, HMP Siding & Roofing, and what you sell (Neb. 69-1602). Every sale: 3-business-day cancel form, EN + ES.',
   fine:'Sample home (fake) until knocking starts. No owner names.',
-  road:{doors:'Doors',hail:'Hail',walk:'Walk',start:'Start'},roadP:(n,k)=>`${n} streets · ${k} doors · sample homes`,
+  road:{doors:'Doors',hail:'Top door hail',walk:'Walk',start:'Start'},roadP:(n,k)=>`${n} streets · ${k} doors · sample homes`,
   hint:'<b>Drag</b> to orbit · <b>scroll</b> to zoom · <b>click</b> a house · <b>Esc</b> back',
   back:{morning:'Morning',walk:'Walk'},
-  toastOmaha:'Omaha is the everyday backup: street-level 3D loads in the live app (this mockup has Columbus streets).',
+  toastOmaha:'Omaha is the everyday backup: street-level 3D loads in the live app (this mockup has Fremont and Columbus streets).',
   toastNoGL:'3D needs WebGL2; showing the walk list instead.',
   hq:'HMP HQ',ind:{col:(n,mi)=>`← Columbus · ${n} zones · ${mi} mi`,bk:mi=>`Omaha backup · ${mi} mi →`},
   srcs:'<b>Sources</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> Aldaba engine (hh.py) · <sup>3</sup> Census ACS 2024 · <sup>4</sup> Nebraska GIS streets · homes: sample · contours: display model',
  },
  es:{cMorning:'Mañana',cWalk:'Ruta',cRoad:'Calle 3D',overnight:'Anoche',date:'mar 29 sep',clock:'7:02 a. m.',dark:'Oscuro',light:'Claro',
   pickEye:'La elección de Aldaba',pickOf:n=>`#1 de ${n} zonas`,doors:'Puertas',doorsU:n=>`en la ruta · ${n} calles`,hail:'Granizo',in:'pulg',hailU:d=>`${d} · reportes + radar`,
-  drive:'Manejo',driveU:m=>`desde la base HMP · ~${m} min`,best:'Mejor hora',bestV:'4–7:30',bestU:t=>`p. m. hoy · puesta de sol ${t}`,start:'Empezar la ruta',
+  drive:'Manejo',driveU:m=>`desde la base HMP · ~${m} min`,best:'Mejor hora',bestV:'4–7:30',bestU:t=>`p. m. hoy · ocaso ${t.replace(' p. m.','')}`,start:'Empezar la ruta',
   backup:'Respaldo',bkM:(mi,d,sc)=>`${mi} mi · ${d} puertas · ${sc}`,zones:'Zonas en orden',zonesSub:'clic → calle en 3D',plan:'Plan de hoy',planSub:'mar 29 sep',
   hdays:'Días de granizo',hdaysSub:'clic → mapa',backMorning:'Mañana',walkEye:'La ruta · en orden',colDoor:'Puerta · por qué',colHail:'Granizo',colRoof:'Techo',colScore:'Puntaje',
   viewRoad:'Ver la calle en 3D',roadEye:'Vista de calle · holograma',tour:'Recorrido',orbit:'Girar',top:'Arriba',walkOrder:'Orden de la ruta',
   sample:'casas de muestra',everyday:'diario',noTime:'hora no reportada',homesIn:n=>`${n} casas`,zonesN:n=>`${n} zona${n===1?'':'s'}`,near:p=>`cerca de ${p}`,
-  ago:n=>`hace ${n} d`,max:'máx',pickStorm:'elección',
+  ago:n=>`${n} d`,max:'máx',pickStorm:'elección',
   sum:{all:n=>`${n} días en 2026`,d90:n=>`${n} en 90 d`,big:(v,d)=>`máx ${v}″ ${d}`},
-  legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
+  legend:(d,m)=>`<b>Granizo · ${d}</b> · una línea cada 0.1 pulg · pico del modelo ${m}″`,legendAll:'líneas tenues = los 18 días de tormenta',showPick:'Volver a la elección',
   area:a=>`<b>Zona:</b> ${a.homes.toLocaleString('en-US')} casas · en el ${a.owner}% viven sus dueños · <b>probablemente asegurado: ${insWord(a)}</b> (estimado de la zona, no dato de una casa)<sup class="s" data-src="census">3</sup>`,
   bkArea:'<b>Zona diaria:</b> sin granizo reciente; casas antiguas, en su mayoría viven sus dueños.<sup class="s" data-src="census">3</sup>',
   showPickBtn:'Elección Columbus',bkLabel:'Volver a',
@@ -93,22 +95,24 @@ const T={
   why:h=>[`techo ~${h.roof} años`,h.own?'vive el dueño':'no vive el dueño',`construida en ${h.built}`].join(' · '),
   doorOf:(k,n)=>`Puerta ${k} de ${n}`,after:n=>n?`quedan ${n} después`:'última puerta',eta:t=>`llegada ~${t}`,
   f:{hail:d=>`Granizo aquí (est., ${d})`,roof:'Edad del techo (estimado)',built:'Construida',own:'Vive el dueño (registro de muestra)',type:'Tipo',typeV:'Residencial',areaIns:'Zona prob. asegurada (est. Censo)',high:'alto',yes:'sí',no:'no',yrs:'años'},
-  score:'puntaje',prev:'← Puerta anterior',next:'Siguiente →',
-  legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días, EN + ES.',
+  score:'puntaje',bigHail:'Granizo aquí',bigRoof:'Edad del techo (est.)',whyH:'Por qué:',
+  whyLong:h=>`${h.hail>=1.5?'granizo grande':h.hail>=1?'granizo de más de 1 pulgada':'granizo menor'} en un techo de ~${h.roof} años${h.own?', vive el dueño (registro de muestra)':''}, construida en ${h.built}.`,
+  prev:'← Puerta anterior',next:'Siguiente →',
+  legal:'En la puerta, primero: tu nombre, HMP Siding & Roofing y lo que vendes (Neb. 69-1602). Cada venta: formulario de cancelación de 3 días hábiles, EN + ES.',
   fine:'Casa de muestra (ficticia) hasta empezar a tocar. Sin nombres de dueños.',
-  road:{doors:'Puertas',hail:'Granizo',walk:'A pie',start:'Inicio'},roadP:(n,k)=>`${n} calles · ${k} puertas · casas de muestra`,
+  road:{doors:'Puertas',hail:'Granizo máx. puerta',walk:'A pie',start:'Inicio'},roadP:(n,k)=>`${n} calles · ${k} puertas · casas de muestra`,
   hint:'<b>Arrastra</b> para girar · <b>rueda</b> para acercar · <b>clic</b> en una casa · <b>Esc</b> regresa',
   back:{morning:'Mañana',walk:'Ruta'},
-  toastOmaha:'Omaha es el respaldo diario: el 3D a nivel de calle se carga en la app en vivo (esta maqueta tiene calles de Columbus).',
+  toastOmaha:'Omaha es el respaldo diario: el 3D a nivel de calle se carga en la app en vivo (esta maqueta tiene calles de Fremont y Columbus).',
   toastNoGL:'El 3D necesita WebGL2; se muestra la lista de la ruta.',
   hq:'Base HMP',ind:{col:(n,mi)=>`← Columbus · ${n} zonas · ${mi} mi`,bk:mi=>`Respaldo Omaha · ${mi} mi →`},
   srcs:'<b>Fuentes</b> · <sup>1</sup> NOAA SPC + MRMS · <sup>2</sup> motor Aldaba (hh.py) · <sup>3</sup> Censo ACS 2024 · <sup>4</sup> calles Nebraska GIS · casas: muestra · curvas: modelo visual',
  }};
 const t=k=>T[lang][k];
 const SRC={en:{storms:NL.src.storms,engine:'Aldaba engine (hh.py): ranks zones from NOAA/MRMS hail + Census ACS 2024; doors = its walk',
-  drive:'Engine distance from HMP HQ (2600 N Laverna St, Fremont); time estimated',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
+  drive:'Engine distance from HMP HQ (2600 Laverna St, Fremont); time estimated',census:NL.src.census+' (area estimate, never a fact about one home)',streets:NL.src.streets,homes:NL.src.homes},
  es:{storms:'Reportes de tormenta NOAA SPC + estimados de granizo por radar MRMS (motor hh.py)',engine:'Motor Aldaba (hh.py): ordena zonas con granizo NOAA/MRMS + Censo ACS 2024; puertas = su ruta',
-  drive:'Distancia del motor desde la base HMP (2600 N Laverna St, Fremont); tiempo estimado',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
+  drive:'Distancia del motor desde la base HMP (2600 Laverna St, Fremont); tiempo estimado',census:'Censo de EE. UU. ACS 2024 (estimado de la zona, nunca un dato de una casa)',streets:NL.src.streets,homes:'Casas de MUESTRA (ficticias) hasta empezar a tocar. Sin nombres de dueños.'}};
 
 /* ================= projection + palette ================= */
 const K=Math.cos(41.3*Math.PI/180), X=lon=>(lon+97)*K, Y=lat=>lat-41.3, KMX=111.32, KMY=110.54;
@@ -121,7 +125,10 @@ const PAL={
 };
 
 /* ================= geometry ================= */
-function segs(lines,filter){const o=[];for(const L of lines){if(filter&&!filter(L))continue;const p=L.p;for(let i=1;i<p.length;i++)o.push(X(p[i-1][0]),Y(p[i-1][1]),X(p[i][0]),Y(p[i][1]));}return new Float32Array(o)}
+const MAXL=.009; // split long segments (~1 km) so each fits a cull tile
+function segs(lines,filter){const o=[];for(const L of lines){if(filter&&!filter(L))continue;const p=L.p;
+  for(let i=1;i<p.length;i++){const ax=X(p[i-1][0]),ay=Y(p[i-1][1]),bx=X(p[i][0]),by=Y(p[i][1]),n=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)/MAXL));
+    for(let k=0;k<n;k++)o.push(ax+(bx-ax)*k/n,ay+(by-ay)*k/n,ax+(bx-ax)*(k+1)/n,ay+(by-ay)*(k+1)/n)}}return new Float32Array(o)}
 function fan(ring){ // ear clipping (concave town/river outlines)
   let pts=ring.map(q=>[X(q[0]),Y(q[1])]);if(pts.length>3){const a=pts[0],b=pts[pts.length-1];if(a[0]===b[0]&&a[1]===b[1])pts.pop()}
   let n=pts.length;if(n<3)return [];let area=0;for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n];area+=a[0]*b[1]-b[0]*a[1]}if(area<0)pts.reverse();
@@ -169,12 +176,15 @@ function stormVal(F,x,y,w){ // x,y in km; w = warp(x,y) (computed once per texel
   return Math.max(0,v)}
 const hailAt=(lon,lat,F=SF.find(f=>f.s.id===S8.id))=>{const x=X(lon)*KMX,y=Y(lat)*KMY;return stormVal(F,x,y,warp(x,y))};
 const RB=[X(-97.62),Y(40.98),X(-95.84),Y(41.74)], LB=[X(-97.47),Y(41.385),X(-97.28),Y(41.49)];
-const RW=640,RH=Math.round(RW*(RB[3]-RB[1])/(RB[2]-RB[0])), LW=400,LH=Math.round(LW*(LB[3]-LB[1])/(LB[2]-LB[0]));
+const RW=560,RH=Math.round(RW*(RB[3]-RB[1])/(RB[2]-RB[0])), LW=400,LH=Math.round(LW*(LB[3]-LB[1])/(LB[2]-LB[0]));
+const WC=new Map(); // per-texture warp cache (5 floats / texel): the noise is the costly part, storms are cheap
 function bakeField(bb,w,h,out,channel,list){ // channel 0 = all storms (max), 1 = one storm
+  let wc=WC.get(bb);if(!wc){wc=new Float32Array(w*h*5);for(let j=0;j<h;j++){const y=(bb[1]+(j+.5)/h*(bb[3]-bb[1]))*KMY;for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX;wc.set(warp(x,y),(j*w+i)*5)}}WC.set(bb,wc)}
+  const wp=[0,0,0,0,0];
   for(let j=0;j<h;j++){const y=(bb[1]+(j+.5)/h*(bb[3]-bb[1]))*KMY;
-    for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX,wp=warp(x,y);let v=0;for(const F of list){const q=stormVal(F,x,y,wp);if(q>v)v=q}out[(j*w+i)*2+channel]=v}}}
+    for(let i=0;i<w;i++){const x=(bb[0]+(i+.5)/w*(bb[2]-bb[0]))*KMX,k=(j*w+i)*5;wp[0]=wc[k];wp[1]=wc[k+1];wp[2]=wc[k+2];wp[3]=wc[k+3];wp[4]=wc[k+4];
+      let v=0;for(const F of list){const q=stormVal(F,x,y,wp);if(q>v)v=q}out[(j*w+i)*2+channel]=v}}}
 const fieldR=new Float32Array(RW*RH*2), fieldL=new Float32Array(LW*LH*2);
-bakeField(RB,RW,RH,fieldR,0,SF);bakeField(LB,LW,LH,fieldL,0,SF);
 
 /* ================= walks: the pick's real walk + generated sample walks for other Columbus zones ================= */
 const M_LON=111320*Math.cos(41.43*Math.PI/180), M_LAT=110540;
@@ -187,8 +197,10 @@ const plen=poly=>{let s=0;for(let i=1;i<poly.length;i++)s+=Math.hypot((poly[i][0
 const dirOf=poly=>{const a=poly[0],b=poly[poly.length-1],dx=(b[0]-a[0])*M_LON,dy=(b[1]-a[1])*M_LAT;return Math.abs(dx)>Math.abs(dy)?(dx>0?'E':'W'):(dy>0?'N':'S')};
 function finishWalk(w){ // curb points, path, ETAs
   const n=w.homes.length, per=(KN1-KN0)/n;let path=[w.park];
-  w.homes.forEach((h,k)=>{h.order=k+1;h.eta=KN0+k*per;h.col=hailHex(h.hail);path.push(h.curb,h.p,h.curb)});
-  w.path=path;w.len=plen(path.filter((_,i)=>i===0||i%3!==2)); // walking distance ≈ curb-to-curb + door spurs
+  w.homes.forEach((h,k)=>{h.order=k+1;h.eta=KN0+k*per;h.col=hailHex(h.hail);
+    const pv=w.homes[k-1];if(pv&&pv.si!==h.si){const a=w.streets[pv.si].p,b=w.streets[h.si].p;path.push(a[a.length-1],b[0])} // turn the corner, don't cut the block
+    path.push(h.curb,h.p,h.curb)});
+  w.path=path;w.len=plen(path);
   let bb=[1e9,1e9,-1e9,-1e9];[w.park,...w.homes.map(h=>h.p)].forEach(q=>{bb[0]=Math.min(bb[0],q[0]);bb[1]=Math.min(bb[1],q[1]);bb[2]=Math.max(bb[2],q[0]);bb[3]=Math.max(bb[3],q[1])});
   w.bb=bb;w.center=[(bb[0]+bb[2])/2,(bb[1]+bb[3])/2];return w}
 function pickWalk(){
@@ -300,12 +312,19 @@ void main(){
   const quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,-1,1,-1,0,1,1,1]),gl.STATIC_DRAW);
   const tri=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tri);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const triV=gl.createVertexArray();gl.bindVertexArray(triV);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.bindVertexArray(null);
-  const lineVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+  // segments binned into ~1 km tiles (row-major) so a zoomed-in view draws only the tiles it can see
+  const TS=.01,GX0=RB[0]-.1,GY0=RB[1]-.1,GX=Math.ceil((RB[2]-RB[0]+.2)/TS),GY=Math.ceil((RB[3]-RB[1]+.2)/TS);
+  const tileOf=(x,y)=>clamp(Math.floor((y-GY0)/TS),0,GY-1)*GX+clamp(Math.floor((x-GX0)/TS),0,GX-1);
+  const binned=arr=>{const n=arr.length/4,key=new Int32Array(n),ord=new Uint32Array(n);for(let i=0;i<n;i++){key[i]=tileOf((arr[i*4]+arr[i*4+2])/2,(arr[i*4+1]+arr[i*4+3])/2);ord[i]=i}
+    ord.sort((a,b)=>key[a]-key[b]);const out=new Float32Array(arr.length),starts=new Int32Array(GX*GY+1);
+    for(let j=0;j<n;j++){out.set(arr.subarray(ord[j]*4,ord[j]*4+4),j*4);starts[key[ord[j]]+1]++}for(let t=0;t<GX*GY;t++)starts[t+1]+=starts[t];return {out,starts}};
+  const lineVao=(arr,tiled)=>{const v=gl.createVertexArray();gl.bindVertexArray(v);gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+    let starts=null;if(tiled){const bz=binned(arr);arr=bz.out;starts=bz.starts}
     const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0);gl.vertexAttribDivisor(1,1);
-    gl.bindVertexArray(null);return {v,b,n:arr.length/4}};
+    gl.bindVertexArray(null);return {v,b,n:arr.length/4,starts}};
   const fillVao=arr=>{const v=gl.createVertexArray();gl.bindVertexArray(v);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.bindVertexArray(null);return {v,n:arr.length/2}};
-  const V={};for(const k of ['county','town','water','stream','hwy','rail','route','arts','fr0','fr3','co1','co3'])V[k]=lineVao(G[k]);
+  const V={};for(const k of ['county','town','water','stream','hwy','rail','arts','fr0','fr3','co1','co3'])V[k]=lineVao(G[k],true);
   V.townF=fillVao(G.townF);V.waterF=fillVao(G.waterF);V.walk=lineVao(new Float32Array(4));V.storm=lineVao(new Float32Array(4));
   const setLines=(o,arr)=>{gl.bindBuffer(gl.ARRAY_BUFFER,o.b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.DYNAMIC_DRAW);o.n=arr.length/4};
   const tex=(w,h,d)=>{const x=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,x);gl.texImage2D(gl.TEXTURE_2D,0,gl.RG16F,w,h,0,gl.RG,gl.FLOAT,d);
@@ -314,12 +333,18 @@ void main(){
   let tR=null,tL=null;
   const upField=()=>{if(tR){gl.deleteTexture(tR);gl.deleteTexture(tL)}tR=tex(RW,RH,fieldR);tL=tex(LW,LH,fieldL)};
   const common=p=>{gl.useProgram(p.p);gl.uniform2f(p.u.uCam,cam.x,cam.y);gl.uniform1f(p.u.uSc,cam.s);gl.uniform2f(p.u.uVp,W(),H())};
-  const line=(o,col,a,w,core)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(L.u.uCol,col[0],col[1],col[2],a);gl.uniform1f(L.u.uW,w);gl.uniform1f(L.u.uCore,core);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,o.n)};
+  let VB=null; // view bbox in tiles, set per frame
+  const line=(o,col,a,w,core)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(L.u.uCol,col[0],col[1],col[2],a);gl.uniform1f(L.u.uW,w);gl.uniform1f(L.u.uCore,core);
+    if(!o.starts||!VB||(VB[2]-VB[0]+1)*(VB[3]-VB[1]+1)>900){if(o.starts){gl.bindBuffer(gl.ARRAY_BUFFER,o.b);gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0)}gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,o.n);return}
+    gl.bindBuffer(gl.ARRAY_BUFFER,o.b);
+    for(let ty=VB[1];ty<=VB[3];ty++){const f=o.starts[ty*GX+VB[0]],l=o.starts[ty*GX+VB[2]+1];if(l>f){gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,f*16);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,l-f)}}
+    gl.vertexAttribPointer(1,4,gl.FLOAT,false,0,0)};
   const fill=(o,col,a)=>{if(!o.n||a<=.003)return;gl.bindVertexArray(o.v);gl.uniform4f(F.u.uCol,col[0],col[1],col[2],a);gl.drawArrays(gl.TRIANGLES,0,o.n)};
   const blend=m=>{gl.enable(gl.BLEND);gl.blendEquation(gl.FUNC_ADD);if(m==='add')gl.blendFunc(gl.ONE,gl.ONE);else gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA)};
   R={upField,setLines:(k,arr)=>setLines(V[k],arr),
    resize(){const d=DPR();cv.width=Math.round(W()*d);cv.height=Math.round(H()*d);gl.viewport(0,0,cv.width,cv.height)},
    draw(st){const pal=PAL[theme],A=pal.a,add=pal.add?'add':'over',d=DPR();
+    {const hw=W()/2/cam.s+TS,hh=H()/2/cam.s+TS,cx=c=>clamp(Math.floor((c-GX0)/TS),0,GX-1),cy=c=>clamp(Math.floor((c-GY0)/TS),0,GY-1);VB=[cx(cam.x-hw),cy(cam.y-hh),cx(cam.x+hw),cy(cam.y+hh)]}
     gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
     const near=clamp((Math.log(cam.s)-Math.log(9000))/(Math.log(90000)-Math.log(9000)));
     const dim=1-.45*st.walk;
@@ -362,11 +387,10 @@ if(!R){ // Canvas2D fallback (no WebGL2): base lines only
 
 /* ================= state ================= */
 const S={view:'morning',zone:PICKZ,walk:null,door:null,storm:S8.id,alt:false,hist:[]};
-let dirty=true, thr=STILL?0:1.75, thrT0=0, routeA=1, walkA=0, stormA=0;
+let dirty=true, thr=STILL?0:1.75, thrT0=0, walkA=0, stormA=0;
 const featSet=id=>{const F=SF.find(f=>f.s.id===id);for(let i=0;i<RW*RH;i++)fieldR[i*2+1]=0;for(let i=0;i<LW*LH;i++)fieldL[i*2+1]=0;
   bakeField(RB,RW,RH,fieldR,1,[F]);bakeField(LB,LW,LH,fieldL,1,[F]);R.upField();
   const a=[];const p=F.s.path;for(let i=1;i<p.length;i++)a.push(X(p[i-1][0]),Y(p[i-1][1]),X(p[i][0]),Y(p[i][1]));R.setLines('storm',new Float32Array(a))};
-featSet(S8.id);
 
 /* ================= overlay: pins, labels, walk path (HTML/SVG over GL) ================= */
 const pins=$('#pins');
@@ -374,7 +398,7 @@ const svgNS='http://www.w3.org/2000/svg';
 const wsvg=document.createElementNS(svgNS,'svg');wsvg.setAttribute('width','100%');wsvg.setAttribute('height','100%');wsvg.style.cssText='position:absolute;inset:0;overflow:visible';
 const wpathG=document.createElementNS(svgNS,'path'),wpath=document.createElementNS(svgNS,'path');
 wpathG.setAttribute('fill','none');wpath.setAttribute('fill','none');wsvg.append(wpathG,wpath);pins.appendChild(wsvg);
-const mk=(cls,html,parent=pins)=>{const at=document.createElement('div');at.className='at';at.style.cssText='position:absolute;left:0;top:0;will-change:transform';at.innerHTML=html;const el=at.firstElementChild;el.classList.add(...cls.split(' '));parent.appendChild(at);return at};
+const mk=(cls,html,parent=pins)=>{const at=document.createElement('div');at.className='at';at.style.cssText='position:absolute;left:0;top:0;will-change:transform;visibility:hidden;opacity:0';at.innerHTML=html;const el=at.firstElementChild;el.classList.add(...cls.split(' '));parent.appendChild(at);return at};
 const zPins=ZONES.map((z,i)=>{const at=mk('pin'+(i===0?' pk':''),`<button aria-label="${esc(z.name)}"><span class="b">${z.rank}</span><span class="lb"></span></button>`);
   const b=at.firstElementChild;b.onclick=()=>zoneClick(z);b.onmouseenter=()=>hiZone(i,true);b.onmouseleave=()=>hiZone(i,false);return {at,z,lb:b.querySelector('.lb')}});
 const hqPin=mk('plc hq',`<div></div>`);
@@ -385,7 +409,7 @@ let walkEls=[],stEls=[],parkEl=null;
 function buildWalkOverlay(w){
   walkEls.forEach(e=>e.at.remove());stEls.forEach(e=>e.at.remove());parkEl&&parkEl.remove();
   walkEls=w.homes.map((h,k)=>{const at=mk('door',`<button style="--dc:${h.col}" aria-label="${esc(h.addr)}">${k+1}</button>`);const b=at.firstElementChild;
-    b.onclick=()=>selectDoor(k,true);b.onmouseenter=e=>{showTipDoor(k,e.clientX,e.clientY);hlRow(k,true)};b.onmouseleave=()=>{hideTip();hlRow(k,false)};return {at,b,h}});
+    b.onclick=()=>selectDoor(k,true);b.onmouseenter=e=>{if(S.view!=='walk')return;showTipDoor(k,e.clientX,e.clientY);hlRow(k,true)};b.onmouseleave=()=>{hideTip();hlRow(k,false)};return {at,b,h}});
   // street names: walk streets + the named streets that cross the walk (real Nebraska GIS)
   const c=w.center,seen=new Set(w.streets.map(s=>skey(s.n)));const lab=[];
   // walk streets: label just past the far end, off the line; cross streets: a vertex 90-220 m out, away from the doors
@@ -396,7 +420,7 @@ function buildWalkOverlay(w){
     let best=null;l.p.forEach(p=>{const d=Math.hypot((p[0]-c[0])*M_LON,(p[1]-c[1])*M_LAT),f=far(p);if(d>90&&d<230&&f>38&&(!best||f>best.f))best={p,f}});
     if(best){seen.add(skey(n));lab.push({n,p:best.p,w:false})}});
   stEls=lab.slice(0,10).map(l=>{const at=mk('stl',`<div>${esc(l.n)}</div>`);if(l.w)at.firstElementChild.style.color='var(--acc-ink)';return {at,p:l.p,wd:l.n.length*6.4+10}});
-  parkEl=mk('park',`<div style="flex-direction:column;gap:3px;transform:translate(-50%,-11px)"><b>P</b><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-15)}</span></div>`);
+  parkEl=mk('park',`<div style="flex-direction:row-reverse;transform:translate(calc(-100% + 11px),-50%)"><b>P</b><span>${lang==='es'?'Estaciónate':'Park'} ${fmtT(KN0-15)}</span></div>`);
   const a=[];w.streets.forEach(s=>{for(let i=1;i<s.p.length;i++)a.push(X(s.p[i-1][0]),Y(s.p[i-1][1]),X(s.p[i][0]),Y(s.p[i][1]))});R.setLines('walk',new Float32Array(a));
   dirty=true}
 const place=(at,x,y,show)=>{at.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;at.style.opacity=show?'':'0';at.style.visibility=show?'':'hidden'};
@@ -474,7 +498,7 @@ function renderPlan(){
   const rows=[
    {tm:7*60+2,c:'now',en:['Pick ready',`${town} · ${sts}`],es:['Elección lista',`${town} · ${sts}`],kv:{en:`${P.doors} doors`,es:`${P.doors} puertas`}},
    {tm:9*60,en:['Prep',`${P.doors} door cards · cancel forms EN + ES`],es:['Preparar',`${P.doors} fichas · formularios de cancelación EN + ES`],kv:{en:'~30 min',es:'~30 min'}},
-   {tm:lv,en:['Leave HQ',`2600 N Laverna St → ${park}`],es:['Salir de la base',`2600 N Laverna St → ${park}`],kv:{en:`${P.dist_mi} mi · ${dm} min`,es:`${P.dist_mi} mi · ${dm} min`}},
+   {tm:lv,en:['Leave HQ',`2600 Laverna St → ${park}`],es:['Salir de la base',`2600 Laverna St → ${park}`],kv:{en:`${P.dist_mi} mi · ${dm} min`,es:`${P.dist_mi} mi · ${dm} min`}},
    {tm:KN0-15,en:['Park',`${park} · door 1: ${first.addr}`],es:['Estacionarse',`${park} · puerta 1: ${first.addr}`],kv:{en:'15 min early',es:'15 min antes'}},
    {tm:KN0,c:'win',en:['Knock · 4:00–7:30',seq],es:['Tocar · 4:00–7:30',seq],kv:{en:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min ea`,es:`${w.homes.length} · ~${Math.round((KN1-KN0)/w.homes.length)} min c/u`}},
    {tm:SUNSET,c:'warn',en:['Sunset',`civil dusk ${dkT} · ${nd} door${nd===1?'':'s'} after sunset`],es:['Puesta de sol',`crepúsculo ${dkT} · ${nd} puerta${nd===1?'':'s'} después`],kv:{en:`☼ ${ssT}`,es:`☼ ${ssT}`}},
@@ -493,7 +517,7 @@ const STORMS=NL.storms.map(s=>{const ar=NL.areas.filter(a=>a.st===s.id);const zn
   const names=[...new Set(ar.sort((a,b)=>b.homes-a.homes).map(a=>a.name.en))];
   return {s,ar,zn,homes:ar.reduce((t,a)=>t+(a.homes||0),0),names,near,n:dayN(s.date)}});
 function renderHail(){
-  const L=T[lang],all=STORMS.length,d90=STORMS.filter(x=>x.n<=90).length,big=Math.max(...STORMS.map(x=>x.s.max)),bigD=STORMS.filter(x=>x.s.max===big).map(x=>x.s.d[lang]).join(' & '),last=STORMS[0];
+  const L=T[lang],all=STORMS.length,d90=STORMS.filter(x=>x.n<=90).length,big=Math.max(...STORMS.map(x=>x.s.max)),bigD=STORMS.filter(x=>x.s.max===big).map(x=>x.s.d[lang]).join(lang==='es'?' y ':' & '),last=STORMS[0];
   $('#hsum').innerHTML=[L.sum.all(all),L.sum.d90(d90),L.sum.big(big,bigD)].map(s=>`<span class="chip">${esc(s)}</span>`).join('');
   $('#hlist').innerHTML=STORMS.map(x=>{const s=x.s,pk=s.id===S8.id,wd=WD[lang][wday(s.date)];
     const where=x.names.length?x.names.slice(0,2).join(', ')+(x.names.length>2?` +${x.names.length-2}`:''):L.near(x.near);
@@ -535,11 +559,12 @@ function hlRow(k,on){const b=$(`#dl [data-k="${k}"]`);b&&b.classList.toggle('sel
 function renderDoor(){const w=S.walk;if(!w)return;const L=T[lang],n=w.homes.length,k=S.door==null?0:S.door,h=w.homes[k];
   $('#dcardIn').innerHTML=`<div class="top2"><span class="chip hot">${esc(L.doorOf(k+1,n))}</span><span class="chip">${esc(t('sample'))}</span></div>
    <h3>${esc(h.addr)}</h3><p class="sub">${esc(h.st)} · ${esc(L.eta(fmtT(h.eta)))} · ${esc(L.after(n-k-1))}</p>
-   <div class="big"><span class="scv" style="color:${h.col}">${h.score}</span><span class="scl">${L.score}<sup class="s" data-src="engine">2</sup></span>
-     <span style="flex:1"></span><span class="hz" style="font-size:14px;padding-bottom:6px"><i style="background:${h.col}"></i>${h.hail.toFixed(2)}″</span></div>
+   <div class="big2"><div><span class="k">${L.bigHail}</span><span class="v" style="color:${h.col}">${h.hail.toFixed(2)}<small>″</small></span></div>
+     <div><span class="k">${L.bigRoof}</span><span class="v">~${h.roof}<small>${L.f.yrs}</small></span></div></div>
+   <p class="whyd"><b>${L.whyH}</b> ${esc(L.whyLong(h))}</p>
    <dl class="facts">
-     <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} in<sup class="s" data-src="storms">1</sup></dd></div>
-     <div><dt>${L.f.roof}</dt><dd>~${h.roof} ${L.f.yrs}</dd></div>
+     <div><dt>${L.f.hail(w.zone.id===P.zone_id?S8.d[lang]:(NL.storms.find(s=>w.zone.id.startsWith(s.date))||S8).d[lang])}</dt><dd>${h.hail.toFixed(2)} ${lang==='es'?'pulg':'in'}<sup class="s" data-src="storms">1</sup></dd></div>
+     <div><dt>${L.score}</dt><dd>${h.score}<sup class="s" data-src="engine">2</sup></dd></div>
      <div><dt>${L.f.built}</dt><dd>${h.built}</dd></div>
      <div><dt>${L.f.own}</dt><dd class="${h.own?'y':''}">${h.own?L.f.yes:L.f.no}</dd></div>
      <div><dt>${L.f.type}</dt><dd class="y">${L.f.typeV}</dd></div>
@@ -579,15 +604,17 @@ const tip=$('#tip');
 function showTip(html,x,y){tip.innerHTML=html;tip.classList.add('show');const r=tip.getBoundingClientRect();tip.style.left=clamp(x+14,8,W()-r.width-8)+'px';tip.style.top=clamp(y+14,8,H()-r.height-8)+'px'}
 const hideTip=()=>tip.classList.remove('show');
 function showTipDoor(k,x,y){const h=S.walk&&S.walk.homes[k];if(!h)return;const L=T[lang];
-  showTip(`<b>${k+1} · ${esc(h.addr)}</b><div class="m">${L.score} ${h.score} · ${h.hail.toFixed(2)}″ · ${lang==='es'?'techo':'roof'} ~${h.roof} · ${fmtT(h.eta)}</div><div class="m" style="color:var(--muted)">${esc(L.why(h))}</div>`,x,y)}
+  showTip(`<b>${k+1} · ${esc(h.addr)}</b><div class="tb"><span style="color:${h.col}">${h.hail.toFixed(2)}″</span><span>~${h.roof} ${L.f.yrs}</span></div><div class="m">${L.score} ${h.score} · ${fmtT(h.eta)}</div><div class="m" style="color:var(--muted)">${esc(L.why(h))}</div>`,x,y)}
 document.addEventListener('mouseover',e=>{const s=e.target.closest&&e.target.closest('sup.s');if(!s)return;const txt=SRC[lang][s.dataset.src];if(txt){const r=s.getBoundingClientRect();showTip(`<div class="m" style="color:var(--text-2)">${esc(txt)}</div>`,r.left,r.bottom)}});
 document.addEventListener('mouseout',e=>{if(e.target.closest&&e.target.closest('sup.s'))hideTip()});
 let toastT=0;function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3600)}
 
 /* ================= navigation ================= */
-const holoCv=$('#holo');
+const holoCv=$('#holo');let holoPtr=false; // only show hover cards after a real pointer move over the 3D view
+holoCv.addEventListener('pointermove',()=>holoPtr=true);holoCv.addEventListener('pointerleave',()=>{holoPtr=false;hideTip()});
 const holo=window.createHolo?(()=>{try{return window.createHolo(holoCv,$('#hl'),{
-  onHover:(i,x,y)=>{if(i==null){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false)})}catch(e){console.warn(e);return null}})():null;
+  onHover:(i,x,y)=>{if(i==null||!holoPtr){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false),
+  onTourEnd:()=>$('#tour').setAttribute('aria-pressed','false')})}catch(e){console.warn(e);return null}})():null;
 const holoOK=!!(holo&&holo.ok!==false);
 if(holo){try{holo.setTheme(theme);holo.setReduced(STILL)}catch(e){}}
 function setView(v){S.view=v;document.body.dataset.view=v;
@@ -643,10 +670,9 @@ addEventListener('resize',resize);
 function frame(now){
   stepFly(now);
   if(thr>0){thr=STILL?0:Math.max(0,(thrT0?1.2:1.75)-(now-thrT0)/1000*(thrT0?1.1:1.0));dirty=true}
-  const wt=S.view==='walk'||S.view==='road'?1:0;if(Math.abs(walkA-wt)>.001&&!STILL){walkA+=(wt-walkA)*.12;dirty=true}else walkA=wt;
-  const st=S.storm!==S8.id?1:0;if(Math.abs(stormA-st)>.001){stormA+=(st-stormA)*.15;dirty=true}else stormA=st;
-  const rt=S.view==='morning'&&!S.alt?1:.25;if(Math.abs(routeA-rt)>.001){routeA+=(rt-routeA)*.12;dirty=true}
-  if(dirty&&S.view!=='road'||dirty&&fly){R.draw({thr,walk:walkA,route:routeA,storm:stormA});layoutOverlay(now);dirty=false}
+  const wt=S.view==='walk'||S.view==='road'?1:0;if(Math.abs(walkA-wt)>.01&&!STILL){walkA+=(wt-walkA)*.12;dirty=true}else walkA=wt;
+  const st=S.storm!==S8.id?1:0;if(Math.abs(stormA-st)>.01&&!STILL){stormA+=(st-stormA)*.15;dirty=true}else stormA=st;
+  if(dirty&&S.view!=="road"||dirty&&fly){dirty=false;R.draw({thr,walk:walkA,storm:stormA});layoutOverlay(now)}
   requestAnimationFrame(frame)}
 
 /* ================= boot ================= */
@@ -666,5 +692,7 @@ else{
 }
 layoutZl();(document.fonts&&document.fonts.ready||Promise.resolve()).then(layoutZl);
 setTimeout(()=>document.body.classList.remove('intro'),50);
+// bake the hail field after the first paint; contours then ripple out from the core
+setTimeout(()=>{bakeField(RB,RW,RH,fieldR,0,SF);bakeField(LB,LW,LH,fieldL,0,SF);featSet(S.storm);thr=STILL?0:1.2;thrT0=performance.now();dirty=true},30);
 requestAnimationFrame(frame);
 })();
