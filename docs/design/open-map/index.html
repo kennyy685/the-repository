@@ -2228,17 +2228,18 @@ const addr=(x)=>`${x.no} ${x.st}`;
 /* since last night: the night shift's brief (hailhunter/night.py -> data/night.js). SAMPLE: a quiet night, or a replay
    of the real Sep 13 storm night; rank moves, doors knocked and house numbers are made up. */
 const NIGHT=window.NIGHT||null;
+const escN=(x)=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const nightB=()=>NIGHT?(NIGHT[st.night]||NIGHT.quiet):null;
 function ctClock(iso){try{const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",hour:"numeric",minute:"numeric",hourCycle:"h23"}).formatToParts(new Date(iso));
   const g=(k)=>+p.find(x=>x.type===k).value;return fmtClock(g("hour")*60+g("minute"))}catch(e){return""}}
-function nzLab(id,fb){const a=areaOf(id);return a?`${L(a.name)} <span class="dt">${L(STORMS[a.st].d)}</span>`:(fb||"")}
+function nzLab(id,fb){const a=areaOf(id);return a?`${L(a.name)} <span class="dt">${L(STORMS[a.st].d)}</span>`:escN(fb)}
 function nightMove(id){const b=nightB();if(!b)return null;const u=b.zones_up.find(z=>z.id===id);if(u)return{k:"up",was:u.was};
   return b.zones_new.some(z=>z.id===id)?{k:"new"}:null}
 function nightHTML(){const b=nightB();if(!b)return"";
   const hail=b.new_hail.map(r=>{const a=r.zone_id&&areaOf(r.zone_id)?areaOf(r.zone_id):AREAS.find(x=>x.name.en===r.town&&STORMS[x.st].date===r.day);
-    const lab=`<span class="dot" style="--c:${bandColor(r.hail_in)}"></span>${r.town} <b>${fmtIn(r.hail_in)}″</b><span class="dt">${fmtDate(r.day)}</span>`;
-    return a?`<button class="nc" data-nz="${a.id}" aria-label="${t("flyTo",r.town)}">${lab}</button>`:`<span class="nc">${lab}</span>`}).join("");
-  const gone=b.zones_gone.map(z=>areaOf(z.id)?L(areaOf(z.id).name):z.name);
+    const lab=`<span class="dot" style="--c:${bandColor(r.hail_in)}"></span>${escN(r.town)} <b>${fmtIn(r.hail_in)}″</b><span class="dt">${fmtDate(r.day)}</span>`;
+    return a?`<button class="nc" data-nz="${a.id}" aria-label="${t("flyTo",escN(r.town))}">${lab}</button>`:`<span class="nc">${lab}</span>`}).join("");
+  const gone=b.zones_gone.map(z=>areaOf(z.id)?L(areaOf(z.id).name):escN(z.name));
   const mv=[...b.zones_up.map(z=>`<button class="nc" data-nz="${z.id}"><span class="up">↑</span>${nzLab(z.id,z.name)} <b>${t("nWas",z.rank,z.was)}</b></button>`),
     ...b.zones_new.map(z=>`<button class="nc new" data-nz="${z.id}"><span class="nw">${t("nNewZ")}</span>${nzLab(z.id,z.name)} <b>#${z.rank}</b></button>`),
     ...b.zones_down.map(z=>`<button class="nc" data-nz="${z.id}"><span class="dn">↓</span>${nzLab(z.id,z.name)} <b>${t("nWas",z.rank,z.was)}</b></button>`),
@@ -2247,11 +2248,11 @@ function nightHTML(){const b=nightB();if(!b)return"";
   const seg=NIGHT.storm?`<span class="seg" role="group">${["quiet","storm"].map(k=>NIGHT[k]?`<button data-night="${k}" aria-pressed="${(st.night||"quiet")===k}">${L(NIGHT[k].sample.label)}</button>`:"").join("")}</span>`:"";
   return `<section class="night" aria-label="${t("nightT")}">
     <div class="nh">${ic("moon")}<span>${t("nightT")}</span><span class="at">· ${t("nightAt",ctClock(b.made_at))}</span> <span class="smp">${t("sampleW")}</span></div>
-    <p class="hl${b.quiet?" calm":""}">${L(b.headline)}</p>
+    <p class="hl${b.quiet?" calm":""}">${escN(L(b.headline))}</p>
     ${hail?`<div class="nl">${t("nNew")}</div><div class="nr">${hail}</div>`:""}
     ${mv?`<div class="nl">${t("nMoved")}</div><div class="nr">${mv}</div>`:""}
     ${wk?`<div class="nl">${t("nWalks")}</div><div class="nr">${wk}</div>`:""}
-    ${b.sample?`<p class="nf">${L(b.sample)}</p>`:""}
+    ${b.sample?`<p class="nf">${escN(L(b.sample))}</p>`:""}
     ${seg?`<div class="nb"><span>${t("nPrev")}</span>${seg}</div>`:""}</section>`}
 function renderHome(){const box=$("today");if(!box)return;computePicks();
   const allN=AREAS.filter(a=>STORMS[a.st].days<=st.days).length;$("allN").textContent=allN;
