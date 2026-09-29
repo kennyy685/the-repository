@@ -207,8 +207,12 @@ DEFAULTS = {
                "likely": {"mortgage_weight": 0.25, "high": 60, "medium": 40},
                "mesh": True, "mesh_budget_s": 300, "census_max_age_days": 180, "outline_buffer_m": 2000,
                # radar-only zones: MRMS >= mesh_zone_min_in over >= mesh_zone_min_cells km2 no ground zone covers;
-               # MESH runs high, so its size counts x mesh_trust in the score
-               "mesh_zone_min_in": 1.25, "mesh_zone_min_cells": 4, "mesh_zones_per_day": 6, "mesh_trust": 0.8},
+               # MESH runs high, so a radar-only zone's size = MESH x mesh_trust, capped at radar_hail_cap_in (shown
+               # and scored as a "radar estimate"); a zone with no town inside is named after the nearest place
+               # within nearest_town_km ("Rural area near X"); a radar-only zone
+               # with no Nebraska place that close is out of state (Iowa) and dropped
+               "mesh_zone_min_in": 1.25, "mesh_zone_min_cells": 4, "mesh_zones_per_day": 6, "mesh_trust": 0.8,
+               "radar_hail_cap_in": 2.75, "nearest_town_km": 30},
     # Vector basemap for each walk's map (`basemap.py`, walks/<zone id> + today/walk `basemap` + `route`): streets,
     # lots and street labels from Nebraska state GIS, cached in the database. An optional network step with its own
     # time guard (`budget_s` for all walks together); past it, or offline, only cached maps are used (else null).

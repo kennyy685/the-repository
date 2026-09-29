@@ -262,8 +262,8 @@ def _why(z, sig, age, sc):
     en_s, es_s = size_name(z["hail_in"])
     n, srcs = len(z["report_ids"]), list(z["sources"])
     if not n:
-        why = [[-1, {"en": f"Radar only: up to {z['hail_in']:g} in ({en_s}), nobody reported it on the ground.",
-                     "es": f"Solo radar: hasta {z['hail_in']:g} pulg. ({es_s}), nadie lo reportó en tierra."}]]
+        why = [[-1, {"en": f"Radar estimate only: about {z['hail_in']:g} in ({en_s}), nobody reported it on the ground.",
+                     "es": f"Solo estimado de radar: unas {z['hail_in']:g} pulg. ({es_s}), nadie lo reportó en tierra."}]]
     else:
         why = [[1 if z["hail_in"] >= 1.0 else -1,
                 {"en": f"Biggest report: {z['hail_in']:g} in ({en_s}).",
@@ -303,6 +303,31 @@ def _near_town(places, lat, lon, rad, sc):
     if big:
         return max(big, key=lambda c: c[1]["homes"])[1]["name"]
     return min(cand, key=lambda c: c[0])[1]["name"] if cand else None
+
+
+def _nearest_place(places, lat, lon, sc):
+    """(name, km) of the closest place of any size within nearest_town_km, else (None, None)."""
+    cand = [(km(lat, lon, p["lat"], p["lon"]), p) for p in places or []]
+    cand = [c for c in cand if c[0] <= sc.get("nearest_town_km", 40)]
+    if not cand:
+        return None, None
+    d, p = min(cand, key=lambda c: c[0])
+    return p["name"], round(d, 1)
+
+
+def zone_rows(bgs, lat, lon, rad, grp, sc):
+    """Census block groups for a zone. Ground zones: block groups whose middle is within the outline (outline_buffer_m
+    of a report), else the single closest one inside the circle, so a zone at a city's edge doesn't take in half the
+    city. Radar zones (no reports): the circle."""
+    if not grp:
+        return rows_near(bgs, lat, lon, rad)
+    buf = sc["outline_buffer_m"] / 1000
+    near = [b for b in rows_near(bgs, lat, lon, rad + buf)
+            if any(km(r["lat"], r["lon"], b["lat"], b["lon"]) <= buf for r in grp)]
+    if near:
+        return near
+    ring = rows_near(bgs, lat, lon, rad)
+    return [min(ring, key=lambda b: km(lat, lon, b["lat"], b["lon"]))] if ring else []
 
 
 def mesh_zones(meshes, ground, sc):
@@ -377,11 +402,15 @@ def build_zones(reports, radar, meshes, census, today, sc, places=None):
             if r["place"] and r["place"] not in towns:
                 towns.append(r["place"])
         near = _near_town(places, lat, lon, rad, sc)
-        sig = signals(rows_near(bgs, lat, lon, rad), vintage, sc)
+        nearest, nearest_km = (None, None) if (towns or near) else _nearest_place(places, lat, lon, sc)
+        if kind == "radar" and places and not (near or nearest):
+            return   # radar hail with no Nebraska place within nearest_town_km: out of state (the area is NE only)
+        sig = signals(zone_rows(bgs, lat, lon, rad, grp, sc), vintage, sc)
         age = (today - date.fromisoformat(day)).days
         n = len(grp)
-        hail = max(r["size_in"] for r in grp) if grp else mesh
-        basis = hail if grp else round(mesh * sc["mesh_trust"], 2)
+        hail = max(r["size_in"] for r in grp) if grp else \
+            round(min(mesh * sc["mesh_trust"], sc.get("radar_hail_cap_in", 99)), 2)
+        basis = hail
         li = sig["likely_insured"]
         parts = {
             "size": round(_curve(basis, sc["size_curve"]), 3),
@@ -391,7 +420,9 @@ def build_zones(reports, radar, meshes, census, today, sc, places=None):
                            * ((li["score"] / 100) ** 0.5 if li else 0), 3)}
         tl = sorted(r["utc"] for r in grp)
         z = {"id": None, "kind": kind, "date": day, "days_ago": age,
-             "name": towns[0] if towns else (near or "Rural area"), "near_town": near, "towns": towns[:6],
+             "name": towns[0] if towns else (near or (f"Rural area near {nearest}" if nearest else "Rural area")),
+             "name_es": towns[0] if towns else (near or (f"Zona rural cerca de {nearest}" if nearest else "Zona rural")),
+             "near_town": near, "nearest_town": nearest, "nearest_km": nearest_km, "towns": towns[:6],
              "center": {"lat": round(lat, 4), "lon": round(lon, 4)}, "radius_km": rad,
              "outline": buffered_hull([(r["lon"], r["lat"]) for r in grp], sc["outline_buffer_m"], 24) if grp else None,
              "hail_in": hail, "hail_basis": "ground" if grp else "radar", "mesh_in": mesh, "reports": n,
