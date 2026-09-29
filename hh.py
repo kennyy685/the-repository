@@ -378,7 +378,7 @@ def night_cmd(a, cfg, log=print):
             mw = mapwalk.extra(doc, w, maker, cfg)
         except Exception as e:                   # the map's walks are optional: never lose the 7 AM brief to them
             print(f"night: map walks failed ({type(e).__name__}: {str(e)[:200]}); brief without them", file=sys.stderr)
-            mw = {"walks": {}, "tiles": []}
+            mw = {"walks": {}, "zwalks": {}, "tiles": []}
         finally:
             maker.conn.close()
         if mw["walks"] or mw.get("zwalks") or mw["tiles"]:

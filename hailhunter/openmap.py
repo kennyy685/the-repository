@@ -39,10 +39,12 @@ def zid(z):
 
 
 def _why(z, today):
-    """z's why lines with the age line re-dated to `today` (the season file may be a day older than the brief)."""
+    """z's why lines with the age line re-dated to `today` (the season file may be a day older than the brief). A storm
+    dated after `today` keeps the season file's own line (twin of the page's ageWhy)."""
     if not today:
         return z['why']
-    return [age_line(days_ago(z['date'], today)) if isinstance(w, list) and len(w) > 1 and AGE_EN.match(str((w[1] or {}).get('en', '')))
+    n = days_ago(z['date'], today)
+    return [age_line(n) if n >= 0 and isinstance(w, list) and len(w) > 1 and AGE_EN.match(str((w[1] or {}).get('en', '')))
             else w for w in z['why']]
 
 
