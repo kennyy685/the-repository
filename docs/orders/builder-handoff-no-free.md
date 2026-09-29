@@ -27,3 +27,13 @@ Rule: never promise anything free until the boss okays it. Insurance = "roof che
    - Practice Door https://claude.ai/artifact/PFKkgWCMshKnE2nWFssM7B from pages/practice-door.html.
    - Read each live page first (Artifact read), verify live, CHANGELOG line.
 4. Post hub done event (to:"you", 3 plain lines: what changed, links, "For FilthE:" one thing).
+
+## Update 2026-09-29 ~16:00 UTC (fresh Builder)
+- QA (20260929T142000Z) medium fixed: contingency agreement EN/ES "No payment is due at signing. What HMP will charge
+  for is set out in the written estimate/contract." / "No se paga nada al firmar. Lo que cobra HMP consta en el
+  estimado/contrato por escrito."; Refund line reworded; both PDFs re-rendered. Practice Door ES "la revisión es
+  gratis" -> "es solo mirar". Old trust-badge mockup stamp drops FREE/NO COST.
+- QA low done: `check_no_free()` in tests/legal_check.py (+3 tests); 2nd QA pass tightened it (same-sentence rule words).
+- Release checks green for HMP App + Practice Door (legal, selftest, app live smoke, E2E day, bad signal, desk,
+  design gate). Red only on pages/crew-hq.html (hub v33 WIP: 360 px sideways scroll + 17 duplicate-button issues).
+- Publish of both pages handed to helpers; translator "free inspection" -> boss question list.

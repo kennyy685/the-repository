@@ -79,6 +79,8 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   likely?" hint, first-partner plan, Google pay-per-call budget for the boss's list.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
+- May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /
+  "estimate" (King, 2026-09-29). Also decides the translator word list's "free inspection" entry (still there, allow-listed). Added 2026-09-29.
 - What wording HMP puts on a damage report that goes to a carrier: photos + counts only, or notes too? (claim checklist, 2026-09-28)
 - FilthE's commission % per job: the biggest lever in his $100k plan (10% = ~83 jobs, 30% = ~28). Added 2026-09-28.
 - Hours a week he can give to knocking/selling, and what pulls him away.
