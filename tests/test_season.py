@@ -62,7 +62,8 @@ CENSUS = {"vintage": "2024", "bgs": [bg(41.45, -96.49), bg(41.44, -96.47), bg(40
           "places": [dict(bg(41.44, -96.49, homes=11000, owner=6500, occ=10500), geoid="3117670", name="Fremont",
                           sqmi=12.0),
                      dict(bg(41.31, -96.35, homes=1200, owner=900, occ=1150), geoid="3150020", name="Valley", sqmi=3.0),
-                     dict(bg(42.5, -97.0, homes=100, owner=80, occ=90), geoid="3199999", name="Tiny", sqmi=0.3)]}
+                     dict(bg(42.5, -97.0, homes=100, owner=80, occ=90), geoid="3199999", name="Tiny", sqmi=0.3),
+                     dict(bg(41.60, -96.80, homes=40, owner=30, occ=35), geoid="3122000", name="Hooper", sqmi=0.4)]}
 
 
 def mesh_grid(hot=None):
@@ -187,13 +188,33 @@ class Doc(unittest.TestCase):
         radar = [z for z in d["zones"] if z["kind"] == "radar"]
         self.assertEqual(len(radar), 1)
         z = radar[0]
-        self.assertEqual((z["hail_in"], z["hail_basis"], z["reports"], z["mesh_in"]), (2.2, "radar", 0, 2.2))
+        self.assertEqual((z["hail_in"], z["hail_basis"], z["reports"], z["mesh_in"]), (1.76, "radar", 0, 2.2))  # MESH x 0.8
         self.assertEqual(z["sources"], ["mrms"])
-        self.assertIn("Radar only", z["why"][0][1]["en"])
+        self.assertIn("Radar estimate only", z["why"][0][1]["en"])
+        self.assertEqual((z["name"], z["nearest_town"]), ("Rural area near Hooper", "Hooper"))
+        self.assertEqual(z["name_es"], "Zona rural cerca de Hooper")
         fr = next(x for x in d["zones"] if x["id"] == "2026-09-14~fremont")
         self.assertEqual(fr["mesh_in"], 1.6)
         self.assertIn("mrms", fr["sources"])
         self.assertEqual(d["storm_days"][0]["mesh_max_in"], 2.2)
+
+    def test_radar_zone_out_of_state_dropped(self):
+        d = self.build({"2026-09-14": mesh_grid([(41.45, -95.30, 2.2)])})   # Iowa: no NE place within 30 km
+        self.assertFalse([z for z in d["zones"] if z["kind"] == "radar"])
+
+    def test_radar_size_capped(self):
+        d = self.build({"2026-09-14": mesh_grid([(41.70, -96.90, 4.2)])})
+        z = next(z for z in d["zones"] if z["kind"] == "radar")
+        self.assertEqual((z["hail_in"], z["mesh_in"]), (2.75, 4.2))   # MESH reads high: shown + scored capped
+
+    def test_zone_rows_edge_of_city(self):
+        # a ground zone at a city's edge takes the block groups near its reports, not the city inside its circle
+        grp = [{"lat": 40.85, "lon": -96.80}]
+        city = [bg(40.81, -96.70 + i * 0.01, homes=5000) for i in range(5)]
+        edge = bg(40.855, -96.80, homes=300)
+        self.assertEqual(season.zone_rows(city + [edge], 40.85, -96.80, 10, grp, SC), [edge])
+        self.assertEqual(len(season.zone_rows(city, 40.85, -96.80, 10, grp, SC)), 1)   # none near: closest one
+        self.assertEqual(len(season.zone_rows(city + [edge], 40.85, -96.80, 20, [], SC)), 6)   # radar: circle
 
     def test_legal_words_and_no_names(self):
         d = self.build()
