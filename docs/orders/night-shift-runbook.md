@@ -65,9 +65,10 @@ The page side: `node tests/pages/open_map_night_check.js` (loads the real brief,
 `node tests/pages/design_gate.js --page open-map`.
 
 ## Known limits (tell the King, not the night shift)
-- The open map's areas and "Aldaba's top 3" come from `data/real.js` (built from `data/storms-2026.json`), which the
-  night shift does NOT rebuild; its pick can sit outside the map (e.g. Columbus, west of the map box). The strip then
-  shows it as text (no fly-to). Rebuilding real.js nightly = `hh.py season` + `data/build/real.py` + `areas.py`: a
-  bigger job for later.
+- "Aldaba's top 3" on the open map now follows the brief (`top`: pick, backup, then the next storm walks), and the brief
+  carries the map shapes (`map`, hailhunter/openmap.py) for any area it names that `data/real.js` lacks (e.g. Columbus,
+  west of the map box); the home view widens to take in the pick + backup (Engine Mechanic, 2026-09-29). Nothing extra
+  to run: it all rides in `data/night.js`. `data/real.js` itself (every other area on the map) is still built by hand
+  (`hh.py season` + `data/build/real.py` + `areas.py`); a pick outside it has no street walk on the map yet.
 - In September storm walks must be <= 60 days old (engine rule `today_walk.storm_max_days`); from Oct 1 it is 330 days,
   so older storms (Fremont Jun 13, Valley) come back into the pick.
