@@ -831,7 +831,7 @@ function makeHolo(canvas, labelLayer, cb) {
   const KEYS = ['tx', 'ty', 'd', 'yaw', 'pitch'];
   let fit3D = 400, fitTop = 400, isTop = false, savedYaw = ENTRY_YAW;
   let touring = false, tourI = 0, tourNext = 0;
-  let drag = null, lastInteract = -1e9;
+  let drag = null, lastInteract = -1e9, lastHoverT = -1e9;
   const mouse = { x: 0, y: 0, in: false };
   let hovLast = null, hovLX = -1, hovLY = -1;
   let frameAcc = 0, frameN = 0;
@@ -1267,8 +1267,10 @@ function makeHolo(canvas, labelLayer, cb) {
       const a = reduced ? 1 : 1 - Math.exp(-dt * (drag && drag.moved ? 14 : 6));
       for (const key of KEYS) cam[key] += (goal[key] - cam[key]) * a;
     }
-    const want = orbitOn && !reduced && !isTop && !(drag && drag.moved) && t - lastInteract > 6 && t - tEnter > 2.3;
-    orbitVel += ((want ? TAU / 90 : 0) - orbitVel) * (1 - Math.exp(-dt * 0.9));
+    // resting the pointer on a door eases the orbit to a stop so the house stays under the cursor
+    if (hovPtr != null) lastHoverT = t;
+    const want = orbitOn && !reduced && !isTop && !(drag && drag.moved) && t - lastInteract > 6 && t - tEnter > 2.3 && t - lastHoverT > 1.5;
+    orbitVel += ((want ? TAU / 90 : 0) - orbitVel) * (1 - Math.exp(-dt * (hovPtr != null ? 5 : 0.9)));
     if (Math.abs(orbitVel) > 1e-5) {
       const dy = orbitVel * dt; cam.yaw += dy; goal.yaw += dy; if (tw.on) { tw.f.yaw += dy; tw.t.yaw += dy; }
     }
@@ -1441,7 +1443,6 @@ function makeHolo(canvas, labelLayer, cb) {
   Object.defineProperty(holo, 'touring', { get: () => touring });
   Object.defineProperty(holo, 'isTop', { get: () => isTop });
   Object.defineProperty(holo, 'selected', { get: () => sel });
-  holo._dbg = { VP: () => VP, S: () => S, cam: () => cam, EYE: () => EYE }; // DEBUG-REMOVE
   return holo;
 }
 })();
