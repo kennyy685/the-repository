@@ -19,8 +19,9 @@ Next King handoffs should come from the hub button, not create_session, or the c
 3. Refresh hub `crew/sessions`, then one short hub post to FilthE (to:"you"): new King, what's running.
 
 ## 2026-09-29 00:08 UTC (FilthE: "wait to start the hub, focus on the coding")
-- PAUSED: hub freeze fix (ultracode) session_01E2XhytKVCFyvYzBw7ae924, interrupted a few min in. Hub is still frozen live.
-- RUNNING: code-health sweep session_01Q1oxa3 (all but the hub); QA of storms data + Knock screen (in-chat helper).
+- FilthE meant: code-health for the HUB. RUNNING: session_01PwbnuZLG2xnZVnniirsJuB (ultracode): fix the freeze,
+  stronger/faster hub code, live-data smoke test, QA, publish. App sweep session_01Q1oxa3 cancelled (not wanted now).
+- RUNNING: QA of storms data + Knock screen (in-chat helper).
 - Done: Engine storms (447 tests) + Knock screen (docs/design/knock/): publish after QA passes.
 
 ## KNOWN PROBLEMS (2026-09-28 23:58)
