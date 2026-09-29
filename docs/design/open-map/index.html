@@ -691,6 +691,7 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 .pick.lit .nm{font-size:17px}
 .pick.lit .why{color:var(--text)}
 .pick.lit .go{color:var(--on-acc);background:var(--acc);border-color:var(--acc)}
+.pick.pv{border-color:rgba(245,136,58,.55)}.pick.pv .go{color:var(--acc);border-color:rgba(245,136,58,.55)}
 .skip{display:flex;gap:8px;align-items:flex-start;margin:9px 2px 0;font-size:12px;line-height:1.4;color:var(--muted)}
 .skip .i{width:14px;height:14px;margin-top:1px;color:var(--bad)}
 .dstrip{display:block;width:100%;height:auto;margin:2px 0 0;overflow:visible}
@@ -926,16 +927,18 @@ if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT
 /* the night brief's walks + street tiles (`map.walks`, `map.tiles`, hailhunter/mapwalk.py): each card's own walk (the
    Knock app's order, street by street, corner to corner: no door points) and real street lines where data/streets.json
    has none (Columbus, Schuyler, David City...). Names escaped, numbers checked; anything malformed is dropped. */
-const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
+const NIGHT_X=(()=>{const b=window.NIGHT_REAL,out={walks:{},zwalks:{},tiles:[]};if(!b||b.kind!=="night_brief"||!b.map)return out;
   const esc=(v)=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
     num=(v)=>typeof v==="number"&&isFinite(v),pt=(p)=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1]),
     line=(a)=>Array.isArray(a)&&a.every(pt),ints=(a)=>Array.isArray(a)&&a.length>=4&&a.every(num);
-  const W0=b.map.walks&&typeof b.map.walks==="object"&&!Array.isArray(b.map.walks)?b.map.walks:{};
-  Object.entries(W0).slice(0,12).forEach(([id,w])=>{try{
+  // walks = by open-map area (first card per area); zwalks = by zone id, one per card (pick, backup, top 3: each card
+  // draws its own walk, even two cards in one storm area or an old-house backup with no area)
+  const obj=(v)=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
+  [[obj(b.map.walks),out.walks],[obj(b.map.zwalks),out.zwalks]].forEach(([W0,into])=>Object.entries(W0).slice(0,12).forEach(([id,w])=>{try{
     const s=(Array.isArray(w.s)?w.s.slice(0,40):[]).filter(x=>x&&line(x.p)&&x.p.length>=2).map(x=>({n:esc(x.n),b:num(x.b)?x.b:0,h:num(x.h)?Math.max(0,Math.min(500,Math.round(x.h))):0,
       m:num(x.m)?x.m:0,f:esc(x.f),t:esc(x.t),p:x.p}));
     if(!s.length||!pt(w.park)||!Array.isArray(w.c)||!Array.isArray(w.r)||w.r.length!==s.length||w.c.length!==s.length||!w.c.every(c=>line(c))||!w.r.every(r=>line(r)&&r.length))return;
-    out.walks[String(id)]={park:w.park,pn:[esc((w.pn||[])[0]),esc((w.pn||[])[1])],s,c:w.c,r:w.r}}catch(e){}});
+    into[String(id)]={park:w.park,pn:[esc((w.pn||[])[0]),esc((w.pn||[])[1])],s,c:w.c,r:w.r}}catch(e){}}));
   (Array.isArray(b.map.tiles)?b.map.tiles.slice(0,6):[]).forEach(t=>{if(t&&pt(t.o)&&num(t.s)&&t.s>0&&Array.isArray(t.t)&&t.t.length===4&&t.t.every(c=>Array.isArray(c)&&c.every(ints)))out.tiles.push(t)});
   return out})();
 const TODAY = REAL ? REAL.today : "2026-09-28";
@@ -1274,7 +1277,7 @@ const counts={roof:roofPts.length,prmt:permitPts.length,door:doorPts.length};
 
 /* ---------- state ---------- */
 const st={days:REAL?ND-1:30,sort:"new",sel:null,hot:null,layers:Object.fromEntries(LAYERS.map(l=>[l.k,l.on])),
-  order:[],back:null,walk:null,leave:"now",bsort:"hail",hs:null,pins:[],pendWalk:0};
+  order:[],back:null,walk:null,leave:"now",bsort:"hail",hs:null,pins:[],pendWalk:0,cw:null};
 const qs=new URLSearchParams(location.search);
 let THEME="dark";try{THEME=localStorage.getItem("aldaba-theme")||THEME}catch(e){}
 if(["light","dark"].includes(qs.get("theme")))THEME=qs.get("theme");
@@ -1910,6 +1913,10 @@ function roofMix(a){if(REAL){const hi=a.old??0,lo=a.old==null?0:1-hi;return{lo,m
 
 /* ---------- best streets + walks (data/areas.json: real streets, real Census homes) ---------- */
 let AREAX=null;
+/* the walk for area id: card zone z's own walk (night brief zwalks) when the open card has one, else the area's.
+   z defaults to the card picked for the open area (st.cw); knockPlan pins it to the pick's zone (AXZ). */
+let AXZ;
+function AX(id,z){if(z===undefined)z=AXZ!==undefined?AXZ:id===st.sel?st.cw:null;return(z&&NIGHT_X.zwalks[z])||(AREAX&&AREAX[id])||null}
 function applyAreas(d){AREAX={};const k=1/d.o;
   Object.entries(d.areas).forEach(([id,a])=>{const dec=(arr)=>{let x=a.o[0],y=a.o[1];const o=[];for(let i=0;i<arr.length;i+=2){x+=arr[i];y+=arr[i+1];o.push([x*k,y*k])}return o};
     AREAX[id]={park:dec(a.park)[0],pn:a.pn,s:a.s.map(s=>({n:s.n,b:s.b,h:s.h,m:s.m,f:s.f,t:s.t,p:dec(s.p)})),c:a.c.map(dec),r:a.r.map(dec)}});
@@ -1917,19 +1924,19 @@ function applyAreas(d){AREAX={};const k=1/d.o;
   renderHome();
   if(st.sel){const a=areaOf(st.sel);renderPlan();focusArea(a,true);if(st.pendWalk){st.pendWalk=0;planWalk(false)}}}
 const hailFor=(b,a)=>REAL?(b>0?a.hail:.75):b>=2?a.hail:Math.min(a.hail,b>=1.5?1.75:b>=1?1.25:.75);
-function streetRows(a){const X=AREAX&&AREAX[a.id];if(!X)return[];
+function streetRows(a){const X=AX(a.id);if(!X)return[];
   return X.s.map((s,i)=>({...s,i,hail:hailFor(s.b,a),roof:REAL?nv(a.roof):Math.max(5,Math.min(38,Math.round(a.roof+(hsh(s.n)%13)-6)))}))}
 const stretch=(r)=>r.f&&r.t?(r.f===r.t?t("loopX",r.f):t("fromTo",r.f,r.t)):(r.f||r.t)?t("offX",r.f||r.t):"";
-function walkFor(a,k){const X=AREAX[a.id],S=X.s.slice(0,k),doors=S.reduce((q,x)=>q+x.h,0),conn=X.c.slice(1,k).reduce((q,p)=>q+lenM(p),0),ret=lenM(X.r[k-1]),walkMin=(conn+ret)/80;
+function walkFor(a,k){const X=AX(a.id),S=X.s.slice(0,k),doors=S.reduce((q,x)=>q+x.h,0),conn=X.c.slice(1,k).reduce((q,p)=>q+lenM(p),0),ret=lenM(X.r[k-1]),walkMin=(conn+ret)/80;
   return{k,doors,min:doors/PACE*60+walkMin,lo:doors/30*60+walkMin,hi:doors/20*60+walkMin,m:S.reduce((q,x)=>q+x.m,0)+conn+ret}}
-function autoK(a,left){const n=AREAX[a.id].s.length;let k=1;for(let i=2;i<=n;i++){if(walkFor(a,i).min<=left)k=i;else break}return k}
-function route(a,k){const X=AREAX[a.id];let pts=[];for(let i=0;i<k;i++){if(i)pts=pts.concat(X.c[i]);pts=pts.concat(X.s[i].p)}pts=pts.concat(X.r[k-1]);
+function autoK(a,left){const n=AX(a.id).s.length;let k=1;for(let i=2;i<=n;i++){if(walkFor(a,i).min<=left)k=i;else break}return k}
+function route(a,k){const X=AX(a.id);let pts=[];for(let i=0;i<k;i++){if(i)pts=pts.concat(X.c[i]);pts=pts.concat(X.s[i].p)}pts=pts.concat(X.r[k-1]);
   return pts.filter((p,i)=>!i||p[0]!==pts[i-1][0]||p[1]!==pts[i-1][1])}
 function along(p,f){const km=p.map(toKm),cum=[0];for(let j=1;j<km.length;j++)cum.push(cum[j-1]+Math.hypot(km[j][0]-km[j-1][0],km[j][1]-km[j-1][1]));
   const Ld=Math.max(0,Math.min(1,f))*cum[cum.length-1];let j=1;while(j<cum.length-1&&cum[j]<Ld)j++;const q=(Ld-cum[j-1])/((cum[j]-cum[j-1])||1),
   dx=km[j][0]-km[j-1][0],dy=km[j][1]-km[j-1][1],m=Math.hypot(dx,dy)||1;return{x:km[j-1][0]+dx*q,y:km[j-1][1]+dy*q,nx:-dy/m,ny:dx/m,a:p[j-1],b:p[j]}}
 /* door dots: estimated spots along both sides of each walked street (no real addresses) */
-function walkDoors(a,k){const X=AREAX[a.id],out=[];let idx=0;
+function walkDoors(a,k){const X=AX(a.id),out=[];let idx=0;
   for(let i=0;i<k;i++){const s=X.s[i],per=Math.ceil(s.h/2);
     for(let d=0;d<s.h;d++){const side=d%2?-1:1,q=along(s.p,(Math.floor(d/2)+(side<0?.8:.3))/per),o=.0105*side;
       out.push(F({type:"Point",coordinates:toLL([q.x+q.nx*o,q.y+q.ny*o])},{i:idx++,s:i}))}}
@@ -1947,7 +1954,7 @@ function focusFC(i){if(FOCUS[i])return FOCUS[i];if(!STR_LL)return FC([]);
   return FOCUS[i]=FC(Object.entries(out).filter(([,v])=>v.length).map(([b,v])=>F({type:"MultiLineString",coordinates:v},{b:+b})))}
 function dimFC(i){const hole=areaFeat[i].geometry.coordinates[0].slice().reverse();
   return FC([F({type:"Polygon",coordinates:[[[-99.5,38.5],[-92.5,38.5],[-92.5,44.5],[-99.5,44.5],[-99.5,38.5]],hole]})])}
-function bestFC(a){const X=AREAX&&AREAX[a.id];return FC(X?X.s.map((s,i)=>F({type:"LineString",coordinates:s.p},{i,w:st.walk&&i<st.walk.k?1:0})):[])}
+function bestFC(a){const X=AX(a.id);return FC(X?X.s.map((s,i)=>F({type:"LineString",coordinates:s.p},{i,w:st.walk&&i<st.walk.k?1:0})):[])}
 const APAD=()=>{const pl=document.querySelector(".plan"),cd=document.querySelector(".card"),lay=document.querySelector(".layers");
   return{top:96,bottom:34,left:16+(pl.offsetWidth||368)+26,right:16+(cd.offsetWidth||408)+16+(lay.offsetWidth||54)+22}};
 function fitCam(b,pad,o){const W=Math.max(200,innerWidth-pad.left-pad.right),H=Math.max(200,innerHeight-pad.top-pad.bottom),my=(y)=>Math.log(Math.tan(Math.PI/4+y*Math.PI/360)),
@@ -1970,13 +1977,13 @@ function unfocus(){onGL(()=>{map.setPaintProperty("dim","fill-opacity",0);map.se
     map.setPaintProperty("heat","heatmap-opacity",.95);homesTo(64,1000)});setBestLabels(null)}
 let bestLbls=[];
 function setBestLabels(a){bestLbls.forEach(l=>{l.e.remove();const j=labels.indexOf(l);if(j>=0)labels.splice(j,1)});bestLbls=[];sortedLabels=null;
-  const X=a&&AREAX&&AREAX[a.id];if(!X)return;
+  const X=a&&(a._x||AX(a.id));if(!X)return;
   X.s.forEach((s,i)=>{const q=along(s.p,.5);bestLbls.push(addLabel("bst",s.n,toLL([q.x,q.y]),12.3,-1,{along:[q.a,q.b],i}))});sortedLabels=null}
 
 /* ---------- the start point + walk markers (HTML, so they stay crisp) ---------- */
 const meEl=document.createElement("div");meEl.className="me";meEl.innerHTML=`<i></i><span></span>`;ov.appendChild(meEl);
 let walkMk=[];
-function drawWalkMarks(){walkMk.forEach(m=>m.e.remove());walkMk=[];const a=areaOf(st.sel),W=st.walk;if(!a||!W||!AREAX)return;const X=AREAX[a.id];
+function drawWalkMarks(){walkMk.forEach(m=>m.e.remove());walkMk=[];const a=areaOf(st.sel),W=st.walk,X=a&&AX(a.id);if(!a||!W||!X)return;
   const pk=document.createElement("div");pk.className="wk park";pk.innerHTML=`<div class="pk"><b>P</b>${t("parkAt",X.pn[0],X.pn[1])}</div>`;ov.appendChild(pk);walkMk.push({e:pk,ll:X.park,park:1});
   for(let i=0;i<W.k;i++){const q=along(X.s[i].p,.5),e=document.createElement("div");e.className="wk";e.style.setProperty("--dl",(.25+i*.18)+"s");e.innerHTML=`<b>${i+1}</b>`;ov.appendChild(e);
     walkMk.push({e,ll:toLL([q.x+q.nx*.035,q.y+q.ny*.035]),i})}}
@@ -2097,7 +2104,7 @@ function renderPlan(){const a=areaOf(st.sel);if(!a)return;const tr=trip(a),R=str
       <span class="n">${r.h}</span><span class="n h">${r.hail>=1?fmtIn(r.hail)+"″":"&lt;1″"}</span><span class="n">${r.roof}</span></div>`).join("")||`<div class="empty">…</div>`}</div>`;
   renderPlanFoot(a,tr);renderGT(a);
 }
-function renderPlanFoot(a,tr){const W=st.walk&&st.walk.id===a.id?st.walk:null,X=AREAX&&AREAX[a.id],f=$("planFoot");
+function renderPlanFoot(a,tr){const W=st.walk&&st.walk.id===a.id?st.walk:null,X=AX(a.id),f=$("planFoot");
   const rw=a.radar?`<p class="note warnr">${ic("sign")} ${t("radarFirst")}</p>`:"";
   if(!W){f.innerHTML=`${rw}<button class="btn" id="planGo"${X?"":" disabled"}>${ic("route")}${t("planBtn")}</button><p class="note">${t("planNote")}</p>`;return}
   const n=X.s.length,over=Math.round(W.min-tr.left),rest=X.s.slice(W.k).reduce((q,x)=>q+x.h,0);
@@ -2115,8 +2122,8 @@ function renderANav(){const a=areaOf(st.sel);if(!a)return;const s=STORMS[a.st],i
 
 /* ---------- plan a walk ---------- */
 let RV=0;
-function planWalk(animate=true,k){const a=areaOf(st.sel);if(!a)return;if(!AREAX||!AREAX[a.id]){st.pendWalk=1;return}
-  const tr=trip(a);k=Math.max(1,Math.min(AREAX[a.id].s.length,k||autoK(a,tr.left)));st.walk={id:a.id,...walkFor(a,k)};
+function planWalk(animate=true,k){const a=areaOf(st.sel);if(!a)return;if(!AX(a.id)){st.pendWalk=1;return}
+  const tr=trip(a);k=Math.max(1,Math.min(AX(a.id).s.length,k||autoK(a,tr.left)));st.walk={id:a.id,...walkFor(a,k)};
   const W=st.walk;W.pts=route(a,k);W.doorsF=walkDoors(a,k);const km=W.pts.map(toKm),cum=[0];for(let j=1;j<km.length;j++)cum.push(cum[j-1]+Math.hypot(km[j][0]-km[j-1][0],km[j][1]-km[j-1][1]));
   W.km=km;W.cum=cum;W.len=cum[cum.length-1];W.shown=!animate;
   drawWalkMarks();renderPlan();renderANav();
@@ -2132,7 +2139,7 @@ function revealWalk(ms){cancelAnimationFrame(RV);const W=st.walk,N=W.doorsF.leng
     if(u<1)RV=requestAnimationFrame(step);else W.shown=true};RV=requestAnimationFrame(step)}
 function clearWalk(){cancelAnimationFrame(RV);st.walk=null;walkMk.forEach(m=>m.e.remove());walkMk=[];
   onGL(()=>{map.getSource("walk").setData(FC([]));map.getSource("wdoors").setData(FC([]));map.setPaintProperty("walk-glow","line-opacity",0)})}
-function hoverStreet(i){if(st.hs===i)return;st.hs=i;const a=areaOf(st.sel),X=a&&AREAX&&AREAX[a.id];
+function hoverStreet(i){if(st.hs===i)return;st.hs=i;const a=areaOf(st.sel),X=a&&AX(a.id);
   onGL(()=>map.getSource("hover").setData(i==null||!X?FC([]):FC([F({type:"LineString",coordinates:X.s[i].p})])));
   bestLbls.forEach(l=>l.e.classList.toggle("hot",l.i===i));document.querySelectorAll(".bs").forEach(r=>r.classList.toggle("hot",+r.dataset.i===i));
   if(!useGL)fbDraw();place()}
@@ -2191,25 +2198,29 @@ function setHot(id){if(id===st.hot)return;setFS(st.hot,"hot",false);st.hot=id;se
   Object.values(marks).forEach(m=>m.e.classList.toggle("hot",m.a.id===id));document.querySelectorAll(".row").forEach(r=>r.classList.toggle("hot",r.dataset.id===id))}
 let HIST=false;
 function setSel(id,fly=true){if(id)enterArea(id,{fly,push:fly});else exitArea()}
-function enterArea(id,{fly=true,push=true}={}){const a=areaOf(id);if(!a)return;const first=!st.sel;
+function enterArea(id,{fly=true,push=true,cw=null}={}){const a=areaOf(id);if(!a)return;const first=!st.sel;clearPreview();
+  if(cw&&!NIGHT_X.zwalks[cw])cw=null;
   if(first&&useGL&&mapReady)st.back={center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing(),padding:map.getPadding()};
-  if(!first&&st.sel===id)return;
-  if(st.walk)clearWalk();st.hs=null;
+  if(!first&&st.sel===id){if(cw!==st.cw)switchCard(a,cw);return}
+  if(st.walk)clearWalk();st.hs=null;st.cw=cw;
   setFS(st.sel,"sel",false);st.sel=id;setFS(id,"sel",true);document.body.classList.add("area");
   Object.values(marks).forEach(m=>m.e.classList.toggle("sel",m.a.id===id));document.querySelectorAll(".row").forEach(r=>r.classList.toggle("sel",r.dataset.id===id));
   closePop();renderCard();renderPlan();renderANav();$("cardBody").scrollTop=0;$("planBody").scrollTop=0;
-  if(st.pendWalk&&AREAX&&AREAX[id]){st.pendWalk=0;setTimeout(()=>planWalk(false),0)}
+  if(st.pendWalk&&AX(id)){st.pendWalk=0;setTimeout(()=>planWalk(false),0)}
   focusArea(a);
   if(useGL){if(mapReady&&fly)map.flyTo({...areaCam(a),duration:first?1500:1150,curve:1.3,essential:true});else onGL(()=>map.jumpTo(areaCam(a)))}else fbDraw();
-  if(push){try{const sObj={aldabaArea:id};if(!first&&history.state&&history.state.aldabaArea)history.replaceState(sObj,"");else history.pushState(sObj,"");HIST=true}catch(e){HIST=false}}
+  if(push){try{const sObj={aldabaArea:id,cw};if(!first&&history.state&&history.state.aldabaArea)history.replaceState(sObj,"");else history.pushState(sObj,"");HIST=true}catch(e){HIST=false}}
   place();setTimeout(place,380)}
-function exitArea(){if(!st.sel)return;cancelAnimationFrame(RP.raf);if(st.walk)clearWalk();unfocus();st.hs=null;
+/* a second card in the open area (Columbus t1 after the t3 pick): its own walk, drawn in place */
+function switchCard(a,cw){const re=!!st.walk;if(re)clearWalk();st.hs=null;st.cw=cw;focusArea(a,true);renderCard();renderPlan();renderANav();
+  onGL(()=>map.getSource("hover").setData(FC([])));if(re||st.pendWalk){st.pendWalk=0;planWalk(true)}else place()}
+function exitArea(){if(!st.sel)return;cancelAnimationFrame(RP.raf);if(st.walk)clearWalk();unfocus();st.hs=null;st.cw=null;
   setFS(st.sel,"sel",false);st.sel=null;document.body.classList.remove("area");
   Object.values(marks).forEach(m=>m.e.classList.remove("sel"));document.querySelectorAll(".row").forEach(r=>r.classList.remove("sel"));
   closePop();if(useGL&&mapReady&&st.back)map.flyTo({...st.back,duration:1100,essential:true});else if(useGL&&mapReady)map.flyTo({center:CAM.center,zoom:CAM.zoom,pitch:st.layers.tilt?CAM.pitch:0,bearing:st.layers.tilt?CAM.bearing:0,padding:PAD,duration:1100});
   if(!useGL)fbDraw();renderTimeline();place();setTimeout(place,380)}
 function goBack(){if(HIST&&history.state&&history.state.aldabaArea){try{history.back();return}catch(e){}}exitArea()}
-addEventListener("popstate",e=>{const id=e.state&&e.state.aldabaArea;if(id&&areaOf(id))enterArea(id,{push:false});else if(st.sel)exitArea()});
+addEventListener("popstate",e=>{const id=e.state&&e.state.aldabaArea;if(id&&areaOf(id))enterArea(id,{push:false,cw:e.state.cw||null});else if(st.sel)exitArea()});
 function stepArea(d){const o=st.order,i=o.indexOf(st.sel);if(i<0||!o.length)return;enterArea(o[(i+d+o.length)%o.length])}
 
 /* ---------- 7 AM home: Aldaba's top 3 + today's plan (SAMPLE clock, SAMPLE appointments, no owner names) ---------- */
@@ -2261,12 +2272,13 @@ function computePicks(){const visA=AREAS.filter(a=>STORMS[a.st].days<=st.days),b
   PK={};PICKS.forEach((p,i)=>{if(p.a&&!PK[p.a.id])PK[p.a.id]=i+1});
   Object.values(marks).forEach(m=>{const r=PK[m.a.id];m.e.classList.toggle("rank",!!r);m.e.classList.toggle("rank1",r===1);m.e.querySelector(".rk").textContent=r||""})}
 /* the #1 pick's afternoon: follow-ups on the way, then the walk; warn if it runs past sunset */
-function knockPlan(){const p=PICKS[0];if(!p||!p.a)return null;const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0;
+function knockPlan(){const p=PICKS[0];if(!p||!p.a)return null;AXZ=(p.card&&p.card.zone_id)||null;try{return knockPlan0(p)}finally{AXZ=undefined}}
+function knockPlan0(p){const a=p.a,tr=trip(a),sun=tr.sun,early=st.early||0,X=AX(a.id),z=AXZ;
   const dep=Math.max(NOWM,bestStart(TODAY)-tr.drive-early),arr=dep+tr.drive,door0=Math.max(arr,bestStart(TODAY)-early);
   const fu=DAY_PLAN.fu.filter(f=>f.area===a.id),fuMin=fu.length*FU_MIN;
-  if(!AREAX||!AREAX[a.id])return{a,tr,dep,arr,door0,sun,fu,fuMin,W:null};
+  if(!X)return{a,z,tr,dep,arr,door0,sun,fu,fuMin,W:null};
   const k=autoK(a,Math.max(0,sun-Math.max(arr+early,bestStart(TODAY)))),W=walkFor(a,k),end=door0+fuMin+W.min;
-  return{a,tr,dep,arr,door0,sun,fu,fuMin,W,k,end,over:Math.round(end-sun),st0:AREAX[a.id].s[0].n}}
+  return{a,z,X,tr,dep,arr,door0,sun,fu,fuMin,W,k,end,over:Math.round(end-sun),st0:X.s[0].n}}
 function dayStrip(K){const x0=420,x1=1230,W=316,X=(m)=>((Math.max(x0,Math.min(x1,m))-x0)/(x1-x0)*W).toFixed(1);
   let s=`<svg class="dstrip" viewBox="0 0 ${W} 46" role="img" aria-label="${t("stripA")}">`;
   if(K)s+=`<rect x="${X(K.sun)}" y="12" width="${W-X(K.sun)}" height="14" rx="3" class="dark"/>`;
@@ -2328,10 +2340,28 @@ function nightHTML(){const b=nightB();if(!b)return"";
 /* a brief card the map has no area for (an old-house backup, a storm newer than the season file): taps fly to its middle */
 function cardPick(p,i){const c=p.card,hin=isFinite(+c.hail_in)&&c.hail_in!=null?+c.hail_in:null,ev=c.kind!=="storm"||hin==null,ctr=c.center&&c.center.lon!=null?`${+c.center.lon},${+c.center.lat}`:"";
   const facts=`${c.dist_mi!=null?`<span>${ic("car")}${Math.round(c.dist_mi)} mi</span>`:""}<span>${ic("door")}${+c.doors||0} ${t("doors")}</span>`;
-  return `<button class="pick${i?"":" lit"}"${ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(hin)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
+  const zw=c.zone_id&&NIGHT_X.zwalks[c.zone_id]?escN(c.zone_id):"";
+  return `<button class="pick${i?"":" lit"}${zw&&PV===c.zone_id?" pv":""}"${zw?` data-zw="${zw}"`:ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(hin)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
     <span class="rk">${i+1}</span>
     <span class="bd"><span class="nm">${escN(c.name)}${c.storm_day?`<span class="dt">${fmtDate(c.storm_day)}</span>`:""}${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
     <span class="vv"><span class="v">${ev?`<small>${c.kind!=="storm"?t("oldH"):""}</small>`:fmtIn(hin)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}
+/* a card the map has no area for (an old-house backup) but whose walk the night brief carries: draw that walk on the
+   real streets where it is (street runs, the route, P where it starts, street names) and fly there; home stays open */
+let PV=null;
+function walkPts(X){let pts=[];X.s.forEach((s,i)=>{if(i)pts=pts.concat(X.c[i]);pts=pts.concat(s.p)});pts=pts.concat(X.r[X.s.length-1]);
+  return pts.filter((p,i)=>!i||p[0]!==pts[i-1][0]||p[1]!==pts[i-1][1])}
+function previewWalk(z){const X=NIGHT_X.zwalks[z];if(!X)return;if(st.sel)exitArea();clearPreview();PV=z;
+  document.querySelectorAll(".pick[data-zw]").forEach(b=>b.classList.toggle("pv",b.dataset.zw===z));
+  const pts=walkPts(X);setBestLabels({_x:X});
+  const pk=document.createElement("div");pk.className="wk park";pk.innerHTML=`<div class="pk"><b>P</b>${t("parkAt",X.pn[0],X.pn[1])}</div>`;ov.appendChild(pk);walkMk.push({e:pk,ll:X.park,park:1});
+  onGL(()=>{if(PV!==z)return;map.getSource("best").setData(FC(X.s.map((s,i)=>F({type:"LineString",coordinates:s.p},{i,w:0}))));
+    map.getSource("walk").setData(FC([F({type:"LineString",coordinates:pts})]));map.setPaintProperty("walk-core","line-gradient",wgrad(1));
+    map.setPaintProperty("walk-glow","line-opacity",.5);
+    map.flyTo({...fitCam(bbox(pts),PAD,{pitch:st.layers.tilt?48:0,bearing:0,maxZoom:15.6,slack:.3}),duration:1300,essential:true})});
+  place()}
+function clearPreview(){if(!PV)return;PV=null;walkMk.forEach(m=>m.e.remove());walkMk=[];setBestLabels(null);
+  document.querySelectorAll(".pick.pv").forEach(b=>b.classList.remove("pv"));
+  onGL(()=>{if(PV)return;["best","walk"].forEach(k=>map.getSource(k).setData(FC([])));map.setPaintProperty("walk-glow","line-opacity",0)});place()}
 function flyPt(v){const[x,y]=String(v).split(",").map(Number);if(!isFinite(x)||!isFinite(y))return;
   if(useGL&&mapReady)map.flyTo({center:[x,y],zoom:12.6,pitch:st.layers.tilt?48:0,padding:PAD,duration:1300,essential:true})}
 function renderHome(){const box=$("today");if(!box)return;computePicks();
@@ -2339,7 +2369,7 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
   const d=new Date(TODAY+"T12:00:00"),dn=T.dows[lang][d.getDay()],K=knockPlan(),fr=TOWNS.fremont,fp=permit(fr,TODAY);
   const P=PICKS.map((p,i)=>{if(!p.a)return cardPick(p,i);const a=p.a,col=bandColor(Math.max(a.hail,p.wind?1.5:0)),tr=p.tr,sc=tr.tw.src||"tbd";
     const facts=`<span>${ic("car")}${tr.drive} min</span><span>${ic("clock")}${fmtClock(tr.from)}–${fmtClock(tr.end)}</span>${p.pm.k==="ok"?`<span class="ok">${ic("id")}${t("pOk")}</span>`:`<span class="warn">${ic("id")}${t("pTbd")}</span>`}`;
-    return `<button class="pick${i?"":" lit"}" data-pick="${a.id}" style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
+    return `<button class="pick${i?"":" lit"}" data-pick="${a.id}"${p.card&&p.card.zone_id?` data-z="${escN(p.card.zone_id)}"`:""} style="--c:${col};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",L(a.name))}">
       <span class="rk">${i+1}</span>
       <span class="bd"><span class="nm">${p.card?escN(p.card.name):L(a.name)}<span class="dt">${L(STORMS[a.st].d)}</span>${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}${(m=>m?`<span class="mv${m.k==="new"?" nw":""}">${m.k==="up"?t("nUpFrom",m.was):t("nNewPick")}</span>`:"")(nightMove(a.id))}</span><span class="why">${p.why}</span>${trkHTML(a)}<span class="fx">${facts}</span></span>
       <span class="vv"><span class="v">${p.wind?a.wind+"<small>mph</small>":fmtIn(a.hail)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}).join("");
@@ -2355,8 +2385,8 @@ function renderHome(){const box=$("today");if(!box)return;computePicks();
       <div class="il">${t("leaveBy",fmtClock(K.dep),K.tr.drive)} · ${t("winWhy")} ${chip("win",fmtClock(bestStart(TODAY))+"+",K.a.st,1)}</div>
       ${K.W?`<div class="kwalk"><div><b>${K.W.doors}</b><small>${t("doors")}</small></div><div><b>${t("streetsN",K.k)}</b><small>${t("from")} ${K.st0}</small></div><div><b>${K.fu.length}</b><small>${t("fuOnWay")}</small></div></div>`:""}
       ${warn}
-      <div class="kbtns"><button class="btn sm" data-walk="${K.a.id}">${ic("route")}${t("openWalk")}</button><a class="btn sm go" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startK")}</a></div></div>`}
-  const walkSt=K&&K.W?AREAX[K.a.id].s.slice(0,K.k).map(x=>x.n):[];
+      <div class="kbtns"><button class="btn sm" data-walk="${K.a.id}"${K.z?` data-z="${escN(K.z)}"`:""}>${ic("route")}${t("openWalk")}</button><a class="btn sm go" href="${KNOCK_URL}" target="_blank" rel="noopener">${ic("door")}${t("startK")}</a></div></div>`}
+  const walkSt=K&&K.W?K.X.s.slice(0,K.k).map(x=>x.n):[];
   const fus=DAY_PLAN.fu.map(f=>{const on=K&&f.area===K.a.id;return `<div class="fu"><span class="ad">${addr(f)} <span class="smp">${t("sampleW")}</span></span>
       <span class="ar">${L(areaOf(f.area).name)} · ${t("lastSeen",fmtDate(f.last))}${on?` · <em>${t("onWay")}</em>`:""}</span><span class="nt">${L(f.n)}</span></div>`}).join("");
   const aps=DAY_PLAN.ap.map(ap=>`<div class="ap ${ap.k}"><span class="at">${fmtClock(ap.at)}</span><span><span class="ad">${t(ap.k)} · ${addr(ap)} <span class="smp">${t("sampleW")}</span></span>
@@ -2385,9 +2415,10 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()
 $("today").addEventListener("click",e=>{if(e.target.closest(".chip"))return;
   const ng=e.target.closest("[data-night]");if(ng){st.night=ng.dataset.night;renderHome();return}
   const nz=e.target.closest("[data-nz]");if(nz){enterArea(nz.dataset.nz);return}
-  const pk=e.target.closest("[data-pick]");if(pk){enterArea(pk.dataset.pick);return}
-  const fl=e.target.closest("[data-fly]");if(fl){flyPt(fl.dataset.fly);return}
-  const wk=e.target.closest("[data-walk]");if(wk){if(st.sel===wk.dataset.walk)planWalk(true);else{st.pendWalk=1;enterArea(wk.dataset.walk)}return}
+  const pk=e.target.closest("[data-pick]");if(pk){enterArea(pk.dataset.pick,{cw:pk.dataset.z||null});return}
+  const zw=e.target.closest("[data-zw]");if(zw){previewWalk(zw.dataset.zw);return}
+  const fl=e.target.closest("[data-fly]");if(fl){clearPreview();flyPt(fl.dataset.fly);return}
+  const wk=e.target.closest("[data-walk]");if(wk){const z=wk.dataset.z||null;if(st.sel===wk.dataset.walk&&st.cw===z)planWalk(true);else{st.pendWalk=1;enterArea(wk.dataset.walk,{cw:z})}return}
   const fx=e.target.closest("#fixEarly");if(fx){st.early=(st.early||0)+ +fx.dataset.early;renderHome();toast(t("fixed"));return}
   if(e.target.closest("#fixUndo")){st.early=0;renderHome()}});
 $("today").addEventListener("mouseover",e=>{const r=e.target.closest("[data-pick]");setHot(r?r.dataset.pick:null)});
@@ -2423,7 +2454,7 @@ const closeCmp=()=>{$("cmpw").hidden=true;closePop()};
 function fbArea(g,path){const i=AREAS.findIndex(x=>x.id===st.sel),ring=areaFeat[i].geometry.coordinates[0];
   g.save();g.beginPath();g.rect(0,0,innerWidth,innerHeight);ring.forEach((p,j)=>{const q=fbProj(p);j?g.lineTo(q.x,q.y):g.moveTo(q.x,q.y)});g.closePath();g.fillStyle="rgba(4,5,9,.66)";g.fill("evenodd");g.restore();
   const fc=focusFC(i),col={2:"#ff6a6a",1.5:"#ff9a45",1:"#f5c451",0:"#6f7b93"};fc.features.forEach(f=>{g.strokeStyle=col[f.properties.b];g.lineWidth=1.2;f.geometry.coordinates.forEach(l=>{path(l);g.stroke()})});
-  const X=AREAX&&AREAX[st.sel];if(X&&st.hs!=null){g.strokeStyle="#fff";g.lineWidth=3;path(X.s[st.hs].p);g.stroke()}
+  const X=AX(st.sel);if(X&&st.hs!=null){g.strokeStyle="#fff";g.lineWidth=3;path(X.s[st.hs].p);g.stroke()}
   const W=st.walk;if(W&&W.pts){g.strokeStyle="#f5883a";g.lineWidth=3;g.lineJoin="round";path(W.pts);g.stroke();
     W.doorsF.forEach(f=>{const q=fbProj(f.geometry.coordinates);g.beginPath();g.arc(q.x,q.y,2,0,7);g.fillStyle="#fff4ea";g.fill()})}}
 
@@ -2439,7 +2470,7 @@ $("planBody").addEventListener("click",e=>{if(e.target.closest("#seeProof")){con
 $("planBody").addEventListener("mouseover",e=>{const r=e.target.closest(".bs");hoverStreet(r?+r.dataset.i:null)});
 $("planBody").addEventListener("mouseleave",()=>hoverStreet(null));
 $("planFoot").addEventListener("click",e=>{if(e.target.closest("#planGo"))planWalk(true);else if(e.target.closest("#wkMore"))planWalk(true,st.walk.k+1);else if(e.target.closest("#wkLess"))planWalk(true,st.walk.k-1);
-  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AREAX[a.id];toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
+  else if(e.target.closest("#knockGo")){const a=areaOf(st.sel),X=AX(a.id);toast(t("handoff",st.walk.doors,X.s.slice(0,st.walk.k).map(s=>unesc(s.n)).join(", ")))}});
 $("cardBody").addEventListener("click",e=>{const lv=e.target.closest("[data-leave]");if(lv){st.leave=lv.dataset.leave;if(st.walk)planWalk(true);else renderPlan();return}
   if(e.target.closest("#rpPlay")){RP.play=!RP.play;if(RP.play){RP.t0=performance.now()-RP.k*RP.dur;RP.raf=requestAnimationFrame(rpLoop)}rpBtn();return}
   const tk=e.target.closest("#rpTrk");if(tk){const r=tk.getBoundingClientRect();RP.k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));RP.play=false;rpBtn();rpFrame(performance.now())}});

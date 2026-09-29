@@ -3,10 +3,11 @@
 The open map's own street data (data/streets.json, data/areas.json) only covers the Omaha-Lincoln box, so a pick in
 Columbus, Schuyler or David City had no walk drawn on it (the walk was in the Knock app only). The night shift now
 adds, for the pick, the backup and the top 3 cards, to its brief's `map`:
-  walks = {area id: {zone_id, park, pn, s, c, r}}  the card's own walk (walks/<zone id>, the Knock app's order) in
+  zwalks = {zone id: {zone_id, park, pn, s, c, r}}  every card's own walk (walks/<zone id>, the Knock app's order) in
           the page's AREAX shape (data/build/areas.py): s = one row per street run in walking order
           {n: street, b: hail band, h: doors, m: meters, f/t: cross streets, p: [[lon, lat], ...]}, c[i] = the
           walk from street i-1 to street i, r[i] = street i back to the car, park = where the walk starts.
+  walks = {area id: same}  the first card per open-map area only (what pages before 2026-09-29 read; kept).
   tiles = [{o, s, t, box}]  real street lines around each walk that sits outside `openmap.streets_box` (the box
           data/streets.json holds), in streets.json's exact encoding, so the page draws them the same way.
 Street lines come from the walk's `basemap` (hailhunter/basemap.py: gis.ne.gov Street_Centerlines, cached in the
@@ -304,27 +305,33 @@ def get_tile(maker, box, cfg=None):
 # ---------- the brief's part ----------
 
 def extra(doc, walks, maker, cfg=None):
-    """{walks, tiles} for the brief's pick, backup and top cards (module doc). walks = zones.walks() docs
-    ({"walks/<zone id>": doc}); maker = basemap.Maker (None: nothing). First card per area wins (the pick)."""
-    out = {"walks": {}, "tiles": []}
+    """{walks, zwalks, tiles} for the brief's pick, backup and top cards (module doc). walks = zones.walks() docs
+    ({"walks/<zone id>": doc}); maker = basemap.Maker (None: nothing).
+    out["walks"] is keyed by open-map area id, first card per area wins (the pick): what older pages read.
+    out["zwalks"] is keyed by zone id, one per card (2026-09-29, task every-card-walk): two cards in one storm area
+    (Columbus t3 + t1) each get their own walk, and a card with no area (an everyday backup) gets one too."""
+    out = {"walks": {}, "zwalks": {}, "tiles": []}
     if maker is None:
         return out
     boxes, oc = [], _ocfg(cfg)
     for c in [doc.get("pick"), doc.get("backup"), *(doc.get("top") or [])]:
-        aid = (c or {}).get("area_id")
-        if not aid or aid in out["walks"]:
+        zid = (c or {}).get("zone_id")
+        if not zid or zid in out["zwalks"]:
             continue
-        w = (walks or {}).get(f"walks/{c['zone_id']}")
+        w = (walks or {}).get(f"walks/{zid}")
         if not w or not w.get("stops"):
             continue
         w = maker.add(json.loads(json.dumps(w)))                 # a copy: the brief's walk docs stay as they were
         try:
             pw = page_walk(w, c.get("hail_in"), cfg)
         except Exception as e:                                   # a map walk is optional too
-            maker.log(f"  map walk {c['zone_id']}: {type(e).__name__}: {str(e)[:120]}")
+            maker.log(f"  map walk {zid}: {type(e).__name__}: {str(e)[:120]}")
             pw = None
         if pw:
-            out["walks"][aid] = pw
+            out["zwalks"][zid] = pw
+            aid = c.get("area_id")
+            if aid and aid not in out["walks"]:
+                out["walks"][aid] = pw
         box = tile_box(w, cfg)
         if box and outside(box, cfg) and len(out["tiles"]) < oc["max_tiles"] and not any(b[0] <= box[0] and b[1] <= box[1] and b[2] >= box[2] and
                                                   b[3] >= box[3] for b in boxes):

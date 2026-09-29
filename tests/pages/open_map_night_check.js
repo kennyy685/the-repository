@@ -187,6 +187,46 @@ async function main() {
     ok(!jk.x && !jk.img && jk.tiles === 1 && !jk.walk, `map-west junk: ${JSON.stringify(jk)}`);
     ok(!t.errors.length, "map-west junk: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
+    // 7d. every card draws ITS OWN walk (2026-09-29, every-card-walk): #3 (Columbus t1, same storm area as the pick)
+    //     switches the open area to its walk; the old-house backup (no area) draws its walk where it is; the 7 AM
+    //     knock plan always stays on the pick's walk
+    const zw = JSON.parse(require("child_process").execFileSync("python3", ["-c",
+      "import json,sys;sys.path.insert(0,'.');sys.path.insert(0,'tests');import test_mapwalk as T;from hailhunter import mapwalk;" +
+      "d,w=T.columbus();w1=dict(w,zone_id='2026-08-08_Columbus~t1',stops=w['stops'][::-1]);" +
+      "om=mapwalk.page_walk(w,None);sh=lambda p:[[x+1.25,y-0.19] for x,y in p];" +
+      "om={**om,'zone_id':'everyday_Omaha~t2','park':sh([om['park']])[0],'s':[{**r,'p':sh(r['p'])} for r in om['s']],'c':[sh(c) for c in om['c']],'r':[sh(r) for r in om['r']]};" +
+      "print(json.dumps({'2026-08-08_Columbus~t3':mapwalk.page_walk(w,1.64),'2026-08-08_Columbus~t1':mapwalk.page_walk(w1,1.5),'everyday_Omaha~t2':om}))"],
+      { cwd: ROOT }).toString());
+    const BZ = { ...BW, map: { ...BW.map, zwalks: zw } };
+    t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify(BZ) + ";");
+    await t.p.waitForFunction(() => typeof AREAX !== "undefined" && AREAX && STR_LL, null, { timeout: 10000 });
+    const cards = await t.p.$$eval(".picks .pick", (bs) => bs.map((b) => ({ pick: b.dataset.pick || null, z: b.dataset.z || null, zw: b.dataset.zw || null })));
+    ok(cards[0].z === "2026-08-08_Columbus~t3" && cards[2].z === "2026-08-08_Columbus~t1" && cards[1].zw === "everyday_Omaha~t2" && !cards[1].pick,
+      `every card: cards don't carry their walks ${JSON.stringify(cards)}`);
+    const park = (z) => zw[z].park.join();
+    await t.p.click(".picks .pick:nth-child(3)");                     // #3: Columbus t1, same area as the pick
+    await t.p.evaluate(() => planWalk(false));
+    let ev = await t.p.evaluate(() => ({ sel: st.sel, cw: st.cw, park: AX(st.sel).park.join(), best: bestFC(areaOf(st.sel)).features.length,
+      w0: st.walk && st.walk.pts[0].join(), kp: knockPlan().X.park.join() }));
+    ok(ev.sel === "z0808-columbus" && ev.cw === "2026-08-08_Columbus~t1", `every card: #3 did not open its own walk ${JSON.stringify(ev)}`);
+    ok(ev.park === park("2026-08-08_Columbus~t1") && ev.park !== park("2026-08-08_Columbus~t3"), `every card: #3 draws the pick's walk ${JSON.stringify(ev)}`);
+    ok(ev.w0 === park("2026-08-08_Columbus~t1"), `every card: #3's planned walk does not start at its own start ${JSON.stringify(ev)}`);
+    ok(ev.kp === park("2026-08-08_Columbus~t3"), `every card: the 7 AM knock plan left the pick's walk ${JSON.stringify(ev)}`);
+    await t.p.evaluate(() => { exitArea(); });
+    await t.p.click(".picks .pick:nth-child(1)");                     // back to the pick: its own walk again
+    ev = await t.p.evaluate(() => ({ cw: st.cw, park: AX(st.sel).park.join() }));
+    ok(ev.cw === "2026-08-08_Columbus~t3" && ev.park === park("2026-08-08_Columbus~t3"), `every card: the pick lost its walk ${JSON.stringify(ev)}`);
+    await t.p.evaluate(() => { exitArea(); });
+    await t.p.click(".picks .pick:nth-child(2)");                     // the Omaha backup: no area, its walk where it is
+    ev = await t.p.evaluate(() => ({ sel: st.sel, pv: PV, park: walkMk.filter((m) => m.park).map((m) => m.ll.join()), lbl: bestLbls.length,
+      on: document.querySelector(".picks .pick:nth-child(2)").classList.contains("pv"), pts: walkPts(NIGHT_X.zwalks[PV]).length }));
+    ok(!ev.sel && ev.pv === "everyday_Omaha~t2" && ev.on, `every card: the backup did not draw its walk ${JSON.stringify(ev)}`);
+    ok(ev.park.join() === park("everyday_Omaha~t2") && ev.lbl === zw["everyday_Omaha~t2"].s.length && ev.pts > 10, `every card: backup walk marks ${JSON.stringify(ev)}`);
+    await t.p.click(".picks .pick:nth-child(1)");                     // opening an area clears the preview
+    ev = await t.p.evaluate(() => ({ pv: PV, mk: walkMk.length, sel: st.sel }));
+    ok(!ev.pv && !ev.mk && ev.sel === "z0808-columbus", `every card: the backup preview stuck ${JSON.stringify(ev)}`);
+    ok(!t.errors.length, "every card: JS errors: " + t.errors.join(" | "));
+    await t.ctx.close();
     // 7c. tiles/walks of the wrong type, absurd door counts: the page still renders (QA 2026-09-29)
     const odd = JSON.parse(JSON.stringify(BW));
     odd.map.tiles = { nope: 1 };

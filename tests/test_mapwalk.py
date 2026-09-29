@@ -184,7 +184,30 @@ class BriefCarriesWalks(unittest.TestCase):
     def test_offline_with_nothing_cached_is_quiet(self):
         mk = basemap.Maker({}, None, None, offline=True, log=lambda m: None)
         out = mapwalk.extra(self.brief(), {"walks/2026-08-08_Schuyler~t1": self.schuyler_walk()}, mk)
-        self.assertEqual(out, {"walks": {}, "tiles": []})
+        self.assertEqual(out, {"walks": {}, "zwalks": {}, "tiles": []})
+
+    def test_every_card_gets_its_own_walk(self):
+        # 2026-09-29 (every-card-walk): two cards in one storm area (Schuyler t1 = pick, t2) and an everyday backup
+        # with no area each carry their own walk; `walks` (area-keyed, older pages) keeps only the pick's
+        mk, _ = self.maker(None)
+        base = self.schuyler_walk()
+        t2 = {**base, "zone_id": "2026-08-08_Schuyler~t2", "stops": list(reversed(base["stops"]))}
+        omaha = {**base, "zone_id": "everyday_Omaha~t2",
+                 "stops": [{**s, "lon": s["lon"] + 1.1, "lat": s["lat"] - 0.19} for s in base["stops"]]}
+        walks = {"walks/2026-08-08_Schuyler~t1": base, "walks/2026-08-08_Schuyler~t2": t2,
+                 "walks/everyday_Omaha~t2": omaha}
+        doc = self.brief()
+        sister = {"zone_id": "2026-08-08_Schuyler~t2", "area_id": "z0808-schuyler", "hail_in": 1.25}
+        doc["top"] = [doc["pick"], doc["backup"], sister]
+        out = mapwalk.extra(doc, walks, mk)
+        self.assertEqual(set(out["zwalks"]), {"2026-08-08_Schuyler~t1", "2026-08-08_Schuyler~t2", "everyday_Omaha~t2"})
+        self.assertEqual(list(out["walks"]), ["z0808-schuyler"])
+        self.assertIs(out["walks"]["z0808-schuyler"], out["zwalks"]["2026-08-08_Schuyler~t1"])
+        z = out["zwalks"]
+        self.assertNotEqual(z["2026-08-08_Schuyler~t1"]["park"], z["2026-08-08_Schuyler~t2"]["park"])   # its own order
+        self.assertEqual({s["b"] for s in z["everyday_Omaha~t2"]["s"]}, {0})       # everyday: no hail band
+        self.assertEqual(z["everyday_Omaha~t2"]["zone_id"], "everyday_Omaha~t2")
+        self.assertGreater(z["everyday_Omaha~t2"]["park"][0], -96.1)               # drawn where Omaha is
 
     def test_a_map_walk_error_never_costs_the_brief(self):
         # QA 2026-09-29: mapwalk.extra raising lost the whole 7 AM brief
@@ -248,6 +271,15 @@ class BriefCarriesWalks(unittest.TestCase):
         self.assertEqual(list(d["map"]["walks"]), ["z0910-fremont"])
         self.assertEqual(d["map"]["walks"]["z0910-fremont"]["s"][0]["n"], pick["start"]["address"])   # "E 4th St"
         self.assertEqual(d["map"].get("tiles"), [])                              # Fremont: in the map's own streets
+        # every storm card has its own walk (every-card-walk): Fremont t1 (the pick) and t2 share one area but not a
+        # walk. (The everyday backup's doors sit off this test's fake street grid; test_every_card_gets_its_own_walk
+        # covers it.)
+        cards = {c["zone_id"] for c in [d["pick"], d.get("backup"), *d["top"]] if c and c.get("kind") == "storm"}
+        self.assertEqual(set(d["map"]["zwalks"]), cards)
+        self.assertEqual(len(cards), 2)
+        a, b = (d["map"]["zwalks"][z] for z in sorted(cards))
+        self.assertNotEqual(a["s"], b["s"])
+        self.assertEqual(d["map"]["zwalks"][pick["zone_id"]], d["map"]["walks"]["z0910-fremont"])
         self.assertLess(len(text), hh.NIGHT_JS_MAX)
 
 
@@ -268,6 +300,9 @@ class PageWeight(unittest.TestCase):
         one = len(json.dumps(t, separators=(",", ":"))) + len(json.dumps(pw, separators=(",", ":")))
         self.assertLess(one, C.DEFAULTS["openmap"]["tile_max_kb"] * 1024)
         self.assertLess(3 * one + 20_000, hh.NIGHT_JS_MAX)
+        # every card's walk (pick, backup, 2 more) + the pick's again under its area id + 3 tiles
+        self.assertLess(3 * len(json.dumps(t, separators=(",", ":"))) + 5 * len(json.dumps(pw, separators=(",", ":")))
+                        + 20_000, hh.NIGHT_JS_MAX)
 
 
 if __name__ == "__main__":
