@@ -31,4 +31,4 @@ PING = one hub post to "you" when ALL are done (+ docs/orders/everything-we-have
 After the usage reset: back to max 4 at once.
 
 ## Merge to main: APPROVED by FilthE (2026-09-29 ~14:12 UTC, "yes")
-When the sync robot (session_01QWjHv7ABHZ7BT5c6YnVBnx) is done AND release_checks + pytest are green on claude/amazing-gauss-yzfpq0: the King merges claude/amazing-gauss-yzfpq0 into main (PR + merge, no force), then tells FilthE on the hub. One-time OK for this merge only.
+When the sync robot (session_01QWjHv7ABHZ7BT5c6YnVBnx) is done AND release_checks + pytest are green on claude/amazing-gauss-yzfpq0: the King opens a PR claude/amazing-gauss-yzfpq0 -> main and puts the link in the ping; FilthE clicks Merge (the King's auto-mode blocks it merging to main unattended).
