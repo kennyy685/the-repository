@@ -3484,18 +3484,18 @@ function wake(text, urgent){
   return true;
 }
 /* one fire of the King's CURRENT wake trigger (read fresh from system/king every time). No auto-retry: it is a write. */
-let mcpGone = false;   // use('mcp') said null: this view has no MCP (a slow answer is not that)
-async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 12000) : null; if (!MCP) mcpGone = true; } catch (e) { MCP = null; } return MCP; }
+let lastWakeErr = '';   // why the last wake failed (shown on the message); a null/slow use('mcp') is retried on the next call, never permanent
+async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 20000) : null; } catch (e) { MCP = null; } return MCP; }
 /* 2026-09-29 freeze fix: one door for every Claude Code Remote call. The first call on a load asks FilthE's consent (a
    claude.ai prompt over the page) and a call can sit unanswered ~130 s. So: a call that isn't his own click (bg: timers,
    snapshots, opening a window) never runs until one of his calls went through on this load, a refusal stops them all
    for the load, reads carry an abort deadline, and writes (fire_trigger, create_session) stop being waited on. */
 let mcpOk = false, mcpNo = false;
-const MCP_DEAD = ['not_granted', 'capability_disabled', 'capability_removed', 'consent_required', 'not_in_manifest', 'blocked_by_policy', 'server_not_connected', 'server_not_found', 'needs_reauth'];
+const MCP_DEAD = ['not_in_manifest'];   // only this is permanent; consent_required / needs_reauth / not_granted retry on his next click
 async function mcpCall(tool, input, o){
   o = o || {};
   if (mcpNo || (o.bg && !mcpOk)) throw Object.assign(new Error('deferred'), {code:'deferred'});
-  const m = await getMcp(); if (!m) { if (mcpGone) mcpNo = true; throw Object.assign(new Error('no mcp'), {code:mcpGone ? 'not_granted' : 'timeout'}); }
+  const m = await getMcp(); if (!m) throw Object.assign(new Error('no mcp'), {code:'timeout'});
   const ms = o.bg ? 20000 : 90000, opts = o.read ? {cache:false} : null;
   if (opts && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(ms);
   try { const r = await within(opts ? m.callTool('Claude Code Remote', tool, input, opts) : m.callTool('Claude Code Remote', tool, input), ms + 1000); mcpOk = true; return r; }
@@ -3504,7 +3504,7 @@ async function mcpCall(tool, input, o){
 async function fireNow(text, n, bg){
   const trig = wakeTrigger(); let ok = false, limited = false;
   try { if (trig) { await mcpCall('fire_trigger', {trigger_id:trig, text:String(text).slice(0, 1800)}, {bg}); ok = true; } }
-  catch (e) { limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
+  catch (e) { lastWakeErr = String(e && e.code || e && e.message || '?').slice(0, 60); limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
   if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:n || 1}).catch(() => {}); }
   else if (limited) store.set('hub-saving', '1');
   return {ok, limited, trig};
@@ -3783,7 +3783,7 @@ function msgStatus(e){
   if (old) return null;   // older messages stay quiet
   const d = ktDeliv[e.id] || e.deliv, late = e.wakeAtMs && now - e.wakeAtMs > 4*60000;
   if (e.wake === 'off') return {k:'no', t:T.lineDown, btn:'retry'};
-  if (e.wake === 'fail' || d === 'fail') return {k:'no', t:T.failed, btn:'retry'};
+  if (e.wake === 'fail' || d === 'fail') return {k:'no', t:T.failed + (e.wake === 'fail' && e.wakeErr ? ' (' + e.wakeErr + ')' : ''), btn:'retry'};
   if (d === 'ok') return {k:'ok', t:late ? T.gotLate(Math.round((now - e.wakeAtMs)/60000)) : T.gotIt, btn:late ? 'retry' : ''};
   if (e.wake === 'ok') return {k:'wait', t:late ? T.sentLate(Math.round((now - e.wakeAtMs)/60000)) : T.toKing, btn:late ? 'retry' : ''};
   return {k:'wait', t:T.toKing};
@@ -3879,9 +3879,9 @@ async function orderKing(id, text, order, again, bg){
   const trig = wakeTrigger(), at = nowIso();
   let wakeSt = 'off';
   if (trig && bg && !mcpOk) wakeSt = 'fail';   // not his click: no surprise consent prompt; the message shows Retry instead
-  else if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".', 1, bg);
+  else if (trig) { lastWakeErr = ''; const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".', 1, bg);
     wakeSt = r.ok ? 'ok' : 'fail'; if (r.ok) checkDelivery(id, trig, Date.now()); }
-  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
+  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (wakeSt === 'fail') upd.wakeErr = lastWakeErr || ((bg && !mcpOk) ? 'deferred' : ''); else upd.wakeErr = ''; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
   try { await withTimeout(DB.doc('events/' + id).update(upd)); } catch (e) { /* status shows from the next snapshot or not at all */ }
   renderThread.sig = ''; renderThread();   // repaint even when the status reads the same: the Retry button comes back enabled
@@ -3917,7 +3917,7 @@ function sweepThread(){
   if (!CAN_EDIT || !DB || !kingLoaded) return; const now = Date.now();
   for (const e of events) { if (!isMyChat(e) || ktSwept.has(e.id) || now - e.atMs > 2*3600e3) continue;
     if (events.some(x => (isKingReply(x) || isKingAck(x)) && x.re === e.id)) continue;
-    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id)) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, '', false, true); }
+    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id) && mcpOk) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, '', false, true); }
     else if (e.mode === 'order' && (e.wake === 'off' || e.wake === 'fail' || e.deliv === 'fail') && wakeTrigger() && e.trig !== wakeTrigger() && mcpOk) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, e.order || '', true, true); }
   }
 }
@@ -4017,7 +4017,7 @@ function onAgents(snap){
 }
 function onEvents(snap){
   const seen = new Set(events.map(e => e.id));
-  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
+  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
   if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) { pushHandoff(e.agent, e.to); pushFlow(e); } if (!replay) tannoyEvent(e); }
   gotEvents = true; got(); renderThread(true); sweepThread();

@@ -158,6 +158,21 @@ async function scenarioMcpHang(browser, url) {
   await ctx.close();
 }
 
+async function scenarioWakeRetry(browser, url, modes, L) {   // 2026-09-29: one null / consent-blocked MCP answer must not poison the load: the next order wakes the King
+  const { ctx, p, errs, tick } = await open(browser, url, { modes });
+  const wakeOf = () => p.evaluate(() => [...window.__mockDb.store.entries()].filter(([k]) => /^events\/.*-you-k$/.test(k)).map(([k, v]) => [k, v.wake, v.wakeErr]));
+  await sendChat(p, tick, "first order " + L); await tick(4000);
+  let w = (await wakeOf()).filter(x => x[1]);
+  ok(w.length && w[w.length - 1][1] === "fail", `${L}: (setup) the first order should fail once (${JSON.stringify(w)})`);
+  ok(w.length && !!w[w.length - 1][2], `${L}: a failed wake didn't record why (${JSON.stringify(w)})`);
+  ok(/\(\w+\)/.test(await p.textContent("#ktLog")), `${L}: the failed message doesn't show why`);
+  await sendChat(p, tick, "second order " + L); await tick(4000);
+  w = (await wakeOf()).filter(x => x[1]);
+  ok(w.length >= 2 && w[w.length - 1][1] === "ok", `${L}: the second order didn't wake the King (${JSON.stringify(w)})`);
+  ok((await mcpCalls(p)).includes("fire_trigger"), `${L}: fire_trigger never went through`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
 async function scenarioSampleHang(browser, url) {
   const L = "sample-hang";
   const { ctx, p, errs, tick } = await open(browser, url, { modes: { sample: "hang" } });
@@ -316,6 +331,8 @@ async function scenarioObsEmpty(browser, url) {
     await run("quiet-load", () => scenarioQuiet(browser, url));
     await run("mcp-hang", () => scenarioMcpHang(browser, url));
     await run("sample-hang", () => scenarioSampleHang(browser, url));
+    await run("mcp-null-once", () => scenarioWakeRetry(browser, url, { first_use_mcp: "null" }, "mcp-null-once"));
+    await run("mcp-consent-once", () => scenarioWakeRetry(browser, url, { first_call_mcp: "consent_required" }, "mcp-consent-once"));
     await run("write-hang", () => scenarioWriteHang(browser, url));
     await run("send-fail", () => scenarioSendFail(browser, url));
     await run("db-fail", () => scenarioDegraded(browser, url, { db: "fail" }, "db-fail", /reconnect/i));
@@ -329,5 +346,5 @@ async function scenarioObsEmpty(browser, url) {
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (16 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (18 scenarios)");
 })();
