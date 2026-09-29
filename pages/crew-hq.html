@@ -2568,6 +2568,7 @@ function computeObservatory(){
     for (const e of events) if (e.kind === 'done' && e.task && e.atMs >= ws && e.agent !== 'you' && !e.approx) doneIds.add(e.task);
     let fr = 0; for (const a of stuck) if (a.atMs) fr += (now - a.atMs)/3600e3; for (const i of items) if (i.at) fr += (now - i.at)/3600e3;
     const shipped = events.filter(e => !e.approx && e.atMs >= ws && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text) && !NOT_SHIP_RX.test(e.text)).length;
+    { const sl = events.filter(e => !e.approx && e.atMs >= ws && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text) && !NOT_SHIP_RX.test(e.text)).sort((p, q) => q.atMs - p.atMs).slice(0, 8).map(e => ({id:e.id, text:(nameOf(e.agent) + ' · ' + e.text).slice(0, 90), at:e.atMs})), sg = sl.map(s => s.id).join('|'); if (sg !== computeObservatory.ship) { computeObservatory.ship = sg; HUB.shipped = {v:((HUB.shipped && HUB.shipped.v) || 0) + 1, list:sl}; } }   // v28.2 the Shipped shelf (CONTRACT HUB.shipped)
     const le = events.find(e => !e.approx && e.text && !e.chat && !e.instant);
     const o = {seats:bots.map(a => ({id:a.id, st7:a.st7 || 'idle'})), lanes, needs:items.length, health:{ok, top}, flow:doneIds.size, friction:Math.round(fr*10)/10, shipped,
       last:le ? {text:(nameOf(le.agent) + ': ' + le.text).slice(0, 120), at:le.atMs} : {text:'All quiet', at:0}};

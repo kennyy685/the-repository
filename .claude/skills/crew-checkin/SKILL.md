@@ -146,6 +146,8 @@ Engine Mechanic, Chat Reader, Cowork.
   "publish" or "merge" goes here, not in orders text.
 
 ## Hub v28.5: branch watch + Sunday report (queue chunks C, D)
+
+**Ship words (Shipped shelf + Sunday report):** a `done`/`note` event only counts as a ship when its text says "published", "went live", "is now live", "shipped" or "merged" (and not "not/before/waiting ... publish"). Write "Hub v35 published", never just "pushed v35" or "deployed".
 - `system/git` (the King, every wake and after any merge; the page only reads): `{at, work:"claude/amazing-gauss-yzfpq0",
   main:{behind:<n>, head:<work tip sha>}, branches:[{name, head, ahead, behind, last_at, subject, files, conflicts, done}]}`.
   `name` = the full branch (`claude/...`), `head` = its tip sha (`git rev-parse origin/<b>`), `ahead` = commits on it not on work, `subject` = newest non-merge subject (80 chars), `files` = files it
