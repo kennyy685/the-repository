@@ -4,6 +4,33 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
+## FIRST, as the new King (written 2026-09-29 23:17 UTC by King session_01BRhiPYparx9TSui1Tu7oSB, 490k tokens)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
+1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_014pzRWxgovShuQovAfRwQ8j's prompt
+   with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session) + system/robots.dispatch.king;
+   update CLAUDE.md's trigger line. Disable (never delete) trig_014pzRWx; also disable my pending check-ins
+   trig_01RCGrLeEtvfs8r9Z8uDRKGt (23:31) if not fired. Then archive session_01BRhiPYparx9TSui1Tu7oSB.
+2. FilthE TALKS IN THE KING CHAT now (not the hub): he will message YOU in this new chat. Answer short, 3 blocks, links as
+   plain clickable text (never in code blocks). A question = answer it, don't act.
+3. RUNNING (check every ~20 min with send_later; replace a robot idle >15 min; robots die on container restarts):
+   - session_019snB4BVXtVrjtfYr9Ztcfe Designer: Hologram Walk contest (runs docs/design/next-level/holo-contest.workflow.js:
+     5 concepts on the REAL Fremont walk, 3 judges, one harvester per losing concept -> ALL harvested ideas applied to the
+     winner in h/, adversarial QA, then fills holo-lab.html and publishes a standalone artifact "Aldaba Hologram Walk").
+     First run died in the King container restart at 23:10 (jarvis + spectral partials saved).
+   - session_01FJMyDxiY6c91quZyf5Ctxc Designer: 7 AM "D" hybrid (A map layout + backup card, calm hail, real-info plan,
+     B smooth zoom landing on door info, C hologram walk, Back everywhere), Fremont-first; publishes onto the compare page
+     https://claude.ai/artifact/WSJ7sbTfAuB8buTtNLz1gv. When the contest's h/ is done, merge the winner hologram into D.
+4. WHEN BOTH ARE DONE: show FilthE (he stepped away 22:50 saying "I trust I'll be wowed"): the Hologram Walk link first,
+   then D on the compare page. Plain links. Then ask the 3 still-open picks (questions-for-filthe.md): contract screen vs
+   paper (pick: screen, paper backup), boss/lawyer look at legal wording (pick: yes), policy filing-limit line (pick: yes).
+5. FilthE today (all saved in CLAUDE.md / questions-for-filthe.md): Fremont first; hologram card = HAIL SIZE + ROOF AGE big,
+   then why; "no color limit or limit to anything"; "impress me"; "you have access to sub agents"; ultracode on.
+   PR #7 MERGED by FilthE 22:02 (main is current). Fremont data: shared/data-fremont.js (E 12th St & E Linden Ave,
+   Jul 1 2026 hail 1.0 in, radar to 1.66, 1.4 mi from HMP). Research: docs/research/2026-09-29-hologram-rendering.md.
+   Holo Lab showcase: docs/design/next-level/holo-lab.html (window.LAB holds winner/pitches/scores).
+6. LESSONS: in-chat Workflows die with the King's container (restart 23:10 killed the contest): run big workflows inside
+   a robot session. Robots that end a turn "waiting on checks" stall: tell them to run checks in the foreground.
+
 ## 2026-09-29 16:37 UTC: King session_01BRhiPYparx9TSui1Tu7oSB took over
 - Wake trigger trig_014pzRWxgovShuQovAfRwQ8j (hub system/king + robots.dispatch.king); trig_01CyKokD disabled;
   session_012p3ZTe archived. Self-test wake armed 16:38Z. Check-in trig_01FNRejT (16:57Z) watches Builder 01JH3N6T.
