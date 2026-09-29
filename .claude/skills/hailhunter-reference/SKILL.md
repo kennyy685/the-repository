@@ -132,7 +132,14 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   from another list, else the next zone), none_reason{en,es} (no pick only), zones[] {id, name, rank, score, homes}
   and storm_keys[] "day|place|state" (both for the next diff)}. First run: no diff (new_hail etc. empty). The open
   map's "Since last night" strip reads this shape (`docs/design/open-map/data/night.js`, SAMPLE, made by
-  `data/build/night.py` with the same `brief()`).
+  `data/build/night.py` with the same `brief()`, now `data/night-sample.js`, Preview only).
+  Night shift real (2026-09-29): the pick is a STORM zone only, everyday zones only the backup (none = no pick, backup
+  named); `night` ranks EVERY walk then keeps storm zones first (`night.trim`, top 12 + the best everyday zone);
+  zones/pick/backup/new_hail carry `area_id` (open-map area "z<MMDD>-<slug>" from data/storms-<year>.json, same day,
+  within `night.link_km` 15), cards add `center`. `--prev F` (a brief.json or the published night.js), `--js-out F`
+  (the open map's copy: `window.NIGHT_REAL=`, start = street only, ~100 m). `python3 hh.py night-shift [--prev F]
+  [--dry-run]` = the nightly cloud job (refresh -> night -> docs/design/open-map/data/night.js -> last line `PUBLISH
+  {url, files}`); runbook docs/orders/night-shift-runbook.md.
 - `python3 hh.py tune ...`: T35 learning loop, real door results -> small weight changes (dry run unless `--apply`;
   waits for ~50 doors).
 - `python3 hh.py estimate --json job.json` (or `--footprint 1400 --stories 2`): quick price range from

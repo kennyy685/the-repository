@@ -17,6 +17,8 @@
   python3 hh.py serve                phone-friendly web app: door lists, commercial targets, pipeline tracking
   python3 hh.py refresh              everything end to end (what the daily Storm Watch task runs in the cloud)
   python3 hh.py night                night shift: refresh, then the 7 AM brief (new hail, zones up/down, pick + plan)
+  python3 hh.py night-shift [--prev F] [--dry-run]   the nightly cloud job: night + the open map's data/night.js
+                  + one PUBLISH line (docs/orders/night-shift-runbook.md)
   python3 hh.py diff --old OLD.json  new storm hits vs an older hud.json (for alerts), incl. contacts' buildings
   python3 hh.py hailreport --address "200 Oak St" --city Fremont   one-page hail report (English + Spanish)
                   [--json]  also the JSON for docs/print/hail-report.html (same name, .json)
@@ -388,6 +390,56 @@ def night_cmd(a, cfg, log=print):
     return 0
 
 
+OPEN_MAP_FILES = os.path.join(HERE, "docs", "design", "open-map", "index.files.json")
+
+
+def night_shift_cmd(a, cfg, log=print):
+    """`hh.py night-shift`: the whole nightly job for a fresh cloud session (docs/orders/night-shift-runbook.md):
+    refresh -> night brief -> the open map's data/night.js, checked, then ONE last line `PUBLISH {"url", "files"}` =
+    the Artifact publish that republishes only that file. --prev = last night's published night.js (read from the
+    artifact first; default: the repo's copy). --dry-run: no network, the test fixture, a temp folder, nothing to
+    publish. Exit 0 = publish it, 1 = the brief is broken (don't publish), 2 = setup problem."""
+    import argparse
+    import tempfile
+    from hailhunter import night
+    try:
+        with open(a.files or OPEN_MAP_FILES, encoding="utf-8") as f:
+            man = json.load(f)
+        rel = next(iter(man["nightly"]))
+        repo_js = os.path.join(HERE, man["files"][rel])
+    except (OSError, ValueError, KeyError, StopIteration) as e:
+        print(f"night-shift: can't read the open map's files map ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    n = argparse.Namespace(no_refresh=a.dry_run, offline=a.offline, hud=None, date=None, near=None, radius=None,
+                           top=None, doors=None, results=a.results, dnk=a.dnk, prev=a.prev or repo_js,
+                           js_out=repo_js, season=None, out_dir=None)
+    tmp = None
+    if a.dry_run:
+        tmp = tempfile.mkdtemp(prefix="night-shift-dry-")
+        n.hud = os.path.join(HERE, "tests", "fixtures", "today_hud.json")
+        n.date, n.near, n.out_dir = "2026-09-25", "41.43,-96.49", tmp
+        n.prev = a.prev                                 # a dry run never diffs against the real published brief
+        n.js_out = os.path.join(tmp, "night.js")
+    rc = night_cmd(n, cfg, log=log)
+    if rc:
+        return rc
+    try:
+        with open(n.js_out, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = ""
+    doc = night.from_js(text)
+    if doc is None or not text.startswith(night.JS_HEAD) or len(text) > 200_000:
+        print(f"night-shift: {n.js_out} is not a good night brief; do NOT publish", file=sys.stderr)
+        return 1
+    if doc.get("refresh_error"):
+        log(f"REFRESH FAILED: {doc['refresh_error']} (the brief uses the last storm data; publish it anyway)")
+    files = {rel: os.path.relpath(n.js_out, HERE) if not a.dry_run else n.js_out}
+    log(("DRY RUN (nothing to publish): " if a.dry_run else "PUBLISH ") +
+        json.dumps({"url": man["url"], "files": files}, ensure_ascii=False))
+    return 0
+
+
 def _ro_conn(cfg):
     """The engine database read-only (rows by name), or None when there is none (the cloud's app job)."""
     import sqlite3
@@ -644,6 +696,14 @@ def main(argv=None):
                                   "default: <out-dir>/brief.json")
     p.add_argument("--js-out", help="also write the open map's copy (e.g. docs/design/open-map/data/night.js)")
     p.add_argument("--season", help="season file for the open map's area ids (default: data/storms-<year>.json)")
+    p = sub.add_parser("night-shift", help="the nightly job for a fresh cloud session: refresh -> night brief -> the "
+                                            "open map's data/night.js, then one PUBLISH line (runbook: "
+                                            "docs/orders/night-shift-runbook.md)")
+    p.add_argument("--prev", help="last night's published night.js (default: the repo's copy)")
+    p.add_argument("--dry-run", action="store_true", help="no network: the test fixture into a temp folder, no publish")
+    p.add_argument("--results", help="door results so far (the app's doors docs)")
+    p.add_argument("--dnk", help="do-not-knock: the app's dnk docs")
+    p.add_argument("--files", help=argparse.SUPPRESS)
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -1067,6 +1127,8 @@ def main(argv=None):
         return 0
     if a.cmd == "night":                           # refresh (network), then the brief from hud.json: no db needed after
         return night_cmd(a, cfg)
+    if a.cmd == "night-shift":                     # the nightly cloud job: night + the open map's file + PUBLISH line
+        return night_shift_cmd(a, cfg)
     conn = db.connect(cfg["paths"]["db"])
     fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
 

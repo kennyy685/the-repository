@@ -293,6 +293,56 @@ class NightCli(unittest.TestCase):
             self.assertIsNone(re.search(r"\b\d+ [NSEW]? ?\w", second["pick"]["start"]["address"] or ""))
 
 
+class NightShiftCommand(unittest.TestCase):
+    """`hh.py night-shift`: the one command the nightly cloud session runs (docs/orders/night-shift-runbook.md)."""
+    def run_cmd(self, args):
+        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()) as err:
+            rc = hh.main(args)
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_dry_run_end_to_end(self):
+        rc, out, _ = self.run_cmd(["night-shift", "--dry-run"])
+        self.assertEqual(rc, 0)
+        last = out.strip().splitlines()[-1]
+        self.assertTrue(last.startswith("DRY RUN (nothing to publish): "))
+        pub = json.loads(last.split(": ", 1)[1])
+        self.assertEqual(pub["url"], "https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV")
+        self.assertEqual(list(pub["files"]), ["data/night.js"])
+        with open(pub["files"]["data/night.js"], encoding="utf-8") as f:
+            d = night.from_js(f.read())
+        self.assertEqual(d["kind"], "night_brief")
+        self.assertEqual(d["pick"]["kind"], "storm")
+
+    def test_real_mode_publishes_even_when_the_refresh_fails(self):
+        import sqlite3
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as t:
+            js = os.path.join(t, "night.js")
+            man = os.path.join(t, "files.json")
+            with open(man, "w", encoding="utf-8") as f:
+                json.dump({"url": "https://claude.ai/artifact/X", "nightly": ["data/night.js"],
+                           "files": {"data/night.js": js}}, f)
+            cfg = C.load(os.path.join(t, "no-config.json"))
+            cfg["paths"] = {**cfg["paths"], "db": os.path.join(t, "none.db"), "export": t}
+            boom = mock.Mock(side_effect=OSError("network down"))
+            with mock.patch.object(hh, "refresh", boom), \
+                    mock.patch.object(hh.db, "connect", lambda p: sqlite3.connect(":memory:")), \
+                    mock.patch.object(hh.config, "load", lambda *a, **k: cfg):
+                rc, out, err = self.run_cmd(["night-shift", "--files", man])
+            self.assertEqual(rc, 0)
+            self.assertTrue(boom.called)
+            self.assertIn("REFRESH FAILED: OSError: network down", out)
+            pub = json.loads(out.strip().splitlines()[-1].split("PUBLISH ", 1)[1])
+            self.assertEqual(pub["url"], "https://claude.ai/artifact/X")
+            self.assertEqual(night.from_js(open(js, encoding="utf-8").read())["refresh_error"], "OSError: network down")
+
+    def test_broken_files_map_stops_before_anything(self):
+        with tempfile.TemporaryDirectory() as t:
+            rc, out, err = self.run_cmd(["night-shift", "--dry-run", "--files", os.path.join(t, "missing.json")])
+        self.assertEqual(rc, 2)
+        self.assertNotIn("PUBLISH", out)
+
+
 class OpenMapSample(unittest.TestCase):
     """docs/design/open-map/data/night.js: the sample briefs the open map shows, in the engine's exact shape."""
     @unittest.skipUnless(os.path.exists(SAMPLE), "design files are not in the cloud bundle")
