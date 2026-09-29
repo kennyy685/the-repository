@@ -53,11 +53,25 @@ the page. We fixed all of it.
   one write in flight.
 - Cached the date formatter and the stage size. Removed `stColor`. The instant answer uses the live sessions doc.
 
+## QA pass (qa-tester) and what it changed
+- Blocking, fixed: a failed board answer left its buttons disabled (the board cache skipped the repaint). A King Retry
+  that failed again stayed disabled. Both now force a repaint, and the new `send-fail` scenario proves it (it fails on
+  the pre-fix page).
+- Fixed: turning 3D back on after the scene failed to load left a blank stage. A slow `use('mcp')` was treated as a
+  refusal for the whole load. A held wake without a trigger now clears instead of waiting.
+- Accepted: a half-typed answer in an unfocused box holds the board until blur or send. Resubscribing relies on the
+  platform's own recovery unless there's an error or 20+ min away (db.d.ts says subscriptions recover by themselves).
+
+## Published
+Hub Version 31 (2026-09-29), capabilities carried forward. `tests/release_checks.sh --quick`: all 18 checks PASS. Claude
+Code Remote argument names are unchanged from v28.1, whose fire_trigger worked live at 23:53 UTC.
+
 ## Tests
 - `tests/pages/hub_live_check.js` (in `tests/release_checks.sh`): the hub on the real db shapes
   (`tests/fixtures/hub_live.json`, words scrubbed by `tests/pages/hub_live_fixture.py`) with `hub_runtime_mock.js`.
-  Ten scenarios: live (every tab, every button, chat, board answer), phone, quiet load (zero MCP calls with no click),
-  MCP hang, sample hang, write hang, db fail, no db, user/sample/mcp hang, slow 3D.
+  Eleven scenarios: live (every tab, every button, chat, board answer), phone, quiet load (zero MCP calls with no click),
+  MCP hang, sample hang, write hang, send fail, db fail, no db, user/sample/mcp hang, slow 3D. Run against the old
+  live page, it fails 10 checks.
 
 ## Open
 - We can't run the real claude.ai shell or his Mac's GPU here. If it ever freezes again: check whether a Claude
