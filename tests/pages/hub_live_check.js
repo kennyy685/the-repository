@@ -331,11 +331,12 @@ async function scenarioLiveChats(browser, url, vp, L, modes) {
   ok(e.st === "waiting" && /claim-deadline/.test(e.doing), `${L}: Engine Mechanic not waiting on FilthE (${JSON.stringify(e)})`);
   ok(q.st === "blocked" && q.st7 === "stuck", `${L}: QA's failed chat not stuck (${JSON.stringify(q)})`);
   ok(k.lv && (k.st === "done" || k.st === "idle"), `${L}: the King's review-ready chat (${JSON.stringify(k)})`);
-  const needT = await p.$$eval("#brief .nd [data-sel]", bs => bs.map(b => b.title));
+  const needT = await p.evaluate(() => window.__hubT.needItems().map(i => i.text));   // v33 QA: the top card sums Needs up in one line; the strip holds the buttons
   ok(needT.filter(t => /claim-deadline/.test(t)).length === 1, `${L}: the Engine's question should show once in Needs you (${needT.join(" | ").slice(0, 300)})`);
+  ok(!(await p.$("#brief .nd button")), `${L}: the top card repeats the Needs strip's buttons`);
   const brief = await p.textContent("#brief");
   ok(/Live · \d+ s ago/.test(brief), `${L}: top card has no "Live · N s ago" (${brief.slice(0, 80)})`);
-  ok(/Needs you\s*\d/.test(brief) && /claim-deadline/.test(brief), `${L}: top card Needs you missing the Engine question`);
+  ok(/Needs you\s*\d/.test(brief) && /answer in Needs you/.test(brief), `${L}: top card Needs you line missing`);
   ok(/Working on\s*3/.test(brief) && /live hub/.test(brief) && /code-health/.test(brief), `${L}: top card Working on isn't the 3 working chats (${brief})`);
   ok(/Done\s*\d/.test(brief), `${L}: top card Done is empty with a chat finished 2 h ago`);
   ok(!/handing off to fresh session/.test(await p.textContent("#nowList")), `${L}: an archived chat shows in RIGHT NOW`);
@@ -343,7 +344,7 @@ async function scenarioLiveChats(browser, url, vp, L, modes) {
   await p.click('#brief [data-sel="s:session_01LiveBuilderHub0001"]', { timeout: 2000 }).catch(x => fails.push(`${L}: top card line: ${x.message.split("\n")[0]}`)); await tick(400);
   ok(/live hub/.test(await p.textContent("#card")), `${L}: a Working on line didn't open that chat's card`);
   await p.keyboard.press("Escape"); await tick(400);   // the phone's card is a sheet over the page
-  await p.click('#brief .nd [data-sel][title*="claim-deadline"]', { timeout: 2000 }).catch(x => fails.push(`${L}: needs line: ${x.message.split("\n")[0]}`)); await tick(400);
+  await p.evaluate(() => { const i = window.__hubT.needItems().find(x => /claim-deadline/.test(x.text)); if (i) window.__hubT.select(i.key); }); await tick(400);
   ok(/claim-deadline/.test(await p.textContent("#card")), `${L}: a Needs you line didn't open the question`);
   await p.keyboard.press("Escape"); await tick(200);
   // a robot's card: step + its chats (two Builders)

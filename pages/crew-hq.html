@@ -3433,7 +3433,7 @@ function briefBlock(label, list, cls, empty){
 function needsSum(list){   // the Needs strip already lists them with their answer buttons: here one line, never the same buttons twice (design gate)
   if (!list.length) return '<div class="bb nd"><h3 class="lbl">Needs you</h3><p class="bn">Nothing. You’re clear.</p></div>';
   const old = list.reduce((m, r) => (r.at && (!m || r.at < m.at) ? r : m), null);
-  return '<div class="bb nd"><h3 class="lbl">Needs you <span class="num">' + list.length + '</span></h3><p class="bn"><b>' + esc(list[0].who) + '</b> ' + esc(String(list[0].text).slice(0, 80)) +
+  return '<div class="bb nd"><h3 class="lbl">Needs you <span class="num">' + list.length + '</span></h3><p class="bn"><b>' + esc(list[0].who) + '</b> ' + esc(String(list[0].text || '').slice(0, 80)) +
     (list.length > 1 ? ' · +' + (list.length - 1) + ' more' : '') + (old && old.at ? ' · oldest ' + esc(ageShort(old.at)) : '') + ' · answer in Needs you</p></div>';
 }
 let briefSig = '';
@@ -4360,6 +4360,7 @@ applyTheme(false); applyCat(false); applyStatic(); setTab(tab, 'init'); setCam(c
 sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); renderReport(); computeObservatory(); armSeen();
 connect(); fetchWeather(); renderBrief(); setTimeout(() => pollLive(false), 1500);   // v33: live by itself only when already allowed; else the top card's Go live
 scene3d(false);
+if (window.__MOCK) window.__hubT = {needItems, select};   // the smoke tests' mock runtime only (tests/pages/hub_runtime_mock.js sets __MOCK)
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
 requestAnimationFrame(frame);
 })();
