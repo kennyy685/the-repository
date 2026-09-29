@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## Open map: every card draws its own walk - 2026-09-29 (every-card-walk; QA pending, then republished)
+- Each of Aldaba's top 3 and the backup now has its own walk on real streets, not just #1. Tap #3 (another Columbus turf) and the map swaps to that turf's walk; tap the Omaha older-homes backup and its walk is drawn in Omaha. Today's plan stays on the pick's walk.
+- The night shift makes them all every night (`map.zwalks` in `data/night.js`); nothing new to run. Streets only: no house numbers, no door points, no owner names.
+
 ## HMP App "Desk" - 2026-09-29 (MacBook layout; QA PASS, live: HMP App Version 14)
 - On the MacBook the app fills the screen now: tabs in a left rail; Now = the hot-zone map large with Aldaba's pick under it and today's plan + calls beside it; Knock = the next 9 doors | the current door, big, with 4 big taps | the whole walk on a full-height map. One tap per door is still one tap.
 - Leads and Money open a lead or job as a pane on the right: the list stays live (click another lead to swap), the open row stays lit; Money shows what's owed + to chase beside the open jobs. Short menus (Add, More) open as a centered card.

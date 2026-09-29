@@ -74,8 +74,11 @@ The page side: `node tests/pages/open_map_night_check.js` (loads the real brief,
   old Omaha-Lincoln street box (Columbus, Schuyler, David City...). Nothing extra to run: `night-shift` fetches them
   (~1-2 s a walk, inside the basemap time guard, cached in the engine database) and they ride in `data/night.js`
   (~15-30 KB a tile; the file check allows 400 KB). A download error just means no walk/tile for that card that night
-  (the brief still publishes). `data/real.js` + `data/streets.json` themselves are still built by hand. One walk per
-  map area (the first card there, usually the pick): a sister turf in the same town shows the pick's walk. At most 3
+  (the brief still publishes). `data/real.js` + `data/streets.json` themselves are still built by hand. At most 3
   tiles a night (`openmap.max_tiles`).
+- **Every card draws its own walk (every-card-walk, 2026-09-29):** `map.zwalks` = one walk per card by zone id (pick,
+  backup, every top card), so a sister turf in the pick's town (Columbus t1 next to the t3 pick) draws ITS walk when
+  picked, and an old-house backup with no map area draws its walk where it is (Omaha). `map.walks` (by area, first card
+  there) stays for older copies of the page. Nothing extra to run: `night-shift` makes them all.
 - In September storm walks must be <= 60 days old (engine rule `today_walk.storm_max_days`); from Oct 1 it is 330 days,
   so older storms (Fremont Jun 13, Valley) come back into the pick.
