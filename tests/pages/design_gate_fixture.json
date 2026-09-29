@@ -206,6 +206,15 @@
       ],
       "at": "2026-09-27T19:30:00Z", "by": "SMUIPO (King)"
     },
+    "crew/report_card": {
+      "v": 1,
+      "rows": [
+        {"at": "2026-09-27T19:10:00Z", "id": "builder", "job": "Hub v28.0: RIGHT NOW list and closable panel", "verdict": "good", "why": "shipped with every check green", "cost": 6.4},
+        {"at": "2026-09-27T17:40:00Z", "id": "qa-tester", "job": "QA pass on the Practice Door v12", "verdict": "good", "why": "caught the 3 business days wording", "cost": 1.9},
+        {"at": "2026-09-27T16:05:00Z", "id": "designer", "job": "Door hanger options", "verdict": "redo", "why": "the Spanish side was missing the cancel line", "cost": 3.15},
+        {"at": "2026-09-27T14:30:00Z", "id": "hub-keeper", "job": "Research round 55: permit rules", "verdict": "good", "why": "", "cost": null}
+      ]
+    },
     "system/memory": {
       "facts": ["FilthE owns the app; HMP is its first user.", "Door knocking and business lines only: no cold texts, no mailers.", "Theme A Ledger: light, clean, orange accent."],
       "updatedAt": "2026-09-27T18:00:00Z", "updatedBy": "King"

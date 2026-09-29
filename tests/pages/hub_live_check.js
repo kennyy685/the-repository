@@ -13,6 +13,10 @@
  *   db-fail / no-db / user-hang: the page loads, says what's wrong, tabs still work
  *   phone       the live scenario's clicks at 390 px
  *   3d-slow     a 3D room that renders ~3 fps switches to the still view by itself (real clock)
+ *   report-missing / report-present / report-malformed   v28.1 crew/report_card: "No reviews yet", 12 lines + More and the
+ *               robot card's last 3 + hit rate, junk rows never throw
+ *   flows       v28.1 HUB.flows: none from old handoffs on load; a NEW handoff = one flow (dir/kind), "Handing to" 20 s, a tannoy line
+ *   obs-empty   v28.1 HUB.observatory with an empty board: card renders, v bumps only on change, key O works with no scene
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
@@ -44,7 +48,7 @@ async function open(browser, url, o) {
   await p.addInitScript(({ docs, modes, ls }) => {
     window.__MOCK = { docs, modes };
     try { localStorage.clear(); for (const [k, v] of Object.entries(ls || {})) localStorage.setItem(k, v); } catch (e) { /* none */ }
-  }, { docs: FIX, modes: o.modes || {}, ls: o.ls || {} });
+  }, { docs: o.docs || FIX, modes: o.modes || {}, ls: o.ls || {} });
   await p.addInitScript({ path: MOCK });
   if (!o.realClock) await ctx.clock.install({ time: NOW });
   await p.goto(url + (o.hash || ""), { waitUntil: "load" });
@@ -154,6 +158,21 @@ async function scenarioMcpHang(browser, url) {
   await ctx.close();
 }
 
+async function scenarioWakeRetry(browser, url, modes, L) {   // 2026-09-29: one null / consent-blocked MCP answer must not poison the load: the next order wakes the King
+  const { ctx, p, errs, tick } = await open(browser, url, { modes });
+  const wakeOf = () => p.evaluate(() => [...window.__mockDb.store.entries()].filter(([k]) => /^events\/.*-you-k$/.test(k)).map(([k, v]) => [k, v.wake, v.wakeErr]));
+  await sendChat(p, tick, "first order " + L); await tick(4000);
+  let w = (await wakeOf()).filter(x => x[1]);
+  ok(w.length && w[w.length - 1][1] === "fail", `${L}: (setup) the first order should fail once (${JSON.stringify(w)})`);
+  ok(w.length && !!w[w.length - 1][2], `${L}: a failed wake didn't record why (${JSON.stringify(w)})`);
+  ok(/\(\w+\)/.test(await p.textContent("#ktLog")), `${L}: the failed message doesn't show why`);
+  await sendChat(p, tick, "second order " + L); await tick(4000);
+  w = (await wakeOf()).filter(x => x[1]);
+  ok(w.length >= 2 && w[w.length - 1][1] === "ok", `${L}: the second order didn't wake the King (${JSON.stringify(w)})`);
+  ok((await mcpCalls(p)).includes("fire_trigger"), `${L}: fire_trigger never went through`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
 async function scenarioSampleHang(browser, url) {
   const L = "sample-hang";
   const { ctx, p, errs, tick } = await open(browser, url, { modes: { sample: "hang" } });
@@ -227,6 +246,77 @@ async function scenarioSlow3d(browser, url) {
   await ctx.close();
 }
 
+const withDocs = extra => { const d = Object.assign({}, FIX, extra); for (const k of Object.keys(d)) if (d[k] === null) delete d[k]; return d; };
+const RC_ROWS = Array.from({ length: 15 }, (_, i) => ({ at: new Date(NOW.getTime() - (i + 1) * 3600e3).toISOString(), id: ["builder", "qa-tester", "hub-keeper"][i % 3],
+  job: "Job number " + (i + 1), verdict: i % 4 === 3 ? "redo" : "good", why: i % 4 === 3 ? "missed the phone layout" : "clean, tests green", cost: i % 5 === 0 ? null : 1.25 * (i + 1) }));
+async function scenarioReport(browser, url, kind) {
+  const L = "report-" + kind;
+  const doc = kind === "missing" ? { "crew/report_card": null } : kind === "present" ? { "crew/report_card": { v: 1, rows: RC_ROWS } }
+    : { "crew/report_card": { v: 1, rows: [null, 5, "x", { id: 7, verdict: "maybe" }, { id: "builder", verdict: "good", job: { en: "obj job" }, why: ["arr"], cost: "abc", at: "not a date" }, { id: "qa-tester", verdict: "redo" }] } };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: withDocs(doc) });
+  await p.click("#tab-crew", { timeout: 2000 }).catch(e => fails.push(`${L}: Crew tab not clickable on the MacBook: ${e.message.split("\n")[0]}`)); await tick(300);
+  ok(await p.isVisible("#obsCard"), `${L}: Observatory card not shown in the Crew tab`);
+  const body = await p.textContent("#rcBody");
+  if (kind === "missing") ok(/No reviews yet/.test(body), `${L}: missing doc should say "No reviews yet" (got "${body.slice(0, 80)}")`);
+  if (kind === "present") {
+    ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 12, `${L}: expected 12 lines before More`);
+    ok(/\$\d/.test(body) && /redo/.test(body) && /good/.test(body), `${L}: lines lack verdict/cost`);
+    const first = await p.textContent("#rcBody .rcard li:first-child"); ok(/Job number 1\b/.test(first), `${L}: not newest first (${first.slice(0, 60)})`);
+    await p.click("#rcBody [data-rcmore]", { timeout: 2000 }).catch(e => fails.push(`${L}: More: ${e.message.split("\n")[0]}`)); await tick(200);
+    ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 15, `${L}: More didn't show all 15`);
+    await p.click('#nowList [data-now="builder"]', { timeout: 2000 }).catch(e => fails.push(`${L}: builder row: ${e.message.split("\n")[0]}`)); await tick(600);
+    const card = await p.textContent("#card");
+    ok(/Report card/.test(card) && /\d+\/5 good/.test(card), `${L}: the robot card lacks its hit rate (${card.slice(0, 120)})`);
+    ok(await p.$$eval("#card .rcard li", x => x.length) === 3, `${L}: the robot card should show its last 3 lines`);
+  }
+  if (kind === "malformed") ok(await p.$$eval("#rcBody .rcard li", x => x.length) === 2, `${L}: expected the 2 valid rows (got "${body.slice(0, 120)}")`);
+  await p.screenshot({ path: path.join(OUT, L + ".png") });
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioFlows(browser, url) {
+  const L = "flows";
+  const { ctx, p, errs, tick } = await open(browser, url);
+  ok(await p.evaluate(() => window.HUB.flows.length) === 0, `${L}: old handoff events made flows on first load`);
+  await p.evaluate(at => { const s = window.__mockDb.store; s.set("events/20260929T003500Z-builder", { agent: "builder", to: "qa-tester", kind: "handoff", task: "T211", text: "v28.1 page ready for QA", at, lane: "code", room: "dock" });
+    s.set("events/20260929T003501Z-qa-tester", { agent: "qa-tester", to: "code", kind: "handoff", task: "T211", text: "verdict", at, lane: "code", room: "tests" }); window.__mockDb.notify(); }, new Date(NOW.getTime() + 3000).toISOString());
+  await tick(1500);
+  const f = await p.evaluate(() => window.HUB.flows.slice());
+  ok(f.length === 2, `${L}: expected 2 flows, got ${JSON.stringify(f)}`);
+  const b = f.find(x => x.from === "builder"), q = f.find(x => x.from === "qa-tester");
+  ok(b && b.to === "qa-tester" && b.dir === "up" && b.kind === "build" && b.task === "T211", `${L}: builder flow wrong: ${JSON.stringify(b)}`);
+  ok(q && q.dir === "down" && q.kind === "verdict", `${L}: QA flow wrong: ${JSON.stringify(q)}`);
+  ok(await p.evaluate(() => window.HUB.handoffs.length) >= 2, `${L}: HUB.handoffs no longer fed (a v28.0 scene reads it)`);
+  const verb = await p.evaluate(() => (window.HUB.now.rows.find(r => r.id === "builder") || {}).verb);
+  ok(verb === "Handing to QA Tester", `${L}: RIGHT NOW verb "${verb}"`);
+  ok(/Handing to QA Tester/.test(await p.textContent("#nowList")), `${L}: RIGHT NOW list doesn't say Handing to`);
+  ok(await p.evaluate(() => document.getElementById("tannoy").classList.contains("on") && !!document.getElementById("tannoy").textContent), `${L}: no tannoy line`);
+  await p.screenshot({ path: path.join(OUT, L + ".png") });
+  await tick(9000); ok(!(await p.evaluate(() => document.getElementById("tannoy").classList.contains("on"))), `${L}: tannoy didn't fade after 8 s`);
+  await tick(12000);
+  const v2 = await p.evaluate(() => (window.HUB.now.rows.find(r => r.id === "builder") || {}).verb);
+  ok(!/Handing to/.test(v2 || ""), `${L}: "Handing to" still showing after 20 s (${v2})`);
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+async function scenarioObsEmpty(browser, url) {
+  const L = "obs-empty";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: withDocs({ "board/current": { now: [], next: [], waiting: [], updatedAt: NOW.toISOString(), updatedBy: "code" } }) });
+  const o = await p.evaluate(() => window.HUB.observatory);
+  ok(o && o.v >= 1 && o.lanes && !o.lanes.research.length && !o.lanes.build.length && !o.lanes.qa.length, `${L}: observatory lanes not empty: ${JSON.stringify(o && o.lanes)}`);
+  ok(o && typeof o.health.ok === "boolean" && o.health.top && Number.isFinite(o.flow) && Number.isFinite(o.friction) && Number.isFinite(o.shipped) && Array.isArray(o.seats) && o.seats.length === 10, `${L}: observatory shape wrong`);
+  await tick(5000);
+  ok(await p.evaluate(() => window.HUB.observatory.v) === o.v, `${L}: v bumped with no change`);
+  await p.evaluate(() => document.activeElement && document.activeElement.blur());
+  await p.keyboard.press("o"); await tick(500);
+  ok(await p.getAttribute("#tab-crew", "aria-selected") === "true" && await p.isVisible("#obsCard"), `${L}: key O didn't open the Observatory card`);
+  ok(/No tasks/.test(await p.textContent("#obsCard")), `${L}: empty lanes don't say "No tasks"`);
+  await p.keyboard.press("y"); await tick(300);   // no scene: a toast, no error
+  await p.screenshot({ path: path.join(OUT, L + ".png") });
+  ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+  await ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -241,15 +331,20 @@ async function scenarioSlow3d(browser, url) {
     await run("quiet-load", () => scenarioQuiet(browser, url));
     await run("mcp-hang", () => scenarioMcpHang(browser, url));
     await run("sample-hang", () => scenarioSampleHang(browser, url));
+    await run("mcp-null-once", () => scenarioWakeRetry(browser, url, { first_use_mcp: "null" }, "mcp-null-once"));
+    await run("mcp-consent-once", () => scenarioWakeRetry(browser, url, { first_call_mcp: "consent_required" }, "mcp-consent-once"));
     await run("write-hang", () => scenarioWriteHang(browser, url));
     await run("send-fail", () => scenarioSendFail(browser, url));
     await run("db-fail", () => scenarioDegraded(browser, url, { db: "fail" }, "db-fail", /reconnect/i));
     await run("no-db", () => scenarioDegraded(browser, url, { use_db: "null" }, "no-db", /isn.t available|not available/i));
     await run("user-hang", () => scenarioDegraded(browser, url, { use_user: "hang", use_sample: "hang", use_mcp: "hang" }, "user-hang"));
     await run("3d-slow", () => scenarioSlow3d(browser, url));
+    for (const k of ["missing", "present", "malformed"]) await run("report-" + k, () => scenarioReport(browser, url, k));
+    await run("flows", () => scenarioFlows(browser, url));
+    await run("obs-empty", () => scenarioObsEmpty(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (11 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (18 scenarios)");
 })();

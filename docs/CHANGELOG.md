@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## HMP App + Practice Door "Never stuck" - 2026-09-29 (live: HMP App Version 12, Practice Door Version 14, 2026-09-29)
+- The App can't hang anymore: loading, the Right Hand chat, photo uploads and Help me say it all have time limits, and a slow connection still goes live when it finally answers.
+- Practice Door always gives you the text box back, even if the homeowner or the hint never answers.
+- 13 old unused pieces of code removed; a new release check runs both pages on realistic data with a connection that works, fails or hangs.
+
 ## AI hub v28.2 "Never frozen" - 2026-09-29 (live: hub Version 31, 2026-09-29)
 - Fixed the freeze: a 3D room the computer can't draw fast enough (or software graphics) now switches to the still picture by itself instead of making every click and key wait. Make it yours has a new "3D room on/off" switch.
 - Every call to Claude, the database and Claude Code now has a time limit, and nothing asks for a Claude Code permission unless you clicked. A held wake waits behind a "Wake now" button, and Fresh King always comes back with an answer.

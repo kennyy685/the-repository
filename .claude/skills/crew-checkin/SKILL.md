@@ -129,6 +129,16 @@ Engine Mechanic, Chat Reader, Cowork.
   line). It gets its own card on the Board with Ship it / Not yet and a Preview link. Anything waiting on his
   "publish" or "merge" goes here, not in orders text.
 
+## Report card (hub v28.1; the King writes it, the page only reads)
+The King writes **one row per finished helper job** (King rule 3: log good/redo + why after every robot result) into
+doc `crew/report_card`, newest first, trimmed to 60 rows:
+`{v:1, rows:[{at:"<ISO>", id:"<agent id>", job:"<60 chars max>", verdict:"good"|"redo", why:"<90 chars max>", cost:<USD number or null>}]}`.
+`get` it, `unshift` the new row, trim to 60, `set` it back with `if_version`. `id` = the hub agent id (`builder`, `qa-tester`,
+...; a one-off scout goes under its main helper). The Crew tab shows the newest 12 (then More); a robot's card shows its
+last 3 and its hit rate (good/total). Missing doc = "No reviews yet", never an error.
+Handoff events now also ride the tube (hub v28.1 `HUB.flows`) and read out on the tannoy line under the top band, and
+the sender's RIGHT NOW row says "Handing to <name>" for 20 s: post real `handoff` events with `to` and `task`.
+
 ## Hub Chat with the King (hub v28.0)
 FilthE talks to the live King in the hub's chat bubble ("King" mode, the default; "Right Hand" mode is the on-page
 instant helper). His message = `events/<stamp>-you-k` `{agent:"you", kind:"handoff", to:"code", chat:true, text, long?}`

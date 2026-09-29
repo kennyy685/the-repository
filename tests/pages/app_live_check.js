@@ -8,11 +8,15 @@
  *                 (reply + a logged action), a door tap saved to the db; no errors, a free main thread
  *   app-phone     the same clicks at 390 px
  *   app-db-hang   use('db') never answers: the page stops waiting by itself and says live data is off; tabs work
+ *   app-db-slow   use('db') answers after 20 s: 'off' at 12 s, then it connects by itself
+ *   app-sample-slow use('sample') answers after 20 s: the Right Hand shows up then
  *   app-use-hang  user + sample never answer: the data still loads and the Right Hand stays hidden (no dead button)
  *   app-db-fail   every listener errors: the page says it could not load; tabs work
  *   app-write-hang  writes never answer: a door tap still shows at once and waits in the outbox (sync chip)
  *   app-sample-hang the Right Hand never answers: the chat box frees itself (hard deadline, even if the signal is ignored)
  *   app-sample-fail the Right Hand errors: the box comes back with a message
+ *   app-say-hang  Help me say it never answers: it says it couldn't translate (45 s), never spins forever
+ *   app-es / app-practice  the live clicks in Spanish, and in Practice mode (zero db writes)
  *   door-live     Practice Door: a full door (knock, talk, the homeowner answers, the door ends), no errors
  *   door-hang     the homeowner never answers: the box frees itself and says so
  *   door-fail / door-use-hang / door-off: an error message / Claude off, never a dead page
@@ -39,10 +43,13 @@ let cur = "";
 const ok = (cond, msg) => { if (!cond) fails.push(`${cur}: ${msg}`); return !!cond; };
 
 // the hub mock has no `assets`; the app needs one for photos (same modes: ok / fail / hang)
-const ASSETS_MOCK = `(() => { const use = window.claude.use, M = (window.__MOCK || {}).modes || {};
+const ASSETS_MOCK = `(() => { const M = (window.__MOCK || {}).modes || {};
   const g = fn => M.assets === 'hang' ? new Promise(() => {}) : M.assets === 'fail' ? Promise.reject(Object.assign(new Error('x'), {code: 'unavailable'})) : Promise.resolve(fn());
   const assets = { upload: () => g(() => ({ id: Math.random().toString(16).slice(2).padEnd(32, '0').slice(0, 32), url: '' })), list: () => g(() => ({ assets: [], usage: {} })), delete: () => g(() => ({})), url: () => g(() => '') };
-  window.claude.use = n => n === 'assets' ? (M.use_assets === 'hang' ? new Promise(() => {}) : Promise.resolve(assets)) : use(n); })();`;
+  const use0 = window.claude.use, slow = n => M['use_' + n] === 'slow20';   // answers after 20 s (slow, not gone)
+  window.claude.use = n => slow(n) ? new Promise(r => setTimeout(() => r(use0(n)), 20000)) : use0(n);
+  const use1 = window.claude.use;
+  window.claude.use = n => n === 'assets' ? (M.use_assets === 'hang' ? new Promise(() => {}) : Promise.resolve(assets)) : use1(n); })();`;
 
 async function open(browser, url, o) {
   const ctx = await browser.newContext({ viewport: o.vp || { width: 1470, height: 900 }, timezoneId: "America/Chicago", colorScheme: "dark", reducedMotion: "reduce" });
@@ -131,9 +138,31 @@ async function fillForms(p, tick) {   // every text field visible anywhere gets 
     e.value = v; e.dispatchEvent(new Event("input", { bubbles: true })); e.dispatchEvent(new Event("change", { bubbles: true })); }));
   await tick(200);
 }
-async function appLive(browser, url, vp, name) {
-  const o = await open(browser, url, { vp, ls: { "hmp-app-lang": "en", "hmp-app-tab": "now" } });
-  const { p, tick } = o;
+async function plusForms(p, tick, name, practice) {   // the Add sheet: a new lead saved, Help me say it translated, each action opens
+  const openPlus = async (what) => { await closeSheets(p, tick); await p.click("#plusBtn", { timeout: 3000 }).catch(e => fails.push(`${cur}: Add button: ${e.message.split("\n")[0]}`)); await tick(300);
+    const b = await p.$(`#shBody [data-open="${what}"]`); if (!b) { fails.push(`${cur}: Add sheet has no ${what}`); return false; } await b.click({ timeout: 2000 }).catch(() => {}); await tick(400); return true; };
+  if (await openPlus("nl:")) {
+    const before = (await writes(p)).filter(w => w.startsWith("leads/")).length;
+    await p.fill("#nlAddr", "1712 N Clarkson St").catch(() => fails.push(`${cur}: new lead form has no address field`));
+    await p.fill("#nlName", "Test").catch(() => {}); await p.fill("#nlCity", "Fremont").catch(() => {});
+    await p.$$eval("#nlForm [data-nl] button[data-v]", bs => { const seen = new Set(); for (const b of bs) { const k = b.closest("[data-nl]").dataset.nl; if (!seen.has(k)) { seen.add(k); b.click(); } } }).catch(() => {});
+    await tick(200);
+    await p.click("#nlSave", { timeout: 2000 }).catch(e => fails.push(`${cur}: new lead Save: ${e.message.split("\n")[0]}`));
+    await tick(1500);
+    if (!practice) ok((await writes(p)).filter(w => w.startsWith("leads/")).length > before, "a new lead from the Add form wrote nothing");
+  }
+  if (await openPlus("say:")) {
+    await p.evaluate(() => { window.__sampleJson = { text: "Hola, soy Kenny de HMP Siding and Roofing." }; });
+    await p.fill("#sayIn", "Hi, I'm Kenny with HMP Siding and Roofing.").catch(() => fails.push(`${cur}: Help me say it has no box`));
+    await p.press("#sayIn", "Enter").catch(() => {});
+    await tick(1500);
+    ok(/Hola, soy Kenny/.test(await p.textContent("#shBody").catch(() => "")), "Help me say it never showed the translation");
+  }
+  await openPlus("est:"); await fillForms(p, tick); await closeSheets(p, tick);
+}
+async function appLive(browser, url, vp, name, ls) {
+  const o = await open(browser, url, { vp, ls: Object.assign({ "hmp-app-lang": "en", "hmp-app-tab": "now" }, ls || {}) });
+  const { p, tick } = o, practice = !!ls && ls["hmp-app-practice"] === "1";
   ok(await p.evaluate(() => (window.__subs || 0) > 0), "db never connected (no listeners)");
   ok(await liveState(p) === "on", `live dot says "${await liveState(p)}", not on`);
   ok(await p.isVisible("#rhBtn").catch(() => false), "Right Hand button hidden with sample + edit rights");
@@ -143,11 +172,12 @@ async function appLive(browser, url, vp, name) {
   notes.push(`${name}: clicks per tab: ${per.join(", ")}`);
   notes.push(`${name}: ${n} buttons clicked`);
   ok(n >= 20, `only ${n} buttons clicked (the page may not have loaded its data)`);
+  await plusForms(p, tick, name, practice);
   // a door tap on the Knock walk saves to the db
   await appTab(p, tick, "knock");
   const before = (await writes(p)).length;
   const tapped = await tapDoor(p, tick);
-  if (tapped) ok((await writes(p)).length > before, "a door tap wrote nothing to the db");
+  if (tapped && !practice) ok((await writes(p)).length > before, "a door tap wrote nothing to the db");
   else notes.push(`${name}: no open door to tap on Knock`);
   // the Right Hand: a reply and a logged action
   await p.evaluate(() => { window.__sampleJson = { reply: "Logged 12 doors.", actions: [{ type: "log_doors", doors: 12, conversations: 3 }] }; });
@@ -162,8 +192,9 @@ async function appLive(browser, url, vp, name) {
     const txt = await p.textContent("#kcLog");
     ok(/Logged 12 doors/.test(txt), "the Right Hand's reply never showed");
     ok(!(await p.isDisabled("#kcInput")), "chat box still locked after the reply");
-    ok((await writes(p)).some(w => /^stats\/week-/.test(w)), "log_doors didn't write the week stats");
+    if (!practice) ok((await writes(p)).some(w => /^stats\/week-/.test(w)), "log_doors didn't write the week stats");
   } else ok(false, "Right Hand chat never opened");
+  if (practice) ok(!(await writes(p)).length, "Practice mode wrote to the real db: " + (await writes(p)).slice(0, 5).join(", "));
   await finish(o, name);
 }
 async function appDegraded(browser, url, name, modes, check) {
@@ -188,9 +219,23 @@ async function appScenarios(browser) {
   const run = async (name, fn) => { if (want(name)) { cur = name; await fn(); } };
   await run("app-live", () => appLive(browser, url, null, "app-live"));
   await run("app-phone", () => appLive(browser, url, { width: 390, height: 844 }, "app-phone"));
+  await run("app-es", () => appLive(browser, url, null, "app-es", { "hmp-app-lang": "es" }));
+  await run("app-practice", () => appLive(browser, url, null, "app-practice", { "hmp-app-practice": "1" }));
   await run("app-db-hang", () => appDegraded(browser, url, "app-db-hang", { use_db: "hang" }, async ({ p, tick }) => {
     await tick(15000);
     ok(await liveState(p) === "off", `use('db') hung and the live dot still says "${await liveState(p)}" after 15 s`);
+  }));
+  await run("app-db-slow", () => appDegraded(browser, url, "app-db-slow", { use_db: "slow20" }, async ({ p, tick }) => {   // slow, not gone
+    await tick(14000);
+    ok(await liveState(p) === "off", `use('db') 14 s late and the live dot says "${await liveState(p)}", not off`);
+    await tick(10000);
+    ok(await liveState(p) === "on", `use('db') answered at 20 s and the page never connected (live: ${await liveState(p)})`);
+  }));
+  await run("app-sample-slow", () => appDegraded(browser, url, "app-sample-slow", { use_sample: "slow20" }, async ({ p, tick }) => {
+    await tick(14000);
+    ok(!(await p.isVisible("#rhBtn").catch(() => false)), "Right Hand shown before sample answered");
+    await tick(10000);
+    ok(await p.isVisible("#rhBtn").catch(() => false), "sample answered at 20 s and the Right Hand never showed");
   }));
   await run("app-use-hang", () => appDegraded(browser, url, "app-use-hang", { use_user: "hang", use_sample: "hang" }, async ({ p, tick }) => {
     await tick(15000);
@@ -217,11 +262,24 @@ async function appScenarios(browser) {
     await p.click("#kcSend", { timeout: 2000 }).catch(() => {});
     await tick(waitMs);
     ok(!(await p.isDisabled("#kcInput")), `chat box still locked ${waitMs / 1000} s after sending`);
-    ok(expect.test(await p.textContent("#kcLog")), "no message in the chat after the failure");
+    const log = await p.textContent("#kcLog"); ok(expect.test(log), "no clear message in the chat after the failure: " + log.slice(-120));
+    if (name === "app-sample-hang") { ok((await p.inputValue("#kcInput")) === "12 doors today", "timed-out message not put back in the box"); ok(await p.evaluate(() => !JSON.parse(localStorage.getItem("hmp-app-outbox") || "[]").some(x => x.op === "king")), "timed-out message was queued to resend"); }
     await closeSheets(p, tick);
   }));
-  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /./);
-  await kingHang("app-sample-fail", { sample: "fail" }, 2000, /./);
+  await kingHang("app-sample-hang", { sample: "hang" }, 125000, /took too long/);   // a timeout may have done the work: never auto-resent (no double-logged doors)
+  await run("app-say-hang", () => appDegraded(browser, url, "app-say-hang", { sample: "hang" }, async ({ p, tick }) => {   // Help me say it never answers
+    await tick(2000);
+    await p.click("#plusBtn", { timeout: 3000 }).catch(() => {}); await tick(300);
+    await p.click('#shBody [data-open="say:"]', { timeout: 2000 }).catch(e => fails.push(`${cur}: say: ${e.message.split("\n")[0]}`)); await tick(400);
+    await p.fill("#sayIn", "Hi, I'm Kenny with HMP.").catch(() => {}); await p.press("#sayIn", "Enter").catch(() => {});
+    await tick(1000);
+    ok(/Translating/.test(await p.textContent("#shBody")), "Help me say it didn't start");
+    await tick(50000);
+    const t = await p.textContent("#shBody");
+    ok(!/Translating/.test(t) && /Could not translate|Translation failed/.test(t), "Help me say it still says Translating… 50 s later: " + t.slice(0, 120));
+    await closeSheets(p, tick);
+  }));
+  await kingHang("app-sample-fail", { sample: "fail" }, 2000, /saved on this phone|can’t use Claude|could not be reached/);
 }
 
 /* ---------- Practice Door ---------- */
@@ -264,8 +322,9 @@ async function doorScenarios(browser) {
     const { p, tick } = o;
     await start(p, tick);
     const said = await say(p, tick, "Hi, I'm Kenny with HMP Siding and Roofing.");
-    if (said) { await tick(wait); ok(!(await p.isDisabled("#sendBtn").catch(() => false)), `Send is still locked ("waiting for them") ${wait / 1000} s later`); }
-    else notes.push(`${name}: no chat box to type in (start screen differs)`);
+    if (said) { await tick(wait); ok(!(await p.isDisabled("#sendBtn").catch(() => false)), `Send is still locked ("waiting for them") ${wait / 1000} s later`);
+      ok(await p.isVisible("#chatErr").catch(() => false), "no error message in the chat after the homeowner failed to answer"); }
+    else ok(false, "no chat box to type in after Knock");
     await finish(o, name);
   });
   await run("door-use-hang", async () => {

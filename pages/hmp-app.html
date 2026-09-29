@@ -1293,7 +1293,7 @@ const TX = {
     never: 'never', justNow: 'just now', mAgo: n => n + 'm ago', hAgo: n => n + 'h ago',
     live: {preview: 'Preview only: live data loads on the published page', na: 'Live data is not available in this view', loading: 'Loading…', lost: 'Lost the live connection. Reload the page.', wait: 'Connecting…', on: 'Live'},
     kcYou: 'You', kcKing: 'Right Hand', kcThinking: 'Thinking…', kcBusy: 'The Right Hand is thinking…', kcStopped: 'Stopped.',
-    kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.'},
+    kErr: {grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', rate: 'You’ve hit your Claude usage limit (or sent a lot at once). The Right Hand works again once your limit resets.', session: 'Sign in to Claude again, then send again.', json: 'The Right Hand’s answer came back garbled. Send it again.', refused: 'The Right Hand can’t answer that. Try saying it another way.', net: 'Couldn’t reach the Right Hand. Check your connection and send again.', slow: 'The Right Hand took too long, so it stopped. Your message is back in the box: make sure it wasn’t already saved before sending it again.'},
     appOff: 'Preview only: live leads, claims and numbers load on the published page.', appErr: 'Leads and claims could not load. Reload the page.', appWait: 'Loading leads and claims…', modMiss: 'Part of the app didn\'t load (weak signal?).', reload: 'Reload',
     // today
     sumDue: n => `${n} ${pl(n, 'follow-up', 'follow-ups')} due`, sumClear: 'Nothing due. Go knock.',
@@ -1371,7 +1371,7 @@ const TX = {
     never: 'nunca', justNow: 'ahora mismo', mAgo: n => `hace ${n} min`, hAgo: n => `hace ${n} h`,
     live: {preview: 'Solo vista previa: los datos en vivo cargan en la página publicada', na: 'Los datos en vivo no están disponibles aquí', loading: 'Cargando…', lost: 'Se perdió la conexión. Recarga la página.', wait: 'Conectando…', on: 'En vivo'},
     kcYou: 'Tú', kcKing: 'Mano Derecha', kcThinking: 'Pensando…', kcBusy: 'La Mano Derecha está pensando…', kcStopped: 'Detenido.',
-    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.'},
+    kErr: {grant: 'La Mano Derecha no puede usar Claude en esta página. Recarga y dale permiso cuando lo pida.', rate: 'Llegaste a tu límite de Claude (o mandaste mucho de golpe). La Mano Derecha vuelve cuando se renueve tu límite.', session: 'Vuelve a iniciar sesión en Claude y manda otra vez.', json: 'La respuesta de la Mano Derecha llegó revuelta. Mándalo otra vez.', refused: 'La Mano Derecha no puede contestar eso. Dilo de otra forma.', net: 'No se pudo hablar con la Mano Derecha. Revisa tu conexión y manda otra vez.', slow: 'La Mano Derecha tardó demasiado y se detuvo. Tu mensaje está otra vez en la caja: fíjate que no se haya guardado ya antes de mandarlo otra vez.'},
     appOff: 'Solo vista previa: los prospectos, reclamos y números en vivo cargan en la página publicada.', appErr: 'No se pudieron cargar los prospectos y reclamos. Recarga la página.', appWait: 'Cargando prospectos y reclamos…', modMiss: 'Parte de la app no cargó (¿poca señal?).', reload: 'Recargar',
     sumDue: n => `${n} ${pl(n, 'pendiente', 'pendientes')} para hoy`, sumClear: 'Nada pendiente. A tocar puertas.',
     followH: 'Seguimientos para hoy', followNone: 'Nada pendiente para hoy.', followLater: 'Próximos', kLead: 'Prospecto', kClaim: 'Reclamo',
@@ -2624,7 +2624,7 @@ function lastContactMs(l){   // a talk at the door, a call or a text; a "not hom
   for (const x of arr(l.doors_visits)) if (x.result !== 'not_home') best = Math.max(best, tsOf(x.at) || tsOf(x.date));
   return best;
 }
-let lateMemo = null, followMemo = null;   // v23: one answer per data version and minute (a redraw asked 10-20 times)
+let lateMemo = null;   // v23: one answer per data version and minute (a redraw asked 10-20 times)
 function lateLeads(){   // the first to respond wins most jobs: a new lead with no contact in 24 hours goes red
   const mk = Math.floor(Date.now() / 60000); if (lateMemo && lateMemo.leads === leads && lateMemo.mk === mk) return lateMemo.out;
   const out = lateLeadsNow(); lateMemo = {leads, mk, out}; return out;
@@ -2643,26 +2643,6 @@ function lateLeadsNow(){
   }
   return out.sort((a, b) => a.ref - b.ref);
 }
-const whoOf = l => [strv(l.first_name), shortAddr(strv(l.address) || l.id)].filter(Boolean).join(', ');
-function followItems(){
-  const mk = Math.floor(Date.now() / 60000);
-  if (followMemo && followMemo.leads === leads && followMemo.claims === claims && followMemo.lang === lang && followMemo.mk === mk) return followMemo.out;
-  const out = followItemsNow(); followMemo = {leads, claims, lang, mk, out}; return out;
-}
-function followItemsNow(){
-  const out = [];
-  for (const l of leads) { if (['done', 'lost'].includes(l.stage)) continue; const ns = l.next_step && typeof l.next_step === 'object' ? l.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'lead', id: l.id, address: strv(l.address) || l.id, text: txl(ns), due: d}); }
-  for (const c of claims) { if (['paid', 'lost'].includes(c.stage)) continue; const ns = c.next_step && typeof c.next_step === 'object' ? c.next_step : null; const d = ns && dayOf(ns.due); if (d) out.push({kind: 'claim', id: c.id, address: strv(c.address) || c.id, text: txl(ns), due: d}); }
-  return out.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : a.address.localeCompare(b.address)));
-}
-const callbackCount = () => dueTodayN();   // v24: the Due list's Today group (one source for the badge, the tally and Now)
-function dueChip(due){
-  const n = daysFromToday(due), c = L().ct;
-  if (n < 0) return `<span class="a-chip crit">! ${esc(c.overdue(-n, fmtDay(due)))}</span>`;
-  if (n === 0) return `<span class="a-chip warn">${esc(c.dueToday)}</span>`;
-  if (n === 1) return `<span class="a-chip warn">${esc(c.dueTomorrow)}</span>`;
-  return `<span class="a-chip plain">${esc(c.due(fmtDay(due, true)))}</span>`;
-}
 function weekNums(t0){   // v24: one number source. This week's stored numbers, with TODAY taken from today's live door taps (so the
   // week box, the big counter and the review never disagree before "Done for today" is tapped). Same per-day max rule as applyStat.
   const wd = weekDoc || {}, ob = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {}), walks = ob(wd.walks), king = ob(wd.king);
@@ -2675,7 +2655,6 @@ function weekNums(t0){   // v24: one number source. This week's stored numbers, 
 function renderKnockTab(){ renderKnock(); }
 /* ---------- leads ---------- */
 const lstageName = (l, s) => txl((l && l.type === 'cash' && LSTAGE_CASH[s]) || LSTAGE[s] || LSTAGE.not_contacted);
-const lIdx = l => { const i = LEAD_STAGES.indexOf(l.stage); return l.stage === 'lost' ? -1 : i < 0 ? 0 : i; };
 function leadDue(l){ const d = l.next_step && dayOf(l.next_step.due); return d || '9999'; }
 /* v25 Leads: one segmented control per filter, then list rows: address / the next action / a late chip (source and type live in the lead) */
 function leadRow(l){
@@ -4071,10 +4050,6 @@ function orderLine(l){
   const gs = ORD_SECS.filter(g => ls.some(x => x.group === g)).map(g => X.g[g]).join(', ');
   return X.savedLine(fmtWhen(l.order.at) || '', ls.length, gs);
 }
-function orderBox(l){
-  if (!hasOrder(l)) return ''; const X = OT();
-  return `<section class="box" id="ordBox"><h3>${esc(X.boxH)}</h3><p class="est-saved">${esc(orderLine(l))}</p><div class="sheet-acts"><button type="button" class="btn" data-open="ord:${esc(l.id)}">${esc(X.openList)}</button></div></section>`;
-}
 function makeORD(){   // v23: built the first time an order list opens
   const el = document.createElement('div'); el.className = 'ord';
   let st = null, forId = null, sig = '', lastAt = null, checked, fails = [], copyT = 0;
@@ -4282,7 +4257,6 @@ function renderAdj(id){
    of the width) and lead.proposal = {scope, tiers: [{key, name, low, high}], recommended, chosen, at, using_reference}.
    Hard rules: no deductible talk (NE 44-8604), never "insurance will pay", no financing, no reviews; "registered", never
    "licensed"; the registration number stays a blank line until the boss gives it. */
-const HO_PHONE = {kenny: SETTINGS.people.en, alex: SETTINGS.people.es};   // T77: from SETTINGS
 const HO_TIERS = {
   siding: [
     {key: 'good', what: {en: 'Vinyl siding', es: 'Revestimiento de vinil'}, txt: {en: 'vinyl siding', es: 'siding de vinil'}},
@@ -5154,8 +5128,6 @@ function selectZone(id, go){
   refreshWalk(); dataVer++;
   if (go) setTab('knock'); else renderApp(true);
 }
-const zoneLine = z => { const W = NW(), bits = []; if (z.hail != null) bits.push(W.hail(fmtIn(z.hail))); if (z.homes) bits.push(W.homes(Math.round(z.homes))); return bits.join(' · '); };
-const heatCls = h => 'h' + clamp(Math.ceil(h * 5), 1, 5);
 const driveUrl = z => `https://www.google.com/maps/dir/?api=1&destination=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&travelmode=driving`;
 const appleUrl = z => `https://maps.apple.com/?daddr=${z.lat.toFixed(5)},${z.lon.toFixed(5)}&dirflg=d`;
 
@@ -5294,7 +5266,6 @@ function dueItems(){
   const g = {today: out.filter(r => r.due <= t0), tomorrow: out.filter(r => r.due === addDays(t0, 1)), later: out.filter(r => r.due > addDays(t0, 1))};
   dueMemo = {leads, claims, lang, mk, r: fuRules, out: g}; return g;
 }
-const dueTodayN = () => dueItems().today.length;
 /* ---------- v25 Today (Now): one row per appointment today (time tile, who, call), then what is due as list rows
    (address / one action line / a late chip with a flag). Show 3 + "See all". Scripts live on the lead, not here. ---------- */
 const dueLate = r => r.late || r.overdue > 0 || r.due < todayStr();
@@ -5737,18 +5708,6 @@ function cityRule(city){
 }
 const CRX = {en: {outShort: (a, b) => `Outside knock hours (${a}–${b} here)`, details: 'details', hours: (c, a, b) => `Knock hours in ${c}: ${a}–${b}.`, none: c => `Knock hours in ${c} are not confirmed: stay in daylight.`, check: ' Check with the city.', out: 'Outside knock hours right now: stop, or only go back to houses that asked you to.', sign: 'Skip any house with a “No Soliciting” or “No Peddlers” sign. Your permit can be taken for it.'},
   es: {outShort: (a, b) => `Fuera del horario para tocar (${a}–${b} aquí)`, details: 'detalles', hours: (c, a, b) => `Horario para tocar en ${c}: ${a}–${b}.`, none: c => `El horario para tocar en ${c} no está confirmado: solo con luz de día.`, check: ' Confírmalo con la ciudad.', out: 'Ahora estás fuera del horario para tocar: para, o solo regresa a casas que te lo pidieron.', sign: 'No toques en casas con letrero de “No Soliciting” o “No Peddlers”. Te pueden quitar el permiso por eso.'}};
-function knockRules(m){
-  const cc = {}; for (const s of m.stops) if (s.city) cc[s.city] = (cc[s.city] || 0) + 1;
-  const city = Object.keys(cc).sort((a, b) => cc[b] - cc[a])[0] || SETTINGS.company.city, r = cityRule(city), X = CRX[lang];
-  let line = X.sign, warn = false;
-  if (r && r.hours) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };
-    line = X.hours(city, clk(r.hours[0]), clk(r.hours[1])) + (r.verified ? '' : X.check) + ' ' + X.sign;
-    const n = new Date(), hm = pad2(n.getHours()) + ':' + pad2(n.getMinutes()); warn = hm < r.hours[0] || hm >= r.hours[1]; }
-  else line = X.sign;   // v24.1: no known hours for this city: no hours line at all, only the sign rule
-  if (warn) { const clk = t => { const [h, mm] = t.split(':').map(Number); return `${h % 12 || 12}${mm ? ':' + pad2(mm) : ''} ${h < 12 ? 'AM' : 'PM'}`; };   // v24.1: one short amber line; the rest on tap
-    return `<details class="k-rules warn" id="kRules" role="note"><summary><span class="kr-dot" aria-hidden="true"></span><b>${esc(X.outShort(clk(r.hours[0]), clk(r.hours[1])))}</b><span class="kr-more">${esc(X.details)}</span></summary><p><b>${esc(X.out)}</b> ${esc(line)}</p></details>`; }
-  return `<p class="k-rules" id="kRules" role="note">${esc(line)}</p>`;
-}
 
 /* ---------- whole app ---------- */
 function renderBadges(){   // v25: one red badge, on Now, for late items only (nothing else in the tab bar counts)
@@ -5983,7 +5942,6 @@ CLAIMS: ${JSON.stringify(cs).slice(0, 4000)}`;
 let SAMPLE = null, CAN_EDIT = false, kcBusy = false, kcCtl = null, ASSETS = null;
 const kcTurns = [];
 const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, 'Z');
-const stampOf = (iso) => iso.replace(/[-:]/g, '');
 const KING_RULES = `You are the Right Hand: FilthE's live assistant inside the HMP App for ${SETTINGS.company.legal} (${SETTINGS.company.city}, ${SETTINGS.company.stateName}). The app is his sales tool (Now / Knock / Leads / Money). FilthE (19, bilingual) is the boss's right-hand man; he does the sales. Right now you log what FilthE tells you (doors, leads, claims, money), answer him, and pass anything meant for the crew on with a handoff.
 
 Your powers here, applied through "actions":
@@ -6023,6 +5981,7 @@ function kingErr(e){
   if (c === 'session_expired') return E.session;
   if (c === 'invalid_json') return E.json;
   if (c === 'refused') return E.refused;
+  if (c === 'timeout') return E.slow;
   return E.net;
 }
 let receipts = [];
@@ -6047,7 +6006,7 @@ async function applyActions(actions){
   }
   return done;
 }
-const KING_SOFT = ['cancelled', 'not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'rate_limited', 'session_expired', 'invalid_json', 'refused'];
+const KING_SOFT = ['cancelled', 'not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'rate_limited', 'session_expired', 'invalid_json', 'refused', 'timeout'];   // timeout: it may have done the work already, so never auto-resend (no double-logged doors)
 let kingNextAt = 0;
 function rcLine(cls, text){ const b = document.createElement('button'); b.type = 'button'; b.className = 'rc' + (cls ? ' ' + cls : ''); b.setAttribute('aria-expanded', 'false'); b.textContent = text; b.addEventListener('click', () => b.setAttribute('aria-expanded', String(b.getAttribute('aria-expanded') !== 'true'))); return b; }
 async function askKing(message, quick, retry){
@@ -6082,6 +6041,7 @@ async function askKing(message, quick, retry){
     } else {
       const why = code === 'cancelled' ? L().kcStopped : kingErr(e);
       p.textContent = (e && e.text) ? e.text + ' (' + why + ')' : why;
+      if (code === 'timeout' && !$('#kcInput').value) $('#kcInput').value = message;
     }
     kcSet(false, '');
   } finally { kcBusy = false; }
@@ -6090,23 +6050,33 @@ $('#kcForm').addEventListener('submit', ev => { ev.preventDefault(); const v = $
 $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 
 /* ================= live data ================= */
-async function connect(){
+async function connect(late){
   const cl = window.claude;
   if (!cl || typeof cl.use !== 'function') { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
-  let db = null; try { db = await within(cl.use('db'), USE_MS); } catch (e) { db = null; }
+  const dbP = late || Promise.resolve(cl.use('db'));
+  let db = null; try { db = await within(dbP, USE_MS); } catch (e) { db = null; if (e && e.code === 'timeout' && !late) dbP.then(d => { if (d && !DB) connect(Promise.resolve(d)); }, () => {}); }   // slow, not gone: connect when it answers
   if (!db) { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
   setLive('wait', L().live.loading); DB = db;
   try {
     subscribeApp(db);
   } catch (e) { dbState = 'off'; appState = 'err'; setLive('off', L().live.na); renderApp(); return; }
-  // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest
-  const [u, sm] = await Promise.all([within(cl.use('user'), USE_MS).catch(() => null), within(cl.use('sample'), USE_MS).catch(() => null)]);
-  try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; }
+  // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest; a slow
+  // one that answers later still turns on (the Right Hand shows up then)
+  const uP = Promise.resolve(cl.use('user')), smP = Promise.resolve(cl.use('sample'));
+  const slowCaps = await caps(uP, smP, true);
+  if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
+  if (slowCaps) Promise.allSettled([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); });   // only when one was slow (a refused one stays off)
+}
+async function caps(uP, smP, first){
+  const cl = window.claude;
+  let late = false; const slow = e => { if (e && e.code === 'timeout') late = true; return null; };
+  const [u, sm] = await Promise.all([within(uP, USE_MS).catch(slow), within(smP, USE_MS).catch(slow)]);
+  try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; slow(e); }
   SAMPLE = sm || null;
   try { ASSETS = CAN_EDIT ? await within(cl.use('assets'), USE_MS) : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
-  renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
-  if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
+  if (first || (SAMPLE && CAN_EDIT)) renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
+  return late;
 }
 let subDay = null, rollDay = () => {};   // 24h check: the calendar day the day-keyed listeners are on; rollDay() moves them at midnight
 function subscribeApp(db){

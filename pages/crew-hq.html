@@ -534,7 +534,6 @@ h1,h2,h3,p{margin:0}
   .card .rail{display:none}   /* RIGHT NOW is always there on the MacBook: the rail would repeat it */
   .card.open{display:block;animation:cardIn .28s var(--ease)}
   .card:not(.open){visibility:visible}
-  #tab-crew,#tp-crew{display:none!important}   /* RIGHT NOW is the crew list here */
   .panel.cardfull .card{max-height:none;flex:1 1 auto}
   .panel.cardfull .tbody,.panel.cardfull .search{display:none}
   .rail button{width:33px;height:40px}
@@ -683,6 +682,7 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 :root[data-look="midnight"] .sky{filter:brightness(.72)}
 /* the overlay in the room always reads light-on-dark, whatever the look */
 .tag,.hint{color:#f1f2f4}
+:root[data-look="ledger"] .tannoy{color:#e3c98f}
 .tag.sel{color:#e3c98f}
 .bub.blocked,.bub.done{color:#f1f2f4}
 :root[data-look="ledger"] .stagebar{background:var(--card-solid);border:1px solid var(--rule);border-radius:var(--r);padding:0 6px}
@@ -780,6 +780,60 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   .card,.tag,.bub{transition:none}
   #gl,.sky{transition:none}
 }
+/* ================= v28.1: the tannoy, the Observatory card, the report card, the cat ================= */
+.stagetop{flex-direction:column;align-items:center;gap:6px}
+.tannoy{margin:0;max-width:min(560px,100%);text-align:center;font:500 12px/1.4 var(--mono);letter-spacing:.04em;color:#e3c98f;text-shadow:0 1px 8px rgba(0,0,0,.9);opacity:0;transform:translateY(-3px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.tannoy.on{opacity:1;transform:none}
+.tannoy::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:2px;opacity:.7}
+.cattag{position:absolute;left:0;top:0;z-index:4;pointer-events:none;font:500 12px/1.2 var(--f);color:#f1f2f4;text-shadow:0 1px 6px rgba(0,0,0,.9);white-space:nowrap;opacity:0;transition:opacity .35s;will-change:transform}
+.cattag.on{opacity:1}
+.cattag i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--coat,#d08a4a);margin-right:6px;vertical-align:0;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.xblock{margin:0 0 18px}
+.xblock > .subh{padding:4px 2px 8px}
+.obs{border:1px solid var(--rule);border-radius:var(--r);padding:14px 14px 12px;display:grid;gap:12px;background:linear-gradient(160deg,rgba(201,164,92,.06),transparent 60%)}
+.obs-top{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.obs-n{font:600 40px/1 var(--fd);font-variant-numeric:tabular-nums;color:var(--brass-hi);letter-spacing:-.02em}
+.obs-n.hot{color:var(--need-ink)}
+.obs-nl{font:500 10px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.obs-health{font:500 13px/1.4 var(--f);color:var(--ink);min-width:0}
+.obs-health .ok{color:var(--st-done)}
+.obs-health .bad{color:var(--st-stuck-ink)}
+.obs-seats{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.obs-seats .gl{width:10px;height:10px}
+.obs-lanes{display:grid;gap:10px}
+.obs-lane{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;align-items:baseline}
+.obs-lane h3{margin:0;white-space:nowrap;font:500 10px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.obs-lane ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.obs-lane li{display:flex;gap:6px;align-items:baseline;font:400 12px/1.35 var(--f);color:var(--ink-2);min-width:0}
+.obs-lane li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obs-lane li b{flex:none;font:500 10px/1.35 var(--mono);color:var(--c,var(--muted))}
+.obs-lane .none{color:var(--muted);font-size:12px}
+.obs-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid var(--rule);padding-top:10px}
+.obs-meters div{display:grid;gap:2px}
+.obs-meters b{font:600 20px/1.1 var(--fd);font-variant-numeric:tabular-nums;color:var(--ink)}
+.obs-meters span{font:500 10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.obs-meters small{font:400 11px/1.3 var(--f);color:var(--muted)}
+.obs-last{margin:0;font:400 12px/1.4 var(--mono);color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcard{list-style:none;margin:0;padding:0;display:grid}
+.rcard li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 2px;border-bottom:1px solid var(--rule)}
+.rcard .rc-l{font:500 13px/1.4 var(--f);color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.rcard .rc-l em{font-style:normal;color:var(--muted);font-weight:400}
+.rcard .rc-v{font:500 12px/1.4 var(--mono);white-space:nowrap;text-align:right}
+.rcard .rc-v.good{color:var(--st-done)}
+.rcard .rc-v.redo{color:var(--brass-hi)}
+.rcard .rc-w{grid-column:1 / -1;font:400 12px/1.4 var(--f);color:var(--muted);overflow-wrap:anywhere}
+.rc-empty{margin:0;padding:8px 2px;font:400 13px/1.4 var(--f);color:var(--muted)}
+.rc-more{margin-top:8px}
+.rc-rate{font:500 12px var(--mono);color:var(--ink-2)}
+.card .rcard li{padding:6px 0;grid-template-columns:minmax(0,1fr)}
+.card .rcard .rc-v{text-align:left}
+.catrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.catrow input[type=text]{flex:1 1 140px;min-width:0}
+@media (min-width:900px) and (min-height:600px){
+  #tp-crew .rosterbox{display:none}   /* RIGHT NOW is the crew list on the MacBook; the Crew tab keeps the Observatory + the report card */
+}
+@media (max-width:899px), (max-height:599px){ .tannoy{font-size:11px} #tp-crew{display:flex;flex-direction:column} #tp-crew .rosterbox{order:-1;margin-bottom:18px} }
+@media (prefers-reduced-motion:reduce){ .tannoy,.cattag{transition:none} }
 </style>
 
 <div class="app" id="app">
@@ -831,7 +885,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="scrim-col" aria-hidden="true"></div>
     <div class="ov" id="ov"></div>
     <div class="edge" id="edge" hidden aria-hidden="true"><span class="ea"><svg viewBox="0 0 16 16"><path d="M5 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="en" id="edgeName"></span></div>
-    <div class="stagetop"><p class="hint" id="hint" data-t="hint">Click a robot to see what it is doing.</p></div>
+    <div class="stagetop"><p class="hint" id="hint" data-t="hint">Click a robot to see what it is doing.</p><p class="tannoy" id="tannoy" role="status" aria-live="polite"></p></div>
+    <div class="cattag" id="catTag" aria-hidden="true"><i></i><span id="catTagN"></span></div>
     <div class="recap" id="recap" hidden role="status" data-nodrag><div class="t"><div class="note-h"><h2 id="recapH"></h2><button type="button" class="ibtn" id="recapX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div id="recapT"></div>
       <div class="note-b"><button type="button" class="btn pri" id="recapPlay">Watch it</button><button type="button" class="tb" id="recapWatch" data-t="watchIt" hidden>Watch it</button></div></div></div>
     <div class="replaybar" id="replayBar" hidden><span id="replayText"></span><button type="button" class="btn" id="replayStop" data-t="stop">Stop</button></div>
@@ -864,8 +919,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
     <div class="search"><label for="q" class="sr" data-t="searchL">Search this tab</label><input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Search this tab"><kbd aria-hidden="true">/</kbd></div>
     <div class="tbody" id="tbody">
       <section class="tpanel" role="tabpanel" id="tp-crew" aria-labelledby="tab-crew">
-        <div><div class="roster-h"><h2 class="lbl" id="crewH"></h2><span class="rsum" id="rsum"></span></div>
+        <div class="xblock" id="obsBlock"><div class="subh"><h2 class="lbl" id="obsH">Observatory</h2><span class="src" id="obsSrc">key O</span></div><div class="obs" id="obsCard"></div></div>
+        <div class="rosterbox"><div class="roster-h"><h2 class="lbl" id="crewH"></h2><span class="rsum" id="rsum"></span></div>
         <ul class="roster" id="roster"></ul></div>
+        <div class="xblock" id="rcBlock"><div class="subh"><h2 class="lbl" id="rcH">Report card</h2><span class="src rc-rate" id="rcRate"></span></div><div id="rcBody"></div></div>
       </section>
       <section class="tpanel" role="tabpanel" id="tp-board" aria-labelledby="tab-board" hidden>
         <div id="boardPanel"><div class="subh"><h2 class="lbl" id="boardH" data-t="boardH">Board</h2><span class="src" id="boardSrc"></span></div><div id="boardBody"></div></div>
@@ -928,6 +985,8 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <button type="button" class="tb" id="svBtn" aria-pressed="false"><span data-t="svB">Status view</span><span class="k" aria-hidden="true">V</span></button>
   <button type="button" class="tb" id="replayBtn"><span data-t="replay">Replay 24 h</span></button>
   <button type="button" class="tb" id="cupBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M9 3.5c0 1.5 1.5 1.5 1.5 3M12.5 3.5c0 1.5 1.5 1.5 1.5 3"/></svg><span data-t="cup">Coffee: drag onto a robot</span></button>
+  <button type="button" class="tb" id="petBtn" data-catcue="pet">Pet the cat</button>
+  <button type="button" class="tb" id="treatBtn" data-catcue="treat">Give a treat</button>
   <button type="button" class="tb" id="keysBtn" aria-haspopup="dialog"><span data-t="keysB">Keys</span><span class="k" aria-hidden="true">?</span></button>
 </div>
 <section class="mine" id="mine" hidden role="dialog" aria-labelledby="mineH">
@@ -940,6 +999,10 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
   <div class="mrow"><h3 class="lbl" id="mSoundL" data-t="mSoundH">Sound</h3>
     <div class="sndrow"><button type="button" class="tb" id="mSound" aria-pressed="false">Sound off</button><input type="range" id="mVol" min="0" max="100" step="5" aria-labelledby="mSoundL" aria-label="Volume"><button type="button" class="tb" id="mCheck" data-t="mCheck">Sound check</button></div>
     <p class="src" data-t="mSoundS">Off until you turn it on. Quiet from 10 PM to 7 AM, except hail.</p></div>
+  <div class="mrow"><h3 class="lbl" id="mCatL">Your cat</h3>
+    <div class="catrow"><label for="mCatName" class="sr">The cat’s name</label><input id="mCatName" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Miso"><button type="button" class="tb" id="mCatOn" aria-pressed="true">Cat on</button></div>
+    <div class="sw" id="swCoat" role="radiogroup" aria-labelledby="mCatL"></div>
+    <p class="src">It roams both floors. When a robot needs you, it goes and plays with the cat. Y finds it.</p></div>
   <div class="mrow two"><button type="button" class="tb" id="mLow" aria-pressed="false">Reduced effects off</button><button type="button" class="tb" id="m3d" aria-pressed="true">3D room on</button></div>
   <div class="mrow foot2"><button type="button" class="btn" id="mReset" data-t="mReset">Reset</button></div>
 </section>
@@ -1030,8 +1093,8 @@ const TX = {
       pass: 'PASS pin: a full pass in the last 24 h', extra: 'EXTRA: a brief the King hasn’t picked up yet', fan: 'Fan open: waiting on your pick'}, gearH: 'Earned',
     poke: {qa: n => `${n} ${n === 1 ? 'check' : 'checks'} passed today.`, storm: (t, h) => `Last scan ${t}: ${h ? 'hail found.' : 'no new hail.'}`, stormNone: 'No scan yet today.', builder: t => `Last shipped: ${t}`, builderNone: 'Nothing shipped yet this week.',
       king: n => `${n} board ${n === 1 ? 'item' : 'items'} done.`, busy: p => `One sec… ${p}`, rest: 'Taking a breather.'},
-    views: {all: 'Whole', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', director: 'Director', eyes: 'Eyes'},
-    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B S L M', 'Board, Chats (spend + schedule), Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
+    views: {observatory: 'Observatory', cat: 'Where’s my cat', all: 'Whole', cctv: 'Security cam', up: 'Up', down: 'Down', follow: 'Follow', window: 'Through the window', tilt: 'Tilt-shift', director: 'Director', eyes: 'Eyes'},
+    keys: [['1 2 3', 'Whole · Follow · the robot’s eyes'], ['4 – 7', 'Security cam · Through the window · Tilt-shift · Director'], ['↑ ↓', 'Upstairs / downstairs (or scroll over the office)'], ['← →', 'Next robot'], ['0', 'Jump to the Right now list'], ['V', 'Status view: the room greys, only status colors stay lit'], ['O', 'The Observatory: health, lanes, flow and friction'], ['Y', 'Where’s my cat'], ['P ]', 'Hide or show the panel'], ['K', 'Talk to the Right Hand'], ['N', 'Show every name'], ['A', 'Jump to the next question (focus only; nothing is sent)'], ['C', 'Crew: on a Mac, the top Right now row'], ['B S L M', 'Board, Chats (spend + schedule), Log, Memory'], ['/', 'Search this tab'], ['R', 'Refresh now'], ['Esc', 'Close'], ['?', 'This sheet']],
     sum: {working: 'working', stuck: 'stuck', silent: 'quiet', asleep: 'asleep'},
     none: 'Nothing needs you right now.', moreN: n => `All ${n}`, less: 'Less',
     qWord: 'Question', qFrom: 'On the board', askedBy: n => `${n} asks`, asks: 'Asks you', stuck: 'Stuck on', doing: 'Now doing', lastRes: 'Last result', lastCheck: 'Last check-in', recent: 'Recent',
@@ -1150,7 +1213,7 @@ const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*per
 let sceneOff = false;   // the 3D room is off for this load (still view): why, or false
 const HUB = window.HUB = {
   RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
-  sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [],
+  sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [], flows: [], observatory: null, cat: null,
   get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return 'en'; },
   get breath(){ return breath(); },
   get area(){ const W = stageEl.clientWidth, H = stageEl.clientHeight;   // the rect the camera frames the room in (stage px)
@@ -1207,7 +1270,8 @@ function sync(first){
     const spot = st === 'working' && d.room === 'board' && a.id !== 'code' && a.id !== 'king' ? 'standup' : null;
     a.qinfo = st === 'idle' ? queuedOf(a, asks) : null; a.queued = !!a.qinfo;   // CONTRACT v3: queued is page-derived
     const sig = st + '|' + spot + '|' + (a.step || '') + '|' + a.queued;
-    if (sig !== a.sig) { if (st === 'done' && a.sig && !first) { doneSeen[a.id] = Date.now(); setTimeout(refreshAll, 6100); }   // done shows 6 s, on the scene's clock
+    if (sig !== a.sig) { if (a.sig && !first && gotAgents && st !== a.st) { if (st === 'waiting') tannoy('needs', a.id); else if (st === 'blocked') tannoy('stuck', a.id, null, a.task); }
+      if (st === 'done' && a.sig && !first) { doneSeen[a.id] = Date.now(); setTimeout(refreshAll, 6100); }   // done shows 6 s, on the scene's clock
       a.instant = !a.sig || !!first || RMQ.matches; a.sig = sig; a.st = st; a.spot = spot; a.seq++; }
     a.since = a.atMs || 0;
   }
@@ -1216,7 +1280,7 @@ function sync(first){
   sky.stormTo = Math.max(hail ? 1 : 0, weather.storm);
   sky.rainTo = Math.max(hail ? .6 : 0, weather.rain);
   sceneData(); for (const a of bots) a.st7 = st7For(a);
-  buildNow();
+  buildNow(); computeObservatory();
   if (!first) chimeChanges(); else for (const a of bots) lastSt[a.id] = a.st;
   if (gotAgents) { computeWatch(); if (alerts.some(x => x.k === 'storm')) checkKfet(); }
 }
@@ -1584,6 +1648,7 @@ function metricWords(a){ const m = a.metrics || {}, out = [];
 /* one row: {id, st7, step, verb, metric, since, cocked} + the page's own detail line */
 function nowRow(a){
   const s7 = a.st7 || 'idle', T = L();
+  const hr = handingRow(a, s7); if (hr) return hr;   // v28.1: "Handing to <name>" for 20 s after its handoff
   let step, verb, detail = '', since = a.atMs || 0;
   if (s7 === 'needs') { step = 'needs'; verb = VERB.needs; detail = botAsk(a); }
   else if (s7 === 'stuck') { step = 'stuck'; verb = VERB.stuck; detail = a.doing; }
@@ -1724,6 +1789,7 @@ function cardBot(a){
     (!asked && st !== 'blocked' && !qi && quietNow && a.doing ? '<dt>' + esc(T.f.lastTask) + '</dt><dd>' + esc(a.doing) + (a.task ? taskChip(a.task) : '') + ' · <span class="stale">' + esc(d.orphan ? T.orphan(tFmt.format(d.orphan)) : T.noCheckoutAt(tFmt.format(a.atMs))) + '</span></dd>' : '') +
     (a.why ? '<dt>' + esc(T.f.why) + '</dt><dd>' + esc(a.why) + '</dd>' : '') +
     (a.result ? '<dt>' + esc(T.f.result) + '</dt><dd><span class="num">' + esc(a.result.passed + ' of ' + a.result.of + ' passed') + '</span>' + (a.result.issues ? ' · ' + esc(a.result.issues + (a.result.issues === 1 ? ' issue' : ' issues')) : '') + '</dd>' : '') +
+    rcCard(a) +
     (prog && st === 'working' && !a.silent ? '<dt>' + esc(T.f.prog) + '</dt><dd><span class="num">' + esc(prog) + '</span><span class="pbar" aria-hidden="true">' + Array.from({length:ticks}, (_, i) => '<i' + (i < on ? ' class="on"' : '') + '></i>').join('') + '</span></dd>' : '') +
     '<dt>' + esc(T.f.since) + '</dt><dd>' + (a.atMs ? esc(ago(a.atMs)) + ' · <time>' + esc(whenLabel(a.atMs)) + '</time>' : esc(T.noneYet)) + '</dd>' +
     (last && last.text !== a.doing ? '<dt>' + esc(T.f.last) + '</dt><dd>' + esc(last.text) + ' <time class="src">' + esc(whenLabel(last.atMs, last.approx)) + '</time></dd>' : '') +
@@ -2126,7 +2192,8 @@ stageEl.addEventListener('pointerup', e => {
    Up / Down live on ↑ ↓ and the scroll dolly; Blueprint and Tour are no longer offered (the V status view does Blueprint's job). */
 const BASE_VIEWS = ['all', 'up', 'down', 'follow'];
 const MORE_VIEWS = ['cctv', 'window', 'tilt', 'director'];
-const OFFERED = [...BASE_VIEWS, 'eyes', ...MORE_VIEWS];
+const EXTRA_VIEWS = ['observatory', 'cat'];   // v28.1: keys O and Y, only when the scene built them
+const OFFERED = [...BASE_VIEWS, 'eyes', ...MORE_VIEWS, ...EXTRA_VIEWS];
 const builtViews = () => { const S = window.SCENE, v = S && S.ready && Array.isArray(S.views) ? S.views : BASE_VIEWS; return v.filter(x => OFFERED.includes(x)); };
 function setCam(k, fromDolly){
   if (!OFFERED.includes(k) || (!BASE_VIEWS.includes(k) && !builtViews().includes(k))) return;
@@ -2136,7 +2203,7 @@ function setCam(k, fromDolly){
   for (const b of document.querySelectorAll('#camSeg button[data-cam]')) b.setAttribute('aria-pressed', String(b.dataset.cam === k));
   if (k === 'follow' && !byId[selected]) { const w = waitingBots()[0] || bots.find(a => a.st === 'working') || byId.code; select(w.id); }
 }
-function applyViews(){ const v = builtViews(); $('#camMore').hidden = !v.some(x => MORE_VIEWS.includes(x)); for (const b of document.querySelectorAll('#camSeg button[data-cam]')) { b.hidden = !v.includes(b.dataset.cam) && !BASE_VIEWS.includes(b.dataset.cam); b.setAttribute('aria-pressed', String(b.dataset.cam === cam)); } }   // a restored More view (set before the scene was ready) presses nothing here
+function applyViews(){ const v = builtViews(); $('#camMore').hidden = !v.some(x => MORE_VIEWS.includes(x) || EXTRA_VIEWS.includes(x)); for (const b of document.querySelectorAll('#camSeg button[data-cam]')) { b.hidden = !v.includes(b.dataset.cam) && !BASE_VIEWS.includes(b.dataset.cam); b.setAttribute('aria-pressed', String(b.dataset.cam === cam)); } }   // a restored More view (set before the scene was ready) presses nothing here
 $('#camSeg').addEventListener('click', e => { const b = e.target.closest('button[data-cam]'); if (!b) return; if (b.dataset.cam === 'eyes' && !byId[selected]) nextOrKing(); setCam(b.dataset.cam); });
 $('#skyBtn').addEventListener('click', () => { sky.mode = SKY_MODES[(SKY_MODES.indexOf(sky.mode) + 1) % SKY_MODES.length]; applySkyLabel(); renderClock(); });
 function applySkyLabel(){ const T = L(), b = $('#skyBtn'); b.textContent = T.skyT(T.sky[sky.mode]); b.title = T.skyAria(T.sky[sky.mode]); b.setAttribute('aria-pressed', String(sky.mode !== 'live')); }
@@ -2173,10 +2240,10 @@ $('#panelTab').addEventListener('click', () => setPanel(true, {focus:true}));
 const TABS = ['crew', 'board', 'ops', 'log', 'chat'];
 /* blueprint 7.1: on the MacBook RIGHT NOW replaces the Crew tab's list, so the tabs are Board · Log · Memory (Board first);
    phones keep the Crew tab (RIGHT NOW is hidden there) */
-const liveTabs = () => isWide ? TABS.slice(1) : TABS;
+const liveTabs = () => TABS;   // v28.1: the Crew tab is back on the MacBook (the Observatory + the report card; RIGHT NOW stays the crew list)
 let tab = TABS.includes(store.get('hub-tab')) ? store.get('hub-tab') : 'crew';
 function setTab(t, focus){
-  if (!TABS.includes(t)) return; if (isWide && t === 'crew') t = 'board';
+  if (!TABS.includes(t)) return; if (isWide && t === 'crew' && focus === 'init') t = 'board';
   tab = t; if (focus !== 'init' || !isWide) store.set('hub-tab', t); $('#panel').dataset.tab = t;
   if (focus !== 'init' && !panelOpen()) setPanel(true, {remember:false});
   if ((t !== 'crew' || isWide) && selected && !selected.startsWith('t:') && focus !== 'init') select(null);   // society S3: a tab click closes a robot's card, so the tab's own list shows
@@ -2237,9 +2304,9 @@ function convClick(b){
   if (d.dec === 'change') { undoAnswer(d.id).then(() => select('q:' + d.id)); return; }
 }
 /* ================= the camera "More" menu (only views the scene has built) ================= */
-const MORE_KEYS = {cctv:'4', window:'5', tilt:'6', director:'7'};
+const MORE_KEYS = {cctv:'4', window:'5', tilt:'6', director:'7', observatory:'O', cat:'Y'};
 function openViewMenu(){
-  const extra = builtViews().filter(v => MORE_VIEWS.includes(v)); if (!extra.length) return;
+  const extra = builtViews().filter(v => MORE_VIEWS.includes(v) || EXTRA_VIEWS.includes(v)); if (!extra.length) return;
   const m = $('#viewMenu'), r = $('#camMore').getBoundingClientRect();
   m.innerHTML = extra.map(v => '<button type="button" class="tb" role="menuitemradio" data-cam="' + v + '" aria-checked="' + (cam === v) + '"><span class="k">' + (MORE_KEYS[v] || '') + '</span>' + esc(L().views[v] || v) + '</button>').join('');
   m.hidden = false; m.style.left = Math.round(r.left) + 'px'; m.style.bottom = Math.round(innerHeight - r.top + 6) + 'px';
@@ -2299,6 +2366,8 @@ document.addEventListener('keydown', e => {
   else if (lk === 'k') { e.preventDefault(); if (!closeKing(true)) openKing(); }
   else if ((lk === 'p' || k === ']') && isWide) setPanel(!panelOpen(), {focus:!!(e.target.closest && e.target.closest('#panel,#panelTab'))});
   else if (lk === 'n') toggleNames();
+  else if (lk === 'o') { e.preventDefault(); openObservatory(); }
+  else if (lk === 'y') { e.preventDefault(); findCat(); }
   else if (lk === 'a') { e.preventDefault(); nextQuestion(); }
   else if (lk === 'c' && isWide) crewKey();
   else if (TAB_KEYS[lk]) { if (tab === TAB_KEYS[lk] && lk === 'c' && selected) select(null); setTab(TAB_KEYS[lk]); }
@@ -2360,6 +2429,7 @@ function renderMine(){
   $('#mLow').textContent = T.lowT(!!mine.low); $('#mLow').setAttribute('aria-pressed', String(!!mine.low));
   $('#m3d').textContent = T.t3d(!sceneOff); $('#m3d').setAttribute('aria-pressed', String(!sceneOff));
   $('#mineBtn').setAttribute('aria-label', T.mine); $('#mineBtn').title = T.mine;
+  renderCatMine();
 }
 function openMine(){ closeKeys(); renderMine(); $('#mine').hidden = false; $('#mineBtn').setAttribute('aria-expanded', 'true'); $('#mineX').focus(); }
 function closeMine(){ if ($('#mine').hidden) return false; $('#mine').hidden = true; $('#mineBtn').setAttribute('aria-expanded', 'false'); return true; }
@@ -2384,6 +2454,185 @@ $('#mine').addEventListener('input', e => {
 });
 $('#mine').addEventListener('change', e => { if (e.target.closest('[data-swc]')) renderMine(); });
 document.addEventListener('pointerdown', e => { if (!$('#mine').hidden && !e.target.closest('#mine,#mineBtn,#keysMine')) closeMine(); });
+
+/* ================= v28.1 "One building" (CONTRACT v28.1): the Observatory, work flows, the tannoy, the cat, the report card ================= */
+/* lanes = board tasks by owner kind; flows = one per NEW handoff event (never old ones on first load) */
+const LANE_OF = {'hub-keeper':'research', 'storm-watch':'research', 'chat-reader':'research', builder:'build', designer:'build', 'engine-mechanic':'build', code:'build', king:'build', cowork:'build', 'qa-tester':'qa'};
+const FLOW_KIND = {builder:'build', designer:'build', 'engine-mechanic':'build', 'qa-tester':'verdict', 'hub-keeper':'finding', 'storm-watch':'finding', 'chat-reader':'finding'};
+const LANE_RANK = {blocked:0, doing:1, todo:2, done:3};
+function laneOf(owner){
+  const s = String(owner || '').toLowerCase().trim(); if (!s) return null;
+  const id = canon(s); if (LANE_OF[id]) return LANE_OF[id];
+  const byName = bots.find(a => tx(a.def.name).toLowerCase() === s); if (byName) return LANE_OF[byName.id];
+  const k = ownerKey(s); return k === 'code' || k === 'king' || k === 'cowork' ? 'build' : null;
+}
+const SHIP_RX = /\b(publish(ed)?|went live|is live|now live|shipped|merged)\b/i, NOT_SHIP_RX = /\b(not|never|before|until|waiting)\b[^.]{0,20}\b(publish|ship|live|merge)/i;
+function computeObservatory(){
+  try {
+    const now = Date.now(), ws = weekStart(), rows = [...((board && Array.isArray(board.now) && board.now) || []), ...((board && Array.isArray(board.next) && board.next) || [])];
+    const lanes = {research:[], build:[], qa:[]};
+    for (const x of rows) { if (!x || typeof x !== 'object') continue; const ln = laneOf(x.owner); if (!ln) continue;
+      const k = statusKey(x.status); if (k === 'parked') continue; const st = k === 'review' ? 'doing' : k;
+      if (st === 'done' && !(Date.parse(x.at || '') >= ws)) continue;
+      lanes[ln].push({id:String(x.id || '').slice(0, 12), t:String(tx(x.task) || '').slice(0, 40), st}); }
+    for (const k of Object.keys(lanes)) lanes[k] = lanes[k].sort((p, q) => LANE_RANK[p.st] - LANE_RANK[q.st]).slice(0, 5);
+    const items = gotAgents ? needItems() : [], stuck = bots.filter(a => a.st7 === 'stuck'), old = items.filter(i => i.at && now - i.at > 2*3600e3);
+    const ok = !stuck.length && !old.length;
+    const top = stuck.length ? stuck.length + ' stuck · ' + stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ')
+      : old.length ? 'Waiting on you ' + ageShort(Math.min(...old.map(i => i.at))) + ' · ' + old[0].who : 'System healthy ✓';
+    const doneIds = new Set(rows.filter(x => x && statusKey(x.status) === 'done' && Date.parse(x.at || '') >= ws).map(x => String(x.id)));
+    for (const e of events) if (e.kind === 'done' && e.task && e.atMs >= ws && e.agent !== 'you' && !e.approx) doneIds.add(e.task);
+    let fr = 0; for (const a of stuck) if (a.atMs) fr += (now - a.atMs)/3600e3; for (const i of items) if (i.at) fr += (now - i.at)/3600e3;
+    const shipped = events.filter(e => !e.approx && e.atMs >= ws && e.agent !== 'you' && (e.kind === 'done' || e.kind === 'note') && SHIP_RX.test(e.text) && !NOT_SHIP_RX.test(e.text)).length;
+    const le = events.find(e => !e.approx && e.text && !e.chat && !e.instant);
+    const o = {seats:bots.map(a => ({id:a.id, st7:a.st7 || 'idle'})), lanes, needs:items.length, health:{ok, top}, flow:doneIds.size, friction:Math.round(fr*10)/10, shipped,
+      last:le ? {text:(nameOf(le.agent) + ': ' + le.text).slice(0, 120), at:le.atMs} : {text:'All quiet', at:0}};
+    const sig = JSON.stringify(o);
+    if (sig !== computeObservatory.sig) { computeObservatory.sig = sig; HUB.observatory = Object.assign({v:((HUB.observatory && HUB.observatory.v) || 0) + 1}, o); renderObs(); }
+  } catch (e) { /* the Observatory is a view: a bad board row never stops the page */ }
+}
+const LANE_NAMES = {research:'Research', build:'Build', qa:'QA'};
+const LANE_ST = {doing:['DOING', 'var(--in-working)'], blocked:['STUCK', 'var(--st-stuck-ink)'], todo:['TO DO', 'var(--muted)'], done:['DONE', 'var(--st-done)']};
+function renderObs(){
+  const box = $('#obsCard'), o = HUB.observatory; if (!box || !o) return;
+  const lane = k => '<div class="obs-lane"><h3>' + LANE_NAMES[k] + ' · ' + o.lanes[k].filter(x => x.st === 'doing').length + '</h3><ul>' +
+    (o.lanes[k].length ? o.lanes[k].map(x => '<li title="' + esc(x.id + ' ' + x.t) + '"><b style="--c:' + LANE_ST[x.st][1] + '">' + LANE_ST[x.st][0] + '</b><span>' + esc(x.t || x.id) + '</span></li>').join('') : '<li class="none">No tasks</li>') + '</ul></div>';
+  box.innerHTML = '<div class="obs-top"><div><div class="obs-n' + (o.needs ? ' hot' : '') + '">' + String(o.needs).padStart(2, '0') + '</div><div class="obs-nl">Needs you</div></div>' +
+    '<div class="obs-health"><span class="' + (o.health.ok ? 'ok' : 'bad') + '">' + esc(o.health.top) + '</span><div class="obs-seats" aria-label="The crew">' +
+    o.seats.map(s => '<span title="' + esc(nameOf(s.id) + ': ' + (L().st7[s.st7] || s.st7)) + '" style="--c:' + st7c(s.st7) + '">' + glyph(s.st7) + '</span>').join('') + '</div></div></div>' +
+    '<div class="obs-lanes">' + lane('research') + lane('build') + lane('qa') + '</div>' +
+    '<div class="obs-meters"><div title="Tasks done this week"><b>' + o.flow + '</b><span>Flow</span><small>done this week</small></div><div title="Hours stuck plus hours waiting on you, right now"><b>' + o.friction.toFixed(1) + 'h</b><span>Friction</span><small>stuck + waiting</small></div><div title="Publishes this week"><b>' + o.shipped + '</b><span>Shipped</span><small>this week</small></div></div>' +
+    '<p class="obs-last" title="' + esc(o.last.text) + '">' + (o.last.at ? '<time>' + esc(whenLabel(o.last.at)) + '</time> · ' : '') + esc(o.last.text) + '</p>';
+}
+
+/* HUB.flows: {from, to, task, dir, kind}, max 6 queued; RIGHT NOW says "Handing to <name>" for 20 s after it */
+const flowAt = {};
+function pushFlow(e){
+  const a = byId[e.agent], b = byId[e.to]; if (!a || !b || a === b) return;
+  const dir = a.def.floor === b.def.floor ? 'same' : b.def.floor === 'up' ? 'up' : 'down';
+  HUB.flows.push({from:a.id, to:b.id, task:e.task || '', dir, kind:FLOW_KIND[a.id] || 'note'}); while (HUB.flows.length > 6) HUB.flows.shift();
+  flowAt[a.id] = {to:b.id, at:Date.now()}; setTimeout(refreshAll, 20100);
+}
+function handingRow(a, s7){
+  const f = flowAt[a.id]; if (!f || Date.now() - f.at >= 20000 || s7 === 'needs' || s7 === 'stuck') return null;
+  return {id:a.id, st7:s7, step:'handing', verb:'Handing to ' + nameOf(f.to), metric:'', since:f.at, cocked:false, detail:a.doing || ''};
+}
+
+/* the tannoy (Two Point): one dry line per real event, under the top band, 8 s, never the same line twice in a row */
+const TANNOY = {
+  handoff: ['{a} to {b}: one envelope on its way.', 'Delivery for {b}, courtesy of {a}.', '{a} passes the baton to {b}.', 'Paperwork in motion: {a} to {b}{t}.'],
+  build_qa: ['QA Tester to the bench, please. One build waiting.', 'A fresh build for QA{t}. Gloves on.', '{a} hands QA something shiny{t}.'],
+  verdict: ['The verdict is in{t}. {b}, it is on your desk.', 'QA has spoken{t}. {b} has the envelope.'],
+  done: ['{a} reports done{t}. The building remains standing.', '{a} has finished{t}. Carry on.', 'One more off the list, courtesy of {a}.', '{a} is done{t}. Quietly pleased.'],
+  stuck: ['{a} is stuck{t}. The lamp is on.', '{a} has hit a wall{t}. Noted.', 'Attention: {a} could use a hand{t}.'],
+  needs: ['{a} would like a word with you.', '{a} has a question waiting at your spot.', '{a} is waiting on your call.'],
+  cat: ['{a} is playing with {cat}: it needs you.', '{cat} found {a}. {a} needs you.']
+};
+const tan = {last:'', t:0, n:0, recent:{}};
+function tannoy(kind, a, b, task){
+  if (replay || !gotAgents || !TANNOY[kind]) return;
+  const key = kind + '|' + a + '|' + (b || ''), now = Date.now(); if (now - (tan.recent[key] || 0) < 60000) return; tan.recent[key] = now;
+  let set = TANNOY[kind];
+  if (kind === 'handoff' && b === 'qa-tester' && FLOW_KIND[a] === 'build') set = TANNOY.build_qa; else if (kind === 'handoff' && a === 'qa-tester') set = TANNOY.verdict;
+  const fill = s => s.replace(/\{a\}/g, nameOf(a)).replace(/\{b\}/g, b ? nameOf(b) : '').replace(/\{t\}/g, task ? ' on ' + task : '').replace(/\{cat\}/g, catName());
+  const all = set.map(fill), fresh = all.filter(x => x !== tan.last), pool = fresh.length ? fresh : all, line = pool[tan.n++ % pool.length];
+  const el = $('#tannoy'); if (!el) return; el.textContent = line; el.classList.add('on'); tan.last = line;
+  clearTimeout(tan.t); tan.t = setTimeout(() => el.classList.remove('on'), 8000);
+}
+function tannoyEvent(e){
+  if (!byId[e.agent] || e.approx) return;
+  if (e.kind === 'handoff' && byId[e.to]) tannoy('handoff', e.agent, e.to, e.task);
+  else if (e.kind === 'done') tannoy('done', e.agent, null, e.task);
+  else if (e.kind === 'blocked') tannoy('stuck', e.agent, null, e.task);
+  else if (e.kind === 'waiting') tannoy('needs', e.agent);
+}
+
+/* FilthE's cat (HUB.cat): name, coat, on/off from Make it yours, per device (hub-cat) */
+const COATS = [['ginger', '#d08a4a'], ['smoke', '#6e6e78'], ['silver', '#b4b7bd'], ['cream', '#e6d5b8'], ['tabby', '#9a7550']];
+const COAT_NAMES = {ginger:'Ginger', smoke:'Smoke', silver:'Silver', cream:'Cream', tabby:'Tabby'};
+const CAT_DEF = {name:'Miso', coat:'#d08a4a', on:true};
+let catPref = Object.assign({}, CAT_DEF);
+try { const c = JSON.parse(store.get('hub-cat') || 'null'); if (c && typeof c === 'object') { if (typeof c.name === 'string') catPref.name = c.name.slice(0, 16); if (hx(c.coat)) catPref.coat = hx(c.coat); if (typeof c.on === 'boolean') catPref.on = c.on; } } catch (e) { /* defaults */ }
+function catName(){ return String(catPref.name || '').trim() || 'Miso'; }
+let catTagUntil = 0;
+function applyCat(save){
+  HUB.cat = {v:((HUB.cat && HUB.cat.v) || 0) + 1, name:catName(), coat:catPref.coat, on:!!catPref.on};
+  if (save) store.set('hub-cat', JSON.stringify(catPref));
+  const n = catName(); $('#petBtn').hidden = $('#treatBtn').hidden = !catPref.on; $('#petBtn').textContent = 'Pet ' + n; $('#treatBtn').textContent = 'Give ' + n + ' a treat';
+  $('#catTag').style.setProperty('--coat', catPref.coat); $('#catTagN').textContent = n;
+}
+function renderCatMine(){
+  $('#swCoat').innerHTML = swatches(COATS, catPref.coat, COAT_NAMES, 'coat');
+  const n = $('#mCatName'); if (document.activeElement !== n) n.value = catPref.name || '';
+  $('#mCatOn').textContent = catPref.on ? 'Cat on' : 'Cat off'; $('#mCatOn').setAttribute('aria-pressed', String(!!catPref.on));
+}
+$('#swCoat').addEventListener('click', e => { const sw = e.target.closest('[data-sw]'); if (!sw) return; e.stopPropagation(); catPref.coat = sw.dataset.c; applyCat(true); renderCatMine(); });
+$('#swCoat').addEventListener('input', e => { const c = e.target.closest('[data-swc]'); if (!c) return; e.stopPropagation(); const v = hx(c.value); if (v) { catPref.coat = v; applyCat(true); } });
+$('#swCoat').addEventListener('change', e => { e.stopPropagation(); renderCatMine(); });
+$('#mCatName').addEventListener('input', e => { e.stopPropagation(); catPref.name = e.target.value.slice(0, 16); applyCat(true); });
+$('#mCatOn').addEventListener('click', e => { e.stopPropagation(); catPref.on = !catPref.on; applyCat(true); renderCatMine(); });
+function catCue(what){
+  if (!catPref.on) { appToast('The cat is off. Turn it on in Make it yours.', 3000); return; }
+  HUB.cues.push({kind:'cat', what}); catTagUntil = performance.now() + 5000;
+  const S = window.SCENE, n = catName();
+  if (!(S && S.ready && S.points && S.points.cat)) appToast(what === 'pet' ? n + ' purrs.' : what === 'treat' ? n + ' heard the treat bag.' : n + ' lives in the 3D room.', 2500);
+}
+$('#optMenu').addEventListener('click', e => { const b = e.target.closest('[data-catcue]'); if (!b) return; catCue(b.dataset.catcue); closeOptMenu(); });
+let catPrevCam = null;
+function findCat(){
+  if (catPref.on && builtViews().includes('cat')) { if (cam === 'cat') { setCam(catPrevCam || 'all'); return; } catPrevCam = cam; setCam('cat'); }
+  catCue('find');
+}
+function placeCatTag(now){
+  const el = $('#catTag'), S = window.SCENE, p = catPref.on && S && S.ready && S.points && S.points.cat; let on = false;
+  if (p && p.visible !== false && isFinite(p.x) && isFinite(p.y)) {
+    on = now < catTagUntil || (pres.in && Math.hypot(pres.x - p.x, pres.y - p.y) < 36);
+    if (on) el.style.transform = 'translate(' + Math.round(p.x - (el.offsetWidth || 60)/2) + 'px,' + Math.round(p.y - 28) + 'px)'; }
+  if (el.classList.contains('on') !== on) el.classList.toggle('on', on);
+}
+function watchCat(){   // "Builder is playing with Miso: it needs you" (the scene keeps the no-nag rule; this reads it once per play)
+  const S = window.SCENE, c = S && S.ready && S.cat, w = c && c.with && byId[c.with] ? c.with : null;
+  if (w && w !== watchCat.w && catPref.on) tannoy('cat', w); watchCat.w = w;
+}
+
+/* O = the Observatory (camera if built + its card in the panel; the card works with no scene) */
+let obsPrev = null;
+function openObservatory(){
+  if (builtViews().includes('observatory')) { if (cam === 'observatory') { setCam(obsPrev || 'all'); return; } obsPrev = cam; setCam('observatory'); }
+  if (!panelOpen()) setPanel(true, {remember:false});
+  setTab('crew'); const o = $('#obsBlock'); if (o) o.scrollIntoView({block:'nearest'});
+}
+
+/* the report card (crew/report_card: the King writes one row per finished helper job; missing = "No reviews yet") */
+let rcDoc = null, rcAll = false, rcCache = null;
+function rcRows(){
+  if (rcCache) return rcCache; const src = rcDoc && Array.isArray(rcDoc.rows) ? rcDoc.rows : [], out = [];
+  for (const x of src.slice(0, 200)) { if (!x || typeof x !== 'object') continue;
+    const id = canon(String(x.id || '').slice(0, 40)), verdict = x.verdict === 'good' ? 'good' : x.verdict === 'redo' ? 'redo' : null; if (!id || !verdict) continue;
+    const c = x.cost; out.push({at:Date.parse(x.at || '') || 0, id, job:String(tx(x.job) || '').slice(0, 60), verdict, why:String(tx(x.why) || '').slice(0, 90), cost:c != null && c !== '' && Number.isFinite(+c) && +c >= 0 ? +c : null}); }
+  return (rcCache = out.sort((p, q) => q.at - p.at).slice(0, 60));
+}
+const rcRate = rows => { const g = rows.filter(r => r.verdict === 'good').length; return rows.length ? g + '/' + rows.length + ' good' : ''; };
+function rcRowHtml(r, who){
+  return '<li><span class="rc-l">' + (who ? esc(nameOf(r.id)) + ' <em>·</em> ' : '') + esc(r.job || 'A job') + '</span><span class="rc-v ' + r.verdict + '">' + (r.verdict === 'good' ? '✓ good' : '↺ redo') + (r.cost != null ? ' · $' + r.cost.toFixed(2) : '') + '</span>' +
+    (r.why || r.at ? '<span class="rc-w">' + esc(r.why) + (r.why && r.at ? ' · ' : '') + (r.at ? '<time>' + esc(whenLabel(r.at)) + '</time>' : '') + '</span>' : '') + '</li>';
+}
+function renderReport(){
+  const box = $('#rcBody'); if (!box) return; const rows = rcRows();
+  $('#rcRate').textContent = rcRate(rows);
+  if (!rows.length) { box.innerHTML = '<p class="rc-empty">No reviews yet. The King adds one line for each finished robot job.</p>'; return; }
+  const shown = rcAll ? rows : rows.slice(0, 12);
+  box.innerHTML = '<ol class="rcard">' + shown.map(r => rcRowHtml(r, true)).join('') + '</ol>' + (rows.length > 12 ? '<button type="button" class="tb rc-more" data-rcmore>' + (rcAll ? 'Less' : 'More · ' + (rows.length - 12)) + '</button>' : '');
+}
+$('#rcBody').addEventListener('click', e => { if (e.target.closest('[data-rcmore]')) { rcAll = !rcAll; renderReport(); } });
+function rcCard(a){
+  const mine = rcRows().filter(r => r.id === a.id); if (!rcDoc && !mine.length) return '';
+  return '<dt>Report card</dt><dd>' + (mine.length ? '<span class="rc-rate">' + esc(rcRate(mine)) + '</span><ol class="rcard">' + mine.slice(0, 3).map(r => rcRowHtml(r, false)).join('') + '</ol>' : '<span class="src">No reviews yet.</span>') + '</dd>';
+}
+function onReport(snap){
+  got(); try { rcDoc = snap.exists ? snap.data() : null; if (!rcDoc || typeof rcDoc !== 'object') rcDoc = null; } catch (e) { rcDoc = null; }
+  rcCache = null; renderReport(); if (selected && byId[selected]) { cardSig = ''; renderCard(); }
+}
 
 /* ================= the mind: the crew's thoughts as a flow field in the sky (ART 6.5; page code, not three.js) ================= */
 const mind = (() => {
@@ -3162,8 +3411,8 @@ function frame(now){
   updateSky(dt);
   const S = window.SCENE; if (sceneOff && S && S.ready) S.ready = false;   // built after we gave up on it: stays off
   if (S && S.ready && !sceneOff) { try { S.frame(now/1000, dt); } catch (e) { if (!frame.err) { frame.err = 1; console.error(e); } } watchFps(now); }   // a scene error never stops the page's loop
-  placeOverlay(); mind.tick(now); rain.tick(now); placeSpot(); placeSays(now);
-  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); soundTick(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
+  placeOverlay(); mind.tick(now); rain.tick(now); placeSpot(); placeSays(now); placeCatTag(now);
+  if (now - (frame.slow || 0) > 150) { frame.slow = now; tickCall(now); renderEyes(); renderViewFx(); soundTick(); watchCat(); lightNowRow(pres.rowHover ? null : pres.hover); if (!greet.done && window.SCENE && window.SCENE.ready) greet(); }
   if (HUB.needs.ids.length || lastNeedIds && lastNeedIds.length) bdot.style.opacity = breath().toFixed(3);
   requestAnimationFrame(frame);
 }
@@ -3235,18 +3484,18 @@ function wake(text, urgent){
   return true;
 }
 /* one fire of the King's CURRENT wake trigger (read fresh from system/king every time). No auto-retry: it is a write. */
-let mcpGone = false;   // use('mcp') said null: this view has no MCP (a slow answer is not that)
-async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 12000) : null; if (!MCP) mcpGone = true; } catch (e) { MCP = null; } return MCP; }
+let lastWakeErr = '';   // why the last wake failed (shown on the message); a null/slow use('mcp') is retried on the next call, never permanent
+async function getMcp(){ if (MCP) return MCP; try { MCP = window.claude && typeof window.claude.use === 'function' ? await within(window.claude.use('mcp'), 20000) : null; } catch (e) { MCP = null; } return MCP; }
 /* 2026-09-29 freeze fix: one door for every Claude Code Remote call. The first call on a load asks FilthE's consent (a
    claude.ai prompt over the page) and a call can sit unanswered ~130 s. So: a call that isn't his own click (bg: timers,
    snapshots, opening a window) never runs until one of his calls went through on this load, a refusal stops them all
    for the load, reads carry an abort deadline, and writes (fire_trigger, create_session) stop being waited on. */
 let mcpOk = false, mcpNo = false;
-const MCP_DEAD = ['not_granted', 'capability_disabled', 'capability_removed', 'consent_required', 'not_in_manifest', 'blocked_by_policy', 'server_not_connected', 'server_not_found', 'needs_reauth'];
+const MCP_DEAD = ['not_in_manifest'];   // only this is permanent; consent_required / needs_reauth / not_granted retry on his next click
 async function mcpCall(tool, input, o){
   o = o || {};
   if (mcpNo || (o.bg && !mcpOk)) throw Object.assign(new Error('deferred'), {code:'deferred'});
-  const m = await getMcp(); if (!m) { if (mcpGone) mcpNo = true; throw Object.assign(new Error('no mcp'), {code:mcpGone ? 'not_granted' : 'timeout'}); }
+  const m = await getMcp(); if (!m) throw Object.assign(new Error('no mcp'), {code:'timeout'});
   const ms = o.bg ? 20000 : 90000, opts = o.read ? {cache:false} : null;
   if (opts && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(ms);
   try { const r = await within(opts ? m.callTool('Claude Code Remote', tool, input, opts) : m.callTool('Claude Code Remote', tool, input), ms + 1000); mcpOk = true; return r; }
@@ -3255,7 +3504,7 @@ async function mcpCall(tool, input, o){
 async function fireNow(text, n, bg){
   const trig = wakeTrigger(); let ok = false, limited = false;
   try { if (trig) { await mcpCall('fire_trigger', {trigger_id:trig, text:String(text).slice(0, 1800)}, {bg}); ok = true; } }
-  catch (e) { limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
+  catch (e) { lastWakeErr = String(e && e.code || e && e.message || '?').slice(0, 60); limited = /rate|limit/i.test(String((e && e.code) || '') + ' ' + String((e && e.message) || '')); }
   if (ok) { store.set('hub-saving', ''); const at = nowIso(); wakesToday.push(Date.now()); if (DB) DB.doc('wakes/' + stampOf(at) + '-' + DEVICE).set({at, n:n || 1}).catch(() => {}); }
   else if (limited) store.set('hub-saving', '1');
   return {ok, limited, trig};
@@ -3534,7 +3783,7 @@ function msgStatus(e){
   if (old) return null;   // older messages stay quiet
   const d = ktDeliv[e.id] || e.deliv, late = e.wakeAtMs && now - e.wakeAtMs > 4*60000;
   if (e.wake === 'off') return {k:'no', t:T.lineDown, btn:'retry'};
-  if (e.wake === 'fail' || d === 'fail') return {k:'no', t:T.failed, btn:'retry'};
+  if (e.wake === 'fail' || d === 'fail') return {k:'no', t:T.failed + (e.wake === 'fail' && e.wakeErr ? ' (' + e.wakeErr + ')' : ''), btn:'retry'};
   if (d === 'ok') return {k:'ok', t:late ? T.gotLate(Math.round((now - e.wakeAtMs)/60000)) : T.gotIt, btn:late ? 'retry' : ''};
   if (e.wake === 'ok') return {k:'wait', t:late ? T.sentLate(Math.round((now - e.wakeAtMs)/60000)) : T.toKing, btn:late ? 'retry' : ''};
   return {k:'wait', t:T.toKing};
@@ -3630,9 +3879,9 @@ async function orderKing(id, text, order, again, bg){
   const trig = wakeTrigger(), at = nowIso();
   let wakeSt = 'off';
   if (trig && bg && !mcpOk) wakeSt = 'fail';   // not his click: no surprise consent prompt; the message shows Retry instead
-  else if (trig) { const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".', 1, bg);
+  else if (trig) { lastWakeErr = ''; const r = await fireNow('FilthE in the hub chat' + (order ? ' (order: ' + order.slice(0, 200) + ')' : '') + ': ' + String(text).replace(/\s+/g, ' ').slice(0, 400) + ' [events/' + id + ']. The page already answered him instantly; do the work. First post an ack event (agent "code", kind "progress", to "you", re "' + id + '"), then your reply event to "you", re "' + id + '".', 1, bg);
     wakeSt = r.ok ? 'ok' : 'fail'; if (r.ok) checkDelivery(id, trig, Date.now()); }
-  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
+  const upd = {mode:'order', kind:'handoff', wake:wakeSt, wakeAt:at, trig:trig || '', deliv:''}; if (wakeSt === 'fail') upd.wakeErr = lastWakeErr || ((bg && !mcpOk) ? 'deferred' : ''); else upd.wakeErr = ''; if (order) upd.order = order.slice(0, 300); if (again) upd.tries = (ktTries[id] = (ktTries[id] || 1) + 1);
   delete ktDeliv[id];
   try { await withTimeout(DB.doc('events/' + id).update(upd)); } catch (e) { /* status shows from the next snapshot or not at all */ }
   renderThread.sig = ''; renderThread();   // repaint even when the status reads the same: the Retry button comes back enabled
@@ -3668,7 +3917,7 @@ function sweepThread(){
   if (!CAN_EDIT || !DB || !kingLoaded) return; const now = Date.now();
   for (const e of events) { if (!isMyChat(e) || ktSwept.has(e.id) || now - e.atMs > 2*3600e3) continue;
     if (events.some(x => (isKingReply(x) || isKingAck(x)) && x.re === e.id)) continue;
-    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id)) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, '', false, true); }
+    if (e.mode === 'asking' && now - e.atMs > 120000 && !ktLive[e.id] && !ktOrdering.has(e.id) && mcpOk) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, '', false, true); }
     else if (e.mode === 'order' && (e.wake === 'off' || e.wake === 'fail' || e.deliv === 'fail') && wakeTrigger() && e.trig !== wakeTrigger() && mcpOk) { ktSwept.add(e.id); orderKing(e.id, e.long || e.text, e.order || '', true, true); }
   }
 }
@@ -3768,14 +4017,14 @@ function onAgents(snap){
 }
 function onEvents(snap){
   const seen = new Set(events.map(e => e.id));
-  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
+  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
-  if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) pushHandoff(e.agent, e.to); }
+  if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) { pushHandoff(e.agent, e.to); pushFlow(e); } if (!replay) tannoyEvent(e); }
   gotEvents = true; got(); renderThread(true); sweepThread();
   sync(false); renderFeeds(); renderCard(); renderBoard(); renderRoster(); refreshLive(); maybeRecap();
 }
 let gotBoard = false, gotAnswers = false;
-function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); }
+function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); computeObservatory(); }
 function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 function onSessions(snap){ got(); sessDoc = snap.exists ? snap.data() : null; trackSpend(); computeWatch(); refreshAll(); renderOps(); }
@@ -3803,6 +4052,7 @@ function subscribe(db){
     db.doc('system/memory').onSnapshot(onMemory, onErr),
     db.doc('crew/sessions').onSnapshot(onSessions, onErr),
     db.doc('system/schedule').onSnapshot(onSchedule, onErr),
+    db.doc('crew/report_card').onSnapshot(onReport, onErr),   // v28.1: missing doc = "No reviews yet"
     db.collection('wakes').orderBy('at', 'desc').limit(40).onSnapshot(sn => { wakesToday = sn.docs.map(d => Date.parse((d.data() || {}).at || '') || 0); }, () => {})   // with the rest, so a resubscribe keeps it
   ];
 }
@@ -3861,8 +4111,8 @@ async function tidy(db, cl){   // the owner's view keeps the log small: newest 3
 
 /* ================= start ================= */
 $('#todayBtn').hidden = !noteToday;
-applyTheme(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
-sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); armSeen();
+applyTheme(false); applyCat(false); applyStatic(); setTab(tab, 'init'); setCam(cam); layout(); renderClock(); applyNames(); setTimeout(dollyHint, 2500);
+sync(true); renderNeeds(); renderRoster(); renderBoard(); renderOps(); renderFeeds(); renderReport(); computeObservatory(); armSeen();
 connect(); fetchWeather();
 scene3d(false);
 if (TEST) window.__hubTest = {rain: v => { weather.rain = +v || 0; sync(false); }, call: () => call, isWide: () => isWide, db: () => !!DB, mentionsHail, kingSeen, qidOf, qidOld, needItems, displayState, byId, answers: () => answers, wakeQ: () => wakeQ, applyActions, askKing, kcPending, memDoc: () => memDoc};   // #test only: fixture checks
