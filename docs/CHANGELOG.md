@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Open map: the "days ago" line points to the customer's policy - 2026-09-29 (age line; QA PASS, live: open map Version 14)
+- Each area's age line now counts to today's Nebraska date and reads: "52 days ago. Time limits to file are in the customer's policy; ask them to check it." / "Hace 52 días. Los plazos para reportar están en la póliza del cliente; que la revise." It makes no legal claim and shows no countdown or "Deadline" badge at any age. The same words go on the engine's zone reasons and on the old-storm PNG map note.
+- Tests stop bad wording from coming back (expires, running out, last day, hurry, "only N days left", no cutoff/deadline, in EN and ES). They also cover a storm dated after today (never shows "-1 days ago") and 11:30 PM in Chicago, when UTC is already the next day.
+- QA lows fixed: tapping the open area's marker or using prev/next keeps the card's own walk; the night shift's fallback has `zwalks`; the walk maps can't be tricked by an id like "constructor".
+
 ## AI hub reads the real robot chats by itself - 2026-09-29 (live hub, v33)
 - Every minute while the hub is open it reads your real Claude chats (Claude Code Remote `list_sessions`) and puts each on its robot by tag (`robot:builder`, `king`, ...) or title: working / needs you / done / stuck, what it's doing this minute, how long ago, cost. Archived chats are gone. No more hand-written status going 12 h stale.
 - New top card: Needs you / Working on / Done (3 lines each) with "Live · 20 s ago"; the Board opens with "Live from the chats"; Chats, spend and the instant chat answers all use the same live list (the hand-written docs are only the fallback, and the chat is told how old they are).
