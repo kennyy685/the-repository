@@ -220,6 +220,8 @@ body.area .card{transform:none;opacity:1}
 .card .x:hover{background:rgba(255,255,255,.07);color:var(--text)}
 .card h2{margin:0;font:700 30px/1.04 var(--display);letter-spacing:-.03em;padding-right:36px}
 .card .where{margin:6px 0 0;color:var(--text-2);font-size:13px}
+.card .stackln{margin:6px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:2px 7px;font-size:13px;color:var(--text)}
+.card .stackln i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}.card .stackln small{color:var(--muted);font-size:11.5px}
 .when{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .hero{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin:16px 0 10px;padding:12px 16px;border-radius:16px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,transparent),rgba(255,255,255,.02));border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
@@ -1580,6 +1582,7 @@ const T={
   permOk:{en:(d,n)=>`Current until ${d}`,es:(d,n)=>`Vigente hasta el ${d}`},permOkD:{en:(n,town,tot)=>`${n} days left${tot?` of ${tot}`:""} · ${town}`,es:(n,town,tot)=>`Quedan ${n} días${tot?` de ${tot}`:""} · ${town}`},
   permExp:{en:(d)=>`Expired ${d}`,es:(d)=>`Venció el ${d}`},permExpD:{en:(town)=>`Renew your ${town} permit before you knock here`,es:(town)=>`Renueva tu permiso de ${town} antes de tocar aquí`},
   permNone:{en:"None on file",es:"No hay registrado"},permNoneD:{en:(town)=>`${town}'s rules aren't checked yet: call the city office first`,es:(town)=>`Las reglas de ${town} no están revisadas: llama primero a la oficina de la ciudad`},
+  stackL:{en:(n,y)=>`Hail here ${n} times since ${y}`,es:(n,y)=>`Granizo aquí ${n} veces desde ${y}`},stackS:{en:k=>`public reports within ${k} km`,es:k=>`reportes públicos a ${k} km`},
   best:{en:"Best streets here",es:"Mejores calles aquí"},s_hail:{en:"Hail",es:"Granizo"},s_roof:{en:"Roof age",es:"Techo"},s_homes:{en:"Homes",es:"Casas"},
   colStreet:{en:"Street",es:"Calle"},colHomes:{en:"Homes",es:"Casas"},colHail:{en:"Hail",es:"Granizo"},colRoof:{en:"Roof",es:"Techo"},
   fromTo:{en:(a,b)=>`${a} to ${b}`,es:(a,b)=>`de ${a} a ${b}`},offX:{en:(x)=>`off ${x}`,es:(x)=>`sale de ${x}`},loopX:{en:(x)=>`loop off ${x}`,es:(x)=>`vuelta desde ${x}`},
@@ -1906,6 +1909,7 @@ function renderCard(){
     <div class="when"><span class="eyebrow" style="margin:0">${L(s.long)} · ${s.time?esTime(s.time):t("radarOnly")}</span></div>
     <h2>${L(a.name)}</h2>
     <p class="where">${L(a.sub)}${a.county?` · ${a.county} Co.`:""}</p>
+    ${a.stack&&a.stack.n>=2?`<p class="stackln" title="${a.stack.days.join(", ")}"><i></i><b>${t("stackL",a.stack.n,a.stack.since)}</b><small>${t("stackS",a.stack.km)}</small></p>`:""}
     <div class="team" title="${t("teamSub")}"><span class="av">K</span><span><b>${t("team")}</b><small>${t("teamSub")}</small></span><span class="off">${t("off")}</span></div>
     <div id="gtBox"></div>
     <div class="sec">${t("claimQ")}<span class="eyes">${ic("lock")}${t("eyes")}</span></div>

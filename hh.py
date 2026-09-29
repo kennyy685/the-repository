@@ -63,6 +63,8 @@
   python3 hh.py season [--year Y] [--out F] [--no-mesh]   Path step 4: this season's REAL hail in eastern Nebraska
                   (NWS/SPC/NCEI reports, NEXRAD + MRMS radar) ranked into hot zones with Census likely-insured
                   signals -> data/storms-<year>.json for the open map. Own network step: refresh/hud.json unchanged.
+  python3 hh.py stack-history [--years 2024,2025] [--out F]   storm stacking: past seasons' public hail reports
+                  (NWS LSR + NCEI) -> data/hail-history.json; `season` and today's walk count hail days per house/zone.
   python3 hh.py selftest             offline tests
 """
 import argparse
@@ -528,6 +530,10 @@ def main(argv=None):
     p.add_argument("--date", help="YYYY-MM-DD 'today' for days-ago and ranking (default: today, Central time)")
     p.add_argument("--out", help="output file (default: data/storms-<year>.json)")
     p.add_argument("--no-mesh", action="store_true", help="skip the MRMS radar grids (faster)")
+    p = sub.add_parser("stack-history", help="storm stacking: past seasons' public hail reports -> "
+                                             "data/hail-history.json; never touches hud.json")
+    p.add_argument("--years", help="comma list (default: the 2 seasons before this one)")
+    p.add_argument("--out", help="output file (default: data/hail-history.json)")
     sub.add_parser("selftest", help="run offline tests")
     a = ap.parse_args(argv)
 
@@ -678,6 +684,24 @@ def main(argv=None):
         print(f"wrote {out} ({size // 1024} KB): {len(doc['reports'])} reports, {len(doc['storm_days'])} storm days, "
               f"{len(doc['zones'])} zones, {len(doc['areas'])} towns; top: {top or 'none'}"
               + (f"; {len(doc['errors'])} source errors" if doc["errors"] else ""))
+        return 0
+    if a.cmd == "stack-history":                   # own network step: no database, never touches hud.json
+        from hailhunter import stacking
+        from datetime import date as _date
+        fetcher = Fetcher(cfg["paths"]["cache"], offline=a.offline)
+        y0 = _date.today().year
+        n = int(stacking.scfg(cfg)["seasons"])
+        years = [int(y) for y in a.years.split(",")] if a.years else list(range(y0 - n + 1, y0))
+        pts, errors, counts = stacking.fetch_history(fetcher, cfg, years)
+        out = a.out or stacking.HISTORY
+        doc = stacking.history_doc(pts, years, cfg, errors, counts)
+        tmp = out + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(doc, f, separators=(",", ":"))
+            f.write("\n")
+        os.replace(tmp, out)
+        print(f"wrote {out} ({os.path.getsize(out) // 1024} KB): {len(pts)} hail reports, years {years}"
+              + (f"; {len(errors)} source errors" if errors else ""))
         return 0
     if a.cmd == "zones":                           # reads hud.json; the database (if any) only adds outlines/towns
         import sqlite3

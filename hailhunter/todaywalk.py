@@ -50,7 +50,7 @@ import re
 from collections import Counter
 from datetime import date, datetime, timezone
 
-from . import doorscore
+from . import doorscore, stacking
 from . import estimate as est
 from .config import DEFAULTS
 from .followups import _day as _local_day
@@ -752,6 +752,35 @@ def coach_for(i, s, stop, kind, storm_day=None, hail_ev=None, taps=None, bt=None
     return {"en": " ".join(x[1] for x in lines), "es": " ".join(x[2] for x in lines), "tags": [x[0] for x in lines]}
 
 
+_STACK_PTS = {}
+
+
+def stack_points(cfg):
+    """Public hail points for storm stacking (data/hail-history.json + storms-<year>.json), loaded once. Config
+    `stacking.use_history` false (or no files, e.g. the cloud bundle) = [] = every stack factor stays 1.0."""
+    sc = stacking.scfg(cfg)
+    if not sc.get("use_history"):
+        return []
+    d = sc.get("data_dir") or stacking.DATA
+    if d not in _STACK_PTS:
+        _STACK_PTS[d] = stacking.load_points(d)
+    return _STACK_PTS[d]
+
+
+def add_stack(pools, storm_day, today, cfg):
+    """Sets `stack_count` + `stack_since` on every stop of a storm list: distinct hail days (public reports within
+    stacking.hit_km) over the last 3 seasons, the list's own storm day always counted. No points = no change."""
+    pts = stack_points(cfg)
+    if not pts:
+        return
+    for ss in pools.values():
+        for s in ss:
+            if s.get("stack_count") or s.get("lat") is None or s.get("lon") is None:
+                continue
+            st = stacking.stack(float(s["lat"]), float(s["lon"]), pts, today, cfg, include=[storm_day] if storm_day else ())
+            s["stack_count"], s["stack_since"] = st["count"], st["since"]
+
+
 def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps=None, only=None, pace=None):
     """The `today/walk` doc, or None when no list has houses left to knock. `dnk` = set of do-not-knock slugs.
     `taps` = today's door results in order (`today_taps`), for the `coach` card's first-door (69-1602) rule.
@@ -808,6 +837,8 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
     left = best["left"]
     turf_of = {t.get("turf"): t for t in L.get("turfs") or []}
     storm_day = L.get("day") if best["kind"] == "storm" else None
+    if best["kind"] == "storm":                    # storm stacking: hail days near each house, last 3 seasons
+        add_stack(pools[L["id"]], storm_day, today, cfg)
     doors = {str(s["pid"]): doorscore.score(s, best["kind"], walk_owner(turf_of.get(s.get("turf")), L),
                                             storm_day, today, cfg) for ss in pools[L["id"]].values() for s in ss}
     if only:                                       # a zone walk: the best doors first (untried before retries)
@@ -857,6 +888,12 @@ def pick(hud, today, goal=None, results=None, cfg=None, now=None, dnk=None, taps
         d = doors.get(str(s["pid"])) or doorscore.score(s, best["kind"], None, storm_day, today, cfg)
         st["door"] = {"score": d["score"], "parts": d["parts"]}   # door score v2 (round 16): an estimate
         st["why"] = d["why"]
+        if s.get("stack_count"):                   # storm stacking + roof-age sweet spot (additive, 2026-09-29)
+            st["stack"] = {"count": s["stack_count"], "since": s["stack_since"],
+                           "line": stacking.stack_line(s["stack_count"], s["stack_since"])}
+        rb = stacking.roof_band(s.get("built", s.get("year_built")), s.get("roof_year"), today, cfg)
+        if rb:
+            st["roof_band"] = {k: rb[k] for k in ("age", "band", "estimate", "line")}
     doc["est_minutes"], doc["walk_mi"] = estimate(doc["stops"], cfg)
     doc["drive_from_home_mi"] = drive_from_home(doc["stops"], cfg)
     doc["best_time"] = best_time(today, cfg)

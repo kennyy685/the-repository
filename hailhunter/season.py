@@ -29,6 +29,7 @@ from zoneinfo import ZoneInfo
 from .config import DEFAULTS
 from .geo import haversine_mi
 from .models import iso
+from . import stacking
 from .sources import lsr, stormevents, swdi
 
 KM_PER_MI = 1.609344
@@ -377,7 +378,22 @@ def _km_np(lat, lon, lats, lons):
     return haversine_np(lat, lon, lats, lons) * KM_PER_MI
 
 
-def build_zones(reports, radar, meshes, census, today, sc, places=None):
+def add_stack(zones, pts, today, sc, cfg):
+    """Storm stacking + roof-age sweet spot per zone (stacking.py): `stack` {count, days, since, km, line} = distinct
+    hail days with a public report within stacking.hit_km of the zone's middle over the last 3 seasons (its own day
+    always counted); score x the capped factor (1.0 / 1.15 / 1.3, max 100, `score_parts.stack`), plus one plain `why`
+    line when hit 2+ times. No roof band per zone: the Census typical home age is not a roof age."""
+    for z in zones:
+        st = stacking.stack(z["center"]["lat"], z["center"]["lon"], pts, today, cfg, include=[z["date"]])
+        z["stack"] = {k: st[k] for k in ("count", "days", "since", "km", "line")}
+        z["score_parts"]["stack"] = st["factor"]
+        z["score"] = min(100, round(z["score"] * st["factor"]))
+        if st["count"] >= 2:
+            z["why"].append([1, {"en": f"{st['line']['en']} (public reports within {st['km']:g} km).",
+                                 "es": f"{st['line']['es']} (reportes públicos a {st['km']:g} km)."}])
+
+
+def build_zones(reports, radar, meshes, census, today, sc, places=None, history=None, cfg=None):
     """reports -> ranked hot zones: one per ground-report cluster (kind "ground") plus radar-only zones (kind
     "radar", MRMS hail where nobody reported, see mesh_zones). radar = {day: [(lat, lon, size)]}, meshes = {day:
     (arr, meta) | None}, census = {"vintage", "bgs": [row]} (rows with lat/lon + counts) or None."""
@@ -446,6 +462,8 @@ def build_zones(reports, radar, meshes, census, today, sc, places=None):
     for m in mesh_zones(meshes, list(zones), sc):
         rad = round(min(sc["zone_max_km"], max(sc["zone_min_km"], m["far_km"] + 1)), 1)
         make("radar", m["date"], m["lat"], m["lon"], rad, [], m["mesh_in"])
+    if history is not None:                        # storm stacking: past seasons + this season's own reports
+        add_stack(zones, list(history) + stacking.points_from_reports(reports), today, sc, cfg)
     zones.sort(key=lambda z: (-z["score"], z["date"]))
     seen = {}
     for i, z in enumerate(zones, 1):
@@ -497,8 +515,9 @@ def storm_days(reports, zones, radar, meshes, sc):
     return out
 
 
-def build_doc(reports, radar, meshes, census, places, today, sc, now=None, errors=None, counts=None, year=None):
-    zones = build_zones(reports, radar, meshes, census, today, sc, places=places)
+def build_doc(reports, radar, meshes, census, places, today, sc, now=None, errors=None, counts=None, year=None,
+              history=None, cfg=None):
+    zones = build_zones(reports, radar, meshes, census, today, sc, places=places, history=history, cfg=cfg)
     areas = build_areas(places, reports, census, sc)
     used = {"census"} if census else set()
     for r in reports:
@@ -744,8 +763,18 @@ def run(fetcher, cfg, year=None, today=None, log=print, now=None, mesh=None):
     counts["census"] = len((census or {}).get("bgs") or [])
     log(f"  season {year}: {len(reports)} reports on {len(days)} storm days; radar cells {counts['radar']}, "
         f"MRMS days {counts['mrms']}, block groups {counts['census']}")
-    return build_doc(reports, radar, meshes, census, places, today, sc, now=now, errors=errors, counts=counts,
-                     year=year)
+    history = None                                 # storm stacking: past seasons from `hh.py stack-history`
+    try:
+        with open(stacking.HISTORY, encoding="utf-8") as f:
+            history = [p for p in json.load(f).get("pts") or [] if int(p[0][:4]) < year]
+    except (OSError, ValueError, TypeError):
+        log("  season: no data/hail-history.json (run `hh.py stack-history`): stacking counts this season only")
+        history = []
+    doc = build_doc(reports, radar, meshes, census, places, today, sc, now=now, errors=errors, counts=counts,
+                    year=year, history=history, cfg=cfg)
+    doc["stacking"] = {"since": stacking.since_year(today, stacking.scfg(cfg)), "km": stacking.scfg(cfg)["hit_km"],
+                       "min_in": stacking.scfg(cfg)["min_in"], "history_reports": len(history)}
+    return doc
 
 
 def write(doc, path):
