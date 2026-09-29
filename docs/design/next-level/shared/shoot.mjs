@@ -6,6 +6,7 @@ import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { join, resolve, extname } from 'path';
 const root = resolve(new URL('..', import.meta.url).pathname);
 const dir = process.argv[2]; const wait = +(process.argv[3] || 6000);
+const extra = process.argv[4] || ''; const suf = process.argv[5] ? '-' + process.argv[5] : '';  // optional: extra query (e.g. view=walk) + file suffix
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 mkdirSync(join(root, dir, 'shots'), { recursive: true });
 const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -20,9 +21,9 @@ for (const theme of ['dark', 'light']) for (const lang of ['en', 'es']) {
   });
   const p = await ctx.newPage(); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto(`http://app.test/${dir}/index.html?theme=${theme}&lang=${lang}`);
+  await p.goto(`http://app.test/${dir}/index.html?theme=${theme}&lang=${lang}${extra ? '&' + extra : ''}`);
   await p.waitForTimeout(wait);
-  await p.screenshot({ path: join(root, dir, 'shots', `${theme}-${lang}.png`) });
+  await p.screenshot({ path: join(root, dir, 'shots', `${theme}-${lang}${suf}.png`) });
   console.log(theme, lang, errs.length ? 'ERRORS: ' + errs.slice(0, 3).join(' | ') : 'ok');
   await ctx.close();
 }
