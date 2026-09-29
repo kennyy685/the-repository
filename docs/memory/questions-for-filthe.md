@@ -98,3 +98,4 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   - Warranty: what does HMP promise? Practice Door (live, from v11) says "we're still here for the warranty next year" and
     "companies that show up after a storm and then disappear": soften both until the boss answers (flagged 2026-09-28).
   - Does HMP offer payment plans / financing? Until yes, the Practice Door never mentions it (v12 "let me think" card).
+- 2026-09-29 (open, ask in the morning): "score every call" = (a) after a real door or phone talk, you say what happened and Aldaba scores it like the Practice Door (steps hit, legal lines, one tip), or (b) every lead on the call list gets a score for how likely it is to become a job? King's pick: (a).

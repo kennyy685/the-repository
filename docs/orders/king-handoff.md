@@ -28,6 +28,9 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 - LESSON: QA "sends back" by firing the sender's trigger; builders made with create_session have none, so QA's FAIL
   sat unread. The King must read QA done events and re-dispatch (fresh session) itself.
 - King wakes: own trigger trig_01RB7w run_once_at 12:00Z (7 AM CT); 8 AM permit reminder trig_01DqmD72.
+- 06:51: FilthE "stay working while i sleep". RUNNING too: session_01HKC68ebVCsZSjHwxwYAnXD Engine: night shift
+  (hh.py night + "Since last night" strip on open map). Ask him in the morning: score every call = (a) or (b)
+  (questions-for-filthe.md). Queued: county assessor email draft (Around it). Nightly schedule for night shift = King's call after QA.
 
 ## LIVE (2026-09-29)
 - AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
