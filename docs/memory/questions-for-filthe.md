@@ -67,9 +67,9 @@ the boss's plans). Those go on the list below for the boss, asked only when a de
 them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 
 - **Open map "days ago" (2026-09-29):** (1) cards count from today, not the day the data was built: **yes**. (2) What the
-  age line should tell him at the door: **the claim deadline**. Built as the truthful version: "52 days ago. Deadline:
-  Nebraska sets no cutoff in days; policies ask for prompt notice (check the policy)." No countdown: Nebraska's floor is
-  5 years for suits (44-357 + 25-205), so a countdown would be false urgency.
+  age line should tell him at the door: **the claim deadline**. Built as (King + QA, 2026-09-29, no legal claim on screen): "52 days ago. Time limits to file are in the
+  customer's policy; ask them to check it." / "Hace 52 días. Los plazos para reportar están en la póliza del cliente;
+  que la revise." No countdown or "Deadline" badge at any age (the 5-year suit floor stays a code comment only).
 
 ## Open, for FilthE (asked 2026-09-28)
 - Say "publish Practice Door" (v12 = v11's 20-day plan and 15 objections EN/ES, plus the rest of the sale: 10 new
