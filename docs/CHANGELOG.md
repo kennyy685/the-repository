@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Storm stacking + roof-age band - 2026-09-29 (live: open map + Knock preview, 2026-09-29)
+- A zone or house hit by hail again and again now ranks a bit higher (x1.15 for 2 hail days since 2024, x1.3 for 3+, capped) and says so in one line: "Hail here 4 times since 2024". Real public reports (NWS, SPC, NOAA) within 5 km; 2024-2025 history pulled by the new `hh.py stack-history`.
+- Knock screen: the roof tile now flags the roof age: young, prime (8-14 yrs) or "check the policy first" (15+), always marked an estimate; old houses say "roof age unknown". Each knock saves the repeat-hail count and roof band so Aldaba can learn which ones lead to a yes.
+- Engine: today's walk and zone walks use the same bump (no data files = no change); hud.json and the 6:54 AM Storm Watch are untouched.
+
 ## Open map v5 "Real storms" - 2026-09-29 (live: open map Version 5, 2026-09-29)
 - The map now shows the real 2026 hail season: 57 zones from 17 storm days around Fremont, Omaha and Lincoln (plus 141 more in Eastern Nebraska, off this map). Default view is the whole season since Mar 1.
 - The 7 AM home picks Aldaba's top 3 from real storms (Malcolm #1 today), each with its storm date and one-line reason; "Start knocking" opens the Knock page.
