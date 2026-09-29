@@ -27,7 +27,7 @@
   --bad:#ff5d64; --bad-bg:rgba(255,93,100,.12); --info:#8fb3ff; --info-bg:rgba(143,179,255,.12);
   /* map: read by the canvas at runtime (A.world re-reads them on theme change) */
   --map-land:#07080a; --map-water:#0e1a23; --map-water-line:#1d3445; --map-water-label:#5d7f95;
-  --map-stream:#15283a; --map-river:#26485f; --map-town:rgba(241,242,244,.028); --map-town-line:#23252a;
+  --map-stream:#15283a; --map-river:#26485f; --map-town:rgba(241,242,244,.038); --map-town-line:#23252a;
   --map-county:#2c2e34; --map-grid:#24262b; --map-rail:#34373e; --map-street:#1e2126; --map-street-2:#2c3037; --map-art:#30343b;
   --map-hwy:#50555f; --map-label:#80838b; --map-label-2:#d4d6db; --map-halo:#07080a; --map-beam:#c9ccd2;
   --shadow:rgba(0,0,0,.6);

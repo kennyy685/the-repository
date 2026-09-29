@@ -19,7 +19,7 @@
           <h1 class="t-title">${A.L(H.length + ' sample doors', H.length + ' puertas de muestra')}</h1>
           <p class="t-body">${A.L('Park at ' + A.esc((w.pn || []).join(' & ')) + '. The builder adds the route and one tap per door.', 'Estaciónate en ' + A.esc((w.pn || []).join(' y ')) + '. Quien construya esta vista agrega la ruta y un toque por puerta.')}</p></div>`, 'pane');
       ctx.el('left', `<div class="rows rows--lined">${rows}</div>`, 'pane pane--tight');
-      H.forEach((h) => ctx.pin('door-' + h.rank, h.p, A.h(`<div class="mk-door${h.rank <= 5 ? ' mk-door--hot' : ''}">${h.rank}</div>`)));
+      H.forEach((h) => ctx.pin('door-' + h.rank, h.p, A.h(`<div class="mk-door${h.rank <= 5 ? ' mk-door--hot' : ''}">${h.rank}</div>`), { minZoom: 14.5 }));
     }
   });
 })();

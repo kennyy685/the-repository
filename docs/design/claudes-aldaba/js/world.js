@@ -489,7 +489,12 @@
       ctx.stroke(); ctx.globalAlpha = 1;
     }
     // streets fade in as you zoom
-    if (z > 9.2) { ctx.globalAlpha = 0.25 + 0.75 * sm(z, 9.2, 12.6); ctx.strokeStyle = z > 15 ? pal.street2 : pal.street; ctx.lineWidth = px * strokeW(z, z < 11 ? 0.5 : 0.55); draw('street'); }
+    if (z > 8.8) {
+      // far out, a town's real street grid reads as texture; close in, as streets
+      const far = 1 - sm(z, 11.5, 12.8);
+      ctx.globalAlpha = far > 0.5 ? 0.3 + 0.35 * sm(z, 8.8, 10.2) : 0.35 + 0.65 * sm(z, 11.5, 12.8);
+      ctx.strokeStyle = far > 0.5 || z > 15 ? pal.street2 : pal.street; ctx.lineWidth = px * strokeW(z, 0.55); draw('street');
+    }
     if (z > 8.8) {
       ctx.globalAlpha = 0.35 + 0.65 * sm(z, 8.8, 11); ctx.strokeStyle = pal.art;
       ctx.lineWidth = px * strokeW(z, 0.7); draw('art1');
@@ -513,6 +518,7 @@
     if (halo !== false) { ctx.lineJoin = 'round'; ctx.lineWidth = 3.2; ctx.strokeStyle = pal.halo; ctx.strokeText(s, x, y); }
     ctx.fillStyle = color; ctx.fillText(s, x, y);
   }
+  const RIVER_ES = { 'Missouri River': 'Río Misuri', 'Platte River': 'Río Platte', 'Elkhorn River': 'Río Elkhorn', 'Loup River': 'Río Loup' };
   function upright(a) { if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI; return a; }
   function drawLabels(ctx, f) {
     const z = f.zoom, la = 1 - dimCur * 0.6, boxes = [];
@@ -549,7 +555,7 @@
       for (const r of LBL.rivers) {
         const q = f.projectW(r.w[0], r.w[1]); if (!vis(q, -30)) continue;
         if (placed.some((p) => p.n === r.n && Math.hypot(p.q[0] - q[0], p.q[1] - q[1]) < 380)) continue;
-        const font = 'italic 500 11px ' + FUI, s = r.n, w = measure(ctx, font, s, '0.3px');
+        const font = 'italic 500 11px ' + FUI, s = A.lang === 'es' ? RIVER_ES[r.n] || r.n : r.n, w = measure(ctx, font, s, '0.3px');
         const ang = upright(Math.atan2(r.d[1], r.d[0])), c = Math.abs(Math.cos(ang)), sn = Math.abs(Math.sin(ang));
         const bw = w * c + 12 * sn, bh = w * sn + 12 * c;
         if (!tryBox(boxes, [q[0] - bw / 2, q[1] - bh / 2, q[0] + bw / 2, q[1] + bh / 2])) continue;
@@ -849,7 +855,7 @@
   const HF = { ready: false, data: null, nx: 0, ny: 0, x0: 0, y0: 0, x1: 0, y1: 0 };
   function buildHail() {
     const a = toW(BBOX[0] - 0.12, BBOX[3] + 0.12), b = toW(BBOX[2] + 0.12, BBOX[1] - 0.12);
-    const nx = 560, ny = Math.round((nx * (b[1] - a[1])) / (b[0] - a[0]));
+    const nx = 640, ny = Math.round((nx * (b[1] - a[1])) / (b[0] - a[0]));
     const cw = (b[0] - a[0]) / nx, ch = (b[1] - a[1]) / ny, data = new Float32Array(nx * ny);
     const cell = (x, y) => [Math.floor((x - a[0]) / cw), Math.floor((y - a[1]) / ch)];
     for (const ar of N.areas || []) {
@@ -912,13 +918,26 @@
     '#version 300 es', 'precision highp float;', 'in vec2 v_w;', 'out vec4 o;',
     'uniform sampler2D u_f; uniform vec4 u_fb; uniform float u_mul, u_alpha, u_sweep, u_on, u_light, u_zf;',
     'uniform vec2 u_radar; uniform vec3 u_h1, u_h15, u_h2, u_beam;',
+    'uniform vec2 u_ts;',
+    // B-spline bicubic from 4 bilinear taps (GPU Gems 2, ch. 20): smooth isolines at any zoom
+    'vec4 cubic(float v){ vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v; vec4 s = n * n * n; float x = s.x; float y = s.y - 4.0 * s.x; float z = s.z - 4.0 * s.y + 6.0 * s.x; return vec4(x, y, z, 6.0 - x - y - z) * (1.0 / 6.0); }',
+    'float bicubic(vec2 uv){',
+    '  vec2 tc = uv * u_ts - 0.5; vec2 fxy = fract(tc); tc -= fxy;',
+    '  vec4 xc = cubic(fxy.x), yc = cubic(fxy.y);',
+    '  vec4 c = tc.xxyy + vec2(-0.5, 1.5).xyxy;',
+    '  vec4 s = vec4(xc.xz + xc.yw, yc.xz + yc.yw);',
+    '  vec4 o = (c + vec4(xc.yw, yc.yw) / s) / u_ts.xxyy;',
+    '  float a0 = texture(u_f, o.xz).r, a1 = texture(u_f, o.yz).r, a2 = texture(u_f, o.xw).r, a3 = texture(u_f, o.yw).r;',
+    '  float sx = s.x / (s.x + s.y), sy = s.z / (s.z + s.w);',
+    '  return mix(mix(a3, a2, sx), mix(a1, a0, sx), sy);',
+    '}',
     'void main(){',
     '  vec2 uv = (v_w - u_fb.xy) / (u_fb.zw - u_fb.xy);',
     '  float inb = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);',
-    '  float v = texture(u_f, uv).r * u_mul * inb;',
+    '  float v = bicubic(uv) * u_mul * inb;',
     '  vec3 c = mix(u_h1, u_h15, smoothstep(1.1, 1.55, v)); c = mix(c, u_h2, smoothstep(1.7, 2.25, v));',
     '  float heat = smoothstep(0.62, 1.2, v) * (0.07 + 0.15 * smoothstep(1.0, 2.4, v)) * u_zf;',
-    '  float q = v * 4.0; float fw = max(fwidth(q), 1e-4);',
+    '  float q = (v - 0.125) * 4.0; float fw = max(fwidth(q), 1e-4);', // isolines between the quarter-inch plateaus
     '  float iso = 1.0 - smoothstep(0.35, 1.25, abs(fract(q + 0.5) - 0.5) / fw);',
     '  float major = 1.0 - mod(floor(q + 0.5), 2.0);',
     '  iso *= smoothstep(0.62, 0.9, v) * mix(0.2, 0.5, major);',
@@ -946,7 +965,7 @@
         gl.useProgram(R.prog.p);
         const rc = X.radar && X.radar.c ? toW(X.radar.c[0], X.radar.c[1]) : [0, 0];
         glx.uniforms(R.prog, {
-          u_inv: f.inv, u_f: { tex: R.tex.tex, unit: 0 }, u_fb: [HF.x0, HF.y0, HF.x1, HF.y1], u_mul: R.tex.mul, u_alpha: f.alpha,
+          u_inv: f.inv, u_f: { tex: R.tex.tex, unit: 0 }, u_fb: [HF.x0, HF.y0, HF.x1, HF.y1], u_mul: R.tex.mul, u_ts: [HF.nx, HF.ny], u_alpha: f.alpha,
           u_sweep: f.sweep == null ? sweepA : f.sweep, u_on: ambientOn && !A.still ? 1 : 0, u_light: pal.light ? 1 : 0,
           u_zf: 1 - 0.88 * sm(f.zoom, 12.2, 15), u_radar: rc, u_h1: pal.rgb.h1, u_h15: pal.rgb.h15, u_h2: pal.rgb.h2, u_beam: pal.rgb.beam
         });

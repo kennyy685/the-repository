@@ -61,6 +61,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
   var THEME = Q.get('theme') === 'light' ? 'light' : 'dark';
   var SYNC = Q.get('sync') === '1';
   var NSTONES = Q.has('n') ? parseInt(Q.get('n'), 10) : 5000;
+  var ONLY = Q.get('only'); // perf breakdown: field | hail | rings | none
   if (THEME === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
   var NL = window.NL, HailGL = window.HailGL;
@@ -89,7 +90,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
   /* ---------- canvases */
   var base = document.getElementById('base'), glc = document.getElementById('gl');
   var bctx = base.getContext('2d');
-  var kit = HailGL.create(glc, { theme: THEME });
+  var kit = HailGL.create(glc, { theme: THEME, webgl: Q.has('webgl') ? parseInt(Q.get('webgl'), 10) : undefined });
   var W = 0, H = 0, DPR = 1, cam = { cx: 0, cy: 0, k: 1 }, M = new Float32Array(9);
 
   function layout() {
@@ -191,7 +192,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
   var REPLAY = 9, PERIOD = 12.5;
   if (MODE === 'replay') {
     kit.hail.spawn({ count: NSTONES, sampler: HailGL.sampler(field, { min: 0.55 }), dur: REPLAY, lag: 0.03,
-      fall: { height: 0.2, speed: 0.26 } });
+      fall: { height: 0.17, speed: 0.22 } });
   } else if (MODE === 'hail') {
     kit.hail.spawn({ count: Q.has('n') ? NSTONES : 1400, sampler: HailGL.sampler(field, { min: 0.6, size: [0.5, 1.02] }), loop: 3.2,
       fall: { height: 0.24, speed: 0.3 } });
@@ -239,23 +240,23 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
     if (MODE === 'replay') {
       var local = t % PERIOD, r = ease(local / REPLAY);
       FO.reveal = r; HO.t = local; RO.t = local;
-      kit.field.draw(M, FO);
-      kit.hail.draw(M, HO);
-      schedule(local, 0.55, 1.8, function (tk) {
+      if (!ONLY || ONLY === 'field') kit.field.draw(M, FO);
+      if (!ONLY || ONLY === 'hail') kit.hail.draw(M, HO);
+      schedule(local, 0.7, 2.2, function (tk) {
         if (tk > REPLAY) return;
-        var p = HailGL.frontAt(field, ease(tk / REPLAY), aug.id, FRONT); kit.rings.add(p[0], p[1], { t0: tk, size: 120, life: 1.8, color: '#ffe2b8', width: 1.2, alpha: 0.85 });
+        var p = HailGL.frontAt(field, ease(tk / REPLAY), aug.id, FRONT); kit.rings.add(p[0], p[1], { t0: tk, size: 150, life: 2.2, color: '#bfe0ff', width: 1.8, alpha: 1 });
       });
-      kit.rings.draw(M, RO);
+      if (!ONLY || ONLY === 'rings') kit.rings.draw(M, RO);
       setClock(r);
     } else if (MODE === 'season') {
       FO.reveal = Math.min(1.1, (t % 14) / 12);
-      kit.field.draw(M, FO);
+      if (!ONLY || ONLY === 'field') kit.field.draw(M, FO);
     } else {
       FO.reveal = undefined;
-      kit.field.draw(M, FO);
-      if (MODE === 'hail') kit.hail.draw(M, HO);
+      if (!ONLY || ONLY === 'field') kit.field.draw(M, FO);
+      if (MODE === 'hail' && (!ONLY || ONLY === 'hail')) kit.hail.draw(M, HO);
       schedule(t, 1.5, 2.4, function (tk) { kit.rings.add(pickW[0], pickW[1], { t0: tk, size: MODE === 'hail' ? 110 : 46, life: 2.4 }); });
-      kit.rings.draw(M, RO);
+      if (!ONLY || ONLY === 'rings') kit.rings.draw(M, RO);
     }
     if (SYNC && gl) { gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pix); }
     var c1 = performance.now();

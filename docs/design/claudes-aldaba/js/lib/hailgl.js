@@ -535,6 +535,9 @@
     '  return clamp(0.5 * wpx - d + 0.5, 0.0, 1.0) * (1.0 - smoothstep(crowd * 0.5, crowd, df));',
     '}',
     'void main() {',
+    '  vec4 raw = texture2D(uTex, vUV);',
+    // cheap early-out for empty sky: far from any swath (no value, no glow) -> skip the 8 bicubic taps
+    '  if (raw.a < 0.012 && dec(raw) < 0.25 && uGhost <= 0.0) discard;',
     '  vec4 s = cubic(uTex, vUV);',
     // relief in screen space: texel gradient pushed through the pixel Jacobian, so it scales with zoom and rotation
     '  vec2 gt = (cubic(uNrm, vUV).xy * 2.0 - 1.0) * uGScale;',
@@ -547,7 +550,7 @@
     '  float spec = pow(max(dot(nn, hv), 0.0), 36.0) * smoothstep(0.02, 0.35, length(gr));',
     '  float v = dec(s);',
     '  float arr = s.b;',
-    '  float gv = texture2D(uTex, vUV).a * 3.0;',
+    '  float gv = raw.a * 3.0;',
     '  vec2 e2 = min(vUV, 1.0 - vUV);',
     '  float edge = smoothstep(0.0, 0.03, min(e2.x, e2.y));',
     '  float age = uReveal - arr;',
@@ -681,7 +684,7 @@
     '  gl_Position = vec4(hglProj(uM, aA.xy) + vQ * uPx, 0.0, 1.0);',
     '  float ringA = p < 1.0 ? pow(1.0 - p, 1.8) * (0.3 + 0.22 * aB.x) : 0.0;',
     '  vR = vec4(rad, (0.7 + 0.25 * aA.z) * uDpr, ringA * uAlpha, exp(-since * 16.0) * uAlpha);',
-    '  vC = vec4(hglRamp(aA.z, uStops, uGold, uOrange, uRed), (1.0 - smoothstep(0.0, uResidue, since)) * 0.38 * uAlpha * smoothstep(0.0, 0.12, since));',
+    '  vC = vec4(hglRamp(aA.z, uStops, uGold, uOrange, uRed), (1.0 - smoothstep(0.0, uResidue, since)) * 0.3 * uAlpha * smoothstep(0.0, 0.12, since));',
     '  vE = 0.0;',
     '}'].join('\n');
 
@@ -725,7 +728,7 @@
     '  float echo = (1.0 - smoothstep(hw - 0.55, hw + 0.75, abs(d - vR.x * 0.64))) * 0.42 * vE;',
     '  float ra = (ring + echo) * vR.z;',
     '  float fl = exp(-d * d / (5.0 * uDpr * uDpr)) * vR.w;',
-    '  float res = (1.0 - smoothstep(0.9 * uDpr, 1.9 * uDpr, d)) * vC.a;',
+    '  float res = (1.0 - smoothstep(0.55 * uDpr, 1.35 * uDpr, d)) * vC.a;',
     '  vec3 C = vC.rgb * ra + vec3(1.0, 0.98, 0.95) * (fl + res * 0.85);',
     '  float A = clamp(ra * 0.85 + fl * 0.4 + res, 0.0, 1.0);',
     '  if (A + fl < 0.002) discard;',
@@ -746,6 +749,7 @@
 
   function makeGLKit(target, opts) {
     var canvas, gl;
+    if (opts.webgl === 0) throw new Error('WebGL off by option');
     if (isCanvas(target)) {
       canvas = target;
       var attrs = { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false,
