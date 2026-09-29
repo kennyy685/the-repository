@@ -1697,7 +1697,7 @@ const soft = n => ({set html(v){ setHTML(n, v); }});
 const prOn = () => !!(window.HMPPractice && window.HMPPractice.isOn());   // T201: Practice mode (v25/practice.js) sends save() nowhere
 const OB_KEY = 'hmp-app-outbox';
 let outbox = [], obStored = true, flushing = false, flushT = 0, flushAt = 0, flushAgain = false, backoff = 4000, syncOkT = 0;
-try { const s = JSON.parse(localStorage.getItem(OB_KEY) || '[]'); if (Array.isArray(s)) outbox = s.filter(o => o && o.op && o.path); } catch (e) { outbox = []; }
+try { const s = JSON.parse(localStorage.getItem(OB_KEY) || '[]'); if (Array.isArray(s)) outbox = s.filter(o => o && o.op && o.path).map(o => { delete o.direct; delete o.inflight; return o; }); } catch (e) { outbox = []; }
 function obSave(){ try { localStorage.setItem(OB_KEY, JSON.stringify(outbox)); obStored = true; } catch (e) { obStored = false; } renderSync(); }
 const WRITE_MS = 10000, USE_MS = 12000, SAMPLE_MS = 120000, UPLOAD_MS = 90000;
 // every runtime call gets a deadline, so a runtime that never answers can't hold a button, a box or a load forever
@@ -1753,8 +1753,14 @@ async function save(o){   // one write; it throws only when the database refuses
   o.id = o.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)); o.queuedAt = o.queuedAt || nowIso();
   if (prOn()) { window.HMPPractice.put(o); applyOverlay(); return 'saved'; }   // T201 Practice mode: this phone's memory only, never the database
   if (dbOps().length || !DB) { enqueue(o); flushSoon(DB ? 0 : null); return 'queued'; }   // stay in order behind older waiting writes
-  try { await rawWrite(o); return 'saved'; }
-  catch (e) { if (refused(e)) throw e; enqueue(o); flushSoon(); return 'queued'; }
+  // E2E 2026-09-29 write-ahead: the write sits in the stored outbox while it's on its way, so a reload, a closed tab or a
+  // killed app mid-write (a slow signal: seconds) replays it on the next open instead of losing the tap. Replays are safe:
+  // set / update / delete land the same twice, and a stat write skips an op id it already counted.
+  // It also shows at once (the overlay), so a Done or a tick never looks dead while a slow write is on its way.
+  o.direct = true; outbox.push(o); obSave(); applyOverlay();
+  const done = () => { outbox = outbox.filter(x => x !== o); obSave(); applyOverlay(); if (outbox.length) flushSoon(0); };
+  try { await rawWrite(o); done(); return 'saved'; }
+  catch (e) { done(); delete o.direct; if (refused(e)) throw e; enqueue(o); flushSoon(); return 'queued'; }
 }
 /* T163 bad signal: ONE retry scheduler. An armed retry is never lost or pushed later: a call that wants a later time keeps the
    sooner one; a flush asked for while one is running runs again right after it (flushAgain), and it drains writes queued
@@ -1769,6 +1775,7 @@ async function flush(){
   flushAgain = false;
   if (!outbox.length) { renderSync(); return; }
   if (!DB) { flushSoon(); return; }
+  if (outbox.some(o => o.direct)) return;   // a direct save is on its way: it calls the flush when it lands (keeps the order)
   flushing = true; let wrote = 0, failed = false, dropped = 0;
   try {
     for (let o = dbOps()[0]; o; o = dbOps()[0]) {   // the live outbox each time: a tap queued mid-flush goes out in this pass
@@ -1790,7 +1797,7 @@ async function flush(){
 }
 function renderSync(justSaved){
   const chip = $('#syncChip'); if (!chip) return;
-  const n = dbOps().length, k = outbox.length - n, V0 = V();
+  const n = dbOps().filter(o => !o.direct).length, k = outbox.filter(o => o.op === 'king').length, V0 = V();   // a write on its way is not waiting
   clearTimeout(syncOkT);
   if (n || k) { chip.hidden = false; chip.className = 'sync'; chip.textContent = V0.sync(n, k) + (obStored ? '' : V0.syncLocal); chip.title = V0.syncTap; }
   else if (justSaved) { chip.hidden = false; chip.className = 'sync ok'; chip.textContent = V0.synced; chip.title = ''; syncOkT = setTimeout(() => (chip.hidden = true), 3000); }
@@ -5580,7 +5587,7 @@ function revStart(){
     wText: d && d.worked ? strv(d.worked.text) : '', cText: d && d.change ? strv(d.change.text) : '', busy: false, msg: null};
 }
 async function doneAndReview(){
-  if (walkModel() && DB && CAN_EDIT) await doneForToday();
+  if (walkModel() && DB && CAN_EDIT) doneForToday().catch(() => {});   // E2E 2026-09-29: the review opens at once; the day's numbers save behind it (a slow signal held it ~6 s)
   revStart(); openSheet('rev:', null);
 }
 function renderReview(){

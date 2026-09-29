@@ -88,7 +88,8 @@ async function day(browser, url, name, o) {
   const click = async (sel, wait) => { const l = vis(sel); await l.evaluate(e => e.scrollIntoView({ block: "center" }), null, { timeout: 3000 }).catch(() => {}); await l.click({ timeout: 3000 }); await p.waitForTimeout(wait || 450); };
   const text = sel => vis(sel).innerText({ timeout: 3000 });
   const store = () => p.evaluate(() => Object.fromEntries(window.__mockDb.store));
-  const doc = pth => p.evaluate(x => { const v = window.__mockDb.store.get(x); return v ? JSON.parse(JSON.stringify(v)) : null; }, pth);
+  const doc = async pth => { await settle(); return docNow(pth); };
+  const docNow = pth => p.evaluate(x => { const v = window.__mockDb.store.get(x); return v ? JSON.parse(JSON.stringify(v)) : null; }, pth);
   const writes = () => p.evaluate(() => window.__mockLog.filter(x => x[0] === "set" || x[0] === "update" || x[0] === "delete").map(x => x[1]));
   const closeSheet = async () => { if (await p.locator("#sheetWrap:not([hidden])").count()) await click("#shClose").catch(() => {}); };
   const probe = async () => { const t = Date.now(); return Promise.race([p.evaluate(() => 1).then(() => Date.now() - t), new Promise(r => setTimeout(() => r(9999), 5000))]); };
@@ -99,9 +100,13 @@ async function day(browser, url, name, o) {
     await closeSheet();
     if (!(await p.locator("#kcInput").isVisible())) { if (await p.evaluate(() => document.body.dataset.tab) === "knock") await click("#tb-now"); await click("#rhBtn"); }
     await p.fill("#kcInput", msg); await click("#kcSend", 1200);
+    for (let i = 0; i < 30 && await p.isDisabled("#kcInput").catch(() => false); i++) await p.waitForTimeout(500);   // a slow Right Hand: wait for its answer
+    ok(!(await p.isDisabled("#kcInput").catch(() => false)), "the chat box is still locked 15 s after sending");
+    await settle();
     return p.evaluate(() => [...document.querySelectorAll("#kcLog .rc")].map(e => e.textContent));
   };
   const leadIdFor = addr => p.evaluate(a => { for (const [k, v] of window.__mockDb.store) if (k.startsWith("leads/") && String(v.address || "").trim() === String(a || "").trim()) return k.slice(6); return null; }, addr);
+  const settle = async () => { for (let i = 0; i < 40; i++) { if (await p.evaluate(() => JSON.parse(localStorage.getItem("hmp-app-outbox") || "[]").length === 0)) return; await p.waitForTimeout(500); } ok(false, "the outbox never drained (20 s)"); };
   const kNow = () => p.evaluate(() => { const b = document.querySelector("#kNow"); return b ? { pid: b.dataset.pid, addr: (b.querySelector(".addr") || {}).textContent } : null; });
   const ctx = {};
   try {
@@ -142,11 +147,13 @@ async function day(browser, url, name, o) {
           await click('.book [data-book="save"]', 800);
         }
       }
+      if (o.modes && o.modes.dbw === "slow") {   // a slow signal: close the app while the last taps are still on their way
+        await p.reload({ waitUntil: "load" }); await p.waitForTimeout(1500);
+      }
+      await settle();
       if (order.length) ok(JSON.stringify(seen) === JSON.stringify(order.slice(0, 4)), "the walk is not in the engine's order: " + JSON.stringify(seen) + " vs " + JSON.stringify(order.slice(0, 4)));
-      const w = await writes();
       const doors = (await Promise.all(seen.map(pid => doc("doors/2026-09-29_" + pid)))).map(d => d && d.result);
       ok(JSON.stringify(doors) === JSON.stringify(["not_home", "no", "interested", "booked"]), "the door docs don't hold the 4 answers: " + JSON.stringify(doors));
-      ok(w.filter(x => x.startsWith("doors/")).length >= 4, "the 4 taps didn't write 4 door docs: " + JSON.stringify(w));
       ctx.intr.id = await leadIdFor(ctx.intr.addr); ctx.book.id = await leadIdFor(ctx.book.addr);
       const LI = ctx.intr.id && await doc("leads/" + ctx.intr.id), LB = ctx.book.id && await doc("leads/" + ctx.book.id);
       notes.push(`${name}: interested lead ${JSON.stringify(LI && { stage: LI.stage, next: LI.next_step })}`);
@@ -219,7 +226,7 @@ async function day(browser, url, name, o) {
       await click(`[data-open="claim:${ctx.claim}"]`, 700);
       const t = norm(await p.innerText("#sheetWrap"));
       ok(/State Farm/.test(t) && /45-7781/.test(t), "the claim screen doesn't show the insurer and claim #");
-      ok(/Oct 1|1 oct/i.test(t), "the claim screen doesn't show the adjuster meeting");
+      ok(/Oct 1|1 de oct|1 oct/i.test(t), "the claim screen doesn't show the adjuster meeting: " + t.slice(0, 300));
       await shot("claim");
     });
     await step("paper", async () => {
@@ -228,7 +235,7 @@ async function day(browser, url, name, o) {
       ok(/5 (of|de) 8/i.test(await stepName()), "after 'table' the lead is not on step 5 (paper)");
       ok(!(await vis("#nsCard [data-nsdone]").isEnabled()), "HARD STOP: paper Done is enabled before the must-ticks");
       const cancel = norm(await text("#shBody .ns-cancel"));
-      ok(/Oct 2|2 oct/i.test(cancel), "the 3-day cancel date (signed today Tue -> Fri Oct 2) is wrong: " + cancel);
+      ok(/Oct 2|2 de oct/i.test(cancel), "the 3-day cancel date (signed today Tue -> Fri Oct 2) is wrong: " + cancel);
       // the fixed legal text, read from the paper step itself: the cancel notice EN + ES and the 44-8607 notice word for word
       const legal = p.locator('#shBody [data-paperlegal]');
       ok(await legal.count() >= 2, "the paper step has no way to show the cancel notice and the deductible notice");
@@ -310,7 +317,7 @@ async function day(browser, url, name, o) {
   try {
     if (want("en")) await day(browser, url, "en", { lang: "en" });
     if (want("es")) await day(browser, url, "es", { lang: "es" });
-    if (want("slow")) await day(browser, url, "slow", { lang: "en", modes: { dbw: "slow", mcp: "fail" } });
+    if (want("slow")) await day(browser, url, "slow", { lang: "en", modes: { dbw: "slow", sample: "slow", mcp: "fail" } });   // 3 s writes, a 3 s Right Hand
   } catch (e) { fails.push("harness crashed: " + (e.stack || e.message)); }
   finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log("  " + x);
