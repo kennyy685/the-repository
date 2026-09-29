@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## Night shift real - 2026-09-29 (open map: QA pending, then republished)
+- "Since last night" now shows the REAL brief: last night's real storm reports, the engine's real walks, real streets. Aldaba's pick is always a storm walk (tonight: Columbus, 1.6" hail Aug 8, 25 doors); an older-homes area is only ever the backup, and when no storm walk has doors left it says so and names the backup. The map names the start street, never a house number.
+- One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
+- SAMPLE tag only on the samples, which moved under Preview (Last night / Quiet night / Storm night). A failed storm update says so on the strip. The open map is now in the design gate (night strip, 1440 dark + light) and has its own page check.
+
 ## Night shift "Since last night" - 2026-09-29 (live: open map Version 8; QA PASS)
 - While you sleep, Aldaba gets your morning ready: the open map's 7 AM home now opens with "Since last night": new hail by town and size, zones that moved up or down, walks that changed (doors knocked), and a plain line like "No new hail since last night; best zone is still Malcolm." Tap any chip to fly there. Your top 3 show "↑ from #5" when a zone climbed overnight.
 - Engine `hailhunter/night.py` + `hh.py night`: refresh, re-rank, then one small brief (Aldaba's pick + where to start the walk + door count + why + a backup zone), keeping last night's for the diff. The page runs on SAMPLE briefs (a quiet night, and a replay of the real Sep 13 storm night; switch under Preview). hud.json and Storm Watch untouched; nothing is scheduled yet (the King decides).
