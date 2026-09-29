@@ -141,6 +141,13 @@ class NightBrief(unittest.TestCase):
         self.assertIn("antes Somewhere Else", d["headline"]["es"])
         self.assertTrue(d["quiet"])                            # moves alone are not new hail
 
+    def test_one_place_shuffle_is_not_a_move(self):
+        prev = self.run_brief(self.hud)
+        prev = copy.deepcopy(prev)
+        prev["zones"][0]["rank"], prev["zones"][1]["rank"] = 2, 1
+        d = self.run_brief(self.hud, prev)
+        self.assertEqual(d["zones_up"] + d["zones_down"], [])
+
     def test_new_zone_and_knocked_doors_from_results(self):
         prev = self.run_brief(self.hud)
         prev["zones"] = prev["zones"][:1]
@@ -193,6 +200,7 @@ class NightCli(unittest.TestCase):
 
 class OpenMapSample(unittest.TestCase):
     """docs/design/open-map/data/night.js: the sample briefs the open map shows, in the engine's exact shape."""
+    @unittest.skipUnless(os.path.exists(SAMPLE), "design files are not in the cloud bundle")
     def test_sample_matches_the_engine_shape(self):
         with open(SAMPLE, encoding="utf-8") as f:
             text = f.read()

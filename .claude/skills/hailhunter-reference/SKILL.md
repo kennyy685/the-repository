@@ -117,6 +117,22 @@ ARE available in the cloud runner; only openpyxl and flask are missing.
   file per app doc, named by doc path with "/" -> "__": `today__walk.json`, `calls__today.json`, `zones__current.json`,
   `walks__<zone id>.json`, `evidence__<slug>.json`, `followups__today.json`, plus `manifest.json` {date, files{doc
   path: file}, skipped[], errors[]}. One part failing never stops the others; exit 1 only if today/walk wasn't written.
+- `python3 hh.py night [--no-refresh] [--out-dir D] [--date D] [--hud f] [--near T] [--radius R] [--top N] [--doors N]
+  [--results f] [--dnk f]`: the night shift (`night.py`): `refresh` (unless --no-refresh; a failed refresh still writes
+  a brief from the last hud.json + `refresh_error`), zones + walks, then ONE small brief `<export>/night/brief.json`
+  (the old one kept as `brief.prev.json`; the diff reads brief.json before replacing it). No trigger schedules it: the
+  King decides. Brief v1: {v, kind "night_brief", date, made_at, since (previous made_at | null), first_run, quiet (no
+  new hail), headline{en,es} ("No new hail since last night; best zone is still X." / "New hail since last night: 1.5″ in
+  Blair... The best zone is now X (was Y)."), new_hail[] {town, state, day, hail_in, dist_mi, zone_id|null} (one per
+  town + day, hud.json storms not in the previous `storm_keys`, >= config `night.min_hail` 0.75 within `max_mi` 150,
+  biggest first, max 8), zones_up/zones_down[] {id, name, rank, was, score} (moved >= `night.min_move` 2 places),
+  zones_new[] {id, name, rank, score}, zones_gone[] {id, name, was}, walks_changed[] {id, name, homes, was} (houses
+  left changed), pick + backup {zone_id, name, kind, score, hail_in, storm_day, dist_mi, doors, start{address, lat,
+  lon}|null, best_time{en,es}|null, why{en,es}, plan{en,es}} (pick = the top walk zone with doors; backup = next zone
+  from another list, else the next zone), none_reason{en,es} (no pick only), zones[] {id, name, rank, score, homes}
+  and storm_keys[] "day|place|state" (both for the next diff)}. First run: no diff (new_hail etc. empty). The open
+  map's "Since last night" strip reads this shape (`docs/design/open-map/data/night.js`, SAMPLE, made by
+  `data/build/night.py` with the same `brief()`).
 - `python3 hh.py tune ...`: T35 learning loop, real door results -> small weight changes (dry run unless `--apply`;
   waits for ~50 doors).
 - `python3 hh.py estimate --json job.json` (or `--footprint 1400 --stories 2`): quick price range from
