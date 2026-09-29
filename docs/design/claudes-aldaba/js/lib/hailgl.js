@@ -168,10 +168,11 @@
       for (i = 0; i < run.length; i++) {
         bx0 = Math.min(bx0, run[i][0]); by0 = Math.min(by0, run[i][1]); bx1 = Math.max(bx1, run[i][0]); by1 = Math.max(by1, run[i][1]);
       }
-      if (run.length === 1) { segs.push({ ax: run[0][0], ay: run[0][1], dx: 0, dy: 0, len: 0, s0: L, first: true, last: true }); continue; }
+      if (run.length === 1) { segs.push({ ax: run[0][0], ay: run[0][1], dx: 0, dy: 0, len: 0, s0: L, first: true, last: true, x0: run[0][0], y0: run[0][1], x1: run[0][0], y1: run[0][1] }); continue; }
       for (i = 0; i < run.length - 1; i++) {
         var ax = run[i][0], ay = run[i][1], dx = run[i + 1][0] - ax, dy = run[i + 1][1] - ay, len = Math.hypot(dx, dy);
-        segs.push({ ax: ax, ay: ay, dx: dx, dy: dy, len: len, s0: L, first: i === 0, last: i === run.length - 2 });
+        segs.push({ ax: ax, ay: ay, dx: dx, dy: dy, len: len, s0: L, first: i === 0, last: i === run.length - 2,
+          x0: Math.min(ax, ax + dx), y0: Math.min(ay, ay + dy), x1: Math.max(ax, ax + dx), y1: Math.max(ay, ay + dy) });
         L += len;
       }
     }
@@ -196,8 +197,12 @@
     SD[k] = Math.sqrt(d2); SS[k] = s;
   }
   function stormEval(g, px, py) {
-    var segs = g.segs, n = Math.min(segs.length, 256), dmin = 1e18, k;
-    for (k = 0; k < n; k++) { segDist(segs[k], px, py, k); if (SD[k] < dmin) dmin = SD[k]; }
+    var segs = g.segs, n = Math.min(segs.length, 256), dmin = 1e18, k, R = g.reach;
+    for (k = 0; k < n; k++) {
+      var sg = segs[k];
+      if (px < sg.x0 - R || px > sg.x1 + R || py < sg.y0 - R || py > sg.y1 + R) { SD[k] = 1e18; continue; }
+      segDist(sg, px, py, k); if (SD[k] < dmin) dmin = SD[k];
+    }
     EV.d = dmin; EV.v = 0; EV.a = 0;
     if (dmin > g.reach) return EV;
     var lim = dmin + 1.25 * g.halfW, best = -1;
@@ -273,15 +278,33 @@
     var n = w * h, data = new Float32Array(n), arrival = new Float32Array(n);
     var tmp = new Float32Array(n), tmpA = new Float32Array(n);
     var txm = spanX / w * mpu, tym = spanY / h * mpu, gx0 = x0 * mpu, gy0 = y0 * mpu; // texel size + origin in miles
-    // shared domain warp + fine amplitude noise, world-anchored so separate builds line up
+    // shared domain warp + fine amplitude noise on a 0.5 mi lattice anchored in world miles (separate builds line
+    // up), bilinearly interpolated per texel: the noise is low frequency, so this is exact enough and ~10x cheaper
     var WX = new Float32Array(n), WY = new Float32Array(n), AN = new Float32Array(n), have = new Uint8Array(n);
-    function warpAt(i, px, py) {
-      if (!have[i]) {
-        WX[i] = 1.35 * fbm(px / 7.5 + 11.3, py / 7.5 - 4.1);
-        WY[i] = 1.35 * fbm(px / 7.5 - 21.7, py / 7.5 + 8.9);
-        AN[i] = fbm(px / 2.6 + 3.1, py / 2.6 + 5.3);
-        have[i] = 1;
+    var LS = 0.5, lx0 = Math.floor(gx0 / LS) - 1, ly0 = Math.floor(gy0 / LS) - 1;
+    var lw = Math.ceil((gx0 + spanX * mpu) / LS) - lx0 + 3, lh = Math.ceil((gy0 + spanY * mpu) / LS) - ly0 + 3;
+    var LX = new Float32Array(lw * lh), LY = new Float32Array(lw * lh), LA = new Float32Array(lw * lh), lhave = new Uint8Array(lw * lh);
+    function lat(ix, iy) {
+      var j = iy * lw + ix;
+      if (!lhave[j]) {
+        var qx = (ix + lx0) * LS, qy = (iy + ly0) * LS;
+        LX[j] = 1.35 * fbm(qx / 7.5 + 11.3, qy / 7.5 - 4.1);
+        LY[j] = 1.35 * fbm(qx / 7.5 - 21.7, qy / 7.5 + 8.9);
+        LA[j] = fbm(qx / 2.6 + 3.1, qy / 2.6 + 5.3);
+        lhave[j] = 1;
       }
+      return j;
+    }
+    function warpAt(i, px, py) {
+      if (have[i]) return;
+      var fx = px / LS - lx0, fy = py / LS - ly0, ix = Math.floor(fx), iy = Math.floor(fy);
+      fx -= ix; fy -= iy;
+      var a = lat(ix, iy), b = lat(ix + 1, iy), c = lat(ix, iy + 1), d = lat(ix + 1, iy + 1);
+      var w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+      WX[i] = LX[a] * w00 + LX[b] * w10 + LX[c] * w01 + LX[d] * w11;
+      WY[i] = LY[a] * w00 + LY[b] * w10 + LY[c] * w01 + LY[d] * w11;
+      AN[i] = LA[a] * w00 + LA[b] * w10 + LA[c] * w01 + LA[d] * w11;
+      have[i] = 1;
     }
     var splitMi = num(o.splitMi, 40), seasonal = o.arrival === 'season';
     var order = storms.map(function (s, i) { return { i: i, d: String(s.date || '') }; })
@@ -427,16 +450,19 @@
       out[i * 4 + 3] = Math.round(clamp(g[i] / 3, 0, 1) * 255);
     }
     // relief: central-difference gradient, normalized by the 95th percentile slope so any world units light the same
-    var gx = new Float32Array(n), gy = new Float32Array(n), mags = [], x, y;
+    var gx = new Float32Array(n), gy = new Float32Array(n), x, y, gmx = 1e-9, cnt = 0;
     for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
       i = y * w + x;
       var ax = d[y * w + Math.min(x + 1, w - 1)] - d[y * w + Math.max(x - 1, 0)];
       var ay = d[Math.min(y + 1, h - 1) * w + x] - d[Math.max(y - 1, 0) * w + x];
       gx[i] = ax * 0.5; gy[i] = ay * 0.5;
-      if (d[i] > 0.4 && (i & 3) === 0) mags.push(Math.sqrt(ax * ax + ay * ay) * 0.5);
+      if (d[i] > 0.4) { var mg = Math.sqrt(ax * ax + ay * ay) * 0.5; if (mg > gmx) gmx = mg; cnt++; }
     }
-    mags.sort(function (a, b) { return a - b; });
-    var gmax = mags.length ? Math.max(mags[Math.floor(mags.length * 0.95)], 1e-6) : 1;
+    var hist = new Uint32Array(512), gmax = 1;
+    if (cnt) {
+      for (i = 0; i < n; i++) if (d[i] > 0.4) hist[Math.min(511, Math.floor(Math.sqrt(gx[i] * gx[i] + gy[i] * gy[i]) / gmx * 511))]++;
+      for (var acc = 0, b = 0; b < 512; b++) { acc += hist[b]; if (acc >= cnt * 0.95) { gmax = Math.max((b + 1) / 511 * gmx, 1e-6); break; } }
+    }
     var nrm = new Uint8Array(n * 4), k2 = 0.5 / (1.6 * gmax);
     for (i = 0; i < n; i++) {
       nrm[i * 4] = Math.round(clamp(0.5 + gx[i] * k2, 0, 1) * 255);
