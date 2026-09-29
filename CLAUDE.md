@@ -132,6 +132,8 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   Claude session (`create_session`, title "<Robot>: <job>", work branch), it reports on the hub board and archives
   when done; the King checks it with `get_session` and archives it if it forgot. In-chat Agent helpers only for tiny
   checks. Still max 2 at a time.
+- **Ultracode for Hub + App work (FilthE, 2026-09-29):** every robot session that works on the hub, the app or
+  anything for the app gets the word "ultracode" in its job prompt (multi-agent build + verify). Chores/research don't.
 - **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
   the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
   reminds once if any are unposted. The King still posts its own review of each result.
