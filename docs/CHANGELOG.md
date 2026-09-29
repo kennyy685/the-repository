@@ -6,7 +6,7 @@
 ## Open map: top 3 agrees with Aldaba's pick - 2026-09-29 (open map republished; QA PASS, its 3 notes fixed)
 - "Aldaba's top 3" now follows the night brief: #1 = Aldaba's pick, #2 = the backup, then the next storm walk (tonight: Columbus 22 St & 21 St, Omaha older homes, Columbus 36 Ave & 18 St). No more Malcolm on the list while the pick says Columbus.
 - A pick outside the old map box (Columbus) now opens as a real area, and the home view widens to show the pick + backup. The brief carries it (`top` + `map` in `data/night.js`), so it stays right every night with no extra step.
-## Roof-check wording - 2026-09-29
+## Roof-check wording - 2026-09-29 (live: Practice Door Version 15; QA PASS)
 - Practice Door, print sheets and the door lines now say "roof check" / "revisión del techo", never "free inspection" / "gratis" (King's call until the boss okays promising free).
 - The scorecard neither rewards "free" nor penalizes "roof check"; "free estimate" is still used and flagged for the boss.
 - PDFs in docs/print not re-rendered (no script): re-print from the HTML before handing out.
