@@ -825,13 +825,14 @@ button.task:hover{border-color:var(--brass);color:var(--ink)}
 .rc-empty{margin:0;padding:8px 2px;font:400 13px/1.4 var(--f);color:var(--muted)}
 .rc-more{margin-top:8px}
 .rc-rate{font:500 12px var(--mono);color:var(--ink-2)}
-.card .rcard li{padding:6px 0}
+.card .rcard li{padding:6px 0;grid-template-columns:minmax(0,1fr)}
+.card .rcard .rc-v{text-align:left}
 .catrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .catrow input[type=text]{flex:1 1 140px;min-width:0}
 @media (min-width:900px) and (min-height:600px){
   #tp-crew .rosterbox{display:none}   /* RIGHT NOW is the crew list on the MacBook; the Crew tab keeps the Observatory + the report card */
 }
-@media (max-width:899px), (max-height:599px){ .tannoy{font-size:11px} }
+@media (max-width:899px), (max-height:599px){ .tannoy{font-size:11px} #tp-crew{display:flex;flex-direction:column} #tp-crew .rosterbox{order:-1;margin-bottom:18px} }
 @media (prefers-reduced-motion:reduce){ .tannoy,.cattag{transition:none} }
 </style>
 
