@@ -250,6 +250,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
       setClock(r);
     } else if (MODE === 'season') {
       FO.reveal = Math.min(1.1, (t % 14) / 12);
+      FO.frontWidth = 0.012; FO.feather = 0.006; // 18 storms share one timeline: a thinner burning edge per storm
       if (!ONLY || ONLY === 'field') kit.field.draw(M, FO);
     } else {
       FO.reveal = undefined;

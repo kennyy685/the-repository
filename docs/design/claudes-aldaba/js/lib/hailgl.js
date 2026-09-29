@@ -1,14 +1,33 @@
-/* HailGL: storm graphics for Claude's Aldaba. Raw WebGL (WebGL2, WebGL1 fallback, Canvas2D fallback), no libraries.
+/* HailGL 1.0: storm graphics for Claude's Aldaba. Raw WebGL2 (WebGL1 fallback, Canvas2D fallback), no libraries.
+ * Nothing here throws into the caller: failures console.warn once and degrade (GL -> 2D -> no-op).
  *
- *   var kit = HailGL.create(canvasOrGl, {dpr, theme:'dark'|'light'|{...colors}});
- *   kit.field.setField(HailGL.fieldFromStorms({storms, areas, bounds, res, project}));
- *   kit.field.draw(m, {t, opacity, reveal, contours, glow, dim});
- *   kit.hail.spawn({count, sampler: HailGL.sampler(field), fall:{height, speed}, dur});  kit.hail.draw(m, {t});
- *   kit.rings.add(x, y, {t0, color, size, life});  kit.rings.draw(m, t);
+ * World units are the caller's. m = column-major mat3 world -> clip (affine or projective); HailGL.camera() makes one.
  *
- * World units are the caller's. m = column-major mat3 world -> clip (affine or projective).
- * Field texels are packed as RGBA8: R/G = hail inches (16-bit hi/lo, linear so hardware filtering stays exact),
- * B = arrival 0..1 (reveal), A = wide blur of the field (glow). Nothing here throws into the caller.
+ * var kit = HailGL.create(canvasOrGl, {dpr, theme:'dark'|'light'|{gold,orange,red,hot,ice,ring,glow,fill,contours,ink,stops},
+ *                                      webgl: 0|1 (force 2D / WebGL1), restoreState: true, maxRings: 4096})
+ *   kit.mode = 'webgl2'|'webgl1'|'2d'|'none';  kit.ok;  kit.resize(cssW, cssH, dpr<=2);  kit.dispose();  kit.setTheme(t)
+ *   kit.field.setField(field, {glowRadius})   field = {x0,y0,x1,y1,w,h,data: Float32Array inches (row 0 = y0), arrival?}
+ *   kit.field.draw(m, {t, opacity=1, dim=0, reveal (0..1 along arrival, omit = all), feather=.025, frontWidth=.06, front=1,
+ *                      ghost=0, contours=true, glow=true, fill=1, relief=1, sheen=1, step=.1, indexStep=.5,
+ *                      lineWidth=.8, indexWidth=1.4 (css px), lightAz, lightEl, blend:'normal'|'multiply'|'add', theme})
+ *   kit.hail.spawn({count, sampler: () => [x, y, sizeIn, u?], fall:{height=.2 (view heights), speed=.25 (heights/s) | dur},
+ *                   t0=0, dur=8 (u -> landing time t0 + u*dur), lag=.04, loop=0 (seconds; >0 repeats), phase, seed, append})
+ *   kit.hail.draw(m, {t, tilt=1, persp=.22, vanish=[0,.1] (clip), wind=[.05,0], scale=1.1 (css px radius per inch),
+ *                     streak=.085 (s of motion blur), rings=true, ringSize=14, ringLife=1.1, residue=4 (s), opacity, dim})
+ *   kit.rings.add(x, y, {t0, color='#f5883a', size=36 (css px), life=1.6, width=1.3, echo=1, alpha=1}) -> index
+ *   kit.rings.draw(m, t | {t, opacity});  kit.rings.clear()
+ *
+ * HailGL.fieldFromStorms({storms:[{id,date,max,path:[[lon,lat]..]}], areas:[{st,hail,ring}], bounds:[w,s,e,n], res=512,
+ *                         project, arrival:'path'|'season', splitMi=40}) -> field + {peak, mpu, paths}
+ * HailGL.sampler(field, {min=.6, gamma=1.3, seed, size:[.45,1.02]}) -> () => [x, y, sizeIn, arrival]
+ * HailGL.frontAt(field, reveal, stormId?, out?) -> [x, y, dirX, dirY]   (where the burning front is, for markers)
+ * HailGL.draw2DFallback(ctx, field, mat3 | (x,y)=>[px,py], {reveal, opacity, contours, glow, theme, dpr})
+ * HailGL.rampColor(v, theme?, alpha?), HailGL.legendGradient(theme?, from, to), HailGL.camera(cx, cy, pxPerUnit, w, h, out?)
+ *
+ * Field texels: RGBA8, R/G = inches/4 as 16-bit hi/lo (linear, so filtering stays exact), B = arrival, A = wide blur (glow);
+ * a second RGBA8 texture holds the gradient for screen-space relief lighting. Contours come from fwidth on a bicubic
+ * (B-spline, 4 taps) sample, so lines stay 1 css px and smooth at any zoom. Hail impacts are GPU-only (no CPU per landing).
+ * GL state: draws bind their own VAO/program/textures (units 0-1), set blend, and restore what they touched.
  */
 (function (root) {
   'use strict';
@@ -597,7 +616,7 @@
     '  float a0 = smoothstep(uStops.x, uStops.y, v);',
     '  float big = smoothstep(uStops.y, uStops.w + 0.6, v);',
     '  vec3 col = hglRamp(v, uStops, uGold, uOrange, uRed);',
-    '  col = mix(col, uHot, front * 0.55 * a0);',
+    '  col = mix(col, uHot, front * 0.42 * a0);',
     '  float fillA = a0 * mix(0.06, 0.36, big * big) * uFill;',
     '  float gate = smoothstep(uStops.x - 0.07, uStops.x - 0.025, v);',
     '  float minor = iso(v, uStep, uLineW, 0.42) * gate;',
@@ -618,7 +637,7 @@
     '  C = idxCol * ia + C * (1.0 - ia); A = ia + A * (1.0 - ia);',
     '  float core = pow(smoothstep(0.9, 2.7, v), 1.3) * 0.5;',
     '  float halo = smoothstep(0.2, 1.4, gv) * (1.0 - a0 * 0.4) * 0.17;',
-    '  vec3 Em = col * ((core * shade + halo) * uGlow + sweep * 0.07 * a0) + mix(col, white, 0.3) * spec * a0 * 0.3 * uGlow + uHot * front * (0.12 + 0.55 * a0) * gate;',
+    '  vec3 Em = col * ((core * shade + halo) * uGlow + sweep * 0.07 * a0) + mix(col, white, 0.3) * spec * a0 * 0.3 * uGlow + uHot * front * (0.1 + 0.45 * a0) * gate;',
     '  float k = mix(uGhost, 1.0, vis) * edge * uOpacity;',
     '  if (uInk > 0.5) { C = C * k; A = A * k; }',
     '  else { C = (C + Em) * k; A = A * k; }',
@@ -1250,7 +1269,7 @@
       o = o || EMPTY;
       if (!S.hailCount) return;
       var t = num(o.t, S.now), D = S.hail, W = ctx.canvas.width, H = ctx.canvas.height, dpr = S.dpr, drawn = 0;
-      var hgt = num(o.height, S.fallH) * H, persp = num(o.persp, 0.32), scale = num(o.scale, 2.3);
+      var hgt = num(o.height, S.fallH) * H, persp = num(o.persp, 0.22), scale = num(o.scale, 1.1);
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
       for (var i = 0; i < S.hailCount && drawn < 2500; i++) {
         var j = i * 8, fall = S.fall * D[j + 5], tl = D[j + 3];
@@ -1260,9 +1279,9 @@
         if (o.rings !== false && since >= 0 && since < 1.1) {
           var e = 1 - Math.pow(1 - since / 1.1, 3);
           rampInto(S.pal, D[j + 2], col);
-          ctx.strokeStyle = cssRGB(col, Math.pow(1 - since / 1.1, 1.7) * 0.7);
+          ctx.strokeStyle = cssRGB(col, Math.pow(1 - since / 1.1, 1.8) * 0.4);
           ctx.lineWidth = dpr * 0.8;
-          ctx.beginPath(); ctx.arc(gx, gy, (1 + e * 16 * (0.45 + 0.4 * D[j + 2])) * dpr, 0, 6.2832); ctx.stroke();
+          ctx.beginPath(); ctx.arc(gx, gy, (1 + e * num(o.ringSize, 14) * (0.45 + 0.4 * D[j + 2])) * dpr, 0, 6.2832); ctx.stroke();
         }
         var hh = toLand / fall;
         if (hh <= 0 || hh > 1) continue;
@@ -1297,7 +1316,7 @@
         spawn: guard('2d.spawn', function (o) {
           o = o || EMPTY;
           var count = clamp(Math.round(num(o.count, 2000)), 0, 200000), rnd = rng(num(o.seed, 1234)), fall = o.fall || EMPTY;
-          S.fallH = num(fall.height, 0.34); S.fall = num(fall.dur, S.fallH / num(fall.speed, 0.4)); S.loop = num(o.loop, 0);
+          S.fallH = num(fall.height, 0.2); S.fall = num(fall.dur, S.fallH / num(fall.speed, 0.25)); S.loop = num(o.loop, 0);
           var t0 = num(o.t0, 0), dur = num(o.dur, 8), D = S.hail = new Float32Array(count * 8);
           for (var i = 0; i < count; i++) {
             var s = o.sampler(i) || EMPTY, j = i * 8, u = s.length > 3 && !(S.loop > 0) ? s[3] : rnd();
