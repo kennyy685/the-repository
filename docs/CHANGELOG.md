@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## Open map: every card draws its own walk - 2026-09-29 (every-card-walk; QA pending, then republished)
+## Open map: every card draws its own walk - 2026-09-29 (every-card-walk; QA PASS, live: open map Version 13)
 - Each of Aldaba's top 3 and the backup now has its own walk on real streets, not just #1. Tap #3 (another Columbus turf) and the map swaps to that turf's walk; tap the Omaha older-homes backup and its walk is drawn in Omaha. Today's plan stays on the pick's walk.
 - The night shift makes them all every night (`map.zwalks` in `data/night.js`); nothing new to run. Streets only: no house numbers, no door points, no owner names.
 

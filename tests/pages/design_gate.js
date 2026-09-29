@@ -119,7 +119,11 @@ const PAGES = [
     views: [
       { name: "night storm sample", steps: ['[data-night="storm"]'], root: "section.night" },
       { name: "night quiet sample", steps: ['[data-night="quiet"]'], root: "section.night" },
+      // Spanish pass (QA 2026-09-29): the real brief and both samples in ES, where the plan lines run longest
+      // ("Maneja a <zona>, empieza en <calle>, N puertas.") and must still fit the 1440 night strip
       { name: "espanol", steps: ['button[data-lang="es"]'], root: "section.night" },
+      { name: "espanol storm sample", steps: ['button[data-lang="es"]', '[data-night="storm"]'], root: "section.night" },
+      { name: "espanol quiet sample", steps: ['button[data-lang="es"]', '[data-night="quiet"]'], root: "section.night" },
     ],
   },
 ];

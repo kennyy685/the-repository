@@ -283,6 +283,8 @@ a.walk:hover{border-color:var(--line-2)}
       noDbT: "Live data is on the published page", noDbP: "Open HMP HQ from its claude.ai link to see today's numbers.",
       dest: { "6wBLswpVCaBMoc6dbrKcyn": "Site map", "Qkc52bt2JL5gW7ZKWBJDHU": "AI hub", "9N97Uzv8J9EAueSKhCNSPT": "HMP App", "6cCATKJSoyWA7kbH4Em8VX": "Command center" },
       open: "Open",
+      errT: "Couldn't load the summary", errP: "The live data isn't answering. Reload in a minute; if it keeps happening, tell Claude.",
+      lateNote: "Couldn't refresh just now. Showing the last summary.",
     },
     es: {
       needs: "Pendientes para ti", storms: "Tormentas", leads: "Prospectos", jobs: "Trabajos", crews: "Cuadrillas",
@@ -300,13 +302,15 @@ a.walk:hover{border-color:var(--line-2)}
       noDbT: "Los datos en vivo están en la página publicada", noDbP: "Abre HMP HQ desde su enlace de claude.ai para ver los números de hoy.",
       dest: { "6wBLswpVCaBMoc6dbrKcyn": "Mapa de obra", "Qkc52bt2JL5gW7ZKWBJDHU": "Centro de IA", "9N97Uzv8J9EAueSKhCNSPT": "App HMP", "6cCATKJSoyWA7kbH4Em8VX": "Centro de mando" },
       open: "Abrir",
+      errT: "No se pudo cargar el resumen", errP: "Los datos en vivo no responden. Recarga en un minuto; si sigue igual, avísale a Claude.",
+      lateNote: "No se pudo actualizar ahora. Se muestra el último resumen.",
     },
   };
   // Severity: one icon + one word + one tint, the same everywhere on the page.
   const SEV = { critical: ["late", "flag"], warning: ["warn", "clock"], info: ["", "info"] };
   const IN_PLAY_SKIP = ["not_contacted", "done", "lost"];
 
-  let lang = "en", snap = null, dbState = "wait", slow = false;
+  let lang = "en", snap = null, dbState = "wait", slow = false, refreshFailed = false;
   try {
     const saved = localStorage.getItem("hmphq-lang");
     lang = saved === "es" || saved === "en" ? saved : (/^es\b/i.test(navigator.language || "") ? "es" : "en");
@@ -525,9 +529,9 @@ a.walk:hover{border-color:var(--line-2)}
       $("ai").hidden = true;
       if (dbState === "wait") { dash.hidden = !slow; if (slow) skeleton(); return; }
       dash.hidden = true;
-      const off = dbState === "off";
-      empty.replaceChildren(h("div", { class: "glyph" }, ic(off ? "info" : "home")),
-        h("h2", {}, off ? T0.noDbT : T0.noSnapT), h("p", {}, off ? T0.noDbP : T0.noSnapP));
+      const off = dbState === "off", bad = dbState === "err";
+      empty.replaceChildren(h("div", { class: "glyph" }, ic(off || bad ? "info" : "home")),
+        h("h2", {}, bad ? T0.errT : off ? T0.noDbT : T0.noSnapT), h("p", {}, bad ? T0.errP : off ? T0.noDbP : T0.noSnapP));
       empty.hidden = false;
       return;
     }
@@ -542,6 +546,9 @@ a.walk:hover{border-color:var(--line-2)}
         note.hidden = false;
       }
     } else $("updated").textContent = " ";
+    if (refreshFailed && note.hidden) {   // the live feed dropped after data arrived: say so, keep the last summary
+      note.replaceChildren(ic("clock", "i-sm"), h("span", {}, T0.lateNote)); note.hidden = false;
+    }
 
     // each section draws on its own so one odd field can't blank the page
     for (const fn of [renderNeeds, renderStorms, renderLeads, renderJobs, renderCrews, renderAi]) {
@@ -560,13 +567,26 @@ a.walk:hover{border-color:var(--line-2)}
   render();
   setTimeout(() => { slow = true; if (!snap && dbState === "wait") render(); }, 300);
 
+  // Runtime calls never wait forever (2026-09-29 rule): use("db") gets 12 s, the first snapshot 15 s more, then the page
+  // says so instead of sitting on "Loading". If the runtime answers later, the data still fills in by itself.
+  const safeRender = () => { try { render(); } catch (e) { console.warn("HMP HQ render failed:", e); } };
+  let subscribed = false;
+  function subscribe(db) {
+    if (subscribed) return; subscribed = true;
+    const wait = setTimeout(() => { if (dbState === "wait") { dbState = "err"; safeRender(); } }, 15000);
+    try {
+      db.doc("hq/snapshot").onSnapshot(
+        (d) => { clearTimeout(wait); dbState = "on"; refreshFailed = false; snap = d.exists ? d.data() : null; safeRender(); },
+        () => { clearTimeout(wait); if (snap) refreshFailed = true; else dbState = "err"; safeRender(); });
+    } catch (e) { clearTimeout(wait); if (!snap) dbState = "err"; safeRender(); }
+  }
   (async () => {
+    const giveUp = setTimeout(() => { if (dbState === "wait") { dbState = "err"; safeRender(); } }, 12000);
     let db = null;
     try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch (e) { db = null; }
-    if (!db) { dbState = "off"; render(); return; }
-    db.doc("hq/snapshot").onSnapshot(
-      (d) => { dbState = "on"; snap = d.exists ? d.data() : null; render(); },
-      () => { if (!snap) dbState = "off"; render(); });
+    clearTimeout(giveUp);
+    if (!db) { if (dbState !== "on") { dbState = "off"; safeRender(); } return; }
+    subscribe(db);
   })();
 })();
 </script>

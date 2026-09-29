@@ -28,6 +28,7 @@ if [ "$mode" != "--fast" ]; then
   run fullday_check node tests/pages/fullday_check.js   # full fake sales day in Practice (1470 + 390 px): hard stops, zero db writes
   run day24_check node tests/pages/day24_check.js   # 24 h on a fake clock: King docs while open, 12:52 refresh mid-tap, overnight, midnight Central
   run hub_live_check node tests/pages/hub_live_check.js   # AI hub on the real db shapes + a runtime that fails or hangs (2026-09-29 freeze)
+  run hub_chat_check node tests/pages/hub_chat_check.js   # hub King chat: instant answer, order wake, delivery states, Fresh King (success + real error shown)
   run app_live_check node tests/pages/app_live_check.js   # HMP App + Practice Door on a realistic db + a runtime that fails or hangs (every button, every freeze)
   run e2e_day_check node tests/pages/e2e_day_check.js   # one full REAL working day (EN, ES, slow signal): map -> knock -> lead -> inspection -> claim -> price -> paper -> follow-ups -> day numbers, reload mid-flow
   run badsignal_check node tests/pages/badsignal_check.js   # T163 bad signal: offline / flaky burst / drop mid-save / reload; the outbox always drains by itself

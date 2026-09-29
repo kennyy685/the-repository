@@ -370,7 +370,7 @@ def night_cmd(a, cfg, log=print):
     doc = night.brief(hud_doc, zdoc, w, day, prev, cfg, areas=areas)
     if season_doc:                               # the map's shapes for the areas it names (a pick west of the map box)
         from hailhunter import openmap
-        doc["map"] = openmap.extra(season_doc, night.area_ids(doc))
+        doc["map"] = openmap.extra(season_doc, night.area_ids(doc), today=day)
     if not getattr(a, "no_basemap", False):      # the cards' walks on real streets + a street tile where the map has none
         from hailhunter import mapwalk
         maker = _basemap_maker(cfg, a.offline)

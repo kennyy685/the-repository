@@ -1135,7 +1135,7 @@ const TX = {
     kcWhy: {preview: 'Live chat works on the published hub.', nodb: 'Live data isn’t available here, so the Right Hand can’t read the crew.', editor: 'The Right Hand talks here when you open the hub signed in as its editor.', grant: 'The Right Hand can’t use Claude on this page. Reload and allow it when asked.', wait: 'Connecting…'},
     fk: {btn: 'Fresh King', ask: 'Start a fresh King? The old one writes its notes, then hands off.', mem: k => `King memory ${k}k`, full: k => `King memory ${k}k · getting heavy, start a fresh one`,
       starting: m => `New King starting · ${m} min`, started: 'Starting a fresh King. It says hello here in a few minutes.', unsure: 'No answer yet. A King may still be starting: check Chats before you tap again.', live: 'The new King is live.',
-      fail: 'Couldn’t start a fresh King. The hub needs its Claude Code Remote permission; reload, allow it, and try again.'},
+      fail: why => `Couldn’t start a fresh King (${why}). ` + (/consent|reauth|not_granted|permission|denied|forbidden|403/i.test(why) ? 'The hub needs its Claude Code Remote permission: reload, allow it, and try again.' : /timeout|deferred|no mcp/i.test(why) ? 'Claude Code Remote didn’t answer: check Chats, then try again.' : 'The King was told; try again in a minute.')},
     kt: {title: 'King', sub: 'SMUIPO · answers in seconds · orders go straight to the live King', instant: 'instant',
       st: {sending: 'Sending…', thinking: 'Thinking…', answered: 'Answered here', also: 'Send to the King too', toKing: 'Sent to the King', gotIt: 'King got it',
         working: 'King is on it', done: 'Done · the King replied', failed: 'Didn’t reach the King. Saved.', lineDown: 'The King’s line is down. Saved; it goes out when the King is back.',
@@ -3969,27 +3969,34 @@ Old King: ${old || '(none recorded)'}; its wake trigger: ${oldTrig || '(none)'}.
 3) Make your own poke-only wake trigger (create_trigger, no cron, bound to you) with the same prompt as the old one (get_trigger it). Update hub doc system/king: wake_trigger = yours, live_session = your session id, environment_id, and remove pending_king. Then disable (never delete) the old trigger, update CLAUDE.md's trigger id line, and archive the old King once it is idle.
 4) Say hello to FilthE in the hub King thread in 3 short lines (events/<stamp>-code-r, to:"you"), ending with 1-3 numbered questions with your pick.`;
 }
+function fkWhy(e){   // short, safe error tag for the toast + event: the code, plus the message when it adds something
+  const c = String((e && e.code) || '').slice(0, 40), m = String((e && e.message) || '').replace(/\s+/g, ' ').slice(0, 80);
+  return (c && m && m !== c && !m.includes(c) ? c + ': ' + m : c || m || 'unknown').slice(0, 120);
+}
 async function startFreshKing(){
   if (fkBusy || !CAN_EDIT || !DB) return; fkBusy = true; $('#kFreshAsk').hidden = true; renderFresh();
   const T = L().fk, old = String((kingDoc && kingDoc.live_session) || ''), oldTrig = wakeTrigger() || '';
-  let ok = false, unsure = false;
+  let ok = false, unsure = false, why = '', step = 'env';
   try {
     let env = kingDoc && typeof kingDoc.environment_id === 'string' && /^env_/.test(kingDoc.environment_id) ? kingDoc.environment_id : '';
     if (!env) { const r = await mcpCall('list_environments', {}, {read:true}); const l = ((r && r.payload && r.payload.environments) || []);
       const e = l.find(x => x.kind === 'anthropic_cloud' && x.state === 'active') || l.find(x => x.state === 'active'); env = e ? e.environment_id : ''; }
-    if (!env) throw new Error('no environment');
+    if (!env) throw Object.assign(new Error('no environment'), {code:'no_environment'});
+    step = 'create';
     const args = {environment_id:env, title:'SMUIPO (King)', source_url:REPO_URL, source_revision:WORK_BRANCH, outcome_branch:WORK_BRANCH, tags:['king'], prompt:freshPrompt(old, oldTrig)};
     if (kingCtx && kingCtx.model) args.model = kingCtx.model;   // the same model the King runs on now
     let r; try { r = await mcpCall('create_session', Object.assign({permission_mode:'auto'}, args)); }
     catch (e) { if (e && e.retryable === false && /permission/i.test(String(e.message || ''))) r = await mcpCall('create_session', args); else { if (e && ['timeout', 'upstream_error', 'server_unavailable'].includes(e.code)) unsure = true; throw e; } }   // only a refused permission_mode is safe to re-send; a timeout may still start a King
     const p = (r && r.payload) || {}, sid = String(p.session_id || p.id || (p.session && p.session.id) || (p.ccr && p.ccr.id) || '');
-    if (!/^session_/.test(sid)) throw new Error('no session id');
+    if (!/^session_/.test(sid)) throw Object.assign(new Error('no session id'), {code:'no_session_id'});
     const at = nowIso(); ok = true;
     try { await withTimeout(DB.doc('system/king').update({pending_king:{session:sid, at, from:old}})); } catch (e) { /* the hello in the thread still shows it */ }
     try { await save({path:'events/' + stampOf(at) + '-you-fk', body:{agent:'you', name:'FilthE', at, kind:'handoff', to:'code', lane:'board', room:'board', status:'done', task:'', text:('Started a fresh King from the hub: ' + sid + '. Old King: ' + (old || 'none') + '.').slice(0, 300)}}); } catch (e) { /* log line only */ }
     if (oldTrig) fireNow('FilthE started a fresh King from the hub: ' + sid + '. Finish your current step, update docs/orders/king-handoff.md (what is live, what is running, what is next), commit and push, then stop. The new King makes its own wake trigger, disables yours and archives you.');
-  } catch (e) { ok = false; }
-  fkBusy = false; renderFresh(); appToast(ok ? T.started : unsure ? T.unsure : T.fail, ok ? 5000 : 9000);
+  } catch (e) { ok = false; why = fkWhy(e);
+    // 2026-09-29: every failure used to show one "permission" line; log the real code so the King can see what failed
+    const at = nowIso(); save({path:'events/' + stampOf(at) + '-you-fkfail', body:{agent:'you', name:'FilthE', at, kind:'blocked', to:'code', lane:'board', room:'board', status:'blocked', task:'', text:('Start a fresh King failed at ' + step + ': ' + why + '.').slice(0, 300)}}).catch(() => {}); }
+  fkBusy = false; renderFresh(); appToast(ok ? T.started : unsure ? T.unsure : T.fail(why || '?'), ok ? 5000 : 12000);
 }
 $('#kFreshBtn').addEventListener('click', () => { $('#kFreshAsk').hidden = false; renderFresh(); const y = $('#kFresh [data-fk="yes"]'); if (y) y.focus(); });
 $('#kFresh').addEventListener('click', e => { const b = e.target.closest('[data-fk]'); if (!b) return; if (b.dataset.fk === 'yes') startFreshKing(); else { $('#kFreshAsk').hidden = true; renderFresh(); $('#kFreshBtn').focus(); } });
