@@ -89,7 +89,13 @@ for si, (k, (path, w, core)) in enumerate(STORMS.items()):
     for bi, (b, hw, t0, t1) in enumerate([(1, w[0], 0, 1), (1.5, w[1], .06, .94), (2, w[2], core[0], core[1])]):
         if not hw: continue
         ring = swath(path, hw, t0, t1, si * 10 + bi + 1); BANDS[k].append((b, ring, bbox(ring)))
+# REAL zones (real_areas.json from real.py) replace the samples when present: ring = the zone, band = its biggest hail
+REAL = json.load(open('real_areas.json')) if os.path.exists('real_areas.json') else None
+REAL_BY = {z['id']: z for z in REAL or []}
 def band_at(p, storm):
+    if REAL:
+        z = REAL_BY[storm]
+        return z['band'] if inring(p, z['ring']) else 0
     best = 0
     for b, ring, bb in BANDS[storm]:
         if b > best and bb[0] <= p[0] <= bb[2] and bb[1] <= p[1] <= bb[3] and inring(p, ring): best = b
@@ -112,6 +118,7 @@ def nice(n):
         elif len(u) == 1: out.append(u)
         elif u.startswith('MC') and len(u) > 3: out.append('Mc' + u[2:].capitalize())
         else: out.append(u.capitalize())
+    out = [x for i, x in enumerate(out) if i == 0 or x != out[i - 1]]  # "Ave Ave A", "Hwy Hwy 34"
     return ' '.join(out)
 
 NOWALK = {'Interstate', 'Freeway', 'Expressway', 'Ramp'}
@@ -128,10 +135,24 @@ def main():
                   '(Total_Housing, blocks under 40 units) shared to the nearest streets. Hail band per street: the mockup\'s '
                   'SAMPLE storms. Walk: shortest paths on the real street network. Built by data/build/areas.py.',
            'o': 1e5, 'areas': {}}
-    for ai, (aid, c, (rx, ry, rot), storm) in enumerate(AREAS):
-        ring = blob(c, rx, ry, rot, ai + 50); bb = bbox(ring)
-        mg = 0.006
-        box = (bb[0] - mg, bb[1] - mg, bb[2] + mg, bb[3] + mg)
+    if REAL:
+        out['src'] = out['src'].replace("the mockup's SAMPLE storms", "the real 2026 zone it sits in (data/storms-2026.json)")
+    todo = [(z['id'], tuple(z['c']), None, z['id']) for z in REAL] if REAL else AREAS
+    for ai, (aid, c, geo, storm) in enumerate(todo):
+        if REAL:
+            ring = REAL_BY[aid]['ring']; bb = bbox(ring)
+            # big zones: walk where the homes are (densest 1 km cell inside the zone), not the whole outline
+            cell = collections.Counter()
+            for x, y, n in blocks:
+                if n < 40 and bb[0] <= x <= bb[2] and bb[1] <= y <= bb[3] and inring((x, y), ring): cell[(round(x * KX), round(y * KY))] += n
+            if not cell: print(aid, 'no homes'); continue
+            (gx, gy), _ = cell.most_common(1)[0]; c = (gx / KX, gy / KY); r = 2.2
+            box = (max(bb[0], c[0] - r / KX) - .006, max(bb[1], c[1] - r / KY) - .006, min(bb[2], c[0] + r / KX) + .006, min(bb[3], c[1] + r / KY) + .006)
+        else:
+            rx, ry, rot = geo
+            ring = blob(c, rx, ry, rot, ai + 50); bb = bbox(ring)
+            mg = 0.006
+            box = (bb[0] - mg, bb[1] - mg, bb[2] + mg, bb[3] + mg)
         # --- graph of walkable street segments around the area ---
         adj = collections.defaultdict(list); segs = []
         for f in raw:
