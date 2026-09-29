@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## HMP App "Desk" - 2026-09-29 (MacBook layout; QA pending, then republished)
+- On the MacBook the app fills the screen now: tabs in a left rail; Now = the hot-zone map large with Aldaba's pick under it and today's plan + calls beside it; Knock = the next 9 doors | the current door, big, with 4 big taps | the whole walk on a full-height map. One tap per door is still one tap.
+- Leads and Money open a lead or job as a pane on the right: the list stays live (click another lead to swap), the open row stays lit; Money shows what's owed + to chase beside the open jobs. Short menus (Add, More) open as a centered card.
+- The toast never covers the door card, the pane or a legal notice (on a phone the sheet now scrolls its last line clear of it). Phones keep the old layout exactly. New check `tests/pages/desk_check.js`; the design gate now runs the app at 1440 and 390 too. Options + why A: docs/design/app-desk/.
+
 ## Night shift real - 2026-09-29 (open map: QA pending, then republished)
 - "Since last night" now shows the REAL brief: last night's real storm reports, the engine's real walks, real streets. Aldaba's pick is always a storm walk (tonight: Columbus, 1.6" hail Aug 8, 25 doors); an older-homes area is only ever the backup, and when no storm walk has doors left it says so and names the backup. The map names the start street, never a house number.
 - One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
