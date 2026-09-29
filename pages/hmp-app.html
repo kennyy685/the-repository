@@ -6048,23 +6048,31 @@ $('#kcForm').addEventListener('submit', ev => { ev.preventDefault(); const v = $
 $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 
 /* ================= live data ================= */
-async function connect(){
+async function connect(late){
   const cl = window.claude;
   if (!cl || typeof cl.use !== 'function') { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
-  let db = null; try { db = await within(cl.use('db'), USE_MS); } catch (e) { db = null; }
+  const dbP = late || Promise.resolve(cl.use('db'));
+  let db = null; try { db = await within(dbP, USE_MS); } catch (e) { db = null; if (e && e.code === 'timeout' && !late) dbP.then(d => { if (d && !DB) connect(Promise.resolve(d)); }, () => {}); }   // slow, not gone: connect when it answers
   if (!db) { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
   setLive('wait', L().live.loading); DB = db;
   try {
     subscribeApp(db);
   } catch (e) { dbState = 'off'; appState = 'err'; setLive('off', L().live.na); renderApp(); return; }
-  // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest
-  const [u, sm] = await Promise.all([within(cl.use('user'), USE_MS).catch(() => null), within(cl.use('sample'), USE_MS).catch(() => null)]);
+  // each capability asked for at once, each with its own deadline: one that never answers can't hold up the rest; a slow
+  // one that answers later still turns on (the Right Hand shows up then)
+  const uP = Promise.resolve(cl.use('user')), smP = Promise.resolve(cl.use('sample'));
+  await caps(uP, smP, true);
+  if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
+  if (!(SAMPLE && CAN_EDIT)) Promise.all([uP, smP]).then(() => { if (!(SAMPLE && CAN_EDIT)) caps(uP, smP, false); }, () => {});
+}
+async function caps(uP, smP, first){
+  const cl = window.claude;
+  const [u, sm] = await Promise.all([within(uP, USE_MS).catch(() => null), within(smP, USE_MS).catch(() => null)]);
   try { CAN_EDIT = u ? !!(await within(u.canEdit(), USE_MS)) : false; } catch (e) { CAN_EDIT = false; }
   SAMPLE = sm || null;
   try { ASSETS = CAN_EDIT ? await within(cl.use('assets'), USE_MS) : null; } catch (e) { ASSETS = null; }
   $('#kingChat').hidden = !(SAMPLE && CAN_EDIT); $('#rhBtn').hidden = !(SAMPLE && CAN_EDIT); document.body.classList.toggle('rh-on', !!(SAMPLE && CAN_EDIT));   // v24: one Right Hand button on every screen (v24.1: docked on the tab bar)
-  renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
-  if (outbox.length) flushSoon(400);   // taps saved on this phone during a bad signal go out now
+  if (first || (SAMPLE && CAN_EDIT)) renderAppSoon();   // v23: joins the first data snapshots in one redraw instead of drawing the empty page again
 }
 let subDay = null, rollDay = () => {};   // 24h check: the calendar day the day-keyed listeners are on; rollDay() moves them at midnight
 function subscribeApp(db){
