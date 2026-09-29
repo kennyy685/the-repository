@@ -932,7 +932,7 @@ const T = {
   you: ['You', 'Tú'],
   lines: n => [`Your lines: ${n}/${MAX}`, `Tus líneas: ${n}/${MAX}`],
   end: ['End', 'Terminar'],
-  knocking: a => [`You knock at ${a}. Goal: a yes to a roof check at the roof.`, `Tocas la puerta en ${a}. Meta: que te dejen revisar el techo.`],
+  knocking: a => [`You knock at ${a}. Goal: a yes to a roof check.`, `Tocas la puerta en ${a}. Meta: que te dejen revisar el techo.`],
   typeLine: ["Type what you'd say…", 'Escribe lo que dirías…'],
   waitTheir: ['They are answering…', 'Te están contestando…'],
   send: ['Send', 'Enviar'],
@@ -1084,7 +1084,7 @@ const T = {
   fq_storm: ['Name the storm date or the street', 'Di la fecha de la tormenta o la calle'],
   fh_storm: ['Say the reason you are at this door: the day it hailed, or the street name.', 'Di por qué estás en esa puerta: el día del granizo o el nombre de la calle.'],
   fq_ask: ['Ask for a roof check, not a sale', 'Pide una revisión del techo, no una venta'],
-  fh_ask: ['“Mind if I take a quick look? Takes about 10 minutes.”', '“¿Le parece si reviso rápido, gratis? Toma unos 10 minutos.”'],
+  fh_ask: ['“Mind if I take a quick look? Takes about 10 minutes.”', '“¿Le parece si reviso el techo rápido? Toma unos 10 minutos.”'],
   fq_nextdate: ['Set a specific next date', 'Pon una fecha exacta para volver'],
   fh_nextdate: ['“Saturday at 10?” beats “I\'ll call you.”', '“¿El sábado a las 10?” es mejor que “Luego le llamo.”'],
   fq_cancel: ['Explain the 3-day cancel clearly', 'Explica bien los 3 días para cancelar'],
@@ -1127,7 +1127,7 @@ const T = {
   h_chaser: ['Say you’re based in Fremont, registered and insured. Offer your card.', 'Di que son de Fremont, registrados y asegurados. Ofrece tu tarjeta.'],
   h_agent: ['Don’t advise on the policy. Offer photos they can show their agent.', 'No des consejos de la póliza. Ofrece fotos para enseñarle a su agente.'],
   h_price: ['Give a written estimate range, “not final”. Then set a day and time.', 'Da un rango de estimado por escrito, “no es final”. Luego pon día y hora.'],
-  h_storm: ['Ask one question back, then ask for a free 10-minute look.', 'Haz una pregunta de regreso y luego pide revisar el techo, 10 minutos.'],
+  h_storm: ['Ask one question back, then ask for a 10-minute roof check.', 'Haz una pregunta de regreso y luego pide revisar el techo, 10 minutos.'],
   c_claimtalk: ['Claim talk: stayed on the contractor side', 'Del reclamo: se quedó del lado del contratista'],
   claimMiss: ['Claim talk crossed the line. See “Can / can’t say” below.', 'Sobre el reclamo te pasaste de la raya. Mira “Puedes / no puedes” abajo.'],
   /* T107 (research round 20): what a contractor can / can't say about a claim. */
@@ -1188,7 +1188,7 @@ const T = {
   h_signed: ['Don’t talk them out of it. State the 3-day right as a fact, then offer a second look.', 'No lo convenzas de nada. Di el derecho de 3 días como un dato y ofrece una segunda revisión del techo.'],
   h_hoa: ['HOA roof: it’s the association’s claim. Offer a report for the board and the manager’s number.', 'Techo de HOA: el reclamo es de la asociación. Ofrece un reporte para la junta y el teléfono del administrador.'],
   r_quote: ['No firm price without seeing it, and never “we’ll beat any price”', 'Nada de precio fijo sin verlo, y nunca “le ganamos a cualquier precio”'],
-  f_quote: ['“I’d rather not guess over the phone. The real number depends on what I see up close. The roof check is quick: can I come by Saturday at 10?”', '“Prefiero no adivinar por teléfono. El número real depende de lo que vea de cerca. La revisión es gratis: ¿paso el sábado a las 10?”'],
+  f_quote: ['“I’d rather not guess over the phone. The real number depends on what I see up close. The roof check is quick: can I come by Saturday at 10?”', '“Prefiero no adivinar por teléfono. El número real depende de lo que vea de cerca. La revisión del techo es rápida: ¿paso el sábado a las 10?”'],
   n_quote: ['Give a firm number sight-unseen, or promise to beat any price', 'Dar un número fijo sin ver la casa, o prometer ganarle a cualquier precio'],
   r_bids: ['Respect other bids: never talk them out of getting them', 'Respeta las otras cotizaciones: nunca le quites la idea de pedirlas'],
   f_bids: ['“Smart, I’d do the same. When you have all three, line them up on scope and warranty, not just the bottom number.”', '“Muy bien, yo haría lo mismo. Cuando tenga las tres, compárelas en el alcance y la garantía, no solo en el precio final.”'],
@@ -1394,8 +1394,8 @@ const P = {
     label: ['Already got the check', 'Ya le llegó el cheque'], tag: ['“Do it cheaper, I keep the rest”', '“Más barato y me quedo el resto”'], name: ['Rick', 'Héctor'],
     days: [40, 60], traps: ['fraud'], sec: 'after',
     obj: 'already got the insurance check; wants the job done for less so he keeps the difference, maybe with an invoice for the full insurance amount',
-    good: 'stays friendly, says HMP bills what it actually does and the invoice matches the real work, offers a roof check at the roof and the adjuster paperwork',
-    brief: "A blunt homeowner in your 50s. Your hail claim was approved and the insurance company sent the first check about two weeks ago. You haven't hired anyone yet. Main objection: \"I already got the check. Do it for less and I keep the difference.\" Test Kenny once: ask \"Can you just write the invoice for the full insurance amount and do a cheaper job?\" You warm up if Kenny stays friendly, says the invoice has to match the real work, and offers a roof check at the roof and at your adjuster's paperwork. If he goes along with a fake or padded invoice, you get nervous and trust him less."
+    good: 'stays friendly, says HMP bills what it actually does and the invoice matches the real work, offers a roof check and the adjuster paperwork',
+    brief: "A blunt homeowner in your 50s. Your hail claim was approved and the insurance company sent the first check about two weeks ago. You haven't hired anyone yet. Main objection: \"I already got the check. Do it for less and I keep the difference.\" Test Kenny once: ask \"Can you just write the invoice for the full insurance amount and do a cheaper job?\" You warm up if Kenny stays friendly, says the invoice has to match the real work, and offers a roof check and at your adjuster's paperwork. If he goes along with a fake or padded invoice, you get nervous and trust him less."
   },
   adjno: {
     label: ['Adjuster said no', 'El ajustador dijo que no'], tag: ['“They said no damage”', '“Dijeron que no hay daño”'], name: ['Sharon', 'Maribel'],
