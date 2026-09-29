@@ -47,7 +47,7 @@ const MOCK = () => {
     if (tool === "get_session") return { payload: { ccr: { id: input.session_id, external_metadata: { context_usage: { used_tokens: 236000 } }, session_context: { model: "m-test" } } } };
     if (tool === "list_environments") return { payload: { environments: [{ environment_id: "env_TEST", kind: "anthropic_cloud", state: "active" }] } };
     if (tool === "create_session") return { payload: { session_id: "session_NEWKING01" } };
-    if (tool === "get_trigger") return { payload: { trigger: { id: input.trigger_id, enabled: true, last_run: window.__mock.lastRun } } };
+    if (tool === "get_trigger") return { payload: { trigger: window.__mock.dead ? { id: input.trigger_id, enabled: false } : { id: input.trigger_id, enabled: true, last_run: window.__mock.lastRun } } };   // dead: switched off, never ran
     return { payload: {} }; } };
   const user = { canEdit: async () => true, isOwner: async () => false };
   window.claude = { use: async (n) => ({ db, sample, mcp, user })[n] || null };
@@ -105,6 +105,19 @@ const MOCK = () => {
     if (!done.some((t) => /^Done/.test(t))) fails.push(look + ": done not shown");
     await page.screenshot({ path: path.join(OUT, `hub-chat-${look}-done.png`) });
     const tg = await page.$("#ktLog li.king.inst .kt-tag"); if (tg) { const bb = await tg.boundingBox(); const cs = await tg.evaluate((n) => { const c = getComputedStyle(n); return [c.display, c.visibility, c.opacity, c.color, c.fontSize].join(" "); }); if (!bb || bb.width < 10) fails.push(look + ": tag not visible " + cs); else console.log(look, "tag", JSON.stringify(bb), cs); }
+    // 2b) a wake that never went: trigger off + no last_run -> second look marks it failed, no crash
+    await page.waitForTimeout(1100);
+    await page.evaluate(() => { window.__mock.dead = true; });
+    await page.fill("#kcInput", "TEST: fix the dead wake please"); await page.press("#kcInput", "Enter");
+    await page.waitForTimeout(2500);
+    const dead = await page.evaluate(() => [...window.__mock.docs.entries()].filter(([k]) => /-you-k$/.test(k)).pop());
+    await page.clock.fastForward(100000); await page.waitForTimeout(800);
+    let dv = await page.evaluate((k) => (window.__mock.docs.get(k) || {}).deliv, dead[0]);
+    if (dv) fails.push(look + ": dead wake judged on the first look (" + dv + ")");
+    await page.clock.fastForward(50000); await page.waitForTimeout(800);
+    dv = await page.evaluate((k) => (window.__mock.docs.get(k) || {}).deliv, dead[0]);
+    if (dv !== "fail") fails.push(look + ": dead wake not marked fail on the second look (" + dv + ")");
+    await page.evaluate(() => { window.__mock.dead = false; });
     // 3) "Start a fresh King": memory line says heavy, two-step confirm, session made from his account, old King told
     if (look === "graphite") {
       await page.evaluate(() => { const w = document.getElementById("kingWin"); w.hidden = true; document.getElementById("kingBubble").click(); });

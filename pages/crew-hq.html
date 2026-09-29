@@ -3893,9 +3893,9 @@ async function orderKing(id, text, order, again, bg){
 const ktTries = {};
 async function checkDelivery(id, trig, t0, n){
   setTimeout(async () => {
-    let st = '';
+    let st = '', t = null;
     try { const r = await mcpCall('get_trigger', {trigger_id:trig}, {bg:true, read:true});
-      const t = r && r.payload && (r.payload.trigger || r.payload), lr = t && t.last_run;
+      t = r && r.payload && (r.payload.trigger || r.payload); const lr = t && t.last_run;
       if (lr && Date.parse(lr.fired_at || '') >= t0 - 5000) st = /SUCCEEDED|SUCCESS|OK|DELIVERED/i.test(String(lr.status || '')) ? 'ok' : /FAIL|ERROR/i.test(String(lr.status || '')) ? 'fail' : '';
     } catch (e) { return; }   // get_trigger not allowed on this page: the King's ack and reply still show
     if (!st && t && t.enabled === false && n) st = 'fail';   // a timed wake switches the trigger off only after it fires: off with no fresh run = it never went
