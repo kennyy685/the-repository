@@ -3208,13 +3208,14 @@ function hotOf(s){
 const hoBusy = new Set();
 async function askHandoff(id, again){
   const s = sessions().find(x => x.id === id), T = L(); if (!s || !DB || hoBusy.has(id)) return;
+  if (!gotEvents) { appToast('Loading… try again in a second', 2000); return; }   // QA: the receipt check needs the events first (a second device)
   if (isKingSess(s)) { startFreshKing(); return; }   // the King's own chat: the Fresh King flow (pending_king + wake trigger), not the helper protocol
   const h = handoffOf(id); if (h && (h.open || h.step >= 3) && !(again && h.late)) { appToast('Already asked · the King’s on it', 2500); return; }
   const at = nowIso(), stamp = stampOf(at); hoBusy.add(id);
   try {
     await withTimeout(DB.doc('events/' + stamp + '-you').set({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task:'fresh-chat', session:s.id, status:'done', room:'board', at,
       text:`Hand off "${s.title}" (about $${money(s.cost)}): write + commit its handoff note, start a fresh chat from it, archive this one after the new one checks in.`.slice(0, 300)}));
-    wake(`hand off chat "${s.title.slice(0, 60)}" (${s.id}): FilthE tapped Hand it off [events/${stamp}-you]`, true);
+    wake(`hand off chat "${ctxSafe(s.title, 60)}" (${s.id}): FilthE tapped Hand it off [events/${stamp}-you]`, true);
     keepGoing(id, true); appToast(T.ops.handed, 4500);
   } catch (e) { appToast(e && e.code === 'invalid_argument' ? T.ownerOnly : T.sendFail); }
   finally { setTimeout(() => hoBusy.delete(id), 5000); }   // the event lands through the snapshot; until then a double tap does nothing
@@ -3496,7 +3497,8 @@ function handoffOf(id){   // the newest hand-off tap for this chat and how far t
   const now = Date.now(), tap = events.find(e => e.agent === 'you' && e.kind === 'handoff' && e.task === 'fresh-chat' && e.session === id && now - e.atMs < HO_SHOW_MS);
   if (!tap) return null;
   const r = {tap, step:-1, at:tap.atMs, newSession:'', newTitle:'', notePath:''};
-  for (const e of events) { if (e.agent !== 'code' || e.re !== tap.id) continue; const i = HO_STEPS.indexOf(e.step);
+  const taps = new Set(events.filter(e => e.agent === 'you' && e.kind === 'handoff' && e.task === 'fresh-chat' && e.session === id && now - e.atMs < HO_SHOW_MS).map(e => e.id));   // QA: Ask again keeps the steps of the first tap
+  for (const e of events) { if (e.agent !== 'code' || !(taps.has(e.re) || (e.task === 'fresh-chat' && e.session === id && e.atMs >= tap.atMs - HO_SHOW_MS && e.step))) continue; const i = HO_STEPS.indexOf(e.step);
     if (i > r.step) { r.step = i; r.at = e.atMs; } if (e.newSession && !r.newSession) r.newSession = e.newSession; if (e.newTitle && !r.newTitle) r.newTitle = e.newTitle; if (e.notePath && !r.notePath) r.notePath = e.notePath; }
   r.late = r.step < 1 && now - tap.atMs > HO_LATE_MS; r.open = !r.late && r.step < 3 && now - tap.atMs < HO_OPEN_MS;
   return r;
@@ -3510,17 +3512,21 @@ function hoReceipt(s){
   return '<div class="ho' + (h.late ? ' late' : '') + '" role="status">' + steps + (h.late ? '<span class="ho-l">No note yet</span><button type="button" class="tb" data-hoagain="' + esc(s.id) + '">Ask again</button>' : '') + fresh +
     '<span class="src">as of ' + esc(ago(h.at)) + '</span></div>';
 }
-const hoButton = s => canHandOff(s) && DB && !(handoffOf(s.id) || {}).open ? '<button type="button" class="tb" data-handoff="' + esc(s.id) + '">' + (isKingSess(s) ? 'Hand off (Fresh King)' : 'Hand off') + '</button>' : '';
+const hoButton = s => canHandOff(s) && DB && gotEvents && !(isKingSess(s) && !CAN_EDIT) && !((h => h && (h.open || h.late || h.step >= 3))(handoffOf(s.id))) ? '<button type="button" class="tb" data-handoff="' + esc(s.id) + '">' + (isKingSess(s) ? 'Hand off (Fresh King)' : 'Hand off') + '</button>' : '';
 /* B: fix buttons */
 const FIX_MS = 10*60e3, FIX_SENT = 'Sent · the King’s on it';
-const fixRecent = id => { const t = +(store.get('hub-fix-' + id) || 0); return Date.now() - t < FIX_MS; };
+const FIX_TASK = id => id === 'wake' ? 'fix-wake' : id.startsWith('sched-') ? 'fix-sched' : id.startsWith('silent-') ? 'fix-silent' : '';
+const fixRecent = id => { const t = +(store.get('hub-fix-' + id) || 0); if (Date.now() - t < FIX_MS) return true;
+  const task = FIX_TASK(id), key = id.replace(/^(sched|silent)-/, '');   // QA: another device's tap counts too (the event carries fix_id)
+  return !!task && events.some(e => e.agent === 'you' && e.kind === 'handoff' && e.task === task && (e.fixId === id || (!e.fixId && task === 'fix-wake')) && Date.now() - e.atMs < FIX_MS && key); };
 const STORM_FIX = 'Open Cowork on the Mac; Storm Watch runs on the next open.';
 async function fixIt(id, task, extra, text, wakeText){
   if (fixRecent(id)) { appToast(FIX_SENT, 2500); return; }
   if (!DB) { appToast(L().sendFail); return; }
+  if (!gotEvents) { appToast('Loading… try again in a second', 2000); return; }
   store.set('hub-fix-' + id, String(Date.now())); computeWatch(); renderNeeds();
   const at = nowIso(), sid = stampOf(at) + '-you';
-  try { await withTimeout(DB.doc('events/' + sid).set(Object.assign({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task, status:'done', room:'board', at, text:String(text).slice(0, 300)}, extra || {})));
+  try { await withTimeout(DB.doc('events/' + sid).set(Object.assign({agent:'you', name:'FilthE', lane:'board', kind:'handoff', to:'code', task, fix_id:id, status:'done', room:'board', at, text:ctxSafe(text, 300)}, extra || {})));
     wake((wakeText + ' [events/' + sid + ']').slice(0, 400), true); appToast(FIX_SENT, 2500);
   } catch (e) { store.set('hub-fix-' + id, '0'); appToast(e && e.code === 'invalid_argument' ? L().ownerOnly : L().sendFail); }
   computeWatch(); renderNeeds();
@@ -3528,8 +3534,8 @@ async function fixIt(id, task, extra, text, wakeText){
 function fixClick(d){
   if (d.alert === 'handoff') { askHandoff(d.id); return true; }
   if (d.alert === 'howfix') { copyText(STORM_FIX, null); appToast(STORM_FIX + ' (copied)', 6000); return true; }
-  if (d.alert === 'fixsched') { const j = jobs().find(x => String(x.id || x.name) === d.id); const nm = j ? jobName(j) : d.id;
-    fixIt('sched-' + d.id, 'fix-sched', {trigger:d.id}, `Run it again: ${nm}. fire_trigger if it's ours and on; update_trigger enabled:true only if it was switched off with no reason.`, `fix-sched: FilthE tapped Run it again on "${nm}" (${d.id})`); return true; }
+  if (d.alert === 'fixsched') { const j = jobs().find(x => String(x.id || '') === d.id); if (!j) return true; const nm = j ? jobName(j) : d.id;
+    fixIt('sched-' + d.id, 'fix-sched', {trigger:d.id}, `Run it again: ${nm}. fire_trigger if it's ours and on; update_trigger enabled:true only if it was switched off with no reason.`, `fix-sched: FilthE tapped Run it again on "${ctxSafe(nm, 60)}" (${d.id})`); return true; }
   if (d.alert === 'fixwake') { fixIt('wake', 'fix-wake', {}, 'Reconnect instant wake: make a poke-only trigger bound to the live King chat and write its id to system/king.wake_trigger.', 'fix-wake: FilthE tapped Reconnect (instant wake is off)'); return true; }
   if (d.alert === 'fixsilent') { const nm = nameOf(d.id);
     fixIt('silent-' + d.id, 'fix-silent', {agent_id:d.id}, `Check on ${nm}: it's been quiet 30+ min. get_session / list_events, then mark it idle with the reason or re-run the job.`, `fix-silent: FilthE tapped Check on it for ${nm}`); return true; }
@@ -3540,10 +3546,10 @@ function whyOf(a){
   if (!a) return '';
   if (a.why) return a.why.slice(0, 90);
   if (a.st !== 'working') return '';
-  const now = Date.now(), H = 12*3600e3;
+  const now = Date.now(), st0 = (events.find(e => e.agent === a.id && e.kind === 'start') || {}).atMs || 0, H = Math.min(12*3600e3, st0 ? now - st0 + 30*60e3 : 12*3600e3);   // QA: this run's reasons only
   for (const e of events) { if (now - e.atMs > H) break; if (e.agent === a.id && e.re && answers[e.re] && answers[e.re].answer) return ('You answered ' + e.re + ': ' + txv(answers[e.re].answer)).slice(0, 90); }
   if (board && a.task) { const x = [...(board.now || []), ...(board.next || [])].find(t => t && t.id === a.task); if (x && x.after) return ('Next on the board after ' + String(x.after)).slice(0, 90); }
-  for (const e of events) { if (now - e.atMs > H) break; if (e.kind === 'handoff' && e.to === a.id && e.agent !== a.id) return (nameOf(e.agent) + ' handed it over').slice(0, 90); }
+  for (const e of events) { if (now - e.atMs > H) break; if (e.kind === 'handoff' && e.to === a.id && e.agent !== a.id && !/^(fix-|fresh-chat)/.test(e.task)) return (nameOf(e.agent) + ' handed it over').slice(0, 90); }
   return '';
 }
 
@@ -3616,7 +3622,7 @@ function computeWatch(){
     const passed = events.some(e => e.agent === 'code' && e.kind === 'handoff' && e.to === a.to && e.atMs > ms) || events.some(e => e.re === id);
     if (ran && !passed) out.push({k:'dropped', text:T.dropped(id, nameOf(a.to)), btn:'resend', data:id}); }
   for (const s of sessions()) { const h = hotOf(s); if (h && !(handoffOf(s.id) || {}).open && !handedOff(s.id)) out.push({k:'spend', text:h.text, btn:'handoff', lbl:'Hand it off', data:s.id}); }
-  for (const j of jobs()) { const st = jobState(j), jid = String(j.id || j.name); if (st === 'broke') out.push({k:'sched', text:(j.enabled === false ? T.ops.stoppedAlert : T.ops.brokeAlert)(jobName(j)), btn:'fixsched', lbl:'Run it again', data:jid, fix:'sched-' + jid}); }
+  for (const j of jobs()) { const st = jobState(j), jid = /^trig_[A-Za-z0-9_-]{4,80}$/.test(String(j.id || '')) ? String(j.id) : ''; if (st === 'broke') out.push(Object.assign({k:'sched', text:(j.enabled === false ? T.ops.stoppedAlert : T.ops.brokeAlert)(jobName(j))}, jid ? {btn:'fixsched', lbl:'Run it again', data:jid, fix:'sched-' + jid} : {btn:'ops'})); }   // no trigger id = nothing the King can fire: the Ops tab
   if (wakeOff()) out.push({k:'wake', text:'Instant wake is off · answers ride the next run', btn:'fixwake', lbl:'Reconnect', fix:'wake'});
   for (const a of bots) if (a.silent && a.id !== 'code' && a.def.kind !== 'scheduled' && !replay) out.push({k:'silent', text:tx(a.def.name) + ' quiet ' + ageShort(a.atMs), btn:'fixsilent', lbl:'Check on it', data:a.id, fix:'silent-' + a.id});
   alerts = out;
@@ -4343,7 +4349,7 @@ function onAgents(snap){
 }
 function onEvents(snap){
   const seen = new Set(events.map(e => e.id));
-  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', session:d.session ? String(d.session).slice(0, 80) : '', step:d.step ? String(d.step).slice(0, 12) : '', newSession:d.new_session ? String(d.new_session).slice(0, 80) : '', newTitle:d.new_title ? String(d.new_title).slice(0, 80) : '', notePath:d.note_path ? String(d.note_path).slice(0, 120) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
+  events = snap.docs.map(doc => { const d = doc.data() || {}; return {id:doc.id, agent:canon(String(d.agent || '')), name:d.name, lane:d.lane, kind:String(d.kind || 'note'), text:String(d.text || '').slice(0, 300), task:d.task ? String(d.task).slice(0, 24) : '', status:d.status, room:d.room, to:d.to ? canon(String(d.to)) : d.to, approx:!!d.approx, re:d.re ? String(d.re).slice(0, 40) : '', session:d.session ? String(d.session).slice(0, 80) : '', step:d.step ? String(d.step).slice(0, 12) : '', newSession:d.new_session ? String(d.new_session).slice(0, 80) : '', newTitle:d.new_title ? String(d.new_title).slice(0, 80) : '', notePath:d.note_path ? String(d.note_path).slice(0, 120) : '', fixId:d.fix_id ? String(d.fix_id).slice(0, 80) : '', fact:d.fact ? String(d.fact).slice(0, 300) : '', q:d.q ? String(d.q).slice(0, 300) : '', undo:!!d.undo, chat:!!d.chat, long:d.long ? String(d.long).slice(0, 4000) : '', instant:!!d.instant, mode:d.mode ? String(d.mode).slice(0, 12) : '', wake:d.wake ? String(d.wake).slice(0, 8) : '', wakeAtMs:Date.parse(d.wakeAt || '') || 0, wakeErr:d.wakeErr ? String(d.wakeErr).slice(0, 60) : '', deliv:d.deliv ? String(d.deliv).slice(0, 8) : '', trig:d.trig ? String(d.trig).slice(0, 60) : '', order:d.order ? String(d.order).slice(0, 300) : '', atMs:Date.parse(d.at || '') || 0}; })
     .sort((p, q) => q.atMs - p.atMs);
   if (gotEvents) for (const e of events) if (!seen.has(e.id)) { e._fresh = true; if (e.kind === 'handoff' && !replay && byId[e.agent] && byId[e.to]) { pushHandoff(e.agent, e.to); pushFlow(e); } if (!replay) tannoyEvent(e); }
   gotEvents = true; got(); renderThread(true); sweepThread();
