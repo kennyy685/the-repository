@@ -279,6 +279,7 @@ h1 { font: 650 46px/1.02 "Bricolage", "Geist", sans-serif; letter-spacing: -.025
     perfEl.innerHTML = 'HailGL · ' + res.mode + (res.stones ? ' · ' + res.stones.toLocaleString() + ' stones' : '') +
       '<br>' + (SYNC ? 'draw+gpu ' : 'draw ') + res.cpuAvgMs.toFixed(2) + ' ms · frame ' + res.frameAvgMs.toFixed(1) + ' ms (120 frames)';
   }
+  window.__hgl = { kit: kit, field: field, M: M };
   window.addEventListener('resize', layout);
   layout();
   var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
