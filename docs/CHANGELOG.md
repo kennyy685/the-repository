@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## Open map: top 3 agrees with Aldaba's pick - 2026-09-29 (open map republished; QA PASS, its 3 notes fixed)
+- "Aldaba's top 3" now follows the night brief: #1 = Aldaba's pick, #2 = the backup, then the next storm walk (tonight: Columbus 22 St & 21 St, Omaha older homes, Columbus 36 Ave & 18 St). No more Malcolm on the list while the pick says Columbus.
+- A pick outside the old map box (Columbus) now opens as a real area, and the home view widens to show the pick + backup. The brief carries it (`top` + `map` in `data/night.js`), so it stays right every night with no extra step.
+
 ## Night shift real - 2026-09-29 (open map: QA pending, then republished)
 - "Since last night" now shows the REAL brief: last night's real storm reports, the engine's real walks, real streets. Aldaba's pick is always a storm walk (tonight: Columbus, 1.6" hail Aug 8, 25 doors); an older-homes area is only ever the backup, and when no storm walk has doors left it says so and names the backup. The map names the start street, never a house number.
 - One command runs the whole night with no human (`python3 hh.py night-shift`: refresh, brief, the map's `data/night.js`, then one publish line); runbook `docs/orders/night-shift-runbook.md` for a ~2:40 AM routine (~12 min, about $0.30-0.60 a night).
