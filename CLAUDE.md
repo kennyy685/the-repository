@@ -48,6 +48,10 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
 - **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
   on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
+- **Be serious, work on what matters (FilthE, 2026-09-29 06:55):** priority = money: the app proven end to end, real
+  lead data, night shift. No more hub features (cat, looks, extras) after the v28.4 wake fix unless he asks. **He asked (14:05): finish the whole hub list, ultracode on, sync, test, then wait for his next ask with a brief summary (`docs/orders/hub-queue.md`).**
+  Same night: "I want to be wowed when I come back" / "I want to say we're out of the copper age" = the bar is a
+  leap, not polish. Ultracode is the King's call now ("use it when you feel like it").
 - **No phone app for now (FilthE, 2026-09-28):** "stop thinking about a phone app as of now, let's focus on getting the
   system down and to my satisfaction." Build and polish the system on the MacBook; don't plan phone-first work.
 - **The King's 5 rules (FilthE, 2026-09-28: "focus on the hard work, make your workers better"; research:
@@ -91,8 +95,20 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - Command center (Cowork's, read-only for us) https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: never write its
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
 - **The King is live on the hub (FilthE, 2026-09-28):** "I want to mainly use the AI hub ... be live, not scheduled
-  runs." Hub Chat wakes the live King chat instantly via a poke-only trigger bound to that chat; its id is in hub doc
-  `system/king.wake_trigger` (now `trig_01RsYqTCZfeEnStkGS8LYinX`, King session_014eg28D, handing off; older `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
+  runs." **How the wake really works (King, 2026-09-29, found without FilthE):** `fire_trigger` never lands in the bound
+  King chat: it opens a stand-in chat (origin force_run_trigger, sonnet, no connectors, so no get_session/create_trigger;
+  `connectors` on create_trigger is off for this org). Stand-ins used to act as the King (a ghost posted "chain is fine" at
+  03:28). Tried: a relay that republishes a watched "King Doorbell" page (https://claude.ai/artifact/ST8HwE23jUyazTpvHedqPx):
+  the stand-in rang it in 22 s, but a republish does NOT wake the King (tested 03:36, nothing in 13 min). Timed wakes
+  (send_later / run_once_at) DO land in the bound chat (proven 03:37, 03:49). So now: stand-ins stop at once (cheap,
+  no ghosts), the King reads the hub itself every 10 min while FilthE is up, and the real fix is queued for a Builder
+  after hub v28.1: the hub page sets a 1-minute timed wake (update_trigger run_once_at + enabled) on the King's trigger
+  instead of fire_trigger (needs update_trigger in the page grant; FilthE allows it once). PROVEN 04:16: update_trigger
+  run_once_at on the King's trigger fired into the King chat. After a one-shot fires, enabled:true alone is refused:
+  always send a new run_once_at. Builder session_017r7vUf9nN2xMnMtgHVAizD is building it (started 04:17). Never ask FilthE to test a wake: fire it yourself.
+  The hub fires the trigger named in hub doc
+  `system/king.wake_trigger` (now `trig_015MsCgjUpiUb5rpRETuAnYx`, King session_01SyVaPZRupKUKN5ySYz7rGo since 2026-09-29 13:50 UTC, branch
+  `claude/stoic-darwin-ikqmrj` (merges in amazing-gauss); older `trig_01PDsG5Y1TBi9XpzefRn74uH`, `trig_01RB7wJoBmgynC5qG7JzRpSY`, `trig_01RsYqTCZfeEnStkGS8LYinX`, `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
   trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. **FilthE (2026-09-28): "king shouldnt answer just a
   certain amount of times, he should answer the second i type ... hes litteraly the boss."** Every hub message gets a hub
   reply (never only in the Claude chat), even if it lands mid-job; keep big jobs in robots so the King stays free. The old 3x-daily King trigger
@@ -128,8 +144,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   work (building, research, fixes, even the King's own "hard" jobs) runs in helpers, out of this chat; FilthE
   watches it on the AI hub, where each robot's card says in plain words what it's doing from the moment it starts
   (write every Agent `description` as a plain-English job line: it's what the hub shows). **No idling:**
-  when a helper finishes, review it and give it the next board job in the same turn. **2 helpers at a time** (FilthE,
-  2026-09-27: "let's not use too much usage at once"); more only when he asks for a big push. The AI hub is how
+  when a helper finishes, review it and give it the next board job in the same turn. **4 robots at a time** (FilthE, 2026-09-29; was 2). The AI hub is how
   FilthE sees who's doing what. Helpers report back in 10 lines or fewer (their work never enters the
   King's history, which keeps usage down), each on its own files. Cheapest model that can do it: scouts/chores =
   haiku, research/QA/publishing = sonnet, main model only for real app/design/engine work.
@@ -138,9 +153,12 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   Research Lead...) are the King's coworkers, titled by what they do; the King is their boss. Give each job its own
   Claude session (`create_session`, title "<Robot>: <job>", work branch), it reports on the hub board and archives
   when done; the King checks it with `get_session` and archives it if it forgot. In-chat Agent helpers only for tiny
-  checks. Still max 2 at a time.
-- **Ultracode on the hub for now (FilthE, 2026-09-29: "just use it on the hub for now, then for the system"):** hub
-  robot jobs get the word "ultracode" in the prompt (multi-agent build + verify). App/system later, when he says.
+  checks. Max 4 at a time.
+- **Iron age (FilthE, 2026-09-29 13:45: "robot limit at 4 on ultracode ... go next level on building, themes, ideas"):**
+  up to 4 robots at once, every robot job gets "ultracode" (app + system too now). Bar = revolution, not polish.
+- **Everything live (FilthE, 2026-09-29):** the hub's board and answers must always match what's true, by itself; a
+  hand-rewritten board is a failure. Until that's built, the King refreshes `board/current` + `system/king` on every
+  robot finish and every check-in.
 - **Helper check-ins post themselves (T21):** hooks log every helper start/finish to `.claude/state/hub-queue.jsonl`;
   the King posts them with `python3 .claude/hooks/hub_flush.py` (one ArtifactData batch, then `--done`). A Stop hook
   reminds once if any are unposted. The King still posts its own review of each result.

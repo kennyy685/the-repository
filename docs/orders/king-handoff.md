@@ -4,12 +4,110 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
-## FIRST, as the new King
-1. Your own hub wake trigger (create_trigger, no cron, bound to you) with the SAME prompt as trig_01RsYqTCZfeEnStkGS8LYinX.
-   Write its id to hub doc system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md;
-   disable (never delete) trig_01RsYq. 2) Archive session_014eg28DpMQ1EZLj9hVosB8g. 3) Post one hub hi (to:"you").
-4) Real test: ask FilthE to send "King: test" on the hub; confirm the wake turn ARRIVES in your chat (last King saw
-   wake:"ok" on events but never got the turns: verify this works for you). FilthE: talk only on the hub from now.
+## FIRST, as the new King (written 2026-09-29 14:00 UTC by King session_01PJvb5QyxFcFZV1S5sftKNQ)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
+1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_01PDsG5Y1TBi9XpzefRn74uH's prompt
+   with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session; environment_id is
+   env_01LmzHGU2VBGPgpjWbyp9Afy) and system/robots.dispatch.king; update CLAUDE.md's trigger line. Disable (never delete)
+   trig_01PDsG5Y1TBi9XpzefRn74uH, then archive session_01PJvb5QyxFcFZV1S5sftKNQ. Also disable its leftover check-in
+   trig_016ExD5QWvdsaKz3GnM2hhVw (14:13) after you re-arm your own.
+2. Self-test the timed wake (update_trigger run_once_at ~1 min out on your trigger). Proven 13:44: a real hub order woke
+   the old King in 2 min.
+3. Refresh hub crew/sessions (list_sessions) + board/current + system/king on every robot finish / check-in: FilthE
+   (13:50) "everything should be live". Those docs were 12-14 h stale this morning and the hub's instant answers told him
+   to press Fresh King. He does NOT need one; the button's error is being fixed by the code-health Builder.
+4. 4 robots at once, all ultracode (FilthE 13:45 "iron age"). RUNNING (check-in every ~25 min with send_later):
+   - session_012136rntxeMkoRn5S6AezDk Builder: last "free" lines + PDFs, waiting on QA (QA event re builder-no-free-sweep-982ebe2), then publishes app + Practice Door.
+   - session_019aik3ZgNmJCAEueHiCdj4v Engine: open map QA lows (days-ago off by one, ES design gate, install note).
+   - session_01RRaZWWf6iNmTYc7ycLVdb7 Builder ultracode: code-health sweep all pages + fresh-King real error + save stuck QA reports.
+   - session_01Us5UbjDH7t2GnhrnFxf9f3 Designer ultracode: 3 next-level 7 AM looks, compare artifact, FilthE picks.
+   NEXT when a slot frees: Builder ultracode "live board" (hub board + instant answers built from real events/sessions by
+   themselves, no hand-writing). Then: add "ultracode" to the hub dispatch trigger prompts (builder/designer/engine/
+   research; FilthE's pick pending, King's pick yes).
+5. OPEN with FilthE: (a) a "red -380 number": he asked if it's broken code; the King couldn't find it in hub code and asked
+   him WHERE it shows. Get his answer from the hub and hand it to the code-health Builder (or a fresh robot). (b) "score
+   every call" yes/no (King's pick yes). (c) raise to 3-4 robots: answered, 4.
+6. QA trigger trig_01PVGRev9d4pF9PABSNcG9XH now calls add_repo push first (FilthE's order 13:44). Check the next QA report
+   actually pushed.
+7. Report card (crew/report_card) current through 12:50. Robots' guessed timestamps: lesson added to engine + QA memory.
+
+## 2026-09-29 13:50 UTC: new King took over (session_01SyVaPZRupKUKN5ySYz7rGo, branch claude/stoic-darwin-ikqmrj)
+- Wake trigger trig_015MsCgjUpiUb5rpRETuAnYx (hub system/king + robots.dispatch.king point to it); trig_01PDsG5Y and
+  check-in trig_016ExD5Q disabled; session_01PJvb5Q archived. Self-test timed wake set for 13:55Z. Robot check-in
+  send_later trig_01NqRQ34ix39fUf1NkKpKz8y (14:16Z). Merged amazing-gauss in (clears the app's -380 line counter).
+- Told FilthE on the hub (event 20260929T135300Z-code-r). Same 4 robots running; NEXT unchanged (live board).
+
+## 2026-09-29 11:20 UTC: new King took over (session_01PJvb5QyxFcFZV1S5sftKNQ, branch claude/stoic-darwin-ikqmrj)
+- Wake trigger trig_01PDsG5Y1TBi9XpzefRn74uH (hub system/king + robots.dispatch.king point to it); trig_01RB7w disabled;
+  session_01JozofC archived; its safety check trig_01AknBnn + permit reminder trig_01DqmD72 disabled; permit reminder
+  re-made via send_later trig_01GRQqBn5ufKuocKK1RBKEFs (13:02Z). Designer session_01HNcP3i done (HMP App v14 desk
+  layout live), archived.
+- 12:02: RUNNING session_01Ck7V69BXGkVHVim6SzdqNy Engine (drawn walks for top-3 + backup, handoff NEXT 1) and
+  session_012136rntxeMkoRn5S6AezDk Builder ("free" sweep + PDF re-render, NEXT 2+3). Check-in via send_later ~12:47Z.
+  Test wake at 11:22 and 7 AM wake at 12:00 both landed in this chat.
+- 13:46: FilthE: 4 robots, ultracode on all. Engine session_01Ck7V69 done+archived (open map v13). RUNNING: Builder
+  session_012136rn ("free" sweep, in QA), Engine session_019aik3Z (QA lows), Builder session_01RRaZWW (ultracode
+  code-health sweep + fresh-King error text + save stuck QA reports), Designer session_01Us5Ubj (ultracode 3 next-level
+  7 AM looks). QA trigger prompt now calls add_repo push first. Board + system/king rewritten (were 12 h stale: the hub
+  told FilthE to press Fresh King; he doesn't need one). NEXT when a slot frees: hub "live board" (board/answers built
+  from real events + sessions by themselves, ultracode).
+
+## (older) FIRST steps written 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
+1. Get your own session id (get_session, no id). Create your wake trigger: create_trigger, NO cron, bound to you, prompt =
+   the prompt of trig_01RB7wJoBmgynC5qG7JzRpSY with your session id swapped in (get_trigger it). Write its id to hub doc
+   system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md's trigger line.
+   Disable (never delete) trig_01RB7wJoBmgynC5qG7JzRpSY. Then archive session_01JozofC8iSNPPy6vmgD4Muc.
+2. HOW THE WAKE WORKS: the hub (v34) sets a TIMED fire on your trigger (update_trigger run_once_at next minute). A
+   timed fire lands in your chat; fire_trigger never does (it opens a throwaway stand-in chat). After a one-shot fires,
+   `enabled:true` alone is refused: always pass a new run_once_at. Test it YOURSELF (update_trigger run_once_at ~1 min
+   out on your own trigger, see the turn arrive); never ask FilthE to test.
+3. Re-create the 8 AM CT permit-call reminder for yourself if it's before 13:02Z (old one trig_01DqmD72 is bound to the
+   archived King): post on the hub "2 permit calls: Omaha 402-444-5233, Lincoln 402-441-7521".
+4. Watch robots with send_later check-ins (45 min while robots run). QA can't send results back to create_session
+   robots; robots poll hub events themselves; read QA done events (reports may be in the `long` field).
+5. Talk to FilthE only on the hub. Every reply = 3 blocks (Working on / Done / Needs you), grouped by area.
+
+## STATE at 11:20 UTC 2026-09-29 (FilthE wakes ~12:00Z; morning post already on the hub, event 20260929T111701Z-code-r)
+- LIVE: HMP App v13 (full-day e2e test, 22 checks; cancel date skips Saturday; "roof check"), open map v12 (real
+  night brief, top 3 = pick, pick's walk drawn on real streets; Columbus 22 St tonight), hub v34 (timed wake),
+  Practice Door v15 ("roof check"), assessor emails docs/orders/assessor-email.md (Dodge, Washington, Saunders).
+- ROUTINE: "Night shift" trig_01C3zVLmdJNfikq5ocXwWNWQ, every night 2:40 AM CT, fresh sonnet session runs
+  docs/orders/night-shift-runbook.md (~$0.34/night, test run worked 09:04). Check its storm-watch hub event each morning.
+- RUNNING: session_01HNcP3iMT2tTbDWF7opFt8T Designer (ultracode): HMP App desk layout for MacBook; QA PASS 11:15,
+  publishing. When live: verify, archive, report card, tell FilthE.
+- FilthE's orders last night: "be serious, work in what matters" (money: app proven, real lead data, night shift; no
+  hub features), "I want to be wowed" / "out of the copper age" (ultracode is the King's call), "stay working while i
+  sleep", "i shouldnt have to chat for you to check" (King checks things itself).
+- OPEN QUESTION to FilthE (on the hub): score every call = (a) he tells Aldaba what happened after a real talk and it
+  scores it like the Practice Door? King's pick (a). Build it (App) after his yes.
+- NEXT (King's picks, in order): 1) open map: every top-3 card and the backup get their own drawn walk (small engine
+  job). 2) "free estimate" + other leftover "free" lines flagged by the roof-check builder: sweep to the same rule.
+  3) Re-render the print PDFs (still say free). 4) When FilthE sends the assessor emails and data arrives: wire real
+  year-built / owner-occupied / sale data into the engine ("likely insured"). 5) Score every call after his yes.
+- Report card (hub crew/report_card) is current through 11:17.
+
+## 2026-09-29 03:26 UTC: new King took over (session_01JozofC8iSNPPy6vmgD4Muc, branch claude/stoic-darwin-ikqmrj)
+- Done: wake trigger trig_01RB7wJoBmgynC5qG7JzRpSY (hub system/king + robots.dispatch.king point to it); old
+  trig_01RsYq disabled; session_014eg28D archived; 8 AM permit reminder re-made (trig_01DqmD72zV5REK12wGLmkNMM), old
+  trig_01SutpBH paused (delete blocked by the safety guard); 5-min check trig_01PfHF already fired + off.
+- Map learns: done + archived (Knock v3, open map v7 live). Hub v28.1 One building (session_016ezDyT): review_ready, QA next.
+- FilthE saw "Couldn't start a fresh King ... needs its Claude Code Remote permission" on the hub button: not needed
+  (he started this King from the app); the grant is his call (he never OK'd create_session).
+
+## 2026-09-29 06:05 UTC (King session_01JozofC)
+- LIVE: hub Version 33 (One building, Observatory, cat Miso, report card).
+- RUNNING: session_01VQR2UaWsBPRWd6QRKLsUMX Builder: hub v28.4 QA fixes + publish (timed King wake via update_trigger;
+  QA FAIL 05:08 = missing update_trigger grant + checkDelivery `t` scope bug). Earlier builder session_017r7vUf archived.
+- LESSON: QA "sends back" by firing the sender's trigger; builders made with create_session have none, so QA's FAIL
+  sat unread. The King must read QA done events and re-dispatch (fresh session) itself.
+- King wakes: own trigger trig_01RB7w run_once_at 12:00Z (7 AM CT); 8 AM permit reminder trig_01DqmD72.
+- 06:51: FilthE "stay working while i sleep". RUNNING too: session_01HKC68ebVCsZSjHwxwYAnXD Engine: night shift
+  (hh.py night + "Since last night" strip on open map). Ask him in the morning: score every call = (a) or (b)
+  (questions-for-filthe.md). Queued: county assessor email draft (Around it). Nightly schedule for night shift = King's call after QA.
+- 06:57: big push ("wow me", "out of the copper age", ultracode OK). ALSO RUNNING: session_01GER2WgJcay2qjVvKG2W4hD
+  Builder ultracode: HMP App proven end to end; session_01FV41BBpetuNZMhK5SsYv2k Research Lead: assessor email.
+  Overnight check = trig_01GiUdj3 chain; morning post before 12:00Z.
 
 ## LIVE (2026-09-29)
 - AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
