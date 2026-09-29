@@ -197,8 +197,10 @@ const plen=poly=>{let s=0;for(let i=1;i<poly.length;i++)s+=Math.hypot((poly[i][0
 const dirOf=poly=>{const a=poly[0],b=poly[poly.length-1],dx=(b[0]-a[0])*M_LON,dy=(b[1]-a[1])*M_LAT;return Math.abs(dx)>Math.abs(dy)?(dx>0?'E':'W'):(dy>0?'N':'S')};
 function finishWalk(w){ // curb points, path, ETAs
   const n=w.homes.length, per=(KN1-KN0)/n;let path=[w.park];
-  w.homes.forEach((h,k)=>{h.order=k+1;h.eta=KN0+k*per;h.col=hailHex(h.hail);path.push(h.curb,h.p,h.curb)});
-  w.path=path;w.len=plen(path.filter((_,i)=>i===0||i%3!==2)); // walking distance ≈ curb-to-curb + door spurs
+  w.homes.forEach((h,k)=>{h.order=k+1;h.eta=KN0+k*per;h.col=hailHex(h.hail);
+    const pv=w.homes[k-1];if(pv&&pv.si!==h.si){const a=w.streets[pv.si].p,b=w.streets[h.si].p;path.push(a[a.length-1],b[0])} // turn the corner, don't cut the block
+    path.push(h.curb,h.p,h.curb)});
+  w.path=path;w.len=plen(path);
   let bb=[1e9,1e9,-1e9,-1e9];[w.park,...w.homes.map(h=>h.p)].forEach(q=>{bb[0]=Math.min(bb[0],q[0]);bb[1]=Math.min(bb[1],q[1]);bb[2]=Math.max(bb[2],q[0]);bb[3]=Math.max(bb[3],q[1])});
   w.bb=bb;w.center=[(bb[0]+bb[2])/2,(bb[1]+bb[3])/2];return w}
 function pickWalk(){
@@ -611,7 +613,8 @@ let toastT=0;function toast(msg){const el=$('#toast');el.textContent=msg;el.clas
 const holoCv=$('#holo');let holoPtr=false; // only show hover cards after a real pointer move over the 3D view
 holoCv.addEventListener('pointermove',()=>holoPtr=true);holoCv.addEventListener('pointerleave',()=>{holoPtr=false;hideTip()});
 const holo=window.createHolo?(()=>{try{return window.createHolo(holoCv,$('#hl'),{
-  onHover:(i,x,y)=>{if(i==null||!holoPtr){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false)})}catch(e){console.warn(e);return null}})():null;
+  onHover:(i,x,y)=>{if(i==null||!holoPtr){hideTip();return}showTipDoor(i,x,y)},onSelect:i=>selectDoor(i,false),
+  onTourEnd:()=>$('#tour').setAttribute('aria-pressed','false')})}catch(e){console.warn(e);return null}})():null;
 const holoOK=!!(holo&&holo.ok!==false);
 if(holo){try{holo.setTheme(theme);holo.setReduced(STILL)}catch(e){}}
 function setView(v){S.view=v;document.body.dataset.view=v;

@@ -837,7 +837,7 @@ function makeHolo(canvas, labelLayer, cb) {
   let frameAcc = 0, frameN = 0;
 
   const V = new Float32Array(16), Pm = new Float32Array(16), VP = new Float32Array(16), TMP = new Float32Array(16);
-  const EYE = new Float32Array(3), EYE2 = new Float32Array(3), RIGHT = new Float32Array(3);
+  const EYE = new Float32Array(3), RIGHT = new Float32Array(3);
   let scr = new Float32Array(0);                  // per door: top x, y, w, mid x, y, w (css px)
 
   /* ---------- labels (HTML) ---------- */
