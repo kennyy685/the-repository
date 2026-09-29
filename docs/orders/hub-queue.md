@@ -3,7 +3,10 @@
 
 One Builder at a time on pages/crew-hq.html (same page). Every chunk: prompt starts with "ultracode", release checklist,
 live-data smoke test, publish, REAL round trip (King checks the live hub matches list_sessions), hub post, archive.
-The King starts the next chunk the moment the previous Builder is archived. Specs: docs/design/hub-office/.
+NO GAPS (FilthE 14:08: "the second tasks finishes start the next"): each hub Builder, as its LAST step after publish +
+round trip, starts the next QUEUED chunk itself (create_session, title "Builder (ultracode): <chunk>", branch
+claude/amazing-gauss-yzfpq0, prompt = this file's chunk + the same done-rules + this no-gaps rule), marks it RUNNING
+here with the session id, pushes, then archives itself. The King polls every 5 min as a backup. Specs: docs/design/hub-office/.
 
 1. RUNNING  Live hub: robots + board + instant answers built from real sessions/events (session_013wezScDeoduPTP4moTMHqb)
 2. QUEUED   Fix-it buttons: every warning carries the one button that fixes it (FUNCTIONS-SHORTLIST #7)
