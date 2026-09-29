@@ -16,7 +16,7 @@ this file (HMP HQ, open map, Fresh King, the checks, the summary).
 | **HMP App** (page + modules) | 5 freezes (Loading forever, dead Right Hand, locked chat, Help me say it spinning, photo upload) + 13 dead functions | 18 | Load 0.5 s main thread at 4x CPU, tab switch 0.09-0.18 s, idle ~0. Already fast, so no change | 1. A timed-out Right Hand retry waits the full 2 min each time on a stuck runtime. 2. Unused i18n strings/CSS not swept (risky). |
 | **Practice Door** | 3 freezes (Send locked, hint, sample never answering) | 3 | Load 0.4 s, idle 0. No change | None found. |
 | **HMP HQ** (`pages/hmp-hq.html`) | 5: Loading forever when `use('db')` hangs; Loading forever when the snapshot never comes; error shown as "live data is on the published page"; a dropped feed swallowed silently; listener + render not guarded | 5 | 210-340 ms -> 170-570 ms at 4x CPU (same, within noise) | 1. The "N days old" note only refreshes on a new snapshot or a language tap. 2. HQ is only as fresh as the last refresh (the 8 AM/6 PM runs are paused). |
-| **Open map** (`docs/design/open-map/`) | 0 high; 4 medium (MapLibre from a CDN blocks load; data fetches with no timeout; FX redraw 33 fps nonstop; relief built during boot); 3 low (idle work could starve, radar play double-start, dead `walkSt`) | 6 of 7 | Load 2.9-4.2 s -> 4.1-4.5 s, blocking ~4.7-4.9 s -> 4.5-5.0 s per 8 s (headless, software graphics, 4x CPU: noise). The slower redraw only applies behind an open card or unfocused window, which the test doesn't cover | 1. Vendor MapLibre (0.8 MB) into the published files (FilthE's call). 2. ~25 aria-label/title strings English-only. 3. 5 empty catches (harmless). |
+| **Open map** (`docs/design/open-map/`) | 0 high; 4 medium (MapLibre from a CDN blocks load; data fetches with no timeout; FX redraw 33 fps nonstop; relief built during boot); 3 low (idle work could starve, radar play double-start, dead `walkSt`) | 6 of 7 | Load 2.9-4.2 s -> 4.1-4.5 s, blocking ~4.7-4.9 s -> 4.5-5.0 s per 8 s (headless, software graphics, 4x CPU: noise). The slower redraw only applies behind an open card, which the test doesn't cover | 1. Vendor MapLibre (0.8 MB) into the published files (FilthE's call). 2. ~25 aria-label/title strings English-only. 3. 5 empty catches (harmless). |
 
 ## Fixed this pass (commits on `claude/amazing-gauss-yzfpq0`)
 - `572e693` **Hub, Fresh King:** every failure showed "The hub needs its Claude Code Remote permission". Now the message
@@ -30,7 +30,7 @@ this file (HMP HQ, open map, Fresh King, the checks, the summary).
   "Couldn't refresh just now". Render and listener are wrapped.
 - `8d30524` **Open map:** data files time out at 20 s into their fallbacks. `idle()` has a 2 s cap (the FX loop kept
   the thread busy, so idle work could wait forever). Relief is built after first paint. The FX redraw drops to 15 fps
-  behind an open card and 5 fps when the window isn't focused. Radar play cancels the old frame first. Dead `walkSt`
+  behind an open card (a 5 fps unfocused rule was dropped after QA: the artifact frame is unfocused until the first click). Radar play cancels the old frame first. Dead `walkSt`
   removed.
 
 ## New checks (all in `tests/release_checks.sh`)
@@ -55,3 +55,13 @@ this file (HMP HQ, open map, Fresh King, the checks, the summary).
 Seven QA reports that never reached the repo (their pushes were blocked) are now in `docs/research/`:
 `night-shift-real-QA`, `every-card-walk-QA`, `every-card-walk-own-walk-QA`, `app-e2e-QA` (summary only),
 `roof-check-wording-QA` (summary only), plus `age-deadline-QA` and `no-free-sweep-QA` (both came in during this pass).
+
+## QA round 1 fixes (`bd73961`)
+QA (in-session, 2026-09-29 ~15:05) found 1 medium, 4 low; all fixed:
+- Medium: the open map's "unfocused = 5 fps" made the first open choppy inside claude.ai (the iframe has no focus until a
+  click). Rule removed.
+- Fresh King: a create_session timeout (King may still be starting) logged "failed"; it now logs "no answer, check
+  list_sessions before another". `not_in_manifest`/`deferred` now say the hub was published without the grant.
+- HQ: a page both stale and failing to refresh showed only the stale note; now shows both.
+- Parity check now covers HQ, the claim tracker and the Knock page (38 tables, clean). Outside these commits:
+  `docs/design/next-level/b/index.html:225` has `statArea` in EN, missing in ES (Designer's WIP).

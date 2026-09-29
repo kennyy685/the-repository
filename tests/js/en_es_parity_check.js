@@ -5,7 +5,8 @@ const fs = require("fs"), path = require("path");
 const ts = require(path.join(process.env.NODE_PATH || "/opt/node22/lib/node_modules", "typescript"));
 const ROOT = path.join(__dirname, "..", "..");
 const FILES = ["pages/hmp-app.html", "pages/practice-door.html", "pages/translate/translate.js", "pages/v25/calls.js",
-  "pages/v25/practice.js", "pages/v25/walkmap.js", "pages/estimate/estimate-module.js", "docs/design/open-map/index.html"];
+  "pages/v25/practice.js", "pages/v25/walkmap.js", "pages/estimate/estimate-module.js", "docs/design/open-map/index.html",
+  "pages/hmp-hq.html", "pages/claim-tracker.html", "docs/design/knock/index.html"];
 const fails = []; let pairs = 0;
 const keyOf = (p) => p.name && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name) || ts.isNumericLiteral(p.name)) ? p.name.text : null;
 function props(obj) { const m = new Map(); for (const p of obj.properties) { const k = p.kind === ts.SyntaxKind.ShorthandPropertyAssignment ? p.name.text : keyOf(p); if (k != null) m.set(k, p); } return m; }

@@ -546,8 +546,9 @@ a.walk:hover{border-color:var(--line-2)}
         note.hidden = false;
       }
     } else $("updated").textContent = " ";
-    if (refreshFailed && note.hidden) {   // the live feed dropped after data arrived: say so, keep the last summary
-      note.replaceChildren(ic("clock", "i-sm"), h("span", {}, T0.lateNote)); note.hidden = false;
+    if (refreshFailed) {   // the live feed dropped after data arrived: say so (after the stale note, if any), keep the last summary
+      if (note.hidden) note.replaceChildren(ic("clock", "i-sm"), h("span", {}, T0.lateNote)); else note.append(" · " + T0.lateNote);
+      note.hidden = false;
     }
 
     // each section draws on its own so one odd field can't blank the page
