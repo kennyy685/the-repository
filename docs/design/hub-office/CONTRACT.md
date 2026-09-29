@@ -212,3 +212,19 @@ seen set); a robot plays with the cat at most once per need, max 25 s, then goes
 ### Hub db doc `crew/report_card` (page reads; the King writes)
 `{v:1, rows:[{at:ISO, id:'<agent id>', job:'<≤60 chars>', verdict:'good'\|'redo', why:'<≤90 chars>', cost:<USD number or null>}]}`,
 newest first, max 60 rows (the writer trims). Missing doc = the page shows "No reviews yet" and never errors.
+
+## v28.2 additions (the Shipped shelf, QUEUE-SPECS F, 2026-09-29)
+Every field optional; a v28.1 scene ignores them, the page works with no scene.
+
+| field | owner | meaning |
+|---|---|---|
+| `HUB.shipped` | page writes, scene reads | `{v, list:[{id, text, at}]}`: what shipped this week, **newest first, at most 8**. Same source as the Sunday report card's "Shipped" and the Observatory's `shipped` count: `done`/`note` events since `weekStart()`, not by `you`, not `approx`, whose `text` matches `SHIP_RX` and not `NOT_SHIP_RX` (crew-hq.html, next to `computeObservatory`). `id` = the event doc id, `text` = "<robot name> · <event text>" (≤ 90 chars, EN only), `at` = ms. `v` bumps only when the list of ids changes (the scene re-lays the shelf only then). Missing or `list:[]` = an empty shelf with no sign. |
+| `SCENE.shelf` | scene getter | `{v, n, boxes:[{id, x, y, visible}], hover}`: `n` boxes on the shelf, each box's center in stage px (projected every frame), `hover` = `{id, text, x, y}` for the box under `HUB.pointer` (within about 14 px), else `null`. Tests and the page may read it; the page needs to do nothing with it. |
+| `#shelfTag` | scene (DOM) | the hover label for a shelf box. The scene creates it inside `#stage` with class `cattag` (the same look as the cat's name tag), `aria-hidden`, `pointer-events:none`, and drives its text, position and opacity inline. If the page already has a `#shelfTag`, the scene uses that element instead. It shows only while a box is hovered and no robot is (`HUB.hover` null). |
+
+The shelf: a walnut strip along the top of the lower slat wall (above the trophy plaques, over the design studio;
+AI-HUB-BLUEPRINT change 7). One small kraft box per ship, the newest nearest the front (the viewer's left), max 8, a
+brass "SHIPPED n" sign at the back end only when n > 0. Draw calls: the plank merges into the static walnut mesh (+0),
+the boxes are one InstancedMesh (+1, hidden at 0), the sign is one plane (+1, hidden at 0): **+2 at most, +0 when
+empty**; nothing on the shelf casts a shadow. A new ship drops onto the shelf (0.6 s) unless reduced motion or low-fx,
+which place it at once. No-WebGL: nothing (the still is unchanged).
