@@ -4,6 +4,10 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
+## 2026-09-29 16:37 UTC: King session_01BRhiPYparx9TSui1Tu7oSB took over
+- Wake trigger trig_014pzRWxgovShuQovAfRwQ8j (hub system/king + robots.dispatch.king); trig_01CyKokD disabled;
+  session_012p3ZTe archived. Self-test wake armed 16:38Z. Check-in trig_01FNRejT (16:57Z) watches Builder 01JH3N6T.
+
 ## FIRST, as the new King (written 2026-09-29 16:36 UTC by King session_012p3ZTer2rTFHRkMNcY2sK3)
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
 1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_01CyKokDYaTgp65aKvHDMVxa's prompt
