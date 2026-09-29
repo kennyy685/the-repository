@@ -9,6 +9,7 @@
  *   app-phone     the same clicks at 390 px
  *   app-db-hang   use('db') never answers: the page stops waiting by itself and says live data is off; tabs work
  *   app-db-slow   use('db') answers after 20 s: 'off' at 12 s, then it connects by itself
+ *   app-sample-slow use('sample') answers after 20 s: the Right Hand shows up then
  *   app-use-hang  user + sample never answer: the data still loads and the Right Hand stays hidden (no dead button)
  *   app-db-fail   every listener errors: the page says it could not load; tabs work
  *   app-write-hang  writes never answer: a door tap still shows at once and waits in the outbox (sync chip)
@@ -45,7 +46,8 @@ const ok = (cond, msg) => { if (!cond) fails.push(`${cur}: ${msg}`); return !!co
 const ASSETS_MOCK = `(() => { const M = (window.__MOCK || {}).modes || {};
   const g = fn => M.assets === 'hang' ? new Promise(() => {}) : M.assets === 'fail' ? Promise.reject(Object.assign(new Error('x'), {code: 'unavailable'})) : Promise.resolve(fn());
   const assets = { upload: () => g(() => ({ id: Math.random().toString(16).slice(2).padEnd(32, '0').slice(0, 32), url: '' })), list: () => g(() => ({ assets: [], usage: {} })), delete: () => g(() => ({})), url: () => g(() => '') };
-  const use0 = window.claude.use; if (M.use_db === 'slow20') window.claude.use = n => n === 'db' ? new Promise(r => setTimeout(() => r(use0('db')), 20000)) : use0(n);
+  const use0 = window.claude.use, slow = n => M['use_' + n] === 'slow20';   // answers after 20 s (slow, not gone)
+  window.claude.use = n => slow(n) ? new Promise(r => setTimeout(() => r(use0(n)), 20000)) : use0(n);
   const use1 = window.claude.use;
   window.claude.use = n => n === 'assets' ? (M.use_assets === 'hang' ? new Promise(() => {}) : Promise.resolve(assets)) : use1(n); })();`;
 
@@ -228,6 +230,12 @@ async function appScenarios(browser) {
     ok(await liveState(p) === "off", `use('db') 14 s late and the live dot says "${await liveState(p)}", not off`);
     await tick(10000);
     ok(await liveState(p) === "on", `use('db') answered at 20 s and the page never connected (live: ${await liveState(p)})`);
+  }));
+  await run("app-sample-slow", () => appDegraded(browser, url, "app-sample-slow", { use_sample: "slow20" }, async ({ p, tick }) => {
+    await tick(14000);
+    ok(!(await p.isVisible("#rhBtn").catch(() => false)), "Right Hand shown before sample answered");
+    await tick(10000);
+    ok(await p.isVisible("#rhBtn").catch(() => false), "sample answered at 20 s and the Right Hand never showed");
   }));
   await run("app-use-hang", () => appDegraded(browser, url, "app-use-hang", { use_user: "hang", use_sample: "hang" }, async ({ p, tick }) => {
     await tick(15000);
