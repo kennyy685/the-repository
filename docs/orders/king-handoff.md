@@ -4,14 +4,40 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
-## FIRST, as the new King
-1. Your own hub wake trigger (create_trigger, no cron, bound to you) with the SAME prompt as trig_01RsYqTCZfeEnStkGS8LYinX.
-   Write its id to hub doc system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md;
-   disable (never delete) trig_01RsYq. 2) Archive session_014eg28DpMQ1EZLj9hVosB8g. 3) Post one hub hi (to:"you").
-4) Test the wake YOURSELF, never ask FilthE ("i shouldnt have to chat for you to check", 2026-09-29): fire_trigger
-   always opens a stand-in chat, never yours, and a watched-page republish does not wake you either (tested). Only timed
-   wakes reach you: keep a 10-min self check-in while FilthE is up until the hub sets timed wakes (Builder job after v28.1).
-   FilthE: talk only on the hub.
+## FIRST, as the new King (written 2026-09-29 11:20 UTC by King session_01JozofC8iSNPPy6vmgD4Muc)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (merges in `claude/amazing-gauss-yzfpq0`, where robots commit).
+1. Get your own session id (get_session, no id). Create your wake trigger: create_trigger, NO cron, bound to you, prompt =
+   the prompt of trig_01RB7wJoBmgynC5qG7JzRpSY with your session id swapped in (get_trigger it). Write its id to hub doc
+   system/king (wake_trigger, live_session) and system/robots.dispatch.king; update CLAUDE.md's trigger line.
+   Disable (never delete) trig_01RB7wJoBmgynC5qG7JzRpSY. Then archive session_01JozofC8iSNPPy6vmgD4Muc.
+2. HOW THE WAKE WORKS: the hub (v34) sets a TIMED fire on your trigger (update_trigger run_once_at next minute). A
+   timed fire lands in your chat; fire_trigger never does (it opens a throwaway stand-in chat). After a one-shot fires,
+   `enabled:true` alone is refused: always pass a new run_once_at. Test it YOURSELF (update_trigger run_once_at ~1 min
+   out on your own trigger, see the turn arrive); never ask FilthE to test.
+3. Re-create the 8 AM CT permit-call reminder for yourself if it's before 13:02Z (old one trig_01DqmD72 is bound to the
+   archived King): post on the hub "2 permit calls: Omaha 402-444-5233, Lincoln 402-441-7521".
+4. Watch robots with send_later check-ins (45 min while robots run). QA can't send results back to create_session
+   robots; robots poll hub events themselves; read QA done events (reports may be in the `long` field).
+5. Talk to FilthE only on the hub. Every reply = 3 blocks (Working on / Done / Needs you), grouped by area.
+
+## STATE at 11:20 UTC 2026-09-29 (FilthE wakes ~12:00Z; morning post already on the hub, event 20260929T111701Z-code-r)
+- LIVE: HMP App v13 (full-day e2e test, 22 checks; cancel date skips Saturday; "roof check"), open map v12 (real
+  night brief, top 3 = pick, pick's walk drawn on real streets; Columbus 22 St tonight), hub v34 (timed wake),
+  Practice Door v15 ("roof check"), assessor emails docs/orders/assessor-email.md (Dodge, Washington, Saunders).
+- ROUTINE: "Night shift" trig_01C3zVLmdJNfikq5ocXwWNWQ, every night 2:40 AM CT, fresh sonnet session runs
+  docs/orders/night-shift-runbook.md (~$0.34/night, test run worked 09:04). Check its storm-watch hub event each morning.
+- RUNNING: session_01HNcP3iMT2tTbDWF7opFt8T Designer (ultracode): HMP App desk layout for MacBook; QA PASS 11:15,
+  publishing. When live: verify, archive, report card, tell FilthE.
+- FilthE's orders last night: "be serious, work in what matters" (money: app proven, real lead data, night shift; no
+  hub features), "I want to be wowed" / "out of the copper age" (ultracode is the King's call), "stay working while i
+  sleep", "i shouldnt have to chat for you to check" (King checks things itself).
+- OPEN QUESTION to FilthE (on the hub): score every call = (a) he tells Aldaba what happened after a real talk and it
+  scores it like the Practice Door? King's pick (a). Build it (App) after his yes.
+- NEXT (King's picks, in order): 1) open map: every top-3 card and the backup get their own drawn walk (small engine
+  job). 2) "free estimate" + other leftover "free" lines flagged by the roof-check builder: sweep to the same rule.
+  3) Re-render the print PDFs (still say free). 4) When FilthE sends the assessor emails and data arrives: wire real
+  year-built / owner-occupied / sale data into the engine ("likely insured"). 5) Score every call after his yes.
+- Report card (hub crew/report_card) is current through 11:17.
 
 ## 2026-09-29 03:26 UTC: new King took over (session_01JozofC8iSNPPy6vmgD4Muc, branch claude/stoic-darwin-ikqmrj)
 - Done: wake trigger trig_01RB7wJoBmgynC5qG7JzRpSY (hub system/king + robots.dispatch.king point to it); old
