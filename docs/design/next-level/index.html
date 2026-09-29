@@ -48,6 +48,18 @@ h1{margin:0;font:700 clamp(40px,6.4vw,84px)/.98 var(--display);font-variation-se
 .meta p{margin:0;color:var(--text-2);max-width:62ch}
 .meta b{color:var(--text);font-weight:600}
 .small{font-size:13px;color:var(--muted)}
+.dir.new{border-top:0;padding-top:0}
+.pill2{font:600 12px/1 var(--ui);letter-spacing:.04em;text-transform:uppercase;color:var(--acc-ink);border:1px solid var(--acc);padding:5px 10px;border-radius:999px}
+.trio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.trio figure{margin:0;display:grid;gap:8px}
+.trio figcaption{font:500 12px/1.3 var(--mono);color:var(--muted);letter-spacing:.02em}
+.trio figcaption b{color:var(--text);font-weight:500}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid var(--rule)}
+.notes li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.notes .you{color:var(--muted);font-style:italic}
+.notes .you::before{content:"“"}.notes .you::after{content:"”"}
+.notes .did{color:var(--text-2)}
+.notes .did b{color:var(--text);font-weight:600}
 .shot{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--rule-2);background:#000;aspect-ratio:1440/900;max-width:100%;box-shadow:0 40px 80px -40px rgba(0,0,0,.7)}
 .shot img{display:block;width:100%;height:100%;object-fit:cover}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -56,7 +68,7 @@ h1{margin:0;font:700 clamp(40px,6.4vw,84px)/.98 var(--display);font-variation-se
 .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2)}
 footer{border-top:1px solid var(--rule);padding-top:20px;font-size:13px;color:var(--muted);display:grid;gap:6px}
 footer a{color:var(--text-2)}
-@media (max-width:760px){.meta{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.meta,.trio,.notes li{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -70,13 +82,38 @@ footer a{color:var(--text-2)}
   </header>
 
   <section class="hero">
-    <div class="eyebrow"><span class="en">Next level · the 7 AM open · pick one</span><span class="es">Siguiente nivel · la apertura de las 7 AM · escoge una</span></div>
-    <h1><span class="en">Three ways to open your day.</span><span class="es">Tres maneras de abrir tu día.</span></h1>
-    <p class="lede"><span class="en">Same real data in all three: Aldaba's pick (Columbus, 22 St &amp; 21 St, 1.64 in hail on Aug 8, 25 doors), 12 ranked zones, 18 real storm days, real Nebraska streets. Homes are samples. Open each one live to see its opening moment.</span><span class="es">Los mismos datos reales en las tres: la elección de Aldaba (Columbus, 22 St y 21 St, granizo de 1.64 pulg. el 8 de agosto, 25 puertas), 12 zonas en orden, 18 días de tormenta reales y calles reales de Nebraska. Las casas son de muestra. Abre cada una en vivo para ver su momento de apertura.</span></p>
+    <div class="eyebrow"><span class="en">Next level · the 7 AM open · round 2</span><span class="es">Siguiente nivel · la apertura de las 7 AM · ronda 2</span></div>
+    <h1><span class="en">Your notes, built.</span><span class="es">Tus notas, construidas.</span></h1>
+    <p class="lede"><span class="en"><b>D</b> keeps what you liked in A, B and C and fixes what you didn't. It starts at home in <b>Fremont</b> (your call today): E 12th St &amp; E Linden Ave, 1.00 in hail on Jul 1, 25 doors, 1.4 mi from HQ. Below it, round 1 (A, B, C) as you reviewed it, on the Columbus pick.</span><span class="es"><b>D</b> se queda con lo que te gustó de A, B y C y arregla lo que no. Empieza en casa, en <b>Fremont</b> (tu decisión de hoy): E 12th St y E Linden Ave, granizo de 1.00 pulg. el 1 de julio, 25 puertas, a 1.4 mi de la base. Abajo, la ronda 1 (A, B, C) tal como la revisaste, con la elección de Columbus.</span></p>
+    <p class="lede small" style="font-size:14px"><span class="en">Round 1, same real data in all three: Aldaba's pick (Columbus, 22 St &amp; 21 St, 1.64 in hail on Aug 8, 25 doors), 12 ranked zones, 18 real storm days, real Nebraska streets. Homes are samples. Open each one live to see its opening moment.</span><span class="es">Ronda 1, los mismos datos reales en las tres: la elección de Aldaba (Columbus, 22 St y 21 St, granizo de 1.64 pulg. el 8 de agosto, 25 puertas), 12 zonas en orden, 18 días de tormenta reales y calles reales de Nebraska. Las casas son de muestra. Abre cada una en vivo para ver su momento de apertura.</span></p>
   </section>
 
+  <section class="dir new" id="dir-d">
+    <div class="dh"><h2><span class="l">D</span><span class="en">Hybrid</span><span class="es">Híbrido</span></h2><span class="pill2"><span class="en">Built from your notes</span><span class="es">Hecho con tus notas</span></span></div>
+    <div class="shot"><img data-d="d" src="d/shots/dark-en.png" alt="Hybrid, the morning screen, at 1440 by 900" loading="lazy"></div>
+    <div class="trio">
+      <figure><div class="shot"><img data-d="d" data-s="-walk" src="d/shots/dark-en-walk.png" alt="Hybrid, the walk after the zoom" loading="lazy"></div><figcaption><b><span class="en">2 · Walk</span><span class="es">2 · Ruta</span></b> <span class="en">the zoom lands on every door, in order</span><span class="es">el acercamiento cae en cada puerta, en orden</span></figcaption></figure>
+      <figure><div class="shot"><img data-d="d" data-s="-road" src="d/shots/dark-en-road.png" alt="Hybrid, the road as a 3D hologram" loading="lazy"></div><figcaption><b><span class="en">3 · Road 3D</span><span class="es">3 · Calle 3D</span></b> <span class="en">streets and houses as holograms, path door to door</span><span class="es">calles y casas como hologramas, ruta puerta por puerta</span></figcaption></figure>
+    </div>
+    <div class="meta">
+      <ul class="notes">
+        <li><span class="you"><span class="en">I like how the map is laid out … the backup card</span><span class="es">Me gusta cómo está el mapa … la tarjeta de respaldo</span></span><span class="did"><span class="en"><b>Kept A's layout</b>: pick card left, plan right, map in the middle, backup card one click away.</span><span class="es"><b>Se quedó el diseño de A</b>: elección a la izquierda, plan a la derecha, mapa al centro, respaldo a un clic.</span></span></li>
+        <li><span class="you"><span class="en">looks like worms on the screen</span><span class="es">parecen gusanos en la pantalla</span></span><span class="did"><span class="en"><b>No particles.</b> Hail is calm contour lines, one every 0.1 in, like a weather atlas.</span><span class="es"><b>Sin partículas.</b> El granizo son curvas tranquilas, una cada 0.1 pulg., como un atlas del clima.</span></span></li>
+        <li><span class="you"><span class="en">hail days list and today's plan</span><span class="es">la lista de días de granizo y el plan de hoy</span></span><span class="did"><span class="en"><b>Every line is a fact</b>: date, days ago, max size, time window, homes hit, zones. The plan has times, miles, doors and sunset (7:13 PM today).</span><span class="es"><b>Cada línea es un dato</b>: fecha, hace cuántos días, tamaño máximo, horario, casas, zonas. El plan tiene horas, millas, puertas y la puesta de sol (7:13 p. m. hoy).</span></span></li>
+        <li><span class="you"><span class="en">zoom … glitched out, really highlighted / shows no information</span><span class="es">el zoom … se trababa, muy resaltado / no muestra información</span></span><span class="did"><span class="en"><b>One smooth camera move</b> (the math Google Maps-style zooms use) that lands on the walk: doors in order with arrival time, hail, roof age, score and why.</span><span class="es"><b>Un solo movimiento suave de cámara</b> (la misma matemática de los zooms tipo Google Maps) que cae en la ruta: puertas en orden con hora, granizo, edad del techo, puntaje y por qué.</span></span></li>
+        <li><span class="you"><span class="en">I want the houses like holograms</span><span class="es">quiero las casas como hologramas</span></span><span class="did"><span class="en"><b>Road 3D</b>: real streets and houses as holograms, the walk path draws door to door. Hover or click a house for its card. Tour plays the walk.</span><span class="es"><b>Calle 3D</b>: calles reales y casas como hologramas, la ruta se dibuja puerta por puerta. Pasa el mouse o da clic en una casa para ver su ficha. Recorrido reproduce la ruta.</span></span></li>
+        <li><span class="you"><span class="en">couldn't find how to leave</span><span class="es">no encontraba cómo salir</span></span><span class="did"><span class="en"><b>Back on every screen</b>, plus Esc, plus Morning › Walk › Road at the top.</span><span class="es"><b>Regresar en cada pantalla</b>, más Esc, más Mañana › Ruta › Calle arriba.</span></span></li>
+      </ul>
+      <div style="display:grid;gap:10px;align-content:start">
+        <p class="small"><span class="en">Wow: hail contours settle over Fremont, Start the walk glides into the block and the doors number themselves, then the road rises as a hologram and the path draws door to door.</span><span class="es">Wow: las curvas de granizo se asientan sobre Fremont, Empezar la ruta se desliza hasta la cuadra y las puertas se numeran solas; luego la calle se levanta como holograma y la ruta se dibuja puerta por puerta.</span></p>
+        <p class="small"><span class="en">Inspired by:</span><span class="es">Inspirado en:</span> van Wijk &amp; Nuij smooth zoom (d3) · Inigo Quilez isolines · swisstopo atlas contours · hologram shaders · Apple Liquid Glass · Linear</p>
+        <p class="small"><span class="en">Homes are samples (no owner names). Streets, storms and Census numbers are real.</span><span class="es">Las casas son de muestra (sin nombres de dueños). Calles, tormentas y números del Censo son reales.</span></p>
+        <div class="row"><a class="btn" data-live="d" href="d/index.html"><span class="en">Open live</span><span class="es">Abrir en vivo</span> →</a></div>
+      </div>
+    </div>
+  </section>
   <section class="dir" id="dir-b">
-    <div class="dh"><h2><span class="l">B</span><span class="en">The Brief</span><span class="es">El Resumen</span></h2><span class="pick"><span class="en">Our pick</span><span class="es">Nuestra elección</span></span></div>
+    <div class="dh"><h2><span class="l">B</span><span class="en">The Brief</span><span class="es">El Resumen</span></h2><span class="pick" style="background:var(--chip);color:var(--text-2)"><span class="en">Round 1 pick</span><span class="es">Elección ronda 1</span></span></div>
     <div class="shot"><img data-d="b" src="b/shots/dark-en.png" alt="The Brief at 1440 by 900" loading="lazy"></div>
     <div class="meta">
       <p><span class="en">Aldaba writes your morning like an Apple keynote title card: <b>"Columbus. 25 doors. 4–7:30 PM."</b> On the right, hail from 18 real storms becomes glowing contour lines, with a close-up of the walk.</span><span class="es">Aldaba escribe tu mañana como una portada de keynote de Apple: <b>"Columbus. 25 puertas. 4–7:30 p. m."</b> A la derecha, el granizo de 18 tormentas reales se vuelve curvas de nivel que brillan, con un acercamiento de la ruta.</span></p>
@@ -114,7 +151,7 @@ footer a{color:var(--text-2)}
 
   <footer>
     <div><span class="en">Screens at 1440×900 (MacBook Air). Mockups only: the live app is untouched. The Builder builds the one you pick.</span><span class="es">Pantallas a 1440×900 (MacBook Air). Solo maquetas: la app en vivo no se tocó. El Builder construye la que escojas.</span></div>
-    <div><span class="en">Research borrowed from:</span><span class="es">Ideas tomadas de:</span> <a href="https://developer.apple.com/videos/play/wwdc2025/219/">Apple Liquid Glass (WWDC25)</a> · <a href="https://linear.app/now/behind-the-latest-design-refresh">Linear 2026 refresh</a> · <a href="https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f">Agafonkin wind map (Windy-style particles)</a> · <a href="https://vercel.com/design/guidelines">Vercel interface guidelines</a> · <a href="https://www.stan.vision/journal/ux-ui-trends-shaping-digital-products">2026 UI trends</a></div>
+    <div><span class="en">Research borrowed from:</span><span class="es">Ideas tomadas de:</span> <a href="https://github.com/d3/d3-interpolate#interpolateZoom">van Wijk &amp; Nuij smooth zoom (d3.interpolateZoom)</a> · <a href="https://iquilezles.org/articles/distance/">Inigo Quilez isolines</a> · <a href="https://developer.apple.com/videos/play/wwdc2025/219/">Apple Liquid Glass (WWDC25)</a> · <a href="https://linear.app/now/behind-the-latest-design-refresh">Linear 2026 refresh</a> · <a href="https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f">Agafonkin wind map (Windy-style particles)</a> · <a href="https://vercel.com/design/guidelines">Vercel interface guidelines</a> · <a href="https://www.stan.vision/journal/ux-ui-trends-shaping-digital-products">2026 UI trends</a></div>
     <div><span class="en">Data: Nebraska GIS streets, NOAA/MRMS storm reports via the HailHunter engine, US Census ACS.</span><span class="es">Datos: calles de Nebraska GIS, reportes de tormenta NOAA/MRMS vía el motor HailHunter, Censo ACS.</span></div>
   </footer>
 </div>
@@ -126,7 +163,7 @@ footer a{color:var(--text-2)}
     root.setAttribute('data-lang',lang);root.setAttribute('data-theme',theme);
     document.getElementById('l-en').setAttribute('aria-pressed',lang==='en');document.getElementById('l-es').setAttribute('aria-pressed',lang==='es');
     document.getElementById('t-dark').setAttribute('aria-pressed',theme==='dark');document.getElementById('t-light').setAttribute('aria-pressed',theme==='light');
-    document.querySelectorAll('img[data-d]').forEach(function(im){im.src=im.dataset.d+'/shots/'+theme+'-'+lang+'.png'});
+    document.querySelectorAll('img[data-d]').forEach(function(im){im.src=im.dataset.d+'/shots/'+theme+'-'+lang+(im.dataset.s||'')+'.png'});
     document.querySelectorAll('a[data-live]').forEach(function(a){a.href=a.dataset.live+'/index.html?theme='+theme+'&lang='+lang});
     try{localStorage.setItem('nl',JSON.stringify({lang:lang,theme:theme}))}catch(e){}
   }
