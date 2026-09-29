@@ -88,6 +88,12 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   lawyer to OK the wording before you knock? King's pick: yes, one look before the first real sale.
 
 - Contract at the door: signed on printed paper, or on the screen with a finger? Nothing changed yet; the app stays as it is until you pick. King's pick: screen, paper as backup.
+- $100k math (Claude's Aldaba funnel robot, 2026-09-29 23:30 UTC): at new-rep industry rates (1% of doors book an
+  inspection, 71% happen, 58% sign) and a sample $1,300/job, $100k by Dec 31 = 77 jobs = ~18,800 doors = ~285
+  doors a day for 66 knock days. At 3.5 h/day (42 doors) that covers ~15%. Levers that close the gap: commission per
+  job (boss), close rate as he gets better (experienced rate = 82 doors/day), siding/cash jobs, referrals. Also:
+  after Nov 1 Fremont sunset is ~5 PM, which halves the 4-7:30 PM window. King's pick: treat $100k as the 12-month
+  number, set a 2026 target from the boss's real commission.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /
