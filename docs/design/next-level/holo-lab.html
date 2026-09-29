@@ -1,0 +1,489 @@
+<title>Aldaba Hologram Walk</title>
+<script>
+/* ================================================================
+   HOLO LAB - fill these in after judging. Everything per-concept lives here.
+   winner: set to a concept dir (e.g. "holo-neon") to crown it; "" = no winner yet.
+   score:  anything short ("8.7", "41/50"); null = pending.
+   pitch:  one line per language; "" = placeholder line.
+   ================================================================ */
+window.LAB = {
+  winner: "",
+  concepts: [
+    { dir: "holo-jarvis",   hue: "#5cc8ff", name: { en: "Blueprint Holo", es: "Holo Plano" },       pitch: { en: "", es: "" }, score: null },
+    { dir: "holo-spectral", hue: "#b58cff", name: { en: "Spectral",       es: "Espectral" },        pitch: { en: "", es: "" }, score: null },
+    { dir: "holo-neon",     hue: "#ff4fd8", name: { en: "Neon Grid",      es: "Cuadrícula Neón" },  pitch: { en: "", es: "" }, score: null },
+    { dir: "holo-lidar",    hue: "#4dffa6", name: { en: "LiDAR Scan",     es: "Escaneo LiDAR" },    pitch: { en: "", es: "" }, score: null },
+    { dir: "holo-ember",    hue: "#ffb547", name: { en: "Ember Gold",     es: "Oro Brasa" },        pitch: { en: "", es: "" }, score: null }
+  ]
+};
+</script>
+<style>
+@font-face{font-family:"Geist L";src:url(shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist L";src:url(shared/fonts/Geist-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Geist L";src:url(shared/fonts/Geist-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Geist Mono L";src:url(shared/fonts/GeistMono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Bricolage L";src:url(shared/fonts/BricolageGrotesque-var.woff2) format("woff2");font-weight:200 800;font-display:swap}
+
+/* Layout: one cinematic hero (real Fremont street hologram, the Jul 1 hail swath replaying over it),
+   then a 3-column contest grid (winner takes 2x2 when crowned), then a quiet source footer.
+   Deliberately dark-only: a hologram lab. */
+:root{
+  color-scheme:dark;
+  --page:#07080a;--panel:#0d0f12;--panel-2:#13161a;--rule:#1d2026;--rule-2:#2a2e36;
+  --text:#f2f3f5;--text-2:#b9bcc4;--muted:#83868f;--faint:#565a62;
+  --acc:#f5883a;--acc-ink:#ffab70;--acc-deep:#1a0d04;--acc-soft:rgba(245,136,58,.14);
+  --holo:#9fc4ff;--h1:#f2c14e;--h15:#f5883a;--h2:#ff4f5a;
+  --sans:"Geist","Geist L",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono","Geist Mono L",ui-monospace,Menlo,Consolas,monospace;
+  --disp:"Bricolage Grotesque","Bricolage L","Geist L",ui-sans-serif,system-ui,sans-serif;
+  --gut:clamp(16px,4.2vw,64px);
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{background:var(--page)}
+body{margin:0;background:var(--page);color:var(--text);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--acc-ink);outline-offset:3px;border-radius:6px}
+.wrap{padding-inline:var(--gut);max-width:1440px;margin-inline:auto}
+.mono{font-family:var(--mono);font-weight:500;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+
+/* ---------- top bar ---------- */
+.bar{position:absolute;inset:0 0 auto 0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-block:calc(20px + env(safe-area-inset-top,0px)) 0}
+.mark{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mark svg{width:30px;height:30px;flex:none}
+.mark b{font:700 21px/1 var(--disp);letter-spacing:-.02em}
+.mark span{color:var(--muted);padding-left:12px;border-left:1px solid var(--rule-2)}
+.lang{display:flex;padding:3px;border:1px solid var(--rule-2);border-radius:999px;background:rgba(13,15,18,.6);backdrop-filter:blur(10px)}
+.lang button{all:unset;cursor:pointer;font:500 12px/1 var(--mono);letter-spacing:.08em;padding:8px 13px;border-radius:999px;color:var(--muted);transition:color .2s,background .2s}
+.lang button[aria-pressed="true"]{background:var(--text);color:var(--page)}
+.lang button:focus-visible{outline:2px solid var(--acc-ink);outline-offset:2px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;isolation:isolate;min-height:clamp(600px,86svh,800px);display:flex;align-items:flex-end;overflow:hidden;
+  padding-block:120px clamp(40px,7vh,72px)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-2;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 22%,#000 78%,transparent 100%);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 22%,#000 78%,transparent 100%)}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(90deg,var(--page) 0%,rgba(7,8,10,.86) 26%,rgba(7,8,10,.25) 52%,rgba(7,8,10,0) 70%)}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--rule-2) 20%,var(--rule-2) 80%,transparent)}
+.hero-in{width:100%;display:grid;gap:30px;position:relative}
+.eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--acc-ink)}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px var(--acc-soft),0 0 16px var(--acc)}
+h1{margin:0;font:720 clamp(52px,8.6vw,136px)/.9 var(--disp);letter-spacing:-.038em}
+h1 em{font-style:normal;color:transparent;background:linear-gradient(100deg,var(--text) 0%,var(--holo) 45%,var(--acc-ink) 100%);-webkit-background-clip:text;background-clip:text}
+.sub{margin:0;font:400 clamp(17px,1.55vw,22px)/1.45 var(--sans);color:var(--text-2);max-width:40ch}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:18px 28px}
+.go{position:relative;display:inline-flex;align-items:center;gap:18px;text-decoration:none;
+  font:650 clamp(21px,1.9vw,27px)/1 var(--disp);white-space:nowrap;letter-spacing:-.015em;color:var(--acc-deep);
+  background:var(--acc);padding:26px 26px 26px 38px;border-radius:999px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14) inset,0 18px 50px -12px rgba(245,136,58,.65),0 0 90px -20px rgba(245,136,58,.8);
+  transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.go .arr{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--acc-deep);color:var(--acc);transition:transform .25s var(--ease)}
+.go .arr svg{width:20px;height:20px}
+.go:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,255,255,.22) inset,0 24px 60px -12px rgba(245,136,58,.8),0 0 120px -20px rgba(245,136,58,.9)}
+.go:hover .arr{transform:translateX(4px)}
+.go:focus-visible{outline:3px solid var(--text);outline-offset:5px;border-radius:999px}
+.jump{color:var(--text-2);text-decoration:none;display:inline-flex;gap:8px;align-items:center;padding-block:10px}
+.jump:hover{color:var(--text)}
+.legend{position:absolute;right:var(--gut);bottom:clamp(40px,7vh,72px);z-index:2;display:grid;gap:8px;justify-items:end;text-align:right;color:var(--muted)}
+.legend .ramp{display:flex;align-items:center;gap:8px}
+.legend .ramp i{display:block;width:120px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--h1),var(--h15),var(--h2))}
+.legend b{color:var(--text-2);font-weight:500}
+.legend .live{display:inline-flex;gap:8px;align-items:center}
+.legend .live i{width:6px;height:6px;border-radius:50%;background:var(--h1);box-shadow:0 0 10px var(--h1);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* entrance: starts visible-ish, runs once on load (never waits on scroll) */
+.rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0ms)}
+@keyframes rise{from{opacity:.001;transform:translateY(14px)}}
+
+/* ---------- contest ---------- */
+.contest{padding-block:clamp(64px,10vh,112px) 40px}
+.head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:16px 40px;margin-bottom:40px}
+.head h2{margin:10px 0 0;font:700 clamp(40px,4.6vw,68px)/.95 var(--disp);letter-spacing:-.035em}
+.head p{margin:18px 0 0;color:var(--text-2);font-size:clamp(16px,1.3vw,19px);max-width:52ch}
+.head .kicker{color:var(--muted)}
+.tally{display:flex;gap:28px}
+.tally div{display:grid;gap:2px}
+.tally b{font:650 44px/1 var(--disp);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.tally span{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;grid-auto-flow:dense}
+.card{position:relative;display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid var(--rule);border-radius:20px;overflow:hidden;
+  transition:border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease)}
+.card:hover{border-color:color-mix(in srgb,var(--hue) 55%,transparent);transform:translateY(-3px);
+  box-shadow:0 30px 70px -30px color-mix(in srgb,var(--hue) 55%,transparent)}
+.card:focus-within{border-color:var(--hue)}
+.shot{position:relative;aspect-ratio:16/10;max-width:100%;background:var(--panel-2);overflow:hidden;border-bottom:1px solid var(--rule)}
+.shot img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:transform .6s var(--ease),opacity .5s var(--ease)}
+.shot img.ok{opacity:1}
+.card:hover .shot img{transform:scale(1.03)}
+.ph{position:absolute;inset:0;display:grid;place-items:center;
+  background:
+    radial-gradient(120% 90% at 70% 110%,color-mix(in srgb,var(--hue) 40%,transparent),transparent 60%),
+    repeating-linear-gradient(0deg,color-mix(in srgb,var(--hue) 16%,transparent) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,color-mix(in srgb,var(--hue) 16%,transparent) 0 1px,transparent 1px 28px),
+    var(--panel-2)}
+.ph span{padding:8px 12px;border:1px solid color-mix(in srgb,var(--hue) 50%,transparent);border-radius:999px;color:var(--hue);background:rgba(7,8,10,.6)}
+.shot.noimg img{display:none}
+.chips{z-index:2;position:absolute;inset:14px 14px auto 14px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:rgba(7,8,10,.72);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);color:var(--text-2)}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--hue);box-shadow:0 0 10px var(--hue)}
+.score b{color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.card[data-score=""] .score b{color:var(--muted)}
+.win{display:none;background:var(--acc);color:var(--acc-deep);border-color:transparent}
+.body{display:grid;gap:10px;padding:20px 22px 22px;flex:1;align-content:start}
+.body h3{margin:0;font:680 clamp(22px,1.7vw,27px)/1.1 var(--disp);letter-spacing:-.02em}
+.pitch{margin:0;color:var(--text-2);font-size:15px;min-height:1.55em}
+.pitch.pending{color:var(--muted)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:10px;border-top:1px solid var(--rule)}
+.foot .mono{color:var(--faint);overflow-wrap:anywhere}
+.open{display:inline-flex;align-items:center;gap:8px;font:600 15px/1 var(--sans);text-decoration:none;color:var(--text);padding:9px 14px;border-radius:999px;border:1px solid var(--rule-2);white-space:nowrap;transition:background .2s,border-color .2s}
+.open::after{content:"";position:absolute;inset:0;border-radius:20px}
+.open svg{width:14px;height:14px}
+.card:hover .open{border-color:var(--hue);background:color-mix(in srgb,var(--hue) 14%,transparent)}
+/* winner */
+.card[data-winner]{grid-column:span 2;grid-row:span 2;border-color:color-mix(in srgb,var(--acc) 70%,transparent);
+  box-shadow:0 0 0 1px var(--acc-soft),0 40px 100px -40px rgba(245,136,58,.7);order:-1}
+.card[data-winner] .win{display:inline-flex}
+.card[data-winner] .body{padding:26px 28px 26px}
+.card[data-winner] .body h3{font-size:clamp(28px,2.6vw,40px)}
+.card[data-winner] .pitch{font-size:17px}
+/* 6th slot: the grafted build */
+.build{position:relative;display:grid;align-content:space-between;gap:24px;min-width:0;padding:26px;border-radius:20px;overflow:hidden;
+  background:radial-gradient(120% 80% at 100% 100%,rgba(245,136,58,.26),transparent 60%),var(--panel);border:1px solid color-mix(in srgb,var(--acc) 35%,var(--rule))}
+.build h3{margin:10px 0 0;font:700 clamp(26px,2.2vw,34px)/1.02 var(--disp);letter-spacing:-.025em}
+.build ol{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+.build li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:baseline;color:var(--text-2);font-size:15px;counter-increment:s}
+.build li::before{content:counter(s);font:500 11px/1 var(--mono);color:var(--acc-ink);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center}
+.build .go{font-size:19px;padding:14px 14px 14px 24px;gap:14px;justify-self:start}
+.build .go .arr{width:34px;height:34px}
+.build .kicker{color:var(--acc-ink)}
+
+/* ---------- footer ---------- */
+footer{padding-block:48px calc(56px + env(safe-area-inset-bottom,0px))}
+.foot-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 40px;padding-top:28px;border-top:1px solid var(--rule)}
+.foot-in p{margin:0;color:var(--text-2);max-width:62ch;font-size:15px}
+.foot-in .mono{color:var(--faint)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1060px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card[data-winner]{grid-row:span 1}
+  .grid.has-winner .build{grid-column:span 2}
+}
+@media (max-width:760px){
+  .hero{flex-direction:column;align-items:stretch;justify-content:flex-end;gap:22px;min-height:clamp(640px,92svh,760px);padding-block:96px 36px}
+  h1{font-size:clamp(40px,11.4vw,60px)}
+  .hero::before{background:linear-gradient(180deg,rgba(7,8,10,.1) 0%,rgba(7,8,10,.35) 38%,rgba(7,8,10,.94) 70%,var(--page) 100%)}
+  .legend{position:static;justify-items:start;text-align:left;padding-inline:var(--gut)}
+  .legend .ramp i{width:90px}
+  .go{padding:22px 22px 22px 30px}
+  .head{grid-template-columns:minmax(0,1fr)}
+  .tally b{font-size:34px}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .card[data-winner],.grid.has-winner .build{grid-column:auto}
+  .mark span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .rise,.legend .live i{animation:none}
+  .card,.card:hover,.shot img,.go{transition:none;transform:none}
+}
+.still .rise{animation:none}
+</style>
+
+<header class="bar wrap">
+  <a class="mark" href="#top" aria-label="Aldaba Holo Lab">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--rule-2)"/><path d="M16 6.5a9.5 9.5 0 1 0 0 19" fill="none" stroke="var(--acc)" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="16" r="3.2" fill="var(--text)"/></svg>
+    <b>Aldaba</b><span class="mono" data-t="lab"></span>
+  </a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+    <button type="button" id="lang-es" data-lang="es" aria-pressed="false">ES</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <canvas id="holo" aria-hidden="true"></canvas>
+    <div class="wrap hero-in">
+      <div class="eyebrow mono rise" style="--d:80ms"><i></i><span data-t="eyebrow"></span></div>
+      <h1 class="rise" style="--d:160ms" data-t="h1" data-html="1"></h1>
+      <p class="sub rise" style="--d:280ms" data-t="sub"></p>
+      <div class="cta-row rise" style="--d:400ms">
+        <a class="go" id="go" href="h/index.html"><span data-t="enter"></span><span class="arr"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></span></a>
+        <a class="jump mono" href="#contest"><span data-t="seeContest"></span><span aria-hidden="true">&#8595;</span></a>
+      </div>
+    </div>
+    <div class="legend mono rise" style="--d:600ms">
+      <span class="live"><i></i><span data-t="replay"></span></span>
+      <span class="ramp"><span>1.0</span><i></i><span>2.0+ in</span></span>
+      <span data-t="srcHero"></span>
+    </div>
+  </section>
+
+  <section class="contest wrap" id="contest">
+    <div class="head">
+      <div>
+        <div class="kicker mono" data-t="kicker"></div>
+        <h2 data-t="contest"></h2>
+        <p data-t="explain"></p>
+      </div>
+      <div class="tally" aria-hidden="true">
+        <div><b>5</b><span class="mono" data-t="tDesigners"></span></div>
+        <div><b>3</b><span class="mono" data-t="tJudges"></span></div>
+        <div><b>1</b><span class="mono" data-t="tBuild"></span></div>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="foot-in">
+    <p data-t="footer"></p>
+    <span class="mono" data-t="footMark"></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+/* ---------------- strings ---------------- */
+const T = {
+  en: {
+    lab: "Holo Lab", eyebrow: "Hologram walk · Fremont, NE",
+    h1: "Your walk,<br><em>as a hologram.</em>",
+    sub: "Fremont. Real streets, real hail, 25 doors.",
+    enter: "Enter the walk", seeContest: "See the contest",
+    replay: "Replay · Jul 1, 2026 hail · max 1.17 in", srcHero: "Streets: Nebraska GIS · Hail: NOAA/MRMS",
+    kicker: "Five concepts, one walk", contest: "The contest",
+    explain: "5 designers, 3 judges, 1 builder grafted the best ideas from all five, testers tried to break it.",
+    tDesigners: "Designers", tJudges: "Judges", tBuild: "Build",
+    score: "Score", pending: "Pending", winner: "Winner", open: "Open", shotPending: "Shot pending",
+    pitchPending: "Pitch lands after judging.",
+    buildKicker: "The final build", buildTitle: "The best of all five, in one walk.",
+    steps: ["5 designers built a hologram walk each", "3 judges scored them", "1 builder grafted the best ideas", "Testers tried to break it"],
+    buildGo: "Enter the walk",
+    footer: "Homes are samples until knocking starts. Hail and streets are real (NOAA/MRMS, Nebraska GIS).",
+    footMark: "Aldaba · Holo Lab · 2026"
+  },
+  es: {
+    lab: "Holo Lab", eyebrow: "Ruta en holograma · Fremont, NE",
+    h1: "Tu ruta,<br><em>en holograma.</em>",
+    sub: "Fremont. Calles reales, granizo real, 25 puertas.",
+    enter: "Entrar a la ruta", seeContest: "Ver el concurso",
+    replay: "Repetición · granizo del 1 jul 2026 · máx. 1.17 in", srcHero: "Calles: Nebraska GIS · Granizo: NOAA/MRMS",
+    kicker: "Cinco conceptos, una ruta", contest: "El concurso",
+    explain: "5 diseñadores y 3 jueces; 1 constructor juntó las mejores ideas de los cinco y los testers intentaron romperlo.",
+    tDesigners: "Diseñadores", tJudges: "Jueces", tBuild: "Versión final",
+    score: "Puntaje", pending: "Pendiente", winner: "Ganador", open: "Abrir", shotPending: "Captura pendiente",
+    pitchPending: "La propuesta llega después de la evaluación.",
+    buildKicker: "La versión final", buildTitle: "Lo mejor de los cinco, en una sola ruta.",
+    steps: ["5 diseñadores hicieron cada uno su ruta en holograma", "3 jueces les pusieron puntaje", "1 constructor juntó las mejores ideas", "Los testers intentaron romperla"],
+    buildGo: "Entrar a la ruta",
+    footer: "Las casas son de muestra hasta que empecemos a tocar puertas. El granizo y las calles son reales (NOAA/MRMS, Nebraska GIS).",
+    footMark: "Aldaba · Holo Lab · 2026"
+  }
+};
+const Q = new URLSearchParams(location.search);
+const STILL = Q.has("still");
+if (STILL) document.documentElement.classList.add("still");
+let lang = Q.get("lang");
+if (!lang) { try { lang = localStorage.getItem("holoLab.lang"); } catch (e) {} }
+if (lang !== "es") lang = "en";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const withLang = href => lang === "es" ? href + "?lang=es" : href;
+
+/* ---------------- cards ---------------- */
+const grid = document.getElementById("grid");
+const ARROW = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+function renderCards() {
+  const L = window.LAB || { winner: "", concepts: [] }, t = T[lang];
+  const win = Q.get("winner") || L.winner || "";
+  grid.classList.toggle("has-winner", !!win && L.concepts.some(c => c.dir === win));
+  grid.innerHTML = L.concepts.map(c => {
+    const pitch = (c.pitch && c.pitch[lang]) || "";
+    const score = c.score == null ? "" : String(c.score);
+    return `<article class="card" style="--hue:${esc(c.hue)}" data-dir="${esc(c.dir)}" data-pitch="${esc(pitch)}" data-score="${esc(score)}"${c.dir === win ? ' data-winner=""' : ""}>
+      <div class="shot">
+        <img src="${esc(c.dir)}/shots/walk-${lang === "es" ? "es" : "en"}.png" alt="${esc(c.name[lang])}" loading="lazy" onload="this.classList.add('ok')" onerror="this.onerror=null;if(this.src.indexOf('walk-es')>-1){this.src=this.src.replace('walk-es','walk-en')}else{this.parentNode.classList.add('noimg')}">
+        <div class="ph"><span class="mono">${esc(t.shotPending)}</span></div>
+        <div class="chips">
+          <span class="chip mono win">${esc(t.winner)}</span>
+          <span class="chip mono score"><i></i>${esc(t.score)} <b>${esc(score || t.pending)}</b></span>
+        </div>
+      </div>
+      <div class="body">
+        <h3>${esc(c.name[lang])}</h3>
+        <p class="pitch${pitch ? "" : " pending"}">${esc(pitch || t.pitchPending)}</p>
+        <div class="foot"><span class="mono">${esc(c.dir)}/</span><a class="open" href="${esc(withLang(c.dir + "/index.html"))}">${esc(t.open)} ${ARROW}</a></div>
+      </div>
+    </article>`;
+  }).join("") + `<aside class="build">
+      <div><div class="kicker mono">${esc(t.buildKicker)}</div><h3>${esc(t.buildTitle)}</h3></div>
+      <ol>${t.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+      <a class="go" href="${esc(withLang("h/index.html"))}"><span>${esc(t.buildGo)}</span><span class="arr">${ARROW}</span></a>
+    </aside>`;
+}
+
+function applyLang() {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const v = t[el.dataset.t]; if (v == null) return;
+    if (el.dataset.html) el.innerHTML = v; else el.textContent = v;
+  });
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  document.getElementById("go").href = withLang("h/index.html");
+  document.title = lang === "es" ? "Aldaba Holo Lab" : "Aldaba Holo Lab";
+  renderCards();
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
+  lang = b.dataset.lang; try { localStorage.setItem("holoLab.lang", lang); } catch (e) {}
+  applyLang();
+}));
+applyLang();
+
+/* ---------------- hero hologram: real Fremont streets + the real Jul 1, 2026 swath ---------------- */
+// Units: 1e-4 deg, x scaled by cos(lat); origin = Fremont center (-96.498, 41.433). Source: Nebraska GIS street centerlines.
+const GEO = {"r":[[184,51,182,39,189,39,190,51,184,51,185,59,187,68,188,75,177,75,177,84,189,84,191,93,192,102,170,102,150,103],[-44,89,-48,89,-54,89,-64,89,-63,100,-73,100,-73,109,-73,112,-73,122,-79,122,-80,110,-79,90,-82,90,-82,72,-73,71,-49,70,-49,61,-40,60,-39,89,-44,89,-44,112,-54,112,-54,125,-54,143,-54,151,-44,152,-44,161,-54,161,-63,161,-64,143,-54,143,-44,144,-44,152,-30,153,-29,160,-29,168,-17,168,-6,168,-6,161,4,161,12,161,12,153,3,153,-7,153,-6,161,-17,160,-17,168,-17,175,-17,184,-30,184,-32,189,-33,193,-33,208,-31,211,-31,222,-30,224],[-64,89,-72,89,-73,71,-72,62,-72,53,-59,52,-50,51,-41,51,-31,50,-22,49,-12,48,-12,58,-11,68,-10,77,-1,76,9,76,10,85,0,86,-10,87,-19,87,-20,78,-10,77,-10,87,-9,96,1,95,11,95,10,85,19,85,19,75,18,66,9,66,-1,67,-11,68,-20,68,-20,78,-29,78,-29,88,-29,89,-29,97,-18,97,-9,96,-8,106,-8,112,-7,125,-7,144,-16,143,-29,143,-30,153,-17,153,-16,143,-17,125,-29,125,-44,125,-54,125,-64,125,-63,112,-73,112],[149,-57,149,-46,149,-34,149,-25,159,-25,159,-16,171,-16,181,-16,190,-16,199,-16,199,2,206,3,206,-16,214,-16,221,-16,221,-25,199,-25,199,-34,194,-34,190,-34,190,-16,190,3,181,3,181,-16,181,-23,170,-23,171,-16,174,2,159,2,159,-7,159,-16,149,-16,149,-6,149,2,149,10,149,18,140,18,130,19,130,33,136,33,137,42,139,42,149,42],[41,267,41,257,59,256,59,269],[171,206,179,206,185,205,188,209,188,211,187,214,180,216,171,216,171,206,167,206,166,202],[50,-93,50,-89,59,-89,59,-106,59,-142,41,-142,41,-106,41,-89,41,-79,41,-69,7,-68,-1,-67,-10,-67,-20,-66,-30,-65,-39,-65,-48,-64,-48,-55,-57,-54,-67,-53,-66,-44,-57,-44,-47,-45,-46,-35,-37,-36,-38,-46,-38,-55,-39,-65],[102,-123,105,-123,109,-121,109,-118,109,-116,106,-113,107,-112,109,-110,114,-105,110,-92,109,-86,109,-57,120,-57,120,-45,120,-34,120,-25,120,-16,109,-16,109,-25,99,-25,99,-16,99,-6,99,3,109,3,109,11,99,11,88,12,88,22,78,23,63,24,62,14,71,13,78,13,78,23,78,33,63,34,63,24,53,25,54,34,44,35,45,45,36,45,35,36,34,26,44,25,44,35,35,36,25,37,25,27,24,17,23,7,33,6,32,-3,42,-4,41,-13,40,-23,40,-32,30,-31,21,-31,21,-21,12,-21,2,-20,3,-10,13,-11,22,-12,32,-12,41,-13,51,-14,50,-23,59,-24,69,-25,68,-34,59,-34,49,-33,50,-23,40,-23,31,-22,32,-12,32,-3,23,-2,23,7,14,8,13,-2,4,-1,3,-10,-6,-10,-16,-9,-16,0,-6,0,4,-1,5,9,5,18,6,28,-4,29,-13,29,-14,19,-15,10,-5,9,5,9,14,8,14,17,24,17,33,16,33,6,42,6,42,-4,51,-4,61,-5,61,4,62,14,52,15,53,25,44,25,43,15,33,16,34,26,25,27,15,27,16,37,7,38,6,28,15,27,14,17,5,18,-4,19,-14,19,-24,20,-23,30,-22,40,-13,39,-13,29,-23,30,-32,31,-42,31,-43,21,-52,22,-61,23,-61,33,-51,32,-51,42,-50,51,-49,61,-59,61,-72,62,-81,62,-88,62],[-137,227,-145,229,-145,207,-137,207,-137,217,-137,227,-108,223,-108,207,-113,207,-114,200,-160,200,-160,184,-150,184,-151,180,-114,183,-93,184,-73,184,-73,236,-73,257,-73,265,-73,283,-73,329,-177,329,-177,257,-177,236,-177,219,-186,218,-188,231,-190,237,-193,241,-238,276,-275,227,-272,224,-270,220,-271,215,-274,211,-271,209,-260,209],[159,2,149,2,139,2,139,10,130,10,130,3,120,3,120,10,109,11,109,20,120,20,120,33,109,33,109,20,99,21,99,33,88,33,78,33],[-157,91,-177,91,-177,81,-157,81,-157,91,-140,91,-141,81,-157,81,-157,72,-141,72,-141,81,-123,81,-109,81,-109,74],[190,3,199,2,199,14,203,14,203,22,203,30,221,30,221,38,230,38,230,51,221,51,212,51,203,51,203,59,221,59,221,68,239,68,239,75,231,75,221,75,221,83,231,86,239,86,239,94,245,94,245,89,246,87,257,86,257,111,239,111,239,103,251,103],[197,-70,194,-70,194,-52,212,-52,221,-52,220,-70,228,-70,241,-67,241,-61,229,-61,228,-63,228,-70],[69,174,69,161,59,161,50,161,50,153,59,153,69,153,69,161,77,161,77,174,69,174,59,174,59,161,59,153,59,143,59,135,59,125,69,125,69,112,77,112,77,125,69,125,69,135,77,135,88,135,98,135,98,125,88,125,88,112,77,112,77,102,77,100,68,100,69,112,59,111,50,112,40,112,40,102,49,102,50,112,50,125,50,135,59,135,69,135,69,144,59,143,50,144,50,135,40,135,31,135,31,125,40,125,40,135,40,143,40,153,40,161,40,174,40,184,59,185,59,197,69,196,70,195,71,195,75,191,76,185,95,185,102,185,106,182,109,176,109,185,113,185,133,184,133,172,133,165,149,165,149,158,133,159,133,165,126,164,126,152,133,152,149,152,158,152,158,172,165,172,165,152,173,152,173,143,189,143,189,152,181,152,173,152,173,172,181,172,189,172,189,180,189,182,207,182,231,183,257,183,257,188,257,206,257,220,257,256,257,270,257,294,252,294,252,307,245,307,240,309,238,306,238,294,245,294,252,294],[-177,91,-177,106,-179,109,-181,111,-185,112,-227,112,-250,112,-286,112,-286,105,-286,97,-317,111,-365,132,-382,138,-382,141,-384,142,-411,147,-412,149,-413,155,-418,154,-455,157,-455,147],[-29,97,-29,112,-17,112,-17,125,-7,125,2,125,12,125,12,112,11,104,11,95,20,94,30,93,30,103,31,112,21,112,21,104,20,94,19,85,29,84,30,93,39,93,38,83,48,82,47,73,46,64,56,63,55,54,46,54,46,64,37,64,27,65,18,66,17,56,17,47,10,47],[256,2,247,2,239,2,239,-9,239,-17,247,-17,256,-17,256,2,256,10,279,9,279,12,277,17,282,25,276,30,271,24],[64,311,76,311,77,329,113,329,113,311,113,256,77,256,59,256,59,250,45,250,45,245,45,235,46,232,48,232,48,228,44,227],[-455,330,-455,294,-287,293,-271,293,-261,291,-253,287,-240,277],[-214,184,-228,184,-249,184,-269,184,-274,184,-286,184,-285,193,-283,199,-274,211],[222,138,221,143,221,151,213,151,213,168,207,168,207,178,203,180,189,180,149,181],[-160,236,-160,232,-166,231,-167,203,-160,203,-160,207,-160,232,-153,232,-151,230,-145,229,-145,237,-145,245,-145,253,-148,253],[440,126,444,130,441,134,441,145,441,147,439,148,432,152,429,158,428,172],[-67,-53,-67,-63,-67,-72,-64,-78,-64,-90,-64,-107,-68,-107,-83,-107],[180,-258,183,-255,185,-254,186,-252,185,-246,184,-249,183,-250,181,-252,181,-254,180,-258,175,-271,156,-263,148,-263,141,-261,138,-259,135,-254,130,-250,113,-239,108,-235,83,-219,77,-215,77,-212,77,-209,77,-203,114,-203,152,-203,158,-200,163,-196,159,-193,155,-187,155,-183,155,-174,154,-165,152,-161,145,-153,136,-147,129,-145,113,-144,82,-144,77,-142,77,-177,77,-203],[-80,245,-79,236,-84,236,-87,234,-92,225,-80,219,-80,211,-83,205,-94,210,-101,210,-101,220,-108,223,-108,230,-104,230,-99,228,-97,234,-99,236,-100,239,-100,253,-79,253,-80,245,-85,244,-90,242,-93,245],[265,-10,265,-18,278,-18,278,-11,265,-10,265,-4,279,-4,304,-6,305,-3,305,2,279,3,266,4],[114,112,109,112,109,125,109,135,109,143,114,143,114,135,114,125,114,112,118,112,119,112,119,125,114,125,109,125,98,125,98,112,99,111,109,112,109,93,99,93,99,84,99,75,99,61,99,52,99,42,88,43,88,33,88,22,99,21,99,11,99,3,88,3,88,-6,99,-6,109,-6,109,-16,99,-16,88,-16,88,-6,78,-6,70,-6,69,-15,69,-25,78,-25,88,-25,99,-25,99,-34,109,-34,109,-45,99,-46,88,-46,78,-46,68,-46,59,-46,49,-46,49,-33,41,-32,41,-46,41,-60,11,-46,11,-55,0,-51,-9,-47,-19,-43,-19,-47,-28,-46,-29,-56,-38,-55,-48,-55,-47,-45,-38,-46,-28,-46,-28,-38,-31,-37,-37,-36],[83,-219,82,-224,83,-245,96,-246,102,-250,99,-253,97,-269,97,-270,110,-278,121,-283],[-5,-142,-7,-156,-8,-168,-18,-168,-40,-168,-39,-161,-36,-158,-31,-156,-31,-147,-31,-143,-16,-143,-5,-142,5,-142,5,-116,5,-107,5,-94,-4,-93,-12,-93,-18,-92,-23,-97,-36,-97,-42,-97,-46,-94,-42,-89,-36,-86,-36,-97],[-72,357,-73,329,-43,330,-38,332,-31,337,-19,345,-10,347,-10,329,-38,329],[-156,-80,-165,-74,-170,-68,-172,-67,-177,-67,-177,-87,-216,-87,-213,-90,-213,-103,-214,-105,-274,-106,-260,-125,-240,-142,-211,-142,-212,-114,-212,-97,-212,-91,-209,-89,-194,-89,-193,-89,-191,-97,-188,-99,-181,-102,-176,-102,-177,-142,-177,-189,-176,-193,-175,-196,-169,-199,-142,-199,-129,-201,-109,-205,-108,-208,-102,-214,-95,-206,-84,-195,-78,-190,-79,-188,-78,-169,-52,-168,-40,-168,-40,-188,-39,-196,-35,-201,-20,-201,-12,-201,-4,-201,-3,-195,1,-169,3,-156,-7,-156,-17,-156,-31,-156],[12,174,4,174,-6,175,-17,175,-30,175,-29,168,-35,170,-39,171,-41,169,-43,166,-44,161,-29,160,-17,160,-17,153,-7,153,-7,144,3,144,12,144,12,153,21,153,21,161,12,161,12,174,21,174,21,161,31,161,31,174,21,174,21,184,21,191],[60,44,54,44,45,45,46,54,36,55,37,64,38,74,47,73,57,72,56,63,65,62,66,72,67,81,67,91,68,100,58,101,58,91,57,82,57,72,66,72,77,71,77,61,78,52,88,52,88,61,88,76,99,75,109,75,120,75,120,84,125,84,130,84,130,75,120,75],[430,110,424,117,407,137,405,141,405,153,407,157,419,171,448,172,448,177,447,176,424,176,419,172],[-153,258,-153,261,-153,282,-157,282],[346,111,342,111,340,113,340,114,342,116,344,120,344,127,342,131,332,142,329,147,327,157,327,160,330,172,289,174,290,166,273,166,268,169,275,173,289,174,289,183,289,187,289,213],[197,83,204,82,207,90,208,100,208,101,216,102,216,94,231,94,239,94,239,103],[241,-61,241,-53,256,-53,256,-107,238,-107,220,-107,220,-113,220,-118,216,-123,214,-125,204,-128,197,-133,185,-121,185,-175,183,-177,146,-138,147,-137,148,-127],[-64,174,-73,174,-73,161,-73,143,-64,143,-64,125,-73,125,-73,122],[220,-113,230,-113,241,-114,250,-114,255,-114],[133,184,136,184,136,186,144,186,146,187,149,187,149,215,136,216],[89,151,101,152,104,155,104,160,98,161,97,163,97,170,94,172,90,172,90,163,86,160,85,155,89,151,88,149,88,144,98,144,109,143,109,152,114,152,114,143,125,144,125,135,125,111,133,111,133,143,141,143,141,111,149,111,149,103,150,93,163,93,178,93,177,84,163,84,163,75,149,75,139,75,139,84,141,84,149,84,149,75,149,69,168,68,168,59,185,59,203,59,203,68,187,68,168,68],[318,-20,318,-10,326,-10,326,-20,318,-20,310,-20,310,-10,318,-10],[359,172,347,173,332,172,328,161,328,156,330,148,333,143,343,131,345,127,346,122,345,119,343,116,340,113,333,111,333,113,330,114,329,112,319,111,299,111,299,101,299,97,301,93,299,90,299,78],[-145,237,-127,234,-127,243,-145,245],[104,232,104,236,104,243,113,241,149,241,149,255],[185,205,184,185,189,185,193,184,199,184,202,184,205,186,207,186,207,182,207,178,215,180,231,181,231,183,231,185,251,186,257,188,264,186,275,186,283,186,289,187,318,187,320,187,324,195,326,196,331,196,338,196,348,194,348,183,365,183,378,183,394,155,397,138],[170,102,170,111,193,111,192,102,200,102,199,91],[310,-20,302,-20,302,-25,331,-25,331,-40,331,-71,330,-107,365,-109,366,-95,365,-89,363,-87,331,-71,256,-35,264,-33,272,-27,278,-25,278,-23,278,-18],[262,-117,270,-117,269,-125,282,-125,282,-117,282,-107,256,-107,256,-117,262,-117,261,-142,261,-145],[4,265,10,265,11,308,14,317,19,323,27,328,34,329,55,329,77,329],[331,-25,331,-19,332,-16,336,-10,343,-14,359,-14,375,1,376,16,374,17,343,18,343,21,342,26,337,32,326,14,320,9,315,7,305,7,305,2],[8,57,17,56,27,55,36,55,36,45,26,46,25,37,16,37,17,47,26,46,27,55,27,65,28,74,38,74,38,83,29,84,28,74,19,75,9,76,9,66,8,57,-2,58,-12,58,-21,59,-30,59,-30,69,-20,68,-21,59,-22,49,-22,40,-32,41,-31,50,-30,59,-40,60,-41,51,-41,41,-42,31,-51,32,-52,22,-53,12,-53,3,-54,-2,-63,-2,-64,-17,-65,-25,-55,-26,-56,-35,-57,-44,-57,-54,-58,-63,-48,-64],[-244,-77,-251,-81,-253,-84,-251,-86,-247,-84,-245,-82,-243,-77,-244,-77,-250,-71,-260,-70,-269,-68,-287,-67,-293,-69,-294,-71,-295,-77,-318,-69,-327,-61,-337,-56],[96,226,96,244,90,243,86,241,78,238,59,238,59,232,59,220,59,203,68,203,68,217],[-123,37,-123,46,-140,46,-141,53,-156,53,-157,41,-141,39,-123,37,-99,35,-99,43,-100,72,-99,91,-99,94,-97,100,-96,105,-96,162,-93,184],[262,82,262,86,267,87,280,87,280,79,271,79],[-462,151,-460,154,-459,163,-462,174],[-455,185,-455,157],[317,58,316,71,323,70,324,69,325,68,325,50,322,46,316,51,317,58,300,60,299,61,298,65,300,70,308,70,308,87,306,91,308,95,308,106],[326,14,327,13,330,7,331,-7],[190,51,196,51,203,51,203,39,212,39,221,38,221,51,221,59,239,59,239,54,257,54,256,47,263,47,263,52,262,63,265,63],[120,-16,120,-6,120,3,109,3,109,-6,120,-6,133,-6,139,-9,141,-12,141,-16,141,-19,139,-23,133,-25,120,-25,109,-25,109,-34,120,-34,130,-34,130,-45,139,-46,139,-57,149,-57,159,-57,159,-46,149,-46,139,-46,139,-34,149,-34,159,-34,159,-25],[-72,-34,-72,-25,-72,-15,-81,-15,-81,-25,-72,-25,-65,-25,-66,-34,-72,-34,-81,-34,-90,-34,-99,-34,-105,-34,-117,-34,-129,-35,-125,-46,-115,-79,-107,-106,-106,-115,-108,-125,-107,-130,-105,-134,-104,-148,-104,-155,-105,-159,-122,-160,-124,-158,-126,-157,-126,-154,-128,-139,-130,-130,-133,-121,-143,-93,-146,-90],[-339,-151,-340,-168,-322,-190,-322,-251,-249,-251,-249,-224,-247,-219,-243,-215,-220,-217,-219,-217,-219,-223],[194,-70,185,-70,185,-66,183,-66,179,-61,175,-52,185,-52,194,-52,194,-43,213,-43,221,-43,221,-52,241,-53,241,-44,241,-34,256,-35,256,-53],[235,168,242,167,242,158,257,159,257,151,242,151,235,151,235,168,229,168,229,151,235,151],[-286,105,-314,116,-317,111],[4,168,-6,168,-6,175,-5,184,-17,184],[257,329,257,308,257,294,263,294,266,296,277,294,290,290,297,292],[288,118,299,117,297,122,297,126,299,130,302,132,299,137],[212,135,211,132,212,129,207,125,204,127,202,132,202,143,193,143,193,122,201,122,207,125,213,121,239,121,239,143,257,143,257,111,299,111,299,117,303,119,309,118,312,119,312,122,312,129,312,133,311,140],[77,61,88,61,99,61,109,61,121,61,130,61,130,52,139,52,139,61,139,75,130,75],[399,140,402,154,406,161,416,175,418,183,426,183,448,183],[-305,125,-301,127,-297,131],[-348,-260,-351,-256,-352,-251,-457,-250,-457,-178],[-86,43,-81,43,-81,34,-72,33,-61,33,-60,42,-72,43,-81,43,-81,53,-88,53],[-421,81,-422,80,-422,72,-424,71,-419,67,-416,67,-398,63,-383,58,-357,44,-351,42,-328,42,-314,48,-303,56,-334,62,-345,67,-379,77,-392,77,-402,82,-419,82,-421,81,-423,85,-420,100,-420,103],[-448,-98,-457,-97,-458,-99,-458,-111,-461,-112],[-465,-45,-461,-46,-458,-46,-459,-10],[229,317,239,317,239,312,240,309],[194,220,199,220,208,220,209,227,209,229,198,231,198,246,205,246,205,254],[-99,-34,-99,-25,-99,-15,-99,3,-91,3,-90,2,-90,-15,-90,-25,-99,-25,-103,-25],[-123,62,-140,62,-141,53,-123,53,-123,62,-123,72,-141,72,-140,62,-157,62,-177,62,-177,72,-177,81],[-29,88,-19,87,-18,97,-18,106,-17,112,-8,112,2,112,12,112,21,112,21,125,21,135,21,143,21,153,31,153,40,153,50,153,50,144,40,143,31,144,31,153,31,161,40,161,50,161,50,174,40,174,31,174],[403,328,403,222,405,215,411,206,419,200,426,199,449,199,448,183,448,177],[213,151,206,151,206,168,198,168,198,151,189,152,189,172],[-67,4,-63,4,-53,3,-44,2,-45,-7,-54,-6,-54,-2],[-286,112,-286,122,-286,135,-286,155,-286,168,-286,184,-319,184],[-4,-201,-5,-204,-5,-219],[50,174,59,174,59,185,76,185],[59,-46,59,-34,59,-24,60,-15,61,-5,70,-6,71,4,61,4,52,5,51,-4,51,-14,60,-15,69,-15,78,-16,88,-16,88,-25,88,-34,88,-46],[239,2,221,2,221,13,239,12,252,11,256,10,257,23,262,23,263,32,265,33,273,34,273,42,284,42,290,44],[298,39,298,43,315,43,319,44,322,46,326,43,331,44,332,38,337,32,342,36,350,38,383,38,397,38,399,39,414,38,402,60,399,72],[-113,269,-119,269,-119,275,-121,276,-136,276,-136,269,-145,268,-145,282,-153,282],[185,-246,185,-226,182,-220,180,-215,163,-196,172,-187,183,-177,207,-201,220,-215,286,-282],[-105,261,-108,261,-108,253,-127,253,-127,243],[257,270,263,270,263,265,265,263,269,262,272,265,265,272,263,277,263,294],[-177,-67,-177,-33,-177,-23,-177,38,-177,49,-185,52,-286,97],[262,86,257,86,257,75,261,74,264,72,266,71,269,70],[170,111,149,111,149,143,149,152,149,158],[0,-51,0,-58,-10,-57,-19,-57,-19,-47,-9,-47],[207,-201,209,-200,211,-196,211,-177,209,-172,197,-160,195,-156,195,-137,197,-133,219,-156,221,-158,229,-166,241,-178,274,-198,379,-248,391,-255],[229,151,221,151,221,167,213,168],[-71,14,-62,13,-61,23,-83,24,-83,34,-99,35,-99,3],[149,165,149,172,149,181,149,183,172,183,189,182,189,185],[241,-114,238,-126,242,-134,243,-141,242,-147,237,-154,231,-159,233,-161],[397,-74,393,-90,386,-99,382,-109,365,-109,366,-121,366,-142],[289,14,289,23,284,24,282,25],[109,42,120,42,130,42,130,33,120,33,120,42,120,52,109,52,109,42,109,33,99,33,99,42,109,42],[169,-34,177,-34,185,-34,185,-43,168,-43,169,-34,168,-34,170,-23],[77,102,88,102,88,93,88,84,99,84,109,84,109,93],[125,144,133,143,133,152,133,159],[-117,72,-123,72,-123,81,-123,91,-140,91],[397,3,395,15,383,38,385,47,392,58,395,67,397,81],[181,3,174,2,176,16,199,14],[347,173,348,183,331,183,331,196,331,230],[-332,185,-321,185,-313,188,-300,196,-294,202,-275,227,-276,228,-277,228,-295,204,-298,199,-307,192,-320,187,-332,185,-413,185,-455,185,-455,294],[230,51,239,51,239,47,256,47,256,38,257,23],[-453,51,-454,56,-455,72,-455,109],[-19,211,-12,211,-13,218,-17,221,-18,221,-19,221,-19,211,-19,197,-12,197,-12,211,4,210],[189,84,188,75,203,75,204,82,208,82,214,83,216,94],[-73,100,-73,90,-79,90],[41,-69,41,-60,59,-70,59,-79,50,-79,41,-79],[-63,-2,-63,4,-62,13,-53,12,-43,12,-34,11,-24,11,-25,1,-34,2,-35,-8,-35,-14],[221,-43,221,-34,221,-25],[278,-25,287,-25,287,-12,302,-13,303,-10,310,-10],[-108,194,-108,201,-108,207],[158,172,149,172,133,172,123,172,119,169,118,165,118,152,114,152,113,185,113,211,113,241,113,256],[-177,62,-177,53,-156,53,-157,62,-157,72,-177,72],[-7,-38,11,-46,11,-30,12,-21,13,-11,13,-2,23,-2,22,-12,21,-21,31,-22,30,-31,30,-35],[77,71,77,76,77,80,77,84,77,90,77,93,77,100],[-238,276,-239,277,-240,277,-277,228,-281,233,-284,237,-286,244,-286,250,-286,257,-286,282,-287,293,-287,330,-205,329],[205,246,212,247,214,254],[397,-142,393,-133,382,-109,390,-110,397,-110,399,-110,413,-111,430,-111,431,-115,429,-118,417,-120,413,-122,406,-133,403,-139,402,-143,402,-258],[437,134,441,134],[-177,-33,-173,-33,-162,-31,-152,-33,-149,-35,-145,-42,-140,-47,-143,-50,-149,-50],[257,68,239,68,239,59,244,61,257,60,257,68,257,75,239,75,239,86],[175,-151,175,-165,185,-175,209,-200,218,-209],[-26,-17,-26,-9,-25,1,-16,0,-15,10,-24,11,-24,20,-33,21,-32,31,-32,41,-41,41,-51,42,-60,42,-59,52,-59,61],[182,39,181,30,176,16,149,18,149,42,149,52,149,60,149,61,149,69],[120,-57,130,-57,139,-57,139,-70,160,-70],[230,38,239,38,252,38,252,11],[-17,-17,-16,-9,-26,-9,-35,-8,-45,-7,-45,-12],[175,-52,166,-52,165,-58,159,-57],[-72,33,-72,43,-72,53,-81,53,-81,62,-82,72,-90,72],[282,-142,269,-142,269,-134,282,-134,282,-142,285,-141],[399,-2,402,11,406,20,413,33,414,38,437,38],[156,-91,170,-106,176,-106,185,-106,194,-106,215,-107,220,-107],[-249,-224,-251,-219,-252,-218,-253,-214,-254,-211,-251,-202,-248,-189],[71,13,71,4,78,3,78,13,88,12,88,3,78,3,78,-6,78,-16,78,-25,78,-34,88,-34,99,-34,99,-46,99,-58,109,-57,109,-45,120,-45,130,-45,130,-57],[-18,106,-8,106,1,105,11,104,21,104,30,103,40,102,39,93,48,92,58,91,67,91,77,90],[-160,184,-167,184,-173,188,-176,193,-177,203,-177,219],[399,-77,403,-91,413,-111,411,-120,402,-133,400,-143,398,-153],[331,183,332,182,332,172,330,172,330,182,331,183,289,183,257,183,257,179,257,166,264,167,268,169],[-4,48,-12,48,-13,39,-3,39,7,38],[-145,207,-152,207,-152,228,-151,230],[111,-62,126,-69,145,-79],[-5,184,4,184,12,184,21,184,40,184,41,192,42,219,44,220,59,220],[-10,347,4,347,22,347],[-3,-195,5,-196,9,-196,65,-203],[237,-154,241,-157],[212,129,225,130,229,132,230,134,230,143,221,143,202,143],[184,-87,185,-88,185,-106],[-44,-107,-49,-107,-49,-100,-46,-94,-57,-92,-64,-90,-67,-90],[-42,-89,-45,-86,-55,-84,-58,-81,-58,-78,-64,-78],[3,135,12,135,12,125,21,125,31,125,31,112,40,112,40,125,50,125,59,125,59,111,58,101,49,102,48,92,48,82,57,82,67,81,77,80],[333,113,337,113,340,114],[280,79,285,79,288,81,290,85,290,101,299,101],[263,47,265,44,268,42,273,42,274,48,276,52,274,55],[141,143,149,143,173,143],[272,265,279,260,284,260,321,260,326,261,327,263,328,266,328,296],[199,-34,221,-34,239,-34,239,-25,256,-26,256,-17],[-44,2,-43,12,-43,21,-33,21,-34,11,-34,2,-44,2],[165,172,173,172],[120,20,130,19,130,10,120,10,120,20],[88,43,88,52,99,52,109,52,109,61,109,75,109,84,120,84,120,89,118,92,118,112],[-30,175,-30,184,-73,184,-73,174],[77,153,77,143,88,144,88,135,88,125,77,125,77,135,77,143,69,144,69,153,77,153,77,161,86,160],[-2,329,-10,329],[295,34,281,34,276,30,273,34],[41,257,40,250,45,250],[77,76,88,76,88,84,77,84],[448,172,462,172,463,161],[181,30,203,30,203,39,196,39,196,51],[-12,-85,-34,-86,-36,-86],[-108,261,-119,261,-145,261,-145,268],[-64,-17,-68,-15,-72,-15],[239,51,239,54],[-54,89,-54,112,-63,112,-63,100],[-73,236,-79,236,-80,219],[149,187,149,186,172,185,172,183],[139,-23,141,-26],[263,52,266,52],[137,42,130,42,130,52,120,52,121,61],[250,-123,247,-122,247,-126,250,-135,250,-142,250,-144],[331,44,331,110,333,111],[-81,-3,-81,-15,-90,-15,-99,-15],[239,12,239,21,239,30,221,30,221,22,221,13,203,14],[4,250,12,250,40,250],[175,-165,160,-149,147,-137,144,-132,142,-132,141,-133,114,-105,142,-106,142,-93],[307,66,308,70,316,71],[-82,90,-85,91,-99,91,-109,91,-123,91],[-83,205,-86,201,-101,200,-101,210],[397,232,396,217,391,206,380,191,378,183,397,184,399,184,418,183,402,213,400,221,399,230],[98,144,98,135,109,135,114,135,125,135],[-286,282,-321,282],[203,68,221,68,221,75,203,75,203,68],[-73,109,-80,110,-86,110,-86,122,-79,122],[-20,-66,-19,-57,-29,-56,-30,-65],[-455,109,-455,112,-455,147,-398,141,-382,138],[63,35,63,34,54,34,54,44,55,54,65,53,68,53],[69,196,70,197,70,203,79,203],[444,130,449,127,462,127],[198,246,198,255],[-228,184,-228,159,-230,155,-238,155,-279,155,-283,156,-286,155],[-90,242,-94,238,-97,234],[200,102,208,101],[279,-3,278,-11,287,-12],[178,93,191,93],[59,-70,77,-83,77,-99,77,-106,77,-123,77,-142,59,-142],[149,60,168,59],[-16,-152,-27,-153],[290,166,299,166,303,165,305,159,307,157,327,157,328,156],[130,3,139,2],[194,-34,194,-43],[168,-34,159,-34,159,-46],[-274,-106,-295,-77],[12,135,12,144,21,143,31,144,31,135,21,135,12,135],[59,-79,59,-89,64,-89,64,-83],[109,176,109,160,104,160,103,172],[48,232,59,232],[-44,112,-44,125,-44,144,-29,143,-29,125,-29,112,-44,112],[430,-111,457,-107],[460,-282,424,-283,410,-283,407,-281],[-137,207,-116,207,-116,216,-137,217],[336,-10,341,1,343,18],[-79,253,-79,256],[-135,184,-150,184],[-81,34,-83,34],[42,6,52,5,52,15,43,15,42,6],[265,-4,265,3,266,4],[125,84,125,111,119,112],[257,54,257,60],[104,236,109,236],[77,93,88,93,99,93,99,111,88,112,88,102],[214,-16,214,2,221,2,221,-9,239,-9],[-14,-120,-27,-119],[-216,-87,-226,-87,-232,-78,-234,-77,-243,-77],[-269,-68,-264,-73,-260,-70],[215,-87,215,-107],[142,-106,144,-106,170,-106],[206,168,207,168],[11,-55,11,-59,11,-64,7,-68,5,-71,5,-94],[230,143,239,143],[95,159,98,161],[-49,-107,-57,-107,-64,-107],[242,167,257,166,257,159],[-49,70,-48,89],[-73,283,-82,283,-88,280,-100,280,-101,281,-101,287],[-52,-168,-52,-177],[-141,39,-140,46],[-181,-102,-181,-117,-182,-129],[109,-116,135,-142],[-127,253,-145,253,-145,261,-153,261],[216,102,224,102,227,101,230,99,231,94,231,86,231,75],[130,84,133,84,133,111,141,111,141,84],[-177,38,-243,67,-253,66,-253,68,-254,70,-271,76,-293,87,-321,99,-344,113,-374,126,-388,130,-401,132,-418,130,-455,112],[277,17,272,15,264,16,262,18,262,23],[-66,-44,-66,-34,-56,-35,-46,-35,-46,-27,-55,-26],[149,215,149,241,182,241],[212,39,212,51],[449,199,449,255],[141,-133,146,-138],[213,-43,212,-52,212,-61],[86,241,87,238,87,226],[-92,225,-99,228],[297,126,289,129],[429,150,432,152],[21,-59,11,-59,0,-58,-1,-67],[229,132,231,130],[78,-46,78,-34,68,-34,68,-46],[305,-3,315,-4,319,-3],[176,-106,176,-111,185,-121],[-101,200,-108,201],[126,-69,139,-70],[256,-117,256,-144],[-54,151,-54,161,-54,163],[140,18,139,10,149,10],[-136,276,-136,279,-137,281,-145,282],[262,63,262,69,264,72],[207,186,210,186,213,184,231,185],[141,-16,149,-16,149,-25],[302,132,306,133,312,133],[109,152,109,160],[136,184,149,183,149,186],[163,75,177,75],[348,194,363,195],[276,52,280,50,290,52,298,52,316,51],[193,122,193,111,239,111,239,121],[-253,-214,-261,-214],[289,23,289,26],[-167,203,-177,203],[109,-121,111,-122,113,-126,113,-144,114,-203],[252,38,256,38],[375,328,257,329,113,329],[-157,41,-177,49,-177,53],[245,294,245,307],[270,-117,282,-117],[133,84,139,84],[257,143,257,151],[76,311,113,311],[242,151,242,158],[118,152,126,152],[-253,-84,-265,-86,-265,-87,-264,-86],[-151,180,-158,179,-166,180,-172,182,-177,186,-182,194,-184,198,-186,218],[172,185,184,185],[3,-156,5,-142,41,-142],[41,-89,50,-89,50,-79,50,-72],[239,-25,239,-17,221,-16,221,-9],[303,-10,304,-6],[-109,81,-109,91],[185,-43,185,-52,185,-66],[252,307,257,308],[199,184,199,220,198,231],[208,220,212,220],[189,143,193,143],[287,-25,302,-25],[-58,-63,-67,-63],[-34,-86,-39,-80,-44,-78,-58,-78],[96,244,104,243],[139,42,139,52,149,52],[-413,155,-413,185],[203,22,221,22,239,21],[70,197,71,196,71,195],[-160,200,-160,203],[-85,91,-86,110],[280,87,280,99,281,100,290,101],[144,-106,142,-114,142,-132],[230,-113,230,-118],[-119,261,-119,269,-136,269],[257,-142,261,-142,269,-142],[291,75,290,78,288,81],[238,-136,242,-134],[-81,-34,-81,-25,-90,-25,-90,-34],[130,61,139,61,149,61],[-95,-206,-100,-207,-109,-205],[435,144,441,147],[198,151,206,151],[329,112,331,110],[256,-35,256,-26],[229,294,238,294],[-177,-142,-211,-142],[-253,66,-266,49,-273,45,-278,45,-293,50,-297,54,-303,56],[239,30,239,38,239,47],[102,185,109,185],[214,83,221,83],[-96,43,-99,43],[-19,-188,-40,-188,-70,-188,-78,-190],[-19,-43,-25,-40,-28,-38],[221,167,229,168],[158,152,165,152],[-29,89,-39,89],[206,3,214,2],[-286,122,-292,122,-299,125,-301,127],[282,-107,287,-107],[68,203,70,203],[-177,-87,-176,-102],[189,39,196,39],[-30,69,-29,78],[185,-34,190,-34],[65,53,65,55],[-72,89,-73,90],[247,-17,247,2],[279,9,305,7],[302,-20,302,-13],[-80,211,-101,220],[239,-34,241,-34],[279,-4,279,3],[199,-25,199,-16,206,-16],[150,93,149,84,163,84,163,93],[245,94,252,94],[-95,72,-100,72],[-108,230,-108,253,-100,253],[-31,337,-32,339],[40,-32,41,-32],[-114,183,-114,200],[45,245,51,245],[177,-34,177,-30,180,-26,181,-23],[-129,-35,-133,-37,-140,-47],[219,-156,222,-153,225,-153,227,-154,231,-159],[179,206,179,209],[-152,207,-160,207],[11,-30,21,-31],[306,91,301,93],[160,-125,160,-149],[-63,161,-73,161],[139,-9,142,-6],[250,-114,250,-116,247,-122],[-57,-92,-57,-107],[-130,-130,-132,-129,-133,-127,-134,-123,-133,-121],[243,-141,250,-142],[181,152,181,172],[59,238,59,250],[-73,125,-73,143],[130,-34,139,-34],[-424,71,-433,71,-445,74,-455,72],[-113,207,-116,207],[228,-44,241,-44],[263,270,265,272],[167,215,171,216],[149,-6,159,-7],[168,-43,166,-52],[41,-46,49,-46],[231,181,252,181,255,180,257,179],[-173,-33,-174,-38,-174,-41,-171,-44,-168,-46],[298,43,298,52],[-31,-147,-63,-147],[-8,-168,1,-169],[59,197,59,203]],"m":[[-41,-353,-41,-344,-36,-318,-34,-307,-23,-252,-13,-238,-9,-234,-8,-229,-19,-216,-20,-204,-20,-201,-19,-188,-18,-168,-17,-156,-16,-152,-16,-143,-14,-120,-13,-107,-12,-93,-12,-85,-10,-67,-10,-57,-9,-47,-8,-29,-6,-10,-6,0,-5,9,-4,19,-4,29,-3,39,-2,58,-1,67,-1,76,0,86,1,95,1,105,2,112,2,125,3,135,3,144,3,153,4,161,4,168,4,174,4,184,4,210,4,250,4,265,4,309,4,347],[388,353,392,340,396,323,397,311,397,238,397,232,397,184,397,138,397,110,397,81,397,38,397,3,397,-35,397,-43,397,-74,397,-110,397,-142,396,-256,390,-268,386,-280,382,-281,286,-282,287,-283,382,-282,385,-284,401,-283,407,-285,408,-283,407,-281,400,-270,398,-256,398,-153,398,-143,399,-110,399,-77,399,-42,399,-35,399,-2,399,39,399,72,399,110,399,140,399,184,399,230,399,307,398,324,395,338,391,351],[-23,-252,-7,-236,-2,-235,-1,-234,0,-232,-1,-230,-2,-228,0,-224,4,-219,13,-214,24,-210,36,-209,77,-209,103,-211,117,-216,177,-248,183,-250,186,-252,188,-255,228,-276,241,-280,259,-282,286,-282],[-20,-204,-18,-215,-7,-228,-8,-229],[287,-283,260,-283,241,-281,228,-277,189,-257,183,-255,182,-255,181,-254,178,-251,123,-220,101,-213,77,-212,36,-211,22,-213,14,-215,5,-220,-1,-230],[-2,-228,-7,-228],[-41,-350,-24,-260,-19,-248,-8,-236,17,-215,32,-211,89,-212,118,-219,178,-251,181,-255,241,-281,407,-283],[397,-193,397,240],[393,340,397,318,397,240],[397,-193,395,-341]],"w":[[-461,39,-453,34,-460,35,-457,30,-438,25,-411,9,-389,-26,-382,-32,-351,-39,-349,-48,-318,-78,-307,-94,-198,-184,-192,-184,-193,-189,-172,-209,-167,-221,-142,-242,-118,-251,-93,-251,-54,-260,-33,-271,-34,-262,-30,-261,-31,-271,-23,-277,36,-300,57,-321,79,-325,89,-336,133,-339,161,-354],[43,-347,-4,-328,-31,-306,-78,-298,-100,-278,-107,-279,-126,-268,-127,-273,-132,-266,-135,-269,-143,-262,-146,-265,-151,-262,-148,-260,-158,-259,-158,-255,-196,-225,-201,-225,-199,-222,-255,-176,-375,-102,-415,-40,-462,-6],[134,-344,107,-342],[-367,48,-364,44,-367,35,-358,39,-361,13,-390,27,-393,38,-425,45,-430,50,-447,50,-453,56,-451,60,-438,59,-423,48,-418,56,-419,64,-412,64,-408,52,-394,60,-388,48,-367,48],[-166,-79,-160,-80,-152,-93,-151,-104,-154,-117,-146,-139,-163,-141,-174,-138,-173,-130,-166,-127,-174,-115,-173,-74,-166,-79],[-164,-90,-169,-89,-168,-99,-163,-108,-158,-104,-163,-99,-164,-90],[-229,-6,-229,-1,-247,-4,-244,-14,-233,-16,-232,-28,-259,-29,-263,-41,-269,-42,-298,-42,-302,-34,-314,-41,-317,-33,-324,-31,-334,-39,-337,-28,-351,-35,-352,-25,-358,-20,-367,-18,-368,-27,-386,-22,-391,-12,-388,-5,-363,-14,-358,-13,-353,12,-355,34,-350,39,-237,39,-223,49,-229,54,-233,46,-232,59,-190,38,-193,26,-184,18,-184,10,-210,15,-202,1,-195,-2,-195,-7,-205,-3,-229,-6],[-214,13,-218,18,-199,37,-217,49,-220,45,-218,34,-226,37,-229,26,-233,27,-238,37,-258,38,-262,32,-269,35,-275,29,-293,36,-296,27,-304,35,-308,34,-313,28,-318,36,-336,36,-337,28,-349,25,-349,14,-331,2,-319,9,-308,-1,-301,10,-289,2,-274,2,-265,9,-256,1,-226,1,-215,3,-217,9,-214,13],[-264,-21,-250,-15,-284,-20,-343,-12,-348,-14,-325,-20,-285,-24,-264,-21],[109,-262,102,-246,85,-242,84,-229,116,-243,142,-268,147,-286,133,-290,129,-287,132,-283,130,-278,118,-280,109,-262],[-463,91,-462,80,-457,78,-460,72,-456,53],[-422,78,-424,71,-453,74,-450,80,-454,81,-453,94,-445,97,-445,103,-442,98,-406,92,-406,97,-400,99,-365,95,-386,100,-395,109,-436,110,-451,106,-454,111,-427,125,-414,118,-407,121,-407,130,-396,131,-396,120,-391,115,-379,119,-379,124,-370,120,-375,118,-371,108,-355,106,-355,96,-361,93,-262,66,-279,54,-288,54,-292,59,-348,71,-351,76,-373,84,-381,82,-383,87,-392,85,-425,93,-430,88,-439,92,-440,85,-424,83,-424,76,-422,78],[-394,93,-316,71,-304,68,-309,74,-394,93],[-334,128,-372,136,-371,153,-410,156,-411,178,-406,180,-407,175,-400,167,-391,175,-379,174,-381,168,-372,163,-366,164,-363,172,-357,167,-352,174,-342,173,-340,159,-326,159,-322,155,-323,146,-332,142,-331,131,-334,128],[-232,-52,-232,-67,-310,-66,-342,-43,-322,-46,-310,-54,-304,-51,-298,-59,-270,-59,-271,-48,-264,-54,-255,-46,-243,-54,-240,-44,-235,-42,-232,-52],[-460,133,-455,129,-456,112,-463,124],[-214,-97,-218,-104,-269,-105,-291,-75,-284,-68,-275,-72,-271,-68,-265,-77,-256,-72,-255,-77,-262,-83,-268,-82,-269,-87,-265,-89,-247,-89,-235,-78,-228,-87,-215,-91,-214,-97],[-235,-87,-240,-89,-238,-100,-226,-102,-220,-98,-235,-87],[-246,-93,-253,-96,-247,-99,-246,-93],[-261,-99,-259,-95,-266,-94,-261,-99],[-274,-83,-277,-90,-273,-89,-274,-83],[-201,-60,-203,-47,-197,-40,-191,-44,-196,-50,-191,-59,-187,-60,-188,-52,-180,-53,-178,-56,-184,-56,-178,-66,-184,-69,-178,-73,-178,-82,-186,-80,-187,-63,-194,-69,-190,-74,-191,-85,-196,-86,-199,-80,-196,-74,-201,-70,-205,-78,-204,-85,-210,-82,-223,-87,-222,-83,-229,-69,-205,-70,-205,-66,-200,-68,-201,-60],[-214,-78,-220,-80,-217,-82,-214,-78],[-10,-273,-4,-267,10,-276,55,-289,57,-297,52,-303,-10,-273],[-208,-93,-198,-90,-187,-104,-185,-112,-192,-123,-188,-138,-205,-134,-210,-128,-207,-105,-211,-96,-208,-93],[-112,-120,-114,-122,-108,-132,-112,-146,-106,-152,-106,-158,-121,-159,-120,-148,-124,-144,-126,-130,-123,-124,-128,-118,-124,-112,-133,-108,-130,-97,-134,-92,-126,-85,-135,-78,-147,-83,-154,-80,-151,-64,-144,-68,-142,-78,-136,-76,-127,-82,-126,-74,-134,-64,-125,-64,-121,-73,-124,-85,-116,-86,-120,-97,-110,-101,-115,-109,-109,-115,-112,-120],[-197,-17,-191,-18,-193,-24,-190,-26,-185,-24,-190,-19,-186,-14,-178,-27,-181,-31,-184,-26,-182,-33,-190,-39,-205,-36,-214,-41,-204,-31,-230,-22,-221,-22,-222,-14,-216,-14,-212,-21,-196,-12,-190,-13,-197,-17],[-311,165,-288,164,-289,152,-297,136,-305,137,-315,132,-321,135,-319,163,-311,165],[-139,-176,-151,-177,-154,-162,-163,-155,-160,-147,-136,-149,-134,-172,-139,-176],[-319,350,-295,347,-270,357,-260,344],[-215,350,-212,350],[-144,345,-137,349,-129,338,-143,331,-142,319,-153,321,-148,311,-152,305,-147,302,-137,307,-134,293,-125,296,-127,287,-130,285,-128,282,-115,292,-117,280,-106,282,-109,271,-99,276,-86,266,-80,276,-79,269,-84,265,-80,260,-68,264,-55,256,-44,256,-39,249,-42,236,-37,231,-23,230,-7,221,187,219,193,211,194,157,199,148,383,146,403,138,430,106],[-464,13,-445,5,-424,-8,-391,-48,-371,-60,-358,-78,-312,-118,-235,-173,-151,-248,-19,-294,56,-337,88,-357,100,-357],[192,108,175,2,257,1,259,-35,404,-106]],"x":[[-75,208,-86,192,-92,174,-94,158,-94,38,-93,25,-88,13,-77,-4,-67,-14,51,-67,61,-76,67,-89,76,-244,73,-265],[34,-47,119,-85,135,-89,154,-89],[208,351,-37,233,-58,219,-76,199,-88,172,-91,147,-91,91],[34,-47,1,-22,-38,-16,-79,8,-86,19,-90,31,-91,91],[-395,135,-367,127,-25,-25,11,-38,58,-63,82,-79]]};
+// NOAA/MRMS storm path 2026-07-01 (max 1.17 in), same units.
+const K = Math.cos(41.433 * Math.PI / 180);
+const toU = (lon, lat) => [(lon + 96.498) * K * 1e4, (lat - 41.433) * 1e4];
+const PATH = [[-96.48, 41.39], [-96.49, 41.44], [-96.52, 41.46]].map(p => toU(p[0], p[1]));
+const SW = 72; // swath half-width (units, ~1.3 km)
+const plen = [0]; for (let i = 1; i < PATH.length; i++) plen.push(plen[i - 1] + Math.hypot(PATH[i][0] - PATH[i - 1][0], PATH[i][1] - PATH[i - 1][1]));
+const PL = plen[plen.length - 1];
+function nearPath(x, y) {
+  let best = 1e9, bt = 0;
+  for (let i = 1; i < PATH.length; i++) {
+    const [ax, ay] = PATH[i - 1], [bx, by] = PATH[i], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    let u = ((x - ax) * dx + (y - ay) * dy) / L2; u = Math.max(0, Math.min(1, u));
+    const d = Math.hypot(x - ax - u * dx, y - ay - u * dy);
+    if (d < best) { best = d; bt = (plen[i - 1] + u * Math.sqrt(L2)) / PL; }
+  }
+  return [best, bt];
+}
+function pathAt(t) {
+  const s = t * PL; for (let i = 1; i < PATH.length; i++) if (s <= plen[i] || i === PATH.length - 1) {
+    const u = Math.min(1, (s - plen[i - 1]) / (plen[i] - plen[i - 1]));
+    return [PATH[i - 1][0] + u * (PATH[i][0] - PATH[i - 1][0]), PATH[i - 1][1] + u * (PATH[i][1] - PATH[i - 1][1])];
+  }
+}
+// segments: [x1,y1,x2,y2, hail 0..1, t, kind]
+const SEG = [];
+const KIND = { r: 0, m: 1, w: 2, x: 3 };
+for (const k in GEO) for (const l of GEO[k]) for (let i = 2; i < l.length; i += 2) {
+  const mx = (l[i - 2] + l[i]) / 2, my = (l[i - 1] + l[i + 1]) / 2, [d, t] = nearPath(mx, my);
+  SEG.push([l[i - 2], l[i - 1], l[i], l[i + 1], Math.exp(-((d / SW) ** 2)), t, KIND[k]]);
+}
+// 25 sample doors (fake homes) on real street vertices in the swath core
+const DOORS = (() => {
+  const c = pathAt(0.52), pts = [];
+  for (const l of GEO.r) for (let i = 0; i < l.length; i += 2) pts.push([l[i], l[i + 1]]);
+  pts.sort((a, b) => Math.hypot(a[0] - c[0], a[1] - c[1]) - Math.hypot(b[0] - c[0], b[1] - c[1]));
+  const out = [];
+  for (const p of pts) { if (out.every(q => Math.hypot(q[0] - p[0], q[1] - p[1]) > 11)) out.push(p); if (out.length === 25) break; }
+  return out.map((p, i) => { const [d, t] = nearPath(p[0], p[1]); return { x: p[0], y: p[1], t, h: Math.exp(-((d / SW) ** 2)), k: i }; });
+})();
+
+const cv = document.getElementById("holo"), ctx = cv.getContext("2d");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W = 0, H = 0, DPR = 1, visible = true, mx = 0, my = 0, smx = 0, smy = 0;
+function size() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+}
+const css = getComputedStyle(document.documentElement);
+const HAIL = [[242, 193, 78], [245, 136, 58], [255, 79, 90]];
+function hailRGB(v) { // v = hail size in inches mapped 1.0..2.0
+  const s = Math.max(0, Math.min(1, v - 1)) * 2, i = Math.min(1, Math.floor(s)), u = s - i, a = HAIL[i], b = HAIL[i + 1];
+  return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u].map(Math.round);
+}
+const CYCLE = 16;
+const ease = x => 1 - Math.pow(1 - x, 3);
+function frame(time) {
+  const T = STILL || reduce ? 4.4 : (time / 1000) % CYCLE;
+  const front = ease(Math.min(1, T / 9)) * 1.1;
+  const fade = T < 12.5 ? 1 : Math.max(0, 1 - (T - 12.5) / 3.5);
+  smx += (mx - smx) * .04; smy += (my - smy) * .04;
+  const phone = W < 760;
+  const yaw = -0.5 + (STILL ? 0 : Math.sin(time / 1000 * 0.05) * 0.08) + smx * 0.06;
+  const pitch = 0.62 + smy * 0.03;              // camera elevation (rad)
+  const sp = Math.sin(pitch), cp = Math.cos(pitch), cy_ = Math.cos(yaw), sy_ = Math.sin(yaw);
+  const D = 900, f = (phone ? 1.25 : 1.05) * Math.max(W, H * 1.2);
+  const ox = phone ? W * 0.5 : W * 0.63, oy = phone ? H * 0.33 : H * 0.52;
+  const zoom = phone ? 0.85 : 1;
+  const P = (x, y, h = 0) => {
+    const xr = (x * cy_ - y * sy_) * zoom, v = (x * sy_ + y * cy_) * zoom;
+    const z = D + v * cp; const s = f / z;
+    return [ox + xr * s, oy - (v * sp + h * cp) * s, s];
+  };
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  // ground grid dots
+  ctx.fillStyle = "rgba(159,196,255,.13)";
+  for (let gx = -460; gx <= 460; gx += 46) for (let gy = -360; gy <= 360; gy += 46) {
+    const [sx, sy, s] = P(gx, gy); ctx.fillRect(sx - .6, sy - .6, 1.2 * Math.min(1.6, s * 2), 1.2 * Math.min(1.6, s * 2));
+  }
+  // bucket segments
+  const B = [[], [], [], [], [], [], [], []]; // 0 base street,1 major,2 water,3 rail,4-6 hail levels,7 front
+  for (const s of SEG) {
+    const lit = s[5] <= front && s[4] > 0.12 && s[6] < 2;
+    if (lit) {
+      const near = Math.abs(s[5] - front) < 0.035 && front < 1.05;
+      B[near ? 7 : 4 + Math.min(2, Math.floor(s[4] * 3))].push(s);
+    } else B[s[6]].push(s);
+  }
+  const stroke = (list, style, w) => {
+    if (!list.length) return; ctx.beginPath();
+    for (const s of list) { const a = P(s[0], s[1]), b = P(s[2], s[3]); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+    ctx.strokeStyle = style; ctx.lineWidth = w; ctx.stroke();
+  };
+  stroke(B[2], "rgba(90,150,255,.30)", 1.4);
+  stroke(B[3], "rgba(159,196,255,.20)", 1);
+  stroke(B[0], "rgba(159,196,255,.30)", .8);
+  stroke(B[1], "rgba(190,215,255,.55)", 1.4);
+  const c1 = hailRGB(1.0), c2 = hailRGB(1.1), c3 = hailRGB(1.17);
+  ctx.globalCompositeOperation = "lighter";
+  stroke(B[4], `rgba(${c1},${.35 * fade})`, 1);
+  stroke(B[5], `rgba(${c2},${.6 * fade})`, 1.3);
+  stroke(B[6], `rgba(${c3},${.9 * fade})`, 1.7);
+  stroke(B[6], `rgba(${c3},${.12 * fade})`, 6);
+  stroke(B[7], `rgba(255,240,215,${.95 * fade})`, 2);
+  // storm head
+  if (front < 1.02 && fade > 0) {
+    const hp = pathAt(Math.min(1, front)), steps = 48;
+    for (const [r, a] of [[SW, .5], [SW * .55, .8]]) {
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i++) { const ang = i / steps * Math.PI * 2, q = P(hp[0] + Math.cos(ang) * r, hp[1] + Math.sin(ang) * r); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+      ctx.strokeStyle = `rgba(255,200,140,${a * .35})`; ctx.lineWidth = 1; ctx.stroke();
+    }
+    const q = P(hp[0], hp[1]); const g = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], 90 * q[2] * 1000 / f * 1.6);
+    g.addColorStop(0, "rgba(245,136,58,.35)"); g.addColorStop(1, "rgba(245,136,58,0)"); ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(q[0], q[1], 90 * q[2] * 1000 / f * 1.6, 0, 7); ctx.fill();
+  }
+  // doors: columns rise when the swath reaches them
+  for (const d of DOORS) {
+    const since = (front - d.t) * 9;
+    if (since <= 0 || fade <= 0) { const b = P(d.x, d.y); ctx.fillStyle = "rgba(159,196,255,.55)"; ctx.fillRect(b[0] - 1, b[1] - 1, 2, 2); continue; }
+    const grow = ease(Math.min(1, since / 0.8)) * fade, h = (22 + d.h * 34) * grow;
+    const b = P(d.x, d.y), top = P(d.x, d.y, h), col = hailRGB(1 + d.h * .17);
+    const lg = ctx.createLinearGradient(b[0], b[1], top[0], top[1]);
+    lg.addColorStop(0, `rgba(${col},${.05 * grow})`); lg.addColorStop(1, `rgba(${col},${.9 * grow})`);
+    ctx.strokeStyle = lg; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(top[0], top[1]); ctx.stroke();
+    ctx.fillStyle = `rgba(255,236,210,${grow})`; ctx.beginPath(); ctx.arc(top[0], top[1], 2.1, 0, 7); ctx.fill();
+    ctx.fillStyle = `rgba(${col},${.18 * grow})`; ctx.beginPath(); ctx.arc(top[0], top[1], 7, 0, 7); ctx.fill();
+  }
+  ctx.globalCompositeOperation = "source-over";
+}
+function loop(t) { if (visible && !document.hidden) frame(t); if (!STILL && !reduce) requestAnimationFrame(loop); }
+size(); frame(0); requestAnimationFrame(loop);
+addEventListener("resize", () => { size(); frame(performance.now()); });
+if ("IntersectionObserver" in window) new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(cv);
+addEventListener("pointermove", e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+})();
+</script>
