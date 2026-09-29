@@ -1,5 +1,10 @@
 # HMP App changelog (newest first)
 
+## No "free" anywhere until the boss okays it - 2026-09-29 (live: HMP App + Practice Door; QA PASS)
+- App, Practice Door, door lines and print sheets say "estimate / estimado" (cash) and "roof check / revisión del techo" (insurance), never "free" or "gratis". The state's free insurance hotline stays.
+- Contingency agreement EN/ES: "No payment is due at signing. What HMP will charge for is set out in the written estimate/contract." (no more "costs you nothing" / "no cobra nada"); both PDFs re-rendered.
+- New legal check: `tests/legal_check.py` fails the build on any "free" / "costs nothing" / "gratis" offer in docs/print, docs/app or pages (allows the NDOI hotline and "never say free" rules).
+
 ## AI hub reads the real robot chats by itself - 2026-09-29 (live hub, v33)
 - Every minute while the hub is open it reads your real Claude chats (Claude Code Remote `list_sessions`) and puts each on its robot by tag (`robot:builder`, `king`, ...) or title: working / needs you / done / stuck, what it's doing this minute, how long ago, cost. Archived chats are gone. No more hand-written status going 12 h stale.
 - New top card: Needs you / Working on / Done (3 lines each) with "Live · 20 s ago"; the Board opens with "Live from the chats"; Chats, spend and the instant chat answers all use the same live list (the hand-written docs are only the fallback, and the chat is told how old they are).
