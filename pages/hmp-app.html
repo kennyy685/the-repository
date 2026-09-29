@@ -5509,9 +5509,9 @@ function paperLegalBlock(l, kind){
   return `<div class="ns-acts ns-legal">${ids.map(btn).join('')}</div>${ids.includes(paperLegal) ? legalHtml(paperLegal, paperLegal === 'cancel_notice' ? dl : null) : ''}`;
 }
 document.addEventListener('click', ev => { const b = ev.target.closest('[data-paperlegal]'); if (!b) return; paperLegal = paperLegal === b.dataset.paperlegal ? null : b.dataset.paperlegal; renderSheet(); });
-function legalHtml(id, deadline){
+function legalHtml(id, deadline){   // both languages, the screen's language first
   const T = window.HMPTranslate; if (!T || !id) return '';
-  const two = (lang === 'es' ? ['es', 'en'] : ['en', 'es']).map(l => { const d = T.readLegal(id, l, {deadline});   // the screen's language first return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
+  const two = (lang === 'es' ? ['es', 'en'] : ['en', 'es']).map(l => { const d = T.readLegal(id, l, {deadline}); return d ? `<div class="legal" lang="${l}"><b>${esc(d.title || '')}</b>${(d.paras || []).map(p => `<p>${esc(p)}</p>`).join('')}</div>` : ''; }).join('');
   return `<details class="fold" open><summary>${esc(NW().sayFixedDoc)}</summary>${two}</details>`;
 }
 function renderSay(){
