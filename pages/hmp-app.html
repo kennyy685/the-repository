@@ -6048,10 +6048,11 @@ $('#kcForm').addEventListener('submit', ev => { ev.preventDefault(); const v = $
 $('#kcStop').addEventListener('click', () => { if (kcCtl) kcCtl.abort(); });
 
 /* ================= live data ================= */
-async function connect(){
+async function connect(late){
   const cl = window.claude;
   if (!cl || typeof cl.use !== 'function') { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.preview); renderApp(); return; }
-  let db = null; try { db = await within(cl.use('db'), USE_MS); } catch (e) { db = null; }
+  const dbP = late || Promise.resolve(cl.use('db'));
+  let db = null; try { db = await within(dbP, USE_MS); } catch (e) { db = null; if (e && e.code === 'timeout' && !late) dbP.then(d => { if (d && !DB) connect(Promise.resolve(d)); }, () => {}); }   // slow, not gone: connect when it answers
   if (!db) { prices = null; takeoffRules = null; dbState = 'off'; appState = 'off'; setLive('off', L().live.na); renderApp(); return; }
   setLive('wait', L().live.loading); DB = db;
   try {

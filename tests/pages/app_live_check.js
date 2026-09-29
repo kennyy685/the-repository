@@ -8,6 +8,7 @@
  *                 (reply + a logged action), a door tap saved to the db; no errors, a free main thread
  *   app-phone     the same clicks at 390 px
  *   app-db-hang   use('db') never answers: the page stops waiting by itself and says live data is off; tabs work
+ *   app-db-slow   use('db') answers after 20 s: 'off' at 12 s, then it connects by itself
  *   app-use-hang  user + sample never answer: the data still loads and the Right Hand stays hidden (no dead button)
  *   app-db-fail   every listener errors: the page says it could not load; tabs work
  *   app-write-hang  writes never answer: a door tap still shows at once and waits in the outbox (sync chip)
@@ -41,10 +42,12 @@ let cur = "";
 const ok = (cond, msg) => { if (!cond) fails.push(`${cur}: ${msg}`); return !!cond; };
 
 // the hub mock has no `assets`; the app needs one for photos (same modes: ok / fail / hang)
-const ASSETS_MOCK = `(() => { const use = window.claude.use, M = (window.__MOCK || {}).modes || {};
+const ASSETS_MOCK = `(() => { const M = (window.__MOCK || {}).modes || {};
   const g = fn => M.assets === 'hang' ? new Promise(() => {}) : M.assets === 'fail' ? Promise.reject(Object.assign(new Error('x'), {code: 'unavailable'})) : Promise.resolve(fn());
   const assets = { upload: () => g(() => ({ id: Math.random().toString(16).slice(2).padEnd(32, '0').slice(0, 32), url: '' })), list: () => g(() => ({ assets: [], usage: {} })), delete: () => g(() => ({})), url: () => g(() => '') };
-  window.claude.use = n => n === 'assets' ? (M.use_assets === 'hang' ? new Promise(() => {}) : Promise.resolve(assets)) : use(n); })();`;
+  const use0 = window.claude.use; if (M.use_db === 'slow20') window.claude.use = n => n === 'db' ? new Promise(r => setTimeout(() => r(use0('db')), 20000)) : use0(n);
+  const use1 = window.claude.use;
+  window.claude.use = n => n === 'assets' ? (M.use_assets === 'hang' ? new Promise(() => {}) : Promise.resolve(assets)) : use1(n); })();`;
 
 async function open(browser, url, o) {
   const ctx = await browser.newContext({ viewport: o.vp || { width: 1470, height: 900 }, timezoneId: "America/Chicago", colorScheme: "dark", reducedMotion: "reduce" });
@@ -219,6 +222,12 @@ async function appScenarios(browser) {
   await run("app-db-hang", () => appDegraded(browser, url, "app-db-hang", { use_db: "hang" }, async ({ p, tick }) => {
     await tick(15000);
     ok(await liveState(p) === "off", `use('db') hung and the live dot still says "${await liveState(p)}" after 15 s`);
+  }));
+  await run("app-db-slow", () => appDegraded(browser, url, "app-db-slow", { use_db: "slow20" }, async ({ p, tick }) => {   // slow, not gone
+    await tick(14000);
+    ok(await liveState(p) === "off", `use('db') 14 s late and the live dot says "${await liveState(p)}", not off`);
+    await tick(10000);
+    ok(await liveState(p) === "on", `use('db') answered at 20 s and the page never connected (live: ${await liveState(p)})`);
   }));
   await run("app-use-hang", () => appDegraded(browser, url, "app-use-hang", { use_user: "hang", use_sample: "hang" }, async ({ p, tick }) => {
     await tick(15000);
