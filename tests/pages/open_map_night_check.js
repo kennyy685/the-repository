@@ -135,6 +135,20 @@ async function main() {
     ok(!t.errors.length, "top 3: JS errors: " + t.errors.join(" | "));
     await t.ctx.close();
 
+    // 5b. hostile text in the brief's map data never runs; a non-number hail size doesn't break the list (QA)
+    const evil = JSON.parse(JSON.stringify(BR));
+    evil.map.areas[0].name = { en: '<img src=x onerror="window.__x=1">Columbus', es: "<script>window.__x=1</script>" };
+    evil.map.areas[0].town = '<img src=x onerror="window.__x=1">';
+    evil.top[2] = { ...evil.top[2], hail_in: "big" };
+    t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify(evil) + ";");
+    await t.p.click('.picks .pick[data-pick="z0808-columbus"]');
+    await t.p.waitForTimeout(300);
+    const pwn = await t.p.evaluate(() => ({ x: window.__x || 0, n: document.querySelectorAll(".picks .pick").length, img: document.querySelectorAll("img[src=x]").length }));
+    ok(!pwn.x && !pwn.img, `hostile map text ran or was drawn as HTML: ${JSON.stringify(pwn)}`);
+    ok(pwn.n === 3, `non-number hail: top 3 has ${pwn.n} rows`);
+    ok(!t.errors.length, "hostile brief: JS errors: " + t.errors.join(" | "));
+    await t.ctx.close();
+
     // 6. an older brief (no top, no map): the list is still pick + backup; an in-box pick keeps the designed view
     t = await open(browser, url, "window.NIGHT_REAL=" + JSON.stringify({ ...BR, top: undefined, map: undefined,
       pick: { ...BR.pick, area_id: "z0613-fremont", center: { lat: 41.32, lon: -96.45 } } }) + ";");

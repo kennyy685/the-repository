@@ -356,6 +356,10 @@ def page_brief(doc):
     back from the published file)."""
     out = json.loads(json.dumps(doc))
     for c in [out.get("pick"), out.get("backup"), *(out.get("top") or [])]:
+        if c and c.get("center"):                                       # the walk's middle, ~100 m too
+            for f in ("lat", "lon"):
+                if c["center"].get(f) is not None:
+                    c["center"][f] = round(float(c["center"][f]), 3)
         if not c or not c.get("start"):
             continue
         s = c["start"]

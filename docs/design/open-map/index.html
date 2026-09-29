@@ -913,7 +913,11 @@ body:not(.tab-all) .hint{opacity:0;pointer-events:none}
 const REAL = window.REAL || null;
 /* the night brief's own areas (`map`, hailhunter/openmap.py, real.js shapes): the pick + backup + top walks the map box
    doesn't hold (e.g. Columbus, west of it) still open as areas. Ids already in real.js win. */
-if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT_REAL.map)(()=>{const X=window.NIGHT_REAL.map,have=new Set(REAL.AREAS.map(a=>a.id)),
+if(REAL&&window.NIGHT_REAL&&window.NIGHT_REAL.kind==="night_brief"&&window.NIGHT_REAL.map)(()=>{
+  // every string escaped (the page puts these names straight into HTML; only real.js's <b> tags survive)
+  const cl=(v)=>typeof v==="string"?v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])).replace(/&lt;(\/?)b&gt;/g,"<$1b>")
+    :Array.isArray(v)?v.map(cl):v&&typeof v==="object"?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,cl(x)])):v;
+  const X=cl(window.NIGHT_REAL.map),have=new Set(REAL.AREAS.map(a=>a.id)),
   ago=(d)=>Math.round((new Date(REAL.today+"T12:00:00Z")-new Date(d+"T12:00:00Z"))/864e5);
   Object.entries(X.storms||{}).forEach(([k,s])=>{if(REAL.STORMS[k])return;REAL.STORMS[k]={...s,days:ago(s.date)};
     const e=REAL.DAILY.find(x=>x.d===REAL.STORMS[k].days);if(e&&!e.storm){e.storm=k;e.v=Math.max(e.v,s.max)}});
@@ -2306,12 +2310,12 @@ function nightHTML(){const b=nightB();if(!b)return"";
     ${b.sample?`<p class="nf">${escN(L(b.sample))}</p>`:""}
     ${seg?`<div class="nb"><span>${t("nPrev")}</span>${seg}</div>`:""}</section>`}
 /* a brief card the map has no area for (an old-house backup, a storm newer than the season file): taps fly to its middle */
-function cardPick(p,i){const c=p.card,ev=c.kind!=="storm",ctr=c.center&&c.center.lon!=null?`${+c.center.lon},${+c.center.lat}`:"";
+function cardPick(p,i){const c=p.card,hin=isFinite(+c.hail_in)&&c.hail_in!=null?+c.hail_in:null,ev=c.kind!=="storm"||hin==null,ctr=c.center&&c.center.lon!=null?`${+c.center.lon},${+c.center.lat}`:"";
   const facts=`${c.dist_mi!=null?`<span>${ic("car")}${Math.round(c.dist_mi)} mi</span>`:""}<span>${ic("door")}${+c.doors||0} ${t("doors")}</span>`;
-  return `<button class="pick${i?"":" lit"}"${ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(c.hail_in||1)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
+  return `<button class="pick${i?"":" lit"}"${ctr?` data-fly="${ctr}"`:""} style="--c:${ev?"var(--text-2)":bandColor(hin)};animation-delay:${120+i*90}ms" aria-label="${t("flyTo",escN(c.name))}">
     <span class="rk">${i+1}</span>
     <span class="bd"><span class="nm">${escN(c.name)}${c.storm_day?`<span class="dt">${fmtDate(c.storm_day)}</span>`:""}${i?"":`<em>${t("aldPick")}</em>`}${p.bk?`<em class="bk">${t("nBackup")}</em>`:""}</span><span class="why">${p.why}</span><span class="fx">${facts}</span></span>
-    <span class="vv"><span class="v">${ev?`<small>${t("oldH")}</small>`:fmtIn(c.hail_in)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}
+    <span class="vv"><span class="v">${ev?`<small>${c.kind!=="storm"?t("oldH"):""}</small>`:fmtIn(hin)+"<small>in</small>"}</span><span class="go">${ic("chev")}</span></span></button>`}
 function flyPt(v){const[x,y]=String(v).split(",").map(Number);if(!isFinite(x)||!isFinite(y))return;
   if(useGL&&mapReady)map.flyTo({center:[x,y],zoom:12.6,pitch:st.layers.tilt?48:0,padding:PAD,duration:1300,essential:true})}
 function renderHome(){const box=$("today");if(!box)return;computePicks();

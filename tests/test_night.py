@@ -391,6 +391,9 @@ class MapTopFollowsPick(unittest.TestCase):
         # the published copy scrubs every card's start to a street
         pub = night.page_brief(d)
         for c in pub["top"]:
+            for f in ("lat", "lon"):                                     # the walk's middle is ~100 m too (QA)
+                if c["center"] and c["center"][f] is not None:
+                    self.assertEqual(c["center"][f], round(c["center"][f], 3))
             if c["start"]:
                 self.assertIsNone(re.match(r"\d", c["start"]["address"] or ""))
 
