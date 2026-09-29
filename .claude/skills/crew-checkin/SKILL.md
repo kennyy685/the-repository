@@ -147,9 +147,10 @@ Engine Mechanic, Chat Reader, Cowork.
 
 ## Hub v28.5: branch watch + Sunday report (queue chunks C, D)
 - `system/git` (the King, every wake and after any merge; the page only reads): `{at, work:"claude/amazing-gauss-yzfpq0",
-  main:{behind:<n>}, branches:[{name, ahead, behind, last_at, subject, files, conflicts, done}]}`. `name` = the full branch
-  (`claude/...`), `ahead` = commits on it not on work, `subject` = newest non-merge subject (80 chars), `files` = files it
-  changes, `conflicts` = conflicted file count or `null` (not checked), `done` = `ahead === 0`. **How:** `git fetch origin
+  main:{behind:<n>, head:<work tip sha>}, branches:[{name, head, ahead, behind, last_at, subject, files, conflicts, done}]}`.
+  `name` = the full branch (`claude/...`), `head` = its tip sha (`git rev-parse origin/<b>`), `ahead` = commits on it not on work, `subject` = newest non-merge subject (80 chars), `files` = files it
+  changes, `conflicts` = conflicted file count or `null` (not checked), `done` = `ahead === 0`. Counts are whole numbers
+  >= 0; anything else (missing, negative, text) reads as "not checked yet" on the page, never "no conflicts" / "looks done". **How:** `git fetch origin
   --deepen=1000` (or `--unshallow`) FIRST: a shallow clone gives nonsense counts. `ahead` = `git rev-list --count
   work..origin/<b>`; `behind` = `git rev-list --count origin/<b>..work`; `main.behind` = `git rev-list --count
   origin/main..work`; `conflicts` = the conflicted paths in `git merge-tree --write-tree work origin/<b>` (exit 1 =
@@ -157,10 +158,15 @@ Engine Mechanic, Chat Reader, Cowork.
   The Board shows one "Unfinished work" card only when some branch has `ahead > 0` or `main.behind > 0`; `ahead > 200` =
   "old branch, check first" (no Merge it button). No doc = no card + an Ops line "Branch watch starts on the King's next wake".
 - Merge taps (the page writes them; his tap IS the OK for that one merge): a `board.waiting` item `{id:"M-<branch
-  slug>-<ahead>" | "M-main-<behind>", q, at, merge:{branch, into, ahead, conflicts}}` plus `answers/<id>` = `{answer:"Merge
-  it", ...}` and a wake ("answered M-... = Merge it; merge it: ..."). It rides the Ready-to-ship card. **King:** `git merge
-  --no-ff origin/<branch>` into `into` (a merge commit), `bash tests/release_checks.sh --fast`, push, post `done` with
-  `re:"<id>"`, take the item off `board.waiting`, rewrite `system/git`. `into:"main"` is only-a-person: only ever from his
+  slug>-<ahead>-<head 12>" | "M-main-<behind>-<head 12>", q, at, merge:{branch, into, ahead, conflicts, head, report_at}}`
+  (added under the board's lease, read back, re-added once if a concurrent write dropped it) plus `answers/<id>` =
+  `{answer:"Merge it", ...}` and a wake ("answered M-... = Merge it; merge it: ..."). It rides the Ready-to-ship card. An
+  answer older than 10 min whose item still waits can be tapped again (same id, a fresh answer + wake). **King, before
+  merging:** fetch, re-check `git rev-parse origin/<branch>` == `merge.head`, `ahead` and `conflicts` still match; if any
+  changed, don't merge: rewrite `system/git` and post a `note` with `re:"<id>"` ("it changed: tap Merge it again"), and take
+  the stale item off `board.waiting`. Else `git merge --no-ff origin/<branch>` into `into` (a merge commit),
+  `bash tests/release_checks.sh --fast`, push, post `done` with `re:"<id>"`, take the item off `board.waiting`, rewrite
+  `system/git`. `into:"main"` is only-a-person: only ever from his
   own `M-main-*` tap, never batched with another merge. A conflict on merge = stop, `git merge --abort`, post it.
 - `task:"fix-merge"` handoff (Ask the King, on a conflicted / unchecked / old branch): `{agent:"you", kind:"handoff",
   to:"code", task:"fix-merge", fix_id:"merge-<slug>", branch, into, ahead, conflicts}` + a wake. Look at it; merge it (as
@@ -169,7 +175,10 @@ Engine Mechanic, Chat Reader, Cowork.
   already there is never rewritten): `{v:1, week:"2026-W40", from, label:"Week of Sep 28 – Oct 4", shipped, ships:[<=3
   texts], spent_usd|null, per_ship_usd|null, waited_h, longest:{id, h}|null, stuck_h, best:{id, good, of}|null, at,
   by:"hub"}`. (A flat doc: `crew/weeks/<id>` would be a collection path.) `spent_usd` comes from `crew/sessions.spend.week_usd`,
-  so keep that field current on Sundays; missing = "not tracked yet". Shipped counts `done`/`note` events whose text says
+  so keep that field (and `crew/sessions.updatedAt`) current on Sundays: spend older than 6 h, or missing, = "not tracked yet".
+  The page writes the doc only for a week it can see whole (`complete:true`): hub doc `system/tidy` `{deleted_through, at}` is
+  how far the page's log trim has reached; tidy never trims the report week, the week before, or ship events of the last
+  14 days. A week the trim reached into shows Shipped / Stuck "not tracked yet" and is never saved. Shipped counts `done`/`note` events whose text says
   published / went live / shipped / merged (and not "not yet published"): write ship events in those words.
 
 ## Report card (hub v28.1; the King writes it, the page only reads)

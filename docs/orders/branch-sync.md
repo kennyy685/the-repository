@@ -23,9 +23,13 @@ Superseded/merged branches can be deleted on GitHub whenever FilthE okays it (no
    `git rev-list --count origin/<b>..work`, `subject` = `git log -1 --no-merges --format=%s origin/<b>` (80 chars),
    `files` = `git diff --name-only work...origin/<b> | wc -l`, `conflicts` = conflicted paths from
    `git merge-tree --write-tree --name-only work origin/<b>` (exit 1 = conflicts, 0 = clean; nothing is checked out).
-3. `main.behind` = `git rev-list --count origin/main..work`. Write hub doc `system/git` (shape in the crew-checkin skill,
-   "Hub v28.5").
-4. A "Merge it" answer (`board.waiting` item with `merge:{branch, into}`): `git merge --no-ff` (a merge commit; never
+   `head` = `git rev-parse origin/<b>` (the tip the counts were taken at).
+3. `main.behind` = `git rev-list --count origin/main..work`, `main.head` = `git rev-parse work`. Write hub doc `system/git`
+   (shape in the crew-checkin skill, "Hub v28.5").
+4. A "Merge it" answer (`board.waiting` item with `merge:{branch, into, ahead, conflicts, head}`): fetch and re-check first.
+   If the tip (`git rev-parse origin/<branch>`, or the work tip for `into:"main"`) is not `merge.head`, or `ahead` /
+   `conflicts` changed: don't merge; rewrite `system/git`, post a `note` with `re` ("it changed since you tapped: tap Merge
+   it again"), take the stale item off `board.waiting`. Else `git merge --no-ff` (a merge commit; never
    rebase, never force, never delete the branch), `bash tests/release_checks.sh --fast`, push, post `done` with `re`, take the
    item off `board.waiting`, rewrite `system/git`. A conflict = `git merge --abort` and post it. `into:"main"` only from his
    own `M-main-*` tap.
