@@ -44,7 +44,7 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   **Hub** / **App** / **For the app** (map, storms, engine, screens not live yet) / **Around it** (Practice Door, print,
   crew setup). One plain line per job.
 - **Copy-paste ready (FilthE, 2026-09-28):** anything he must paste (links, domains, settings) goes in its own code block,
-  one item per line, nothing extra, so he never edits it.
+  one item per line, nothing extra, so he never edits it. **Links he should open go as plain clickable text (or opened for him), never in a code block** (2026-09-29: "those links arent taking me anywhere").
 - **Finished work waits for his OK (FilthE, 2026-09-28):** every update starts with "Done, waiting for your OK"; items stay
   on it until he acknowledges them. Then "Running" and "Next". Never let a finished task slip by unmentioned.
   The hub is FilthE's personal space (2026-09-28): English only, not HMP-branded (EN/ES rule is for the app).
