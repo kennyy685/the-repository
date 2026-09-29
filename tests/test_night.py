@@ -19,10 +19,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FIX = os.path.join(HERE, "fixtures", "today_hud.json")
 SAMPLE = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "night-sample.js")
 REAL_JS = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "night.js")
+MAP_JS = os.path.join(HERE, "..", "docs", "design", "open-map", "data", "real.js")
+SEASON = os.path.join(HERE, "..", "data", "storms-2026.json")
+
+
+def _real():
+    with open(MAP_JS, encoding="utf-8") as f:
+        t = f.read()
+    return json.loads(t[t.index("{"):t.rindex("}") + 1])
+
+
+def REAL_AREAS():
+    return {a["id"] for a in _real()["AREAS"]} if os.path.exists(MAP_JS) else set()
 DAY = "2026-09-25"
 NOW = datetime(2026, 9, 25, 10, 0, tzinfo=timezone.utc)
 KEYS = {"v", "kind", "date", "made_at", "since", "first_run", "quiet", "headline", "new_hail", "zones_up", "zones_down",
-        "zones_new", "zones_gone", "walks_changed", "pick", "backup", "zones", "storm_keys"}
+        "zones_new", "zones_gone", "walks_changed", "pick", "backup", "top", "zones", "storm_keys"}
 CARD = {"zone_id", "name", "kind", "score", "hail_in", "storm_day", "dist_mi", "doors", "start", "best_time", "why",
         "plan", "center", "area_id"}
 NEVER = re.compile(r"insur|asegur|seguro|deduct|deduc|guarant|owner name", re.I)
@@ -354,6 +366,103 @@ class NightShiftCommand(unittest.TestCase):
         self.assertNotIn("PUBLISH", out)
 
 
+class MapTopFollowsPick(unittest.TestCase):
+    """King, 2026-09-29: the open map's "Aldaba's top 3" leads with the brief's pick + backup, then the next storm walks;
+    a pick outside the map box (Columbus) still arrives as an area the map can open (brief `map`)."""
+    def setUp(self):
+        self.cfg = C.load(os.path.join(tempfile.gettempdir(), "no-such-config.json"))
+        with open(FIX, encoding="utf-8") as f:
+            self.hud = json.load(f)
+        self.hud["storms"] = [storm("2026-09-10", "Fremont", 1.6)]
+
+    def test_top_leads_with_pick_then_backup_then_storm_walks(self):
+        zd = zones.zones(self.hud, DAY, cfg=self.cfg)
+        w = zones.walks(self.hud, zd, DAY, cfg=self.cfg)
+        d = night.brief(self.hud, zd, w, DAY, None, self.cfg, now=NOW)
+        top = d["top"]
+        self.assertLessEqual(len(top), 3)
+        self.assertEqual(top[0], d["pick"])
+        self.assertEqual(top[1], d["backup"])
+        for c in top:
+            self.assertEqual(set(c), CARD)
+        self.assertEqual(len({c["zone_id"] for c in top}), len(top))
+        for c in top[2:]:
+            self.assertEqual(c["kind"], "storm")                     # after the backup: storm walks only
+        # the published copy scrubs every card's start to a street
+        pub = night.page_brief(d)
+        for c in pub["top"]:
+            for f in ("lat", "lon"):                                     # the walk's middle is ~100 m too (QA)
+                if c["center"] and c["center"][f] is not None:
+                    self.assertEqual(c["center"][f], round(c["center"][f], 3))
+            if c["start"]:
+                self.assertIsNone(re.match(r"\d", c["start"]["address"] or ""))
+
+    def test_other_areas_before_sister_turfs(self):
+        z = lambda i, a, k="storm": {"id": i, "name": i, "kind": k, "homes": 30, "area_id": a, "list_id": a}   # noqa: E731
+        zd = {"zones": [z("a1", "zA"), z("a2", "zA"), z("b1", "zB"), z("e1", None, "everyday")]}
+        pick, backup = night.choose(zd, None)
+        self.assertEqual((pick["zone_id"], backup["zone_id"]), ("a1", "b1"))
+        top = night.top_cards(zd, None, pick, backup)
+        self.assertEqual([c["zone_id"] for c in top], ["a1", "b1", "a2"])
+        zd["zones"].insert(2, z("c1", "zC"))
+        self.assertEqual([c["zone_id"] for c in night.top_cards(zd, None, *night.choose(zd, None))], ["a1", "c1", "b1"])
+        self.assertEqual([c["zone_id"] for c in night.top_cards({"zones": [z("e1", None, "everyday")]}, None,
+                                                                 *night.choose({"zones": [z("e1", None, "everyday")]}, None))], ["e1"])
+
+    @unittest.skipUnless(os.path.exists(SEASON), "no season file")
+    def test_map_carries_areas_outside_the_box(self):
+        from hailhunter import openmap
+        with open(SEASON, encoding="utf-8") as f:
+            season = json.load(f)
+        ex = openmap.extra(season, ["z0808-columbus", None, "z9999-nowhere"])
+        self.assertEqual([a["id"] for a in ex["areas"]], ["z0808-columbus"])
+        a = ex["areas"][0]
+        self.assertLess(a["c"][0], -96.95)                             # west of the map box: not in real.js
+        self.assertEqual(a["st"], "d20260808")
+        self.assertIn("d20260808", ex["storms"])
+        self.assertGreaterEqual(len(a["ring"]), 4)
+
+    @unittest.skipUnless(os.path.exists(SEASON) and os.path.exists(MAP_JS), "design files are not in the cloud bundle")
+    def test_openmap_is_a_twin_of_real_py(self):
+        """hailhunter/openmap.py builds the same AREAS/STORMS entries data/build/real.py wrote into real.js."""
+        from hailhunter import openmap
+        with open(SEASON, encoding="utf-8") as f:
+            season = json.load(f)
+        real = _real()
+        by = {openmap.zid(z): z for z in season["zones"]}
+        n = 0
+        for a in real["AREAS"]:
+            if a["hb"] or a["id"] not in by:
+                continue
+            self.assertEqual(json.loads(json.dumps(openmap.area(by[a["id"]], season))), a, a["id"])
+            n += 1
+        self.assertGreater(n, 10)
+        inbox = [z for z in season["zones"] if openmap.zid(z) in {a["id"] for a in real["AREAS"]}]
+        day = "2026-06-13"
+        got, want = json.loads(json.dumps(openmap.storm(day, inbox, season))), dict(real["STORMS"]["d20260613"])
+        self.assertEqual(sorted(got.pop("path")), sorted(want.pop("path")))   # same-minute reports: set order varies
+        self.assertEqual(got, want)
+
+    def test_night_cmd_adds_map_for_named_areas(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as t:
+            season = os.path.join(t, "s.json")
+            with open(SEASON if os.path.exists(SEASON) else FIX, encoding="utf-8") as f:
+                sdoc = json.load(f)
+            with open(season, "w", encoding="utf-8") as f:
+                json.dump(sdoc, f)
+            with mock.patch.object(night, "area_ids", lambda doc: ["z0808-columbus"]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                rc = hh.main(["night", "--no-refresh", "--hud", FIX, "--date", DAY, "--near", "41.43,-96.49",
+                              "--out-dir", t, "--season", season])
+            self.assertEqual(rc, 0)
+            with open(os.path.join(t, "brief.json"), encoding="utf-8") as f:
+                d = json.load(f)
+            self.assertIn("map", d)
+            if os.path.exists(SEASON):
+                self.assertEqual([a["id"] for a in d["map"]["areas"]], ["z0808-columbus"])
+
+
 class OpenMapSample(unittest.TestCase):
     """docs/design/open-map/data/night.js: the sample briefs the open map shows, in the engine's exact shape."""
     @unittest.skipUnless(os.path.exists(SAMPLE), "design files are not in the cloud bundle")
@@ -363,7 +472,7 @@ class OpenMapSample(unittest.TestCase):
         body = json.loads(text[text.index("{"):text.rindex("}") + 1])
         for key in ("quiet", "storm"):
             d = body[key]
-            self.assertEqual(set(d) - {"sample"}, KEYS)
+            self.assertEqual(set(d) - {"sample"}, KEYS - {"top"})   # samples preview the strip only
             self.assertEqual(set(d["pick"]), CARD)
             self.assertIsNone(NEVER.search(json.dumps(d, ensure_ascii=False)))
         self.assertTrue(body["quiet"]["quiet"])
@@ -375,7 +484,7 @@ class OpenMapSample(unittest.TestCase):
             text = f.read()
         self.assertTrue(text.startswith(night.JS_HEAD))
         d = night.from_js(text)
-        self.assertEqual(set(d) - {"refresh_error", "none_reason"}, KEYS)
+        self.assertEqual(set(d) - {"refresh_error", "none_reason", "map"}, KEYS)
         self.assertNotIn("sample", d)                            # the real brief never carries the SAMPLE note
         for k in ("pick", "backup"):
             if d[k]:
@@ -385,7 +494,15 @@ class OpenMapSample(unittest.TestCase):
                     self.assertEqual(st.get(f), round(st.get(f), 3) if st.get(f) is not None else None)
         if d["pick"]:
             self.assertEqual(d["pick"]["kind"], "storm")
-        self.assertIsNone(NEVER.search(json.dumps({k: v for k, v in d.items() if k != "storm_keys"}, ensure_ascii=False)))
+            self.assertEqual(d["top"][0]["zone_id"], d["pick"]["zone_id"])        # the map's top 3 leads with the pick
+        if d["backup"]:
+            self.assertEqual(d["top"][1 if d["pick"] else 0]["zone_id"], d["backup"]["zone_id"])
+        held = {a["id"] for a in (d.get("map") or {}).get("areas") or []}
+        if d["pick"] and d["pick"]["area_id"]:                                   # the pick is an area the map can open
+            self.assertIn(d["pick"]["area_id"], held | REAL_AREAS())
+        # map = real.js's own area shape (its "insured" field is the Census estimate the page already carries)
+        self.assertIsNone(NEVER.search(json.dumps({k: v for k, v in d.items() if k not in ("storm_keys", "map")},
+                                                  ensure_ascii=False)))
 
 
 if __name__ == "__main__":

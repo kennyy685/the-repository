@@ -31,6 +31,7 @@ if [ "$mode" != "--fast" ]; then
   run app_live_check node tests/pages/app_live_check.js   # HMP App + Practice Door on a realistic db + a runtime that fails or hangs (every button, every freeze)
   run e2e_day_check node tests/pages/e2e_day_check.js   # one full REAL working day (EN, ES, slow signal): map -> knock -> lead -> inspection -> claim -> price -> paper -> follow-ups -> day numbers, reload mid-flow
   run badsignal_check node tests/pages/badsignal_check.js   # T163 bad signal: offline / flaky burst / drop mid-save / reload; the outbox always drains by itself
+  run desk_check node tests/pages/desk_check.js   # v26 desk layout: map beside the plan, Knock in 3 columns, detail pane, toast off legal text (1280-1512 + 390, light + dark, EN + ES)
   run open_map_night_check node tests/pages/open_map_night_check.js   # night shift: the open map reads the REAL brief; SAMPLE only on samples
   if [ "$mode" = "--quick" ]; then run design_gate node tests/pages/design_gate.js --quick
   else run design_gate node tests/pages/design_gate.js; fi

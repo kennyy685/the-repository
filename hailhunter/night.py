@@ -22,6 +22,10 @@ Brief (v1), every sentence EN + ES, never an owner name, never an insurance prom
  backup: same shape as pick | null  (the next storm zone from a different list, else the best old-house (everyday)
    zone, else the pick's sister turf; with no pick it is the best everyday zone),
  none_reason {en, es} (only when there is no pick),
+ top: [card, ...]  the open map's "Aldaba's top 3", pick shape: pick, backup, then the next best storm walks (other
+   storms first, then the pick's sister turfs); the map's list follows it so it always agrees with the pick,
+ map: {today, areas, storms}  (added by `hh.py night`) the open map's area + storm shapes (data/real.js shapes,
+   hailhunter/openmap.py) for every area id above, so a pick outside the map's box (Columbus) is still an area,
  zones: [{id, name, rank, score, homes, kind, area_id}]  the ranked walk zones, storm zones first (for the next
    night's diff),
  area_id (zones, pick, backup, new_hail): the open map's area for that storm (its id "z<MMDD>-<slug>", from the
@@ -206,8 +210,7 @@ def choose(zdoc, walks):
     pick's sister turf; with no storm zone there is no pick and the backup is the best everyday zone. Zones whose walk
     has no doors left are skipped."""
     docs = walks or {}
-    ok = [z for z in _walk_zones(zdoc)
-          if (docs.get(f"walks/{z['id']}") or {}).get("stops") or (not docs and z.get("homes"))]
+    ok = _with_doors(zdoc, docs)
     storm = [z for z in ok if z.get("kind") == "storm"]
     every = [z for z in ok if z.get("kind") != "storm"]
     card = lambda z: _plan_card(z, docs.get(f"walks/{z['id']}")) if z else None   # noqa: E731
@@ -217,6 +220,34 @@ def choose(zdoc, walks):
     other = (next((z for z in storm[1:] if z.get("list_id") != top.get("list_id")), None)
              or (every[0] if every else None) or (storm[1] if len(storm) > 1 else None))
     return card(top), card(other)
+
+
+def _with_doors(zdoc, docs):
+    """The walk zones (storm first) whose walk still has doors (no walks at all: zones with homes)."""
+    return [z for z in _walk_zones(zdoc)
+            if (docs.get(f"walks/{z['id']}") or {}).get("stops") or (not docs and z.get("homes"))]
+
+
+def top_cards(zdoc, walks, pick, backup, n=3):
+    """The open map's "Aldaba's top 3" (King, 2026-09-29: the list must agree with the pick): the pick, the backup,
+    then the next best storm walks, other storms/areas first, then the pick's sister turfs. Same card shape as pick."""
+    docs = walks or {}
+    out = [c for c in (pick, backup) if c]
+    used = {c["zone_id"] for c in out}
+    seen = {c.get("area_id") or c["zone_id"] for c in out}
+    rest = [z for z in _with_doors(zdoc, docs) if z.get("kind") == "storm" and z["id"] not in used]
+    rest = [z for z in rest if (z.get("area_id") or z["id"]) not in seen] + \
+           [z for z in rest if (z.get("area_id") or z["id"]) in seen]
+    for z in rest[:max(0, n - len(out))]:
+        out.append(_plan_card(z, docs.get(f"walks/{z['id']}")))
+    return out[:n]
+
+
+def area_ids(doc):
+    """Every open-map area id a brief names (pick, backup, top, zones, new hail)."""
+    rows = [doc.get("pick"), doc.get("backup"), *(doc.get("top") or []), *(doc.get("zones") or []),
+            *(doc.get("new_hail") or [])]
+    return sorted({r["area_id"] for r in rows if r and r.get("area_id")})
 
 
 def _hail_list(rows, lang):
@@ -287,7 +318,8 @@ def brief(hud, zdoc, walks, today, prev=None, cfg=None, now=None, areas=None):
     doc = {"v": 1, "kind": "night_brief", "date": str(today), "made_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
            "since": (prev or {}).get("made_at"), "first_run": first, "quiet": not first and not hail,
            "headline": headline(first, hail, pick, pp.get("zone_id"), pp.get("name"), backup),
-           "new_hail": hail, **mv, "pick": pick, "backup": backup, "zones": zs,
+           "new_hail": hail, **mv, "pick": pick, "backup": backup,
+           "top": top_cards(zdoc, walks, pick, backup), "zones": zs,
            "storm_keys": sorted({_key(s) for s in _storms(hud, nc)})}
     if pick is None:
         storm_none = {"en": "No storm walk with doors left nearby. New storm walks come with the next storm update; "
@@ -323,8 +355,11 @@ def page_brief(doc):
     at ~100 m (3 decimals), the plan line names the street, and storm_keys stay (the next night's diff reads them
     back from the published file)."""
     out = json.loads(json.dumps(doc))
-    for k in ("pick", "backup"):
-        c = out.get(k)
+    for c in [out.get("pick"), out.get("backup"), *(out.get("top") or [])]:
+        if c and c.get("center"):                                       # the walk's middle, ~100 m too
+            for f in ("lat", "lon"):
+                if c["center"].get(f) is not None:
+                    c["center"][f] = round(float(c["center"][f]), 3)
         if not c or not c.get("start"):
             continue
         s = c["start"]
