@@ -4,7 +4,38 @@ Written by SMUIPO session_014eg28DpMQ1EZLj9hVosB8g, 2026-09-29 ~03:20 UTC (very 
 Work branch: `claude/amazing-gauss-yzfpq0`. Read CLAUDE.md (No confusion rule: 3 blocks Working on / Done / Needs you;
 one job per area; ultracode on hub jobs; done + QA = publish + tell him; real round-trip after every hub publish).
 
-## FIRST, as the new King (written 2026-09-29 14:00 UTC by King session_01PJvb5QyxFcFZV1S5sftKNQ)
+## FIRST, as the new King (written 2026-09-29 15:05 UTC by King session_01SyVaPZRupKUKN5ySYz7rGo)
+Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
+1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_015MsCgjUpiUb5rpRETuAnYx's prompt
+   with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session) and
+   system/robots.dispatch.king; update CLAUDE.md's trigger line. Disable (never delete) trig_015MsCgjUpiUb5rpRETuAnYx,
+   then archive session_01SyVaPZRupKUKN5ySYz7rGo. Self-test the timed wake (update_trigger run_once_at ~1 min out).
+2. PLAN = docs/orders/hub-queue.md. FilthE's orders today (all in CLAUDE.md): finish the whole hub list with
+   ultracode, sync, test, then STOP and ping him ONCE on the hub (to "you") with a brief summary
+   (docs/orders/everything-we-have.md, already written by Research 14:10; refresh it) + the main PR link
+   https://github.com/kennyy685/the-repository/pull/7 (FilthE said yes to main; the King's auto mode refuses to merge
+   unattended, so HE clicks Merge). NEVER PAUSE: decide safe defaults, questions only in the final ping.
+3. RUNNING (started 15:01, all ultracode, told to QA themselves and never wait on timers):
+   - session_01CsyPqrNV48JSKXdYQXqqXz Builder: finish + publish live hub v33 (WIP 148981c), then chain the hub list
+     from docs/design/hub-office/QUEUE-SPECS.md; hands itself off to a fresh Builder past 200k.
+   - session_01932Gm6592d5qzZTfUzzZgf Builder: contingency-agreement "charges nothing" reword + no-free legal_check
+     scan, then publish HMP App + Practice Door.
+   - session_017K3G7y4eewUdY5WLFAXY2h Engine: open map safe "days ago" line (no deadline claims) + tests, publish.
+   - session_01RRaZWWf6iNmTYc7ycLVdb7 Builder: code-health sweep (was waiting on QA ~14:41).
+   - session_01Us5UbjDH7t2GnhrnFxf9f3 Designer: 3 next-level looks, compare page https://claude.ai/artifact/WSJ7sbTfAuB8buTtNLz1gv
+     (A Storm Room, B The Brief, C Deck) pushed 14:27; finishing. That compare page goes in the final ping for FilthE to pick.
+   DONE + archived today: branch sync (docs/orders/branch-sync.md, 13 checks + 521 tests green), everything-we-have
+   summary, hub queue specs.
+4. LESSON (15:00): scheduled one-shot triggers (send_later/run_once_at) ran ~45 min LATE this afternoon; robots that
+   ended a turn to "wait for QA at HH:MM" sat idle. So: robots never wait on timers (QA inline with a subagent); the
+   King re-arms check-ins but also replaces any robot idle >15 min with a fresh one that continues its pushed work.
+   You can't change another session's trigger prompt; to message a robot, create_trigger with persistent_session_id.
+5. QA reports: hub-fired QA (trig_01PVGRev...) can't push (no repo in trigger sessions). Its report is in the done
+   event `long`; the asking robot or the King saves it to docs/research/qa-from-hub/ (10 saved 14:15).
+6. Hub db gave HTTP 503 at ~14:21 (transient); retry. Post to FilthE only on the hub, 3 blocks.
+7. Max 4 robots after the usage reset (5 running now because 3 are short restarts of stalled jobs; don't add more).
+
+## (older) FIRST steps written 2026-09-29 14:00 UTC by King session_01PJvb5QyxFcFZV1S5sftKNQ)
 Work branch for the King: `claude/stoic-darwin-ikqmrj` (robots commit to `claude/amazing-gauss-yzfpq0`).
 1. get_session (no id) = your id. create_trigger, NO cron, bound to you, prompt = trig_01PDsG5Y1TBi9XpzefRn74uH's prompt
    with your session id swapped in. Write its id to hub system/king (wake_trigger, live_session; environment_id is
