@@ -176,7 +176,13 @@
         L += len;
       }
     }
-    return { segs: segs, L: L, halfW: halfW, reach: halfW * 2.6 + 2, max: max, seed: (idx * 7.31) % 50, bbox: [bx0, by0, bx1, by1], aMin: 0, aMax: 1, id: st.id, date: st.date };
+    var g = { segs: segs, L: L, halfW: halfW, reach: halfW * 2.6 + 2, max: max, seed: (idx * 7.31) % 50, bbox: [bx0, by0, bx1, by1], aMin: 0, aMax: 1, id: st.id, date: st.date };
+    // pulse table every 0.25 mi from one cap to the other
+    g.p0 = -g.reach * 1.6;
+    var np = Math.ceil((L + 2 * g.reach * 1.6) / 0.25) + 2;
+    g.pulse = new Float32Array(np);
+    for (i = 0; i < np; i++) g.pulse[i] = 1 + 0.16 * vnoise((g.p0 + i * 0.25) / 4.5 + g.seed, g.seed * 1.7);
+    return g;
   }
   // Evaluate a swath at a point: max over segments of each segment's own profile. Continuous even when the
   // source path zigzags between cells (a nearest-segment "s" would jump and speckle the contours).
@@ -208,18 +214,24 @@
     var lim = dmin + 1.25 * g.halfW, best = -1;
     for (k = 0; k < n; k++) {
       if (SD[k] > lim) continue;
-      var v = stormValue(g, SD[k], SS[k]);
+      var prof = swathProfile(SD[k] / g.halfW);
+      if (prof * 1.17 <= best) continue; // cannot beat the current best: skip the along-track work
+      var v = prof * alongTrack(g, SS[k]);
       if (v > best) { best = v; EV.v = v; EV.a = stormArrivalRaw(g, SD[k], SS[k]); }
     }
     return EV;
   }
-  function stormValue(g, d, s) {
-    var prof = Math.exp(-Math.LN2 * Math.pow(d / g.halfW, 2.2));
-    var sn = g.L > 0.3 ? clamp(s / g.L, 0, 1) : 0.5;
-    var env = 0.64 + 0.36 * Math.pow(Math.sin(Math.PI * sn), 0.7);
-    var pulse = 1 + 0.16 * vnoise(s / 4.5 + g.seed, g.seed * 1.7);
-    return prof * env * pulse;
+  // cross-track profile: flat-ish core, soft shoulders (~exp(-ln2 * x^2.2), cheaper)
+  function swathProfile(x) { var q = x * x; return Math.exp(-0.6931 * q * (0.82 + 0.18 * x)); }
+  // along-track: builds up, peaks mid-path, decays; plus slow pulses (cells) from a per-storm table
+  function alongTrack(g, s) {
+    var sn = g.L > 0.3 ? clamp(s / g.L, 0, 1) : 0.5, sv = Math.sin(Math.PI * sn);
+    var env = 0.64 + 0.36 * sv * (1.3 - 0.3 * sv);
+    var f = (s - g.p0) / 0.25, i = Math.floor(f), P = g.pulse;
+    if (i < 0) { i = 0; f = 0; } else if (i >= P.length - 1) { i = P.length - 2; f = 1; } else f -= i;
+    return env * (P[i] + (P[i + 1] - P[i]) * f);
   }
+  function stormValue(g, d, s) { return swathProfile(d / g.halfW) * alongTrack(g, s); }
   function stormArrivalRaw(g, d, s) {
     if (g.L <= 0.3) return d;
     return s + 0.45 * d * d / g.halfW; // core arrives first: a gentle bow-shaped front
