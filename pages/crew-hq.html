@@ -1212,7 +1212,7 @@ const panelOpen = () => !isWide || panelState === 'open';
 const breath = () => RMQ.matches ? 1 : .35 + .65*(.5 - .5*Math.cos(2*Math.PI*performance.now()/5000));   // the shared 5 s "needs you" breath
 let sceneOff = false;   // the 3D room is off for this load (still view): why, or false
 const HUB = window.HUB = {
-  RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
+  loaded: false, RM: RMQ, agents: bots, byId, handoffs: [], boardInfo: {v: 0, cols: [], title: '', when: ''}, trophies: {v: 0, list: []},
   sky: {state: null}, theme: Object.assign({v: 1}, THEME0), needs: {v: 0, ids: []}, cues: [], flows: [], observatory: null, cat: null,
   get selected(){ return byId[selected] ? selected : null; }, get cam(){ return cam; }, get wide(){ return isWide; }, get lang(){ return 'en'; },
   get breath(){ return breath(); },
@@ -2443,7 +2443,7 @@ $('#mine').addEventListener('click', e => {
   if (e.target.closest('#mSound')) { $('#dingBtn').click(); renderMine(); return; }
   if (e.target.closest('#mLow')) { mine.low = !mine.low; applyTheme(true); renderMine(); return; }
   if (e.target.closest('#m3d')) { if (sceneOff) { store.set('hub-3d', ''); store.set('hub-3d-slow', ''); scene3d(true); } else { store.set('hub-3d', 'off'); HUB.fallback('off'); } renderMine(); return; }
-  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); }
+  if (e.target.closest('#mReset')) { mine = Object.assign({}, THEME_DEF); applyTheme(true); renderMine(); catPref = Object.assign({}, CAT_DEF); applyCat(true); renderCatMine(); if (cam === 'cat' && !builtViews().includes('cat')) setCam('all'); }
 });
 $('#mine').addEventListener('input', e => {
   const c = e.target.closest('[data-swc]'); if (c) { const v = hx(c.value); if (!v) return; mine.work = v; applyTheme(true); return; }
@@ -2466,7 +2466,7 @@ function laneOf(owner){
   const byName = bots.find(a => tx(a.def.name).toLowerCase() === s); if (byName) return LANE_OF[byName.id];
   const k = ownerKey(s); return k === 'code' || k === 'king' || k === 'cowork' ? 'build' : null;
 }
-const SHIP_RX = /\b(publish(ed)?|went live|is live|now live|shipped|merged)\b/i, NOT_SHIP_RX = /\b(not|never|before|until|waiting)\b[^.]{0,20}\b(publish|ship|live|merge)/i;
+const SHIP_RX = /\b(published|went live|is now live|now live|shipped|merged)\b/i, NOT_SHIP_RX = /\b(not|never|no|nothing|before|until|waiting|awaiting|ready to|will|to be|held|hold|pending)\b[^.]{0,24}\b(publish|ship|live|merge)/i;
 function computeObservatory(){
   try {
     const now = Date.now(), ws = weekStart(), rows = [...((board && Array.isArray(board.now) && board.now) || []), ...((board && Array.isArray(board.next) && board.next) || [])];
@@ -2479,7 +2479,7 @@ function computeObservatory(){
     const items = gotAgents ? needItems() : [], stuck = bots.filter(a => a.st7 === 'stuck'), old = items.filter(i => i.at && now - i.at > 2*3600e3);
     const ok = !stuck.length && !old.length;
     const top = stuck.length ? stuck.length + ' stuck · ' + stuck.slice(0, 2).map(a => tx(a.def.name)).join(', ')
-      : old.length ? 'Waiting on you ' + ageShort(Math.min(...old.map(i => i.at))) + ' · ' + old[0].who : 'System healthy ✓';
+      : old.length ? (o1 => 'Waiting on you ' + ageShort(o1.at) + ' · ' + o1.who)(old.reduce((p, q) => q.at < p.at ? q : p)) : 'System healthy ✓';
     const doneIds = new Set(rows.filter(x => x && statusKey(x.status) === 'done' && Date.parse(x.at || '') >= ws).map(x => String(x.id)));
     for (const e of events) if (e.kind === 'done' && e.task && e.atMs >= ws && e.agent !== 'you' && !e.approx) doneIds.add(e.task);
     let fr = 0; for (const a of stuck) if (a.atMs) fr += (now - a.atMs)/3600e3; for (const i of items) if (i.at) fr += (now - i.at)/3600e3;
@@ -2570,7 +2570,7 @@ $('#swCoat').addEventListener('click', e => { const sw = e.target.closest('[data
 $('#swCoat').addEventListener('input', e => { const c = e.target.closest('[data-swc]'); if (!c) return; e.stopPropagation(); const v = hx(c.value); if (v) { catPref.coat = v; applyCat(true); } });
 $('#swCoat').addEventListener('change', e => { e.stopPropagation(); renderCatMine(); });
 $('#mCatName').addEventListener('input', e => { e.stopPropagation(); catPref.name = e.target.value.slice(0, 16); applyCat(true); });
-$('#mCatOn').addEventListener('click', e => { e.stopPropagation(); catPref.on = !catPref.on; applyCat(true); renderCatMine(); });
+$('#mCatOn').addEventListener('click', e => { e.stopPropagation(); catPref.on = !catPref.on; applyCat(true); renderCatMine(); if (!catPref.on && cam === 'cat') setCam(catPrevCam || 'all'); });
 function catCue(what){
   if (!catPref.on) { appToast('The cat is off. Turn it on in Make it yours.', 3000); return; }
   HUB.cues.push({kind:'cat', what}); catTagUntil = performance.now() + 5000;
@@ -4012,7 +4012,7 @@ function parseAgent(id, d){
 const METRIC_KEYS = ['sources', 'findings', 'tests', 'passed', 'failed', 'issues', 'files', 'checks', 'chats', 'scans'];
 function onAgents(snap){
   for (const doc of snap.docs) { const d = doc.data(); if (d && !MERGED[doc.id] && d.kind !== 'merged') parseAgent(doc.id, d); }
-  const first = !gotAgents; gotAgents = true; got();
+  const first = !gotAgents; gotAgents = true; got(); HUB.loaded = gotAgents && gotAnswers;
   sync(first); renderNeeds(); renderRoster(); renderCard(); refreshLive(); maybeRecap();
 }
 function onEvents(snap){
@@ -4025,7 +4025,7 @@ function onEvents(snap){
 }
 let gotBoard = false, gotAnswers = false;
 function onBoard(snap){ board = snap.exists ? snap.data() : null; gotBoard = true; got(); renderBoard(); renderNeeds(); renderCard(); refreshLive(); maybeRecap(); renderNow(); computeObservatory(); }
-function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
+function onAnswers(snap){ got(); answers = {}; for (const d of snap.docs) { const v = d.data(); if (v) answers[d.id] = v; } gotAnswers = true; HUB.loaded = gotAgents && gotAnswers; sync(false); renderBoard(); renderNeeds(); renderRoster(); renderCard(); maybeRecap(); }
 function onMemory(snap){ got(); memDoc = snap.exists ? snap.data() : null; renderMemory(); }
 function onSessions(snap){ got(); sessDoc = snap.exists ? snap.data() : null; trackSpend(); computeWatch(); refreshAll(); renderOps(); }
 function onSchedule(snap){ got(); schedDoc = snap.exists ? snap.data() : null; computeWatch(); renderNeeds(); renderOps(); }
