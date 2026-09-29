@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## No "free" anywhere until the boss okays it - 2026-09-29 (live: HMP App + Practice Door; QA PASS)
+## No "free" anywhere until the boss okays it - 2026-09-29 (live: HMP App Version 15 + Practice Door Version 16; QA PASS)
 - App, Practice Door, door lines and print sheets say "estimate / estimado" (cash) and "roof check / revisión del techo" (insurance), never "free" or "gratis". The state's free insurance hotline stays.
 - Contingency agreement EN/ES: "No payment is due at signing. What HMP will charge for is set out in the written estimate/contract." (no more "costs you nothing" / "no cobra nada"); both PDFs re-rendered.
 - New legal check: `tests/legal_check.py` fails the build on any "free" / "costs nothing" / "gratis" offer in docs/print, docs/app or pages (allows the NDOI hotline and "never say free" rules).
