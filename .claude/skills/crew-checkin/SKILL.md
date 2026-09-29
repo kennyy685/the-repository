@@ -120,8 +120,23 @@ Engine Mechanic, Chat Reader, Cowork.
   updatedAt, updatedBy}`. `state`: working, needs_you, done, failed. `needs_you` = what the chat needs from FilthE in
   plain words ("" when nothing); a non-empty one joins his Needs strip. `created` lets the hub measure $/h. `options`
   = 2-3 answer buttons (default Done / Tell me more). The hub flags a chat at $25+ or $10+/h with "Hand it off?".
-- "Hand it off" = event `{agent:"you", kind:"handoff", to:"code", task:"fresh-chat", session}` + a wake: have that
-  chat write + commit its handoff note, `create_session` from it, archive the old one after the new one checks in.
+- "Hand it off" = event `{agent:"you", kind:"handoff", to:"code", task:"fresh-chat", session}` + a wake (hub v34:
+  every working chat's card has Hand off, not just hot ones). **King protocol, one event per step** so the chat's
+  receipt fills in: `{agent:"code", kind:"note", task:"fresh-chat", re:"<the tap's event doc id, e.g.
+  20260929T150405.123Z-you>", session:<old id>, step, at, text}` with `step` = `asked` (board note or SendMessage:
+  "write your handoff note, commit + push, then stop") -> `noted` (+`note_path`, after `git fetch` shows the file on
+  the work branch) -> `started` (`create_session`, title = old title, prompt = "read <note_path> and resume";
+  +`new_session`, `new_title`) -> `archived` (`archive_session(old)` ONLY after the new one shows working in
+  `list_sessions`; never archive a chat whose note never landed). Make the `archived` event's text the Log line:
+  "Handed off <title> ($41) -> <new title>". Old chat already done: skip to `archived`. Failed: write the note
+  yourself from `list_events`. No `noted` 30 min after the tap: the receipt turns amber with "Ask again" (a new tap
+  event; answer the newest). The King's own chat never uses this: its button runs Fresh King.
+- Fix-it taps (hub v34): event `{agent:"you", kind:"handoff", to:"code", task, ...}` + a wake. `task:"fix-sched",
+  trigger:<id>`: `fire_trigger` if it's ours and enabled; `update_trigger enabled:true` only if it was switched off
+  with no `why` (a pause with a reason is never touched). `task:"fix-wake"`: make your poke-only trigger bound to
+  your chat and write its id to `system/king.wake_trigger`. `task:"fix-silent", agent_id`: `get_session` /
+  `list_events` for that robot, then post it idle with the reason or re-run its job. Post `done` with `re` = the tap's
+  event id. The page sends each fix once per 10 min.
 - `system/schedule` (every wake, from `list_triggers`): `{jobs:[{id, name, enabled, cron, next_run_at, run_once_at?,
   ended_reason?, why?, when?, last:{status, at}}], at, by}`. `why` = why it's paused ("paused while the King is
   live"); `when` = a plain schedule line if the cron is odd. Paused (no `ended_reason`) shows grey; enabled + last
