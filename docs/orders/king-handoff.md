@@ -11,6 +11,14 @@ one job per area; ultracode on hub jobs; done + QA = publish + tell him; real ro
 4) Real test: ask FilthE to send "King: test" on the hub; confirm the wake turn ARRIVES in your chat (last King saw
    wake:"ok" on events but never got the turns: verify this works for you). FilthE: talk only on the hub from now.
 
+## 2026-09-29 03:26 UTC: new King took over (session_01JozofC8iSNPPy6vmgD4Muc, branch claude/stoic-darwin-ikqmrj)
+- Done: wake trigger trig_01RB7wJoBmgynC5qG7JzRpSY (hub system/king + robots.dispatch.king point to it); old
+  trig_01RsYq disabled; session_014eg28D archived; 8 AM permit reminder re-made (trig_01DqmD72zV5REK12wGLmkNMM), old
+  trig_01SutpBH paused (delete blocked by the safety guard); 5-min check trig_01PfHF already fired + off.
+- Map learns: done + archived (Knock v3, open map v7 live). Hub v28.1 One building (session_016ezDyT): review_ready, QA next.
+- FilthE saw "Couldn't start a fresh King ... needs its Claude Code Remote permission" on the hub button: not needed
+  (he started this King from the app); the grant is his call (he never OK'd create_session).
+
 ## LIVE (2026-09-29)
 - AI hub v32 (freeze fix, wake fix: wakeErr shown on failed messages), HMP App v12 + Practice Door v14 (never freeze),
   open map v6 (real 2026 storms, 7 AM home, storm stacking, roof-age sweet spot), Knock preview v2
