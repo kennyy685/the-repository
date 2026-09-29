@@ -91,7 +91,15 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
 - Command center (Cowork's, read-only for us) https://claude.ai/artifact/6cCATKJSoyWA7kbH4Em8VX: never write its
   turfs/targets/calls. Storm Watch (Cowork's) runs 6:54 AM.
 - **The King is live on the hub (FilthE, 2026-09-28):** "I want to mainly use the AI hub ... be live, not scheduled
-  runs." Hub Chat wakes the live King chat instantly via a poke-only trigger bound to that chat; its id is in hub doc
+  runs." **How the wake really works (King, 2026-09-29, found without FilthE):** `fire_trigger` never lands in the bound
+  King chat: it opens a stand-in chat (origin force_run_trigger, sonnet, no connectors, so no get_session/create_trigger;
+  `connectors` on create_trigger is off for this org). Stand-ins used to act as the King (a ghost posted "chain is fine" at
+  03:28). Fix: the wake prompt makes the stand-in a relay that republishes the private **King Doorbell** page
+  (https://claude.ai/artifact/ST8HwE23jUyazTpvHedqPx); the King chat watches it (ArtifactComments watch), and a republish
+  should wake the King (UNDER TEST 2026-09-29 03:36: the stand-in rang in 22 s; the wake into the King chat is not yet
+  confirmed; backstop = the King reads the hub itself every 10 min). A new King re-publishes/watches the doorbell and puts its own session id in the wake prompt. Timed
+  wakes (send_later / run_once_at) DO land in the bound chat. Never ask FilthE to test a wake: fire it yourself.
+  The hub fires the trigger named in hub doc
   `system/king.wake_trigger` (now `trig_01RB7wJoBmgynC5qG7JzRpSY`, King session_01JozofC8iSNPPy6vmgD4Muc since 2026-09-29 03:24 UTC, branch
   `claude/stoic-darwin-ikqmrj` (merges in amazing-gauss); older `trig_01RsYqTCZfeEnStkGS8LYinX` (session_014eg28D, archived), `trig_01Ay7rpe81rci7aYTfSFW112`, `trig_01NHQW42S6i4iKTWWcWAwbF4`, `trig_016CgJfFQ1bECbKDy4mE5X9L` disabled). On handoff the new King makes its own poke-only
   trigger (create_trigger, no cron) and writes its id there. Reply to him on the hub. **FilthE (2026-09-28): "king shouldnt answer just a
