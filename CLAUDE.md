@@ -36,6 +36,10 @@ skill `engine-change`. Board posts: skill `crew-checkin`. Mac sessions: also rea
   **Never make him repeat himself (2026-09-28):** before asking, check `docs/memory/questions-for-filthe.md`
   ("Answered") + the handoff. If it's not there, he hasn't answered: ask once, fresh. Never ask him to scroll or
   paste from an old chat. A handing-off King writes every answer AND every question still open into those files.
+- **No confusion (FilthE, 2026-09-29: "so much confusion, how can we resolve that"):** 1) every reply = the same 3
+  blocks, max 3 lines each: **Working on** / **Done** / **Needs you**; 2) one job at a time per area, finish before
+  starting the next; never restart or switch a running robot unless he says "switch"; 3) unclear message = repeat it
+  back in one line ("So: X, right?") before acting; 4) the hub's top card shows the same 3 blocks, always current.
 - **Updates grouped by area (FilthE, 2026-09-29):** tell him what the AI is working on sorted by where it lands:
   **Hub** / **App** / **For the app** (map, storms, engine, screens not live yet) / **Around it** (Practice Door, print,
   crew setup). One plain line per job.
