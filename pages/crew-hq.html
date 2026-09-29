@@ -1583,7 +1583,7 @@ $('#nlist').addEventListener('mouseover', e => { const li = e.target.closest('#n
 $('#nlist').addEventListener('focusin', e => { const li = e.target.closest('#nlist > li'); if (li && li.querySelector('.need')) { clearTimeout(qplate.t); openQPlate(li); } });
 $('#nlist').addEventListener('mouseleave', () => { clearTimeout(qplate.t); qplate.t = setTimeout(() => { if (!(qplate.el && qplate.el.contains(document.activeElement))) closeQPlate(); }, 260); });
 $('#nlist').addEventListener('focusout', e => { if (!$('#nlist').contains(e.relatedTarget) && !(qplate.el && qplate.el.contains(e.relatedTarget))) { clearTimeout(qplate.t); qplate.t = setTimeout(closeQPlate, 120); } });
-/* Notifications (CONVENIENCES #10): this account's artifact runtime (contract 0.2.58) has no notifications capability,
+/* Notifications (CONVENIENCES #10): this account's artifact runtime (contract 0.2.63, re-checked 2026-09-29) has no notifications capability,
    so v27 ships the tab title ("(1) Designer needs you") + this chime only.
    TODO(notifications): when a notifications capability exists, notify only while the tab is hidden, only his loops
    (newly blocked on him, 15 min pre-run with questions open, missed run, his loop closed), max one per 10 min, merged;
@@ -3169,7 +3169,7 @@ function nearMatch(id, q){
 /* ================= "Proof it landed" (#8): Saved -> Rides 12:52 / With the King -> Read -> Done ================= */
 const heldHas = id => wakeQ.some(t => t.includes('answers/' + id + ']') || t.includes('answers/' + id + ','));
 function proofOf(id, a){
-  const ms = Date.parse(a.at || '') || 0, re = events.filter(e => e.re === id && e.agent !== 'you');
+  const ms = Date.parse(a.at || '') || 0, re = events.filter(e => e.re === id && e.agent !== 'you' && e.agent !== 'king');   // the Right Hand (agent king) only relays: proof = the King or its helpers (fix 1)
   const fin = re.find(e => ['start', 'handoff', 'done'].includes(e.kind) && e.atMs >= ms);
   if (fin) return {k:'done', ev:fin};
   if (re.length || (kingDoc && Date.parse(kingDoc.answersReadAt || '') >= ms)) return {k:'read'};

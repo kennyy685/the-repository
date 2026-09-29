@@ -36,10 +36,10 @@
   function notify(){ for (const l of [...listeners]) l.fire(); }
   function onSnap(fire0, next, error){
     if (mode('db') === 'hang') return () => {};
-    const l = {fire: () => { try { next(fire0()); } catch (e) { setTimeout(() => { throw e; }); } }};
+    const l = {fire: () => { try { next(fire0()); } catch (e) { setTimeout(() => { throw e; }); } }, drop: () => { if (listeners.delete(l)) { window.__subs--; if (error) error(err('unavailable')); } }};
     if (mode('db') === 'fail') { setTimeout(() => error && error(err('unavailable')), 10); return () => {}; }
     listeners.add(l); setTimeout(l.fire, 10);
-    window.__subs = (window.__subs || 0) + 1;
+    window.__subs = (window.__subs || 0) + 1; window.__subsMade = (window.__subsMade || 0) + 1;   // __subsMade: every subscribe ever (a resubscribe shows here, not in __subs)
     return () => { if (listeners.delete(l)) window.__subs--; };
   }
   function docRef(path){
@@ -63,7 +63,7 @@
   }
   function collRef(coll){ const q = query(coll, [], null, 0); return Object.assign(q, {path: coll, doc: (id) => docRef(coll + '/' + (id || Math.random().toString(36).slice(2, 12))), add: async (d) => { const r = docRef(coll + '/' + Math.random().toString(36).slice(2, 12)); await r.set(d); return r; }}); }
   const db = {doc: docRef, collection: collRef};
-  window.__mockDb = {store, notify, db};
+  window.__mockDb = {store, notify, db, drop: () => { for (const l of [...listeners]) l.drop(); }};   // drop(): the connection dies (every listener gets an error)
   const withSignal = (pr, opts) => opts && opts.signal ? Promise.race([pr, new Promise((_, rej) => { const f = () => rej(err('cancelled')); if (opts.signal.aborted) f(); else opts.signal.addEventListener('abort', f); })]) : pr;   // abort rejects promptly (sample.d.ts)
   const sample = Object.assign((input, opts) => withSignal(gate('sample', () => { window.__sampleIn = typeof input === 'string' ? input : JSON.stringify(input); const t = 'Mock King answer. ' + (window.__sampleText || 'Done.'); opts && opts.onText && opts.onText({text:t, delta:t}); return {text:t, truncated:false}; }), opts),
     {json: (input, opts) => withSignal(gate('sample', () => (window.__sampleIn = JSON.stringify(input), window.__sampleJson || {reply:'Mock answer', actions:[]})), opts), limits: async () => ({images:false})});

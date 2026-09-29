@@ -22,6 +22,10 @@
  *   tidy-keeps  tidy() keeps the report weeks + 14 days of ship events and writes system/tidy.deleted_through
  *   sunday-report / -edges        D fixed clocks (Sun 18:05, Mon 12:01, Wed), one crew/weeks write, past weeks in the Log,
  *               spend missing/stale, 0 ships, trimmed week = not tracked + no write, DST weeks
+ *   cv-wake cv-watchdog cv-notnow cv-same cv-suggests cv-resub cv-decided cv-proof cv-blocker cv-stale cv-morning
+ *               G: one per live convenience (CONVENIENCES.md #1-9, 11, 12; #10 cut): one wake per sitting, watchdog + health
+ *               line, Not now parks, Same answer, crew pick + defaults, resubscribe, decided without him, proof words,
+ *               real blocker on top, forgotten tasks, morning note
  *   NODE_PATH=/opt/node22/lib/node_modules node tests/pages/hub_live_check.js [scenario ...] [--headed]
  * Exit 0 = pass. Shots in tests/pages/out/hub_live/. */
 "use strict";
@@ -860,6 +864,263 @@ async function scenarioTidyKeeps(browser, url) {   // tidy() trims old lines but
   await ctx.close();
 }
 
+/* ================= G: the live conveniences (docs/design/hub-office/CONVENIENCES.md #1-#12; #10 is cut), one small scenario each.
+   Each starts from cvDocs() (no open asks, no answers, no wakes, nothing from the last 2.5 h) and adds only what it proves. ================= */
+const isoAt = min => new Date(NOW.getTime() + min * 60000).toISOString().replace(/\.\d+Z$/, "Z");
+const stampAt = min => isoAt(min).replace(/[-:]/g, "");
+function cvDocs(extra) {
+  const d = JSON.parse(JSON.stringify(FIX));
+  for (const k of Object.keys(d)) if (k.startsWith("answers/") || k.startsWith("wakes/") || (k.startsWith("events/") && (d[k].at || "") >= "2026-09-28T22:00:00Z")) delete d[k];
+  d["board/current"].waiting = [];
+  for (const s of d["crew/sessions"].sessions) s.needs_you = "";
+  for (const k of Object.keys(d)) if (k.startsWith("agents/") && d[k].status === "working") d[k].status = "idle";
+  return Object.assign(d, extra || {});
+}
+const wq = (id, q, min, more) => Object.assign({ id, q, at: isoAt(min == null ? -30 : min) }, more || {});
+async function put(p, k, v, nf) {   // the crew writes a doc mid-test; nf = {field: ms from the page's clock}; "$S" in the key = that time's stamp
+  await p.evaluate(({ k, v, nf }) => { let st = ""; for (const [f, off] of Object.entries(nf || {})) { v[f] = new Date(Date.now() + off).toISOString().replace(/\.\d+Z$/, "Z"); st = v[f].replace(/[-:]/g, ""); }
+    window.__mockDb.store.set(k.replace("$S", st), v); window.__mockDb.notify(); }, { k, v, nf: nf || {} });
+}
+const docOf = (p, k) => p.evaluate(k => window.__mockDb.store.get(k) || null, k);
+const keysOf = (p, pre) => p.evaluate(pre => [...window.__mockDb.store.keys()].filter(k => k.startsWith(pre)).sort(), pre);
+const needKeys = p => p.evaluate(() => window.__hubT.needItems().map(i => i.key));
+async function cardOf(p, tick, key) { await p.evaluate(k => window.__hubT.select(k, { keep: true }), key); await tick(300); return (await p.textContent("#card")) || ""; }
+async function tap(p, tick, sel) { const hit = await p.evaluate(s => { const b = document.querySelector(s); if (b) b.click(); return !!b; }, sel); await tick(400); return hit; }   // a DOM click: "live" already proves a real pointer reaches these
+async function answerCard(p, tick, key, a) { await cardOf(p, tick, key); return tap(p, tick, `#card .ans [data-a="${a}"]`); }
+const fires = async p => (await mcpCalls(p)).filter(x => x === "update_trigger").length;
+const moreTitle = p => p.evaluate(() => { const b = document.querySelector("#nlist [data-more]"); return b ? b.title : ""; });
+const noErr = (L, errs) => ok(!errs.length, `${L}: page errors: ${errs.slice(0, 4).join(" | ")}`);
+
+async function scenarioCvWake(browser, url) {   // #1 one wake per sitting: quick answers ride one wake, a busy King holds it, a King that already checked in skips it
+  const L = "cv-wake", d = cvDocs();
+  d["board/current"].waiting = ["D60", "D61", "D62", "D63", "D64"].map(id => wq(id, `Wake test ${id}: hub header`));
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  ok(await answerCard(p, tick, "q:D60", "Yes") && await answerCard(p, tick, "q:D61", "No"), `${L}: answer buttons missing`);
+  ok(await fires(p) === 0, `${L}: woke before the hold ended`);
+  await tick(5000);
+  const wk = await keysOf(p, "wakes/"), txt = wk.length ? String((await docOf(p, wk[0])).text) : "";
+  ok(await fires(p) === 1 && wk.length === 1 && /D60/.test(txt) && /D61/.test(txt), `${L}: two quick answers should ride one wake (${await fires(p)} fires, ${wk.length} wake docs: ${txt.slice(0, 120)})`);
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "working" }), { at: 0 }); await tick(500);
+  await answerCard(p, tick, "q:D62", "Yes"); await tick(12000);
+  ok(await fires(p) === 1, `${L}: woke a King that is working`);
+  ok(/busy/.test(await p.textContent("#wakeLine")), `${L}: no "King is busy" line while held ("${(await p.textContent("#wakeLine")).trim()}")`);
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 0 });
+  await put(p, "system/king", Object.assign({}, d["system/king"]), { answersReadAt: 0 });
+  await tick(31000);
+  ok(await fires(p) === 1 && await p.isHidden("#wakeLine"), `${L}: the King read the answers on check-out, but a wake still fired (${await fires(p)}) or the line stayed`);
+  await answerCard(p, tick, "q:D63", "Yes");
+  await put(p, "agents/code", Object.assign({}, d["agents/code"], { status: "idle" }), { at: 1000 });   // two devices: the King checked in after the hold started
+  await tick(6000);
+  ok(await fires(p) === 1, `${L}: a wake fired after the King already checked in`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvWatch(browser, url) {   // #2 the watchdog names a missed wake and a silent helper, tidies an orphan, keeps one health line, clears on check-in
+  const L = "cv-watchdog", d = cvDocs({ [`wakes/${stampAt(-20)}-dev1`]: { at: isoAt(-20), n: 1, text: "AI hub, instant wake." } });
+  d["agents/code"] = Object.assign({}, d["agents/code"], { status: "idle", at: isoAt(-60) });
+  d["agents/engine-mechanic"] = Object.assign({}, d["agents/engine-mechanic"], { status: "working", at: isoAt(-40), doing: "engine check" });
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "working", at: isoAt(-90), doing: "specs" });   // its King checked out after it
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const al = () => p.evaluate(() => { window.__hubT.computeWatch(); return window.__hubT.alerts().map(a => ({ k: a.k, btn: a.btn || "", data: a.data || "", text: a.text })); });
+  let a = await al();
+  ok(a.some(x => x.k === "missed" && x.btn === "run" && /20 min/.test(x.text)), `${L}: no "no reply from the King" alert (${JSON.stringify(a)})`);
+  ok(a.some(x => x.k === "silent" && x.data === "engine-mechanic"), `${L}: a helper silent 40 min raised nothing`);
+  ok(!a.some(x => x.k === "silent" && x.data === "designer") && await p.evaluate(() => window.__hubT.byId.designer.st) === "idle", `${L}: the orphan (its King checked out) still reads working`);
+  const live = await p.textContent("#liveText");
+  ok(/^(All normal|Quiet by design) · next run \d/.test(live), `${L}: no one health line in the pill ("${live}")`);
+  await put(p, "events/$S-code", { agent: "code", kind: "start", lane: "board", room: "board", status: "working", text: "King checking in" }, { at: 0 });
+  await put(p, "agents/engine-mechanic", Object.assign({}, d["agents/engine-mechanic"]), { at: 0 });
+  await tick(1000); a = await al();
+  ok(!a.some(x => x.k === "missed" || x.k === "silent"), `${L}: alerts didn't clear on the next check-in (${JSON.stringify(a)})`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvNotNow(browser, url) {   // #3 Not now parks (no wake, no log line), comes back after 2 h, second return offers "Let the King decide", a gone question is dropped
+  const L = "cv-notnow", d = cvDocs();
+  d["board/current"].waiting = [wq("D70", "Park test: hub print header?", -60), wq("D71", "Back test: brass on the hub?", -300), wq("D73", "Another open hub question", -20)];
+  d["answers/D71"] = { id: "D71", q: "Back test: brass on the hub?", answer: "Not now", note: "", at: isoAt(-240), by: "FilthE", to: "code", back: { after: isoAt(-5), snap: null }, snoozes: 2 };
+  d["answers/D72"] = { id: "D72", q: "Gone from the board", answer: "Not now", note: "", at: isoAt(-60), by: "FilthE", to: "code", back: { after: isoAt(60), snap: null }, snoozes: 1 };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  ok((await needKeys(p)).includes("q:D71"), `${L}: a parked question past its time didn't come back`);
+  const c71 = await cardOf(p, tick, "q:D71");
+  ok(/parked/.test(c71) && await p.$('#card .ans [data-a="Let the King decide"]') && !await p.$('#card .ans [data-a="Not now"]'), `${L}: second return lacks the parked tag / "Let the King decide" (${c71.slice(0, 200)})`);
+  const ev0 = (await evWrites(p)).length;
+  ok(await answerCard(p, tick, "q:D70", "Not now"), `${L}: no Not now button`);
+  await tick(6000);
+  const a70 = await docOf(p, "answers/D70") || {};
+  ok(a70.answer === "Not now" && a70.snoozes === 1 && a70.back && Math.abs(Date.parse(a70.back.after) - Date.parse(a70.at) - 2 * 3600e3) < 60e3, `${L}: Not now saved wrong ${JSON.stringify(a70).slice(0, 200)}`);
+  ok(await fires(p) === 0 && (await evWrites(p)).length === ev0, `${L}: Not now woke the King or wrote a log line`);
+  ok(!(await needKeys(p)).includes("q:D70"), `${L}: the parked question still asks`);
+  ok(/Parked · 1\b/.test(await moreTitle(p)), `${L}: no "Parked · 1" (the gone D72 must not count) ("${await moreTitle(p)}")`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvSame(browser, url) {   // #4 a near re-ask shows his old answer + "Same answer" (the wake says save it to memory); an exact re-post keeps its answer; "Not the same" hides it
+  const L = "cv-same", d = cvDocs();
+  d["answers/D80"] = { id: "D80", q: "Should the hub print header use brass for T300?", answer: "Yes", note: "", at: isoAt(-2 * 1440), by: "FilthE", to: "code" };
+  d["board/current"].waiting = [wq("D81", "Hub print header in brass for T300, yes or no?"), wq("D83", "T300 on the hub: brass header again?", -10)];
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "waiting", ask: "Brass or orange for the print header?", at: isoAt(-60) });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const c = await cardOf(p, tick, "q:D81");
+  ok(/You answered this .*\(D80\)/.test(c) && await p.$('#card [data-same="D80"]'), `${L}: no "You answered this (D80) · Same answer" (${c.slice(0, 240)})`);
+  await tap(p, tick, '#card [data-same="D80"]'); await tick(6000);
+  const a81 = await docOf(p, "answers/D81") || {}, wk = await keysOf(p, "wakes/"), txt = wk.length ? String((await docOf(p, wk[wk.length - 1])).text) : "";
+  ok(a81.answer === "Yes" && /same as D80/.test(a81.note), `${L}: Same answer saved ${JSON.stringify(a81).slice(0, 160)}`);
+  ok(/re-ask of D80/.test(txt), `${L}: the wake doesn't tell the King to save it (${txt.slice(0, 160)})`);
+  await cardOf(p, tick, "q:D83");
+  ok(await tap(p, tick, "#card [data-notsame]"), `${L}: no "Not the same" on D83`);
+  ok(!await p.$("#card [data-same]"), `${L}: "Not the same" didn't hide the match`);
+  ok(await answerCard(p, tick, "designer", "Yes"), `${L}: no answer buttons on the Designer's ask`);
+  ok(!(await needKeys(p)).includes("designer"), `${L}: the Designer still asks after his answer`);
+  await put(p, "agents/designer", Object.assign({}, d["agents/designer"]), { at: 0 }); await tick(1000);
+  ok(!(await needKeys(p)).includes("designer"), `${L}: an exact re-post (new at) lost his answer`);
+  await put(p, "agents/designer", Object.assign({}, d["agents/designer"], { ask: "A new question: which font weight?" }), { at: 0 }); await tick(1000);
+  ok((await needKeys(p)).includes("designer"), `${L}: a new ask didn't come up`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvSuggests(browser, url) {   // #5 the crew's pick + default: two-way doors wait quietly, "Your call" asks, the King's default reads as decided, options become the buttons
+  const L = "cv-suggests", d = cvDocs();
+  d["board/current"].waiting = [
+    wq("D90", "Keep the brass hub header?", -30, { rec: "Yes", why: "it is already built", default: "Yes", by: isoAt(180) }),
+    wq("D91", "Spend $20 on hub fonts?", -30, { rec: "No", why: "free fonts work", default: null }),
+    wq("D92", "Hub orange stays?", -300),
+    wq("D93", "Which hub header?", -30, { options: ["Brass", "Orange"], holds: ["designer"] }),
+    wq("D94", "Hub dark by default?", -600, { rec: "Yes", default: "Yes", by: isoAt(-5) })];
+  d["answers/D92"] = { id: "D92", q: "Hub orange stays?", answer: "Yes", note: "default", at: isoAt(-10), by: "King", to: "code" };
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const nk = await needKeys(p);
+  ok(nk.includes("q:D91") && nk.includes("q:D93") && !nk.includes("q:D90") && !nk.includes("q:D92") && !nk.includes("q:D94"), `${L}: Needs wrong ${nk}`);
+  ok(/Can wait · 2\b/.test(await moreTitle(p)), `${L}: two-way doors aren't folded into "Can wait · 2" ("${await moreTitle(p)}")`);
+  const c90 = await cardOf(p, tick, "q:D90");
+  ok(/Crew suggests: Yes · it is already built/.test(c90) && /Going with Yes at .* unless you change it/.test(c90), `${L}: D90 card lacks the pick / default line (${c90.slice(0, 240)})`);
+  ok(/Crew is going with: Yes/.test(await cardOf(p, tick, "q:D94")), `${L}: a passed deadline doesn't say "Crew is going with"`);
+  const c91 = await cardOf(p, tick, "q:D91");
+  ok(/Your call/.test(c91) && /Crew suggests: No/.test(c91), `${L}: D91 lacks "Your call" (${c91.slice(0, 200)})`);
+  await cardOf(p, tick, "q:D93");
+  ok(await p.$('#card .ans [data-a="Brass"]') && await p.$('#card .ans [data-a="Orange"]') && !await p.$('#card .ans [data-a="Yes"]'), `${L}: either-or options aren't the buttons`);
+  const c92 = await cardOf(p, tick, "q:D92");
+  ok(/Crew is going with/.test(c92) && !await p.$("#card [data-undo]"), `${L}: the King's default reads wrong or can be undone as his (${c92.slice(0, 200)})`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvResub(browser, url) {   // #6 a dead connection resubscribes (backoff, no double listeners); a long sleep resubscribes on return; a short one doesn't
+  const L = "cv-resub";
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: cvDocs() });
+  const subs = () => p.evaluate(() => [window.__subs, window.__subsMade]);
+  const [n0, m0] = await subs();
+  await p.evaluate(() => window.__mockDb.drop()); await tick(3000);
+  const [n1, m1] = await subs();
+  ok(n1 === n0 && m1 > m0, `${L}: after the connection died: ${n1} listeners (want ${n0}), ${m1 - m0} new subscriptions`);
+  await tick(3000);
+  ok(!/Reconnecting/i.test(await p.textContent("#liveText")), `${L}: still "Reconnecting" after the data came back`);
+  const away = async ms => {
+    await p.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => true }); document.dispatchEvent(new Event("visibilitychange")); });
+    await p.clock.fastForward(ms);
+    await p.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => false }); document.dispatchEvent(new Event("visibilitychange")); });
+    await tick(2000); };
+  await away(2 * 60000);
+  const [n2, m2] = await subs();
+  ok(m2 === m1 && n2 === n0, `${L}: a 2-minute away resubscribed (${m2 - m1} new)`);
+  await away(21 * 60000);
+  const [n3, m3] = await subs();
+  ok(m3 > m2 && n3 === n0, `${L}: 21 min asleep: ${m3 - m2} new subscriptions, ${n3} listeners (want >0 new, ${n0} open)`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvDecided(browser, url) {   // #7 back after hours: what the crew decided without him comes first, each with its undo; his own decisions are left out
+  const L = "cv-decided", d = cvDocs();
+  d[`events/${stampAt(-60)}-code`] = { agent: "code", kind: "decided", task: "D95", q: "Old hub question?", at: isoAt(-60), lane: "board", room: "board", status: "idle", text: "Closed D95: no longer needed" };
+  d[`events/${stampAt(-50)}-code`] = { agent: "code", kind: "decided", task: "", fact: "Hub stays MacBook-first", at: isoAt(-50), lane: "board", room: "board", status: "idle", text: "Remembered: Hub stays MacBook-first" };
+  d[`events/${stampAt(-45)}-you`] = { agent: "you", kind: "decided", task: "D97", at: isoAt(-45), lane: "board", room: "board", status: "done", text: "Closed D97: his own" };
+  d["answers/D96"] = { id: "D96", q: "Hub header color?", answer: "Default", note: "Brass", at: isoAt(-40), by: "King", to: "code" };
+  d["system/memory"] = Object.assign({}, d["system/memory"], { facts: ["Hub stays MacBook-first", "Another fact"] });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d, ls: { "hub-seen": String(NOW.getTime() - 5 * 3600e3) } });
+  ok(await p.isVisible("#recap"), `${L}: no note after 5 h away`);
+  const t = (await p.textContent("#recapT")) || "";
+  ok(/Closed without your answer: D95 · no longer needed/.test(t) && /Remembered: .Hub stays MacBook-first/.test(t) && /Went with the default on D96: Brass/.test(t), `${L}: decisions missing (${t.slice(0, 300)})`);
+  ok(!/his own/.test(t), `${L}: his own decision shows`);
+  ok(await tap(p, tick, '#recapT [data-dec="undo-mem"]'), `${L}: no Undo on the memory fact`); await tick(1000);
+  const mem = await docOf(p, "system/memory") || {}, uk = (await keysOf(p, "events/")).filter(k => /-you-u$/.test(k));
+  ok(!(mem.facts || []).includes("Hub stays MacBook-first") && (mem.facts || []).includes("Another fact"), `${L}: Undo didn't remove just that fact ${JSON.stringify(mem.facts)}`);
+  const ue = uk.length ? await docOf(p, uk[0]) : {};
+  ok(uk.length === 1 && ue.undo === true && ue.fact === "Hub stays MacBook-first", `${L}: Undo left no event that keeps the fact`);
+  ok(await tap(p, tick, '#recapT [data-dec="reopen"]'), `${L}: no Reopen on the closed question`); await tick(1000);
+  const bw = ((await docOf(p, "board/current")) || {}).waiting || [];
+  ok(bw.some(w => w.id === "D95"), `${L}: Reopen didn't put D95 back on the board`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvProof(browser, url) {   // #8 one word that only moves on proof: Saved -> With the King -> Read -> Done; change it until it's read; the Right Hand doesn't count
+  const L = "cv-proof", d = cvDocs();
+  d["board/current"].waiting = [wq("D100", "Proof test: hub header?"), wq("D101", "Undo test: hub font?"), wq("D102", "Keeps the hold open")];
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const word = async () => { await cardOf(p, tick, "q:D100"); return p.evaluate(() => { const e = document.querySelector("#card .ans-done .proof"); return e ? e.textContent : ""; }); };
+  await answerCard(p, tick, "q:D100", "Yes");
+  const w0 = await word();
+  ok(w0 === "Saved", `${L}: during the hold the word is "${w0}", want Saved`);
+  await tick(5000);
+  const w1 = await word();
+  ok(w1 === "With the King" && await p.$("#card [data-undo]"), `${L}: after the wake: "${w1}", Change button ${!!await p.$("#card [data-undo]")}`);
+  await put(p, "events/$S-king", { agent: "king", kind: "note", re: "D100", lane: "board", room: "board", status: "idle", text: "Right Hand relay" }, { at: 0 }); await tick(500);
+  const w2 = await word();
+  ok(w2 === "With the King", `${L}: the Right Hand's event made it "${w2}" (only the King and its helpers count)`);
+  await put(p, "events/$S-code", { agent: "code", kind: "note", re: "D100", lane: "board", room: "board", status: "working", text: "Read D100" }, { at: 1000 }); await tick(500);
+  const w3 = await word();
+  ok(w3 === "Read" && !await p.$("#card [data-undo]"), `${L}: after the King's read: "${w3}" (Change must go)`);
+  await put(p, "events/$S-code", { agent: "code", kind: "handoff", to: "designer", re: "D100", lane: "board", room: "board", status: "working", text: "Passed to Designer" }, { at: 2000 }); await tick(500);
+  const w4 = await word();
+  ok(/^Done \d/.test(w4), `${L}: after the handoff: "${w4}", want Done <time>`);
+  await answerCard(p, tick, "q:D101", "No"); await tick(5000);
+  ok(await tap(p, tick, "#card [data-undo]"), `${L}: no Change on an unread answer`); await tick(1000);
+  ok(!await docOf(p, "answers/D101") && (await needKeys(p)).includes("q:D101"), `${L}: Change didn't take the answer back`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvBlocker(browser, url) {   // #9 the real blocker on top: robots held, then stopped robots, then age; what holds nobody folds away
+  const L = "cv-blocker", d = cvDocs();
+  d["board/current"].waiting = [wq("D110", "Oldest hub question", -180), wq("D111", "Blocks two robots", -60, { holds: ["builder", "qa-tester"] }), wq("D112", "Holds nobody", -240, { holds: [] })];
+  d["agents/designer"] = Object.assign({}, d["agents/designer"], { status: "waiting", ask: "Brass or orange for the print header?", at: isoAt(-30) });
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  const nk = await needKeys(p);
+  ok(nk.join() === "q:D111,designer,q:D110", `${L}: order ${nk} (want D111, designer, D110; D112 folded)`);
+  const first = await p.evaluate(() => { const b = document.querySelector("#nlist button.need[data-sel]"); return b ? b.dataset.sel : ""; });
+  ok(first === "q:D111", `${L}: the first chip in the strip is ${first}`);
+  ok(/Can wait · 1\b/.test(await moreTitle(p)), `${L}: no "Can wait · 1" ("${await moreTitle(p)}")`);
+  ok(/Holding up Builder \+ /.test(await cardOf(p, tick, "q:D111")), `${L}: no "Holding up" line`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvStale(browser, url) {   // #11 forgotten tasks: an age on each row, "quiet N days" floats up, system/stale once
+  const L = "cv-stale", d = cvDocs();
+  d["board/current"].now = [
+    { id: "T502", owner: "builder", status: "DOING", task: "Fresh task", at: isoAt(-60) },
+    { id: "T500", owner: "builder", status: "DOING", task: "Forgotten task", at: isoAt(-5 * 1440) },
+    { id: "T503", owner: "designer", status: "BLOCKED", task: "Blocked a day", at: isoAt(-1440) },
+    { id: "T501", owner: "designer", status: "BLOCKED", task: "Blocked for days", at: isoAt(-3 * 1440) }];
+  d["board/current"].next = [];
+  const { ctx, p, errs, tick } = await open(browser, url, { docs: d });
+  await p.click("#tab-board", { timeout: 2000 }).catch(() => {}); await tick(500);
+  const rows = await p.$$eval("#boardBody [data-sel^='t:T50']", bs => bs.map(b => ({ id: b.dataset.sel.slice(2), q: (b.querySelector(".qdays") || {}).textContent || "", age: (b.querySelector(".num") || {}).textContent || "" })));
+  const r = id => rows.find(x => x.id === id) || {};
+  ok(r("T500").q === "quiet 5 days" && r("T501").q === "quiet 3 days" && !r("T502").q && !r("T503").q, `${L}: quiet flags wrong ${JSON.stringify(rows)}`);
+  ok(rows.length === 4 && rows.every(x => x.age), `${L}: a row has no age ${JSON.stringify(rows)}`);
+  const ids = rows.map(x => x.id);
+  ok(ids.indexOf("T500") < ids.indexOf("T502") && ids.indexOf("T501") < ids.indexOf("T503"), `${L}: quiet tasks don't float up (${ids})`);
+  const st = await docOf(p, "system/stale") || {};
+  ok((st.tasks || []).map(x => x.id).sort().join() === "T500,T501" && (await writes(p)).filter(x => x === "system/stale").length === 1, `${L}: system/stale ${JSON.stringify(st).slice(0, 200)}`);
+  noErr(L, errs); await ctx.close();
+}
+async function scenarioCvMorning(browser, url) {   // #12 the first open of the morning: overnight, Storm Watch, the King's plan, "All clear"; not again the same morning
+  const L = "cv-morning", now = new Date("2026-09-29T13:10:00Z");   // 8:10 AM Central
+  const d = cvDocs();
+  d["events/20260929T090000Z-builder"] = { agent: "builder", kind: "done", at: "2026-09-29T09:00:00Z", lane: "code", room: "tests", status: "done", text: "Finished the hub checks" };
+  d["events/20260929T115500Z-storm-watch"] = { agent: "storm-watch", kind: "done", at: "2026-09-29T11:55:00Z", lane: "chat", room: "storm", status: "done", text: "No new hail within 250 miles" };
+  d["system/king"] = Object.assign({}, d["system/king"], { summary: "Ship the hub queue, then app checks", at: "2026-09-29T12:30:00Z" });
+  let c = await open(browser, url, { docs: d, now, ls: { "hub-seen": String(Date.parse("2026-09-29T03:00:00Z")) } });
+  ok(await c.p.isVisible("#recap"), `${L}: no morning note`);
+  const h = (await c.p.textContent("#recapH")) || "", t = (await c.p.textContent("#recapT")) || "";
+  ok(/Good morning/.test(h) && /Overnight: 2 done · 0 stuck/.test(t) && /No new hail within 250 miles/.test(t) && /The King.s plan: Ship the hub queue/.test(t), `${L}: note wrong: ${h} | ${t.slice(0, 300)}`);
+  ok(/All clear\. Next run 12:52 PM\. You can close the lid\./.test(t), `${L}: no "All clear ... close the lid" (${t.slice(0, 300)})`);
+  const kept = await c.p.evaluate(() => Object.assign({}, localStorage));
+  noErr(L, c.errs); await c.ctx.close();
+  kept["hub-seen"] = String(now.getTime() + 60000);
+  c = await open(browser, url, { docs: d, now: new Date(now.getTime() + 20 * 60000), ls: kept });
+  ok(await c.p.isHidden("#recap"), `${L}: the note came back on the second open of the same morning`);
+  noErr(L, c.errs); await c.ctx.close();
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { chromium } = loadPlaywright();
@@ -904,9 +1165,20 @@ async function scenarioTidyKeeps(browser, url) {   // tidy() trims old lines but
     await run("tidy-keeps", () => scenarioTidyKeeps(browser, url));
     await run("sunday-report", () => scenarioWeekly(browser, url));
     await run("sunday-report-edges", () => scenarioWeeklyEdges(browser, url));
+    await run("cv-wake", () => scenarioCvWake(browser, url));
+    await run("cv-watchdog", () => scenarioCvWatch(browser, url));
+    await run("cv-notnow", () => scenarioCvNotNow(browser, url));
+    await run("cv-same", () => scenarioCvSame(browser, url));
+    await run("cv-suggests", () => scenarioCvSuggests(browser, url));
+    await run("cv-resub", () => scenarioCvResub(browser, url));
+    await run("cv-decided", () => scenarioCvDecided(browser, url));
+    await run("cv-proof", () => scenarioCvProof(browser, url));
+    await run("cv-blocker", () => scenarioCvBlocker(browser, url));
+    await run("cv-stale", () => scenarioCvStale(browser, url));
+    await run("cv-morning", () => scenarioCvMorning(browser, url));
   } finally { await browser.close(); await closeServer(); }
   for (const x of notes) console.log(x);
   const real = fails.filter(Boolean);
   if (real.length) { console.log("\nFAIL (" + real.length + ")"); for (const f of real) console.log("  - " + f); process.exit(1); }
-  console.log("\nPASS: hub live-data smoke test (37 scenarios)");
+  console.log("\nPASS: hub live-data smoke test (48 scenarios)");
 })();

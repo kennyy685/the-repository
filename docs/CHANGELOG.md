@@ -1,5 +1,8 @@
 # HMP App changelog (newest first)
 
+## AI hub: the 11 live conveniences verified - 2026-09-29 (queue chunk G; not published yet)
+- 11 new live-data scenarios (`cv-*` in tests/pages/hub_live_check.js), one per live convenience (#1-9, 11, 12). One fix: an answer's "Read" proof word no longer counts the page's own Right Hand (only the King and its helpers). #10 notifications stays cut (runtime 0.2.63 has none; the page TODO says what to build).
+
 ## AI hub: branch watch + Sunday report - 2026-09-29 (queue chunks C + D; built, not published yet)
 - Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK; Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
 - Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then it stays in the Log. The page saves each week once as `crew/weeks-<YYYY-Www>`.
