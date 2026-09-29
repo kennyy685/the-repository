@@ -24,7 +24,8 @@ Next King handoffs should come from the hub button, not create_session, or the c
 - QUEUED right after the hub fix (same page, so not in parallel), FilthE said "you do that": build the rest of the hub
   with ultracode, one chunk at a time, publish each: v28.1 One building (tube, Observatory, cat, workflow), v28.2
   Dressed with data, functions 3/5/7/8/9, CONVENIENCES top 12, report card. Plus the wow ideas once he picks.
-- RUNNING: QA of storms data + Knock screen (in-chat helper).
+- QA PASSED storms + Knock (docs/research/2026-09-29-qa-storms-knock.md). Knock fixes applied; Knock preview LIVE:
+  https://claude.ai/artifact/9oDxg9iErVt9TteXeo5bLU. Storms data is engine-only: wiring it into the open map = next Designer job.
 - Done: Engine storms (447 tests) + Knock screen (docs/design/knock/): publish after QA passes.
 
 ## KNOWN PROBLEMS (2026-09-28 23:58)
