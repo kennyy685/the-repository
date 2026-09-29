@@ -184,17 +184,20 @@ def _plan_card(z, walk):
     start = {"address": s0.get("address"), "lat": s0.get("lat"), "lon": s0.get("lon")} if s0 else None
     doors = len(stops) if stops else (z.get("walk_homes") or z.get("homes") or 0)
     name = z.get("name") or z["id"]
-    if start and start["address"]:
-        plan = {"en": f"Drive to {name}, start at {start['address']}, {doors} doors.",
-                "es": f"Maneja a {name}, empieza en {start['address']}, {doors} puertas."}
-    else:
-        plan = {"en": f"Drive to {name}, {doors} doors.", "es": f"Maneja a {name}, {doors} puertas."}
+    plan = _plan(name, start and start["address"], doors)
     c = z.get("walk_center") or z.get("center")
     return {"zone_id": z["id"], "name": name, "kind": z.get("kind"), "score": z.get("score"),
             "hail_in": z.get("hail_in"), "storm_day": z.get("storm_day"), "dist_mi": z.get("dist_mi"),
             "doors": doors, "start": start, "best_time": (walk or {}).get("best_time"),
             "why": z.get("why") or {"en": "", "es": ""}, "plan": plan,
             "center": {"lat": c.get("lat"), "lon": c.get("lon")} if c else None, "area_id": z.get("area_id")}
+
+
+def _plan(name, address, doors):
+    if address:
+        return {"en": f"Drive to {name}, start at {address}, {doors} doors.",
+                "es": f"Maneja a {name}, empieza en {address}, {doors} puertas."}
+    return {"en": f"Drive to {name}, {doors} doors.", "es": f"Maneja a {name}, {doors} puertas."}
 
 
 def choose(zdoc, walks):
@@ -308,8 +311,11 @@ JS_HEAD = ("/* The night shift's REAL brief for the open map's \"Since last nigh
 
 
 def _street(address):
-    """"1306 S 137 Av" -> "S 137 Av": the published page names the street, never a house (no knocking yet)."""
-    return re.sub(r"^\s*\d+[A-Za-z]?(-\d+)?\s+", "", str(address or "")).strip() or None
+    """"1306 S 137 Av" -> "S 137 Av", "3920 22 St" -> "22 St", "22 St" stays, "12 Oak St Apt 4" -> "Oak St": the
+    published page names the street, never a house or unit (no knocking yet)."""
+    a = re.sub(r"\s*(,|\b(apt|apartment|unit|ste|suite|lot|trlr)\b|#).*$", "", str(address or "").strip(), flags=re.I)
+    rest = re.sub(r"^\d+[A-Za-z]?(-\d+)?\s+", "", a)
+    return (rest if len(rest.split()) >= 2 else a).strip() or None
 
 
 def page_brief(doc):
@@ -328,8 +334,7 @@ def page_brief(doc):
             if s.get(f) is not None:
                 s[f] = round(float(s[f]), 3)
         if full:
-            for lang in ("en", "es"):
-                c["plan"][lang] = c["plan"][lang].replace(full, st or "")
+            c["plan"] = _plan(c.get("name") or c.get("zone_id"), st, c.get("doors"))   # rebuilt, never a text swap
     return out
 
 

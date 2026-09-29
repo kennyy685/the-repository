@@ -245,6 +245,16 @@ class NightBrief(unittest.TestCase):
         self.assertIsNone(night.from_js("window.NIGHT_REAL={\"kind\":\"other\"};"))
         self.assertIsNone(night.from_js("not js"))
 
+    def test_street_only_keeps_numbered_streets_and_drops_units(self):
+        for a, want in (("1306 S 137 Av", "S 137 Av"), ("3920 22 St", "22 St"), ("22 St", "22 St"),
+                        ("12 Oak St Apt 4", "Oak St"), ("12 Oak St #4", "Oak St"), ("507-509 N Main St", "N Main St"),
+                        ("", None), (None, None)):
+            self.assertEqual(night._street(a), want, a)
+        d = self.run_brief(self.hud)
+        d["pick"]["name"] = "Fremont: " + d["pick"]["start"]["address"]      # a zone named after the start house
+        back = night.from_js(night.to_js(d))
+        self.assertIn(d["pick"]["name"], back["pick"]["plan"]["en"])          # the zone name is left alone
+
 
 class NightCli(unittest.TestCase):
     def test_cli_writes_brief_and_keeps_the_previous(self):

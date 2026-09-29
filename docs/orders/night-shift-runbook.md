@@ -19,7 +19,10 @@ start **street** (no house number, spots rounded to ~100 m); never an owner name
 > docs/orders/night-shift-runbook.md "Steps" exactly, then stop. Don't edit or commit code, don't create triggers.
 
 ## Steps (a fresh cloud session, empty folder)
-1. `cd` to the repo. `git pull origin claude/amazing-gauss-yzfpq0` (so tonight runs the latest engine).
+1. `cd` to the repo (empty folder: `git clone https://github.com/kennyy685/the-repository` and `git checkout
+   claude/amazing-gauss-yzfpq0`; no access = add_repo owner kennyy685, repo the-repository). `git pull origin
+   claude/amazing-gauss-yzfpq0` (tonight runs the latest engine), then `pip install -q -r requirements.txt` (a fresh
+   container has no numpy/pandas; without it the command fails at import).
 2. Read last night's published brief (this also counts as "read before publish" for the Artifact tool):
    `Artifact` `action: "read"`, `url: https://claude.ai/artifact/6LRaMpb63D8Z7UwznfqqxV`, `path: "data/night.js"`.
    Note where it saved the file (= PREV). If the read fails, go on without PREV (the repo's copy is used).
