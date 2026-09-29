@@ -571,6 +571,31 @@ const easel = {x:-3.62, z:1.95, yaw:.75};
   const b = new THREE.Mesh(new THREE.PlaneGeometry(.46, .56), std({map:t, roughness:.75})); b.position.set(0, 1.24, .0545); b.rotation.x = -.08; g.add(b); easel.board = b;
   easel.pin = new THREE.Vector3(0, 1.26, .08); g.updateMatrixWorld(true); easel.g = g;
 }
+/* v28.2 the Shipped shelf (QUEUE-SPECS F, CONTRACT v28.2): a walnut strip along the top of the slat wall, above the trophy
+ * plaques and over the studio. One kraft box per ship this week (HUB.shipped.list, newest first = nearest the front, max 8),
+ * a brass "SHIPPED n" sign at the back end. Hover a box: #shelfTag. The plank merges into the static walnut (+0 calls),
+ * boxes = 1 InstancedMesh, sign = 1 plane, both hidden when empty; the boxes and the sign cast no shadow. */
+const SHELF = {max:8, x:-FX + .22, y:2.666, z0:3.2, dz:.18, v:undefined, list:[], pos:new Map(), n:0, anim:false, hover:null, boxes:[], el:null};
+{
+  SHELF.parts = [box(.13, .022, 1.86, MAT.walnut, -FX + .225, 2.655, 2.37)];                // the plank (merged into the static walnut below: +0 calls)
+  for (const z of [1.55, 3.15]) SHELF.parts.push(box(.02, .06, .02, MAT.walnut, -FX + .17, 2.615, z));   // two little brackets
+  let sd = 11; const r = () => (sd = (sd*16807) % 2147483647)/2147483647;   // its own seed: the shared rnd() keeps the plants as they were
+  const kraft = tex(64, 64, (g, w, h) => { g.fillStyle = '#b8905c'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 90; i++){ g.fillStyle = `rgba(${r() < .5 ? '90,60,30' : '230,200,150'},${.05 + r()*.07})`; g.fillRect(r()*w, r()*h, 1 + r()*3, 1); }
+    g.fillStyle = 'rgba(236,222,196,.78)'; g.fillRect(w*.42, 0, w*.16, h);                           // the tape
+    g.fillStyle = '#3fbf94'; g.fillRect(w*.08, h*.62, w*.22, h*.22); g.strokeStyle = '#f4f1ea'; g.lineWidth = 2.5;          // the verdigris "shipped" check sticker
+    g.beginPath(); g.moveTo(w*.12, h*.74); g.lineTo(w*.17, h*.79); g.lineTo(w*.26, h*.67); g.stroke();
+    g.strokeStyle = 'rgba(70,45,20,.35)'; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2); });
+  const im = new THREE.InstancedMesh(new THREE.BoxGeometry(.1, .085, .15), std({map:kraft, roughness:.85}), SHELF.max);
+  im.count = 0; im.visible = false; im.castShadow = false; im.receiveShadow = true; im.frustumCulled = false; im.setColorAt(0, new THREE.Color()); P.add(im); SHELF.im = im;
+  SHELF.labelT = tex(256, 72, (g, w, h) => { g.clearRect(0, 0, w, h);
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#e3c98f'); gr.addColorStop(.5, '#c9a45c'); gr.addColorStop(1, '#8a6a3a');
+    g.fillStyle = gr; g.beginPath(); g.roundRect(2, 2, w - 4, h - 4, 8); g.fill(); g.strokeStyle = 'rgba(60,40,15,.5)'; g.lineWidth = 2; g.beginPath(); g.roundRect(8, 8, w - 16, h - 16, 5); g.stroke();
+    g.fillStyle = '#3a2610'; g.textBaseline = 'middle'; g.font = '600 26px ' + MONO; g.textAlign = 'left'; g.fillText('SHIPPED', 22, h/2 + 1);
+    g.font = '600 38px ' + MONO; g.textAlign = 'right'; g.fillText(String(SHELF.n), w - 22, h/2 + 2); });
+  const lab = dyn(new THREE.Mesh(new THREE.PlaneGeometry(.25, .07), std({map:SHELF.labelT, transparent:true, roughness:.45, metalness:.1})));
+  lab.rotation.y = Math.PI/2; lab.position.set(-FX + .175, 2.703, 1.59); lab.visible = false; P.add(lab); SHELF.lab = lab;
+}
 // lounge: rug, cognac sofa, travertine table, brass arc lamp
 {
   const r = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 2.9), MAT.rug); r.rotation.x = -Math.PI/2; r.position.set(3.45,.004,-.1); r.receiveShadow = true; P.add(r);
@@ -2001,6 +2026,61 @@ let lowfx = false;
 /* the trophy plaque light sweep (900 ms) when a new plaque lands */
 const sweep = new THREE.Mesh(new THREE.PlaneGeometry(.07, .62), new THREE.MeshBasicMaterial({color:0xfff1d6, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
 sweep.rotation.z = .35; sweep.position.set(-1.3, .57, .006); sweep.visible = false; trophyMesh.add(sweep); sweep.userData.t = 1;
+/* v28.2 the Shipped shelf, every frame: re-lay only when HUB.shipped.v changes (a new ship drops in, the rest slide back a
+ * slot; reduced motion, low-fx and the first 8 s after the first data place them at once), project each box to stage px,
+ * and show #shelfTag for the box under HUB.pointer. Buffers are touched only while something moves. */
+const COL = new THREE.Color(), hash32 = s => { let h = 2166136261; for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+function stepShelf(dt){
+  const Z = SHELF, sv = HUB.shipped && HUB.shipped.v, now = performance.now();
+  if (sv !== Z.v){ Z.v = sv; if (Z.t0 == null) Z.t0 = now;
+    const raw = HUB.shipped && Array.isArray(HUB.shipped.list) ? HUB.shipped.list : [], list = raw.filter(x => x && x.id != null).slice(0, Z.max);
+    const still = RM.matches || lowfx || now - Z.t0 < 8000, old = Z.pos; Z.pos = new Map();
+    list.forEach((it, i) => { const id = String(it.id), tz = Z.z0 - i*Z.dz, p = old.get(id); Z.pos.set(id, p ? Object.assign(p, {tz}) : {z:tz, tz, y:still ? 0 : .42, vy:0, h:hash32(id)}); });
+    if (still) for (const p of Z.pos.values()){ p.z = p.tz; p.y = 0; p.vy = 0; }
+    const n0 = Z.n; Z.list = list; Z.n = list.length; Z.anim = true; Z.hv = -1;
+    Z.im.count = Z.n; Z.im.visible = Z.lab.visible = Z.n > 0; if (Z.n && Z.n !== n0) redraw(Z.labelT); }
+  if (!Z.n){ Z.boxes.length = 0; if (Z.hover){ Z.hover = null; shelfTag(null); } return; }
+  // stage px for each box + the one under the pointer (no robot hovered, pointer on the stage)
+  const ptr = HUB.pointer, can = ptr && ptr.in && !HUB.hover && !SC.dragged; let best = -1, bd = 1e9, rad = 12;
+  Z.boxes.length = 0;
+  Z.list.forEach((it, i) => { const p = Z.pos.get(String(it.id));
+    V1.set(Z.x, Z.y + .043 + p.y, p.z).project(rcam); const x = (V1.x + 1)/2*W, y = (1 - V1.y)/2*H;
+    if (i === 0){ V2.set(Z.x, Z.y + .043 + p.y, p.z - .075).project(rcam); rad = Math.max(12, Math.hypot((V2.x - V1.x)/2*W, (V2.y - V1.y)/2*H) + 6); }
+    const vis = V1.z < 1 && x > -20 && x < W + 20 && y > -20 && y < H + 20;
+    Z.boxes.push({id:String(it.id), x:Math.round(x), y:Math.round(y), visible:vis});
+    if (can && vis){ const d = Math.hypot(ptr.x - x, ptr.y - y); if (d < bd){ bd = d; best = i; } } });
+  const hv = best >= 0 && bd <= rad ? best : -1;
+  if (hv !== Z.hv){ Z.hv = hv; Z.anim = true; }
+  const it = hv >= 0 ? Z.list[hv] : null;
+  Z.hover = it ? {id:String(it.id), text:(t => t.length > 90 ? t.slice(0, 89) + '…' : t)(String(tx(it.text) || '').trim()) + (fmtDay(it.at) ? ' · ' + fmtDay(it.at) : ''), x:Z.boxes[hv].x, y:Z.boxes[hv].y} : null;
+  shelfTag(Z.hover);
+  if (!Z.anim) return;
+  let moving = false; const k = Math.min(1, dt*7);
+  Z.list.forEach((it, i) => { const p = Z.pos.get(String(it.id));
+    if (Math.abs(p.z - p.tz) > .0005){ p.z += (p.tz - p.z)*k; moving = true; } else p.z = p.tz;
+    if (p.y > 0 || p.vy > 0){ p.vy -= 9.8*Math.min(dt, .05); p.y += p.vy*Math.min(dt, .05); if (p.y <= 0){ p.y = 0; p.vy = p.vy < -.6 ? -p.vy*.28 : 0; } moving = true; }
+    const sy = .9 + (p.h % 21)/100, yaw = ((p.h >>> 6) % 13 - 6)*.014, lift = i === Z.hv ? .014 : 0, v = .88 + ((p.h >>> 11) % 13)*.01;
+    M4.compose(VP.set(Z.x + ((p.h >>> 16) % 5 - 2)*.005, Z.y + .0425*sy + p.y + lift, p.z), QT.setFromEuler(EU.set(0, yaw, 0)), VS.set(1, sy, 1));
+    Z.im.setMatrixAt(i, M4); Z.im.setColorAt(i, COL.setRGB(v, v*.97, v*.93)); });
+  Z.im.instanceMatrix.needsUpdate = true; if (Z.im.instanceColor) Z.im.instanceColor.needsUpdate = true; Z.anim = moving;
+}
+/* the hover label: the page's .cattag look; the scene makes #shelfTag on first hover (or uses the page's own) */
+function shelfTag(h){
+  let el = SHELF.el;
+  if (!el){ if (!h) return;
+    el = document.getElementById('shelfTag'); if (!el){ el = document.createElement('div'); el.id = 'shelfTag'; el.className = 'cattag'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i><span></span>'; stage.appendChild(el); }
+    Object.assign(el.style, {position:'absolute', left:'0', top:'0', pointerEvents:'none', whiteSpace:'nowrap', zIndex:'4', opacity:'0'});
+    el.style.setProperty('--coat', TH.done ? '#' + TH.done.getHexString() : '#3fbf94'); SHELF.el = el; SHELF.span = el.querySelector('span') || el; }
+  if (h){ if (SHELF.span.textContent !== h.text) SHELF.span.textContent = h.text;
+    el.style.transform = 'translate(' + Math.round(h.x - (el.offsetWidth || 120)/2) + 'px,' + Math.round(h.y - 30) + 'px)'; }
+  const op = h ? '1' : '0'; if (el.style.opacity !== op){ el.style.transition = RM.matches ? 'none' : 'opacity .25s'; el.style.opacity = op; }
+}
+/* test helper (not part of the contract): the shelf's real draw calls, measured by rendering this frame with and without it */
+function shelfProbe(){ const was = [SHELF.im.visible, SHELF.lab.visible], ia = renderer.info.autoReset; renderer.info.autoReset = false;
+  renderer.render(scene, rcam); renderer.info.reset(); renderer.render(scene, rcam); const on = renderer.info.render.calls;
+  SHELF.im.visible = SHELF.lab.visible = false; renderer.info.reset(); renderer.render(scene, rcam); const off = renderer.info.render.calls;
+  SHELF.im.visible = was[0]; SHELF.lab.visible = was[1]; renderer.info.reset(); renderer.info.autoReset = ia;
+  return {on, off, delta:on - off, plankMerged:SHELF.parts.every(m => !m.parent), shadows:SHELF.im.castShadow || SHELF.lab.castShadow}; }
 /* floor reflections under the downstairs lamps */
 const lampRefl = [[3.4,-.4],[-1.65,3.0],[-.75,3.0]].map(([x,z]) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffd9ae, transparent:true, opacity:.18, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false}));
   sp.center.set(.5, 1); sp.scale.set(.3, 1.1, 1); sp.position.set(x, .01, z); sp.renderOrder = 2; scene.add(sp); return sp; });
@@ -2539,6 +2619,7 @@ function frame(t, dt){
   if (tv !== seen.trophies || lang !== seen.lang){ seen.trophies = tv; redraw(trophyT);
     const top = HUB.trophies && HUB.trophies.list && HUB.trophies.list[0] && HUB.trophies.list[0].id;
     if (seen.trophyTop !== undefined && top && top !== seen.trophyTop && !RM.matches) sweep.userData.t = 0; seen.trophyTop = top || null; }
+  stepShelf(dt);
   if (sweep.userData.t < 1){ sweep.userData.t = Math.min(1, sweep.userData.t + dt/.9); const k = sweep.userData.t; sweep.visible = k < 1; sweep.position.x = -1.3 - .5 + k; sweep.material.opacity = Math.sin(k*Math.PI)*.55; }
   seen.lang = lang;
   const rm = RM.matches;
@@ -2705,7 +2786,7 @@ function renderPip(){
 }
 function burstSmall(p){ burst(p.x, p.y, p.z, 10, .9); }
 
-if (document.fonts){ const again = () => { redraw(boardT); redraw(trophyT); }; document.fonts.ready.then(again); try { document.fonts.addEventListener('loadingdone', again); } catch(e){} }
+if (document.fonts){ const again = () => { redraw(boardT); redraw(trophyT); redraw(SHELF.labelT); }; document.fonts.ready.then(again); try { document.fonts.addEventListener('loadingdone', again); } catch(e){} }
 
 function pick(x, y){ let best = null, bd = 34;
   for (const a of agentsArr()){ const an = anchors[a.id]; if (!an || !an.visible) continue; const cy = (an.y + an.fy)/2, d = Math.hypot(x - an.x, (y - cy)*0.7); if (d < bd){ bd = d; best = a.id; } }
@@ -2716,9 +2797,10 @@ function settle(){ for (const a of agentsArr()){ const sim = sims[a.id]; if (!si
 
 /* test helper (not part of the contract): the cat's and the handoffs' state */
 function debug(){ return {cat:{x:CAT.x, z:CAT.z, floor:CAT.floor, alt:CAT.alt, state:catInfo.state, act:CAT.act, pose:CAT.pose, q:CAT.q.length, moving:CAT.moving, with:CAT.with, withPose:CAT.with && sims[CAT.with] ? sims[CAT.with].pose : null, armed:CAT.armed},
+  shelf:{n:SHELF.n, count:SHELF.im.count, im:SHELF.im.visible, sign:SHELF.lab.visible, tag:!!(SHELF.el && SHELF.el.style.opacity === '1')},
   flows:FLOW.list.map(f => ({dir:f.dir, launched:f.launched, arrived:f.arrived, sW:f.sW, rW:f.rW, taken:f.taken, p:[+f.p.x.toFixed(2), +f.p.y.toFixed(2), +f.p.z.toFixed(2)]})), walk:FLOW.walk, watching:!!HUB.watching, lift:LIFT}; }
-window.SCENE = {ready:true, anchors, frame, resize, pick, settle, debug, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
-  get views(){ return builtViews(); }, get cat(){ return catOn() ? catInfo : null; }, get tweening(){ return tw.t < 1; }, get pipDrawn(){ return !!(pipSt.drawn && HUB.pip && HUB.pip.id === pipSt.id); }, get busy(){ return isBusy(); }, points, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
+window.SCENE = {ready:true, anchors, frame, resize, pick, settle, debug, shelfProbe, get dragged(){ return SC.dragged; }, get info(){ return renderer.info.render; }, get perf(){ return {calls:perfO.calls, tris:perfO.tris, maxCalls:perfO.maxCalls, fps:perfO.fps, shadowPasses:shadowSun.n, shadowCalls:perfO.shCalls}; }, shadowDirty(){ shadowSun.dirty = true; },
+  get views(){ return builtViews(); }, get cat(){ return catOn() ? catInfo : null; }, get tweening(){ return tw.t < 1; }, get pipDrawn(){ return !!(pipSt.drawn && HUB.pip && HUB.pip.id === pipSt.id); }, get busy(){ return isBusy(); }, points, get shelf(){ return {v:SHELF.v, n:SHELF.n, boxes:SHELF.boxes.slice(), hover:SHELF.hover ? Object.assign({}, SHELF.hover) : null}; }, get cctv(){ return cctv.i % 2 === 0 ? 1 : 2; }};
 resize();
 HUB.layout && HUB.layout();
 
