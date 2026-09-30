@@ -772,8 +772,9 @@ function makeHolo(canvas, labelLayer, cb) {
   holo.topDown = () => false;
   if (!canvas) return holo;
   let gl = null;
-  try { gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: true, depth: false, stencil: false }); } catch (e) { gl = null; }
-  if (!gl) return holo;
+  const fail = why => { holo.ok = false; holo.why = why; try { console.warn('holo: ' + why); cb.onFail && cb.onFail(why); } catch (e) {} };
+  try { gl = canvas.getContext('webgl2', { alpha: false, premultipliedAlpha: true, antialias: true, depth: false, stencil: false }); } catch (e) { gl = null; }
+  if (!gl) { holo.why = 'no WebGL2'; return holo; }
 
   /* ---------- GL setup ---------- */
   function prog(vs, fs) {
@@ -814,7 +815,7 @@ function makeHolo(canvas, labelLayer, cb) {
     BASE.beamVao = vao([{ b: BASE.beam, loc: 0, size: 2 }]);
     G = null;
   }
-  try { initGL(); } catch (e) { console.warn('holo: WebGL2 setup failed', e); return holo; }
+  try { initGL(); } catch (e) { console.warn('holo: WebGL2 setup failed', e); holo.why = 'shader: ' + String(e && e.message || e).slice(0, 80); return holo; }
 
   /* ---------- state ---------- */
   let S = null, light = (document.documentElement.getAttribute('data-theme') === 'light');
@@ -822,7 +823,7 @@ function makeHolo(canvas, labelLayer, cb) {
   try { reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   let orbitOn = !reduced, orbitVel = 0;
   let sel = null, hovPtr = null, hovExt = null, selT0 = 0;
-  let running = false, raf = 0, lastT = 0, t0 = now();
+  let running = false, raf = 0, lastT = 0, t0 = now(), tLoad = 1e9;
   let tEnter = -1e9;                              // uA = now - tEnter (huge -> everything built)
   let cssW = 1, cssH = 1, dpr = 1, dprScale = 1, cvL = 0, cvT = 0;
   let ins = null, insUser = null;
@@ -1016,8 +1017,8 @@ function makeHolo(canvas, labelLayer, cb) {
   function load(scene) {
     try {
       S = scene ? buildScene(scene, light ? 'light' : 'dark') : null;
-    } catch (e) { console.warn('holo: bad scene', e); S = null; }
-    sel = null; hovPtr = null; hovExt = null; touring = false; isTop = false; tw.on = false;
+    } catch (e) { console.warn('holo: bad scene', e); S = null; fail('scene: ' + String(e && e.message || e).slice(0, 80)); }
+    sel = null; hovPtr = null; hovExt = null; touring = false; isTop = false; tw.on = false; tLoad = now(); checked = false;
     scr = new Float32Array(Math.max(1, S ? S.N : 0) * 6);
     uploadScene(); buildLabels();
     if (!S) return;
@@ -1249,7 +1250,7 @@ function makeHolo(canvas, labelLayer, cb) {
     // adaptive resolution: if we're slow for ~1 s at DPR 2, step down once or twice
     frameAcc += dt; frameN++;
     if (frameAcc > 1.2) { if (frameAcc / frameN > 0.026 && dprScale > 0.7 && (window.devicePixelRatio || 1) > 1.2) { dprScale -= 0.15; resize(); } frameAcc = 0; frameN = 0; }
-    try { update(t, dt); render(t); overlay(t); } catch (e) { console.warn('holo frame', e); stop(); }
+    try { update(t, dt); render(t); blankCheck(t); overlay(t); } catch (e) { console.warn('holo frame', e); stop(); fail('frame: ' + String(e && e.message || e).slice(0, 80)); }
   }
 
   function update(t, dt) {
@@ -1276,9 +1277,23 @@ function makeHolo(canvas, labelLayer, cb) {
     }
   }
 
+  let checked = false;
+  function blankCheck(t) {
+    if (checked || !S || !G || t - tLoad < 1.8) return;
+    checked = true;
+    const w = Math.min(96, canvas.width), h = Math.min(96, canvas.height), px = new Uint8Array(w * h * 4);
+    gl.readPixels((canvas.width - w) >> 1, (canvas.height - h) >> 1, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    const r0 = px[0], g0 = px[1], b0 = px[2]; let diff = 0;
+    for (let i = 0; i < px.length; i += 4) diff = Math.max(diff, Math.abs(px[i] - r0) + Math.abs(px[i + 1] - g0) + Math.abs(px[i + 2] - b0));
+    if (gl.isContextLost() || diff < 6) fail('blank frame');
+  }
   function render(t) {
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    // Opaque clear (2026-09-30 fix): dark mode blends additively without writing alpha, so a transparent clear left
+    // rgb>0 with alpha 0 (invalid premultiplied pixels). Chrome/Linux shows them; macOS/Safari compositors can drop
+    // them -> blank 3D view. Clearing to the page color at alpha 1 keeps every pixel valid in both themes.
+    if (light) gl.clearColor(0.933, 0.941, 0.933, 1); else gl.clearColor(0.027, 0.031, 0.039, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     if (!S || !G) return;
     computeVP(cam.tx, cam.ty, cam.d, cam.yaw, cam.pitch, VP, EYE);
     RIGHT[0] = Math.cos(cam.yaw); RIGHT[1] = -Math.sin(cam.yaw); RIGHT[2] = 0;
@@ -1445,4 +1460,136 @@ function makeHolo(canvas, labelLayer, cb) {
   Object.defineProperty(holo, 'selected', { get: () => sel });
   return holo;
 }
+})();
+
+/* =============================== Lite street view (Canvas 2D) ===============================
+   Same API as createHolo. Used when WebGL2 is missing or the hologram fails on this machine (no context,
+   shader error, a blank first frame, a frame error). Always draws: extruded house boxes in painter's order,
+   real streets, the walk path, door numbers. Drag = turn, wheel = zoom, click a house = select. */
+(function () {
+'use strict';
+const M_LON = 111320 * Math.cos(41.43 * Math.PI / 180), M_LAT = 110540;
+window.createHoloLite = function (canvas, labelLayer, cb) {
+  cb = cb || {};
+  const c2 = canvas && canvas.getContext('2d');
+  const h = { ok: !!c2, lite: true };
+  const noop = () => {};
+  ['load', 'enter', 'start', 'stop', 'setTheme', 'setReduced', 'select', 'hover', 'setOrbit', 'setTour', 'resize', 'setInsets', 'destroy'].forEach(k => { h[k] = noop; });
+  h.topDown = () => false;
+  if (!c2) return h;
+  let S = null, light = false, reduced = false, running = false, raf = 0, dirty = true;
+  let W = 1, H = 1, dpr = 1, sel = null, hov = null, top = false, stateCol = null;
+  const cam = { tx: 0, ty: 0, ppm: 2, yaw: -0.5, pitch: 0.95 }, goal = { ...cam };
+  const labels = document.createElement('div'); labels.style.cssText = 'position:absolute;inset:0;pointer-events:none';
+  labelLayer && labelLayer.appendChild(labels);
+  let labEls = [];
+  function rnd(seed) { let a = seed | 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function segDist(p, a, b) { const bx = b[0] - a[0], by = b[1] - a[1], L = bx * bx + by * by || 1e-9; let u = ((p[0] - a[0]) * bx + (p[1] - a[1]) * by) / L; u = Math.max(0, Math.min(1, u));
+    const qx = a[0] + u * bx, qy = a[1] + u * by; return { d: Math.hypot(p[0] - qx, p[1] - qy), ang: Math.atan2(by, bx), q: [qx, qy] }; }
+  function load(sc) {
+    const c = sc.center, P = q => [(q[0] - c[0]) * M_LON, (q[1] - c[1]) * M_LAT];
+    const streets = sc.streets.map(s => ({ walk: s.walk, c: s.c, p: s.p.map(P) })).filter(s => s.p.some(q => Math.hypot(q[0], q[1]) < 600));
+    const wsegs = []; streets.forEach(s => { for (let i = 1; i < s.p.length; i++) wsegs.push([s.p[i - 1], s.p[i], s.walk]); });
+    const near = p => { let b = { d: 1e9, ang: 0 }; wsegs.forEach(g => { const r = segDist(p, g[0], g[1]); if (r.d < b.d) b = r; }); return b; };
+    const homes = sc.homes.map((o, i) => { const p = P(o.p), n = near(p); return { i, p, ang: n.ang, col: o.col, n: o.order || i + 1, walk: true }; });
+    // filler houses along nearby streets (context only)
+    const R = rnd(7), fill = [];
+    streets.forEach(s => { if (s.c > 2 && !s.walk) return; for (let i = 1; i < s.p.length; i++) { const a = s.p[i - 1], b = s.p[i], L = Math.hypot(b[0] - a[0], b[1] - a[1]), ang = Math.atan2(b[1] - a[1], b[0] - a[0]), nx = -Math.sin(ang), ny = Math.cos(ang);
+      for (let d = 14; d < L; d += 27) for (const sd of [1, -1]) { if (R() < 0.2) continue; const p = [a[0] + (b[0] - a[0]) * d / L + nx * 17 * sd, a[1] + (b[1] - a[1]) * d / L + ny * 17 * sd];
+        if (Math.hypot(p[0], p[1]) > 330 || homes.some(o => Math.hypot(o.p[0] - p[0], o.p[1] - p[1]) < 16) || fill.some(o => Math.hypot(o.p[0] - p[0], o.p[1] - p[1]) < 14)) continue;
+        fill.push({ p, ang, walk: false }); } } });
+    let bb = [1e9, 1e9, -1e9, -1e9]; homes.forEach(o => { bb[0] = Math.min(bb[0], o.p[0]); bb[1] = Math.min(bb[1], o.p[1]); bb[2] = Math.max(bb[2], o.p[0]); bb[3] = Math.max(bb[3], o.p[1]); });
+    S = { streets, homes, fill: fill.slice(0, 320), path: (sc.path || []).map(P), park: sc.park ? P(sc.park) : null, bb };
+    labEls.forEach(e => e.remove());
+    labEls = homes.map(o => { const e = document.createElement('div'); e.className = 'hlab'; e.textContent = o.n; labels.appendChild(e); return e; });
+    fitAll(); Object.assign(cam, goal); dirty = true;
+  }
+  function fitAll() { if (!S) return; const b = S.bb, w = b[2] - b[0] + 80, hh = b[3] - b[1] + 80, I = ins();
+    goal.tx = (b[0] + b[2]) / 2; goal.ty = (b[1] + b[3]) / 2; goal.ppm = Math.max(0.4, Math.min((W - I.l - I.r - 60) / w, (H - I.t - I.b - 60) / (hh * 0.8))); }
+  let insU = null; const ins = () => insU || { l: 0, r: 0, t: 0, b: 0 };
+  function proj(x, y, z) { // world meters -> screen px
+    const dx = x - cam.tx, dy = y - cam.ty, cs = Math.cos(cam.yaw), sn = Math.sin(cam.yaw);
+    const rx = dx * cs - dy * sn, ry = dx * sn + dy * cs, I = ins();
+    const cx = I.l + (W - I.l - I.r) / 2, cy = I.t + (H - I.t - I.b) / 2;
+    return [cx + rx * cam.ppm, cy - ry * cam.ppm * Math.sin(cam.pitch) - z * cam.ppm * Math.cos(cam.pitch), ry];
+  }
+  const P = () => light
+    ? { bg: '#eef0ee', grid: 'rgba(24,25,28,.06)', st: 'rgba(24,25,28,.16)', stW: 'rgba(24,25,28,.28)', path: '#15803d', fillF: 'rgba(24,25,28,.05)', fillE: 'rgba(24,25,28,.22)', ink: '#18191c', sel: '#15803d' }
+    : { bg: '#07080a', grid: 'rgba(255,255,255,.035)', st: 'rgba(223,228,238,.12)', stW: 'rgba(223,228,238,.26)', path: '#4ade80', fillF: 'rgba(143,166,255,.05)', fillE: 'rgba(143,166,255,.30)', ink: '#f1f2f4', sel: '#4ade80' };
+  function box(o, pal) { // house: 10 x 12 m, walls 4 m, gable roof 3 m
+    const w = o.walk ? 6 : 5, d = o.walk ? 7 : 6, cs = Math.cos(o.ang), sn = Math.sin(o.ang);
+    const L = (u, v) => [o.p[0] + u * cs - v * sn, o.p[1] + u * sn + v * cs];
+    const cn = [L(-w, -d), L(w, -d), L(w, d), L(-w, d)], wall = o.walk ? 4.2 : 3.6, rf = o.walk ? 3.2 : 2.6;
+    const g = cn.map(q => proj(q[0], q[1], 0)), t = cn.map(q => proj(q[0], q[1], wall));
+    const r0 = L(0, -d), r1 = L(0, d), R0 = proj(r0[0], r0[1], wall + rf), R1 = proj(r1[0], r1[1], wall + rf);
+    const isSel = o.walk && o.i === sel, isHov = o.walk && o.i === hov;
+    const col = o.walk ? ((stateCol && stateCol[o.i]) || o.col) : null;
+    const face = o.walk ? hexA(col, isSel ? 0.55 : light ? 0.28 : 0.2) : pal.fillF, edge = o.walk ? (isSel ? pal.sel : col) : pal.fillE;
+    const poly = (pts, f, s, lw) => { c2.beginPath(); pts.forEach((q, i) => i ? c2.lineTo(q[0], q[1]) : c2.moveTo(q[0], q[1])); c2.closePath(); if (f) { c2.fillStyle = f; c2.fill(); } if (s) { c2.strokeStyle = s; c2.lineWidth = lw; c2.stroke(); } };
+    const lw = o.walk ? (isSel ? 2.4 : isHov ? 2 : 1.4) : 0.8;
+    if (isSel) { c2.save(); c2.shadowColor = pal.sel; c2.shadowBlur = 18; }
+    for (let k = 0; k < 4; k++) { const a = k, b = (k + 1) % 4; poly([g[a], g[b], t[b], t[a]], face, edge, lw); }
+    poly([t[0], t[1], R0], face, edge, lw); poly([t[3], t[2], R1], face, edge, lw);
+    poly([t[1], t[2], R1, R0], face, edge, lw); poly([t[0], t[3], R1, R0], face, edge, lw);
+    if (isSel) c2.restore();
+    return proj(o.p[0], o.p[1], wall + rf + 4);
+  }
+  function hexA(hx, a) { if (!hx || hx[0] !== '#') return hx; const n = parseInt(hx.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+  function draw() {
+    const pal = P(); c2.setTransform(dpr, 0, 0, dpr, 0, 0); c2.fillStyle = pal.bg; c2.fillRect(0, 0, W, H);
+    if (!S) return;
+    // ground grid (20 m)
+    c2.strokeStyle = pal.grid; c2.lineWidth = 1; c2.beginPath();
+    for (let k = -400; k <= 400; k += 20) { let a = proj(k, -400, 0), b = proj(k, 400, 0); c2.moveTo(a[0], a[1]); c2.lineTo(b[0], b[1]); a = proj(-400, k, 0); b = proj(400, k, 0); c2.moveTo(a[0], a[1]); c2.lineTo(b[0], b[1]); }
+    c2.stroke();
+    // streets
+    c2.lineCap = 'round'; c2.lineJoin = 'round';
+    S.streets.forEach(s => { c2.strokeStyle = s.walk ? pal.stW : pal.st; c2.lineWidth = Math.max(2, (s.walk ? 11 : 8) * cam.ppm * 0.9); c2.beginPath();
+      s.p.forEach((q, i) => { const a = proj(q[0], q[1], 0); i ? c2.lineTo(a[0], a[1]) : c2.moveTo(a[0], a[1]); }); c2.stroke(); });
+    // walk path
+    if (S.path.length) { c2.strokeStyle = pal.path; c2.lineWidth = 2; c2.setLineDash([3, 6]); c2.beginPath();
+      S.path.forEach((q, i) => { const a = proj(q[0], q[1], 0.2); i ? c2.lineTo(a[0], a[1]) : c2.moveTo(a[0], a[1]); }); c2.stroke(); c2.setLineDash([]); }
+    if (S.park) { const a = proj(S.park[0], S.park[1], 0); c2.fillStyle = pal.ink; c2.beginPath(); c2.roundRect ? c2.roundRect(a[0] - 10, a[1] - 10, 20, 20, 5) : c2.rect(a[0] - 10, a[1] - 10, 20, 20); c2.fill();
+      c2.fillStyle = pal.bg; c2.font = '700 12px system-ui,sans-serif'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText('P', a[0], a[1] + 0.5); }
+    // houses, far to near
+    const all = S.fill.concat(S.homes).map(o => ({ o, k: proj(o.p[0], o.p[1], 0)[2] })).sort((a, b) => b.k - a.k);
+    const tops = [];
+    all.forEach(({ o }) => { const tp = box(o, pal); if (o.walk) tops[o.i] = tp; });
+    labEls.forEach((e, i) => { const tp = tops[i]; if (!tp) return; e.style.transform = `translate3d(${tp[0].toFixed(1)}px,${tp[1].toFixed(1)}px,0) translate(-50%,-100%)`;
+      e.classList.toggle('sel', i === sel); e.style.setProperty('--dc', (stateCol && stateCol[i]) || S.homes[i].col); });
+    S.tops = tops;
+  }
+  function frame() {
+    raf = running ? requestAnimationFrame(frame) : 0;
+    let moving = false;
+    for (const k of ['tx', 'ty', 'ppm', 'yaw', 'pitch']) { const d = goal[k] - cam[k]; if (Math.abs(d) > (k === 'ppm' ? 1e-3 : 1e-3)) { cam[k] += reduced ? d : d * 0.14; moving = true; } else cam[k] = goal[k]; }
+    if (moving || dirty) { dirty = false; draw(); }
+  }
+  function resize() { const r = canvas.getBoundingClientRect(); W = Math.max(1, r.width || innerWidth); H = Math.max(1, r.height || innerHeight); dpr = Math.min(2, devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); dirty = true; }
+  function pick(x, y) { if (!S || !S.tops) return null; let b = null, bd = 30; S.tops.forEach((t, i) => { const d = Math.hypot(t[0] - x, t[1] + 14 - y); if (d < bd) { bd = d; b = i; } }); return b; }
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: goal.yaw, moved: false }; try { canvas.setPointerCapture(e.pointerId); } catch (err) {} });
+  canvas.addEventListener('pointermove', e => {
+    if (drag) { const dx = e.clientX - drag.x; if (Math.abs(dx) > 3) drag.moved = true; goal.yaw = drag.yaw + dx * 0.006; cam.yaw = goal.yaw; dirty = true; return; }
+    const r = canvas.getBoundingClientRect(), i = pick(e.clientX - r.left, e.clientY - r.top);
+    if (i !== hov) { hov = i; dirty = true; } try { cb.onHover && cb.onHover(i, e.clientX, e.clientY); } catch (err) {}
+  });
+  canvas.addEventListener('pointerup', e => { const d = drag; drag = null; if (d && !d.moved) { const r = canvas.getBoundingClientRect(), i = pick(e.clientX - r.left, e.clientY - r.top); if (i != null) { select(i); try { cb.onSelect && cb.onSelect(i); } catch (err) {} } } });
+  canvas.addEventListener('wheel', e => { e.preventDefault(); goal.ppm = Math.max(0.3, Math.min(12, goal.ppm * Math.exp(-e.deltaY * 0.0015))); }, { passive: false });
+  function select(i) { sel = i; if (S && i != null && S.homes[i]) { const p = S.homes[i].p; goal.tx = p[0]; goal.ty = p[1]; goal.ppm = Math.max(goal.ppm, 3.2); } dirty = true; }
+  Object.assign(h, {
+    load, resize, select,
+    start() { if (running) return; running = true; resize(); raf = requestAnimationFrame(frame); },
+    stop() { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; },
+    enter() { fitAll(); cam.yaw = goal.yaw = -0.5; dirty = true; },
+    setTheme(t) { light = t === 'light'; dirty = true; }, setReduced(b) { reduced = !!b; },
+    hover(i) { hov = i; dirty = true; }, setOrbit: noop, setTour: noop,
+    topDown() { top = !top; goal.pitch = top ? Math.PI / 2 : 0.95; return top; },
+    setInsets(o) { insU = o; dirty = true; }, setStates(a) { stateCol = a; dirty = true; },
+    destroy() { h.stop(); labels.remove(); },
+  });
+  resize();
+  return h;
+};
 })();
