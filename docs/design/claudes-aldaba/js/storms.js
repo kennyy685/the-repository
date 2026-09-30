@@ -289,6 +289,16 @@
   (N.base || []).forEach((b) => { if (b.k === 'town' && b.n && !PL[b.n] && b.p && b.p.length) { let x = 0, y = 0; b.p.forEach((p) => { x += p[0]; y += p[1]; }); PL[b.n] = [x / b.p.length, y / b.p.length]; } });
   const MONO = '"Geist Mono","Geist Mono L",ui-monospace,monospace';
   function pathPx(D, f) { return D.storm.path.map((p) => f.project(p)); }
+  // the date · hail pill at the end of the selected path: one place computes it for drawing and for label avoidance
+  let pillCv = null;
+  function pillAt(S, f, c) {
+    const pts = pathPx(S, f), e = pts[pts.length - 1];
+    const txt = A.fmt.date(S.date, 'short') + ' · ' + A.fmt.inches(S.max);
+    if (!c) { if (!pillCv) pillCv = document.createElement('canvas').getContext('2d'); c = pillCv; }
+    c.font = '500 10.5px ' + MONO; if ('letterSpacing' in c) c.letterSpacing = '0.4px';
+    const tw = c.measureText(txt).width, x = A.clamp(e[0] + 12, f.inset.l + 6, f.w - f.inset.r - tw - 26), y = A.clamp(e[1] - 16, f.inset.t + 14, f.h - f.inset.b - 14);
+    return { txt, tw, x, y };
+  }
   function marksLayer() {
     return {
       id: 'storms-marks', z: 210, live: false,
@@ -320,10 +330,7 @@
         if (S && S.storm && V.mode !== 'intro') {
           drawPath(S, 0.95, 1.2);
           // label pill at the end of the path: date · hail
-          const pts = pathPx(S, f), e = pts[pts.length - 1];
-          const txt = A.fmt.date(S.date, 'short') + ' · ' + A.fmt.inches(S.max);
-          c.font = '500 10.5px ' + MONO; if ('letterSpacing' in c) c.letterSpacing = '0.4px';
-          const tw = c.measureText(txt).width, x = A.clamp(e[0] + 12, f.inset.l + 6, f.w - f.inset.r - tw - 26), y = A.clamp(e[1] - 16, f.inset.t + 14, f.h - f.inset.b - 14);
+          const { txt, tw, x, y } = pillAt(S, f, c);
           c.globalAlpha = 0.96; c.beginPath(); A.world.roundRect(c, x, y - 11, tw + 20, 22, 6); c.fillStyle = pal.panel; c.fill(); c.lineWidth = 1; c.strokeStyle = pal.rule2; c.stroke();
           c.beginPath(); c.arc(x + 9, y, 3, 0, TAU); c.fillStyle = A.world.hailColor(S.max); c.fill();
           c.fillStyle = pal.text; c.textAlign = 'left'; c.fillText(txt, x + 16, y + 0.5);
@@ -339,6 +346,14 @@
           });
         }
         c.restore();
+      },
+      avoid(f) {                                                 // world labels keep off the pill and the reporting towns
+        const V = VIEW(); if (!V || V.mode === 'intro') return null;
+        const S = V.sel; if (!S) return null;
+        if (S.storm) { const p = pillAt(S, f); return [[p.x - 4, p.y - 15, p.x + p.tw + 24, p.y + 15]]; }
+        if (!pillCv) pillCv = document.createElement('canvas').getContext('2d');
+        pillCv.font = '500 10px ' + MONO; if ('letterSpacing' in pillCv) pillCv.letterSpacing = '0px';
+        return (S.towns || []).map((tn) => { const ll = PL[tn]; if (!ll) return null; const q = f.project(ll); return [q[0] - 10, q[1] - 10, q[0] + 14 + pillCv.measureText(tn).width, q[1] + 10]; }).filter(Boolean);
       },
       hit(pt, f) {                                               // the nearest modeled swath under the pointer
         if (!V || V.mode === 'intro') return null;

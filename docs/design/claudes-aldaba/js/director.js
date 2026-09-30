@@ -32,7 +32,7 @@
   const TAU = Math.PI * 2;
 
   // lines per file and data sizes, counted from the repo by dev/manifest.mjs (re-run it after code changes)
-  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",903],["js/world.js",1013],["js/lib/funnel.js",239],["js/lib/hailgl.js",1439],["js/lib/house.js",926],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",831],["js/now.js",810],["js/storms.js",880],["js/knock.js",1299],["js/deal.js",1338],["js/money.js",501],["js/director.js",1249],["js/boot.js",23]],"css":[["css/base.css",392],["css/now.css",202],["css/storms.css",170],["css/knock.css",304],["css/deal.css",411],["css/money.css",111],["css/intro.css",125],["css/director.css",225]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84693]],"fonts":5};
+  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",903],["js/world.js",1118],["js/lib/funnel.js",239],["js/lib/hailgl.js",1439],["js/lib/house.js",926],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",831],["js/now.js",810],["js/storms.js",895],["js/knock.js",1299],["js/deal.js",1338],["js/money.js",521],["js/director.js",1306],["js/boot.js",23]],"css":[["css/base.css",401],["css/now.css",202],["css/storms.css",170],["css/knock.css",304],["css/deal.css",411],["css/money.css",111],["css/intro.css",125],["css/director.css",227]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84693]],"fonts":5};
 
   /* ======================= helpers ======================= */
   const cp = (o, en, es) => (o && o.en != null ? o : { en, es: es == null ? en : es });
@@ -143,19 +143,59 @@
   }
   /** the target must sit inside the film's frame: stacked screens scroll the page; on wide screens the target's own panel
       scrolls (never the page, never the app) so nothing the cursor presses hides under a band */
-  function reveal(target) {
+  /*  o.box: the block that must show whole (a lever with its note), o.room: px it may still grow by below, o.instant */
+  function reveal(target, o = {}) {
     const el = resolve(target); if (!el || !el.getBoundingClientRect || !el.isConnected) return;
-    const r = el.getBoundingClientRect(), bb = F.dom ? F.dom.lbB.getBoundingClientRect().top : innerHeight;
+    const box = (o.box && resolve(o.box)) || el;
+    const r = box.getBoundingClientRect(), room = o.room || 0, bb = F.dom ? F.dom.lbB.getBoundingClientRect().top : innerHeight;
     const tb = F.dom && !A.stacked() ? F.dom.lbT.getBoundingClientRect().bottom : 0;
-    if (r.top >= Math.max(70, tb + 8) && r.bottom <= bb - 12) return;
-    const how = A.still ? 'auto' : 'smooth';
-    if (A.stacked()) { const y = scrollY + r.top - Math.max(80, (bb - r.height) * 0.42); A.safe('film scroll', () => scrollTo({ top: Math.max(0, y), behavior: how })); return; }
-    let sc = el.parentElement;
-    while (sc && sc !== document.body) { const o = getComputedStyle(sc).overflowY; if ((o === 'auto' || o === 'scroll') && sc.scrollHeight > sc.clientHeight + 1) break; sc = sc.parentElement; }
+    const how = A.still || o.instant ? 'auto' : 'smooth';
+    if (A.stacked()) {
+      if (r.top >= Math.max(70, tb + 8) && r.bottom + room <= bb - 12) return;
+      const y = scrollY + r.top - Math.max(80, (bb - r.height - room) * 0.42); A.safe('film scroll', () => scrollTo({ top: Math.max(0, y), behavior: how })); return;
+    }
+    let sc = box.parentElement;
+    while (sc && sc !== document.body) { const ov = getComputedStyle(sc).overflowY; if ((ov === 'auto' || ov === 'scroll') && sc.scrollHeight > sc.clientHeight + 1) break; sc = sc.parentElement; }
     if (!sc || sc === document.body) return;
-    const sr = sc.getBoundingClientRect(), vis0 = Math.max(sr.top, tb + 8), vis1 = Math.min(sr.bottom, bb - 12);
-    const dy = r.bottom > vis1 ? r.bottom - vis1 + 24 : r.top < vis0 ? r.top - vis0 - 24 : 0;
-    if (dy) A.safe('film scroll', () => sc.scrollBy({ top: dy, behavior: how }));
+    // what shows: the panel between the bands, less the fade a panel draws on its bottom edge while more hides below
+    const sr = sc.getBoundingClientRect(), vis0 = Math.max(sr.top, tb + 8), vis1 = Math.min(sr.bottom - 34, bb - 12);
+    if (r.top >= vis0 + 4 && r.bottom + room <= vis1) return;
+    const want = r.bottom + room > vis1 ? r.bottom + room - vis1 : r.top - vis0 - 12;
+    const d = cleanCut(sc, want, vis0, vis1, r);
+    if (d) A.safe('film scroll', () => sc.scrollBy({ top: d, behavior: how }));
+  }
+  /** the scroll that shows the target AND leaves the panel's top edge in a gap between lines, never through a word:
+      the smallest move past `want` (down) or the nearest one before it (up) whose top edge falls between two rows */
+  function cleanCut(sc, want, vis0, vis1, r) {
+    const max = sc.scrollHeight - sc.clientHeight - sc.scrollTop, min = -sc.scrollTop;
+    const d0 = A.clamp(want, min, max);
+    const sr = sc.getBoundingClientRect(), rows = [], clips = new Map();
+    // a box that hides its overflow trims what shows of its children (an odometer's digit strips run far past their line)
+    const clipOf = (a) => {
+      if (!a || a === sc) return null;
+      if (clips.has(a)) return clips.get(a);
+      const cs = getComputedStyle(a), up = clipOf(a.parentElement);
+      let c = up;
+      if (cs.overflowY !== 'visible' || cs.overflowX !== 'visible') { const q = a.getBoundingClientRect(); c = up ? [Math.max(q.top, up[0]), Math.min(q.bottom, up[1])] : [q.top, q.bottom]; }
+      clips.set(a, c); return c;
+    };
+    sc.querySelectorAll('*').forEach((e) => {
+      if (e.childElementCount && !/^(BUTTON|INPUT|CANVAS|svg|P|LI|H1|H2|H3|DT|DD)$/.test(e.tagName)) return;
+      const q = e.getBoundingClientRect(); if (!q.width || !q.height || q.right < sr.left || q.left > sr.right) return;
+      if (!e.textContent.trim() && /^(absolute|fixed)$/.test(getComputedStyle(e).position)) return;   // decoration, not a row
+      const c = clipOf(e.parentElement), t = c ? Math.max(q.top, c[0]) : q.top, b = c ? Math.min(q.bottom, c[1]) : q.bottom;
+      if (b > t) rows.push([t, b]);
+    });
+    rows.sort((a, b) => a[0] - b[0]);
+    const gaps = []; let end = -Infinity;
+    rows.forEach(([t, b]) => { if (t > end + 6) gaps.push([end, t]); end = Math.max(end, b); });
+    // each gap offers one edge: just above its next row (up to 14 px of air), never inside the row above
+    const cuts = gaps.map(([g0, g1]) => Math.round(Math.max(g0 + 2, g1 - 14)) - vis0);
+    cuts.push(min);                                             // the panel's own top is always clean
+    const ok = (d) => d >= min && d <= max && r.top - d >= vis0 - 1 && (want >= 0 || r.bottom - d <= vis1 + 1);
+    const pick = want >= 0 ? cuts.filter((d) => d >= d0 && ok(d)).sort((a, b) => a - b)[0]
+      : cuts.filter((d) => d <= d0 && ok(d)).sort((a, b) => b - a)[0];
+    return Math.round(pick == null ? d0 : pick);
   }
 
   /* ======================= the ghost cursor ======================= */
@@ -383,8 +423,11 @@
       script(b) {
         b.at(0, () => { const st = A.dealDemo && A.dealDemo.state ? A.safe('deal state', A.dealDemo.state) : null; if (st && st.open) use('dealDemo', 'close'); });
         b.glide(0, 720, T.tab('money'), { bend: 0.5 });
-        b.press(780, T.tab('money'), (sk) => { hot(); F.touched.add('money'); goView('money', { instant: sk }); });
-        b.at(1900, () => reveal(T.hours));                      // a long (Spanish) panel can put the lever under the band
+        b.press(780, T.tab('money'), (sk) => { hot(); moneyClean(); goView('money', { instant: sk, force: F.mForce }); F.mForce = false; });
+        // the whole lever (its note too) clears the band and the panel's fade, with room for "Back to today's numbers"
+        // that lands under the answer once a lever moves; the panel's top edge stops between two rows, never on a word
+        // (a panel still rolling its numbers is taller for a moment: the frame waits for them to land)
+        b.at(1900, (sk) => when('money', () => settled(b, () => reveal(T.hours, { box: () => { const h = T.hours(); return h && h.closest('.money-lv'); }, room: document.querySelector('#slot-left .money-mix__reset') ? 4 : 40, instant: sk }))));
         b.glide(2150, 720, () => thumb(T.hours()));
         let from = null;
         b.at(2960, (sk) => { const inp = T.hours(); from = inp ? +inp.value : 3.5; if (!sk) Cur.grab(true); });
@@ -413,6 +456,12 @@
   const beatAt = (ms) => { for (let i = BEATS.length - 1; i >= 0; i--) if (ms >= AT[i]) return i; return 0; };
   const filmTime = () => (F.i < 0 ? 0 : AT[F.i] + (F.b ? F.b.tl.time : 0));
 
+  /** fn once the panels' odometers have landed (a rolling digit strip stands taller than its line), at most ~1.2 s later */
+  function settled(b, fn, n = 0) {
+    if (!b.alive()) return;
+    if (n < 10 && document.querySelector('#stage .odo')) { setTimeout(() => settled(b, fn, n + 1), 120); return; }
+    A.safe('film settled', fn);
+  }
   /** the range input's thumb, as a screen point */
   function thumb(inp) {
     if (!inp || !inp.isConnected) return null;
@@ -459,6 +508,14 @@
     const h = (N.homes || []).find((x) => x.addr === d.addr); if (!h) return;
     const home = Object.assign({}, h, { walkIndex: d.idx, outcome: 'inspection_set', legal: false, slot: { day: '2026-09-30', time: '16:30' } });
     A.dealHome = home; A.emit('deal:home', home);
+  }
+  /** the film's lever story starts from the app's own numbers, never the viewer's saved levers (the store comes back at
+      the end and Money re-enters); already on #money, Money re-enters so it re-reads them */
+  function moneyClean() {
+    F.touched.add('money');
+    if (A.store.get('money.levers', null) == null) return;
+    A.store.del('money.levers');
+    F.mForce = entered('money');
   }
   function knockClean(ifDirty) {
     F.touched.add('knock');
@@ -545,7 +602,7 @@
     A.safe('film close sheet', () => { const st = A.dealDemo && A.dealDemo.state && A.dealDemo.state(); if (st && st.open) A.dealDemo.close(); });
     F.on = true; F.playing = true; F.i = -1; F.b = null;
     F.rate = A.clamp(+o.rate || 1, 0.25, 8);                  // dev: tests run the film faster
-    F.issues = []; F.skipped = []; F.touched = new Set(); F.kReset = false; F.kDirty = false;
+    F.issues = []; F.skipped = []; F.touched = new Set(); F.kReset = false; F.kDirty = false; F.mForce = false;
     F.snap = snapshot(); F.dealHome = A.dealHome;
     F.prevFocus = document.activeElement;
     A.safe('film hide tip', () => A.ui.hideTip());

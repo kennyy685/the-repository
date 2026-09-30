@@ -405,7 +405,16 @@ button.row:hover,a.row:hover{background:var(--panel-2)}
 @media (max-width:520px){.brand__cut{display:none}.clock{font-size:11px}.chip{font-size:11px}
   /* the whole word "Aldaba" fits next to the controls at 400 */
   .bar__ctl{gap:5px}.brand,.brand__home{gap:7px}.brand__mark{width:24px;height:24px}.brand__word{font-size:18px}
-  #film,.bar__snd{--h:30px;width:30px}.bar__ctl .seg{padding:2px}.bar__ctl .seg>button{min-width:27px;padding:0 6px}}
+  #film,.bar__snd{--h:30px;width:30px}.bar__ctl .seg{padding:2px}.bar__ctl .seg>button{min-width:27px;padding:0 6px}
+  .bar__snd{padding:0}}
+/* phones (400, 375, 360 and a 385 window with a scrollbar): the brand, five tabs and every control fit without clipping,
+   in English and Spanish; tabs share the row by their words ("Tormentas" is the longest) */
+@media (max-width:420px){.topbar{padding:8px 6px 8px 10px;column-gap:8px}
+  .bar__ctl{gap:4px}#film,.bar__snd{--h:28px;width:28px}
+  .bar__ctl .seg>button{min-width:24px;padding:0 4px}.bar__ctl .seg .i{width:14px;height:14px}
+  .tabs{gap:1px}.tab{flex:1 1 auto;padding:0 3px}}
+/* narrower than any current phone: the mark alone carries the brand (its label still says Aldaba) */
+@media (max-width:350px){.brand__word{display:none}}
 
 /* ---------- still / reduced motion ---------- */
 /* animations jump to their end (1 ms keeps animationend firing); transitions go to 0 s, so a property change applies at

@@ -464,9 +464,17 @@
     const hq = A.data.hq || [-96.4867, 41.4403], q = f.project(hq);
     const rn = K * Math.sqrt(Math.max(1, v.shown.need || 0)) * g;
     c.fillStyle = rgba('--acc', dark ? 0.08 : 0.09); c.beginPath(); c.arc(q[0], q[1], rn, 0, 6.2832); c.fill();
-    c.setLineDash([6, 5]); c.strokeStyle = rgba('--acc', 1); c.lineWidth = 2.2; c.stroke(); c.setLineDash([]);
     c.fillStyle = rgba('--acc', 1); c.beginPath(); c.arc(q[0], q[1], 3, 0, 6.2832); c.fill();
     boxes.push([q[0] - rn * 0.72, q[1] - rn * 0.72, q[0] + rn * 0.72, q[1] + rn * 0.72]);
+    // labels and the dashed goal ring keep apart: a label first looks for a spot off the ring; one that must sit on it
+    // gets a gap cut in the ring (the ring is stroked last, clipped around those labels)
+    const onRing = (b) => {
+      if (rn < 4) return false;
+      const nx = A.clamp(q[0], b[0], b[2]) - q[0], ny = A.clamp(q[1], b[1], b[3]) - q[1];
+      const fx = Math.max(Math.abs(b[0] - q[0]), Math.abs(b[2] - q[0])), fy = Math.max(Math.abs(b[1] - q[1]), Math.abs(b[3] - q[1]));
+      return Math.hypot(nx, ny) <= rn + 3 && Math.hypot(fx, fy) >= rn - 3;
+    };
+    const gaps = [];
     const halo = (t, x, y) => { c.lineJoin = 'round'; c.lineWidth = 3.4; c.strokeStyle = rgba('--page', 0.9); c.strokeText(t, x, y); c.fillText(t, x, y); };
     if (g > 0.35 && v.shown.need > 0) {
       const big = F.int(Math.round(v.shown.need)), small = A.t({ en: 'doors the goal takes', es: 'puertas que pide la meta' });
@@ -474,14 +482,18 @@
       c.font = '500 10.5px ' + FMO; const w2 = c.measureText(small).width;
       const w = Math.max(w1, w2), hgt = 34;
       // right of the ring, unless that leaves the map: then left, then under it
-      const cands = [[q[0] + rn * 0.72 + 10, q[1] - rn * 0.72 - 4, 'left'], [q[0] - rn * 0.72 - 10 - w, q[1] - rn * 0.72 - 4, 'left'], [q[0] - w / 2, q[1] + rn + 8, 'left']];
-      let at = cands.find((k) => inside([k[0], k[1], k[0] + w, k[1] + hgt])) || cands[0];
+      // off the ring's shoulder (upper right, upper left), then beside it, then under it; never on a card or off the map
+      const d = rn * 0.72 + 6;
+      const cands = [[q[0] + d, q[1] - d - hgt], [q[0] - d - w, q[1] - d - hgt], [q[0] + rn * 0.72 + 10, q[1] - rn * 0.72 - 4], [q[0] - rn * 0.72 - 10 - w, q[1] - rn * 0.72 - 4], [q[0] - w / 2, q[1] + rn + 8]];
+      const bx = (k) => [k[0], k[1], k[0] + w, k[1] + hgt], okAt = (k) => inside(bx(k)) && !hitBox(bx(k));
+      let at = cands.find((k) => okAt(k) && !onRing(bx(k))) || cands.find(okAt) || cands.find((k) => inside(bx(k))) || cands[0];
       at = [A.clamp(at[0], fx0, Math.max(fx0, fx1 - w)), A.clamp(at[1], fy0, Math.max(fy0, fy1 - hgt))];
       c.globalAlpha = f.alpha * A.clamp((g - 0.35) / 0.4, 0, 1);
       c.textAlign = 'left'; c.textBaseline = 'alphabetic';
       c.font = '720 19px ' + FDI; c.fillStyle = rgba('--acc-ink', 1); halo(big, at[0], at[1] + 16);
       c.font = '500 10.5px ' + FMO; c.fillStyle = rgba('--text-2', 1); halo(small, at[0], at[1] + 30);
       boxes.push([at[0] - 12, at[1] - 10, at[0] + w + 12, at[1] + hgt + 12]);   // padded: an area label never reads as part of it
+      if (onRing([at[0], at[1], at[0] + w, at[1] + hgt])) gaps.push([at[0] - 4, at[1] - 2, at[0] + w + 4, at[1] + hgt + 2]);
       c.globalAlpha = f.alpha;
     }
     // area labels: name, storm date where a town was hit more than once, homes (Census)
@@ -496,12 +508,12 @@
         const name = A.t(a.name) + (count[a.name.en] > 1 && d ? ' · ' + F.date(d, 'short') : ''), num = F.int(a.homes);
         c.font = '600 11px ' + FUI; const wn = c.measureText(name).width; c.font = '500 10.5px ' + FMO; const wm = c.measureText(num).width;
         const DOT = 6, w = DOT + 5 + wn + 6 + wm;   // hail dot · name · homes
-        for (const dy of [rr + 9, -rr - 9, 0]) {
-          let x = p0[0], y = p0[1] + dy;
-          x = A.clamp(x, fx0 + w / 2, fx1 - w / 2);
-          const box = [x - w / 2 - 3, y - 8, x + w / 2 + 3, y + 8];
-          if (!inside(box) || hitBox(box)) continue;
+        const spots = [rr + 9, -rr - 9, 0].map((dy) => { const x = A.clamp(p0[0], fx0 + w / 2, fx1 - w / 2), y = p0[1] + dy; return [x, y, [x - w / 2 - 3, y - 8, x + w / 2 + 3, y + 8]]; })
+          .filter((k) => inside(k[2]) && !hitBox(k[2]));
+        const pick = spots.find((k) => !onRing(k[2])) || spots[0];
+        for (const [x, y, box] of pick ? [pick] : []) {
           boxes.push(box); seen.add(key);
+          if (onRing(box)) gaps.push([box[0] - 2, box[1] - 1, box[2] + 2, box[3] + 1]);
           c.textAlign = 'left';
           // hail size is the dot's color; the homes count is a Census number, so it reads in plain ink
           const x0 = x - w / 2;
@@ -520,8 +532,16 @@
     for (const n in places) {
       const p = f.project(places[n]), t = A.t(n.toUpperCase(), n.toUpperCase()), w = c.measureText(t).width;
       const box = [p[0] - w / 2 - 4, p[1] - 7, p[0] + w / 2 + 4, p[1] + 7];
-      if (!inside(box) || hitBox(box)) continue;
+      if (!inside(box) || hitBox(box) || onRing(box)) continue;
       boxes.push(box); halo(t, p[0], p[1]);
+    }
+    // the goal ring's dashed edge, drawn last with a gap under any label that sits on it
+    if (rn > 0.5) {
+      c.save();
+      if (gaps.length) { c.beginPath(); c.rect(-1e4, -1e4, 2e4 + f.w, 2e4 + f.h); gaps.forEach((b) => c.rect(b[0], b[1], b[2] - b[0], b[3] - b[1])); c.clip('evenodd'); }
+      c.beginPath(); c.arc(q[0], q[1], rn, 0, 6.2832);
+      c.setLineDash([6, 5]); c.strokeStyle = rgba('--acc', 1); c.lineWidth = 2.2; c.stroke(); c.setLineDash([]);
+      c.restore();
     }
     c.restore();
   }

@@ -9,7 +9,9 @@
 @media (max-height:820px) and (min-width:901px){:root{--dir-lbb:108px}}
 
 /* ---------- film mode: the chrome goes quiet, the slots make room for the bottom band ---------- */
-@media (min-width:901px){:root.dir-frame{--frame-b:calc(var(--dir-lbb) - var(--gut) + 10px)}}
+@media (min-width:901px){:root.dir-frame{--frame-b:calc(var(--dir-lbb) - var(--gut) + 10px)}
+  /* the homeowner sheet the cursor scrolls ends above the captions too, its bottom edge in frame */
+  :root.dir-frame .deal-modal__box{bottom:calc(var(--gut) + var(--frame-b))}}
 /* the bar keeps its glass (nothing shows through it on a scrolled phone page); only what sits on it goes quiet */
 :root.dir-on .topbar{z-index:60;transition:opacity .6s var(--ease-out)}
 :root.dir-on .topbar>*{transition:opacity .6s var(--ease-out)}

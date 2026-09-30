@@ -242,7 +242,7 @@
   W.setInset = function (ins, o = {}) {
     const n = { l: ins.l || 0, r: ins.r || 0, t: ins.t || 0, b: ins.b || 0 };
     hudIns = { r: ins.hudR != null ? ins.hudR : n.r, b: ins.hudB != null ? ins.hudB : n.b }; hudLast = '';
-    insetTo = n;
+    insetTo = n; occKick(true, true);
     if (!o.ms || A.still) { insetCur = Object.assign({}, n); insetTw = null; invalidate(); return; }
     insetTw = { from: Object.assign({}, insetCur), to: n, t0: null, ms: o.ms }; wake();
   };
@@ -326,6 +326,7 @@
     const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height)), d = Math.min(2, window.devicePixelRatio || 1);
     if (w === W.w && h === W.h && d === W.dpr) return;
     W.w = w; W.h = h; W.dpr = d;
+    occKick(true, true);
     for (const c of [cvG, cvT]) if (c) { c.width = Math.round(w * d); c.height = Math.round(h * d); }
     setBaseRes(baseRes || d, true);
     invalidate();
@@ -511,7 +512,108 @@
   const mw = new Map();
   const hasLS = (() => { try { return 'letterSpacing' in document.createElement('canvas').getContext('2d'); } catch (e) { return false; } })();
   function measure(ctx, font, s, ls) { const k = font + '|' + (ls || '') + '|' + s; let w = mw.get(k); if (w == null) { ctx.font = font; if (hasLS) ctx.letterSpacing = ls || '0px'; w = ctx.measureText(s).width; mw.set(k, w); } return w; }
-  function tryBox(boxes, b) { for (const o of boxes) if (b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]) return false; boxes.push(b); return true; }
+  // a label must sit whole inside the map, EDGE px clear of its visible edge (rounded corners at 400): dropped, never clipped
+  const EDGE = 6;
+  let edgeW = 0, edgeH = 0;
+  function tryBox(boxes, b) {
+    if (b[0] < EDGE || b[1] < EDGE || b[2] > edgeW - EDGE || b[3] > edgeH - EDGE) return false;
+    for (const o of boxes) if (b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]) return false;
+    boxes.push(b); return true;
+  }
+
+  /* ---------- occluders: the DOM that sits over the map ----------
+     Every panel surface and what floats on the map (center cards, the HUD, the film's bands and captions, a house
+     drawing) is a box the labels keep out of. Measured once per layout, never per frame: on resize, view change,
+     relayout, language, the film, slot content changes (a MutationObserver, throttled) and a few times while panels
+     land. Pins are measured separately (they move with the camera). */
+  const OCC_ROOTS = ['slot-left', 'slot-right', 'slot-bottom', 'slot-center', 'slot-overlay'];
+  const OCC_LEAF = { IMG: 1, svg: 1, SVG: 1, BUTTON: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, VIDEO: 1, PICTURE: 1 };
+  let occ = [], occDirty = true, occSig = '', occObs = false, occThr = 0, occTail = 0, occLate = 0;
+  function bgAlpha(s) {
+    if (!s || s === 'transparent') return 0;
+    let m = /^rgba\(.*,\s*([\d.]+)\s*\)$/.exec(s); if (m) return +m[1];
+    m = /\/\s*([\d.]+)(%?)\s*\)$/.exec(s); if (m) return m[2] ? m[1] / 100 : +m[1];
+    return 1;
+  }
+  function hasBorder(cs) {
+    for (const k of ['Top', 'Right', 'Bottom', 'Left']) if (parseFloat(cs['border' + k + 'Width']) > 0 && cs['border' + k + 'Style'] !== 'none' && bgAlpha(cs['border' + k + 'Color']) > 0.05) return true;
+    return false;
+  }
+  function ownText(e) { for (const n of e.childNodes) if (n.nodeType === 3 && /\S/.test(n.nodeValue)) return true; return false; }
+  function occMeasure() {
+    occDirty = false;
+    const out = [];
+    if (!el) { occ = out; return; }
+    const wr = el.getBoundingClientRect(), wa = Math.max(1, wr.width * wr.height);
+    let budget = 700;
+    const push = (x0, y0, x1, y1) => {
+      const b = [x0 - wr.left - 3, y0 - wr.top - 3, x1 - wr.left + 3, y1 - wr.top + 3];
+      if (b[2] > 0 && b[3] > 0 && b[0] < wr.width && b[1] < wr.height) out.push(b);
+    };
+    const walk = (node, depth) => {
+      for (const c of node.children) {
+        if (--budget < 0) return;
+        const tag = c.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEMPLATE' || c.hidden) continue;
+        const cs = getComputedStyle(c);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05) continue;
+        const r = c.getBoundingClientRect();
+        if (!r.width || !r.height) { if (depth < 9) walk(c, depth + 1); continue; }
+        const hit = r.right > wr.left && r.left < wr.right && r.bottom > wr.top && r.top < wr.bottom;
+        if (!hit) { if (cs.overflow === 'visible' && depth < 9) walk(c, depth + 1); continue; }
+        if (tag === 'CANVAS') {
+          // a house drawing (js/lib/house.js) is opaque ink over the map: its bounds plus the notes above the roof
+          const L = window.House && window.House.layout ? A.safe('occ house', () => window.House.layout(c)) : null;
+          if (L && L.w && L.h) {
+            const sx = r.width / L.w, sy = r.height / L.h, fs = L.fs || 12;
+            let b = [L.x0, L.top - fs * 4.6, L.x1, (L.dimY || L.groundY) + fs * 1.4];
+            for (const k in L.parts || {}) { const p = L.parts[k]; if (p) b = [Math.min(b[0], p[0]), Math.min(b[1], p[1]), Math.max(b[2], p[2]), Math.max(b[3], p[3])]; }
+            push(r.left + b[0] * sx - 10, r.top + b[1] * sy, r.left + b[2] * sx + 10, r.top + b[3] * sy);
+          }
+          continue;
+        }
+        const big = r.width * r.height > wa * 0.6;   // full-screen wrappers, veils and scrims: look inside, never block the map
+        if (!big && (bgAlpha(cs.backgroundColor) > 0.08 || cs.backgroundImage !== 'none' || hasBorder(cs) || (cs.backdropFilter && cs.backdropFilter !== 'none'))) { push(r.left, r.top, r.right, r.bottom); continue; }
+        if (!big && (OCC_LEAF[tag] || ownText(c))) { push(r.left, r.top, r.right, r.bottom); continue; }
+        if (depth < 9) walk(c, depth + 1);
+      }
+    };
+    for (const id of OCC_ROOTS) { const n = document.getElementById(id); if (n) walk({ children: [n] }, 0); }
+    if (hudEl && !hudEl.hidden) walk(hudEl, 1);
+    occ = out;
+    for (const P of pins.values()) P.pw = null;      // re-read pin sizes with the layout (content may have changed)
+    occObserve();
+  }
+  /** re-measure now; redraw the labels only if a box moved */
+  function occCheck() {
+    const was = occSig;
+    A.safe('occluders', occMeasure);
+    occSig = occ.map((b) => b.map(Math.round).join(',')).join('|');
+    if (occSig !== was) invalidate('top');
+  }
+  /** something over the map may have changed: measure soon (throttled), again once it settles, and once late (springs land) */
+  function occKick(late, now) {
+    if (now) { occDirty = true; invalidate('top'); }
+    if (!occThr) occThr = setTimeout(() => { occThr = 0; occCheck(); }, 180);
+    clearTimeout(occTail); occTail = setTimeout(occCheck, 900);
+    if (late) { clearTimeout(occLate); occLate = setTimeout(occCheck, 2000); }
+  }
+  W.occluders = () => occ.map((b) => b.slice());
+  W.relabel = () => occKick(true, true);
+  function occObserve() {
+    if (occObs) return; occObs = true;
+    const kick = () => occKick(false);
+    try {
+      const mo = new MutationObserver(kick), ro = window.ResizeObserver ? new ResizeObserver(kick) : null;
+      for (const id of OCC_ROOTS) {
+        const n = document.getElementById(id); if (!n) continue;
+        const deep = id === 'slot-center' || id === 'slot-overlay';   // surfaces are solid: only their own box matters
+        mo.observe(n, deep ? { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'data-on'] }
+          : { childList: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'data-on'] });
+        if (ro) ro.observe(n);
+      }
+    } catch (e) { warnOnce('occluders observe', e); }
+  }
   function txt(ctx, s, x, y, font, color, alpha, ls, halo) {
     ctx.font = font; if (hasLS) ctx.letterSpacing = ls || '0px';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.globalAlpha = alpha;
@@ -522,6 +624,9 @@
   function upright(a) { if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI; return a; }
   function drawLabels(ctx, f) {
     const z = f.zoom, la = 1 - dimCur * 0.6, boxes = [];
+    edgeW = f.w; edgeH = f.h;
+    if (occDirty) { occMeasure(); occSig = occ.map((b) => b.map(Math.round).join(',')).join('|'); }
+    for (const b of occ) boxes.push(b);
     // panels are solid: keep labels out from under them
     if (f.inset.l > 1) boxes.push([-1e5, -1e5, f.inset.l - 4, 1e5]);
     if (f.inset.r > 1) boxes.push([f.w - f.inset.r + 4, -1e5, 1e5, 1e5]);
@@ -658,7 +763,7 @@
   function updateHud(f) {
     if (!hudEl) return;
     const k = hudIns.r.toFixed(0) + ',' + hudIns.b.toFixed(0) + ',' + f.w + ',' + f.h;
-    if (k !== hudLast) { hudLast = k; hudEl.style.transform = 'translate(' + -(hudIns.r + 14) + 'px,' + -(hudIns.b + 14) + 'px)'; }
+    if (k !== hudLast) { if (hudLast) occKick(false); hudLast = k; hudEl.style.transform = 'translate(' + -(hudIns.r + 14) + 'px,' + -(hudIns.b + 14) + 'px)'; }
     const mpp = MI / f.scale, ftpp = mpp * 5280;
     let label, px;
     if (ftpp * 100 < 1000) {
@@ -1016,11 +1121,12 @@
     W.jump({ bounds: W.presets.state, pad: 24 });
     W.layer.add(hailLayer());
     A.on('theme', () => { readPal(); invalidate(); });
-    A.on('lang', () => { hudLast = ''; invalidate('top'); if (W.last) updateHud(W.last); });
+    A.on('lang', () => { hudLast = ''; invalidate('top'); if (W.last) updateHud(W.last); occKick(true, true); });
+    ['view', 'film', 'ready', 'intro:handoff'].forEach((ev) => A.on(ev, () => occKick(true, true)));
     try {
       if (document.fonts) {
-        document.fonts.ready.then(() => { mw.clear(); invalidate('top'); });
-        document.fonts.addEventListener('loadingdone', () => { mw.clear(); invalidate('top'); });
+        document.fonts.ready.then(() => { mw.clear(); invalidate('top'); occKick(false); });
+        document.fonts.addEventListener('loadingdone', () => { mw.clear(); invalidate('top'); occKick(false); });
       }
     } catch (e) { /* ignore */ }
     const go = () => A.safe('hail field', buildHail);
