@@ -94,6 +94,10 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   job (boss), close rate as he gets better (experienced rate = 82 doors/day), siding/cash jobs, referrals. Also:
   after Nov 1 Fremont sunset is ~5 PM, which halves the 4-7:30 PM window. King's pick: treat $100k as the 12-month
   number, set a 2026 target from the boss's real commission.
+- 3-day cancel deadline (Claude's Aldaba Deal robot, 2026-09-30): Nebraska never defines "business day" for the
+  3-day cancel, so the app counts safe (skips Sundays, all federal holidays + observed days). The lawyer who reviews
+  the forms should confirm that list, since it sets the deadline on every homeowner sheet. King's pick: add it to
+  the one-time legal review before the first real sale.
 
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /
