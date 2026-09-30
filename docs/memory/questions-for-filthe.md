@@ -128,3 +128,9 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   and back flow.
 - Still open: contract screen vs paper, boss/lawyer look at legal wording, policy filing-limit line.
 - 22:45 UTC: hologram card = hail size + roof age BIG, then why ("yes exactly"). "No color limit or limit to anything", "impress me". Start with FREMONT, not Columbus ("we're a local Fremont company").
+
+## Answered 2026-09-30 ~00:30 UTC: FilthE on D (7 AM hybrid) live
+- 3D doesn't load: only the map shows in walk view and morning (bug to fix).
+- "Still looks like just information being thrown at you." Nothing tells him what to do or where to start.
+- Colors: stop limiting to brand black/yellow/white; "there's more to it". Use color to mean things.
+- Wants it "way more productive, way more efficient, way more straightforward, to the point".
