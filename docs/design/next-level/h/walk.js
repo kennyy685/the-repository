@@ -13,7 +13,13 @@ const STILL = Q.get('still') === '1';
 const RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 const CALM = STILL || RM;             // no intro, no flicker, no auto camera
 const MOTION = STILL || RM ? 0 : 1;   // ambient shader motion
-let LITE = Q.get('lite') === '1';     // low-power fallback (also switched on automatically when frames run long)
+// Safari / WebKit (ANGLE-Metal) and iPadOS/iOS choke on multisampled half-float targets + heavy bloom: take the lighter render path there.
+// ?safari=1 forces that path (so it can be tested in Chromium), ?safari=0 forces it off.
+const UA = navigator.userAgent || '';
+const SAFE = Q.has('safari') ? Q.get('safari') !== '0'
+  : (/iPad|iPhone|iPod/.test(UA) || (/Macintosh/.test(UA) && (navigator.maxTouchPoints || 0) > 1) || (/Safari\//.test(UA) && !/Chrome|Chromium|CriOS|Edg\/|OPR\//.test(UA)));
+const storeEarly = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+let LITE = Q.has('lite') ? Q.get('lite') !== '0' : storeEarly('aldaba.lite') === '1'; // low-power fallback (also switched on automatically when frames run long or the GPU drops)
 let lang = (Q.get('lang') || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
 const HOUSE_Q = Math.max(0, Math.min(25, parseInt(Q.get('house'), 10) || 0));
 const $ = id => document.getElementById(id);
@@ -124,6 +130,11 @@ const S = {
   scoreN: { en: 'score {s}', es: 'puntaje {s}' },
   keys2: { en: '← → doors · Esc closes', es: '← → puertas · Esc cierra' },
   lite: { en: 'Lite mode on: fewer effects so the map stays smooth', es: 'Modo ligero: menos efectos para que el mapa vaya fluido' },
+  liteBtn: { en: 'Lite mode', es: 'Modo ligero' },
+  ctxLost: { en: 'Restoring 3D...', es: 'Restaurando el 3D...' },
+  ctxBack: { en: '3D is back in Lite mode.', es: 'El 3D volvió en modo ligero.' },
+  blankLite: { en: 'The screen looked blank, so Lite mode is on.', es: 'La pantalla se veía en blanco, así que se activó el modo ligero.' },
+  stillMsg: { en: "3D can't run on this screen. Here is a still of the walk. Try Chrome for the full 3D.", es: 'El 3D no funciona en esta pantalla. Esta es una imagen de la ruta. Prueba Chrome para ver el 3D completo.' },
   ft: { en: 'ft', es: 'pies' },
   zoneNote: { en: 'Zone-wide numbers. The {n} sample homes on this walk: {r} hail, {b} of {n} built before 2000.', es: 'Datos de toda la zona. Las {n} casas de muestra de esta ruta: granizo de {r}, {b} de {n} construidas antes de 2000.' },
   hudZone: { en: 'zone', es: 'zona' },
@@ -437,13 +448,16 @@ let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' }); }
 catch (e) { $('nogl').textContent = t('nogl'); $('nogl').style.display = 'grid'; throw e; }
 // Pixel ratio capped at 1.5 (Retina MacBook Air: sharp enough, ~45% fewer pixels than 2x); steps down if frames run long.
-let PR = Math.min(window.devicePixelRatio || 1, LITE ? 1 : 1.5);
+const PR_CAP = SAFE ? 1.25 : 1.5;
+let PR = Math.min(window.devicePixelRatio || 1, LITE ? 1 : PR_CAP);
 renderer.setPixelRatio(PR);
 renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0;
 renderer.setClearColor(0x05030b, 1);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(+(Q.get('fov') || 40), innerWidth / innerHeight, 1, 12000);
-const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: LITE ? 0 : 4 });
+// Safari/WebKit: 8-bit target, no MSAA (multisampled half-float targets are a known black-screen source there).
+const MSAA = SAFE || LITE ? 0 : 4;
+const rt = new THREE.WebGLRenderTarget(4, 4, { type: SAFE ? THREE.UnsignedByteType : THREE.HalfFloatType, samples: MSAA });
 const composer = new EffectComposer(renderer, rt);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.5, 0.32); // higher threshold: the ground and labels stay crisp
@@ -1568,6 +1582,7 @@ function setScale(m) {
 function renderStatic() {
   document.documentElement.lang = lang; document.documentElement.dataset.lang = lang;
   document.querySelectorAll('.seg [data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  syncLiteBtn();
   const nm = NL.pick.name.split(':'); const streets = nm.slice(1).join(':').trim();
   $('zEyebrow').textContent = t('eyebrow', { mi: (NL.pick.dist_mi || 1.4).toFixed(1) });
   const [s1, s2] = streets.split('&').map(x => x.trim());
@@ -1673,6 +1688,7 @@ addEventListener('keyup', e => { if ((e.key === ' ' || e.code === 'Space') && to
 function resize() {
   const W = innerWidth, H = innerHeight;
   renderer.setPixelRatio(PR); renderer.setSize(W, H, false); composer.setPixelRatio(PR); composer.setSize(W, H);
+  if (SAFE) bloom.setSize(Math.max(2, Math.round(W * PR * 0.5)), Math.max(2, Math.round(H * PR * 0.5))); // half-res bloom
   camera.aspect = W / H; voGoal(); vo.x = vo.gx; vo.y = vo.gy; applyVO(); camera.updateProjectionMatrix();
   fitOverview();
   if (booted && sel < 0 && !tour.on && camMode === 'orbit' && !userMoved) { Object.assign(rig, OVER); applyRig(); }
@@ -1680,9 +1696,46 @@ function resize() {
   EMB.uniforms.uPR.value = PR;
 }
 addEventListener('resize', resize);
-function goLite(auto) { // low-power fallback: 1x pixels, no MSAA, no bloom / lens pass / embers / light wall
-  if (LITE && !auto) return; LITE = true; PR = 1; bloom.enabled = false; grade.enabled = false; EMB.uniforms.uEmb.value = 0; resize();
-  if (auto) toast(t('lite'));
+function goLite(auto, msg) { // low-power fallback: 1x pixels, no MSAA, no bloom / lens pass / embers / light wall
+  if (LITE && !auto) { syncLiteBtn(); return; } LITE = true; PR = 1; bloom.enabled = false; grade.enabled = false; EMB.uniforms.uEmb.value = 0;
+  setMSAA(0); resize(); syncLiteBtn();
+  if (auto) toast(msg || t('lite'));
+}
+function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(r => { if (r.samples !== n) { r.samples = n; r.dispose(); } }); }
+function leaveLite() { // back to the full look (Safari keeps its lighter render path)
+  LITE = false; PR = Math.min(window.devicePixelRatio || 1, PR_CAP); bloom.enabled = true; grade.enabled = true; setMSAA(MSAA); resize(); syncLiteBtn();
+}
+function syncLiteBtn() { const b = $('liteBtn'); if (b) { b.setAttribute('aria-pressed', String(LITE)); b.textContent = t('liteBtn'); } }
+$('liteBtn').addEventListener('click', () => { const on = !LITE; store.set('aldaba.lite', on ? '1' : '0'); perf.t = 0; perf.ema = 1 / 60; if (on) goLite(false); else leaveLite(); });
+
+/* ---------------- GPU trouble: context loss + blank-frame check ---------------- */
+let CTX_LOST = false, LOOP_ON = true, noteEl = null;
+function gpuNote(msg) { if (!noteEl) { noteEl = document.createElement('div'); noteEl.className = 'gpu-note'; noteEl.setAttribute('role', 'status'); document.body.appendChild(noteEl); } noteEl.textContent = msg || ''; noteEl.style.display = msg ? 'block' : 'none'; }
+canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); CTX_LOST = true; gpuNote(t('ctxLost')); }, false);
+canvas.addEventListener('webglcontextrestored', () => {
+  // three.js re-creates its GL resources lazily on the next render; we drop to Lite so a flaky GPU is not asked for the heavy path again.
+  CTX_LOST = false; goLite(false); gpuNote(''); toast(t('ctxBack')); chk.stage = 0; chk.at = performance.now() + 2000;
+  if (!LOOP_ON) { LOOP_ON = true; clock.last = performance.now(); requestAnimationFrame(frame); }
+}, false);
+const chk = { stage: 0, at: 0 }; // 0 = first check pending, 1 = re-check after auto-Lite, 2 = done
+function frameIsBlank() { // a 5x5 grid of pixels from the frame just drawn: a live scene is never one flat colour
+  const gl = renderer.getContext(); if (gl.isContextLost()) return true;
+  const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(4); let lo = 255, hi = 0;
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) {
+    gl.readPixels(Math.floor(w * (0.1 + 0.2 * i)), Math.floor(h * (0.1 + 0.2 * j)), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    for (let k = 0; k < 3; k++) { lo = Math.min(lo, px[k]); hi = Math.max(hi, px[k]); }
+  }
+  return hi - lo <= 2;
+}
+function showStill() {
+  LOOP_ON = false; const el = $('nogl'); const L = lang === 'es' ? 'es' : 'en';
+  el.innerHTML = '<img alt="" src="shots/walk-' + L + '.png"><p></p>'; el.lastChild.textContent = t('stillMsg'); el.style.display = 'flex'; canvas.style.visibility = 'hidden';
+}
+function blankCheck(now) {
+  if (chk.stage >= 2 || now < chk.at || CTX_LOST) return;
+  if (!frameIsBlank()) { chk.stage = 2; return; }
+  if (chk.stage === 0 && !LITE) { goLite(true, t('blankLite')); chk.stage = 1; chk.at = now + 2500; }
+  else { chk.stage = 2; showStill(); }
 }
 
 /* ---------------- boot ---------------- */
@@ -1726,7 +1779,9 @@ function introUpdate(dt) {
 }
 const camRv = new THREE.Vector3(), hueC = new THREE.Color();
 function frame(now) {
+  if (!LOOP_ON) return;
   requestAnimationFrame(frame);
+  if (CTX_LOST) { LOOP_ON = false; return; } // GPU dropped the context: stop drawing until 'webglcontextrestored'
   const rawDt = Math.max(0, (now - clock.last) / 1000); const dt = Math.min(0.1, rawDt); clock.last = now;
   U.uTime.value = STILL ? 7.3 : 7.3 + (now - clock.t0) / 1000 * (RM ? 0 : 1);
   if (camMode === 'intro') { if (!clock.started) { clock.started = true; } else if (!DBG.hold) introUpdate(rawDt); } else updateCamera(dt);
@@ -1787,8 +1842,9 @@ function frame(now) {
     else if (perf.t > 3 && perf.ema > 1 / 34 && PR <= 1 && !LITE) { goLite(true); perf.t = 0; perf.ema = 1 / 60; }
   }
   composer.render(dt);
+  if (chk.stage < 2) { if (!chk.at) chk.at = now + 2000; blankCheck(now); }
   placeLabels();
 }
 try { renderer.compile(scene, camera); } catch (e) { /* compile lazily on first frame */ }
 requestAnimationFrame(frame);
-window.__holo = { HS, LEGS, routeLen, openCard, closeCard, startTour, stopTour, project, HQW, SWATH, OVER, camera, tour, goDoor, togglePause, markDoor, visited, skipped, setScale, goLite, updateAll, __dd: i => doorDist[i], snap: i => { Object.assign(rig, framePose(i)); applyRig(); }, U, mode: () => camMode, setHover, seekIntro: T => { if (camMode !== 'intro') return; DBG.hold = true; introT = 0; revStart.fill(-1); for (let x = 0; x < T; x += 0.05) introUpdate(0.05); } };
+window.__holo = { gpu: () => ({ LITE, SAFE, CTX_LOST, LOOP_ON, stage: chk.stage, PR, samples: composer.renderTarget1.samples, type: composer.renderTarget1.texture.type }), leaveLite, frameIsBlank, showStill, renderer, HS, LEGS, routeLen, openCard, closeCard, startTour, stopTour, project, HQW, SWATH, OVER, camera, tour, goDoor, togglePause, markDoor, visited, skipped, setScale, goLite, updateAll, __dd: i => doorDist[i], snap: i => { Object.assign(rig, framePose(i)); applyRig(); }, U, mode: () => camMode, setHover, seekIntro: T => { if (camMode !== 'intro') return; DBG.hold = true; introT = 0; revStart.fill(-1); for (let x = 0; x < T; x += 0.05) introUpdate(0.05); } };
