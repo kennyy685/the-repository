@@ -73,6 +73,7 @@ const S = {
   doorOf: { en: 'Door {i} of {n}', es: 'Puerta {i} de {n}' },
   legFrom: { en: '{m} ft from door {k} · ~{t} min walk', es: 'A {m} pies de la puerta {k} · ~{t} min a pie' },
   legFromP: { en: '{m} ft from parking · ~{t} min walk', es: 'A {m} pies del estacionamiento · ~{t} min a pie' },
+  stayPaused: { en: 'Walk is paused · Space to resume', es: 'Ruta en pausa · Espacio para seguir' }, dragPaused: { en: 'Walk paused while you look around · Space to resume', es: 'Ruta en pausa mientras miras · Espacio para seguir' },
   prev: { en: 'Door {k}', es: 'Puerta {k}' },
   keys: { en: 'Esc closes · ← → doors', es: 'Esc cierra · ← → puertas' },
   csrc: { en: 'sample home · hail + roof: est.', es: 'muestra · granizo y techo: aprox.' },
@@ -1454,7 +1455,7 @@ function goDoor(i) {
   if (i < 0) return;
   if (!tour.on) { openCard(i); return; }
   jumpTour(i);
-  if (tour.paused || RM) { openCard(i); return; }
+  if (tour.paused || RM) { openCard(i); toast(t('stayPaused')); return; }
   openCard(i, { fly: false });
   if (camMode !== 'follow') { if (camMode === 'orbit') readRig(); camMode = 'follow'; controls.enabled = false; follow = null; for (const k in vel) vel[k] = 0; }
 }
@@ -1619,7 +1620,7 @@ canvas.addEventListener('pointermove', e => { mouse.set(e.clientX / innerWidth *
 canvas.addEventListener('pointerleave', () => { mouseDirty = false; setHover(-1); });
 canvas.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; finishIntro(true); });
 canvas.addEventListener('pointerup', e => { if (!downAt) return; const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]); downAt = null; if (moved < 5) { const i = pick(); if (i >= 0) goDoor(i); } });
-controls.addEventListener('start', () => { userMoved = true; if (camMode === 'tween') { camMode = 'orbit'; tw = null; } if (tour.on && !tour.paused) togglePause(); });
+controls.addEventListener('start', () => { userMoved = true; if (camMode === 'tween') { camMode = 'orbit'; tw = null; } if (tour.on && !tour.paused) { togglePause(); toast(t('dragPaused')); } });
 function pick() {
   ray.setFromCamera(mouse, camera); const o = ray.ray.origin, d = ray.ray.direction; let best = -1, bt = Infinity;
   HS.forEach(s => { // ray vs the house's local box
@@ -1651,7 +1652,7 @@ addEventListener('keydown', e => {
   if (camMode === 'intro') { finishIntro(e.key !== ' '); if (e.key !== ' ') return; }
   const k = e.key.toLowerCase();
   if (e.key === 'Escape') { if (tour.on) stopTour(true); else if (sel >= 0) closeCard(); }
-  else if (e.key === 'ArrowRight' && sel >= 0) { e.preventDefault(); if (sel < N - 1) goDoor(sel + 1); else nextOrMap(); }
+  else if (e.key === 'ArrowRight' && sel >= 0) { e.preventDefault(); nextOrMap(); }
   else if (e.key === 'ArrowLeft' && sel >= 0) { e.preventDefault(); if (sel > 0) goDoor(sel - 1); }
   else if (k === 's') { e.preventDefault(); skipDoor(); }
   else if (k === 'd' && (sel >= 0 || tour.on)) { e.preventDefault(); markDoor(tour.on ? tour.i : sel, 'done'); }
