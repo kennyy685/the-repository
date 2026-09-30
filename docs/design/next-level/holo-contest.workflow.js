@@ -37,6 +37,8 @@ MUST HAVE:
 6. Query params: ?still=1 skips the intro and renders a settled deterministic frame (use a seeded PRNG, no Math.random-dependent layout); ?lang=en|es; ?house=N opens the card for door N with the camera framed on it. Without still: a 3-5 s cinematic intro (holograms materialize, path draws).
 7. Performance: instancing/merged geometry, pixel ratio capped at 2, target 60 fps; prefers-reduced-motion = no flicker, no auto camera.
 8. Zero console errors.
+9. FilthE's newest taste (2026-09-29/30): (a) "nothing tells me what to do" = every view shows ONE next move first, big and obvious (overview: "Start walk at door 1"; card: "Next: door N, 120 ft"; tour: "Knock door N"), (b) "no color limit" and colors must MEAN things: hail size on a cool->hot scale (e.g. <1.0" cool blue/teal -> 1.0" yellow -> 1.5" orange -> 2"+ red/magenta) with a visible legend, door states (next / done / skipped / top-5) each their own color; not just brand black/orange/white, (c) never "free"/"gratis", never "licensed"/"licenciado" (say "registered"), no owner names, sample homes labeled.
+10. PUBLISHABLE: the page will be published as a claude.ai artifact where it is served at /<DIR>/index.html next to /shared/... . So: start with <!doctype html> + charset + viewport, reference EVERY file with a relative path (../shared/..., ./x.js), no absolute paths, no fetch() of files (use <script src>), no inline import maps pointing anywhere else than ../shared/vendor/three/.
 
 VERIFY YOURSELF (required): from ${ROOT} run: node shared/holo-shoot.mjs <DIR> 6000  (it writes <DIR>/shots/{walk-en,walk-es,house-en,house-es,intro-en}.png and prints rAF/s + errors). LOOK at the PNGs with the Read tool, then iterate until it is genuinely stunning, readable, and error-free. Headless uses SwiftShader, so rAF/s there is low; judge perf by design (instancing), not by that number. Existing starting points you may reuse or discard: holo-jarvis/ and holo-spectral/ (partial, Columbus-based, from an interrupted run). Do NOT git commit (a commit step runs after each phase). Do NOT edit files outside <DIR>/.
 `
@@ -66,13 +68,13 @@ const DIRECTIONS = [
 phase('Concepts')
 log('5 designers are building their hologram walk concepts in parallel')
 const concepts = (await parallel(DIRECTIONS.map(d => () =>
-  agent(`You are a world-class creative technologist and 3D designer. Direction: "${d.name}" - ${d.brief}\n${SPEC.split('<DIR>').join(d.dir)}\nIf docs/design/next-level/${d.dir}/ already has files from an interrupted earlier run (container restart), read them first and continue/finish that work instead of starting over, unless it is clearly broken.\nReturn dir="${d.dir}".`,
+  agent(`You are a world-class creative technologist and 3D designer. Direction: "${d.name}" - ${d.brief}\n${SPEC.split('<DIR>').join(d.dir)}\nIf docs/design/next-level/${d.dir}/ already has files from an interrupted earlier run (container restart), do NOT start over: read them, run holo-shoot, look at the shots, and only finish what is missing (especially MUST HAVE 9 and 10); keep edits surgical to save usage.\nReturn dir="${d.dir}".`,
     { label: `concept:${d.dir}`, phase: 'Concepts', schema: CONCEPT })
 ))).filter(Boolean)
 log(`${concepts.length}/5 concepts built: ${concepts.map(c => c.dir + (c.shoot_ok ? '' : ' (errors)')).join(', ')}`)
 if (!concepts.length) return { error: 'no concepts built' }
 
-await agent(`In /home/user/the-repository run: git add docs/design/next-level/holo-* && git commit -m "Hologram contest: 5 concepts built" && git push origin HEAD (retry push up to 4x with backoff). Reply ok or the error.`, { label: 'commit:concepts', phase: 'Concepts', model: 'haiku' })
+await agent(`In /home/user/the-repository run: git add docs/design/next-level/holo-* && git commit -m "Hologram contest: 5 concepts built" && git pull --rebase origin claude/amazing-gauss-yzfpq0 && git push origin HEAD:claude/amazing-gauss-yzfpq0 (retry push up to 4x with backoff). Reply ok or the error.`, { label: 'commit:concepts', phase: 'Concepts', model: 'haiku' })
 
 phase('Judge')
 const JUDGE = {
@@ -93,7 +95,7 @@ const LENSES = [
 ]
 const verdicts = (await parallel(LENSES.map(L => () =>
   agent(`You are a judge. Lens: ${L.text}\nConcepts (pages in ${ROOT}/<dir>/index.html, screenshots in ${ROOT}/<dir>/shots/*.png):\n${list}\nOpen and LOOK at every concept's walk-en.png and house-en.png (and intro-en.png) with the Read tool; skim the code where useful. Score each 0-100 through your lens only, pick a winner, list concrete ideas from other concepts worth grafting onto the winner (name source dir), and must-fix problems in the winner.`,
-    { label: `judge:${L.key}`, phase: 'Judge', schema: JUDGE })
+    { label: `judge:${L.key}`, phase: 'Judge', schema: JUDGE, model: 'sonnet' })
 ))).filter(Boolean)
 const totals = {}
 for (const v of verdicts) for (const s of v.scores) totals[s.dir] = (totals[s.dir] || 0) + s.score
@@ -110,7 +112,7 @@ const losers = concepts.filter(c => c.dir !== winner)
 const HARVEST = { type: 'object', properties: { ideas: { type: 'array', items: { type: 'object', properties: { idea: { type: 'string' }, where_in_code: { type: 'string' }, why_better: { type: 'string' } }, required: ['idea', 'where_in_code', 'why_better'] } } }, required: ['ideas'] }
 const harvested = (await parallel(losers.map(c => () =>
   agent(`FilthE: "dont just pick the winner, collect the best ideas from the rest and apply them to the winner to improve it". You harvest from the LOSING concept ${ROOT}/${c.dir}/ ("${c.title}"). The winner is ${ROOT}/${winner}/. Open both (code + shots/*.png via Read). List the 2-5 best specific ideas in ${c.dir} that the winner lacks and that would make the winner better for FilthE (look, feel, information, interaction, camera, typography, shaders). Point to the exact code (file + function/shader) so a builder can port it.`,
-    { label: `harvest:${c.dir}`, phase: 'Harvest', schema: HARVEST })
+    { label: `harvest:${c.dir}`, phase: 'Harvest', schema: HARVEST, model: 'sonnet' })
 ))).filter(Boolean)
 const harvestList = harvested.flatMap((h, i) => h.ideas.map(x => `[from ${losers[i] ? losers[i].dir : '?'}] ${x.idea} (code: ${x.where_in_code}; why: ${x.why_better})`))
 log(`Harvested ${harvestList.length} ideas from ${losers.length} losing concepts`)
@@ -141,14 +143,14 @@ const ISSUES = {
 const VLENSES = [
   { key: 'runtime', text: 'Runtime + interaction. Write a throwaway Playwright script in /tmp (import playwright; serve files like shared/holo-shoot.mjs does) that loads h/index.html, waits, hovers and clicks at least 5 different houses (find them via exposed debug hooks or by projecting positions), uses Next/Prev, Esc, Back, Start walk + pause, the EN/ES toggle, resizes to 1280x800, and ?house=25. Report every console error, dead button, stuck state, camera that lands badly, overlapping UI.' },
   { key: 'craft', text: 'Visual craft. Run node shared/holo-shoot.mjs h 6000 from ' + ROOT + ' and LOOK at every PNG. Report anything ugly, unreadable, blown-out, aliased, cluttered, misaligned, or below "Apple ad" quality; also any view that shows no real information.' },
-  { key: 'legal', text: 'Legal + data + language. Read the code and the rendered text (both EN and ES). Report: any owner names, any claim a home "is insured", the words free/gratis, promises insurance pays, wrong numbers vs NL.homes (hail, roof age, door order), missing or awkward Spanish, missing "Sample homes" label.' },
+  { key: 'legal', text: 'Legal + data + language + FilthE taste (is ONE next move shown first on every view? do colors carry meaning with a legend?). Read the code and the rendered text (both EN and ES). Report: any owner names, any claim a home "is insured", the words free/gratis/licensed/licenciado, promises insurance pays, wrong numbers vs NL.homes (hail, roof age, door order), missing or awkward Spanish, missing "Sample homes" label.' },
 ]
 const verify = async (round) => (await parallel(VLENSES.map(L => () =>
   agent(`Adversarial QA (round ${round}) of the hologram walk at ${ROOT}/h/index.html. Your job is to BREAK it. Lens: ${L.text}\nOnly report real, reproducible problems; no style nitpicks outside your lens.`,
-    { label: `verify:${L.key}:r${round}`, phase: 'Verify', schema: ISSUES })
+    { label: `verify:${L.key}:r${round}`, phase: 'Verify', schema: ISSUES, model: 'sonnet' })
 ))).filter(Boolean).flatMap(r => r.issues)
 
-await agent(`In /home/user/the-repository run: git add docs/design/next-level/h && git commit -m "Hologram walk final build (winner + harvested ideas)" && git push origin HEAD (retry up to 4x). Reply ok or the error.`, { label: 'commit:final', phase: 'Build final', model: 'haiku' })
+await agent(`In /home/user/the-repository run: git add docs/design/next-level/h && git commit -m "Hologram walk final build (winner + harvested ideas)" && git pull --rebase origin claude/amazing-gauss-yzfpq0 && git push origin HEAD:claude/amazing-gauss-yzfpq0 (retry up to 4x). Reply ok or the error.`, { label: 'commit:final', phase: 'Build final', model: 'haiku' })
 
 phase('Verify')
 let issues = await verify(1)
@@ -164,7 +166,7 @@ for (let round = 1; round <= 2 && issues.filter(i => i.severity !== 'minor').len
   log(`Round ${round + 1}: ${issues.length} issues (${issues.filter(i => i.severity === 'blocker').length} blockers)`)
 }
 
-await agent(`In /home/user/the-repository run: git add docs/design/next-level/h && git commit -m "Hologram walk: QA fixes" ; git push origin HEAD (retry up to 4x). Reply ok or the error.`, { label: 'commit:qa', phase: 'Fix', model: 'haiku' })
+await agent(`In /home/user/the-repository run: git add docs/design/next-level/h && git commit -m "Hologram walk: QA fixes" ; git pull --rebase origin claude/amazing-gauss-yzfpq0 && git push origin HEAD:claude/amazing-gauss-yzfpq0 (retry up to 4x). Reply ok or the error.`, { label: 'commit:qa', phase: 'Fix', model: 'haiku' })
 
 return {
   harvested: harvestList,
