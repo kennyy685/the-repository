@@ -240,13 +240,16 @@
   /* one shared rAF ticker; world.js runs on it too */
   const tick = { fns: new Set(), raf: 0, last: 0 };
   function loop(now) {
-    tick.raf = 0;
+    // -1 while the frame runs: a callback that adds another (a timeline starting the next one) must not schedule a
+    // second loop. Two loops would each run every callback, and each add inside a frame added one more: the film
+    // piled up loops chapter by chapter until the page stalled.
+    tick.raf = -1;
     const dt = tick.last ? Math.min(64, now - tick.last) : 16.7; tick.last = now;
     for (const fn of Array.from(tick.fns)) {
       let keep; try { keep = fn(now, dt); } catch (e) { console.warn('[aldaba] frame callback failed:', e); keep = false; }
       if (keep === false) tick.fns.delete(fn);
     }
-    if (tick.fns.size) tick.raf = requestAnimationFrame(loop); else tick.last = 0;
+    if (tick.fns.size) tick.raf = requestAnimationFrame(loop); else { tick.raf = 0; tick.last = 0; }
   }
   M.ticker = {
     add(fn) { tick.fns.add(fn); if (!tick.raf) tick.raf = requestAnimationFrame(loop); return () => tick.fns.delete(fn); },

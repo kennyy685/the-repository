@@ -387,7 +387,10 @@ button.row:hover,a.row:hover{background:var(--panel-2)}
   .slot--overlay{position:fixed}
   .pane{padding:18px 16px}
 }
-@media (max-width:520px){.brand__cut{display:none}.clock{font-size:11px}.chip{font-size:11px}}
+@media (max-width:520px){.brand__cut{display:none}.clock{font-size:11px}.chip{font-size:11px}
+  /* the whole word "Aldaba" fits next to the controls at 400 */
+  .bar__ctl{gap:5px}.brand,.brand__home{gap:7px}.brand__mark{width:24px;height:24px}.brand__word{font-size:18px}
+  #film,.bar__snd{--h:30px;width:30px}.bar__ctl .seg{padding:2px}.bar__ctl .seg>button{min-width:27px;padding:0 6px}}
 
 /* ---------- still / reduced motion ---------- */
 /* animations jump to their end (1 ms keeps animationend firing); transitions go to 0 s, so a property change applies at

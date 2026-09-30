@@ -1,15 +1,17 @@
 /* Claude's Aldaba · intro.js → A.intro: the cold open (8.7 s, skippable, once per browser session)
    One continuous shot over the real map, never from black:
-     0.0 s  Eastern Nebraska, dimmed. A hairline radar sweep turns from KOAX (Valley, NE); the 2026 hail areas it
-            passes glow for a moment. It finds Columbus just as
+     0.0 s  Eastern Nebraska, legible from frame 0, then the lights go down. A hairline radar sweep turns from KOAX
+            (Valley, NE) and lifts the dark behind it like a scope's afterglow: rivers, roads and the 2026 hail areas
+            show where it passes, each town pings as the beam crosses it. It finds Columbus just as
      1.2 s  the Aug 8, 2026 storm replays: the swath burns in along its real path (HailGL, arrival 'path'), stones fall
             onto the burning front and every impact rings out; a mono readout tracks the date, the hail and the miles.
      3.4 s  the season in four numbers, each with its source (odometer countUp).
      4.7 s  the camera pushes into Columbus; the real hail contours around the pick tighten into ONE ring, the ring turns
             knocker orange and becomes the Aldaba mark (roof chevron + knocker dot draw on, the knock sounds).
      6.3 s  "Good morning. Columbus: 25 doors, 4-7:30 PM." rises word by word with the hail spring.
-     7.8 s  hand-off without a cut: mark, wordmark and "Claude's cut" fly into the top bar (FLIP), the chrome returns,
-            'intro:handoff' fires and play() resolves; the stage fades out underneath the Now view landing.
+     7.8 s  hand-off without a cut: mark, wordmark and "Claude's cut" fly into the top bar (FLIP, the spring's overshoot
+            capped to a few px), the chrome returns, 'intro:handoff' fires and play() resolves; the stage fades out
+            underneath the Now view landing, and the mark rings out once as it lands in the bar.
    API: A.intro.play({force, to}) → Promise<boolean played>, .skip(), .stop(), .timeline (A.motion.Timeline, seekable),
         .active. Boot calls play() before entering the start view; it plays only when the start view is #now, once per
         browser session. play({force:true}) replays it (director, colophon). Skip: click, Esc, Space, Enter, the Skip

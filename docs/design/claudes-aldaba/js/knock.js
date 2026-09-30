@@ -635,7 +635,7 @@
       const isCur = d.rank === cur;
       let s = pop; if (isCur) s *= 1.18 + (V.lift.rank === d.rank && !A.still ? 0.35 * Math.exp(-(now - V.lift.t0) / 170) * Math.sin(clamp((now - V.lift.t0) / 520, 0, 1) * Math.PI) : 0);
       if (d.rank === V.hover && !isCur) s *= 1.1;
-      const r = R * s; if (r <= 0.3) continue;
+      const r = R * s; if (r <= 1.2) continue;   // r - 1 below must stay positive (arc throws on a negative radius)
       const o = S.o[d.rank], skip = !o && !!S.flags[d.rank], hc = P.css(P.hail(d.h.hail)), a0 = base * clamp(pop * 1.5, 0, 1);
       if (isCur) { c.globalAlpha = a0 * 0.22; c.fillStyle = P.acc; c.beginPath(); c.arc(q[0], q[1], r + 7, 0, Math.PI * 2); c.fill(); }
       // inside the modeled 1-inch line: a dotted halo in the door's hail color

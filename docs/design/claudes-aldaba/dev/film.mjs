@@ -1,8 +1,9 @@
 // Claude's Aldaba · dev/film.mjs — the director's film, tested offline in the publisher's skeleton.
 // Run from the repo root:
 //   node docs/design/claudes-aldaba/dev/film.mjs --shots 3000,12000,30000 [--theme dark|light|both] [--lang en|es|both]
-//        [--w 1440 --h 900] [--wait 2600] [--view now] [--still] [--gl 0] [--hold]
-//     each point: loads #<view>&film=<ms> (the film starts there and plays --wait ms; --hold freezes the seeked frame)
+//        [--w 1440 --h 900] [--wait 2600] [--view now] [--still] [--gl 0] [--hold] [--lead 3000]
+//     each point: loads #<view>&film=<ms> (the film starts there and plays --wait ms; --hold freezes the seeked frame;
+//     --lead starts <lead> ms earlier, plays into <ms> on the film clock and pauses there: the frame a viewer sees)
 //     → shots/film-<ms>-<theme>-<lang>-<w>.png
 //   node docs/design/claudes-aldaba/dev/film.mjs --run [--still] [--rate 3]   the whole film (rate > 1 runs the director's
 //     clock faster; the software renderer here draws a few frames a second): chapters reached,
@@ -46,7 +47,7 @@ const CLEAN = () => {
   return {
     active: !!(A.director && A.director.active),
     dir: !!document.querySelector('.dir'), cursor: !!document.querySelector('.dir-cursor'), sign: !!document.querySelector('.dir-sign'),
-    classes: ['dir-on', 'dir-frame', 'dir-hot', 'no-chrome'].filter((c) => document.documentElement.classList.contains(c)),
+    classes: ['dir-on', 'dir-frame', 'dir-hot', 'dir-dusk', 'no-chrome'].filter((c) => document.documentElement.classList.contains(c)),
     inert: ['topbar', 'stage', 'world'].filter((id) => document.getElementById(id).inert),
     modal: !!document.querySelector('.deal-modal'), intro: !!(A.intro && A.intro.active),
     levers: st('money.levers'), walk: st('knock.walk.v1'), view: A.view.current,
@@ -76,8 +77,14 @@ if (o.shots) {
   const pts = String(o.shots).split(',').map(Number);
   for (const ms of pts) for (const theme of themes) for (const lang of langs) {
     const t0 = Date.now();
-    const { ctx, page, errs, ready } = await open(theme, lang, o.view + '&film=' + ms + (o.hold ? 'p' : ''));
-    await page.waitForTimeout(+o.wait);
+    const lead = o.lead ? Math.min(+o.lead, ms) : 0;
+    const { ctx, page, errs, ready } = await open(theme, lang, o.view + '&film=' + (ms - lead) + (o.hold && !lead ? 'p' : ''));
+    if (lead) {
+      // played into the moment on the film's own clock (what a viewer sees), then paused exactly there
+      await page.waitForFunction((ms) => window.A && A.director && A.director.active && A.director.time >= ms, ms, { timeout: 240000, polling: 16 }).catch(() => {});
+      await page.evaluate(() => A.director.pause());
+      await page.waitForTimeout(700);
+    } else await page.waitForTimeout(+o.wait);
     const info = await page.evaluate(() => ({ t: Math.round(A.director.time), ch: A.director.chapter, view: A.view.current, rep: A.director.report(), hs: document.scrollingElement.scrollWidth > innerWidth }));
     const file = join(ROOT, 'shots', `film-${ms}${o.still ? '-still' : ''}${o.gl === '0' ? '-2d' : ''}-${theme}-${lang}-${W}.png`);
     await page.screenshot({ path: file });
@@ -122,9 +129,9 @@ if (o.stops) {
     await page.evaluate((ms) => A.director.play({ at: ms, gesture: false }), ms);
     await page.waitForTimeout(900);
     await page.evaluate(() => A.director.stop());
-    await page.waitForTimeout(2000);
-    const c = await page.evaluate(CLEAN);
-    const d = dirty(c);
+    // layers fade out on the map's own frames (slow on the software renderer): clean within 6 s
+    let c, d;
+    for (let k = 0; k < 12; k++) { await page.waitForTimeout(500); c = await page.evaluate(CLEAN); d = dirty(c); if (!d.length && k >= 2) break; }
     console.log(`stop at ${String(ms).padStart(6)}: ${d.length ? 'DIRTY ' + d.join('; ') : 'clean'} (view ${c.view})`);
     if (d.length) bad++;
     await page.evaluate(() => { const e = document.querySelector('.dir-end [data-end="close"]'); if (e) e.click(); });

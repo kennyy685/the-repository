@@ -126,7 +126,7 @@
 .now-z--pick .now-z__bar i,.now-z.is-lead .now-z__bar i{background:var(--acc)}
 .now-z__more{display:grid;gap:10px;padding:2px 10px 12px 44px}
 .now-z__more[hidden]{display:none}
-.now-z__kv{font-size:12.5px;gap:6px 12px}
+.now-z__kv{font-size:12.5px;gap:6px 12px;grid-template-columns:minmax(0,96px) minmax(0,1fr)}   /* long Spanish labels wrap; the values keep their width */
 .now-z__kv dt{font-size:9.5px}
 .now-z__kv dd{color:var(--text-2)}
 .now-z__kv .t-muted{font-size:11.5px}

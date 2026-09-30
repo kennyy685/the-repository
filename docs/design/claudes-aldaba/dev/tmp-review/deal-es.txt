@@ -1,0 +1,216 @@
+Aldaba
+VERSIÓN DE CLAUDE
+Ahora
+Tormentas
+Tocar
+Trato
+Dinero
+7:02 a. m.
+Casas de muestra
+Ver la película
+EN
+ES
+
+Dibujo de la fachada de la casa de muestra en 3944 21 St: casa de un piso, construida en 1978, anillos de granizo en el techo.
+
+1
+2
+3
+
+FACHADA NORTEFRENTE A 21 ST
+MUESTRA
+ANILLOS DE GRANIZO
+MRMS
+1
+pulg
+1.5
+2+
+
+03
+INSPECCIÓN
+→
+TECHO
+
+TRATO
+·
+PUERTA
+1
+MUESTRA
+
+PASO 3 DE 8
+
+3944 21 St
+
+Columbus, NE ·
+Casa de un piso
+·
+vive el dueño
+
+SITIO
+NE GIS
+GRANIZO AQUÍ
+MRMS
+1.68 pulg
+TORMENTA
+SPC
+8 ago
+TECHO
+MUESTRA
+21años
+PUNTAJE
+MOTOR
+91
+
+PASO 03 DE 08
+
+Esta puerta está aquí
+Inspección
+
+LA LEY
+
+Ningún estatuto regula este paso. Las fotos son el registro.
+
+SIGUIENTE PASO LEGAL
+
+44-9204
+04 Reunión con el ajustador · Documentamos, no negociamos
+
+REGLA DE LA CASA
+HMP
+
+Describe lo que muestran las fotos. Nunca anticipes lo que hará un reclamo ni si una fecha de tormenta le da derecho a alguien.
+
+ANOTA
+2 de 6
+
+Un cuadro de prueba en cada lado del techo al que puedas subir con seguridad: amplia, mediana y de cerca con una moneda de referencia. Márcalo con cinta o banderitas, nunca con tiza
+1
+Siding: el lado de la tormenta en amplia, luego cada golpe de cerca con una cinta o moneda
+2
+Techo inseguro para subir: fotos desde el suelo de la orilla del techo, desde varios ángulos
+3
+Cuándo notaron el daño y el nombre de su aseguradora
+Si ya lo reportaron, algún reclamo o reparación anterior por granizo, alguna gotera ahora
+Un formulario de inspección firmado para la siguiente visita. No es un contrato
+SIGUE
+El dueño reporta el daño a su propia aseguradora. Tú anotas la fecha de la visita del ajustador.
+LISTO CUANDO
+Están todas las fotos, el hallazgo cabe en una frase clara, el formulario está firmado y el siguiente día está fijado.
+Marcar paso listo
+Reiniciar puerta
+
+EL CAMINO
+Paso 3 de 8 · Inspección
+
+01
+Presentación en la puerta
+69-1602
+02
+Vistazo y fotos
+fotos
+03
+Inspección
+regla interna
+04
+Reunión con el ajustador
+44-9204
+05
+Descripción detallada
+44-8606
+06
+Contrato y aviso de cancelación
+69-1601/1604
+07
+Plazo para cancelar
+69-1606(5)
+08
+La obra
+48-2104
+
+ARMADURA LEGAL
+LEY NEB.
+Notas en lenguaje sencillo sobre los estatutos de Nebraska. Un abogado de Nebraska debe revisar los formularios impresos.
+
+69-1602
+Di quién eres, primero
+69-1601/1604
+Aviso de cancelación por escrito
+69-1603
+Cómo cancela el comprador
+69-1606(5)
+Nada de trabajo antes de que cierre el plazo
+69-1605
+Devolución del dinero
+44-8603
+En trabajos con seguro se puede cancelar después
+44-8606
+Primero la descripción detallada
+44-8604
+Sin reembolsos ni pagos
+44-8605
+Sin cesión de beneficios
+44-8607
+Aviso del estado en el contrato
+44-9204
+Documentamos, no negociamos
+48-2104
+Contratista registrado
+Entregar al dueño
+3944 21 St
+41.4369° N · 97.3774° W
+200 pies
+Mapa: Nebraska GIS · USGS · NDOT
+Créditos
+----ATTRS----
+Aldaba. Ir a Ahora
+Claude's own cut of Aldaba: product design, engineering and motion by Claude, on real Nebraska data. Open the credits. || La versión de Aldaba hecha por Claude: diseño de producto, ingeniería y animación de Claude, con datos reales de Nebraska. Abre los créditos. || Versión de Claude. Abrir los créditos: hecho por Claude
+Vistas
+Press 1 || Tecla 1
+Press 2 || Tecla 2
+Press 3 || Tecla 3
+Press 4 || Tecla 4
+Press 5 || Tecla 5
+Story time: the whole app lives on the morning of Tuesday, Sep 29, 2026. || Hora de la historia: toda la app vive en la mañana del martes 29 de sep. de 2026.
+Storms, streets and Census numbers are real public data. Homes are samples on real streets until knocking starts. No owner names. || Tormentas, calles y números del Censo son datos públicos reales. Las casas son de muestra en calles reales hasta empezar a tocar puertas. Sin nombres de dueños.
+About 80 seconds. The app plays itself. · F || Unos 80 segundos. La app se muestra sola. · F || Ver la película
+Sound off · M || Sonido apagado · M || Sonido apagado. Enciéndelo (M)
+Idioma
+Tema
+Dark || Oscuro || Oscuro
+Light || Claro || Claro
+Match my system || Igual que mi sistema || Igual que mi sistema
+A test square on each slope you can reach safely: wide, medium, and close-up with a coin for scale. Mark it with tape or flags, never chalk || Un cuadro de prueba en cada lado del techo al que puedas subir con seguridad: amplia, mediana y de cerca con una moneda de referencia. Márcalo con cinta o banderitas, nunca con tiza || Un cuadro de prueba en cada lado del techo al que puedas subir con seguridad: amplia, mediana y de cerca con una moneda de referencia. Márcalo con cinta o banderitas, nunca con tiza
+Siding: the storm side wide, then each hit up close with a tape or coin || Siding: el lado de la tormenta en amplia, luego cada golpe de cerca con una cinta o moneda || Siding: el lado de la tormenta en amplia, luego cada golpe de cerca con una cinta o moneda
+Roof unsafe to climb: ground photos of the roofline from several angles || Techo inseguro para subir: fotos desde el suelo de la orilla del techo, desde varios ángulos || Techo inseguro para subir: fotos desde el suelo de la orilla del techo, desde varios ángulos
+Sample home: a fake address on a real street until knocking starts. No owner names. || Casa de muestra: dirección falsa en una calle real hasta empezar a tocar puertas. Sin nombres de dueños.
+NOAA MRMS MESH radar hail size || Tamaño de granizo por radar MRMS MESH de NOAA
+Detalles
+Plano de ubicación: el lote de muestra y las calles reales a su alrededor
+Nebraska GIS Street_Centerlines (gis.ne.gov) || Ejes de calles de Nebraska GIS (gis.ne.gov)
+NOAA Storm Prediction Center reports || Reportes del Centro de Predicción de Tormentas de NOAA
+Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance || Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia
+HMP Siding & Roofing LLC, Fremont, NE || HMP Siding & Roofing LLC, Fremont, NE
+Marked on the house || Marcado en la casa
+Más
+Barra inferior
+El camino, 8 pasos
+Nebraska Revised Statutes (text in docs/legal) || Estatutos Revisados de Nebraska (texto en docs/legal)
+At the start of a home sale, say clearly your own name, the business you work for and what you sell. || Al empezar una venta a domicilio, di con claridad tu nombre, la empresa para la que trabajas y lo que vendes.
+Every sale made at the customer's home gets a written notice of the right to cancel within 3 business days. When the buyer's main language is Spanish, it goes in English and Spanish. || Toda venta hecha en la casa del cliente lleva un aviso por escrito del derecho a cancelar dentro de 3 días hábiles. Si el comprador habla principalmente español, va en inglés y en español.
+The buyer can cancel until midnight of the third business day after getting the notice. Any written words work, and a mailed notice counts the day it is mailed. || El comprador puede cancelar hasta la medianoche del tercer día hábil después de recibir el aviso. Sirve cualquier escrito, y un aviso enviado por correo cuenta el día que se manda.
+Work done before a sale is canceled earns no pay. On a non-insurance sale, HMP starts nothing until the cancel window ends. || El trabajo hecho antes de que se cancele una venta no se cobra. En una venta sin reclamo de seguro, HMP no empieza nada hasta que termina el plazo para cancelar.
+If a sale is canceled, HMP returns the buyer's payments within 10 days. || Si se cancela una venta, HMP devuelve los pagos del comprador en un plazo de 10 días.
+On an insurance job, the window also runs until midnight of the third business day after the insurance company says in writing that any part is not covered, if that date is later. || En un trabajo con reclamo de seguro, el plazo también corre hasta la medianoche del tercer día hábil después de que la aseguradora avise por escrito que alguna parte no está cubierta, si esa fecha es posterior.
+Before any repair starts on an insurance job, the homeowner and the insurance company both get an itemized description: the work, materials, labor, fees and the total. || Antes de empezar cualquier reparación en un trabajo con reclamo de seguro, el dueño y la aseguradora reciben una descripción detallada: el trabajo, los materiales, la mano de obra, los cargos y el total.
+Never offer, hint at, cover, waive or rebate the part of a claim the homeowner pays. HMP never pays a homeowner for a claim. || Nunca ofrecer, insinuar, cubrir, perdonar ni devolver la parte del reclamo que le toca pagar al dueño. HMP nunca le paga a un dueño por un reclamo.
+Nebraska sets strict rules for signing over insurance rights. HMP takes no assignment and is never named on an insurance check. || Nebraska pone reglas estrictas para ceder los derechos del seguro. HMP no toma cesiones y nunca aparece en un cheque del seguro.
+Insurance-job contracts carry the state's notice on rebates. The homeowner signs it, and a copy goes to the insurance company before any claim payment. || Los contratos de trabajos con seguro llevan el aviso del estado sobre reembolsos. El dueño lo firma y se manda una copia a la aseguradora antes de cualquier pago del reclamo.
+Negotiating a claim is public adjuster work, and HMP does not do it. HMP documents the damage and meets the adjuster. The insurance company decides the claim. || Negociar un reclamo es trabajo de un ajustador público, y HMP no lo hace. HMP documenta el daño y se reúne con el ajustador. La aseguradora decide el reclamo.
+Nebraska contractors register with the Department of Labor before any construction work. The registration number goes on HMP's paperwork. || Los contratistas de Nebraska se registran en el Departamento del Trabajo antes de cualquier obra. El número de registro va en los papeles de HMP.
+Mapa del este de Nebraska. Arrastra para mover, desplaza para acercar, 0 para volver.
+Map: Nebraska GIS (gis.ne.gov): County_Boundaries, Municipal_Boundaries (Census TIGER), River_Area + Waterbodies + Major_Streams (USGS NHD), Railroads, Highways (NDOT). Simplified. Hail heat: modeled from NOAA storm swaths and hail areas. The radar beam is decorative. || Mapa: Nebraska GIS (condados, municipios, ríos USGS NHD, ferrocarriles y carreteras NDOT). Calor de granizo: modelado con franjas de tormenta de NOAA. El haz del radar es decorativo.
+Créditos: hecho por Claude, lo que es real, cómo se hizo
+Zoom del mapa
+Acercar
+Alejar
+Back to this view || Volver a esta vista || Volver a esta vista

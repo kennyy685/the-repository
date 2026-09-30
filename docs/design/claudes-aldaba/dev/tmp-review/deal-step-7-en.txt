@@ -1,0 +1,251 @@
+Aldaba
+CLAUDE'S CUT
+Now
+Storms
+Knock
+Deal
+Money
+7:02 AM
+Sample homes
+Play the film
+EN
+ES
+
+Elevation drawing of the sample home at 3944 21 St: ranch, built 1978, hail rings on the roof.
+
+NO REPAIR YET
+44-8606
+
+Itemized description first, to:
+
+Homeowner
+Insurer
+
+NORTH ELEVATIONFACES 21 ST
+SAMPLE
+HAIL RINGS
+MRMS
+1
+in
+1.5
+2+
+
+07
+CANCEL WINDOW
+→
+paper step
+
+DEAL
+·
+DOOR
+1
+SAMPLE
+
+STEP 3 OF 8
+
+3944 21 St
+
+Columbus, NE ·
+Ranch
+·
+owner lives here
+
+SITE
+NE GIS
+HAIL HERE
+MRMS
+1.68 in
+STORM
+SPC
+Aug 8
+ROOF
+SAMPLE
+21yrs
+SCORE
+ENGINE
+91
+
+STEP 07 OF 08
+
+Ahead
+Cancel window
+
+THE LAW
+NEB. LAW
+Neb. Rev. Stat. 69-1606(5)
+
+Work done before a sale is canceled earns no pay. On a non-insurance sale, HMP starts nothing until the cancel window ends.
+
+CANCEL WINDOW
+16 CFR 429
+3 business days
+
+ENDS AT MIDNIGHT
+
+Fri, Oct 2
+
+3 d 16 h left, as of 7:02 AM
+
+TUE
+29
+Sale
+WED
+30
+Day 1
+THU
+1
+Day 2
+FRI
+2
+Day 3
+SALE DATE
+Today
+Sep 26
+Labor Day weekend
+Insurance claim
+No claim
+
+Insurance job: the itemized description goes to the homeowner and the insurer before any repair. 44-8606 The window can also run later. 44-8603
+
+COLLECT
+0 of 5
+
+The window's end on the calendar: midnight of the third business day
+Insurance job: a later end date if the insurance company says in writing that any part is not covered
+Nothing started on the house while the window is open, on a non-insurance sale
+The mail checked for a cancel notice sent inside the window. A mailed notice counts the day it is mailed
+If a notice comes: the buyer's payments returned within 10 days
+NEXT
+The window closes. With no notice, the build goes on the calendar.
+DONE WHEN
+The window has closed and the mail shows no notice sent inside it.
+NEXT LEGAL STEP
+48-2104
+08 Build · Registered contractor
+
+ALSO ON THIS STEP
+
+69-1603
+The buyer can cancel until midnight of the third business day after getting the notice. Any written words work, and a mailed notice counts the day it is mailed.
+44-8603
+On an insurance job, the window also runs until midnight of the third business day after the insurance company says in writing that any part is not covered, if that date is later.
+69-1605
+If a sale is canceled, HMP returns the buyer's payments within 10 days.
+
+Finish "Inspection" first
+
+Step 3 of 8
+Reset door
+
+THE PATH
+Step 3 of 8 · Inspection
+
+01
+Intro at the door
+69-1602
+02
+Look and photos
+photos
+03
+Inspection
+house rule
+04
+Meet the adjuster
+44-9204
+05
+Itemized description
+44-8606
+06
+Contract and cancel notice
+69-1601/1604
+07
+Cancel window
+69-1606(5)
+08
+Build
+48-2104
+
+LEGAL ARMOR
+NEB. LAW
+Plain-language notes on Nebraska statutes. A Nebraska attorney should review the printed forms.
+
+69-1602
+Say who you are, first
+69-1601/1604
+Written cancel notice
+69-1603
+How the buyer cancels
+69-1606(5)
+No work before the window closes
+69-1605
+Money back
+44-8603
+Insurance jobs can cancel later
+44-8606
+Itemized description first
+44-8604
+No rebates, no payments
+44-8605
+No assignment of benefits
+44-8607
+State notice in the contract
+44-9204
+We document, we do not negotiate
+48-2104
+Registered contractor
+Hand to homeowner
+3944 21 St
+41.4369° N · 97.3774° W
+200 ft
+Map: Nebraska GIS · USGS · NDOT
+Credits
+----ATTRS----
+Aldaba. Go to Now
+Claude's own cut of Aldaba: product design, engineering and motion by Claude, on real Nebraska data. Open the credits. || La versión de Aldaba hecha por Claude: diseño de producto, ingeniería y animación de Claude, con datos reales de Nebraska. Abre los créditos. || Claude's cut. Open the credits: made by Claude
+Views
+Press 1 || Tecla 1
+Press 2 || Tecla 2
+Press 3 || Tecla 3
+Press 4 || Tecla 4
+Press 5 || Tecla 5
+Story time: the whole app lives on the morning of Tuesday, Sep 29, 2026. || Hora de la historia: toda la app vive en la mañana del martes 29 de sep. de 2026.
+Storms, streets and Census numbers are real public data. Homes are samples on real streets until knocking starts. No owner names. || Tormentas, calles y números del Censo son datos públicos reales. Las casas son de muestra en calles reales hasta empezar a tocar puertas. Sin nombres de dueños.
+About 80 seconds. The app plays itself. · F || Unos 80 segundos. La app se muestra sola. · F || Play the film
+Sound off · M || Sonido apagado · M || Sound off. Turn it on (M)
+Language
+Theme
+Dark || Oscuro || Dark
+Light || Claro || Light
+Match my system || Igual que mi sistema || Match my system
+Sample home: a fake address on a real street until knocking starts. No owner names. || Casa de muestra: dirección falsa en una calle real hasta empezar a tocar puertas. Sin nombres de dueños.
+NOAA MRMS MESH radar hail size || Tamaño de granizo por radar MRMS MESH de NOAA
+Details
+Key plan: the sample lot and the real streets around it
+Nebraska GIS Street_Centerlines (gis.ne.gov) || Ejes de calles de Nebraska GIS (gis.ne.gov)
+NOAA Storm Prediction Center reports || Reportes del Centro de Predicción de Tormentas de NOAA
+Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance || Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia
+Nebraska Revised Statutes (text in docs/legal) || Estatutos Revisados de Nebraska (texto en docs/legal)
+Nebraska 69-1601 to 69-1607 do not define "business day". This count follows the FTC Cooling-Off Rule (16 CFR 429.0; 69-1604(2) accepts its cancel notice): every day except Sunday and federal holidays. A weekend holiday also skips its observed weekday, so the window never runs short. || Las secciones 69-1601 a 69-1607 de Nebraska no definen "día hábil". Este conteo sigue la Regla de la FTC (16 CFR 429.0; el 69-1604(2) acepta su aviso de cancelación): todos los días excepto el domingo y los feriados federales. Un feriado en fin de semana también salta su día observado, así el plazo nunca queda corto.
+Job type
+More
+Dock
+The path, 8 steps
+At the start of a home sale, say clearly your own name, the business you work for and what you sell. || Al empezar una venta a domicilio, di con claridad tu nombre, la empresa para la que trabajas y lo que vendes.
+Every sale made at the customer's home gets a written notice of the right to cancel within 3 business days. When the buyer's main language is Spanish, it goes in English and Spanish. || Toda venta hecha en la casa del cliente lleva un aviso por escrito del derecho a cancelar dentro de 3 días hábiles. Si el comprador habla principalmente español, va en inglés y en español.
+The buyer can cancel until midnight of the third business day after getting the notice. Any written words work, and a mailed notice counts the day it is mailed. || El comprador puede cancelar hasta la medianoche del tercer día hábil después de recibir el aviso. Sirve cualquier escrito, y un aviso enviado por correo cuenta el día que se manda.
+Work done before a sale is canceled earns no pay. On a non-insurance sale, HMP starts nothing until the cancel window ends. || El trabajo hecho antes de que se cancele una venta no se cobra. En una venta sin reclamo de seguro, HMP no empieza nada hasta que termina el plazo para cancelar.
+If a sale is canceled, HMP returns the buyer's payments within 10 days. || Si se cancela una venta, HMP devuelve los pagos del comprador en un plazo de 10 días.
+On an insurance job, the window also runs until midnight of the third business day after the insurance company says in writing that any part is not covered, if that date is later. || En un trabajo con reclamo de seguro, el plazo también corre hasta la medianoche del tercer día hábil después de que la aseguradora avise por escrito que alguna parte no está cubierta, si esa fecha es posterior.
+Before any repair starts on an insurance job, the homeowner and the insurance company both get an itemized description: the work, materials, labor, fees and the total. || Antes de empezar cualquier reparación en un trabajo con reclamo de seguro, el dueño y la aseguradora reciben una descripción detallada: el trabajo, los materiales, la mano de obra, los cargos y el total.
+Never offer, hint at, cover, waive or rebate the part of a claim the homeowner pays. HMP never pays a homeowner for a claim. || Nunca ofrecer, insinuar, cubrir, perdonar ni devolver la parte del reclamo que le toca pagar al dueño. HMP nunca le paga a un dueño por un reclamo.
+Nebraska sets strict rules for signing over insurance rights. HMP takes no assignment and is never named on an insurance check. || Nebraska pone reglas estrictas para ceder los derechos del seguro. HMP no toma cesiones y nunca aparece en un cheque del seguro.
+Insurance-job contracts carry the state's notice on rebates. The homeowner signs it, and a copy goes to the insurance company before any claim payment. || Los contratos de trabajos con seguro llevan el aviso del estado sobre reembolsos. El dueño lo firma y se manda una copia a la aseguradora antes de cualquier pago del reclamo.
+Negotiating a claim is public adjuster work, and HMP does not do it. HMP documents the damage and meets the adjuster. The insurance company decides the claim. || Negociar un reclamo es trabajo de un ajustador público, y HMP no lo hace. HMP documenta el daño y se reúne con el ajustador. La aseguradora decide el reclamo.
+Nebraska contractors register with the Department of Labor before any construction work. The registration number goes on HMP's paperwork. || Los contratistas de Nebraska se registran en el Departamento del Trabajo antes de cualquier obra. El número de registro va en los papeles de HMP.
+Map of eastern Nebraska. Drag to move, scroll to zoom, 0 to return.
+Map: Nebraska GIS (gis.ne.gov): County_Boundaries, Municipal_Boundaries (Census TIGER), River_Area + Waterbodies + Major_Streams (USGS NHD), Railroads, Highways (NDOT). Simplified. Hail heat: modeled from NOAA storm swaths and hail areas. The radar beam is decorative. || Mapa: Nebraska GIS (condados, municipios, ríos USGS NHD, ferrocarriles y carreteras NDOT). Calor de granizo: modelado con franjas de tormenta de NOAA. El haz del radar es decorativo.
+Credits: made by Claude, what is real, how it was built
+Map zoom
+Zoom in
+Zoom out
+Back to this view || Volver a esta vista || Back to this view

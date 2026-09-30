@@ -1,0 +1,12 @@
+import { join } from 'path';
+import { ROOT, args, launch, serve, watch, url, waitReady } from '../harness.mjs';
+const o = args(process.argv.slice(2), { view: 'knock', w: 400, h: 860, sel: '.knock-door', theme:'dark', lang:'en', off: 0 });
+const browser = await launch();
+const ctx = await browser.newContext({ viewport: { width: +o.w, height: +o.h }, colorScheme: o.theme });
+await serve(ctx); const page = await ctx.newPage(); const errs = watch(page);
+await page.goto(url({ view: o.view, theme: o.theme, lang: o.lang, still: true })); await waitReady(page); await page.waitForTimeout(1200);
+const info = await page.evaluate(([s,off]) => { const e = document.querySelector(s); if(!e) return 'nosel'; const r = e.getBoundingClientRect(); scrollTo(0, scrollY + r.top - 10 + (+off)); return { top: r.top, h: r.height }; }, [o.sel, o.off]);
+console.log(info);
+await page.waitForTimeout(800);
+const f = join(ROOT, 'dev/tmp-review', `scroll-${o.view}-${o.w}-${o.off}.png`); await page.screenshot({ path: f }); console.log(f, errs);
+await browser.close();

@@ -100,6 +100,12 @@
 .intro-progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--intro-track)}
 .intro-progress i{position:absolute;inset:0;background:var(--acc);transform-origin:0 50%;transform:scaleX(0)}
 
+/* inside the film (the director's letterbox): the numbers and the headline sit above its bottom band and captions */
+@media (min-width:901px){
+  :root.dir-frame .intro-stats{bottom:calc(var(--dir-lbb,118px) + 26px)}
+  :root.dir-frame .intro-head{bottom:calc(var(--dir-lbb,118px) + 22px)}
+}
+
 /* ---------- smaller screens ---------- */
 @media (max-width:1280px),(max-height:820px){
   .intro-title{font-size:44px}

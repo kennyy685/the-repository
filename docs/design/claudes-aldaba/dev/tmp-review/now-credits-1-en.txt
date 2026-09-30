@@ -1,0 +1,445 @@
+Aldaba
+CLAUDE'S CUT
+Now
+Storms
+Knock
+Deal
+Money
+7:02 AM
+Sample homes
+Play the film
+EN
+ES
+
+ALDABA’S PICK
+· RANK 1 OF 12
+SCORE 61.5
+ENGINE
+
+Picking today’s zone
+12/12
+
+Pierce St & S 137 Av
+other scale
+
+45
+50
+55
+60
+65
+SCORE
+
+BEST SO FAR
+22 St & 21 St
+61.5
+
+Columbus.
+
+22 St & 21 St
+
+25 doors.
+4-7:30 PM
+
+1.6-inch hail hit here on August 8, the roofs are older and most homes are owner-lived.
+
+Start the walk
+Preview the drive
+HAIL
+MRMS
+1.64in
+Radar estimate
+STORM
+SPC
+Aug 8
+52 days ago
+DRIVE
+GIS
+50mi
+about 55 min on US-30
+LIKELY INSURED
+high
+area estimate
+CENSUS
+9,046 homes in the Columbus area · 68% owner-lived
+
+7 AM BRIEF
+written 7:02 AM
+
+01
+
+Checked. 202 hail reports, 8,050 radar hail signatures and 25 storm days this season. NWS NEXRAD
+
+02
+
+Overnight. No new hail since last night; best zone is still Columbus: 22 St & 21 St. SPC MRMS
+
+03
+
+Newest hail. Sep 13 near Colon, 1.34 in, 16 days ago. 121 homes there; Columbus has 9,046. SPC 
+CENSUS
+
+04
+
+Backup zone. Omaha: Pierce St & S 137 Av, about 23 mi away. Most homes here were built before 1980 and are owner-lived. 
+CENSUS
+
+Show on the map
+
+ZONES, BEST FIRST
+ENGINE
+
+1
+22 St & 21 St
+Aug 8 · 60 homes
+61.5
+2
+36 Ave & 18 St
+Aug 8 · 67 homes
+60.1
+3
+17 St & 18 St
+Aug 8 · 61 homes
+58.4
+4
+40 Ave & 15 St
+Aug 8 · 61 homes
+55.8
+5
+15 St & 16 St
+Aug 8 · 60 homes
+55.3
+6
+17 St & 15 St
+Aug 8 · 62 homes
+54.8
+7
+45 Ave & 12 St
+Aug 8 · 60 homes
+53.6
+8
+12 St & 15 St
+Aug 8 · 65 homes
+52.7
+9
+20 St & 35 Ave
+Aug 8 · 60 homes
+50.7
+10
+18 St & 48 Ave
+Aug 8 · 61 homes
+50.5
+11
+45 Ave & 44 Ave
+Aug 8 · 60 homes
+47.9
+12
+Pierce St & S 137 Av
+Omaha · everyday zone
+90.8
+OTHER SCALE
+
+TODAY'S PLAN
+Tue, Sep 29
+
+7:02 AM
+7 AM
+10 AM
+1 PM
+4 PM
+7 PM
+7:02 AM
+Brief ready
+All up to date
+9 AM
+Follow-ups
+None yet
+1 PM
+Prep door cards
+25 cards + cancel forms EN/ES 
+NEB. LAW
+2:55 PM
+Leave for Columbus
+50 mi · 55 min
+4-7:30 PM
+Knock 25 doors
+Start at 22 St 
+ENGINE
+1
+12
+11 zones
+Aug 8 · #1 1.64 in
+MRMS
+HMP
+18 mi
+20 min
+33 mi
+35 min
+10 mi
+Map: Nebraska GIS · USGS · NDOT
+Credits
+
+CREDITS
+·
+CLAUDE'S CUT
+
+Made by Claude.
+
+This is my version of Aldaba for HMP Siding & Roofing. Here is what is real, what is sample, and how it was made.
+
+Storm data as of Tuesday, September 29, 2026
+NOAA
+
+Play the film
+Replay the intro
+
+WHAT IS REAL
+
+Hail reports
+SPC
+NWS
+NCEI
+
+NOAA Storm Prediction Center, NWS local storm reports, NOAA NCEI Storm Events
+
+168 SPC reports
+202 NWS reports
+144 NCEI events
+386 reports from 2024-25
+
+Radar hail sizes
+NEXRAD
+MRMS
+
+NOAA MRMS radar, an estimate that can run high
+
+8,050 NEXRAD hail signatures
+MRMS hail size on 25 storm days
+
+Streets, rivers and town lines
+NE GIS
+USGS
+
+Nebraska GIS, USGS hydrography, US Census TIGER
+
+3,362 street segments
+758 map features
+
+Area numbers
+CENSUS
+
+US Census ACS 2024, the base for the likely insured area estimate
+
+1,123 Census rows
+
+Nebraska statutes
+NEB. LAW
+
+Plain-language notes on the statutes HMP works under. A Nebraska attorney should review the printed forms.
+
+12 rules in plain language
+
+WHAT IS SAMPLE
+
+Homes
+SAMPLE
+
+Every home is made up: fake address, no owner name. Roof ages, owner-lived flags and door scores are sample too.
+
+Commission example
+SAMPLE
+
+A stand-in number. HMP sets the real rate.
+
+Funnel rates
+SAMPLE
+
+Industry benchmarks from vendor figures, until HMP has about 200 doors of its own.
+
+Radar sweep
+SAMPLE
+
+Decoration only. It carries no data.
+
+HOW IT WAS BUILT
+
+01
+
+Raw WebGL and Canvas2D. No frameworks.
+
+02
+
+One continuous map world. Storms, zones and streets share the same map.
+
+03
+
+One motion system. Every screen and the film share the same timing and easing.
+
+BY THE NUMBERS
+Counted from the files when this page was built.
+
+14,333
+lines of code, by hand
+1.2 MB
+of real Nebraska data
+23
+code files
+0
+frameworks
+
+THE CODE
+
+js/lib/hailgl.js
+WebGL hail: burning swaths, falling stones, rings
+1,439
+js/deal.js
+Deal: the path and the legal armor
+1,324
+js/knock.js
+Knock: the walk, one tap per door
+1,290
+js/director.js
+The film, these credits, the keys
+1,218
+js/world.js
+The one map: camera, layers, labels, input
+1,013
+js/lib/house.js
+The generative house portrait
+926
+js/storms.js
+Storms: the season, replayed
+879
+js/core.js
+Events, language, theme, motion, the router
+874
+js/intro.js
+The cold open
+815
+js/now.js
+Now: the 7 AM brief
+797
+js/lib/route.js
+The real 50-mile drive on US-30
+573
+js/lib/sound.js
+Synthesized sound: knock, hail, bell, score
+547
+js/money.js
+Money: the path to $100,000
+489
+js/lib/funnel.js
+The math behind $100,000
+237
+js/boot.js
+Starts it all
+22
+css/*.css
+Styles: tokens, type, components, views
+1,890
+
+THE DATA
+
+data/nl.js
+Streets, rivers, towns, storms, zones, sample homes
+1.1 MB
+data/extra.js
+The season’s sources and the 2024-25 reports
+24 KB
+data/copy.js
+Every word, in English and Spanish
+85 KB
+
+No frameworks. No image files. Every sound synthesized.
+
+WHY ONE RING
+
+I built this around one shape. An aldaba is a door knocker, and the ring in the Aldaba mark comes from that knocker. I kept the ring and let it mean more as you move through the app. It is the hail stone that lands on the map. It is the ripple that spreads where the stone hits. It is the ring drawn around a zone. It is the marker sitting on a door. It is the progress ring that fills as you knock. One motif, many meanings, so the whole app reads as one thing you can learn in a minute. I wanted a storm, a street and a door to look like the same thing seen at three sizes. Claude
+
+THE RING, FIVE WAYS
+
+Hail stone
+Impact ripple
+Zone ring
+Door marker
+Progress ring
+
+DIRECTION, DESIGN, ENGINEERING, MOTION, SOUND
+
+Claude
+
+Built with FilthE for HMP Siding & Roofing, Fremont, NE
+
+STORMS
+NOAA SPC · NWS · NCEI · NEXRAD · MRMS
+MAP
+Nebraska GIS · USGS · NDOT · US Census TIGER
+AREA NUMBERS
+US Census ACS 2024
+THE LAW
+Nebraska Revised Statutes
+TYPE
+Bricolage Grotesque · Geist · Geist Mono
+
+Aldaba
+----ATTRS----
+Aldaba. Go to Now
+Claude's own cut of Aldaba: product design, engineering and motion by Claude, on real Nebraska data. Open the credits. || La versión de Aldaba hecha por Claude: diseño de producto, ingeniería y animación de Claude, con datos reales de Nebraska. Abre los créditos. || Claude's cut. Open the credits: made by Claude
+Views
+Press 1 || Tecla 1
+Press 2 || Tecla 2
+Press 3 || Tecla 3
+Press 4 || Tecla 4
+Press 5 || Tecla 5
+Story time: the whole app lives on the morning of Tuesday, Sep 29, 2026. || Hora de la historia: toda la app vive en la mañana del martes 29 de sep. de 2026.
+Storms, streets and Census numbers are real public data. Homes are samples on real streets until knocking starts. No owner names. || Tormentas, calles y números del Censo son datos públicos reales. Las casas son de muestra en calles reales hasta empezar a tocar puertas. Sin nombres de dueños.
+About 80 seconds. The app plays itself. · F || Unos 80 segundos. La app se muestra sola. · F || Play the film
+Sound off · M || Sonido apagado · M || Sound off. Turn it on (M)
+Language
+Theme
+Dark || Oscuro || Dark
+Light || Claro || Light
+Match my system || Igual que mi sistema || Match my system
+Details
+Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance || Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia
+Watch a car drive the real route || Mira un auto recorrer la ruta real
+NOAA MRMS MESH radar hail size || Tamaño de granizo por radar MRMS MESH de NOAA
+NOAA Storm Prediction Center reports || Reportes del Centro de Predicción de Tormentas de NOAA
+Route traced on Nebraska GIS roads (NDOT highways, town streets); time from posted road speeds. || Ruta trazada sobre calles de Nebraska GIS (carreteras de NDOT, calles del pueblo); el tiempo sale de las velocidades de cada vía.
+An estimate for the whole area, built from US Census numbers (ACS 2024): how many homes are owner-occupied and residential, and how recently people moved in. It is never a fact about one home, and it says nothing about any policy. || Un estimado para toda el área, hecho con números del Censo de EE. UU. (ACS 2024): cuántas casas son residenciales y las habitan sus dueños, y qué tan recientemente se mudó la gente. Nunca es un dato de una casa, y no dice nada de ninguna póliza.
+US Census ACS 5-year 2024 + TIGER || Censo de EE. UU., ACS de 5 años 2024 + TIGER
+NWS Local Storm Reports || Reportes locales de tormenta del NWS
+NOAA NCEI NEXRAD hail signatures (SWDI) || Firmas de granizo del radar NEXRAD de NOAA NCEI (SWDI)
+More
+Everyday score: older, owner-lived homes, no recent storm. A different scale from storm zones, so it ranks after them. || Puntaje de todos los días: casas viejas habitadas por sus dueños, sin tormenta reciente. Es otra escala que la de las zonas de tormenta, por eso va después.
+Dock
+Storms, zones and the pick are up to date. || Tormentas, zonas y la elección del día, al día.
+None waiting yet. Come-backs from your walks land here. || Ninguno pendiente todavía. Aquí llegan las puertas que pidan que regreses.
+25 door cards. 3-day cancel forms in English and Spanish, one for every sale. || 25 tarjetas de puerta. Formularios de cancelación de 3 días en inglés y español, uno por cada venta.
+Nebraska Revised Statutes (text in docs/legal) || Estatutos Revisados de Nebraska (texto en docs/legal)
+50 mi on US-30, about 55 min. Arrive 10 min early to park. || 50 mi por la US-30, unos 55 min. Llega 10 min antes para estacionarte.
+Start at 22 St. The hours when most people are home. || Empieza en 22 St. Las horas en que más gente está en casa.
+Map of eastern Nebraska. Drag to move, scroll to zoom, 0 to return.
+Columbus: 22 St & 21 St: rank 1 || Columbus: 22 St & 21 St: n.º 1
+Columbus: 36 Ave & 18 St || Columbus: 36 Ave & 18 St
+Columbus: 17 St & 18 St || Columbus: 17 St & 18 St
+Columbus: 40 Ave & 15 St || Columbus: 40 Ave & 15 St
+Columbus: 15 St & 16 St || Columbus: 15 St & 16 St
+Columbus: 17 St & 15 St || Columbus: 17 St & 15 St
+Columbus: 45 Ave & 12 St || Columbus: 45 Ave & 12 St
+Columbus: 12 St & 15 St || Columbus: 12 St & 15 St
+Columbus: 20 St & 35 Ave || Columbus: 20 St & 35 Ave
+Columbus: 18 St & 48 Ave || Columbus: 18 St & 48 Ave
+Columbus: 45 Ave & 44 Ave || Columbus: 45 Ave & 44 Ave
+Omaha: Pierce St & S 137 Av || Omaha: Pierce St & S 137 Av
+#1 has its own radar estimate (MRMS at the zone). The other 10 zones only have the smoothed area model; open a row to see it. || La n.º 1 tiene su propio estimado de radar (MRMS en la zona). Las otras 10 zonas solo tienen el modelo suavizado del área; abre una fila para verlo.
+Map: Nebraska GIS (gis.ne.gov): County_Boundaries, Municipal_Boundaries (Census TIGER), River_Area + Waterbodies + Major_Streams (USGS NHD), Railroads, Highways (NDOT). Simplified. Hail heat: modeled from NOAA storm swaths and hail areas. The radar beam is decorative. || Mapa: Nebraska GIS (condados, municipios, ríos USGS NHD, ferrocarriles y carreteras NDOT). Calor de granizo: modelado con franjas de tormenta de NOAA. El haz del radar es decorativo.
+Credits: made by Claude, what is real, how it was built
+Map zoom
+Zoom in
+Zoom out
+Back to this view || Volver a esta vista || Back to this view
+Close the credits
+NOAA SPC storm reports + MRMS radar hail estimates (engine, hh.py) || Reportes de tormenta de NOAA SPC + estimados de granizo por radar MRMS (motor hh.py)
+NOAA NCEI Storm Events database || Base de datos de eventos de tormenta de NOAA NCEI
+Nebraska GIS Street_Centerlines (gis.ne.gov) || Ejes de calles de Nebraska GIS (gis.ne.gov)
+USGS National Hydrography Dataset: rivers, streams and water bodies || Conjunto Nacional de Hidrografía del USGS: ríos, arroyos y cuerpos de agua

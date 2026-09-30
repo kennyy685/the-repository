@@ -65,7 +65,7 @@
   const FORM = { cottage: { en: 'Cottage', es: 'Casa pequeña' }, ranch: { en: 'Ranch', es: 'Casa de un piso' }, split: { en: 'Split-level', es: 'De medio nivel' },
     two: { en: 'Two-story', es: 'De dos pisos' }, large: { en: 'Large two-story', es: 'Grande de dos pisos' } };
   const X = {
-    doorHere: { en: 'This door is here', es: 'Esta puerta va aquí' },
+    doorHere: { en: 'This door is here', es: 'Esta puerta está aquí' },
     done: { en: 'Done', es: 'Listo' },
     ahead: { en: 'Ahead', es: 'Más adelante' },
     markDone: { en: 'Mark step done', es: 'Marcar paso listo' },
@@ -81,7 +81,7 @@
   };
 
   /* ------------------------------------------------------------------ business days (the cancel window)
-     Nebraska 69-1601 does not define "business day"; 69-1604(2) points to the FTC Cooling-Off Rule, whose 16 CFR 429.0
+     Nebraska 69-1601 does not define "business day"; 69-1604(2) accepts the FTC notice form, so we count like the FTC Cooling-Off Rule, whose 16 CFR 429.0
      counts every day except Sunday and federal holidays. We skip Sundays, all 11 federal holidays (5 U.S.C. 6103) and the
      weekday a weekend holiday is observed on: a window counted too short is the risky direction, so this one errs long. */
   const DAYMS = 864e5;
@@ -132,8 +132,8 @@
   }
   const storyNow = () => { const d = parse(A.story.today) || Date.now(); const m = /^(\d+):(\d+)/.exec(A.story.time || '07:02'); return d + (m ? (+m[1] * 60 + +m[2]) * 6e4 : 0); };
   const BDAY_TAG = () => A.ui.srcTag({ label: '16 CFR 429', cls: 'src--law', tip: {
-    en: 'Business day: every day except Sunday and federal holidays (FTC Cooling-Off Rule, 16 CFR 429, which Neb. 69-1604 points to). A weekend holiday also skips its observed weekday, so the window never runs short.',
-    es: 'Día hábil: todos los días excepto el domingo y los feriados federales (Regla de la FTC, 16 CFR 429, a la que remite el 69-1604 de Nebraska). Un feriado en fin de semana también salta su día observado, así el plazo nunca queda corto.' } });
+    en: 'Nebraska 69-1601 to 69-1607 do not define "business day". This count follows the FTC Cooling-Off Rule (16 CFR 429.0; 69-1604(2) accepts its cancel notice): every day except Sunday and federal holidays. A weekend holiday also skips its observed weekday, so the window never runs short.',
+    es: 'Las secciones 69-1601 a 69-1607 de Nebraska no definen "día hábil". Este conteo sigue la Regla de la FTC (16 CFR 429.0; el 69-1604(2) acepta su aviso de cancelación): todos los días excepto el domingo y los feriados federales. Un feriado en fin de semana también salta su día observado, así el plazo nunca queda corto.' } });
 
   /* ------------------------------------------------------------------ the door + per-viewer state */
   function home() {
@@ -268,8 +268,11 @@
 
     /* sizes: the portrait fills the free area above the dock */
     const relay = () => A.safe('deal layout', layout);
-    try { V.ro = new ResizeObserver(relay); V.ro.observe(V.dock); V.ro.observe(ctx.slots.center); } catch (e) { /* old browser */ }
+    // the dock slot too: while the previous view's panel is still leaving, the slot (max 44% tall) holds both and pushes the
+    // dock down; the dock itself never changes size when that panel goes, only the slot does
+    try { V.ro = new ResizeObserver(relay); V.ro.observe(V.dock); V.ro.observe(ctx.slots.center); if (ctx.slots.bottom) V.ro.observe(ctx.slots.bottom); } catch (e) { /* old browser */ }
     const onRz = () => relay(); addEventListener('resize', onRz); ctx.own(() => removeEventListener('resize', onRz));
+    ctx.on('camera:end', relay);                          // settle once more when the camera lands (cheap when nothing changed)
 
     /* the lot on the map (the hero on phones, where the map sits above the portrait) */
     ctx.layer({ id: 'deal-site', z: 205, draw2d: drawSite });
@@ -335,7 +338,7 @@
     const slot = h.slot && h.slot.day ? `<p class="deal-head__slot"><span class="chip chip--acc"><i data-icon="clock"></i>${L('Inspection', 'Inspección')} · ${A.both(() => A.fmt.date(h.slot.day, 'day'))} · ${A.both(() => A.fmt.time(h.slot.time))}</span></p>` : '';
     return `
       <div class="deal-head__top">
-        <p class="eyebrow eyebrow--acc">${E(TITLE)} · ${L('Door', 'Puerta')} ${A.esc(String(h.rank || 1))} ${A.ui.sampleTag()}</p>
+        <p class="eyebrow eyebrow--acc">${E(TITLE)} · ${L('Door', 'Puerta')} ${A.esc(String(h.walkIndex || h.rank || 1))} ${A.ui.sampleTag()}</p>
         <p class="t-micro deal-head__pos"></p>
       </div>
       <div class="deal-head__id">
@@ -380,11 +383,25 @@
   }
   /** where the House composition starts (callout text or roof) in canvas px */
   const compTop = (Lh) => Math.min(Lh.top, Lh.bandY - Lh.fs - 8);
+  /** the drawing's anchors at a size: House.layout (the public API) plus, when House still carries it, the per-part
+      geometry that puts each mark on its exact wall or roof face. Memoized per size: a layout pass used to re-render
+      the whole house 2-4 times on every resize, caption refit and view event. The geometry does not depend on theme
+      or language, so the cache lives as long as this door is on screen. */
   function measure(w, h) {
     if (!window.House || !(w > 0) || !(h > 0)) return null;
+    const k = w + 'x' + h, memo = V.measMemo || (V.measMemo = new Map());
+    if (memo.has(k)) return memo.get(k);
     const cv = V.meas || (V.meas = document.createElement('canvas'));
-    House.draw(cv, V.h, { t: 99, theme: houseTheme(), labels: false, sheet: false, width: w, height: h, dpr: 1 });
-    return cv.__house && cv.__house.L ? cv.__house.L : null;
+    House.draw(cv, V.h, { t: 99, theme: houseTheme(), labels: false, sheet: false, transparent: true, width: w, height: h, dpr: 1 });
+    const pub = House.layout ? House.layout(cv) : null;
+    let out = null;
+    if (pub) {
+      const det = cv.__house && cv.__house.L;              // optional refinement only; everything works from pub alone
+      out = Object.assign({}, pub, { geo: det && Array.isArray(det.parts) ? { parts: det.parts, hero: det.hero, roofA: det.roofA } : null });
+    }
+    if (memo.size > 24) memo.clear();
+    memo.set(k, out);
+    return out;
   }
   function layout() {
     if (!V) return;
@@ -397,9 +414,12 @@
       cw = sw; ch = Math.round(A.clamp(sw * 0.64, 220, 400));
       V.draw.style.height = ch + 'px';
     } else {
-      const cr = V.ctx.slots.center.getBoundingClientRect(), dr = V.dock.getBoundingClientRect();
-      if (!cr.width || !dr.height) return;                  // slots not shown yet: the RO / 'view' event calls again
-      sw = Math.round(cr.width); sh = Math.max(260, Math.round(dr.top - cr.top - 12));
+      // layout boxes, not getBoundingClientRect: core slides slots into place with a transform (the film's letterbox
+      // moves the dock 112 px that way), and a rect read mid-slide would size the portrait for where the dock was
+      const ce = V.ctx.slots.center, sb = V.ctx.slots.bottom, dk = V.dock;
+      if (!ce.offsetWidth || !dk.offsetHeight || !sb) return;   // slots not shown yet: the RO / 'view' event calls again
+      const dockTop = (dk.offsetParent === sb ? sb.offsetTop + dk.offsetTop - sb.scrollTop : dk.getBoundingClientRect().top);
+      sw = Math.round(ce.offsetWidth); sh = Math.max(260, Math.round(dockTop - ce.offsetTop - 12));
       V.stage.style.height = sh + 'px'; V.draw.style.height = '';
       fitCaps();
       cw = sw >= 900 && sw < 1040 ? 899 : sw;                // House pads 7.5% under 900 px and 13% above: 899 is the sweet spot
@@ -427,9 +447,8 @@
   let themeCache = null;
   function houseTheme() {
     if (themeCache && themeCache.k === A.theme) return themeCache.t;
-    const p = A.rgba('--page'), bg = 'rgba(' + Math.round(p[0] * 255) + ',' + Math.round(p[1] * 255) + ',' + Math.round(p[2] * 255) + ',0)';
-    // a see-through bg: House still derives its wall and roof tones from the page color, the map pool shows around the house
-    const t = { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg };
+    // House derives its wall and roof tones from the page color; transparent:true keeps the canvas clear around the house
+    const t = { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg: A.tok('--page') };
     themeCache = { k: A.theme, t };
     return t;
   }
@@ -440,9 +459,7 @@
   }
   function paint(cv, t, hi) {
     if (!window.House || !cv || !V || !V.cw) return;
-    const c = cv.getContext('2d');
-    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);   // House fills no bg here: clear it ourselves
-    House.draw(cv, V.h, { t, theme: houseTheme(), highlight: hi, labels: House.labels(V.h, A.lang), sheet: false, width: V.cw, height: V.ch });
+    House.draw(cv, V.h, { t, theme: houseTheme(), highlight: hi, labels: House.labels(V.h, A.lang), sheet: false, transparent: true, width: V.cw, height: V.ch });
   }
   function paintNow() {
     if (!V || V.build) return;
@@ -513,13 +530,39 @@
   }
 
   /* ------------------------------------------------------------------ marks: each checklist item, on its part of the house */
+  /** anchors from the public House.layout alone (boxes, rings, door): used when the per-part geometry is not there */
+  function anchorsPublic(Lh) {
+    const out = {}, pr = Lh.parts || {}, rings = Lh.rings || [];
+    if (Lh.knock) out.door = [Lh.knock[0], Lh.knock[1]];
+    const far = (p) => Math.min(80, ...rings.map((r) => Math.hypot(r.x - p[0], r.y - p[1]) - r.r), ...(out.door ? [Math.hypot(out.door[0] - p[0], out.door[1] - p[1])] : []));
+    // the roof: between two nearby rings (both sit on one roof face), as clear of every ring as possible
+    let best = null, sc = -1e9;
+    for (let a = 0; a < rings.length; a++) for (let b = a + 1; b < rings.length; b++) {
+      const A0 = rings[a], B0 = rings[b]; if (Math.hypot(A0.x - B0.x, A0.y - B0.y) > 130) continue;
+      const p = [(A0.x + B0.x) / 2, (A0.y + B0.y) / 2], s = far(p) - Math.abs(p[0] - (Lh.x0 + Lh.x1) / 2) * 0.05;
+      if (s > sc) { sc = s; best = p; }
+    }
+    if (best) out.roof = best; else if (pr.roof) out.roof = [(pr.roof[0] + pr.roof[2]) / 2, pr.roof[1] + (pr.roof[3] - pr.roof[1]) * 0.6];
+    if (pr.roof) out.eave = [pr.roof[0] + (pr.roof[2] - pr.roof[0]) * 0.82, pr.roof[3] - 4];
+    if (pr.siding) {
+      const top = pr.roof ? pr.roof[3] : pr.siding[1], y = top + (Lh.groundY - top) * 0.72, xs = [0.2, 0.8, 0.35, 0.65];
+      let pick = null, ps = -1e9;
+      xs.forEach((u) => { const p = [pr.siding[0] + (pr.siding[2] - pr.siding[0]) * u, y], s2 = far(p); if (s2 > ps) { ps = s2; pick = p; } });
+      out.siding = pick; out.side = [pr.siding[0] + (pr.siding[2] - pr.siding[0]) * 0.94, y];
+    }
+    if (pr.gutters) { const g = pr.gutters; out.gutters = [g[0] + (g[2] - g[0]) * 0.34, (g[1] + g[3]) / 2]; out.metal = [out.gutters[0] + 40, out.gutters[1]]; }
+    out.yard = [Lh.x0 - 30 > 18 ? Lh.x0 - 30 : Math.min(Lh.w - 18, Lh.x1 + 30), Lh.groundY - 9];
+    return out;
+  }
   function anchors(Lh) {
-    const P = Lh.parts || [], out = {};
+    const G = Lh.geo;
+    if (!G || !G.parts || !G.parts.length) return anchorsPublic(Lh);
+    const P = G.parts, out = {};
     const box = (pts) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; pts.forEach((p) => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }); return { x0, y0, x1, y1 }; };
     const area = (pts) => { let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) a += (pts[j][0] + pts[i][0]) * (pts[j][1] - pts[i][1]); return Math.abs(a / 2); };
     const inPoly = (pt, poly) => { let ins = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if (((a[1] > pt[1]) !== (b[1] > pt[1])) && (pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0])) ins = !ins; } return ins; };
     const opens = P.filter((q) => q.grp === 'open' && q.pts && q.pts.length > 2).map((q) => box(q.pts));
-    const avoid = []; if (Lh.hero && Lh.hero.c) avoid.push(Lh.hero.c); if (Lh.roofA) avoid.push(Lh.roofA);
+    const avoid = []; if (G.hero && G.hero.c) avoid.push(G.hero.c); if (G.roofA) avoid.push(G.roofA);
     const dBox = (p, b) => Math.hypot(Math.max(b.x0 - p[0], 0, p[0] - b.x1), Math.max(b.y0 - p[1], 0, p[1] - b.y1));
     const clear = (p) => Math.min(80, ...opens.map((b) => dBox(p, b)), ...avoid.map((a) => Math.hypot(a[0] - p[0], a[1] - p[1])));
     // a point on part k is only useful if no part drawn after it covers that spot (a garage wing hides a gable wall)
@@ -577,8 +620,8 @@
     const list = marksFor(V.S.sel);
     V.marks.innerHTML = list.map((m) => `<button type="button" class="deal-mark${t[m.k] ? ' is-on' : ''}" tabindex="-1" role="checkbox" aria-checked="${!!t[m.k]}"
         data-k="${m.k}" data-part="${m.part}" style="left:${m.x.toFixed(1)}px;top:${m.y.toFixed(1)}px"
-        aria-label="${A.esc(A.t(m.c))}" data-tip="${A.esc(m.c.en)}" data-tip-es="${A.esc(m.c.es)}"><span class="deal-mark__n num">${m.k + 1}</span><i data-icon="check"></i></button>`).join('');
-    A.ui.icons(V.marks);
+        data-label-en="${A.esc(m.c.en)}" data-label-es="${A.esc(m.c.es)}" data-tip="${A.esc(m.c.en)}" data-tip-es="${A.esc(m.c.es)}"><span class="deal-mark__n num">${m.k + 1}</span><i data-icon="check"></i></button>`).join('');
+    A.ui.icons(V.marks); A.ui.localize(V.marks);
     V.marks.dataset.step = String(V.S.sel);
     if (animate && !A.still && list.length) {
       const els = A.$$('.deal-mark', V.marks);
@@ -622,7 +665,7 @@
   /* ------------------------------------------------------------------ the stamp: may work start on this house? */
   function stampState() {
     const S = V.S, s = STEPS[S.sel]; if (!s) return null;
-    if (S.cur >= N && S.sel === N - 1) return { ok: true, head: { en: 'Job complete', es: 'Trabajo terminado' }, line: s.next || { en: 'The final payment follows the contract.', es: 'El pago final sigue el contrato.' }, cite: '48-2104' };
+    if (S.cur >= N && S.sel === N - 1) return { ok: true, head: { en: 'Job complete', es: 'Trabajo terminado' }, line: s.next || { en: 'The final payment follows the contract.', es: 'El pago final sigue el contrato.' }, cite: '' };
     if (S.sel < 4 || (s.id === 'itemized' && S.type !== 'ins')) return null;
     const g = gateState();
     if (S.type === 'ins') {
@@ -644,7 +687,7 @@
     if (key === V.stampKey && !el.hidden) return;
     const was = V.stampKey; V.stampKey = key;
     el.classList.toggle('is-ok', st.ok);
-    el.innerHTML = `<p class="deal-stamp__h"><i data-icon="${st.ok ? 'check' : 'shield'}" class="i--sm"></i><span>${E(st.head)}</span><span class="deal-stamp__cite">${A.esc(st.cite)}</span></p>
+    el.innerHTML = `<p class="deal-stamp__h"><i data-icon="${st.ok ? 'check' : 'shield'}" class="i--sm"></i><span>${E(st.head)}</span>${st.cite ? `<span class="deal-stamp__cite">${A.esc(st.cite)}</span>` : ''}</p>
       <p class="deal-stamp__p">${E(st.line)}</p>
       ${st.checks ? `<p class="deal-stamp__cks">${st.checks.map((c) => `<span class="deal-stamp__ck${c[0] ? ' is-on' : ''}"><i data-icon="${c[0] ? 'check' : 'x'}"></i>${E(c[1])}</span>`).join('')}</p>` : ''}`;
     try { el.getAnimations().forEach((a) => a.cancel()); } catch (e) { /* ignore */ }   // a forwards-filled exit must not keep it hidden
@@ -832,7 +875,12 @@
   }
 
   /* ------------------------------------------------------------------ the track (a fuse) */
-  function stepCite(s) { return s && s.law ? cite(s.law.cite).split(',')[0].trim() : ''; }
+  /** '69-1601, 69-1604' -> '69-1601/1604' (same chapter: the second cite keeps its section only) */
+  function shortCite(c) {
+    const parts = cite(c).split(',').map((x) => x.trim()).filter(Boolean);
+    return parts.map((x, i) => { if (!i) return x; const a = /^(\d+)-/.exec(parts[0]), b = /^(\d+)-(.+)$/.exec(x); return a && b && a[1] === b[1] ? b[2] : x; }).join('/');
+  }
+  function stepCite(s) { return s && s.law ? shortCite(s.law.cite) : ''; }
   function trackHTML() {
     const nodes = STEPS.map((s, i) => `
       <button type="button" class="deal-node" role="tab" data-i="${i}" id="deal-tab-${i}" aria-controls="deal-step" aria-selected="false" tabindex="-1">
@@ -910,7 +958,7 @@
     return (CD.armor || []).map((a) => {
       const c = cite(a.cite), st = armorStep(a), steps = [st].concat(ARMOR_ALSO[c] || []);
       return `<button type="button" class="deal-arm" data-step="${st}" data-steps="${steps.join(' ')}" aria-pressed="false" data-tip="${A.esc(a.plain.en)}" data-tip-es="${A.esc(a.plain.es)}">
-        <span class="deal-arm__c">${A.esc(c)}</span><span class="deal-arm__t">${E(a.title)}</span></button>`;
+        <span class="deal-arm__c">${A.esc(shortCite(a.cite))}</span><span class="deal-arm__t">${E(a.title)}</span></button>`;
     }).join('');
   }
   function updateArmor() {
@@ -936,7 +984,18 @@
     if (s.law) return `<section class="deal-law">
         <p class="deal-law__k"><i data-icon="shield" class="i--sm"></i>${E(LB.law)} ${A.ui.srcTag('law')}<span class="deal-law__cite">${A.esc(s.law.cite)}</span></p>
         <p class="deal-law__p">${E(s.law.plain)}</p></section>`;
-    return `<section class="deal-law deal-law--none"><p class="deal-law__k"><i data-icon="shield" class="i--sm"></i>${E(LB.law)}</p><p class="deal-law__p">${E(X.noLaw)}</p></section>`;
+    const nx = nextLawHTML(STEPS.indexOf(s), true);   // no statute here: what the law asks next sits right under it
+    return `<section class="deal-law deal-law--none"><p class="deal-law__k"><i data-icon="shield" class="i--sm"></i>${E(LB.law)}</p><p class="deal-law__p">${E(X.noLaw)}</p>${nx}</section>`;
+  }
+  /** the next step the law touches: what is legally required next, one tap away */
+  function nextLawHTML(i, inLaw) {
+    let j = i + 1; while (j < N && !(STEPS[j] && STEPS[j].law)) j++;
+    if (j >= N) return '';
+    const t = STEPS[j], want = cite(t.law.cite), arm = (CD.armor || []).find((a) => cite(a.cite) === want);
+    const label = L('Next legal step', 'Siguiente paso legal');
+    const btn = `<button type="button" class="deal-nextlaw" data-goto="${j}"><span class="deal-cite">${A.esc(shortCite(t.law.cite))}</span><span class="deal-nextlaw__t"><b class="num">${pad2(j + 1)}</b> ${E(t.title)}${arm ? `<span class="deal-nextlaw__a"> · ${E(arm.title)}</span>` : ''}</span><i data-icon="chevron" class="i--sm"></i></button>`;
+    if (inLaw) return `<div class="deal-law__next"><p class="deal-law__k">${label}</p>${btn}</div>`;
+    return `<div class="deal-nd__law"><dt><i data-icon="shield" class="i--sm"></i>${label}</dt><dd>${btn}</dd></div>`;
   }
   function checklist(s) {
     const t = V.S.ticks[s.id] || [];
@@ -971,6 +1030,7 @@
       <dl class="deal-nd">
         <div><dt><i data-icon="arrow" class="i--sm"></i>${E(LB.next)}</dt><dd>${E(s.next)}</dd></div>
         <div><dt><i data-icon="flag" class="i--sm"></i>${E(LB.doneWhen)}</dt><dd>${E(s.done_when)}</dd></div>
+        ${s.law ? nextLawHTML(i) : ''}
       </dl>
       ${also}`;
     A.ui.icons(V.step); A.ui.localize(V.step);
@@ -1003,7 +1063,7 @@
     syncMarks();
     if (on) {
       if (ck) A.motion.ripple(A.$('.deal-ck__box', ck), { rings: 2, size: 40, color: A.tok('--ok') });
-      A.$$(`.deal-mark[data-k="${k}"]`, V.marks).forEach((m, j) => setTimeout(() => A.motion.ripple(m, { rings: 2, size: 58, color: A.tok('--ok') }), j * 70));
+      A.$$(`.deal-mark[data-k="${k}"]`, V.marks).forEach((m, j) => setTimeout(() => { if (m.isConnected) A.motion.ripple(m, { rings: 2, size: 58, color: A.tok('--ok') }); }, j * 70));
       snd((S) => S.ring(Math.min(5, k)));
     } else snd((S) => S.tick());
     const tc = refreshCount(); updateTrack();
@@ -1013,6 +1073,8 @@
     if (!V) return;
     const ck = e.target.closest('.deal-ck[data-k]');
     if (ck) { toggleTick(+ck.dataset.k); return; }
+    const nl = e.target.closest('[data-goto]');
+    if (nl) { select(+nl.dataset.goto); return; }
     const ty = e.target.closest('[data-type]');
     if (ty) { V.S.type = ty.dataset.type === 'cash' ? 'cash' : 'ins'; save(); if (A.$('.deal-clock', V.step)) renderClock(); if (A.$('.deal-gate', V.step)) renderGate(); renderStamp(true); return; }
     const sd = e.target.closest('[data-sd]');

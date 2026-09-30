@@ -32,7 +32,7 @@
   const TAU = Math.PI * 2;
 
   // lines per file and data sizes, counted from the repo by dev/manifest.mjs (re-run it after code changes)
-  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",860],["js/world.js",1013],["js/lib/funnel.js",237],["js/lib/hailgl.js",1439],["js/lib/house.js",906],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",756],["js/now.js",797],["js/storms.js",727],["js/knock.js",1241],["js/deal.js",1267],["js/money.js",489],["js/director.js",1127],["js/boot.js",22]],"css":[["css/base.css",372],["css/now.css",203],["css/storms.css",147],["css/knock.css",301],["css/deal.css",358],["css/money.css",109],["css/intro.css",120],["css/director.css",3]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84592]],"fonts":5};
+  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",874],["js/world.js",1013],["js/lib/funnel.js",237],["js/lib/hailgl.js",1439],["js/lib/house.js",926],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",815],["js/now.js",797],["js/storms.js",879],["js/knock.js",1290],["js/deal.js",1324],["js/money.js",489],["js/director.js",1218],["js/boot.js",22]],"css":[["css/base.css",377],["css/now.css",203],["css/storms.css",170],["css/knock.css",301],["css/deal.css",380],["css/money.css",109],["css/intro.css",125],["css/director.css",225]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84570]],"fonts":5};
 
   /* ======================= helpers ======================= */
   const cp = (o, en, es) => (o && o.en != null ? o : { en, es: es == null ? en : es });
@@ -279,8 +279,10 @@
           use('nowDemo', 'collapse');
           if (COL_PTS.length) A.world.flyTo({ points: COL_PTS, pad: A.stacked() ? 36 : 90, maxZoom: 13.4 }, { instant: sk || A.still, ms: 1300 });
         }));
-        [1, 2, 3].forEach((z, k) => { const t = 420 + k * 1150; b.glide(t, 520, T.zone(z), { fx: 0.3 }); b.at(t + 560, () => use('nowDemo', 'hover', z)); });
-        b.glide(3900, 560, T.zone(0), { fx: 0.3 });
+        // the cursor rests on each row's rank ring (the motif), never on the words it would cover
+        const onRing = () => ({ fx: 0.075, fy: 0.62 });
+        [1, 2, 3].forEach((z, k) => { const t = 420 + k * 1150; b.glide(t, 520, T.zone(z), onRing()); b.at(t + 560, () => use('nowDemo', 'hover', z)); });
+        b.glide(3900, 560, T.zone(0), onRing());
         b.at(4500, () => use('nowDemo', 'hover', 0));
       } },
     /* 5 · replay the season: every storm lands, then Aug 8 */
@@ -314,32 +316,37 @@
       setup(b) { frame('in', false); A.ui.chrome(true); if (b.local < 760) ensure('now', b); },
       script(b) {
         b.glide(0, 700, T.walk);
-        b.press(760, T.walk, (sk) => { use('knockDemo', 'reset', true); F.touched.add('knock'); goView('knock', { instant: sk }); });
+        b.press(760, T.walk, (sk) => { knockClean(); goView('knock', { instant: sk }); });
         b.glide(4300, 1000, T.out('no_answer'));
       } },
     /* 8 · one tap per door, and the follow-up for an inspection */
     { id: 'one-tap', ms: 7600, needs: () => !!(A.knockDemo && A.knockDemo.tap),
       setup(b) {
         frame('in', false); A.ui.chrome(true);
-        if (!entered('knock')) { use('knockDemo', 'reset', true); F.touched.add('knock'); goView('knock', { instant: b.seekIn }); }
+        // the taps land on a clean walk, never on the viewer's own (the store comes back at the end; Knock re-enters)
+        knockClean(true);
+        if (!entered('knock')) goView('knock', { instant: b.seekIn });
       },
       script(b) {
         [['no_answer', 250], ['talked', 1350], ['not_interested', 2450], ['inspection_set', 3550]].forEach(([o, t], k) => {
           if (k) b.glide(t - 540, 480, T.out(o));
-          b.press(t, T.out(o), () => when('knock', () => use('knockDemo', 'tap', o)));
+          b.press(t, T.out(o), () => when('knock', () => { F.kDirty = true; use('knockDemo', 'tap', o); }));
         });
+        // the follow-up: the inspection gets its time (the slot saves and the walk moves on), then the deal opens
         b.glide(4250, 520, T.slot(0), { fy: 0.5 });
-        b.glide(4900, 700, T.slot(2), { fy: 0.5, bend: 0.2 });
-        b.glide(5950, 760, T.openDeal);
+        b.glide(4880, 620, T.slot(2), { fy: 0.5, bend: 0.2 });
+        b.press(5560, T.slot(2), () => when('knock', () => { F.kDirty = true; clickEl(T.slot(2)); }));
+        b.glide(6300, 900, T.tab('deal'), { bend: 0.5 });
       } },
     /* 9 · the legal armor: the door walks the path, the law rides along */
     { id: 'legal', ms: 8800, needs: () => !!(A.dealDemo && A.dealDemo.step) && A.view.has('deal'),
       setup() { frame('in', false); A.ui.chrome(true); },
       script(b) {
-        b.press(260, T.openDeal, (sk) => {
+        // the inspection door just booked goes to Deal with its time (Knock's own hand-off), else Deal's sample door
+        b.press(260, T.tab('deal'), (sk) => {
           F.touched.add('deal');
-          const el = T.openDeal();
-          if (el && entered('knock') && !sk) A.safe('film open deal', () => el.click()); else goView('deal', { instant: sk });
+          if (entered('knock') && use('knockDemo', 'openDeal')) { hot(); return; }
+          hot(); goView('deal', { instant: sk });
         });
         [0, 1, 2, 3, 4, 5].forEach((s, k) => {
           const t = 2000 + k * 1100;
@@ -364,6 +371,7 @@
         b.at(0, () => { const st = A.dealDemo && A.dealDemo.state ? A.safe('deal state', A.dealDemo.state) : null; if (st && st.open) use('dealDemo', 'close'); });
         b.glide(0, 720, T.tab('money'), { bend: 0.5 });
         b.press(780, T.tab('money'), (sk) => { hot(); F.touched.add('money'); goView('money', { instant: sk }); });
+        b.at(1900, () => reveal(T.hours));                      // a long (Spanish) panel can put the lever under the band
         b.glide(2150, 720, () => thumb(T.hours()));
         let from = null;
         b.at(2960, (sk) => { const inp = T.hours(); from = inp ? +inp.value : 3.5; if (!sk) Cur.grab(true); });
@@ -429,6 +437,13 @@
     if (!A.stormsDemo || !A.view.has('storms')) { ensure('now', b); return; }
     F.touched.add('storms');
     ensure('storms', b, () => use('stormsDemo', 'select', AUG8));
+  }
+  /** the film's walk starts clean: the sandboxed store is reset once per film (and again when a chapter re-runs its taps) */
+  function knockClean(ifDirty) {
+    F.touched.add('knock');
+    if (ifDirty && F.kReset && !F.kDirty) return;
+    use('knockDemo', 'reset', true);
+    F.kReset = true; F.kDirty = false;
   }
   function hot() {
     root.classList.add('dir-hot');
@@ -509,7 +524,7 @@
     A.safe('film close sheet', () => { const st = A.dealDemo && A.dealDemo.state && A.dealDemo.state(); if (st && st.open) A.dealDemo.close(); });
     F.on = true; F.playing = true; F.i = -1; F.b = null;
     F.rate = A.clamp(+o.rate || 1, 0.25, 8);                  // dev: tests run the film faster
-    F.issues = []; F.skipped = []; F.touched = new Set();
+    F.issues = []; F.skipped = []; F.touched = new Set(); F.kReset = false; F.kDirty = false;
     F.snap = snapshot(); F.dealHome = A.dealHome;
     F.prevFocus = document.activeElement;
     A.safe('film hide tip', () => A.ui.hideTip());
@@ -535,8 +550,11 @@
     if (F.b) F.b.tl.pause();
     A.safe('film intro pause', () => { const tl = A.intro && A.intro.active && A.intro.timeline; if (tl && tl.playing) tl.pause(); });
     const S = window.Sound; if (S) A.safe('film score', () => S.score(false));
+    spotsRun(false);
     UI.state(); UI.flash(false);
   }
+  /** the spotlights hold while the film is paused (their fade runs on the clock, not the film's) */
+  function spotsRun(on) { if (F.dom) A.safe('film spots', () => F.dom.spots.getAnimations({ subtree: true }).forEach((a) => (on ? a.play() : a.pause()))); }
   function resume() {
     if (!F.on || F.playing) return;
     F.playing = true;
@@ -544,6 +562,7 @@
     UI.run();
     A.safe('film intro play', () => { const tl = A.intro && A.intro.active && A.intro.timeline; if (tl && !tl.playing && tl.time < tl.duration) tl.play(); });
     const S = window.Sound; if (S) A.safe('film score', () => S.score(true));
+    spotsRun(true);
     UI.state(); UI.flash(true);
   }
   const toggle = () => (F.playing ? pause() : resume());
@@ -611,6 +630,14 @@
       // the panels are gone: the whole frame between the bands is the stage for the wide shot
       if (!A.stacked() && F.dom) W.setInset({ l: 0, r: 0, t: Math.round(F.dom.lbT.getBoundingClientRect().height), b: bandB() }, { ms: sk || A.still ? 0 : 700 });
       W.setDim(0.6); W.layer.opacity('hail', 0.2, { ms: sk ? 0 : 900 }); W.ambient(false);
+      // the view's own marks (rings, callouts, pins) step back too: the sign-off is the mark's frame, not the last view's
+      if (!F.duskOps) {
+        F.duskOps = {};
+        W.layer.list().forEach((id) => { if (id === 'hail') return; const L = W.layer.get(id); if (!L) return; F.duskOps[id] = L.opacity == null ? 1 : L.opacity; W.layer.opacity(id, 0.12, { ms: sk ? 0 : 900 }); });
+      }
+      root.classList.add('dir-dusk');
+      // stacked (phones): the map sits at the top of the page, so the wide shot scrolls back up to it
+      if (A.stacked()) scrollTo({ top: 0, behavior: sk || A.still ? 'auto' : 'smooth' });
       if (F.labels0 == null) { F.labels0 = W.options({}).labels !== false; W.options({ labels: false }); }   // the mark owns the frame
       W.flyTo({ bounds: W.presets.region, pad: A.stacked() ? 12 : 70 }, { ms: 2800, instant: sk || A.still, ease: 'inOutSine' });
     });
@@ -619,6 +646,8 @@
     const W = A.world; if (!W || !W.layer) return;
     // labels first, before any view change (a view that hides labels itself restores them on its own exit)
     if (F.labels0 != null) { const l = F.labels0; F.labels0 = null; A.safe('film labels', () => W.options({ labels: l })); }
+    root.classList.remove('dir-dusk');
+    if (F.duskOps) { const ops = F.duskOps; F.duskOps = null; A.safe('film layers', () => Object.keys(ops).forEach((id) => { if (W.layer.get(id)) W.layer.opacity(id, ops[id], { ms: 500 }); })); }
     const v = A.view.get(A.view.current) || {};
     A.safe('film world', () => { W.setDim(v.dim || 0); W.layer.opacity('hail', v.hail == null ? 1 : v.hail, { ms: 500 }); W.ambient(v.ambient !== false); });
   }
@@ -967,17 +996,22 @@
   function closeEnd(animate) {
     clearTimeout(endT);
     const el = endEl; endEl = null; if (!el) return;
-    if (animate && !A.still) A.motion.exit([el], { ms: 180, y: 10 }).then(() => el.remove()); else el.remove();
+    if (animate && !A.still) { const rm = () => el.remove(); A.motion.exit([el], { ms: 180, y: 10 }).then(rm); setTimeout(rm, 260); } else el.remove();
   }
 
   /* ======================= dialogs (credits, keys): one small modal kit ======================= */
   function modal(el, box, opener, onClose) {
     const prev = opener || document.activeElement;
+    let closing = false;
     const close = (animate) => {
-      if (!el.isConnected) return;
+      if (!el.isConnected || closing) return;
+      closing = true;
       removeEventListener('keydown', onKey2, true);
-      const done = () => { el.remove(); A.safe('dialog focus back', () => { if (prev && prev.isConnected && prev.focus) prev.focus({ preventScroll: true }); }); if (onClose) onClose(); };
-      if (animate !== false && !A.still) A.motion.exit([box], { ms: 170, y: 10 }).then(done); else done();
+      el.style.pointerEvents = 'none';
+      let fin = false;
+      const done = () => { if (fin) return; fin = true; el.remove(); A.safe('dialog focus back', () => { if (prev && prev.isConnected && prev.focus) prev.focus({ preventScroll: true }); }); if (onClose) onClose(); };
+      // the exit is a short fade; a busy renderer may finish it late, so the dialog is gone within 240 ms either way
+      if (animate !== false && !A.still) { A.motion.exit([box], { ms: 170, y: 10 }).then(done); A.safe('dialog scrim out', () => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 190, easing: A.motion.css.ease, fill: 'forwards' })); setTimeout(done, 240); } else done();
     };
     const onKey2 = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); return; }

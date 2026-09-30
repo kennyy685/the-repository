@@ -96,7 +96,8 @@ If you resize panels later, call `A.view.relayout()`.
 - `new A.motion.Timeline({rate, realtime})` → `.add(atMs, fn(tl, {seeking}))` cue, `.add(atMs, {ms, update(p), ease})` scrubbable track, `.play() → Promise<done>`, `.pause()`, `.seek(ms)`, `.skip()`, `.stop()`, `.onEnd(fn)`, `.duration`, `.time`.
   A seek fires every cue it passes with `{seeking: true}`: apply the end state, start nothing long. Under `A.still` a timeline
   jumps to its end, unless `realtime: true` (the director: captions still need their reading time).
-- `A.motion.ticker.add(fn(now, dt) → false to stop)`: the one shared rAF loop.
+- `A.motion.ticker.add(fn(now, dt) → false to stop)`: the one shared rAF loop. Adding from inside a frame is safe (it joins the
+  running loop; before 2026-09-30 it started a second loop, and the film stacked loops chapter by chapter until the page stalled).
 
 ```js
 A.motion.stagger(ctx.slots.left.querySelectorAll('.row'), { each: 35 });
@@ -129,10 +130,14 @@ A.view.register('now', {
   it takes every key first (a capture listener): views never act under the film.
 
 **Demo handles** (the director drives the real views with these; each is a no-op when its view is not on screen)
-- `A.intro.play({force}) → Promise<played>`, `.skip()`, `.stop()`, `.timeline` (seekable), `.active`.
+- `A.intro.play({force, to}) → Promise<played>`, `.skip()`, `.stop()`, `.timeline` (seekable, 8.7 s), `.active`, `.duration`, `.beats`
+  (`{storm, stormMs, count, push, pushMs, ring, mark, head, hand, handMs}` ms). Emits `intro:handoff` `{view}`.
 - `A.nowAssemble() → Timeline` (the pick assembles; call `.play()`), `A.nowDemo = {hover(i), select(i), collapse(), deselect(), drive(), settle(), clear(), state()}`.
-- `A.stormsDemo = {select(date), play(), pause(), seek(0..1), days, active}`, `A.knockDemo = {tap(outcome, rank?), flag(kind, rank?), select(rank), undo(), reset(all?), state()}`,
-  `A.dealDemo = {step(i), select(i), open(), close(), tick(k, on), state()}`.
+- `A.stormsDemo = {select(date|index), play(), pause(), seek(0..1), days, active}`; "Knock this storm" emits `zone:focus` and opens #now.
+- `A.knockDemo = {tap(outcome, rank?), select(rank), flag('noSoliciting'|'dontReturn', rank?), undo(), openDeal(rank?), reset(all?), state(), outcomes, flags}`.
+  `tap('inspection_set')` opens the inline slots and "Open in Deal" and does not advance. `reset(true)` also clears the
+  do-not-knock list and works off-view. Knock re-reads its store on `film` `{on:false}`.
+- `A.dealDemo = {step(i), select(i), open(), close(), tick(k, on), state()}` (`state()` is null off #deal).
 
 **The director** (js/director.js)
 - `A.director.play({at, pause})`, `.stop()`, `.pause()`, `.resume()`, `.toggle()`, `.seek(ms)`, `.next()`, `.prev()`, `.playing`,
@@ -140,6 +145,12 @@ A.view.register('now', {
   `.credits(opener)` ("Made by Claude"), `.keys(opener)` (the key sheet). 12 chapters from `COPY.film.beats`; a chapter whose
   view or handle is missing is skipped and noted in `report()`. The film takes the top bar's "Play the film" click as its
   sound gesture, snapshots and restores the store, and hands back on whatever view is showing with a "Your turn" card.
+  Chapters (start, length): cold open 0:00 7.8 s · the 7 AM brief 0:07.8 6.4 · why Columbus 0:14.2 6.0 · the zones 0:20.2 5.6 ·
+  season replay 0:25.8 8.4 · the drive 0:34.2 6.6 · the walk 0:40.8 5.6 · one tap per door 0:46.4 7.6 (four taps, then the
+  inspection's 4:30 PM slot is booked) · legal armor 0:54.0 8.8 (Knock hands that door to Deal) · homeowner sheet 1:02.8 5.8 ·
+  the path to $100k 1:08.6 7.6 · sign-off 1:16.2 6.6. Total 1:22.8. The film starts the knock walk clean inside its sandbox,
+  so a viewer's own walk is never tapped on. At the sign-off the view's own layers and pins dim (`dir-dusk`) and phones
+  scroll back up to the map. Pausing holds the spotlights too.
 
 **UI kit**
 - `A.ui.icon(name, {size, cls}) → svg`. Or write `<i data-icon="door"></i>` in your HTML (hydrated by `ctx.el`, or call `A.ui.icons(el)`).
@@ -245,6 +256,7 @@ The film and the credits:
 ```
 node docs/design/claudes-aldaba/dev/film.mjs --shots 3000,16000,30000 --theme both --lang both   # a frame at each point
 node docs/design/claudes-aldaba/dev/film.mjs --shots 16000 --hold                                # the exact seeked frame
+node docs/design/claudes-aldaba/dev/film.mjs --shots 16800,52400 --lead 6000                      # played into that moment, then paused (what a viewer sees)
 node docs/design/claudes-aldaba/dev/film.mjs --run --rate 2        # the whole film: chapters, issues, clean hand-back
 node docs/design/claudes-aldaba/dev/film.mjs --stops               # stop() inside every chapter leaves nothing behind
 node docs/design/claudes-aldaba/dev/manifest.mjs                   # recount the lines and data sizes the credits show

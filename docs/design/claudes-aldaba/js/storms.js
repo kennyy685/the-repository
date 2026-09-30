@@ -6,7 +6,10 @@
    ringed points ("Past years"). Left: the selected storm day (dates EN/ES, hail by source, reports, radar cells, towns,
    zones touched → fly there, "Knock this storm" → #now with that zone via 'zone:focus'), then the season summary.
    Center: a live hail legend (reads the field under the cursor) and the radar note. Click the map: nearest swath.
-   Entering replays the season fast once (2.5 s, skippable), then rests on the latest storm day with its swath replaying.
+   Entering replays the season fast once (2.5 s the first visit, 1.6 s after; skippable) while the card keeps a live tally
+   (month, storm days n/25, reports so far, biggest so far, the days landing in a log), then the day card lands on the
+   latest storm day with its swath replaying. Play runs the same tally; pause, a step, a scrub or a tick land a day.
+   While the season moves, a decorative KOAX sweep turns (the legend says so) and rests with the view.
    A.stormsDemo = {select(date), play(), pause(), seek(0..1)} for the director.
    Owner: the Storms builder. Only this file + css/storms.css. */
 (function () {
@@ -155,6 +158,7 @@
 
   /* ======================= the view ======================= */
   let V = null;                                                  // live state while #storms is on screen
+  let VISITS = 0;                                                // the entrance replay: 2.5 s the first time, 1.6 s after
   let FADE = null;                                               // the last state, drawn frozen while the layer fades out
   const VIEW = () => V || FADE;
   const REPLAY = 1.5;                                            // the selected day's swath replay (s)
@@ -193,9 +197,8 @@
     K.d.rings.clear();
   }
   /** GPU uploads happen here, in an event or timer, never inside a frame */
-  let warmSweep = -1;
   function prepare(D) {
-    if (A.world.hasGL && A.world.gl && warmSweep !== A.world.glGen) { A.safe('storms sweep program', sweepProgram); warmSweep = A.world.glGen; }
+    if (A.world.hasGL && A.world.gl && !A.world.gl.isContextLost()) A.safe('storms sweep program', sweepProgram);
     const S = A.safe('storms season field', seasonField);
     if (S && A.world.hasGL && A.world.gl) {
       const K = A.safe('storms kits', () => kitsFor(A.world.gl, true));
@@ -225,8 +228,8 @@
   /* ======================= the KOAX sweep (decorative, and the legend says so) =======================
      While the season moves (the entrance replay, play, a scrub) a hairline beam turns from KOAX (Valley, NE) with a faint
      trail and range rings every 20 mi, the same instrument as the cold open. It fades in with motion and out when the view
-     rests, so it never keeps the loop alive. Its program (a few hundred bytes) lives in the world's per-context cache and
-     is compiled in prepare(), never inside a frame; the textures and buffers (the kits) are what exit frees. */
+     rests, so it never keeps the loop alive. Its program is compiled in prepare() (never inside a frame), remade after a
+     context loss (world.glGen) and deleted by the layer's dispose() when the view's exit fade ends. */
   const KOAX = (X.radar && X.radar.c) || [-96.3667, 41.3203];
   const SW_VS = ['#version 300 es', 'in vec2 a_p;', 'uniform mat3 u_inv;', 'out vec2 v_w;',
     'void main(){ v_w = (u_inv * vec3(a_p, 1.0)).xy; gl_Position = vec4(a_p, 0.0, 1.0); }'].join('\n');
@@ -247,14 +250,23 @@
     '  o = vec4(u_beam * b, b);',
     '}'].join('\n');
   const sweepAng = (t) => 0.6 - (t / 1000) * (TAU / 2.8);
-  const sweepProgram = () => A.world.glx.cached('storms-sweep', () => A.world.glx.program(SW_VS, SW_FS));
+  let SWR = null;                                                // {gen, P}: this view's sweep program
+  function freeSweep() {
+    const R = SWR, gl = A.world.gl; SWR = null;
+    if (!R || !R.P || !gl || R.gen !== A.world.glGen || gl.isContextLost()) return;
+    A.safe('storms sweep free', () => { (gl.getAttachedShaders(R.P.p) || []).forEach((sh) => gl.deleteShader(sh)); gl.deleteProgram(R.P.p); });
+  }
+  function sweepProgram() {
+    if (!SWR || SWR.gen !== A.world.glGen) { freeSweep(); SWR = { gen: A.world.glGen, P: A.world.glx.program(SW_VS, SW_FS) }; }
+    return SWR.P;
+  }
   function sweepLayer() {
     return {
       id: 'storms-sweep', z: 13, live: false, fadeMs: 300,
       drawGL(gl, f) {
         const v = VIEW(); if (!v || !(v.sw > 0.004)) return;
-        if (warmSweep !== A.world.glGen) { askPrepare(); return; }   // not compiled for this context yet: prepare() does it
-        const P = sweepProgram(); if (!P) return;
+        if (!SWR || SWR.gen !== A.world.glGen) { askPrepare(); return; }   // not compiled for this context: prepare() does it
+        const P = SWR.P; if (!P) return;
         gl.useProgram(P.p);
         A.world.glx.uniforms(P, { u_inv: f.inv, u_radar: A.world.toWorld(KOAX), u_sweep: sweepAng(f.t), u_px: f.px, u_a: v.sw * f.alpha, u_beam: f.pal.rgb.beam });
         A.world.glx.drawQuad(P);
@@ -267,7 +279,8 @@
         for (let k = 0; k < 12; k++) { c.globalAlpha = v.sw * 0.05 * (1 - k / 12); c.beginPath(); c.moveTo(o[0], o[1]); c.arc(o[0], o[1], Rpx, ang - (k + 1) * 0.06, ang - k * 0.06); c.closePath(); c.fill(); }
         c.globalAlpha = v.sw * 0.8; c.beginPath(); c.moveTo(o[0], o[1]); c.lineTo(o[0] + Math.cos(ang) * Rpx, o[1] + Math.sin(ang) * Rpx); c.stroke();
         c.restore();
-      }
+      },
+      dispose() { if (!V) freeSweep(); }
     };
   }
 
@@ -330,8 +343,18 @@
       hit(pt, f) {                                               // the nearest modeled swath under the pointer
         if (!V || V.mode === 'intro') return null;
         let best = null, bd = Infinity; const tol = Math.max(16, 3.2 * f.pxPerMile);
+        const inside = (ring) => {                                // even-odd test in screen space
+          let c = false;
+          for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+            const a = f.project(ring[i]), b = f.project(ring[j]);
+            if ((a[1] > pt.y) !== (b[1] > pt.y) && pt.x < ((b[0] - a[0]) * (pt.y - a[1])) / (b[1] - a[1]) + a[0]) c = !c;
+          }
+          return c;
+        };
         for (const D of ORD) {
           if (D.d > V.p + 0.01) continue;                        // only storms that have happened on the timeline
+          // inside one of its hail areas counts as on the swath (the newest storm wins where they overlap)
+          if (D.areas.some((a) => a.ring && a.ring.length > 2 && inside(a.ring))) { const d = tol * 0.5; if (d <= bd) { bd = d; best = D; } }
           const pts = pathPx(D, f);
           for (let i = 0; i < pts.length; i++) {
             const a = pts[i], b = pts[Math.min(pts.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
@@ -649,7 +672,7 @@
       const p0 = V.p;
       if (V.mode === 'intro') {
         if (V.t0 == null) V.t0 = now;
-        const k = A.clamp((now - V.t0) / 2500, 0, 1);
+        const k = A.clamp((now - V.t0) / (V.introMs || 2500), 0, 1);
         V.p = (V.pIntro || END) * E.inOutSine(k);
         if (k >= 1) endIntro(true);
       } else if (V.mode === 'play') {
@@ -745,6 +768,7 @@
     // eastern Nebraska where the 2026 hail fell: Columbus to Omaha, Lincoln to Blair (every modeled swath + hail area)
     camera: (fr) => ({ bounds: SEASON_BOUNDS, pad: fr && fr.stacked ? 10 : { t: 28, r: 30, b: 18, l: 24 } }),
     enter(ctx) {
+      VISITS++;
       const card = ctx.el('left', cardHTML(LAST), 'pane storms-card');
       ctx.el('left', seasonHTML(), 'pane storms-season');
       const lg = ctx.el('center', legendHTML(), 'float storms-legend');
@@ -814,7 +838,7 @@
         const skipIntro = (e) => { if (V && V.mode === 'intro' && !(e.target.closest && e.target.closest('#topbar'))) endIntro(true); };
         document.addEventListener('pointerdown', skipIntro, true); ctx.own(() => document.removeEventListener('pointerdown', skipIntro, true));
         ctx.timer(() => prepare(LAST), 40);
-        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; V.readDay = -1; if (!V.tally) showTally(); wake(); }, 520);
+        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.introMs = VISITS > 1 ? 1600 : 2500; V.mode = 'intro'; V.readDay = -1; if (!V.tally) showTally(); wake(); }, 520);
         ctx.timer(() => { const go = () => A.safe('storms warm hail', warmSharedHail); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else go(); }, 4200);
       }
     }

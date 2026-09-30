@@ -1,0 +1,150 @@
+{
+  "view": "deal",
+  "reviewer": "fresh-eyes review + fix (finish workflow, 2026-09-30)",
+  "files": [
+    "js/deal.js",
+    "css/deal.css"
+  ],
+  "verdict": "Strong. The house hero, the fuse track, the marks on the house, the cancel clock and the HMP sheet all work in both themes and languages at 1440/1280/400. No legal blockers. Fixed one perf issue, the foundation API swap, one legal-accuracy wording, and the 5-second 'what does the law ask next' gap.",
+  "tests_before": {
+    "shots": "deal dark/light x en/es 1440, 1280, 400 (still + tall), sheet dark-en / light-es / 400, motion 1200/2500/7000: 0 console errors, no horizontal scroll",
+    "smoke_still": "PASS (48 clicks, 0 errors)",
+    "smoke_motion": "FAIL: 'dialog failed to close with Esc; key sheet failed (true,true)'. Same failure on money and knock with --motion: the director's dialog exit animation outlasts smoke's 400 ms wait while the software renderer drops frames (measured 1.8-2 s frame gaps on money too). Not a Deal bug."
+  },
+  "findings": [
+    {
+      "id": "D0",
+      "severity": "major",
+      "area": "film / layout",
+      "status": "fixed",
+      "what": "Found while checking A.dealDemo in the film: in the legal-armor chapter the portrait was sized for the unletterboxed dock and the house drew under the dock (ground line and dims hidden). Core slides the dock slot into its letterboxed spot with a transform; layout() read getBoundingClientRect mid-slide and nothing re-measured after (no element changes size when a transform ends).",
+      "fix": "layout() reads layout boxes (offsetTop/offsetWidth of the center slot, dock slot and dock), which ignore the slide; also observes the dock slot and settles on camera:end. Verified with film.mjs --shots 61500: the stage ends 12 px above the dock."
+    },
+    {
+      "id": "D1",
+      "severity": "major",
+      "area": "perf",
+      "status": "fixed",
+      "what": "layout() re-rendered the whole house 2-4 times (measure loop + final measure) on every ResizeObserver tick, window resize, 'view' event and caption refit, before its size-key early return.",
+      "fix": "measure() memoized per size (Map, capped); the geometry does not depend on theme or language."
+    },
+    {
+      "id": "D2",
+      "severity": "major",
+      "area": "api",
+      "status": "fixed",
+      "what": "Read canvas.__house.L directly for composition and anchors.",
+      "fix": "measure() now uses House.layout(canvas) for everything it offers (top, bandY, fs, knock, x0/x1, groundY, part boxes, rings). The exact per-face mark placement still uses the per-part polygons when House carries them (house.js documents that __house.L 'stays as it is'); a new anchorsPublic() places every mark from House.layout alone if they ever disappear (tested: marks land on roof, walls and door, a little less precisely). paint() now uses opts.transparent with the real --page color instead of a zero-alpha bg + manual clear. Request to the House author: expose per-part polygons in House.layout (roof faces, walls with face, gutter band/downspouts, window boxes) so the refinement can drop __house entirely."
+    },
+    {
+      "id": "D3",
+      "severity": "major",
+      "area": "ux / 5-second test",
+      "status": "fixed",
+      "what": "On steps with no statute (Look, Inspection) the law box said only 'No statute sets this step'; what the law requires next was not visible without reading the track's tiny cites.",
+      "fix": "New 'Next legal step' row: under the law box on no-law steps, after Done-when on law steps. Shows the cite, the step and its armor title (e.g. 44-9204 · 04 Meet the adjuster · We document, we do not negotiate); one tap selects that step. EN/ES."
+    },
+    {
+      "id": "D4",
+      "severity": "minor",
+      "area": "legal accuracy",
+      "status": "fixed",
+      "what": "The business-day tag said 69-1604 'points to' the FTC Cooling-Off Rule for the business-day definition. 69-1604(2) only accepts the FTC notice form; Nebraska 69-1601..1607 do not define 'business day'.",
+      "fix": "Tag (EN/ES) and the code comment now say exactly that: Nebraska does not define it; we count like 16 CFR 429.0 (every day except Sunday and federal holidays), erring long."
+    },
+    {
+      "id": "D5",
+      "severity": "minor",
+      "area": "legal / copy",
+      "status": "fixed",
+      "what": "The 'Job complete' stamp carried cite 48-2104 (contractor registration), which says nothing about completion.",
+      "fix": "No cite on that stamp."
+    },
+    {
+      "id": "D6",
+      "severity": "minor",
+      "area": "legal display",
+      "status": "fixed",
+      "what": "Track node for Contract showed only '69-1601' (the law is 69-1601 and 69-1604); the armor chip '69-1601, 69-1604' truncated with an ellipsis at 1280.",
+      "fix": "shortCite(): '69-1601/1604' on the track, the armor chips and the next-law row."
+    },
+    {
+      "id": "D7",
+      "severity": "minor",
+      "area": "a11y",
+      "status": "fixed",
+      "what": "Marks on the house got aria-label in the language active when they were drawn; a language switch left them stale.",
+      "fix": "data-label-en / data-label-es + A.ui.localize (core applies them)."
+    },
+    {
+      "id": "D8",
+      "severity": "minor",
+      "area": "code",
+      "status": "fixed",
+      "what": "toggleTick's delayed ripples on marks were not guarded: a step change within 70 ms rippled a detached element at (0,0).",
+      "fix": "isConnected guard."
+    },
+    {
+      "id": "D9",
+      "severity": "minor",
+      "area": "contrast",
+      "status": "fixed",
+      "what": "Statute cites under the track nodes used --faint (legal info at 9.5 px, low contrast in dark).",
+      "fix": "--muted, and --text-2 on the selected node."
+    },
+    {
+      "id": "D10",
+      "severity": "minor",
+      "area": "spanish",
+      "status": "fixed",
+      "what": "'Esta puerta va aquí' reads as 'this door goes here'.",
+      "fix": "'Esta puerta está aquí'."
+    },
+    {
+      "id": "D11",
+      "severity": "polish",
+      "area": "homeowner sheet",
+      "status": "fixed",
+      "what": "EN and ES columns drifted apart (Spanish runs longer), so the cancel boxes, address and signature lines did not sit level.",
+      "fix": "CSS subgrid (desktop): both languages share rows, each section starts level across the fold like a printed bilingual form. Stacked at 400 unchanged."
+    },
+    {
+      "id": "D12",
+      "severity": "polish",
+      "area": "400 px",
+      "status": "fixed",
+      "what": "The caption's hairline separator dangled at the end of a wrapped line on phones.",
+      "fix": "Hidden when stacked."
+    },
+    {
+      "id": "D13",
+      "severity": "info",
+      "area": "legal sources",
+      "status": "not mine",
+      "what": "COPY.deal cites Neb. Rev. Stat. 44-9204 (adjuster step + armor). It is correct (nebraskalegislature.gov: 'License required; exceptions', Public Adjusters Licensing Act, LB743 2018) but there is no docs/legal/44-9204.txt.",
+      "fix": "Request: add docs/legal/44-9204.txt so every cite in the app has its statute text in the repo."
+    },
+    {
+      "id": "D14",
+      "severity": "info",
+      "area": "smoke --motion",
+      "status": "not mine",
+      "what": "Esc / key-sheet failures in smoke --motion happen on money and knock too (director modal exit vs smoke's 400 ms wait on a software renderer).",
+      "fix": "For integration: close director dialogs without waiting for the exit animation when Esc is pressed, or have smoke poll up to ~2.5 s."
+    }
+  ],
+  "checked_ok": [
+    "Legal: every cite matches docs/legal (69-1602, 69-1601/1604, 69-1603, 69-1605, 69-1606(5), 44-8603, 44-8604, 44-8605, 44-8606, 44-8607, 48-2104); 44-9204 verified on the legislature site.",
+    "No 'insured' for a home, 'registered' never 'licensed', no free/gratis, no deductible talk (44-8604 phrased as 'the part of a claim the homeowner pays'), never implies insurance pays ('Only your insurance company decides what your policy covers'), no negotiating ('We do not negotiate or settle your claim'), no fake urgency, no coaching.",
+    "Homeowner sheet: HMP Siding & Roofing (no Aldaba), EN + ES side by side, paper surface in both themes, no phone numbers (the rep line's 'Phone:' is cut), no print button, registration # blank line, 2600 Laverna St, Apt 50, Fremont, NE 68025, signature + date lines, 'Sample sheet. Not a signed document.'",
+    "Cancel clock: 3 business days skip Sunday + federal holidays + observed weekdays; Labor Day weekend demo counts Sep 8-10; insurance vs no-claim rules and the 44-8606 build gate.",
+    "Cleanup: exit leaves no deal DOM, no deal layers, ticker build removed, RO disconnected, resize listener removed, modal pointerdown listener removed; focus trap + Escape + focus restore on the sheet; A.still resolves everything.",
+    "A.dealDemo: step(5) -> cur 5 / sel 5, tick(0,true), open() focuses the sheet, close() removes it, select(2), state() null after leaving."
+  ],
+  "tests_after": {
+    "shots": "deal dark/light x en/es 1440, 1280x800, 400x860 (+ tall 400), sheet dark-en / light-es / 400, motion 1200/2500/7000, film 60500/61500/66000: 0 console errors, no horizontal scroll",
+    "smoke_still": "PASS (49 clicks, 0 errors, 0 long rAF)",
+    "smoke_motion": "FAIL only on 'dialog failed to close with Esc' (director dialog, same on money/knock; see D14). 0 errors, no hscroll.",
+    "dealDemo": "step(5), tick(0,true), open() (focus in sheet), close(), select(2), state() null after leaving; no deal DOM or layers left"
+  }
+}

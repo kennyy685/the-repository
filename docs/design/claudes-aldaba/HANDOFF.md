@@ -2,6 +2,26 @@
 
 **FilthE (2026-09-30 ~12:20 UTC): "you're the boss this task claude, do as you wish."** Claude decides everything on this piece (scope, look, when to republish the same link) without waiting for his OK. Still off-limits: merges to main, spending money, deleting data.
 
+## FILM + WIRING PASS DONE 2026-09-30 ~14:30 UTC (integration robot)
+- **Root cause of "the film never finishes" found and fixed (js/core.js ticker):** adding a ticker callback from inside a frame
+  (every chapter's Timeline starts inside the previous one's end cue) scheduled a SECOND rAF loop; loops piled up chapter by
+  chapter until the page stalled (570k rAF callbacks in 4 s by the money chapter). The loop now holds `raf = -1` while it runs.
+  `film.mjs --run --rate 2`: 12/12 chapters in 108 s wall (was a 1500 s timeout), 0 issues, 0 skipped, clean hand-back, store restored.
+  Also green: `--rate 1`, `--still`, `--lang es --theme light --gl 0`, `--stops` (12 stop points clean), smoke all views still + motion ALL PASS.
+- Film changes: the knock walk starts clean inside the sandbox even if the viewer is on #knock (`knockClean`); chapter 8 books the
+  inspection's 4:30 PM slot (toast) and chapter 9 hands THAT door to Deal via `A.knockDemo.openDeal()` (Deal shows "Door 4",
+  the inspection time); zone hovers aim at the rank ring; the money lever is revealed first (ES panel is longer); the sign-off
+  dims the last view's layers + pins (`dir-dusk`) and scrolls phones back to the map; pausing holds the spotlights; dialogs
+  (credits, key sheet, end card) are gone within 240 ms of Esc even on a slow renderer (fixed smoke --motion Esc failures).
+- Other fixes: knock door ring threw on a negative arc radius (js/knock.js one-line guard); Deal's eyebrow shows the walk's door
+  number from Knock's `walkIndex` (deal.js one-liner); 400 px top bar fits the whole "Aldaba" (base.css); Now's zone detail labels
+  wrap in Spanish (now.css); credits close button gets a solid chip at 400 (director.css); manifest regenerated (14,333 lines).
+- Dev: `film.mjs --lead <ms>` plays into a moment on the film clock and pauses there (the frame a viewer sees); `--stops` waits
+  for fades. Chapter timings are in CONTRACT.md (The director).
+- Open (not integration's files): `docs/legal/44-9204.txt` is missing (Deal cites it correctly); Deal still reads
+  `canvas.__house.L.parts` as an optional refinement until House exposes per-part polygons.
+- **Next:** republish the same URL (page `index.html`, `files` = files.json, no new files this pass), hub post, CHANGELOG line.
+
 ## RESUMED 2026-09-30 11:25 UTC: finish workflow `wf_bfe3e427-cbd` running (Finish Knock/cinema/Deal -> full film -> 3-lens review -> fixers -> verify). If paused again, resume it with resumeFromRunId in the same chat; otherwise follow the resume order below.
 
 ## PAUSED 2026-09-30 ~02:45 UTC (FilthE: "come to an appropriate pause now"). Resume here.
