@@ -155,3 +155,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   "amplify AI into the network". Their leads = word of mouth + referrals (marketing budget unused). Mindset: PREVAIL
   (6 months to livable income; ~5% make it). His app idea: photos organized by property address + "analyze/scan" (likely
   CompanyCam) -> add a document analyzer + PDF maker to OUR app for insurance paperwork.
+- ~01:40 UTC 2026-09-30 FilthE's REAL GOAL in his words: "at the end of the day i just wanted to build a contracting agency
+  for hmp roofing and siding with claude integrated in it, while i also developed a system meant for tracking leads and
+  getting leads and everything that could help a contracting agency, and somehow we ended here." He's confused by the
+  sprawl. Two things: (1) HMP agency run with Claude, (2) lead system (find + track leads + everything a contractor needs).
