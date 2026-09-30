@@ -165,3 +165,6 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   completely ("fuck the hub completely"). Carry over only what matters. After the discussion is done, the King sets itself
   up fresh ("code yourself to the best of your ability to what our goals are": CLAUDE.md, agents, skills, hooks built for
   the 2 goals). Still discussing: nothing gets created until he says go. He invited more questions about his vision.
+- ~01:55 UTC answers: (1) YES: Aldaba = the software, HMP = first customer, hmp-agency = HMP's own setup on it.
+  (2) Aldaba "is an AI system", roughly "an AI office for contractors" (finds jobs, tracks leads, insurance paperwork, crew).
+  (3) While building: users = just FilthE; "yes" (read as: boss/crews/homeowners later). (4) why "Aldaba": not answered yet.
