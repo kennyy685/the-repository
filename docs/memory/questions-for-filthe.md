@@ -159,3 +159,5 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   for hmp roofing and siding with claude integrated in it, while i also developed a system meant for tracking leads and
   getting leads and everything that could help a contracting agency, and somehow we ended here." He's confused by the
   sprawl. Two things: (1) HMP agency run with Claude, (2) lead system (find + track leads + everything a contractor needs).
+- ~01:45 UTC 2026-09-30: FilthE wants the new HMP Agency project "fresh, everything completely fresh". King asked: new repo +
+  new app from zero, old project archived (never deleted); carry over only knowledge (legal rules, CEO notes, his answers)?
