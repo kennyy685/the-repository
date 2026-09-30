@@ -116,6 +116,7 @@ landing page** (docs/design/product-brand/aldaba/): professional, premium, luxur
   `trig_01MNxMWzvD3ZgRqWxfjtJLEU` is paused (2026-09-28); morning data (daily docs, HQ refresh) now runs when FilthE asks. Old triggers are paused, never deleted. Never
   bind a recurring (cron) trigger to a long session.
 - **FilthE talks to the King in the King's Claude chat now (2026-09-29 ~19:05 UTC: "I'll talk to you through here now"):** answer him there, short; he asked a question = answer it, don't act.
+  **Start work only on his clear "go"/"start" (2026-09-30: "i didnt say start yet ... were at 100 usage"):** "can we do X" = plan it and ask; at a usage limit start nothing.
 - **Hub chat is instant (v28.1):** the page answers FilthE as SMUIPO in seconds (`sample`); orders wake
   `system/king.wake_trigger` as a TIMED fire (v28.4: `update_trigger` run_once_at = next whole minute, enabled:true;
   `fire_trigger` never lands in the King's chat). A timed fire carries no text: the King's trigger prompt must say "read
