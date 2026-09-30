@@ -1095,7 +1095,7 @@
   const MARK_SVG = '<svg viewBox="0 0 48 48" focusable="false" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="currentColor"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="var(--acc)" stroke-width="5"/></svg>';
   const G = (inner) => '<svg viewBox="0 0 44 44" focusable="false" aria-hidden="true">' + inner + '</svg>';
   const GLYPH = {
-    stone: G('<path d="M22 5v7M16.5 8v5M27.5 8v5" stroke="var(--faint)" stroke-width="1.6" stroke-linecap="round"/><circle cx="22" cy="27" r="6.5" fill="none" stroke="var(--acc)" stroke-width="3"/>'),
+    stone: G('<path d="M22 4.5v8M15.5 8v6M28.5 8v6" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><circle cx="22" cy="27" r="8" fill="none" stroke="var(--acc)" stroke-width="3.2"/>'),
     ripple: G('<circle cx="22" cy="22" r="4" fill="none" stroke="var(--acc)" stroke-width="3"/><circle cx="22" cy="22" r="10.5" fill="none" stroke="var(--acc)" stroke-width="1.6" opacity=".6"/><circle cx="22" cy="22" r="17" fill="none" stroke="var(--acc)" stroke-width="1.2" opacity=".28"/>'),
     zone: G('<circle cx="22" cy="22" r="15" fill="none" stroke="var(--acc)" stroke-width="3"/><circle cx="17" cy="20" r="1.8" fill="var(--text-2)"/><circle cx="24.5" cy="17.5" r="1.8" fill="var(--text-2)"/><circle cx="26" cy="25.5" r="1.8" fill="var(--text-2)"/><circle cx="19" cy="27" r="1.8" fill="var(--text-2)"/>'),
     door: G('<path d="M13 38V8.8A1.8 1.8 0 0 1 14.8 7h14.4A1.8 1.8 0 0 1 31 8.8V38M9 38h26" fill="none" stroke="var(--text-2)" stroke-width="1.8" stroke-linecap="round"/><circle cx="22" cy="20" r="5" fill="none" stroke="var(--acc)" stroke-width="3"/>'),
