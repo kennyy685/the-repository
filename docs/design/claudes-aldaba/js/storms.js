@@ -513,10 +513,13 @@
   }
   function endIntro(toEnd) {
     if (!V || V.mode !== 'intro') return;
-    V.mode = 'idle';
+    V.mode = 'idle'; V.readDay = -1;
+    V.dom.card.classList.remove('is-replaying');
     if (toEnd !== false) { V.p = LAST ? LAST.d + 1 : END; }
     const L = latestAt(V.p); setSel(L, { force: L !== V.sel, quiet: L === V.sel }); if (L && L.storm && V.p >= L.d + 1) startDay(L);
     sync();
+    // the playhead lands on the day like a knock
+    if (toEnd !== false && L && !A.still) A.safe('storms land', () => { const t = V.dom.ticks[L.i]; if (t) A.motion.ripple(t.querySelector('.storms-tick__b') || t, { rings: 2, size: 34 }); });
   }
 
   /* The world's shared hail layer is hidden in this view (hail: 0), and it compiles its shader + uploads its field on its
@@ -574,7 +577,8 @@
       V.readDay = day;
       const iso = isoOf(day), SDay = DAYS.find((x) => x.d === day), ago = A.fmt.daysBetween(iso);
       D.readD.innerHTML = A.both(() => A.fmt.date(iso, 'day'));
-      D.readS.innerHTML = SDay ? Le('Storm day ' + (SDay.i + 1) + ' of ' + DAYS.length, 'Día de tormenta ' + (SDay.i + 1) + ' de ' + DAYS.length)
+      D.readS.innerHTML = V.mode === 'intro' ? Le('Replaying the season', 'Repitiendo la temporada')
+        : SDay ? Le('Storm day ' + (SDay.i + 1) + ' of ' + DAYS.length, 'Día de tormenta ' + (SDay.i + 1) + ' de ' + DAYS.length)
         : ago > 0 ? Le(sub(cp('timeline.daysAgo', '{n} days ago', 'hace {n} días').en, { n: ago }), sub(cp('timeline.daysAgo', '{n} days ago', 'hace {n} días').es, { n: ago })) : ago === 0 ? Lo(cp('timeline.today', 'Today', 'Hoy')) : Le('ahead', 'por venir');
       D.tl.setAttribute('aria-valuenow', String(day));
       D.tl.setAttribute('aria-valuetext', A.fmt.date(iso, 'long') + (SDay ? ', ' + A.t('storm day', 'día de tormenta') : ''));
@@ -669,7 +673,7 @@
       bindTimeline();
       // keys: Space plays, arrows step through storm days (the map keeps its own arrows when it has focus)
       const onKey = (e) => {
-        if (A.view.current !== 'storms' || e.metaKey || e.ctrlKey || e.altKey || (A.intro && A.intro.active)) return;
+        if (A.view.current !== 'storms' || e.metaKey || e.ctrlKey || e.altKey || (A.intro && A.intro.active) || (A.director && A.director.active)) return;
         const t = e.target;
         if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
         if (t && t.closest && t.closest('#world')) return;
@@ -698,7 +702,7 @@
         const skipIntro = (e) => { if (V && V.mode === 'intro' && !(e.target.closest && e.target.closest('#topbar'))) endIntro(true); };
         document.addEventListener('pointerdown', skipIntro, true); ctx.own(() => document.removeEventListener('pointerdown', skipIntro, true));
         ctx.timer(() => prepare(LAST), 40);
-        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; wake(); }, 520);
+        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; V.readDay = -1; V.dom.card.classList.add('is-replaying'); wake(); }, 520);
         ctx.timer(() => { const go = () => A.safe('storms warm hail', warmSharedHail); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else go(); }, 4200);
       }
     }

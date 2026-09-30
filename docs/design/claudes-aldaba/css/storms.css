@@ -6,6 +6,9 @@
 :root[data-view="storms"][data-theme="light"]{ --storms-ice:#3e4f66; --storms-hot:#6b2400; }
 
 /* ---------- the selected storm day (left) ---------- */
+/* while the entrance sweeps the season, the card waits (it shows where the sweep will land), then lands at full strength */
+.storms-card{transition:opacity .45s var(--ease)}
+.storms-card.is-replaying{opacity:.42}
 .storms-card .eyebrow{flex-wrap:wrap}
 .storms-ago{color:var(--faint);letter-spacing:.06em}
 .storms-date{margin:12px 0 18px;font-size:30px}

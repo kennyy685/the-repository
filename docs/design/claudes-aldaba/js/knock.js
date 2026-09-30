@@ -15,7 +15,7 @@
    N T I X B and U = undo, an inline follow-up for inspections); right = the walk (where and when, the progress ring and
    tallies, the streets in order, the map key). A do-not-knock list (no soliciting sign / asked us not to come back) is kept
    per address, so every later walk skips those doors too.
-   Director hooks: A.knockDemo = {tap(outcome, rank?), flag(kind, rank?), select(rank), undo(), reset(all?), state()}. */
+   Director hooks: A.knockDemo = {tap(outcome, rank?), flag(kind, rank?), select(rank), undo(), openDeal(rank?), reset(all?), state()}. */
 (function () {
   'use strict';
   const A = window.A; if (!A || !A.view) return;
@@ -689,6 +689,12 @@
           for (const d of g.doors) { if (!V.lit[d.rank]) continue; const q = f.project(d.ll), dd = Math.hypot(q[0] - pt.x, q[1] - pt.y); if (dd < bd) { bd = dd; best = d; } }
           return best ? { id: 'door-' + best.rank, rank: best.rank } : null;
         },
+        avoid(f) {                       // world labels (street names) keep off the rings
+          if (f.zoom < 14.6) return null;
+          const R = ringR(f) + 3, out = [];
+          for (const d of g.doors) { if (!V.lit[d.rank]) continue; const q = f.project(d.ll); out.push([q[0] - R, q[1] - R, q[0] + R, q[1] + R]); }
+          return out;
+        },
         onClick(item) { if (item) select(item.rank, { fly: true, from: 'map' }); },
         onHover(item) { V.hover = item ? item.rank : 0; A.world.invalidate('top'); }
       });
@@ -926,7 +932,7 @@
   let els = {};
   const lineTip = { en: 'Modeled from NOAA SPC/NWS storm reports + MRMS radar hail size. A radar estimate, not confirmed at this address.', es: 'Modelado con reportes de tormenta de NOAA SPC/NWS + tamaño de granizo por radar MRMS. Es un estimado del radar, no confirmado en esta dirección.' };
   const lineTag = () => A.ui.srcTag({ label: 'SPC+MRMS', tip: lineTip });
-  const logTag = () => A.ui.srcTag({ label: 'log', tip: { en: 'Your own door log, kept on this device. Sample walk: sample homes, sample results.', es: 'Tu propio registro de puertas, guardado en este equipo. Ruta de muestra: casas de muestra, resultados de muestra.' } });
+  const logTag = () => A.ui.srcTag('log', { note: { en: 'Sample walk: sample homes, sample results.', es: 'Ruta de muestra: casas de muestra, resultados de muestra.' } });
   const bench = () => (window.Funnel && Funnel.bench) || {};
   const hrsBetween = (a, b) => { const p = (s) => { const m = String(s || '').split(':'); return +m[0] + (+m[1] || 0) / 60; }; return p(b) - p(a); };
   const arrowSvg = (dir) => A.ui.icon('arrow', { size: 13, cls: 'knock-st__arrow' }).replace('<svg ', '<svg style="transform:rotate(' + (dir * 45 - 90) + 'deg)" ');
@@ -978,7 +984,7 @@
     const hh = Math.round(hrs * 2) / 2, hTxt = (l) => (hrs < 1 ? Math.max(5, Math.round((hrs * 60) / 5) * 5) + ' min' : F.num(hh, hh % 1 ? 1 : 0, l) + ' h');
     const rng2 = (l) => F.range(bt.start || '16:00', bt.end || '19:30', l);
     const mi = (l) => F.miles(Math.max(0.1, Math.round((g.total / 5280) * 10) / 10), 1, l);
-    const dphTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark for a new rep: ' + dph.low + '-' + dph.high + ' doors an hour, typical ' + dph.typical + ' (' + dph.source + '). Replace with HMP\'s own after ~200 doors.', es: 'Referencia de la industria para un vendedor nuevo: de ' + dph.low + ' a ' + dph.high + ' puertas por hora, típico ' + dph.typical + ' (' + dph.source + '). Cámbiala por la de HMP después de ~200 puertas.' } });
+    const dphTag = U.srcTag('bench', { note: { en: 'A new rep knocks ' + dph.low + '-' + dph.high + ' doors an hour, typical ' + dph.typical + ' (' + dph.source + ').', es: 'Un vendedor nuevo toca de ' + dph.low + ' a ' + dph.high + ' puertas por hora, típico ' + dph.typical + ' (' + dph.source + ').' } });
     return `
       <div class="knock-plan__head">
         <p class="eyebrow eyebrow--acc"><span>${A.L("Tonight's walk", 'La ruta de hoy')} · <b>${A.L("Aldaba's pick", 'La elección de Aldaba')}</b></span></p>
@@ -1194,8 +1200,8 @@
     const ft = Math.max(10, Math.round((spur(d) + Math.abs(nx.arc - d.arc) + spur(nx)) / 10) * 10), st = g.walkSt[nx.wi];
     const how = nx.wi !== d.wi ? A.L('around the corner on ' + A.esc(st ? st.s.n : nx.h.st), 'a la vuelta, en ' + A.esc(st ? st.s.n : nx.h.st))
       : nx.side !== d.side ? A.L('across the street', 'cruzando la calle') : A.L('same side', 'del mismo lado');
-    const tip = { en: 'Walking distance along the route: Nebraska GIS street lines to the sample home spots', es: 'Distancia a pie por la ruta: calles de Nebraska GIS hasta los puntos de las casas de muestra' };
-    return `<div class="knock-next"><span class="t-micro knock-next__k">${A.L('Next', 'Sigue')}</span><span class="knock-next__n">${nx.idx}</span><span class="knock-next__t"><b>${A.esc(nx.h.addr)}</b> <span>${how} · ${A.L('~' + A.fmt.int(ft, 'en') + ' ft', '~' + A.fmt.int(ft, 'es') + ' pies')}</span> ${A.ui.srcTag({ label: 'NE GIS', tip })}</span>
+    const note = { en: 'Walking distance along the route, sidewalk to door, to the sample home spot.', es: 'Distancia a pie por la ruta, de la banqueta a la puerta, hasta el punto de la casa de muestra.' };
+    return `<div class="knock-next"><span class="t-micro knock-next__k">${A.L('Next', 'Sigue')}</span><span class="knock-next__n">${nx.idx}</span><span class="knock-next__t"><b>${A.esc(nx.h.addr)}</b> <span>${how} · ${A.L('~' + A.fmt.int(ft, 'en') + ' ft', '~' + A.fmt.int(ft, 'es') + ' pies')}</span> ${A.ui.srcTag('streets', { note })}</span>
       <button type="button" class="btn btn--ghost btn--icon btn--sm knock-next__go" data-goto="${nx.rank}" data-label-en="${A.esc('Go to door ' + nx.idx + ', ' + nx.h.addr)}" data-label-es="${A.esc('Ir a la puerta ' + nx.idx + ', ' + nx.h.addr)}"><i data-icon="chevron" class="i--sm"></i></button></div>`;
   }
 
@@ -1237,8 +1243,8 @@
       : A.L('No one answered on this walk.', 'Nadie abrió en esta ruta.');
     const said = c.answered ? A.L('said first (69-1602) at ' + c.legal + ' of ' + c.answered + (c.answered === 1 ? ' answered door' : ' answered doors'), 'dicho primero (69-1602) en ' + c.legal + ' de ' + c.answered + (c.answered === 1 ? ' puerta que abrió' : ' puertas que abrieron')) + ' ' + U.srcTag('law') + ' · ' : '';
     const skipped = c.skipped ? A.L(c.skipped + ' skipped (do-not-knock list)', c.skipped + (c.skipped === 1 ? ' saltada' : ' saltadas') + ' (lista de no tocar)') + ' · ' : '';
-    const convTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark: ' + conv.typical + '% of doors answer (' + conv.source + ')', es: 'Referencia de la industria: abre el ' + conv.typical + '% de las puertas (' + conv.source + ')' } });
-    const inspTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark for a new rep: ' + insp.low + '-' + insp.high + '% of doors book a qualified inspection, typical ' + insp.typical + '% (' + insp.source + ')', es: 'Referencia de la industria para un vendedor nuevo: del ' + insp.low + ' al ' + insp.high + '% de las puertas agenda una inspección, típico ' + insp.typical + '% (' + insp.source + ')' } });
+    const convTag = U.srcTag('bench', { note: { en: 'About ' + conv.typical + '% of doors answer (' + conv.source + ').', es: 'Abre cerca del ' + conv.typical + '% de las puertas (' + conv.source + ').' } });
+    const inspTag = U.srcTag('bench', { note: { en: 'A new rep books a qualified inspection at ' + insp.low + '-' + insp.high + '% of doors, typical ' + insp.typical + '% (' + insp.source + ').', es: 'Un vendedor nuevo agenda una inspección en el ' + insp.low + ' a ' + insp.high + '% de las puertas, típico ' + insp.typical + '% (' + insp.source + ').' } });
     const firstInsp = g.doors.find((d) => S.o[d.rank] === 'inspection_set');
     const html = `
       <div class="knock-recap">
@@ -1271,6 +1277,13 @@
     flag(kind, rank) { if (A.view.current !== 'knock' || !FLAGBY[kind]) return false; toggleFlag(kind, rank); return true; },
     select(rank) { if (A.view.current !== 'knock') return false; select(rank, { fly: true }); return true; },
     undo() { if (A.view.current === 'knock') undo(); },
+    /** open a door in Deal: that rank, else the current door if it set an inspection, else the latest inspection logged */
+    openDeal(rank) {
+      if (A.view.current !== 'knock' || !S) return false;
+      let r = rank || (S.o[curRank()] === 'inspection_set' ? curRank() : 0);
+      for (let i = S.hist.length - 1; !r && i >= 0; i--) if (S.o[S.hist[i].r] === 'inspection_set') r = S.hist[i].r;
+      if (!r) return false; openDeal(r); return true;
+    },
     reset(all) { if (A.view.current === 'knock') reset(all); else { A.store.del(KEY); if (all) A.store.del(DNK); } },
     state() {
       if (!S) load(); const g = geo();

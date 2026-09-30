@@ -567,6 +567,7 @@
     if (s && S.playing && T - (S.bedAt || -1e9) > 180) { S.bedAt = T; A.safe('intro bed', () => s.hailBed(T > B.storm && T < B.push + 400 ? 0.2 + 0.45 * Math.sin(Math.PI * Math.min(1, r * 1.1)) : 0)); }
     // live layers redraw on their own while playing; a frozen or paused film (dev freeze, the director's seek) asks
     if (S.freeze != null || !S.tl || !S.tl.playing) A.world.invalidate();
+    else if (S.rate && !S.rateOn) { S.rateOn = true; A.motion.ticker.add(S.rate); }   // resumed after a pause
     if (T < B.hand - 20 && S.fly && !S.handed) S.fly = null;      // seeked back before the hand-off: measure again
   }
 
@@ -593,8 +594,9 @@
   }
 
   /* ---------------- play / skip / stop ---------------- */
+  const filming = () => !!(A.director && A.director.active);   // inside the film the director owns keys and clicks
   function onKey(e) {
-    if (!S || S.handed || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!S || S.handed || e.metaKey || e.ctrlKey || e.altKey || filming()) return;
     const k = e.key;
     if (k === 'Escape' || k === ' ' || k === 'Spacebar' || k === 'Enter' || /^[1-9]$/.test(k)) { e.preventDefault(); e.stopPropagation(); skip(); }
   }
@@ -626,8 +628,12 @@
 
   function play(o) {
     o = o || {};
-    if (S) return S.promise;
+    if (S) {
+      if (!(o.force && S.handed)) return S.promise;    // running: the same run (the director seeks it)
+      finish(true);                                    // asked again after its hand-off: end this one, start fresh
+    }
     if (!wanted(o) || !A.world || !A.world.ready || !A.world.el) { unhide(); return Promise.resolve(false); }
+    root.classList.remove('intro-landed');
     const dev = devParam(), freeze = dev && +dev > 1 ? A.clamp(+dev, 0, DUR) : null;
     seen.set();
     let res; const promise = new Promise((r) => (res = r));
@@ -660,7 +666,7 @@
     sw.prepare(); st.prepare();
     S.offTheme = A.on('theme', () => { if (S) { S.theme = hglTheme(); W.invalidate(); } });
     S.offLang = A.on('lang', () => { if (S) render(S.T); });
-    S.dom.el.addEventListener('click', skip);
+    S.dom.el.addEventListener('click', (e) => { if (!filming()) skip(e); });
     addEventListener('keydown', onKey, true);
     addEventListener('resize', onResize);
     S.tl = buildTimeline();
@@ -677,10 +683,12 @@
     let last = 0, slow = 0;
     const rate = (now, dt) => {
       if (!S || !S.tl) return false;
-      if (!S.tl.playing) { last = 0; slow = 0; if (S.live) layersLive(false); return !S.done; }   // paused (director)
+      // paused (the director): stop redrawing and leave the loop; render() re-attaches this when the timeline plays again
+      if (!S.tl.playing) { last = 0; slow = 0; if (S.live) layersLive(false); S.rateOn = false; return false; }
       if (!S.live) layersLive(true);
       const real = last ? now - last : dt; last = now;
-      S.tl.rate = A.clamp(real / Math.max(1, dt), 1, 40);
+      // inside the film the director's clock sets the pace (it does not catch up on slow frames, so neither do we)
+      S.tl.rate = filming() ? 1 : A.clamp(real / Math.max(1, dt), 1, 40);
       if (dev !== '1' && S.tl.time > 300 && S.tl.time < B.hand) {
         slow = real > 300 ? slow + 1 : 0;
         if (slow >= 2) {
@@ -691,6 +699,7 @@
       }
       return true;
     };
+    S.rate = rate; S.rateOn = true;
     A.motion.ticker.add(rate);
     S.playing = true;
     S.tl.play();

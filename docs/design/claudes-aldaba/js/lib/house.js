@@ -7,6 +7,10 @@
      House.animate(canvas, home, opts) -> {stop()}     the build (House.DURATION s), then a faint ambient knock
      House.form(home)   -> 'cottage' | 'ranch' | 'split' | 'two' | 'large'
      House.labels(home, 'en'|'es') -> {built, roof, hail}   House.themes {dark, light}   House.hailColor(in, theme)
+     House.layout(canvas) -> the last drawing's anchors in css px (read-only copy, null before a draw):
+                         {w, h, s, fs, x0, x1, top, groundY, bandY, dimY, form, knock:[x,y], lamp:[x,y],
+                          parts:{roof, siding, gutters}: [x0,y0,x1,y1] boxes, rings:[{x, y, r, hero}]}
+     opts.transparent: true leaves the canvas clear behind the house (the theme's bg still tints the walls)
 
    home  = {addr, built, roof, own, hail, score}. Seeded from the address: the same home always draws the same.
    t     = seconds into the build (omit = finished). hailReveal 0..1 scrubs the hail. highlight 'roof'|'siding'|'gutters'.
@@ -525,7 +529,7 @@
 
   function render(ctx, L, T, st, o) {
     var w = L.w, h = L.h, hl = o.highlight || null;
-    if (T.bg) { ctx.fillStyle = T.bg; ctx.fillRect(0, 0, w, h); } else ctx.clearRect(0, 0, w, h);
+    if (T.bg && !o.transparent) { ctx.fillStyle = T.bg; ctx.fillRect(0, 0, w, h); } else ctx.clearRect(0, 0, w, h);
     backdrop(ctx, L, T, st);
     if (L.sheet) sheet(ctx, L, T, st);
     ground(ctx, L, T, st);
@@ -945,5 +949,22 @@
     return { stop: function () { stopped = true; caf(id); } };
   }
 
-  root.House = { draw: draw, animate: animate, form: form, labels: labels, hailColor: hailColor, themes: THEMES, DURATION: DURATION };
+  /** public anchors of the last drawing (callers used to read canvas.__house.L, which stays as it is) */
+  function layoutOf(canvas) {
+    var c = canvas && canvas.__house; if (!c || !c.L) return null;
+    var L = c.L, box = function (list) {
+      var b = null;
+      list.forEach(function (q) { (q.pts || []).forEach(function (p) { if (!b) b = [p[0], p[1], p[0], p[1]]; else { b[0] = Math.min(b[0], p[0]); b[1] = Math.min(b[1], p[1]); b[2] = Math.max(b[2], p[0]); b[3] = Math.max(b[3], p[1]); } }); });
+      return b;
+    };
+    var of = function (t) { return L.parts.filter(function (q) { return q.t === t; }); };
+    return {
+      w: L.w, h: L.h, s: L.s, fs: L.fs, x0: L.x0, x1: L.x1, top: L.top, groundY: L.groundY, bandY: L.bandY, dimY: L.dimY,
+      form: c.scene && c.scene.kind, knock: L.knock ? L.knock.slice() : null, lamp: L.lamp ? L.lamp.slice() : null,
+      parts: { roof: box(of('roof')), siding: box(of('wall')), gutters: box(of('gutter')) },
+      rings: (L.rings || []).map(function (r) { return { x: r.c[0], y: r.c[1], r: r.r, hero: !!r.hero }; })
+    };
+  }
+
+  root.House = { draw: draw, animate: animate, form: form, labels: labels, hailColor: hailColor, layout: layoutOf, themes: THEMES, DURATION: DURATION };
 })(typeof window !== 'undefined' ? window : globalThis);

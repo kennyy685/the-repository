@@ -135,14 +135,21 @@
     if (!r.width && !r.height) return null;
     return [r.left + r.width * (o.fx == null ? 0.5 : o.fx) + (o.dx || 0), r.top + r.height * (o.fy == null ? 0.56 : o.fy) + (o.dy || 0)];
   }
-  /** stacked screens scroll the page so the target sits in the film's frame (above the bottom band) */
+  /** the target must sit inside the film's frame: stacked screens scroll the page; on wide screens the target's own panel
+      scrolls (never the page, never the app) so nothing the cursor presses hides under a band */
   function reveal(target) {
-    if (!A.stacked()) return;
-    const el = resolve(target); if (!el || !el.getBoundingClientRect) return;
+    const el = resolve(target); if (!el || !el.getBoundingClientRect || !el.isConnected) return;
     const r = el.getBoundingClientRect(), bb = F.dom ? F.dom.lbB.getBoundingClientRect().top : innerHeight;
-    if (r.top >= 70 && r.bottom <= bb - 12) return;
-    const y = scrollY + r.top - Math.max(80, (bb - r.height) * 0.42);
-    A.safe('film scroll', () => scrollTo({ top: Math.max(0, y), behavior: A.still ? 'auto' : 'smooth' }));
+    const tb = F.dom && !A.stacked() ? F.dom.lbT.getBoundingClientRect().bottom : 0;
+    if (r.top >= Math.max(70, tb + 8) && r.bottom <= bb - 12) return;
+    const how = A.still ? 'auto' : 'smooth';
+    if (A.stacked()) { const y = scrollY + r.top - Math.max(80, (bb - r.height) * 0.42); A.safe('film scroll', () => scrollTo({ top: Math.max(0, y), behavior: how })); return; }
+    let sc = el.parentElement;
+    while (sc && sc !== document.body) { const o = getComputedStyle(sc).overflowY; if ((o === 'auto' || o === 'scroll') && sc.scrollHeight > sc.clientHeight + 1) break; sc = sc.parentElement; }
+    if (!sc || sc === document.body) return;
+    const sr = sc.getBoundingClientRect(), vis0 = Math.max(sr.top, tb + 8), vis1 = Math.min(sr.bottom, bb - 12);
+    const dy = r.bottom > vis1 ? r.bottom - vis1 + 24 : r.top < vis0 ? r.top - vis0 - 24 : 0;
+    if (dy) A.safe('film scroll', () => sc.scrollBy({ top: dy, behavior: how }));
   }
 
   /* ======================= the ghost cursor ======================= */
@@ -234,7 +241,7 @@
         A.ui.chrome(true);
         const run = () => {
           if (A.intro && A.intro.active) return;               // the cold open's hand-off starts the assemble itself
-          const st = use('nowDemo', 'state'); if (st && st.assembling) return;
+          const st = use('nowDemo', 'state'); if (st && st.assembling) { if (b.seekIn) use('nowDemo', 'settle'); return; }
           const tl = A.nowAssemble ? A.safe('film assemble', () => A.nowAssemble()) : null;
           if (!tl) { note('missing', 'A.nowAssemble'); return; }
           if (b.seekIn || A.still) tl.skip(); else tl.play();
@@ -252,7 +259,7 @@
           else if (PICK.center) A.world.flyTo({ center: [PICK.center.lon, PICK.center.lat], zoom: 14.6 }, { instant: sk || A.still });
         }));
         b.at(1150, () => { spot(T.why, { hold: 3500 }); spot(T.stats, { delay: 240, hold: 3260 }); spot(T.ins, { delay: 480, hold: 3020 }); });
-        b.glide(1250, 760, T.why, { fx: 0.97, fy: 0.62 });
+        b.glide(1250, 760, T.why, { fx: 0.9, fy: 1.18 });
         b.glide(2500, 620, () => { const s = T.stats(); return s && s.querySelector('.stat'); }, { fx: 0.62, fy: 0.62 });
         b.glide(3500, 620, T.ins, { fx: 0.5, fy: 0.5 });
         b.at(1450, (sk) => { if (sk) return; const pin = T.pick(); if (pin) A.motion.ripple(pin, { rings: 3, size: 120 }); const s = snd(); if (s) s.ring(0, { gain: 0.7 }); });
@@ -277,7 +284,8 @@
         b.at(0, () => { if (A.nowDemo) use('nowDemo', 'clear'); });
         b.glide(0, 800, T.tab('storms'), { bend: 0.5 });
         b.press(860, T.tab('storms'), (sk) => { hot(); F.touched.add('storms'); goView('storms', { instant: sk }); });
-        b.at(1500, (sk) => when('storms', () => {
+        b.glide(1000, 560, T.speed4);
+        b.press(1620, T.speed4, (sk) => when('storms', () => {
           if (sk || A.still) { use('stormsDemo', 'select', AUG8); return; }
           clickEl(T.speed4);
           use('stormsDemo', 'seek', 0);
@@ -314,9 +322,9 @@
           if (k) b.glide(t - 540, 480, T.out(o));
           b.press(t, T.out(o), () => when('knock', () => use('knockDemo', 'tap', o)));
         });
-        b.glide(4300, 560, T.slot(2));
-        b.press(4950, T.slot(2), () => when('knock', () => clickEl(T.slot(2))));
-        b.glide(5900, 800, T.openDeal);
+        b.glide(4250, 520, T.slot(0), { fy: 0.5 });
+        b.glide(4900, 700, T.slot(2), { fy: 0.5, bend: 0.2 });
+        b.glide(5950, 760, T.openDeal);
       } },
     /* 9 · the legal armor: the door walks the path, the law rides along */
     { id: 'legal', ms: 8800, needs: () => !!(A.dealDemo && A.dealDemo.step) && A.view.has('deal'),
@@ -476,7 +484,12 @@
     A.safe('film setup ' + def.id, () => def.setup && def.setup(b));
     A.safe('film script ' + def.id, () => def.script && def.script(b));
     b.tl.onEnd((done) => { if (done && F.on && F.b === b) enter(i + 1, 0, { natural: true }); });
-    if (local > 0) b.tl.seek(local);
+    if (local > 0) {
+      b.tl.seek(local);
+      // a view that enters after the seek (async) had no targets yet: re-apply the tracks (cursor, drags) once it landed
+      const refit = () => { if (!b.alive() || F.b !== b) return; const t = b.tl.time; if (t > 2) { b.tl.seek(t - 1); b.tl.seek(t); } };
+      setTimeout(refit, 450); setTimeout(refit, 1500);
+    }
     if (F.playing) b.tl.play();
     if (A.still && i > 0 && !o.quiet) UI.veil();
     UI.progress(true);
@@ -522,6 +535,7 @@
     if (!F.on || F.playing) return;
     F.playing = true;
     if (F.b) F.b.tl.play();
+    UI.run();
     A.safe('film intro play', () => { const tl = A.intro && A.intro.active && A.intro.timeline; if (tl && !tl.playing && tl.time < tl.duration) tl.play(); });
     const S = window.Sound; if (S) A.safe('film score', () => S.score(true));
     UI.state(); UI.flash(true);
@@ -555,6 +569,7 @@
     clearTimeout(F.hotT); root.classList.remove('dir-hot');
     A.ui.chrome(true);
     restoreWorld();
+    if (b && b.def.id === 'sign-off' && b.tl.time < 5000) { A.view.relayout({ ms: 0 }); A.view.recenter({ instant: true }); }   // left at dusk: back to the view's own map
     listen(false);
     inert(false);
     frame('out', !A.still);
@@ -586,6 +601,8 @@
   function dusk(sk) {
     const W = A.world; if (!W || !W.layer) return;
     A.safe('film dusk', () => {
+      // the panels are gone: the whole frame between the bands is the stage for the wide shot
+      if (!A.stacked() && F.dom) W.setInset({ l: 0, r: 0, t: Math.round(F.dom.lbT.getBoundingClientRect().height), b: bandB() }, { ms: sk || A.still ? 0 : 700 });
       W.setDim(0.6); W.layer.opacity('hail', 0.2, { ms: sk ? 0 : 900 }); W.ambient(false);
       W.flyTo({ bounds: W.presets.region, pad: A.stacked() ? 12 : 70 }, { ms: 2800, instant: sk || A.still, ease: 'inOutSine' });
     });
@@ -601,7 +618,7 @@
     frame('out', !sk);
     A.ui.chrome(true);
     restoreWorld();
-    goView('now');
+    if (entered('now')) { A.view.relayout({ ms: 600 }); A.view.recenter(); } else goView('now');
     Sign.home(sk);
   }
 
@@ -657,6 +674,7 @@
   /* ======================= input while the film plays ======================= */
   function onKey(e) {
     if (!F.on || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (keysEl || colo) return;                                  // an open dialog handles its own keys (Esc closes it)
     const k = e.key, t = e.target;
     const onBtn = t && t.closest && t.closest('.dir-bar button, .dir-glass-hint');
     const eat = () => { e.preventDefault(); e.stopImmediatePropagation(); };
@@ -729,7 +747,7 @@
       const ticks = BEATS.map((d, i) => { const t = ttl(i);
         return '<button type="button" class="dir-tick" data-i="' + i + '" style="flex-grow:' + d.ms + '" ' + attrs(labelOf({ en: sub(cp(CTRL.chapter, 'Chapter {i}: {t}').en, { i: i + 1, t: t.en }), es: sub(cp(CTRL.chapter, '', 'Capítulo {i}: {t}').es, { i: i + 1, t: t.es }) })) +
           ' data-tip="' + A.esc(pad2(i + 1) + ' · ' + t.en) + '" data-tip-es="' + A.esc(pad2(i + 1) + ' · ' + t.es) + '"><i class="dir-tick__fill"></i></button>'; }).join('');
-      const el = A.h(`<div class="dir" data-frame="out" role="region" tabindex="-1" ${attrs(labelOf(cp(FILM.title, 'The film', 'La película')))}>
+      const el = A.h(`<div class="dir" data-keep data-frame="out" role="region" tabindex="-1" ${attrs(labelOf(cp(FILM.title, 'The film', 'La película')))}>
         <div class="dir-glass" ${attrs(labelOf(cp(CTRL.glass, 'Click anywhere to pause', 'Haz clic donde sea para pausar')))}></div>
         <div class="dir-spots" aria-hidden="true"></div>
         <div class="dir-lb dir-lb--t" aria-hidden="true"></div>
@@ -775,7 +793,12 @@
         if (e.target === F.dom.glass) toggle();
       });
       this.state(); this.sound(); this.chapter(0, false);
-      F.tick = (now) => { if (!F.on) { F.tick = null; return false; } this.progress(false); return true; };
+      this.run();
+    },
+    /** the progress bar follows the film only while it plays (a paused film keeps no loop running) */
+    run() {
+      if (F.tick || !F.on) return;
+      F.tick = () => { if (!F.on || !F.playing) { F.tick = null; this.progress(true); return false; } this.progress(false); return true; };
       A.motion.ticker.add(F.tick);
     },
     unmount() {
@@ -905,7 +928,7 @@
   let endEl = null, endT = 0;
   function endCard() {
     closeEnd();
-    const el = (endEl = A.h(`<div class="dir-end" role="status" aria-live="polite">
+    const el = (endEl = A.h(`<div class="dir-end" data-keep role="status" aria-live="polite">
       <span class="dir-end__ring" aria-hidden="true"></span>
       <div class="dir-end__txt"><b class="dir-end__t">${Lx(cp(CTRL.yourTurn, 'Your turn.', 'Te toca.'))}</b><span class="dir-end__s">${Lx(cp(UIX.toast && UIX.toast.filmEnd, 'That was the film. The app is yours.', 'Eso fue la película. La app es tuya.'))}</span></div>
       <div class="dir-end__acts">
@@ -1019,7 +1042,7 @@
     const asOf = sub(cp(C.asOf, 'Storm data as of {date}', 'Datos de tormentas al {date}').en, { date: A.fmt.date(day, 'long', 'en') });
     const asOfEs = sub(cp(C.asOf, 'Storm data as of {date}', 'Datos de tormentas al {date}').es, { date: A.fmt.date(day, 'long', 'es') });
     const A2 = C.actions || {};
-    const el = A.h(`<div class="colo" role="dialog" aria-modal="true" aria-labelledby="colo-h">
+    const el = A.h(`<div class="colo" data-keep role="dialog" aria-modal="true" aria-labelledby="colo-h">
       <div class="colo__scrim" aria-hidden="true"></div>
       <div class="colo__box" tabindex="-1">
         <button type="button" class="btn btn--ghost btn--icon colo__x" data-colo="close" ${attrs(labelOf(cp(A2.close, 'Close the credits', 'Cerrar los créditos')))}>${ic('x')}</button>
@@ -1110,7 +1133,7 @@
     const K = UIX.keys || {}, k = (o, en, es) => Lx(cp(o, en, es));
     const kb = (s) => s.split(' ').map((x) => '<span class="kbd">' + A.esc(x) + '</span>').join('');
     const row = (key, what) => '<div class="dir-keys__r"><dt>' + key + '</dt><dd>' + what + '</dd></div>';
-    const el = A.h(`<div class="dir-keys" role="dialog" aria-modal="true" aria-labelledby="dir-keys-h">
+    const el = A.h(`<div class="dir-keys" data-keep role="dialog" aria-modal="true" aria-labelledby="dir-keys-h">
       <div class="dir-keys__box float" tabindex="-1">
         <div class="dir-keys__top"><p id="dir-keys-h" class="t-head">${k(K.title, 'Keys', 'Teclas')}</p>
           <button type="button" class="btn btn--ghost btn--icon btn--sm" data-keys="close" ${attrs(labelOf(cp(UIX.topbar && UIX.topbar.close, 'Close', 'Cerrar')))}>${ic('x', 15)}</button></div>

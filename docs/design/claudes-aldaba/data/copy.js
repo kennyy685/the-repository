@@ -12,7 +12,7 @@ window.COPY = {
     "labels": {
       "title": {
         "en": "Deal",
-        "es": "Venta"
+        "es": "Trato"
       },
       "subtitle": {
         "en": "One door, from first knock to a signed job",
@@ -2313,11 +2313,11 @@ window.COPY = {
       },
       "knock": {
         "en": "Knock",
-        "es": "Puertas"
+        "es": "Tocar"
       },
       "deal": {
         "en": "Deal",
-        "es": "Venta"
+        "es": "Trato"
       },
       "money": {
         "en": "Money",

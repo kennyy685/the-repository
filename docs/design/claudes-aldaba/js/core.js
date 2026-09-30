@@ -524,28 +524,38 @@
     ncei: { label: 'NCEI', en: 'NOAA NCEI Storm Events database', es: 'Base de datos de eventos de tormenta de NOAA NCEI' },
     radar: { label: 'NEXRAD', en: 'NOAA NCEI NEXRAD hail signatures (SWDI)', es: 'Firmas de granizo del radar NEXRAD de NOAA NCEI (SWDI)' },
     mrms: { label: 'MRMS', en: 'NOAA MRMS MESH radar hail size', es: 'Tamaño de granizo por radar MRMS MESH de NOAA' },
-    census: { label: 'Census', en: 'US Census ACS 5-year ' + (S26.census_vintage || '2024') + ' + TIGER', es: 'Censo de EE. UU., ACS de 5 años ' + (S26.census_vintage || '2024') + ' + TIGER' },
+    census: { label: 'Census', labelEs: 'Censo', en: 'US Census ACS 5-year ' + (S26.census_vintage || '2024') + ' + TIGER', es: 'Censo de EE. UU., ACS de 5 años ' + (S26.census_vintage || '2024') + ' + TIGER' },
     streets: { label: 'NE GIS', en: (N.src && N.src.streets) || 'Nebraska GIS street centerlines', es: 'Ejes de calles de Nebraska GIS (gis.ne.gov)' },
     base: { label: 'NE GIS', en: (N.src && N.src.base) || 'Nebraska GIS', es: 'Nebraska GIS: condados, municipios (Censo TIGER), ríos y cuerpos de agua (USGS NHD), ferrocarriles y carreteras (NDOT). Simplificado.' },
-    homes: { label: 'sample', cls: 'sample', en: 'Sample home: a fake address on a real street until knocking starts. No owner names.', es: 'Casa de muestra: dirección falsa en una calle real hasta empezar a tocar puertas. Sin nombres de dueños.' },
-    engine: { label: 'engine', en: 'Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance', es: 'Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia' },
-    law: { label: 'Neb. law', cls: 'src--law', en: 'Nebraska Revised Statutes (text in docs/legal)', es: 'Estatutos Revisados de Nebraska (texto en docs/legal)' },
-    goal: { label: 'goal', cls: 'src--goal', en: 'Goal set by FilthE: $100k by the end of 2026', es: 'Meta de FilthE: $100 mil para fines de 2026' },
+    homes: { label: 'sample', labelEs: 'muestra', cls: 'sample', en: 'Sample home: a fake address on a real street until knocking starts. No owner names.', es: 'Casa de muestra: dirección falsa en una calle real hasta empezar a tocar puertas. Sin nombres de dueños.' },
+    engine: { label: 'engine', labelEs: 'motor', en: 'Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance', es: 'Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia' },
+    law: { label: 'Neb. law', labelEs: 'ley Neb.', cls: 'src--law', en: 'Nebraska Revised Statutes (text in docs/legal)', es: 'Estatutos Revisados de Nebraska (texto en docs/legal)' },
+    goal: { label: 'goal', labelEs: 'meta', cls: 'src--goal', en: 'Goal set by FilthE: $100k by the end of 2026', es: 'Meta de FilthE: $100 mil para fines de 2026' },
     hmp: { label: 'HMP', cls: 'src--hmp', en: 'HMP Siding & Roofing LLC, Fremont, NE', es: 'HMP Siding & Roofing LLC, Fremont, NE' },
-    bench: { label: 'bench', cls: 'src--bench', en: 'Industry benchmark from vendor figures, not HMP results. HMP’s own numbers replace it after about 200 doors.', es: 'Cifra de la industria tomada de proveedores, no un resultado de HMP. Los números propios de HMP la reemplazan después de unas 200 puertas.' },
-    log: { label: 'log', cls: 'src--log', en: 'Your own log, kept on this device.', es: 'Tu propio registro, guardado en este equipo.' }
+    bench: { label: 'bench', labelEs: 'industria', cls: 'src--bench', en: 'Industry benchmark from vendor figures, not HMP results. HMP’s own numbers replace it after about 200 doors.', es: 'Cifra de la industria tomada de proveedores, no un resultado de HMP. Los números propios de HMP la reemplazan después de unas 200 puertas.' },
+    log: { label: 'log', labelEs: 'registro', cls: 'src--log', en: 'Your own log, kept on this device.', es: 'Tu propio registro, guardado en este equipo.' }
   };
   UI.sources = SRC;
-  /** srcTag('spc' | {label, tip:{en,es}, cls} | 'free text', {label, note:{en,es}}) → tiny mono pill; hover/focus names
-      the source. `note` adds the specifics after the key's text (e.g. srcTag('bench', {note:{en:'Source: spotio.com.'}})). */
+  /* labels that are words (not names like NOAA or MRMS) read in Spanish too, including the ones views pass themselves */
+  const LABEL_ES = { sample: 'muestra', engine: 'motor', model: 'modelo', goal: 'meta', bench: 'industria', log: 'registro', example: 'ejemplo', estimate: 'estimado', census: 'Censo', 'neb. law': 'ley Neb.', law: 'ley' };
+  const labelPair = (l, les) => {
+    if (l && typeof l === 'object') return [String(l.en == null ? '' : l.en), String(l.es == null ? l.en : l.es)];
+    l = String(l == null ? '' : l);
+    return [l, les != null ? String(les) : (LABEL_ES[l.toLowerCase()] || l)];
+  };
+  /** srcTag('spc' | {label, labelEs, tip:{en,es}, cls} | 'free text', {label, note:{en,es}}) → tiny mono pill, EN/ES; hover
+      or focus names the source. Labels may be {en,es}; common words translate by themselves. `note` adds specifics after
+      the key's text (e.g. srcTag('bench', {note:{en:'Source: spotio.com.', es:'Fuente: spotio.com.'}})). */
   UI.srcTag = function (k, o = {}) {
     let s = typeof k === 'string' ? SRC[k] : null;
-    if (!s && k && typeof k === 'object') s = { label: k.label, en: k.tip ? k.tip.en : k.label, es: k.tip ? k.tip.es : k.label, cls: k.cls };
+    if (!s && k && typeof k === 'object') s = { label: k.label, labelEs: k.labelEs, en: k.tip ? k.tip.en : String(k.label && k.label.en || k.label), es: k.tip ? k.tip.es : String(k.label && k.label.es || k.label), cls: k.cls };
     if (!s) s = { label: String(k), en: String(k), es: String(k) };
     let en = s.en, es = s.es || s.en;
     if (o.note) { en += ' ' + (o.note.en || ''); es += ' ' + (o.note.es || o.note.en || ''); }
     const cls = s.cls === 'sample' ? 'sample' : 'src' + (s.cls ? ' ' + s.cls : '');
-    return '<span class="' + cls + '" tabindex="0" role="note" data-tip="' + A.esc(en.trim()) + '" data-tip-es="' + A.esc(es.trim()) + '">' + A.esc(o.label || s.label) + '</span>';
+    const lb = o.label != null ? labelPair(o.label, o.labelEs) : labelPair(s.label, s.labelEs);
+    const txt = lb[0] === lb[1] ? A.esc(lb[0]) : A.L(A.esc(lb[0]), A.esc(lb[1]));
+    return '<span class="' + cls + '" tabindex="0" role="note" data-tip="' + A.esc(en.trim()) + '" data-tip-es="' + A.esc(es.trim()) + '">' + txt + '</span>';
   };
   UI.sampleTag = function () {
     return '<span class="sample" tabindex="0" role="note" data-tip="' + A.esc(SRC.homes.en) + '" data-tip-es="' + A.esc(SRC.homes.es) + '">' + A.L('sample', 'muestra') + '</span>';
@@ -769,10 +779,11 @@
         const old = ctxCur; ctxCur = null;
         A.safe(prev.name + ' exit', () => prev.exit && prev.exit(old));
         if (old) old._clean();
-        const kids = []; slotIds.forEach((k) => s[k] && kids.push(...s[k].children));
+        // children marked data-keep (the film, its end card, the credits) belong to no view: they stay across views
+        const kids = []; slotIds.forEach((k) => s[k] && kids.push(...Array.from(s[k].children).filter((c) => !c.hasAttribute('data-keep'))));
         await Promise.race([M.exit(kids, { ms: instant ? 0 : 140 }), new Promise((r) => setTimeout(r, 220))]);
         if (my !== token) return;
-        slotIds.forEach((k) => s[k] && s[k].replaceChildren());
+        slotIds.forEach((k) => s[k] && Array.from(s[k].children).forEach((c) => { if (!c.hasAttribute('data-keep')) c.remove(); }));
       }
       // 3) the new view fills its slots
       const ctx = (ctxCur = makeCtx(v));

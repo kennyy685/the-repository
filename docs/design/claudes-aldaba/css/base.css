@@ -390,6 +390,8 @@ button.row:hover,a.row:hover{background:var(--panel-2)}
 @media (max-width:520px){.brand__cut{display:none}.clock{font-size:11px}.chip{font-size:11px}}
 
 /* ---------- still / reduced motion ---------- */
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}}
-.is-still *,.is-still *::before,.is-still *::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}
+/* animations jump to their end (1 ms keeps animationend firing); transitions go to 0 s, so a property change applies at
+   once and no transition starts on a property that never had one (1 ms turned on "all" and made layout reads lag) */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:0s!important;transition-delay:0s!important}}
+.is-still *,.is-still *::before,.is-still *::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:0s!important;transition-delay:0s!important}
 .no-chrome .topbar,.no-chrome .stage,.no-chrome .hud{opacity:0;pointer-events:none}

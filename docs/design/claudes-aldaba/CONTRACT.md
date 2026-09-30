@@ -14,7 +14,8 @@ leave (140 ms) and the new ones land like hail (spring, ~5% overshoot, 45 ms sta
 | `js/knock.js` + `css/knock.css` | Knock builder | |
 | `js/deal.js` + `css/deal.css` | Deal builder | |
 | `js/money.js` + `css/money.css` | Money builder | |
-| `js/intro.js` + `css/intro.css`, `js/director.js` + `css/director.css` | later | stubs today |
+| `js/intro.js` + `css/intro.css` | cinema builder | the cold open (`A.intro`) |
+| `js/director.js` + `css/director.css` | integration | the film (`A.director`), the credits, the key sheet |
 | `data/nl.js` (`NL`), `data/extra.js` (`NLX`) | data | read-only |
 | `data/copy.js` (`COPY`), `js/lib/{funnel,hailgl,house,route,sound}.js` | their authors | already loaded by `index.html` |
 
@@ -44,7 +45,7 @@ Scope your CSS under `:root[data-view="<view>"]` or classes prefixed `<view>-`.
 | `#slot-right` | right 16, w 320, y 76, height = content (max to bottom 16) | w 296 | in flow, after left |
 | `#slot-bottom` (dock) | bottom 16, between left/right, max-height 44% | same | in flow, last |
 | `#slot-center` | the free map area between slots (flex column, top-center); itself click-through | same | in flow, first |
-| `#slot-overlay` | full screen, click-through except its children (intro, director, modals) | same | fixed |
+| `#slot-overlay` | full screen, click-through except its children (intro, director, modals); cleared on view change except children with `data-keep` | same | fixed |
 | `#world` (map) | full window behind all | same | block under the bar: `clamp(300px, 58vh, 560px)`, 16 px gutters, rounded |
 
 A slot shows its surface only while it has children (core sets `data-on`; surfaces land and leave with motion).
@@ -60,7 +61,12 @@ If you resize panels later, call `A.view.relayout()`.
 - `A.on(ev, fn) → off`, `A.off`, `A.once`, `A.emit(ev, detail)`. Events: `lang`, `theme`, `theme:choice`, `still`,
   `view` `{name, prev}`, `view:leave`, `camera` `{center, zoom, moving}`, `camera:end`, `map:click`, `map:hover`,
   `world:ready`, `world:hail`, `escape` (Esc key), `ready`.
-- `A.store.get(k, default)`, `.set(k, v)`, `.del(k)`: namespaced localStorage in try/catch (conveniences only).
+- `A.store.get(k, default)`, `.set(k, v)`, `.del(k)`, `.keys()`: namespaced localStorage in try/catch (conveniences only).
+  The film snapshots every key and restores it when it ends, so views may persist freely.
+- More events: `film` `{on, done}` (the director starts / ends), `sound` (the switch flipped), `zone:focus` (zone id: Now
+  opens that zone), `deal:home` (a sample home for Deal; also `A.dealHome`), `intro:handoff` (Now assembles).
+- `A.sound`: one switch for the top bar speaker, the film's mute and the M key. `.pref` (true/false/null), `.on` (playing),
+  `.shown` (what the switch shows), `.set(bool)` from a click/key, `.toggle()`. Sounds themselves: `window.Sound` (only when `Sound.enabled`).
 - `A.safe(label, fn, ...args)`: runs fn, warns on throw, returns undefined. `A.esc(s)`, `A.h(html) → Element`, `A.$`, `A.$$`, `A.clamp`, `A.lerp`.
 
 **Language** (`<span class="en">…</span><span class="es">…</span>`; CSS hides the other)
@@ -87,7 +93,9 @@ If you resize panels later, call `A.view.relayout()`.
 - `A.motion.reveal(el, {y, ms, delay, ring:true})`: one element lands; `ring` rings out at impact.
 - `A.motion.exit(els, {ms:140, y:6})`. `A.motion.ripple(el | event | x, y, {rings:2, size:44, color, inside})`: the knock (auto on every `.btn`, `.seg>button`, `button.row`, `button.chip`, `[data-knock]`).
 - `A.motion.countUp(el, to, {from, decimals, ms, delay, format})`: odometer, each digit rolls and lands.
-- `new A.motion.Timeline()` → `.add(atMs, fn(tl, {seeking}))` cue, `.add(atMs, {ms, update(p), ease})` scrubbable track, `.play() → Promise<done>`, `.pause()`, `.seek(ms)`, `.skip()`, `.stop()`, `.onEnd(fn)`, `.duration`, `.time`.
+- `new A.motion.Timeline({rate, realtime})` → `.add(atMs, fn(tl, {seeking}))` cue, `.add(atMs, {ms, update(p), ease})` scrubbable track, `.play() → Promise<done>`, `.pause()`, `.seek(ms)`, `.skip()`, `.stop()`, `.onEnd(fn)`, `.duration`, `.time`.
+  A seek fires every cue it passes with `{seeking: true}`: apply the end state, start nothing long. Under `A.still` a timeline
+  jumps to its end, unless `realtime: true` (the director: captions still need their reading time).
 - `A.motion.ticker.add(fn(now, dt) → false to stop)`: the one shared rAF loop.
 
 ```js
@@ -112,13 +120,34 @@ A.view.register('now', {
 - `ctx = {name, slots:{left,right,bottom,center,overlay}, world, data, x, lang, still, alive()}` plus helpers that clean
   themselves up on exit: `ctx.el(slot, html, className) → div` (icons hydrated), `ctx.layer(def)`, `ctx.pin(id, [lon,lat], el, opts)`,
   `ctx.on(ev, fn)`, `ctx.timer(fn, ms)`, `ctx.own(cleanupFn)`. Guard async work with `if (!ctx.alive()) return;`.
-- `A.view.go(name, {instant}) → Promise` (same view = recenter), `A.view.current`, `A.view.recenter()`, `A.view.relayout()`, `A.view.list()`.
-- Router: hash `#now|#storms|#knock|#deal|#money`, keys 1-5, tabs, brand. Core hides panels for the intro: `A.ui.chrome(false|true)`.
+- `A.view.go(name, {instant}) → Promise` (same view = recenter), `A.view.current`, `A.view.ctx`, `A.view.recenter()`, `A.view.relayout()`, `A.view.list()`.
+- `A.view.reserve({t, b})` keeps the map's focus area and HUD clear of screen edges (css px from the viewport's top/bottom;
+  the film's letterbox); `reserve()` clears it; call `relayout()` after. Slots follow `--frame-b` (extra bottom room).
+- Router: hash `#now|#storms|#knock|#deal|#money` (dev params after the view are ignored: `#knock&film=24000`), keys 1-5, tabs,
+  brand. Core hides panels for the intro and the film's sign-off: `A.ui.chrome(false|true)`.
+- Keys: 1-5 views, F the film, M sound, ? the key sheet, Esc (`escape` event). Knock owns N T I X B U. While the film plays
+  it takes every key first (a capture listener): views never act under the film.
+
+**Demo handles** (the director drives the real views with these; each is a no-op when its view is not on screen)
+- `A.intro.play({force}) → Promise<played>`, `.skip()`, `.stop()`, `.timeline` (seekable), `.active`.
+- `A.nowAssemble() → Timeline` (the pick assembles; call `.play()`), `A.nowDemo = {hover(i), select(i), collapse(), deselect(), drive(), settle(), clear(), state()}`.
+- `A.stormsDemo = {select(date), play(), pause(), seek(0..1), days, active}`, `A.knockDemo = {tap(outcome, rank?), flag(kind, rank?), select(rank), undo(), reset(all?), state()}`,
+  `A.dealDemo = {step(i), select(i), open(), close(), tick(k, on), state()}`.
+
+**The director** (js/director.js)
+- `A.director.play({at, pause})`, `.stop()`, `.pause()`, `.resume()`, `.toggle()`, `.seek(ms)`, `.next()`, `.prev()`, `.playing`,
+  `.active`, `.time`, `.duration`, `.chapter`, `.beats` ([{id, at, ms}]), `.report()` → `{issues, skipped, touched}`,
+  `.credits(opener)` ("Made by Claude"), `.keys(opener)` (the key sheet). 12 chapters from `COPY.film.beats`; a chapter whose
+  view or handle is missing is skipped and noted in `report()`. The film takes the top bar's "Play the film" click as its
+  sound gesture, snapshots and restores the store, and hands back on whatever view is showing with a "Your turn" card.
 
 **UI kit**
 - `A.ui.icon(name, {size, cls}) → svg`. Or write `<i data-icon="door"></i>` in your HTML (hydrated by `ctx.el`, or call `A.ui.icons(el)`).
-  Names: pin door car clock storm hail shield doc pen check x phone camera route spark chevron play pause sun moon system globe layers dollar flag info plus minus target arrow home ring film.
-- `A.ui.srcTag(key | {label, tip:{en,es}, cls})`. Keys: storms spc lsr ncei radar mrms census streets base homes engine law goal hmp.
+  Names: pin door car clock storm hail shield doc pen check x phone camera route spark chevron play pause sun moon system globe layers dollar flag info plus minus target arrow home ring film sound mute prev next keys.
+- `A.ui.srcTag(key | {label, labelEs, tip:{en,es}, cls}, {label, note:{en,es}})`. Keys: storms spc lsr ncei radar mrms census streets
+  base homes engine law goal hmp bench (industry benchmark; HMP's own numbers replace it after ~200 doors) log (your own log on
+  this device). Labels render EN/ES (a label may be `{en, es}`; words like sample, model, bench translate by themselves);
+  `note` appends specifics to the key's tip, e.g. `srcTag('bench', {note: {en: 'Source: spotio.com.', es: 'Fuente: spotio.com.'}})`.
 - `A.ui.sampleTag()`, `A.ui.toast({en,es}, {ms, icon})`, `A.ui.hailTok(v) → '--h1'…`, `A.ui.hailKey(v) → '0'|'1'|'15'|'2'` (use as `data-h`).
 
 ## 5. CSS components (css/base.css)
@@ -127,7 +156,7 @@ A.view.register('now', {
 - Type: `.t-hero` 64 · `.t-title` 34 · `.t-head` 20 (Bricolage) · `.t-lead` 16 · `.t-body` 14 · `.t-small` 12.5 · `.t-micro` mono 10.5 · `.t-mono` · `.num` (tabular) · `.t-muted` `.t-2` `.t-acc`.
 - Headers: `.eyebrow` (+`--acc` dot), `.sec` (label + hairline; `.sec__meta` on the right).
 - Numbers: `.stats > .stat > .stat__k + .stat__v (+ .stat__u) + .stat__s`; `.stat--lg`, `.stat--xl`; `data-h="1|15|2"` colors by hail; `.hail-scale` legend bar.
-- `.src`, `.sample`; `.chip` (+`--acc --ok --warn --bad --info --sample --live`, `.chip__dot`); `button.chip[aria-pressed]` as a filter.
+- `.src` (+`--law --goal --hmp --bench --log`: the dot says what kind of source), `.sample`; `.chip` (+`--acc --ok --warn --bad --info --sample --live`, `.chip__dot`); `button.chip[aria-pressed]` as a filter.
 - `.btn` + `--primary --secondary --ghost --icon --sm --lg --block`; `.seg > button[aria-pressed]` (+`.seg--ui`).
 - `.rows` (+`--lined`) `> .row > .row__lead(--ring) + .row__main(.row__t .row__s) + .row__trail`; `button.row`, `[aria-current="true"]`.
 - `.kv` (dt/dd), `.kbd`, `.empty`, `.skel`, `.stub` (placeholders only).
@@ -153,7 +182,7 @@ Projection: local equirectangular around (-96.6, 41.275), x scaled by cos(lat0);
 - `.presets.{state, region, fremont, columbus}` bounds. `.bbox`.
 - `.setDim(0..1)`, `.ambient(on)`, `.options({labels, streetNames, hud, grid})`, `.invalidate()`, `.keepAlive(ms)`.
 - `.hail.at([lon,lat]) → inches` (modeled field from 38 hail areas + 18 swaths), `.hail.set({opacity, sweep})`, `.hail.field` ({nx, ny, x0, y0, x1, y1, data}).
-- `.hailColor(v)`, `.pal` (current canvas palette: `land water river hwy label label2 halo text text2 muted acc accInk panel rule h0 h1 h15 h2 …`, `.rgb.*` as 0..1 arrays).
+- `.hailColor(v)`, `.pal` (current canvas palette: `land water river hwy label label2 halo text text2 muted acc accInk panel rule h0 h1 h15 h2 ok warn bad info okBg warnBg badBg infoBg …`, `.rgb.*` as 0..1 arrays).
 - Frame `f` (passed to every layer): `{t, dt, w, h, dpr, zoom, scale, px (world units per css px), pxPerMile, inset, focus, cam, view (world bbox), bbox (lon/lat), pal, lang, still, theme, alpha, moving, sweep, m, inv, project(ll), projectW(x,y), unproject(p), toWorldCtx(ctx), toScreenCtx(ctx), inView(ll)}`.
   `f.m` = column-major mat3 world→clip (feed it straight to `HailGL` draws), `f.inv` = clip→world.
 
@@ -167,6 +196,7 @@ ctx.layer({ id: 'knock-route', z: 200, live: false,
     c.stroke();
   },
   hit(pt, f) { return null; },            // return an item to receive clicks/hover
+  avoid(f) { return [[x0, y0, x1, y1]]; },  // optional: css-px boxes of this layer's own canvas text; world labels keep out
   onClick(item, pt) {} });
 A.world.layer.opacity('knock-route', 0.4, { ms: 240 });  // .remove(id, {ms}), .get(id), .set(id, patch), .list()
 ```
@@ -188,6 +218,10 @@ alpha, leave `BLEND` on with `blendFunc(ONE, ONE_MINUS_SRC_ALPHA)`. Helpers: `gl
 `glx.texture(Float32Array, w, h, {filter}) → {tex, mul}`, `glx.uniforms(prog, vals)`, `glx.color('--acc')`.
 `A.world.hasGL`, `.gl`, `.gl2`. Only `live: true` layers keep the loop running: set it only while animating.
 
+The HUD ends with a "Credits" link (`#credits`) that opens "Made by Claude". `House.layout(canvas)` (js/lib/house.js) gives the
+last house drawing's anchors (`x0 x1 top groundY bandY`, `parts.roof|siding|gutters` boxes, `knock`, `rings`); `transparent: true`
+draws it on a clear canvas.
+
 **Pins** (DOM markers, positioned with transform each frame, hidden off screen or outside their zoom range; labels avoid them):
 ```js
 ctx.pin('pick', [p.center.lon, p.center.lat], A.h('<div class="mk-ring mk-ring--pulse"><b>1</b></div>'), { anchor: 'center', minZoom: 9, offset: [0, 0] });
@@ -202,9 +236,20 @@ the view), and a HUD (zoom, back to view, scale bar, sources). On phones one fin
 node docs/design/claudes-aldaba/dev/shoot.mjs --view now --theme both --lang both --still
 node docs/design/claudes-aldaba/dev/shoot.mjs --view knock --w 1280 --h 800        # motion on, waits 6 s
 node docs/design/claudes-aldaba/dev/shoot.mjs --view all --w 400 --h 860 --still
-node docs/design/claudes-aldaba/dev/smoke.mjs            # all views: clicks, lang, theme, 1440/1280/400, errors, rAF
+node docs/design/claudes-aldaba/dev/smoke.mjs            # all views: clicks, lang, theme, 1440/1280/400, errors, rAF, film (F, Space, Right, Esc), ?, M
 node docs/design/claudes-aldaba/dev/smoke.mjs --view knock --motion
 ```
-Shots land in `shots/<view>-<theme>-<lang>-<w>.png` (`--out name` to rename). Both scripts serve the folder offline in the
+Shots land in `shots/<view>-<theme>-<lang>-<w>.png` (`--out name` to rename).
+
+The film and the credits:
+```
+node docs/design/claudes-aldaba/dev/film.mjs --shots 3000,16000,30000 --theme both --lang both   # a frame at each point
+node docs/design/claudes-aldaba/dev/film.mjs --shots 16000 --hold                                # the exact seeked frame
+node docs/design/claudes-aldaba/dev/film.mjs --run --rate 2        # the whole film: chapters, issues, clean hand-back
+node docs/design/claudes-aldaba/dev/film.mjs --stops               # stop() inside every chapter leaves nothing behind
+node docs/design/claudes-aldaba/dev/manifest.mjs                   # recount the lines and data sizes the credits show
+```
+Dev hash params (they reach the published page): `#now&film=24000` plays the film from 24 s (`…p` holds the frame, no sound),
+`&credits=1` opens the credits, `&keys=1` the key sheet, `&yourturn=1` the end card, `&intro=1` the cold open. Both scripts serve the folder offline in the
 artifact skeleton and exit 1 on any console error. Dev params: `?still=1`, `?lang=es`, `?theme=light`, `?gl=0` (no WebGL).
 Look at your own shots before you report; fix what looks cheap or empty.
