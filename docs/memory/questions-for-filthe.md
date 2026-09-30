@@ -174,3 +174,4 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - ~02:05 UTC: app lives as Claude pages (road A) "for now while we develop it"; real web app later (built so it can move).
   Assessor emails question still unanswered (don't nag; ask once in the plan).
 - ~02:15 UTC: King wrote the plan doc "Aldaba + HMP Agency Plan" https://claude.ai/artifact/FKyTyRPsGeiD3cvrqW9hJ8 (goal, two repos, carry-over, build order 1-6, rules, 4 open questions). Waiting on his edits + go.
+- ~02:35 UTC: FilthE: the first plan felt thin ("like you barely tried to care"). King re-read full-context + research and added 4 sections to the plan doc: vision in his words, research truths, Aldaba screen by screen (7 screens), HMP Agency storm-to-yard-sign table (10 steps + law). Lesson: read the memory + research BEFORE writing anything for him.
