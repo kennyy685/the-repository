@@ -579,8 +579,9 @@ function stepCam(dt) {
     rig.dist = Math.exp(Math.log(from.dist) + (Math.log(to.dist) - Math.log(from.dist)) * e) + Math.sin(Math.PI * e) * tween.bump;
     if (tween.k >= 1) { tween = null; copyPose(goal, rig); }
   } else { // critically damped spring toward goal
-    const w = omega, k1 = w * w, k2 = 2 * w;
-    const sp = (x, g, v) => { const a = k1 * (g - x) - k2 * v; const nv = v + a * dt; return [x + nv * dt, nv]; };
+    // exact critically damped step (stable for any dt, so a frame hitch can never fling the camera)
+    const w = omega, e = Math.exp(-w * dt);
+    const sp = (x, g, v) => { const d = x - g, c = v + w * d; return [g + (d + c * dt) * e, (v - w * c * dt) * e]; };
     ['x', 'y', 'z'].forEach(c => { const [x, v] = sp(rig.t[c], goal.t[c], vel.t[c]); rig.t[c] = x; vel.t[c] = v; });
     const gaz = rig.az + wrapA(goal.az - rig.az);
     [rig.az, vel.az] = sp(rig.az, gaz, vel.az); [rig.el, vel.el] = sp(rig.el, goal.el, vel.el); [rig.dist, vel.dist] = sp(rig.dist, goal.dist, vel.dist);

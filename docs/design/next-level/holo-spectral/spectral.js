@@ -109,7 +109,7 @@ const specCSS = tt => `rgb(${specRGB(tt).join(',')})`;
 const CITY = NL.city || 'Fremont';
 const STORM = NL.storms.find(s => s.date === NL.pick.storm_day) || NL.storms[0];
 const MON = { en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], es: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] };
-const DOW = { en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], es: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'] };
+const DOW = { en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] };
 function fmtDay(iso, withDow) { const [y, m, d] = iso.split('-').map(Number); const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return lang === 'es' ? `${withDow ? DOW.es[dow] + ' ' : ''}${d} ${MON.es[m - 1]}` : `${withDow ? DOW.en[dow] + ', ' : ''}${MON.en[m - 1]} ${d}`; }
 function fmtClock(hhmm) { let [h, m] = hhmm.split(':').map(Number); const h12 = ((h + 11) % 12) + 1; return m ? `${h12}:${String(m).padStart(2, '0')}` : `${h12}`; }
 const bestTime = () => { const bt = NL.pick.best_time; const a = fmtClock(bt.start), b = fmtClock(bt.end); return lang === 'es' ? [`${a}–${b}`, 'p. m.'] : [`${a}–${b}`, 'PM']; };
@@ -391,7 +391,7 @@ const U = {
   uHouse: { value: HS.map(() => new THREE.Vector4(0, 999, 1, 0)) },
   uRes: { value: new THREE.Vector2(1, 1) }, uLineW: { value: 1.6 * PR },
   uCenter: { value: new THREE.Vector3(BB.cx, 0, BB.cz) }, uReveal: { value: 5000 }, uFade: { value: 1 },
-  uDraw: { value: DRAW_ALL }, uHead: { value: -1 }, uPathDim: { value: 1 }, uSel: { value: -1 },
+  uDraw: { value: DRAW_ALL }, uHead: { value: -1 }, uPathDim: { value: 1 }, uPathGain: { value: 1 }, uSel: { value: -1 },
   uHor: { value: lin('#120a28') }, uZen: { value: lin('#030208') }, uHaze: { value: lin('#35185a') }, uGround: { value: lin('#07051a') },
   uGrid: { value: lin('#6d5cff') }, uAurA: { value: lin('#27ffc2') }, uAurB: { value: lin('#7b5cff') }, uAurC: { value: lin('#ff4fd8') }, uAurI: { value: 0.9 },
   uStreet: { value: lin('#7d74f0') }, uStreetW: { value: lin('#b9b0ff') },
@@ -550,7 +550,7 @@ float capD(){ float L=vSeg.x; float u=vLoc.x, v=vLoc.y; return v<0. ? length(vec
   const segs = [];
   LEGS.forEach((L, li) => { let d = L.d0; for (let k = 1; k < L.pts.length; k++) { const a = L.pts[k - 1], b = L.pts[k]; segs.push({ a, b, y: 0.35, hw: 2.1, s: [d, li] }); d += Math.hypot(b[0] - a[0], b[1] - a[1]); } });
   const m = shader(RIB_VS, GLSL_COMMON + CAPSULE + /* glsl */`
-    uniform float uDraw, uHead, uPathDim, uFade;
+    uniform float uDraw, uHead, uPathDim, uFade, uPathGain;
     void main(){ float L = vSeg.x, hw = vSeg.y; float d = capD(); float x = d/hw; if (x > 1.) discard;
       float along = vSeg.z + clamp(vLoc.y, 0., L);
       float drawn = uDraw > 8e4 ? 1. : 1. - smoothstep(uDraw - 0.8, uDraw + 0.8, along); if (drawn <= 0.) discard;
@@ -562,7 +562,7 @@ float capD(){ float L=vSeg.x; float u=vLoc.x, v=vLoc.y; return v<0. ? length(vec
       float head = uHead < 0. ? 0. : exp(-pow((uHead - along)/5., 2.)) * step(along, uHead + 0.5);
       float dh = uDraw > 8e4 ? 0. : exp(-pow((uDraw - along)/4., 2.));
       vec3 col = (band*0.62*shimmer + core*0.62) * walked + vec3(1.,.98,1.)*(head*2.2 + dh*1.8)*exp(-x*x/0.35);
-      gl_FragColor = vec4(col * drawn * uFade, 1.);
+      gl_FragColor = vec4(col * drawn * uFade * uPathGain, 1.);
     }`, {}, MAXBLEND);
   const mesh = new THREE.Mesh(ribbonGeometry(segs), m); mesh.renderOrder = 2; mesh.frustumCulled = false; scene.add(mesh);
 }
@@ -1269,6 +1269,7 @@ function frame(now) {
   const kv = CALM ? 1 : 1 - Math.exp(-dt * 5); vo.x += (vo.gx - vo.x) * kv; vo.y += (vo.gy - vo.y) * kv; applyVO();
   const cd = camera.position.distanceTo(controls.target);
   bloom.strength = 0.36 + 0.22 * Math.min(1, Math.max(0, (cd - 60) / 300));
+  U.uPathGain.value = 0.55 + 0.45 * Math.min(1, Math.max(0, (cd - 70) / 220));
   U.uLineW.value = PR * (1.3 + 0.9 * (1 - Math.min(1, Math.max(0, (cd - 50) / 320))));
   SKY.position.copy(camera.position);
   if (!STILL && camMode !== 'intro') { // adaptive resolution: hold the frame rate instead of dropping frames
