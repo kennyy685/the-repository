@@ -483,7 +483,8 @@
   function drawBands(cL, cH, f, g, px, base, R) {
     cL.lineJoin = 'round';
     const m = 40 * px, vx0 = (f.view[0] - g.O[0]) * FT - m, vy0 = (f.view[1] - g.O[1]) * FT - m, vx1 = (f.view[2] - g.O[0]) * FT + m, vy1 = (f.view[3] - g.O[1]) * FT + m;
-    const lod = f.zoom < 16.4;       // far out (or flying in): one tone per house, no lot lines
+    // far out, flying in, or fading out while the camera leaves for another view: one tone per house, no lot lines
+    const lod = f.zoom < 16.4 || (f.moving && A.view.current !== 'knock');
     for (const b of g.bands) {
       if (b.d0 > R) break;
       if (b.bb[2] < vx0 || b.bb[0] > vx1 || b.bb[3] < vy0 || b.bb[1] > vy1) continue;
@@ -656,9 +657,10 @@
   const firstOpen = (g) => { const d = g.doors.find((x) => !settled(x.rank)); return (d || g.doors[0]).rank; };
 
   A.view.register('knock', {
-    // hail 0: at street zoom the shared field is one flat value (it changed ~1/255 of a pixel); the lot tint carries the
-    // modeled hail here, and flying in from a wider view the heat fades out as the tinted lots arrive
-    title: { en: 'Knock', es: 'Tocar' }, key: '3', ambient: false, hail: 0, dim: 0,
+    // the shared hail field rides along on the flight in, then fades out once the street has landed (see settleHail): at
+    // street zoom it is one flat value (~1/255 of a pixel), the lot tint carries the modeled hail, and door-to-door
+    // flights then skip the full-screen hail shader
+    title: { en: 'Knock', es: 'Tocar' }, key: '3', ambient: false, hail: 0.35, dim: 0,
     camera: (fr) => {
       const N = A.data, pts = (N.homes || []).map((h) => h.p);
       (N.walk && N.walk.s || []).forEach((s) => s.p.forEach((p) => pts.push(p)));
@@ -670,6 +672,7 @@
       readP(); load();
       const g = geo();
       if (!g) { ctx.el('left', '<div class="empty"><span class="empty__t">' + A.L('The walk did not load.', 'La ruta no cargó.') + '</span></div>', 'pane'); return; }
+      if (!g.hailOk && A.world.hail && A.world.hail.ready) A.safe('knock tint', () => tint(g));   // the field arrived while we were away
       if (!S.cur || !doorBy(S.cur)) S.cur = firstOpen(g);
       V.done = { from: 0, to: doneArcTarget(g), t0: 0 };
       V.lit = {}; V.ripples = []; V.hover = 0;
@@ -727,7 +730,12 @@
     exit() { A.safe('knock exit', () => { if (V.tl) V.tl.stop(); }); }
   });
 
+  /** street level reached: the heat hands over to the lot tints (a frame later in still mode, so the shader is warm) */
+  function settleHail(ctx) {
+    ctx.timer(() => { if (A.view.current === 'knock') A.safe('knock hail', () => A.world.layer.opacity('hail', 0, { ms: A.still ? 0 : 700 })); }, A.still ? 150 : 0);
+  }
   function entrance(ctx, g, park) {
+    settleHail(ctx);                    // the heat dissolves while the lots draw in
     const fin = () => {
       V.reveal = 1; V.head = 1; g.doors.forEach((d) => { if (!V.lit[d.rank]) V.lit[d.rank] = true; });
       setLive('knock-lots', false); setLive('knock-homes', false); dropCache(); if (park) park.style.opacity = '';
@@ -993,7 +1001,6 @@
       <ul class="knock-meta">
         <li><i data-icon="route" class="i--sm"></i><span>${A.L('<b>' + mi('en') + '</b> ' + (g.loop ? 'loop, ends back at the car' : 'walk'), '<b>' + mi('es') + '</b> ' + (g.loop ? 'en circuito, termina en el carro' : 'de ruta'))} ${U.srcTag('streets')}</span></li>
         <li><i data-icon="clock" class="i--sm"></i><span>${A.L('Best time <b>' + rng2('en') + '</b>', 'Mejor hora <b>' + rng2('es') + '</b>')} ${U.srcTag('engine')} ${A.L('· about ' + hTxt('en') + ' at ' + dph.typical + ' doors an hour' + (hrs > win ? ', longer than the window' : ''), '· unas ' + hTxt('es') + ' a ' + dph.typical + ' puertas por hora' + (hrs > win ? ', más que el horario' : ''))} ${dphTag}</span></li>
-        <li class="knock-meta__line" data-line></li>
       </ul>`;
   }
   const pn = (wk, j) => (wk.pn || []).join(j);
@@ -1016,7 +1023,7 @@
         <span class="knock-dots">${w.doors.map((d) => `<button type="button" class="knock-dot" data-rank="${d.rank}" data-tip="${A.esc(d.idx + ' · ' + d.h.addr)}" data-tip-es="${A.esc(d.idx + ' · ' + d.h.addr)}" data-label-en="${A.esc('Door ' + d.idx + ', ' + d.h.addr)}" data-label-es="${A.esc('Puerta ' + d.idx + ', ' + d.h.addr)}"><span>${d.idx}</span></button>`).join('')}</span>
       </li>`;
     }).join('');
-    return `<p class="sec">${T(CK.walkTitle || { en: 'Your walk, in order', es: 'Tu ruta, en orden' })} <span class="sec__meta">${A.ui.sampleTag()}</span></p><ol class="knock-streets">${rows}</ol>`;
+    return `<p class="sec">${T(CK.walkTitle || { en: 'Your walk, in order', es: 'Tu ruta, en orden' })} <span class="sec__meta">${A.ui.sampleTag()}</span></p><p class="knock-meta__line" data-line></p><ol class="knock-streets">${rows}</ol>`;
   }
   /** the door marker in miniature: a ring with the dotted 1-inch halo (same drawing as the map) */
   const haloSvg = (cls, h) => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"${h ? ' data-h="' + h + '"' : ''}><circle class="knock-halo__ring" cx="12" cy="12" r="5.6"/><circle class="knock-halo__dots" cx="12" cy="12" r="10.2"/></svg>`;
@@ -1090,7 +1097,7 @@
       if (el) el.textContent = n + '/' + w.doors.length;
       const li = els.order.querySelector('[data-st="' + w.i + '"]'); if (li) { li.classList.toggle('is-here', w.doors.some((d) => d.rank === cur)); li.classList.toggle('is-done', n === w.doors.length); }
     });
-    const ln = els.plan.querySelector('[data-line]'); if (ln) { const h = lineSummary(g); if (ln.dataset.v !== String(g.ver)) { ln.innerHTML = h; ln.dataset.v = String(g.ver); } ln.hidden = !h; }
+    const ln = els.order.querySelector('[data-line]'); if (ln) { const h = lineSummary(g); if (ln.dataset.v !== String(g.ver)) { ln.innerHTML = h; ln.dataset.v = String(g.ver); } ln.hidden = !h; }
     // outcome buttons: which one this door has
     els.foot.querySelectorAll('[data-out]').forEach((b) => b.setAttribute('aria-pressed', String(S.o[cur] === b.dataset.out)));
     const last = S.hist[S.hist.length - 1], lastEl = els.foot.querySelector('[data-k="last"]');
@@ -1244,7 +1251,7 @@
         <p class="t-small knock-recap__note">${rate} · ${said}${skipped}${T(R.sampleNote || { en: 'Sample homes, sample results.', es: 'Casas de muestra, resultados de muestra.' })}</p>
         <div class="stats knock-recap__stats">
           <div class="stat"><span class="stat__k">${A.L('Answered', 'Abrieron')} ${convTag}</span><span class="stat__v num">${ans}<span class="stat__u">%</span></span><span class="stat__s">${A.L('typical ' + conv.typical + '%', 'típico ' + conv.typical + '%')}</span></div>
-          <div class="stat"><span class="stat__k">${A.L('Inspections', 'Inspecciones')} ${inspTag}</span><span class="stat__v num knock-ok">${c.inspection_set}</span><span class="stat__s">${A.L(A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'en') + '% of doors · new rep ' + insp.typical + '%', A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'es') + '% de puertas · nuevo ' + insp.typical + '%')}</span></div>
+          <div class="stat"><span class="stat__k">${A.L('Inspections', 'Inspecciones')} ${inspTag}</span><span class="stat__v num knock-ok">${c.inspection_set}</span><span class="stat__s">${A.L(A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'en') + '% of doors · new rep ' + insp.typical + '%', A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'es') + '% de puertas · vendedor nuevo ' + insp.typical + '%')}</span></div>
           <div class="stat"><span class="stat__k">${A.L('Come back', 'Regresar')}</span><span class="stat__v num knock-warn">${c.come_back}</span><span class="stat__s"></span></div>
           <div class="stat"><span class="stat__k">${A.L('Said no', 'Dijeron no')}</span><span class="stat__v num">${c.not_interested}</span><span class="stat__s"></span></div>
           <div class="stat"><span class="stat__k">${A.L('Do not knock', 'No tocar')}</span><span class="stat__v num">${c.dnk}</span><span class="stat__s">${A.L('on your list', 'en tu lista')}</span></div>

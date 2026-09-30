@@ -50,9 +50,10 @@
   const miBetween = (a, b) => { const k = Math.cos(41.4 * Math.PI / 180); return Math.hypot((a[0] - b[0]) * k, a[1] - b[1]) * 69.05; };
   const PATH_MI = AUG ? (AUG.path || []).reduce((s, p, i, a) => (i ? s + miBetween(a[i - 1], p) : 0), 0) : 0;
   const TOWN = String(pick.name || 'Columbus').split(':')[0].trim();
-  // 18 = the storm days with a mapped swath (NL.storms); Now's brief counts 25 days with any report, so say "mapped"
+  // storm days = days with any NWS hail report this season (25; the engine mapped a swath for 18 of them), the same
+  // count Now's 7 AM brief states right after the hand-off, so the film and the app never disagree
   const COUNTS = [
-    { v: (N.storms || []).length, en: 'storm days mapped', es: 'días de tormenta en el mapa', src: 'storms' },
+    { v: (S26.storm_days || []).length || (N.storms || []).length, en: 'storm days', es: 'días de tormenta', src: 'lsr' },
     { v: srcCount('radar') || 0, en: 'radar hail signatures', es: 'firmas de granizo en radar', src: 'radar' },
     { v: (N.zones || []).length, en: 'zones ranked', es: 'zonas en orden', src: 'engine' },
     { v: srcCount('lsr') || 0, en: 'storm reports', es: 'reportes de tormenta', src: 'lsr' }
@@ -670,14 +671,24 @@
       A.ready = true;
       return promise;
     }
-    // wall-clock true: when frames run slow (software GL), the timeline speeds up so the intro still lasts 8.7 s
-    let last = 0;
+    // wall-clock true: when frames run slow, the timeline speeds up so the intro still lasts 8.7 s. And a frame budget:
+    // a film at 3 fps is worse than none. Two frames in a row over 300 ms once the camera is moving (no GPU
+    // acceleration: the moving map redraws on the CPU) and the intro steps aside. ?intro=1 (dev) always plays it.
+    let last = 0, slow = 0;
     const rate = (now, dt) => {
       if (!S || !S.tl) return false;
-      if (!S.tl.playing) { last = 0; if (S.live) layersLive(false); return !S.done; }   // paused (director): stop redrawing
+      if (!S.tl.playing) { last = 0; slow = 0; if (S.live) layersLive(false); return !S.done; }   // paused (director)
       if (!S.live) layersLive(true);
       const real = last ? now - last : dt; last = now;
       S.tl.rate = A.clamp(real / Math.max(1, dt), 1, 40);
+      if (dev !== '1' && S.tl.time > 300 && S.tl.time < B.hand) {
+        slow = real > 300 ? slow + 1 : 0;
+        if (slow >= 2) {
+          A.safe('intro budget', () => A.ui.toast({ en: 'Skipped the intro so the app stays fast on this device.', es: 'Omitimos la introducción para que la app siga rápida en este equipo.' }, { icon: 'film' }));
+          skip(true);
+          return false;
+        }
+      }
       return true;
     };
     A.motion.ticker.add(rate);
@@ -688,11 +699,12 @@
   }
   function layersLive(on) { if (S) S.live = on; ['intro-sweep', 'intro-storm', 'intro-sync'].forEach((id) => A.world.layer.set(id, { live: on })); }
   let lastSkip = 0;
-  function skip() {
+  /** skip(): the first skip jumps to the hand-off (the lockup still flies home), a second one ends it; skip(true) ends it */
+  function skip(now) {
     if (!S || !S.tl) return;
-    const now = performance.now(); if (now - lastSkip < 260) return; lastSkip = now;
+    const t = performance.now(); if (now !== true && t - lastSkip < 260) return; lastSkip = t;
     if (S.freeze != null) { finish(false); return; }
-    if (S.tl.time < B.hand - 30) { S.tl.seek(B.hand - 30); if (!S.tl.playing) S.tl.play(); }
+    if (now !== true && S.tl.time < B.hand - 30) { S.tl.seek(B.hand - 30); if (!S.tl.playing) S.tl.play(); }
     else S.tl.skip();
   }
   function stop() { if (S && S.tl) { if (S.freeze != null) finish(false); else S.tl.stop(); } }

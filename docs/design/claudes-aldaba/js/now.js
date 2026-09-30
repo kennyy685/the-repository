@@ -796,4 +796,33 @@
     if (A.view.current !== 'now' || !V) { played = false; return; }       // Now will assemble when it enters
     const tl = A.nowAssemble(V.ctx); if (tl) tl.play();
   });
+
+  /* Storms' "Knock this storm" → Now opens that zone (by zone id, or by the hail area it sits in). Storms emits it when
+     Now's panels exist; a late event still finds the view. [integration wiring] */
+  A.on('zone:focus', (id) => {
+    const i = ZONES.findIndex((z) => z.id === id || z.area_id === id);
+    if (i < 0) return;
+    const go = () => A.safe('now zone focus', () => { if (V && V.ctx.alive()) select(V, i, { from: 'storms' }); });
+    if (V) go(); else A.once('view', (d) => { if (d && d.name === 'now') go(); });
+  });
+
+  /* The director's handle (js/director.js drives the real view with these; each is a no-op when Now is not on screen).
+     [integration wiring] */
+  A.nowDemo = {
+    get active() { return !!V; },
+    /** hover(zoneIndex) highlights a zone like the pointer does (its ring pulses on the map); -1 clears */
+    hover(i) { if (V) setHover(V, i, 'list'); },
+    /** select(zoneIndex) opens a zone and flies to it, as a click on its row or ring does */
+    select(i) { if (V) select(V, i, { from: 'demo' }); },
+    /** close the open zone without moving the camera; deselect() also flies back */
+    collapse() { if (V) collapse(V); },
+    deselect() { if (V) deselect(V); },
+    /** the drive preview: a car on the real route */
+    drive() { if (V) drive(V, true); },
+    /** skip a running entrance to its end state */
+    settle() { if (V && V.S.tl && V.S.tl.playing) { V.S.skipBy = 'select'; V.S.tl.skip(); } },
+    /** hands off: no hover, no car, nothing open */
+    clear() { if (!V) return; setHover(V, -1, 'list'); stopCar(V, false); if (V.S.sel >= 0) collapse(V); },
+    state() { return V ? { assembling: !!(V.S.tl && V.S.tl.playing), sel: V.S.sel, hover: V.S.hover, car: !!V.S.car } : null; }
+  };
 })();

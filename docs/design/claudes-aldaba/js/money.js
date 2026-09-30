@@ -32,9 +32,8 @@
     { id: 'exp', pct: 3.5, label: { en: 'Experienced', es: 'Con experiencia' },
       tip: { en: 'ilroofinginstitute.com: top performers book a qualified inspection at 2-5% of doors (3.5% typical).', es: 'ilroofinginstitute.com: los mejores agendan una inspección calificada en 2-5% de las puertas (3.5% típico).' } }
   ];
-  const benchTag = (source, label) => A.ui.srcTag({ label: label || 'bench', tip: {
-    en: 'Industry benchmark: ' + source + '. ' + ((FN && FN.bench._note.en) || ''),
-    es: 'Cifra de la industria: ' + source + '. ' + ((FN && FN.bench._note.es) || '') } });
+  // the foundation's 'bench' tag (industry benchmark, replaced by HMP's own numbers after ~200 doors) + where it came from
+  const benchTag = (source, label) => A.ui.srcTag('bench', { label, note: { en: 'Source: ' + source + '.', es: 'Fuente: ' + source + '.' } });
 
   function loadLevers() {
     const s = A.store.get('money.levers', null) || {};
@@ -335,7 +334,7 @@
     const talkPct = P.conversations ? P.appointments / P.conversations : 0;
     const st = (id) => P.steps.find((s) => s.id === id) || {};
     const sg = STAGES.find((s) => s.id === L.stage) || STAGES[0];
-    const bt = (id) => { const s = st(id); return s.source === 'override' ? A.ui.srcTag({ label: 'bench', tip: sg.tip }) : benchTag(s.source || 'industry'); };
+    const bt = (id) => { const s = st(id); return s.source === 'override' ? A.ui.srcTag('bench', { note: sg.tip }) : benchTag(s.source || 'industry'); };
     return [
       { id: 'goal', label: { en: 'Goal in commission', es: 'Meta en comisiones' }, value: P.goal, fmt: (x) => F.money(x), cls: 'money-st--goal' },
       { id: 'jobs', label: { en: 'Paid jobs', es: 'Trabajos pagados' }, value: P.jobs, bar: P.jobs,

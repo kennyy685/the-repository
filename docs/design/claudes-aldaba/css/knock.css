@@ -44,8 +44,10 @@
 
 /* the plan in three lines: loop length, time at a new rep's pace, the 1-inch line */
 .knock-meta{display:grid;gap:10px}
-.knock-meta li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start;font-size:12.5px;line-height:1.45;color:var(--text-2)}
-.knock-meta li[hidden]{display:none}
+.knock-meta li,.knock-meta__line{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start;font-size:12.5px;line-height:1.45;color:var(--text-2)}
+.knock-meta__line{margin:0 0 10px;padding:9px 11px;border-radius:10px;background:var(--panel-2);border:1px solid var(--rule);grid-template-columns:17px minmax(0,1fr)}
+.knock-meta__line[hidden]{display:none}
+.knock-meta__line b{font-weight:600;color:var(--text)}
 .knock-meta .i{width:15px;height:15px;margin-top:2px;color:var(--muted)}
 .knock-meta b{font-weight:600;color:var(--text)}
 .knock-meta .src{margin-left:2px}

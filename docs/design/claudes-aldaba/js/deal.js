@@ -201,7 +201,7 @@
     const h = home();
     V = { ctx, h, S: load(h), demo: false, fuseP: 0, hover: null, built: false, marksOn: false, stacked: A.stacked() };
     ctx.own(() => { if (V && V.ctx === ctx) teardown(); });
-    if (DEV.step && !V.devDone) { const i = A.clamp((+DEV.step | 0) - 1, 0, N - 1); V.S.sel = i; }
+    if (DEV.step) { V.S.sel = A.clamp((+DEV.step | 0) - 1, 0, N - 1); delete DEV.step; }   // dev params act once per page load
 
     /* center: the portrait */
     V.stage = ctx.el('center', `
@@ -213,7 +213,7 @@
           <div class="deal-marks"></div>
         </div>
         <div class="deal-stamp" role="status" hidden></div>
-        <p class="deal-cap deal-cap--l"><span>${L('Elevation', 'Fachada')}</span>${A.ui.sampleTag()}<span class="deal-cap__rule" aria-hidden="true"></span>
+        <p class="deal-cap deal-cap--l"><span>${elevationName(h)}</span>${A.ui.sampleTag()}<span class="deal-cap__rule" aria-hidden="true"></span>
           <span>${L('Hail rings', 'Anillos de granizo')}</span>${A.ui.srcTag('mrms')}
           <span class="deal-cap__k" data-h="1"><i></i>1 ${L('in', 'pulg')}</span><span class="deal-cap__k" data-h="15"><i></i>1.5</span><span class="deal-cap__k" data-h="2"><i></i>2+</span></p>
         <p class="deal-cap deal-cap--r"></p>
@@ -235,19 +235,19 @@
     /* bottom dock: the path + the armor + the homeowner button */
     V.dock = ctx.el('bottom', `
       <div class="deal-dock__path"><p class="sec deal-dock__sec">${E(LB.stepsTab || { en: 'The path', es: 'El camino' })} <span class="sec__meta deal-dock__where"></span></p></div>
-      <div class="deal-dock__hand"><button type="button" class="btn btn--secondary btn--sm deal-handbtn" data-act="sheet" aria-haspopup="dialog"><i data-icon="doc" class="i--sm"></i>${E(X.hand)}</button></div>
       <div class="deal-trackmount deal-trackmount--dock"></div>
       <div class="deal-dock__armor">
         <p class="sec deal-armor__sec">${E(LB.armorTitle || { en: 'Legal armor', es: 'Armadura legal' })} ${A.ui.srcTag('law')} <span class="sec__meta deal-dock__note">${E(LB.armorNote)}</span></p>
         <div class="deal-armor">${armorHTML()}</div>
-      </div>`, 'pane pane--tight deal-dock');
+      </div>
+      <div class="deal-dock__hand"><button type="button" class="btn btn--secondary btn--sm deal-handbtn" data-act="sheet" aria-haspopup="dialog"><i data-icon="doc" class="i--sm"></i>${E(X.hand)}</button></div>`, 'pane pane--tight deal-dock');
 
     /* the track: built once, mounted in the dock (desktop) or under the portrait (stacked) */
     V.track = A.h(trackHTML()); A.ui.icons(V.track); A.ui.localize(V.track);
     mountTrack();
 
     /* events */
-    V.track.addEventListener('click', (e) => { const b = e.target.closest('.deal-node'); if (b) select(+b.dataset.i); });
+    V.track.addEventListener('click', (e) => { const b = V && e.target.closest('.deal-node'); if (b) select(+b.dataset.i); });
     V.track.addEventListener('keydown', onTrackKey);
     V.dock.addEventListener('click', (e) => {
       const a = e.target.closest('.deal-arm'); if (a) { select(+a.dataset.step); return; }
@@ -256,13 +256,13 @@
     V.step.addEventListener('click', onStepClick);
     V.step.addEventListener('change', onStepChange);
     V.step.addEventListener('pointerover', onItemHover); V.step.addEventListener('focusin', onItemHover);
-    V.step.addEventListener('pointerleave', () => setHover(null)); V.step.addEventListener('focusout', (e) => { if (!V.step.contains(e.relatedTarget)) setHover(null); });
+    V.step.addEventListener('pointerleave', () => setHover(null)); V.step.addEventListener('focusout', (e) => { if (V && !V.step.contains(e.relatedTarget)) setHover(null); });
     V.marks.addEventListener('click', onMarkClick);
     V.marks.addEventListener('pointerover', (e) => { const m = e.target.closest('.deal-mark'); if (m) setHover(m.dataset.part, +m.dataset.k); });
     V.marks.addEventListener('pointerleave', () => setHover(null));
     V.foot.addEventListener('click', onFootClick);
     ctx.on('lang', () => { if (!V) return; paintNow(); renderCaps(); renderWhere(); renderStamp(false); drawKey(); if (A.$('.deal-clock', V.step)) renderClock(); if (A.$('.deal-gate', V.step)) renderGate(); });
-    ctx.on('theme', () => { if (!V) return; V.hiShown = undefined; paintNow(); drawKey(); });
+    ctx.on('theme', () => { if (!V) return; themeCache = null; V.hiShown = undefined; paintNow(); drawKey(); });
     ctx.on('escape', () => { if (V && V.modal) closeSheet(); else skipIntro(); });
     ctx.on('deal:home', () => { if (A.view.current === 'deal') A.view.go('deal', { force: true, instant: true }); });
 
@@ -294,13 +294,33 @@
       ctx.on('camera:end', (d) => { if (!d || d.zoom > 16) go(); });
       ctx.timer(go, 2400);
     }
-    if (DEV.sheet && !V.devSheet) {
-      V.devSheet = true;
+    if (DEV.sheet) {
+      delete DEV.sheet;
       const open = () => { if (V && V.ctx === ctx) openSheet(null); };
       if (A.ready) ctx.timer(open, A.still ? 60 : 900); else A.once('ready', () => setTimeout(open, A.still ? 60 : 900));
     }
   }
 
+  /** which way the front faces: toward the nearest point of its own street's centerline (NE GIS) */
+  function facing(h) {
+    const s = ((A.data.walk && A.data.walk.s) || []).find((x) => x.n === h.st);
+    if (!s || !s.p || s.p.length < 2 || !h.p) return null;
+    const kx = Math.cos(h.p[1] * Math.PI / 180), P = (q) => [(q[0] - h.p[0]) * kx, q[1] - h.p[1]];
+    let best = null, bd = Infinity;
+    for (let i = 1; i < s.p.length; i++) {
+      const a = P(s.p[i - 1]), b = P(s.p[i]), dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-12;
+      const t = A.clamp(-(a[0] * dx + a[1] * dy) / L2, 0, 1), q = [a[0] + dx * t, a[1] + dy * t], d = Math.hypot(q[0], q[1]);
+      if (d < bd) { bd = d; best = q; }
+    }
+    if (!best) return null;
+    return Math.abs(best[0]) > Math.abs(best[1]) ? (best[0] > 0 ? 'E' : 'W') : (best[1] > 0 ? 'N' : 'S');
+  }
+  const DIRS = { N: ['North', 'norte'], S: ['South', 'sur'], E: ['East', 'este'], W: ['West', 'oeste'] };
+  function elevationName(h) {
+    const f = facing(h), d = f && DIRS[f];
+    if (!d) return L('Elevation', 'Fachada');
+    return `${L(d[0] + ' elevation', 'Fachada ' + d[1])}<span class="deal-cap__faces">${L('faces ' + h.st, 'frente a ' + h.st)}</span>`;
+  }
   function portraitLabel(lang) {
     const h = home(), f = window.House ? House.form(h) : 'ranch', fm = (FORM[f] || FORM.ranch)[lang];
     return lang === 'es'
@@ -321,7 +341,7 @@
       <div class="deal-head__id">
         <div class="deal-head__who">
           <h1 class="t-title deal-head__addr">${A.esc(h.addr || '')}</h1>
-          <p class="t-small deal-head__sub">${A.esc(town)}, NE · ${E(FORM[f] || FORM.ranch)} · ${h.own ? L('owner lives here', 'vive el dueño') : L('may be rented', 'puede ser rentada')} ${A.ui.sampleTag()}</p>
+          <p class="t-small deal-head__sub">${A.esc(town)}, NE · ${E(FORM[f] || FORM.ranch)} · ${h.own ? L('owner lives here', 'vive el dueño') : L('may be rented', 'puede ser rentada')}</p>
           ${slot}
         </div>
         <figure class="deal-key">
@@ -344,7 +364,20 @@
     V.track.classList.toggle('is-vert', st);
     if (m && V.track.parentNode !== m) m.appendChild(V.track);
   }
-  const CAP = 34;          // room at the top of the stage for the caption row (desktop)
+  const CAP0 = 34;         // room at the top of the stage for the caption row (desktop); two rows when they would touch
+  const capRoom = () => (V && V.capH) || CAP0;
+  /** the two captions share one row when they fit; otherwise the step caption drops to a second row */
+  function fitCaps() {
+    if (!V || V.stacked) { if (V) { V.sheet.classList.remove('is-tight'); V.capH = CAP0; } return; }
+    const l = A.$('.deal-cap--l', V.stage), r = A.$('.deal-cap--r', V.stage); if (!l || !r) return;
+    const was = V.sheet.classList.contains('is-tight');
+    V.sheet.classList.remove('is-tight');
+    const lr = l.getBoundingClientRect(), rr = r.getBoundingClientRect();
+    if (!lr.width || !rr.width) { V.sheet.classList.toggle('is-tight', was); return; }   // not laid out yet
+    const tight = lr.right + 18 > rr.left;
+    V.sheet.classList.toggle('is-tight', tight);
+    V.capH = tight ? CAP0 + 22 : CAP0;
+  }
   /** where the House composition starts (callout text or roof) in canvas px */
   const compTop = (Lh) => Math.min(Lh.top, Lh.bandY - Lh.fs - 8);
   function measure(w, h) {
@@ -368,17 +401,18 @@
       if (!cr.width || !dr.height) return;                  // slots not shown yet: the RO / 'view' event calls again
       sw = Math.round(cr.width); sh = Math.max(260, Math.round(dr.top - cr.top - 12));
       V.stage.style.height = sh + 'px'; V.draw.style.height = '';
+      fitCaps();
       cw = sw >= 900 && sw < 1040 ? 899 : sw;                // House pads 7.5% under 900 px and 13% above: 899 is the sweet spot
       ch = sh;
       for (let i = 0; i < 3; i++) {                         // tall houses: slide the drawing down until it clears the caption row
         const Lm = measure(cw, ch); if (!Lm) break;
-        const need = CAP - (top + compTop(Lm));
+        const need = capRoom() - (top + compTop(Lm));
         if (need <= 1) break;
         top += Math.ceil(need); ch = sh - top;
       }
     }
     const left = Math.round((sw - cw) / 2);
-    const key = [V.stacked ? 's' : 'd', sw, cw, ch, top].join('x');
+    const key = [V.stacked ? 's' : 'd', sw, cw, ch, top, capRoom()].join('x');
     if (key === V.sizeKey) return;
     V.sizeKey = key; V.cw = cw; V.ch = ch; V.cx = left; V.cy = top;
     [V.cvA, V.cvB].forEach((c) => { c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.style.left = (V.stacked ? 0 : left) + 'px'; c.style.top = (V.stacked ? 0 : top) + 'px'; });
@@ -390,10 +424,14 @@
   }
 
   /* ------------------------------------------------------------------ portrait */
+  let themeCache = null;
   function houseTheme() {
+    if (themeCache && themeCache.k === A.theme) return themeCache.t;
     const p = A.rgba('--page'), bg = 'rgba(' + Math.round(p[0] * 255) + ',' + Math.round(p[1] * 255) + ',' + Math.round(p[2] * 255) + ',0)';
     // a see-through bg: House still derives its wall and roof tones from the page color, the map pool shows around the house
-    return { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg };
+    const t = { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg };
+    themeCache = { k: A.theme, t };
+    return t;
   }
   function hl() {
     if (!V) return null;
@@ -425,10 +463,21 @@
       A.safe('deal build', () => paint(V.front, Math.min(t, end), hl()));
       if (!rang && t > 3.1) { rang = true; snd((S) => { for (let i = 0; i < 5; i++) S.hail(0.35 + i * 0.1, { surface: 'roof', delay: i * 0.13, gain: 0.5 }); }); }
       if (!marked && t > 4.6) { marked = true; showMarks(true); }
-      if (t >= end) { V.build = null; V.built = true; drawnFor = V.h.addr; paintNow(); if (!marked) showMarks(true); renderStamp(true); return false; }
+      if (t >= end) {
+        const first = drawnFor !== V.h.addr;
+        V.build = null; V.built = true; drawnFor = V.h.addr; paintNow(); if (!marked) showMarks(true); renderStamp(true);
+        if (first) knockDoor();                            // the house is drawn: someone knocks
+        return false;
+      }
       return true;
     };
     V.build = fn; A.motion.ticker.add(fn);
+  }
+  function knockDoor() {
+    const d = V && V.anchors && V.anchors.door; if (!d || A.still) return;
+    const r = V.marks.getBoundingClientRect();
+    A.motion.ripple(r.left + d[0], r.top + d[1], { rings: 2, size: 72 });
+    snd((S) => S.knock({ count: 2, gain: 0.7 }));
   }
   function stopBuild() { if (V && V.build) { A.motion.ticker.remove(V.build); V.build = null; } }
   function skipIntro() {
@@ -452,12 +501,15 @@
       V.fadeTw = A.motion.tween({ from: 1, to: 0, ms: 280, ease: 'inOutSine', update: (v) => { top.style.opacity = String(v); } });
     });
   }
-  function renderCaps() {
+  function renderCaps(hovering) {
     if (!V) return;
     const s = STEPS[V.S.sel] || {}, part = V.hover, hi = part ? null : HL[s.id];
     const name = part ? PART_NAME[part] : hi ? PART_NAME[hi] : null;
     const r = A.$('.deal-cap--r', V.stage);
     if (r) r.innerHTML = `<b class="num">${pad2(V.S.sel + 1)}</b><span class="deal-cap__t">${E(s.title)}</span><span class="deal-cap__arrow" aria-hidden="true">→</span>${name ? `<span class="deal-cap__part">${E(name)}</span>` : `<span class="deal-cap__paper">${E(X.paper)}</span>`}`;
+    if (V.stacked || hovering) return;                    // a hover never moves the drawing
+    const was = capRoom(); fitCaps();
+    if (capRoom() !== was) layout(); else placeStamp();
   }
 
   /* ------------------------------------------------------------------ marks: each checklist item, on its part of the house */
@@ -552,9 +604,10 @@
     const p = part || null, kk = p ? (k == null ? null : k) : null;
     if (p === V.hover && kk === V.hotK) return;
     V.hover = p; V.hotK = kk;
-    syncHot(); renderCaps(); refocus();
+    syncHot(); renderCaps(true); refocus();
   }
   function onItemHover(e) {
+    if (!V) return;
     const b = e.target.closest && e.target.closest('.deal-ck[data-k]');
     if (!b) { if (e.type === 'focusin') setHover(null); return; }
     const s = STEPS[V.S.sel], parts = partsOf(s, +b.dataset.k);
@@ -569,7 +622,7 @@
   /* ------------------------------------------------------------------ the stamp: may work start on this house? */
   function stampState() {
     const S = V.S, s = STEPS[S.sel]; if (!s) return null;
-    if (S.cur >= N && S.sel === N - 1) return { ok: true, head: { en: 'Job complete', es: 'Trabajo terminado' }, line: { en: 'Walk-through done, after photos in.', es: 'Recorrido hecho, fotos del después listas.' }, cite: '48-2104' };
+    if (S.cur >= N && S.sel === N - 1) return { ok: true, head: { en: 'Job complete', es: 'Trabajo terminado' }, line: s.next || { en: 'The final payment follows the contract.', es: 'El pago final sigue el contrato.' }, cite: '48-2104' };
     if (S.sel < 4 || (s.id === 'itemized' && S.type !== 'ins')) return null;
     const g = gateState();
     if (S.type === 'ins') {
@@ -592,25 +645,78 @@
     const was = V.stampKey; V.stampKey = key;
     el.classList.toggle('is-ok', st.ok);
     el.innerHTML = `<p class="deal-stamp__h"><i data-icon="${st.ok ? 'check' : 'shield'}" class="i--sm"></i><span>${E(st.head)}</span><span class="deal-stamp__cite">${A.esc(st.cite)}</span></p>
-      <p class="deal-stamp__p"><span>${E(st.line)}</span>${st.checks ? st.checks.map((c) => `<span class="deal-stamp__ck${c[0] ? ' is-on' : ''}"><i data-icon="${c[0] ? 'check' : 'x'}"></i>${E(c[1])}</span>`).join('') : ''}</p>`;
+      <p class="deal-stamp__p">${E(st.line)}</p>
+      ${st.checks ? `<p class="deal-stamp__cks">${st.checks.map((c) => `<span class="deal-stamp__ck${c[0] ? ' is-on' : ''}"><i data-icon="${c[0] ? 'check' : 'x'}"></i>${E(c[1])}</span>`).join('')}</p>` : ''}`;
+    try { el.getAnimations().forEach((a) => a.cancel()); } catch (e) { /* ignore */ }   // a forwards-filled exit must not keep it hidden
     A.ui.icons(el); el.hidden = false; placeStamp();
     if (animate && !A.still) {
       const ring = !was || was.split('|')[0] !== String(st.ok) || was.split('|')[1] !== st.head.en;
       A.motion.reveal(el, { y: 22, ms: 620, ring: false });
-      if (ring) setTimeout(() => { if (el.isConnected && !el.hidden) A.motion.ripple(el, { rings: 2, size: Math.max(120, el.offsetWidth * 0.9), color: A.tok(st.ok ? '--ok' : '--warn') }); }, 200);
+      if (ring) {
+        setTimeout(() => { if (el.isConnected && !el.hidden) A.motion.ripple(el, { rings: 2, size: Math.max(120, el.offsetWidth * 0.9), color: A.tok(st.ok ? '--ok' : '--warn') }); }, 200);
+        snd((S) => S.knock({ count: 1, gain: 0.45, delay: 0.18 }));   // the stamp meets the sheet
+      }
     }
   }
-  /** the first free spot: under the step caption (top right), top left, bottom left; never on the drawing or the map's controls */
+  /** what is drawn where: the portrait canvas is see-through, so its alpha says where the house, lines and labels are.
+      One small readback per placement (the portrait scaled to 4 px cells). */
+  function occupancy() {
+    const cv = V.front, C = 4;
+    if (!cv || !cv.width || !V.cw) return null;
+    const gw = Math.ceil(V.cw / C), gh = Math.ceil(V.ch / C);
+    const oc = V.occCv || (V.occCv = document.createElement('canvas'));
+    if (oc.width !== gw || oc.height !== gh) { oc.width = gw; oc.height = gh; V.occCtx = null; }
+    const c = V.occCtx || (V.occCtx = oc.getContext('2d', { willReadFrequently: true }));
+    if (!c) return null;
+    let px;
+    try { c.clearRect(0, 0, gw, gh); c.imageSmoothingEnabled = true; c.drawImage(cv, 0, 0, gw, gh); px = c.getImageData(0, 0, gw, gh).data; } catch (e) { return null; }
+    const grid = new Uint8Array(gw * gh);
+    for (let i = 0; i < grid.length; i++) grid[i] = px[i * 4 + 3] > 14 ? 1 : 0;   // lines, labels, walls; not the faint studio light
+    return { grid, gw, gh, C };
+  }
+  /** the stamp takes the first free spot: along the top band from the right, then along the bottom band;
+      never on the map's controls (bottom right). Crowded stage: the spot that covers the least. */
   function placeStamp() {
     if (!V || !V.stamp || V.stamp.hidden) return;
+    V.stamp.classList.remove('is-compact');
     if (V.stacked) { V.stamp.style.left = ''; V.stamp.style.top = ''; return; }
+    const O = occupancy();
+    let r = spotFor(O);
+    if (r.n > 0) {                                       // crowded: the compact stamp (head + checks) looks again
+      V.stamp.classList.add('is-compact');
+      const r2 = spotFor(O);
+      if (r2.n <= r.n) r = r2; else V.stamp.classList.remove('is-compact');
+    }
+    V.stamp.style.left = Math.round(r.x) + 'px'; V.stamp.style.top = Math.round(r.y) + 'px';
+  }
+  function spotFor(O) {
     const w = V.stamp.offsetWidth || 300, h = V.stamp.offsetHeight || 64, sw = V.sheet.clientWidth || V.cw || 0, sh = V.sheet.clientHeight || V.ch || 0;
-    const Lh = V.L, box = Lh ? { x0: V.cx + Lh.x0 - 14, x1: V.cx + Lh.x1 + 14, y0: V.cy + compTop(Lh) - 6, y1: V.cy + Lh.dimY + Lh.fs + 6 } : null;
+    const marks = A.$$('.deal-mark', V.marks).map((m) => [V.cx + parseFloat(m.style.left), V.cy + parseFloat(m.style.top)]);
     const hud = { x0: sw - 260, y0: sh - 124, x1: sw + 20, y1: sh + 20 };
-    const hit = (x, y, b) => !!b && x < b.x1 && x + w > b.x0 && y < b.y1 && y + h > b.y0;
-    const cand = [[sw - w - 20, CAP + 6], [20, CAP + 6], [20, sh - h - 12], [Math.max(20, (sw - w) / 2 - 120), sh - h - 12]];
-    const pick = cand.find(([x, y]) => x >= 0 && y >= 0 && !hit(x, y, box) && !hit(x, y, hud)) || cand[0];
-    V.stamp.style.left = Math.round(pick[0]) + 'px'; V.stamp.style.top = Math.round(pick[1]) + 'px';
+    const hit = (x, y, b) => x < b.x1 && x + w > b.x0 && y < b.y1 && y + h > b.y0;
+    const cover = (x, y) => {
+      let n = 0;
+      marks.forEach((m) => { if (m[0] > x - 20 && m[0] < x + w + 20 && m[1] > y - 20 && m[1] < y + h + 20) n += 400; });
+      if (!O) return n;
+      const gx0 = Math.max(0, Math.floor((x - V.cx - 6) / O.C)), gx1 = Math.min(O.gw - 1, Math.floor((x - V.cx + w + 6) / O.C));
+      const gy0 = Math.max(0, Math.floor((y - V.cy - 6) / O.C)), gy1 = Math.min(O.gh - 1, Math.floor((y - V.cy + h + 6) / O.C));
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) n += O.grid[gy * O.gw + gx];
+      return n;
+    };
+    const xs = [];
+    for (let x = sw - w - 20; x >= 20; x -= 32) xs.push(x);
+    if (!xs.length) xs.push(Math.max(0, (sw - w) / 2));
+    const rows = [capRoom() + 4, capRoom() + 18, capRoom() + 32, sh - h - 10, sh - h - 26];
+    const cand = [];
+    rows.forEach((y, i) => (i < 3 ? xs : xs.slice().reverse()).forEach((x) => cand.push([x, y])));
+    let best = { x: cand[0][0], y: cand[0][1], n: Infinity };
+    for (const c of cand) {
+      if (c[1] < 0 || hit(c[0], c[1], hud)) continue;
+      const n = cover(c[0], c[1]);
+      if (n < best.n) best = { x: c[0], y: c[1], n };
+      if (n === 0) break;
+    }
+    return best;
   }
 
   /* ------------------------------------------------------------------ key plan: the real street centerlines around the lot */
@@ -648,8 +754,15 @@
       Object.keys(byName).sort((p, q) => byName[q].len - byName[p].len).slice(0, 4).forEach((nm) => {
         const g = byName[nm]; if (g.len < 34) return;
         let ang = Math.atan2(g.b[1] - g.a[1], g.b[0] - g.a[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
-        const mx = (g.a[0] + g.b[0]) / 2, my = (g.a[1] + g.b[1]) / 2, tw = c.measureText(nm).width;
-        if (tw > g.len - 6) return;
+        const tw = c.measureText(nm).width; if (tw > g.len - 6) return;
+        const hx = Math.abs(Math.cos(ang)) * tw / 2 + Math.abs(Math.sin(ang)) * 5, hy = Math.abs(Math.sin(ang)) * tw / 2 + Math.abs(Math.cos(ang)) * 5;
+        let spot = null;   // slide along the street until the whole label sits inside the plan
+        for (const t of [0.5, 0.38, 0.62, 0.26, 0.74, 0.16, 0.84]) {
+          const x = g.a[0] + (g.b[0] - g.a[0]) * t, y = g.a[1] + (g.b[1] - g.a[1]) * t;
+          if (x - hx >= 3 && x + hx <= w - 3 && y - hy >= 3 && y + hy <= h - 3) { spot = [x, y]; break; }
+        }
+        if (!spot) return;
+        const mx = spot[0], my = spot[1];
         c.save(); c.translate(mx, my); c.rotate(ang);
         c.lineWidth = 3; c.strokeStyle = A.tok('--panel-2'); c.strokeText(nm, 0, -0.5);
         c.fillStyle = A.tok('--muted'); c.fillText(nm, 0, -0.5); c.restore();
@@ -774,6 +887,7 @@
     return tw.then((done) => { if (V !== me || me.fuseTw !== tw) return; me.fuseTw = null; if (done) setFuse(to, false); me.track.classList.remove('is-burning'); });
   }
   function onTrackKey(e) {
+    if (!V) return;
     const k = e.key, vert = V.track.classList.contains('is-vert');
     const nextK = vert ? 'ArrowDown' : 'ArrowRight', prevK = vert ? 'ArrowUp' : 'ArrowLeft';
     let i = V.S.sel;
@@ -896,6 +1010,7 @@
     if (on && tc.n === tc.of) { const r = A.$(`.deal-node[data-i="${V.S.sel}"] .deal-node__ring`, V.track); if (r) A.motion.ripple(r, { rings: 2, size: 52, color: A.tok('--ok') }); }
   }
   function onStepClick(e) {
+    if (!V) return;
     const ck = e.target.closest('.deal-ck[data-k]');
     if (ck) { toggleTick(+ck.dataset.k); return; }
     const ty = e.target.closest('[data-type]');
@@ -910,6 +1025,7 @@
     }
   }
   function onStepChange(e) {
+    if (!V) return;
     const inp = e.target.closest('.deal-date');
     if (inp && parse(inp.value) != null) { V.S.signed = inp.value; save(); renderClock(true); renderStamp(true); }
   }
@@ -1006,7 +1122,7 @@
     A.ui.icons(V.foot); A.ui.localize(V.foot);
   }
   function onFootClick(e) {
-    const b = e.target.closest('[data-act]'); if (!b) return;
+    const b = V && e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, S = V.S;
     if (act === 'done') markDone();
     else if (act === 'reopen') setCur(S.sel);
@@ -1099,13 +1215,12 @@
     if (!V || V.modal) return;
     const H = CD.homeowner || {}, ui = (CP.ui || {});
     const m = A.h(`<div class="deal-modal" role="dialog" aria-modal="true" aria-labelledby="deal-sheet-h">
-      <div class="deal-modal__scrim" data-act="close"></div>
+      <div class="deal-modal__scrim"></div>
       <div class="deal-modal__box">
         <div class="deal-modal__bar">
           <p class="deal-modal__k"><i data-icon="doc" class="i--sm"></i><span id="deal-sheet-h">${E(LB.homeownerTab || { en: 'Homeowner sheet', es: 'Hoja del dueño' })}</span>
             <span class="t-micro deal-modal__sub">${L('What the homeowner keeps. Branded HMP, in English and Spanish.', 'Lo que se queda el dueño. Con la marca de HMP, en inglés y español.')}</span></p>
           <div class="deal-modal__ctl">
-            <button type="button" class="btn btn--secondary btn--sm" data-act="print"><i data-icon="doc" class="i--sm"></i>${E((ui.common && ui.common.print) || { en: 'Print', es: 'Imprimir' })}</button>
             <button type="button" class="btn btn--ghost btn--icon deal-modal__x" data-act="close" data-label-en="Close" data-label-es="Cerrar"><i data-icon="x"></i></button>
           </div>
         </div>
@@ -1128,10 +1243,6 @@
     m.addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]'); if (!b) return;
       if (b.dataset.act === 'close') closeSheet();
-      else if (b.dataset.act === 'print') {
-        A.ui.toast((ui.toast && ui.toast.sheetReady) || { en: 'Homeowner sheet ready to print', es: 'Hoja del dueño lista para imprimir' }, { icon: 'doc', ms: 1600 });
-        setTimeout(() => { try { window.print(); } catch (err) { /* print blocked in this frame */ } }, 60);
-      }
     });
     m.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeSheet(); return; }
@@ -1143,10 +1254,15 @@
       else if (e.shiftKey && at === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
     });
-    // focus can only live in the sheet while it is open (a click on the map or a panel pulls it back)
-    const keepIn = (e) => { if (V && V.modal && V.modal.el === m && !m.contains(e.target) && !(e.target.closest && e.target.closest('#topbar'))) { try { scroll.focus({ preventScroll: true }); } catch (err) { /* ignore */ } } };
-    document.addEventListener('focusin', keepIn);
-    V.modal.off = () => document.removeEventListener('focusin', keepIn);
+    // light dismiss: a press outside the sheet (not the top bar, not the button that opened it) closes it and still lands
+    const outside = (e) => {
+      if (!V || !V.modal || V.modal.el !== m) return;
+      const t = e.target;
+      if (box.contains(t) || (t.closest && (t.closest('#topbar') || t.closest('.deal-handbtn') || t.closest('.tip')))) return;
+      closeSheet(true);
+    };
+    document.addEventListener('pointerdown', outside, true);
+    V.modal.off = () => document.removeEventListener('pointerdown', outside, true);
     setTimeout(() => { try { (scroll || box).focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 20);
     if (!A.still) {
       try { scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: A.motion.css.out }); } catch (e) { /* ignore */ }

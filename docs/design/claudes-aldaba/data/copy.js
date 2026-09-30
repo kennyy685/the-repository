@@ -1635,6 +1635,10 @@ window.COPY = {
       "en": "About 75 seconds. The app plays itself.",
       "es": "Unos 75 segundos. La app se muestra sola."
     },
+    "lengthN": {
+      "en": "About {n} seconds. The app plays itself.",
+      "es": "Unos {n} segundos. La app se muestra sola."
+    },
     "controls": {
       "beat": {
         "en": "Beat {i} of {n}",
@@ -1647,11 +1651,75 @@ window.COPY = {
       "endCard": {
         "en": "Now try it yourself",
         "es": "Ahora pruébala tú"
+      },
+      "label": {
+        "en": "Film controls",
+        "es": "Controles de la película"
+      },
+      "play": {
+        "en": "Play",
+        "es": "Reproducir"
+      },
+      "pause": {
+        "en": "Pause",
+        "es": "Pausa"
+      },
+      "paused": {
+        "en": "Paused",
+        "es": "En pausa"
+      },
+      "prev": {
+        "en": "Previous chapter",
+        "es": "Capítulo anterior"
+      },
+      "next": {
+        "en": "Next chapter",
+        "es": "Siguiente capítulo"
+      },
+      "mute": {
+        "en": "Mute",
+        "es": "Silenciar"
+      },
+      "unmute": {
+        "en": "Turn sound on",
+        "es": "Activar sonido"
+      },
+      "exit": {
+        "en": "Exit",
+        "es": "Salir"
+      },
+      "exitLong": {
+        "en": "Exit the film",
+        "es": "Salir de la película"
+      },
+      "chapters": {
+        "en": "Chapters",
+        "es": "Capítulos"
+      },
+      "chapter": {
+        "en": "Chapter {i}: {t}",
+        "es": "Capítulo {i}: {t}"
+      },
+      "glass": {
+        "en": "Click anywhere to pause",
+        "es": "Haz clic donde sea para pausar"
+      },
+      "yourTurn": {
+        "en": "Your turn.",
+        "es": "Te toca."
+      },
+      "dismiss": {
+        "en": "Dismiss",
+        "es": "Cerrar"
       }
     },
     "beats": [
       {
         "id": "cold-open",
+        "title": {
+          "en": "Cold open",
+          "es": "Apertura"
+        },
         "caption": {
           "en": "August 8, 2026. Hail falls on Columbus, Nebraska.",
           "es": "8 de agosto de 2026. Cae granizo sobre Columbus, Nebraska."
@@ -1663,6 +1731,10 @@ window.COPY = {
       },
       {
         "id": "brief",
+        "title": {
+          "en": "The 7 AM brief",
+          "es": "El resumen de las 7"
+        },
         "caption": {
           "en": "It is 7 AM. Aldaba has already read the storm.",
           "es": "Son las 7 a. m. Aldaba ya leyó la tormenta."
@@ -1670,6 +1742,10 @@ window.COPY = {
       },
       {
         "id": "why-columbus",
+        "title": {
+          "en": "Why Columbus",
+          "es": "Por qué Columbus"
+        },
         "caption": {
           "en": "Columbus. 1.6-inch hail, older roofs, homes where owners live.",
           "es": "Columbus. Granizo de 1.6 pulgadas, techos viejos, casas donde viven sus dueños."
@@ -1681,6 +1757,10 @@ window.COPY = {
       },
       {
         "id": "zones",
+        "title": {
+          "en": "The zones",
+          "es": "Las zonas"
+        },
         "caption": {
           "en": "The zones light up, best first.",
           "es": "Las zonas se encienden, las mejores primero."
@@ -1688,6 +1768,10 @@ window.COPY = {
       },
       {
         "id": "replay",
+        "title": {
+          "en": "Season replay",
+          "es": "La temporada otra vez"
+        },
         "caption": {
           "en": "Replay the season. Watch every storm land.",
           "es": "Revive la temporada. Mira cómo cae cada tormenta."
@@ -1695,6 +1779,10 @@ window.COPY = {
       },
       {
         "id": "drive",
+        "title": {
+          "en": "The drive",
+          "es": "El trayecto"
+        },
         "caption": {
           "en": "One tap starts the drive to Columbus.",
           "es": "Un toque inicia el trayecto a Columbus."
@@ -1702,6 +1790,10 @@ window.COPY = {
       },
       {
         "id": "walk",
+        "title": {
+          "en": "The walk",
+          "es": "La ruta"
+        },
         "caption": {
           "en": "The walk begins. Every door, in order.",
           "es": "Empieza la ruta. Cada puerta, en orden."
@@ -1709,6 +1801,10 @@ window.COPY = {
       },
       {
         "id": "one-tap",
+        "title": {
+          "en": "One tap per door",
+          "es": "Un toque por puerta"
+        },
         "caption": {
           "en": "One tap per door. The app keeps the record.",
           "es": "Un toque por puerta. La app lleva el registro."
@@ -1716,6 +1812,10 @@ window.COPY = {
       },
       {
         "id": "legal",
+        "title": {
+          "en": "Legal armor",
+          "es": "Armadura legal"
+        },
         "caption": {
           "en": "Nebraska law rides along on every step.",
           "es": "La ley de Nebraska va contigo en cada paso."
@@ -1727,6 +1827,10 @@ window.COPY = {
       },
       {
         "id": "homeowner-sheet",
+        "title": {
+          "en": "Homeowner sheet",
+          "es": "Hoja del dueño"
+        },
         "caption": {
           "en": "The homeowner gets one clear page, in English and Spanish.",
           "es": "El dueño recibe una hoja clara, en inglés y español."
@@ -1734,6 +1838,10 @@ window.COPY = {
       },
       {
         "id": "path",
+        "title": {
+          "en": "The path to $100k",
+          "es": "El camino a $100 mil"
+        },
         "caption": {
           "en": "Work backward from $100,000. Count the doors it takes.",
           "es": "Parte de los $100,000 hacia atrás. Cuenta las puertas que hacen falta."
@@ -1745,6 +1853,10 @@ window.COPY = {
       },
       {
         "id": "sign-off",
+        "title": {
+          "en": "Sign-off",
+          "es": "Cierre"
+        },
         "caption": {
           "en": "Made by Claude, for HMP Siding & Roofing in Fremont.",
           "es": "Hecho por Claude para HMP Siding & Roofing, en Fremont."
@@ -1903,6 +2015,232 @@ window.COPY = {
       "signature": {
         "en": "Claude",
         "es": "Claude"
+      }
+    },
+    "eyebrow": {
+      "en": "Credits",
+      "es": "Créditos"
+    },
+    "actions": {
+      "playFilm": {
+        "en": "Play the film",
+        "es": "Ver la película"
+      },
+      "replayIntro": {
+        "en": "Replay the intro",
+        "es": "Repetir la introducción"
+      },
+      "close": {
+        "en": "Close the credits",
+        "es": "Cerrar los créditos"
+      }
+    },
+    "counts": {
+      "spc": {
+        "en": "{n} SPC reports",
+        "es": "{n} reportes del SPC"
+      },
+      "lsr": {
+        "en": "{n} NWS reports",
+        "es": "{n} reportes del NWS"
+      },
+      "ncei": {
+        "en": "{n} NCEI events",
+        "es": "{n} eventos de NCEI"
+      },
+      "hist": {
+        "en": "{n} reports from 2024-25",
+        "es": "{n} reportes de 2024-25"
+      },
+      "radar": {
+        "en": "{n} NEXRAD hail signatures",
+        "es": "{n} firmas de granizo del NEXRAD"
+      },
+      "mrms": {
+        "en": "MRMS hail size on {n} storm days",
+        "es": "Tamaño de granizo MRMS en {n} días de tormenta"
+      },
+      "streets": {
+        "en": "{n} street segments",
+        "es": "{n} tramos de calle"
+      },
+      "features": {
+        "en": "{n} map features",
+        "es": "{n} elementos del mapa"
+      },
+      "census": {
+        "en": "{n} Census rows",
+        "es": "{n} filas del Censo"
+      },
+      "rules": {
+        "en": "{n} rules in plain language",
+        "es": "{n} reglas en lenguaje sencillo"
+      }
+    },
+    "numbers": {
+      "title": {
+        "en": "By the numbers",
+        "es": "En números"
+      },
+      "note": {
+        "en": "Counted from the files when this page was built.",
+        "es": "Contado en los archivos al construir esta página."
+      },
+      "lines": {
+        "en": "lines of code, by hand",
+        "es": "líneas de código, a mano"
+      },
+      "files": {
+        "en": "code files",
+        "es": "archivos de código"
+      },
+      "data": {
+        "en": "of real Nebraska data",
+        "es": "de datos reales de Nebraska"
+      },
+      "frameworks": {
+        "en": "frameworks",
+        "es": "frameworks"
+      },
+      "images": {
+        "en": "image files",
+        "es": "archivos de imagen"
+      },
+      "code": {
+        "en": "The code",
+        "es": "El código"
+      },
+      "dataFiles": {
+        "en": "The data",
+        "es": "Los datos"
+      },
+      "linesUnit": {
+        "en": "lines",
+        "es": "líneas"
+      }
+    },
+    "modules": {
+      "core": {
+        "en": "Events, language, theme, motion, the router",
+        "es": "Eventos, idioma, tema, movimiento, el enrutador"
+      },
+      "world": {
+        "en": "The one map: camera, layers, labels, input",
+        "es": "El único mapa: cámara, capas, etiquetas, entrada"
+      },
+      "hailgl": {
+        "en": "WebGL hail: burning swaths, falling stones, rings",
+        "es": "Granizo en WebGL: franjas que arden, piedras que caen, anillos"
+      },
+      "house": {
+        "en": "The generative house portrait",
+        "es": "El retrato generativo de la casa"
+      },
+      "route": {
+        "en": "The real 50-mile drive on US-30",
+        "es": "El trayecto real de 50 millas por la US-30"
+      },
+      "sound": {
+        "en": "Synthesized sound: knock, hail, bell, score",
+        "es": "Sonido sintetizado: toque, granizo, campana, música"
+      },
+      "funnel": {
+        "en": "The math behind $100,000",
+        "es": "Las cuentas detrás de los $100,000"
+      },
+      "intro": {
+        "en": "The cold open",
+        "es": "La apertura"
+      },
+      "now": {
+        "en": "Now: the 7 AM brief",
+        "es": "Ahora: el resumen de las 7"
+      },
+      "storms": {
+        "en": "Storms: the season, replayed",
+        "es": "Tormentas: la temporada otra vez"
+      },
+      "knock": {
+        "en": "Knock: the walk, one tap per door",
+        "es": "Tocar: la ruta, un toque por puerta"
+      },
+      "deal": {
+        "en": "Deal: the path and the legal armor",
+        "es": "Trato: el camino y la armadura legal"
+      },
+      "money": {
+        "en": "Money: the path to $100,000",
+        "es": "Dinero: el camino a $100,000"
+      },
+      "director": {
+        "en": "The film, these credits, the keys",
+        "es": "La película, estos créditos, las teclas"
+      },
+      "boot": {
+        "en": "Starts it all",
+        "es": "Arranca todo"
+      },
+      "css": {
+        "en": "Styles: tokens, type, components, views",
+        "es": "Estilos: tokens, tipografía, componentes, vistas"
+      },
+      "nl": {
+        "en": "Streets, rivers, towns, storms, zones, sample homes",
+        "es": "Calles, ríos, pueblos, tormentas, zonas, casas de muestra"
+      },
+      "extra": {
+        "en": "The season’s sources and the 2024-25 reports",
+        "es": "Las fuentes de la temporada y los reportes de 2024-25"
+      },
+      "copy": {
+        "en": "Every word, in English and Spanish",
+        "es": "Cada palabra, en inglés y español"
+      }
+    },
+    "credits": {
+      "title": {
+        "en": "End credits",
+        "es": "Créditos finales"
+      },
+      "roles": {
+        "en": "Direction, design, engineering, motion, sound",
+        "es": "Dirección, diseño, ingeniería, animación, sonido"
+      },
+      "name": {
+        "en": "Claude",
+        "es": "Claude"
+      },
+      "with": {
+        "en": "Built with FilthE for HMP Siding & Roofing, Fremont, NE",
+        "es": "Hecho con FilthE para HMP Siding & Roofing, Fremont, NE"
+      },
+      "storms": {
+        "en": "Storms",
+        "es": "Tormentas"
+      },
+      "map": {
+        "en": "Map",
+        "es": "Mapa"
+      },
+      "area": {
+        "en": "Area numbers",
+        "es": "Números del área"
+      },
+      "law": {
+        "en": "The law",
+        "es": "La ley"
+      },
+      "lawSrc": {
+        "en": "Nebraska Revised Statutes",
+        "es": "Estatutos Revisados de Nebraska"
+      },
+      "type": {
+        "en": "Type",
+        "es": "Tipografía"
+      },
+      "craft": {
+        "en": "No frameworks. No image files. Every sound synthesized.",
+        "es": "Sin frameworks. Sin archivos de imagen. Cada sonido, sintetizado."
       }
     },
     "meanings": {
@@ -2114,6 +2452,84 @@ window.COPY = {
       "asOf": {
         "en": "Data as of {date}",
         "es": "Datos al {date}"
+      }
+    },
+    "keys": {
+      "title": {
+        "en": "Keys",
+        "es": "Teclas"
+      },
+      "open": {
+        "en": "Keyboard keys",
+        "es": "Teclas del teclado"
+      },
+      "everywhere": {
+        "en": "Everywhere",
+        "es": "En toda la app"
+      },
+      "views": {
+        "en": "Switch views",
+        "es": "Cambiar de vista"
+      },
+      "film": {
+        "en": "Play the film",
+        "es": "Ver la película"
+      },
+      "sound": {
+        "en": "Sound on or off",
+        "es": "Sonido sí o no"
+      },
+      "sheet": {
+        "en": "This sheet",
+        "es": "Esta hoja"
+      },
+      "esc": {
+        "en": "Close, skip or leave",
+        "es": "Cerrar, saltar o salir"
+      },
+      "inFilm": {
+        "en": "In the film",
+        "es": "En la película"
+      },
+      "pause": {
+        "en": "Pause or play",
+        "es": "Pausar o seguir"
+      },
+      "chapters": {
+        "en": "Previous or next chapter",
+        "es": "Capítulo anterior o siguiente"
+      },
+      "onMap": {
+        "en": "On the map",
+        "es": "En el mapa"
+      },
+      "move": {
+        "en": "Move and zoom",
+        "es": "Mover y acercar"
+      },
+      "back": {
+        "en": "Back to the view",
+        "es": "Volver a la vista"
+      },
+      "onKnock": {
+        "en": "On Knock",
+        "es": "En Tocar"
+      },
+      "outcomes": {
+        "en": "No answer, talked, inspection set, not interested, come back",
+        "es": "No abrió, hablamos, inspección, no le interesa, regresar"
+      },
+      "undo": {
+        "en": "Undo the last door",
+        "es": "Deshacer la última puerta"
+      },
+      "arrows": {
+        "en": "Arrows, + and -",
+        "es": "Flechas, + y -"
+      },
+      "to": {
+        "en": "{a} to {b}",
+        "es": "{a} a {b}"
       }
     },
     "toast": {

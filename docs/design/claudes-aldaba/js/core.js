@@ -42,7 +42,9 @@
   A.store = {
     get(k, d) { try { const v = localStorage.getItem(NS + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) { /* storage blocked: fine */ } },
-    del(k) { try { localStorage.removeItem(NS + k); } catch (e) { /* ignore */ } }
+    del(k) { try { localStorage.removeItem(NS + k); } catch (e) { /* ignore */ } },
+    /** every key this app stored (without the namespace); the director snapshots them so the film never changes saved state */
+    keys() { const out = []; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(NS)) out.push(k.slice(NS.length)); } } catch (e) { /* blocked */ } return out; }
   };
 
   /* ---------------- still (reduced motion or ?still=1) ---------------- */
@@ -406,8 +408,10 @@
       tl.add(at, fn)                → cue fired once when the playhead passes `at` (ms). fn(tl, {seeking})
       tl.add(at, {ms, update(p), ease}) → tween track, scrubbable (update gets eased 0..1)
       tl.play() → Promise (resolves at end, or on stop/skip); tl.pause(); tl.seek(ms); tl.skip(); tl.stop(); tl.onEnd(fn) */
+  /* new Timeline({realtime:true}) keeps real time under A.still (the director: captions still need reading time);
+     every other timeline jumps to its end when A.still is on. */
   class Timeline {
-    constructor(o = {}) { this.items = []; this.t = 0; this.playing = false; this.rate = o.rate || 1; this._end = []; this._res = null; this._fn = null; }
+    constructor(o = {}) { this.items = []; this.t = 0; this.playing = false; this.rate = o.rate || 1; this.realtime = !!o.realtime; this._end = []; this._res = null; this._fn = null; }
     add(at, x) {
       const it = typeof x === 'function' ? { at, fn: x, fired: false } : { at, ms: Math.max(1, x.ms || 1), update: x.update, ease: typeof x.ease === 'function' ? x.ease : E[x.ease] || E.inOutCubic, last: -1 };
       this.items.push(it); this.items.sort((a, b) => a.at - b.at); return this;
@@ -429,7 +433,7 @@
       if (this.playing) return this._p;
       this.playing = true;
       this._p = new Promise((res) => { this._res = res; });
-      if (A.still) { this.skip(); return this._p; }
+      if (A.still && !this.realtime) { this.skip(); return this._p; }
       let first = this.t === 0;
       this._fn = (now, dt) => {
         if (!this.playing) return false;
@@ -492,7 +496,12 @@
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     home: '<path d="m4 11 8-6.5 8 6.5"/><path d="M6.2 9.4V20h11.6V9.4"/><path d="M10 20v-5h4v5"/>',
     ring: '<circle cx="12" cy="13.5" r="5.5"/><path d="m5 8.5 7-5 7 5"/>',
-    film: '<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M10 9.3v5.4l4.6-2.7z"/>'
+    film: '<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M10 9.3v5.4l4.6-2.7z"/>',
+    sound: '<path d="M4.5 9.5h3.2L12 5.8v12.4l-4.3-3.7H4.5z"/><path d="M15.4 9.2a4 4 0 0 1 0 5.6"/><path d="M17.9 6.7a7.6 7.6 0 0 1 0 10.6"/>',
+    mute: '<path d="M4.5 9.5h3.2L12 5.8v12.4l-4.3-3.7H4.5z"/><path d="m15.5 9.5 5 5M20.5 9.5l-5 5"/>',
+    prev: '<path d="M6.5 5.5v13"/><path d="M18 6.2v11.6a.7.7 0 0 1-1.1.6L9 12.6a.7.7 0 0 1 0-1.2l7.9-5.8a.7.7 0 0 1 1.1.6z"/>',
+    next: '<path d="M17.5 5.5v13"/><path d="M6 6.2v11.6a.7.7 0 0 0 1.1.6l7.9-5.8a.7.7 0 0 0 0-1.2L7.1 5.6A.7.7 0 0 0 6 6.2z"/>',
+    keys: '<rect x="2.8" y="6.5" width="18.4" height="11" rx="2.2"/><path d="M6.5 10h.01M9.5 10h.01M12.5 10h.01M15.5 10h.01M8 14h8"/>'
   };
   UI.iconNames = Object.keys(IC);
   /** icon('door',{size:18, cls}) → inline stroke SVG string */
@@ -522,16 +531,21 @@
     engine: { label: 'engine', en: 'Aldaba score from the HailHunter engine (hh.py): hail size, roof age, owner-lived share, distance', es: 'Puntaje de Aldaba del motor HailHunter (hh.py): tamaño del granizo, edad del techo, casas habitadas por sus dueños, distancia' },
     law: { label: 'Neb. law', cls: 'src--law', en: 'Nebraska Revised Statutes (text in docs/legal)', es: 'Estatutos Revisados de Nebraska (texto en docs/legal)' },
     goal: { label: 'goal', cls: 'src--goal', en: 'Goal set by FilthE: $100k by the end of 2026', es: 'Meta de FilthE: $100 mil para fines de 2026' },
-    hmp: { label: 'HMP', cls: 'src--hmp', en: 'HMP Siding & Roofing LLC, Fremont, NE', es: 'HMP Siding & Roofing LLC, Fremont, NE' }
+    hmp: { label: 'HMP', cls: 'src--hmp', en: 'HMP Siding & Roofing LLC, Fremont, NE', es: 'HMP Siding & Roofing LLC, Fremont, NE' },
+    bench: { label: 'bench', cls: 'src--bench', en: 'Industry benchmark from vendor figures, not HMP results. HMP’s own numbers replace it after about 200 doors.', es: 'Cifra de la industria tomada de proveedores, no un resultado de HMP. Los números propios de HMP la reemplazan después de unas 200 puertas.' },
+    log: { label: 'log', cls: 'src--log', en: 'Your own log, kept on this device.', es: 'Tu propio registro, guardado en este equipo.' }
   };
   UI.sources = SRC;
-  /** srcTag('spc' | {label, tip:{en,es}, cls} | 'free text') → tiny mono pill; hover/focus names the source */
+  /** srcTag('spc' | {label, tip:{en,es}, cls} | 'free text', {label, note:{en,es}}) → tiny mono pill; hover/focus names
+      the source. `note` adds the specifics after the key's text (e.g. srcTag('bench', {note:{en:'Source: spotio.com.'}})). */
   UI.srcTag = function (k, o = {}) {
     let s = typeof k === 'string' ? SRC[k] : null;
     if (!s && k && typeof k === 'object') s = { label: k.label, en: k.tip ? k.tip.en : k.label, es: k.tip ? k.tip.es : k.label, cls: k.cls };
     if (!s) s = { label: String(k), en: String(k), es: String(k) };
+    let en = s.en, es = s.es || s.en;
+    if (o.note) { en += ' ' + (o.note.en || ''); es += ' ' + (o.note.es || o.note.en || ''); }
     const cls = s.cls === 'sample' ? 'sample' : 'src' + (s.cls ? ' ' + s.cls : '');
-    return '<span class="' + cls + '" tabindex="0" role="note" data-tip="' + A.esc(s.en) + '" data-tip-es="' + A.esc(s.es || s.en) + '">' + A.esc(o.label || s.label) + '</span>';
+    return '<span class="' + cls + '" tabindex="0" role="note" data-tip="' + A.esc(en.trim()) + '" data-tip-es="' + A.esc(es.trim()) + '">' + A.esc(o.label || s.label) + '</span>';
   };
   UI.sampleTag = function () {
     return '<span class="sample" tabindex="0" role="note" data-tip="' + A.esc(SRC.homes.en) + '" data-tip-es="' + A.esc(SRC.homes.es) + '">' + A.L('sample', 'muestra') + '</span>';
@@ -590,6 +604,41 @@
     else M.ripple(e, { rings: 2, size: 36 });
   }, { passive: true });
 
+  /* ---------------- sound: one switch (top bar speaker, the film's mute, the M key) ---------------- */
+  /* window.Sound (js/lib/sound.js) makes the sounds; this remembers the viewer's choice. Browsers only start audio from a
+     click or key, so a remembered "on" waits for the first gesture on the page. */
+  const SND = 'sound';
+  A.sound = {
+    /** the viewer's choice: true, false, or null (never chosen) */
+    get pref() { const v = A.store.get(SND, null); return v === true || v === false ? v : null; },
+    /** sound is playing now */
+    get on() { return !!(window.Sound && window.Sound.enabled); },
+    /** what the switch shows: playing, or chosen and waiting for the first gesture */
+    get shown() { return A.sound.on || A.sound.pref === true; },
+    get supported() { return !!(window.Sound && window.Sound.supported); },
+    /** set(true|false) from a click or key (a user gesture), so the audio context may start */
+    set(on) {
+      on = !!on; A.store.set(SND, on);
+      const S = window.Sound;
+      if (S) A.safe('sound', () => (on ? S.enable() : S.disable()));
+      A.emit('sound', on);
+      return on;
+    },
+    toggle() { return A.sound.set(!A.sound.shown); }
+  };
+  (function armSound() {
+    if (A.sound.pref !== true) return;
+    const evs = ['pointerdown', 'keydown'];
+    const go = (e) => {
+      const t = e && e.target;
+      if (t && t.closest && t.closest('#sound')) return;          // the switch's own click decides
+      if (e && e.type === 'keydown' && (e.key === 'm' || e.key === 'M')) return;
+      evs.forEach((n) => document.removeEventListener(n, go, true));
+      if (A.sound.pref === true && window.Sound && !window.Sound.enabled) A.safe('sound', () => { window.Sound.enable(); A.emit('sound', true); });
+    };
+    evs.forEach((n) => document.addEventListener(n, go, true));
+  })();
+
   /* ---------------- views: the router ---------------- */
   const views = new Map(); const order5 = [];
   let cur = null, token = 0, ctxCur = null;
@@ -622,6 +671,9 @@
     }
   }
   function syncSlots(animate) { slotIds.forEach((k) => syncSlot(k, animate)); }
+  /* reserved screen edges (css px from the viewport's top / bottom) that the map's focus area and HUD keep clear of,
+     e.g. the film's letterbox. Set with A.view.reserve({t, b}); A.view.reserve() clears it. */
+  let reserved = { t: 0, b: 0 };
   function measureInset() {
     const s = slotEls(), W = A.world;
     if (!W || !W.el) return { l: 0, r: 0, t: 0, b: 0 };
@@ -636,6 +688,8 @@
     // the map HUD (zoom, scale) sits bottom-right; a short right panel leaves that corner free
     ins.hudR = on(s.right) && s.right.getBoundingClientRect().bottom > wr.bottom - 170 ? ins.r : 0;
     ins.hudB = on(s.bottom) && s.bottom.getBoundingClientRect().right > wr.right - 140 ? ins.b : 0;
+    if (reserved.t) ins.t = Math.max(ins.t, reserved.t - wr.top + 6);
+    if (reserved.b) { const rb = Math.max(0, wr.bottom - (innerHeight - reserved.b)) + 6; ins.b = Math.max(ins.b, rb); ins.hudB = Math.max(ins.hudB, rb); }
     return ins;
   }
   A.measureInset = measureInset;
@@ -745,7 +799,11 @@
     recenter(o = {}) { return cur ? flyFor(cur, o) : Promise.resolve(); },
     /** re-measure slots → world inset (call after a view changes panel sizes) */
     relayout(o = {}) { syncSlots(false); if (A.world && A.world.setInset) A.world.setInset(measureInset(), { ms: o.ms == null ? 300 : o.ms }); },
-    fromHash() { const h = (location.hash || '').replace('#', ''); return views.has(h) ? h : null; },
+    /** reserve({t, b}) keeps the map's focus area and HUD clear of screen edges (css px from the viewport's top/bottom);
+        reserve() clears it. Call relayout() after. Used by the film's letterbox. */
+    reserve(r) { reserved = { t: Math.max(0, (r && r.t) || 0), b: Math.max(0, (r && r.b) || 0) }; },
+    /** the view named in the hash; dev params after it are ignored (#knock&film=24000 → 'knock') */
+    fromHash() { const h = (location.hash || '').replace('#', '').split(/[&?]/)[0]; return views.has(h) ? h : null; },
     byKey(k) { for (const v of views.values()) if (String(v.key) === String(k)) return v.name; return null; }
   };
   try { slotIds.forEach((k) => { const el = slotEls()[k]; if (el) new MutationObserver(() => syncSlot(k, true)).observe(el, { childList: true }); }); } catch (e) { /* ignore */ }
@@ -771,15 +829,37 @@
       if (A.director && A.director.play) A.safe('director', () => A.director.play());
       else UI.toast({ en: 'The film is not built yet.', es: 'La película todavía no está lista.' });
     });
-    setLangBtns(); setThemeBtns(); setClock(); UI.localize(document);
+    // sound: the speaker switch shows the viewer's choice (a remembered "on" starts with the first click or key)
+    const sb = document.getElementById('sound');
+    const setSnd = () => {
+      if (!sb) return;
+      const on = A.sound.shown, ok = A.sound.supported || !window.Sound;
+      sb.setAttribute('aria-pressed', String(on));
+      sb.innerHTML = UI.icon(on ? 'sound' : 'mute', { size: 16 });
+      sb.dataset.labelEn = on ? 'Sound on. Turn it off (M)' : 'Sound off. Turn it on (M)';
+      sb.dataset.labelEs = on ? 'Sonido encendido. Apágalo (M)' : 'Sonido apagado. Enciéndelo (M)';
+      sb.dataset.tip = ok ? (on ? 'Sound on · M' : 'Sound off · M') : 'Sound is not available in this browser';
+      sb.dataset.tipEs = ok ? (on ? 'Sonido encendido · M' : 'Sonido apagado · M') : 'El sonido no está disponible en este navegador';
+      sb.disabled = !ok;
+      UI.localize(sb.parentElement || sb);
+      if (tipFor === sb) showTip(sb);
+    };
+    if (sb) sb.addEventListener('click', () => A.sound.toggle());
+    addEventListener('sound:change', setSnd);
+    A.on('sound', setSnd);
+    setLangBtns(); setThemeBtns(); setClock(); setSnd(); UI.localize(document);
     A.on('lang', () => { setLangBtns(); setClock(); fitBar(); moveInd(true); });
     A.on('theme:choice', setThemeBtns);
-    // keys: 1-5 views, Esc bubbles as an event (intro/director skip)
+    // keys: 1-5 views, F the film, M sound, ? the key sheet; Esc bubbles as an event (intro/director skip)
     document.addEventListener('keydown', (e) => {
       const t = e.target;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
       if (e.key === 'Escape') { A.emit('escape', e); return; }
+      if (e.repeat) return;
+      if (e.key === 'm' || e.key === 'M') { e.preventDefault(); A.sound.toggle(); return; }
+      if ((e.key === 'f' || e.key === 'F') && A.director && A.director.play && !(A.intro && A.intro.active)) { e.preventDefault(); A.safe('director', () => A.director.play()); return; }
+      if (e.key === '?' && A.director && A.director.keys) { e.preventDefault(); A.safe('keys', () => A.director.keys()); return; }
       const name = A.view.byKey(e.key);
       if (name) { e.preventDefault(); A.view.go(name); }
     });

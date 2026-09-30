@@ -1,6 +1,6 @@
 // Claude's Aldaba · dev/shoot.mjs — offline screenshots, wrapped in the artifact publisher's skeleton.
 // Run from the repo root:
-//   node docs/design/claudes-aldaba/dev/shoot.mjs [--view now|storms|knock|deal|money|all] [--theme dark|light|both]
+//   node docs/design/claudes-aldaba/dev/shoot.mjs [--view now|storms|knock|deal|money|all|'now&credits=1'] [--theme dark|light|both]
 //        [--lang en|es|both] [--w 1440 --h 900] [--wait 6000] [--out prefix] [--still] [--dpr 1]
 // Writes docs/design/claudes-aldaba/shots/<prefix|view>-<theme>-<lang>-<w>.png and prints console/page errors per shot.
 // Exit code 1 if any shot had an error.
@@ -25,7 +25,7 @@ for (const view of views) for (const theme of themes) for (const lang of langs) 
   await page.goto(url({ view, theme, lang, still }), { waitUntil: 'load' });
   const ready = await waitReady(page);
   await page.waitForTimeout(wait);
-  const file = join(ROOT, 'shots', `${o.out || view}-${theme}-${lang}-${W}.png`);
+  const file = join(ROOT, 'shots', `${o.out || view.replace(/[&=?]+/g, '-')}-${theme}-${lang}-${W}.png`);   // dev params in the hash: #now&film=24000p
   await page.screenshot({ path: file });
   const info = await page.evaluate(() => ({ gl: !!(window.A && A.world && A.world.hasGL), gl2: !!(window.A && A.world && A.world.gl2), view: window.A && A.view && A.view.current, hscroll: document.scrollingElement.scrollWidth > innerWidth }));
   const status = errs.length ? 'ERRORS (' + errs.length + ')' : 'ok';

@@ -2,7 +2,9 @@
 // Run from the repo root:  node docs/design/claudes-aldaba/dev/smoke.mjs [--view all|now,...] [--motion]
 // Per view (dark, en, still unless --motion): clicks every button/tab/segment in the top bar, the slots and the map HUD,
 // switches language and theme, resizes to 1280x800 and 400x860, checks no horizontal scroll, no console errors, and
-// that no rAF callback took >50 ms repeatedly (3+ times). Prints a PASS/FAIL table; exit code 1 on any FAIL.
+// that no rAF callback took >50 ms repeatedly (3+ times). Dialogs a click opens (credits, keys) are closed with Esc.
+// Then the film: F starts it, Space pauses, Right skips a chapter, Esc hands back a clean app (no film DOM, no inert,
+// no letterbox layout), and ?, M work. Prints a PASS/FAIL table; exit code 1 on any FAIL.
 import { ROOT, VIEWS, args, launch, serve, watch, url, waitReady } from './harness.mjs';
 
 const o = args(process.argv.slice(2), { view: 'all' });
@@ -33,7 +35,8 @@ for (const view of views) {
   await page.waitForTimeout(still ? 300 : 2500);
   await page.evaluate(() => { window.__long = []; });
 
-  const SEL = '#topbar button, #topbar a[data-view], #slot-left button, #slot-right button, #slot-bottom button, #slot-center button, #slot-left [role=tab], .hud button';
+  // the film has its own check below (clicking it here would put the app under the film's glass)
+  const SEL = '#topbar button:not(#film), #topbar a[data-view], #slot-left button, #slot-right button, #slot-bottom button, #slot-center button, #slot-left [role=tab], .hud button';
   let clicks = 0;
   const total = await page.locator(SEL).count();
   for (let i = 0; i < total + 10 && i < 80; i++) {
@@ -45,9 +48,42 @@ for (const view of views) {
       await el.click({ timeout: 5000 }); clicks++;
       await page.waitForTimeout(still ? 60 : 350);
     } catch (e) { notes.push('click ' + i + ' failed: ' + String(e.message).split('\n')[0].slice(0, 90)); }
+    // a dialog the click opened (the credits, the key sheet) closes with Esc, and must go
+    if (await page.evaluate(() => !!document.querySelector('.colo, .dir-keys'))) {
+      await page.keyboard.press('Escape'); await page.waitForTimeout(still ? 120 : 400);
+      if (await page.evaluate(() => !!document.querySelector('.colo, .dir-keys'))) notes.push('dialog failed to close with Esc');
+    }
     const cur = await page.evaluate(() => window.A && A.view.current);
     if (cur !== view) { await page.evaluate((v) => A.view.go(v, { instant: true }), view); await page.waitForTimeout(80); }
   }
+  // the film: F plays, Space pauses, Right skips a chapter, Esc hands back a clean app
+  await page.evaluate(() => { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); });
+  await page.keyboard.press('f'); await page.waitForTimeout(still ? 900 : 1600);
+  const f1 = await page.evaluate(() => ({ on: !!(A.director && A.director.active), dom: !!document.querySelector('.dir'), playing: !!(A.director && A.director.playing), ch: A.director ? A.director.chapter : -1 }));
+  await page.keyboard.press(' '); await page.waitForTimeout(200);
+  const f2 = await page.evaluate(() => !!(A.director && A.director.playing));
+  await page.keyboard.press('ArrowRight'); await page.waitForTimeout(still ? 500 : 900);
+  const f3 = await page.evaluate(() => A.director ? A.director.chapter : -1);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(1300);
+  const f4 = await page.evaluate(() => ({ on: !!(A.director && A.director.active), dom: !!document.querySelector('.dir'), cursor: !!document.querySelector('.dir-cursor'),
+    cls: ['dir-on', 'dir-frame', 'no-chrome'].filter((c) => document.documentElement.classList.contains(c)), inert: ['topbar', 'stage', 'world'].filter((id) => document.getElementById(id).inert),
+    end: !!document.querySelector('.dir-end') }));
+  if (!f1.on || !f1.dom || !f1.playing) notes.push('film failed to start with F');
+  if (f2) notes.push('film failed to pause with Space');
+  if (f3 !== f1.ch + 1) notes.push('film Right failed (chapter ' + f1.ch + ' -> ' + f3 + ')');
+  if (f4.on || f4.dom || f4.cursor || f4.cls.length || f4.inert.length) notes.push('film failed to hand back clean: ' + JSON.stringify(f4));
+  if (!f4.end) notes.push('film "Your turn" card missing');
+  await page.evaluate(() => { const b = document.querySelector('.dir-end [data-end="close"]'); if (b) b.click(); });
+  if ((await page.evaluate(() => A.view.current)) !== view) { await page.evaluate((v) => A.view.go(v, { instant: true }), view); await page.waitForTimeout(still ? 300 : 900); }
+  // ? opens the key sheet, Esc closes it; M flips the sound switch
+  await page.keyboard.press('?'); await page.waitForTimeout(250);
+  const k1 = await page.evaluate(() => !!document.querySelector('.dir-keys'));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(still ? 150 : 400);
+  const k2 = await page.evaluate(() => !!document.querySelector('.dir-keys'));
+  if (!k1 || k2) notes.push('key sheet failed (' + k1 + ',' + k2 + ')');
+  const m0 = await page.evaluate(() => A.sound.shown); await page.keyboard.press('m'); await page.waitForTimeout(80);
+  const m1 = await page.evaluate(() => A.sound.shown); await page.keyboard.press('m'); await page.waitForTimeout(80);
+  if (m0 === m1) notes.push('M failed to flip the sound switch');
   // language + theme round trips
   await page.click('#lang-es'); const es = await page.evaluate(() => document.documentElement.dataset.lang === 'es' && A.lang === 'es');
   await page.click('#lang-en'); const en = await page.evaluate(() => A.lang === 'en');

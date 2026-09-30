@@ -202,10 +202,18 @@
     }
     A.world.invalidate('gl');
   }
+  /** the GPU kits never get built inside a frame: a frame that finds none asks for them and draws nothing this once */
+  let prepAsk = 0;
+  function askPrepare() { if (prepAsk) return; prepAsk = setTimeout(() => { prepAsk = 0; if (V) prepare(V.sel); }, 0); }
   function hailLayer() {
     return {
       id: 'storms-hail', z: 12, live: false, fadeMs: 500,
-      drawGL(gl, f) { if (!V && !FADE) return; const K = A.safe('storms kits', () => kitsFor(gl, true)); if (K) paint(K, f); },
+      drawGL(gl, f) {
+        if (!V && !FADE) return;
+        const K = KITS.gl;
+        if (!K || K.target !== gl || K.gen !== A.world.glGen) { askPrepare(); return; }
+        paint(K, f);
+      },
       draw2d(c, f) { if (!V && !FADE) return; const K = A.safe('storms kits 2d', () => kitsFor(c, false)); if (K) paint(K, f); },
       // the world calls this once the exit fade is over (or when a new #storms visit replaces the layer): free the GPU side
       dispose() { if (!V) FADE = null; freeKits(); }
@@ -307,7 +315,7 @@
         '<span class="chip__dot" style="color:var(' + U.hailTok(z.area.hail) + ')"></span>' + Lo(z.name) + ' <span class="storms-zone__v">' + A.esc(A.fmt.num(z.area.hail, 2, 'en')) + '</span>' + ic('arrow', 13) + '</button>'
       : '<span class="storms-zone storms-zone--plain">' + Lo(z.name) + (z.n > 1 ? ' <span class="storms-zone__n">×' + z.n + '</span>' : '') + '</span>').join('');
     const kid = knockId(D);
-    const noSwath = !D.storm ? '<p class="storms-note">' + ic('info', 14) + '<span>' + Le('Reported, not modeled: the engine drew no swath for this day, so the map rings the towns that sent reports.', 'Reportado, sin modelo: el motor no trazó franja para este día; el mapa marca los pueblos que enviaron reportes.') + '</span></p>' : '';
+    const noSwath = !D.storm ? '<p class="storms-note">' + ic('info', 14) + '<span>' + Le('Reported, not modeled: the engine drew no swath for this day. The towns that sent reports are listed below.', 'Reportado, sin modelo: el motor no trazó una franja para este día. Abajo están los pueblos que enviaron reportes.') + '</span></p>' : '';
     return '<p class="eyebrow eyebrow--acc">' + Le('Storm day', 'Día de tormenta') + ' <b>' + (D.i + 1) + '</b> ' + Le('of', 'de') + ' ' + DAYS.length +
         ' <span class="storms-ago">· ' + (ago === 0 ? Le('today', 'hoy') : Lo({ en: sub(cp('timeline.daysAgo', '{n} days ago', 'hace {n} días').en, { n: ago }), es: sub(cp('timeline.daysAgo', '{n} days ago', 'hace {n} días').es, { n: ago }) })) + '</span></p>' +
       '<h1 class="t-title storms-date">' + A.both(() => A.fmt.date(D.date, 'long')) + '</h1>' +
@@ -405,7 +413,7 @@
       '<p class="storms-lg__h"><span>' + Le('Hail size, inches', 'Tamaño del granizo, pulgadas') + '</span>' + A.ui.srcTag('storms') + '</p>' +
       '<div class="storms-lg__bar"><i class="storms-lg__sel"></i><i class="storms-lg__cur"></i></div>' +
       '<div class="storms-lg__ticks">' + ticks + '</div>' +
-      '<p class="storms-lg__live"><span class="storms-lg__lk">' + Le('Under the cursor', 'Bajo el cursor') + '</span> <b class="storms-lg__v num">–</b></p>' +
+      '<p class="storms-lg__live"><span class="storms-lg__lk storms-lg__lk--hover">' + Le('Under the cursor', 'Bajo el cursor') + '</span><span class="storms-lg__lk storms-lg__lk--touch">' + Le('Where you tap', 'Donde tocas') + '</span> <b class="storms-lg__v num">–</b></p>' +
       '<p class="storms-lg__note">' + Le('Radar sweep: decorative. Sizes: NOAA/NWS reports + MRMS radar.', 'Barrido del radar: decorativo. Tamaños: reportes de NOAA/NWS + radar MRMS.') + '</p>' +
     '</div>';
   }
@@ -440,7 +448,7 @@
     if (!V) return;
     const prev = V.sel; V.sel = D;
     V.dom.ticks.forEach((t, i) => t.classList.toggle('is-sel', !!D && D.i === i));
-    if (V.dom.lgSel) { V.dom.lgSel.style.opacity = D && D.max ? '1' : '0'; if (D && D.max) V.dom.lgSel.style.transform = 'translateX(' + (lgPos(D.max) * V.lgW).toFixed(1) + 'px)'; }
+    if (V.dom.lgSel) { V.dom.lgSel.style.opacity = D && D.max ? '1' : '0'; if (D && D.max) V.dom.lgSel.style.transform = 'translateX(' + (lgPos(D.max) * 100).toFixed(2) + '%)'; }
     if (prev !== D || o.force) {
       const pane = V.dom.card;
       pane.innerHTML = cardHTML(D); A.ui.icons(pane); A.ui.localize(pane);
@@ -511,6 +519,19 @@
     sync();
   }
 
+  /* The world's shared hail layer is hidden in this view (hail: 0), and it compiles its shader + uploads its field on its
+     first visible frame. After a deep link into #storms that frame is the one leaving this view (0.4-0.9 s with software
+     GL). So once the entrance has settled, draw it for two frames at 0.4% opacity (invisible) while the view rests.
+     Foundation request: world.js could warm that program at init. */
+  let warmGen = -1;
+  function warmSharedHail() {
+    const W = A.world, L = W.layer.get('hail');
+    if (!V || !L || !W.hasGL || warmGen === W.glGen || L._op > 0.003) return;
+    warmGen = W.glGen;
+    W.layer.opacity('hail', 0.004, { ms: 0 });
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (A.view.current === 'storms' && V) W.layer.opacity('hail', 0, { ms: 0 }); }));
+  }
+
   /* per-frame: the playhead moves, the sky follows */
   function makeTick() {
     return function tick(now, dt) {
@@ -543,8 +564,9 @@
   }
   function sync() {
     if (!V || !V.dom) return;
-    const D = V.dom, x = (V.p / SPAN) * V.tw;
-    D.head.style.transform = 'translateX(' + x.toFixed(1) + 'px)';
+    // the playhead layer spans the track, so a percent of its own width is a date: no measuring, never stale on resize
+    const D = V.dom;
+    D.head.style.transform = 'translateX(' + ((V.p / SPAN) * 100).toFixed(3) + '%)';
     D.burn.style.transform = 'scaleX(' + (V.p / SPAN).toFixed(4) + ')';
     DAYS.forEach((d, i) => { const past = V.p >= d.d + 0.5; if (V.past0[i] !== past) { V.past0[i] = past; D.ticks[i].classList.toggle('is-past', past); } });
     const day = A.clamp(Math.floor(V.p - 0.001), 0, SPAN - 1);
@@ -616,7 +638,7 @@
       FADE = null;
       V = {
         ctx, p: 0, mode: 'idle', speed: 1, past: false, sel: null, hover: null, showDay: false, dayT0: 0, motion: 0, lastMove: -1e9,
-        past0: DAYS.map(() => null), readDay: -1, tw: 1, lgW: 1, ticking: false,
+        past0: DAYS.map(() => null), readDay: -1, ticking: false,
         dom: {
           card, lg, dock, tl: q('.storms-tl'), tin: q('.storms-tl__in'), head: q('.storms-tl__head'), burn: q('.storms-tl__burn'), ticks: Array.from(dock.querySelectorAll('.storms-tick')),
           play: q('.storms-play'), readD: q('.storms-read__d'), readS: q('.storms-read__s'),
@@ -625,10 +647,7 @@
       };
       const my = V;
       V.tick = makeTick();
-      // sizes for the transforms
-      const measure = () => { if (V !== my) return; V.tw = V.dom.tin.clientWidth || 1; const b = lg.querySelector('.storms-lg__bar'); V.lgW = (b && b.clientWidth) || 1; sync(); if (V.sel) setSel(V.sel, { quiet: true }); };
-      try { const ro = new ResizeObserver(measure); ro.observe(V.dom.tin); ro.observe(lg); ctx.own(() => ro.disconnect()); } catch (e) { addEventListener('resize', measure); ctx.own(() => removeEventListener('resize', measure)); }
-      measure();
+      sync();
       // the map
       ctx.layer(hailLayer());
       ctx.layer(marksLayer());
@@ -666,8 +685,10 @@
       let hovRaf = 0, hovE = null;
       const onMove = (e) => { hovE = e; if (!hovRaf) hovRaf = requestAnimationFrame(() => { hovRaf = 0; A.safe('storms legend', () => legend(hovE)); }); };
       const onLeave = () => legend(null);
+      const onTap = (e) => { if (e.pointerType !== 'mouse') onMove(e); };   // touch: a tap reads the hail there
       A.world.el.addEventListener('pointermove', onMove, { passive: true }); A.world.el.addEventListener('pointerleave', onLeave);
-      ctx.own(() => { A.world.el.removeEventListener('pointermove', onMove); A.world.el.removeEventListener('pointerleave', onLeave); cancelAnimationFrame(hovRaf); });
+      A.world.el.addEventListener('pointerdown', onTap, { passive: true });
+      ctx.own(() => { A.world.el.removeEventListener('pointermove', onMove); A.world.el.removeEventListener('pointerleave', onLeave); A.world.el.removeEventListener('pointerdown', onTap); cancelAnimationFrame(hovRaf); });
       // entering: the season replays fast once, then rests on the latest storm day
       if (A.still) {
         V.p = LAST ? LAST.d + 1 : END; setSel(LAST, { force: true, quiet: true }); sync();
@@ -678,6 +699,7 @@
         document.addEventListener('pointerdown', skipIntro, true); ctx.own(() => document.removeEventListener('pointerdown', skipIntro, true));
         ctx.timer(() => prepare(LAST), 40);
         ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; wake(); }, 520);
+        ctx.timer(() => { const go = () => A.safe('storms warm hail', warmSharedHail); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else go(); }, 4200);
       }
     }
   });
@@ -694,7 +716,7 @@
     V.dom.lgV.innerHTML = v == null ? '–' : on ? A.both(() => A.fmt.inches(v, 2)) + ' <span class="storms-lg__m">' + Le('modeled', 'modelado') + '</span>' : Le('no hail modeled', 'sin granizo modelado');
     V.dom.lgV.dataset.h = on ? A.ui.hailKey(v) : '';
     V.dom.lgCur.style.opacity = on ? '1' : '0';
-    if (on) V.dom.lgCur.style.transform = 'translateX(' + (lgPos(v) * V.lgW).toFixed(1) + 'px)';
+    if (on) V.dom.lgCur.style.transform = 'translateX(' + (lgPos(v) * 100).toFixed(2) + '%)';
   }
   /** "Knock this storm": open Now and hand it the zone the moment Now's panels exist (not after the camera lands).
       The listener is global on purpose: this view's own listeners are cleaned up while Now enters. */

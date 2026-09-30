@@ -116,11 +116,11 @@
 
   /* ======================= palette (tokens → canvas colors) ======================= */
   let pal = {};
-  const PK = { land: '--map-land', water: '--map-water', waterLine: '--map-water-line', waterLabel: '--map-water-label', stream: '--map-stream', river: '--map-river', town: '--map-town', townLine: '--map-town-line', county: '--map-county', grid: '--map-grid', rail: '--map-rail', street: '--map-street', street2: '--map-street-2', art: '--map-art', hwy: '--map-hwy', label: '--map-label', label2: '--map-label-2', halo: '--map-halo', beam: '--map-beam', page: '--page', panel: '--panel', panel2: '--panel-2', panel3: '--panel-3', text: '--text', text2: '--text-2', muted: '--muted', faint: '--faint', rule: '--rule', rule2: '--rule-2', rule3: '--rule-3', acc: '--acc', accInk: '--acc-ink', accBg: '--acc-bg', onAcc: '--on-acc', h0: '--h0', h1: '--h1', h15: '--h15', h2: '--h2', ok: '--ok', bad: '--bad', info: '--info', shadow: '--shadow' };
+  const PK = { land: '--map-land', water: '--map-water', waterLine: '--map-water-line', waterLabel: '--map-water-label', stream: '--map-stream', river: '--map-river', town: '--map-town', townLine: '--map-town-line', county: '--map-county', grid: '--map-grid', rail: '--map-rail', street: '--map-street', street2: '--map-street-2', art: '--map-art', hwy: '--map-hwy', label: '--map-label', label2: '--map-label-2', halo: '--map-halo', beam: '--map-beam', page: '--page', panel: '--panel', panel2: '--panel-2', panel3: '--panel-3', text: '--text', text2: '--text-2', muted: '--muted', faint: '--faint', rule: '--rule', rule2: '--rule-2', rule3: '--rule-3', acc: '--acc', accInk: '--acc-ink', accBg: '--acc-bg', onAcc: '--on-acc', h0: '--h0', h1: '--h1', h15: '--h15', h2: '--h2', ok: '--ok', bad: '--bad', info: '--info', warn: '--warn', okBg: '--ok-bg', warnBg: '--warn-bg', badBg: '--bad-bg', infoBg: '--info-bg', shadow: '--shadow' };
   function readPal() {
     const p = {};
     for (const k in PK) p[k] = A.tok(PK[k]) || '#888';
-    p.rgb = {}; for (const k of ['h0', 'h1', 'h15', 'h2', 'acc', 'beam', 'page', 'text', 'text2', 'muted', 'water', 'land', 'panel']) p.rgb[k] = A.rgba(p[k]);
+    p.rgb = {}; for (const k of ['h0', 'h1', 'h15', 'h2', 'acc', 'beam', 'page', 'text', 'text2', 'muted', 'water', 'land', 'panel', 'ok', 'warn', 'bad', 'info']) p.rgb[k] = A.rgba(p[k]);
     p.light = A.theme === 'light';
     pal = p; W.pal = p;
   }
@@ -536,6 +536,11 @@
       const ax = P.t === ANCH.left ? x : P.t === ANCH.right ? x - w : x - w / 2, ay = P.t === ANCH.bottom ? y - h : P.t === ANCH.top ? y : y - h / 2;
       boxes.push([ax - 3, ay - 3, ax + w + 3, ay + h + 3]);
     }
+    // view layers can keep labels off their own canvas text: def.avoid(f) → [[x0, y0, x1, y1], …] in css px
+    for (const L of layers) {
+      if (!L.avoid || L.visible === false || L._op < 0.05) continue;
+      try { const bx = L.avoid(f); if (bx && bx.length) for (const b of bx) if (b && b.length === 4) boxes.push(b); } catch (e) { warnOnce('layer ' + L.id + ' avoid', e); }
+    }
     // places
     for (const p of LBL.places) {
       const a = (p.tier === 1 ? sm(z, 7.2, 8) : sm(z, 8.8, 9.5)) * (1 - sm(z, 13.4, 14.2));
@@ -635,8 +640,9 @@
     hudEl.innerHTML =
       '<div class="hud__col">' +
       '<div class="scalebar" aria-hidden="true"><span class="scalebar__txt">1 mi</span><span class="scalebar__bar"></span></div>' +
-      '<div class="attrib" tabindex="0" role="note" data-tip="' + A.esc('Map: ' + src + ' Hail heat: modeled from NOAA storm swaths and hail areas. The radar beam is decorative.') + '" data-tip-es="' + A.esc('Mapa: Nebraska GIS (condados, municipios, ríos USGS NHD, ferrocarriles y carreteras NDOT). Calor de granizo: modelado con franjas de tormenta de NOAA. El haz del radar es decorativo.') + '">' +
-      A.L('Map: Nebraska GIS · USGS · NDOT', 'Mapa: Nebraska GIS · USGS · NDOT') + '</div></div>' +
+      '<div class="hud__row"><div class="attrib" tabindex="0" role="note" data-tip="' + A.esc('Map: ' + src + ' Hail heat: modeled from NOAA storm swaths and hail areas. The radar beam is decorative.') + '" data-tip-es="' + A.esc('Mapa: Nebraska GIS (condados, municipios, ríos USGS NHD, ferrocarriles y carreteras NDOT). Calor de granizo: modelado con franjas de tormenta de NOAA. El haz del radar es decorativo.') + '">' +
+      A.L('Map: Nebraska GIS · USGS · NDOT', 'Mapa: Nebraska GIS · USGS · NDOT') + '</div>' +
+      '<button type="button" id="credits" class="attrib hud__credits" aria-haspopup="dialog" data-label-en="Credits: made by Claude, what is real, how it was built" data-label-es="Créditos: hecho por Claude, lo que es real, cómo se hizo">' + A.L('Credits', 'Créditos') + '</button></div></div>' +
       '<div class="hud__btns" role="group" data-label-en="Map zoom" data-label-es="Zoom del mapa">' +
       '<button type="button" id="map-zoom-in" data-label-en="Zoom in" data-label-es="Acercar">' + A.ui.icon('plus') + '</button>' +
       '<button type="button" id="map-zoom-out" data-label-en="Zoom out" data-label-es="Alejar">' + A.ui.icon('minus') + '</button>' +
