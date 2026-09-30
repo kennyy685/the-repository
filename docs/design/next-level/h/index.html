@@ -1,0 +1,94 @@
+<!doctype html>
+<!--
+  HOLOGRAM WALK (final showpiece, HMP App / Aldaba mockup, not the live app).
+  Pick a zone and the walk, the streets and the 25 doors become iridescent thin-film holograms over a dark aurora table.
+  Built on the winning "Spectral" concept, with the best of Jarvis, Neon, LiDAR and Ember folded in:
+  - NEXT MOVE banner (Jarvis/Neon/LiDAR/Ember): one always-on button that says the single next thing to do and does it.
+  - Score-tall light beams, gold Top-5, ground reticles + parking sonar (Jarvis), light-wall trail (Neon), LiDAR scan on
+    select (LiDAR), embers over the best doors (Ember), storm-track chevrons (Neon), lens grade pass (all four).
+  Borrowed (and where from):
+  - Thin-film interference color: Glassner "Soap Bubbles" (IEEE CG&A 2000) https://ieeexplore.ieee.org/document/820319 and
+      Belcour & Barla, SIGGRAPH 2017 https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
+  - Calm contour lines instead of particles: USGS topographic contours + Windy "isolines" https://www.windy.com
+  - Screen-space thick lines: Matt DesLauriers "Drawing Lines is Hard" https://mattdesl.svbtle.com/drawing-lines-is-hard
+  - Critically damped camera follow: Ryan Juckett "Damped Springs" https://www.ryanjuckett.com/damped-springs/
+  - Fresnel rim + scanline hologram material: ektogamat/threejs-holographic-material (MIT)
+  - Glass only on the controls layer: Apple "Meet Liquid Glass" (WWDC25) https://developer.apple.com/videos/play/wwdc2025/219/
+  - Hail size vs everyday objects: NWS hail size chart https://www.weather.gov/abr/hailsize ; US Mint coin sizes https://www.usmint.gov/learn/coins-and-medals/circulating-coins
+  Data: ../shared/data.js + ../shared/data-fremont.js (Fremont pick E 12th St & E Linden Ave, Jul 1 2026 hail; Nebraska GIS
+  streets, NOAA SPC + MRMS storms, engine pick + walk). Homes are FAKE samples, no owner names.
+  three.js r170 vendored in ../shared/vendor (no network). Query: ?still=1 ?lang=en|es ?house=N ?lite=1
+-->
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aldaba Hologram Walk</title>
+<meta name="color-scheme" content="dark">
+<link rel="preload" href="../shared/fonts/BricolageGrotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../shared/fonts/Geist-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./walk.css">
+</head>
+<body>
+<canvas id="gl" tabindex="0" aria-label="3D hologram of the walk: 25 sample homes, their streets and the route"></canvas>
+<div id="labels"></div>
+<div class="scrim-t"></div><div class="scrim-l"></div><div class="scrim-b"></div>
+
+<header class="ui top">
+  <button class="glass back" id="back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg><span id="backT"></span><kbd>Esc</kbd></button>
+  <div class="brand"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 19 24 8 39 19" fill="none" stroke="#f5f2ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="17" r="3" fill="#f5f2ff"/><circle cx="24" cy="31.5" r="10" fill="none" stroke="#f5883a" stroke-width="5"/></svg>Aldaba</div>
+  <div class="glass hud" id="hud"></div>
+  <div class="sp"></div>
+  <span class="sample" id="sample"><i></i><span id="sampleT"></span></span>
+  <div class="glass seg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="es" aria-pressed="false">ES</button></div>
+</header>
+
+<button id="nm" class="ui go" aria-live="polite"></button>
+
+<section class="ui zone" id="zone" aria-labelledby="zTitle">
+  <div class="eyebrow fade" style="--d:80ms"><span class="dot"></span><span id="zEyebrow"></span></div>
+  <h1 class="fade" style="--d:140ms" id="zTitle"></h1>
+  <div class="town fade" style="--d:180ms" id="zTown"></div>
+  <div class="stats fade" style="--d:240ms" id="zStats"></div>
+  <p class="why fade" style="--d:300ms" id="zWhy"></p>
+  <div class="fade" style="--d:360ms"><button class="cta" id="start"><span id="startT"></span><span class="n" id="startN"></span></button></div>
+  <div class="park fade" style="--d:400ms"><span class="pk">P</span><span id="parkT"></span><span class="m" id="parkM"></span></div>
+  <div class="prog fade" style="--d:440ms" id="progBox"></div>
+</section>
+
+<div class="ui legend fade" style="--d:300ms" id="legend"></div>
+
+<footer class="ui strip fade" style="--d:420ms" id="strip">
+  <div class="strip-h"><b id="stripT"></b><span id="stripS"></span><span class="sum" id="sum"></span></div>
+  <div class="bars" id="bars"></div>
+  <div class="tourctl"><button class="glass tbtn" id="pause"></button><button class="glass tbtn" id="skip"></button><button class="glass tbtn" id="stop"></button></div>
+</footer>
+
+<div class="ui hint fade" style="--d:480ms" id="hint"></div>
+
+<aside class="ui card" id="card" role="dialog" aria-labelledby="cAddr">
+  <div class="c-in">
+    <div class="c-top"><span class="c-door" id="cDoor"></span><span id="cChips"></span><span class="c-smp"><i></i><span id="cSmp"></span></span>
+      <button class="c-x" id="cClose"><svg viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+    <div class="c-big">
+      <div class="big hail"><div class="lbl" id="cHailL"></div><div class="num" id="cHail"></div><div class="sub" id="cHailS"></div></div>
+      <div class="big roof"><div class="lbl" id="cRoofL"></div><div class="num" id="cRoof"></div><div class="sub" id="cRoofS"></div></div>
+    </div>
+    <div class="c-scale"><div class="rail"><div class="mk" id="cMk"></div></div><div class="tk" id="cTk"></div></div>
+    <div class="c-why"><div class="k2" id="cWhyK"></div><div id="cWhy"></div></div>
+    <div class="c-addr"><h2 id="cAddr"></h2><div class="ct" id="cCity"></div>
+      <div class="facts" id="cFacts"></div></div>
+    <div class="c-sp"></div>
+    <div class="c-act"><button class="ab done" id="cDone"></button><button class="ab skip" id="cSkip"></button></div>
+    <div class="c-nav"><button class="nb" id="cPrev"></button><button class="nb nx" id="cNext"></button></div>
+    <div class="c-foot"><span id="cKeys"></span><span id="cSrc"></span></div>
+  </div>
+</aside>
+<div class="toast" id="toast"></div>
+<div class="nogl" id="nogl"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/data-fremont.js"></script>
+<script type="importmap">{"imports":{"three":"../shared/vendor/three/three.module.min.js","three/addons/":"../shared/vendor/three/addons/"}}</script>
+<script type="module" src="./walk.js"></script>
+</body>
+</html>
