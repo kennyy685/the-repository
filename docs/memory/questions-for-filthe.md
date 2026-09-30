@@ -136,3 +136,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - Wants it "way more productive, way more efficient, way more straightforward, to the point".
 - 00:35 UTC: FilthE CHOSE D as the 7 AM look ("lets just improvise on D, im going to choose that"). Improve D in place, no E.
   Start the D rework only on his "go" (usage was at 100%). Plan = the one-next-move / meaning colors / fix 3D list above.
+- ~01:00 UTC 2026-09-30: King told FilthE we drifted into "a design studio that spends money on itself" (looks + AI managing AI > lead work).
+  FilthE: "finish what we're doing, then let's have a complete change in direction." = let the Hologram contest finish, then
+  sit down with him and reset direction (King's proposed order: real lead data -> app proven end to end on one real Fremont
+  walk -> him ready to sell (permit calls, Practice Door) -> then looks). Don't start new work in between.
