@@ -140,3 +140,5 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   FilthE: "finish what we're doing, then let's have a complete change in direction." = let the Hologram contest finish, then
   sit down with him and reset direction (King's proposed order: real lead data -> app proven end to end on one real Fremont
   walk -> him ready to sell (permit calls, Practice Door) -> then looks). Don't start new work in between.
+- ~01:15 UTC 2026-09-30 BIG: FilthE realized what he's really been building: "a contracting agency with Claude AI for HMP
+  roofing". (King asked what that means to him: AI running the whole office behind the knocker? Pending his answer.)
