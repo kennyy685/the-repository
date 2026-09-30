@@ -142,3 +142,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   walk -> him ready to sell (permit calls, Practice Door) -> then looks). Don't start new work in between.
 - ~01:15 UTC 2026-09-30 BIG: FilthE realized what he's really been building: "a contracting agency with Claude AI for HMP
   roofing". (King asked what that means to him: AI running the whole office behind the knocker? Pending his answer.)
+- OPEN (Agency interview Round 1, asked ~01:20 UTC 2026-09-30; he has more info first, don't forget these):
+  1) Why an AI agency instead of an office person? 2) Who's in it in a year? 3) Perfect Tuesday a year from now: his day +
+  what AI does unasked. 4) Most annoying/slow/confusing part of how HMP gets and does work today (= likely start).
+  Plan: interview in rounds -> one-page "HMP Agency" plan in his words -> build only what's on it, one piece at a time.
