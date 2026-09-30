@@ -17,7 +17,7 @@ const MOTION = STILL || RM ? 0 : 1;   // ambient shader motion
 // ?safari=1 forces that path (so it can be tested in Chromium), ?safari=0 forces it off.
 const UA = navigator.userAgent || '';
 const SAFE = Q.has('safari') ? Q.get('safari') !== '0'
-  : (/iPad|iPhone|iPod/.test(UA) || (/Macintosh/.test(UA) && (navigator.maxTouchPoints || 0) > 1) || (/Safari\//.test(UA) && !/Chrome|Chromium|CriOS|Edg\/|OPR\//.test(UA)));
+  : (/iPad|iPhone|iPod|Macintosh|Mac OS X/.test(UA) || (/Safari\//.test(UA) && !/Chrome|Chromium|CriOS|Edg\/|OPR\//.test(UA))); // every Mac (Safari, Chrome, the Claude app): Metal GPUs black out with MSAA half-float + full bloom (FilthE, 2026-09-30)
 const storeEarly = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 let LITE = Q.has('lite') ? Q.get('lite') !== '0' : storeEarly('aldaba.lite') === '1'; // low-power fallback (also switched on automatically when frames run long or the GPU drops)
 let lang = (Q.get('lang') || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
