@@ -1,6 +1,6 @@
 # HMP App changelog (newest first)
 
-## Claude's Aldaba v1: Claude's own cut of the app - 2026-09-30 (live: https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK Version 2; checks green: smoke 5/5 still + motion, full film 12/12 chapters, ?gl=0, 3-lens review legal/look/bugs, verify = ship)
+## Claude's Aldaba v1: Claude's own cut of the app - 2026-09-30 (live: https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK Version 3 after a polish round: map labels avoid every panel, film framing, top bar fits to 320 px; checks green: smoke 5/5 still + motion, full film 12/12 chapters, ?gl=0, 3-lens review legal/look/bugs, verify = ship)
 - A showcase FilthE asked for ("your own version of Aldaba... go all out"): one continuous Nebraska map world (real NE GIS streets, NOAA/NWS/MRMS hail, Census), 5 screens (Now 7 AM brief, Storms season replay, Knock one tap per door, Deal door-to-signed-job with Nebraska legal armor + HMP homeowner sheet EN/ES, Money honest path to $100k), an 8.7 s cold open over the real Aug 8 storm, and a 1:20 "Play the film" tour that drives the real UI with captions and synthesized sound.
 - Built for the MacBook first, works at 400 px, dark + light, EN + ES; sample homes only, no owner names. Source: docs/design/claudes-aldaba/ (CONTRACT.md, HANDOFF.md). New ideas worth carrying into the real app: the 1-inch hail line badge per door, the do-not-knock list by address, the cancel-window clock, the reverse funnel levers.
 
