@@ -1,5 +1,7 @@
 # Claude's Aldaba: state (2026-09-30, after integration)
 
+## LIVE 2026-09-30 15:53 UTC: Version 2 published (finish workflow wf_bfe3e427-cbd: verify = ship). Polish workflow `wf_3fe08daa-1b5` running (map labels avoid UI, film Money framing, 400 px top bar); when it verifies, republish the same URL.
+
 **FilthE (2026-09-30 ~12:20 UTC): "you're the boss this task claude, do as you wish."** Claude decides everything on this piece (scope, look, when to republish the same link) without waiting for his OK. Still off-limits: merges to main, spending money, deleting data.
 
 ## FILM + WIRING PASS DONE 2026-09-30 ~14:30 UTC (integration robot)

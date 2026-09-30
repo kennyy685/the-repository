@@ -1,5 +1,9 @@
 # HMP App changelog (newest first)
 
+## Claude's Aldaba v1: Claude's own cut of the app - 2026-09-30 (live: https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK Version 2; checks green: smoke 5/5 still + motion, full film 12/12 chapters, ?gl=0, 3-lens review legal/look/bugs, verify = ship)
+- A showcase FilthE asked for ("your own version of Aldaba... go all out"): one continuous Nebraska map world (real NE GIS streets, NOAA/NWS/MRMS hail, Census), 5 screens (Now 7 AM brief, Storms season replay, Knock one tap per door, Deal door-to-signed-job with Nebraska legal armor + HMP homeowner sheet EN/ES, Money honest path to $100k), an 8.7 s cold open over the real Aug 8 storm, and a 1:20 "Play the film" tour that drives the real UI with captions and synthesized sound.
+- Built for the MacBook first, works at 400 px, dark + light, EN + ES; sample homes only, no owner names. Source: docs/design/claudes-aldaba/ (CONTRACT.md, HANDOFF.md). New ideas worth carrying into the real app: the 1-inch hail line badge per door, the do-not-knock list by address, the cancel-window clock, the reverse funnel levers.
+
 ## AI hub v35: branch watch, Sunday report, Shipped shelf - 2026-09-29 (live: AI hub Version 37; queue chunks C, D, F, G; 3 QA rounds; checks green: 50 live scenarios, chat, shelf, design gate, release --fast)
 - Board: an "Unfinished work" card when a branch holds work not on the work branch (from the King's `system/git`). Merge it / Merge to main put one merge on his waiting list with the tap as the OK (the King re-checks the branch before merging); Ask the King for conflicts; Hide / Not yet stay on this device. Old branches (200+ commits) say "check first" with no Merge it.
 - Crew: from Sunday 6 PM to Monday noon a Sunday report tops the Crew tab (shipped, spent, $ per ship, waited on you, stuck, best helper, arrows vs last week), then the last 3 stay in the Log. Numbers the page can't fully see say "not tracked yet", never a guess.
