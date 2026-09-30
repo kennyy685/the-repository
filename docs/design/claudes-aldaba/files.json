@@ -1,6 +1,6 @@
 {
   "about": "Claude's Aldaba is a multi-file artifact. Publish `page` with the Artifact tool's `files` = the map below (published path -> repo file, relative to the repo root). The page loads each published path with <script src> / <link href>. Add a file here in the same change that adds its tag to index.html; dev/shoot.mjs serves the folder from disk the same way.",
-  "url": null,
+  "url": "https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK",
   "page": "docs/design/claudes-aldaba/index.html",
   "files": {
     "css/base.css": "docs/design/claudes-aldaba/css/base.css",

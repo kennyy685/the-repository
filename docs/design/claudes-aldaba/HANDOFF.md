@@ -1,5 +1,18 @@
 # Claude's Aldaba: state (2026-09-30, after integration)
 
+## PAUSED 2026-09-30 ~02:45 UTC (FilthE: "come to an appropriate pause now"). Resume here.
+- **Preview is LIVE:** https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK (Version 1, private). Published after the
+  whole-app smoke passed (5 views, 0 console errors, no horizontal scroll at 1440/1280/400). Republish = publish
+  `index.html` again from this chat with `files` = `files.json` map (absolute paths), or from another chat pass the URL.
+- **Stopped mid-way (all files parse; everything committed):** Knock fix pass (its work up to 02:32 is in the tree:
+  blocker route fix + 1-inch badge status unknown, verify), cold open + Storms finisher (was polishing beats),
+  Deal fresh-eyes review (no `dev/review/deal.json` written yet), integration (film + credits built; was running
+  its final film test). director.js/css changed after the preview publish, so the next publish carries them.
+- **Resume order:** (1) one robot each: finish Knock (verify dev/review/knock.json blocker + majors are fixed,
+  then the badge), finish cold open + Storms (brief `dev/briefs/cinema.md`), Deal review + fix; (2) run
+  `node dev/film.mjs --run --rate 2` + `--stops` and wire any demo handle `A.director.report()` lists; (3) the 3-lens
+  final review + fix; (4) republish the same URL, hub post, CHANGELOG line. Max 4 robots at once.
+
 FilthE asked (2026-09-29): "demonstrate the true potential of Claude with its own version of the app... includes the
 incredible motion designer you are... like it's for your resume, go all out, your own version of Aldaba."
 Branch: `claude/modest-planck-qidroo`. Rules + API: `CONTRACT.md`. Briefs: `dev/briefs/`.

@@ -61,7 +61,7 @@
     on: false, playing: false, i: -1, b: null, tok: 0,
     dom: null, frame: 'out', laid: false,
     snap: null, dealHome: undefined, touched: new Set(), rate: 1,
-    issues: [], skipped: [], prevFocus: null, offs: [], hotT: 0
+    issues: [], skipped: [], prevFocus: null, offs: [], hotT: 0, spots: []
   };
   function note(kind, what) {
     const s = kind + ': ' + what;
@@ -205,17 +205,23 @@
       const r = el.getBoundingClientRect(); if (!r.width || !r.height || r.bottom < 0 || r.top > innerHeight) return;
       const pad = o.pad == null ? 5 : o.pad;
       const s = A.h('<span class="dir-spot" aria-hidden="true"></span>');
-      Object.assign(s.style, { left: (r.left - pad) + 'px', top: (r.top - pad) + 'px', width: (r.width + pad * 2) + 'px', height: (r.height + pad * 2) + 'px' });
-      F.dom.spots.appendChild(s);
+      const sp = { s, el, pad }; placeSpot(sp);
+      F.dom.spots.appendChild(s); F.spots.push(sp);                 // it follows its element while the film plays
       const hold = o.hold || 2600;
-      if (A.still) { setTimeout(() => s.remove(), hold); return; }
+      const gone = () => { s.remove(); const k = F.spots.indexOf(sp); if (k >= 0) F.spots.splice(k, 1); };
+      if (A.still) { setTimeout(gone, hold); return; }
       A.safe('spot', () => {
         s.animate([{ opacity: 0, transform: 'scale(1.035)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 620, easing: A.motion.css.hail, fill: 'both' });
         const out = s.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, delay: hold, easing: A.motion.css.ease, fill: 'forwards' });
-        out.onfinish = () => s.remove(); out.oncancel = () => s.remove();
+        out.onfinish = gone; out.oncancel = gone;
       });
     };
     if (o.delay) setTimeout(run, o.delay); else run();
+  }
+  function placeSpot(sp) {
+    if (!sp.el.isConnected) return;
+    const r = sp.el.getBoundingClientRect(), st = sp.s.style, p = sp.pad;
+    st.left = (r.left - p) + 'px'; st.top = (r.top - p) + 'px'; st.width = (r.width + p * 2) + 'px'; st.height = (r.height + p * 2) + 'px';
   }
 
   /* ======================= the chapters ======================= */
@@ -346,7 +352,7 @@
       setup(b) { frame('in', false); A.ui.chrome(true); if (!entered('deal')) { F.touched.add('deal'); goView('deal', { instant: b.seekIn }); } },
       script(b) {
         b.glide(0, 700, T.hand);
-        b.press(760, T.hand, () => when('deal', () => use('dealDemo', 'open')));
+        b.press(760, T.hand, () => when('deal', () => { F.touched.add('deal'); use('dealDemo', 'open'); }));   // touched: an exit re-enters Deal, so the sheet never lingers
         b.glide(1500, 900, () => { const s = T.sheet(); if (!s) return null; const r = s.getBoundingClientRect(); return [r.right - 30, r.top + r.height * 0.4]; });
         b.at(2300, (sk) => { const s = T.sheet(); if (s && !sk) A.safe('film scroll', () => s.scrollBy({ top: Math.min(340, s.scrollHeight - s.clientHeight), behavior: A.still ? 'auto' : 'smooth' })); });
         b.at(5300, () => { const st = A.dealDemo && A.dealDemo.state ? A.safe('deal state', A.dealDemo.state) : null; if (st && st.open) use('dealDemo', 'close'); });
@@ -487,7 +493,7 @@
     if (local > 0) {
       b.tl.seek(local);
       // a view that enters after the seek (async) had no targets yet: re-apply the tracks (cursor, drags) once it landed
-      const refit = () => { if (!b.alive() || F.b !== b) return; const t = b.tl.time; if (t > 2) { b.tl.seek(t - 1); b.tl.seek(t); } };
+      const refit = () => { if (!b.alive() || F.b !== b) return; const t = b.tl.time; if (t > 2) { b.tl.seek(t - 1); b.tl.seek(t); } F.spots.forEach(placeSpot); };
       setTimeout(refit, 450); setTimeout(refit, 1500);
     }
     if (F.playing) b.tl.play();
@@ -565,6 +571,7 @@
     A.safe('film now', () => { if (A.nowDemo) A.nowDemo.clear(); });
     Cur.remove(); Sign.remove(); Cap.hide(false);
     if (F.dom) F.dom.spots.replaceChildren();
+    F.spots = [];
     const S = window.Sound; if (S) A.safe('film sound', () => { S.score(false); S.hailBed(0); });
     clearTimeout(F.hotT); root.classList.remove('dir-hot');
     A.ui.chrome(true);
@@ -604,11 +611,14 @@
       // the panels are gone: the whole frame between the bands is the stage for the wide shot
       if (!A.stacked() && F.dom) W.setInset({ l: 0, r: 0, t: Math.round(F.dom.lbT.getBoundingClientRect().height), b: bandB() }, { ms: sk || A.still ? 0 : 700 });
       W.setDim(0.6); W.layer.opacity('hail', 0.2, { ms: sk ? 0 : 900 }); W.ambient(false);
+      if (F.labels0 == null) { F.labels0 = W.options({}).labels !== false; W.options({ labels: false }); }   // the mark owns the frame
       W.flyTo({ bounds: W.presets.region, pad: A.stacked() ? 12 : 70 }, { ms: 2800, instant: sk || A.still, ease: 'inOutSine' });
     });
   }
   function restoreWorld() {
     const W = A.world; if (!W || !W.layer) return;
+    // labels first, before any view change (a view that hides labels itself restores them on its own exit)
+    if (F.labels0 != null) { const l = F.labels0; F.labels0 = null; A.safe('film labels', () => W.options({ labels: l })); }
     const v = A.view.get(A.view.current) || {};
     A.safe('film world', () => { W.setDim(v.dim || 0); W.layer.opacity('hail', v.hail == null ? 1 : v.hail, { ms: 500 }); W.ambient(v.ambient !== false); });
   }
@@ -798,7 +808,7 @@
     /** the progress bar follows the film only while it plays (a paused film keeps no loop running) */
     run() {
       if (F.tick || !F.on) return;
-      F.tick = () => { if (!F.on || !F.playing) { F.tick = null; this.progress(true); return false; } this.progress(false); return true; };
+      F.tick = () => { if (!F.on || !F.playing) { F.tick = null; this.progress(true); return false; } this.progress(false); F.spots.forEach(placeSpot); return true; };
       A.motion.ticker.add(F.tick);
     },
     unmount() {
@@ -1158,6 +1168,11 @@
   function closeKeys() { if (keysEl) { const el = keysEl; keysEl = null; if (el._close) el._close(false); else el.remove(); } }
 
   /* ======================= wiring ======================= */
+  // the top bar's "Play the film" says how long the film really is (COPY.film.lengthN, rounded to 10 s)
+  A.safe('film tip', () => {
+    const b = document.getElementById('film'), L = cp(FILM.lengthN, 'About {n} seconds. The app plays itself.', 'Unos {n} segundos. La app se muestra sola.'), n = Math.round(TOTAL / 10000) * 10;
+    if (b) { b.dataset.tip = sub(L.en, { n }) + ' · F'; b.dataset.tipEs = sub(L.es, { n }) + ' · F'; }
+  });
   document.addEventListener('click', (e) => {
     const t = e.target.closest && e.target.closest('#cut, #credits');
     if (t) { e.preventDefault(); credits(t); }

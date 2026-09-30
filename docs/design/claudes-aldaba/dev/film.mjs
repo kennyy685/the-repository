@@ -122,7 +122,7 @@ if (o.stops) {
     await page.evaluate((ms) => A.director.play({ at: ms, gesture: false }), ms);
     await page.waitForTimeout(900);
     await page.evaluate(() => A.director.stop());
-    await page.waitForTimeout(1300);
+    await page.waitForTimeout(2000);
     const c = await page.evaluate(CLEAN);
     const d = dirty(c);
     console.log(`stop at ${String(ms).padStart(6)}: ${d.length ? 'DIRTY ' + d.join('; ') : 'clean'} (view ${c.view})`);

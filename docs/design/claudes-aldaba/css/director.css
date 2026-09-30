@@ -10,9 +10,10 @@
 
 /* ---------- film mode: the chrome goes quiet, the slots make room for the bottom band ---------- */
 @media (min-width:901px){:root.dir-frame{--frame-b:calc(var(--dir-lbb) - var(--gut) + 10px)}}
+/* the bar keeps its glass (nothing shows through it on a scrolled phone page); only what sits on it goes quiet */
 :root.dir-on .topbar{z-index:60;transition:opacity .6s var(--ease-out)}
-:root.dir-on:not(.no-chrome) .topbar{opacity:.46}
-:root.dir-on.dir-hot:not(.no-chrome) .topbar{opacity:1}
+:root.dir-on .topbar>*{transition:opacity .6s var(--ease-out)}
+:root.dir-on:not(.dir-hot) .topbar>*{opacity:.42}
 :root.dir-on .stage,:root.dir-on .hud{transition:opacity .6s var(--ease-out)}
 :root.dir-on .intro-skip,:root.dir-on .intro-progress{opacity:0!important;visibility:hidden!important}
 
