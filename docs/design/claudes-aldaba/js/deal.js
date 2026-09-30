@@ -139,7 +139,21 @@
   function home() {
     const hs = (A.data && A.data.homes) || [];
     const d = A.dealHome && A.dealHome.p ? A.dealHome : null;
-    return d || hs.find((h) => h.rank === 1) || hs[0] || { addr: '3944 21 St', st: '21 St', p: [-97.377365, 41.436869], built: 1978, roof: 21, own: true, hail: 1.68, score: 91, rank: 1 };
+    if (d) return d;
+    // no door handed over: open the walk's Door 1, so a fresh Deal and a fresh Knock show the same house
+    const w = walkOrder(), first = w[0] && hs.find((h) => h.addr === w[0].addr);
+    return first || hs.find((h) => h.rank === 1) || hs[0] || { addr: '3902 22 St', st: '22 St', p: [-97.377313, 41.437511], built: 1962, roof: 19, own: true, hail: 1.58, score: 83, rank: 7 };
+  }
+  /** Knock's walk in door order ([{idx, rank, addr}]); empty when Knock or the map is not ready */
+  function walkOrder() {
+    const k = A.knockDemo; if (!k || typeof k.walk !== 'function') return [];
+    const w = A.safe('deal walk order', () => k.walk()); return Array.isArray(w) ? w : [];
+  }
+  /** "Door N" in Knock's walk order; a house outside the walk is the top door */
+  function doorLabel(h) {
+    let n = h.walkIndex;
+    if (!n) { const w = walkOrder().find((x) => x.addr === h.addr); n = w && w.idx; }
+    return n ? `${L('Door', 'Puerta')} ${A.esc(String(n))}` : L('Top door', 'Mejor puerta');
   }
   const blankTicks = () => { const t = {}; STEPS.forEach((s) => (t[s.id] = (s.collect || []).map(() => false))); return t; };
   function setTicks(S, id, vals) { if (S.ticks[id]) S.ticks[id] = S.ticks[id].map((_, i) => !!vals[i]); }
@@ -338,7 +352,7 @@
     const slot = h.slot && h.slot.day ? `<p class="deal-head__slot"><span class="chip chip--acc"><i data-icon="clock"></i>${L('Inspection', 'Inspección')} · ${A.both(() => A.fmt.date(h.slot.day, 'day'))} · ${A.both(() => A.fmt.time(h.slot.time))}</span></p>` : '';
     return `
       <div class="deal-head__top">
-        <p class="eyebrow eyebrow--acc">${E(TITLE)} · ${L('Door', 'Puerta')} ${A.esc(String(h.walkIndex || h.rank || 1))} ${A.ui.sampleTag()}</p>
+        <p class="eyebrow eyebrow--acc">${E(TITLE)} · ${doorLabel(h)} ${A.ui.sampleTag()}</p>
         <p class="t-micro deal-head__pos"></p>
       </div>
       <div class="deal-head__id">

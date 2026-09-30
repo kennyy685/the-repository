@@ -7,6 +7,7 @@
      Funnel.plan({goal, today, end, commissionPerJob, knockDaysPerWeek, hoursPerDay, rates, rep, skip})
      Funnel.sensitivity(opts)             the same plan at low / typical / high rates
      Funnel.rates(rates, rep)             the resolved chain (fractions) with sources
+     Every bench figure: `source` = domains only (safe in EN and ES); `detail` = {en, es} who it measures.
      Funnel.knockDays(today, end, perWeek, skip)
 
    Run `node js/lib/funnel.js` to self-test and print the typical plan. */
@@ -24,10 +25,10 @@
     _as_of: '2026-09-26',
     _file: 'data/benchmarks.json',
     doors_to_conversation: { low: 20, typical: 30, high: 40, unit: '%', source: 'spotio.com, theroofstrategist.com' },
-    doors_per_hour: { low: 10, typical: 12, high: 15, unit: 'doors/h', source: 'rookie knocking benchmarks (research round 6)' },
-    doors_to_qualified_inspection_new_rep: { low: 0.5, typical: 1, high: 2, unit: '%', source: 'ilroofinginstitute.com, new rep, first 30 days' },
-    doors_to_qualified_inspection_experienced: { low: 2, typical: 3.5, high: 5, unit: '%', source: 'ilroofinginstitute.com, top performers' },
-    doors_to_appointment_company_median: { low: 6, typical: 9, high: 16, unit: '%', source: 'subcontractorhub.com, whole-company funnel' },
+    doors_per_hour: { low: 10, typical: 12, high: 15, unit: 'doors/h', source: 'qomon.com, spotio.com', detail: { en: 'new reps', es: 'vendedores nuevos' } },
+    doors_to_qualified_inspection_new_rep: { low: 0.5, typical: 1, high: 2, unit: '%', source: 'ilroofinginstitute.com', detail: { en: 'new reps, first 30 days', es: 'vendedores nuevos, primeros 30 días' } },
+    doors_to_qualified_inspection_experienced: { low: 2, typical: 3.5, high: 5, unit: '%', source: 'ilroofinginstitute.com', detail: { en: 'top performers', es: 'los mejores vendedores' } },
+    doors_to_appointment_company_median: { low: 6, typical: 9, high: 16, unit: '%', source: 'subcontractorhub.com', detail: { en: 'whole-company funnel', es: 'embudo de toda la empresa' } },
     appointment_to_inspection: { low: 58, typical: 71, high: 84, unit: '%', source: 'subcontractorhub.com' },
     inspection_to_signed_contract: { low: 40, typical: 58, high: 74, unit: '%', source: 'subcontractorhub.com' },
     overall_close_rate_exclusive_leads: { low: 25, typical: 30, high: 35, unit: '%', source: 'subcontractorhub.com; spotio.com' },
@@ -87,7 +88,8 @@
       var src = c.source || (b && b.source);
       var over = o[c.id] != null ? o[c.id] : key && o[key] != null ? o[key] : null;
       if (over != null && isFinite(+over) && +over > 0) { v = +over; src = 'override'; }
-      out[c.id] = { rate: c.id === 'doors_per_hour' ? v : v / 100, value: v, key: key || c.id, source: src };
+      out[c.id] = { rate: c.id === 'doors_per_hour' ? v : v / 100, value: v, key: key || c.id, source: src,
+        detail: src !== 'override' && b && b.detail ? b.detail : null };
     });
     return out;
   }
@@ -154,7 +156,7 @@
       { id: 'jobs', of: 'signed', value: jobs, r: R.signed_to_job }
     ].map(function (s) {
       return { id: s.id, label: LABELS[s.id], value: s.value, of: s.of, rate: s.r ? s.r.rate : s.rate,
-        key: s.r ? s.r.key : null, source: s.r ? s.r.source : s.source };
+        key: s.r ? s.r.key : null, source: s.r ? s.r.source : s.source, detail: s.r ? s.r.detail : null };
     });
 
     var out = {

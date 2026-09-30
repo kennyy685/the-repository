@@ -46,6 +46,19 @@
   const TOWN = (ZONES[0] && ZONES[0].town) || 'Columbus';
   const AREA = {}; (N.areas || []).forEach((a) => (AREA[a.id] = a));
   const pickArea = AREA[pick.area_id] || null;
+  /* the pick's "why", built from its own fields: 1.64 in is an MRMS radar estimate (ground reports that day topped out
+     lower), so it is never printed as a fact. Everyday picks carry no hail number, so their own sentence stands. */
+  const MONL = { en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] };
+  const PICK_WHY = (() => {
+    const m = String(pick.storm_day || '').match(/^(\d{4})-(\d\d)-(\d\d)/);
+    if (pick.hail_in && m) {
+      const x = (l) => A.fmt.num(pick.hail_in, 1, l), mo = +m[2] - 1, d = +m[3];
+      return { en: 'Radar puts ' + x('en') + '-inch hail here on ' + MONL.en[mo] + ' ' + d + '. The roofs are older and most homes are owner-lived.',
+        es: 'El radar estima granizo de ' + x('es') + ' pulgadas aquí el ' + d + ' de ' + MONL.es[mo] + '. Los techos ya tienen años y en la mayoría de las casas viven sus dueños.' };
+    }
+    return pick.kind === 'everyday' && pick.why ? pick.why : null;
+  })();
   const stormOf = (areaId) => { const a = AREA[areaId]; if (!a) return null; return (N.storms || []).find((s) => s.id === a.st) || null; };
   const insuredLevel = (a) => { if (!a || !a.insured) return null; const f = (s) => String(s).split(':').slice(1).join(':').trim() || s; return { en: f(a.insured.en), es: f(a.insured.es) }; };
   const routeMiles = ROUTE ? ROUTE.miles : Math.round(pick.dist_mi || 0);
@@ -112,7 +125,7 @@
       <p class="now-hero__street" data-now="street" data-pend>${A.esc(ZONES[0] ? ZONES[0].street : pick.name)}</p>
       <p class="now-hero__line" data-pend><span class="now-hero__doors"><span class="num" data-now="doors">${pick.doors}</span> ${Le('doors.', 'puertas.')}</span>
         <span class="now-hero__time">${A.both((l) => F.range(knockStart, knockEnd, l))}</span></p>
-      <p class="t-lead now-hero__why" data-pend>${pick.why ? Le(pick.why.en, pick.why.es) : ''}</p>
+      <p class="t-lead now-hero__why" data-pend>${PICK_WHY ? Le(PICK_WHY.en, PICK_WHY.es) + (pick.hail_in ? ' ' + U.srcTag('mrms') : '') : ''}</p>
       <div class="now-hero__act" data-pend>
         <button type="button" class="btn btn--primary" data-now="walk">${ic('door')}${Lx(cp('now.actions.startWalk', 'Start the walk', 'Empezar la ruta'))}</button>
         <button type="button" class="btn btn--secondary" data-now="drive" data-tip="Watch a car drive the real route" data-tip-es="Mira un auto recorrer la ruta real">${ic('car')}${Le('Preview the drive', 'Ver el trayecto')}</button>
@@ -288,7 +301,7 @@
         <span class="row__lead row__lead--ring now-z__rk" data-h="${A.ui.hailKey(h)}"><b class="now-z__n">${z.rank}</b></span>
         <span class="row__main"><span class="row__t">${A.esc(z.street)}</span>
           <span class="row__s">${z.town !== TOWN ? A.esc(z.town) + ' · ' : ''}${every ? Le('everyday zone', 'zona de todos los días') : (st ? A.both((l) => A.fmt.date(st.date, 'short', l)) + ' · ' : '') + Lx(cp('now.zones.homes', '{n} homes', '{n} casas'), { n: z.homes })}</span></span>
-        ${every ? `<span class="row__trail now-z__ev" data-tip="Everyday score: older, owner-lived homes, no recent storm. A different scale from storm zones, so it ranks after them." data-tip-es="Puntaje de todos los días: casas viejas habitadas por sus dueños, sin tormenta reciente. Es otra escala que la de las zonas de tormenta, por eso va después."><span class="now-z__sc num">${A.fmt.num(z.score, 1)}</span><span class="now-z__evl now-meta">${Le('other scale', 'otra escala')}</span></span>`
+        ${every ? `<span class="row__trail now-z__ev" data-tip="Everyday score ${A.fmt.num(z.score, 1, 'en')}: older, owner-lived homes, no recent storm. A different scale from storm zones, so it ranks after them." data-tip-es="Puntaje de todos los días ${A.fmt.num(z.score, 1, 'es')}: casas viejas habitadas por sus dueños, sin tormenta reciente. Es otra escala que la de las zonas de tormenta, por eso va después."><span class="now-z__evc">${Le('Everyday', 'Todos los días')}</span></span>`
         : `<span class="row__trail"><span class="now-z__sc num">${A.fmt.num(z.score, 1)}</span><span class="now-z__bar"><i style="transform:scaleX(${(z.score / 100).toFixed(3)})"></i></span></span>`}
       </button>
       <div class="now-z__more" hidden></div></li>`;
@@ -556,7 +569,7 @@
     rows.push([Le('Score', 'Puntaje'), F.num(z.score, 1) + (z.kind === 'everyday' ? ' <span class="t-muted">' + Le('other scale', 'otra escala') + '</span>' : '') + ' ' + U.srcTag('engine')]);
     rows.push([Le('From HMP', 'Desde HMP'), i === 0 ? Le(routeMiles + ' mi drive, about ' + routeMin + ' min', routeMiles + ' mi de camino, unos ' + routeMin + ' min') : Le(F.num(straight, 1, 'en') + ' mi straight line', F.num(straight, 1, 'es') + ' mi en línea recta')]);
     if (lvl) rows.push([Lx(cp('now.likelyInsured.label', 'Likely insured', 'Probablemente asegurado')), Le(lvl.en, lvl.es) + ' <span class="t-muted">' + Lx(cp('now.likelyInsured.tag', 'area estimate', 'estimado del área')) + '</span> ' + U.srcTag('census')]);
-    if (z.i === 0 && pick.why) rows.push([Le('Why', 'Por qué'), Le(pick.why.en, pick.why.es)]);
+    if (z.i === 0 && PICK_WHY) rows.push([Le('Why', 'Por qué'), Le(PICK_WHY.en, PICK_WHY.es)]);
     if (z.id === backup.zone_id && backup.why) rows.push([Le('Why', 'Por qué'), Le(backup.why.en, backup.why.es)]);
     more.innerHTML = `<dl class="kv now-z__kv">${rows.map((r) => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>
       <div class="now-z__act">${z.i === 0 ? `<button type="button" class="btn btn--primary btn--sm" data-act="walk">${ic('door', 14)}${Lx(cp('now.actions.startWalk', 'Start the walk', 'Empezar la ruta'))}</button>` : ''}

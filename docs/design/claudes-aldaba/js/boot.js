@@ -13,6 +13,7 @@
       try { await A.intro.play({ to: start }); } catch (e) { console.warn('[aldaba] intro failed:', e); }
     }
     A.ui.chrome(true); // whatever the intro did, the chrome comes back
+    if (!(A.director && A.director.active)) ['#topbar', '#stage', '#world .hud'].forEach((q) => { const el = document.querySelector(q); if (el) el.inert = false; });
     try { await A.view.go(start, { instant: A.still, force: true }); } catch (e) { console.warn('[aldaba] first view failed:', e); }
     A.ready = true;
     document.documentElement.classList.add('is-ready');

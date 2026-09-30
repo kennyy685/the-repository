@@ -565,6 +565,8 @@
   };
   /** hail size → token name for color: '--h0' <1, '--h1' 1-1.49, '--h15' 1.5-1.99, '--h2' 2+ */
   UI.hailTok = (v) => (v == null || v < 1 ? '--h0' : v < 1.5 ? '--h1' : v < 2 ? '--h15' : '--h2');
+  /** the same, for TEXT: '--h1-ink' etc. (darker in light so numbers stay readable on cream) */
+  UI.hailInk = (v) => UI.hailTok(v) + '-ink';
   UI.hailKey = (v) => (v == null || v < 1 ? '0' : v < 1.5 ? '1' : v < 2 ? '15' : '2');
 
   /* tooltip: one floating tip for every [data-tip] (reads data-tip-es in Spanish) */
@@ -821,6 +823,34 @@
     byKey(k) { for (const v of views.values()) if (String(v.key) === String(k)) return v.name; return null; }
   };
   try { slotIds.forEach((k) => { const el = slotEls()[k]; if (el) new MutationObserver(() => syncSlot(k, true)).observe(el, { childList: true }); }); } catch (e) { /* ignore */ }
+
+  /* "more below": a scrolling slot (left / right / dock) gets .is-more while content hides under its bottom edge, so the
+     CSS fade says "scroll" on a Mac with hidden scrollbars. Checked on scroll, on resize of the slot or any pane, and
+     when panes come and go; one rAF per burst. */
+  (function moreBelow() {
+    const ks = ['left', 'right', 'bottom'], dirty = new Set();
+    let raf = 0;
+    const check = (el) => {
+      if (!el || !el.hasAttribute('data-on')) { if (el) el.classList.remove('is-more'); return; }
+      el.classList.toggle('is-more', el.scrollHeight > el.clientHeight + el.scrollTop + 4);
+    };
+    const flush = () => { raf = 0; dirty.forEach(check); dirty.clear(); };
+    const queue = (el) => { dirty.add(el); if (!raf) raf = requestAnimationFrame(flush); };
+    UI.moreBelow = () => ks.forEach((k) => queue(slotEls()[k]));
+    try {
+      const ro = typeof ResizeObserver === 'function' ? new ResizeObserver((es) => es.forEach((e) => queue(e.target.closest('.slot')))) : null;
+      ks.forEach((k) => {
+        const el = slotEls()[k]; if (!el) return;
+        el.addEventListener('scroll', () => queue(el), { passive: true });
+        if (ro) { ro.observe(el); A.$$(':scope > *', el).forEach((c) => ro.observe(c)); }
+        new MutationObserver((ms) => {
+          if (ro) ms.forEach((m) => { m.addedNodes.forEach((n) => { if (n.nodeType === 1) ro.observe(n); }); m.removedNodes.forEach((n) => { if (n.nodeType === 1) ro.unobserve(n); }); });
+          queue(el);
+        }).observe(el, { childList: true, attributes: true, attributeFilter: ['data-on'] });
+      });
+    } catch (e) { /* the fade is a nicety; never break the page for it */ }
+    A.on('lang', UI.moreBelow);
+  })();
 
   /* chrome wiring (called by boot.js once the DOM and modules are in) */
   UI.mountChrome = function () {

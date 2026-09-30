@@ -523,7 +523,8 @@
           '<div class="storms-tl__grid">' + MONTHS.map((m) => '<i style="left:' + ((m.d / SPAN) * 100).toFixed(3) + '%"></i>').join('') + '</div>' +
           '<div class="storms-tl__ms" aria-hidden="true">' + months + '</div>' +
           '<div class="storms-tl__lane"><div class="storms-tl__burn"></div>' + gridY + ticks + '</div>' +
-          '<div class="storms-tl__ghosts" aria-hidden="true"><span class="storms-tl__gl">2024-25 ' + U.srcTag('ncei') + '</span>' + ghosts + '</div>' +
+          // the ghost row is decoration for screen readers, so its source tag is hover-only (no keyboard stop that AT ignores)
+          '<div class="storms-tl__ghosts" aria-hidden="true"><span class="storms-tl__gl">2024-25 ' + U.srcTag('ncei').replace('tabindex="0"', 'tabindex="-1"') + '</span>' + ghosts + '</div>' +
           '<div class="storms-tl__today" style="left:' + (((TODAY + 0.5) / SPAN) * 100).toFixed(3) + '%"><span>' + Lo(cp('timeline.today', 'Today', 'Hoy')) + '</span></div>' +
           '<div class="storms-tl__head" aria-hidden="true"><i></i></div>' +
         '</div>' +

@@ -562,10 +562,10 @@
     // once handed off, the start view flies it
     if (!S.handed && S.keys) { const c = camAt(Math.min(T, B.hand)); A.world.jump({ center: A.world.toLonLat([c.x, c.y]), zoom: c.z }); }
     const set = (el, o, tf) => { if (!el) return; el.style.opacity = o.toFixed(3); if (tf != null) el.style.transform = tf; };
-    // title card: legible from the first frames, the question changes as the camera dives, and it steps back when the
-    // answer (the headline) lands
-    const ci = E.outCubic(seg(T, 0, 360)), back = 1 - 0.55 * E.inOutSine(seg(T, B.head + 150, 700));
-    set(D.card, (0.62 + 0.38 * ci) * back * (1 - hand), 'translateY(' + ((1 - ci) * 8 - hand * 8).toFixed(1) + 'px)');
+    // title card: legible from the first frames, the question changes as the camera dives, and it leaves entirely
+    // (title and its source lines) as the mark draws, so the lockup and the answer own the payoff frame alone
+    const ci = E.outCubic(seg(T, 0, 360)), back = 1 - E.inOutSine(seg(T, B.mark + 40, 400));
+    set(D.card, (0.62 + 0.38 * ci) * back * (1 - hand), 'translateY(' + ((1 - ci) * 8 - (1 - back) * 10 - hand * 8).toFixed(1) + 'px)');
     const ta = seg(T, B.push, 300), tb = seg(T, B.push + 160, 560);
     set(D.ta, 1 - ta, 'translateY(' + (-12 * E.outCubic(ta)).toFixed(1) + 'px)');
     set(D.tb, Math.min(1, tb * 2.2), 'translateY(' + ((1 - H(tb)) * 0.62).toFixed(3) + 'em)');
@@ -675,6 +675,16 @@
     if (pre) { pre.el.remove(); pre = null; }
     root.classList.remove('intro-on');
     A.ui.chrome(true);
+    chromeInert(false);
+  }
+  /* the hidden chrome (opacity 0) must not take focus either: Tab during the cold open would land on an invisible
+     button. Inside the film the director owns inert on the bar and stage; the map's HUD is always ours to clear. */
+  function chromeInert(on) {
+    const film = !!(A.director && A.director.active);
+    if (on && film) return;
+    const els = film ? [] : [document.getElementById('topbar'), document.getElementById('stage')];
+    els.push(document.querySelector('#world .hud'));
+    els.forEach((el) => { if (el) el.inert = !!on; });
   }
 
   function play(o) {
@@ -695,6 +705,7 @@
     S.restore.hidden.forEach((id) => W.layer.set(id, { visible: false }));
     root.classList.add('intro-on');
     A.ui.chrome(false);
+    chromeInert(true);
     A.safe('intro hide tip', () => A.ui.hideTip());
     W.setInset({ l: 0, r: 0, t: 0, b: 0 });
     W.layer.opacity('hail', 0, { ms: cur ? 400 : 0 });
@@ -776,6 +787,7 @@
     removeEventListener('keydown', onKey, true);
     S.dom.el.classList.add('is-leaving');                 // clicks pass through to the view landing underneath
     A.ui.chrome(true);
+    chromeInert(false);
     const R = S.restore, W = A.world;
     W.options({ labels: R.labels });
     if (R.view) {                                         // a replay over a live view: put the view back
@@ -796,7 +808,10 @@
     root.classList.add('intro-landed');
     const s = snd(); if (s) A.safe('intro sound off', () => { s.hailBed(0); if (S.scoreMine && !(A.director && A.director.playing)) s.score(false); });
     const W = A.world, dom = S.dom, Sx = S;
-    ['intro-sweep', 'intro-storm', 'intro-sync'].forEach((id) => W.layer.remove(id, { ms: done ? 0 : 260 }));
+    // the three heavy GL layers: cut at once when the intro ends or is stopped (the film's own cut covers it; a fade
+    // keeps them drawing every frame on a slow renderer); only a plain skip by the viewer fades them
+    const cut = done || done === false || filming();
+    ['intro-sweep', 'intro-storm', 'intro-sync'].forEach((id) => W.layer.remove(id, { ms: cut ? 0 : 260 }));
     if (Sx.restore.hidden.length) Sx.restore.hidden.forEach((id) => W.layer.set(id, { visible: true }));
     A.motion.exit([dom.el], { ms: done ? 1 : 180, y: 0 }).then(() => { dom.el.remove(); });
     if (Sx.offTheme) Sx.offTheme(); if (Sx.offLang) Sx.offLang();
@@ -823,6 +838,7 @@
     if (!wanted({})) return;
     root.classList.add('intro-on');
     A.ui.chrome(false);
+    chromeInert(true);
     pre = mount();
     render0(pre);
   });

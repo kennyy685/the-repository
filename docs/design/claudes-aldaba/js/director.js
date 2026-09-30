@@ -32,7 +32,7 @@
   const TAU = Math.PI * 2;
 
   // lines per file and data sizes, counted from the repo by dev/manifest.mjs (re-run it after code changes)
-  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",874],["js/world.js",1013],["js/lib/funnel.js",237],["js/lib/hailgl.js",1439],["js/lib/house.js",926],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",815],["js/now.js",797],["js/storms.js",879],["js/knock.js",1290],["js/deal.js",1324],["js/money.js",489],["js/director.js",1218],["js/boot.js",22]],"css":[["css/base.css",377],["css/now.css",203],["css/storms.css",170],["css/knock.css",301],["css/deal.css",380],["css/money.css",109],["css/intro.css",125],["css/director.css",225]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84570]],"fonts":5};
+  const MANIFEST = /* dev/manifest.mjs */ {"at":"2026-09-30","page":91,"code":[["js/core.js",903],["js/world.js",1013],["js/lib/funnel.js",239],["js/lib/hailgl.js",1439],["js/lib/house.js",926],["js/lib/route.js",573],["js/lib/sound.js",547],["js/intro.js",831],["js/now.js",810],["js/storms.js",880],["js/knock.js",1299],["js/deal.js",1338],["js/money.js",501],["js/director.js",1249],["js/boot.js",23]],"css":[["css/base.css",392],["css/now.css",202],["css/storms.css",170],["css/knock.css",304],["css/deal.css",411],["css/money.css",111],["css/intro.css",125],["css/director.css",225]],"data":[["data/nl.js",1087819],["data/extra.js",23773],["data/copy.js",84693]],"fonts":5};
 
   /* ======================= helpers ======================= */
   const cp = (o, en, es) => (o && o.en != null ? o : { en, es: es == null ? en : es });
@@ -55,6 +55,12 @@
   const AUG8 = PICK.storm_day || '2026-08-08';
   const TOWN = String(((N.zones || [])[0] || {}).name || 'Columbus').split(':')[0].trim() || 'Columbus';
   const COL_PTS = (N.zones || []).filter((z) => z.kind !== 'everyday' && String(z.name || '').split(':')[0].trim() === TOWN).map((z) => z.c);
+  /* the Columbus zones, framed for the film: more room under the top bar (the pins' rings and labels sit above their
+     points) than above the dock; the focus area already excludes the panels and the letterbox */
+  function fitZones(sk, ms) {
+    if (!COL_PTS.length || !A.world) return;
+    A.world.flyTo({ points: COL_PTS, pad: A.stacked() ? 36 : { t: 124, r: 72, b: 84, l: 72 }, maxZoom: 13.4 }, { instant: sk || A.still, ms: ms || 1300 });
+  }
 
   /* ======================= the film's state ======================= */
   const F = {
@@ -254,7 +260,12 @@
         };
         ensure('now', b, run);
       },
-      script(b) { b.glide(4300, 1150, T.pick, { fy: 0.5 }); } },
+      script(b) {
+        // the assemble drops into Columbus while the panels are still landing (from the cold open, with no panels at
+        // all); once they are in, the camera settles so the rings clear the top bar and the plan
+        b.at(2300, (sk) => when('now', () => fitZones(sk, 1400)));
+        b.glide(4300, 1150, T.pick, { fy: 0.5 });
+      } },
     /* 3 · why Columbus: the camera eases onto the pick; the why line and the numbers light up */
     { id: 'why-columbus', ms: 6000, needs: () => A.view.has('now'),
       setup(b) { frame('in', false); A.ui.chrome(true); ensure('now', b, () => use('nowDemo', 'settle')); },
@@ -277,7 +288,7 @@
       script(b) {
         b.at(0, (sk) => when('now', () => {
           use('nowDemo', 'collapse');
-          if (COL_PTS.length) A.world.flyTo({ points: COL_PTS, pad: A.stacked() ? 36 : 90, maxZoom: 13.4 }, { instant: sk || A.still, ms: 1300 });
+          fitZones(sk, 1300);
         }));
         // the cursor rests on each row's rank ring (the motif), never on the words it would cover
         const onRing = () => ({ fx: 0.075, fy: 0.62 });
@@ -346,6 +357,8 @@
         b.press(260, T.tab('deal'), (sk) => {
           F.touched.add('deal');
           if (entered('knock') && use('knockDemo', 'openDeal')) { hot(); return; }
+          // seeked straight here: hand Deal the same door chapter 8 booked (walk door 4, 4:30 PM), so a scrub tells one story
+          A.safe('film door 4', handDoor4);
           hot(); goView('deal', { instant: sk });
         });
         [0, 1, 2, 3, 4, 5].forEach((s, k) => {
@@ -439,6 +452,14 @@
     ensure('storms', b, () => use('stormsDemo', 'select', AUG8));
   }
   /** the film's walk starts clean: the sandboxed store is reset once per film (and again when a chapter re-runs its taps) */
+  /** chapter 8's inspection door (the 4th door of a clean walk) with its booked 4:30 PM slot, as Knock hands it to Deal */
+  function handDoor4() {
+    const k = A.knockDemo, w = k && typeof k.walk === 'function' ? k.walk() : [];
+    const d = (w || []).find((x) => x.idx === 4) || (w || [])[3]; if (!d) return;
+    const h = (N.homes || []).find((x) => x.addr === d.addr); if (!h) return;
+    const home = Object.assign({}, h, { walkIndex: d.idx, outcome: 'inspection_set', legal: false, slot: { day: '2026-09-30', time: '16:30' } });
+    A.dealHome = home; A.emit('deal:home', home);
+  }
   function knockClean(ifDirty) {
     F.touched.add('knock');
     if (ifDirty && F.kReset && !F.kDirty) return;
@@ -624,11 +645,16 @@
   }
 
   /* ======================= the world at dusk, and back ======================= */
+  /** the sign-off's stage: the whole frame between the bands (the panels are hidden) */
+  function duskInset(ms) {
+    const W = A.world; if (!W || !W.setInset || A.stacked() || !F.dom) return;
+    W.setInset({ l: 0, r: 0, t: Math.round(F.dom.lbT.getBoundingClientRect().height), b: bandB() }, { ms });
+  }
   function dusk(sk) {
     const W = A.world; if (!W || !W.layer) return;
     A.safe('film dusk', () => {
       // the panels are gone: the whole frame between the bands is the stage for the wide shot
-      if (!A.stacked() && F.dom) W.setInset({ l: 0, r: 0, t: Math.round(F.dom.lbT.getBoundingClientRect().height), b: bandB() }, { ms: sk || A.still ? 0 : 700 });
+      duskInset(sk || A.still ? 0 : 700);
       W.setDim(0.6); W.layer.opacity('hail', 0.2, { ms: sk ? 0 : 900 }); W.ambient(false);
       // the view's own marks (rings, callouts, pins) step back too: the sign-off is the mark's frame, not the last view's
       if (!F.duskOps) {
@@ -730,7 +756,7 @@
   }
   function mute() { if (A.sound) A.sound.toggle(); const S = window.Sound; if (S && S.enabled && F.playing) A.safe('film score', () => S.score(true)); UI.sound(); }
   let rz = 0;
-  function onResize() { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if (!F.on) return; if (F.laid) { A.view.reserve({ b: bandB() }); A.view.relayout({ ms: 0 }); } UI.progress(true); }); }
+  function onResize() { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if (!F.on) return; if (F.laid) { A.view.reserve({ b: bandB() }); A.view.relayout({ ms: 0 }); } if (F.duskOps) A.safe('film dusk inset', () => duskInset(0)); UI.progress(true); }); }
   function listen(on) {
     if (on) {
       addEventListener('keydown', onKey, true);
@@ -1015,7 +1041,12 @@
     };
     const onKey2 = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); return; }
-      if (e.key !== 'Tab') return;
+      if (e.key !== 'Tab') {
+        // the app behind a dialog never hears its keys (no door taps, view switches or storm steps under it); no
+        // preventDefault, so Enter / Space still press the box's buttons and arrows / PageDown still scroll it. M (sound) passes.
+        if (!e.metaKey && !e.ctrlKey && !e.altKey && e.key !== 'm' && e.key !== 'M') e.stopImmediatePropagation();
+        return;
+      }
       const f = A.$$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', box).filter((n) => !n.disabled && n.offsetParent !== null);
       if (!f.length) return;
       const first = f[0], last = f[f.length - 1], at = document.activeElement;
@@ -1173,7 +1204,7 @@
   let keysEl = null;
   function keys(opener) {
     if (keysEl) { closeKeys(); return; }
-    closeEnd();
+    closeCredits(); closeEnd();                            // one dialog at a time: the sheet never stacks on the credits
     const K = UIX.keys || {}, k = (o, en, es) => Lx(cp(o, en, es));
     const kb = (s) => s.split(' ').map((x) => '<span class="kbd">' + A.esc(x) + '</span>').join('');
     const row = (key, what) => '<div class="dir-keys__r"><dt>' + key + '</dt><dd>' + what + '</dd></div>';

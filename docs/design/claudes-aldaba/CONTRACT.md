@@ -159,20 +159,21 @@ A.view.register('now', {
   base homes engine law goal hmp bench (industry benchmark; HMP's own numbers replace it after ~200 doors) log (your own log on
   this device). Labels render EN/ES (a label may be `{en, es}`; words like sample, model, bench translate by themselves);
   `note` appends specifics to the key's tip, e.g. `srcTag('bench', {note: {en: 'Source: spotio.com.', es: 'Fuente: spotio.com.'}})`.
-- `A.ui.sampleTag()`, `A.ui.toast({en,es}, {ms, icon})`, `A.ui.hailTok(v) → '--h1'…`, `A.ui.hailKey(v) → '0'|'1'|'15'|'2'` (use as `data-h`).
+- `A.ui.sampleTag()`, `A.ui.toast({en,es}, {ms, icon})`, `A.ui.hailTok(v) → '--h1'…` (fills, strokes, canvas), `A.ui.hailInk(v) → '--h1-ink'…` (hail as TEXT: darker in light so it passes contrast), `A.ui.hailKey(v) → '0'|'1'|'15'|'2'` (use as `data-h`; it colors with the ink tokens).
 
 ## 5. CSS components (css/base.css)
 
 - Surfaces: `.pane` (+`--tight`, `--grow`, `--foot` sticky footer), `.float` (+`--glass` for controls only; text sits on solid).
 - Type: `.t-hero` 64 · `.t-title` 34 · `.t-head` 20 (Bricolage) · `.t-lead` 16 · `.t-body` 14 · `.t-small` 12.5 · `.t-micro` mono 10.5 · `.t-mono` · `.num` (tabular) · `.t-muted` `.t-2` `.t-acc`.
 - Headers: `.eyebrow` (+`--acc` dot), `.sec` (label + hairline; `.sec__meta` on the right).
-- Numbers: `.stats > .stat > .stat__k + .stat__v (+ .stat__u) + .stat__s`; `.stat--lg`, `.stat--xl`; `data-h="1|15|2"` colors by hail; `.hail-scale` legend bar.
+- Numbers: `.stats > .stat > .stat__k + .stat__v (+ .stat__u) + .stat__s`; `.stat--lg`, `.stat--xl`; `data-h="1|15|2"` colors by hail (ink tokens); `.hail-scale` legend bar. Cells in a row share one baseline for their values (`.stat__v` sits at the bottom).
+- Scrolling slots (left, right, dock) fade at the bottom edge while more hides below (core sets `.is-more`; a `.pane--foot` carries the fade above itself). Nothing to do in a view; call `A.ui.moreBelow()` only after changing content without a resize.
 - `.src` (+`--law --goal --hmp --bench --log`: the dot says what kind of source), `.sample`; `.chip` (+`--acc --ok --warn --bad --info --sample --live`, `.chip__dot`); `button.chip[aria-pressed]` as a filter.
 - `.btn` + `--primary --secondary --ghost --icon --sm --lg --block`; `.seg > button[aria-pressed]` (+`.seg--ui`).
 - `.rows` (+`--lined`) `> .row > .row__lead(--ring) + .row__main(.row__t .row__s) + .row__trail`; `button.row`, `[aria-current="true"]`.
 - `.kv` (dt/dd), `.kbd`, `.empty`, `.skel`, `.stub` (placeholders only).
 - Map markers: `.mk-ring` (+`--pulse`) the knocker ring, `.mk-door` (+`--hot --done`), `.mk-label`.
-- Tokens you will want: `--page --panel --panel-2 --panel-3 --chip --text --text-2 --muted --faint --rule --rule-2 --rule-3 --acc --acc-ink --on-acc --acc-bg --acc-line --h0 --h1 --h15 --h2 --ok --warn --bad --info (+ -bg) --display --ui --mono --r-lg --r-md --r-sm --ease --ease-out --ease-hail`.
+- Tokens you will want: `--page --panel --panel-2 --panel-3 --chip --text --text-2 --muted --faint --rule --rule-2 --rule-3 --acc --acc-ink --on-acc --acc-bg --acc-line --h0 --h1 --h15 --h2 (+ -ink for text) --ok --warn --bad --info (+ -bg) --display --ui --mono --r-lg --r-md --r-sm --ease --ease-out --ease-hail`.
 
 ## 6. Motion rules
 

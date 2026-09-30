@@ -33,7 +33,15 @@
       tip: { en: 'ilroofinginstitute.com: top performers book a qualified inspection at 2-5% of doors (3.5% typical).', es: 'ilroofinginstitute.com: los mejores agendan una inspección calificada en 2-5% de las puertas (3.5% típico).' } }
   ];
   // the foundation's 'bench' tag (industry benchmark, replaced by HMP's own numbers after ~200 doors) + where it came from
-  const benchTag = (source, label) => A.ui.srcTag('bench', { label, note: { en: 'Source: ' + source + '.', es: 'Fuente: ' + source + '.' } });
+  // extra: an optional {en, es} sentence after the source (never English glued into the Spanish note)
+  // funnel.js (read-only here) still carries a few English words in its sources: the Spanish note swaps them
+  const SRC_ES = [['rookie knocking benchmarks (research round 6)', 'referencias de vendedores novatos (ronda de investigación 6)'],
+    ['new rep, first 30 days', 'vendedor nuevo, primeros 30 días'], ['top performers', 'los mejores vendedores'],
+    ['whole-company funnel', 'embudo de toda la empresa'], ['assumed 1:1 until HMP has data (no benchmark)', 'se supone 1:1 hasta tener datos de HMP (sin referencia)'],
+    ['industry', 'industria']];
+  const srcEs = (src) => SRC_ES.reduce((t, r) => t.split(r[0]).join(r[1]), String(src));
+  const benchTag = (source, label, extra) => A.ui.srcTag('bench', { label, note: {
+    en: 'Source: ' + source + '.' + (extra ? ' ' + extra.en : ''), es: 'Fuente: ' + srcEs(source) + '.' + (extra ? ' ' + extra.es : '') } });
 
   function loadLevers() {
     const s = A.store.get('money.levers', null) || {};
@@ -118,7 +126,7 @@
         <div class="money-lv">
           <div class="money-lv__h"><span>${Lx(cp('money.commission.label', 'Example commission per job, set by HMP', 'Comisión de ejemplo por trabajo, la fija HMP'))}</span><b class="num" data-m="comm"></b></div>
           <input type="range" class="money-range" data-lv="commission" min="300" max="5000" step="50" aria-label="Commission per job" data-label-en="Example commission per job" data-label-es="Comisión de ejemplo por trabajo">
-          <p class="money-lv__n" data-tip="${A.esc(cp('money.industry.avgClaim.note', 'Industry figure. Each claim is different, and the insurance company decides it.', '').en)}" data-tip-es="${A.esc(cp('money.industry.avgClaim.note', '', 'Cifra de la industria. Cada reclamo es distinto y lo decide la aseguradora.').es)}">${Le('Starts at 10% of a typical $13,000 wind and hail claim, an industry figure.', 'Empieza en 10% de un reclamo típico de $13,000 por viento y granizo, cifra de la industria.')} ${benchTag(FN.bench.avg_hail_wind_insurance_payout.source + '. Each claim is different, and the insurance company decides it')} <span class="sample">${Le('example', 'ejemplo')}</span></p>
+          <p class="money-lv__n" data-tip="${A.esc(cp('money.industry.avgClaim.note', 'Industry figure. Each claim is different, and the insurance company decides it.', '').en)}" data-tip-es="${A.esc(cp('money.industry.avgClaim.note', '', 'Cifra de la industria. Cada reclamo es distinto y lo decide la aseguradora.').es)}">${Le('Starts at 10% of a typical $13,000 wind and hail claim, an industry figure.', 'Empieza en 10% de un reclamo típico de $13,000 por viento y granizo, cifra de la industria.')} ${benchTag(FN.bench.avg_hail_wind_insurance_payout.source, undefined, { en: 'Each claim is different, and the insurance company decides it.', es: 'Cada reclamo es distinto y lo decide la aseguradora.' })} <span class="sample">${Le('example', 'ejemplo')}</span></p>
         </div>
         <div class="money-lv">
           <div class="money-lv__h"><span>${Le('Close-rate stage: doors that book an inspection', 'Etapa: puertas que agendan inspección')}</span><b class="num" data-m="stagepct"></b></div>
@@ -308,7 +316,7 @@
     const wkRoot = q(v.el.wk, 'week');
     const items = [
       ['doors', Le('Doors', 'Puertas'), w.doors, benchTag('spotio.com')],
-      ['conv', Le('Talks', 'Pláticas'), w.conversations, benchTag(FN.bench.doors_to_conversation.source)],
+      ['conv', Le('Conversations', 'Conversaciones'), w.conversations, benchTag(FN.bench.doors_to_conversation.source)],
       ['appt', Le('Booked', 'Agendadas'), w.appointments, benchTag(sg.tip.en.split(':')[0])],
       ['insp', Le('Inspections', 'Inspecciones'), w.inspections, benchTag(FN.bench.appointment_to_inspection.source)],
       ['signed', Le('Signed jobs', 'Firmados'), w.signed, benchTag(FN.bench.inspection_to_signed_contract.source)],
@@ -346,7 +354,7 @@
       { id: 'appointments', label: { en: 'Inspections booked', es: 'Inspecciones agendadas' }, value: P.appointments, bar: P.appointments,
         rate: Le(pct(st('inspections').rate) + ' of bookings happen', pct(st('inspections').rate) + ' de las citas se cumplen') + ' ' + bt('inspections') },
       { id: 'conversations', label: { en: 'Conversations', es: 'Conversaciones' }, value: P.conversations, bar: P.conversations,
-        rate: Le(pct(st('appointments').rate, 'en') + ' of doors (' + pct(talkPct, 'en') + ' of talks) book', pct(st('appointments').rate, 'es') + ' de las puertas (' + pct(talkPct, 'es') + ' de las pláticas) agendan') + ' ' + bt('appointments') },
+        rate: Le(pct(st('appointments').rate, 'en') + ' of doors (' + pct(talkPct, 'en') + ' of conversations) book', pct(st('appointments').rate, 'es') + ' de las puertas (' + pct(talkPct, 'es') + ' de las conversaciones) agendan') + ' ' + bt('appointments') },
       { id: 'doors', label: { en: 'Doors knocked', es: 'Puertas tocadas' }, value: P.doors, bar: P.doors,
         rate: Le(pct(st('conversations').rate) + ' of doors open and talk', pct(st('conversations').rate) + ' de las puertas abren y conversan') + ' ' + bt('conversations') },
       { id: 'dpd', label: { en: 'Doors a day', es: 'Puertas al día' }, value: P.doorsPerDay, cls: 'money-st--dpd' + (P.capacity.fits ? ' is-fit' : ''),
@@ -473,7 +481,7 @@
       c.textAlign = 'left'; c.textBaseline = 'alphabetic';
       c.font = '720 19px ' + FDI; c.fillStyle = rgba('--acc-ink', 1); halo(big, at[0], at[1] + 16);
       c.font = '500 10.5px ' + FMO; c.fillStyle = rgba('--text-2', 1); halo(small, at[0], at[1] + 30);
-      boxes.push([at[0] - 4, at[1] - 2, at[0] + w + 4, at[1] + hgt + 2]);
+      boxes.push([at[0] - 12, at[1] - 10, at[0] + w + 12, at[1] + hgt + 12]);   // padded: an area label never reads as part of it
       c.globalAlpha = f.alpha;
     }
     // area labels: name, storm date where a town was hit more than once, homes (Census)
@@ -487,7 +495,7 @@
         const rr = Math.max(2.5, K * Math.sqrt(a.homes)), p0 = f.project(a.c);
         const name = A.t(a.name) + (count[a.name.en] > 1 && d ? ' · ' + F.date(d, 'short') : ''), num = F.int(a.homes);
         c.font = '600 11px ' + FUI; const wn = c.measureText(name).width; c.font = '500 10.5px ' + FMO; const wm = c.measureText(num).width;
-        const w = wn + 6 + wm;
+        const DOT = 6, w = DOT + 5 + wn + 6 + wm;   // hail dot · name · homes
         for (const dy of [rr + 9, -rr - 9, 0]) {
           let x = p0[0], y = p0[1] + dy;
           x = A.clamp(x, fx0 + w / 2, fx1 - w / 2);
@@ -495,8 +503,12 @@
           if (!inside(box) || hitBox(box)) continue;
           boxes.push(box); seen.add(key);
           c.textAlign = 'left';
-          c.font = '600 11px ' + FUI; c.fillStyle = rgba('--text', 0.92); halo(name, x - w / 2, y);
-          c.font = '500 10.5px ' + FMO; c.fillStyle = rgba(A.ui.hailTok(a.hail), 1); halo(num, x - w / 2 + wn + 6, y);
+          // hail size is the dot's color; the homes count is a Census number, so it reads in plain ink
+          const x0 = x - w / 2;
+          c.fillStyle = rgba('--page', 0.9); c.beginPath(); c.arc(x0 + DOT / 2, y, DOT / 2 + 1.5, 0, 6.2832); c.fill();
+          c.fillStyle = rgba(A.ui.hailTok(a.hail), 1); c.beginPath(); c.arc(x0 + DOT / 2, y, DOT / 2, 0, 6.2832); c.fill();
+          c.font = '600 11px ' + FUI; c.fillStyle = rgba('--text', 0.92); halo(name, x0 + DOT + 5, y);
+          c.font = '500 10.5px ' + FMO; c.fillStyle = rgba('--text-2', 1); halo(num, x0 + DOT + 5 + wn + 6, y);
           c.textAlign = 'center';
           break;
         }

@@ -59,6 +59,7 @@
 .money-range:active::-webkit-slider-thumb{transform:scale(1.15)}
 .money-range:focus-visible{outline:none}
 .money-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--acc-line)}
+.money-range:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--acc-line)}
 
 /* what would make it fit */
 .money-fix{display:grid;gap:0}
@@ -101,6 +102,7 @@
 @container (max-width:580px){.money-week{grid-template-columns:repeat(3,minmax(0,1fr))}.money-week>.stat.stat:nth-child(4){border-left:0;padding-left:0}.money-week .stat:nth-child(n+4){border-top:1px solid var(--rule)}}
 .money-week .stat__v{font-size:19px}
 .money-week .stat__k{letter-spacing:.04em;font-size:9.5px}
+.money-week [data-w="conv"] .stat__k{letter-spacing:0}
 .money-week .stat{padding-right:8px}
 .money-week .stat+.stat{padding-left:10px}
 .money-week__line{margin-top:10px;font-size:12px;color:var(--muted)}

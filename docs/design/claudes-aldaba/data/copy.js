@@ -296,8 +296,8 @@ window.COPY = {
             "es": "El aviso de Derecho del comprador a cancelar, impreso en el contrato bajo su propio título"
           },
           {
-            "en": "Two cancel forms, filled in and handed over, in English and Spanish when the buyer's main language is Spanish",
-            "es": "Dos formularios de cancelación, llenos y entregados, en inglés y español si el comprador habla principalmente español"
+            "en": "Two cancel forms, filled in and handed over, in English and Spanish on every sale",
+            "es": "Dos formularios de cancelación, llenos y entregados, en inglés y español en cada venta"
           },
           {
             "en": "The sale date written on the forms, and initials that you explained the right out loud",
@@ -330,6 +330,10 @@ window.COPY = {
         "done_when": {
           "en": "Contract signed, both cancel forms in the homeowner's hands, sale date written, initials on the page.",
           "es": "Contrato firmado, los dos formularios de cancelación en manos del dueño, fecha de la venta escrita, iniciales en la hoja."
+        },
+        "rule": {
+          "en": "HMP gives the notice in English and Spanish on every sale.",
+          "es": "HMP entrega el aviso en inglés y español en cada venta."
         },
         "also": [
           {
@@ -1209,7 +1213,7 @@ window.COPY = {
       },
       "everyday": {
         "en": "Everyday zone: older homes, no recent storm",
-        "es": "Zona de todos los días: casas viejas, sin tormenta reciente"
+        "es": "Zona sin tormenta: casas viejas, sin granizo reciente"
       },
       "homes": {
         "en": "{n} homes",
@@ -1920,7 +1924,7 @@ window.COPY = {
           },
           "source": {
             "en": "US Census ACS 2024, the base for the likely insured area estimate",
-            "es": "ACS 2024 del Censo de EE. UU., la base del estimado de probablemente asegurado por área"
+            "es": "ACS 2024 del Censo de EE. UU., la base del estimado por área de casas probablemente aseguradas"
           }
         },
         {

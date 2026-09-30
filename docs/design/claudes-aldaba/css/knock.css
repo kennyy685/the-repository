@@ -208,7 +208,8 @@
 .knock-out__dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--oc);box-shadow:0 0 0 3px color-mix(in srgb,var(--oc) 18%,transparent)}
 .knock-out__l{flex:1;min-width:0;font:600 13px/1.15 var(--ui);letter-spacing:-.005em}
 .knock-out .kbd{flex:none}
-.knock-out[data-out="inspection_set"]{background:color-mix(in srgb,var(--ok) 10%,var(--panel-2));border-color:color-mix(in srgb,var(--ok) 38%,var(--rule-2))}
+/* the goal outcome: a quiet left accent at rest, never a tint (a tint read as already pressed) */
+.knock-out[data-out="inspection_set"]:not([aria-pressed="true"]){box-shadow:inset 2px 0 0 color-mix(in srgb,var(--ok) 70%,transparent)}
 .knock-foot__row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -8px -4px}
 .knock-foot__last{flex:1;min-width:0;text-align:center;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .knock-foot__last .t-mono{color:var(--text-2);font-size:12px}
@@ -292,6 +293,8 @@
 }
 @media (max-width:900px){
   :root[data-view="knock"] #slot-left::before,:root[data-view="knock"] #slot-right::before{display:none}
+  /* phones: the door (card + outcome buttons) follows the map directly; the map key moves to the end */
+  :root[data-view="knock"] #slot-center{order:2}
   .knock-legend{position:static;width:auto;max-width:none;padding:12px 14px}
   .knock-legend__list{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 14px}
   .knock-recap{grid-template-columns:minmax(0,1fr);grid-template-areas:"eb" "sum" "note" "stats" "act"}

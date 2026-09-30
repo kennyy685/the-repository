@@ -438,6 +438,12 @@
     S = s && typeof s === 'object' && s.o ? s : blank();
     ['o', 'legal', 'flags', 'slot', 'auto'].forEach((k) => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
     if (!Array.isArray(S.hist)) S.hist = [];
+    // clean the values too: an outcome, flag or door a newer version no longer knows is dropped, never rendered
+    const g = geo(), known = (r) => !g || !!g.doors.find((d) => d.rank === +r);
+    Object.keys(S.o).forEach((r) => { if (!OUTBY[S.o[r]] || !known(r)) delete S.o[r]; });
+    Object.keys(S.flags).forEach((r) => { if (!FLAGBY[S.flags[r]] || !known(r)) delete S.flags[r]; });
+    S.hist = S.hist.filter((h) => h && typeof h === 'object' && Number.isFinite(+h.r) && known(h.r)).map((h) => Object.assign(h, { r: +h.r }));
+    if (S.cur != null && (!Number.isFinite(+S.cur) || !known(S.cur))) S.cur = null;
     applyDnk();
   }
   const save = () => A.store.set(KEY, S);
@@ -726,13 +732,14 @@
       buildPanel(ctx, g);
 
       // one tap per door: N T I X B, U undoes (1-5 belong to the tabs)
-      const onKey = (e) => {
+      const onKey = (e) => A.safe('knock key', () => {
         if (A.view.current !== 'knock' || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+        if ((A.intro && A.intro.active) || document.querySelector('[aria-modal="true"]')) return;   // keys under the cold open or a dialog are not taps
         const t = e.target; if (t && (t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName) || (t.tagName === 'INPUT' && t.type !== 'checkbox'))) return;
         const k = String(e.key || '').toUpperCase(), o = OUT.find((x) => x.key === k);
         if (o) { e.preventDefault(); const b = ctx.slots.left.querySelector('[data-out="' + o.id + '"]'); if (b) A.motion.ripple(b, { inside: b, rings: 2, size: b.offsetWidth * 1.2 }); tap(o.id); }
         else if (k === 'U') { e.preventDefault(); undo(); }
-      };
+      });
       document.addEventListener('keydown', onKey); ctx.own(() => document.removeEventListener('keydown', onKey));
       ctx.own(() => {
         if (V.tl) V.tl.stop(); V.tl = null; if (liveFn) { A.motion.ticker.remove(liveFn); liveFn = null; }
@@ -919,9 +926,9 @@
   function undo() {
     const g = geo(); if (!g || !S || !S.hist.length) { A.ui.toast({ en: 'Nothing to undo', es: 'No hay nada que deshacer' }, { ms: 1400 }); return; }
     const h = S.hist.pop();
-    if (h.was) S.o[h.r] = h.was; else delete S.o[h.r];
+    if (h.was && OUTBY[h.was]) S.o[h.r] = h.was; else delete S.o[h.r];
     if (h.aw) S.auto[h.r] = 1; else delete S.auto[h.r];
-    if (h.f) { if (h.fw) S.flags[h.r] = h.fw; else delete S.flags[h.r]; const d = doorBy(h.r); if (d) dnkPut(d.h.addr, h.dw || null); }
+    if (h.f) { if (h.fw && FLAGBY[h.fw]) S.flags[h.r] = h.fw; else delete S.flags[h.r]; const d = doorBy(h.r); if (d) dnkPut(d.h.addr, h.dw || null); }
     if (S.follow === h.r && S.o[h.r] !== 'inspection_set') S.follow = 0;
     S.cur = h.r; save(); retarget(g);
     A.ui.toast(Tx(((window.COPY || {}).ui || {}).toast ? COPY.ui.toast.undone : { en: 'Undone', es: 'Deshecho' }), { icon: 'arrow', ms: 1400 });
@@ -1022,7 +1029,7 @@
     const dphTag = U.srcTag('bench', { note: { en: 'A new rep knocks ' + dph.low + '-' + dph.high + ' doors an hour, typical ' + dph.typical + ' (' + dph.source + ').', es: 'Un vendedor nuevo toca de ' + dph.low + ' a ' + dph.high + ' puertas por hora, típico ' + dph.typical + ' (' + dph.source + ').' } });
     return `
       <div class="knock-plan__head">
-        <p class="eyebrow eyebrow--acc"><span>${A.L("Tonight's walk", 'La ruta de hoy')} · <b>${A.L("Aldaba's pick", 'La elección de Aldaba')}</b></span></p>
+        <p class="eyebrow eyebrow--acc"><span>${A.L("Today's walk", 'La ruta de hoy')} · <b>${A.L("Aldaba's pick", 'La elección de Aldaba')}</b></span></p>
         <h1 class="t-title knock-plan__title">${A.esc((pk.name || '').replace(/^Columbus:\s*/, ''))}</h1>
         <p class="knock-plan__sub">${A.L('Columbus · park at ' + A.esc(pn(wk, ' & ')), 'Columbus · estaciónate en ' + A.esc(pn(wk, ' y ')))}</p>
         <p class="knock-plan__facts"><span class="knock-fact"><span data-h="${U.hailKey(pk.hail_in)}"><b class="num">${F.num(pk.hail_in, 2)}</b> ${A.L('in hail', 'pulg de granizo')}</span> ${U.srcTag('mrms')}</span><span class="knock-fact"><span>${A.L('storm', 'tormenta')} ${A.both(() => F.date(pk.storm_day))}</span> ${U.srcTag('spc')}</span></p>
@@ -1197,7 +1204,7 @@
       ${d.fh == null ? '' : `<div class="knock-line${d.in1 ? ' is-in' : ''}" data-h="${U.hailKey(d.fh)}">
         ${haloSvg('knock-line__g')}
         <span class="knock-line__t"><b>${d.in1 ? A.L('Inside the 1-inch hail line', 'Dentro de la línea de granizo de 1 pulgada') : A.L('Outside the 1-inch hail line', 'Fuera de la línea de granizo de 1 pulgada')}</b> ${lineTag()}
-          <span class="knock-line__s">${A.L('Roof damage often starts near 1 inch. An area estimate, not an inspection.', 'El daño al techo suele empezar cerca de 1 pulgada. Estimado del área, no una inspección.')}</span></span>
+          <span class="knock-line__s">${A.L('The NWS calls hail severe at 1 inch.', 'El NWS considera severo el granizo desde 1 pulgada.')} ${A.ui.srcTag('bench', { note: { en: 'NWS sets severe hail at 1 inch (weather.gov).', es: 'El NWS considera severo el granizo desde 1 pulgada (weather.gov).' } })} ${A.L('An area estimate, not an inspection.', 'Estimado del área, no una inspección.')}</span></span>
       </div>`}
       ${fl ? `<div class="knock-dnk"><i data-icon="x" class="i--sm"></i><p><b>${A.L('Do not knock', 'No tocar')}</b> · ${T(FLAGBY[fl].label)}<span>${A.L('On your do-not-knock list since ' + A.esc(A.fmt.date(dayOf(), 'short', 'en')) + '. Every walk skips this door.', 'En tu lista de no tocar desde el ' + A.esc(A.fmt.date(dayOf(), 'short', 'es')) + '. Cada ruta se salta esta puerta.')}</span></p></div>` : ''}
       ${skip && fl === 'noSoliciting' ? '' : `<label class="knock-legal${S.legal[d.rank] ? ' is-on' : ''}">
@@ -1325,6 +1332,8 @@
       return { head: V.head, reveal: V.reveal, tl: V.tl ? V.tl.time : -1, cur: curRank(), counts: counts(), order: g ? g.doors.map((d) => d.rank) : [], outcomes: Object.assign({}, S.o), flags: Object.assign({}, S.flags), dnk: dnkList(), doneArc: V.done.to, inLine: g ? g.in1 : 0, edge: g && g.edge,
         doors: g ? g.doors.map((d) => ({ rank: d.rank, idx: d.idx, st: d.h.st, lon: d.h.p[0], lat: d.h.p[1], ll: d.ll, arc: Math.round(d.arc), fh: d.fh, in1: d.in1 })) : [] };
     },
+    /** the walk in door order (Deal reads it so "Door N" means the same house in both views) */
+    walk() { const g = geo(); return g ? g.doors.map((d) => ({ idx: d.idx, rank: d.rank, addr: d.h.addr })) : []; },
     outcomes: OUT.map((o) => o.id), flags: FLAGS.map((f) => f.id)
   };
 })();
