@@ -6,9 +6,26 @@
 :root[data-view="storms"][data-theme="light"]{ --storms-ice:#3e4f66; --storms-hot:#6b2400; }
 
 /* ---------- the selected storm day (left) ---------- */
-/* while the entrance sweeps the season, the card waits (it shows where the sweep will land), then lands at full strength */
-.storms-card{transition:opacity .45s var(--ease)}
-.storms-card.is-replaying{opacity:.42}
+/* while the entrance replays the season, the card keeps its tally (storm days, reports, biggest hail so far) */
+/* the tally and the day card it will land on share one grid cell: the pane is as tall as the taller one, so nothing jumps */
+.storms-card.is-tally{display:grid}
+.storms-card.is-tally>*{grid-area:1/1;min-width:0}
+.storms-card__under{visibility:hidden}
+.storms-tally__m{min-height:1.1em}
+.storms-tally .stat__v{font-variant-numeric:tabular-nums}
+.storms-tally__n b{display:inline-block;font-weight:inherit;will-change:transform}
+.storms-tally__of{font-size:.72em;color:var(--muted);letter-spacing:0}
+.storms-lede.storms-tally__l{margin-top:16px;color:var(--text-2)}
+.storms-tally__sec{margin-top:20px}
+.storms-log{display:grid;gap:2px}
+.storms-log__row{display:grid;grid-template-columns:8px 64px minmax(0,1fr) auto;align-items:center;gap:10px;height:30px;padding:0 2px;
+  border-bottom:1px solid var(--rule);font-size:12.5px;color:var(--text-2);will-change:transform,opacity}
+.storms-log__row:first-child{color:var(--text)}
+.storms-log__dot{width:7px;height:7px;border-radius:50%}
+.storms-log__d{font:500 11.5px/1 var(--mono);letter-spacing:.02em;color:var(--muted)}
+.storms-log__w{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.storms-log__more{font:500 10.5px/1 var(--mono);color:var(--faint)}
+.storms-log__v{font:500 12px/1 var(--mono)}
 .storms-card .eyebrow{flex-wrap:wrap}
 .storms-ago{color:var(--faint);letter-spacing:.06em}
 .storms-date{margin:12px 0 18px;font-size:30px}
@@ -149,6 +166,9 @@ button.storms-zone:hover .i{transform:translateX(2px);color:var(--text)}
   .storms-tl__ghosts{top:78px}
 }
 @media (max-width:900px){
+  .storms-act{flex-wrap:wrap}
+  .storms-act>.btn{flex:1 1 auto}
+  .storms-knock{flex-basis:100%}                     /* "Tocar puertas de esta tormenta" keeps its whole label */
   .storms-tl__today span{display:none}              /* the dashed line stays; the word would sit on "Sep" */
   .storms-legend{align-self:stretch;width:auto}
   .storms-read{min-width:0}

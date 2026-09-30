@@ -481,18 +481,21 @@
   }
   /** the sample neighborhood: cL = lot tint + lot lines, cH = driveways, shadows, roofs (the same canvas at rest) */
   function drawBands(cL, cH, f, g, px, base, R) {
-    cL.lineJoin = 'round';
+    if (cL) cL.lineJoin = 'round';
     const m = 40 * px, vx0 = (f.view[0] - g.O[0]) * FT - m, vy0 = (f.view[1] - g.O[1]) * FT - m, vx1 = (f.view[2] - g.O[0]) * FT + m, vy1 = (f.view[3] - g.O[1]) * FT + m;
     // far out, flying in, or fading out while the camera leaves for another view: one tone per house, no lot lines
     const lod = f.zoom < 16.4 || (f.moving && A.view.current !== 'knock');
     for (const b of g.bands) {
       if (b.d0 > R) break;
       if (b.bb[2] < vx0 || b.bb[0] > vx1 || b.bb[3] < vy0 || b.bb[1] > vy1) continue;
-      b.fill.forEach((p, i) => { if (p) { cL.globalAlpha = base * P.fillA[i]; cL.fillStyle = P.fill[i]; cL.fill(p); } });
-      if (lod) { cH.globalAlpha = base; cH.fillStyle = P.roof[1]; cH.fill(b.lod); continue; }
-      cL.globalAlpha = base * 0.9; cL.lineWidth = 0.75 * px;
-      const hk = b.fill.length ? b.fill.length - 1 : -1;            // lot lines pick up the hail of their band
-      cL.strokeStyle = hk >= 0 ? P.lineH[hk] : P.line; cL.stroke(b.lines);
+      if (cL) b.fill.forEach((p, i) => { if (p) { cL.globalAlpha = base * P.fillA[i]; cL.fillStyle = P.fill[i]; cL.fill(p); } });
+      if (lod) { if (cH) { cH.globalAlpha = base; cH.fillStyle = P.roof[1]; cH.fill(b.lod); } continue; }
+      if (cL) {
+        cL.globalAlpha = base * 0.9; cL.lineWidth = 0.75 * px;
+        const hk = b.fill.length ? b.fill.length - 1 : -1;            // lot lines pick up the hail of their band
+        cL.strokeStyle = hk >= 0 ? P.lineH[hk] : P.line; cL.stroke(b.lines);
+      }
+      if (!cH) continue;
       cH.globalAlpha = base; cH.fillStyle = P.drive; cH.fill(b.drive);
       cH.globalAlpha = base * P.shadowA; cH.fillStyle = P.shadow; cH.fill(b.shadow);
       cH.globalAlpha = base;
@@ -524,12 +527,21 @@
     const base = c.globalAlpha * za, R = revealR(f, g);
     // at rest: straight onto the basemap canvas (the world redraws it only when the camera moves; taps redraw the top canvas)
     if (R === Infinity) { dropCache(); drawBands(c, c, f, g, worldXf(c, f, g), base, Infinity); return; }
-    lotsCache(c, f, g);
     const r = c.canvas.width / f.w, k = f.scale / FT, q = f.projectW(g.O[0], g.O[1]);
-    c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = base;
     const RL = Math.max(0, R * k * r), RH = Math.max(0, (R - 220) * k * r), cx = q[0] * r, cy = q[1] * r;
-    c.save(); c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.clip(); c.drawImage(LC.a, 0, 0); c.restore();
-    if (RH > 0) { c.save(); c.beginPath(); c.arc(cx, cy, RH, 0, Math.PI * 2); c.clip(); c.drawImage(LC.b, 0, 0); c.restore(); }
+    if (f.moving) {
+      // the camera is still moving (a slow machine, or the film): a cache would be rebuilt every frame, so draw straight
+      // through two clips (lots inside the front, houses 220 ft behind it) and only the bands the front has reached
+      const px = worldXf(c, f, g);
+      c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.clip(); worldXf(c, f, g); drawBands(c, null, f, g, px, base, R); c.restore();
+      if (RH > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.beginPath(); c.arc(cx, cy, RH, 0, Math.PI * 2); c.clip(); worldXf(c, f, g); drawBands(null, c, f, g, px, base, R - 220); c.restore(); }
+      c.setTransform(1, 0, 0, 1, 0, 0);
+    } else {
+      lotsCache(c, f, g);
+      c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = base;
+      c.save(); c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.clip(); c.drawImage(LC.a, 0, 0); c.restore();
+      if (RH > 0) { c.save(); c.beginPath(); c.arc(cx, cy, RH, 0, Math.PI * 2); c.clip(); c.drawImage(LC.b, 0, 0); c.restore(); }
+    }
     // the survey front: a thin knocker-orange ring where the neighborhood is being drawn in
     c.globalAlpha = base * 0.35 * (1 - V.reveal); c.strokeStyle = P.acc; c.lineWidth = 1.5 * r;
     c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.stroke();
@@ -703,6 +715,13 @@
       ctx.on('lang', () => drawPortrait(true));
       ctx.on('escape', () => { if (V.tl && V.tl.playing) V.tl.skip(); });
       ctx.on('camera:end', () => { if (V.reveal >= 1) placeTag(false, false, true); });
+      // the film plays on a sandboxed store and restores it when it ends: re-read it, or the film's taps would stay on
+      // screen and the next save would write them back into the viewer's walk
+      ctx.on('film', (e) => { if (e && e.on === false) A.safe('knock film end', () => {
+        load(); if (!S.cur || !doorBy(S.cur)) S.cur = firstOpen(g); S.follow = S.follow && S.o[S.follow] === 'inspection_set' ? S.follow : 0;
+        V.done = { from: 0, to: doneArcTarget(g), t0: 0 }; V.ripples = [];
+        renderAll(true, false, true); placeTag(false); A.world.invalidate();
+      }); });
 
       buildPanel(ctx, g);
 
@@ -778,24 +797,29 @@
     for (const o of g.doors) if (o !== d && V.lit[o.rank]) obs.push({ c: rel(o.ll), r: R + 4 });
     const wk = A.data.walk; if (wk && wk.park) { const c = rel(wk.park); obs.push({ c: [c[0] - 22, c[1] - 20], r: 18 }); }   // the P pin
     const E = [fc.x + 8, fc.y + 8, fc.x + fc.w - 8, fc.y + fc.h - 8], Rc = R * 1.18;
-    const gap = Rc + 9, cands = [
-      { side: 'top', x: -w / 2, y: -gap - h, pen: 0 },
-      { side: 'bottom', x: -w / 2, y: gap, pen: 0.35 },
-      { side: 'right', x: Rc + 12, y: -h / 2, pen: 0.6 },
-      { side: 'left', x: -Rc - 12 - w, y: -h / 2, pen: 0.6 }
-    ];
+    // the four sides, each also slid off-center (top/bottom) and pushed out on a longer stem, so a door with close
+    // neighbours (the corner of 22 St and 40 Ave) still finds a clear spot; each step away from the plain spot costs a little
+    const cands = [];
+    [['top', 0], ['bottom', 0.35], ['right', 0.6], ['left', 0.6]].forEach(([side, pen]) => [0, 22, 44].forEach((ext, ei) => {
+      const gap = Rc + 9 + ext, P2 = pen + ei * 0.3;
+      if (side === 'top' || side === 'bottom') {
+        const y = side === 'top' ? -gap - h : gap;
+        cands.push({ side, x: -w / 2, y, pen: P2, ext }, { side, x: -w + 18, y, pen: P2 + 0.15, ext }, { side, x: -18, y, pen: P2 + 0.15, ext });
+      } else cands.push({ side, x: side === 'right' ? gap + 3 : -gap - 3 - w, y: -h / 2, pen: P2, ext });
+    }));
     let best = null;
     for (const c of cands) {
       let x = c.x;
       if (c.side === 'top' || c.side === 'bottom') {        // slide along the edge to stay on the map; the stem keeps pointing at the door
         const x0 = p[0] + x, x1 = x0 + w, lim = w / 2 - 16;
         if (x0 < E[0]) x += Math.min(E[0] - x0, lim); else if (x1 > E[2]) x -= Math.min(x1 - E[2], lim);
+        x = clamp(x, -w + 12, -12);
       }
       const X0 = p[0] + x, Y0 = p[1] + c.y, X1 = X0 + w, Y1 = Y0 + h;
       let cost = c.pen;
       for (const o of obs) { const cx = clamp(o.c[0], X0, X1), cy = clamp(o.c[1], Y0, Y1); if (Math.hypot(o.c[0] - cx, o.c[1] - cy) < o.r) cost += 1; }
       cost += (Math.max(0, E[0] - X0) + Math.max(0, X1 - E[2]) + Math.max(0, E[1] - Y0) + Math.max(0, Y1 - E[3])) / 10;
-      if (!best || cost < best.cost - 1e-6) best = { cost, side: c.side, x, y: c.y };
+      if (!best || cost < best.cost - 1e-6) best = { cost, side: c.side, x, y: c.y, ext: c.ext };
     }
     best.stem = best.side === 'top' || best.side === 'bottom' ? -best.x : h / 2;
     return best;
@@ -815,11 +839,11 @@
       A.world.pin('knock-cur', d.ll, el, { anchor: 'none', minZoom: 15.4, offset: [-4000, -4000] });
     }
     const pl = tagPlace(d, el.offsetWidth || 160, el.offsetHeight || 28, predict);
-    const k = d.rank + ':' + pl.side + ':' + Math.round(pl.x) + ':' + Math.round(pl.y);
+    const k = d.rank + ':' + pl.side + ':' + Math.round(pl.x) + ':' + Math.round(pl.y) + ':' + (pl.ext || 0);
     if (keep && k === tagKey) return;
     tagKey = k;
     A.world.pin('knock-cur', d.ll, el, { anchor: 'none', minZoom: 15.4, offset: [pl.x, pl.y] });
-    el.dataset.side = pl.side; el.style.setProperty('--stem', pl.stem.toFixed(1) + 'px');
+    el.dataset.side = pl.side; el.style.setProperty('--stem', pl.stem.toFixed(1) + 'px'); el.style.setProperty('--stemL', (9 + (pl.ext || 0)) + 'px');
     if (animate && !A.still) {
       V.lift = { rank: d.rank, t0: performance.now() }; pulse(620);
       const from = { top: 'translateY(12px)', bottom: 'translateY(-12px)', right: 'translateX(-12px)', left: 'translateX(12px)' }[pl.side] + ' scale(.92)';
@@ -975,6 +999,17 @@
     } catch (e) { /* no ResizeObserver: the portrait keeps its first size */ }
 
     renderAll(false, false, true);
+    // the map key never covers the map's source line (it sits bottom-left, the attribution bottom-right; they meet at 1280)
+    const fit = () => A.safe('knock legend fit', fitLegend);
+    ctx.timer(fit, 120); ctx.timer(fit, 900); ctx.on('lang', () => ctx.timer(fit, 30));
+    addEventListener('resize', fit); ctx.own(() => removeEventListener('resize', fit));
+  }
+  function fitLegend() {
+    const lg = els.key, at = document.querySelector('.hud .hud__row'); if (!lg || !at || !lg.isConnected) return;
+    lg.style.bottom = '';
+    if (getComputedStyle(lg).position !== 'absolute') return;
+    const a = lg.getBoundingClientRect(), b = at.getBoundingClientRect();
+    if (a.right > b.left - 8 && a.bottom > b.top - 6 && b.width) lg.style.bottom = Math.ceil(a.bottom - b.top + 10) + 'px';
   }
 
   function planHTML(g) {
@@ -1162,7 +1197,7 @@
       ${d.fh == null ? '' : `<div class="knock-line${d.in1 ? ' is-in' : ''}" data-h="${U.hailKey(d.fh)}">
         ${haloSvg('knock-line__g')}
         <span class="knock-line__t"><b>${d.in1 ? A.L('Inside the 1-inch hail line', 'Dentro de la línea de granizo de 1 pulgada') : A.L('Outside the 1-inch hail line', 'Fuera de la línea de granizo de 1 pulgada')}</b> ${lineTag()}
-          <span class="knock-line__s">${A.L('Roof damage usually starts to show at about 1 inch.', 'El daño al techo suele empezar a notarse con granizo de 1 pulgada.')}</span></span>
+          <span class="knock-line__s">${A.L('Roof damage often starts near 1 inch. An area estimate, not an inspection.', 'El daño al techo suele empezar cerca de 1 pulgada. Estimado del área, no una inspección.')}</span></span>
       </div>`}
       ${fl ? `<div class="knock-dnk"><i data-icon="x" class="i--sm"></i><p><b>${A.L('Do not knock', 'No tocar')}</b> · ${T(FLAGBY[fl].label)}<span>${A.L('On your do-not-knock list since ' + A.esc(A.fmt.date(dayOf(), 'short', 'en')) + '. Every walk skips this door.', 'En tu lista de no tocar desde el ' + A.esc(A.fmt.date(dayOf(), 'short', 'es')) + '. Cada ruta se salta esta puerta.')}</span></p></div>` : ''}
       ${skip && fl === 'noSoliciting' ? '' : `<label class="knock-legal${S.legal[d.rank] ? ' is-on' : ''}">
@@ -1288,7 +1323,7 @@
     state() {
       if (!S) load(); const g = geo();
       return { head: V.head, reveal: V.reveal, tl: V.tl ? V.tl.time : -1, cur: curRank(), counts: counts(), order: g ? g.doors.map((d) => d.rank) : [], outcomes: Object.assign({}, S.o), flags: Object.assign({}, S.flags), dnk: dnkList(), doneArc: V.done.to, inLine: g ? g.in1 : 0, edge: g && g.edge,
-        doors: g ? g.doors.map((d) => ({ rank: d.rank, idx: d.idx, st: d.h.st, lon: d.h.p[0], lat: d.h.p[1], arc: Math.round(d.arc), fh: d.fh, in1: d.in1 })) : [] };
+        doors: g ? g.doors.map((d) => ({ rank: d.rank, idx: d.idx, st: d.h.st, lon: d.h.p[0], lat: d.h.p[1], ll: d.ll, arc: Math.round(d.arc), fh: d.fh, in1: d.in1 })) : [] };
     },
     outcomes: OUT.map((o) => o.id), flags: FLAGS.map((f) => f.id)
   };

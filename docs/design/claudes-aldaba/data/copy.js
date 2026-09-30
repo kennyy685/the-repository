@@ -845,8 +845,8 @@ window.COPY = {
           "es": "No le interesa"
         },
         "hint": {
-          "en": "A clear no. The door leaves the list.",
-          "es": "Un no claro. La puerta sale de la lista."
+          "en": "A clear no. The walk moves on.",
+          "es": "Un no claro. La ruta sigue."
         }
       },
       {

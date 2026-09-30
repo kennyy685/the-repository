@@ -1,0 +1,11 @@
+import { launch, serve, watch, url, waitReady } from './harness.mjs';
+const lang = process.argv[2] || 'en';
+const browser = await launch();
+const ctx = await browser.newContext({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 1, colorScheme: 'dark' });
+await serve(ctx);
+const page = await ctx.newPage(); const errs = watch(page);
+await page.goto(url({ view: 'knock', theme: 'dark', lang, still: true }));
+await waitReady(page); await page.waitForTimeout(1800);
+await page.screenshot({ path: `shots/knock-check-400full-${lang}.png`, fullPage: true });
+console.log('hs', await page.evaluate(() => document.scrollingElement.scrollWidth > innerWidth), 'errors', errs.length);
+await browser.close();

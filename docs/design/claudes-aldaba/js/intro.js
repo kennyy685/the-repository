@@ -97,7 +97,8 @@
     const r = pick.best_time || {}, a = r.start || '16:00', b = r.end || '19:30', d = pick.doors || 25;
     return {
       a: { en: 'Good morning.', es: 'Buenos días.' },
-      b: { en: endDot(TOWN + ': ' + d + ' doors, ' + A.fmt.range(a, b, 'en')), es: endDot(TOWN + ': ' + d + ' puertas, de ' + A.fmt.range(a, b, 'es')) }
+      // "p. m." / "a. m." stay one word, so the line never breaks inside it
+      b: { en: endDot(TOWN + ': ' + d + ' doors, ' + A.fmt.range(a, b, 'en')), es: endDot(TOWN + ': ' + d + ' puertas, de ' + A.fmt.range(a, b, 'es')).replace(/\b([ap])\. m\./g, '$1.\u00a0m.') }
     };
   }
   function mount() {
@@ -229,13 +230,17 @@
     return out;
   }
 
-  /* ---------------- GL: the radar sweep (hairline beam, range rings, the hail it lights) ---------------- */
+  /* ---------------- GL: the radar sweep (hairline beam, range rings, the hail it lights) ----------------
+     The stage's darkness lives here too (u_veil, the page color): the beam lifts it where it passes, so the sweep
+     literally reveals the geography (rivers, roads, towns) and the 2026 hail areas, which fade back like a radar
+     scope's afterglow. Behind the beam: exp(-angle * 1.5), within ~120 mi of KOAX. */
   const SW_VS = ['#version 300 es', 'in vec2 a_p;', 'uniform mat3 u_inv;', 'out vec2 v_w;',
     'void main(){ v_w = (u_inv * vec3(a_p, 1.0)).xy; gl_Position = vec4(a_p, 0.0, 1.0); }'].join('\n');
   const SW_FS = ['#version 300 es', 'precision highp float;', 'in vec2 v_w;', 'out vec4 o;',
     'uniform sampler2D u_f;', 'uniform vec4 u_fb;', 'uniform float u_mul;', 'uniform float u_hf;', 'uniform vec2 u_radar;',
     'uniform float u_sweep;', 'uniform float u_px;', 'uniform float u_a;', 'uniform float u_glow;',
     'uniform vec3 u_h1;', 'uniform vec3 u_h15;', 'uniform vec3 u_h2;', 'uniform vec3 u_beam;',
+    'uniform float u_veil;', 'uniform float u_lift;', 'uniform vec3 u_page;',
     'void main(){',
     '  vec2 r = v_w - u_radar; r.y = -r.y;',
     '  float dist = length(r);',
@@ -258,11 +263,20 @@
     '  float lit = u_glow + (1.0 - u_glow) * trail;',
     '  float a = clamp((heat + iso * 0.6) * lit, 0.0, 0.85);',
     '  float b = clamp(line * 0.9 + wedge + ring, 0.0, 1.0);',
-    '  o = vec4(c * a + u_beam * b * (1.0 - a), a + b * (1.0 - a)) * u_a;',
+    '  vec4 top = vec4(c * a + u_beam * b * (1.0 - a), a + b * (1.0 - a)) * u_a;',
+    '  float lift = exp(-dA * 1.5) * (1.0 - smoothstep(95.0, 140.0, mi)) * u_lift;',
+    '  float va = u_veil * (1.0 - lift);',
+    '  o = top + vec4(u_page * va, va) * (1.0 - top.a);',
     '}'].join('\n');
 
   const sweepAng = (T) => S.s0 - (T / 1000) * (TAU / 2.8);
   const sweepA = (T) => (0.35 + 0.65 * E.outCubic(seg(T, 0, 450))) * (1 - 0.55 * E.inOutSine(seg(T, 2500, 1000))) * (1 - E.inOutSine(seg(T, B.push - 300, 900)));
+  /** the stage's own darkness over the world's light dim (the world veil is set to 0.1 while the intro runs): the first
+      frame keeps the map readable (thumbnails), the lights go down as the radar starts, the storm and the push get a
+      softer stage, and it lifts entirely at the hand-off. */
+  const veilA = (T) => lerp(lerp(0.3, 0.52, smooth(T, 0, 800)), 0.22, smooth(T, 2600, 4700)) * (1 - E.inOutSine(seg(T, B.hand - 100, 700)));
+  /** 0..1 how strongly the beam lifts the veil behind it; the town names on the top canvas ping with the same curve */
+  const liftAt = (T, ang) => { const dA = ((ang - sweepAng(T)) % TAU + TAU) % TAU; return Math.exp(-dA * 1.5) * sweepA(T); };
   /** GL resources the film owns (not the world's shared cache, which lives for the page): made per GL context,
       remade after a context loss (world.glGen), deleted when the layer goes */
   function freeGL(R) {
@@ -286,7 +300,7 @@
       dispose() { freeGL(R); R = null; },
       drawGL(gl, f) {
         if (!S) return;
-        const a = sweepA(S.T) * f.alpha; if (a <= 0.003) return;
+        const sa = sweepA(S.T), a = sa * f.alpha, v = veilA(S.T) * f.alpha; if (a <= 0.003 && v <= 0.003) return;
         const glx = A.world.glx, HF = A.world.hail.field;
         const r = A.safe('intro sweep gl', res); if (!r || !r.P || !r.tex0) return;
         const P = r.P, tex = r.tex, tex0 = tex || r.tex0;
@@ -294,14 +308,17 @@
         glx.uniforms(P, {
           u_inv: f.inv, u_f: { tex: tex0.tex, unit: 0 }, u_fb: [HF.x0, HF.y0, HF.x1, HF.y1], u_mul: tex ? tex.mul : 1, u_hf: tex ? 1 : 0,
           u_radar: A.world.toWorld(KOAX), u_sweep: sweepAng(S.T), u_px: f.px, u_a: a, u_glow: 0.12,
-          u_h1: f.pal.rgb.h1, u_h15: f.pal.rgb.h15, u_h2: f.pal.rgb.h2, u_beam: f.pal.rgb.beam
+          u_h1: f.pal.rgb.h1, u_h15: f.pal.rgb.h15, u_h2: f.pal.rgb.h2, u_beam: f.pal.rgb.beam,
+          u_veil: v, u_lift: sa, u_page: f.pal.rgb.page
         });
         glx.drawQuad(P);
       },
-      draw2d(c, f) { // Canvas2D fallback: the beam, a trail wedge, range rings and the hail areas it lights
+      draw2d(c, f) { // Canvas2D fallback: the veil the beam lifts, the beam, a trail wedge, range rings and the hail areas it lights
         if (!S) return;
-        const a = sweepA(S.T); if (a <= 0.003) return;
+        const a = sweepA(S.T), v = veilA(S.T);
         const o = f.project(KOAX), ang = -sweepAng(S.T), Rpx = 130 * f.pxPerMile;
+        if (v > 0.003) A.safe('intro veil 2d', () => veil2d(c, f, o, ang, v, a));
+        if (a <= 0.003) return;
         c.save(); c.globalAlpha = a;
         c.strokeStyle = f.pal.beam; c.lineWidth = 1;
         for (let mi = 20; mi <= 120; mi += 20) { c.globalAlpha = a * 0.12; c.beginPath(); c.arc(o[0], o[1], mi * f.pxPerMile, 0, TAU); c.stroke(); }
@@ -310,13 +327,26 @@
         for (const ar of N.areas || []) {
           if (!ar.ring || !ar.c) continue;
           const q = f.project(ar.c), da = ((Math.atan2(-(q[1] - o[1]), q[0] - o[0]) + ang) % TAU + TAU) % TAU; // angle behind the beam
-          c.globalAlpha = a * (0.1 + 0.6 * Math.exp(-(TAU - da) * 2.4));
+          c.globalAlpha = a * (0.1 + 0.6 * Math.exp(-da * 2.4));
           c.beginPath(); ar.ring.forEach((p, i) => { const s = f.project(p); if (i) c.lineTo(s[0], s[1]); else c.moveTo(s[0], s[1]); }); c.closePath();
           c.strokeStyle = A.world.hailColor(ar.hail); c.stroke();
         }
         c.restore();
       }
     };
+  }
+
+  /** the 2D stage veil: page color, lifted behind the beam with a conic gradient (the same curve as the shader) */
+  function veil2d(c, f, o, ang, v, lift) {
+    const pg = f.pal.rgb.page, col = (al) => 'rgba(' + Math.round(pg[0] * 255) + ',' + Math.round(pg[1] * 255) + ',' + Math.round(pg[2] * 255) + ',' + A.clamp(al, 0, 1).toFixed(3) + ')';
+    c.save();
+    if (c.createConicGradient && lift > 0.003) {
+      const g = c.createConicGradient(ang, o[0], o[1]), n = 24;
+      for (let i = 0; i <= n; i++) { const d = (i / n) * TAU; g.addColorStop(1 - i / n, col(v * (1 - Math.exp(-d * 1.5) * lift))); }
+      c.fillStyle = g;
+    } else c.fillStyle = col(v);
+    c.fillRect(0, 0, f.w, f.h);
+    c.restore();
   }
 
   /* ---------------- GL: the storm (burning swath, falling hail, knock rings) ---------------- */
@@ -387,16 +417,26 @@
         // the radar the sweep comes from
         const ls = (px) => { if ('letterSpacing' in c) c.letterSpacing = px; };
         // a few quiet place names (the world's own labels rest during the film)
-        const lz = 1 - 0.7 * smooth(f.zoom, 10.5, 11.3) - 0.3 * smooth(f.zoom, 11.6, 12.2), la = (1 - seg(T, B.hand, 300)) * lz;
+        const lz = 1 - 0.7 * smooth(f.zoom, 10.5, 11.3) - 0.3 * smooth(f.zoom, 11.6, 12.2), la = (1 - seg(T, B.mark - 350, 350)) * lz;   // the mark gets a clean stage
         if (la > 0.01) {
           ls('1.8px'); c.textAlign = 'left';
+          const kw = A.world.toWorld(KOAX), sa = sweepA(T);
           for (const n in PLACES) {
-            const big = BIG.has(n), a = la * (big ? 1 : smooth(f.zoom, 9.6, 10.2)) * (n === 'Valley' ? 0 : 1); if (a < 0.02) continue;
+            const big = BIG.has(n); let a = la * (big ? 1 : smooth(f.zoom, 9.6, 10.2)) * (n === 'Valley' ? 0 : 1); if (a < 0.02) continue;
             const q = f.project(PLACES[n]); if (q[0] < -60 || q[1] < -20 || q[0] > f.w + 60 || q[1] > f.h + 20) continue;
+            // the beam finds each town: it pings, then settles to a resting brightness (full once the sweep has gone)
+            const pw = A.world.toWorld(PLACES[n]), ang = Math.atan2(-(pw[1] - kw[1]), pw[0] - kw[0]), lift = liftAt(T, ang);
+            a *= 0.42 + 0.58 * Math.max(lift, 1 - sa);
             c.font = (big ? '600 11px ' : '500 9.5px ') + MONO;
             c.globalAlpha = a * (big ? 0.9 : 0.6); c.fillStyle = big ? pal.label2 : pal.label;
             c.beginPath(); c.arc(q[0], q[1], big ? 2.2 : 1.6, 0, TAU); c.fill();
             c.lineWidth = 3; c.strokeStyle = pal.halo; c.strokeText(n.toUpperCase(), q[0] + 8, q[1] + 0.5); c.fillText(n.toUpperCase(), q[0] + 8, q[1] + 0.5);
+            const dA = ((ang - sweepAng(T)) % TAU + TAU) % TAU;
+            if (dA < 0.6 && sa > 0.05 && !f.still) {           // the ping: one hairline ring leaves the town as the beam crosses it
+              const k = dA / 0.6;
+              c.globalAlpha = la * sa * (1 - k) * 0.7; c.lineWidth = 1; c.strokeStyle = pal.beam;
+              c.beginPath(); c.arc(q[0], q[1], 3 + k * (big ? 16 : 11), 0, TAU); c.stroke();
+            }
           }
           ls('0px');
         }
@@ -484,12 +524,16 @@
       w0: wr, n0: nw, c0: cw, n1: bw, c1: bc
     };
   }
+  /** progress along a flight of d px with the hail spring: the landing overshoot stays a few px however far it flew
+      (a 5% overshoot on a 900 px flight would throw the mark off the screen's edge) */
+  const land = (e, d) => (e <= 1 ? e : 1 + (e - 1) * Math.min(1, 80 / Math.max(1, Math.abs(d))));
   function flight(T) {
     const D = S.dom, F = S.fly; if (!F) return;
     const p = seg(T, B.hand, B.handMs * 0.82), e = E.hail(p), fade = 1 - seg(T, B.hand + LAND, 200);
     root.classList.toggle('intro-landed', T >= B.hand + LAND);   // the real lockup takes over at the same spot
     if (F.m1) {
-      const cx = lerp(F.m0.cx, F.m1.cx, e), cy = lerp(F.m0.cy, F.m1.cy, e), k = Math.exp(lerp(Math.log(F.m0.k), Math.log(F.m1.k), Math.min(1, e)));
+      const cx = lerp(F.m0.cx, F.m1.cx, land(e, F.m1.cx - F.m0.cx)), cy = lerp(F.m0.cy, F.m1.cy, land(e, F.m1.cy - F.m0.cy));
+      const k = Math.exp(lerp(Math.log(F.m0.k), Math.log(F.m1.k), Math.min(1, e)));
       setMark(cx, cy, k);
     }
     D.svg.style.opacity = F.m1 ? fade.toFixed(3) : (1 - seg(T, B.hand, 300)).toFixed(3);
@@ -497,7 +541,7 @@
     const one = (el, from, to, base) => {
       if (!from || !to) { el.style.opacity = (1 - seg(T, B.hand, 260)).toFixed(3); return; }
       const s = Math.exp(lerp(0, Math.log(to.h / from.h), Math.min(1, e)));
-      const x = (to.x - from.x) * e, y = (to.y - from.y) * e;
+      const x = (to.x - from.x) * land(e, to.x - from.x), y = (to.y - from.y) * land(e, to.y - from.y);
       el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
       el.style.opacity = fade.toFixed(3);
     };
@@ -589,6 +633,11 @@
     cue(B.hand - 20, () => captureFlight());
     cue(B.hand + 110, () => handoff());
     sound(B.hand + 560, (s) => s.ring(5, { gain: 0.5 }));
+    // the mark lands in the bar and rings out once, like a knock
+    cue(B.hand + LAND - 90, (o) => {
+      const F = S.fly; if (o.seeking || A.still || !F || !F.m1) return;
+      A.motion.ripple(F.m1.cx + S.ovl.x, F.m1.cy + S.ovl.y, { rings: 2, size: Math.max(28, F.m1.k * 48) });
+    });
     tl.onEnd((done) => finish(done));
     return tl;
   }
@@ -648,7 +697,7 @@
     W.setInset({ l: 0, r: 0, t: 0, b: 0 });
     W.layer.opacity('hail', 0, { ms: cur ? 400 : 0 });
     W.ambient(false);
-    W.setDim(0.36);
+    W.setDim(0.1);                                         // the rest of the stage's darkness is the sweep layer's veil
     S.restore.labels = W.options({}).labels !== false;
     W.options({ labels: false });                          // the film uses its own few, quiet place names
     S.dom = pre || mount(); pre = null;

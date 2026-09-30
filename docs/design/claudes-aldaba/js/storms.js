@@ -193,7 +193,9 @@
     K.d.rings.clear();
   }
   /** GPU uploads happen here, in an event or timer, never inside a frame */
+  let warmSweep = -1;
   function prepare(D) {
+    if (A.world.hasGL && A.world.gl && warmSweep !== A.world.glGen) { A.safe('storms sweep program', sweepProgram); warmSweep = A.world.glGen; }
     const S = A.safe('storms season field', seasonField);
     if (S && A.world.hasGL && A.world.gl) {
       const K = A.safe('storms kits', () => kitsFor(A.world.gl, true));
@@ -217,6 +219,55 @@
       draw2d(c, f) { if (!V && !FADE) return; const K = A.safe('storms kits 2d', () => kitsFor(c, false)); if (K) paint(K, f); },
       // the world calls this once the exit fade is over (or when a new #storms visit replaces the layer): free the GPU side
       dispose() { if (!V) FADE = null; freeKits(); }
+    };
+  }
+
+  /* ======================= the KOAX sweep (decorative, and the legend says so) =======================
+     While the season moves (the entrance replay, play, a scrub) a hairline beam turns from KOAX (Valley, NE) with a faint
+     trail and range rings every 20 mi, the same instrument as the cold open. It fades in with motion and out when the view
+     rests, so it never keeps the loop alive. Its program (a few hundred bytes) lives in the world's per-context cache and
+     is compiled in prepare(), never inside a frame; the textures and buffers (the kits) are what exit frees. */
+  const KOAX = (X.radar && X.radar.c) || [-96.3667, 41.3203];
+  const SW_VS = ['#version 300 es', 'in vec2 a_p;', 'uniform mat3 u_inv;', 'out vec2 v_w;',
+    'void main(){ v_w = (u_inv * vec3(a_p, 1.0)).xy; gl_Position = vec4(a_p, 0.0, 1.0); }'].join('\n');
+  const SW_FS = ['#version 300 es', 'precision highp float;', 'in vec2 v_w;', 'out vec4 o;',
+    'uniform vec2 u_radar;', 'uniform float u_sweep;', 'uniform float u_px;', 'uniform float u_a;', 'uniform vec3 u_beam;',
+    'void main(){',
+    '  vec2 r = v_w - u_radar; r.y = -r.y;',
+    '  float dist = length(r);',
+    '  float dA = mod(atan(r.y, r.x) - u_sweep, 6.2831853);',
+    '  float mi = dist * 69.05;',
+    '  float fade = smoothstep(3.0, 30.0, dist / u_px) * (1.0 - smoothstep(80.0, 125.0, mi));',
+    '  float perp = dist * min(dA, 6.2831853 - dA) / u_px;',
+    '  float line = (1.0 - smoothstep(0.3, 1.2, perp)) * fade;',
+    '  float wedge = exp(-dA * 6.0) * 0.07 * fade;',
+    '  float rr = abs(fract(mi / 20.0 + 0.5) - 0.5) * 20.0 / 69.05 / u_px;',
+    '  float ring = (1.0 - smoothstep(0.3, 1.1, rr)) * step(10.0, mi) * fade * (0.04 + 0.2 * exp(-dA * 2.4));',
+    '  float b = clamp(line * 0.8 + wedge + ring, 0.0, 1.0) * u_a;',
+    '  o = vec4(u_beam * b, b);',
+    '}'].join('\n');
+  const sweepAng = (t) => 0.6 - (t / 1000) * (TAU / 2.8);
+  const sweepProgram = () => A.world.glx.cached('storms-sweep', () => A.world.glx.program(SW_VS, SW_FS));
+  function sweepLayer() {
+    return {
+      id: 'storms-sweep', z: 13, live: false, fadeMs: 300,
+      drawGL(gl, f) {
+        const v = VIEW(); if (!v || !(v.sw > 0.004)) return;
+        if (warmSweep !== A.world.glGen) { askPrepare(); return; }   // not compiled for this context yet: prepare() does it
+        const P = sweepProgram(); if (!P) return;
+        gl.useProgram(P.p);
+        A.world.glx.uniforms(P, { u_inv: f.inv, u_radar: A.world.toWorld(KOAX), u_sweep: sweepAng(f.t), u_px: f.px, u_a: v.sw * f.alpha, u_beam: f.pal.rgb.beam });
+        A.world.glx.drawQuad(P);
+      },
+      draw2d(c, f) {   // Canvas2D fallback: the beam, a short trail and the range rings
+        const v = VIEW(); if (!v || !(v.sw > 0.004)) return;
+        const o = f.project(KOAX), ang = -sweepAng(f.t), Rpx = 110 * f.pxPerMile;
+        c.save(); c.strokeStyle = f.pal.beam; c.fillStyle = f.pal.beam; c.lineWidth = 1;
+        for (let mi = 20; mi <= 100; mi += 20) { c.globalAlpha = v.sw * 0.1; c.beginPath(); c.arc(o[0], o[1], mi * f.pxPerMile, 0, TAU); c.stroke(); }
+        for (let k = 0; k < 12; k++) { c.globalAlpha = v.sw * 0.05 * (1 - k / 12); c.beginPath(); c.moveTo(o[0], o[1]); c.arc(o[0], o[1], Rpx, ang - (k + 1) * 0.06, ang - k * 0.06); c.closePath(); c.fill(); }
+        c.globalAlpha = v.sw * 0.8; c.beginPath(); c.moveTo(o[0], o[1]); c.lineTo(o[0] + Math.cos(ang) * Rpx, o[1] + Math.sin(ang) * Rpx); c.stroke();
+        c.restore();
+      }
     };
   }
 
@@ -341,6 +392,60 @@
         (D.storm ? '<button type="button" class="btn btn--secondary storms-replay" data-label-en="Replay this swath" data-label-es="Repetir esta franja">' + ic('play') + '<span>' + (kid ? Le('Replay', 'Repetir') : Le('Replay this swath', 'Repetir esta franja')) + '</span></button>' : '') +
       '</div>';
   }
+  /** the entrance's card: the season's tally, counting up as each storm day lands on the map (then the newest day lands) */
+  const TALLY = (() => { let rep = 0, big = 0; return DAYS.map((D) => { rep += D.reports || 0; big = Math.max(big, D.rep || 0); return { d: D.d, rep, big }; }); })();
+  function tallyHTML() {
+    const cell = (k, cls, v, src, s) => '<div class="stat"><span class="stat__k">' + k + ' ' + A.ui.srcTag(src) + '</span><span class="stat__v ' + cls + '">' + v + '</span>' + (s ? '<span class="stat__s">' + s + '</span>' : '') + '</div>';
+    return '<p class="eyebrow eyebrow--acc storms-tally__eb">' + Le('Replaying the 2026 season', 'Repitiendo la temporada 2026') + '</p>' +
+      '<h1 class="t-title storms-date storms-tally__m">' + A.both(() => A.fmt.date(Y0, 'month')) + '</h1>' +
+      '<div class="stats storms-stats storms-tally">' +
+        cell(Le('Storm days', 'Días de tormenta'), 'storms-tally__n num', '<b>0</b><span class="storms-tally__of"> / ' + DAYS.length + '</span>', 'lsr', Le('with a hail report', 'con reporte de granizo')) +
+        cell(Le('Reports', 'Reportes'), 'storms-tally__r num', '0', 'lsr', Le('hail, so far', 'de granizo, hasta ahora')) +
+        cell(Le('Biggest', 'Mayor'), 'storms-tally__b', '–', 'lsr', Le('largest report so far', 'mayor reporte hasta ahora')) +
+      '</div>' +
+      '<p class="t-body storms-lede storms-tally__l">' + Le('Every swath lands in the order it fell. Then the card rests on the newest storm day.', 'Cada franja aparece en el orden en que cayó. Luego la tarjeta queda en el día de tormenta más reciente.') + '</p>' +
+      '<p class="sec storms-tally__sec">' + Le('As they land', 'Al llegar') + '<span class="sec__meta">' + Le('largest report', 'mayor reporte') + ' ' + A.ui.srcTag('lsr') + '</span></p>' +
+      '<div class="storms-log" aria-hidden="true"></div>';
+  }
+  /** one storm day landing in the tally's log: date, where the reports came from, the largest report */
+  function logRow(D) {
+    const t = D.towns || [], where = t.length ? A.esc(t[0]) + (t.length > 1 ? ' <span class="storms-log__more">+' + (t.length - 1) + '</span>' : '') : '–';
+    return A.h('<div class="storms-log__row"><i class="storms-log__dot" style="background:var(' + A.ui.hailTok(D.rep || D.max || 0.75) + ')"></i>' +
+      '<span class="storms-log__d">' + A.both(() => A.fmt.date(D.date, 'short')) + '</span><span class="storms-log__w">' + where + '</span>' +
+      '<span class="storms-log__v num" data-h="' + A.ui.hailKey(D.rep || 0) + '">' + (D.rep ? A.both(() => A.fmt.inches(D.rep)) : '–') + '</span></div>');
+  }
+  function showTally() {
+    if (!V) return;
+    // the day card it will land on stays underneath, hidden, so the pane already has its final height and the season
+    // pane below never jumps when the tally gives way
+    const pane = V.dom.card, under = V.sel && V.sel.storm ? V.sel : LAST;
+    pane.innerHTML = '<div class="storms-card__under" aria-hidden="true" inert>' + cardHTML(under) + '</div><div class="storms-tally-l">' + tallyHTML() + '</div>';
+    A.ui.icons(pane); A.ui.localize(pane);
+    V.tally = { m: pane.querySelector('.storms-tally__m'), n: pane.querySelector('.storms-tally__n b'), r: pane.querySelector('.storms-tally__r'), b: pane.querySelector('.storms-tally__b'), log: pane.querySelector('.storms-log'), i: -1, mo: -1 };
+    V.dom.card.classList.add('is-tally');
+  }
+  function tallyAt(p) {
+    const T = V && V.tally; if (!T) return;
+    let i = -1; for (let k = 0; k < TALLY.length; k++) if (p >= TALLY[k].d + 0.5) i = k;
+    if (i !== T.i) {
+      // the log: each storm day passed lands on top (newest first, the last six stay)
+      if (T.log) {
+        if (i < T.i) T.log.textContent = '';
+        for (let k = Math.max(T.i + 1, i - 5); k <= i; k++) {
+          const row = logRow(DAYS[k]); T.log.insertBefore(row, T.log.firstChild);
+          if (!A.still) A.safe('storms log land', () => row.animate([{ transform: 'translateY(-12px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 420, easing: A.motion.css.hail }));
+        }
+        while (T.log.children.length > 6) T.log.lastChild.remove();
+      }
+      T.i = i;
+      const t = i >= 0 ? TALLY[i] : { rep: 0, big: 0 };
+      T.n.textContent = String(i + 1); T.r.textContent = A.fmt.int(t.rep);
+      T.b.innerHTML = t.big ? inches(t.big) : '–'; if (t.big) T.b.dataset.h = A.ui.hailKey(t.big);
+      if (i >= 0 && !A.still) A.safe('storms tally bump', () => T.n.animate([{ transform: 'translateY(-5px)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: A.motion.css.hail }));
+    }
+    const mo = new Date(Date.UTC(2026, 2, 1 + Math.floor(Math.min(p, SPAN - 1)))).getUTCMonth();
+    if (mo !== T.mo) { T.mo = mo; T.m.innerHTML = A.both(() => A.fmt.date('2026-' + String(mo + 1).padStart(2, '0') + '-01', 'month')); }
+  }
   function seasonHTML() {
     const U = A.ui, s = SUM, maxT = s.towns.length ? s.towns[0][1] : 1;
     const repDates = s.rep.dates.slice().sort().map((d) => A.both(() => A.fmt.date(d, 'short'))).join(', ');
@@ -449,8 +554,9 @@
     const prev = V.sel; V.sel = D;
     V.dom.ticks.forEach((t, i) => t.classList.toggle('is-sel', !!D && D.i === i));
     if (V.dom.lgSel) { V.dom.lgSel.style.opacity = D && D.max ? '1' : '0'; if (D && D.max) V.dom.lgSel.style.transform = 'translateX(' + (lgPos(D.max) * 100).toFixed(2) + '%)'; }
-    if (prev !== D || o.force) {
+    if ((prev !== D || o.force || V.tally) && !(o.keep && V.tally)) {
       const pane = V.dom.card;
+      if (V.tally) { V.tally = null; pane.classList.remove('is-tally'); }
       pane.innerHTML = cardHTML(D); A.ui.icons(pane); A.ui.localize(pane);
       if (!o.quiet && !A.still) A.motion.stagger(Array.from(pane.children), { each: 28, y: 6, ms: 420 });
       if (A.world.unpin) A.world.unpin('storms-zone');
@@ -498,6 +604,7 @@
     const ahead = DAYS.some((D) => D.d + 0.5 > V.p + 0.01);
     if (!ahead || V.p >= END - 0.5) { V.p = 0; setSel(null, { quiet: true }); sync(); }
     V.showDay = false; V.lastDay = latestAt(V.p);
+    showTally(); sync();                                         // the season's tally runs while it plays; pause lands a day
     setMode('play');
     return true;
   }
@@ -507,16 +614,16 @@
     if (!V) return false;
     endIntro(false); if (V.mode === 'play') setMode('idle');
     V.p = A.clamp(p01, 0, 1) * SPAN; V.lastMove = performance.now(); V.motion = 1;
-    const L = latestAt(V.p); if (L !== V.sel) setSel(L, { quiet: true });
+    const L = latestAt(V.p); if (L !== V.sel || V.tally) setSel(L, { quiet: true });
     V.showDay = false; sync(); wake();
     return true;
   }
   function endIntro(toEnd) {
     if (!V || V.mode !== 'intro') return;
     V.mode = 'idle'; V.readDay = -1;
-    V.dom.card.classList.remove('is-replaying');
     if (toEnd !== false) { V.p = LAST ? LAST.d + 1 : END; }
-    const L = latestAt(V.p); setSel(L, { force: L !== V.sel, quiet: L === V.sel }); if (L && L.storm && V.p >= L.d + 1) startDay(L);
+    // the tally gives way to the day the playhead rests on: its card lands (the stagger), like the swath on the map
+    const L = latestAt(V.p); setSel(L, { force: true, quiet: A.still }); if (L && L.storm && V.p >= L.d + 1) startDay(L);
     sync();
     // the playhead lands on the day like a knock
     if (toEnd !== false && L && !A.still) A.safe('storms land', () => { const t = V.dom.ticks[L.i]; if (t) A.motion.ripple(t.querySelector('.storms-tick__b') || t, { rings: 2, size: 34 }); });
@@ -549,7 +656,7 @@
         V.p = Math.min(END, V.p + (speedAt(V.p) * V.speed * dt) / 1000);
         const L = latestAt(V.p);
         if (L && L !== V.lastDay) {
-          V.lastDay = L; setSel(L, { quiet: true });
+          V.lastDay = L; setSel(L, { quiet: true, keep: true });
           const s = snd(); if (s) s.ring(A.clamp(Math.round(((L.max || 1) - 0.75) / 0.4), 0, 5), { gain: 0.6 });
         }
         const s = snd(); if (s && now - (V.bedAt || 0) > 200) { V.bedAt = now; s.hailBed(0.5 * burningAt(V.p)); }
@@ -557,9 +664,11 @@
       }
       if (V.p !== p0) V.lastMove = now;
       V.motion = A.still ? 0 : 1 - sm(now - (V.lastMove || -1e9), 150, 700);
+      const swT = !A.still && (V.mode === 'intro' || V.mode === 'play' || V.mode === 'scrub') ? 1 : 0;
+      V.sw = swT ? Math.min(1, V.sw + (dt || 16) / 260) : Math.max(0, V.sw - (dt || 16) / 380);   // in 0.26 s, out 0.38 s
       const dayBusy = V.showDay && performance.now() - V.dayT0 < (REPLAY + 2.8) * 1000;
-      const busy = V.mode === 'intro' || V.mode === 'play' || V.mode === 'scrub' || V.motion > 0.001 || dayBusy;
-      if (V.live !== busy) { V.live = busy; A.world.layer.set('storms-hail', { live: busy }); }
+      const busy = V.mode === 'intro' || V.mode === 'play' || V.mode === 'scrub' || V.motion > 0.001 || dayBusy || V.sw > 0;
+      if (V.live !== busy) { V.live = busy; A.world.layer.set('storms-hail', { live: busy }); A.world.layer.set('storms-sweep', { live: busy }); }
       if (V.p !== p0) { sync(); A.world.invalidate('top'); }
       if (!busy) { A.world.invalidate('gl'); V.ticking = false; return false; }
       return true;
@@ -570,6 +679,7 @@
     // the playhead layer spans the track, so a percent of its own width is a date: no measuring, never stale on resize
     const D = V.dom;
     D.head.style.transform = 'translateX(' + ((V.p / SPAN) * 100).toFixed(3) + '%)';
+    if (V.tally) tallyAt(V.p);
     D.burn.style.transform = 'scaleX(' + (V.p / SPAN).toFixed(4) + ')';
     DAYS.forEach((d, i) => { const past = V.p >= d.d + 0.5; if (V.past0[i] !== past) { V.past0[i] = past; D.ticks[i].classList.toggle('is-past', past); } });
     const day = A.clamp(Math.floor(V.p - 0.001), 0, SPAN - 1);
@@ -599,6 +709,7 @@
       if (e.button !== 0) return;
       endIntro(false);
       if (V.mode === 'play') setMode('idle');
+      if (V.tally) setSel(latestAt(V.p), { quiet: true });       // scrubbing reads day by day: the tally gives way
       drag = { id: e.pointerId, x0: e.clientX, moved: false, tick: nearTick(e) };
       try { el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       if (!drag.tick) { V.mode = 'scrub'; V.showDay = false; V.p = pAt(e); V.lastMove = performance.now(); sync(); wake(); }
@@ -642,7 +753,7 @@
       FADE = null;
       V = {
         ctx, p: 0, mode: 'idle', speed: 1, past: false, sel: null, hover: null, showDay: false, dayT0: 0, motion: 0, lastMove: -1e9,
-        past0: DAYS.map(() => null), readDay: -1, ticking: false,
+        past0: DAYS.map(() => null), readDay: -1, ticking: false, sw: 0, tally: null,
         dom: {
           card, lg, dock, tl: q('.storms-tl'), tin: q('.storms-tl__in'), head: q('.storms-tl__head'), burn: q('.storms-tl__burn'), ticks: Array.from(dock.querySelectorAll('.storms-tick')),
           play: q('.storms-play'), readD: q('.storms-read__d'), readS: q('.storms-read__s'),
@@ -654,6 +765,7 @@
       sync();
       // the map
       ctx.layer(hailLayer());
+      ctx.layer(sweepLayer());
       ctx.layer(marksLayer());
       // leaving: the layer fades for 200 ms drawing the last state (FADE), then its dispose() frees the GPU side
       ctx.own(() => { if (V === my) { FADE = V; V = null; } const s = snd(); if (s) s.hailBed(0); A.world.unpin('storms-zone'); });
@@ -698,11 +810,11 @@
         V.p = LAST ? LAST.d + 1 : END; setSel(LAST, { force: true, quiet: true }); sync();
         ctx.timer(() => { if (V === my) startDay(LAST); }, 30);
       } else {
-        V.p = 0; setSel(LAST, { force: true, quiet: true }); sync();
+        V.p = 0; setSel(LAST, { force: true, quiet: true }); showTally(); sync();
         const skipIntro = (e) => { if (V && V.mode === 'intro' && !(e.target.closest && e.target.closest('#topbar'))) endIntro(true); };
         document.addEventListener('pointerdown', skipIntro, true); ctx.own(() => document.removeEventListener('pointerdown', skipIntro, true));
         ctx.timer(() => prepare(LAST), 40);
-        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; V.readDay = -1; V.dom.card.classList.add('is-replaying'); wake(); }, 520);
+        ctx.timer(() => { if (!V || V.mode !== 'idle' || V.p > 0) return; V.pIntro = LAST ? LAST.d + 1 : END; V.t0 = null; V.mode = 'intro'; V.readDay = -1; if (!V.tally) showTally(); wake(); }, 520);
         ctx.timer(() => { const go = () => A.safe('storms warm hail', warmSharedHail); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else go(); }, 4200);
       }
     }
