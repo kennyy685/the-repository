@@ -168,3 +168,6 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - ~01:55 UTC answers: (1) YES: Aldaba = the software, HMP = first customer, hmp-agency = HMP's own setup on it.
   (2) Aldaba "is an AI system", roughly "an AI office for contractors" (finds jobs, tracks leads, insurance paperwork, crew).
   (3) While building: users = just FilthE; "yes" (read as: boss/crews/homeowners later). (4) why "Aldaba": not answered yet.
+- ~02:00 UTC answers: device = MacBook. Call it "an app" (screens, not a talk-only AI system). First win = BOTH:
+  (a) drop in an insurance paper -> it explains it + tells what to do next; (b) "show me today's 25 best doors".
+  Name Aldaba = the door knocker ("you know why").
