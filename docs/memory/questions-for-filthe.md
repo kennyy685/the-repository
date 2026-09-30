@@ -134,3 +134,5 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - "Still looks like just information being thrown at you." Nothing tells him what to do or where to start.
 - Colors: stop limiting to brand black/yellow/white; "there's more to it". Use color to mean things.
 - Wants it "way more productive, way more efficient, way more straightforward, to the point".
+- 00:35 UTC: FilthE CHOSE D as the 7 AM look ("lets just improvise on D, im going to choose that"). Improve D in place, no E.
+  Start the D rework only on his "go" (usage was at 100%). Plan = the one-next-move / meaning colors / fix 3D list above.
