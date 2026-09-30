@@ -1,5 +1,7 @@
 # Claude's Aldaba: state (2026-09-30, after integration)
 
+**FilthE (2026-09-30 ~12:20 UTC): "you're the boss this task claude, do as you wish."** Claude decides everything on this piece (scope, look, when to republish the same link) without waiting for his OK. Still off-limits: merges to main, spending money, deleting data.
+
 ## RESUMED 2026-09-30 11:25 UTC: finish workflow `wf_bfe3e427-cbd` running (Finish Knock/cinema/Deal -> full film -> 3-lens review -> fixers -> verify). If paused again, resume it with resumeFromRunId in the same chat; otherwise follow the resume order below.
 
 ## PAUSED 2026-09-30 ~02:45 UTC (FilthE: "come to an appropriate pause now"). Resume here.
