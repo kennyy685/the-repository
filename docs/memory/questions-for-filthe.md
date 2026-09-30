@@ -146,3 +146,12 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   1) Why an AI agency instead of an office person? 2) Who's in it in a year? 3) Perfect Tuesday a year from now: his day +
   what AI does unasked. 4) Most annoying/slow/confusing part of how HMP gets and does work today (= likely start).
   Plan: interview in rounds -> one-page "HMP Agency" plan in his words -> build only what's on it, one piece at a time.
+- 01:30 UTC 2026-09-30: FilthE shared "Good Guys CEO Notes" (Claude Doc https://claude.ai/artifact/8zKnwWTMuN3PgVbzThdeDK):
+  cold-met the Good Guys Roofing CEO; mentor + future shadowing (contact him in 2-4 weeks). Lessons: #1 MASTER INSURANCE fast,
+  better than agents/adjusters, before busy season; "no insurance = wrong door"; be there when the adjuster comes, show
+  the whole building first, point out missed damage. Every house = plant a seed (relationship first; small jobs; treat it
+  like your own). Rules: no politics/religion/money at the house (4th forgotten); dress as the business side. Grow a trusted
+  name in town first: networking groups, insurance agents (they refer contractors), real estate, share goals with boss,
+  "amplify AI into the network". Their leads = word of mouth + referrals (marketing budget unused). Mindset: PREVAIL
+  (6 months to livable income; ~5% make it). His app idea: photos organized by property address + "analyze/scan" (likely
+  CompanyCam) -> add a document analyzer + PDF maker to OUR app for insurance paperwork.
