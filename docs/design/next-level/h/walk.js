@@ -1697,8 +1697,8 @@ function resize() {
 }
 addEventListener('resize', resize);
 function goLite(auto, msg) { // low-power fallback: 1x pixels, no MSAA, no bloom / lens pass / embers / light wall
-  if (LITE && !auto) { syncLiteBtn(); return; } LITE = true; PR = 1; bloom.enabled = false; grade.enabled = false; EMB.uniforms.uEmb.value = 0;
-  setMSAA(0); resize(); syncLiteBtn();
+  if (LITE && !auto) { syncLiteBtn(); return; } LITE = true; bloom.enabled = false; grade.enabled = false; EMB.uniforms.uEmb.value = 0;
+  setMSAA(0); if (!auto) { PR = 1; resize(); } syncLiteBtn(); // auto-Lite never resizes the canvas mid-walk
   if (auto) toast(msg || t('lite'));
 }
 function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(r => { if (r.samples !== n) { r.samples = n; r.dispose(); } }); }
@@ -1838,8 +1838,7 @@ function frame(now) {
   SKY.position.copy(camera.position);
   if (!STILL && camMode !== 'intro') { // adaptive quality: hold the frame rate instead of dropping frames
     perf.ema = perf.ema * 0.95 + rawDt * 0.05; perf.t += rawDt;
-    if (perf.t > 2 && perf.ema > 1 / 48 && PR > 1) { PR = Math.max(1, PR - 0.25); resize(); perf.t = 0; perf.ema = 1 / 60; }
-    else if (perf.t > 3 && perf.ema > 1 / 34 && PR <= 1 && !LITE) { goLite(true); perf.t = 0; perf.ema = 1 / 60; }
+    if (perf.t > 3 && perf.ema > 1 / 34 && !LITE) { goLite(true); perf.t = 0; perf.ema = 1 / 60; }
   }
   composer.render(dt);
   if (chk.stage < 2) { if (!chk.at) chk.at = now + 2000; blankCheck(now); }
