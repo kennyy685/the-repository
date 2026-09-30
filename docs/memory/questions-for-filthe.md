@@ -171,3 +171,5 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
 - ~02:00 UTC answers: device = MacBook. Call it "an app" (screens, not a talk-only AI system). First win = BOTH:
   (a) drop in an insurance paper -> it explains it + tells what to do next; (b) "show me today's 25 best doors".
   Name Aldaba = the door knocker ("you know why").
+- ~02:05 UTC: app lives as Claude pages (road A) "for now while we develop it"; real web app later (built so it can move).
+  Assessor emails question still unanswered (don't nag; ask once in the plan).
