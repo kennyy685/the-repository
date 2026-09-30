@@ -1,36 +1,70 @@
 /* Claude's Aldaba · css/deal.css · #deal
    One door's path to a signed job. Scoped to :root[data-view="deal"] and classes prefixed "deal-".
-   The homeowner sheet is paper: it keeps the Ledger light surface in both themes through its own --paper tokens. */
+   The homeowner sheet is paper: it keeps the Ledger light surface in both themes through its own --paper tokens
+   (the same values as the light theme in base.css). */
 
 .deal-paper{
-  --paper:#fcfcfa; --paper-2:#f3f4f0; --paper-ink:#18191c; --paper-ink-2:#3d3f45; --paper-muted:#6c6f77;
+  --paper:#fcfcfa; --paper-2:#f5f6f3; --paper-ink:#18191c; --paper-ink-2:#3d3f45; --paper-muted:#6c6f77;
   --paper-rule:#d9dbd5; --paper-rule-2:#b8bab4; --paper-acc:#a4520f; --paper-shadow:rgba(24,25,28,.28);
 }
 
 /* ---------------- center: the portrait stage ---------------- */
-:root[data-view="deal"] .slot--center>.deal-stage{position:relative;width:100%;flex:none;pointer-events:none;align-self:stretch}
-.deal-stage__fig{position:absolute;left:0;top:0;margin:0;pointer-events:none}
-.deal-canvas{position:absolute;left:0;right:0;top:44px;bottom:62px}
-.deal-portrait{position:absolute;inset:0;width:100%;height:100%;display:block;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,var(--text) 5%,var(--text) 86%,transparent 100%),linear-gradient(180deg,transparent 0,var(--text) 5%,var(--text) 93%,transparent 100%);
+:root[data-view="deal"] .slot--center>.deal-stage{position:relative;width:100%;flex:none;align-self:stretch;pointer-events:none}
+.deal-sheet{position:absolute;inset:0;pointer-events:none}
+/* the pool of dark the drawing floats in: the map shows at its edges, and a cut-out keeps the map's controls in view */
+.deal-pool{position:absolute;inset:-14px -12px -4px;pointer-events:none;background-color:var(--page);
+  background-image:radial-gradient(circle,var(--rule-2) .9px,transparent 1.3px);background-size:24px 24px;background-position:12px 10px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,var(--text) 6%,var(--text) 94%,transparent 100%),linear-gradient(180deg,transparent 0,var(--text) 5%,var(--text) 91%,transparent 100%),radial-gradient(circle at 100% 100%,transparent 0,transparent 92px,var(--text) 200px);
   -webkit-mask-composite:source-in;
-  mask-image:linear-gradient(90deg,transparent 0,var(--text) 5%,var(--text) 86%,transparent 100%),linear-gradient(180deg,transparent 0,var(--text) 5%,var(--text) 93%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,var(--text) 6%,var(--text) 94%,transparent 100%),linear-gradient(180deg,transparent 0,var(--text) 5%,var(--text) 91%,transparent 100%),radial-gradient(circle at 100% 100%,transparent 0,transparent 92px,var(--text) 200px);
   mask-composite:intersect}
-.deal-plate{position:absolute;z-index:1;pointer-events:auto;display:grid;gap:5px;max-width:48%}
-.deal-plate--tl{left:26px;top:20px}
-.deal-plate--tr{right:15%;top:20px;justify-items:end;text-align:right}
-.deal-plate--bl{left:26px;right:15%;bottom:16px;max-width:none}
-.deal-plate__k{display:flex;align-items:center;gap:7px;flex-wrap:wrap;text-transform:uppercase}
-.deal-plate__addr{color:var(--text-2)}
-.deal-plate__t{font:600 15px/1.2 var(--display);letter-spacing:-.01em;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.deal-plate__focus{font:500 12.5px/1.2 var(--mono);color:var(--text-2);letter-spacing:-.01em}
-.deal-plate__focus b{color:var(--text);font-weight:500;margin-right:4px}
-.deal-plate__arrow{color:var(--faint)}
-.deal-plate__part{color:var(--acc-ink);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
-.deal-legend{display:flex;align-items:center;flex-wrap:wrap;gap:6px 11px;margin-top:2px;font:500 11px/1 var(--mono);color:var(--muted)}
-.deal-legend .t-micro{text-transform:uppercase}
-.deal-legend span{display:inline-flex;align-items:center;gap:5px}
-.deal-legend i{width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor}
+.deal-draw{position:absolute;inset:0;pointer-events:none;isolation:isolate}
+.deal-cv{position:absolute;left:0;top:0;display:block;pointer-events:none}
+.deal-marks{position:absolute;left:0;top:0;z-index:3;pointer-events:none}
+
+/* captions over the drawing */
+.deal-cap{position:absolute;top:6px;z-index:4;display:flex;align-items:center;gap:7px;margin:0;pointer-events:auto;white-space:nowrap;
+  font:500 var(--fs-micro)/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.deal-cap--l{left:20px}
+.deal-cap--r{right:20px;color:var(--text-2);gap:8px}
+.deal-cap__rule{width:16px;height:1px;background:var(--rule-3);margin-inline:2px}
+.deal-cap__k{display:inline-flex;align-items:center;gap:5px;letter-spacing:.02em;text-transform:none}
+.deal-cap__k i{width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor}
+.deal-cap--r b{font-weight:500;color:var(--text)}
+.deal-cap__arrow{color:var(--faint)}
+.deal-cap__part{color:var(--acc-ink)}
+.deal-cap__paper{color:var(--muted);text-transform:none;letter-spacing:.02em}
+
+/* marks: each checklist item, on its part of the house (the knocker ring again) */
+.deal-mark{--s:26px;position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);display:grid;place-items:center;
+  border-radius:50%;border:1.5px solid var(--text-2);background:var(--panel);color:var(--text);pointer-events:auto;cursor:pointer;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--page) 72%,transparent),0 8px 18px -8px var(--shadow);
+  transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease),box-shadow var(--t) var(--ease),scale .36s var(--ease-hail)}
+.deal-mark::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid var(--rule-3);opacity:.8;pointer-events:none;transition:border-color var(--t) var(--ease)}
+.deal-mark__n{font:600 11px/1 var(--mono);letter-spacing:-.02em;transition:opacity var(--t) var(--ease)}
+.deal-mark .i{position:absolute;width:14px;height:14px;stroke-width:2.6;color:var(--page);opacity:0;transform:scale(.4);transition:opacity var(--t) var(--ease),transform .36s var(--ease-hail)}
+.deal-mark:hover,.deal-mark.is-hot{scale:1.16;border-color:var(--acc);box-shadow:0 0 0 5px var(--acc-bg),0 8px 18px -8px var(--shadow)}
+.deal-mark:hover::after,.deal-mark.is-hot::after{border-color:var(--acc-line)}
+.deal-mark.is-on{background:var(--ok);border-color:var(--ok)}
+.deal-mark.is-on .deal-mark__n{opacity:0}
+.deal-mark.is-on .i{opacity:1;transform:none}
+.deal-mark.is-on::after{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.deal-mark .knock{border-color:var(--ok)}
+
+/* the stamp: may work start on this house? */
+.deal-stamp{position:absolute;left:0;top:0;z-index:5;display:grid;gap:6px;width:max-content;max-width:320px;margin:0;padding:9px 13px 10px;
+  border:2px solid var(--warn);border-radius:6px;background:color-mix(in srgb,var(--page) 90%,transparent);color:var(--warn);pointer-events:auto;rotate:-1.5deg;
+  box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--page) 90%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--warn) 45%,transparent),0 20px 44px -24px var(--shadow)}
+.deal-sheet .deal-stamp[hidden]{display:none}
+.deal-stamp.is-ok{border-color:var(--ok);color:var(--ok);
+  box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--page) 90%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--ok) 45%,transparent),0 20px 44px -24px var(--shadow)}
+.deal-stamp__h{display:flex;align-items:center;gap:8px;margin:0;font:700 13px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.deal-stamp__cite{margin-left:auto;padding-left:18px;font:500 11px/1 var(--mono);letter-spacing:.02em;text-transform:none;color:var(--text-2)}
+.deal-stamp__p{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin:0;max-width:292px;font:500 12.5px/1.35 var(--ui);color:var(--text-2)}
+.deal-stamp__ck{display:inline-flex;align-items:center;gap:4px;font:500 11px/1 var(--mono);letter-spacing:.03em;color:var(--muted)}
+.deal-stamp__ck .i{width:12px;height:12px;color:var(--bad)}
+.deal-stamp__ck.is-on{color:var(--text)}
+.deal-stamp__ck.is-on .i{color:var(--ok)}
 
 /* the lot on the map */
 .deal-pin{display:grid;justify-items:center;gap:3px;padding:6px 9px;border-radius:9px;background:var(--panel);border:1px solid var(--rule-2);
@@ -42,9 +76,14 @@
 .deal-head{display:grid;gap:10px}
 .deal-head__top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .deal-head__pos{text-transform:uppercase;color:var(--text-2)}
-.deal-head__addr{margin-top:2px}
+.deal-head__id{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin-top:2px}
+.deal-head__who{display:grid;gap:8px;min-width:0;align-content:start}
 .deal-head__sub{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;color:var(--muted)}
-.deal-stats{margin-top:6px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.deal-head__slot .chip{height:24px;font-size:11.5px}
+.deal-key{display:grid;gap:6px;justify-items:end;margin:0}
+.deal-key__cv{display:block;width:140px;height:84px;border-radius:10px;background:var(--panel-2);outline:1px solid var(--rule-2);outline-offset:-1px}
+.deal-key__cap{display:flex;align-items:center;gap:6px;font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.deal-stats{margin-top:4px;grid-template-columns:repeat(4,minmax(0,1fr))}
 .deal-stats .stat__v{font-size:17px}
 .deal-stats .stat__k{font-size:9.5px;letter-spacing:.07em}
 
@@ -72,17 +111,20 @@
 .deal-collect__bar{height:3px;border-radius:3px;background:var(--rule);overflow:hidden;margin-bottom:8px}
 .deal-collect__bar>span{display:block;height:100%;background:var(--ok);transform-origin:0 50%;border-radius:3px}
 .deal-check{display:grid}
-.deal-ck{display:grid;grid-template-columns:20px minmax(0,1fr);gap:11px;align-items:start;width:100%;padding:8px 8px 8px 4px;border-radius:9px;text-align:left;
+.deal-ck{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:11px;align-items:start;width:100%;padding:8px 6px 8px 4px;border-radius:9px;text-align:left;
   font-size:13px;line-height:1.45;color:var(--text);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 .deal-check li+li .deal-ck{border-top:1px solid var(--rule);border-radius:0}
-.deal-ck:hover{background:var(--panel-2)}
+.deal-ck:hover,.deal-ck.is-hot{background:var(--panel-2)}
 .deal-ck__box{position:relative;display:grid;place-items:center;width:18px;height:18px;margin-top:1px;border-radius:5px;border:1.5px solid var(--rule-3);
   transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease)}
 .deal-ck__box .i{width:12px;height:12px;stroke-width:2.6;color:var(--page);opacity:0;transform:scale(.4);transition:opacity var(--t) var(--ease),transform .36s var(--ease-hail)}
 .deal-ck[aria-checked="true"] .deal-ck__box{background:var(--ok);border-color:var(--ok)}
 .deal-ck[aria-checked="true"] .deal-ck__box .i{opacity:1;transform:none}
 .deal-ck[aria-checked="true"] .deal-ck__t{color:var(--text-2)}
-.deal-ck .knock{border-color:var(--ok)}
+.deal-ck__mk{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.25px solid var(--rule-3);font:600 9.5px/1 var(--mono);color:var(--muted);
+  transition:border-color var(--t) var(--ease),color var(--t) var(--ease)}
+.deal-ck.is-hot .deal-ck__mk{border-color:var(--acc);color:var(--acc-ink)}
+.deal-ck[aria-checked="true"] .deal-ck__mk{border-color:color-mix(in srgb,var(--ok) 55%,transparent);color:var(--ok)}
 
 .deal-nd{display:grid;gap:12px;margin:0 0 16px;padding:14px 0 0;border-top:1px solid var(--rule)}
 .deal-nd dt{display:flex;align-items:center;gap:6px;margin-bottom:4px;font:500 var(--fs-micro)/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -119,7 +161,7 @@
 .deal-day__l{font:500 9px/1.15 var(--mono);letter-spacing:.02em;color:var(--text-2);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;padding-inline:2px}
 .deal-day--sale{background:transparent;border-style:dashed}
 .deal-day--sale .deal-day__d{color:var(--text-2)}
-.deal-day--skip{background:repeating-linear-gradient(135deg,var(--rule) 0 3px,transparent 3px 7px);border-color:var(--rule)}
+.deal-day--skip{background:repeating-linear-gradient(135deg,var(--rule) 0 3px,transparent 3px 7px);border-color:var(--rule);cursor:help}
 .deal-day--skip .deal-day__d{color:var(--muted)}
 .deal-day--skip .deal-day__l{color:var(--muted)}
 .deal-day.is-end{border-color:var(--acc-line);box-shadow:inset 0 0 0 1px var(--acc-line)}
@@ -127,7 +169,7 @@
 .deal-clock__ctl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px}
 .deal-date__l{display:grid;gap:4px;margin-right:4px}
 .deal-date__l .t-micro{text-transform:uppercase}
-.deal-date{height:28px;padding:0 8px;border-radius:8px;border:1px solid var(--rule-2);background:var(--panel);color:var(--text);font:500 12px/1 var(--mono)}
+.deal-date{height:28px;padding:0 8px;border-radius:8px;border:1px solid var(--rule-2);background:var(--panel);color:var(--text);font:500 12px/1 var(--mono);color-scheme:inherit}
 .deal-date:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 .deal-clock__ctl .chip{height:28px}
 .deal-clock__rule{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;color:var(--text-2)}
@@ -161,17 +203,19 @@
 .deal-dock__hand{grid-area:hand}
 .deal-trackmount--dock{grid-area:track;min-width:0}
 .deal-dock__armor{grid-area:armor;min-width:0;margin-top:4px}
-.deal-dock__armor .sec{margin-bottom:8px}
-.deal-dock__note{text-align:right;max-width:78%;line-height:1.35}
+.deal-armor__sec{margin-bottom:8px;white-space:nowrap}
+.deal-dock__note{text-align:right;max-width:78%;line-height:1.35;white-space:normal}
 
 /* the track: a fuse through eight steps */
 .deal-track{--ring:30px;--n:8;position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
 .deal-track__rail{position:absolute;left:calc(100% / var(--n) / 2);right:calc(100% / var(--n) / 2);top:calc(8px + var(--ring) / 2 - 1px);height:2px;
   border-radius:2px;background:var(--rule-2);pointer-events:none;z-index:1}
 .deal-track__fuse{position:absolute;inset:0;border-radius:2px;background:linear-gradient(90deg,var(--acc-line),var(--acc));transform-origin:0 50%;transform:scaleX(0)}
+.deal-track__rail--top{background:transparent;z-index:3}
 .deal-track__sparkwrap{position:absolute;inset:0;transform:translateX(0);pointer-events:none}
-.deal-track__spark{position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--acc);
+.deal-track__spark{position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--acc);opacity:0;
   box-shadow:0 0 0 4px var(--acc-bg),0 0 16px 3px var(--acc-line);transition:opacity var(--t) var(--ease)}
+.deal-track.is-burning .deal-track__spark{opacity:1}
 .deal-track__sparkwrap.is-out .deal-track__spark{opacity:0}
 .deal-track__lens{position:absolute;left:0;top:0;bottom:0;width:calc(100% / var(--n));border-radius:12px;background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--rule-2);
   transform:translateX(calc(var(--i,0) * 100%));transition:transform .56s var(--ease-hail);pointer-events:none}
@@ -181,7 +225,7 @@
   transition:background-color var(--t) var(--ease),box-shadow var(--t-slow) var(--ease)}
 .deal-node__ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
 .deal-node__bg{fill:none;stroke:var(--rule-3);stroke-width:1.5}
-.deal-node__arc{fill:none;stroke:var(--ok);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:0 100}
+.deal-node__arc{fill:none;stroke:var(--ok);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .5s var(--ease-out)}
 .deal-node__ring b{font:500 10.5px/1 var(--mono);color:var(--text-2);transition:opacity var(--t) var(--ease)}
 .deal-node__ok{position:absolute;width:15px;height:15px;stroke-width:2.4;color:var(--on-acc);opacity:0;transform:scale(.5);transition:opacity var(--t) var(--ease),transform .4s var(--ease-hail)}
 .deal-node.is-lit .deal-node__bg{stroke:var(--acc)}
@@ -209,11 +253,12 @@
 .deal-arm.is-on{background:var(--panel-2);border-color:color-mix(in srgb,var(--ok) 50%,var(--rule-2))}
 .deal-arm.is-on .deal-arm__c{color:var(--ok)}
 .deal-arm.is-on .deal-arm__t{color:var(--text)}
+.deal-arm .knock{border-color:var(--ok)}
 
 /* ---------------- overlay: the homeowner sheet ---------------- */
 .slot--overlay>.deal-modal{pointer-events:none}
 .deal-modal{position:absolute;inset:0;z-index:4}
-.deal-modal__scrim{position:absolute;inset:0;background:var(--scrim);pointer-events:none}
+.deal-modal__scrim{position:absolute;left:0;right:0;bottom:0;top:calc(var(--bar-top) + var(--bar-h) + 6px);background:var(--scrim);pointer-events:auto}
 .deal-modal__box{position:absolute;left:50%;top:calc(var(--bar-top) + var(--bar-h) + 12px);bottom:var(--gut);width:min(1000px,calc(100% - 2 * var(--gut) - 160px));
   transform:translateX(-50%);display:flex;flex-direction:column;pointer-events:auto;overflow:hidden;
   background:var(--panel);border:1px solid var(--rule-2);border-radius:var(--r-lg);box-shadow:0 40px 90px -30px var(--shadow)}
@@ -224,17 +269,19 @@
 .deal-modal__sub{color:var(--muted);font-weight:500}
 .deal-modal__ctl{display:flex;align-items:center;gap:6px;flex:none}
 .deal-modal__scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:22px;background:var(--page-2)}
+.deal-modal__scroll:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--rule-3)}
 
 .deal-paper{max-width:900px;margin:0 auto;padding:34px 38px 38px;border-radius:4px;background:var(--paper);color:var(--paper-ink);
   box-shadow:0 1px 0 var(--paper-rule),0 24px 50px -24px var(--paper-shadow);font:400 12.5px/1.5 var(--ui);color-scheme:light}
 .deal-paper p{margin:0}
+.deal-paper b{color:var(--paper-ink)}
 .deal-paper__head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;margin-bottom:22px;border-bottom:2px solid var(--paper-ink)}
 .deal-paper__brand{display:flex;align-items:center;gap:12px}
 .deal-paper__mark{width:34px;height:34px;fill:none;stroke:var(--paper-ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .deal-paper__name{font:700 22px/1.05 var(--display);letter-spacing:-.025em;color:var(--paper-ink)}
 .deal-paper__legal{margin-top:3px!important;font:500 10.5px/1.2 var(--mono);letter-spacing:.06em;color:var(--paper-muted);text-transform:uppercase}
 .deal-paper__stamp{display:grid;gap:2px;padding:6px 10px;border:1.5px dashed var(--paper-rule-2);border-radius:4px;font:500 9.5px/1.35 var(--mono);letter-spacing:.05em;
-  text-transform:uppercase;color:var(--paper-muted);text-align:right;max-width:250px}
+  text-transform:uppercase;color:var(--paper-muted);text-align:right;max-width:300px}
 .deal-paper__cols{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;position:relative}
 .deal-paper__cols::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--paper-rule)}
 .deal-paper__col{display:grid;align-content:start;gap:10px;min-width:0}
@@ -242,15 +289,14 @@
 .deal-paper__h{margin:0;font:700 20px/1.1 var(--display);letter-spacing:-.02em;color:var(--paper-ink)}
 .deal-paper__lead{color:var(--paper-ink-2)}
 .deal-paper__home{font-size:12px;color:var(--paper-muted)}
-.deal-paper__home b{color:var(--paper-ink)}
 .deal-paper__steps{display:grid;gap:9px;margin:4px 0 2px}
 .deal-paper__steps li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;color:var(--paper-ink-2)}
 .deal-paper__n{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--paper-ink);font:600 10px/1 var(--mono);color:var(--paper-ink)}
 .deal-paper__st{font-weight:600;color:var(--paper-ink)}
 .deal-paper__cancel{display:grid;gap:7px;margin-top:6px;padding:14px 14px 12px;border:1.5px solid var(--paper-ink);border-radius:3px;color:var(--paper-ink-2)}
-.deal-paper__cancel b{color:var(--paper-ink)}
 .deal-paper__ch{font:700 14px/1.2 var(--display);letter-spacing:-.01em;color:var(--paper-ink);text-transform:uppercase}
 .deal-paper__blank{font:500 11.5px/1.6 var(--mono);color:var(--paper-ink)}
+.deal-paper__typed{font-weight:600;color:var(--paper-ink);border-bottom:1px solid var(--paper-ink-2)}
 .deal-paper__fine{font-size:11px;color:var(--paper-muted)}
 .deal-paper__contact{margin:6px 0 0;display:grid;gap:4px}
 .deal-paper__contact dt{font:500 9.5px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--paper-muted)}
@@ -275,28 +321,34 @@
   .deal-node__t{font-size:11.5px}
   .deal-arm{padding:6px 8px 7px}
   .deal-arm__t{font-size:11.5px}
+  .deal-key__cv{width:128px;height:76px}
 }
 
 /* ---------------- stacked (phones, narrow windows) ---------------- */
 @media (max-width:900px){
   :root[data-view="deal"] .slot--center>.deal-stage{height:auto!important;pointer-events:auto;display:grid;gap:12px}
-  .deal-stage__fig{position:relative;width:100%!important;display:grid;gap:0;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--rule);background:var(--page)}
-  .deal-canvas{position:relative;inset:auto;order:2}
-  .deal-portrait{-webkit-mask-image:none;mask-image:none}
-  .deal-plate{position:static;max-width:none}
-  .deal-plate--tl{order:1;padding:14px 14px 0}
-  .deal-plate--tr{display:none}
-  .deal-plate--bl{order:3;padding:0 14px 14px}
+  .deal-sheet{position:relative;inset:auto;display:grid;pointer-events:auto;border-radius:var(--r-lg);border:1px solid var(--rule);overflow:hidden;
+    background-color:var(--page);background-image:radial-gradient(circle,var(--rule-2) .9px,transparent 1.3px);background-size:24px 24px}
+  .deal-pool{display:none}
+  .deal-cap{position:relative;inset:auto;flex-wrap:wrap;white-space:normal;row-gap:6px;padding:12px 14px 0}
+  .deal-cap--l{order:1}
+  .deal-cap--r{order:2;padding-top:8px;justify-content:flex-start}
+  .deal-draw{position:relative;inset:auto;order:3}
+  .deal-mark{--s:22px}
+  .deal-mark::after{inset:-5px}
+  .deal-sheet .deal-stamp{position:relative;left:auto!important;top:auto!important;order:4;rotate:0deg;margin:0 14px 14px;width:auto;max-width:none}
   .deal-trackmount--center{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r-lg);padding:8px}
   .deal-trackmount--dock,.deal-dock__path{display:none}
   .deal-dock{grid-template-columns:minmax(0,1fr);grid-template-areas:"armor" "hand"}
   .deal-dock__hand .btn{width:100%}
+  .deal-armor__sec{flex-wrap:wrap;white-space:normal}
   .deal-dock__note{max-width:none;text-align:left;flex-basis:100%;order:3}
-  .deal-dock__armor .sec{flex-wrap:wrap}
   .deal-armor{grid-template-columns:repeat(2,minmax(0,1fr))}
   .deal-stats{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:0}
   .deal-stats .stat:nth-child(3){padding-left:0;border-left:0}
   .deal-stats .stat:nth-child(n+3){border-top:1px solid var(--rule)}
+  .deal-key__cv{width:112px;height:76px}
+  .deal-modal__scrim{top:0}
   .deal-modal__box{left:10px;right:10px;top:10px;bottom:10px;width:auto;transform:none}
   .deal-modal__scroll{padding:10px}
   .deal-paper{padding:20px 18px}
@@ -316,22 +368,6 @@
 .deal-track.is-vert .deal-node{grid-template-columns:var(--ring) minmax(0,1fr) auto;justify-items:start;align-items:center;text-align:left;gap:12px;padding:8px 10px}
 .deal-track.is-vert .deal-node__t{-webkit-line-clamp:2}
 
-/* on-this-step tags + spark layer */
-.deal-plate__n{color:var(--text-2);letter-spacing:.04em}
-.deal-plate__n b{color:var(--text);font-weight:500}
-.deal-tags{display:flex;flex-wrap:wrap;gap:6px}
-.deal-tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 5px;border-radius:7px;background:var(--panel);border:1px solid var(--rule-2);
-  font:500 11px/1 var(--mono);letter-spacing:.01em;color:var(--text-2);white-space:nowrap}
-.deal-tag__b{position:relative;display:grid;place-items:center;width:14px;height:14px;border-radius:4px;border:1.25px solid var(--rule-3)}
-.deal-tag__b .i{width:10px;height:10px;stroke-width:2.8;color:var(--page);opacity:0}
-.deal-tag.is-on{color:var(--text)}
-.deal-tag.is-on .deal-tag__b{background:var(--ok);border-color:var(--ok)}
-.deal-tag.is-on .deal-tag__b .i{opacity:1}
-.deal-tag .knock{border-color:var(--ok)}
-.deal-track__rail--top{background:transparent;z-index:3}
-.deal-track__rail--top .deal-track__spark{opacity:0}
-.deal-track.is-burning .deal-track__rail--top .deal-track__spark{opacity:1}
-.deal-modal__scroll:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--rule-3)}
-.deal-paper__stamp{max-width:300px}
-.deal-dock__armor .sec{white-space:nowrap}
-.deal-dock__note{white-space:normal}
+/* positioned or moved by script: the reduced-motion rule sets 1 ms on every property, which would trail them by a frame */
+.deal-stage,.deal-draw,.deal-cv,.deal-marks,.deal-stamp,.deal-track__fuse,.deal-track__sparkwrap,.deal-collect__bar>span,.deal-dial__hand{transition-property:none}
+.pin.deal-pin{transition:none!important}

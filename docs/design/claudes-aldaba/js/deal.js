@@ -1,39 +1,67 @@
 /* Claude's Aldaba · js/deal.js · #deal
    One door, from first knock to a signed job, with Nebraska's legal armor.
-   Layout (desktop): left = the door + the selected step (collect, the law, next, done when, cancel clock, build gate);
-   center = the house portrait (House.js) drawn live, highlight follows the step, the real lot on the dimmed map beside it;
-   bottom dock = the path (a fuse that burns to where this door is) + the 12 armor rules + "Hand to homeowner".
+   Desktop: left = the door (address, a key plan from real street centerlines, the numbers) + the selected step (what to
+   collect, the law with its cite, next, done when, the cancel clock, the build gate) + actions. Center = the hero: the
+   house portrait (House.js) drawn live over a pool of dark, the highlight and numbered marks follow the step (a mark sits
+   on the part of the house each checklist item is about), and a legal stamp says when work may start. Bottom dock = the
+   path (a fuse that burns to where this door is), the 12 armor rules and "Hand to homeowner".
    Overlay = the homeowner sheet, HMP Siding & Roofing (never Aldaba), EN and ES side by side, printed-paper surface.
-   Per-viewer state (ticks, where the door is, sale date, job type) lives in A.store, keyed by the sample address.
-   Director hook: A.dealDemo = {step(i), select(i), open(), close()}. */
+   Stacked (<= 900 px): map (the real lot) -> portrait -> vertical path -> door + step -> armor.
+   Per-viewer state (ticks, where the door is, sale date, job type, gate) lives in A.store, keyed by the sample address.
+   Director: A.dealDemo = {step(i), select(i), open(), close(), tick(k, on), state()}.
+   Dev: #deal&sheet=1 opens the homeowner sheet, #deal&step=6 selects a step (1-based). */
 (function () {
   'use strict';
   const A = window.A; if (!A || !A.view) return;
 
+  /* ------------------------------------------------------------------ dev params (#deal&sheet=1&step=6)
+     The router only knows '#deal', so the params are read here (this file loads before boot.js) and the hash is left clean. */
+  const DEV = {};
+  try {
+    const m = /^#deal[&?](.+)$/.exec(location.hash || '');
+    if (m) {
+      const keep = [];
+      m[1].split('&').forEach((kv) => {
+        const i = kv.indexOf('='), k = i < 0 ? kv : kv.slice(0, i), v = i < 0 ? '1' : decodeURIComponent(kv.slice(i + 1));
+        if (k === 'sheet' || k === 'step') DEV[k] = v; else if (k) keep.push(kv);
+      });
+      history.replaceState(null, '', location.pathname + location.search + '#deal' + (keep.length ? '&' + keep.join('&') : ''));
+    }
+  } catch (e) { /* a sandboxed frame without history: no dev params */ }
+
   /* ------------------------------------------------------------------ copy + helpers */
-  const CD = (window.COPY && window.COPY.deal) || { labels: {}, steps: [], armor: [], homeowner: {} };
+  const CP = window.COPY || {};
+  const CD = CP.deal || { labels: {}, steps: [], armor: [], homeowner: {} };
   const LB = CD.labels || {};
   const STEPS = CD.steps || [];
   const N = STEPS.length || 8;
   const E = (o) => (o ? A.L(A.esc(o.en), A.esc(o.es == null ? o.en : o.es)) : '');     // escaped EN/ES spans
   const L = (en, es) => A.L(A.esc(en), A.esc(es));
-  const tt = (o) => A.t(o);
   const pad2 = (n) => String(n).padStart(2, '0');
   const cite = (c) => String(c || '').replace(/^Neb\. Rev\. Stat\.\s*/, '');
   const snd = (fn) => { try { const S = window.Sound; if (S && S.enabled) fn(S); } catch (e) { /* sound is optional */ } };
+  const fill = (o, v) => ({ en: String(o.en).replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? (typeof v[k] === 'object' ? v[k].en : v[k]) : m)),
+    es: String(o.es).replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? (typeof v[k] === 'object' ? v[k].es : v[k]) : m)) });
+  const TITLE = { en: 'Deal', es: 'Trato' };   // the tab's word (index.html, Knock's "Abrir en Trato")
+
+  /* what the drawing lights up for each step, and which part of the house each checklist item is about */
   const HL = { intro: null, look: 'siding', inspection: 'roof', adjuster: 'roof', itemized: null, contract: null, window: null, build: 'roof' };
-  const HL_NAME = { roof: { en: 'roof', es: 'techo' }, siding: { en: 'siding', es: 'siding' }, gutters: { en: 'gutters', es: 'canaletas' } };
-  // what this step looks at, as short mono tags on the portrait; k = the collect item each tag mirrors (ticks show)
-  const TAGS = {
-    intro: [[0, 'Name, HMP, what we sell', 'Nombre, HMP, qué vendemos'], [1, 'Owner or renter', 'Dueño o inquilino'], [2, 'Yes, a time or no', 'Sí, una hora o no']],
-    look: [[0, 'House number photo', 'Foto del número'], [1, 'Four sides', 'Cuatro lados'], [3, 'Soft metals', 'Metal blando'], [4, 'Clean side', 'Lado sin daño']],
-    inspection: [[0, 'Test square per slope', 'Cuadro de prueba por lado'], [1, 'Siding hits', 'Golpes en siding'], [3, 'Insurer name', 'Aseguradora'], [5, 'Signed form', 'Formulario firmado']],
-    adjuster: [[0, 'Adjuster + date', 'Ajustador + fecha'], [1, 'Claim number', 'Número de reclamo'], [2, 'Photos + counts', 'Fotos + conteos'], [4, 'Written scope', 'Alcance por escrito']],
-    itemized: [[0, 'By trade', 'Por oficio'], [1, 'Materials', 'Materiales'], [2, 'Labor + fees', 'Mano de obra + cargos'], [3, 'Total', 'Total'], [4, 'Two copies', 'Dos copias']],
-    contract: [[0, 'Signed contract', 'Contrato firmado'], [2, 'Two cancel forms', 'Dos formularios'], [3, 'Sale date + initials', 'Fecha + iniciales'], [4, 'HMP address', 'Dirección de HMP']],
-    window: [[0, 'Ends at midnight, day 3', 'Termina a medianoche, día 3'], [2, 'No work yet (no claim)', 'Sin obra aún (sin reclamo)'], [3, 'Mail checked', 'Correo revisado']],
-    build: [[0, 'Permit', 'Permiso'], [3, 'Change orders', 'Órdenes de cambio'], [4, 'Daily cleanup', 'Limpieza diaria'], [5, 'After photos', 'Fotos del después']]
+  const PARTS = {
+    intro: ['door'],
+    look: ['door', 'siding', 'gutters', 'metal', 'side'],
+    inspection: ['roof', 'siding', 'eave'],
+    adjuster: [null, null, 'roof', 'door'],
+    itemized: [['roof', 'siding', 'gutters']],
+    contract: [], window: [],
+    build: [null, null, null, null, 'yard', ['roof', 'side']]
   };
+  const PART_HL = { door: null, siding: 'siding', side: 'siding', gutters: 'gutters', metal: 'gutters', eave: 'roof', roof: 'roof', yard: null };
+  const PART_NAME = {
+    roof: { en: 'roof', es: 'techo' }, siding: { en: 'siding', es: 'siding' }, side: { en: 'side wall', es: 'pared lateral' },
+    gutters: { en: 'gutters', es: 'canaletas' }, metal: { en: 'soft metals', es: 'metal blando' }, eave: { en: 'roofline', es: 'orilla del techo' },
+    door: { en: 'front door', es: 'puerta principal' }, yard: { en: 'yard', es: 'patio' }
+  };
+  const partsOf = (s, k) => { const p = ((s && PARTS[s.id]) || [])[k]; return p == null ? [] : Array.isArray(p) ? p : [p]; };
   const FORM = { cottage: { en: 'Cottage', es: 'Casa pequeña' }, ranch: { en: 'Ranch', es: 'Casa de un piso' }, split: { en: 'Split-level', es: 'De medio nivel' },
     two: { en: 'Two-story', es: 'De dos pisos' }, large: { en: 'Large two-story', es: 'Grande de dos pisos' } };
   const X = {
@@ -48,16 +76,16 @@
     jobDone: { en: 'Job complete', es: 'Trabajo terminado' },
     noLaw: { en: 'No statute sets this step. The photos are the record.', es: 'Ningún estatuto regula este paso. Las fotos son el registro.' },
     stepOf: { en: 'Step {i} of {n}', es: 'Paso {i} de {n}' },
-    of: { en: '{i} of {n}', es: '{i} de {n}' }
+    paper: { en: 'paper step', es: 'paso de papeleo' },
+    onHouse: { en: 'Marked on the house', es: 'Marcado en la casa' }
   };
-  const fill = (o, v) => ({ en: String(o.en).replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? (typeof v[k] === 'object' ? v[k].en : v[k]) : m)),
-    es: String(o.es).replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? (typeof v[k] === 'object' ? v[k].es : v[k]) : m)) });
 
-  /* ------------------------------------------------------------------ business days (cancel window) */
-  // Nebraska 69-1601 does not define "business day"; we use the federal Cool-Off Rule list (16 CFR 429): every
-  // day except Sunday and nine federal holidays.
+  /* ------------------------------------------------------------------ business days (the cancel window)
+     Nebraska 69-1601 does not define "business day"; 69-1604(2) points to the FTC Cooling-Off Rule, whose 16 CFR 429.0
+     counts every day except Sunday and federal holidays. We skip Sundays, all 11 federal holidays (5 U.S.C. 6103) and the
+     weekday a weekend holiday is observed on: a window counted too short is the risky direction, so this one errs long. */
   const DAYMS = 864e5;
-  const parse = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null; };
+  const parse = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || '')); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null; };
   const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
   function nth(y, m, wd, n) {
     if (n > 0) { const d1 = new Date(Date.UTC(y, m, 1)).getUTCDay(); return Date.UTC(y, m, 1 + ((wd - d1 + 7) % 7) + 7 * (n - 1)); }
@@ -67,28 +95,36 @@
   function holidays(y) {
     if (holCache[y]) return holCache[y];
     const H = {};
-    const add = (ms, en, es) => { H[iso(ms)] = { en, es }; };
+    const add = (ms, en, es) => {
+      const k = iso(ms); if (!H[k]) H[k] = { en, es };
+      const wd = new Date(ms).getUTCDay();
+      const obs = wd === 6 ? ms - DAYMS : wd === 0 ? ms + DAYMS : null;
+      if (obs != null && !H[iso(obs)]) H[iso(obs)] = { en: en + ' (observed)', es: es + ' (día observado)' };
+    };
     add(Date.UTC(y, 0, 1), "New Year's Day", 'Año Nuevo');
+    add(nth(y, 0, 1, 3), 'Martin Luther King Jr. Day', 'Día de Martin Luther King Jr.');
     add(nth(y, 1, 1, 3), "Washington's Birthday", 'Natalicio de Washington');
     add(nth(y, 4, 1, -1), 'Memorial Day', 'Día de los Caídos');
+    add(Date.UTC(y, 5, 19), 'Juneteenth', 'Juneteenth');
     add(Date.UTC(y, 6, 4), 'Independence Day', 'Día de la Independencia');
     add(nth(y, 8, 1, 1), 'Labor Day', 'Día del Trabajo');
     add(nth(y, 9, 1, 2), 'Columbus Day', 'Día de la Raza');
     add(Date.UTC(y, 10, 11), 'Veterans Day', 'Día de los Veteranos');
-    add(nth(y, 10, 4, 4), 'Thanksgiving', 'Acción de Gracias');
+    add(nth(y, 10, 4, 4), 'Thanksgiving', 'Día de Acción de Gracias');
     add(Date.UTC(y, 11, 25), 'Christmas Day', 'Navidad');
     return (holCache[y] = H);
   }
-  /** the sale day, every day after it up to the end, each marked counted (1..3) or skipped (Sunday / holiday) */
+  const holidayOn = (d) => { const y = +d.slice(0, 4); return holidays(y)[d] || holidays(y + 1)[d] || null; };
+  /** the sale day, then every day up to the end: counted (1..3) or skipped (Sunday / federal holiday) */
   function cancelWindow(saleIso) {
     const t0 = parse(saleIso); if (t0 == null) return null;
     const days = [{ iso: iso(t0), kind: 'sale' }];
     let n = 0, t = t0;
-    while (n < 3 && days.length < 12) {
+    while (n < 3 && days.length < 14) {
       t += DAYMS;
-      const d = iso(t), wd = new Date(t).getUTCDay(), hol = holidays(new Date(t).getUTCFullYear())[d];
-      if (wd === 0) days.push({ iso: d, kind: 'skip', why: { en: 'Sunday', es: 'Domingo' } });
-      else if (hol) days.push({ iso: d, kind: 'skip', why: hol });
+      const d = iso(t), wd = new Date(t).getUTCDay(), hol = holidayOn(d);
+      if (wd === 0) days.push({ iso: d, kind: 'skip', why: { en: 'Sunday', es: 'Domingo' }, short: { en: 'Sunday', es: 'Domingo' } });
+      else if (hol) days.push({ iso: d, kind: 'skip', why: hol, short: { en: 'Holiday', es: 'Feriado' } });
       else days.push({ iso: d, kind: 'count', n: ++n });
     }
     const end = days[days.length - 1].iso;
@@ -96,22 +132,31 @@
   }
   const storyNow = () => { const d = parse(A.story.today) || Date.now(); const m = /^(\d+):(\d+)/.exec(A.story.time || '07:02'); return d + (m ? (+m[1] * 60 + +m[2]) * 6e4 : 0); };
   const BDAY_TAG = () => A.ui.srcTag({ label: '16 CFR 429', cls: 'src--law', tip: {
-    en: 'Business day = every day except Sunday and 9 federal holidays (FTC Cool-Off Rule, 16 CFR 429). Nebraska 69-1601 does not define it, so we use the federal list.',
-    es: 'Día hábil = todos los días excepto el domingo y 9 feriados federales (Regla de la FTC, 16 CFR 429). El 69-1601 de Nebraska no lo define, así que usamos la lista federal.' } });
+    en: 'Business day: every day except Sunday and federal holidays (FTC Cooling-Off Rule, 16 CFR 429, which Neb. 69-1604 points to). A weekend holiday also skips its observed weekday, so the window never runs short.',
+    es: 'Día hábil: todos los días excepto el domingo y los feriados federales (Regla de la FTC, 16 CFR 429, a la que remite el 69-1604 de Nebraska). Un feriado en fin de semana también salta su día observado, así el plazo nunca queda corto.' } });
 
   /* ------------------------------------------------------------------ the door + per-viewer state */
   function home() {
     const hs = (A.data && A.data.homes) || [];
     const d = A.dealHome && A.dealHome.p ? A.dealHome : null;
-    return d || hs.find((h) => h.rank === 1) || hs[0] || { addr: '3944 21 St', st: '21 St', p: A.data.hq, built: 1978, roof: 21, own: true, hail: 1.68, score: 91, rank: 1 };
+    return d || hs.find((h) => h.rank === 1) || hs[0] || { addr: '3944 21 St', st: '21 St', p: [-97.377365, 41.436869], built: 1978, roof: 21, own: true, hail: 1.68, score: 91, rank: 1 };
   }
   const blankTicks = () => { const t = {}; STEPS.forEach((s) => (t[s.id] = (s.collect || []).map(() => false))); return t; };
+  function setTicks(S, id, vals) { if (S.ticks[id]) S.ticks[id] = S.ticks[id].map((_, i) => !!vals[i]); }
+  /** the sample door sits at step 3 with an inspection set; a door from Knock starts where its outcome left it */
   function defaults(h) {
     const S = { v: 1, cur: 2, sel: 2, ticks: blankTicks(), type: 'ins', signed: A.story.today, gate: { ho: false, ins: false } };
-    const o = h && h.outcome;
-    if (o && o !== 'inspection_set') { S.cur = 0; S.sel = 0; S.ticks.intro[0] = o !== 'no_answer'; return S; }
-    ['intro', 'look'].forEach((id) => { if (S.ticks[id]) S.ticks[id] = S.ticks[id].map(() => true); });
-    if (S.ticks.inspection) { S.ticks.inspection[0] = true; S.ticks.inspection[3] = true; }
+    const fromKnock = !!h && Object.prototype.hasOwnProperty.call(h, 'outcome');
+    const said = fromKnock ? !!h.legal : true;              // Knock's 69-1602 check is intro item 1
+    if (!fromKnock || h.outcome === 'inspection_set') {
+      setTicks(S, 'intro', [said, true, true, false]);
+      setTicks(S, 'look', [true, true, true, true, true]);
+      setTicks(S, 'inspection', [true, false, false, true, false, false]);
+      return S;
+    }
+    S.cur = 0; S.sel = 0;
+    if (h.outcome === 'talked' || h.outcome === 'come_back') setTicks(S, 'intro', [said, true, false, false]);
+    else if (h.outcome === 'not_interested') setTicks(S, 'intro', [said, false, false, false]);
     return S;
   }
   const keyOf = (h) => 'deal:v1:' + String((h && h.addr) || 'home');
@@ -129,18 +174,16 @@
   }
 
   /* ------------------------------------------------------------------ module state (one live view at a time) */
-  let V = null;   // {ctx, h, S, els..., front, back, build, fuseP, tw...}
+  let V = null;
+  let drawnFor = null;     // the first visit draws the house slowly; coming back to the same house draws it at double speed
   const save = () => { if (V && !V.demo) A.store.set(keyOf(V.h), V.S); };
 
   /* ------------------------------------------------------------------ view */
   A.view.register('deal', {
-    title: { en: 'Deal', es: 'Venta' }, key: '4', ambient: false, dim: 0.42, hail: 0.25,
+    title: TITLE, key: '4', ambient: false, dim: 0.3, hail: 0.3,
     camera(frame) {
       const h = home();
-      if (frame.stacked) return { center: h.p, zoom: 17.7 };
-      // the lot sits in the map strip to the right of the portrait
-      const strip = Math.min(250, Math.max(190, frame.focus.w * 0.24));
-      return { center: h.p, zoom: 18.1, offset: [frame.focus.w / 2 - strip / 2 - 4, -frame.focus.h * 0.06] };
+      return { center: h.p, zoom: frame.stacked ? 17.7 : 17.35 };
     },
     enter(ctx) { A.safe('deal enter', () => enter(ctx)); },
     exit() { if (V) A.safe('deal exit', () => teardown()); }
@@ -156,68 +199,55 @@
 
   function enter(ctx) {
     const h = home();
-    V = { ctx, h, S: load(h), demo: false, fuseP: 0, stacked: A.stacked() };
+    V = { ctx, h, S: load(h), demo: false, fuseP: 0, hover: null, built: false, marksOn: false, stacked: A.stacked() };
     ctx.own(() => { if (V && V.ctx === ctx) teardown(); });
+    if (DEV.step && !V.devDone) { const i = A.clamp((+DEV.step | 0) - 1, 0, N - 1); V.S.sel = i; }
 
-    /* center: the portrait stage */
-    const stage = ctx.el('center', `
-      <figure class="deal-stage__fig">
-        <div class="deal-canvas"><canvas class="deal-portrait deal-portrait--a" aria-hidden="true"></canvas><canvas class="deal-portrait deal-portrait--b" aria-hidden="true"></canvas></div>
-      <div class="deal-plate deal-plate--tl">
-        <p class="t-micro deal-plate__k">${L('Elevation', 'Fachada')} · <span class="deal-plate__addr">${A.esc(h.addr || '')}</span> ${A.ui.sampleTag()}</p>
-        <p class="deal-plate__t"><span class="deal-plate__form"></span></p>
-        <p class="deal-legend"><span class="t-micro">${L('Hail rings', 'Anillos de granizo')}</span> ${A.ui.srcTag('mrms')}<span data-h="1"><i></i>1 ${L('in', 'pulg')}</span><span data-h="15"><i></i>1.5</span><span data-h="2"><i></i>2+</span></p>
+    /* center: the portrait */
+    V.stage = ctx.el('center', `
+      <div class="deal-sheet">
+        <div class="deal-pool" aria-hidden="true"></div>
+        <div class="deal-draw">
+          <canvas class="deal-cv deal-cv--a" aria-hidden="true"></canvas><canvas class="deal-cv deal-cv--b" aria-hidden="true"></canvas>
+          <p class="sr">${L(portraitLabel('en'), portraitLabel('es'))}</p>
+          <div class="deal-marks"></div>
+        </div>
+        <div class="deal-stamp" role="status" hidden></div>
+        <p class="deal-cap deal-cap--l"><span>${L('Elevation', 'Fachada')}</span>${A.ui.sampleTag()}<span class="deal-cap__rule" aria-hidden="true"></span>
+          <span>${L('Hail rings', 'Anillos de granizo')}</span>${A.ui.srcTag('mrms')}
+          <span class="deal-cap__k" data-h="1"><i></i>1 ${L('in', 'pulg')}</span><span class="deal-cap__k" data-h="15"><i></i>1.5</span><span class="deal-cap__k" data-h="2"><i></i>2+</span></p>
+        <p class="deal-cap deal-cap--r"></p>
       </div>
-      <div class="deal-plate deal-plate--tr" aria-live="polite"><p class="t-micro">${L('Focus', 'Enfoque')}</p><p class="deal-plate__focus"></p></div>
-      <div class="deal-plate deal-plate--bl">
-        <p class="t-micro deal-plate__k">${L('On this step', 'En este paso')} <span class="deal-plate__n"></span></p>
-        <ul class="deal-tags"></ul>
-      </div>
-      </figure>
       <div class="deal-trackmount deal-trackmount--center"></div>`, 'deal-stage');
-    stage.setAttribute('data-no-in', '');
-    V.stage = stage; V.fig = A.$('.deal-stage__fig', stage);
-    V.cvA = A.$('.deal-portrait--a', stage); V.cvB = A.$('.deal-portrait--b', stage);
-    V.front = V.cvA; V.back = V.cvB; V.cvB.style.opacity = '0';
+    V.stage.setAttribute('data-no-in', '');
+    V.sheet = A.$('.deal-sheet', V.stage); V.pool = A.$('.deal-pool', V.stage); V.draw = A.$('.deal-draw', V.stage);
+    V.cvA = A.$('.deal-cv--a', V.stage); V.cvB = A.$('.deal-cv--b', V.stage);
+    V.front = V.cvA; V.back = V.cvB; V.cvA.style.zIndex = '1'; V.cvB.style.opacity = '0';
+    V.marks = A.$('.deal-marks', V.stage); V.stamp = A.$('.deal-stamp', V.stage);
 
     /* left: the door, then the selected step, then the actions */
-    const f = window.House ? House.form(h) : 'ranch';
-    const zid = String((A.data.walk && A.data.walk.zone_id) || ''), storm = (/^(\d{4}-\d{2}-\d{2})/.exec(zid) || [])[1], town = (/_([A-Za-z ]+)~/.exec(zid) || [])[1] || 'Columbus';
-    V.head = ctx.el('left', `
-      <div class="deal-head__top">
-        <p class="eyebrow eyebrow--acc">${E(LB.title || { en: 'Deal', es: 'Venta' })} · ${L('Door', 'Puerta')} ${A.esc(String(h.rank || 1))} ${A.ui.sampleTag()}</p>
-        <p class="t-micro deal-head__pos"></p>
-      </div>
-      <h1 class="t-title deal-head__addr">${A.esc(h.addr || '')}</h1>
-      <p class="t-small deal-head__sub">${A.esc(town)}, NE · ${E(FORM[f] || FORM.ranch)} · ${h.own ? L('owner lives here', 'vive el dueño') : L('may be rented', 'puede ser rentada')} ${A.ui.srcTag('homes')}</p>
-      <div class="stats deal-stats">
-        <div class="stat"><span class="stat__k">${L('Hail here', 'Granizo aquí')} ${A.ui.srcTag('mrms')}</span><span class="stat__v" data-h="${A.ui.hailKey(h.hail)}">${A.both(() => A.fmt.inches(h.hail))}</span></div>
-        <div class="stat"><span class="stat__k">${L('Storm', 'Tormenta')} ${A.ui.srcTag('spc')}</span><span class="stat__v">${storm ? A.both(() => A.fmt.date(storm)) : '–'}</span></div>
-        <div class="stat"><span class="stat__k">${L('Roof', 'Techo')} ${A.ui.sampleTag()}</span><span class="stat__v">${A.esc(String(h.roof == null ? '–' : h.roof))}<span class="stat__u">${L('yrs', 'años')}</span></span></div>
-        <div class="stat"><span class="stat__k">${L('Score', 'Puntaje')} ${A.ui.srcTag('engine')}</span><span class="stat__v">${A.esc(String(h.score == null ? '–' : h.score))}</span></div>
-      </div>`, 'pane deal-head');
+    V.head = ctx.el('left', headHTML(h), 'pane deal-head');
+    V.keyCv = A.$('.deal-key__cv', V.head);
     V.step = ctx.el('left', '', 'pane deal-step');
-    V.step.setAttribute('role', 'tabpanel'); V.step.id = 'deal-step'; V.step.setAttribute('aria-live', 'polite');
+    V.step.setAttribute('role', 'tabpanel'); V.step.id = 'deal-step';
     V.foot = ctx.el('left', '', 'pane pane--foot deal-foot');
 
-    /* bottom dock: path + armor + the homeowner button (last in the DOM, shown top-right) */
+    /* bottom dock: the path + the armor + the homeowner button */
     V.dock = ctx.el('bottom', `
-      <div class="deal-dock__path">
-        <p class="sec deal-dock__sec">${E(LB.stepsTab || { en: 'The path', es: 'El camino' })} <span class="sec__meta deal-dock__where"></span></p>
-      </div>
+      <div class="deal-dock__path"><p class="sec deal-dock__sec">${E(LB.stepsTab || { en: 'The path', es: 'El camino' })} <span class="sec__meta deal-dock__where"></span></p></div>
+      <div class="deal-dock__hand"><button type="button" class="btn btn--secondary btn--sm deal-handbtn" data-act="sheet" aria-haspopup="dialog"><i data-icon="doc" class="i--sm"></i>${E(X.hand)}</button></div>
       <div class="deal-trackmount deal-trackmount--dock"></div>
       <div class="deal-dock__armor">
-        <p class="sec">${E(LB.armorTitle || { en: 'Legal armor', es: 'Armadura legal' })} ${A.ui.srcTag('law')} <span class="sec__meta deal-dock__note">${E(LB.armorNote)}</span></p>
+        <p class="sec deal-armor__sec">${E(LB.armorTitle || { en: 'Legal armor', es: 'Armadura legal' })} ${A.ui.srcTag('law')} <span class="sec__meta deal-dock__note">${E(LB.armorNote)}</span></p>
         <div class="deal-armor">${armorHTML()}</div>
-      </div>
-      <div class="deal-dock__hand"><button type="button" class="btn btn--secondary btn--sm deal-handbtn" data-act="sheet" aria-haspopup="dialog"><i data-icon="doc" class="i--sm"></i>${E(X.hand)}</button></div>`, 'pane pane--tight deal-dock');
+      </div>`, 'pane pane--tight deal-dock');
 
     /* the track: built once, mounted in the dock (desktop) or under the portrait (stacked) */
-    V.track = A.h(trackHTML()); A.ui.icons(V.track);
+    V.track = A.h(trackHTML()); A.ui.icons(V.track); A.ui.localize(V.track);
     mountTrack();
 
     /* events */
-    V.track.addEventListener('click', (e) => { const b = e.target.closest('.deal-node'); if (b) select(+b.dataset.i, { focus: false }); });
+    V.track.addEventListener('click', (e) => { const b = e.target.closest('.deal-node'); if (b) select(+b.dataset.i); });
     V.track.addEventListener('keydown', onTrackKey);
     V.dock.addEventListener('click', (e) => {
       const a = e.target.closest('.deal-arm'); if (a) { select(+a.dataset.step); return; }
@@ -225,9 +255,14 @@
     });
     V.step.addEventListener('click', onStepClick);
     V.step.addEventListener('change', onStepChange);
+    V.step.addEventListener('pointerover', onItemHover); V.step.addEventListener('focusin', onItemHover);
+    V.step.addEventListener('pointerleave', () => setHover(null)); V.step.addEventListener('focusout', (e) => { if (!V.step.contains(e.relatedTarget)) setHover(null); });
+    V.marks.addEventListener('click', onMarkClick);
+    V.marks.addEventListener('pointerover', (e) => { const m = e.target.closest('.deal-mark'); if (m) setHover(m.dataset.part, +m.dataset.k); });
+    V.marks.addEventListener('pointerleave', () => setHover(null));
     V.foot.addEventListener('click', onFootClick);
-    ctx.on('lang', () => { paintNow(); renderPlates(); renderWhere(); if (V.S.sel === 5 || V.S.sel === 6) renderClock(); });
-    ctx.on('theme', () => { A.ui && paintNow(); });
+    ctx.on('lang', () => { if (!V) return; paintNow(); renderCaps(); renderWhere(); renderStamp(false); drawKey(); if (A.$('.deal-clock', V.step)) renderClock(); if (A.$('.deal-gate', V.step)) renderGate(); });
+    ctx.on('theme', () => { if (!V) return; V.hiShown = undefined; paintNow(); drawKey(); });
     ctx.on('escape', () => { if (V && V.modal) closeSheet(); else skipIntro(); });
     ctx.on('deal:home', () => { if (A.view.current === 'deal') A.view.go('deal', { force: true, instant: true }); });
 
@@ -236,24 +271,70 @@
     try { V.ro = new ResizeObserver(relay); V.ro.observe(V.dock); V.ro.observe(ctx.slots.center); } catch (e) { /* old browser */ }
     const onRz = () => relay(); addEventListener('resize', onRz); ctx.own(() => removeEventListener('resize', onRz));
 
-    /* the lot on the map */
+    /* the lot on the map (the hero on phones, where the map sits above the portrait) */
     ctx.layer({ id: 'deal-site', z: 205, draw2d: drawSite });
     ctx.pin('deal-home', h.p, A.h(`<div class="deal-pin"><span class="deal-pin__addr">${A.esc(h.addr || '')}</span><span class="deal-pin__meta">${A.esc(Number(h.p[1]).toFixed(4))}° N · ${A.esc(Math.abs(Number(h.p[0])).toFixed(4))}° W</span></div>`), { anchor: 'top', minZoom: 16, offset: [0, 26] });
 
     /* first paint */
-    renderStep(false); renderFoot(); renderWhere(); renderPlates(); updateTrack(); updateArmor();
+    renderStep(false); renderFoot(); renderWhere(); renderCaps(); updateTrack(); updateArmor(); drawKey();
     layout();
     ctx.on('view', () => relay());
     requestAnimationFrame(() => { if (V && V.ctx === ctx) relay(); });
     V.siteT0 = performance.now(); if (A.world && A.world.keepAlive) A.world.keepAlive(1900);
-    if (A.still) { setFuse(V.S.cur, false); paintNow(); }
+
+    /* the entrance: the fuse burns to this door's step; the house draws itself once the camera lands on the lot */
+    if (A.still) { setFuse(V.S.cur, false); V.built = true; paintNow(); showMarks(false); renderStamp(false); }
     else {
       setFuse(0, false);
       ctx.timer(() => burnTo(V.S.cur, { ms: 420 + 170 * V.S.cur }), 420);
-      ctx.timer(() => startBuild(), 160);
+      try { V.pool.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, easing: A.motion.css.out, fill: 'backwards' }); } catch (e) { /* ignore */ }
+      A.motion.stagger(A.$$('.deal-cap', V.stage), { each: 70, y: 8, ms: 520, delay: 180 });
+      let started = false;
+      const go = () => { if (started || !V || V.ctx !== ctx) return; started = true; startBuild(); };
+      ctx.on('camera:end', (d) => { if (!d || d.zoom > 16) go(); });
+      ctx.timer(go, 2400);
     }
-    A._dv = () => V;
-    A.dealDemo = { step: (i) => demoStep(i), select: (i) => select(i), open: () => openSheet(null), close: () => closeSheet() };
+    if (DEV.sheet && !V.devSheet) {
+      V.devSheet = true;
+      const open = () => { if (V && V.ctx === ctx) openSheet(null); };
+      if (A.ready) ctx.timer(open, A.still ? 60 : 900); else A.once('ready', () => setTimeout(open, A.still ? 60 : 900));
+    }
+  }
+
+  function portraitLabel(lang) {
+    const h = home(), f = window.House ? House.form(h) : 'ranch', fm = (FORM[f] || FORM.ranch)[lang];
+    return lang === 'es'
+      ? 'Dibujo de la fachada de la casa de muestra en ' + h.addr + ': ' + fm.toLowerCase() + ', construida en ' + h.built + ', anillos de granizo en el techo.'
+      : 'Elevation drawing of the sample home at ' + h.addr + ': ' + fm.toLowerCase() + ', built ' + h.built + ', hail rings on the roof.';
+  }
+
+  function headHTML(h) {
+    const f = window.House ? House.form(h) : 'ranch';
+    const zid = String((A.data.walk && A.data.walk.zone_id) || ''), storm = (/^(\d{4}-\d{2}-\d{2})/.exec(zid) || [])[1];
+    const town = (/_([A-Za-z ]+)~/.exec(zid) || [])[1] || 'Columbus';
+    const slot = h.slot && h.slot.day ? `<p class="deal-head__slot"><span class="chip chip--acc"><i data-icon="clock"></i>${L('Inspection', 'Inspección')} · ${A.both(() => A.fmt.date(h.slot.day, 'day'))} · ${A.both(() => A.fmt.time(h.slot.time))}</span></p>` : '';
+    return `
+      <div class="deal-head__top">
+        <p class="eyebrow eyebrow--acc">${E(TITLE)} · ${L('Door', 'Puerta')} ${A.esc(String(h.rank || 1))} ${A.ui.sampleTag()}</p>
+        <p class="t-micro deal-head__pos"></p>
+      </div>
+      <div class="deal-head__id">
+        <div class="deal-head__who">
+          <h1 class="t-title deal-head__addr">${A.esc(h.addr || '')}</h1>
+          <p class="t-small deal-head__sub">${A.esc(town)}, NE · ${E(FORM[f] || FORM.ranch)} · ${h.own ? L('owner lives here', 'vive el dueño') : L('may be rented', 'puede ser rentada')} ${A.ui.sampleTag()}</p>
+          ${slot}
+        </div>
+        <figure class="deal-key">
+          <canvas class="deal-key__cv" role="img" data-label-en="Key plan: the sample lot and the real streets around it" data-label-es="Plano de ubicación: el lote de muestra y las calles reales a su alrededor"></canvas>
+          <figcaption class="deal-key__cap"><span>${L('Site', 'Sitio')}</span>${A.ui.srcTag('streets')}</figcaption>
+        </figure>
+      </div>
+      <div class="stats deal-stats">
+        <div class="stat"><span class="stat__k">${L('Hail here', 'Granizo aquí')} ${A.ui.srcTag('mrms')}</span><span class="stat__v" data-h="${A.ui.hailKey(h.hail)}">${h.hail == null ? '–' : A.both(() => A.fmt.inches(h.hail))}</span></div>
+        <div class="stat"><span class="stat__k">${L('Storm', 'Tormenta')} ${A.ui.srcTag('spc')}</span><span class="stat__v">${storm ? A.both(() => A.fmt.date(storm)) : '–'}</span></div>
+        <div class="stat"><span class="stat__k">${L('Roof', 'Techo')} ${A.ui.sampleTag()}</span><span class="stat__v">${A.esc(String(h.roof == null ? '–' : h.roof))}<span class="stat__u">${L('yrs', 'años')}</span></span></div>
+        <div class="stat"><span class="stat__k">${L('Score', 'Puntaje')} ${A.ui.srcTag('engine')}</span><span class="stat__v">${A.esc(String(h.score == null ? '–' : h.score))}</span></div>
+      </div>`;
   }
 
   /* ------------------------------------------------------------------ layout */
@@ -263,56 +344,88 @@
     V.track.classList.toggle('is-vert', st);
     if (m && V.track.parentNode !== m) m.appendChild(V.track);
   }
-  const TAGS_H = 62;   // room under the drawing for the "on this step" tags (desktop)
+  const CAP = 34;          // room at the top of the stage for the caption row (desktop)
+  /** where the House composition starts (callout text or roof) in canvas px */
+  const compTop = (Lh) => Math.min(Lh.top, Lh.bandY - Lh.fs - 8);
+  function measure(w, h) {
+    if (!window.House || !(w > 0) || !(h > 0)) return null;
+    const cv = V.meas || (V.meas = document.createElement('canvas'));
+    House.draw(cv, V.h, { t: 99, theme: houseTheme(), labels: false, sheet: false, width: w, height: h, dpr: 1 });
+    return cv.__house && cv.__house.L ? cv.__house.L : null;
+  }
   function layout() {
     if (!V) return;
     if (A.stacked() !== V.stacked) { mountTrack(); setFuse(V.fuseP, false); }
-    const fig = V.fig, cw = A.$('.deal-canvas', V.stage); if (!fig || !cw) return;
-    let w, ch;
+    let sw, sh, cw, ch, top = 0;
     if (V.stacked) {
-      w = Math.round(fig.clientWidth || V.stage.clientWidth || 0);
-      ch = Math.round(A.clamp(w * 0.6, 210, 380));
-      fig.style.height = ''; fig.style.width = ''; V.stage.style.height = ''; cw.style.height = ch + 'px';
+      V.stage.style.height = '';
+      sw = Math.round(V.sheet.clientWidth || V.ctx.slots.center.clientWidth || 0);   // the card, never the canvas
+      if (!(sw > 0)) return;
+      cw = sw; ch = Math.round(A.clamp(sw * 0.64, 220, 400));
+      V.draw.style.height = ch + 'px';
     } else {
       const cr = V.ctx.slots.center.getBoundingClientRect(), dr = V.dock.getBoundingClientRect();
       if (!cr.width || !dr.height) return;                  // slots not shown yet: the RO / 'view' event calls again
-      const hgt = Math.max(260, Math.round(dr.top - cr.top - 14));
-      const strip = Math.min(250, Math.max(190, cr.width * 0.24));
-      w = Math.max(360, Math.round(cr.width - strip));
-      ch = hgt - TAGS_H - 44;
-      V.stage.style.height = hgt + 'px';
-      fig.style.height = hgt + 'px'; fig.style.width = w + 'px'; cw.style.height = '';
+      sw = Math.round(cr.width); sh = Math.max(260, Math.round(dr.top - cr.top - 12));
+      V.stage.style.height = sh + 'px'; V.draw.style.height = '';
+      cw = sw >= 900 && sw < 1040 ? 899 : sw;                // House pads 7.5% under 900 px and 13% above: 899 is the sweet spot
+      ch = sh;
+      for (let i = 0; i < 3; i++) {                         // tall houses: slide the drawing down until it clears the caption row
+        const Lm = measure(cw, ch); if (!Lm) break;
+        const need = CAP - (top + compTop(Lm));
+        if (need <= 1) break;
+        top += Math.ceil(need); ch = sh - top;
+      }
     }
-    if (!(w > 0)) return;
-    V.pw = w; V.ph = ch;
-    const key = w + 'x' + ch;
-    if (key !== V.sizeKey) { V.sizeKey = key; if (!V.build) paintNow(); }
+    const left = Math.round((sw - cw) / 2);
+    const key = [V.stacked ? 's' : 'd', sw, cw, ch, top].join('x');
+    if (key === V.sizeKey) return;
+    V.sizeKey = key; V.cw = cw; V.ch = ch; V.cx = left; V.cy = top;
+    [V.cvA, V.cvB].forEach((c) => { c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.style.left = (V.stacked ? 0 : left) + 'px'; c.style.top = (V.stacked ? 0 : top) + 'px'; });
+    Object.assign(V.marks.style, { width: cw + 'px', height: ch + 'px', left: (V.stacked ? 0 : left) + 'px', top: (V.stacked ? 0 : top) + 'px' });
+    V.L = measure(cw, ch); V.anchors = V.L ? anchors(V.L) : {};
+    if (!V.build) { V.hiShown = undefined; paintNow(); }
+    if (V.marksOn) showMarks(false);
+    placeStamp();
   }
 
   /* ------------------------------------------------------------------ portrait */
   function houseTheme() {
-    return { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg: A.tok('--page') };
+    const p = A.rgba('--page'), bg = 'rgba(' + Math.round(p[0] * 255) + ',' + Math.round(p[1] * 255) + ',' + Math.round(p[2] * 255) + ',0)';
+    // a see-through bg: House still derives its wall and roof tones from the page color, the map pool shows around the house
+    return { ink: A.tok('--text'), line: A.tok('--rule-2'), acc: A.tok('--acc'), h0: A.tok('--h0'), h1: A.tok('--h1'), h15: A.tok('--h15'), h2: A.tok('--h2'), bg };
   }
-  const hl = () => (V ? HL[(STEPS[V.S.sel] || {}).id] || null : null);
+  function hl() {
+    if (!V) return null;
+    if (V.hover) { const g = PART_HL[V.hover]; return g === undefined ? null : g; }
+    return HL[(STEPS[V.S.sel] || {}).id] || null;
+  }
   function paint(cv, t, hi) {
-    if (!window.House || !cv || !V) return;
-    if (!V.pw) return;
-    House.draw(cv, V.h, { t, theme: houseTheme(), highlight: hi, labels: House.labels(V.h, A.lang), sheet: true, width: V.pw, height: V.ph });
+    if (!window.House || !cv || !V || !V.cw) return;
+    const c = cv.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);   // House fills no bg here: clear it ourselves
+    House.draw(cv, V.h, { t, theme: houseTheme(), highlight: hi, labels: House.labels(V.h, A.lang), sheet: false, width: V.cw, height: V.ch });
   }
-  function paintNow() { if (!V || V.build) return; A.safe('deal portrait', () => { paint(V.front, null, hl()); V.front.style.opacity = '1'; V.back.style.opacity = '0'; }); }
+  function paintNow() {
+    if (!V || V.build) return;
+    if (!V.built && !A.still) { A.safe('deal portrait', () => paint(V.front, 0, null)); return; }   // waiting for the camera: blank sheet
+    A.safe('deal portrait', () => { paint(V.front, null, hl()); V.front.style.opacity = '1'; V.back.style.opacity = '0'; V.hiShown = hl(); });
+  }
   function startBuild() {
     if (!V || !window.House) return;
     stopBuild();
-    if (A.still) { paintNow(); return; }
-    let t0 = null, rang = false;
-    const sp = 1.2, end = House.DURATION + 0.1;
+    if (A.still) { V.built = true; paintNow(); showMarks(false); renderStamp(false); return; }
+    hideMarks();
+    let t0 = null, rang = false, marked = false;
+    const sp = drawnFor === V.h.addr ? 2.3 : 1.15, end = House.DURATION + 0.1;
     const fn = (now) => {
       if (!V || V.build !== fn) return false;
       if (t0 == null) t0 = now;
       const t = (now - t0) / 1000 * sp;
       A.safe('deal build', () => paint(V.front, Math.min(t, end), hl()));
       if (!rang && t > 3.1) { rang = true; snd((S) => { for (let i = 0; i < 5; i++) S.hail(0.35 + i * 0.1, { surface: 'roof', delay: i * 0.13, gain: 0.5 }); }); }
-      if (t >= end) { V.build = null; paintNow(); return false; }
+      if (!marked && t > 4.6) { marked = true; showMarks(true); }
+      if (t >= end) { V.build = null; V.built = true; drawnFor = V.h.addr; paintNow(); if (!marked) showMarks(true); renderStamp(true); return false; }
       return true;
     };
     V.build = fn; A.motion.ticker.add(fn);
@@ -320,44 +433,242 @@
   function stopBuild() { if (V && V.build) { A.motion.ticker.remove(V.build); V.build = null; } }
   function skipIntro() {
     if (!V) return;
-    if (V.build) { stopBuild(); paintNow(); }
+    if (V.build || !V.built) { stopBuild(); V.built = true; paintNow(); showMarks(false); renderStamp(false); }
     if (V.fuseTw) { V.fuseTw.cancel(); V.fuseTw = null; setFuse(V.S.cur, false); V.track.classList.remove('is-burning'); }
   }
-  /** the highlight follows the step: crossfade two canvases (opacity only) */
+  /** the highlight follows the step: the new state goes under, the old one fades out on top (the house never goes see-through) */
   function refocus() {
-    if (!V || V.build) return;           // during the build the live loop reads hl() each frame
+    if (!V || V.build || !V.built) return;
     const hi = hl();
     if (hi === V.hiShown) return;
     V.hiShown = hi;
     if (A.still) { paintNow(); return; }
     A.safe('deal refocus', () => {
-      paint(V.back, null, hi);
+      const top = V.front, under = V.back;
+      paint(under, null, hi);
       if (V.fadeTw) V.fadeTw.cancel();
-      const a = V.front, b = V.back;
-      V.front = b; V.back = a;
-      V.fadeTw = A.motion.tween({ from: 0, to: 1, ms: 320, ease: 'inOutSine', update: (k) => { b.style.opacity = String(k); a.style.opacity = String(1 - k); } });
+      under.style.zIndex = '1'; under.style.opacity = '1'; top.style.zIndex = '2'; top.style.opacity = '1';
+      V.front = under; V.back = top;
+      V.fadeTw = A.motion.tween({ from: 1, to: 0, ms: 280, ease: 'inOutSine', update: (v) => { top.style.opacity = String(v); } });
     });
   }
-  function renderPlates() {
+  function renderCaps() {
     if (!V) return;
-    const f = window.House ? House.form(V.h) : 'ranch', s = STEPS[V.S.sel] || {}, hi = HL[s.id];
-    const fm = A.$('.deal-plate__form', V.stage);
-    if (fm) fm.innerHTML = `${E(FORM[f] || FORM.ranch)} · ${L('built', 'construida en')} ${A.esc(String(V.h.built || '–'))} ${A.ui.sampleTag()}`;
-    const fo = A.$('.deal-plate__focus', V.stage);
-    if (fo) fo.innerHTML = `<b class="num">${pad2(V.S.sel + 1)}</b> ${E(s.title)}${hi ? ` <span class="deal-plate__arrow">→</span> <span class="deal-plate__part">${E(HL_NAME[hi])}</span>` : ''}`;
-    renderTags(false);
+    const s = STEPS[V.S.sel] || {}, part = V.hover, hi = part ? null : HL[s.id];
+    const name = part ? PART_NAME[part] : hi ? PART_NAME[hi] : null;
+    const r = A.$('.deal-cap--r', V.stage);
+    if (r) r.innerHTML = `<b class="num">${pad2(V.S.sel + 1)}</b><span class="deal-cap__t">${E(s.title)}</span><span class="deal-cap__arrow" aria-hidden="true">→</span>${name ? `<span class="deal-cap__part">${E(name)}</span>` : `<span class="deal-cap__paper">${E(X.paper)}</span>`}`;
   }
-  function renderTags(animate) {
-    const ul = A.$('.deal-tags', V.stage); if (!ul) return;
-    const s = STEPS[V.S.sel] || {}, t = V.S.ticks[s.id] || [], list = TAGS[s.id] || [];
-    const key = s.id + ':' + list.map((x) => (t[x[0]] ? 1 : 0)).join('');
-    if (key === V.tagKey && !animate) return;
-    const stepChanged = !V.tagKey || V.tagKey.split(':')[0] !== s.id; V.tagKey = key;
-    ul.innerHTML = list.map((x) => `<li class="deal-tag${t[x[0]] ? ' is-on' : ''}"><span class="deal-tag__b"><i data-icon="check"></i></span>${L(x[1], x[2])}</li>`).join('');
-    A.ui.icons(ul);
-    const n = A.$('.deal-plate__n', V.stage), done = list.filter((x) => t[x[0]]).length;
-    if (n) n.innerHTML = `<b class="num">${done}</b>/${list.length}`;
-    if (stepChanged && !A.still) A.motion.stagger(ul.children, { each: 55, y: 10, ms: 520, delay: 60 });
+
+  /* ------------------------------------------------------------------ marks: each checklist item, on its part of the house */
+  function anchors(Lh) {
+    const P = Lh.parts || [], out = {};
+    const box = (pts) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; pts.forEach((p) => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }); return { x0, y0, x1, y1 }; };
+    const area = (pts) => { let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) a += (pts[j][0] + pts[i][0]) * (pts[j][1] - pts[i][1]); return Math.abs(a / 2); };
+    const inPoly = (pt, poly) => { let ins = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if (((a[1] > pt[1]) !== (b[1] > pt[1])) && (pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0])) ins = !ins; } return ins; };
+    const opens = P.filter((q) => q.grp === 'open' && q.pts && q.pts.length > 2).map((q) => box(q.pts));
+    const avoid = []; if (Lh.hero && Lh.hero.c) avoid.push(Lh.hero.c); if (Lh.roofA) avoid.push(Lh.roofA);
+    const dBox = (p, b) => Math.hypot(Math.max(b.x0 - p[0], 0, p[0] - b.x1), Math.max(b.y0 - p[1], 0, p[1] - b.y1));
+    const clear = (p) => Math.min(80, ...opens.map((b) => dBox(p, b)), ...avoid.map((a) => Math.hypot(a[0] - p[0], a[1] - p[1])));
+    // a point on part k is only useful if no part drawn after it covers that spot (a garage wing hides a gable wall)
+    const seen = (p, k) => { for (let j = k + 1; j < P.length; j++) { const o = P[j].occ; if (o && o.some((poly) => poly.length > 2 && inPoly(p, poly))) return false; } return true; };
+    function best(q) {
+      const poly = q.pts, k = P.indexOf(q), b = box(poly); let pick = null, score = -1e9;
+      for (let i = 1; i < 10; i++) for (let j = 1; j < 5; j++) {
+        const p = [b.x0 + (b.x1 - b.x0) * i / 10, b.y0 + (b.y1 - b.y0) * j / 5];
+        if (!inPoly(p, poly) || !seen(p, k)) continue;
+        const s = clear(p) - Math.abs(i - 5) * 1.2 - Math.abs(j - 2.5) * 2;
+        if (s > score) { score = s; pick = p; }
+      }
+      return pick;
+    }
+    if (Lh.knock) out.door = [Lh.knock[0], Lh.knock[1]];
+    const roofs = P.filter((q) => q.t === 'roof' && q.E0 && q.Es && q.Vs).sort((a, b) => (b.src && b.src.main ? 1 : 0) - (a.src && a.src.main ? 1 : 0));
+    for (const roof of roofs) {
+      const k = P.indexOf(roof); let pick = null, sc = -1;
+      [0.26, 0.42, 0.58, 0.74].forEach((u) => { const p = [roof.E0[0] + roof.Es[0] * u + roof.Vs[0] * 0.52, roof.E0[1] + roof.Es[1] * u + roof.Vs[1] * 0.52]; if (!seen(p, k)) return; const s = clear(p); if (s > sc) { sc = s; pick = p; } });
+      if (!pick) continue;
+      out.roof = pick;
+      for (const u of [0.86, 0.72, 0.56, 0.3]) { const p = [roof.E0[0] + roof.Es[0] * u, roof.E0[1] + roof.Es[1] * u - 1]; if (seen(p, k) && Math.hypot(p[0] - pick[0], p[1] - pick[1]) > 44) { out.eave = p; break; } }
+      break;
+    }
+    const walls = (face) => P.filter((q) => q.t === 'wall' && q.face === face && q.pts && q.pts.length > 2).sort((a, b) => area(b.pts) - area(a.pts));
+    for (const q of walls('front')) { const p = best(q); if (p) { out.siding = p; break; } }
+    for (const q of walls('side')) { const p = best(q); if (p) { out.side = p; break; } }
+    if (!out.side && out.siding) out.side = out.siding;
+    const gut = P.find((q) => q.t === 'gutter' && q.band && q.src && !q.src.side) || P.find((q) => q.t === 'gutter' && q.band);
+    if (gut) {
+      const b = box(gut.band); out.gutters = [b.x0 + (b.x1 - b.x0) * 0.34, (b.y0 + b.y1) / 2];
+      const d = gut.downs && gut.downs.find((x) => x && x.length > 1);
+      if (d) { const a = d[0], z = d[d.length - 1]; out.metal = [(a[0] + z[0]) / 2, a[1] + (z[1] - a[1]) * 0.62]; }
+    }
+    if (!out.metal && out.gutters) out.metal = [out.gutters[0] + 40, out.gutters[1]];
+    out.yard = [Lh.x0 - 30 > 18 ? Lh.x0 - 30 : Math.min(Lh.w - 18, Lh.x1 + 30), Lh.groundY - 9];   // the yard in front, left of the house (the map's controls sit bottom right)
+    return out;
+  }
+  function marksFor(i) {
+    const s = STEPS[i]; if (!s || !V.anchors) return [];
+    const list = [];
+    (s.collect || []).forEach((c, k) => partsOf(s, k).forEach((part) => { const p = V.anchors[part]; if (p) list.push({ k, part, x: p[0], y: p[1], c }); }));
+    // keep marks apart (two parts can sit close on a small house)
+    const R = V.stacked ? 20 : 26;
+    for (let a = 1; a < list.length; a++) for (let b = 0; b < a; b++) {
+      const dx = list[a].x - list[b].x, dy = list[a].y - list[b].y;
+      if (Math.hypot(dx, dy) < R) { list[a].x = list[b].x + (dx >= 0 ? R : -R); }
+    }
+    return list;
+  }
+  function showMarks(animate) {
+    if (!V) return;
+    V.marksOn = true;
+    const s = STEPS[V.S.sel], t = (s && V.S.ticks[s.id]) || [];
+    const list = marksFor(V.S.sel);
+    V.marks.innerHTML = list.map((m) => `<button type="button" class="deal-mark${t[m.k] ? ' is-on' : ''}" tabindex="-1" role="checkbox" aria-checked="${!!t[m.k]}"
+        data-k="${m.k}" data-part="${m.part}" style="left:${m.x.toFixed(1)}px;top:${m.y.toFixed(1)}px"
+        aria-label="${A.esc(A.t(m.c))}" data-tip="${A.esc(m.c.en)}" data-tip-es="${A.esc(m.c.es)}"><span class="deal-mark__n num">${m.k + 1}</span><i data-icon="check"></i></button>`).join('');
+    A.ui.icons(V.marks);
+    V.marks.dataset.step = String(V.S.sel);
+    if (animate && !A.still && list.length) {
+      const els = A.$$('.deal-mark', V.marks);
+      A.motion.stagger(els, { each: 90, y: 16, ms: 560, delay: 40 });
+      els.forEach((el, i) => setTimeout(() => { if (el.isConnected) A.motion.ripple(el, { rings: 1, size: 46 }); }, 40 + i * 90 + 200));
+    }
+    syncHot();
+  }
+  function hideMarks() { if (V) { V.marksOn = false; V.marks.innerHTML = ''; } }
+  function syncMarks() {
+    if (!V || !V.marksOn) return;
+    const s = STEPS[V.S.sel], t = (s && V.S.ticks[s.id]) || [];
+    A.$$('.deal-mark', V.marks).forEach((m) => { const on = !!t[+m.dataset.k]; m.classList.toggle('is-on', on); m.setAttribute('aria-checked', String(on)); });
+  }
+  function syncHot() {
+    if (!V) return;
+    A.$$('.deal-mark', V.marks).forEach((m) => m.classList.toggle('is-hot', V.hotK != null && +m.dataset.k === V.hotK));
+    A.$$('.deal-ck', V.step).forEach((b) => b.classList.toggle('is-hot', V.hotK != null && +b.dataset.k === V.hotK));
+  }
+  /** hovering a checklist item or a mark: the drawing lights that part, the mark lifts */
+  function setHover(part, k) {
+    if (!V) return;
+    const p = part || null, kk = p ? (k == null ? null : k) : null;
+    if (p === V.hover && kk === V.hotK) return;
+    V.hover = p; V.hotK = kk;
+    syncHot(); renderCaps(); refocus();
+  }
+  function onItemHover(e) {
+    const b = e.target.closest && e.target.closest('.deal-ck[data-k]');
+    if (!b) { if (e.type === 'focusin') setHover(null); return; }
+    const s = STEPS[V.S.sel], parts = partsOf(s, +b.dataset.k);
+    if (!parts.length) { setHover(null); return; }
+    setHover(parts.length > 1 ? 'multi' : parts[0], +b.dataset.k);
+  }
+  function onMarkClick(e) {
+    const m = e.target.closest('.deal-mark'); if (!m) return;
+    toggleTick(+m.dataset.k);
+  }
+
+  /* ------------------------------------------------------------------ the stamp: may work start on this house? */
+  function stampState() {
+    const S = V.S, s = STEPS[S.sel]; if (!s) return null;
+    if (S.cur >= N && S.sel === N - 1) return { ok: true, head: { en: 'Job complete', es: 'Trabajo terminado' }, line: { en: 'Walk-through done, after photos in.', es: 'Recorrido hecho, fotos del después listas.' }, cite: '48-2104' };
+    if (S.sel < 4 || (s.id === 'itemized' && S.type !== 'ins')) return null;
+    const g = gateState();
+    if (S.type === 'ins') {
+      return g.clear
+        ? { ok: true, head: { en: 'Clear to build', es: 'Listo para la obra' }, line: { en: 'Itemized description sent to both.', es: 'Descripción detallada enviada a los dos.' }, cite: '44-8606' }
+        : { ok: false, head: { en: 'No repair yet', es: 'Ninguna reparación aún' }, line: { en: 'Itemized description first, to:', es: 'Primero la descripción detallada, a:' }, cite: '44-8606',
+          checks: [[S.gate.ho, { en: 'Homeowner', es: 'Dueño' }], [S.gate.ins, { en: 'Insurer', es: 'Aseguradora' }]] };
+    }
+    const W = cancelWindow(S.signed);
+    return g.clear
+      ? { ok: true, head: { en: 'Clear to build', es: 'Listo para la obra' }, line: { en: 'Window closed. Check the mail for a notice mailed inside it.', es: 'El plazo cerró. Revisa el correo por un aviso enviado dentro del plazo.' }, cite: '69-1606(5)' }
+      : { ok: false, head: { en: 'No work yet', es: 'Nada de trabajo aún' }, line: W ? { en: 'Cancel window open until midnight, ' + A.fmt.date(W.end, 'day', 'en') + '.', es: 'Plazo abierto hasta la medianoche del ' + A.fmt.date(W.end, 'day', 'es') + '.' } : { en: 'Cancel window open.', es: 'Plazo para cancelar abierto.' }, cite: '69-1606(5)' };
+  }
+  function renderStamp(animate) {
+    if (!V) return;
+    const st = V.built || A.still ? stampState() : null;
+    const el = V.stamp, key = st ? [st.ok, st.head.en, st.line.en, (st.checks || []).map((c) => c[0] ? 1 : 0).join('')].join('|') : '';
+    if (!st) { if (!el.hidden) { V.stampKey = ''; if (animate && !A.still) A.motion.exit([el], { ms: 140 }).then(() => { if (V && !V.stampKey) el.hidden = true; }); else el.hidden = true; } return; }
+    if (key === V.stampKey && !el.hidden) return;
+    const was = V.stampKey; V.stampKey = key;
+    el.classList.toggle('is-ok', st.ok);
+    el.innerHTML = `<p class="deal-stamp__h"><i data-icon="${st.ok ? 'check' : 'shield'}" class="i--sm"></i><span>${E(st.head)}</span><span class="deal-stamp__cite">${A.esc(st.cite)}</span></p>
+      <p class="deal-stamp__p"><span>${E(st.line)}</span>${st.checks ? st.checks.map((c) => `<span class="deal-stamp__ck${c[0] ? ' is-on' : ''}"><i data-icon="${c[0] ? 'check' : 'x'}"></i>${E(c[1])}</span>`).join('') : ''}</p>`;
+    A.ui.icons(el); el.hidden = false; placeStamp();
+    if (animate && !A.still) {
+      const ring = !was || was.split('|')[0] !== String(st.ok) || was.split('|')[1] !== st.head.en;
+      A.motion.reveal(el, { y: 22, ms: 620, ring: false });
+      if (ring) setTimeout(() => { if (el.isConnected && !el.hidden) A.motion.ripple(el, { rings: 2, size: Math.max(120, el.offsetWidth * 0.9), color: A.tok(st.ok ? '--ok' : '--warn') }); }, 200);
+    }
+  }
+  /** the first free spot: under the step caption (top right), top left, bottom left; never on the drawing or the map's controls */
+  function placeStamp() {
+    if (!V || !V.stamp || V.stamp.hidden) return;
+    if (V.stacked) { V.stamp.style.left = ''; V.stamp.style.top = ''; return; }
+    const w = V.stamp.offsetWidth || 300, h = V.stamp.offsetHeight || 64, sw = V.sheet.clientWidth || V.cw || 0, sh = V.sheet.clientHeight || V.ch || 0;
+    const Lh = V.L, box = Lh ? { x0: V.cx + Lh.x0 - 14, x1: V.cx + Lh.x1 + 14, y0: V.cy + compTop(Lh) - 6, y1: V.cy + Lh.dimY + Lh.fs + 6 } : null;
+    const hud = { x0: sw - 260, y0: sh - 124, x1: sw + 20, y1: sh + 20 };
+    const hit = (x, y, b) => !!b && x < b.x1 && x + w > b.x0 && y < b.y1 && y + h > b.y0;
+    const cand = [[sw - w - 20, CAP + 6], [20, CAP + 6], [20, sh - h - 12], [Math.max(20, (sw - w) / 2 - 120), sh - h - 12]];
+    const pick = cand.find(([x, y]) => x >= 0 && y >= 0 && !hit(x, y, box) && !hit(x, y, hud)) || cand[0];
+    V.stamp.style.left = Math.round(pick[0]) + 'px'; V.stamp.style.top = Math.round(pick[1]) + 'px';
+  }
+
+  /* ------------------------------------------------------------------ key plan: the real street centerlines around the lot */
+  function drawKey() {
+    const cv = V && V.keyCv; if (!cv) return;
+    A.safe('deal key plan', () => {
+      const r = cv.getBoundingClientRect(), w = Math.round(r.width) || 136, h = Math.round(r.height) || 88, dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (cv.width !== w * dpr || cv.height !== h * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+      const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+      const hm = V.h, lat0 = hm.p[1], lon0 = hm.p[0], fy = 364584, fx = fy * Math.cos(lat0 * Math.PI / 180);
+      const k = w / 720;                                       // px per ft: about 720 ft across
+      const X = (lon) => w / 2 + (lon - lon0) * fx * k, Y = (lat) => h / 2 + 4 - (lat - lat0) * fy * k;
+      const inBox = (p) => { const x = X(p[0]), y = Y(p[1]); return x > -40 && x < w + 40 && y > -40 && y < h + 40; };
+      const segs = ((A.data && A.data.columbus) || []).filter((s) => s.p && s.p.some(inBox));
+      // blocks: a faint fill of the walk homes' lots first, then the streets over them
+      c.lineCap = 'round'; c.lineJoin = 'round';
+      segs.forEach((s) => {
+        c.strokeStyle = A.tok(s.c === 1 ? '--muted' : '--rule-3'); c.lineWidth = s.c === 1 ? 2.2 : 1.4;
+        c.beginPath(); s.p.forEach((p, i) => { const x = X(p[0]), y = Y(p[1]); if (i) c.lineTo(x, y); else c.moveTo(x, y); }); c.stroke();
+      });
+      const homes = (A.data.homes || []).filter((x) => x.p && inBox(x.p) && x.addr !== hm.addr);
+      c.fillStyle = A.tok('--rule-3');
+      homes.forEach((x) => { c.fillRect(X(x.p[0]) - 2, Y(x.p[1]) - 1.5, 4, 3); });
+      // street names: the longest visible piece of each street, drawn along it
+      const byName = {};
+      segs.forEach((s) => {
+        for (let i = 1; i < s.p.length; i++) {
+          const a = [X(s.p[i - 1][0]), Y(s.p[i - 1][1])], b = [X(s.p[i][0]), Y(s.p[i][1])];
+          const ca = [A.clamp(a[0], 0, w), A.clamp(a[1], 0, h)], cb = [A.clamp(b[0], 0, w), A.clamp(b[1], 0, h)], len = Math.hypot(cb[0] - ca[0], cb[1] - ca[1]);
+          const nm = shortStreet(s.n); if (!nm) continue;
+          if (!byName[nm] || byName[nm].len < len) byName[nm] = { len, a: ca, b: cb };
+        }
+      });
+      c.font = '500 8px ' + A.tok('--mono'); c.textBaseline = 'middle'; c.textAlign = 'center';
+      Object.keys(byName).sort((p, q) => byName[q].len - byName[p].len).slice(0, 4).forEach((nm) => {
+        const g = byName[nm]; if (g.len < 34) return;
+        let ang = Math.atan2(g.b[1] - g.a[1], g.b[0] - g.a[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+        const mx = (g.a[0] + g.b[0]) / 2, my = (g.a[1] + g.b[1]) / 2, tw = c.measureText(nm).width;
+        if (tw > g.len - 6) return;
+        c.save(); c.translate(mx, my); c.rotate(ang);
+        c.lineWidth = 3; c.strokeStyle = A.tok('--panel-2'); c.strokeText(nm, 0, -0.5);
+        c.fillStyle = A.tok('--muted'); c.fillText(nm, 0, -0.5); c.restore();
+      });
+      // this lot: the house, a ring the color of its hail
+      const hx = X(lon0), hy = Y(lat0);
+      c.fillStyle = A.tok('--acc'); c.fillRect(hx - 3.5, hy - 2.5, 7, 5);
+      c.strokeStyle = A.tok(A.ui.hailTok(hm.hail)); c.lineWidth = 1.3; c.beginPath(); c.arc(hx, hy, 9, 0, Math.PI * 2); c.stroke();
+      // north + 100 ft
+      c.fillStyle = A.tok('--text-2'); c.beginPath(); c.moveTo(w - 11, 7); c.lineTo(w - 14.5, 15); c.lineTo(w - 7.5, 15); c.closePath(); c.fill();
+      c.font = '600 7.5px ' + A.tok('--mono'); c.fillText('N', w - 11, 21.5);
+      const sb = 100 * k; c.strokeStyle = A.tok('--text-2'); c.lineWidth = 1; c.beginPath(); c.moveTo(8, h - 8); c.lineTo(8 + sb, h - 8); c.moveTo(8, h - 11); c.lineTo(8, h - 8); c.moveTo(8 + sb, h - 11); c.lineTo(8 + sb, h - 8); c.stroke();
+      c.textAlign = 'left'; c.fillStyle = A.tok('--muted'); c.fillText(A.lang === 'es' ? '100 pies' : '100 ft', 12 + sb, h - 8.5);
+    });
+  }
+  function shortStreet(n) {
+    const s = String(n || '').trim(); if (!s) return '';
+    return s.replace(/\bStreet\b/i, 'St').replace(/\bAvenue\b/i, 'Ave').replace(/\bDrive\b/i, 'Dr').replace(/\bBoulevard\b/i, 'Blvd').replace(/\bRoad\b/i, 'Rd')
+      .replace(/\b(\d+)(ST|ND|RD|TH)\b/i, (m, d) => d).split(' ').map((w) => (/^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())).join(' ');
   }
 
   /* ------------------------------------------------------------------ the map: the real lot, ours lit by its hail */
@@ -378,23 +689,20 @@
       if (!x.p) continue;
       const q = f.project(x.p), me = x.addr === V.h.addr;
       if (q[0] < -200 || q[1] < -200 || q[0] > f.w + 200 || q[1] > f.h + 200) continue;
-      const sl = streetLat(x), north = sl == null ? true : x.p[1] < sl;   // front faces the street
+      const sl = streetLat(x), north = sl == null ? true : x.p[1] < sl;   // the front faces the street
       const fm = window.House ? House.form(x) : 'ranch';
       const hw = ({ cottage: 30, ranch: 50, split: 44, two: 38, large: 46 }[fm] || 44) * ppf, hd = ({ cottage: 26, ranch: 30, split: 30, two: 30, large: 36 }[fm] || 30) * ppf;
-      const lw = 64 * ppf, ld = 128 * ppf, dir = north ? -1 : 1;             // screen y toward the street
+      const lw = 64 * ppf, ld = 128 * ppf, dir = north ? -1 : 1;
       const lotY = q[1] - dir * (ld / 2 - hd / 2 - 26 * ppf);
       c.globalAlpha = base * (me ? 0.9 : 0.5); c.strokeStyle = me ? P.text2 : P.rule2; c.lineWidth = me ? 1.1 : 0.8;
       c.setLineDash(me ? [] : [3, 3]); c.strokeRect(q[0] - lw / 2, lotY - ld / 2, lw, ld); c.setLineDash([]);
       c.globalAlpha = base * (me ? 1 : 0.8); c.fillStyle = me ? P.panel3 : P.panel2; c.fillRect(q[0] - hw / 2, q[1] - hd / 2, hw, hd);
       c.strokeStyle = me ? P.acc : P.rule3; c.lineWidth = me ? 1.6 : 0.8; c.strokeRect(q[0] - hw / 2, q[1] - hd / 2, hw, hd);
-      // ridge line
       c.globalAlpha = base * (me ? 0.7 : 0.35); c.strokeStyle = me ? P.text2 : P.rule3; c.lineWidth = 0.8;
       c.beginPath(); c.moveTo(q[0] - hw / 2 + 3, q[1]); c.lineTo(q[0] + hw / 2 - 3, q[1]); c.stroke();
-      // driveway to the street
       c.globalAlpha = base * (me ? 0.55 : 0.3); c.fillStyle = P.rule2;
       c.fillRect(q[0] + hw / 2 - 12 * ppf, q[1] + dir * hd / 2 - (dir < 0 ? 26 * ppf : 0), 10 * ppf, 26 * ppf);
       if (!me) continue;
-      // the hail at this door: seeded impacts on the roof, colored by the hail scale
       const R = rngN(hashN(String(x.addr))), n = Math.round(6 + (x.hail || 1) * 6), col = A.world.hailColor(x.hail);
       c.strokeStyle = col; c.lineWidth = 1;
       for (let i = 0; i < n; i++) {
@@ -403,7 +711,6 @@
         const px = q[0] - hw / 2 + 3 + u * (hw - 6), py = q[1] - hd / 2 + 3 + v * (hd - 6), r = (0.9 + (x.hail || 1) * 0.9) * (0.6 + 0.4 * A.motion.ease.hail(k));
         c.globalAlpha = base * 0.95 * k; c.beginPath(); c.arc(px, py, r, 0, Math.PI * 2); c.stroke();
       }
-      // the knock: one ring out from the door on arrival, then a quiet halo
       const kk = still ? 1 : A.clamp((since - 0.1) / 1.4, 0, 1), rr = Math.max(hw, hd) * (0.75 + 0.9 * A.motion.ease.outCubic(kk));
       c.globalAlpha = base * (still ? 0.28 : 0.28 + 0.5 * (1 - kk)); c.strokeStyle = P.acc; c.lineWidth = 1.2;
       c.beginPath(); c.arc(q[0], q[1], rr, 0, Math.PI * 2); c.stroke();
@@ -420,7 +727,7 @@
         <span class="deal-node__t">${E(s.title)}</span>
         <span class="deal-node__c">${s.law ? A.esc(stepCite(s)) : s.rule ? L('house rule', 'regla interna') : L('photos', 'fotos')}</span>
       </button>`).join('');
-    return `<div class="deal-track" role="tablist" aria-label="${A.esc(tt(LB.stepsTab || { en: 'The path', es: 'El camino' }))}">
+    return `<div class="deal-track" role="tablist" data-label-en="The path, 8 steps" data-label-es="El camino, 8 pasos">
       <span class="deal-track__lens" aria-hidden="true"></span>
       <div class="deal-track__rail" aria-hidden="true"><span class="deal-track__fuse"></span></div>
       <div class="deal-track__rail deal-track__rail--top" aria-hidden="true"><span class="deal-track__sparkwrap"><span class="deal-track__spark"></span></span></div>
@@ -447,9 +754,8 @@
     const vert = V.track.classList.contains('is-vert');
     if (fuse) fuse.style.transform = vert ? `scaleY(${k})` : `scaleX(${k})`;
     if (sw) { sw.style.transform = vert ? `translateY(${k * 100}%)` : `translateX(${k * 100}%)`; sw.classList.toggle('is-out', p >= N); }
-    if (passing) {
-      A.$$('.deal-node', V.track).forEach((b, i) => { b.classList.toggle('is-lit', i <= p + 0.02); });
-    } else A.$$('.deal-node', V.track).forEach((b, i) => b.classList.toggle('is-lit', i <= Math.min(p, V.S.cur)));
+    const lit = passing ? p + 0.02 : Math.min(p, V.S.cur);
+    A.$$('.deal-node', V.track).forEach((b, i) => b.classList.toggle('is-lit', i <= lit));
   }
   function burnTo(to, o = {}) {
     if (!V) return Promise.resolve();
@@ -476,6 +782,7 @@
   }
 
   /* ------------------------------------------------------------------ armor */
+  const ARMOR_ALSO = { '44-8606': [7], '69-1606(5)': [7], '48-2104': [5] };   // the build gate, the registration line on the contract
   function armorStep(a) {
     const want = cite(a.cite);
     for (let i = 0; i < STEPS.length; i++) {
@@ -486,12 +793,15 @@
     return 0;
   }
   function armorHTML() {
-    return (CD.armor || []).map((a) => `<button type="button" class="deal-arm" data-step="${armorStep(a)}" data-tip="${A.esc(a.plain.en)}" data-tip-es="${A.esc(a.plain.es)}">
-        <span class="deal-arm__c">${A.esc(cite(a.cite))}</span><span class="deal-arm__t">${E(a.title)}</span></button>`).join('');
+    return (CD.armor || []).map((a) => {
+      const c = cite(a.cite), st = armorStep(a), steps = [st].concat(ARMOR_ALSO[c] || []);
+      return `<button type="button" class="deal-arm" data-step="${st}" data-steps="${steps.join(' ')}" aria-pressed="false" data-tip="${A.esc(a.plain.en)}" data-tip-es="${A.esc(a.plain.es)}">
+        <span class="deal-arm__c">${A.esc(c)}</span><span class="deal-arm__t">${E(a.title)}</span></button>`;
+    }).join('');
   }
   function updateArmor() {
     if (!V) return;
-    A.$$('.deal-arm', V.dock).forEach((b) => { const on = +b.dataset.step === V.S.sel; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+    A.$$('.deal-arm', V.dock).forEach((b) => { const on = String(b.dataset.steps || '').split(' ').map(Number).includes(V.S.sel); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
   }
   function renderWhere() {
     if (!V) return;
@@ -516,8 +826,11 @@
   }
   function checklist(s) {
     const t = V.S.ticks[s.id] || [];
-    return `<ul class="deal-check">${(s.collect || []).map((c, k) => `<li><button type="button" class="deal-ck" role="checkbox" aria-checked="${!!t[k]}" data-k="${k}">
-        <span class="deal-ck__box"><i data-icon="check"></i></span><span class="deal-ck__t">${E(c)}</span></button></li>`).join('')}</ul>`;
+    return `<ul class="deal-check">${(s.collect || []).map((c, k) => {
+      const on = partsOf(s, k).length > 0;
+      return `<li><button type="button" class="deal-ck" role="checkbox" aria-checked="${!!t[k]}" data-k="${k}">
+        <span class="deal-ck__box"><i data-icon="check"></i></span><span class="deal-ck__t">${E(c)}</span>${on ? `<span class="deal-ck__mk num" data-tip="${A.esc(X.onHouse.en)}" data-tip-es="${A.esc(X.onHouse.es)}">${k + 1}</span>` : ''}</button></li>`;
+    }).join('')}</ul>`;
   }
   function renderStep(animate) {
     if (!V) return;
@@ -546,55 +859,65 @@
         <div><dt><i data-icon="flag" class="i--sm"></i>${E(LB.doneWhen)}</dt><dd>${E(s.done_when)}</dd></div>
       </dl>
       ${also}`;
-    A.ui.icons(V.step);
+    A.ui.icons(V.step); A.ui.localize(V.step);
     if (clock) renderClock();
     if (gate) renderGate();
-    V.step.scrollTop = 0;
     if (animate && !A.still) {
-      const kids = Array.from(V.step.children);
-      A.motion.stagger(kids, { each: 38, y: 12, ms: 540 });
-      const top = V.step.closest('.slot'); if (top && top.scrollTop > V.step.offsetTop) top.scrollTo({ top: Math.max(0, V.step.offsetTop - 8) });
+      A.motion.stagger(Array.from(V.step.children), { each: 38, y: 12, ms: 540 });
+      const sc = V.step.closest('.slot'); if (sc && !V.stacked && sc.scrollTop > V.step.offsetTop) sc.scrollTo({ top: Math.max(0, V.step.offsetTop - 8) });
     }
   }
   function refreshCount() {
     const i = V.S.sel, tc = tickCount(i);
     const n = A.$('.deal-collect__n', V.step); if (n) n.innerHTML = `<b class="num">${tc.n}</b> ${L('of', 'de')} ${tc.of}`;
     const bar = A.$('.deal-collect__bar > span', V.step);
-    if (bar) { const k = tc.of ? tc.n / tc.of : 0; if (A.still || !bar.animate) bar.style.transform = `scaleX(${k})`; else { const was = bar.style.transform; bar.style.transform = `scaleX(${k})`; try { bar.animate([{ transform: was || 'scaleX(0)' }, { transform: `scaleX(${k})` }], { duration: 420, easing: A.motion.css.hail }); } catch (e) { /* ignore */ } } }
+    if (bar) {
+      const k = tc.of ? tc.n / tc.of : 0, was = bar.style.transform || 'scaleX(0)';
+      bar.style.transform = `scaleX(${k})`;
+      if (!A.still && bar.animate) { try { bar.animate([{ transform: was }, { transform: `scaleX(${k})` }], { duration: 420, easing: A.motion.css.hail }); } catch (e) { /* ignore */ } }
+    }
     return tc;
   }
+  /** tick or untick item k of the selected step: the box rings, its mark on the house fills and rings out */
+  function toggleTick(k, force) {
+    if (!V) return;
+    const s = STEPS[V.S.sel], arr = s && V.S.ticks[s.id]; if (!arr || k < 0 || k >= arr.length) return;
+    const on = force == null ? !arr[k] : !!force; if (on === arr[k]) return;
+    arr[k] = on; save();
+    const ck = A.$(`.deal-ck[data-k="${k}"]`, V.step);
+    if (ck) ck.setAttribute('aria-checked', String(on));
+    syncMarks();
+    if (on) {
+      if (ck) A.motion.ripple(A.$('.deal-ck__box', ck), { rings: 2, size: 40, color: A.tok('--ok') });
+      A.$$(`.deal-mark[data-k="${k}"]`, V.marks).forEach((m, j) => setTimeout(() => A.motion.ripple(m, { rings: 2, size: 58, color: A.tok('--ok') }), j * 70));
+      snd((S) => S.ring(Math.min(5, k)));
+    } else snd((S) => S.tick());
+    const tc = refreshCount(); updateTrack();
+    if (on && tc.n === tc.of) { const r = A.$(`.deal-node[data-i="${V.S.sel}"] .deal-node__ring`, V.track); if (r) A.motion.ripple(r, { rings: 2, size: 52, color: A.tok('--ok') }); }
+  }
   function onStepClick(e) {
-    const ck = e.target.closest('.deal-ck');
-    if (ck) {
-      const s = STEPS[V.S.sel], k = +ck.dataset.k, arr = V.S.ticks[s.id]; if (!arr) return;
-      arr[k] = !arr[k]; ck.setAttribute('aria-checked', String(arr[k])); save();
-      const box = A.$('.deal-ck__box', ck);
-      if (arr[k]) { A.motion.ripple(box, { rings: 2, size: 40 }); snd((S) => S.ring(Math.min(5, k))); } else snd((S) => S.tick());
-      const tc = refreshCount(); updateTrack(); renderTags(false);
-      if (arr[k]) { const ti = (TAGS[s.id] || []).findIndex((x) => x[0] === k), tg = ti >= 0 ? A.$$('.deal-tag', V.stage)[ti] : null; if (tg) A.motion.ripple(A.$('.deal-tag__b', tg) || tg, { rings: 1, size: 30 }); }
-      if (arr[k] && tc.n === tc.of) { const r = A.$(`.deal-node[data-i="${V.S.sel}"] .deal-node__ring`, V.track); if (r) A.motion.ripple(r, { rings: 2, size: 52 }); }
-      return;
-    }
+    const ck = e.target.closest('.deal-ck[data-k]');
+    if (ck) { toggleTick(+ck.dataset.k); return; }
     const ty = e.target.closest('[data-type]');
-    if (ty) { V.S.type = ty.dataset.type === 'cash' ? 'cash' : 'ins'; save(); if (A.$('.deal-clock', V.step)) renderClock(); if (A.$('.deal-gate', V.step)) renderGate(); return; }
+    if (ty) { V.S.type = ty.dataset.type === 'cash' ? 'cash' : 'ins'; save(); if (A.$('.deal-clock', V.step)) renderClock(); if (A.$('.deal-gate', V.step)) renderGate(); renderStamp(true); return; }
     const sd = e.target.closest('[data-sd]');
-    if (sd) { V.S.signed = sd.dataset.sd; save(); renderClock(true); return; }
+    if (sd) { V.S.signed = sd.dataset.sd; save(); renderClock(true); renderStamp(true); return; }
     const g = e.target.closest('[data-gate]');
     if (g) {
       const k = g.dataset.gate; V.S.gate[k] = !V.S.gate[k]; save();
-      if (V.S.gate[k]) A.motion.ripple(A.$('.deal-ck__box', g) || g, { rings: 2, size: 40 });
-      renderGate(); return;
+      if (V.S.gate[k]) A.motion.ripple(A.$('.deal-ck__box', g) || g, { rings: 2, size: 40, color: A.tok('--ok') });
+      renderGate(); renderStamp(true); return;
     }
   }
   function onStepChange(e) {
     const inp = e.target.closest('.deal-date');
-    if (inp && parse(inp.value) != null) { V.S.signed = inp.value; save(); renderClock(true); }
+    if (inp && parse(inp.value) != null) { V.S.signed = inp.value; save(); renderClock(true); renderStamp(true); }
   }
 
   /* cancel window clock */
   function typeSeg() {
     const t = V.S.type;
-    return `<div class="seg seg--ui deal-type" role="group" aria-label="${A.esc(tt({ en: 'Job type', es: 'Tipo de trabajo' }))}">
+    return `<div class="seg seg--ui deal-type" role="group" data-label-en="Job type" data-label-es="Tipo de trabajo">
       <button type="button" data-type="ins" aria-pressed="${t === 'ins'}">${L('Insurance claim', 'Con reclamo de seguro')}</button>
       <button type="button" data-type="cash" aria-pressed="${t === 'cash'}">${L('No claim', 'Sin reclamo')}</button></div>`;
   }
@@ -608,14 +931,15 @@
       : closed ? L('Closed. No notice inside it? The build can go on the calendar.', 'Cerrado. ¿Sin aviso dentro del plazo? La obra puede ir al calendario.')
         : `<b class="num">${dd}</b> ${L('d', 'd')} <b class="num">${hh}</b> ${L('h left, as of', 'h restantes, a las')} ${A.both(() => A.fmt.time(A.story.time))}`;
     const days = W.days.map((d) => {
-      const lab = d.kind === 'sale' ? L('Sale', 'Venta') : d.kind === 'skip' ? E(d.why) : `${L('Day', 'Día')} ${d.n}`;
-      const end = d.iso === W.end;
-      return `<li class="deal-day deal-day--${d.kind}${end ? ' is-end' : ''}"><span class="deal-day__w">${A.both(() => A.fmt.date(d.iso, 'day').split(/[ ,]/)[0])}</span><span class="deal-day__d num">${new Date(parse(d.iso)).getUTCDate()}</span><span class="deal-day__l">${lab}</span></li>`;
+      const lab = d.kind === 'sale' ? L('Sale', 'Venta') : d.kind === 'skip' ? E(d.short) : `${L('Day', 'Día')} ${d.n}`;
+      const tip = d.kind === 'skip' ? ` data-tip="${A.esc(d.why.en + ': not a business day')}" data-tip-es="${A.esc(d.why.es + ': no es día hábil')}"` : '';
+      return `<li class="deal-day deal-day--${d.kind}${d.iso === W.end ? ' is-end' : ''}"${tip}><span class="deal-day__w">${A.both(() => A.fmt.date(d.iso, 'day').split(/[ ,]/)[0])}</span><span class="deal-day__d num">${new Date(parse(d.iso)).getUTCDate()}</span><span class="deal-day__l">${lab}</span></li>`;
     }).join('');
     const rule = V.S.type === 'cash'
       ? `<p class="deal-clock__rule"><i data-icon="shield" class="i--sm"></i><span>${L('No work before it ends on a non-insurance sale.', 'Nada de trabajo antes de que termine, en una venta sin reclamo de seguro.')} <span class="deal-cite">69-1606(5)</span></span></p>`
       : `<p class="deal-clock__rule"><i data-icon="shield" class="i--sm"></i><span>${L('Insurance job: the itemized description goes to the homeowner and the insurer before any repair.', 'Trabajo con seguro: la descripción detallada va al dueño y a la aseguradora antes de cualquier reparación.')} <span class="deal-cite">44-8606</span> ${L('The window can also run later.', 'El plazo también puede correr después.')} <span class="deal-cite">44-8603</span></span></p>`;
     const deg = Math.round(frac * 360);
+    const chip = (d, lab) => `<button type="button" class="chip" data-sd="${A.esc(d)}" aria-pressed="${V.S.signed === d}">${lab}</button>`;
     el.innerHTML = `
       <p class="sec">${L('Cancel window', 'Plazo para cancelar')} ${BDAY_TAG()} <span class="sec__meta">${L('3 business days', '3 días hábiles')}</span></p>
       <div class="deal-clock__main">
@@ -634,25 +958,23 @@
       <div class="deal-clock__ctl">
         <label class="deal-date__l"><span class="t-micro">${L('Sale date', 'Fecha de la venta')}</span>
           <input type="date" class="deal-date" value="${A.esc(V.S.signed)}" min="2026-01-01" max="2027-12-31"></label>
-        <button type="button" class="chip" data-sd="${A.esc(A.story.today)}" aria-pressed="${V.S.signed === A.story.today}">${L('Today', 'Hoy')}</button>
-        <button type="button" class="chip" data-sd="2026-09-26" aria-pressed="${V.S.signed === '2026-09-26'}">${A.both(() => A.fmt.date('2026-09-26', 'short'))}</button>
-        <button type="button" class="chip" data-sd="2026-09-05" aria-pressed="${V.S.signed === '2026-09-05'}">${L('Labor Day weekend', 'Fin de semana del Día del Trabajo')}</button>
+        ${chip(A.story.today, L('Today', 'Hoy'))}${chip('2026-09-26', A.both(() => A.fmt.date('2026-09-26', 'short')))}${chip('2026-09-05', L('Labor Day weekend', 'Fin de semana del Día del Trabajo'))}
       </div>
       ${typeSeg()}
       ${rule}`;
-    A.ui.icons(el);
+    A.ui.icons(el); A.ui.localize(el);
     const hand = A.$('.deal-dial__hand', el);
     if (hand && !A.still && hand.animate) {
       try { hand.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${deg}deg)` }], { duration: 900, easing: A.motion.css.hail }); } catch (e) { /* ignore */ }
-      if (ring) { A.motion.stagger(A.$$('.deal-day', el), { each: 40, y: 8, ms: 460 }); const endEl = A.$('.deal-day.is-end', el); if (endEl) setTimeout(() => A.motion.ripple(endEl, { rings: 1, size: 60 }), 260); }
+      if (ring) { A.motion.stagger(A.$$('.deal-day', el), { each: 40, y: 8, ms: 460 }); const endEl = A.$('.deal-day.is-end', el); if (endEl) setTimeout(() => { if (endEl.isConnected) A.motion.ripple(endEl, { rings: 1, size: 60 }); }, 260); }
     }
   }
-  /** before the build: insurance = 44-8606 both copies; no claim = the cancel window must have closed (69-1606(5)) */
+  /** before the build: insurance = 44-8606 both copies; no claim = the cancel window has closed (69-1606(5)) */
   function gateState() {
     const S = V.S;
-    if (S.type === 'ins') return { clear: S.gate.ho && S.gate.ins, why: !S.gate.ho && !S.gate.ins ? 'both' : !S.gate.ho ? 'ho' : 'ins' };
+    if (S.type === 'ins') return { clear: S.gate.ho && S.gate.ins };
     const W = cancelWindow(S.signed); const closed = W && storyNow() >= W.endMs;
-    return { clear: !!closed, why: 'window', end: W && W.end };
+    return { clear: !!closed, end: W && W.end };
   }
   function renderGate() {
     const el = A.$('.deal-gate', V.step); if (!el) return;
@@ -668,7 +990,7 @@
       <div class="deal-gate__head"><p class="deal-law__k"><i data-icon="shield" class="i--sm"></i>${L('Before the build', 'Antes de la obra')} ${A.ui.srcTag('law')}<span class="deal-law__cite">${S.type === 'ins' ? '44-8606' : '69-1606(5)'}</span></p>${status}</div>
       ${typeSeg()}
       ${body}`;
-    A.ui.icons(el);
+    A.ui.icons(el); A.ui.localize(el);
   }
 
   /* ------------------------------------------------------------------ foot actions */
@@ -680,17 +1002,17 @@
     else if (i === S.cur) main = `<button type="button" class="btn btn--primary deal-foot__main" data-act="done"><i data-icon="check"></i>${E(X.markDone)}</button>`;
     else if (i < S.cur) main = `<button type="button" class="btn btn--secondary deal-foot__main" data-act="reopen"><i data-icon="arrow" class="deal-flip"></i>${E(X.reopen)}</button>`;
     else main = `<p class="t-small deal-foot__wait">${E(fill(X.finishFirst, { t: STEPS[S.cur].title }))}</p><button type="button" class="btn btn--ghost btn--sm" data-act="goto">${E(fill(X.stepOf, { i: S.cur + 1, n: N }))}</button>`;
-    V.foot.innerHTML = `<div class="deal-foot__row">${main}</div><button type="button" class="btn btn--ghost btn--sm deal-foot__reset" data-act="reset" data-label-en="Reset door" data-label-es="Reiniciar puerta"><i data-icon="x" class="i--sm"></i>${E(X.reset)}</button>`;
+    V.foot.innerHTML = `<div class="deal-foot__row">${main}</div><button type="button" class="btn btn--ghost btn--sm deal-foot__reset" data-act="reset"><i data-icon="x" class="i--sm"></i>${E(X.reset)}</button>`;
     A.ui.icons(V.foot); A.ui.localize(V.foot);
   }
   function onFootClick(e) {
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, S = V.S;
     if (act === 'done') markDone();
-    else if (act === 'reopen') { setCur(S.sel); }
+    else if (act === 'reopen') setCur(S.sel);
     else if (act === 'goto') select(S.cur);
     else if (act === 'reset') {
-      V.S = defaults(V.h); save(); if (V.S.sel === V.S.sel) select(V.S.sel, { force: true }); burnTo(V.S.cur); updateTrack(); renderWhere();
+      V.S = defaults(V.h); V.demo = false; save(); select(V.S.sel, { force: true }); burnTo(V.S.cur); updateTrack(); renderWhere(); renderFoot();
       A.ui.toast({ en: 'Door reset to the sample state', es: 'Puerta reiniciada al estado de muestra' }, { icon: 'arrow', ms: 1600 });
     }
   }
@@ -701,13 +1023,15 @@
       if (!g.clear) {
         A.ui.toast(S.type === 'ins' ? { en: 'Not yet: the itemized description goes to the homeowner and the insurer first (44-8606).', es: 'Todavía no: primero la descripción detallada al dueño y a la aseguradora (44-8606).' }
           : { en: 'Not yet: no work until the cancel window ends (69-1606(5)).', es: 'Todavía no: nada de trabajo hasta que termine el plazo para cancelar (69-1606(5)).' }, { icon: 'shield', ms: 2600 });
-        select(i + 1); return;
+        select(i + 1);
+        if (V.stamp && !V.stamp.hidden) A.motion.ripple(V.stamp, { rings: 2, size: Math.max(120, V.stamp.offsetWidth), color: A.tok('--warn') });
+        return;
       }
     }
     snd((Sd) => Sd.knock({ count: 2, gain: 0.8 }));
     setCur(i + 1);
     if (i + 1 < N) select(i + 1);
-    else { renderStep(false); renderFoot(); A.ui.toast({ en: 'Job complete on this door', es: 'Trabajo terminado en esta puerta' }, { icon: 'flag', ms: 1800 }); }
+    else { renderStep(false); renderFoot(); renderStamp(true); A.ui.toast({ en: 'Job complete on this door', es: 'Trabajo terminado en esta puerta' }, { icon: 'flag', ms: 1800 }); }
   }
   function setCur(c, o = {}) {
     V.S.cur = A.clamp(c, 0, N);
@@ -719,9 +1043,14 @@
     if (!V) return;
     i = A.clamp(i | 0, 0, N - 1);
     const changed = i !== V.S.sel;
-    V.S.sel = i; if (!V.demo) save();
-    updateTrack(); updateArmor(); renderPlates(); renderFoot();
-    if (changed || o.force) renderStep(true);
+    V.S.sel = i; save();
+    V.hover = null; V.hotK = null;
+    updateTrack(); updateArmor(); renderCaps(); renderFoot();
+    if (changed || o.force) {
+      renderStep(true);
+      if (V.marksOn) showMarks(!A.still);
+      renderStamp(true);
+    }
     refocus();
     if (o.focus) { const b = A.$(`.deal-node[data-i="${i}"]`, V.track); if (b) b.focus(); }
     if (changed && !A.still) { const r = A.$(`.deal-node[data-i="${i}"] .deal-node__ring`, V.track); if (r) A.motion.ripple(r, { rings: 1, size: 40 }); }
@@ -738,14 +1067,17 @@
   function sheetCol(lang) {
     const H = CD.homeowner || {}, g = (o) => A.esc(o ? (lang === 'es' ? o.es : o.en) : '');
     const C = H.cancel || {}, K = H.contact || {};
+    // filled in once the contract is signed on this door; blank lines before that
+    const S = V.S, signed = S.cur >= 5 ? S.signed : null, W = signed ? cancelWindow(signed) : null;
+    const blank = (o, v) => { const s = g(o); return v ? s.replace(/_{3,}/, `<b class="deal-paper__typed">${A.esc(v)}</b>`) : s; };
     const steps = (H.steps || []).map((s, i) => `<li><span class="deal-paper__n">${i + 1}</span><div><p class="deal-paper__st">${g(s.title)}</p><p>${g(s.body)}</p></div></li>`).join('');
     const sig = lang === 'es' ? ['Recibido por el dueño', 'Fecha'] : ['Received by homeowner', 'Date'];
-    const addrLab = lang === 'es' ? 'Casa' : 'Home';
+    const rep = K.rep ? { en: String(K.rep.en).split(/\s{2,}/)[0], es: String(K.rep.es).split(/\s{2,}/)[0] } : null;   // no phone numbers on this sheet
     return `<section class="deal-paper__col" lang="${lang}">
       <p class="deal-paper__lang">${lang === 'es' ? 'Español' : 'English'}</p>
       <h3 class="deal-paper__h">${g(H.title)}</h3>
       <p class="deal-paper__lead">${g(H.greeting)}</p>
-      <p class="deal-paper__home">${addrLab}: <b>${A.esc(V.h.addr || '')}</b></p>
+      <p class="deal-paper__home">${lang === 'es' ? 'Casa' : 'Home'}: <b>${A.esc(V.h.addr || '')}</b></p>
       <ol class="deal-paper__steps">${steps}</ol>
       <div class="deal-paper__cancel">
         <p class="deal-paper__ch">${g(C.title)}</p>
@@ -753,35 +1085,31 @@
         <p>${g(C.how)}</p>
         <p>${g(C.insurance)}</p>
         <p>${g(C.refund)}</p>
-        <p class="deal-paper__blank">${g(C.endsOn)}</p>
+        <p class="deal-paper__blank">${blank(C.endsOn, W ? A.fmt.date(W.end, 'long', lang) : null)}</p>
         <p class="deal-paper__fine">${g(C.official)}</p>
       </div>
-      <dl class="deal-paper__contact">
-        <div><dt>${g(K.mailingLabel)}</dt><dd>${g(K.mailing)}</dd></div>
-      </dl>
+      <dl class="deal-paper__contact"><div><dt>${g(K.mailingLabel)}</dt><dd>${g(K.mailing)}</dd></div></dl>
       <p class="deal-paper__blank">${g(K.registration)}</p>
-      <p class="deal-paper__blank">${g(K.saleDate)}</p>
-      <p class="deal-paper__blank">${g(K.rep)}</p>
-      <p class="deal-paper__fine">${g(K.phone)}</p>
+      <p class="deal-paper__blank">${blank(K.saleDate, signed ? A.fmt.date(signed, 'long', lang) : null)}</p>
+      ${rep ? `<p class="deal-paper__blank">${g(rep)}</p>` : ''}
       <div class="deal-paper__sig"><span class="deal-paper__line"></span><span>${sig[0]}</span><span class="deal-paper__line deal-paper__line--s"></span><span>${sig[1]}</span></div>
     </section>`;
   }
   function openSheet(opener) {
     if (!V || V.modal) return;
-    const H = CD.homeowner || {};
-    const ov = V.ctx.slots.overlay;
+    const H = CD.homeowner || {}, ui = (CP.ui || {});
     const m = A.h(`<div class="deal-modal" role="dialog" aria-modal="true" aria-labelledby="deal-sheet-h">
-      <div class="deal-modal__scrim"></div>
+      <div class="deal-modal__scrim" data-act="close"></div>
       <div class="deal-modal__box">
         <div class="deal-modal__bar">
           <p class="deal-modal__k"><i data-icon="doc" class="i--sm"></i><span id="deal-sheet-h">${E(LB.homeownerTab || { en: 'Homeowner sheet', es: 'Hoja del dueño' })}</span>
-            <span class="t-micro deal-modal__sub">${L('What the homeowner keeps. Branded HMP.', 'Lo que se queda el dueño. Con la marca de HMP.')}</span></p>
+            <span class="t-micro deal-modal__sub">${L('What the homeowner keeps. Branded HMP, in English and Spanish.', 'Lo que se queda el dueño. Con la marca de HMP, en inglés y español.')}</span></p>
           <div class="deal-modal__ctl">
-            <button type="button" class="btn btn--secondary btn--sm" data-act="print"><i data-icon="doc" class="i--sm"></i>${E(((window.COPY || {}).ui || {}).common ? COPY.ui.common.print : { en: 'Print', es: 'Imprimir' })}</button>
+            <button type="button" class="btn btn--secondary btn--sm" data-act="print"><i data-icon="doc" class="i--sm"></i>${E((ui.common && ui.common.print) || { en: 'Print', es: 'Imprimir' })}</button>
             <button type="button" class="btn btn--ghost btn--icon deal-modal__x" data-act="close" data-label-en="Close" data-label-es="Cerrar"><i data-icon="x"></i></button>
           </div>
         </div>
-        <div class="deal-modal__scroll" tabindex="0" data-label-en="Homeowner sheet" data-label-es="Hoja del dueño" role="document">
+        <div class="deal-modal__scroll" tabindex="0" data-label-en="Homeowner sheet, English and Spanish" data-label-es="Hoja del dueño, inglés y español">
           <article class="deal-paper">
             <header class="deal-paper__head">
               <div class="deal-paper__brand"><svg class="deal-paper__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 16 6l12 10"/><path d="M8 13v13h16V13"/><path d="M13 26v-7h6v7"/></svg>
@@ -793,15 +1121,15 @@
         </div>
       </div></div>`);
     A.ui.icons(m); A.ui.localize(m);
-    ov.appendChild(m);
+    V.ctx.slots.overlay.appendChild(m);
     const prev = document.activeElement;
     V.modal = { el: m, opener: opener || (prev && prev !== document.body ? prev : null) };
-    const box = A.$('.deal-modal__box', m), scrim = A.$('.deal-modal__scrim', m);
+    const box = A.$('.deal-modal__box', m), scrim = A.$('.deal-modal__scrim', m), scroll = A.$('.deal-modal__scroll', m);
     m.addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]'); if (!b) return;
       if (b.dataset.act === 'close') closeSheet();
       else if (b.dataset.act === 'print') {
-        A.ui.toast(((window.COPY || {}).ui || {}).toast ? COPY.ui.toast.sheetReady : { en: 'Homeowner sheet ready to print', es: 'Hoja del dueño lista para imprimir' }, { icon: 'doc', ms: 1600 });
+        A.ui.toast((ui.toast && ui.toast.sheetReady) || { en: 'Homeowner sheet ready to print', es: 'Hoja del dueño lista para imprimir' }, { icon: 'doc', ms: 1600 });
         setTimeout(() => { try { window.print(); } catch (err) { /* print blocked in this frame */ } }, 60);
       }
     });
@@ -810,26 +1138,20 @@
       if (e.key !== 'Tab') return;
       const f = A.$$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', box).filter((n) => !n.disabled && n.offsetParent !== null);
       if (!f.length) return;
-      const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      else if (!box.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      const first = f[0], last = f[f.length - 1], at = document.activeElement;
+      if (!box.contains(at)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && at === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
     });
-    // light dismiss: a press outside the box (not the top bar, not the opener) closes the sheet
-    const outside = (e) => {
-      if (!V || !V.modal) return;
-      const t = e.target;
-      if (box.contains(t) || (t.closest && (t.closest('#topbar') || t.closest('.deal-handbtn') || t.closest('.tip')))) return;
-      closeSheet(true);
-    };
-    document.addEventListener('pointerdown', outside, true);
-    V.modal.off = () => document.removeEventListener('pointerdown', outside, true);
-    // focus lands on the sheet itself, so arrow keys scroll it; Tab reaches Print and Close
-    const x = A.$('.deal-modal__scroll', m); setTimeout(() => { try { (x || box).focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 20);
+    // focus can only live in the sheet while it is open (a click on the map or a panel pulls it back)
+    const keepIn = (e) => { if (V && V.modal && V.modal.el === m && !m.contains(e.target) && !(e.target.closest && e.target.closest('#topbar'))) { try { scroll.focus({ preventScroll: true }); } catch (err) { /* ignore */ } } };
+    document.addEventListener('focusin', keepIn);
+    V.modal.off = () => document.removeEventListener('focusin', keepIn);
+    setTimeout(() => { try { (scroll || box).focus({ preventScroll: true }); } catch (e) { /* ignore */ } }, 20);
     if (!A.still) {
-      try { scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: A.motion.css.out }); } catch (e) { /* ignore */ }
-      A.motion.reveal(box, { y: 22, ms: 620, ring: false });
-      const paper = A.$('.deal-paper', m); if (paper) A.motion.stagger(A.$$('.deal-paper__col', paper), { each: 90, y: 14, ms: 620, delay: 120 });
+      try { scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: A.motion.css.out }); } catch (e) { /* ignore */ }
+      A.motion.reveal(box, { y: 26, ms: 640 });
+      A.motion.stagger(A.$$('.deal-paper__head, .deal-paper__col', m), { each: 90, y: 14, ms: 620, delay: 140 });
     }
     snd((S) => S.tick());
   }
@@ -839,7 +1161,19 @@
     if (M.off) M.off();
     const done = () => { M.el.remove(); if (M.opener && M.opener.isConnected) { try { M.opener.focus({ preventScroll: true }); } catch (e) { /* ignore */ } } };
     if (quick || A.still) { done(); return; }
-    A.motion.exit([M.el], { ms: 150 }).then(done);
+    A.motion.exit([M.el], { ms: 160 }).then(done);
   }
+
+  /* ------------------------------------------------------------------ director hooks + Knock hand-off */
+  A.dealDemo = {
+    step: (i) => { if (V) demoStep(i); },
+    select: (i) => { if (V) select(i); },
+    open: () => { if (V) openSheet(null); },
+    close: () => { if (V) closeSheet(); },
+    tick: (k, on) => { if (V) toggleTick(k | 0, on); },
+    state: () => (V ? { addr: V.h.addr, cur: V.S.cur, sel: V.S.sel, type: V.S.type, signed: V.S.signed, built: V.built, open: !!V.modal,
+      ticks: JSON.parse(JSON.stringify(V.S.ticks)), marks: A.$$('.deal-mark', V.marks).length, stamp: V.stamp && !V.stamp.hidden ? V.stampKey : null,
+      canvas: { w: V.cw, h: V.ch, x: V.cx, y: V.cy }, house: V.L ? { s: V.L.s, x0: V.L.x0, x1: V.L.x1, top: V.L.top, ground: V.L.groundY, band: V.L.bandY } : null } : null)
+  };
   A.on('deal:home', (h) => { if (h && h.p) A.dealHome = h; });
 })();

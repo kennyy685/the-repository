@@ -50,8 +50,9 @@
   const miBetween = (a, b) => { const k = Math.cos(41.4 * Math.PI / 180); return Math.hypot((a[0] - b[0]) * k, a[1] - b[1]) * 69.05; };
   const PATH_MI = AUG ? (AUG.path || []).reduce((s, p, i, a) => (i ? s + miBetween(a[i - 1], p) : 0), 0) : 0;
   const TOWN = String(pick.name || 'Columbus').split(':')[0].trim();
+  // 18 = the storm days with a mapped swath (NL.storms); Now's brief counts 25 days with any report, so say "mapped"
   const COUNTS = [
-    { v: (N.storms || []).length, en: 'storm days', es: 'días de tormenta', src: 'storms' },
+    { v: (N.storms || []).length, en: 'storm days mapped', es: 'días de tormenta en el mapa', src: 'storms' },
     { v: srcCount('radar') || 0, en: 'radar hail signatures', es: 'firmas de granizo en radar', src: 'radar' },
     { v: (N.zones || []).length, en: 'zones ranked', es: 'zonas en orden', src: 'engine' },
     { v: srcCount('lsr') || 0, en: 'storm reports', es: 'reportes de tormenta', src: 'lsr' }
@@ -124,7 +125,9 @@
       '<svg class="intro-svg" aria-hidden="true" focusable="false">' +
         '<g class="intro-contours"></g>' +
         '<g class="intro-mark">' +
-          '<path class="intro-mark__roof" d="M9 19 24 8 39 19" pathLength="1"/>' +
+          // the roof pitches out from its ridge: two halves drawn from the apex at once
+          '<path class="intro-mark__roof" d="M24 8 9 19" pathLength="1"/>' +
+          '<path class="intro-mark__roof" d="M24 8 39 19" pathLength="1"/>' +
           '<circle class="intro-mark__dot" cx="24" cy="17" r="3"/>' +
           '<circle class="intro-mark__ring" cx="24" cy="31.5" r="10"/>' +
         '</g>' +
@@ -148,7 +151,7 @@
       el, scrim: q('.intro-scrim'), card: q('.intro-card'), ta: q('.intro-title__a'), tb: q('.intro-title__b'),
       readout: q('.intro-readout'), mi: q('.intro-mi'), track: q('.intro-track i'),
       stats: A.$$('.intro-stat', el), statV: A.$$('.intro-stat__v', el),
-      svg: q('.intro-svg'), cont: q('.intro-contours'), mark: q('.intro-mark'), roof: q('.intro-mark__roof'), dot: q('.intro-mark__dot'), ring: q('.intro-mark__ring'),
+      svg: q('.intro-svg'), cont: q('.intro-contours'), mark: q('.intro-mark'), roof: A.$$('.intro-mark__roof', el), dot: q('.intro-mark__dot'), ring: q('.intro-mark__ring'),
       word: q('.intro-word'), name: q('.intro-word__name'), cut: q('.intro-word__cut'),
       head: q('.intro-head'), hw: A.$$('.intro-w__i', el), hsrc: q('.intro-head__src'),
       skip: q('.intro-skip'), prog: q('.intro-progress i'), paths: []
@@ -259,17 +262,33 @@
 
   const sweepAng = (T) => S.s0 - (T / 1000) * (TAU / 2.8);
   const sweepA = (T) => (0.35 + 0.65 * E.outCubic(seg(T, 0, 450))) * (1 - 0.55 * E.inOutSine(seg(T, 2500, 1000))) * (1 - E.inOutSine(seg(T, B.push - 300, 900)));
+  /** GL resources the film owns (not the world's shared cache, which lives for the page): made per GL context,
+      remade after a context loss (world.glGen), deleted when the layer goes */
+  function freeGL(R) {
+    const gl = A.world.gl; if (!gl || !R || R.gen !== A.world.glGen || gl.isContextLost()) return;
+    A.safe('intro free gl', () => {
+      if (R.P && R.P.p) { (gl.getAttachedShaders(R.P.p) || []).forEach((s) => gl.deleteShader(s)); gl.deleteProgram(R.P.p); }
+      [R.tex, R.tex0].forEach((t) => { if (t && t.tex) gl.deleteTexture(t.tex); });
+    });
+  }
   function sweepLayer() {
+    let R = null;
+    const res = () => {
+      const W = A.world, glx = W.glx, HF = W.hail.field;
+      if (!R || R.gen !== W.glGen) { freeGL(R); R = { gen: W.glGen, P: glx.program(SW_VS, SW_FS), tex: null, tex0: glx.texture(new Float32Array(4), 2, 2) }; }
+      if (!R.tex && W.hail.ready) R.tex = glx.texture(HF.data, HF.nx, HF.ny);
+      return R;
+    };
     return {
       id: 'intro-sweep', z: 12, live: true, fadeIn: false,
+      prepare() { if (A.world.hasGL && A.world.gl) A.safe('intro sweep prepare', res); },
+      dispose() { freeGL(R); R = null; },
       drawGL(gl, f) {
         if (!S) return;
         const a = sweepA(S.T) * f.alpha; if (a <= 0.003) return;
         const glx = A.world.glx, HF = A.world.hail.field;
-        const P = glx.cached('intro-sweep', () => glx.program(SW_VS, SW_FS)); if (!P) return;
-        const tex = A.world.hail.ready ? glx.cached('intro-hf', () => glx.texture(HF.data, HF.nx, HF.ny)) : null;
-        const tex0 = tex || glx.cached('intro-hf0', () => glx.texture(new Float32Array(4), 2, 2));
-        if (!tex0) return;
+        const r = A.safe('intro sweep gl', res); if (!r || !r.P || !r.tex0) return;
+        const P = r.P, tex = r.tex, tex0 = tex || r.tex0;
         gl.useProgram(P.p);
         glx.uniforms(P, {
           u_inv: f.inv, u_f: { tex: tex0.tex, unit: 0 }, u_fb: [HF.x0, HF.y0, HF.x1, HF.y1], u_mul: tex ? tex.mul : 1, u_hf: tex ? 1 : 0,
@@ -304,17 +323,30 @@
     return { base: A.theme === 'light' ? 'light' : 'dark', gold: A.rgba('--h1'), orange: A.rgba('--h15'), red: A.rgba('--h2'),
       hot: A.rgba('--intro-hot'), ice: A.rgba('--intro-ice'), ring: A.rgba('--acc') };
   }
-  function kitFor(target, gl) {
-    const HG = window.HailGL; if (!HG || !S.field) return null;
-    const key = gl ? 'gl' : '2d';
-    if (S.kits[key] && S.kits[key].__t === target) return S.kits[key];
-    const k = gl ? HG.create(target, { dpr: A.world.dpr, theme: S.theme, restoreState: false }) : HG.create(target, { webgl: 0, dpr: A.world.dpr, theme: S.theme });
-    if (!k || !k.ok) return null;
-    k.__t = target;
-    k.field.setField(S.field);
-    if (S.samp) k.hail.spawn({ count: S.keys.narrow ? 1400 : 2600, sampler: S.samp, dur: B.stormMs / 1000, lag: 0.03, seed: 808, fall: { height: 0.15, speed: 0.27 } });
-    S.kits[key] = k; S.ringsAt = {};
-    return k;
+  /** one HailGL kit per drawing target, owned by the storm layer (so its dispose frees them even after the film ends);
+      the GL one is made in play(), outside any frame, and remade after a context loss */
+  function stormLayer() {
+    const kits = {};
+    const kit = (target, gl) => {
+      const HG = window.HailGL; if (!HG || !S || !S.field) return null;
+      const key = gl ? 'gl' : '2d', gen = gl ? A.world.glGen : 0, old = kits[key];
+      if (old && old.__t === target && old.__g === gen) return old;
+      if (old) { A.safe('intro kit dispose', () => old.dispose()); delete kits[key]; }
+      const k = gl ? HG.create(target, { dpr: A.world.dpr, theme: S.theme, restoreState: false }) : HG.create(target, { webgl: 0, dpr: A.world.dpr, theme: S.theme });
+      if (!k || !k.ok) return null;
+      k.__t = target; k.__g = gen;
+      k.field.setField(S.field);
+      if (S.samp) k.hail.spawn({ count: S.keys.narrow ? 1400 : 2600, sampler: S.samp, dur: B.stormMs / 1000, lag: 0.03, seed: 808, fall: { height: 0.15, speed: 0.27 } });
+      kits[key] = k; S.ringsAt = {}; S.lastT = -1; S.knocked = false;   // a fresh kit (or a restored context) re-adds its rings
+      return k;
+    };
+    return {
+      id: 'intro-storm', z: 14, live: true, fadeIn: false,
+      prepare() { if (A.world.hasGL && A.world.gl) A.safe('intro kit', () => kit(A.world.gl, true)); },
+      drawGL(gl, f) { if (!S) return; const k = A.safe('intro kit', () => kit(gl, true)); if (k) stormFrame(k, f.m, f); },
+      draw2d(c, f) { if (!S) return; const k = A.safe('intro kit 2d', () => kit(c, false)); if (k) stormFrame(k, f.m, f); },
+      dispose() { Object.keys(kits).forEach((key) => { A.safe('intro kit dispose', () => kits[key].dispose()); delete kits[key]; }); }
+    };
   }
   const clockOf = (T) => (T - B.storm) / 1000;          // storm clock (s): stones and rings live on it
   function stormFrame(k, m, f) {
@@ -340,14 +372,6 @@
     if (hailOp > 0.01 && clock > -1) k.hail.draw(m, { t: clock, persp: 0.2, scale: 1.7, ringSize: 11, ringLife: 0.9, residue: 2.4, streak: 0.075, opacity: hailOp * f.alpha, theme: S.theme });
     k.rings.draw(m, { t: clock, opacity: f.alpha * (1 + lvl) });
     S.lastT = T;
-  }
-  function stormLayer() {
-    return {
-      id: 'intro-storm', z: 14, live: true, fadeIn: false,
-      drawGL(gl, f) { if (!S) return; const k = kitFor(gl, true); if (k) stormFrame(k, f.m, f); },
-      draw2d(c, f) { if (!S) return; const k = kitFor(c, false); if (k) stormFrame(k, f.m, f); },
-      dispose() { if (S && S.kits) { Object.values(S.kits).forEach((k) => A.safe('intro kit dispose', () => k.dispose())); S.kits = {}; } }
-    };
   }
 
   /* ---------------- top canvas: KOAX, the storm's path, the front; and it anchors the DOM mark to the map ---------------- */
@@ -383,7 +407,8 @@
           c.beginPath(); c.arc(o[0], o[1], 3.2, 0, TAU); c.stroke();
           c.beginPath(); c.arc(o[0], o[1], 7.5, 0, TAU); c.globalAlpha = ka * 0.35; c.stroke();
           c.font = '500 9.5px ' + MONO; ls('1.4px'); c.textAlign = 'right';
-          c.globalAlpha = ka * 0.9; c.lineWidth = 3; c.strokeStyle = pal.halo; c.strokeText('KOAX RADAR', o[0] - 13, o[1] + 0.5); c.fillStyle = pal.text2; c.fillText('KOAX RADAR', o[0] - 13, o[1] + 0.5);
+          const kl = A.t('KOAX RADAR', 'RADAR KOAX');
+          c.globalAlpha = ka * 0.9; c.lineWidth = 3; c.strokeStyle = pal.halo; c.strokeText(kl, o[0] - 13, o[1] + 0.5); c.fillStyle = pal.text2; c.fillText(kl, o[0] - 13, o[1] + 0.5);
           ls('0px'); c.textAlign = 'left';
         }
         // the storm's real path: dotted ahead of the front, solid behind it
@@ -399,40 +424,45 @@
           c.beginPath(); c.arc(fq[0], fq[1], 1.8, 0, TAU); c.fillStyle = pal.text; c.fill();
         }
         c.restore();
-        place(f);
+        place(f, T);
       }
     };
   }
 
-  /* ---------------- anchored DOM (contours → ring → mark, the wordmark) ---------------- */
-  function place(f) {
-    const D = S.dom, K = S.keys, T = S.T; if (!D || !K) return;
+  /* ---------------- anchored DOM (contours → ring → mark, the wordmark) ----------------
+     Placed from the same world frame the canvases draw (the sync layer), so the DOM never swims against the map;
+     captureFlight() also calls it with a fresh frame so a seek (the director) or a dropped frame can't skip it. */
+  function place(f, T) {
+    const D = S.dom, K = S.keys; if (!D || !K) return;
+    if (T == null) T = S.T;
     const q = f.project(PICK), px = q[0] + S.off[0], py = q[1] + S.off[1], zs = Math.pow(2, f.zoom - K.zC), R = K.R;
-    // contours: real hail levels around the pick, tightening into one ring
+    // contours: the real hail levels around the pick, drawn fine, converging into one ring that thickens into the mark's
     const ca = seg(T, B.ring, 320) * (1 - seg(T, B.mark, 170));
     D.cont.style.opacity = ca.toFixed(3);
     if (ca > 0.001 && S.cont) {
       if (!D.paths.length) S.cont.forEach(() => { const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('vector-effect', 'non-scaling-stroke'); D.cont.appendChild(p); D.paths.push(p); });
-      const k = E.inOutCubic(seg(T, B.ring + 250, B.mark - B.ring - 250)), tint = seg(T, B.ring + 380, 520);
+      const k = E.inOutCubic(seg(T, B.ring + 250, B.mark - B.ring - 250)), tint = smooth(k, 0.25, 0.85);
       D.cont.setAttribute('transform', 'translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + zs.toFixed(4) + ')');
       S.cont.forEach((lv, j) => {
         const n = lv.r.length; let d = '';
         for (let i = 0; i < n; i++) { const a = (i / n) * TAU, rr = lerp(lv.r[i], R, k); d += (i ? 'L' : 'M') + (Math.cos(a) * rr).toFixed(1) + ' ' + (Math.sin(a) * rr).toFixed(1); }
         const p = D.paths[j];
         p.setAttribute('d', d + 'Z');
-        p.style.strokeWidth = lerp(1.1 + j * 0.25, R * 0.5 * zs, Math.pow(k, 3)).toFixed(2) + 'px';
+        p.style.strokeWidth = lerp(1 + j * 0.2, R * 0.5 * zs, Math.pow(k, 5)).toFixed(2) + 'px';
         p.style.stroke = 'color-mix(in oklab, var(' + A.ui.hailTok(Math.max(1, lv.L)) + '), var(--acc) ' + Math.round(tint * 100) + '%)';
-        p.style.opacity = (lerp(0.35 + 0.65 * (j + 1) / S.cont.length, 1, k)).toFixed(3);
+        p.style.opacity = (lerp(0.4 + 0.6 * (j + 1) / S.cont.length, 1, k)).toFixed(3);
       });
     }
-    // the mark, anchored to the pick until the hand-off takes it
+    // the mark and the wordmark, anchored to the pick until the hand-off takes them (position and opacity together)
     if (T < B.hand) {
       const km = (R / 10) * Math.min(1, zs);
       S.anchor = { cx: px, cy: py, k: km };
       setMark(px, py, km);
       const F = parseFloat(S.nameF) || 60, m = Math.min(1, zs);
       S.wordAt = K.narrow ? { x: px - F * 1.6, y: py + R * 1.55 * m } : { x: px + R * 2.25 * m, y: py - R * 0.7 * m - F * 0.62 };
-      if (T >= B.mark) D.word.style.transform = 'translate(' + (S.wordAt.x - 14 * (1 - E.outCubic(seg(T, B.mark + 300, 450)))).toFixed(1) + 'px,' + S.wordAt.y.toFixed(1) + 'px)';
+      const wa = seg(T, B.mark + 300, 420);
+      D.word.style.opacity = wa.toFixed(3);
+      D.word.style.transform = 'translate(' + (S.wordAt.x - 14 * (1 - E.outCubic(seg(T, B.mark + 300, 450)))).toFixed(1) + 'px,' + S.wordAt.y.toFixed(1) + 'px)';
     }
   }
   function setMark(cx, cy, k) { S.dom.mark.setAttribute('transform', 'matrix(' + k.toFixed(4) + ' 0 0 ' + k.toFixed(4) + ' ' + (cx - 24 * k).toFixed(2) + ' ' + (cy - 31.5 * k).toFixed(2) + ')'); }
@@ -440,8 +470,12 @@
   /* ---------------- the hand-off: FLIP the lockup into the top bar ---------------- */
   function rectIn(el) { const r = el && el.getBoundingClientRect(); return r && r.width > 0 ? { x: r.left - S.ovl.x, y: r.top - S.ovl.y, w: r.width, h: r.height } : null; }
   function captureFlight() {
-    const D = S.dom, K = S.keys;
-    if (!S.anchor) { const q = A.world.project(PICK); S.anchor = { cx: q[0] + S.off[0], cy: q[1] + S.off[1], k: K.R / 10 }; }
+    if (!S || S.fly) return;
+    const D = S.dom;
+    // the lockup as it stands on the last frame before the hand-off (the camera is already at its end: render clamps it)
+    A.safe('intro place', () => place(A.world.frame(), Math.min(S.T, B.hand - 1)));
+    if (!S.anchor) { const q = A.world.project(PICK); S.anchor = { cx: q[0] + S.off[0], cy: q[1] + S.off[1], k: S.keys.R / 10 }; }
+    D.name.style.transform = ''; D.cut.style.transform = ''; D.name.style.opacity = ''; D.cut.style.opacity = '';
     const bm = rectIn(A.$('#topbar .brand__mark')), bw = rectIn(A.$('#topbar .brand__word')), bc = rectIn(A.$('#topbar .brand__cut'));
     const nw = rectIn(D.name), cw = rectIn(D.cut), wr = rectIn(D.word);
     S.fly = {
@@ -477,12 +511,14 @@
     if (!S) return;
     S.T = T;
     const D = S.dom, H = E.hail, hand = seg(T, B.hand - 220, 320);
-    // camera (until the hand-off; then the start view flies it)
-    if (T < B.hand && S.keys) { const c = camAt(T); A.world.jump({ center: A.world.toLonLat([c.x, c.y]), zoom: c.z }); }
+    // camera: a pure function of T until the hand-off (held at its last key after B.hand), so any seek lands right;
+    // once handed off, the start view flies it
+    if (!S.handed && S.keys) { const c = camAt(Math.min(T, B.hand)); A.world.jump({ center: A.world.toLonLat([c.x, c.y]), zoom: c.z }); }
     const set = (el, o, tf) => { if (!el) return; el.style.opacity = o.toFixed(3); if (tf != null) el.style.transform = tf; };
-    // title card: legible from the first frames, then the question changes as the camera dives
-    const ci = E.outCubic(seg(T, 0, 360));
-    set(D.card, (0.5 + 0.5 * ci) * (1 - hand), 'translateY(' + ((1 - ci) * 8 - hand * 8).toFixed(1) + 'px)');
+    // title card: legible from the first frames, the question changes as the camera dives, and it steps back when the
+    // answer (the headline) lands
+    const ci = E.outCubic(seg(T, 0, 360)), back = 1 - 0.55 * E.inOutSine(seg(T, B.head + 150, 700));
+    set(D.card, (0.62 + 0.38 * ci) * back * (1 - hand), 'translateY(' + ((1 - ci) * 8 - hand * 8).toFixed(1) + 'px)');
     const ta = seg(T, B.push, 300), tb = seg(T, B.push + 160, 560);
     set(D.ta, 1 - ta, 'translateY(' + (-12 * E.outCubic(ta)).toFixed(1) + 'px)');
     set(D.tb, Math.min(1, tb * 2.2), 'translateY(' + ((1 - H(tb)) * 0.62).toFixed(3) + 'em)');
@@ -497,18 +533,21 @@
       const p = seg(T, B.count + i * 110, 560), out = seg(T, B.head - 520 + i * 45, 320);
       set(el, Math.min(1, p * 2.4) * (1 - out), 'translateY(' + ((1 - H(p)) * 18 - out * 10).toFixed(1) + 'px)');
     });
-    // the mark: roof chevron and knocker dot draw on over the ring
+    // the mark: the roof pitches out from its ridge, then the knocker dot drops in with the hail spring
     const ringA = seg(T, B.mark - 40, 140);
     D.ring.style.opacity = ringA.toFixed(3);
-    D.roof.style.strokeDashoffset = (1 - E.outCubic(seg(T, B.mark + 60, 520))).toFixed(4);
-    D.roof.style.opacity = seg(T, B.mark + 40, 80).toFixed(3);
+    const rd = (1 - E.outCubic(seg(T, B.mark + 60, 520))).toFixed(4), rop = seg(T, B.mark + 40, 80).toFixed(3);
+    D.roof.forEach((p) => { p.style.strokeDashoffset = rd; p.style.opacity = rop; });
     const dp = seg(T, B.mark + 400, 420);
     D.dot.style.transform = 'scale(' + (dp <= 0 ? 0 : E.hail(dp)).toFixed(4) + ')';
     if (T < B.hand) {
+      // the mark's and the wordmark's position + opacity are set by place(), from the same frame as the map
       D.svg.style.opacity = '1';
-      D.word.style.opacity = seg(T, B.mark + 300, 420).toFixed(3);
       D.name.style.transform = ''; D.cut.style.transform = ''; D.name.style.opacity = ''; D.cut.style.opacity = '';
-    } else { D.word.style.opacity = '1'; flight(T); }
+    } else {
+      if (!S.fly) captureFlight();                      // a seek or a dropped frame jumped straight past the cue
+      D.word.style.opacity = '1'; flight(T);
+    }
     // headline, word by word
     D.hw.forEach((w) => {
       const i = +w.dataset.i || 0, p = seg(T, B.head + i * 55, 640);
@@ -525,7 +564,9 @@
     // sound: the hail bed follows the storm (only after a gesture turned sound on)
     const s = snd();
     if (s && S.playing && T - (S.bedAt || -1e9) > 180) { S.bedAt = T; A.safe('intro bed', () => s.hailBed(T > B.storm && T < B.push + 400 ? 0.2 + 0.45 * Math.sin(Math.PI * Math.min(1, r * 1.1)) : 0)); }
-    if (S.freeze != null && A.world.invalidate) A.world.invalidate();   // live layers redraw on their own while playing
+    // live layers redraw on their own while playing; a frozen or paused film (dev freeze, the director's seek) asks
+    if (S.freeze != null || !S.tl || !S.tl.playing) A.world.invalidate();
+    if (T < B.hand - 20 && S.fly && !S.handed) S.fly = null;      // seeked back before the hand-off: measure again
   }
 
   /* ---------------- the timeline ---------------- */
@@ -560,16 +601,21 @@
     if (!S || S.handed) return;
     A.safe('intro resize', () => {
       S.keys = camKeys(); measure(); S.cont = buildContours(S.field, S.keys.zC, S.keys.R); S.dom.paths.forEach((p) => p.remove()); S.dom.paths = [];
+      S.fly = null;
       render(S.T);
     });
   }
   function measure() {
-    const ov = S.dom.el.getBoundingClientRect(), wr = A.world.el.getBoundingClientRect();
+    const el = S.dom.el, ov = el.getBoundingClientRect(), wr = A.world.el.getBoundingClientRect();
     S.ovl = { x: ov.left, y: ov.top };
     S.off = [wr.left - ov.left, wr.top - ov.top];
     const K = S.keys;
     S.nameF = (K.R * (K.narrow ? 0.95 : 1.28)).toFixed(1);
-    S.dom.el.style.setProperty('--intro-name', S.nameF + 'px');
+    el.style.setProperty('--intro-name', S.nameF + 'px');
+    // where the map sits inside the stage: on stacked screens the map is a block under the bar, and the readout,
+    // the numbers and the headline arrange themselves around it
+    el.style.setProperty('--intro-map-t', Math.round(wr.top - ov.top) + 'px');
+    el.style.setProperty('--intro-map-b', Math.round(ov.bottom - wr.bottom) + 'px');
   }
   function unhide() {
     if (pre) { pre.el.remove(); pre = null; }
@@ -585,7 +631,7 @@
     seen.set();
     let res; const promise = new Promise((r) => (res = r));
     const W = A.world, cur = A.view && A.view.current;
-    S = { promise, res, T: 0, lastT: -1, kits: {}, ringsAt: {}, playing: false, handed: false, dom: null, theme: hglTheme(), freeze };
+    S = { promise, res, T: 0, lastT: -1, ringsAt: {}, playing: false, handed: false, dom: null, theme: hglTheme(), freeze, live: true };
     // remember what the world looked like (a replay runs over a live view)
     S.restore = { view: cur, inset: W.insetTarget, hidden: W.layer.list().filter((id) => id !== 'hail' && !/^intro-/.test(id) && (W.layer.get(id) || {}).visible !== false) };
     S.restore.hidden.forEach((id) => W.layer.set(id, { visible: false }));
@@ -607,7 +653,10 @@
     // the sweep finds Columbus right when the storm starts
     const kx = W.toWorld(KOAX), cw = W.toWorld(AUG_MID);
     S.s0 = Math.atan2(-(cw[1] - kx[1]), cw[0] - kx[0]) + (B.storm / 1000) * (TAU / 2.8);
-    W.layer.add(sweepLayer()); W.layer.add(stormLayer()); W.layer.add(syncLayer());
+    const sw = sweepLayer(), st = stormLayer();
+    W.layer.add(sw); W.layer.add(st); W.layer.add(syncLayer());
+    // compile + upload now (outside any frame), so the storm's first frame at 1.2 s never hitches
+    sw.prepare(); st.prepare();
     S.offTheme = A.on('theme', () => { if (S) { S.theme = hglTheme(); W.invalidate(); } });
     S.offLang = A.on('lang', () => { if (S) render(S.T); });
     S.dom.el.addEventListener('click', skip);
@@ -625,7 +674,8 @@
     let last = 0;
     const rate = (now, dt) => {
       if (!S || !S.tl) return false;
-      if (!S.tl.playing) { last = 0; return !S.done; }
+      if (!S.tl.playing) { last = 0; if (S.live) layersLive(false); return !S.done; }   // paused (director): stop redrawing
+      if (!S.live) layersLive(true);
       const real = last ? now - last : dt; last = now;
       S.tl.rate = A.clamp(real / Math.max(1, dt), 1, 40);
       return true;
@@ -636,7 +686,7 @@
     if (dev === '1') A.ready = true;                      // dev: shoot.mjs --wait N then measures from the intro's start
     return promise;
   }
-  function layersLive(on) { ['intro-sweep', 'intro-storm', 'intro-sync'].forEach((id) => A.world.layer.set(id, { live: on })); }
+  function layersLive(on) { if (S) S.live = on; ['intro-sweep', 'intro-storm', 'intro-sync'].forEach((id) => A.world.layer.set(id, { live: on })); }
   let lastSkip = 0;
   function skip() {
     if (!S || !S.tl) return;
@@ -705,10 +755,10 @@
     render0(pre);
   });
   function render0(D) { // the title card at t=0 without a running intro
-    D.card.style.opacity = '0.5'; D.card.style.transform = 'translateY(8px)';
+    D.card.style.opacity = '0.62'; D.card.style.transform = 'translateY(8px)';
     [D.readout, D.head, D.tb, D.word, D.hsrc].forEach((el) => { if (el) el.style.opacity = '0'; });
     D.stats.forEach((el) => (el.style.opacity = '0'));
     D.hw.forEach((w) => { w.style.transform = 'translateY(108%)'; });
-    D.ring.style.opacity = '0'; D.roof.style.opacity = '0'; D.dot.style.transform = 'scale(0)';
+    D.ring.style.opacity = '0'; D.roof.forEach((p) => (p.style.opacity = '0')); D.dot.style.transform = 'scale(0)';
   }
 })();

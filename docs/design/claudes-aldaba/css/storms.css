@@ -33,6 +33,10 @@ button.storms-zone:hover .i{transform:translateX(2px);color:var(--text)}
   font-size:12px;color:var(--muted);white-space:nowrap}
 .storms-zone__n{font:500 10.5px/1 var(--mono);color:var(--faint)}
 .storms-act{display:flex;gap:8px;margin-top:20px}
+.storms-act:empty{display:none}
+.storms-none{display:flex;gap:9px;align-items:flex-start;margin-top:18px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.storms-none .i{flex:none;margin-top:1px;color:var(--faint)}
+.storms-none+.storms-act{margin-top:12px}
 .storms-knock{flex:1 1 auto;min-width:0}
 .storms-knock span{overflow:hidden;text-overflow:ellipsis}
 
@@ -82,7 +86,7 @@ button.storms-zone:hover .i{transform:translateX(2px);color:var(--text)}
 .storms-past__n{font-size:10.5px;color:var(--muted)}
 .storms-past[aria-pressed="true"] .storms-past__n{color:inherit}
 
-.storms-tl{position:relative;height:108px;margin-top:10px;cursor:pointer;touch-action:pan-y;border-radius:8px;outline-offset:3px;
+.storms-tl{--tl-g:24px;position:relative;height:108px;margin-top:10px;cursor:pointer;touch-action:pan-y;border-radius:8px;outline-offset:3px;
   -webkit-user-select:none;user-select:none}
 .storms-tl__grid i{position:absolute;top:0;bottom:0;width:1px;background:var(--rule)}
 .storms-tl__ms{position:absolute;left:0;right:0;top:0;height:14px;pointer-events:none}
@@ -90,6 +94,11 @@ button.storms-zone:hover .i{transform:translateX(2px);color:var(--text)}
 .storms-tl__lane{position:absolute;left:0;right:0;top:20px;height:58px;border-bottom:1px solid var(--rule-2)}
 .storms-tl__burn{position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);pointer-events:none;
   background:linear-gradient(to top,var(--acc-bg),transparent 90%)}
+/* the lane's scale: dashed hairlines at 1 and 2 inches, labeled in a slim gutter left of the track */
+.storms-tl__gy{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--rule);pointer-events:none}
+.storms-tl__in{position:absolute;top:0;bottom:0;left:var(--tl-g);right:0}
+.storms-tl__yax{position:absolute;left:0;top:20px;width:var(--tl-g);height:58px;pointer-events:none}
+.storms-tl__yax span{position:absolute;right:8px;transform:translateY(50%);font:500 10px/1 var(--mono);color:var(--muted)}
 .storms-tick{position:absolute;bottom:0;top:0;width:12px;margin-left:-6px;display:flex;align-items:flex-end;justify-content:center;opacity:.34;
   transition:opacity .28s var(--ease)}
 .storms-tick__b{display:block;width:5px;border-radius:2px 2px 1px 1px;transform-origin:50% 100%;transform:scaleY(.45);
@@ -127,6 +136,7 @@ button.storms-zone:hover .i{transform:translateX(2px);color:var(--text)}
   .storms-date{font-size:26px;margin:10px 0 14px}
   .storms-tl{height:100px}
   .storms-tl__lane{height:52px}
+  .storms-tl__yax{height:52px}
   .storms-tl__ghosts{top:78px}
 }
 @media (max-width:900px){

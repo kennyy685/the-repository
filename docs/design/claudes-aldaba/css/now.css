@@ -1,8 +1,15 @@
 /* Claude's Aldaba · css/now.css · #now, the 7 AM brief
    Owner: the now builder. Every rule is scoped to a "now-" class; base.css components are extended, never restyled. */
 
-/* ---------- pending: the before-state of the assemble ---------- */
-.now-rk.is-pending,.now-hero .is-pending,.now-z.is-pending,.now-step.is-pending,.now-day .is-pending,.now-tick.is-pending,.now-pick.is-pending{opacity:0}
+/* micro labels: faint on dark, muted on light (faint is too light to read on white) */
+.now-hero,.now-statpane,.now-briefpane,.now-zlpane,.now-plan{--now-meta:var(--faint)}
+:root[data-theme="light"] :is(.now-hero,.now-statpane,.now-briefpane,.now-zlpane,.now-plan){--now-meta:var(--muted)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) :is(.now-hero,.now-statpane,.now-briefpane,.now-zlpane,.now-plan){--now-meta:var(--muted)}}
+.now-meta{color:var(--now-meta)}
+
+/* ---------- pending: the before-state of the assemble (nothing that gives the answer away) ---------- */
+.now-hero [data-pend].is-pending,.now-brief>li.is-pending,.now-z.is-pending,.now-step.is-pending,.now-day .is-pending,
+.now-lead.is-pending,.now-tick.is-pending,.now-pick.is-pending,.now-rk.is-pending,.now-cluster.is-pending{opacity:0;pointer-events:none}
 
 /* ---------- hero: Aldaba's pick ---------- */
 .now-hero,.now-statpane,.now-briefpane{flex-shrink:0}
@@ -11,11 +18,12 @@
   border:26px solid var(--acc-bg);box-shadow:0 0 0 1px var(--acc-bg),inset 0 0 0 1px var(--acc-bg);pointer-events:none}
 .now-hero::after{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;
   background:radial-gradient(90% 70% at 100% 0%,var(--acc-bg),transparent 62%)}
-.now-hero__eye{flex-wrap:wrap;row-gap:6px}
-.now-hero__score{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:var(--faint);letter-spacing:.06em}
-.now-hero__town{margin-top:6px;font:740 min(86px,21.5cqi)/.84 var(--display);letter-spacing:-.052em;font-variation-settings:"opsz" 96;
+.now-hero__eye{flex-wrap:wrap;row-gap:6px;column-gap:7px}
+.now-hero__lbl,.now-hero__rk{white-space:nowrap}
+.now-hero__score{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:var(--now-meta);letter-spacing:.06em;white-space:nowrap}
+.now-hero__town{margin-top:6px;font:740 min(86px,21.5cqi)/.84 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96;
   color:var(--text);white-space:nowrap}
-.now-hero__dot{color:var(--acc)}
+.now-hero__dot{color:var(--acc);margin-left:.01em}
 .now-hero__street{transform-origin:0 0;font:620 21px/1.15 var(--display);letter-spacing:-.018em;color:var(--text-2);width:max-content;max-width:100%}
 .now-hero__line{margin-top:8px;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px;row-gap:2px;
   font:700 min(36px,9cqi)/1 var(--display);letter-spacing:-.035em;font-variation-settings:"opsz" 96}
@@ -24,22 +32,61 @@
 .now-hero__why{margin-top:4px;max-width:36em}
 .now-hero__act{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 
-/* stats + the likely-insured line */
+/* while the pick assembles: the hero says what Aldaba is doing, and who leads */
+.now-hero__scan{position:absolute;left:22px;right:22px;top:56px;display:grid;gap:16px;align-content:start;pointer-events:none;
+  opacity:0;transition:opacity var(--t-slow) var(--ease)}
+.now-hero.is-waiting .now-hero__scan{opacity:1}
+.now-hero__wait{display:flex;align-items:center;gap:10px;font:500 12px/1 var(--mono);color:var(--muted)}
+.now-hero__wait b{color:var(--text);font-weight:600}
+.now-hero__spin{position:relative;flex:none;width:14px;height:14px;border-radius:50%;border:2px solid var(--acc)}
+.now-hero__spin::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:1.5px solid var(--acc);animation:ring-out 1.4s var(--ease-out) infinite}
+.now-hero:not(.is-waiting) .now-hero__spin::after{animation:none}
+.now-hero__cand{display:flex;align-items:baseline;gap:12px;min-width:0;font:680 34px/1.05 var(--display);letter-spacing:-.03em;color:var(--muted);white-space:nowrap}
+.now-hero__candt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.now-hero__candsc{flex:none;font:500 16px/1 var(--mono);letter-spacing:-.02em;color:var(--text-2)}
+.now-hero__best{display:flex;align-items:baseline;gap:10px;min-width:0;padding-top:12px;border-top:1px solid var(--rule-2);font:600 15px/1.2 var(--ui);color:var(--text)}
+.now-hero__best:has(.now-hero__bestt:empty){visibility:hidden}
+/* the score axis: each storm zone drops a ring at its score; the leader's ring is orange */
+.now-hero__axis{position:relative;height:58px;margin:4px 0 2px}
+.now-hero__axl{position:absolute;left:0;right:0;bottom:17px;height:1px;background:var(--rule-2)}
+.now-hero__axt{position:absolute;bottom:0;transform:translateX(-50%);font:500 9.5px/1 var(--mono);color:var(--now-meta)}
+.now-hero__axt:first-of-type{transform:none}
+.now-hero__axt::before{content:"";position:absolute;left:50%;bottom:13px;width:1px;height:5px;background:var(--rule-3)}
+.now-hero__axt:first-of-type::before{left:0}
+.now-hero__axk{position:absolute;left:0;top:0;font:500 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--now-meta)}
+.now-hero__axd{position:absolute;bottom:calc(22px + var(--lane) * 13px);width:12px;height:12px;margin-left:-6px;border-radius:50%;
+  border:2px solid var(--text-2);background:var(--panel);opacity:0;transition:opacity var(--t) var(--ease)}
+.now-hero__axd.is-in{opacity:1}
+.now-hero__axd.is-lead{border-color:var(--acc);background:var(--acc);box-shadow:0 0 0 4px var(--acc-bg),0 0 16px 2px var(--acc-line);z-index:1}
+.now-hero__bestk{flex:none;font:500 var(--fs-micro)/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--acc-ink)}
+.now-hero__bestt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.now-hero__bestsc{flex:none;margin-left:auto;font:600 15px/1 var(--mono);color:var(--acc-ink)}
+
+/* stats + the likely-insured line; while pending, each value is a hairline dash that its number rolls out of */
 .now-statpane{display:grid;gap:12px}
-.now-stats .stat__v{font-size:22px}
+.now-stats .stat__k{letter-spacing:.07em}
+.now-stats .stat__v{position:relative;font-size:22px}
 .now-stats .stat__s{font-size:11.5px}
+.now-sv{transition:opacity var(--t-slow) var(--ease)}
+.now-stats .stat__v>.now-sv{display:inline-block}
+.now-ph{position:absolute;left:0;top:50%;width:30px;height:2px;margin-top:-1px;border-radius:2px;background:var(--rule-3);opacity:0;
+  pointer-events:none;transition:opacity var(--t) var(--ease)}
+.now-statpane.is-pending .now-sv{opacity:0}
+.now-statpane.is-pending .now-ph{opacity:1}
 .now-ins{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:10px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--rule)}
 .now-ins__k{font:500 var(--fs-micro)/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.now-ins__v{font:650 15px/1 var(--display);letter-spacing:-.01em;color:var(--ok)}
+.now-ins__v{position:relative;min-width:30px;font:650 15px/1 var(--display);letter-spacing:-.01em;color:var(--ok)}
+.now-ins__v>.now-sv{display:inline-block}
 .now-ins__tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-2);cursor:help;border-bottom:1px dotted var(--rule-3)}
 .now-ins__tag .i{width:12px;height:12px;color:var(--muted)}
 .now-ins__s{flex-basis:100%;font-size:12px;color:var(--muted)}
 
 /* the morning brief */
-.now-brief{display:grid;gap:11px;counter-reset:b}
-.now-brief>li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;font-size:13px;line-height:1.5;color:var(--text-2)}
+.now-brief{display:grid;gap:11px}
+.now-brief>li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;font-size:13px;line-height:1.5;color:var(--text-2);
+  transition:opacity var(--t-slow) var(--ease)}
 .now-brief>li b{font-weight:600}
-.now-brief__n{font:500 10.5px/1.9 var(--mono);color:var(--faint)}
+.now-brief__n{font:500 10.5px/1.9 var(--mono);color:var(--now-meta)}
 .now-brief .src{margin-left:2px}
 .now-brief__bk>div{display:grid;gap:6px;justify-items:start}
 .now-brief__show{--h:28px;margin-left:-10px;color:var(--acc-ink)}
@@ -47,29 +94,42 @@
 /* ---------- right: ranked zones ---------- */
 .now-zlpane{padding-bottom:10px}
 .now-zl__sec{margin-bottom:8px}
-.now-zl{display:grid;gap:1px}
-.now-z{border-radius:10px;transition:background-color var(--t-fast) var(--ease)}
-.now-z__row{padding:7px 8px;gap:10px;border-radius:10px}
+.now-zl{display:grid;gap:1px;align-content:start}
+/* the panel always ends above the map HUD's corner (bottom - 170 px); an open row scrolls inside the list */
+@media (min-width:901px){
+  .now-zlpane{display:flex;flex-direction:column;max-height:calc(100vh - var(--bar-top) - var(--bar-h) - 192px)}
+  .now-zl{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:0 -6px;padding:0 6px;scrollbar-width:thin}
+}
+/* the hover and open states fade in on a layer behind the row (opacity only) */
+.now-z{position:relative;border-radius:10px;isolation:isolate}
+.now-z::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--panel-2);opacity:0;pointer-events:none;
+  transition:opacity var(--t-fast) var(--ease)}
+.now-z.is-hover::before,.now-z:hover::before,.now-z.is-open::before{opacity:1}
+.now-z.is-open::before{box-shadow:inset 0 0 0 1px var(--rule-2)}
+.now-z__row:not([aria-current="true"]):hover,.now-z.is-open>.now-z__row{background:transparent}
+.now-z__row{padding:6px 8px;gap:10px;border-radius:10px}
 .now-z__row .row__t{font-size:13.5px}
 .now-z__row .row__s{font-size:11.5px}
 .now-z__rk{width:26px;height:26px;border-width:2px;border-color:currentColor;font:650 11.5px/1 var(--mono)}
+.now-z__n{font:inherit;color:inherit;transition:opacity var(--t) var(--ease)}
+.now-zl.is-scan .now-z__n{opacity:0}
 .now-z__rk[data-h="0"]{border-style:dashed}
-.now-z--pick .now-z__rk{border-color:var(--acc);color:var(--acc-ink);border-width:2.5px}
+.now-z--pick .now-z__rk,.now-z.is-lead .now-z__rk{border-color:var(--acc);color:var(--acc-ink);border-width:2.5px}
+.now-z.is-lead .row__t{color:var(--acc-ink)}
 .now-z__sc{font-size:12.5px;color:var(--text)}
+.now-z--every .row__s{white-space:normal}
 .now-z__ev{cursor:help}
 .now-z__ev .now-z__sc{color:var(--muted)}
-.now-z__evl{font:500 9px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.now-z__evl{font:500 9px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .now-z__bar{display:block;width:44px;height:3px;border-radius:2px;background:var(--rule-2);overflow:hidden}
 .now-z__bar i{display:block;height:100%;background:var(--text-2);transform-origin:0 50%}
-.now-z--pick .now-z__bar i{background:var(--acc)}
-.now-z.is-hover>.now-z__row{background:var(--panel-2)}
-.now-z.is-open{background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--rule-2)}
-.now-z.is-open>.now-z__row{background:transparent}
+.now-z--pick .now-z__bar i,.now-z.is-lead .now-z__bar i{background:var(--acc)}
 .now-z__more{display:grid;gap:10px;padding:2px 10px 12px 44px}
 .now-z__more[hidden]{display:none}
 .now-z__kv{font-size:12.5px;gap:6px 12px}
 .now-z__kv dt{font-size:9.5px}
 .now-z__kv dd{color:var(--text-2)}
+.now-z__kv .t-muted{font-size:11.5px}
 .now-z__act{display:flex;flex-wrap:wrap;gap:6px}
 .now-z__act .kbd{margin-left:2px}
 
@@ -88,27 +148,39 @@
 .now-day__now i::after{content:"";position:absolute;left:-3px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--panel)}
 .now-day__now b{position:absolute;left:10px;top:-5px;font:500 10px/1 var(--mono);color:var(--text);white-space:nowrap}
 .now-day__hours{position:relative;height:16px;margin-top:5px}
-.now-day__hours span{position:absolute;top:0;transform:translateX(-50%);font:500 9.5px/1.5 var(--mono);color:var(--faint);white-space:nowrap}
-.now-day__hours span:first-child{transform:none}
-.now-day__leads{display:block;width:100%;height:20px;margin-top:-2px;overflow:visible}
-.now-day__leads path{fill:none;stroke:var(--rule-3);stroke-width:1}
-.now-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:2px}
+.now-day__hours>span{position:absolute;top:0;transform:translateX(-50%);font:500 9.5px/1.5 var(--mono);color:var(--muted);white-space:nowrap}
+.now-day__hours>span:first-child{transform:none}
+.now-day__leads{display:block;width:100%;height:18px;overflow:visible}
+.now-lead{fill:none;stroke:var(--rule-3);stroke-width:1;transition:opacity var(--t-slow) var(--ease)}
+.now-lead--knock{stroke:var(--acc-line)}
+.now-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .now-step{cursor:default;position:relative;display:grid;align-content:start;gap:4px;padding:10px 10px 11px;border-radius:10px;background:var(--panel-2);border:1px solid var(--rule);min-width:0}
 .now-step__t{font:500 10.5px/1.2 var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .now-step__h{font:600 13px/1.25 var(--ui);color:var(--text);text-wrap:balance}
 .now-step__d{font-size:11.5px;line-height:1.4;color:var(--muted);text-wrap:pretty}
 .now-step__d .src{margin-left:2px}
+.now-step__d--l{display:none}
 .now-step[data-state="now"]{border-color:var(--rule-3);background:var(--panel-3)}
 .now-step[data-state="now"] .now-step__t{color:var(--text)}
 .now-step[data-state="now"]::before{content:"";position:absolute;right:10px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-bg)}
 .now-step[data-step="knock"]{border-color:var(--acc-line);background:var(--acc-bg)}
 .now-step[data-step="knock"] .now-step__t{color:var(--acc-ink)}
-@container (max-width:820px){.now-step__d{display:none}.now-step{padding:9px 9px 10px}}
+/* wide dock: the full sentence; mid (the MacBook sizes): one short line; phone: stacked, full sentences */
+@container (min-width:821px){.now-step__d--l{display:block}.now-step__d--s{display:none}}
+@container (max-width:560px){
+  .now-steps{gap:7px}
+  .now-step{padding:9px 8px 10px;gap:3px}
+  .now-step[data-state="now"]::before{right:8px;top:10px}
+  .now-step__h{font-size:12.5px}
+  .now-step__d{font-size:11px;line-height:1.35}
+}
 @container (max-width:420px){
   .now-steps{grid-template-columns:1fr;gap:6px}
-  .now-step{grid-template-columns:92px minmax(0,1fr);column-gap:10px}
+  .now-step{grid-template-columns:92px minmax(0,1fr);column-gap:10px;padding:10px 12px 11px}
   .now-step__t{grid-row:span 2;padding-top:2px}
-  .now-step__d{display:block}
+  .now-step__h{font-size:13px}
+  .now-step__d{font-size:11.5px}
+  .now-step__d--l{display:block}.now-step__d--s{display:none}
   .now-day__leads{display:none}
   .now-plan .now-day{margin-bottom:12px}
 }
@@ -117,42 +189,25 @@
 .now-pick{--s:36px;cursor:pointer;transition:opacity var(--t-slow) var(--ease)}
 .now-pick b{font:750 14px/1 var(--display)}
 .now-rk{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--panel);border:1.5px solid currentColor;
-  font:650 10.5px/1 var(--mono);box-shadow:0 6px 14px -6px var(--shadow);cursor:pointer;transition:transform var(--t-fast) var(--ease)}
+  font:650 10.5px/1 var(--mono);box-shadow:0 6px 14px -6px var(--shadow);cursor:pointer;transition:opacity var(--t) var(--ease)}
 .now-rk[data-h="0"]{color:var(--text-2);border-style:dashed}
-.now-rk:hover{scale:1.15}
-.now-cluster{pointer-events:none}
+.now-rk:hover{box-shadow:0 0 0 3px var(--acc-bg),0 6px 14px -6px var(--shadow)}
+.now-cluster{cursor:help;gap:7px;transition:opacity var(--t-slow) var(--ease)}
+.now-cluster b{font-weight:600;color:var(--text)}
+.now-cluster.is-dim{opacity:.18}
 .now-hq{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:7px;background:var(--panel);border:1px solid var(--acc-line);
   font:600 10.5px/1 var(--mono);letter-spacing:.06em;color:var(--acc-ink);box-shadow:0 8px 20px -10px var(--shadow);pointer-events:none}
 .now-hq .i{width:12px;height:12px}
 .now-tick{display:grid;justify-items:center;gap:2px;padding:4px 6px;border-radius:6px;background:var(--panel);border:1px solid var(--rule-2);
-  font:500 10px/1 var(--mono);color:var(--muted);white-space:nowrap;box-shadow:0 8px 18px -10px var(--shadow);pointer-events:none;transition:opacity var(--t) var(--ease)}
+  font:500 10px/1 var(--mono);color:var(--muted);white-space:nowrap;box-shadow:0 8px 18px -10px var(--shadow);pointer-events:none;transition:opacity var(--t-slow) var(--ease)}
 .now-tick b{font-weight:600;color:var(--text)}
-.now-car{position:relative;width:0;height:0;pointer-events:none;opacity:0;transition:opacity var(--t-slow) var(--ease)}
-.now-car.is-on{opacity:1}
-.now-car__dot{position:absolute;left:-12px;top:-12px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--acc);
-  box-shadow:0 0 0 4px var(--acc-bg),0 0 22px 2px var(--acc-line)}
-.now-car__dot svg{width:13px;height:13px;fill:var(--on-acc)}
-.now-car__lbl{position:absolute;left:18px;top:-11px;height:22px;display:inline-flex;align-items:center;padding:0 8px;border-radius:7px;background:var(--panel);
-  border:1px solid var(--rule-2);font:600 11px/1 var(--mono);color:var(--text);white-space:nowrap;box-shadow:0 8px 18px -10px var(--shadow)}
-.now-car__lbl:empty{display:none}
+.now-tick.is-passed{opacity:.3}
 
 /* ---------- small screens ---------- */
 @media (max-width:1180px){.now-hero__street{font-size:19px}}
-@media (max-height:820px) and (min-width:901px){.now-hero{gap:8px}.now-hero__town{font-size:min(74px,20cqi)}.now-brief{gap:8px}}
+@media (max-height:820px) and (min-width:901px){.now-hero{gap:8px}.now-hero__town{font-size:min(74px,20cqi)}.now-brief{gap:8px}.now-hero__scan{top:52px}
+  .now-z__row{padding:4px 8px}.now-z__rk{width:24px;height:24px}.now-z__row .row__main{gap:1px}.now-zl__sec{margin-bottom:6px}
+  .now-z__row .row__t{font-size:13px;line-height:1.2}.now-z__row .row__s{font-size:11px;line-height:1.25}}
 @media (max-width:900px){
   .now-hero::before{right:-160px;top:-180px}
-  .now-hero__score{margin-left:0}
 }
-
-/* while the pick assembles: the hero says what Aldaba is doing */
-.now-hero__wait{position:absolute;left:22px;top:92px;display:flex;align-items:center;gap:10px;font:500 12px/1 var(--mono);color:var(--muted);
-  opacity:0;pointer-events:none;transition:opacity var(--t-slow) var(--ease)}
-.now-hero__wait b{color:var(--text);font-weight:600}
-.now-hero.is-waiting .now-hero__wait{opacity:1}
-.now-hero__spin{position:relative;width:14px;height:14px;border-radius:50%;border:2px solid var(--acc)}
-.now-hero__spin::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:1.5px solid var(--acc);animation:ring-out 1.4s var(--ease-out) infinite}
-.now-hero:not(.is-waiting) .now-hero__spin::after{animation:none}
-.now-hero__cand{position:absolute;left:22px;right:22px;top:122px;display:flex;align-items:baseline;gap:12px;font:680 34px/1.05 var(--display);
-  letter-spacing:-.03em;color:var(--faint);opacity:0;pointer-events:none;transition:opacity var(--t-slow) var(--ease);white-space:nowrap;overflow:hidden}
-.now-hero__candsc{font:500 16px/1 var(--mono);letter-spacing:-.02em;color:var(--muted)}
-.now-hero.is-waiting .now-hero__cand{opacity:1}

@@ -74,11 +74,13 @@
 
 /* the reverse funnel */
 .money-funpane{padding-bottom:12px}
+/* the panel always ends above the map HUD's corner (bottom - 170 px), so the zoom buttons never slide under the dock */
+@media (min-width:901px){.money-funpane{max-height:calc(100vh - var(--bar-top) - var(--bar-h) - 192px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}}
 .money-fun{display:grid;gap:0}
 .money-st{display:grid;gap:5px;padding:6px 0 8px}
-.money-st__rate{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:11px;line-height:1.35;color:var(--muted)}
-.money-st__rate>.i{transform:rotate(90deg);color:var(--faint);width:12px;height:12px}
-.money-st__rate .src,.money-st__rate .sample{margin-left:1px}
+.money-st__rate{display:block;font-size:11px;line-height:1.45;color:var(--muted);text-wrap:pretty}
+.money-st__rate>.i{display:inline-block;vertical-align:-2px;margin-right:5px;transform:rotate(90deg);color:var(--faint);width:12px;height:12px}
+.money-st__rate .src,.money-st__rate .sample{margin-left:4px}
 .money-st__row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .money-st__k{font-size:12.5px;font-weight:600;color:var(--text)}
 .money-st__v{font:600 17px/1 var(--mono);letter-spacing:-.03em;color:var(--text);white-space:nowrap}
@@ -109,6 +111,7 @@
 .money-zpin b{font-size:12px;color:var(--text)}
 
 @media (max-width:1366px){.money-ans__v{font-size:60px}.money-core{grid-template-columns:136px minmax(0,1fr)}.money-ring{width:136px;height:136px}}
-@media (max-height:820px) and (min-width:901px){.money-title{font-size:28px}.money-lev{gap:12px}}
+@media (max-height:820px) and (min-width:901px){.money-title{font-size:28px}.money-lev{gap:12px}
+  .money-st{padding:3px 0 5px;gap:4px}.money-st--dpd{padding:7px 10px 8px}.money-fun__note{margin-top:6px;line-height:1.4}}
 @media (max-width:900px){.money-lv--2{grid-template-columns:1fr}.money-ans__v{font-size:56px}}
 @media (max-width:420px){.money-core{grid-template-columns:120px minmax(0,1fr);gap:14px}.money-ring{width:120px;height:120px}.money-ring__mid b{font-size:24px}}

@@ -1,93 +1,156 @@
 /* Claude's Aldaba · css/knock.css
-   Owner: the knock builder. #knock only: every rule is scoped by a "knock-" class (pins live outside the slots).
-   Reuses base.css (pane, sec, stats, chip, btn, kbd, src, sample) and only adds what the walk needs. */
+   Owner: the knock builder. #knock only: every rule is scoped by a "knock-" class (pins live outside the slots) or by
+   :root[data-view="knock"]. Reuses base.css (pane, sec, stats, chip, btn, kbd, src, sample) and adds what the walk needs.
+   Left slot = the door you are at. Right slot = the walk: where and when, progress, the streets in order, the map key. */
 
-/* ---------- header: where, when + the walk ring ---------- */
-.knock-top{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.knock-stats .stat__k{flex-wrap:nowrap;white-space:nowrap;letter-spacing:.04em}
-.knock-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px}
-.knock-head__txt{display:grid;gap:9px;min-width:0}
-.knock-head__title{font-size:30px}
-.knock-head__sub{color:var(--muted)}
-.knock-ring{position:relative;width:88px;height:88px;flex:none}
+/* ---------- panel edges: content fades under the top edge while a slot scrolls ---------- */
+:root[data-view="knock"] #slot-left::before,:root[data-view="knock"] #slot-right::before{content:"";position:sticky;top:0;z-index:3;display:block;flex:none;
+  height:16px;margin-bottom:-16px;pointer-events:none;background:linear-gradient(var(--panel),color-mix(in srgb,var(--panel) 0%,transparent))}
+
+/* ---------- the walk (right): where, when ---------- */
+.knock-plan{display:grid;gap:16px}
+.knock-plan__head{display:grid;gap:8px;min-width:0}
+.knock-plan__head .eyebrow{align-items:flex-start}
+.knock-plan__head .eyebrow::before{margin-top:2px}
+.knock-plan__head .eyebrow>span{min-width:0;line-height:1.35}
+.knock-plan__title{font-size:30px}
+.knock-plan__sub{font-size:13px;color:var(--text-2)}
+.knock-plan__facts{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin-top:2px;font:500 12px/1.3 var(--mono);color:var(--text-2)}
+.knock-fact{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.knock-plan__facts b{font-weight:500;color:inherit}
+
+/* progress: the walk ring (25 segments in walk order) + tonight's tally */
+.knock-prog{display:grid;grid-template-columns:92px minmax(0,1fr);gap:18px;align-items:center;padding-block:14px;border-block:1px solid var(--rule)}
+.knock-ring{position:relative;width:92px;height:92px}
 .knock-ring svg{width:100%;height:100%;display:block;overflow:visible}
-.knock-ring__seg{fill:none;stroke:var(--rule-2);stroke-width:5.5;transition:stroke var(--t-slow) var(--ease)}
+.knock-ring__seg{fill:none;stroke:var(--rule-2);stroke-width:5.5;transition:stroke var(--t-slow) var(--ease),stroke-width var(--t) var(--ease)}
 .knock-ring__seg.is-no_answer{stroke:var(--muted)}
 .knock-ring__seg.is-talked{stroke:var(--info)}
 .knock-ring__seg.is-inspection_set{stroke:var(--ok)}
 .knock-ring__seg.is-not_interested{stroke:var(--bad)}
 .knock-ring__seg.is-come_back{stroke:var(--warn)}
-.knock-ring__seg.is-cur{stroke:var(--acc);stroke-width:8}
-.knock-ring__c{position:absolute;inset:0;display:flex;align-items:baseline;justify-content:center;padding-top:31px;gap:2px}
-.knock-ring__n{font:700 26px/1 var(--display);letter-spacing:-.04em;color:var(--text)}
-.knock-ring__of{font:500 11px/1 var(--mono);color:var(--muted)}
-.knock-head__sub{font-size:13px;color:var(--text-2)}
-.knock-head__facts{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font:500 12px/1.3 var(--mono);color:var(--text-2)}
-.knock-head__facts>span:not(.src){white-space:nowrap}
-.knock-head__facts>span:not(:first-child):not(.src)::before{content:"·";margin:0 6px 0 2px;color:var(--faint)}
-.knock-head__facts b{font-weight:500;color:inherit}
-/* ---------- tonight's log ---------- */
-.knock-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
-.knock-stats .stat{padding-block:9px;min-width:0}
-.knock-stats .stat__k{overflow:hidden;text-overflow:ellipsis}
-.knock-stats .stat__v{font:700 24px/1 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96}
-.knock-stat--ok .stat__v{color:var(--ok)}
-.knock-stat--warn .stat__v{color:var(--warn)}
-.knock-stats__src{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:-6px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.knock-ring__seg.is-skip{stroke:var(--faint);stroke-dasharray:1.6 2.2}
+.knock-ring__seg.is-cur{stroke:var(--acc);stroke-width:8;stroke-dasharray:none}
+.knock-ring__c{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:4px}
+.knock-ring__n{font:700 30px/1 var(--display);letter-spacing:-.045em;color:var(--text);font-variation-settings:"opsz" 96}
+.knock-ring__of{font:500 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.knock-tally{display:grid;min-width:0}
+.knock-tally__r{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:25px;padding:3px 0}
+.knock-tally__r+.knock-tally__r{border-top:1px solid var(--rule)}
+.knock-tally dt{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;min-width:0;font:500 var(--fs-micro)/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.knock-tally dd{flex:none;font:700 19px/1 var(--display);letter-spacing:-.03em;color:var(--text);font-variant-numeric:tabular-nums}
+.knock-tally__r.is-ok dd{color:var(--ok)}
+.knock-tally__r.is-warn dd{color:var(--warn)}
 
-/* ---------- the walk, street by street ---------- */
-.knock-walk .sec{margin-bottom:6px}
-.knock-streets{display:grid;gap:1px}
-.knock-st{display:grid;grid-template-columns:20px 50px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 8px;margin-inline:-8px;border-radius:9px;
+/* the plan in three lines: loop length, time at a new rep's pace, the 1-inch line */
+.knock-meta{display:grid;gap:10px}
+.knock-meta li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start;font-size:12.5px;line-height:1.45;color:var(--text-2)}
+.knock-meta li[hidden]{display:none}
+.knock-meta .i{width:15px;height:15px;margin-top:2px;color:var(--muted)}
+.knock-meta b{font-weight:600;color:var(--text)}
+.knock-meta .src{margin-left:2px}
+.knock-meta__halo{width:17px;height:17px;margin-top:1px;overflow:visible}
+
+/* ---------- the walk (right): the streets in order ---------- */
+.knock-order .sec{margin-bottom:8px}
+.knock-streets{display:grid;gap:2px;--dot:20px}
+.knock-st{display:grid;grid-template-columns:20px auto minmax(0,1fr) auto;gap:7px 8px;align-items:center;padding:7px 8px 8px;margin-inline:-8px;border-radius:10px;
   transition:background-color var(--t) var(--ease)}
 .knock-st.is-here{background:var(--panel-2)}
 .knock-st__i{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--rule-3);font:600 10px/1 var(--mono);color:var(--muted)}
 .knock-st.is-here .knock-st__i{border-color:var(--acc);color:var(--acc-ink)}
 .knock-st.is-done .knock-st__i{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
 .knock-st__t{font-size:13.5px;white-space:nowrap;cursor:help;border-radius:4px}
+.knock-st__dir{display:inline-flex;align-items:center;gap:4px;min-width:0;overflow:hidden;font:500 10.5px/1 var(--mono);letter-spacing:.03em;color:var(--muted);white-space:nowrap;text-overflow:ellipsis}
+.knock-st__arrow{flex:none;width:12px;height:12px;color:var(--faint)}
 .knock-st__n{font:500 11.5px/1 var(--mono);color:var(--muted)}
-.knock-dots{display:flex;flex-wrap:wrap;gap:3px}
-.knock-dot{position:relative;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--rule-3);background:var(--panel);
+.knock-dots{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:3px}
+.knock-dot{position:relative;display:grid;place-items:center;width:var(--dot);height:var(--dot);border-radius:50%;border:1.5px solid var(--rule-3);background:var(--panel);
   font:600 9px/1 var(--mono);color:var(--muted);transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease),color var(--t) var(--ease),transform var(--t-fast) var(--ease)}
 .knock-dot:hover{border-color:var(--text-2);color:var(--text)}
 .knock-dot.is-done{background:var(--oc);border-color:var(--oc);color:var(--page)}
+.knock-dot.is-skip{border-style:dashed;border-color:var(--faint);color:var(--faint);background:var(--panel-2)}
+.knock-dot.is-skip::after{content:"";position:absolute;left:18%;right:18%;top:50%;height:1.5px;margin-top:-.75px;background:var(--muted);transform:rotate(-45deg)}
 .knock-dot.is-cur{border:2px solid var(--acc);color:var(--text);box-shadow:0 0 0 3px var(--acc-bg);transform:scale(1.1)}
 .knock-dot.is-done.is-cur{color:var(--page)}
 
-/* ---------- the current door ---------- */
-.knock-card{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+/* ---------- the map key: a small solid card on the map, bottom-left of the free area (under the map on phones) ---------- */
+.knock-legend{position:absolute;left:0;bottom:0;display:grid;gap:8px;width:max-content;max-width:min(292px,100%);padding:11px 13px 12px;border-radius:12px}
+.knock-legend__t{font:500 var(--fs-micro)/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.knock-legend__list{display:grid;gap:7px}
+.knock-legend__list li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:center;font-size:11.5px;line-height:1.35;color:var(--text-2)}
+.knock-legend__g{width:22px;height:22px;overflow:visible;justify-self:center}
+.knock-legend__trk{fill:var(--panel);stroke:var(--rule-3);stroke-width:1.6}
+.knock-legend__arc{fill:none;stroke:var(--h15);stroke-width:2.4;stroke-linecap:round}
+.knock-legend__done{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round}
+.knock-legend__ahead{fill:none;stroke:var(--text-2);stroke-width:1.8;stroke-dasharray:3 3;opacity:.75}
+.knock-legend__hail{align-items:start!important}
+.knock-legend__lot{justify-self:center;width:20px;height:14px;margin-top:1px;border-radius:2px;border:1px solid color-mix(in srgb,var(--h15) 55%,var(--h1));
+  background:color-mix(in srgb,color-mix(in srgb,var(--h15) 55%,var(--h1)) 12%,transparent)}
+.knock-legend__scale{position:relative;display:block;height:5px;margin:8px 0 13px;border-radius:3px;background:linear-gradient(90deg,var(--h0) 0%,var(--h1) 23%,var(--h15) 58%,var(--h2) 100%)}
+.knock-legend__tick{position:absolute;top:-3px;height:11px;width:1.5px;margin-left:-.75px;border-radius:1px;background:var(--text)}
+.knock-legend__tick b{position:absolute;top:13px;left:50%;transform:translateX(-50%);font:500 9px/1 var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+.knock-legend__tick--2{background:var(--text-2)}
+.knock-legend .src{margin-left:2px}
+@media (min-width:901px){.app:has(#slot-bottom[data-on]) .knock-legend{opacity:0;visibility:hidden}}
+/* the door marker in miniature (map key, plan, door card): a ring + the dotted 1-inch halo, colored by hail via data-h */
+.knock-halo__ring{fill:var(--panel);stroke:currentColor;stroke-width:2.2}
+.knock-halo__dots{fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:1.6 2.4;opacity:.9}
+
+/* ---------- the door (left) ---------- */
+.knock-card{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start}
 .knock-card__bar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:24px}
 .knock-card__n{color:var(--acc-ink);letter-spacing:.1em;text-transform:uppercase}
 .knock-card__next{text-transform:uppercase;letter-spacing:.1em}
 .knock-card__o{height:24px;color:var(--oc);background:color-mix(in srgb,var(--oc) 12%,transparent);border-color:color-mix(in srgb,var(--oc) 40%,transparent)}
-.knock-card__hero{display:grid;grid-template-columns:minmax(0,48%) minmax(0,1fr);gap:14px;align-items:stretch}
-.knock-card__pic{position:relative;min-height:142px;border-radius:var(--r-md);overflow:hidden;background:var(--panel-2);border:1px solid var(--rule)}
+.knock-card__o--skip{--oc:var(--muted);color:var(--text-2)}
+.knock-card__o .i{width:12px;height:12px;color:var(--bad)}
+.knock-card__hero{display:grid;grid-template-columns:minmax(0,46%) minmax(0,1fr);gap:16px;align-items:stretch}
+.knock-card__pic{position:relative;min-height:150px;border-radius:var(--r-md);overflow:hidden;background:var(--panel-2);border:1px solid var(--rule)}
 .knock-portrait{position:absolute;inset:0;display:block;width:100%;height:100%}
-.knock-card__id{display:grid;align-content:start;gap:8px;min-width:0}
-.knock-card__addr{font-size:23px;letter-spacing:-.025em;line-height:1.05}
+.knock-card__id{display:grid;align-content:start;gap:9px;min-width:0}
+.knock-card__addr{font-size:24px;letter-spacing:-.025em;line-height:1.05}
 .knock-card__tags{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.knock-card__st{font:500 11px/1 var(--mono);color:var(--muted)}
-.knock-card__hail{display:grid;gap:5px;margin-top:4px;padding-top:10px;border-top:1px solid var(--rule)}
+.knock-card__hail{display:grid;gap:5px;margin-top:2px;padding-top:10px;border-top:1px solid var(--rule)}
 .knock-card__hv{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 7px;font-size:12px;color:var(--text-2)}
 .knock-card__hv b{font:700 30px/.95 var(--display);letter-spacing:-.04em;font-variation-settings:"opsz" 96}
-.knock-facts2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-block:1px solid var(--rule)}
-.knock-f{display:grid;align-content:space-between;gap:7px;padding:10px 10px 10px 0;min-width:0}
-.knock-f+.knock-f{padding-left:10px;border-left:1px solid var(--rule)}
-.knock-f__k{display:flex;flex-wrap:wrap;align-items:center;gap:4px 5px;font:500 9.5px/1.25 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-.knock-f__v{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-size:12.5px;color:var(--text-2);line-height:1.25}
-.knock-f__v .sample{align-self:center}
-.knock-f__v b{font:500 17px/1 var(--mono);letter-spacing:-.02em;color:var(--text)}
-.knock-f__s{font-size:11.5px;line-height:1.35;color:var(--muted)}
-.knock-card__score{display:inline-flex;align-items:center;gap:7px;cursor:help}
+.knock-card__score{display:inline-flex;align-items:center;gap:7px;cursor:help;border-radius:6px}
 .knock-card__score .t-micro{text-transform:uppercase;letter-spacing:.07em}
 .knock-score{position:relative;display:grid;place-items:center;width:32px;height:32px}
 .knock-score svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 .knock-score__trk{fill:none;stroke:var(--rule-2);stroke-width:3.5}
 .knock-score__arc{fill:none;stroke:var(--acc);stroke-width:3.5;stroke-linecap:round}
 .knock-score b{position:relative;font:600 11.5px/1 var(--mono);color:var(--text)}
+.knock-f__k{display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:4px 5px;font:500 9.5px/1.25 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.knock-f__s{font-size:11.5px;line-height:1.35;color:var(--muted)}
+
+/* inside the modeled 1-inch hail line (color = the hail class of the modeled value, via data-h) */
+.knock-line{display:grid;grid-template-columns:22px minmax(0,1fr);gap:11px;align-items:start;padding:10px 12px;border-radius:10px;
+  border:1px solid var(--rule-2);background:var(--panel-2)}
+.knock-line.is-in{border-color:color-mix(in srgb,currentColor 34%,var(--rule-2));background:color-mix(in srgb,currentColor 7%,var(--panel-2))}
+.knock-line:not(.is-in){color:var(--muted)}
+.knock-line__g{width:22px;height:22px;margin-top:1px;overflow:visible}
+.knock-line__t{display:block;font-size:12.5px;line-height:1.4;color:var(--text-2)}
+.knock-line__t b{font-weight:600;color:var(--text);margin-right:2px}
+.knock-line__s{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+
+/* the next open door, and how far on foot */
+.knock-next{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px 4px 8px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--panel)}
+.knock-next__k{text-transform:uppercase;letter-spacing:.1em}
+.knock-next__n{display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:50%;border:1.5px solid var(--rule-3);font:600 10px/1 var(--mono);color:var(--text-2)}
+.knock-next__t{min-width:0;font-size:12.5px;line-height:1.35;color:var(--muted)}
+.knock-next__t b{font-weight:600;color:var(--text);margin-right:3px}
+.knock-next__go{flex:none}
+
+/* on the do-not-knock list */
+.knock-dnk{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:10px;border:1px dashed var(--rule-3);
+  background:var(--panel-2);font-size:12.5px;line-height:1.4;color:var(--text-2)}
+.knock-dnk .i{width:16px;height:16px;margin-top:1px;color:var(--bad)}
+.knock-dnk b{font-weight:600;color:var(--text)}
+.knock-dnk span{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
 
 /* the 69-1602 check: a record, not a script */
-.knock-legal{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:9px 11px;border-radius:10px;
+.knock-legal{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:10px;
   border:1px solid var(--rule-2);background:var(--panel-2);cursor:pointer;transition:border-color var(--t) var(--ease),background-color var(--t) var(--ease)}
 .knock-legal:hover{border-color:var(--rule-3)}
 .knock-legal input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
@@ -97,9 +160,20 @@
 .knock-legal.is-on{border-color:color-mix(in srgb,var(--ok) 45%,transparent);background:var(--ok-bg)}
 .knock-legal.is-on .knock-legal__box{background:var(--ok);border-color:var(--ok);color:var(--page)}
 .knock-legal__t{font-size:12.5px;line-height:1.4;color:var(--text-2)}
+
+/* built, roof age, owner-lived: keys on top (they may wrap in Spanish), values on one baseline */
+.knock-facts2{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-block:1px solid var(--rule)}
+/* one sample tag for the row, sitting on its top hairline like a legend */
+.knock-facts2>.knock-f--tag{position:absolute;right:0;top:0;display:block;padding:0 0 0 8px;border:0;background:var(--panel);transform:translateY(-50%)}
+.knock-f{display:grid;grid-template-rows:1fr auto;gap:8px;padding:10px 10px 11px 0;min-width:0}
+.knock-f+.knock-f{padding-left:12px;border-left:1px solid var(--rule)}
+.knock-f__v{display:flex;align-items:baseline;gap:5px;font-size:12.5px;line-height:1;color:var(--text-2)}
+.knock-f__v b{font:500 18px/1 var(--mono);letter-spacing:-.02em;color:var(--text)}
 .knock-flags{display:flex;flex-wrap:wrap;gap:6px}
-.knock-flag{height:26px;font-size:11.5px}
-.knock-flag[aria-pressed="true"]{color:var(--text);background:var(--panel-3);border-color:var(--rule-3)}
+.knock-flag{height:28px;font-size:11.5px}
+.knock-flag .i{color:var(--muted)}
+.knock-flag[aria-pressed="true"]{color:var(--text);background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.knock-flag[aria-pressed="true"] .i{color:var(--bad)}
 
 /* inline follow-up after "Inspection set" */
 .knock-follow{display:grid;gap:10px;padding:12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--ok) 40%,transparent);background:var(--ok-bg)}
@@ -113,11 +187,11 @@
 .knock-slot[aria-pressed="true"]{border-color:var(--ok);color:var(--text);background:color-mix(in srgb,var(--ok) 14%,var(--panel))}
 .knock-follow__row{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between}
 
-/* ---------- one tap per door ---------- */
-.knock-foot{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;z-index:2;box-shadow:0 -18px 30px -24px var(--shadow)}
+/* ---------- one tap per door (sticky) ---------- */
+.knock-foot{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;z-index:4;box-shadow:0 -18px 30px -24px var(--shadow)}
 .knock-foot__head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .knock-foot__q{text-transform:uppercase;letter-spacing:.1em;color:var(--text-2)}
-.knock-foot__keys{display:inline-flex;align-items:center;gap:3px}
+.knock-foot__keys{display:inline-flex;align-items:center;gap:3px;cursor:help;border-radius:5px}
 .knock-foot__keys .kbd{min-width:16px;height:16px;font-size:9.5px}
 .knock-outs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .knock-out{grid-column:span 2;position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px 0 11px;border-radius:11px;text-align:left;
@@ -129,14 +203,14 @@
 .knock-out:active{transform:translateY(1px) scale(.98)}
 .knock-out[aria-pressed="true"]{border-color:var(--oc);background:color-mix(in srgb,var(--oc) 15%,var(--panel-2))}
 .knock-out .knock{border-color:var(--oc)}
-.knock-out__top{display:contents}
-.knock-out__dot{flex:none;order:0;width:9px;height:9px;border-radius:50%;background:var(--oc);box-shadow:0 0 0 3px color-mix(in srgb,var(--oc) 18%,transparent)}
-.knock-out__l{order:1;flex:1;min-width:0;font:600 13px/1.15 var(--ui);letter-spacing:-.005em}
-.knock-out .kbd{order:2;flex:none}
+.knock-out__dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--oc);box-shadow:0 0 0 3px color-mix(in srgb,var(--oc) 18%,transparent)}
+.knock-out__l{flex:1;min-width:0;font:600 13px/1.15 var(--ui);letter-spacing:-.005em}
+.knock-out .kbd{flex:none}
 .knock-out[data-out="inspection_set"]{background:color-mix(in srgb,var(--ok) 10%,var(--panel-2));border-color:color-mix(in srgb,var(--ok) 38%,var(--rule-2))}
 .knock-foot__row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -8px -4px}
 .knock-foot__last{flex:1;min-width:0;text-align:center;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .knock-foot__last .t-mono{color:var(--text-2);font-size:12px}
+.knock-foot__next{display:none}
 .knock-foot .btn.is-armed{color:var(--bad);background:var(--bad-bg)}
 .knock-foot .btn[disabled]{opacity:.4;pointer-events:none}
 .knock-flip{transform:scaleX(-1)}
@@ -145,52 +219,98 @@
 .knock-park{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--info);color:var(--page);border:2px solid var(--page);
   box-shadow:0 8px 20px -8px var(--shadow);font:800 14px/1 var(--display);cursor:help}
 .knock-tag{pointer-events:none}
+/* pins move every frame with the camera: never let a global transition (reduced motion sets 1 ms on everything) trail them */
+.pin.knock-park,.pin.knock-tag{transition:none!important}
 .knock-tag__in{position:relative;display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px 0 4px;border-radius:9px;background:var(--panel);
   border:1px solid var(--acc-line);box-shadow:0 14px 30px -14px var(--shadow),0 0 0 4px var(--acc-bg);font:600 12.5px/1 var(--ui);color:var(--text);white-space:nowrap}
-.knock-tag__in::after{content:"";position:absolute;left:50%;top:100%;width:1.5px;height:9px;margin-left:-.75px;background:var(--acc)}
+.knock-tag__in::after{content:"";position:absolute;background:var(--acc)}
+.knock-tag[data-side="top"] .knock-tag__in{transform-origin:var(--stem,50%) 100%}
+.knock-tag[data-side="top"] .knock-tag__in::after{left:var(--stem,50%);top:100%;width:1.5px;height:9px;margin-left:-.75px}
+.knock-tag[data-side="bottom"] .knock-tag__in{transform-origin:var(--stem,50%) 0}
+.knock-tag[data-side="bottom"] .knock-tag__in::after{left:var(--stem,50%);bottom:100%;width:1.5px;height:9px;margin-left:-.75px}
+.knock-tag[data-side="right"] .knock-tag__in{transform-origin:0 50%}
+.knock-tag[data-side="right"] .knock-tag__in::after{right:100%;top:50%;width:9px;height:1.5px;margin-top:-.75px}
+.knock-tag[data-side="left"] .knock-tag__in{transform-origin:100% 50%}
+.knock-tag[data-side="left"] .knock-tag__in::after{left:100%;top:50%;width:9px;height:1.5px;margin-top:-.75px}
 .knock-tag__n{display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:6px;background:var(--acc);color:var(--on-acc);font:600 11px/1 var(--mono)}
-.knock-tag__s{font:500 11.5px/1 var(--mono);color:var(--muted)}
 .knock-tag__o{font:600 11.5px/1 var(--ui);color:var(--oc)}
+.knock-tag__o--skip{color:var(--muted)}
 
 /* ---------- evening recap (dock) ---------- */
-.knock-recap{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"head act" "stats stats";gap:12px 22px;align-items:end}
-.knock-recap__head{grid-area:head;display:grid;gap:7px;min-width:0}
-.knock-recap__sum{font-size:19px}
-.knock-recap__note{color:var(--muted)}
-.knock-recap__stats{grid-area:stats;grid-template-columns:repeat(5,minmax(0,1fr))}
+.knock-recap{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"eb act" "sum sum" "note note" "stats stats";gap:10px 18px;align-items:center}
+.knock-recap__eb{grid-area:eb;white-space:nowrap}
+.knock-recap__sum{grid-area:sum;font-size:19px;text-wrap:balance}
+.knock-recap__note{grid-area:note;color:var(--muted)}
+.knock-recap__stats{grid-area:stats;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:auto auto auto;margin-top:4px}
+/* labels, values and notes each share a row across the five stats, so every value sits on one baseline */
+.knock-recap__stats .stat{display:grid;grid-row:span 3;grid-template-rows:subgrid;gap:7px;align-items:end;justify-content:stretch}
+.knock-recap__stats .stat__k{align-self:start}
 .knock-recap__stats .stat__v{font:700 24px/1 var(--display);letter-spacing:-.04em}
+.knock-recap__stats .stat__s{align-self:start;font-size:11.5px}
 .knock-ok{color:var(--ok)}
+.knock-warn{color:var(--warn)}
 .knock-recap__act{grid-area:act;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 
 /* ---------- sizes ---------- */
+@media (max-width:1366px){
+  .knock-streets{--dot:18px}
+  .knock-plan__title{font-size:28px}
+  .knock-prog{grid-template-columns:84px minmax(0,1fr);gap:14px}
+  .knock-ring{width:84px;height:84px}
+  .knock-ring__n{font-size:27px}
+}
 @media (max-height:820px) and (min-width:901px){
+  .knock-card__pic{min-height:132px}
+  .knock-card__addr{font-size:22px}
+  .knock-card{gap:10px;padding-top:16px}
+  .knock-card__id{gap:7px}
+  .knock-card__hail{padding-top:8px}
+  .knock-plan{gap:11px}
+  .knock-plan__title{font-size:26px}
+  .knock-plan__head{gap:6px}
+  .knock-prog{padding-block:10px;grid-template-columns:78px minmax(0,1fr)}
+  .knock-ring{width:78px;height:78px}
+  .knock-ring__n{font-size:25px}
+  .knock-tally__r{min-height:22px;padding-block:2px}
+  .knock-meta{gap:7px}
+  .knock-meta li{font-size:12px;line-height:1.4}
+  .knock-st{padding-block:5px 6px}
+  .knock-line,.knock-legal,.knock-dnk{padding-block:8px}
+  .knock-f{padding-block:8px 9px;gap:6px}
+  .knock-line__s{display:none}
   .knock-card__pic{min-height:124px}
-  .knock-head__title{font-size:27px}
-  .knock-card__addr{font-size:21px}
-  .knock-card{gap:12px}
+  .knock-next{display:none}
+  .knock-foot__next{display:inline}
+  .knock-outs .knock-out{min-height:40px}
 }
 @media (max-width:1180px) and (min-width:901px){
   .knock-out__l{font-size:12px}
+  .knock-recap__stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .knock-recap__stats .stat:nth-child(3n+1){border-left:0;padding-left:0}
 }
 @media (max-width:900px){
-  .knock-recap{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "stats" "act"}
+  :root[data-view="knock"] #slot-left::before,:root[data-view="knock"] #slot-right::before{display:none}
+  .knock-legend{position:static;width:auto;max-width:none;padding:12px 14px}
+  .knock-legend__list{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 14px}
+  .knock-recap{grid-template-columns:minmax(0,1fr);grid-template-areas:"eb" "sum" "note" "stats" "act"}
   .knock-recap__stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .knock-recap__stats .stat:nth-child(3n+1){border-left:0;padding-left:0}
   .knock-recap__act{justify-content:flex-start}
-  .knock-head__title{font-size:26px}
+  .knock-plan__title{font-size:26px}
 }
 @media (max-width:520px){
-  .knock-ring{width:74px;height:74px}
-  .knock-ring__c{padding-top:25px}
-  .knock-ring__n{font-size:22px}
   .knock-outs{gap:5px}
   .knock-out{padding:0 7px 0 9px}
   .knock-out__l{font-size:12px}
   .knock-foot__keys{display:none}
   .knock-out .kbd{display:none}
-  .knock-stats .stat__k{flex-wrap:wrap;white-space:normal;font-size:9px;letter-spacing:.03em}
-  .knock-stats .stat+.stat{padding-left:9px}
-  .knock-stats .stat{padding-right:6px}
   .knock-card__hero{grid-template-columns:1fr}
-  .knock-card__pic{min-height:150px}
+  .knock-card__pic{min-height:160px}
   .knock-card__addr{font-size:22px}
+  .knock-f+.knock-f{padding-left:9px}
+  .knock-f{padding-right:6px}
+  .knock-streets{--dot:21px}
+  .knock-recap__stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .knock-recap__stats .stat:nth-child(3n+1){border-left:1px solid var(--rule);padding-left:12px}
+  .knock-recap__stats .stat:nth-child(2n+1){border-left:0;padding-left:0}
 }

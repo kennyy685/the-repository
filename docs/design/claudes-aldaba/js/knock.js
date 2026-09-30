@@ -1,25 +1,32 @@
 /* Claude's Aldaba · knock.js · #knock: the street-level walk of Aldaba's pick (Columbus, 22 St & 21 St).
-   The map, drawn in three layers on the shared world:
-     knock-lots (z 40, basemap canvas)  deterministic sample parcels + house footprints along every real Columbus street in
-                                        reach (seeded by street name, so they never change), gable/hip roofs lit from the
-                                        north-west, driveways, and each lot tinted by the modeled hail field (A.world.hail.at).
-                                        The 25 walk homes sit in the same parcel rhythm as brighter footprints.
-     knock-walk (z 120, top canvas)     the route in walk order from the park spot: solid knocker orange behind you,
-                                        dashed ahead; spurs from the sidewalk to each door; knock ripples on the map.
-     knock-doors (z 210, top canvas)    the knocker ring on every walk door: sweep = door score, color = hail at the door,
-                                        filled with the outcome once logged. Click any ring to select that door.
-   The panel: the walk street by street, rolling counters, the current door (House portrait, facts with sources, the
-   69-1602 check), and one tap per door (N T I X B, U = undo) with an inline follow-up for inspections.
-   Director hooks: A.knockDemo = {tap(outcome), select(rank), undo(), reset(), state()}. */
+   The map, drawn in four layers on the shared world:
+     knock-lots  (z 40, basemap canvas)  deterministic sample parcels + house footprints along every real Columbus street in
+                                         reach (seeded by street name, so they never change), gable/hip roofs lit from the
+                                         north-west, driveways; each lot tinted by the modeled hail field (A.world.hail.at) on an
+                                         absolute scale, so equal hail reads as equal tint and the 1-inch line is a tint step.
+     knock-homes (z 110, top canvas)     the 25 walk homes as brighter footprints; a logged door's roof takes its outcome color,
+                                         a door on the do-not-knock list goes grey. (Top canvas: a tap never redraws the town.)
+     knock-walk  (z 120, top canvas)     the route in walk order from the park spot (22 St east, 21 St west, 40 Ave north, back to
+                                         the car): solid knocker orange behind you, dashed ahead; spurs to each door; knock ripples.
+     knock-doors (z 210, top canvas)     the knocker ring on every walk door: sweep = door score, color = hail at the door, a
+                                         dotted halo when the door sits inside the modeled 1-inch hail line, filled with the
+                                         outcome once logged, struck through when the door is on the do-not-knock list.
+   The panels: left = the door (House portrait, facts with sources, the 1-inch line, the 69-1602 check, one tap per door with
+   N T I X B and U = undo, an inline follow-up for inspections); right = the walk (where and when, the progress ring and
+   tallies, the streets in order, the map key). A do-not-knock list (no soliciting sign / asked us not to come back) is kept
+   per address, so every later walk skips those doors too.
+   Director hooks: A.knockDemo = {tap(outcome, rank?), flag(kind, rank?), select(rank), undo(), reset(all?), state()}. */
 (function () {
   'use strict';
   const A = window.A; if (!A || !A.view) return;
   const CK = (window.COPY && window.COPY.knock) || {};
   const FT = 69.05 * 5280;                 // feet per world unit (1 world unit = 1 degree of latitude)
-  const KEY = 'knock.walk.v1';
+  const KEY = 'knock.walk.v1';             // this walk's log, per viewer
+  const DNK = 'knock.dnk.v1';              // the do-not-knock list, by address: it outlives any one walk
+  const LINE = 1.0;                        // the 1-inch hail line: about where roof damage usually starts to show
   const FONT_MONO = '"Geist Mono","Geist Mono L",ui-monospace,monospace';
 
-  /* ---------------- outcomes ---------------- */
+  /* ---------------- outcomes + do-not-knock flags ---------------- */
   const OUT = [
     { id: 'no_answer', key: 'N', tok: '--muted', short: { en: 'No answer', es: 'No abrió' } },
     { id: 'talked', key: 'T', tok: '--info', short: { en: 'Talked', es: 'Hablamos' } },
@@ -33,14 +40,21 @@
     o.label = c.label || o.short; o.hint = c.hint || { en: '', es: '' }; OUTBY[o.id] = o;
   });
   const ANSWERED = { talked: 1, inspection_set: 1, not_interested: 1, come_back: 1 };
+  const FLAGS = [
+    { id: 'noSoliciting', icon: 'x', label: { en: 'No soliciting sign', es: 'Letrero de no vendedores' } },
+    { id: 'dontReturn', icon: 'flag', label: { en: 'Asked us not to come back', es: 'Pidió que no volvamos' } }
+  ];
+  const FLAGBY = {}; FLAGS.forEach((f) => { const c = (CK.flags || {})[f.id]; if (c) f.label = c; FLAGBY[f.id] = f; });
 
   /* ---------------- small helpers ---------------- */
   const fill = (s, v) => String(s == null ? '' : s).replace(/\{(\w+)\}/g, (m, k) => (v && v[k] != null ? v[k] : m));
   const pick = (v, l) => { const o = {}; for (const k in v || {}) o[k] = v[k] && typeof v[k] === 'object' ? v[k][l] : v[k]; return o; };
   /** copy {en,es} + vars (plain strings or {en,es}; already HTML-safe) → both-language HTML */
   const T = (o, v) => { o = o || {}; return A.L(fill(A.esc(o.en), pick(v, 'en')), fill(A.esc(o.es || o.en), pick(v, 'es'))); };
-  /** same, as {en,es} plain text (toasts, canvas) */
+  /** same, as {en,es} plain text (toasts, canvas, vars) */
   const Tx = (o, v) => { o = o || {}; return { en: fill(o.en, pick(v, 'en')), es: fill(o.es || o.en, pick(v, 'es')) }; };
+  /** a count phrase: copy entries carry an optional singular as `one` ({en, es, one:{en, es}}) */
+  const one = (o, n) => (n === 1 && o && o.one ? o.one : o);
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const sm = (x, a, b) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const outBack = (x) => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
@@ -57,6 +71,9 @@
     const ab = { Street: 'St', Avenue: 'Ave', Road: 'Rd', Drive: 'Dr', Boulevard: 'Blvd' };
     return s.replace(/\b(Street|Avenue|Road|Drive|Boulevard)\b/g, (m) => ab[m]);
   }
+  const DIRS = { en: ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'], es: ['norte', 'noreste', 'este', 'sureste', 'sur', 'suroeste', 'oeste', 'noroeste'] };
+  /** plane vector (x east, y south, feet) → compass index 0..7 (0 = north) */
+  const compass = (x, y) => ((Math.round((Math.atan2(x, -y) * 180) / Math.PI / 45) % 8) + 8) % 8;
 
   /* ---------------- plane geometry (feet) ---------------- */
   const cross = (ax, ay, bx, by) => ax * by - ay * bx;
@@ -270,10 +287,17 @@
       const lot = A.safe('knock lot', mkLot, w.st, w.side, w.t - 26, w.t + 26, w); if (lot) { lot.Q = null; lots.push(lot); wh[w.rank] = lot; }
     });
 
-    // the route in walk order: park → each street of the walk, joined by its connectors; drawn 5 ft right of travel
+    // the route in walk order: park → each street of the walk, joined by its connectors; drawn 5 ft right of travel.
+    // segLeg[i] = the leg that owns the segment rp[i-1] → rp[i]. A point two legs share stays with the leg that reached it,
+    // so every segment keeps its own leg (handing the shared point to the next leg dropped the end of 22 St and all of
+    // 21 St from the door matching, and those doors fell back to rank order).
     const legs = []; (wk.s || []).forEach((s, i) => { const c = (wk.c || [])[i]; if (i > 0 && c && c.length > 1) legs.push({ pts: c.map(toF) }); legs.push({ pts: s.p.map(toF), st: stKey(s.n), s }); });
-    const rp = [], legOf = [];
-    legs.forEach((lg, li) => lg.pts.forEach((p) => { const l = rp[rp.length - 1]; if (l && Math.hypot(p[0] - l[0], p[1] - l[1]) < 1) { legOf[rp.length - 1] = li; return; } rp.push(p); legOf.push(li); }));
+    const rp = [], segLeg = [];
+    legs.forEach((lg, li) => lg.pts.forEach((p, k) => {
+      const l = rp[rp.length - 1];
+      if (l && Math.hypot(p[0] - l[0], p[1] - l[1]) < 1) return;
+      segLeg.push(l && k > 0 ? li : -1); rp.push(p);
+    }));
     const off = rp.map((p, i) => {
       const a = rp[Math.max(0, i - 1)], b = rp[Math.min(rp.length - 1, i + 1)];
       const d0 = i > 0 ? [p[0] - a[0], p[1] - a[1]] : [b[0] - p[0], b[1] - p[1]], d1 = i < rp.length - 1 ? [b[0] - p[0], b[1] - p[1]] : d0;
@@ -288,32 +312,55 @@
       const lot = wh[w.rank], D = lot ? lot.door : w.P, key = stKey(w.h.st);
       let best = null;
       for (let i = 1; i < off.length; i++) {
-        const lg = legs[legOf[i]]; if (!lg || lg.st !== key || legOf[i - 1] !== legOf[i]) continue;
+        const li = segLeg[i]; if (li < 0 || legs[li].st !== key) continue;
         const a = off[i - 1], b = off[i], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1, u = clamp(((D[0] - a[0]) * dx + (D[1] - a[1]) * dy) / L2, 0, 1);
         const fp = [a[0] + dx * u, a[1] + dy * u], d = Math.hypot(D[0] - fp[0], D[1] - fp[1]);
         if (!best || d < best.d) best = { d, arc: cum[i - 1] + u * Math.sqrt(L2), fp };
       }
       if (!best) best = { d: 0, arc: total, fp: D };
-      return { rank: w.rank, h: w.h, D, ll: toLL(D), foot: best.fp, arc: best.arc, lot };
+      return { rank: w.rank, h: w.h, D, ll: toLL(D), foot: best.fp, arc: best.arc, lot, side: w.side };
     }).sort((p, q) => p.arc - q.arc || p.rank - q.rank);
     doors.forEach((d, i) => (d.idx = i + 1));
+    // the walk's streets, in order: heading of travel and their doors
+    const walkSt = (wk.s || []).map((s, i) => {
+      const a = toF(s.p[0]), b = toF(s.p[s.p.length - 1]), key = stKey(s.n);
+      return { i, s, key, dir: compass(b[0] - a[0], b[1] - a[1]), doors: doors.filter((d) => stKey(d.h.st) === key) };
+    });
+    doors.forEach((d) => { d.wi = walkSt.findIndex((w) => w.key === stKey(d.h.st)); });
+    const end = rp[rp.length - 1];
 
-    const g = { O, toF, toLL, lots, wh, doors, route: off, cum, total, legs, park: [0, 0], maxD: 0 };
+    const g = { O, toF, toLL, lots, wh, doors, walkSt, route: off, cum, total, legs, park: [0, 0], maxD: 0, loop: !!end && Math.hypot(end[0], end[1]) < 40 };
     lots.forEach((l) => { if (l.d > g.maxD) g.maxD = l.d; });
     tint(g);
     return g;
   }
 
-  /* hail per lot, from the modeled field; paths are grouped in distance bands from the park spot (the reveal wave) */
+  /* hail per lot and per door, from the modeled field. Absolute buckets (0.75-1, 1-1.25 ... 2.25 in+): equal hail, equal
+     tint, and the 1-inch line falls on a bucket edge. Paths are grouped in distance bands from the park spot (the reveal). */
+  const TB = { lo: 0.75, step: 0.25, n: 7 };
   function tint(g) {
-    const H = A.world && A.world.hail;
-    let lo = Infinity, hi = -Infinity;
-    g.lots.forEach((l) => { l.hv = H && H.ready ? H.at(g.toLL(l.c)) : 0; if (l.hv > 0) { lo = Math.min(lo, l.hv); hi = Math.max(hi, l.hv); } });
-    if (!(hi > lo)) { lo = 0; hi = 1; }
-    g.hlo = lo; g.hhi = hi; g.nb = 7;
+    const H = A.world && A.world.hail, ok = !!(H && H.ready);
+    g.lots.forEach((l) => { l.hv = ok ? H.at(g.toLL(l.c)) : 0; });
+    g.doors.forEach((d) => { d.fh = ok ? H.at(d.h.p) : null; d.in1 = ok && d.fh >= LINE; });
+    g.hailOk = ok; g.in1 = g.doors.filter((d) => d.in1).length;
+    g.edge = ok ? A.safe('knock edge', edgeOf, g) || null : null;
+    g.bucket = (v) => (v >= TB.lo ? Math.min(TB.n - 1, Math.floor((v - TB.lo) / TB.step)) : -1);
     g.ver = (g.ver || 0) + 1;
-    g.bucket = (v) => (v > 0 ? clamp(Math.floor(((v - lo) / (hi - lo + 1e-9)) * g.nb), 0, g.nb - 1) : -1);
     buildPaths(g);
+  }
+  /** from the middle of the walk, the nearest place where the modeled field crosses the 1-inch line (32 bearings, 0.05 mi steps) */
+  function edgeOf(g) {
+    const H = A.world.hail; let cx = 0, cy = 0;
+    g.doors.forEach((d) => { cx += d.D[0]; cy += d.D[1]; }); cx /= g.doors.length || 1; cy /= g.doors.length || 1;
+    const inside = H.at(g.toLL([cx, cy])) >= LINE; let best = null;
+    for (let k = 0; k < 32; k++) {
+      const a = (k / 32) * Math.PI * 2, ux = Math.sin(a), uy = -Math.cos(a);
+      for (let s = 1; s <= 400; s++) {
+        const r = s * 264; if (best && r >= best.r) break;
+        if ((H.at(g.toLL([cx + ux * r, cy + uy * r])) >= LINE) !== inside) { best = { r, ux, uy }; break; }
+      }
+    }
+    return { inside, mi: best ? best.r / 5280 : null, dir: best ? compass(best.ux, best.uy) : 0 };
   }
   function buildPaths(g) {
     const BW = 170, TW = 700, map = new Map();
@@ -351,39 +398,59 @@
 
   /* ---------------- palette (tokens → canvas) ---------------- */
   const P = {};
+  const HS = [0.8, 1.1, 1.55, 2.1];         // where the hail tokens sit on the continuous scale (in)
   function readP() {
-    const g = geo(), rgb = (n) => A.rgba(A.tok(n) || '#888');
+    const rgb = (n) => A.rgba(A.tok(n) || '#888');
     const land = rgb('--map-land'), text = rgb('--text'), light = A.theme === 'light';
     const mix = (a, b, k) => 'rgb(' + [0, 1, 2].map((i) => Math.round((a[i] + (b[i] - a[i]) * k) * 255)).join(',') + ')';
     P.light = light;
     P.roof = light ? [mix(land, text, 0.09), mix(land, text, 0.16), mix(land, text, 0.24)] : [mix(land, text, 0.25), mix(land, text, 0.17), mix(land, text, 0.115)];
     P.wroof = light ? [mix(land, text, 0.3), mix(land, text, 0.42), mix(land, text, 0.54)] : [mix(land, text, 0.62), mix(land, text, 0.47), mix(land, text, 0.35)];
-    P.line = mix(land, text, light ? 0.2 : 0.2); P.drive = mix(land, text, light ? 0.09 : 0.085);
+    P.line = mix(land, text, 0.2); P.drive = mix(land, text, light ? 0.09 : 0.085);
     P.shadow = A.tok('--shadow'); P.shadowA = light ? 0.5 : 0.75;
     P.text = A.tok('--text'); P.text2 = A.tok('--text-2'); P.muted = A.tok('--muted'); P.faint = A.tok('--faint');
     P.panel = A.tok('--panel'); P.page = A.tok('--page'); P.rule3 = A.tok('--rule-3'); P.acc = A.tok('--acc'); P.accInk = A.tok('--acc-ink'); P.onAcc = A.tok('--on-acc');
     P.out = {}; OUT.forEach((o) => (P.out[o.id] = A.tok(o.tok)));
     P.outRGB = {}; OUT.forEach((o) => (P.outRGB[o.id] = rgb(o.tok)));
     P.landRGB = land; P.textRGB = text; P.mix = mix;
-    const hs = [[0.8, rgb('--h0')], [1.1, rgb('--h1')], [1.55, rgb('--h15')], [2.1, rgb('--h2')]];
+    const hs = [[HS[0], rgb('--h0')], [HS[1], rgb('--h1')], [HS[2], rgb('--h15')], [HS[3], rgb('--h2')]];
     P.hail = (v) => { if (v <= hs[0][0]) return hs[0][1]; for (let i = 1; i < hs.length; i++) if (v <= hs[i][0]) { const k = (v - hs[i - 1][0]) / (hs[i][0] - hs[i - 1][0]); return hs[i - 1][1].map((c, j) => c + (hs[i][1][j] - c) * k); } return hs[hs.length - 1][1]; };
     P.css = (c, a) => 'rgba(' + Math.round(c[0] * 255) + ',' + Math.round(c[1] * 255) + ',' + Math.round(c[2] * 255) + ',' + (a == null ? 1 : a) + ')';
-    P.fill = []; P.fillA = [];
-    if (g) for (let k = 0; k < g.nb; k++) { const v = g.hlo + ((k + 0.5) / g.nb) * (g.hhi - g.hlo); P.fill.push(P.css(P.hail(v))); P.fillA.push((light ? 0.03 : 0.02) + (k / (g.nb - 1)) * (light ? 0.08 : 0.075)); }
+    // lot tint by modeled hail. Light: a warm wash. Dark: the lot lines carry the hail color and the fill stays a whisper,
+    // so the block reads as lit by the storm rather than as brown ground. Both grow with hail size (absolute scale).
+    P.fill = []; P.fillA = []; P.lineH = [];
+    for (let k = 0; k < TB.n; k++) {
+      const v = TB.lo + (k + 0.5) * TB.step, hc = P.hail(v), t = clamp((v - TB.lo) / 1.75, 0, 1);
+      P.fill.push(P.css(hc)); P.fillA.push(light ? 0.07 + t * 0.12 : 0.025 + t * 0.045);
+      P.lineH.push(mix(land, hc, light ? 0.3 : 0.34 + t * 0.3));
+    }
   }
 
   /* ---------------- state (per viewer, A.store) ---------------- */
   let S = null;
+  const blank = () => ({ o: {}, hist: [], cur: null, legal: {}, flags: {}, slot: {}, auto: {} });
+  function dnkList() { const d = A.store.get(DNK, null); return d && typeof d === 'object' && !Array.isArray(d) ? d : {}; }
+  function dnkPut(addr, v) { const d = dnkList(); if (v) d[addr] = v; else delete d[addr]; A.store.set(DNK, d); }
+  /** every address on the do-not-knock list starts the walk settled */
+  function applyDnk() { const g = geo(), d = dnkList(); if (!g || !S) return; g.doors.forEach((x) => { const e = d[x.h.addr]; if (e && FLAGBY[e.k] && !S.flags[x.rank]) S.flags[x.rank] = e.k; }); }
   function load() {
     const s = A.store.get(KEY, null);
-    S = s && typeof s === 'object' && s.o ? s : { o: {}, hist: [], cur: null, legal: {}, flags: {}, slot: {} };
-    ['o', 'legal', 'flags', 'slot'].forEach((k) => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
+    S = s && typeof s === 'object' && s.o ? s : blank();
+    ['o', 'legal', 'flags', 'slot', 'auto'].forEach((k) => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
     if (!Array.isArray(S.hist)) S.hist = [];
+    applyDnk();
   }
   const save = () => A.store.set(KEY, S);
+  const settled = (r) => !!(S.o[r] || S.flags[r]);
   function counts() {
-    const c = { knocked: 0, talked: 0, inspection_set: 0, come_back: 0, not_interested: 0, no_answer: 0, answered: 0, legal: 0 };
-    for (const r in S.o) { const o = S.o[r]; if (!OUTBY[o]) continue; c.knocked++; c[o]++; if (ANSWERED[o]) { c.answered++; if (S.legal[r]) c.legal++; } }
+    const c = { knocked: 0, talked: 0, inspection_set: 0, come_back: 0, not_interested: 0, no_answer: 0, answered: 0, legal: 0, skipped: 0, dnk: 0, done: 0 };
+    const g = geo(); if (!g || !S) return c;
+    for (const d of g.doors) {
+      const r = d.rank, o = S.o[r];
+      if (S.flags[r]) c.dnk++;
+      if (OUTBY[o]) { c.knocked++; c[o]++; c.done++; if (ANSWERED[o]) { c.answered++; if (S.legal[r]) c.legal++; } }
+      else if (S.flags[r]) { c.skipped++; c.done++; }
+    }
     return c;
   }
 
@@ -392,7 +459,7 @@
   let liveUntil = 0, liveFn = null;
   function setLive(id, on) { if (A.world && A.world.layer.get(id)) A.world.layer.set(id, { live: !!on }); }
   function pulse(ms) {
-    if (A.still) { A.world && A.world.invalidate(); return; }
+    if (A.still) { A.world && A.world.invalidate('top'); return; }
     liveUntil = Math.max(liveUntil, performance.now() + ms);
     if (liveFn) return;
     setLive('knock-walk', true); setLive('knock-doors', true);
@@ -402,7 +469,7 @@
     };
     A.motion.ticker.add(liveFn);
   }
-  const doneArcTarget = (g) => { let m = 0; g.doors.forEach((d) => { if (S.o[d.rank] && d.arc > m) m = d.arc; }); return m; };
+  const doneArcTarget = (g) => { let m = 0; g.doors.forEach((d) => { if (settled(d.rank) && d.arc > m) m = d.arc; }); return m; };
   function doneArcNow(now) { const d = V.done; if (A.still || !d.t0) return d.to; const k = clamp((now - d.t0) / 650, 0, 1); return d.from + (d.to - d.from) * A.motion.ease.outCubic(k); }
   function retarget(g) { const now = performance.now(), cur = doneArcNow(now), to = doneArcTarget(g); if (to === V.done.to) return; V.done = { from: cur, to, t0: now }; pulse(700); }
 
@@ -412,7 +479,7 @@
     c.setTransform(k * r, 0, 0, k * r, q[0] * r, q[1] * r);
     return 1 / k; // feet per css px
   }
-  /** the sample neighborhood into two layers: cL = lot tint + lot lines, cH = driveways, shadows, roofs */
+  /** the sample neighborhood: cL = lot tint + lot lines, cH = driveways, shadows, roofs (the same canvas at rest) */
   function drawBands(cL, cH, f, g, px, base, R) {
     cL.lineJoin = 'round';
     const m = 40 * px, vx0 = (f.view[0] - g.O[0]) * FT - m, vy0 = (f.view[1] - g.O[1]) * FT - m, vx1 = (f.view[2] - g.O[0]) * FT + m, vy1 = (f.view[3] - g.O[1]) * FT + m;
@@ -422,14 +489,18 @@
       if (b.bb[2] < vx0 || b.bb[0] > vx1 || b.bb[3] < vy0 || b.bb[1] > vy1) continue;
       b.fill.forEach((p, i) => { if (p) { cL.globalAlpha = base * P.fillA[i]; cL.fillStyle = P.fill[i]; cL.fill(p); } });
       if (lod) { cH.globalAlpha = base; cH.fillStyle = P.roof[1]; cH.fill(b.lod); continue; }
-      cL.globalAlpha = base * 0.9; cL.strokeStyle = P.line; cL.lineWidth = 0.75 * px; cL.stroke(b.lines);
+      cL.globalAlpha = base * 0.9; cL.lineWidth = 0.75 * px;
+      const hk = b.fill.length ? b.fill.length - 1 : -1;            // lot lines pick up the hail of their band
+      cL.strokeStyle = hk >= 0 ? P.lineH[hk] : P.line; cL.stroke(b.lines);
       cH.globalAlpha = base; cH.fillStyle = P.drive; cH.fill(b.drive);
       cH.globalAlpha = base * P.shadowA; cH.fillStyle = P.shadow; cH.fill(b.shadow);
       cH.globalAlpha = base;
       for (let t = 0; t < 3; t++) { cH.fillStyle = P.roof[t]; cH.fill(b.roof[t]); }
     }
   }
+  /* the entrance only: two cached images (lots, then houses) so the reveal is a clipped blit each frame. Released after. */
   const LC = { a: null, b: null, key: '' };
+  function dropCache() { if (!LC.a && !LC.b) return; for (const k of ['a', 'b']) if (LC[k]) { LC[k].width = 0; LC[k].height = 0; LC[k] = null; } LC.key = ''; }
   function lotsCache(c, f, g) {
     const w = c.canvas.width, h = c.canvas.height, key = f.view.map((v) => v.toFixed(9)).join(',') + '|' + w + 'x' + h + '|' + A.theme + '|' + (g.ver || 0);
     if (LC.key === key) return;
@@ -440,41 +511,48 @@
     drawBands(ca, cb, f, g, px, 1, Infinity);
     LC.key = key;
   }
+  /** how far (ft from the park spot) the neighborhood has drawn in; Infinity once the entrance is over */
+  function revealR(f, g) {
+    if (V.reveal >= 1) return Infinity;
+    let Rv = 0; for (const x of [f.view[0], f.view[2]]) for (const y of [f.view[1], f.view[3]]) Rv = Math.max(Rv, Math.hypot((x - g.O[0]) * FT, (y - g.O[1]) * FT));
+    return V.reveal * (Math.min(Rv, g.maxD) + 450);
+  }
   function drawLots(c, f) {
     const g = geo(); if (!g || !g.bands) return;
     const za = sm(f.zoom, 14.5, 15.7); if (za <= 0) return;
-    let Rv = 0; for (const x of [f.view[0], f.view[2]]) for (const y of [f.view[1], f.view[3]]) Rv = Math.max(Rv, Math.hypot((x - g.O[0]) * FT, (y - g.O[1]) * FT));
-    const base = c.globalAlpha * za, R = V.reveal >= 1 ? Infinity : V.reveal * (Math.min(Rv, g.maxD) + 450);
-    if (R === Infinity && f.moving) { const px = worldXf(c, f, g); drawBands(c, c, f, g, px, base, Infinity); }
-    else {
-      // at rest (and during the reveal) the neighborhood is two cached images; the reveal is a growing circle from the park spot
-      lotsCache(c, f, g);
-      const r = c.canvas.width / f.w, k = f.scale / FT, q = f.projectW(g.O[0], g.O[1]);
-      c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = base;
-      if (R === Infinity) { c.drawImage(LC.a, 0, 0); c.drawImage(LC.b, 0, 0); }
-      else {
-        const RL = Math.max(0, R * k * r), RH = Math.max(0, (R - 220) * k * r), cx = q[0] * r, cy = q[1] * r;
-        c.save(); c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.clip(); c.drawImage(LC.a, 0, 0); c.restore();
-        if (RH > 0) { c.save(); c.beginPath(); c.arc(cx, cy, RH, 0, Math.PI * 2); c.clip(); c.drawImage(LC.b, 0, 0); c.restore(); }
-        // the survey front: a thin knocker-orange ring where the neighborhood is being drawn in
-        c.globalAlpha = base * 0.35 * (1 - V.reveal); c.strokeStyle = P.acc; c.lineWidth = 1.5 * r;
-        c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.stroke();
-      }
-    }
-    const px = worldXf(c, f, g);
-    // the walk homes: brighter, tinted by their hail, then by the outcome once logged
-    const cur = curRank();
+    const base = c.globalAlpha * za, R = revealR(f, g);
+    // at rest: straight onto the basemap canvas (the world redraws it only when the camera moves; taps redraw the top canvas)
+    if (R === Infinity) { dropCache(); drawBands(c, c, f, g, worldXf(c, f, g), base, Infinity); return; }
+    lotsCache(c, f, g);
+    const r = c.canvas.width / f.w, k = f.scale / FT, q = f.projectW(g.O[0], g.O[1]);
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = base;
+    const RL = Math.max(0, R * k * r), RH = Math.max(0, (R - 220) * k * r), cx = q[0] * r, cy = q[1] * r;
+    c.save(); c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.clip(); c.drawImage(LC.a, 0, 0); c.restore();
+    if (RH > 0) { c.save(); c.beginPath(); c.arc(cx, cy, RH, 0, Math.PI * 2); c.clip(); c.drawImage(LC.b, 0, 0); c.restore(); }
+    // the survey front: a thin knocker-orange ring where the neighborhood is being drawn in
+    c.globalAlpha = base * 0.35 * (1 - V.reveal); c.strokeStyle = P.acc; c.lineWidth = 1.5 * r;
+    c.beginPath(); c.arc(cx, cy, RL, 0, Math.PI * 2); c.stroke();
+  }
+  /** the 25 walk homes: brighter, tinted by their hail, then by the outcome once logged; grey on the do-not-knock list */
+  function drawHomes(c, f) {
+    const g = geo(); if (!g) return;
+    const za = sm(f.zoom, 14.5, 15.7); if (za <= 0) return;
+    const base = c.globalAlpha * za, R = revealR(f, g), px = worldXf(c, f, g), cur = curRank();
+    c.lineJoin = 'round';
     for (const d of g.doors) {
       const l = d.lot; if (!l || !l.paths) continue;
       const a = R === Infinity ? 1 : clamp((R - l.d - 120) / 240, 0, 1); if (a <= 0) continue;
-      const p = l.paths, o = S.o[d.rank], hc = P.hail(d.h.hail);
-      if (p.lot) { c.globalAlpha = base * a * (P.light ? 0.13 : 0.11); c.fillStyle = P.css(hc); c.fill(p.lot); c.globalAlpha = base * a * 0.5; c.strokeStyle = P.text2; c.lineWidth = 0.9 * px; c.stroke(p.lot); }
+      const p = l.paths, o = S.o[d.rank], skip = !o && !!S.flags[d.rank], hc = P.hail(d.h.hail);
+      if (p.lot) {
+        c.globalAlpha = base * a * (skip ? 0.05 : P.light ? 0.13 : 0.07); c.fillStyle = skip ? P.faint : P.css(hc); c.fill(p.lot);
+        c.globalAlpha = base * a * (skip ? 0.3 : 0.6); c.strokeStyle = P.text2; c.lineWidth = 0.9 * px; c.stroke(p.lot);
+      }
       c.globalAlpha = base * a; c.fillStyle = P.drive; c.fill(p.drive);
       c.globalAlpha = base * a * P.shadowA; c.fillStyle = P.shadow; c.fill(p.shadow);
       c.globalAlpha = base * a;
       for (let t = 0; t < 3; t++) {
         if (o) { const oc = P.outRGB[o]; const k = [0.55, 0.45, 0.36][t]; c.fillStyle = P.mix(P.landRGB, oc, P.light ? k * 0.85 : k); }
-        else c.fillStyle = P.wroof[t];
+        else c.fillStyle = skip ? P.roof[t] : P.wroof[t];
         c.fill(p.roof[t]);
       }
       if (d.rank === cur) { c.globalAlpha = base * a; c.strokeStyle = P.acc; c.lineWidth = 1.6 * px; c.stroke(p.outline); }
@@ -499,10 +577,10 @@
     const now = performance.now(), px = worldXf(c, f, g), base = c.globalAlpha * za;
     const head = V.head * g.total, doneA = Math.min(head, doneArcNow(now));
     c.lineCap = 'round'; c.lineJoin = 'round';
-    // spurs: sidewalk → door, for every lit door
+    // spurs: sidewalk → door, for every lit door (none to a door on the do-not-knock list)
     for (const d of g.doors) {
       if (!V.lit[d.rank]) continue;
-      const o = S.o[d.rank];
+      const o = S.o[d.rank]; if (!o && S.flags[d.rank]) continue;
       c.globalAlpha = base * (o ? 0.85 : 0.4); c.strokeStyle = o ? P.acc : P.text2; c.lineWidth = (o ? 1.6 : 1.1) * px;
       c.setLineDash(o ? [] : [2.2 * px, 3 * px]);
       c.beginPath(); c.moveTo(d.foot[0], d.foot[1]); c.lineTo(d.D[0], d.D[1]); c.stroke();
@@ -545,17 +623,23 @@
       let s = pop; if (isCur) s *= 1.18 + (V.lift.rank === d.rank && !A.still ? 0.35 * Math.exp(-(now - V.lift.t0) / 170) * Math.sin(clamp((now - V.lift.t0) / 520, 0, 1) * Math.PI) : 0);
       if (d.rank === V.hover && !isCur) s *= 1.1;
       const r = R * s; if (r <= 0.3) continue;
-      const o = S.o[d.rank], hc = P.css(P.hail(d.h.hail)), a0 = base * clamp(pop * 1.5, 0, 1);
+      const o = S.o[d.rank], skip = !o && !!S.flags[d.rank], hc = P.css(P.hail(d.h.hail)), a0 = base * clamp(pop * 1.5, 0, 1);
       if (isCur) { c.globalAlpha = a0 * 0.22; c.fillStyle = P.acc; c.beginPath(); c.arc(q[0], q[1], r + 7, 0, Math.PI * 2); c.fill(); }
-      c.globalAlpha = a0; c.fillStyle = o ? P.out[o] : P.panel; c.beginPath(); c.arc(q[0], q[1], r, 0, Math.PI * 2); c.fill();
-      if (!o) {
+      // inside the modeled 1-inch line: a dotted halo in the door's hail color
+      if (d.in1 && !skip) {
+        c.globalAlpha = a0 * (o ? 0.5 : 0.8); c.setLineDash([1.4, 2.6]); c.lineWidth = 1.2; c.strokeStyle = hc;
+        c.beginPath(); c.arc(q[0], q[1], r + (isCur ? 9.5 : 4.2), 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+      }
+      c.globalAlpha = a0 * (skip ? 0.85 : 1); c.fillStyle = o ? P.out[o] : P.panel; c.beginPath(); c.arc(q[0], q[1], r, 0, Math.PI * 2); c.fill();
+      if (skip) { c.lineWidth = 1.4; c.strokeStyle = P.faint; c.beginPath(); c.arc(q[0], q[1], r - 0.8, 0, Math.PI * 2); c.stroke(); }
+      else if (!o) {
         c.lineWidth = 1.6; c.strokeStyle = P.rule3; c.beginPath(); c.arc(q[0], q[1], r - 1, 0, Math.PI * 2); c.stroke();
         c.lineWidth = 2.4; c.strokeStyle = hc; c.beginPath(); c.arc(q[0], q[1], r - 1, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * d.h.score) / 100); c.stroke();
       }
-      if (isCur) { c.lineWidth = 2; c.strokeStyle = P.acc; c.beginPath(); c.arc(q[0], q[1], r + 3.2, 0, Math.PI * 2); c.stroke(); }
-      if (S.flags[d.rank]) { c.lineWidth = 1.6; c.strokeStyle = P.text; c.beginPath(); c.moveTo(q[0] - r * 0.62, q[1] + r * 0.62); c.lineTo(q[0] + r * 0.62, q[1] - r * 0.62); c.stroke(); }
-      c.globalAlpha = a0; c.fillStyle = o ? P.page : P.text; c.font = '600 ' + Math.round(clamp(r * 0.9, 8, 11)) + 'px ' + FONT_MONO;
+      if (isCur) { c.globalAlpha = a0; c.lineWidth = 2; c.strokeStyle = P.acc; c.beginPath(); c.arc(q[0], q[1], r + 3.2, 0, Math.PI * 2); c.stroke(); }
+      c.globalAlpha = a0; c.fillStyle = o ? P.page : skip ? P.muted : P.text; c.font = '600 ' + Math.round(clamp(r * 0.9, 8, 11)) + 'px ' + FONT_MONO;
       c.fillText(String(d.idx), q[0], q[1] + 0.5);
+      if (skip) { c.lineWidth = 1.5; c.strokeStyle = P.muted; c.beginPath(); c.moveTo(q[0] - r * 0.7, q[1] + r * 0.7); c.lineTo(q[0] + r * 0.7, q[1] - r * 0.7); c.stroke(); }
     }
   }
 
@@ -566,29 +650,34 @@
   function nextOpen(fromRank) {
     const g = geo(); if (!g) return 0;
     const i0 = Math.max(0, g.doors.findIndex((d) => d.rank === fromRank));
-    for (let k = 1; k <= g.doors.length; k++) { const d = g.doors[(i0 + k) % g.doors.length]; if (!S.o[d.rank]) return d.rank; }
+    for (let k = 1; k <= g.doors.length; k++) { const d = g.doors[(i0 + k) % g.doors.length]; if (!settled(d.rank)) return d.rank; }
     return 0;
   }
+  const firstOpen = (g) => { const d = g.doors.find((x) => !settled(x.rank)); return (d || g.doors[0]).rank; };
 
   A.view.register('knock', {
-    title: { en: 'Knock', es: 'Tocar' }, key: '3', ambient: false, hail: 0.35, dim: 0,
+    // hail 0: at street zoom the shared field is one flat value (it changed ~1/255 of a pixel); the lot tint carries the
+    // modeled hail here, and flying in from a wider view the heat fades out as the tinted lots arrive
+    title: { en: 'Knock', es: 'Tocar' }, key: '3', ambient: false, hail: 0, dim: 0,
     camera: (fr) => {
       const N = A.data, pts = (N.homes || []).map((h) => h.p);
       (N.walk && N.walk.s || []).forEach((s) => s.p.forEach((p) => pts.push(p)));
-      return { points: pts, pad: fr && fr.stacked ? 14 : 70, maxZoom: 18.4 };
+      if (N.walk && N.walk.park) pts.push(N.walk.park);
+      return { points: pts, pad: fr && fr.stacked ? 34 : 60, maxZoom: 18.4 };
     },
     enter(ctx) {
       ctxNow = ctx;
-      load(); readP();
+      readP(); load();
       const g = geo();
       if (!g) { ctx.el('left', '<div class="empty"><span class="empty__t">' + A.L('The walk did not load.', 'La ruta no cargó.') + '</span></div>', 'pane'); return; }
-      if (!S.cur || !doorBy(S.cur)) S.cur = S.o[g.doors[0].rank] ? nextOpen(g.doors[0].rank) || g.doors[0].rank : g.doors[0].rank;
+      if (!S.cur || !doorBy(S.cur)) S.cur = firstOpen(g);
       V.done = { from: 0, to: doneArcTarget(g), t0: 0 };
       V.lit = {}; V.ripples = []; V.hover = 0;
       const still = A.still;
       if (still) { V.reveal = 1; V.head = 1; g.doors.forEach((d) => (V.lit[d.rank] = true)); } else { V.reveal = 0; V.head = 0; }
 
       ctx.layer({ id: 'knock-lots', z: 40, draw2d: drawLots, fadeIn: false });
+      ctx.layer({ id: 'knock-homes', z: 110, draw2d: drawHomes, fadeIn: false });
       ctx.layer({ id: 'knock-walk', z: 120, draw2d: drawWalk, fadeIn: false });
       ctx.layer({
         id: 'knock-doors', z: 210, draw2d: drawDoors, fadeIn: false,
@@ -601,9 +690,10 @@
         onHover(item) { V.hover = item ? item.rank : 0; A.world.invalidate('top'); }
       });
       ctx.on('theme', () => { readP(); drawPortrait(true); A.world.invalidate(); });
-      ctx.on('world:hail', () => { A.safe('knock tint', () => { tint(g); readP(); }); A.world.invalidate(); });
+      ctx.on('world:hail', () => { A.safe('knock tint', () => { tint(g); readP(); renderAll(false, false); }); A.world.invalidate(); });
       ctx.on('lang', () => drawPortrait(true));
       ctx.on('escape', () => { if (V.tl && V.tl.playing) V.tl.skip(); });
+      ctx.on('camera:end', () => { if (V.reveal >= 1) placeTag(false, false, true); });
 
       buildPanel(ctx, g);
 
@@ -616,12 +706,17 @@
         else if (k === 'U') { e.preventDefault(); undo(); }
       };
       document.addEventListener('keydown', onKey); ctx.own(() => document.removeEventListener('keydown', onKey));
-      ctx.own(() => { if (V.tl) V.tl.stop(); V.tl = null; if (liveFn) { A.motion.ticker.remove(liveFn); liveFn = null; } stopPortrait(); ctxNow = null; });
+      ctx.own(() => {
+        if (V.tl) V.tl.stop(); V.tl = null; if (liveFn) { A.motion.ticker.remove(liveFn); liveFn = null; }
+        stopPortrait(); dropCache(); A.world && A.world.unpin('knock-cur'); ctxNow = null; els = {};
+      });
 
       // park spot
-      const park = ctx.pin('knock-park', A.data.walk.park, A.h('<div class="knock-park" data-tip="Park here: ' + A.esc((A.data.walk.pn || []).join(' & ')) + '" data-tip-es="Estaciónate aquí: ' + A.esc((A.data.walk.pn || []).join(' y ')) + '"><b>P</b></div>'), { anchor: 'center', minZoom: 14.6, offset: [-24, 20] });
-      if (park) park.style.opacity = still ? '' : '0';
+      const wk = A.data.walk, pn = wk.pn || [];
+      const park = ctx.pin('knock-park', wk.park, A.h('<div class="knock-park" tabindex="0" role="note" data-tip="' + A.esc('Park here: ' + pn.join(' & ')) + '" data-tip-es="' + A.esc('Estaciónate aquí: ' + pn.join(' y ')) + '" data-label-en="' + A.esc('Park here: ' + pn.join(' & ')) + '" data-label-es="' + A.esc('Estaciónate aquí: ' + pn.join(' y ')) + '"><b>P</b></div>'), { anchor: 'center', minZoom: 14.6, offset: [-22, -20] });
+      if (park) { park.style.opacity = still ? '' : '0'; A.ui.localize(park); }
       placeTag(false);
+      ctx.timer(() => placeTag(false, false, true), 90);   // the panels just changed the map's focus area: re-aim once it settled
 
       // the entrance: starts as the camera settles on the street
       let started = false;
@@ -635,14 +730,14 @@
   function entrance(ctx, g, park) {
     const fin = () => {
       V.reveal = 1; V.head = 1; g.doors.forEach((d) => { if (!V.lit[d.rank]) V.lit[d.rank] = true; });
-      setLive('knock-lots', false); if (park) park.style.opacity = '';
+      setLive('knock-lots', false); setLive('knock-homes', false); dropCache(); if (park) park.style.opacity = '';
       placeTag(true); A.world.invalidate();
     };
     if (A.still) { fin(); rollCounters(0); return; }
     const tl = (V.tl = new A.motion.Timeline());
-    setLive('knock-lots', true); pulse(300);
+    setLive('knock-lots', true); setLive('knock-homes', true); pulse(300);
     tl.add(0, { ms: 1500, ease: 'outCubic', update: (p) => { V.reveal = p; } });
-    tl.add(1500, () => { V.reveal = 1; setLive('knock-lots', false); A.world.invalidate('base'); });
+    tl.add(1500, () => { V.reveal = 1; setLive('knock-lots', false); setLive('knock-homes', false); dropCache(); A.world.invalidate('base'); });
     tl.add(260, () => { if (park) { park.style.opacity = ''; A.motion.reveal(park.firstElementChild, { y: 10, ring: true, size: 46 }); } });
     tl.add(420, { ms: 2100, ease: 'inOutSine', update: (p) => {
       V.head = p; const now = performance.now(), h = p * g.total;
@@ -653,18 +748,68 @@
     tl.play().then(() => { if (!ctx.alive()) return; fin(); pulse(600); V.tl = null; });
   }
 
-  /* ---------------- the current door's floating tag on the map ---------------- */
-  function placeTag(animate) {
-    const ctx = ctxNow; if (!ctx) return;
+  /* ---------------- the current door's tag on the map: it takes the side with no other door under it ---------------- */
+  let tagKey = '';
+  /** where the tag goes: above, below, right or left of the door, whichever covers no other ring and no P and stays on the
+      map. Reads the live camera (not the last drawn frame); predict = the camera is flying to this door (it ends mid-map). */
+  function tagPlace(d, w, h, predict) {
+    const W = A.world, g = geo(), def = { side: 'top', x: -w / 2, y: -h - 18, stem: w / 2 };
+    if (!W || !W.w || !W.project || !g) return def;
+    const ins = W.insetTarget || { l: 0, r: 0, t: 0, b: 0 }, z = W.camera().zoom;
+    const fc = { x: ins.l, y: ins.t, w: W.w - ins.l - ins.r, h: W.h - ins.t - ins.b };
+    const zt = predict ? clamp(z, 17.2, 18.3) : z, k = Math.pow(2, zt - z), R = clamp(4 + (zt - 15.5) * 2.3, 6, 11);
+    const q = W.project(d.ll), p = predict ? [fc.x + fc.w / 2, fc.y + fc.h / 2] : q;
+    const rel = (ll) => { const s = W.project(ll); return [p[0] + (s[0] - q[0]) * k, p[1] + (s[1] - q[1]) * k]; };
+    const obs = [];
+    for (const o of g.doors) if (o !== d && V.lit[o.rank]) obs.push({ c: rel(o.ll), r: R + 4 });
+    const wk = A.data.walk; if (wk && wk.park) { const c = rel(wk.park); obs.push({ c: [c[0] - 22, c[1] - 20], r: 18 }); }   // the P pin
+    const E = [fc.x + 8, fc.y + 8, fc.x + fc.w - 8, fc.y + fc.h - 8], Rc = R * 1.18;
+    const gap = Rc + 9, cands = [
+      { side: 'top', x: -w / 2, y: -gap - h, pen: 0 },
+      { side: 'bottom', x: -w / 2, y: gap, pen: 0.35 },
+      { side: 'right', x: Rc + 12, y: -h / 2, pen: 0.6 },
+      { side: 'left', x: -Rc - 12 - w, y: -h / 2, pen: 0.6 }
+    ];
+    let best = null;
+    for (const c of cands) {
+      let x = c.x;
+      if (c.side === 'top' || c.side === 'bottom') {        // slide along the edge to stay on the map; the stem keeps pointing at the door
+        const x0 = p[0] + x, x1 = x0 + w, lim = w / 2 - 16;
+        if (x0 < E[0]) x += Math.min(E[0] - x0, lim); else if (x1 > E[2]) x -= Math.min(x1 - E[2], lim);
+      }
+      const X0 = p[0] + x, Y0 = p[1] + c.y, X1 = X0 + w, Y1 = Y0 + h;
+      let cost = c.pen;
+      for (const o of obs) { const cx = clamp(o.c[0], X0, X1), cy = clamp(o.c[1], Y0, Y1); if (Math.hypot(o.c[0] - cx, o.c[1] - cy) < o.r) cost += 1; }
+      cost += (Math.max(0, E[0] - X0) + Math.max(0, X1 - E[2]) + Math.max(0, E[1] - Y0) + Math.max(0, Y1 - E[3])) / 10;
+      if (!best || cost < best.cost - 1e-6) best = { cost, side: c.side, x, y: c.y };
+    }
+    best.stem = best.side === 'top' || best.side === 'bottom' ? -best.x : h / 2;
+    return best;
+  }
+  /** animate = the door just became current (it lifts); predict = the camera is flying to it; keep = only re-aim the tag */
+  function placeTag(animate, predict, keep) {
+    const ctx = ctxNow; if (!ctx || !A.world) return;
     const d = doorBy(curRank());
-    if (!d || !V.lit[d.rank]) { A.world.unpin('knock-cur'); return; }
-    const o = S.o[d.rank];
-    const el = A.h('<div class="knock-tag" aria-hidden="true"><div class="knock-tag__in"><span class="knock-tag__n">' + d.idx + '</span><b>' + A.esc(d.h.addr) + '</b>' +
-      (o ? '<span class="knock-tag__o" style="--oc:var(' + OUTBY[o].tok + ')">' + A.L(A.esc(OUTBY[o].short.en), A.esc(OUTBY[o].short.es)) + '</span>' : '<span class="knock-tag__s">' + d.h.score + '</span>') + '</div></div>');
-    ctx.pin('knock-cur', d.ll, el, { anchor: 'bottom', minZoom: 15.4, offset: [0, -20] });
+    if (!d || !V.lit[d.rank]) { A.world.unpin('knock-cur'); tagKey = ''; return; }
+    let el = keep ? document.querySelector('.pin[data-pin="knock-cur"]') : null;
+    if (keep && !el) return;
+    if (!el) {
+      const o = S.o[d.rank], fl = !o && S.flags[d.rank];
+      const tail = o ? '<span class="knock-tag__o" style="--oc:var(' + OUTBY[o].tok + ')">' + A.L(A.esc(OUTBY[o].short.en), A.esc(OUTBY[o].short.es)) + '</span>'
+        : fl ? '<span class="knock-tag__o knock-tag__o--skip">' + A.L('Do not knock', 'No tocar') + '</span>' : '';
+      el = A.h('<div class="knock-tag" aria-hidden="true"><div class="knock-tag__in"><span class="knock-tag__n">' + d.idx + '</span><b>' + A.esc(d.h.addr) + '</b>' + tail + '</div></div>');
+      A.world.pin('knock-cur', d.ll, el, { anchor: 'none', minZoom: 15.4, offset: [-4000, -4000] });
+    }
+    const pl = tagPlace(d, el.offsetWidth || 160, el.offsetHeight || 28, predict);
+    const k = d.rank + ':' + pl.side + ':' + Math.round(pl.x) + ':' + Math.round(pl.y);
+    if (keep && k === tagKey) return;
+    tagKey = k;
+    A.world.pin('knock-cur', d.ll, el, { anchor: 'none', minZoom: 15.4, offset: [pl.x, pl.y] });
+    el.dataset.side = pl.side; el.style.setProperty('--stem', pl.stem.toFixed(1) + 'px');
     if (animate && !A.still) {
       V.lift = { rank: d.rank, t0: performance.now() }; pulse(620);
-      try { el.firstElementChild.animate([{ transform: 'translateY(12px) scale(.92)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 520, easing: A.motion.css.hail, fill: 'backwards' }); } catch (e) { /* ignore */ }
+      const from = { top: 'translateY(12px)', bottom: 'translateY(-12px)', right: 'translateX(-12px)', left: 'translateX(12px)' }[pl.side] + ' scale(.92)';
+      try { el.firstElementChild.animate([{ transform: from, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 520, easing: A.motion.css.hail, fill: 'backwards' }); } catch (e) { /* ignore */ }
     }
   }
 
@@ -673,54 +818,89 @@
     const d = doorBy(rank); if (!d || !S) return;
     const same = S.cur === rank; S.cur = rank; save();
     renderAll(!same);
-    placeTag(!same);
-    A.world.invalidate();
-    if (o.fly !== false) fly(d);
+    const fly = o.fly !== false;
+    if (fly) flyTo(d);
+    placeTag(!same, fly);
+    A.world.invalidate('top');
   }
-  function fly(d) {
+  function flyTo(d) {
     const W = A.world; if (!W) return;
     const z = W.camera().zoom;
     A.safe('knock fly', () => W.flyTo({ center: d.ll, zoom: clamp(z, 17.2, 18.3) }, { ms: 800, instant: A.still }));
   }
+  function say(en, es) { if (els.sr) els.sr.textContent = A.lang === 'es' ? es : en; }
   function tap(id, o = {}) {
     const g = geo(); if (!g || !S || !OUTBY[id]) return;
-    let rank = o.rank || curRank(); const d = doorBy(rank); if (!d) return;
-    const was = S.o[rank] || null;
-    S.o[rank] = id; S.hist.push({ r: rank, was }); if (S.hist.length > 200) S.hist.shift();
+    const rank = o.rank || curRank(), d = doorBy(rank); if (!d) return;
+    const was = S.o[rank] || null, aw = S.auto[rank] || 0;
+    S.o[rank] = id; delete S.auto[rank]; S.hist.push({ r: rank, was, aw }); if (S.hist.length > 200) S.hist.shift();
     save();
-    const wasAll = counts().knocked >= g.doors.length && !!was;
+    const wasAll = counts().done >= g.doors.length && !!was;
     if (!A.still) V.ripples.push({ p: d.D, t0: performance.now(), col: P.out[id] || P.acc });
     retarget(g); pulse(1200);
     if (window.Sound && Sound.enabled) A.safe('knock sound', () => { Sound.knock(); if (id === 'inspection_set') Sound.ring(4, { delay: 0.35 }); });
-    if (id === 'inspection_set') { S.follow = rank; save(); renderAll(false, true); placeTag(false); A.world.invalidate(); return; }
+    say('Logged ' + OUTBY[id].label.en + ' at ' + d.h.addr + '.', 'Anotado: ' + OUTBY[id].label.es + ' en ' + d.h.addr + '.');
+    if (id === 'inspection_set') { S.follow = rank; save(); renderAll(false, true); placeTag(false); A.world.invalidate('top'); return; }
     S.follow = 0; save();
-    renderAll(false, true); placeTag(false); A.world.invalidate();
-    advance(rank, null, wasAll);
+    renderAll(false, true); placeTag(false); A.world.invalidate('top');
+    advance(rank, wasAll);
   }
-  function advance(rank, c, quiet) {
-    const g = geo(); c = c || counts();
+  /** no soliciting sign / asked us not to come back: the door goes on the do-not-knock list (by address) and is settled */
+  function toggleFlag(kind, rank) {
+    const g = geo(); if (!g || !S || !FLAGBY[kind]) return;
+    rank = rank || curRank(); const d = doorBy(rank); if (!d) return;
+    const was = S.o[rank] || null, fw = S.flags[rank] || null, aw = S.auto[rank] || 0, dw = dnkList()[d.h.addr] || null;
+    S.hist.push({ r: rank, was, aw, f: 1, fw, dw }); if (S.hist.length > 200) S.hist.shift();
+    const on = fw !== kind;
+    if (!on) {
+      delete S.flags[rank]; dnkPut(d.h.addr, null);
+      if (S.auto[rank]) { delete S.o[rank]; delete S.auto[rank]; }
+    } else {
+      S.flags[rank] = kind; dnkPut(d.h.addr, { k: kind, day: A.story.today });
+      if (S.auto[rank]) { delete S.o[rank]; delete S.auto[rank]; }
+      // "asked us not to come back" means someone answered and said no
+      if (kind === 'dontReturn' && !S.o[rank]) { S.o[rank] = 'not_interested'; S.auto[rank] = 1; }
+    }
+    if (S.follow === rank && S.o[rank] !== 'inspection_set') S.follow = 0;
+    save(); retarget(g);
+    if (on && !A.still) V.ripples.push({ p: d.D, t0: performance.now(), col: P.muted });
+    pulse(900);
+    say(on ? d.h.addr + ' is on your do-not-knock list.' : d.h.addr + ' is off your do-not-knock list.', on ? d.h.addr + ' está en tu lista de no tocar.' : d.h.addr + ' salió de tu lista de no tocar.');
+    renderAll(false, true); placeTag(false); A.world.invalidate('top');
+    if (on && !was) advance(rank, false);
+  }
+  function advance(rank, quiet) {
+    const g = geo(), c = counts();
     const nx = nextOpen(rank);
-    if (nx) { S.cur = nx; save(); const after = () => { if (!ctxNow || S.cur !== nx) return; renderAll(true, false); placeTag(true); A.world.invalidate(); fly(doorBy(nx)); }; if (A.still || !ctxNow) after(); else ctxNow.timer(after, 260); }
-    else { save(); renderAll(false, false); placeTag(false); A.world.invalidate(); if (c.knocked >= g.doors.length && !quiet) walkDone(); }
+    if (nx) {
+      S.cur = nx; save();
+      const after = () => { if (!ctxNow || S.cur !== nx) return; renderAll(true, false); flyTo(doorBy(nx)); placeTag(true, true); A.world.invalidate('top'); };
+      if (A.still || !ctxNow) after(); else ctxNow.timer(after, 260);
+    } else { save(); renderAll(false, false); placeTag(false); A.world.invalidate('top'); if (c.done >= g.doors.length && !quiet) walkDone(); }
   }
   function undo() {
     const g = geo(); if (!g || !S || !S.hist.length) { A.ui.toast({ en: 'Nothing to undo', es: 'No hay nada que deshacer' }, { ms: 1400 }); return; }
     const h = S.hist.pop();
     if (h.was) S.o[h.r] = h.was; else delete S.o[h.r];
-    if (S.follow === h.r) S.follow = 0;
+    if (h.aw) S.auto[h.r] = 1; else delete S.auto[h.r];
+    if (h.f) { if (h.fw) S.flags[h.r] = h.fw; else delete S.flags[h.r]; const d = doorBy(h.r); if (d) dnkPut(d.h.addr, h.dw || null); }
+    if (S.follow === h.r && S.o[h.r] !== 'inspection_set') S.follow = 0;
     S.cur = h.r; save(); retarget(g);
     A.ui.toast(Tx(((window.COPY || {}).ui || {}).toast ? COPY.ui.toast.undone : { en: 'Undone', es: 'Deshecho' }), { icon: 'arrow', ms: 1400 });
-    renderAll(true, true); placeTag(true); A.world.invalidate(); fly(doorBy(h.r));
+    renderAll(true, true); flyTo(doorBy(h.r)); placeTag(true, true); A.world.invalidate('top');
   }
-  function reset() {
+  /** a fresh walk; the do-not-knock list stays (it is per address) unless all = true */
+  function reset(all) {
     const g = geo(); if (!g) return;
-    S = { o: {}, hist: [], cur: g.doors[0].rank, legal: {}, flags: {}, slot: {} }; save();
-    V.done = { from: doneArcNow(performance.now()), to: 0, t0: performance.now() }; pulse(700);
-    renderAll(true, true); placeTag(true); A.world.invalidate();
+    if (all) A.store.del(DNK);
+    S = blank(); applyDnk(); S.cur = firstOpen(g); save();
+    V.done = { from: doneArcNow(performance.now()), to: doneArcTarget(g), t0: performance.now() }; pulse(700);
+    renderAll(true, true); placeTag(true); A.world.invalidate('top');
     if (A.view.current === 'knock') A.view.recenter();
   }
+  /** the recap dock is the message (a toast would land on it); the camera steps back to show the whole walk */
   function walkDone() {
-    A.ui.toast(((window.COPY || {}).ui || {}).toast ? COPY.ui.toast.walkDone : { en: 'Walk finished. Your recap is ready.', es: 'Ruta terminada. Tu resumen está listo.' }, { icon: 'flag', ms: 2000 });
+    say('Walk finished. Your recap is ready.', 'Ruta terminada. Tu resumen está listo.');
     if (A.view.current === 'knock') A.view.recenter();
   }
   function openDeal(rank) {
@@ -734,66 +914,33 @@
     return [{ day, time: '10:00' }, { day, time: '13:00' }, { day, time: '16:30' }];
   }
 
-  /* ======================= the panel ======================= */
+  /* ======================= the panels ======================= */
   let els = {};
-  function buildPanel(ctx, g) {
-    const N = A.data, pk = N.pick || {}, wk = N.walk || {}, U = A.ui, F = A.fmt;
-    const bt = pk.best_time || {};
-    const LOGTAG = U.srcTag({ label: 'log', tip: { en: 'Your own door log, kept on this device. Sample walk: sample homes, sample results.', es: 'Tu propio registro de puertas, guardado en este equipo. Ruta de muestra: casas de muestra, resultados de muestra.' } });
-    // 1 · header: where, when, why + the walk ring + tonight's counters
-    const head = ctx.el('left', `
-      <div class="knock-head">
-        <div class="knock-head__txt">
-          <p class="eyebrow eyebrow--acc">${A.L("Tonight's walk", 'La ruta de hoy')} · <b>${A.L("Aldaba's pick", 'La elección de Aldaba')}</b></p>
-          <h1 class="t-title knock-head__title">${A.esc((pk.name || '').replace(/^Columbus:\s*/, ''))}</h1>
-          <p class="knock-head__sub">${A.L('Columbus · park at ' + A.esc((wk.pn || []).join(' & ')), 'Columbus · estaciónate en ' + A.esc((wk.pn || []).join(' y ')))}</p>
-        </div>
-        <div class="knock-ring" role="img" data-label-en="Walk progress" data-label-es="Avance de la ruta">
-          <svg viewBox="0 0 88 88" aria-hidden="true">${ringSegs(g)}</svg>
-          <div class="knock-ring__c"><span class="knock-ring__n num" data-k="done">0</span><span class="knock-ring__of">/ ${g.doors.length}</span></div>
-        </div>
-      </div>
-      <p class="knock-head__facts"><span data-h="${U.hailKey(pk.hail_in)}"><b class="num">${F.num(pk.hail_in, 2)}</b> ${A.L('in', 'pulg')}</span> ${U.srcTag('mrms')} <span>${A.both(() => F.date(pk.storm_day))}</span> ${U.srcTag('spc')} <span>${A.both(() => F.range(bt.start || '16:00', bt.end || '19:30'))}</span> ${U.srcTag('engine')}</p>
-      <div class="stats knock-stats">
-        ${stat('knocked', A.L('Knocked', 'Tocadas') + ' ' + LOGTAG)}${stat('answered', A.L('Talked', 'Hablamos'))}${stat('inspection_set', A.L('Inspections', 'Inspecciones'), 'ok')}${stat('come_back', A.L('Come back', 'Regresar'), 'warn')}
-      </div>`, 'pane knock-top');
-    const cn = head;
-    // 2 · the walk, street by street (one line each: the doors in walk order)
-    const streets = (wk.s || []).map((s, i) => {
-      const ds = g.doors.filter((d) => stKey(d.h.st) === stKey(s.n));
-      const ft = F.int(Math.round((s.m || 0) * 3.28084 / 10) * 10);
-      return `<li class="knock-st" data-st="${i}">
-        <span class="knock-st__i">${i + 1}</span>
-        <b class="knock-st__t" tabindex="0" data-tip="${A.esc(prettySt(s.f) + ' to ' + prettySt(s.t) + ' · ' + ft + ' ft (Nebraska GIS)')}" data-tip-es="${A.esc('de ' + prettySt(s.f) + ' a ' + prettySt(s.t) + ' · ' + ft + ' pies (Nebraska GIS)')}">${A.esc(s.n)}</b>
-        <span class="knock-dots">${ds.map((d) => `<button type="button" class="knock-dot" data-rank="${d.rank}" data-tip="${A.esc(d.idx + ' · ' + d.h.addr)}" data-tip-es="${A.esc(d.idx + ' · ' + d.h.addr)}" data-label-en="${A.esc('Door ' + d.idx + ', ' + d.h.addr)}" data-label-es="${A.esc('Puerta ' + d.idx + ', ' + d.h.addr)}"><span>${d.idx}</span></button>`).join('')}</span>
-        <span class="knock-st__n num" data-st-n="${i}">0/${ds.length}</span></li>`;
-    }).join('');
-    const walkEl = ctx.el('left', `<p class="sec">${T(CK.walkTitle || { en: 'Your walk, in order', es: 'Tu ruta, en orden' })} <span class="sec__meta">${A.L((wk.s || []).length + ' streets · ' + g.doors.length + ' doors', (wk.s || []).length + ' calles · ' + g.doors.length + ' puertas')} ${U.sampleTag()}</span></p><ol class="knock-streets">${streets}</ol>`, 'pane pane--tight knock-walk');
-    // 4 · the current door
-    const card = ctx.el('left', '<div class="knock-card" aria-live="polite"></div>', 'pane knock-door');
-    // 5 · one tap per door (sticky)
-    const foot = ctx.el('left', `
-      <div class="knock-foot__head"><span class="t-micro knock-foot__q">${T(CK.outcomesTitle || { en: 'How did the door go?', es: '¿Cómo salió la puerta?' })}</span>
-        <span class="t-micro knock-foot__keys">${A.L('Keys', 'Teclas')} <kbd class="kbd">N</kbd><kbd class="kbd">T</kbd><kbd class="kbd">I</kbd><kbd class="kbd">X</kbd><kbd class="kbd">B</kbd> · <kbd class="kbd">U</kbd> ${A.L('undo', 'deshacer')}</span></div>
-      <div class="knock-outs" role="group" data-label-en="Log this door" data-label-es="Anota esta puerta">
-        ${OUT.map((o) => `<button type="button" class="knock-out" data-out="${o.id}" style="--oc:var(${o.tok})" aria-pressed="false" data-tip="${A.esc(o.hint.en)}" data-tip-es="${A.esc(o.hint.es)}"><span class="knock-out__top"><span class="knock-out__dot" aria-hidden="true"></span><kbd class="kbd">${o.key}</kbd></span><span class="knock-out__l">${A.L(A.esc(o.label.en), A.esc(o.label.es))}</span></button>`).join('')}
-      </div>
-      <div class="knock-foot__row">
-        <button type="button" class="btn btn--ghost btn--sm" data-act="undo"><i data-icon="arrow" class="i--sm knock-flip"></i>${T((((window.COPY || {}).ui || {}).common || {}).undo || { en: 'Undo', es: 'Deshacer' })}</button>
-        <span class="knock-foot__last t-small" data-k="last"></span>
-        <button type="button" class="btn btn--ghost btn--sm" data-act="reset">${A.L('Reset walk', 'Reiniciar ruta')}</button>
-      </div>`, 'pane pane--tight pane--foot knock-foot');
-    ctx.slots.left.insertBefore(walkEl, foot);
-    els = { head, cn, walkEl, card, foot, recap: null };
+  const lineTip = { en: 'Modeled from NOAA SPC/NWS storm reports + MRMS radar hail size. A radar estimate, not confirmed at this address.', es: 'Modelado con reportes de tormenta de NOAA SPC/NWS + tamaño de granizo por radar MRMS. Es un estimado del radar, no confirmado en esta dirección.' };
+  const lineTag = () => A.ui.srcTag({ label: 'SPC+MRMS', tip: lineTip });
+  const logTag = () => A.ui.srcTag({ label: 'log', tip: { en: 'Your own door log, kept on this device. Sample walk: sample homes, sample results.', es: 'Tu propio registro de puertas, guardado en este equipo. Ruta de muestra: casas de muestra, resultados de muestra.' } });
+  const bench = () => (window.Funnel && Funnel.bench) || {};
+  const hrsBetween = (a, b) => { const p = (s) => { const m = String(s || '').split(':'); return +m[0] + (+m[1] || 0) / 60; }; return p(b) - p(a); };
+  const arrowSvg = (dir) => A.ui.icon('arrow', { size: 13, cls: 'knock-st__arrow' }).replace('<svg ', '<svg style="transform:rotate(' + (dir * 45 - 90) + 'deg)" ');
 
-    // events
-    walkEl.addEventListener('click', (e) => { const b = e.target.closest('[data-rank]'); if (b) select(+b.dataset.rank, { fly: true }); });
+  function buildPanel(ctx, g) {
+    // right: the walk (where and when, progress, the streets in order, the map key)
+    const plan = ctx.el('right', planHTML(g), 'pane knock-plan');
+    const order = ctx.el('right', orderHTML(g), 'pane pane--tight knock-order');
+    // the map key sits on the map, bottom-left of the free area (under the map on phones)
+    const key = ctx.el('center', keyHTML(), 'float knock-legend');
+    // left: the door, then one tap per door (sticky)
+    const card = ctx.el('left', '', 'pane knock-card');
+    const foot = ctx.el('left', footHTML(), 'pane pane--tight pane--foot knock-foot');
+    els = { plan, order, key, card, foot, recap: null, sr: foot.querySelector('.sr') };
+
+    order.addEventListener('click', (e) => { const b = e.target.closest('[data-rank]'); if (b) select(+b.dataset.rank, { fly: true }); });
     foot.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.dataset.out) tap(b.dataset.out);
       else if (b.dataset.act === 'undo') undo();
       else if (b.dataset.act === 'reset') {
-        if (b.dataset.armed) { delete b.dataset.armed; b.classList.remove('is-armed'); reset(); }
+        if (b.dataset.armed) { delete b.dataset.armed; b.classList.remove('is-armed'); b.innerHTML = A.L('Reset walk', 'Reiniciar ruta'); reset(); }
         else { b.dataset.armed = '1'; b.classList.add('is-armed'); b.innerHTML = A.L('Tap again to reset', 'Toca otra vez'); ctxNow && ctxNow.timer(() => { if (b.isConnected && b.dataset.armed) { delete b.dataset.armed; b.classList.remove('is-armed'); b.innerHTML = A.L('Reset walk', 'Reiniciar ruta'); } }, 2600); }
       }
     });
@@ -803,19 +950,105 @@
       if (b.dataset.slot != null) { S.slot[r] = +b.dataset.slot; save(); const sl = slots()[+b.dataset.slot]; A.ui.toast({ en: 'Inspection saved: ' + A.fmt.date(sl.day, 'day', 'en') + ' · ' + A.fmt.time(sl.time, 'en'), es: 'Inspección guardada: ' + A.fmt.date(sl.day, 'day', 'es') + ' · ' + A.fmt.time(sl.time, 'es') }, { icon: 'clock', ms: 1800 }); S.follow = 0; save(); advance(r); }
       else if (b.dataset.act === 'deal') openDeal(r);
       else if (b.dataset.act === 'next') { S.follow = 0; save(); advance(r); }
-      else if (b.dataset.flag) { if (S.flags[r] === b.dataset.flag) delete S.flags[r]; else S.flags[r] = b.dataset.flag; save(); renderCard(false); A.world.invalidate(); }
+      else if (b.dataset.flag) toggleFlag(b.dataset.flag, r);
+      else if (b.dataset.goto) select(+b.dataset.goto, { fly: true });
     });
+    card.addEventListener('change', (e) => { const i = e.target.closest('input[data-legal]'); if (!i) return; if (i.checked) S.legal[curRank()] = 1; else delete S.legal[curRank()]; save(); renderCard(false); });
     try {
       let lw = 0;
       const ro = new ResizeObserver(() => { const cv = card.querySelector('.knock-portrait'), w = cv ? Math.round(cv.getBoundingClientRect().width) : 0; if (w && w !== lw) { const was = lw; lw = w; if (was) drawPortrait(true); } });
       ro.observe(card); ctx.own(() => ro.disconnect());
     } catch (e) { /* no ResizeObserver: the portrait keeps its first size */ }
-    card.addEventListener('change', (e) => { const i = e.target.closest('input[data-legal]'); if (!i) return; if (i.checked) S.legal[curRank()] = 1; else delete S.legal[curRank()]; save(); renderCard(false); });
 
     renderAll(false, false, true);
   }
-  function stat(k, label, cls) {
-    return `<div class="stat knock-stat${cls ? ' knock-stat--' + cls : ''}"><span class="stat__k">${label}</span><span class="stat__v num" data-c="${k}">0</span></div>`;
+
+  function planHTML(g) {
+    const N = A.data, pk = N.pick || {}, wk = N.walk || {}, U = A.ui, F = A.fmt, bt = pk.best_time || {};
+    const B = bench(), dph = B.doors_per_hour || { low: 10, typical: 12, high: 15, source: 'rookie knocking benchmarks' };
+    const n = g.doors.length, hrs = n / dph.typical, win = hrsBetween(bt.start || '16:00', bt.end || '19:30');
+    const hh = Math.round(hrs * 2) / 2, hTxt = (l) => (hrs < 1 ? Math.max(5, Math.round((hrs * 60) / 5) * 5) + ' min' : F.num(hh, hh % 1 ? 1 : 0, l) + ' h');
+    const rng2 = (l) => F.range(bt.start || '16:00', bt.end || '19:30', l);
+    const mi = (l) => F.miles(Math.max(0.1, Math.round((g.total / 5280) * 10) / 10), 1, l);
+    const dphTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark for a new rep: ' + dph.low + '-' + dph.high + ' doors an hour, typical ' + dph.typical + ' (' + dph.source + '). Replace with HMP\'s own after ~200 doors.', es: 'Referencia de la industria para un vendedor nuevo: de ' + dph.low + ' a ' + dph.high + ' puertas por hora, típico ' + dph.typical + ' (' + dph.source + '). Cámbiala por la de HMP después de ~200 puertas.' } });
+    return `
+      <div class="knock-plan__head">
+        <p class="eyebrow eyebrow--acc"><span>${A.L("Tonight's walk", 'La ruta de hoy')} · <b>${A.L("Aldaba's pick", 'La elección de Aldaba')}</b></span></p>
+        <h1 class="t-title knock-plan__title">${A.esc((pk.name || '').replace(/^Columbus:\s*/, ''))}</h1>
+        <p class="knock-plan__sub">${A.L('Columbus · park at ' + A.esc(pn(wk, ' & ')), 'Columbus · estaciónate en ' + A.esc(pn(wk, ' y ')))}</p>
+        <p class="knock-plan__facts"><span class="knock-fact"><span data-h="${U.hailKey(pk.hail_in)}"><b class="num">${F.num(pk.hail_in, 2)}</b> ${A.L('in hail', 'pulg de granizo')}</span> ${U.srcTag('mrms')}</span><span class="knock-fact"><span>${A.L('storm', 'tormenta')} ${A.both(() => F.date(pk.storm_day))}</span> ${U.srcTag('spc')}</span></p>
+      </div>
+      <div class="knock-prog">
+        <div class="knock-ring" role="img" data-label-en="Walk progress" data-label-es="Avance de la ruta">
+          <svg viewBox="0 0 88 88" aria-hidden="true">${ringSegs(g)}</svg>
+          <div class="knock-ring__c"><span class="knock-ring__n num" data-k="done">0</span><span class="knock-ring__of">${A.L('of ' + n, 'de ' + n)}</span></div>
+        </div>
+        <dl class="knock-tally">
+          ${tally('knocked', A.L('Knocked', 'Tocadas') + ' ' + logTag())}
+          ${tally('answered', A.L('Answered', 'Abrieron'))}
+          ${tally('inspection_set', A.L('Inspections', 'Inspecciones'), 'ok')}
+          ${tally('come_back', A.L('Come back', 'Regresar'), 'warn')}
+        </dl>
+      </div>
+      <ul class="knock-meta">
+        <li><i data-icon="route" class="i--sm"></i><span>${A.L('<b>' + mi('en') + '</b> ' + (g.loop ? 'loop, ends back at the car' : 'walk'), '<b>' + mi('es') + '</b> ' + (g.loop ? 'en circuito, termina en el carro' : 'de ruta'))} ${U.srcTag('streets')}</span></li>
+        <li><i data-icon="clock" class="i--sm"></i><span>${A.L('Best time <b>' + rng2('en') + '</b>', 'Mejor hora <b>' + rng2('es') + '</b>')} ${U.srcTag('engine')} ${A.L('· about ' + hTxt('en') + ' at ' + dph.typical + ' doors an hour' + (hrs > win ? ', longer than the window' : ''), '· unas ' + hTxt('es') + ' a ' + dph.typical + ' puertas por hora' + (hrs > win ? ', más que el horario' : ''))} ${dphTag}</span></li>
+        <li class="knock-meta__line" data-line></li>
+      </ul>`;
+  }
+  const pn = (wk, j) => (wk.pn || []).join(j);
+  /** the plan's 1-inch line: how many doors sit inside it, and how far its nearest edge is */
+  function lineSummary(g) {
+    if (!g.hailOk) return '';
+    const n = g.doors.length, e = g.edge;
+    const mi = e && e.mi != null ? Math.max(0.1, Math.round(e.mi * 10) / 10) : null;
+    const edge = mi != null ? A.L(', about ' + A.fmt.miles(mi, 1, 'en') + ' from its edge (' + DIRS.en[e.dir] + ')', ', a unas ' + A.fmt.miles(mi, 1, 'es') + ' de su borde (' + DIRS.es[e.dir] + ')') : '';
+    return `${haloSvg('knock-meta__halo', A.ui.hailKey((A.data.pick || {}).hail_in))}<span>${A.L('<b>' + g.in1 + ' of ' + n + '</b> doors inside the 1-inch hail line', '<b>' + g.in1 + ' de ' + n + '</b> puertas dentro de la línea de 1 pulgada')}${edge}. ${lineTag()}</span>`;
+  }
+  function orderHTML(g) {
+    const rows = g.walkSt.map((w) => {
+      const ft = A.fmt.int(Math.round(((w.s.m || 0) * 3.28084) / 10) * 10, 'en'), ftEs = A.fmt.int(Math.round(((w.s.m || 0) * 3.28084) / 10) * 10, 'es');
+      return `<li class="knock-st" data-st="${w.i}">
+        <span class="knock-st__i">${w.i + 1}</span>
+        <b class="knock-st__t" tabindex="0" data-tip="${A.esc(prettySt(w.s.f) + ' to ' + prettySt(w.s.t) + ' · ' + ft + ' ft (Nebraska GIS)')}" data-tip-es="${A.esc('de ' + prettySt(w.s.f) + ' a ' + prettySt(w.s.t) + ' · ' + ftEs + ' pies (Nebraska GIS)')}">${A.esc(w.s.n)}</b>
+        <span class="knock-st__dir">${arrowSvg(w.dir)}${A.L('heading ' + DIRS.en[w.dir], 'hacia el ' + DIRS.es[w.dir])}</span>
+        <span class="knock-st__n num" data-st-n="${w.i}">0/${w.doors.length}</span>
+        <span class="knock-dots">${w.doors.map((d) => `<button type="button" class="knock-dot" data-rank="${d.rank}" data-tip="${A.esc(d.idx + ' · ' + d.h.addr)}" data-tip-es="${A.esc(d.idx + ' · ' + d.h.addr)}" data-label-en="${A.esc('Door ' + d.idx + ', ' + d.h.addr)}" data-label-es="${A.esc('Puerta ' + d.idx + ', ' + d.h.addr)}"><span>${d.idx}</span></button>`).join('')}</span>
+      </li>`;
+    }).join('');
+    return `<p class="sec">${T(CK.walkTitle || { en: 'Your walk, in order', es: 'Tu ruta, en orden' })} <span class="sec__meta">${A.ui.sampleTag()}</span></p><ol class="knock-streets">${rows}</ol>`;
+  }
+  /** the door marker in miniature: a ring with the dotted 1-inch halo (same drawing as the map) */
+  const haloSvg = (cls, h) => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"${h ? ' data-h="' + h + '"' : ''}><circle class="knock-halo__ring" cx="12" cy="12" r="5.6"/><circle class="knock-halo__dots" cx="12" cy="12" r="10.2"/></svg>`;
+  function keyHTML() {
+    const at = (v) => ((clamp(v, HS[0], HS[3]) - HS[0]) / (HS[3] - HS[0])) * 100;
+    const pkH = (A.data.pick || {}).hail_in;
+    return `<p class="knock-legend__t">${A.L('Map key', 'Guía del mapa')}</p>
+      <ul class="knock-legend__list">
+        <li><svg class="knock-legend__g" viewBox="0 0 24 24" aria-hidden="true"><circle class="knock-legend__trk" cx="12" cy="12" r="7.5"/><path class="knock-legend__arc" d="M12 4.5a7.5 7.5 0 1 1-7.13 9.82"/></svg><span>${A.L('Door: arc = score, color = hail', 'Puerta: arco = puntaje, color = granizo')}</span></li>
+        <li>${haloSvg('knock-legend__g', A.ui.hailKey(pkH))}<span>${A.L('Dotted halo: inside the 1-inch line', 'Halo punteado: dentro de la línea de 1 pulgada')}</span></li>
+        <li class="knock-legend__hail"><span class="knock-legend__lot" aria-hidden="true"></span><span>${A.L('Lot tint = modeled hail', 'Tono del lote = granizo modelado')} ${lineTag()}
+          <span class="knock-legend__scale" aria-hidden="true"><i class="knock-legend__tick" style="left:${at(LINE).toFixed(1)}%"><b>${A.L('1 in', '1 pulg')}</b></i><i class="knock-legend__tick knock-legend__tick--2" style="left:${at(2).toFixed(1)}%"><b>${A.L('2 in', '2 pulg')}</b></i></span></span></li>
+        <li><svg class="knock-legend__g" viewBox="0 0 24 24" aria-hidden="true"><path class="knock-legend__done" d="M1 12h10"/><path class="knock-legend__ahead" d="M14 12h9"/></svg><span>${A.L('Route: walked, still ahead', 'Ruta: caminada, lo que falta')}</span></li>
+      </ul>`;
+  }
+  function footHTML() {
+    const keysTip = CK.keys || { en: 'Keys N, T, I, X and B log the door. U undoes the last one.', es: 'Las teclas N, T, I, X y B anotan la puerta. U deshace la última.' };
+    return `
+      <div class="knock-foot__head"><span class="t-micro knock-foot__q">${T(CK.outcomesTitle || { en: 'How did the door go?', es: '¿Cómo salió la puerta?' })}</span>
+        <span class="t-micro knock-foot__keys" tabindex="0" data-tip="${A.esc(keysTip.en)}" data-tip-es="${A.esc(keysTip.es)}">${A.L('Keys', 'Teclas')} ${OUT.map((o) => '<kbd class="kbd">' + o.key + '</kbd>').join('')} · <kbd class="kbd">U</kbd> ${A.L('undo', 'deshacer')}</span></div>
+      <div class="knock-outs" role="group" data-label-en="Log this door" data-label-es="Anota esta puerta">
+        ${OUT.map((o) => `<button type="button" class="knock-out" data-out="${o.id}" style="--oc:var(${o.tok})" aria-pressed="false" aria-keyshortcuts="${o.key}" data-tip="${A.esc(o.hint.en)}" data-tip-es="${A.esc(o.hint.es)}"><span class="knock-out__dot" aria-hidden="true"></span><span class="knock-out__l">${A.L(A.esc(o.label.en), A.esc(o.label.es))}</span><kbd class="kbd">${o.key}</kbd></button>`).join('')}
+      </div>
+      <div class="knock-foot__row">
+        <button type="button" class="btn btn--ghost btn--sm" data-act="undo" aria-keyshortcuts="U"><i data-icon="arrow" class="i--sm knock-flip"></i>${T((((window.COPY || {}).ui || {}).common || {}).undo || { en: 'Undo', es: 'Deshacer' })}</button>
+        <span class="knock-foot__last t-small" data-k="last"></span>
+        <button type="button" class="btn btn--ghost btn--sm" data-act="reset">${A.L('Reset walk', 'Reiniciar ruta')}</button>
+      </div>
+      <p class="sr" role="status" aria-live="polite"></p>`;
+  }
+  function tally(k, label, cls) {
+    return `<div class="knock-tally__r${cls ? ' is-' + cls : ''}"><dt>${label}</dt><dd class="num" data-c="${k}">0</dd></div>`;
   }
   function ringSegs(g) {
     const n = g.doors.length, R = 38, gap = 2.2, out = [];
@@ -830,58 +1063,61 @@
 
   const lastC = {};
   function rollCounters(fromZero) {
-    const c = counts(); if (!els.cn) return;
-    els.cn.querySelectorAll('[data-c]').forEach((el) => {
+    const c = counts(); if (!els.plan) return;
+    els.plan.querySelectorAll('[data-c]').forEach((el) => {
       const k = el.dataset.c, v = c[k] || 0, from = fromZero === 0 ? 0 : lastC[k] == null ? v : lastC[k];
       if (from !== v || fromZero === 0) A.motion.countUp(el, v, { from, ms: 900 }); else el.textContent = A.fmt.int(v);
       lastC[k] = v;
     });
-    const dn = els.head && els.head.querySelector('[data-k="done"]');
-    if (dn) { const f = fromZero === 0 ? 0 : lastC.__done == null ? c.knocked : lastC.__done; if (f !== c.knocked || fromZero === 0) A.motion.countUp(dn, c.knocked, { from: f, ms: 900 }); else dn.textContent = c.knocked; lastC.__done = c.knocked; }
+    const dn = els.plan.querySelector('[data-k="done"]');
+    if (dn) { const f = fromZero === 0 ? 0 : lastC.__done == null ? c.done : lastC.__done; if (f !== c.done || fromZero === 0) A.motion.countUp(dn, c.done, { from: f, ms: 900 }); else dn.textContent = c.done; lastC.__done = c.done; }
   }
 
-  /** refresh every live part of the panel; newDoor = the current door changed (card lands again) */
+  /** refresh every live part of the panels; newDoor = the current door changed (the card lands again) */
   function renderAll(newDoor, roll, first) {
     if (!els.card || !S) return;
     const g = geo(), cur = curRank(), c = counts();
-    // ring segments + dots + street counts
-    els.head.querySelectorAll('.knock-ring__seg').forEach((p) => {
-      const r = +p.dataset.rank, o = S.o[r];
-      p.setAttribute('class', 'knock-ring__seg' + (o ? ' is-' + o : '') + (r === cur ? ' is-cur' : ''));
-    });
-    els.walkEl.querySelectorAll('.knock-dot').forEach((b) => {
-      const r = +b.dataset.rank, o = S.o[r];
-      b.className = 'knock-dot' + (o ? ' is-done' : '') + (r === cur ? ' is-cur' : '');
+    const state = (r) => (S.o[r] ? ' is-' + S.o[r] : S.flags[r] ? ' is-skip' : '');
+    els.plan.querySelectorAll('.knock-ring__seg').forEach((p) => { const r = +p.dataset.rank; p.setAttribute('class', 'knock-ring__seg' + state(r) + (r === cur ? ' is-cur' : '')); });
+    els.order.querySelectorAll('.knock-dot').forEach((b) => {
+      const r = +b.dataset.rank, o = S.o[r], sk = !o && S.flags[r];
+      b.className = 'knock-dot' + (o ? ' is-done' : '') + (sk ? ' is-skip' : '') + (r === cur ? ' is-cur' : '');
       b.style.setProperty('--oc', o ? 'var(' + OUTBY[o].tok + ')' : '');
       b.setAttribute('aria-current', r === cur ? 'true' : 'false');
     });
-    (A.data.walk.s || []).forEach((s, i) => {
-      const ds = g.doors.filter((d) => stKey(d.h.st) === stKey(s.n)), n = ds.filter((d) => S.o[d.rank]).length, el = els.walkEl.querySelector('[data-st-n="' + i + '"]');
-      if (el) el.textContent = n + '/' + ds.length;
-      const li = els.walkEl.querySelector('[data-st="' + i + '"]'); if (li) { li.classList.toggle('is-here', ds.some((d) => d.rank === cur)); li.classList.toggle('is-done', n === ds.length); }
+    g.walkSt.forEach((w) => {
+      const n = w.doors.filter((d) => settled(d.rank)).length, el = els.order.querySelector('[data-st-n="' + w.i + '"]');
+      if (el) el.textContent = n + '/' + w.doors.length;
+      const li = els.order.querySelector('[data-st="' + w.i + '"]'); if (li) { li.classList.toggle('is-here', w.doors.some((d) => d.rank === cur)); li.classList.toggle('is-done', n === w.doors.length); }
     });
+    const ln = els.plan.querySelector('[data-line]'); if (ln) { const h = lineSummary(g); if (ln.dataset.v !== String(g.ver)) { ln.innerHTML = h; ln.dataset.v = String(g.ver); } ln.hidden = !h; }
     // outcome buttons: which one this door has
     els.foot.querySelectorAll('[data-out]').forEach((b) => b.setAttribute('aria-pressed', String(S.o[cur] === b.dataset.out)));
     const last = S.hist[S.hist.length - 1], lastEl = els.foot.querySelector('[data-k="last"]');
     if (lastEl) {
-      const ld = last && doorBy(last.r), lo = last && S.o[last.r];
+      const ld = last && doorBy(last.r), lo = last && S.o[last.r], lf = last && !lo && S.flags[last.r];
       const nx = doorBy(nextOpen(cur));
-      lastEl.innerHTML = ld && lo ? A.L('Last: ' + A.esc(OUTBY[lo].short.en), 'Última: ' + A.esc(OUTBY[lo].short.es)) + ' · <span class="t-mono">' + A.esc(ld.h.addr) + '</span>'
-        : nx ? T(CK.next || { en: 'Next: {address}', es: 'Sigue: {address}' }, { address: '<span class="t-mono">' + A.esc(nx.h.addr) + '</span>' }) : '';
+      // the card shows the next door on tall screens; on short ones this line does, until something is logged
+      lastEl.innerHTML = ld && (lo || lf) ? (lo ? A.L('Last: ' + A.esc(OUTBY[lo].short.en), 'Última: ' + A.esc(OUTBY[lo].short.es)) : A.L('Last: do not knock', 'Última: no tocar')) + ' · <span class="t-mono">' + A.esc(ld.h.addr) + '</span>'
+        : nx && nx.rank !== cur ? '<span class="knock-foot__next">' + T(CK.next || { en: 'Next: {address}', es: 'Sigue: {address}' }, { address: '<span class="t-mono">' + A.esc(nx.h.addr) + '</span>' }) + '</span>' : '';
     }
     const undoB = els.foot.querySelector('[data-act="undo"]'); if (undoB) undoB.disabled = !S.hist.length;
     if (roll) rollCounters();
-    else if (first) { const cc = c; els.cn.querySelectorAll('[data-c]').forEach((el) => { el.textContent = A.fmt.int(cc[el.dataset.c] || 0); lastC[el.dataset.c] = cc[el.dataset.c] || 0; }); const dn = els.head.querySelector('[data-k="done"]'); if (dn) dn.textContent = cc.knocked; lastC.__done = cc.knocked; }
+    else if (first) {
+      els.plan.querySelectorAll('[data-c]').forEach((el) => { el.textContent = A.fmt.int(c[el.dataset.c] || 0); lastC[el.dataset.c] = c[el.dataset.c] || 0; });
+      const dn = els.plan.querySelector('[data-k="done"]'); if (dn) dn.textContent = c.done; lastC.__done = c.done;
+    }
     renderCard(newDoor || first);
     renderRecap(c, g);
   }
 
   function renderCard(land) {
     const g = geo(), d = doorBy(curRank()), card = els.card; if (!d || !card) return;
-    const h = d.h, U = A.ui, cc = CK.card || {}, o = S.o[d.rank], follow = S.follow === d.rank && o === 'inspection_set';
+    const h = d.h, U = A.ui, cc = CK.card || {}, o = S.o[d.rank], fl = S.flags[d.rank], skip = fl && !o;
+    const follow = S.follow === d.rank && o === 'inspection_set';
     const hk = U.hailKey(h.hail), pr = CK.progress || { en: 'Door {i} of {n}', es: 'Puerta {i} de {n}' };
-    const legal = CK.legal || {};
-    const slotHTML = follow || (o === 'inspection_set') ? `
+    const legal = CK.legal || {}, st = g.walkSt[d.wi];
+    const slotHTML = o === 'inspection_set' ? `
       <div class="knock-follow${follow ? ' is-open' : ''}">
         <p class="knock-follow__t"><i data-icon="clock" class="i--sm"></i>${A.L('Inspection time', 'Hora de la inspección')} <span class="t-micro">${A.both(() => A.fmt.date(slots()[0].day, 'day'))}</span></p>
         <div class="knock-slots">${slots().map((s, i) => `<button type="button" class="knock-slot" data-slot="${i}" aria-pressed="${S.slot[d.rank] === i}">${A.both(() => A.fmt.time(s.time))}</button>`).join('')}</div>
@@ -890,16 +1126,19 @@
           ${follow ? `<button type="button" class="btn btn--ghost btn--sm" data-act="next">${A.L('Next door', 'Siguiente puerta')}<i data-icon="chevron" class="i--sm"></i></button>` : ''}
         </div>
       </div>` : '';
+    const status = o ? `<span class="chip knock-card__o" style="--oc:var(${OUTBY[o].tok})"><span class="chip__dot"></span>${A.L(A.esc(OUTBY[o].label.en), A.esc(OUTBY[o].label.es))}</span>`
+      : skip ? `<span class="chip knock-card__o knock-card__o--skip"><i data-icon="x" class="i--sm"></i>${A.L('Do not knock', 'No tocar')}</span>`
+        : `<span class="t-micro knock-card__next">${A.L('At the door', 'En la puerta')}</span>`;
+    const dayOf = () => { const e = dnkList()[h.addr]; return (e && e.day) || A.story.today; };
     card.innerHTML = `
-      <div class="knock-card__bar"><span class="t-micro knock-card__n">${T(pr, { i: String(d.idx), n: String(g.doors.length) })}</span>
-        ${o ? `<span class="chip knock-card__o" style="--oc:var(${OUTBY[o].tok})"><span class="chip__dot"></span>${A.L(A.esc(OUTBY[o].label.en), A.esc(OUTBY[o].label.es))}</span>` : `<span class="t-micro knock-card__next">${A.L('At the door', 'En la puerta')}</span>`}</div>
+      <div class="knock-card__bar"><span class="t-micro knock-card__n">${T(pr, { i: String(d.idx), n: String(g.doors.length) })}${st ? ' · ' + A.esc(st.s.n) : ''}</span>${status}</div>
       ${follow ? slotHTML : ''}
       <div class="knock-card__hero">
         <div class="knock-card__pic"><canvas class="knock-portrait" aria-hidden="true"></canvas></div>
         <div class="knock-card__id">
           <h2 class="t-head knock-card__addr">${A.esc(h.addr)}</h2>
-          <span class="knock-card__tags">${U.sampleTag()}<span class="knock-card__st">${A.esc(h.st)}</span>
-            <span class="knock-card__score" data-tip="${A.esc(U.sources.engine.en)}" data-tip-es="${A.esc(U.sources.engine.es)}"><span class="knock-score"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="knock-score__trk" cx="22" cy="22" r="18"/><circle class="knock-score__arc" cx="22" cy="22" r="18" pathLength="100" style="stroke-dasharray:${h.score} 100"/></svg><b class="num">${h.score}</b></span><span class="t-micro">${A.L('Door score', 'Puntaje')}</span> ${U.srcTag('engine')}</span></span>
+          <span class="knock-card__tags">${U.sampleTag()}
+            <span class="knock-card__score" tabindex="0" data-tip="${A.esc(U.sources.engine.en)}" data-tip-es="${A.esc(U.sources.engine.es)}"><span class="knock-score"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="knock-score__trk" cx="22" cy="22" r="18"/><circle class="knock-score__arc" cx="22" cy="22" r="18" pathLength="100" style="stroke-dasharray:${h.score} 100"/></svg><b class="num">${h.score}</b></span><span class="t-micro">${A.L('Door score', 'Puntaje')}</span> ${U.srcTag('engine')}</span></span>
           <div class="knock-card__hail">
             <span class="knock-f__k">${T(cc.hail || { en: 'Hail at this door', es: 'Granizo en esta puerta' })} ${U.srcTag('mrms')}</span>
             <span class="knock-card__hv"><b class="num" data-h="${hk}">${A.fmt.num(h.hail, 2)}</b><span>${A.L('in', 'pulg')}</span></span>
@@ -907,24 +1146,50 @@
           </div>
         </div>
       </div>
-      <label class="knock-legal${S.legal[d.rank] ? ' is-on' : ''}">
+      ${d.fh == null ? '' : `<div class="knock-line${d.in1 ? ' is-in' : ''}" data-h="${U.hailKey(d.fh)}">
+        ${haloSvg('knock-line__g')}
+        <span class="knock-line__t"><b>${d.in1 ? A.L('Inside the 1-inch hail line', 'Dentro de la línea de granizo de 1 pulgada') : A.L('Outside the 1-inch hail line', 'Fuera de la línea de granizo de 1 pulgada')}</b> ${lineTag()}
+          <span class="knock-line__s">${A.L('Roof damage usually starts to show at about 1 inch.', 'El daño al techo suele empezar a notarse con granizo de 1 pulgada.')}</span></span>
+      </div>`}
+      ${fl ? `<div class="knock-dnk"><i data-icon="x" class="i--sm"></i><p><b>${A.L('Do not knock', 'No tocar')}</b> · ${T(FLAGBY[fl].label)}<span>${A.L('On your do-not-knock list since ' + A.esc(A.fmt.date(dayOf(), 'short', 'en')) + '. Every walk skips this door.', 'En tu lista de no tocar desde el ' + A.esc(A.fmt.date(dayOf(), 'short', 'es')) + '. Cada ruta se salta esta puerta.')}</span></p></div>` : ''}
+      ${skip && fl === 'noSoliciting' ? '' : `<label class="knock-legal${S.legal[d.rank] ? ' is-on' : ''}">
         <input type="checkbox" data-legal ${S.legal[d.rank] ? 'checked' : ''}>
         <span class="knock-legal__box" aria-hidden="true">${U.icon('check', { size: 14 })}</span>
         <span class="knock-legal__t">${T(legal.check || { en: 'Said first: my name, HMP Siding & Roofing and what we sell (69-1602)', es: 'Dicho primero: mi nombre, HMP Siding & Roofing y lo que vendemos (69-1602)' })} ${U.srcTag('law')}</span>
-      </label>
+      </label>`}
       <div class="knock-facts2">
-        <div class="knock-f"><span class="knock-f__k">${A.L('Built', 'Construida')}</span><span class="knock-f__v"><b class="num">${h.built}</b> ${U.sampleTag()}</span></div>
-        <div class="knock-f"><span class="knock-f__k">${T(cc.roofAge || { en: 'Roof age', es: 'Edad del techo' })}</span><span class="knock-f__v"><b class="num">${h.roof}</b> ${A.L('yrs', 'años')} ${U.sampleTag()}</span></div>
-        <div class="knock-f"><span class="knock-f__k">${A.L('Owner lives here', 'Vive el dueño')}</span><span class="knock-f__v"><b>${h.own ? T(cc.ownerYes || { en: 'Yes', es: 'Sí' }) : T(cc.ownerNo || { en: 'No', es: 'No' })}</b> ${U.sampleTag()}</span></div>
+        <div class="knock-f"><span class="knock-f__k">${A.L('Built', 'Construida')}</span><span class="knock-f__v"><b class="num">${h.built}</b></span></div>
+        <div class="knock-f"><span class="knock-f__k">${T(cc.roofAge || { en: 'Roof age', es: 'Edad del techo' })}</span><span class="knock-f__v"><b class="num">${h.roof}</b> ${h.roof === 1 ? A.L('yr', 'año') : A.L('yrs', 'años')}</span></div>
+        <div class="knock-f"><span class="knock-f__k">${A.L('Owner lives here', 'Vive el dueño')}</span><span class="knock-f__v"><b>${h.own ? T(cc.ownerYes || { en: 'Yes', es: 'Sí' }) : T(cc.ownerNo || { en: 'No', es: 'No' })}</b></span></div>
+        <div class="knock-f knock-f--tag">${U.sampleTag()}</div>
       </div>
+      ${nextRow(g, d)}
       <div class="knock-flags">
-        ${['noSoliciting', 'dontReturn'].map((k) => `<button type="button" class="chip knock-flag" data-flag="${k}" aria-pressed="${S.flags[d.rank] === k}"><i data-icon="${k === 'noSoliciting' ? 'x' : 'flag'}" class="i--sm"></i>${T((CK.flags || {})[k] || { en: k, es: k })}</button>`).join('')}
+        ${FLAGS.map((f) => `<button type="button" class="chip knock-flag" data-flag="${f.id}" aria-pressed="${fl === f.id}" data-tip="${A.esc(fl === f.id ? 'On your do-not-knock list. Tap to take it off.' : 'Puts this address on your do-not-knock list. Every walk skips it.')}" data-tip-es="${A.esc(fl === f.id ? 'Está en tu lista de no tocar. Toca para quitarla.' : 'Pone esta dirección en tu lista de no tocar. Cada ruta se la salta.')}"><i data-icon="${f.icon}" class="i--sm"></i>${T(f.label)}</button>`).join('')}
       </div>
       ${follow ? '' : slotHTML}`;
     A.ui.icons(card); A.ui.localize(card);
     drawPortrait(false, land);
     if (land && !A.still) A.motion.stagger(card.children, { each: 30, y: 8, ms: 460 });
-    if (follow) { const fe = card.querySelector('.knock-follow'); if (fe) { A.safe('knock scroll', () => { const sl = els.card.closest('.slot'), pane = els.card.parentElement; if (sl && pane && !A.stacked()) sl.scrollTo({ top: Math.max(0, pane.offsetTop - 8), behavior: A.still ? 'auto' : 'smooth' }); }); if (!A.still) A.motion.reveal(fe, { y: 10, ring: true, size: 80 }); } }
+    if (follow) {
+      const fe = card.querySelector('.knock-follow');
+      if (fe) {
+        A.safe('knock scroll', () => { const sl = card.closest('.slot'); if (sl && !A.stacked()) sl.scrollTo({ top: Math.max(0, card.offsetTop - 8), behavior: A.still ? 'auto' : 'smooth' }); });
+        if (!A.still) A.motion.reveal(fe, { y: 10, ring: true, size: 80 });
+      }
+    }
+  }
+
+  /** the next open door: which one, which side, how far on foot (along the route, sidewalk to door) */
+  function nextRow(g, d) {
+    const nx = doorBy(nextOpen(d.rank)); if (!nx || nx === d) return '';
+    const spur = (x) => Math.hypot(x.D[0] - x.foot[0], x.D[1] - x.foot[1]);
+    const ft = Math.max(10, Math.round((spur(d) + Math.abs(nx.arc - d.arc) + spur(nx)) / 10) * 10), st = g.walkSt[nx.wi];
+    const how = nx.wi !== d.wi ? A.L('around the corner on ' + A.esc(st ? st.s.n : nx.h.st), 'a la vuelta, en ' + A.esc(st ? st.s.n : nx.h.st))
+      : nx.side !== d.side ? A.L('across the street', 'cruzando la calle') : A.L('same side', 'del mismo lado');
+    const tip = { en: 'Walking distance along the route: Nebraska GIS street lines to the sample home spots', es: 'Distancia a pie por la ruta: calles de Nebraska GIS hasta los puntos de las casas de muestra' };
+    return `<div class="knock-next"><span class="t-micro knock-next__k">${A.L('Next', 'Sigue')}</span><span class="knock-next__n">${nx.idx}</span><span class="knock-next__t"><b>${A.esc(nx.h.addr)}</b> <span>${how} · ${A.L('~' + A.fmt.int(ft, 'en') + ' ft', '~' + A.fmt.int(ft, 'es') + ' pies')}</span> ${A.ui.srcTag({ label: 'NE GIS', tip })}</span>
+      <button type="button" class="btn btn--ghost btn--icon btn--sm knock-next__go" data-goto="${nx.rank}" data-label-en="${A.esc('Go to door ' + nx.idx + ', ' + nx.h.addr)}" data-label-es="${A.esc('Ir a la puerta ' + nx.idx + ', ' + nx.h.addr)}"><i data-icon="chevron" class="i--sm"></i></button></div>`;
   }
 
   let portrait = null, portraitKey = '';
@@ -946,34 +1211,43 @@
     portraitKey = key;
   }
 
-  /** the copy deck speaks in plurals; a count of one reads right */
-  const sing = (html) => html.replace(/\b1 doors\b/g, '1 door').replace(/\b1 people\b/g, '1 person').replace(/\b1 inspections\b/g, '1 inspection')
-    .replace(/\b1 puertas\b/g, '1 puerta').replace(/\b1 personas\b/g, '1 persona').replace(/\b1 inspecciones\b/g, '1 inspección');
   function renderRecap(c, g) {
     const ctx = ctxNow; if (!ctx) return;
-    const done = c.knocked >= g.doors.length;
+    const done = c.done >= g.doors.length;
     if (!done) { if (els.recap) { const r = els.recap; els.recap = null; A.motion.exit([r], { ms: 140 }).then(() => { r.remove(); A.view.relayout(); }); } return; }
-    const R = CK.recap || {}, U = A.ui, bench = window.Funnel && Funnel.bench && Funnel.bench.doors_to_conversation;
-    const rate = c.knocked ? Math.round((c.answered / c.knocked) * 100) : 0;
-    const benchTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark: ' + (bench ? bench.typical + '% of doors answer (' + bench.source + ')' : 'doors to conversation'), es: 'Cifra de la industria: ' + (bench ? 'abre el ' + bench.typical + '% de las puertas (' + bench.source + ')' : 'puertas que abren') } });
+    const R = CK.recap || {}, U = A.ui, B = bench(), units = R.units || {};
+    const conv = B.doors_to_conversation || { typical: 30, source: 'spotio.com, theroofstrategist.com' };
+    const insp = B.doors_to_qualified_inspection_new_rep || { low: 0.5, typical: 1, high: 2, source: 'ilroofinginstitute.com, new rep, first 30 days' };
+    const ans = c.knocked ? Math.round((c.answered / c.knocked) * 100) : 0;
+    const ir = c.knocked ? (c.inspection_set / c.knocked) * 100 : 0;
+    const ph = (o, n, fb) => Tx(one(o || fb, n), { n: String(n) });
+    const summary = T(R.summary || { en: 'You knocked {n}, talked with {t} and set {i}.', es: 'Tocaste {n}, hablaste con {t} y agendaste {i}.' }, {
+      n: ph(units.doors, c.knocked, { en: '{n} doors', es: '{n} puertas', one: { en: '1 door', es: '1 puerta' } }),
+      t: ph(units.people, c.answered, { en: '{n} people', es: '{n} personas', one: { en: '1 person', es: '1 persona' } }),
+      i: ph(units.inspections, c.inspection_set, { en: '{n} inspections', es: '{n} inspecciones', one: { en: '1 inspection', es: '1 inspección' } })
+    });
+    const rate = c.answered ? T(R.rate || { en: '{p}% of answered doors set an inspection ({i} of {a})', es: 'El {p}% de las puertas que abrieron agendó una inspección ({i} de {a})' }, { p: String(Math.round((c.inspection_set / c.answered) * 100)), i: String(c.inspection_set), a: String(c.answered) })
+      : A.L('No one answered on this walk.', 'Nadie abrió en esta ruta.');
+    const said = c.answered ? A.L('said first (69-1602) at ' + c.legal + ' of ' + c.answered + (c.answered === 1 ? ' answered door' : ' answered doors'), 'dicho primero (69-1602) en ' + c.legal + ' de ' + c.answered + (c.answered === 1 ? ' puerta que abrió' : ' puertas que abrieron')) + ' ' + U.srcTag('law') + ' · ' : '';
+    const skipped = c.skipped ? A.L(c.skipped + ' skipped (do-not-knock list)', c.skipped + (c.skipped === 1 ? ' saltada' : ' saltadas') + ' (lista de no tocar)') + ' · ' : '';
+    const convTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark: ' + conv.typical + '% of doors answer (' + conv.source + ')', es: 'Referencia de la industria: abre el ' + conv.typical + '% de las puertas (' + conv.source + ')' } });
+    const inspTag = U.srcTag({ label: 'bench', tip: { en: 'Industry benchmark for a new rep: ' + insp.low + '-' + insp.high + '% of doors book a qualified inspection, typical ' + insp.typical + '% (' + insp.source + ')', es: 'Referencia de la industria para un vendedor nuevo: del ' + insp.low + ' al ' + insp.high + '% de las puertas agenda una inspección, típico ' + insp.typical + '% (' + insp.source + ')' } });
     const firstInsp = g.doors.find((d) => S.o[d.rank] === 'inspection_set');
     const html = `
       <div class="knock-recap">
-        <div class="knock-recap__head">
-          <p class="eyebrow eyebrow--acc">${T(R.title || { en: 'Walk recap', es: 'Resumen de la ruta' })} ${U.sampleTag()}</p>
-          <p class="t-head knock-recap__sum">${sing(T(R.summary || { en: 'You knocked {n} doors, talked with {t} people and set {i} inspections.', es: 'Tocaste {n} puertas, hablaste con {t} personas y agendaste {i} inspecciones.' }, { n: String(c.knocked), t: String(c.answered), i: String(c.inspection_set) }))}</p>
-          <p class="t-small knock-recap__note">${T(R.rate || { en: '{i} of {a} answered doors set an inspection', es: '{i} de {a} puertas que abrieron agendaron una inspección' }, { i: String(c.inspection_set), a: String(c.answered) })} · ${A.L('said first at ' + c.legal + ' of ' + c.answered, 'dicho primero en ' + c.legal + ' de ' + c.answered)} ${U.srcTag('law')} · ${T(R.sampleNote || { en: 'Sample homes, sample results.', es: 'Casas de muestra, resultados de muestra.' })}</p>
-        </div>
-        <div class="stats knock-recap__stats">
-          <div class="stat"><span class="stat__k">${A.L('Answered', 'Abrieron')} ${benchTag}</span><span class="stat__v num">${rate}<span class="stat__u">%</span></span><span class="stat__s">${A.L('typical ' + (bench ? bench.typical : 30) + '%', 'típico ' + (bench ? bench.typical : 30) + '%')}</span></div>
-          <div class="stat"><span class="stat__k">${A.L('Inspections', 'Inspecciones')}</span><span class="stat__v num knock-ok">${c.inspection_set}</span></div>
-          <div class="stat"><span class="stat__k">${A.L('Come back', 'Regresar')}</span><span class="stat__v num">${c.come_back}</span></div>
-          <div class="stat"><span class="stat__k">${A.L('Said no', 'Dijeron no')}</span><span class="stat__v num">${c.not_interested}</span></div>
-          <div class="stat"><span class="stat__k">${A.L('Follow-ups', 'Seguimientos')}</span><span class="stat__v num">${c.inspection_set + c.come_back}</span></div>
-        </div>
+        <p class="eyebrow eyebrow--acc knock-recap__eb"><span>${T(R.title || { en: 'Walk recap', es: 'Resumen de la ruta' })}</span> ${U.sampleTag()}</p>
         <div class="knock-recap__act">
           ${firstInsp ? `<button type="button" class="btn btn--primary btn--sm" data-act="deal" data-rank="${firstInsp.rank}"><i data-icon="doc" class="i--sm"></i>${A.L('Open ' + A.esc(firstInsp.h.addr) + ' in Deal', 'Abrir ' + A.esc(firstInsp.h.addr) + ' en Trato')}</button>` : ''}
           <button type="button" class="btn btn--secondary btn--sm" data-act="reset2">${A.L('New walk', 'Nueva ruta')}</button>
+        </div>
+        <p class="t-head knock-recap__sum">${summary}</p>
+        <p class="t-small knock-recap__note">${rate} · ${said}${skipped}${T(R.sampleNote || { en: 'Sample homes, sample results.', es: 'Casas de muestra, resultados de muestra.' })}</p>
+        <div class="stats knock-recap__stats">
+          <div class="stat"><span class="stat__k">${A.L('Answered', 'Abrieron')} ${convTag}</span><span class="stat__v num">${ans}<span class="stat__u">%</span></span><span class="stat__s">${A.L('typical ' + conv.typical + '%', 'típico ' + conv.typical + '%')}</span></div>
+          <div class="stat"><span class="stat__k">${A.L('Inspections', 'Inspecciones')} ${inspTag}</span><span class="stat__v num knock-ok">${c.inspection_set}</span><span class="stat__s">${A.L(A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'en') + '% of doors · new rep ' + insp.typical + '%', A.fmt.num(ir, ir && ir < 10 ? 1 : 0, 'es') + '% de puertas · nuevo ' + insp.typical + '%')}</span></div>
+          <div class="stat"><span class="stat__k">${A.L('Come back', 'Regresar')}</span><span class="stat__v num knock-warn">${c.come_back}</span><span class="stat__s"></span></div>
+          <div class="stat"><span class="stat__k">${A.L('Said no', 'Dijeron no')}</span><span class="stat__v num">${c.not_interested}</span><span class="stat__s"></span></div>
+          <div class="stat"><span class="stat__k">${A.L('Do not knock', 'No tocar')}</span><span class="stat__v num">${c.dnk}</span><span class="stat__s">${A.L('on your list', 'en tu lista')}</span></div>
         </div>
       </div>`;
     if (!els.recap) {
@@ -987,10 +1261,15 @@
   /* ---------------- director hooks ---------------- */
   api = A.knockDemo = {
     tap(outcome, rank) { if (A.view.current !== 'knock') return false; tap(outcome, { rank }); return true; },
+    flag(kind, rank) { if (A.view.current !== 'knock' || !FLAGBY[kind]) return false; toggleFlag(kind, rank); return true; },
     select(rank) { if (A.view.current !== 'knock') return false; select(rank, { fly: true }); return true; },
     undo() { if (A.view.current === 'knock') undo(); },
-    reset() { if (A.view.current === 'knock') reset(); else { A.store.del(KEY); } },
-    state() { if (!S) load(); const g = geo(); return { head: V.head, reveal: V.reveal, tl: V.tl ? V.tl.time : -1, cur: curRank(), counts: counts(), order: g ? g.doors.map((d) => d.rank) : [], outcomes: Object.assign({}, S.o) }; },
-    outcomes: OUT.map((o) => o.id)
+    reset(all) { if (A.view.current === 'knock') reset(all); else { A.store.del(KEY); if (all) A.store.del(DNK); } },
+    state() {
+      if (!S) load(); const g = geo();
+      return { head: V.head, reveal: V.reveal, tl: V.tl ? V.tl.time : -1, cur: curRank(), counts: counts(), order: g ? g.doors.map((d) => d.rank) : [], outcomes: Object.assign({}, S.o), flags: Object.assign({}, S.flags), dnk: dnkList(), doneArc: V.done.to, inLine: g ? g.in1 : 0, edge: g && g.edge,
+        doors: g ? g.doors.map((d) => ({ rank: d.rank, idx: d.idx, st: d.h.st, lon: d.h.p[0], lat: d.h.p[1], arc: Math.round(d.arc), fh: d.fh, in1: d.in1 })) : [] };
+    },
+    outcomes: OUT.map((o) => o.id), flags: FLAGS.map((f) => f.id)
   };
 })();

@@ -793,8 +793,8 @@ window.COPY = {
       "es": "¿Cómo salió la puerta?"
     },
     "keys": {
-      "en": "Keys 1 to 5 log the door. Undo brings it back.",
-      "es": "Las teclas 1 a 5 anotan la puerta. Deshacer la regresa."
+      "en": "Keys N, T, I, X and B log the door. U undoes the last one.",
+      "es": "Las teclas N, T, I, X y B anotan la puerta. U deshace la última."
     },
     "keyHint": {
       "en": "Press {key}",
@@ -803,7 +803,7 @@ window.COPY = {
     "outcomes": [
       {
         "id": "no_answer",
-        "key": "1",
+        "key": "N",
         "label": {
           "en": "No answer",
           "es": "No abrió"
@@ -815,7 +815,7 @@ window.COPY = {
       },
       {
         "id": "talked",
-        "key": "2",
+        "key": "T",
         "label": {
           "en": "Talked",
           "es": "Hablamos"
@@ -827,7 +827,7 @@ window.COPY = {
       },
       {
         "id": "inspection_set",
-        "key": "3",
+        "key": "I",
         "label": {
           "en": "Inspection set",
           "es": "Inspección agendada"
@@ -839,7 +839,7 @@ window.COPY = {
       },
       {
         "id": "not_interested",
-        "key": "4",
+        "key": "X",
         "label": {
           "en": "Not interested",
           "es": "No le interesa"
@@ -851,7 +851,7 @@ window.COPY = {
       },
       {
         "id": "come_back",
-        "key": "5",
+        "key": "B",
         "label": {
           "en": "Come back later",
           "es": "Regresar más tarde"
@@ -947,52 +947,114 @@ window.COPY = {
         "es": "Resumen de la ruta"
       },
       "summary": {
-        "en": "You knocked {n} doors, talked with {t} people and set {i} inspections.",
-        "es": "Tocaste {n} puertas, hablaste con {t} personas y agendaste {i} inspecciones."
+        "en": "You knocked {n}, talked with {t} and set {i}.",
+        "es": "Tocaste {n}, hablaste con {t} y agendaste {i}."
+      },
+      "units": {
+        "doors": {
+          "en": "{n} doors",
+          "es": "{n} puertas",
+          "one": {
+            "en": "1 door",
+            "es": "1 puerta"
+          }
+        },
+        "people": {
+          "en": "{n} people",
+          "es": "{n} personas",
+          "one": {
+            "en": "1 person",
+            "es": "1 persona"
+          }
+        },
+        "inspections": {
+          "en": "{n} inspections",
+          "es": "{n} inspecciones",
+          "one": {
+            "en": "1 inspection",
+            "es": "1 inspección"
+          }
+        }
       },
       "knocked": {
         "en": "{n} doors knocked",
-        "es": "{n} puertas tocadas"
+        "es": "{n} puertas tocadas",
+        "one": {
+          "en": "1 door knocked",
+          "es": "1 puerta tocada"
+        }
       },
       "answered": {
         "en": "{n} answered",
-        "es": "{n} abrieron"
+        "es": "{n} abrieron",
+        "one": {
+          "en": "1 answered",
+          "es": "1 abrió"
+        }
       },
       "noAnswer": {
         "en": "{n} did not answer",
-        "es": "{n} no abrieron"
+        "es": "{n} no abrieron",
+        "one": {
+          "en": "1 did not answer",
+          "es": "1 no abrió"
+        }
       },
       "talked": {
         "en": "{n} conversations",
-        "es": "{n} conversaciones"
+        "es": "{n} conversaciones",
+        "one": {
+          "en": "1 conversation",
+          "es": "1 conversación"
+        }
       },
       "inspections": {
         "en": "{n} inspections set",
-        "es": "{n} inspecciones agendadas"
+        "es": "{n} inspecciones agendadas",
+        "one": {
+          "en": "1 inspection set",
+          "es": "1 inspección agendada"
+        }
       },
       "back": {
         "en": "{n} to come back to",
-        "es": "{n} para regresar"
+        "es": "{n} para regresar",
+        "one": {
+          "en": "1 to come back to",
+          "es": "1 para regresar"
+        }
       },
       "notInterested": {
         "en": "{n} said no",
-        "es": "{n} dijeron que no"
+        "es": "{n} dijeron que no",
+        "one": {
+          "en": "1 said no",
+          "es": "1 dijo que no"
+        }
       },
       "pace": {
         "en": "{n} doors an hour",
-        "es": "{n} puertas por hora"
+        "es": "{n} puertas por hora",
+        "one": {
+          "en": "1 door an hour",
+          "es": "1 puerta por hora"
+        }
       },
       "time": {
         "en": "{n} min on the walk",
         "es": "{n} min de ruta"
       },
       "rate": {
-        "en": "{i} of {a} answered doors set an inspection",
-        "es": "{i} de {a} puertas que abrieron agendaron una inspección"
+        "en": "{p}% of answered doors set an inspection ({i} of {a})",
+        "es": "El {p}% de las puertas que abrieron agendó una inspección ({i} de {a})"
       },
       "followups": {
         "en": "{n} doors are waiting for a follow-up",
-        "es": "{n} puertas esperan seguimiento"
+        "es": "{n} puertas esperan seguimiento",
+        "one": {
+          "en": "1 door is waiting for a follow-up",
+          "es": "1 puerta espera seguimiento"
+        }
       },
       "sampleNote": {
         "en": "Sample homes, sample results.",

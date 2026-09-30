@@ -107,20 +107,25 @@
   .intro-head__a{font-size:26px}
   .intro-stat__v{font-size:40px}
 }
+/* stacked screens: the map is a block under the bar (js measures it into --intro-map-t / --intro-map-b), so the film
+   reads top to bottom: the title card above the map, the storm readout inside its top edge, then the numbers and the
+   headline right under it */
 @media (max-width:900px){
   .intro{position:fixed}
   .intro-card{left:20px;right:20px;top:22px}
   .intro-title{font-size:32px;margin:12px 0 12px}
   .intro-src{font-size:9.5px}
-  .intro-readout{right:28px;top:168px;gap:4px}
+  .intro-readout{right:28px;top:calc(var(--intro-map-t,156px) + 14px);gap:4px}
   .intro-readout__date{font-size:20px}
   .intro-readout__path b{font-size:18px}
   .intro-track{width:150px}
-  .intro-stats{left:20px;right:20px;bottom:84px;display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+  .intro-stats{left:20px;right:20px;top:calc(100% - var(--intro-map-b,206px) + 18px);bottom:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
   .intro-stat__v{font-size:30px}
   .intro-stat__k{font-size:9.5px;letter-spacing:.08em;flex-wrap:wrap}
-  .intro-head{left:20px;right:20px;bottom:84px}
+  .intro-head{left:20px;right:20px;top:calc(100% - var(--intro-map-b,206px) + 14px);bottom:auto}
   .intro-head__a{font-size:20px}
-  .intro-head__b{font-size:36px}
-  .intro-skip{right:16px;bottom:22px}
+  .intro-head__b{font-size:clamp(28px,8.4vw,44px)}
+  .intro-head__src{margin-top:12px}
+  /* Skip rides the map's bottom-right corner, so the numbers and the headline keep the whole band under the map */
+  .intro-skip{right:28px;bottom:calc(var(--intro-map-b,206px) + 12px);height:32px}
 }

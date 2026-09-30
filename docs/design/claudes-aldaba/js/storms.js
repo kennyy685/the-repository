@@ -120,19 +120,29 @@
     DAYF.set(D.date, r);
     return r;
   }
-  const KITS = {};                                               // one pair of kits per drawing target (GL or 2D), kept for the page
+  /* GPU side: one pair of kits (season + selected day) per drawing target, alive only while #storms is on screen.
+     Made in prepare() (an event or timer, never inside a frame), remade after a WebGL context loss (world.glGen),
+     freed by the hail layer's dispose() once its exit fade ends. Stones stay under 5,000 for a MacBook GPU:
+     3,400 for the season + 1,400 for the selected day, and only one of the two falls at a time. */
+  let KITS = {};
+  function freeKits() {
+    const ks = KITS; KITS = {};
+    Object.keys(ks).forEach((k) => A.safe('storms kits dispose', () => { ks[k].s.dispose(); ks[k].d.dispose(); }));
+  }
   function kitsFor(target, gl) {
     const HG = window.HailGL, S = SEASON; if (!HG || !S) return null;   // built outside frames (idle / enter timer)
-    const key = gl ? 'gl' : '2d';
+    const key = gl ? 'gl' : '2d', gen = gl ? A.world.glGen : 0;
     let K = KITS[key];
-    if (!K || K.target !== target) {
+    if (!K || K.target !== target || K.gen !== gen) {
+      if (K) A.safe('storms kits dispose', () => { K.s.dispose(); K.d.dispose(); });
       // restoreState:false: the world's GL layers bind what they use, and skipping HailGL's state reads (glGet*) keeps
       // frames free of GPU round trips
       const mk = () => (gl ? HG.create(target, { dpr: A.world.dpr, theme: theme(), restoreState: false }) : HG.create(target, { webgl: 0, dpr: A.world.dpr, theme: theme() }));
-      const s = mk(), d = mk(); if (!s || !s.ok || !d || !d.ok) return null;
+      const s = mk(), d = mk();
+      if (!s || !s.ok || !d || !d.ok) { [s, d].forEach((k) => k && A.safe('storms kit dispose', () => k.dispose())); delete KITS[key]; return null; }
       s.field.setField(S.field);
-      s.hail.spawn({ count: 4200, sampler: S.samp, t0: 0, dur: 1, lag: 0, seed: 2026, fall: { height: 0.07, dur: 0.012 } });
-      K = KITS[key] = { target, s, d, df: null };
+      s.hail.spawn({ count: 3400, sampler: S.samp, t0: 0, dur: 1, lag: 0, seed: 2026, fall: { height: 0.07, dur: 0.012 } });
+      K = KITS[key] = { target, gen, s, d, df: null, rings: {}, lastT: 0 };
     }
     return K;
   }
@@ -145,20 +155,24 @@
 
   /* ======================= the view ======================= */
   let V = null;                                                  // live state while #storms is on screen
+  let FADE = null;                                               // the last state, drawn frozen while the layer fades out
+  const VIEW = () => V || FADE;
   const REPLAY = 1.5;                                            // the selected day's swath replay (s)
 
   function paint(K, f) {
-    if (!V) return;
-    const th = theme(), rv = revealAt(V.p), still = A.still;
-    const showDay = V.showDay && V.sel && V.sel.storm && V.mode !== 'play' && V.mode !== 'scrub' && V.mode !== 'intro';
-    K.s.field.draw(f.m, { t: f.t / 1000, reveal: rv, frontWidth: 0.012, feather: 0.006, front: V.motion > 0.02 ? 1 : 0, ghost: 0.07,
-      dim: showDay ? 0.66 : 0, opacity: f.alpha, theme: th });
-    const hv = burningAt(V.p) * V.motion;
+    const v = V || FADE; if (!v) return;                       // FADE: the frozen last state while the layer fades out
+    const th = theme(), rv = revealAt(v.p), still = A.still;
+    const showDay = v.showDay && v.sel && v.sel.storm && v.mode !== 'play' && v.mode !== 'scrub' && v.mode !== 'intro';
+    // the white-hot front glows only while a storm burns under the moving playhead (not on the quiet days after it)
+    const burn = burningAt(v.p);
+    K.s.field.draw(f.m, { t: f.t / 1000, reveal: rv, frontWidth: 0.012, feather: 0.006, front: v.motion * burn, ghost: 0.07,
+      dim: showDay ? 0.78 : 0, opacity: f.alpha, theme: th });
+    const hv = burn * v.motion;
     if (hv > 0.01 && !still) K.s.hail.draw(f.m, { t: rv, persp: 0.12, scale: 1.2, ringSize: 9, ringLife: 0.02, residue: 0.03, streak: 0.0015, opacity: hv * f.alpha, theme: th });
     if (!showDay) return;
-    const F = dayField(V.sel); if (!F) return;
-    if (K.df !== F) loadDay(K, F, V.sel);
-    const t = (performance.now() - V.dayT0) / 1000, r = A.clamp(t / REPLAY, 0, 1);
+    const F = dayField(v.sel); if (!F) return;
+    if (K.df !== F) loadDay(K, F, v.sel);
+    const t = (performance.now() - v.dayT0) / 1000, r = A.clamp(t / REPLAY, 0, 1);
     if (t < K.lastT) { K.d.rings.clear(); K.rings = {}; }
     K.lastT = t;
     for (let i = 0; i * 0.3 <= Math.min(t, REPLAY); i++) {
@@ -175,7 +189,7 @@
   function loadDay(K, F, D) {
     K.df = F; K.rings = {}; K.lastT = 0;
     K.d.field.setField(F.field);
-    K.d.hail.spawn({ count: A.world.w < 700 ? 900 : 1600, sampler: F.samp, dur: REPLAY, lag: 0.03, seed: 7 + (D ? D.i : 0), fall: { height: 0.1, speed: 0.3 } });
+    K.d.hail.spawn({ count: A.world.w < 700 ? 900 : 1400, sampler: F.samp, dur: REPLAY, lag: 0.03, seed: 7 + (D ? D.i : 0), fall: { height: 0.1, speed: 0.3 } });
     K.d.rings.clear();
   }
   /** GPU uploads happen here, in an event or timer, never inside a frame */
@@ -191,8 +205,10 @@
   function hailLayer() {
     return {
       id: 'storms-hail', z: 12, live: false, fadeMs: 500,
-      drawGL(gl, f) { const K = A.safe('storms kits', () => kitsFor(gl, true)); if (K) paint(K, f); },
-      draw2d(c, f) { const K = A.safe('storms kits 2d', () => kitsFor(c, false)); if (K) paint(K, f); }
+      drawGL(gl, f) { if (!V && !FADE) return; const K = A.safe('storms kits', () => kitsFor(gl, true)); if (K) paint(K, f); },
+      draw2d(c, f) { if (!V && !FADE) return; const K = A.safe('storms kits 2d', () => kitsFor(c, false)); if (K) paint(K, f); },
+      // the world calls this once the exit fade is over (or when a new #storms visit replaces the layer): free the GPU side
+      dispose() { if (!V) FADE = null; freeKits(); }
     };
   }
 
@@ -205,7 +221,7 @@
     return {
       id: 'storms-marks', z: 210, live: false,
       draw2d(c, f) {
-        if (!V) return;
+        const V = VIEW(); if (!V) return;                        // the live state, or the frozen one while fading out
         const pal = f.pal;
         c.save(); c.lineCap = 'round'; c.lineJoin = 'round'; c.textBaseline = 'middle';
         // 2024-25 reports up to the playhead's day of the year, as small ringed points
@@ -221,14 +237,16 @@
         const drawPath = (D, a, w) => {
           if (!D || !D.storm) return;
           const pts = pathPx(D, f);
-          c.globalAlpha = a; c.strokeStyle = pal.halo; c.lineWidth = w + 3; c.setLineDash([]); c.beginPath(); pts.forEach((q, i) => (i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]))); c.stroke();
-          c.strokeStyle = pal.text; c.lineWidth = w; c.setLineDash([1.5, 4.5]); c.stroke(); c.setLineDash([]);
-          [pts[0], pts[pts.length - 1]].forEach((q, i) => { c.beginPath(); c.arc(q[0], q[1], i ? 3.2 : 2.2, 0, TAU); c.fillStyle = i ? pal.text : pal.halo; c.fill(); c.lineWidth = 1.2; c.strokeStyle = pal.text; c.stroke(); });
+          c.beginPath(); pts.forEach((q, i) => (i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])));
+          c.globalAlpha = a * 0.5; c.strokeStyle = pal.halo; c.lineWidth = w + 2; c.setLineDash([]); c.stroke();
+          c.globalAlpha = a * 0.8; c.strokeStyle = pal.text; c.lineWidth = w; c.setLineDash([1, 4]); c.stroke(); c.setLineDash([]);
+          c.globalAlpha = a;
+          [pts[0], pts[pts.length - 1]].forEach((q, i) => { c.beginPath(); c.arc(q[0], q[1], i ? 3.2 : 2.4, 0, TAU); c.fillStyle = i ? pal.text : pal.halo; c.fill(); c.lineWidth = 1.2; c.strokeStyle = pal.text; c.stroke(); });
         };
-        if (V.hover && V.hover !== V.sel) drawPath(V.hover, 0.55, 1.1);
+        if (V.hover && V.hover !== V.sel) drawPath(V.hover, 0.6, 1);
         const S = V.sel;
         if (S && S.storm && V.mode !== 'intro') {
-          drawPath(S, 0.95, 1.4);
+          drawPath(S, 0.95, 1.2);
           // label pill at the end of the path: date · hail
           const pts = pathPx(S, f), e = pts[pts.length - 1];
           const txt = A.fmt.date(S.date, 'short') + ' · ' + A.fmt.inches(S.max);
@@ -307,9 +325,12 @@
         '<p class="storms-towns">' + (D.towns.length ? D.towns.map((t) => '<span>' + A.esc(t) + '</span>').join('') : '–') + '</p></div>' +
       '<div class="storms-block"><p class="sec">' + Lo(cp('day.zones', 'Zones touched', 'Zonas alcanzadas')) + ' <b>' + D.nZones + '</b><span class="sec__meta">' + A.ui.srcTag('engine') + '</span></p>' +
         '<div class="storms-zones">' + (zones || '<span class="storms-zone storms-zone--plain">–</span>') + '</div></div>' +
+      (kid ? '' : '<p class="storms-none">' + ic('info', 14) + '<span>' + (D.storm
+        ? Le('No zone to knock yet: the engine mapped this swath but ranked no neighborhood in it.', 'Todavía no hay zona para tocar: el motor trazó esta franja pero no clasificó ningún vecindario en ella.')
+        : Le('No zone to knock: zones are ranked only inside a mapped swath.', 'No hay zona para tocar: las zonas se clasifican solo dentro de una franja trazada.')) + '</span></p>') +
       '<div class="storms-act">' +
-        '<button type="button" class="btn btn--primary storms-knock"' + (kid ? '' : ' disabled aria-disabled="true"') + ' data-label-en="Knock this storm: open Now with its best zone" data-label-es="Tocar puertas de esta tormenta: abrir Ahora con su mejor zona">' + ic('door') + '<span>' + Lo(cp('knockThis', 'Knock this storm', 'Tocar puertas de esta tormenta')) + '</span></button>' +
-        (D.storm ? '<button type="button" class="btn btn--secondary storms-replay" data-label-en="Replay this swath" data-label-es="Repetir esta franja">' + ic('play') + '<span>' + Le('Replay', 'Repetir') + '</span></button>' : '') +
+        (kid ? '<button type="button" class="btn btn--primary storms-knock" data-label-en="Knock this storm: open Now with its best zone" data-label-es="Tocar puertas de esta tormenta: abrir Ahora con su mejor zona">' + ic('door') + '<span>' + Lo(cp('knockThis', 'Knock this storm', 'Tocar puertas de esta tormenta')) + '</span></button>' : '') +
+        (D.storm ? '<button type="button" class="btn btn--secondary storms-replay" data-label-en="Replay this swath" data-label-es="Repetir esta franja">' + ic('play') + '<span>' + (kid ? Le('Replay', 'Repetir') : Le('Replay this swath', 'Repetir esta franja')) + '</span></button>' : '') +
       '</div>';
   }
   function seasonHTML() {
@@ -331,13 +352,23 @@
   function dockHTML() {
     const U = A.ui;
     const months = MONTHS.map((m) => '<span class="storms-tl__m" style="left:' + ((m.d / SPAN) * 100).toFixed(3) + '%">' + Le(m.en, m.es) + '</span>').join('');
+    // each day's tooltip spells out all three hail numbers and where each comes from
+    const tip = (D, l) => {
+      const n = (v) => (v != null ? A.fmt.inches(v, 2, l) : '–'), en = l === 'en';
+      return [A.fmt.date(D.date, 'day', l),
+        D.storm ? (en ? 'swath ' : 'franja ') + n(D.max) : (en ? 'no swath modeled' : 'sin franja modelada'),
+        (en ? 'largest report ' : 'mayor reporte ') + n(D.rep),
+        D.radar ? (en ? 'radar ' : 'radar ') + n(D.radar) + (en ? ' (estimate)' : ' (estimado)') : null].filter(Boolean).join(' · ');
+    };
     const ticks = DAYS.map((D) => {
-      const tipEn = A.fmt.date(D.date, 'day', 'en') + ' · ' + (D.max != null ? A.fmt.inches(D.max, 2, 'en') : '–') + (D.storm ? '' : ' · reported only');
-      const tipEs = A.fmt.date(D.date, 'day', 'es') + ' · ' + (D.max != null ? A.fmt.inches(D.max, 2, 'es') : '–') + (D.storm ? '' : ' · solo reportado');
+      const tipEn = tip(D, 'en'), tipEs = tip(D, 'es');
       const r = D.radar ? '<i class="storms-tick__r" style="height:' + tickH(D.radar).toFixed(1) + 'px;color:var(' + U.hailTok(D.radar) + ')"></i>' : '';
       return '<span class="storms-tick' + (D.storm ? '' : ' storms-tick--rep') + '" data-i="' + D.i + '" style="left:' + (((D.d + 0.5) / SPAN) * 100).toFixed(3) + '%" data-tip="' + A.esc(tipEn) + '" data-tip-es="' + A.esc(tipEs) + '">' + r +
         '<i class="storms-tick__b" style="height:' + tickH(D.max).toFixed(1) + 'px;background:var(' + U.hailTok(D.max) + ')"></i><i class="storms-tick__cap"></i></span>';
     }).join('');
+    // the lane's scale: bars are max hail in inches (the dash above a bar is the radar estimate)
+    const gridY = [1, 2].map((v) => '<i class="storms-tl__gy" aria-hidden="true" style="bottom:' + tickH(v).toFixed(1) + 'px"></i>').join('');
+    const yLabels = [1, 2].map((v) => '<span style="bottom:' + tickH(v).toFixed(1) + 'px">' + String(v) + '″' + '</span>').join('');
     const ghosts = HDAYS.map((h) => '<i class="storms-ghost" style="left:' + (((h.d + 0.5) / SPAN) * 100).toFixed(3) + '%;height:' + (3 + A.clamp(h.v / 3, 0, 1) * 9).toFixed(1) + 'px;background:var(' + U.hailTok(h.v) + ')"></i>').join('');
     return '<div class="storms-dock">' +
       '<div class="storms-ctl">' +
@@ -351,12 +382,15 @@
         '<div class="seg storms-speed" role="group" data-label-en="Speed" data-label-es="Velocidad">' + [1, 2, 4].map((s) => '<button type="button" data-speed="' + s + '" aria-pressed="' + (s === 1) + '">' + s + '×</button>').join('') + '</div>' +
       '</div>' +
       '<div class="storms-tl" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="' + SPAN + '" data-label-en="' + A.esc(cp('timeline.label', 'Storm timeline', 'Línea de tiempo de tormentas').en) + '" data-label-es="' + A.esc(cp('timeline.label', 'Storm timeline', 'Línea de tiempo de tormentas').es) + '">' +
-        '<div class="storms-tl__grid">' + MONTHS.map((m) => '<i style="left:' + ((m.d / SPAN) * 100).toFixed(3) + '%"></i>').join('') + '</div>' +
-        '<div class="storms-tl__ms" aria-hidden="true">' + months + '</div>' +
-        '<div class="storms-tl__lane"><div class="storms-tl__burn"></div>' + ticks + '</div>' +
-        '<div class="storms-tl__ghosts" aria-hidden="true"><span class="storms-tl__gl">2024-25 ' + U.srcTag('ncei') + '</span>' + ghosts + '</div>' +
-        '<div class="storms-tl__today" style="left:' + (((TODAY + 0.5) / SPAN) * 100).toFixed(3) + '%"><span>' + Lo(cp('timeline.today', 'Today', 'Hoy')) + '</span></div>' +
-        '<div class="storms-tl__head" aria-hidden="true"><i></i></div>' +
+        '<div class="storms-tl__yax" aria-hidden="true">' + yLabels + '</div>' +
+        '<div class="storms-tl__in">' +
+          '<div class="storms-tl__grid">' + MONTHS.map((m) => '<i style="left:' + ((m.d / SPAN) * 100).toFixed(3) + '%"></i>').join('') + '</div>' +
+          '<div class="storms-tl__ms" aria-hidden="true">' + months + '</div>' +
+          '<div class="storms-tl__lane"><div class="storms-tl__burn"></div>' + gridY + ticks + '</div>' +
+          '<div class="storms-tl__ghosts" aria-hidden="true"><span class="storms-tl__gl">2024-25 ' + U.srcTag('ncei') + '</span>' + ghosts + '</div>' +
+          '<div class="storms-tl__today" style="left:' + (((TODAY + 0.5) / SPAN) * 100).toFixed(3) + '%"><span>' + Lo(cp('timeline.today', 'Today', 'Hoy')) + '</span></div>' +
+          '<div class="storms-tl__head" aria-hidden="true"><i></i></div>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }
@@ -430,14 +464,16 @@
     if (V.mode === 'play' || V.mode === 'scrub') setMode('idle');
     V.p = D.d + 1; V.motion = 0;
     setSel(D); startDay(D); sync();
-    if (o.from === 'map' || o.from === 'key' || o.from === 'demo') ensureVisible(D);
+    ensureVisible(D);                                            // its swath (or its report towns) comes into view
     return true;
   }
   function ensureVisible(D) {
-    if (!D || !D.storm) return;
-    const f = A.world.frame(), pts = D.storm.path.concat(...D.areas.map((a) => a.ring || []));
+    if (!D) return;
+    const pts = D.storm ? D.storm.path.concat(...D.areas.map((a) => a.ring || [])) : D.towns.map((t) => PL[t]).filter(Boolean);
+    if (!pts.length) return;
+    const f = A.world.frame();
     const ok = pts.every((p) => { const q = f.project(p); return q[0] > f.inset.l && q[0] < f.w - f.inset.r && q[1] > f.inset.t && q[1] < f.h - f.inset.b; });
-    if (!ok) A.world.flyTo({ points: pts, pad: 90, maxZoom: 10.6 });
+    if (!ok) A.world.flyTo({ points: D.storm ? pts : pts.concat(SEASON_BOUNDS), pad: 90, maxZoom: 10.6 });
   }
   function step(dir) {
     if (!V) return;
@@ -450,7 +486,9 @@
     if (!V) return false;
     endIntro(false);
     if (A.still) { const L = latestAt(END); if (L) select(L.date); return true; }
-    if (V.p >= END - 0.5) { V.p = 0; setSel(null, { quiet: true }); }
+    // nothing left to play (resting on the latest storm, or at the end): replay the season from Mar 1
+    const ahead = DAYS.some((D) => D.d + 0.5 > V.p + 0.01);
+    if (!ahead || V.p >= END - 0.5) { V.p = 0; setSel(null, { quiet: true }); sync(); }
     V.showDay = false; V.lastDay = latestAt(V.p);
     setMode('play');
     return true;
@@ -523,10 +561,10 @@
 
   /* the timeline: drag to scrub, tap near a tick to pick that day */
   function bindTimeline() {
-    const D = V.dom, el = D.tl;
-    const pAt = (e) => { const r = el.getBoundingClientRect(); return A.clamp(((e.clientX - r.left) / Math.max(1, r.width)) * SPAN, 0, SPAN); };
+    const D = V.dom, el = D.tl, track = D.tin;                  // pointer math on the inner track (the scale gutter sits left)
+    const pAt = (e) => { const r = track.getBoundingClientRect(); return A.clamp(((e.clientX - r.left) / Math.max(1, r.width)) * SPAN, 0, SPAN); };
     const nearTick = (e) => {
-      const r = el.getBoundingClientRect(), x = e.clientX - r.left; let best = null, bd = 9;
+      const r = track.getBoundingClientRect(), x = e.clientX - r.left; let best = null, bd = 9;
       DAYS.forEach((d) => { const tx = ((d.d + 0.5) / SPAN) * r.width, dd = Math.abs(tx - x); if (dd < bd) { bd = dd; best = d; } });
       return best;
     };
@@ -575,11 +613,12 @@
       const lg = ctx.el('center', legendHTML(), 'float storms-legend');
       const dock = ctx.el('bottom', dockHTML(), 'pane pane--tight storms-dockp');
       const q = (s, r) => (r || dock).querySelector(s);
+      FADE = null;
       V = {
         ctx, p: 0, mode: 'idle', speed: 1, past: false, sel: null, hover: null, showDay: false, dayT0: 0, motion: 0, lastMove: -1e9,
         past0: DAYS.map(() => null), readDay: -1, tw: 1, lgW: 1, ticking: false,
         dom: {
-          card, lg, dock, tl: q('.storms-tl'), head: q('.storms-tl__head'), burn: q('.storms-tl__burn'), ticks: Array.from(dock.querySelectorAll('.storms-tick')),
+          card, lg, dock, tl: q('.storms-tl'), tin: q('.storms-tl__in'), head: q('.storms-tl__head'), burn: q('.storms-tl__burn'), ticks: Array.from(dock.querySelectorAll('.storms-tick')),
           play: q('.storms-play'), readD: q('.storms-read__d'), readS: q('.storms-read__s'),
           lgSel: q('.storms-lg__sel', lg), lgCur: q('.storms-lg__cur', lg), lgV: q('.storms-lg__v', lg)
         }
@@ -587,13 +626,14 @@
       const my = V;
       V.tick = makeTick();
       // sizes for the transforms
-      const measure = () => { if (V !== my) return; V.tw = V.dom.tl.clientWidth || 1; const b = lg.querySelector('.storms-lg__bar'); V.lgW = (b && b.clientWidth) || 1; sync(); if (V.sel) setSel(V.sel, { quiet: true }); };
-      try { const ro = new ResizeObserver(measure); ro.observe(V.dom.tl); ro.observe(lg); ctx.own(() => ro.disconnect()); } catch (e) { addEventListener('resize', measure); ctx.own(() => removeEventListener('resize', measure)); }
+      const measure = () => { if (V !== my) return; V.tw = V.dom.tin.clientWidth || 1; const b = lg.querySelector('.storms-lg__bar'); V.lgW = (b && b.clientWidth) || 1; sync(); if (V.sel) setSel(V.sel, { quiet: true }); };
+      try { const ro = new ResizeObserver(measure); ro.observe(V.dom.tin); ro.observe(lg); ctx.own(() => ro.disconnect()); } catch (e) { addEventListener('resize', measure); ctx.own(() => removeEventListener('resize', measure)); }
       measure();
       // the map
       ctx.layer(hailLayer());
       ctx.layer(marksLayer());
-      ctx.own(() => { if (V === my) V = null; const s = snd(); if (s) s.hailBed(0); A.world.unpin('storms-zone'); });
+      // leaving: the layer fades for 200 ms drawing the last state (FADE), then its dispose() frees the GPU side
+      ctx.own(() => { if (V === my) { FADE = V; V = null; } const s = snd(); if (s) s.hailBed(0); A.world.unpin('storms-zone'); });
       // controls
       V.dom.play.addEventListener('click', () => togglePlay());
       q('.storms-prev').addEventListener('click', () => step(-1));
@@ -604,7 +644,7 @@
       card.addEventListener('click', (e) => {
         const z = e.target.closest('.storms-zone[data-area]');
         if (z) { const a = AREA[z.dataset.area]; if (a) focusArea(a); return; }
-        if (e.target.closest('.storms-knock')) { const D = V.sel, id = knockId(D); if (id) { const go = A.view.go('now'); Promise.resolve(go).then(() => A.emit('zone:focus', id)); } return; }
+        if (e.target.closest('.storms-knock')) { const id = knockId(V.sel); if (id) knockThis(id); return; }
         if (e.target.closest('.storms-replay')) { if (V.sel) startDay(V.sel); }
       });
       bindTimeline();
@@ -656,6 +696,15 @@
     V.dom.lgCur.style.opacity = on ? '1' : '0';
     if (on) V.dom.lgCur.style.transform = 'translateX(' + (lgPos(v) * V.lgW).toFixed(1) + 'px)';
   }
+  /** "Knock this storm": open Now and hand it the zone the moment Now's panels exist (not after the camera lands).
+      The listener is global on purpose: this view's own listeners are cleaned up while Now enters. */
+  function knockThis(id) {
+    let off = null;
+    const done = () => { if (off) { off(); off = null; } };
+    off = A.on('view', (d) => { if (d && d.name === 'now') { done(); A.emit('zone:focus', id); } else if (d && d.name !== 'storms') done(); });
+    setTimeout(done, 4000);
+    A.view.go('now');
+  }
   function focusArea(a) {
     if (!a || !a.ring) return;
     A.world.flyTo({ points: a.ring, pad: 70, maxZoom: 12.4 });
@@ -666,7 +715,8 @@
 
   /* build the season field in idle time after the app is up, so the first visit to #storms never waits on it */
   A.once('ready', () => {
-    const go = () => A.safe('storms prebuild', () => { seasonField(); if (LAST) dayField(LAST); if (A.world.hasGL && A.world.gl) kitsFor(A.world.gl, true); });
+    // CPU only (fields + samplers, ~0.4 s once): GPU kits exist only while #storms is on screen
+    const go = () => A.safe('storms prebuild', () => { seasonField(); if (LAST) dayField(LAST); });
     if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
   });
 
