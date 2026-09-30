@@ -34,19 +34,19 @@ const S = {
   hq: { en: 'HMP office · {mi} mi', es: 'Oficina HMP · {mi} mi' },
   swath: { en: '{d} hail core · radar', es: 'Núcleo de granizo {d} · radar' },
   town: { en: '{c}, Nebraska', es: '{c}, Nebraska' },
-  stormDay: { en: 'Storm day', es: 'Día de la tormenta' }, hailHere: { en: 'Hail here', es: 'Granizo aquí' },
+  stormDay: { en: 'Storm day', es: 'Día de la tormenta' }, hailHere: { en: 'Zone hail', es: 'Granizo en la zona' },
   doors: { en: 'Doors', es: 'Puertas' }, best: { en: 'Best time', es: 'Mejor hora' },
-  daysAgo: { en: '{d} days ago', es: 'hace {d} días' }, radar: { en: 'radar estimate', es: 'estimado de radar' },
+  daysAgo: { en: '{d} days ago', es: 'hace {d} días' }, radar: { en: 'radar, zone-wide', es: 'radar, toda la zona' },
   walkLen: { en: '{mi} mi on foot', es: '{mi} mi a pie' }, today: { en: 'today', es: 'hoy' },
-  start: { en: 'Start walk at door 1', es: 'Empieza en la puerta 1' }, doorsN: { en: '{n} doors', es: '{n} puertas' },
-  park: { en: 'Park at {a} & {b}', es: 'Estaciónate en {a} y {b}' }, toDoor1: { en: '{m} ft to door 1', es: '{m} pies a la puerta 1' },
+  start: { en: 'Start walk at door 1', es: 'Empieza en la puerta 1' }, preview: { en: 'Preview door {i}', es: 'Ver la puerta {i}' }, previewS: { en: 'look before you walk', es: 'mira antes de caminar' }, doorsN: { en: '{n} doors', es: '{n} puertas' },
+  park: { en: 'Park at {a} & {b}', es: 'Estaciona en {a} y {b}' }, toDoor1: { en: '{m} ft to door 1', es: '{m} pies a la puerta 1' },
   sample: { en: 'Sample homes', es: 'Casas de muestra' },
   sampleTip: { en: 'Fake homes on real streets, for testing. No owner names.', es: 'Casas ficticias en calles reales, para pruebas. Sin nombres de dueños.' },
   legendT: { en: 'Hail at each home', es: 'Granizo en cada casa' },
   legendS: { en: 'inches · radar est. {d} · this walk {lo}–{hi}″', es: 'pulgadas · radar {d} · esta ruta {lo}–{hi}″' },
-  stT: { en: 'Door colors', es: 'Colores de puerta' }, stNext: { en: 'Next', es: 'Siguiente' }, stDone: { en: 'Done', es: 'Hecha' }, stSkip: { en: 'Skipped', es: 'Saltada' }, stTop: { en: 'Top 5', es: 'Top 5' },
-  skip: { en: 'Skip door', es: 'Saltar puerta' }, knock: { en: 'Knock door {i}', es: 'Toca la puerta {i}' },
-  nextMv: { en: 'Next: door {k} · {m}', es: 'Sigue: puerta {k} · {m}' }, lastDoor: { en: 'Last door · end walk', es: 'Última puerta · terminar' },
+  stT: { en: 'Door colors', es: 'Colores de puerta' }, stNext: { en: 'Next', es: 'Siguiente' }, stDone: { en: 'Done', es: 'Hecha' }, stSkip: { en: 'Skipped', es: 'Saltada' }, stTop: { en: 'Top 5', es: '5 mejores' }, stKnock: { en: 'Knock now', es: 'Tocar ahora' },
+  skip: { en: 'Skip door', es: 'Saltar puerta' }, knock: { en: 'Knock door {i}', es: 'Toca a la puerta {i}' },
+  nextMv: { en: 'Next: door {k}', es: 'Próxima: puerta {k}' }, nextMvS: { en: '{m} · {a}', es: '{m} · {a}' }, lastDoor: { en: 'Last door · end walk', es: 'Última puerta · terminar' },
   stripT: { en: 'Walk order', es: 'Orden de la ruta' }, stripS: { en: 'bar height = roof age · color = hail', es: 'altura = edad del techo · color = granizo' },
   progOver: { en: '{n} doors · {mi} mi', es: '{n} puertas · {mi} mi' },
   progTour: { en: 'Door {i} of {n}', es: 'Puerta {i} de {n}' },
@@ -55,15 +55,15 @@ const S = {
   pause: { en: 'Pause', es: 'Pausar' }, resume: { en: 'Resume', es: 'Seguir' }, stop: { en: 'End walk', es: 'Terminar ruta' },
   door: { en: 'Door', es: 'Puerta' }, of: { en: 'of', es: 'de' },
   sampleHome: { en: 'Sample home', es: 'Casa de muestra' },
-  hailSize: { en: 'Hail size', es: 'Granizo' }, roofAge: { en: 'Roof age', es: 'Techo' },
+  hailSize: { en: 'Hail size', es: 'Tamaño del granizo' }, roofAge: { en: 'Roof age', es: 'Edad del techo' },
   est: { en: 'est.', es: 'aprox.' }, yrs: { en: 'yrs', es: 'años' },
-  hailRank1: { en: 'biggest on this walk', es: 'el más grande de la ruta' },
-  hailRankN: { en: '#{k} of {n} on this walk', es: '#{k} de {n} en la ruta' },
+  hailRank1: { en: 'biggest on this walk', es: 'el más grande de la ruta' }, hailRank1T: { en: 'tied for biggest on this walk', es: 'empatado como el más grande de la ruta' },
+  hailRankN: { en: '#{k} of {n} on this walk', es: '#{k} de {n} en la ruta' }, hailRankNT: { en: 'tied #{k} of {n} on this walk', es: '#{k} (empate) de {n} en la ruta' },
   roofTop: { en: 'Among the 5 oldest here', es: 'De los 5 más viejos aquí' },
   roofBuilt: { en: 'House built {y}', es: 'Casa construida en {y}' },
   roofOld: { en: 'Past a typical ~20-yr roof life', es: 'Pasó los ~20 años que dura un techo típico' },
   roofNear: { en: 'Nearing the ~20-yr mark', es: 'Cerca de los ~20 años' },
-  roofNew: { en: 'Newer roof · built {y}', es: 'Techo más nuevo · casa de {y}' },
+  roofNew: { en: 'Newer roof, ~{r} · house built {y}', es: 'Techo más nuevo, ~{r} · casa de {y}' }, roofOrig: { en: 'Original roof · house built {y}', es: 'Techo original · casa de {y}' },
   coHail: { en: 'Hail here', es: 'Granizo aquí' }, coRoof: { en: 'Roof', es: 'Techo' }, coDoor: { en: 'Front door', es: 'Puerta principal' },
   coRoofV: { en: '≈{r} yrs · built {y}', es: '≈{r} años · casa de {y}' },
   why: { en: 'Why this door', es: 'Por qué esta puerta' },
@@ -75,7 +75,7 @@ const S = {
   legFromP: { en: '{m} ft from parking · ~{t} min walk', es: 'A {m} pies del estacionamiento · ~{t} min a pie' },
   prev: { en: 'Door {k}', es: 'Puerta {k}' },
   keys: { en: 'Esc closes · ← → doors', es: 'Esc cierra · ← → puertas' },
-  csrc: { en: 'hail: radar · roof: est.', es: 'granizo: radar · techo: est.' },
+  csrc: { en: 'sample home · hail + roof: est.', es: 'muestra · granizo y techo: aprox.' },
   atDoor: { en: 'At door {i} of {n}', es: 'En la puerta {i} de {n}' },
   paused: { en: 'Paused at door {i}', es: 'En pausa en la puerta {i}' },
   close: { en: 'Close', es: 'Cerrar' },
@@ -90,40 +90,48 @@ const S = {
   nm_resume: { en: 'Resume at <b>door {i}</b>', es: 'Sigue en la <b>puerta {i}</b>' },
   nm_from_car: { en: '{a} · {d} from the car', es: '{a} · a {d} del carro' },
   nm_from_door: { en: '{a} · {d} from door {k}', es: '{a} · a {d} de la puerta {k}' },
-  nm_next: { en: 'Next: <b>door {i}</b> · {d}', es: 'Sigue: <b>puerta {i}</b> · {d}' },
+  nm_next: { en: 'Next: <b>door {i}</b> · {d}', es: 'Próxima: <b>puerta {i}</b> · {d}' },
   nm_walkto: { en: 'Walk to <b>door {i}</b> · {d}', es: 'Camina a la <b>puerta {i}</b> · {d}' },
-  nm_knock: { en: 'Knock <b>door {i}</b>', es: 'Toca la <b>puerta {i}</b>' },
+  nm_knock: { en: 'Knock <b>door {i}</b>', es: 'Toca a la <b>puerta {i}</b>' },
   nm_then: { en: '{a} · then door {j}, {d}', es: '{a} · luego puerta {j}, {d}' },
   nm_lastsub: { en: '{a} · last door of the walk', es: '{a} · última puerta de la ruta' },
   nm_last: { en: 'Last door: <b>back to the map</b>', es: 'Última puerta: <b>vuelve al mapa</b>' },
-  nm_done: { en: 'Walk done: <b>{n} knocked</b>, {s} skipped', es: 'Ruta completa: <b>{n} tocadas</b>, {s} saltadas' },
-  nm_done_sub: { en: 'Tap to go back to the zone map', es: 'Toca para volver al mapa de zonas' },
+  nm_done: { en: 'Walk done: <b>{n} knocked</b>, {s} skipped', es: 'Ruta completa: <b>{n} visitadas</b>, {s} saltadas' },
+  nm_done_sub: { en: 'Click to go back to the zone map', es: 'Haz clic para volver al mapa de zonas' },
   nm_paused: { en: 'Paused at <b>door {i}</b>', es: 'En pausa en la <b>puerta {i}</b>' },
-  nm_paused_sub: { en: 'Tap to resume the walk · Space', es: 'Toca para seguir la ruta · Espacio' },
+  nm_paused_sub: { en: 'Click to resume the walk · Space', es: 'Haz clic para seguir la ruta · Espacio' },
   resumeAt: { en: 'Resume at door {i}', es: 'Sigue en la puerta {i}' },
   doorsMi: { en: '{n} doors · {mi} mi', es: '{n} puertas · {mi} mi' },
-  markDone: { en: 'Mark knocked', es: 'Marcar tocada' }, undoDone: { en: 'Undo knocked', es: 'Deshacer tocada' },
+  markDone: { en: 'Mark knocked', es: 'Marcar visitada' }, undoDone: { en: 'Undo knocked', es: 'Deshacer visitada' },
   markSkip: { en: 'Skip', es: 'Saltar' }, undoSkip: { en: 'Unskip', es: 'No saltar' },
   backOver: { en: 'Overview', es: 'Vista general' }, backOverS: { en: 'all 25 doors', es: 'las 25 puertas' },
-  toMap: { en: 'Back to the map', es: 'Volver al mapa' },
+  toMap: { en: 'Back to the map', es: 'Volver al mapa' }, lastDoorS: { en: 'Last door · {d} knocked, {s} skipped', es: 'Última puerta · {d} visitadas, {s} saltadas' },
   progT: { en: 'Walk progress', es: 'Avance de la ruta' },
   progN: { en: '{d} / {n} · {m} of {mi} mi', es: '{d} / {n} · {m} de {mi} mi' },
-  progK: { en: '{d} knocked', es: '{d} tocadas' }, progS: { en: '{s} skipped', es: '{s} saltadas' },
-  progNone: { en: 'Nothing knocked yet · saved on this laptop', es: 'Nada tocado aún · se guarda en esta laptop' },
+  progK: { en: '{d} knocked', es: '{d} visitadas' }, progS: { en: '{s} skipped', es: '{s} saltadas' },
+  progNone: { en: 'Nothing knocked yet · saved on this laptop', es: 'Nada visitado aún · se guarda en esta laptop' },
   reset: { en: 'Reset', es: 'Reiniciar' },
-  scaleWalk: { en: 'This walk', es: 'Esta ruta' }, scaleAll: { en: 'All storms', es: 'Todas' },
+  scaleWalk: { en: 'This walk', es: 'Esta ruta' }, scaleAll: { en: 'All storms', es: 'Todas las tormentas' },
   legendWalk: { en: 'stretched to this walk · box = full scale', es: 'estirada a esta ruta · cuadro = escala completa' },
   legendAll: { en: 'inches · radar est. {d} · box = this walk {lo}–{hi}″', es: 'pulgadas · radar {d} · cuadro = esta ruta {lo}–{hi}″' },
   legMin: { en: 'Legend', es: 'Leyenda' },
-  stripS2: { en: 'height = roof age · color = hail · ★ top 5', es: 'altura = edad del techo · color = granizo · ★ top 5' },
+  stripS2: { en: 'height = roof age · color = hail · ★ top 5', es: 'altura = edad del techo · color = granizo · ★ 5 mejores' },
   sumOver: { en: '{n} doors · {mi} mi · best {bt} {ap}', es: '{n} puertas · {mi} mi · mejor {bt} {ap}' },
-  top5: { en: 'Top 5', es: 'Top 5' }, isNext: { en: 'Next', es: 'Siguiente' }, isDone: { en: 'Knocked', es: 'Tocada' }, isSkip: { en: 'Skipped', es: 'Saltada' },
+  top5: { en: 'Top 5', es: '5 mejores' }, isNext: { en: 'Next', es: 'Siguiente' }, isDone: { en: 'Knocked', es: 'Visitada' }, isSkip: { en: 'Skipped', es: 'Saltada' },
   vsWalk: { en: 'low', es: 'mín' }, vsHigh: { en: 'high', es: 'máx' }, life: { en: '~20-yr life', es: 'vida ~20 años' },
   coin: { en: 'vs. a {c} ({d}″)', es: 'vs. {c} ({d}″)' },
   scoreN: { en: 'score {s}', es: 'puntaje {s}' },
   keys2: { en: '← → doors · Esc closes', es: '← → puertas · Esc cierra' },
   lite: { en: 'Lite mode on: fewer effects so the map stays smooth', es: 'Modo ligero: menos efectos para que el mapa vaya fluido' },
   ft: { en: 'ft', es: 'pies' },
+  zoneNote: { en: 'Zone-wide numbers. The {n} sample homes on this walk: {r} hail, {b} of {n} built before 2000.', es: 'Datos de toda la zona. Las {n} casas de muestra de esta ruta: granizo de {r}, {b} de {n} construidas antes de 2000.' },
+  hudZone: { en: 'zone', es: 'zona' },
+  title: { en: 'Aldaba Hologram Walk', es: 'Aldaba · Ruta en holograma' },
+  glLabel: { en: '3D hologram of the walk: 25 sample homes, their streets and the route', es: 'Holograma 3D de la ruta: 25 casas de muestra, sus calles y el recorrido' },
+  coinTo: { en: '{c} coin, to scale', es: '{c}, a escala' },
+  introK: { en: "Aldaba's pick · {d} hail", es: 'La elección de Aldaba · granizo del {d}' },
+  introHail: { en: 'zone hail', es: 'granizo en la zona' }, introDoors: { en: 'doors', es: 'puertas' }, introWalk: { en: 'on foot', es: 'a pie' },
+  introSkip: { en: 'Click or press any key to skip', es: 'Haz clic o pulsa una tecla para saltar' },
 };
 const t = (k, v) => { let s = (S[k] && S[k][lang]) || k; if (v) for (const x in v) s = s.split('{' + x + '}').join(v[x]); return s; };
 
@@ -478,7 +486,7 @@ const U = {
   uGrid: { value: lin('#6d5cff') }, uAurA: { value: lin('#27ffc2') }, uAurB: { value: lin('#7b5cff') }, uAurC: { value: lin('#ff4fd8') }, uAurI: { value: 0.9 },
   uStreet: { value: lin('#7d74f0') }, uStreetW: { value: lin('#b9b0ff') },
   uHomes: { value: HS.map(s => new THREE.Vector4(s.c[0], s.c[1], s.h.hail, 0)) }, uRingR: { value: 470 },
-  uWalker: { value: new THREE.Vector4(0, 0, 0, 0) },
+  uWalker: { value: new THREE.Vector4(0, 0, 0, 0) }, uHqA: { value: CALM ? 1 : 0 },
   uHS2: { value: HS.map(s => new THREE.Vector4(0, 0, TOP5(s.h) ? 1 : 0, 1)) }, // (knocked, skipped, top5, beam grow 0..1)
   uWall: { value: -1 }, uWallA: { value: 1 }, uWallK: { value: 120 }, uWallH: { value: 9 }, uScanY: { value: -1 },
   uSw: { value: SWATH.length >= 3 ? SWATH.slice(0, 3).map(p => new THREE.Vector2(p[0], p[1])) : [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()] }, uSwOn: { value: SWATH.length >= 3 ? 1 : 0 },
@@ -571,7 +579,7 @@ const MAXBLEND = { blending: THREE.CustomBlending, blendEquation: THREE.MaxEquat
       col += glow * 0.06;
       // the intro's scan wavefront (a LiDAR pulse that builds the table as it passes)
       float wf = step(uReveal, 1500.) * (1. - smoothstep(600., 1100., uReveal));
-      col += (vec3(0.62, 0.85, 1.) * exp(-pow((r - uReveal)/3.5, 2.)) * 1.3 + uGrid*exp(-pow((r - uReveal)/30., 2.))*0.35*step(r, uReveal + 30.)) * wf;
+      col += (vec3(0.62, 0.85, 1.) * exp(-pow((r - uReveal)/2.5, 2.)) * 0.75 + uGrid*exp(-pow((r - uReveal)/22., 2.))*0.16*step(r, uReveal + 22.)) * wf; // crisp, not blown out
       // the storm's radar hail core, a quiet dashed centreline with a soft band (no particles)
       if (uSwOn > 0.5){ float u0, u1; float d0 = sd2(p, uSw[0], uSw[1], u0), d1 = sd2(p, uSw[1], uSw[2], u1);
         float sd = min(d0, d1); float al = d0 < d1 ? u0*length(uSw[1]-uSw[0]) : length(uSw[1]-uSw[0]) + u1*length(uSw[2]-uSw[1]);
@@ -787,14 +795,14 @@ void main(){ vH = uHouse[int(aId+.5)]; vS = uHS2[int(aId+.5)]; vId = aId; vW = p
       else { float sz = hq ? 46. : (wk ? 7.5 : (aId < -0.5 ? 6.5 : 4.2)); p = vec3(B.x, wk ? 0.5 : 0.42, B.z) + vec3(aC.x*sz, 0., (aC.y*2.-1.)*sz); }
       gl_Position = projectionMatrix*viewMatrix*vec4(p,1.);
     }`, GLSL_COMMON + /* glsl */`
-    uniform float uSel; uniform vec4 uWalker; varying vec3 vC; varying vec4 vH; varying float vId; varying vec4 vS;
+    uniform float uSel, uHqA; uniform vec4 uWalker; varying vec3 vC; varying vec4 vH; varying float vId; varying vec4 vS;
     void main(){
       bool park = vId < -0.5; bool hq = vId < -1.5 && vId > -2.5; bool wk = vId < -2.5;
       vec3 hue = hq ? vec3(1.,0.42,0.12) : (wk ? vec3(1.) : (park ? vec3(0.92,0.9,1.) : spectral(vH.x)));
       if (!park){ hue = mix(hue, vec3(1., 0.8, 0.28), 0.6*vS.z);          // top 5: gold
         hue = mix(hue, vec3(0.24, 0.91, 0.6), vS.x);                      // knocked: green
         hue = mix(hue, vec3(0.5, 0.49, 0.6), vS.y); }                     // skipped: grey
-      float on = wk ? uWalker.w : (park ? 1. : clamp((vH.y - 2.)/6., 0., 1.));
+      float on = wk ? uWalker.w : (hq ? uHqA : (park ? 1. : clamp((vH.y - 2.)/6., 0., 1.)));
       float sel = (!park && abs(vId - uSel) < 0.1) ? 1. : 0.;
       float I = vH.z * (1. + 0.8*vH.w) * on;
       vec3 col;
@@ -1064,7 +1072,7 @@ function legRect() { const el = document.getElementById('legend'); if (!el) retu
 /* ---------------- DOM labels ---------------- */
 const labelsEl = $('labels');
 const pins = HS.map(s => { const el = document.createElement('div'); el.className = 'lb hide' + (TOP5(s.h) ? ' s-top' : ''); el.innerHTML = `<div class="pin">${s.i + 1}</div>`; el.dataset.i = s.i; labelsEl.appendChild(el); return el; });
-const parkEl = document.createElement('div'); parkEl.className = 'lb'; parkEl.innerHTML = '<div class="pk3">P</div>'; labelsEl.appendChild(parkEl);
+const parkEl = document.createElement('div'); parkEl.className = 'lb pkl'; // a marker, not a button: clicks fall through to the house under it parkEl.innerHTML = '<div class="pk3">P</div>'; labelsEl.appendChild(parkEl);
 const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.innerHTML = '<div class="in"></div>'; labelsEl.appendChild(tagEl);
 const streetLabels = (() => { // one label per nearby named street, on its most central piece
   const by = new Map();
@@ -1093,7 +1101,9 @@ const contourTags = (() => {
     cands.sort((a, b) => a.sc - b.sc);
     const picked = [];
     for (const c of cands) { if (picked.length >= 2) break; if (picked.some(p => Math.hypot(p.x - c.x, p.z - c.z) < 90) || out.some(p => Math.hypot(p.x - c.x, p.z - c.z) < 45)) continue; picked.push(c); }
-    picked.forEach(c => { const el = document.createElement('div'); el.className = 'cv'; labelsEl.appendChild(el); out.push(Object.assign(c, { v: lv, el })); });
+    // each chip keeps nearby spots on the same contour line to fall back to when a pin or street name covers its first one
+    picked.forEach(c => { const alts = [c]; for (const q of cands) { if (alts.length >= 10) break; if (picked.some(o => o !== c && Math.hypot(o.x - q.x, o.z - q.z) < Math.hypot(c.x - q.x, c.z - q.z))) continue; if (alts.some(a => Math.hypot(a.x - q.x, a.z - q.z) < 12)) continue; alts.push(q); }
+      const el = document.createElement('div'); el.className = 'cv'; labelsEl.appendChild(el); out.push(Object.assign(c, { v: lv, el, alts })); });
   }
   return out;
 })();
@@ -1116,14 +1126,14 @@ function renderCallouts() {
   CO[0].el.innerHTML = `<b>${t('coHail')}</b><span class="v">${h.hail.toFixed(2)}″</span><span class="s">${hailRef(h.hail)}</span><span class="mb"><i style="width:${Math.max(4, hp)}%"></i></span><span class="mbl"><span>${t('vsWalk')} ${HLO.toFixed(2)}</span><span>${t('vsHigh')} ${HHI.toFixed(2)}</span></span>`;
   const rp = Math.min(100, h.roof / 30 * 100).toFixed(0);
   CO[1].el.innerHTML = `<b>${t('coRoof')}</b><span class="v">≈${h.roof} ${t('yrs')}</span><span class="s">${t('roofBuilt', { y: h.built })}</span><span class="mb"><i style="width:${rp}%"></i><u style="left:${(20 / 30 * 100).toFixed(0)}%"></u></span><span class="mbl"><span>0</span><span>${t('life')}</span><span>30</span></span>`;
-  coinEl.innerHTML = `${esc(cn.n)} <b>${cn.d.toFixed(2)}″</b>`;
+  coinEl.textContent = t('coinTo', { c: cn.n }); // no second number: the only hail value on screen is the home's
   CO[2].el.innerHTML = `<b>${t('coDoor')}</b><span class="v">#${sel + 1}</span><span class="s">${t('scoreN', { s: h.score })}</span>`;
   CO.forEach(o => { o.w = o.el.offsetWidth; o.h = o.el.offsetHeight; }); // measure once per door, not per frame
 }
 function placeCallouts() {
   const vis = coA > 0.01 && sel >= 0;
   coSvg.style.opacity = vis ? coA.toFixed(3) : '0'; CO.forEach(o => { o.el.style.opacity = vis ? coA.toFixed(3) : '0'; }); coinEl.style.opacity = vis && COIN.visible ? coA.toFixed(3) : '0';
-  if (!vis) return;
+  if (!vis) { CO.forEach(o => { o.rect = null; }); return; }
   if (coFor !== sel) renderCallouts();
   const s = HS[sel]; const sp = STONE.position; const R = STONE.scale.x;
   const st = project(sp.x, sp.y, sp.z);
@@ -1137,7 +1147,7 @@ function placeCallouts() {
   const place = (o, ax, ay, bx, by, side) => { // anchor (ax,ay) -> elbow -> chip at (bx,by); never under the card or the banner
     const w = o.w || o.el.offsetWidth, hgt = o.h || o.el.offsetHeight; let left = side > 0 ? bx : bx - w; left = Math.max(12, Math.min(cardL - w - 8, left));
     const top = Math.max(142, Math.min(innerHeight - 140 - hgt, by - hgt / 2));
-    o.el.style.transform = `translate3d(${left.toFixed(1)}px,${top.toFixed(1)}px,0)`;
+    o.el.style.transform = `translate3d(${left.toFixed(1)}px,${top.toFixed(1)}px,0)`; o.rect = [left, top, w, hgt];
     const cy = top + hgt / 2;
     const ex = side > 0 ? left - 6 : left + w + 6;
     o.ln.setAttribute('d', `M${ax.toFixed(1)},${ay.toFixed(1)} L${(ax + (ex - ax) * 0.35).toFixed(1)},${cy.toFixed(1)} L${ex.toFixed(1)},${cy.toFixed(1)}`);
@@ -1161,6 +1171,16 @@ function placeInstrument() { // live lat/long of the view centre + a scale bar t
   const pxPerFt = pxPerM / M_FT; let best = 10; for (const f of [10, 20, 50, 100, 200, 500, 1000]) if (f * pxPerFt <= 110) best = f;
   sbI().style.width = (best * pxPerFt).toFixed(0) + 'px'; setText(sbT(), `${best} ${t('ft').toUpperCase()}`);
 }
+// screen-space label boxes: [cx, cy, angle, halfW, halfH]
+function inBox(px, py, cx, cy, ang, hw, hh) { const dx = px - cx, dy = py - cy, c = Math.cos(ang), s = Math.sin(ang); return Math.abs(dx * c + dy * s) < hw && Math.abs(-dx * s + dy * c) < hh; }
+function boxesHit(A, B) { // separating-axis test on two rotated rectangles
+  const corners = ([cx, cy, a, hw, hh]) => { const c = Math.cos(a), s = Math.sin(a); return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => [cx + u * hw * c - v * hh * s, cy + u * hw * s + v * hh * c]); };
+  const ca = corners(A), cb = corners(B);
+  for (const a of [A[2], A[2] + Math.PI / 2, B[2], B[2] + Math.PI / 2]) { const ax = Math.cos(a), ay = Math.sin(a); let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
+    for (const p of ca) { const d = p[0] * ax + p[1] * ay; a0 = Math.min(a0, d); a1 = Math.max(a1, d); } for (const p of cb) { const d = p[0] * ax + p[1] * ay; b0 = Math.min(b0, d); b1 = Math.max(b1, d); }
+    if (a1 < b0 || b1 < a0) return false; }
+  return true;
+}
 function placeLabels() {
   const det = document.body.classList.contains('detail');
   const placed = [];
@@ -1168,30 +1188,57 @@ function placeLabels() {
     if (!det) for (let it = 0; it < 4; it++) { const hit = placed.find(q => Math.abs(q[0] - x) < 27 && Math.abs(q[1] - y) < 27); if (!hit) break; y = hit[1] - 28; } // in rank order: a better door keeps its spot
     placed.push([x, y]); el.style.visibility = ''; el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; });
   { const [x, y, z] = project(parkW[0], 16, parkW[1]); parkEl.style.visibility = z > 1 ? 'hidden' : ''; parkEl.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; }
+  // Street names and hail chips never sit under a door pin, a callout or each other: each street label slides along its
+  // street to the first clear spot (or steps aside), then each hail chip takes a spot that is still free.
+  placeCallouts();
+  const coR = CO.filter(o => o.rect).map(o => o.rect);
+  const hitRect = (cx, cy, ang, hw, hh) => coR.some(([l, tp, w, hg]) => { for (let k = -2; k <= 2; k++) { const px = cx + Math.cos(ang) * hw * k / 2, py = cy + Math.sin(ang) * hw * k / 2; if (px > l - hh && px < l + w + hh && py > tp - hh && py < tp + hg + hh) return true; } return false; });
+  const stBoxes = [];
   for (const o of streetLabels) {
-    const [x, y, z] = project(o.m[0], 0.5, o.m[1]); const [x1, y1] = project(o.a[0], 0.5, o.a[1]); const [x2, y2] = project(o.b[0], 0.5, o.b[1]);
-    if (z > 1 || x < -100 || x > innerWidth + 100 || y < -40 || y > innerHeight + 40) { o.el.style.visibility = 'hidden'; continue; }
-    let ang = Math.atan2(y2 - y1, x2 - x1); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+    const [, , z] = project(o.m[0], 0.5, o.m[1]); const [x1, y1] = project(o.a[0], 0.5, o.a[1]); const [x2, y2] = project(o.b[0], 0.5, o.b[1]);
     const r = Math.hypot(o.m[0] - BB.cx, o.m[1] - BB.cz); const dc = Math.hypot(o.m[0] - camera.position.x, o.m[1] - camera.position.z);
     const op = Math.max(0, Math.min(1, (420 - r) / 160)) * streetReveal * (sel >= 0 ? Math.max(0, Math.min(1, (230 - dc) / 90)) : 1);
-    o.el.style.visibility = op > 0.02 ? '' : 'hidden'; o.el.style.opacity = op.toFixed(2);
-    o.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%) rotate(${ang.toFixed(3)}rad)`;
+    if (z > 1 || op <= 0.02) { o.el.style.visibility = 'hidden'; continue; }
+    if (!o.w) { o.w = o.el.offsetWidth; o.h = o.el.offsetHeight; }
+    let ang = Math.atan2(y2 - y1, x2 - x1); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+    const hw = o.w / 2 + 6, hh = o.h / 2 + 3; let got = null;
+    for (const u of [0.5, 0.36, 0.64, 0.22, 0.78, 0.1, 0.9]) {
+      const x = x1 + (x2 - x1) * u, y = y1 + (y2 - y1) * u;
+      const ex = Math.abs(Math.cos(ang)) * hw + Math.abs(Math.sin(ang)) * hh, ey = Math.abs(Math.sin(ang)) * hw + Math.abs(Math.cos(ang)) * hh;
+      if (x - ex < 10 || x + ex > innerWidth - 10 || y - ey < 60 || y + ey > innerHeight - 10) continue; // whole name on screen, never clipped at an edge
+      if (placed.some(q => inBox(q[0], q[1], x, y, ang, hw + 15, hh + 15))) continue;
+      if (hitRect(x, y, ang, hw, hh) || stBoxes.some(b => boxesHit(b, [x, y, ang, hw, hh]))) continue;
+      got = [x, y]; break;
+    }
+    if (!got) { o.el.style.visibility = 'hidden'; continue; }
+    stBoxes.push([got[0], got[1], ang, hw, hh]);
+    o.el.style.visibility = ''; o.el.style.opacity = op.toFixed(2);
+    o.el.style.transform = `translate3d(${got[0].toFixed(1)}px,${got[1].toFixed(1)}px,0) translate(-50%,-50%) rotate(${ang.toFixed(3)}rad)`;
   }
-  const pinXY = HS.map(s => project(...s.label));
+  const pinXY = placed;
+  const chipBoxes = [];
   for (const o of contourTags) {
-    const [x, y, z] = project(o.x, 0.5, o.z);
-    const ok = !det && z < 1 && x > 380 && x < innerWidth - 40 && y > 150 && y < innerHeight - 170 && !(LEG_R && x > LEG_R.left - 40 && y > LEG_R.top - 20) && !pinXY.some(q => Math.hypot(q[0] - x, q[1] - y) < 34);
-    o.el.style.visibility = ok ? '' : 'hidden'; if (!ok) continue;
-    const [xa, ya] = project(o.x - o.gz * 400, 0.5, o.z + o.gx * 400); let ang = Math.atan2(ya - y, xa - x); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+    if (!o.w) { o.w = o.el.offsetWidth || 48; o.h = o.el.offsetHeight || 20; }
+    let got = null;
+    if (!det) for (const c of o.alts) {
+      const [x, y, z] = project(c.x, 0.5, c.z);
+      if (z > 1 || x < 380 || x > innerWidth - 40 || y < 150 || y > innerHeight - 170 || (LEG_R && x > LEG_R.left - 40 && y > LEG_R.top - 20)) continue;
+      const [xa, ya] = project(c.x - c.gz * 400, 0.5, c.z + c.gx * 400); let ang = Math.atan2(ya - y, xa - x); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI; ang *= 0.5;
+      const me = [x, y, ang, o.w / 2 + 4, o.h / 2 + 3];
+      if (pinXY.some(q => inBox(q[0], q[1], x, y, ang, me[3] + 15, me[4] + 15)) || stBoxes.some(b => boxesHit(b, me)) || chipBoxes.some(b => boxesHit(b, me) || Math.hypot(b[0] - x, b[1] - y) < 90)) continue;
+      got = me; break;
+    }
+    o.el.style.visibility = got ? '' : 'hidden'; if (!got) continue;
+    chipBoxes.push(got);
     o.el.style.opacity = (streetReveal * 0.95).toFixed(2);
-    o.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%) rotate(${(ang * 0.5).toFixed(3)}rad)`;
+    o.el.style.transform = `translate3d(${got[0].toFixed(1)}px,${got[1].toFixed(1)}px,0) translate(-50%,-50%) rotate(${got[2].toFixed(3)}rad)`;
   }
   if (hoverI >= 0) { const s = HS[hoverI]; const [x, y] = project(...s.label); tagEl.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; }
   if (HQW) {
     const [x, y, z] = project(HQW[0], 0, HQW[1]);
     const ok = z < 1 && x > 40 && x < innerWidth - 40 && !(det && y < 140) && !(x < 380 && y < 120) && !(y < 150 && Math.abs(x - innerWidth / 2) < 330);
     hqEl.style.visibility = ok ? '' : 'hidden'; hqEl.classList.toggle('up', y < 70);
-    hqEl.style.opacity = (streetReveal * (det ? 0.7 : 1)).toFixed(2);
+    hqEl.style.opacity = (streetReveal * U.uHqA.value * (det ? 0.7 : 1)).toFixed(2);
     if (ok) hqEl.style.transform = `translate3d(${x.toFixed(1)}px,${Math.max(150, y - 16).toFixed(1)}px,0) translate(-50%,-100%)`;
   }
   if (SWATH.length >= 3) {
@@ -1201,7 +1248,10 @@ function placeLabels() {
       const P = project(a[0] + (b[0] - a[0]) * u, 0.5, a[1] + (b[1] - a[1]) * u); const P2 = project(a[0] + (b[0] - a[0]) * u2, 0.5, a[1] + (b[1] - a[1]) * u2);
       const zoneR = det ? 30 : 460;
       if (P[2] > 1 || P[0] < zoneR || P[0] > innerWidth - 60 || P[1] < 150 || P[1] > innerHeight - 170) continue;
-      if (pinXY.some(q => Math.hypot(q[0] - P[0], q[1] - P[1]) < 70)) continue;
+      let ang = Math.atan2(P2[1] - P[1], P2[0] - P[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+      if (!swEl._w) { swEl._w = swEl.offsetWidth; swEl._h = swEl.offsetHeight; }
+      const me = [P[0] + swEl._h * Math.sin(ang), P[1] - swEl._h * Math.cos(ang), ang, swEl._w / 2 + 6, swEl._h / 2 + 3]; // box centre (see transform below)
+      if (pinXY.some(q => inBox(q[0], q[1], me[0], me[1], ang, me[3] + 16, me[4] + 16)) || stBoxes.some(b => boxesHit(b, me)) || chipBoxes.some(b => boxesHit(b, me))) continue;
       got = [P, P2]; break;
     }
     swEl.style.visibility = got ? '' : 'hidden';
@@ -1209,7 +1259,7 @@ function placeLabels() {
       swEl.style.opacity = (streetReveal * (det ? 0 : 1)).toFixed(2);
       swEl.style.transform = `translate3d(${P[0].toFixed(1)}px,${P[1].toFixed(1)}px,0) rotate(${ang.toFixed(3)}rad) translate(-50%,-150%)`; }
   }
-  placeCallouts(); placeInstrument();
+  placeInstrument();
 }
 let streetReveal = CALM ? 1 : 0;
 
@@ -1235,8 +1285,8 @@ function setDetail(on) { document.body.classList.toggle('detail', on); voGoal();
 function finishIntro(toOverview) {
   if (camMode !== 'intro') return;
   introT = 99; U.uFade.value = 1; U.uReveal.value = 5000; streetReveal = 1; reveal.fill(1); U.uDraw.value = DRAW_ALL; U.uWall.value = -1; U.uWallA.value = 1;
-  HS.forEach((s, i) => { U.uHS2.value[i].w = 1; }); parkRing.material.uniforms.uAmt.value = 1;
-  pins.forEach(p => p.classList.remove('hide')); ready = true; document.body.classList.add('ready');
+  HS.forEach((s, i) => { U.uHS2.value[i].w = 1; }); parkRing.material.uniforms.uAmt.value = 1; U.uHqA.value = 1;
+  pins.forEach(p => p.classList.remove('hide')); ready = true; document.body.classList.add('ready'); document.body.classList.remove('intro-on');
   camMode = 'orbit'; controls.enabled = true; if (toOverview) flyTo(OVER, 1.1);
   updateAll();
 }
@@ -1249,19 +1299,24 @@ function openCard(i, opts = {}) {
 }
 function closeCard() { userMoved = false; sel = -1; U.uSel.value = -1; $('card').classList.remove('on'); setDetail(false); flyTo(OVER, 1.4); updateAll(); }
 // "Why this door": one glanceable verdict, then the four facts behind it (all from the data, no sales talk).
+// Roof subline: a young roof on an old house is a replaced roof, so say the roof's year, not only the house's.
+const NOW_Y = +String(NL.pick.storm_day || '2026').slice(0, 4) || 2026;
+function roofNewS(h) { const ry = NOW_Y - h.roof; return ry - h.built <= 2 ? t('roofOrig', { y: h.built }) : t('roofNew', { r: ry, y: h.built }); }
+// The one "next" the card's Next button, ArrowRight and the NEXT MOVE banner all agree on (-1 = last door: back to the map).
+function nextArrow() { return sel < 0 ? nextAfter(-1) : nextAfter(sel); }
 function whyParts(s) {
-  const h = s.h; const hr = 1 + HOMES.filter(o => o.hail > h.hail).length; const sr = h.rank;
+  const h = s.h; const hr = 1 + HOMES.filter(o => o.hail > h.hail).length; const sr = h.rank; const tied = HOMES.filter(o => o.hail === h.hail).length > 1;
   const es = lang === 'es'; const hs = `${h.hail.toFixed(2)}″`;
   const head = [];
   if (hr <= 5) head.push(es ? 'granizo de los más grandes' : 'top hail');
   else if (hr <= 12) head.push(es ? 'buen granizo' : 'solid hail');
-  if (h.roof >= 15) head.push(es ? `techo de ${h.roof} años` : `${h.roof}-yr roof`);
+  if (h.roof >= 15) head.push(es ? `techo de ${h.roof}\u00a0años` : `${h.roof}-yr\u00a0roof`);
   if (h.own) head.push(es ? 'el dueño vive aquí' : 'owner lives here');
   if (!head.length) head.push(es ? `puntaje ${h.score}` : `score ${h.score}`);
   let H = head.join(es ? ', ' : ' + '); H = H.charAt(0).toUpperCase() + H.slice(1);
   const rows = [
-    { k: 'hail', v: hr === 1 ? (es ? `El granizo más grande de la ruta: <em>${hs}</em>` : `Biggest hail on this walk: <em>${hs}</em>`)
-      : hr <= 5 ? (es ? `Top 5 en granizo de la ruta: <em>${hs}</em>` : `Top-5 hail on this walk: <em>${hs}</em>`)
+    { k: 'hail', v: hr === 1 ? (tied ? (es ? `Empatada con el granizo más grande de la ruta: <em>${hs}</em>` : `Tied for the biggest hail on this walk: <em>${hs}</em>`) : (es ? `El granizo más grande de la ruta: <em>${hs}</em>` : `Biggest hail on this walk: <em>${hs}</em>`))
+      : hr <= 5 ? (es ? `Entre los 5 granizos más grandes de la ruta: <em>${hs}</em>` : `Top-5 hail on this walk: <em>${hs}</em>`)
       : hr <= 12 ? (es ? `<em>${hs}</em>, arriba de la mitad de la ruta` : `<em>${hs}</em>, upper half of this walk`)
       : (es ? `<em>${hs}</em>, menos que la mayoría aquí` : `<em>${hs}</em>, lighter than most doors here`) },
     { k: 'roof', g: h.roof >= 20, v: h.roof >= 20 ? (es ? `Techo de ≈${h.roof} años: pasó los ~20 que dura uno típico` : `Roof ≈${h.roof} yrs: past a typical ~20-yr life`)
@@ -1291,13 +1346,13 @@ function renderCard() {
   $('cChips').innerHTML = [TOP5(h) ? `<span class="chip t5">★ ${t('top5')}</span>` : '', visited.has(sel) ? `<span class="chip dn">✓ ${t('isDone')}</span>` : skipped.has(sel) ? `<span class="chip sk">${t('isSkip')}</span>` : ''].join(' ');
   $('cSmp').textContent = t('sampleHome');
   $('cClose').setAttribute('aria-label', t('close'));
-  $('cHailL').innerHTML = `${t('hailSize')} <em>· ${fmtDay(STORM.date)}</em>`;
+  $('cHailL').innerHTML = `${t('hailSize')} <em>${fmtDay(STORM.date)}</em>`;
   $('cHail').innerHTML = `${h.hail.toFixed(2)}<small>″</small>`;
-  const hailRank = 1 + HOMES.filter(o => o.hail > h.hail).length;
-  $('cHailS').innerHTML = `<b>${hailRef(h.hail)}</b> · ${hailRank === 1 ? t('hailRank1') : t('hailRankN', { k: hailRank, n: N })}`;
-  $('cRoofL').innerHTML = `${t('roofAge')} <em>· ${t('est')}</em>`;
+  const hailRank = 1 + HOMES.filter(o => o.hail > h.hail).length, tied = HOMES.filter(o => o.hail === h.hail).length > 1;
+  $('cHailS').innerHTML = `<b>${hailRef(h.hail)}</b> · ${hailRank === 1 ? t(tied ? 'hailRank1T' : 'hailRank1') : t(tied ? 'hailRankNT' : 'hailRankN', { k: hailRank, n: N })}`;
+  $('cRoofL').innerHTML = `${t('roofAge')} <em>${t('est')}</em>`;
   $('cRoof').innerHTML = `${h.roof}<small>${t('yrs')}</small>`;
-  $('cRoofS').innerHTML = (h.roof >= 20 ? `<b>${t('roofOld')}</b>` : h.roof >= 15 ? `<b>${t('roofNear')}</b>` : t('roofNew', { y: h.built }))
+  $('cRoofS').innerHTML = (h.roof >= 20 ? `<b>${t('roofOld')}</b>` : h.roof >= 15 ? `<b>${t('roofNear')}</b>` : roofNewS(h))
     + `<div class="rl"><u style="left:${(20 / 30 * 100).toFixed(1)}%"></u><i style="left:${Math.min(100, h.roof / 30 * 100).toFixed(1)}%"></i></div>`;
   $('cMk').style.left = (s.hailT * 100).toFixed(1) + '%';
   $('cTk').innerHTML = SCALE === 'walk'
@@ -1312,10 +1367,12 @@ function renderCard() {
   dn.classList.toggle('on', visited.has(sel)); sk.classList.toggle('on', skipped.has(sel));
   dn.innerHTML = `${ICO_OK}<span>${visited.has(sel) ? t('undoDone') : t('markDone')}</span><kbd>D</kbd>`;
   sk.innerHTML = `${ICO_SKIP}<span>${skipped.has(sel) ? t('undoSkip') : t('markSkip')}</span><kbd>S</kbd>`;
-  const pv = $('cPrev'), nb = $('cNext');
+  const pv = $('cPrev'), nb = $('cNext'); const nArrow = nextArrow();
   pv.innerHTML = sel > 0 ? `<span class="d">${ARW_L}${t('prev', { k: sel })}</span><small>${esc(HS[sel - 1].h.addr)}</small>` : `<span class="d">${ICO_GRID}${t('backOver')}</span><small>${t('backOverS')}</small>`;
-  const j = tour.on ? nextAfter(sel) : nx;
-  nb.innerHTML = j >= 0 ? `<span class="d">${t('nextMv', { k: j + 1, m: fmtD(legM(sel, j)) })}${ARW_R}</span><small>${esc(HS[j].h.addr)}</small>` : `<span class="d">${t('toMap')}${ARW_R}</span><small>${t('walkDone', { n: N })}</small>`;
+  const j = nArrow;
+  const allDone = visited.size + skipped.size >= N;
+  nb.innerHTML = j >= 0 ? `<span class="d">${t('nextMv', { k: j + 1 })}${ARW_R}</span><small>${t('nextMvS', { m: fmtD(legM(sel, j)), a: esc(HS[j].h.addr) })}</small>`
+    : `<span class="d">${t('toMap')}${ARW_R}</span><small>${allDone ? t('walkDone', { n: N }) : t('lastDoorS', { d: visited.size, s: skipped.size })}</small>`;
   $('cKeys').textContent = t('keys2'); $('cSrc').textContent = t('csrc');
 }
 
@@ -1387,12 +1444,22 @@ function tourStep(dt) {
   }
   if (tour.phase === 'move') { renderHud(); renderNM(); }
 }
-function jumpTour(i) { // a click on a chip / Prev / Next during the walk re-seats the walk at that door
+// A click on a chip / Prev / Next (or an arrow key) during the walk re-seats the walk at that door and keeps walking:
+// the camera glides there on the follow spring and the walk dwells at the new door. A paused walk stays paused.
+function jumpTour(i) {
   tour.done = false; tour.head = doorDist[i]; tour.i = i; tour.phase = 'dwell'; tour.t = 0; U.uHead.value = tour.head;
   { const p = pointAt(tour.head); U.uWalker.value.set(p[0], 0, p[1], 1); }
-  if (!tour.paused) { tour.paused = true; if (camMode === 'follow') { camMode = 'orbit'; controls.enabled = true; } }
 }
-function goDoor(i) { if (i < 0) return; if (tour.on) jumpTour(i); openCard(i); }
+function goDoor(i) {
+  if (i < 0) return;
+  if (!tour.on) { openCard(i); return; }
+  jumpTour(i);
+  if (tour.paused || RM) { openCard(i); return; }
+  openCard(i, { fly: false });
+  if (camMode !== 'follow') { if (camMode === 'orbit') readRig(); camMode = 'follow'; controls.enabled = false; follow = null; for (const k in vel) vel[k] = 0; }
+}
+// Next (card button, ArrowRight, banner) at the last door: leave the walk / close the card and go back to the map.
+function nextOrMap() { const j = nextArrow(); if (j >= 0) goDoor(j); else if (tour.on) stopTour(true); else closeCard(); }
 
 /* ---------------- NEXT MOVE: one glance, one tap ---------------- */
 const ICO_GO = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>';
@@ -1435,7 +1502,7 @@ function renderHud() {
   const nm = NL.pick.name.split(':'); const prog = tour.on ? ` <b>${Math.min(N, tour.i + 1)}/${N}</b>` : '';
   const pct = tour.on ? Math.min(100, (tour.done ? 1 : Math.max(0, tour.head) / routeLen) * 100) : 0;
   const bar = tour.on ? `<span class="pgw" title="${t('walked', { d: visited.size, n: N })}"><i></i></span>` : '';
-  setHTML($('hud'), `<span>${nm[0].trim()} · ${nm.slice(1).join(':').trim().replace('&', lang === 'es' ? 'y' : '&')}</span><span>${fmtDay(STORM.date)} · <b class="hh">${NL.pick.hail_in.toFixed(2)}″</b></span><span><b>${N}</b> ${lang === 'es' ? 'puertas' : 'doors'}${prog}</span><span><b>${bt}</b> ${ap}</span>${bar}`);
+  setHTML($('hud'), `<span>${nm[0].trim()} · ${nm.slice(1).join(':').trim().replace('&', lang === 'es' ? 'y' : '&')}</span><span>${fmtDay(STORM.date)} · ${t('hudZone')} <b class="hh">${NL.pick.hail_in.toFixed(2)}″</b></span><span><b>${N}</b> ${lang === 'es' ? 'puertas' : 'doors'}${prog}</span><span><b>${bt}</b> ${ap}</span>${bar}`);
   if (tour.on) { const bi = $('hud').querySelector('.pgw i'); if (bi) bi.style.width = pct.toFixed(1) + '%'; }
 }
 function renderBars() {
@@ -1465,8 +1532,9 @@ function updateBars() {
 function updateBack() { $('backT').textContent = (sel >= 0 || tour.on) ? t('overview') : t('zones'); }
 function updateStart() {
   const nx = nextAfter(-1);
-  $('startT').innerHTML = `${nx > 0 ? t('resumeAt', { i: nx + 1 }) : t('start')}<small>${t('doorsMi', { n: N, mi: mi(routeLen) })}</small>`;
-  $('startN').innerHTML = ICO_PLAY;
+  // The NEXT MOVE banner is the one primary action (start / resume the walk); this is the quieter second choice: look first.
+  $('startT').innerHTML = `${t('preview', { i: Math.max(0, nx) + 1 })}<small>${t('previewS')}</small>`;
+  $('startN').innerHTML = ARW_R;
 }
 function updateAll() { updateBars(); renderProgress(); renderNM(); updateTourUI(); updateBack(); updateStart(); }
 function renderLegend() {
@@ -1482,13 +1550,15 @@ function renderLegend() {
     + `<div class="body"><div class="sc" role="group" aria-label="${t('legendT')}"><button data-sc="walk" aria-pressed="${SCALE === 'walk'}">${t('scaleWalk')}</button><button data-sc="all" aria-pressed="${SCALE === 'all'}">${t('scaleAll')}</button></div>`
     + `<div class="lens"><div class="bar big" style="position:relative">${big}</div><div class="tk">${tks}</div>${lens}</div>`
     + `<div class="s">${SCALE === 'walk' ? t('legendWalk') : t('legendAll', { d: fmtDay(STORM.date), lo: HLO.toFixed(2), hi: HHI.toFixed(2) })}</div>`
-    + `<div class="sts"><span class="t">${t('stT')}</span><span class="sn"><i></i>${t('stNext')}</span><span class="sd"><i></i>${t('isDone')}</span><span class="sk"><i></i>${t('stSkip')}</span><span class="s5"><i></i>${t('stTop')}</span></div>`
+    + `<div class="sts"><span class="t">${t('stT')}</span>${doorKey()}</div>`
     + `<div class="inst"><span id="coords"></span><span class="sb"><i id="sbI"></i><span id="sbT"></span></span></div></div>`;
   leg.querySelectorAll('[data-sc]').forEach(b => b.addEventListener('click', () => setScale(b.dataset.sc)));
   requestAnimationFrame(legRect);
-  $('legTg').addEventListener('click', () => { leg.classList.toggle('min'); setTimeout(legRect, 400); store.set('aldaba.legend', leg.classList.contains('min') ? 'min' : ''); $('legTg').setAttribute('aria-expanded', !leg.classList.contains('min')); });
-  for (const o of contourTags) { o.el.style.setProperty('--c', specCSS(hailT(o.v))); o.el.innerHTML = `${o.v.toFixed(2)}<small>″</small>`; }
+  $('legTg').addEventListener('click', () => { leg.classList.toggle('min'); setTimeout(legRect, 400); $('legTg').setAttribute('aria-expanded', !leg.classList.contains('min')); });
+  for (const o of contourTags) { o.el.style.setProperty('--c', specCSS(hailT(o.v))); o.el.innerHTML = `${o.v.toFixed(2)}<span class="in">″</span>`; o.w = 0; }
 }
+// door colours, one source for the legend and the compact key under the card view (the legend hides while a card is open)
+function doorKey() { return `<span class="sn"><i></i>${t('stNext')}</span><span class="sq"><i></i>${t('stKnock')}</span><span class="sd"><i></i>${t('isDone')}</span><span class="sk"><i></i>${t('stSkip')}</span><span class="s5"><i></i>${t('stTop')}</span>`; }
 function setScale(m) {
   SCALE = m === 'all' ? 'all' : 'walk'; store.set('aldaba.scale', SCALE);
   U.uHMin.value = scLo(); U.uHSpan.value = scHi() - scLo();
@@ -1509,14 +1579,24 @@ function renderStatic() {
     [t('doors'), `${N}`, t('walkLen', { mi: mi(routeLen) })],
     [t('best'), `${bt}<small>${ap}</small>`, t('today')],
   ].map(([l, v, s]) => `<div class="stat"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
-  $('zWhy').textContent = NL.pick.why[lang];
+  $('zWhy').innerHTML = `${esc(NL.pick.why[lang])} <span class="znote">${t('zoneNote', { n: N, r: `<span class="nw">${HLO.toFixed(2)}–${HHI.toFixed(2)}″</span>`, b: HOMES.filter(h => h.built < 2000).length })}</span>`;
+  document.title = t('title'); canvas.setAttribute('aria-label', t('glLabel'));
   const pn = NL.walk.pn || [];
   $('parkT').textContent = t('park', { a: pn[0] || '', b: pn[1] || '' });
   $('parkM').textContent = t('toDoor1', { m: ft(LEGS[0].len) });
   $('sampleT').textContent = t('sample'); $('sample').title = t('sampleTip');
   renderLegend();
-  $('stripT').textContent = t('stripT'); $('stripS').textContent = t('stripS2');
+  $('stripT').textContent = t('stripT'); $('stripS').textContent = t('stripS2'); $('dkey').innerHTML = doorKey();
   $('hint').innerHTML = `${t('hint')}<span class="src">${t('src')}</span>`;
+  { // intro title card: what this is, before the panels arrive (zone, storm, hail, doors, walk, best time)
+    const nm = NL.pick.name.split(':'); const streets = nm.slice(1).join(':').trim(); const [a1, a2] = streets.split('&').map(x => x.trim()); const [bt, ap] = bestTime();
+    $('iK').innerHTML = `<span class="dot"></span>${t('introK', { d: fmtDay(STORM.date) })}`;
+    $('iT').innerHTML = a2 ? `${esc(a1)} <span class="amp">${lang === 'es' ? 'y' : '&amp;'}</span> ${esc(a2)}` : esc(streets);
+    $('iTown').textContent = t('town', { c: CITY });
+    $('iStats').innerHTML = [[`<span class="spec-t">${NL.pick.hail_in.toFixed(2)}″</span>`, t('introHail')], [`${N}`, t('introDoors')], [`${mi(routeLen)}<small>mi</small>`, t('introWalk')], [`${bt}<small>${ap}</small>`, t('best').toLowerCase()]]
+      .map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+    $('iSkip').textContent = t('introSkip');
+  }
   hqEl.innerHTML = `<i></i><span>${t('hq', { mi: (NL.pick.dist_mi || 1.4).toFixed(1) })}</span>`;
   swEl.textContent = t('swath', { d: fmtDay(STORM.date) }) + '  ›››'; coFor = -1;
   renderBars(); updateAll(); renderCard(); if (hoverI >= 0) renderTag(hoverI);
@@ -1556,13 +1636,13 @@ pins.forEach((p, i) => { p.addEventListener('mouseenter', () => setHover(i)); p.
 $('back').addEventListener('click', () => { if (tour.on) stopTour(true); else if (sel >= 0) closeCard(); else location.href = '../index.html'; });
 $('cClose').addEventListener('click', () => { if (tour.on) stopTour(true); else closeCard(); });
 $('cPrev').addEventListener('click', () => { if (sel > 0) goDoor(sel - 1); else if (tour.on) stopTour(true); else closeCard(); });
-$('cNext').addEventListener('click', () => { const j = tour.on ? nextAfter(sel) : nextIdx(); if (j >= 0) goDoor(j); else if (tour.on) stopTour(true); else closeCard(); });
+$('cNext').addEventListener('click', nextOrMap);
 $('cDone').addEventListener('click', () => markDoor(sel, 'done'));
 $('cSkip').addEventListener('click', () => markDoor(sel, 'skip'));
 $('nm').addEventListener('click', () => { if (nmAct) nmAct(); });
 $('progBox').addEventListener('click', e => { if (e.target && e.target.id === 'reset') resetDoors(); });
 $('skip').addEventListener('click', () => skipDoor());
-$('start').addEventListener('click', () => startTour());
+$('start').addEventListener('click', () => openCard(Math.max(0, nextAfter(-1))));
 $('pause').addEventListener('click', togglePause);
 $('stop').addEventListener('click', () => stopTour(true));
 document.querySelectorAll('.seg [data-lang]').forEach(b => b.addEventListener('click', () => { lang = b.dataset.lang; renderStatic(); }));
@@ -1571,13 +1651,22 @@ addEventListener('keydown', e => {
   if (camMode === 'intro') { finishIntro(e.key !== ' '); if (e.key !== ' ') return; }
   const k = e.key.toLowerCase();
   if (e.key === 'Escape') { if (tour.on) stopTour(true); else if (sel >= 0) closeCard(); }
-  else if (e.key === 'ArrowRight' && sel >= 0) { e.preventDefault(); if (sel < N - 1) goDoor(sel + 1); }
+  else if (e.key === 'ArrowRight' && sel >= 0) { e.preventDefault(); if (sel < N - 1) goDoor(sel + 1); else nextOrMap(); }
   else if (e.key === 'ArrowLeft' && sel >= 0) { e.preventDefault(); if (sel > 0) goDoor(sel - 1); }
   else if (k === 's') { e.preventDefault(); skipDoor(); }
   else if (k === 'd' && (sel >= 0 || tour.on)) { e.preventDefault(); markDoor(tour.on ? tour.i : sel, 'done'); }
   else if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); if (nmAct) nmAct(); }
-  else if ((e.key === ' ' || e.code === 'Space') && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); if (tour.on) togglePause(); else startTour(); }
+  else if (e.key === ' ' || e.code === 'Space') {
+    // Space always pauses / resumes the walk (the Pause button says so), even when a clicked button still has focus.
+    // Outside a walk, a focused button keeps its normal Space press; otherwise Space starts the walk.
+    const onBtn = e.target instanceof HTMLButtonElement;
+    if (tour.on) { if (e.target === $('pause')) return; e.preventDefault(); if (!e.repeat) togglePause(); }
+    else if (!onBtn) { e.preventDefault(); if (!e.repeat) startTour(); }
+  }
 });
+
+// a focused button fires its click on Space keyup: during a walk that press belongs to Pause/Resume, not the button
+addEventListener('keyup', e => { if ((e.key === ' ' || e.code === 'Space') && tour.on && e.target instanceof HTMLButtonElement && e.target !== $('pause')) e.preventDefault(); });
 
 /* ---------------- resize ---------------- */
 function resize() {
@@ -1597,7 +1686,6 @@ function goLite(auto) { // low-power fallback: 1x pixels, no MSAA, no bloom / le
 
 /* ---------------- boot ---------------- */
 let booted = false, userMoved = false;
-if (store.get('aldaba.legend') === 'min') $('legend').classList.add('min');
 renderStatic();
 resize();
 Object.assign(rig, CALM ? OVER : INTRO);
@@ -1608,7 +1696,7 @@ if (CALM) {
   document.body.classList.add('ready'); pins.forEach(p => p.classList.remove('hide'));
   if (HOUSE_Q) { openCard(HOUSE_Q - 1, { fly: false }); Object.assign(rig, framePose(HOUSE_Q - 1)); applyRig(); }
   voGoal(); vo.x = vo.gx; vo.y = vo.gy; applyVO();
-} else { camMode = 'intro'; controls.enabled = false; HS.forEach((s, i) => { U.uHS2.value[i].w = 0; }); }
+} else { camMode = 'intro'; controls.enabled = false; HS.forEach((s, i) => { U.uHS2.value[i].w = 0; }); document.body.classList.add('intro-on'); }
 
 const clock = { last: performance.now(), t0: performance.now() };
 const DBG = { hold: false }; // QA only: hold the intro at a moment (window.__holo.seekIntro)
@@ -1627,11 +1715,13 @@ function introUpdate(dt) {
   U.uWall.value = T < 1.25 ? -1 : (T < 4.6 ? Math.min(routeLen, routeLen * easeIO(k(1.25, 3.9))) : -1);
   U.uWallA.value = 1 - k(3.9, 4.6); U.uWallK.value = 700; U.uWallH.value = 17;
   HS.forEach((s, i) => { const d = U.uDraw.value > 8e4 ? 1e9 : U.uDraw.value; U.uHS2.value[i].w = Math.min(1, Math.max(0, (d - doorDist[i] + 2) / 40)); });
-  parkRing.material.uniforms.uAmt.value = k(1.0, 1.6);
+  parkRing.material.uniforms.uAmt.value = 0.55 * k(1.0, 1.6) + 0.45 * k(3.6, 4.4); // quiet while the camera is close to P
+  U.uHqA.value = k(3.0, 4.0);                                   // the far HMP-office beacon arrives with its label, not as a stray streak
+  if (T > 2.55) document.body.classList.remove('intro-on');
   const e = easeIO(k(0, 4.3)); for (const key of ['tx', 'ty', 'tz', 'dist', 'elev']) rig[key] = INTRO[key] + (OVER[key] - INTRO[key]) * e; rig.az = INTRO.az + wrapA(OVER.az - INTRO.az) * e; applyRig();
   HS.forEach((s, i) => pins[i].classList.toggle('hide', U.uDraw.value < doorDist[i] - 1));
   if (T > 2.9 && !ready) { ready = true; document.body.classList.add('ready'); }
-  if (T >= 4.6) { camMode = 'orbit'; controls.enabled = true; U.uDraw.value = DRAW_ALL; U.uWall.value = -1; U.uWallA.value = 1; HS.forEach((s, i) => { U.uHS2.value[i].w = 1; }); pins.forEach(p => p.classList.remove('hide')); if (HOUSE_Q) openCard(HOUSE_Q - 1); }
+  if (T >= 4.6) { U.uHqA.value = 1; camMode = 'orbit'; controls.enabled = true; U.uDraw.value = DRAW_ALL; U.uWall.value = -1; U.uWallA.value = 1; HS.forEach((s, i) => { U.uHS2.value[i].w = 1; }); pins.forEach(p => p.classList.remove('hide')); if (HOUSE_Q) openCard(HOUSE_Q - 1); }
 }
 const camRv = new THREE.Vector3(), hueC = new THREE.Color();
 function frame(now) {
@@ -1644,7 +1734,7 @@ function frame(now) {
   if (mouseDirty && camMode !== 'intro') { mouseDirty = false; setHover(pick()); }
   const dimOthers = sel >= 0 || tour.on;
   for (let i = 0; i < N; i++) {
-    const tgtF = !dimOthers ? 1 : (i === sel ? 1.3 : (i === hoverI ? 0.7 : 0.3));
+    const tgtF = !dimOthers ? 1 : (i === sel ? 1.3 : (i === hoverI ? 0.7 : (sel >= 0 && !tour.on ? 0.14 : 0.3)));
     focus[i] += (tgtF - focus[i]) * (CALM ? 1 : 1 - Math.exp(-dt * 6));
     hov[i] += ((i === hoverI ? 1 : 0) - hov[i]) * (CALM ? 1 : 1 - Math.exp(-dt * 10));
     const s = HS[i]; const ry = reveal[i] >= 1 ? 999 : reveal[i] * (s.geo.H + 1.2);
@@ -1687,7 +1777,7 @@ function frame(now) {
   bloom.strength = 0.3 + 0.16 * far;
   U.uPathGain.value = 0.55 + 0.45 * Math.min(1, Math.max(0, (cd - 70) / 220));
   U.uLineW.value = PR * (1.55 + 0.75 * (1 - Math.min(1, Math.max(0, (cd - 50) / 320))));
-  const gu = grade.uniforms; gu.uTime.value = U.uTime.value; gu.uCA.value = camMode === 'intro' ? 1.6 : 0.55 + 0.6 * far; gu.uDof.value = sel < 0 && !tour.on ? Math.min(1, Math.max(0, (cd - 260) / 200)) : 0;
+  const gu = grade.uniforms; gu.uTime.value = U.uTime.value; gu.uCA.value = camMode === 'intro' ? 0.9 : 0.55 + 0.6 * far; gu.uDof.value = sel < 0 && !tour.on ? Math.min(1, Math.max(0, (cd - 260) / 200)) : 0;
   EMB.uniforms.uEmb.value = LITE ? 0 : 1;
   SKY.position.copy(camera.position);
   if (!STILL && camMode !== 'intro') { // adaptive quality: hold the frame rate instead of dropping frames
