@@ -1,5 +1,7 @@
 # Claude's Aldaba: state (2026-09-30, after integration)
 
+## RESUMED 2026-09-30 11:25 UTC: finish workflow `wf_bfe3e427-cbd` running (Finish Knock/cinema/Deal -> full film -> 3-lens review -> fixers -> verify). If paused again, resume it with resumeFromRunId in the same chat; otherwise follow the resume order below.
+
 ## PAUSED 2026-09-30 ~02:45 UTC (FilthE: "come to an appropriate pause now"). Resume here.
 - **Preview is LIVE:** https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK (Version 1, private). Published after the
   whole-app smoke passed (5 views, 0 console errors, no horizontal scroll at 1440/1280/400). Republish = publish
