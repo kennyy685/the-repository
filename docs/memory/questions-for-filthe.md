@@ -161,3 +161,7 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   sprawl. Two things: (1) HMP agency run with Claude, (2) lead system (find + track leads + everything a contractor needs).
 - ~01:45 UTC 2026-09-30: FilthE wants the new HMP Agency project "fresh, everything completely fresh". King asked: new repo +
   new app from zero, old project archived (never deleted); carry over only knowledge (legal rules, CEO notes, his answers)?
+- ~01:50 UTC 2026-09-30 DECIDED by FilthE: TWO new repos: one "aldaba" (the product), one "hmp agency". The hub is dropped
+  completely ("fuck the hub completely"). Carry over only what matters. After the discussion is done, the King sets itself
+  up fresh ("code yourself to the best of your ability to what our goals are": CLAUDE.md, agents, skills, hooks built for
+  the 2 goals). Still discussing: nothing gets created until he says go. He invited more questions about his vision.
