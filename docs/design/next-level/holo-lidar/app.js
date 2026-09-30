@@ -5,7 +5,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { prep } from './prep.js';
+import { prep, rng, hashStr } from './prep.js';
 import { S, HAIL_OBJ } from './i18n.js';
 
 // ------------------------------------------------------------------ params + state
@@ -56,7 +56,7 @@ const rt = new THREE.WebGLRenderTarget(innerWidth * PR, innerHeight * PR, { type
 const composer = new EffectComposer(renderer, rt);
 composer.setPixelRatio(PR); composer.setSize(innerWidth, innerHeight);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.45, 0.32);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.5, 0.4, 0.55);
 composer.addPass(bloom);
 
 const col = h => new THREE.Color(h);
@@ -87,12 +87,12 @@ const mat = (vs, fs, extra = {}, o = {}) => new THREE.ShaderMaterial(Object.assi
 }, o));
 const MAXBLEND = { blending: THREE.CustomBlending, blendEquation: THREE.MaxEquation, blendEquationAlpha: THREE.MaxEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor };
 
-// ------------------------------------------------------------------ sky + table
+// ------------------------------------------------------------------ sky + ground (LiDAR: black void, returns only where the scanner hit)
 {
   const g = new THREE.SphereGeometry(6000, 32, 16);
-  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { a: { value: col('#010307') }, b: { value: col('#03111b') }, c: { value: col('#000204') } },
+  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { a: { value: col('#000000') }, b: { value: col('#03070d') }, c: { value: col('#000000') } },
     vertexShader: 'varying vec3 vD; void main(){ vD = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader: 'uniform vec3 a,b,c; varying vec3 vD; void main(){ float h = normalize(vD).y; vec3 k = h > 0.0 ? mix(b, a, smoothstep(0.0, 0.5, h)) : mix(b, c, smoothstep(0.0, -0.25, h)); gl_FragColor = vec4(k, 1.0); }' });
+    fragmentShader: 'uniform vec3 a,b,c; varying vec3 vD; void main(){ float h = normalize(vD).y; vec3 k = h > 0.0 ? mix(b, a, smoothstep(0.0, 0.4, h)) : mix(b, c, smoothstep(0.0, -0.2, h)); gl_FragColor = vec4(k, 1.0); }' });
   const sky = new THREE.Mesh(g, m); sky.renderOrder = -20; scene.add(sky);
 }
 // hail field texture
@@ -102,72 +102,41 @@ const hailTex = (() => {
   const tx = new THREE.DataTexture(data, n, n, THREE.RGBAFormat, THREE.HalfFloatType);
   tx.magFilter = THREE.LinearFilter; tx.minFilter = THREE.LinearFilter; tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping; tx.needsUpdate = true; return tx;
 })();
+// scanner = the car at the parking spot; every sweep angle is measured from it
+const SC = D.park.slice();
+const A0 = Math.atan2(-SC[1], -SC[0]) / (2 * Math.PI) - 0.5; // sweep starts pointing away from the table, so it paints across it
+U.uSC = { value: new THREE.Vector2(SC[0], SC[1]) }; U.uA0 = { value: A0 };
+U.uSweep = { value: CALM ? 2 : 0 }; U.uScanA = { value: 0 };
+const GL_SWEEP = /* glsl */`uniform vec2 uSC; uniform float uA0, uSweep, uScanA;
+float ang01(vec2 p){ vec2 d = p - uSC; return fract(atan(d.y, d.x)/6.2831853 - uA0 + 2.0); }
+float sweepVis(vec2 p){ return uSweep > 1.0 ? 1.0 : clamp((uSweep - ang01(p))*40.0, 0.0, 1.0); }
+float sweepFront(vec2 p){ return uSweep > 1.0 ? 0.0 : exp(-pow((uSweep - ang01(p))*70.0, 2.0)); }`;
 const ground = (() => {
-  const g = new THREE.CircleGeometry(R + 36, 256); g.rotateX(-Math.PI / 2);
+  const g = new THREE.CircleGeometry(R + 60, 200); g.rotateX(-Math.PI / 2);
   const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, { uHail: { value: hailTex }, uHailBox: { value: new THREE.Vector3(...D.fieldBox) } }),
-    vertexShader: VS_WORLD, fragmentShader: GL_COMMON + /* glsl */`
+    vertexShader: VS_WORLD, fragmentShader: GL_COMMON + GL_SWEEP + /* glsl */`
     uniform float uReveal; uniform sampler2D uHail; uniform vec3 uHailBox; varying vec3 vW;
-    float grid(vec2 p, float s){ vec2 q = p/s; vec2 fw = max(fwidth(q), vec2(1e-5)); vec2 g = abs(fract(q-0.5)-0.5)/fw; return 1.0 - min(min(g.x, g.y), 1.0); }
     void main(){
       vec2 p = vW.xz; float r = length(p);
-      float inD = 1.0 - smoothstep(uR-34.0, uR-2.0, r);
-      vec3 c = uBase*(0.7 + 0.8*(1.0 - r/uR)*step(r, uR)) + uDeep*0.018*pow(max(0.0, 1.0 - r/uR), 2.0);
-      c += uDeep*(grid(p, 10.0)*(0.055 + 0.05*uNear) + grid(p, 50.0)*0.16 + grid(p, 2.0)*0.03*uNear)*inD;
-      float rr = abs(fract(r/50.0 - 0.5) - 0.5)*50.0; c += uDeep*lineAA(rr, 0.3)*0.08*inD;
-      // hail: calm thermal tint + contour every 0.05 in
+      float inD = 1.0 - smoothstep(uR - 50.0, uR + 6.0, r);
+      vec3 c = vec3(0.0);
+      // hail: calm contour lines every 0.05 in, coloured on the cool->hot scale
       vec4 hf = texture2D(uHail, (p - uHailBox.xy)/uHailBox.z);
       float hv = hf.r, hw = hf.g*inD; float rel = hailRel(hv); vec3 hc = hailCol(hv);
-      c += hc*hw*(0.018 + 0.07*rel*rel)*uTint;
+      c += hc*hw*(0.010 + 0.035*rel)*uTint;
       float f = (hv - 1.0)/0.05; float iso = abs(fract(f - 0.5) - 0.5)/max(fwidth(f), 1e-4);
-      c += hc*(1.0 - smoothstep(0.5, 1.5, iso))*hw*(0.22 + 0.28*rel)*mix(0.7, 1.0, uTint);
-      // rim instrument
-      float a = atan(p.y, p.x); float deg = degrees(a) + 180.0;
-      c += uCyan*lineAA(r - uR, 0.9)*1.1 + uCyan*exp(-abs(r - uR)/7.0)*0.10;
-      float b1 = step(uR+4.0, r)*step(r, uR+8.0), b2 = step(uR+4.0, r)*step(r, uR+12.5);
-      float dmin = abs(fract(deg/2.0 + 0.5) - 0.5)*2.0*0.0174533*r;
-      float dmaj = abs(fract(deg/10.0 + 0.5) - 0.5)*10.0*0.0174533*r;
-      c += uCyan*lineAA(dmin, 0.35)*b1*0.45 + uIce*lineAA(dmaj, 0.55)*b2*0.7;
-      float rot = uTime*0.012*uMotion;
-      float da = fract((a + rot)/6.2831853*48.0);
-      c += uCyan*step(uR+17.0, r)*step(r, uR+19.2)*step(da, 0.6)*0.28;
-      float ar = fract((a - rot*1.8)/6.2831853*3.0);
-      c += uIce*lineAA(r - (uR+24.5), 0.7)*step(ar, 0.3)*0.65;
-      c += uDeep*lineAA(r - (uR+33.0), 0.5)*0.55;
-      // intro wipe
-      float rv = uReveal*(uR + 80.0);
-      float vis = 1.0 - smoothstep(rv - 40.0, rv, r);
-      float front = exp(-pow((r - rv)/5.0, 2.0))*step(0.0001, uReveal)*step(uReveal, 0.9999);
-      gl_FragColor = vec4(c*vis + uIce*front*0.45, 1.0);
+      c += hc*(1.0 - smoothstep(0.5, 1.6, iso))*hw*(0.20 + 0.26*rel)*mix(0.7, 1.0, uTint);
+      // range rings from the scanner (every 50 m), very faint
+      float sr = length(p - uSC); float rr = abs(fract(sr/50.0 - 0.5) - 0.5)*50.0;
+      c += uDeep*lineAA(rr, 0.35)*0.10*inD;
+      // rotating beam on the ground
+      float a = ang01(p); float da = fract(uScanA - a);
+      c += uCyan*exp(-da*40.0)*0.05*inD*uMotion*step(1.0, uSweep);
+      c += uCyan*lineAA(r - (uR + 8.0), 0.5)*0.35;
+      float vis = sweepVis(p);
+      gl_FragColor = vec4(c*vis + uIce*sweepFront(p)*inD*0.18, 1.0);
     }` });
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = -10; scene.add(mesh); return mesh;
-})();
-{ // plinth: the physical table under the projection
-  const g = new THREE.CylinderGeometry(R + 36, R + 31, 16, 256, 1, true); g.translate(0, -8, 0);
-  const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U), vertexShader: VS_WORLD, fragmentShader: GL_COMMON + /* glsl */`
-    uniform float uReveal; varying vec3 vW;
-    void main(){
-      float h = clamp((vW.y + 16.0)/16.0, 0.0, 1.0);
-      vec3 c = uBase*0.9*h*h;
-      c += uCyan*lineAA(vW.y + 0.6, 0.5)*0.9 + uCyan*lineAA(vW.y + 5.5, 0.25)*0.22;
-      float a = atan(vW.z, vW.x); float dd = abs(fract(degrees(a)/1.2 + 0.5) - 0.5)*1.2*0.0174533*(uR + 34.0);
-      c += uDeep*lineAA(dd, 0.22)*0.28*step(-4.8, vW.y)*step(vW.y, -1.4);
-      gl_FragColor = vec4(c*uReveal, 1.0);
-    }` });
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = -9; scene.add(mesh);
-}
-const haze = (() => { // the projection volume: faint light walls rising off the rim
-  const g = new THREE.CylinderGeometry(R + 1, R + 1, 130, 160, 1, true); g.translate(0, 65, 0);
-  const m = mat(/* glsl */`varying vec3 vW; varying vec3 vN; void main(){ vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`,
-    /* glsl */`uniform float uReveal, uHaze; varying vec3 vW; varying vec3 vN;
-    void main(){
-      vec3 V = normalize(cameraPosition - vW); float fr = 1.0 - abs(dot(normalize(vN), V));
-      float h = clamp(vW.y/130.0, 0.0, 1.0); float fall = pow(1.0 - h, 2.4);
-      float a = atan(vW.z, vW.x);
-      float st = 0.55 + 0.45*sin(a*140.0 + sin(a*31.0)*2.5)*sin(a*57.0 + 1.3);
-      float k = (0.012 + 0.16*pow(fr, 3.0))*fall*(0.7 + 0.3*st)*uHaze;
-      gl_FragColor = vec4(uCyan, k*uReveal);
-    }`, { uHaze: { value: 1 } });
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 5; scene.add(mesh); return mesh;
 })();
 
 // ------------------------------------------------------------------ ribbons (streets, path, storm)
@@ -198,7 +167,7 @@ const VS_RIB = /* glsl */`attribute vec2 aUV; attribute float aK; varying vec2 v
   void main(){ vUV = aUV; vK = aK; vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`;
 const streetsMesh = (() => {
   const polys = D.drawStreets.map(s => ({ p: s.p, hw: s.walk ? 6.2 : (s.c <= 1 ? 7.6 : 5.4), k: s.walk ? 1 : (s.c <= 1 ? 2 : 0) }));
-  const m = mat(VS_RIB, /* glsl */`uniform float uStreetRev; varying vec2 vUV; varying float vK; varying vec3 vW;
+  const m = mat(VS_RIB, GL_SWEEP + /* glsl */`uniform float uStreetRev; varying vec2 vUV; varying float vK; varying vec3 vW;
     void main(){
       float av = abs(vUV.y); float fw = fwidth(vUV.y);
       float edge = 1.0 - smoothstep(0.0, fw*1.6, abs(av - 0.8));
@@ -212,10 +181,8 @@ const streetsMesh = (() => {
       else c = uDeep*edge*0.62 + uDeep*fill*0.03 + uDeep*dash*0.30;
       float r = length(vW.xz);
       float fade = 1.0 - smoothstep(uR - 46.0, uR + 2.0, r);
-      float rv = uStreetRev*(uR + 70.0);
-      float vis = 1.0 - smoothstep(rv - 24.0, rv, r);
-      float front = exp(-pow((r - rv)/4.0, 2.0))*step(0.001, uStreetRev)*step(uStreetRev, 0.999);
-      gl_FragColor = vec4((c*vis + uIce*front*fill*0.8)*fade, 1.0);
+      float vis = sweepVis(vW.xz); float front = sweepFront(vW.xz);
+      gl_FragColor = vec4((c*0.55*vis + uIce*front*fill*0.5)*fade, 1.0);
     }`, { }, MAXBLEND);
   const mesh = new THREE.Mesh(ribbon(polys, 0.12), m); mesh.renderOrder = 1; scene.add(mesh); return mesh;
 })();
@@ -367,78 +334,185 @@ const VS_HOUSE = /* glsl */`attribute float aId; attribute float aTop; uniform f
   void main(){ int i = int(aId + 0.5); vRev = uRev[i]; vHov = uHov[i]; vVis = uVis[i]; vSelF = abs(aId - uSel) < 0.5 ? 1.0 : 0.0; vTop = aTop;
     vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`;
 const houseB = Builder(); HS.forEach(H => { buildHouse(houseB, H); H.bb = houseB.bb.slice(); });
-const houseFill = (() => {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(houseB.pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(houseB.nor, 3));
-  g.setAttribute('aId', new THREE.Float32BufferAttribute(houseB.id, 1)); g.setAttribute('aTop', new THREE.Float32BufferAttribute(houseB.top, 1));
-  const m = mat(VS_HOUSE, /* glsl */`uniform float uFocus, uScanY; varying vec3 vW; varying vec3 vN; varying float vRev, vHov, vSelF, vTop, vVis;
-    void main(){
-      float cut = vRev*(vTop + 1.5); if (vW.y > cut) discard;
-      vec3 V = normalize(cameraPosition - vW); float fr = 1.0 - abs(dot(normalize(vN), V)); fr = fr*fr;
-      float sl = 0.5 + 0.5*sin((vW.y*2.4 - uTime*1.4*uMotion)*6.2831853);
-      float scan = mix(0.66, 1.0, smoothstep(0.25, 0.75, sl));
-      float hl = max(vHov, vSelF);
-      vec3 c = mix(uDeepH, uCyan, 0.3 + 0.7*fr); c = mix(c, uIce, fr*0.45 + hl*0.3);
-      c = mix(c, mix(c, uDone, 0.6), vVis*(1.0 - vSelF)*0.55);
-      float a = (0.022 + 0.15*fr)*scan*(1.0 + vHov*1.4 + vSelF*1.0);
-      a *= mix(1.0, 0.28, uFocus*(1.0 - vSelF));
-      float be = exp(-pow((vW.y - cut)/0.4, 2.0))*step(vRev, 0.999)*step(0.001, vRev);
-      float sw = exp(-pow((vW.y - uScanY)/0.45, 2.0))*vSelF;
-      gl_FragColor = vec4(c + uIce*(be*2.0 + sw*1.4), a + be*0.7 + sw*0.45);
-    }`, hU);
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 6; scene.add(mesh); return mesh;
-})();
-const houseEdges = (() => {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(houseB.ep, 3)); g.setAttribute('aId', new THREE.Float32BufferAttribute(houseB.eid, 1));
-  g.setAttribute('aK', new THREE.Float32BufferAttribute(houseB.ek, 1)); g.setAttribute('aTop', new THREE.Float32BufferAttribute(houseB.etop, 1));
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(upNormals(houseB.ep.length / 3), 3));
-  const m = mat(VS_HOUSE.replace('attribute float aTop;', 'attribute float aTop; attribute float aK; varying float vK;').replace('vTop = aTop;', 'vTop = aTop; vK = aK;'),
-    /* glsl */`uniform float uFocus, uScanY; varying vec3 vW; varying float vRev, vHov, vSelF, vTop, vK, vVis;
-    void main(){
-      float cut = vRev*(vTop + 1.5); if (vW.y > cut) discard;
-      float hl = max(vHov, vSelF);
-      vec3 c = mix(uCyan, uIce, 0.28 + 0.62*hl); c = mix(c, uDone, vVis*(1.0 - vSelF)*0.5);
-      float a = (vK > 0.5 ? 0.28 : 0.72)*(1.0 + vHov*0.7 + vSelF*0.4);
-      float sl = 0.5 + 0.5*sin((vW.y*2.4 - uTime*1.4*uMotion)*6.2831853); a *= mix(0.8, 1.0, sl);
-      a *= mix(1.0, 0.26, uFocus*(1.0 - vSelF));
-      float be = exp(-pow((vW.y - cut)/0.4, 2.0))*step(vRev, 0.999)*step(0.001, vRev);
-      float sw = exp(-pow((vW.y - uScanY)/0.45, 2.0))*vSelF;
-      gl_FragColor = vec4(c + uIce*sw, a + be + sw);
-    }`, hU);
-  const mesh = new THREE.LineSegments(g, m); mesh.renderOrder = 7; scene.add(mesh); return mesh;
+// ------------------------------------------------------------------ LiDAR point clouds
+// Every surface is a cloud of laser returns (seeded, so every load is the same scan). Houses carry the hail colour;
+// the rest of the street is neutral cool intensity. Depth of field is done per point (circle of confusion).
+const PT = (() => {
+  const R3 = rng(hashStr('lidar-' + NL.pick.name));
+  const W = { pos: [], k: [], seed: [], v: [] };       // world (not data)
+  const Hh = { pos: [], k: [], seed: [], v: [], id: [], top: [] }; // the 25 doors
+  // ---- masks on a 1 m raster: road + building footprints (LiDAR ground returns stop at walls)
+  const BOX = D.fieldBox, MN = Math.ceil(BOX[2]); const road = new Uint8Array(MN * MN), bld = new Uint8Array(MN * MN);
+  const cell = (x, z) => { const i = Math.floor(x - BOX[0]), j = Math.floor(z - BOX[1]); return (i < 0 || j < 0 || i >= MN || j >= MN) ? -1 : j * MN + i; };
+  const stampDisc = (arr, x, z, rad, v) => { for (let dz = -rad; dz <= rad; dz++) for (let dx = -rad; dx <= rad; dx++) { if (dx * dx + dz * dz > rad * rad) continue; const c = cell(x + dx, z + dz); if (c >= 0) arr[c] = v; } };
+  const hwOf = s => s.walk ? 6.2 : (s.c <= 1 ? 7.6 : 5.4);
+  D.drawStreets.forEach(s => { const hw = hwOf(s); for (let i = 0; i + 1 < s.p.length; i++) { const a = s.p[i], b = s.p[i + 1]; const L = Math.hypot(b[0] - a[0], b[1] - a[1]); for (let t = 0; t <= L; t += 0.8) { const q = t / (L || 1); stampDisc(road, a[0] + (b[0] - a[0]) * q, a[1] + (b[1] - a[1]) * q, Math.round(hw - 0.5), 1); } } });
+  const stampBox = (c, yaw, x0, x1, z0, z1) => { const cs = Math.cos(yaw), sn = Math.sin(yaw); for (let x = x0; x <= x1; x += 0.7) for (let z = z0; z <= z1; z += 0.7) { const cc = cell(c[0] + x * cs + z * sn, c[1] - x * sn + z * cs); if (cc >= 0) bld[cc] = 1; } };
+  HS.forEach(H => stampBox(H.c, H.yaw, H.bb[0], H.bb[1], H.bb[2], H.bb[3]));
+  D.ctx.forEach(c => stampBox(c.c, c.yaw, -c.w / 2, c.w / 2, -c.d / 2, c.d / 2));
+  const inRoad = (x, z) => { const c = cell(x, z); return c >= 0 && road[c]; };
+  const inBld = (x, z) => { const c = cell(x, z); return c >= 0 && bld[c]; };
+  // ---- ground returns: concentric rings around the scanner, like a car's spinning laser
+  const RMAX = Math.hypot(SC[0], SC[1]) + R + 20;
+  for (let r = 2.6, ring = 0; r < RMAX; r += 1.1 + r * 0.011, ring++) { // ring gap grows with range, like a real spinning sensor
+    const n = Math.ceil(2 * Math.PI * r / 1.05); const ph = R3() * 6.283;
+    for (let k = 0; k < n; k++) {
+      const a = ph + k / n * 6.2831853; const rr = r + (R3() - 0.5) * 0.25;
+      const x = SC[0] + Math.cos(a) * rr, z = SC[1] + Math.sin(a) * rr;
+      if (Math.hypot(x, z) > R + 14) continue;
+      if (inBld(x, z)) continue;
+      W.pos.push(x, 0.04 + (R3() - 0.5) * 0.06, z); W.k.push(inRoad(x, z) ? 1 : 0); W.seed.push(R3()); W.v.push(0);
+    }
+  }
+  // ---- curbs: bright returns along both road edges
+  D.drawStreets.forEach(s => {
+    const hw = hwOf(s); const kk = s.walk ? 3 : 2;
+    for (let i = 0; i + 1 < s.p.length; i++) {
+      const a = s.p[i], b = s.p[i + 1]; const L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 0.5) continue;
+      const tx = (b[0] - a[0]) / L, tz = (b[1] - a[1]) / L;
+      for (let t = 0; t < L; t += 0.62) for (const sd of [-1, 1]) {
+        const x = a[0] + tx * t - tz * hw * sd, z = a[1] + tz * t + tx * hw * sd;
+        if (Math.hypot(x, z) > R + 6) continue;
+        W.pos.push(x, 0.16 + R3() * 0.1, z); W.k.push(kk); W.seed.push(R3()); W.v.push(0);
+      }
+    }
+  });
+  // ---- surfaces from triangle soups (area-weighted, seeded)
+  function sampleTris(pos, nor, dens, push) {
+    for (let q = 0; q < pos.length; q += 9) {
+      const ax = pos[q], ay = pos[q + 1], az = pos[q + 2], ux = pos[q + 3] - ax, uy = pos[q + 4] - ay, uz = pos[q + 5] - az, vx = pos[q + 6] - ax, vy = pos[q + 7] - ay, vz = pos[q + 8] - az;
+      const area = 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+      let n = area * dens; const nf = Math.floor(n); n = nf + (R3() < n - nf ? 1 : 0);
+      const roof = nor[q + 1] > 0.3;
+      for (let k = 0; k < n; k++) { let s = R3(), t = R3(); if (s + t > 1) { s = 1 - s; t = 1 - t; } push(ax + ux * s + vx * t, ay + uy * s + vy * t, az + uz * s + vz * t, roof, q / 3); }
+    }
+  }
+  function sampleEdges(ep, step, push) {
+    for (let q = 0; q < ep.length; q += 6) {
+      const L = Math.hypot(ep[q + 3] - ep[q], ep[q + 4] - ep[q + 1], ep[q + 5] - ep[q + 2]); const n = Math.max(2, Math.ceil(L / step));
+      for (let k = 0; k <= n; k++) { const t = k / n; push(ep[q] + (ep[q + 3] - ep[q]) * t, ep[q + 1] + (ep[q + 4] - ep[q + 1]) * t, ep[q + 2] + (ep[q + 5] - ep[q + 2]) * t, q / 3); }
+    }
+  }
+  // the 25 sample homes: dense, coloured by hail
+  sampleTris(houseB.pos, houseB.nor, 9.5, (x, y, z, roof, vi) => { const i = houseB.id[vi]; Hh.pos.push(x, y, z); Hh.k.push(roof ? 5 : 4); Hh.seed.push(R3()); Hh.v.push(HS[i].h.hail); Hh.id.push(i); Hh.top.push(houseB.top[vi]); });
+  sampleEdges(houseB.ep, 0.2, (x, y, z, vi) => { const i = houseB.eid[vi]; Hh.pos.push(x, y, z); Hh.k.push(6); Hh.seed.push(R3()); Hh.v.push(HS[i].h.hail); Hh.id.push(i); Hh.top.push(houseB.etop[vi]); });
+  // neighbours: sparser neutral scans
+  const CB = Builder();
+  D.ctx.forEach(c => {
+    const top = c.wall + c.rh; CB.set(c.c, c.yaw, 0, top);
+    const hw = c.w / 2, hd = c.d / 2;
+    CB.box(-hw, hw, 0, c.wall, -hd, hd, { top: false }); CB.gable(-hw, hw, -hd, hd, c.wall, c.rh, c.cross ? 'z' : 'x', 0.4);
+  });
+  sampleTris(CB.pos, CB.nor, 1.7, (x, y, z, roof) => { if (Math.hypot(x, z) > R - 4) return; W.pos.push(x, y, z); W.k.push(roof ? 8 : 7); W.seed.push(R3()); W.v.push(y); });
+  sampleEdges(CB.ep, 0.5, (x, y, z) => { if (Math.hypot(x, z) > R - 4) return; W.pos.push(x, y, z); W.k.push(8); W.seed.push(R3()); W.v.push(y); });
+  // trees: canopy shells in back yards (height tint only; not data)
+  const tree = (x, z, h, rad) => {
+    for (let k = 0; k < 10; k++) { W.pos.push(x + (R3() - 0.5) * 0.3, k / 10 * h * 0.55, z + (R3() - 0.5) * 0.3); W.k.push(9); W.seed.push(R3()); W.v.push(0.2); }
+    const n = Math.round(rad * rad * 9);
+    for (let k = 0; k < n; k++) {
+      const u = R3() * 2 - 1, th = R3() * 6.2831853, s = Math.sqrt(1 - u * u); const rr = rad * (0.78 + R3() * 0.26) * (1 + 0.12 * Math.sin(th * 3 + u * 4));
+      const y = h * 0.62 + u * rad * 0.8; if (y < h * 0.32) continue;
+      W.pos.push(x + Math.cos(th) * s * rr, y, z + Math.sin(th) * s * rr); W.k.push(9); W.seed.push(R3()); W.v.push(0.5 + 0.5 * u);
+    }
+  };
+  const treeSpot = (c, yaw, d) => { const f = [Math.sin(yaw), Math.cos(yaw)]; const side = (R3() - 0.5) * 8; return [c[0] - f[0] * (d / 2 + 5.5 + R3() * 3) + f[1] * side, c[1] - f[1] * (d / 2 + 5.5 + R3() * 3) - f[0] * side]; };
+  const tryTree = (p, h, rad) => {
+    if (Math.hypot(p[0], p[1]) > R - 12) return;
+    for (let dx = -2; dx <= 2; dx += 2) for (let dz = -2; dz <= 2; dz += 2) if (inRoad(p[0] + dx, p[1] + dz) || inBld(p[0] + dx, p[1] + dz)) return;
+    tree(p[0], p[1], h, rad);
+  };
+  D.ctx.forEach(c => { if (R3() < 0.45) tryTree(treeSpot(c.c, c.yaw, c.d), 6 + R3() * 5, 2.4 + R3() * 2); });
+  HS.forEach(H => { if (R3() < 0.5) tryTree(treeSpot(H.c, H.yaw, H.spec.d), 7 + R3() * 4, 2.6 + R3() * 1.6); });
+  // the car + roof scanner at the parking spot
+  {
+    const sn = D.parkSnap; const a = D.route[1] || [SC[0] + 1, SC[1]]; const yaw = Math.atan2(a[0] - SC[0], a[1] - SC[1]);
+    const cs = Math.cos(yaw), si = Math.sin(yaw); void sn;
+    const put = (lx, y, lz) => { W.pos.push(SC[0] + lx * cs + lz * si, y, SC[1] - lx * si + lz * cs); W.k.push(10); W.seed.push(R3()); W.v.push(0); };
+    for (let k = 0; k < 900; k++) { // body: two stacked rounded boxes, points on the surface
+      const top = R3() < 0.35; const hx = top ? 0.75 : 0.95, hz = top ? 1.25 : 2.35, y0 = top ? 1.0 : 0.3, y1 = top ? 1.5 : 1.0;
+      const f = Math.floor(R3() * 5); let x = (R3() * 2 - 1) * hx, z = (R3() * 2 - 1) * hz, y = y0 + R3() * (y1 - y0);
+      if (f === 0) x = hx * (R3() < 0.5 ? -1 : 1); else if (f === 1) z = hz * (R3() < 0.5 ? -1 : 1); else y = y1;
+      put(x, y, z - (top ? 0.2 : 0));
+    }
+    for (let k = 0; k < 90; k++) { const t = k / 90 * 6.2831853; put(Math.cos(t) * 0.32, 1.62 + (k % 3) * 0.06, Math.sin(t) * 0.32 - 0.2); }
+  }
+  return { W, Hh };
 })();
 
-// context blocks: dim neighbours so the 25 doors read as "these ones" in a real neighbourhood
-const ctxMeshes = (() => {
-  const B = Builder(); const rr = [];
-  D.ctx.forEach(c => {
-    const top = c.wall + c.rh; B.set(c.c, c.yaw, 0, top);
-    const hw = c.w / 2, hd = c.d / 2; const n0 = B.pos.length, e0 = B.ep.length;
-    B.box(-hw, hw, 0, c.wall, -hd, hd, { top: false }); B.gable(-hw, hw, -hd, hd, c.wall, c.rh, c.cross ? 'z' : 'x', 0.4);
-    for (let i = n0; i < B.pos.length; i += 3) rr.push(c.r);
-    c._e = [e0, B.ep.length];
-  });
-  const er = []; D.ctx.forEach(c => { for (let i = c._e[0]; i < c._e[1]; i += 3) er.push(c.r); });
-  const VS = /* glsl */`attribute float aR; attribute float aTop; varying vec3 vW; varying vec3 vN; varying float vR, vTop;
-    void main(){ vR = aR; vTop = aTop; vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`;
-  const FS_CUT = /* glsl */`uniform float uCtxRev, uFocus; varying vec3 vW; varying vec3 vN; varying float vR, vTop;
-    float cutH(){ return clamp((uCtxRev*(uR + 90.0) - vR)/40.0, 0.0, 1.0)*(vTop + 1.0); }`;
-  const gf = new THREE.BufferGeometry();
-  gf.setAttribute('position', new THREE.Float32BufferAttribute(B.pos, 3)); gf.setAttribute('normal', new THREE.Float32BufferAttribute(B.nor, 3));
-  gf.setAttribute('aR', new THREE.Float32BufferAttribute(rr, 1)); gf.setAttribute('aTop', new THREE.Float32BufferAttribute(B.top, 1));
-  const mf = mat(VS, FS_CUT + /* glsl */`void main(){ float cut = cutH(); if (vW.y > cut) discard;
-      vec3 V = normalize(cameraPosition - vW); float fr = 1.0 - abs(dot(normalize(vN), V)); fr *= fr;
-      float fade = 1.0 - smoothstep(uR - 60.0, uR - 10.0, length(vW.xz));
-      gl_FragColor = vec4(mix(uDeepH, uDeep, fr), (0.022 + 0.07*fr)*fade*mix(1.0, 0.6, uFocus)); }`);
-  const ge = new THREE.BufferGeometry();
-  ge.setAttribute('position', new THREE.Float32BufferAttribute(B.ep, 3)); ge.setAttribute('normal', new THREE.Float32BufferAttribute(upNormals(B.ep.length / 3), 3));
-  ge.setAttribute('aR', new THREE.Float32BufferAttribute(er, 1)); ge.setAttribute('aTop', new THREE.Float32BufferAttribute(B.etop, 1));
-  const me = mat(VS, FS_CUT + /* glsl */`void main(){ float cut = cutH(); if (vW.y > cut) discard;
-      float fade = 1.0 - smoothstep(uR - 60.0, uR - 10.0, length(vW.xz));
-      gl_FragColor = vec4(uDeep, 0.20*fade*mix(1.0, 0.6, uFocus)); }`);
-  const a = new THREE.Mesh(gf, mf); a.renderOrder = 4; const b = new THREE.LineSegments(ge, me); b.renderOrder = 4; scene.add(a, b); return [a, b];
-})();
+const VS_PTS = (house) => /* glsl */`
+attribute float aK; attribute float aSeed; attribute float aV; ${house ? 'attribute float aId; attribute float aTop; uniform float uRev[' + N + ']; uniform float uHov[' + N + ']; uniform float uVis[' + N + ']; uniform float uSel; uniform float uScanY;' : ''}
+uniform float uScale, uFocusD, uDof, uPR, uFocus, uReveal;
+uniform sampler2D uHail; uniform vec3 uHailBox; uniform vec3 uLid0, uLid1, uLid2;
+varying vec3 vC; varying float vA, vSoft;
+void main(){
+  vec3 p = position;
+  // breathe: every return drifts a few centimetres, slowly (a live scan, not a still)
+  float ph = aSeed*6.2831853;
+  p += vec3(sin(uTime*0.55 + ph*7.0), sin(uTime*0.9 + ph*3.0)*0.7, cos(uTime*0.5 + ph*5.0))*0.045*uMotion;
+  float a = ang01(p.xz); float vis = sweepVis(p.xz); float front = sweepFront(p.xz);
+  float da = fract(uScanA - a); float glow = exp(-da*22.0)*uMotion*step(1.0, uSweep);
+  float r = length(p.xz); float fade = 1.0 - smoothstep(uR - 46.0, uR + 10.0, r);
+  vec3 c; float I; float wsz;
+${house ? `
+  int i = int(aId + 0.5); float rev = uRev[i]; float hov = uHov[i]; float dn = uVis[i]; float self = abs(aId - uSel) < 0.5 ? 1.0 : 0.0;
+  float cut = rev*(aTop + 1.5); vis = step(p.y, cut)*step(0.001, rev);
+  float be = exp(-pow((p.y - cut)/0.45, 2.0))*step(rev, 0.999);
+  vec3 hc = hailCol(aV); float hg = clamp(p.y/max(aTop, 1.0), 0.0, 1.0);
+  if (aK > 5.5) { c = mix(hc, uIce, 0.35); I = 0.62; wsz = 0.23; }
+  else if (aK > 4.5) { c = hc; I = 0.46; wsz = 0.3; }
+  else { c = hc*mix(0.75, 1.0, hg); I = 0.16 + 0.2*hg; wsz = 0.28; }
+  c = mix(c, uIce, hov*0.35 + self*0.18);
+  c = mix(c, uDone, dn*(1.0 - self)*0.7);
+  I *= (1.0 + hov*0.7)*mix(1.0, 0.3, uFocus*(1.0 - self))*mix(1.0, 0.5, uNear);
+  float sw = exp(-pow((p.y - uScanY)/0.5, 2.0))*self;
+  c += uIce*(be*1.2 + sw*0.9); I += be*0.6 + sw*0.5;
+  fade = 1.0;
+` : `
+  if (aK < 0.5) { // ground: hail-tinted where the storm data reaches, neutral elsewhere
+    vec4 hf = texture2D(uHail, (p.xz - uHailBox.xy)/uHailBox.z); float hw = hf.g;
+    c = mix(uLid0, hailCol(hf.r)*0.7, hw*0.5*uTint); I = 0.55; wsz = 0.5;
+  } else if (aK < 1.5) { c = uLid0*0.8; I = 0.3; wsz = 0.45; }            // asphalt: weak returns
+  else if (aK < 2.5) { c = uLid1; I = 0.55; wsz = 0.34; }                  // curb
+  else if (aK < 3.5) { c = mix(uLid1, uIce, 0.5); I = 0.85; wsz = 0.36; }  // walk-street curb
+  else if (aK < 7.5) { c = mix(uLid0, uLid1, clamp(aV/7.0, 0.0, 1.0)); I = 0.30; wsz = 0.42; }  // neighbour wall
+  else if (aK < 8.5) { c = uLid1; I = 0.38; wsz = 0.36; }                  // neighbour roof / edges
+  else if (aK < 9.5) { c = mix(uLid2*0.7, uLid2, aV); I = 0.26; wsz = 0.5; } // tree
+  else { c = uIce; I = 1.1; wsz = 0.12; }                                  // car
+  I *= mix(1.0, 0.55, uFocus);
+`}
+  I *= fade;
+  c += uIce*glow*0.55; I *= 1.0 + glow*0.9;
+  vec4 mv = modelViewMatrix*vec4(p, 1.0); float z = max(1.0, -mv.z);
+  float px = wsz*uScale/z;
+  float coc = clamp(abs(z - uFocusD)/uFocusD - 0.18, 0.0, 1.4)*uDof;   // circle of confusion (depth of field)
+  float blur = coc*5.5*uPR;
+  float sz = max(px, 1.25*uPR) + blur;
+  float energy = clamp(pow(max(px, 0.55*uPR)/sz, 2.0), 0.05, 1.0);
+  vSoft = clamp(blur/sz, 0.0, 1.0);
+  vC = c + uIce*front*1.4;
+  vA = (I*energy + front*0.8)*vis;
+  gl_PointSize = sz;
+  gl_Position = projectionMatrix*mv;
+}`;
+const FS_PTS = /* glsl */`varying vec3 vC; varying float vA, vSoft;
+void main(){ vec2 q = gl_PointCoord*2.0 - 1.0; float r = dot(q, q); if (r > 1.0 || vA < 0.002) discard;
+  float a = mix(1.0 - smoothstep(0.35, 1.0, r), (1.0 - r)*0.9, vSoft);
+  gl_FragColor = vec4(vC, vA*a); }`;
+const ptU = { uScale: { value: 1 }, uFocusD: { value: 600 }, uDof: { value: CALM ? 0.6 : 1 }, uPR: { value: PR },
+  uHail: { value: hailTex }, uHailBox: { value: new THREE.Vector3(...D.fieldBox) },
+  uLid0: { value: col('#2a6a94') }, uLid1: { value: col('#5d9dc4') }, uLid2: { value: col('#3d8f86') } };
+function pointsOf(S, house) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(S.pos, 3)); g.setAttribute('aK', new THREE.Float32BufferAttribute(S.k, 1));
+  g.setAttribute('aSeed', new THREE.Float32BufferAttribute(S.seed, 1)); g.setAttribute('aV', new THREE.Float32BufferAttribute(S.v, 1));
+  if (house) { g.setAttribute('aId', new THREE.Float32BufferAttribute(S.id, 1)); g.setAttribute('aTop', new THREE.Float32BufferAttribute(S.top, 1)); }
+  const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, ptU, house ? hU : {}), vertexShader: GL_COMMON.replace(/float lineAA[^\n]*\n/, '') + GL_SWEEP + VS_PTS(house), fragmentShader: FS_PTS,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const pts = new THREE.Points(g, m); pts.frustumCulled = false; pts.renderOrder = house ? 6 : 4; scene.add(pts); return pts;
+}
+const worldPts = pointsOf(PT.W, false);
+const housePts = pointsOf(PT.Hh, true);
+const PT_COUNT = PT.W.pos.length / 3 + PT.Hh.pos.length / 3;
 
 // pads: each hologram stands on its footprint, tinted by the hail at that home
 const padMesh = (() => {
@@ -543,7 +617,7 @@ const holoPass = new ShaderPass({
       vec2 off = d*(0.0022 + 0.006*l*l)*uCA;
       vec3 c; c.r = texture2D(tDiffuse, vUv + off).r; c.g = texture2D(tDiffuse, vUv).g; c.b = texture2D(tDiffuse, vUv - off).b;
       float y = gl_FragCoord.y/uPR;
-      c *= 0.955 + 0.045*sin(y*3.14159*0.72);
+      c *= 0.985 + 0.015*sin(y*3.14159*0.72);
       float band = fract(vUv.y*0.6 - uTime*0.05);
       c *= 1.0 + 0.035*smoothstep(0.0, 0.04, band)*(1.0 - smoothstep(0.04, 0.16, band))*uMotion;
       c *= mix(1.0, 0.5, smoothstep(0.42, 1.05, l));
@@ -662,7 +736,7 @@ function renderStatic() {
   canvas.setAttribute('aria-label', t('aria_canvas'));
   $('hud').setAttribute('aria-label', t('aria_walk')); $('card').setAttribute('aria-label', t('aria_card')); $('strip').setAttribute('aria-label', t('aria_doors'));
   const C = NL.pick.center;
-  $('tele').innerHTML = `<span class="hide-s"><b>${C.lat.toFixed(3)}°</b> N · <b>${Math.abs(C.lon).toFixed(3)}°</b> W</span><span class="sb"><i id="sbar" style="width:40px"></i><b id="sbarT">200 ft</b></span>`;
+  $('tele').innerHTML = `<span class="hide-s lid"><i class="rec"></i>LIDAR <b>${(PT_COUNT / 1000).toFixed(0)}k</b> ${lang === 'es' ? 'puntos' : 'pts'}</span><span class="hide-s"><b>${C.lat.toFixed(3)}°</b> N · <b>${Math.abs(C.lon).toFixed(3)}°</b> W</span><span class="sb"><i id="sbar" style="width:40px"></i><b id="sbarT">200 ft</b></span>`;
   parkEl.querySelector('span').textContent = t('park');
   streetEls.forEach(({ l, el }) => { el.firstChild.textContent = l.n; });
   rimEls.forEach(({ k, el }) => { el.firstChild.textContent = t('compass')[k]; });
@@ -993,15 +1067,17 @@ document.querySelectorAll('#langseg button').forEach(b => b.addEventListener('cl
 
 // ------------------------------------------------------------------ intro timeline
 const intro = { on: !CALM, T: 0, t0: performance.now(), DUR: 4.6 };
+const SWEEP_T = 2.3;
+const HANG = HS.map(H => { const a = Math.atan2(H.c[1] - SC[1], H.c[0] - SC[0]) / (2 * Math.PI) - A0; return ((a % 1) + 2) % 1; });
 const cl01 = x => Math.max(0, Math.min(1, x));
 const easeOut = x => 1 - Math.pow(1 - x, 3);
 function introStep() {
   intro.T = (performance.now() - intro.t0) / 1000; const T = intro.T;
   { const k = easeIO(cl01(T / 4.3)); const A = INTRO, B = OVER; rig.t.lerpVectors(A.t, B.t, k); rig.az = A.az + wrapA(B.az - A.az) * k; rig.el = A.el + (B.el - A.el) * k;
     rig.dist = Math.exp(Math.log(A.dist) + (Math.log(B.dist) - Math.log(A.dist)) * k); copyPose(goal, rig); tween = null; }
-  U.uReveal.value = easeOut(cl01(T / 1.5)); U.uStreetRev.value = easeOut(cl01((T - 0.35) / 1.6)); U.uCtxRev.value = easeOut(cl01((T - 0.7) / 1.9));
-  for (let i = 0; i < N; i++) hU.uRev.value[i] = easeOut(cl01((T - (1.05 + i * 0.055)) / 0.9));
-  const dk = easeIO(cl01((T - 2.05) / 2.2)); pathU.uDraw.value = dk >= 1 ? 1e6 : dk * D.lastDoorD;
+  U.uReveal.value = easeOut(cl01(T / 1.2)); U.uSweep.value = cl01((T - 0.2) / SWEEP_T);
+  for (let i = 0; i < N; i++) hU.uRev.value[i] = easeOut(cl01((T - (0.2 + HANG[i] * SWEEP_T)) / 0.8));
+  const dk = easeIO(cl01((T - 2.4) / 2.0)); pathU.uDraw.value = dk >= 1 ? 1e6 : dk * D.lastDoorD;
   badges.forEach((el, i) => el.firstChild.classList.toggle('pre', pathU.uDraw.value < D.doorD[i] - 1));
   parkRing.material.uniforms.uAmt.value = cl01((T - 1.9) / 0.5);
   labelsEl.style.setProperty('--lo', cl01((T - 1.7) / 0.9).toFixed(3));
@@ -1009,9 +1085,10 @@ function introStep() {
   $('intro').style.opacity = T < 3.1 ? 1 : 0;
   if (T >= intro.DUR) finishIntro();
 }
+function finishIntroNow() { U.uReveal.value = 1; U.uSweep.value = 2; hU.uRev.value.fill(1); }
 function finishIntro() {
   if (!intro.on) return; intro.on = false;
-  U.uReveal.value = U.uStreetRev.value = U.uCtxRev.value = 1; hU.uRev.value.fill(1); pathU.uDraw.value = 1e6; parkRing.material.uniforms.uAmt.value = 1;
+  U.uReveal.value = U.uStreetRev.value = U.uCtxRev.value = 1; U.uSweep.value = 2; hU.uRev.value.fill(1); pathU.uDraw.value = 1e6; parkRing.material.uniforms.uAmt.value = 1;
   badges.forEach(el => el.firstChild.classList.remove('pre')); document.body.classList.add('ready'); $('intro').style.opacity = 0; labelsEl.style.setProperty('--lo', '1');
   if (HOUSE_Q) selectDoor(HOUSE_Q - 1, {});
 }
@@ -1028,6 +1105,8 @@ if (CALM) {
   setPose(INTRO); intro.t0 = performance.now();
 }
 voGoal(); vo.x = vo.gx; applyVO();
+const ptScale = () => { ptU.uScale.value = innerHeight * PR / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))); };
+ptScale(); addEventListener('resize', ptScale);
 let W0 = innerWidth, H0 = innerHeight;
 function onResize() {
   W0 = innerWidth; H0 = innerHeight; camera.aspect = W0 / H0; renderer.setSize(W0, H0, false); composer.setSize(W0, H0); bloom.resolution.set(W0, H0);
@@ -1043,10 +1122,10 @@ function frame() {
   frameN++; if (frameN === 2 && intro.on) intro.t0 = performance.now();
   const dt = Math.min(DTMAX, clock.getDelta());
   if (!STILL) simT += dt;
-  U.uTime.value = simT; holoPass.uniforms.uTime.value = simT;
+  U.uTime.value = simT; holoPass.uniforms.uTime.value = simT; U.uScanA.value = (simT / 4.2) % 1;
   if (intro.on) introStep();
   tourStep(dt);
-  if (exitAnim > 0) { exitAnim = Math.min(1, exitAnim + dt / 0.9); const k = 1 - exitAnim; U.uReveal.value = U.uStreetRev.value = U.uCtxRev.value = k; hU.uRev.value.fill(k); if (exitAnim >= 1) { exitAnim = 0; location.href = '../c/index.html'; } }
+  if (exitAnim > 0) { exitAnim = Math.min(1, exitAnim + dt / 0.9); const k = 1 - exitAnim; U.uReveal.value = k; U.uSweep.value = k * 0.999; hU.uRev.value.fill(k); if (exitAnim >= 1) { exitAnim = 0; if (RM) { finishIntroNow(); } else { intro.on = true; intro.t0 = performance.now(); setPose(INTRO); } } }
   // selection visuals
   const tgtFocus = sel >= 0 ? 1 : 0; U.uFocus.value += (tgtFocus - U.uFocus.value) * (CALM ? 1 : Math.min(1, dt * 5));
   selAnim.amt += ((sel >= 0 ? 1 : 0) - selAnim.amt) * (CALM ? 1 : Math.min(1, dt * 6));
@@ -1059,7 +1138,8 @@ function frame() {
   // camera
   stepCam(dt);
   vo.x += (vo.gx - vo.x) * (CALM ? 1 : Math.min(1, dt * 4)); applyVO(); camera.updateMatrixWorld();
-  bloom.strength = 0.42 + 0.3 * Math.min(1, Math.max(0, (rig.dist - 120) / 700));
+  ptU.uFocusD.value = rig.dist;
+  bloom.strength = 0.3 + 0.25 * Math.min(1, Math.max(0, (rig.dist - 120) / 700));
   holoPass.uniforms.uCA.value = 0.6 + 0.4 * Math.min(1, rig.dist / 700);
   const near = 1 - Math.min(1, Math.max(0, (rig.dist - 140) / 380)); U.uNear.value = near; U.uTint.value = 1 - near * 0.7; U.uBeam.value = beamK();
   labelsEl.style.setProperty('--fo', (1 - Math.min(1, Math.max(0, (360 - rig.dist) / 140))).toFixed(3));

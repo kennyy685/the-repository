@@ -39,6 +39,8 @@
   --text:#f5f2ff;--text-2:#c3bbdf;--muted:#8c84ab;--faint:#5a5376;
   --acc:#f5883a;--acc-ink:#ffa766;
   --s0:#7a5cff;--s1:#4f8bff;--s2:#22d3ee;--s3:#5ef2b0;--s4:#f7e35a;--s5:#ff9a3c;--s6:#ff3d8b;
+  --hailscale:linear-gradient(90deg,#3d6bff,#22c7f0,#f7e35a,#ffb52e,#ff7a1f,#ff4436,#ff2d6f,#f02fb4,#c43cf5);
+  --st-next:#3ff0ff;--st-done:#3ee89a;--st-skip:#8a86a6;--st-top:#c9a2ff;
   --spectrum:linear-gradient(90deg,var(--s0),var(--s1),var(--s2),var(--s3),var(--s4),var(--s5),var(--s6));
   --foil:conic-gradient(from var(--ang,0deg),#7a5cff,#4f8bff,#22d3ee,#5ef2b0,#f7e35a,#ff9a3c,#ff3d8b,#7a5cff);
   --glass:rgba(20,15,40,.5);--glass-edge:rgba(220,205,255,.16);--glass-hi:rgba(255,255,255,.22);
@@ -136,7 +138,8 @@ body.detail .zone{opacity:0!important;transform:translateX(-16px)!important;poin
 .legend{right:26px;top:74px;width:248px;text-align:right;transition:right .5s var(--ease),opacity .4s var(--ease)}
 body.detail .legend{opacity:0;pointer-events:none}
 .legend .t{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-2)}
-.legend .bar{height:8px;border-radius:4px;background:var(--spectrum);margin:8px 0 5px;box-shadow:0 0 18px rgba(170,140,255,.35)}
+
+.legend .bar{height:8px;border-radius:4px;background:var(--hailscale);margin:8px 0 5px;box-shadow:0 0 18px rgba(170,140,255,.35)}
 .legend .tk{display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--text-2)}
 .legend .s{font-size:11px;color:var(--muted);margin-top:5px}
 /* bottom strip */
@@ -244,7 +247,7 @@ body.touring .c-status{display:flex}
 .big .sub{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.35}
 .big .sub b{font-weight:500;color:var(--text-2)}
 .c-scale{margin-top:14px}
-.c-scale .rail{position:relative;height:6px;border-radius:3px;background:var(--spectrum);opacity:.9}
+.c-scale .rail{position:relative;height:6px;border-radius:3px;background:var(--hailscale);opacity:.9}
 .c-scale .dots{position:absolute;inset:0}
 .c-scale .dots i{position:absolute;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:rgba(5,3,11,.55)}
 .c-scale .mk{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--panel-solid);box-shadow:0 0 0 1.5px #fff,0 0 14px #fff;transition:left .45s var(--ease)}
@@ -266,7 +269,8 @@ body.touring .c-status{display:flex}
 .facts .dn{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
 .facts .lg{font:500 12px var(--mono);color:var(--muted)}
 .c-sp{flex:0 0 18px}
-.c-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.c-nav{display:grid;grid-template-columns:.8fr 1.4fr;gap:8px}
+.nb.nx .d{white-space:nowrap}
 .nb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--rule-2);background:rgba(255,255,255,.025);text-align:left;min-width:0;
   transition:background .15s var(--ease),border-color .15s var(--ease)}
 .nb:hover{background:rgba(255,255,255,.06);border-color:rgba(220,205,255,.35)}
@@ -283,6 +287,35 @@ kbd{font:inherit}
   .bars{height:64px}.big .num{font-size:68px}.c-why .vh{font-size:19px}.c-why li{font-size:12.5px}.c-why ul{gap:5px;margin-top:9px}.c-addr h2{font-size:23px}.c-big{margin-top:12px}.c-why{margin-top:14px}.c-addr{margin-top:14px;padding-top:12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+
+/* hail range of this walk on the absolute legend + door-state key */
+.legend{--lw:248px}
+.legend .rng{position:absolute;top:21px;height:14px;margin-left:0;border:1.5px solid #fff;border-radius:5px;box-shadow:0 0 12px rgba(255,255,255,.55);pointer-events:none}
+.legend .sts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px 10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);font:500 11px var(--sans);color:var(--text-2)}
+.legend .sts .t{width:100%;font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.legend .sts span:not(.t){display:inline-flex;align-items:center;gap:5px}
+.legend .sts i{width:10px;height:10px;border-radius:50%;border:2px solid var(--k);background:rgba(8,6,18,.8)}
+.legend .sn i{--k:var(--st-next);box-shadow:0 0 8px var(--st-next)} .legend .sd i{--k:var(--st-done);background:var(--st-done)}
+.legend .sk i{--k:var(--st-skip);border-style:dashed} .legend .s5 i{--k:var(--st-top);border-radius:2px;transform:rotate(45deg) scale(.85)}
+/* door states on 3D pins */
+.lb.s-top .pin::after{content:"";position:absolute;right:-4px;top:-4px;width:8px;height:8px;background:var(--st-top);transform:rotate(45deg);border-radius:1.5px;box-shadow:0 0 8px var(--st-top)}
+.lb.s-done .pin{--c:var(--st-done);background:color-mix(in srgb,var(--st-done) 26%,rgba(8,6,18,.85))}
+.lb.s-skip .pin{--c:var(--st-skip);border-style:dashed;color:var(--st-skip);text-decoration:line-through;opacity:.8}
+.lb.s-next .pin{--c:var(--st-next);border-width:2px;box-shadow:0 0 0 3px rgba(63,240,255,.18),0 0 20px var(--st-next)}
+.lb.s-next .pin::before{content:"";position:absolute;inset:-7px;border-radius:999px;border:1.5px solid var(--st-next);opacity:.0;animation:nxp 1.8s ease-out infinite}
+@keyframes nxp{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion:reduce){.lb.s-next .pin::before{animation:none;opacity:.5}}
+.pin{position:relative}
+.bar.nx span{color:var(--st-next)!important;font-weight:600}
+.bar.nx::before{content:"";position:absolute;left:3px;right:3px;top:-5px;height:2px;border-radius:1px;background:var(--st-next);box-shadow:0 0 8px var(--st-next)}
+.bar.v span{color:var(--st-done)} .bar.v i{box-shadow:inset 0 -3px 0 var(--st-done)}
+.bar.sk i{opacity:.22!important} .bar.sk span{color:var(--st-skip);text-decoration:line-through}
+/* the ONE next move */
+.nb.nx{background:linear-gradient(135deg,rgba(63,240,255,.16),rgba(122,92,255,.14));border-color:rgba(63,240,255,.55);box-shadow:0 0 22px rgba(63,240,255,.18)}
+.nb.nx .d{color:#dffcff;font-size:13.5px}
+.nb.nx:hover{background:linear-gradient(135deg,rgba(63,240,255,.26),rgba(122,92,255,.2))}
+.c-status{font:700 20px/1.1 var(--disp)!important;letter-spacing:-.02em;color:#dffcff!important;margin-top:12px!important}
+.c-status i{background:var(--st-next)!important;box-shadow:0 0 12px var(--st-next)!important;width:10px!important;height:10px!important}
 </style>
 </head>
 <body>
@@ -314,7 +347,7 @@ kbd{font:inherit}
 <footer class="ui strip fade" style="--d:420ms" id="strip">
   <div class="strip-h"><b id="stripT"></b><span id="stripS"></span><span class="prog" id="prog"></span></div>
   <div class="bars" id="bars"></div>
-  <div class="tourctl"><button class="glass tbtn" id="pause"></button><button class="glass tbtn" id="stop"></button></div>
+  <div class="tourctl"><button class="glass tbtn" id="pause"></button><button class="glass tbtn" id="skip"></button><button class="glass tbtn" id="stop"></button></div>
 </footer>
 
 <div class="ui hint fade" style="--d:480ms" id="hint"></div>

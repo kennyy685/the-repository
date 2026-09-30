@@ -28,7 +28,7 @@ export const S = {
   prog_done: { en: 'Walk done · {n} doors', es: 'Caminata completa · {n} puertas' },
   lg_hail: { en: 'Hail at each home, radar est.', es: 'Granizo en cada casa, est. de radar' },
   lg_door: { en: 'Door number = walk order', es: 'Número de puerta = orden de la caminata' },
-  lg_beam: { en: 'Taller light = higher score', es: 'Luz más alta = mayor puntaje' },
+  lg_beam: { en: 'Taller cube stack = higher score · color = hail', es: 'Torre de cubos más alta = mayor puntaje · color = granizo' },
   lg_top: { en: 'Top 5 doors', es: 'Las 5 mejores puertas' },
   lg_path: { en: 'Walk path from the car', es: 'Ruta a pie desde el carro' },
   lg_storm: { en: 'Storm track, {d}', es: 'Trayectoria de la tormenta, {d}' },

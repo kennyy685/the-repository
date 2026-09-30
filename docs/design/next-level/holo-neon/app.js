@@ -1,11 +1,11 @@
-// Blueprint Holo - the hologram walk. three.js r170 (vendored), no network.
+// Neon Grid - the hologram walk. three.js r170 (vendored), no network.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { prep } from './prep.js';
+import { prep, hashStr, rng } from './prep.js';
 import { S, HAIL_OBJ } from './i18n.js';
 
 // ------------------------------------------------------------------ params + state
@@ -21,7 +21,7 @@ const $ = id => document.getElementById(id);
 const t = (k, v) => { let s = (S[k] && S[k][lang]) ?? k; if (v) for (const x in v) s = s.split('{' + x + '}').join(v[x]); return s; };
 if (STILL) document.body.classList.add('still');
 
-const D = prep(NL, { R: 238 });
+const D = prep(NL, { R: 300 });
 const HS = D.houses; const N = HS.length; const R = D.R;
 const STORM = D.stormTrack ? D.stormTrack.storm : (NL.storms.find(s => s.date === NL.pick.storm_day) || NL.storms[0]);
 const ZONE = String(NL.pick.name).replace(/^[^:]*:\s*/, '');
@@ -47,33 +47,37 @@ const PR = Math.min(window.devicePixelRatio || 1, 2);
 renderer.setPixelRatio(PR);
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-renderer.setClearColor(0x01050a, 1);
+renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0x05010c, 1);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 2, 9000);
+const camera = new THREE.PerspectiveCamera(34, innerWidth / innerHeight, 2, 12000);
 const rt = new THREE.WebGLRenderTarget(innerWidth * PR, innerHeight * PR, { type: THREE.HalfFloatType, samples: 4 });
 const composer = new EffectComposer(renderer, rt);
 composer.setPixelRatio(PR); composer.setSize(innerWidth, innerHeight);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.45, 0.32);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.45, 0.3);
 composer.addPass(bloom);
 
 const col = h => new THREE.Color(h);
+// Neon Grid palette. Brand-ish: magenta grid, cyan light, knocker orange for "you / selected".
+const SUN_DIR = new THREE.Vector3(0.36, 0, -0.93).normalize(); // the sunset sits on the north horizon, behind the overview
 const U = {
   uTime: { value: STILL ? 6.0 : 0 }, uMotion: { value: MOTION }, uR: { value: R },
   uReveal: { value: CALM ? 1 : 0 }, uStreetRev: { value: CALM ? 1 : 0 }, uCtxRev: { value: CALM ? 1 : 0 },
   uFocus: { value: 0 }, uTint: { value: 1 }, uBeam: { value: 1 }, uNear: { value: 0 }, uHailMin: { value: D.hailMin }, uHailMax: { value: D.hailMax },
-  uBase: { value: col('#020a12') }, uDeep: { value: col('#1683b3') }, uDeepH: { value: col('#0b4d73') },
-  uCyan: { value: col('#5fdcff') }, uIce: { value: col('#e4fbff') }, uAmber: { value: col('#f2c14e') },
-  uOrange: { value: col('#f5883a') }, uGold: { value: col('#ffd27a') }, uRed: { value: col('#ff4f5a') },
+  uBase: { value: col('#06010d') }, uDeep: { value: col('#7a3cff') }, uDeepH: { value: col('#2a0f5c') },
+  uCyan: { value: col('#27f3ff') }, uIce: { value: col('#e9fdff') }, uAmber: { value: col('#ffb347') },
+  uOrange: { value: col('#ff8a2a') }, uGold: { value: col('#ffd27a') }, uRed: { value: col('#ff3b4f') },
+  uMag: { value: col('#ff2bd6') }, uPink: { value: col('#ff5fa8') }, uHorizon: { value: col('#ff3d8e') }, uSunset: { value: col('#ff9a3c') },
+  uSun: { value: SUN_DIR },
   // hail scale (cool -> hot): <0.75 blue, 0.9 teal, 1.0 yellow, 1.5 orange, 1.75 red, 2.0+ magenta. Same stops as hailCSS + legend.
-  uDone: { value: col('#6f8bff') },
+  uDone: { value: col('#7d8cff') },
   uH0: { value: col('#2fa8ff') }, uH1: { value: col('#2de0c0') }, uH2: { value: col('#ffe14d') }, uH3: { value: col('#ff8a2a') }, uH4: { value: col('#ff3b4f') }, uH5: { value: col('#ff3bd0') },
 };
 const GL_COMMON = /* glsl */`
-uniform float uTime, uMotion, uR, uHailMin, uHailMax, uTint, uNear;
-uniform vec3 uBase, uDeep, uDeepH, uCyan, uIce, uAmber, uOrange, uGold, uRed, uDone;
+uniform float uTime, uMotion, uR, uHailMin, uHailMax, uTint, uNear, uFocus;
+uniform vec3 uBase, uDeep, uDeepH, uCyan, uIce, uAmber, uOrange, uGold, uRed, uDone, uMag, uPink, uHorizon, uSunset, uSun;
 float lineAA(float d, float w){ float fw = fwidth(d); return 1.0 - smoothstep(w*0.5, w*0.5 + fw*1.3, abs(d)); }
 uniform vec3 uH0, uH1, uH2, uH3, uH4, uH5;
 float seg(float v, float a, float b){ return clamp((v-a)/(b-a), 0.0, 1.0); }
@@ -87,12 +91,34 @@ const mat = (vs, fs, extra = {}, o = {}) => new THREE.ShaderMaterial(Object.assi
 }, o));
 const MAXBLEND = { blending: THREE.CustomBlending, blendEquation: THREE.MaxEquation, blendEquationAlpha: THREE.MaxEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor };
 
-// ------------------------------------------------------------------ sky + table
+// ------------------------------------------------------------------ sky: synthwave sunset (gradient, striped sun on the horizon, a few stars)
 {
-  const g = new THREE.SphereGeometry(6000, 32, 16);
-  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { a: { value: col('#010307') }, b: { value: col('#03111b') }, c: { value: col('#000204') } },
+  const g = new THREE.SphereGeometry(9000, 48, 24);
+  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: U,
     vertexShader: 'varying vec3 vD; void main(){ vD = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader: 'uniform vec3 a,b,c; varying vec3 vD; void main(){ float h = normalize(vD).y; vec3 k = h > 0.0 ? mix(b, a, smoothstep(0.0, 0.5, h)) : mix(b, c, smoothstep(0.0, -0.25, h)); gl_FragColor = vec4(k, 1.0); }' });
+    fragmentShader: GL_COMMON + /* glsl */`uniform float uReveal; varying vec3 vD;
+    float h21(vec2 p){ return fract(sin(dot(p, vec2(41.3, 289.1)))*43758.5453); }
+    void main(){
+      vec3 d = normalize(vD); float h = d.y;
+      vec3 top = vec3(0.012, 0.004, 0.03), mid = vec3(0.09, 0.012, 0.16);
+      vec3 c = mix(mid, top, smoothstep(0.0, 0.42, h));
+      float toward = max(0.0, dot(normalize(vec3(d.x, 0.0, d.z)), uSun));
+      c += uHorizon*exp(-max(h, 0.0)*16.0)*(0.20 + 0.55*pow(toward, 3.0));
+      c += uSunset*exp(-max(h, 0.0)*38.0)*0.5*pow(toward, 6.0);
+      // the sun: a disc cut by widening horizontal slits toward the bottom (classic outrun)
+      vec3 sp = normalize(uSun + vec3(0.0, 0.085, 0.0));
+      float a = acos(clamp(dot(d, sp), -1.0, 1.0));
+      float R = 0.075; float sy = (h - (sp.y - R))/(2.0*R);
+      float slit = step(0.5, fract(sy*11.0 + 0.2)) + step(0.52, sy);
+      float disc = (1.0 - smoothstep(R - 0.002, R, a))*min(1.0, slit)*step(0.0, h);
+      vec3 sunC = mix(uMag, mix(uSunset, vec3(1.0, 0.92, 0.55), 0.6), smoothstep(0.0, 1.0, sy));
+      c += sunC*disc*1.25 + uPink*exp(-a*a/(R*R*2.4))*0.22*step(0.0, h);
+      // stars (static, deterministic)
+      vec2 sg = vec2(atan(d.z, d.x)*120.0, h*120.0); vec2 id = floor(sg);
+      float st = step(0.9965, h21(id))*smoothstep(0.08, 0.35, h)*(1.0 - smoothstep(0.1, 0.35, length(fract(sg) - 0.5)));
+      c += vec3(0.8, 0.85, 1.0)*st*0.7;
+      gl_FragColor = vec4(c*(0.25 + 0.75*uReveal), 1.0);
+    }` });
   const sky = new THREE.Mesh(g, m); sky.renderOrder = -20; scene.add(sky);
 }
 // hail field texture
@@ -102,74 +128,47 @@ const hailTex = (() => {
   const tx = new THREE.DataTexture(data, n, n, THREE.RGBAFormat, THREE.HalfFloatType);
   tx.magFilter = THREE.LinearFilter; tx.minFilter = THREE.LinearFilter; tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping; tx.needsUpdate = true; return tx;
 })();
+// black glass ground: glowing grid to the horizon, hail tint + contours, sunset streak on the glass
 const ground = (() => {
-  const g = new THREE.CircleGeometry(R + 36, 256); g.rotateX(-Math.PI / 2);
+  const g = new THREE.CircleGeometry(8000, 128); g.rotateX(-Math.PI / 2);
   const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, { uHail: { value: hailTex }, uHailBox: { value: new THREE.Vector3(...D.fieldBox) } }),
+    depthWrite: false,
     vertexShader: VS_WORLD, fragmentShader: GL_COMMON + /* glsl */`
     uniform float uReveal; uniform sampler2D uHail; uniform vec3 uHailBox; varying vec3 vW;
-    float grid(vec2 p, float s){ vec2 q = p/s; vec2 fw = max(fwidth(q), vec2(1e-5)); vec2 g = abs(fract(q-0.5)-0.5)/fw; return 1.0 - min(min(g.x, g.y), 1.0); }
+    float grid(vec2 p, float s, float w){ vec2 q = p/s; vec2 fw = max(fwidth(q), vec2(1e-5)); vec2 g = abs(fract(q-0.5)-0.5)/fw; return 1.0 - smoothstep(w, w + 1.0, min(g.x, g.y)); }
     void main(){
       vec2 p = vW.xz; float r = length(p);
-      float inD = 1.0 - smoothstep(uR-34.0, uR-2.0, r);
-      vec3 c = uBase*(0.7 + 0.8*(1.0 - r/uR)*step(r, uR)) + uDeep*0.018*pow(max(0.0, 1.0 - r/uR), 2.0);
-      c += uDeep*(grid(p, 10.0)*(0.055 + 0.05*uNear) + grid(p, 50.0)*0.16 + grid(p, 2.0)*0.03*uNear)*inD;
-      float rr = abs(fract(r/50.0 - 0.5) - 0.5)*50.0; c += uDeep*lineAA(rr, 0.3)*0.08*inD;
-      // hail: calm thermal tint + contour every 0.05 in
+      vec3 V = cameraPosition - vW; float cd = length(V);
+      vec3 c = uBase;
+      // grid: 10 m cells (violet) and 50 m lines (magenta); fades out into the horizon haze
+      float gfade = exp(-cd/2600.0);
+      float g10 = grid(p, 10.0, 0.0), g50 = grid(p, 50.0, 0.4);
+      c += uDeep*g10*0.05*exp(-cd/900.0) + uMag*g50*0.22*gfade;
+      // hail: a calm heat tint + a thin contour every 0.05 in, only where the sample homes are
       vec4 hf = texture2D(uHail, (p - uHailBox.xy)/uHailBox.z);
-      float hv = hf.r, hw = hf.g*inD; float rel = hailRel(hv); vec3 hc = hailCol(hv);
-      c += hc*hw*(0.018 + 0.07*rel*rel)*uTint;
+      float hv = hf.r, hw = hf.g; float rel = hailRel(hv); vec3 hc = hailCol(hv);
+      c += hc*hw*(0.03 + 0.08*rel*rel)*uTint;
       float f = (hv - 1.0)/0.05; float iso = abs(fract(f - 0.5) - 0.5)/max(fwidth(f), 1e-4);
-      c += hc*(1.0 - smoothstep(0.5, 1.5, iso))*hw*(0.22 + 0.28*rel)*mix(0.7, 1.0, uTint);
-      // rim instrument
-      float a = atan(p.y, p.x); float deg = degrees(a) + 180.0;
-      c += uCyan*lineAA(r - uR, 0.9)*1.1 + uCyan*exp(-abs(r - uR)/7.0)*0.10;
-      float b1 = step(uR+4.0, r)*step(r, uR+8.0), b2 = step(uR+4.0, r)*step(r, uR+12.5);
-      float dmin = abs(fract(deg/2.0 + 0.5) - 0.5)*2.0*0.0174533*r;
-      float dmaj = abs(fract(deg/10.0 + 0.5) - 0.5)*10.0*0.0174533*r;
-      c += uCyan*lineAA(dmin, 0.35)*b1*0.45 + uIce*lineAA(dmaj, 0.55)*b2*0.7;
-      float rot = uTime*0.012*uMotion;
-      float da = fract((a + rot)/6.2831853*48.0);
-      c += uCyan*step(uR+17.0, r)*step(r, uR+19.2)*step(da, 0.6)*0.28;
-      float ar = fract((a - rot*1.8)/6.2831853*3.0);
-      c += uIce*lineAA(r - (uR+24.5), 0.7)*step(ar, 0.3)*0.65;
-      c += uDeep*lineAA(r - (uR+33.0), 0.5)*0.55;
-      // intro wipe
-      float rv = uReveal*(uR + 80.0);
-      float vis = 1.0 - smoothstep(rv - 40.0, rv, r);
-      float front = exp(-pow((r - rv)/5.0, 2.0))*step(0.0001, uReveal)*step(uReveal, 0.9999);
-      gl_FragColor = vec4(c*vis + uIce*front*0.45, 1.0);
+      c += hc*(1.0 - smoothstep(0.5, 1.5, iso))*hw*(0.20 + 0.25*rel)*mix(0.7, 1.0, uTint);
+      // glass: the sunset reflects as a long warm streak toward the sun
+      vec2 toS = normalize(-V.xz); float al = max(0.0, dot(toS, uSun.xz));
+      c += uHorizon*pow(al, 60.0)*smoothstep(300.0, 3000.0, cd)*0.35;
+      // haze to the horizon colour
+      float tw = max(0.0, dot(normalize(-V.xz), uSun.xz));
+      vec3 hz = vec3(0.09, 0.012, 0.16) + uHorizon*(0.20 + 0.55*pow(tw, 3.0)) + uSunset*0.5*pow(tw, 6.0);
+      float fog = smoothstep(900.0, 7600.0, cd);
+      c = mix(c, hz, fog*fog*(3.0 - 2.0*fog));
+      float down = max(V.y, 0.0)/cd; float toSun = pow(max(0.0, dot(normalize(-V.xz), uSun.xz)), 2.0);
+      c += (uHorizon*0.5 + uSunset*0.25*toSun)*exp(-down*8.0)*(0.25 + 0.6*toSun);
+      // intro: the grid wipes outward from the walk
+      float rv = uReveal*uReveal*9000.0;
+      float vis = 1.0 - smoothstep(rv - 160.0, rv, r);
+      float front = exp(-pow((r - rv)/(14.0 + rv*0.01), 2.0))*step(0.0001, uReveal)*step(uReveal, 0.9999);
+      gl_FragColor = vec4(mix(mix(uBase*0.5, hz, fog), c, vis) + uMag*front*0.6, 1.0);
     }` });
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = -10; scene.add(mesh); return mesh;
 })();
-{ // plinth: the physical table under the projection
-  const g = new THREE.CylinderGeometry(R + 36, R + 31, 16, 256, 1, true); g.translate(0, -8, 0);
-  const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U), vertexShader: VS_WORLD, fragmentShader: GL_COMMON + /* glsl */`
-    uniform float uReveal; varying vec3 vW;
-    void main(){
-      float h = clamp((vW.y + 16.0)/16.0, 0.0, 1.0);
-      vec3 c = uBase*0.9*h*h;
-      c += uCyan*lineAA(vW.y + 0.6, 0.5)*0.9 + uCyan*lineAA(vW.y + 5.5, 0.25)*0.22;
-      float a = atan(vW.z, vW.x); float dd = abs(fract(degrees(a)/1.2 + 0.5) - 0.5)*1.2*0.0174533*(uR + 34.0);
-      c += uDeep*lineAA(dd, 0.22)*0.28*step(-4.8, vW.y)*step(vW.y, -1.4);
-      gl_FragColor = vec4(c*uReveal, 1.0);
-    }` });
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = -9; scene.add(mesh);
-}
-const haze = (() => { // the projection volume: faint light walls rising off the rim
-  const g = new THREE.CylinderGeometry(R + 1, R + 1, 130, 160, 1, true); g.translate(0, 65, 0);
-  const m = mat(/* glsl */`varying vec3 vW; varying vec3 vN; void main(){ vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`,
-    /* glsl */`uniform float uReveal, uHaze; varying vec3 vW; varying vec3 vN;
-    void main(){
-      vec3 V = normalize(cameraPosition - vW); float fr = 1.0 - abs(dot(normalize(vN), V));
-      float h = clamp(vW.y/130.0, 0.0, 1.0); float fall = pow(1.0 - h, 2.4);
-      float a = atan(vW.z, vW.x);
-      float st = 0.55 + 0.45*sin(a*140.0 + sin(a*31.0)*2.5)*sin(a*57.0 + 1.3);
-      float k = (0.012 + 0.16*pow(fr, 3.0))*fall*(0.7 + 0.3*st)*uHaze;
-      gl_FragColor = vec4(uCyan, k*uReveal);
-    }`, { uHaze: { value: 1 } });
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 5; scene.add(mesh); return mesh;
-})();
-
+const haze = null;
 // ------------------------------------------------------------------ ribbons (streets, path, storm)
 function ribbon(polys, y) { // polys: [{p:[[x,z]..], hw, k, u0?, us?:cumulative array}]
   const pos = [], uv = [], kk = [], idx = []; let vi = 0;
@@ -196,52 +195,77 @@ function addCentres(g) { // per-vertex ribbon centre (for view-dependent width)
 }
 const VS_RIB = /* glsl */`attribute vec2 aUV; attribute float aK; varying vec2 vUV; varying float vK; varying vec3 vW;
   void main(){ vUV = aUV; vK = aK; vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`;
-const streetsMesh = (() => {
-  const polys = D.drawStreets.map(s => ({ p: s.p, hw: s.walk ? 6.2 : (s.c <= 1 ? 7.6 : 5.4), k: s.walk ? 1 : (s.c <= 1 ? 2 : 0) }));
+const streetsMesh = (() => { // Tron roads: two curb lines of light + a faint lane, walk streets hotter
+  const polys = D.drawStreets.map(s => ({ p: s.p, hw: s.walk ? 6.4 : (s.c <= 1 ? 8.0 : 5.6), k: s.walk ? 1 : (s.c <= 1 ? 2 : 0) }));
   const m = mat(VS_RIB, /* glsl */`uniform float uStreetRev; varying vec2 vUV; varying float vK; varying vec3 vW;
     void main(){
       float av = abs(vUV.y); float fw = fwidth(vUV.y);
-      float edge = 1.0 - smoothstep(0.0, fw*1.6, abs(av - 0.8));
-      float fill = 1.0 - smoothstep(0.76, 0.8, av);
-      float cl = (1.0 - smoothstep(0.0, fw*1.6, av - 0.012));
-      float dash = cl*step(fract(vUV.x/9.0), 0.5);
-      float glow = exp(-av*av*5.0);
+      float edge = 1.0 - smoothstep(0.0, fw*1.6, abs(av - 0.86));
+      float halo = exp(-pow((av - 0.86)/0.12, 2.0));
+      float fill = 1.0 - smoothstep(0.8, 0.86, av);
+      float cl = (1.0 - smoothstep(0.0, fw*1.6, av - 0.015));
+      float dash = cl*step(fract(vUV.x/8.0), 0.45);
       vec3 c;
-      if (vK > 0.5 && vK < 1.5) c = uCyan*edge*0.62 + uDeep*fill*0.07 + uCyan*glow*0.035 + uCyan*dash*0.30;
-      else if (vK > 1.5) c = uCyan*edge*0.42 + uDeep*fill*0.05 + uCyan*dash*0.20;
-      else c = uDeep*edge*0.62 + uDeep*fill*0.03 + uDeep*dash*0.30;
+      if (vK > 0.5 && vK < 1.5) c = (uDeep*0.6 + uMag*0.4)*(edge*1.0 + halo*0.12) + uDeep*fill*0.03 + uPink*dash*0.16;
+      else if (vK > 1.5) c = uMag*(edge*0.7 + halo*0.1) + uMag*fill*0.025 + uPink*dash*0.18;
+      else c = uDeep*(edge*0.85 + halo*0.10) + uDeep*fill*0.025 + uDeep*dash*0.25;
       float r = length(vW.xz);
-      float fade = 1.0 - smoothstep(uR - 46.0, uR + 2.0, r);
+      float fade = 1.0 - smoothstep(uR - 60.0, uR + 10.0, r);
       float rv = uStreetRev*(uR + 70.0);
       float vis = 1.0 - smoothstep(rv - 24.0, rv, r);
       float front = exp(-pow((r - rv)/4.0, 2.0))*step(0.001, uStreetRev)*step(uStreetRev, 0.999);
+      c *= mix(1.0, 0.55, uFocus);
       gl_FragColor = vec4((c*vis + uIce*front*fill*0.8)*fade, 1.0);
     }`, { }, MAXBLEND);
   const mesh = new THREE.Mesh(ribbon(polys, 0.12), m); mesh.renderOrder = 1; scene.add(mesh); return mesh;
 })();
+// the walk: a ground trail (ahead = cool dashes that flow toward the next door) + a light-cycle WALL on the walked part
+// whose afterimage fades behind the head.
 const pathU = { uDraw: { value: CALM ? 1e6 : -1 }, uProg: { value: -1 }, uTour: { value: 0 }, uLen: { value: D.routeLen }, uHead: { value: -1e4 } };
 const VS_PATH = /* glsl */`attribute vec2 aUV; attribute float aK; attribute vec3 aC; varying vec2 vUV; varying float vK; varying vec3 vW;
-  void main(){ vUV = aUV; vK = aK; float s = clamp(distance(cameraPosition, aC)/420.0, 0.34, 1.0);
+  void main(){ vUV = aUV; vK = aK; float s = clamp(distance(cameraPosition, aC)/480.0, 0.4, 1.0);
     vec3 p = aC + (position - aC)*vec3(s, 1.0, s); vec4 w = modelMatrix*vec4(p,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`;
 const pathMesh = (() => {
   const m = mat(VS_PATH, /* glsl */`uniform float uDraw, uProg, uTour, uLen, uHead; varying vec2 vUV; varying vec3 vW;
     void main(){
       float d = vUV.x; if (d > uDraw) discard;
       float av = abs(vUV.y);
-      float core = exp(-av*av*9.0); float line = 1.0 - smoothstep(0.16, 0.34, av);
-      vec3 ahead = uIce*(line*0.95 + core*0.35);
-      float pl = fract((d - uTime*34.0)/120.0);
-      float pulse = smoothstep(0.0, 0.05, pl)*(1.0 - smoothstep(0.05, 0.22, pl))*uMotion*(1.0 - uTour);
-      ahead += uIce*pulse*core*0.9;
-      ahead *= mix(1.0, 0.62, uNear);
-      vec3 walked = uOrange*(line*1.15 + core*0.45)*mix(1.0, 0.75, uNear);
-      vec3 c = mix(ahead*(1.0 - 0.55*uTour), walked, step(d, uProg));
-      c += uIce*exp(-pow((d - uDraw)/6.0, 2.0))*core*1.6*step(uDraw, uLen - 1.0);
-      c += (uIce*0.6 + uOrange)*exp(-pow((d - uHead)/5.0, 2.0))*core*1.6;
+      float core = exp(-av*av*10.0); float line = 1.0 - smoothstep(0.2, 0.36, av);
+      // chevrons pointing along the walk, flowing slowly (static when still / reduced motion)
+      float x = fract((d - uTime*9.0*uMotion)/9.0)*9.0 - 4.5; float chev = 1.0 - smoothstep(0.35, 0.35 + fwidth(x)*1.5, abs(x - av*2.2));
+      vec3 ahead = uCyan*line*0.85 + uIce*core*0.55 + uIce*chev*step(av, 0.75)*0.6;
+      ahead *= mix(1.0, 0.7, uNear)*(1.0 - 0.45*uTour);
+      vec3 walked = (uMag*0.9 + uOrange*0.35)*(line*1.1 + core*0.5);
+      vec3 c = mix(ahead, walked, step(d, uProg));
+      c += uIce*exp(-pow((d - uDraw)/6.0, 2.0))*core*1.8*step(uDraw, uLen - 1.0);
+      c += vec3(1.0)*exp(-pow((d - uHead)/4.0, 2.0))*core*1.8;
       gl_FragColor = vec4(c, 1.0);
     }`, pathU, MAXBLEND);
-  const g = ribbon([{ p: D.route, hw: 2.6, k: 0, cap: 0.6 }], 0.7); addCentres(g);
+  const g = ribbon([{ p: D.route, hw: 2.4, k: 0, cap: 0.6 }], 0.7); addCentres(g);
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 3; scene.add(mesh); return mesh;
+})();
+const wallMesh = (() => { // vertical light wall along the route (x = distance along the walk, y = 0..1 height)
+  const pos = [], uv = [], idx = []; let u = 0, vi = 0; const H = 4.2; const p = D.route;
+  for (let i = 0; i + 1 < p.length; i++) {
+    const a = p[i], b = p[i + 1]; const L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 1e-3) continue;
+    pos.push(a[0], 0.2, a[1], b[0], 0.2, b[1], b[0], H, b[1], a[0], H, a[1]); uv.push(u, 0, u + L, 0, u + L, 1, u, 1);
+    idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3); vi += 4; u += L;
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('aUV', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
+  const m = mat(/* glsl */`attribute vec2 aUV; varying vec2 vUV; void main(){ vUV = aUV; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    /* glsl */`uniform float uProg, uHead, uTour; varying vec2 vUV;
+    void main(){
+      float d = vUV.x; if (d > uProg || uTour < 0.5) discard;
+      float behind = max(0.0, uHead - d);
+      float after = exp(-behind/160.0);                 // afterimage: bright at the head, settles to a low glow
+      float hgt = mix(0.22, 1.0, after);               // the wall shrinks as it cools
+      float y = vUV.y/hgt; if (y > 1.0) discard;
+      float top = exp(-pow((1.0 - y)/0.05, 2.0));
+      vec3 c = mix(uMag, uOrange, after*0.6);
+      float a = (0.10 + 0.35*after)*(1.0 - y*0.7) + top*(0.4 + 0.6*after);
+      gl_FragColor = vec4(c*a + vec3(1.0)*top*after*0.5, 1.0);
+    }`, pathU);
+  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 9; scene.add(mesh); return mesh;
 })();
 const stormMesh = (() => {
   if (!D.stormTrack || !D.stormTrack.parts.length) return null;
@@ -250,13 +274,13 @@ const stormMesh = (() => {
   const m = mat(VS_RIB, /* glsl */`uniform float uReveal; varying vec2 vUV; varying vec3 vW;
     void main(){
       float av = abs(vUV.y); float fw = fwidth(vUV.y);
-      float band = exp(-av*av*3.0)*0.045;
+      float band = exp(-av*av*3.0)*0.035;
       float cl = (1.0 - smoothstep(0.0, fw*1.5, av - 0.012))*step(fract(vUV.x/14.0), 0.55);
-      float x = fract(vUV.x/80.0)*80.0 - 40.0; float vy = vUV.y*64.0; // chevrons every 80 m, pointing along the track
+      float x = fract(vUV.x/80.0)*80.0 - 40.0; float vy = vUV.y*64.0;
       float dch = abs(x + abs(vy)*0.9);
       float chev = (1.0 - smoothstep(0.35, 0.35 + fwidth(x)*1.5, dch))*step(abs(vy), 6.5);
-      float r = length(vW.xz); float fade = (1.0 - smoothstep(uR - 30.0, uR + 26.0, r));
-      vec3 c = uAmber*(band + cl*0.30 + chev*0.35)*fade*uReveal;
+      float r = length(vW.xz); float fade = (1.0 - smoothstep(uR - 30.0, uR + 60.0, r));
+      vec3 c = uAmber*(band + cl*0.26 + chev*0.30)*fade*uReveal*mix(1.0, 0.5, uFocus);
       gl_FragColor = vec4(c, 1.0);
     }`, {}, MAXBLEND);
   const mesh = new THREE.Mesh(ribbon(polys, 0.3), m); mesh.renderOrder = 2; scene.add(mesh); return mesh;
@@ -320,94 +344,125 @@ function Builder() {
   B.winSide = (xp, zc, y, w, h, k = 1) => { B.rect([[xp, y, zc - w / 2], [xp, y, zc + w / 2], [xp, y + h, zc + w / 2], [xp, y + h, zc - w / 2]], k); };
   return B;
 }
-function buildHouse(B, H) {
-  const s = H.spec; const hw = s.w / 2, hd = s.d / 2; const S = 1.18; const zf = hd + 0.04, zb = -hd - 0.04;
-  B.set(H.c, H.yaw, H.i, s.top);
-  let x0 = -hw, x1 = hw;
-  if (s.garage === 1) { const gw = 6.4 * S; if (s.gside > 0) x1 = hw - gw * 0.5; else x0 = -hw + gw * 0.5; }
-  const mw = x1 - x0, mx = (x0 + x1) / 2;
-  B.box(x0, x1, 0, s.wall, -hd, hd, { top: false });
-  const long = mw >= s.d;
-  if (s.roof === 'hip') B.hip(x0, x1, -hd, hd, s.wall, s.rh); else B.gable(x0, x1, -hd, hd, s.wall, s.rh, long ? 'x' : 'z');
-  // windows + door (front), a few at the back and sides
-  const floors = s.wall > 5 ? 2 : 1; const fh = s.wall / floors;
-  const nW = Math.max(2, Math.round(mw / 3.6));
-  for (let f = 0; f < floors; f++) for (let k = 0; k < nW; k++) {
-    const x = x0 + (k + 0.5) * mw / nW; if (f === 0 && Math.abs(x - mx) < 1.3) continue;
-    B.win(x, f * fh + fh * 0.32, 1.15, fh * 0.42, zf); if (k % 2 === 0) B.win(x, f * fh + fh * 0.32, 1.15, fh * 0.42, zb);
+// ------------------------------------------------------------------ light-cube houses: each sample home voxelised from its era shape,
+// a stack of light cubes above the roof (height = score, colour = hail at that home), mirrored in the black glass.
+const BEAM = 16; const beamK = () => 1;
+const SMIN = Math.min(...HS.map(H => H.h.score)), SMAX = Math.max(...HS.map(H => H.h.score));
+const VOX = 1.2, TCUBE = 1.5, TGAP = 2.05;
+HS.forEach(H => { H.nT = 2 + Math.round(6 * (H.h.score - SMIN) / Math.max(1e-6, SMAX - SMIN)); H.beam = 2.4 + H.nT * TGAP; });
+function voxelize(H) {
+  const s = H.spec, S = 1.18, hw = s.w / 2, hd = s.d / 2;
+  let x0 = -hw, x1 = hw; const gw1 = 6.4 * S;
+  if (s.garage === 1) { if (s.gside > 0) x1 = hw - gw1 * 0.5; else x0 = -hw + gw1 * 0.5; }
+  const mw = x1 - x0, mx = (x0 + x1) / 2, long = mw >= s.d;
+  const boxes = [];
+  if (s.garage === 1) { const X0 = s.gside > 0 ? x1 : x0 - gw1; boxes.push({ x0: X0, x1: X0 + gw1, z0: -hd + 1, z1: hd - 0.3, wall: 2.9, rh: 1.6, ax: 'z', g: 1 }); }
+  if (s.garage === 2) { const gw = Math.min(7.2 * S, mw * 0.55), X0 = s.gside > 0 ? x1 - gw : x0; boxes.push({ x0: X0, x1: X0 + gw, z0: hd - 1.5, z1: hd + 5.2, wall: 3.0, rh: 1.8, ax: 'z', g: 1 }); }
+  boxes.unshift({ x0, x1, z0: -hd, z1: hd, wall: s.wall, rh: s.rh, ax: s.roof === 'hip' ? 'hip' : (long ? 'x' : 'z'), g: 0 });
+  const occ = (x, y, z) => {
+    if (y < 0) return 0;
+    for (const b of boxes) {
+      if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) continue;
+      if (y < b.wall) return b.g ? 3 : 1;
+      const hx = (b.x1 - b.x0) / 2, hz = (b.z1 - b.z0) / 2, cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2;
+      const fx = 1 - Math.abs(x - cx) / hx, fz = 1 - Math.abs(z - cz) / hz;
+      const f = b.ax === 'x' ? fz : b.ax === 'z' ? fx : Math.min(fz, (hx - Math.abs(x - cx)) / hz);
+      if (y < b.wall + b.rh * Math.max(0, f) + VOX * 0.3) return 2;
+    }
+    return 0;
+  };
+  let bx0 = Infinity, bx1 = -Infinity, bz0 = Infinity, bz1 = -Infinity; boxes.forEach(b => { bx0 = Math.min(bx0, b.x0); bx1 = Math.max(bx1, b.x1); bz0 = Math.min(bz0, b.z0); bz1 = Math.max(bz1, b.z1); });
+  const nx = Math.ceil((bx1 - bx0) / VOX), nz = Math.ceil((bz1 - bz0) / VOX), ny = Math.ceil((s.wall + s.rh + 1) / VOX);
+  const ox = (bx0 + bx1) / 2 - nx * VOX / 2, oz = (bz0 + bz1) / 2 - nz * VOX / 2;
+  const out = []; const floors = s.wall > 5 ? 2 : 1;
+  const r = rng(hashStr('win' + H.h.addr));
+  for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) {
+    const x = ox + (i + 0.5) * VOX, z = oz + (k + 0.5) * VOX, y = (j + 0.5) * VOX;
+    const o = occ(x, y, z); if (!o) continue;
+    const nb = [occ(x + VOX, y, z), occ(x - VOX, y, z), occ(x, y + VOX, z), occ(x, y - VOX, z) || (j === 0 ? 1 : 0), occ(x, y, z + VOX), occ(x, y, z - VOX)];
+    if (nb.every(Boolean)) continue; // interior
+    let kind = o === 2 ? 1 : 0; // 0 wall, 1 roof, 3 lit window
+    const face = !nb[4] || !nb[5] || !nb[0] || !nb[1];
+    if (o === 1 && face && nb[2] && j > 0 && (floors === 1 ? j === 1 : (j === 1 || j === 3)) && ((i + k) % 2 === 1) && r() < 0.8) kind = 3;
+    out.push([x, y, z, kind, j / Math.max(1, ny - 1), nb.map(v => !v)]);
   }
-  B.rect([[mx - 0.55, 0, zf], [mx + 0.55, 0, zf], [mx + 0.55, 2.2, zf], [mx - 0.55, 2.2, zf]], 1);
-  for (let f = 0; f < floors; f++) { B.winSide(x0 - 0.04, 0, f * fh + fh * 0.32, 1.1, fh * 0.42); B.winSide(x1 + 0.04, 0, f * fh + fh * 0.32, 1.1, fh * 0.42); }
-  if (s.garage === 1) { // attached side garage, front-gabled
-    const gw = 6.4 * S, gx0 = s.gside > 0 ? x1 : x0 - gw * 0.5 - (gw * 0.5), gx1 = gx0 + gw; const gz0 = -hd + 1, gz1 = hd - 0.3; const gwall = 2.9;
-    const X0 = s.gside > 0 ? x1 : x0 - gw, X1 = X0 + gw;
-    B.box(X0, X1, 0, gwall, gz0, gz1, { top: false }); B.gable(X0, X1, gz0, gz1, gwall, 1.5, 'z', 0.35);
-    const dz = gz1 + 0.04; B.rect([[X0 + 0.7, 0, dz], [X1 - 0.7, 0, dz], [X1 - 0.7, 2.3, dz], [X0 + 0.7, 2.3, dz]], 1);
-    for (let k = 1; k < 4; k++) B.edge([X0 + 0.7, k * 0.575, dz], [X1 - 0.7, k * 0.575, dz], 1);
-    void gx1;
-  }
-  if (s.garage === 2) { // modern: garage pushed forward on one side
-    const gw = Math.min(7.2 * S, mw * 0.55), X0 = s.gside > 0 ? x1 - gw : x0, X1 = X0 + gw; const gz0 = hd - 1.5, gz1 = hd + 5.2; const gwall = 3.0;
-    B.box(X0, X1, 0, gwall, gz0, gz1, { top: false }); B.gable(X0, X1, gz0, gz1, gwall, 1.8, 'z', 0.35);
-    const dz = gz1 + 0.04; B.rect([[X0 + 0.8, 0, dz], [X1 - 0.8, 0, dz], [X1 - 0.8, 2.3, dz], [X0 + 0.8, 2.3, dz]], 1);
-    for (let k = 1; k < 4; k++) B.edge([X0 + 0.8, k * 0.575, dz], [X1 - 0.8, k * 0.575, dz], 1);
-  }
-  if (s.porch) { // porch roof slab + posts
-    const px0 = s.garage === 2 ? (s.gside > 0 ? x0 : x0 + Math.min(7.2 * S, mw * 0.55)) : x0 + 0.3, px1 = s.garage === 2 ? (s.gside > 0 ? x1 - Math.min(7.2 * S, mw * 0.55) : x1) : x1 - 0.3;
-    const py = Math.min(2.9, s.wall * 0.92), pz = hd + 2.6;
-    B.box(px0, px1, py, py + 0.28, hd, pz);
-    [px0 + 0.2, (px0 + px1) / 2, px1 - 0.2].forEach(x => B.edge([x, 0, pz - 0.2], [x, py, pz - 0.2]));
-    B.edge([px0, 0.5, pz - 0.2], [px1, 0.5, pz - 0.2], 1);
-  }
-  if (s.chimney) { const cxp = s.gside > 0 ? x0 + 1.4 : x1 - 1.4; B.box(cxp - 0.45, cxp + 0.45, s.wall - 0.5, s.wall + s.rh + 0.9, -0.9, 0); }
+  if (s.chimney) { const cx = s.gside > 0 ? x0 + 1.4 : x1 - 1.4; const cy = Math.floor((s.wall + s.rh * 0.6) / VOX); for (let j = cy; j < cy + 2; j++) out.push([cx, (j + 0.5) * VOX, -0.45, 1, 1, null]); }
+  return { vox: out, bb: [bx0, bx1, bz0, bz1], top: ny * VOX };
 }
-const hU = { uRev: { value: new Float32Array(N).fill(CALM ? 1 : 0) }, uHov: { value: new Float32Array(N) }, uSel: { value: -1 }, uScanY: { value: -50 }, uVis: { value: new Float32Array(N) } };
-const VS_HOUSE = /* glsl */`attribute float aId; attribute float aTop; uniform float uRev[${N}]; uniform float uHov[${N}]; uniform float uVis[${N}]; uniform float uSel;
-  varying vec3 vW; varying vec3 vN; varying float vRev, vHov, vSelF, vTop, vVis;
-  void main(){ int i = int(aId + 0.5); vRev = uRev[i]; vHov = uHov[i]; vVis = uVis[i]; vSelF = abs(aId - uSel) < 0.5 ? 1.0 : 0.0; vTop = aTop;
-    vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`;
-const houseB = Builder(); HS.forEach(H => { buildHouse(houseB, H); H.bb = houseB.bb.slice(); });
+const hU = { uRev: { value: new Float32Array(N).fill(CALM ? 1 : 0) }, uHov: { value: new Float32Array(N) }, uSel: { value: -1 }, uScanY: { value: -50 }, uVis: { value: new Float32Array(N) }, uMirror: { value: 0 } };
+const houseGeo = (() => {
+  const pos = [], cen = [], fuv = [], id = [], kk = [], yy = [], hh = [], sh = []; const idx = []; let vi = 0;
+  const FACES = [ // [normal axis, sign, u axis, v axis, shade]
+    [0, 1, 2, 1, 0.8], [0, -1, 2, 1, 0.8], [1, 1, 0, 2, 1.0], [1, -1, 0, 2, 0.4], [2, 1, 0, 1, 0.9], [2, -1, 0, 1, 0.7]];
+  const cube = (Hc, yaw, lx, ly, lz, sz, i, kind, yn, hail, mask) => {
+    const cs = Math.cos(yaw), sn = Math.sin(yaw); const wx = Hc[0] + lx * cs + lz * sn, wz = Hc[1] - lx * sn + lz * cs; const h = sz / 2;
+    FACES.forEach(([ax, sg, ua, va, shade], fi) => {
+      if (mask && !mask[fi]) return;
+      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([u, v]) => {
+        const l = [0, 0, 0]; l[ax] = sg * h; l[ua] = u * h; l[va] = v * h;
+        pos.push(wx + l[0] * cs + l[2] * sn, ly + l[1], wz - l[0] * sn + l[2] * cs); cen.push(wx, ly, wz); fuv.push(u, v);
+        id.push(i); kk.push(kind); yy.push(yn); hh.push(hail); sh.push(shade);
+      });
+      idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3); vi += 4;
+    });
+  };
+  HS.forEach(H => {
+    const V = voxelize(H); H.bb = V.bb; H.spec.top = V.top; H.nVox = V.vox.length;
+    V.vox.forEach(([x, y, z, kind, yn, mask]) => cube(H.c, H.yaw, x, y, z, VOX * 0.88, H.i, kind, yn, H.h.hail, mask));
+    const cx = (V.bb[0] + V.bb[1]) / 2, cz = (V.bb[2] + V.bb[3]) / 2;
+    for (let k = 0; k < H.nT; k++) cube(H.c, H.yaw, cx, V.top + 2.4 + k * TGAP, cz, TCUBE, H.i, (k === H.nT - 1 && TOP5(H.i)) ? 5 : 2, 1 + k / 8, H.h.hail);
+  });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('aC', new THREE.Float32BufferAttribute(cen, 3));
+  g.setAttribute('aF', new THREE.Float32BufferAttribute(fuv, 2)); g.setAttribute('aId', new THREE.Float32BufferAttribute(id, 1));
+  g.setAttribute('aK', new THREE.Float32BufferAttribute(kk, 1)); g.setAttribute('aY', new THREE.Float32BufferAttribute(yy, 1));
+  g.setAttribute('aHail', new THREE.Float32BufferAttribute(hh, 1)); g.setAttribute('aS', new THREE.Float32BufferAttribute(sh, 1));
+  g.setIndex(idx); return g;
+})();
+const VS_VOX = /* glsl */`attribute vec3 aC; attribute vec2 aF; attribute float aId, aK, aY, aHail, aS;
+  uniform float uRev[${N}]; uniform float uHov[${N}]; uniform float uVis[${N}]; uniform float uSel;
+  varying vec2 vF; varying float vK, vY, vHail, vS, vHov, vSelF, vVis, vT; varying vec3 vW;
+  void main(){ int i = int(aId + 0.5); vHov = uHov[i]; vVis = uVis[i]; vSelF = abs(aId - uSel) < 0.5 ? 1.0 : 0.0;
+    vF = aF; vK = aK; vY = aY; vHail = aHail; vS = aS;
+    float t = clamp(uRev[i]*1.7 - aY*0.7, 0.0, 1.0); t = t*t*(3.0 - 2.0*t); vT = t;
+    vec3 p = aC + (position - aC)*t + vec3(0.0, (1.0 - t)*(1.0 - t)*34.0, 0.0);
+    vec4 w = modelMatrix*vec4(p, 1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`;
+const FS_VOX = /* glsl */`uniform float uScanY, uMirror; varying vec2 vF; varying float vK, vY, vHail, vS, vHov, vSelF, vVis, vT; varying vec3 vW;
+  void main(){
+    if (vT < 0.001) discard;
+    float e = max(abs(vF.x), abs(vF.y));
+    float edge = smoothstep(0.80, 0.97, e);
+    float hl = max(vHov, vSelF);
+    vec3 c; float a;
+    if (vK < 0.5) { c = mix(uCyan, uIce, hl*0.4); a = edge*0.42 + 0.035 + vSelF*0.09; }
+    else if (vK < 1.5) { c = mix(uMag, uPink, 0.2 + hl*0.4); a = edge*0.5 + 0.06 + vSelF*0.1; }
+    else if (vK < 2.5) { c = hailCol(vHail); a = edge*0.8 + 0.30; }
+    else if (vK < 3.5) { c = mix(uAmber, vec3(1.0, 0.85, 0.55), 0.3); a = 0.42 + edge*0.2; }
+    else { c = uGold; a = edge*0.9 + 0.5; }
+    c *= vS;
+    c = mix(c, uDone, vVis*(1.0 - vSelF)*0.55*step(vK, 3.5));
+    if (vK < 1.5) c = mix(c, uOrange, vSelF*0.45);
+    a *= 1.0 + vHov*0.8 + vSelF*0.25;
+    a *= mix(1.0, 0.24, uFocus*(1.0 - vSelF));
+    float sw = exp(-pow((vW.y - uScanY)/0.6, 2.0))*vSelF;
+    float arrive = (1.0 - vT)*2.0;
+    vec3 outc = c*a + uIce*(sw*1.2 + arrive*0.4);
+    if (uMirror > 0.5) outc *= 0.16*exp(vW.y/7.0);
+    gl_FragColor = vec4(outc*vT, 1.0);
+  }`;
 const houseFill = (() => {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(houseB.pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(houseB.nor, 3));
-  g.setAttribute('aId', new THREE.Float32BufferAttribute(houseB.id, 1)); g.setAttribute('aTop', new THREE.Float32BufferAttribute(houseB.top, 1));
-  const m = mat(VS_HOUSE, /* glsl */`uniform float uFocus, uScanY; varying vec3 vW; varying vec3 vN; varying float vRev, vHov, vSelF, vTop, vVis;
-    void main(){
-      float cut = vRev*(vTop + 1.5); if (vW.y > cut) discard;
-      vec3 V = normalize(cameraPosition - vW); float fr = 1.0 - abs(dot(normalize(vN), V)); fr = fr*fr;
-      float sl = 0.5 + 0.5*sin((vW.y*2.4 - uTime*1.4*uMotion)*6.2831853);
-      float scan = mix(0.66, 1.0, smoothstep(0.25, 0.75, sl));
-      float hl = max(vHov, vSelF);
-      vec3 c = mix(uDeepH, uCyan, 0.3 + 0.7*fr); c = mix(c, uIce, fr*0.45 + hl*0.3);
-      c = mix(c, mix(c, uDone, 0.6), vVis*(1.0 - vSelF)*0.55);
-      float a = (0.022 + 0.15*fr)*scan*(1.0 + vHov*1.4 + vSelF*1.0);
-      a *= mix(1.0, 0.28, uFocus*(1.0 - vSelF));
-      float be = exp(-pow((vW.y - cut)/0.4, 2.0))*step(vRev, 0.999)*step(0.001, vRev);
-      float sw = exp(-pow((vW.y - uScanY)/0.45, 2.0))*vSelF;
-      gl_FragColor = vec4(c + uIce*(be*2.0 + sw*1.4), a + be*0.7 + sw*0.45);
-    }`, hU);
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 6; scene.add(mesh); return mesh;
+  const m = mat(VS_VOX, FS_VOX, hU, { side: THREE.FrontSide }); const mesh = new THREE.Mesh(houseGeo, m); mesh.renderOrder = 6; scene.add(mesh);
+  // dark glass core: makes each light-cube solid (hides the far faces and the grid behind), pushed back so the light faces win
+  const core = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, hU), vertexShader: VS_VOX, side: THREE.FrontSide,
+    fragmentShader: 'varying float vT; void main(){ if (vT < 0.5) discard; gl_FragColor = vec4(0.02, 0.006, 0.04, 1.0); }',
+    polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 });
+  const cm = new THREE.Mesh(houseGeo, core); cm.renderOrder = 5; scene.add(cm);
+  return mesh;
 })();
-const houseEdges = (() => {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(houseB.ep, 3)); g.setAttribute('aId', new THREE.Float32BufferAttribute(houseB.eid, 1));
-  g.setAttribute('aK', new THREE.Float32BufferAttribute(houseB.ek, 1)); g.setAttribute('aTop', new THREE.Float32BufferAttribute(houseB.etop, 1));
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(upNormals(houseB.ep.length / 3), 3));
-  const m = mat(VS_HOUSE.replace('attribute float aTop;', 'attribute float aTop; attribute float aK; varying float vK;').replace('vTop = aTop;', 'vTop = aTop; vK = aK;'),
-    /* glsl */`uniform float uFocus, uScanY; varying vec3 vW; varying float vRev, vHov, vSelF, vTop, vK, vVis;
-    void main(){
-      float cut = vRev*(vTop + 1.5); if (vW.y > cut) discard;
-      float hl = max(vHov, vSelF);
-      vec3 c = mix(uCyan, uIce, 0.28 + 0.62*hl); c = mix(c, uDone, vVis*(1.0 - vSelF)*0.5);
-      float a = (vK > 0.5 ? 0.28 : 0.72)*(1.0 + vHov*0.7 + vSelF*0.4);
-      float sl = 0.5 + 0.5*sin((vW.y*2.4 - uTime*1.4*uMotion)*6.2831853); a *= mix(0.8, 1.0, sl);
-      a *= mix(1.0, 0.26, uFocus*(1.0 - vSelF));
-      float be = exp(-pow((vW.y - cut)/0.4, 2.0))*step(vRev, 0.999)*step(0.001, vRev);
-      float sw = exp(-pow((vW.y - uScanY)/0.45, 2.0))*vSelF;
-      gl_FragColor = vec4(c + uIce*sw, a + be + sw);
-    }`, hU);
-  const mesh = new THREE.LineSegments(g, m); mesh.renderOrder = 7; scene.add(mesh); return mesh;
+const houseMirror = (() => { // reflection in the black glass
+  const m = mat(VS_VOX, FS_VOX, Object.assign({}, hU, { uMirror: { value: 1 } })); const mesh = new THREE.Mesh(houseGeo, m); mesh.scale.y = -1; mesh.renderOrder = -5; scene.add(mesh); return mesh;
 })();
+const houseEdges = null;
 
 // context blocks: dim neighbours so the 25 doors read as "these ones" in a real neighbourhood
 const ctxMeshes = (() => {
@@ -422,7 +477,7 @@ const ctxMeshes = (() => {
   const er = []; D.ctx.forEach(c => { for (let i = c._e[0]; i < c._e[1]; i += 3) er.push(c.r); });
   const VS = /* glsl */`attribute float aR; attribute float aTop; varying vec3 vW; varying vec3 vN; varying float vR, vTop;
     void main(){ vR = aR; vTop = aTop; vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*viewMatrix*w; }`;
-  const FS_CUT = /* glsl */`uniform float uCtxRev, uFocus; varying vec3 vW; varying vec3 vN; varying float vR, vTop;
+  const FS_CUT = /* glsl */`uniform float uCtxRev; varying vec3 vW; varying vec3 vN; varying float vR, vTop;
     float cutH(){ return clamp((uCtxRev*(uR + 90.0) - vR)/40.0, 0.0, 1.0)*(vTop + 1.0); }`;
   const gf = new THREE.BufferGeometry();
   gf.setAttribute('position', new THREE.Float32BufferAttribute(B.pos, 3)); gf.setAttribute('normal', new THREE.Float32BufferAttribute(B.nor, 3));
@@ -455,7 +510,7 @@ const padMesh = (() => {
     varying vec2 vLoc, vHalf; varying float vHail, vRev, vHov, vSelF, vVis;
     void main(){ int i = int(aId + 0.5); vRev = uRev[i]; vHov = uHov[i]; vVis = uVis[i]; vSelF = abs(aId - uSel) < 0.5 ? 1.0 : 0.0; vLoc = aLoc; vHalf = aHalf; vHail = aHail;
       gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    /* glsl */`uniform float uFocus; varying vec2 vLoc, vHalf; varying float vHail, vRev, vHov, vSelF, vVis;
+    /* glsl */`varying vec2 vLoc, vHalf; varying float vHail, vRev, vHov, vSelF, vVis;
     void main(){
       vec2 q = abs(vLoc) - vHalf; float bd = max(q.x, q.y);
       float fw = fwidth(bd);
@@ -474,37 +529,6 @@ const padMesh = (() => {
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 2; scene.add(mesh); return mesh;
 })();
 
-// beacons: a thin light shaft from each roof up to its door number
-const BEAM = 30; const beamK = () => Math.max(0.3, Math.min(1, rig.dist / 700));
-const SMIN = Math.min(...HS.map(H => H.h.score)), SMAX = Math.max(...HS.map(H => H.h.score));
-HS.forEach(H => { H.beam = 9 + (BEAM - 9) * (H.h.score - SMIN) / Math.max(1e-6, SMAX - SMIN); });
-const beaconMesh = (() => {
-  const pos = [], base = [], corner = [], id = [], tp = [], bh = [], idx = []; let vi = 0;
-  HS.forEach(H => {
-    const b = [H.c[0], H.spec.top + 0.8, H.c[1]];
-    [[-1, 0], [1, 0], [1, 1], [-1, 1]].forEach(([x, y]) => { pos.push(...b); base.push(...b); corner.push(x, y); id.push(H.i); tp.push(TOP5(H.i) ? 1 : 0); bh.push(H.beam); });
-    idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3); vi += 4;
-  });
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('aBase', new THREE.Float32BufferAttribute(base, 3));
-  g.setAttribute('aCorner', new THREE.Float32BufferAttribute(corner, 2)); g.setAttribute('aId', new THREE.Float32BufferAttribute(id, 1)); g.setAttribute('aTop5', new THREE.Float32BufferAttribute(tp, 1)); g.setAttribute('aBH', new THREE.Float32BufferAttribute(bh, 1)); g.setIndex(idx);
-  const m = mat(/* glsl */`attribute vec3 aBase; attribute vec2 aCorner; attribute float aId; attribute float aTop5; attribute float aBH; uniform float uBeam; uniform float uRev[${N}]; uniform float uHov[${N}]; uniform float uVis[${N}]; uniform float uSel;
-    varying vec2 vC; varying float vRev, vHov, vSelF, vT5, vVis;
-    void main(){ int i = int(aId + 0.5); vRev = uRev[i]; vHov = uHov[i]; vVis = uVis[i]; vSelF = abs(aId - uSel) < 0.5 ? 1.0 : 0.0; vT5 = aTop5; vC = aCorner;
-      vec3 toC = cameraPosition - aBase; vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), toC));
-      float d = length(toC); float hw = clamp(d*0.0016, 0.3, 1.6);
-      vec3 p = aBase + right*aCorner.x*hw + vec3(0.0, aCorner.y*aBH*uBeam, 0.0);
-      gl_Position = projectionMatrix*viewMatrix*vec4(p, 1.0); }`,
-    /* glsl */`uniform float uFocus; varying vec2 vC; varying float vRev, vHov, vSelF, vT5, vVis;
-    void main(){
-      float core = exp(-vC.x*vC.x*5.0);
-      float fall = mix(1.0, 0.25, vC.y);
-      vec3 c = mix(uIce, uGold, vT5*0.85); c = mix(c, uDone, vVis*0.8*(1.0 - vSelF)); c = mix(c, uOrange, vSelF);
-      float a = core*fall*(0.8 + vHov*0.5 + vSelF*0.6)*smoothstep(0.85, 1.0, vRev);
-      a *= mix(1.0, 0.3, uFocus*(1.0 - vSelF));
-      gl_FragColor = vec4(c, a);
-    }`, hU);
-  const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 8; mesh.frustumCulled = false; scene.add(mesh); return mesh;
-})();
 
 // selection + hover rings, park marker
 function ringMesh(size, colU, extraFS) {
@@ -524,7 +548,7 @@ const selRing = ringMesh(80, U.uOrange.value, /* glsl */`
   c += uCol*exp(-r*r/(uRad*uRad*0.8))*0.06;`);
 const hovRing = ringMesh(60, U.uCyan.value, /* glsl */`c += uCol*lineAA(r - uRad, 0.4)*0.9 + uCol*exp(-pow((r - uRad)/2.5, 2.0))*0.12;`);
 const parkRing = (() => {
-  const m = ringMesh(46, U.uOrange.value, /* glsl */`
+  const m = ringMesh(46, U.uMag.value, /* glsl */`
     c += uCol*lineAA(r - 6.0, 0.6)*0.95 + uCol*lineAA(r - 9.5, 0.3)*0.5;
     float ph = fract(uTime/3.2); float pr = 6.0 + ph*14.0;
     c += uCol*lineAA(r - pr, 0.5)*(1.0 - ph)*0.8*uMotion;
@@ -532,30 +556,27 @@ const parkRing = (() => {
   m.position.set(D.park[0], 0.5, D.park[1]); m.material.uniforms.uAmt.value = CALM ? 1 : 0; return m;
 })();
 
-// ------------------------------------------------------------------ final grade: soft chromatic aberration, scanlines, vignette, grain
+// ------------------------------------------------------------------ final grade: synthwave lift, faint CRT lines, vignette (no grain, no glitch)
 const holoPass = new ShaderPass({
   uniforms: { tDiffuse: { value: null }, uRes: { value: new THREE.Vector2(innerWidth, innerHeight) }, uPR: { value: PR }, uTime: { value: 0 }, uMotion: { value: MOTION }, uCA: { value: 1 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
   fragmentShader: /* glsl */`uniform sampler2D tDiffuse; uniform vec2 uRes; uniform float uPR, uTime, uMotion, uCA; varying vec2 vUv;
-    float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)))*43758.5453); }
     void main(){
       vec2 d = vUv - 0.5; float l = length(d*vec2(uRes.x/uRes.y, 1.0));
-      vec2 off = d*(0.0022 + 0.006*l*l)*uCA;
+      vec2 off = d*(0.0012 + 0.004*l*l)*uCA;
       vec3 c; c.r = texture2D(tDiffuse, vUv + off).r; c.g = texture2D(tDiffuse, vUv).g; c.b = texture2D(tDiffuse, vUv - off).b;
       float y = gl_FragCoord.y/uPR;
-      c *= 0.955 + 0.045*sin(y*3.14159*0.72);
-      float band = fract(vUv.y*0.6 - uTime*0.05);
-      c *= 1.0 + 0.035*smoothstep(0.0, 0.04, band)*(1.0 - smoothstep(0.04, 0.16, band))*uMotion;
-      c *= mix(1.0, 0.5, smoothstep(0.42, 1.05, l));
-      c += (hash(gl_FragCoord.xy + floor(uTime*24.0)*uMotion) - 0.5)*0.012;
+      c *= 0.97 + 0.03*sin(y*3.14159*0.66);
+      c += vec3(0.035, 0.0, 0.05)*smoothstep(0.35, 1.0, vUv.y)*0.6;   // violet lift toward the sky
+      c *= mix(1.0, 0.42, smoothstep(0.45, 1.08, l));
       gl_FragColor = vec4(c, 1.0);
     }` });
 composer.addPass(holoPass);
 composer.addPass(new OutputPass());
 
 // ------------------------------------------------------------------ camera rig (target + spherical), tweened flights + critically damped springs
-const OVER = { t: new THREE.Vector3(4, 0, 12), az: -0.34, el: 0.68, dist: 660 };
-const INTRO = { t: new THREE.Vector3(0, 20, 0), az: -1.2, el: 0.34, dist: 1250 };
+const OVER = { t: new THREE.Vector3(4, 0, 22), az: -0.34, el: 0.64, dist: 590 };
+const INTRO = { t: new THREE.Vector3(0, 40, -60), az: -0.37, el: 0.05, dist: 980 };
 const rig = { t: new THREE.Vector3(), az: 0, el: 0, dist: 0 };
 const goal = { t: new THREE.Vector3(), az: 0, el: 0, dist: 0 };
 const vel = { t: new THREE.Vector3(), az: 0, el: 0, dist: 0 };
@@ -575,7 +596,7 @@ function flyTo(p, dur = 1.35) {
 function housePose(i) {
   const H = HS[i]; const fa = Math.atan2(H.f[0], H.f[1]);
   const az = OVER.az + Math.max(-0.55, Math.min(0.55, wrapA(fa - OVER.az)));
-  return { t: new THREE.Vector3(H.c[0], H.spec.top * 0.42, H.c[1]), az, el: 0.52, dist: 128 };
+  return { t: new THREE.Vector3(H.c[0], H.spec.top * 0.9, H.c[1]), az, el: 0.36, dist: 112 };
 }
 function stepCam(dt) {
   if (tween) {
@@ -695,7 +716,7 @@ function renderHud() {
       <div class="hs"><div class="hk">${t('lg_states')}</div>
         <div class="stl"><span class="s nx">${t('st_next')}</span><span class="s dn">${t('st_done')}</span><span class="s sk">${t('st_skip')}</span><span class="s tp">${t('st_top')}</span><span class="s se">${t('st_sel')}</span></div></div>
       <div class="l"><span class="bm">7</span><span>${t('lg_door')}</span></div>
-      <div class="l"><svg class="bh" viewBox="0 0 20 16" aria-hidden="true"><path d="M4 16V9M10 16V2M16 16V11" stroke="#e2fbff" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="2" r="1.6" fill="#ffd27a"/></svg><span>${t('lg_beam')}</span></div>
+      <div class="l"><svg class="bh" viewBox="0 0 20 18" aria-hidden="true"><g fill="none" stroke-width="1.3"><rect x="7" y="13" width="6" height="4" stroke="#ffe14d"/><rect x="7" y="7.5" width="6" height="4" stroke="#ffb13a"/><rect x="7" y="2" width="6" height="4" stroke="#ff8a2a"/></g></svg><span>${t('lg_beam')}</span></div>
       <div class="l"><span class="wk"></span><span>${t('lg_path')}</span></div>
       ${D.stormTrack ? `<div class="l"><span class="sm"></span><span>${t('lg_storm', { d: stormDay() })}</span></div>` : ''}
     </div>
@@ -912,7 +933,7 @@ function jumpTour(i) {
   pathU.uProg.value = tour.head; pathU.uHead.value = tour.head;
   const was = tour.on; tour.on = false; selectDoor(i, {}); tour.on = was; updateTourUI(); updateStrip();
 }
-function followPose(d) { const q = D.pointAt(d); return { t: new THREE.Vector3(q.p[0], 0, q.p[1]), az: OVER.az + 0.12, el: 0.72, dist: 330 }; }
+function followPose(d) { const q = D.pointAt(d); return { t: new THREE.Vector3(q.p[0], 0, q.p[1]), az: OVER.az + 0.12, el: 0.46, dist: 270 }; }
 function tourStep(dt) {
   if (!tour.on || tour.paused) return;
   tour.t += dt;
@@ -996,7 +1017,7 @@ const intro = { on: !CALM, T: 0, t0: performance.now(), DUR: 4.6 };
 const cl01 = x => Math.max(0, Math.min(1, x));
 const easeOut = x => 1 - Math.pow(1 - x, 3);
 function introStep() {
-  intro.T = (performance.now() - intro.t0) / 1000; const T = intro.T;
+  intro.T = Q.has('introT') ? +Q.get('introT') : (performance.now() - intro.t0) / 1000; const T = intro.T; // ?introT= freezes a frame (test hook)
   { const k = easeIO(cl01(T / 4.3)); const A = INTRO, B = OVER; rig.t.lerpVectors(A.t, B.t, k); rig.az = A.az + wrapA(B.az - A.az) * k; rig.el = A.el + (B.el - A.el) * k;
     rig.dist = Math.exp(Math.log(A.dist) + (Math.log(B.dist) - Math.log(A.dist)) * k); copyPose(goal, rig); tween = null; }
   U.uReveal.value = easeOut(cl01(T / 1.5)); U.uStreetRev.value = easeOut(cl01((T - 0.35) / 1.6)); U.uCtxRev.value = easeOut(cl01((T - 0.7) / 1.9));
@@ -1059,7 +1080,7 @@ function frame() {
   // camera
   stepCam(dt);
   vo.x += (vo.gx - vo.x) * (CALM ? 1 : Math.min(1, dt * 4)); applyVO(); camera.updateMatrixWorld();
-  bloom.strength = 0.42 + 0.3 * Math.min(1, Math.max(0, (rig.dist - 120) / 700));
+  bloom.strength = 0.45 + 0.25 * Math.min(1, Math.max(0, (rig.dist - 120) / 700));
   holoPass.uniforms.uCA.value = 0.6 + 0.4 * Math.min(1, rig.dist / 700);
   const near = 1 - Math.min(1, Math.max(0, (rig.dist - 140) / 380)); U.uNear.value = near; U.uTint.value = 1 - near * 0.7; U.uBeam.value = beamK();
   labelsEl.style.setProperty('--fo', (1 - Math.min(1, Math.max(0, (360 - rig.dist) / 140))).toFixed(3));

@@ -1,31 +1,25 @@
 <!doctype html>
 <!--
-  Direction "Blueprint Holo" - the HOLOGRAM WALK (HMP App / Aldaba). Mockup, not the live app.
-  The pick's walk (Fremont: E 12th St & E Linden Ave, Jul 1 2026 hail) is projected up from a holo-table disc:
-  real Fremont streets drawn as blueprint light, 25 SAMPLE homes as procedural Fresnel-rim holograms whose shape follows
-  the era they were built in, the walk routed door to door (rank order) on the real street graph, hail laid calmly on
-  the table as a thermal tint with contour lines, and the real Jul 1 storm track crossing the rim.
+  Direction "LiDAR Scan" - the HOLOGRAM WALK (HMP App / Aldaba). Mockup, not the live app.
+  The pick's walk (Fremont: E 12th St & E Linden Ave, Jul 1 2026 hail) rebuilt as a LiDAR point cloud (~375k seeded returns):
+  a scanner on the car at the parking spot sweeps once to paint the street (ground returns in concentric range rings, curbs,
+  neighbours, back-yard trees), the 25 SAMPLE homes are dense clouds coloured by the hail at that home (cool->hot scale),
+  per-point depth of field, points breathe a few cm, a slow rotating beam leaves an afterglow. Hail also sits calmly on the
+  ground as contour lines. Walk routed door to door (rank order) on real Fremont streets.
   Click a house: hail size + roof age in huge type first, then why this door.
-  Borrowed (and where from):
-  - Holo-table projection, rotating rim rings, floating data readouts with leader lines: Iron Man JARVIS / Minority Report
-      FUI (Territory Studio, "Avengers: Age of Ultron") https://territorystudio.com/project/avengers-age-of-ultron/
-      and Jayse Hansen's Iron Man HUD work https://jayse.tv/v2/?portfolio=hud-2-2
-  - Fresnel rim + rising scanline hologram shading: Three.js Journey "Hologram shader" (Bruno Simon)
-      https://threejs-journey.com/lessons/hologram-shader
-  - Anti-aliased grid + contour lines with fwidth(): Ben Golus, "The Best Darn Grid Shader (Yet)"
-      https://bgolus.medium.com/the-best-darn-grid-shader-yet-727f9278b9d8
+  Built on the holo-jarvis UI shell (HUD, card, tour, camera springs). Borrowed ideas:
+  - Spinning automotive LiDAR ring pattern + intensity colouring: Velodyne / Ouster sample clouds, Waymo Open Dataset viewer
+  - Per-point circle-of-confusion depth of field: Potree point renderer (Markus Schuetz) https://github.com/potree/potree
+  - Anti-aliased contour lines with fwidth(): Ben Golus, "The Best Darn Grid Shader (Yet)"
   - Hail sizes as everyday objects: NWS hail size chart https://www.weather.gov/abr/hailsize
-  - Critically damped camera springs (smooth, never overshoots): Game Programming Gems 4, 1.10 "Critically Damped Ease-In/Ease-Out Smoothing"
-  - Glass only on floating controls, text on solid panels: Apple "Meet Liquid Glass" (WWDC25) https://developer.apple.com/videos/play/wwdc2025/219/
-  - Motion on transform/opacity only, interruptible camera: Vercel Web Interface Guidelines https://vercel.com/design/guidelines
-  Data: ../shared/data.js + ../shared/data-fremont.js (Nebraska GIS street centerlines, NOAA SPC + MRMS storm, engine pick + walk,
-  Census). Homes are FAKE samples, no owner names. Context blocks on the table are generic, not data.
+  - Critically damped camera springs: Game Programming Gems 4, 1.10
+  Data: ../shared/data.js + ../shared/data-fremont.js. Homes are FAKE samples, no owner names. Neighbours and trees are generic, not data.
   three.js r170 vendored in ../shared/vendor (no network).
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aldaba Hologram Walk</title>
+<title>Aldaba LiDAR Walk</title>
 <meta name="color-scheme" content="dark">
 <style>
 @font-face{font-family:"Geist L";src:url(../shared/fonts/Geist-400.woff2) format("woff2");font-weight:400;font-display:swap}
@@ -344,6 +338,10 @@ body:not(.ready) #nm{opacity:0;pointer-events:none}
 .legend .s.sk{color:var(--st-skip);border:1px dashed var(--st-skip);text-decoration:line-through}
 .legend .s.tp{color:#fff2d6;border-color:var(--st-top);box-shadow:0 0 8px rgba(255,210,122,.3)}
 .legend .s.se{background:var(--st-sel);color:#1a0b01;border-color:var(--st-sel)}
+.lid{display:inline-flex;align-items:center;gap:6px}.lid b{color:var(--ice)}
+.rec{width:6px;height:6px;border-radius:50%;background:#ff3b4f;box-shadow:0 0 8px #ff3b4f;animation:rec 1.6s steps(2) infinite}
+@keyframes rec{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.rec{animation:none}}
 </style>
 <script type="importmap">{"imports":{"three":"../shared/vendor/three/three.module.min.js","three/addons/":"../shared/vendor/three/addons/"}}</script>
 </head>

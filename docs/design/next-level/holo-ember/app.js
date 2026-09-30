@@ -48,7 +48,7 @@ renderer.setPixelRatio(PR);
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
-renderer.setClearColor(0x01050a, 1);
+renderer.setClearColor(0x070503, 1);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 2, 9000);
@@ -64,9 +64,9 @@ const U = {
   uTime: { value: STILL ? 6.0 : 0 }, uMotion: { value: MOTION }, uR: { value: R },
   uReveal: { value: CALM ? 1 : 0 }, uStreetRev: { value: CALM ? 1 : 0 }, uCtxRev: { value: CALM ? 1 : 0 },
   uFocus: { value: 0 }, uTint: { value: 1 }, uBeam: { value: 1 }, uNear: { value: 0 }, uHailMin: { value: D.hailMin }, uHailMax: { value: D.hailMax },
-  uBase: { value: col('#020a12') }, uDeep: { value: col('#1683b3') }, uDeepH: { value: col('#0b4d73') },
-  uCyan: { value: col('#5fdcff') }, uIce: { value: col('#e4fbff') }, uAmber: { value: col('#f2c14e') },
-  uOrange: { value: col('#f5883a') }, uGold: { value: col('#ffd27a') }, uRed: { value: col('#ff4f5a') },
+  uBase: { value: col('#0b0806') }, uDeep: { value: col('#b87422') }, uDeepH: { value: col('#5a3210') },
+  uCyan: { value: col('#ffbf5e') }, uIce: { value: col('#fff0d2') }, uAmber: { value: col('#f2c14e') },
+  uOrange: { value: col('#ff7a2a') }, uGold: { value: col('#ffd98a') }, uRed: { value: col('#ff4f5a') },
   // hail scale (cool -> hot): <0.75 blue, 0.9 teal, 1.0 yellow, 1.5 orange, 1.75 red, 2.0+ magenta. Same stops as hailCSS + legend.
   uDone: { value: col('#6f8bff') },
   uH0: { value: col('#2fa8ff') }, uH1: { value: col('#2de0c0') }, uH2: { value: col('#ffe14d') }, uH3: { value: col('#ff8a2a') }, uH4: { value: col('#ff3b4f') }, uH5: { value: col('#ff3bd0') },
@@ -90,7 +90,7 @@ const MAXBLEND = { blending: THREE.CustomBlending, blendEquation: THREE.MaxEquat
 // ------------------------------------------------------------------ sky + table
 {
   const g = new THREE.SphereGeometry(6000, 32, 16);
-  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { a: { value: col('#010307') }, b: { value: col('#03111b') }, c: { value: col('#000204') } },
+  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { a: { value: col('#040302') }, b: { value: col('#1a0f06') }, c: { value: col('#020101') } },
     vertexShader: 'varying vec3 vD; void main(){ vD = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
     fragmentShader: 'uniform vec3 a,b,c; varying vec3 vD; void main(){ float h = normalize(vD).y; vec3 k = h > 0.0 ? mix(b, a, smoothstep(0.0, 0.5, h)) : mix(b, c, smoothstep(0.0, -0.25, h)); gl_FragColor = vec4(k, 1.0); }' });
   const sky = new THREE.Mesh(g, m); sky.renderOrder = -20; scene.add(sky);
@@ -506,6 +506,34 @@ const beaconMesh = (() => {
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 8; mesh.frustumCulled = false; scene.add(mesh); return mesh;
 })();
 
+// ------------------------------------------------------------------ embers: slow motes of light rising off the best doors (top 8), seeded, never flowing "worms"
+const emberMesh = (() => {
+  let sd = 0x9e3779b9; const rnd = () => { sd |= 0; sd = sd + 0x6D2B79F5 | 0; let x = Math.imul(sd ^ sd >>> 15, 1 | sd); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; };
+  const pos = [], sd4 = [], id = [];
+  HS.forEach(H => { if (H.i >= 8) return; const n = Math.round(26 - H.i * 2.2);
+    for (let k = 0; k < n; k++) { const a = rnd() * 6.2832, r = Math.sqrt(rnd()) * (H.spec.w * 0.55 + 2);
+      pos.push(H.c[0] + Math.cos(a) * r, H.spec.top * 0.7, H.c[1] + Math.sin(a) * r); sd4.push(rnd(), rnd(), rnd(), 0.6 + rnd() * 0.8); id.push(H.i); } });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('aS', new THREE.Float32BufferAttribute(sd4, 4)); g.setAttribute('aId', new THREE.Float32BufferAttribute(id, 1));
+  const m = mat(/* glsl */`attribute vec4 aS; attribute float aId; uniform float uTime, uMotion, uFocus, uEmb; uniform float uRev[${N}]; uniform float uSel; uniform float uVis[${N}];
+    varying float vA, vHot;
+    void main(){ int i = int(aId + 0.5); float sel = abs(aId - uSel) < 0.5 ? 1.0 : 0.0;
+      float ph = fract(aS.x + uTime*0.045*aS.w);
+      float rise = ph*ph*34.0 + ph*8.0;
+      vec3 p = position + vec3(sin(uTime*0.4*aS.w + aS.y*6.28)*1.4*ph, rise, cos(uTime*0.33*aS.w + aS.z*6.28)*1.4*ph);
+      vec4 mv = viewMatrix*vec4(p, 1.0);
+      float life = smoothstep(0.0, 0.12, ph)*(1.0 - smoothstep(0.55, 1.0, ph));
+      vA = life*smoothstep(0.9, 1.0, uRev[i])*mix(1.0, 0.2, uFocus*(1.0 - sel))*(1.0 - uVis[i]*0.85)*uEmb*(0.55 + 0.45*aS.z);
+      vHot = 1.0 - ph;
+      gl_PointSize = clamp((2.0 + 2.6*aS.y)*(1000.0/-mv.z)*(1.0 + sel*0.4)*${PR.toFixed(1)}, 1.8, 9.0);
+      gl_Position = projectionMatrix*mv; }`,
+    /* glsl */`varying float vA, vHot;
+    void main(){ vec2 q = gl_PointCoord - 0.5; float d = dot(q, q)*4.0; float k = exp(-d*3.2);
+      vec3 c = mix(uOrange, uGold, 0.35 + 0.5*vHot); c = mix(c, uIce, k*k*0.5);
+      gl_FragColor = vec4(c*k*vA*1.25, 1.0); }`, Object.assign({}, hU, { uEmb: { value: 1 } }));
+  const mesh = new THREE.Points(g, m); mesh.renderOrder = 9; mesh.frustumCulled = false; scene.add(mesh); return mesh;
+})();
+
 // selection + hover rings, park marker
 function ringMesh(size, colU, extraFS) {
   const g = new THREE.PlaneGeometry(size, size); g.rotateX(-Math.PI / 2);
@@ -546,6 +574,9 @@ const holoPass = new ShaderPass({
       c *= 0.955 + 0.045*sin(y*3.14159*0.72);
       float band = fract(vUv.y*0.6 - uTime*0.05);
       c *= 1.0 + 0.035*smoothstep(0.0, 0.04, band)*(1.0 - smoothstep(0.04, 0.16, band))*uMotion;
+      float lum = dot(c, vec3(0.299, 0.587, 0.114));
+      c = mix(c, c*vec3(1.06, 0.97, 0.86), smoothstep(0.02, 0.5, lum)*0.6); // warm glass
+      c += vec3(0.012, 0.008, 0.004)*(1.0 - smoothstep(0.0, 0.08, lum)); // graphite floor
       c *= mix(1.0, 0.5, smoothstep(0.42, 1.05, l));
       c += (hash(gl_FragCoord.xy + floor(uTime*24.0)*uMotion) - 0.5)*0.012;
       gl_FragColor = vec4(c, 1.0);
@@ -695,7 +726,7 @@ function renderHud() {
       <div class="hs"><div class="hk">${t('lg_states')}</div>
         <div class="stl"><span class="s nx">${t('st_next')}</span><span class="s dn">${t('st_done')}</span><span class="s sk">${t('st_skip')}</span><span class="s tp">${t('st_top')}</span><span class="s se">${t('st_sel')}</span></div></div>
       <div class="l"><span class="bm">7</span><span>${t('lg_door')}</span></div>
-      <div class="l"><svg class="bh" viewBox="0 0 20 16" aria-hidden="true"><path d="M4 16V9M10 16V2M16 16V11" stroke="#e2fbff" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="2" r="1.6" fill="#ffd27a"/></svg><span>${t('lg_beam')}</span></div>
+      <div class="l"><svg class="bh" viewBox="0 0 20 16" aria-hidden="true"><path d="M4 16V9M10 16V2M16 16V11" stroke="#fff0d2" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="2" r="1.6" fill="#ffd27a"/></svg><span>${t('lg_beam')}</span></div>
       <div class="l"><span class="wk"></span><span>${t('lg_path')}</span></div>
       ${D.stormTrack ? `<div class="l"><span class="sm"></span><span>${t('lg_storm', { d: stormDay() })}</span></div>` : ''}
     </div>

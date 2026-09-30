@@ -34,15 +34,18 @@ const S = {
   stormDay: { en: 'Storm day', es: 'Día de la tormenta' }, hailHere: { en: 'Hail here', es: 'Granizo aquí' },
   doors: { en: 'Doors', es: 'Puertas' }, best: { en: 'Best time', es: 'Mejor hora' },
   daysAgo: { en: '{d} days ago', es: 'hace {d} días' }, radar: { en: 'radar estimate', es: 'estimado de radar' },
-  walkLen: { en: '{km} km on foot', es: '{km} km a pie' }, today: { en: 'today', es: 'hoy' },
-  start: { en: 'Start walk', es: 'Empezar la ruta' }, doorsN: { en: '{n} doors', es: '{n} puertas' },
-  park: { en: 'Park at {a} & {b}', es: 'Estaciónate en {a} y {b}' }, toDoor1: { en: '{m} m to door 1', es: '{m} m a la puerta 1' },
+  walkLen: { en: '{mi} mi on foot', es: '{mi} mi a pie' }, today: { en: 'today', es: 'hoy' },
+  start: { en: 'Start walk at door 1', es: 'Empieza en la puerta 1' }, doorsN: { en: '{n} doors', es: '{n} puertas' },
+  park: { en: 'Park at {a} & {b}', es: 'Estaciónate en {a} y {b}' }, toDoor1: { en: '{m} ft to door 1', es: '{m} pies a la puerta 1' },
   sample: { en: 'Sample homes', es: 'Casas de muestra' },
   sampleTip: { en: 'Fake homes on real streets, for testing. No owner names.', es: 'Casas ficticias en calles reales, para pruebas. Sin nombres de dueños.' },
   legendT: { en: 'Hail at each home', es: 'Granizo en cada casa' },
-  legendS: { en: 'inches · radar est. {d} · lines every 0.02″', es: 'pulgadas · radar {d} · líneas cada 0.02″' },
+  legendS: { en: 'inches · radar est. {d} · this walk {lo}–{hi}″', es: 'pulgadas · radar {d} · esta ruta {lo}–{hi}″' },
+  stT: { en: 'Door colors', es: 'Colores de puerta' }, stNext: { en: 'Next', es: 'Siguiente' }, stDone: { en: 'Done', es: 'Hecha' }, stSkip: { en: 'Skipped', es: 'Saltada' }, stTop: { en: 'Top 5', es: 'Top 5' },
+  skip: { en: 'Skip door', es: 'Saltar puerta' }, knock: { en: 'Knock door {i}', es: 'Toca la puerta {i}' },
+  nextMv: { en: 'Next: door {k} · {m} ft', es: 'Sigue: puerta {k} · {m} pies' }, lastDoor: { en: 'Last door · end walk', es: 'Última puerta · terminar' },
   stripT: { en: 'Walk order', es: 'Orden de la ruta' }, stripS: { en: 'bar height = roof age · color = hail', es: 'altura = edad del techo · color = granizo' },
-  progOver: { en: '{n} doors · {km} km', es: '{n} puertas · {km} km' },
+  progOver: { en: '{n} doors · {mi} mi', es: '{n} puertas · {mi} mi' },
   progTour: { en: 'Door {i} of {n}', es: 'Puerta {i} de {n}' },
   hint: { en: 'Drag to turn · scroll to zoom · click a house for its numbers', es: 'Arrastra para girar · desplaza para acercar · haz clic en una casa para ver sus datos' },
   src: { en: 'Hail: NOAA SPC + MRMS radar · Streets: Nebraska GIS · Route + scores: Aldaba engine', es: 'Granizo: NOAA SPC + radar MRMS · Calles: Nebraska GIS · Ruta y puntajes: motor Aldaba' },
@@ -65,12 +68,12 @@ const S = {
   yes: { en: 'Yes', es: 'Sí' }, no: { en: 'No', es: 'No' }, score: { en: 'Score', es: 'Puntaje' },
   fromPrev: { en: 'From #{k}', es: 'Desde #{k}' }, fromP: { en: 'From P', es: 'Desde P' },
   doorOf: { en: 'Door {i} of {n}', es: 'Puerta {i} de {n}' },
-  legFrom: { en: '{m} m from door {k} · ~{t} min walk', es: 'A {m} m de la puerta {k} · ~{t} min a pie' },
-  legFromP: { en: '{m} m from parking · ~{t} min walk', es: 'A {m} m del estacionamiento · ~{t} min a pie' },
+  legFrom: { en: '{m} ft from door {k} · ~{t} min walk', es: 'A {m} pies de la puerta {k} · ~{t} min a pie' },
+  legFromP: { en: '{m} ft from parking · ~{t} min walk', es: 'A {m} pies del estacionamiento · ~{t} min a pie' },
   prev: { en: 'Door {k}', es: 'Puerta {k}' },
   keys: { en: 'Esc closes · ← → doors', es: 'Esc cierra · ← → puertas' },
   csrc: { en: 'hail: radar · roof: est.', es: 'granizo: radar · techo: est.' },
-  walking: { en: 'Walking to door {i} · {m} m', es: 'Caminando a la puerta {i} · {m} m' },
+  walking: { en: 'Walk to door {i} · {m} ft', es: 'Camina a la puerta {i} · {m} pies' },
   atDoor: { en: 'At door {i} of {n}', es: 'En la puerta {i} de {n}' },
   paused: { en: 'Paused at door {i}', es: 'En pausa en la puerta {i}' },
   close: { en: 'Close', es: 'Cerrar' },
@@ -100,11 +103,13 @@ const HOMES = NL.homes.slice().sort((a, b) => a.rank - b.rank);
 const N = HOMES.length;
 const HAILS = HOMES.map(h => h.hail);
 const HLO = Math.min(...HAILS), HHI = Math.max(...HAILS);
-const HMIN = Math.floor(HLO * 20 + 1e-6) / 20, HMAX = Math.max(HMIN + 0.05, Math.ceil(HHI * 20 - 1e-6) / 20); // 1.00 .. 1.25 in Fremont
+const HMIN = 0.5, HMAX = 2.5; // ABSOLUTE hail scale (inches): cool blue < 1" -> 1" yellow -> 1.5" orange -> 2"+ red/magenta, same meaning in every zone
 const hailT = h => Math.min(1, Math.max(0, (h - HMIN) / (HMAX - HMIN)));
-const SPEC_HEX = ['#7a5cff', '#4f8bff', '#22d3ee', '#5ef2b0', '#f7e35a', '#ff9a3c', '#ff3d8b'];
+const SPEC_HEX = ['#3d6bff', '#22c7f0', '#f7e35a', '#ffb52e', '#ff7a1f', '#ff4436', '#ff2d6f', '#f02fb4', '#c43cf5']; // stops every 0.25" from 0.50" to 2.50"
+const SEG = SPEC_HEX.length - 1;
+const M_FT = 3.28084, ft = m => Math.round(m * M_FT / 10) * 10, mi = m => (m / 1609.34).toFixed(1);
 const hexRgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-function specRGB(tt) { tt = Math.min(1, Math.max(0, tt)) * 6; const k = Math.min(5, Math.floor(tt)); let f = tt - k; f = f * f * (3 - 2 * f); const a = hexRgb(SPEC_HEX[k]), b = hexRgb(SPEC_HEX[k + 1]); return a.map((v, i) => Math.round(v + (b[i] - v) * f)); }
+function specRGB(tt) { tt = Math.min(1, Math.max(0, tt)) * SEG; const k = Math.min(SEG - 1, Math.floor(tt)); let f = tt - k; f = f * f * (3 - 2 * f); const a = hexRgb(SPEC_HEX[k]), b = hexRgb(SPEC_HEX[k + 1]); return a.map((v, i) => Math.round(v + (b[i] - v) * f)); }
 const specCSS = tt => `rgb(${specRGB(tt).join(',')})`;
 const CITY = NL.city || 'Fremont';
 const STORM = NL.storms.find(s => s.date === NL.pick.storm_day) || NL.storms[0];
@@ -400,8 +405,8 @@ const U = {
   uSw: { value: SWATH.length >= 3 ? SWATH.slice(0, 3).map(p => new THREE.Vector2(p[0], p[1])) : [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()] }, uSwOn: { value: SWATH.length >= 3 ? 1 : 0 },
 };
 const GLSL_COMMON = /* glsl */`
-uniform vec3 uSpec[7]; uniform float uTime; uniform float uMotion;
-vec3 spectral(float t){ t = clamp(t,0.,1.)*6.; float k = min(floor(t),5.); int i = int(k); return mix(uSpec[i], uSpec[i+1], smoothstep(0.,1.,t-k)); }
+uniform vec3 uSpec[9]; uniform float uTime; uniform float uMotion;
+vec3 spectral(float t){ t = clamp(t,0.,1.)*8.; float k = min(floor(t),7.); int i = int(k); return mix(uSpec[i], uSpec[i+1], smoothstep(0.,1.,t-k)); }
 uniform float uHMin, uHSpan;
 float hailT(float h){ return clamp((h-uHMin)/uHSpan, 0., 1.); }
 float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*.1031); p3 += dot(p3, p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }
@@ -957,7 +962,7 @@ let streetReveal = CALM ? 1 : 0;
 
 /* ---------------- state ---------------- */
 let sel = -1, hoverI = -1; const hov = new Float32Array(N); const focus = new Float32Array(N).fill(1); const reveal = new Float32Array(N).fill(CALM ? 1 : 0);
-const tour = { on: false, paused: false, i: 0, phase: 'move', t: 0, head: 0, visited: new Set() };
+const tour = { on: false, paused: false, i: 0, phase: 'move', t: 0, head: 0, visited: new Set(), skipped: new Set() };
 let introT = CALM ? 99 : 0; let ready = CALM; let stoneFor = -2, stoneA = 0;
 
 function setDetail(on) { document.body.classList.toggle('detail', on); voGoal(); }
@@ -1024,17 +1029,17 @@ function renderCard() {
   $('cRoofS').innerHTML = h.roof >= 20 ? `<b>${t('roofOld')}</b>` : h.roof >= 15 ? `<b>${t('roofNear')}</b>` : t('roofNew', { y: h.built });
   $('cMk').style.left = (s.hailT * 100).toFixed(1) + '%';
   const lo = Math.min(...HOMES.map(o => o.hail)), hi = Math.max(...HOMES.map(o => o.hail));
-  $('cTk').innerHTML = `<span>${HMIN.toFixed(2)}″</span><span>${t('scaleLo')} <b>${lo.toFixed(2)}</b> · ${t('scaleHi')} <b>${hi.toFixed(2)}</b></span><span>${HMAX.toFixed(2)}″</span>`;
+  $('cTk').innerHTML = `<span>${HMIN.toFixed(1)}″</span><span>${t('scaleLo')} <b>${lo.toFixed(2)}</b> · ${t('scaleHi')} <b>${hi.toFixed(2)}</b></span><span>${HMAX.toFixed(1)}″+</span>`;
   const W = whyParts(s); $('cWhyK').textContent = t('why');
   $('cWhy').innerHTML = `<p class="vh">${W.head}.</p><ul>${W.rows.map(r => `<li class="${r.k}"><i>${WHY_ICON[r.k]}</i><span>${r.v}</span></li>`).join('')}</ul>`;
   $('cAddr').textContent = h.addr; $('cCity').textContent = CITY + ', NE · ' + t('sampleHome').toLowerCase();
-  const legM = Math.round(LEGS[sel].len);
-  const mins = Math.max(1, Math.round(legM / 80)); // ~1.3 m/s on foot
+  const legM = ft(LEGS[sel].len);
+  const mins = Math.max(1, Math.round(LEGS[sel].len / 80)); // ~1.3 m/s on foot
   $('cFacts').innerHTML = `<span class="dn">${t('doorOf', { i: sel + 1, n: N })}</span><span class="lg">${sel ? t('legFrom', { k: sel, m: legM, t: mins }) : t('legFromP', { m: legM, t: mins })}</span>`;
   const pv = $('cPrev'), nx = $('cNext');
-  pv.disabled = sel === 0; nx.disabled = sel === N - 1;
+  pv.disabled = sel === 0; nx.disabled = sel === N - 1 && !tour.on;
   pv.innerHTML = sel > 0 ? `<span class="d">${ARW_L}${t('prev', { k: sel })}</span><small>${HS[sel - 1].h.addr}</small>` : `<span class="d">${ARW_L}${t('door')}</span><small>—</small>`;
-  nx.innerHTML = sel < N - 1 ? `<span class="d">${t('prev', { k: sel + 2 })}${ARW_R}</span><small>${HS[sel + 1].h.addr}</small>` : `<span class="d">${t('door')}${ARW_R}</span><small>—</small>`;
+  nx.innerHTML = sel < N - 1 ? `<span class="d">${t('nextMv', { k: sel + 2, m: ft(LEGS[sel + 1].len) })}${ARW_R}</span><small>${HS[sel + 1].h.addr}</small>` : `<span class="d">${t('lastDoor')}</span><small>${t('walkDone', { n: N })}</small>`;
   $('cKeys').textContent = t('keys'); $('cSrc').textContent = t('csrc');
   renderTourStatus();
 }
@@ -1043,8 +1048,8 @@ function renderTourStatus() {
   if (!tour.on) { setText(st, ''); return; }
   if (tour.done) setText(st, t('walkDone', { n: N }));
   else if (tour.paused) setText(st, t('paused', { i: tour.i + 1 }));
-  else if (tour.phase === 'move') setText(st, t('walking', { i: tour.i + 1, m: Math.round(LEGS[tour.i].len) }));
-  else setText(st, t('atDoor', { i: tour.i + 1, n: N }));
+  else if (tour.phase === 'move') setText(st, t('walking', { i: tour.i + 1, m: ft(LEGS[tour.i].len) }));
+  else setText(st, t('knock', { i: tour.i + 1 }));
 }
 
 /* ---------------- tour (auto walk, pausable) ---------------- */
@@ -1052,7 +1057,7 @@ const DWELL = 3.4;
 function legDur(i) { return RM ? 0.01 : Math.max(1.3, Math.min(3.2, LEGS[i].len / 95)); }
 function startTour(from = 0) {
   finishIntro(false);
-  tour.on = true; tour.paused = false; tour.done = false; tour.i = from; tour.phase = 'move'; tour.t = 0; tour.visited = new Set([...Array(from).keys()]);
+  tour.on = true; tour.paused = false; tour.done = false; tour.i = from; tour.phase = 'move'; tour.t = 0; tour.visited = new Set([...Array(from).keys()]); tour.skipped = new Set();
   document.body.classList.add('touring'); U.uPathDim.value = 0.32; sel = from; U.uSel.value = from; renderCard(); $('card').classList.add('on'); setDetail(true);
   if (!RM) { readRig(); camMode = 'follow'; controls.enabled = false; follow = null; for (const k in vel) vel[k] = 0; }
   updateTourUI(); updateBars(); updateBack();
@@ -1061,6 +1066,11 @@ function stopTour(toOverview = true) {
   tour.on = false; tour.paused = false; document.body.classList.remove('touring'); U.uHead.value = -1; U.uPathDim.value = 1; U.uWalker.value.w = 0;
   if (camMode === 'follow') { camMode = 'orbit'; controls.enabled = true; }
   if (toOverview) closeCard(); updateTourUI(); updateBars(); updateBack();
+}
+function skipDoor() { // mark the door you're headed to (or standing at) as skipped and move on
+  if (!tour.on || tour.done) return; tour.skipped.add(tour.i); tour.visited.delete(tour.i);
+  if (tour.i >= N - 1) { tour.done = true; renderTourStatus(); updateTourUI(); updateBars(); return; }
+  tour.i++; tour.phase = 'move'; tour.t = 0; tour.paused = false; sel = tour.i; U.uSel.value = tour.i; renderCard(); updateBars(); updateTourUI();
 }
 function togglePause() {
   if (!tour.on) return; tour.paused = !tour.paused;
@@ -1073,7 +1083,7 @@ function tourStep(dt) {
   tour.t += dt;
   if (tour.phase === 'move') {
     const L = LEGS[tour.i], u = Math.min(1, tour.t / legDur(tour.i)); tour.head = L.d0 + L.len * easeIO(u);
-    if (u >= 1) { tour.phase = 'dwell'; tour.t = 0; tour.visited.add(tour.i); sel = tour.i; U.uSel.value = tour.i; renderCard(); updateBars(); }
+    if (u >= 1) { tour.phase = 'dwell'; tour.t = 0; if (!tour.skipped.has(tour.i)) tour.visited.add(tour.i); sel = tour.i; U.uSel.value = tour.i; renderCard(); updateBars(); }
   } else if (tour.t >= DWELL) {
     if (tour.i >= N - 1) { tour.done = true; renderTourStatus(); updateTourUI(); return; }
     tour.i++; tour.phase = 'move'; tour.t = 0; sel = tour.i; U.uSel.value = tour.i; renderCard(); updateBars();
@@ -1089,8 +1099,9 @@ function tourStep(dt) {
 }
 function updateTourUI() {
   setHTML($('pause'), (tour.paused ? '<svg viewBox="0 0 14 14" fill="currentColor"><path d="M4 2.5v9l7.5-4.5z"/></svg>' : '<svg viewBox="0 0 14 14" fill="currentColor"><rect x="3" y="2.5" width="2.8" height="9" rx=".6"/><rect x="8.2" y="2.5" width="2.8" height="9" rx=".6"/></svg>') + `<span>${tour.paused ? t('resume') : t('pause')}</span>`);
+  setHTML($('skip'), `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l5 4-5 4zM11 3v8"/></svg><span>${t('skip')}</span>`);
   setHTML($('stop'), `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg><span>${t('stop')}</span>`);
-  setText($('prog'), tour.on ? t('progTour', { i: Math.min(N, tour.i + 1), n: N }) : t('progOver', { n: N, km: (routeLen / 1000).toFixed(1) }));
+  setText($('prog'), tour.on ? t('progTour', { i: Math.min(N, tour.i + 1), n: N }) : t('progOver', { n: N, mi: mi(routeLen) }));
   renderHud();
 }
 
@@ -1114,7 +1125,12 @@ function renderBars() {
   });
   updateBars();
 }
-function updateBars() { $('bars').querySelectorAll('.bar').forEach(b => { const i = +b.dataset.i; b.classList.toggle('on', i === sel); b.classList.toggle('v', tour.visited.has(i)); }); }
+function nextDoor() { if (tour.on) return tour.done ? -1 : tour.i; for (let i = 0; i < N; i++) if (!tour.visited.has(i) && !tour.skipped.has(i)) return i; return -1; }
+function updateBars() {
+  const nd = nextDoor();
+  $('bars').querySelectorAll('.bar').forEach(b => { const i = +b.dataset.i; b.classList.toggle('on', i === sel); b.classList.toggle('v', tour.visited.has(i) && i !== nd); b.classList.toggle('sk', tour.skipped.has(i)); b.classList.toggle('nx', i === nd); });
+  pins.forEach((el, i) => { el.classList.toggle('s-next', i === nd); el.classList.toggle('s-done', tour.visited.has(i) && i !== nd); el.classList.toggle('s-skip', tour.skipped.has(i)); el.classList.toggle('s-top', HOMES[i].rank <= 5); });
+}
 function updateBack() { $('backT').textContent = (sel >= 0 || tour.on) ? t('overview') : t('zones'); }
 function renderStatic() {
   document.documentElement.lang = lang; document.documentElement.dataset.lang = lang;
@@ -1128,7 +1144,7 @@ function renderStatic() {
   $('zStats').innerHTML = [
     [t('stormDay'), fmtDay(STORM.date, true), t('daysAgo', { d: STORM.days })],
     [t('hailHere'), `<span class="spec-t">${NL.pick.hail_in.toFixed(2)}″</span>`, t('radar')],
-    [t('doors'), `${N}`, t('walkLen', { km: (routeLen / 1000).toFixed(1) })],
+    [t('doors'), `${N}`, t('walkLen', { mi: mi(routeLen) })],
     [t('best'), `${bt}<small>${ap}</small>`, t('today')],
   ].map(([l, v, s]) => `<div class="stat"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
   $('zWhy').textContent = NL.pick.why[lang];
@@ -1136,14 +1152,14 @@ function renderStatic() {
   $('startN').innerHTML = `${t('doorsN', { n: N })}<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>`;
   const pn = NL.walk.pn || [];
   $('parkT').textContent = t('park', { a: pn[0] || '', b: pn[1] || '' });
-  $('parkM').textContent = t('toDoor1', { m: Math.round(LEGS[0].len) });
+  $('parkM').textContent = t('toDoor1', { m: ft(LEGS[0].len) });
   $('sampleT').textContent = t('sample'); $('sample').title = t('sampleTip');
-  $('legend').innerHTML = `<div class="t">${t('legendT')}</div><div class="bar"></div><div class="tk">${[0, 0.25, 0.5, 0.75, 1].map(f => `<span>${(HMIN + (HMAX - HMIN) * f).toFixed(2)}${f === 0 || f === 1 ? '″' : ''}</span>`).join('')}</div><div class="s">${t('legendS', { d: fmtDay(STORM.date) })}</div>`;
+  $('legend').innerHTML = `<div class="t">${t('legendT')}</div><div class="bar"></div><div class="tk">${[0, 0.25, 0.5, 0.75, 1].map(f => `<span>${(HMIN + (HMAX - HMIN) * f).toFixed(1)}${f === 1 ? '″+' : f === 0 ? '″' : ''}</span>`).join('')}</div><div class="s">${t('legendS', { d: fmtDay(STORM.date), lo: HLO.toFixed(2), hi: HHI.toFixed(2) })}</div><div class="rng" style="left:${(hailT(HLO) * 100).toFixed(1)}%;width:${Math.max(1.2, (hailT(HHI) - hailT(HLO)) * 100).toFixed(1)}%"></div><div class="sts"><span class="t">${t('stT')}</span><span class="sn"><i></i>${t('stNext')}</span><span class="sd"><i></i>${t('stDone')}</span><span class="sk"><i></i>${t('stSkip')}</span><span class="s5"><i></i>${t('stTop')}</span></div>`;
   $('stripT').textContent = t('stripT'); $('stripS').textContent = t('stripS');
   $('hint').innerHTML = `${t('hint')}<span class="src">${t('src')}</span>`;
   hqEl.innerHTML = `<i></i><span>${t('hq', { mi: (NL.pick.dist_mi || 1.4).toFixed(1) })}</span>`;
   swEl.textContent = t('swath', { d: fmtDay(STORM.date) }); coFor = -1;
-  renderBars(); updateTourUI(); updateBack(); renderCard(); if (hoverI >= 0) renderTag(hoverI);
+  renderBars(); updateBars(); updateTourUI(); updateBack(); renderCard(); if (hoverI >= 0) renderTag(hoverI);
 }
 function renderTag(i) {
   const s = HS[i]; tagEl.style.setProperty('--c', specCSS(s.hailT));
@@ -1183,7 +1199,8 @@ pins.forEach((p, i) => { p.addEventListener('mouseenter', () => setHover(i)); p.
 $('back').addEventListener('click', () => { if (tour.on) stopTour(true); else if (sel >= 0) closeCard(); else location.href = '../index.html'; });
 $('cClose').addEventListener('click', () => { if (tour.on) stopTour(true); else closeCard(); });
 $('cPrev').addEventListener('click', () => { if (sel > 0) goDoor(sel - 1); });
-$('cNext').addEventListener('click', () => { if (sel < N - 1) goDoor(sel + 1); });
+$('cNext').addEventListener('click', () => { if (sel < N - 1) goDoor(sel + 1); else if (tour.on) stopTour(true); });
+$('skip').addEventListener('click', () => skipDoor());
 $('start').addEventListener('click', () => startTour(0));
 $('pause').addEventListener('click', togglePause);
 $('stop').addEventListener('click', () => stopTour(true));
