@@ -99,6 +99,10 @@ them by doing. Ask FilthE about his ideas, his taste, the app and what he sees.
   the forms should confirm that list, since it sets the deadline on every homeowner sheet. King's pick: add it to
   the one-time legal review before the first real sale.
 
+- Port Claude's Aldaba ideas into the real HMP App (King, 2026-10-01; asked once, not answered yet): do-not-knock list
+  by address (legal record), 1-inch hail line badge per door, cancel-window clock, Money levers. King's pick: yes, the
+  do-not-knock list first. Also open: which moment amazed the coworkers most (tells what wows crews).
+
 ## Open, for the boss (only when a decision needs it; asked 2026-09-27)
 - May HMP ever call the roof check or estimate "free" / "gratis"? Until he says yes, everything says "roof check" /
   "estimate" (King, 2026-09-29). Also decides the translator word list's "free inspection" entry (still there, allow-listed). Added 2026-09-29.
