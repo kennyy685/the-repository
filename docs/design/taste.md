@@ -6,7 +6,7 @@ His reactions, in his words, newest first. Aim at "loved", never repeat "dislike
 - **2026-10-01, Claude's Aldaba** (Claude's own cut: one continuous real-Nebraska map world, 8.7 s cold open over the real
   Aug 8 storm with the ring becoming the knocker mark, 5 screens, a 1:20 self-playing film with captions, ghost cursor
   and synthesized sound, legal armor per step, sources on every number): "i showed all my coworkers and they were
-  amazed." -> docs/design/claudes-aldaba/ (https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK). First piece shown to
+  amazed." -> repo kennyy685/claudes-aldaba (https://claude.ai/artifact/9ek2812BsTUYS5WqrCJ7UK). First piece shown to
   the crew; the bar for the real app now. FilthE (2026-10-01): "they were pretty cooled out at the functions and info"
   = what won the crew was what it does + the real info, not only the looks (repeated back to him to confirm).
 - **2026-09-28, open map v3** (real Nebraska streets/towns/water, 3D home columns lit by hail size, glowing heat,
